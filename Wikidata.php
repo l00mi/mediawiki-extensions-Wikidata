@@ -10,30 +10,32 @@ if( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextension
 	if ( !defined( 'WB_EXPERIMENTAL_FEATURES' ) || !WB_EXPERIMENTAL_FEATURES ) {
 		define( 'WB_EXPERIMENTAL_FEATURES', true );
 	}
-	$wgEnableWikibaseRepo = true;
-	$wgEnableWikibaseClient = true;
+	$wmgUseWikibaseRepo = true;
+	$wmgUseWikibaseClient = true;
 }
 
-$wikidataToLoad = array(
+$wikidataDependencies = array(
 	'Diff_VERSION' => '/Diff/Diff.php',
 	'DataValues_VERSION' => '/DataValues/DataValues.php',
 	'DataTypes_VERSION' => '/DataTypes/DataTypes.php',
 	'WIKIBASE_DATAMODEL_VERSION' => '/WikibaseDataModel/WikibaseDataModel.php',
-	'WBL_VERSION' => '/Wikibase/lib/WikibaseLib.php',
-	'WB_VERSION' => '/Wikibase/repo/Wikibase.php',
-	'WBC_VERSION' => '/Wikibase/client/WikibaseClient.php',
+	'WBL_VERSION' => '/Wikibase/lib/WikibaseLib.php'
 );
 
 //Load our entry files ( if we want them )
-foreach( $wikidataToLoad as $constant => $location ) {
-	if ( !defined( $constant ) ) {
-		if( ( $constant === 'WB_VERSION' && ( !isset( $wgEnableWikibaseRepo ) || !$wgEnableWikibaseRepo ) ) ||
-			( $constant === 'WBC_VERSION' && ( !isset( $wgEnableWikibaseClient ) || !$wgEnableWikibaseClient ) )
-		) { continue; }
+if ( $wmgUseWikibaseRepo || $wmgUseWikibaseClient ) {
+	foreach( $wikidataDependencies as $constant => $location ) {
 		include_once( __DIR__ . $location );
 	}
 }
-unset( $wikidataToLoad );
+
+if ( $wmgUseWikibaseRepo ) {
+	include_once( __DIR__ . '/Wikibase/repo/Wikibase.php' );
+}
+
+if ( $wmgUseWikibaseClient ) {
+	include_once( __DIR__ . '/Wikibase/client/WikibaseClient.php' );
+}
 
 //Jenkins stuff part2
 if( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextensions-master') {
