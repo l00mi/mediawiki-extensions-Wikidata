@@ -1,20 +1,15 @@
 [submodule "WikibaseDataModel"]
 	path = WikibaseDataModel
 	url = https://gerrit.wikimedia.org/r/p/mediawiki/extensions/WikibaseDataModel.git
-	branch = master
 [submodule "Wikibase"]
 	path = Wikibase
 	url = https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Wikibase.git
-	branch = master
 [submodule "Diff"]
 	path = Diff
 	url = https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Diff.git
-	branch = master
 [submodule "DataValues"]
 	path = DataValues
 	url = https://gerrit.wikimedia.org/r/p/mediawiki/extensions/DataValues.git
-	branch = master
 [submodule "DataTypes"]
 	path = DataTypes
 	url = https://gerrit.wikimedia.org/r/p/mediawiki/extensions/DataTypes.git
-	branch = master
