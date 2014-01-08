@@ -1,0 +1,38 @@
+{
+	"name": "serialization/serialization",
+	"type": "library",
+	"description": "library defining a Serializer and a Deserializer interface and basic utilities",
+	"keywords": [
+		"serialization",
+		"deserialization",
+		"unserialization",
+		"serializer",
+		"deserializer",
+		"wikidata"
+	],
+	"homepage": "https://github.com/wmde/Serialization",
+	"license": "GPL-2.0+",
+	"authors": [
+		{
+			"name": "Jeroen De Dauw",
+			"email": "jeroendedauw@gmail.com",
+			"homepage": "http://jeroendedauw.com",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"issues": "https://bugzilla.wikimedia.org/",
+		"irc": "irc://irc.freenode.net/wikimedia-wikidata"
+	},
+	"require": {
+		"php": ">=5.3.0"
+	},
+	"autoload": {
+		"files" : [
+			"Serialization.php"
+		],
+		"classmap": [
+			"src/"
+		]
+	}
+}
