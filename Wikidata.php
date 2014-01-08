@@ -14,20 +14,8 @@ if( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextension
 	$wmgUseWikibaseClient = true;
 }
 
-$wikidataDependencies = array(
-	'Diff_VERSION' => '/Diff/Diff.php',
-	'DataValues_VERSION' => '/DataValues/DataValues.php',
-	'DataTypes_VERSION' => '/DataTypes/DataTypes.php',
-	'WIKIBASE_DATAMODEL_VERSION' => '/WikibaseDataModel/WikibaseDataModel.php',
-	'WBL_VERSION' => '/Wikibase/lib/WikibaseLib.php'
-);
-
-//Load our entry files ( if we want them )
-if ( $wmgUseWikibaseRepo || $wmgUseWikibaseClient ) {
-	foreach( $wikidataDependencies as $constant => $location ) {
-		include_once( __DIR__ . $location );
-	}
-}
+$wgEnableWikibaseRepo = $wmgUseWikibaseRepo;
+$wgEnableWikibaseClient = $wmgUseWikibaseClient;
 
 if ( $wmgUseWikibaseRepo ) {
 	include_once( __DIR__ . '/Wikibase/repo/Wikibase.php' );
