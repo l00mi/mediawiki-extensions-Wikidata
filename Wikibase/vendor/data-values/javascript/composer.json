@@ -1,0 +1,41 @@
+{
+	"name": "data-values/javascript",
+	"description": "DataValues implementation in Javascript",
+	"keywords": [
+		"datavalues",
+		"wikidata"
+	],
+	"license": "GPL-2.0+",
+	"authors": [
+		{
+			"name": "Daniel Werner",
+			"homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+		},
+		{
+			"name": "H. Snater",
+			"homepage": "http://www.snater.com"
+		},
+		{
+			"name": "Jeroen De Dauw",
+			"email": "jeroendedauw@gmail.com",
+			"homepage": "http://jeroendedauw.com"
+		}
+	],
+	"support": {
+		"issues": "https://bugzilla.wikimedia.org/",
+		"irc": "irc://irc.freenode.net/wikidata"
+	},
+	"require": {
+		"composer/installers": ">=1.0.1",
+		"data-values/interfaces": "~0.1",
+		"data-values/data-types": "0.*,>=0.1.1"
+	},
+	"autoload": {
+		"files" : [
+			"DataValuesJavascript.php"
+		],
+		"classmap": [
+			"php/src/"
+		]
+	}
+}
