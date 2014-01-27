@@ -103,6 +103,7 @@ class InstallerTest extends TestCase
             array('croogo-theme', true),
             array('drupal-module', true),
             array('elgg-plugin', true),
+            array('piwik-plugin', true),
             array('fuel-module', true),
             array('fuel-package', true),
             array('hurad-plugin', true),
@@ -122,6 +123,10 @@ class InstallerTest extends TestCase
             array('modulework-module', true),
             array('phpbb-extension', true),
             array('ppi-module', true),
+            array('shopware-backend-plugin', true),
+            array('shopware-core-plugin', true),
+            array('shopware-frontend-plugin', true),
+            array('shopware-theme', true),
             array('silverstripe-module', true),
             array('silverstripe-theme', true),
             array('symfony1-plugin', true),
@@ -130,6 +135,8 @@ class InstallerTest extends TestCase
             array('wordpress-plugin', true),
             array('wordpress-core', false),
             array('zend-library', true),
+            array('zikula-module', true),
+            array('zikula-theme', true),
         );
     }
 
@@ -171,6 +178,7 @@ class InstallerTest extends TestCase
             array('drupal-profile', 'profiles/my_module/', 'shama/my_module'),
             array('drupal-drush', 'drush/my_module/', 'shama/my_module'),
             array('elgg-plugin', 'mod/sample_plugin/', 'test/sample_plugin'),
+            array('piwik-plugin', 'plugins/sample_plugin/', 'test/sample_plugin'),
             array('fuel-module', 'fuel/app/modules/module/', 'fuel/module'),
             array('fuel-package', 'fuel/packages/orm/', 'fuel/orm'),
             array('hurad-plugin', 'Plugin/Akismet/', 'atkrad/akismet'),
@@ -194,6 +202,10 @@ class InstallerTest extends TestCase
             array('phpbb-style', 'styles/foo/', 'test/foo'),
             array('phpbb-language', 'language/foo/', 'test/foo'),
             array('ppi-module', 'modules/foo/', 'test/foo'),
+            array('shopware-backend-plugin', 'engine/Shopware/Plugins/Local/Backend/my_backend_plugin/', 'shama/my_backend_plugin'),
+            array('shopware-core-plugin', 'engine/Shopware/Plugins/Local/Core/my_core_plugin/', 'shama/my_core_plugin'),
+            array('shopware-frontend-plugin', 'engine/Shopware/Plugins/Local/Frontend/my_frontend_plugin/', 'shama/my_frontend_plugin'),
+            array('shopware-theme', 'templates/my_theme/', 'shama/my_theme'),
             array('silverstripe-module', 'my_module/', 'shama/my_module'),
             array('silverstripe-module', 'sapphire/', 'silverstripe/framework', '2.4.0'),
             array('silverstripe-module', 'framework/', 'silverstripe/framework', '3.0.0'),
@@ -208,6 +220,8 @@ class InstallerTest extends TestCase
             array('wordpress-plugin', 'wp-content/plugins/my_plugin/', 'shama/my_plugin'),
             array('wordpress-muplugin', 'wp-content/mu-plugins/my_plugin/', 'shama/my_plugin'),
             array('zend-extra', 'extras/library/zend_test/', 'shama/zend_test'),
+            array('zikula-module', 'modules/my-test_module/', 'my/test_module'),
+            array('zikula-theme', 'themes/my-test_theme/', 'my/test_theme'),
         );
     }
 
