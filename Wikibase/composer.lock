@@ -7,16 +7,16 @@
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.8",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "c87cfc35882eb50df3eef1734bfa52fbcd6c782c"
+                "reference": "8e3e734c50b8f60228baf439d5ab16c57d67f6ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/c87cfc35882eb50df3eef1734bfa52fbcd6c782c",
-                "reference": "c87cfc35882eb50df3eef1734bfa52fbcd6c782c",
+                "url": "https://api.github.com/repos/composer/installers/zipball/8e3e734c50b8f60228baf439d5ab16c57d67f6ce",
+                "reference": "8e3e734c50b8f60228baf439d5ab16c57d67f6ce",
                 "shasum": ""
             },
             "replace": {
@@ -46,20 +46,22 @@
                 {
                     "name": "Kyle Robinson Young",
                     "email": "kyle@dontkry.com",
-                    "homepage": "http://dontkry.com",
+                    "homepage": "https://github.com/shama",
                     "role": "Developer"
                 }
             ],
             "description": "A multi-framework Composer library installer",
             "homepage": "http://composer.github.com/installers/",
             "keywords": [
-                "TYPO3 CMS",
-                "TYPO3 Flow",
-                "TYPO3 Neos",
+                "Hurad",
+                "MODX Evo",
+                "OXID",
                 "agl",
+                "annotatecms",
                 "cakephp",
                 "codeigniter",
                 "concrete5",
+                "croogo",
                 "drupal",
                 "elgg",
                 "fuelphp",
@@ -67,18 +69,23 @@
                 "joomla",
                 "kohana",
                 "laravel",
-                "li3",
                 "lithium",
+                "magento",
                 "mako",
+                "mediawiki",
                 "modulework",
                 "phpbb",
+                "piwik",
                 "ppi",
+                "shopware",
                 "silverstripe",
                 "symfony",
+                "typo3",
                 "wordpress",
-                "zend"
+                "zend",
+                "zikula"
             ],
-            "time": "2013-12-24 18:04:46"
+            "time": "2014-01-27 03:45:57"
         },
         {
             "name": "data-values/common",
@@ -277,7 +284,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Creator and lead developer"
                 },
                 {
                     "name": "The Wikidata team",
@@ -387,7 +394,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Creator and lead developer"
                 },
                 {
                     "name": "Daniel Werner",

@@ -40,7 +40,7 @@ is not needed to install packages with these frameworks:
 | Croogo       | `croogo-plugin`<br>`croogo-theme`
 | Drupal       | <b>`drupal-module`<br>`drupal-theme`</b><br>`drupal-profile`<br>`drupal-drush`
 | Elgg         | `elgg-plugin`
-| FuelPHP v1.x | `fuel-module`<br>`fuel-package`
+| FuelPHP v1.x | `fuel-module`<br>`fuel-package`<br/>`fuel-theme`
 | Hurad        | `hurad-plugin`<br>`hurad-theme`
 | Joomla       | `joomla-component`<br>`joomla-module`<br>`joomla-template`<br>`joomla-plugin`<br>`joomla-library`
 | Kohana       | **`kohana-module`**
@@ -52,14 +52,17 @@ is not needed to install packages with these frameworks:
 | MediaWiki    | `mediawiki-extension`
 | OXID         | `oxid-module`
 | MODULEWork   | `modulework-module`
+| Piwik        | `piwik-plugin`
 | phpBB        | `phpbb-extension`<br>`phpbb-style`<br>`phpbb-language`
 | PPI          | **`ppi-module`**
+| shopware     | `shopware-backend-plugin`<br/>`shopware-core-plugin`<br/>`shopware-frontend-plugin`<br/>`shopware-theme`
 | SilverStripe | `silverstripe-module`<br>`silverstripe-theme`
 | symfony1     | **`symfony1-plugin`**
 | TYPO3 Flow   | `typo3-flow-package`<br>`typo3-flow-framework`<br>`typo3-flow-plugin`<br>`typo3-flow-site`<br>`typo3-flow-boilerplate`<br>`typo3-flow-build`
 | TYPO3 CMS    | `typo3-cms-extension`
 | WordPress    | <b>`wordpress-plugin`<br>`wordpress-theme`</b><br>`wordpress-muplugin`
 | Zend         | `zend-library`<br>`zend-extra`<br>`zend-module`
+| Zikula       | `zikula-module`<br>`zikula-theme`
 
 ## Example `composer.json` File
 
