@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "4a1cf771a04addd3f3edd2eb62aa1bab",
+    "hash": "fb665916a42704542bf6d3164790dee9",
     "packages": [
         {
             "name": "composer/installers",
@@ -145,16 +145,16 @@
         },
         {
             "name": "data-values/data-types",
-            "version": "0.1.1",
+            "version": "dev-0.1.1-mw1.23wmf11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataTypes.git",
-                "reference": "0206312463f3edc51fa6a3941ad8484bf7e9d671"
+                "reference": "4b97e96ed68242cccf5a302353b0c39f8b706b5d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/0206312463f3edc51fa6a3941ad8484bf7e9d671",
-                "reference": "0206312463f3edc51fa6a3941ad8484bf7e9d671",
+                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/4b97e96ed68242cccf5a302353b0c39f8b706b5d",
+                "reference": "4b97e96ed68242cccf5a302353b0c39f8b706b5d",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,7 @@
                 "datatypes",
                 "datavalues"
             ],
-            "time": "2013-12-23 11:12:37"
+            "time": "2014-01-27 21:16:13"
         },
         {
             "name": "data-values/data-values",
@@ -359,21 +359,21 @@
         },
         {
             "name": "data-values/javascript",
-            "version": "0.1.1.1",
+            "version": "dev-0.1.1.1-mw1.23wmf11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataValuesJavascript.git",
-                "reference": "392e74c421b95a66b2f459854acf760f8fdf74e1"
+                "reference": "7d8016eb91f018ba61d4c1e4ebb95384a6789caf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/392e74c421b95a66b2f459854acf760f8fdf74e1",
-                "reference": "392e74c421b95a66b2f459854acf760f8fdf74e1",
+                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/7d8016eb91f018ba61d4c1e4ebb95384a6789caf",
+                "reference": "7d8016eb91f018ba61d4c1e4ebb95384a6789caf",
                 "shasum": ""
             },
             "require": {
                 "composer/installers": ">=1.0.1",
-                "data-values/data-types": "0.*,>=0.1.1",
+                "data-values/data-types": "dev-0.1.1-mw1.23wmf11",
                 "data-values/interfaces": "~0.1"
             },
             "type": "library",
@@ -394,7 +394,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Creator and lead developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -414,7 +414,7 @@
                 "datavalues",
                 "wikidata"
             ],
-            "time": "2014-01-08 10:30:20"
+            "time": "2014-01-27 21:23:02"
         },
         {
             "name": "data-values/number",
@@ -624,20 +624,20 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.1.1",
+            "version": "dev-0.1.1-mw1.23wmf11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "e149826bc60092d1813ff57d42b892c27249104a"
+                "reference": "46dfc72363d2d06ff74eac73653701b9b174d546"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/e149826bc60092d1813ff57d42b892c27249104a",
-                "reference": "e149826bc60092d1813ff57d42b892c27249104a",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/46dfc72363d2d06ff74eac73653701b9b174d546",
+                "reference": "46dfc72363d2d06ff74eac73653701b9b174d546",
                 "shasum": ""
             },
             "require": {
-                "data-values/javascript": "~0.1.1",
+                "data-values/javascript": "dev-0.1.1.1-mw1.23wmf11",
                 "php": ">=5.3.0"
             },
             "type": "mediawiki-extension",
@@ -660,7 +660,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-01-08 10:14:42"
+            "time": "2014-01-27 21:25:31"
         },
         {
             "name": "diff/diff",
@@ -820,9 +820,11 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": [
-
-    ],
+    "stability-flags": {
+        "data-values/data-types": 20,
+        "data-values/javascript": 20,
+        "data-values/value-view": 20
+    },
     "platform": {
         "php": ">=5.3.2"
     },
