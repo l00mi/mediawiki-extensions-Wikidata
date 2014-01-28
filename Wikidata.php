@@ -25,6 +25,16 @@ if ( $wmgUseWikibaseClient ) {
 	include_once( __DIR__ . '/Wikibase/client/WikibaseClient.php' );
 }
 
+$wgExtensionCredits['wikibase'][] = array(
+	'path' => __DIR__,
+	'name' => 'Wikidata Build',
+	'author' => array(
+		'The Wikidata team', // TODO: link?
+	),
+	'url' => 'https://www.mediawiki.org/wiki/Wikidata_build',
+	'description' => 'Wikidata extensions build'
+);
+
 //Jenkins stuff part2
 if( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextensions-master') {
 	//Jenkins always loads both so no need to check if they are loaded before getting settings
