@@ -1,12 +1,13 @@
 Wikidata 'Build' Git Repository
 =========
 
-This git repo contains everything you need to deploy Wikidata (Wikibase and all of its dependencies). This repository uses git sumbodules to pull in dependencies.
+Wikidata is using a build with Wikibase and it's dependencies packaged into one git repo.
+
+This git repo contains everything you need to deploy Wikidata (Wikibase and all of its dependencies).
 
 ## Installation
 
   - Pull the Git Repository
-  - Run 'git submodule update'
 
 Add the following line to your LocalSettings.php
 ```php
@@ -16,7 +17,7 @@ This entry point in turn loads all other entry points
 
 ## Configuration
 
-Wikibase itself needs to be configured, see the below links
+Wikibase itself needs to be configured, with appropriate settings. See the below links:
 
   - https://www.mediawiki.org/wiki/Extension:Wikibase_Repository
   - https://www.mediawiki.org/wiki/Extension:Wikibase_Client
@@ -30,8 +31,16 @@ $wmgUseWikibaseRepo = true;
 $wmgUseWikibaseClient = true;
 ```
 
-## Maintanence Scripts
+## Maintenance scripts
 
-The Maintanence scripts help within this repo will not work if you do not have the environment variable **MW_INSTALL_PATH** defined.
+The Maintenance scripts help within this repo will not work if you do not have the environment variable **MW_INSTALL_PATH** defined.
 
-If you do not and can not define this variable please use the **runScript.php** maintanence script within mediawiki core (see comments in that file for instructions)
+If you do not and can not define this variable please use the **runScript.php** maintenance script within mediawiki core (see comments in that file for instructions)
+
+## Make a build
+
+Making a Wikidata build requires composer to be installed on the system. (http://getcomposer.org)
+
+  - run build.sh that is provided
+
+The script clones Wikibase, init submodules in Wikibase (easyRdf), and runs composer install to pull in dependencies of Wikibase. The vendor directory gets committed here so that composer is not needed to actually make use the build.
