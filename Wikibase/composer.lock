@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "fb665916a42704542bf6d3164790dee9",
+    "hash": "72c6394451dc78f230ac347ba6354689",
     "packages": [
         {
             "name": "composer/installers",
@@ -149,12 +149,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataTypes.git",
-                "reference": "4b97e96ed68242cccf5a302353b0c39f8b706b5d"
+                "reference": "4764951f007b52c32c7c78dd0e9ebdd673d5d9a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/4b97e96ed68242cccf5a302353b0c39f8b706b5d",
-                "reference": "4b97e96ed68242cccf5a302353b0c39f8b706b5d",
+                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/4764951f007b52c32c7c78dd0e9ebdd673d5d9a8",
+                "reference": "4764951f007b52c32c7c78dd0e9ebdd673d5d9a8",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,7 @@
                 "datatypes",
                 "datavalues"
             ],
-            "time": "2014-01-27 21:16:13"
+            "time": "2014-01-28 12:10:11"
         },
         {
             "name": "data-values/data-values",
@@ -363,12 +363,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataValuesJavascript.git",
-                "reference": "7d8016eb91f018ba61d4c1e4ebb95384a6789caf"
+                "reference": "70121e9ad22832eff39dc0fedbef10a2b2d436a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/7d8016eb91f018ba61d4c1e4ebb95384a6789caf",
-                "reference": "7d8016eb91f018ba61d4c1e4ebb95384a6789caf",
+                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/70121e9ad22832eff39dc0fedbef10a2b2d436a5",
+                "reference": "70121e9ad22832eff39dc0fedbef10a2b2d436a5",
                 "shasum": ""
             },
             "require": {
@@ -394,7 +394,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Core developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -414,7 +414,7 @@
                 "datavalues",
                 "wikidata"
             ],
-            "time": "2014-01-27 21:23:02"
+            "time": "2014-01-28 09:42:54"
         },
         {
             "name": "data-values/number",
