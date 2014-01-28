@@ -363,12 +363,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataValuesJavascript.git",
-                "reference": "70121e9ad22832eff39dc0fedbef10a2b2d436a5"
+                "reference": "9e143d7f8ee591b56a0cc4d991b48d8cc758a4b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/70121e9ad22832eff39dc0fedbef10a2b2d436a5",
-                "reference": "70121e9ad22832eff39dc0fedbef10a2b2d436a5",
+                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/9e143d7f8ee591b56a0cc4d991b48d8cc758a4b7",
+                "reference": "9e143d7f8ee591b56a0cc4d991b48d8cc758a4b7",
                 "shasum": ""
             },
             "require": {
@@ -394,7 +394,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -414,7 +414,7 @@
                 "datavalues",
                 "wikidata"
             ],
-            "time": "2014-01-28 09:42:54"
+            "time": "2014-01-28 15:08:02"
         },
         {
             "name": "data-values/number",
