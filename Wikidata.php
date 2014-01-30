@@ -4,8 +4,6 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 	die( 'Not an entry point.' );
 }
 
-include_once __DIR__ . '/vendor/autoload.php';
-
 // Jenkins stuff part1
 if ( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextensions-master') {
 	// in future, run as non-experimental
@@ -20,6 +18,8 @@ if ( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextensio
 // no magic, use wmf configs instead to control which entry points to load
 $wgEnableWikibaseRepo = false;
 $wgEnableWikibaseClient = false;
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 if ( $wmgUseWikibaseRepo ) {
 	include_once( __DIR__ . '/extensions/Wikibase/repo/Wikibase.php' );
