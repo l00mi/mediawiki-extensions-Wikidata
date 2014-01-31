@@ -1,3 +1,4 @@
+$IP/extensions/Wikidata/Wikidata.php
 $IP/extensions/Wikidata/vendor/data-values/data-types/DataTypes.php
 $IP/extensions/Wikidata/vendor/data-values/data-values/DataValues.php
 $IP/extensions/Wikidata/vendor/diff/diff/Diff.php
