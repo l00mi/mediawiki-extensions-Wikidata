@@ -19,7 +19,7 @@ if ( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextensio
 $wgEnableWikibaseRepo = false;
 $wgEnableWikibaseClient = false;
 
-require_once __DIR__ . '/vendor/autoload.php';
+include_once __DIR__ . '/vendor/autoload.php';
 
 if ( $wmgUseWikibaseRepo ) {
 	include_once( __DIR__ . '/extensions/Wikibase/repo/Wikibase.php' );

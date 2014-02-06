@@ -1,7 +1,6 @@
 {
     "require": {
         "php": ">=5.3.0",
-		"wikibase/wikibase": "dev-mw1.23-wmf11"
-    },
-	"minimum-stability" : "dev"
+        "wikibase/wikibase": "dev-master"
+    }
 }

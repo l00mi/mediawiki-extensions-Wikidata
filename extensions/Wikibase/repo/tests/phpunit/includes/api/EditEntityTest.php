@@ -4,11 +4,10 @@ namespace Wikibase\Test\Api;
 
 use Wikibase\ItemContent;
 use Wikibase\PropertyContent;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Api\EditEntity
- *
- * @since 0.1
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
@@ -52,6 +51,16 @@ class EditEntityTest extends WikibaseApiTestCase {
 			$badge = ItemContent::newEmpty();
 			$this->assertTrue( $badge->save( 'EditEntityTestQ149', null, EDIT_NEW )->isOK() );
 			self::$idMap['%Q149%'] = $badge->getEntity()->getId()->getSerialization();
+
+			$badge = ItemContent::newEmpty();
+			$this->assertTrue( $badge->save( 'EditEntityTestQ32', null, EDIT_NEW )->isOK() );
+			self::$idMap['%Q32%'] = $badge->getEntity()->getId()->getSerialization();
+
+			WikibaseRepo::getDefaultInstance()->getSettings()->setSetting( 'badgeItems', array(
+				self::$idMap['%Q42%'] => '',
+				self::$idMap['%Q149%'] => '',
+				'Q99999' => '', // Just in case we have a wrong config
+			) );
 		}
 		self::$hasSetup = true;
 	}
@@ -474,6 +483,9 @@ class EditEntityTest extends WikibaseApiTestCase {
 			'badge id is not an item id' => array( // badge id is not an item id
 				'p' => array( 'site' => 'enwiki', 'title' => 'Berlin', 'data' => '{"sitelinks":{"dewiki":{"site":"dewiki","title":"TestPage!","badges":["P2","%Q149%"]}}}' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'not-item' ) ) ),
+			'badge id is not specified' => array( // badge id is not specified
+				'p' => array( 'site' => 'enwiki', 'title' => 'Berlin', 'data' => '{"sitelinks":{"dewiki":{"site":"dewiki","title":"TestPage!","badges":["%Q149%","%Q32%"]}}}' ),
+				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'not-badge' ) ) ),
 			'badge item does not exist' => array( // badge item does not exist
 				'p' => array( 'site' => 'enwiki', 'title' => 'Berlin', 'data' => '{"sitelinks":{"dewiki":{"site":"dewiki","title":"TestPage!","badges":["Q99999","%Q149%"]}}}' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'no-such-entity' ) ) ),

@@ -8,6 +8,7 @@ It is part of the [DataValues set of libraries](https://github.com/DataValues).
 [![Build Status](https://secure.travis-ci.org/DataValues/Geo.png?branch=master)](http://travis-ci.org/DataValues/Geo)
 [![Code Coverage](https://scrutinizer-ci.com/g/DataValues/Geo/badges/coverage.png?s=bf4cfd11f3b985fd05918f395c350b376a9ce0ee)](https://scrutinizer-ci.com/g/DataValues/Geo/)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/DataValues/Geo/badges/quality-score.png?s=e695e42b53d74fc02e5cfa2aa218420f062edbd2)](https://scrutinizer-ci.com/g/DataValues/Geo/)
+[![Dependency Status](https://www.versioneye.com/php/data-values:geo/0.1.1/badge.png)](https://www.versioneye.com/php/data- values:geo/0.1.1)
 
 On [Packagist](https://packagist.org/packages/data-values/geo):
 [![Latest Stable Version](https://poser.pugx.org/data-values/geo/version.png)](https://packagist.org/packages/data-values/geo)
@@ -36,6 +37,45 @@ Get the code of this package, either via git, or some other means. Also get all 
 You can find a list of the dependencies in the "require" section of the composer.json file.
 Then take care of autoloading the classes defined in the src directory.
 
+## Library functionality
+
+#### Value objects
+
+These are simple value objects. They all implement the <code>DataValues\DataValue</code> interface.
+
+* <code>LatLongValue</code> - Object representing a geographic point specified by latitude and longitude.
+* <code>GlobeCoordinateValue</code> - Geographical coordinate with precision and globe.
+
+#### Formatters
+
+These turn value objects into string representations.
+They all implement the <code>ValueFormatters\ValueFormatter</code> interface.
+
+* <code>GeoCoordinateFormatter</code> - Formats a LatLongValue into float, decimal minute,
+decimal degree or degree minute second notation. Both directional and non-directional notation
+are supported. Directional labels, latitude-longitude separator and precision can be specified.
+* <code>GlobeCoordinateFormatter</code> - Formats a GlobeCoordinateValue.
+
+#### Parsers
+
+These turn string representations into value objects.
+They all implement the <code>ValueParsers\ValueParser</code> interface.
+
+Simple parsers:
+
+* <code>DdCoordinateParser</code> - Parses decimal degree coordinates into LatLongValue objects.
+* <code>DmCoordinateParser</code> - Parses decimal minute coordinates into LatLongValue objects.
+* <code>DmsCoordinateParser</code> - Parses degree minute second coordinates into LatLongValue objects.
+* <code>FloatCoordinateParser</code> - Parses float coordinates into LatLongValue objects.
+
+Composite parsers:
+
+* <code>GeoCoordinateParser</code> - Facade for DdCoordinateParser, DmCoordinateParser, DmsCoordinateParser
+and FloatCoordinateParser. Parses a coordinate in any of the notations supported by these parsers
+into a LatLongValue object. Both directional and non-directional notation are supported. Directional
+labels and the latitude-longitude separator can be specified.
+* <code>GlobeCoordinateParser</code> - Parses coordinates into GlobeCoordinateValue objects.
+
 ## Tests
 
 This library comes with a set up PHPUnit tests that cover all non-trivial code. You can run these
@@ -53,6 +93,10 @@ It is based upon and contains a lot of code written by [Jeroen De Dauw]
 
 ## Release notes
 
+### 0.1.2 (2014-01-22)
+
+* Added support for different levels of spacing in GeoCoordinateFormatter
+
 ### 0.1.1 (2013-11-30)
 
 * Added support for direction notation to GeoCoordinateFormatter
@@ -63,9 +107,8 @@ It is based upon and contains a lot of code written by [Jeroen De Dauw]
 
 Initial release with these features:
 
-* GeoCoordinateValue
-* GlobeCoordinateValue
 * LatLongValue
+* GlobeCoordinateValue
 * GeoCoordinateFormatter
 * GlobeCoordinateFormatter
 * DdCoordinateParser

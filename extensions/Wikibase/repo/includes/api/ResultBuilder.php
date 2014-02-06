@@ -6,15 +6,15 @@ use ApiResult;
 use InvalidArgumentException;
 use Revision;
 use Status;
-use Wikibase\Claim;
-use Wikibase\Claims;
+use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Reference;
 use Wikibase\EntityRevision;
 use Wikibase\EntityTitleLookup;
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\SerializerFactory;
-use Wikibase\Reference;
 
 /**
  * Builder for Api Results
@@ -57,19 +57,14 @@ class ResultBuilder {
 	 * @param SerializerFactory $serializerFactory
 	 *
 	 * @throws InvalidArgumentException
-	 * @todo require SerializerFactory
 	 */
 	public function __construct(
 		$result,
 		EntityTitleLookup $entityTitleLookup,
-		SerializerFactory $serializerFactory = null
+		SerializerFactory $serializerFactory
 	) {
 		if( !$result instanceof ApiResult ){
 			throw new InvalidArgumentException( 'Result builder must be constructed with an ApiWikibase' );
-		}
-
-		if ( $serializerFactory === null ) {
-			$serializerFactory = new SerializerFactory();
 		}
 
 		$this->result = $result;
@@ -283,7 +278,7 @@ class ResultBuilder {
 
 			//FIXME: $props should be used to filter $entitySerialization!
 			// as in, $entitySerialization = array_intersect_key( $entitySerialization, array_flip( $props ) )
-			$entitySerializer = $this->serializerFactory->newSerializerForObject( $entity, $options );
+			$entitySerializer = $this->serializerFactory->newSerializerForObject( $entity, $serializerOptions );
 			$entitySerialization = $entitySerializer->getSerialized( $entity );
 
 			$record = array_merge( $record, $entitySerialization );

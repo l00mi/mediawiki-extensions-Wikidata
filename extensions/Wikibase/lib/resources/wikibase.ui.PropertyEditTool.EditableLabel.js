@@ -1,12 +1,9 @@
 /**
- * JavaScript for managing editable representation of item labels.
- * @see https://www.mediawiki.org/wiki/Extension:Wikibase
- *
  * @licence GNU GPL v2+
  * @author Daniel Werner
  * @author Tobias Gritschacher
  */
-( function( mw, wb, $ ) {
+( function( mw, wb, util, $ ) {
 'use strict';
 
 var PARENT = wb.ui.PropertyEditTool.EditableValue;
@@ -17,7 +14,7 @@ var PARENT = wb.ui.PropertyEditTool.EditableValue;
  * @extends wb.ui.PropertyEditTool.EditableValue
  * @since 0.1
  */
-var SELF = wb.ui.PropertyEditTool.EditableLabel = wb.utilities.inherit( PARENT, {
+var SELF = wb.ui.PropertyEditTool.EditableLabel = util.inherit( PARENT, {
 	/**
 	 * @see wikibase.ui.PropertyEditTool.EditableValue.API_VALUE_KEY
 	 */
@@ -82,14 +79,27 @@ SELF.newFromDom = function( subject, options, toolbar ) {
 	var ev = wb.ui.PropertyEditTool.EditableValue,
 		$subject = $( subject ),
 		$interfaceParent = $subject.find( '.wb-value' ).first(),
-		simpleInterface = new ev.Interface( $interfaceParent, {
-			'inputPlaceholder': mw.msg( 'wikibase-label-edit-placeholder' ),
-			'autoExpand': false
-		} );
+		languageName, placeHolderMsg, simpleInterface;
 
 	options = options || {};
 	options.valueLanguageContext =
 		options.valueLanguageContext || ev.getValueLanguageContextFromDom( $interfaceParent );
+
+	languageName = wb.getLanguageNameByCode( options.valueLanguageContext );
+
+	if ( languageName ) {
+		placeHolderMsg = mw.msg(
+			'wikibase-label-edit-placeholder-language-aware',
+			languageName
+		);
+	} else {
+		placeHolderMsg = mw.msg( 'wikibase-label-edit-placeholder' );
+	}
+
+	simpleInterface = new ev.Interface( $interfaceParent, {
+		'inputPlaceholder': placeHolderMsg,
+		'autoExpand': false
+	} );
 
 	// TODO: get rid of this
 	simpleInterface.normalize = function( value ) {
@@ -102,4 +112,4 @@ SELF.newFromDom = function( subject, options, toolbar ) {
 	return new SELF( $subject, options, simpleInterface, toolbar );
 };
 
-}( mediaWiki, wikibase, jQuery ) );
+}( mediaWiki, wikibase, util, jQuery ) );

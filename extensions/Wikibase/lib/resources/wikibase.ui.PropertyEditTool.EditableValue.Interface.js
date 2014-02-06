@@ -1,10 +1,9 @@
 /**
- *
  * @licence GNU GPL v2+
  * @author Daniel Werner < daniel.werner@wikimedia.de >
  * @author H. Snater <mediawiki@snater.com>
  */
-( function( mw, wb, $ ) {
+( function( mw, wb, util, $ ) {
 'use strict';
 /* jshint camelcase: false */
 
@@ -36,7 +35,7 @@ var PARENT = wb.ui.Base;
  * @option autoExpand {boolean} When true, automatically expands width of input element according
  *         to containing text.
  */
-wb.ui.PropertyEditTool.EditableValue.Interface = wb.utilities.inherit( PARENT, {
+wb.ui.PropertyEditTool.EditableValue.Interface = util.inherit( PARENT, {
 	/**
 	 * @const
 	 * Class which marks the element within the site html.
@@ -156,7 +155,7 @@ wb.ui.PropertyEditTool.EditableValue.Interface = wb.utilities.inherit( PARENT, {
 			var evCls = wb.ui.PropertyEditTool.EditableValue.prototype.UI_CLASS,
 				petCls = wb.ui.PropertyEditTool.prototype.UI_CLASS;
 
-			this._inputElem.inputAutoExpand( {
+			this._inputElem.inputautoexpand( {
 				maxWidth: $.proxy( function() {
 					var editableValNode = this._subject.closest( '.' + evCls ),
 						propertyEditTool = editableValNode.closest( '.' + petCls ),
@@ -188,7 +187,7 @@ wb.ui.PropertyEditTool.EditableValue.Interface = wb.utilities.inherit( PARENT, {
 		// setting placeholder inside the jQuery object initialisation does not work as of jQuery 1.8.0
 		.attr( 'placeholder', this.getOption( 'inputPlaceholder' ) )
 		// on each change to this input check whether value was changed:
-		.eachchange( $.proxy( function( e, oldValue ) {
+		.on( 'eachchange', $.proxy( function( e, oldValue ) {
 			if( this.normalize( oldValue ) !== this.getValue() ) {
 				this._onInputRegistered(); // only called if input really changed
 			}
@@ -588,4 +587,4 @@ wb.utilities.ui.StatableObject.useWith( wb.ui.PropertyEditTool.EditableValue.Int
 
 } );
 
-} )( mediaWiki, wikibase, jQuery );
+} )( mediaWiki, wikibase, util, jQuery );

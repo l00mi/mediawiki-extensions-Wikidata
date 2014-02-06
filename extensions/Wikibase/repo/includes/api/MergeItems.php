@@ -8,6 +8,7 @@ use Status;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpsMerge;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityContent;
 use Wikibase\ItemContent;
 use Wikibase\Repo\WikibaseRepo;
@@ -113,7 +114,7 @@ class MergeItems extends ApiWikibase {
 		}
 
 		if ( !( $fromEntityContent instanceof ItemContent && $toEntityContent instanceof ItemContent ) ) {
-			$this->dieUsage( "One or more of the entities are not items", "not-item" );
+			$this->dieUsage( 'One or more of the entities are not items', 'not-item' );
 		}
 
 		if( $toEntityContent->getEntity()->getId()->equals( $fromEntityContent->getEntity()->getId() ) ){
@@ -121,6 +122,9 @@ class MergeItems extends ApiWikibase {
 		}
 	}
 
+	/**
+	 * @param string[] $params
+	 */
 	private function validateParams( array $params ) {
 		if ( empty( $params['fromid'] ) || empty( $params['toid'] ) ){
 			$this->dieUsage( 'You must provide a fromid and a toid' , 'param-missing' );
@@ -128,14 +132,13 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @param $direction
-	 * @param $getId
-	 * @param $params
+	 * @param string $direction either 'from' or 'to'
+	 * @param ItemId $getId
+	 * @param array $params
 	 * @return Summary
 	 */
 	private function getSummary( $direction, $getId, $params ) {
-		$entityIdFormatter = WikibaseRepo::getDefaultInstance()->getEntityIdFormatter();
-		$summary = new Summary( $this->getModuleName(), $direction, null, array( $entityIdFormatter->format( $getId ) ) );
+		$summary = new Summary( $this->getModuleName(), $direction, null, array( $getId->getSerialization() ) );
 		if ( !is_null( $params['summary'] ) ) {
 			$summary->setUserSummary( $params['summary'] );
 		}

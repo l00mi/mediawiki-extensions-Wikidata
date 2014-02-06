@@ -3,11 +3,9 @@
 namespace Wikibase\Repo\Specials;
 
 use Html;
-use InvalidArgumentException;
 use Revision;
-use Sites;
 use Status;
-use UserInputException;
+use SiteSQLStore;
 use ValueParsers\ParseException;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpSiteLink;
@@ -15,6 +13,8 @@ use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityContent;
 use Wikibase\ItemContent;
+use Wikibase\Summary;
+use Wikibase\Settings;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -122,22 +122,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	}
 
 	/**
-	 * @see SpecialModifyEntity::parseEntityId()
-	 */
-	protected function parseEntityId( $rawId ) {
-		try {
-			return new ItemId( $rawId );
-		} catch ( InvalidArgumentException $ex ) {
-			throw new UserInputException(
-				'wikibase-setsitelink-not-itemid',
-				array( $rawId ),
-				$ex->getMessage(),
-				$ex
-			);
-		}
-	}
-
-	/**
 	 * @see SpecialModifyEntity::modifyEntity()
 	 *
 	 * @since 0.4
@@ -209,7 +193,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 * @return bool
 	 */
 	private function isValidSiteId( $siteId ) {
-		return $siteId !== null && Sites::singleton()->getSite( $siteId ) !== null;
+		return $siteId !== null && SiteSQLStore::newInstance()->getSite( $siteId ) !== null;
 	}
 
 	/**
@@ -262,7 +246,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			);
 		}
 
-		$site = \Sites::singleton()->getSite( $this->site );
+		$site = SiteSQLStore::newInstance()->getSite( $this->site );
 
 		if ( $this->entityContent !== null && $this->site !== null && $site !== null ) {
 			return Html::rawElement(
@@ -397,6 +381,11 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 				return false;
 			}
 
+			if ( !in_array( $badgeId->getPrefixedId(), array_keys( Settings::get( 'badgeItems' ) ) ) ) {
+				$status->fatal( 'wikibase-setsitelink-not-badge', $badgeId->getPrefixedId() );
+				return false;
+			}
+
 			$itemTitle = $entityContentFactory->getTitleForId( $badgeId, Revision::FOR_THIS_USER );
 
 			if ( is_null( $itemTitle ) || !$itemTitle->exists() ) {
@@ -425,7 +414,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 */
 	protected function setSiteLink( EntityContent $entityContent, $siteId, $pageName, $badges, &$summary ) {
 		$status = Status::newGood();
-		$site = Sites::singleton()->getSite( $siteId );
+		$site = SiteSQLStore::newInstance()->getSite( $siteId );
 
 		if ( $site === null ) {
 			$status->fatal( 'wikibase-setsitelink-invalid-site', $siteId );

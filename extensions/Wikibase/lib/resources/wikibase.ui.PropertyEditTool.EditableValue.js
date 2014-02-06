@@ -1,10 +1,9 @@
 /**
- *
  * @licence GNU GPL v2+
  * @author Daniel Werner
  * @author H. Snater <mediawiki@snater.com>
  */
-( function( mw, wb, $ ) {
+( function( mw, wb, util, $ ) {
 'use strict';
 /* jshint camelcase: false */
 
@@ -63,7 +62,7 @@ var PARENT = wb.ui.Base;
  * @event hideError: Triggered when displayed error is removed again.
  *        (1) jQuery.Event
  */
-var SELF = wb.ui.PropertyEditTool.EditableValue = wb.utilities.inherit( PARENT,
+var SELF = wb.ui.PropertyEditTool.EditableValue = util.inherit( PARENT,
 	// Overwritten constructor:
 	function( subject, options, interfaces, toolbar ) {
 		// allow toolbar not to be set, even though it is still required inside in many places
@@ -280,9 +279,14 @@ var SELF = wb.ui.PropertyEditTool.EditableValue = wb.utilities.inherit( PARENT,
 		// TODO: this should really be in the constructor, move it after having the toolbar
 		//       separated from the EditableValue via event bindings.
 		if( this.isEmpty() || this.isPending() ) {
+			// Insane workaround for WebKit based browsers which scroll as we set focus
+			// Bug: 49492
+			var scrollTop = $( 'body' ).scrollTop();
+
 			// enable editing from the beginning if there is no value yet or pending value...
 			this._toolbar.$editGroup.data( 'toolbareditgroup' ).$btnEdit.trigger( 'click' );
 			this.removeFocus(); // ...but don't set focus there for now
+			$( 'body' ).scrollTop( scrollTop );
 		}
 	},
 
@@ -1205,4 +1209,4 @@ SELF.getValueLanguageContextFromDom = function( $subject ) {
 		: mw.config.get( 'wgUserLanguage' );
 };
 
-} )( mediaWiki, wikibase, jQuery );
+} )( mediaWiki, wikibase, util, jQuery );

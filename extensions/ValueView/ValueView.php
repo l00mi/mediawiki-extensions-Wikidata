@@ -1,20 +1,11 @@
 <?php
 
-/**
- * Entry point for the "ValueView" extension.
- *
- * @since 0.1
- *
- * @licence GNU GPL v2+
- * @author Daniel Werner < daniel.werner@wikimedia.de >
- */
-
 if ( defined( 'VALUEVIEW_VERSION' ) ) {
 	// Do not initialize more then once.
 	return 1;
 }
 
-define( 'VALUEVIEW_VERSION', '0.1.1' );
+define( 'VALUEVIEW_VERSION', '0.3' );
 
 /**
  * @deprecated

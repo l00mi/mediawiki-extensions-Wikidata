@@ -1,0 +1,27 @@
+<!--
+Main entrance point for running QUnit tests.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>QUnit tests</title>
+</head>
+<body>
+<script src="./testConfig.js"></script>
+<script src="../lib/tests/tests.TestRunner.js"></script>
+<script>
+( function( window, tests ) {
+	window.onload = function() {
+
+		var testRunner = new tests.TestRunner( {
+			queue: tests.modules,
+			testRunner: './testRunner.html'
+		} );
+
+		testRunner.start();
+	};
+}( window, tests ) );
+</script>
+</body>
+</html>

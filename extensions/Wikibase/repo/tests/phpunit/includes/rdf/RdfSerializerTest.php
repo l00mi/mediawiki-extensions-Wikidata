@@ -2,16 +2,12 @@
 
 namespace Wikibase\Test;
 
-use DataTypes\DataTypeFactory;
-use ValueFormatters\FormatterOptions;
 use Wikibase\Entity;
 use Wikibase\EntityRevision;
 use Wikibase\RdfSerializer;
 
 /**
  * @covers Wikibase\RdfSerializer
- *
- * @since 0.4
  *
  * @group Wikibase
  * @group WikibaseRepo
@@ -31,14 +27,6 @@ class RdfSerializerTest extends \MediaWikiTestCase {
 		'ntriples',
 		'turtle',
 	);
-
-	public function setUp() {
-		parent::setUp();
-
-		if ( !RdfSerializer::isSupported() ) {
-			$this->markTestSkipped( "RDF library not found" );
-		}
-	}
 
 	/**
 	 * @return EntityRevision[]

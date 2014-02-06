@@ -7,14 +7,11 @@ use Title;
 use Wikibase\Api\ItemByTitleHelper;
 use Wikibase\Api\ResultBuilder;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SiteLinkCache;
 use Wikibase\StringNormalizer;
 
 /**
  * @covers Wikibase\Api\ItemByTitleHelper
- *
- * @since 0.4
  *
  * @group Wikibase
  * @group WikibaseAPI
@@ -74,10 +71,8 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetEntityIdsSuccess() {
-		$entityIdFormatter = WikibaseRepo::getDefaultInstance()->getEntityIdFormatter();
-
 		$expectedEntityId = new ItemId( 'Q123' );
-		$expectedEntityId = $entityIdFormatter->format( $expectedEntityId );
+		$expectedEntityId = $expectedEntityId->getSerialization();
 
 		$itemByTitleHelper = new ItemByTitleHelper(
 			$this->getResultBuilderMock(),
@@ -192,7 +187,27 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( Title::newFromText( $title )->getPrefixedText(), $title );
 	}
 
-	public function testNoSites() {
+	public function notEnoughInputProvider() {
+		return array(
+			array(
+				// Request with no sites
+				array( ),
+				array( 'barfoo' ),
+				false
+			),
+			array(
+				// Request with no titles
+				array( 'enwiki' ),
+				array( ),
+				false
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider notEnoughInputProvider
+	 */
+	public function testNotEnoughInput( $sites, $titles, $normalize ) {
 		$this->setExpectedException( 'UsageException' );
 
 		$itemByTitleHelper = new ItemByTitleHelper(
@@ -202,7 +217,6 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 			new StringNormalizer()
 		);
 
-		$itemByTitleHelper->getItemIds( array( ), array( 'barfoo' ), false );
+		$itemByTitleHelper->getItemIds( $sites, $titles, $normalize );
 	}
-
 }

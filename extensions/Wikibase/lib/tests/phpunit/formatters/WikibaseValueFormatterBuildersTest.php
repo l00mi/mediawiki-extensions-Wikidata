@@ -59,14 +59,14 @@ class WikibaseValueFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider buildDispatchingValueFormatterProvider
 	 * @covers WikibaseValueFormatterBuilders::buildDispatchingValueFormatter
 	 */
-	public function testBuildDispatchingValueFormatter( $format, $options, $snak, $expected ) {
+	public function testBuildDispatchingValueFormatter( $format, $options, $snak, $expected, $dataType = null ) {
 		$builders = $this->newBuilders( '-/-', new ItemId( 'Q5' ) );
 
 		$factory = new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
 		$formatter = $builders->buildDispatchingValueFormatter( $factory, $format, $options );
 
-		$text = $formatter->formatValue( $snak );
-		$this->assertEquals( $expected, $text );
+		$text = $formatter->formatValue( $snak, $dataType );
+		$this->assertRegExp( $expected, $text );
 	}
 
 	public function buildDispatchingValueFormatterProvider() {
@@ -83,37 +83,51 @@ class WikibaseValueFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 				SnakFormatter::FORMAT_PLAIN,
 				$options,
 				new StringValue( 'http://acme.com/' ),
-				'http://acme.com/'
+				'@^http://acme\\.com/$@'
 			),
 			'wikitext string' => array(
 				SnakFormatter::FORMAT_WIKI,
 				$options,
 				new StringValue( '{Wikibase}' ),
-				'&#123;Wikibase&#125;'
+				'@^&#123;Wikibase&#125;$@'
 			),
 			'html string' => array(
 				SnakFormatter::FORMAT_HTML,
 				$options,
 				new StringValue( 'I <3 Wikibase & stuff' ),
-				'I &lt;3 Wikibase &amp; stuff'
+				'@^I &lt;3 Wikibase &amp; stuff$@'
 			),
-			'widget item label (with entity lookup)' => array(
+			'plain item label (with entity lookup)' => array(
+				SnakFormatter::FORMAT_PLAIN,
+				$options,
+				new EntityIdValue( new ItemId( 'Q5' ) ),
+				'@^Label for Q5$@' // compare mock object created in newBuilders()
+			),
+			'widget item link (with entity lookup)' => array(
 				SnakFormatter::FORMAT_HTML_WIDGET,
 				$options,
 				new EntityIdValue( new ItemId( 'Q5' ) ),
-				'Label for Q5' // compare mock object created in newBuilders()
+				'@^<a href=".*/index.php/Q5">Label for Q5</a>$@', // compare mock object created in newBuilders()
+				'wikibase-item'
 			),
 			'diff <url>' => array(
 				SnakFormatter::FORMAT_HTML_DIFF,
 				$options,
 				new StringValue( '<http://acme.com/>' ),
-				'&lt;http://acme.com/&gt;'
+				'@^&lt;http://acme\\.com/&gt;$@'
 			),
 			'localized quantity' => array(
 				SnakFormatter::FORMAT_WIKI,
 				$optionsDe,
 				QuantityValue::newFromNumber( '+123456.789' ),
-				'123.456,789'
+				'@^123\\.456,789$@'
+			),
+			'commons link' => array(
+				SnakFormatter::FORMAT_HTML,
+				$options,
+				new StringValue( 'example.jpg' ),
+				'@^<a class="extiw" href="//commons\\.wikimedia\\.org/wiki/File:example\\.jpg">example\\.jpg</a>$@',
+				'commonsMedia'
 			),
 		);
 	}

@@ -9,24 +9,40 @@ On [Packagist](https://packagist.org/packages/data-values/javascript):
 [![Latest Stable Version](https://poser.pugx.org/data-values/javascript/version.png)](https://packagist.org/packages/data-values/javascript)
 [![Download count](https://poser.pugx.org/data-values/javascript/d/total.png)](https://packagist.org/packages/data-values/javascript)
 
-## Technical debt
+## TODOs
 
-TODO: remove dependency on ApiParserValue from the JS so ApiParseValue
-can be removed. ApiParseValue is the only PHP class in this package and
-is the only thing that depends on the DataValues PHP components.
-
-TODO: remove dependency on dataTypes.DataType from the JS, so the
-data-values/data-types package is no longer required. Right now
-only a few lines in ValueParserFactory.js are binding to this for
-no good reason.
-
-TODO: write high level description and documentation in this README file.
-
-TODO: make tests runnable without needing MW and a browser
-
-TODO: have tests run on CI
+* Write high level description and documentation in this README file.
 
 ## Release notes
+
+### 0.3.1 (2014-02-03)
+
+#### Bugfixes
+
+* Fixed valueParsers ResourceLoader module definition template.
+
+### 0.3 (2014-01-30)
+
+#### Breaking changes
+
+* Renamed "valueFormatters.factory" Resource Loader module to "valueFormatters.ValueFormatterFactory"
+* Renamed "valueParsers.factory" Resource Loader module to "valueParsers.ValueParserFactory"
+* Removed ValueView dependency from "mw.ext.valueFormatters" module and "mw.ext.valueParsers" module.
+
+### 0.2 (2014-01-24)
+
+#### Breaking changes
+
+* #8 Removed dataValues.util.Notifier
+* #10 Renamed dataValues.util.inherit to util.inherit
+* #13 Removed vp.GlobeCoordinateParser and vp.QuantityParser
+* #15 Removed the ParseValue API module
+
+#### Enhancements
+
+* #14 Decoupled the QUnit tests from the MediaWiki resource loader
+* #16 Have the tests run on TravisCI using PhantomJS
+* #18 Provided QUnit test runner using requireJS
 
 ### 0.1 (2013-12-23)
 

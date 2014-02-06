@@ -65,13 +65,20 @@ final class LibHooks {
 			'remoteExtPath' => $remoteExtPathParts[1],
 		);
 
+		$testModules['qunit']['wikibase.tests.qunit.testrunner'] = $moduleBase + array(
+			'scripts' => 'tests/qunit/data/testrunner.js',
+			'dependencies' => array(
+				'test.mediawiki.qunit.testrunner',
+				'wikibase',
+			),
+			'position' => 'top'
+		);
+
 		// TODO: Split into test modules per QUnit module.
 		$testModules['qunit']['wikibase.tests'] = $moduleBase + array(
 			'scripts' => array(
 				'tests/qunit/templates.tests.js',
 				'tests/qunit/wikibase.tests.js',
-
-				'tests/qunit/parsers/EntityIdParser.tests.js',
 
 				'tests/qunit/wikibase.dataTypes/wikibase.dataTypes.tests.js',
 
@@ -137,9 +144,10 @@ final class LibHooks {
 				'jquery.wikibase.entityselector',
 				'jquery.wikibase.toolbar',
 				'jquery.wikibase.toolbareditgroup',
-				'jquery.nativeEventHandler',
+				'jquery.NativeEventHandler',
 				'jquery.client',
-				'jquery.eachchange',
+				'jquery.event.special.eachchange',
+				'util.inherit',
 			)
 		);
 
@@ -207,17 +215,46 @@ final class LibHooks {
 			),
 		);
 
-		$testModules['qunit']['wikibase.formatters.QuantityFormatter.tests'] = $moduleBase + array(
+		$testModules['qunit']['wikibase.parsers.EntityIdParser.tests'] = $moduleBase + array(
 			'scripts' => array(
-				'tests/qunit/wikibase.tests.js', // TODO: Move to own module along with testrunner dependency
-				'tests/qunit/formatters/QuantityFormatter.tests.js',
+				'tests/qunit/wikibase.tests.js',
+				'tests/qunit/parsers/EntityIdParser.tests.js',
+			),
+			'dependencies' => array(
+				'util.inherit',
+				'valueParsers.tests',
+				'wikibase.datamodel',
+				'wikibase.EntityIdParser',
+				'wikibase.tests.qunit.testrunner',
+			),
+		);
+
+		$testModules['qunit']['wikibase.parsers.GlobeCoordinateParser.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/wikibase.tests.js',
+				'tests/qunit/parsers/GlobeCoordinateParser.tests.js',
 			),
 			'dependencies' => array(
 				'dataValues.values',
-				'ext.valueFormatters.tests',
-				'valueFormatters',
+				'globeCoordinate.js',
+				'util.inherit',
+				'valueParsers.tests',
+				'wikibase.GlobeCoordinateParser',
 				'wikibase.tests.qunit.testrunner',
-				'wikibase.QuantityFormatter',
+			),
+		);
+
+		$testModules['qunit']['wikibase.parsers.QuantityParser.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/wikibase.tests.js',
+				'tests/qunit/parsers/QuantityParser.tests.js',
+			),
+			'dependencies' => array(
+				'dataValues.values',
+				'util.inherit',
+				'valueParsers.tests',
+				'wikibase.QuantityParser',
+				'wikibase.tests.qunit.testrunner',
 			),
 		);
 

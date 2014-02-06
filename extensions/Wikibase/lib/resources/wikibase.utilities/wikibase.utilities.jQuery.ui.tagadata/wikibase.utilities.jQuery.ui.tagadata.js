@@ -305,7 +305,7 @@
 						self.removeTag( $tag );
 					}
 				} )
-				.eachchange( function( e, oldValue ) {
+				.on( 'eachchange', function( event, oldValue ) {
 					// input change registered, check whether tag was really changed...
 					var oldNormalValue = self._formatLabel( oldValue ),
 						newNormalValue = self._formatLabel( input.val() );
@@ -411,8 +411,8 @@
 				// add placeholder and auto-expand afterwards:
 				if( this.options.placeholderText ) {
 					input.attr( 'placeholder', this.options.placeholderText );
-					if( input.inputAutoExpand ) {
-						input.inputAutoExpand( {
+					if( input.inputautoexpand ) {
+						input.inputautoexpand( {
 							expandOnResize: false
 						} );
 					}
@@ -428,8 +428,8 @@
 						//       might fail because of the input box resizing.
 						if( self.options.placeholderText && input.val() !== '' ) {
 							input.removeAttr( 'placeholder' );
-							if( input.inputAutoExpand ) {
-								input.inputAutoExpand( {
+							if( input.inputautoexpand ) {
+								input.inputautoexpand( {
 									expandOnResize: false
 								} );
 							}

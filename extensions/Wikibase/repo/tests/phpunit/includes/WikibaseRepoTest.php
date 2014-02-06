@@ -7,8 +7,6 @@ use Wikibase\Repo\WikibaseRepo;
 /**
  * @covers Wikibase\Repo\WikibaseRepo
  *
- * @since 0.4
- *
  * @group Wikibase
  * @group WikibaseRepo
  * @group WikibaseRepoTest
@@ -42,11 +40,6 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testGetEntityRevisionLookupReturnType() {
 		$returnValue = $this->getDefaultInstance()->getEntityRevisionLookup();
 		$this->assertInstanceOf( 'Wikibase\EntityRevisionLookup', $returnValue );
-	}
-
-	public function testGetIdFormatterReturnType() {
-		$returnValue = $this->getDefaultInstance()->getIdFormatter();
-		$this->assertInstanceOf( 'Wikibase\Lib\EntityIdFormatter', $returnValue );
 	}
 
 	public function testGetPropertyDataTypeLookupReturnType() {
@@ -95,11 +88,6 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testGetClaimGuidParser() {
 		$returnValue = $this->getDefaultInstance()->getClaimGuidParser();
 		$this->assertInstanceOf( 'Wikibase\DataModel\Claim\ClaimGuidParser', $returnValue );
-	}
-
-	public function testGetEntityIdFormatterReturnType() {
-		$returnValue = $this->getDefaultInstance()->getEntityIdFormatter();
-		$this->assertInstanceOf( 'Wikibase\Lib\EntityIdFormatter', $returnValue );
 	}
 
 	public function testGetLanguageFallbackChainFactory() {

@@ -1,6 +1,10 @@
 <?php
 
-use \Wikibase\LibRegistry;
+use DataTypes\DataTypeFactory;
+use Wikibase\Client\WikibaseClient;
+use Wikibase\Lib\WikibaseDataTypeBuilders;
+use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Settings;
 
 /**
  * File for Wikibase resourceloader modules.
@@ -54,15 +58,23 @@ return call_user_func( function() {
 			)
 		),
 
-		'wikibase.parsers' => $moduleTemplate + array(
+		'wikibase.parsers.api' => $moduleTemplate + array(
 			'scripts' => array(
-				'parsers/wikibase.parsers.js',
+				'parsers/wikibase.parsers.api.js',
 			),
 			'dependencies' => array(
-				'mw.ext.valueParsers',
-				'mw.ext.valueView',
-				'valueParsers',
-				'wikibase.EntityIdParser',
+				'wikibase',
+			),
+		),
+
+		'wikibase.ApiBasedValueParser' => $moduleTemplate + array(
+			'scripts' => array(
+				'parsers/ApiBasedValueParser.js',
+			),
+			'dependencies' => array(
+				'util.inherit',
+				'valueParsers.ValueParser',
+				'wikibase.parsers.api',
 			),
 		),
 
@@ -71,14 +83,50 @@ return call_user_func( function() {
 				'parsers/EntityIdParser.js',
 			),
 			'dependencies' => array(
+				'util.inherit',
 				'valueParsers.ValueParser',
+				'wikibase',
 				'wikibase.datamodel',
 			),
 		),
 
-		'wikibase.formattersBase' => $moduleTemplate + array(
+		'wikibase.GlobeCoordinateParser' => $moduleTemplate + array(
 			'scripts' => array(
-				'formatters/wikibase.formatters.js',
+				'parsers/GlobeCoordinateParser.js',
+			),
+			'dependencies' => array(
+				'util.inherit',
+				'wikibase.ApiBasedValueParser',
+			),
+		),
+
+		'wikibase.QuantityParser' => $moduleTemplate + array(
+			'scripts' => array(
+				'parsers/QuantityParser.js',
+			),
+			'dependencies' => array(
+				'util.inherit',
+				'wikibase.ApiBasedValueParser',
+			),
+		),
+
+		'wikibase.parsers' => $moduleTemplate + array(
+			'scripts' => array(
+				'parsers/wikibase.parsers.register.js',
+			),
+			'dependencies' => array(
+				'dataValues.values',
+				'mw.ext.valueParsers',
+				'wikibase.datamodel',
+				'wikibase.EntityIdParser',
+				'wikibase.GlobeCoordinateParser',
+				'wikibase.QuantityParser',
+			),
+		),
+
+		'wikibase.formatters.api' => $moduleTemplate + array(
+			'scripts' => array(
+				'formatters/wikibase.formatters.api.js',
 			),
 			'dependencies' => array(
 				'mediawiki.api',
@@ -89,26 +137,14 @@ return call_user_func( function() {
 
 		'wikibase.ApiBasedValueFormatter' => $moduleTemplate + array(
 			'scripts' => array(
-				'formatters/wikibase.formatters.api.js',
 				'formatters/ApiBasedValueFormatter.js',
 			),
 			'dependencies' => array(
 				'mediawiki.api',
 				'dataTypes',
+				'util.inherit',
 				'valueFormatters.ValueFormatter',
-				'valueFormatters.util',
-				'wikibase.formattersBase',
-			),
-		),
-
-		'wikibase.QuantityFormatter' => $moduleTemplate + array(
-			'scripts' => array(
-				'formatters/QuantityFormatter.js',
-			),
-			'dependencies' => array(
-				'valueFormatters.util',
-				'wikibase.formattersBase',
-				'wikibase.ApiBasedValueFormatter',
+				'wikibase.formatters.api',
 			),
 		),
 
@@ -117,9 +153,12 @@ return call_user_func( function() {
 				'formatters/wikibase.formatters.register.js',
 			),
 			'dependencies' => array(
+				'dataTypes',
 				'dataValues.values',
 				'mw.ext.valueFormatters',
-				'wikibase.QuantityFormatter',
+				'wikibase.ApiBasedValueFormatter',
+				'wikibase.datamodel',
+				'wikibase.dataTypes',
 			),
 		),
 
@@ -128,20 +167,40 @@ return call_user_func( function() {
 				'wikibase.dataTypes/wikibase.dataTypes.js',
 			),
 			'dependencies' => array(
-				'wikibase',
 				'dataTypes',
+				'jquery',
 				'mw.config.values.wbDataTypes',
-				'mw.ext.valueView',
-				'jquery.valueview.experts',
-				'jquery.valueview.experts.urltype',
-				'jquery.valueview.experts.commonsmediatype',
+				'wikibase',
 			),
 		),
 
 		'mw.config.values.wbDataTypes' => $moduleTemplate + array(
 			'class' => 'DataTypes\DataTypesModule',
 			'datatypefactory' => function() {
-				return LibRegistry::getDefaultInstance()->getDataTypeFactory();
+				// TODO: extreme uglynes here! Get rid of this method!
+				if ( defined( 'WB_VERSION' ) ) { // repo mode
+					$repo = WikibaseRepo::getDefaultInstance();
+					$entityIdParser = $repo->getEntityIdParser();
+					$entityLookup = $repo->getEntityLookup();
+				} elseif ( defined( 'WBC_VERSION' ) ) { // client mode
+					$client = WikibaseClient::getDefaultInstance();
+					$entityIdParser = $client->getEntityIdParser();
+					$entityLookup = $client->getStore()->getEntityLookup();
+				} else {
+					throw new \RuntimeException( "Neither repo nor client found!" );
+				}
+
+				$settings = Settings::singleton();
+
+				$urlSchemes = $settings->getSetting( 'urlSchemes' );
+				$builders = new WikibaseDataTypeBuilders( $entityLookup, $entityIdParser, $urlSchemes );
+
+				$typeBuilderSpecs = array_intersect_key(
+					$builders->getDataTypeBuilders(),
+					array_flip( $settings->getSetting( 'dataTypes' ) )
+				);
+
+				return new DataTypeFactory( $typeBuilderSpecs );
 			},
 			'datatypesconfigvarname' => 'wbDataTypes',
 		),
@@ -162,8 +221,8 @@ return call_user_func( function() {
 				'wikibase.datamodel/wikibase.Statement.js',
 			),
 			'dependencies' => array(
+				'util.inherit',
 				'wikibase',
-				'wikibase.utilities',
 				'mw.ext.dataValues', // DataValues extension
 				'dataTypes', // DataTypes extension
 				'wikibase.dataTypes',
@@ -178,8 +237,8 @@ return call_user_func( function() {
 				'wikibase.serialization/serialization.SerializerFactory.js',
 			),
 			'dependencies' => array(
+				'util.inherit',
 				'wikibase',
-				'wikibase.utilities',
 			)
 		),
 
@@ -189,6 +248,7 @@ return call_user_func( function() {
 				'wikibase.serialization/serialization.EntityUnserializer.propertyExpert.js',
 			),
 			'dependencies' => array(
+				'util.inherit',
 				'wikibase.serialization',
 				'wikibase.datamodel',
 			)
@@ -199,6 +259,7 @@ return call_user_func( function() {
 				'wikibase.serialization/serialization.FetchedContentUnserializer.js',
 			),
 			'dependencies' => array(
+				'util.inherit',
 				'wikibase.serialization',
 				'wikibase.store.FetchedContent',
 			)
@@ -231,7 +292,6 @@ return call_user_func( function() {
 				'wikibase.datamodel',
 				'wikibase.serialization.entities',
 				'wikibase.RepoApi',
-				'wikibase.utilities',
 			)
 		),
 
@@ -268,8 +328,8 @@ return call_user_func( function() {
 				'wikibase-error-ui-edit-conflict',
 			),
 			'dependencies' => array(
+				'util.inherit',
 				'wikibase',
-				'wikibase.utilities',
 			)
 		),
 
@@ -284,9 +344,9 @@ return call_user_func( function() {
 				'wikibase.utilities/wikibase.utilities.ui.css',
 			),
 			'dependencies' => array(
-				'dataValues.util',
 				'wikibase',
 				'jquery.tipsy',
+				'util.inherit',
 				'mediawiki.language',
 			),
 			'messages' => array(
@@ -307,6 +367,7 @@ return call_user_func( function() {
 				'wikibase.utilities/wikibase.utilities.GuidGenerator.js',
 			),
 			'dependencies' => array(
+				'util.inherit',
 				'wikibase.utilities',
 			)
 		),
@@ -339,20 +400,11 @@ return call_user_func( function() {
 				'wikibase.utilities/wikibase.utilities.jQuery.ui.tagadata/wikibase.utilities.jQuery.ui.tagadata.css',
 			),
 			'dependencies' => array(
-				'jquery.eachchange',
+				'jquery.event.special.eachchange',
 				'jquery.effects.blind',
-				'jquery.inputAutoExpand',
+				'jquery.inputautoexpand',
 				'jquery.ui.widget'
 			)
-		),
-
-		'wikibase.tests.qunit.testrunner' => $moduleTemplate + array(
-			'scripts' => '../tests/qunit/data/testrunner.js',
-			'dependencies' => array(
-				'mediawiki.tests.qunit.testrunner',
-				'wikibase'
-			),
-			'position' => 'top'
 		),
 
 		'wikibase.ui.Base' => $moduleTemplate + array(
@@ -389,11 +441,12 @@ return call_user_func( function() {
 				'wikibase.ui.PropertyEditTool.css'
 			),
 			'dependencies' => array(
-				'jquery.eachchange',
-				'jquery.nativeEventHandler',
-				'jquery.inputAutoExpand',
+				'jquery.event.special.eachchange',
+				'jquery.NativeEventHandler',
+				'jquery.inputautoexpand',
 				'jquery.tablesorter',
 				'jquery.ui.suggester',
+				'util.inherit',
 				'jquery.wikibase.entityselector',
 				'jquery.wikibase.toolbareditgroup',
 				'jquery.wikibase.siteselector',
@@ -417,7 +470,9 @@ return call_user_func( function() {
 				'wikibase-save-inprogress',
 				'wikibase-remove-inprogress',
 				'wikibase-label-edit-placeholder',
+				'wikibase-label-edit-placeholder-language-aware',
 				'wikibase-description-edit-placeholder',
+				'wikibase-description-edit-placeholder-language-aware',
 				'wikibase-aliases-label',
 				'wikibase-aliases-input-help-message',
 				'wikibase-alias-edit-placeholder',
@@ -543,7 +598,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'wikibase.templates',
 				'jquery.ui.widget',
-				'wikibase.utilities'
+				'util.inherit',
 			)
 		),
 
@@ -563,7 +618,7 @@ return call_user_func( function() {
 				'jquery.wikibase/jquery.wikibase.listview.ListItemAdapter.js'
 			),
 			'dependencies' => array(
-				'jquery.nativeEventHandler',
+				'jquery.NativeEventHandler',
 				'jquery.ui.TemplatedWidget',
 				'jquery.ui.widget',
 			)
@@ -574,7 +629,7 @@ return call_user_func( function() {
 				'jquery.wikibase/jquery.wikibase.snaklistview.js',
 			),
 			'dependencies' => array(
-				'jquery.nativeEventHandler',
+				'jquery.NativeEventHandler',
 				'jquery.ui.TemplatedWidget',
 				'jquery.ui.widget',
 				'jquery.wikibase.listview',
@@ -602,8 +657,9 @@ return call_user_func( function() {
 				'jquery.wikibase/jquery.wikibase.snakview/themes/default/snakview.SnakTypeSelector.css',
 			),
 			'dependencies' => array(
-				'jquery.eachchange',
-				'jquery.nativeEventHandler',
+				'jquery.event.special.eachchange',
+				'jquery.NativeEventHandler',
+				'util.inherit',
 				'jquery.wikibase.entityselector',
 				'wikibase.datamodel',
 				'wikibase.AbstractedRepoApi',
@@ -611,10 +667,10 @@ return call_user_func( function() {
 				'mediawiki.legacy.shared',
 				'jquery.ui.position',
 				'jquery.ui.TemplatedWidget',
-				// valueviews for representing DataValues in snakview:
-				'jquery.valueview.experts.stringvalue',
-				'jquery.valueview.experts.commonsmediatype',
-				'jquery.valueview.experts.wikibase.entityidvalue',
+				'mw.ext.valueView',
+				'wikibase.formatters',
+				'wikibase.parsers',
+				'wikibase.experts',
 			),
 			'messages' => array(
 				'wikibase-snakview-property-input-placeholder',
@@ -672,6 +728,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.position',
 				'jquery.ui.toggler',
+				'util.inherit',
 				'jquery.wikibase.claimview',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.referenceview',
@@ -752,7 +809,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.autocompletestring',
-				'jquery.eachchange',
+				'jquery.event.special.eachchange',
 				'jquery.ui.suggester',
 				'jquery.ui.resizable',
 				'jquery.ui.widget',
@@ -771,40 +828,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.widget',
 			),
-		),
-
-		// jQuery.valueview views for Wikibase specific DataValues/DataTypes
-		'jquery.valueview.experts.wikibase' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.valueview.experts.wikibase/experts.wikibase.js',
-			),
-			'dependencies' => array(
-				'mw.ext.valueView',
-				'mw.ext.valueFormatters',
-				'mw.ext.valueParsers',
-				'wikibase.formatters',
-				'wikibase.parsers',
-			),
-		),
-
-		'jquery.valueview.experts.wikibase.entityidvalue' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.valueview.experts.wikibase/experts.wikibase.js',
-				'jquery.valueview.experts.wikibase/experts.wikibase.EntityIdInput.js',
-				'jquery.valueview.experts.wikibase/experts.wikibase.EntityIdValue.js',
-			),
-			'dependencies' => array(
-				'jquery.valueview.BifidExpert',
-				'jquery.valueview.experts.staticdom',
-				'jquery.valueview.experts.wikibase',
-				'jquery.eachchange',
-				'jquery.inputAutoExpand',
-				'wikibase.utilities',
-				'wikibase.store.FetchedContent'
-			),
-			'messages' => array(
-				'wikibase-entity-item',
-			)
 		),
 
 		'jquery.wikibase.toolbarlabel' => $moduleTemplate + array(
@@ -875,12 +898,16 @@ return call_user_func( function() {
 
 	);
 
+	$modules = array_merge(
+		$modules,
+		include( __DIR__ . '/experts/resources.php' )
+	);
+
 	if ( defined( 'ULS_VERSION' ) ) {
-		$modules['wikibase']['dependencies'][] = 'jquery.uls.data';
-		$modules['wikibase.sites']['dependencies'] = array( 'jquery.uls.data' );
-		$modules['wikibase.ui.PropertyEditTool']['dependencies'][] = 'jquery.uls.data';
+		$modules['wikibase']['dependencies'][] = 'ext.uls.mediawiki';
+		$modules['wikibase.sites']['dependencies'] = array( 'ext.uls.mediawiki' );
+		$modules['wikibase.ui.PropertyEditTool']['dependencies'][] = 'ext.uls.mediawiki';
 	}
 
 	return $modules;
 } );
-// @codeCoverageIgnoreEnd

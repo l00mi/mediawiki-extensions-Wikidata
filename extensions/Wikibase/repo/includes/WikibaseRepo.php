@@ -182,7 +182,6 @@ class WikibaseRepo {
 		$entityNamespaces = $this->settings->getSetting( 'entityNamespaces' );
 
 		return new EntityContentFactory(
-			$this->getIdFormatter(),
 			is_array( $entityNamespaces ) ? array_keys( $entityNamespaces ) : array()
 		);
 	}
@@ -207,22 +206,6 @@ class WikibaseRepo {
 		}
 
 		return $this->entityRevisionLookup;
-	}
-
-	/**
-	 * @since 0.4
-	 *
-	 * @deprecated use EntityId::getSerialization() for the canonical representation, or
-	 * go via getValueFormatterFactory() to get a fancy formatter for EntityIds.
-	 *
-	 * @return EntityIdFormatter
-	 */
-	public function getIdFormatter() {
-		if ( $this->idFormatter === null ) {
-			$this->idFormatter = new EntityIdFormatter( new FormatterOptions() );
-		}
-
-		return $this->idFormatter;
 	}
 
 	/**
@@ -324,18 +307,6 @@ class WikibaseRepo {
 	 */
 	public function getClaimGuidParser() {
 		return new ClaimGuidParser( $this->getEntityIdParser() );
-	}
-
-	/**
-	 * @since 0.4
-	 *
-	 * @deprecated use EntityId::getSerialization() for the canonical representation, or
-	 * go via getValueFormatterFactory() to get a fancy formatter for EntityIds.
-	 *
-	 * @return EntityIdFormatter
-	 */
-	public function getEntityIdFormatter() {
-		return $this->getIdFormatter();
 	}
 
 	/**

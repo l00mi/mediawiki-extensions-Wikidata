@@ -6,7 +6,7 @@
  * @author Daniel Werner < daniel.werner at wikimedia.de >
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( mw, wb, $ ) {
+( function( mw, wb, util, $ ) {
 'use strict';
 var PARENT = wb.ui.PropertyEditTool;
 
@@ -15,7 +15,7 @@ var PARENT = wb.ui.PropertyEditTool;
  * @constructor
  * @since 0.1
  */
-wb.ui.AliasesEditTool = wb.utilities.inherit( PARENT , {
+wb.ui.AliasesEditTool = util.inherit( PARENT , {
 	/**
 	 * Initializes the edit form for the aliases.
 	 * This should normally be called directly by the constructor.
@@ -61,8 +61,8 @@ wb.ui.AliasesEditTool = wb.utilities.inherit( PARENT , {
 				function( event, origin ) {
 					if ( !this.getOption( 'allowsMultipleValues' ) ) {
 						if (
-							this instanceof wikibase.ui.AliasesEditTool &&
-							origin instanceof wikibase.ui.PropertyEditTool.EditableAliases
+							this instanceof wb.ui.AliasesEditTool &&
+							origin instanceof wb.ui.PropertyEditTool.EditableAliases
 						) {
 							this._subject.addClass( this.UI_CLASS + '-ineditmode' );
 						}
@@ -157,7 +157,7 @@ wb.ui.AliasesEditTool = wb.utilities.inherit( PARENT , {
 	 * @return wikibase.ui.PropertyEditTool.EditableAliases
 	 */
 	getEditableValuePrototype: function() {
-		return wikibase.ui.PropertyEditTool.EditableAliases;
+		return wb.ui.PropertyEditTool.EditableAliases;
 	}
 
 } );
@@ -174,4 +174,4 @@ wb.ui.AliasesEditTool.getEmptyStructure = function() {
 	);
 };
 
-} )( mediaWiki, wikibase, jQuery );
+} )( mediaWiki, wikibase, util, jQuery );
