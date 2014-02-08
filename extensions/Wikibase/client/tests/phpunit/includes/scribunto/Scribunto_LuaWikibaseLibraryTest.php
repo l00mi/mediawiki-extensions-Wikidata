@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use Wikibase\Client\Scribunto\Test\Scribunto_LuaWikibaseLibraryTestCase;
 use Title;
 use Scribunto_LuaWikibaseLibrary;
 use Scribunto;
@@ -16,23 +17,18 @@ use Wikibase\Settings;
  * @group WikibaseIntegration
  * @group WikibaseClient
  * @group Wikibase
- * @group Database
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Marius Hoch < hoo@online.de >
  */
-class Scribunto_LuaWikibaseLibraryTest extends \MediaWikiTestCase {
+class Scribunto_LuaWikibaseLibraryTest extends Scribunto_LuaWikibaseLibraryTestCase {
+	protected static $moduleName = 'LuaWikibaseLibraryTests';
 
-	protected function setUp() {
-		parent::setUp();
-
-		if ( !defined( 'WB_VERSION' ) ) {
-			$this->markTestSkipped( "Skipping because WikibaseClient doesn't have a local site link table." );
-		}
-
-		if ( !class_exists( 'Scribunto_LuaStandaloneEngine' ) ) {
-			$this->markTestSkipped( 'test requires Scribunto' );
-		}
+	function getTestModules() {
+		return parent::getTestModules() + array(
+			'LuaWikibaseLibraryTests' => __DIR__ . '/LuaWikibaseLibraryTests.lua',
+		);
 	}
 
 	public function testConstructor() {
@@ -59,7 +55,13 @@ class Scribunto_LuaWikibaseLibraryTest extends \MediaWikiTestCase {
 		$this->assertEquals( array( null ), $entity );
 	}
 
-	public function testGivenInvalidEntityId_ScribuntoExceptionIsThrown() {
+	public function testGetEntityInvalidIdType() {
+		$this->setExpectedException( 'ScribuntoException' );
+		$luaWikibaseLibrary = $this->newScribuntoLuaWikibaseLibrary();
+		$luaWikibaseLibrary->getEntity( array() );
+	}
+
+	public function testGetEntityInvalidEntityId() {
 		$this->setExpectedException( 'ScribuntoException' );
 		$luaWikibaseLibrary = $this->newScribuntoLuaWikibaseLibrary();
 		$luaWikibaseLibrary->getEntity( 'X888' );

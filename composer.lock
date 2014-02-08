@@ -599,7 +599,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Core developer"
                 },
                 {
                     "name": "The Wikidata team",
@@ -848,12 +848,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "4b50d207d48ce89a7f22d5237b1c6e74ba84f5db"
+                "reference": "b7804a5646a28add24a9c19194415f90fe882a6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4b50d207d48ce89a7f22d5237b1c6e74ba84f5db",
-                "reference": "4b50d207d48ce89a7f22d5237b1c6e74ba84f5db",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b7804a5646a28add24a9c19194415f90fe882a6c",
+                "reference": "b7804a5646a28add24a9c19194415f90fe882a6c",
                 "shasum": ""
             },
             "require": {
@@ -881,6 +881,9 @@
                     "client/includes/",
                     "client/WikibaseClient.hooks.php",
                     "client/tests/phpunit/MockPageUpdater.php",
+                    "client/tests/phpunit/MockClientStore.php",
+                    "client/tests/phpunit/includes/scribunto/WikibaseLuaIntegrationTestItemSetUpHelper.php",
+                    "client/tests/phpunit/includes/scribunto/Scribunto_LuaWikibaseLibraryTestCase.php",
                     "lib/includes/",
                     "lib/WikibaseLib.hooks.php",
                     "lib/tests/phpunit/",
@@ -909,7 +912,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-02-06 20:43:38"
+            "time": "2014-02-07 21:32:02"
         }
     ],
     "packages-dev": [
