@@ -7,16 +7,16 @@
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.10",
+            "version": "v1.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "35a07647186a910b725fca9290b13ca2e265491a"
+                "reference": "9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/35a07647186a910b725fca9290b13ca2e265491a",
-                "reference": "35a07647186a910b725fca9290b13ca2e265491a",
+                "url": "https://api.github.com/repos/composer/installers/zipball/9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94",
+                "reference": "9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94",
                 "shasum": ""
             },
             "replace": {
@@ -46,7 +46,7 @@
                 {
                     "name": "Kyle Robinson Young",
                     "email": "kyle@dontkry.com",
-                    "homepage": "http://dontkry.com",
+                    "homepage": "https://github.com/shama",
                     "role": "Developer"
                 }
             ],
@@ -86,7 +86,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2014-01-31 16:53:31"
+            "time": "2014-02-12 21:21:55"
         },
         {
             "name": "data-values/common",
@@ -514,19 +514,20 @@
         },
         {
             "name": "data-values/time",
-            "version": "0.1",
+            "version": "0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "4bb328eeee2007f929d7f0f9cee51eb773d26c5e"
+                "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/4bb328eeee2007f929d7f0f9cee51eb773d26c5e",
-                "reference": "4bb328eeee2007f929d7f0f9cee51eb773d26c5e",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/004ea71f2d7c994b97c779c0b46ca31879bcdd67",
+                "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67",
                 "shasum": ""
             },
             "require": {
+                "data-values/common": "~0.1",
                 "data-values/data-values": "~0.1",
                 "data-values/interfaces": "~0.1",
                 "php": ">=5.3.0"
@@ -538,7 +539,8 @@
                 ],
                 "psr-0": {
                     "DataValues\\": "src",
-                    "ValueFormatters\\": "src"
+                    "ValueFormatters\\": "src",
+                    "ValueParsers\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -560,7 +562,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2013-11-17 19:58:40"
+            "time": "2014-02-11 12:40:11"
         },
         {
             "name": "data-values/validators",
@@ -620,16 +622,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.3",
+            "version": "0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "a48aca887673e4cdeb154fc268d5e1f705993b8d"
+                "reference": "0cfd9f3e0bd944aa9aca7a81ad280ee43210e148"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/a48aca887673e4cdeb154fc268d5e1f705993b8d",
-                "reference": "a48aca887673e4cdeb154fc268d5e1f705993b8d",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/0cfd9f3e0bd944aa9aca7a81ad280ee43210e148",
+                "reference": "0cfd9f3e0bd944aa9aca7a81ad280ee43210e148",
                 "shasum": ""
             },
             "require": {
@@ -662,7 +664,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-02-04 15:54:28"
+            "time": "2014-02-12 16:29:13"
         },
         {
             "name": "diff/diff",
@@ -848,12 +850,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "3c307da44284d44d9cb132ccf0371a62966f6345"
+                "reference": "23e7c709e922123ec1c6c4f6807ec1121f44590b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3c307da44284d44d9cb132ccf0371a62966f6345",
-                "reference": "3c307da44284d44d9cb132ccf0371a62966f6345",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/23e7c709e922123ec1c6c4f6807ec1121f44590b",
+                "reference": "23e7c709e922123ec1c6c4f6807ec1121f44590b",
                 "shasum": ""
             },
             "require": {
@@ -912,7 +914,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-02-11 19:58:50"
+            "time": "2014-02-12 21:37:03"
         }
     ],
     "packages-dev": [
