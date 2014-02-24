@@ -3,20 +3,20 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "484535dbfb8d45c8a9d276bb6d59464d",
+    "hash": "fbaa3cdfd1453703bd1d301212381405",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.11",
+            "version": "v1.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94"
+                "reference": "4127333b03e8b4c08d081958548aae5419d1a2fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94",
-                "reference": "9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94",
+                "url": "https://api.github.com/repos/composer/installers/zipball/4127333b03e8b4c08d081958548aae5419d1a2fa",
+                "reference": "4127333b03e8b4c08d081958548aae5419d1a2fa",
                 "shasum": ""
             },
             "replace": {
@@ -57,6 +57,7 @@
                 "Hurad",
                 "MODX Evo",
                 "OXID",
+                "WolfCMS",
                 "agl",
                 "annotatecms",
                 "cakephp",
@@ -86,7 +87,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2014-02-12 21:21:55"
+            "time": "2014-02-24 04:21:34"
         },
         {
             "name": "data-values/common",
@@ -622,16 +623,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.3.1",
+            "version": "0.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "0cfd9f3e0bd944aa9aca7a81ad280ee43210e148"
+                "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/0cfd9f3e0bd944aa9aca7a81ad280ee43210e148",
-                "reference": "0cfd9f3e0bd944aa9aca7a81ad280ee43210e148",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
+                "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
                 "shasum": ""
             },
             "require": {
@@ -664,7 +665,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-02-12 16:29:13"
+            "time": "2014-02-24 15:07:42"
         },
         {
             "name": "diff/diff",
@@ -846,16 +847,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-master",
+            "version": "dev-mw1.23-wmf15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "f97bd1dc02c1a49dd58672f0f7429a0ba6e8f0aa"
+                "reference": "3c23a9f105504788d557027e6981e411238a10d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f97bd1dc02c1a49dd58672f0f7429a0ba6e8f0aa",
-                "reference": "f97bd1dc02c1a49dd58672f0f7429a0ba6e8f0aa",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3c23a9f105504788d557027e6981e411238a10d2",
+                "reference": "3c23a9f105504788d557027e6981e411238a10d2",
                 "shasum": ""
             },
             "require": {
@@ -868,7 +869,7 @@
                 "data-values/serialization": "~0.1",
                 "data-values/time": "~0.1",
                 "data-values/validators": "~0.1",
-                "data-values/value-view": "~0.3",
+                "data-values/value-view": "~0.3,>=0.3.3",
                 "diff/diff": ">=0.9",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "0.6.*",
@@ -914,7 +915,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-02-18 12:16:14"
+            "time": "2014-02-24 16:46:27"
         }
     ],
     "packages-dev": [
