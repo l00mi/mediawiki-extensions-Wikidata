@@ -5,7 +5,6 @@ namespace Wikibase\Api;
 use Message;
 use MessageCache;
 use Revision;
-use SiteSQLStore;
 use Title;
 use User;
 use Status;
@@ -13,7 +12,6 @@ use ApiBase;
 use Wikibase\EntityContent;
 use Wikibase\EntityFactory;
 use Wikibase\Lib\Serializers\SerializerFactory;
-use Wikibase\Settings;
 use Wikibase\EditEntity;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
@@ -102,14 +100,14 @@ abstract class ApiWikibase extends \ApiBase {
 	 * @see ApiBase::needsToken()
 	 */
 	public function needsToken() {
-		return $this->isWriteMode() && ( !Settings::get( 'apiInDebug' ) || Settings::get( 'apiDebugWithTokens' ) );
+		return $this->isWriteMode();
 	}
 
 	/**
 	 * @see ApiBase::mustBePosted()
 	 */
 	public function mustBePosted() {
-		return $this->isWriteMode() && ( !Settings::get( 'apiInDebug' ) || Settings::get( 'apiDebugWithPost' ) );
+		return $this->isWriteMode();
 	}
 
 	/**
@@ -156,10 +154,6 @@ abstract class ApiWikibase extends \ApiBase {
 	 * @todo: use this also to check for read access in ApiGetEntities, etc
 	 */
 	public function checkPermissions( EntityContent $entityContent, User $user, array $params ) {
-		if ( Settings::get( 'apiInDebug' ) && !Settings::get( 'apiDebugWithRights', false ) ) {
-			return Status::newGood();
-		}
-
 		$permissions = $this->getRequiredPermissions( $entityContent, $params );
 		$status = Status::newGood();
 

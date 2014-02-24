@@ -143,24 +143,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.3.1",
-        "version_normalized": "0.3.1.0",
+        "version": "0.3.3",
+        "version_normalized": "0.3.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "0cfd9f3e0bd944aa9aca7a81ad280ee43210e148"
+            "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/0cfd9f3e0bd944aa9aca7a81ad280ee43210e148",
-            "reference": "0cfd9f3e0bd944aa9aca7a81ad280ee43210e148",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
+            "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.3.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-02-12 16:29:13",
+        "time": "2014-02-24 15:07:42",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -878,12 +878,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "6f0a738c800a766ded4d398152f862d2e815d645"
+            "reference": "efcf1fcb5c828ae7404ce404359f5a2e1d71f466"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6f0a738c800a766ded4d398152f862d2e815d645",
-            "reference": "6f0a738c800a766ded4d398152f862d2e815d645",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/efcf1fcb5c828ae7404ce404359f5a2e1d71f466",
+            "reference": "efcf1fcb5c828ae7404ce404359f5a2e1d71f466",
             "shasum": ""
         },
         "require": {
@@ -896,13 +896,13 @@
             "data-values/serialization": "~0.1",
             "data-values/time": "~0.1",
             "data-values/validators": "~0.1",
-            "data-values/value-view": "~0.3",
+            "data-values/value-view": "~0.3,>=0.3.3",
             "diff/diff": ">=0.9",
             "php": ">=5.3.2",
             "wikibase/data-model": "0.6.*",
             "wikibase/easyrdf_lite": "*"
         },
-        "time": "2014-02-23 21:50:27",
+        "time": "2014-02-24 18:17:00",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

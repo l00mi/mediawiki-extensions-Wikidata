@@ -87,11 +87,26 @@ Setting the view to a data value it cannot handle because of lacking a suitable 
 
 ## Release notes
 
+### 0.4 (in development)
+
+* Remove trimming from StringValue expert#
+* Use ViewState::getFormattedValue for GlobeCoordinate formatting
+
+### 0.3.3 (2014-02-24)
+
+* Fix inputextender for time values
+
+### 0.3.2 (2014-02-24)
+
+* REVERTED Use ViewState::getFormattedValue for GlobeCoordinate formatting
+
 ### 0.3.1 (2014-02-12)
 
 #### Enhancements
 
 * Added "isRtl" option to jQuery.ui.listrotator.
+* Use ViewState::getFormattedValue for Url formatting
+* Use ViewState::getFormattedValue for GlobeCoordinate formatting
 
 ### 0.3 (2014-02-04)
 

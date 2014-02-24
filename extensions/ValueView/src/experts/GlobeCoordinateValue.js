@@ -2,8 +2,10 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( $, vv ) {
+( function( $, vv, GlobeCoordinate, Formatter ) {
 	'use strict';
+
+	var formatter = new Formatter( { format: 'degree' } );
 
 	var PARENT = vv.BifidExpert,
 		editableExpert = vv.experts.GlobeCoordinateInput;
@@ -42,10 +44,14 @@
 			 * @param {jQuery.valueview.MessageProvider} messageProvider
 			 */
 			domBuilder: function( currentRawValue, viewState, messageProvider ) {
-				return viewState.getFormattedValue();
+				if( currentRawValue instanceof GlobeCoordinate ) {
+					currentRawValue = formatter.format( currentRawValue );
+				}
+
+				return $( '<span/>' ).text( currentRawValue || '' );
 			},
 			baseExpert: editableExpert
 		}
 	} );
 
-}( jQuery, jQuery.valueview ) );
+}( jQuery, jQuery.valueview, globeCoordinate.GlobeCoordinate, globeCoordinate.Formatter ) );
