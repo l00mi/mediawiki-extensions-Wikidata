@@ -38,6 +38,7 @@ return array(
     'Composer\\Installers\\Symfony1Installer' => $vendorDir . '/composer/installers/src/Composer/Installers/Symfony1Installer.php',
     'Composer\\Installers\\TYPO3CmsInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/TYPO3CmsInstaller.php',
     'Composer\\Installers\\TYPO3FlowInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/TYPO3FlowInstaller.php',
+    'Composer\\Installers\\WolfCMSInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/WolfCMSInstaller.php',
     'Composer\\Installers\\WordPressInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/WordPressInstaller.php',
     'Composer\\Installers\\ZendInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/ZendInstaller.php',
     'Composer\\Installers\\ZikulaInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/ZikulaInstaller.php',

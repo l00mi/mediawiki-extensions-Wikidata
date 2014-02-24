@@ -1,17 +1,17 @@
 [
     {
         "name": "composer/installers",
-        "version": "v1.0.11",
-        "version_normalized": "1.0.11.0",
+        "version": "v1.0.12",
+        "version_normalized": "1.0.12.0",
         "source": {
             "type": "git",
             "url": "https://github.com/composer/installers.git",
-            "reference": "9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94"
+            "reference": "4127333b03e8b4c08d081958548aae5419d1a2fa"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94",
-            "reference": "9a1fd4e191beaa5cab79c05f923d8bcdd01b4e94",
+            "url": "https://api.github.com/repos/composer/installers/zipball/4127333b03e8b4c08d081958548aae5419d1a2fa",
+            "reference": "4127333b03e8b4c08d081958548aae5419d1a2fa",
             "shasum": ""
         },
         "replace": {
@@ -21,7 +21,7 @@
             "composer/composer": "1.0.*@dev",
             "phpunit/phpunit": "3.7.*"
         },
-        "time": "2014-02-12 21:21:55",
+        "time": "2014-02-24 04:21:34",
         "type": "composer-installer",
         "extra": {
             "class": "Composer\\Installers\\Installer",
@@ -54,6 +54,7 @@
             "Hurad",
             "MODX Evo",
             "OXID",
+            "WolfCMS",
             "agl",
             "annotatecms",
             "cakephp",
@@ -877,12 +878,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "fbb5f87dadee007cfe1604b9f05f274ebdca0e1c"
+            "reference": "6f0a738c800a766ded4d398152f862d2e815d645"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fbb5f87dadee007cfe1604b9f05f274ebdca0e1c",
-            "reference": "fbb5f87dadee007cfe1604b9f05f274ebdca0e1c",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6f0a738c800a766ded4d398152f862d2e815d645",
+            "reference": "6f0a738c800a766ded4d398152f862d2e815d645",
             "shasum": ""
         },
         "require": {
@@ -901,7 +902,7 @@
             "wikibase/data-model": "0.6.*",
             "wikibase/easyrdf_lite": "*"
         },
-        "time": "2014-02-23 12:06:58",
+        "time": "2014-02-23 21:50:27",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
