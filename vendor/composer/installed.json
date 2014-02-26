@@ -86,140 +86,6 @@
         ]
     },
     {
-        "name": "data-values/javascript",
-        "version": "0.3.1",
-        "version_normalized": "0.3.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "3662a53a50b53d0ec11a8005a52109d3504a1b3e"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/3662a53a50b53d0ec11a8005a52109d3504a1b3e",
-            "reference": "3662a53a50b53d0ec11a8005a52109d3504a1b3e",
-            "shasum": ""
-        },
-        "require": {
-            "composer/installers": ">=1.0.1"
-        },
-        "time": "2014-02-03 13:54:56",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValuesJavascript.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "DataValues implementation in Javascript",
-        "keywords": [
-            "datavalues",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/value-view",
-        "version": "0.3.3",
-        "version_normalized": "0.3.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/ValueView.git",
-            "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
-            "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.3.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-02-24 15:07:42",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "ValueView.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
-        "name": "wikibase/easyrdf_lite",
-        "version": "0.8.1",
-        "version_normalized": "0.8.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata/easyrdf_lite.git",
-            "reference": "2f371b9447b7627e23b82cd31ade029659bb438c"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata/easyrdf_lite/zipball/2f371b9447b7627e23b82cd31ade029659bb438c",
-            "reference": "2f371b9447b7627e23b82cd31ade029659bb438c",
-            "shasum": ""
-        },
-        "time": "2014-01-29 22:43:55",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "EasyRdf_": "./"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD"
-        ],
-        "description": "EasyRdf Lite is a customized version of EasyRdf",
-        "homepage": "https://github.com/Wikidata/easyrdf_lite"
-    },
-    {
         "name": "data-values/interfaces",
         "version": "0.1.2",
         "version_normalized": "0.1.2.0",
@@ -764,6 +630,110 @@
         ]
     },
     {
+        "name": "data-values/javascript",
+        "version": "0.3.1",
+        "version_normalized": "0.3.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataValuesJavascript.git",
+            "reference": "3662a53a50b53d0ec11a8005a52109d3504a1b3e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/3662a53a50b53d0ec11a8005a52109d3504a1b3e",
+            "reference": "3662a53a50b53d0ec11a8005a52109d3504a1b3e",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": ">=1.0.1"
+        },
+        "time": "2014-02-03 13:54:56",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValuesJavascript.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "DataValues implementation in Javascript",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/value-view",
+        "version": "0.3.3",
+        "version_normalized": "0.3.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/ValueView.git",
+            "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
+            "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.3.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-02-24 15:07:42",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
+    },
+    {
         "name": "data-values/data-types",
         "version": "0.1.2",
         "version_normalized": "0.1.2.0",
@@ -872,37 +842,67 @@
         ]
     },
     {
+        "name": "wikibase/easyrdf_lite",
+        "version": "0.8.1",
+        "version_normalized": "0.8.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata/easyrdf_lite.git",
+            "reference": "2f371b9447b7627e23b82cd31ade029659bb438c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata/easyrdf_lite/zipball/2f371b9447b7627e23b82cd31ade029659bb438c",
+            "reference": "2f371b9447b7627e23b82cd31ade029659bb438c",
+            "shasum": ""
+        },
+        "time": "2014-01-29 22:43:55",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "EasyRdf_": "./"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD"
+        ],
+        "description": "EasyRdf Lite is a customized version of EasyRdf",
+        "homepage": "https://github.com/Wikidata/easyrdf_lite"
+    },
+    {
         "name": "wikibase/wikibase",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "41b04e9fac1e471aa2084446ec04aa2ba33bee4f"
+            "reference": "8eea5f4afc1839d9ee50a0b5bc7bbf5ca32bde43"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/41b04e9fac1e471aa2084446ec04aa2ba33bee4f",
-            "reference": "41b04e9fac1e471aa2084446ec04aa2ba33bee4f",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8eea5f4afc1839d9ee50a0b5bc7bbf5ca32bde43",
+            "reference": "8eea5f4afc1839d9ee50a0b5bc7bbf5ca32bde43",
             "shasum": ""
         },
         "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-types": "~0.1",
-            "data-values/data-values": "~0.1",
-            "data-values/geo": "~0.1",
-            "data-values/javascript": "~0.3",
-            "data-values/number": "~0.2",
-            "data-values/serialization": "~0.1",
-            "data-values/time": "~0.1",
-            "data-values/validators": "~0.1",
-            "data-values/value-view": "~0.3,>=0.3.3",
+            "data-values/common": "~0.2.0",
+            "data-values/data-types": "~0.1.0",
+            "data-values/data-values": "~0.1.0",
+            "data-values/geo": "~0.1.0",
+            "data-values/javascript": "~0.3.0",
+            "data-values/number": "~0.2.0",
+            "data-values/serialization": "~0.1.0",
+            "data-values/time": "~0.2.0",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.3.3",
             "diff/diff": ">=0.9",
             "php": ">=5.3.2",
-            "wikibase/data-model": "0.6.*",
+            "wikibase/data-model": "~0.6.0",
             "wikibase/easyrdf_lite": "*"
         },
-        "time": "2014-02-25 09:29:18",
+        "time": "2014-02-25 20:09:46",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
