@@ -46,7 +46,7 @@
                 {
                     "name": "Kyle Robinson Young",
                     "email": "kyle@dontkry.com",
-                    "homepage": "https://github.com/shama",
+                    "homepage": "http://dontkry.com",
                     "role": "Developer"
                 }
             ],
@@ -391,7 +391,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -851,12 +851,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e78a231b6dbbda6b318032c59bbbbec7593cb321"
+                "reference": "ba6f73302c255912b1b622a6e6daa099a1ddde63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e78a231b6dbbda6b318032c59bbbbec7593cb321",
-                "reference": "e78a231b6dbbda6b318032c59bbbbec7593cb321",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ba6f73302c255912b1b622a6e6daa099a1ddde63",
+                "reference": "ba6f73302c255912b1b622a6e6daa099a1ddde63",
                 "shasum": ""
             },
             "require": {
@@ -915,7 +915,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-02-28 09:25:49"
+            "time": "2014-03-02 20:46:14"
         }
     ],
     "packages-dev": [

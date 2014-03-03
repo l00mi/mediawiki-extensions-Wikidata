@@ -55,6 +55,8 @@ $messages['en'] = array(
 	'wikibase-property-notfound' => '$1 property not found.',
 	'wikibase-property-notsupportedyet' => 'Wikibase does not yet support property type for $1 property.',
 	'wikibase-rc-hide-wikidata' => '$1 Wikidata',
+	'wikibase-rc-hide-wikidata-hide' => 'Hide',
+	'wikibase-rc-hide-wikidata-show' => 'Show',
 	'wikibase-rc-show-wikidata-pref' => 'Show Wikidata edits in recent changes',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
 	'wikibase-rc-wikibase-edit-title' => 'Wikidata edit',
@@ -164,7 +166,19 @@ Parameters:
 	'wikibase-rc-hide-wikidata' => 'This refers to a toggle to hide or show edits (revisions) that come from Wikidata. If set to "hide", it hides edits made to the connected item in the Wikidata repository.
 
 Parameters:
-* $1 - a link with the text {{msg-mw|show}} or {{msg-mw|hide}}',
+* $1 - a link with the text {{msg-mw|wikibase-rc-hide-wikidata-show}} or {{msg-mw|wikibase-rc-hide-wikidata-hide}}',
+	'wikibase-rc-hide-wikidata-hide' => '{{doc-actionlink}}
+Option text in [[Special:RecentChanges]] in conjunction with {{msg-mw|wikibase-rc-hide-wikidata}}.
+
+See also:
+* {{msg-mw|wikibase-rc-hide-wikidata-show}}
+{{Identical|Hide}}',
+	'wikibase-rc-hide-wikidata-show' => '{{doc-actionlink}}
+Option text in [[Special:RecentChanges]] in conjunction with {{msg-mw|wikibase-rc-hide-wikidata}}.
+
+See also:
+* {{msg-mw|wikibase-rc-hide-wikidata-hide}}
+{{Identical|Show}}',
 	'wikibase-rc-show-wikidata-pref' => 'Option in the recent changes section of preferences to show wikibase changes by default in recent changes.',
 	'wikibase-rc-wikibase-edit-letter' => "Very short form of \"'''wikidata edit'''\". Used in [[Special:RecentChanges]] and [[Special:Watchlist]].
 
@@ -559,6 +573,7 @@ $messages['be-tarask'] = array(
 
 /** Bulgarian (български)
  * @author DCLXVI
+ * @author Mitzev
  * @author Spiritia
  */
 $messages['bg'] = array(
@@ -578,6 +593,8 @@ $messages['bg'] = array(
 	'wikibase-linkitem-confirmitem-button' => 'Потвърждаване',
 	'wikibase-linkitem-not-loggedin-title' => 'Трябва да сте влезли в системата',
 	'wikibase-rc-hide-wikidata' => '$1 на Уикиданни',
+	'wikibase-rc-hide-wikidata-hide' => 'Скрий',
+	'wikibase-rc-hide-wikidata-show' => 'Покажи',
 	'wikibase-pageinfo-entity-id' => 'ID на обекта в Уикиданни',
 );
 
@@ -808,6 +825,7 @@ $messages['ce'] = array(
 	'wikibase-linkitem-success-link' => 'АгӀонаш кхиамца [$1 Викихаамаш чохь] вовшахтесна.',
 	'wikibase-property-notfound' => 'Свойства «$1» ца карайо',
 	'wikibase-rc-hide-wikidata' => '$1 Викихаамаш',
+	'wikibase-rc-hide-wikidata-hide' => 'Къайлабаха',
 	'wikibase-rc-show-wikidata-pref' => 'Керла нисдаршан могӀамехь гайта Викихаамаш чохь хила хийцамаш',
 	'wikibase-rc-wikibase-edit-title' => 'Викихаамашкахь бина хийцам',
 	'wikibase-watchlist-show-changes-pref' => 'Викихаамаш чохь хийла хийцамаш гайта тергаме могӀам чохь',
@@ -1096,6 +1114,8 @@ $messages['de'] = array(
 	'wikibase-property-notfound' => 'Die Eigenschaft „$1“ wurde nicht gefunden.',
 	'wikibase-property-notsupportedyet' => 'Wikibase unterstützt den Eigenschaftstyp der Eigenschaft „$1“ noch nicht.',
 	'wikibase-rc-hide-wikidata' => 'Wikidata $1',
+	'wikibase-rc-hide-wikidata-hide' => 'ausblenden',
+	'wikibase-rc-hide-wikidata-show' => 'anzeigen',
 	'wikibase-rc-show-wikidata-pref' => 'Wikidata-Bearbeitungen in den „Letzten Änderungen“ anzeigen',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
 	'wikibase-rc-wikibase-edit-title' => 'Wikidata-Bearbeitung',
@@ -1252,9 +1272,12 @@ $messages['el'] = array(
 );
 
 /** British English (British English)
+ * @author Felicilijonas
  * @author Shirayuki
  */
 $messages['en-gb'] = array(
+	'wikibase-rc-hide-wikidata-hide' => 'Slėpti',
+	'wikibase-rc-hide-wikidata-show' => 'Rodyti',
 	'wikibase-error-serialize-error' => 'Failed to serialise data',
 );
 
@@ -1467,7 +1490,7 @@ $messages['fa'] = array(
 	'wikibase-editlinks' => 'ویرایش پیوندها',
 	'wikibase-editlinkstitle' => 'ویرایش پیوندهای میان‌ویکی',
 	'wikibase-linkitem-addlinks' => 'افزودن پیوند',
-	'wikibase-linkitem-alreadylinked' => 'صفحه‌ای که شما به آن پیوند می‌دهید، از قبل به یک [$1 آیتم] در مخزن مرکزی داده که به $2 در این سایت مریوط می‌شود، متصل است. آیتم‌ها می‌توانند فقط به یک صفحه از وبگاه ارتباط داشته‌باشند. لطفا از یک صقحه برای پیوند استفاده کنید.',
+	'wikibase-linkitem-alreadylinked' => 'صفحه‌ای که شما به آن پیوند می‌دهید، از قبل به یک [$1 آیتم] در مخزن مرکزی داده که به $2 در این سایت مریوط می‌شود، متصل است. آیتم‌ها می‌توانند فقط به یک صفحه از وبگاه ارتباط داشته‌باشند. لطفاً از یک صفحه برای پیوند استفاده کنید.',
 	'wikibase-linkitem-close' => 'پنجره را ببند و صفحه را مجدداً بارگذاری کن',
 	'wikibase-linkitem-failure' => 'یک خطای ناشناخته در هنگام بارگذاری صفحهٔ پیوند داده‌شده رخ داد.',
 	'wikibase-linkitem-title' => 'پیوند به صفحه',
@@ -2648,6 +2671,8 @@ $messages['lb'] = array(
 	'wikibase-linkitem-not-loggedin' => 'Dir musst op dëser Wiki an am [$1 zentralen Daterepertoire] ageloggt si fir dës Funktioun ze benotzen.',
 	'wikibase-property-notfound' => "D'Eegeschaft $1 gouf net fonnt.",
 	'wikibase-rc-hide-wikidata' => 'Wikidata $1',
+	'wikibase-rc-hide-wikidata-hide' => 'Verstoppen',
+	'wikibase-rc-hide-wikidata-show' => 'Weisen',
 	'wikibase-rc-show-wikidata-pref' => 'Wikidata-Ännerungen an de rezenten Ännerunge weisen',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
 	'wikibase-rc-wikibase-edit-title' => 'Wikidata-Ännerung',
@@ -3312,6 +3337,7 @@ $messages['oc'] = array(
 /** Polish (polski)
  * @author BeginaFelicysym
  * @author Chrumps
+ * @author Jacenty359
  * @author Lazowik
  * @author Maćko
  * @author Odie2
@@ -3353,6 +3379,8 @@ $messages['pl'] = array(
 	'wikibase-property-notfound' => 'Właściwość $1 nie została znaleziona.',
 	'wikibase-property-notsupportedyet' => 'Wikibase nie obsługuje jeszcze typu właściwość dla właściwości $1.',
 	'wikibase-rc-hide-wikidata' => '$1 Wikidane',
+	'wikibase-rc-hide-wikidata-hide' => 'Schowaj',
+	'wikibase-rc-hide-wikidata-show' => 'Pokaż',
 	'wikibase-rc-show-wikidata-pref' => 'Pokazuj edycje w Wikidanych w ostatnich zmianach',
 	'wikibase-rc-wikibase-edit-letter' => 'd',
 	'wikibase-rc-wikibase-edit-title' => 'Edycja w Wikidanych',
@@ -3674,6 +3702,7 @@ $messages['roa-tara'] = array(
  * @author Putnik
  * @author Soul Train
  * @author Александр Сигачёв
+ * @author Умар
  */
 $messages['ru'] = array(
 	'wikibase-client-desc' => 'Клиент для расширения Wikibase',
@@ -3711,6 +3740,7 @@ $messages['ru'] = array(
 	'wikibase-property-notfound' => 'Свойство «$1» не найдено',
 	'wikibase-property-notsupportedyet' => 'Wikibase пока не поддерживает тип свойства «$1».',
 	'wikibase-rc-hide-wikidata' => '$1 Викиданные',
+	'wikibase-rc-hide-wikidata-hide' => 'Скрыть',
 	'wikibase-rc-show-wikidata-pref' => 'Показать изменения Викиданных в списке свежих правок',
 	'wikibase-rc-wikibase-edit-letter' => 'д',
 	'wikibase-rc-wikibase-edit-title' => 'Правка Викиданных',
@@ -3970,7 +4000,7 @@ $messages['sr-ec'] = array(
 	'wikibase-watchlist-show-changes-pref' => 'Прикажи измене на Википодацима у списку надгледања',
 	'wikibase-error-serialize-error' => 'Неуспешна серијализација података',
 	'wikibase-error-invalid-entity-id' => 'Унети идентификатор је непознат систему. Молимо унесите важећи ИД.',
-	'special-unconnectedpages' => 'Странице нису повезане са ставкама',
+	'special-unconnectedpages' => 'Странице које нису повезане са ставкама',
 	'wikibase-unconnectedpages-legend' => 'Могућности неповезаних страница',
 	'wikibase-unconnectedpages-page' => 'Почетак списка резултата страницом:',
 	'wikibase-unconnectedpages-submit' => 'Иди',
@@ -3996,6 +4026,7 @@ $messages['sr-el'] = array(
 	'wikibase-rc-show-wikidata-pref' => 'Prikaži izmene na Vikipodacima u skorašnjim izmenama',
 	'wikibase-rc-wikibase-edit-letter' => 'd',
 	'wikibase-rc-wikibase-edit-title' => 'Izmena na Vikipodacima',
+	'special-unconnectedpages' => 'Stranice koje nisu povezane sa stavkama',
 	'wikibase-pageinfo-entity-id' => 'ID stavke na Vikipodacima',
 );
 
