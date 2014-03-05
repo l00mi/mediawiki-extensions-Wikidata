@@ -873,17 +873,17 @@
     },
     {
         "name": "wikibase/wikibase",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-mw1.23-wmf17",
+        "version_normalized": "dev-mw1.23-wmf17",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "578cff2cec37324d4ea7e24908ad476405bca560"
+            "reference": "69eff3f60cd0116e6c78c9052e55877c5b5c9388"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/578cff2cec37324d4ea7e24908ad476405bca560",
-            "reference": "578cff2cec37324d4ea7e24908ad476405bca560",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/69eff3f60cd0116e6c78c9052e55877c5b5c9388",
+            "reference": "69eff3f60cd0116e6c78c9052e55877c5b5c9388",
             "shasum": ""
         },
         "require": {
@@ -902,9 +902,9 @@
             "wikibase/data-model": "~0.6.0",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-03-05 10:44:24",
+        "time": "2014-03-05 16:06:26",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"
