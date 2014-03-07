@@ -1,5 +1,28 @@
 # Wikibase DataModel release notes
 
+## Version 0.7 (2014-03-07)
+
+#### Additions
+
+* Added TypedSnak value object
+* Added SiteLinkList value object
+* Added Claims::getBestClaims
+* Added Claims::getByRank
+
+#### Improvements
+
+* The PHPUnit bootstrap file now works again on Windows
+* Changed class loading from PSR-0 to PSR-4
+
+#### Deprecations
+
+* Deprecated SiteLink::toArray(), SiteLink::newFromArray(), SiteLink::getBadgesFromArray()
+
+#### Removals
+
+* Removed PropertySnak interface
+* Claims::getObjectType removed
+
 ## Version 0.6 (2013-12-23)
 
 #### Improvements

@@ -20,17 +20,11 @@ use Wikibase\DataModel\Snak\SnakList;
  */
 class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
-	public function getInstanceClass() {
-		return '\Wikibase\ReferenceList';
-	}
-
 	public function instanceProvider() {
-		$class = $this->getInstanceClass();
-
 		$instances = array();
 
 		foreach ( $this->getConstructorArg() as $arg ) {
-			$instances[] = array( new $class( $arg ) );
+			$instances[] = array( new ReferenceList( $arg ) );
 		}
 
 		return $instances;
@@ -52,20 +46,17 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function referenceListProvider() {
-		$class = $this->getInstanceClass();
-
-		return array(
-			array( new $class( $this->getElementInstances() ) )
-		);
-	}
-
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\ReferenceList $array
+	 * @param ReferenceList $array
 	 */
-	public function testHasReference( ReferenceList $array ) {
+	public function testHasReferenceBeforeRemoveButNotAfter( ReferenceList $array ) {
+		if ( $array->count() === 0 ) {
+			$this->assertTrue( true );
+			return;
+		}
+
 		/**
 		 * @var Reference $hashable
 		 */
@@ -74,14 +65,12 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 			$array->removeReference( $hashable );
 			$this->assertFalse( $array->hasReference( $hashable ) );
 		}
-
-		$this->assertTrue( true );
 	}
 
-	public function testHasReferenceMore() {
+	public function testGivenCloneOfReferenceInList_hasReferenceReturnsTrue() {
 		$list = new ReferenceList();
 
-		$reference = new Reference( new \Wikibase\SnakList( array( new \Wikibase\PropertyNoValueSnak( 42 ) ) ) );
+		$reference = new Reference( new SnakList( array( new PropertyNoValueSnak( 42 ) ) ) );
 		$sameReference = unserialize( serialize( $reference ) );
 
 		$list->addReference( $reference );
@@ -95,7 +84,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\ReferenceList $array
+	 * @param ReferenceList $array
 	 */
 	public function testRemoveReference( ReferenceList $array ) {
 		$elementCount = count( $array );
@@ -124,7 +113,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\ReferenceList $array
+	 * @param ReferenceList $array
 	 */
 	public function testAddReference( ReferenceList $array ) {
 		// Append object to the end:
@@ -159,7 +148,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @dataProvider referenceListProvider
+	 * @dataProvider instanceProvider
 	 *
 	 * @param ReferenceList $array
 	 */
@@ -183,7 +172,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType( 'array', $array, 'toArray should return array' );
 
 		foreach ( array( $array, unserialize( $serialization ) ) as $data ) {
-			$copy = \Wikibase\ReferenceList::newFromArray( $data );
+			$copy = ReferenceList::newFromArray( $data );
 
 			$this->assertInstanceOf( '\Wikibase\References', $copy, 'newFromArray should return object implementing Snak' );
 
@@ -194,7 +183,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\ReferenceList $array
+	 * @param ReferenceList $array
 	 */
 	public function testEquals( ReferenceList $array ) {
 		$this->assertTrue( $array->equals( $array ) );
@@ -204,11 +193,18 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\ReferenceList $array
+	 * @param ReferenceList $array
 	 */
-	public function testGetHash( ReferenceList $array ) {
+	public function testGetHashReturnsString( ReferenceList $array ) {
 		$this->assertInternalType( 'string', $array->getValueHash() );
+	}
 
+	/**
+	 * @dataProvider instanceProvider
+	 *
+	 * @param ReferenceList $array
+	 */
+	public function testGetHashValueIsTheSameForClone( ReferenceList $array ) {
 		$copy = ReferenceList::newFromArray( $array->toArray() );
 		$this->assertEquals( $array->getValueHash(), $copy->getValueHash() );
 	}

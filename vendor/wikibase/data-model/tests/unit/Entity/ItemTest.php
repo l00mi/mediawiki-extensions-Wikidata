@@ -8,6 +8,7 @@ use Diff\DiffOpAdd;
 use Diff\DiffOpChange;
 use Diff\DiffOpRemove;
 use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Entity\EntityDiff;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -24,17 +25,13 @@ use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Claim\Statement;
 
 /**
- * @covers Wikibase\Item
- * @covers Wikibase\Entity
+ * @covers Wikibase\DataModel\Entity\Item
+ * @covers Wikibase\DataModel\Entity\Entity
  *
  * Some tests for this class are located in ItemMultilangTextsTest,
  * ItemNewEmptyTest and ItemNewFromArrayTest.
  *
- * @file
  * @since 0.1
- *
- * @ingroup WikibaseLib
- * @ingroup Test
  *
  * @group Wikibase
  * @group WikibaseItem
@@ -222,7 +219,7 @@ class ItemTest extends EntityTest {
 		$entity1 = $this->getNewEmpty();
 		$entity1->addSiteLink( new SiteLink( 'enwiki', 'Berlin' ) );
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'page'   => new DiffOpAdd( 'Berlin' )
@@ -256,7 +253,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'badges' => new Diff( array(
@@ -282,7 +279,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'page'   => new DiffOpAdd( 'Berlin' ),
@@ -301,7 +298,7 @@ class ItemTest extends EntityTest {
 		$entity0->addSiteLink( new SiteLink( 'enwiki', 'Berlin' ) );
 		$entity1 = $this->getNewEmpty();
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'page'   => new DiffOpRemove( 'Berlin' ),
@@ -335,7 +332,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'badges' => new Diff( array(
@@ -362,7 +359,7 @@ class ItemTest extends EntityTest {
 		);
 		$entity1 = $this->getNewEmpty();
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'name'   => new DiffOpRemove( 'Berlin' ),
@@ -401,7 +398,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'name'   => new DiffOpChange( 'Berlin', 'Foobar' ),
@@ -436,7 +433,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'badges' => new Diff( array(
@@ -474,7 +471,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new \Wikibase\EntityDiff( array(
+		$expected = new EntityDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'name'   => new DiffOpChange( 'Berlin', 'Foobar' ),

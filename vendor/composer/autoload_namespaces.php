@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src'),
     'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/validators/src'),
     'ValueParsers\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/geo/src'),
     'ValueFormatters\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/geo/src'),

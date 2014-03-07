@@ -5,9 +5,6 @@
  *
  * @since 0.4
  *
- * @file
- * @ingroup WikibaseDataModel
- *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
@@ -63,6 +60,13 @@ $messages['de'] = array(
 	'wikibasedatamodel-desc' => 'Komponente, die das Wikibase-Datenmodell definiert',
 );
 
+/** Lower Sorbian (dolnoserbski)
+ * @author Michawiki
+ */
+$messages['dsb'] = array(
+	'wikibasedatamodel-desc' => 'Komponenta, kótaraž definěrujo datowy model Wikibase',
+);
+
 /** Esperanto (Esperanto)
  * @author KuboF
  */
@@ -89,6 +93,13 @@ $messages['gl'] = array(
  */
 $messages['he'] = array(
 	'wikibasedatamodel-desc' => 'רכיב שמגדיר את מודל הנתונים של ויקיבייס',
+);
+
+/** Upper Sorbian (hornjoserbsce)
+ * @author Michawiki
+ */
+$messages['hsb'] = array(
+	'wikibasedatamodel-desc' => 'Komponenta, kotraž definujo datowy model Wikibase',
 );
 
 /** Indonesian (Bahasa Indonesia)
@@ -173,6 +184,13 @@ $messages['oc'] = array(
  */
 $messages['pl'] = array(
 	'wikibasedatamodel-desc' => 'Komponent definiujący model danych Wikibase',
+);
+
+/** Romanian (română)
+ * @author Minisarm
+ */
+$messages['ro'] = array(
+	'wikibasedatamodel-desc' => 'Componentă care definește modelul de date al Wikibase',
 );
 
 /** tarandíne (tarandíne)

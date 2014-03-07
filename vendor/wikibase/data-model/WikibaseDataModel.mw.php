@@ -6,9 +6,6 @@
  *
  * @since 0.4
  *
- * @file
- * @ingroup WikibaseDataModel
- *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
@@ -24,7 +21,7 @@ $GLOBALS['wgExtensionCredits']['wikibase'][] = array(
 	'author' => array(
 		'[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]',
 	),
-	'url' => 'https://www.mediawiki.org/wiki/Extension:Wikibase_DataModel',
+	'url' => 'https://github.com/wmde/WikibaseDataModel',
 	'descriptionmsg' => 'wikibasedatamodel-desc'
 );
 

@@ -3,8 +3,7 @@
 namespace Wikibase\Test;
 
 use DataValues\StringValue;
-use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -30,13 +29,13 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 		$snakLists[] = new SnakList();
 
 		$snakLists[] = new SnakList(
-			array( new PropertyValueSnak( new EntityId( Property::ENTITY_TYPE, 1 ), new StringValue( 'a' ) ) )
+			array( new PropertyValueSnak( new PropertyId( 'P1' ), new StringValue( 'a' ) ) )
 		);
 
 		$snakLists[] = new SnakList( array(
-			new PropertyValueSnak( new EntityId( Property::ENTITY_TYPE, 1 ), new StringValue( 'a' ) ),
-			new PropertySomeValueSnak( new EntityId( Property::ENTITY_TYPE, 2 ) ),
-			new PropertyNoValueSnak( new EntityId( Property::ENTITY_TYPE, 3 ) )
+			new PropertyValueSnak( new PropertyId( 'P1' ), new StringValue( 'a' ) ),
+			new PropertySomeValueSnak( new PropertyId( 'P2' ) ),
+			new PropertyNoValueSnak( new PropertyId( 'P3' ) )
 		) );
 
 		$argLists = array();
@@ -53,10 +52,22 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 
 		$references[] = new Reference();
 
-		$references[] = new Reference( new SnakList( array( new PropertyValueSnak(
-			new EntityId( Property::ENTITY_TYPE, 1 ),
-			new StringValue( 'a' )
-		) ) ) );
+		$references[] = new Reference( new SnakList( array(
+			new PropertyValueSnak(
+				new PropertyId( 'P1' ),
+				new StringValue( 'a' )
+			)
+		) ) );
+
+		$references[] = new Reference( new SnakList( array(
+			new PropertyValueSnak(
+				new PropertyId( 'P1' ),
+				new StringValue( 'a' )
+			),
+			new PropertySomeValueSnak(
+				new PropertyId( 'P2' )
+			)
+		) ) );
 
 		$argLists = array();
 
@@ -70,7 +81,7 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider snakListProvider
 	 *
-	 * @param \Wikibase\Snaks $snaks
+	 * @param Snaks $snaks
 	 */
 	public function testConstructor( Snaks $snaks ) {
 		$omnomnomReference = new Reference( $snaks );
@@ -83,9 +94,23 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 */
-	public function testGetHash( Reference $reference ) {
-		$this->assertEquals( $reference->getHash(), $reference->getHash() );
+	public function testGetHashReturnsString( Reference $reference ) {
 		$this->assertInternalType( 'string', $reference->getHash() );
+	}
+
+	/**
+	 * @dataProvider instanceProvider
+	 */
+	public function testGetHashIsStable( Reference $reference ) {
+		$this->assertEquals( $reference->getHash(), $reference->getHash() );
+	}
+
+	/**
+	 * @dataProvider instanceProvider
+	 */
+	public function testGetHashIsTheSameForInstanceWithSameValue( Reference $reference ) {
+		$newRef = unserialize( serialize( $reference ) );
+		$this->assertEquals( $newRef->getHash(), $reference->getHash() );
 	}
 
 	/**
@@ -104,10 +129,10 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function unorderedReferenceProvider() {
 		$ids = array(
-			new EntityId( Property::ENTITY_TYPE, 1 ),
-			new EntityId( Property::ENTITY_TYPE, 2 ),
-			new EntityId( Property::ENTITY_TYPE, 3 ),
-			new EntityId( Property::ENTITY_TYPE, 4 ),
+			new PropertyId( 'P1' ),
+			new PropertyId( 'P2' ),
+			new PropertyId( 'P3' ),
+			new PropertyId( 'P4' ),
 		);
 
 		$snakListArgs = array(

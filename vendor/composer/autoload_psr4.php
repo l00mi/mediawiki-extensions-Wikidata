@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src'),
 );

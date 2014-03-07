@@ -10,7 +10,7 @@ use Wikibase\DataModel\HashArray;
  * @covers Wikibase\DataModel\HashArray
  *
  * @group Wikibase
- * @group WikibaseLib
+ * @group WikibaseDataModel
  * @group HashArray
  *
  * @licence GNU GPL v2+
@@ -44,7 +44,7 @@ abstract class HashArrayTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\HashArray $array
+	 * @param HashArray $array
 	 */
 	public function testHasElement( HashArray $array ) {
 		$array->removeDuplicates();
@@ -66,7 +66,7 @@ abstract class HashArrayTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\HashArray $array
+	 * @param HashArray $array
 	 */
 	public function testRemoveElement( HashArray $array ) {
 		$array->removeDuplicates();
@@ -101,7 +101,7 @@ abstract class HashArrayTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 *
-	 * @param \Wikibase\HashArray $array
+	 * @param HashArray $array
 	 */
 	public function testEquals( HashArray $array ) {
 		$this->assertTrue( $array->equals( $array ) );

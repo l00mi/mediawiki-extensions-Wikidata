@@ -15,9 +15,8 @@ use Wikibase\DataModel\Entity\ItemDiff;
  * @covers Wikibase\DataModel\Entity\ItemDiff
  *
  * @group Wikibase
- * @group WikibaseLib
- * @group WikibaseDiff
  * @group WikibaseDataModel
+ * @group WikibaseDiff
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
@@ -30,7 +29,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 	//TODO: make the new EntityDiffTest also run for Items.
 
 	public static function provideApplyData() {
-		$originalTests = parent::generateApplyData( \Wikibase\Item::ENTITY_TYPE );
+		$originalTests = parent::generateApplyData( Item::ENTITY_TYPE );
 		$tests = array();
 
 		/**

@@ -8,11 +8,11 @@
  */
 
 if ( defined( 'WIKIBASE_DATAMODEL_VERSION' ) ) {
-	// Do not initialize more then once.
+	// Do not initialize more than once.
 	return 1;
 }
 
-define( 'WIKIBASE_DATAMODEL_VERSION', '0.6'  );
+define( 'WIKIBASE_DATAMODEL_VERSION', '0.7' );
 
 // Temporary global to migrate away from DataValueFactory::singleton.
 // It should not be used outside this component and should not be used
@@ -56,7 +56,6 @@ class_alias( 'Wikibase\DataModel\Entity\Entity', 'Wikibase\Entity' );
 class_alias( 'Wikibase\DataModel\Entity\Item', 'Wikibase\Item' );
 class_alias( 'Wikibase\DataModel\Entity\Property', 'Wikibase\Property' );
 class_alias( 'Wikibase\DataModel\Snak\PropertyNoValueSnak', 'Wikibase\PropertyNoValueSnak' );
-class_alias( 'Wikibase\DataModel\Snak\PropertySnak', 'Wikibase\PropertySnak' );
 class_alias( 'Wikibase\DataModel\Snak\PropertySomeValueSnak', 'Wikibase\PropertySomeValueSnak' );
 class_alias( 'Wikibase\DataModel\Snak\PropertyValueSnak', 'Wikibase\PropertyValueSnak' );
 class_alias( 'Wikibase\DataModel\Snak\Snak', 'Wikibase\Snak' );
