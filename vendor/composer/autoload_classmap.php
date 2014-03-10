@@ -238,6 +238,7 @@ return array(
     'Wikibase\\ClaimSummaryBuilder' => $baseDir . '/extensions/Wikibase/repo/includes/ClaimSummaryBuilder.php',
     'Wikibase\\ClientHooks' => $baseDir . '/extensions/Wikibase/client/WikibaseClient.hooks.php',
     'Wikibase\\ClientStore' => $baseDir . '/extensions/Wikibase/client/includes/store/ClientStore.php',
+    'Wikibase\\Client\\ClientSiteLinkLookup' => $baseDir . '/extensions/Wikibase/client/includes/ClientSiteLinkLookup.php',
     'Wikibase\\Client\\Hooks\\InfoActionHookHandler' => $baseDir . '/extensions/Wikibase/client/includes/hooks/InfoActionHookHandler.php',
     'Wikibase\\Client\\MovePageNotice' => $baseDir . '/extensions/Wikibase/client/includes/hooks/MovePageNotice.php',
     'Wikibase\\Client\\Scribunto\\Test\\Scribunto_LuaWikibaseLibraryTestCase' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/scribunto/Scribunto_LuaWikibaseLibraryTestCase.php',
