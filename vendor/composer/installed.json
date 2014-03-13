@@ -255,72 +255,18 @@
         ]
     },
     {
-        "name": "data-values/time",
-        "version": "0.2",
-        "version_normalized": "0.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Time.git",
-            "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/004ea71f2d7c994b97c779c0b46ca31879bcdd67",
-            "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-02-11 12:40:11",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Time.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Time value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Time",
-        "keywords": [
-            "datavalues",
-            "time",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/number",
-        "version": "0.2",
-        "version_normalized": "0.2.0.0",
+        "version": "0.3",
+        "version_normalized": "0.3.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Number.git",
-            "reference": "70514fbe865cd2d76d074c6cf3e99702db18b70f"
+            "reference": "20bb12d117acefe8f00b869f577831c50edd4450"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Number/zipball/70514fbe865cd2d76d074c6cf3e99702db18b70f",
-            "reference": "70514fbe865cd2d76d074c6cf3e99702db18b70f",
+            "url": "https://api.github.com/repos/DataValues/Number/zipball/20bb12d117acefe8f00b869f577831c50edd4450",
+            "reference": "20bb12d117acefe8f00b869f577831c50edd4450",
             "shasum": ""
         },
         "require": {
@@ -329,7 +275,7 @@
             "data-values/interfaces": "~0.1",
             "php": ">=5.3.0"
         },
-        "time": "2013-12-16 16:07:24",
+        "time": "2014-03-12 09:37:50",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -356,67 +302,6 @@
         "keywords": [
             "datavalues",
             "number",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/geo",
-        "version": "0.1.2",
-        "version_normalized": "0.1.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Geo.git",
-            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Geo/zipball/8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
-            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-01-24 15:08:52",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Geo.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Geographical value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Geo",
-        "keywords": [
-            "datavalues",
-            "geo",
-            "geographical",
             "valueformatters",
             "valueparsers",
             "wikidata"
@@ -575,29 +460,26 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "0.7",
-        "version_normalized": "0.7.0.0",
+        "version": "0.7.1",
+        "version_normalized": "0.7.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "22e5639e6133281b0b50d05f60066546668909de"
+            "reference": "769d9c714ad4e10ed2cfd15b49af2768bed6e8f6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/22e5639e6133281b0b50d05f60066546668909de",
-            "reference": "22e5639e6133281b0b50d05f60066546668909de",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/769d9c714ad4e10ed2cfd15b49af2768bed6e8f6",
+            "reference": "769d9c714ad4e10ed2cfd15b49af2768bed6e8f6",
             "shasum": ""
         },
         "require": {
             "data-values/data-values": "~0.1.0",
-            "data-values/geo": "~0.1.0",
-            "data-values/number": "~0.2.0",
             "data-values/serialization": ">=0.1,<2.0",
-            "data-values/time": "~0.2.0",
             "diff/diff": "~0.9.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-03-07 20:10:05",
+        "time": "2014-03-12 13:04:05",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -630,6 +512,121 @@
         "keywords": [
             "DataModel",
             "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/time",
+        "version": "0.2",
+        "version_normalized": "0.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Time.git",
+            "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/004ea71f2d7c994b97c779c0b46ca31879bcdd67",
+            "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.1",
+            "data-values/data-values": "~0.1",
+            "data-values/interfaces": "~0.1",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-02-11 12:40:11",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Time.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Time value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Time",
+        "keywords": [
+            "datavalues",
+            "time",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/geo",
+        "version": "0.1.2",
+        "version_normalized": "0.1.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Geo.git",
+            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Geo/zipball/8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
+            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.1",
+            "data-values/data-values": "~0.1",
+            "data-values/interfaces": "~0.1",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-01-24 15:08:52",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Geo.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Geographical value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Geo",
+        "keywords": [
+            "datavalues",
+            "geo",
+            "geographical",
+            "valueformatters",
+            "valueparsers",
             "wikidata"
         ]
     },
@@ -698,7 +695,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "Daniel Werner",
@@ -882,12 +879,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "f75510a0a1295726beda73315859773ad8b33309"
+            "reference": "619a2d701545ecfebee30a07baa083c9b8323261"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f75510a0a1295726beda73315859773ad8b33309",
-            "reference": "f75510a0a1295726beda73315859773ad8b33309",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/619a2d701545ecfebee30a07baa083c9b8323261",
+            "reference": "619a2d701545ecfebee30a07baa083c9b8323261",
             "shasum": ""
         },
         "require": {
@@ -896,7 +893,7 @@
             "data-values/data-values": "~0.1.0",
             "data-values/geo": "~0.1.0",
             "data-values/javascript": "~0.3.0",
-            "data-values/number": "~0.2.0",
+            "data-values/number": "~0.3.0",
             "data-values/serialization": "~0.1.0",
             "data-values/time": "~0.2.0",
             "data-values/validators": "~0.1.0",
@@ -906,7 +903,7 @@
             "wikibase/data-model": "~0.7.0",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-03-12 09:27:50",
+        "time": "2014-03-12 20:36:28",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

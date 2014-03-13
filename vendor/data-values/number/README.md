@@ -44,10 +44,17 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 
 ## Authors
 
-DataValues Number has been written by the Wikidata team, as [Wikimedia Germany]
-(https://wikimedia.de) employees for the [Wikidata project](https://wikidata.org/).
+DataValues Number has been written by Daniel Kinzler, as [Wikimedia Germany]
+(https://wikimedia.de) employee for the [Wikidata project](https://wikidata.org/).
 
 ## Release notes
+
+### 0.3 (2014-03-12)
+* Unlocalizer: added getNumberRegex() and getUnitRegex()
+* Unlocalizer: replaced unlocalize() with unlocalizeNumber()
+* Localizer: replaced localize() with localizeNumber()
+* Localizer and Unlocalizer: no longer require the target language and options in method calls
+* QuantityParser: fixed parsing of internationalized quantity strings
 
 ### 0.2 (2013-12-16)
 
