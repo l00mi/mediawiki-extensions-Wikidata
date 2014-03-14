@@ -391,7 +391,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -515,16 +515,16 @@
         },
         {
             "name": "data-values/time",
-            "version": "0.2",
+            "version": "0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67"
+                "reference": "b019ca4d46dd98503f86286e9be4c95333260493"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/004ea71f2d7c994b97c779c0b46ca31879bcdd67",
-                "reference": "004ea71f2d7c994b97c779c0b46ca31879bcdd67",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/b019ca4d46dd98503f86286e9be4c95333260493",
+                "reference": "b019ca4d46dd98503f86286e9be4c95333260493",
                 "shasum": ""
             },
             "require": {
@@ -563,7 +563,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-02-11 12:40:11"
+            "time": "2014-03-13 10:41:04"
         },
         {
             "name": "data-values/validators",
@@ -765,16 +765,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "0.7.1",
+            "version": "0.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "769d9c714ad4e10ed2cfd15b49af2768bed6e8f6"
+                "reference": "15a39cf700158eb2a4e25cd61a83211e2bcd9c0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/769d9c714ad4e10ed2cfd15b49af2768bed6e8f6",
-                "reference": "769d9c714ad4e10ed2cfd15b49af2768bed6e8f6",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/15a39cf700158eb2a4e25cd61a83211e2bcd9c0a",
+                "reference": "15a39cf700158eb2a4e25cd61a83211e2bcd9c0a",
                 "shasum": ""
             },
             "require": {
@@ -816,7 +816,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-03-12 13:04:05"
+            "time": "2014-03-13 16:24:45"
         },
         {
             "name": "wikibase/easyrdf_lite",
@@ -852,12 +852,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "619a2d701545ecfebee30a07baa083c9b8323261"
+                "reference": "ab380f9574f00a978929f4633057244d7e0fefb6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/619a2d701545ecfebee30a07baa083c9b8323261",
-                "reference": "619a2d701545ecfebee30a07baa083c9b8323261",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ab380f9574f00a978929f4633057244d7e0fefb6",
+                "reference": "ab380f9574f00a978929f4633057244d7e0fefb6",
                 "shasum": ""
             },
             "require": {
@@ -868,12 +868,12 @@
                 "data-values/javascript": "~0.3.0",
                 "data-values/number": "~0.3.0",
                 "data-values/serialization": "~0.1.0",
-                "data-values/time": "~0.2.0",
+                "data-values/time": "~0.3.0",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.3.3",
                 "diff/diff": "~0.9",
                 "php": ">=5.3.2",
-                "wikibase/data-model": "~0.7.0",
+                "wikibase/data-model": "~0.7.2",
                 "wikibase/easyrdf_lite": "~0.8.1"
             },
             "type": "mediawiki-extension",
@@ -916,7 +916,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-03-12 20:36:28"
+            "time": "2014-03-13 23:11:36"
         }
     ],
     "packages-dev": [

@@ -17,6 +17,19 @@ use InvalidArgumentException;
 class TimeParser extends StringValueParser {
 
 	/**
+	 * @since 0.3
+	 */
+	const OPT_PRECISION = 'precision';
+	const OPT_CALENDAR = 'calender';
+
+	/**
+	 * @since 0.3
+	 */
+	const CALENDAR_GREGORIAN = 'http://www.wikidata.org/entity/Q1985727';
+	const CALENDAR_JULIAN = 'http://www.wikidata.org/entity/Q1985786';
+	const PRECISION_NONE = 'noprecision';
+
+	/**
 	 * Regex pattern constant matching the sign preceding the time
 	 */
 	const SIGN_PATTERN = '([\+\-]?)';
@@ -26,29 +39,49 @@ class TimeParser extends StringValueParser {
 	const TIME_PATTERN = '(\d{1,16}\-\d{2}\-\d{2}T\d{2}:\d{2}:\d{2}Z)';
 
 	/**
-	 * @var CalenderModelParser
+	 * @var CalendarModelParser
 	 */
-	private $calenderModelParser;
+	private $calendarModelParser;
 
 	/**
 	 * @since 0.1
 	 *
-	 * @param CalenderModelParser $calenderModelParser
+	 * @param CalendarModelParser $calendarModelParser
 	 * @param ParserOptions|null $options
 	 */
-	public function __construct( CalenderModelParser $calenderModelParser, ParserOptions $options = null ) {
+	public function __construct( CalendarModelParser $calendarModelParser, ParserOptions $options = null ) {
+
+		$options->defaultOption( TimeParser::OPT_CALENDAR, TimeParser::CALENDAR_GREGORIAN );
+		$options->defaultOption( TimeParser::OPT_PRECISION, TimeParser::PRECISION_NONE );
+
 		parent::__construct( $options );
-		$this->calenderModelParser = $calenderModelParser;
+		$this->calendarModelParser = $calendarModelParser;
 	}
 
 	protected function stringParse( $value ) {
 		list( $sign, $time, $model ) = $this->splitTimeString( $value );
-		$time = $this->padTime( $time );
-		$precision = $this->getPrecisionFromTime( $sign . $time );
+		$time = $sign . $this->padTime( $time );
+
+		$calendarOpt = $this->getOptions()->getOption( TimeParser::OPT_CALENDAR );
+		$calanderModelRegex = '/(' . preg_quote( self::CALENDAR_GREGORIAN, '/' ). '|' . preg_quote( self::CALENDAR_JULIAN, '/' ) . ')/i';
+
+		if( $model === '' && preg_match( $calanderModelRegex, $calendarOpt ) ) {
+			$model = $calendarOpt;
+		} else if( $model !== '' ) {
+			$model = $this->calendarModelParser->parse( $model );
+		} else {
+			$model = self::CALENDAR_GREGORIAN;
+		}
+
+		$precisionOpt = $this->getOptions()->getOption( TimeParser::OPT_PRECISION );
+		if( is_int( $precisionOpt ) ) {
+			$precision = $precisionOpt;
+		} else {
+			$precision = $this->getPrecisionFromTime( $time );
+		}
 
 		try {
-			$time = $this->newTimeFromParts( $sign . $time, $model, $precision );
-			return $time;
+			return new TimeValue( $time, 0, 0, 0, $precision, $model );
 		} catch ( IllegalValueException $ex ) {
 			throw new ParseException( $ex->getMessage() );
 		}
@@ -109,11 +142,6 @@ class TimeParser extends StringValueParser {
 		return $precision;
 	}
 
-	private function newTimeFromParts( $time, $model, $precision ) {
-		$model = $this->calenderModelParser->parse( $model );
-		return new TimeValue( $time, 0, 0, 0, $precision, $model );
-	}
-
 	private function splitTimeString( $value ) {
 		if ( !is_string( $value ) ) {
 			throw new InvalidArgumentException( '$value must be a string' );
@@ -122,7 +150,7 @@ class TimeParser extends StringValueParser {
 		$pattern = '@^'
 			. '\s*' . self::SIGN_PATTERN . '' // $1: sign
 			. '\s*' . self::TIME_PATTERN . '' // $2: time
-			. '\s*\(?\s*' . CalenderModelParser::MODEL_PATTERN . '\s*\)?' // $3 model
+			. '\s*\(?\s*' . CalendarModelParser::MODEL_PATTERN . '\s*\)?' // $3 model
 			. '\s*$@iu';
 
 		if ( !preg_match( $pattern, $value, $groups ) ) {

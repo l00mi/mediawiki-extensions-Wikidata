@@ -7,12 +7,12 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/validators/src'),
-    'ValueParsers\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/geo/src'),
-    'ValueFormatters\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/geo/src'),
+    'ValueParsers\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/geo/src'),
+    'ValueFormatters\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/geo/src'),
     'EasyRdf_' => array($vendorDir . '/wikibase/easyrdf_lite'),
     'DataValues\\Serializers\\' => array($vendorDir . '/data-values/serialization/src'),
     'DataValues\\Deserializers\\' => array($vendorDir . '/data-values/serialization/src'),
-    'DataValues\\' => array($vendorDir . '/data-values/data-values/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/geo/src'),
+    'DataValues\\' => array($vendorDir . '/data-values/data-values/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/geo/src'),
     'DataTypes\\' => array($vendorDir . '/data-values/data-types/src'),
     'Composer\\Installers\\' => array($vendorDir . '/composer/installers/src'),
 );

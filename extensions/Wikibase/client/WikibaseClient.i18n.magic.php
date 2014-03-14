@@ -14,6 +14,7 @@ $magicWords = array();
 $magicWords['en'] = array(
 	'noexternallanglinks' => array( 0, 'noexternallanglinks' ),
 	'property' => array( 0, 'property' ),
+	'wbreponame' => array( 0, 'wbreponame' ),
 );
 
 /** Arabic (العربية) */
@@ -120,6 +121,11 @@ $magicWords['pt'] = array(
 /** Brazilian Portuguese (português do Brasil) */
 $magicWords['pt-br'] = array(
 	'property' => array( 0, 'propriedade' ),
+);
+
+/** Russian (русский) */
+$magicWords['ru'] = array(
+	'property' => array( 0, 'свойство' ),
 );
 
 /** Ukrainian (українська) */

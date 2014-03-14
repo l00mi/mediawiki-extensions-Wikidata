@@ -1,5 +1,9 @@
 # Wikibase DataModel release notes
 
+## Version 0.7.2 (2014-03-13)
+
+* Added Claims::getByRanks
+
 ## Version 0.7.1 (2014-03-12)
 
 * Removed DataValues Geo, DataValues Time and DataValues Number from the dependency list.

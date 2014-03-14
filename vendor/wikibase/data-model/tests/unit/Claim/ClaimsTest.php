@@ -662,7 +662,7 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 		$s3->setRank( Claim::RANK_PREFERRED );
 
 		return array(
-			// Emtpy yields empty
+			// Empty yields empty
 			array(
 				new Claims(),
 				Claim::RANK_NORMAL,
@@ -692,8 +692,48 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideGetByRank
 	 */
-	public function testGetByRank( $input, $rank, $expected ) {
+	public function testGetByRank( Claims $input, $rank, $expected ) {
 		$this->assertEquals( $input->getByRank( $rank ), $expected );
+	}
+
+	public function provideGetByRanks() {
+		$s1 = $this->makeStatement( new PropertyNoValueSnak( new PropertyId( "P1" ) ) );
+		$s1->setRank( Claim::RANK_NORMAL );
+
+		$s2 = $this->makeStatement( new PropertyNoValueSnak( new PropertyId( "P2" ) ) );
+		$s2->setRank( Claim::RANK_PREFERRED );
+
+		$ret = array(
+			// s1 has RANK_NORMAL, thus doesn't match
+			array(
+				new Claims( array( $s2, $s1 ) ),
+				array( Claim::RANK_PREFERRED, Claim::RANK_DEPRECATED ),
+				new Claims( array( $s2 ) ),
+			),
+			// s2 has RANK_PREFERRED and s1 has RANK_NORMAL, so return them
+			array(
+				new Claims( array( $s2, $s1 ) ),
+				array( Claim::RANK_PREFERRED, Claim::RANK_NORMAL ),
+				new Claims( array( $s2, $s1 ) ),
+			)
+		);
+
+		// This function acts very similar to Claims::getByRank, so that we
+		// can reuse the test cases
+		$ret = array_merge( $this->provideGetByRank(), $ret );
+
+		return $ret;
+	}
+
+	/**
+	 * @dataProvider provideGetByRanks
+	 */
+	public function testGetByRanks( Claims $input, $ranks, $expected ) {
+		if ( !is_array( $ranks ) ) {
+			$ranks = array( $ranks );
+		}
+
+		$this->assertEquals( $input->getByRanks( $ranks ), $expected );
 	}
 
 	public function testGetBestClaimsEmpty() {

@@ -2,7 +2,6 @@
 
 namespace Wikibase;
 
-use DataValues\DataValue;
 use Wikibase\Lib\FormattingException;
 use Wikibase\Lib\PropertyNotFoundException;
 use Wikibase\Lib\Serializers\ClaimSerializer;
@@ -105,6 +104,7 @@ class ClaimHtmlGenerator {
 			// Messages: wikibase-statementview-rank-preferred, wikibase-statementview-rank-normal,
 			// wikibase-statementview-rank-deprecated
 			$rankHtml = wfTemplate( 'wb-rankselector',
+				'ui-state-disabled',
 				'wb-rankselector-' . $serializedRank,
 				wfMessage( 'wikibase-statementview-rank-' . $serializedRank )->text()
 			);
