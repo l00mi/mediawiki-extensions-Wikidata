@@ -22,11 +22,11 @@ the git repository and take care of loading yourself.
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `data-values/data-types` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-DataTypes 1.0:
+DataTypes 0.1.0:
 
     {
         "require": {
-            "data-values/data-types": "1.0.*"
+            "data-values/data-types": "0.1.*"
         }
     }
 
@@ -50,9 +50,21 @@ for the [Wikidata project](https://wikidata.org/).
 
 ## Release notes
 
-### 0.1.2 (2014-02-18)
+### 0.2 (2014-03-14)
 
-* Fixes to resource loader path registration
+#### Breaking changes
+
+* dataTypes.DataType JavaScript object may not be initialized providing a dataValues.DataValue object anymore.
+* Removed dataTypes.DataType.getLabel().
+* Removed global DataType registration in the dataTypes object; DataTypeStore is to be used instead.
+* Split up generic "dataTypes" ResourceLoader module into "dataTypes.DataType" and "dataTypes.DataTypeStore".
+
+#### Enhancements
+
+* Removed MediaWiki and DataValues dependencies from JavaScript code.
+* Made code PSR-4 compliant
+* Removed ResourceLoader dependency of QUnit tests.
+* Implemented DataTypeStore.
 
 ### 0.1.1 (2013-12-23)
 

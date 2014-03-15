@@ -1,12 +1,22 @@
 language: php
 
+env:
+  - QUNIT=false
+
 php:
   - 5.3
   - 5.4
   - 5.5
 
+matrix:
+  include:
+    - php: 5.3
+      env: QUNIT=true
+
 before_script:
-  - composer install
+  - composer install --prefer-source
+
+script: bash ./build/travis/script.sh
 
 notifications:
   email:
@@ -14,10 +24,10 @@ notifications:
       - jeroendedauw@gmail.com
     on_success: change
     on_failure: always
-
-notifications:
   irc:
     channels:
       - "chat.freenode.net#wikidata"
     on_success: change
     on_failure: always
+    template:
+      - "%{repository}/%{branch}/%{commit} : %{author} %{message} %{build_url}"

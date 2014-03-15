@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src'),
+    'DataTypes\\' => array($vendorDir . '/data-values/data-types/src'),
 );
