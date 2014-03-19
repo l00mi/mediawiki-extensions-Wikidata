@@ -73,7 +73,8 @@ $messages['en'] = array(
 	'wikibase-unconnectedpages-format-row' => '($1 {{PLURAL:$1|interlanguage link|interlanguage links}} on the page)',
 	'wikibase-pageinfo-entity-id' => '{{WBREPONAME}} item ID',
 	'wikibase-pageinfo-entity-id-none' => 'None',
-	'wikibase-property-render-error' => 'Failed to render property $1: $2'
+	'wikibase-property-render-error' => 'Failed to render property $1: $2',
+	'wikibase-otherprojects' => 'Other projects'
 );
 
 /** Message documentation (Message documentation)
@@ -226,6 +227,7 @@ Parameters:
 Parameters:
 * $1 - the property ID or name
 * $2 - the original error message (this is typically in English and may be rather technical)',
+	'wikibase-otherprojects' => 'Label of the sidebar section containing links to other projects',
 );
 
 /** Achinese (Acèh)
@@ -416,16 +418,16 @@ $messages['as'] = array(
  */
 $messages['ast'] = array(
 	'wikibase-client-desc' => 'Cliente pa la estensión Wikibase',
-	'specialpages-group-wikibaseclient' => 'Cliente de Wikidata',
+	'specialpages-group-wikibaseclient' => 'Cliente de {{WBREPONAME}}',
 	'tooltip-t-wikibase' => 'Enllaz al elementu del depósitu de datos coneutáu',
-	'wikibase-after-page-move' => "Tamién pue [$1 anovar] l'elementu asociáu de Wikidata pa caltener los enllaces d'idioma na páxina treslladada.",
-	'wikibase-after-page-move-queued' => "L'[$1 elementu de Wikidata] asociáu con esta páxina pronto s'actualizará automáticamente.",
-	'wikibase-comment-add' => 'Creóse un elementu en Wikidata.',
-	'wikibase-comment-remove' => "Desanicióse l'elementu asociáu de Wikidata. Quitaronse los enllaces de llingua.",
-	'wikibase-comment-linked' => 'Enllazóse un elementu de Wikidata a esta páxina.',
-	'wikibase-comment-unlink' => "Desenllazóse esta páxina d'un elementu de Wikidata. Quitaronse los enllaces de llingua.",
-	'wikibase-comment-restore' => "Recuperóse l'elementu asociáu de Wikidata. Restauraronse los enllaces de llingua.",
-	'wikibase-comment-update' => "Camudó l'elementu de Wikidata",
+	'wikibase-after-page-move' => "Tamién pue [$1 anovar] l'elementu asociáu de {{WBREPONAME}} pa caltener los enllaces d'idioma na páxina treslladada.",
+	'wikibase-after-page-move-queued' => "L'[$1 elementu de {{WBREPONAME}}] asociáu con esta páxina pronto s'actualizará automáticamente.",
+	'wikibase-comment-add' => 'Creóse un elementu en {{WBREPONAME}}.',
+	'wikibase-comment-remove' => "Desanicióse l'elementu asociáu de {{WBREPONAME}}. Quitáronse los enllaces de llingua.",
+	'wikibase-comment-linked' => 'Enllazóse un elementu de {{WBREPONAME}} a esta páxina.',
+	'wikibase-comment-unlink' => "Desenllazóse esta páxina d'un elementu de {{WBREPONAME}}. Quitaronse los enllaces de llingua.",
+	'wikibase-comment-restore' => "Recuperóse l'elementu asociáu de {{WBREPONAME}}. Restauráronse los enllaces de llingua.",
+	'wikibase-comment-update' => "Camudó l'elementu de {{WBREPONAME}}",
 	'wikibase-comment-sitelink-add' => 'Amestóse un enllaz de llingua: $1',
 	'wikibase-comment-sitelink-change' => 'Camudó un enllaz de llingua de $1 a $2',
 	'wikibase-comment-sitelink-remove' => 'Desanicióse un enllaz de llingua: $1',
@@ -449,13 +451,13 @@ $messages['ast'] = array(
 	'wikibase-linkitem-success-link' => "Les páxines enllazaronse correutamente. Pue alcontrar l'elementu que contién los enllaces nel [$1 depósitu central de datos].",
 	'wikibase-property-notfound' => "Nun s'alcontró la propiedá $1.",
 	'wikibase-property-notsupportedyet' => 'Wikibase inda nun sofita tipu de propiedá pa la propiedá $1.',
-	'wikibase-rc-hide-wikidata' => '$1 Wikidata',
+	'wikibase-rc-hide-wikidata' => '$1 {{WBREPONAME}}',
 	'wikibase-rc-hide-wikidata-hide' => 'Anubrir',
 	'wikibase-rc-hide-wikidata-show' => 'Amosar',
-	'wikibase-rc-show-wikidata-pref' => 'Amosar les ediciones de Wikidata nos cambios de recién',
+	'wikibase-rc-show-wikidata-pref' => 'Amosar les ediciones de {{WBREPONAME}} nos cambios recientes',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
-	'wikibase-rc-wikibase-edit-title' => 'Edición de Wikidata',
-	'wikibase-watchlist-show-changes-pref' => 'Amosar les ediciones de Wikidata na so llista de vixilancia',
+	'wikibase-rc-wikibase-edit-title' => 'Edición de {{WBREPONAME}}',
+	'wikibase-watchlist-show-changes-pref' => 'Amosar les ediciones de {{WBREPONAME}} na so llista de vixilancia',
 	'wikibase-error-serialize-error' => 'Falló la serialización de los datos',
 	'wikibase-error-invalid-entity-id' => "La ID qu'escribió ye desconocida pal sistema. Por favor, use una ID d'entidá válida.",
 	'special-unconnectedpages' => 'Páxines nun coneutaes con elementos',
@@ -466,9 +468,10 @@ $messages['ast'] = array(
 	'wikibase-unconnectedpages-page-warning' => 'El títulu de la páxina nun pudo usase pa la consulta ya inoróse.',
 	'wikibase-unconnectedpages-iwdata-label' => 'Namái páxines con enllaces interllingüísticos',
 	'wikibase-unconnectedpages-format-row' => '($1 {{PLURAL:$1|enllaz interllingüísticu|enllaces interllingüísticos}} na páxina)',
-	'wikibase-pageinfo-entity-id' => "ID d'elementu de Wikidata",
+	'wikibase-pageinfo-entity-id' => 'ID del elementu de {{WBREPONAME}}',
 	'wikibase-pageinfo-entity-id-none' => 'Dengún',
 	'wikibase-property-render-error' => 'Fallu al renderizar la propiedá $1: $2',
+	'wikibase-otherprojects' => 'Otros proyeutos',
 );
 
 /** Bashkir (башҡортса)
@@ -651,6 +654,15 @@ $messages['bn'] = array(
 	'wikibase-unconnectedpages-invalid-language' => '"$1" কোনো সঠিক ভাষার কোড নয়।',
 	'wikibase-pageinfo-entity-id' => 'উইকিউপাত্ত আইটেম আইডি',
 	'wikibase-pageinfo-entity-id-none' => 'কোনটিই নয়',
+);
+
+/** Tibetan (བོད་ཡིག)
+ * @author Phurbutsering
+ */
+$messages['bo'] = array(
+	'wikibase-comment-unlink' => 'ཤོག་ངོས་འདི་{{WBREPONAME}} ནས་སྦྲེལ་མཐུད་བཅད་སོང། སྐད་ཡིག་སྦྲེལ་མཐུད་སྤོས་སོང།',
+	'wikibase-rc-hide-wikidata' => '$1 {{WBREPONAME}}',
+	'wikibase-otherprojects' => 'ལས་གཞི་གཞན་དག།',
 );
 
 /** Breton (brezhoneg)
@@ -1151,6 +1163,7 @@ $messages['de'] = array(
 	'wikibase-pageinfo-entity-id' => '{{WBREPONAME}}-Objektkennung',
 	'wikibase-pageinfo-entity-id-none' => 'Keine',
 	'wikibase-property-render-error' => 'Eigenschaft „$1“ konnte nicht gerendert werden: $2',
+	'wikibase-otherprojects' => 'Andere Projekte',
 );
 
 /** Swiss High German (Schweizer Hochdeutsch)
@@ -1495,16 +1508,16 @@ $messages['eu'] = array(
  */
 $messages['fa'] = array(
 	'wikibase-client-desc' => 'کارخواه برای افزونهٔ ویکی‌بیس',
-	'specialpages-group-wikibaseclient' => 'کارخواه ویکی‌داده', # Fuzzy
+	'specialpages-group-wikibaseclient' => 'سرویس گیرنده {{WBREPONAME}}',
 	'tooltip-t-wikibase' => 'پیوند به آیتم متصل به مخزن داده',
 	'wikibase-after-page-move' => 'شما ممکن است در عین حال بخواهید آیتم وابستهٔ ویکی‌داده را نیز به [$1 روزرسانی] کنید، تا پیوند به صفحه منتقل شده باقی بماند.', # Fuzzy
-	'wikibase-after-page-move-queued' => '[$1 آیتم ویکی‌داده] مرتبط با این صفحه به زودی به طور خودکار به‌روزرسانی می‌شود.', # Fuzzy
-	'wikibase-comment-add' => 'یک آیتم ویکی‌داده ایجاد شد.', # Fuzzy
-	'wikibase-comment-remove' => 'پیوند آیتم ویکی‌داده حذف گردید. پیوند زبان حذف شد.', # Fuzzy
-	'wikibase-comment-linked' => 'یک آیتم ویکی‌داده به این صفحه پیوند دارد.', # Fuzzy
-	'wikibase-comment-unlink' => 'این صفحه به ویکی‌داده پیوند ندارد. پیوند زبان حذف شد.', # Fuzzy
-	'wikibase-comment-restore' => 'پیوند آیتم ویکی‌داده بازیابی شد. پیوند زبان بازیابی شد.', # Fuzzy
-	'wikibase-comment-update' => 'آیتم ویکی‌داده تغییر یافت', # Fuzzy
+	'wikibase-after-page-move-queued' => '[ $1  مورد {{WBREPONAME}}] مرتبط با این صفحه را به طور خودکار به زودی به روز خواهد شد.',
+	'wikibase-comment-add' => 'یک مورد {{WBREPONAME}} ایجاد شده‌‌است.',
+	'wikibase-comment-remove' => 'مورد مرتبط {{WBREPONAME}} حذف شد. لینک‌های زبان حذف شد.',
+	'wikibase-comment-linked' => 'مورد {{WBREPONAME}} در این صفحه مرتبط شده‌است.',
+	'wikibase-comment-unlink' => 'این صفحه تکی از مورد {{WBREPONAME}} مرتبط نشده‌است. لینک‌های زبان حذف شده‌است.',
+	'wikibase-comment-restore' => 'مورد مرتبط {{WBREPONAME}} حذف نشد. لینک‌های زبان برگردانده شد.',
+	'wikibase-comment-update' => 'مورد {{WBREPONAME}} تغییر کرد',
 	'wikibase-comment-sitelink-add' => 'پیوند زبان اضافه شده:$1',
 	'wikibase-comment-sitelink-change' => 'پیوند زبان از $1 به $2 تغییر کرده‌است.',
 	'wikibase-comment-sitelink-remove' => 'پیوند زبان حذف شد: $1',
@@ -1528,13 +1541,13 @@ $messages['fa'] = array(
 	'wikibase-linkitem-success-link' => 'این صفحه به‌درستی پیوند داده شد. شما می‌توانید آیتم حاوی پیوند را در [$1 مخزن مرکزی داده‌ها] بیابید.',
 	'wikibase-property-notfound' => 'خصوصیت $1 یافت نشد.',
 	'wikibase-property-notsupportedyet' => 'ویکی‌بیس هنوز نوع خصوصیت برای خصوصیت $1 را پشتیبانی نمی‌کند.',
-	'wikibase-rc-hide-wikidata' => '$1 ویکی‌داده', # Fuzzy
-	'wikibase-rc-hide-wikidata-hide' => 'پنهان کردن',
+	'wikibase-rc-hide-wikidata' => '$1{{WBREPONAME}}',
+	'wikibase-rc-hide-wikidata-hide' => 'پنهان‌کردن',
 	'wikibase-rc-hide-wikidata-show' => 'نمایش',
-	'wikibase-rc-show-wikidata-pref' => 'نمایش ویرایش‌های ویکی‌داده در تغییرات اخیر', # Fuzzy
+	'wikibase-rc-show-wikidata-pref' => 'نمایش {{WBREPONAME}} ویرایش‌ها در تغییرات اخیر',
 	'wikibase-rc-wikibase-edit-letter' => 'د',
-	'wikibase-rc-wikibase-edit-title' => 'ویرایش ویکی‌داده', # Fuzzy
-	'wikibase-watchlist-show-changes-pref' => 'نمایش ویرایش‌های ویکی‌داده در فهرست پیگیری‌ها', # Fuzzy
+	'wikibase-rc-wikibase-edit-title' => 'ویرایش {{WBREPONAME}}',
+	'wikibase-watchlist-show-changes-pref' => 'نمایش {{WBREPONAME}} ویرایش‌ها در فهرست پیگیری‌های شما',
 	'wikibase-error-serialize-error' => 'مرتب کردن داده انجام نشد.',
 	'wikibase-error-invalid-entity-id' => 'شناسهٔ واردشده برای سامانه ناشناخته است.لطفاً از یک شناسهٔ موضوع معتبر استفاده کنید.',
 	'special-unconnectedpages' => 'صفحه‌های متصل‌نشده به آیتم‌ها',
@@ -1545,7 +1558,7 @@ $messages['fa'] = array(
 	'wikibase-unconnectedpages-page-warning' => 'عنوان صفحه برای کوئری استفاده نمی‌شود و نادیده گرفته شده‌است.',
 	'wikibase-unconnectedpages-iwdata-label' => 'فقط صفحات با پیوند میان‌ویکی',
 	'wikibase-unconnectedpages-format-row' => '($1  {{PLURAL:$1|پیوند میان‌ویکی|پیوند میان‌ویکی}} در صفحه)',
-	'wikibase-pageinfo-entity-id' => 'شناسه آیتم ویکی‌داده', # Fuzzy
+	'wikibase-pageinfo-entity-id' => 'شناسه مورد {{WBREPONAME}}',
 	'wikibase-pageinfo-entity-id-none' => 'هیچ‌کدام',
 	'wikibase-property-render-error' => 'خطا در ارائهٔ خصوصیت  $1: $2',
 );
@@ -1613,6 +1626,7 @@ $messages['fi'] = array(
 	'wikibase-pageinfo-entity-id' => '{{WBREPONAME}}-kohteen tunniste',
 	'wikibase-pageinfo-entity-id-none' => 'Ei mitään',
 	'wikibase-property-render-error' => 'Ominaisuuden $1 näyttäminen epäonnistui: $2',
+	'wikibase-otherprojects' => 'Muut projektit',
 );
 
 /** French (français)
@@ -1623,6 +1637,7 @@ $messages['fi'] = array(
  * @author Kvardek du
  * @author Linedwell
  * @author Ltrlg
+ * @author Maxim21
  * @author Orlodrim
  * @author Peter17
  * @author Sherbrooke
@@ -1683,6 +1698,7 @@ $messages['fr'] = array(
 	'wikibase-pageinfo-entity-id' => 'ID de l’élément {{WBREPONAME}}',
 	'wikibase-pageinfo-entity-id-none' => 'Aucun',
 	'wikibase-property-render-error' => 'Échec de rendu de la propriété $1 : $2',
+	'wikibase-otherprojects' => 'Autres projets',
 );
 
 /** Franco-Provençal (arpetan)
@@ -1904,6 +1920,7 @@ $messages['he'] = array(
 	'wikibase-pageinfo-entity-id' => 'מזהה פריט ב{{GRAMMAR:תחילית|{{WBREPONAME}}}}',
 	'wikibase-pageinfo-entity-id-none' => 'אין',
 	'wikibase-property-render-error' => 'כשל בהכנת המאפיין $1 לתצוגה: $2',
+	'wikibase-otherprojects' => 'מיזמים אחרים',
 );
 
 /** Hindi (हिन्दी)
@@ -1979,12 +1996,15 @@ $messages['hr'] = array(
  */
 $messages['hsb'] = array(
 	'wikibase-client-desc' => 'Klient za rozšěrjenje Wikibase',
-	'wikibase-after-page-move' => 'Móžeš tež přirjadowany element Wikidata [$1 aktualizować], zo by mjezyrěčne wotkazy na přesunjenej stronje zarjadował.',
-	'wikibase-comment-remove' => 'Přirjadowany element Wikidata zhašany. Mjezyrěčne wotkazy wotstronjene.',
-	'wikibase-comment-linked' => 'Element z Wikidata je so z tutej stronu zwjazał.',
-	'wikibase-comment-unlink' => 'Zwisk strony z elementom Wikidata je so wotstronił. Mjezyrěčne wotkazy wotstronjene.',
-	'wikibase-comment-restore' => 'Přirjadowany element Wikidata zaso wobnowjeny. Mjezyrěčne wotkazy wobnowjene.',
-	'wikibase-comment-update' => 'Element Wikidata je so změnił',
+	'specialpages-group-wikibaseclient' => 'Klient {{WBREPONAME}}',
+	'wikibase-after-page-move' => 'Móžeš tež přirjadowany element {{WBREPONAME}} [$1 aktualizować], zo by mjezyrěčne wotkazy na přesunjenej stronje zarjadował.',
+	'wikibase-after-page-move-queued' => '[$1 Element {{WBREPONAME}}] zwjazany z tutej stronu budźe so bórze awtomatisce aktualizować.',
+	'wikibase-comment-add' => 'Zapisk {{WBREPONAME}} je so wutworił.',
+	'wikibase-comment-remove' => 'Přirjadowany element {{WBREPONAME}} zhašany. Mjezyrěčne wotkazy wotstronjene.',
+	'wikibase-comment-linked' => 'Element z {{WBREPONAME}} je so z tutej stronu zwjazał.',
+	'wikibase-comment-unlink' => 'Zwisk strony z elementom {{WBREPONAME}} je so wotstronił. Mjezyrěčne wotkazy wotstronjene.',
+	'wikibase-comment-restore' => 'Přirjadowany element {{WBREPONAME}} zaso wobnowjeny. Mjezyrěčne wotkazy wobnowjene.',
+	'wikibase-comment-update' => 'Element {{WBREPONAME}} je so změnił',
 	'wikibase-comment-sitelink-add' => 'Mjezyrěčny wotkaz přidaty: $1',
 	'wikibase-comment-sitelink-change' => 'Mjezyrěčny wotkaz změnjeny wot $1 do $2',
 	'wikibase-comment-sitelink-remove' => 'Mjezyrěčny wotkaz wotstronjeny: $1',
@@ -2008,12 +2028,24 @@ $messages['hsb'] = array(
 	'wikibase-linkitem-success-link' => 'Strony su so wuspěšnje zwjazali. Móžeš element, kotryž wotkazy wobsahuje, w našim [$1 centralnym datowym repozitoriju] namakać.',
 	'wikibase-property-notfound' => 'Kajkosć $1 njeje so namakała.',
 	'wikibase-property-notsupportedyet' => 'Wikibase hišće njepoděruje kajkostny typ za kajkosć $1.',
-	'wikibase-rc-hide-wikidata' => 'Wikidata $1',
-	'wikibase-rc-show-wikidata-pref' => 'Změny Wikidata w aktualnych změnach pokazać',
-	'wikibase-watchlist-show-changes-pref' => 'Změny Wikidata w twojich wobkedźbowankach pokazać',
+	'wikibase-rc-hide-wikidata' => '{{WBREPONAME}} $1',
+	'wikibase-rc-hide-wikidata-hide' => 'Schować',
+	'wikibase-rc-hide-wikidata-show' => 'Pokazać',
+	'wikibase-rc-show-wikidata-pref' => 'Změny {{WBREPONAME}} w aktualnych změnach pokazać',
+	'wikibase-rc-wikibase-edit-letter' => 'D',
+	'wikibase-rc-wikibase-edit-title' => 'Změna {{WBREPONAME}}',
+	'wikibase-watchlist-show-changes-pref' => 'Změny {{WBREPONAME}} w twojich wobkedźbowankach pokazać',
 	'wikibase-error-invalid-entity-id' => 'Zapodaty ID je systemej njeznaty. Prošu wužij płaćiwy entitowy ID.',
+	'special-unconnectedpages' => 'Strony, kotrež njejsu ze zapiskami zwjazane',
+	'wikibase-unconnectedpages-legend' => 'Nastajenja njezwjazanych stronow',
+	'wikibase-unconnectedpages-page' => 'Lisćinu wuslědkow ze stronu startować:',
+	'wikibase-unconnectedpages-submit' => 'Wotesłać',
 	'wikibase-unconnectedpages-invalid-language' => '"$1" płaćiwy rěčny kod njeje.',
-	'wikibase-pageinfo-entity-id' => 'ID elementa Wikidata',
+	'wikibase-unconnectedpages-page-warning' => 'Titul strony njeda so za naprašowanje wužiwać a je so ignorował.',
+	'wikibase-unconnectedpages-iwdata-label' => 'Jenož strony z mjezyrěčnymi wotkazami',
+	'wikibase-unconnectedpages-format-row' => '($1 {{PLURAL:$1|mjezyrěčny wotkaz|mjezyrěčnej wotkazaj|mjezyrěcne wotkazy|mjezyrěčnych wotkazow}} na stronje)',
+	'wikibase-pageinfo-entity-id' => 'ID elementa {{WBREPONAME}}',
+	'wikibase-pageinfo-entity-id-none' => 'Žadyn',
 );
 
 /** Hungarian (magyar)
@@ -2290,21 +2322,22 @@ $messages['is'] = array(
  * @author Candalua
  * @author Gianfranco
  * @author Gloria sah
+ * @author Maria victoria
  * @author Raoli
  * @author Sannita
  */
 $messages['it'] = array(
 	'wikibase-client-desc' => "Client per l'estensione Wikibase",
-	'specialpages-group-wikibaseclient' => 'Client Wikidata',
+	'specialpages-group-wikibaseclient' => 'Client {{WBREPONAME}}',
 	'tooltip-t-wikibase' => "Collegamento all'elemento connesso dell'archivio dati",
-	'wikibase-after-page-move' => "Puoi anche [$1 aggiornare] l'elemento associato su Wikidata per trasferire gli interlink sulla nuova pagina.",
-	'wikibase-after-page-move-queued' => "L'[$1 elemento Wikidata] associato a questa pagina sarà presto aggiornato automaticamente.",
-	'wikibase-comment-add' => 'È stato creato un elemento di Wikidata.',
-	'wikibase-comment-remove' => "L'elemento di Wikidata associato è stato cancellato. I collegamenti interlinguistici sono stati rimossi.",
-	'wikibase-comment-linked' => 'Un elemento di Wikidata è stato collegato a questa pagina.',
-	'wikibase-comment-unlink' => "Questa pagina è stata scollegata dall'elemento di Wikidata. I collegamenti interlinguistici sono stati rimossi.",
-	'wikibase-comment-restore' => "L'elemento di Wikidata associato è stato recuperato. I collegamenti interlinguistici sono stati ripristinati.",
-	'wikibase-comment-update' => 'Elemento Wikidata modificato',
+	'wikibase-after-page-move' => "Puoi anche [$1 aggiornare] l'elemento associato su {{WBREPONAME}} per trasferire gli interlink sulla nuova pagina.",
+	'wikibase-after-page-move-queued' => "L'[$1 elemento {{WBREPONAME}}] associato a questa pagina sarà presto aggiornato automaticamente.",
+	'wikibase-comment-add' => 'Un elemento di {{WBREPONAME}} è stato creato.',
+	'wikibase-comment-remove' => "L'elemento di {{WBREPONAME}} associato è stato cancellato. I collegamenti interlinguistici sono stati rimossi.",
+	'wikibase-comment-linked' => 'Un elemento di {{WBREPONAME}} è stato collegato a questa pagina.',
+	'wikibase-comment-unlink' => "Questa pagina è stata scollegata dall'elemento di {{WBREPONAME}}. I collegamenti interlinguistici sono stati rimossi.",
+	'wikibase-comment-restore' => "L'elemento di {{WBREPONAME}} associato è stato recuperato. I collegamenti interlinguistici sono stati ripristinati.",
+	'wikibase-comment-update' => 'Elemento {{WBREPONAME}} modificato',
 	'wikibase-comment-sitelink-add' => 'Collegamento linguistico aggiunto: $1',
 	'wikibase-comment-sitelink-change' => 'Collegamento linguistico modificato da $1 a $2',
 	'wikibase-comment-sitelink-remove' => 'Collegamento linguistico rimosso: $1',
@@ -2328,13 +2361,13 @@ $messages['it'] = array(
 	'wikibase-linkitem-success-link' => "Le pagine sono state collegate correttamente. Puoi trovare l'elemento contenente i link nel nostro [$1 archivio dati centralizzato].",
 	'wikibase-property-notfound' => 'Proprietà $1 non trovata.',
 	'wikibase-property-notsupportedyet' => 'Wikibase non supporta ancora il tipo di proprietà per la proprietà $1.',
-	'wikibase-rc-hide-wikidata' => '$1 Wikidata',
+	'wikibase-rc-hide-wikidata' => '$1 {{WBREPONAME}}',
 	'wikibase-rc-hide-wikidata-hide' => 'Nascondi',
 	'wikibase-rc-hide-wikidata-show' => 'Mostra',
-	'wikibase-rc-show-wikidata-pref' => 'Mostra le modifiche di Wikidata nelle ultime modifiche',
+	'wikibase-rc-show-wikidata-pref' => 'Mostra le modifiche di {{WBREPONAME}} nelle ultime modifiche',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
-	'wikibase-rc-wikibase-edit-title' => 'Questa è una modifica su Wikidata',
-	'wikibase-watchlist-show-changes-pref' => 'Mostra le modifiche su Wikidata nella tua lista degli osservati speciali',
+	'wikibase-rc-wikibase-edit-title' => 'Questa è una modifica su {{WBREPONAME}}',
+	'wikibase-watchlist-show-changes-pref' => 'Mostra le modifiche su {{WBREPONAME}} nella tua lista degli osservati speciali',
 	'wikibase-error-serialize-error' => 'Impossibile serializzare i dati',
 	'wikibase-error-invalid-entity-id' => "L'ID specificato è sconosciuto al sistema. Utilizza un ID di entità valido.",
 	'special-unconnectedpages' => 'Pagine non collegate agli elementi',
@@ -2345,9 +2378,10 @@ $messages['it'] = array(
 	'wikibase-unconnectedpages-page-warning' => 'Il titolo della pagina non può essere utilizzato per la query e viene ignorato.',
 	'wikibase-unconnectedpages-iwdata-label' => 'Solo le pagine con collegamenti interlinguistici',
 	'wikibase-unconnectedpages-format-row' => '($1 {{PLURAL:$1|collegamento interlinguistico|collegamenti interlinguistici}} nella pagina)',
-	'wikibase-pageinfo-entity-id' => 'ID elemento Wikidata',
+	'wikibase-pageinfo-entity-id' => 'ID elemento {{WBREPONAME}}',
 	'wikibase-pageinfo-entity-id-none' => 'Nessuno',
 	'wikibase-property-render-error' => 'Errore durante il rendering della proprietà $1: $2',
+	'wikibase-otherprojects' => 'Altri progetti',
 );
 
 /** Japanese (日本語)
@@ -2983,6 +3017,7 @@ $messages['mk'] = array(
 	'wikibase-pageinfo-entity-id' => 'Предметна назнака од {{WBREPONAME}}',
 	'wikibase-pageinfo-entity-id-none' => 'нема',
 	'wikibase-property-render-error' => 'Не успеав да го испишам својството $1: $2',
+	'wikibase-otherprojects' => 'Други проекти',
 );
 
 /** Malayalam (മലയാളം)
@@ -3048,9 +3083,12 @@ $messages['ml'] = array(
 
 /** Mongolian (монгол)
  * @author Elvonudinium
+ * @author MongolWiki
  */
 $messages['mn'] = array(
 	'wikibase-dataitem' => 'Мэдээны зүйл',
+	'wikibase-rc-wikibase-edit-letter' => 'ө',
+	'wikibase-rc-wikibase-edit-title' => 'Вики өгөгдөл засвар',
 );
 
 /** Marathi (मराठी)
@@ -3060,16 +3098,16 @@ $messages['mn'] = array(
  */
 $messages['mr'] = array(
 	'wikibase-client-desc' => 'विकिबेस विस्तारकाचा ग्राहक',
-	'specialpages-group-wikibaseclient' => 'विकिडाटा ग्राहक',
+	'specialpages-group-wikibaseclient' => 'विकिडाटा ग्राहक', # Fuzzy
 	'tooltip-t-wikibase' => 'माहिती भांडारात जोडलेल्या कलमाचा दुवा',
-	'wikibase-after-page-move' => 'आपण,स्थानांतरीत केलेल्या पानाशी असलेले भाषेचे दुवे राखण्यास, याचेशी संलग्न विकिडाटा कलमही [$1 अद्यतन] करु शकता.',
-	'wikibase-after-page-move-queued' => 'या पानाशी जुळलेले [$1 विकिडाटा कलम] हे आपोआप स्वयंचलितरित्या अद्यतन होईल.',
-	'wikibase-comment-add' => 'एक विकिडाटा कलम तयार करण्यात आला आहे.',
-	'wikibase-comment-remove' => 'जुळलेले विकिडाटा कलम वगळण्यात आले आहे.भाषेचे दुवे हटविले आहेत.',
-	'wikibase-comment-linked' => 'या पानाला विकिडाटातील कलम दुवा जोडला.',
-	'wikibase-comment-unlink' => 'या पानास असलेला विकिडाटाच्या कलमास दुवा हटविण्यात आला आहे.भाषेचे दुवे हटविले आहेत.',
-	'wikibase-comment-restore' => 'जोडलेली विकिडाटा कलम व भाषेचे दुवे पुनर्स्थापित करण्यात आलेले आहेत.',
-	'wikibase-comment-update' => 'विकिडाटा कलम बदलली',
+	'wikibase-after-page-move' => 'आपण,स्थानांतरीत केलेल्या पानाशी असलेले भाषेचे दुवे राखण्यास, याचेशी संलग्न विकिडाटा कलमही [$1 अद्यतन] करु शकता.', # Fuzzy
+	'wikibase-after-page-move-queued' => 'या पानाशी जुळलेले [$1 विकिडाटा कलम] हे आपोआप स्वयंचलितरित्या अद्यतन होईल.', # Fuzzy
+	'wikibase-comment-add' => 'एक विकिडाटा कलम तयार करण्यात आला आहे.', # Fuzzy
+	'wikibase-comment-remove' => 'जुळलेले विकिडाटा कलम वगळण्यात आले आहे.भाषेचे दुवे हटविले आहेत.', # Fuzzy
+	'wikibase-comment-linked' => 'या पानाला विकिडाटातील कलम दुवा जोडला.', # Fuzzy
+	'wikibase-comment-unlink' => 'या पानास असलेला विकिडाटाच्या कलमास दुवा हटविण्यात आला आहे.भाषेचे दुवे हटविले आहेत.', # Fuzzy
+	'wikibase-comment-restore' => 'जोडलेली विकिडाटा कलम व भाषेचे दुवे पुनर्स्थापित करण्यात आलेले आहेत.', # Fuzzy
+	'wikibase-comment-update' => 'विकिडाटा कलम बदलली', # Fuzzy
 	'wikibase-comment-sitelink-add' => 'भाषा दुवा जोडला: $1',
 	'wikibase-comment-sitelink-change' => 'भाषा दुवा बदलला $1 पासून $2 कडे',
 	'wikibase-comment-sitelink-remove' => 'भाषा दुवा काढला: $1',
@@ -3093,11 +3131,13 @@ $messages['mr'] = array(
 	'wikibase-linkitem-success-link' => 'हे पान यशस्वीरित्या जोडल्या गेलेले आहे.या कलमास आपण या दुव्यांसह आमच्या [$1 केंद्रिय माहिती भांडारात] बघू शकता.',
 	'wikibase-property-notfound' => '$1 गुणघर्म सापडला नाही.',
 	'wikibase-property-notsupportedyet' => 'विकिबेसवर अद्याप $1 गुणधर्मासाठी गुणधर्म प्रकार सहाय्यीभूत नाही.',
-	'wikibase-rc-hide-wikidata' => 'विकिडाटा $1',
-	'wikibase-rc-show-wikidata-pref' => 'विकिडाटा संपादने अलीकडील बदल मध्ये दाखवा',
+	'wikibase-rc-hide-wikidata' => 'विकिडाटा $1', # Fuzzy
+	'wikibase-rc-hide-wikidata-hide' => 'लपवा',
+	'wikibase-rc-hide-wikidata-show' => 'दाखवा',
+	'wikibase-rc-show-wikidata-pref' => 'विकिडाटा संपादने अलीकडील बदल मध्ये दाखवा', # Fuzzy
 	'wikibase-rc-wikibase-edit-letter' => 'डा',
-	'wikibase-rc-wikibase-edit-title' => 'विकिडाटाचे संपादन',
-	'wikibase-watchlist-show-changes-pref' => 'आपल्या पहाऱ्याच्या यादीत विकिडाटा संपादने दाखवा',
+	'wikibase-rc-wikibase-edit-title' => 'विकिडाटाचे संपादन', # Fuzzy
+	'wikibase-watchlist-show-changes-pref' => 'आपल्या पहाऱ्याच्या यादीत विकिडाटा संपादने दाखवा', # Fuzzy
 	'wikibase-error-serialize-error' => 'कलमांची मालिका लावण्यात अयशस्वी.',
 	'wikibase-error-invalid-entity-id' => 'आपण टाकलेली ओळखण प्रणालीसाठी अनोळखी आहे. कृपया वैध व अस्तित्वात असलेली ओळखण टाका.',
 	'special-unconnectedpages' => 'विकिडाटा कलमांना न जोडल्या गेलेली पाने',
@@ -3108,7 +3148,7 @@ $messages['mr'] = array(
 	'wikibase-unconnectedpages-page-warning' => 'हा लेखमथळा पृच्छेसाठी वापरल्या जाउ शकत नाही म्हणून दुर्लक्षिल्या जात आहे.',
 	'wikibase-unconnectedpages-iwdata-label' => 'फक्त ती पाने ज्यांना आंतरभाषिक दुवे आहेत',
 	'wikibase-unconnectedpages-format-row' => '(या पानावरील {{PLURAL:$1|आंतरभाषिक दुवा|आंतरभाषिक दुवे}} $1)',
-	'wikibase-pageinfo-entity-id' => 'विकिडाटा कलमाची ओळखण',
+	'wikibase-pageinfo-entity-id' => 'विकिडाटा कलमाची ओळखण', # Fuzzy
 	'wikibase-pageinfo-entity-id-none' => 'काहीही नाही',
 	'wikibase-property-render-error' => '$1 गुणधर्म देण्यास अयशस्वी:$2',
 );
@@ -3419,7 +3459,16 @@ $messages['nn'] = array(
  * @author Cedric31
  */
 $messages['oc'] = array(
+	'specialpages-group-wikibaseclient' => 'Client {{WBREPONAME}}',
+	'tooltip-t-wikibase' => 'Ligam cap a l’element de referencial de las donadas connectadas',
+	'wikibase-dataitem' => 'Element sus Wikidata',
+	'wikibase-editlinks' => 'Modificar los ligams',
+	'wikibase-linkitem-alreadylinked' => 'La pagina a la quala vos volètz ligar es ja estacada a un [$1 element] del depaus de donadas central que se liga a $2 sus aqueste site. Los elements pòdon pas aver qu’una pagina estacada per site. Causissètz una autra pagina per vos i ligar.',
+	'wikibase-linkitem-confirmitem-text' => "La pagina qu'avètz causida es ja associada a un [$1 element dins nòstre depaus de donadas central]. Confirmatz que {{PLURAL:$2|la pagina afichada çaijós es la|las paginas afichadas çaijós son las}} que volètz ligar amb aquesta pagina.",
+	'wikibase-linkitem-success-link' => 'Las paginas son estadas ligadas corrèctament. Podètz trobar l’element que conten los ligams dins nòstre [$1 entrepaus central de donadas].',
+	'wikibase-rc-show-wikidata-pref' => 'Afichar las modificacions de {{WBREPONAME}} dins los darrièrs cambiaments',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
+	'special-unconnectedpages' => 'Paginas pas religadas a un element',
 );
 
 /** Polish (polski)
@@ -3551,8 +3600,11 @@ $messages['pms'] = array(
  * @author Ahmed-Najib-Biabani-Ibrahimkhel
  */
 $messages['ps'] = array(
-	'wikibase-after-page-move-queued' => 'د [$1 ويکيډاټا توکی] چې همدې مخ سره اړونده و هغه به په اتوماتيکه توگه ډېر ژر هممهاله شي.',
-	'wikibase-rc-wikibase-edit-title' => 'د ويکيډاټا سمون',
+	'specialpages-group-wikibaseclient' => '{{WBREPONAME}} پېرن',
+	'wikibase-after-page-move-queued' => 'د [$1 ويکيډاټا توکی] چې همدې مخ سره اړونده و هغه به په اتوماتيکه توگه ډېر ژر هممهاله شي.', # Fuzzy
+	'wikibase-rc-hide-wikidata-hide' => 'پټول',
+	'wikibase-rc-hide-wikidata-show' => 'ښکاره کول',
+	'wikibase-rc-wikibase-edit-title' => '{{WBREPONAME}} سمون',
 );
 
 /** Portuguese (português)
@@ -3570,14 +3622,14 @@ $messages['pt'] = array(
 	'wikibase-client-desc' => 'Cliente para a extensão Wikibase',
 	'specialpages-group-wikibaseclient' => 'Cliente de {{WBREPONAME}}',
 	'tooltip-t-wikibase' => 'Ligação para o item de repositório de dados conectado',
-	'wikibase-after-page-move' => 'Também pode [$1 actualizar] o item do Wikidata associado para manter os links de idioma na página movida.', # Fuzzy
-	'wikibase-after-page-move-queued' => 'O [$1 item do Wikidata] associado a esta página será atualizado automaticamente em breve.', # Fuzzy
-	'wikibase-comment-add' => 'Um item foi criado no Wikidata.', # Fuzzy
-	'wikibase-comment-remove' => 'O item associado no Wikidata foi eliminado. Foram removidos os links para outros idiomas.', # Fuzzy
-	'wikibase-comment-linked' => 'Um item do Wikidata foi ligado a esta página.', # Fuzzy
+	'wikibase-after-page-move' => 'Também pode [$1 actualizar] o item {{WBREPONAME}} associado para manter as ligações de idioma na página movida.',
+	'wikibase-after-page-move-queued' => 'O [$1 item {{WBREPONAME}}] associado a esta página será atualizado automaticamente em breve.',
+	'wikibase-comment-add' => 'Um item {{WBREPONAME}} foi criado.',
+	'wikibase-comment-remove' => 'O item associado {{WBREPONAME}} foi eliminado. Foram removidos os links para outros idiomas.',
+	'wikibase-comment-linked' => 'Um item {{WBREPONAME}} foi ligado a esta página.',
 	'wikibase-comment-unlink' => 'A ligação desta página com {{WBREPONAME}} foi removida. Ligações de linguagem removidas.',
-	'wikibase-comment-restore' => 'O item associado no Wikidata foi restaurado. Foram restauradas as ligações para outros idiomas.', # Fuzzy
-	'wikibase-comment-update' => 'Item Wikidata alterado', # Fuzzy
+	'wikibase-comment-restore' => 'O item associado {{WBREPONAME}} foi restaurado. Foram restauradas as ligações para outros idiomas.',
+	'wikibase-comment-update' => 'Item {{WBREPONAME}} alterado',
 	'wikibase-comment-sitelink-add' => 'Ligação de idioma adicionada: $1',
 	'wikibase-comment-sitelink-change' => 'Ligação de idioma alterada de $1 para $2',
 	'wikibase-comment-sitelink-remove' => 'Ligação de idioma removida: $1',
@@ -3604,10 +3656,10 @@ $messages['pt'] = array(
 	'wikibase-rc-hide-wikidata' => '$1 {{WBREPONAME}}',
 	'wikibase-rc-hide-wikidata-hide' => 'Esconder',
 	'wikibase-rc-hide-wikidata-show' => 'Mostrar',
-	'wikibase-rc-show-wikidata-pref' => 'Mostrar as edições no Wikidata nas mudanças recentes', # Fuzzy
+	'wikibase-rc-show-wikidata-pref' => 'Mostrar as edições {{WBREPONAME}} nas mudanças recentes',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
-	'wikibase-rc-wikibase-edit-title' => 'Edição de Wikidata', # Fuzzy
-	'wikibase-watchlist-show-changes-pref' => 'Mostras as edições no Wikidata na sua lista de vigiados', # Fuzzy
+	'wikibase-rc-wikibase-edit-title' => 'Edição {{WBREPONAME}}',
+	'wikibase-watchlist-show-changes-pref' => 'Mostra as edições {{WBREPONAME}} na sua lista de vigiados',
 	'special-unconnectedpages' => 'Páginas não ligadas a itens',
 	'wikibase-unconnectedpages-submit' => 'Ir',
 	'wikibase-unconnectedpages-invalid-language' => '"$1" não é um código de idioma válido.',
@@ -3954,7 +4006,7 @@ $messages['sco'] = array(
 	'wikibase-error-invalid-entity-id' => 'The ID entered is onkent til the system. Please uise ae valid entitie ID.',
 	'special-unconnectedpages' => 'Pages no connected til eitems',
 	'wikibase-unconnectedpages-legend' => 'Onconnected pages opties',
-	'wikibase-unconnectedpages-page' => 'Stairt affcome leet wi page:',
+	'wikibase-unconnectedpages-page' => 'Stairt ootcome leet wi page:',
 	'wikibase-unconnectedpages-submit' => 'Gang',
 	'wikibase-unconnectedpages-invalid-language' => '"$1" isna ae valid leid code.',
 	'wikibase-unconnectedpages-page-warning' => 'The page title coudna be uised fer the speirin n haes been ignored.',
@@ -3963,6 +4015,7 @@ $messages['sco'] = array(
 	'wikibase-pageinfo-entity-id' => '{{WBRENAME}} eetem ID',
 	'wikibase-pageinfo-entity-id-none' => 'Nane',
 	'wikibase-property-render-error' => 'Failed tae render propertie $1: $2',
+	'wikibase-otherprojects' => 'Ither waurks',
 );
 
 /** Samogitian (žemaitėška)
@@ -4055,20 +4108,21 @@ $messages['sk'] = array(
 );
 
 /** Slovenian (slovenščina)
+ * @author Dbc334
  * @author Eleassar
  * @author Yerpo
  */
 $messages['sl'] = array(
 	'wikibase-client-desc' => 'Klient za razširitev Wikibase',
-	'specialpages-group-wikibaseclient' => 'Klient za Wikipodatke',
+	'specialpages-group-wikibaseclient' => 'Klient za Wikipodatke', # Fuzzy
 	'tooltip-t-wikibase' => 'Povežite na ustrezni predmet v podatkovnem odložišču',
-	'wikibase-after-page-move-queued' => '[$1 Objekt v Wikipodatkih], povezan s to stranjo, bo v kratkem samodejno posodobljen.',
-	'wikibase-comment-add' => 'Ustvarjen je predmet v Wikipodatkih.',
-	'wikibase-comment-remove' => 'Povezan objekt v Wikipodatkih izbrisan. Jezikovne povezave odstranjene.',
-	'wikibase-comment-linked' => 'Objekt v Wikipodatkih je bil povezan s to stranjo.',
-	'wikibase-comment-unlink' => 'Stran je bila razvezana od objekta v Wikipodatkih. Jezikovne povezave odstranjene.',
-	'wikibase-comment-restore' => 'Povezan objekt v Wikipodatkih odbrisan. Jezikovne povezave obnovljene.',
-	'wikibase-comment-update' => 'Objekt v Wikipodatkih spremenjen.',
+	'wikibase-after-page-move-queued' => '[$1 Objekt v Wikipodatkih], povezan s to stranjo, bo v kratkem samodejno posodobljen.', # Fuzzy
+	'wikibase-comment-add' => 'Ustvarjen je predmet v Wikipodatkih.', # Fuzzy
+	'wikibase-comment-remove' => 'Povezan objekt v Wikipodatkih izbrisan. Jezikovne povezave odstranjene.', # Fuzzy
+	'wikibase-comment-linked' => 'Objekt v Wikipodatkih je bil povezan s to stranjo.', # Fuzzy
+	'wikibase-comment-unlink' => 'Stran je bila razvezana od objekta v Wikipodatkih. Jezikovne povezave odstranjene.', # Fuzzy
+	'wikibase-comment-restore' => 'Povezan objekt v Wikipodatkih odbrisan. Jezikovne povezave obnovljene.', # Fuzzy
+	'wikibase-comment-update' => 'Objekt v Wikipodatkih spremenjen.', # Fuzzy
 	'wikibase-comment-sitelink-add' => 'Jezikovna povezava dodana: $1',
 	'wikibase-comment-sitelink-change' => 'Jezikovna povezava spremenjena iz $1 v $2',
 	'wikibase-comment-sitelink-remove' => 'Jezikovna povezava odstranjena: $1',
@@ -4090,10 +4144,12 @@ $messages['sl'] = array(
 	'wikibase-linkitem-not-loggedin' => 'Za uporabo te funkcije morate biti prijavljeni tako v tem wikiju kot v [$1 osrednji zbirki podatkov].',
 	'wikibase-linkitem-success-link' => 'Strani sta uspešno povezani. Predmet s povezavami lahko najdete v našem [$1 osrednjem podatkovnem odložišču].',
 	'wikibase-property-notfound' => 'Lastnosti $1 ni mogoče najti.',
-	'wikibase-rc-hide-wikidata' => '$1 Wikipodatki',
-	'wikibase-rc-show-wikidata-pref' => 'Pokaži urejanja v Wikipodatkih v zadnjih spremembah',
-	'wikibase-rc-wikibase-edit-title' => 'urejanje v Wikipodatkih',
-	'wikibase-watchlist-show-changes-pref' => 'Pokaži urejanja v Wikipodatkih v spisku nadzorov',
+	'wikibase-rc-hide-wikidata' => '$1 Wikipodatki', # Fuzzy
+	'wikibase-rc-hide-wikidata-hide' => 'Skrij',
+	'wikibase-rc-hide-wikidata-show' => 'Prikaži',
+	'wikibase-rc-show-wikidata-pref' => 'Pokaži urejanja v Wikipodatkih v zadnjih spremembah', # Fuzzy
+	'wikibase-rc-wikibase-edit-title' => 'urejanje v Wikipodatkih', # Fuzzy
+	'wikibase-watchlist-show-changes-pref' => 'Pokaži urejanja v Wikipodatkih v spisku nadzorov', # Fuzzy
 	'wikibase-error-serialize-error' => 'Serializacija podatkov ni uspela.',
 	'special-unconnectedpages' => 'Strani, ki niso povezane z objekti',
 	'wikibase-unconnectedpages-legend' => 'Možnosti za nepovezane strani',
@@ -4103,8 +4159,9 @@ $messages['sl'] = array(
 	'wikibase-unconnectedpages-page-warning' => 'Naslov strani ni mogoče uporabiti kot zahtevek in je bil ignoriran.',
 	'wikibase-unconnectedpages-iwdata-label' => 'Samo strani z medjezikovnimi povezavami',
 	'wikibase-unconnectedpages-format-row' => '($1 {{PLURAL:$1|medjezikovna povezava|medjezikovni povezavi|medjezikovne povezave|medjezikovnih povezav}} na strani)',
-	'wikibase-pageinfo-entity-id' => 'ID objekta v Wikipodatkih',
+	'wikibase-pageinfo-entity-id' => 'ID objekta v Wikipodatkih', # Fuzzy
 	'wikibase-pageinfo-entity-id-none' => 'Brez',
+	'wikibase-otherprojects' => 'Drugi projekti',
 );
 
 /** Somali (Soomaaliga)
@@ -4274,6 +4331,7 @@ $messages['ta'] = array(
 
 /** Telugu (తెలుగు)
  * @author Arjunaraoc
+ * @author Ravichandra
  * @author Veeven
  */
 $messages['te'] = array(
@@ -4283,13 +4341,14 @@ $messages['te'] = array(
 	'wikibase-editlinks' => 'లంకెలను మార్చు',
 	'wikibase-editlinkstitle' => 'భాషాలింకులను మార్చు',
 	'wikibase-linkitem-addlinks' => 'లంకెలను చేర్చండి',
+	'wikibase-linkitem-title' => 'ఈ పేజీకి లంకె వెయ్యండి',
 	'wikibase-linkitem-input-site' => 'భాష:',
 	'wikibase-linkitem-input-page' => 'పేజీ:',
 	'wikibase-linkitem-confirmitem-button' => 'నిర్థారించండి',
-	'wikibase-rc-hide-wikidata' => 'వికీడాటాను $1',
-	'wikibase-rc-show-wikidata-pref' => 'వికీడేటా మార్పులను ఇటీవలి మార్పులలో చూపించు',
+	'wikibase-rc-hide-wikidata' => 'వికీడాటాను $1', # Fuzzy
+	'wikibase-rc-show-wikidata-pref' => 'వికీడేటా మార్పులను ఇటీవలి మార్పులలో చూపించు', # Fuzzy
 	'wikibase-rc-wikibase-edit-letter' => 'ద',
-	'wikibase-rc-wikibase-edit-title' => 'వికీడేటా సవరణ',
+	'wikibase-rc-wikibase-edit-title' => 'వికీడేటా సవరణ', # Fuzzy
 	'wikibase-unconnectedpages-submit' => 'వెళ్ళు',
 	'wikibase-unconnectedpages-invalid-language' => '"$1" అనేది సరైన భాషా సంకేతం కాదు.',
 );
@@ -4525,16 +4584,16 @@ $messages['vec'] = array(
  */
 $messages['vi'] = array(
 	'wikibase-client-desc' => 'Trình khách của phần mở rộng Wikibase',
-	'specialpages-group-wikibaseclient' => 'Trình khách Wikidata', # Fuzzy
+	'specialpages-group-wikibaseclient' => 'Trình khách {{WBREPONAME}}',
 	'tooltip-t-wikibase' => 'Liên kết đến khoản mục kết nối trong kho dữ liệu',
-	'wikibase-after-page-move' => 'Bạn cũng có thể [$1 cập nhật] khoản mục Wikidata liên kết để duy trì các liên kết ngôn ngữ trên trang được di chuyển.', # Fuzzy
-	'wikibase-after-page-move-queued' => 'Chẳng bao lâu [$1 khoản mục Wikidata] được liên kết với trang này sẽ được tự động cập nhật.', # Fuzzy
-	'wikibase-comment-add' => 'Một khoản mục Wikidata đã được tạo ra.', # Fuzzy
-	'wikibase-comment-remove' => 'Đã xóa khoản mục liên kết Wikidata. Đã loại bỏ các liên kết ngôn ngữ.', # Fuzzy
-	'wikibase-comment-linked' => 'Một khoản mục Wikidata đã được liên kết đến trang này.', # Fuzzy
-	'wikibase-comment-unlink' => 'Đã gỡ liên kết đến khoản mục Wikidata khỏi trang này. Đã dời các liên kết ngôn ngữ.', # Fuzzy
-	'wikibase-comment-restore' => 'Đã phục hồi khoản mục liên kết Wikidata. Đã phục hồi các liên kết ngôn ngữ.', # Fuzzy
-	'wikibase-comment-update' => 'Khoản mục Wikidata đã thay đổi', # Fuzzy
+	'wikibase-after-page-move' => 'Bạn cũng có thể [$1 cập nhật] khoản mục {{WBREPONAME}} liên kết để duy trì các liên kết ngôn ngữ trên trang được di chuyển.',
+	'wikibase-after-page-move-queued' => 'Chẳng bao lâu [$1 khoản mục {{WBREPONAME}}] được liên kết với trang này sẽ được tự động cập nhật.',
+	'wikibase-comment-add' => 'Một khoản mục {{WBREPONAME}} đã được tạo ra.',
+	'wikibase-comment-remove' => 'Đã xóa khoản mục liên kết {{WBREPONAME}}. Đã loại bỏ các liên kết ngôn ngữ.',
+	'wikibase-comment-linked' => 'Một khoản mục {{WBREPONAME}} đã được liên kết đến trang này.',
+	'wikibase-comment-unlink' => 'Đã gỡ liên kết đến khoản mục {{WBREPONAME}} khỏi trang này. Đã dời các liên kết ngôn ngữ.',
+	'wikibase-comment-restore' => 'Đã phục hồi khoản mục liên kết {{WBREPONAME}}. Đã phục hồi các liên kết ngôn ngữ.',
+	'wikibase-comment-update' => 'Khoản mục {{WBREPONAME}} đã thay đổi',
 	'wikibase-comment-sitelink-add' => 'Đã thêm liên kết ngôn ngữ: $1',
 	'wikibase-comment-sitelink-change' => 'Đã đổi liên kết ngôn ngữ từ $1 thành $2',
 	'wikibase-comment-sitelink-remove' => 'Đã loại bỏ liên kết ngôn ngữ: $1',
@@ -4558,13 +4617,13 @@ $messages['vi'] = array(
 	'wikibase-linkitem-success-link' => 'Các trang đã được liên kết với nhau thành công. Xem khoản mục chứa các liên kết trong [$1 kho dữ liệu chung].',
 	'wikibase-property-notfound' => 'Không tìm thấy thuộc tính $1.',
 	'wikibase-property-notsupportedyet' => 'Wikibase chưa hỗ trợ kiểu của thuộc tính $1.',
-	'wikibase-rc-hide-wikidata' => '$1 Wikidata', # Fuzzy
+	'wikibase-rc-hide-wikidata' => '$1 {{WBREPONAME}}',
 	'wikibase-rc-hide-wikidata-hide' => 'Ẩn',
 	'wikibase-rc-hide-wikidata-show' => 'Hiện',
-	'wikibase-rc-show-wikidata-pref' => 'Hiện các sửa đổi Wikidata trong thay đổi gần đây', # Fuzzy
+	'wikibase-rc-show-wikidata-pref' => 'Hiện các sửa đổi {{WBREPONAME}} trong thay đổi gần đây',
 	'wikibase-rc-wikibase-edit-letter' => 'D',
-	'wikibase-rc-wikibase-edit-title' => 'Sửa đổi tại Wikidata', # Fuzzy
-	'wikibase-watchlist-show-changes-pref' => 'Hiện các sửa đổi tại Wikidata trong danh sách theo dõi của bạn', # Fuzzy
+	'wikibase-rc-wikibase-edit-title' => 'Sửa đổi trên {{WBREPONAME}}',
+	'wikibase-watchlist-show-changes-pref' => 'Hiện các sửa đổi trên {{WBREPONAME}} trong danh sách theo dõi của bạn',
 	'wikibase-error-serialize-error' => 'Thất bại khi tuần tự hóa dữ liệu',
 	'wikibase-error-invalid-entity-id' => 'ID nhập vào không có trên hệ thống. Xin vui lòng sử dụng ID đã được cấp.',
 	'special-unconnectedpages' => 'Trang không kết nối với khoản mục',
@@ -4575,9 +4634,10 @@ $messages['vi'] = array(
 	'wikibase-unconnectedpages-page-warning' => 'Tên trang không thể sử dụng để truy vấn nên đã được bỏ qua.',
 	'wikibase-unconnectedpages-iwdata-label' => 'Chỉ những trang có liên kết ngôn ngữ',
 	'wikibase-unconnectedpages-format-row' => '($1 liên kết ngôn ngữ trên trang)',
-	'wikibase-pageinfo-entity-id' => 'ID khoản mục Wikidata', # Fuzzy
+	'wikibase-pageinfo-entity-id' => 'ID khoản mục {{WBREPONAME}}',
 	'wikibase-pageinfo-entity-id-none' => 'Không có',
 	'wikibase-property-render-error' => 'Thất bại khi kết xuất thuộc tính $1: $2',
+	'wikibase-otherprojects' => 'Dự án khác',
 );
 
 /** Volapük (Volapük)
@@ -4598,16 +4658,16 @@ $messages['vo'] = array(
  */
 $messages['yi'] = array(
 	'wikibase-client-desc' => 'קליענט פארן Wikibase פארברייטערונג',
-	'specialpages-group-wikibaseclient' => 'וויקידאטן קליענט',
+	'specialpages-group-wikibaseclient' => '{{WBREPONAME}}־קליענט',
 	'tooltip-t-wikibase' => 'לינק צו פארבונדענעם דאטן־רעפאזיטאריום אביעקט',
-	'wikibase-after-page-move' => 'איר קענט אויך [$1 דערהיינטיקן] דעם אסאציאירטן וויקידאטן־עלעמענט כדי אויסהאלטן שפראכלינקען אויפן באוועגטן בלאט.',
-	'wikibase-after-page-move-queued' => 'דער [$1 וויקידאטן אביעקט] אסאציאירט מיט דעם דאזיקן בלאט וועט ווערן באלד דערהיינטיקט אויטאמאטיש.',
-	'wikibase-comment-add' => "מ'האט געשאפן א וויקידאטן־אביעקט.",
-	'wikibase-comment-remove' => 'אסאציאירטער וויקידאטן־עלעמענט אויסגעמעקט. שפראכלינקען אראפגענומען.',
-	'wikibase-comment-linked' => "מ'האט פארלינקט א וויקידאטן איינס צו דעם בלאט",
-	'wikibase-comment-unlink' => 'מען האט אויפגעלינקט דעם בלאט פון וויקידאטן־אביעקט. שפראכלינקען אראפגענומען.',
-	'wikibase-comment-restore' => 'אסאציאירטער וויקידאטן־עלעמענט צוריקגעשטעלט. שפראכלינקען צוריקגעשטעלט.',
-	'wikibase-comment-update' => 'וויקידאטן־עלעמענט געענדערט.',
+	'wikibase-after-page-move' => 'איר קענט אויך [$1 דערהיינטיקן] דעם אסאציאירטן {{WBREPONAME}}־עלעמענט כדי אויסהאלטן שפראכלינקען אויפן באוועגטן בלאט.',
+	'wikibase-after-page-move-queued' => 'דער [$1 {{WBREPONAME}}־אביעקט] אסאציאירט מיט דעם דאזיקן בלאט וועט ווערן באלד דערהיינטיקט אויטאמאטיש.',
+	'wikibase-comment-add' => "מ'האט געשאפן א {{WBREPONAME}}־אביעקט.",
+	'wikibase-comment-remove' => 'אסאציאירטער {{WBREPONAME}}־עלעמענט אויסגעמעקט. שפראכלינקען אראפגענומען.',
+	'wikibase-comment-linked' => "מ'האט פארלינקט א {{WBREPONAME}}־איינס צו דעם בלאט.",
+	'wikibase-comment-unlink' => 'מען האט אויפגעלינקט דעם בלאט פון {{WBREPONAME}}־אביעקט. שפראכלינקען אראפגענומען.',
+	'wikibase-comment-restore' => 'אסאציאירטער {{WBREPONAME}}־עלעמענט צוריקגעשטעלט. שפראכלינקען צוריקגעשטעלט.',
+	'wikibase-comment-update' => '{{WBREPONAME}}־עלעמענט געענדערט.',
 	'wikibase-comment-sitelink-add' => 'שפראכלינק צוגעלייגט: $1',
 	'wikibase-comment-sitelink-change' => 'שפראכלינק געענדערט פון $1 אויף $2',
 	'wikibase-comment-sitelink-remove' => 'שפראך לינק אראפגענומען: $1',
@@ -4631,11 +4691,11 @@ $messages['yi'] = array(
 	'wikibase-linkitem-success-link' => "מ'האט דערפאלגרייך פארלינקט די בלעטער. איר קענט טרעפן דעם אביעקט וואס האלט די לינקען אין אונזער [$1 צענטראלן דאטן רעפאזיטאריום].",
 	'wikibase-property-notfound' => '$1 אייגנשאפט נישט געטראפן',
 	'wikibase-property-notsupportedyet' => 'וויקיבאזע שטיצט נאך נישט אייגנשאפט טיפ פאר $1 אייגנשאפט.',
-	'wikibase-rc-hide-wikidata' => '$1 וויקידאטן',
-	'wikibase-rc-show-wikidata-pref' => 'ווייזן וויקידאטן רעדאקטירונגען אין לעצטע ענדערונגען',
+	'wikibase-rc-hide-wikidata' => '$1 {{WBREPONAME}}',
+	'wikibase-rc-show-wikidata-pref' => 'ווייזן {{WBREPONAME}}־רעדאקטירונגען אין לעצטע ענדערונגען',
 	'wikibase-rc-wikibase-edit-letter' => 'ד',
-	'wikibase-rc-wikibase-edit-title' => 'וויקידאטן־רעדאקטירונג',
-	'wikibase-watchlist-show-changes-pref' => 'ווייזן וויקידאטן רעדאקטירונגען אין אייער אויפפאסונג־ליסטע',
+	'wikibase-rc-wikibase-edit-title' => '{{WBREPONAME}}־רעדאקטירונג',
+	'wikibase-watchlist-show-changes-pref' => 'ווייזן {{WBREPONAME}}־רעדאקטירונגען אין אייער אויפפאסונג־ליסטע',
 	'special-unconnectedpages' => 'בלעטער נישט פארבונדן מיט אביעקטן',
 	'wikibase-unconnectedpages-legend' => 'מעגלעכקייטן פאר אומפארבונדענע בלעטער',
 	'wikibase-unconnectedpages-page' => 'אנהייבן רעזולטאט ליסטע מיט בלאט:',
@@ -4643,7 +4703,7 @@ $messages['yi'] = array(
 	'wikibase-unconnectedpages-invalid-language' => '"$1" איז נישט קיין גילטיקער שפראך־קאד.',
 	'wikibase-unconnectedpages-iwdata-label' => 'נאר בלעטער מיט אינטערשפראך לינקען',
 	'wikibase-unconnectedpages-format-row' => '($1 {{PLURAL:$1|אינטערשפראך לינק|אינטערשפראך לינקען}} אויפן בלאט)',
-	'wikibase-pageinfo-entity-id' => 'וויקידאטן אביעקט ID',
+	'wikibase-pageinfo-entity-id' => '{{WBREPONAME}}־אביעקט ID',
 	'wikibase-pageinfo-entity-id-none' => 'קיין',
 );
 
@@ -4745,6 +4805,7 @@ $messages['zh-hans'] = array(
 	'wikibase-pageinfo-entity-id' => '{{WBREPONAME}}项ID',
 	'wikibase-pageinfo-entity-id-none' => '无',
 	'wikibase-property-render-error' => '无法生成属性$1：$2',
+	'wikibase-otherprojects' => '其他项目',
 );
 
 /** Traditional Chinese (中文（繁體）‎)
@@ -4814,4 +4875,5 @@ $messages['zh-hant'] = array(
 	'wikibase-pageinfo-entity-id' => '{{WBREPONAME}}項目ID',
 	'wikibase-pageinfo-entity-id-none' => '無',
 	'wikibase-property-render-error' => '未能呈現屬性$1：$2',
+	'wikibase-otherprojects' => '其他計劃',
 );

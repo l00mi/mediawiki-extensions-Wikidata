@@ -2,6 +2,8 @@
 
 namespace Wikibase\Test;
 
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Internal\LegacyIdInterpreter;
 use Wikibase\Term;
 
 /**
@@ -49,8 +51,14 @@ class TermTest extends \MediaWikiTestCase {
 	public function testConstructor( $fields ) {
 		$term = new Term( $fields );
 
+		$entityId = null;
+		if ( isset( $fields['entityType'] ) && isset( $fields['entityId'] ) ) {
+			// FIXME: This must be removed once we got rid of all legacy numeric ids.
+			$entityId = LegacyIdInterpreter::newIdFromTypeAndNumber( $fields['entityType'], $fields['entityId'] );
+		}
+
 		$this->assertEquals( isset( $fields['entityType'] ) ? $fields['entityType'] : null, $term->getEntityType() );
-		$this->assertEquals( isset( $fields['entityId'] ) ? $fields['entityId'] : null, $term->getEntityId() );
+		$this->assertEquals( $entityId, $term->getEntityId() );
 		$this->assertEquals( isset( $fields['termType'] ) ? $fields['termType'] : null, $term->getType() );
 		$this->assertEquals( isset( $fields['termLanguage'] ) ? $fields['termLanguage'] : null, $term->getLanguage() );
 		$this->assertEquals( isset( $fields['termText'] ) ? $fields['termText'] : null, $term->getText() );
@@ -104,7 +112,7 @@ class TermTest extends \MediaWikiTestCase {
 		);
 
 		$other = clone $term;
-		$other->setEntityId( 11 );
+		$other->setNumericId( 11 );
 		$tests[] = array( // #3
 			$term,
 			$other,
@@ -191,4 +199,5 @@ class TermTest extends \MediaWikiTestCase {
 			$this->assertEquals( $equal, $b->equals( $a ) );
 		}
 	}
+
 }

@@ -20,6 +20,7 @@ use RuntimeException;
 use SpecialWatchlist;
 use SplFileInfo;
 use Sites;
+use SiteSQLStore;
 use Skin;
 use SpecialRecentChanges;
 use StripState;
@@ -28,6 +29,7 @@ use UnexpectedValueException;
 use User;
 use Wikibase\Client\Hooks\InfoActionHookHandler;
 use Wikibase\Client\MovePageNotice;
+use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -45,6 +47,17 @@ use Wikibase\Client\WikibaseClient;
  * @author Marius Hoch < hoo@online.de >
  */
 final class ClientHooks {
+
+	/**
+	 * @see NamespaceChecker::isWikibaseEnabled
+	 *
+	 * @param int $namespace
+	 *
+	 * @return bool
+	 */
+	protected static function isWikibaseEnabled( $namespace ) {
+		return WikibaseClient::getDefaultInstance()->getNamespaceChecker()->isWikibaseEnabled( $namespace );
+	}
 
 	/**
 	 * Hook to add PHPUnit test cases.
@@ -348,6 +361,11 @@ final class ClientHooks {
 			return true;
 		}
 
+		if ( !self::isWikibaseEnabled( $parser->getTitle()->getNamespace() ) ) {
+			// shorten out
+			return true;
+		}
+
 		wfProfileIn( __METHOD__ );
 
 		// @todo split up the multiple responsibilities here and in lang link handler
@@ -366,8 +384,7 @@ final class ClientHooks {
 
 		$langLinkHandler = new LangLinkHandler(
 			$settings->getSetting( 'siteGlobalID' ),
-			$settings->getSetting( 'namespaces' ),
-			$settings->getSetting( 'excludeNamespaces' ),
+			$wikibaseClient->getNamespaceChecker(),
 			$wikibaseClient->getStore()->getSiteLinkTable(),
 			Sites::singleton(),
 			$wikibaseClient->getLangLinkSiteGroup()
@@ -470,10 +487,7 @@ final class ClientHooks {
 		$title = $out->getTitle();
 		$user = $skin->getContext()->getUser();
 
-		$namespaceChecker = new NamespaceChecker(
-			$settings->getSetting( 'excludeNamespaces' ),
-			$settings->getSetting( 'namespaces' )
-		);
+		$namespaceChecker = WikibaseClient::getDefaultInstance()->getNamespaceChecker();
 
 		if ( !$namespaceChecker->isWikibaseEnabled( $title->getNamespace() ) ) {
 			wfProfileOut( __METHOD__ );
@@ -511,16 +525,12 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onOutputPageParserOutput( OutputPage &$out, ParserOutput $pout ) {
-		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$settings = $wikibaseClient->getSettings();
+		if ( !self::isWikibaseEnabled( $out->getTitle()->getNamespace() ) ) {
+			// shorten out
+			return true;
+		}
 
-		$langLinkHandler = new LangLinkHandler(
-			$settings->getSetting( 'siteGlobalID' ),
-			$settings->getSetting( 'namespaces' ),
-			$settings->getSetting( 'excludeNamespaces' ),
-			$wikibaseClient->getStore()->getSiteLinkTable(),
-			Sites::singleton(),
-			$wikibaseClient->getLangLinkSiteGroup() );
+		$langLinkHandler = WikibaseClient::getDefaultInstance()->getLangLinkHandler();
 
 		$noExternalLangLinks = $langLinkHandler->getNoExternalLangLinks( $pout );
 
@@ -558,14 +568,16 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onSkinTemplateOutputPageBeforeExec( Skin &$skin, QuickTemplate &$template ) {
-		wfProfileIn( __METHOD__ );
+		$title = $skin->getContext()->getTitle();
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 		$settings = $wikibaseClient->getSettings();
 
-		$namespaceChecker = new NamespaceChecker(
-			$settings->getSetting( 'excludeNamespaces' ),
-			$settings->getSetting( 'namespaces' )
-		);
+		if ( !self::isWikibaseEnabled( $title->getNamespace() ) ) {
+			// shorten out
+			return true;
+		}
+
+		wfProfileIn( __METHOD__ );
 
 		$repoLinker = $wikibaseClient->newRepoLinker();
 		$entityIdParser = $wikibaseClient->getEntityIdParser();
@@ -573,7 +585,7 @@ final class ClientHooks {
 		$siteGroup = $wikibaseClient->getSiteGroup();
 
 		$editLinkInjector = new RepoItemLinkGenerator(
-			$namespaceChecker,
+			WikibaseClient::getDefaultInstance()->getNamespaceChecker(),
 			$repoLinker,
 			$entityIdParser,
 			$settings->getSetting( 'enableSiteLinkWidget' ),
@@ -581,7 +593,6 @@ final class ClientHooks {
 		);
 
 		$action = Action::getActionName( $skin->getContext() );
-		$title = $skin->getContext()->getTitle();
 
 		$isAnon = ! $skin->getContext()->getUser()->isLoggedIn();
 		$noExternalLangLinks = $skin->getOutput()->getProperty( 'noexternallanglinks' );
@@ -594,6 +605,39 @@ final class ClientHooks {
 		}
 
 		wfProfileOut( __METHOD__ );
+		return true;
+	}
+
+	/**
+	 * Displays a sidebar section for other project links.
+	 *
+	 * @since 0.5
+	 *
+	 * @param Skin $skin
+	 * @param array $bar
+	 *
+	 * @return bool
+	 */
+	public static function onSkinBuildSidebar( Skin $skin, &$bar ) {
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+
+		$siteIdsToOutput = $settings->getSetting( 'otherProjectsLinks' );
+		if ( count( $siteIdsToOutput ) === 0 ) {
+			return true;
+		}
+
+		$generator = new OtherProjectsSidebarGenerator(
+			$settings->getSetting( 'siteGlobalID' ),
+			WikibaseClient::getDefaultInstance()->getStore()->getSiteLinkTable(),
+			SiteSQLStore::newInstance(),
+			$siteIdsToOutput
+		);
+
+		$otherProjectsSidebar = $generator->buildProjectLinkSidebar( $skin->getContext()->getTitle() );
+		if ( count( $otherProjectsSidebar ) !== 0 ) {
+			$bar['wikibase-otherprojects'] = $otherProjectsSidebar;
+		}
+
 		return true;
 	}
 
@@ -733,10 +777,12 @@ final class ClientHooks {
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 		$settings = $wikibaseClient->getSettings();
 
-		$namespaceChecker = new NamespaceChecker(
-			$settings->getSetting( 'excludeNamespaces' ),
-			$settings->getSetting( 'namespaces' )
-		);
+		$namespaceChecker = WikibaseClient::getDefaultInstance()->getNamespaceChecker();
+
+		if ( !$namespaceChecker->isWikibaseEnabled( $context->getTitle()->getNamespace() ) ) {
+			// shorten out
+			return true;
+		}
 
 		$infoActionHookHandler = new InfoActionHookHandler(
 			$namespaceChecker,
@@ -766,6 +812,13 @@ final class ClientHooks {
 	 */
 	public static function onTitleMoveComplete( Title $oldTitle, Title $newTitle, User $user,
 		$pageId, $redirectId ) {
+
+		if ( !self::isWikibaseEnabled( $oldTitle->getNamespace() )
+			&& !self::isWikibaseEnabled( $newTitle->getNamespace() ) ) {
+			// shorten out
+			return true;
+		}
+
 		wfProfileIn( __METHOD__ );
 
 		$wikibaseClient = WikibaseClient::getDefaultInstance();

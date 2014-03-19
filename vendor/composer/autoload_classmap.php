@@ -242,6 +242,7 @@ return array(
     'Wikibase\\ClientStore' => $baseDir . '/extensions/Wikibase/client/includes/store/ClientStore.php',
     'Wikibase\\Client\\ClientSiteLinkLookup' => $baseDir . '/extensions/Wikibase/client/includes/ClientSiteLinkLookup.php',
     'Wikibase\\Client\\Hooks\\InfoActionHookHandler' => $baseDir . '/extensions/Wikibase/client/includes/hooks/InfoActionHookHandler.php',
+    'Wikibase\\Client\\Hooks\\OtherProjectsSidebarGenerator' => $baseDir . '/extensions/Wikibase/client/includes/hooks/OtherProjectsSidebarGenerator.php',
     'Wikibase\\Client\\MovePageNotice' => $baseDir . '/extensions/Wikibase/client/includes/hooks/MovePageNotice.php',
     'Wikibase\\Client\\Scribunto\\Test\\Scribunto_LuaWikibaseLibraryTestCase' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/scribunto/Scribunto_LuaWikibaseLibraryTestCase.php',
     'Wikibase\\Client\\Scribunto\\Test\\WikibaseLuaIntegrationTestItemSetUpHelper' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/scribunto/WikibaseLuaIntegrationTestItemSetUpHelper.php',

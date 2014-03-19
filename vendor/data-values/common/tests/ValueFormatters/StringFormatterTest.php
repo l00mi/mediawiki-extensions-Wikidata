@@ -7,10 +7,7 @@ use DataValues\StringValue;
 /**
  * Unit tests for the ValueFormatters\StringFormatter class.
  *
- * @file
  * @since 0.1
- *
- * @ingroup ValueFormattersTest
  *
  * @group ValueFormatters
  * @group DataValueExtensions
@@ -32,6 +29,8 @@ class StringFormatterTest extends ValueFormatterTestBase {
 			'ice cream',
 			'cake',
 			'',
+			' a ',
+			'  ',
 		);
 
 		$argLists = array();

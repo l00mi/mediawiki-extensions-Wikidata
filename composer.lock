@@ -91,16 +91,16 @@
         },
         {
             "name": "data-values/common",
-            "version": "0.2",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Common.git",
-                "reference": "4ff1441c9f2125ea9e31268a1250153e539f5179"
+                "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Common/zipball/4ff1441c9f2125ea9e31268a1250153e539f5179",
-                "reference": "4ff1441c9f2125ea9e31268a1250153e539f5179",
+                "url": "https://api.github.com/repos/DataValues/Common/zipball/4e0035445a90b260fcbe37bcda7d91c90b26a06f",
+                "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f",
                 "shasum": ""
             },
             "require": {
@@ -143,7 +143,7 @@
                 "valuevalidators",
                 "wikidata"
             ],
-            "time": "2013-12-16 16:03:37"
+            "time": "2014-03-12 13:57:02"
         },
         {
             "name": "data-values/data-types",
@@ -850,12 +850,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "64fa846e08d999337594e69207018b2a49783ced"
+                "reference": "0fab576bdf933b0d91953238c0ed66836661efb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/64fa846e08d999337594e69207018b2a49783ced",
-                "reference": "64fa846e08d999337594e69207018b2a49783ced",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0fab576bdf933b0d91953238c0ed66836661efb1",
+                "reference": "0fab576bdf933b0d91953238c0ed66836661efb1",
                 "shasum": ""
             },
             "require": {
@@ -914,7 +914,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-03-16 01:56:25"
+            "time": "2014-03-18 21:02:54"
         }
     ],
     "packages-dev": [
