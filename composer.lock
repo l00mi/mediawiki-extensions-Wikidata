@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "8e4f22bbedb9cd631ca304098ea9177c",
+    "hash": "de164cef49a0fb8bae337766eee5b346",
     "packages": [
         {
             "name": "composer/installers",
@@ -846,7 +846,7 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-master",
+            "version": "dev-mw1.23-wmf19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
