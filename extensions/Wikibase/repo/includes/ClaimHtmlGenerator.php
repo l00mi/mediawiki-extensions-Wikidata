@@ -125,7 +125,6 @@ class ClaimHtmlGenerator {
 		// @todo: Use 'wb-claim' or 'wb-statement' template accordingly
 		// @todo: get rid of usage of global wfTemplate function
 		$claimHtml = wfTemplate( 'wb-statement',
-			'', // additional classes
 			$rankHtml,
 			$claim->getGuid(),
 			$mainSnakHtml,
@@ -157,9 +156,7 @@ class ClaimHtmlGenerator {
 			);
 		}
 
-		return wfTemplate( 'wb-listview',
-			$snaklistviewsHtml
-		);
+		return $this->wrapInListview( $snaklistviewsHtml );
 	}
 
 	/**
@@ -175,13 +172,15 @@ class ClaimHtmlGenerator {
 			$referencesHtml .= $this->getHtmlForReference( $reference );
 		}
 
-		if( $referencesHtml !== '' ) {
-			$referencesHtml = wfTemplate( 'wb-listview',
-				$referencesHtml
-			);
-		}
+		return $this->wrapInListview( $referencesHtml );
+	}
 
-		return $referencesHtml;
+	private function wrapInListview( $listviewContent ) {
+		if( $listviewContent !== '' ) {
+			return wfTemplate( 'wb-listview', $listviewContent );
+		} else {
+			return '';
+		}
 	}
 
 	/**
