@@ -5,7 +5,7 @@ namespace Wikibase\Api;
 use ApiMain;
 use ApiBase;
 use Wikibase\DataModel\Claim\ClaimGuidParser;
-use Wikibase\EntityContent;
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\Summary;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Validators\ValidatorErrorLocalizer;
@@ -68,12 +68,12 @@ abstract class ModifyClaim extends ApiWikibase {
 	/**
 	 * @since 0.4
 	 *
-	 * @param EntityContent $content
+	 * @param Entity $entity
 	 * @param Summary $summary
 	 */
-	public function saveChanges( EntityContent $content, Summary $summary ) {
+	public function saveChanges( Entity $entity, Summary $summary ) {
 		$status = $this->attemptSaveEntity(
-			$content,
+			$entity,
 			$summary,
 			$this->getFlags()
 		);
@@ -86,13 +86,6 @@ abstract class ModifyClaim extends ApiWikibase {
 	 * @see ApiBase::isWriteMode
 	 */
 	public function isWriteMode() {
-		return true;
-	}
-
-	/**
-	 * @see ApiBase::mustBePosted
-	 */
-	public function mustBePosted() {
 		return true;
 	}
 
@@ -111,15 +104,6 @@ abstract class ModifyClaim extends ApiWikibase {
 				array( 'code' => 'invalid-entity-id', 'info' => $this->msg( 'wikibase-api-invalid-entity-id' )->text() ),
 			)
 		);
-	}
-
-	/**
-	 * @see  \Wikibase\Api\ApiWikibase::getRequiredPermissions()
-	 */
-	protected function getRequiredPermissions( EntityContent $entityContent, array $params ) {
-		$permissions = parent::getRequiredPermissions( $entityContent, $params );
-		$permissions[] = 'edit';
-		return $permissions;
 	}
 
 	/**
