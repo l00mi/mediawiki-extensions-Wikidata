@@ -283,8 +283,8 @@ A client wiki is notified of a change on {{SITENAME}} once the change has been d
 	'wikibase-api-no-such-site' => 'Could not find such a site', # Do not translate
 	'wikibase-api-no-such-sitelink' => 'Could not find such a sitelink', # Do not translate
 	'wikibase-api-no-such-statement' => 'Could not find such a statement', # Do not translate
-	'wikibase-api-not-a-statement' => 'Not a statement', # Do not translate
-	'wikibase-api-not-an-item' => 'Not an item', # Do not translate
+	'wikibase-api-not-statement' => 'Not a statement', # Do not translate
+	'wikibase-api-not-item' => 'Not an item', # Do not translate
 	'wikibase-api-not-recognized-siteid' => 'The supplied site identifier was not recognized', # Do not translate
 	'wikibase-api-not-recognized' => 'Something was not recognized', # Do not translate
 	'wikibase-api-not-recognized-array' => 'An array was expected, but not recognized', # Do not translate
@@ -305,6 +305,7 @@ A client wiki is notified of a change on {{SITENAME}} once the change has been d
 <span class="plainlinks">[{{fullurl:{{#Special:Log}}|page={{FULLPAGENAMEE}}}} search the related logs]</span>
 to find out where it went.',
 	'wikibase-noentity-createone' => 'You can also [[$1|create a new one]].',
+	'wikibase-special-mergeitems-error-prefix' => 'The items could not be merged. The following error occurred:',
 
 	// item - summary and autocomment, see docs/summaries.txt
 	'wikibase-item-summary-wbsetitem' => 'Created a new item', // legacy
@@ -1068,8 +1069,8 @@ See also:
 	'wikibase-api-no-such-site' => '!!DO NOT TRANSLATE!! Could not find such a site, this could be to the user entering the wrong data',
 	'wikibase-api-no-such-sitelink' => 'Could not find such a sitelink, this could be to the user entering the wrong data',
 	'wikibase-api-no-such-statement' => '!!DO NOT TRANSLATE!! Could not find such a statement, this could be to the user entering the wrong data',
-	'wikibase-api-not-a-statement' => '!!DO NOT TRANSLATE!! The passed parameter is Not a statement when a statement is expected',
-	'wikibase-api-not-an-item' => '!!DO NOT TRANSLATE!! The passed parameter is Not an item when an item is expected (the passed parameter may infact be a property)',
+	'wikibase-api-not-statement' => '!!DO NOT TRANSLATE!! The passed parameter is Not a statement when a statement is expected',
+	'wikibase-api-not-item' => '!!DO NOT TRANSLATE!! The passed parameter is Not an item when an item is expected (the passed parameter may infact be a property)',
 	'wikibase-api-not-recognized-siteid' => '!!DO NOT TRANSLATE!! The supplied site identifier was not recognized',
 	'wikibase-api-not-recognized' => '!!DO NOT TRANSLATE!! Something was not recognized (general message)',
 	'wikibase-api-not-recognized-array' => '!!DO NOT TRANSLATE!! An array was expected, but not recognized. The user probably passed the API a malformed parameter',
@@ -1278,6 +1279,7 @@ Right to alter the contents of [[d:Special:MyLanguage/Wikidata:Glossary#Item|ite
 Right to alter the [[d:Wikidata:Glossary#Term|terms]] of [[d:Wikidata:Glossary#Item|items]].',
 	'right-property-create' => '{{doc-right|property-create}}
 Right to create new [[d:Wikidata:Glossary#Property|properties]].',
+	'wikibase-special-mergeitems-error-prefix' => 'Prefix for making Special:MergeItems error messages more informative.',
 );
 
 /** Achinese (Acèh)
@@ -7573,6 +7575,7 @@ $messages['he'] = array(
  * @author Pooja 1810
  * @author Siddhartha Ghai
  * @author Vivek Rai
+ * @author Wikiuser13
  */
 $messages['hi'] = array(
 	'wikibase-edit' => 'संपादन',
@@ -7586,7 +7589,7 @@ $messages['hi'] = array(
 	'wikibase-sitelink-site-edit-placeholder' => 'साइट',
 	'wikibase-sitelink-page-edit-placeholder' => 'पृष्ठ',
 	'wikibase-remove' => 'ह्टाना',
-	'wikibase-propertyedittool-full' => 'दि  ग७यी मूल्यो कि सुचि  पुरई हे!',
+	'wikibase-propertyedittool-full' => 'मानों की सूची पूर्ण है.',
 	'wikibase-entityselector-more' => 'ज़्यादा',
 	'wikibase-itembytitle-lookup-page' => 'प्ण्णा',
 	'wikibase-itembytitle-submit' => 'खोजे',
@@ -10020,10 +10023,12 @@ IP-мекенжайыңыз бұл енгізілімнің түзету тар�
 	'wikibase-item-summary-wbeditentity' => 'Жаңа элемент құрылды',
 	'wikibase-item-summary-wbeditentity-create' => 'also',
 	'wikibase-item-summary-wbeditentity-update' => 'Элемент жаңартылды',
-	'wikibase-item-summary-wbsetlabel-set' => '[$2] деғгейі өзгертілді',
+	'wikibase-item-summary-wbsetlabel-set' => '[$2] деңгейін өзгерті',
 	'wikibase-item-summary-wbsetlabel-remove' => '[$2] деңгейі алынып тасталды',
 	'wikibase-item-summary-wbsetdescription-set' => '[$2] сипаттамасы өзгертілді',
 	'wikibase-item-summary-wbsetdescription-remove' => '[$2]  сипаттамасы алынып тасталды',
+	'wikibase-item-summary-wbsetsitelink-add' => '[$2] сайтынан сілтеме қосты',
+	'wikibase-item-summary-wbsetsitelink-remove' => '[$2] сайтынан сілтемені аластады',
 );
 
 /** Korean (한국어)
@@ -12583,7 +12588,7 @@ $messages['nl'] = array(
 	'wikibase-undo-nocontent' => 'De inhoud van versie $2 van pagina $1 kan niet geladen worden',
 	'wikibase-propertyedittool-full' => 'De lijst met waarden is compleet.',
 	'wikibase-propertyedittool-counter-pending-tooltip' => '{{PLURAL:$1|Eén waarde|$1 waarden}} nog niet opgeslagen',
-	'wikibase-propertyedittool-counter-entrieslabel' => '{{PLURAL:$1|ingang|ingangen}}',
+	'wikibase-propertyedittool-counter-entrieslabel' => '{{PLURAL:$1|item|items}}',
 	'wikibase-sitelinksedittool-full' => "Koppelingen naar pagina's zijn al ingesteld voor alle bekende sites.",
 	'wikibase-disambiguation-title' => 'Disambiguatie voor "$1"',
 	'wb-special-newitem-new-item-notification' => 'Nieuw item $1 aangemaakt en doorverwezen naar de pagina voor dat item. Terug naar $2.',
@@ -12610,7 +12615,7 @@ $messages['nl'] = array(
 	'wikibase-snakview-snaktypeselector-somevalue' => 'onbekende waarde',
 	'wikibase-snakview-snaktypeselector-novalue' => 'geen waarde',
 	'wikibase-shortcopyrightwarning' => 'Door te klikken op "$1" gaat u akkoord met de [[$2|gebruiksvoorwaarden]] en gaat u onherroepelijk akkoord met het vrijgeven van uw bijdrage onder de $3.',
-	'wikibase-copyrighttooltip-acknowledge' => 'Ik accepteer deze voorwaarden voor mijn toekomstige bewerken. Geef dit bericht niet opnieuw weer.',
+	'wikibase-copyrighttooltip-acknowledge' => 'Ik accepteer deze voorwaarden voor mijn toekomstige bewerkingen. Geef dit bericht niet opnieuw weer.',
 	'wikibase-entityselector-more' => 'meer',
 	'wikibase-anonymouseditwarning' => 'Waarschuwing: u bent niet aangemeld.
 Uw IP-adres wordt opgeslagen in bewerkingsgeschiedenis van deze entiteit.',
