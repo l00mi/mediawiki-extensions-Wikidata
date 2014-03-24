@@ -7,5 +7,9 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src'),
+    'Serializers\\' => array($vendorDir . '/serialization/serialization/src/Serializers'),
+    'Deserializers\\' => array($vendorDir . '/serialization/serialization/src/Deserializers'),
+    'DataValues\\Serializers\\' => array($vendorDir . '/data-values/serialization/src/Serializers'),
+    'DataValues\\Deserializers\\' => array($vendorDir . '/data-values/serialization/src/Deserializers'),
     'DataTypes\\' => array($vendorDir . '/data-values/data-types/src'),
 );
