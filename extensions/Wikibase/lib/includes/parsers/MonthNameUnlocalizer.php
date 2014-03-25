@@ -6,7 +6,7 @@ use Language;
 use ValueParsers\ParserOptions;
 
 /**
- * Class to unlocalize month names using Mediawiki's Language object
+ * Class to unlocalise month names using Mediawiki's Language object
  *
  * @since 0.5
  *
@@ -14,7 +14,6 @@ use ValueParsers\ParserOptions;
  * @author Adam Shorland
  *
  * @todo move me to DataValues-time
- * @note this would use Unlocalizer interface but it is incompatible
  */
 class MonthNameUnlocalizer {
 

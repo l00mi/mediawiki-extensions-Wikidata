@@ -86,39 +86,38 @@
         ]
     },
     {
-        "name": "serialization/serialization",
-        "version": "3.1",
-        "version_normalized": "3.1.0.0",
+        "name": "data-values/interfaces",
+        "version": "0.1.2",
+        "version_normalized": "0.1.2.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/wmde/Serialization.git",
-            "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd"
+            "url": "https://github.com/DataValues/Interfaces.git",
+            "reference": "b2917e3f7352a83a85841497e1a75d11923ddab5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Serialization/zipball/3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
-            "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/b2917e3f7352a83a85841497e1a75d11923ddab5",
+            "reference": "b2917e3f7352a83a85841497e1a75d11923ddab5",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-03-18 18:45:35",
+        "time": "2013-11-21 23:56:00",
         "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.1.x-dev"
-            }
-        },
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "Serialization.php"
+                "Interfaces.php"
             ],
-            "psr-4": {
-                "Deserializers\\": "src/Deserializers/",
-                "Serializers\\": "src/Serializers/"
-            }
+            "psr-0": {
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src",
+                "ValueValidators\\": "src"
+            },
+            "classmap": [
+                "tests/ValueFormatters/ValueFormatterTestBase.php"
+            ]
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -132,14 +131,13 @@
                 "role": "Developer"
             }
         ],
-        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
-        "homepage": "https://github.com/wmde/Serialization",
+        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
+        "homepage": "https://github.com/DataValues/Interfaces",
         "keywords": [
-            "deserialization",
-            "deserializer",
-            "serialization",
-            "serializer",
-            "unserialization",
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
             "wikidata"
         ]
     },
@@ -195,6 +193,176 @@
         "homepage": "https://github.com/DataValues/DataValues",
         "keywords": [
             "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/common",
+        "version": "0.2.1",
+        "version_normalized": "0.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Common.git",
+            "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Common/zipball/4e0035445a90b260fcbe37bcda7d91c90b26a06f",
+            "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1",
+            "data-values/interfaces": "~0.1.2",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-03-12 13:57:02",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Common.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            },
+            "classmap": [
+                "tests/ValueParsers"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
+        "homepage": "https://github.com/DataValues/Common",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/time",
+        "version": "0.5.1",
+        "version_normalized": "0.5.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Time.git",
+            "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/4843f21bed7605d4bb7392f7e93f7f86312c1e50",
+            "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.2.0",
+            "data-values/data-values": "~0.1.0",
+            "data-values/interfaces": "~0.1.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-03-24 12:11:40",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Time.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Time value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Time",
+        "keywords": [
+            "datavalues",
+            "time",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "serialization/serialization",
+        "version": "3.1",
+        "version_normalized": "3.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Serialization.git",
+            "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Serialization/zipball/3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
+            "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-03-18 18:45:35",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Serialization.php"
+            ],
+            "psr-4": {
+                "Deserializers\\": "src/Deserializers/",
+                "Serializers\\": "src/Serializers/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
+        "homepage": "https://github.com/wmde/Serialization",
+        "keywords": [
+            "deserialization",
+            "deserializer",
+            "serialization",
+            "serializer",
+            "unserialization",
             "wikidata"
         ]
     },
@@ -399,174 +567,6 @@
         "keywords": [
             "DataModel",
             "wikibase",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/interfaces",
-        "version": "0.1.2",
-        "version_normalized": "0.1.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "b2917e3f7352a83a85841497e1a75d11923ddab5"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/b2917e3f7352a83a85841497e1a75d11923ddab5",
-            "reference": "b2917e3f7352a83a85841497e1a75d11923ddab5",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2013-11-21 23:56:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Interfaces.php"
-            ],
-            "psr-0": {
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src",
-                "ValueValidators\\": "src"
-            },
-            "classmap": [
-                "tests/ValueFormatters/ValueFormatterTestBase.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
-        "homepage": "https://github.com/DataValues/Interfaces",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/common",
-        "version": "0.2.1",
-        "version_normalized": "0.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Common.git",
-            "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Common/zipball/4e0035445a90b260fcbe37bcda7d91c90b26a06f",
-            "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1.2",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-03-12 13:57:02",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Common.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            },
-            "classmap": [
-                "tests/ValueParsers"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
-        "homepage": "https://github.com/DataValues/Common",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/time",
-        "version": "0.3",
-        "version_normalized": "0.3.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Time.git",
-            "reference": "b019ca4d46dd98503f86286e9be4c95333260493"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/b019ca4d46dd98503f86286e9be4c95333260493",
-            "reference": "b019ca4d46dd98503f86286e9be4c95333260493",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-03-13 10:41:04",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Time.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Time value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Time",
-        "keywords": [
-            "datavalues",
-            "time",
-            "valueformatters",
-            "valueparsers",
             "wikidata"
         ]
     },
@@ -883,12 +883,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "819eb9326af100c811ac70acc8dd5e1209ae53dc"
+            "reference": "712334240d24774b7355c6b8975065ea65dcfbd8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/819eb9326af100c811ac70acc8dd5e1209ae53dc",
-            "reference": "819eb9326af100c811ac70acc8dd5e1209ae53dc",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/712334240d24774b7355c6b8975065ea65dcfbd8",
+            "reference": "712334240d24774b7355c6b8975065ea65dcfbd8",
             "shasum": ""
         },
         "require": {
@@ -899,7 +899,7 @@
             "data-values/javascript": "~0.3.0",
             "data-values/number": "~0.3.0",
             "data-values/serialization": "~1.0",
-            "data-values/time": "~0.3.0",
+            "data-values/time": "~0.5.1",
             "data-values/validators": "~0.1.0",
             "data-values/value-view": "~0.3.3",
             "diff/diff": "~0.9.0",
@@ -907,7 +907,7 @@
             "wikibase/data-model": "~0.7.2",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-03-24 08:57:22",
+        "time": "2014-03-25 03:42:19",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

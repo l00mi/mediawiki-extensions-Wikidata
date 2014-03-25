@@ -8,6 +8,8 @@ use ValueParsers\Test\StringValueParserTest;
 use Wikibase\Lib\Parsers\MWTimeIsoParser;
 
 /**
+ * @covers Wikibase\Lib\Parsers\TimeParser
+ *
  * @group ValueParsers
  * @group WikibaseLib
  * @group Wikibase
@@ -54,6 +56,8 @@ class TimeParserTest extends StringValueParserTest {
 				array( '+0000001000000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
 			'1BC' =>
 				array( '-0000000000000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+			'1CE' =>
+				array( '+0000000000000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
 
 			//Wikibase\Lib\YearMonthTimeParser
 			'1 1999' =>
@@ -80,6 +84,16 @@ class TimeParserTest extends StringValueParserTest {
 				array( '+0000000000002013-07-01T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_DAY , TimeFormatter::CALENDAR_GREGORIAN ),
 			'1 Jul 2013' =>
 				array( '+0000000000002013-07-01T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_DAY , TimeFormatter::CALENDAR_GREGORIAN ),
+			'1 Jul 2013 BC' =>
+				array( '-0000000000002013-07-01T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_DAY , TimeFormatter::CALENDAR_GREGORIAN ),
+			'1 Jul 2013CE' =>
+				array( '+0000000000002013-07-01T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_DAY , TimeFormatter::CALENDAR_GREGORIAN ),
+			'+1 Jul 2013' =>
+				array( '+0000000000002013-07-01T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_DAY , TimeFormatter::CALENDAR_GREGORIAN ),
+			'-1 Jul 2013' =>
+				array( '-0000000000002013-07-01T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_DAY , TimeFormatter::CALENDAR_GREGORIAN ),
+			'-10100-02-29' =>
+				array( '-0000000000010100-03-01T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_DAY , TimeFormatter::CALENDAR_GREGORIAN ),
 
 		);
 

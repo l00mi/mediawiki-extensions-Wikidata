@@ -8,7 +8,7 @@ use ValueParsers\Test\StringValueParserTest;
 use Wikibase\Lib\Parsers\MWTimeIsoParser;
 
 /**
- * @covers \Wikibase\Lib\Parsers\YearMonthTimeParserTest
+ * @covers \Wikibase\Lib\Parsers\YearMonthTimeParser
  *
  * @group ValueParsers
  * @group WikibaseLib
@@ -73,11 +73,15 @@ class YearMonthTimeParserTest extends StringValueParserTest {
 				array( '+0000000000001999-01-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_MONTH , TimeFormatter::CALENDAR_GREGORIAN ),
 			'1/1999' =>
 				array( '+0000000000001999-01-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_MONTH , TimeFormatter::CALENDAR_GREGORIAN ),
+			'1 / 1999' =>
+				array( '+0000000000001999-01-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_MONTH , TimeFormatter::CALENDAR_GREGORIAN ),
 			'1 1999' =>
 				array( '+0000000000001999-01-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_MONTH , TimeFormatter::CALENDAR_GREGORIAN ),
 			'1,1999' =>
 				array( '+0000000000001999-01-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_MONTH , TimeFormatter::CALENDAR_GREGORIAN ),
 			'1.1999' =>
+				array( '+0000000000001999-01-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_MONTH , TimeFormatter::CALENDAR_GREGORIAN ),
+			'1. 1999' =>
 				array( '+0000000000001999-01-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_MONTH , TimeFormatter::CALENDAR_GREGORIAN ),
 
 			// presume mm/yy unless impossible month, in which case switch

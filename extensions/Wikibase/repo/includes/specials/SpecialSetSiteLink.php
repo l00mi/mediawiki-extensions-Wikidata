@@ -156,7 +156,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 */
 	protected function modifyEntity( Entity $entity ) {
 		try {
-			$status = $this->setSiteLink( $this->entityRevision, $this->site, $this->page, $this->badges, $summary );
+			$status = $this->setSiteLink( $entity, $this->site, $this->page, $this->badges, $summary );
 		} catch ( ChangeOpException $e ) {
 			$this->showErrorHTML( $e->getMessage() );
 			return false;
@@ -447,18 +447,15 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			}
 		}
 
-		if ( $badges === null ) {
-			$badgesObjects = array();
-		}
-		else {
-			$badgesObjects = $this->parseBadges( $badges, $status );
+		if ( $badges !== null ) {
+			$badges = $this->parseBadges( $badges, $status );
 		}
 
 		if ( !$status->isGood() ) {
 			return $status;
 		}
 
-		$changeOp = new ChangeOpSiteLink( $siteId, $pageName, $badgesObjects );
+		$changeOp = new ChangeOpSiteLink( $siteId, $pageName, $badges );
 
 		$changeOp->apply( $item, $summary );
 

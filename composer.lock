@@ -513,22 +513,22 @@
         },
         {
             "name": "data-values/time",
-            "version": "0.3",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "b019ca4d46dd98503f86286e9be4c95333260493"
+                "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/b019ca4d46dd98503f86286e9be4c95333260493",
-                "reference": "b019ca4d46dd98503f86286e9be4c95333260493",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/4843f21bed7605d4bb7392f7e93f7f86312c1e50",
+                "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50",
                 "shasum": ""
             },
             "require": {
-                "data-values/common": "~0.1",
-                "data-values/data-values": "~0.1",
-                "data-values/interfaces": "~0.1",
+                "data-values/common": "~0.2.0",
+                "data-values/data-values": "~0.1.0",
+                "data-values/interfaces": "~0.1.0",
                 "php": ">=5.3.0"
             },
             "type": "library",
@@ -561,7 +561,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-03-13 10:41:04"
+            "time": "2014-03-24 12:11:40"
         },
         {
             "name": "data-values/validators",
@@ -856,12 +856,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "819eb9326af100c811ac70acc8dd5e1209ae53dc"
+                "reference": "712334240d24774b7355c6b8975065ea65dcfbd8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/819eb9326af100c811ac70acc8dd5e1209ae53dc",
-                "reference": "819eb9326af100c811ac70acc8dd5e1209ae53dc",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/712334240d24774b7355c6b8975065ea65dcfbd8",
+                "reference": "712334240d24774b7355c6b8975065ea65dcfbd8",
                 "shasum": ""
             },
             "require": {
@@ -872,7 +872,7 @@
                 "data-values/javascript": "~0.3.0",
                 "data-values/number": "~0.3.0",
                 "data-values/serialization": "~1.0",
-                "data-values/time": "~0.3.0",
+                "data-values/time": "~0.5.1",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.3.3",
                 "diff/diff": "~0.9.0",
@@ -920,7 +920,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-03-24 08:57:22"
+            "time": "2014-03-25 03:42:19"
         }
     ],
     "packages-dev": [

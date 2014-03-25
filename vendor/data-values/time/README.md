@@ -24,11 +24,13 @@ dependency on `data-values/time` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
 version 1.0 of this package:
 
+```js
     {
         "require": {
             "data-values/time": "1.0.*"
         }
     }
+```
 
 ### Manual
 
@@ -48,6 +50,20 @@ DataValues Time has been written by the Wikidata team, as [Wikimedia Germany]
 (https://wikimedia.de) employees for the [Wikidata project](https://wikidata.org/).
 
 ## Release notes
+
+### 0.5.1 (2014-03-24)
+
+* Fix composer version of DataValues/Common
+
+### 0.5 (2014-03-21)
+
+* Removed TimeParser::SIGN_PATTERN constant
+* Removed TimeParser::TIME_PATTERN constant
+* Fixed [bug 62730](https://bugzilla.wikimedia.org/show_bug.cgi?id=62730). The TimeParser now returns the correct precision when only month and year or year is given
+
+### 0.4 (2014-03-14)
+
+* Corrected spelling errors calender/calander -> calendar
 
 ### 0.3 (2014-03-13)
 

@@ -2,6 +2,7 @@
 
 namespace Wikibase;
 
+use Hooks;
 use IContextSource;
 use Status;
 use User;
@@ -155,6 +156,7 @@ class EditEntity {
 	 * @param EntityTitleLookup $titleLookup
 	 * @param EntityRevisionLookup $entityLookup
 	 * @param EntityStore $entityStore
+	 * @param EntityPermissionChecker $permissionChecker
 	 * @param Entity $newEntity the new entity object
 	 * @param User $user the user performing the edit
 	 * @param int|boolean $baseRevId the base revision ID for conflict checking.
@@ -172,6 +174,7 @@ class EditEntity {
 		EntityTitleLookup $titleLookup,
 		EntityRevisionLookup $entityLookup,
 		EntityStore $entityStore,
+		EntityPermissionChecker $permissionChecker,
 		Entity $newEntity,
 		User $user,
 		$baseRevId = false,
@@ -202,9 +205,7 @@ class EditEntity {
 		$this->titleLookup = $titleLookup;
 		$this->entityLookup = $entityLookup;
 		$this->entityStore = $entityStore;
-
-		//FIXME: inject me!
-		$this->permissionChecker = WikibaseRepo::getDefaultInstance()->getEntityPermissionChecker();
+		$this->permissionChecker = $permissionChecker;
 	}
 
 	/**
@@ -741,14 +742,16 @@ class EditEntity {
 	}
 
 	/**
-	 * Call EditFilterMergedContent hook
+	 * Call EditFilterMergedContent hook, if registered.
 	 *
 	 * @param string $summary
 	 *
 	 * @todo: move the implementation elsewhere, it depends on WikiPage.
 	 */
 	protected function runEditFilterHooks( $summary ) {
-		//TODO: short out if no handler is registered for EditFilterMergedContent?
+		if ( !Hooks::isRegistered( 'EditFilterMergedContent' ) ) {
+			return;
+		}
 
 		if ( !$this->isNew() ) {
 			$context = clone $this->context;
