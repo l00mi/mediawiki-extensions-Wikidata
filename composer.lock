@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "de164cef49a0fb8bae337766eee5b346",
+    "hash": "1386993f6bf6e31b6ab8955eaf6c4c96",
     "packages": [
         {
             "name": "composer/installers",
@@ -389,7 +389,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Creator and lead developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -850,12 +850,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "b1508dacb96f2c9dee0d87c11e933bb69f80f33a"
+                "reference": "c76eb81a010185d8460f25a18adb846cb46e95d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b1508dacb96f2c9dee0d87c11e933bb69f80f33a",
-                "reference": "b1508dacb96f2c9dee0d87c11e933bb69f80f33a",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c76eb81a010185d8460f25a18adb846cb46e95d2",
+                "reference": "c76eb81a010185d8460f25a18adb846cb46e95d2",
                 "shasum": ""
             },
             "require": {
@@ -867,7 +867,7 @@
                 "data-values/number": "~0.3.0",
                 "data-values/serialization": "~0.1.0",
                 "data-values/time": "~0.3.0",
-                "data-values/validators": "~0.1.0",
+                "data-values/validators": "0.1",
                 "data-values/value-view": "~0.3.3",
                 "diff/diff": "~0.9",
                 "php": ">=5.3.2",
@@ -914,7 +914,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-03-27 19:18:11"
+            "time": "2014-03-27 21:04:03"
         }
     ],
     "packages-dev": [
