@@ -15,6 +15,19 @@ On [Packagist](https://packagist.org/packages/data-values/javascript):
 
 ## Release notes
 
+### 0.4.0 (2014-03-24)
+
+#### Breaking changes
+
+* mw.ext.valueParsers does not register valueParsers.TimeParser anymore
+* mw.ext.valueFormatters does not register valueFormatters.StringFormatter anymore
+
+#### Bugfixes
+
+* Fixed definitions of ResourceLoader test modules.
+* Accept ISO8601-formatted timestamps with zeroes as months and days
+* Always return a string in time.writeYear and time.writeDay
+
 ### 0.3.1 (2014-02-03)
 
 #### Bugfixes

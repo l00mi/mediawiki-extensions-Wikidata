@@ -359,16 +359,16 @@
         },
         {
             "name": "data-values/javascript",
-            "version": "0.3.1",
+            "version": "0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataValuesJavascript.git",
-                "reference": "3662a53a50b53d0ec11a8005a52109d3504a1b3e"
+                "reference": "b2241cc1f1ae60c5b7fac358729bdf8e510bd02c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/3662a53a50b53d0ec11a8005a52109d3504a1b3e",
-                "reference": "3662a53a50b53d0ec11a8005a52109d3504a1b3e",
+                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/b2241cc1f1ae60c5b7fac358729bdf8e510bd02c",
+                "reference": "b2241cc1f1ae60c5b7fac358729bdf8e510bd02c",
                 "shasum": ""
             },
             "require": {
@@ -389,7 +389,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Creator and lead developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -409,7 +409,7 @@
                 "datavalues",
                 "wikidata"
             ],
-            "time": "2014-02-03 13:54:56"
+            "time": "2014-03-24 10:06:36"
         },
         {
             "name": "data-values/number",
@@ -621,20 +621,20 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.3.3",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00"
+                "reference": "112650ef36552a2eb36967a52836d9c441901aaa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
-                "reference": "d660d990d8ad4b0bc4e0bacd4a0412e802693c00",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/112650ef36552a2eb36967a52836d9c441901aaa",
+                "reference": "112650ef36552a2eb36967a52836d9c441901aaa",
                 "shasum": ""
             },
             "require": {
-                "data-values/javascript": "~0.3.0",
+                "data-values/javascript": "~0.4.0",
                 "php": ">=5.3.0"
             },
             "type": "mediawiki-extension",
@@ -663,7 +663,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-02-24 15:07:42"
+            "time": "2014-03-26 09:54:14"
         },
         {
             "name": "diff/diff",
@@ -856,12 +856,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "169df626c9dc5a9d5f6e70cfab5dc0a9407c1f38"
+                "reference": "ad80a0aee72a77d68a03e69fa0c4139008c0d29e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/169df626c9dc5a9d5f6e70cfab5dc0a9407c1f38",
-                "reference": "169df626c9dc5a9d5f6e70cfab5dc0a9407c1f38",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ad80a0aee72a77d68a03e69fa0c4139008c0d29e",
+                "reference": "ad80a0aee72a77d68a03e69fa0c4139008c0d29e",
                 "shasum": ""
             },
             "require": {
@@ -869,12 +869,12 @@
                 "data-values/data-types": "~0.2.0",
                 "data-values/data-values": "~0.1.0",
                 "data-values/geo": "~0.1.0",
-                "data-values/javascript": "~0.3.0",
+                "data-values/javascript": "~0.4.0",
                 "data-values/number": "~0.3.0",
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.5.1",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.3.3",
+                "data-values/value-view": "~0.4.0",
                 "diff/diff": "~0.9.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~0.7.2",
@@ -920,7 +920,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-03-26 09:16:01"
+            "time": "2014-03-27 09:52:00"
         }
     ],
     "packages-dev": [
