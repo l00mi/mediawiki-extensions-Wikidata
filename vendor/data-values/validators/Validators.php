@@ -11,11 +11,11 @@
  */
 
 if ( defined( 'DATAVALUES_VALIDATORS_VERSION' ) ) {
-	// Do not initialize more then once.
+	// Do not initialize more than once.
 	return 1;
 }
 
-define( 'DATAVALUES_VALIDATORS_VERSION', '0.1' );
+define( 'DATAVALUES_VALIDATORS_VERSION', '0.1.1' );
 
 if ( defined( 'MEDIAWIKI' ) ) {
 	$GLOBALS['wgExtensionCredits']['datavalues'][] = array(

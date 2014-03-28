@@ -6,7 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/validators/src'),
+    'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src'),
     'ValueParsers\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/geo/src'),
     'ValueFormatters\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/common/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/geo/src'),
     'EasyRdf_' => array($vendorDir . '/wikibase/easyrdf_lite'),

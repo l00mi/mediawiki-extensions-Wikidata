@@ -143,24 +143,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.4.1",
-        "version_normalized": "0.4.1.0",
+        "version": "0.4.2",
+        "version_normalized": "0.4.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "112650ef36552a2eb36967a52836d9c441901aaa"
+            "reference": "41f8faf09adbb3cc45330f4a0b1314b6ecc9b2b2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/112650ef36552a2eb36967a52836d9c441901aaa",
-            "reference": "112650ef36552a2eb36967a52836d9c441901aaa",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/41f8faf09adbb3cc45330f4a0b1314b6ecc9b2b2",
+            "reference": "41f8faf09adbb3cc45330f4a0b1314b6ecc9b2b2",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.4.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-03-26 09:54:14",
+        "time": "2014-03-27 10:45:48",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -759,17 +759,17 @@
     },
     {
         "name": "data-values/validators",
-        "version": "0.1",
-        "version_normalized": "0.1.0.0",
+        "version": "0.1.1",
+        "version_normalized": "0.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Validators.git",
-            "reference": "bf04780e44e5b2694e2e85c63a641ba852396ee7"
+            "reference": "ad96186364d285e5ea761fcd54530570c80cc6ec"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Validators/zipball/bf04780e44e5b2694e2e85c63a641ba852396ee7",
-            "reference": "bf04780e44e5b2694e2e85c63a641ba852396ee7",
+            "url": "https://api.github.com/repos/DataValues/Validators/zipball/ad96186364d285e5ea761fcd54530570c80cc6ec",
+            "reference": "ad96186364d285e5ea761fcd54530570c80cc6ec",
             "shasum": ""
         },
         "require": {
@@ -777,14 +777,14 @@
             "data-values/interfaces": "~0.1",
             "php": ">=5.3.0"
         },
-        "time": "2013-11-17 19:31:21",
+        "time": "2014-03-27 03:45:06",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
             "files": [
                 "Validators.php"
             ],
-            "psr-0": {
+            "psr-4": {
                 "ValueValidators\\": "src"
             }
         },
@@ -883,12 +883,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "ad80a0aee72a77d68a03e69fa0c4139008c0d29e"
+            "reference": "2dc00e6c80c344406a7c35d2b7ffd6b34beeb7d4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ad80a0aee72a77d68a03e69fa0c4139008c0d29e",
-            "reference": "ad80a0aee72a77d68a03e69fa0c4139008c0d29e",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/2dc00e6c80c344406a7c35d2b7ffd6b34beeb7d4",
+            "reference": "2dc00e6c80c344406a7c35d2b7ffd6b34beeb7d4",
             "shasum": ""
         },
         "require": {
@@ -901,13 +901,13 @@
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.5.1",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.4.0",
+            "data-values/value-view": "~0.4.2",
             "diff/diff": "~0.9.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~0.7.2",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-03-27 09:52:00",
+        "time": "2014-03-28 09:43:13",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
