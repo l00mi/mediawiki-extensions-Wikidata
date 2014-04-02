@@ -15,12 +15,26 @@ On [Packagist](https://packagist.org/packages/data-values/javascript):
 
 ## Release notes
 
+### 0.5.0 (2014-03-28)
+
+#### Breaking changes
+
+* Renamed ValueFormatterFactory to ValueFormatterStore.
+* Renamed ValueParserFactory to ValueParserStore.
+* Removed mw.ext.valueFormatters and mw.ext.valueParsers.
+
+#### Enhancements
+
+* Defined parameters of the promises returned by ValueFormatter's and ValueParser's format/parse functions.
+
 ### 0.4.0 (2014-03-24)
 
 #### Breaking changes
 
 * mw.ext.valueParsers does not register valueParsers.TimeParser anymore
 * mw.ext.valueFormatters does not register valueFormatters.StringFormatter anymore
+* Renamed ValueFormatterFactory to ValueFormatterStore.
+* Renamed ValueParserFactory to ValueParserStore.
 
 #### Bugfixes
 

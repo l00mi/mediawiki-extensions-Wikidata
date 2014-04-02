@@ -2,17 +2,19 @@
 
 namespace Wikibase\Api;
 
+use ApiBase;
 use ApiMain;
 use Exception;
 use LogicException;
 use Message;
 use MessageCache;
-use User;
 use Status;
-use ApiBase;
+use UsageException;
+use User;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\EditEntity;
 use Wikibase\EntityFactory;
 use Wikibase\EntityPermissionChecker;
 use Wikibase\EntityRevision;
@@ -20,7 +22,6 @@ use Wikibase\EntityRevisionLookup;
 use Wikibase\EntityTitleLookup;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializerFactory;
-use Wikibase\EditEntity;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StorageException;
 use Wikibase\store\EntityStore;
@@ -35,8 +36,9 @@ use Wikibase\SummaryFormatter;
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Adam Shorland
+ * @author Daniel Kinzler
  */
-abstract class ApiWikibase extends \ApiBase {
+abstract class ApiWikibase extends ApiBase {
 
 	private $resultBuilder;
 
@@ -70,11 +72,6 @@ abstract class ApiWikibase extends \ApiBase {
 	protected $entityLookup;
 
 	/**
-	 * @var EntityRevisionLookup
-	 */
-	protected $uncachedEntityLookup;
-
-	/**
 	 * @var EntityStore
 	 */
 	protected $entityStore;
@@ -98,6 +95,8 @@ abstract class ApiWikibase extends \ApiBase {
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
+	 *
+	 * @see ApiBase::__construct
 	 */
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
@@ -257,7 +256,7 @@ abstract class ApiWikibase extends \ApiBase {
 		$permissions = $this->getRequiredPermissions( $entity, $params );
 		$status = Status::newGood();
 
-		foreach ( $permissions as $perm ) {
+		foreach ( array_unique( $permissions ) as $perm ) {
 			$permStatus = $this->permissionChecker->getPermissionStatusForEntity( $user, $perm, $entity );
 			$status->merge( $permStatus );
 		}
@@ -275,14 +274,11 @@ abstract class ApiWikibase extends \ApiBase {
 	 * @param EntityId $entityId : the title of the page to load the revision for
 	 * @param int $revId : the revision to load. If not given, the current revision will be loaded.
 	 *
-	 * @throws \Exception
-	 * @throws \UsageException
+	 * @throws UsageException
+	 * @throws LogicException
 	 * @return EntityRevision
 	 */
-	protected function loadEntityRevision(
-		EntityId $entityId,
-		$revId = 0
-	) {
+	protected function loadEntityRevision( EntityId $entityId, $revId = 0 ) {
 		try {
 			$revision = $this->entityLookup->getEntityRevision( $entityId, $revId );
 
@@ -298,7 +294,7 @@ abstract class ApiWikibase extends \ApiBase {
 			$this->dieUsage( "Revision $revId not found: " . $ex->getMessage(), 'nosuchrevid' );
 		}
 
-		throw new Exception( 'can\'t happen' );
+		throw new LogicException( 'ApiBase::dieUsage did not throw a UsageException' );
 	}
 
 	/**
@@ -341,10 +337,29 @@ abstract class ApiWikibase extends \ApiBase {
 	}
 
 	/**
+	 * Handles an Exception that shall terminate the API call with an error.
+	 *
+	 * @see handleStatus()
+	 * @see getExceptionStatus()
+	 * @see getExceptionMessage()
+	 *
+	 * @note This method never returns normally, it always throws an exception.
+	 * @throws UsageException always
+	 */
+	public function dieException( Exception $ex, $errorCode, array $extradata = array(), $httpRespCode = 0 ) {
+		$status = $this->getExceptionStatus( $ex );
+		$this->handleStatus( $status, $errorCode, $extradata, $httpRespCode );
+
+		// getExceptionStatus() should always return a fatal status,
+		// and handleStatus() should never return for a fatal status.
+		throw new LogicException( 'handleStatus() should have failed on fatal status!' );
+	}
+
+	/**
 	 * Include messages from a Status object in the API call's output.
 	 *
 	 * If $status->isOK() returns false, this method will terminate via the a call
-	 * to $this->dieUsage().
+	 * to $this->dieUsage(), causing a UsageException to be thrown.
 	 *
 	 * If $status->isOK() returns false, any errors from the $status object will be included
 	 * in the error-section of the API response. Otherwise, any warnings from $status will be
@@ -352,17 +367,19 @@ abstract class ApiWikibase extends \ApiBase {
 	 * is used that includes an HTML representation of the messages as well as a list of message
 	 * keys and parameters, for client side rendering and localization.
 	 *
+	 * @warning This is a temporary solution, pending a similar feature in MediaWiki core,
+	 *          see bug 45843.
+	 *
+	 * @see ApiBase::dieUsage()
+	 *
 	 * @param Status $status The status to report
 	 * @param string  $errorCode The API error code to use in case $status->isOK() returns false
 	 * @param array   $extradata Additional data to include the the error report,
 	 *                if $status->isOK() returns false
 	 * @param int     $httpRespCode the HTTP response code to use in case
-	 *                $status->isOK() returns false.
+	 *                $status->isOK() returns false.+
 	 *
-	 * @warning This is a temporary solution, pending a similar feature in MediaWiki core,
-	 *          see bug 45843.
-	 *
-	 * @see ApiBase::dieUsage()
+	 * @throws UsageException If $status->isOK() returns false.
 	 */
 	public function handleStatus( Status $status, $errorCode, array $extradata = array(), $httpRespCode = 0 ) {
 		wfProfileIn( __METHOD__ );
@@ -623,6 +640,39 @@ abstract class ApiWikibase extends \ApiBase {
 	protected function formatSummary( Summary $summary ) {
 		$formatter = $this->summaryFormatter;
 		return $formatter->formatSummary( $summary );
+	}
+
+	/**
+	 * Returns a Status object representing the given exception using a localized message.
+	 *
+	 * @note: The returned Status will always be fatal, that is, $status->isOk() will return false.
+	 *
+	 * @see getExceptionMessage().
+	 *
+	 * @param Exception $error
+	 *
+	 * @return Status
+	 */
+	protected function getExceptionStatus( Exception $error ) {
+		$msg = $this->getExceptionMessage( $error );
+		$status = Status::newFatal( $msg );
+		$status->setResult( false, $error->getMessage() );
+
+		return $status;
+	}
+
+	/**
+	 * Generates a localization Message representing the given exception.
+	 * Knowledge about how to localize different kinds of exceptions is provided by
+	 * an ExceptionLocalizer service.
+	 *
+	 * @param Exception $error
+	 *
+	 * @return Message
+	 */
+	protected function getExceptionMessage( Exception $error ) {
+		$localizer = WikibaseRepo::getDefaultInstance()->getExceptionLocalizer();
+		return $localizer->getExceptionMessage( $error );
 	}
 
 }

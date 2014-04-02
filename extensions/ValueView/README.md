@@ -109,6 +109,26 @@ Other methods an Expert needs to provide:
 
 ## Release notes
 
+### 0.5.1 (2014-04-01)
+
+* Change TimeInput::valueCharacteristics() to not returning precision or calendarmodel if set to auto
+* Change TimeInput::draw() to update the rotators' values if they are in auto mode
+* Change GlobeCoordinateInput::draw() to update the precision rotator value if it is in auto mode
+
+### 0.5 (2014-03-28)
+
+* Renamed jQuery.valueView.ExpertFactory to jQuery.valueView.ExpertStore.
+* Renamed jQuery.valueView option "expertProvider" to "expertStore".
+* Renamed jQuery.valueView.ExpertFactory to jQuery.valueView.ExpertStore.
+* Renamed jQuery.valueView option "expertProvider" to "expertStore".
+* Renamed jQuery.valueView option "valueFormatterProvider" to "formatterStore".
+* Renamed jQuery valueView option "valueParserProvider" to "parserStore".
+* Updated DataValuesJavaScript dependency to version 0.5.0.
+* Removed setting default formatter provider/store and parser provider/store of jQuery.valueView in mw.ext.valueView since no defaults are provided by DataValuesJavaScript as of version 0.5.0.
+* Removed mw.ext.valueView module.
+* Fixed ValueView to again support setting value to null
+* jQuery.valueview expects the rejected promise that may be returned by ValueParser's parse() and ValueFormatter's format() to feature a single parameter only.
+
 ### 0.4.2 (2014-03-27)
 
 * Use DOM children of the ValueView as formatted value on initialization

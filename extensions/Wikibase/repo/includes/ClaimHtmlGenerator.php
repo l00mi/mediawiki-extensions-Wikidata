@@ -210,6 +210,8 @@ class ClaimHtmlGenerator {
 	/**
 	 * Generates the HTML for a single snak.
 	 *
+	 * @todo split this into separate classes with more fine-grained formatting and tests.
+	 *
 	 * @param Snak $snak
 	 * @param boolean $showPropertyLink
 	 * @return string
@@ -229,17 +231,38 @@ class ClaimHtmlGenerator {
 			);
 		}
 
+		$snakViewVariation = $this->getSnakViewVariation( $snak );
+		$snakViewCssClass = 'wb-snakview-variation-' . $snakViewVariation;
+
 		$formattedValue = $this->getFormattedSnakValue( $snak );
 
-		if( $formattedValue === '' ) {
+		if ( $formattedValue === '' ) {
 			$formattedValue = '&nbsp;';
 		}
 
 		return wfTemplate( 'wb-snak',
 			// Display property link only once for snaks featuring the same property:
 			$propertyLink,
+			$snakViewCssClass,
 			$formattedValue
 		);
+	}
+
+	/**
+	 * @param Snak $snak
+	 *
+	 * @return string
+	 */
+	private function getSnakViewVariation( Snak $snak ) {
+		if ( $snak instanceof PropertyValueSnak ) {
+			$variation = 'valuesnak';
+		} elseif ( $snak instanceof PropertySomeValueSnak ) {
+			$variation = 'somevaluesnak';
+		} else {
+			$variation = 'novaluesnak';
+		}
+
+		return $variation;
 	}
 
 	/**

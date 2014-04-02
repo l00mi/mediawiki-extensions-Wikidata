@@ -17,19 +17,6 @@ return call_user_func( function() {
 
 	return array(
 
-		'mw.ext.valueFormatters' => $moduleTemplate + array(
-			'scripts' => array(
-				'mw.ext.valueFormatters.js',
-			),
-			'dependencies' => array(
-				'dataValues.values',
-				'mediawiki',
-				'valueFormatters',
-				'valueFormatters.formatters',
-				'valueFormatters.ValueFormatterFactory',
-			),
-		),
-
 		'valueFormatters' => $moduleTemplate + array(
 			'scripts' => array(
 				'valueFormatters.js',
@@ -47,9 +34,9 @@ return call_user_func( function() {
 			),
 		),
 
-		'valueFormatters.ValueFormatterFactory' => $moduleTemplate + array(
+		'valueFormatters.ValueFormatterStore' => $moduleTemplate + array(
 			'scripts' => array(
-				'ValueFormatterFactory.js',
+				'ValueFormatterStore.js',
 			),
 			'dependencies' => array(
 				'valueFormatters',

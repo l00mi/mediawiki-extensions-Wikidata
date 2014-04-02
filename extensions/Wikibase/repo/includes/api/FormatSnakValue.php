@@ -8,6 +8,7 @@ use DataValues\DataValueFactory;
 use DataValues\IllegalValueException;
 use DataValues\StringValue;
 use LogicException;
+use UsageException;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
@@ -40,8 +41,7 @@ class FormatSnakValue extends ApiWikibase {
 	 */
 	protected function getFormatterFactory() {
 		if ( $this->formatterFactory === null ) {
-
-			$this->formatterFactory =  WikibaseRepo::getDefaultInstance()->getValueFormatterFactory();
+			$this->formatterFactory = WikibaseRepo::getDefaultInstance()->getValueFormatterFactory();
 		}
 
 		return $this->formatterFactory;
@@ -87,7 +87,7 @@ class FormatSnakValue extends ApiWikibase {
 	}
 
 	/**
-	 * @throws \LogicException
+	 * @throws LogicException
 	 * @return ValueFormatter
 	 */
 	private function getFormatter() {
@@ -109,6 +109,8 @@ class FormatSnakValue extends ApiWikibase {
 	 *
 	 * @param string $json A JSON-encoded DataValue
 	 *
+	 * @throws UsageException
+	 * @throws LogicException
 	 * @return DataValue
 	 */
 	protected function decodeDataValue( $json ) {
@@ -124,6 +126,8 @@ class FormatSnakValue extends ApiWikibase {
 		} catch ( IllegalValueException $ex ) {
 			$this->dieUsage( $ex->getMessage(), 'baddatavalue' );
 		}
+
+		throw new LogicException( 'ApiBase::dieUsage did not throw a UsageException' );
 	}
 
 	/**
@@ -265,4 +269,5 @@ class FormatSnakValue extends ApiWikibase {
 			//TODO: example for the options parameter, once we have something sensible to show there.
 		);
 	}
+
 }

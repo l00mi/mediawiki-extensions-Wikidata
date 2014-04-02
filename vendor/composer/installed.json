@@ -87,23 +87,23 @@
     },
     {
         "name": "data-values/javascript",
-        "version": "0.4",
-        "version_normalized": "0.4.0.0",
+        "version": "0.5",
+        "version_normalized": "0.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "b2241cc1f1ae60c5b7fac358729bdf8e510bd02c"
+            "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/b2241cc1f1ae60c5b7fac358729bdf8e510bd02c",
-            "reference": "b2241cc1f1ae60c5b7fac358729bdf8e510bd02c",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
+            "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
             "shasum": ""
         },
         "require": {
             "composer/installers": ">=1.0.1"
         },
-        "time": "2014-03-24 10:06:36",
+        "time": "2014-03-28 14:20:37",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -120,7 +120,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             },
             {
                 "name": "Daniel Werner",
@@ -143,24 +143,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.4.2",
-        "version_normalized": "0.4.2.0",
+        "version": "0.5.1",
+        "version_normalized": "0.5.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "41f8faf09adbb3cc45330f4a0b1314b6ecc9b2b2"
+            "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/41f8faf09adbb3cc45330f4a0b1314b6ecc9b2b2",
-            "reference": "41f8faf09adbb3cc45330f4a0b1314b6ecc9b2b2",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
+            "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
             "shasum": ""
         },
         "require": {
-            "data-values/javascript": "~0.4.0",
+            "data-values/javascript": "~0.5.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-03-27 10:45:48",
+        "time": "2014-04-01 08:05:07",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -191,23 +191,23 @@
     },
     {
         "name": "data-values/interfaces",
-        "version": "0.1.2",
-        "version_normalized": "0.1.2.0",
+        "version": "0.1.3",
+        "version_normalized": "0.1.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "b2917e3f7352a83a85841497e1a75d11923ddab5"
+            "reference": "a91a4f6ba12aebfcb245bd78a02981d3c6caa192"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/b2917e3f7352a83a85841497e1a75d11923ddab5",
-            "reference": "b2917e3f7352a83a85841497e1a75d11923ddab5",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/a91a4f6ba12aebfcb245bd78a02981d3c6caa192",
+            "reference": "a91a4f6ba12aebfcb245bd78a02981d3c6caa192",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2013-11-21 23:56:00",
+        "time": "2014-03-31 10:59:15",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -883,12 +883,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "c1370f96938cbfe2cd3eb41ad310ee96ae4a36e7"
+            "reference": "2195b070ec301cc3a8d87ca25bf41a2d989ae148"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c1370f96938cbfe2cd3eb41ad310ee96ae4a36e7",
-            "reference": "c1370f96938cbfe2cd3eb41ad310ee96ae4a36e7",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/2195b070ec301cc3a8d87ca25bf41a2d989ae148",
+            "reference": "2195b070ec301cc3a8d87ca25bf41a2d989ae148",
             "shasum": ""
         },
         "require": {
@@ -896,18 +896,18 @@
             "data-values/data-types": "~0.2.0",
             "data-values/data-values": "~0.1.0",
             "data-values/geo": "~0.1.0",
-            "data-values/javascript": "~0.4.0",
+            "data-values/javascript": "~0.5.0",
             "data-values/number": "~0.3.0",
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.5.1",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.4.2",
+            "data-values/value-view": "~0.5.0",
             "diff/diff": "~0.9.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~0.7.2",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-03-29 21:20:33",
+        "time": "2014-04-02 09:16:52",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

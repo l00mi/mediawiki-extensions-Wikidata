@@ -3,12 +3,12 @@
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( mw, wb, $, dv ) {
+( function( wb, $, dv ) {
 	'use strict';
 
 	wb.parsers = wb.parsers || {};
 
-	var api = new mw.Api();
+	var api = new wb.RepoApi();
 
 	/**
 	 * ValueParsers API.
@@ -26,7 +26,13 @@
 	 * @param {string} parser
 	 * @param {string[]} values
 	 * @param {Object} options
-	 * @return {$.Promise}
+	 * @return {jQuery.Promise}
+	 *         Resolved parameters:
+	 *         - {dataValues.DataValues[]}
+	 *         Rejected parameters:
+	 *         - {string} Error code.
+	 *         - {string|Object} Error message, original response containing "error" attribute or
+	 *           status object (see mediaWiki.Api.ajax).
 	 */
 	wb.parsers.api.parseValues = function( parser, values, options ) {
 		var deferred = $.Deferred();
@@ -56,11 +62,19 @@
 
 			var dataValues = [];
 
-			for ( var i in response.results ) {
-				try{
-					dataValues.push( unserializeResult( response.results[i] ) );
-				} catch( e ) {
-					deferred.reject( e.name, e.message );
+			for( var i in response.results ) {
+				var result = response.results[i];
+
+				if( result.error ) {
+					deferred.reject( result.error, result );
+					break;
+				}
+
+				try {
+					dataValues.push( unserializeResult( result ) );
+				} catch( error ) {
+					deferred.reject( error.name, error.message );
+					break;
 				}
 			}
 
@@ -85,4 +99,4 @@
 		}
 	}
 
-}( mediaWiki, wikibase, jQuery, dataValues ) );
+}( wikibase, jQuery, dataValues ) );
