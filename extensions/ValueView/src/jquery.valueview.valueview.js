@@ -32,16 +32,16 @@ function expertProxy( fnName ) {
  * @extends jQuery.Widget
  * @since 0.1
  *
- * @option {jQuery.valueview.ExpertFactory} expertProvider Used to determine an expert
- *         strategy depending on the data value type or the data type the valueview should handle.
- *         The valueview will be able to handle all data value types and data types the given
- *         provider has experts registered for.
+ * @option {jQuery.valueview.ExpertStore} expertStore Used to determine an expert depending on the
+ *         data value type or the data type the valueview should handle.
+ *         The valueview will be able to handle all data value types and data types the given store
+ *         has experts registered for.
  *
- * @option {valueParsers.valueParserFactory} valueParserProvider Factory providing the
- *         parsers that values may be parsed with.
+ * @option {valueParsers.valueParserStore} parserStore Store providing the parsers values may
+ *         be parsed with.
  *
- * @option {valueFormatters.valueFormatterFactory} valueFormatterProvider Factory
- *         providing the formatters which value may be formatted with.
+ * @option {valueFormatters.valueFormatterStore} formatterStore Store providing the formatters
+ *         values may be formatted with.
  *
  * @option {string|null} [dataTypeId] If set, an expert (jQuery.valueview.Expert), a parser
  *         (valueParsers.ValueParser) and a formatter (valueFormatters.ValueFormatter) will be
@@ -130,8 +130,8 @@ $.widget( 'valueview.valueview', PARENT, {
 	/**
 	 * Expert object responsible for serving the DOM to edit the current value. This is only available
 	 * when in edit mode, otherwise it is null.
-	 * Can also be null if the current value has a has data value type unknown to the expert factory
-	 * given in the "expertProvider" option.
+	 * Can also be null if the current value has a data value type unknown to the expert store given
+	 * in the "expertStore" option.
 	 * @type jQuery.valueview.Expert|null
 	 */
 	_expert: null,
@@ -147,9 +147,9 @@ $.widget( 'valueview.valueview', PARENT, {
 	 * @see jQuery.Widget.options
 	 */
 	options: {
-		expertProvider: null,
-		valueParserProvider: null,
-		valueFormatterProvider: null,
+		expertStore: null,
+		parserStore: null,
+		formatterStore: null,
 		dataTypeId: null,
 		dataValueType: null,
 		value: null,
@@ -212,7 +212,7 @@ $.widget( 'valueview.valueview', PARENT, {
 		PARENT.prototype._setOption.call( this, key, value );
 
 		switch( key ) {
-			case 'expertProvider':
+			case 'expertStore':
 			case 'dataTypeId': // TODO: make this work properly and test
 			case 'dataValueType':
 				this._updateExpertConstructor();
@@ -350,6 +350,7 @@ $.widget( 'valueview.valueview', PARENT, {
 			this._value = value;
 			this._formattedValue = formattedValue;
 			this._updateExpertConstructor();
+			this.draw();
 		}
 	},
 
@@ -369,7 +370,7 @@ $.widget( 'valueview.valueview', PARENT, {
 			throw new Error( 'Instance of dataValues.DataValue required for setting a value' );
 		}
 
-		if( this._value && this._value.toJSON && JSON.stringify( value.toJSON() ) === JSON.stringify( this._value.toJSON() ) ) {
+		if( this._value && value && JSON.stringify( value.toJSON() ) === JSON.stringify( this._value.toJSON() ) ) {
 			return;
 		}
 
@@ -392,6 +393,11 @@ $.widget( 'valueview.valueview', PARENT, {
 				.done( function( formattedValue ) {
 					self._formattedValue = formattedValue;
 					self.draw();
+				} )
+				.fail( function( message ) {
+					if( message ) {
+						self._renderError( message );
+					}
 				} );
 		}
 	},
@@ -444,8 +450,8 @@ $.widget( 'valueview.valueview', PARENT, {
 	 * Will update the constructor currently used for creating an expert, if one is needed.
 	 */
 	_updateExpertConstructor: function() {
-		if( !( this.options.expertProvider instanceof $.valueview.ExpertFactory ) ) {
-			throw new Error( 'No ExpertProvider set in valueview\'s "expertProvider" option' );
+		if( !( this.options.expertStore instanceof $.valueview.ExpertStore ) ) {
+			throw new Error( 'No ExpertStore set in valueview\'s "expertStore" option' );
 		}
 
 		var dataValueType = this._determineDataValueType();
@@ -453,7 +459,7 @@ $.widget( 'valueview.valueview', PARENT, {
 		this._expertConstructor = $.valueview.experts.EmptyValue;
 
 		if( dataValueType || this.options.dataTypeId ) {
-			this._expertConstructor = this.options.expertProvider.getExpert(
+			this._expertConstructor = this.options.expertStore.getExpert(
 				dataValueType,
 				this.options.dataTypeId
 			) || $.valueview.experts.UnsupportedValue;
@@ -634,26 +640,42 @@ $.widget( 'valueview.valueview', PARENT, {
 						self._formattedValue = formattedValue;
 						self.drawContent();
 					} )
-					.fail( function( error, details ) {
-						if( error !== undefined ) {
-							// TODO: display some message if parsing failed due to bad API connection etc.
+					.fail( function( message ) {
+						if( message ) {
 							self._formattedValue = null;
+							self._renderError( message );
 						}
 					} );
 
 			} )
-			.fail( function( error, details ) {
-				if( error !== undefined ) {
-					// TODO: display some message if parsing failed due to bad API connection etc.
+			.fail( function( message ) {
+				if( message ) {
 					self._value = null;
+					self._renderError( message );
 				}
 			} );
+	},
+
+	/**
+	 * Renders an error message.
+	 *
+	 * @param {string} message HTML error message.
+	 */
+	_renderError: function( message ) {
+		if( this._expert && this._expert.preview ) {
+			this._expert.preview.update( message );
+		}
 	},
 
 	/**
 	 * Parses the current raw value.
 	 *
 	 * @return {jQuery.Promise}
+	 *         Resolved parameters:
+	 *         - {dataValues.DataValue}
+	 *         Rejected parameters:
+	 *         - {string|undefined} HTML error message or "undefined" if the result shall be
+	 *           ignored.
 	 *
 	 * @throws {Error} if the parser result is neither a DataValue instance nor null.
 	 * @triggers afterparse
@@ -713,8 +735,8 @@ $.widget( 'valueview.valueview', PARENT, {
 
 					deferred.resolve( parsedValue );
 				} )
-				.fail( function( error, details ) {
-					deferred.reject( error, details );
+				.fail( function( message ) {
+					deferred.reject( message );
 				} )
 				.always( function() {
 					self._trigger( 'afterparse' );
@@ -729,11 +751,11 @@ $.widget( 'valueview.valueview', PARENT, {
 	 * @return {valueParsers.ValueParser}
 	 */
 	_instantiateParser: function( additionalParserOptions ) {
-		if( !( this.options.valueParserProvider instanceof vp.ValueParserFactory ) ) {
-			throw new Error( 'No value parser provider in valueview\'s options specified' );
+		if( !( this.options.parserStore instanceof vp.ValueParserStore ) ) {
+			throw new Error( 'No value parser store in valueview\'s options specified' );
 		}
 
-		var Parser = this.options.valueParserProvider.getParser(
+		var Parser = this.options.parserStore.getParser(
 			this._determineDataValueType(),
 			this.options.dataTypeId
 		);
@@ -752,6 +774,11 @@ $.widget( 'valueview.valueview', PARENT, {
 	 *
 	 * @param {dataValues.DataValue} dataValue
 	 * @return {jQuery.Promise}
+	 *         Resolved parameters:
+	 *         - {string} Formatted DataValue.
+	 *         Rejected parameters:
+	 *         - {string|undefined} HTML error message or "undefined" if the result shall be
+	 *           ignored.
 	 *
 	 * @triggers afterformat
 	 */
@@ -770,8 +797,8 @@ $.widget( 'valueview.valueview', PARENT, {
 					deferred.reject();
 				}
 			} )
-			.fail( function( error, details ) {
-				deferred.reject( error, details );
+			.fail( function( message ) {
+				deferred.reject( message );
 			} )
 			.always( function() {
 				self._trigger( 'afterformat' );
@@ -783,7 +810,7 @@ $.widget( 'valueview.valueview', PARENT, {
 	_updateTextValue: function() {
 		var self = this,
 			deferred = $.Deferred(),
-			valueFormatter = this._instantiateFormatter( this.valueCharacteristics() ),
+			valueFormatter,
 			dataTypeId = this.options.dataTypeId || null,
 			dataValue = this._value;
 
@@ -792,6 +819,8 @@ $.widget( 'valueview.valueview', PARENT, {
 			deferred.resolve();
 			return deferred.promise();
 		}
+
+		valueFormatter = this._instantiateFormatter( this.valueCharacteristics() );
 
 		valueFormatter.format( dataValue, dataTypeId, 'text/plain' )
 			.done( function( formattedValue, formattedDataValue ) {
@@ -815,11 +844,11 @@ $.widget( 'valueview.valueview', PARENT, {
 	 * @return {valueFormatters.ValueFormatter}
 	 */
 	_instantiateFormatter: function( additionalFormatterOptions ) {
-		if( !( this.options.valueFormatterProvider instanceof vf.ValueFormatterFactory ) ) {
-			throw new Error( 'No value formatter provider in valueview\'s options specified' );
+		if( !( this.options.formatterStore instanceof vf.ValueFormatterStore ) ) {
+			throw new Error( 'No value formatter store in valueview\'s options specified' );
 		}
 
-		var Formatter = this.options.valueFormatterProvider.getFormatter(
+		var Formatter = this.options.formatterStore.getFormatter(
 			this._determineDataValueType(),
 			this.options.dataTypeId
 		);

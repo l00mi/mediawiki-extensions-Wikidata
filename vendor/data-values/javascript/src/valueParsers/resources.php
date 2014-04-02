@@ -18,19 +18,6 @@ return call_user_func( function() {
 
 	return array(
 
-		'mw.ext.valueParsers' => $moduleTemplate + array(
-			'scripts' => array(
-				'mw.ext.valueParsers.js',
-			),
-			'dependencies' => array(
-				'dataValues.values',
-				'mediawiki',
-				'valueParsers',
-				'valueParsers.parsers',
-				'valueParsers.ValueParserFactory',
-			),
-		),
-
 		'valueParsers' => $moduleTemplate + array(
 			'scripts' => array(
 				'valueParsers.js',
@@ -48,9 +35,9 @@ return call_user_func( function() {
 			),
 		),
 
-		'valueParsers.ValueParserFactory' => $moduleTemplate + array(
+		'valueParsers.ValueParserStore' => $moduleTemplate + array(
 			'scripts' => array(
-				'ValueParserFactory.js',
+				'ValueParserStore.js',
 			),
 			'dependencies' => array(
 				'jquery',

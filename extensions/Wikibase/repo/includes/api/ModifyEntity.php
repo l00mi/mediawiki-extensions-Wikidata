@@ -2,10 +2,11 @@
 
 namespace Wikibase\Api;
 
+use ApiBase;
 use ApiMain;
+use LogicException;
 use SiteSQLStore;
 use Status;
-use ApiBase;
 use UsageException;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
@@ -57,8 +58,15 @@ abstract class ModifyEntity extends ApiWikibase {
 	 */
 	protected $badgeItems;
 
-	public function __construct( ApiMain $main, $name, $prefix = '' ) {
-		parent::__construct( $main, $name, $prefix );
+	/**
+	 * @param ApiMain $mainModule
+	 * @param string $moduleName
+	 * @param string $modulePrefix
+	 *
+	 * @see ApiBase::__construct
+	 */
+	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
+		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
 		//TODO: provide a mechanism to override the services
 		$this->stringNormalizer = WikibaseRepo::getDefaultInstance()->getStringNormalizer();
@@ -120,6 +128,7 @@ abstract class ModifyEntity extends ApiWikibase {
 	 * @param string $id
 	 *
 	 * @throws UsageException
+	 * @throws LogicException
 	 * @return EntityId
 	 */
 	protected function getEntityIdFromString( $id ) {
@@ -128,6 +137,8 @@ abstract class ModifyEntity extends ApiWikibase {
 		} catch ( EntityIdParsingException $ex ) {
 			$this->dieUsage( $ex->getMessage(), 'no-such-entity-id' );
 		}
+
+		throw new LogicException( 'ApiBase::dieUsage did not throw a UsageException' );
 	}
 
 	/**
@@ -170,7 +181,7 @@ abstract class ModifyEntity extends ApiWikibase {
 				$this->dieUsage( "Badges: entity with id '{$badgeSerialization}' is not an item", 'not-item' );
 			}
 
-			if ( !in_array( $badgeId->getPrefixedId(), array_keys( $this->badgeItems ) ) ) {
+			if ( !array_key_exists( $badgeId->getPrefixedId(), $this->badgeItems ) ) {
 				$this->dieUsage( "Badges: item '{$badgeSerialization}' is not a badge", 'not-badge' );
 			}
 
