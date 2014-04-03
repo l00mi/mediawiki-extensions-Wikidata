@@ -233,7 +233,9 @@ $.widget( 'wikibase.snakview', PARENT, {
 				// the property might not be valid anymore aborting the rendering of the value
 				// view.
 				if( self._tabToValueView && self._variation ) {
-					self._variation.focus();
+					$( self._variation ).one( 'afterdraw', function() {
+						self._variation.focus();
+					} );
 				}
 			} );
 		} );
@@ -326,7 +328,9 @@ $.widget( 'wikibase.snakview', PARENT, {
 			if ( this._getPropertySelector() !== null ) {
 				this._getPropertySelector().element.focus();
 			} else if( this._variation ) {
-				this._variation.focus();
+				$( this._variation ).one( 'afterdraw', function() {
+					this.focus();
+				} );
 			}
 		}
 	} ),
