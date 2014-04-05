@@ -4,17 +4,13 @@ namespace Wikibase\ChangeOp;
 
 use InvalidArgumentException;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\ClaimGuidParser;
 use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Reference;
 use Wikibase\LabelDescriptionDuplicateDetector;
-use Wikibase\Lib\ClaimGuidGenerator;
-use Wikibase\SiteLinkCache;
+use Wikibase\SiteLinkLookup;
 use Wikibase\Term;
-use Wikibase\Lib\ClaimGuidValidator;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @since 0.5
@@ -38,35 +34,31 @@ class ChangeOpsMerge {
 	 * @var LabelDescriptionDuplicateDetector
 	 */
 	private $labelDescriptionDuplicateDetector;
+	
+	/** @var SiteLinkLookup */
+	private $sitelinkLookup;
 
 	/**
-	 * @var SitelinkCache
+	 * @var ChangeOpFactory
 	 */
-	private $sitelinkCache;
-
-	/**
-	 * @var ClaimGuidValidator
-	 */
-	private $claimGuidValidator;
-	/**
-	 * @var ClaimGuidParser
-	 */
-	private $claimGuidParser;
+	private $changeOpFactory;
 
 	/**
 	 * @param Item $fromItem
 	 * @param Item $toItem
-	 * @param LabelDescriptionDuplicateDetector $labelDescriptionDuplicateDetector
-	 * @param SitelinkCache $sitelinkCache
 	 * @param array $ignoreConflicts list of elements to ignore conflicts for
 	 *   can only contain 'label' and or 'description' and or 'sitelink'
+	 * @param LabelDescriptionDuplicateDetector $labelDescriptionDuplicateDetector
+	 * @param SiteLinkLookup $sitelinkLookup
+	 * @param ChangeOpFactory $changeOpFactory
 	 */
 	public function __construct(
 		Item $fromItem,
 		Item $toItem,
+		$ignoreConflicts,
 		LabelDescriptionDuplicateDetector $labelDescriptionDuplicateDetector,
-		SitelinkCache $sitelinkCache,
-		$ignoreConflicts = array()
+		SiteLinkLookup $sitelinkLookup,
+		ChangeOpFactory $changeOpFactory
 	) {
 		$this->assertValidIgnoreConflictValues( $ignoreConflicts );
 
@@ -76,11 +68,9 @@ class ChangeOpsMerge {
 		$this->toChangeOps = new ChangeOps();
 		$this->ignoreConflicts = $ignoreConflicts;
 		$this->labelDescriptionDuplicateDetector = $labelDescriptionDuplicateDetector;
-		$this->sitelinkCache = $sitelinkCache;
+		$this->sitelinkLookup = $sitelinkLookup;
 
-		//@todo inject me
-		$this->claimGuidValidator = WikibaseRepo::getDefaultInstance()->getClaimGuidValidator();
-		$this->claimGuidParser = WikibaseRepo::getDefaultInstance()->getClaimGuidParser();
+		$this->changeOpFactory = $changeOpFactory;
 	}
 
 	/**
@@ -118,8 +108,8 @@ class ChangeOpsMerge {
 		foreach( $this->fromItem->getLabels() as $langCode => $label ){
 			$toLabel = $this->toItem->getLabel( $langCode );
 			if( $toLabel === false || $toLabel === $label ){
-				$this->fromChangeOps->add( new ChangeOpLabel( $langCode, null ) );
-				$this->toChangeOps->add( new ChangeOpLabel( $langCode, $label ) );
+				$this->fromChangeOps->add( $this->changeOpFactory->newRemoveLabelOp( $langCode ) );
+				$this->toChangeOps->add( $this->changeOpFactory->newSetLabelOp( $langCode, $label ) );
 			} else {
 				if( !in_array( 'label', $this->ignoreConflicts ) ){
 					throw new ChangeOpException( "Conflicting labels for language {$langCode}" );
@@ -132,8 +122,8 @@ class ChangeOpsMerge {
 		foreach( $this->fromItem->getDescriptions() as $langCode => $desc ){
 			$toDescription = $this->toItem->getDescription( $langCode );
 			if( $toDescription === false || $toDescription === $desc ){
-				$this->fromChangeOps->add( new ChangeOpDescription( $langCode, null ) );
-				$this->toChangeOps->add( new ChangeOpDescription( $langCode, $desc ) );
+				$this->fromChangeOps->add( $this->changeOpFactory->newRemoveDescriptionOp( $langCode ) );
+				$this->toChangeOps->add( $this->changeOpFactory->newSetDescriptionOp( $langCode, $desc ) );
 			} else {
 				if( !in_array( 'description', $this->ignoreConflicts ) ){
 					throw new ChangeOpException( "Conflicting descriptions for language {$langCode}" );
@@ -144,8 +134,8 @@ class ChangeOpsMerge {
 
 	private function generateAliasesChangeOps() {
 		foreach( $this->fromItem->getAllAliases() as $langCode => $aliases ){
-			$this->fromChangeOps->add( new ChangeOpAliases( $langCode, $aliases, 'remove' ) );
-			$this->toChangeOps->add( new ChangeOpAliases( $langCode, $aliases, 'add' ) );
+			$this->fromChangeOps->add( $this->changeOpFactory->newRemoveAliasesOp( $langCode, $aliases ) );
+			$this->toChangeOps->add( $this->changeOpFactory->newAddAliasesOp( $langCode, $aliases, 'add' ) );
 		}
 	}
 
@@ -153,8 +143,8 @@ class ChangeOpsMerge {
 		foreach( $this->fromItem->getSiteLinks() as $simpleSiteLink ){
 			$siteId = $simpleSiteLink->getSiteId();
 			if( !$this->toItem->hasLinkToSite( $siteId ) ){
-				$this->fromChangeOps->add( new ChangeOpSiteLink( $siteId, null ) );
-				$this->toChangeOps->add( new ChangeOpSiteLink( $siteId, $simpleSiteLink->getPageName() ) );
+				$this->fromChangeOps->add( $this->changeOpFactory->newRemoveSiteLinkOp( $siteId ) );
+				$this->toChangeOps->add( $this->changeOpFactory->newSetSiteLinkOp( $siteId, $simpleSiteLink->getPageName(), $simpleSiteLink->getBadges() ) );
 			} else {
 				if( !in_array( 'sitelink', $this->ignoreConflicts ) ){
 					throw new ChangeOpException( "Conflicting sitelinks for {$siteId}" );
@@ -165,7 +155,7 @@ class ChangeOpsMerge {
 
 	private function generateClaimsChangeOps() {
 		foreach( $this->fromItem->getClaims() as $fromClaim ) {
-			$this->fromChangeOps->add( new ChangeOpClaimRemove( $fromClaim->getGuid() ) );
+			$this->fromChangeOps->add( $this->changeOpFactory->newRemoveClaimOp( $fromClaim->getGuid() ) );
 
 			$toClaim = clone $fromClaim;
 			$toClaim->setGuid( null );
@@ -178,12 +168,7 @@ class ChangeOpsMerge {
 			if( $toMergeToClaim ) {
 				$this->generateReferencesChangeOps( $toClaim, $toMergeToClaim->getGuid() );
 			} else {
-			$this->toChangeOps->add( new ChangeOpClaim(
-				$toClaim,
-				new ClaimGuidGenerator( $this->toItem->getId() ),
-				$this->claimGuidValidator,
-				$this->claimGuidParser
-				) );
+				$this->toChangeOps->add( $this->changeOpFactory->newSetClaimOp( $toClaim ) );
 			}
 		}
 	}
@@ -223,7 +208,7 @@ class ChangeOpsMerge {
 	private function generateReferencesChangeOps( Statement $statement, $claimGuid ) {
 		/** @var $reference Reference */
 		foreach ( $statement->getReferences() as $reference ) {
-			$this->toChangeOps->add( new ChangeOpReference(
+			$this->toChangeOps->add( $this->changeOpFactory->newSetReferenceOp(
 				$claimGuid,
 				$reference,
 				''
@@ -251,7 +236,7 @@ class ChangeOpsMerge {
 				$this->toItem
 			);
 		}
-		$conflictingSitelinks = $this->sitelinkCache->getConflictsForItem( $this->toItem );
+		$conflictingSitelinks = $this->sitelinkLookup->getConflictsForItem( $this->toItem );
 
 		$conflictString = '';
 		if( $conflictingTerms !== array() ) {
@@ -284,11 +269,17 @@ class ChangeOpsMerge {
 	 *
 	 * @return string
 	 */
-	private function getConflictStringForTerm( $term ) {
-		$itemId = ItemId::newFromNumber( $term->getEntityId() );
-		if( !$itemId->equals( $this->fromItem->getId() ) ) {
+	private function getConflictStringForTerm( Term $term ) {
+		$itemId = $term->getEntityId();
+		if( !$this->fromItem->getId()->equals( $itemId ) ) {
+			if( $itemId instanceof ItemId ) {
+				$termItemIdentity = $itemId->getSerialization();
+			} else {
+				$termItemIdentity = $itemId; // as this can sometimes be null
+			}
+
 			return '(' .
-				$itemId->getSerialization() . ' => ' .
+				$termItemIdentity . ' => ' .
 				$term->getLanguage() . ' => ' .
 				$term->getType() . ' => ' .
 				$term->getText() . ') ';

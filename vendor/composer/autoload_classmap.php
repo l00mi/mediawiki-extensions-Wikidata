@@ -222,6 +222,7 @@ return array(
     'Wikibase\\ChangeOp\\ChangeOpClaimRemove' => $baseDir . '/extensions/Wikibase/repo/includes/ChangeOp/ChangeOpClaimRemove.php',
     'Wikibase\\ChangeOp\\ChangeOpDescription' => $baseDir . '/extensions/Wikibase/repo/includes/ChangeOp/ChangeOpDescription.php',
     'Wikibase\\ChangeOp\\ChangeOpException' => $baseDir . '/extensions/Wikibase/repo/includes/ChangeOp/ChangeOpException.php',
+    'Wikibase\\ChangeOp\\ChangeOpFactory' => $baseDir . '/extensions/Wikibase/repo/includes/ChangeOp/ChangeOpFactory.php',
     'Wikibase\\ChangeOp\\ChangeOpLabel' => $baseDir . '/extensions/Wikibase/repo/includes/ChangeOp/ChangeOpLabel.php',
     'Wikibase\\ChangeOp\\ChangeOpMainSnak' => $baseDir . '/extensions/Wikibase/repo/includes/ChangeOp/ChangeOpMainSnak.php',
     'Wikibase\\ChangeOp\\ChangeOpQualifier' => $baseDir . '/extensions/Wikibase/repo/includes/ChangeOp/ChangeOpQualifier.php',
