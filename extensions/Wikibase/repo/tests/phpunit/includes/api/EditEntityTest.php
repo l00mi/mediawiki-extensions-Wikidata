@@ -34,21 +34,23 @@ class EditEntityTest extends WikibaseApiTestCase {
 		if( !isset( self::$hasSetup ) ){
 			$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 
-			$this->initTestEntities( array( 'Berlin' ) );
-			self::$idMap['%Berlin%'] = EntityTestHelper::getId( 'Berlin' );
-
-			$berlinData = EntityTestHelper::getEntityOutput( 'Berlin' );
-			self::$idMap['%BerlinP56%'] = $berlinData['claims']['P56'][0]['id'];
-
 			$prop = Property::newEmpty();
 			$prop->setDataTypeId( 'string' );
 			$store->saveEntity( $prop, 'EditEntityTestP56', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['%P56%'] = $prop->getId()->getSerialization();
+			self::$idMap['%StringProp%'] = $prop->getId()->getSerialization();
 
 			$prop = Property::newEmpty();
 			$prop->setDataTypeId( 'string' );
 			$store->saveEntity( $prop, 'EditEntityTestP72', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['%P72%'] = $prop->getId()->getSerialization();
+
+			$this->initTestEntities( array( 'Berlin' ), self::$idMap );
+			self::$idMap['%Berlin%'] = EntityTestHelper::getId( 'Berlin' );
+
+			$p56 = self::$idMap['%P56%'];
+			$berlinData = EntityTestHelper::getEntityOutput( 'Berlin' );
+			self::$idMap['%BerlinP56%'] = $berlinData['claims'][$p56][0]['id'];
 
 			$badge = Item::newEmpty();
 			$store->saveEntity( $badge, 'EditEntityTestQ42', $GLOBALS['wgUser'], EDIT_NEW );
@@ -511,7 +513,7 @@ class EditEntityTest extends WikibaseApiTestCase {
 								'id' => '%BerlinP56%',
 								'mainsnak' => array(
 									'snaktype' => 'value',
-									'property' => 'P72',
+									'property' => '%P72%',
 									'datavalue' => array( 'value' => 'anotherstring', 'type' => 'string' ),
 								),
 								'type' => 'statement',
@@ -520,8 +522,26 @@ class EditEntityTest extends WikibaseApiTestCase {
 					) ) ),
 				'e' => array( 'exception' => array(
 					'type' => 'UsageException',
-					'code' => 'failed-save',
-					'message' => 'uses property P56, can\'t change to P72' ) ) ),
+					'code' => 'modification-failed',
+					'message' => 'uses property %P56%, can\'t change to %P72%' ) ) ),
+			'invalid main snak' => array(
+				'p' => array( 'id' => '%Berlin%', 'data' => json_encode( array(
+					'claims' => array(
+						array(
+							'id' => '%BerlinP56%',
+							'mainsnak' => array(
+								'snaktype' => 'value',
+								'property' => '%P56%',
+								'datavalue' => array( 'value' => '   ', 'type' => 'string' ),
+							),
+							'type' => 'statement',
+							'rank' => 'normal' ),
+					),
+				) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'modification-failed',
+					'message' => 'Negative pattern matched' ) ) ),
 		);
 	}
 

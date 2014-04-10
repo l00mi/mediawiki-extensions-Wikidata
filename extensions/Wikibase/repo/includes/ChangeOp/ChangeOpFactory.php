@@ -12,9 +12,10 @@ use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\SiteLinkLookup;
+use Wikibase\Validators\SnakValidator;
 
 /**
- * ChangeOpFactory
+ * Factory for ChangeOps.
  *
  * @license GPL 2+
  * @author Daniel Kinzler
@@ -47,18 +48,25 @@ class ChangeOpFactory {
 	protected $guidParser;
 
 	/**
+	 * @var SnakValidator
+	 */
+	protected $snakValidator;
+
+	/**
 	 * @param LabelDescriptionDuplicateDetector $labelDescriptionDuplicateDetector
 	 * @param SiteLinkLookup $siteLinkLookup
 	 * @param ClaimGuidGenerator $guidGenerator
 	 * @param ClaimGuidValidator $guidValidator
 	 * @param ClaimGuidParser $guidParser
+	 * @param SnakValidator $snakValidator
 	 */
 	public function __construct(
 		LabelDescriptionDuplicateDetector $labelDescriptionDuplicateDetector,
 		SiteLinkLookup $siteLinkLookup,
 		ClaimGuidGenerator $guidGenerator,
 		ClaimGuidValidator $guidValidator,
-		ClaimGuidParser $guidParser
+		ClaimGuidParser $guidParser,
+		SnakValidator $snakValidator
 	) {
 
 		$this->labelDescriptionDuplicateDetector = $labelDescriptionDuplicateDetector;
@@ -67,6 +75,8 @@ class ChangeOpFactory {
 		$this->guidGenerator = $guidGenerator;
 		$this->guidValidator = $guidValidator;
 		$this->guidParser = $guidParser;
+
+		$this->snakValidator = $snakValidator;
 	}
 
 	/**
@@ -178,6 +188,7 @@ class ChangeOpFactory {
 			$this->guidGenerator,
 			$this->guidValidator,
 			$this->guidParser,
+			$this->snakValidator,
 			$index
 		);
 	}
@@ -195,6 +206,7 @@ class ChangeOpFactory {
 			$this->guidGenerator,
 			$this->guidValidator,
 			$this->guidParser,
+			$this->snakValidator,
 			$index
 		);
 	}
@@ -217,7 +229,7 @@ class ChangeOpFactory {
 	 * @return ChangeOp
 	 */
 	public function newSetMainSnakOp( $claimGuid, Snak $snak ) {
-		return new ChangeOpMainSnak( $claimGuid, $snak, $this->guidGenerator );
+		return new ChangeOpMainSnak( $claimGuid, $snak, $this->guidGenerator, $this->snakValidator );
 	}
 
 	/**
@@ -230,7 +242,7 @@ class ChangeOpFactory {
 	 */
 	public function newSetQualifierOp( $claimGuid, Snak $snak, $snakHash ) {
 		//XXX: index??
-		return new ChangeOpQualifier( $claimGuid, $snak, $snakHash );
+		return new ChangeOpQualifier( $claimGuid, $snak, $snakHash, $this->snakValidator );
 	}
 
 	/**
@@ -254,7 +266,7 @@ class ChangeOpFactory {
 	 * @return ChangeOp
 	 */
 	public function newSetReferenceOp( $claimGuid, Reference $reference, $referenceHash, $index = null ) {
-		return new ChangeOpReference( $claimGuid, $reference, $referenceHash );
+		return new ChangeOpReference( $claimGuid, $reference, $referenceHash, $this->snakValidator );
 	}
 
 	/**
