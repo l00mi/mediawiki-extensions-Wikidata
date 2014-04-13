@@ -1,15 +1,14 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Test\Snak;
 
 use DataValues\StringValue;
-use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\Test\HashArray\HashArrayTest;
 
 /**
  * @covers Wikibase\DataModel\Snak\SnakList

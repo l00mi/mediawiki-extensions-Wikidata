@@ -4,17 +4,20 @@ Diff is a small PHP library with value objects to represent diffs and service ob
 various types of operations. These include creating a diff between two data structures,
 applying a diff onto a data structure and merging multiple diffs into one.
 
-[![Build Status](https://secure.travis-ci.org/wikimedia/mediawiki-extensions-Diff.png?branch=master)](http://travis-ci.org/wikimedia/mediawiki-extensions-Diff)
-[![Coverage Status](https://coveralls.io/repos/wikimedia/mediawiki-extensions-Diff/badge.png?branch=master)](https://coveralls.io/r/wikimedia/mediawiki-extensions-Diff?branch=master)
+Recent changes can be found in the [release notes](RELEASE-NOTES.md).
+
+[![Build Status](https://secure.travis-ci.org/wmde/Diff.png?branch=master)](http://travis-ci.org/wmde/Diff)
+[![Code Coverage](https://scrutinizer-ci.com/g/wmde/Diff/badges/coverage.png?s=6ef6a74a92b7efc6e26470bb209293125f70731e)](https://scrutinizer-ci.com/g/wmde/Diff/)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/wmde/Diff/badges/quality-score.png?s=d75d876247594bb4088159574cedf7bd648b9db2)](https://scrutinizer-ci.com/g/wmde/Diff/)
 [![Dependency Status](https://www.versioneye.com/package/php--diff--diff/badge.png)](https://www.versioneye.com/package/php--diff--diff)
 
-On [Packagist](https://packagist.org/packages/diff/diff):
+On Packagist:
 [![Latest Stable Version](https://poser.pugx.org/diff/diff/version.png)](https://packagist.org/packages/diff/diff)
 [![Download count](https://poser.pugx.org/diff/diff/d/total.png)](https://packagist.org/packages/diff/diff)
 
 ## Requirements
 
-* PHP 5.3 or later
+* PHP 5.3 or later (tested with PHP 5.3 up to PHP 5.6 and hhvm)
 
 ## Installation
 
@@ -44,7 +47,7 @@ Diff.php.
 
 ## Usage
 
-The Diff library can be subdivided into 3 components.
+The Diff library can be subdivided into several components.
 
 ### DiffOp
 
@@ -62,7 +65,7 @@ The available DiffOps are:
 
 These can all be found in <code>includes/diffop</code>.
 
-The Diff class can be set to be either associative or non-assocative. In case of the later, only
+The Diff class can be set to be either associative or non-associative. In case of the later, only
 DiffOpAdd and DiffOpRemove are allowed in it.
 
 ### Differ
@@ -86,10 +89,12 @@ simple method.
 public function doDiff( array $oldValues, array $newValues );
 ```
 
-The Differs that come with the library are:
+Implementations provided by Diff:
 
 * ListDiffer: Differ that only looks at the values of the arrays (and thus ignores key differences).
 * MapDiffer: Differ that does an associative diff between two arrays, with the option to do this recursively.
+* CallbackListDiffer: Since 0.5. Differ that only looks at the values of the arrays and compares them with a callback.
+* OrderedListDiffer: Since 0.9. Differ that looks at the order of the values and the values of the arrays.
 
 Both Differ objects come with a few options that can be used to change their behaviour.
 
@@ -115,10 +120,10 @@ interface. This interface contains a single simple method:
 public function patch( array $base, Diff $diffOps );
 ```
 
-Diff comes with two clases implementing the Patcher interface:
+Implementations provided by Diff:
 
 * ListPatcher: Applies non-associative diffs to a base. With default options does the reverse of ListDiffer
-* MapPatcher: Applies diff to a base, recursivly if needed. With default options does the reverse of MapDiffer
+* MapPatcher: Applies diff to a base, recursively if needed. With default options does the reverse of MapDiffer
 
 All classes part of the patcher component can be found in <code>includes/patcher</code>
 
@@ -126,13 +131,58 @@ All classes part of the patcher component can be found in <code>includes/patcher
 
 Added in 0.6
 
-TODO
+The Diff\Comparer\ValueComposer interface contains one method:
+
+```php
+/**
+ * @since 0.6
+ *
+ * @param mixed $firstValue
+ * @param mixed $secondValue
+ *
+ * @return boolean
+ */
+public function valuesAreEqual( $firstValue, $secondValue );
+```
+
+Implementations provided by Diff:
+
+* StrictComparer: Value comparer that uses PHPs native strict equality check (ie ===).
+* CallbackComparer: Adapter around a comparison callback that implements the ValueComparer interface.
+* ComparableComparer: Since 0.9. Value comparer for objects that provide an equals method taking a single argument.
+
+All classes part of the ValueComparer component can be found in <code>includes/Comparer</code>
 
 ### ArrayComparer
 
 Added in 0.8
 
-TODO
+The Diff\ArrayComparer\ArrayComposer interface contains one method:
+
+```php
+/**
+ * Returns an array containing all the entries from arrayOne that are not present in arrayTwo.
+ *
+ * Implementations are allowed to hold quantity into account or to disregard it.
+ *
+ * @since 0.8
+ *
+ * @param array $firstArray
+ * @param array $secondArray
+ *
+ * @return array
+ */
+public function diffArrays( array $firstArray, array $secondArray );
+```
+
+Implementations provided by Diff:
+
+* NativeArrayComparer: Adapter for PHPs native array_diff method.
+* StrategicArrayComparer: Computes the difference between two arrays by comparing elements with a ValueComparer.
+* StrictArrayComparer: Does strict comparison of values and holds quantity into account.
+* OrderedArrayComparer: Since 0.9. Computes the difference between two ordered arrays by comparing elements with a ValueComparer.
+
+All classes part of the ArrayComparer component can be found in <code>includes/ArrayComparer</code>
 
 ## Examples
 
@@ -239,7 +289,6 @@ $newValues = array( 'a' => 1, 'b' => array( 'c' => 10, 'd' => 1 ), 'e' => 42 );
 ## Links
 
 * [Diff on Packagist](https://packagist.org/packages/diff/diff)
-* [Diff on Ohloh](https://www.ohloh.net/p/mwdiff)
-* [Diff on MediaWiki.org](https://www.mediawiki.org/wiki/Extension:Diff)
-* [TravisCI build status](https://travis-ci.org/wikimedia/mediawiki-extensions-Diff)
-* [Latest version of the readme file](https://github.com/wikimedia/mediawiki-extensions-Diff/blob/master/README.md)
+* [Diff on Ohloh](https://www.ohloh.net/p/phpdiff)
+* [Diff on TravisCI](https://travis-ci.org/wmde/Diff)
+* [Diff on ScrutinizerCI](https://scrutinizer-ci.com/g/wmde/Diff/)

@@ -1,9 +1,9 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Test\Entity;
 
-use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\SiteLink;
 
 /**
  * Holds Item objects for testing proposes.

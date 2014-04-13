@@ -1,5 +1,44 @@
 # Wikibase DataModel release notes
 
+## Version 0.7.3 (2014-04-11)
+
+#### Additions
+
+* Added `Wikibase\DataModel\Term` namespace with these constructs:
+	* Term\AliasGroup
+	* Term\AliasGroupList
+	* Term\Fingerprint
+	* Term\FingerprintProvider
+	* Term\Term
+	* Term\TermList
+* Added `Entity::getFingerprint`
+* Added `Entity::setFingerprint`
+
+#### Deprecations
+
+* Deprecated `Property::newEmpty`
+* Deprecated old fingerprint related methods in `Entity`:
+    * setLabel
+    * setDescription
+    * removeLabel
+    * removeDescription
+    * getAliases
+    * getAllAliases
+    * setAliases
+    * addAliases
+    * removeAliases
+    * getDescriptions
+    * getLabels
+    * getDescription
+    * getLabel
+    * setLabels
+    * setDescriptions
+    * setAllAliases
+* Deprecated `SnakList::newFromArray`
+* Deprecated `Statement::newFromArray`
+* Deprecated `Claim::newFromArray`
+* Deprecated `ReferenceList::newFromArray`
+
 ## Version 0.7.2 (2014-03-13)
 
 * Added Claims::getByRanks

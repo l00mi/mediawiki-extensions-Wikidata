@@ -1,24 +1,29 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Test\Entity;
 
 use DataValues\StringValue;
-use Diff\Diff;
-use Diff\DiffOpAdd;
-use Diff\DiffOpChange;
-use Diff\DiffOpRemove;
+use Diff\DiffOp\Diff\Diff;
+use Diff\DiffOp\DiffOpAdd;
+use Diff\DiffOp\DiffOpChange;
+use Diff\DiffOp\DiffOpRemove;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Internal\ObjectComparer;
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDiff;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Internal\ObjectComparer;
+use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\DataModel\Reference;
-use Wikibase\DataModel\Claim\Statement;
+use Wikibase\DataModel\Term\AliasGroup;
+use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\Term\Term;
+use Wikibase\DataModel\Term\TermList;
 
 /**
  * Tests for the Wikibase\Entity deriving classes.
@@ -891,6 +896,104 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$newEntity->stub();
 
 		$this->assertEquals( $entity, $newEntity );
+	}
+
+	public function testWhenNoStuffIsSet_getFingerprintReturnsEmptyFingerprint() {
+		$entity = $this->getNewEmpty();
+
+		$this->assertEquals(
+			Fingerprint::newEmpty(),
+			$entity->getFingerprint()
+		);
+	}
+
+	public function testWhenLabelsAreSet_getFingerprintReturnsFingerprintWithLabels() {
+		$entity = $this->getNewEmpty();
+
+		$entity->setLabel( 'en', 'foo' );
+		$entity->setLabel( 'de', 'bar' );
+
+		$this->assertEquals(
+			new Fingerprint(
+				new TermList( array(
+					new Term( 'en', 'foo' ),
+					new Term( 'de', 'bar' ),
+				) ),
+				new TermList( array() ),
+				new AliasGroupList( array() )
+			),
+			$entity->getFingerprint()
+		);
+	}
+
+	public function testWhenTermsAreSet_getFingerprintReturnsFingerprintWithTerms() {
+		$entity = $this->getNewEmpty();
+
+		$entity->setLabel( 'en', 'foo' );
+		$entity->setDescription( 'en', 'foo bar' );
+		$entity->setAliases( 'en', array( 'foo', 'bar' ) );
+
+		$this->assertEquals(
+			new Fingerprint(
+				new TermList( array(
+					new Term( 'en', 'foo' ),
+				) ),
+				new TermList( array(
+					new Term( 'en', 'foo bar' )
+				) ),
+				new AliasGroupList( array(
+					new AliasGroup( 'en', array( 'foo', 'bar' ) )
+				) )
+			),
+			$entity->getFingerprint()
+		);
+	}
+
+	public function testGivenEmptyFingerprint_noTermsAreSet() {
+		$entity = $this->getNewEmpty();
+
+		$entity->setFingerprint( Fingerprint::newEmpty() );
+
+		$this->assertHasNoTerms( $entity );
+	}
+
+	private function assertHasNoTerms( Entity $entity ) {
+		$this->assertEquals( array(), $entity->getLabels() );
+		$this->assertEquals( array(), $entity->getDescriptions() );
+		$this->assertEquals( array(), $entity->getAllAliases() );
+	}
+
+	public function testGivenEmptyFingerprint_existingTermsAreRemoved() {
+		$entity = $this->getNewEmpty();
+
+		$entity->setLabel( 'en', 'foo' );
+		$entity->setDescription( 'en', 'foo bar' );
+		$entity->setAliases( 'en', array( 'foo', 'bar' ) );
+
+		$entity->setFingerprint( Fingerprint::newEmpty() );
+
+		$this->assertHasNoTerms( $entity );
+	}
+
+	public function testWhenSettingFingerprint_getFingerprintReturnsIt() {
+		$fingerprint = new Fingerprint(
+			new TermList( array(
+				new Term( 'en', 'foo' ),
+			) ),
+			new TermList( array(
+				new Term( 'en', 'foo bar' )
+			) ),
+			new AliasGroupList( array(
+				new AliasGroup( 'en', array( 'foo', 'bar' ) )
+			) )
+		);
+
+		$entity = $this->getNewEmpty();
+
+		$entity->setFingerprint( $fingerprint );
+		$newFingerprint = $entity->getFingerprint();
+
+		$this->assertEquals( $fingerprint, $newFingerprint );
 	}
 
 }

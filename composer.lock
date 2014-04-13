@@ -91,24 +91,29 @@
         },
         {
             "name": "data-values/common",
-            "version": "0.2.1",
+            "version": "0.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Common.git",
-                "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f"
+                "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Common/zipball/4e0035445a90b260fcbe37bcda7d91c90b26a06f",
-                "reference": "4e0035445a90b260fcbe37bcda7d91c90b26a06f",
+                "url": "https://api.github.com/repos/DataValues/Common/zipball/406663b2a68bcf88917d685ab53eb383ff60a56c",
+                "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c",
                 "shasum": ""
             },
             "require": {
                 "data-values/data-values": "~0.1",
-                "data-values/interfaces": "~0.1.2",
+                "data-values/interfaces": "~0.1.3",
                 "php": ">=5.3.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.2.x-dev"
+                }
+            },
             "autoload": {
                 "files": [
                     "Common.php"
@@ -143,7 +148,7 @@
                 "valuevalidators",
                 "wikidata"
             ],
-            "time": "2014-03-12 13:57:02"
+            "time": "2014-04-11 13:19:16"
         },
         {
             "name": "data-values/data-types",
@@ -667,29 +672,34 @@
         },
         {
             "name": "diff/diff",
-            "version": "0.9",
+            "version": "1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Diff.git",
-                "reference": "83bfc69a7e30fc3d2549b49ea7390169811afd99"
+                "reference": "b11e6d1c57c086ede287ca5a89f8d4739230f65d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Diff/zipball/83bfc69a7e30fc3d2549b49ea7390169811afd99",
-                "reference": "83bfc69a7e30fc3d2549b49ea7390169811afd99",
+                "url": "https://api.github.com/repos/wmde/Diff/zipball/b11e6d1c57c086ede287ca5a89f8d4739230f65d",
+                "reference": "b11e6d1c57c086ede287ca5a89f8d4739230f65d",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
-            "require-dev": {
-                "satooshi/php-coveralls": "dev-master"
-            },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
             "autoload": {
                 "files": [
                     "Diff.php"
-                ]
+                ],
+                "psr-4": {
+                    "Diff\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -704,12 +714,15 @@
                 }
             ],
             "description": "Library for diffing, patching and representing differences between complex objects",
-            "homepage": "https://github.com/wikimedia/mediawiki-extensions-Diff",
+            "homepage": "https://github.com/wmde/Diff",
             "keywords": [
                 "diff",
+                "diffing",
+                "diffop",
+                "patching",
                 "wikidata"
             ],
-            "time": "2013-10-04 15:11:55"
+            "time": "2014-04-10 14:57:21"
         },
         {
             "name": "serialization/serialization",
@@ -769,22 +782,22 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "0.7.2",
+            "version": "0.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "15a39cf700158eb2a4e25cd61a83211e2bcd9c0a"
+                "reference": "4a5164946c32d4f1307a0799374c46036061606f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/15a39cf700158eb2a4e25cd61a83211e2bcd9c0a",
-                "reference": "15a39cf700158eb2a4e25cd61a83211e2bcd9c0a",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/4a5164946c32d4f1307a0799374c46036061606f",
+                "reference": "4a5164946c32d4f1307a0799374c46036061606f",
                 "shasum": ""
             },
             "require": {
                 "data-values/data-values": "~0.1.0",
                 "data-values/serialization": ">=0.1,<2.0",
-                "diff/diff": "~0.9.0",
+                "diff/diff": "~1.0",
                 "php": ">=5.3.0"
             },
             "type": "library",
@@ -820,7 +833,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-03-13 16:24:45"
+            "time": "2014-04-11 15:21:38"
         },
         {
             "name": "wikibase/easyrdf_lite",
@@ -856,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "bb4f3ca751832b8c6b2a0f6e2819b5cd96c63da1"
+                "reference": "d86162ba9419a10f7b397b05cdc95393439c21a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bb4f3ca751832b8c6b2a0f6e2819b5cd96c63da1",
-                "reference": "bb4f3ca751832b8c6b2a0f6e2819b5cd96c63da1",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d86162ba9419a10f7b397b05cdc95393439c21a2",
+                "reference": "d86162ba9419a10f7b397b05cdc95393439c21a2",
                 "shasum": ""
             },
             "require": {
@@ -875,9 +888,9 @@
                 "data-values/time": "~0.5.1",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.5.0",
-                "diff/diff": "~0.9.0",
+                "diff/diff": "~1.0",
                 "php": ">=5.3.2",
-                "wikibase/data-model": "~0.7.2",
+                "wikibase/data-model": "~0.7.3",
                 "wikibase/easyrdf_lite": "~0.8.1"
             },
             "type": "mediawiki-extension",
@@ -920,7 +933,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-04-11 06:54:02"
+            "time": "2014-04-11 22:01:45"
         }
     ],
     "packages-dev": [

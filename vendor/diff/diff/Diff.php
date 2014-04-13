@@ -1,28 +1,41 @@
 <?php
 
 if ( defined( 'Diff_VERSION' ) ) {
-	// Do not initialize more then once.
-	return;
+	// Do not initialize more than once.
+	return 1;
 }
 
-define( 'Diff_VERSION', '0.9' );
-
-// @codeCoverageIgnoreStart
-spl_autoload_register( function ( $className ) {
-	static $classes = false;
-
-	if ( $classes === false ) {
-		$classes = include( __DIR__ . '/' . 'Diff.classes.php' );
-	}
-
-	if ( array_key_exists( $className, $classes ) ) {
-		include_once __DIR__ . '/' . $classes[$className];
-	}
-} );
+define( 'Diff_VERSION', '1.0' );
 
 if ( defined( 'MEDIAWIKI' ) ) {
 	call_user_func( function() {
 		require_once __DIR__ . '/Diff.mw.php';
 	} );
 }
-// @codeCoverageIgnoreEnd
+
+// Aliasing of classes that got renamed.
+// For more details, see Aliases.php.
+
+// Aliases introduced in 1.0
+class_alias( 'Diff\Differ\CallbackListDiffer', 'Diff\CallbackListDiffer' );
+class_alias( 'Diff\Differ\Differ', 'Diff\Differ' );
+class_alias( 'Diff\Differ\ListDiffer', 'Diff\ListDiffer' );
+class_alias( 'Diff\Differ\MapDiffer', 'Diff\MapDiffer' );
+class_alias( 'Diff\Differ\OrderedListDiffer', 'Diff\OrderedListDiffer' );
+
+class_alias( 'Diff\Patcher\ListPatcher', 'Diff\ListPatcher' );
+class_alias( 'Diff\Patcher\MapPatcher', 'Diff\MapPatcher' );
+class_alias( 'Diff\Patcher\Patcher', 'Diff\Patcher' );
+class_alias( 'Diff\Patcher\PatcherException', 'Diff\PatcherException' );
+class_alias( 'Diff\Patcher\PreviewablePatcher', 'Diff\PreviewablePatcher' );
+class_alias( 'Diff\Patcher\ThrowingPatcher', 'Diff\ThrowingPatcher' );
+
+class_alias( 'Diff\DiffOp\Diff\Diff', 'Diff\Diff' );
+class_alias( 'Diff\DiffOp\Diff\ListDiff', 'Diff\ListDiff' );
+class_alias( 'Diff\DiffOp\Diff\MapDiff', 'Diff\MapDiff' );
+
+class_alias( 'Diff\DiffOp\AtomicDiffOp', 'Diff\AtomicDiffOp' );
+class_alias( 'Diff\DiffOp\DiffOp', 'Diff\DiffOp' );
+class_alias( 'Diff\DiffOp\DiffOpAdd', 'Diff\DiffOpAdd' );
+class_alias( 'Diff\DiffOp\DiffOpChange', 'Diff\DiffOpChange' );
+class_alias( 'Diff\DiffOp\DiffOpRemove', 'Diff\DiffOpRemove' );

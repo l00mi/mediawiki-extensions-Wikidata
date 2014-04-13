@@ -3,6 +3,7 @@
 namespace Wikibase\DataModel\Claim;
 
 use InvalidArgumentException;
+use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\References;
 use Wikibase\DataModel\Snak\Snak;
@@ -135,6 +136,7 @@ class Statement extends Claim {
 	 * Constructs a new Statement from an array in the same format as Claim::toArray returns.
 	 *
 	 * @since 0.3
+	 * @deprecated since 0.7.3
 	 *
 	 * @param array $data
 	 *

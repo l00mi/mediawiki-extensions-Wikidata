@@ -3,10 +3,10 @@
 namespace Wikibase\DataModel\Entity;
 
 use Diff\Comparer\CallbackComparer;
-use Diff\Differ;
-use Diff\MapDiffer;
-use Diff\MapPatcher;
-use Diff\Patcher;
+use Diff\Differ\Differ;
+use Diff\Differ\MapDiffer;
+use Diff\Patcher\MapPatcher;
+use Diff\Patcher\Patcher;
 use InvalidArgumentException;
 use RuntimeException;
 use Wikibase\DataModel\Claim\Claim;
@@ -15,6 +15,12 @@ use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Internal\LegacyIdInterpreter;
 use Wikibase\DataModel\Internal\ObjectComparer;
 use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Term\AliasGroup;
+use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\DataModel\Term\Term;
+use Wikibase\DataModel\Term\TermList;
 
 /**
  * Represents a single Wikibase entity.
@@ -25,7 +31,7 @@ use Wikibase\DataModel\Snak\Snak;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
+abstract class Entity implements \Comparable, ClaimAggregate, \Serializable, FingerprintProvider {
 
 	/**
 	 * @since 0.1
@@ -234,51 +240,53 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	/**
 	 * Sets the value for the label in a certain value.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string $langCode
+	 * @param string $languageCode
 	 * @param string $value
+	 *
 	 * @return string
 	 */
-	public function setLabel( $langCode, $value ) {
-		$this->data['label'][$langCode] = $value;
+	public function setLabel( $languageCode, $value ) {
+		$this->data['label'][$languageCode] = $value;
 		return $value;
 	}
 
 	/**
 	 * Sets the value for the description in a certain value.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string $langCode
+	 * @param string $languageCode
 	 * @param string $value
+	 *
 	 * @return string
 	 */
-	public function setDescription( $langCode, $value ) {
-		$this->data['description'][$langCode] = $value;
+	public function setDescription( $languageCode, $value ) {
+		$this->data['description'][$languageCode] = $value;
 		return $value;
 	}
 
 	/**
 	 * Removes the labels in the specified languages.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string|array $languages note that an empty array removes labels for no languages while a null pointer removes all
+	 * @param string|string[] $languageCodes Note that an empty array removes labels for no languages while a null pointer removes all
 	 */
-	public function removeLabel( $languages = array() ) {
-		$this->removeMultilangTexts( 'label', (array)$languages );
+	public function removeLabel( $languageCodes = array() ) {
+		$this->removeMultilangTexts( 'label', (array)$languageCodes );
 	}
 
 	/**
 	 * Removes the descriptions in the specified languages.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string|array $languages note that an empty array removes descriptions for no languages while a null pointer removes all
+	 * @param string|string[] $languageCodes Note that an empty array removes descriptions for no languages while a null pointer removes all
 	 */
-	public function removeDescription( $languages = array() ) {
-		$this->removeMultilangTexts( 'description', (array)$languages );
+	public function removeDescription( $languageCodes = array() ) {
+		$this->removeMultilangTexts( 'description', (array)$languageCodes );
 	}
 
 	/**
@@ -287,15 +295,15 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * @since 0.1
 	 *
 	 * @param string $fieldKey
-	 * @param array|null $languages
+	 * @param string[]|null languageCodes
 	 */
-	protected function removeMultilangTexts( $fieldKey, array $languages = null ) {
-		if ( is_null( $languages ) ) {
+	protected function removeMultilangTexts( $fieldKey, array $languageCodes = null ) {
+		if ( is_null( $languageCodes ) ) {
 			$this->data[$fieldKey] = array();
 		}
 		else {
-			foreach ( $languages as $lang ) {
-				unset( $this->data[$fieldKey][$lang] );
+			foreach ( $languageCodes as $languageCode ) {
+				unset( $this->data[$fieldKey][$languageCode] );
 			}
 		}
 	}
@@ -304,11 +312,11 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * Returns the aliases for the item in the language with the specified code.
 	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param $languageCode
+	 * @param string $languageCode
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function getAliases( $languageCode ) {
 		return array_key_exists( $languageCode, $this->data['aliases'] ) ?
@@ -320,17 +328,17 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * The result is an array with language codes pointing to an array of aliases in the language they specify.
 	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param array|null $languages
+	 * @param string[]|null $languageCodes
 	 *
-	 * @return array
+	 * @return string[]
 	 */
-	public function getAllAliases( array $languages = null ) {
+	public function getAllAliases( array $languageCodes = null ) {
 		$textList = $this->data['aliases'];
 
-		if ( !is_null( $languages ) ) {
-			$textList = array_intersect_key( $textList, array_flip( $languages ) );
+		if ( !is_null( $languageCodes ) ) {
+			$textList = array_intersect_key( $textList, array_flip( $languageCodes ) );
 		}
 
 		$textList = array_map(
@@ -345,10 +353,10 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * Sets the aliases for the item in the language with the specified code.
 	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param $languageCode
-	 * @param array $aliases
+	 * @param string $languageCode
+	 * @param string[] $aliases
 	 */
 	public function setAliases( $languageCode, array $aliases ) {
 		$aliases = array_diff( $aliases, array( '' ) );
@@ -364,10 +372,10 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * Add the provided aliases to the aliases list of the item in the language with the specified code.
 	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param $languageCode
-	 * @param array $aliases
+	 * @param string $languageCode
+	 * @param string[] $aliases
 	 */
 	public function addAliases( $languageCode, array $aliases ) {
 		$this->setAliases(
@@ -383,10 +391,10 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * Removed the provided aliases from the aliases list of the item in the language with the specified code.
 	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param $languageCode
-	 * @param array $aliases
+	 * @param string $languageCode
+	 * @param string[] $aliases
 	 */
 	public function removeAliases( $languageCode, array $aliases ) {
 		$this->setAliases(
@@ -401,57 +409,57 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	/**
 	 * Returns the descriptions of the entity in the provided languages.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param array|null $languages note that an empty array gives descriptions for no languages whil a null pointer gives all
+	 * @param string[]|null $languageCodes Note that an empty array gives descriptions for no languages while a null pointer gives all
 	 *
-	 * @return array found descriptions in given languages
+	 * @return string[] Found descriptions in given languages
 	 */
-	public function getDescriptions( array $languages = null ) {
-		return $this->getMultilangTexts( 'description', $languages );
+	public function getDescriptions( array $languageCodes = null ) {
+		return $this->getMultilangTexts( 'description', $languageCodes );
 	}
 
 	/**
 	 * Returns the labels of the entity in the provided languages.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param array|null $languages note that an empty array gives labels for no languages while a null pointer gives all
+	 * @param string[]|null $languageCodes Note that an empty array gives labels for no languages while a null pointer gives all
 	 *
-	 * @return array found labels in given languages
+	 * @return string[] Found labels in given languages
 	 */
-	public function getLabels( array $languages = null ) {
-		return $this->getMultilangTexts( 'label', $languages );
+	public function getLabels( array $languageCodes = null ) {
+		return $this->getMultilangTexts( 'label', $languageCodes );
 	}
 
 	/**
 	 * Returns the description of the entity in the language with the provided code,
 	 * or false in cases there is none in this language.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string $langCode
+	 * @param string $languageCode
 	 *
 	 * @return string|bool
 	 */
-	public function getDescription( $langCode ) {
-		return array_key_exists( $langCode, $this->data['description'] )
-			? $this->data['description'][$langCode] : false;
+	public function getDescription( $languageCode ) {
+		return array_key_exists( $languageCode, $this->data['description'] )
+			? $this->data['description'][$languageCode] : false;
 	}
 
 	/**
 	 * Returns the label of the entity in the language with the provided code,
 	 * or false in cases there is none in this language.
 	 *
-	 * @since 0.1
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string $langCode
+	 * @param string $languageCode
 	 *
 	 * @return string|bool
 	 */
-	public function getLabel( $langCode ) {
-		return array_key_exists( $langCode, $this->data['label'] )
-			? $this->data['label'][$langCode] : false;
+	public function getLabel( $languageCode ) {
+		return array_key_exists( $languageCode, $this->data['label'] )
+			? $this->data['label'][$languageCode] : false;
 	}
 
 	/**
@@ -460,15 +468,15 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * @since 0.1
 	 *
 	 * @param string $fieldKey
-	 * @param array|null $languages
+	 * @param string[]|null $languageCodes
 	 *
-	 * @return array
+	 * @return string[]
 	 */
-	protected function getMultilangTexts( $fieldKey, array $languages = null ) {
+	protected function getMultilangTexts( $fieldKey, array $languageCodes = null ) {
 		$textList = $this->data[$fieldKey];
 
-		if ( !is_null( $languages ) ) {
-			$textList = array_intersect_key( $textList, array_flip( $languages ) );
+		if ( !is_null( $languageCodes ) ) {
+			$textList = array_intersect_key( $textList, array_flip( $languageCodes ) );
 		}
 
 		return $textList;
@@ -480,7 +488,7 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * and migrating or removing elements after changes to the structure are made.
 	 * Should typically be called before using any of the other methods.
 	 *
-	 * @param bool|bool $wipeExisting Unconditionally wipe out all data
+	 * @param bool $wipeExisting Unconditionally wipe out all data
 	 *
 	 * @since 0.1
 	 */
@@ -498,6 +506,7 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * language codes pointing to the label in that language.
 	 *
 	 * @since 0.4
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
 	 * @param string[] $labels
 	 */
@@ -511,6 +520,7 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * language codes pointing to the description in that language.
 	 *
 	 * @since 0.4
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
 	 * @param string[] $descriptions
 	 */
@@ -525,6 +535,7 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 * in that language.
 	 *
 	 * @since 0.4
+	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
 	 * @param array[] $aliasLists
 	 */
@@ -720,7 +731,7 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 *
 	 * @param Claim[] $claims
 	 *
-	 * @return array
+	 * @return Claim[]
 	 */
 	protected function getStubbedClaims( array $claims ) {
 		if ( $this->claims !== null ) {
@@ -745,7 +756,7 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 *
 	 * @since 0.2
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasClaims() {
 		if ( $this->claims === null ) {
@@ -805,7 +816,7 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 	 *
 	 * @param Entity $entity
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	protected function entityToDiffArray( Entity $entity ) {
 		$array = array();
@@ -902,6 +913,74 @@ abstract class Entity implements \Comparable, ClaimAggregate, \Serializable {
 		}
 
 		return $snaks;
+	}
+
+	/**
+	 * @since 0.7.3
+	 *
+	 * @return Fingerprint
+	 */
+	public function getFingerprint() {
+		return new Fingerprint(
+			$this->getLabelList(),
+			$this->getDescriptionList(),
+			$this->getAliasGroupList()
+		);
+	}
+
+	private function getLabelList() {
+		$labels = array();
+
+		foreach ( $this->getLabels() as $languageCode => $label ) {
+			$labels[] = new Term( $languageCode, $label );
+		}
+
+		return new TermList( $labels );
+	}
+
+	private function getDescriptionList() {
+		$descriptions = array();
+
+		foreach ( $this->getDescriptions() as $languageCode => $description ) {
+			$descriptions[] = new Term( $languageCode, $description );
+		}
+
+		return new TermList( $descriptions );
+	}
+
+	private function getAliasGroupList() {
+		$groups = array();
+
+		foreach ( $this->getAllAliases() as $languageCode => $aliases ) {
+			$groups[] = new AliasGroup( $languageCode, $aliases );
+		}
+
+		return new AliasGroupList( $groups );
+	}
+
+	/**
+	 * @since 0.7.3
+	 *
+	 * @param Fingerprint $fingerprint
+	 */
+	public function setFingerprint( Fingerprint $fingerprint ) {
+		$this->setLabels( $fingerprint->getLabels()->toTextArray() );
+		$this->setDescriptions( $fingerprint->getDescriptions()->toTextArray() );
+		$this->setAliasGroupList( $fingerprint->getAliases() );
+
+	}
+
+	private function setAliasGroupList( AliasGroupList $list ) {
+		$allAliases = array();
+
+		/**
+		 * @var AliasGroup $aliasGroup
+		 */
+		foreach ( $list as $aliasGroup ) {
+			$allAliases[$aliasGroup->getLanguageCode()] = $aliasGroup->getAliases();
+		}
+
+		$this->setAllAliases( $allAliases );
 	}
 
 }
