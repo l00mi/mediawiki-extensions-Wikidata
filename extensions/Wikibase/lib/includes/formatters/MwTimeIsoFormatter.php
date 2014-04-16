@@ -6,7 +6,6 @@ use DataValues\TimeValue;
 use Language;
 use Message;
 use ValueFormatters\FormatterOptions;
-use ValueFormatters\TimeIsoFormatter;
 use ValueFormatters\ValueFormatter;
 use ValueFormatters\ValueFormatterBase;
 
@@ -19,7 +18,7 @@ use ValueFormatters\ValueFormatterBase;
  *
  * @todo move me to DataValues-time
  */
-class MwTimeIsoFormatter extends ValueFormatterBase implements TimeIsoFormatter {
+class MwTimeIsoFormatter extends ValueFormatterBase {
 
 	/**
 	 * MediaWiki language object.
@@ -50,16 +49,13 @@ class MwTimeIsoFormatter extends ValueFormatterBase implements TimeIsoFormatter 
 		);
 	}
 
-	/**
-	 * @see TimeIsoFormatter::formatDate
-	 */
-	public function formatDate( $extendedIsoTimestamp, $precision ) {
+	private function formatDate( $extendedIsoTimestamp, $precision ) {
 		/**
-		 * $matches for +00000002013-07-16T01:02:03Z
-		 * [0] => +00000002013-07-16T00:00:00Z
+		 * $matches for +0000000000002013-07-16T01:02:03Z
+		 * [0] => +0000000000002013-07-16T00:00:00Z
 		 * [1] => +
-		 * [2] => 00000002013
-		 * [3] => 0000000
+		 * [2] => 0000000000002013
+		 * [3] => 000000000000
 		 * [4] => 2013
 		 * [5] => 07
 		 * [6] => 16
@@ -67,7 +63,7 @@ class MwTimeIsoFormatter extends ValueFormatterBase implements TimeIsoFormatter 
 		 * [8] => 02
 		 * [9] => 03
 		 */
-		$regexSuccess = preg_match( '/^(\+|\-)((\d{0,7})?(\d{4}))-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z/',
+		$regexSuccess = preg_match( '/^(\+|\-)((\d{0,12})?(\d{4}))-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z/',
 			$extendedIsoTimestamp, $matches );
 
 		if( !$regexSuccess || intval( $matches[2] ) === 0 ) {
@@ -132,21 +128,15 @@ class MwTimeIsoFormatter extends ValueFormatterBase implements TimeIsoFormatter 
 	 * @return string dateFormat to be used by sprintfDate
 	 */
 	private function getDateFormat( $precision ) {
-		$dateFormat = $this->language->getDateFormatString(
-			'date',
-			$this->language->getDefaultDateFormat()
-		);
-
-		if( $precision < TimeValue::PRECISION_DAY ) {
-			// Remove day placeholder:
-			$dateFormat = preg_replace( '/((x\w{1})?(j|t)|d)/', '', $dateFormat );
+		if( $precision <= TimeValue::PRECISION_YEAR ) {
+			return 'Y';
 		}
 
-		if( $precision < TimeValue::PRECISION_MONTH ) {
-			// Remove month placeholder:
-			$dateFormat = preg_replace( '/((x\w{1})?(F|n|M)|m)/', '', $dateFormat );
+		if( $precision === TimeValue::PRECISION_MONTH ) {
+			return 'F Y';
 		}
-		return trim( $dateFormat );
+
+		return 'j F Y';
 	}
 
 	/**
