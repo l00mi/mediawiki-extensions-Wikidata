@@ -104,11 +104,18 @@ class ParseValue extends ApiWikibase {
 	protected function addParseErrorToResult( &$result, ParseException $parseError ) {
 		$result['error'] = get_class( $parseError );
 
-		$result['error-info'] = $parseError->getMessage();
-		$result['expected-format'] = $parseError->getExpectedFormat();
-
 		$status = $this->getExceptionStatus( $parseError );
-		$this->errorReporter->addStatusToResult( $status, $result );
+
+		$result['error-info'] = $status->getValue();
+
+		$errors = $status->getErrorsByType( 'error' );
+
+		if ( count( $errors ) === 1 ) {
+			list( $messageAsArray ) = $this->compileStatusReport( $errors );
+			$result['error-message'] = $messageAsArray;
+		}
+
+		$result['error-html'] = $status->getHTML( self::$shortErrorContextMessage, self::$longErrorContextMessage );
 	}
 
 	private function outputResults( array $results ) {
