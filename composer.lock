@@ -46,7 +46,7 @@
                 {
                     "name": "Kyle Robinson Young",
                     "email": "kyle@dontkry.com",
-                    "homepage": "http://dontkry.com",
+                    "homepage": "https://github.com/shama",
                     "role": "Developer"
                 }
             ],
@@ -869,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e637a5198f1922b8e673f61083ca32bfd1518a16"
+                "reference": "6947a4383ae009d242c6de4dc0e669796a1d3070"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e637a5198f1922b8e673f61083ca32bfd1518a16",
-                "reference": "e637a5198f1922b8e673f61083ca32bfd1518a16",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6947a4383ae009d242c6de4dc0e669796a1d3070",
+                "reference": "6947a4383ae009d242c6de4dc0e669796a1d3070",
                 "shasum": ""
             },
             "require": {
@@ -934,7 +934,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-04-16 17:04:23"
+            "time": "2014-04-22 08:20:47"
         }
     ],
     "packages-dev": [
