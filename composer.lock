@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "8e4f22bbedb9cd631ca304098ea9177c",
+    "hash": "62eb93e5abc462003f648e97cd9104b9",
     "packages": [
         {
             "name": "composer/installers",
@@ -865,16 +865,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-master",
+            "version": "dev-mw1.24-wmf2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "6947a4383ae009d242c6de4dc0e669796a1d3070"
+                "reference": "96f230a214be709cec43e0d7ac9f354b70647a19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6947a4383ae009d242c6de4dc0e669796a1d3070",
-                "reference": "6947a4383ae009d242c6de4dc0e669796a1d3070",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/96f230a214be709cec43e0d7ac9f354b70647a19",
+                "reference": "96f230a214be709cec43e0d7ac9f354b70647a19",
                 "shasum": ""
             },
             "require": {
@@ -934,7 +934,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-04-22 08:20:47"
+            "time": "2014-04-23 19:57:18"
         }
     ],
     "packages-dev": [
