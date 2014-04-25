@@ -1,5 +1,47 @@
 # Wikibase DataModel release notes
 
+## Version 0.7.4 (2014-04-24)
+
+#### Additions
+
+* Made these classes implement `Comparable`:
+	* `TermList` 
+	* `AliasGroupList`
+	* `Fingerprint`
+	* `SiteLink`
+	* `SiteLinkList`
+	* `Claim`
+	* `Claims`
+	* `Statement`
+* Added methods to `Fingerprint`:
+	* `getLabel`
+	* `setLabel`
+	* `removeLabel`
+	* `setLabels`
+	* `getDescription`
+	* `setDescription`
+	* `removeDescription`
+	* `setDescriptions`
+	* `getAliasGroup`
+	* `setAliasGroup`
+	* `removeAliasGroup`
+	* `setAliasGroups`
+	* `getAliasGroups`
+	* `isEmpty`
+* Added `ItemIdSet`
+
+#### Deprecations
+
+* `Entity::clear` (to be removed in 1.0)
+* `Entity::isEmpty` (to be removed in 1.0)
+* `Entity::stub` (to be removed in 1.0)
+* `Fingerprint::getAliases` (in favour of `Fingerprint::getAliasGroups`)
+
+#### Removals
+
+* This library no longer uses the MediaWiki i18n system when MediaWiki is loaded.
+No description will be shown as part of its entry on Special:Version.
+
 ## Version 0.7.3 (2014-04-11)
 
 #### Additions

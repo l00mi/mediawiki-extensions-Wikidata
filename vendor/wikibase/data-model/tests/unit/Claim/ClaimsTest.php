@@ -8,6 +8,7 @@ use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
 use ReflectionClass;
+use Wikibase\DataModel\ByPropertyIdArray;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Claim\Statement;
@@ -58,6 +59,21 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 		$claim->setGuid( $guid );
 
 		return $claim;
+	}
+
+	public function testArrayObjectNotConstructedFromObject() {
+		$claim1 = $this->makeClaim( new PropertyNoValueSnak( 1 ) );
+		$claim2 = $this->makeClaim( new PropertyNoValueSnak( 2 ) );
+
+		$byPropertyIdArray = new ByPropertyIdArray();
+		$byPropertyIdArray->append( $claim1 );
+
+		$claims = new Claims( $byPropertyIdArray );
+		// According to the documentation append() "cannot be called when the ArrayObject was
+		// constructed from an object." This test makes sure it was not constructed from an object.
+		$claims->append( $claim2 );
+
+		$this->assertCount( 2, $claims );
 	}
 
 	/**
@@ -783,4 +799,54 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 		$expected = new Claims( array( $s2, $s3 ) );
 		$this->assertEquals( $claims->getBestClaims(), $expected );
 	}
+
+	public function testEmptyListEqualsEmptyList() {
+		$list = new Claims( array() );
+		$this->assertTrue( $list->equals( clone $list ) );
+	}
+
+	public function testFilledListEqualsItself() {
+		$list = new Claims( array(
+			$this->makeStatement( new PropertyNoValueSnak( new PropertyId( 'P1' ) ) ),
+			$this->makeStatement( new PropertyNoValueSnak( new PropertyId( 'P2' ) ) ),
+		) );
+
+		$this->assertTrue( $list->equals( $list ) );
+		$this->assertTrue( $list->equals( clone $list ) );
+	}
+
+	public function testGivenNonClaimList_equalsReturnsFalse() {
+		$list = new Claims( array() );
+
+		$this->assertFalse( $list->equals( null ) );
+		$this->assertFalse( $list->equals( new \stdClass() ) );
+	}
+
+	public function testGivenDifferentList_equalsReturnsFalse() {
+		$list = new Claims( array(
+			$this->makeStatement( new PropertyNoValueSnak( new PropertyId( 'P1' ) ) ),
+			$this->makeStatement( new PropertyNoValueSnak( new PropertyId( 'P2' ) ) ),
+		) );
+
+		$otherList = new Claims( array(
+			$this->makeStatement( new PropertyNoValueSnak( new PropertyId( 'P3' ) ) ),
+			$this->makeStatement( new PropertyNoValueSnak( new PropertyId( 'P4' ) ) ),
+		) );
+
+		$this->assertFalse( $list->equals( $otherList ) );
+	}
+
+	public function testGivenDifferentClaimWithSameGuid_equalsReturnsFalse() {
+		$claim = new Claim( new PropertyNoValueSnak( 42 ) );
+		$claim->setGuid( 'kittens' );
+
+		$newClaim = new Claim( new PropertyNoValueSnak( 1337 ) );
+		$newClaim->setGuid( 'kittens' );
+
+		$list = new Claims( array( $claim ) );
+		$newList = new Claims( array( $newClaim ) );
+
+		$this->assertFalse( $list->equals( $newList ) );
+	}
+
 }

@@ -17,13 +17,15 @@ use DataValues\QuantityValue;
  */
 class QuantityParser extends StringValueParser {
 
+	const FORMAT_NAME = 'quantity';
+
 	/**
 	 * @var DecimalParser
 	 */
 	protected $decimalParser;
 
 	/**
-	 * @var Unlocalizer
+	 * @var NumberUnlocalizer
 	 */
 	protected $unlocalizer;
 
@@ -31,13 +33,13 @@ class QuantityParser extends StringValueParser {
 	 * @since 0.1
 	 *
 	 * @param ParserOptions|null $options
-	 * @param Unlocalizer $unlocalizer
+	 * @param NumberUnlocalizer $unlocalizer
 	 */
-	public function __construct( ParserOptions $options = null, Unlocalizer $unlocalizer = null ) {
+	public function __construct( ParserOptions $options = null, NumberUnlocalizer $unlocalizer = null ) {
 		parent::__construct( $options );
 
 		if ( !$unlocalizer ) {
-			$unlocalizer = new BasicUnlocalizer();
+			$unlocalizer = new BasicNumberUnlocalizer();
 		}
 
 		$this->decimalParser = new DecimalParser( $options, $unlocalizer );
@@ -65,7 +67,7 @@ class QuantityParser extends StringValueParser {
 			$quantity = $this->newQuantityFromParts( $amount, $exactness, $margin, $unit );
 			return $quantity;
 		} catch ( IllegalValueException $ex ) {
-			throw new ParseException( $ex->getMessage() );
+			throw new ParseException( $ex->getMessage(), $value, self::FORMAT_NAME );
 		}
 	}
 
@@ -138,7 +140,7 @@ class QuantityParser extends StringValueParser {
 			. '\s*$@u';
 
 		if ( !preg_match( $pattern, $value, $groups ) ) {
-			throw new ParseException( 'Malformed quantity: ' . $value );
+			throw new ParseException( 'Malformed quantity', $value, self::FORMAT_NAME );
 		}
 
 		for ( $i = 1; $i <= 4; $i++ ) {

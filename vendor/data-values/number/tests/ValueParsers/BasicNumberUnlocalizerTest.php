@@ -2,10 +2,10 @@
 
 namespace ValueParsers\Test;
 
-use ValueParsers\BasicUnlocalizer;
+use ValueParsers\BasicNumberUnlocalizer;
 
 /**
- * @covers ValueParsers\BasicUnlocalizer
+ * @covers ValueParsers\BasicNumberUnlocalizer
  *
  * @since 0.3
  *
@@ -15,7 +15,7 @@ use ValueParsers\BasicUnlocalizer;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class BasicUnlocalizerTest extends \PHPUnit_Framework_TestCase {
+class BasicNumberUnlocalizerTest extends \PHPUnit_Framework_TestCase {
 
 	public function provideUnlocalizeNumber() {
 		return array(
@@ -51,7 +51,7 @@ class BasicUnlocalizerTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideUnlocalizeNumber
 	 */
 	public function testUnlocalizeNumber( $localized, $expected ) {
-		$unlocalizer = new BasicUnlocalizer();
+		$unlocalizer = new BasicNumberUnlocalizer();
 		$unlocalized = $unlocalizer->unlocalizeNumber( $localized );
 
 		$this->assertEquals( $expected, $unlocalized );
@@ -85,7 +85,7 @@ class BasicUnlocalizerTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideGetNumberRegexMatch
 	 */
 	public function testGetNumberRegexMatch( $value ) {
-		$unlocalizer = new BasicUnlocalizer();
+		$unlocalizer = new BasicNumberUnlocalizer();
 		$regex = $unlocalizer->getNumberRegex();
 
 		$this->assertTrue( (bool)preg_match( "/^($regex)$/u", $value ) );
@@ -122,7 +122,7 @@ class BasicUnlocalizerTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideGetNumberRegexMismatch
 	 */
 	public function testGetNumberRegexMismatch( $value ) {
-		$unlocalizer = new BasicUnlocalizer();
+		$unlocalizer = new BasicNumberUnlocalizer();
 		$regex = $unlocalizer->getNumberRegex();
 
 		$this->assertFalse( (bool)preg_match( "/^($regex)$/u", $value ) );
@@ -156,7 +156,7 @@ class BasicUnlocalizerTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideGetUnitRegexMatch
 	 */
 	public function testGetUnitRegexMatch( $value ) {
-		$unlocalizer = new BasicUnlocalizer();
+		$unlocalizer = new BasicNumberUnlocalizer();
 		$regex = $unlocalizer->getUnitRegex();
 
 		$this->assertTrue( (bool)preg_match( "/^($regex)$/u", $value ) );
@@ -185,7 +185,7 @@ class BasicUnlocalizerTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideGetUnitRegexMismatch
 	 */
 	public function testGetUnitRegexMismatch( $value ) {
-		$unlocalizer = new BasicUnlocalizer();
+		$unlocalizer = new BasicNumberUnlocalizer();
 		$regex = $unlocalizer->getUnitRegex();
 
 		$this->assertFalse( (bool)preg_match( "/^($regex)$/u", $value ) );

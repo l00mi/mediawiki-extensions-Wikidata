@@ -79,7 +79,11 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGivenNonAliasGroups_constructorThrowsException() {
 		$this->setExpectedException( 'InvalidArgumentException' );
-		new AliasGroupList( array( $this->getMock( 'Wikibase\DataModel\Term\Term' ) ) );
+
+		$term = $this->getMockBuilder( 'Wikibase\DataModel\Term\Term' )
+			->disableOriginalConstructor()->getMock();
+
+		new AliasGroupList( array( $term ) );
 	}
 
 	public function testGivenSetLanguageCode_getByLanguageReturnsGroup() {
@@ -176,6 +180,73 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 		$list->setGroup( new AliasGroup( 'de', array() ) );
 
 		$this->assertEquals( $expectedList, $list );
+	}
+
+	public function testEmptyListEqualsEmptyList() {
+		$list = new AliasGroupList( array() );
+		$this->assertTrue( $list->equals( new AliasGroupList( array() ) ) );
+	}
+
+	public function testFilledListEqualsItself() {
+		$list = new AliasGroupList( array(
+			new AliasGroup( 'en', array( 'foo' ) ),
+			new AliasGroup( 'de', array( 'bar' ) ),
+		) );
+
+		$this->assertTrue( $list->equals( $list ) );
+		$this->assertTrue( $list->equals( clone $list ) );
+	}
+
+	public function testDifferentListsDoNotEqual() {
+		$list = new AliasGroupList( array(
+			new AliasGroup( 'en', array( 'foo' ) ),
+			new AliasGroup( 'de', array( 'bar' ) ),
+		) );
+
+		$this->assertFalse( $list->equals( new AliasGroupList( array() ) ) );
+
+		$this->assertFalse( $list->equals(
+			new AliasGroupList( array(
+				new AliasGroup( 'en', array( 'foo' ) ),
+				new AliasGroup( 'de', array( 'bar' ) ),
+				new AliasGroup( 'nl', array( 'baz' ) ),
+			) )
+		) );
+	}
+
+	public function testGivenNonAliasGroupList_equalsReturnsFalse() {
+		$list = new AliasGroupList( array() );
+		$this->assertFalse( $list->equals( null ) );
+		$this->assertFalse( $list->equals( new \stdClass() ) );
+	}
+
+	public function testGivenListsThatOnlyDifferInOrder_equalsReturnsTrue() {
+		$list = new AliasGroupList( array(
+			new AliasGroup( 'en', array( 'foo' ) ),
+			new AliasGroup( 'de', array( 'bar' ) ),
+		) );
+
+		$this->assertTrue( $list->equals(
+			new AliasGroupList( array(
+				new AliasGroup( 'de', array( 'bar' ) ),
+				new AliasGroup( 'en', array( 'foo' ) ),
+			) )
+		) );
+	}
+
+	public function testGivenNonSetLanguageGroup_hasAliasGroupReturnsFalse() {
+		$list = new AliasGroupList( array() );
+		$this->assertFalse( $list->hasAliasGroup( new AliasGroup( 'en', array( 'kittens' ) ) ) );
+	}
+
+	public function testGivenMismatchingGroup_hasAliasGroupReturnsFalse() {
+		$list = new AliasGroupList( array( new AliasGroup( 'en', array( 'cats' ) ) ) );
+		$this->assertFalse( $list->hasAliasGroup( new AliasGroup( 'en', array( 'kittens' ) ) ) );
+	}
+
+	public function testGivenMatchingGroup_hasAliasGroupReturnsTrue() {
+		$list = new AliasGroupList( array( new AliasGroup( 'en', array( 'kittens' ) ) ) );
+		$this->assertTrue( $list->hasAliasGroup( new AliasGroup( 'en', array( 'kittens' ) ) ) );
 	}
 
 }

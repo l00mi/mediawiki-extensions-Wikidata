@@ -418,16 +418,16 @@
         },
         {
             "name": "data-values/number",
-            "version": "0.3",
+            "version": "0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Number.git",
-                "reference": "20bb12d117acefe8f00b869f577831c50edd4450"
+                "reference": "97f818062df6215d4fd267a33bff2d4f9fac7e4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Number/zipball/20bb12d117acefe8f00b869f577831c50edd4450",
-                "reference": "20bb12d117acefe8f00b869f577831c50edd4450",
+                "url": "https://api.github.com/repos/DataValues/Number/zipball/97f818062df6215d4fd267a33bff2d4f9fac7e4b",
+                "reference": "97f818062df6215d4fd267a33bff2d4f9fac7e4b",
                 "shasum": ""
             },
             "require": {
@@ -465,7 +465,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-03-12 09:37:50"
+            "time": "2014-04-24 07:22:17"
         },
         {
             "name": "data-values/serialization",
@@ -782,16 +782,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "0.7.3",
+            "version": "0.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "4a5164946c32d4f1307a0799374c46036061606f"
+                "reference": "8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/4a5164946c32d4f1307a0799374c46036061606f",
-                "reference": "4a5164946c32d4f1307a0799374c46036061606f",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8",
+                "reference": "8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8",
                 "shasum": ""
             },
             "require": {
@@ -833,7 +833,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-04-11 15:21:38"
+            "time": "2014-04-24 17:40:02"
         },
         {
             "name": "wikibase/easyrdf_lite",
@@ -869,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "6947a4383ae009d242c6de4dc0e669796a1d3070"
+                "reference": "bcc1547afd993e53049192596bdb9e6f00443722"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6947a4383ae009d242c6de4dc0e669796a1d3070",
-                "reference": "6947a4383ae009d242c6de4dc0e669796a1d3070",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bcc1547afd993e53049192596bdb9e6f00443722",
+                "reference": "bcc1547afd993e53049192596bdb9e6f00443722",
                 "shasum": ""
             },
             "require": {
@@ -884,7 +884,7 @@
                 "data-values/geo": "~0.1.0",
                 "data-values/interfaces": "~0.1.4",
                 "data-values/javascript": "~0.5.0",
-                "data-values/number": "~0.3.0",
+                "data-values/number": "~0.4.0",
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.5.1",
                 "data-values/validators": "~0.1.0",
@@ -934,7 +934,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-04-22 08:20:47"
+            "time": "2014-04-24 19:45:18"
         }
     ],
     "packages-dev": [

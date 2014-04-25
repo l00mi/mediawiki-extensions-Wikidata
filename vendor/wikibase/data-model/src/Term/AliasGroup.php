@@ -6,7 +6,9 @@ use Comparable;
 use Countable;
 
 /**
- * Immutable value object.
+ * Ordered set of aliases. Immutable value object.
+ *
+ * Duplicates and whitespace only values are removed. Values are trimmed.
  *
  * @since 0.7.3
  *
@@ -70,12 +72,8 @@ class AliasGroup implements Comparable, Countable {
 	 */
 	public function equals( $target ) {
 		return $target instanceof AliasGroup
-			&& $this->languageCode === $target->getLanguageCode()
-			&& $this->arraysAreEqual( $this->aliases, $target->getAliases() );
-	}
-
-	private function arraysAreEqual( array $a, array $b ) {
-		return array_diff( $a, $b ) === array();
+			&& $this->languageCode === $target->languageCode
+			&& $this->aliases == $target->aliases;
 	}
 
 	/**
