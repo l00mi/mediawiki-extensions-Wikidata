@@ -869,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "865a2ec5d92071dcc0052d0ee7c4dc0b5ed05e82"
+                "reference": "e9fc2bc642f2963da0c01ef2238f24cfea7ba2ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/865a2ec5d92071dcc0052d0ee7c4dc0b5ed05e82",
-                "reference": "865a2ec5d92071dcc0052d0ee7c4dc0b5ed05e82",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e9fc2bc642f2963da0c01ef2238f24cfea7ba2ba",
+                "reference": "e9fc2bc642f2963da0c01ef2238f24cfea7ba2ba",
                 "shasum": ""
             },
             "require": {
@@ -934,7 +934,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-04-28 21:34:01"
+            "time": "2014-04-29 19:12:38"
         }
     ],
     "packages-dev": [
