@@ -2,18 +2,18 @@
 
 namespace Wikibase\Test\Api;
 
+use ApiMain;
 use DataValues\StringValue;
 use UsageException;
-use Wikibase\Api\CreateClaim;
-use ApiMain;
-use Wikibase\Api\ClaimModificationHelper;
+use ValueFormatters\ValueFormatter;
 use Wikibase\Api\ApiErrorReporter;
+use Wikibase\Api\ClaimModificationHelper;
+use Wikibase\Api\CreateClaim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\i18n\WikibaseExceptionLocalizer;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Validators\ValidatorErrorLocalizer;
 
 /**
  * @covers Wikibase\Api\ClaimModificationHelper
@@ -82,12 +82,32 @@ class ClaimModificationHelperTest extends \PHPUnit_Framework_TestCase {
 		$claimModificationHelper->getClaimFromEntity( 'q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0N', $entity );
 	}
 
+	/**
+	 * @return ValueFormatter
+	 */
+	private function getMockFormatter() {
+		$mock = $this->getMock( 'ValueFormatters\ValueFormatter' );
+		$mock->expects( $this->any() )
+			->method( 'format' )
+			->will( $this->returnCallback(
+				function ( $param ) {
+					if ( is_object( $param ) ) {
+						$param = get_class( $param );
+					}
+
+					return strval( $param );
+				}
+			) );
+
+		return $mock;
+	}
+
 	private function getNewInstance() {
 		$api = new ApiMain();
 
 		$errorReporter = new ApiErrorReporter(
 			$api,
-			new WikibaseExceptionLocalizer(),
+			new WikibaseExceptionLocalizer( $this->getMockFormatter() ),
 			$api->getLanguage()
 		);
 

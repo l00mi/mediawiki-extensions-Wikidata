@@ -2,10 +2,9 @@
 
 namespace Wikibase\content;
 
-use Status;
+use ValueValidators\Result;
 use Wikibase\DataModel\Entity\Entity;
-use Wikibase\Term;
-use Wikibase\TermIndex;
+use Wikibase\LabelDescriptionDuplicateDetector;
 
 /**
  * Validator for checking that entity labels are unique (per language).
@@ -19,15 +18,15 @@ use Wikibase\TermIndex;
 class LabelUniquenessValidator implements EntityValidator {
 
 	/**
-	 * @var TermIndex
+	 * @var LabelDescriptionDuplicateDetector
 	 */
-	protected $termIndex;
+	protected $duplicateDetector;
 
 	/**
-	 * @param TermIndex $termIndex
+	 * @param LabelDescriptionDuplicateDetector $duplicateDetector
 	 */
-	function __construct( TermIndex $termIndex ) {
-		$this->termIndex = $termIndex;
+	function __construct( LabelDescriptionDuplicateDetector $duplicateDetector ) {
+		$this->duplicateDetector = $duplicateDetector;
 	}
 
 	/**
@@ -35,47 +34,11 @@ class LabelUniquenessValidator implements EntityValidator {
 	 *
 	 * @param Entity $entity
 	 *
-	 * @return Status
+	 * @return Result
 	 */
 	public function validateEntity( Entity $entity ) {
-		$labels = array();
-
-		foreach ( $entity->getLabels() as $langCode => $labelText ) {
-			$label = new Term( array(
-				'termLanguage' => $langCode,
-				'termText' => $labelText,
-			) );
-
-			$labels[] = $label;
-		}
-
-		$foundLabels = $this->termIndex->getMatchingTerms(
-			$labels,
-			Term::TYPE_LABEL,
-			$entity->getType()
-		);
-
-		$status = Status::newGood();
-
-		/**
-		 * @var Term $foundLabel
-		 */
-		foreach ( $foundLabels as $foundLabel ) {
-			$foundId = $foundLabel->getEntityId();
-
-			if ( $entity->getId() === null || !$entity->getId()->equals( $foundId ) ) {
-				// Messages: wikibase-error-label-not-unique-wikibase-property,
-				// wikibase-error-label-not-unique-wikibase-query
-				$status->fatal(
-					'wikibase-error-label-not-unique-wikibase-' . $entity->getType(),
-					$foundLabel->getText(),
-					$foundLabel->getLanguage(),
-					$foundId !== null ? $foundId : ''
-				);
-			}
-		}
-
-		return $status;
+		$result = $this->duplicateDetector->detectLabelConflictsForEntity( $entity );
+		return $result;
 	}
 
 }

@@ -26,7 +26,7 @@
 	"wikibase-sitelinks-siteid-columnheading": "Koda",
 	"wikibase-sitelinks-link-columnheading": "Povezana stran",
 	"wikibase-snakview-snaktypeselector-somevalue": "neznana vrednost",
-	"wikibase-snakview-snaktypeselector-novalue": "ni vrednosti",
+	"wikibase-snakview-snaktypeselector-novalue": "brez vrednosti",
 	"wikibase-tooltip-error-details": "Podrobnosti",
 	"wikibase-undeserializable-value": "Vrednost je neveljavna in je ni mogoče prikazati.",
 	"wikibase-validator-bad-type": "$2 namesto $1",
@@ -34,7 +34,7 @@
 	"wikibase-validator-bad-entity-id": "Slabo oblikovan ID: $1",
 	"wikibase-validator-no-such-entity": "$1 ni mogoče najti",
 	"wikibase-validator-no-such-property": "Lastnosti $1 ni mogoče najti",
-	"wikibase-validator-bad-value": "Nedovoljena vrednost: $1",
+	"wikibase-validator-not-allowed": "Nedovoljena vrednost: $1",
 	"datatypes-type-wikibase-item": "Predmet",
 	"datatypes-type-commonsMedia": "Predstavnostna datoteka v Zbirki",
 	"version-wikibase": "Wikibaza"

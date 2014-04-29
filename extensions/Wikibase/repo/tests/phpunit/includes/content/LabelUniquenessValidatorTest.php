@@ -2,12 +2,13 @@
 
 namespace Wikibase\Test;
 
+use ValueValidators\Error;
+use ValueValidators\Result;
 use Wikibase\content\LabelUniquenessValidator;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Term;
-use Wikibase\TermIndex;
+use Wikibase\LabelDescriptionDuplicateDetector;
 
 /**
  * @covers Wikibase\content\LabelUniquenessValidator
@@ -22,37 +23,41 @@ use Wikibase\TermIndex;
  */
 class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 
-	public function getMatchingTerms( array $terms, $termType = null, $entityType = null, array $options = array() ) {
-		$matches = array();
-
-		/* @var Term $term */
-		foreach ( $terms as $term ) {
-			$type = $term->getType();
-			$type = $type === null ? $termType : $type;
-
-			if ( $type === 'label' && $term->getText() === 'DUPE' ) {
-				$matchTerm = clone $term;
-				$matchTerm->setEntityType( Property::ENTITY_TYPE );
-				$matchTerm->setNumericId( 666 );
-
-				$matches[] = $matchTerm;
+	public function detectLabelConflictsForEntity( Entity $entity ) {
+		foreach ( $entity->getLabels() as $lang => $label ) {
+			if ( $label === 'DUPE' ) {
+				return Result::newError( array(
+					Error::newError(
+						'found conflicting terms',
+						'label',
+						'label-conflict',
+						array(
+							'label',
+							$lang,
+							$label,
+							'P666'
+						)
+					)
+				) );
 			}
 		}
 
-		return $matches;
+		return Result::newSuccess();
 	}
 
 	/**
-	 * @return TermIndex
+	 * @return LabelDescriptionDuplicateDetector
 	 */
-	private function getMockTermIndex() {
-		$termIndex = $this->getMock( 'Wikibase\TermIndex' );
+	private function getMockDupeDetector() {
+		$dupeDetector = $this->getMockBuilder( 'Wikibase\LabelDescriptionDuplicateDetector' )
+			->disableOriginalConstructor()
+			->getMock();
 
-		$termIndex->expects( $this->any() )
-			->method( 'getMatchingTerms' )
-			->will( $this->returnCallback( array( $this, 'getMatchingTerms' ) ) );
+		$dupeDetector->expects( $this->any() )
+			->method( 'detectLabelConflictsForEntity' )
+			->will( $this->returnCallback( array( $this, 'detectLabelConflictsForEntity' ) ) );
 
-		return $termIndex;
+		return $dupeDetector;
 	}
 
 	public function validEntityProvider() {
@@ -72,7 +77,7 @@ class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 		$badEntity->setId( new PropertyId( 'P7' ) );
 
 		return array(
-			array( $badEntity, 'wikibase-error-label-not-unique-wikibase-property' ),
+			array( $badEntity, 'label-conflict' ),
 		);
 	}
 
@@ -82,12 +87,12 @@ class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 	 * @param Entity $entity
 	 */
 	public function testValidateEntity( Entity $entity ) {
-		$termIndex = $this->getMockTermIndex();
-		$validator = new LabelUniquenessValidator( $termIndex );
+		$dupeDetector = $this->getMockDupeDetector();
+		$validator = new LabelUniquenessValidator( $dupeDetector );
 
-		$status = $validator->validateEntity( $entity );
+		$result = $validator->validateEntity( $entity );
 
-		$this->assertTrue( $status->isOK(), 'isOK' );
+		$this->assertTrue( $result->isValid(), 'isValid' );
 	}
 
 	/**
@@ -97,15 +102,15 @@ class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 	 * @param string|null $error
 	 */
 	public function testValidateEntity_failure( Entity $entity, $error ) {
-		$termIndex = $this->getMockTermIndex();
-		$validator = new LabelUniquenessValidator( $termIndex );
+		$dupeDetector = $this->getMockDupeDetector();
+		$validator = new LabelUniquenessValidator( $dupeDetector );
 
-		$status = $validator->validateEntity( $entity );
+		$result = $validator->validateEntity( $entity );
 
-		$this->assertFalse( $status->isOK(), 'isOK' );
+		$this->assertFalse( $result->isValid(), 'isValid' );
 
-		$errors = $status->getErrorsArray();
-		$this->assertEquals( $error, $errors[0][0] );
+		$errors = $result->getErrors();
+		$this->assertEquals( $error, $errors[0]->getCode() );
 	}
 
 }

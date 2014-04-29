@@ -4,7 +4,9 @@ namespace Wikibase\Repo;
 
 use DataTypes\DataTypeFactory;
 use DataValues\DataValueFactory;
+use SiteSQLStore;
 use ValueFormatters\FormatterOptions;
+use ValueFormatters\ValueFormatter;
 use Wikibase\ChangeOp\ChangeOpFactory;
 use Wikibase\DataModel\Claim\ClaimGuidParser;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
@@ -13,11 +15,12 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\EntityContentFactory;
 use Wikibase\EntityLookup;
 use Wikibase\i18n\ExceptionLocalizer;
+use Wikibase\i18n\MessageParameterFormatter;
 use Wikibase\i18n\WikibaseExceptionLocalizer;
-use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
+use Wikibase\Lib\DispatchingValueFormatter;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
@@ -30,6 +33,7 @@ use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\ParserOutputJsConfigBuilder;
+use Wikibase\PreSaveChecks;
 use Wikibase\ReferencedEntitiesFinder;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
@@ -37,7 +41,11 @@ use Wikibase\SnakFactory;
 use Wikibase\StoreFactory;
 use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
+use Wikibase\LabelDescriptionDuplicateDetector;
+use Wikibase\Utils;
 use Wikibase\Validators\SnakValidator;
+use Wikibase\Validators\TermValidatorFactory;
+use Wikibase\Validators\ValidatorErrorLocalizer;
 
 /**
  * Top level factory for the WikibaseRepo extension.
@@ -331,7 +339,7 @@ class WikibaseRepo {
 	 */
 	public function getChangeOpFactory() {
 		return new ChangeOpFactory(
-			new LabelDescriptionDuplicateDetector( $this->getStore()->getTermIndex() ),
+			$this->getLabelDescriptionDuplicateDetector(),
 			$this->getStore()->newSiteLinkCache(),
 			new ClaimGuidGenerator(),
 			$this->getClaimGuidValidator(),
@@ -422,19 +430,24 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @return OutputFormatSnakFormatterFactory
+	 * @return WikibaseValueFormatterBuilders
 	 */
-	protected function newSnakFormatterFactory() {
+	protected function getValueFormatterBuilders() {
 		global $wgContLang;
 
-		$valueFormatterBuilders = new WikibaseValueFormatterBuilders(
+		return new WikibaseValueFormatterBuilders(
 			$this->getEntityLookup(),
 			$wgContLang,
 			$this->getEntityTitleLookup()
 		);
+	}
 
+	/**
+	 * @return OutputFormatSnakFormatterFactory
+	 */
+	protected function newSnakFormatterFactory() {
 		$builders = new WikibaseSnakFormatterBuilders(
-			$valueFormatterBuilders,
+			$this->getValueFormatterBuilders(),
 			$this->getPropertyDataTypeLookup()
 		);
 
@@ -460,13 +473,7 @@ class WikibaseRepo {
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	protected function newValueFormatterFactory() {
-		global $wgContLang;
-
-		$builders = new WikibaseValueFormatterBuilders(
-			$this->getEntityLookup(),
-			$wgContLang,
-			$this->getEntityTitleLookup()
-		);
+		$builders = $this->getValueFormatterBuilders();
 
 		$factory = new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
 		return $factory;
@@ -477,7 +484,9 @@ class WikibaseRepo {
 	 */
 	public function getExceptionLocalizer() {
 		if ( !$this->exceptionLocalizer ) {
-			$this->exceptionLocalizer = new WikibaseExceptionLocalizer();
+			$this->exceptionLocalizer = new WikibaseExceptionLocalizer(
+				$this->getMessageParameterFormatter()
+			);
 		}
 
 		return $this->exceptionLocalizer;
@@ -505,11 +514,7 @@ class WikibaseRepo {
 		$options = new FormatterOptions();
 		$idFormatter = new EntityIdLinkFormatter( $options, $this->getEntityContentFactory() );
 
-		$valueFormatterBuilders = new WikibaseValueFormatterBuilders(
-			$this->getEntityLookup(),
-			$wgContLang,
-			$this->getEntityTitleLookup()
-		);
+		$valueFormatterBuilders = $this->getValueFormatterBuilders();
 
 		$snakFormatterBuilders = new WikibaseSnakFormatterBuilders(
 			$valueFormatterBuilders,
@@ -565,4 +570,74 @@ class WikibaseRepo {
 		return $this->getEntityContentFactory();
 	}
 
+	/**
+	 * @note: this is a temporary facility, for use until all checks have been moved into CHangeOps.
+	 * @return PreSaveChecks
+	 */
+	public function getPreSaveChecks() {
+		return new PreSaveChecks(
+			$this->getTermValidatorFactory(),
+			$this->getValidatorErrorLocalizer()
+		);
+	}
+
+	/**
+	 * @return TermValidatorFactory
+	 */
+	protected function getTermValidatorFactory() {
+		$constraints = $this->getSettings()->getSetting( 'multilang-limits' );
+		$maxLength = $constraints['length'];
+
+		$languages = Utils::getLanguageCodes();
+
+		return new TermValidatorFactory(
+			$maxLength,
+			$languages,
+			$this->getEntityIdParser(),
+			$this->getLabelDescriptionDuplicateDetector()
+		);
+	}
+
+	/**
+	 * @return ValidatorErrorLocalizer
+	 */
+	public function getValidatorErrorLocalizer() {
+		return new ValidatorErrorLocalizer( $this->getMessageParameterFormatter() );
+	}
+
+	/**
+	 * @return LabelDescriptionDuplicateDetector
+	 */
+	public function getLabelDescriptionDuplicateDetector() {
+		return new LabelDescriptionDuplicateDetector( $this->getStore()->getTermIndex() );
+	}
+
+	/**
+	 * @return SiteSQLStore
+	 */
+	protected function getSitesTable() {
+		return SiteSQLStore::newInstance();
+	}
+
+	/**
+	 * Returns a ValueFormatter suitable for converting message parameters to wikitext.
+	 * The formatter is most likely implemented to dispatch to different formatters internally,
+	 * based on the type of the parameter.
+	 *
+	 * @return ValueFormatter
+	 */
+	protected function getMessageParameterFormatter() {
+		global $wgLang;
+
+		$formatterOptions = new FormatterOptions();
+		$valueFormatteBuilders = $this->getValueFormatterBuilders();
+		$valueFormatters = $valueFormatteBuilders->getWikiTextFormatters( $formatterOptions );
+
+		return new MessageParameterFormatter(
+			new DispatchingValueFormatter( $valueFormatters ),
+			$this->getEntityTitleLookup(),
+			$this->getSitesTable(),
+			$wgLang
+		);
+	}
 }

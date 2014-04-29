@@ -2,8 +2,9 @@
 
 namespace Wikibase\Test\Validators;
 
-use Message;
+use ValueFormatters\ValueFormatter;
 use ValueValidators\Error;
+use ValueValidators\Result;
 use Wikibase\Validators\ValidatorErrorLocalizer;
 
 /**
@@ -19,53 +20,79 @@ use Wikibase\Validators\ValidatorErrorLocalizer;
  */
 class ValidatorErrorLocalizerTest extends \PHPUnit_Framework_TestCase {
 
+	/**
+	 * @return ValueFormatter
+	 */
+	private function getMockFormatter() {
+		$mock = $this->getMock( 'ValueFormatters\ValueFormatter' );
+		$mock->expects( $this->any() )
+			->method( 'format' )
+			->will( $this->returnCallback(
+				function ( $param ) {
+					if ( is_array( $param ) ) {
+						$param = implode( '|', $param );
+					}
+
+					return strval( $param );
+				}
+			) );
+
+		return $mock;
+	}
+
 	public static function provideGetErrorMessage() {
 		return array(
-			array( Error::newError( 'Bla bla' ) ),
-			array( Error::newError( 'Bla bla', null, 'malformed-value', array( 'thingy' ) ) ),
+			'simple' => array(
+				Error::newError( 'Bla bla' ),
+				array()
+			),
+			'with params' => array(
+				Error::newError(
+					'Bla bla',
+					null,
+					'test',
+					array( 'thingy', array( 'a', 'b', 'c' ) )
+				),
+				array( 'thingy', 'a|b|c' )
+			),
 		);
 	}
 
 	/**
 	 * @dataProvider provideGetErrorMessage()
 	 */
-	public function testGetErrorMessage( $error ) {
-		$localizer = new ValidatorErrorLocalizer();
+	public function testGetErrorMessage( $error, $params ) {
+		$localizer = new ValidatorErrorLocalizer( $this->getMockFormatter() );
 		$message = $localizer->getErrorMessage( $error );
 
+		//TODO: check that messages for actual error codes exist
 		$this->assertInstanceOf( 'Message', $message );
-		$this->assertTrue( $message->exists(), 'Message ' . $message->getKey() . ' should exist.' );
+		$this->assertEquals( $params, $message->getParams() );
 	}
 
-	public static function provideGetErrorStatus() {
+	public static function provideGetResultStatus() {
 		return array(
-			array( array() ),
-			array( array( Error::newError( 'Bla bla' ) ) ),
-			array( array( Error::newError( 'Bla bla', null, 'malformed-value', array( 'thingy' ) ) ) ),
-			array( array(
-				Error::newError( 'Bla bla', null, 'too-long', array( 8 ) ),
-				Error::newError( 'Bla bla', null, 'too-short', array( 8 ) ),
-			) ),
+			array( Result::newSuccess() ),
+			array( Result::newError( array() ) ),
+			array( Result::newError( array( Error::newError( 'Bla bla' ) ) ) ),
+			array( Result::newError( array(
+				Error::newError( 'Foo' ),
+				Error::newError( 'Bar' ),
+			) ) ),
 		);
 	}
 
 	/**
-	 * @dataProvider provideGetErrorStatus()
+	 * @dataProvider provideGetResultStatus()
 	 */
-	public function testGetErrorStatus( $errors ) {
-		$localizer = new ValidatorErrorLocalizer();
-		$status = $localizer->getErrorStatus( $errors );
+	public function testGetResultStatus( Result $result ) {
+		$localizer = new ValidatorErrorLocalizer( $this->getMockFormatter() );
+		$status = $localizer->getResultStatus( $result );
 
-		$this->assertEquals( empty( $errors ), $status->isOK(), 'isOK()' );
+		$this->assertInstanceOf( 'Status', $status );
+		$this->assertEquals( $result->isValid(), $status->isOk(), 'isOK()' );
 
-		$messages = $status->getErrorsArray();
-		$this->assertEquals( count( $errors ), count( $messages ), 'There should be one message per error.' );
-
-		foreach ( $messages as $args ) {
-			$key = array_shift( $args );
-			$message = wfMessage( $key, $args );
-
-			$this->assertTrue( $message->exists(), 'Message ' . $message->getKey() . ' should exist.' );
-		}
+		$this->assertEquals( count( $result->getErrors() ), count( $status->getErrorsArray() ), 'Error count:' );
 	}
+
 }

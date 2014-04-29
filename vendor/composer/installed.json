@@ -260,6 +260,60 @@
         ]
     },
     {
+        "name": "data-values/time",
+        "version": "0.5.2",
+        "version_normalized": "0.5.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Time.git",
+            "reference": "2001ff693c0546ff4154cfa97cc5622487787d25"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/2001ff693c0546ff4154cfa97cc5622487787d25",
+            "reference": "2001ff693c0546ff4154cfa97cc5622487787d25",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.2.0",
+            "data-values/data-values": "~0.1.0",
+            "data-values/interfaces": "~0.1.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-04-28 14:29:56",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Time.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Time value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Time",
+        "keywords": [
+            "datavalues",
+            "time",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
         "name": "data-values/number",
         "version": "0.4",
         "version_normalized": "0.4.0.0",
@@ -639,60 +693,6 @@
         "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
     },
     {
-        "name": "data-values/time",
-        "version": "0.5.1",
-        "version_normalized": "0.5.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Time.git",
-            "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/4843f21bed7605d4bb7392f7e93f7f86312c1e50",
-            "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.2.0",
-            "data-values/data-values": "~0.1.0",
-            "data-values/interfaces": "~0.1.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-03-24 12:11:40",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Time.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Time value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Time",
-        "keywords": [
-            "datavalues",
-            "time",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/data-types",
         "version": "0.2",
         "version_normalized": "0.2.0.0",
@@ -896,12 +896,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "bcc1547afd993e53049192596bdb9e6f00443722"
+            "reference": "66540534a3ba3264de027f7f27ae47ad59f52e92"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bcc1547afd993e53049192596bdb9e6f00443722",
-            "reference": "bcc1547afd993e53049192596bdb9e6f00443722",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/66540534a3ba3264de027f7f27ae47ad59f52e92",
+            "reference": "66540534a3ba3264de027f7f27ae47ad59f52e92",
             "shasum": ""
         },
         "require": {
@@ -913,7 +913,7 @@
             "data-values/javascript": "~0.5.0",
             "data-values/number": "~0.4.0",
             "data-values/serialization": "~1.0",
-            "data-values/time": "~0.5.1",
+            "data-values/time": "~0.5.2",
             "data-values/validators": "~0.1.0",
             "data-values/value-view": "~0.5.0",
             "diff/diff": "~1.0",
@@ -921,7 +921,7 @@
             "wikibase/data-model": "~0.7.3",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-04-24 19:45:18",
+        "time": "2014-04-28 20:48:32",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
