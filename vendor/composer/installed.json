@@ -86,6 +86,234 @@
         ]
     },
     {
+        "name": "data-values/interfaces",
+        "version": "0.1.4",
+        "version_normalized": "0.1.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Interfaces.git",
+            "reference": "38a04aede894929d822001e5e8851f4a08454a89"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/38a04aede894929d822001e5e8851f4a08454a89",
+            "reference": "38a04aede894929d822001e5e8851f4a08454a89",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-04-14 08:17:48",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Interfaces.php"
+            ],
+            "psr-0": {
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src",
+                "ValueValidators\\": "src"
+            },
+            "classmap": [
+                "tests/ValueFormatters/ValueFormatterTestBase.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
+        "homepage": "https://github.com/DataValues/Interfaces",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/data-values",
+        "version": "0.1.1",
+        "version_normalized": "0.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/DataValues.git",
+            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/603a19faeac34f5db23b786c6d9c20a151118c2a",
+            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "replace": {
+            "mediawiki/data-values": "*"
+        },
+        "time": "2013-11-22 00:39:57",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValues.php"
+            ],
+            "classmap": [
+                "src/interfaces",
+                "tests/phpunit/DataValueTest.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Defines the DataValue interface and some trivial implementations",
+        "homepage": "https://github.com/DataValues/DataValues",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/common",
+        "version": "0.2.2",
+        "version_normalized": "0.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Common.git",
+            "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Common/zipball/406663b2a68bcf88917d685ab53eb383ff60a56c",
+            "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1",
+            "data-values/interfaces": "~0.1.3",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-04-11 13:19:16",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Common.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            },
+            "classmap": [
+                "tests/ValueParsers"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
+        "homepage": "https://github.com/DataValues/Common",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/time",
+        "version": "0.5.2",
+        "version_normalized": "0.5.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Time.git",
+            "reference": "2001ff693c0546ff4154cfa97cc5622487787d25"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/2001ff693c0546ff4154cfa97cc5622487787d25",
+            "reference": "2001ff693c0546ff4154cfa97cc5622487787d25",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.2.0",
+            "data-values/data-values": "~0.1.0",
+            "data-values/interfaces": "~0.1.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-04-28 14:29:56",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Time.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Time value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Time",
+        "keywords": [
+            "datavalues",
+            "time",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/easyrdf_lite",
         "version": "0.8.1",
         "version_normalized": "0.8.1.0",
@@ -226,61 +454,6 @@
             "serialization",
             "serializer",
             "unserialization",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/data-values",
-        "version": "0.1.1",
-        "version_normalized": "0.1.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/DataValues.git",
-            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/603a19faeac34f5db23b786c6d9c20a151118c2a",
-            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "replace": {
-            "mediawiki/data-values": "*"
-        },
-        "time": "2013-11-22 00:39:57",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValues.php"
-            ],
-            "classmap": [
-                "src/interfaces",
-                "tests/phpunit/DataValueTest.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines the DataValue interface and some trivial implementations",
-        "homepage": "https://github.com/DataValues/DataValues",
-        "keywords": [
-            "datavalues",
             "wikidata"
         ]
     },
@@ -545,62 +718,6 @@
         ]
     },
     {
-        "name": "data-values/interfaces",
-        "version": "0.1.4",
-        "version_normalized": "0.1.4.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "38a04aede894929d822001e5e8851f4a08454a89"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/38a04aede894929d822001e5e8851f4a08454a89",
-            "reference": "38a04aede894929d822001e5e8851f4a08454a89",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-04-14 08:17:48",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Interfaces.php"
-            ],
-            "psr-0": {
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src",
-                "ValueValidators\\": "src"
-            },
-            "classmap": [
-                "tests/ValueFormatters/ValueFormatterTestBase.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
-        "homepage": "https://github.com/DataValues/Interfaces",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/validators",
         "version": "0.1.1",
         "version_normalized": "0.1.1.0",
@@ -653,123 +770,6 @@
             "datavalues",
             "validation",
             "validators",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/common",
-        "version": "0.2.2",
-        "version_normalized": "0.2.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Common.git",
-            "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Common/zipball/406663b2a68bcf88917d685ab53eb383ff60a56c",
-            "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1.3",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-04-11 13:19:16",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.2.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Common.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            },
-            "classmap": [
-                "tests/ValueParsers"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
-        "homepage": "https://github.com/DataValues/Common",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/time",
-        "version": "0.5.1",
-        "version_normalized": "0.5.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Time.git",
-            "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/4843f21bed7605d4bb7392f7e93f7f86312c1e50",
-            "reference": "4843f21bed7605d4bb7392f7e93f7f86312c1e50",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.2.0",
-            "data-values/data-values": "~0.1.0",
-            "data-values/interfaces": "~0.1.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-03-24 12:11:40",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Time.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Time value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Time",
-        "keywords": [
-            "datavalues",
-            "time",
             "valueformatters",
             "valueparsers",
             "wikidata"
@@ -896,12 +896,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "05e1cef261c86572ccbae9e6e296b819637a0dc8"
+            "reference": "865a2ec5d92071dcc0052d0ee7c4dc0b5ed05e82"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/05e1cef261c86572ccbae9e6e296b819637a0dc8",
-            "reference": "05e1cef261c86572ccbae9e6e296b819637a0dc8",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/865a2ec5d92071dcc0052d0ee7c4dc0b5ed05e82",
+            "reference": "865a2ec5d92071dcc0052d0ee7c4dc0b5ed05e82",
             "shasum": ""
         },
         "require": {
@@ -913,7 +913,7 @@
             "data-values/javascript": "~0.5.0",
             "data-values/number": "~0.3.0",
             "data-values/serialization": "~1.0",
-            "data-values/time": "~0.5.1",
+            "data-values/time": "~0.5.2",
             "data-values/validators": "~0.1.0",
             "data-values/value-view": "~0.5.0",
             "diff/diff": "~1.0",
@@ -921,7 +921,7 @@
             "wikibase/data-model": "~0.7.3",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-04-24 13:43:14",
+        "time": "2014-04-28 21:34:01",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
