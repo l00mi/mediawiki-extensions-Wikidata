@@ -69,10 +69,9 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 			$revision = 0;
 		}
 
-		$row = $this->selectRevisionRow( $entityId, $revision, true );
+		$row = $this->loadRevisionRow( $entityId, $revision );
 
 		if ( $row ) {
-
 			$entityRev = $this->loadEntity( $entityId->getEntityType(), $row );
 
 			if ( !$entityRev ) {
@@ -106,13 +105,13 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	 * @since 0.4
 	 * @see   EntityLookup::hasEntity
 	 *
-	 * @param EntityID $entityId
+	 * @param EntityId $entityId
 	 *
 	 * @return bool
 	 * @throws StorageException
 	 */
-	public function hasEntity( EntityID $entityId ) {
-		$row = $this->selectPageRow( $entityId );
+	public function hasEntity( EntityId $entityId ) {
+		$row = $this->loadPageRow( $entityId );
 
 		return ( $row !== null );
 	}
@@ -122,14 +121,35 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	 *
 	 * @since 0.5
 	 *
-	 * @param EntityID $entityId
+	 * @param EntityId $entityId
 	 *
 	 * @return int|false
 	 */
-	public function getLatestRevisionId( EntityID $entityId ) {
-		$row = $this->selectPageRow( $entityId );
+	public function getLatestRevisionId( EntityId $entityId ) {
+		$row = $this->loadPageRow( $entityId );
 
 		return $row === null ? false : $row->page_latest;
+	}
+
+	/**
+	 * @param EntityId $entityId
+	 * @param int $revision
+	 *
+	 * @throws DBQueryError
+	 * @return object|null
+	 */
+	private function loadRevisionRow( EntityId $entityId, $revision ) {
+		$row = $this->selectRevisionRow( $entityId, $revision );
+
+		if ( !$row ) {
+			// try loading from master
+			wfDebugLog(  __CLASS__, __FUNCTION__ . ': try to load '
+				. $entityId->getSerialization() . "with $revision from DB_MASTER." );
+
+			$row = $this->selectRevisionRow( $entityId, $revision, DB_MASTER );
+		}
+
+		return $row;
 	}
 
 	/**
@@ -137,15 +157,16 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	 *
 	 * @since 0.4
 	 *
-	 * @param EntityID $entityId The entity to query the DB for.
-	 * @param int      $revision The desired revision id, 0 means "current".
+	 * @param EntityId $entityId The entity to query the DB for.
+	 * @param int $revision The desired revision id, 0 means "current".
+	 * @param boolean $connType DB_READ or DB_MASTER
 	 *
 	 * @throws \DBQueryError If the query fails.
 	 * @return object|null a raw database row object, or null if no such entity revision exists.
 	 */
-	protected function selectRevisionRow( EntityID $entityId, $revision = 0 ) {
+	protected function selectRevisionRow( EntityId $entityId, $revision = 0, $connType = DB_READ ) {
 		wfProfileIn( __METHOD__ );
-		$db = $this->getConnection( DB_READ );
+		$db = $this->getConnection( $connType );
 
 		$opt = array();
 
@@ -218,18 +239,39 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	}
 
 	/**
+	 * @param EntityId $entityId
+	 *
+	 * @throws DBQueryError
+	 * @return object|null
+	 */
+	private function loadPageRow( EntityId $entityId ) {
+		$row = $this->selectPageRow( $entityId );
+
+		if ( !$row ) {
+			// try to load from master
+			wfDebugLog(  __CLASS__, __FUNCTION__ . ': try to load '
+				. $entityId->getSerialization() . ' from DB_MASTER.' );
+
+			$row = $this->selectPageRow( $entityId, DB_MASTER );
+		}
+
+		return $row;
+	}
+
+	/**
 	 * Selects page information from the page table.
 	 *
 	 * @since 0.4
 	 *
-	 * @param EntityID $entityId The entity to query the DB for.
+	 * @param EntityId $entityId The entity to query the DB for.
+	 * @param boolean $connType DB_READ or DB_MASTER
 	 *
 	 * @throws \DBQueryError If the query fails.
 	 * @return object|null a raw database row object, or null if no such entity revision exists.
 	 */
-	protected function selectPageRow( EntityID $entityId ) {
+	protected function selectPageRow( EntityId $entityId, $connType = DB_READ ) {
 		wfProfileIn( __METHOD__ );
-		$db = $this->getConnection( DB_READ );
+		$db = $this->getConnection( $connType );
 
 		$tables = array(
 			'page',
