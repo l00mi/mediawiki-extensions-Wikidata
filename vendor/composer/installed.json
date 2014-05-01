@@ -896,12 +896,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "48569cae1fe9acc6726e77ab5389f9c22e4921d1"
+            "reference": "8f830b481c61c3608c4e74dc84452959f2dfc331"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/48569cae1fe9acc6726e77ab5389f9c22e4921d1",
-            "reference": "48569cae1fe9acc6726e77ab5389f9c22e4921d1",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8f830b481c61c3608c4e74dc84452959f2dfc331",
+            "reference": "8f830b481c61c3608c4e74dc84452959f2dfc331",
             "shasum": ""
         },
         "require": {
@@ -921,7 +921,7 @@
             "wikibase/data-model": "~0.7.3",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-04-29 23:09:14",
+        "time": "2014-04-30 20:44:32",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
