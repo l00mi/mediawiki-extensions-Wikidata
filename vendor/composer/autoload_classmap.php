@@ -533,7 +533,6 @@ return array(
     'Wikibase\\NoLangLinkHandler' => $baseDir . '/extensions/Wikibase/client/includes/parserhooks/NoLangLinkHandler.php',
     'Wikibase\\OutputPageJsConfigBuilder' => $baseDir . '/extensions/Wikibase/repo/includes/OutputPageJsConfigBuilder.php',
     'Wikibase\\PageUpdater' => $baseDir . '/extensions/Wikibase/client/includes/PageUpdater.php',
-    'Wikibase\\ParserErrorMessageFormatter' => $baseDir . '/extensions/Wikibase/client/includes/parserhooks/ParserErrorMessageFormatter.php',
     'Wikibase\\ParserOutputJsConfigBuilder' => $baseDir . '/extensions/Wikibase/repo/includes/ParserOutputJsConfigBuilder.php',
     'Wikibase\\PreSaveChecks' => $baseDir . '/extensions/Wikibase/repo/includes/PreSaveChecks.php',
     'Wikibase\\PropertyContent' => $baseDir . '/extensions/Wikibase/repo/includes/content/PropertyContent.php',

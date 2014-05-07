@@ -896,12 +896,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "1ed7394c7acac435eb2079c00c685a16dcc80c33"
+            "reference": "b88e7ae7b54a4740c016b58de4e129c37dff38ec"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/1ed7394c7acac435eb2079c00c685a16dcc80c33",
-            "reference": "1ed7394c7acac435eb2079c00c685a16dcc80c33",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b88e7ae7b54a4740c016b58de4e129c37dff38ec",
+            "reference": "b88e7ae7b54a4740c016b58de4e129c37dff38ec",
             "shasum": ""
         },
         "require": {
@@ -921,7 +921,10 @@
             "wikibase/data-model": "~0.7.3",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
-        "time": "2014-05-05 20:26:12",
+        "conflict": {
+            "mediawiki/mediawiki": "<1.23"
+        },
+        "time": "2014-05-07 08:17:24",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -955,7 +958,7 @@
             }
         ],
         "description": "Structured data repository for MediaWiki",
-        "homepage": "https://www.mediawiki.org/wiki/Wikibase",
+        "homepage": "http://wikiba.se",
         "keywords": [
             "wikibase",
             "wikibaseclient",
