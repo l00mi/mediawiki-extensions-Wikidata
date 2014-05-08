@@ -43,7 +43,7 @@
             {
                 "name": "Kyle Robinson Young",
                 "email": "kyle@dontkry.com",
-                "homepage": "http://dontkry.com",
+                "homepage": "https://github.com/shama",
                 "role": "Developer"
             }
         ],
@@ -117,23 +117,23 @@
     },
     {
         "name": "diff/diff",
-        "version": "1.0",
-        "version_normalized": "1.0.0.0",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/Diff.git",
-            "reference": "b11e6d1c57c086ede287ca5a89f8d4739230f65d"
+            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Diff/zipball/b11e6d1c57c086ede287ca5a89f8d4739230f65d",
-            "reference": "b11e6d1c57c086ede287ca5a89f8d4739230f65d",
+            "url": "https://api.github.com/repos/wmde/Diff/zipball/07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
+            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-04-10 14:57:21",
+        "time": "2014-05-07 16:35:49",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -498,23 +498,23 @@
     },
     {
         "name": "data-values/data-types",
-        "version": "0.2",
-        "version_normalized": "0.2.0.0",
+        "version": "0.2.1",
+        "version_normalized": "0.2.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataTypes.git",
-            "reference": "6789703d97135238dcf90b5372f89ff6e080d7fe"
+            "reference": "fced7ce190ed4cef72e481392af33c404158d2e0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/6789703d97135238dcf90b5372f89ff6e080d7fe",
-            "reference": "6789703d97135238dcf90b5372f89ff6e080d7fe",
+            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/fced7ce190ed4cef72e481392af33c404158d2e0",
+            "reference": "fced7ce190ed4cef72e481392af33c404158d2e0",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-03-14 07:03:51",
+        "time": "2014-05-07 12:36:40",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -896,12 +896,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "b88e7ae7b54a4740c016b58de4e129c37dff38ec"
+            "reference": "4459ecc9d836e4f6ebfc6501d90f27dea45f6f01"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b88e7ae7b54a4740c016b58de4e129c37dff38ec",
-            "reference": "b88e7ae7b54a4740c016b58de4e129c37dff38ec",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4459ecc9d836e4f6ebfc6501d90f27dea45f6f01",
+            "reference": "4459ecc9d836e4f6ebfc6501d90f27dea45f6f01",
             "shasum": ""
         },
         "require": {
@@ -924,7 +924,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-05-07 08:17:24",
+        "time": "2014-05-08 12:06:03",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

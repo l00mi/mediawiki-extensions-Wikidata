@@ -26,7 +26,7 @@ $GLOBALS['wgExtensionCredits']['datavalues'][] = array(
 	'descriptionmsg' => 'datatypes-desc',
 );
 
-$GLOBALS['wgExtensionMessagesFiles']['DataTypes'] = __DIR__ . '/DataTypes.i18n.php';
+$GLOBALS['wgMessagesDirs']['DataTypes'] = __DIR__ . '/i18n';
 
 Message::registerTextFunction( function() {
 	// @codeCoverageIgnoreStart

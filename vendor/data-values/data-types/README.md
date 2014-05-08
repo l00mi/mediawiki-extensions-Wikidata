@@ -4,8 +4,9 @@ PHP library defining the DataTypes\DataType class of which instances represent a
 such as "positive integer" or "percentage".
 
 [![Build Status](https://secure.travis-ci.org/wmde/DataTypes.png?branch=master)](http://travis-ci.org/wmde/DataTypes)
-[![Dependency Status](https://www.versioneye.com/php/data-values:data-types/dev-master/badge.png)](https://www.versioneye.com/php/data-values:data-types/dev-master)
+[![Code Coverage](https://scrutinizer-ci.com/g/wmde/DataTypes/badges/coverage.png?s=81ca9034e898d0ff2ee603ffdcf07835c9b5f0d3)](https://scrutinizer-ci.com/g/wmde/DataTypes/)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/wmde/DataTypes/badges/quality-score.png?s=2405ce60c089e7454598ae50e235f001b68bd5cb)](https://scrutinizer-ci.com/g/wmde/DataTypes/)
+[![Dependency Status](https://www.versioneye.com/php/data-values:data-types/dev-master/badge.png)](https://www.versioneye.com/php/data-values:data-types/dev-master)
 
 On [Packagist](https://packagist.org/packages/data-values/data-types):
 [![Latest Stable Version](https://poser.pugx.org/data-values/data-types/version.png)](https://packagist.org/packages/data-values/data-types)
@@ -49,6 +50,11 @@ DataTypes has been written by the Wikidata team at [Wikimedia Germany](https://w
 for the [Wikidata project](https://wikidata.org/).
 
 ## Release notes
+
+### 0.2.1 (2014-05-06)
+
+* migrate i18n to JSON
+* run tests on PHP 5.6 and HHVM on travis
 
 ### 0.2 (2014-03-14)
 

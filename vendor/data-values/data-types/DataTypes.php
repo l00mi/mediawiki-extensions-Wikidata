@@ -12,11 +12,11 @@ namespace DataTypes;
 use Exception;
 
 if ( defined( 'DataTypes_VERSION' ) ) {
-	// Do not initialize more then once.
+	// Do not initialize more than once.
 	return 1;
 }
 
-define( 'DataTypes_VERSION', '0.2' );
+define( 'DataTypes_VERSION', '0.2.1' );
 
 $GLOBALS['wgDataTypes'] = array(
 	'commonsMedia' => array(
