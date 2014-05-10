@@ -896,12 +896,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "4459ecc9d836e4f6ebfc6501d90f27dea45f6f01"
+            "reference": "d0b3c9145afef8230b9644d0515e04a267cf0a17"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4459ecc9d836e4f6ebfc6501d90f27dea45f6f01",
-            "reference": "4459ecc9d836e4f6ebfc6501d90f27dea45f6f01",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d0b3c9145afef8230b9644d0515e04a267cf0a17",
+            "reference": "d0b3c9145afef8230b9644d0515e04a267cf0a17",
             "shasum": ""
         },
         "require": {
@@ -924,9 +924,9 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-05-08 12:06:03",
+        "time": "2014-05-10 11:06:16",
         "type": "mediawiki-extension",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"
