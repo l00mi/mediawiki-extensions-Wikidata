@@ -3,7 +3,6 @@
 namespace Wikibase;
 
 use InvalidArgumentException;
-use Iterator;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\ItemId;
 
@@ -245,10 +244,16 @@ class EntityPerPageTable implements EntityPerPage {
 	public function listEntities( $entityType, $limit, EntityId $after = null ) {
 		if ( $entityType == null  ) {
 			$where = array();
+			//NOTE: needs to be id/type, not type/id, according to the definition of the relevant
+			//      index in wikibase.sql: wb_entity_per_page (epp_entity_id, epp_entity_type);
+			$orderBy = array( 'epp_entity_id', 'epp_entity_type' );
 		} elseif ( !is_string( $entityType ) ) {
 			throw new InvalidArgumentException( '$entityType must be a string (or null)' );
 		} else {
 			$where = array( 'epp_entity_type' => $entityType );
+			// NOTE: If the type is fixed, don't use the type in the order;
+			// before changing this, check index usage.
+			$orderBy = array( 'epp_entity_id' );
 		}
 
 		if ( !is_int( $limit ) || $limit < 1 ) {
@@ -260,9 +265,10 @@ class EntityPerPageTable implements EntityPerPage {
 		if ( $after ) {
 			if ( $entityType === null ) {
 				// Ugly. About time we switch to qualified, string based IDs!
-				$where[] = '( ( epp_entity_type = ' . $dbr->addQuotes( $after->getEntityType() ) .
-						'AND epp_entity_id > ' . $after->getNumericId() . ' ) ' .
-						' OR epp_entity_type > ' . $dbr->addQuotes( $after->getEntityType() ) . ' )';
+				// NOTE: this must be consistent with the sort order, see above!
+				$where[] = '( ( epp_entity_type > ' . $dbr->addQuotes( $after->getEntityType() ) .
+						'AND epp_entity_id = ' . $after->getNumericId() . ' ) ' .
+						' OR epp_entity_id > ' . $after->getNumericId() . ' )';
 			} else {
 				$where[] = 'epp_entity_id > ' . $after->getNumericId();
 			}
@@ -274,7 +280,7 @@ class EntityPerPageTable implements EntityPerPage {
 			$where,
 			__METHOD__,
 			array(
-				'ORDER BY' => array( 'epp_entity_type', 'epp_entity_id' ),
+				'ORDER BY' => $orderBy,
 				'LIMIT' => $limit
 			)
 		);
