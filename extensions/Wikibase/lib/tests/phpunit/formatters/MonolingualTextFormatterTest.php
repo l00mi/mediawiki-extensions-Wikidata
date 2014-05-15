@@ -7,7 +7,7 @@ use ValueFormatters\FormatterOptions;
 use Wikibase\Formatters\MonolingualTextFormatter;
 
 /**
- * @covers Wikibase\Formatters\MonolingualTextFormatter
+ * @covers MonolingualTextFormatter
  *
  * @group ValueFormatters
  * @group DataValueExtensions
@@ -20,9 +20,9 @@ use Wikibase\Formatters\MonolingualTextFormatter;
 class MonolingualTextFormatterTest extends \PHPUnit_Framework_TestCase {
 
 	/**
-	 * @dataProvider urlFormatProvider
+	 * @dataProvider monolingualTextFormatProvider
 	 *
-	 * @covers HtmlUrlFormatter::format()
+	 * @covers MonolingualTextFormatter::format
 	 */
 	public function testFormat( $value, $options, $pattern ) {
 		$formatter = new MonolingualTextFormatter( $options );
@@ -31,7 +31,7 @@ class MonolingualTextFormatterTest extends \PHPUnit_Framework_TestCase {
 		$this->assertRegExp( $pattern, $text );
 	}
 
-	public function urlFormatProvider() {
+	public function monolingualTextFormatProvider() {
 		$options = new FormatterOptions();
 
 		return array(
@@ -39,6 +39,11 @@ class MonolingualTextFormatterTest extends \PHPUnit_Framework_TestCase {
 				new MonolingualTextValue( 'de', 'Hallo Welt' ),
 				$options,
 				'@^Hallo Welt$@'
+			),
+			array(
+				new MonolingualTextValue( 'de', 'Hallo&Welt' ),
+				$options,
+				'@^Hallo&Welt$@'
 			),
 		);
 	}

@@ -3,7 +3,7 @@
 namespace Wikibase\Formatters;
 
 use DataValues\MonolingualTextValue;
-use ValueFormatters\FormatterOptions;
+use InvalidArgumentException;
 use ValueFormatters\ValueFormatter;
 use ValueFormatters\ValueFormatterBase;
 use Wikibase\Utils;
@@ -21,16 +21,19 @@ class MonolingualHtmlFormatter extends ValueFormatterBase {
 	 */
 	public function format( $value ) {
 		if ( !( $value instanceof MonolingualTextValue ) ) {
-			throw new \InvalidArgumentException( '$value must be a MonolingualTextValue' );
+			throw new InvalidArgumentException( '$value must be a MonolingualTextValue' );
 		}
 
-		$userLang = $this->getOption( ValueFormatter::OPT_LANG );
+		$userLanguage = $this->getOption( ValueFormatter::OPT_LANG );
 
 		$text = $value->getText();
-		$textLang = $value->getLanguageCode();
-		$textLangName = Utils::fetchLanguageName( $textLang, $userLang );
+		$languageCode = $value->getLanguageCode();
+		$languageName = Utils::fetchLanguageName( $languageCode, $userLanguage );
 
-		$msg = wfMessage( 'wikibase-monolingual-text', $text, $textLang, $textLangName );
+		$msg = wfMessage( 'wikibase-monolingual-text' )->params(
+			wfEscapeWikiText( $text ),
+			wfEscapeWikiText( $languageCode ),
+			wfEscapeWikiText( $languageName ) );
 		return $msg->parse();
 	}
 
