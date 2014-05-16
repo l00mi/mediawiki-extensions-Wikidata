@@ -3,8 +3,8 @@
 namespace Wikibase;
 
 use InvalidArgumentException;
-use ValueValidators\Error;
 use ValueValidators\Result;
+use Wikibase\Validators\UniquenessViolation;
 
 /**
  * Detector of label/description uniqueness constraint violations.
@@ -86,7 +86,7 @@ class LabelDescriptionDuplicateDetector {
 	 *         The error code will be either 'label-conflict' or 'label-with-description-conflict',
 	 *         depending on whether descriptions where given.
 	 */
-	protected function detectTermConflicts( $labels, $descriptions, EntityId $entityId = null ) {
+	public function detectTermConflicts( $labels, $descriptions, EntityId $entityId = null ) {
 		if ( !is_array( $labels ) ) {
 			throw new InvalidArgumentException( '$labels must be an array' );
 		}
@@ -224,9 +224,9 @@ class LabelDescriptionDuplicateDetector {
 
 		/* @var Term $term */
 		foreach ( $terms as $term ) {
-			$errors[] = Error::newError(
+			$errors[] = new UniquenessViolation(
+				$term->getEntityId(),
 				$message,
-				$term->getType(),
 				$errorCode,
 				array(
 					$term->getText(),
