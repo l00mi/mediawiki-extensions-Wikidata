@@ -6,6 +6,7 @@ use DataTypes\DataType;
 use DataTypes\DataTypeFactory;
 use DataValues\GlobeCoordinateValue;
 use DataValues\LatLongValue;
+use DataValues\MonolingualTextValue;
 use DataValues\NumberValue;
 use DataValues\QuantityValue;
 use DataValues\StringValue;
@@ -158,14 +159,18 @@ class WikibaseDataTypeBuildersTest extends \PHPUnit_Framework_TestCase {
 
 			array( 'url', new StringValue( ' http://acme.com' ), false, 'URL with leading space' ),
 			array( 'url', new StringValue( 'http://acme.com ' ), false, 'URL with trailing space' ),
+
+			//quantity
+			array( 'quantity', QuantityValue::newFromNumber( 5 ), true, 'Simple integer' ),
+			array( 'quantity', QuantityValue::newFromNumber( 5, 'm' ), false, 'We don\'t support units yet' ),
+			array( 'quantity', QuantityValue::newFromDecimal( '-11.234', '1', '-10', '-12' ), true, 'decimal strings' ),
 		);
 
 		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
 			$cases = array_merge( $cases, array(
-				//quantity
-				array( 'quantity', QuantityValue::newFromNumber( 5 ), true, 'Simple integer' ),
-				array( 'quantity', QuantityValue::newFromNumber( 5, 'm' ), false, 'We don\'t support units yet' ),
-				array( 'quantity', QuantityValue::newFromDecimal( '-11.234', '1', '-10', '-12' ), true, 'decimal strings' ),
+
+				array( 'monolingualtext', new MonoLingualTextValue( 'en', 'text' ), true, 'Simple value' ),
+				array( 'monolingualtext', new MonoLingualTextValue( 'grrr', 'text' ), false, 'Not a valid language' ),
 
 				// ....
 			) );

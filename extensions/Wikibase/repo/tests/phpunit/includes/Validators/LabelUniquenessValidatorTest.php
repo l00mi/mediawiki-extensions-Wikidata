@@ -2,13 +2,18 @@
 
 namespace Wikibase\Test\Validators;
 
-use ValueValidators\Error;
-use ValueValidators\Result;
-use Wikibase\Validators\LabelUniquenessValidator;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\Term\Term;
+use Wikibase\DataModel\Term\TermList;
+use Wikibase\EntityId;
 use Wikibase\LabelDescriptionDuplicateDetector;
+use Wikibase\Test\ChangeOpTestMockProvider;
+use Wikibase\Validators\LabelUniquenessValidator;
 
 /**
  * @covers Wikibase\Validators\LabelUniquenessValidator
@@ -23,62 +28,97 @@ use Wikibase\LabelDescriptionDuplicateDetector;
  */
 class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 
-	public function detectLabelConflictsForEntity( Entity $entity ) {
-		foreach ( $entity->getLabels() as $lang => $label ) {
-			if ( $label === 'DUPE' ) {
-				return Result::newError( array(
-					Error::newError(
-						'found conflicting terms',
-						'label',
-						'label-conflict',
-						array(
-							'label',
-							$lang,
-							$label,
-							'P666'
-						)
-					)
-				) );
-			}
-		}
-
-		return Result::newSuccess();
-	}
-
 	/**
 	 * @return LabelDescriptionDuplicateDetector
 	 */
 	private function getMockDupeDetector() {
-		$dupeDetector = $this->getMockBuilder( 'Wikibase\LabelDescriptionDuplicateDetector' )
-			->disableOriginalConstructor()
-			->getMock();
+		$mockProvider = new ChangeOpTestMockProvider( $this );
+		return $mockProvider->getMockLabelDescriptionDuplicateDetector();
+	}
 
-		$dupeDetector->expects( $this->any() )
-			->method( 'detectLabelConflictsForEntity' )
-			->will( $this->returnCallback( array( $this, 'detectLabelConflictsForEntity' ) ) );
+	public function validFingerprintProvider() {
+		return array(
+			'no conflict' => array(
+				new Fingerprint(
+					new TermList( array( new Term( 'de', 'Foo' ) ) ),
+					new TermList( array() ),
+					new AliasGroupList( array() )
+				),
+			),
+			'self conflict' => array(
+				// the mock considers "DUPE" a dupe with P666
+				new Fingerprint(
+					new TermList( array( new Term( 'de', 'DUPE' ) ) ),
+					new TermList( array() ),
+					new AliasGroupList( array() )
+				),
+				new PropertyId( 'P666' ) // ignore conflicts with P666
+			),
+			'ignored conflict' => array(
+				// the mock considers "DUPE" a dupe with P666
+				new Fingerprint(
+					new TermList( array( new Term( 'de', 'DUPE' ) ) ),
+					new TermList( array() ),
+					new AliasGroupList( array() )
+				),
+				null,
+				array( 'en' ) // only consider conflicts in english
+			),
+		);
+	}
 
-		return $dupeDetector;
+	private function fingerprintCaseToEntityCase( $fingerprintCase, $id ) {
+		$fingerprint = reset( $fingerprintCase );
+
+		$item = Property::newEmpty();
+		$item->setFingerprint( $fingerprint );
+		$item->setId( $id );
+
+		$entityCase = $fingerprintCase;
+		$entityCase[0] = $item;
+
+		return $entityCase;
 	}
 
 	public function validEntityProvider() {
-		$goodEntity = Property::newFromType( 'string' );
-		$goodEntity->setLabel( 'de', 'Foo' );
-		$goodEntity->setDescription( 'de', 'DUPE' );
-		$goodEntity->setId( new PropertyId( 'P5' ) );
+		$cases = array();
+
+		$i = 1;
+		foreach ( $this->validFingerprintProvider() as $name => $fingerprintCase ) {
+			// if the case has a non-null entityId or languageCodes param, skip it
+			if ( isset( $fingerprintCase[1] ) || isset( $fingerprintCase[2] ) ) {
+				continue;
+			}
+
+			$id = new PropertyId( 'P' . $i++ );
+			$cases[$name] = $this->fingerprintCaseToEntityCase( $fingerprintCase, $id );
+		}
+
+		return $cases;
+	}
+
+	public function invalidFingerprintProvider() {
+		$badFingerprint = new Fingerprint(
+			new TermList( array( new Term( 'de', 'DUPE' ) ) ),
+			new TermList( array( ) ),
+			new AliasGroupList( array() )
+		);
 
 		return array(
-			array( $goodEntity ),
+			array( $badFingerprint, 'label-conflict' ),
 		);
 	}
 
 	public function invalidEntityProvider() {
-		$badEntity = Property::newFromType( 'string' );
-		$badEntity->setLabel( 'de', 'DUPE' );
-		$badEntity->setId( new PropertyId( 'P7' ) );
+		$cases = array();
 
-		return array(
-			array( $badEntity, 'label-conflict' ),
-		);
+		$i = 1;
+		foreach ( $this->invalidFingerprintProvider() as $name => $fingerprintCase ) {
+			$id = new PropertyId( 'P' . $i++ );
+			$cases[$name] = $this->fingerprintCaseToEntityCase( $fingerprintCase, $id );
+		}
+
+		return $cases;
 	}
 
 	/**
@@ -96,6 +136,26 @@ class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @dataProvider validFingerprintProvider
+	 *
+	 * @param Fingerprint $fingerprint
+	 * @param EntityId|null $entityId
+	 * @param string[]|null $languageCodes
+	 */
+	public function testValidateFingerprint(
+		Fingerprint $fingerprint,
+		EntityId $entityId = null,
+		$languageCodes = null
+	) {
+		$dupeDetector = $this->getMockDupeDetector();
+		$validator = new LabelUniquenessValidator( $dupeDetector );
+
+		$result = $validator->validateFingerprint( $fingerprint, $entityId, $languageCodes );
+
+		$this->assertTrue( $result->isValid(), 'isValid' );
+	}
+
+	/**
 	 * @dataProvider invalidEntityProvider
 	 *
 	 * @param Entity $entity
@@ -106,6 +166,24 @@ class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 		$validator = new LabelUniquenessValidator( $dupeDetector );
 
 		$result = $validator->validateEntity( $entity );
+
+		$this->assertFalse( $result->isValid(), 'isValid' );
+
+		$errors = $result->getErrors();
+		$this->assertEquals( $error, $errors[0]->getCode() );
+	}
+
+	/**
+	 * @dataProvider invalidFingerprintProvider
+	 *
+	 * @param Fingerprint $fingerprint
+	 * @param string|null $error
+	 */
+	public function testValidateFingerprint_failure( Fingerprint $fingerprint, $error ) {
+		$dupeDetector = $this->getMockDupeDetector();
+		$validator = new LabelUniquenessValidator( $dupeDetector );
+
+		$result = $validator->validateFingerprint( $fingerprint );
 
 		$this->assertFalse( $result->isValid(), 'isValid' );
 

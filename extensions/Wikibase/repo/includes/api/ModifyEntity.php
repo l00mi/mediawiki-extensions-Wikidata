@@ -5,12 +5,11 @@ namespace Wikibase\Api;
 use ApiBase;
 use ApiMain;
 use LogicException;
-use SiteSQLStore;
 use Status;
 use UsageException;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
-use Wikibase\ChangeOp\ChangeOpFactoryProvider;
+use Wikibase\ChangeOp\ChangeOpValidationException;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
@@ -74,7 +73,7 @@ abstract class ModifyEntity extends ApiWikibase {
 
 		//TODO: provide a mechanism to override the services
 		$this->stringNormalizer = $repo->getStringNormalizer();
-		$this->siteLinkTargetProvider = new SiteLinkTargetProvider( SiteSQLStore::newInstance() );
+		$this->siteLinkTargetProvider = new SiteLinkTargetProvider( $repo->getSiteStore() );
 
 		$this->siteLinkGroups = $repo->getSettings()->getSetting( 'siteLinkGroups' );
 		$this->siteLinkLookup = $repo->getStore()->newSiteLinkCache();
@@ -239,18 +238,27 @@ abstract class ModifyEntity extends ApiWikibase {
 
 	/**
 	 * Applies the given ChangeOp to the given Entity.
+	 * Any ChangeOpException is converted into a UsageException with the code 'modification-failed'.
+	 *
+	 * @since 0.5
 	 *
 	 * @param ChangeOp $changeOp
 	 * @param Entity $entity
-	 * @param Summary $summary The Summary to record details about the change in.
+	 * @param Summary $summary The summary object to update with information about the change.
 	 *
-	 * @throws UsageException If the ChangeOp failed to apply (usually due to a validation error).
+	 * @throws UsageException
 	 */
 	protected function applyChangeOp( ChangeOp $changeOp, Entity $entity, Summary $summary = null ) {
 		try {
+			$result = $changeOp->validate( $entity );
+
+			if ( !$result->isValid() ) {
+				throw new ChangeOpValidationException( $result );
+			}
+
 			$changeOp->apply( $entity, $summary );
 		} catch ( ChangeOpException $ex ) {
-			$this->dieUsage( 'Attempted modification of the item failed (validation error): ' . $ex->getMessage(), 'failed-modify' );
+			$this->errorReporter->dieException( $ex, 'modification-failed' );
 		}
 	}
 
@@ -266,15 +274,6 @@ abstract class ModifyEntity extends ApiWikibase {
 		if ( !( isset( $params['id'] ) XOR ( isset( $params['site'] ) && isset( $params['title'] ) ) ) ) {
 			$this->dieUsage( 'Either provide the item "id" or pairs of "site" and "title" for a corresponding page' , 'param-illegal' );
 		}
-	}
-
-	/**
-	 * @param Entity $entity
-	 */
-	private function assignFreshId( Entity $entity ) {
-		//TODO: factor the ID generator out of EntityContent!
-		$entityContent = WikibaseRepo::getDefaultInstance()->getEntityContentFactory()->newFromEntity( $entity );
-		$entityContent->grabFreshId();
 	}
 
 	/**
@@ -299,7 +298,7 @@ abstract class ModifyEntity extends ApiWikibase {
 
 			// HACK: We need to assign an ID early, for things like the ClaimIdGenerator.
 			if ( $entity->getId() === null ) {
-				$this->assignFreshId( $entity );
+				$this->entityStore->assignFreshId( $entity );
 			}
 		} else {
 			$entity = $entityRev->getEntity();

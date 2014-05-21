@@ -2,6 +2,7 @@
 
 namespace Wikibase;
 
+use Site;
 use User;
 use Wikibase\DataModel\SimpleSiteLink;
 use Wikibase\Repo\WikibaseRepo;
@@ -88,11 +89,11 @@ class UpdateRepoOnMoveJob extends \Job {
 	 *
 	 * @param string $globalId
 	 *
-	 * @return \Site
+	 * @return Site
 	 */
 	protected function getSite( $globalId ) {
-		$sitesTable = \SiteSQLStore::newInstance();
-		return $sitesTable->getSite( $globalId );
+		$sitesStore =  WikibaseRepo::getDefaultInstance()->getSiteStore();
+		return $sitesStore->getSite( $globalId );
 	}
 
 	/**
@@ -238,13 +239,6 @@ class UpdateRepoOnMoveJob extends \Job {
 			wfLogWarning( 'User ' . $params['user'] . " doesn't exist while CentralAuth pretends it does" );
 			wfProfileOut( __METHOD__ );
 			return true;
-		}
-
-		if ( $params['entityId'] instanceof ItemId ) {
-			// Backward compatibility switch.
-			// This is a short term fix to make this work side by side with the old
-			// version of the job.
-			$params['entityId'] = $params['entityId']->getSerialization();
 		}
 
 		$this->updateSiteLink(

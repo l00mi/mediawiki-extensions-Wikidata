@@ -4,11 +4,12 @@ namespace Wikibase;
 
 use MWException;
 use InvalidArgumentException;
+use OutOfBoundsException;
 use Status;
 use Title;
 use User;
-use WikiPage;
 use Revision;
+use WikiPage;
 
 /**
  * Factory for EntityContent objects.
@@ -98,6 +99,8 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 	 *
 	 * @since 0.2
 	 *
+	 * @deprecated use EntityLookup instead.
+	 *
 	 * @param EntityId $id
 	 *
 	 * @param integer $audience: one of:
@@ -110,7 +113,9 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 	public function getFromId( EntityId $id, $audience = Revision::FOR_PUBLIC ) {
 		// TODO: since we already did the trouble of getting a WikiPage here,
 		// we probably want to keep a copy of it in the Content object.
-		return $this->getWikiPageForId( $id )->getContent( $audience );
+		$title = $this->getTitleForId( $id );
+		$page = new WikiPage( $title );
+		return $page->getContent( $audience );
 	}
 
 	/**
@@ -137,23 +142,30 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 	 *
 	 * @param int $type
 	 *
+	 * @throws OutOfBoundsException if no content model is defined for the given entity type.
 	 * @return int
 	 */
 	public function getNamespaceForType( $type ) {
-		return NamespaceUtils::getEntityNamespace( $this->typeMap[$type] );
+		$model = $this->getContentModelForType( $type );
+		return NamespaceUtils::getEntityNamespace( $model );
 	}
 
 	/**
-	 * Returns the WikiPage object for the item with provided id.
+	 * Determines what content model is suitable for the given type of entities.
 	 *
-	 * @since 0.3
+	 * @since 0.5
 	 *
-	 * @param EntityId
+	 * @param int $type
 	 *
-	 * @return WikiPage
+	 * @throws OutOfBoundsException if no content model is defined for the given entity type.
+	 * @return int
 	 */
-	public function getWikiPageForId( EntityId $id ) {
-		return new WikiPage( $this->getTitleForId( $id ) );
+	public function getContentModelForType( $type ) {
+		if ( !isset( $this->typeMap[$type] ) ) {
+			throw new OutOfBoundsException( 'No content model defined for entity type ' . $type );
+		}
+
+		return $this->typeMap[$type];
 	}
 
 	/**

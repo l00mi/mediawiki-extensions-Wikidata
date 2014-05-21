@@ -86,6 +86,7 @@ call_user_func( function() {
 	$wgValueParsers['time'] = 'Wikibase\Lib\Parsers\TimeParser';
 	$wgValueParsers['globecoordinate'] = 'ValueParsers\GlobeCoordinateParser';
 	$wgValueParsers['null'] = 'ValueParsers\NullParser';
+	$wgValueParsers['monolingualtext'] = 'Wikibase\Parsers\MonolingualTextParser';
 
 	// API module registration
 	$wgAPIModules['wbgetentities'] 						= 'Wikibase\Api\GetEntities';
@@ -108,6 +109,7 @@ call_user_func( function() {
 	$wgAPIModules['wbmergeitems']						= 'Wikibase\Api\MergeItems';
 	$wgAPIModules['wbformatvalue']						= 'Wikibase\Api\FormatSnakValue';
 	$wgAPIModules['wbparsevalue']						= 'Wikibase\Api\ParseValue';
+	$wgAPIModules['wbavailablebadges']					= 'Wikibase\Api\AvailableBadges';
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] 							= 'Wikibase\Repo\Specials\SpecialNewItem';
@@ -180,6 +182,8 @@ call_user_func( function() {
 	$wgHooks['OutputPageBeforeHTML'][]				= 'Wikibase\RepoHooks::onOutputPageBeforeHtmlRegisterConfig';
 	$wgHooks['MakeGlobalVariablesScript'][]			= 'Wikibase\RepoHooks::onMakeGlobalVariablesScript';
 	$wgHooks['ContentHandlerForModelID'][]			= 'Wikibase\RepoHooks::onContentHandlerForModelID';
+	$wgHooks['APIQuerySiteInfoStatisticsInfo'][]	= 'Wikibase\RepoHooks::onAPIQuerySiteInfoStatisticsInfo';
+	$wgHooks['ImportHandleRevisionXMLTag'][]	    = 'Wikibase\RepoHooks::onImportHandleRevisionXMLTag';
 
 	// Resource Loader Modules:
 	$wgResourceModules = array_merge( $wgResourceModules, include( __DIR__ . "/resources/Resources.php" ) );

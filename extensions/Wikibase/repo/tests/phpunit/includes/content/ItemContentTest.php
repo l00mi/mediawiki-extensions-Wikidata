@@ -2,8 +2,6 @@
 
 namespace Wikibase\Test;
 
-use MediaWikiSite;
-use SiteSQLStore;
 use Wikibase\DataModel\SimpleSiteLink;
 use Wikibase\EntityContent;
 use Wikibase\ItemContent;
@@ -27,14 +25,6 @@ class ItemContentTest extends EntityContentTest {
 
 	public function setUp() {
 		parent::setUp();
-
-		$site = new MediaWikiSite();
-		$site->setGlobalId( 'nlwiki' );
-		$site->setPath( MediaWikiSite::PATH_PAGE, "https://nl.wikipedia.org/wiki/$1" );
-
-		$sitesTable = SiteSQLStore::newInstance();
-		$sitesTable->clear();
-		$sitesTable->saveSites( array( $site ) );
 	}
 
 	/**
@@ -42,45 +32,6 @@ class ItemContentTest extends EntityContentTest {
 	 */
 	protected function getContentClass() {
 		return '\Wikibase\ItemContent';
-	}
-
-	/**
-	 * @dataProvider siteLinkConflictProvider
-	 */
-	public function testSiteLinkConflict( SimpleSiteLink $siteLink, $expected ) {
-		/** @var ItemContent $content */
-		$content = $this->newEmpty();
-		$content->getItem()->addSiteLink( $siteLink );
-
-		$status = $content->save( 'add item', null, EDIT_NEW );
-
-		$this->assertTrue( $status->isOK(), 'item creation succeeded' );
-
-		/** @var ItemContent $content1 */
-		$content1 = $this->newEmpty();
-		$content1->getItem()->addSiteLink( $siteLink );
-
-		$status = $content1->save( 'add item', null, EDIT_NEW );
-
-		$this->assertFalse( $status->isOK(), "saving an item with a site link conflict should fail" );
-
-		$html = $status->getHTML();
-		$expected = preg_replace( '(\$1)', $content->getTitle()->getFullText(), $html );
-
-		$this->assertEquals( $expected, $status->getHTML() );
-	}
-
-	public function siteLinkConflictProvider() {
-		$prefix = get_class( $this ) . '/';
-
-		$siteLink = new SimpleSiteLink( 'nlwiki', $prefix . 'Pelecanus' );
-
-		return array(
-			array(
-				$siteLink,
-				'Site link [https://nl.wikipedia.org/wiki/Pelecanus Pelecanus] already used by item [[$1]].'
-			)
-		);
 	}
 
 	public function provideEquals() {

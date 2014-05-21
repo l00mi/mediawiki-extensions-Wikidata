@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "5fd917f562bb0e0a7ad78e49c324eed5",
+    "hash": "d543af6aa1aa05a9b334850890d14ee8",
     "packages": [
         {
             "name": "composer/installers",
@@ -152,16 +152,16 @@
         },
         {
             "name": "data-values/data-types",
-            "version": "0.2.1",
+            "version": "0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataTypes.git",
-                "reference": "fced7ce190ed4cef72e481392af33c404158d2e0"
+                "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/fced7ce190ed4cef72e481392af33c404158d2e0",
-                "reference": "fced7ce190ed4cef72e481392af33c404158d2e0",
+                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
+                "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
                 "shasum": ""
             },
             "require": {
@@ -194,7 +194,7 @@
                 "datatypes",
                 "datavalues"
             ],
-            "time": "2014-05-07 12:36:40"
+            "time": "2014-05-21 09:39:21"
         },
         {
             "name": "data-values/data-values",
@@ -726,16 +726,16 @@
         },
         {
             "name": "serialization/serialization",
-            "version": "3.1",
+            "version": "3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Serialization.git",
-                "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd"
+                "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Serialization/zipball/3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
-                "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
+                "url": "https://api.github.com/repos/wmde/Serialization/zipball/7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
+                "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
                 "shasum": ""
             },
             "require": {
@@ -744,7 +744,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1.x-dev"
+                    "dev-master": "3.2.x-dev"
                 }
             },
             "autoload": {
@@ -778,7 +778,7 @@
                 "unserialization",
                 "wikidata"
             ],
-            "time": "2014-03-18 18:45:35"
+            "time": "2014-05-20 15:57:52"
         },
         {
             "name": "wikibase/data-model",
@@ -865,21 +865,21 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-mw1.24-wmf4",
+            "version": "dev-mw1.24-wmf6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "759faf7a8cb0cd2b9d6671d6cac1a6ba91c12a24"
+                "reference": "64463f52e28128544fdd41d2ed59a680aa9fb0f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/759faf7a8cb0cd2b9d6671d6cac1a6ba91c12a24",
-                "reference": "759faf7a8cb0cd2b9d6671d6cac1a6ba91c12a24",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/64463f52e28128544fdd41d2ed59a680aa9fb0f2",
+                "reference": "64463f52e28128544fdd41d2ed59a680aa9fb0f2",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
-                "data-values/data-types": "~0.2.0",
+                "data-values/data-types": "~0.3.0",
                 "data-values/data-values": "~0.1.0",
                 "data-values/geo": "~0.1.0",
                 "data-values/interfaces": "~0.1.4",
@@ -937,7 +937,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-05-20 16:48:53"
+            "time": "2014-05-21 15:16:37"
         }
     ],
     "packages-dev": [

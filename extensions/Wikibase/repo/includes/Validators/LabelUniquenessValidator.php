@@ -4,6 +4,9 @@ namespace Wikibase\Validators;
 
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\Term\Term;
 use Wikibase\LabelDescriptionDuplicateDetector;
 
 /**
@@ -15,7 +18,7 @@ use Wikibase\LabelDescriptionDuplicateDetector;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class LabelUniquenessValidator implements EntityValidator {
+class LabelUniquenessValidator implements EntityValidator, FingerprintValidator {
 
 	/**
 	 * @var LabelDescriptionDuplicateDetector
@@ -30,15 +33,47 @@ class LabelUniquenessValidator implements EntityValidator {
 	}
 
 	/**
-	 * @see OnSaveValidator::validate()
+	 * @see EntityValidator::validate()
 	 *
 	 * @param Entity $entity
 	 *
 	 * @return Result
 	 */
 	public function validateEntity( Entity $entity ) {
-		$result = $this->duplicateDetector->detectLabelConflictsForEntity( $entity );
-		return $result;
+		$labels = $entity->getLabels();
+
+		return $this->duplicateDetector->detectTermConflicts( $labels, null, $entity->getId() );
+	}
+
+	/**
+	 * @see FingerprintValidator::validateFingerprint()
+	 *
+	 * @since 0.5
+	 *
+	 * @param Fingerprint $fingerprint
+	 * @param EntityId|null $entityId
+	 * @param array|null $languageCodes
+	 *
+	 * @return Result
+	 */
+	public function validateFingerprint( Fingerprint $fingerprint, EntityId $entityId = null, $languageCodes = null ) {
+		$labels = array_map(
+			function( Term $term ) {
+				return $term->getText();
+			},
+			iterator_to_array( $fingerprint->getLabels()->getIterator() )
+		);
+
+		if ( $languageCodes !== null ) {
+			$labels = array_intersect_key( $labels, array_flip( $languageCodes ) );
+		}
+
+		// nothing to do
+		if ( empty( $labels ) ) {
+			return Result::newSuccess();
+		}
+
+		return $this->duplicateDetector->detectTermConflicts( $labels, null, $entityId );
 	}
 
 }

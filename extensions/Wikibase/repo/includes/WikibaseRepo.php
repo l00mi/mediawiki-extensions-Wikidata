@@ -5,6 +5,7 @@ namespace Wikibase\Repo;
 use DataTypes\DataTypeFactory;
 use DataValues\DataValueFactory;
 use SiteSQLStore;
+use SiteStore;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
@@ -16,15 +17,15 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\EntityContentFactory;
 use Wikibase\EntityLookup;
-use Wikibase\i18n\ExceptionLocalizer;
-use Wikibase\i18n\MessageParameterFormatter;
-use Wikibase\i18n\WikibaseExceptionLocalizer;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\DispatchingValueFormatter;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
+use Wikibase\Lib\Localizer\ExceptionLocalizer;
+use Wikibase\Lib\Localizer\MessageParameterFormatter;
+use Wikibase\Lib\Localizer\WikibaseExceptionLocalizer;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyDataTypeLookup;
@@ -35,7 +36,6 @@ use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\ParserOutputJsConfigBuilder;
-use Wikibase\PreSaveChecks;
 use Wikibase\ReferencedEntitiesFinder;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
@@ -45,6 +45,7 @@ use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Utils;
+use Wikibase\Validators\EntityConstraintProvider;
 use Wikibase\Validators\SnakValidator;
 use Wikibase\Validators\TermValidatorFactory;
 use Wikibase\Validators\ValidatorErrorLocalizer;
@@ -118,6 +119,11 @@ class WikibaseRepo {
 	 * @var ExceptionLocalizer
 	 */
 	private $exceptionLocalizer;
+
+	/**
+	 * @var SiteStore
+	 */
+	private $siteStore;
 
 	/**
 	 * Returns the default instance constructed using newInstance().
@@ -337,12 +343,12 @@ class WikibaseRepo {
 	 */
 	public function getChangeOpFactoryProvider() {
 		return new ChangeOpFactoryProvider(
-			$this->getLabelDescriptionDuplicateDetector(),
-			$this->getStore()->newSiteLinkCache(),
+			$this->getEntityConstraintProvider(),
 			new ClaimGuidGenerator(),
 			$this->getClaimGuidValidator(),
 			$this->getClaimGuidParser(),
-			$this->getSnakValidator()
+			$this->getSnakValidator(),
+			$this->getTermValidatorFactory()
 		);
 	}
 
@@ -569,17 +575,6 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @note: this is a temporary facility, for use until all checks have been moved into CHangeOps.
-	 * @return PreSaveChecks
-	 */
-	public function getPreSaveChecks() {
-		return new PreSaveChecks(
-			$this->getTermValidatorFactory(),
-			$this->getValidatorErrorLocalizer()
-		);
-	}
-
-	/**
 	 * @return TermValidatorFactory
 	 */
 	protected function getTermValidatorFactory() {
@@ -592,7 +587,18 @@ class WikibaseRepo {
 			$maxLength,
 			$languages,
 			$this->getEntityIdParser(),
-			$this->getLabelDescriptionDuplicateDetector()
+			$this->getLabelDescriptionDuplicateDetector(),
+			$this->getStore()->newSiteLinkCache()
+		);
+	}
+
+	/**
+	 * @return EntityConstraintProvider
+	 */
+	public function getEntityConstraintProvider() {
+		return new EntityConstraintProvider(
+			$this->getLabelDescriptionDuplicateDetector(),
+			$this->getStore()->newSiteLinkCache()
 		);
 	}
 
@@ -611,10 +617,14 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @return SiteSQLStore
+	 * @return SiteStore
 	 */
-	protected function getSitesTable() {
-		return SiteSQLStore::newInstance();
+	public function getSiteStore() {
+		if ( !$this->siteStore ) {
+			$this->siteStore = SiteSQLStore::newInstance();
+		}
+
+		return $this->siteStore;
 	}
 
 	/**
@@ -628,13 +638,13 @@ class WikibaseRepo {
 		global $wgLang;
 
 		$formatterOptions = new FormatterOptions();
-		$valueFormatteBuilders = $this->getValueFormatterBuilders();
-		$valueFormatters = $valueFormatteBuilders->getWikiTextFormatters( $formatterOptions );
+		$valueFormatterBuilders = $this->getValueFormatterBuilders();
+		$valueFormatters = $valueFormatterBuilders->getWikiTextFormatters( $formatterOptions );
 
 		return new MessageParameterFormatter(
 			new DispatchingValueFormatter( $valueFormatters ),
 			$this->getEntityTitleLookup(),
-			$this->getSitesTable(),
+			$this->getSiteStore(),
 			$wgLang
 		);
 	}

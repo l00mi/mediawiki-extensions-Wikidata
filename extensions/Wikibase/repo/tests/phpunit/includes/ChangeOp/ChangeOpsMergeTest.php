@@ -8,6 +8,7 @@ use Wikibase\ChangeOp\ChangeOpsMerge;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Internal\ObjectComparer;
+use Wikibase\Validators\EntityConstraintProvider;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpsMerge
@@ -40,28 +41,30 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	protected function makeChangeOpsMerge(
 		Item $fromItem,
 		Item $toItem,
-		$ignoreConflicts,
-		array $termConflicts,
-		array $linkConflicts
+		array $ignoreConflicts = array()
 	) {
-		$duplicateDetector = $this->mockProvider->getMockLabelDescriptionDuplicateDetector( $termConflicts );
-		$linkCache = $this->mockProvider->getMockSitelinkCache( $linkConflicts );
+		$duplicateDetector = $this->mockProvider->getMockLabelDescriptionDuplicateDetector();
+		$linkCache = $this->mockProvider->getMockSitelinkCache();
+
+		$constraintProvider = new EntityConstraintProvider(
+			$duplicateDetector,
+			$linkCache
+		);
 
 		$changeOpFactoryProvider =  new ChangeOpFactoryProvider(
-			$duplicateDetector,
-			$linkCache,
+			$constraintProvider,
 			$this->mockProvider->getMockGuidGenerator(),
 			$this->mockProvider->getMockGuidValidator(),
 			$this->mockProvider->getMockGuidParser( $toItem->getId() ),
-			$this->mockProvider->getMockSnakValidator()
+			$this->mockProvider->getMockSnakValidator(),
+			$this->mockProvider->getMockTermValidatorFactory()
 		);
 
 		return new ChangeOpsMerge(
 			$fromItem,
 			$toItem,
 			$ignoreConflicts,
-			$duplicateDetector,
-			$linkCache,
+			$constraintProvider,
 			$changeOpFactoryProvider
 		);
 	}
@@ -69,13 +72,11 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideValidConstruction
 	 */
-	public function testCanConstruct( $from, $to, $ignoreConflicts ) {
+	public function testCanConstruct( Item $from, Item $to, array $ignoreConflicts ) {
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
 			$to,
-			$ignoreConflicts,
-			array(),
-			array()
+			$ignoreConflicts
 		);
 		$this->assertInstanceOf( '\Wikibase\ChangeOp\ChangeOpsMerge', $changeOps );
 	}
@@ -95,14 +96,12 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideInvalidConstruction
 	 */
-	public function testInvalidIgnoreConflicts( $from, $to, $ignoreConflicts ) {
+	public function testInvalidIgnoreConflicts( Item $from, Item $to, array $ignoreConflicts ) {
 		$this->setExpectedException( 'InvalidArgumentException' );
 		$this->makeChangeOpsMerge(
 			$from,
 			$to,
-			$ignoreConflicts,
-			array(),
-			array()
+			$ignoreConflicts
 		);
 	}
 
@@ -110,10 +109,8 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 		$from = self::getItem( 'Q111' );
 		$to = self::getItem( 'Q222' );
 		return array(
-			array( $from, $to, 'foo' ),
 			array( $from, $to, array( 'foo' ) ),
 			array( $from, $to, array( 'label', 'foo' ) ),
-			array( $from, $to, null ),
 		);
 	}
 
@@ -123,7 +120,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	 *
 	 * @return Item
 	 */
-	public static function getItem( $id, $data = array() ) {
+	public static function getItem( $id, array $data = array() ) {
 		$item = new Item( $data );
 		$item->setId( new ItemId( $id ) );
 		return $item;
@@ -132,15 +129,13 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideData
 	 */
-	public function testCanApply( $fromData, $toData, $expectedFromData, $expectedToData, $ignoreConflicts = array() ) {
+	public function testCanApply( array $fromData, array $toData, $expectedFromData, $expectedToData, array $ignoreConflicts = array() ) {
 		$from = self::getItem( 'Q111', $fromData );
 		$to = self::getItem( 'Q222', $toData );
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
 			$to,
-			$ignoreConflicts,
-			array(),
-			array()
+			$ignoreConflicts
 		);
 
 		$this->assertTrue( $from->equals( new Item( $fromData ) ), 'FromItem was not filled correctly' );
@@ -350,70 +345,43 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 		return $testCases;
 	}
 
-	public function testExceptionThrownWhenLabelDescriptionDuplicatesDetected() {
-		$conflicts = array( Error::newError( 'Foo!', 'label', 'foo', array( 'imatype', 'imalang', 'foog text', 'Q999' ) ) );
-		$from = self::getItem( 'Q111', array() );
-		$to = self::getItem( 'Q222', array() );
-		$changeOps = $this->makeChangeOpsMerge(
-			$from,
-			$to,
-			array(),
-			$conflicts,
-			array()
-		);
-
-		$this->setExpectedException(
-			'\Wikibase\ChangeOp\ChangeOpException',
-			'Item being merged to has conflicting terms: (Q999 => imalang => imatype => foog text)'
-		);
-		$changeOps->apply();
-	}
-
-	public function testExceptionNotThrownWhenLabelDescriptionDuplicatesDetectedOnFromItem() {
-		$conflicts = array( Error::newError( 'Foo!', 'label', 'foo', array( 'imatype', 'imalang', 'foog text', 'Q111' ) ) );
-		$from = self::getItem( 'Q111', array() );
-		$to = self::getItem( 'Q222', array() );
-		$changeOps = $this->makeChangeOpsMerge(
-			$from,
-			$to,
-			array(),
-			$conflicts,
-			array()
-		);
-
-		$changeOps->apply();
-		$this->assertTrue( true ); // no exception thrown
-	}
-
 	public function testExceptionThrownWhenSitelinkDuplicatesDetected() {
-		$conflicts = array( array( 'itemId' => 8888, 'siteId' => 'eewiki', 'sitePage' => 'imapage' ) );
 		$from = self::getItem( 'Q111', array() );
-		$to = self::getItem( 'Q222', array() );
+		$to = self::getItem( 'Q222', array(
+			'links' => array(
+				'eewiki' => array( 'site' => 'eewiki', 'name' => 'DUPE' )
+			)
+		) );
+
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
-			$to,
-			array(),
-			array(),
-			$conflicts
+			$to
 		);
 
 		$this->setExpectedException(
 			'\Wikibase\ChangeOp\ChangeOpException',
-			'Item being merged to has conflicting terms: (Q8888 => eewiki => imapage)'
+			'SiteLink conflict'
 		);
 		$changeOps->apply();
 	}
 
 	public function testExceptionNotThrownWhenSitelinkDuplicatesDetectedOnFromItem() {
-		$conflicts = array( array( 'itemId' => 111, 'siteId' => 'eewiki', 'sitePage' => 'imapage' ) );
-		$from = self::getItem( 'Q111', array() );
-		$to = self::getItem( 'Q222', array() );
+		// the from-item keeps the sitelinks
+		$from = self::getItem( 'Q111', array(
+			'links' => array(
+				'eewiki' => array( 'site' => 'eewiki', 'name' => 'DUPE' )
+			)
+		) );
+		$to = self::getItem( 'Q222', array(
+			'links' => array(
+				'eewiki' => array( 'site' => 'eewiki', 'name' => 'BLOOP' )
+			)
+		) );
+
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
 			$to,
-			array(),
-			array(),
-			$conflicts
+			array( 'sitelink' )
 		);
 
 		$changeOps->apply();

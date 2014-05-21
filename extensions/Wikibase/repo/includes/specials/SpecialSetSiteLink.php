@@ -4,13 +4,12 @@ namespace Wikibase\Repo\Specials;
 
 use Html;
 use OutOfBoundsException;
-use SiteSQLStore;
 use Status;
-use ValueParsers\ParseException;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\WikibaseRepo;
@@ -203,7 +202,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 * @return bool
 	 */
 	private function isValidSiteId( $siteId ) {
-		return $siteId !== null && SiteSQLStore::newInstance()->getSite( $siteId ) !== null;
+		return $siteId !== null && $this->siteStore->getSite( $siteId ) !== null;
 	}
 
 	/**
@@ -256,7 +255,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			);
 		}
 
-		$site = SiteSQLStore::newInstance()->getSite( $this->site );
+		$site = $this->siteStore->getSite( $this->site );
 
 		if ( $entity !== null && $this->site !== null && $site !== null ) {
 			return Html::rawElement(
@@ -384,8 +383,8 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 		foreach ( $badges as $badge ) {
 			try {
 				$badgeId = $entityIdParser->parse( $badge );
-			} catch( ParseException $e ) {
-				$status->fatal( 'wikibase-setentity-invalid-id' );
+			} catch ( EntityIdParsingException $ex ) {
+				$status->fatal( 'wikibase-setsitelink-not-badge', $badge );
 				return false;
 			}
 
@@ -405,7 +404,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			$itemTitle = $this->getEntityTitle( $badgeId );
 
 			if ( is_null( $itemTitle ) || !$itemTitle->exists() ) {
-				$status->fatal( 'wikibase-setentity-invalid-id' );
+				$status->fatal( 'wikibase-setsitelink-not-badge', $badgeId );
 				return false;
 			}
 
@@ -430,7 +429,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 */
 	protected function setSiteLink( Item $item, $siteId, $pageName, $badges, &$summary ) {
 		$status = Status::newGood();
-		$site = SiteSQLStore::newInstance()->getSite( $siteId );
+		$site = $this->siteStore->getSite( $siteId );
 
 		if ( $site === null ) {
 			$status->fatal( 'wikibase-setsitelink-invalid-site', $siteId );
@@ -465,8 +464,9 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 
 		$changeOp = $this->siteLinkChangeOpFactory->newSetSiteLinkOp( $siteId, $pageName, $badges );
 
-		$changeOp->apply( $item, $summary );
+		$this->applyChangeOp( $changeOp, $item, $summary );
 
 		return $status;
 	}
+
 }

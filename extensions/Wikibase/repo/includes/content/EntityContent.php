@@ -5,17 +5,16 @@ namespace Wikibase;
 use AbstractContent;
 use Content;
 use IContextSource;
-use MWException;
 use ParserOptions;
 use ParserOutput;
 use RequestContext;
 use Status;
 use Title;
 use User;
+use Revision;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use ValueValidators\Result;
-use Wikibase\Validators\EntityValidator;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
@@ -23,6 +22,7 @@ use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Repo\EntitySearchTextGenerator;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Validators\EntityValidator;
 use WikiPage;
 
 /**
@@ -60,16 +60,6 @@ abstract class EntityContent extends AbstractContent {
 	const STATUS_EMPTY = 200;
 
 	/**
-	 * Ugly hack for checking the base revision during the database
-	 * transaction that updates the entity.
-	 *
-	 * @since 0.5
-	 *
-	 * @var int|bool
-	 */
-	protected $baseRevisionForSaving = false;
-
-	/**
 	 * Checks if this EntityContent is valid for saving.
 	 *
 	 * Returns false if the entity does not have an ID set.
@@ -85,40 +75,22 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @since 0.1
-	 * @var WikiPage|bool
-	 */
-	protected $wikiPage = false;
-
-	/**
-	 * Returns the WikiPage for the item or false if there is none.
-	 *
-	 * @since 0.1
-	 *
-	 * @return WikiPage|bool
-	 */
-	public function getWikiPage() {
-		if ( $this->wikiPage === false ) {
-			if ( !$this->isNew() ) {
-				$this->wikiPage = WikibaseRepo::getDefaultInstance()->getEntityContentFactory()->getWikiPageForId(
-					$this->getEntity()->getId()
-				);
-			}
-		}
-
-		return $this->wikiPage;
-	}
-
-	/**
 	 * Returns the Title for the item or false if there is none.
 	 *
 	 * @since 0.1
+	 * @deprecated use EntityTitleLookup instead
 	 *
 	 * @return Title|bool
 	 */
 	public function getTitle() {
-		$wikiPage = $this->getWikiPage();
-		return $wikiPage === false ? false : $wikiPage->getTitle();
+		$id = $this->getEntity()->getId();
+
+		if ( $id === null ) {
+			return false;
+		}
+
+		$lookup = WikibaseRepo::getDefaultInstance()->getEntityTitleLookup();
+		return $lookup->getTitleForId( $id );
 	}
 
 	/**
@@ -156,7 +128,7 @@ abstract class EntityContent extends AbstractContent {
 	 * @since 0.1
 	 *
 	 * @param Title $title
-	 * @param int|null $revId Unused.
+	 * @param int|null $revId
 	 * @param ParserOptions|null $options
 	 * @param bool $generateHtml
 	 *
@@ -168,8 +140,14 @@ abstract class EntityContent extends AbstractContent {
 		$entityView = $this->getEntityView( null, $options, null );
 		$editable = !$options? true : $options->getEditSection();
 
+		if ( $revId === null || $revId === 0 ) {
+			$revId = $title->getLatestRevID();
+		}
+
+		$revision = new EntityRevision( $this->getEntity(), $revId );
+
 		// generate HTML
-		$output = $entityView->getParserOutput( $this->getEntityRevision(), $editable, $generateHtml );
+		$output = $entityView->getParserOutput( $revision, $editable, $generateHtml );
 
 		// Since the output depends on the user language, we must make sure
 		// ParserCache::getKey() includes it in the cache key.
@@ -462,127 +440,6 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * Assigns a fresh ID to this entity.
-	 *
-	 * @throws MWException if this entity already has an ID assigned, or something goes wrong while
-	 *         generating a new ID.
-	 * @return int The new ID
-	 */
-	public function grabFreshId() {
-		if ( !$this->isNew() ) {
-			throw new MWException( "This entity already has an ID!" );
-		}
-
-		wfProfileIn( __METHOD__ );
-
-		$idGenerator = StoreFactory::getStore()->newIdGenerator();
-
-		$id = $idGenerator->getNewId( $this->getContentHandler()->getModelID() );
-
-		$this->getEntity()->setId( $id );
-
-		wfProfileOut( __METHOD__ );
-		return $id;
-	}
-
-	/**
-	 * Saves this item.
-	 * If this item does not exist yet, it will be created (ie a new ID will be determined and a new
-	 * page in the data NS created).
-	 *
-	 * @note: if the item does not have an ID yet (i.e. it was not yet created in the database),
-	 *        save() will fail with a edit-gone-missing message unless the EDIT_NEW bit is set in
-	 *        $flags.
-	 *
-	 * @note: if the save is triggered by any kind of user interaction, consider using
-	 *        EditEntity::attemptSave(), which automatically handles edit conflicts, permission
-	 *        checks, etc.
-	 *
-	 * @note: this method should not be overloaded, and should not be extended to save additional
-	 *        information to the database. Such things should be done in a way that will also be
-	 *        triggered when the save is performed by calling WikiPage::doEditContent.
-	 *
-	 * @since 0.1
-	 *
-	 * @param string     $summary
-	 * @param null|User  $user
-	 * @param int $flags Flags as used by WikiPage::doEditContent, use EDIT_XXX constants.
-	 *
-	 * @param int|bool   $baseRevId
-	 *
-	 * @see WikiPage::doEditContent
-	 *
-	 * @todo: move logic into WikiPageEntityStore and make this method a deprecated adapter.
-	 *
-	 * @return Status Success indicator, like the one returned by WikiPage::doEditContent().
-	 */
-	public function save(
-		$summary = '',
-		User $user = null,
-		$flags = 0,
-		$baseRevId = false
-	) {
-		wfProfileIn( __METHOD__ );
-
-		if ( ( $flags & EDIT_NEW ) == EDIT_NEW ) {
-			if ( $this->isNew() ) {
-				$this->grabFreshId();
-			} elseif ( $this->getTitle()->exists() ) {
-				wfProfileOut( __METHOD__ );
-				return Status::newFatal( 'edit-already-exists' );
-			}
-		} else {
-			if ( $this->isNew() ) {
-				wfProfileOut( __METHOD__ );
-				return Status::newFatal( 'edit-gone-missing' );
-			}
-		}
-
-		//XXX: very ugly and brittle hack to pass info to prepareSave so we can check inside a db transaction
-		//     whether an edit has occurred after EditEntity checked for conflicts. If we had nested
-		//     database transactions, we could simply check here.
-		$this->baseRevisionForSaving = $baseRevId;
-
-		// NOTE: make sure we start saving from a clean slate. Calling WikiPage::clearPreparedEdit
-		//       may cause the old content to be loaded from the database again. This may be
-		//       necessary, because EntityContent is mutable, so the cached object might have changed.
-		//
-		//       The relevant test case is ItemContentTest::testRepeatedSave
-		//
-		//       TODO: might be able to further optimize handling of prepared edit in WikiPage.
-
-		$page = $this->getWikiPage();
-		$page->clear();
-		$page->clearPreparedEdit();
-
-		$status = $page->doEditContent(
-			$this,
-			$summary,
-			$flags | EDIT_AUTOSUMMARY,
-			$baseRevId,
-			$user
-		);
-
-		if ( $status->isOK() && !isset ( $status->value['revision'] ) ) {
-			// HACK: No new revision was created (content didn't change). Report the old one.
-			// There *might* be a race condition here, but since $page already loaded the
-			// latest revision, it should still be cached, and should always be the correct one.
-			$status->value['revision'] = $page->getRevision();
-		}
-
-		if( $status->isGood() && isset ( $status->value['new'] ) && $status->value['new'] ) {
-			StoreFactory::getStore()->newEntityPerPage()->addEntityPage(
-				$this->getEntity()->getId(),
-				$page->getTitle()->getArticleID() );
-		}
-
-		$this->baseRevisionForSaving = false;
-
-		wfProfileOut( __METHOD__ );
-		return $status;
-	}
-
-	/**
 	 * @see Content::prepareSave
 	 *
 	 * @param WikiPage $page
@@ -602,11 +459,12 @@ abstract class EntityContent extends AbstractContent {
 			return $status;
 		}
 
-		// If baseRevisionForSaving is set, check whether the current revision is still what
+		// If $baseRevId is set, check whether the current revision is still what
 		// the caller of save() thought it was.
 		// If it isn't, then someone managed to squeeze in an edit after we checked for conflicts.
-		if ( $this->baseRevisionForSaving !== false && $page->getRevision() !== null ) {
-			if ( $page->getRevision()->getId() !== $this->baseRevisionForSaving ) {
+		// XXX: This should really be done by WikiPage. I wonder why it isn't.
+		if ( $baseRevId !== false && $page->getRevision() !== null ) {
+			if ( $page->getRevision()->getId() !== $baseRevId ) {
 				wfDebugLog( __CLASS__, __FUNCTION__ . ': encountered late edit conflict: '
 					. 'current revision changed after regular conflict check.' );
 				$status->fatal('edit-conflict');
@@ -642,22 +500,6 @@ abstract class EntityContent extends AbstractContent {
 
 		$localizer = WikibaseRepo::getDefaultInstance()->getValidatorErrorLocalizer();
 		return $localizer->getResultStatus( $result );
-	}
-
-	/**
-	 * @return EntityRevision
-	 */
-	public function getEntityRevision() {
-		$entityPage = $this->getWikiPage();
-		$pageRevision = !$entityPage ? null : $entityPage->getRevision();
-
-		$itemRevision = new EntityRevision(
-			$this->getEntity(),
-			$pageRevision === null ? 0 : $pageRevision->getId(),
-			$pageRevision === null ? '' : $pageRevision->getTimestamp()
-		);
-
-		return $itemRevision;
 	}
 
 	/**
@@ -739,5 +581,4 @@ abstract class EntityContent extends AbstractContent {
 			return self::STATUS_NONE;
 		}
 	}
-
 }

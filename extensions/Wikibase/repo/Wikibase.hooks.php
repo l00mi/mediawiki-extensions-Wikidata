@@ -29,11 +29,10 @@ use SpecialSearch;
 use SplFileInfo;
 use Title;
 use User;
-use Wikibase\Validators\LabelUniquenessValidator;
-use Wikibase\Validators\SiteLinkUniquenessValidator;
 use Wikibase\Hook\MakeGlobalVariablesScriptHandler;
 use Wikibase\Hook\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Validators\TermValidatorFactory;
 use WikiPage;
 
 /**
@@ -1250,31 +1249,90 @@ final class RepoHooks {
 
 	private static function newItemHandler() {
 		$repo = WikibaseRepo::getDefaultInstance();
+		$validator = $repo->getEntityConstraintProvider()->getConstraints( Item::ENTITY_TYPE );
 
-		// NOTE: This is only for hard constraints.
-		//       So, check the item's site links, but don't check label/description uniqueness.
-		$validators = array(
-			new SiteLinkUniquenessValidator(
-				$repo->getStore()->newSiteLinkCache()
-			)
-		);
-
-		return new ItemHandler( $validators );
+		return new ItemHandler( array( $validator ) );
 	}
 
 	private static function newPropertyHandler() {
 		$repo = WikibaseRepo::getDefaultInstance();
+		$validator = $repo->getEntityConstraintProvider()->getConstraints( Property::ENTITY_TYPE );
 
-		// NOTE: This is only for hard constraints.
-		//       Check that the property's labels are unique (per language),
-		//       but don't check again that labels aren't be IDs.
-		$validators = array(
-			new LabelUniquenessValidator(
-				$repo->getLabelDescriptionDuplicateDetector()
-			)
-		);
-
-		return new PropertyHandler( $validators );
+		return new PropertyHandler( array( $validator ) );
 	}
 
+	/**
+	 * Helper for onAPIQuerySiteInfoStatisticsInfo
+	 * @param object $row
+	 * @return array
+	 */
+	private static function formatDispatchRow( $row ) {
+		$data = array(
+			'pending' => $row->chd_pending,
+			'lag' => $row->chd_lag,
+		);
+		if ( isset( $row->chd_site ) ) {
+			$data['site'] = $row->chd_site;
+		}
+		if ( isset( $row->chd_seen ) ) {
+			$data['position'] = $row->chd_seen;
+		}
+		if ( isset( $row->chd_touched ) ) {
+			$data['touched'] = $row->chd_touched;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Adds DispatchStats info to the API
+	 * @param array $data
+	 * @return bool
+	 */
+	public static function onAPIQuerySiteInfoStatisticsInfo( array &$data ) {
+		$stats = new DispatchStats();
+		$stats->load();
+		if ( $stats->hasStats() ) {
+			$data['dispatch'] = array(
+				'oldest' => array(
+					'id' => $stats->getMinChangeId(),
+					'timestamp' => $stats->getMinChangeTimestamp(),
+				),
+				'newest' => array(
+					'id' => $stats->getMaxChangeId(),
+					'timestamp' => $stats->getMaxChangeTimestamp(),
+				),
+				'freshest' => self::formatDispatchRow( $stats->getFreshest() ),
+				'median' => self::formatDispatchRow( $stats->getMedian() ),
+				'stalest' => self::formatDispatchRow( $stats->getStalest() ),
+				'average' => self::formatDispatchRow( $stats->getAverage() ),
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Called by Import.php. Implemented to prevent the import of entities.
+	 *
+	 * @param object $importer unclear, see Bug 64657
+	 * @param array $pageInfo
+	 * @param array $revisionInfo
+	 *
+	 * @throws MWException
+	 * @return bool
+	 */
+	public static function onImportHandleRevisionXMLTag( $importer, $pageInfo, $revisionInfo ) {
+		if ( isset( $revisionInfo['model'] ) ) {
+			$contentModels = WikibaseRepo::getDefaultInstance()->getContentModelMappings();
+
+			if ( in_array( $revisionInfo['model'], $contentModels ) ) {
+				// Skip entities.
+				// XXX: This is rather rough.
+				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is currently not supported.' );
+			}
+		}
+
+		return true;
+	}
 }

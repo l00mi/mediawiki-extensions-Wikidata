@@ -1,6 +1,6 @@
 {
     "require": {
         "php": ">=5.3.0",
-        "wikibase/wikibase": "dev-mw1.24-wmf4"
+        "wikibase/wikibase": "dev-mw1.24-wmf6"
 	}
 }

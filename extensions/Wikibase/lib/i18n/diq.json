@@ -18,10 +18,10 @@
 	"wikibase-quantitydetails-amount": "Miqdar",
 	"wikibase-quantitydetails-unit": "Lete",
 	"wikibase-timedetails-time": "Wext",
-	"wikibase-timedetails-timezone": "Warey saete",
+	"wikibase-timedetails-timezone": "Wareyê saete",
 	"wikibase-timedetails-calendar": "Teqwim",
-	"wikibase-timedetails-precision": "Hessas",
-	"wikibase-timedetails-before": "Veri",
+	"wikibase-timedetails-precision": "Hesasiyet",
+	"wikibase-timedetails-before": "Ver",
 	"wikibase-timedetails-after": "Bahdo",
 	"wikibase-globedetails-longitude": "Lemen",
 	"wikibase-globedetails-latitude": "Heralem",
@@ -34,6 +34,6 @@
 	"wikibase-sitelinks-link-columnheading": "Pela gırebiyayiye",
 	"wikibase-snakview-snaktypeselector-novalue": "erc çıniyo",
 	"wikibase-tooltip-error-details": "Teferruati",
-	"datatypes-type-wikibase-item": "Unsur",
+	"datatypes-type-wikibase-item": "Obje",
 	"version-wikibase": "Wikibase"
 }

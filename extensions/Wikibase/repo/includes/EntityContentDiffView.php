@@ -12,7 +12,6 @@ use Linker;
 use ParserOptions;
 use ParserOutput;
 use Revision;
-use SiteSQLStore;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\Lib\EntityIdLabelFormatter;
@@ -30,7 +29,7 @@ use WikiPage;
  * @author Daniel Kinzler
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-abstract class EntityContentDiffView extends DifferenceEngine {
+class EntityContentDiffView extends DifferenceEngine {
 
 	/**
 	 * @var EntityDiffVisualizer
@@ -76,7 +75,8 @@ abstract class EntityContentDiffView extends DifferenceEngine {
 		$labelFormatter = new EntityIdLabelFormatter( $options, WikibaseRepo::getDefaultInstance()->getEntityLookup() );
 		$this->propertyNameFormatter = new EscapingValueFormatter( $labelFormatter, 'htmlspecialchars' );
 
-		$formatterFactory = WikibaseRepo::getDefaultInstance()->getSnakFormatterFactory();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$formatterFactory = $wikibaseRepo->getSnakFormatterFactory();
 		$this->detailedSnakFormatter = $formatterFactory->getSnakFormatter( SnakFormatter::FORMAT_HTML_DIFF, $options );
 		$this->terseSnakFormatter = $formatterFactory->getSnakFormatter( SnakFormatter::FORMAT_HTML, $options );
 
@@ -85,7 +85,7 @@ abstract class EntityContentDiffView extends DifferenceEngine {
 			$this->getContext(),
 			new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) ),
 			new ClaimDifferenceVisualizer( $this->propertyNameFormatter, $this->detailedSnakFormatter, $this->terseSnakFormatter, $langCode ),
-			SiteSQLStore::newInstance()
+			$wikibaseRepo->getSiteStore()
 		);
 	}
 
