@@ -726,16 +726,16 @@
         },
         {
             "name": "serialization/serialization",
-            "version": "3.1",
+            "version": "3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Serialization.git",
-                "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd"
+                "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Serialization/zipball/3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
-                "reference": "3cea2bbef70c74db9614e1cc3e149b4a79ff05dd",
+                "url": "https://api.github.com/repos/wmde/Serialization/zipball/7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
+                "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
                 "shasum": ""
             },
             "require": {
@@ -744,7 +744,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1.x-dev"
+                    "dev-master": "3.2.x-dev"
                 }
             },
             "autoload": {
@@ -778,7 +778,7 @@
                 "unserialization",
                 "wikidata"
             ],
-            "time": "2014-03-18 18:45:35"
+            "time": "2014-05-20 15:57:52"
         },
         {
             "name": "wikibase/data-model",
@@ -869,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "56608d53d8f72591528cca253f0b128fc346ddb7"
+                "reference": "8aa95d6346743c14b47385a9d199742013fcccf8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/56608d53d8f72591528cca253f0b128fc346ddb7",
-                "reference": "56608d53d8f72591528cca253f0b128fc346ddb7",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8aa95d6346743c14b47385a9d199742013fcccf8",
+                "reference": "8aa95d6346743c14b47385a9d199742013fcccf8",
                 "shasum": ""
             },
             "require": {
@@ -937,7 +937,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-05-18 20:08:56"
+            "time": "2014-05-21 09:48:21"
         }
     ],
     "packages-dev": [

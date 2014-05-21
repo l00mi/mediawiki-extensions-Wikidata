@@ -86,7 +86,7 @@ call_user_func( function() {
 	$wgValueParsers['time'] = 'Wikibase\Lib\Parsers\TimeParser';
 	$wgValueParsers['globecoordinate'] = 'ValueParsers\GlobeCoordinateParser';
 	$wgValueParsers['null'] = 'ValueParsers\NullParser';
-	$wgValueParsers['monolongualtext'] = 'Wikibase\Parsers\MonolingualTextParser';
+	$wgValueParsers['monolingual-text'] = 'Wikibase\Parsers\MonolingualTextParser';
 
 	// API module registration
 	$wgAPIModules['wbgetentities'] 						= 'Wikibase\Api\GetEntities';
@@ -109,6 +109,7 @@ call_user_func( function() {
 	$wgAPIModules['wbmergeitems']						= 'Wikibase\Api\MergeItems';
 	$wgAPIModules['wbformatvalue']						= 'Wikibase\Api\FormatSnakValue';
 	$wgAPIModules['wbparsevalue']						= 'Wikibase\Api\ParseValue';
+	$wgAPIModules['wbavailablebadges']					= 'Wikibase\Api\AvailableBadges';
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] 							= 'Wikibase\Repo\Specials\SpecialNewItem';

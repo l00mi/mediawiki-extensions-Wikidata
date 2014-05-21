@@ -5,13 +5,11 @@ namespace Wikibase\Repo\Specials;
 use Html;
 use OutOfBoundsException;
 use Status;
-use ValueParsers\ParseException;
-use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
-use Wikibase\ChangeOp\ChangeOpValidationException;
 use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\WikibaseRepo;
@@ -385,8 +383,8 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 		foreach ( $badges as $badge ) {
 			try {
 				$badgeId = $entityIdParser->parse( $badge );
-			} catch( ParseException $e ) {
-				$status->fatal( 'wikibase-setentity-invalid-id' );
+			} catch ( EntityIdParsingException $ex ) {
+				$status->fatal( 'wikibase-setsitelink-not-badge', $badge );
 				return false;
 			}
 
@@ -406,7 +404,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			$itemTitle = $this->getEntityTitle( $badgeId );
 
 			if ( is_null( $itemTitle ) || !$itemTitle->exists() ) {
-				$status->fatal( 'wikibase-setentity-invalid-id' );
+				$status->fatal( 'wikibase-setsitelink-not-badge', $badgeId );
 				return false;
 			}
 
