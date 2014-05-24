@@ -2,8 +2,8 @@
 
 namespace Wikibase\Test;
 
-use RecentChange;
 use MediaWikiTestCase;
+use RecentChange;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\ExternalChange;
 use Wikibase\ExternalChangeFactory;
@@ -47,6 +47,7 @@ class ExternalChangeFactoryTest extends MediaWikiTestCase {
 
 	/**
 	 * @param boolean $bot
+	 * @return RecentChange
 	 */
 	protected function getEditRecentChange( $bot ) {
 		$recentChange = new RecentChange();
