@@ -106,6 +106,8 @@
 						self._valueView.enable();
 					}
 				}
+
+				$( self ).trigger( 'afterdraw' );
 			}
 
 			/**
@@ -158,7 +160,7 @@
 				.get( this._viewState.propertyId() )
 				.done( function( fetchedProperty ) {
 					if( newValue !== self.__currentNewValue ) {
-						// If the API response ist not for the most recent newValue, discard it
+						// If the API response is not for the most recent newValue, discard it
 						return;
 					}
 
@@ -202,12 +204,9 @@
 					);
 
 					_render();
-
-					$( self ).trigger( 'afterdraw' );
 				} );
 			} else {
 				_render();
-				$( self ).trigger( 'afterdraw' );
 			}
 		},
 
@@ -344,7 +343,7 @@
 		 * @see jQuery.wikibase.snakview.variations.Variation.focus
 		 */
 		focus: function() {
-			if( this._valueView ) {
+			if( this._valueView && this._viewState.isDisabled() === false ) {
 				this._valueView.focus();
 			}
 		},

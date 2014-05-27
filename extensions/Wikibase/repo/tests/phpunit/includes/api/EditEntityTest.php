@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test\Api;
 
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\Repo\WikibaseRepo;
@@ -156,10 +155,16 @@ class EditEntityTest extends WikibaseApiTestCase {
 			'add 2 labels' => array( // add 2 labels
 				'p' => array( 'data' => '{"labels":{"en":{"language":"en","value":"A Label"},"sv":{"language":"sv","value":"SVLabel"}}}' ),
 				'e' => array( 'labels' => array( 'en' => 'A Label', 'sv' => 'SVLabel' ) ) ),
+			'remove a label with remove' => array( // remove a label with remove
+				'p' => array( 'data' => '{"labels":{"en":{"language":"en","remove":true}}}' ),
+				'e' => array( 'labels' => array( 'sv' => 'SVLabel' ) ) ),
 			'override and add 2 descriptions' => array( // override and add 2 descriptions
 				'p' => array( 'clear' => '', 'data' => '{"descriptions":{"en":{"language":"en","value":"DESC1"},"de":{"language":"de","value":"DESC2"}}}' ),
 				'e' => array( 'descriptions' => array( 'en' => 'DESC1', 'de' => 'DESC2' ) ) ),
-			'override and add a 2 sitelinks..' => array( // override and add a 2 sitelinks..
+			'remove a description with remove' => array( // remove a description with remove
+				'p' => array( 'data' => '{"descriptions":{"en":{"language":"en","remove":true}}}' ),
+				'e' => array( 'descriptions' => array( 'de' => 'DESC2' ) ) ),
+			'override and add 2 sitelinks..' => array( // override and add 2 sitelinks..
 				'p' => array( 'data' => '{"sitelinks":{"dewiki":{"site":"dewiki","title":"BAA"},"svwiki":{"site":"svwiki","title":"FOO"}}}' ),
 				'e' => array(
 					'type' => 'item',

@@ -433,7 +433,6 @@ return array(
     'Wikibase\\Lib\\EntityIdValueParser' => $baseDir . '/extensions/Wikibase/lib/includes/parsers/EntityIdValueParser.php',
     'Wikibase\\Lib\\EntityRetrievingDataTypeLookup' => $baseDir . '/extensions/Wikibase/lib/includes/EntityRetrievingDataTypeLookup.php',
     'Wikibase\\Lib\\EscapingValueFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/EscapingValueFormatter.php',
-    'Wikibase\\Lib\\FormattingException' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/FormattingException.php',
     'Wikibase\\Lib\\GlobeCoordinateDetailsFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/GlobeCoordinateDetailsFormatter.php',
     'Wikibase\\Lib\\HtmlTimeFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/HtmlTimeFormatter.php',
     'Wikibase\\Lib\\HtmlUrlFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/HtmlUrlFormatter.php',
