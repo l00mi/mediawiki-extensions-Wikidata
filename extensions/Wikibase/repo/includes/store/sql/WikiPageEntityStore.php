@@ -13,7 +13,6 @@ use Wikibase\EntityContent;
 use Wikibase\EntityContentFactory;
 use Wikibase\EntityId;
 use Wikibase\EntityPerPage;
-use Wikibase\EntityPerPageTable;
 use Wikibase\EntityRevision;
 use Wikibase\IdGenerator;
 use Wikibase\StorageException;
@@ -50,7 +49,7 @@ class WikiPageEntityStore implements EntityStore {
 	/**
 	 * @param EntityContentFactory $contentFactory
 	 * @param IdGenerator $idGenerator
-	 * @param EntityPerPageTable $entityPerPage
+	 * @param EntityPerPage $entityPerPage
 	 */
 	public function __construct(
 		EntityContentFactory $contentFactory,
@@ -221,6 +220,8 @@ class WikiPageEntityStore implements EntityStore {
 			}
 		}
 
+		$entityContent->setBaseRevIdForSaving( $baseRevId );
+
 		// NOTE: make sure we start saving from a clean slate. Calling WikiPage::clearPreparedEdit
 		//       may cause the old content to be loaded from the database again. This may be
 		//       necessary, because EntityContent is mutable, so the cached object might have changed.
@@ -254,6 +255,8 @@ class WikiPageEntityStore implements EntityStore {
 				$entity->getId(),
 				$page->getTitle()->getArticleID() );
 		}
+
+		$entityContent->setBaseRevIdForSaving( false );
 
 		wfProfileOut( __METHOD__ );
 		return $status;
@@ -378,4 +381,5 @@ class WikiPageEntityStore implements EntityStore {
 		$title = $this->getTitleForEntity( $id );
 		return ( $title && $user->isWatched( $title ) );
 	}
+
 }
