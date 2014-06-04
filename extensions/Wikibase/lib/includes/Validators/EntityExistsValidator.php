@@ -8,7 +8,7 @@ use ValueValidators\Result;
 use ValueValidators\ValueValidator;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
-use Wikibase\EntityLookup;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * EntityExistsValidator checks that a given entity exists.
@@ -18,16 +18,10 @@ use Wikibase\EntityLookup;
  */
 class EntityExistsValidator implements ValueValidator {
 
-	/**
-	 * @var EntityLookup
-	 */
-	protected $lookup;
+	private $entityLookup;
 
-	/**
-	 * @param EntityLookup $lookup
-	 */
-	public function __construct( EntityLookup $lookup ) {
-		$this->lookup = $lookup;
+	public function __construct( EntityLookup $entityLookup ) {
+		$this->entityLookup = $entityLookup;
 	}
 
 	/**
@@ -47,7 +41,7 @@ class EntityExistsValidator implements ValueValidator {
 			throw new InvalidArgumentException( "Expected an EntityId object" );
 		}
 
-		if ( !$this->lookup->hasEntity( $value ) ) {
+		if ( !$this->entityLookup->hasEntity( $value ) ) {
 			return Result::newError( array(
 				//XXX: we are passing an EntityId as a message parameter here - make sure to turn it into a string later!
 				Error::newError( "Entity not found: " . $value, null, 'no-such-entity', array( $value ) ),

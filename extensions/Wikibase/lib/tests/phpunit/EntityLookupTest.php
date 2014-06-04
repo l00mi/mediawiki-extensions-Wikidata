@@ -7,7 +7,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\EntityLookup;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\EntityRevision;
 
 /**
@@ -51,9 +51,8 @@ abstract class EntityLookupTest extends EntityTestCase {
 
 			$entities[12] = new EntityRevision( $item, 12, '20130101001200' );
 
-			$prop = Property::newEmpty();
+			$prop = Property::newFromType( "string" );
 			$prop->setId( 753 );
-			$prop->setDataTypeId( "string" );
 
 			$entities[13] = new EntityRevision( $prop, 13, '20130101001300' );
 		}

@@ -61,7 +61,7 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 		$entity->setId( $entityId );
 		$entity->setLabel( 'en', 'Label for ' . $entityId->getPrefixedId() );
 
-		$entityLookup = $this->getMock( 'Wikibase\EntityLookup' );
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
 		$entityLookup->expects( $this->any() )
 			->method( 'getEntity' )
 			->will( $this->returnValue( $entity ) );
@@ -121,9 +121,6 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 
 		$msg = wfMessage( 'wikibase-snakview-snaktypeselector-novalue' );
 		$noValueMsg = $msg->inLanguage( 'en' )->text();
-
-		$msg = wfMessage( 'wikibase-undeserializable-value' );
-		$badValueMsg = $msg->inLanguage( 'en' )->text();
 
 		return array(
 			'plain url' => array(

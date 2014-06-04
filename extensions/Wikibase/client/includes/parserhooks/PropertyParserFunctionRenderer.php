@@ -10,6 +10,7 @@ use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\PropertyLabelNotResolvedException;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * Renderer of the {{#property}} parser function.
@@ -24,31 +25,21 @@ use Wikibase\Lib\SnakFormatter;
  */
 class PropertyParserFunctionRenderer {
 
-	/* @var Language */
 	private $language;
-
-	/* @var EntityLookup */
 	private $entityLookup;
-
-	/* @var PropertyLabelResolver */
 	private $propertyLabelResolver;
+	private $snakFormatter;
 
-	/* @var SnakFormatter */
-	private $snaksFormatter;
-
-	/**
-	 * @param Language                   $language
-	 * @param EntityLookup                $entityLookup
-	 * @param PropertyLabelResolver       $propertyLabelResolver
-	 * @param SnakFormatter           $snaksFormatter
-	 */
-	public function __construct( Language $language,
-		EntityLookup $entityLookup, PropertyLabelResolver $propertyLabelResolver,
-		SnakFormatter $snaksFormatter ) {
+	public function __construct(
+		Language $language,
+		EntityLookup $entityLookup,
+		PropertyLabelResolver $propertyLabelResolver,
+		SnakFormatter $snakFormatter
+	) {
 		$this->language = $language;
 		$this->entityLookup = $entityLookup;
 		$this->propertyLabelResolver = $propertyLabelResolver;
-		$this->snaksFormatter = $snaksFormatter;
+		$this->snakFormatter = $snakFormatter;
 	}
 
 	/**
@@ -70,18 +61,19 @@ class PropertyParserFunctionRenderer {
 	}
 
 	/**
-	 * @param string $string
-	 * @return PropertyId
+	 * @param string $idOrLabel
+	 *
 	 * @throws InvalidArgumentException
 	 * @throws PropertyLabelNotResolvedException
+	 * @return PropertyId
 	 */
-	private function getPropertyIdFromIdSerializationOrLabel( $string ) {
+	private function getPropertyIdFromIdSerializationOrLabel( $idOrLabel ) {
 		$idParser = WikibaseClient::getDefaultInstance()->getEntityIdParser();
 
 		try {
-			$propertyId = $idParser->parse( $string );
+			$propertyId = $idParser->parse( $idOrLabel );
 
-			if ( ! ( $propertyId instanceof PropertyId ) ) {
+			if ( !( $propertyId instanceof PropertyId ) ) {
 				throw new InvalidArgumentException( 'Not a valid property id' );
 			}
 		} catch ( EntityIdParsingException $ex ) {
@@ -92,13 +84,13 @@ class PropertyParserFunctionRenderer {
 			//
 			//     $this->propertyLabelResolver->preloadLabelsFor( $propertiesUsedByItem );
 
-			$propertyIds = $this->propertyLabelResolver->getPropertyIdsForLabels( array( $string ) );
+			$propertyIds = $this->propertyLabelResolver->getPropertyIdsForLabels( array( $idOrLabel ) );
 
-			if ( $propertyIds === null || empty( $propertyIds ) ) {
-				throw new PropertyLabelNotResolvedException( $string, $this->language->getCode() );
+			if ( empty( $propertyIds ) ) {
+				throw new PropertyLabelNotResolvedException( $idOrLabel, $this->language->getCode() );
 			}
 
-			$propertyId = $propertyIds[$string];
+			$propertyId = $propertyIds[$idOrLabel];
 		}
 
 		return $propertyId;
@@ -109,19 +101,24 @@ class PropertyParserFunctionRenderer {
 	 *
 	 * @return string - wikitext format
 	 */
-	private function formatSnakList( $snaks ) {
+	private function formatSnakList( array $snaks ) {
 		$formattedValues = $this->formatSnaks( $snaks );
 		return $this->language->commaList( $formattedValues );
 	}
 
-	private function formatSnaks( $snaks ) {
-		$strings = array();
+	/**
+	 * @param Snak[] $snaks
+	 *
+	 * @return string[]
+	 */
+	private function formatSnaks( array $snaks ) {
+		$formattedValues = array();
 
 		foreach ( $snaks as $snak ) {
-			$strings[] = $this->snaksFormatter->formatSnak( $snak );
+			$formattedValues[] = $this->snakFormatter->formatSnak( $snak );
 		}
 
-		return $strings;
+		return $formattedValues;
 	}
 
 	/**

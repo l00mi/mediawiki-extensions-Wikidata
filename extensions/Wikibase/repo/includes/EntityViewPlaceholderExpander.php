@@ -9,6 +9,7 @@ use RuntimeException;
 use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * Utility for expanding the placeholders left in the HTML by EntityView.
@@ -29,48 +30,45 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 class EntityViewPlaceholderExpander {
 
 	/**
-	 * @var User
-	 */
-	protected $user;
-
-	/**
 	 * @var Title
 	 */
-	protected $targetPage;
+	private $targetPage;
 
 	/**
-	 * The current user language
-	 *
+	 * @var User
+	 */
+	private $user;
+
+	/**
 	 * @var Language
 	 */
-	protected $userLanguage;
-
-	/**
-	 * @var string[]|null
-	 */
-	protected $extraLanguages = null;
+	private $uiLanguage;
 
 	/**
 	 * @var EntityIdParser
 	 */
-	protected $idParser;
+	private $entityIdParser;
 
 	/**
 	 * @var EntityLookup
 	 */
-	protected $entityLookup;
+	private $entityLookup;
 
 	/**
 	 * @var UserLanguageLookup
 	 */
-	protected $userLanguageLookup;
+	private $userLanguageLookup;
+
+	/**
+	 * @var string[]|null
+	 */
+	private $extraLanguages = null;
 
 	/**
 	 * @param Title $targetPage the page for which this expander is supposed to handle expansion.
 	 * @param User $user the current user
 	 * @param Language $uiLanguage the user's current UI language (as per the present request)
-	 *
-	 * @param EntityIdParser $idParser
+	 * @param EntityIdParser $entityIdParser
 	 * @param EntityLookup $entityLookup
 	 * @param UserLanguageLookup $userLanguageLookup
 	 */
@@ -78,14 +76,14 @@ class EntityViewPlaceholderExpander {
 		Title $targetPage,
 		User $user,
 		Language $uiLanguage,
-		EntityIdParser $idParser,
+		EntityIdParser $entityIdParser,
 		EntityLookup $entityLookup,
 		UserLanguageLookup $userLanguageLookup
 	) {
 		$this->targetPage = $targetPage;
 		$this->user = $user;
 		$this->uiLanguage = $uiLanguage;
-		$this->idParser = $idParser;
+		$this->entityIdParser = $entityIdParser;
 		$this->entityLookup = $entityLookup;
 		$this->userLanguageLookup = $userLanguageLookup;
 	}
@@ -156,7 +154,7 @@ class EntityViewPlaceholderExpander {
 			);
 		}
 
-		return $this->idParser->parse( $entityId );
+		return $this->entityIdParser->parse( $entityId );
 	}
 
 	/**

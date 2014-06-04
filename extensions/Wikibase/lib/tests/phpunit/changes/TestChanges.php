@@ -54,14 +54,14 @@ final class TestChanges {
 		static $changes = array();
 
 		if ( empty( $changes ) ) {
-			$empty = Property::newEmpty();
+			$empty = Property::newFromType( 'string' );
 			$empty->setId( new PropertyId( 'p100' ) );
 
 			$changes['property-creation'] = EntityChange::newFromUpdate( EntityChange::ADD, null, $empty );
 			$changes['property-deletion'] = EntityChange::newFromUpdate( EntityChange::REMOVE, $empty, null );
 
 			// -----
-			$old = Property::newEmpty();
+			$old = Property::newFromType( 'string' );
 			$old->setId( new PropertyId( 'p100' ) );
 			$new = $old->copy();
 
@@ -124,7 +124,7 @@ final class TestChanges {
 			$changes['change-enwiki-sitelink-badges'] = EntityChange::newFromUpdate( EntityChange::UPDATE, $old, $new );
 			$old = $new->copy();
 
-			$new->removeSiteLink( 'dewiki', false );
+			$new->removeSiteLink( 'dewiki' );
 			$changes['remove-dewiki-sitelink'] = EntityChange::newFromUpdate( EntityChange::UPDATE, $old, $new );
 			$old = $new->copy();
 
@@ -161,9 +161,8 @@ final class TestChanges {
 			$changes['item-deletion-linked'] = EntityChange::newFromUpdate( EntityChange::REMOVE, $old, null );
 
 			// -----
-			$new->removeSiteLink( 'enwiki', false );
+			$new->removeSiteLink( 'enwiki' );
 			$changes['remove-enwiki-sitelink'] = EntityChange::newFromUpdate( EntityChange::UPDATE, $old, $new );
-			$old = $new->copy();
 
 			// apply all the defaults ----------
 			$defaults = array(
@@ -274,7 +273,7 @@ final class TestChanges {
 
 		$entities = array(
 			Item::newEmpty(),
-			Property::newEmpty(),
+			Property::newFromType( 'string' ),
 		);
 
 		/**
@@ -284,7 +283,6 @@ final class TestChanges {
 			$entityList[] = $entity;
 
 			$entity->setId( 112 );
-			$entity->stub();
 			$entity->setLabel( 'ja', '\u30d3\u30fc\u30eb' );
 
 			$entityList[] = $entity;

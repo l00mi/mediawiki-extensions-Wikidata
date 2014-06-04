@@ -5,6 +5,7 @@ namespace Wikibase;
 use DatabaseBase;
 use MessageReporter;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * Utility class for rebuilding the wb_property_info table.
@@ -16,45 +17,32 @@ use Wikibase\DataModel\Entity\PropertyId;
  */
 class PropertyInfoTableBuilder {
 
-	/**
-	 * @since 0.4
-	 *
-	 * @var PropertyInfoTable $table
-	 */
-	protected $table;
+	private $propertyInfoTable;
+	private $entityLookup;
 
 	/**
-	 * @var EntityLookup
-	 */
-	protected $entityLookup;
-
-	/**
-	 * @since 0.4
-	 *
 	 * @var MessageReporter $reporter
 	 */
-	protected $reporter;
+	private $reporter;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var bool
 	 */
-	protected $useTransactions = true;
+	private $useTransactions = true;
 
 	/**
 	 * Whether all entries should be updated, or only missing entries
 	 *
 	 * @var bool
 	 */
-	protected $all = false;
+	private $all = false;
 
 	/**
 	 * Starting point
 	 *
 	 * @var int
 	 */
-	protected $fromId = 1;
+	private $fromId = 1;
 
 	/**
 	 * The batch size, giving the number of rows to be updated in each database transaction.
@@ -63,16 +51,8 @@ class PropertyInfoTableBuilder {
 	 */
 	protected $batchSize = 100;
 
-	/**
-	 * Constructor.
-	 *
-	 * @since 0.4
-	 *
-	 * @param PropertyInfoTable $table
-	 * @param EntityLookup $entityLookup
-	 */
-	public function __construct( PropertyInfoTable $table, EntityLookup $entityLookup ) {
-		$this->table = $table;
+	public function __construct( PropertyInfoTable $propertyInfoTable, EntityLookup $entityLookup ) {
+		$this->propertyInfoTable = $propertyInfoTable;
 		$this->entityLookup = $entityLookup;
 	}
 
@@ -148,7 +128,7 @@ class PropertyInfoTableBuilder {
 	 * @since 0.4
 	 */
 	public function rebuildPropertyInfo() {
-		$dbw = $this->table->getWriteConnection();
+		$dbw = $this->propertyInfoTable->getWriteConnection();
 
 		$rowId = $this->fromId -1;
 
@@ -161,7 +141,7 @@ class PropertyInfoTableBuilder {
 			// Find properties in wb_entity_per_page with no corresponding
 			// entry in wb_property_info.
 
-			$piTable = $this->table->getTableName();
+			$piTable = $this->propertyInfoTable->getTableName();
 
 			$tables[] = $piTable;
 			$join[$piTable] = array( 'LEFT JOIN',
@@ -238,7 +218,7 @@ class PropertyInfoTableBuilder {
 	 * @author Tim Starling (stolen from recompressTracked.php)
 	 */
 	protected function waitForSlaves() {
-		$lb = wfGetLB(); //TODO: allow foreign DB, get from $this->table
+		$lb = wfGetLB(); //TODO: allow foreign DB, get from $this->propertyInfoTable
 
 		while ( true ) {
 			list( $host, $maxLag ) = $lb->getMaxLag();
@@ -274,7 +254,7 @@ class PropertyInfoTableBuilder {
 			);
 		}
 
-		$update = new PropertyInfoUpdate( $property, $this->table );
+		$update = new PropertyInfoUpdate( $property, $this->propertyInfoTable );
 		$update->doUpdate();
 	}
 

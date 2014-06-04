@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\LinkedData;
+namespace Wikibase\Repo\LinkedData;
 
 use HttpError;
 use OutputPage;
@@ -10,10 +10,8 @@ use WebResponse;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\EntityTitleLookup;
-use Wikibase\HttpAcceptNegotiator;
-use Wikibase\HttpAcceptParser;
 use Wikibase\StorageException;
 
 /**
@@ -31,47 +29,47 @@ class EntityDataRequestHandler {
 	/**
 	 * @var int Cache duration in seconds
 	 */
-	protected $maxAge = 0;
+	private $maxAge = 0;
 
 	/**
 	 * @var EntityDataSerializationService
 	 */
-	protected $serializationService;
+	private $serializationService;
 
 	/**
 	 * @var EntityDataUriManager
 	 */
-	protected $uriManager;
+	private $uriManager;
 
 	/**
 	 * @var EntityIdParser
 	 */
-	protected $entityIdParser;
+	private $entityIdParser;
 
 	/**
 	 * @var EntityRevisionLookup
 	 */
-	protected $entityRevisionLookup;
+	private $entityRevisionLookup;
 
 	/**
 	 * @var EntityTitleLookup
 	 */
-	protected $entityTitleLookup;
+	private $entityTitleLookup;
 
 	/**
 	 * @var string
 	 */
-	protected $defaultFormat;
+	private $defaultFormat;
 
 	/**
 	 * @var bool
 	 */
-	protected $useSquids;
+	private $useSquids;
 
 	/**
 	 * @var string|null
 	 */
-	protected $frameOptionsHeader;
+	private $frameOptionsHeader;
 
 	/**
 	 * @since 0.4

@@ -3,15 +3,15 @@
 namespace Wikibase\Test;
 
 use Site;
+use Title;
 use Wikibase\Change;
 use Wikibase\ChangeHandler;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\SimpleSiteLink;
+use Wikibase\DataModel\SiteLink;
 use Wikibase\EntityChange;
-use Wikibase\EntityDiff;
-use Wikibase\Item;
+use Wikibase\DataModel\Entity\EntityDiff;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\ItemUsageIndex;
 
 /**
@@ -29,7 +29,6 @@ use Wikibase\ItemUsageIndex;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ChangeHandlerTest extends \MediaWikiTestCase {
-
 
 	/** @var MockRepository $repo */
 	protected static $repo;
@@ -1113,31 +1112,31 @@ class ChangeHandlerTest extends \MediaWikiTestCase {
 	protected function updateMockRepo( $entities ) {
 		$repo = self::getMockRepo();
 
-		foreach ( $entities as $k => $v ) {
-			if ( !( $v instanceof \Wikibase\Entity ) ) {
+		foreach ( $entities as $id => $siteLinks ) {
+			if ( !( $siteLinks instanceof \Wikibase\Entity ) ) {
 				$entity = Item::newEmpty();
-				$entity->setId( EntityId::newFromPrefixedId( $k ) );
+				$entity->setId( new ItemId( $id ) );
 
-				foreach ( $v as $siteId => $page ) {
+				foreach ( $siteLinks as $siteId => $page ) {
 					if ( is_int( $siteId ) ) {
 						$siteIdentifier = $this->site->getGlobalId();
 					} else {
 						$siteIdentifier = $siteId;
 					}
 
-					$entity->addSiteLink( new SimpleSiteLink( $siteIdentifier, $page ) );
+					$entity->addSiteLink( new SiteLink( $siteIdentifier, $page ) );
 				}
 			} else {
-				$entity = $v;
+				$entity = $siteLinks;
 			}
 
 			$repo->putEntity( $entity );
 		}
 	}
 
-	protected static function titles2strings( $titles ) {
+	private function titles2strings( array $titles ) {
 		return array_map(
-			function ( $title ) {
+			function ( Title $title ) {
 				return $title->getPrefixedDBKey();
 			},
 			$titles
@@ -1151,7 +1150,7 @@ class ChangeHandlerTest extends \MediaWikiTestCase {
 		$this->updateMockRepo( $entities );
 
 		$toUpdate = $this->handler->getPagesToUpdate( $change );
-		$toUpdate = self::titles2strings( $toUpdate );
+		$toUpdate = $this->titles2strings( $toUpdate );
 
 		$this->assertArrayEquals( $expected, $toUpdate );
 	}

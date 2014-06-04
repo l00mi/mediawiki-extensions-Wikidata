@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase;
+namespace Wikibase\Repo\LinkedData;
 
 /**
  * Utility for negotiating a value from a set of supported values using a preference list.
@@ -17,12 +17,12 @@ class HttpAcceptNegotiator {
 	/**
 	 * @var array
 	 */
-	protected $supportedValues;
+	private $supportedValues;
 
 	/**
 	 * @var mixed
 	 */
-	protected $defaultValue;
+	private $defaultValue;
 
 	/**
 	 * @param array $supported A list of supported values.

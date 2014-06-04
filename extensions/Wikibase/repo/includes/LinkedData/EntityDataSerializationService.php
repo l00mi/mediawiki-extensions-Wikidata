@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\LinkedData;
+namespace Wikibase\Repo\LinkedData;
 
 use ApiFormatBase;
 use ApiFormatXml;
@@ -13,7 +13,7 @@ use MWException;
 use RequestContext;
 use SiteList;
 use Wikibase\Api\ResultBuilder;
-use Wikibase\EntityLookup;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\EntityRevision;
 use Wikibase\EntityTitleLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
@@ -43,7 +43,7 @@ class EntityDataSerializationService {
 	 *
 	 * @var array
 	 */
-	protected $formatWhiteList = null;
+	private $formatWhiteList = null;
 
 	/**
 	 * Attributes that should be included in the serialized form of the entity.
@@ -51,7 +51,7 @@ class EntityDataSerializationService {
 	 *
 	 * @var array
 	 */
-	protected $fieldsToShow = array(
+	private $fieldsToShow = array(
 		'labels',
 		'aliases',
 		'descriptions',
@@ -64,44 +64,44 @@ class EntityDataSerializationService {
 	/**
 	 * @var string
 	 */
-	protected $rdfBaseURI = null;
+	private $rdfBaseURI = null;
 
 	/**
 	 * @var string
 	 */
-	protected $rdfDataURI = null;
+	private $rdfDataURI = null;
 
 	/**
 	 * @var EntityLookup
 	 */
-	protected $entityLookup = null;
+	private $entityLookup = null;
 
 	/**
 	 * @var null|array Associative array from MIME type to format name
 	 * @note: initialized by initFormats()
 	 */
-	protected $mimeTypes = null;
+	private $mimeTypes = null;
 
 	/**
 	 * @var null|array Associative array from file extension to format name
 	 * @note: initialized by initFormats()
 	 */
-	protected $fileExtensions = null;
+	private $fileExtensions = null;
 
 	/**
 	 * @var EntityTitleLookup
 	 */
-	protected $entityTitleLookup;
+	private $entityTitleLookup;
 
 	/**
 	 * @var SerializerFactory
 	 */
-	protected $serializerFactory;
+	private $serializerFactory;
 
 	/**
 	 * @var SiteList
 	 */
-	protected $sites;
+	private $sites;
 
 	/**
 	 * @param string $rdfBaseURI
@@ -111,7 +111,7 @@ class EntityDataSerializationService {
 	 * @param SerializerFactory $serializerFactory
 	 * @param SiteList $sites
 	 *
-	 * @since    0.4
+	 * @since 0.4
 	 */
 	public function __construct(
 		$rdfBaseURI,

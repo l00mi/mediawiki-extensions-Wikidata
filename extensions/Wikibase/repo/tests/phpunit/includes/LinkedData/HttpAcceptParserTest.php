@@ -2,13 +2,13 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\HttpAcceptParser;
+use Wikibase\Repo\LinkedData\HttpAcceptParser;
 
 /**
- * @covers Wikibase\HttpAcceptParser
+ * @covers Wikibase\Repo\LinkedData\HttpAcceptParser
  *
  * @group Wikibase
- * @group WikibaseLib
+ * @group WikibaseRepo
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler

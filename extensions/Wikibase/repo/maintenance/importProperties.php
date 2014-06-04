@@ -2,7 +2,7 @@
 
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\store\EntityStore;
+use Wikibase\Lib\Store\EntityStore;
 
 /**
  * Maintenance script for importing properties in Wikidata.
@@ -131,12 +131,10 @@ class importProperties extends Maintenance {
 	 * @return bool true if the item was created, false otherwise
 	 */
 	protected function createProperty( $data ) {
-		$property = Property::newEmpty();
+		$property = Property::newFromType( 'wikibase-item' );
 
 		foreach ( $data as $lang => $title ) {
-			$label = $title;
-			$property->setLabel( $lang, $label );
-			$property->setDataTypeId( 'wikibase-item' );
+			$property->setLabel( $lang, $title );
 		}
 
 		try {

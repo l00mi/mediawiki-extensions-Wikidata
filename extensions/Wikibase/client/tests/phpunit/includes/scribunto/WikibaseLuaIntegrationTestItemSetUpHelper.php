@@ -12,9 +12,9 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\Lib\V4GuidGenerator;
 use Wikibase\SnakFactory;
 use Wikibase\Test\MockClientStore;
+use Wikibase\Test\MockRepository;
 
 /**
  * Helper class for Lua integration tests.
@@ -24,7 +24,9 @@ use Wikibase\Test\MockClientStore;
  */
 class WikibaseLuaIntegrationTestItemSetUpHelper {
 
-	/* @var MockRepository */
+	/**
+	 * @var MockRepository
+	 */
 	protected $mockRepository;
 
 	public function __construct() {
@@ -85,8 +87,7 @@ class WikibaseLuaIntegrationTestItemSetUpHelper {
 	 * @return Property
 	 */
 	protected function createTestProperty( $dataTypeId, $label ) {
-		$property = Property::newEmpty();
-		$property->setDataTypeId( $dataTypeId );
+		$property = Property::newFromType( $dataTypeId );
 		$property->setLabel( 'de', $label );
 
 		$this->mockRepository->putEntity( $property );
@@ -95,9 +96,9 @@ class WikibaseLuaIntegrationTestItemSetUpHelper {
 	}
 
 	/**
-	 * @param array $labels
+	 * @param string[] $labels
 	 * @param Claim[]|null $claims
-	 * @param array $siteLinks
+	 * @param SiteLink[]|null $siteLinks
 	 *
 	 * @return Item
 	 */
@@ -125,6 +126,7 @@ class WikibaseLuaIntegrationTestItemSetUpHelper {
 	/**
 	 * @param PropertyId $propertyId
 	 * @param DataValue $value
+	 *
 	 * @return Snak
 	 */
 	protected function getTestSnak( PropertyId $propertyId, DataValue $value ) {
@@ -136,12 +138,12 @@ class WikibaseLuaIntegrationTestItemSetUpHelper {
 
 	/**
 	 * @param Snak $mainSnak
+	 *
 	 * @return Statement
 	 */
 	protected function getTestStatement( Snak $mainSnak ) {
 		$statement = new Statement( $mainSnak );
-		$guidGen = new V4GuidGenerator();
-		$statement->setGuid( $guidGen->newGuid() );
+		$statement->setGuid( uniqid( 'kittens', true ) );
 
 		return $statement;
 	}

@@ -2,6 +2,9 @@
 
 namespace Wikibase\Test;
 
+use FauxRequest;
+use HashBagOStuff;
+use RequestContext;
 use Status;
 use Title;
 use User;
@@ -42,18 +45,27 @@ class EditEntityTest extends \MediaWikiTestCase {
 	}
 
 	function setUp() {
-		global $wgGroupPermissions;
+		global $wgGroupPermissions, $wgHooks;
 
 		parent::setUp();
 
 		$this->permissions = $wgGroupPermissions;
 		$this->userGroups = array( 'user' );
+
+		if ( empty( $wgHooks['EditFilterMergedContent'] ) ) {
+			// This fake ensures EditEntity::runEditFilterHooks is run and runtime errors are found
+			$wgHooks['EditFilterMergedContent'] = array( null );
+		}
 	}
 
 	function tearDown() {
-		global $wgGroupPermissions;
+		global $wgGroupPermissions, $wgHooks;
 
 		$wgGroupPermissions = $this->permissions;
+
+		if ( $wgHooks['EditFilterMergedContent'] === array( null ) ) {
+			unset( $wgHooks['EditFilterMergedContent'] );
+		}
 
 		parent::tearDown();
 	}
@@ -121,8 +133,8 @@ class EditEntityTest extends \MediaWikiTestCase {
 	 * @return EditEntity
 	 */
 	protected function makeEditEntity( MockRepository $repo, Entity $entity, User $user = null, $baseRevId = false, $permissions = null ) {
-		$context = new \RequestContext();
-		$context->setRequest( new \FauxRequest() );
+		$context = new RequestContext();
+		$context->setRequest( new FauxRequest() );
 
 		if ( !$user ) {
 			$user = User::newFromName( 'EditEntityTestUser' );
@@ -364,6 +376,30 @@ class EditEntityTest extends \MediaWikiTestCase {
 			"If and only if there was an error, an error page should be shown.\n$statusMessage" );
 	}
 
+	public function testErrorPage_DoesNotDoubleEscapeHtmlCharacters() {
+		$repo = $this->makeMockRepo();
+		$permissions = array();
+		$context = new RequestContext();
+		// Can not reuse makeEditEntity because we need the access the context
+		$editEntity = new EditEntity(
+			$this->newTitleLookupMock(),
+			$repo,
+			$repo,
+			$this->newEntityPermissionCheckerMock( $permissions ),
+			Item::newEmpty(),
+			self::getUser( 'EditEntityTestUser' ),
+			false,
+			$context
+		);
+
+		$editEntity->checkEditPermissions();
+		$editEntity->showErrorPage();
+		$html = $context->getOutput()->getHTML();
+
+		$this->assertContains( '<li>', $html, 'Unescaped HTML' );
+		$this->assertNotContains( '&amp;lt;', $html, 'No double escaping' );
+	}
+
 	public function dataCheckEditPermissions() {
 		return array(
 			array( #0: edit allowed for new item
@@ -560,7 +596,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 		// make sure we have a fresh, working cache
 		$this->setMwGlobals(
 			'wgMemc',
-			new \HashBagOStuff()
+			new HashBagOStuff()
 		);
 
 		$user = self::getUser( "UserForTestAttemptSaveRateLimit" );
@@ -683,4 +719,5 @@ class EditEntityTest extends \MediaWikiTestCase {
 
 		$this->assertEquals( $expected, $repo->isWatching( $user, $item->getId() ), "watched" );
 	}
+
 }

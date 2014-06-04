@@ -3,10 +3,14 @@
 namespace Wikibase;
 
 use DatabaseUpdater;
+use DBAccessBase;
 use DBError;
+use HashBagOStuff;
 use InvalidArgumentException;
+use ObservableMessageReporter;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\store\CachingEntityRevisionLookup;
+use Wikibase\Lib\Store\CachingEntityRevisionLookup;
+use Wikibase\Lib\Store\WikiPageEntityLookup;
 
 /**
  * Class PropertyInfoTable implements PropertyInfoStore on top of an SQL table.
@@ -16,38 +20,38 @@ use Wikibase\store\CachingEntityRevisionLookup;
  * @license GPL 2+
  * @author Daniel Kinzler
  */
-class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
+class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 
 	/**
 	 * @var string
 	 */
-	protected $table;
+	private $tableName;
 
 	/**
 	 * @var bool
 	 */
-	protected $readonly;
+	private $isReadonly;
 
 	/**
-	 * @param bool $readonly Whether the table can be modified.
+	 * @param bool $isReadonly Whether the table can be modified.
 	 * @param string|bool $wiki The wiki's database to connect to.
 	 *        Must be a value LBFactory understands. Defaults to false, which is the local wiki.
 	 */
-	public function __construct( $readonly, $wiki = false ) {
-		assert( is_bool( $readonly ) );
+	public function __construct( $isReadonly, $wiki = false ) {
+		assert( is_bool( $isReadonly ) );
 		assert( is_string( $wiki ) || $wiki === false );
 
-		$this->table = 'wb_property_info';
-		$this->readonly = $readonly;
+		$this->tableName = 'wb_property_info';
+		$this->isReadonly = $isReadonly;
 		$this->wiki = $wiki;
 	}
 
 	/**
 	 * Register the updates needed for creating the appropriate table(s).
 	 *
-	 * @param \DatabaseUpdater $updater
+	 * @param DatabaseUpdater $updater
 	 */
-	public static function registerDatabaseUpdates( \DatabaseUpdater $updater ) {
+	public static function registerDatabaseUpdates( DatabaseUpdater $updater ) {
 		$table = 'wb_property_info';
 
 		if ( !$updater->tableExists( $table ) ) {
@@ -75,7 +79,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 	 * @param DatabaseUpdater $updater
 	 */
 	public static function rebuildPropertyInfo( DatabaseUpdater $updater ) {
-		$reporter = new \ObservableMessageReporter();
+		$reporter = new ObservableMessageReporter();
 		$reporter->registerReporterCallback(
 			function ( $msg ) use ( $updater ) {
 				$updater->output( "..." . $msg . "\n" );
@@ -84,7 +88,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 
 		$table = new PropertyInfoTable( false );
 		$wikiPageEntityLookup = new WikiPageEntityLookup( false );
-		$cachingEntityLookup = new CachingEntityRevisionLookup( $wikiPageEntityLookup, new \HashBagOStuff() );
+		$cachingEntityLookup = new CachingEntityRevisionLookup( $wikiPageEntityLookup, new HashBagOStuff() );
 
 		$builder = new PropertyInfoTableBuilder( $table, $cachingEntityLookup );
 		$builder->setReporter( $reporter );
@@ -110,7 +114,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 		$dbw = $this->getConnection( DB_SLAVE );
 
 		$res = $dbw->selectField(
-			$this->table,
+			$this->tableName,
 			'pi_info',
 			array( 'pi_property_id' => $propertyId->getNumericId() ),
 			__METHOD__
@@ -159,14 +163,14 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 	 *
 	 * @return array[]
 	 *
-	 * @throws \DBError
+	 * @throws DBError
 	 */
 	public function getAllPropertyInfo() {
 		wfProfileIn( __METHOD__ );
 		$dbw = $this->getConnection( DB_SLAVE );
 
 		$res = $dbw->select(
-			$this->table,
+			$this->tableName,
 			array( 'pi_property_id', 'pi_info' ),
 			array(),
 			__METHOD__
@@ -202,7 +206,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 	 * @throws InvalidArgumentException
 	 */
 	public function setPropertyInfo( PropertyId $propertyId, array $info ) {
-		if ( $this->readonly ) {
+		if ( $this->isReadonly ) {
 			throw new DBError( 'Cannot write when in readonly mode' );
 		}
 
@@ -218,7 +222,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 		$dbw = $this->getConnection( DB_MASTER );
 
 		$dbw->replace(
-			$this->table,
+			$this->tableName,
 			array( 'pi_property_id' ),
 			array(
 				'pi_property_id' => $propertyId->getNumericId(),
@@ -243,7 +247,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 	 * @return bool
 	 */
 	public function removePropertyInfo( PropertyId $propertyId ) {
-		if ( $this->readonly ) {
+		if ( $this->isReadonly ) {
 			throw new DBError( 'Cannot write when in readonly mode' );
 		}
 
@@ -251,7 +255,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 		$dbw = $this->getConnection( DB_MASTER );
 
 		$dbw->delete(
-			$this->table,
+			$this->tableName,
 			array( 'pi_property_id' => $propertyId->getNumericId() ),
 			__METHOD__
 		);
@@ -283,6 +287,7 @@ class PropertyInfoTable extends \DBAccessBase implements PropertyInfoStore {
 	 * @return string
 	 */
 	public function getTableName() {
-		return $this->table;
+		return $this->tableName;
 	}
+
 }

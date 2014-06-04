@@ -2,17 +2,16 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\HttpAcceptNegotiator;
+use Wikibase\Repo\LinkedData\HttpAcceptNegotiator;
 
 /**
- * @covers Wikibase\HttpAcceptNegotiator
+ * @covers Wikibase\Repo\LinkedData\HttpAcceptNegotiator
  *
  * @group Wikibase
- * @group WikibaseLib
+ * @group WikibaseRepo
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
- *
  */
 class HttpAcceptNegotiatorTest extends \PHPUnit_Framework_TestCase {
 
