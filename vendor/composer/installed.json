@@ -394,23 +394,23 @@
     },
     {
         "name": "data-values/javascript",
-        "version": "0.5",
-        "version_normalized": "0.5.0.0",
+        "version": "0.5.1",
+        "version_normalized": "0.5.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722"
+            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
-            "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
+            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
             "shasum": ""
         },
         "require": {
             "composer/installers": ">=1.0.1"
         },
-        "time": "2014-03-28 14:20:37",
+        "time": "2014-06-04 10:58:47",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -450,24 +450,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.5.1",
-        "version_normalized": "0.5.1.0",
+        "version": "0.6",
+        "version_normalized": "0.6.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d"
+            "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
-            "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/b75392a4a351f00a9eacd2130120a643b2c121d3",
+            "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-04-01 08:05:07",
+        "time": "2014-06-04 10:27:24",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -891,17 +891,17 @@
     },
     {
         "name": "wikibase/wikibase",
-        "version": "dev-mw1.24-wmf6",
-        "version_normalized": "dev-mw1.24-wmf6",
+        "version": "dev-mw1.24-wmf8",
+        "version_normalized": "dev-mw1.24-wmf8",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "5e63a210b0ff0410be053d634d15f66ddb166099"
+            "reference": "3729cb52795ff157c97cdc534c3b2df21ca8b016"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/5e63a210b0ff0410be053d634d15f66ddb166099",
-            "reference": "5e63a210b0ff0410be053d634d15f66ddb166099",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3729cb52795ff157c97cdc534c3b2df21ca8b016",
+            "reference": "3729cb52795ff157c97cdc534c3b2df21ca8b016",
             "shasum": ""
         },
         "require": {
@@ -910,21 +910,21 @@
             "data-values/data-values": "~0.1.0",
             "data-values/geo": "~0.1.0",
             "data-values/interfaces": "~0.1.4",
-            "data-values/javascript": "~0.5.0",
+            "data-values/javascript": "~0.5.1",
             "data-values/number": "~0.4.0",
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.5.2",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.5.0",
+            "data-values/value-view": "~0.6.0",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~0.7.3",
+            "wikibase/data-model": "~0.7.4",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-05-28 12:32:03",
+        "time": "2014-06-04 19:54:54",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

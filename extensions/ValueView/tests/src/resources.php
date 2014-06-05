@@ -55,15 +55,6 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.valueview.tests.MockExpert' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.valueview.tests.MockExpert.js',
-			),
-			'dependencies' => array(
-				'jquery.valueview.Expert',
-			),
-		),
-
 		'jquery.valueview.tests.MockViewState' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.valueview.tests.MockViewState.js',
@@ -98,6 +89,7 @@ return call_user_func( function() {
 
 	);
 
-	return $resources + include( __DIR__ . '/experts/resources.php' );
+	return ( $resources + include( __DIR__ . '/experts/resources.php' ) ) +
+		include( __DIR__ . '/ExpertExtender/resources.php' );
 
 } );

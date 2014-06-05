@@ -2,9 +2,9 @@
 
 namespace Wikibase\Test;
 
+use Title;
 use Wikibase\Client\ClientSiteLinkLookup;
 use Wikibase\DataModel\Entity\Item;
-use Title;
 
 /**
  * @covers Wikibase\Client\ClientSiteLinkLookup
@@ -40,6 +40,8 @@ class ClientSiteLinkLookupTest extends \PHPUnit_Framework_TestCase {
 	);
 
 	/**
+	 * @param string $localSiteId
+	 *
 	 * @return ClientSiteLinkLookup
 	 */
 	private function getClientSiteLinkLookup( $localSiteId ) {

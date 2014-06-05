@@ -1,11 +1,32 @@
 <?php
+
 /**
- * Initialization file for the Wikibase Client extension.
+ * Welcome to the inside of Wikibase,              <>
+ * the software that powers                   /\        /\
+ * Wikidata and other                       <{  }>    <{  }>
+ * structured data websites.        <>   /\   \/   /\   \/   /\   <>
+ *                                     //  \\    //  \\    //  \\
+ * It is Free Software.              <{{    }}><{{    }}><{{    }}>
+ *                                /\   \\  //    \\  //    \\  //   /\
+ *                              <{  }>   ><        \/        ><   <{  }>
+ *                                \/   //  \\              //  \\   \/
+ *                            <>     <{{    }}>     +--------------------------+
+ *                                /\   \\  //       |                          |
+ *                              <{  }>   ><        /|  W  I  K  I  B  A  S  E  |
+ *                                \/   //  \\    // |                          |
+ * We are                            <{{    }}><{{  +--------------------------+
+ * looking for people                  \\  //    \\  //    \\  //
+ * like you to join us in           <>   \/   /\   \/   /\   \/   <>
+ * developing it further. Find              <{  }>    <{  }>
+ * out more at http://wikiba.se               \/        \/
+ * and join the open data revolution.              <>
+ */
+
+/**
+ * Entry point for the Wikibase Client extension.
  *
- * Documentation:	 		https://www.mediawiki.org/wiki/Extension:Wikibase_Client
- * Support					https://www.mediawiki.org/wiki/Extension_talk:Wikibase_Client
- * Source code:				https://gerrit.wikimedia.org/r/gitweb?p=mediawiki/extensions/Wikibase.git;a=tree;f=client
- *
+ * @see README.md
+ * @see https://www.mediawiki.org/wiki/Extension:Wikibase_Client
  * @licence GNU GPL v2+
  */
 
@@ -45,7 +66,7 @@ if ( !defined( 'WBL_VERSION' ) ) {
 call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks;
 	global $wgAPIMetaModules, $wgSpecialPages, $wgSpecialPageGroups, $wgResourceModules;
-	global $wgWBClientStores, $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
+	global $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
 
 
 	$wgExtensionCredits['wikibase'][] = array(
@@ -75,6 +96,7 @@ call_user_func( function() {
 	$wgHooks['ParserFirstCallInit'][]			= '\Wikibase\ClientHooks::onParserFirstCallInit';
 	$wgHooks['MagicWordwgVariableIDs'][]			= '\Wikibase\ClientHooks::onMagicWordwgVariableIDs';
 	$wgHooks['ParserGetVariableValueSwitch'][]		= '\Wikibase\ClientHooks::onParserGetVariableValueSwitch';
+	$wgHooks['SkinTemplateGetLanguageLink'][]		= '\Wikibase\ClientHooks::onSkinTemplateGetLanguageLink';
 	$wgHooks['SkinTemplateOutputPageBeforeExec'][]		= '\Wikibase\ClientHooks::onSkinTemplateOutputPageBeforeExec';
 	$wgHooks['SkinBuildSidebar'][]              = '\Wikibase\ClientHooks::onSkinBuildSidebar';
 	$wgHooks['SpecialMovepageAfterMove'][]				= '\Wikibase\ClientHooks::onSpecialMovepageAfterMove';
@@ -105,9 +127,6 @@ call_user_func( function() {
 
 	// Resource loader modules
 	$wgResourceModules = array_merge( $wgResourceModules, include( "$dir/resources/Resources.php" ) );
-
-	$wgWBClientStores = array();
-	$wgWBClientStores['DirectSqlStore'] = 'Wikibase\DirectSqlStore';
 
 	$wgWBClientSettings = array_merge(
 		require( __DIR__ . '/../lib/config/WikibaseLib.default.php' ),

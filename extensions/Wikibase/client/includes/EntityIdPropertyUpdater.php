@@ -4,8 +4,7 @@ namespace Wikibase;
 
 use ParserOutput;
 use Title;
-use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\SimpleSiteLink;
+use Wikibase\DataModel\SiteLink;
 
 /**
  * Handles wikibase_item page and parser output property
@@ -43,7 +42,7 @@ class EntityIdPropertyUpdater {
 	 * @param Title $title
 	 */
 	public function updateItemIdProperty( ParserOutput $out, Title $title ) {
-		$siteLink = new SimpleSiteLink(
+		$siteLink = new SiteLink(
 			$this->siteId,
 			$title->getFullText()
 		);

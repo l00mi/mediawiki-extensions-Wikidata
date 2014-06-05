@@ -2,14 +2,13 @@
 
 namespace Wikibase;
 
+use ContentHandler;
 use MWException;
-use InvalidArgumentException;
 use OutOfBoundsException;
+use Revision;
 use Status;
 use Title;
 use User;
-use Revision;
-use WikiPage;
 
 /**
  * Factory for EntityContent objects.
@@ -18,6 +17,7 @@ use WikiPage;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Daniel Kinzler
  */
 class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker {
 
@@ -58,64 +58,6 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 	 */
 	public function getEntityContentModels() {
 		return $this->typeMap;
-	}
-
-	/**
-	 * Get the items corresponding to the provided language and label pair.
-	 * A description can also be provided, in which case only the item with
-	 * that description will be returned (as only element in the array).
-	 *
-	 * @since 0.2
-	 *
-	 * @param string $language
-	 * @param string $label
-	 * @param string|null $description
-	 * @param string|null $entityType
-	 * @param bool $fuzzySearch if false, only exact matches are returned, otherwise more relaxed search . Defaults to false.
-	 *
-	 * @return EntityContent[]
-	 */
-	public function getFromLabel( $language, $label, $description = null, $entityType = null, $fuzzySearch = false ) {
-		$entityIds = StoreFactory::getStore()->getTermIndex()->getEntityIdsForLabel( $label, $language, $description, $entityType, $fuzzySearch );
-		$entities = array();
-
-		foreach ( $entityIds as $entityId ) {
-			list( $type, $id ) = $entityId;
-			$entity = self::getFromId( new EntityId( $type, $id ) );
-
-			if ( $entity !== null ) {
-				$entities[] = $entity;
-			}
-		}
-
-		return $entities;
-	}
-
-	/**
-	 * Get the entity content for the entity with the provided id
-	 * if it's available to the specified audience.
-	 * If the specified audience does not have the ability to view this
-	 * revision, if there is no such item, null will be returned.
-	 *
-	 * @since 0.2
-	 *
-	 * @deprecated use EntityLookup instead.
-	 *
-	 * @param EntityId $id
-	 *
-	 * @param integer $audience: one of:
-	 *      Revision::FOR_PUBLIC       to be displayed to all users
-	 *      Revision::FOR_THIS_USER    to be displayed to $wgUser
-	 *      Revision::RAW              get the text regardless of permissions
-	 *
-	 * @return EntityContent|null
-	 */
-	public function getFromId( EntityId $id, $audience = Revision::FOR_PUBLIC ) {
-		// TODO: since we already did the trouble of getting a WikiPage here,
-		// we probably want to keep a copy of it in the Content object.
-		$title = $this->getTitleForId( $id );
-		$page = new WikiPage( $title );
-		return $page->getContent( $audience );
 	}
 
 	/**
@@ -180,7 +122,7 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 	 * @return EntityContent|null
 	 */
 	public function getFromRevision( $revisionId ) {
-		$revision = \Revision::newFromId( intval( $revisionId ) );
+		$revision = Revision::newFromId( intval( $revisionId ) );
 
 		if ( $revision === null ) {
 			return null;
@@ -202,34 +144,9 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 		/**
 		 * @var EntityHandler $handler
 		 */
-		$handler = \ContentHandler::getForModelID( $this->typeMap[$entity->getType()] );
+		$handler = ContentHandler::getForModelID( $this->typeMap[$entity->getType()] );
 
 		return $handler->newContentFromEntity( $entity );
-	}
-
-	/**
-	 * Constructs a new EntityContent from a given type.
-	 *
-	 * @since 0.4
-	 *
-	 * @param string $type
-	 *
-	 * @return EntityContent
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	public function newFromType( $type ) {
-		if ( !is_string( $type ) ) {
-			throw new InvalidArgumentException( '$type needs to be a string' );
-		}
-
-		if ( $type === Item::ENTITY_TYPE ) {
-			return ItemContent::newEmpty();
-		} elseif ( $type === Property::ENTITY_TYPE ) {
-			return PropertyContent::newEmpty();
-		} else {
-			throw new InvalidArgumentException( 'unknown entity type $type' );
-		}
 	}
 
 	/**
@@ -336,4 +253,5 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 
 		return $status;
 	}
+
 }

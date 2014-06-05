@@ -4,9 +4,9 @@ namespace Wikibase\Test;
 
 use InvalidArgumentException;
 use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\LabelSerializer;
 use Wikibase\Lib\Serializers\MultilingualSerializer;
+use Wikibase\Lib\Serializers\SerializationOptions;
 
 /**
  * @covers Wikibase\Lib\Serializers\LabelSerializer
@@ -206,7 +206,7 @@ class LabelSerializerTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testInvalidGetSerialized( $labels ) {
 		$labelSerializer = new LabelSerializer();
-		$serializedLabels = $labelSerializer->getSerialized( $labels );
+		$labelSerializer->getSerialized( $labels );
 	}
 
 	/**

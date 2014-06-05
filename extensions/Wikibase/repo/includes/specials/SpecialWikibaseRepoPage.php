@@ -10,15 +10,15 @@ use Title;
 use UserInputException;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\EditEntity;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\EditEntity;
 use Wikibase\EntityPermissionChecker;
 use Wikibase\EntityRevision;
-use Wikibase\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\EntityTitleLookup;
 use Wikibase\Lib\Specials\SpecialWikibasePage;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\store\EntityStore;
+use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Summary;
 use Wikibase\SummaryFormatter;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\store;
+namespace Wikibase\Repo\Store;
 
 use MWException;
 use PermissionsError;
@@ -8,16 +8,17 @@ use Revision;
 use Status;
 use Title;
 use User;
-use Wikibase\Entity;
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\EntityContent;
 use Wikibase\EntityContentFactory;
-use Wikibase\EntityId;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\EntityPerPage;
-use Wikibase\EntityPerPageTable;
 use Wikibase\EntityRevision;
 use Wikibase\IdGenerator;
+use Wikibase\Lib\Store\EntityStore;
+use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\StorageException;
-use Wikibase\util\GenericEventDispatcher;
+use Wikibase\Repo\GenericEventDispatcher;
 use WikiPage;
 
 /**
@@ -50,7 +51,7 @@ class WikiPageEntityStore implements EntityStore {
 	/**
 	 * @param EntityContentFactory $contentFactory
 	 * @param IdGenerator $idGenerator
-	 * @param EntityPerPageTable $entityPerPage
+	 * @param EntityPerPage $entityPerPage
 	 */
 	public function __construct(
 		EntityContentFactory $contentFactory,
@@ -61,7 +62,7 @@ class WikiPageEntityStore implements EntityStore {
 		$this->idGenerator = $idGenerator;
 		$this->entityPerPage = $entityPerPage;
 
-		$this->dispatcher = new GenericEventDispatcher( 'Wikibase\store\EntityStoreWatcher' );
+		$this->dispatcher = new GenericEventDispatcher( 'Wikibase\Lib\Store\EntityStoreWatcher' );
 	}
 
 	/**
@@ -124,8 +125,7 @@ class WikiPageEntityStore implements EntityStore {
 	 * @param string $summary the edit summary for the new revision.
 	 * @param User $user the user to whom to attribute the edit
 	 * @param int $flags EDIT_XXX flags, as defined for WikiPage::doEditContent.
-	 * @param int|bool $baseRevId the revision ID $entity is based on. Saving will
-	 * fail if $baseRevId is not the current revision ID.
+	 * @param int|bool $baseRevId the revision ID $entity is based on.
 	 *
 	 * @see EntityStore::saveEntity()
 	 * @see WikiPage::doEditContent
@@ -221,8 +221,6 @@ class WikiPageEntityStore implements EntityStore {
 			}
 		}
 
-		$entityContent->setBaseRevIdForSaving( $baseRevId );
-
 		// NOTE: make sure we start saving from a clean slate. Calling WikiPage::clearPreparedEdit
 		//       may cause the old content to be loaded from the database again. This may be
 		//       necessary, because EntityContent is mutable, so the cached object might have changed.
@@ -256,8 +254,6 @@ class WikiPageEntityStore implements EntityStore {
 				$entity->getId(),
 				$page->getTitle()->getArticleID() );
 		}
-
-		$entityContent->setBaseRevIdForSaving( false );
 
 		wfProfileOut( __METHOD__ );
 		return $status;
@@ -382,4 +378,5 @@ class WikiPageEntityStore implements EntityStore {
 		$title = $this->getTitleForEntity( $id );
 		return ( $title && $user->isWatched( $title ) );
 	}
+
 }

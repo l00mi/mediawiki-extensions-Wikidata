@@ -8,7 +8,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityViewPlaceholderExpander;
 use Wikibase\Item;
 
-
 /**
  * @covers Wikibase\EntityViewPlaceholderExpander
  *
@@ -42,7 +41,7 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 			->method( 'parse' )
 			->will( $this->returnValue( $entity->getId() ) );
 
-		$entityLookup = $this->getMock( 'Wikibase\EntityLookup' );
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
 		$idParser->expects( $this->any() )
 			->method( 'getEntity' )
 			->will( $this->returnValue( $entity ) );

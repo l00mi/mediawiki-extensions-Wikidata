@@ -45,8 +45,7 @@ class MergeItemsTest extends WikibaseApiTestCase {
 
 			$this->initTestEntities( array( 'Empty', 'Empty2' ) );
 
-			$prop = Property::newEmpty();
-			$prop->setDataTypeId( 'string' );
+			$prop = Property::newFromType( 'string' );
 			$store->saveEntity( $prop, 'mergeitemstest', $GLOBALS['wgUser'], EDIT_NEW );
 
 			self::$thePropertyId = $prop->getId();
@@ -367,6 +366,17 @@ class MergeItemsTest extends WikibaseApiTestCase {
 
 		// -- do the request --------------------------------------------
 		$this->doTestQueryExceptions( $params, $expected['exception'] );
+	}
+
+	public function testMergeNonExistingItem() {
+		$params = array(
+			'action' => 'wbmergeitems',
+			'fromid' => 'Q60457977',
+			'toid' => 'Q60457978'
+		);
+
+		$expectedException = array( 'type' => 'UsageException', 'code' => 'no-such-entity' );
+		$this->doTestQueryExceptions( $params, $expectedException );
 	}
 
 	/**

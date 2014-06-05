@@ -49,7 +49,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 		$entity->setId( $entityId );
 		$entity->setLabel( 'en', 'Label for ' . $entityId->getPrefixedId() );
 
-		$entityLookup = $this->getMock( 'Wikibase\EntityLookup' );
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
 		$entityLookup->expects( $this->any() )
 			->method( 'getEntity' )
 			->will( $this->returnValue( $entity ) );
@@ -201,7 +201,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 			'Formatter override'
 		);
 
-		$this->setExpectedException( 'Wikibase\Lib\FormattingException' );
+		$this->setExpectedException( 'ValueFormatters\FormattingException' );
 
 		$timeValue = new TimeValue(
 			'+00000002013-01-01T00:00:00Z',
@@ -243,7 +243,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 			'Extra formatter'
 		);
 
-		$this->setExpectedException( 'Wikibase\Lib\FormattingException' );
+		$this->setExpectedException( 'ValueFormatters\FormattingException' );
 
 		$timeValue = new TimeValue(
 			'+00000002013-01-01T00:00:00Z',
@@ -291,7 +291,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 			'Extra formatter'
 		);
 
-		$this->setExpectedException( 'Wikibase\Lib\FormattingException' );
+		$this->setExpectedException( 'ValueFormatters\FormattingException' );
 
 		$timeValue = new TimeValue(
 			'+00000002013-01-01T00:00:00Z',

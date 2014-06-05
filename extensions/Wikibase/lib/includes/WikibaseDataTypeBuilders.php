@@ -6,7 +6,7 @@ use DataTypes\DataType;
 use DataValues\TimeValue;
 use ValueValidators\ValueValidator;
 use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\EntityLookup;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Utils;
 use Wikibase\Validators\CompositeValidator;
 use Wikibase\Validators\DataFieldValidator;
@@ -32,24 +32,24 @@ use Wikibase\Validators\UrlValidator;
 class WikibaseDataTypeBuilders {
 
 	/**
-	 * @var EntityLookup
-	 */
-	private $entityLookup;
-
-	/**
 	 * @var EntityIdParser
 	 */
 	private $entityIdParser;
 
 	/**
-	 * @var array
+	 * @var EntityLookup
+	 */
+	private $entityLookup;
+
+	/**
+	 * @var string[]
 	 */
 	private $urlSchemes;
 
 	/**
-	 * @param EntityLookup   $lookup
+	 * @param EntityLookup $lookup
 	 * @param EntityIdParser $idParser
-	 * @param array          $urlSchemes
+	 * @param string[] $urlSchemes
 	 */
 	public function __construct(
 		EntityLookup $lookup,
@@ -71,14 +71,27 @@ class WikibaseDataTypeBuilders {
 		//     the dataTypes setting. On the other hand, perhaps that setting should only
 		//     be used for the UI, and the factory should simply know all data types always.
 
+		/**
+		 * Data types to data value types mapping:
+		 * commonsMedia     => string (camel case, FIXME maybe?)
+		 * globe-coordinate => globecoordinate (FIXME!)
+		 * monolingualtext  => monolingualtext
+		 * multilingualtext => multilingualtext
+		 * quantity         => quantity
+		 * string           => string
+		 * time             => time
+		 * url              => string
+		 * wikibase-item    => wikibase-entityid
+		 */
+
 		$types = array(
-			'commonsMedia' => array( $this, 'buildMediaType' ),
+			'commonsMedia'     => array( $this, 'buildMediaType' ),
 			'globe-coordinate' => array( $this, 'buildCoordinateType' ),
-			'quantity'=> array( $this, 'buildQuantityType' ),
-			'string' => array( $this, 'buildStringType' ),
-			'time' => array( $this, 'buildTimeType' ),
-			'url' => array( $this, 'buildUrlType' ),
-			'wikibase-item' => array( $this, 'buildItemType' ),
+			'quantity'         => array( $this, 'buildQuantityType' ),
+			'string'           => array( $this, 'buildStringType' ),
+			'time'             => array( $this, 'buildTimeType' ),
+			'url'              => array( $this, 'buildUrlType' ),
+			'wikibase-item'    => array( $this, 'buildItemType' ),
 		);
 
 		$experimental = array(
@@ -244,7 +257,7 @@ class WikibaseDataTypeBuilders {
 	}
 
 	/**
-	 * @param string $id Data type ID, e.g. 'globe-coordinate'
+	 * @param string $id Data type ID, typically 'globe-coordinate'
 	 *
 	 * @return DataType
 	 */
@@ -296,7 +309,7 @@ class WikibaseDataTypeBuilders {
 	}
 
 	/**
-	 * @param string $id Data type ID, e.g. 'url'
+	 * @param string $id Data type ID, typically 'url'
 	 *
 	 * @return DataType
 	 */
@@ -311,7 +324,7 @@ class WikibaseDataTypeBuilders {
 	}
 
 	/**
-	 * @param string $id Data type ID, e.g. 'quantity'
+	 * @param string $id Data type ID, typically 'quantity'
 	 *
 	 * @return DataType
 	 */

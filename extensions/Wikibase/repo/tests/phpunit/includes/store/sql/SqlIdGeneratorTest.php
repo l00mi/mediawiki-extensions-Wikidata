@@ -3,8 +3,8 @@
 namespace Wikibase\Test;
 
 use Wikibase\IdGenerator;
-use Wikibase\StoreFactory;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\StoreFactory;
 
 /**
  * @covers Wikibase\SqlIdGenerator
@@ -25,7 +25,7 @@ class SqlIdGeneratorTest extends \MediaWikiTestCase {
 		/**
 		 * @var IdGenerator $clone
 		 */
-		$generator = StoreFactory::getStore( 'sqlstore' )->newIdGenerator();
+		$generator = WikibaseRepo::getDefaultInstance()->getStore()->newIdGenerator();
 		$idBlacklist = WikibaseRepo::getDefaultInstance()->
 			getSettings()->getSetting( 'idBlacklist' );
 

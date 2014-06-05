@@ -4,7 +4,6 @@ namespace Wikibase\Api;
 
 use ApiBase;
 use ApiMain;
-use SiteSQLStore;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityRevision;
@@ -12,7 +11,6 @@ use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\StoreFactory;
 use Wikibase\StringNormalizer;
 use Wikibase\Utils;
 
@@ -150,7 +148,7 @@ class GetEntities extends ApiWikibase {
 	 * @return ItemByTitleHelper
 	 */
 	private function getItemByTitleHelper() {
-		$siteLinkCache = StoreFactory::getStore()->newSiteLinkCache();
+		$siteLinkCache = WikibaseRepo::getDefaultInstance()->getStore()->newSiteLinkCache();
 		$siteStore = WikibaseRepo::getDefaultInstance()->getSiteStore();
 		return new ItemByTitleHelper(
 			$this->getResultBuilder(),

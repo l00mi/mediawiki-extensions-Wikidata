@@ -3,14 +3,15 @@
 namespace Wikibase\Client\Scribunto\Test;
 
 use Language;
-use Wikibase\Test\MockRepository;
 use Wikibase\Client\Scribunto\WikibaseLuaEntityBindings;
-use Wikibase\EntityLookup;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Claim\Claim;
+use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\SnakFactory;
+use Wikibase\Test\MockRepository;
 
 /**
  * @covers Wikibase\Client\Scribunto\WikibaseLuaEntityBindings
@@ -71,7 +72,7 @@ class WikibaseLuaEntityBindingsTest extends \PHPUnit_Framework_TestCase {
 	 * @return EntityLookup
 	 */
 	private function getEntityLookupMock( Entity $entity = null ) {
-		$entityLookup = $this->getMock( 'Wikibase\EntityLookup' );
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
 
 		$entityLookup->expects( $this->any() )->method( 'getEntity' )
 			->will( $this->returnValue( $entity ) );

@@ -2,7 +2,6 @@
 
 namespace Wikibase\Tests\Repo;
 
-use Wikibase\DataModel\Entity\Item;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -40,12 +39,12 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetEntityRevisionLookupReturnType() {
 		$returnValue = $this->getDefaultInstance()->getEntityRevisionLookup();
-		$this->assertInstanceOf( 'Wikibase\EntityRevisionLookup', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\Lib\Store\EntityRevisionLookup', $returnValue );
 	}
 
 	public function testGetEntityStoreReturnType() {
 		$returnValue = $this->getDefaultInstance()->getEntityStore();
-		$this->assertInstanceOf( 'Wikibase\store\EntityStore', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\Lib\Store\EntityStore', $returnValue );
 	}
 
 	public function testGetPropertyDataTypeLookupReturnType() {
@@ -60,7 +59,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetEntityLookupReturnType() {
 		$returnValue = $this->getDefaultInstance()->getEntityLookup();
-		$this->assertInstanceOf( 'Wikibase\EntityLookup', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\Lib\Store\EntityLookup', $returnValue );
 	}
 
 	public function testGetSnakConstructionServiceReturnType() {

@@ -5,11 +5,12 @@ namespace Wikibase;
 use Hooks;
 use IContextSource;
 use Status;
-use User;
-use Wikibase\Repo\WikibaseRepo;
-use Wikibase\store\EntityStore;
-use WikiPage;
 use Title;
+use User;
+use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Lib\Store\EntityStore;
+use WikiPage;
 
 /**
  * Handler for editing activity, providing a unified interface for saving modified entities while performing
@@ -750,7 +751,10 @@ class EditEntity {
 
 		// Run edit filter hooks
 		$filterStatus = Status::newGood();
-		$entityContent = WikibaseRepo::getDefaultInstance()->getEntityContentFactory()->newFromEntity( $this->newEntity );
+
+		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
+		$entityContent = $entityContentFactory->newFromEntity( $this->newEntity );
+
 		if ( !wfRunHooks( 'EditFilterMergedContent',
 			array( $context, $entityContent, &$filterStatus, $summary, $this->getUser(), false ) ) ) {
 
@@ -844,9 +848,9 @@ class EditEntity {
 			return false;
 		}
 
-		$text = $this->status->getMessage();
+		$text = $this->status->getHTML();
 
-		$out->addHTML( \Html::element( 'div', array( 'class' => 'error' ), $text ) );
+		$out->addHTML( \Html::rawElement( 'div', array( 'class' => 'error' ), $text ) );
 
 		wfProfileOut( __METHOD__ );
 		return true;

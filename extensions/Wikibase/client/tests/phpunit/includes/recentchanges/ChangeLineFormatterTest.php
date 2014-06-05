@@ -6,7 +6,6 @@ use ChangesList;
 use Language;
 use RecentChange;
 use RequestContext;
-use MediaWikiTestCase;
 use Wikibase\ChangeLineFormatter;
 use Wikibase\ExternalChangeFactory;
 use Wikibase\RepoLinker;
@@ -22,7 +21,7 @@ use Wikibase\RepoLinker;
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class ChangeLineFormatterTest extends MediaWikiTestCase {
+class ChangeLineFormatterTest extends \MediaWikiTestCase {
 
 	protected $repoLinker;
 

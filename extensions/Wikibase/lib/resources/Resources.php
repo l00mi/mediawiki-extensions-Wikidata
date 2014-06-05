@@ -1,10 +1,7 @@
 <?php
 
-use DataTypes\DataTypeFactory;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Settings;
 
 /**
  * File for Wikibase resourceloader modules.
@@ -511,8 +508,9 @@ return call_user_func( function() {
 				'jquery.wikibase/jquery.wikibase.siteselector.js'
 			),
 			'dependencies' => array(
+				'jquery.event.special.eachchange',
+				'jquery.ui.ooMenu',
 				'jquery.ui.suggester',
-				'wikibase'
 			)
 		),
 
@@ -710,12 +708,10 @@ return call_user_func( function() {
 				'jquery.wikibase/themes/default/jquery.wikibase.entityselector.css'
 			),
 			'dependencies' => array(
-				'jquery.autocompletestring',
 				'jquery.event.special.eachchange',
 				'jquery.ui.suggester',
-				'jquery.ui.resizable',
+				'jquery.ui.ooMenu',
 				'jquery.ui.widget',
-				'jquery.util.adaptlettercase',
 			),
 			'messages' => array(
 				'wikibase-aliases-label',

@@ -4,8 +4,8 @@ namespace Wikibase\Test;
 
 use Wikibase\Lib\Serializers\ByPropertyListSerializer;
 use Wikibase\Lib\Serializers\ClaimSerializer;
-use Wikibase\Lib\Serializers\Serializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
+use Wikibase\Lib\Serializers\Serializer;
 use Wikibase\Lib\Serializers\SnakSerializer;
 
 /**
@@ -38,14 +38,6 @@ class SerializerTest extends \MediaWikiTestCase {
 	 */
 	public function testSetOptions( Serializer $serializer ) {
 		$serializer->setOptions( new SerializationOptions() );
-		$this->assertTrue( true );
-	}
-
-	/**
-	 * @dataProvider apiSerializerProvider
-	 * @param Serializer $serializer
-	 */
-	public function testSetApiResult( Serializer $serializer ) {
 		$this->assertTrue( true );
 	}
 

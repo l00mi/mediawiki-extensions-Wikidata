@@ -5,11 +5,11 @@ namespace Wikibase;
 use CentralAuthUser;
 use IJobSpecification;
 use JobQueueGroup;
+use JobSpecification;
 use RuntimeException;
 use Title;
 use User;
-use Wikibase\DataModel\SimpleSiteLink;
-use JobSpecification;
+use Wikibase\DataModel\SiteLink;
 
 /**
  * Provides logic to update the repo after certain changes have been
@@ -84,7 +84,7 @@ abstract class UpdateRepo {
 	public function getEntityId() {
 		if ( $this->entityId === false ) {
 			$this->entityId = $this->siteLinkLookup->getEntityIdForSiteLink(
-				new SimpleSiteLink(
+				new SiteLink(
 					$this->siteId,
 					$this->title->getFullText()
 				)

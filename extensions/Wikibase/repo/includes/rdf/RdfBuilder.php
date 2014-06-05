@@ -8,7 +8,7 @@ use EasyRdf_Literal;
 use EasyRdf_Namespace;
 use EasyRdf_Resource;
 use SiteList;
-use SiteSQLStore;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * RDF mapping for wikibase data model.

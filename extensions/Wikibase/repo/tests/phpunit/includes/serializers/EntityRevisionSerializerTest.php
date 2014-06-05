@@ -2,17 +2,17 @@
 
 namespace Wikibase\Test;
 
+use Title;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\EntityRevision;
 use Wikibase\EntityTitleLookup;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageWithConversion;
+use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Property;
 use Wikibase\Serializers\EntityRevisionSerializationOptions;
 use Wikibase\Serializers\EntityRevisionSerializer;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Title;
 
 /**
  * @covers Wikibase\Serializers\EntityRevisionSerializer
@@ -77,9 +77,8 @@ class EntityRevisionSerializerTest extends SerializerBaseTest {
 		$entityContentSerializerOptions =
 			new EntityRevisionSerializationOptions( $entitySerializerOptions );
 
-		$entity = Property::newEmpty();
+		$entity = Property::newFromType( 'foo' );
 		$entity->setId( new PropertyId( 'P652320' ) );
-		$entity->setDataTypeId( 'foo' );
 
 		$expectedEntityPageTitle = $this->getTitleForId( $entity->getId() );
 

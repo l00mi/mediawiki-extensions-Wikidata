@@ -32,7 +32,6 @@ use User;
 use Wikibase\Hook\MakeGlobalVariablesScriptHandler;
 use Wikibase\Hook\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Validators\TermValidatorFactory;
 use WikiPage;
 
 /**
@@ -149,16 +148,9 @@ final class RepoHooks {
 			wfWarn( "Database type '$type' is not supported by the Wikibase repository." );
 		}
 
-		$defaultStore = WikibaseRepo::getDefaultInstance()->
-			getSettings()->getSetting( 'defaultStore' );
-
-		if ( $defaultStore === 'sqlstore' ) {
-			/**
-			 * @var SQLStore $store
-			 */
-			$store = StoreFactory::getStore( 'sqlstore' );
-			$store->doSchemaUpdate( $updater );
-		}
+		/* @var SqlStore $store */
+		$store = WikibaseRepo::getDefaultInstance()->getStore();
+		$store->doSchemaUpdate( $updater );
 
 		return true;
 	}
@@ -262,8 +254,7 @@ final class RepoHooks {
 				'time' => $revision->getTimestamp(),
 			) );
 
-			$changeNotifier = new ChangeNotifier();
-			$changeNotifier->handleChange( $change );
+			WikibaseRepo::getDefaultInstance()->newChangeNotifier()->handleChange( $change );
 		}
 
 		wfProfileOut( __METHOD__ );
@@ -319,8 +310,7 @@ final class RepoHooks {
 
 		$change->setMetadataFromUser( $user );
 
-		$changeNotifier = new ChangeNotifier();
-		$changeNotifier->handleChange( $change );
+		WikibaseRepo::getDefaultInstance()->newChangeNotifier()->handleChange( $change );
 
 		wfProfileOut( __METHOD__ );
 		return true;
@@ -344,39 +334,43 @@ final class RepoHooks {
 
 		// Bail out if we are not looking at an entity
 		if ( !$entityContentFactory->isEntityContentModel( $title->getContentModel() ) ) {
+			wfProfileOut( __METHOD__ );
 			return true;
 		}
 
 		$revId = $title->getLatestRevID();
-		$content = $entityContentFactory->getFromRevision( $revId );
+		$revision = Revision::newFromId( $revId );
+		$content = $revision ? $revision->getContent() : null;
 
-		if ( $content ) {
-			//XXX: EntityContent::save() also does this. Why are we doing this twice?
-			StoreFactory::getStore()->newEntityPerPage()->addEntityPage(
-				$content->getEntity()->getId(),
-				$title->getArticleID()
-			);
-
-			$entity = $content->getEntity();
-
-			$rev = Revision::newFromId( $revId );
-
-			$userId = $rev->getUser();
-			$change = EntityChange::newFromUpdate( EntityChange::RESTORE, null, $entity, array(
-				// TODO: Use timestamp of log entry, but needs core change.
-				// This hook is called before the log entry is created.
-				'revision_id' => $revId,
-				'user_id' => $userId,
-				'object_id' => $entity->getId()->getPrefixedId(),
-				'time' => wfTimestamp( TS_MW, wfTimestampNow() )
-			) );
-
-			$user = User::newFromId( $userId );
-			$change->setMetadataFromUser( $user );
-
-			$changeNotifier = new ChangeNotifier();
-			$changeNotifier->handleChange( $change );
+		if ( !$content instanceof EntityContent ) {
+			wfProfileOut( __METHOD__ );
+			return true;
 		}
+
+		$entity = $content->getEntity();
+
+		//XXX: EntityContent::save() also does this. Why are we doing this twice?
+		WikibaseRepo::getDefaultInstance()->getStore()->newEntityPerPage()->addEntityPage(
+			$entity->getId(),
+			$title->getArticleID()
+		);
+
+		$rev = Revision::newFromId( $revId );
+
+		$userId = $rev->getUser();
+		$change = EntityChange::newFromUpdate( EntityChange::RESTORE, null, $entity, array(
+			// TODO: Use timestamp of log entry, but needs core change.
+			// This hook is called before the log entry is created.
+			'revision_id' => $revId,
+			'user_id' => $userId,
+			'object_id' => $entity->getId()->getPrefixedId(),
+			'time' => wfTimestamp( TS_MW, wfTimestampNow() )
+		) );
+
+		$user = User::newFromId( $userId );
+		$change->setMetadataFromUser( $user );
+
+		WikibaseRepo::getDefaultInstance()->newChangeNotifier()->handleChange( $change );
 
 		wfProfileOut( __METHOD__ );
 		return true;
@@ -569,10 +563,9 @@ final class RepoHooks {
 	public static function onWikibaseRebuildData( $reportMessage ) {
 		wfProfileIn( __METHOD__ );
 
-		$store = StoreFactory::getStore();
-		$stores = array_flip( $GLOBALS['wgWBStores'] );
+		$store = WikibaseRepo::getDefaultInstance()->getStore();
 
-		$reportMessage( 'Starting rebuild of the Wikibase repository ' . $stores[get_class( $store )] . ' store...' );
+		$reportMessage( 'Starting rebuild of the Wikibase repository ' . get_class( $store ) . ' store...' );
 
 		$store->rebuild();
 
@@ -639,10 +632,9 @@ final class RepoHooks {
 
 		$reportMessage( "done!\n" );
 
-		$store = StoreFactory::getStore();
-		$stores = array_flip( $GLOBALS['wgWBStores'] );
+		$store = WikibaseRepo::getDefaultInstance()->getStore();
 
-		$reportMessage( 'Deleting data from the ' . $stores[get_class( $store )] . ' store...' );
+		$reportMessage( 'Deleting data from the ' . get_class( $store ) . ' store...' );
 
 		$store->clear();
 

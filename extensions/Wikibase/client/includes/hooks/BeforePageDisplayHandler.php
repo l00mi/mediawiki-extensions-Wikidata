@@ -2,13 +2,11 @@
 
 namespace Wikibase\Client\Hooks;
 
-use Action;
 use OutputPage;
 use Skin;
 use Title;
 use User;
 use Wikibase\NamespaceChecker;
-use Wikibase\SettingsArray;
 
 /**
  * @since 0.5
@@ -33,10 +31,11 @@ class BeforePageDisplayHandler {
 	/**
 	 * @note in php5, $out is by passed by reference (by default, so &$out is not needed)
 	 *
-	 * @param OutputPage &$out
+	 * @param OutputPage $out
 	 * @param Skin $skin
+	 * @param string $actionName
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function addModules( OutputPage $out, Skin $skin, $actionName ) {
 		$title = $out->getTitle();

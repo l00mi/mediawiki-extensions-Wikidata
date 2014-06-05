@@ -19,10 +19,10 @@ use RecentChange;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
-use SpecialWatchlist;
-use SplFileInfo;
 use Skin;
 use SpecialRecentChanges;
+use SpecialWatchlist;
+use SplFileInfo;
 use StripState;
 use Title;
 use UnexpectedValueException;
@@ -30,9 +30,10 @@ use User;
 use Wikibase\Client\Hooks\BaseTemplateAfterPortletHandler;
 use Wikibase\Client\Hooks\BeforePageDisplayHandler;
 use Wikibase\Client\Hooks\InfoActionHookHandler;
+use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
+use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\SpecialWatchlistQueryHandler;
 use Wikibase\Client\MovePageNotice;
-use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -48,6 +49,7 @@ use Wikibase\Client\WikibaseClient;
  * @author Tobias Gritschacher
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Marius Hoch < hoo@online.de >
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 final class ClientHooks {
 
@@ -102,9 +104,8 @@ final class ClientHooks {
 		wfProfileIn( __METHOD__ );
 
 		$store = WikibaseClient::getDefaultInstance()->getStore();
-		$stores = array_flip( $GLOBALS['wgWBClientStores'] );
 
-		$reportMessage( "Deleting data from the " . $stores[get_class( $store )] . " store..." );
+		$reportMessage( "Deleting data from the " . get_class( $store ) . " store..." );
 
 		$store->clear();
 
@@ -137,17 +138,18 @@ final class ClientHooks {
 		wfProfileIn( __METHOD__ );
 
 		$store = WikibaseClient::getDefaultInstance()->getStore();
-		$stores = array_flip( $GLOBALS['wgWBClientStores'] );
-		$reportMessage( "Rebuilding all data in the " . $stores[get_class( $store )]
+		$reportMessage( "Rebuilding all data in the " . get_class( $store )
 			. " store on the client..." );
 		$store->rebuild();
-		$changes = ChangesTable::singleton();
-		$changes = $changes->select(
+
+		$changesTable = new ChangesTable();
+		$changes = $changesTable->select(
 			null,
 			array(),
 			array(),
 			__METHOD__
 		);
+
 		ChangeHandler::singleton()->handleChanges( iterator_to_array( $changes ) );
 		$reportMessage( "done!\n" );
 
@@ -400,6 +402,48 @@ final class ClientHooks {
 	}
 
 	/**
+	 * Add badges to the language links.
+	 *
+	 * @since 0.5
+	 *
+	 * @param array &$languageLink
+	 * @param Title $languageLinkTitle
+	 * @param Title $title
+	 *
+	 * @return bool
+	 */
+	public static function onSkinTemplateGetLanguageLink( &$languageLink, Title $languageLinkTitle, Title $title ) {
+		wfProfileIn( __METHOD__ );
+
+		global $wgLang;
+
+		$wikibaseClient = WikibaseClient::getDefaultInstance();
+		$settings = $wikibaseClient->getSettings();
+
+		$clientSiteLinkLookup = $wikibaseClient->getClientSiteLinkLookup();
+		$entityLookup = $wikibaseClient->getStore()->getEntityLookup();
+		$sites = $wikibaseClient->getSiteStore()->getSites();
+		$badgeClassNames = $settings->getSetting( 'badgeClassNames' );
+
+		if ( !is_array( $badgeClassNames ) ) {
+			$badgeClassNames = array();
+		}
+
+		$languageLinkBadgeDisplay = new LanguageLinkBadgeDisplay(
+			$clientSiteLinkLookup,
+			$entityLookup,
+			$sites,
+			$badgeClassNames,
+			$wgLang
+		);
+
+		$languageLinkBadgeDisplay->assignBadges( $title, $languageLinkTitle, $languageLink );
+
+		wfProfileOut( __METHOD__ );
+		return true;
+	}
+
+	/**
 	 * Add Wikibase item link in toolbox
 	 *
 	 * @since 0.4
@@ -407,7 +451,7 @@ final class ClientHooks {
 	 * @param QuickTemplate &$sk
 	 * @param array &$toolbox
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function onBaseTemplateToolbox( QuickTemplate &$sk, &$toolbox ) {
 		$prefixedId = $sk->getSkin()->getOutput()->getProperty( 'wikibase_item' );

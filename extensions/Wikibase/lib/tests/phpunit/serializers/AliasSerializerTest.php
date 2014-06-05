@@ -3,8 +3,8 @@
 namespace Wikibase\Test;
 
 use InvalidArgumentException;
-use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\AliasSerializer;
+use Wikibase\Lib\Serializers\SerializationOptions;
 
 /**
  * @covers Wikibase\Lib\Serializers\AliasSerializer
@@ -91,7 +91,7 @@ class AliasSerializerTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testInvalidGetSerialized( $aliases ) {
 		$aliasSerializer = new AliasSerializer();
-		$serializedAliases = $aliasSerializer->getSerialized( $aliases );
+		$aliasSerializer->getSerialized( $aliases );
 	}
 
 	/**

@@ -2,9 +2,11 @@
 
 namespace Wikibase\Client;
 
-use Wikibase\SiteLinkLookup;
-use Wikibase\EntityLookup;
 use Title;
+use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\SiteLink;
+use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\SiteLinkLookup;
 
 /**
  * Provides access to sitelinks on repo.
@@ -30,6 +32,11 @@ class ClientSiteLinkLookup {
 	 * @var EntityLookup
 	 */
 	private $entityLookup;
+
+	/**
+	 * @var array
+	 */
+	private $cachedItems = array();
 
 	/**
 	 * @param string $localSiteId global id of the client wiki
@@ -80,23 +87,31 @@ class ClientSiteLinkLookup {
 	}
 
 	/**
-	 * Finds the corresponding item on the repository.
+	 * Finds the corresponding item on the repository
+	 * and caches the result in an array.
 	 *
 	 * @param Title $title
 	 *
 	 * @return Item|null
 	 */
 	private function getItem( Title $title ) {
-		$itemId = $this->siteLinkLookup->getItemIdForLink(
-			$this->localSiteId,
-			$title->getPrefixedText()
-		);
+		$prefixedText = $title->getPrefixedText();
 
-		if ( $itemId === null ) {
-			return null;
+		if ( !array_key_exists( $prefixedText, $this->cachedItems ) ) {
+			$itemId = $this->siteLinkLookup->getItemIdForLink(
+				$this->localSiteId,
+				$prefixedText
+			);
+
+			if ( $itemId === null ) {
+				$this->cachedItems[$prefixedText] = null;
+			}
+			else {
+				$this->cachedItems[$prefixedText] = $this->entityLookup->getEntity( $itemId );
+			}
 		}
 
-		return $this->entityLookup->getEntity( $itemId );
+		return $this->cachedItems[$prefixedText];
 	}
 
 }

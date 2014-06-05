@@ -13,7 +13,6 @@ use SiteList;
 use Title;
 use UsageException;
 use Wikibase\ChangeOp\ChangeOp;
-use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOps;
 use Wikibase\ChangeOp\ClaimChangeOpFactory;
 use Wikibase\ChangeOp\FingerprintChangeOpFactory;
@@ -24,7 +23,7 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\EntityFactory;
-use Wikibase\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
@@ -276,9 +275,10 @@ class EditEntity extends ModifyEntity {
 			$this->validateMultilangArgs( $arg, $langCode );
 
 			$language = $arg['language'];
-			$newLabel = $this->stringNormalizer->trimToNFC( $arg['value'] );
+			$newLabel = ( array_key_exists( 'remove', $arg ) ? '' :
+				$this->stringNormalizer->trimToNFC( $arg['value'] ) );
 
-			if ( array_key_exists( 'remove', $arg ) || $newLabel === "" ) {
+			if ( $newLabel === "" ) {
 				$labelChangeOps[] = $this->termChangeOpFactory->newRemoveLabelOp( $language );
 			}
 			else {
@@ -305,9 +305,10 @@ class EditEntity extends ModifyEntity {
 			$this->validateMultilangArgs( $arg, $langCode );
 
 			$language = $arg['language'];
-			$newDescription = $this->stringNormalizer->trimToNFC( $arg['value'] );
+			$newDescription = ( array_key_exists( 'remove', $arg ) ? '' :
+				$this->stringNormalizer->trimToNFC( $arg['value'] ) );
 
-			if ( array_key_exists( 'remove', $arg ) || $newDescription === "" ) {
+			if ( $newDescription === "" ) {
 				$descriptionChangeOps[] = $this->termChangeOpFactory->newRemoveDescriptionOp( $language );
 			}
 			else {
@@ -808,8 +809,8 @@ class EditEntity extends ModifyEntity {
 			// Setting stuff
 			'api.php?action=wbeditentity&id=Q42&data={"sitelinks":{"nowiki":{"site":"nowiki","title":"København"}}}'
 			=> 'Sets sitelink for nowiki, overwriting it if it already exists',
-			'api.php?action=wbeditentity&id=Q42&data={"descriptions":{"no":{"language":"no","value":"no-Description-Here"}}}'
-			=> 'Sets description for no, overwriting it if it already exists',
+			'api.php?action=wbeditentity&id=Q42&data={"descriptions":{"nb":{"language":"nb","value":"nb-Description-Here"}}}'
+			=> 'Sets description for nb, overwriting it if it already exists',
 			'api.php?action=wbeditentity&id=Q42&data={"claims":[{"mainsnak":{"snaktype":"value","property":"P56","datavalue":{"value":"ExampleString","type":"string"}},"type":"statement","rank":"normal"}]}'
 			=> 'Creates a new claim on the item for the property P56 and a value of "ExampleString"',
 			'api.php?action=wbeditentity&id=Q42&data={"claims":[{"id":"Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F","remove":""},{"id":"Q42$GH678DSA-01PQ-28XC-HJ90-DDFD9990126X","remove":""}]}'
@@ -847,7 +848,7 @@ class EditEntity extends ModifyEntity {
 				"unknown language: {$arg['language']}",
 				'not-recognized-language' );
 		}
-		if ( !is_string( $arg['value'] ) ) {
+		if ( !array_key_exists( 'remove', $arg ) && !is_string( $arg['value'] ) ) {
 			$this->dieUsage(
 				"A string was expected, but not found in the json for the langCode {$langCode} and argument 'value'" ,
 				'not-recognized-string' );

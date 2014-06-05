@@ -118,7 +118,7 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 		}
 
 		// only enable site page selector if there is a valid site id selected
-		pageInterface[ idInterface.isValid() ? 'enable' : 'disable' ]();
+		pageInterface[ idInterface.isValid() && idInterface.isEnabled() ? 'enable' : 'disable' ]();
 	},
 
 	/**
@@ -234,7 +234,7 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 	/**
 	 * Calling the corresponding method in the wikibase.RepoApi
 	 *
-	 * @param number apiAction see this.API_ACTION enum for all available actions
+	 * @param {number} apiAction see this.API_ACTION enum for all available actions
 	 * @return {jQuery.Promise}
 	 */
 	queryApi: function( apiAction ) {

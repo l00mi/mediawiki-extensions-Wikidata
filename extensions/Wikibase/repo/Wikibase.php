@@ -1,9 +1,36 @@
 <?php
-use ValueParsers\ValueParser;
+
+/**
+ * Welcome to the inside of Wikibase,              <>
+ * the software that powers                   /\        /\
+ * Wikidata and other                       <{  }>    <{  }>
+ * structured data websites.        <>   /\   \/   /\   \/   /\   <>
+ *                                     //  \\    //  \\    //  \\
+ * It is Free Software.              <{{    }}><{{    }}><{{    }}>
+ *                                /\   \\  //    \\  //    \\  //   /\
+ *                              <{  }>   ><        \/        ><   <{  }>
+ *                                \/   //  \\              //  \\   \/
+ *                            <>     <{{    }}>     +--------------------------+
+ *                                /\   \\  //       |                          |
+ *                              <{  }>   ><        /|  W  I  K  I  B  A  S  E  |
+ *                                \/   //  \\    // |                          |
+ * We are                            <{{    }}><{{  +--------------------------+
+ * looking for people                  \\  //    \\  //    \\  //
+ * like you to join us in           <>   \/   /\   \/   /\   \/   <>
+ * developing it further. Find              <{  }>    <{  }>
+ * out more at http://wikiba.se               \/        \/
+ * and join the open data revolution.              <>
+ */
 
 /**
  * Entry point for the Wikibase Repository extension.
+ *
+ * @see README.md
+ * @see https://www.mediawiki.org/wiki/Extension:Wikibase_Repository
+ * @licence GNU GPL v2+
  */
+
+use ValueParsers\ValueParser;
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( 'Not an entry point.' );
@@ -37,8 +64,8 @@ if ( !defined( 'WBL_VERSION' ) ) {
 
 call_user_func( function() {
 	global $wgExtensionCredits, $wgGroupPermissions, $wgExtensionMessagesFiles, $wgMessagesDirs;
-	global $wgAPIModules, $wgSpecialPages, $wgSpecialPageGroups, $wgHooks, $wgContentHandlers;
-	global $wgWBStores, $wgWBRepoSettings, $wgResourceModules, $wgValueParsers, $wgJobClasses;
+	global $wgAPIModules, $wgSpecialPages, $wgSpecialPageGroups, $wgHooks;
+	global $wgWBRepoSettings, $wgResourceModules, $wgValueParsers, $wgJobClasses;
 
 	$wgExtensionCredits['wikibase'][] = array(
 		'path' => __DIR__,
@@ -187,10 +214,6 @@ call_user_func( function() {
 
 	// Resource Loader Modules:
 	$wgResourceModules = array_merge( $wgResourceModules, include( __DIR__ . "/resources/Resources.php" ) );
-
-	$wgWBStores = array();
-
-	$wgWBStores['sqlstore'] = 'Wikibase\SqlStore';
 
 	$wgWBRepoSettings = array_merge(
 		require( __DIR__ . '/../lib/config/WikibaseLib.default.php' ),

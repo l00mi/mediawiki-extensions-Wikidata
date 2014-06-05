@@ -5,7 +5,6 @@ namespace Wikibase\Test\Api;
 use DataValues\NumberValue;
 use DataValues\StringValue;
 use FormatJson;
-use Revision;
 use UsageException;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
@@ -21,9 +20,9 @@ use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Lib\ClaimGuidGenerator;
 
 /**
  * @covers Wikibase\Api\SetClaim
@@ -60,8 +59,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 		$propertyIds = array();
 
 		for( $i = 0; $i < 4; $i++ ) {
-			$property = Property::newEmpty();
-			$property->setDataTypeId( 'string' );
+			$property = Property::newFromType( 'string' );
 
 			$store->saveEntity( $property, 'testing', $GLOBALS['wgUser'], EDIT_NEW );
 

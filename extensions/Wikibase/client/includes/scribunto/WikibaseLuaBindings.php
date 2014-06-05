@@ -2,16 +2,15 @@
 
 namespace Wikibase\Client\Scribunto;
 
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
-use Wikibase\Lib\EntityIdFormatter;
-use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\SiteLinkLookup;
-use Wikibase\EntityLookup;
-use Wikibase\Entity;
 use Language;
+use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\Serializers\SerializationOptions;
+use Wikibase\Lib\Serializers\Serializer;
+use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\SiteLinkLookup;
 
 /**
  * Actual implementations of the functions to access Wikibase through the Scribunto extension
@@ -24,25 +23,39 @@ use Language;
  */
 class WikibaseLuaBindings {
 
-	/* @var EntityIdParser */
+	/**
+	 * @var EntityIdParser
+	 */
 	private $entityIdParser;
 
-	/* @var EntityLookup */
+	/**
+	 * @var EntityLookup
+	 */
 	private $entityLookup;
 
-	/* @var SiteLinkLookup */
+	/**
+	 * @var SiteLinkLookup
+	 */
 	private $siteLinkTable;
 
-	/* @var LanguageFallbackChainFactory */
+	/**
+	 * @var LanguageFallbackChainFactory
+	 */
 	private $fallbackChainFactory;
 
-	/* @var Language */
+	/**
+	 * @var Language
+	 */
 	private $language;
 
-	/* @var string[] */
+	/**
+	 * @var string[]
+	 */
 	private $languageCodes;
 
-	/* @var string */
+	/**
+	 * @var string
+	 */
 	private $siteId;
 
 	/**
@@ -51,8 +64,8 @@ class WikibaseLuaBindings {
 	 * @param SiteLinkLookup $siteLinkTable
 	 * @param LanguageFallbackChainFactory $fallbackChainFactory
 	 * @param Language $language
-	 * @param $languageCodes
-	 * @param $siteId
+	 * @param string[] $languageCodes
+	 * @param string $siteId
 	 */
 	public function __construct(
 		EntityIdParser $entityIdParser,
@@ -80,7 +93,7 @@ class WikibaseLuaBindings {
 	 *
 	 * @param array &$entityArr
 	 */
-	public function renumber( &$entityArr ) {
+	public function renumber( array &$entityArr ) {
 		foreach( $entityArr as &$value ) {
 			if ( !is_array( $value ) ) {
 				continue;
@@ -194,4 +207,5 @@ class WikibaseLuaBindings {
 	public function getGlobalSiteId() {
 		return $this->siteId;
 	}
+
 }

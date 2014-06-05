@@ -6,15 +6,12 @@ use Content;
 use DataUpdate;
 use IContextSource;
 use ParserOutput;
-use Status;
 use Title;
-use User;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Utils;
 use WikiPage;
 
 /**
@@ -107,7 +104,7 @@ class PropertyContent extends EntityContent {
 	 * @return PropertyContent
 	 */
 	public static function newEmpty() {
-		return new static( Property::newEmpty() );
+		return new static( Property::newFromType( 'string' ) );
 	}
 
 	/**
@@ -138,7 +135,7 @@ class PropertyContent extends EntityContent {
 		return array_merge(
 			parent::getDeletionUpdates( $page, $parserOutput ),
 			array(
-				new EntityDeletionUpdate( $this ),
+				new EntityDeletionUpdate( $this, $page->getTitle() ),
 				new PropertyInfoDeletion( $this->getProperty()->getId(), $infoStore ),
 			)
 		);

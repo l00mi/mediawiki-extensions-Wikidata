@@ -3,22 +3,15 @@
 namespace Wikibase;
 
 use Content;
-use DatabaseBase;
 use DataUpdate;
 use IContextSource;
-use Message;
 use ParserOutput;
-use SiteSQLStore;
-use Status;
 use Title;
-use User;
 use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Repo\ItemSearchTextGenerator;
-use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
 
 /**
@@ -145,7 +138,7 @@ class ItemContent extends EntityContent {
 	public function getDeletionUpdates( WikiPage $page, ParserOutput $parserOutput = null ) {
 		return array_merge(
 			parent::getDeletionUpdates( $page, $parserOutput ),
-			array( new ItemDeletionUpdate( $this ) )
+			array( new ItemDeletionUpdate( $this, $page->getTitle() ) )
 		);
 	}
 

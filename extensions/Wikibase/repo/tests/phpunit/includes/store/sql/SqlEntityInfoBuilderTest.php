@@ -5,8 +5,8 @@ namespace Wikibase\Test;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Property;
 use Wikibase\Item;
+use Wikibase\Property;
 use Wikibase\SqlEntityInfoBuilder;
 
 /**
@@ -240,6 +240,8 @@ class SqlEntityInfoBuilderTest extends \MediaWikiTestCase {
 
 		$builder->addTerms( $entityInfo, $types, $languages );
 
+		$this->assertSameSize( $expected, $entityInfo );
+
 		foreach ( $expected as $id => $expectedRecord ) {
 			$this->assertArrayHasKey( $id, $entityInfo );
 			$actualRecord = $entityInfo[$id];
@@ -279,6 +281,8 @@ class SqlEntityInfoBuilderTest extends \MediaWikiTestCase {
 		$builder = $this->newEntityInfoBuilder();
 
 		$builder->addDataTypes( $entityInfo );
+
+		$this->assertSameSize( $expected, $entityInfo );
 
 		foreach ( $expected as $id => $expectedRecord ) {
 			$this->assertArrayHasKey( $id, $entityInfo );

@@ -5,6 +5,7 @@ namespace Wikibase;
 use MWException;
 use RecentChange;
 use User;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
 
 /**
  * Represents a change for an entity; to be extended by various change subtypes
@@ -109,8 +110,9 @@ class EntityChange extends DiffChange {
 	 */
 	public function getEntityId() {
 		if ( !$this->entityId && $this->hasField( 'object_id' ) ) {
-			$id = $this->getObjectId();
-			$this->entityId = EntityId::newFromPrefixedId( $id );
+			// FIXME: this should be an injected EntityIdParser
+			$idParser = new BasicEntityIdParser();
+			$this->entityId = $idParser->parse( $this->getObjectId() );
 		}
 
 		return $this->entityId;
@@ -298,7 +300,7 @@ class EntityChange extends DiffChange {
 	 * @param Entity|null $newEntity
 	 * @param array|null  $fields additional fields to set
 	 *
-	 * @return EntityChange
+	 * @return static
 	 * @throws MWException
 	 */
 	public static function newFromUpdate( $action, Entity $oldEntity = null, Entity $newEntity = null, array $fields = null ) {

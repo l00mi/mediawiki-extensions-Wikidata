@@ -2,8 +2,8 @@
 
 namespace Wikibase\Lib\Specials;
 
-use SpecialPage;
 use Html;
+use SpecialPage;
 use UserBlockedError;
 use Wikibase\StringNormalizer;
 
@@ -90,19 +90,6 @@ abstract class SpecialWikibasePage extends SpecialPage {
 			$this->displayRestrictionError();
 		}
 		return true;
-	}
-
-	/**
-	 * Adds the "copyright info message" to the HTML output.
-	 */
-	protected function showCopyrightMessage() {
-		$this->getOutput()->addHTML(
-			Html::rawElement(
-				'div',
-				array(),
-				Utils::getCopyrightMessage()->parse()
-			)
-		);
 	}
 
 	/**

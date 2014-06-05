@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d543af6aa1aa05a9b334850890d14ee8",
+    "hash": "6b01da169419c3e0299605ee083cd871",
     "packages": [
         {
             "name": "composer/installers",
@@ -364,16 +364,16 @@
         },
         {
             "name": "data-values/javascript",
-            "version": "0.5",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataValuesJavascript.git",
-                "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722"
+                "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
-                "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
+                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
+                "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
                 "shasum": ""
             },
             "require": {
@@ -414,7 +414,7 @@
                 "datavalues",
                 "wikidata"
             ],
-            "time": "2014-03-28 14:20:37"
+            "time": "2014-06-04 10:58:47"
         },
         {
             "name": "data-values/number",
@@ -626,16 +626,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.5.1",
+            "version": "0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d"
+                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
-                "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/b75392a4a351f00a9eacd2130120a643b2c121d3",
+                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3",
                 "shasum": ""
             },
             "require": {
@@ -668,7 +668,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-04-01 08:05:07"
+            "time": "2014-06-04 10:27:24"
         },
         {
             "name": "diff/diff",
@@ -865,16 +865,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-mw1.24-wmf6",
+            "version": "dev-mw1.24-wmf8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "5e63a210b0ff0410be053d634d15f66ddb166099"
+                "reference": "3729cb52795ff157c97cdc534c3b2df21ca8b016"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/5e63a210b0ff0410be053d634d15f66ddb166099",
-                "reference": "5e63a210b0ff0410be053d634d15f66ddb166099",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3729cb52795ff157c97cdc534c3b2df21ca8b016",
+                "reference": "3729cb52795ff157c97cdc534c3b2df21ca8b016",
                 "shasum": ""
             },
             "require": {
@@ -883,15 +883,15 @@
                 "data-values/data-values": "~0.1.0",
                 "data-values/geo": "~0.1.0",
                 "data-values/interfaces": "~0.1.4",
-                "data-values/javascript": "~0.5.0",
+                "data-values/javascript": "~0.5.1",
                 "data-values/number": "~0.4.0",
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.5.2",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.5.0",
+                "data-values/value-view": "~0.6.0",
                 "diff/diff": "~1.0",
                 "php": ">=5.3.2",
-                "wikibase/data-model": "~0.7.3",
+                "wikibase/data-model": "~0.7.4",
                 "wikibase/easyrdf_lite": "~0.8.1"
             },
             "conflict": {
@@ -937,7 +937,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-05-28 12:32:03"
+            "time": "2014-06-04 19:54:54"
         }
     ],
     "packages-dev": [

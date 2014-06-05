@@ -2,7 +2,9 @@
 	"@metadata": {
 		"authors": [
 			"Minisarm",
-			"Stelistcristi"
+			"Stelistcristi",
+			"Metalhead64",
+			"XXN"
 		]
 	},
 	"wikibase-client-desc": "Client pentru extensia Wikibase",
@@ -33,6 +35,8 @@
 	"wikibase-linkitem-not-loggedin": "Trebuie să fiți autentificat pe acest wiki și la [$1 depozitul de date central] pentru a utiliza această funcție.",
 	"wikibase-property-notfound": "Proprietatea $1 nu a fost găsită.",
 	"wikibase-rc-hide-wikidata": "$1 Wikidata",
+	"wikibase-rc-hide-wikidata-hide": "Ascunde",
+	"wikibase-rc-hide-wikidata-show": "Arată",
 	"wikibase-rc-show-wikidata-pref": "Arată modificările de la Wikidata în lista cu schimbări recente",
 	"wikibase-rc-wikibase-edit-letter": "D",
 	"wikibase-rc-wikibase-edit-title": "Modificare la Wikidata",

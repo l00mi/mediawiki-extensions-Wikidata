@@ -11,7 +11,6 @@ use RequestContext;
 use Status;
 use Title;
 use User;
-use Revision;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use ValueValidators\Result;
@@ -59,14 +58,6 @@ abstract class EntityContent extends AbstractContent {
 	 */
 	const STATUS_EMPTY = 200;
 
-	/*
-	 * Ugly hack for checking the base revision during the database
-	 * transaction that updates the entity.
-	 *
-	 * @var int|bool
-	 */
-	protected $baseRevIdForSaving = false;
-
 	/**
 	 * Checks if this EntityContent is valid for saving.
 	 *
@@ -88,12 +79,14 @@ abstract class EntityContent extends AbstractContent {
 	 * @since 0.1
 	 * @deprecated use EntityTitleLookup instead
 	 *
+	 * @deprecated since 0.5, use EntityTitleLookup:.getTitleForId instead.
+	 *
 	 * @return Title|bool
 	 */
 	public function getTitle() {
 		$id = $this->getEntity()->getId();
 
-		if ( $id === null ) {
+		if ( !$id ) {
 			return false;
 		}
 
@@ -122,17 +115,6 @@ abstract class EntityContent extends AbstractContent {
 	 * @return Entity
 	 */
 	abstract public function getEntity();
-
-	/**
-	 * @param int|false
-	 */
-	public function setBaseRevIdForSaving( $baseRevId ) {
-		if ( !is_int( $baseRevId ) && ( $baseRevId !== false ) ) {
-			throw new \InvalidArgumentException( 'baseRevIdForSaving must be an int or false.' );
-		}
-
-		$this->baseRevIdForSaving = $baseRevId;
-	}
 
 	/**
 	 * Returns a ParserOutput object containing the HTML.
@@ -462,9 +444,9 @@ abstract class EntityContent extends AbstractContent {
 	 * @see Content::prepareSave
 	 *
 	 * @param WikiPage $page
-	 * @param int      $flags
-	 * @param int      $baseRevId
-	 * @param User     $user
+	 * @param int $flags
+	 * @param int $baseRevId
+	 * @param User $user
 	 *
 	 * @return Status
 	 */
@@ -476,19 +458,6 @@ abstract class EntityContent extends AbstractContent {
 		if ( !$status->isOK() ) {
 			wfProfileOut( __METHOD__ );
 			return $status;
-		}
-
-		// If $this->baseRevIdForSaving is set, check whether the current revision is still what
-		// the caller of save() thought it was.
-		// If it isn't, then someone managed to squeeze in an edit after we checked for conflicts.
-		// XXX: This should really be done by WikiPage. I wonder why it isn't.
-		if ( $this->baseRevIdForSaving !== false && $page->getRevision() !== null ) {
-			if ( $page->getRevision()->getId() !== $this->baseRevIdForSaving ) {
-				wfDebugLog( __CLASS__, __FUNCTION__ . ': encountered late edit conflict: '
-					. 'current revision changed after regular conflict check.' );
-				$status->fatal('edit-conflict');
-				return $status;
-			}
 		}
 
 		$status = $this->applyOnSaveValidators();

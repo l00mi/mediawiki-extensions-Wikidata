@@ -3,18 +3,18 @@
 namespace Wikibase\Test\Api;
 
 use DataValues\StringValue;
+use FormatJson;
+use UsageException;
+use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\Repo\WikibaseRepo;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\Claim\Statement;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\Lib\ClaimGuidGenerator;
-use FormatJson;
-use UsageException;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Api\SetQualifier
@@ -59,8 +59,8 @@ class SetQualifierTest extends WikibaseApiTestCase {
 		static $snaks = array();
 
 		if ( !isset( $snaks[$type] ) ) {
-			$prop = Property::newEmpty();
-			$propertyId = $this->makeProperty( $prop, 'string' )->getId();
+			$prop = Property::newFromType( 'string' );
+			$propertyId = $this->makeProperty( $prop )->getId();
 
 			$snaks[$type] = new $type( $propertyId, $data );
 			$this->assertInstanceOf( 'Wikibase\Snak', $snaks[$type] );
@@ -73,14 +73,11 @@ class SetQualifierTest extends WikibaseApiTestCase {
 	 * Creates the given property in the database, if necessary.
 	 *
 	 * @param Property $property
-	 * @param $type
 	 *
 	 * @return Property
 	 */
-	protected function makeProperty( Property $property, $type ) {
+	protected function makeProperty( Property $property ) {
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
-
-		$property->setDataTypeId( $type );
 
 		$store->saveEntity( $property, 'testing', $GLOBALS['wgUser'], EDIT_NEW );
 		return $property;
@@ -93,18 +90,19 @@ class SetQualifierTest extends WikibaseApiTestCase {
 		if ( !$item ) {
 			$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 
-			$item = Item::newEmpty();
-			$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_NEW );
+			$newItem = Item::newEmpty();
+			$store->saveEntity( $newItem, '', $GLOBALS['wgUser'], EDIT_NEW );
 
-			$prop = Property::newEmpty();
-			$propId = $this->makeProperty( $prop, 'string' )->getId();
+			$prop = Property::newFromType( 'string' );
+			$propId = $this->makeProperty( $prop )->getId();
 			$claim = new Statement( new PropertyValueSnak( $propId, new StringValue( '^_^' ) ) );
 
 			$guidGenerator = new ClaimGuidGenerator();
-			$claim->setGuid( $guidGenerator->newGuid( $item->getId() ) );
-			$item->addClaim( $claim );
+			$claim->setGuid( $guidGenerator->newGuid( $newItem->getId() ) );
+			$newItem->addClaim( $claim );
 
-			$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_UPDATE );
+			$store->saveEntity( $newItem, '', $GLOBALS['wgUser'], EDIT_UPDATE );
+			$item = $newItem;
 		}
 
 		return $item;

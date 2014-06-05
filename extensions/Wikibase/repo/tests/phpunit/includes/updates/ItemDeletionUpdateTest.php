@@ -3,10 +3,10 @@
 namespace Wikibase\Test;
 
 use TestSites;
+use Title;
 use Wikibase\ItemContent;
 use Wikibase\ItemDeletionUpdate;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\StoreFactory;
 
 /**
  * @covers Wikibase\ItemDeletionUpdate
@@ -33,7 +33,8 @@ class ItemDeletionUpdateTest extends \MediaWikiTestCase {
 	}
 
 	public function testConstruct() {
-		$update = new ItemDeletionUpdate( ItemContent::newEmpty() );
+		$title = Title::newFromText( 'ItemDeletionUpdateTest/Dummy' );
+		$update = new ItemDeletionUpdate( ItemContent::newEmpty(), $title );
 		$this->assertInstanceOf( '\Wikibase\ItemDeletionUpdate', $update );
 		$this->assertInstanceOf( '\Wikibase\EntityDeletionUpdate', $update );
 		$this->assertInstanceOf( 'DataUpdate', $update );
@@ -58,10 +59,11 @@ class ItemDeletionUpdateTest extends \MediaWikiTestCase {
 		$revision = $store->saveEntity( $itemContent->getEntity(), "testing", $GLOBALS['wgUser'], EDIT_NEW );
 		$id = $revision->getEntity()->getId()->getNumericId();
 
-		$update = new ItemDeletionUpdate( $itemContent );
+		$title = Title::newFromText( 'ItemDeletionUpdateTest/Dummy' );
+		$update = new ItemDeletionUpdate( $itemContent, $title );
 		$update->doUpdate();
 
-		$linkLookup = StoreFactory::getStore()->newSiteLinkCache();
+		$linkLookup = WikibaseRepo::getDefaultInstance()->getStore()->newSiteLinkCache();
 		$this->assertEquals( 0, $linkLookup->countLinks( array( $id ) ) );
 	}
 

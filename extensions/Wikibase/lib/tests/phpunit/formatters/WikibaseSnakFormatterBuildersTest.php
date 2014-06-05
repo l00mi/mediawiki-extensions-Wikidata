@@ -2,8 +2,8 @@
 
 namespace Wikibase\Lib\Test;
 
+use DataTypes\DataType;
 use DataValues\StringValue;
-use DataValues\UnDeserializableValue;
 use Language;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
@@ -11,8 +11,8 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityFactory;
-use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
+use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\PropertyNoValueSnak;
@@ -43,11 +43,25 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( $propertyType ) );
 
+		$typeMap = array(
+			'url' => 'string',
+			'string' => 'string',
+			'wikibase-item' => 'wikibase-entityid',
+			'globecoordinate' => 'globecoordinate',
+		);
+
+		$typeFactory = $this->getMock( 'DataTypes\DataTypeFactory' );
+		$typeFactory->expects( $this->any() )
+			->method( 'getType' )
+			->will( $this->returnCallback( function ( $id ) use ( $typeMap ) {
+				return new DataType( $id, $typeMap[$id], array() );
+			} ) );
+
 		$entity = EntityFactory::singleton()->newEmpty( $entityId->getEntityType() );
 		$entity->setId( $entityId );
 		$entity->setLabel( 'en', 'Label for ' . $entityId->getPrefixedId() );
 
-		$entityLookup = $this->getMock( 'Wikibase\EntityLookup' );
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
 		$entityLookup->expects( $this->any() )
 			->method( 'getEntity' )
 			->will( $this->returnValue( $entity ) );
@@ -55,7 +69,7 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 		$lang = Language::factory( 'en' );
 
 		$valueFormatterBuilders = new WikibaseValueFormatterBuilders( $entityLookup, $lang );
-		return new WikibaseSnakFormatterBuilders( $valueFormatterBuilders, $typeLookup );
+		return new WikibaseSnakFormatterBuilders( $valueFormatterBuilders, $typeLookup, $typeFactory );
 	}
 
 	/**
@@ -108,9 +122,6 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 		$msg = wfMessage( 'wikibase-snakview-snaktypeselector-novalue' );
 		$noValueMsg = $msg->inLanguage( 'en' )->text();
 
-		$msg = wfMessage( 'wikibase-undeserializable-value' );
-		$badValueMsg = $msg->inLanguage( 'en' )->text();
-
 		return array(
 			'plain url' => array(
 				SnakFormatter::FORMAT_PLAIN,
@@ -146,15 +157,6 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 				'url',
 				new PropertyValueSnak( 7, new StringValue( 'http://acme.com/' ) ),
 				'<a rel="nofollow" class="external free" href="http://acme.com/">http://acme.com/</a>'
-			),
-			'bad value' => array(
-				SnakFormatter::FORMAT_PLAIN,
-				$options,
-				'globecoordinate',
-				new PropertyValueSnak( 7,
-					new UnDeserializableValue( 'cookie', 'globecoordinate', 'cannot understand!' )
-				),
-				$badValueMsg
 			)
 		);
 	}

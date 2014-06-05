@@ -4,9 +4,9 @@ namespace Wikibase\Test;
 
 use InvalidArgumentException;
 use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\Serializers\DescriptionSerializer;
 use Wikibase\Lib\Serializers\MultilingualSerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\DescriptionSerializer;
 
 /**
  * @covers Wikibase\Lib\Serializers\DescriptionSerializer
@@ -206,7 +206,7 @@ class DescriptionSerializerTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testInvalidGetSerialized( $descriptions ) {
 		$descriptionSerializer = new DescriptionSerializer();
-		$serializedDescriptions = $descriptionSerializer->getSerialized( $descriptions );
+		$descriptionSerializer->getSerialized( $descriptions );
 	}
 
 	/**

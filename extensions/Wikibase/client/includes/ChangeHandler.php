@@ -7,6 +7,7 @@ use Site;
 use SiteList;
 use Title;
 use Wikibase\Client\WikibaseClient;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * Interface for change handling. Whenever a change is detected,
@@ -465,6 +466,7 @@ class ChangeHandler {
 		$changes = $this->coalesceChanges( $changes );
 
 		if ( !wfRunHooks( 'WikibaseHandleChanges', array( $changes ) ) ) {
+			wfProfileOut( __METHOD__ );
 			return;
 		}
 

@@ -7,8 +7,8 @@ use ValueValidators\Result;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\Term;
 use Wikibase\LabelDescriptionDuplicateDetector;
+use Wikibase\Term;
 use Wikibase\Validators\UniquenessViolation;
 
 /**
@@ -50,21 +50,6 @@ class LabelDescriptionDuplicateDetectorTest extends \PHPUnit_Framework_TestCase 
 		) );
 
 		return $world;
-	}
-
-	private function makeItem( $id, $lang = null, $label = null, $description = null ) {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( $id ) );
-
-		if ( $label !== null ) {
-			$item->setLabel( $lang, $label );
-		}
-
-		if ( $description !== null ) {
-			$item->setDescription( $lang, $description );
-		}
-
-		return $item;
 	}
 
 	public function provideDetectTermConflicts() {

@@ -3,13 +3,11 @@
 namespace Wikibase\Test;
 
 use ApiMain;
-use ApiTestContext;
 use ApiQuery;
 use FauxRequest;
-use MediaWikiTestCase;
 use User;
-use Wikibase\SettingsArray;
 use Wikibase\ApiClientInfo;
+use Wikibase\SettingsArray;
 
 /**
  * @covers Wikibase\ApiClientInfo
@@ -25,14 +23,17 @@ use Wikibase\ApiClientInfo;
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class ApiClientInfoTest extends MediaWikiTestCase {
+class ApiClientInfoTest extends \MediaWikiTestCase {
 
+	/**
+	 * @var \ApiTestContext
+	 */
 	protected $apiContext;
 
 	public function setUp() {
 		parent::setUp();
 
-		$this->apiContext = new ApiTestContext();
+		$this->apiContext = new \ApiTestContext();
 	}
 
 	/**

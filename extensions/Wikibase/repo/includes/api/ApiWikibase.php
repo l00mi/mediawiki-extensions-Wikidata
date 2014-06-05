@@ -16,14 +16,14 @@ use Wikibase\EditEntity;
 use Wikibase\EntityFactory;
 use Wikibase\EntityPermissionChecker;
 use Wikibase\EntityRevision;
-use Wikibase\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\EntityTitleLookup;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StorageException;
-use Wikibase\store\EntityStore;
+use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Summary;
 use Wikibase\SummaryFormatter;
 
@@ -404,6 +404,7 @@ abstract class ApiWikibase extends ApiBase {
 	 * @param string|Summary $summary The edit summary
 	 * @param int $flags The edit flags (see WikiPage::doEditContent)
 	 *
+	 * @throws LogicException if not in write mode
 	 * @return Status the status of the save operation, as returned by EditEntity::attemptSave()
 	 * @see  EditEntity::attemptSave()
 	 *
@@ -544,4 +545,5 @@ abstract class ApiWikibase extends ApiBase {
 	protected function dieException( Exception $exception, $code, $httpStatusCode = 0, $extradata = array() ) {
 		$this->errorReporter->dieException( $exception, $code, $httpStatusCode, $extradata );
 	}
+
 }

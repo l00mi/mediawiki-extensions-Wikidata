@@ -1,10 +1,9 @@
 <?php
+
 namespace Wikibase;
 
 use MessageReporter;
-use Wikibase\SiteLinkTable;
-use Wikibase\EntityIdPager;
-use Wikibase\EntityLookup;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * Utility class for rebuilding the wb_items_per_site table.
@@ -16,40 +15,20 @@ use Wikibase\EntityLookup;
  */
 class ItemsPerSiteBuilder {
 
-	/**
-	 * @since 0.5
-	 *
-	 * @var SiteLinkTable $siteLinkTable
-	 */
-	protected $siteLinkTable;
+	private $siteLinkTable;
+	private $entityLookup;
 
 	/**
-	 * @since 0.5
-	 *
-	 * @var EntityLookup $entityLookup
-	 */
-	protected $entityLookup;
-
-	/**
-	 * @since 0.5
-	 *
 	 * @var MessageReporter $reporter
 	 */
-	protected $reporter;
+	private $reporter;
 
 	/**
 	 * The batch size, giving the number of rows to be updated in each database transaction.
-	 *
-	 * @since 0.5
-	 *
 	 * @var int
 	 */
-	protected $batchSize = 100;
+	private $batchSize = 100;
 
-	/**
-	 * @param SiteLinkTable $siteLinkTable
-	 * @param EntityLookup $entityLookup
-	 */
 	public function __construct( SiteLinkTable $siteLinkTable, EntityLookup $entityLookup ) {
 		$this->siteLinkTable = $siteLinkTable;
 		$this->entityLookup = $entityLookup;
@@ -67,9 +46,9 @@ class ItemsPerSiteBuilder {
 	/**
 	 * Sets the reporter to use for reporting preogress.
 	 *
-	 * @param \MessageReporter $reporter
+	 * @param MessageReporter $reporter
 	 */
-	public function setReporter( \MessageReporter $reporter ) {
+	public function setReporter( MessageReporter $reporter ) {
 		$this->reporter = $reporter;
 	}
 
@@ -89,8 +68,6 @@ class ItemsPerSiteBuilder {
 		};
 
 		$this->report( 'Rebuild done.' );
-
-		return true;
 	}
 
 	/**
@@ -98,7 +75,7 @@ class ItemsPerSiteBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param EntityId[] $items
+	 * @param EntityId[] $entityIds
 	 *
 	 * @return int
 	 */

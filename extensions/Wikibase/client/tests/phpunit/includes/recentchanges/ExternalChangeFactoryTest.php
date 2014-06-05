@@ -3,7 +3,6 @@
 namespace Wikibase\Test;
 
 use RecentChange;
-use MediaWikiTestCase;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\ExternalChange;
 use Wikibase\ExternalChangeFactory;
@@ -20,7 +19,7 @@ use Wikibase\RevisionData;
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class ExternalChangeFactoryTest extends MediaWikiTestCase {
+class ExternalChangeFactoryTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider newFromRecentChangeProvider
@@ -47,6 +46,7 @@ class ExternalChangeFactoryTest extends MediaWikiTestCase {
 
 	/**
 	 * @param boolean $bot
+	 * @return RecentChange
 	 */
 	protected function getEditRecentChange( $bot ) {
 		$recentChange = new RecentChange();

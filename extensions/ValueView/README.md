@@ -109,6 +109,18 @@ Other methods an Expert needs to provide:
 
 ## Release notes
 
+### 0.6 (2014-06-04)
+
+* Re-created jQuery.ui.suggester widget removing dependencies on jQuery.ui.autocomplete and jQuery.ui.menu
+* Implemented jQuery.util.highlightMatchingCharacters
+* Implemented jQuery.ui.ooMenu
+* Implemented jQuery.ui.suggestCommons
+* Removed CommonsMediaType expert dependency on SuggestedStringValue expert.
+* Prevent enter-key from adding newline character in String expert
+* Fixed bug 64658 which caused the inputextender widget being invisible
+* Refactored inputextender usage of experts
+* Added addExtension method to jQuery.ValueView.Expert
+
 ### 0.5.1 (2014-04-01)
 
 * Change TimeInput::valueCharacteristics() to not returning precision or calendarmodel if set to auto

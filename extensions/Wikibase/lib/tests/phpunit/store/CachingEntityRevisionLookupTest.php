@@ -4,12 +4,12 @@ namespace Wikibase\Test;
 
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\EntityRevision;
-use Wikibase\EntityLookup;
-use Wikibase\store\CachingEntityRevisionLookup;
+use Wikibase\Lib\Store\CachingEntityRevisionLookup;
 
 /**
- * @covers Wikibase\store\CachingEntityRevisionLookup
+ * @covers Wikibase\Lib\Store\CachingEntityRevisionLookup
  *
  * @group WikibaseLib
  * @group WikibaseEntityLookup
@@ -30,7 +30,7 @@ class CachingEntityRevisionLookupTest extends EntityRevisionLookupTest {
 	protected function newEntityRevisionLookup( array $entityRevisions ) {
 		$mock = new MockRepository();
 
-		foreach ( $entityRevisions as $rev => $entityRev ) {
+		foreach ( $entityRevisions as $entityRev ) {
 			$mock->putEntity( $entityRev->getEntity(), $entityRev->getRevision() );
 		}
 
