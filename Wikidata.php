@@ -11,8 +11,8 @@ if ( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextensio
 		define( 'WB_EXPERIMENTAL_FEATURES', true );
 	}
 
-	$wmgUseWikibaseRepo = true;
 	$wmgUseWikibaseClient = true;
+	$wmgUseWikibaseRepo = true;
 }
 
 // no magic, use wmf configs instead to control which entry points to load
