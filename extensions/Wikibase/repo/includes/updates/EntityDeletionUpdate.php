@@ -2,6 +2,7 @@
 
 namespace Wikibase;
 use Title;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Deletion update to handle deletion of Wikibase entities.
@@ -46,10 +47,10 @@ class EntityDeletionUpdate extends \DataUpdate {
 	public final function doUpdate() {
 		wfProfileIn( __METHOD__ );
 
-		$store = StoreFactory::getStore();
+		$store = WikibaseRepo::getDefaultInstance()->getStore();
 		$entity = $this->content->getEntity();
 
-		$store->getTermIndex()->deleteTermsOfEntity( $entity );
+		$store->getTermIndex()->deleteTermsOfEntity( $entity->getId() );
 		$this->doTypeSpecificStuff( $store, $entity );
 
 		$store->newEntityPerPage()->deleteEntityPage(

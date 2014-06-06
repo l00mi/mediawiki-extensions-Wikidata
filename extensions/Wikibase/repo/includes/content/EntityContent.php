@@ -4,6 +4,7 @@ namespace Wikibase;
 
 use AbstractContent;
 use Content;
+use Diff\DiffOp\Diff\Diff;
 use IContextSource;
 use ParserOptions;
 use ParserOutput;
@@ -15,6 +16,7 @@ use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
@@ -92,17 +94,6 @@ abstract class EntityContent extends AbstractContent {
 
 		$lookup = WikibaseRepo::getDefaultInstance()->getEntityTitleLookup();
 		return $lookup->getTitleForId( $id );
-	}
-
-	/**
-	 * Returns if the item has an ID set or not.
-	 *
-	 * @since 0.1
-	 *
-	 * @return bool
-	 */
-	public function isNew() {
-		return is_null( $this->getEntity()->getId() );
 	}
 
 	/**
@@ -392,13 +383,41 @@ abstract class EntityContent extends AbstractContent {
 		$thisEntity = $this->getEntity();
 		$thatEntity = $that->getEntity();
 
-		if ( !$this->isNew() && !$that->isNew()
-			&& !$thisEntity->getId()->equals( $thatEntity->getId() )
+		$thisId = $thisEntity->getId();
+		$thatId = $thatEntity->getId();
+
+		if ( $thisId !== null && $thatId !== null
+			&& !$thisEntity->getId()->equals( $thatId )
 		) {
 			return false;
 		}
 
 		return $thisEntity->equals( $thatEntity );
+	}
+
+	/**
+	 * Returns a diff between this EntityContent and $other.
+	 *
+	 * @param EntityContent $other
+	 *
+	 * @return EntityContentDiff
+	 */
+	public function getDiff( EntityContent $other ) {
+		$entityDiff = $this->getEntity()->getDiff( $other->getEntity() );
+		return new EntityContentDiff( $entityDiff, new Diff() );
+	}
+
+	/**
+	 * Returns a patched copy of this Content object
+	 *
+	 * @param EntityContentDiff $patch
+	 *
+	 * @return EntityContent
+	 */
+	public function getPatchedCopy( EntityContentDiff $patch ) {
+		$patched = $this->copy();
+		$patched->getEntity()->patch( $patch->getEntityDiff() );
+		return $patched;
 	}
 
 	/**

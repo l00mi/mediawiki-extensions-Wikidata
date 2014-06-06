@@ -5,6 +5,7 @@ namespace Wikibase\Client;
 use DataTypes\DataTypeFactory;
 use Exception;
 use Language;
+use LogicException;
 use MediaWikiSite;
 use MWException;
 use Site;
@@ -16,6 +17,10 @@ use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\DataModel\Entity\Item;
+use Wikibase\DirectSqlStore;
+use Wikibase\DataModel\Entity\Property;
+use Wikibase\EntityFactory;
 use Wikibase\LangLinkHandler;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\EntityIdLabelFormatter;
@@ -30,6 +35,7 @@ use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\NamespaceChecker;
 use Wikibase\RepoLinker;
+use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\StringNormalizer;
@@ -71,9 +77,9 @@ final class WikibaseClient {
 	private $languageFallbackChainFactory = null;
 
 	/**
-	 * @var ClientStore[]
+	 * @var ClientStore
 	 */
-	private $storeInstances = array();
+	private $store = null;
 
 	/**
 	 * @var StringNormalizer
@@ -266,55 +272,46 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * Returns an instance of the default store, or an alternate store
-	 * if so specified with the $store argument.
+	 * Returns an instance of the default store.
 	 *
 	 * @since 0.1
-	 *
-	 * @param string|bool $store Set to false to get the default store.
-	 * @param string $reset set to 'reset' to force a fresh instance to be returned.
 	 *
 	 * @throws Exception
 	 * @return ClientStore
 	 */
-	public function getStore( $store = false, $reset = 'no' ) {
-		global $wgWBClientStores; //XXX: still using a global here
-
-		if ( $store === false || !array_key_exists( $store, $wgWBClientStores ) ) {
-			$store = $this->settings->getSetting( 'defaultClientStore' ); // still false per default
-		}
-
+	public function getStore() {
 		// NOTE: $repoDatabase is null per default, meaning no direct access to the repo's database.
 		// If $repoDatabase is false, the local wiki IS the repository.
 		// Otherwise, $repoDatabase needs to be a logical database name that LBFactory understands.
 		$repoDatabase = $this->settings->getSetting( 'repoDatabase' );
 
-		if ( !$store ) {
-			// XXX: This is a rather ugly "magic" default.
-			if ( $repoDatabase !== null ) {
-				$store = 'DirectSqlStore';
-			} else {
-				throw new Exception( '$repoDatabase cannot be null' );
-			}
+		if ( $this->store === null ) {
+			$this->store = new DirectSqlStore(
+				$this->getEntityContentDataCodec(),
+				$this->getEntityFactory(),
+				$this->getContentLanguage(),
+				$repoDatabase
+			);
 		}
 
-		$class = $wgWBClientStores[$store];
+		return $this->store;
+	}
 
-		if ( $reset !== true && $reset !== 'reset'
-			&& isset( $this->storeInstances[$store] ) ) {
-
-			return $this->storeInstances[$store];
+	/**
+	 * Overrides the default store to be used in the client app context.
+	 * This is intended for use by test cases.
+	 *
+	 * @param ClientStore|null $store
+	 *
+	 * @throws LogicException If MW_PHPUNIT_TEST is not defined, to avoid this
+	 * method being abused in production code.
+	 */
+	public function overrideStore( ClientStore $store = null ) {
+		if ( !defined( 'MW_PHPUNIT_TEST' ) ) {
+			throw new LogicException( 'Overriding the store instance is only supported in test mode' );
 		}
 
-		$instance = new $class(
-			$this->getContentLanguage(),
-			$repoDatabase
-		);
-
-		assert( $instance instanceof ClientStore );
-
-		$this->storeInstances[$store] = $instance;
-		return $instance;
+		$this->store = $store;
 	}
 
 	/**
@@ -566,6 +563,27 @@ final class WikibaseClient {
 		}
 
 		return $this->siteStore;
+	}
+
+	/**
+	 * @return EntityFactory
+	 */
+	public function getEntityFactory() {
+		$entityClasses = array(
+			Item::ENTITY_TYPE => '\Wikibase\Item',
+			Property::ENTITY_TYPE => '\Wikibase\Property',
+		);
+
+		//TODO: provide a hook or registry for adding more.
+
+		return new EntityFactory( $entityClasses );
+	}
+
+	/**
+	 * @return EntityContentDataCodec
+	 */
+	public function getEntityContentDataCodec() {
+		return new EntityContentDataCodec();
 	}
 
 	/**

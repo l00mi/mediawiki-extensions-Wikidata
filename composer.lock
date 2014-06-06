@@ -46,7 +46,7 @@
                 {
                     "name": "Kyle Robinson Young",
                     "email": "kyle@dontkry.com",
-                    "homepage": "http://dontkry.com",
+                    "homepage": "https://github.com/shama",
                     "role": "Developer"
                 }
             ],
@@ -364,16 +364,16 @@
         },
         {
             "name": "data-values/javascript",
-            "version": "0.5",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataValuesJavascript.git",
-                "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722"
+                "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
-                "reference": "f3e39bfdf8ccf9984fe0e4fe88910cab6915f722",
+                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
+                "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
                 "shasum": ""
             },
             "require": {
@@ -414,7 +414,7 @@
                 "datavalues",
                 "wikidata"
             ],
-            "time": "2014-03-28 14:20:37"
+            "time": "2014-06-04 10:58:47"
         },
         {
             "name": "data-values/number",
@@ -518,22 +518,22 @@
         },
         {
             "name": "data-values/time",
-            "version": "0.5.2",
+            "version": "0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "2001ff693c0546ff4154cfa97cc5622487787d25"
+                "reference": "2aaa88e2ccd2998abda57d447fd1fc0b9c94651f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/2001ff693c0546ff4154cfa97cc5622487787d25",
-                "reference": "2001ff693c0546ff4154cfa97cc5622487787d25",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/2aaa88e2ccd2998abda57d447fd1fc0b9c94651f",
+                "reference": "2aaa88e2ccd2998abda57d447fd1fc0b9c94651f",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
                 "data-values/data-values": "~0.1.0",
-                "data-values/interfaces": "~0.1.0",
+                "data-values/interfaces": "~0.1.4",
                 "php": ">=5.3.0"
             },
             "type": "library",
@@ -566,7 +566,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-04-28 14:29:56"
+            "time": "2014-06-05 17:58:16"
         },
         {
             "name": "data-values/validators",
@@ -626,16 +626,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.5.1",
+            "version": "0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d"
+                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
-                "reference": "503f06c7b6250ac7397c03b2ba1e5440191b2f9d",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/b75392a4a351f00a9eacd2130120a643b2c121d3",
+                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3",
                 "shasum": ""
             },
             "require": {
@@ -668,7 +668,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-04-01 08:05:07"
+            "time": "2014-06-04 10:27:24"
         },
         {
             "name": "diff/diff",
@@ -782,16 +782,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "0.7.4",
+            "version": "0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8"
+                "reference": "ce3644f7768ba8a624404e99be99d3abd19e5644"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8",
-                "reference": "8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/ce3644f7768ba8a624404e99be99d3abd19e5644",
+                "reference": "ce3644f7768ba8a624404e99be99d3abd19e5644",
                 "shasum": ""
             },
             "require": {
@@ -833,7 +833,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-04-24 17:40:02"
+            "time": "2014-06-05 19:12:05"
         },
         {
             "name": "wikibase/easyrdf_lite",
@@ -869,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "8bfc7fa6f905bf6ba5045538d1267f73d3fdc9d6"
+                "reference": "e9db423a774e413ec172a70b0bcd1959059ff9b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8bfc7fa6f905bf6ba5045538d1267f73d3fdc9d6",
-                "reference": "8bfc7fa6f905bf6ba5045538d1267f73d3fdc9d6",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e9db423a774e413ec172a70b0bcd1959059ff9b2",
+                "reference": "e9db423a774e413ec172a70b0bcd1959059ff9b2",
                 "shasum": ""
             },
             "require": {
@@ -883,15 +883,15 @@
                 "data-values/data-values": "~0.1.0",
                 "data-values/geo": "~0.1.0",
                 "data-values/interfaces": "~0.1.4",
-                "data-values/javascript": "~0.5.0",
+                "data-values/javascript": "~0.5.1",
                 "data-values/number": "~0.4.0",
                 "data-values/serialization": "~1.0",
-                "data-values/time": "~0.5.2",
+                "data-values/time": "~0.6.0",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.5.0",
+                "data-values/value-view": "~0.6.0",
                 "diff/diff": "~1.0",
                 "php": ">=5.3.2",
-                "wikibase/data-model": "~0.7.4",
+                "wikibase/data-model": "~0.8",
                 "wikibase/easyrdf_lite": "~0.8.1"
             },
             "conflict": {
@@ -937,7 +937,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-06-04 05:58:29"
+            "time": "2014-06-06 07:09:44"
         }
     ],
     "packages-dev": [

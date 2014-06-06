@@ -113,6 +113,15 @@ return call_user_func( function() {
 			),
 		),
 
+		'jquery.ui.ooMenu.tests' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.ui/jquery.ui.ooMenu.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.ui.ooMenu',
+			),
+		),
+
 		'jquery.ui.preview.tests' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.ui/jquery.ui.preview.tests.js',
@@ -159,12 +168,22 @@ return call_user_func( function() {
 			),
 		),
 
+		'jquery.util.highlightMatchingCharacters.tests' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.util/jquery.util.highlightMatchingCharacters.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.util.highlightMatchingCharacters',
+			),
+		),
+
 
 		'util.MessageProvider.tests' => $moduleTemplate + array(
 			'scripts' => array(
 				'util/util.MessageProvider.tests.js',
 			),
 			'dependencies' => array(
+				'test.sinonjs',
 				'util.MessageProvider',
 			),
 		),
