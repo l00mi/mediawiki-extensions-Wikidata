@@ -626,16 +626,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.6",
+            "version": "0.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3"
+                "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/b75392a4a351f00a9eacd2130120a643b2c121d3",
-                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
+                "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
                 "shasum": ""
             },
             "require": {
@@ -668,7 +668,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-06-04 10:27:24"
+            "time": "2014-06-09 13:06:57"
         },
         {
             "name": "diff/diff",
@@ -869,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "3729cb52795ff157c97cdc534c3b2df21ca8b016"
+                "reference": "24572d64498411f6367e763c83079942ebc0a010"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3729cb52795ff157c97cdc534c3b2df21ca8b016",
-                "reference": "3729cb52795ff157c97cdc534c3b2df21ca8b016",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/24572d64498411f6367e763c83079942ebc0a010",
+                "reference": "24572d64498411f6367e763c83079942ebc0a010",
                 "shasum": ""
             },
             "require": {
@@ -937,7 +937,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-06-04 19:54:54"
+            "time": "2014-06-05 15:05:50"
         }
     ],
     "packages-dev": [
