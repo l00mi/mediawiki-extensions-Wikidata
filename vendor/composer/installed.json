@@ -306,63 +306,6 @@
         ]
     },
     {
-        "name": "wikibase/data-model",
-        "version": "0.8",
-        "version_normalized": "0.8.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "ce3644f7768ba8a624404e99be99d3abd19e5644"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/ce3644f7768ba8a624404e99be99d3abd19e5644",
-            "reference": "ce3644f7768ba8a624404e99be99d3abd19e5644",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1.0",
-            "data-values/serialization": ">=0.1,<2.0",
-            "diff/diff": "~1.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-06-05 19:12:05",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.7.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseDataModel.php"
-            ],
-            "psr-4": {
-                "Wikibase\\DataModel\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "PHP implementation of the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModel",
-        "keywords": [
-            "DataModel",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/interfaces",
         "version": "0.1.4",
         "version_normalized": "0.1.4.0",
@@ -590,54 +533,6 @@
             "datavalues",
             "wikidata"
         ]
-    },
-    {
-        "name": "data-values/value-view",
-        "version": "0.6",
-        "version_normalized": "0.6.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/ValueView.git",
-            "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/b75392a4a351f00a9eacd2130120a643b2c121d3",
-            "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-06-04 10:27:24",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "ValueView.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
     },
     {
         "name": "data-values/data-types",
@@ -890,18 +785,123 @@
         ]
     },
     {
+        "name": "data-values/value-view",
+        "version": "0.6.1",
+        "version_normalized": "0.6.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/ValueView.git",
+            "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
+            "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-06-09 13:06:57",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
+    },
+    {
+        "name": "wikibase/data-model",
+        "version": "0.8.1",
+        "version_normalized": "0.8.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModel.git",
+            "reference": "50679a58a5b1172224cf47e660f40595992e29dc"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/50679a58a5b1172224cf47e660f40595992e29dc",
+            "reference": "50679a58a5b1172224cf47e660f40595992e29dc",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1.0",
+            "data-values/serialization": ">=0.1,<2.0",
+            "diff/diff": "~1.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-06-06 21:14:52",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.8.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseDataModel.php"
+            ],
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP implementation of the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModel",
+        "keywords": [
+            "DataModel",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/wikibase",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "e9db423a774e413ec172a70b0bcd1959059ff9b2"
+            "reference": "4f2099142b2ebdbecedfaacb1ee589e84d6e44fc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e9db423a774e413ec172a70b0bcd1959059ff9b2",
-            "reference": "e9db423a774e413ec172a70b0bcd1959059ff9b2",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4f2099142b2ebdbecedfaacb1ee589e84d6e44fc",
+            "reference": "4f2099142b2ebdbecedfaacb1ee589e84d6e44fc",
             "shasum": ""
         },
         "require": {
@@ -915,16 +915,16 @@
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.6.0",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.6.0",
+            "data-values/value-view": "~0.6.1",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~0.8",
+            "wikibase/data-model": "~0.8.1",
             "wikibase/easyrdf_lite": "~0.8.1"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-06-06 07:09:44",
+        "time": "2014-06-10 13:50:07",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

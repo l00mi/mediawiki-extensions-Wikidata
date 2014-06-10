@@ -2,17 +2,12 @@
 
 namespace Wikibase;
 
-use Content;
-use DataUpdate;
 use IContextSource;
-use ParserOutput;
-use Title;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Repo\ItemSearchTextGenerator;
-use WikiPage;
 
 /**
  * Content object for articles representing Wikibase items.
@@ -20,7 +15,6 @@ use WikiPage;
  * @since 0.1
  *
  * @licence GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ItemContent extends EntityContent {
 
@@ -33,10 +27,9 @@ class ItemContent extends EntityContent {
 	const STATUS_LINKSTUB = 60;
 
 	/**
-	 * @since 0.1
 	 * @var Item
 	 */
-	protected $item;
+	private $item;
 
 	/**
 	 * Do not use to construct new stuff from outside of this class,
@@ -71,7 +64,7 @@ class ItemContent extends EntityContent {
 	/**
 	 * Create a new ItemContent object from the provided Item data.
 	 *
-	 * @since 0.1
+	 * @deprecated Use a dedicated deserializer
 	 *
 	 * @param array $data
 	 *
@@ -112,44 +105,6 @@ class ItemContent extends EntityContent {
 	 */
 	public function getEntity() {
 		return $this->item;
-	}
-
-	/**
-	 * @see Content::getDeletionUpdates
-	 *
-	 * @param \WikiPage $page
-	 * @param null|\ParserOutput $parserOutput
-	 *
-	 * @since 0.1
-	 *
-	 * @return DataUpdate[]
-	 */
-	public function getDeletionUpdates( WikiPage $page, ParserOutput $parserOutput = null ) {
-		return array_merge(
-			parent::getDeletionUpdates( $page, $parserOutput ),
-			array( new ItemDeletionUpdate( $this, $page->getTitle() ) )
-		);
-	}
-
-	/**
-	 * @see ContentHandler::getSecondaryDataUpdates
-	 *
-	 * @since 0.1
-	 *
-	 * @param Title              $title
-	 * @param Content|null       $old
-	 * @param bool               $recursive
-	 * @param null|ParserOutput  $parserOutput
-	 *
-	 * @return DataUpdate[]
-	 */
-	public function getSecondaryDataUpdates( Title $title, Content $old = null,
-		$recursive = false, ParserOutput $parserOutput = null ) {
-
-		return array_merge(
-			parent::getSecondaryDataUpdates( $title, $old, $recursive, $parserOutput ),
-			array( new ItemModificationUpdate( $this ) )
-		);
 	}
 
 	/**
@@ -218,7 +173,7 @@ class ItemContent extends EntityContent {
 		return array_merge(
 			parent::getEntityPageProperties(),
 			array(
-				'wb-sitelinks' => count( $item->getSiteLinks() ),
+				'wb-sitelinks' => $item->getSiteLinkList()->count(),
 			)
 		);
 	}
@@ -244,4 +199,5 @@ class ItemContent extends EntityContent {
 
 		return $status;
 	}
+
 }

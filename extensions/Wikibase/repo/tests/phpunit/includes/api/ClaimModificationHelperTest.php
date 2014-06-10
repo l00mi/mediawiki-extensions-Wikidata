@@ -12,7 +12,7 @@ use Wikibase\Api\CreateClaim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\Lib\Localizer\WikibaseExceptionLocalizer;
+use Wikibase\Lib\Localizer\DispatchingExceptionLocalizer;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -32,7 +32,7 @@ class ClaimModificationHelperTest extends \PHPUnit_Framework_TestCase {
 
 		$claimModificationHelper = $this->getNewInstance();
 		$this->assertInstanceOf(
-			'\Wikibase\EntityId',
+			'Wikibase\DataModel\Entity\EntityId',
 			$claimModificationHelper->getEntityIdFromString( $validEntityIdString )
 		);
 	}
@@ -68,18 +68,21 @@ class ClaimModificationHelperTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetClaimFromEntity() {
 		$claimModificationHelper = $this->getNewInstance();
-		$entity = Item::newFromArray( array( 'entity' => 'q42' ) );
+
+		$item = Item::newEmpty();
+		$item->setId( 42 );
+
 		$snak = new PropertyValueSnak( 2754236, new StringValue( 'test' ) );
-		$claim = $entity->newClaim( $snak );
+		$claim = $item->newClaim( $snak );
 		$claim->setGuid( 'q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F' );
 		$claims = new Claims();
 		$claims->addClaim( $claim );
-		$entity->setClaims( $claims );
+		$item->setClaims( $claims );
 		$claimGuid = $claim->getGuid();
 
-		$this->assertEquals( $claim, $claimModificationHelper->getClaimFromEntity( $claimGuid, $entity ) );
+		$this->assertEquals( $claim, $claimModificationHelper->getClaimFromEntity( $claimGuid, $item ) );
 		$this->setExpectedException( '\UsageException' );
-		$claimModificationHelper->getClaimFromEntity( 'q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0N', $entity );
+		$claimModificationHelper->getClaimFromEntity( 'q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0N', $item );
 	}
 
 	/**
@@ -107,7 +110,7 @@ class ClaimModificationHelperTest extends \PHPUnit_Framework_TestCase {
 
 		$errorReporter = new ApiErrorReporter(
 			$api,
-			new WikibaseExceptionLocalizer( $this->getMockFormatter() ),
+			new DispatchingExceptionLocalizer( array() ),
 			$api->getLanguage()
 		);
 

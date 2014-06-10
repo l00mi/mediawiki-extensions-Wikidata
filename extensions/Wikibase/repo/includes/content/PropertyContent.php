@@ -2,17 +2,11 @@
 
 namespace Wikibase;
 
-use Content;
-use DataUpdate;
 use IContextSource;
-use ParserOutput;
-use Title;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Repo\WikibaseRepo;
-use WikiPage;
 
 /**
  * Content object for articles representing Wikibase properties.
@@ -25,10 +19,9 @@ use WikiPage;
 class PropertyContent extends EntityContent {
 
 	/**
-	 * @since 0.1
 	 * @var Property
 	 */
-	protected $property;
+	private $property;
 
 	/**
 	 * Do not use to construct new stuff from outside of this class,
@@ -64,7 +57,7 @@ class PropertyContent extends EntityContent {
 	/**
 	 * Create a new PropertyContent object from the provided Property data.
 	 *
-	 * @since 0.1
+	 * @deprecated Use a dedicated deserializer
 	 *
 	 * @param array $data
 	 *
@@ -117,58 +110,6 @@ class PropertyContent extends EntityContent {
 	public function getEntity() {
 		return $this->property;
 	}
-
-	/**
-	 * @see Content::getDeletionUpdates
-	 *
-	 * @param \WikiPage $page
-	 * @param null|\ParserOutput $parserOutput
-	 *
-	 * @since 0.1
-	 *
-	 * @return DataUpdate[]
-	 */
-	public function getDeletionUpdates( \WikiPage $page, \ParserOutput $parserOutput = null ) {
-		//XXX: access to services should be done via the ContentHandler.
-		$infoStore = WikibaseRepo::getDefaultInstance()->getStore()->getPropertyInfoStore();
-
-		return array_merge(
-			parent::getDeletionUpdates( $page, $parserOutput ),
-			array(
-				new EntityDeletionUpdate( $this, $page->getTitle() ),
-				new PropertyInfoDeletion( $this->getProperty()->getId(), $infoStore ),
-			)
-		);
-	}
-
-	/**
-	 * @see ContentHandler::getSecondaryDataUpdates
-	 *
-	 * @since 0.1
-	 *
-	 * @param Title $title
-	 * @param Content|null $old
-	 * @param boolean $recursive
-	 *
-	 * @param null|ParserOutput $parserOutput
-	 *
-	 * @return DataUpdate[]
-	 */
-	public function getSecondaryDataUpdates( Title $title, Content $old = null,
-		$recursive = false, ParserOutput $parserOutput = null ) {
-
-		//XXX: access to services should be done via the ContentHandler.
-		$infoStore = WikibaseRepo::getDefaultInstance()->getStore()->getPropertyInfoStore();
-
-		return array_merge(
-			parent::getSecondaryDataUpdates( $title, $old, $recursive, $parserOutput ),
-			array(
-				new EntityModificationUpdate( $this ),
-				new PropertyInfoUpdate( $this->getProperty(), $infoStore ),
-			)
-		);
-	}
-
 
 	/**
 	 * Instantiates an EntityView.

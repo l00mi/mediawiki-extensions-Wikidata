@@ -24,7 +24,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @var ChangeOpTestMockProvider
 	 */
-	protected $mockProvider;
+	private $mockProvider;
 
 	/**
 	 * @param string|null $name
@@ -77,12 +77,12 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 			$to,
 			$ignoreConflicts
 		);
-		$this->assertInstanceOf( '\Wikibase\ChangeOp\ChangeOpsMerge', $changeOps );
+		$this->assertInstanceOf( 'Wikibase\ChangeOp\ChangeOpsMerge', $changeOps );
 	}
 
-	public static function provideValidConstruction() {
-		$from = self::getItem( 'Q111' );
-		$to = self::getItem( 'Q222' );
+	public function provideValidConstruction() {
+		$from = $this->newItemWithId( 'Q111' );
+		$to = $this->newItemWithId( 'Q222' );
 		return array(
 			array( $from, $to, array() ),
 			array( $from, $to, array( 'label' ) ),
@@ -104,9 +104,9 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public static function provideInvalidConstruction() {
-		$from = self::getItem( 'Q111' );
-		$to = self::getItem( 'Q222' );
+	public function provideInvalidConstruction() {
+		$from = $this->newItemWithId( 'Q111' );
+		$to = $this->newItemWithId( 'Q222' );
 		return array(
 			array( $from, $to, array( 'foo' ) ),
 			array( $from, $to, array( 'label', 'foo' ) ),
@@ -119,9 +119,15 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	 *
 	 * @return Item
 	 */
-	public static function getItem( $id, array $data = array() ) {
+	private function getItem( $id, array $data = array() ) {
 		$item = new Item( $data );
 		$item->setId( new ItemId( $id ) );
+		return $item;
+	}
+
+	private function newItemWithId( $idString ) {
+		$item = Item::newEmpty();
+		$item->setId( new Itemid( $idString ) );
 		return $item;
 	}
 
@@ -129,8 +135,8 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideData
 	 */
 	public function testCanApply( array $fromData, array $toData, $expectedFromData, $expectedToData, array $ignoreConflicts = array() ) {
-		$from = self::getItem( 'Q111', $fromData );
-		$to = self::getItem( 'Q222', $toData );
+		$from = $this->getItem( 'Q111', $fromData );
+		$to = $this->getItem( 'Q222', $toData );
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
 			$to,
@@ -173,7 +179,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @return array 1=>fromData 2=>toData 3=>expectedFromData 4=>expectedToData
 	 */
-	public static function provideData() {
+	public function provideData() {
 		$testCases = array();
 		$testCases['labelMerge'] = array(
 			array( 'label' => array( 'en' => 'foo' ) ),
@@ -345,12 +351,9 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testExceptionThrownWhenSitelinkDuplicatesDetected() {
-		$from = self::getItem( 'Q111', array() );
-		$to = self::getItem( 'Q222', array(
-			'links' => array(
-				'eewiki' => array( 'site' => 'eewiki', 'name' => 'DUPE' )
-			)
-		) );
+		$from = $this->newItemWithId( 'Q111' );
+		$to = $this->newItemWithId( 'Q222' );
+		$to->getSiteLinkList()->addNewSiteLink( 'eewiki', 'DUPE' );
 
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
@@ -366,16 +369,11 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 
 	public function testExceptionNotThrownWhenSitelinkDuplicatesDetectedOnFromItem() {
 		// the from-item keeps the sitelinks
-		$from = self::getItem( 'Q111', array(
-			'links' => array(
-				'eewiki' => array( 'site' => 'eewiki', 'name' => 'DUPE' )
-			)
-		) );
-		$to = self::getItem( 'Q222', array(
-			'links' => array(
-				'eewiki' => array( 'site' => 'eewiki', 'name' => 'BLOOP' )
-			)
-		) );
+		$from = $this->newItemWithId( 'Q111' );
+		$from->getSiteLinkList()->addNewSiteLink( 'eewiki', 'DUPE' );
+
+		$to = $this->newItemWithId( 'Q222' );
+		$to->getSiteLinkList()->addNewSiteLink( 'eewiki', 'BLOOP' );
 
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,

@@ -626,16 +626,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.6",
+            "version": "0.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3"
+                "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/b75392a4a351f00a9eacd2130120a643b2c121d3",
-                "reference": "b75392a4a351f00a9eacd2130120a643b2c121d3",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
+                "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
                 "shasum": ""
             },
             "require": {
@@ -668,7 +668,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-06-04 10:27:24"
+            "time": "2014-06-09 13:06:57"
         },
         {
             "name": "diff/diff",
@@ -782,16 +782,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "0.8",
+            "version": "0.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "ce3644f7768ba8a624404e99be99d3abd19e5644"
+                "reference": "50679a58a5b1172224cf47e660f40595992e29dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/ce3644f7768ba8a624404e99be99d3abd19e5644",
-                "reference": "ce3644f7768ba8a624404e99be99d3abd19e5644",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/50679a58a5b1172224cf47e660f40595992e29dc",
+                "reference": "50679a58a5b1172224cf47e660f40595992e29dc",
                 "shasum": ""
             },
             "require": {
@@ -803,7 +803,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.7.x-dev"
+                    "dev-master": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -833,7 +833,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-06-05 19:12:05"
+            "time": "2014-06-06 21:14:52"
         },
         {
             "name": "wikibase/easyrdf_lite",
@@ -869,12 +869,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e9db423a774e413ec172a70b0bcd1959059ff9b2"
+                "reference": "4f2099142b2ebdbecedfaacb1ee589e84d6e44fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e9db423a774e413ec172a70b0bcd1959059ff9b2",
-                "reference": "e9db423a774e413ec172a70b0bcd1959059ff9b2",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4f2099142b2ebdbecedfaacb1ee589e84d6e44fc",
+                "reference": "4f2099142b2ebdbecedfaacb1ee589e84d6e44fc",
                 "shasum": ""
             },
             "require": {
@@ -888,10 +888,10 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.6.0",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.6.0",
+                "data-values/value-view": "~0.6.1",
                 "diff/diff": "~1.0",
                 "php": ">=5.3.2",
-                "wikibase/data-model": "~0.8",
+                "wikibase/data-model": "~0.8.1",
                 "wikibase/easyrdf_lite": "~0.8.1"
             },
             "conflict": {
@@ -937,7 +937,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-06-06 07:09:44"
+            "time": "2014-06-10 13:50:07"
         }
     ],
     "packages-dev": [
