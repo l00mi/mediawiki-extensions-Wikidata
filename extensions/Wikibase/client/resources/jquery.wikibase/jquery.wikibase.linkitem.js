@@ -239,7 +239,7 @@ $.widget( 'wikibase.linkitem', {
 				'class': 'wbclient-linkItem-input'
 			} )
 			.siteselector( {
-				resultSet: this._getLinkableSites()
+				source: this._getLinkableSites()
 			} )
 			.on(
 				'siteselectoropen siteselectorclose siteselectorautocomplete blur',
@@ -256,7 +256,7 @@ $.widget( 'wikibase.linkitem', {
 	 */
 	_getLinkableSites: function() {
 		var sites,
-			linkableSites = {},
+			linkableSites = [],
 			site,
 			currentSiteId;
 
@@ -265,7 +265,7 @@ $.widget( 'wikibase.linkitem', {
 
 		for( site in sites ) {
 			if ( sites[ site ].getId() !== currentSiteId ) {
-				linkableSites[ site ] = sites[ site ];
+				linkableSites.push( sites[ site ] );
 			}
 		}
 
@@ -296,12 +296,26 @@ $.widget( 'wikibase.linkitem', {
 		$page
 		.removeAttr( 'disabled' )
 		.suggester( {
-			ajax: {
-				url: apiUrl,
-				params: {
-					action: 'opensearch',
-					namespace: this.options.namespaceNumber
-				}
+			source: function( term ) {
+				var deferred = $.Deferred();
+
+				$.ajax( {
+					url: apiUrl,
+					dataType: 'jsonp',
+					data: {
+						search: term,
+						action: 'opensearch'
+					},
+					timeout: 8000
+				} )
+				.done( function( response ) {
+					deferred.resolve( response[1], response[0] );
+				} )
+				.fail( function( jqXHR, textStatus ) {
+					deferred.reject( textStatus );
+				} );
+
+				return deferred.promise();
 			}
 		} );
 	},
