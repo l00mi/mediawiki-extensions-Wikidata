@@ -842,54 +842,6 @@
         ]
     },
     {
-        "name": "data-values/value-view",
-        "version": "0.6.1",
-        "version_normalized": "0.6.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/ValueView.git",
-            "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
-            "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-06-09 13:06:57",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "ValueView.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
         "name": "wikibase/wikibase",
         "version": "dev-mw1.24-wmf8",
         "version_normalized": "dev-mw1.24-wmf8",
@@ -966,5 +918,53 @@
             "wikibaserepo",
             "wikidata"
         ]
+    },
+    {
+        "name": "data-values/value-view",
+        "version": "0.6.2",
+        "version_normalized": "0.6.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/ValueView.git",
+            "reference": "0bc1c003aa3c0e8860caa26b1222384aa3509e28"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/0bc1c003aa3c0e8860caa26b1222384aa3509e28",
+            "reference": "0bc1c003aa3c0e8860caa26b1222384aa3509e28",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-06-16 09:15:10",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
     }
 ]

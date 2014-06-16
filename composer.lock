@@ -627,16 +627,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.6.1",
+            "version": "0.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497"
+                "reference": "0bc1c003aa3c0e8860caa26b1222384aa3509e28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
-                "reference": "81b28f12aa9ef32cda612e23c8602dfdbbbdb497",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/0bc1c003aa3c0e8860caa26b1222384aa3509e28",
+                "reference": "0bc1c003aa3c0e8860caa26b1222384aa3509e28",
                 "shasum": ""
             },
             "require": {
@@ -669,7 +669,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-06-09 13:06:57"
+            "time": "2014-06-16 09:15:10"
         },
         {
             "name": "diff/diff",
