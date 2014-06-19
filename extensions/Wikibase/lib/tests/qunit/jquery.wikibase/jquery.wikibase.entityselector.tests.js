@@ -28,22 +28,6 @@
 	];
 
 	/**
-	 * Selects an entitySelector's first suggestion.
-	 *
-	 * @param {jQuery.wikibase.entityselector} entitySelector
-	 */
-	var selectFirstItem = function( entitySelector ) {
-		entitySelector.search()
-		.done( function() {
-			setTimeout( function() {
-				var menu = entitySelector.option( 'menu' );
-				menu.next();
-				menu.select();
-			}, 0 );
-		} );
-	};
-
-	/**
 	 * Factory creating a jQuery.wikibase.entityselector widget suitable for testing.
 	 *
 	 * @param {Object} [options]
@@ -100,35 +84,28 @@
 
 		QUnit.stop();
 
-		selectFirstItem( entitySelector );
+		$entitySelector.trigger( 'eachchange.entityselector' );
 	} );
 
-	QUnit.test( 'Implicitly select entity by matching alias / selectedEntity()', 2, function( assert ) {
-		var $entitySelector = newTestEntitySelector(),
-			entitySelector = $entitySelector.data( 'entityselector' );
+	QUnit.test( 'Don\'t implicitly select entity by matching alias / selectedEntity()', function( assert ) {
+		QUnit.expect( 0 );
+
+		var $entitySelector = newTestEntitySelector();
 
 		$entitySelector.val( 'yz' );
 
 		$entitySelector
 		.one( 'entityselectorselected', function( event, id ) {
-			assert.deepEqual(
-				id,
-				entityStubs[1].id,
-				'Selected first entity.'
-			);
-
-			assert.deepEqual(
-				entitySelector.selectedEntity(),
-				entityStubs[1],
-				'Verified selected entity using selectedEntity().'
-			);
-
-			QUnit.start();
+			assert.ok( false, 'entity should not automatically be selected based on the alias' );
 		} );
 
 		QUnit.stop();
 
-		selectFirstItem( entitySelector );
+		$entitySelector.trigger( 'eachchange.entityselector' );
+
+		window.setTimeout( function() {
+			QUnit.start();
+		}, 200 );
 	} );
 
 	QUnit.test( 'Item constructor', function( assert ) {
