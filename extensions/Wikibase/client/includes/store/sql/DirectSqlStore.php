@@ -91,31 +91,25 @@ class DirectSqlStore implements ClientStore {
 	private $contentCodec;
 
 	/**
-	 * @var EntityFactory
-	 */
-	private $entityFactory;
-
-	/**
 	 * @param EntityContentDataCodec $contentCodec
-	 * @param EntityFactory $entityFactory
 	 * @param Language $wikiLanguage
 	 * @param string    $repoWiki the symbolic database name of the repo wiki
 	 */
 	public function __construct(
 		EntityContentDataCodec $contentCodec,
-		EntityFactory $entityFactory,
 		Language $wikiLanguage,
 		$repoWiki
 	) {
 		$this->repoWiki = $repoWiki;
 		$this->language = $wikiLanguage;
 		$this->contentCodec = $contentCodec;
-		$this->entityFactory = $entityFactory;
 
 		$settings = WikibaseClient::getDefaultInstance()->getSettings();
 		$cachePrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
 		$cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
 		$cacheType = $settings->getSetting( 'sharedCacheType' );
+
+		$this->changesDatabase = $settings->getSetting( 'changesDatabase' );
 
 		$this->cachePrefix = $cachePrefix;
 		$this->cacheDuration = $cacheDuration;
@@ -221,7 +215,7 @@ class DirectSqlStore implements ClientStore {
 		//NOTE: Keep in sync with SqlStore::newEntityLookup on the repo
 		$key = $this->cachePrefix . ':WikiPageEntityLookup';
 
-		$lookup = new WikiPageEntityLookup( $this->contentCodec, $this->entityFactory, $this->repoWiki );
+		$lookup = new WikiPageEntityLookup( $this->contentCodec, $this->repoWiki );
 
 		// Lower caching layer using persistent cache (e.g. memcached).
 		// We need to verify the revision ID against the database to avoid stale data.

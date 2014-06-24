@@ -4,6 +4,10 @@ namespace Wikibase\Repo;
 
 use DataTypes\DataTypeFactory;
 use DataValues\DataValueFactory;
+use DataValues\Deserializers\DataValueDeserializer;
+use DataValues\Serializers\DataValueSerializer;
+use Deserializers\Deserializer;
+use Serializers\Serializer;
 use SiteSQLStore;
 use SiteStore;
 use StubObject;
@@ -17,7 +21,10 @@ use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\EntityContentFactory;
+use Wikibase\InternalSerialization\DeserializerFactory;
+use Wikibase\InternalSerialization\SerializerFactory;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\EntityFactory;
 use Wikibase\LabelDescriptionDuplicateDetector;
@@ -208,6 +215,25 @@ class WikibaseRepo {
 	 */
 	public function getEntityContentFactory() {
 		return new EntityContentFactory( $this->getContentModelMappings() );
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return EntityChangeFactory
+	 */
+	public function getEntityChangeFactory() {
+		//TODO: take this from a setting or registry.
+		$changeClasses = array(
+			Item::ENTITY_TYPE => 'Wikibase\ItemChange',
+			// Other types of entities will use EntityChange
+		);
+
+		return new EntityChangeFactory(
+			$this->getStore()->getChangesTable(),
+			$this->getEntityFactory(),
+			$changeClasses
+		);
 	}
 
 	/**
@@ -431,8 +457,7 @@ class WikibaseRepo {
 	public function getStore() {
 		if ( !$this->store ) {
 			$this->store = new SqlStore(
-				$this->getEntityContentDataCodec(),
-				$this->getEntityFactory()
+				$this->getEntityContentDataCodec()
 			);
 		}
 
@@ -588,7 +613,8 @@ class WikibaseRepo {
 			$idFormatter,
 			$valueFormatter,
 			$snakFormatter,
-			$wgContLang
+			$wgContLang,
+			$this->getEntityIdParser()
 		);
 
 		return $formatter;
@@ -731,6 +757,49 @@ class WikibaseRepo {
 	 * @return EntityContentDataCodec
 	 */
 	public function getEntityContentDataCodec() {
-		return new EntityContentDataCodec();
+		return new EntityContentDataCodec(
+			$this->getEntityIdParser(),
+			$this->getInternalEntitySerializer(),
+			$this->getInternalEntityDeserializer()
+		);
 	}
+
+	/**
+	 * @return Deserializer
+	 */
+	public function getInternalEntityDeserializer() {
+		return $this->getInternalDeserializerFactory()->newEntityDeserializer();
+	}
+
+	/**
+	 * @return Serializer
+	 */
+	public function getInternalEntitySerializer() {
+		$entitySerializerClass = $this->getSettings()->getSetting( 'internalEntitySerializerClass' );
+
+		if ( $entitySerializerClass !== null ) {
+			$serializer = new $entitySerializerClass;
+			return $serializer;
+		} else {
+			return $this->getInternalSerializerFactory()->newEntitySerializer();
+		}
+	}
+
+	/**
+	 * @return DeserializerFactory
+	 */
+	protected function getInternalDeserializerFactory() {
+		return new DeserializerFactory(
+			new DataValueDeserializer( $GLOBALS['evilDataValueMap'] ),
+			$this->getEntityIdParser()
+		);
+	}
+
+	/**
+	 * @return SerializerFactory
+	 */
+	protected function getInternalSerializerFactory() {
+		return new SerializerFactory( new DataValueSerializer() );
+	}
+
 }

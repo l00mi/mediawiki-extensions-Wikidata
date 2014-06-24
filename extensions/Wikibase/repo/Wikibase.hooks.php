@@ -32,6 +32,7 @@ use User;
 use Wikibase\Hook\MakeGlobalVariablesScriptHandler;
 use Wikibase\Hook\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Repo\View\TextInjector;
 use WikiPage;
 
 /**
@@ -47,13 +48,6 @@ use WikiPage;
  * @author Jens Ohlig
  */
 final class RepoHooks {
-
-	private static function isTitleInEntityNamespace( Title $title ) {
-		$entityNamespaces = array_flip( NamespaceUtils::getEntityNamespaces() );
-		$namespace = $title->getNamespace();
-
-		return array_key_exists( $namespace, $entityNamespaces );
-	}
 
 	/**
 	 * Handler for the BeforePageDisplay hook, simply injects wikibase.ui.entitysearch module
@@ -241,7 +235,8 @@ final class RepoHooks {
 			$parent = is_null( $revision->getParentId() )
 				? null : Revision::newFromId( $revision->getParentId() );
 
-			$change = EntityChange::newFromUpdate(
+			$entityChangeFactory = WikibaseRepo::getDefaultInstance()->getEntityChangeFactory();
+			$change = $entityChangeFactory->newFromUpdate(
 				$parent ? EntityChange::UPDATE : EntityChange::ADD,
 				$parent ? $parent->getContent()->getEntity() : null,
 				$newEntity
@@ -301,7 +296,8 @@ final class RepoHooks {
 		// May be redundant in some cases. Take care not to cause infinite regress.
 		WikibaseRepo::getDefaultInstance()->getEntityStoreWatcher()->entityDeleted( $entity->getId() );
 
-		$change = EntityChange::newFromUpdate( EntityChange::REMOVE, $entity, null, array(
+		$entityChangeFactory = WikibaseRepo::getDefaultInstance()->getEntityChangeFactory();
+		$change = $entityChangeFactory->newFromUpdate( EntityChange::REMOVE, $entity, null, array(
 			'revision_id' => 0, // there's no current revision
 			'user_id' => $user->getId(),
 			'object_id' => $entity->getId()->getPrefixedId(),
@@ -358,7 +354,9 @@ final class RepoHooks {
 		$rev = Revision::newFromId( $revId );
 
 		$userId = $rev->getUser();
-		$change = EntityChange::newFromUpdate( EntityChange::RESTORE, null, $entity, array(
+
+		$entityChangeFactory = WikibaseRepo::getDefaultInstance()->getEntityChangeFactory();
+		$change = $entityChangeFactory->newFromUpdate( EntityChange::RESTORE, null, $entity, array(
 			// TODO: Use timestamp of log entry, but needs core change.
 			// This hook is called before the log entry is created.
 			'revision_id' => $revId,
@@ -712,11 +710,9 @@ final class RepoHooks {
 
 		//NOTE: the model returned by Title::getContentModel() is not reliable, see bug 37209
 		$model = $target->getContentModel();
-		$entityModels = $entityContentFactory->getEntityContentModels();
-
 
 		// we only want to handle links to Wikibase entities differently here
-		if ( !in_array( $model, $entityModels ) ) {
+		if ( !$entityContentFactory->isEntityContentModel( $model ) ) {
 			wfProfileOut( __METHOD__ );
 			return true;
 		}
@@ -958,9 +954,8 @@ final class RepoHooks {
 	 */
 	public static function onShowSearchHitTitle( &$link_t, &$titleSnippet, SearchResult $result ) {
 		$title = $result->getTitle();
-		$entityNamespaces = NamespaceUtils::getEntityNamespaces();
 
-		if ( in_array( $title->getNamespace(), $entityNamespaces ) ) {
+		if ( NamespaceUtils::isEntityNamespace( $title->getNamespace() ) ) {
 			$titleSnippet = $title->getPrefixedText();
 		}
 
@@ -1141,7 +1136,7 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onOutputPageBeforeHtmlRegisterConfig( OutputPage $out, &$html ) {
-		if ( !self::isTitleInEntityNamespace( $out->getTitle() ) ) {
+		if ( !NamespaceUtils::isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
 			return true;
 		}
 
@@ -1168,7 +1163,7 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onMakeGlobalVariablesScript( $vars, $out ) {
-		if ( !self::isTitleInEntityNamespace( $out->getTitle() ) ) {
+		if ( !NamespaceUtils::isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
 			return true;
 		}
 
@@ -1202,12 +1197,11 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onContentModelCanBeUsedOn( $contentModel, Title $title, &$ok ) {
-		$contentModels = array_flip( NamespaceUtils::getEntityNamespaces() );
-		$namespace = $title->getNamespace();
+		$expectedModel = array_search( $title->getNamespace(), NamespaceUtils::getEntityNamespaces() );
 
 		// If the namespace is an entity namespace, the content model
 		// must be the model assigned to that namespace.
-		if ( isset( $contentModels[$namespace] ) && $contentModels[$namespace] !== $contentModel ) {
+		if ( $expectedModel !== false && $expectedModel !== $contentModel ) {
 			$ok = false;
 			return false;
 		}
@@ -1225,6 +1219,8 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onContentHandlerForModelID( $modelId, &$handler ) {
+		// FIXME: this code needs to be moved out. Construction should happen elsewhere and
+		// a mechanism for registering additional entity types needs to be put in place.
 		switch ( $modelId ) {
 			case CONTENT_MODEL_WIKIBASE_ITEM:
 				$handler = self::newItemHandler();
@@ -1247,8 +1243,17 @@ final class RepoHooks {
 		$termIndex = $repo->getStore()->getTermIndex();
 		$errorLocalizer = $repo->getValidatorErrorLocalizer();
 		$siteLinkStore = $repo->getStore()->newSiteLinkCache();
+		$transformOnExport = $repo->getSettings()->getSetting( 'transformLegacyFormatOnExport' );
 
-		return new ItemHandler( $entityPerPage, $termIndex, $codec, array( $validator ), $errorLocalizer, $siteLinkStore );
+		return new ItemHandler(
+			$entityPerPage,
+			$termIndex,
+			$codec,
+			array( $validator ),
+			$errorLocalizer,
+			$siteLinkStore,
+			$transformOnExport
+		);
 	}
 
 	private static function newPropertyHandler() {
@@ -1259,8 +1264,17 @@ final class RepoHooks {
 		$termIndex = $repo->getStore()->getTermIndex();
 		$errorLocalizer = $repo->getValidatorErrorLocalizer();
 		$propertyInfoStore = $repo->getStore()->getPropertyInfoStore();
+		$transformOnExport = $repo->getSettings()->getSetting( 'transformLegacyFormatOnExport' );
 
-		return new PropertyHandler( $entityPerPage, $termIndex, $codec, array( $validator ), $errorLocalizer, $propertyInfoStore );
+		return new PropertyHandler(
+			$entityPerPage,
+			$termIndex,
+			$codec,
+			array( $validator ),
+			$errorLocalizer,
+			$propertyInfoStore,
+			$transformOnExport
+		);
 	}
 
 	/**
@@ -1280,7 +1294,7 @@ final class RepoHooks {
 			$data['position'] = $row->chd_seen;
 		}
 		if ( isset( $row->chd_touched ) ) {
-			$data['touched'] = $row->chd_touched;
+			$data['touched'] = wfTimestamp( TS_ISO_8601, $row->chd_touched );
 		}
 
 		return $data;

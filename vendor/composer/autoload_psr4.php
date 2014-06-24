@@ -6,9 +6,12 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src'),
+    'Wikibase\\Repo\\View\\' => array($baseDir . '/extensions/Wikibase/repo/includes/View'),
+    'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
+    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
     'ValueValidators\\' => array($vendorDir . '/data-values/validators/src'),
     'Serializers\\' => array($vendorDir . '/serialization/serialization/src/Serializers'),
+    'PropertySuggester\\' => array($baseDir . '/extensions/PropertySuggester/src/PropertySuggester'),
     'Diff\\' => array($vendorDir . '/diff/diff/src'),
     'Deserializers\\' => array($vendorDir . '/serialization/serialization/src/Deserializers'),
     'DataValues\\Serializers\\' => array($vendorDir . '/data-values/serialization/src/Serializers'),

@@ -1,5 +1,4 @@
 <?php
-
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( 'Not an entry point.' );
 }
@@ -12,6 +11,7 @@ if ( PHP_SAPI === 'cli' && getenv( 'JOB_NAME' ) === 'mwext-Wikidata-testextensio
 	}
 
 	$wmgUseWikibaseRepo = true;
+	$wmgUseWikibasePropertySuggester = true;
 	$wmgUseWikibaseClient = true;
 }
 
@@ -21,12 +21,16 @@ $wgEnableWikibaseClient = false;
 
 include_once __DIR__ . '/vendor/autoload.php';
 
-if ( $wmgUseWikibaseRepo ) {
-	include_once( __DIR__ . '/extensions/Wikibase/repo/Wikibase.php' );
+if ( !empty( $wmgUseWikibaseRepo ) ) {
+	include_once __DIR__ . '/extensions/Wikibase/repo/Wikibase.php';
+
+	if ( !empty( $wmgUseWikibasePropertySuggester ) ) {
+		include_once __DIR__ . '/extensions/PropertySuggester/PropertySuggester.php';
+	}
 }
 
-if ( $wmgUseWikibaseClient ) {
-	include_once( __DIR__ . '/extensions/Wikibase/client/WikibaseClient.php' );
+if ( !empty( $wmgUseWikibaseClient ) ) {
+	include_once __DIR__ . '/extensions/Wikibase/client/WikibaseClient.php';
 }
 
 $wgExtensionCredits['wikibase'][] = array(

@@ -5,12 +5,15 @@ namespace Wikibase\Test;
 use ContentHandler;
 use Language;
 use Revision;
+use Symfony\Component\Yaml\Exception\RuntimeException;
 use Title;
 use Wikibase\Entity;
 use Wikibase\EntityContent;
-use Wikibase\EntityFactory;
 use Wikibase\EntityHandler;
+use Wikibase\Lib\Serializers\LegacyInternalEntitySerializer;
+use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\SettingsArray;
 
 /**
  * @covers Wikibase\EntityHandler
@@ -41,19 +44,20 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	}
 
 	/**
+	 * @param SettingsArray $settings
+	 * @param EntityContentDataCodec $codec
+	 *
 	 * @return EntityHandler
 	 */
-	protected function getHandler() {
-		return ContentHandler::getForModelID( $this->getModelId() );
-	}
+	protected abstract function getHandler(
+		SettingsArray $settings = null,
+		EntityContentDataCodec $codec = null
+	);
 
 	/**
 	 * @return Entity
 	 */
-	protected function newEntity() {
-		$handler = $this->getHandler();
-		return EntityFactory::singleton()->newEmpty( $handler->getEntityType() );
-	}
+	protected abstract function newEntity();
 
 	/**
 	 * Returns EntityContents that can be handled by the EntityHandler deriving class.
@@ -77,7 +81,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 * @param \Wikibase\EntityHandler $entityHandler
+	 * @param EntityHandler $entityHandler
 	 */
 	public function testGetModelName( EntityHandler $entityHandler ) {
 		$this->assertEquals( $this->getModelId(), $entityHandler->getModelID() );
@@ -88,7 +92,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 * @param \Wikibase\EntityHandler $entityHandler
+	 * @param EntityHandler $entityHandler
 	 */
 	public function testGetSpecialPageForCreation( EntityHandler $entityHandler ) {
 		$specialPageName = $entityHandler->getSpecialPageForCreation();
@@ -150,7 +154,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		global $wgLang;
 
 		$handler = $this->getHandler();
-		$title = \Title::makeTitle( $handler->getEntityNamespace(), "1234567" );
+		$title = Title::makeTitle( $handler->getEntityNamespace(), "1234567" );
 
 		//NOTE: we expect getPageViewLanguage to return the user language, because Wikibase Entities
 		//      are always shown in the user language.
@@ -246,7 +250,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 
 		if ( $expected ) {
 			$this->assertInstanceOf( 'Wikibase\EntityContent', $undo, $message );
-			$this->assertEquals( $expected->toArray(), $undo->getEntity()->toArray(), $message );
+			$this->assertTrue( $expected->equals( $undo->getEntity() ), $message );
 		} else {
 			$this->assertFalse( $undo, $message );
 		}
@@ -275,6 +279,64 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		$content = $handler->makeEmptyContent();
 
 		$this->assertEquals( $this->getModelId(), $content->getModel() );
+	}
+
+	public function exportTransformProvider() {
+		$entity = $this->newEntity();
+
+		$legacySerializer = new LegacyInternalEntitySerializer();
+		$oldBlob = json_encode( $legacySerializer->serialize( $entity ) );
+
+		// replace "entity":["item",7] with "entity":"q7"
+		$id = $entity->getId()->getSerialization();
+		$veryOldBlob = preg_replace( '/"entity":\["\w+",\d+\]/', '"entity":"' . strtolower( $id ) . '"', $oldBlob );
+
+		// sanity
+		if ( $oldBlob == $veryOldBlob ) {
+			throw new RuntimeException( 'Failed to fake very old serialization format based on oldish serialization format.' );
+		}
+
+		$currentSerializer = WikibaseRepo::getDefaultInstance()->getInternalEntitySerializer();
+		$newBlob = json_encode( $currentSerializer->serialize( $entity ) );
+
+		return array(
+			'old serialization / ancient id format' => array( $veryOldBlob, $newBlob ),
+			'old serialization / new silly id format' => array( $oldBlob, $newBlob ),
+			'new serialization format, keep as is' => array( $newBlob, $newBlob ),
+		);
+	}
+
+	/**
+	 * @dataProvider exportTransformProvider
+	 */
+	public function testExportTransform( $blob, $expected ) {
+		$settings = new SettingsArray();
+		$settings->setSetting( 'transformLegacyFormatOnExport', true );
+		$handler = $this->getHandler( $settings );
+		$actual = $handler->exportTransform( $blob );
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	public function testExportTransform_neverRecodeNonLegacyFormat() {
+		$codec = $this->getMockBuilder( '\Wikibase\Lib\Store\EntityContentDataCodec' )
+			->disableOriginalConstructor()
+			->getMock();
+		$codec->expects( $this->never() )
+			->method( 'decodeEntity' );
+		$codec->expects( $this->never() )
+			->method( 'encodeEntity' );
+
+		$entity = $this->newEntity();
+		$currentSerializer = WikibaseRepo::getDefaultInstance()->getInternalEntitySerializer();
+		$expected = json_encode( $currentSerializer->serialize( $entity ) );
+
+		$settings = new SettingsArray();
+		$settings->setSetting( 'transformLegacyFormatOnExport', true );
+		$handler = $this->getHandler( $settings, $codec );
+		$actual = $handler->exportTransform( $expected );
+
+		$this->assertEquals( $expected, $actual );
 	}
 
 }

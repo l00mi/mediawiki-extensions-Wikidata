@@ -18,7 +18,7 @@ use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\WikiPageEntityLookup;
 
 /**
- * @covers Wikibase\Lib\Store\WikiPageEntityStore
+ * @covers Wikibase\Repo\Store\WikiPageEntityStore
  *
  * @group Database
  * @group Wikibase
@@ -40,9 +40,8 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 
 		//NOTE: we want to test integration of WikiPageEntityLookup and WikiPageEntityStore here!
 		$contentCodec = WikibaseRepo::getDefaultInstance()->getEntityContentDataCodec();
-		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
 
-		$lookup = new WikiPageEntityLookup( $contentCodec, $entityFactory, false, CACHE_DB );
+		$lookup = new WikiPageEntityLookup( $contentCodec, false );
 
 		$typeMap = WikibaseRepo::getDefaultInstance()->getContentModelMappings();
 

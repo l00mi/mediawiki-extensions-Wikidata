@@ -75,7 +75,13 @@ return call_user_func( function() {
 
 		'dataRightsText' => function() {
 			return $GLOBALS['wgRightsText'];
-		}
+		},
+
+		// Can be used to override the serialization used for storage.
+		// Typical value: Wikibase\Lib\Serializers\LegacyInternalEntitySerializer
+		'internalEntitySerializerClass' => null,
+
+		'transformLegacyFormatOnExport' => true,
 	);
 
 	return $defaults;

@@ -3,11 +3,14 @@
 namespace Wikibase\Client;
 
 use DataTypes\DataTypeFactory;
+use DataValues\Deserializers\DataValueDeserializer;
+use Deserializers\Deserializer;
 use Exception;
 use Language;
 use LogicException;
 use MediaWikiSite;
 use MWException;
+use Serializers\Serializer;
 use Site;
 use SiteSQLStore;
 use SiteStore;
@@ -16,6 +19,9 @@ use Wikibase\ClientStore;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\InternalSerialization\DeserializerFactory;
+use Wikibase\Lib\Changes\EntityChangeFactory;
+use Wikibase\Lib\Serializers\ForbiddenSerializer;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DirectSqlStore;
@@ -288,7 +294,6 @@ final class WikibaseClient {
 		if ( $this->store === null ) {
 			$this->store = new DirectSqlStore(
 				$this->getEntityContentDataCodec(),
-				$this->getEntityFactory(),
 				$this->getContentLanguage(),
 				$repoDatabase
 			);
@@ -583,7 +588,14 @@ final class WikibaseClient {
 	 * @return EntityContentDataCodec
 	 */
 	public function getEntityContentDataCodec() {
-		return new EntityContentDataCodec();
+		// Serialization is not supported on the client, since the client never stores entities.
+		$forbiddenSerializer = new ForbiddenSerializer( 'Entity serialization is not supported on the client!' );
+
+		return new EntityContentDataCodec(
+			$this->getEntityIdParser(),
+			$forbiddenSerializer,
+			$this->getInternalEntityDeserializer()
+		);
 	}
 
 	/**
@@ -605,4 +617,40 @@ final class WikibaseClient {
 		return $this->clientSiteLinkLookup;
 	}
 
+	/**
+	 * @return Deserializer
+	 */
+	public function getInternalEntityDeserializer() {
+		return $this->getInternalDeserializerFactory()->newEntityDeserializer();
+	}
+
+	/**
+	 * @return DeserializerFactory
+	 */
+	protected function getInternalDeserializerFactory() {
+		return new DeserializerFactory(
+			new DataValueDeserializer( $GLOBALS['evilDataValueMap'] ),
+			$this->getEntityIdParser()
+		);
+	}
+
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return EntityChangeFactory
+	 */
+	public function getEntityChangeFactory() {
+		//TODO: take this from a setting or registry.
+		$changeClasses = array(
+			Item::ENTITY_TYPE => 'Wikibase\ItemChange',
+			// Other types of entities will use EntityChange
+		);
+
+		return new EntityChangeFactory(
+			$this->getStore()->newChangesTable(),
+			$this->getEntityFactory(),
+			$changeClasses
+		);
+	}
 }

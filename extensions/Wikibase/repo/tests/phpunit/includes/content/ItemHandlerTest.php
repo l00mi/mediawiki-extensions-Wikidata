@@ -3,9 +3,14 @@
 namespace Wikibase\Test;
 
 use Title;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SimpleSiteLink;
 use Wikibase\ItemContent;
+use Wikibase\ItemHandler;
+use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Repo\WikibaseRepo;
+use Wikibase\SettingsArray;
 
 /**
  * @covers Wikibase\ItemHandler
@@ -67,6 +72,50 @@ class ItemHandlerTest extends EntityHandlerTest {
 
 		$id = $handler->getIdForTitle( $title );
 		$this->assertEquals( $title->getText(), $id->getSerialization() );
+	}
+
+	protected function newEntity() {
+		$item = Item::newEmpty();
+		$item->setId( new ItemId( 'Q7' ) );
+		return $item;
+	}
+
+	/**
+	 * @param SettingsArray $settings
+	 * @param EntityContentDataCodec $codec
+	 *
+	 * @return ItemHandler
+	 */
+	protected function getHandler(
+		SettingsArray $settings = null,
+		EntityContentDataCodec $codec = null
+	) {
+		$repo = WikibaseRepo::getDefaultInstance();
+		$validator = $repo->getEntityConstraintProvider()->getConstraints( Item::ENTITY_TYPE );
+		$entityPerPage = $repo->getStore()->newEntityPerPage();
+		$termIndex = $repo->getStore()->getTermIndex();
+		$errorLocalizer = $repo->getValidatorErrorLocalizer();
+		$siteLinkStore = $repo->getStore()->newSiteLinkCache();
+
+		if ( !$settings ) {
+			$settings = $repo->getSettings();
+		}
+
+		if ( !$codec ) {
+			$codec = $repo->getEntityContentDataCodec();
+		}
+
+		$transformOnExport = $settings->getSetting( 'transformLegacyFormatOnExport' );
+
+		return new ItemHandler(
+			$entityPerPage,
+			$termIndex,
+			$codec,
+			array( $validator ),
+			$errorLocalizer,
+			$siteLinkStore,
+			$transformOnExport
+		);
 	}
 
 }

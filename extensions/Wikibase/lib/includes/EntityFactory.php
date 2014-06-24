@@ -8,7 +8,12 @@ use OutOfBoundsException;
 /**
  * Factory for Entity objects.
  *
- * @since 0.2
+ * @deprecated
+ * This class makes many assumptions that do not hold, including
+ * - all entities can be constructed empty
+ * - only Items and Properties exist
+ * - all entities can construct themselves from their serialization
+ * Not a single method is non-problematic, so you should not use this class at all.
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
@@ -108,19 +113,5 @@ class EntityFactory {
 		return $class::newEmpty();
 	}
 
-	/**
-	 * Creates a new entity of the given type.
-	 *
-	 * @since 0.3
-	 *
-	 * @param String $entityType The type of the desired new entity.
-	 * @param array $data An array structure representing the Entity.
-	 *
-	 * @return Entity The new Entity object.
-	 */
-	public function newFromArray( $entityType, $data ) {
-		$class = $this->getEntityClass( $entityType );
-		return $class::newFromArray( $data );
-	}
 
 }

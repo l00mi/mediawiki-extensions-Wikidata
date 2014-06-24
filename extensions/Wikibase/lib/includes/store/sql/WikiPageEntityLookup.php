@@ -3,12 +3,11 @@
 namespace Wikibase\Lib\Store;
 
 use DBQueryError;
+use Deserializers\Exceptions\DeserializationException;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\EntityFactory;
-use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\EntityRevision;
 use Wikibase\StorageException;
 
@@ -35,24 +34,16 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	private $contentCodec;
 
 	/**
-	 * @var EntityFactory
-	 */
-	private $entityFactory;
-
-	/**
 	 * @param EntityContentDataCodec $contentCodec
-	 * @param EntityFactory $entityFactory
 	 * @param string|bool $wiki The name of the wiki database to use (use false for the local wiki)
 	 */
 	public function __construct(
 		EntityContentDataCodec $contentCodec,
-		EntityFactory $entityFactory,
 		$wiki = false
 	) {
 		parent::__construct( $wiki );
 
 		$this->contentCodec = $contentCodec;
-		$this->entityFactory = $entityFactory;
 
 		// TODO: migrate table away from using a numeric field so we no longer need this!
 		$this->idParser = new BasicEntityIdParser();
@@ -96,7 +87,7 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 		$row = $this->loadRevisionRow( $entityId, $revision );
 
 		if ( $row ) {
-			$entityRev = $this->loadEntity( $entityId->getEntityType(), $row );
+			$entityRev = $this->loadEntity( $row );
 
 			if ( !$entityRev ) {
 				// This only happens when there is a problem with the external store.
@@ -183,9 +174,9 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	 *
 	 * @param EntityId $entityId The entity to query the DB for.
 	 * @param int $revision The desired revision id, 0 means "current".
-	 * @param boolean $connType DB_READ or DB_MASTER
+	 * @param int $connType DB_READ or DB_MASTER
 	 *
-	 * @throws \DBQueryError If the query fails.
+	 * @throws DBQueryError If the query fails.
 	 * @return object|null a raw database row object, or null if no such entity revision exists.
 	 */
 	protected function selectRevisionRow( EntityId $entityId, $revision = 0, $connType = DB_READ ) {
@@ -356,13 +347,10 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	 *
 	 * @param Object $row a row object as expected \Revision::getRevisionText(), that is, it
 	 *        should contain the relevant fields from the revision and/or text table.
-	 * @param String $entityType The entity type ID, determines what kind of object is constructed
-	 *        from the blob in the database.
 	 *
-	 * @return array list( EntityRevision|null $entityRev, EntityId|null $redirect ),
-	 * with either $entityRev or $redirect or both being null (but not both being non-null).
+	 * @return EntityRevision
 	 */
-	private function loadEntity( $entityType, $row ) {
+	private function loadEntity( $row ) {
 		wfProfileIn( __METHOD__ );
 
 		wfDebugLog( __CLASS__, __FUNCTION__ . ": calling getRevisionText() on rev " . $row->rev_id );
@@ -380,7 +368,7 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 		}
 
 		$format = $row->rev_content_format;
-		$entity = $this->unserializeEntity( $entityType, $blob, $format );
+		$entity = $this->unserializeEntity( $blob, $format );
 		$entityRev = new EntityRevision( $entity, (int)$row->rev_id, $row->rev_timestamp );
 
 		wfDebugLog( __CLASS__, __FUNCTION__ . ": Created entity object from revision blob: "
@@ -395,16 +383,14 @@ class WikiPageEntityLookup extends \DBAccessBase implements EntityRevisionLookup
 	 *
 	 * @since 0.5
 	 *
-	 * @param $entityType
 	 * @param string $blob
 	 * @param null|string $format
 	 *
 	 * @return Entity|null
+	 * @throws StorageException
 	 */
-	private function unserializeEntity( $entityType, $blob, $format = null ) {
-		$data = $this->contentCodec->decodeEntityContentData( $blob, $format );
-		$entity = $this->entityFactory->newFromArray( $entityType, $data );
-
+	private function unserializeEntity( $blob, $format = null ) {
+		$entity = $this->contentCodec->decodeEntity( $blob, $format );
 		return $entity;
 	}
 

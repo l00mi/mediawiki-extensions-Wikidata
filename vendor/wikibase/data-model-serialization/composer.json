@@ -1,0 +1,51 @@
+{
+	"name": "wikibase/data-model-serialization",
+	"type": "library",
+	"description": "Serializers and deserializers for the Wikibase DataModel",
+	"keywords": [
+		"wikibase",
+		"DataModel",
+		"serializers",
+		"serialization",
+		"deserializers",
+		"wikidata"
+	],
+	"homepage": "https://github.com/wmde/WikibaseDataModelSerialization",
+	"license": "GPL-2.0+",
+	"authors": [
+		{
+			"name": "Thomas PT",
+			"homepage": "https://github.com/Tpt"
+		},
+		{
+			"name": "Jeroen De Dauw",
+			"email": "jeroendedauw@gmail.com",
+			"homepage": "http://jeroendedauw.com"
+		}
+	],
+	"support": {
+		"irc": "irc://irc.freenode.net/wikidata"
+	},
+	"require": {
+		"php": ">=5.3.0",
+		"wikibase/data-model": "<2.0,>=0.7@dev",
+		"serialization/serialization": "~3.1",
+		"data-values/serialization": "~1.0"
+	},
+	"require-dev": {
+		"data-values/common": "~0.2.0",
+		"data-values/geo": "~0.1.0",
+		"data-values/number": "~0.3.0",
+		"data-values/time": "~0.3.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Wikibase\\DataModel\\": "src/"
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
+	}
+}
