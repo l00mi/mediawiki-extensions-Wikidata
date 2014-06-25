@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b24149b11c434f2c8d2cce6d9a9921fc",
+    "hash": "98528b42a7de822c45e917f7eaf3ff87",
     "packages": [
         {
             "name": "composer/installers",
@@ -870,12 +870,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "a4c88611f780436e46681d8f82094d50a23dc9fd"
+                "reference": "66c7f46b24a96b720f4058c129b2395fb8744728"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a4c88611f780436e46681d8f82094d50a23dc9fd",
-                "reference": "a4c88611f780436e46681d8f82094d50a23dc9fd",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/66c7f46b24a96b720f4058c129b2395fb8744728",
+                "reference": "66c7f46b24a96b720f4058c129b2395fb8744728",
                 "shasum": ""
             },
             "require": {
@@ -938,7 +938,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-06-25 10:05:02"
+            "time": "2014-06-25 16:41:01"
         }
     ],
     "packages-dev": [

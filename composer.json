@@ -5,6 +5,6 @@
     },
     "minimum-stability": "dev",
     "config": {
-        "autoloader-suffix": "wikidata_mw1_24_wmf8"
+        "autoloader-suffix": "wikidata_mw1_24_wmf8x"
     }
 }
