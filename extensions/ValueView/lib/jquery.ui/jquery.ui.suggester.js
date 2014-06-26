@@ -484,14 +484,17 @@
 		 * @param {string} term
 		 * @return {jQuery.Promise}
 		 *         Resolved parameters:
-		 *         - {string[]}
+		 *         - {string[]} suggestions
+		 *         - {string} requestTerm
 		 *         Rejected parameters:
 		 *         - {string}
 		 */
 		_getSuggestions: function( term ) {
-			return ( $.isArray( this.options.source ) )
-				? this._getSuggestionsFromArray( term, this.options.source )
-				: this.options.source( term );
+			if ( typeof this.options.source === 'function' ) {
+				return this.options.source( term );
+			}
+
+			return this._getSuggestionsFromArray( term, this.options.source );
 		},
 
 		/**
@@ -501,7 +504,8 @@
 		 * @param {string[]} source
 		 * @return {jQuery.Promise}
 		 *         Resolved parameters:
-		 *         - {string[]}
+		 *         - {string[]} suggestions
+		 *         - {string} requestTerm
 		 *         Rejected parameters:
 		 *         - {string}
 		 */
@@ -582,7 +586,7 @@
 	 */
 	function flipPosition( position ) {
 		function flipOrientation( orientation ) {
-			if( /right/i.match( orientation ) ) {
+			if( /right/i.test( orientation ) ) {
 				return orientation.replace( /right/i, 'left' );
 			} else {
 				return orientation.replace( /left/i, 'right' );

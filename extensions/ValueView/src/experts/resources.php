@@ -69,6 +69,20 @@ return call_user_func( function() {
 			),
 			'messages' => array(
 				'valueview-expert-globecoordinateinput-precision',
+				'valueview-expert-globecoordinateinput-customprecision',
+			),
+		),
+
+		'jquery.valueview.experts.MonolingualText' => $moduleTemplate + array(
+			'scripts' => array(
+				'MonolingualText.js',
+			),
+			'dependencies' => array(
+				'jquery.valueview.Expert',
+				'jquery.valueview.ExpertExtender',
+				'jquery.valueview.ExpertExtender.LanguageSelector',
+				'jquery.valueview.experts',
+				'jquery.valueview.experts.StringValue',
 			),
 		),
 

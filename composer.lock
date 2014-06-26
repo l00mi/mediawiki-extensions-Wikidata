@@ -632,16 +632,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.6.2",
+            "version": "0.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "0bc1c003aa3c0e8860caa26b1222384aa3509e28"
+                "reference": "1982db3a29cabc175e576dfad2b9ed16f21b8bcf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/0bc1c003aa3c0e8860caa26b1222384aa3509e28",
-                "reference": "0bc1c003aa3c0e8860caa26b1222384aa3509e28",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/1982db3a29cabc175e576dfad2b9ed16f21b8bcf",
+                "reference": "1982db3a29cabc175e576dfad2b9ed16f21b8bcf",
                 "shasum": ""
             },
             "require": {
@@ -674,7 +674,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-06-16 09:15:10"
+            "time": "2014-06-25 10:30:31"
         },
         {
             "name": "diff/diff",
@@ -1102,12 +1102,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "35772ec52702ba0499256f6e40ef69b0d9aeb60a"
+                "reference": "dd7d3997fa922feda618b39ed50e3543542d3b41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/35772ec52702ba0499256f6e40ef69b0d9aeb60a",
-                "reference": "35772ec52702ba0499256f6e40ef69b0d9aeb60a",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/dd7d3997fa922feda618b39ed50e3543542d3b41",
+                "reference": "dd7d3997fa922feda618b39ed50e3543542d3b41",
                 "shasum": ""
             },
             "require": {
@@ -1121,7 +1121,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.6.0",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.6.2",
+                "data-values/value-view": "~0.6.3",
                 "diff/diff": "~1.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~0.8.1",
@@ -1175,7 +1175,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-06-24 20:02:07"
+            "time": "2014-06-25 23:17:24"
         }
     ],
     "packages-dev": [

@@ -32,6 +32,9 @@
 		_onValueChange: null,
 		_getUpstreamValue: null,
 
+		_$customItem: null,
+		_customValueIndex: null,
+
 		rotator: null,
 
 		/**
@@ -59,9 +62,29 @@
 		 */
 		draw: function() {
 			var value = this._getUpstreamValue();
-			if( value && this.rotator.autoActive() ) {
+			if( !value ) {
+				return;
+			}
+
+			if( this._$customItem ) {
+				this.rotator.options.values.splice(this._customValueIndex, 1);
+				this._$customItem.remove();
+				this._$customItem = null;
+				this._customValueIndex = null;
+			}
+			if( value.custom ) {
+				this._customValueIndex = this.rotator.options.values.push( value ) - 1;
+				this._$customItem = this.rotator._addMenuItem( value );
+				value = value.value;
+			}
+
+			if( this.rotator.autoActive() || this._$customItem ) {
 				this.rotator.value( value );
 				this.rotator._setValue( value );
+				if( this._$customItem ) {
+					this.rotator.$menu.data( 'menu' ).refresh();
+					this.rotator.activate(); // disables autoActive state
+				}
 			}
 		},
 
