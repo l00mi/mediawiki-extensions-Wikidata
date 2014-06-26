@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "98528b42a7de822c45e917f7eaf3ff87",
+    "hash": "4f5fdc2857f8e344d624966333796422",
     "packages": [
         {
             "name": "composer/installers",
@@ -726,6 +726,53 @@
             "time": "2014-05-07 16:35:49"
         },
         {
+            "name": "propertysuggester/property-suggester",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*",
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "mediawiki-extension",
+            "autoload": {
+                "psr-4": {
+                    "PropertySuggester\\": "src/PropertySuggester/"
+                },
+                "files": [
+
+    ],
+                "classmap": [
+                    "PropertySuggesterHooks.php",
+                    "maintenance/UpdateTable.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+            "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+            "keywords": [
+                "propertysuggester",
+                "wikibase",
+                "wikidata"
+            ],
+            "time": "2014-06-23 17:01:20"
+        },
+        {
             "name": "serialization/serialization",
             "version": "3.2",
             "source": {
@@ -949,7 +996,8 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "wikibase/wikibase": 20
+        "wikibase/wikibase": 20,
+        "propertysuggester/property-suggester": 20
     },
     "platform": {
         "php": ">=5.3.0"
