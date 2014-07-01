@@ -5,7 +5,9 @@ namespace Wikibase\Test;
 use MediaWikiSite;
 use SiteList;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\Repo\View\SectionEditLinkGenerator;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Repo\View\SiteLinksView;
 
@@ -38,33 +40,22 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider getHtmlProvider
 	 */
-	public function testGetHtml(
-		$siteStore,
-		$sectionEditLinkGenerator,
-		$item,
-		$groups,
-		$editable,
-		$expectedValue
-	) {
-		$siteLinksView = new SiteLinksView( $siteStore, $sectionEditLinkGenerator );
+	public function testGetHtml( Item $item, array $groups, $editable, $expectedValue ) {
+		$siteLinksView = new SiteLinksView( $this->newSiteList(), $this->getSectionEditLinkGeneratorMock() );
 
-		$value = $siteLinksView->getHtml( $item, $groups, $editable );
+		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups, $editable );
 		$this->assertInternalType( 'string', $value );
 		$this->assertTag( $expectedValue, $value, $value . ' did not match ' . var_export( $expectedValue, true ) );
 	}
 
 	public function getHtmlProvider() {
-		$siteStore = $this->getSiteStoreMock();
-		$sectionEditLinkGenerator = $this->getSectionEditLinkGeneratorMock();
-
 		$testCases = array();
 
 		$item = Item::newEmpty();
+		$item->setId( EntityId::newFromPrefixedId( 'Q1' ) );
 		$item->addSiteLink( new SiteLink( 'enwiki', 'test' ) );
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
 			$item,
 			array( 'wikipedia' ),
 			false,
@@ -82,8 +73,6 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
 			$item,
 			array( 'wikipedia' ),
 			true,
@@ -101,11 +90,10 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$item = Item::newEmpty();
+		$item->setId( EntityId::newFromPrefixedId( 'Q1' ) );
 		$item->addSiteLink( new SiteLink( 'specialwiki', 'test' ) );
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
 			$item,
 			array( 'special group' ),
 			true,
@@ -124,10 +112,9 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$item = Item::newEmpty();
+		$item->setId( EntityId::newFromPrefixedId( 'Q1' ) );
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
 			$item,
 			array( 'wikipedia', 'special group' ),
 			true,
@@ -141,12 +128,11 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$item = Item::newEmpty();
+		$item->setId( EntityId::newFromPrefixedId( 'Q1' ) );
 		$item->addSiteLink( new SiteLink( 'dewiki', 'test' ) );
 		$item->addSiteLink( new SiteLink( 'enwiki', 'test2' ) );
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
 			$item,
 			array( 'wikipedia' ),
 			true,
@@ -162,12 +148,11 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$item = Item::newEmpty();
+		$item->setId( EntityId::newFromPrefixedId( 'Q1' ) );
 		$item->addSiteLink( new SiteLink( 'dewiki', 'test' ) );
 		$item->addSiteLink( new SiteLink( 'nonexistingwiki', 'test2' ) );
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
 			$item,
 			array( 'wikipedia' ),
 			true,
@@ -188,48 +173,35 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider getEmptyHtmlProvider
 	 */
-	public function testGetEmptyHtml(
-		$siteStore,
-		$sectionEditLinkGenerator,
-		$item,
-		$groups,
-		$editable
-	) {
-		$siteLinksView = new SiteLinksView( $siteStore, $sectionEditLinkGenerator );
+	public function testGetEmptyHtml( Item $item, array $groups, $editable ) {
+		$siteLinksView = new SiteLinksView( $this->newSiteList(), $this->getSectionEditLinkGeneratorMock() );
 
-		$value = $siteLinksView->getHtml( $item, $groups, $editable );
+		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups, $editable );
 		$this->assertInternalType( 'string', $value );
 		$this->assertEquals( '', $value );
 	}
 
 	public function getEmptyHtmlProvider() {
-		$siteStore = $this->getSiteStoreMock();
-		$sectionEditLinkGenerator = $this->getSectionEditLinkGeneratorMock();
+		$item = Item::newEmpty();
+		$item->setId( EntityId::newFromPrefixedId( 'Q1' ) );
 
 		$testCases = array();
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
-			Item::newEmpty(),
+			$item,
 			array(),
 			true,
 		);
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
-			Item::newEmpty(),
+			$item,
 			array(),
 			false,
 		);
 
-		$item = Item::newEmpty();
 		$item->addSiteLink( new SiteLink( 'enwiki', 'test' ) );
 
 		$testCases[] = array(
-			$siteStore,
-			$sectionEditLinkGenerator,
 			$item,
 			array(),
 			false,
@@ -241,7 +213,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @return SectionEditLinkGenerator
 	 */
-	protected function getSectionEditLinkGeneratorMock() {
+	private function getSectionEditLinkGeneratorMock() {
 		$sectionEditLinkGenerator = $this->getMockBuilder( 'Wikibase\Repo\View\SectionEditLinkGenerator' )
 			->disableOriginalConstructor()
 			->getMock();
@@ -263,7 +235,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		return $sectionEditLinkGenerator;
 	}
 
-	public function getSiteStoreMock() {
+	private function newSiteList() {
 		$dummySite = MediaWikiSite::newFromGlobalId( 'enwiki' );
 		$dummySite->setGroup( 'wikipedia' );
 
@@ -273,15 +245,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		$dummySite3 = MediaWikiSite::newFromGlobalId( 'dewiki' );
 		$dummySite3->setGroup( 'wikipedia' );
 
-		$siteStoreMock = $this->getMockBuilder( '\SiteStore' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$siteStoreMock->expects( $this->any() )
-			->method( 'getSites' )
-			->will( $this->returnValue( new SiteList( array( $dummySite, $dummySite2, $dummySite3 ) ) ) );
-
-		return $siteStoreMock;
+		return new SiteList( array( $dummySite, $dummySite2, $dummySite3 ) );
 	}
 
 }

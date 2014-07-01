@@ -5,10 +5,12 @@ namespace Wikibase;
 use Content;
 use ContentHandler;
 use DataUpdate;
+use Diff\Patcher\PatcherException;
 use IContextSource;
 use InvalidArgumentException;
 use Language;
 use MWContentSerializationException;
+use MWException;
 use ParserOptions;
 use RequestContext;
 use Revision;
@@ -18,6 +20,7 @@ use User;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Updates\DataUpdateClosure;
 use Wikibase\Validators\EntityValidator;
 use Wikibase\Validators\ValidatorErrorLocalizer;
@@ -30,6 +33,7 @@ use Wikibase\Validators\ValidatorErrorLocalizer;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Daniel Kinzler
  */
 abstract class EntityHandler extends ContentHandler {
 
@@ -59,9 +63,10 @@ abstract class EntityHandler extends ContentHandler {
 	private $errorLocalizer;
 
 	/**
-	 * @var bool If legacy serializations should be transformed on export.
+	 * @var callable|null Callback to determine whether a serialized
+	 *        blob needs to be re-serialized on export.
 	 */
-	private $transformOnExport;
+	private $legacyExportFormatDetector;
 
 	/**
 	 * @param string $modelId
@@ -70,7 +75,10 @@ abstract class EntityHandler extends ContentHandler {
 	 * @param EntityContentDataCodec $contentCodec
 	 * @param EntityValidator[] $preSaveValidators
 	 * @param ValidatorErrorLocalizer $errorLocalizer
-	 * @param bool $transformOnExport If legacy serializations should be transformed on export.
+	 * @param callable|null $legacyExportFormatDetector Callback to determine whether a serialized
+	 *        blob needs to be re-serialized on export. The callback must take two parameters,
+	 *        the blob an the serialization format. It must return true if re-serialization is needed.
+	 *        False positives are acceptable, false negatives are not.
 	 */
 	public function __construct(
 		$modelId,
@@ -79,18 +87,32 @@ abstract class EntityHandler extends ContentHandler {
 		EntityContentDataCodec $contentCodec,
 		array $preSaveValidators,
 		ValidatorErrorLocalizer $errorLocalizer,
-		$transformOnExport
+		$legacyExportFormatDetector = null
 	) {
 		$formats = $contentCodec->getSupportedFormats();
 
 		parent::__construct( $modelId, $formats );
+
+		if ( $legacyExportFormatDetector && !is_callable( $legacyExportFormatDetector ) ) {
+			throw new InvalidArgumentException( '$legacyExportFormatDetector must be a callable (or null)' );
+		}
 
 		$this->entityPerPage = $entityPerPage;
 		$this->termIndex = $termIndex;
 		$this->contentCodec = $contentCodec;
 		$this->preSaveValidators = $preSaveValidators;
 		$this->errorLocalizer = $errorLocalizer;
-		$this->transformOnExport = $transformOnExport;
+		$this->legacyExportFormatDetector = $legacyExportFormatDetector;
+	}
+
+	/**
+	 * Returns the callback used to determine whether a serialized blob needs
+	 * to be re-serialized on export (or null of re-serialization is disabled).
+	 *
+	 * @return callable|null
+	 */
+	public function getLegacyExportFormatDetector() {
+		return $this->legacyExportFormatDetector;
 	}
 
 	/**
@@ -141,38 +163,88 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @since 0.1
 	 *
+	 * @throws \MWException Always. EntityContent cannot be empty.
 	 * @return EntityContent
 	 */
 	public function makeEmptyContent() {
+		throw new MWException( 'Can not make an empty EntityContent, since we require at least an ID to be set.' );
+	}
+
+	/**
+	 * Returns an empty Entity object of the type supported by this handler.
+	 * This is intended to provide a baseline for diffing and related operations.
+	 *
+	 * @note The Entity returned here will not have an ID set, and is thus not
+	 * suitable for use in an EntityContent object.
+	 *
+	 * @since 0.5
+	 *
+	 * @return Entity
+	 */
+	public abstract function makeEmptyEntity();
+
+	/**
+	 * Will return a new EntityContent representing the given EntityRedirect,
+	 * or null if the Content class does not support redirects (that is, if it does
+	 * not have a static newFromRedirect() function).
+	 *
+	 * @see makeRedirectContent()
+	 * @see supportsRedirects()
+	 *
+	 * @since 0.5
+	 *
+	 * @param EntityRedirect $redirect
+	 *
+	 * @return EntityContent|null
+	 */
+	public function makeEntityRedirectContent( EntityRedirect $redirect ) {
 		$contentClass = $this->getContentClass();
-		return $contentClass::newEmpty();
+
+		if ( !$this->supportsRedirects() ) {
+			return null;
+		} else {
+			$title = $this->getTitleForId( $redirect->getTargetId() );
+			return $contentClass::newFromRedirect( $redirect, $title );
+		}
+	}
+
+	/**
+	 * Will return true if the Content class has a static newFromRedirect() function.
+	 *
+	 * @see makeRedirectContent()
+	 * @see makeEntityRedirectContent()
+	 *
+	 * @since 0.5
+	 *
+	 * @return bool
+	 */
+	public function supportsRedirects() {
+		if ( !defined( 'WB_EXPERIMENTAL_FEATURES' ) || !WB_EXPERIMENTAL_FEATURES ) {
+			// For now, we only support redirects in experimental mode.
+			return false;
+		}
+
+		$contentClass = $this->getContentClass();
+		return method_exists( $contentClass, 'newFromRedirect' );
 	}
 
 	/**
 	 * @see ContentHandler::makeRedirectContent
 	 *
-	 * Will return a new EntityContent representing a redirect to the given title,
-	 * or null if the Content class does not support redirects (that is, if it does
-	 * not have a static newRedirect() function).
+	 * @warn Always throws an MWException, since an EntityRedirects needs to know it's own
+	 * ID in addition to the target ID. We have no way to guess that in makeRedirectContent().
+	 * Use makeEntityRedirectContent() instead.
 	 *
-	 * @since 0.5
+	 * @see makeEntityRedirectContent()
 	 *
-	 * @param Title $destination
-	 * @param string $text Unused in this default implementation.
+	 * @param Title $title
+	 * @param string $text
 	 *
+	 * @throws MWException Always.
 	 * @return EntityContent|null
 	 */
-	public function makeRedirectContent( Title $destination, $text = '' ) {
-		$contentClass = $this->getContentClass();
-
-		if ( !defined( 'WB_EXPERIMENTAL_FEATURES' ) || !WB_EXPERIMENTAL_FEATURES ) {
-			// For now, we only support redirects in experimental mode.
-			return null;
-		} elseif ( method_exists( $contentClass, 'newRedirect' ) ) {
-			return $contentClass::newRedirect( $destination );
-		} else {
-			return null;
-		}
+	public function makeRedirectContent( Title $title, $text = '' ) {
+		throw new MWException( 'EntityContent does not support plain title based redirects. Use makeEntityRedirectContent() instead.' );
 	}
 
 	/**
@@ -209,7 +281,13 @@ abstract class EntityHandler extends ContentHandler {
 	 * @return string|void
 	 */
 	public function exportTransform( $blob, $format = null ) {
-		if ( $this->transformOnExport && $this->isBlobUsingLegacyFormat( $blob, $format ) ) {
+		if ( !$this->legacyExportFormatDetector ) {
+			return $blob;
+		}
+
+		$needsTransform = call_user_func( $this->legacyExportFormatDetector, $blob, $format );
+
+		if ( $needsTransform ) {
 			$format = ( $format === null ) ? $this->getDefaultFormat() : $format;
 
 			$content = $this->unserializeContent( $blob, $format );
@@ -220,36 +298,38 @@ abstract class EntityHandler extends ContentHandler {
 	}
 
 	/**
-	 * Detects blobs that may be using a legacy serialization format.
-	 *
-	 * @note: False positives (detecting a legacy format when really no legacy format was used)
-	 * are acceptable, false negatives (failing to detect a legacy format when one was used)
-	 * are not acceptable.
-	 *
-	 * @param string $blob
-	 * @param string $format
-	 *
-	 * @return bool True if $blob seems to be using a legacy serialization format.
-	 */
-	protected function isBlobUsingLegacyFormat( $blob, $format ) {
-		// The legacy serialization uses something like "entity":["item",21] or
-		// even "entity":"p21" for the entity ID.
-		return preg_match( '/"entity"\s*:/', $blob ) > 0;
-	}
-
-	/**
 	 * Creates a Content object for the given Entity object.
 	 *
 	 * @since 0.4
 	 *
 	 * @param Entity $entity
 	 *
+	 * @throws InvalidArgumentException
 	 * @return EntityContent
 	 */
 	public function makeEntityContent( Entity $entity ) {
 		$contentClass = $this->getContentClass();
-		return new $contentClass( $entity );
+
+		/* EntityContent $content */
+		$content = new $contentClass( $entity );
+
+		//TODO: make sure the entity is valid/complete!
+
+		return $content;
 	}
+
+	/**
+	 * Parses the given ID string into an EntityId for the type of entity
+	 * supported by this EntityHandler. If the string is not a valid
+	 * serialization of the correct type of entity ID, an exception is thrown.
+	 *
+	 * @param string $id String representation the entity ID
+	 *
+	 * @return EntityId
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public abstract function makeEntityId( $id );
 
 	/**
 	 * @since 0.1
@@ -273,9 +353,15 @@ abstract class EntityHandler extends ContentHandler {
 			throw new InvalidArgumentException( '$content must be an instance of EntityContent' );
 		}
 
-		$entity = $content->getEntity();
-		return $this->contentCodec->encodeEntity( $entity, $format );
+		if ( $content->isRedirect() ) {
+			$redirect = $content->getEntityRedirect();
+			return $this->contentCodec->encodeRedirect( $redirect, $format );
+		} else {
+			$entity = $content->getEntity();
+			return $this->contentCodec->encodeEntity( $entity, $format );
+		}
 	}
+
 
 	/**
 	 * @see ContentHandler::unserializeContent
@@ -291,13 +377,27 @@ abstract class EntityHandler extends ContentHandler {
 	public function unserializeContent( $blob, $format = null ) {
 		$entity = $this->contentCodec->decodeEntity( $blob, $format );
 
-		// TODO: use an EntityContent Deserializer
-		$contentClass = $this->getContentClass();
-		return new $contentClass( $entity );
+		if ( $entity ) {
+			$entityContent = $this->makeEntityContent( $entity );
+			return $entityContent;
+		} else {
+			// Must be a redirect then
+			$redirect = $this->contentCodec->decodeRedirect( $blob, $format );
+
+			if ( $redirect === null ) {
+				throw new MWContentSerializationException(
+					'The serialized data contains neither an Entity nor an EntityRedirect!'
+				);
+			}
+
+			return $this->makeEntityRedirectContent( $redirect );
+		}
 	}
 
 	/**
 	 * Returns the ID of the entity contained by the page of the given title.
+	 *
+	 * @warn This should not really be needed and may just go away!
 	 *
 	 * @since 0.5
 	 *
@@ -314,7 +414,10 @@ abstract class EntityHandler extends ContentHandler {
 	/**
 	 * Returns the appropriate page Title for the given EntityId.
 	 *
+	 * @warn This should not really be needed and may just go away!
+	 *
 	 * @since 0.5
+	 *
 	 * @see EntityTitleLookup::getTitleForId
 	 *
 	 * @param EntityId $id
@@ -431,20 +534,6 @@ abstract class EntityHandler extends ContentHandler {
 	}
 
 	/**
-	 * Constructs a new EntityContent from an Entity.
-	 *
-	 * @since 0.3
-	 *
-	 * @param Entity $entity
-	 *
-	 * @return EntityContent
-	 */
-	public function newContentFromEntity( Entity $entity ) {
-		$contentClass = $this->getContentClass();
-		return new $contentClass( $entity );
-	}
-
-	/**
 	 * @see ContentHandler::getUndoContent
 	 *
 	 * @since 0.4
@@ -475,8 +564,12 @@ abstract class EntityHandler extends ContentHandler {
 		// diff from new to base
 		$patch = $newerContent->getDiff( $olderContent );
 
-		// apply the patch( new -> old ) to the current revision.
-		$patchedCurrent = $latestContent->getPatchedCopy( $patch );
+		try {
+			// apply the patch( new -> old ) to the current revision.
+			$patchedCurrent = $latestContent->getPatchedCopy( $patch );
+		} catch ( PatcherException $ex ) {
+			return false;
+		}
 
 		// detect conflicts against current revision
 		$cleanPatch = $latestContent->getDiff( $patchedCurrent );
@@ -511,6 +604,8 @@ abstract class EntityHandler extends ContentHandler {
 	public function getEntityDeletionUpdates( EntityContent $content, Title $title ) {
 		$updates = array();
 
+		$entityId = $content->getEntityId();
+
 		// Call the WikibaseEntityDeletionUpdate hook.
 		// Do this before doing any well-known updates.
 		$updates[] = new DataUpdateClosure(
@@ -522,13 +617,13 @@ abstract class EntityHandler extends ContentHandler {
 		// Unregister the entity from the terms table.
 		$updates[] = new DataUpdateClosure(
 			array( $this->termIndex, 'deleteTermsOfEntity' ),
-			$content->getEntity()->getId()
+			$entityId
 		);
 
 		// Unregister the entity from the EntityPerPage table.
 		$updates[] = new DataUpdateClosure(
 			array( $this->entityPerPage, 'deleteEntityPage' ),
-			$content->getEntity()->getId(),
+			$entityId,
 			$title->getArticleID()
 		);
 
@@ -550,21 +645,37 @@ abstract class EntityHandler extends ContentHandler {
 	public function getEntityModificationUpdates( EntityContent $content, Title $title ) {
 		$updates = array();
 
+		$entityId = $content->getEntityId();
+
+		//FIXME: we should not need this!
+		if ( $entityId === null ) {
+			$entityId = $this->getIdForTitle( $title );
+		}
+
 		// Register the entity in the EntityPerPage table.
 		// @todo: Only do this if the entity is new.
 		// Note that $title->exists() will already return true at this point
 		// even if we are just now creating the entity.
+		// @todo: if this is a redirect, record redirect target
 		$updates[] = new DataUpdateClosure(
 			array( $this->entityPerPage, 'addEntityPage' ),
-			$content->getEntity()->getId(),
+			$entityId,
 			$title->getArticleID()
 		);
 
-		// Register the entity in the terms table.
-		$updates[] = new DataUpdateClosure(
-			array( $this->termIndex, 'saveTermsOfEntity' ),
-			$content->getEntity()
-		);
+		if ( $content->isRedirect() ) {
+			// Remove the entity from the terms table since it's now a redirect.
+			$updates[] = new DataUpdateClosure(
+				array( $this->termIndex, 'deleteTermsOfEntity' ),
+				$entityId
+			);
+		} else {
+			// Register the entity in the terms table.
+			$updates[] = new DataUpdateClosure(
+				array( $this->termIndex, 'saveTermsOfEntity' ),
+				$content->getEntity()
+			);
+		}
 
 		// Call the WikibaseEntityModificationUpdate hook.
 		// Do this after doing all well-known updates.

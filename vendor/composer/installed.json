@@ -196,6 +196,62 @@
         ]
     },
     {
+        "name": "wikibase/data-model-javascript",
+        "version": "0.2.0",
+        "version_normalized": "0.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
+            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/c74867c665ba23c366d978d7dd461ea70475d57d",
+            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0"
+        },
+        "time": "2014-06-26 12:47:29",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.mw.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            }
+        ],
+        "description": "Wikibase datamodel implementation in JavaScript"
+    },
+    {
         "name": "data-values/value-view",
         "version": "0.6.3",
         "version_normalized": "0.6.3.0",
@@ -242,62 +298,6 @@
         ],
         "description": "Provides JS widgets to edit values defined by the DataValues library",
         "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
-        "name": "wikibase/data-model-javascript",
-        "version": "0.1.0",
-        "version_normalized": "0.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
-            "reference": "fb986163e319eb519f711eaf9b0b8e7c77f3cf7f"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/fb986163e319eb519f711eaf9b0b8e7c77f3cf7f",
-            "reference": "fb986163e319eb519f711eaf9b0b8e7c77f3cf7f",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0"
-        },
-        "time": "2014-06-18 09:17:21",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "init.mw.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            }
-        ],
-        "description": "Wikibase datamodel implementation in JavaScript"
     },
     {
         "name": "serialization/serialization",
@@ -805,7 +805,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "Thomas PT",
@@ -1136,12 +1136,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "dd7d3997fa922feda618b39ed50e3543542d3b41"
+            "reference": "f9db38e425902cf1699490a5adb2d85d45756280"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/dd7d3997fa922feda618b39ed50e3543542d3b41",
-            "reference": "dd7d3997fa922feda618b39ed50e3543542d3b41",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f9db38e425902cf1699490a5adb2d85d45756280",
+            "reference": "f9db38e425902cf1699490a5adb2d85d45756280",
             "shasum": ""
         },
         "require": {
@@ -1159,14 +1159,14 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~0.8.1",
-            "wikibase/data-model-javascript": "~0.1.0",
+            "wikibase/data-model-javascript": "~0.2.0",
             "wikibase/easyrdf_lite": "~0.8.1",
             "wikibase/internal-serialization": "~1.1"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-06-25 23:17:24",
+        "time": "2014-07-01 09:28:20",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

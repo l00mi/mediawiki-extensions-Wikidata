@@ -7,12 +7,16 @@ use DataValues\DataValueFactory;
 use DataValues\Deserializers\DataValueDeserializer;
 use DataValues\Serializers\DataValueSerializer;
 use Deserializers\Deserializer;
+use RuntimeException;
 use Serializers\Serializer;
 use SiteSQLStore;
 use SiteStore;
 use StubObject;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
+use Wikibase\ItemHandler;
+use Wikibase\PropertyHandler;
+use Wikibase\Repo\Notifications\ChangeNotifier;
 use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
@@ -718,12 +722,24 @@ class WikibaseRepo {
 	/**
 	 * @return ChangeTransmitter
 	 */
-	public function getChangeTransmitter() {
+	private function getChangeTransmitter() {
 		if ( $this->settings->getSetting( 'useChangesTable' ) ) {
 			return new DatabaseChangeTransmitter();
 		} else {
 			return new DummyChangeTransmitter();
 		}
+	}
+
+	/**
+	 * @return ChangeNotifier
+	 */
+	public function getChangeNotifier() {
+		// TODO: Instead of having getChangeTransmitter return a dummy,
+		//       return a dummy from here if useChangesTable is not set.
+		return new ChangeNotifier(
+			$this->getEntityChangeFactory(),
+			$this->getChangeTransmitter()
+		);
 	}
 
 	/**
@@ -806,6 +822,72 @@ class WikibaseRepo {
 	 */
 	protected function getInternalSerializerFactory() {
 		return new SerializerFactory( new DataValueSerializer() );
+	}
+
+	/**
+	 * @return ItemHandler
+	 */
+	public function newItemHandler() {
+		$validator = $this->getEntityConstraintProvider()->getConstraints( Item::ENTITY_TYPE );
+		$codec = $this->getEntityContentDataCodec();
+		$entityPerPage = $this->getStore()->newEntityPerPage();
+		$termIndex = $this->getStore()->getTermIndex();
+		$errorLocalizer = $this->getValidatorErrorLocalizer();
+		$siteLinkStore = $this->getStore()->newSiteLinkCache();
+
+		$handler = new ItemHandler(
+			$entityPerPage,
+			$termIndex,
+			$codec,
+			array( $validator ),
+			$errorLocalizer,
+			$siteLinkStore,
+			$this->getLegacyFormatDetectorCallback()
+		);
+
+		return $handler;
+	}
+
+	/**
+	 * @return PropertyHandler
+	 */
+	public function newPropertyHandler() {
+		$validator = $this->getEntityConstraintProvider()->getConstraints( Property::ENTITY_TYPE );
+		$codec = $this->getEntityContentDataCodec();
+		$entityPerPage = $this->getStore()->newEntityPerPage();
+		$termIndex = $this->getStore()->getTermIndex();
+		$errorLocalizer = $this->getValidatorErrorLocalizer();
+		$propertyInfoStore = $this->getStore()->getPropertyInfoStore();
+
+		$handler = new PropertyHandler(
+			$entityPerPage,
+			$termIndex,
+			$codec,
+			array( $validator ),
+			$errorLocalizer,
+			$propertyInfoStore,
+			$this->getLegacyFormatDetectorCallback()
+		);
+
+		return $handler;
+	}
+
+	private function getLegacyFormatDetectorCallback() {
+		$transformOnExport = $this->getSettings()->getSetting( 'transformLegacyFormatOnExport' );
+
+		if ( !$transformOnExport ) {
+			return null;
+		}
+
+		$entitySerializerClass = $this->getSettings()->getSetting( 'internalEntitySerializerClass' );
+
+		if ( $entitySerializerClass !== null ) {
+			throw new RuntimeException( 'Inconsistent configuration: transformLegacyFormatOnExport ' .
+				'is enabled, but internalEntitySerializerClass is set to legacy serializer ' .
+				$entitySerializerClass );
+		}
+
+		return array( 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer', 'isBlobUsingLegacyFormat' );
 	}
 
 }

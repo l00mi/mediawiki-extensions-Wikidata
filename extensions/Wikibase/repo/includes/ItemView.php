@@ -2,7 +2,6 @@
 
 namespace Wikibase;
 
-use Wikibase\DataModel\SimpleSiteLink;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Repo\View\SiteLinksView;
 
@@ -79,11 +78,11 @@ class ItemView extends EntityView {
 
 		// FIXME: Inject this
 		$siteLinksView = new SiteLinksView(
-			WikibaseRepo::getDefaultInstance()->getSiteStore(),
+			WikibaseRepo::getDefaultInstance()->getSiteStore()->getSites(),
 			$this->sectionEditLinkGenerator
 		);
 
-		return $siteLinksView->getHtml( $item, $groups, $editable );
+		return $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups, $editable );
 	}
 
 }

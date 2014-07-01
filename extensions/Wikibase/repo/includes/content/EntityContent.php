@@ -3,13 +3,20 @@
 namespace Wikibase;
 
 use AbstractContent;
+use Article;
 use Content;
 use DataUpdate;
+use Diff\Differ\MapDiffer;
 use Diff\DiffOp\Diff\Diff;
+use Diff\Patcher\MapPatcher;
+use Diff\Patcher\PatcherException;
 use IContextSource;
+use LogicException;
+use MWException;
 use ParserOptions;
 use ParserOutput;
 use RequestContext;
+use RuntimeException;
 use Status;
 use Title;
 use User;
@@ -20,6 +27,7 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\EntitySearchTextGenerator;
 use Wikibase\Repo\WikibaseRepo;
@@ -66,6 +74,21 @@ abstract class EntityContent extends AbstractContent {
 	 * @see Content::isValid()
 	 */
 	public function isValid() {
+
+		if ( $this->isRedirect() ) {
+
+			// Under some circumstances, the handler will not support redirects,
+			// but it's still possible to construct Content objects that represent
+			// redirects. In such a case, make sure such Content objects are considered
+			// invalid and do not get saved.
+
+			if ( !$this->getContentHandler()->supportsRedirects() ) {
+				return false;
+			}
+
+			return true;
+		}
+
 		if ( is_null( $this->getEntity()->getId() ) ) {
 			return false;
 		}
@@ -74,12 +97,29 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
+	 * Returns the EntityRedirect represented by this EntityContent, or null if this
+	 * EntityContent is not a redirect.
+	 *
+	 * @note This default implementation will fail if isRedirect() is true.
+	 * Subclasses that support redirects must override getEntityRedirect().
+	 *
+	 * @return EntityRedirect|null
+	 * @throws \LogicException
+	 */
+	public function getEntityRedirect() {
+		if ( $this->isRedirect() ) {
+			throw new LogicException( 'EntityContent subclasses that support redirects must override getEntityRedirect()' );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Returns the entity contained by this entity content.
 	 * Deriving classes typically have a more specific get method as
 	 * for greater clarity and type hinting.
 	 *
-	 * @since 0.1
-	 *
+	 * @throws MWException when it's a redirect (targets will never be resolved)
 	 * @return Entity
 	 */
 	abstract public function getEntity();
@@ -87,23 +127,29 @@ abstract class EntityContent extends AbstractContent {
 	/**
 	 * Returns the ID of the entity represented by this EntityContent;
 	 *
-	 * @return null|EntityId
-	 *
-	 * @todo: Force an ID to be present; Entity objects without an ID may sense, EntityContent
-	 * objects with no entity ID don't.
+	 * @throws RuntimeException
+	 * @return EntityId
 	 */
 	public function getEntityId() {
-		return $this->getEntity()->getId();
+		if ( $this->isRedirect() ) {
+			return $this->getEntityRedirect()->getEntityId();
+		} else {
+			if ( ! $this->getEntity()->getId() ) {
+				// @todo: Force an ID to be present; Entity objects without an ID make sense,
+				// EntityContent objects with no entity ID don't.
+				throw new RuntimeException( 'EntityContent was constructed without an EntityId!' );
+			}
+
+			return $this->getEntity()->getId();
+		}
 	}
 
 	/**
 	 * @see Content::getDeletionUpdates
 	 * @see EntityHandler::getEntityDeletionUpdates
 	 *
-	 * @param \WikiPage $page
-	 * @param null|\ParserOutput $parserOutput
-	 *
-	 * @since 0.1
+	 * @param WikiPage $page
+	 * @param ParserOutput|null $parserOutput
 	 *
 	 * @return DataUpdate[]
 	 */
@@ -121,8 +167,6 @@ abstract class EntityContent extends AbstractContent {
 	/**
 	 * @see Content::getSecondaryDataUpdates
 	 * @see EntityHandler::getEntityModificationUpdates
-	 *
-	 * @since 0.1
 	 *
 	 * @param Title              $title
 	 * @param Content|null       $old
@@ -154,8 +198,6 @@ abstract class EntityContent extends AbstractContent {
 	 *
 	 * @see Content::getParserOutput
 	 *
-	 * @since 0.1
-	 *
 	 * @param Title $title
 	 * @param int|null $revId
 	 * @param ParserOptions|null $options
@@ -166,7 +208,53 @@ abstract class EntityContent extends AbstractContent {
 	public function getParserOutput( Title $title, $revId = null, ParserOptions $options = null,
 		$generateHtml = true
 	) {
-		$entityView = $this->getEntityView( null, $options, null );
+		if ( $this->isRedirect() ) {
+			return $this->getParserOutputForRedirect( $this->getEntityRedirect(), $this->getRedirectTarget(), $generateHtml );
+		} else {
+			return $this->getParserOutputFromEntityView( $title, $revId, $options, $generateHtml );
+		}
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @note Will fail if this EntityContent does not represent a redirect.
+	 *
+	 * @param EntityRedirect $redirect
+	 * @param Title $target
+	 * @param $generateHtml
+	 *
+	 * @return ParserOutput
+	 */
+	protected function getParserOutputForRedirect( EntityRedirect $redirect, Title $target, $generateHtml ) {
+		$output = new ParserOutput();
+
+		// Make sure to include the redirect link in pagelinks
+		$output->addLink( $target );
+		if ( $generateHtml ) {
+			$chain = $this->getRedirectChain();
+			$html = Article::getRedirectHeaderHtml( $target->getPageLanguage(), $chain, false );
+			$output->setText( $html );
+		}
+
+		return $output;
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @note Will fail if this EntityContent represents a redirect.
+	 *
+	 * @param Title $title
+	 * @param null $revId
+	 * @param ParserOptions $options
+	 * @param bool $generateHtml
+	 *
+	 * @return ParserOutput
+	 */
+	protected function getParserOutputFromEntityView( Title $title, $revId = null,
+		ParserOptions $options = null, $generateHtml = true
+	) {
 		$editable = !$options? true : $options->getEditSection();
 
 		if ( $revId === null || $revId === 0 ) {
@@ -176,6 +264,7 @@ abstract class EntityContent extends AbstractContent {
 		$revision = new EntityRevision( $this->getEntity(), $revId );
 
 		// generate HTML
+		$entityView = $this->getEntityView( null, $options, null );
 		$output = $entityView->getParserOutput( $revision, $editable, $generateHtml );
 
 		// Since the output depends on the user language, we must make sure
@@ -269,7 +358,7 @@ abstract class EntityContent extends AbstractContent {
 	 *
 	 * @param IContextSource $context
 	 * @param SnakFormatter $snakFormatter
-	 * @param Lib\PropertyDataTypeLookup $dataTypeLookup
+	 * @param PropertyDataTypeLookup $dataTypeLookup
 	 * @param EntityInfoBuilder $entityInfoBuilder
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param EntityIdParser $idParser
@@ -292,6 +381,10 @@ abstract class EntityContent extends AbstractContent {
 	 *         search index.
 	 */
 	public function getTextForSearchIndex() {
+		if ( $this->isRedirect() ) {
+			return '';
+		}
+
 		wfProfileIn( __METHOD__ );
 
 		$entity = $this->getEntity();
@@ -304,10 +397,24 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
+	 * @return string Returns the string representation of the redirect
+	 * represented by this EntityContent (if any).
+	 *
+	 * @note Will fail if this EntityContent is not a redirect.
+	 */
+	protected function getRedirectText() {
+		return '#REDIRECT [[' . $this->getRedirectTarget()->getFullText() . ']]';
+	}
+
+	/**
 	 * @return String a string representing the content in a way useful for content filtering as
 	 *         performed by extensions like AbuseFilter.
 	 */
 	public function getTextForFilters() {
+		if ( $this->isRedirect() ) {
+			return $this->getRedirectText();
+		}
+
 		wfProfileIn( __METHOD__ );
 
 		//XXX: $ignore contains knowledge about the Entity's internal representation.
@@ -372,15 +479,49 @@ abstract class EntityContent extends AbstractContent {
 	 * @return String the summary text
 	 */
 	public function getTextForSummary( $maxlength = 250 ) {
-		return $this->getEntity()->getDescription( $GLOBALS['wgLang']->getCode() );
+		if ( $this->isRedirect() ) {
+			return $this->getRedirectText();
+		} else {
+			$lang = $GLOBALS['wgLang']->getCode();
+			$text = $this->getEntity()->getDescription( $lang );
+			return substr( $text, 0, $maxlength );
+		}
+	}
+
+	/**
+	 * Returns an array structure for the redirect represented by this EntityContent, if any.
+	 *
+	 * @note This may or may not be consistent with what EntityContentCodec does.
+	 *       It it intended to be used primarily for diffing.
+	 */
+	private function getRedirectData() {
+		// NOTE: keep in sync with getPatchedRedirect
+		$data = array(
+			'entity' => $this->getEntityId()->getSerialization(),
+		);
+
+		if ( $this->isRedirect() ) {
+			$data['redirect'] = $this->getEntityRedirect()->getTargetId()->getSerialization();
+		}
+
+		return $data;
 	}
 
 	/**
 	 * @see Content::getNativeData
 	 *
-	 * @return array
+	 * @note Avoid relying on this method! It bypasses EntityContentCodec, and does
+	 *       not make any guarantees about the structure of the array returned.
+	 *
+	 * @return array An undefined data structure representing the content. This is not guaranteed
+	 *         to conform to any serialization structure used in the database or externally.
 	 */
 	public function getNativeData() {
+		if ( $this->isRedirect() ) {
+			return $this->getRedirectData();
+		}
+
+		// NOTE: this may or may not be consistent with what EntityContentCodec does!
 		return $this->getEntity()->toArray();
 	}
 
@@ -417,6 +558,20 @@ abstract class EntityContent extends AbstractContent {
 			return false;
 		}
 
+		$thisRedirect = $this->getRedirectTarget();
+		$thatRedirect = $that->getRedirectTarget();
+
+		if ( $thisRedirect !== null ) {
+			if ( $thatRedirect === null ) {
+				return false;
+			} else {
+				return $thisRedirect->equals( $thatRedirect )
+					&& $this->getEntityRedirect()->equals( $that->getEntityRedirect() );
+			}
+		} elseif ( $thatRedirect !== null ) {
+			return false;
+		}
+
 		$thisEntity = $this->getEntity();
 		$thatEntity = $that->getEntity();
 
@@ -424,7 +579,7 @@ abstract class EntityContent extends AbstractContent {
 		$thatId = $thatEntity->getId();
 
 		if ( $thisId !== null && $thatId !== null
-			&& !$thisEntity->getId()->equals( $thatId )
+			&& !$thisId->equals( $thatId )
 		) {
 			return false;
 		}
@@ -433,28 +588,106 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * Returns a diff between this EntityContent and $other.
+	 * Returns an empty entity.
 	 *
-	 * @param EntityContent $other
-	 *
-	 * @return EntityContentDiff
+	 * @return Entity
 	 */
-	public function getDiff( EntityContent $other ) {
-		$entityDiff = $this->getEntity()->getDiff( $other->getEntity() );
-		return new EntityContentDiff( $entityDiff, new Diff() );
+	private function makeEmptyEntity() {
+		/* @var EntityHandler $handler */
+		$handler = $this->getContentHandler();
+		return $handler->makeEmptyEntity();
 	}
 
 	/**
-	 * Returns a patched copy of this Content object
+	 * Returns a diff between this EntityContent and the given EntityContent.
+	 *
+	 * @param EntityContent $toContent
+	 *
+	 * @return Diff
+	 */
+	public function getDiff( EntityContent $toContent ) {
+		$fromContent = $this;
+
+		$differ = new MapDiffer();
+		$redirectDiffOps = $differ->doDiff(
+			$fromContent->getRedirectData(),
+			$toContent->getRedirectData()
+		);
+
+		$redirectDiff = new Diff( $redirectDiffOps, true );
+
+		$fromEntity = $fromContent->isRedirect() ? $this->makeEmptyEntity() : $fromContent->getEntity();
+		$toEntity = $toContent->isRedirect() ? $this->makeEmptyEntity() : $toContent->getEntity();
+
+		$entityDiff = $fromEntity->getDiff( $toEntity );
+
+		return new EntityContentDiff( $entityDiff, $redirectDiff );
+	}
+
+	/**
+	 * Returns a patched copy of this Content object.
 	 *
 	 * @param EntityContentDiff $patch
 	 *
+	 * @throws PatcherException
 	 * @return EntityContent
 	 */
 	public function getPatchedCopy( EntityContentDiff $patch ) {
-		$patched = $this->copy();
-		$patched->getEntity()->patch( $patch->getEntityDiff() );
+		/* @var EntityHandler $handler */
+		$handler = $this->getContentHandler();
+
+		if ( $this->isRedirect() ) {
+			$entityAfterPatch = $this->makeEmptyEntity();
+		} else {
+			$entityAfterPatch = $this->getEntity()->copy();
+		}
+
+		$entityAfterPatch->patch( $patch->getEntityDiff() );
+
+		$redirAfterPatch = $this->getPatchedRedirect( $patch->getRedirectDiff() );
+
+		if ( $redirAfterPatch !== null && !$entityAfterPatch->isEmpty() ) {
+			throw new PatcherException( 'EntityContent must not contain Entity data as well as'
+				. ' a redirect after applying the patch!' );
+		} elseif ( $redirAfterPatch ) {
+			$patched = $handler->makeEntityRedirectContent( $redirAfterPatch );
+
+			if ( !$patched ) {
+				throw new PatcherException( 'Cannot create a redirect using content model '
+					. $this->getModel() . '!' );
+			}
+		} else {
+			$patched = $handler->makeEntityContent( $entityAfterPatch );
+		}
+
 		return $patched;
+	}
+
+	/**
+	 * @param Diff $redirectPatch
+	 *
+	 * @return null|EntityRedirect
+	 */
+	private function getPatchedRedirect( Diff $redirectPatch ) {
+		// See getRedirectData() for the structure of the data array.
+		$redirData = $this->getRedirectData();
+
+		if ( !$redirectPatch->isEmpty() ) {
+			$patcher = new MapPatcher();
+			$redirData = $patcher->patch( $redirData, $redirectPatch );
+		}
+
+		if ( isset( $redirData['redirect'] ) ) {
+			/* @var EntityHandler $handler */
+			$handler = $this->getContentHandler();
+
+			$entityId = $this->getEntityId();
+			$targetId = $handler->makeEntityId( $redirData['redirect'] );
+
+			return new EntityRedirect( $entityId, $targetId );
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -467,31 +700,38 @@ abstract class EntityContent extends AbstractContent {
 	 * @return bool
 	 */
 	public function isCountable( $hasLinks = null ) {
+		if ( $this->isRedirect() ) {
+			return false;
+		}
+
 		return !$this->getEntity()->isEmpty();
 	}
 
 	/**
-	 * @since 0.1
-	 *
 	 * @return bool
 	 */
 	public function isEmpty() {
+		if ( $this->isRedirect() ) {
+			return false;
+		}
+
 		return $this->getEntity()->isEmpty();
 	}
 
 	/**
 	 * @see Content::copy
 	 *
-	 * @since 0.1
-	 *
 	 * @return ItemContent
 	 */
 	public function copy() {
-		/**
-		 * @var EntityHandler $handler
-		 */
+		/* @var EntityHandler $handler */
 		$handler = $this->getContentHandler();
-		return $handler->makeEntityContent( $this->getEntity()->copy() );
+		if ( $this->isRedirect() ) {
+			return $handler->makeEntityRedirectContent( $this->getEntityRedirect() );
+		} else {
+			$entity = $this->getEntity()->copy();
+			return $handler->makeEntityContent( $entity );
+		}
 	}
 
 	/**
@@ -509,14 +749,13 @@ abstract class EntityContent extends AbstractContent {
 
 		// Chain to parent
 		$status = parent::prepareSave( $page, $flags, $baseRevId, $user );
-		if ( !$status->isOK() ) {
-			wfProfileOut( __METHOD__ );
-			return $status;
+		if ( $status->isOK() ) {
+			if ( !$this->isRedirect() ) {
+				/* @var EntityHandler $handler */
+				$handler = $this->getContentHandler();
+				$status = $handler->applyOnSaveValidators( $this );
+			}
 		}
-
-		/* @var EntityHandler $handler */
-		$handler = $this->getContentHandler();
-		$status = $handler->applyOnSaveValidators( $this );
 
 		wfProfileOut( __METHOD__ );
 		return $status;
@@ -565,6 +804,10 @@ abstract class EntityContent extends AbstractContent {
 	 * @return array A map from property names to property values.
 	 */
 	public function getEntityPageProperties() {
+		if ( $this->isRedirect() ) {
+			return array();
+		}
+
 		$entity = $this->getEntity();
 
 		$properties = array(
@@ -584,6 +827,8 @@ abstract class EntityContent extends AbstractContent {
 	 * Returns an identifier representing the status of the entity,
 	 * e.g. STATUS_EMPTY or STATUS_NONE.
 	 * Used by getEntityPageProperties().
+	 *
+	 * @note Will fail if this ItemContent is a redirect.
 	 *
 	 * @see getEntityPageProperties()
 	 * @see STATUS_NONE

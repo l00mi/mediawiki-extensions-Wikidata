@@ -22,6 +22,8 @@ return call_user_func( function() {
 				'wikibase.parsers.api.js',
 			),
 			'dependencies' => array(
+				'dataValues',
+				'jquery',
 				'wikibase',
 				'wikibase.RepoApi'
 			),
@@ -32,8 +34,10 @@ return call_user_func( function() {
 				'ApiBasedValueParser.js',
 			),
 			'dependencies' => array(
+				'jquery',
 				'util.inherit',
 				'valueParsers.ValueParser',
+				'wikibase',
 				'wikibase.parsers.api',
 			),
 		),
@@ -43,50 +47,11 @@ return call_user_func( function() {
 				'EntityIdParser.js',
 			),
 			'dependencies' => array(
+				'jquery',
 				'util.inherit',
 				'valueParsers.ValueParser',
 				'wikibase',
 				'wikibase.datamodel',
-			),
-		),
-
-		'wikibase.GlobeCoordinateParser' => $moduleTemplate + array(
-			'scripts' => array(
-				'GlobeCoordinateParser.js',
-			),
-			'dependencies' => array(
-				'util.inherit',
-				'wikibase.ApiBasedValueParser',
-			),
-		),
-
-		'wikibase.QuantityParser' => $moduleTemplate + array(
-			'scripts' => array(
-				'QuantityParser.js',
-			),
-			'dependencies' => array(
-				'util.inherit',
-				'wikibase.ApiBasedValueParser',
-			),
-		),
-
-		'wikibase.TimeParser' => $moduleTemplate + array(
-			'scripts' => array(
-				'TimeParser.js',
-			),
-			'dependencies' => array(
-				'util.inherit',
-				'wikibase.ApiBasedValueParser',
-			),
-		),
-
-		'wikibase.MonolingualTextParser' => $moduleTemplate + array(
-			'scripts' => array(
-				'MonolingualTextParser.js',
-			),
-			'dependencies' => array(
-				'util.inherit',
-				'wikibase.ApiBasedValueParser',
 			),
 		),
 
@@ -96,14 +61,12 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'dataValues.values',
+				'jquery',
 				'valueParsers.parsers',
 				'valueParsers.ValueParserStore',
+				'wikibase.ApiBasedValueParser',
 				'wikibase.datamodel',
-				'wikibase.EntityIdParser',
-				'wikibase.GlobeCoordinateParser',
-				'wikibase.QuantityParser',
-				'wikibase.TimeParser',
-				'wikibase.MonolingualTextParser',
+				'wikibase.EntityIdParser'
 			),
 		),
 

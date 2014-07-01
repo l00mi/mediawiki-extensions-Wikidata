@@ -3,20 +3,33 @@
 namespace Wikibase\Repo\View;
 
 use Message;
-use SiteStore;
+use SiteList;
 use Wikibase\DataModel\SiteLink;
-use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Utils;
 
 class SiteLinksView {
 
-	private $siteStore;
+	/**
+	 * @var SiteList
+	 */
+	private $sites;
+
+	/**
+	 * @var SectionEditLinkGenerator
+	 */
 	private $sectionEditLinkGenerator;
 
-	public function __construct( SiteStore $siteStore, SectionEditLinkGenerator $sectionEditLinkGenerator ) {
-		$this->siteStore = $siteStore;
+	/**
+	 * @var string[]
+	 */
+	private $specialSiteLinkGroups;
+
+	public function __construct( SiteList $sites, SectionEditLinkGenerator $sectionEditLinkGenerator ) {
+		$this->sites = $sites;
 		$this->sectionEditLinkGenerator = $sectionEditLinkGenerator;
+		$this->specialSiteLinkGroups = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( "specialSiteLinkGroups" );
 	}
 
 	/**
@@ -24,17 +37,20 @@ class SiteLinksView {
 	 *
 	 * @since 0.5
 	 *
-	 * @param Item $item the item to render
+	 * @param SiteLink[] $siteLinks the site links to render
+	 * @param EntityId $entityId The id of the entity
 	 * @param string[] $groups An array of site group IDs
 	 * @param bool $editable whether editing is allowed (enabled edit links)
 	 *
 	 * @return string
 	 */
-	public function getHtml( Item $item, array $groups, $editable ) {
+	public function getHtml( array $siteLinks, EntityId $entityId, array $groups, $editable ) {
+		// FIXME: editable is completely unused
+
 		$html = '';
 
 		foreach ( $groups as $group ) {
-			$html .= $this->getHtmlForSiteLinkGroup( $item, $group, $editable );
+			$html .= $this->getHtmlForSiteLinkGroup( $siteLinks, $entityId, $group );
 		}
 
 		return $html;
@@ -43,21 +59,17 @@ class SiteLinksView {
 	/**
 	 * Builds and returns the HTML representing a group of a WikibaseEntity's site-links.
 	 *
-	 * @param Item $item the entity to render
+	 * @param SiteLink[] $siteLinks the site links to render
+	 * @param EntityId $entityId The id of the entity
 	 * @param string $group a site group ID
-	 * @param bool $editable whether editing is allowed (enabled edit links)
+	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLinkGroup( Item $item, $group, $editable = true ) {
+	private function getHtmlForSiteLinkGroup( array $siteLinks, EntityId $entityId, $group ) {
+		$isSpecialGroup = $this->siteLinkGroupIsSpecial( $group );
 
-		// FIXME: editable is completely unused
-
-		$specialGroups = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( "specialSiteLinkGroups" );
-		$isSpecialGroup = in_array( $group, $specialGroups );
-
-		// @todo inject into constructor
-		$sites = $this->siteStore->getSites()->getGroup( $group );
-		$siteLinksForTable = $this->getSiteLinksForTable( $sites, $group, $item );
+		$sites = $this->sites->getGroup( $group );
+		$siteLinksForTable = $this->getSiteLinksForTable( $sites, $siteLinks );
 
 		$html = $thead = $tbody = $tfoot = '';
 
@@ -68,12 +80,9 @@ class SiteLinksView {
 			// TODO: support entity-id as prefix for element IDs.
 		);
 
-		// Link to SpecialPage
-		$editLink = $this->sectionEditLinkGenerator->getEditUrl( 'SetSiteLink', $item, null );
-
 		if( !empty( $siteLinksForTable ) ) {
 			$thead = $this->getTableHeadHtml( $isSpecialGroup );
-			$tbody = $this->getTableBodyHtml( $siteLinksForTable, $editLink, $isSpecialGroup );
+			$tbody = $this->getTableBodyHtml( $siteLinksForTable, $entityId, $isSpecialGroup );
 		}
 
 		// Build table footer with button to add site-links, consider list could be complete!
@@ -81,7 +90,7 @@ class SiteLinksView {
 		// $siteLinksForTable only has an entry for links to existing sites, this
 		// simple comparison works.
 		$isFull = count( $siteLinksForTable ) >= count( $sites );
-		$tfoot = $this->getTableFootHtml( $isFull, $editLink );
+		$tfoot = $this->getTableFootHtml( $entityId, $isFull );
 
 		$groupName = $isSpecialGroup ? 'special' : $group;
 
@@ -94,16 +103,20 @@ class SiteLinksView {
 		);
 	}
 
+	private function siteLinkGroupIsSpecial( $groupName ) {
+		return in_array( $groupName, $this->specialSiteLinkGroups );
+	}
+
 	/**
 	 * @param SiteList $sites
-	 * @param string $group
-	 * @param Item $item
+	 * @param SiteLink[] $itemSiteLinks
+	 *
+	 * @return array[]
 	 */
-	private function getSiteLinksForTable( $sites, $group, $item ) {
-		$allSiteLinks = $item->getSiteLinks();
+	private function getSiteLinksForTable( SiteList $sites, array $itemSiteLinks ) {
 		$siteLinksForTable = array(); // site links of the currently handled site group
 
-		foreach( $allSiteLinks as $siteLink ) {
+		foreach( $itemSiteLinks as $siteLink ) {
 			if ( !$sites->hasSite( $siteLink->getSiteId() ) ) {
 				// FIXME: Maybe show it instead
 				continue;
@@ -135,6 +148,8 @@ class SiteLinksView {
 
 	/**
 	 * @param bool $isSpecialGroup
+	 *
+	 * @return string
 	 */
 	private function getTableHeadHtml( $isSpecialGroup ) {
 		// FIXME: quickfix to allow a custom site-name / handling for groups defined in $wgSpecialSiteLinkGroups
@@ -154,29 +169,33 @@ class SiteLinksView {
 
 	/**
 	 * @param object[] $siteLinksForTable
-	 * @param string $editLink
+	 * @param EntityId $entityId The id of the entity
 	 * @param bool $isSpecialGroup
+	 *
+	 * @return string
 	 */
-	private function getTableBodyHtml( $siteLinksForTable, $editLink, $isSpecialGroup ) {
+	private function getTableBodyHtml( $siteLinksForTable, $entityId, $isSpecialGroup ) {
 		$i = 0;
 		$tbody = '';
 
 		foreach( $siteLinksForTable as $siteLinkForTable ) {
 			$alternatingClass = ( $i++ % 2 ) ? 'even' : 'uneven';
-			$tbody .= $this->getHtmlForSiteLink( $siteLinkForTable, $editLink, $isSpecialGroup, $alternatingClass );
+			$tbody .= $this->getHtmlForSiteLink( $siteLinkForTable, $entityId, $isSpecialGroup, $alternatingClass );
 		}
 
 		return $tbody;
 	}
 
 	/**
+	 * @param EntityId $entityId The id of the entity
 	 * @param bool $isFull
-	 * @param string $editLink
+	 *
+	 * @return string
 	 */
-	private function getTableFootHtml( $isFull, $editLink ) {
+	private function getTableFootHtml( $entityId, $isFull ) {
 		$tfoot = wfTemplate( 'wb-sitelinks-tfoot',
 			$isFull ? wfMessage( 'wikibase-sitelinksedittool-full' )->parse() : '',
-			$this->getHtmlForEditSection( $editLink, 'td', 'add', !$isFull )
+			'<td>' . $this->getHtmlForEditSection( $entityId, '', 'add', !$isFull ) . '</td>'
 		);
 
 		return $tfoot;
@@ -184,19 +203,21 @@ class SiteLinksView {
 
 	/**
 	 * @param object $siteLinkForTable
-	 * @param string $editLink
+	 * @param EntityId $entityId The id of the entity
 	 * @param bool $isSpecialGroup
 	 * @param string $alternatingClass
+	 *
+	 * @return string
 	 */
-	private function getHtmlForSiteLink( $siteLinkForTable, $editLink, $isSpecialGroup, $alternatingClass ) {
-		/* @var Site $site */
+	private function getHtmlForSiteLink( $siteLinkForTable, $entityId, $isSpecialGroup, $alternatingClass ) {
+		/* @var \Site $site */
 		$site = $siteLinkForTable['site'];
 
 		/* @var SiteLink $siteLink */
 		$siteLink = $siteLinkForTable['siteLink'];
 
 		if ( $site->getDomain() === '' ) {
-			return $this->getHtmlForUnknownSiteLink( $siteLink, $editLink, $alternatingClass );
+			return $this->getHtmlForUnknownSiteLink( $siteLink, $entityId, $alternatingClass );
 		}
 
 		$languageCode = $site->getLanguageCode();
@@ -225,17 +246,19 @@ class SiteLinksView {
 			$escapedSiteId, // displayed site ID
 			htmlspecialchars( $site->getPageUrl( $pageName ) ),
 			$escapedPageName,
-			$this->getHtmlForEditSection( $editLink . '/' . $escapedSiteId, 'td' ),
+			'<td>' . $this->getHtmlForEditSection( $entityId, $escapedSiteId ) . '</td>',
 			$escapedSiteId // ID used in classes
 		);
 	}
 
 	/**
 	 * @param SiteLink $siteLink
-	 * @param string $editLink
+	 * @param EntityId $entityId The id of the entity
 	 * @param string $alternatingClass
+	 *
+	 * @return string
 	 */
-	private function getHtmlForUnknownSiteLink( $siteLink, $editLink, $alternatingClass ) {
+	private function getHtmlForUnknownSiteLink( $siteLink, $entityId, $alternatingClass ) {
 		// the link is pointing to an unknown site.
 		// XXX: hide it? make it red? strike it out?
 
@@ -248,14 +271,26 @@ class SiteLinksView {
 			$alternatingClass,
 			$escapedSiteId,
 			$escapedPageName,
-			$this->getHtmlForEditSection( $editLink, 'td' )
+			'<td>' . $this->getHtmlForEditSection( $entityId ) . '</td>'
 		);
 	}
 
-	private function getHtmlForEditSection( $url, $tag = 'span', $action = 'edit', $enabled = true ) {
+	private function getHtmlForEditSection( EntityId $entityId, $subPage = '', $action = 'edit', $enabled = true ) {
 		$msg = new Message( 'wikibase-' . $action );
+		$specialPage = 'SetSiteLink';
+		$specialPageParams = array(
+			$entityId->getPrefixedId()
+		);
+		if( $subPage !== '' ) {
+			$specialPageParams[] = $subPage;
+		}
 
-		return $this->sectionEditLinkGenerator->getHtmlForEditSection( $url, $msg, $tag, $enabled );
+		return $this->sectionEditLinkGenerator->getHtmlForEditSection(
+			$specialPage,
+			$specialPageParams,
+			$msg,
+			$enabled
+		);
 	}
 
 }

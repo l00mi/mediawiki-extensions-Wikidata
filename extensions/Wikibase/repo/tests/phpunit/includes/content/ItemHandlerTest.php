@@ -2,13 +2,16 @@
 
 namespace Wikibase\Test;
 
-use Title;
+use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\SimpleSiteLink;
+use Wikibase\DataModel\SiteLink;
+use Wikibase\EntityContent;
 use Wikibase\ItemContent;
 use Wikibase\ItemHandler;
 use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
 
@@ -23,6 +26,7 @@ use Wikibase\SettingsArray;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Daniel Kinzler
  */
 class ItemHandlerTest extends EntityHandlerTest {
 
@@ -52,70 +56,104 @@ class ItemHandlerTest extends EntityHandlerTest {
 		 * @var ItemContent $content
 		 */
 		$content = clone $contents[1][0];
-		$content->getItem()->addSiteLink( new SimpleSiteLink( 'enwiki', 'Foobar' ) );
+		$content->getItem()->addSiteLink( new SiteLink( 'enwiki', 'Foobar' ) );
 		$contents[] = array( $content );
 
 		return $contents;
 	}
 
-	public function testGetTitleForId() {
-		$handler = $this->getHandler();
-		$id = new ItemId( 'Q123' );
+	public function provideGetUndoContent() {
+		$cases = parent::provideGetUndoContent();
 
-		$title = $handler->getTitleForId( $id );
-		$this->assertEquals( $id->getSerialization(), $title->getText() );
+		if ( !$this->getHandler()->supportsRedirects() ) {
+			// As of 2014-06-30, redirects are still experimental.
+			// So do a feature check before trying to test redirects.
+			return $cases;
+		}
+
+		$e1 = $this->newEntity();
+		$e1->setLabel( 'en', 'Foo' );
+		$r1 = $this->fakeRevision( $this->newEntityContent( $e1 ), 11 );
+
+		$e2 = $this->newRedirectContent( $e1->getId(), new ItemId( 'Q112' ) );
+		$r2 = $this->fakeRevision( $e2, 12 );
+
+		$e3 = $this->newRedirectContent( $e1->getId(), new ItemId( 'Q113' ) );
+		$r3 = $this->fakeRevision( $e3, 13 );
+
+		$e4 = $this->newEntity();
+		$e4->setLabel( 'en', 'Bar' );
+		$r4 = $this->fakeRevision( $this->newEntityContent( $e4 ), 14 );
+
+		$cases[] = array( $r2, $r2, $r1, $this->newEntityContent( $e1 ), "undo redirect" );
+		$cases[] = array( $r3, $r3, $r2, $e2, "undo redirect change" );
+		$cases[] = array( $r3, $r2, $r1, null, "undo redirect conflict" );
+		$cases[] = array( $r4, $r4, $r3, $e3, "redo redirect" );
+
+		return $cases;
 	}
 
-	public function testGetIdForTitle() {
-		$handler = $this->getHandler();
-		$title = Title::makeTitle( $handler->getEntityNamespace(), 'Q123' );
+	/**
+	 * @param Entity $entity
+	 *
+	 * @return EntityContent
+	 */
+	protected function newEntityContent( Entity $entity = null ) {
+		if ( !$entity ) {
+			$entity = Item::newEmpty();
+			$entity->setId( new ItemId( 'Q42' ) );
+		}
 
-		$id = $handler->getIdForTitle( $title );
-		$this->assertEquals( $title->getText(), $id->getSerialization() );
+		return $this->getHandler()->makeEntityContent( $entity );
 	}
 
-	protected function newEntity() {
+	public function testMakeEntityRedirectContent() {
+		if ( !$this->getHandler()->supportsRedirects() ) {
+			// As of 2014-06-30, redirects are still experimental.
+			// So do a feature check before trying to test redirects.
+			$this->markTestSkipped( 'Redirects not yet supported.' );
+		}
+
+		$q2 = new ItemId( 'Q2' );
+		$q3 = new ItemId( 'Q3' );
+		$redirect = new EntityRedirect( $q2, $q3 );
+
+		$handler = $this->getHandler();
+		$target = $handler->getTitleForId( $q3 );
+		$content = $handler->makeEntityRedirectContent( $redirect );
+
+		$this->assertEquals( $redirect, $content->getEntityRedirect() );
+		$this->assertEquals( $target->getFullText(), $content->getRedirectTarget()->getFullText() );
+
+		// getEntity() should fail
+		$this->setExpectedException( 'MWException' );
+		$content->getEntity();
+	}
+
+	public function entityIdProvider() {
+		return array(
+			array( 'Q7' ),
+		);
+	}
+
+	protected function newEntity( EntityId $id = null ) {
+		if ( !$id ) {
+			$id = new ItemId( 'Q7' );
+		}
+
 		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q7' ) );
+		$item->setId( $id );
 		return $item;
 	}
 
 	/**
 	 * @param SettingsArray $settings
-	 * @param EntityContentDataCodec $codec
 	 *
 	 * @return ItemHandler
 	 */
-	protected function getHandler(
-		SettingsArray $settings = null,
-		EntityContentDataCodec $codec = null
-	) {
-		$repo = WikibaseRepo::getDefaultInstance();
-		$validator = $repo->getEntityConstraintProvider()->getConstraints( Item::ENTITY_TYPE );
-		$entityPerPage = $repo->getStore()->newEntityPerPage();
-		$termIndex = $repo->getStore()->getTermIndex();
-		$errorLocalizer = $repo->getValidatorErrorLocalizer();
-		$siteLinkStore = $repo->getStore()->newSiteLinkCache();
-
-		if ( !$settings ) {
-			$settings = $repo->getSettings();
-		}
-
-		if ( !$codec ) {
-			$codec = $repo->getEntityContentDataCodec();
-		}
-
-		$transformOnExport = $settings->getSetting( 'transformLegacyFormatOnExport' );
-
-		return new ItemHandler(
-			$entityPerPage,
-			$termIndex,
-			$codec,
-			array( $validator ),
-			$errorLocalizer,
-			$siteLinkStore,
-			$transformOnExport
-		);
+	protected function getHandler( SettingsArray $settings = null ) {
+		$repo = $this->getRepo( $settings );
+		return $repo->newItemHandler();
 	}
 
 }

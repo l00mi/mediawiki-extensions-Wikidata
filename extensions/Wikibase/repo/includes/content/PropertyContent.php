@@ -32,8 +32,6 @@ class PropertyContent extends EntityContent {
 	 *
 	 * @protected
 	 *
-	 * @since 0.1
-	 *
 	 * @param Property $property
 	 */
 	public function __construct( Property $property ) {
@@ -43,8 +41,6 @@ class PropertyContent extends EntityContent {
 
 	/**
 	 * Create a new propertyContent object for the provided property.
-	 *
-	 * @since 0.1
 	 *
 	 * @param Property $property
 	 *
@@ -57,8 +53,6 @@ class PropertyContent extends EntityContent {
 	/**
 	 * Gets the property that makes up this property content.
 	 *
-	 * @since 0.1
-	 *
 	 * @return Property
 	 */
 	public function getProperty() {
@@ -67,8 +61,6 @@ class PropertyContent extends EntityContent {
 
 	/**
 	 * Sets the property that makes up this property content.
-	 *
-	 * @since 0.1
 	 *
 	 * @param Property $property
 	 */
@@ -79,8 +71,6 @@ class PropertyContent extends EntityContent {
 	/**
 	 * Returns a new empty PropertyContent.
 	 *
-	 * @since 0.1
-	 *
 	 * @return PropertyContent
 	 */
 	public static function newEmpty() {
@@ -90,8 +80,6 @@ class PropertyContent extends EntityContent {
 	/**
 	 * @see EntityContent::getEntity
 	 *
-	 * @since 0.1
-	 *
 	 * @return Property
 	 */
 	public function getEntity() {
@@ -99,8 +87,25 @@ class PropertyContent extends EntityContent {
 	}
 
 	/**
-	 * Instantiates an EntityView.
+	 * Checks if this PropertyContent is valid for saving.
 	 *
+	 * Returns false if the entity does not have a DataType set.
+	 *
+	 * @see Content::isValid()
+	 */
+	public function isValid() {
+		if ( !parent::isValid() ) {
+			return false;
+		}
+
+		if ( is_null( $this->getEntity()->getDataTypeId() ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * @see getEntityView()
 	 *
 	 * @param IContextSource $context
@@ -111,7 +116,7 @@ class PropertyContent extends EntityContent {
 	 * @param EntityIdParser $idParser
 	 * @param SerializationOptions $options
 	 *
-	 * @return EntityView
+	 * @return PropertyView
 	 */
 	protected function newEntityView(
 		IContextSource $context,
@@ -140,4 +145,5 @@ class PropertyContent extends EntityContent {
 			$configBuilder
 		);
 	}
+
 }

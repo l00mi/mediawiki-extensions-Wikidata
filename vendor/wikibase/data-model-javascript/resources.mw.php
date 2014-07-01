@@ -14,7 +14,13 @@
 return call_user_func( function() {
 	global $wgResourceModules;
 
-	preg_match( '+^(.*?)' . DIRECTORY_SEPARATOR . '(vendor|extensions)' . DIRECTORY_SEPARATOR . '(.*)$+', __DIR__, $remoteExtPathParts );
+	preg_match(
+		'+^(.*?)' . preg_quote( DIRECTORY_SEPARATOR ) . '(vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR ) . '(.*)$+',
+		__DIR__,
+		$remoteExtPathParts
+	);
+
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
 		'remoteExtPath' => '../' . $remoteExtPathParts[2] . DIRECTORY_SEPARATOR . $remoteExtPathParts[3],
@@ -41,7 +47,6 @@ return call_user_func( function() {
 				'util.inherit',
 				'wikibase', // What? Just for the namespace?
 				'mw.ext.dataValues', // DataValues extension
-				'wikibase.dataTypes', // That seems to be a wrong dependency
 			)
 		),
 	);

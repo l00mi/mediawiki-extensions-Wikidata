@@ -3,6 +3,7 @@
 namespace Wikibase\Test;
 
 use Title;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\Store\EntityContentDataCodec;
@@ -73,48 +74,30 @@ class PropertyHandlerTest extends EntityHandlerTest {
 		$this->assertEquals( $title->getText(), $id->getSerialization() );
 	}
 
-	protected function newEntity() {
+	protected function newEntity( EntityId $id = null ) {
+		if ( !$id ) {
+			$id = new PropertyId( 'P7' );
+		}
+
 		$property = Property::newFromType( 'string' );
-		$property->setId( new PropertyId( 'P7' ) );
+		$property->setId( $id );
 		return $property;
+	}
+
+	public function entityIdProvider() {
+		return array(
+			array( 'P7' )
+		);
 	}
 
 	/**
 	 * @param SettingsArray $settings
-	 * @param EntityContentDataCodec $codec
 	 *
 	 * @return PropertyHandler
 	 */
-	protected function getHandler(
-		SettingsArray $settings = null,
-		EntityContentDataCodec $codec = null
-	) {
-		$repo = WikibaseRepo::getDefaultInstance();
-		$validator = $repo->getEntityConstraintProvider()->getConstraints( Property::ENTITY_TYPE );
-		$entityPerPage = $repo->getStore()->newEntityPerPage();
-		$termIndex = $repo->getStore()->getTermIndex();
-		$errorLocalizer = $repo->getValidatorErrorLocalizer();
-		$propertyInfoStore = $repo->getStore()->getPropertyInfoStore();
-
-		if ( !$settings ) {
-			$settings = $repo->getSettings();
-		}
-
-		if ( !$codec ) {
-			$codec = $repo->getEntityContentDataCodec();
-		}
-
-		$transformOnExport = $settings->getSetting( 'transformLegacyFormatOnExport' );
-
-		return new PropertyHandler(
-			$entityPerPage,
-			$termIndex,
-			$codec,
-			array( $validator ),
-			$errorLocalizer,
-			$propertyInfoStore,
-			$transformOnExport
-		);
+	protected function getHandler( SettingsArray $settings = null ) {
+		$repo = $this->getRepo( $settings );
+		return $repo->newPropertyHandler();
 	}
 
 }
