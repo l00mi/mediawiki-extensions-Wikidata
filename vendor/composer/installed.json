@@ -97,12 +97,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
+            "reference": "a2082a4720ae79296337711aae310cfcd33927d4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
-            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/a2082a4720ae79296337711aae310cfcd33927d4",
+            "reference": "a2082a4720ae79296337711aae310cfcd33927d4",
             "shasum": ""
         },
         "require": {
@@ -112,7 +112,7 @@
             "phpunit/phpunit": "3.7.*",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2014-06-23 17:01:20",
+        "time": "2014-07-02 09:47:27",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -253,24 +253,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.6.3",
-        "version_normalized": "0.6.3.0",
+        "version": "0.6.4",
+        "version_normalized": "0.6.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "1982db3a29cabc175e576dfad2b9ed16f21b8bcf"
+            "reference": "dd752fb6aed288cd9ad04371037886d9b42025d9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/1982db3a29cabc175e576dfad2b9ed16f21b8bcf",
-            "reference": "1982db3a29cabc175e576dfad2b9ed16f21b8bcf",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/dd752fb6aed288cd9ad04371037886d9b42025d9",
+            "reference": "dd752fb6aed288cd9ad04371037886d9b42025d9",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-06-25 10:30:31",
+        "time": "2014-07-02 09:29:58",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1136,12 +1136,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "f9db38e425902cf1699490a5adb2d85d45756280"
+            "reference": "d04f89207ae9ae1d27958f2b30d12056d22f0501"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f9db38e425902cf1699490a5adb2d85d45756280",
-            "reference": "f9db38e425902cf1699490a5adb2d85d45756280",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d04f89207ae9ae1d27958f2b30d12056d22f0501",
+            "reference": "d04f89207ae9ae1d27958f2b30d12056d22f0501",
             "shasum": ""
         },
         "require": {
@@ -1166,7 +1166,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-01 09:28:20",
+        "time": "2014-07-01 23:19:59",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
