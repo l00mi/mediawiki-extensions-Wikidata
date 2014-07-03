@@ -84,31 +84,6 @@ return call_user_func( function() {
 			'datatypesconfigvarname' => 'wbDataTypes',
 		),
 
-		'wikibase.serialization' => $moduleTemplate + array(
-			'scripts' => array(
-				'wikibase.serialization/serialization.js',
-				'wikibase.serialization/serialization.Serializer.js',
-				'wikibase.serialization/serialization.Unserializer.js',
-				'wikibase.serialization/serialization.SerializerFactory.js',
-			),
-			'dependencies' => array(
-				'util.inherit',
-				'wikibase',
-			)
-		),
-
-		'wikibase.serialization.entities' => $moduleTemplate + array(
-			'scripts' => array(
-				'wikibase.serialization/serialization.EntityUnserializer.js',
-				'wikibase.serialization/serialization.EntityUnserializer.propertyExpert.js',
-			),
-			'dependencies' => array(
-				'util.inherit',
-				'wikibase.serialization',
-				'wikibase.datamodel',
-			)
-		),
-
 		'wikibase.store' => $moduleTemplate + array(
 			'scripts' => array(
 				'wikibase.store/store.js'
@@ -157,7 +132,7 @@ return call_user_func( function() {
 				'wikibase.compileEntityStoreFromMwConfig.js',
 			),
 			'dependencies' => array(
-				'jquery.json',
+				'json',
 				'wikibase',
 				'wikibase.serialization',
 				'wikibase.serialization.entities',
@@ -183,9 +158,10 @@ return call_user_func( function() {
 				'wikibase.RepoApi/wikibase.RepoApi.js',
 			),
 			'dependencies' => array(
-				'jquery.json',
+				'json',
 				'user.tokens',
 				'mediawiki.api',
+				'mediawiki',
 				'wikibase.repoAccess',
 				'wikibase',
 			)
