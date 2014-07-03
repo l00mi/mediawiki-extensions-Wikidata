@@ -51,6 +51,15 @@ DataValues Time has been written by the Wikidata team, as [Wikimedia Germany]
 
 ## Release notes
 
+### 0.6 (2014-06-05)
+
+* Added TimeValueCalculator
+* Removed TimeIsoFormatter interface
+* Introduce FORMAT_NAME class constants on ValueParsers in order to use them as
+	expectedFormat
+* Change ValueParsers to pass rawValue and expectedFormat arguments when constructing
+	a ParseException
+
 ### 0.5.2 (2014-04-28)
 
 * Fix parsing of years ending in zero, defaulting precision to year when

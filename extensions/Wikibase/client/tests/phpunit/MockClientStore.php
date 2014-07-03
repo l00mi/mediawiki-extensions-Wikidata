@@ -4,7 +4,7 @@ namespace Wikibase\Test;
 
 use Wikibase\ClientStore;
 use Wikibase\PropertyInfoStore;
-use Wikibase\SiteLinkLookup;
+use Wikibase\Lib\Store\SiteLinkLookup;
 
 /**
  * (Incomplete) ClientStore mock
@@ -35,6 +35,13 @@ class MockClientStore implements ClientStore {
 	 * @return EntityLookup
 	 */
 	public function getEntityLookup() {
+		return $this->getMock();
+	}
+
+	/*
+	 * @return EntityRevisionLookup
+	 */
+	public function getEntityRevisionLookup() {
 		return $this->getMock();
 	}
 

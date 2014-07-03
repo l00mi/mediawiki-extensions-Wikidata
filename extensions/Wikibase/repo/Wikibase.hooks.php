@@ -31,6 +31,7 @@ use Title;
 use User;
 use Wikibase\Hook\MakeGlobalVariablesScriptHandler;
 use Wikibase\Hook\OutputPageJsConfigHookHandler;
+use Wikibase\Repo\View\TextInjector;
 use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
 
@@ -47,13 +48,6 @@ use WikiPage;
  * @author Jens Ohlig
  */
 final class RepoHooks {
-
-	private static function isTitleInEntityNamespace( Title $title ) {
-		$entityNamespaces = array_flip( NamespaceUtils::getEntityNamespaces() );
-		$namespace = $title->getNamespace();
-
-		return array_key_exists( $namespace, $entityNamespaces );
-	}
 
 	/**
 	 * Handler for the BeforePageDisplay hook, simply injects wikibase.ui.entitysearch module
@@ -228,37 +222,44 @@ final class RepoHooks {
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		if ( $entityContentFactory->isEntityContentModel( $article->getContent()->getModel() ) ) {
-			/**
-			 * @var $newEntity Entity
-			 */
-			$newEntity = $article->getContent()->getEntity();
+			self::notifyEntityStoreWatcherOnUpdate( $revision );
 
-			// Notify storage/lookup services that the entity was updated. Needed to track page-level changes.
-			// May be redundant in some cases. Take care not to cause infinite regress.
-			$entityRev = new EntityRevision( $newEntity, $revision->getId(), $revision->getTimestamp() );
-			WikibaseRepo::getDefaultInstance()->getEntityStoreWatcher()->entityUpdated( $entityRev );
+			$notifier = WikibaseRepo::getDefaultInstance()->getChangeNotifier();
 
-			$parent = is_null( $revision->getParentId() )
-				? null : Revision::newFromId( $revision->getParentId() );
-
-			$change = EntityChange::newFromUpdate(
-				$parent ? EntityChange::UPDATE : EntityChange::ADD,
-				$parent ? $parent->getContent()->getEntity() : null,
-				$newEntity
-			);
-
-			$change->setFields( array(
-				'revision_id' => $revision->getId(),
-				'user_id' => $user->getId(),
-				'object_id' => $newEntity->getId()->getPrefixedId(),
-				'time' => $revision->getTimestamp(),
-			) );
-
-			WikibaseRepo::getDefaultInstance()->newChangeNotifier()->handleChange( $change );
+			if ( $revision->getParentId() === null ) {
+				$notifier->notifyOnPageCreated( $revision );
+			} else {
+				$parent = Revision::newFromId( $revision->getParentId() );
+				$notifier->notifyOnPageModified( $revision, $parent );
+			}
 		}
 
 		wfProfileOut( __METHOD__ );
 		return true;
+	}
+
+	/**
+	 * @param Revision $revision
+	 */
+	private static function notifyEntityStoreWatcherOnUpdate( Revision $revision ) {
+		/** @var EntityContent $content */
+		$content = $revision->getContent();
+		$watcher = WikibaseRepo::getDefaultInstance()->getEntityStoreWatcher();
+
+		// Notify storage/lookup services that the entity was updated. Needed to track page-level changes.
+		// May be redundant in some cases. Take care not to cause infinite regress.
+		if ( $content->isRedirect() ) {
+			$watcher->redirectUpdated(
+				$content->getEntityRedirect(),
+				$revision->getId()
+			);
+		} else {
+			$watcher->entityUpdated( new EntityRevision(
+				$content->getEntity(),
+				$revision->getId(),
+				$revision->getTimestamp()
+			) );
+		}
 	}
 
 	/**
@@ -291,26 +292,14 @@ final class RepoHooks {
 			return true;
 		}
 
-		/**
-		 * @var EntityContent $content
-		 * @var Entity $entity
-		 */
-		$entity = $content->getEntity();
+		/* @var EntityContent $content */
 
 		// Notify storage/lookup services that the entity was deleted. Needed to track page-level deletion.
 		// May be redundant in some cases. Take care not to cause infinite regress.
-		WikibaseRepo::getDefaultInstance()->getEntityStoreWatcher()->entityDeleted( $entity->getId() );
+		WikibaseRepo::getDefaultInstance()->getEntityStoreWatcher()->entityDeleted( $content->getEntityId() );
 
-		$change = EntityChange::newFromUpdate( EntityChange::REMOVE, $entity, null, array(
-			'revision_id' => 0, // there's no current revision
-			'user_id' => $user->getId(),
-			'object_id' => $entity->getId()->getPrefixedId(),
-			'time' => $logEntry->getTimestamp(),
-		) );
-
-		$change->setMetadataFromUser( $user );
-
-		WikibaseRepo::getDefaultInstance()->newChangeNotifier()->handleChange( $change );
+		$notifier = WikibaseRepo::getDefaultInstance()->getChangeNotifier();
+		$notifier->notifyOnPageDeleted( $content, $user, $logEntry->getTimestamp() );
 
 		wfProfileOut( __METHOD__ );
 		return true;
@@ -347,38 +336,28 @@ final class RepoHooks {
 			return true;
 		}
 
-		$entity = $content->getEntity();
+		/* @var EntityContent $content */
 
 		//XXX: EntityContent::save() also does this. Why are we doing this twice?
 		WikibaseRepo::getDefaultInstance()->getStore()->newEntityPerPage()->addEntityPage(
-			$entity->getId(),
+			$content->getEntityId(),
 			$title->getArticleID()
 		);
 
-		$rev = Revision::newFromId( $revId );
-
-		$userId = $rev->getUser();
-		$change = EntityChange::newFromUpdate( EntityChange::RESTORE, null, $entity, array(
-			// TODO: Use timestamp of log entry, but needs core change.
-			// This hook is called before the log entry is created.
-			'revision_id' => $revId,
-			'user_id' => $userId,
-			'object_id' => $entity->getId()->getPrefixedId(),
-			'time' => wfTimestamp( TS_MW, wfTimestampNow() )
-		) );
-
-		$user = User::newFromId( $userId );
-		$change->setMetadataFromUser( $user );
-
-		WikibaseRepo::getDefaultInstance()->newChangeNotifier()->handleChange( $change );
+		$notifier = WikibaseRepo::getDefaultInstance()->getChangeNotifier();
+		$notifier->notifyOnPageUndeleted( $revision );
 
 		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
 	/**
-	 * TODO: Add some stuff? Seems to be changes propagation...
+	 * Nasty hack to inject information from RC into the change notification saved earlier
+	 * by the onNewRevisionFromEditComplete hook handler.
+	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/RecentChange_save
+	 *
+	 * @todo: find a better way to do this!
 	 *
 	 * @since ?
 	 *
@@ -662,20 +641,21 @@ final class RepoHooks {
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		if ( $entityContentFactory->isEntityContentModel( $out->getTitle()->getContentModel() ) ) {
-			// we only add the classes, if there is an actual item and not just an empty Page in the right namespace
+			// We only add the classes, if there is an actual item and not just an empty Page in the right namespace.
+			// XXX: Let's hope the page isn't re-loaded from the database.
 			$entityPage = new WikiPage( $out->getTitle() );
 			$entityContent = $entityPage->getContent();
 
 			/* @var EntityContent $entityContent */
 
-			if( $entityContent !== null ) {
+			if( $entityContent !== null && !$entityContent->isRedirect() ) {
 				// TODO: preg_replace kind of ridiculous here, should probably change the ENTITY_TYPE constants instead
 				$entityType = preg_replace( '/^wikibase-/i', '', $entityContent->getEntity()->getType() );
 
 				// add class to body so it's clear this is a wb item:
 				$bodyAttrs['class'] .= " wb-entitypage wb-{$entityType}page";
 				// add another class with the ID of the item:
-				$bodyAttrs['class'] .= " wb-{$entityType}page-{$entityContent->getEntity()->getId()->getPrefixedId()}";
+				$bodyAttrs['class'] .= " wb-{$entityType}page-{$entityContent->getEntityId()->getPrefixedId()}";
 
 				if ( $sk->getRequest()->getCheck( 'diff' ) ) {
 					$bodyAttrs['class'] .= ' wb-diffpage';
@@ -706,17 +686,17 @@ final class RepoHooks {
 	 * @return bool true
 	 */
 	public static function onLinkBegin( $skin, $target, &$html, array &$customAttribs, &$query, &$options, &$ret ) {
+		global $wgTitle;
+
 		wfProfileIn( __METHOD__ );
 
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		//NOTE: the model returned by Title::getContentModel() is not reliable, see bug 37209
 		$model = $target->getContentModel();
-		$entityModels = $entityContentFactory->getEntityContentModels();
-
 
 		// we only want to handle links to Wikibase entities differently here
-		if ( !in_array( $model, $entityModels ) ) {
+		if ( !$entityContentFactory->isEntityContentModel( $model ) ) {
 			wfProfileOut( __METHOD__ );
 			return true;
 		}
@@ -727,8 +707,6 @@ final class RepoHooks {
 			wfProfileOut( __METHOD__ );
 			return true;
 		}
-
-		global $wgTitle;
 
 		// $wgTitle is temporarily set to special pages Title in case of special page inclusion! Therefore we can
 		// just check whether the page is a special page and if not, disable the behavior.
@@ -743,22 +721,17 @@ final class RepoHooks {
 		// The following three vars should all exist, unless there is a failurre
 		// somewhere, and then it will fail hard. Better test it now!
 		$page = new WikiPage( $target );
-		if ( is_null( $page ) ) {
-			// Failed, can't continue. This should not happen.
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
 		$content = null;
 
 		try {
 			$content = $page->getContent();
 		} catch ( MWContentSerializationException $ex ) {
 			// if this fails, it's not horrible.
-			wfWarn( "Failed to get entity object for [[" . $page->getTitle()->getFullText() . "]]"
-					. ": " . $ex->getMessage() );
+			wfWarn( 'Failed to get entity object for [[' . $page->getTitle()->getFullText() . ']]'
+					. ': ' . $ex->getMessage() );
 		}
 
-		if ( is_null( $content ) || !( $content instanceof EntityContent ) ) {
+		if ( !( $content instanceof EntityContent ) ) {
 			// Failed, can't continue. This could happen because the content is empty (page doesn't exist),
 			// e.g. after item was deleted.
 
@@ -768,11 +741,8 @@ final class RepoHooks {
 			return true;
 		}
 
-		/* @var EntityContent $content */
-		$entity = $content->getEntity();
-		if ( is_null( $entity ) ) {
-			// Failed, can't continue. This could happen because there is an illegal structure that could
-			// not be parsed.
+		if ( $content->isRedirect() ) {
+			// TODO: resolve redirect, show redirect info in link
 			wfProfileOut( __METHOD__ );
 			return true;
 		}
@@ -782,6 +752,8 @@ final class RepoHooks {
 		$context = RequestContext::getMain();
 		$languageFallbackChain = $languageFallbackChainFactory->newFromContext( $context );
 
+		/** @var EntityContent $content */
+		$entity = $content->getEntity();
 		$labelData = $languageFallbackChain->extractPreferredValueOrAny( $entity->getLabels() );
 		$descriptionData = $languageFallbackChain->extractPreferredValueOrAny( $entity->getDescriptions() );
 
@@ -926,7 +898,7 @@ final class RepoHooks {
 			/* @var EntityContent $content */
 			$content = $page->getContent();
 
-			if ( $content ) {
+			if ( $content && !$content->isRedirect() ) {
 				$entity = $content->getEntity();
 				$description = $entity->getDescription( $lang->getCode() ); // TODO: language fallback!
 
@@ -958,9 +930,8 @@ final class RepoHooks {
 	 */
 	public static function onShowSearchHitTitle( &$link_t, &$titleSnippet, SearchResult $result ) {
 		$title = $result->getTitle();
-		$entityNamespaces = NamespaceUtils::getEntityNamespaces();
 
-		if ( in_array( $title->getNamespace(), $entityNamespaces ) ) {
+		if ( NamespaceUtils::isEntityNamespace( $title->getNamespace() ) ) {
 			$titleSnippet = $title->getPrefixedText();
 		}
 
@@ -1118,7 +1089,7 @@ final class RepoHooks {
 				$out->getUser(),
 				$out->getLanguage(),
 				WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
-				WikibaseRepo::getDefaultInstance()->getEntityLookup(),
+				WikibaseRepo::getDefaultInstance()->getEntityRevisionLookup(),
 				$userLanguageLookup
 			);
 
@@ -1141,7 +1112,7 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onOutputPageBeforeHtmlRegisterConfig( OutputPage $out, &$html ) {
-		if ( !self::isTitleInEntityNamespace( $out->getTitle() ) ) {
+		if ( !NamespaceUtils::isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
 			return true;
 		}
 
@@ -1168,7 +1139,7 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onMakeGlobalVariablesScript( $vars, $out ) {
-		if ( !self::isTitleInEntityNamespace( $out->getTitle() ) ) {
+		if ( !NamespaceUtils::isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
 			return true;
 		}
 
@@ -1202,12 +1173,11 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onContentModelCanBeUsedOn( $contentModel, Title $title, &$ok ) {
-		$contentModels = array_flip( NamespaceUtils::getEntityNamespaces() );
-		$namespace = $title->getNamespace();
+		$expectedModel = array_search( $title->getNamespace(), NamespaceUtils::getEntityNamespaces() );
 
 		// If the namespace is an entity namespace, the content model
 		// must be the model assigned to that namespace.
-		if ( isset( $contentModels[$namespace] ) && $contentModels[$namespace] !== $contentModel ) {
+		if ( $expectedModel !== false && $expectedModel !== $contentModel ) {
 			$ok = false;
 			return false;
 		}
@@ -1225,32 +1195,19 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onContentHandlerForModelID( $modelId, &$handler ) {
+		// FIXME: a mechanism for registering additional entity types needs to be put in place.
 		switch ( $modelId ) {
 			case CONTENT_MODEL_WIKIBASE_ITEM:
-				$handler = self::newItemHandler();
+				$handler = WikibaseRepo::getDefaultInstance()->newItemHandler();
 				return false;
 
 			case CONTENT_MODEL_WIKIBASE_PROPERTY:
-				$handler = self::newPropertyHandler();
+				$handler = WikibaseRepo::getDefaultInstance()->newPropertyHandler();
 				return false;
 
 			default:
 				return true;
 		}
-	}
-
-	private static function newItemHandler() {
-		$repo = WikibaseRepo::getDefaultInstance();
-		$validator = $repo->getEntityConstraintProvider()->getConstraints( Item::ENTITY_TYPE );
-
-		return new ItemHandler( array( $validator ) );
-	}
-
-	private static function newPropertyHandler() {
-		$repo = WikibaseRepo::getDefaultInstance();
-		$validator = $repo->getEntityConstraintProvider()->getConstraints( Property::ENTITY_TYPE );
-
-		return new PropertyHandler( array( $validator ) );
 	}
 
 	/**
@@ -1270,7 +1227,7 @@ final class RepoHooks {
 			$data['position'] = $row->chd_seen;
 		}
 		if ( isset( $row->chd_touched ) ) {
-			$data['touched'] = $row->chd_touched;
+			$data['touched'] = wfTimestamp( TS_ISO_8601, $row->chd_touched );
 		}
 
 		return $data;
@@ -1327,4 +1284,5 @@ final class RepoHooks {
 
 		return true;
 	}
+
 }

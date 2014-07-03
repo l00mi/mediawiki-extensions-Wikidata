@@ -5,18 +5,26 @@ namespace Wikibase;
 use DatabaseBase;
 use DatabaseUpdater;
 use DBQueryError;
+use HashBagOStuff;
 use MWException;
 use ObjectCache;
+use Revision;
+use ObservableMessageReporter;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\Lib\Store\CachingEntityRevisionLookup;
+use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\WikiPageEntityLookup;
-use Wikibase\Repo\Store\WikiPageEntityStore;
-use Wikibase\Repo\Store\DispatchingEntityStoreWatcher;
-use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Lib\Store\CachingEntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
+use Wikibase\Lib\Store\RevisionBasedEntityLookup;
+use Wikibase\Lib\Store\SiteLinkCache;
+use Wikibase\Lib\Store\SiteLinkTable;
+use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
+use Wikibase\Repo\Store\DispatchingEntityStoreWatcher;
+use Wikibase\Repo\Store\WikiPageEntityStore;
+use Wikibase\Repo\WikibaseRepo;
+use WikiPage;
 
 /**
  * Implementation of the store interface using an SQL backend via MediaWiki's
@@ -24,7 +32,6 @@ use Wikibase\Lib\Store\EntityStoreWatcher;
  *
  * @since 0.1
  * @licence GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
 class SqlStore implements Store {
@@ -60,6 +67,16 @@ class SqlStore implements Store {
 	private $propertyInfoTable = null;
 
 	/**
+	 * @var ChangesTable
+	 */
+	private $changesTable = null;
+
+	/**
+	 * @var string|bool false for local, or a database id that wfGetLB understands.
+	 */
+	private $changesDatabase;
+
+	/**
 	 * @var TermIndex
 	 */
 	private $termIndex = null;
@@ -79,7 +96,20 @@ class SqlStore implements Store {
 	 */
 	private $cacheDuration;
 
-	public function __construct() {
+	/**
+	 * @var EntityContentDataCodec
+	 */
+	private $contentCodec;
+
+	/**
+	 * @param EntityContentDataCodec $contentCodec
+	 */
+	public function __construct(
+		EntityContentDataCodec $contentCodec
+	) {
+		$this->contentCodec = $contentCodec;
+
+		//TODO: inject settings
 		$settings = WikibaseRepo::getDefaultInstance()->getSettings();
 		$cachePrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
 		$cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
@@ -88,6 +118,8 @@ class SqlStore implements Store {
 		$this->cachePrefix = $cachePrefix;
 		$this->cacheDuration = $cacheDuration;
 		$this->cacheType = $cacheType;
+
+		$this->changesDatabase = $settings->getSetting( 'changesDatabase' );
 	}
 
 	/**
@@ -147,8 +179,8 @@ class SqlStore implements Store {
 		);
 
 		foreach ( $pages as $pageRow ) {
-			$page = \WikiPage::newFromID( $pageRow->page_id );
-			$revision = \Revision::newFromId( $pageRow->page_latest );
+			$page = WikiPage::newFromID( $pageRow->page_id );
+			$revision = Revision::newFromId( $pageRow->page_latest );
 			try {
 				$page->doEditUpdates( $revision, $GLOBALS['wgUser'] );
 			} catch ( DBQueryError $e ) {
@@ -188,7 +220,57 @@ class SqlStore implements Store {
 		$this->updateEntityPerPageTable( $updater, $db );
 		$this->updateTermsTable( $updater, $db );
 
-		PropertyInfoTable::registerDatabaseUpdates( $updater );
+		$this->registerPropertyInfoTableUpdates( $updater );
+	}
+
+	private function registerPropertyInfoTableUpdates( DatabaseUpdater $updater ) {
+		$table = 'wb_property_info';
+
+		if ( !$updater->tableExists( $table ) ) {
+			$type = $updater->getDB()->getType();
+			$fileBase = __DIR__ . '/../../../../lib/includes/store/sql/' . $table;
+
+			$file = $fileBase . '.' . $type . '.sql';
+			if ( !file_exists( $file ) ) {
+				$file = $fileBase . '.sql';
+			}
+
+			$updater->addExtensionTable( $table, $file );
+
+			// populate the table after creating it
+			$updater->addExtensionUpdate( array(
+				array( __CLASS__, 'rebuildPropertyInfo' )
+			) );
+		}
+	}
+
+	/**
+	 * Wrapper for invoking PropertyInfoTableBuilder from DatabaseUpdater
+	 * during a database update.
+	 *
+	 * @param DatabaseUpdater $updater
+	 */
+	public static function rebuildPropertyInfo( DatabaseUpdater $updater ) {
+		$reporter = new ObservableMessageReporter();
+		$reporter->registerReporterCallback(
+			function ( $msg ) use ( $updater ) {
+				$updater->output( "..." . $msg . "\n" );
+			}
+		);
+
+		$table = new PropertyInfoTable( false );
+		$contentCodec = WikibaseRepo::getDefaultInstance()->getEntityContentDataCodec();
+
+		$wikiPageEntityLookup = new WikiPageEntityRevisionLookup( $contentCodec, false );
+		$cachingEntityLookup = new CachingEntityRevisionLookup( $wikiPageEntityLookup, new \HashBagOStuff() );
+		$entityLookup = new RevisionBasedEntityLookup( $cachingEntityLookup );
+
+		$builder = new PropertyInfoTableBuilder( $table, $entityLookup );
+		$builder->setReporter( $reporter );
+		$builder->setUseTransactions( false );
+
+		$updater->output( 'Populating ' . $table->getTableName() . "\n" );
+		$builder->rebuildPropertyInfo();
 	}
 
 	/**
@@ -372,7 +454,8 @@ class SqlStore implements Store {
 	 * @return EntityLookup
 	 */
 	public function getEntityLookup( $uncached = '' ) {
-		return $this->getEntityRevisionLookup( $uncached );
+		$lookup = $this->getEntityRevisionLookup( $uncached );
+		return new RevisionBasedEntityLookup( $lookup );
 	}
 
 	/**
@@ -441,34 +524,43 @@ class SqlStore implements Store {
 	}
 
 	/**
-	 * Creates a new EntityRevisionLookup(s).
-	 * This returns a pair of lookup services, one being the raw uncached lookup, the other being the cached lookup.
+	 * Creates a strongly connected pair of EntityRevisionLookup services, the first being the raw
+	 * uncached lookup, the second being the cached lookup.
 	 *
-	 * @return array ( WikiPageEntityLookup, CachingEntityRevisionLookup )
+	 * @return array( WikiPageEntityRevisionLookup, CachingEntityRevisionLookup )
 	 */
 	protected function newEntityRevisionLookup() {
 		//NOTE: Keep in sync with DirectSqlStore::newEntityLookup on the client
-		$key = $this->cachePrefix . ':WikiPageEntityLookup';
+		$key = $this->cachePrefix . ':WikiPageEntityRevisionLookup';
 
-		$lookup = $rawLookup = new WikiPageEntityLookup( false );
+		$rawLookup = new WikiPageEntityRevisionLookup( $this->contentCodec, false );
 
 		// Maintain a list of watchers to be notified of changes to any entities,
 		// in order to update caches.
+		/** @var WikiPageEntityStore $dispatcher */
 		$dispatcher = $this->getEntityStoreWatcher();
 
 		// Lower caching layer using persistent cache (e.g. memcached).
+		$persistentCachingLookup = new CachingEntityRevisionLookup(
+			$rawLookup,
+			wfGetCache( $this->cacheType ),
+			$this->cacheDuration,
+			$key
+		);
 		// We need to verify the revision ID against the database to avoid stale data.
-		$lookup = new CachingEntityRevisionLookup( $lookup, wfGetCache( $this->cacheType ), $this->cacheDuration, $key );
-		$lookup->setVerifyRevision( true );
-		$dispatcher->registerWatcher( $lookup ); // we know it's a WikiPageEntityStore
+		$persistentCachingLookup->setVerifyRevision( true );
+		$dispatcher->registerWatcher( $persistentCachingLookup );
 
 		// Top caching layer using an in-process hash.
+		$hashCachingLookup = new CachingEntityRevisionLookup(
+			$persistentCachingLookup,
+			new HashBagOStuff()
+		);
 		// No need to verify the revision ID, we'll ignore updates that happen during the request.
-		$lookup = new CachingEntityRevisionLookup( $lookup, new \HashBagOStuff() );
-		$lookup->setVerifyRevision( false );
-		$dispatcher->registerWatcher( $lookup ); // we know it's a WikiPageEntityStore
+		$hashCachingLookup->setVerifyRevision( false );
+		$dispatcher->registerWatcher( $hashCachingLookup );
 
-		return array( $rawLookup, $lookup );
+		return array( $rawLookup, $hashCachingLookup );
 	}
 
 	/**
@@ -531,6 +623,21 @@ class SqlStore implements Store {
 			// dummy info store
 			return new DummyPropertyInfoStore();
 		}
+	}
+
+	/**
+	 * Returns an ChangesTable
+	 *
+	 * @since 0.5
+	 *
+	 * @return ChangesTable
+	 */
+	public function getChangesTable() {
+		if ( $this->changesTable === null ) {
+			$this->changesTable = new ChangesTable( $this->changesDatabase );
+		}
+
+		return $this->changesTable;
 	}
 
 }

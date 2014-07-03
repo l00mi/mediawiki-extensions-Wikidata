@@ -119,7 +119,7 @@ $specialPageAliases['de'] = array(
 	'EntitiesWithoutLabel' => array( 'Objekte_ohne_Bezeichnung' ),
 	'EntitiesWithoutDescription' => array( 'Objekte_ohne_Beschreibung' ),
 	'ItemsWithoutSitelinks' => array( 'Objekte_ohne_Websitelinks' ),
-	'MyLanguageFallbackChain' => array( 'Meine_Sprachfallbackkette' ),
+	'MyLanguageFallbackChain' => array( 'Meine_Alternativsprachenabfolge' ),
 );
 
 /** Zazaki (Zazaki) */
@@ -229,6 +229,7 @@ $specialPageAliases['ko'] = array(
 	'SetDescription' => array( '설명설정' ),
 	'SetAliases' => array( '별칭설정' ),
 	'SetSiteLink' => array( '사이트링크설정' ),
+	'MergeItems' => array( '항목병합' ),
 	'EntitiesWithoutLabel' => array( '레이블없는개체' ),
 	'EntitiesWithoutDescription' => array( '설명없는개체' ),
 	'ItemsWithoutSitelinks' => array( '사이트링크없는개체' ),

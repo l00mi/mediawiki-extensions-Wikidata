@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SqlStore;
 use Wikibase\Store;
 
@@ -21,7 +22,11 @@ use Wikibase\Store;
 class StoreTest extends \MediaWikiTestCase {
 
 	public function instanceProvider() {
-		$instances = array( new SqlStore() );
+		$contentCodec = WikibaseRepo::getDefaultInstance()->getEntityContentDataCodec();
+
+		$instances = array(
+			new SqlStore( $contentCodec )
+		);
 
 		return array( $instances );
 	}
@@ -40,7 +45,7 @@ class StoreTest extends \MediaWikiTestCase {
 	 * @param Store $store
 	 */
 	public function testNewSiteLinkCache( Store $store ) {
-		$this->assertInstanceOf( '\Wikibase\SiteLinkLookup', $store->newSiteLinkCache() );
+		$this->assertInstanceOf( '\Wikibase\Lib\Store\SiteLinkLookup', $store->newSiteLinkCache() );
 	}
 
 	/**

@@ -313,9 +313,9 @@ class ResultBuilder {
 			$entitySerializer = $this->serializerFactory->newSerializerForObject( $entity, $serializerOptions );
 			$entitySerialization = $entitySerializer->getSerialized( $entity );
 
-			if( !empty( $siteIds ) && array_key_exists( 'sitelinks',$entitySerialization ) ) {
-				foreach( $entitySerialization['sitelinks'] as $key => $sitelink ) {
-					if( !in_array( $sitelink['site'], $siteIds ) ) {
+			if ( !empty( $siteIds ) && array_key_exists( 'sitelinks', $entitySerialization ) ) {
+				foreach ( $entitySerialization['sitelinks'] as $key => $sitelink ) {
+					if ( is_array( $sitelink ) && !in_array( $sitelink['site'], $siteIds ) ) {
 						unset( $entitySerialization['sitelinks'][$key] );
 					}
 				}
@@ -332,18 +332,11 @@ class ResultBuilder {
 	 *
 	 * @param EntityId $entityId
 	 * @param string|array|null $path
-	 * @param bool $forceNumericId should we force use the numeric id instead of serialization?
 	 *
 	 * @since 0.5
-	 * @todo once linktitles breaking change made remove $forceNumericId
 	 */
-	public function addBasicEntityInformation( EntityId $entityId, $path, $forceNumericId = false ){
-		if( $forceNumericId ) {
-			//FIXME: this is a very nasty hack as we presume IDs are always prefixed by a single letter
-			$this->setValue( $path, 'id', substr( $entityId->getSerialization(), 1 ) );
-		} else {
-			$this->setValue( $path, 'id', $entityId->getSerialization() );
-		}
+	public function addBasicEntityInformation( EntityId $entityId, $path ) {
+		$this->setValue( $path, 'id', $entityId->getSerialization() );
 		$this->setValue( $path, 'type', $entityId->getEntityType() );
 	}
 

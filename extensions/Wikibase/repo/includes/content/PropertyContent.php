@@ -2,17 +2,11 @@
 
 namespace Wikibase;
 
-use Content;
-use DataUpdate;
 use IContextSource;
-use ParserOutput;
-use Title;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Repo\WikibaseRepo;
-use WikiPage;
 
 /**
  * Content object for articles representing Wikibase properties.
@@ -25,10 +19,9 @@ use WikiPage;
 class PropertyContent extends EntityContent {
 
 	/**
-	 * @since 0.1
 	 * @var Property
 	 */
-	protected $property;
+	private $property;
 
 	/**
 	 * Do not use to construct new stuff from outside of this class,
@@ -38,8 +31,6 @@ class PropertyContent extends EntityContent {
 	 * cannot be since we derive from Content).
 	 *
 	 * @protected
-	 *
-	 * @since 0.1
 	 *
 	 * @param Property $property
 	 */
@@ -51,8 +42,6 @@ class PropertyContent extends EntityContent {
 	/**
 	 * Create a new propertyContent object for the provided property.
 	 *
-	 * @since 0.1
-	 *
 	 * @param Property $property
 	 *
 	 * @return PropertyContent
@@ -62,22 +51,7 @@ class PropertyContent extends EntityContent {
 	}
 
 	/**
-	 * Create a new PropertyContent object from the provided Property data.
-	 *
-	 * @since 0.1
-	 *
-	 * @param array $data
-	 *
-	 * @return PropertyContent
-	 */
-	public static function newFromArray( array $data ) {
-		return new static( new Property( $data ) );
-	}
-
-	/**
 	 * Gets the property that makes up this property content.
-	 *
-	 * @since 0.1
 	 *
 	 * @return Property
 	 */
@@ -88,8 +62,6 @@ class PropertyContent extends EntityContent {
 	/**
 	 * Sets the property that makes up this property content.
 	 *
-	 * @since 0.1
-	 *
 	 * @param Property $property
 	 */
 	public function setProperty( Property $property ) {
@@ -98,8 +70,6 @@ class PropertyContent extends EntityContent {
 
 	/**
 	 * Returns a new empty PropertyContent.
-	 *
-	 * @since 0.1
 	 *
 	 * @return PropertyContent
 	 */
@@ -110,8 +80,6 @@ class PropertyContent extends EntityContent {
 	/**
 	 * @see EntityContent::getEntity
 	 *
-	 * @since 0.1
-	 *
 	 * @return Property
 	 */
 	public function getEntity() {
@@ -119,60 +87,25 @@ class PropertyContent extends EntityContent {
 	}
 
 	/**
-	 * @see Content::getDeletionUpdates
+	 * Checks if this PropertyContent is valid for saving.
 	 *
-	 * @param \WikiPage $page
-	 * @param null|\ParserOutput $parserOutput
+	 * Returns false if the entity does not have a DataType set.
 	 *
-	 * @since 0.1
-	 *
-	 * @return DataUpdate[]
+	 * @see Content::isValid()
 	 */
-	public function getDeletionUpdates( \WikiPage $page, \ParserOutput $parserOutput = null ) {
-		//XXX: access to services should be done via the ContentHandler.
-		$infoStore = WikibaseRepo::getDefaultInstance()->getStore()->getPropertyInfoStore();
+	public function isValid() {
+		if ( !parent::isValid() ) {
+			return false;
+		}
 
-		return array_merge(
-			parent::getDeletionUpdates( $page, $parserOutput ),
-			array(
-				new EntityDeletionUpdate( $this, $page->getTitle() ),
-				new PropertyInfoDeletion( $this->getProperty()->getId(), $infoStore ),
-			)
-		);
+		if ( is_null( $this->getEntity()->getDataTypeId() ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
-	 * @see ContentHandler::getSecondaryDataUpdates
-	 *
-	 * @since 0.1
-	 *
-	 * @param Title $title
-	 * @param Content|null $old
-	 * @param boolean $recursive
-	 *
-	 * @param null|ParserOutput $parserOutput
-	 *
-	 * @return DataUpdate[]
-	 */
-	public function getSecondaryDataUpdates( Title $title, Content $old = null,
-		$recursive = false, ParserOutput $parserOutput = null ) {
-
-		//XXX: access to services should be done via the ContentHandler.
-		$infoStore = WikibaseRepo::getDefaultInstance()->getStore()->getPropertyInfoStore();
-
-		return array_merge(
-			parent::getSecondaryDataUpdates( $title, $old, $recursive, $parserOutput ),
-			array(
-				new EntityModificationUpdate( $this ),
-				new PropertyInfoUpdate( $this->getProperty(), $infoStore ),
-			)
-		);
-	}
-
-
-	/**
-	 * Instantiates an EntityView.
-	 *
 	 * @see getEntityView()
 	 *
 	 * @param IContextSource $context
@@ -183,7 +116,7 @@ class PropertyContent extends EntityContent {
 	 * @param EntityIdParser $idParser
 	 * @param SerializationOptions $options
 	 *
-	 * @return EntityView
+	 * @return PropertyView
 	 */
 	protected function newEntityView(
 		IContextSource $context,
@@ -212,4 +145,5 @@ class PropertyContent extends EntityContent {
 			$configBuilder
 		);
 	}
+
 }

@@ -26,7 +26,9 @@
 	"wikibase-label-input-help-message": "Унесите назив овог скупа података на језику $1.",
 	"wikibase-description-input-help-message": "Унесите кратак опис на $1 језику.",
 	"wikibase-statements": "Изјаве",
+	"wikibase-attributes": "Особине",
 	"wikibase-terms": "На другим језицима",
+	"wikibase-sitelinks-empty": "Ниједна страница није повезана са овом ставком.",
 	"wikibase-sitelinks-input-help-message": "Поставите везу према страници која се односи на ову ставку.",
 	"wikibase-remove": "уклони",
 	"wikibase-undo-title": "Поништавање измене за „$1“",
@@ -72,7 +74,6 @@
 	"wikibase-itembytitle-lookup-site": "Сајт:",
 	"wikibase-itembytitle-lookup-page": "Страна:",
 	"wikibase-itembytitle-submit": "Претражи",
-	"wikibase-itembytitle-description": "Сајт представља идентификациони код, као што је „srwiki“",
 	"wikibase-itembytitle-create": "Можете такође и [{{fullurl:Special:NewItem|site=$1&page=$2}} направити ставку].",
 	"special-itemdisambiguation": "Вишезначна ставка",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Претрага ставки према језику и називу",
@@ -215,5 +216,5 @@
 	"content-model-wikibase-item": "Ставка Викибазе",
 	"content-model-wikibase-property": "Својство Викибазе",
 	"content-model-wikibase-query": "Упит Викибазе",
-	"right-property-create": "Прављење својстава"
+	"right-property-create": "прављење својстава"
 }

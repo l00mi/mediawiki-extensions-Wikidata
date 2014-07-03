@@ -7,8 +7,13 @@ use ObjectCache;
 use Site;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
-use Wikibase\Lib\Store\WikiPageEntityLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\RevisionBasedEntityLookup;
+use Wikibase\Lib\Store\SiteLinkLookup;
+use Wikibase\Lib\Store\SiteLinkTable;
+use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 
 /**
  * Implementation of the client store interface using direct access to the repository's
@@ -25,7 +30,7 @@ class DirectSqlStore implements ClientStore {
 	/**
 	 * @var EntityLookup
 	 */
-	private $entityLookup = null;
+	private $entityRevisionLookup = null;
 
 	/**
 	 * @var PropertyLabelResolver
@@ -83,17 +88,30 @@ class DirectSqlStore implements ClientStore {
 	private $cacheDuration;
 
 	/**
+	 * @var EntityContentDataCodec
+	 */
+	private $contentCodec;
+
+	/**
+	 * @param EntityContentDataCodec $contentCodec
 	 * @param Language $wikiLanguage
 	 * @param string    $repoWiki the symbolic database name of the repo wiki
 	 */
-	public function __construct( Language $wikiLanguage, $repoWiki ) {
+	public function __construct(
+		EntityContentDataCodec $contentCodec,
+		Language $wikiLanguage,
+		$repoWiki
+	) {
 		$this->repoWiki = $repoWiki;
 		$this->language = $wikiLanguage;
+		$this->contentCodec = $contentCodec;
 
 		$settings = WikibaseClient::getDefaultInstance()->getSettings();
 		$cachePrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
 		$cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
 		$cacheType = $settings->getSetting( 'sharedCacheType' );
+
+		$this->changesDatabase = $settings->getSetting( 'changesDatabase' );
 
 		$this->cachePrefix = $cachePrefix;
 		$this->cacheDuration = $cacheDuration;
@@ -176,18 +194,30 @@ class DirectSqlStore implements ClientStore {
 
 
 	/**
-	 * @see Store::getEntityLookup
+	 * @see ClientStore::getEntityLookup
 	 *
 	 * @since 0.4
 	 *
 	 * @return EntityLookup
 	 */
 	public function getEntityLookup() {
-		if ( !$this->entityLookup ) {
-			$this->entityLookup = $this->newEntityLookup();
+		$lookup = $this->getEntityRevisionLookup();
+		return new RevisionBasedEntityLookup( $lookup );
+	}
+
+	/**
+	 * @see ClientStore::getEntityRevisionLookup
+	 *
+	 * @since 0.5
+	 *
+	 * @return EntityRevisionLookup
+	 */
+	public function getEntityRevisionLookup() {
+		if ( !$this->entityRevisionLookup ) {
+			$this->entityRevisionLookup = $this->newEntityRevisionLookup();
 		}
 
-		return $this->entityLookup;
+		return $this->entityRevisionLookup;
 	}
 
 	/**
@@ -195,11 +225,11 @@ class DirectSqlStore implements ClientStore {
 	 *
 	 * @return CachingEntityRevisionLookup
 	 */
-	protected function newEntityLookup() {
+	protected function newEntityRevisionLookup() {
 		//NOTE: Keep in sync with SqlStore::newEntityLookup on the repo
-		$key = $this->cachePrefix . ':WikiPageEntityLookup';
+		$key = $this->cachePrefix . ':WikiPageEntityRevisionLookup';
 
-		$lookup = new WikiPageEntityLookup( $this->repoWiki );
+		$lookup = new WikiPageEntityRevisionLookup( $this->contentCodec, $this->repoWiki );
 
 		// Lower caching layer using persistent cache (e.g. memcached).
 		// We need to verify the revision ID against the database to avoid stale data.

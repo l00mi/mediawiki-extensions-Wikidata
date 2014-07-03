@@ -5,6 +5,7 @@ namespace Wikibase\Test;
 use Language;
 use MediaWikiSite;
 use Site;
+use Wikibase\Client\WikibaseClient;
 use Wikibase\DirectSqlStore;
 
 /**
@@ -25,7 +26,9 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 		$site->setGlobalId( 'dummy' );
 		$lang = Language::factory( 'en' );
 
-		$store = new DirectSqlStore( $lang, 'DirectStoreSqlTestDummyRepoId');
+		$contentCodec = WikibaseClient::getDefaultInstance()->getEntityContentDataCodec();
+
+		$store = new DirectSqlStore( $contentCodec, $lang, 'DirectStoreSqlTestDummyRepoId');
 		$store->setSite( $site ); //TODO: inject via constructor once that is possible
 
 		return $store;
@@ -45,7 +48,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 	public static function provideGetters() {
 		return array(
 			array( 'getItemUsageIndex', 'Wikibase\ItemUsageIndex' ),
-			array( 'getSiteLinkTable', 'Wikibase\SiteLinkTable' ),
+			array( 'getSiteLinkTable', 'Wikibase\Lib\Store\SiteLinkTable' ),
 			array( 'getEntityLookup', 'Wikibase\Lib\Store\EntityLookup' ),
 			array( 'getTermIndex', 'Wikibase\TermIndex' ),
 			array( 'getPropertyLabelResolver', 'Wikibase\PropertyLabelResolver' ),

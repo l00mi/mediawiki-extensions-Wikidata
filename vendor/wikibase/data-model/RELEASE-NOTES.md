@@ -1,5 +1,43 @@
 # Wikibase DataModel release notes
 
+## Version 0.8.1 (2014-06-06)
+
+* Fixed fatal error when calling `Item::getSiteLinkList` on an `Item` right after constructing it
+
+## Version 0.8 (2014-06-05)
+
+#### Breaking changes
+
+* `Item::removeSiteLink` no longer takes an optional second parameter and no longer returns a boolean
+* Shallow clones of `Item` will now share the same list of site links
+
+#### Additions
+
+* `AliasGroupList::hasGroupForLanguage`
+* `SiteLinkList::addSiteLink`
+* `SiteLinkList::addNewSiteLink`
+* `SiteLinkList::removeLinkWithSiteId`
+* `SiteLinkList::isEmpty`
+* `SiteLinkList::removeLinkWithSiteId`
+* `Item::getSiteLinkList`
+* `Item::setSiteLinkList`
+* `TermList::setTextForLanguage`
+* `AliasGroupList::setAliasesForLanguage`
+
+#### Deprecations
+
+* `Item::addSiteLink`
+* `Item::removeSiteLink`
+* `Item::getSiteLinks`
+* `Item::getSiteLink`
+* `Item::hasLinkToSite`
+* `Item::hasSiteLinks`
+
+#### Improvements
+
+* An empty `TermList` can now be constructed with no constructor arguments
+* An empty `AliasGroupList` can now be constructed with no constructor arguments
+
 ## Version 0.7.4 (2014-04-24)
 
 #### Additions

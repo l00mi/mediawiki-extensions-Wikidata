@@ -2,6 +2,14 @@
 
 namespace Wikibase;
 
+use DataUpdate;
+use Title;
+use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Updates\DataUpdateClosure;
+use Wikibase\Validators\EntityValidator;
+use Wikibase\Validators\ValidatorErrorLocalizer;
+
 /**
  * Content handler for Wikibase items.
  *
@@ -9,8 +17,14 @@ namespace Wikibase;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Daniel Kinzler
  */
 class PropertyHandler extends EntityHandler {
+
+	/**
+	 * @var PropertyInfoStore
+	 */
+	private $infoStore;
 
 	/**
 	 * @see EntityHandler::getContentClass
@@ -24,10 +38,52 @@ class PropertyHandler extends EntityHandler {
 	}
 
 	/**
-	 * @param PreSaveValidator[] $preSaveValidators
+	 * @param EntityPerPage $entityPerPage
+	 * @param TermIndex $termIndex
+	 * @param EntityContentDataCodec $contentCodec
+	 * @param EntityValidator[] $preSaveValidators
+	 * @param ValidatorErrorLocalizer $errorLocalizer
+	 * @param PropertyInfoStore $infoStore
+	 * @param callable|null $legacyExportFormatDetector
 	 */
-	public function __construct( $preSaveValidators ) {
-		parent::__construct( CONTENT_MODEL_WIKIBASE_PROPERTY, $preSaveValidators );
+	public function __construct(
+		EntityPerPage $entityPerPage,
+		TermIndex $termIndex,
+		EntityContentDataCodec $contentCodec,
+		$preSaveValidators,
+		ValidatorErrorLocalizer $errorLocalizer,
+		PropertyInfoStore $infoStore,
+		$legacyExportFormatDetector = null
+	) {
+		parent::__construct(
+			CONTENT_MODEL_WIKIBASE_PROPERTY,
+			$entityPerPage,
+			$termIndex,
+			$contentCodec,
+			$preSaveValidators,
+			$errorLocalizer,
+			$legacyExportFormatDetector
+		);
+
+		$this->infoStore = $infoStore;
+	}
+
+	/**
+	 * @see EntityHandler::newContent
+	 *
+	 * @since 0.5
+	 *
+	 * @param Entity $property An Property object
+	 *
+	 * @throws InvalidArgumentException
+	 * @return PropertyContent
+	 */
+	protected function newContent( Entity $property ) {
+		if ( ! $property instanceof Property ) {
+			throw new \InvalidArgumentException( '$property must be an instance of Property' );
+		}
+
+		return PropertyContent::newFromProperty( $property );
 	}
 
 	/**
@@ -40,21 +96,6 @@ class PropertyHandler extends EntityHandler {
 			'edit' => '\Wikibase\EditPropertyAction',
 			'submit' => '\Wikibase\SubmitPropertyAction',
 		);
-	}
-
-	/**
-	 * @see ContentHandler::unserializeContent
-	 *
-	 * @since 0.1
-	 *
-	 * @param string $blob
-	 * @param null|string $format
-	 *
-	 * @return PropertyContent
-	 */
-	public function unserializeContent( $blob, $format = null ) {
-		$entity = EntityFactory::singleton()->newFromBlob( Property::ENTITY_TYPE, $blob, $format );
-		return PropertyContent::newFromProperty( $entity );
 	}
 
 	/**
@@ -75,5 +116,88 @@ class PropertyHandler extends EntityHandler {
 	public function getEntityType() {
 		return Property::ENTITY_TYPE;
 	}
-}
 
+
+	/**
+	 * Returns deletion updates for the given EntityContent.
+	 *
+	 * @see EntityHandler::getEntityDeletionUpdates
+	 *
+	 * @since 0.5
+	 *
+	 * @param EntityContent $content
+	 * @param Title $title
+	 *
+	 * @return DataUpdate[]
+	 */
+	public function getEntityDeletionUpdates( EntityContent $content, Title $title ) {
+		$updates = array();
+
+		$updates[] = new DataUpdateClosure(
+			array( $this->infoStore, 'removePropertyInfo' ),
+			$content->getEntity()->getId()
+		);
+
+		return array_merge(
+			parent::getEntityModificationUpdates( $content, $title ),
+			$updates
+		);
+	}
+
+	/**
+	 * Returns modification updates for the given EntityContent.
+	 *
+	 * @see EntityHandler::getEntityModificationUpdates
+	 *
+	 * @since 0.5
+	 *
+	 * @param EntityContent $content
+	 * @param Title $title
+	 *
+	 * @return DataUpdate[]
+	 */
+	public function getEntityModificationUpdates( EntityContent $content, Title $title ) {
+		/** @var PropertyContent $content */
+		$updates = array();
+
+		//XXX: Where to encode the knowledge about how to extract an info array from a Property object?
+		//     Should we have a PropertyInfo class? Or can we put this into the Property class?
+		$info = array(
+			PropertyInfoStore::KEY_DATA_TYPE => $content->getProperty()->getDataTypeId()
+		);
+
+		$updates[] = new DataUpdateClosure(
+			array( $this->infoStore, 'setPropertyInfo' ),
+			$content->getEntity()->getId(),
+			$info
+		);
+
+		return array_merge(
+			$updates,
+			parent::getEntityModificationUpdates( $content, $title )
+		);
+	}
+
+	/**
+	 * @see EntityHandler::makeEmptyEntity()
+	 *
+	 * @since 0.5
+	 *
+	 * @return EntityContent
+	 */
+	public function makeEmptyEntity() {
+		return Property::newEmpty();
+	}
+
+	/**
+	 * @see EntityContent::makeEntityId
+	 *
+	 * @param string $id
+	 *
+	 * @return EntityId
+	 */
+	public function makeEntityId( $id ) {
+		return new PropertyId( $id );
+	}
+
+}

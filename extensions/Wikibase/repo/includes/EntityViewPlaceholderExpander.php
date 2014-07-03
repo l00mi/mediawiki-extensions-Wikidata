@@ -9,7 +9,8 @@ use RuntimeException;
 use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Repo\View\TermBoxView;
 
 /**
  * Utility for expanding the placeholders left in the HTML by EntityView.
@@ -50,9 +51,9 @@ class EntityViewPlaceholderExpander {
 	private $entityIdParser;
 
 	/**
-	 * @var EntityLookup
+	 * @var EntityRevisionLookup
 	 */
-	private $entityLookup;
+	private $entityRevisionLookup;
 
 	/**
 	 * @var UserLanguageLookup
@@ -69,7 +70,7 @@ class EntityViewPlaceholderExpander {
 	 * @param User $user the current user
 	 * @param Language $uiLanguage the user's current UI language (as per the present request)
 	 * @param EntityIdParser $entityIdParser
-	 * @param EntityLookup $entityLookup
+	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param UserLanguageLookup $userLanguageLookup
 	 */
 	public function __construct(
@@ -77,14 +78,14 @@ class EntityViewPlaceholderExpander {
 		User $user,
 		Language $uiLanguage,
 		EntityIdParser $entityIdParser,
-		EntityLookup $entityLookup,
+		EntityRevisionLookup $entityRevisionLookup,
 		UserLanguageLookup $userLanguageLookup
 	) {
 		$this->targetPage = $targetPage;
 		$this->user = $user;
 		$this->uiLanguage = $uiLanguage;
 		$this->entityIdParser = $entityIdParser;
-		$this->entityLookup = $entityLookup;
+		$this->entityRevisionLookup = $entityRevisionLookup;
 		$this->userLanguageLookup = $userLanguageLookup;
 	}
 
@@ -212,20 +213,26 @@ class EntityViewPlaceholderExpander {
 	 * Generates HTML of the term box, to be injected into the entity page.
 	 *
 	 * @param Entityid $entityId
-	 * @param int $entityRevision
+	 * @param int $revisionId
 	 *
 	 * @throws InvalidArgumentException
 	 * @return string HTML
 	 */
-	public function renderTermBox( EntityId $entityId, $entityRevision ) {
+	public function renderTermBox( EntityId $entityId, $revisionId ) {
 		$languages = $this->getExtraUserLanguages();
 
 		if ( !$languages ) {
 			return '';
 		}
 
-		// we may want to cache this...
-		$entity = $this->entityLookup->getEntity( $entityId, $entityRevision );
+		try {
+			// we may want to cache this...
+			$entityRev = $this->entityRevisionLookup->getEntityRevision( $entityId, $revisionId );
+			$entity = $entityRev->getEntity();
+		} catch ( StorageException $ex ) {
+			// entity not found, might be a deleted revision
+			return '';
+		}
 
 		if ( !$entity ) {
 			return '';

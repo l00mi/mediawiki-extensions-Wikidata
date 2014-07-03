@@ -160,45 +160,6 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 	}
 
 	/**
-	 * @since 0.5
-	 * @see   EntityLookup::getEntity
-	 *
-	 * @param EntityId $entityId
-	 * @param int      $revisionId The desired revision id, 0 means "current".
-	 *
-	 * @throw StorageException
-	 * @return Entity|null
-	 */
-	public function getEntity( EntityId $entityId, $revisionId = 0 ) {
-		$entityRevision = $this->getEntityRevision( $entityId, $revisionId );
-		return $entityRevision === null ? null : $entityRevision->getEntity();
-	}
-
-	/**
-	 * See EntityLookup::hasEntity()
-	 *
-	 * @since 0.4
-	 *
-	 * @param EntityId $entityId
-	 *
-	 * @throw StorageException
-	 * @return bool
-	 */
-	public function hasEntity( EntityId $entityId ) {
-		wfProfileIn( __METHOD__ );
-		$key = $this->getCacheKey( $entityId );
-
-		if ( $this->cache->get( $key ) ) {
-			$has = true;
-		} else {
-			$has = $this->lookup->getEntityRevision( $entityId ) !== null;
-		}
-
-		wfProfileOut( __METHOD__ );
-		return $has;
-	}
-
-	/**
 	 * Returns the id of the latest revision of the given entity,
 	 * or false if there is no such entity.
 	 *
@@ -224,7 +185,7 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 	}
 
 	/**
-	 * Notifies the cache that an entity was updated.
+	 * Notifies the cache that an Entity was created or updated.
 	 *
 	 * @param EntityRevision $entityRevision
 	 */
@@ -234,7 +195,19 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 	}
 
 	/**
-	 * Notifies the cache that an entity was deleted.
+	 * Notifies the cache that a redirect was created or updated.
+	 *
+	 * @param EntityRedirect $entityRedirect
+	 * @param int $revisionId
+	 */
+	public function redirectUpdated( EntityRedirect $entityRedirect, $revisionId ) {
+		//TODO: cache redirects
+		$key = $this->getCacheKey( $entityRedirect->getEntityId() );
+		$this->cache->delete( $key );
+	}
+
+	/**
+	 * Notifies the cache that an Entity or redirect was deleted.
 	 *
 	 * @param EntityId $entityId
 	 */
@@ -243,4 +216,5 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 		$this->cache->delete( $key );
 		// XXX: if $this->lookup supports purging, purge?
 	}
+
 }

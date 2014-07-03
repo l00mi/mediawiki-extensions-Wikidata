@@ -6,6 +6,7 @@ use DatabaseBase;
 use Status;
 use User;
 use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SiteLink;
@@ -13,12 +14,14 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\EntityInfoBuilder;
 use Wikibase\EntityRevision;
+use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\PropertyNotFoundException;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\SiteLinkLookup;
+use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\StorageException;
 use Wikibase\Lib\Store\EntityStore;
 
@@ -29,7 +32,14 @@ use Wikibase\Lib\Store\EntityStore;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLookup, EntityInfoBuilder, PropertyDataTypeLookup {
+class MockRepository implements
+		SiteLinkLookup,
+		EntityStore,
+		EntityLookup,
+		EntityRevisionLookup,
+		EntityInfoBuilder,
+		PropertyDataTypeLookup
+{
 
 	/**
 	 * Entity id serialization => array of EntityRevision
@@ -66,14 +76,13 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 	 * @see EntityLookup::getEntity
 	 *
 	 * @param EntityID $entityId
-	 * @param int $revision The desired revision id, 0 means "current".
 	 *
 	 * @return Entity|null
 	 *
 	 * @throw StorageException
 	 */
-	public function getEntity( EntityId $entityId, $revision = 0 ) {
-		$rev = $this->getEntityRevision( $entityId, $revision );
+	public function getEntity( EntityId $entityId ) {
+		$rev = $this->getEntityRevision( $entityId );
 
 		return $rev === null ? null : $rev->getEntity()->copy();
 	}
@@ -164,7 +173,7 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 		$conflicts = array();
 
 		foreach ( array_keys( $this->entities ) as $id ) {
-			$id = EntityId::newFromPrefixedId( $id );
+			$id = $this->parseId( $id );
 
 			if ( $id->getEntityType() !== Item::ENTITY_TYPE ) {
 				continue;
@@ -392,7 +401,7 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 
 		/* @var Entity $entity */
 		foreach ( array_keys( $this->entities ) as $id ) {
-			$id = EntityId::newFromPrefixedId( $id );
+			$id = $this->parseId( $id );
 
 			if ( $id->getEntityType() !== Item::ENTITY_TYPE ) {
 				continue;
@@ -477,7 +486,7 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 		foreach ( $entityIds as $entityId ) {
 
 			if ( is_string( $entityId ) ) {
-				$entityId = EntityId::newFromPrefixedId( $entityId );
+				$entityId = $this->parseId( $entityId );
 			}
 
 			$entities[$entityId->getPrefixedId()] = $this->getEntity( $entityId );
@@ -539,7 +548,7 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 		$ids = array_keys( $this->entities );
 
 		foreach ( $ids as $id ) {
-			$id = EntityId::newFromPrefixedId( $id );
+			$id = $this->parseId( $id );
 			$entity = $this->getEntity( $id );
 
 			if ( $entity->getType() !== Property::ENTITY_TYPE ) {
@@ -595,7 +604,7 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 	 */
 	public function addTerms( array &$entityInfo, array $types = null, array $languages = null ) {
 		foreach ( $entityInfo as $id => &$entityRecord ) {
-			$id = EntityId::newFromPrefixedId( $id );
+			$id = $this->parseId( $id );
 			$entity = $this->getEntity( $id );
 
 			if ( !$entity ) {
@@ -677,7 +686,7 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 	 */
 	public function addDataTypes( array &$entityInfo ) {
 		foreach ( $entityInfo as $id => &$entityRecord ) {
-			$id = EntityId::newFromPrefixedId( $id );
+			$id = $this->parseId( $id );
 
 			if ( $id->getEntityType() !== Property::ENTITY_TYPE ) {
 				continue;
@@ -702,7 +711,7 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 	 */
 	public function removeMissing( array &$entityInfo ) {
 		foreach ( array_keys( $entityInfo ) as $key ) {
-			$id = EntityId::newFromPrefixedId( $key );
+			$id = $this->parseId( $key );
 			$entity = $this->getEntity( $id );
 
 			if ( !$entity ) {
@@ -870,4 +879,26 @@ class MockRepository implements SiteLinkLookup, EntityStore, EntityRevisionLooku
 		$this->maxId++;
 		$entity->setId( $this->maxId );
 	}
+
+	/**
+	 * @see EntityStore::saveRedirect
+	 *
+	 * @param EntityRedirect $redirect
+	 * @param string $summary
+	 * @param User $user
+	 * @param int $flags
+	 * @param bool $baseRevId
+	 *
+	 * @throws StorageException Always
+	 * @return int Never
+	 */
+	public function saveRedirect( EntityRedirect $redirect, $summary, User $user, $flags = 0, $baseRevId = false ) {
+		throw new StorageException( "Redirects are not supported by " . __CLASS__ );
+	}
+
+	private function parseId( $id ) {
+		$parser = new BasicEntityIdParser();
+		return $parser->parse( $id );
+	}
+
 }

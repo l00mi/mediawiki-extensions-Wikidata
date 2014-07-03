@@ -4,6 +4,7 @@ namespace Wikibase;
 
 use MWException;
 use RecentChange;
+use Revision;
 use User;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 
@@ -224,6 +225,8 @@ class EntityChange extends DiffChange {
 	 * @since 0.3
 	 *
 	 * @param RecentChange $rc
+	 *
+	 * @todo rename to setRecentChangeInfo
 	 */
 	public function setMetadataFromRC( RecentChange $rc ) {
 		$this->setMetadata( array(
@@ -240,6 +243,8 @@ class EntityChange extends DiffChange {
 	 * @since 0.3
 	 *
 	 * @param User $user
+	 *
+	 * @todo rename to setUserInfo, set fields too.
 	 */
 	public function setMetadataFromUser( User $user ) {
 		$this->setMetadata( array(
@@ -252,83 +257,44 @@ class EntityChange extends DiffChange {
 	}
 
 	/**
-	 * @since 0.3
+	 * @since 0.5
 	 *
-	 * @param string $action The action name
-	 * @param EntityId $entityId
-	 * @param array $fields additional fields to set
-	 *
-	 * @return EntityChange
+	 * @param \Revision $revision
 	 */
-	protected static function newForEntity( $action, EntityId $entityId, array $fields = null ) {
-		//FIXME: use factory based on $entity->getType()
-		if ( $entityId->getEntityType() === Item::ENTITY_TYPE ) {
-			$class = '\Wikibase\ItemChange';
-		} else {
-			$class = '\Wikibase\EntityChange';
-		}
+	public function setRevisionInfo( Revision $revision ) {
+		/* @var EntityContent $content */
+		$content = $revision->getContent();
+		$entityId = $content->getEntityId();
 
-		/** @var EntityChange $instance  */
-		$instance = new $class(
-			ChangesTable::singleton(),
-			$fields,
-			true
-		);
-
-		if ( !$instance->hasField( 'object_id' ) ) {
-			$instance->setField( 'object_id', $entityId->getPrefixedId() );
-		}
-
-		if ( !$instance->hasField( 'info' ) ) {
-			$info = array();
-			$instance->setField( 'info', $info );
-		}
-
-		// determines which class will be used when loading teh change from the database
-		// @todo get rid of ugly cruft
-		$type = 'wikibase-' . $entityId->getEntityType() . '~' . $action;
-		$instance->setField( 'type', $type );
-
-		return $instance;
+		$this->setFields( array(
+			'revision_id' => $revision->getId(),
+			'user_id' => $revision->getUser(),
+			'object_id' => $entityId->getSerialization(),
+			'time' => $revision->getTimestamp(),
+		) );
 	}
 
 	/**
-	 * @since 0.1
-	 *
-	 * @param string      $action The action name
-	 * @param Entity|null $oldEntity
-	 * @param Entity|null $newEntity
-	 * @param array|null  $fields additional fields to set
-	 *
-	 * @return static
-	 * @throws MWException
+	 * @param EntityId $id
 	 */
-	public static function newFromUpdate( $action, Entity $oldEntity = null, Entity $newEntity = null, array $fields = null ) {
-		if ( $oldEntity === null && $newEntity === null ) {
-			throw new MWException( 'Either $oldEntity or $newEntity must be give.' );
-		}
+	public function setEntityId( EntityId $id ) {
+		$this->setField( 'object_id', strtolower( $id->getSerialization() ) );
+	}
 
-		if ( $oldEntity === null ) {
-			$oldEntity = EntityFactory::singleton()->newEmpty( $newEntity->getType() );
-			$theEntity = $newEntity;
-		} elseif ( $newEntity === null ) {
-			$newEntity = EntityFactory::singleton()->newEmpty( $oldEntity->getType() );
-			$theEntity = $oldEntity;
-		} elseif ( $oldEntity->getType() !== $newEntity->getType() ) {
-			throw new MWException( 'Entity type mismatch' );
-		} else {
-			$theEntity = $newEntity;
-		}
+	/**
+	 * @param int $userId
+	 *
+	 * @todo Merge into future setUserInfo.
+	 */
+	public function setUserId( $userId ) {
+		$this->setField( 'user_id', $userId );
+	}
 
-		/**
-		 * @var EntityChange $instance
-		 */
-		$diff = $oldEntity->getDiff( $newEntity );
-		$instance = self::newForEntity( $action, $theEntity->getId(), $fields );
-		$instance->setDiff( $diff );
-		$instance->setEntity( $theEntity );
-
-		return $instance;
+	/**
+	 * @param string $timestamp Timestamp in TS_MW format
+	 */
+	public function setTimestamp( $timestamp ) {
+		$this->setField( 'time', $timestamp );
 	}
 
 	/**

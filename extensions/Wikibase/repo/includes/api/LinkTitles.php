@@ -101,7 +101,8 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId === null && $toId !== null ) {
 			// reuse to-site's item
 			/** @var Item $item */
-			$item = $this->entityLookup->getEntity( $toId );
+			$itemRev = $this->entityLookup->getEntityRevision( $toId );
+			$item = $itemRev->getEntity();
 			$fromLink = new SiteLink( $fromSite->getGlobalId(), $fromPage );
 			$item->addSiteLink( $fromLink );
 			$return[] = $fromLink;
@@ -110,7 +111,8 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId !== null && $toId === null ) {
 			// reuse from-site's item
 			/** @var Item $item */
-			$item = $this->entityLookup->getEntity( $fromId );
+			$itemRev = $this->entityLookup->getEntityRevision( $fromId );
+			$item = $itemRev->getEntity();
 			$toLink = new SiteLink( $toSite->getGlobalId(), $toPage );
 			$item->addSiteLink( $toLink );
 			$return[] = $toLink;
@@ -169,8 +171,7 @@ class LinkTitles extends ApiWikibase {
 	private function buildResult( Item $item = null, Status $status ) {
 		if ( $item !== null ) {
 			$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'entity' );
-			//FIXME: breaking change, remove forced numeric ids!!!
-			$this->getResultBuilder()->addBasicEntityInformation( $item->getId(), 'entity', true );
+			$this->getResultBuilder()->addBasicEntityInformation( $item->getId(), 'entity' );
 		}
 
 		$this->getResultBuilder()->markSuccess( $status->isOK() );

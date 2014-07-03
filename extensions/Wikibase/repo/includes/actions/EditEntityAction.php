@@ -17,6 +17,7 @@ use WebRequest;
 use Wikibase\Lib\EntityIdLabelFormatter;
 use Wikibase\Lib\EscapingValueFormatter;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -292,15 +293,14 @@ abstract class EditEntityAction extends ViewEntityAction {
 		);
 
 		// diff from newer to older
-		$diff = $newerContent->getEntity()->getDiff( $olderContent->getEntity() );
+		$diff = $newerContent->getDiff( $olderContent );
 
 		if ( $newerRevision->getId() == $latestRevision->getId() ) {
 			// if the revision to undo is the latest revision, then there can be no conflicts
 			$appDiff = $diff;
 		} else {
-			$patchedCurrent = clone $latestContent->getEntity();
-			$patchedCurrent->patch( $diff );
-			$appDiff = $latestContent->getEntity()->getDiff( $patchedCurrent );
+			$patchedCurrent = $latestContent->getPatchedCopy( $diff );
+			$appDiff = $latestContent->getDiff( $patchedCurrent );
 		}
 
 		if ( !$restore ) {
@@ -344,9 +344,13 @@ abstract class EditEntityAction extends ViewEntityAction {
 	 * @return String
 	 */
 	public function getLabelText( EntityContent $content ) {
+		$labelData = null;
 
-		$languageFallbackChain = $this->getLanguageFallbackChain();
-		$labelData = $languageFallbackChain->extractPreferredValueOrAny( $content->getEntity()->getLabels() );
+		// TODO: use a message like <autoredircomment> to represent the redirect.
+		if ( !$content->isRedirect() ) {
+			$languageFallbackChain = $this->getLanguageFallbackChain();
+			$labelData = $languageFallbackChain->extractPreferredValueOrAny( $content->getEntity()->getLabels() );
+		}
 
 		if ( $labelData ) {
 			return $labelData['value'];
@@ -468,9 +472,9 @@ abstract class EditEntityAction extends ViewEntityAction {
 	 *
 	 * @since 0.1
 	 *
-	 * @param EntityDiff $diff
+	 * @param EntityContentDiff $diff
 	 */
-	protected function displayUndoDiff( EntityDiff $diff ) {
+	protected function displayUndoDiff( EntityContentDiff $diff ) {
 		$tableClass = 'diff diff-contentalign-' . htmlspecialchars( $this->getTitle()->getPageLanguage()->alignStart() );
 
 		$this->getOutput()->addHTML( Html::openElement( 'table', array( 'class' => $tableClass ) ) );
@@ -486,7 +490,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 		$this->getOutput()->addHTML( Html::rawElement( 'td', array( 'colspan' => '2' ), Html::rawElement( 'div', array( 'id' => 'mw-diff-ntitle1' ), $new ) ) );
 		$this->getOutput()->addHTML( Html::closeElement( 'tr' ) );
 
-		$this->getOutput()->addHTML( $this->diffVisualizer->visualizeDiff( $diff ) );
+		$this->getOutput()->addHTML( $this->diffVisualizer->visualizeEntityContentDiff( $diff ) );
 
 		$this->getOutput()->addHTML( Html::closeElement( 'tbody' ) );
 		$this->getOutput()->addHTML( Html::closeElement( 'table' ) );

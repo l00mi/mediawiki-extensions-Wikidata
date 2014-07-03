@@ -5,7 +5,7 @@ namespace Wikibase\Test;
 use MediaWikiSite;
 use ParserOutput;
 use Title;
-use Wikibase\Item;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\LangLinkHandler;
 use Wikibase\NamespaceChecker;
 
@@ -22,47 +22,43 @@ use Wikibase\NamespaceChecker;
 class LangLinkHandlerTest extends \MediaWikiTestCase {
 
 	/* @var MockRepository $mockRepo */
-	protected $mockRepo;
+	private $mockRepo;
 
 	/* @var LangLinkHandler $langLinkHandler */
-	protected $langLinkHandler;
+	private $langLinkHandler;
 
-	static $itemData = array(
-		1 => array( // matching item
-			'id' => 1,
-			'label' => array( 'en' => 'Foo' ),
-			'links' => array(
-				'dewiki' => 'Foo de',
-				'enwiki' => 'Foo en',
-				'srwiki' => 'Foo sr',
-				'dewiktionary' => 'Foo de word',
-				'enwiktionary' => 'Foo en word',
-			)
-		),
-		2 => array( // matches, but not in a namespace with external langlinks enabled
-			'id' => 2,
-			'label' => array( 'en' => 'Talk:Foo' ),
-			'links' => array(
-				'dewiki' => 'Talk:Foo de',
-				'enwiki' => 'Talk:Foo en',
-				'srwiki' => 'Talk:Foo sr',
-			)
-		)
-	);
+	private function getItems() {
+		$items = array();
+
+		$item = Item::newEmpty();
+		$item->setId( 1 );
+		$item->setLabel( 'en', 'Foo' );
+		$item->getSiteLinkList()
+			->addNewSiteLink( 'dewiki', 'Foo de' )
+			->addNewSiteLink( 'enwiki', 'Foo en' )
+			->addNewSiteLink( 'srwiki', 'Foo sr' )
+			->addNewSiteLink( 'dewiktionary', 'Foo de word' )
+			->addNewSiteLink( 'enwiktionary', 'Foo en word' );
+		$items[] = $item;
+
+		$item = Item::newEmpty();
+		$item->setId( 2 );
+		$item->setLabel( 'en', 'Talk:Foo' );
+		$item->getSiteLinkList()
+			->addNewSiteLink( 'dewiki', 'Talk:Foo de' )
+			->addNewSiteLink( 'enwiki', 'Talk:Foo en' )
+			->addNewSiteLink( 'srwiki', 'Talk:Foo sr' );
+		$items[] = $item;
+
+		return $items;
+	}
 
 	public function setUp() {
 		parent::setUp();
 
-		static $hasSites = false;
-
-		if ( !$hasSites ) {
-			$hasSites = true;
-		}
-
 		$this->mockRepo = new MockRepository();
 
-		foreach ( self::$itemData as $data ) {
-			$item = new Item( $data );
+		foreach ( $this->getItems() as $item ) {
 			$this->mockRepo->putEntity( $item );
 		}
 
@@ -130,11 +126,11 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 		);
 	}
 
-	protected function makeParserOutput( $langlinks, $noexternallanglinks = array() ) {
+	protected function makeParserOutput( $langLinks, $noExternalLangLinks = array() ) {
 		$out = new ParserOutput();
-		$this->langLinkHandler->setNoExternalLangLinks( $out, $noexternallanglinks );
+		$this->langLinkHandler->setNoExternalLangLinks( $out, $noExternalLangLinks );
 
-		foreach ( $langlinks as $lang => $link ) {
+		foreach ( $langLinks as $lang => $link ) {
 			$out->addLanguageLink( "$lang:$link" );
 		}
 
@@ -144,11 +140,11 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider provideGetNoExternalLangLinks
 	 */
-	public function testGetNoExternalLangLinks( $noexternallanglinks ) {
-		$out = $this->makeParserOutput( array(), $noexternallanglinks );
+	public function testGetNoExternalLangLinks( $noExternalLangLinks ) {
+		$out = $this->makeParserOutput( array(), $noExternalLangLinks );
 		$nel = $this->langLinkHandler->getNoExternalLangLinks( $out );
 
-		$this->assertEquals( $noexternallanglinks, $nel );
+		$this->assertEquals( $noExternalLangLinks, $nel );
 	}
 
 	public static function provideExcludeRepoLinks() {
@@ -216,13 +212,13 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider provideUseRepoLinks
 	 */
-	public function testUseRepoLinks( $title, $noexternallanglinks, $expected ) {
+	public function testUseRepoLinks( $title, $noExternalLangLinks, $expected ) {
 		if ( is_string( $title ) ) {
 			$title = Title::newFromText( $title );
 			$title->resetArticleID( 1 );
 		}
 
-		$out = $this->makeParserOutput( array(), $noexternallanglinks );
+		$out = $this->makeParserOutput( array(), $noExternalLangLinks );
 
 		$useRepoLinks = $this->langLinkHandler->useRepoLinks( $title, $out );
 
@@ -297,12 +293,12 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider provideGetEffectiveRepoLinks
 	 */
-	public function testGetEffectiveRepoLinks( $title, $langlinks, $noexternallanglinks, $expectedLinks ) {
+	public function testGetEffectiveRepoLinks( $title, $langLinks, $noExternalLangLinks, $expectedLinks ) {
 		if ( is_string( $title ) ) {
 			$title = Title::newFromText( $title );
 		}
 
-		$out = $this->makeParserOutput( $langlinks, $noexternallanglinks );
+		$out = $this->makeParserOutput( $langLinks, $noExternalLangLinks );
 
 		$links = $this->langLinkHandler->getEffectiveRepoLinks( $title, $out );
 
@@ -314,11 +310,11 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 
 		foreach ( $cases as $i => $case ) {
 			// convert associative array to list of links
-			$langlinks = self::mapToLinks( $case[1] );
+			$langLinks = self::mapToLinks( $case[1] );
 			$expectedLinks = self::mapToLinks( $case[3] );
 
 			// expect the expected effective links plus the provided language links
-			$expectedLinks = array_merge( $expectedLinks, $langlinks );
+			$expectedLinks = array_merge( $expectedLinks, $langLinks );
 
 			$cases[$i] = array(
 				$case[0],
@@ -334,12 +330,12 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider provideAddLinksFromRepository
 	 */
-	public function testAddLinksFromRepository( $title, $langlinks, $noexternallanglinks, $expectedLinks ) {
+	public function testAddLinksFromRepository( $title, $langLinks, $noExternalLangLinks, $expectedLinks ) {
 		if ( is_string( $title ) ) {
 			$title = Title::newFromText( $title );
 		}
 
-		$out = $this->makeParserOutput( $langlinks, $noexternallanglinks );
+		$out = $this->makeParserOutput( $langLinks, $noExternalLangLinks );
 
 		$this->langLinkHandler->addLinksFromRepository( $title, $out );
 		$links = $out->getLanguageLinks();
@@ -480,4 +476,5 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 			array( $dewikivoyage, 'de' )
 		);
 	}
+
 }

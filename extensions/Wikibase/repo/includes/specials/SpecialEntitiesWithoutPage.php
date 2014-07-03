@@ -4,7 +4,6 @@ namespace Wikibase\Repo\Specials;
 
 use Html;
 use Wikibase\EntityFactory;
-use Wikibase\Lib\Specials\SpecialWikibaseQueryPage;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Utils;
 use XmlSelect;
@@ -75,7 +74,6 @@ abstract class SpecialEntitiesWithoutPage extends SpecialWikibaseQueryPage {
 	 */
 	private function prepareArguments( $subPage ) {
 		$request = $this->getRequest();
-		$output = $this->getOutput();
 
 		$this->language = '';
 		$this->type = null;

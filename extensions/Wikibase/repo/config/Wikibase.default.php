@@ -1,4 +1,5 @@
 <?php
+use Wikibase\SettingsArray;
 
 /**
  * This file assigns the default values to all Wikibase Repo settings.
@@ -75,7 +76,16 @@ return call_user_func( function() {
 
 		'dataRightsText' => function() {
 			return $GLOBALS['wgRightsText'];
-		}
+		},
+
+		// Can be used to override the serialization used for storage.
+		// Typical value: Wikibase\Lib\Serializers\LegacyInternalEntitySerializer
+		'internalEntitySerializerClass' => null,
+
+		'transformLegacyFormatOnExport' => function( SettingsArray $settings ) {
+			// Enabled, unless internalEntitySerializerClass is set.
+			return $settings->getSetting( 'internalEntitySerializerClass' ) === null;
+		},
 	);
 
 	return $defaults;

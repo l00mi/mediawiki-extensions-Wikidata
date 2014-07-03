@@ -2,7 +2,10 @@
 
 namespace Wikibase\Tests\Repo;
 
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Settings;
+use Wikibase\SettingsArray;
 
 /**
  * @covers Wikibase\Repo\WikibaseRepo
@@ -135,6 +138,11 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 		$this->assertInstanceOf( 'Wikibase\ChangeOp\ChangeOpFactoryProvider', $returnValue );
 	}
 
+	public function testGetChangeNotifier() {
+		$factory = $this->getDefaultInstance()->getChangeNotifier();
+		$this->assertInstanceOf( 'Wikibase\Repo\Notifications\ChangeNotifier', $factory );
+	}
+
 	public function testGetContentModelMappings() {
 		$array = $this->getDefaultInstance()->getContentModelMappings();
 		foreach( $array as $entityType => $contentModel ) {
@@ -143,10 +151,130 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 		}
 	}
 
+	public function testGetExceptionLocalizer() {
+		$localizer = $this->getDefaultInstance()->getExceptionLocalizer();
+		$this->assertInstanceOf( 'Wikibase\Lib\Localizer\ExceptionLocalizer', $localizer );
+	}
+
+	public function testGetEntityContentDataCodec() {
+		$codec = $this->getDefaultInstance()->getEntityContentDataCodec();
+		$this->assertInstanceOf( 'Wikibase\Lib\Store\EntityContentDataCodec', $codec );
+	}
+
+	public function testGetInternalEntitySerializer() {
+		$serializer = $this->getDefaultInstance()->getInternalEntitySerializer();
+		$this->assertInstanceOf( 'Serializers\Serializer', $serializer );
+	}
+
+	public function testGetInternalEntityDeserializer() {
+		$deserializer = $this->getDefaultInstance()->getInternalEntityDeserializer();
+		$this->assertInstanceOf( 'Deserializers\Deserializer', $deserializer );
+	}
+
+	public function testGetEntityChangeFactory() {
+		$factory = $this->getDefaultInstance()->getEntityChangeFactory();
+		$this->assertInstanceOf( 'Wikibase\Lib\Changes\EntityChangeFactory', $factory );
+	}
+
+	public function testGetEntityContentDataCodec_legacy() {
+		$item = Item::newEmpty();
+		$item->setLabel( 'en', 'Hello' );
+		$item->setLabel( 'es', 'Holla' );
+
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'internalEntitySerializerClass', 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer' );
+
+		$codec = $repo->getEntityContentDataCodec();
+		$json = $codec->encodeEntity( $item, CONTENT_FORMAT_JSON );
+		$data = json_decode( $json, true );
+
+		$this->assertEquals( $item->toArray(), $data );
+	}
+
+	public function testGetInternalEntitySerializer_legacy() {
+		$item = Item::newEmpty();
+		$item->setLabel( 'en', 'Hello' );
+		$item->setLabel( 'es', 'Holla' );
+
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'internalEntitySerializerClass', 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer' );
+
+		$serializer = $repo->getInternalEntitySerializer();
+		$data = $serializer->serialize( $item );
+
+		$this->assertEquals( $item->toArray(), $data );
+	}
+
+	public function testNewItemHandler() {
+		$repo = $this->getDefaultInstance();
+		$handler = $repo->newItemHandler();
+		$this->assertInstanceOf( 'Wikibase\EntityHandler', $handler );
+	}
+
+	public function testNewPropertyHandler() {
+		$repo = $this->getDefaultInstance();
+		$handler = $repo->newPropertyHandler();
+		$this->assertInstanceOf( 'Wikibase\EntityHandler', $handler );
+	}
+
+	public function testNewItemHandler_noTransform() {
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'transformLegacyFormatOnExport', false );
+
+		$handler = $repo->newItemHandler();
+		$this->assertNull( $handler->getLegacyExportFormatDetector() );
+	}
+
+	public function testNewPropertyHandler_noTransform() {
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'transformLegacyFormatOnExport', false );
+
+		$handler = $repo->newPropertyHandler();
+		$this->assertNull( $handler->getLegacyExportFormatDetector() );
+	}
+
+	public function testNewItemHandler_withTransform() {
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
+		$repo->getSettings()->setSetting( 'internalEntitySerializerClass', null );
+
+		$handler = $repo->newItemHandler();
+		$this->assertNotNull( $handler->getLegacyExportFormatDetector() );
+	}
+
+	public function testNewPropertyHandler_withTransform() {
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
+		$repo->getSettings()->setSetting( 'internalEntitySerializerClass', null );
+
+		$handler = $repo->newPropertyHandler();
+		$this->assertNotNull( $handler->getLegacyExportFormatDetector() );
+	}
+
+	public function testNewItemHandler_badSerializerSetting() {
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
+		$repo->getSettings()->setSetting( 'internalEntitySerializerClass', 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer' );
+
+		$this->setExpectedException( 'RuntimeException' );
+		$repo->newItemHandler();
+	}
+
+	public function testNewPropertyHandler_badSerializerSetting() {
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
+		$repo->getSettings()->setSetting( 'internalEntitySerializerClass', 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer' );
+
+		$this->setExpectedException( 'RuntimeException' );
+		$repo->newPropertyHandler();
+	}
+
 	/**
 	 * @return WikibaseRepo
 	 */
 	private function getDefaultInstance() {
-		return WikibaseRepo::getDefaultInstance();
+		$settings = new SettingsArray( WikibaseRepo::getDefaultInstance()->getSettings()->getArrayCopy() );
+		return new WikibaseRepo( $settings );
 	}
+
 }

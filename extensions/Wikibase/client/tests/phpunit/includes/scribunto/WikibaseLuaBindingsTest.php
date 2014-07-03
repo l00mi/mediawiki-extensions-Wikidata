@@ -7,7 +7,7 @@ use Wikibase\Client\Scribunto\WikibaseLuaBindings;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\SimpleSiteLink;
+use Wikibase\DataModel\SiteLink;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Test\MockRepository;
@@ -37,7 +37,7 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 	private function getWikibaseLibraryImplementation( EntityLookup $entityLookup = null ) {
 		$language = new Language( "en" );
 
-		$siteLinkTable = $this->getMockBuilder( '\Wikibase\SiteLinkTable' )
+		$siteLinkTable = $this->getMockBuilder( 'Wikibase\Lib\Store\SiteLinkTable' )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -106,8 +106,8 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 		$item->setId( $itemId );
 		$item->setLabel( 'en', 'Beer' );
 		$item->setDescription( 'en', 'yummy beverage' );
-		$item->addSiteLink( new SimpleSiteLink( 'enwiki', 'Beer' ) );
-		$item->addSiteLink( new SimpleSiteLink( 'dewiki', 'Bier' ) );
+		$item->addSiteLink( new SiteLink( 'enwiki', 'Beer' ) );
+		$item->addSiteLink( new SiteLink( 'dewiki', 'Bier' ) );
 
 		return $item;
 	}

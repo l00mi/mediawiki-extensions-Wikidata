@@ -17,7 +17,7 @@
 	"wikibase-client-desc": "کارخواه برای افزونهٔ ویکی‌بیس",
 	"specialpages-group-wikibaseclient": "سرویس گیرنده {{WBREPONAME}}",
 	"tooltip-t-wikibase": "پیوند به آیتم متصل به مخزن داده",
-	"wikibase-after-page-move": "شما ممکن است در عین حال بخواهید آیتم وابستهٔ ویکی‌داده را نیز به [$1 روزرسانی] کنید، تا پیوند به صفحه منتقل شده باقی بماند.",
+	"wikibase-after-page-move": "شما ممکن است در عین حال بخواهید آیتم وابستهٔ {{WBREPONAME}} را نیز به [$1 روزرسانی] کنید، تا پیوند به صفحه منتقل شده باقی بماند.",
 	"wikibase-after-page-move-queued": "[$1 آیتم {{WBREPONAME}}] مرتبط با این صفحه  به صورت خودکار به‌زودی به‌روز خواهد شد.",
 	"wikibase-comment-add": "یک مورد {{WBREPONAME}} ایجاد شده‌‌است.",
 	"wikibase-comment-remove": "آیتم مرتبط {{WBREPONAME}} حذف شد. پیوندهای زبانی حذف شد.",
@@ -47,7 +47,6 @@
 	"wikibase-linkitem-not-loggedin": "شما نیاز است که در این ویکی و [$1 مخزن اصلی داده] وارد شوید تا بتوانید از این امکان استفاده کنید.",
 	"wikibase-linkitem-success-link": "این صفحه به‌درستی پیوند داده شد. شما می‌توانید آیتم حاوی پیوند را در [$1 مخزن مرکزی داده‌ها] بیابید.",
 	"wikibase-property-notfound": "خصوصیت $1 یافت نشد.",
-	"wikibase-property-notsupportedyet": "ویکی‌بیس هنوز نوع خصوصیت برای خصوصیت $1 را پشتیبانی نمی‌کند.",
 	"wikibase-rc-hide-wikidata": "$1 {{WBREPONAME}}",
 	"wikibase-rc-hide-wikidata-hide": "پنهان‌کردن",
 	"wikibase-rc-hide-wikidata-show": "نمایش",
@@ -67,5 +66,6 @@
 	"wikibase-unconnectedpages-format-row": "($1  {{PLURAL:$1|پیوند میان‌ویکی|پیوند میان‌ویکی}} در صفحه)",
 	"wikibase-pageinfo-entity-id": "شناسه مورد {{WBREPONAME}}",
 	"wikibase-pageinfo-entity-id-none": "هیچ‌کدام",
-	"wikibase-property-render-error": "خطا در ارائهٔ خصوصیت  $1: $2"
+	"wikibase-property-render-error": "خطا در ارائهٔ خصوصیت  $1: $2",
+	"wikibase-otherprojects": "دیگر پروژه‌ها"
 }

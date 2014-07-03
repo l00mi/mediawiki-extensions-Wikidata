@@ -3,6 +3,7 @@
 namespace Wikibase;
 
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\SiteLinkLookup;
 
 /**
  * Client store interface.
@@ -30,11 +31,18 @@ interface ClientStore {
 	public function getItemUsageIndex();
 
 	/**
-	 * @since 0.1
+	 * @since 0.4
 	 *
 	 * @return EntityLookup
 	 */
 	public function getEntityLookup();
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return EntityLookup
+	 */
+	public function getEntityRevisionLookup();
 
 	/**
 	 * @since 0.4

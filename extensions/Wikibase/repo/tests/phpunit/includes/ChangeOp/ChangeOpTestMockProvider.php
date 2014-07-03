@@ -25,7 +25,7 @@ use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\PropertyDataTypeLookup;
-use Wikibase\SiteLinkCache;
+use Wikibase\Lib\Store\SiteLinkCache;
 use Wikibase\Validators\CompositeFingerprintValidator;
 use Wikibase\Validators\CompositeValidator;
 use Wikibase\Validators\DataValueValidator;
@@ -45,7 +45,7 @@ use Wikibase\Validators\TypeValidator;
 class ChangeOpTestMockProvider {
 
 	/**
-	 * @var
+	 * @var PHPUnit_Framework_TestCase
 	 */
 	private $mockBuilderFactory;
 
@@ -63,7 +63,7 @@ class ChangeOpTestMockProvider {
 	 *
 	 * @return PHPUnit_Framework_MockObject_MockBuilder
 	 */
-	protected function getMockBuilder( $class ) {
+	private function getMockBuilder( $class ) {
 		return $this->mockBuilderFactory->getMockBuilder( $class );
 	}
 
@@ -74,7 +74,7 @@ class ChangeOpTestMockProvider {
 	 *
 	 * @return object
 	 */
-	protected function getMock( $class ) {
+	private function getMock( $class ) {
 		return $this->mockBuilderFactory->getMock( $class );
 	}
 
@@ -428,7 +428,7 @@ class ChangeOpTestMockProvider {
 			$getConflictsForItem = array( $this, 'getSiteLinkConflictsForItem' );
 		}
 
-		$mock = $this->getMock( '\Wikibase\SiteLinkCache' );
+		$mock = $this->getMock( 'Wikibase\Lib\Store\SiteLinkCache' );
 		$mock->expects( PHPUnit_Framework_TestCase::any() )
 			->method( 'getConflictsForItem' )
 			->will( PHPUnit_Framework_TestCase::returnCallback( $getConflictsForItem ) );

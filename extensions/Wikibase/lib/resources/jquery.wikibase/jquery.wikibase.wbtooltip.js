@@ -128,6 +128,7 @@ $.widget( 'wikibase.wbtooltip', PARENT, {
 	 */
 	destroy: function() {
 		this._tipsy.tip().remove();
+		this.element.off( 'mouseenter.' + this.widgetName + ' mouseleave.' + this.widgetName );
 		this.element.removeData( 'tipsy' );
 		this._tipsy = null;
 
@@ -261,7 +262,7 @@ $.widget( 'wikibase.wbtooltip', PARENT, {
 	 * @triggers afterhide
 	 */
 	hide: function() {
-		if( !this._tipsy.$tip || !this._tipsy.$tip.is( ':visible' ) ) {
+		if( !this._tipsy || !this._tipsy.$tip || !this._tipsy.$tip.is( ':visible' ) ) {
 			return;
 		}
 
@@ -303,7 +304,7 @@ $.widget( 'wikibase.wbtooltip', PARENT, {
 			var $toggler = $( '<a/>' )
 				.addClass( this.widgetBaseClass + '-error-details-link' )
 				.text( mw.msg( 'wikibase-tooltip-error-details' ) )
-				.toggler( { $subject: $detailedMessage } );
+				.toggler( { $subject: $detailedMessage, duration: 'fast' } );
 
 			$toggler.appendTo( $message );
 			$detailedMessage.appendTo( $message );

@@ -2,15 +2,10 @@
 
 namespace Wikibase;
 
-use DatabaseUpdater;
 use DBAccessBase;
 use DBError;
-use HashBagOStuff;
 use InvalidArgumentException;
-use ObservableMessageReporter;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Lib\Store\CachingEntityRevisionLookup;
-use Wikibase\Lib\Store\WikiPageEntityLookup;
 
 /**
  * Class PropertyInfoTable implements PropertyInfoStore on top of an SQL table.
@@ -44,58 +39,6 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 		$this->tableName = 'wb_property_info';
 		$this->isReadonly = $isReadonly;
 		$this->wiki = $wiki;
-	}
-
-	/**
-	 * Register the updates needed for creating the appropriate table(s).
-	 *
-	 * @param DatabaseUpdater $updater
-	 */
-	public static function registerDatabaseUpdates( DatabaseUpdater $updater ) {
-		$table = 'wb_property_info';
-
-		if ( !$updater->tableExists( $table ) ) {
-			$type = $updater->getDB()->getType();
-			$fileBase = __DIR__ . '/' . $table;
-
-			$file = $fileBase . '.' . $type . '.sql';
-			if ( !file_exists( $file ) ) {
-				$file = $fileBase . '.sql';
-			}
-
-			$updater->addExtensionTable( $table, $file );
-
-			// populate the table after creating it
-			$updater->addExtensionUpdate( array(
-				array( 'Wikibase\PropertyInfoTable', 'rebuildPropertyInfo' )
-			) );
-		}
-	}
-
-	/**
-	 * Wrapper for invoking PropertyInfoTableBuilder from DatabaseUpdater
-	 * during a database update.
-	 *
-	 * @param DatabaseUpdater $updater
-	 */
-	public static function rebuildPropertyInfo( DatabaseUpdater $updater ) {
-		$reporter = new ObservableMessageReporter();
-		$reporter->registerReporterCallback(
-			function ( $msg ) use ( $updater ) {
-				$updater->output( "..." . $msg . "\n" );
-			}
-		);
-
-		$table = new PropertyInfoTable( false );
-		$wikiPageEntityLookup = new WikiPageEntityLookup( false );
-		$cachingEntityLookup = new CachingEntityRevisionLookup( $wikiPageEntityLookup, new HashBagOStuff() );
-
-		$builder = new PropertyInfoTableBuilder( $table, $cachingEntityLookup );
-		$builder->setReporter( $reporter );
-		$builder->setUseTransactions( false );
-
-		$updater->output( 'Populating ' . $table->getTableName() . "\n" );
-		$builder->rebuildPropertyInfo();
 	}
 
 	/**

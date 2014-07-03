@@ -80,9 +80,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 	$property: null,
 
 	/**
-	 * The DOM node of the Snak's value or some message if the value is not supported.
-	 * TODO later we will support 'novalue' and 'somevalue' snaks which will probably be displayed
-	 *      in this node as well somehow.
+	 * The DOM node of the Snak's value, some message if the value is not supported or "no value"/
+	 * "some value" message.
 	 * @type jQuery
 	 */
 	$snakValue: null,
@@ -272,7 +271,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 			this.draw();
 
 			// attach keyboard input events
-			this.element.on( 'keydown.' + this.widgetEventPrefix, function( event ) {
+			this.element.on( 'keydown.' + this.widgetName, function( event ) {
 				if ( self.isDisabled() ) {
 					return;
 				}
@@ -359,7 +358,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 			// forget about values set in different variations
 			this._recentVariationValues = {};
 
-			this.element.off( 'keydown.' + this.widgetEventPrefix );
+			this.element.off( 'keydown.' + this.widgetName );
 
 			this._trigger( 'afterStopEditing', null, [ dropValue, newSnak ] );
 		}
@@ -661,6 +660,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 			variationType = this._variation.variationSnakConstructor.TYPE;
 			this._recentVariationValues[ variationType ] = this._variation.value();
 
+			this.$snakValue.empty();
+
 			// clean destruction of old variation in case variation will change or property not set
 			this._variation.destroy();
 			this._variation = null;
@@ -831,8 +832,10 @@ $.widget( 'wikibase.snakview', PARENT, {
 		// ...add the data information nevertheless:
 		$anchor.data( 'snaktypeselector', selector );
 
+		var changeEvent = ( selector.widgetEventPrefix + 'afterchange' ).toLowerCase();
+
 		// bind user interaction on selector to snakview's state:
-		$anchor.on( 'afterchange', function( event ) {
+		$anchor.on( changeEvent + '.' + this.widgetName, function( event ) {
 			self.snakType( selector.snakType() );
 			if( self._variation ) {
 				self._variation.focus();

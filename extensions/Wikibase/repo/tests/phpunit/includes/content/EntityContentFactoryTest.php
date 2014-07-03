@@ -2,10 +2,15 @@
 
 namespace Wikibase\Test;
 
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\EntityContentFactory;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\WikibaseRepo;
+use ContentHandler;
 
 /**
  * @covers Wikibase\EntityContentFactory
@@ -24,6 +29,11 @@ use Wikibase\Repo\WikibaseRepo;
  */
 class EntityContentFactoryTest extends \MediaWikiTestCase {
 
+	private function supportsRedirects() {
+		$handler = ContentHandler::getForModelID( CONTENT_MODEL_WIKIBASE_ITEM );
+		return $handler->supportsRedirects();
+	}
+
 	/**
 	 * @dataProvider contentModelsProvider
 	 */
@@ -32,7 +42,10 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 			$contentModelIds
 		);
 
-		$this->assertEquals( $contentModelIds, $factory->getEntityContentModels() );
+		$this->assertEquals(
+			array_values( $contentModelIds ),
+			array_values( $factory->getEntityContentModels() )
+		);
 	}
 
 	public function contentModelsProvider() {
@@ -48,8 +61,8 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 	public function testIsEntityContentModel() {
 		$factory = $this->newFactory();
 
-		foreach ( $factory->getEntityContentModels() as $type ) {
-			$this->assertTrue( $factory->isEntityContentModel( $type ) );
+		foreach ( $factory->getEntityContentModels() as $model ) {
+			$this->assertTrue( $factory->isEntityContentModel( $model ) );
 		}
 
 		$this->assertFalse( $factory->isEntityContentModel( 'this-does-not-exist' ) );
@@ -76,6 +89,20 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 		$ns = $factory->getNamespaceForType( $id->getEntityType() );
 
 		$this->assertGreaterThanOrEqual( 0, $ns, 'namespace' );
+	}
+
+	public function testGetContentHandlerForType() {
+		$factory = $this->newFactory();
+
+		foreach ( $factory->getEntityTypes() as $type  ) {
+			$model = $factory->getContentModelForType( $type );
+			$handler = $factory->getContentHandlerForType( $type );
+
+			$this->assertEquals( $model, $handler->getModelId() );
+			$this->assertEquals( $type, $handler->getEntityType() );
+		}
+
+		$this->assertFalse( $factory->isEntityContentModel( 'this-does-not-exist' ) );
 	}
 
 	public function provideGetPermissionStatusForEntity() {
@@ -190,4 +217,75 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 			$this->assertEquals( $expectations['getPermissionStatusForEntityId'], $status->isOK() );
 		}
 	}
+
+	public function newFromEntityProvider() {
+		$item = Item::newEmpty();
+		$property = Property::newFromType( 'string' );
+
+		return array(
+			'item' => array( $item ),
+			'property' => array( $property ),
+		);
+	}
+
+	/**
+	 * @dataProvider newFromEntityProvider
+	 * @param Entity $entity
+	 */
+	public function testNewFromEntity( Entity $entity ) {
+		$factory = $this->newFactory();
+		$content = $factory->newFromEntity( $entity );
+
+		$this->assertFalse( $content->isRedirect() );
+		$this->assertSame( $entity, $content->getEntity() );
+	}
+
+	public function newFromRedirectProvider() {
+		$q1 = new ItemId( 'Q1' );
+		$q2 = new ItemId( 'Q2' );
+
+		return array(
+			'item' => array( new EntityRedirect( $q1, $q2 ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider newFromRedirectProvider
+	 * @param EntityRedirect $redirect
+	 */
+	public function testNewFromRedirect( EntityRedirect $redirect ) {
+		if ( !$this->supportsRedirects() ) {
+			// As of 2014-07-03, redirects are still experimental.
+			// So do a feature check before trying to test redirects.
+			$this->markTestSkipped( 'Redirects not yet supported.' );
+		}
+
+		$factory = $this->newFactory();
+		$content = $factory->newFromRedirect( $redirect );
+
+		$this->assertTrue( $content->isRedirect() );
+		$this->assertSame( $redirect, $content->getEntityRedirect() );
+		$this->assertNotNull( $content->getRedirectTarget() );
+	}
+
+	public function newFromRedirectProvider_unsupported() {
+		$p1 = new PropertyId( 'P1' );
+		$p2 = new PropertyId( 'P2' );
+
+		return array(
+			'property' => array( new EntityRedirect( $p1, $p2 ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider newFromRedirectProvider_unsupported
+	 * @param EntityRedirect $redirect
+	 */
+	public function testNewFromRedirect_unsupported( EntityRedirect $redirect ) {
+		$factory = $this->newFactory();
+		$content = $factory->newFromRedirect( $redirect );
+
+		$this->assertNull( $content );
+	}
+
 }

@@ -1,27 +1,28 @@
 [
     {
         "name": "composer/installers",
-        "version": "v1.0.13",
-        "version_normalized": "1.0.13.0",
+        "version": "v1.0.15",
+        "version_normalized": "1.0.15.0",
         "source": {
             "type": "git",
             "url": "https://github.com/composer/installers.git",
-            "reference": "26d37e307f9aa6e2e81806a6525666f8ab5ba0ff"
+            "reference": "8e6a72a78f6cfd537fde3350720dfdc9ae3c5621"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/26d37e307f9aa6e2e81806a6525666f8ab5ba0ff",
-            "reference": "26d37e307f9aa6e2e81806a6525666f8ab5ba0ff",
+            "url": "https://api.github.com/repos/composer/installers/zipball/8e6a72a78f6cfd537fde3350720dfdc9ae3c5621",
+            "reference": "8e6a72a78f6cfd537fde3350720dfdc9ae3c5621",
             "shasum": ""
         },
         "replace": {
+            "roundcube/plugin-installer": "*",
             "shama/baton": "*"
         },
         "require-dev": {
             "composer/composer": "1.0.*@dev",
-            "phpunit/phpunit": "3.7.*"
+            "phpunit/phpunit": "4.1.*"
         },
-        "time": "2014-04-09 16:12:43",
+        "time": "2014-06-23 16:25:28",
         "type": "composer-installer",
         "extra": {
             "class": "Composer\\Installers\\Installer",
@@ -51,12 +52,14 @@
         "homepage": "http://composer.github.com/installers/",
         "keywords": [
             "Craft",
+            "Dolibarr",
             "Hurad",
             "MODX Evo",
             "OXID",
             "WolfCMS",
             "agl",
             "annotatecms",
+            "bitrix",
             "cakephp",
             "codeigniter",
             "concrete5",
@@ -73,9 +76,11 @@
             "mako",
             "mediawiki",
             "modulework",
+            "moodle",
             "phpbb",
             "piwik",
             "ppi",
+            "roundcube",
             "shopware",
             "silverstripe",
             "symfony",
@@ -83,6 +88,55 @@
             "wordpress",
             "zend",
             "zikula"
+        ]
+    },
+    {
+        "name": "propertysuggester/property-suggester",
+        "version": "v1.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2014-06-23 17:01:20",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [
+
+    ],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+        "keywords": [
+            "propertysuggester",
+            "wikibase",
+            "wikidata"
         ]
     },
     {
@@ -170,6 +224,175 @@
             "patching",
             "wikidata"
         ]
+    },
+    {
+        "name": "data-values/javascript",
+        "version": "0.5.1",
+        "version_normalized": "0.5.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataValuesJavascript.git",
+            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
+            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": ">=1.0.1"
+        },
+        "time": "2014-06-04 10:58:47",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValuesJavascript.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "DataValues implementation in Javascript",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model-javascript",
+        "version": "0.2.0",
+        "version_normalized": "0.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
+            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/c74867c665ba23c366d978d7dd461ea70475d57d",
+            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0"
+        },
+        "time": "2014-06-26 12:47:29",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.mw.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            }
+        ],
+        "description": "Wikibase datamodel implementation in JavaScript"
+    },
+    {
+        "name": "wikibase/serialization-javascript",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
+            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/3e18ec18eb4481684c30a41d69faa68b6ce720ca",
+            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0",
+            "wikibase/data-model-javascript": "~0.2.0"
+        },
+        "time": "2014-07-03 07:38:47",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.mw.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            }
+        ],
+        "description": "Wikibase datamodel serialization implementation in JavaScript"
     },
     {
         "name": "serialization/serialization",
@@ -337,17 +560,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "0.7.4",
-        "version_normalized": "0.7.4.0",
+        "version": "0.8.1",
+        "version_normalized": "0.8.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8"
+            "reference": "50679a58a5b1172224cf47e660f40595992e29dc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8",
-            "reference": "8aa12ed2798aad5190be4e9a9fd307e7afbd3fb8",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/50679a58a5b1172224cf47e660f40595992e29dc",
+            "reference": "50679a58a5b1172224cf47e660f40595992e29dc",
             "shasum": ""
         },
         "require": {
@@ -356,11 +579,11 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-04-24 17:40:02",
+        "time": "2014-06-06 21:14:52",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "0.7.x-dev"
+                "dev-master": "0.8.x-dev"
             }
         },
         "installation-source": "dist",
@@ -390,110 +613,6 @@
             "DataModel",
             "wikibase",
             "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/javascript",
-        "version": "0.5.1",
-        "version_normalized": "0.5.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
-            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
-            "shasum": ""
-        },
-        "require": {
-            "composer/installers": ">=1.0.1"
-        },
-        "time": "2014-06-04 10:58:47",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValuesJavascript.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "DataValues implementation in Javascript",
-        "keywords": [
-            "datavalues",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/data-types",
-        "version": "0.3",
-        "version_normalized": "0.3.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/DataTypes.git",
-            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
-            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-05-21 09:39:21",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataTypes.php"
-            ],
-            "psr-4": {
-                "DataTypes\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "PHP library defining the DataTypes\\DataType class of which instances represent a type of value, such as \"positive integer\" or \"percentage\".",
-        "homepage": "https://github.com/wmde/DataTypes",
-        "keywords": [
-            "datatypes",
-            "datavalues"
         ]
     },
     {
@@ -549,64 +668,6 @@
             "valueformatters",
             "valueparsers",
             "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/validators",
-        "version": "0.1.1",
-        "version_normalized": "0.1.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Validators.git",
-            "reference": "ad96186364d285e5ea761fcd54530570c80cc6ec"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Validators/zipball/ad96186364d285e5ea761fcd54530570c80cc6ec",
-            "reference": "ad96186364d285e5ea761fcd54530570c80cc6ec",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-03-27 03:45:06",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Validators.php"
-            ],
-            "psr-4": {
-                "ValueValidators\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Common ValueValidator implementations",
-        "homepage": "https://github.com/DataValues/Validators",
-        "keywords": [
-            "datavalues",
-            "validation",
-            "validators",
-            "valueformatters",
-            "valueparsers",
             "wikidata"
         ]
     },
@@ -674,27 +735,372 @@
         ]
     },
     {
-        "name": "data-values/time",
-        "version": "0.5.2",
-        "version_normalized": "0.5.2.0",
+        "name": "data-values/geo",
+        "version": "0.1.2",
+        "version_normalized": "0.1.2.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/DataValues/Time.git",
-            "reference": "2001ff693c0546ff4154cfa97cc5622487787d25"
+            "url": "https://github.com/DataValues/Geo.git",
+            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/2001ff693c0546ff4154cfa97cc5622487787d25",
-            "reference": "2001ff693c0546ff4154cfa97cc5622487787d25",
+            "url": "https://api.github.com/repos/DataValues/Geo/zipball/8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
+            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.1",
+            "data-values/data-values": "~0.1",
+            "data-values/interfaces": "~0.1",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-01-24 15:08:52",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Geo.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Geographical value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Geo",
+        "keywords": [
+            "datavalues",
+            "geo",
+            "geographical",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model-serialization",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
+            "reference": "ee0816e64e70406406a11d0bf159b164d03172b8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/ee0816e64e70406406a11d0bf159b164d03172b8",
+            "reference": "ee0816e64e70406406a11d0bf159b164d03172b8",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/serialization": "~1.0",
+            "php": ">=5.3.0",
+            "serialization/serialization": "~3.1",
+            "wikibase/data-model": "<2.0,>=0.7-dev"
+        },
+        "require-dev": {
+            "data-values/common": "~0.2.0",
+            "data-values/geo": "~0.1.0",
+            "data-values/number": "~0.3.0",
+            "data-values/time": "~0.3.0"
+        },
+        "time": "2014-06-16 15:21:31",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Core developer"
+            },
+            {
+                "name": "Thomas PT",
+                "homepage": "https://github.com/Tpt"
+            }
+        ],
+        "description": "Serializers and deserializers for the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModelSerialization",
+        "keywords": [
+            "DataModel",
+            "deserializers",
+            "serialization",
+            "serializers",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/internal-serialization",
+        "version": "1.1",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseInternalSerialization.git",
+            "reference": "f139e540e99c54a4d1ef69c90cf2581d5063b5cd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/f139e540e99c54a4d1ef69c90cf2581d5063b5cd",
+            "reference": "f139e540e99c54a4d1ef69c90cf2581d5063b5cd",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "serialization/serialization": "~3.0",
+            "wikibase/data-model": "<2.0,>=0.7.3",
+            "wikibase/data-model-serialization": "~1.0"
+        },
+        "require-dev": {
+            "data-values/common": "~0.2.0",
+            "data-values/geo": "~0.1.0",
+            "data-values/number": "~0.3.0",
+            "data-values/time": "~0.3.0"
+        },
+        "time": "2014-06-16 15:23:07",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Wikibase\\InternalSerialization\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Library containing serializers and deserializers for the data access layer of Wikibase Repo.",
+        "homepage": "https://github.com/wmde/WikibaseInternalSerialization",
+        "keywords": [
+            "DataModel",
+            "deserializers",
+            "serialization",
+            "serializers",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/value-view",
+        "version": "0.6.4",
+        "version_normalized": "0.6.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/ValueView.git",
+            "reference": "dd752fb6aed288cd9ad04371037886d9b42025d9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/dd752fb6aed288cd9ad04371037886d9b42025d9",
+            "reference": "dd752fb6aed288cd9ad04371037886d9b42025d9",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-07-02 09:29:58",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
+    },
+    {
+        "name": "data-values/data-types",
+        "version": "0.3",
+        "version_normalized": "0.3.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataTypes.git",
+            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
+            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-05-21 09:39:21",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataTypes.php"
+            ],
+            "psr-4": {
+                "DataTypes\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP library defining the DataTypes\\DataType class of which instances represent a type of value, such as \"positive integer\" or \"percentage\".",
+        "homepage": "https://github.com/wmde/DataTypes",
+        "keywords": [
+            "datatypes",
+            "datavalues"
+        ]
+    },
+    {
+        "name": "data-values/validators",
+        "version": "0.1.1",
+        "version_normalized": "0.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Validators.git",
+            "reference": "ad96186364d285e5ea761fcd54530570c80cc6ec"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Validators/zipball/ad96186364d285e5ea761fcd54530570c80cc6ec",
+            "reference": "ad96186364d285e5ea761fcd54530570c80cc6ec",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1",
+            "data-values/interfaces": "~0.1",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-03-27 03:45:06",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Validators.php"
+            ],
+            "psr-4": {
+                "ValueValidators\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Common ValueValidator implementations",
+        "homepage": "https://github.com/DataValues/Validators",
+        "keywords": [
+            "datavalues",
+            "validation",
+            "validators",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/time",
+        "version": "0.6",
+        "version_normalized": "0.6.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Time.git",
+            "reference": "2aaa88e2ccd2998abda57d447fd1fc0b9c94651f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/2aaa88e2ccd2998abda57d447fd1fc0b9c94651f",
+            "reference": "2aaa88e2ccd2998abda57d447fd1fc0b9c94651f",
             "shasum": ""
         },
         "require": {
             "data-values/common": "~0.2.0",
             "data-values/data-values": "~0.1.0",
-            "data-values/interfaces": "~0.1.0",
+            "data-values/interfaces": "~0.1.4",
             "php": ">=5.3.0"
         },
-        "time": "2014-04-28 14:29:56",
+        "time": "2014-06-05 17:58:16",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -781,176 +1187,18 @@
         ]
     },
     {
-        "name": "data-values/geo",
-        "version": "0.1.2",
-        "version_normalized": "0.1.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Geo.git",
-            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Geo/zipball/8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
-            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-01-24 15:08:52",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Geo.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Geographical value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Geo",
-        "keywords": [
-            "datavalues",
-            "geo",
-            "geographical",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/value-view",
-        "version": "dev-mw1.24-wmf8",
-        "version_normalized": "dev-mw1.24-wmf8",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/ValueView.git",
-            "reference": "471b0c9f668b1f7472d0fc310be0adefc6ddd825"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/471b0c9f668b1f7472d0fc310be0adefc6ddd825",
-            "reference": "471b0c9f668b1f7472d0fc310be0adefc6ddd825",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-06-25 09:51:06",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "ValueView.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
-        "name": "propertysuggester/property-suggester",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
-            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2014-06-23 17:01:20",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [
-
-    ],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/wikibase",
-        "version": "dev-mw1.24-wmf8",
-        "version_normalized": "dev-mw1.24-wmf8",
+        "version": "dev-mw1.24-wmf12",
+        "version_normalized": "dev-mw1.24-wmf12",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "0698437724817f78b648548070afe188eb0b046e"
+            "reference": "8fc06b8f7a2cf691f843fb5f4d4513828908a1b0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0698437724817f78b648548070afe188eb0b046e",
-            "reference": "0698437724817f78b648548070afe188eb0b046e",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8fc06b8f7a2cf691f843fb5f4d4513828908a1b0",
+            "reference": "8fc06b8f7a2cf691f843fb5f4d4513828908a1b0",
             "shasum": ""
         },
         "require": {
@@ -962,18 +1210,21 @@
             "data-values/javascript": "~0.5.1",
             "data-values/number": "~0.4.0",
             "data-values/serialization": "~1.0",
-            "data-values/time": "~0.5.2",
+            "data-values/time": "~0.6.0",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "dev-mw1.24-wmf8",
+            "data-values/value-view": "~0.6.3",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~0.7.4",
-            "wikibase/easyrdf_lite": "~0.8.1"
+            "wikibase/data-model": "~0.8.1",
+            "wikibase/data-model-javascript": "~0.2.0",
+            "wikibase/easyrdf_lite": "~0.8.1",
+            "wikibase/internal-serialization": "~1.1",
+            "wikibase/serialization-javascript": "~1.0.0"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-06-27 10:10:06",
+        "time": "2014-07-03 12:22:59",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -994,7 +1245,10 @@
                 "repo/maintenance/",
                 "repo/tests/phpunit/",
                 "repo/Wikibase.hooks.php"
-            ]
+            ],
+            "psr-4": {
+                "Wikibase\\Repo\\View\\": "repo/includes/View"
+            }
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [

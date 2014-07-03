@@ -2,7 +2,15 @@
 
 namespace Wikibase\Test;
 
+use Title;
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\PropertyContent;
+use Wikibase\PropertyHandler;
+use Wikibase\Repo\WikibaseRepo;
+use Wikibase\SettingsArray;
 
 /**
  * @covers Wikibase\PropertyHandler
@@ -48,6 +56,48 @@ class PropertyHandlerTest extends EntityHandlerTest {
 		$contents[] = array( $content );
 
 		return $contents;
+	}
+
+	public function testGetTitleForId() {
+		$handler = $this->getHandler();
+		$id = new PropertyId( 'P123' );
+
+		$title = $handler->getTitleForId( $id );
+		$this->assertEquals( $id->getSerialization(), $title->getText() );
+	}
+
+	public function testGetIdForTitle() {
+		$handler = $this->getHandler();
+		$title = Title::makeTitle( $handler->getEntityNamespace(), 'P123' );
+
+		$id = $handler->getIdForTitle( $title );
+		$this->assertEquals( $title->getText(), $id->getSerialization() );
+	}
+
+	protected function newEntity( EntityId $id = null ) {
+		if ( !$id ) {
+			$id = new PropertyId( 'P7' );
+		}
+
+		$property = Property::newFromType( 'string' );
+		$property->setId( $id );
+		return $property;
+	}
+
+	public function entityIdProvider() {
+		return array(
+			array( 'P7' )
+		);
+	}
+
+	/**
+	 * @param SettingsArray $settings
+	 *
+	 * @return PropertyHandler
+	 */
+	protected function getHandler( SettingsArray $settings = null ) {
+		$repo = $this->getRepo( $settings );
+		return $repo->newPropertyHandler();
 	}
 
 }

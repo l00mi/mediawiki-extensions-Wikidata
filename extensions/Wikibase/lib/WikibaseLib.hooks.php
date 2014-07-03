@@ -80,15 +80,6 @@ final class LibHooks {
 				'tests/qunit/templates.tests.js',
 				'tests/qunit/wikibase.tests.js',
 
-				'tests/qunit/wikibase.datamodel/Wikibase.claim.tests.js',
-				'tests/qunit/wikibase.datamodel/Wikibase.reference.tests.js',
-				'tests/qunit/wikibase.datamodel/Wikibase.snak.tests.js',
-				'tests/qunit/wikibase.datamodel/Wikibase.SnakList.tests.js',
-				'tests/qunit/wikibase.datamodel/wikibase.Statement.tests.js',
-				'tests/qunit/wikibase.datamodel/datamodel.Entity.tests.js',
-				'tests/qunit/wikibase.datamodel/datamodel.Item.tests.js',
-				'tests/qunit/wikibase.datamodel/datamodel.Property.tests.js',
-
 				'tests/qunit/wikibase.Site.tests.js',
 
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApi.tests.js',
@@ -282,35 +273,6 @@ final class LibHooks {
 				'valueParsers.tests',
 				'wikibase.datamodel',
 				'wikibase.EntityIdParser',
-				'wikibase.tests.qunit.testrunner',
-			),
-		);
-
-		$testModules['qunit']['wikibase.parsers.GlobeCoordinateParser.tests'] = $moduleBase + array(
-			'scripts' => array(
-				'tests/qunit/wikibase.tests.js',
-				'tests/qunit/parsers/GlobeCoordinateParser.tests.js',
-			),
-			'dependencies' => array(
-				'dataValues.values',
-				'globeCoordinate.js',
-				'util.inherit',
-				'valueParsers.tests',
-				'wikibase.GlobeCoordinateParser',
-				'wikibase.tests.qunit.testrunner',
-			),
-		);
-
-		$testModules['qunit']['wikibase.parsers.QuantityParser.tests'] = $moduleBase + array(
-			'scripts' => array(
-				'tests/qunit/wikibase.tests.js',
-				'tests/qunit/parsers/QuantityParser.tests.js',
-			),
-			'dependencies' => array(
-				'dataValues.values',
-				'util.inherit',
-				'valueParsers.tests',
-				'wikibase.QuantityParser',
 				'wikibase.tests.qunit.testrunner',
 			),
 		);

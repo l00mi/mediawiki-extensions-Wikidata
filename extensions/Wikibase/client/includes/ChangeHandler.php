@@ -7,7 +7,9 @@ use Site;
 use SiteList;
 use Title;
 use Wikibase\Client\WikibaseClient;
+use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 
 /**
  * Interface for change handling. Whenever a change is detected,
@@ -74,9 +76,9 @@ class ChangeHandler {
 
 
 	/**
-	 * @var EntityLookup $entityLookup
+	 * @var EntityRevisionLookup $entityRevisionLookup
 	 */
-	private $entityLookup;
+	private $entityRevisionLookup;
 
 	/**
 	 * @var Site $site
@@ -98,33 +100,46 @@ class ChangeHandler {
 	 */
 	private $checkPageExistence = true;
 
-	public function __construct( PageUpdater $updater = null,
-			EntityLookup $entityLookup = null,
-			ItemUsageIndex $entityUsageIndex = null,
-			Site $localSite = null,
-			SiteList $sites = null) {
+	/**
+	 * @var EntityChangeFactory
+	 */
+	private $changeFactory;
+
+	public function __construct(
+		EntityChangeFactory $changeFactory = null,
+		PageUpdater $updater = null,
+		EntityRevisionLookup $entityRevisionLookup = null,
+		ItemUsageIndex $entityUsageIndex = null,
+		Site $localSite = null,
+		SiteList $sites = null
+	) {
 		wfProfileIn( __METHOD__ );
 
+		//FIXME: proper injection!
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 		$settings = $wikibaseClient->getSettings();
+
+		if ( !$changeFactory ) {
+			$changeFactory = $wikibaseClient->getEntityChangeFactory();
+		}
+
+		if ( !$updater ) {
+			$updater = new WikiPageUpdater();
+		}
+
+		if ( !$entityRevisionLookup ) {
+			$entityRevisionLookup = $wikibaseClient->getStore()->getEntityRevisionLookup();
+		}
+
+		if ( !$entityUsageIndex ) {
+			$entityUsageIndex = $wikibaseClient->getStore()->getItemUsageIndex();
+		}
 
 		if ( $sites === null ) {
 			$sites = $wikibaseClient->getSiteStore()->getSites();
 		}
 
 		$this->sites = $sites;
-
-		if ( !$updater ) {
-			$updater = new WikiPageUpdater();
-		}
-
-		if ( !$entityLookup ) {
-			$entityLookup = $wikibaseClient->getStore()->getEntityLookup();
-		}
-
-		if ( !$entityUsageIndex ) {
-			$entityUsageIndex = $wikibaseClient->getStore()->getItemUsageIndex();
-		}
 
 		if ( !$localSite ) {
 			//XXX: DB lookup in a constructor, ugh
@@ -136,12 +151,14 @@ class ChangeHandler {
 			}
 		}
 
-		$this->site = $localSite;
-		$this->siteId = $localSite->getGlobalId();
+		$this->changeFactory = $changeFactory;
 
 		$this->updater = $updater;
-		$this->entityLookup = $entityLookup;
+		$this->entityRevisionLookup = $entityRevisionLookup;
 		$this->entityUsageIndex = $entityUsageIndex;
+
+		$this->site = $localSite;
+		$this->siteId = $localSite->getGlobalId();
 
 		// TODO: allow these to be passed in as parameters!
 		$this->setNamespaces(
@@ -261,20 +278,20 @@ class ChangeHandler {
 		$parentRevId = $firstmeta['parent_id'];
 		$latestRevId = $firstmeta['rev_id'];
 
-		$entity = $this->entityLookup->getEntity( $entityId, $latestRevId );
+		$entityRev = $this->entityRevisionLookup->getEntityRevision( $entityId, $latestRevId );
 
-		if ( !$entity ) {
+		if ( !$entityRev ) {
 			throw new MWException( "Failed to load revision $latestRevId of $entityId" );
 		}
 
-		$parent = $parentRevId ? $this->entityLookup->getEntity( $entityId, $parentRevId ) : null;
+		$parentRev = $parentRevId ? $this->entityRevisionLookup->getEntityRevision( $entityId, $parentRevId ) : null;
 
 		//XXX: we could avoid loading the entity data by merging the diffs programatically
 		//     instead of re-calculating.
-		$change = EntityChange::newFromUpdate(
-			$parent ? EntityChange::UPDATE : EntityChange::ADD,
-			$parent,
-			$entity
+		$change = $this->changeFactory->newFromUpdate(
+			$parentRev ? EntityChange::UPDATE : EntityChange::ADD,
+			$parentRev === null ? null : $parentRev->getEntity(),
+			$entityRev->getEntity()
 		);
 
 		$change->setFields(
@@ -721,12 +738,12 @@ class ChangeHandler {
 	 *
 	 * @since 0.4
 	 *
-	 * @param Change $change the change to get a comment for
+	 * @param EntityChange $change the change to get a comment for
 	 *
 	 * @throws \MWException
 	 * @return array
 	 */
-	public function getEditComment( Change $change ) {
+	public function getEditComment( EntityChange $change ) {
 		$commentCreator = new SiteLinkCommentCreator(
 			$this->site->getGlobalId()
 		);

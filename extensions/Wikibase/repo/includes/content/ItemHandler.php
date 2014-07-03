@@ -2,6 +2,15 @@
 
 namespace Wikibase;
 
+use DataUpdate;
+use Title;
+use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\SiteLinkCache;
+use Wikibase\Updates\DataUpdateClosure;
+use Wikibase\Validators\EntityValidator;
+use Wikibase\Validators\ValidatorErrorLocalizer;
+
 /**
  * Content handler for Wikibase items.
  *
@@ -11,6 +20,42 @@ namespace Wikibase;
  * @author Daniel Kinzler
  */
 class ItemHandler extends EntityHandler {
+
+	/**
+	 * @var SiteLinkCache
+	 */
+	private $siteLinkStore;
+
+	/**
+	 * @param EntityPerPage $entityPerPage
+	 * @param TermIndex $termIndex
+	 * @param EntityContentDataCodec $contentCodec
+	 * @param EntityValidator[] $preSaveValidators
+	 * @param ValidatorErrorLocalizer $errorLocalizer
+	 * @param SiteLinkCache $siteLinkStore
+	 * @param callable|null $legacyExportFormatDetector
+	 */
+	public function __construct(
+		EntityPerPage $entityPerPage,
+		TermIndex $termIndex,
+		EntityContentDataCodec $contentCodec,
+		array $preSaveValidators,
+		ValidatorErrorLocalizer $errorLocalizer,
+		SiteLinkCache $siteLinkStore,
+		$legacyExportFormatDetector = null
+	) {
+		parent::__construct(
+			CONTENT_MODEL_WIKIBASE_ITEM,
+			$entityPerPage,
+			$termIndex,
+			$contentCodec,
+			$preSaveValidators,
+			$errorLocalizer,
+			$legacyExportFormatDetector
+		);
+
+		$this->siteLinkStore = $siteLinkStore;
+	}
 
 	/**
 	 * @see EntityHandler::getContentClass
@@ -24,13 +69,6 @@ class ItemHandler extends EntityHandler {
 	}
 
 	/**
-	 * @param PreSaveValidator[] $preSaveValidators
-	 */
-	public function __construct( $preSaveValidators ) {
-		parent::__construct( CONTENT_MODEL_WIKIBASE_ITEM, $preSaveValidators );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getActionOverrides() {
@@ -40,17 +78,6 @@ class ItemHandler extends EntityHandler {
 			'edit' => '\Wikibase\EditItemAction',
 			'submit' => '\Wikibase\SubmitItemAction',
 		);
-	}
-
-	/**
-	 * @param string $blob
-	 * @param null|string $format
-	 *
-	 * @return ItemContent
-	 */
-	public function unserializeContent( $blob, $format = null ) {
-		$entity = EntityFactory::singleton()->newFromBlob( Item::ENTITY_TYPE, $blob, $format );
-		return ItemContent::newFromItem( $entity );
 	}
 
 	/**
@@ -71,4 +98,86 @@ class ItemHandler extends EntityHandler {
 	public function getEntityType() {
 		return Item::ENTITY_TYPE;
 	}
+
+	/**
+	 * Returns deletion updates for the given EntityContent.
+	 *
+	 * @see EntityHandler::getEntityDeletionUpdates
+	 *
+	 * @since 0.5
+	 *
+	 * @param EntityContent $content
+	 * @param Title $title
+	 *
+	 * @return DataUpdate[]
+	 */
+	public function getEntityDeletionUpdates( EntityContent $content, Title $title ) {
+		$updates = array();
+
+		$updates[] = new DataUpdateClosure(
+			array( $this->siteLinkStore, 'deleteLinksOfItem' ),
+			$content->getEntityId()
+		);
+
+		return array_merge(
+			parent::getEntityDeletionUpdates( $content, $title ),
+			$updates
+		);
+	}
+
+	/**
+	 * Returns modification updates for the given EntityContent.
+	 *
+	 * @see EntityHandler::getEntityModificationUpdates
+	 *
+	 * @since 0.5
+	 *
+	 * @param EntityContent $content
+	 * @param Title $title
+	 *
+	 * @return DataUpdate[]
+	 */
+	public function getEntityModificationUpdates( EntityContent $content, Title $title ) {
+		$updates = array();
+
+		if ( $content->isRedirect() ) {
+			$updates[] = new DataUpdateClosure(
+				array( $this->siteLinkStore, 'deleteLinksOfItem' ),
+				$content->getEntityId()
+			);
+		} else {
+			$updates[] = new DataUpdateClosure(
+				array( $this->siteLinkStore, 'saveLinksOfItem' ),
+				$content->getEntity()
+			);
+		}
+
+		return array_merge(
+			$updates,
+			parent::getEntityModificationUpdates( $content, $title )
+		);
+	}
+
+	/**
+	 * @see EntityHandler::makeEmptyEntity()
+	 *
+	 * @since 0.5
+	 *
+	 * @return EntityContent
+	 */
+	public function makeEmptyEntity() {
+		return Item::newEmpty();
+	}
+
+	/**
+	 * @see EntityContent::makeEntityId
+	 *
+	 * @param string $id
+	 *
+	 * @return EntityId
+	 */
+	public function makeEntityId( $id ) {
+		return new ItemId( $id );
+	}
+
 }
