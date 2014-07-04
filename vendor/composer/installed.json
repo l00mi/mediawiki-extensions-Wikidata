@@ -252,6 +252,63 @@
         "description": "Wikibase datamodel implementation in JavaScript"
     },
     {
+        "name": "wikibase/serialization-javascript",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
+            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/3e18ec18eb4481684c30a41d69faa68b6ce720ca",
+            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0",
+            "wikibase/data-model-javascript": "~0.2.0"
+        },
+        "time": "2014-07-03 07:38:47",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.mw.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Daniel Werner",
+                "email": "danweetz@web.de",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
+                "role": "Developer"
+            },
+            {
+                "name": "H. Snater",
+                "email": "mediawiki@snater.com",
+                "homepage": "http://www.snater.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            }
+        ],
+        "description": "Wikibase datamodel serialization implementation in JavaScript"
+    },
+    {
         "name": "data-values/value-view",
         "version": "0.6.4",
         "version_normalized": "0.6.4.0",
@@ -1130,75 +1187,18 @@
         ]
     },
     {
-        "name": "wikibase/serialization-javascript",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/3e18ec18eb4481684c30a41d69faa68b6ce720ca",
-            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0",
-            "wikibase/data-model-javascript": "~0.2.0"
-        },
-        "time": "2014-07-03 07:38:47",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "init.mw.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            }
-        ],
-        "description": "Wikibase datamodel serialization implementation in JavaScript"
-    },
-    {
         "name": "wikibase/wikibase",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "8fc06b8f7a2cf691f843fb5f4d4513828908a1b0"
+            "reference": "ee4a2116287bade24296eac0f1eb98403aadcd43"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8fc06b8f7a2cf691f843fb5f4d4513828908a1b0",
-            "reference": "8fc06b8f7a2cf691f843fb5f4d4513828908a1b0",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ee4a2116287bade24296eac0f1eb98403aadcd43",
+            "reference": "ee4a2116287bade24296eac0f1eb98403aadcd43",
             "shasum": ""
         },
         "require": {
@@ -1224,7 +1224,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-03 12:22:59",
+        "time": "2014-07-04 07:25:10",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
