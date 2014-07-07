@@ -400,7 +400,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Core developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -736,12 +736,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "a2082a4720ae79296337711aae310cfcd33927d4"
+                "reference": "3ed704f53c4d9fb2db56c0a7fd03a53caf216e8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/a2082a4720ae79296337711aae310cfcd33927d4",
-                "reference": "a2082a4720ae79296337711aae310cfcd33927d4",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/3ed704f53c4d9fb2db56c0a7fd03a53caf216e8a",
+                "reference": "3ed704f53c4d9fb2db56c0a7fd03a53caf216e8a",
                 "shasum": ""
             },
             "require": {
@@ -775,7 +775,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-07-02 09:47:27"
+            "time": "2014-07-05 13:31:20"
         },
         {
             "name": "serialization/serialization",
@@ -920,7 +920,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Core developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -1129,7 +1129,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "role": "Core developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -1157,12 +1157,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "ee4a2116287bade24296eac0f1eb98403aadcd43"
+                "reference": "60fe9673693ec4efe7fffba6c347b206c7431480"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ee4a2116287bade24296eac0f1eb98403aadcd43",
-                "reference": "ee4a2116287bade24296eac0f1eb98403aadcd43",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/60fe9673693ec4efe7fffba6c347b206c7431480",
+                "reference": "60fe9673693ec4efe7fffba6c347b206c7431480",
                 "shasum": ""
             },
             "require": {
@@ -1231,7 +1231,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-07-04 07:25:10"
+            "time": "2014-07-06 19:56:28"
         }
     ],
     "packages-dev": [
