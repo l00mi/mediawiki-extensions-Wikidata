@@ -121,7 +121,7 @@
             },
             "files": [
 
-    ],
+            ],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"
@@ -1193,12 +1193,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "8fc06b8f7a2cf691f843fb5f4d4513828908a1b0"
+            "reference": "3c65a998852fcd1dc78dfa0db45847b6d80fb6f1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8fc06b8f7a2cf691f843fb5f4d4513828908a1b0",
-            "reference": "8fc06b8f7a2cf691f843fb5f4d4513828908a1b0",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3c65a998852fcd1dc78dfa0db45847b6d80fb6f1",
+            "reference": "3c65a998852fcd1dc78dfa0db45847b6d80fb6f1",
             "shasum": ""
         },
         "require": {
@@ -1224,9 +1224,9 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-03 12:22:59",
+        "time": "2014-07-09 15:17:12",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"
