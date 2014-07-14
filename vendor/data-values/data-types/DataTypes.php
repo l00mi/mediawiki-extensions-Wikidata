@@ -16,31 +16,7 @@ if ( defined( 'DataTypes_VERSION' ) ) {
 	return 1;
 }
 
-define( 'DataTypes_VERSION', '0.2.1' );
-
-$GLOBALS['wgDataTypes'] = array(
-	'commonsMedia' => array(
-		'datavalue' => 'string',
-	),
-	'string' => array(
-		'datavalue' => 'string',
-	),
-	'globe-coordinate' => array(
-		'datavalue' => 'globecoordinate',
-	),
-	'quantity' => array(
-		'datavalue' => 'quantity',
-	),
-	'monolingualtext' => array(
-		'datavalue' => 'monolingualtext',
-	),
-	'multilingualtext' => array(
-		'datavalue' => 'multilingualtext',
-	),
-	'time' => array(
-		'datavalue' => 'time',
-	),
-);
+define( 'DataTypes_VERSION', '0.4' );
 
 // @codeCoverageIgnoreStart
 if ( defined( 'MEDIAWIKI' ) ) {

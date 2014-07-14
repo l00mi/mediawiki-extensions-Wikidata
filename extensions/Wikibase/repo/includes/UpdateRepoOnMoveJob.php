@@ -10,6 +10,7 @@ use User;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Lib\Store\EntityStore;
 
@@ -151,14 +152,22 @@ class UpdateRepoOnMoveJob extends Job {
 		wfProfileIn( __METHOD__ );
 
 		$itemId = new ItemId( $itemId );
-		$item = $this->getEntityRevisionLookup()->getEntity( $itemId );
-		if ( !$item ) {
-			// The entity assigned with the moved page can't be found
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": entity with id " . $itemId->getPrefixedId() . " not found" );
+
+		try {
+			$entityRevision = $this->getEntityRevisionLookup()->getEntityRevision( $itemId );
+		} catch ( StorageException $ex ) {
+			$entityRevision = null;
+		}
+
+		if ( $entityRevision === null ) {
+			wfDebugLog( __CLASS__, __FUNCTION__ . ": EntityRevision not found for "
+				. $itemId->getPrefixedId() );
+
 			wfProfileOut( __METHOD__ );
 			return false;
 		}
 
+		$item = $entityRevision->getEntity();
 		$site = $this->getSite( $siteId );
 
 		$oldSiteLink = $this->getSiteLink( $item, $siteId );

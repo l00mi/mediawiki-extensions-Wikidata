@@ -34,7 +34,7 @@ return call_user_func( function() {
 			'class' => 'Wikibase\SitesModule'
 		),
 
-		'wikibase.repoAccess' => $moduleTemplate + array(
+		'mw.config.values.wbRepo' => $moduleTemplate + array(
 			'class' => 'Wikibase\RepoAccessModule',
 		),
 
@@ -162,7 +162,7 @@ return call_user_func( function() {
 				'user.tokens',
 				'mediawiki.api',
 				'mediawiki',
-				'wikibase.repoAccess',
+				'mw.config.values.wbRepo',
 				'wikibase',
 			)
 		),
@@ -236,7 +236,6 @@ return call_user_func( function() {
 				'wikibase.utilities/wikibase.utilities.ClaimGuidGenerator.js',
 			),
 			'dependencies' => array(
-				'wikibase.datamodel',
 				'wikibase.utilities.GuidGenerator',
 			)
 		),
@@ -550,6 +549,7 @@ return call_user_func( function() {
 				'jquery.wikibase.snakview',
 				'jquery.wikibase.snaklistview',
 				'wikibase.AbstractedRepoApi',
+				'wikibase.datamodel',
 				'jquery.wikibase.toolbarcontroller',
 			),
 			'messages' => array(
@@ -568,6 +568,7 @@ return call_user_func( function() {
 				'jquery.wikibase.snaklistview',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase.AbstractedRepoApi',
+				'wikibase.datamodel'
 			)
 		),
 
@@ -637,6 +638,7 @@ return call_user_func( function() {
 				'jquery.wikibase.listview',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase',
+				'wikibase.datamodel',
 				'wikibase.AbstractedRepoApi',
 			),
 		),

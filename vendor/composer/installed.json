@@ -30,7 +30,7 @@
                 "dev-master": "1.0-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-0": {
                 "Composer\\Installers\\": "src/"
@@ -92,17 +92,17 @@
     },
     {
         "name": "propertysuggester/property-suggester",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "v1.0",
+        "version_normalized": "1.0.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "3ed704f53c4d9fb2db56c0a7fd03a53caf216e8a"
+            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/3ed704f53c4d9fb2db56c0a7fd03a53caf216e8a",
-            "reference": "3ed704f53c4d9fb2db56c0a7fd03a53caf216e8a",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
             "shasum": ""
         },
         "require": {
@@ -112,9 +112,9 @@
             "phpunit/phpunit": "3.7.*",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2014-07-05 13:31:20",
+        "time": "2014-06-23 17:01:20",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-4": {
                 "PropertySuggester\\": "src/PropertySuggester/"
@@ -140,6 +140,54 @@
         ]
     },
     {
+        "name": "data-values/data-types",
+        "version": "0.4",
+        "version_normalized": "0.4.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataTypes.git",
+            "reference": "5f6eee1eaf32762fa143d57fb6799bdc67d57c11"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/5f6eee1eaf32762fa143d57fb6799bdc67d57c11",
+            "reference": "5f6eee1eaf32762fa143d57fb6799bdc67d57c11",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-05-21 13:11:36",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "DataTypes.php"
+            ],
+            "psr-4": {
+                "DataTypes\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP library defining the DataTypes\\DataType class of which instances represent a type of value, such as \"positive integer\" or \"percentage\".",
+        "homepage": "https://github.com/wmde/DataTypes",
+        "keywords": [
+            "datatypes",
+            "datavalues"
+        ]
+    },
+    {
         "name": "data-values/javascript",
         "version": "0.5.1",
         "version_normalized": "0.5.1.0",
@@ -159,7 +207,7 @@
         },
         "time": "2014-06-04 10:58:47",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "DataValuesJavascript.php"
@@ -174,7 +222,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             },
             {
                 "name": "Daniel Werner",
@@ -197,25 +245,25 @@
     },
     {
         "name": "wikibase/data-model-javascript",
-        "version": "0.2.0",
-        "version_normalized": "0.2.0.0",
+        "version": "0.3.0",
+        "version_normalized": "0.3.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
-            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d"
+            "reference": "2d415cc002e3fe73c036696679abe25e71fd4463"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/c74867c665ba23c366d978d7dd461ea70475d57d",
-            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/2d415cc002e3fe73c036696679abe25e71fd4463",
+            "reference": "2d415cc002e3fe73c036696679abe25e71fd4463",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0"
         },
-        "time": "2014-06-26 12:47:29",
+        "time": "2014-07-10 11:15:17",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "init.mw.php"
@@ -230,7 +278,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             },
             {
                 "name": "Daniel Werner",
@@ -253,26 +301,26 @@
     },
     {
         "name": "wikibase/serialization-javascript",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
+        "version": "1.1.1",
+        "version_normalized": "1.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca"
+            "reference": "53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/3e18ec18eb4481684c30a41d69faa68b6ce720ca",
-            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028",
+            "reference": "53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
-            "wikibase/data-model-javascript": "~0.2.0"
+            "wikibase/data-model-javascript": "~0.3.0"
         },
-        "time": "2014-07-03 07:38:47",
+        "time": "2014-07-10 12:57:32",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "init.mw.php"
@@ -287,7 +335,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             },
             {
                 "name": "Daniel Werner",
@@ -329,7 +377,7 @@
         },
         "time": "2014-07-02 09:29:58",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "ValueView.php"
@@ -381,7 +429,7 @@
                 "dev-master": "3.2.x-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Serialization.php"
@@ -437,7 +485,7 @@
         },
         "time": "2013-11-22 00:39:57",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "DataValues.php"
@@ -491,7 +539,7 @@
         },
         "time": "2014-03-05 12:42:02",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-4": {
                 "DataValues\\Serializers\\": "src/Serializers",
@@ -507,7 +555,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Serializers and deserializers for DataValue implementations",
@@ -545,7 +593,7 @@
                 "dev-master": "1.0.x-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Diff.php"
@@ -604,7 +652,7 @@
                 "dev-master": "0.8.x-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "WikibaseDataModel.php"
@@ -653,7 +701,7 @@
         },
         "time": "2014-04-14 08:17:48",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Interfaces.php"
@@ -716,7 +764,7 @@
                 "dev-master": "0.2.x-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Common.php"
@@ -775,7 +823,7 @@
         },
         "time": "2014-01-24 15:08:52",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Geo.php"
@@ -847,7 +895,7 @@
                 "dev-master": "1.0.x-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-4": {
                 "Wikibase\\DataModel\\": "src/"
@@ -862,7 +910,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             },
             {
                 "name": "Thomas PT",
@@ -914,7 +962,7 @@
                 "dev-master": "1.1.x-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-4": {
                 "Wikibase\\InternalSerialization\\": "src/"
@@ -966,7 +1014,7 @@
         },
         "time": "2014-06-05 17:58:16",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Time.php"
@@ -998,54 +1046,6 @@
         ]
     },
     {
-        "name": "data-values/data-types",
-        "version": "0.3",
-        "version_normalized": "0.3.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/DataTypes.git",
-            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
-            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-05-21 09:39:21",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataTypes.php"
-            ],
-            "psr-4": {
-                "DataTypes\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "PHP library defining the DataTypes\\DataType class of which instances represent a type of value, such as \"positive integer\" or \"percentage\".",
-        "homepage": "https://github.com/wmde/DataTypes",
-        "keywords": [
-            "datatypes",
-            "datavalues"
-        ]
-    },
-    {
         "name": "data-values/number",
         "version": "0.4",
         "version_normalized": "0.4.0.0",
@@ -1068,7 +1068,7 @@
         },
         "time": "2014-04-24 07:22:17",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Number.php"
@@ -1115,7 +1115,7 @@
         },
         "time": "2014-01-29 22:43:55",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-0": {
                 "EasyRdf_": "./"
@@ -1150,7 +1150,7 @@
         },
         "time": "2014-03-27 03:45:06",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Validators.php"
@@ -1193,17 +1193,17 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "60fe9673693ec4efe7fffba6c347b206c7431480"
+            "reference": "a6429ed70910a60684ac0539d122cc7c50e1e1c9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/60fe9673693ec4efe7fffba6c347b206c7431480",
-            "reference": "60fe9673693ec4efe7fffba6c347b206c7431480",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a6429ed70910a60684ac0539d122cc7c50e1e1c9",
+            "reference": "a6429ed70910a60684ac0539d122cc7c50e1e1c9",
             "shasum": ""
         },
         "require": {
             "data-values/common": "~0.2.0",
-            "data-values/data-types": "~0.3.0",
+            "data-values/data-types": "~0.4.0",
             "data-values/data-values": "~0.1.0",
             "data-values/geo": "~0.1.0",
             "data-values/interfaces": "~0.1.4",
@@ -1216,17 +1216,17 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~0.8.1",
-            "wikibase/data-model-javascript": "~0.2.0",
+            "wikibase/data-model-javascript": "~0.3.0",
             "wikibase/easyrdf_lite": "~0.8.1",
             "wikibase/internal-serialization": "~1.1",
-            "wikibase/serialization-javascript": "~1.0.0"
+            "wikibase/serialization-javascript": "~1.1.1"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-06 19:56:28",
+        "time": "2014-07-14 11:28:30",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"

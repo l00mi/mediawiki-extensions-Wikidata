@@ -7,12 +7,15 @@ use OutputPage;
 use SquidUpdate;
 use WebRequest;
 use WebResponse;
+use Wikibase\BadRevisionException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\EntityRevision;
+use Wikibase\Lib\Store\EntityRedirectResolvingDecorator;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\EntityTitleLookup;
-use Wikibase\StorageException;
+use Wikibase\Lib\Store\StorageException;
 
 /**
  * Request handler implementing a linked data interface for Wikibase entities.
@@ -233,7 +236,7 @@ class EntityDataRequestHandler {
 	 * @param string $format
 	 *
 	 * @return string
-	 * @throws \HttpError code 415 if the format is not supported.
+	 * @throws HttpError code 415 if the format is not supported.
 	 *
 	 */
 	public function getCanonicalFormat( $format ) {
@@ -318,32 +321,59 @@ class EntityDataRequestHandler {
 	}
 
 	/**
+	 * Loads the requested Entity. Redirects are resolved if no specific revision
+	 * is requested.
+	 *
+	 * @param EntityId $id
+	 * @param int $revision The revision ID (use 0 for the current revision).
+	 *
+	 * @return EntityRevision
+	 * @throws HttpError
+	 */
+	protected function getEntityRevision( EntityId $id, $revision ) {
+		$prefixedId = $id->getSerialization();
+
+		$lookup = $this->entityRevisionLookup;
+
+		if ( $revision == 0 ) {
+			// If no specific revision is requested, enable automatic redirect resolution.
+			$lookup = new EntityRedirectResolvingDecorator( $lookup );
+		}
+
+		try {
+			$entityRevision = $lookup->getEntityRevision( $id, $revision );
+
+			if ( $entityRevision === null ) {
+				wfDebugLog( __CLASS__, __FUNCTION__ . ": entity not found: $prefixedId"  );
+				throw new HttpError( 404, wfMessage( 'wikibase-entitydata-not-found' )->params( $prefixedId ) );
+			}
+		} catch ( BadRevisionException $ex ) {
+			wfDebugLog( __CLASS__, __FUNCTION__ . ": could not load revision $revision or $prefixedId: $ex"  );
+			$msg = wfMessage( 'wikibase-entitydata-bad-revision' );
+			throw new HttpError( 404, $msg->params( $prefixedId, $revision ) );
+		} catch ( StorageException $ex ) {
+			wfDebugLog( __CLASS__, __FUNCTION__ . ": failed to load $prefixedId: $ex (revision $revision)"  );
+			$msg = wfMessage( 'wikibase-entitydata-storage-error' );
+			throw new \HttpError( 500, $msg->params( $prefixedId, $revision ) );
+		}
+
+		return $entityRevision;
+	}
+
+	/**
 	 * Output entity data.
 	 *
 	 * @param WebRequest $request
 	 * @param OutputPage $output
 	 * @param string $format The name (mime type of file extension) of the format to use
 	 * @param EntityId $id The entity ID
-	 * @param int $revision The entity revision
+	 * @param int $revision The revision ID (use 0 for the current revision).
 	 *
 	 * @throws HttpError
 	 */
 	public function showData( WebRequest $request, OutputPage $output, $format, EntityId $id, $revision ) {
 
-		$prefixedId = $id->getSerialization();
-
-		try {
-			$entityRevision = $this->entityRevisionLookup->getEntityRevision( $id, $revision );
-
-			if ( $entityRevision === null ) {
-				wfDebugLog( __CLASS__, __FUNCTION__ . ": entity not found: $prefixedId"  );
-				throw new \HttpError( 404, wfMessage( 'wikibase-entitydata-not-found' )->params( $prefixedId ) );
-			}
-		} catch ( StorageException $ex ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": could not load: $prefixedId: $ex revision $revision"  );
-			$msg = wfMessage( 'wikibase-entitydata-bad-revision' );
-			throw new \HttpError( 404, $msg->params( $prefixedId, $revision ) );
-		}
+		$entityRevision = $this->getEntityRevision( $id, $revision );
 
 		// handle If-Modified-Since
 		$imsHeader = $request->getHeader( 'IF-MODIFIED-SINCE' );

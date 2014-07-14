@@ -22,7 +22,8 @@ use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\PropertyNotFoundException;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\Lib\Store\SiteLinkLookup;
-use Wikibase\StorageException;
+use Wikibase\Lib\Store\UnresolvedRedirectException;
+use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\EntityStore;
 
 /**
@@ -47,6 +48,13 @@ class MockRepository implements
 	 * @var array[]
 	 */
 	protected $entities = array();
+
+	/**
+	 * Entity id serialization => EntityRedirect
+	 *
+	 * @var EntityRedirect[]
+	 */
+	protected $redirects = array();
 
 	/**
 	 * User ID + Entity Id -> bool
@@ -100,6 +108,10 @@ class MockRepository implements
 	 */
 	public function getEntityRevision( EntityId $entityId, $revision = 0 ) {
 		$key = $entityId->getPrefixedId();
+
+		if ( isset( $this->redirects[$key] ) ) {
+			throw new UnresolvedRedirectException( $this->redirects[$key]->getTargetId() );
+		}
 
 		if ( !isset( $this->entities[$key] ) || empty( $this->entities[$key] ) ) {
 			return null;
@@ -337,6 +349,17 @@ class MockRepository implements
 		ksort( $this->entities[$key] );
 
 		return $rev;
+	}
+
+	/**
+	 * Puts a redirect into the mock repository. If there already is an entity with the same ID
+	 * in the mock repository, it is replaced with the redirect.
+	 *
+	 * @param EntityRedirect $redirect
+	 */
+	public function putRedirect( EntityRedirect $redirect ) {
+		$key = $redirect->getEntityId()->getSerialization();
+		$this->redirects[$key] = $redirect;
 	}
 
 	/**
@@ -893,7 +916,11 @@ class MockRepository implements
 	 * @return int Never
 	 */
 	public function saveRedirect( EntityRedirect $redirect, $summary, User $user, $flags = 0, $baseRevId = false ) {
-		throw new StorageException( "Redirects are not supported by " . __CLASS__ );
+		if ( $redirect->getEntityId()->getEntityType() !== Item::ENTITY_TYPE ) {
+			throw new StorageException( 'Entity type does not support redirects: ' . $redirect->getEntityId()->getEntityType() );
+		}
+
+		$this->putRedirect( $redirect );
 	}
 
 	private function parseId( $id ) {
