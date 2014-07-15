@@ -64,4 +64,4 @@ composer update -o
 
 ## Updating this README
 
-This readme is located [here](https://github.com/wmde/WikidataBuildResources/blob/master/README.md). Any changes made to the README in the Wikidata build repo will be overwritten by this file daily.
+This readme is located [here](https://github.com/wmde/WikidataBuilder/blob/master/build_config/Wikidata_master/build_resources/README.md). Any changes made to the README in the Wikidata build repo will be overwritten by this file daily.

@@ -122,7 +122,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'mediawiki.Title',
 				'wikibase.store',
-				'wikibase.AbstractedRepoApi',
 				'wikibase.store.FetchedContent'
 			)
 		),
@@ -443,6 +442,16 @@ return call_user_func( function() {
 			'scripts' => 'templates.js'
 		),
 
+		'wikibase.ValueViewBuilder' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.ValueViewBuilder.js',
+			),
+			'dependencies' => array(
+				'jquery',
+				'jquery.valueview'
+			)
+		),
+
 		'jquery.ui.TemplatedWidget' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.ui/jquery.ui.TemplatedWidget.js'
@@ -514,15 +523,11 @@ return call_user_func( function() {
 				'jquery.NativeEventHandler',
 				'jquery.ui.position',
 				'jquery.ui.TemplatedWidget',
-				'jquery.valueview',
 				'jquery.wikibase.entityselector',
 				'mediawiki.legacy.shared',
 				'util.inherit',
 				'wikibase.datamodel',
 				'wikibase.dataTypes',
-				'wikibase.experts',
-				'wikibase.formatters',
-				'wikibase.parsers',
 				'wikibase.utilities'
 			),
 			'messages' => array(
@@ -759,6 +764,7 @@ return call_user_func( function() {
 
 	$modules = array_merge(
 		$modules,
+		include( __DIR__ . '/api/resources.php' ),
 		include( __DIR__ . '/experts/resources.php' ),
 		include( __DIR__ . '/formatters/resources.php' ),
 		include( __DIR__ . '/parsers/resources.php' )

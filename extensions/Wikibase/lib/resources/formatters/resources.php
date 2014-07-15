@@ -17,42 +17,28 @@ return call_user_func( function() {
 
 	return array(
 
-		'wikibase.formatters.api' => $moduleTemplate + array(
+		'wikibase.formatters.getApiBasedValueFormatterConstructor' => $moduleTemplate + array(
 			'scripts' => array(
-				'wikibase.formatters.api.js',
+				'getApiBasedValueFormatterConstructor.js',
 			),
 			'dependencies' => array(
-				'json',
-				'jquery',
-				'wikibase',
-				'wikibase.RepoApi',
-				'wikibase.dataTypes'
-			),
-		),
-
-		'wikibase.ApiBasedValueFormatter' => $moduleTemplate + array(
-			'scripts' => array(
-				'ApiBasedValueFormatter.js',
-			),
-			'dependencies' => array(
-				'mediawiki.api',
+				'wikibase.dataTypes',
 				'util.inherit',
 				'valueFormatters.ValueFormatter',
-				'wikibase.formatters.api',
 			),
 		),
 
-		'wikibase.formatters' => $moduleTemplate + array(
+		'wikibase.formatters.getStore' => $moduleTemplate + array(
 			'scripts' => array(
-				'wikibase.formatters.js',
+				'getStore.js',
 			),
 			'dependencies' => array(
 				'dataValues.values',
 				'valueFormatters.formatters',
 				'valueFormatters.ValueFormatterStore',
-				'wikibase.ApiBasedValueFormatter',
+				'wikibase.api.FormatValueCaller',
 				'wikibase.datamodel',
-				'wikibase.dataTypes',
+				'wikibase.formatters.getApiBasedValueFormatterConstructor',
 			),
 		),
 

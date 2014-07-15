@@ -10,7 +10,7 @@
  * TODO: Refactor this huge single function into smaller pieces of code.
  */
 
-( function( $, mw, wb ) {
+( function( $, mw, wb, dataTypes, experts, getFormatterStore, parsers ) {
 	'use strict';
 	/* jshint nonew: false */
 
@@ -56,13 +56,9 @@
 		}
 
 		// add an edit tool for all properties in the data view:
-		$( '.wb-property-container' ).each( function() {
+		$( '.wb-property-container:has( > .wb-property-container-key[title=description] )' ).each( function() {
 			// TODO: Make this nicer when we have implemented the data model
-			if( $( this ).children( '.wb-property-container-key' ).attr( 'title' ) === 'description' ) {
-				new wb.ui.DescriptionEditTool( this );
-			} else {
-				new wb.ui.PropertyEditTool( this );
-			}
+			new wb.ui.DescriptionEditTool( this );
 		} );
 
 		if( mw.config.get( 'wbEntity' ) !== null ) {
@@ -107,14 +103,22 @@
 			// the entity node (see FIXME below).
 			$claims.toolbarcontroller( toolbarControllerConfig ); // BUILD TOOLBARS
 
-			var entityStore = new wb.store.EntityStore();
+			var repoApi = new wb.RepoApi();
+			var abstractedRepoApi = new wb.AbstractedRepoApi();
+			var entityStore = new wb.store.EntityStore( abstractedRepoApi );
 			wb.compileEntityStoreFromMwConfig( entityStore );
 
 			// FIXME: Initializing entityview on $claims leads to the claim section inserted as
 			// child of $claims. It should be direct child of ".wb-entity".
 			$claims.entityview( {
 				value: wb.entity,
-				entityStore: entityStore
+				entityStore: entityStore,
+				valueViewBuilder: new wb.ValueViewBuilder(
+					experts,
+					getFormatterStore( repoApi, dataTypes ),
+					mw,
+					parsers
+				)
 			} ).appendTo( $claimsParent );
 
 			// This is here to be sure there is never a duplicate id
@@ -320,4 +324,12 @@
 
 	} );
 
-} )( jQuery, mediaWiki, wikibase );
+} )(
+	jQuery,
+	mediaWiki,
+	wikibase,
+	wikibase.dataTypes,
+	wikibase.experts.store,
+	wikibase.formatters.getStore,
+	wikibase.parsers.store
+);

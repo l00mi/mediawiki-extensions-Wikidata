@@ -257,16 +257,16 @@
         },
         {
             "name": "data-values/geo",
-            "version": "0.1.2",
+            "version": "0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Geo.git",
-                "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec"
+                "reference": "746dab8082c1e737304c9e4aae6a88c12921dd6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Geo/zipball/8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
-                "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
+                "url": "https://api.github.com/repos/DataValues/Geo/zipball/746dab8082c1e737304c9e4aae6a88c12921dd6b",
+                "reference": "746dab8082c1e737304c9e4aae6a88c12921dd6b",
                 "shasum": ""
             },
             "require": {
@@ -312,7 +312,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-01-24 15:08:52"
+            "time": "2014-07-07 19:32:24"
         },
         {
             "name": "data-values/interfaces",
@@ -1157,26 +1157,26 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "a6429ed70910a60684ac0539d122cc7c50e1e1c9"
+                "reference": "a6ffea3176517fd5c0389a89aaf18b1cdcdc13b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a6429ed70910a60684ac0539d122cc7c50e1e1c9",
-                "reference": "a6429ed70910a60684ac0539d122cc7c50e1e1c9",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a6ffea3176517fd5c0389a89aaf18b1cdcdc13b6",
+                "reference": "a6ffea3176517fd5c0389a89aaf18b1cdcdc13b6",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
                 "data-values/data-types": "~0.4.0",
                 "data-values/data-values": "~0.1.0",
-                "data-values/geo": "~0.1.0",
+                "data-values/geo": "~0.2.0",
                 "data-values/interfaces": "~0.1.4",
                 "data-values/javascript": "~0.5.1",
                 "data-values/number": "~0.4.0",
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.6.0",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.6.3",
+                "data-values/value-view": "~0.6.4",
                 "diff/diff": "~1.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~0.8.1",
@@ -1231,7 +1231,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-07-14 11:28:30"
+            "time": "2014-07-14 22:57:28"
         }
     ],
     "packages-dev": [

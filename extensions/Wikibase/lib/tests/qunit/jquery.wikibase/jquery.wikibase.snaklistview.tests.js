@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( mw, $, wb, dv, QUnit ) {
+( function( mw, $, wb, dv, vf, vv, QUnit ) {
 	'use strict';
 
 	var snakLists = [
@@ -28,7 +28,7 @@
 
 	// We need a filled entity store for the instances of $.wikibase.snakview.variations.Value
 	// and $.wikibase.snakview created by $.wikibase.snaklistview.
-	var entityStore = new wb.store.EntityStore();
+	var entityStore = new wb.store.EntityStore( null );
 	entityStore.compile( {
 		p1: new wb.store.FetchedContent( {
 			title: new mw.Title( 'Property:P1' ),
@@ -64,6 +64,11 @@
 		} )
 	} );
 
+	var valueViewBuilder = new wb.ValueViewBuilder(
+		new vv.ExpertStore(),
+		new vf.ValueFormatterStore( vf.NullFormatter )
+	);
+
 	/**
 	 * Generates a snaklistview widget suitable for testing.
 	 *
@@ -74,7 +79,8 @@
 	function createSnaklistview( value, additionalOptions ) {
 		var options = $.extend( additionalOptions, {
 			value: ( value || null ),
-			entityStore: entityStore
+			entityStore: entityStore,
+			valueViewBuilder: valueViewBuilder
 		} );
 
 		return $( '<div/>' )
@@ -944,4 +950,4 @@
 		testPropertyLabelVisibility( assert, snaklistview );
 	} );
 
-} )( mediaWiki, jQuery, wikibase, dataValues, QUnit );
+} )( mediaWiki, jQuery, wikibase, dataValues, valueFormatters, jQuery.valueview, QUnit );
