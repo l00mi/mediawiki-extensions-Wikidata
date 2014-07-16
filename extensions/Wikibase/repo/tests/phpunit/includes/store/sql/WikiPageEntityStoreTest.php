@@ -11,13 +11,14 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\EntityContentFactory;
+use Wikibase\EntityId;
 use Wikibase\EntityPerPageTable;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\Store\WikiPageEntityStore;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SqlIdGenerator;
-use Wikibase\StorageException;
+use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 
@@ -103,6 +104,8 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		// check that the term index got updated (via a DataUpdate).
 		$termIndex = WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex();
 		$this->assertNotEmpty( $termIndex->getTermsOfEntity( $oneId ), 'getTermsOfEntity()' );
+
+		$this->assertEntityPerPage( true, $oneId );
 	}
 
 	public function provideSaveEntityError() {
@@ -119,14 +122,14 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 				'entity' => $firstItem,
 				'flags' => EDIT_NEW,
 				'baseRevid' => false,
-				'error' => 'Wikibase\StorageException'
+				'error' => 'Wikibase\Lib\Store\StorageException'
 			),
 
 			'not exists' => array(
 				'entity' => $secondItem,
 				'flags' => EDIT_UPDATE,
 				'baseRevid' => false,
-				'error' => 'Wikibase\StorageException'
+				'error' => 'Wikibase\Lib\Store\StorageException'
 			),
 		);
 	}
@@ -206,6 +209,8 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue( $revision->getContent()->isRedirect(), 'EntityContent::isRedirect()' );
 		$this->assertTrue( $revision->getContent()->getEntityRedirect()->equals( $redirect ), 'getEntityRedirect()' );
 
+		$this->assertEntityPerPage( false, $oneId );
+
 		// check that the term index got updated (via a DataUpdate).
 		$termIndex = WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex();
 		$this->assertEmpty( $termIndex->getTermsOfEntity( $oneId ), 'getTermsOfEntity' );
@@ -218,6 +223,8 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertFalse( $revision->getTitle()->isRedirect(), 'Title::isRedirect' );
 		$this->assertFalse( $revision->getContent()->isRedirect(), 'EntityContent::isRedirect()' );
+
+		$this->assertEntityPerPage( true, $oneId );
 	}
 
 	public function unsupportedRedirectProvider() {
@@ -238,7 +245,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		list( $store, $lookup ) = $this->createStoreAndLookup();
 		$user = $GLOBALS['wgUser'];
 
-		$this->setExpectedException( 'Wikibase\StorageException' );
+		$this->setExpectedException( 'Wikibase\Lib\Store\StorageException' );
 		$store->saveRedirect( $redirect, 'redirect one', $user, EDIT_UPDATE );
 	}
 
@@ -504,6 +511,20 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEmpty( $termIndex->getTermsOfEntity( $oneId ), 'getTermsOfEntity' );
 
 		// TODO: check notifications in wb_changes table!
+
+		$this->assertEntityPerPage( false, $oneId );
+	}
+
+	private function assertEntityPerPage( $expected, EntityId $entityId ) {
+		$epp = new EntityPerPageTable();
+
+		$pageId = $epp->getPageIdForEntity( $entityId );
+
+		if ( $expected === true ) {
+			$this->assertGreaterThan( 0, $pageId );
+		} else {
+			$this->assertEquals( $expected, $pageId );
+		}
 	}
 
 }

@@ -79,6 +79,8 @@ abstract class EntityHandler extends ContentHandler {
 	 *        blob needs to be re-serialized on export. The callback must take two parameters,
 	 *        the blob an the serialization format. It must return true if re-serialization is needed.
 	 *        False positives are acceptable, false negatives are not.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(
 		$modelId,
@@ -127,8 +129,6 @@ abstract class EntityHandler extends ContentHandler {
 	/**
 	 * @see ContentHandler::getDiffEngineClass
 	 *
-	 * @since 0.1
-	 *
 	 * @return string
 	 */
 	protected function getDiffEngineClass() {
@@ -161,9 +161,7 @@ abstract class EntityHandler extends ContentHandler {
 	/**
 	 * @see ContentHandler::makeEmptyContent
 	 *
-	 * @since 0.1
-	 *
-	 * @throws \MWException Always. EntityContent cannot be empty.
+	 * @throws MWException Always. EntityContent cannot be empty.
 	 * @return EntityContent
 	 */
 	public function makeEmptyContent() {
@@ -332,8 +330,6 @@ abstract class EntityHandler extends ContentHandler {
 	public abstract function makeEntityId( $id );
 
 	/**
-	 * @since 0.1
-	 *
 	 * @return string
 	 */
 	public function getDefaultFormat() {
@@ -365,8 +361,6 @@ abstract class EntityHandler extends ContentHandler {
 
 	/**
 	 * @see ContentHandler::unserializeContent
-	 *
-	 * @since 0.1
 	 *
 	 * @param string $blob
 	 * @param null|string $format
@@ -438,8 +432,6 @@ abstract class EntityHandler extends ContentHandler {
 	/**
 	 * @see EntityHandler::getEntityNamespace
 	 *
-	 * @since 0.1
-	 *
 	 * @return int
 	 */
 	final public function getEntityNamespace() {
@@ -474,8 +466,6 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @see ContentHandler::isParserCacheSupported
 	 *
-	 * @since 0.1
-	 *
 	 * @return bool Always true in this default implementation.
 	 */
 	public function isParserCacheSupported() {
@@ -495,6 +485,7 @@ abstract class EntityHandler extends ContentHandler {
 	 */
 	public function getPageViewLanguage( Title $title, Content $content = null ) {
 		global $wgLang;
+
 		return $wgLang;
 	}
 
@@ -517,6 +508,7 @@ abstract class EntityHandler extends ContentHandler {
 	 */
 	public function getPageLanguage( Title $title, Content $content = null ) {
 		global $wgContLang;
+
 		return $wgContLang;
 	}
 
@@ -544,7 +536,9 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @return Content|bool Content on success, false on failure
 	 */
-	public function getUndoContent( Revision $latestRevision, Revision $newerRevision,
+	public function getUndoContent(
+		Revision $latestRevision,
+		Revision $newerRevision,
 		Revision $olderRevision
 	) {
 		/**
@@ -652,24 +646,27 @@ abstract class EntityHandler extends ContentHandler {
 			$entityId = $this->getIdForTitle( $title );
 		}
 
-		// Register the entity in the EntityPerPage table.
-		// @todo: Only do this if the entity is new.
-		// Note that $title->exists() will already return true at this point
-		// even if we are just now creating the entity.
-		// @todo: if this is a redirect, record redirect target
-		$updates[] = new DataUpdateClosure(
-			array( $this->entityPerPage, 'addEntityPage' ),
-			$entityId,
-			$title->getArticleID()
-		);
-
 		if ( $content->isRedirect() ) {
 			// Remove the entity from the terms table since it's now a redirect.
 			$updates[] = new DataUpdateClosure(
 				array( $this->termIndex, 'deleteTermsOfEntity' ),
 				$entityId
 			);
+
+			// Unregister the entity from the EntityPerPage table.
+			$updates[] = new DataUpdateClosure(
+				array( $this->entityPerPage, 'deleteEntityPage' ),
+				$entityId,
+				$title->getArticleID()
+			);
 		} else {
+			// Register the entity in the EntityPerPage table.
+			$updates[] = new DataUpdateClosure(
+				array( $this->entityPerPage, 'addEntityPage' ),
+				$entityId,
+				$title->getArticleID()
+			);
+
 			// Register the entity in the terms table.
 			$updates[] = new DataUpdateClosure(
 				array( $this->termIndex, 'saveTermsOfEntity' ),

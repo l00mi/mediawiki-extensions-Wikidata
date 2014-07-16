@@ -533,7 +533,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 	 * @param string|null $entityType
 	 * @param bool $fuzzySearch if false, only exact matches are returned, otherwise more relaxed search . Defaults to false.
 	 *
-	 * @return array of array( entity type, entity id )
+	 * @return EntityId[]
 	 */
 	public function getEntityIdsForLabel( $label, $languageCode = null, $entityType = null, $fuzzySearch = false ) {
 		wfProfileIn( __METHOD__ );
@@ -571,16 +571,21 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 
 		$this->releaseConnection( $db );
 
-		$result = array_map(
-			function( $entity ) {
-				return array( $entity->term_entity_type, intval( $entity->term_entity_id ) );
+		$idParser = new BasicEntityIdParser();
+		$entityIds = array_map(
+			function( $entity ) use ( $idParser ) {
+				// FIXME: this is using the deprecated EntityId constructor and a hack to get the
+				// correct EntityId type that will not work for entity types other then item and property.
+				$entityId = new EntityId( $entity->term_entity_type, (int)$entity->term_entity_id );
+				$entityId = $idParser->parse( $entityId->getSerialization() );
+				return $entityId;
 			},
 			iterator_to_array( $entities )
 		);
 
 		wfProfileOut( __METHOD__ );
 
-		return $result;
+		return $entityIds;
 	}
 
 	/**
@@ -611,8 +616,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 
 		$queryOptions = array();
 
-		if ( array_key_exists( 'LIMIT', $options ) && $options['LIMIT'] ) {
-			$queryOptions['LIMIT'] = $options['LIMIT'];
+		if ( isset( $options['LIMIT'] ) && $options['LIMIT'] > 0 ) {
+			$queryOptions['LIMIT'] = intval( $options['LIMIT'] );
 		}
 
 		$obtainedTerms = $dbr->select(
@@ -668,16 +673,16 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 			$selectionFields[] = 'term_weight';
 		}
 
-		$queryOptions = array( 'DISTINCT' );
+		$queryOptions = array(
+			'DISTINCT',
+			'LIMIT' => $internalLimit,
+		);
 
-		if ( array_key_exists( 'LIMIT', $options ) && $options['LIMIT'] ) {
-			if ( $hasWeight ) {
-				// if we take the weight into account, we need to grab basically all hits in order
-				// to allow for the post-search sorting below.
-				$queryOptions['LIMIT'] = $internalLimit;
-			} else {
-				$queryOptions['LIMIT'] = $options['LIMIT'];
-			}
+		$requestedLimit = isset( $options['LIMIT'] ) ? max( intval( $options['LIMIT'] ), 0 ) : 0;
+		// if we take the weight into account, we need to grab basically all hits in order
+		// to allow for the post-search sorting below.
+		if ( !$hasWeight && $requestedLimit && $requestedLimit < $queryOptions['LIMIT'] ) {
+			$queryOptions['LIMIT'] = $requestedLimit;
 		}
 
 		$obtainedIDs = $dbr->select(
@@ -700,8 +705,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 			// weight to it here (which would allow us to delegate the sorting to SQL itself)
 			arsort( $weights, SORT_NUMERIC );
 
-			if ( array_key_exists( 'LIMIT', $options ) && $options['LIMIT'] ) {
-				$numericIds = array_keys( array_slice( $weights, 0, $options['LIMIT'], true ) );
+			if ( $requestedLimit ) {
+				$numericIds = array_keys( array_slice( $weights, 0, $requestedLimit, true ) );
 			} else {
 				$numericIds = array_keys( $weights );
 			}

@@ -121,7 +121,7 @@
             },
             "files": [
 
-            ],
+    ],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"
@@ -283,23 +283,23 @@
     },
     {
         "name": "wikibase/data-model-javascript",
-        "version": "0.2.0",
-        "version_normalized": "0.2.0.0",
+        "version": "0.3.0",
+        "version_normalized": "0.3.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
-            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d"
+            "reference": "2d415cc002e3fe73c036696679abe25e71fd4463"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/c74867c665ba23c366d978d7dd461ea70475d57d",
-            "reference": "c74867c665ba23c366d978d7dd461ea70475d57d",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/2d415cc002e3fe73c036696679abe25e71fd4463",
+            "reference": "2d415cc002e3fe73c036696679abe25e71fd4463",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0"
         },
-        "time": "2014-06-26 12:47:29",
+        "time": "2014-07-10 11:15:17",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -339,24 +339,24 @@
     },
     {
         "name": "wikibase/serialization-javascript",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
+        "version": "1.1.1",
+        "version_normalized": "1.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca"
+            "reference": "53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/3e18ec18eb4481684c30a41d69faa68b6ce720ca",
-            "reference": "3e18ec18eb4481684c30a41d69faa68b6ce720ca",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028",
+            "reference": "53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
-            "wikibase/data-model-javascript": "~0.2.0"
+            "wikibase/data-model-javascript": "~0.3.0"
         },
-        "time": "2014-07-03 07:38:47",
+        "time": "2014-07-10 12:57:32",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -545,7 +545,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Serializers and deserializers for DataValue implementations",
@@ -735,67 +735,6 @@
         ]
     },
     {
-        "name": "data-values/geo",
-        "version": "0.1.2",
-        "version_normalized": "0.1.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Geo.git",
-            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Geo/zipball/8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
-            "reference": "8af1bc11224c46a308f6b8ecac8e2d8b4cbb14ec",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-01-24 15:08:52",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Geo.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Geographical value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Geo",
-        "keywords": [
-            "datavalues",
-            "geo",
-            "geographical",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/data-model-serialization",
         "version": "1.0.1",
         "version_normalized": "1.0.1.0",
@@ -844,7 +783,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             },
             {
                 "name": "Thomas PT",
@@ -975,23 +914,23 @@
     },
     {
         "name": "data-values/data-types",
-        "version": "0.3",
-        "version_normalized": "0.3.0.0",
+        "version": "0.4",
+        "version_normalized": "0.4.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataTypes.git",
-            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1"
+            "reference": "5f6eee1eaf32762fa143d57fb6799bdc67d57c11"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
-            "reference": "040ed6d4b9f67a032b8b34fdb40d71fe3c3eb2a1",
+            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/5f6eee1eaf32762fa143d57fb6799bdc67d57c11",
+            "reference": "5f6eee1eaf32762fa143d57fb6799bdc67d57c11",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-05-21 09:39:21",
+        "time": "2014-05-21 13:11:36",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1187,46 +1126,107 @@
         ]
     },
     {
-        "name": "wikibase/wikibase",
-        "version": "dev-mw1.24-wmf12",
-        "version_normalized": "dev-mw1.24-wmf12",
+        "name": "data-values/geo",
+        "version": "0.2",
+        "version_normalized": "0.2.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "71157c007060d43b2afb8cbcb1fbd869e10f759a"
+            "url": "https://github.com/DataValues/Geo.git",
+            "reference": "746dab8082c1e737304c9e4aae6a88c12921dd6b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/71157c007060d43b2afb8cbcb1fbd869e10f759a",
-            "reference": "71157c007060d43b2afb8cbcb1fbd869e10f759a",
+            "url": "https://api.github.com/repos/DataValues/Geo/zipball/746dab8082c1e737304c9e4aae6a88c12921dd6b",
+            "reference": "746dab8082c1e737304c9e4aae6a88c12921dd6b",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.1",
+            "data-values/data-values": "~0.1",
+            "data-values/interfaces": "~0.1",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-07-07 19:32:24",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Geo.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Geographical value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Geo",
+        "keywords": [
+            "datavalues",
+            "geo",
+            "geographical",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/wikibase",
+        "version": "dev-mw1.24-wmf14",
+        "version_normalized": "dev-mw1.24-wmf14",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "4083f34fc8ff532e3d23f194b3b0bf30dafbc014"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4083f34fc8ff532e3d23f194b3b0bf30dafbc014",
+            "reference": "4083f34fc8ff532e3d23f194b3b0bf30dafbc014",
             "shasum": ""
         },
         "require": {
             "data-values/common": "~0.2.0",
-            "data-values/data-types": "~0.3.0",
+            "data-values/data-types": "~0.4.0",
             "data-values/data-values": "~0.1.0",
-            "data-values/geo": "~0.1.0",
+            "data-values/geo": "~0.2.0",
             "data-values/interfaces": "~0.1.4",
             "data-values/javascript": "~0.5.1",
             "data-values/number": "~0.4.0",
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.6.0",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.6.3",
+            "data-values/value-view": "~0.6.4",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~0.8.1",
-            "wikibase/data-model-javascript": "~0.2.0",
+            "wikibase/data-model-javascript": "~0.3.0",
             "wikibase/easyrdf_lite": "~0.8.1",
             "wikibase/internal-serialization": "~1.1",
-            "wikibase/serialization-javascript": "~1.0.0"
+            "wikibase/serialization-javascript": "~1.1.1"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-11 11:48:09",
+        "time": "2014-07-15 23:48:41",
         "type": "mediawiki-extension",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"

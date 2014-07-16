@@ -15,6 +15,8 @@
  *
  * @option entityStore {wikibase.store.EntityStore}
  *
+ * @option valueViewBuilder {wikibase.ValueViewBuilder}
+ *
  * @option index {number|null} The reference's index within the list of references (if the reference
  *         is contained within such a list).
  *         Default: null
@@ -75,13 +77,14 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		},
 		statementGuid: null,
 		entityStore: null,
+		valueViewBuilder: null,
 		index: null,
 		helpMessage: mw.msg( 'wikibase-claimview-snak-new-tooltip' )
 	},
 
 	/**
 	 * Reference object represented by this view.
-	 * @type {wb.Reference}
+	 * @type {wb.datamodel.Reference}
 	 */
 	_reference: null,
 
@@ -91,7 +94,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 * in losing the reference to those snaks. Therefore, _initialSnakList is used to rebuild the
 	 * list of snaks when cancelling and is used to query whether the snaks represent the initial
 	 * state.
-	 * @type {wikibase.SnakList}
+	 * @type {wb.datamodel.SnakList}
 	 */
 	_initialSnakList: null,
 
@@ -111,12 +114,12 @@ $.widget( 'wikibase.referenceview', PARENT, {
 
 	/**
 	 * Shortcut to the listview widget used by the referenceview to manage the snaklistview widgets.
-	 * @type {jQuery.wikibase.listview}
+	 * @type {$.wikibase.listview}
 	 */
 	_listview: null,
 
 	/**
-	 * @see jQuery.wikibase.snaklistview._create
+	 * @see $.wikibase.snaklistview._create
 	 */
 	_create: function() {
 		var self = this;
@@ -130,13 +133,13 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		if ( this.option( 'value' ) ) {
 			this._reference = this.option( 'value' );
 			// Overwrite the value since listItemAdapter is the snakview prototype which requires a
-			// wb.SnakList object for initialization:
+			// wb.datamodel.SnakList object for initialization:
 			this._initialSnakList = this._reference.getSnaks();
 			this.options.value = this._initialSnakList.getGroupedSnakLists();
 		}
 
 		if( !this._initialSnakList ) {
-			this._initialSnakList = new wb.SnakList();
+			this._initialSnakList = new wb.datamodel.SnakList();
 		}
 
 		this._initialIndex = this.option( 'index' );
@@ -149,7 +152,8 @@ $.widget( 'wikibase.referenceview', PARENT, {
 					return {
 						value: value || null,
 						singleProperty: true,
-						entityStore: self.option( 'entityStore' )
+						entityStore: self.option( 'entityStore' ),
+						valueViewBuilder: self.option( 'valueViewBuilder' )
 					};
 				}
 			} );
@@ -260,7 +264,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 * reference's hash. If null is given or if the reference has no hash, 'wb-reference-new' will
 	 * be added as class.
 	 *
-	 * @param {wb.Reference|null} reference
+	 * @param {wb.datamodel.Reference|null} reference
 	 */
 	_updateReferenceHashClass: function( reference ) {
 		var refHash = reference && reference.getHash() || 'new';
@@ -275,22 +279,22 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	/**
 	 * Sets/Returns the current reference represented by the view. In case of an empty reference
 	 * view, without any snak values set yet, null will be returned.
-	 * @see jQuery.wikibase.snaklistview.value
+	 * @see $.wikibase.snaklistview.value
 	 * @since 0.4
 	 *
-	 * @param {wb.Reference} [reference] New reference to be set
-	 * @return {wb.Reference|null}
+	 * @param {wb.datamodel.Reference} [reference] New reference to be set
+	 * @return {wb.datamodel.Reference|null}
 	 */
 	value: function( reference ) {
 		if ( reference ) {
-			if ( !( reference instanceof wb.Reference ) ) {
-				throw new Error( 'Value has to be an instance of wikibase.Reference' );
+			if ( !( reference instanceof wb.datamodel.Reference ) ) {
+				throw new Error( 'Value has to be an instance of wikibase.datamodel.Reference' );
 			}
 			this._reference = reference;
 			return this._reference;
 		} else {
 			var snaklistviews = this._listview.items(),
-				snakList = new wb.SnakList();
+				snakList = new wb.datamodel.SnakList();
 
 			for( var i = 0; i < snaklistviews.length; i++ ) {
 				var snak = this.options.listItemAdapter.liValue( snaklistviews.eq( i ) );
@@ -300,9 +304,9 @@ $.widget( 'wikibase.referenceview', PARENT, {
 			}
 
 			if ( this._reference ) {
-				return new wb.Reference( snakList || [], this._reference.getHash() );
+				return new wb.datamodel.Reference( snakList || [], this._reference.getHash() );
 			} else if ( snakList.length ) {
-				return new wb.Reference( snakList );
+				return new wb.datamodel.Reference( snakList );
 			} else {
 				return null;
 			}
@@ -418,7 +422,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 
 		if( !dropValue ) {
 			// When saving the qualifier snaks, reset the initial qualifiers to the new ones.
-			this._initialSnakList = new wb.SnakList();
+			this._initialSnakList = new wb.datamodel.SnakList();
 		}
 
 		if( $snaklistviews.length ) {
@@ -502,7 +506,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		}
 
 		var $snaklistviews = this._listview.items(),
-			snakList = new wb.SnakList();
+			snakList = new wb.datamodel.SnakList();
 
 		// Generate a SnakList object featuring all current reference snaks to be able to compare it
 		// to the SnakList object the referenceview has been initialized with:

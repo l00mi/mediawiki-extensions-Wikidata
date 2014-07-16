@@ -4,6 +4,7 @@ namespace Wikibase\Test;
 
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\EntityPerPageTable;
 use Wikibase\Repo\WikibaseRepo;
@@ -114,6 +115,19 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 				array( $property ), Item::ENTITY_TYPE, 100, array()
 			),
 		);
+	}
+
+	public function testGetPageIdForEntity() {
+		$entity = Item::newEmpty();
+
+		$epp = $this->newEntityPerPageTable( array( $entity ) );
+		$entityId = $entity->getId();
+
+		$this->assertFalse( $epp->getPageIdForEntity( new ItemId( 'Q7435389457' ) ) );
+
+		$pageId = $epp->getPageIdForEntity( $entityId );
+		$this->assertInternalType( 'int', $pageId );
+		$this->assertGreaterThan( 0, $pageId );
 	}
 
 }

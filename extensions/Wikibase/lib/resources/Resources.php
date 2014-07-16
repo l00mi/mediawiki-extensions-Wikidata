@@ -34,7 +34,7 @@ return call_user_func( function() {
 			'class' => 'Wikibase\SitesModule'
 		),
 
-		'wikibase.repoAccess' => $moduleTemplate + array(
+		'mw.config.values.wbRepo' => $moduleTemplate + array(
 			'class' => 'Wikibase\RepoAccessModule',
 		),
 
@@ -122,7 +122,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'mediawiki.Title',
 				'wikibase.store',
-				'wikibase.AbstractedRepoApi',
 				'wikibase.store.FetchedContent'
 			)
 		),
@@ -162,7 +161,7 @@ return call_user_func( function() {
 				'user.tokens',
 				'mediawiki.api',
 				'mediawiki',
-				'wikibase.repoAccess',
+				'mw.config.values.wbRepo',
 				'wikibase',
 			)
 		),
@@ -236,7 +235,6 @@ return call_user_func( function() {
 				'wikibase.utilities/wikibase.utilities.ClaimGuidGenerator.js',
 			),
 			'dependencies' => array(
-				'wikibase.datamodel',
 				'wikibase.utilities.GuidGenerator',
 			)
 		),
@@ -444,6 +442,16 @@ return call_user_func( function() {
 			'scripts' => 'templates.js'
 		),
 
+		'wikibase.ValueViewBuilder' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.ValueViewBuilder.js',
+			),
+			'dependencies' => array(
+				'jquery',
+				'jquery.valueview'
+			)
+		),
+
 		'jquery.ui.TemplatedWidget' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.ui/jquery.ui.TemplatedWidget.js'
@@ -515,15 +523,11 @@ return call_user_func( function() {
 				'jquery.NativeEventHandler',
 				'jquery.ui.position',
 				'jquery.ui.TemplatedWidget',
-				'jquery.valueview',
 				'jquery.wikibase.entityselector',
 				'mediawiki.legacy.shared',
 				'util.inherit',
 				'wikibase.datamodel',
 				'wikibase.dataTypes',
-				'wikibase.experts',
-				'wikibase.formatters',
-				'wikibase.parsers',
 				'wikibase.utilities'
 			),
 			'messages' => array(
@@ -550,6 +554,7 @@ return call_user_func( function() {
 				'jquery.wikibase.snakview',
 				'jquery.wikibase.snaklistview',
 				'wikibase.AbstractedRepoApi',
+				'wikibase.datamodel',
 				'jquery.wikibase.toolbarcontroller',
 			),
 			'messages' => array(
@@ -568,6 +573,7 @@ return call_user_func( function() {
 				'jquery.wikibase.snaklistview',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase.AbstractedRepoApi',
+				'wikibase.datamodel'
 			)
 		),
 
@@ -637,6 +643,7 @@ return call_user_func( function() {
 				'jquery.wikibase.listview',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase',
+				'wikibase.datamodel',
 				'wikibase.AbstractedRepoApi',
 			),
 		),
@@ -757,6 +764,7 @@ return call_user_func( function() {
 
 	$modules = array_merge(
 		$modules,
+		include( __DIR__ . '/api/resources.php' ),
 		include( __DIR__ . '/experts/resources.php' ),
 		include( __DIR__ . '/formatters/resources.php' ),
 		include( __DIR__ . '/parsers/resources.php' )

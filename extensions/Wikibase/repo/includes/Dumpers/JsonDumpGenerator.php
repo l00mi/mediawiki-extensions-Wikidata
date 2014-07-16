@@ -2,17 +2,17 @@
 
 namespace Wikibase\Dumpers;
 
-use ExceptionHandler;
 use InvalidArgumentException;
-use MessageReporter;
 use MWException;
-use NullMessageReporter;
-use RethrowingExceptionHandler;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\EntityIdPager;
-use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Reporting\ExceptionHandler;
+use Wikibase\Lib\Reporting\MessageReporter;
+use Wikibase\Lib\Reporting\NullMessageReporter;
+use Wikibase\Lib\Reporting\RethrowingExceptionHandler;
 use Wikibase\Lib\Serializers\Serializer;
-use Wikibase\StorageException;
+use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\StorageException;
 
 /**
  * JsonDumpGenerator generates an JSON dump of a given set of entities.
@@ -118,7 +118,7 @@ class JsonDumpGenerator {
 	}
 
 	/**
-	 * @param bool Whether to output valid json (false) or only comma separated entities
+	 * @param bool $useSnippets Whether to output valid json (false) or only comma separated entities
 	 */
 	public function setUseSnippets( $useSnippets ) {
 		$this->useSnippets = (bool)$useSnippets;
@@ -134,14 +134,14 @@ class JsonDumpGenerator {
 	}
 
 	/**
-	 * @param \MessageReporter $progressReporter
+	 * @param MessageReporter $progressReporter
 	 */
 	public function setProgressReporter( MessageReporter $progressReporter ) {
 		$this->progressReporter = $progressReporter;
 	}
 
 	/**
-	 * @return \MessageReporter
+	 * @return MessageReporter
 	 */
 	public function getProgressReporter() {
 		return $this->progressReporter;

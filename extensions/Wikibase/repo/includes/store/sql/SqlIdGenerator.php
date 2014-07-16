@@ -1,6 +1,9 @@
 <?php
 
 namespace Wikibase;
+
+use DatabaseBase;
+use MWException;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -15,40 +18,30 @@ use Wikibase\Repo\WikibaseRepo;
 class SqlIdGenerator implements IdGenerator {
 
 	/**
-	 * @since 0.1
-	 *
 	 * @var string
 	 */
-	protected $table;
+	private $table;
 
 	/**
-	 * @since 0.1
-	 *
-	 * @var \DatabaseBase
+	 * @var DatabaseBase
 	 */
-	protected $db;
+	private $db;
 
 	/**
-	 * Constructor.
-	 *
-	 * @since 0.1
-	 *
 	 * @param string $tableName
-	 * @param \DatabaseBase $database
+	 * @param DatabaseBase $database
 	 */
-	public function __construct( $tableName, \DatabaseBase $database ) {
+	public function __construct( $tableName, DatabaseBase $database ) {
 		$this->table = $tableName;
 		$this->db = $database;
 	}
 
 	/**
-	 * @see IdIncrementer::getNewId
-	 *
-	 * @since 0.1
+	 * @see IdGenerator::getNewId
 	 *
 	 * @param string $type
 	 *
-	 * @return integer
+	 * @return int
 	 */
 	public function getNewId( $type ) {
 		return $this->generateNewId( $type );
@@ -60,10 +53,10 @@ class SqlIdGenerator implements IdGenerator {
 	 * @since 0,1
 	 *
 	 * @param string $type
-	 * @param boolean $retry
+	 * @param bool $retry Retry once in case of e.g. race conditions. Defaults to true.
 	 *
-	 * @return integer
-	 * @throws \MWException
+	 * @throws MWException
+	 * @return int
 	 */
 	protected function generateNewId( $type, $retry = true ) {
 		$trx = $this->db->trxLevel();
@@ -112,7 +105,7 @@ class SqlIdGenerator implements IdGenerator {
 		}
 
 		if ( !$success ) {
-			throw new \MWException( 'Could not generate a reliably unique ID.' );
+			throw new MWException( 'Could not generate a reliably unique ID.' );
 		}
 
 		$idBlacklist = WikibaseRepo::getDefaultInstance()->

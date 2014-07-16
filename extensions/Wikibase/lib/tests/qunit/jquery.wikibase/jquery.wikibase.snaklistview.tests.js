@@ -2,37 +2,37 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( mw, $, wb, dv, QUnit ) {
+( function( mw, $, wb, dv, vf, vv, QUnit ) {
 	'use strict';
 
 	var snakLists = [
-		new wb.SnakList( [
-			new wb.PropertyValueSnak( 'p1', new dv.StringValue( 'a' ) ),
-			new wb.PropertyValueSnak( 'p2', new dv.StringValue( 'b' ) ),
-			new wb.PropertyValueSnak( 'p3', new dv.StringValue( 'c' ) )
+		new wb.datamodel.SnakList( [
+			new wb.datamodel.PropertyValueSnak( 'p1', new dv.StringValue( 'a' ) ),
+			new wb.datamodel.PropertyValueSnak( 'p2', new dv.StringValue( 'b' ) ),
+			new wb.datamodel.PropertyValueSnak( 'p3', new dv.StringValue( 'c' ) )
 		] ),
-		new wb.SnakList( [
-			new wb.PropertyValueSnak( 'p4', new dv.StringValue( 'd' ) )
+		new wb.datamodel.SnakList( [
+			new wb.datamodel.PropertyValueSnak( 'p4', new dv.StringValue( 'd' ) )
 		] )
 	];
 
 	var snakSet = [
-		new wb.PropertyValueSnak( 'p1',  new dv.StringValue( 'a' ) ),
-		new wb.PropertyValueSnak( 'p1',  new dv.StringValue( 'b' ) ),
-		new wb.PropertyValueSnak( 'p2',  new dv.StringValue( 'c' ) ),
-		new wb.PropertyValueSnak( 'p2',  new dv.StringValue( 'd' ) ),
-		new wb.PropertyValueSnak( 'p2',  new dv.StringValue( 'e' ) ),
-		new wb.PropertyValueSnak( 'p3',  new dv.StringValue( 'f' ) ),
-		new wb.PropertyValueSnak( 'p4',  new dv.StringValue( 'g' ) )
+		new wb.datamodel.PropertyValueSnak( 'p1',  new dv.StringValue( 'a' ) ),
+		new wb.datamodel.PropertyValueSnak( 'p1',  new dv.StringValue( 'b' ) ),
+		new wb.datamodel.PropertyValueSnak( 'p2',  new dv.StringValue( 'c' ) ),
+		new wb.datamodel.PropertyValueSnak( 'p2',  new dv.StringValue( 'd' ) ),
+		new wb.datamodel.PropertyValueSnak( 'p2',  new dv.StringValue( 'e' ) ),
+		new wb.datamodel.PropertyValueSnak( 'p3',  new dv.StringValue( 'f' ) ),
+		new wb.datamodel.PropertyValueSnak( 'p4',  new dv.StringValue( 'g' ) )
 	];
 
-	// We need a filled entity store for the instances of jquery.wikibase.snakview.variations.Value
-	// and jquery.wikibase.snakview created by jquery.wikibase.snaklistview.
-	var entityStore = new wb.store.EntityStore();
+	// We need a filled entity store for the instances of $.wikibase.snakview.variations.Value
+	// and $.wikibase.snakview created by $.wikibase.snaklistview.
+	var entityStore = new wb.store.EntityStore( null );
 	entityStore.compile( {
 		p1: new wb.store.FetchedContent( {
 			title: new mw.Title( 'Property:P1' ),
-			content: new wb.Property( {
+			content: new wb.datamodel.Property( {
 				id: 'P1',
 				type: 'property',
 				datatype: 'string'
@@ -40,7 +40,7 @@
 		} ),
 		p2: new wb.store.FetchedContent( {
 			title: new mw.Title( 'Property:P2' ),
-			content: new wb.Property( {
+			content: new wb.datamodel.Property( {
 				id: 'P2',
 				type: 'property',
 				datatype: 'string'
@@ -48,7 +48,7 @@
 		} ),
 		p3: new wb.store.FetchedContent( {
 			title: new mw.Title( 'Property:P3' ),
-			content: new wb.Property( {
+			content: new wb.datamodel.Property( {
 				id: 'P3',
 				type: 'property',
 				datatype: 'string'
@@ -56,7 +56,7 @@
 		} ),
 		p4: new wb.store.FetchedContent( {
 			title: new mw.Title( 'Property:P4' ),
-			content: new wb.Property( {
+			content: new wb.datamodel.Property( {
 				id: 'P4',
 				type: 'property',
 				datatype: 'string'
@@ -64,17 +64,23 @@
 		} )
 	} );
 
+	var valueViewBuilder = new wb.ValueViewBuilder(
+		new vv.ExpertStore(),
+		new vf.ValueFormatterStore( vf.NullFormatter )
+	);
+
 	/**
 	 * Generates a snaklistview widget suitable for testing.
 	 *
-	 * @param {wikibase.SnakList} [value]
+	 * @param {wb.datamodel.SnakList} [value]
 	 * @param {Object} [additionalOptions]
 	 * @return {jQuery}
 	 */
 	function createSnaklistview( value, additionalOptions ) {
 		var options = $.extend( additionalOptions, {
 			value: ( value || null ),
-			entityStore: entityStore
+			entityStore: entityStore,
+			valueViewBuilder: valueViewBuilder
 		} );
 
 		return $( '<div/>' )
@@ -86,9 +92,9 @@
 	 * Sets a snak list on a given snaklistview retaining the initial snak list (since it gets
 	 * overwritten by using value() to set a snak list).
 	 *
-	 * @param {jquery.wikibase.snaklistview} snaklistview
-	 * @param {wikibase.SnakList} value
-	 * @return {jquery.wikibase.snaklistview}
+	 * @param {$.wikibase.snaklistview} snaklistview
+	 * @param {wb.datamodel.SnakList} value
+	 * @return {$.wikibase.snaklistview}
 	 */
 	function setValueKeepingInitial( snaklistview, value ) {
 		var initialValue = snaklistview._snakList;
@@ -102,7 +108,7 @@
 	/**
 	 * Returns the concatenated string values of a snak list's snaks.
 	 *
-	 * @param {wikibase.SnakList} snakList
+	 * @param {wb.datamodel.SnakList} snakList
 	 * @return {string}
 	 */
 	function snakOrder( snakList ) {
@@ -213,7 +219,7 @@
 		);
 
 		assert.ok(
-			snaklistview.value( new wb.SnakList() ),
+			snaklistview.value( new wb.datamodel.SnakList() ),
 			'Set empty snak list.'
 		);
 
@@ -272,7 +278,7 @@
 		);
 
 		assert.ok(
-			snaklistview.value( new wb.SnakList() ),
+			snaklistview.value( new wb.datamodel.SnakList() ),
 			'Set empty snak list.'
 		);
 
@@ -306,7 +312,7 @@
 			'snaklistview does not have the initial value after setting a value.'
 		);
 
-		snaklistview = setValueKeepingInitial( snaklistview, new wb.SnakList() );
+		snaklistview = setValueKeepingInitial( snaklistview, new wb.datamodel.SnakList() );
 
 		assert.ok(
 			snaklistview.isInitialValue(),
@@ -333,7 +339,7 @@
 			'snaklistview does not have the initial value after overwriting its value.'
 		);
 
-		snaklistview = setValueKeepingInitial( snaklistview, new wb.SnakList() );
+		snaklistview = setValueKeepingInitial( snaklistview, new wb.datamodel.SnakList() );
 
 		assert.ok(
 			!snaklistview.isInitialValue(),
@@ -341,7 +347,7 @@
 		);
 
 		snaklistview = setValueKeepingInitial(
-			snaklistview, wb.SnakList.newFromJSON( snakLists[0].toJSON() )
+			snaklistview, wb.datamodel.SnakList.newFromJSON( snakLists[0].toJSON() )
 		);
 
 		assert.ok(
@@ -612,7 +618,7 @@
 
 		// Set an empty snak list and stop edit mode.
 		snaklistview.startEditing();
-		snaklistview = setValueKeepingInitial( snaklistview, new wb.SnakList() );
+		snaklistview = setValueKeepingInitial( snaklistview, new wb.datamodel.SnakList() );
 
 		snaklistview.stopEditing( true );
 
@@ -680,7 +686,7 @@
 
 		// Set an empty snak list and stop edit mode.
 		snaklistview.startEditing();
-		snaklistview = setValueKeepingInitial( snaklistview, new wb.SnakList() );
+		snaklistview = setValueKeepingInitial( snaklistview, new wb.datamodel.SnakList() );
 
 		snaklistview.stopEditing();
 
@@ -710,7 +716,7 @@
 		/**
 		 * Returns a string representing the state a snaklistview's snakviews are in.
 		 *
-		 * @param {jquery.wikibase.snaklistview} snaklistview
+		 * @param {$.wikibase.snaklistview} snaklistview
 		 * @return {string}
 		 */
 		function getSnakviewStates( snaklistview ) {
@@ -776,7 +782,7 @@
 	} );
 
 	QUnit.test( 'move()', function( assert ) {
-		var snakList = new wb.SnakList( snakSet );
+		var snakList = new wb.datamodel.SnakList( snakSet );
 
 		/**
 		 * Array of test case definitions. Test case definition structure:
@@ -854,7 +860,7 @@
 	} );
 
 	QUnit.test( 'moveUp() and moveDown()', function( assert ) {
-		var snakList = new wb.SnakList( snakSet ),
+		var snakList = new wb.datamodel.SnakList( snakSet ),
 			$node,
 			snaklistview;
 
@@ -944,4 +950,4 @@
 		testPropertyLabelVisibility( assert, snaklistview );
 	} );
 
-} )( mediaWiki, jQuery, wikibase, dataValues, QUnit );
+} )( mediaWiki, jQuery, wikibase, dataValues, valueFormatters, jQuery.valueview, QUnit );

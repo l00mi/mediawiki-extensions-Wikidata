@@ -12,14 +12,15 @@
  * @since 0.5
  * @extends jQuery.TemplatedWidget
  *
- * @option {wikibase.Claim[]|null} value The claims to be displayed by this view. If null, the view
+ * @option {wb.datamodel.Claim[]|null} value The claims to be displayed by this view. If null, the view
  *         will display only an add button to add new claims.
  *         Default: null
  *
  * @option {string} entityType Type of the entity that the claimgrouplistview referes to.
- *         Default: wikibase.Item.type
+ *         Default: wb.datamodel.Item.type
  *
  * @option {wikibase.store.EntityStore} entityStore
+ * @option {wikibase.ValueViewBuilder} valueViewBuilder
  */
 $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	/**
@@ -36,8 +37,9 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 			$listview: '.wb-claimlists'
 		},
 		value: null,
-		entityType: wb.Item.type,
-		entityStore: null
+		entityType: wb.datamodel.Item.type,
+		entityStore: null,
+		valueViewBuilder: null
 	},
 
 	/**
@@ -104,7 +106,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	 * property.
 	 * @since 0.5
 	 *
-	 * @param {wikibase.Claim[]} claims
+	 * @param {wb.datamodel.Claim[]} claims
 	 *
 	 * @todo This method should not be necessary because this.option( 'value' ) should already
 	 * contain proper order information to directly feed the listview.
@@ -166,7 +168,8 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 						value: value,
 						entityType: self.option( 'entityType' ),
 						firstClaimIndex: indexOf( value, self.option( 'value' ) ),
-						entityStore: self.option( 'entityStore' )
+						entityStore: self.option( 'entityStore' ),
+						valueViewBuilder: self.option( 'valueViewBuilder' )
 					};
 				}
 			} )
@@ -217,7 +220,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	 * Returns the listview widget containing the claimlistviews managed by the claimgrouplistview.
 	 * @since 0.5
 	 *
-	 * @return {jquery.wikibase.listview}
+	 * @return {$.wikibase.listview}
 	 */
 	listview: function() {
 		return this.$listview.data( 'listview' );
@@ -283,7 +286,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	 * @since 0.5
 	 *
 	 * @param {string} propertyId
-	 * @return {jquery.wikibase.claimlistview|null}
+	 * @return {$.wikibase.claimlistview|null}
 	 */
 	_findClaimlistview: function( propertyId ) {
 		var $claimlistviews = this.listview().items(),

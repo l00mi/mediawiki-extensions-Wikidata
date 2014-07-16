@@ -12,10 +12,6 @@ namespace DataValues;
  */
 class GlobeCoordinateValue extends DataValueObject {
 
-	// TODO: Introduce some constants holding the different precisions and document. Sync with JS.
-	// Take Time as an example how to do this.
-	// Precision values also need to be documented.
-
 	/**
 	 * @since 0.1
 	 *
@@ -28,12 +24,12 @@ class GlobeCoordinateValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @var float|int
+	 * @var float|int|null
 	 */
 	protected $precision;
 
 	/**
-	 * The globe on which the location resides.
+	 * IRI of the globe on which the location resides.
 	 *
 	 * @since 0.1
 	 *
@@ -47,8 +43,8 @@ class GlobeCoordinateValue extends DataValueObject {
 	 * @since 0.1
 	 *
 	 * @param LatLongValue $latLang
-	 * @param float|int $precision
-	 * @param string $globe
+	 * @param float|int|null $precision
+	 * @param string $globe IRI, defaults to 'http://www.wikidata.org/entity/Q2'.
 	 *
 	 * @throws IllegalValueException
 	 */
@@ -174,14 +170,14 @@ class GlobeCoordinateValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return float|int
+	 * @return float|int|null
 	 */
 	public function getPrecision() {
 		return $this->precision;
 	}
 
 	/**
-	 * Returns the identifier of the globe on which the location resides.
+	 * Returns the IRI of the globe on which the location resides.
 	 *
 	 * @since 0.1
 	 *
@@ -196,7 +192,7 @@ class GlobeCoordinateValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function getArrayValue() {
 		return array(
@@ -218,7 +214,7 @@ class GlobeCoordinateValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @param mixed $data
+	 * @param array $data
 	 *
 	 * @return GlobeCoordinateValue
 	 * @throws IllegalValueException

@@ -2,12 +2,29 @@
  * @licence GNU GPL v2+
  * @author Adrian Lang < adrian.lang@wikimedia.de >
  */
-( function( $, wb, QUnit ) {
+( function( $, mw, wb, vv, vf, QUnit ) {
 	'use strict';
 
 	// We need an entity store for the instances of jquery.wikibase.referenceview
 	// and jquery.wikibase.snakview created by jquery.wikibase.referenceview.
-	var entityStore = new wb.store.EntityStore();
+	var entityStore = new wb.store.EntityStore( null );
+	entityStore.compile( {
+		P1: new wb.store.FetchedContent( {
+			title: new mw.Title( 'Property:P1' ),
+			content: new wb.datamodel.Property( {
+				id: 'P1',
+				type: 'property',
+				datatype: 'string',
+				label: { en: 'P1' }
+			} )
+		} )
+	} );
+
+
+	var valueViewBuilder = new wb.ValueViewBuilder(
+		new vv.ExpertStore(),
+		new vf.ValueFormatterStore( vf.NullFormatter )
+	);
 
 	/**
 	 * Generates a referenceview widget suitable for testing.
@@ -19,7 +36,8 @@
 	function createReferenceview( statementGuid, additionalOptions ) {
 		var options = $.extend( additionalOptions, {
 			statementGuid: statementGuid,
-			entityStore: entityStore
+			entityStore: entityStore,
+			valueViewBuilder: valueViewBuilder
 		} );
 
 		return $( '<div/>' )
@@ -90,8 +108,8 @@
 
 	QUnit.test( 'is initialized with a value', function( assert ) {
 		var $node = createReferenceview( 'testGuid', {
-				value: new wb.Reference(
-					new wb.PropertyNoValueSnak( 'P1' )
+				value: new wb.datamodel.Reference(
+					new wb.datamodel.PropertyNoValueSnak( 'P1' )
 				)
 			} ),
 			referenceview = $node.data( 'referenceview' );
@@ -154,4 +172,4 @@
 		);
 	} );
 
-} )( jQuery, wikibase, QUnit );
+} )( jQuery, mediaWiki, wikibase, jQuery.valueview, valueFormatters, QUnit );

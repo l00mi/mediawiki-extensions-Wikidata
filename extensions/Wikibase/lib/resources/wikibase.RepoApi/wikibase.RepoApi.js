@@ -8,14 +8,6 @@
 ( function( mw, wb, $ ) {
 'use strict';
 
-var REPO_API = mw.config.get( 'wbRepoUrl' ) + mw.config.get( 'wbRepoScriptPath' ) + '/api.php',
-	LOCAL_API = mw.config.get( 'wgServer' ) + mw.config.get( 'wgScriptPath' ) + '/api.php';
-
-	if( LOCAL_API === REPO_API ) {
-		// The current wiki *is* the repo so we can just use user.tokens to get the edit token
-		mw.config.set( 'wbRepoEditToken', mw.user.tokens.get( 'editToken' ) );
-	}
-
 /**
  * Constructor to create an API object for interaction with the repo Wikibase API.
  *
@@ -27,9 +19,23 @@ var REPO_API = mw.config.get( 'wbRepoUrl' ) + mw.config.get( 'wbRepoScriptPath' 
  * @constructor
  * @since 0.4 (since 0.3 as wb.Api without support for client usage)
  */
-wb.RepoApi = function wbRepoApi() {};
+wb.RepoApi = function wbRepoApi() {
+	var localApiEndpoint = mw.config.get( 'wgServer' ) + mw.config.get( 'wgScriptPath' ) + '/api.php';
+
+	this._repoConfig = mw.config.get( 'wbRepo' );
+	this._repoApiEndpoint = this._repoConfig.url + this._repoConfig.scriptPath + '/api.php';
+
+	if( localApiEndpoint === this._repoApiEndpoint ) {
+		// The current wiki *is* the repo so we can just use user.tokens to get the edit token
+		this._repoEditToken = mw.user.tokens.get( 'editToken' );
+	}
+};
 
 $.extend( wb.RepoApi.prototype, {
+
+	_repoApiEndpoint: null,
+	_repoConfig: null,
+	_repoEditToken: null,
 
 	/**
 	 * mediaWiki.Api object for internal usage. By having this initialized in the prototype, we can
@@ -275,7 +281,7 @@ $.extend( wb.RepoApi.prototype, {
 	/**
 	 * Removes an existing claim.
 	 *
-	 * @param {String} claimGuid The GUID of the Claim to be removed (wb.Claim.getGuid)
+	 * @param {String} claimGuid The GUID of the Claim to be removed (wb.datamodel.Claim.getGuid)
 	 * @return {jQuery.Promise}
 	 */
 	removeClaim: function( claimGuid ) {
@@ -313,7 +319,7 @@ $.extend( wb.RepoApi.prototype, {
 	/**
 	 * Changes the Main Snak of an existing claim.
 	 *
-	 * @param {string} claimGuid The GUID of the Claim to be changed (wb.Claim.getGuid)
+	 * @param {string} claimGuid The GUID of the Claim to be changed (wb.datamodel.Claim.getGuid)
 	 * @param {number} baseRevId
 	 * @param {string} snakType The type of the snak
 	 * @param {string} property Id of the snak's property
@@ -474,9 +480,9 @@ $.extend( wb.RepoApi.prototype, {
 	 */
 	_extendRepoCallParams: function( params, options ) {
 		var localServerRaw = mw.config.get( 'wgServer' ).replace( /.*\/\//, '' ),
-			repoServerRaw = mw.config.get( 'wbRepoUrl' ).replace( /.*\/\//, '' ).replace( /\/.*/, '' );
+			repoServerRaw = mw.config.get( 'wbRepo' ).url.replace( /.*\/\//, '' ).replace( /\/.*/, '' );
 
-		options.url = REPO_API;
+		options.url = this._repoApiEndpoint;
 
 		if ( localServerRaw === repoServerRaw ) {
 			// We don't need/ want CORS when on the same domain
@@ -548,13 +554,13 @@ $.extend( wb.RepoApi.prototype, {
 			}
 		} );
 
-		if ( mw.config.exists( 'wbRepoEditToken' ) ) {
-			// Easy one: wbRepoEditToken is already set
-			params.token = mw.config.get( 'wbRepoEditToken' );
+		if ( this._repoEditToken ) {
+			// Easy one: this._repoEditToken is already set
+			params.token = this._repoEditToken;
 			return this._api.post( params, options )
 				.fail( this._logFailure );
 		} else {
-			// Get wbRepoEditToken and go on with the actual request then
+			// Get this._repoEditToken and go on with the actual request then
 			var repoPostDeferred = new $.Deferred();
 			var self = this;
 
@@ -567,10 +573,10 @@ $.extend( wb.RepoApi.prototype, {
 			} )
 			.fail( repoPostDeferred )
 			.done( function( data ) {
-				// Now we got wbRepoEditToken
-				mw.config.set( 'wbRepoEditToken', data.query.pages[ data.query.pageids[0] ].edittoken );
+				// Now we got this._repoEditToken
+				self._repoEditToken = data.query.pages[ data.query.pageids[0] ].edittoken;
 
-				params.token = mw.config.get( 'wbRepoEditToken' );
+				params.token = self._repoEditToken;
 
 				self._api.post( params, options )
 					.fail( this._logFailure )

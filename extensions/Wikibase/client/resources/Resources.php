@@ -70,7 +70,6 @@ return call_user_func( function() {
 				'jquery.wikibase.wbtooltip',
 				'mediawiki.api',
 				'mediawiki.util',
-				'mediawiki.Title',
 				'mediawiki.jqueryMsg',
 				'wikibase.client.currentSite',
 				'wikibase.sites',

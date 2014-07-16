@@ -2,14 +2,14 @@
  * @licence GNU GPL v2+
  * @author Adrian Lang < adrian.lang@wikimedia.de >
  */
-( function( $, mw, wb, dv, QUnit ) {
+( function( $, mw, wb, dv, vf, vv, QUnit ) {
 	'use strict';
 
-	var entityStore = new wb.store.EntityStore();
+	var entityStore = new wb.store.EntityStore( null );
 	entityStore.compile( {
 		p1: new wb.store.FetchedContent( {
 			title: new mw.Title( 'Property:P1' ),
-			content: new wb.Property( {
+			content: new wb.datamodel.Property( {
 				id: 'P1',
 				type: 'property',
 				datatype: 'string',
@@ -18,11 +18,17 @@
 		} )
 	} );
 
+	var valueViewBuilder = new wb.ValueViewBuilder(
+		new vv.ExpertStore(),
+		new vf.ValueFormatterStore( vf.NullFormatter )
+	);
+
 	function createClaimview( value ) {
 		var options = {
 			// locked, index
 			value: value || null,
-			entityStore: entityStore
+			entityStore: entityStore,
+			valueViewBuilder: valueViewBuilder
 		};
 
 		return $( '<div/>' )
@@ -75,7 +81,7 @@
 
 	QUnit.asyncTest( 'Using tooltip specific for existing claims', 1, function( assert ) {
 		var $node = createClaimview(
-				new wb.Claim( new wb.PropertyValueSnak( 'p1', new dv.StringValue( 'g' ) ) )
+				new wb.datamodel.Claim( new wb.datamodel.PropertyValueSnak( 'p1', new dv.StringValue( 'g' ) ) )
 			),
 			claimview = $node.data( 'claimview' );
 
@@ -86,4 +92,4 @@
 		);
 	} );
 
-} )( jQuery, mediaWiki, wikibase, dataValues, QUnit );
+} )( jQuery, mediaWiki, wikibase, dataValues, valueFormatters, jQuery.valueview, QUnit );

@@ -8,15 +8,17 @@
 	var PARENT = $.TemplatedWidget;
 
 /**
- * View for displaying and editing a list of claims (wikibase.Claim objects).
+ * View for displaying and editing a list of claims (wb.datamodel.Claim objects).
  * @since 0.4
  * @extends jQuery.TemplatedWidget
  *
- * @option {wikibase.Claim[]|null} value The list of claims to be displayed this view. If null, the
+ * @option {wb.datamodel.Claim[]|null} value The list of claims to be displayed this view. If null, the
  *         view will initialize an empty claimview with edit mode started.
  *         Default: null
  *
- * @option {wikibase.store.EntityStore} entityStore
+ * @option {wb.store.EntityStore} entityStore
+ *
+ * @option {wikibase.ValueViewBuilder} valueViewBuilder
  *
  * @option {number|null} [firstClaimIndex] The index of the claimlistview's first claim within a
  *         list of claims.
@@ -65,12 +67,13 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		value: null,
 		entityType: null,
 		entityStore: null,
-		firstClaimIndex: null
+		firstClaimIndex: null,
+		valueViewBuilder: null
 	},
 
 	/**
 	 * The widget to be managed by the claimlistview.
-	 * @type {jQuery.wikibase.claimview|jQuery.wikibase.statementview}
+	 * @type {$.wikibase.claimview|$.wikibase.statementview}
 	 */
 	_listItemWidget: null,
 
@@ -162,7 +165,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 				);
 			} else {
 				// The claims group features a property that has been deleted.
-				$title = wb.utilities.ui.buildMissingEntityInfo( propertyId, wb.Property );
+				$title = wb.utilities.ui.buildMissingEntityInfo( propertyId, wb.datamodel.Property );
 			}
 
 			self.element.append( mw.template( 'wb-claimgrouplistview-groupname', $title ) );
@@ -215,6 +218,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 							}
 						},
 						entityStore: self.option( 'entityStore' ),
+						valueViewBuilder: self.option( 'valueViewBuilder' ),
 						index: indexOf( value, ( claims || [] ), self.option( 'firstClaimIndex' ) )
 					};
 				}
@@ -266,7 +270,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	 * Returns the listview widget used to manage the claimviews.
 	 * @since 0.5
 	 *
-	 * @return {jQuery.wikibase.listview}
+	 * @return {$.wikibase.listview}
 	 */
 	listview: function() {
 		return this.$listview.data( 'listview' );
@@ -277,7 +281,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	 * returned.
 	 * @since 0.5
 	 *
-	 * @return {wikibase.Claim[]|null}
+	 * @return {wb.datamodel.Claim[]|null}
 	 */
 	value: function( claims ) {
 		// TODO: Implement setter logic.
@@ -489,7 +493,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 						 * have changed, needs to be gathered separately which, in addition, is done
 						 * by this function.
 						 *
-						 * @param {jQuery.wikibase.claimview} claimview
+						 * @param {$.wikibase.claimview} claimview
 						 * @return {boolean}
 						 */
 						function shouldEnableSaveButton( claimview ) {

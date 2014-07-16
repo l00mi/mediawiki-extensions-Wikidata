@@ -11,6 +11,7 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\ItemSearchTextGenerator;
 
@@ -38,13 +39,11 @@ class ItemContent extends EntityContent {
 	private $item;
 
 	/**
-	 * @since 0.5
 	 * @var EntityRedirect
 	 */
 	private $redirect;
 
 	/**
-	 * @since 0.5
 	 * @var Title
 	 */
 	private $redirectTitle;
@@ -56,33 +55,27 @@ class ItemContent extends EntityContent {
 	 * In other words: treat as protected (which it was, but now cannot
 	 * be since we derive from Content).
 	 *
-	 * @param Item $item
-	 * @param EntityRedirect $redirect
-	 * @param Title $redirectTitle
+	 * @param Item|null $item
+	 * @param EntityRedirect|null $entityRedirect
+	 * @param Title|null $redirectTitle
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
-	public function __construct( Item $item = null, EntityRedirect $redirect = null, Title $redirectTitle = null ) {
+	public function __construct(
+		Item $item = null,
+		EntityRedirect $entityRedirect = null,
+		Title $redirectTitle = null
+	) {
 		parent::__construct( CONTENT_MODEL_WIKIBASE_ITEM );
 
-		if ( $item === null && $redirect === null ) {
+		if ( is_null( $item ) === is_null( $entityRedirect ) ) {
 			throw new InvalidArgumentException(
-				'Either $item or $redirect must be provided' );
+				'Either $item or $entityRedirect and $redirectTitle must be provided.' );
 		}
 
-		if ( $item !== null && $redirect !== null ) {
+		if ( is_null( $entityRedirect ) !== is_null( $redirectTitle ) ) {
 			throw new InvalidArgumentException(
-				'Only one of $item or $redirect can be provided' );
-		}
-
-		if ( $item !== null && $redirectTitle !== null ) {
-			throw new InvalidArgumentException(
-				'Only one of $item or $redirectTitle can be provided' );
-		}
-
-		if ( $redirect !== null && $redirectTitle === null ) {
-			throw new InvalidArgumentException(
-				'If $redirect is given, $redirectTitle must be given too' );
+				'$entityRedirect and $redirectTitle must both be provided or both be empty.' );
 		}
 
 		if ( $redirectTitle !== null
@@ -90,13 +83,13 @@ class ItemContent extends EntityContent {
 		) {
 			if ( $redirectTitle->exists() ) {
 				throw new InvalidArgumentException(
-					'$redirectTitle must ref to a page with content model '
+					'$redirectTitle must refer to a page with content model '
 					. CONTENT_MODEL_WIKIBASE_ITEM );
 			}
 		}
 
 		$this->item = $item;
-		$this->redirect = $redirect;
+		$this->redirect = $entityRedirect;
 		$this->redirectTitle = $redirectTitle;
 	}
 
@@ -207,7 +200,7 @@ class ItemContent extends EntityContent {
 	 * @param IContextSource $context
 	 * @param SnakFormatter $snakFormatter
 	 * @param PropertyDataTypeLookup $dataTypeLookup
-	 * @param EntityInfoBuilder $entityInfoBuilder
+	 * @param EntityInfoBuilderFactory $entityInfoBuilderFactory
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param EntityIdParser $idParser
 	 * @param SerializationOptions $options
@@ -218,13 +211,16 @@ class ItemContent extends EntityContent {
 		IContextSource $context,
 		SnakFormatter $snakFormatter,
 		PropertyDataTypeLookup $dataTypeLookup,
-		EntityInfoBuilder $entityInfoBuilder,
+		EntityInfoBuilderFactory $entityInfoBuilderFactory,
 		EntityTitleLookup $entityTitleLookup,
 		EntityIdParser $idParser,
 		SerializationOptions $options
 	) {
+		//FIXME: we are using the EntityInfoBuilderFactory in two places,
+		// this indicates we are also doing the bulk database queries twice!
+
 		$configBuilder = new ParserOutputJsConfigBuilder(
-			$entityInfoBuilder,
+			$entityInfoBuilderFactory,
 			$idParser,
 			$entityTitleLookup,
 			new ReferencedEntitiesFinder(),
@@ -235,7 +231,7 @@ class ItemContent extends EntityContent {
 			$context,
 			$snakFormatter,
 			$dataTypeLookup,
-			$entityInfoBuilder,
+			$entityInfoBuilderFactory,
 			$entityTitleLookup,
 			$options,
 			$configBuilder

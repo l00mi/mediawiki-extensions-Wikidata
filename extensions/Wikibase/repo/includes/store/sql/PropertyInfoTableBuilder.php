@@ -2,7 +2,7 @@
 
 namespace Wikibase;
 
-use MessageReporter;
+use Wikibase\Lib\Reporting\MessageReporter;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\Store\EntityLookup;
 
@@ -159,6 +159,7 @@ class PropertyInfoTableBuilder {
 				$dbw->begin();
 			}
 
+			//FIXME: use an EntityIdPager from EntityPerPage
 			$props = $dbw->select(
 				$tables,
 				array(

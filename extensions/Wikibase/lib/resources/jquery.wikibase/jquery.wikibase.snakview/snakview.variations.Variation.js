@@ -20,18 +20,19 @@
 	 * @abstract
 	 * @since 0.4
 	 *
-	 * @param {jQuery.wikibase.snakview.ViewState} viewState Information about the related
+	 * @param {$.wikibase.snakview.ViewState} viewState Information about the related
 	 *        snakview. This is required for rendering according to the view's current state.
 	 * @param {jQuery} $viewPort A DOM node which serves as drawing surface for this variation's
 	 *        output, this is where this variation can express its current state and/or display
 	 *        input elements for user interaction.
-	 * @param {wikibase.store.EntityStore} entityStore
+	 * @param {wb.store.EntityStore} entityStore
+	 * @param {wb.ValueViewBuilder} valueViewBuilder
 	 *
 	 * @event afterdraw: Triggered on the Variation object after drawing the variation.
 	 *        (1) {jQuery.Event}
 	 */
-	var SELF = jQuery.wikibase.snakview.variations.Variation =
-		function WbSnakviewVariationsVariation( viewState, $viewPort, entityStore )
+	var SELF = $.wikibase.snakview.variations.Variation =
+		function WbSnakviewVariationsVariation( viewState, $viewPort, entityStore, valueViewBuilder )
 	{
 		if( !( viewState instanceof $.wikibase.snakview.ViewState ) ) {
 			throw new Error( 'No ViewState object was provided to the snakview variation' );
@@ -41,6 +42,7 @@
 		}
 
 		this._entityStore = entityStore;
+		this._valueViewBuilder = valueViewBuilder;
 		this._viewState = viewState;
 
 		this.$viewPort = $viewPort;
@@ -59,7 +61,7 @@
 		/**
 		 * The constructor of the variation's related kind of Snak. Will be set by the variations
 		 * factory when creating a new variation definition.
-		 * @type wb.Snak
+		 * @type wb.datamodel.Snak
 		 */
 		variationSnakConstructor: null,
 
@@ -70,15 +72,19 @@
 		 */
 		$viewPort: null,
 
-
 		/**
-		 * @type wikibase.store.EntityStore
+		 * @type wb.store.EntityStore
 		 */
 		_entityStore: null,
 
 		/**
+		 * @type {wikibase.ValueViewBuilder}
+		 */
+		_valueViewBuilder: null,
+
+		/**
 		 * Object representing the state of the related snakview.
-		 * @type jQuery.wikibase.snakview.ViewState
+		 * @type $.wikibase.snakview.ViewState
 		 */
 		_viewState: null,
 
@@ -107,7 +113,7 @@
 		 *
 		 * @since 0.4
 		 *
-		 * @return jQuery.wikibase.snakview.ViewState
+		 * @return $.wikibase.snakview.ViewState
 		 */
 		viewState: function() {
 			return this._viewState;
@@ -121,7 +127,7 @@
 		 *
 		 * @param {Object} [value]
 		 * @return {Object|undefined} Plain Object with parts of the Snak specific to the variation's
-		 *         kind of Snak. Equivalent to what wb.Snak.toMap() would return, just without the
+		 *         kind of Snak. Equivalent to what wb.datamodel.Snak.toMap() would return, just without the
 		 *         basic fields 'snaktype' and 'property'.
 		 *         undefined in case value() is called to set the value.
 		 */
@@ -136,7 +142,7 @@
 		/**
 		 * Setter for value(). Does not trigger draw() but value( value ) will trigger draw().
 		 * Receives an Object which holds fields of the part of the Snak the variation is handling.
-		 * The fields are the same as wb.Snak.toMap() would provide them. The 'property' and
+		 * The fields are the same as wb.datamodel.Snak.toMap() would provide them. The 'property' and
 		 * 'snaktype' fields will not be provided, they can be received per viewState().property()
 		 * and viewState().snakType() if necessary. If a field is missing, this means that the
 		 * aspect of the Snak has not been defined yet, the view should then display a useful
