@@ -22,9 +22,12 @@
 			$node = $( '<tr/>' ).attr( 'id', 'subject' );
 		}
 		$node.append( $( '<td/>' ).addClass( 'child' ) );
-		$node.append( $( '<td/>' ).addClass( 'child' ).text( 'en' ) );
+		$node.append( $( '<td/>' ).addClass( 'child wb-sitelinks-link' ).text( 'en' ) );
 		var propertyEditTool = new wb.ui.PropertyEditTool( $node );
-		var editableSiteLink = wb.ui.PropertyEditTool.EditableSiteLink.newFromDom( $node );
+		var editableSiteLink = wb.ui.PropertyEditTool.EditableSiteLink.newFromDom(
+			$node,
+			{ api: {} }
+		);
 		var toolbar = propertyEditTool._buildSingleValueToolbar();
 		editableSiteLink.setToolbar( toolbar );
 		return editableSiteLink;

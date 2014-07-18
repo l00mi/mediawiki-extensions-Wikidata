@@ -80,8 +80,6 @@ final class LibHooks {
 				'tests/qunit/templates.tests.js',
 				'tests/qunit/wikibase.tests.js',
 
-				'tests/qunit/wikibase.Site.tests.js',
-
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApi.tests.js',
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApiError.tests.js',
 
@@ -122,8 +120,8 @@ final class LibHooks {
 				'wikibase',
 				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel', // For RepoApi.tests
-				'wikibase.parsers',
 				'wikibase.store.FetchedContent',
+				'wikibase.templates',
 				'wikibase.utilities',
 				'wikibase.utilities.ClaimGuidGenerator',
 				'wikibase.utilities.GuidGenerator',
@@ -287,6 +285,19 @@ final class LibHooks {
 				'valueParsers.tests',
 				'wikibase.datamodel',
 				'wikibase.EntityIdParser',
+				'wikibase.tests.qunit.testrunner',
+			),
+		);
+
+		$testModules['qunit']['wikibase.sites.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/wikibase.Site.tests.js',
+				'tests/qunit/wikibase.sites.tests.js',
+			),
+			'dependencies' => array(
+				'jquery',
+				'wikibase',
+				'wikibase.sites',
 				'wikibase.tests.qunit.testrunner',
 			),
 		);

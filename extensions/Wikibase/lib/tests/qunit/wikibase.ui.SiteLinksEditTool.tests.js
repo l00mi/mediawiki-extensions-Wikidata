@@ -39,7 +39,8 @@
 
 			// initialize:
 			this.subject = new wb.ui.SiteLinksEditTool( $dom, {
-				allowedSites: wb.getSites() // TODO: decouple test from abusing global config here
+				allowedSites: wb.sites.getSites(), // TODO: decouple test from abusing global config here
+				api: {}
 			} );
 		},
 		teardown: function() {
@@ -112,9 +113,9 @@
 		var realTablesorter = $.fn.tablesorter;
 		$.fn.tablesorter = $.noop;
 
-		newValue.stopEditing( true );
-
-		$.fn.tablesorter = realTablesorter;
+		newValue.stopEditing( true ).done( function() {
+			$.fn.tablesorter = realTablesorter;
+		} );
 
 		return newValue;
 	}
@@ -128,21 +129,31 @@
 			'all allowed site links are returned as unused by newly initialized edit tool'
 		);
 
-		hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' );
+		QUnit.stop();
 
-		assert.deepEqual(
-			subject.getUnusedAllowedSiteIds(),
-			[ 'dewiki' ],
-			'after site has been used, the site will not be returned anymore'
-		);
+		hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' )
+		.one( 'animationend', function() {
+			QUnit.start();
 
-		hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' );
+			assert.deepEqual(
+				subject.getUnusedAllowedSiteIds(),
+				[ 'dewiki' ],
+				'after site has been used, the site will not be returned anymore'
+			);
 
-		assert.deepEqual(
-			subject.getUnusedAllowedSiteIds(),
-			[],
-			'after all sites are used, an empty array will be returned'
-		);
+			QUnit.stop();
+
+			hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' )
+			.one( 'animationend', function() {
+				QUnit.start();
+
+				assert.deepEqual(
+					subject.getUnusedAllowedSiteIds(),
+					[],
+					'after all sites are used, an empty array will be returned'
+				);
+			} );
+		} );
 	} );
 
 	QUnit.test( 'getRepresentedSiteIds()', function( assert ) {
@@ -154,21 +165,31 @@
 			'initially, no site links, so no sites represented yet'
 		);
 
-		hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' );
+		QUnit.stop();
 
-		assert.deepEqual(
-			subject.getRepresentedSiteIds(),
-			[ 'enwiki' ],
-			'after site has been used, the site will be returned'
-		);
+		hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' )
+		.one( 'animationend', function() {
+			QUnit.start();
 
-		hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' );
+			assert.deepEqual(
+				subject.getRepresentedSiteIds(),
+				[ 'enwiki' ],
+				'after site has been used, the site will be returned'
+			);
 
-		assert.deepEqual(
-			subject.getRepresentedSiteIds(),
-			[ 'enwiki', 'dewiki' ],
-			'after another site link has been entered, both sites will be returned'
-		);
+			QUnit.stop();
+
+			hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' )
+			.one( 'animationend', function() {
+				QUnit.start();
+
+				assert.deepEqual(
+					subject.getRepresentedSiteIds(),
+					[ 'enwiki', 'dewiki' ],
+					'after another site link has been entered, both sites will be returned'
+				);
+			} );
+		} );
 	} );
 
 	QUnit.test( 'isFull()', function( assert ) {
@@ -179,19 +200,29 @@
 			'not full initially'
 		);
 
-		hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' );
+		QUnit.stop();
 
-		assert.ok(
-			!subject.isFull(),
-			'not full after entering one site link'
-		);
+		hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' )
+		.one( 'animationend', function() {
+			QUnit.start();
 
-		hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' );
+			assert.ok(
+				!subject.isFull(),
+				'not full after entering one site link'
+			);
 
-		assert.ok(
-			subject.isFull(),
-			'full after entering site links for all available sites'
-		);
+			QUnit.stop();
+
+			hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' )
+			.one( 'animationend', function() {
+				QUnit.start();
+
+				assert.ok(
+					subject.isFull(),
+					'full after entering site links for all available sites'
+				);
+			} );
+		} );
 	} );
 
 	QUnit.test( 'no value rows in table initially', function( assert ) {
@@ -219,23 +250,33 @@
 			'initially'
 		);
 
-		hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' );
+		QUnit.stop();
 
-		assertValuesInTableSections(
-			assert,
-			subject,
-			{ tbody: 1, tfoot: 0 },
-			'after entering and saving first value'
-		);
+		hackyValueInsertionAndSave( subject, [ 'dewiki', 'Berlin' ], 'dewiki' )
+		.one( 'animationend', function() {
+			QUnit.start();
 
-		hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' );
+			assertValuesInTableSections(
+				assert,
+				subject,
+				{ tbody: 1, tfoot: 0 },
+				'after entering and saving first value'
+			);
 
-		assertValuesInTableSections(
-			assert,
-			subject,
-			{ tbody: 2, tfoot: 0 },
-			'after saving second value'
-		);
+			QUnit.stop();
+
+			hackyValueInsertionAndSave( subject, [ 'enwiki', 'London' ], 'enwiki' )
+			.one( 'animationend', function() {
+				QUnit.start();
+
+				assertValuesInTableSections(
+					assert,
+					subject,
+					{ tbody: 2, tfoot: 0 },
+					'after saving second value'
+				);
+			} );
+		} );
 	} );
 
 	QUnit.test( 'pending value gets removed from tfoot after cancelling value insertion', function( assert ) {

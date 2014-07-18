@@ -697,8 +697,8 @@ $.widget( 'valueview.valueview', PARENT, {
 
 		var valueParser = this._instantiateParser( this.valueCharacteristics() );
 
+		self.__lastUpdateValue = rawValue;
 		this._parseTimer = setTimeout( function() {
-			self.__lastUpdateValue = rawValue;
 
 			// TODO: Hacky preview spinner activation. Necessary until we move the responsibility
 			//  for previews out of the experts. The preview should be handled in the same place for
@@ -919,7 +919,7 @@ $.widget( 'valueview.valueview', PARENT, {
 				var changeDetected
 					= differentValueCharacteristics || self.getTextValue() !== self._expert.rawValue();
 
-				if( !self._setValueIsOngoing && changeDetected ) {
+				if( changeDetected ) {
 					self.__lastValueCharacteristics = newValueCharacteristics;
 					self._trigger( 'change' );
 					self._updateValue();

@@ -174,7 +174,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "Daniel Werner",
@@ -197,24 +197,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.6.4",
-        "version_normalized": "0.6.4.0",
+        "version": "0.6.5",
+        "version_normalized": "0.6.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "dd752fb6aed288cd9ad04371037886d9b42025d9"
+            "reference": "0fe40c8d713fc053059562f9de79f66239342677"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/dd752fb6aed288cd9ad04371037886d9b42025d9",
-            "reference": "dd752fb6aed288cd9ad04371037886d9b42025d9",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/0fe40c8d713fc053059562f9de79f66239342677",
+            "reference": "0fe40c8d713fc053059562f9de79f66239342677",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-07-02 09:29:58",
+        "time": "2014-07-17 15:34:53",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -286,7 +286,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
@@ -344,7 +344,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Defines the DataValue interface and some trivial implementations",
@@ -404,7 +404,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
@@ -460,7 +460,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "The Wikidata team",
@@ -516,7 +516,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "PHP library defining the DataTypes\\DataType class of which instances represent a type of value, such as \"positive integer\" or \"percentage\".",
@@ -561,7 +561,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "Daniel Werner",
@@ -618,7 +618,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "Daniel Werner",
@@ -683,7 +683,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
@@ -791,7 +791,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Library for diffing, patching and representing differences between complex objects",
@@ -850,7 +850,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "PHP implementation of the Wikibase DataModel",
@@ -910,7 +910,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "Thomas PT",
@@ -977,7 +977,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             }
         ],
         "description": "Library containing serializers and deserializers for the data access layer of Wikibase Repo.",
@@ -1168,7 +1168,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "role": "Core developer"
             },
             {
                 "name": "The Wikidata team",
@@ -1193,12 +1193,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "0e9fcc9900f875cb63bd6669cb5ff432068d6ba0"
+            "reference": "3be1537877fb77946b5b0bc1b0fb4969215b6e9c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0e9fcc9900f875cb63bd6669cb5ff432068d6ba0",
-            "reference": "0e9fcc9900f875cb63bd6669cb5ff432068d6ba0",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3be1537877fb77946b5b0bc1b0fb4969215b6e9c",
+            "reference": "3be1537877fb77946b5b0bc1b0fb4969215b6e9c",
             "shasum": ""
         },
         "require": {
@@ -1212,7 +1212,7 @@
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.6.0",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.6.4",
+            "data-values/value-view": "~0.6.5",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~0.8.1",
@@ -1224,7 +1224,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-16 09:56:28",
+        "time": "2014-07-18 09:49:57",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

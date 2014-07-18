@@ -31,6 +31,17 @@ return call_user_func( function() {
 		),
 
 		'wikibase.sites' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.sites.js',
+				'wikibase.Site.js',
+			),
+			'dependencies' => array(
+				'mw.config.values.wbSiteDetails',
+				'wikibase'
+			)
+		),
+
+		'mw.config.values.wbSiteDetails' => $moduleTemplate + array(
 			'class' => 'Wikibase\SitesModule'
 		),
 
@@ -41,13 +52,10 @@ return call_user_func( function() {
 		'wikibase' => $moduleTemplate + array(
 			'scripts' => array(
 				'wikibase.js',
-				'wikibase.Site.js',
 				'wikibase.RevisionStore.js'
 			),
 			'dependencies' => array(
 				'wikibase.common',
-				'wikibase.sites',
-				'wikibase.templates'
 			),
 			'messages' => array(
 				'special-createitem',
@@ -312,6 +320,8 @@ return call_user_func( function() {
 				'mediawiki.jqueryMsg', // for {{plural}} and {{gender}} support in messages
 				'wikibase',
 				'wikibase.RepoApiError',
+				'wikibase.templates',
+				'wikibase.sites',
 				'wikibase.ui.Base',
 				'wikibase.utilities',
 				'wikibase.utilities.jQuery',
@@ -381,6 +391,7 @@ return call_user_func( function() {
 				'jquery.ui.widget',
 				'jquery.wikibase.toolbar',
 				'jquery.wikibase.toolbareditgroup',
+				'wikibase.templates',
 			),
 		),
 
@@ -390,6 +401,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.toolbarbase',
+				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-add'
@@ -403,6 +415,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.toolbarbase',
 				'jquery.wikibase.toolbareditgroup',
+				'wikibase.templates',
 			)
 		),
 
@@ -431,6 +444,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.toolbarbase',
+				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-remove',
@@ -733,6 +747,7 @@ return call_user_func( function() {
 				'jquery.ui.widget',
 				'jquery.wikibase.toolbar',
 				'jquery.wikibase.wbtooltip',
+				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-cancel',
@@ -772,7 +787,7 @@ return call_user_func( function() {
 
 	if ( defined( 'ULS_VERSION' ) ) {
 		$modules['wikibase']['dependencies'][] = 'ext.uls.mediawiki';
-		$modules['wikibase.sites']['dependencies'] = array( 'ext.uls.mediawiki' );
+		$modules['wikibase.sites']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.ui.PropertyEditTool']['dependencies'][] = 'ext.uls.mediawiki';
 	}
 

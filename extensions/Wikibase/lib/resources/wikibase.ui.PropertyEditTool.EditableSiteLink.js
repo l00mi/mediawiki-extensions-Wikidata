@@ -207,7 +207,7 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 			// the right links without knowing about the site type.
 			promise.done( function( response ) {
 				var page = self._interfaces.pageName.getValue(),
-					site = wb.getSite( self._interfaces.siteId.getValue() );
+					site = wb.sites.getSite( self._interfaces.siteId.getValue() );
 
 				if( page !== '' && site !== null ) {
 					var url = response.entity.sitelinks[ site.getId() ].url,
@@ -300,10 +300,16 @@ SELF.newFromDom = function( subject, options, toolbar, /** internal */ Construct
 	// TODO/FIXME: not sure this should be done here
 	iSiteId.setActive( $subject.hasClass( 'wb-pending-value' ) );
 
+	// Since the <td> is empty then adding a new site link, the <td> itself should be the
+	// SitePageInterface subject. When editing a site link, the site link <span> inside the <td>
+	// should be the subject.
+	var $siteLinksLink = $tableCells.filter( '.wb-sitelinks-link' ),
+		$siteLinksPage = $siteLinksLink.children( '.wb-sitelinks-page' );
+
 	// interface for choosing a page (from the source site)
 	// pass the second to last cell as subject since the last cell will be used by the toolbar
 	iSitePage.init(
-		$tableCells[ $tableCells.length - 2 ],
+		$siteLinksPage.length ? $siteLinksPage : $siteLinksLink,
 		{ inputPlaceholder: mw.msg( 'wikibase-sitelink-page-edit-placeholder' ) },
 		iSiteId.getSelectedSite()
 	);
