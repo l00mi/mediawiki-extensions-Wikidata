@@ -197,24 +197,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.6.5",
-        "version_normalized": "0.6.5.0",
+        "version": "0.6.6",
+        "version_normalized": "0.6.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "0fe40c8d713fc053059562f9de79f66239342677"
+            "reference": "002d019822ccf28413ee3fe55854ce33d26ecae7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/0fe40c8d713fc053059562f9de79f66239342677",
-            "reference": "0fe40c8d713fc053059562f9de79f66239342677",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/002d019822ccf28413ee3fe55854ce33d26ecae7",
+            "reference": "002d019822ccf28413ee3fe55854ce33d26ecae7",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-07-17 15:34:53",
+        "time": "2014-07-18 14:54:15",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -850,7 +850,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             }
         ],
         "description": "PHP implementation of the Wikibase DataModel",
@@ -1193,12 +1193,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "3be1537877fb77946b5b0bc1b0fb4969215b6e9c"
+            "reference": "86c5c32db26d275a5c529cc14d1d24119dd01835"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3be1537877fb77946b5b0bc1b0fb4969215b6e9c",
-            "reference": "3be1537877fb77946b5b0bc1b0fb4969215b6e9c",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/86c5c32db26d275a5c529cc14d1d24119dd01835",
+            "reference": "86c5c32db26d275a5c529cc14d1d24119dd01835",
             "shasum": ""
         },
         "require": {
@@ -1224,7 +1224,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-18 09:49:57",
+        "time": "2014-07-18 19:31:09",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
