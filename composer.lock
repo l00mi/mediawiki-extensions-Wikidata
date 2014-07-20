@@ -244,7 +244,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 }
             ],
             "description": "Defines the DataValue interface and some trivial implementations",
@@ -716,7 +716,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 }
             ],
             "description": "Library for diffing, patching and representing differences between complex objects",
@@ -1157,12 +1157,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "86c5c32db26d275a5c529cc14d1d24119dd01835"
+                "reference": "bb32bbf3d4c825d4b34f3ce5edccde2796c17caa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/86c5c32db26d275a5c529cc14d1d24119dd01835",
-                "reference": "86c5c32db26d275a5c529cc14d1d24119dd01835",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bb32bbf3d4c825d4b34f3ce5edccde2796c17caa",
+                "reference": "bb32bbf3d4c825d4b34f3ce5edccde2796c17caa",
                 "shasum": ""
             },
             "require": {
@@ -1218,8 +1218,7 @@
             ],
             "authors": [
                 {
-                    "name": "The Wikidata team",
-                    "role": "Developer"
+                    "name": "The Wikidata team"
                 }
             ],
             "description": "Structured data repository for MediaWiki",
@@ -1231,7 +1230,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-07-18 19:31:09"
+            "time": "2014-07-19 20:08:28"
         }
     ],
     "packages-dev": [
