@@ -142,7 +142,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 }
             ],
             "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
@@ -191,7 +191,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 }
             ],
             "description": "PHP library defining the DataTypes\\DataType class of which instances represent a type of value, such as \"positive integer\" or \"percentage\".",
@@ -295,7 +295,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "The Wikidata team",
@@ -354,7 +354,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 }
             ],
             "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
@@ -400,7 +400,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -611,7 +611,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "The Wikidata team",
@@ -818,7 +818,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 }
             ],
             "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
@@ -944,29 +944,29 @@
         },
         {
             "name": "wikibase/data-model-serialization",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
-                "reference": "ee0816e64e70406406a11d0bf159b164d03172b8"
+                "reference": "6ebed5216a9c68deac7f1d95e978665003b98463"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/ee0816e64e70406406a11d0bf159b164d03172b8",
-                "reference": "ee0816e64e70406406a11d0bf159b164d03172b8",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/6ebed5216a9c68deac7f1d95e978665003b98463",
+                "reference": "6ebed5216a9c68deac7f1d95e978665003b98463",
                 "shasum": ""
             },
             "require": {
                 "data-values/serialization": "~1.0",
                 "php": ">=5.3.0",
                 "serialization/serialization": "~3.1",
-                "wikibase/data-model": "<2.0,>=0.7-dev"
+                "wikibase/data-model": "~0.7|~1.0@dev"
             },
             "require-dev": {
-                "data-values/common": "~0.2.0",
-                "data-values/geo": "~0.1.0",
-                "data-values/number": "~0.3.0",
-                "data-values/time": "~0.3.0"
+                "data-values/common": "~0.2",
+                "data-values/geo": "~0.1",
+                "data-values/number": "~0.2",
+                "data-values/time": "~0.2"
             },
             "type": "library",
             "extra": {
@@ -985,14 +985,13 @@
             ],
             "authors": [
                 {
-                    "name": "Jeroen De Dauw",
-                    "email": "jeroendedauw@gmail.com",
-                    "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
-                },
-                {
                     "name": "Thomas PT",
                     "homepage": "https://github.com/Tpt"
+                },
+                {
+                    "name": "Jeroen De Dauw",
+                    "email": "jeroendedauw@gmail.com",
+                    "homepage": "http://jeroendedauw.com"
                 }
             ],
             "description": "Serializers and deserializers for the Wikibase DataModel",
@@ -1005,7 +1004,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-06-16 15:21:31"
+            "time": "2014-07-20 22:31:29"
         },
         {
             "name": "wikibase/easyrdf_lite",
@@ -1081,7 +1080,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 }
             ],
             "description": "Library containing serializers and deserializers for the data access layer of Wikibase Repo.",
@@ -1157,12 +1156,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "bb32bbf3d4c825d4b34f3ce5edccde2796c17caa"
+                "reference": "acfbd97c2e0796ae930ea302f469a49f7712f4b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bb32bbf3d4c825d4b34f3ce5edccde2796c17caa",
-                "reference": "bb32bbf3d4c825d4b34f3ce5edccde2796c17caa",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/acfbd97c2e0796ae930ea302f469a49f7712f4b2",
+                "reference": "acfbd97c2e0796ae930ea302f469a49f7712f4b2",
                 "shasum": ""
             },
             "require": {
@@ -1230,7 +1229,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-07-19 20:08:28"
+            "time": "2014-07-20 19:11:25"
         }
     ],
     "packages-dev": [

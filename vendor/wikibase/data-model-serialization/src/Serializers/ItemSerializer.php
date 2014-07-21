@@ -34,10 +34,10 @@ class ItemSerializer extends EntitySerializer {
 	 *
 	 * @param mixed $object
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isSerializerFor( $object ) {
-		return is_object( $object ) && $object instanceof Item;
+		return $object instanceof Item;
 	}
 
 	protected function getSpecificSerialization( Entity $entity ) {
@@ -51,12 +51,11 @@ class ItemSerializer extends EntitySerializer {
 	private function addSiteLinksToSerialization( Item $item, array &$serialization ) {
 		$siteLinks = $item->getSiteLinks();
 
-		if ( count( $siteLinks ) === 0 ) {
-			return;
-		}
+		$serialization['sitelinks'] = array();
 
 		foreach( $siteLinks as $siteLink ) {
 			$serialization['sitelinks'][$siteLink->getSiteId()] = $this->siteLinkSerializer->serialize( $siteLink );
 		}
 	}
+
 }

@@ -34,10 +34,10 @@ abstract class EntitySerializer implements DispatchableSerializer {
 	 *
 	 * @param mixed $object
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isSerializerFor( $object ) {
-		return is_object( $object ) && $object instanceof Entity;
+		return $object instanceof Entity;
 	}
 
 	/**
@@ -73,6 +73,7 @@ abstract class EntitySerializer implements DispatchableSerializer {
 		$serialization = array(
 			'type' => $entity->getType()
 		);
+
 		$this->addIdToSerialization( $entity, $serialization );
 		$this->addLabelsToSerialization( $entity, $serialization );
 		$this->addDescriptionsToSerialization( $entity, $serialization );
@@ -92,13 +93,8 @@ abstract class EntitySerializer implements DispatchableSerializer {
 		$serialization['id'] = $id->getSerialization();
 	}
 
-
 	private function addLabelsToSerialization( Entity $entity, array &$serialization ) {
 		$labels = $entity->getLabels();
-
-		if ( count( $labels ) === 0 ) {
-			return;
-		}
 
 		$serialization['labels'] = $this->serializeValuePerLanguageArray( $labels );
 	}
@@ -106,14 +102,10 @@ abstract class EntitySerializer implements DispatchableSerializer {
 	private function addDescriptionsToSerialization( Entity $entity, array &$serialization ) {
 		$descriptions = $entity->getDescriptions();
 
-		if ( count( $descriptions ) === 0 ) {
-			return;
-		}
-
 		$serialization['descriptions'] = $this->serializeValuePerLanguageArray( $descriptions );
 	}
 
-	private function serializeValuePerLanguageArray( $array ) {
+	private function serializeValuePerLanguageArray( array $array ) {
 		$serialization = array();
 
 		foreach( $array as $language => $value ) {
@@ -126,13 +118,8 @@ abstract class EntitySerializer implements DispatchableSerializer {
 		return $serialization;
 	}
 
-
 	private function addAliasesToSerialization( Entity $entity, array &$serialization ) {
 		$aliases = $entity->getAllAliases();
-
-		if ( count( $aliases ) === 0 ) {
-			return;
-		}
 
 		$serialization['aliases'] = $this->serializeValuesPerLanguageArray( $aliases );
 	}
@@ -152,14 +139,10 @@ abstract class EntitySerializer implements DispatchableSerializer {
 		return $serialization;
 	}
 
-
 	private function addClaimsToSerialization( Entity $entity, array &$serialization ) {
 		$claims = new Claims( $entity->getClaims() );
 
-		if ( $claims->isEmpty() ) {
-			return;
-		}
-
 		$serialization['claims'] = $this->claimsSerializer->serialize( $claims );
 	}
+
 }

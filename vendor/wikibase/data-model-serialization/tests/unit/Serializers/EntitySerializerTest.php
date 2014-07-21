@@ -16,26 +16,28 @@ use Wikibase\DataModel\Snak\PropertyNoValueSnak;
  */
 class EntitySerializerTest extends SerializerBaseTest {
 
-	public function buildSerializer() {
-		$claim = new Claim( new PropertyNoValueSnak( 42 ) );
-		$claim->setGuid( 'test' );
-
+	protected function buildSerializer() {
 		$claimsSerializerMock = $this->getMock( '\Serializers\Serializer' );
 		$claimsSerializerMock->expects( $this->any() )
 			->method( 'serialize' )
-			->with( $this->equalTo( new Claims( array( $claim ) ) ) )
-			->will( $this->returnValue( array(
-				'P42' => array(
-					array(
-						'mainsnak' => array(
-							'snaktype' => 'novalue',
-							'property' => 'P42'
-						),
-						'type' => 'statement',
-						'rank' => 'normal'
+			->will( $this->returnCallback( function( Claims $claims ) {
+				if ( $claims->isEmpty() ) {
+					return array();
+				}
+
+				return array(
+					'P42' => array(
+						array(
+							'mainsnak' => array(
+								'snaktype' => 'novalue',
+								'property' => 'P42'
+							),
+							'type' => 'statement',
+							'rank' => 'normal'
+						)
 					)
-				)
-			) ) );
+				);
+			} ) );
 
 		$entitySerializerMock = $this->getMockForAbstractClass(
 			'\Wikibase\DataModel\Serializers\EntitySerializer',
@@ -71,21 +73,29 @@ class EntitySerializerTest extends SerializerBaseTest {
 	}
 
 	public function serializationProvider() {
-		$provider = array(
+		$argumentLists = array();
+
+		$argumentLists[] = array(
 			array(
-				array(
-					'type' => 'item'
-				),
-				Item::newEmpty()
+				'type' => 'item',
+				'labels' => array(),
+				'descriptions' => array(),
+				'aliases' => array(),
+				'claims' => array(),
 			),
+			Item::newEmpty()
 		);
 
 		$entity = Item::newEmpty();
 		$entity->setId( new ItemId( 'Q42' ) );
-		$provider[] = array(
+		$argumentLists[] = array(
 			array(
 				'type' => 'item',
-				'id' => 'Q42'
+				'id' => 'Q42',
+				'labels' => array(),
+				'descriptions' => array(),
+				'aliases' => array(),
+				'claims' => array(),
 			),
 			$entity
 		);
@@ -95,7 +105,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 			'en' => 'Nyan Cat',
 			'fr' => 'Nyan Cat'
 		) );
-		$provider[] = array(
+		$argumentLists[] = array(
 			array(
 				'type' => 'item',
 				'labels' => array(
@@ -107,7 +117,10 @@ class EntitySerializerTest extends SerializerBaseTest {
 						'language' => 'fr',
 						'value' => 'Nyan Cat'
 					)
-				)
+				),
+				'descriptions' => array(),
+				'aliases' => array(),
+				'claims' => array(),
 			),
 			$entity
 		);
@@ -117,7 +130,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 			'en' => 'A Nyan Cat',
 			'fr' => 'A Nyan Cat'
 		) );
-		$provider[] = array(
+		$argumentLists[] = array(
 			array(
 				'type' => 'item',
 				'descriptions' => array(
@@ -129,7 +142,10 @@ class EntitySerializerTest extends SerializerBaseTest {
 						'language' => 'fr',
 						'value' => 'A Nyan Cat'
 					)
-				)
+				),
+				'labels' => array(),
+				'aliases' => array(),
+				'claims' => array(),
 			),
 			$entity
 		);
@@ -137,7 +153,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 		$entity = Item::newEmpty();
 		$entity->setAliases( 'en', array( 'Cat', 'My cat' ) );
 		$entity->setAliases( 'fr', array( 'Cat' ) );
-		$provider[] = array(
+		$argumentLists[] = array(
 			array(
 				'type' => 'item',
 				'aliases' => array(
@@ -157,7 +173,10 @@ class EntitySerializerTest extends SerializerBaseTest {
 							'value' => 'Cat'
 						)
 					)
-				)
+				),
+				'labels' => array(),
+				'descriptions' => array(),
+				'claims' => array(),
 			),
 			$entity
 		);
@@ -166,7 +185,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 		$claim = new Claim( new PropertyNoValueSnak( 42 ) );
 		$claim->setGuid( 'test' );
 		$entity->setClaims( new Claims( array( $claim ) ) );
-		$provider[] = array(
+		$argumentLists[] = array(
 			array(
 				'type' => 'item',
 				'claims' => array(
@@ -180,11 +199,15 @@ class EntitySerializerTest extends SerializerBaseTest {
 							'rank' => 'normal'
 						)
 					)
-				)
+				),
+				'labels' => array(),
+				'descriptions' => array(),
+				'aliases' => array(),
 			),
 			$entity
 		);
 
-		return $provider;
+		return $argumentLists;
 	}
+
 }
