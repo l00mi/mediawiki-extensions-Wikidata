@@ -200,8 +200,6 @@ label and its toolbar */
 	 * the supplement will get jumbled without isolation */
 	unicode-bidi: -moz-isolate;
 	unicode-bidi: -webkit-isolate;
-	unicode-bidi: -ms-isolate;
-	unicode-bidi: -o-isolate;
 	unicode-bidi: isolate;
 }
 
@@ -968,6 +966,14 @@ table.wb-sitelinks .wb-badge {
 	background-position: 0 center;
 	display: inline;
 	padding: 0 8px;
+}
+
+table.wb-sitelinks .wb-badge-empty {
+	background-image: url(images/wb-badges-empty.png);
+	/* @embed */
+	background-image: -webkit-linear-gradient(transparent, transparent), url(images/wb-badges-empty.svg);
+	/* @embed */
+	background-image: linear-gradient(transparent, transparent), url(images/wb-badges-empty.svg);
 }
 
 table.wb-sitelinks {

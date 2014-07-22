@@ -108,11 +108,15 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 			this._subject.removeClassByRegex( /^wb-sitelinks-.+/ );
 			this._subject.addClass( 'wb-sitelinks-' + siteId );
 
+			// The value container of SitePageInterface is actually a span within
+			// the <td> we want to change here.
+			var pageInterfaceCell = pageInterface._getValueContainer().prev( 'td.wb-sitelinks-site' );
+
 			idInterface._getValueContainer().removeClassByRegex( /^wb-sitelinks-site-.+/ );
 			idInterface._getValueContainer().addClass( 'wb-sitelinks-site wb-sitelinks-site-' + siteId );
 
-			pageInterface._getValueContainer().removeClassByRegex( /^wb-sitelinks-link-.+/ );
-			pageInterface._getValueContainer().addClass( 'wb-sitelinks-link wb-sitelinks-link-' + siteId );
+			pageInterfaceCell.removeClassByRegex( /^wb-sitelinks-link-.+/ );
+			pageInterfaceCell.addClass( 'wb-sitelinks-link wb-sitelinks-link-' + siteId );
 			// directly updating the page interface's language attributes when a site is selected
 			pageInterface.setLanguageAttributes( site.getLanguage() );
 		}
@@ -224,11 +228,42 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 						}
 						return oldFn( pageTitle );
 					};
+
+					if (
+						!response.entity.sitelinks[ site.getId() ].badges ||
+						response.entity.sitelinks[ site.getId() ].badges.length === 0
+					) {
+						// Remove all badges if the sitelink doesn't have any badges (anymore)
+						// Badges can't be changed from the UI currently, they only might get removed
+						// so need for more logic here than to completely remove them.
+						self._subject.find( '.wb-sitelinks-badges' ).empty();
+					}
 				}
 			} );
 		}
 
 		return promise;
+	},
+
+	/**
+	 * Helper function to get the list of badges we want to have after the update
+	 *
+	 * @param {number} apiAction see this.API_ACTION enum for all available actions
+	 * @return {String[]|null}
+	 */
+	_getNewBadges: function( apiAction ) {
+		var badges = [];
+
+		if (
+			apiAction === this.API_ACTION.NONE ||
+			// Only keep badges if the sitelink didn't change (this probably can't be true
+			// if anything changes at all, but who knows)
+			this.getValue()[1] === this.getInitialValue()[1]
+		) {
+			badges = null; // null means leave badges alone
+		}
+
+		return badges;
 	},
 
 	/**
@@ -238,11 +273,13 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 	 * @return {jQuery.Promise}
 	 */
 	queryApi: function( apiAction ) {
+
 		return this._api.setSitelink(
 			mw.config.get( 'wbEntityId' ),
 			wb.getRevisionStore().getSitelinksRevision( this.siteIdInterface.getSelectedSite().getId() ),
 			this.siteIdInterface.getSelectedSite().getId(),
-			( apiAction === this.API_ACTION.REMOVE || apiAction === this.API_ACTION.SAVE_TO_REMOVE ) ? '' : this.getValue()[1]
+			( apiAction === this.API_ACTION.REMOVE || apiAction === this.API_ACTION.SAVE_TO_REMOVE ) ? '' : this.getValue()[1],
+			this._getNewBadges()
 		);
 	},
 
