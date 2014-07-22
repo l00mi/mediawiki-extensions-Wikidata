@@ -6,9 +6,7 @@
 .ui-suggester-list {
 	background: white;
 	border-color: #C9C9C9;
-	/* required for the client link feature, the dialog is at ~1002. also needs
-	 * to be above .ui-inputextender-extension and .ui-listrotator-menu */
-	z-index: 2000;
+	min-width: 8em;
 }
 
 .ui-suggester-list .ui-state-hover {
@@ -28,7 +26,9 @@
 }
 
 .ui-suggester-list .ui-ooMenu-item a {
+	color: black;
 	padding: 0 0.2em;
+	text-decoration: none;
 }
 
 .ui-suggester-list .ui-ooMenu-item a.ui-state-hover,
