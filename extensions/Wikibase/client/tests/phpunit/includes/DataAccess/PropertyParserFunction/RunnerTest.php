@@ -26,93 +26,54 @@ use Wikibase\Test\MockRepository;
  * @group PropertyParserFunctionTest
  *
  * @licence GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Marius Hoch < hoo@online.de >
+ * @author Katie Filbert < aude.wiki@gmail.com >
  */
 class RunnerTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @param Parser $parser
-	 * @param Renderer $renderer
-	 *
-	 * @return Runner
-	 */
-	private function getRunner( Parser $parser, Renderer $renderer ) {
-		return new Runner(
-			$this->getRendererFactory( $renderer ),
+	public function testRunPropertyParserFunction() {
+		$runner = new Runner(
+			$this->getRendererFactory(),
 			$this->getSiteLinkLookup(),
 			'enwiki'
 		);
-	}
 
-	/**
-	 * @dataProvider isParserUsingVariantsProvider
-	 */
-	public function testIsParserUsingVariants(
-		$outputType,
-		$interfaceMessage,
-		$disableContentConversion,
-		$disableTitleConversion,
-		$expected
-	) {
-		$parserOptions = new ParserOptions();
-		$parserOptions->setInterfaceMessage( $interfaceMessage );
-		$parserOptions->disableContentConversion( $disableContentConversion );
-		$parserOptions->disableTitleConversion( $disableTitleConversion );
+		$parser = $this->getParser();
+		$result = $runner->runPropertyParserFunction( $parser, 'Cat' );
 
-		$parser = $this->getParser( 'de' );
-		$parser->startExternalParse( null, $parserOptions, $outputType );
-
-		$runner = $this->getRunner( $parser, $this->getRenderer() );
-
-		$this->assertEquals( $expected, $runner->isParserUsingVariants( $parser ) );
-	}
-
-	public function isParserUsingVariantsProvider() {
-		return array(
-			array( Parser::OT_HTML, false, false, false, true ),
-			array( Parser::OT_WIKI, false, false, false, false ),
-			array( Parser::OT_PREPROCESS, false, false, false, false ),
-			array( Parser::OT_PLAIN, false, false, false, false ),
-			array( Parser::OT_HTML, true, false, false, false ),
-			array( Parser::OT_HTML, false, true, false, false ),
-			array( Parser::OT_HTML, false, false, true, true ),
-		);
-	}
-
-	/**
-	 * @dataProvider processRenderedArrayProvider
-	 */
-	public function testProcessRenderedArray( $outputType, array $textArray, $expected ) {
-		$parser = new Parser();
-		$parserOptions = new ParserOptions();
-		$parser->startExternalParse( null, $parserOptions, $outputType );
-		$runner = $this->getRunner( $parser, $this->getRenderer() );
-		$this->assertEquals( $expected, $runner->processRenderedArray( $textArray ) );
-	}
-
-	public function processRenderedArrayProvider() {
-		return array(
-			array( Parser::OT_HTML, array(
-				'zh-cn' => 'fo&#60;ob&#62;ar',
-				'zh-tw' => 'FO&#60;OB&#62;AR',
-			), '-{zh-cn:fo&#60;ob&#62;ar;zh-tw:FO&#60;OB&#62;AR;}-' ),
-			// Don't create "-{}-" for empty input,
-			// to keep the ability to check a missing property with {{#if: }}.
-			array( Parser::OT_HTML, array(), '' ),
-		);
-	}
-
-	public function testRenderInLanguage() {
-		$runner = $this->getRunner(
-			$this->getParser( 'es' ),
-			$this->getRenderer()
+		$expected = array(
+			'meow!',
+			'noparse' => false,
+			'nowiki' => false
 		);
 
-		$language = Language::factory( 'he' );
-		$result = $runner->renderInLanguage( new ItemId( 'Q3' ), 'gato', $language );
+		$this->assertEquals( $expected, $result );
+	}
 
-		$this->assertEquals( 'meow!', $result );
+	private function getSiteLinkLookup() {
+		$siteLinkLookup = $this->getMockBuilder( 'Wikibase\Lib\Store\SiteLinkLookup' )
+			->getMock();
+
+		$siteLinkLookup->expects( $this->any() )
+			->method( 'getEntityIdForSiteLink' )
+			->will( $this->returnValue( new ItemId( 'Q3' ) ) );
+
+		return $siteLinkLookup;
+	}
+
+	private function getRendererFactory() {
+		$renderer = $this->getRenderer();
+
+		$rendererFactory = $this->getMockBuilder(
+				'Wikibase\DataAccess\PropertyParserFunction\RendererFactory'
+			)
+			->disableOriginalConstructor()
+			->getMock();
+
+		$rendererFactory->expects( $this->any() )
+			->method( 'newRendererFromParser' )
+			->will( $this->returnValue( $renderer ) );
+
+		return $rendererFactory;
 	}
 
 	private function getRenderer() {
@@ -129,42 +90,11 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 		return $renderer;
 	}
 
-	private function getSiteLinkLookup() {
-		$siteLinkLookup = $this->getMockBuilder( 'Wikibase\Lib\Store\SiteLinkLookup' )
-			->getMock();
-
-		$siteLinkLookup->expects( $this->any() )
-			->method( 'getEntityIdForSiteLink' )
-			->will( $this->returnValue( new ItemId( 'Q3' ) ) );
-
-		return $siteLinkLookup;
-	}
-
-	private function getRendererFactory( Renderer $renderer ) {
-		$rendererFactory = $this->getMockBuilder(
-				'Wikibase\DataAccess\PropertyParserFunction\RendererFactory'
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$rendererFactory->expects( $this->any() )
-			->method( 'newFromLanguage' )
-			->will( $this->returnValue( $renderer ) );
-
-		return $rendererFactory;
-	}
-
-	private function getParser( $languageCode ) {
+	private function getParser() {
 		$parserConfig = array( 'class' => 'Parser' );
+
 		$parser = new Parser( $parserConfig );
-
 		$parser->setTitle( Title::newFromText( 'Cat' ) );
-
-		$language = Language::factory( $languageCode );
-		$parserOptions = new ParserOptions( User::newFromId( 0 ), $languageCode );
-		$parserOptions->setTargetLanguage( $language );
-
-		$parser->startExternalParse( null, $parserOptions, Parser::OT_WIKI );
 
 		return $parser;
 	}

@@ -44,7 +44,11 @@ class LinkTitles extends ApiWikibase {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
-		$this->siteLinkTargetProvider = new SiteLinkTargetProvider( $wikibaseRepo->getSiteStore() );
+		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
+			$wikibaseRepo->getSiteStore(),
+			$wikibaseRepo->getSettings()->getSetting( 'specialSiteLinkGroups' )
+		);
+
 		$this->siteLinkGroups = $wikibaseRepo->getSettings()->getSetting( 'siteLinkGroups' );
 	}
 
@@ -122,12 +126,12 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId->equals( $toId ) ) {
 			// no-op
 			wfProfileOut( __METHOD__ );
-			$this->dieUsage( 'Common item detected, sitelinks are both on the same item', 'common-item' );
+			$this->dieError( 'Common item detected, sitelinks are both on the same item', 'common-item' );
 		}
 		else {
 			// dissimilar items
 			wfProfileOut( __METHOD__ );
-			$this->dieUsage( 'No common item detected, unable to link titles' , 'no-common-item' );
+			$this->dieError( 'No common item detected, unable to link titles' , 'no-common-item' );
 		}
 
 		$this->getResultBuilder()->addSiteLinks( $return, 'entity' );
@@ -142,7 +146,7 @@ class LinkTitles extends ApiWikibase {
 	 */
 	private function validatePage( $page, $label ) {
 		if ( $page === false ) {
-			$this->dieUsage(
+			$this->dieError(
 				"The external client site did not provide page information for the {$label} page" ,
 				'no-external-page'
 			);
@@ -182,11 +186,11 @@ class LinkTitles extends ApiWikibase {
 	 */
 	protected function validateParameters( array $params ) {
 		if ( $params['fromsite'] === $params['tosite'] ) {
-			$this->dieUsage( 'The from site can not match the to site' , 'param-illegal' );
+			$this->dieError( 'The from site can not match the to site' , 'param-illegal' );
 		}
 
 		if( !( strlen( $params['fromtitle'] ) > 0) || !( strlen( $params['totitle'] ) > 0) ){
-			$this->dieUsage( 'The from title and to title must have a value' , 'param-illegal' );
+			$this->dieError( 'The from title and to title must have a value' , 'param-illegal' );
 		}
 	}
 

@@ -3,12 +3,11 @@
 namespace Wikibase\DataAccess\PropertyParserFunction;
 
 use Language;
+use Parser;
 use ValueFormatters\FormatterOptions;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\PropertyLabelResolver;
 
 /**
  * @since 0.5
@@ -49,16 +48,63 @@ class RendererFactory {
 	}
 
 	/**
-	 * @param Language $language
+	 * @param Parser $parser
 	 *
 	 * @return Renderer
 	 */
-	public function newFromLanguage( Language $language ) {
-		return new Renderer(
+	public function newRendererFromParser( Parser $parser ) {
+		if ( $this->useVariants( $parser ) ) {
+			$variants = $parser->getConverterLanguage()->getVariants();
+			return $this->newVariantsAwareRenderer( $variants );
+		} else {
+			$targetLanguage = $parser->getTargetLanguage();
+			return $this->newLanguageAwareRenderer( $targetLanguage );
+		}
+	}
+
+	/**
+	 * @param Language $language
+	 *
+	 * @return LanguageAwareRenderer
+	 */
+	public function newLanguageAwareRenderer( Language $language ) {
+		return new LanguageAwareRenderer(
 			$language,
 			$this->snaksFinder,
 			$this->newSnakFormatterForLanguage( $language )
 		);
+	}
+
+	/**
+	 * @param string[] $variants
+	 *
+	 * @return VariantsAwareRenderer
+	 */
+	private function newVariantsAwareRenderer( array $variants ) {
+		return new VariantsAwareRenderer( $this, $variants );
+	}
+
+	/**
+	 * Check whether variants are used in this parser run.
+	 *
+	 * @param Parser $parser
+	 *
+	 * @return boolean
+	 */
+	private function isParserUsingVariants( Parser $parser ) {
+		$parserOptions = $parser->getOptions();
+		return $parser->OutputType() === Parser::OT_HTML && !$parserOptions->getInterfaceMessage()
+			&& !$parserOptions->getDisableContentConversion();
+	}
+
+	/**
+	 * @param Parser $parser
+	 *
+	 * @return boolean
+	 */
+	private function useVariants( Parser $parser ) {
+		$converterLanguageHasVariants = $parser->getConverterLanguage()->hasVariants();
+		return $this->isParserUsingVariants( $parser ) && $converterLanguageHasVariants;
 	}
 
 	/**

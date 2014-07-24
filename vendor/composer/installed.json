@@ -659,24 +659,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.6.6",
-        "version_normalized": "0.6.6.0",
+        "version": "0.6.7",
+        "version_normalized": "0.6.7.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "002d019822ccf28413ee3fe55854ce33d26ecae7"
+            "reference": "66686f91e498a9ddda75d84e2fdee43312ed7d5e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/002d019822ccf28413ee3fe55854ce33d26ecae7",
-            "reference": "002d019822ccf28413ee3fe55854ce33d26ecae7",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/66686f91e498a9ddda75d84e2fdee43312ed7d5e",
+            "reference": "66686f91e498a9ddda75d84e2fdee43312ed7d5e",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-07-18 14:54:15",
+        "time": "2014-07-23 13:34:45",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -691,15 +691,11 @@
         "authors": [
             {
                 "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
             },
             {
                 "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
+                "homepage": "http://www.snater.com"
             }
         ],
         "description": "Provides JS widgets to edit values defined by the DataValues library",
@@ -1192,12 +1188,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "f38f5463b365e167f4d08ce5a16c818f19e1ff7f"
+            "reference": "0858c4ce41673acfd20395f9b2622c7767855917"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f38f5463b365e167f4d08ce5a16c818f19e1ff7f",
-            "reference": "f38f5463b365e167f4d08ce5a16c818f19e1ff7f",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0858c4ce41673acfd20395f9b2622c7767855917",
+            "reference": "0858c4ce41673acfd20395f9b2622c7767855917",
             "shasum": ""
         },
         "require": {
@@ -1224,7 +1220,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-22 00:37:02",
+        "time": "2014-07-24 09:21:55",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

@@ -14,14 +14,15 @@ use Wikibase\Api\SiteLinkTargetProvider;
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
+ * @author Marius Hoch < hoo@online.de >
  */
 class SiteLinkTargetProviderTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider provideExpected
 	 */
-	public function testGetSiteList( $groups, $expectedGlobalIds ) {
-		$provider = new SiteLinkTargetProvider( $this->getMockSiteStore() );
+	public function testGetSiteList( $groups, $specialGroups, $expectedGlobalIds ) {
+		$provider = new SiteLinkTargetProvider( $this->getMockSiteStore(), $specialGroups );
 
 		$siteList = $provider->getSiteList( $groups );
 
@@ -33,23 +34,27 @@ class SiteLinkTargetProviderTest extends \PHPUnit_Framework_TestCase {
 
 	public static function provideExpected() {
 		return array(
-			//groupsToGet, siteIdsExpected
-			array( array( 'foo' ), array( 'site1', 'site2' ) ),
-			array( array( 'bar' ), array( 'site3' ) ),
-			array( array( 'baz' ), array( 'site4' ) ),
-			array( array( 'qwerty' ), array() ),
-			array( array( 'foo', 'bar' ), array( 'site1', 'site2', 'site3' ) ),
-			array( array( 'foo', 'baz' ), array( 'site1', 'site2', 'site4' ) ),
-			array( array(), array() ),
+			// groupsToGet, specialGroups, siteIdsExpected
+			array( array( 'wikipedia' ), array(), array( 'eswiki', 'dawiki' ) ),
+			array( array( 'species' ), array(), array( 'specieswiki' ) ),
+			array( array( 'wikiquote' ), array(), array( 'eswikiquote' ) ),
+			array( array( 'qwerty' ), array(), array() ),
+			array( array( 'wikipedia', 'species' ), array(), array( 'eswiki', 'dawiki', 'specieswiki' ) ),
+			array( array( 'wikipedia', 'wikiquote' ), array(), array( 'eswiki', 'dawiki', 'eswikiquote' ) ),
+			array( array( 'special' ), array( 'species' ), array( 'specieswiki' ) ),
+			array( array( 'wikipedia' ), array( 'species' ), array( 'eswiki', 'dawiki' ) ),
+			array( array( 'special', 'wikipedia' ), array( 'species', 'wikiquote' ), array( 'eswiki', 'dawiki', 'specieswiki', 'eswikiquote' ) ),
+			array( array(), array( 'wikipedia' ), array() ),
+			array( array(), array(), array() ),
 		);
 	}
 
 	protected function getSiteList() {
 		$siteList = new SiteList();
-		$siteList->append( $this->getMockSite( 'site1', 'foo' ) );
-		$siteList->append( $this->getMockSite( 'site2', 'foo' ) );
-		$siteList->append( $this->getMockSite( 'site3', 'bar' ) );
-		$siteList->append( $this->getMockSite( 'site4', 'baz' ) );
+		$siteList->append( $this->getMockSite( 'eswiki', 'wikipedia' ) );
+		$siteList->append( $this->getMockSite( 'dawiki', 'wikipedia' ) );
+		$siteList->append( $this->getMockSite( 'specieswiki', 'species' ) );
+		$siteList->append( $this->getMockSite( 'eswikiquote', 'wikiquote' ) );
 		return $siteList;
 	}
 
