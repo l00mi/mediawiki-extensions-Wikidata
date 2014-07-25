@@ -290,7 +290,7 @@
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
                 "homepage": "http://jeroendedauw.com",
-                "role": "Core developer"
+                "role": "Developer"
             }
         ],
         "description": "Serializers and deserializers for DataValue implementations",
@@ -361,17 +361,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "0.8.1",
-        "version_normalized": "0.8.1.0",
+        "version": "0.8.2",
+        "version_normalized": "0.8.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "50679a58a5b1172224cf47e660f40595992e29dc"
+            "reference": "b044086b9405cc6c5477f37652bf335e4cf53d7e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/50679a58a5b1172224cf47e660f40595992e29dc",
-            "reference": "50679a58a5b1172224cf47e660f40595992e29dc",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/b044086b9405cc6c5477f37652bf335e4cf53d7e",
+            "reference": "b044086b9405cc6c5477f37652bf335e4cf53d7e",
             "shasum": ""
         },
         "require": {
@@ -380,7 +380,7 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-06-06 21:14:52",
+        "time": "2014-07-25 02:49:31",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1188,12 +1188,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "0858c4ce41673acfd20395f9b2622c7767855917"
+            "reference": "b1fb7fe27097cd2076338db34dd23db2a9dc7cd1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0858c4ce41673acfd20395f9b2622c7767855917",
-            "reference": "0858c4ce41673acfd20395f9b2622c7767855917",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b1fb7fe27097cd2076338db34dd23db2a9dc7cd1",
+            "reference": "b1fb7fe27097cd2076338db34dd23db2a9dc7cd1",
             "shasum": ""
         },
         "require": {
@@ -1210,7 +1210,7 @@
             "data-values/value-view": "~0.6.5",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~0.8.1",
+            "wikibase/data-model": "~0.8.2",
             "wikibase/data-model-javascript": "~0.3.0",
             "wikibase/data-model-serialization": "~1.0.1",
             "wikibase/easyrdf_lite": "~0.8.1",
@@ -1220,7 +1220,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-07-24 09:21:55",
+        "time": "2014-07-25 04:59:58",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
