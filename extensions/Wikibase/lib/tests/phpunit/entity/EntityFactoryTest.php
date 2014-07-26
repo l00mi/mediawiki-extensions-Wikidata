@@ -2,10 +2,9 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\Entity;
 use Wikibase\EntityFactory;
-use Wikibase\Item;
-use Wikibase\Property;
+use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\Property;
 
 /**
  * @covers Wikibase\EntityFactory
@@ -17,7 +16,7 @@ use Wikibase\Property;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
-class EntityFactoryTest extends EntityTestCase {
+class EntityFactoryTest extends \MediaWikiTestCase {
 
 	public function testGetEntityTypes() {
 		$types = EntityFactory::singleton()->getEntityTypes();
@@ -25,9 +24,6 @@ class EntityFactoryTest extends EntityTestCase {
 
 		$this->assertTrue( in_array( Item::ENTITY_TYPE, $types ), "must contain item type" );
 		$this->assertTrue( in_array( Property::ENTITY_TYPE, $types ), "must contain property type" );
-
-		// TODO
-		// $this->assertTrue( in_array( Query::ENTITY_TYPE, $types ), "must contain query type" );
 	}
 
 	public static function provideIsEntityType() {

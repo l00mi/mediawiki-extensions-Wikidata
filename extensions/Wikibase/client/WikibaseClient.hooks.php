@@ -35,6 +35,7 @@ use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\SpecialWatchlistQueryHandler;
 use Wikibase\Client\MovePageNotice;
+use Wikibase\Client\OtherProjectsSitesProvider;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -621,22 +622,15 @@ final class ClientHooks {
 	public static function onSkinBuildSidebar( Skin $skin, &$bar ) {
 		$settings = WikibaseClient::getDefaultInstance()->getSettings();
 
-		$siteIdsToOutput = $settings->getSetting( 'otherProjectsLinks' );
 		if (
-			!$settings->getSetting( 'otherProjectsLinksBeta' ) && !$settings->getSetting( 'otherProjectsLinksByDefault' ) ||
-			count( $siteIdsToOutput ) === 0
+			!$settings->getSetting( 'otherProjectsLinksBeta' ) &&
+			!$settings->getSetting( 'otherProjectsLinksByDefault' )
 		) {
 			return true;
 		}
 
-		$generator = new OtherProjectsSidebarGenerator(
-			$settings->getSetting( 'siteGlobalID' ),
-			WikibaseClient::getDefaultInstance()->getStore()->getSiteLinkTable(),
-			WikibaseClient::getDefaultInstance()->getSiteStore(),
-			$siteIdsToOutput
-		);
-
-		$otherProjectsSidebar = $generator->buildProjectLinkSidebar( $skin->getContext()->getTitle() );
+		$otherProjectsSidebarGenerator = WikibaseClient::getDefaultInstance()->getOtherProjectsSidebarGenerator();
+		$otherProjectsSidebar = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $skin->getContext()->getTitle() );
 		if ( count( $otherProjectsSidebar ) !== 0 ) {
 			$bar['wikibase-otherprojects'] = $otherProjectsSidebar;
 		}
@@ -734,6 +728,12 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onGetPreferences( User $user, array &$prefs ) {
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+
+		if ( !$settings->getSetting( 'showExternalRecentChanges' ) ) {
+			return true;
+		}
+
 		$prefs['rcshowwikidata'] = array(
 			'type' => 'toggle',
 			'label-message' => 'wikibase-rc-show-wikidata-pref',
