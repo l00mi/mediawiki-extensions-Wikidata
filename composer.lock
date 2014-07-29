@@ -632,16 +632,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.6.7",
+            "version": "0.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "66686f91e498a9ddda75d84e2fdee43312ed7d5e"
+                "reference": "44ca1b31a172130224ffc707657558690ec03d45"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/66686f91e498a9ddda75d84e2fdee43312ed7d5e",
-                "reference": "66686f91e498a9ddda75d84e2fdee43312ed7d5e",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/44ca1b31a172130224ffc707657558690ec03d45",
+                "reference": "44ca1b31a172130224ffc707657558690ec03d45",
                 "shasum": ""
             },
             "require": {
@@ -670,7 +670,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-07-23 13:34:45"
+            "time": "2014-07-29 11:56:20"
         },
         {
             "name": "diff/diff",
@@ -754,7 +754,7 @@
                 },
                 "files": [
 
-    ],
+                ],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -1153,12 +1153,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "d2834f594edad6b0e2c089a6bab803d5bff30c6f"
+                "reference": "2221d90e10160865820a830da8a2aef8bba75e2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d2834f594edad6b0e2c089a6bab803d5bff30c6f",
-                "reference": "d2834f594edad6b0e2c089a6bab803d5bff30c6f",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/2221d90e10160865820a830da8a2aef8bba75e2c",
+                "reference": "2221d90e10160865820a830da8a2aef8bba75e2c",
                 "shasum": ""
             },
             "require": {
@@ -1226,7 +1226,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-07-22 10:50:35"
+            "time": "2014-07-29 14:04:05"
         }
     ],
     "packages-dev": [
@@ -1239,6 +1239,7 @@
     "stability-flags": {
         "wikibase/wikibase": 20
     },
+    "prefer-stable": false,
     "platform": {
         "php": ">=5.3.0"
     },

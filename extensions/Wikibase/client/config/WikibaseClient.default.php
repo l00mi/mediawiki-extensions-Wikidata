@@ -1,5 +1,6 @@
 <?php
 
+use Wikibase\Client\WikibaseClient;
 use Wikibase\SettingsArray;
 
 /**
@@ -37,10 +38,13 @@ return call_user_func( function() {
 		),
 		'allowDataTransclusion' => true,
 		'propagateChangesToRepo' => true,
-		'otherProjectsLinks' => array(),
+		'otherProjectsLinksByDefault' => false,
+		'otherProjectsLinksBeta' => false,
 		// List of additional CSS class names for site links that have badges, e.g.
 		// array( 'Q101' => 'wb-badge-goldstar' ).
 		'badgeClassNames' => array(),
+		// Allow accessing data from other items in the parser functions and via Lua
+		'allowArbitraryDataAccess' => true,
 
 		/**
 		 * @todo this is a bit wikimedia-specific and need to find a better place for this stuff,
@@ -233,6 +237,11 @@ return call_user_func( function() {
 	$defaults['siteGroup'] = function ( SettingsArray $settings ) {
 		// by default lookup from SiteSQLStore, can override with setting for performance reasons
 		return null;
+	};
+
+	$defaults['otherProjectsLinks'] = function ( SettingsArray $settings ) {
+		$otherProjectsSitesProvider = WikibaseClient::getDefaultInstance()->getOtherProjectsSitesProvider();
+		return $otherProjectsSitesProvider->getOtherProjectsSiteIds( $settings->getSetting( 'siteLinkGroups' ) );
 	};
 
 	// Prefix to use for cache keys that should be shared among

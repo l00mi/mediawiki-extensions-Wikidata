@@ -4,6 +4,7 @@ namespace Wikibase;
 
 use Action;
 use BaseTemplate;
+use BetaFeatures;
 use ChangesList;
 use FormOptions;
 use IContextSource;
@@ -34,6 +35,7 @@ use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\SpecialWatchlistQueryHandler;
 use Wikibase\Client\MovePageNotice;
+use Wikibase\Client\OtherProjectsSitesProvider;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -620,22 +622,77 @@ final class ClientHooks {
 	public static function onSkinBuildSidebar( Skin $skin, &$bar ) {
 		$settings = WikibaseClient::getDefaultInstance()->getSettings();
 
-		$siteIdsToOutput = $settings->getSetting( 'otherProjectsLinks' );
-		if ( count( $siteIdsToOutput ) === 0 ) {
+		if (
+			!$settings->getSetting( 'otherProjectsLinksBeta' ) &&
+			!$settings->getSetting( 'otherProjectsLinksByDefault' )
+		) {
 			return true;
 		}
 
-		$generator = new OtherProjectsSidebarGenerator(
-			$settings->getSetting( 'siteGlobalID' ),
-			WikibaseClient::getDefaultInstance()->getStore()->getSiteLinkTable(),
-			WikibaseClient::getDefaultInstance()->getSiteStore(),
-			$siteIdsToOutput
-		);
-
-		$otherProjectsSidebar = $generator->buildProjectLinkSidebar( $skin->getContext()->getTitle() );
+		$otherProjectsSidebarGenerator = WikibaseClient::getDefaultInstance()->getOtherProjectsSidebarGenerator();
+		$otherProjectsSidebar = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $skin->getContext()->getTitle() );
 		if ( count( $otherProjectsSidebar ) !== 0 ) {
 			$bar['wikibase-otherprojects'] = $otherProjectsSidebar;
 		}
+
+		return true;
+	}
+
+	/**
+	 * Filters the display of "other project" sidebar according to the beta feature
+	 *
+	 * @since 0.5
+	 *
+	 * @param Skin $skin
+	 * @param array $sidebar
+	 *
+	 * @return bool
+	 */
+	public static function onSidebarBeforeOutput( Skin $skin, array &$sidebar ) {
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+		if (
+			$settings->getSetting( 'otherProjectsLinksBeta' ) &&
+			!$settings->getSetting( 'otherProjectsLinksByDefault' ) &&
+			class_exists( '\BetaFeatures' ) &&
+			!BetaFeatures::isFeatureEnabled( $skin->getUser(), 'wikibase-otherprojects' )
+		) {
+			unset( $sidebar['wikibase-otherprojects'] );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Initialise beta feature preferences
+	 *
+	 * @since 0.5
+	 *
+	 * @param User $user
+	 * @param array $betaPreferences
+	 *
+	 * @return bool
+	 */
+	public static function onGetBetaFeaturePreferences( User $user, array &$betaPreferences ) {
+		global $wgExtensionAssetsPath;
+
+		$remoteExtPathParts = explode( DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR , __DIR__, 2 );
+		$assetsPath = $wgExtensionAssetsPath . '/' . $remoteExtPathParts[1];
+
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+		if ( !$settings->getSetting( 'otherProjectsLinksBeta' ) || $settings->getSetting( 'otherProjectsLinksByDefault' ) ) {
+			return true;
+		}
+
+		$betaPreferences['wikibase-otherprojects'] = array(
+			'label-message' => 'wikibase-otherprojects-beta-message',
+			'desc-message' => 'wikibase-otherprojects-beta-description',
+			'screenshot' => array(
+				'ltr' => $assetsPath . '/resources/images/wb-otherprojects-beta-ltr.png',
+				'rtl' => $assetsPath . '/resources/images/wb-otherprojects-beta-rtl.png'
+			),
+			'info-link' => 'https://www.mediawiki.org/wiki/Wikibase/Beta_Features/Other_projects_sidebar',
+			'discussion-link' => 'https://www.mediawiki.org/wiki/Talk:Wikibase/Beta_Features/Other_projects_sidebar'
+		);
 
 		return true;
 	}

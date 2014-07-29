@@ -307,6 +307,7 @@ return array(
     'Wikibase\\Client\\Hooks\\ParserFunctionRegistrant' => $baseDir . '/extensions/Wikibase/client/includes/hooks/ParserFunctionRegistrant.php',
     'Wikibase\\Client\\Hooks\\SpecialWatchlistQueryHandler' => $baseDir . '/extensions/Wikibase/client/includes/hooks/SpecialWatchlistQueryHandler.php',
     'Wikibase\\Client\\MovePageNotice' => $baseDir . '/extensions/Wikibase/client/includes/hooks/MovePageNotice.php',
+    'Wikibase\\Client\\OtherProjectsSitesProvider' => $baseDir . '/extensions/Wikibase/client/includes/OtherProjectsSitesProvider.php',
     'Wikibase\\Client\\Scribunto\\Test\\Scribunto_LuaWikibaseLibraryTestCase' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/scribunto/Scribunto_LuaWikibaseLibraryTestCase.php',
     'Wikibase\\Client\\Scribunto\\Test\\WikibaseLuaIntegrationTestItemSetUpHelper' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/scribunto/WikibaseLuaIntegrationTestItemSetUpHelper.php',
     'Wikibase\\Client\\Scribunto\\WikibaseLuaBindings' => $baseDir . '/extensions/Wikibase/client/includes/scribunto/WikibaseLuaBindings.php',

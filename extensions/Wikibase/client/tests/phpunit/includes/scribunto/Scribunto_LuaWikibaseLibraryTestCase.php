@@ -11,7 +11,6 @@ if ( !class_exists( 'Scribunto_LuaEngineTestBase' ) ) {
 use Language;
 use Title;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\ClientStore;
 use Wikibase\Test\MockClientStore;
 
 /**
@@ -26,7 +25,21 @@ use Wikibase\Test\MockClientStore;
  * @author Marius Hoch < hoo@online.de >
  * @author Daniel Kinzler
  */
-class Scribunto_LuaWikibaseLibraryTestCase extends \Scribunto_LuaEngineTestBase {
+abstract class Scribunto_LuaWikibaseLibraryTestCase extends \Scribunto_LuaEngineTestBase {
+
+	/**
+	 * @var bool|null
+	 */
+	private static $oldAllowArbitraryDataAccess = null;
+
+	/**
+	 * Whether to allow arbitrary data access or not
+	 *
+	 * @return bool
+	 */
+	protected static function allowArbitraryDataAccess() {
+		return true;
+	}
 
 	/**
 	 * Makes sure WikibaseClient uses our ClientStore mock
@@ -39,6 +52,17 @@ class Scribunto_LuaWikibaseLibraryTestCase extends \Scribunto_LuaEngineTestBase 
 			$store = new MockClientStore();
 			$wikibaseClient->overrideStore( $store );
 		}
+
+		$settings = $wikibaseClient->getSettings();
+		if ( self::$oldAllowArbitraryDataAccess === null ) {
+			// Only need to set this once, as this is supposed to be the original value
+			self::$oldAllowArbitraryDataAccess = $settings->getSetting( 'allowArbitraryDataAccess' );
+		}
+
+		$settings->setSetting(
+			'allowArbitraryDataAccess',
+			static::allowArbitraryDataAccess()
+		);
 	}
 
 	/**
@@ -79,7 +103,14 @@ class Scribunto_LuaWikibaseLibraryTestCase extends \Scribunto_LuaEngineTestBase 
 	public function tearDown() {
 		parent::tearDown();
 
-		WikibaseClient::getDefaultInstance( 'reset' );
+		$wikibaseClient = WikibaseClient::getDefaultInstance( 'reset' );
+
+		if ( self::$oldAllowArbitraryDataAccess !== null ) {
+			$wikibaseClient->getSettings()->setSetting(
+				'allowArbitraryDataAccess',
+				self::$oldAllowArbitraryDataAccess
+			);
+		}
 	}
 
 	/**
