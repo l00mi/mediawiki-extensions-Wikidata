@@ -48,26 +48,14 @@ abstract class EntitySerializer extends SerializerObject implements Unserializer
 	const OPT_SORT_FIELDS = 'entitySortFields';
 
 	/**
-	 * @see ApiSerializerObject::$options
-	 *
-	 * @since 0.2
-	 *
-	 * @var SerializationOptions
-	 */
-	protected $options;
-
-	/**
-	 * @since 0.4
-	 *
 	 * @var EntityFactory
 	 */
-	protected $entityFactory;
-
+	private $entityFactory;
 
 	/**
 	 * @var ClaimSerializer
 	 */
-	protected $claimSerializer;
+	private $claimSerializer;
 
 	/**
 	 * Constructor.
@@ -238,7 +226,7 @@ abstract class EntitySerializer extends SerializerObject implements Unserializer
 			$entity->setLabels( $labels );
 		}
 
-		if ( array_key_exists( 'claims', $data ) ) {
+		if ( array_key_exists( 'claims', $data ) && method_exists( $entity, 'setClaims' ) ) {
 			$claimsSerializer = new ClaimsSerializer( $this->claimSerializer, $this->options );
 			$claims = $claimsSerializer->newFromSerialization( $data['claims'] );
 			$entity->setClaims( $claims );

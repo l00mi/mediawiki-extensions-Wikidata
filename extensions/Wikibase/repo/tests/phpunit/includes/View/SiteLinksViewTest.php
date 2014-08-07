@@ -2,12 +2,13 @@
 
 namespace Wikibase\Test;
 
-use Language;
 use MediaWikiSite;
 use SiteList;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Repo\View\SectionEditLinkGenerator;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Repo\View\SiteLinksView;
@@ -180,42 +181,42 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 			)
 		);
 
-		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
-			$item = Item::newEmpty();
-			$item->setId( new ItemId( 'Q1' ) );
-			$item->addSiteLink( new SiteLink( 'enwiki', 'en test', array( new ItemId( 'Q42' ) ) ) );
-			$item->addSiteLink( new SiteLink( 'dewiki', 'de test', array( new ItemId( 'Q42' ), new ItemId( 'Q12' ) ) ) );
+		$item = Item::newEmpty();
+		$item->setId( new ItemId( 'Q1' ) );
+		$item->addSiteLink( new SiteLink( 'enwiki', 'en test', array( new ItemId( 'Q42' ) ) ) );
+		$item->addSiteLink( new SiteLink( 'dewiki', 'de test', array( new ItemId( 'Q42' ), new ItemId( 'Q12' ) ) ) );
 
-			$testCases[] = array(
-				$item,
-				array( 'wikipedia' ),
-				true,
-				array(
-					'tag' => 'table',
-					'descendant' => array(
-						'tag' => 'span',
-						'attributes' => array(
-							'class' => 'wb-badge wb-badge-Q42 wb-badge-featuredarticle'
-						)
+		$testCases[] = array(
+			$item,
+			array( 'wikipedia' ),
+			true,
+			array(
+				'tag' => 'table',
+				'descendant' => array(
+					'tag' => 'span',
+					'attributes' => array(
+						'class' => 'wb-badge wb-badge-Q42 wb-badge-featuredarticle',
+						'title' => 'Featured article'
 					)
 				)
-			);
+			)
+		);
 
-			$testCases[] = array(
-				$item,
-				array( 'wikipedia' ),
-				true,
-				array(
-					'tag' => 'table',
-					'descendant' => array(
-						'tag' => 'span',
-						'attributes' => array(
-							'class' => 'wb-badge wb-badge-Q12 wb-badge-goodarticle'
-						)
+		$testCases[] = array(
+			$item,
+			array( 'wikipedia' ),
+			true,
+			array(
+				'tag' => 'table',
+				'descendant' => array(
+					'tag' => 'span',
+					'attributes' => array(
+						'class' => 'wb-badge wb-badge-Q12 wb-badge-goodarticle',
+						'title' => 'Q12'
 					)
 				)
-			);
-		}
+			)
+		);
 
 		return $testCases;
 	}
@@ -275,7 +276,9 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 	private function getSiteLinksView() {
 		return new SiteLinksView(
 			$this->newSiteList(),
-			$this->getSectionEditLinkGeneratorMock()
+			$this->getSectionEditLinkGeneratorMock(),
+			$this->getEntityLookupMock(),
+			'en'
 		);
 	}
 
@@ -318,6 +321,29 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		$dummySite3->setGroup( 'wikipedia' );
 
 		return new SiteList( array( $dummySite, $dummySite2, $dummySite3 ) );
+	}
+
+	/**
+	 * @return EntityLookup
+	 */
+	private function getEntityLookupMock() {
+		$entityLookup = $this->getMockBuilder( 'Wikibase\Lib\Store\EntityLookup' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$entityLookup->expects( $this->any() )
+			->method( 'getEntity' )
+			->will( $this->returnCallback( function( EntityId $entityId ) {
+				if ( $entityId->getSerialization() === 'Q42' ) {
+					$item = Item::newEmpty();
+					$item->setLabel( 'en', 'Featured article' );
+					return $item;
+				} else {
+					return null;
+				}
+			} ) );
+
+		return $entityLookup;
 	}
 
 }

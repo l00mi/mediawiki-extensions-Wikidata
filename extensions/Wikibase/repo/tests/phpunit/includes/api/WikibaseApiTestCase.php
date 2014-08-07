@@ -63,18 +63,17 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 	}
 
 	/**
-	 * Gets an entity edit token.
-	 */
-	protected function getToken( $type = 'edittoken' ) {
-		$tokens = self::getTokenList( self::$loginUser );
-		return $tokens[$type];
-	}
-
-	/**
 	 *  Appends an edit token to a request
 	 */
 	protected function doApiRequestWithToken( array $params, array $session = null, User $user = null ) {
-		$params['token'] = $this->getToken();
+		if ( !$user ) {
+			$user = $GLOBALS['wgUser'];
+		}
+
+		if ( !array_key_exists( 'token', $params ) ) {
+			$params['token'] = $user->getEditToken();
+		}
+
 		return $this->doApiRequest( $params, $session, false, $user );
 	}
 

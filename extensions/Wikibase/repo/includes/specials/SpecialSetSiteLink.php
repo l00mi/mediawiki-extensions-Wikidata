@@ -9,6 +9,7 @@ use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -237,11 +238,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 				)
 			);
 
-		// Experimental setting of badges on the special page
-		// @todo remove experimental once JS UI is in place, (also remove the experimental test case)
-		// @todo when removing from experimental update i18n wikibase-setsitelink-intro
-		//	   @see https://gerrit.wikimedia.org/r/#/c/94939/13/repo/Wikibase.i18n.php
-		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES && !empty( $this->badgeItems ) ) {
+		if ( !empty( $this->badgeItems ) ) {
 			$pageinput .= Html::element( 'br' )
 			. Html::element(
 				'label',
@@ -282,10 +279,16 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			. $pageinput;
 		}
 		else {
+			$intro = $this->msg( 'wikibase-setsitelink-intro' )->text();
+
+			if ( !empty( $this->badgeItems ) ) {
+				$intro .= $this->msg( 'word-separator' )->text() . $this->msg( 'wikibase-setsitelink-intro-badges' )->text();
+			}
+
 			return Html::element(
 				'p',
 				array(),
-				$this->msg( 'wikibase-setsitelink-intro' )->parse()
+				$intro
 			)
 			. parent::getFormElements( $entity )
 			. Html::element(
@@ -327,11 +330,30 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			$options .= Html::element(
 				'option',
 				$attrs,
-				$badgeId // @todo use the label here when we have a nice lookup
+				$this->getTitleForBadge( new ItemId( $badgeId ) )
 			);
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Returns the title for the given badge id.
+	 * @todo use TermLookup when we have one
+	 *
+	 * @param EntityId $badgeId
+	 * @return string
+	 */
+	private function getTitleForBadge( EntityId $badgeId ) {
+		$entity = $this->loadEntity( $badgeId )->getEntity();
+		$languageCode = $this->getLanguage()->getCode();
+
+		$labels = $entity->getFingerprint()->getLabels();
+		if ( $labels->hasTermForLanguage( $languageCode ) ) {
+			return $labels->getByLanguage( $languageCode )->getText();
+		} else {
+			return $badgeId->getSerialization();
+		}
 	}
 
 	/**

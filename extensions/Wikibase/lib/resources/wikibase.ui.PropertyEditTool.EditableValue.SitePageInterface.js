@@ -117,8 +117,7 @@ wb.ui.PropertyEditTool.EditableValue.SitePageInterface = util.inherit( PARENT, {
 	 *     that also links to Special:SetSiteLink where badges can be added.
 	 */
 	_initBadgeEditing: function() {
-		if ( !mw.config.get( 'wbExperimentalFeatures' ) ) {
-			// Badges are experimental as of 2014-07-18
+		if ( $.isEmptyObject( mw.config.get( 'wbBadgeItems' ) ) ) {
 			return;
 		}
 
@@ -153,7 +152,7 @@ wb.ui.PropertyEditTool.EditableValue.SitePageInterface = util.inherit( PARENT, {
 	 * Disable editing badges
 	 */
 	_disableBadgeEditing: function() {
-		if ( !mw.config.get( 'wbExperimentalFeatures' ) ) {
+		if ( $.isEmptyObject( mw.config.get( 'wbBadgeItems' ) ) ) {
 			return;
 		}
 
@@ -350,7 +349,7 @@ wb.ui.PropertyEditTool.EditableValue.SitePageInterface = util.inherit( PARENT, {
 		}
 
 		return mw.util.getUrl(
-			'Special:SetSiteLink/' + entityId + '/' + this.getSite().getGlobalSiteId()
+			'Special:SetSiteLink/' + entityId + '/' + this.getSite().getId()
 		);
 	},
 

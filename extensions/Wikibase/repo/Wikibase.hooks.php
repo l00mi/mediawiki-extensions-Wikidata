@@ -4,6 +4,7 @@ namespace Wikibase;
 
 use ApiBase;
 use ApiEditPage;
+use BaseTemplate;
 use Content;
 use ContentHandler;
 use DatabaseUpdater;
@@ -998,11 +999,11 @@ final class RepoHooks {
 		list( $contentModel, $prefix ) = $data;
 
 		// If it is possible to avoid loading the whole page then the code will be lighter on the server.
-		if ( $title === null ) {
+		if ( !( $title instanceof Title ) ) {
 			$title = $wgTitle;
 		}
 
-		if ( $title->getContentModel() !== $contentModel ) {
+		if ( !( $title instanceof Title ) || $title->getContentModel() !== $contentModel ) {
 			return true;
 		}
 
@@ -1030,6 +1031,7 @@ final class RepoHooks {
 				$comment = $pre . $wgLang->getDirMark() . '<span dir="auto">' . $auto . $post . '</span>';
 			}
 		}
+
 		return true;
 	}
 
@@ -1273,50 +1275,51 @@ final class RepoHooks {
 	}
 
 	/**
-	 * Called by SkinTemplate, allows us to set up nav URLs to later be used in the toolbox
+	 * Called in SkinTemplate::buildNavUrls(), allows us to set up navigation URLs to later be used
+	 * in the toolbox.
 	 *
-	 * @param object $skintemplate
-	 * @param array $nav_urls
-	 * @param int $revid
-	 * @param int $revid
+	 * @param SkinTemplate $skinTemplate
+	 * @param array $navigationUrls
 	 *
 	 * @return bool
 	 */
 	public static function onSkinTemplateBuildNavUrlsNav_urlsAfterPermalink(
-		SkinTemplate $skintemplate, array &$nav_urls, $revid, $revid
+		SkinTemplate $skinTemplate,
+		array &$navigationUrls
 	) {
-		$title = $skintemplate->getTitle();
+		$title = $skinTemplate->getTitle();
 
 		if ( !NamespaceUtils::isEntityNamespace( $title->getNamespace() ) ) {
 			return true;
 		}
 
 		$baseUri = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'conceptBaseUri' );
-		$nav_urls['wb-canonical-uri'] = array(
-			'text' => $skintemplate->msg( 'wikibase-concept-uri' ),
+		$navigationUrls['wb-concept-uri'] = array(
+			'text' => $skinTemplate->msg( 'wikibase-concept-uri' ),
 			'href' => $baseUri . $title->getDBKey(),
-			'title' => $skintemplate->msg( 'wikibase-concept-uri-tooltip' )
+			'title' => $skinTemplate->msg( 'wikibase-concept-uri-tooltip' )
 		);
 
 		return true;
 	}
 
 	/**
-	 * Called by SkinTemplate, allows us to add nav URLs to the toolbox
+	 * Called in BaseTemplate::getToolbox(), allows us to add navigation URLs to the toolbox.
 	 *
-	 * @param object $skintemplate
+	 * @param BaseTemplate $baseTemplate
 	 * @param array $toolbox
 	 *
 	 * @return bool
 	 */
-	public static function onBaseTemplateToolbox( \BaseTemplate $template, array &$toolbox ) {
-		if ( !isset( $template->data['nav_urls']['wb-canonical-uri'] ) ) {
+	public static function onBaseTemplateToolbox( BaseTemplate $baseTemplate, array &$toolbox ) {
+		if ( !isset( $baseTemplate->data['nav_urls']['wb-concept-uri'] ) ) {
 			return true;
 		}
 
-		$toolbox['wb-canonical-uri'] = $template->data['nav_urls']['wb-canonical-uri'];
-		$toolbox['wb-canonical-uri']['id'] = 't-wb-canonical-uri';
+		$toolbox['wb-concept-uri'] = $baseTemplate->data['nav_urls']['wb-concept-uri'];
+		$toolbox['wb-concept-uri']['id'] = 't-wb-concept-uri';
 
 		return true;
 	}
+
 }

@@ -42,74 +42,54 @@ use Wikibase\SummaryFormatter;
 abstract class ApiWikibase extends ApiBase {
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var ResultBuilder
 	 */
-	protected $resultBuilder;
+	private $resultBuilder;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var ApiErrorReporter
 	 */
-	protected $errorReporter;
+	private $errorReporter;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var ExceptionLocalizer
 	 */
-	protected $exceptionLocalizer;
+	private $exceptionLocalizer;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var EntityTitleLookup
 	 */
-	protected $titleLookup;
+	private $titleLookup;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var EntityIdParser
 	 */
-	protected $idParser;
+	private $idParser;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var EntityRevisionLookup
 	 */
-	protected $entityRevisionLookup;
+	private $entityRevisionLookup;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var EntityStore
 	 */
-	protected $entityStore;
+	private $entityStore;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var PropertyDataTypeLookup
 	 */
-	protected $dataTypeLookup;
+	private $dataTypeLookup;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var SummaryFormatter
 	 */
-	protected $summaryFormatter;
+	private $summaryFormatter;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var EntityPermissionChecker
 	 */
-	protected $permissionChecker;
+	private $permissionChecker;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -144,6 +124,41 @@ abstract class ApiWikibase extends ApiBase {
 	}
 
 	/**
+	 * @return ApiErrorReporter
+	 */
+	protected function getErrorReporter() {
+		return $this->errorReporter;
+	}
+
+	/**
+	 * @return EntityStore
+	 */
+	protected function getEntityStore() {
+		return $this->entityStore;
+	}
+
+	/**
+	 * @return EntityRevisionLookup
+	 */
+	protected function getEntityRevisionLookup() {
+		return $this->entityRevisionLookup;
+	}
+
+	/**
+	 * @return EntityIdParser
+	 */
+	protected function getIdParser() {
+		return $this->idParser;
+	}
+
+	/**
+	 * @return EntityTitleLookup
+	 */
+	protected function getTitleLookup() {
+		return $this->titleLookup;
+	}
+
+	/**
 	 * @param Entity $entity
 	 *
 	 * @return bool
@@ -157,7 +172,7 @@ abstract class ApiWikibase extends ApiBase {
 	/**
 	 * @return ResultBuilder
 	 */
-	public function getResultBuilder() {
+	protected function getResultBuilder() {
 		if( !isset( $this->resultBuilder ) ) {
 
 			$serializerFactory = new SerializerFactory(
@@ -282,7 +297,7 @@ abstract class ApiWikibase extends ApiBase {
 	 * @return Status the check's result
 	 * @todo: use this also to check for read access in ApiGetEntities, etc
 	 */
-	public function checkPermissions( Entity $entity, User $user, array $params ) {
+	protected function checkPermissions( Entity $entity, User $user, array $params ) {
 		$permissions = $this->getRequiredPermissions( $entity, $params );
 		$status = Status::newGood();
 
@@ -325,7 +340,7 @@ abstract class ApiWikibase extends ApiBase {
 		} catch ( BadRevisionException $ex ) {
 			$this->dieException( $ex, 'nosuchrevid' );
 		} catch ( StorageException $ex ) {
-			$this->dieException( $ex, 'failed-save' );
+			$this->dieException( $ex, 'cant-load-entity-content' );
 		}
 
 		throw new LogicException( 'ApiErrorReporter::dieError did not throw a UsageException' );
@@ -385,7 +400,7 @@ abstract class ApiWikibase extends ApiBase {
 	 *
 	 * @throws UsageException If $status->isOK() returns false.
 	 */
-	public function handleStatus( Status $status, $errorCode, array $extradata = array(), $httpRespCode = 0 ) {
+	private function handleStatus( Status $status, $errorCode, array $extradata = array(), $httpRespCode = 0 ) {
 		wfProfileIn( __METHOD__ );
 
 		if ( $status->isGood() ) {
@@ -473,7 +488,7 @@ abstract class ApiWikibase extends ApiBase {
 	 *
 	 * @return false|null|string
 	 */
-	protected function evaluateTokenParam( array $params ) {
+	private function evaluateTokenParam( array $params ) {
 		if ( !$this->needsToken() ) {
 			// false disabled the token check
 			$token = false;
@@ -490,13 +505,18 @@ abstract class ApiWikibase extends ApiBase {
 	 *
 	 * @return null|false|int
 	 */
-	protected function evaluateBaseRevisionParam( array $params ) {
+	private function evaluateBaseRevisionParam( array $params ) {
 		$baseRevisionId = isset( $params['baserevid'] ) ? intval( $params['baserevid'] ) : null;
 		$baseRevisionId = $baseRevisionId > 0 ? $baseRevisionId : false;
 
 		return $baseRevisionId;
 	}
 
+	/**
+	 * @param Summary $summary
+	 *
+	 * @return string
+	 */
 	protected function formatSummary( Summary $summary ) {
 		$formatter = $this->summaryFormatter;
 		return $formatter->formatSummary( $summary );
@@ -538,6 +558,8 @@ abstract class ApiWikibase extends ApiBase {
 	/**
 	 * @see ApiErrorReporter::dieError()
 	 *
+	 * @since 0.5
+	 *
 	 * @param string $description
 	 * @param string $code
 	 * @param int $httpStatusCode
@@ -549,6 +571,8 @@ abstract class ApiWikibase extends ApiBase {
 
 	/**
 	 * @see ApiErrorReporter::dieException()
+	 *
+	 * @since 0.5
 	 *
 	 * @param Exception $exception
 	 * @param string $code

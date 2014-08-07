@@ -33,12 +33,24 @@ return call_user_func( function() {
 		'wikibase.sites' => $moduleTemplate + array(
 			'scripts' => array(
 				'wikibase.sites.js',
-				'wikibase.Site.js',
 			),
 			'dependencies' => array(
 				'mw.config.values.wbSiteDetails',
-				'wikibase'
+				'wikibase',
+				'wikibase.Site',
 			)
+		),
+
+		'wikibase.Site' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.Site.js',
+			),
+			'dependencies' => array(
+				'jquery',
+				'mediawiki.util',
+				'util.inherit',
+				'wikibase',
+			),
 		),
 
 		'mw.config.values.wbSiteDetails' => $moduleTemplate + array(
@@ -156,7 +168,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'wikibase.datamodel',
 				'wikibase.serialization.entities',
-				'wikibase.RepoApi',
 			)
 		),
 
@@ -327,7 +338,6 @@ return call_user_func( function() {
 				'wikibase.utilities',
 				'wikibase.utilities.jQuery',
 				'wikibase.utilities.jQuery.ui.tagadata',
-				'wikibase.AbstractedRepoApi',
 			),
 			'messages' => array(
 				'wikibase-save-inprogress',
@@ -766,7 +776,6 @@ return call_user_func( function() {
 				'jquery.tipsy',
 				'jquery.ui.toggler',
 				'jquery.ui.widget',
-				'wikibase.RepoApiError',
 			),
 			'messages' => array(
 				'wikibase-tooltip-error-details',
@@ -785,7 +794,7 @@ return call_user_func( function() {
 
 	if ( defined( 'ULS_VERSION' ) ) {
 		$modules['wikibase']['dependencies'][] = 'ext.uls.mediawiki';
-		$modules['wikibase.sites']['dependencies'][] = 'ext.uls.mediawiki';
+		$modules['wikibase.Site']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.ui.PropertyEditTool']['dependencies'][] = 'ext.uls.mediawiki';
 	}
 

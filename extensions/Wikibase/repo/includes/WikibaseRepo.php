@@ -751,8 +751,8 @@ class WikibaseRepo {
 	 */
 	public function getEntityFactory() {
 		$entityClasses = array(
-			Item::ENTITY_TYPE => '\Wikibase\Item',
-			Property::ENTITY_TYPE => '\Wikibase\Property',
+			Item::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Item',
+			Property::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Property',
 		);
 
 		//TODO: provide a hook or registry for adding more.
@@ -784,12 +784,11 @@ class WikibaseRepo {
 	public function getInternalEntitySerializer() {
 		$entitySerializerClass = $this->getSettings()->getSetting( 'internalEntitySerializerClass' );
 
-		if ( $entitySerializerClass !== null ) {
-			$serializer = new $entitySerializerClass;
-			return $serializer;
-		} else {
+		if ( $entitySerializerClass === null ) {
 			return $this->getInternalSerializerFactory()->newEntitySerializer();
 		}
+
+		return new $entitySerializerClass();
 	}
 
 	/**
@@ -798,12 +797,11 @@ class WikibaseRepo {
 	public function getInternalClaimSerializer() {
 		$claimSerializerClass = $this->getSettings()->getSetting( 'internalClaimSerializerClass' );
 
-		if ( $claimSerializerClass !== null ) {
-			$serializer = new $claimSerializerClass;
-			return $serializer;
-		} else {
+		if ( $claimSerializerClass === null ) {
 			return $this->getInternalSerializerFactory()->newClaimSerializer();
 		}
+
+		return new $claimSerializerClass();
 	}
 
 	/**

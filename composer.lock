@@ -632,16 +632,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.6.7",
+            "version": "0.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "66686f91e498a9ddda75d84e2fdee43312ed7d5e"
+                "reference": "44ca1b31a172130224ffc707657558690ec03d45"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/66686f91e498a9ddda75d84e2fdee43312ed7d5e",
-                "reference": "66686f91e498a9ddda75d84e2fdee43312ed7d5e",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/44ca1b31a172130224ffc707657558690ec03d45",
+                "reference": "44ca1b31a172130224ffc707657558690ec03d45",
                 "shasum": ""
             },
             "require": {
@@ -670,7 +670,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-07-23 13:34:45"
+            "time": "2014-07-29 11:56:20"
         },
         {
             "name": "diff/diff",
@@ -940,23 +940,23 @@
         },
         {
             "name": "wikibase/data-model-serialization",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
-                "reference": "6ebed5216a9c68deac7f1d95e978665003b98463"
+                "reference": "7c92f2580158497dc2fb3073d479cc9759e57f7e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/6ebed5216a9c68deac7f1d95e978665003b98463",
-                "reference": "6ebed5216a9c68deac7f1d95e978665003b98463",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/7c92f2580158497dc2fb3073d479cc9759e57f7e",
+                "reference": "7c92f2580158497dc2fb3073d479cc9759e57f7e",
                 "shasum": ""
             },
             "require": {
                 "data-values/serialization": "~1.0",
                 "php": ">=5.3.0",
                 "serialization/serialization": "~3.1",
-                "wikibase/data-model": "~0.7|~1.0@dev"
+                "wikibase/data-model": "~0.7|~1.0"
             },
             "require-dev": {
                 "data-values/common": "~0.2",
@@ -1000,7 +1000,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-07-20 22:31:29"
+            "time": "2014-07-28 11:00:41"
         },
         {
             "name": "wikibase/easyrdf_lite",
@@ -1124,7 +1124,7 @@
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
                     "homepage": "http://jeroendedauw.com",
-                    "role": "Core developer"
+                    "role": "Developer"
                 },
                 {
                     "name": "Daniel Werner",
@@ -1152,12 +1152,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "0d45dc9d5d12915d5108fb4993ba0ffd0dd67601"
+                "reference": "0ce5794f8846b18f10bafb7e70c974711282d697"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0d45dc9d5d12915d5108fb4993ba0ffd0dd67601",
-                "reference": "0d45dc9d5d12915d5108fb4993ba0ffd0dd67601",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0ce5794f8846b18f10bafb7e70c974711282d697",
+                "reference": "0ce5794f8846b18f10bafb7e70c974711282d697",
                 "shasum": ""
             },
             "require": {
@@ -1226,7 +1226,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-07-25 21:08:05"
+            "time": "2014-08-06 15:58:01"
         }
     ],
     "packages-dev": [

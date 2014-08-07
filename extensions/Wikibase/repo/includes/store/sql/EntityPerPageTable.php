@@ -13,9 +13,6 @@ use Wikibase\DataModel\LegacyIdInterpreter;
  *
  * @since 0.2
  *
- * @todo: make this extend DBAccessBase, so it can be used to access the repo's EPP table
- * from a client!
- *
  * @licence GNU GPL v2+
  * @author Thomas Pellissier Tanon
  * @author Daniel Kinzler
@@ -256,11 +253,9 @@ class EntityPerPageTable implements EntityPerPage {
 	protected function getEntityIdsFromRows( $rows ) {
 		$entities = array();
 
-		$legacyIdParser = new LegacyIdInterpreter();
-
 		foreach ( $rows as $row ) {
 			// FIXME: this only works for items and properties
-			$entities[] = $legacyIdParser->newIdFromTypeAndNumber( $row->entity_type, (int)$row->entity_id );
+			$entities[] = LegacyIdInterpreter::newIdFromTypeAndNumber( $row->entity_type, (int)$row->entity_id );
 		}
 
 		return $entities;

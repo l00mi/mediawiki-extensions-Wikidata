@@ -10,6 +10,7 @@ use Wikibase\EntityRevision;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
+use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StringNormalizer;
 use Wikibase\Utils;
@@ -86,10 +87,13 @@ class GetEntities extends ApiWikibase {
 			);
 		}
 
+		$resolveRedirects = $params['redirects'] === 'yes';
+
 		$entityIds = $this->getEntityIdsFromParams( $params );
-		$entityRevisions = $this->getEntityRevisionsFromEntityIds( $entityIds );
-		foreach( $entityRevisions as $entityRevision ) {
-			$this->handleEntity( $entityRevision, $params );
+		$entityRevisions = $this->getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects );
+
+		foreach( $entityRevisions as $key => $entityRevision ) {
+			$this->handleEntity( $key, $entityRevision, $params );
 		}
 
 		//todo remove once result builder is used... (what exactly does this do....?)
@@ -125,7 +129,7 @@ class GetEntities extends ApiWikibase {
 		if( isset( $params['ids'] ) ) {
 			foreach( $params['ids'] as $id ) {
 				try {
-					$ids[] = $this->idParser->parse( $id );
+					$ids[] = $this->getIdParser()->parse( $id );
 				} catch( EntityIdParsingException $e ) {
 					wfProfileOut( __METHOD__ );
 					$this->dieError( "Invalid id: $id", 'no-such-entity' );
@@ -168,7 +172,7 @@ class GetEntities extends ApiWikibase {
 	 */
 	private function addMissingItemsToResult( $missingItems ){
 		foreach( $missingItems as $missingItem ) {
-			$this->getResultBuilder()->addMissingEntity( $missingItem );
+			$this->getResultBuilder()->addMissingEntity( null, $missingItem );
 		}
 	}
 
@@ -191,36 +195,64 @@ class GetEntities extends ApiWikibase {
 
 	/**
 	 * @param EntityId[] $entityIds
+	 * @param bool $resolveRedirects
+	 *
 	 * @return EntityRevision[]
 	 */
-	protected function getEntityRevisionsFromEntityIds( $entityIds ) {
+	protected function getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects = false ) {
 		$revisionArray = array();
 
 		foreach ( $entityIds as $entityId ) {
-			$entityRevision = $this->entityRevisionLookup->getEntityRevision( $entityId );
-			if ( is_null( $entityRevision ) ) {
-				$this->getResultBuilder()->addMissingEntity( array( 'id' => $entityId->getSerialization() ) );
-			} else {
-				$revisionArray[] = $entityRevision;
-			}
+			$key = $entityId->getSerialization();
+			$entityRevision = $this->getEntityRevision( $entityId, $resolveRedirects );
+
+			$revisionArray[$key] = $entityRevision;
 		}
+
 		return $revisionArray;
 	}
 
 	/**
-	 * Fetches the entity with provided id and adds its serialization to the output.
+	 * @param EntityId $entityId
+	 * @param bool $resolveRedirects
 	 *
-	 * @since 0.2
+	 * @return null|EntityRevision
+	 */
+	private function getEntityRevision( EntityId $entityId, $resolveRedirects = false ) {
+		$entityRevision = null;
+
+		try {
+			$entityRevision = $this->getEntityRevisionLookup()->getEntityRevision( $entityId );
+		} catch ( UnresolvedRedirectException $ex ) {
+			if ( $resolveRedirects ) {
+				$entityId = $ex->getRedirectTargetId();
+				$entityRevision = $this->getEntityRevision( $entityId, false );
+			}
+		}
+
+		return $entityRevision;
+	}
+
+	/**
+	 * Adds the given EntityRevision to the API result.
 	 *
-	 * @param EntityRevision $entityRevision
+	 * @param string|null $key
+	 * @param EntityRevision|null $entityRevision
 	 * @param array $params
 	 */
-	protected function handleEntity( EntityRevision $entityRevision, array $params ) {
+	protected function handleEntity( $key, EntityRevision $entityRevision = null, array $params = array() ) {
 		wfProfileIn( __METHOD__ );
-		$props = $this->getPropsFromParams( $params );
-		$options = $this->getSerializationOptions( $params, $props );
-		$siteFilterIds = $params['sitefilter'];
-		$this->getResultBuilder()->addEntityRevision( $entityRevision, $options, $props, $siteFilterIds );
+
+		if ( $entityRevision === null ) {
+			$this->getResultBuilder()->addMissingEntity( $key, array( 'id' => $key ) );
+		} else {
+			$props = $this->getPropsFromParams( $params );
+			$options = $this->getSerializationOptions( $params, $props );
+			$siteFilterIds = $params['sitefilter'];
+
+			$this->getResultBuilder()->addEntityRevision( $key, $entityRevision, $options, $props, $siteFilterIds );
+		}
+
 		wfProfileOut( __METHOD__ );
 	}
 
@@ -249,7 +281,7 @@ class GetEntities extends ApiWikibase {
 				);
 		}
 		$options->setLanguages( $languages );
-		$options->setOption( EntitySerializer::OPT_SORT_ORDER, $params['dir'] );
+		$options->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_ASC );
 		$options->setOption( EntitySerializer::OPT_PARTS, $props );
 		$options->setIndexTags( $this->getResult()->getIsRawMode() );
 		return $options;
@@ -275,27 +307,15 @@ class GetEntities extends ApiWikibase {
 				ApiBase::PARAM_ISMULTI => true,
 				ApiBase::PARAM_ALLOW_DUPLICATES => true
 			),
+			'redirects' => array(
+				ApiBase::PARAM_TYPE => array( 'yes', 'no' ),
+				ApiBase::PARAM_DFLT => 'yes',
+			),
 			'props' => array(
 				ApiBase::PARAM_TYPE => array( 'info', 'sitelinks', 'sitelinks/urls', 'aliases', 'labels',
 					'descriptions', 'claims', 'datatype' ),
 				ApiBase::PARAM_DFLT => 'info|sitelinks|aliases|labels|descriptions|claims|datatype',
 				ApiBase::PARAM_ISMULTI => true,
-			),
-			'sort' => array(
-				// This could be done like the urls, where sitelinks/title sort on the title field
-				// and sitelinks/site sort on the site code.
-				ApiBase::PARAM_TYPE => array( 'sitelinks' ),
-				ApiBase::PARAM_DFLT => '',
-				ApiBase::PARAM_ISMULTI => true,
-			),
-			'dir' => array(
-				ApiBase::PARAM_TYPE => array(
-					EntitySerializer::SORT_ASC,
-					EntitySerializer::SORT_DESC,
-					EntitySerializer::SORT_NONE
-				),
-				ApiBase::PARAM_DFLT => EntitySerializer::SORT_ASC,
-				ApiBase::PARAM_ISMULTI => false,
 			),
 			'languages' => array(
 				ApiBase::PARAM_TYPE => Utils::getLanguageCodes(),
@@ -333,16 +353,11 @@ class GetEntities extends ApiWikibase {
 			'titles' => array( 'The title of the corresponding page',
 				"Use together with 'sites', but only give one site for several titles or several sites for one title."
 			),
+			'redirects' => array( 'Whether redirects shall be resolved.',
+				'If set to "no", redirects will be treated like deleted entities.'
+			),
 			'props' => array( 'The names of the properties to get back from each entity.',
 				"Will be further filtered by any languages given."
-			),
-			'sort' => array( 'The names of the properties to sort.',
-				"Use together with 'dir' to give the sort order.",
-				"Note that this will change due to name clash (ie. sort should work on all entities)."
-			),
-			'dir' => array( 'The sort order for the given properties.',
-				"Use together with 'sort' to give the properties to sort.",
-				"Note that this will change due to name clash (ie. dir should work on all entities)."
 			),
 			'languages' => array( 'By default the internationalized values are returned in all available languages.',
 				'This parameter allows filtering these down to one or more languages by providing one or more language codes.'
@@ -408,8 +423,8 @@ class GetEntities extends ApiWikibase {
 			=> 'Get the item for page "Berlin" on the site "enwiki", with language attributes in English language',
 			'api.php?action=wbgetentities&sites=enwiki&titles=berlin&normalize='
 			=> 'Get the item for page "Berlin" on the site "enwiki" after normalizing the title from "berlin"',
-			'api.php?action=wbgetentities&ids=Q42&props=sitelinks&sort&dir=descending'
-			=> 'Get the sitelinks for item Q42 sorted in a descending order"',
+			'api.php?action=wbgetentities&ids=Q42&props=sitelinks'
+			=> 'Get the sitelinks for item Q42',
 			'api.php?action=wbgetentities&ids=Q42&sitefilter=enwiki'
 			=> 'Get entities with ID Q42 showing only sitelinks from enwiki'
 		);

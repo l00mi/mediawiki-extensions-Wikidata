@@ -8,7 +8,8 @@
 			"Anja Jentzsch",
 			"Daniel Werner",
 			"Michał Łazowik",
-			"Adam Shorland"
+			"Adam Shorland",
+			"Bene*"
 		]
 	},
 	"wikibase-desc": "Structured data repository",
@@ -109,6 +110,11 @@
 	"wikibase-itembytitle-lookup-page": "Page:",
 	"wikibase-itembytitle-submit": "Search",
 	"wikibase-itembytitle-create": "You can also [{{fullurl:Special:NewItem|site=$1&page=$2}} create an item].",
+	"special-gotolinkedpage": "Go to linked page",
+	"wikibase-gotolinkedpage-lookup-fieldset": "Go to linked page by site and item",
+	"wikibase-gotolinkedpage-lookup-site": "Site:",
+	"wikibase-gotolinkedpage-lookup-item": "Item id:",
+	"wikibase-gotolinkedpage-submit": "Go",
 	"special-itemdisambiguation": "Item disambiguation",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Search for items by language and label",
 	"wikibase-itemdisambiguation-lookup-language": "Language:",
@@ -155,7 +161,8 @@
 	"wikibase-setaliases-warning-remove": "Do you really want to remove all aliases of [[$1]]?",
 	"special-setsitelink": "Set a site link",
 	"wikibase-setsitelink-introfull": "You are setting the site link of $2 for [[$1]].",
-	"wikibase-setsitelink-intro": "This form allows you to set the site link of an entity. You need to provide the id of the entity (e.g. Q23), a site id (e.g. \"enwiki\") and the site link to set to.",
+	"wikibase-setsitelink-intro": "This form allows you to set the site link of an item. You need to provide the id of the item (e.g. Q23), a site id (e.g. \"enwiki\") and the site link to set to.",
+	"wikibase-setsitelink-intro-badges": "Additionally you can set various badges for this site link which are listed below.",
 	"wikibase-setsitelink-site": "Site id:",
 	"wikibase-setsitelink-label": "Site link:",
 	"wikibase-setsitelink-badges": "Badges:",
