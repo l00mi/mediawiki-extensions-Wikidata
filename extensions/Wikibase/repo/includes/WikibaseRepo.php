@@ -805,11 +805,29 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @return Deserializer
+	 */
+	public function getInternalClaimDeserializer() {
+		return $this->getInternalDeserializerFactory()->newClaimDeserializer();
+	}
+
+	/**
 	 * @return DeserializerFactory
 	 */
 	protected function getInternalDeserializerFactory() {
 		return new DeserializerFactory(
-			new DataValueDeserializer( $GLOBALS['evilDataValueMap'] ),
+			new DataValueDeserializer( array(
+				'boolean' => 'DataValues\BooleanValue',
+				'number' => 'DataValues\NumberValue',
+				'string' => 'DataValues\StringValue',
+				'unknown' => 'DataValues\UnknownValue',
+				'globecoordinate' => 'DataValues\GlobeCoordinateValue',
+				'monolingualtext' => 'DataValues\MonolingualTextValue',
+				'multilingualtext' => 'DataValues\MultilingualTextValue',
+				'quantity' => 'DataValues\QuantityValue',
+				'time' => 'DataValues\TimeValue',
+				'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
+			) ),
 			$this->getEntityIdParser()
 		);
 	}

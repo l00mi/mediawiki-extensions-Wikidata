@@ -15,37 +15,37 @@ use SiteSQLStore;
 use SiteStore;
 use ValueFormatters\FormatterOptions;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
-use Wikibase\ClientStore;
 use Wikibase\Client\Hooks\ParserFunctionRegistrant;
+use Wikibase\ClientStore;
 use Wikibase\DataAccess\PropertyParserFunction\RendererFactory;
 use Wikibase\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\InternalSerialization\DeserializerFactory;
-use Wikibase\Lib\Changes\EntityChangeFactory;
-use Wikibase\Lib\Serializers\ForbiddenSerializer;
-use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DirectSqlStore;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DirectSqlStore;
 use Wikibase\EntityFactory;
+use Wikibase\InternalSerialization\DeserializerFactory;
 use Wikibase\LangLinkHandler;
 use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\EntityIdLabelFormatter;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
+use Wikibase\Lib\Serializers\ForbiddenSerializer;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\NamespaceChecker;
 use Wikibase\RepoLinker;
-use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\StringNormalizer;
@@ -629,11 +629,29 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * @return Deserializer
+	 */
+	public function getInternalClaimDeserializer() {
+		return $this->getInternalDeserializerFactory()->newClaimDeserializer();
+	}
+
+	/**
 	 * @return DeserializerFactory
 	 */
 	protected function getInternalDeserializerFactory() {
 		return new DeserializerFactory(
-			new DataValueDeserializer( $GLOBALS['evilDataValueMap'] ),
+			new DataValueDeserializer( array(
+				'boolean' => 'DataValues\BooleanValue',
+				'number' => 'DataValues\NumberValue',
+				'string' => 'DataValues\StringValue',
+				'unknown' => 'DataValues\UnknownValue',
+				'globecoordinate' => 'DataValues\GlobeCoordinateValue',
+				'monolingualtext' => 'DataValues\MonolingualTextValue',
+				'multilingualtext' => 'DataValues\MultilingualTextValue',
+				'quantity' => 'DataValues\QuantityValue',
+				'time' => 'DataValues\TimeValue',
+				'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
+			) ),
 			$this->getEntityIdParser()
 		);
 	}
