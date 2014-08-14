@@ -87,6 +87,7 @@ call_user_func( function() {
 	$wgGroupPermissions['*']['item-term']			= true;
 	$wgGroupPermissions['*']['property-term']		= true;
 	$wgGroupPermissions['*']['item-merge']			= true;
+	$wgGroupPermissions['*']['item-redirect']		= true;
 	$wgGroupPermissions['*']['property-create']		= true;
 
 	// i18n
@@ -137,11 +138,13 @@ call_user_func( function() {
 	$wgAPIModules['wbformatvalue']						= 'Wikibase\Api\FormatSnakValue';
 	$wgAPIModules['wbparsevalue']						= 'Wikibase\Api\ParseValue';
 	$wgAPIModules['wbavailablebadges']					= 'Wikibase\Api\AvailableBadges';
+	$wgAPIModules['wbcreateredirect']					= 'Wikibase\Api\CreateRedirectModule';
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] 							= 'Wikibase\Repo\Specials\SpecialNewItem';
 	$wgSpecialPages['NewProperty'] 						= 'Wikibase\Repo\Specials\SpecialNewProperty';
 	$wgSpecialPages['ItemByTitle'] 						= 'Wikibase\Repo\Specials\SpecialItemByTitle';
+	$wgSpecialPages['GoToLinkedPage']					= 'Wikibase\Repo\Specials\SpecialGoToLinkedPage';
 	$wgSpecialPages['ItemDisambiguation'] 				= 'Wikibase\Repo\Specials\SpecialItemDisambiguation';
 	$wgSpecialPages['ItemsWithoutSitelinks']			= 'Wikibase\Repo\Specials\SpecialItemsWithoutSitelinks';
 	$wgSpecialPages['SetLabel'] 						= 'Wikibase\Repo\Specials\SpecialSetLabel';
@@ -160,6 +163,7 @@ call_user_func( function() {
 	$wgSpecialPageGroups['NewItem']						= 'wikibaserepo';
 	$wgSpecialPageGroups['NewProperty']					= 'wikibaserepo';
 	$wgSpecialPageGroups['ItemByTitle']					= 'wikibaserepo';
+	$wgSpecialPageGroups['GoToLinkedPage']					= 'wikibaserepo';
 	$wgSpecialPageGroups['ItemDisambiguation']			= 'wikibaserepo';
 	$wgSpecialPageGroups['ItemsWithoutSitelinks']		= 'wikibaserepo';
 	$wgSpecialPageGroups['SetLabel']					= 'wikibaserepo';
@@ -211,6 +215,8 @@ call_user_func( function() {
 	$wgHooks['ContentHandlerForModelID'][]			= 'Wikibase\RepoHooks::onContentHandlerForModelID';
 	$wgHooks['APIQuerySiteInfoStatisticsInfo'][]	= 'Wikibase\RepoHooks::onAPIQuerySiteInfoStatisticsInfo';
 	$wgHooks['ImportHandleRevisionXMLTag'][]	    = 'Wikibase\RepoHooks::onImportHandleRevisionXMLTag';
+	$wgHooks['BaseTemplateToolbox'][]               = 'Wikibase\RepoHooks::onBaseTemplateToolbox';
+	$wgHooks['SkinTemplateBuildNavUrlsNav_urlsAfterPermalink'][] = 'Wikibase\RepoHooks::onSkinTemplateBuildNavUrlsNav_urlsAfterPermalink';
 
 	// Resource Loader Modules:
 	$wgResourceModules = array_merge( $wgResourceModules, include( __DIR__ . "/resources/Resources.php" ) );

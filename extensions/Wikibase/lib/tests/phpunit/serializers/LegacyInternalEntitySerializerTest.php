@@ -4,7 +4,6 @@ namespace Wikibase\Test;
 
 use DataValues\Serializers\DataValueSerializer;
 use RuntimeException;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\InternalSerialization\SerializerFactory;
@@ -21,30 +20,6 @@ use Wikibase\Lib\Serializers\LegacyInternalEntitySerializer;
  * @author Daniel Kinzler
  */
 class LegacyInternalEntitySerializerTest extends \PHPUnit_Framework_TestCase {
-
-	public function entityProvider() {
-		$empty = Item::newEmpty();
-
-		$withLabels = Item::newEmpty();
-		$withLabels->setLabel( 'en', 'Hello' );
-		$withLabels->setLabel( 'es', 'Holla' );
-
-		return array(
-			array( $empty ),
-			array( $withLabels ),
-		);
-	}
-
-	/**
-	 * @dataProvider entityProvider
-	 * @param Entity $entity
-	 */
-	public function testSerialize( Entity $entity ) {
-		$serializer = new LegacyInternalEntitySerializer();
-		$data = $serializer->serialize( $entity );
-
-		$this->assertEquals( $entity->toArray(), $data );
-	}
 
 	public function legacyFormatBlobProvider() {
 		$entity = Item::newEmpty();

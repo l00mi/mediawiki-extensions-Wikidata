@@ -46,12 +46,12 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @see \Wikibase\Api\Api::getRequiredPermissions()
+	 * @see Api::getRequiredPermissions
 	 *
 	 * @param Entity $entity
 	 * @param array $params
 	 *
-	 * @return array|\Status
+	 * @return string[]
 	 */
 	protected function getRequiredPermissions( Entity $entity, array $params ) {
 		$permissions = parent::getRequiredPermissions( $entity, $params );
@@ -60,7 +60,7 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @see \ApiBase::execute()
+	 * @see ApiBase::execute
 	 */
 	public function execute() {
 		$user = $this->getUser();
@@ -83,7 +83,7 @@ class MergeItems extends ApiWikibase {
 		$status->merge( $this->checkPermissions( $fromEntity, $user, $params ) );
 		$status->merge( $this->checkPermissions( $toEntity, $user, $params ) );
 		if( !$status->isGood() ){
-			$this->dieUsage( $status->getMessage(), 'permissiondenied');
+			$this->dieStatus( $status, 'permissiondenied' );
 		}
 
 		$ignoreConflicts = $this->getIgnoreConflicts( $params );
@@ -102,10 +102,10 @@ class MergeItems extends ApiWikibase {
 			$changeOps->apply();
 		}
 		catch( InvalidArgumentException $e ) {
-			$this->dieUsage( $e->getMessage(), 'param-invalid' );
+			$this->dieException( $e, 'param-invalid' );
 		}
 		catch( ChangeOpException $e ) {
-			$this->dieUsage( $e->getMessage(), 'failed-save' ); //FIXME: change to modification-failed
+			$this->dieException( $e, 'failed-save' ); //FIXME: change to modification-failed
 		}
 
 		$this->attemptSaveMerge( $fromEntity, $toEntity, $params );
@@ -125,11 +125,11 @@ class MergeItems extends ApiWikibase {
 
 	private function getEntityRevisionFromIdString( $idString ) {
 		try{
-			$entityId = $this->idParser->parse( $idString );
-			return $this->entityLookup->getEntityRevision( $entityId );
+			$entityId = $this->getIdParser()->parse( $idString );
+			return $this->getEntityRevisionLookup()->getEntityRevision( $entityId );
 		}
 		catch ( EntityIdParsingException $e ){
-			$this->dieUsage( 'You must provide valid ids' , 'param-invalid' );
+			$this->dieError( 'You must provide valid ids' , 'param-invalid' );
 		}
 		return null;
 	}
@@ -140,11 +140,11 @@ class MergeItems extends ApiWikibase {
 	 */
 	private function validateEntity( $fromEntity, $toEntity) {
 		if ( !( $fromEntity instanceof Item && $toEntity instanceof Item ) ) {
-			$this->dieUsage( 'One or more of the entities are not items', 'not-item' );
+			$this->dieError( 'One or more of the entities are not items', 'not-item' );
 		}
 
 		if( $toEntity->getId()->equals( $fromEntity->getId() ) ){
-			$this->dieUsage( 'You must provide unique ids' , 'param-invalid' );
+			$this->dieError( 'You must provide unique ids' , 'param-invalid' );
 		}
 	}
 
@@ -153,7 +153,7 @@ class MergeItems extends ApiWikibase {
 	 */
 	private function validateParams( array $params ) {
 		if ( empty( $params['fromid'] ) || empty( $params['toid'] ) ){
-			$this->dieUsage( 'You must provide a fromid and a toid' , 'param-missing' );
+			$this->dieError( 'You must provide a fromid and a toid' , 'param-missing' );
 		}
 	}
 
@@ -204,7 +204,7 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @see \ApiBase::getPossibleErrors()
+	 * @see ApiBase::getPossibleErrors
 	 */
 	public function getPossibleErrors() {
 		return array_merge( parent::getPossibleErrors(), array(
@@ -214,7 +214,7 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @see \ApiBase::getAllowedParams()
+	 * @see ApiBase::getAllowedParams
 	 */
 	public function getAllowedParams() {
 		return array_merge(
@@ -241,7 +241,7 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @see \ApiBase::getParamDescription()
+	 * @see ApiBase::getParamDescription
 	 */
 	public function getParamDescription() {
 		return array_merge(
@@ -264,7 +264,7 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @see \ApiBase::getDescription()
+	 * @see ApiBase::getDescription
 	 */
 	public function getDescription() {
 		return array(
@@ -273,7 +273,7 @@ class MergeItems extends ApiWikibase {
 	}
 
 	/**
-	 * @see \ApiBase::getExamples()
+	 * @see ApiBase::getExamples
 	 */
 	protected function getExamples() {
 		return array(

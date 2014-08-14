@@ -2,11 +2,11 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
-use Wikibase\Client\ClientSiteLinkLookup;
-use Wikibase\DataModel\Entity\Item;
 use Language;
 use Title;
+use Wikibase\Client\ClientSiteLinkLookup;
+use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 
 /**
@@ -28,17 +28,17 @@ class LanguageLinkBadgeDisplayTest extends \MediaWikiTestCase {
 
 		$item = Item::newEmpty();
 		$item->setId( 1 );
-		$item->getSiteLinkList()
-			->addNewSiteLink( 'dewiki', 'Georg Friedrich Haendel' )
-			->addNewSiteLink( 'nlwiki', 'Georg Friedrich Haendel' )
-			->addNewSiteLink( 'enwiki', 'George Frideric Handel', array( new ItemId( 'Q3' ), new ItemId( 'Q2' ) ) );
+		$links = $item->getSiteLinkList();
+		$links->addNewSiteLink( 'dewiki', 'Georg Friedrich Haendel' );
+		$links->addNewSiteLink( 'nlwiki', 'Georg Friedrich Haendel' );
+		$links->addNewSiteLink( 'enwiki', 'George Frideric Handel', array( new ItemId( 'Q3' ), new ItemId( 'Q2' ) ) );
 		$items[] = $item;
 
 		$item = Item::newEmpty();
 		$item->setId( 2 );
-		$item->getSiteLinkList()
-			->addNewSiteLink( 'dewiki', 'Benutzer:Testbenutzer' )
-			->addNewSiteLink( 'enwiki', 'User:Testuser', array( new ItemId( 'Q3' ), new ItemId( 'Q4' ) ) );
+		$links = $item->getSiteLinkList();
+		$links->addNewSiteLink( 'dewiki', 'Benutzer:Testbenutzer' );
+		$links->addNewSiteLink( 'enwiki', 'User:Testuser', array( new ItemId( 'Q3' ), new ItemId( 'Q4' ) ) );
 		$items[] = $item;
 
 		$item = Item::newEmpty();

@@ -3,7 +3,7 @@
 namespace Wikibase;
 
 use MWException;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\LegacyIdInterpreter;
 
 /**
  * Object representing a term.
@@ -184,9 +184,11 @@ class Term {
 	}
 
 	/**
+	 * @see TermSqlIndex::getMatchingIDs
+	 *
 	 * @since 0.2
+	 *
 	 * @return EntityId|null
-	 * @see \Wikibase\TermSqlIndex::getMatchingIDs
 	 */
 	public function getEntityId() {
 		$entityType = $this->getEntityType();
@@ -194,11 +196,8 @@ class Term {
 		if ( $entityType !== null && array_key_exists( 'entityId', $this->fields ) ) {
 			$numericId = $this->fields['entityId'];
 
-			// FIXME: this is using the deprecated EntityId constructor and a hack to get the
-			// correct EntityId type that will not work for entity types other then item and property.
-			$entityId = new EntityId( $entityType, $numericId );
-			$idParser = new BasicEntityIdParser();
-			return $idParser->parse( $entityId->getSerialization() );
+			// FIXME: this only works for items and properties
+			return LegacyIdInterpreter::newIdFromTypeAndNumber( $entityType, $numericId );
 		}
 
 		return null;

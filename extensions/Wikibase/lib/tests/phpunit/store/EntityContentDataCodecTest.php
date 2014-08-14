@@ -24,7 +24,7 @@ use Wikibase\Test\EntityTestCase;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class EntityContentDataCodecTest extends EntityTestCase {
+class EntityContentDataCodecTest extends \MediaWikiTestCase {
 
 	/**
 	 * @var EntityContentDataCodec
@@ -37,7 +37,7 @@ class EntityContentDataCodecTest extends EntityTestCase {
 		$idParser = new BasicEntityIdParser();
 
 		$serializerFactory = new SerializerFactory( new DataValueSerializer() );
-		$deserializerFactory = new DeserializerFactory( new DataValueDeserializer( $GLOBALS['evilDataValueMap'] ), $idParser );
+		$deserializerFactory = new DeserializerFactory( new DataValueDeserializer( array() ), $idParser );
 
 		$this->codec = new EntityContentDataCodec(
 			$idParser,

@@ -167,16 +167,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 			array( 'wb-status' => EntityContent::STATUS_STUB, 'wb-claims' => 0 )
 		);
 
-		$contentWithClaim = $this->newEmpty();
-		$claim = new Statement( new PropertyNoValueSnak( 83 ) );
-		$claim->setGuid( '$testing$' );
-		$contentWithClaim->getEntity()->addClaim( $claim );
-
-		$cases['claims'] = array(
-			$contentWithClaim,
-			array( 'wb-claims' => 1 )
-		);
-
 		return $cases;
 	}
 
@@ -197,11 +187,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 		$contentWithLabel = $this->newEmpty();
 		$contentWithLabel->getEntity()->setLabel( 'de', 'xyz' );
 
-		$contentWithClaim = $this->newEmpty();
-		$claim = new Statement( new PropertyNoValueSnak( 83 ) );
-		$claim->setGuid( '$testing$' );
-		$contentWithClaim->getEntity()->addClaim( $claim );
-
 		return array(
 			'empty' => array(
 				$this->newEmpty(),
@@ -210,10 +195,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 			'labels' => array(
 				$contentWithLabel,
 				EntityContent::STATUS_STUB
-			),
-			'claims' => array(
-				$contentWithClaim,
-				EntityContent::STATUS_NONE
 			),
 		);
 	}
@@ -243,7 +224,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 
 		$labeledEntityContent = $this->newEmpty();
 		$fingerprint = $labeledEntityContent->getEntity()->getFingerprint();
-		$fingerprint->setLabel( new Term( 'de', 'xyz' ) );
+		$fingerprint->getLabels()->setTerm( new Term( 'de', 'xyz' ) );
 		$labeledEntityContent->getEntity()->setFingerprint( $fingerprint );
 
 		return array(

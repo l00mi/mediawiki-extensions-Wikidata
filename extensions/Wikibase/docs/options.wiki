@@ -49,7 +49,8 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 ;entityNamespaces: Defines which kind of entity is managed in which namespace; this is given as an associative array mapping content model IDs such as <code>CONTENT_MODEL_WIKIBASE_ITEM</code> to namespace IDs. This setting is required for each kind of entity that should be supported.
 ;dataRightsUrl: Url to link to license for data contents. Defaults to $wgRightsUrl setting.
 ;dataRightsText: Text for data license link. Defaults to $wgRightsText setting.
-;badgeItems: Items allowed to be used as badges. This setting expects an array of serialized item ids pointing to empty strings (reserved for future use), e.g. <code>array( 'Q123' => '' )</code>.
+;badgeItems: Items allowed to be used as badges. This setting expects an array of serialized item ids pointing to their CSS class names.
+;conceptBaseUri: Base URI for building concept URIs (for example used in Rdf output). This has to include the protocol and domain, only an entity identifier will be appended.
 
 === Expert Settings ===
 ;idBlacklist: A list of IDs to reserve and skip for new entities. IDs are given as integers, the blacklist applies to all types of entities. '''Note:''' this may change in the future to allow separate blacklists for different kinds of entities.
@@ -59,6 +60,7 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 :;length: the maximum length of the string, in characters.
 :Default: <code>array( 'length' => 250 )</code>
 ;usePropertyInfoTable: Whether to use the wb_property_info table for quick lookup of meta-information about properties. True per default, can be set to false in an environment where the necessary database update can't be deployed right away. To set up the table manually, run lib/includes/store/sql/wb_property_info.sql to create it, then use repo/maintenance/rebuildPropertyInfo.php to populate the table.
+;useRedirectTargetColumn: Whether to use the epp_redirect_target column in the wb_entity_per_page table for detecting redirects. True per default, can be set to false in an environment where the necessary database update can't be deployed right away. To set up the table manually, run repo/includes/store/sql/AddEppRedirectTarget.sql to create it, then use repo/maintenance/rebuildEntityPerPage.php to rebuild the table if neccessary.
 ;internalEntitySerializerClass: The class name of a serializer that is to be used when serializing entities for storage. Defaults to null, causing the default entity serializer from the SerializerFactory to be used. Should be set to Wikibase\Lib\Serializers\LegacyInternalEntitySerializer for compatibility with client wikis that run older code.
 ;transformLegacyFormatOnExport: Whether entity revisions stored in a legacy format should be converted on the fly while exporting. Enabled per default, if internalEntitySerializerClass is not set, and disable by default if internalEntitySerializerClass is set.  Must be disabled if internalEntitySerializerClass is set to the legacy serializer.
 
@@ -98,6 +100,9 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 ;propagateChangesToRepo: switch to enable or disable the propagation of client changes to the repo. Defaults to <tt>true</tt>.
 ;languageLinkSiteGroup: the ID of the site group to be shown as language links. Defaults to <tt>null</tt>, which means the site's own site group.
 ;badgeClassNames: A list of additional CSS class names for site links that have badges. The array has to consist of item ids pointing to a class name, like <code>array( 'Q101' => 'wb-badge-goldstar' )</code>. Wikibase delivers two classes by default which are "wb-badge-silverstar" and "wb-badge-goldstar". Both add a star as list style image to the sitelinks.
+;otherProjectsLinks: Site global id list of sites which should be linked in the other projects sidebar section.
+;otherProjectsLinksByDefault: Whether to show links to other projects per default. If not set, the links can be enabled as a beta feature (see otherProjectsLinksBeta).
+;otherProjectsLinksBeta: If this is set to true links to other projects will be available as beta feature, enabling every user to turn them on/ off if wanted. (Only applies if other project links aren't enabled per default and the BetaFeatures extension is installed)
 
 === Expert Settings ===
 ;injectRecentChanges: whether changes on the repository should be injected into this wiki's recent changes table, so they show up on watchlists, etc. Requires the <code>dispatchChanges.php</code> script to run, and this wiki to be listed in the <code>localClientDatabases</code> setting on the repository.

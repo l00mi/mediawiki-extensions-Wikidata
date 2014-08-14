@@ -7,7 +7,7 @@ use DBAccessBase;
 use Iterator;
 use MWException;
 use ResultWrapper;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\LegacyIdInterpreter;
 
 /**
  * Term lookup cache.
@@ -571,14 +571,10 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 
 		$this->releaseConnection( $db );
 
-		$idParser = new BasicEntityIdParser();
 		$entityIds = array_map(
-			function( $entity ) use ( $idParser ) {
-				// FIXME: this is using the deprecated EntityId constructor and a hack to get the
-				// correct EntityId type that will not work for entity types other then item and property.
-				$entityId = new EntityId( $entity->term_entity_type, (int)$entity->term_entity_id );
-				$entityId = $idParser->parse( $entityId->getSerialization() );
-				return $entityId;
+			function( $entity ) {
+				// FIXME: this only works for items and properties
+				return LegacyIdInterpreter::newIdFromTypeAndNumber( $entity->term_entity_type, $entity->term_entity_id );
 			},
 			iterator_to_array( $entities )
 		);
@@ -696,7 +692,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 		if ( $hasWeight ) {
 			$weights = array();
 			foreach ( $obtainedIDs as $obtainedID ) {
-				$weights[intval( $obtainedID->term_entity_id )] = floatval( $obtainedID->term_weight );
+				$weights[$obtainedID->term_entity_id] = floatval( $obtainedID->term_weight );
 			}
 
 			// this is a post-search sorting by weight. This allows us to not require an additional
@@ -713,7 +709,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 		} else {
 			$numericIds = array();
 			foreach ( $obtainedIDs as $obtainedID ) {
-				$numericIds[] = intval( $obtainedID->term_entity_id );
+				$numericIds[] = $obtainedID->term_entity_id;
 			}
 		}
 
@@ -721,13 +717,10 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 
 		// turn numbers into entity ids
 		$result = array();
-		$idParser = new BasicEntityIdParser();
 
 		foreach ( $numericIds as $numericId ) {
-			// FIXME: this is using the deprecated EntityId constructor and a hack to get the
-			// correct EntityId type that will not work for entity types other then item and property.
-			$entityId = new EntityId( $entityType, $numericId );
-			$result[] = $idParser->parse( $entityId->getSerialization() );
+			// FIXME: this only works for items and properties
+			$result[] = LegacyIdInterpreter::newIdFromTypeAndNumber( $entityType, $numericId );
 		}
 
 		wfProfileOut( __METHOD__ );
@@ -1078,4 +1071,5 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 	public function supportsWeight() {
 		return !Settings::get( 'withoutTermWeight' );
 	}
+
 }

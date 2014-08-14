@@ -1,0 +1,31 @@
+{
+	"name": "wikibase/Wikidata.org",
+	"description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
+	"type": "mediawiki-extension",
+	"version": "0.1-alpha",
+	"keywords": [
+		"Wikidata",
+		"Wikibase"
+	],
+	"homepage": "https://github.com/wmde/Wikidata.org",
+	"license": "GNU GPL v2+",
+	"authors": [
+		{
+			"name": "Bene*",
+			"email": "benestar.wikimedia@gmail.com",
+			"homepage": "https://www.wikidata.org/wiki/User:Bene*",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"irc": "irc://irc.freenode.net/wikidata"
+	},
+	"require": {
+		"php": ">=5.3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"WikidataOrg.hooks.php"
+		]
+	}
+}

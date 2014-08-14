@@ -73,12 +73,15 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 	_bindInterfaces: function( interfaces ) {
 		PARENT.prototype._bindInterfaces.call( this, interfaces );
 
+		var selectedSite = this.siteIdInterface.getSelectedSite();
+
 		// TODO: move this into _init() perhaps
 		/* TODO: Setting the language attributes on initialisation will not be required as soon as
 		the attributes are already attached in PHP for the non-JS version */
-		if ( this.siteIdInterface.getSelectedSite() !== null ) {
+		if( selectedSite !== null ) {
 			this.sitePageInterface.setLanguageAttributes(
-				this.siteIdInterface.getSelectedSite().getLanguage()
+				selectedSite.getLanguageCode(),
+				selectedSite.getLanguageDirection()
 			);
 		}
 	},
@@ -108,13 +111,20 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 			this._subject.removeClassByRegex( /^wb-sitelinks-.+/ );
 			this._subject.addClass( 'wb-sitelinks-' + siteId );
 
+			// The value container of SitePageInterface is actually a span within
+			// the <td> we want to change here.
+			var pageInterfaceCell = pageInterface._getValueContainer().prev( 'td.wb-sitelinks-site' );
+
 			idInterface._getValueContainer().removeClassByRegex( /^wb-sitelinks-site-.+/ );
 			idInterface._getValueContainer().addClass( 'wb-sitelinks-site wb-sitelinks-site-' + siteId );
 
-			pageInterface._getValueContainer().removeClassByRegex( /^wb-sitelinks-link-.+/ );
-			pageInterface._getValueContainer().addClass( 'wb-sitelinks-link wb-sitelinks-link-' + siteId );
+			pageInterfaceCell.removeClassByRegex( /^wb-sitelinks-link-.+/ );
+			pageInterfaceCell.addClass( 'wb-sitelinks-link wb-sitelinks-link-' + siteId );
 			// directly updating the page interface's language attributes when a site is selected
-			pageInterface.setLanguageAttributes( site.getLanguage() );
+			pageInterface.setLanguageAttributes(
+				site.getLanguageCode(),
+				site.getLanguageDirection()
+			);
 		}
 
 		// only enable site page selector if there is a valid site id selected
@@ -207,7 +217,7 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 			// the right links without knowing about the site type.
 			promise.done( function( response ) {
 				var page = self._interfaces.pageName.getValue(),
-					site = wb.getSite( self._interfaces.siteId.getValue() );
+					site = wb.sites.getSite( self._interfaces.siteId.getValue() );
 
 				if( page !== '' && site !== null ) {
 					var url = response.entity.sitelinks[ site.getId() ].url,
@@ -224,11 +234,42 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 						}
 						return oldFn( pageTitle );
 					};
+
+					if (
+						!response.entity.sitelinks[ site.getId() ].badges ||
+						response.entity.sitelinks[ site.getId() ].badges.length === 0
+					) {
+						// Remove all badges if the sitelink doesn't have any badges (anymore)
+						// Badges can't be changed from the UI currently, they only might get removed
+						// so need for more logic here than to completely remove them.
+						self._subject.find( '.wb-sitelinks-badges' ).empty();
+					}
 				}
 			} );
 		}
 
 		return promise;
+	},
+
+	/**
+	 * Helper function to get the list of badges we want to have after the update
+	 *
+	 * @param {number} apiAction see this.API_ACTION enum for all available actions
+	 * @return {String[]|null}
+	 */
+	_getNewBadges: function( apiAction ) {
+		var badges = [];
+
+		if (
+			apiAction === this.API_ACTION.NONE ||
+			// Only keep badges if the sitelink didn't change (this probably can't be true
+			// if anything changes at all, but who knows)
+			this.getValue()[1] === this.getInitialValue()[1]
+		) {
+			badges = null; // null means leave badges alone
+		}
+
+		return badges;
 	},
 
 	/**
@@ -238,11 +279,13 @@ var SELF = wb.ui.PropertyEditTool.EditableSiteLink = util.inherit( PARENT, {
 	 * @return {jQuery.Promise}
 	 */
 	queryApi: function( apiAction ) {
+
 		return this._api.setSitelink(
 			mw.config.get( 'wbEntityId' ),
 			wb.getRevisionStore().getSitelinksRevision( this.siteIdInterface.getSelectedSite().getId() ),
 			this.siteIdInterface.getSelectedSite().getId(),
-			( apiAction === this.API_ACTION.REMOVE || apiAction === this.API_ACTION.SAVE_TO_REMOVE ) ? '' : this.getValue()[1]
+			( apiAction === this.API_ACTION.REMOVE || apiAction === this.API_ACTION.SAVE_TO_REMOVE ) ? '' : this.getValue()[1],
+			this._getNewBadges()
 		);
 	},
 
@@ -300,10 +343,16 @@ SELF.newFromDom = function( subject, options, toolbar, /** internal */ Construct
 	// TODO/FIXME: not sure this should be done here
 	iSiteId.setActive( $subject.hasClass( 'wb-pending-value' ) );
 
+	// Since the <td> is empty then adding a new site link, the <td> itself should be the
+	// SitePageInterface subject. When editing a site link, the site link <span> inside the <td>
+	// should be the subject.
+	var $siteLinksLink = $tableCells.filter( '.wb-sitelinks-link' ),
+		$siteLinksPage = $siteLinksLink.children( '.wb-sitelinks-page' );
+
 	// interface for choosing a page (from the source site)
 	// pass the second to last cell as subject since the last cell will be used by the toolbar
 	iSitePage.init(
-		$tableCells[ $tableCells.length - 2 ],
+		$siteLinksPage.length ? $siteLinksPage : $siteLinksLink,
 		{ inputPlaceholder: mw.msg( 'wikibase-sitelink-page-edit-placeholder' ) },
 		iSiteId.getSelectedSite()
 	);

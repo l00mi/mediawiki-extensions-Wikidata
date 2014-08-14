@@ -31,6 +31,28 @@ return call_user_func( function() {
 		),
 
 		'wikibase.sites' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.sites.js',
+			),
+			'dependencies' => array(
+				'mw.config.values.wbSiteDetails',
+				'wikibase',
+				'wikibase.Site',
+			)
+		),
+
+		'wikibase.Site' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.Site.js',
+			),
+			'dependencies' => array(
+				'mediawiki.util',
+				'util.inherit',
+				'wikibase',
+			),
+		),
+
+		'mw.config.values.wbSiteDetails' => $moduleTemplate + array(
 			'class' => 'Wikibase\SitesModule'
 		),
 
@@ -41,13 +63,10 @@ return call_user_func( function() {
 		'wikibase' => $moduleTemplate + array(
 			'scripts' => array(
 				'wikibase.js',
-				'wikibase.Site.js',
 				'wikibase.RevisionStore.js'
 			),
 			'dependencies' => array(
 				'wikibase.common',
-				'wikibase.sites',
-				'wikibase.templates'
 			),
 			'messages' => array(
 				'special-createitem',
@@ -62,7 +81,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'dataTypes.DataType',
 				'dataTypes.DataTypeStore',
-				'jquery',
 				'mw.config.values.wbDataTypes',
 				'wikibase',
 			),
@@ -148,7 +166,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'wikibase.datamodel',
 				'wikibase.serialization.entities',
-				'wikibase.RepoApi',
 			)
 		),
 
@@ -160,7 +177,6 @@ return call_user_func( function() {
 				'json',
 				'user.tokens',
 				'mediawiki.api',
-				'mediawiki',
 				'mw.config.values.wbRepo',
 				'wikibase',
 			)
@@ -307,16 +323,18 @@ return call_user_func( function() {
 				'jquery.wikibase.toolbareditgroup',
 				'jquery.wikibase.siteselector',
 				'mediawiki.api',
+				'mediawiki.util',
 				'mediawiki.language',
 				'mediawiki.Title',
 				'mediawiki.jqueryMsg', // for {{plural}} and {{gender}} support in messages
 				'wikibase',
 				'wikibase.RepoApiError',
+				'wikibase.templates',
+				'wikibase.sites',
 				'wikibase.ui.Base',
 				'wikibase.utilities',
 				'wikibase.utilities.jQuery',
 				'wikibase.utilities.jQuery.ui.tagadata',
-				'wikibase.AbstractedRepoApi',
 			),
 			'messages' => array(
 				'wikibase-save-inprogress',
@@ -356,6 +374,7 @@ return call_user_func( function() {
 				'wikibase-error-ui-link-exists',
 				'wikibase-error-ui-session-failure',
 				'wikibase-error-ui-edit-conflict',
+				'wikibase-add-badges',
 				'parentheses',
 			)
 		),
@@ -381,6 +400,7 @@ return call_user_func( function() {
 				'jquery.ui.widget',
 				'jquery.wikibase.toolbar',
 				'jquery.wikibase.toolbareditgroup',
+				'wikibase.templates',
 			),
 		),
 
@@ -390,6 +410,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.toolbarbase',
+				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-add'
@@ -403,6 +424,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.toolbarbase',
 				'jquery.wikibase.toolbareditgroup',
+				'wikibase.templates',
 			)
 		),
 
@@ -431,6 +453,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.toolbarbase',
+				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-remove',
@@ -447,7 +470,6 @@ return call_user_func( function() {
 				'wikibase.ValueViewBuilder.js',
 			),
 			'dependencies' => array(
-				'jquery',
 				'wikibase',
 				'jquery.valueview'
 			)
@@ -526,6 +548,7 @@ return call_user_func( function() {
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.entityselector',
 				'mediawiki.legacy.shared',
+				'mw.config.values.wbRepo',
 				'util.inherit',
 				'wikibase.datamodel',
 				'wikibase.dataTypes',
@@ -554,7 +577,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.snakview',
 				'jquery.wikibase.snaklistview',
-				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel',
 				'jquery.wikibase.toolbarcontroller',
 			),
@@ -573,7 +595,6 @@ return call_user_func( function() {
 				'jquery.wikibase.listview',
 				'jquery.wikibase.snaklistview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel'
 			)
 		),
@@ -595,7 +616,6 @@ return call_user_func( function() {
 				'jquery.wikibase.listview',
 				'jquery.wikibase.referenceview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel',
 				'wikibase.utilities',
 			),
@@ -621,7 +641,6 @@ return call_user_func( function() {
 				'jquery.wikibase.statementview',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase',
-				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel',
 				'wikibase.RepoApiError',
 				'wikibase.templates',
@@ -645,7 +664,6 @@ return call_user_func( function() {
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase',
 				'wikibase.datamodel',
-				'wikibase.AbstractedRepoApi',
 			),
 		),
 
@@ -734,6 +752,7 @@ return call_user_func( function() {
 				'jquery.ui.widget',
 				'jquery.wikibase.toolbar',
 				'jquery.wikibase.wbtooltip',
+				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-cancel',
@@ -754,7 +773,6 @@ return call_user_func( function() {
 				'jquery.tipsy',
 				'jquery.ui.toggler',
 				'jquery.ui.widget',
-				'wikibase.RepoApiError',
 			),
 			'messages' => array(
 				'wikibase-tooltip-error-details',
@@ -773,7 +791,7 @@ return call_user_func( function() {
 
 	if ( defined( 'ULS_VERSION' ) ) {
 		$modules['wikibase']['dependencies'][] = 'ext.uls.mediawiki';
-		$modules['wikibase.sites']['dependencies'] = array( 'ext.uls.mediawiki' );
+		$modules['wikibase.Site']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.ui.PropertyEditTool']['dependencies'][] = 'ext.uls.mediawiki';
 	}
 

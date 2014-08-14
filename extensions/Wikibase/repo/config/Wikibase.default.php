@@ -1,4 +1,5 @@
 <?php
+
 use Wikibase\SettingsArray;
 
 /**
@@ -82,10 +83,25 @@ return call_user_func( function() {
 		// Typical value: Wikibase\Lib\Serializers\LegacyInternalEntitySerializer
 		'internalEntitySerializerClass' => null,
 
+		// Can be used to override the serialization used for storage.
+		// Typical value: Wikibase\Lib\Serializers\LegacyInternalClaimSerializer
+		'internalClaimSerializerClass' => 'Wikibase\Lib\Serializers\LegacyInternalClaimSerializer',
+
 		'transformLegacyFormatOnExport' => function( SettingsArray $settings ) {
 			// Enabled, unless internalEntitySerializerClass is set.
 			return $settings->getSetting( 'internalEntitySerializerClass' ) === null;
 		},
+
+		'useRedirectTargetColumn' => true,
+
+		'conceptBaseUri' => function() {
+			$uri = $GLOBALS['wgServer'];
+			$uri = preg_replace( '!^//!', 'http://', $uri );
+			$uri = $uri . '/entity/';
+
+			return $uri;
+		},
+
 	);
 
 	return $defaults;

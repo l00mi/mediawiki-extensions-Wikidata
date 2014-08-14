@@ -2,14 +2,28 @@
 
 namespace Wikibase\Repo\View;
 
+use Html;
 use InvalidArgumentException;
 use Message;
+use Sanitizer;
+use Site;
 use SiteList;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Utils;
 
+/**
+ * Creates views for lists of site links.
+ *
+ * @since 0.5
+ *
+ * @licence GNU GPL v2+
+ * @author Adrian Lang <adrian.lang@wikimedia.de>
+ * @author Bene* < benestar.wikimedia@gmail.com >
+ */
 class SiteLinksView {
 
 	/**
@@ -23,14 +37,38 @@ class SiteLinksView {
 	private $sectionEditLinkGenerator;
 
 	/**
+	 * @var EntityLookup
+	 */
+	private $entityLookup;
+
+	/**
+	 * @var string
+	 */
+	private $languageCode;
+
+	/**
 	 * @var string[]
 	 */
 	private $specialSiteLinkGroups;
 
-	public function __construct( SiteList $sites, SectionEditLinkGenerator $sectionEditLinkGenerator ) {
+	/**
+	 * @var array
+	 */
+	private $badgeItems;
+
+	public function __construct( SiteList $sites, SectionEditLinkGenerator $sectionEditLinkGenerator,
+			EntityLookup $entityLookup, $languageCode ) {
 		$this->sites = $sites;
 		$this->sectionEditLinkGenerator = $sectionEditLinkGenerator;
-		$this->specialSiteLinkGroups = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( "specialSiteLinkGroups" );
+		$this->entityLookup = $entityLookup;
+		$this->languageCode = $languageCode;
+
+		// @todo inject option/objects instead of using the singleton
+		$repo = WikibaseRepo::getDefaultInstance();
+
+		$settings = $repo->getSettings();
+		$this->specialSiteLinkGroups = $settings->getSetting( 'specialSiteLinkGroups' );
+		$this->badgeItems = $settings->getSetting( 'badgeItems' );
 	}
 
 	/**
@@ -85,7 +123,7 @@ class SiteLinksView {
 			// TODO: support entity-id as prefix for element IDs.
 		);
 
-		if( !empty( $siteLinksForTable ) ) {
+		if ( !empty( $siteLinksForTable ) ) {
 			$thead = $this->getTableHeadHtml( $isSpecialGroup );
 			$tbody = $this->getTableBodyHtml( $siteLinksForTable, $itemId, $isSpecialGroup );
 		}
@@ -142,7 +180,7 @@ class SiteLinksView {
 	private function getSiteLinksForTable( SiteList $sites, array $itemSiteLinks ) {
 		$siteLinksForTable = array(); // site links of the currently handled site group
 
-		foreach( $itemSiteLinks as $siteLink ) {
+		foreach ( $itemSiteLinks as $siteLink ) {
 			if ( !$sites->hasSite( $siteLink->getSiteId() ) ) {
 				// FIXME: Maybe show it instead
 				continue;
@@ -205,7 +243,7 @@ class SiteLinksView {
 		$i = 0;
 		$tbody = '';
 
-		foreach( $siteLinksForTable as $siteLinkForTable ) {
+		foreach ( $siteLinksForTable as $siteLinkForTable ) {
 			$alternatingClass = ( $i++ % 2 ) ? 'even' : 'uneven';
 			$tbody .= $this->getHtmlForSiteLink( $siteLinkForTable, $itemId, $isSpecialGroup, $alternatingClass );
 		}
@@ -237,10 +275,10 @@ class SiteLinksView {
 	 * @return string
 	 */
 	private function getHtmlForSiteLink( $siteLinkForTable, $itemId, $isSpecialGroup, $alternatingClass ) {
-		/* @var \Site $site */
+		/** @var Site $site */
 		$site = $siteLinkForTable['site'];
 
-		/* @var SiteLink $siteLink */
+		/** @var SiteLink $siteLink */
 		$siteLink = $siteLinkForTable['siteLink'];
 
 		if ( $site->getDomain() === '' ) {
@@ -248,10 +286,8 @@ class SiteLinksView {
 		}
 
 		$languageCode = $site->getLanguageCode();
-		$pageName = $siteLink->getPageName();
 		$siteId = $siteLink->getSiteId();
-		$escapedPageName = htmlspecialchars( $pageName );
-		$escapedSiteId = htmlspecialchars( $siteId );
+		$pageName = $siteLink->getPageName();
 
 		// FIXME: this is a quickfix to allow a custom site-name for the site groups which are
 		// special according to the specialSiteLinkGroups setting
@@ -271,11 +307,12 @@ class SiteLinksView {
 			$languageCode,
 			$alternatingClass,
 			$siteName,
-			$escapedSiteId, // displayed site ID
+			htmlspecialchars( $siteId ), // displayed site ID
 			htmlspecialchars( $site->getPageUrl( $pageName ) ),
-			$escapedPageName,
-			'<td>' . $this->getHtmlForEditSection( $itemId, $escapedSiteId ) . '</td>',
-			$escapedSiteId // ID used in classes
+			htmlspecialchars( $pageName ),
+			'<td>' . $this->getHtmlForEditSection( $itemId, $siteId ) . '</td>',
+			htmlspecialchars( $siteId ), // ID used in classes
+			$this->getHtmlForBadges( $siteLink )
 		);
 	}
 
@@ -287,39 +324,87 @@ class SiteLinksView {
 	 * @return string
 	 */
 	private function getHtmlForUnknownSiteLink( $siteLink, $itemId, $alternatingClass ) {
-		// the link is pointing to an unknown site.
-		// XXX: hide it? make it red? strike it out?
-
-		$pageName = $siteLink->getPageName();
 		$siteId = $siteLink->getSiteId();
-		$escapedPageName = htmlspecialchars( $pageName );
-		$escapedSiteId = htmlspecialchars( $siteId );
+		$pageName = $siteLink->getPageName();
 
 		return wfTemplate( 'wb-sitelink-unknown',
 			$alternatingClass,
-			$escapedSiteId,
-			$escapedPageName,
-			'<td>' . $this->getHtmlForEditSection( $itemId ) . '</td>'
+			htmlspecialchars( $siteId ),
+			htmlspecialchars( $pageName ),
+			'<td>' . $this->getHtmlForEditSection( $itemId, $siteId ) . '</td>'
 		);
 	}
 
+	/**
+	 * @param ItemId|null $itemId
+	 * @param string $subPage defaults to ''
+	 * @param string $action defaults to 'edit'
+	 * @param bool $enabled defaults to true
+	 *
+	 * @return string
+	 */
 	private function getHtmlForEditSection( $itemId, $subPage = '', $action = 'edit', $enabled = true ) {
-		$msg = new Message( 'wikibase-' . $action );
-		$specialPage = 'SetSiteLink';
+		$specialPageUrlParams = array();
 
-		$specialPageIdParam = $itemId ? $itemId->getSerialization() : '';
-		$specialPageParams = array( $specialPageIdParam );
+		if ( $itemId !== null ) {
+			$specialPageUrlParams[] = $itemId->getSerialization();
 
-		if( $subPage !== '' ) {
-			$specialPageParams[] = $subPage;
+			if ( $subPage !== '' ) {
+				$specialPageUrlParams[] = $subPage;
+			}
 		}
 
 		return $this->sectionEditLinkGenerator->getHtmlForEditSection(
-			$specialPage,
-			$specialPageParams,
-			$msg,
+			'SetSiteLink',
+			$specialPageUrlParams,
+			new Message( 'wikibase-' . $action ),
 			$enabled
 		);
+	}
+
+	private function getHtmlForBadges( SiteLink $siteLink ) {
+		$html = '';
+
+		/** @var ItemId $badge */
+		foreach ( $siteLink->getBadges() as $badge ) {
+			$serialization = $badge->getSerialization();
+			$classes = 'wb-badge wb-badge-' . Sanitizer::escapeClass( $serialization );
+			if ( !empty( $this->badgeItems[$serialization] ) ) {
+				$classes .= ' ' . Sanitizer::escapeClass( $this->badgeItems[$serialization] );
+			}
+
+			$html .= Html::element(
+				'span',
+				array(
+					'class' => $classes,
+					'title' => $this->getTitleForBadge( $badge )
+				)
+			);
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Returns the title for the given badge id.
+	 * @todo use TermLookup when we have one
+	 *
+	 * @param EntityId $badgeId
+	 *
+	 * @return string
+	 */
+	private function getTitleForBadge( EntityId $badgeId ) {
+		$entity = $this->entityLookup->getEntity( $badgeId );
+		if ( $entity === null ) {
+			return $badgeId->getSerialization();
+		}
+
+		$labels = $entity->getFingerprint()->getLabels();
+		if ( $labels->hasTermForLanguage( $this->languageCode ) ) {
+			return $labels->getByLanguage( $this->languageCode )->getText();
+		} else {
+			return $badgeId->getSerialization();
+		}
 	}
 
 }

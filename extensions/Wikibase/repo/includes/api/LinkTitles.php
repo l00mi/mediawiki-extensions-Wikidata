@@ -60,6 +60,8 @@ class LinkTitles extends ApiWikibase {
 	public function execute() {
 		wfProfileIn( __METHOD__ );
 
+		$lookup = $this->getEntityRevisionLookup();
+
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
@@ -105,7 +107,7 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId === null && $toId !== null ) {
 			// reuse to-site's item
 			/** @var Item $item */
-			$itemRev = $this->entityLookup->getEntityRevision( $toId );
+			$itemRev = $lookup->getEntityRevision( $toId );
 			$item = $itemRev->getEntity();
 			$fromLink = new SiteLink( $fromSite->getGlobalId(), $fromPage );
 			$item->addSiteLink( $fromLink );
@@ -115,7 +117,7 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId !== null && $toId === null ) {
 			// reuse from-site's item
 			/** @var Item $item */
-			$itemRev = $this->entityLookup->getEntityRevision( $fromId );
+			$itemRev = $lookup->getEntityRevision( $fromId );
 			$item = $itemRev->getEntity();
 			$toLink = new SiteLink( $toSite->getGlobalId(), $toPage );
 			$item->addSiteLink( $toLink );
@@ -126,12 +128,12 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId->equals( $toId ) ) {
 			// no-op
 			wfProfileOut( __METHOD__ );
-			$this->dieUsage( 'Common item detected, sitelinks are both on the same item', 'common-item' );
+			$this->dieError( 'Common item detected, sitelinks are both on the same item', 'common-item' );
 		}
 		else {
 			// dissimilar items
 			wfProfileOut( __METHOD__ );
-			$this->dieUsage( 'No common item detected, unable to link titles' , 'no-common-item' );
+			$this->dieError( 'No common item detected, unable to link titles' , 'no-common-item' );
 		}
 
 		$this->getResultBuilder()->addSiteLinks( $return, 'entity' );
@@ -146,7 +148,7 @@ class LinkTitles extends ApiWikibase {
 	 */
 	private function validatePage( $page, $label ) {
 		if ( $page === false ) {
-			$this->dieUsage(
+			$this->dieError(
 				"The external client site did not provide page information for the {$label} page" ,
 				'no-external-page'
 			);
@@ -182,15 +184,15 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
-	 * @see \Wikibase\Api\ModifyEntity::validateParameters()
+	 * @see ModifyEntity::validateParameters
 	 */
 	protected function validateParameters( array $params ) {
 		if ( $params['fromsite'] === $params['tosite'] ) {
-			$this->dieUsage( 'The from site can not match the to site' , 'param-illegal' );
+			$this->dieError( 'The from site can not match the to site' , 'param-illegal' );
 		}
 
 		if( !( strlen( $params['fromtitle'] ) > 0) || !( strlen( $params['totitle'] ) > 0) ){
-			$this->dieUsage( 'The from title and to title must have a value' , 'param-illegal' );
+			$this->dieError( 'The from title and to title must have a value' , 'param-illegal' );
 		}
 	}
 
@@ -208,7 +210,7 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
-	 * @see \ApiBase::isWriteMode()
+	 * @see ApiBase::isWriteMode
 	 */
 	public function isWriteMode() {
 		return true;
@@ -261,11 +263,7 @@ class LinkTitles extends ApiWikibase {
 			'fromtitle' => array( 'Title of the page to associate.',
 				"Use together with 'fromsite' to make a complete sitelink."
 			),
-			'token' => array( 'A "edittoken" token previously obtained through the token module (prop=info).',
-				'Later it can be implemented a mechanism where a token can be returned spontaneously',
-				'and the requester should then start using the new token from the next request, possibly when',
-				'repeating a failed request.'
-			),
+			'token' => 'A "edittoken" token previously obtained through the token module (prop=info).',
 			'bot' => array( 'Mark this edit as bot',
 				'This URL flag will only be respected if the user belongs to the group "bot".'
 			),

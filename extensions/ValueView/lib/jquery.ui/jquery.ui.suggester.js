@@ -74,6 +74,13 @@
  *        Triggered when the suggester's value has changed.
  *        - {jQuery.Event}
  *
+ * @event error
+ *        Triggered whenever an error occurred while gathering suggestions. This may happen only
+ *        when using a function as source. The {string} parameter is forwarded from the rejected
+ *        promise returned by the source function.
+ *        - {jQuery.Event}
+ *        - {string}
+ *
  * @dependency jQuery.ui.ooMenu
  * @dependency jQuery.ui.position
  */
@@ -419,7 +426,7 @@
 			} )
 			.fail( function( message ) {
 				self.element.addClass( 'ui-suggester-error' );
-				// TODO: Display error message.
+				self._trigger( 'error', null, [message] );
 			} )
 			.always( function() {
 				if( --self._pending === 0 ) {
@@ -506,8 +513,7 @@
 		 *         Resolved parameters:
 		 *         - {string[]} suggestions
 		 *         - {string} requestTerm
-		 *         Rejected parameters:
-		 *         - {string}
+		 *         Promise may not be rejected.
 		 */
 		_getSuggestionsFromArray: function( term, source ) {
 			var deferred = $.Deferred();
@@ -563,13 +569,13 @@
 		 * Aligns the menu to the input element.
 		 */
 		repositionMenu: function() {
-			var isRtl = this.element.attr( 'dir' ) === 'rtl'
-				|| ( this.element.attr( 'dir' ) === undefined
-					&& document.documentElement.dir === 'rtl' );
+			var dir = this.element.attr( 'dir' )
+				|| $( document.documentElement ).css( 'direction' )
+				|| 'auto';
 
 			var position = $.extend( {}, this.options.position );
 
-			if( isRtl ) {
+			if( dir === 'rtl' ) {
 				position = flipPosition( position );
 			}
 
@@ -577,6 +583,11 @@
 				of: this.element
 			}, position ) );
 			this.options.menu.element.zIndex( this.element.zIndex() + 1 );
+
+			if( this.element.attr( 'lang' ) ) {
+				this.options.menu.element.attr( 'lang', this.element.attr( 'lang' ) );
+			}
+			this.options.menu.element.attr( 'dir', dir );
 
 			this.options.menu.scale();
 		}

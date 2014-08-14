@@ -1,12 +1,17 @@
 {
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/wmde/Wikidata.org.git"
+        }
+    ],
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~1.0",
-        "wikibase/wikibase": "dev-mw1.24-wmf14",
-        "wikibase/data-model": "0.8.1",
-        "wikibase/data-model-serialization": "1.0.1"
+        "wikibase/wikibase": "dev-mw1.24-wmf17",
+        "wikibase/Wikidata.org" : "dev-master"
     },
     "config": {
-        "autoloader-suffix": "wikidata_mw1_24_wmf14x"
+        "autoloader-suffix": "wikidata_mw1_24_wmf17"
     }
 }

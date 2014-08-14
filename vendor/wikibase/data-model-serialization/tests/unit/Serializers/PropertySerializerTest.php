@@ -2,6 +2,7 @@
 
 namespace Tests\Wikibase\DataModel\Serializers;
 
+use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Serializers\PropertySerializer;
@@ -14,8 +15,12 @@ use Wikibase\DataModel\Serializers\PropertySerializer;
  */
 class PropertySerializerTest extends SerializerBaseTest {
 
-	public function buildSerializer() {
+	protected function buildSerializer() {
 		$claimsSerializerMock = $this->getMock( 'Serializers\Serializer' );
+		$claimsSerializerMock->expects( $this->any() )
+			->method( 'serialize' )
+			->with( $this->equalTo( new Claims() ) )
+			->will( $this->returnValue( array() ) );
 
 		return new PropertySerializer( $claimsSerializerMock );
 	}
@@ -50,10 +55,15 @@ class PropertySerializerTest extends SerializerBaseTest {
 			array(
 				array(
 					'type' => 'property',
-					'datatype' => 'string'
+					'datatype' => 'string',
+					'labels' => array(),
+					'descriptions' => array(),
+					'aliases' => array(),
+					'claims' => array(),
 				),
 				$property
 			),
 		);
 	}
+
 }

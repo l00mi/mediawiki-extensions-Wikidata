@@ -2,6 +2,7 @@
 
 namespace Tests\Wikibase\DataModel\Serializers;
 
+use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Serializers\ItemSerializer;
@@ -15,8 +16,12 @@ use Wikibase\DataModel\SiteLink;
  */
 class ItemSerializerTest extends SerializerBaseTest {
 
-	public function buildSerializer() {
+	protected function buildSerializer() {
 		$claimsSerializerMock = $this->getMock( '\Serializers\Serializer' );
+		$claimsSerializerMock->expects( $this->any() )
+			->method( 'serialize' )
+			->with( $this->equalTo( new Claims() ) )
+			->will( $this->returnValue( array() ) );
 
 		$siteLinkSerializerMock = $this->getMock( '\Serializers\Serializer' );
 		$siteLinkSerializerMock->expects( $this->any() )
@@ -57,7 +62,12 @@ class ItemSerializerTest extends SerializerBaseTest {
 		$provider = array(
 			array(
 				array(
-					'type' => 'item'
+					'type' => 'item',
+					'labels' => array(),
+					'descriptions' => array(),
+					'aliases' => array(),
+					'sitelinks' => array(),
+					'claims' => array(),
 				),
 				Item::newEmpty()
 			),
@@ -74,11 +84,16 @@ class ItemSerializerTest extends SerializerBaseTest {
 						'title' => 'Nyan Cat',
 						'badges' => array()
 					)
-				)
+				),
+				'labels' => array(),
+				'descriptions' => array(),
+				'aliases' => array(),
+				'claims' => array(),
 			),
 			$item
 		);
 
 		return $provider;
 	}
+
 }

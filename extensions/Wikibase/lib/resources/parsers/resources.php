@@ -17,29 +17,14 @@ return call_user_func( function() {
 
 	return array(
 
-		'wikibase.parsers.api' => $moduleTemplate + array(
+		'wikibase.parsers.getApiBasedValueParserConstructor' => $moduleTemplate + array(
 			'scripts' => array(
-				'wikibase.parsers.api.js',
+				'getApiBasedValueParserConstructor.js',
 			),
 			'dependencies' => array(
-				'dataValues',
-				'json',
-				'jquery',
-				'wikibase',
-				'wikibase.RepoApi'
-			),
-		),
-
-		'wikibase.ApiBasedValueParser' => $moduleTemplate + array(
-			'scripts' => array(
-				'ApiBasedValueParser.js',
-			),
-			'dependencies' => array(
-				'jquery',
 				'util.inherit',
 				'valueParsers.ValueParser',
 				'wikibase',
-				'wikibase.parsers.api',
 			),
 		),
 
@@ -48,7 +33,6 @@ return call_user_func( function() {
 				'EntityIdParser.js',
 			),
 			'dependencies' => array(
-				'jquery',
 				'util.inherit',
 				'valueParsers.ValueParser',
 				'wikibase',
@@ -56,16 +40,16 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.parsers' => $moduleTemplate + array(
+		'wikibase.parsers.getStore' => $moduleTemplate + array(
 			'scripts' => array(
-				'wikibase.parsers.js',
+				'getStore.js',
 			),
 			'dependencies' => array(
 				'dataValues.values',
-				'jquery',
 				'valueParsers.parsers',
 				'valueParsers.ValueParserStore',
-				'wikibase.ApiBasedValueParser',
+				'wikibase.api.ParseValueCaller',
+				'wikibase.parsers.getApiBasedValueParserConstructor',
 				'wikibase.datamodel',
 				'wikibase.EntityIdParser'
 			),

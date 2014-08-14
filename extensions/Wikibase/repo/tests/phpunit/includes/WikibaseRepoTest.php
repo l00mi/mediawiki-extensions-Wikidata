@@ -2,9 +2,10 @@
 
 namespace Wikibase\Tests\Repo;
 
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Settings;
 use Wikibase\SettingsArray;
 
 /**
@@ -68,24 +69,6 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testGetSnakConstructionServiceReturnType() {
 		$returnValue = $this->getDefaultInstance()->getSnakConstructionService();
 		$this->assertInstanceOf( 'Wikibase\Lib\SnakConstructionService', $returnValue );
-	}
-
-	/**
-	 * @dataProvider provideGetRdfBaseURI
-	 */
-	public function testGetRdfBaseURI( $server, $expected ) {
-		$this->setMwGlobals( 'wgServer', $server );
-
-		$returnValue = $this->getDefaultInstance()->getRdfBaseURI();
-		$this->assertEquals( $expected, $returnValue );
-	}
-
-	public function provideGetRdfBaseURI() {
-		return array(
-			array ( 'http://acme.test', 'http://acme.test/entity/' ),
-			array ( 'https://acme.test', 'https://acme.test/entity/' ),
-			array ( '//acme.test', 'http://acme.test/entity/' ),
-		);
 	}
 
 	public function testGetEntityIdParserReturnType() {
@@ -176,6 +159,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 		$this->assertInstanceOf( 'Wikibase\Lib\Changes\EntityChangeFactory', $factory );
 	}
 
+	// TODO: DM 1.0 blocker, this uses Entity::toArray
 	public function testGetEntityContentDataCodec_legacy() {
 		$item = Item::newEmpty();
 		$item->setLabel( 'en', 'Hello' );
@@ -191,6 +175,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 		$this->assertEquals( $item->toArray(), $data );
 	}
 
+	// TODO: DM 1.0 blocker, this uses Entity::toArray
 	public function testGetInternalEntitySerializer_legacy() {
 		$item = Item::newEmpty();
 		$item->setLabel( 'en', 'Hello' );
@@ -203,6 +188,20 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 		$data = $serializer->serialize( $item );
 
 		$this->assertEquals( $item->toArray(), $data );
+	}
+
+	// TODO: DM 1.0 blocker, this uses Claim::toArray
+	public function testGetInternalClaimSerializer_legacy() {
+		$claim = new Statement( new PropertyNoValueSnak( 42 ) );
+		$claim->setGuid( 'kittens' );
+
+		$repo = $this->getDefaultInstance();
+		$repo->getSettings()->setSetting( 'internalClaimSerializerClass', 'Wikibase\Lib\Serializers\LegacyInternalClaimSerializer' );
+
+		$serializer = $repo->getInternalClaimSerializer();
+		$data = $serializer->serialize( $claim );
+
+		$this->assertEquals( $claim->toArray(), $data );
 	}
 
 	public function testNewItemHandler() {

@@ -5,6 +5,7 @@ namespace Wikibase\DataModel\Deserializers;
 use Deserializers\Deserializer;
 use Deserializers\DispatchableDeserializer;
 use Deserializers\Exceptions\DeserializationException;
+use Deserializers\Exceptions\InvalidAttributeException;
 use Wikibase\DataModel\Reference;
 
 /**
@@ -32,7 +33,7 @@ class ReferenceDeserializer implements DispatchableDeserializer {
 	 *
 	 * @param mixed $serialization
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isDeserializerFor( $serialization ) {
 		return $this->isValidSerialization( $serialization );
@@ -54,8 +55,6 @@ class ReferenceDeserializer implements DispatchableDeserializer {
 		$this->assertCanDeserialize( $serialization );
 
 		$reference = $this->getDeserialized( $serialization );
-
-		$this->validateHash( $reference, $serialization );
 
 		return $reference;
 	}
@@ -94,13 +93,4 @@ class ReferenceDeserializer implements DispatchableDeserializer {
 		}
 	}
 
-	private function validateHash( Reference $reference, array $serialization ) {
-		if( !array_key_exists( 'hash', $serialization ) ) {
-			return;
-		}
-
-		if( $reference->getHash() !== $serialization['hash'] ) {
-			throw new DeserializationException( 'The reference serialization provides a wrong hash' );
-		}
-	}
 }

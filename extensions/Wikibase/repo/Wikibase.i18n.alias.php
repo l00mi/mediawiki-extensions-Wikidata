@@ -19,6 +19,7 @@ $specialPageAliases['en'] = array(
 	'NewItem' => array( 'NewItem', 'CreateItem' ),
 	'NewProperty' => array( 'NewProperty', 'CreateProperty' ),
 	'ItemByTitle' => array( 'ItemByTitle' ),
+	'GoToLinkedPage' => array( 'GoToLinkedPage' ),
 	'ItemDisambiguation' => array( 'ItemDisambiguation' ),
 	'ListDatatypes' => array( 'ListDatatypes' ),
 	'SetLabel' => array( 'SetLabel' ),
@@ -110,6 +111,7 @@ $specialPageAliases['de'] = array(
 	'NewItem' => array( 'Neues_Datenelement_erstellen' ),
 	'NewProperty' => array( 'Neues_Attribut_erstellen' ),
 	'ItemByTitle' => array( 'Datenelement_nach_Name' ),
+	'GoToLinkedPage' => array( 'Gehe_zur_verlinkten_Seite' ),
 	'ItemDisambiguation' => array( 'Begriffsklärung_zu_Datenelement' ),
 	'ListDatatypes' => array( 'Datentypen_auflisten' ),
 	'SetLabel' => array( 'Bezeichnung_festlegen' ),
@@ -306,6 +308,25 @@ $specialPageAliases['scn'] = array(
 	'EntitiesWithoutLabel' => array( 'EntitàSenzaEtichetta' ),
 );
 
+/** Swedish (svenska) */
+$specialPageAliases['sv'] = array(
+	'EntityData' => array( 'Objektdata' ),
+	'NewItem' => array( 'Nytt_objekt', 'Skapa_objekt' ),
+	'NewProperty' => array( 'Ny_egenskap', 'Skapa_egenskap' ),
+	'ItemByTitle' => array( 'Objekt_efter_titel' ),
+	'ItemDisambiguation' => array( 'Objektsärskiljning' ),
+	'ListDatatypes' => array( 'Lista_datatyper' ),
+	'SetLabel' => array( 'Ange_etikett' ),
+	'SetDescription' => array( 'Ange_beskrivning' ),
+	'SetAliases' => array( 'Ange_alias' ),
+	'SetSiteLink' => array( 'Ange_webbplatslänk' ),
+	'MergeItems' => array( 'Slå_ihop_objekt' ),
+	'EntitiesWithoutLabel' => array( 'Objekt_utan_etikett' ),
+	'EntitiesWithoutDescription' => array( 'Objekt_utan_beskrivning' ),
+	'ItemsWithoutSitelinks' => array( 'Objekt_utan_webbplatslänk' ),
+	'MyLanguageFallbackChain' => array( 'Min_språkåterfallskedja' ),
+);
+
 /** Vietnamese (Tiếng Việt) */
 $specialPageAliases['vi'] = array(
 	'DispatchStats' => array( 'Thống_kê_truyền_bá' ),
@@ -333,6 +354,7 @@ $specialPageAliases['zh-hans'] = array(
 	'NewItem' => array( '创建项' ),
 	'NewProperty' => array( '新属性' ),
 	'ItemByTitle' => array( '项按标题' ),
+	'GoToLinkedPage' => array( '前往已链接页面' ),
 	'ItemDisambiguation' => array( '项消歧义' ),
 	'ListDatatypes' => array( '数据类型列表' ),
 	'SetLabel' => array( '设置标签' ),
@@ -350,18 +372,24 @@ $specialPageAliases['zh-hans'] = array(
 $specialPageAliases['zh-hant'] = array(
 	'DispatchStats' => array( '派遣統計' ),
 	'EntityData' => array( '實體數據' ),
-	'NewItem' => array( '創建項目' ),
-	'NewProperty' => array( '新建屬性' ),
-	'ItemByTitle' => array( '按標題搜索項目' ),
+	'NewItem' => array( '建立項目' ),
+	'NewProperty' => array( '新增屬性' ),
+	'ItemByTitle' => array( '按標題搜尋項目' ),
 	'ItemDisambiguation' => array( '項目消歧義' ),
 	'ListDatatypes' => array( '列出數據類型' ),
-	'SetLabel' => array( '設置標籤' ),
-	'SetDescription' => array( '設置描述' ),
-	'SetAliases' => array( '設置別名' ),
-	'SetSiteLink' => array( '設定站點連接' ),
+	'SetLabel' => array( '設定標籤' ),
+	'SetDescription' => array( '設定描述' ),
+	'SetAliases' => array( '設定別名' ),
+	'SetSiteLink' => array( '設定站點連結' ),
 	'MergeItems' => array( '合併項' ),
 	'EntitiesWithoutLabel' => array( '沒有標籤的實體' ),
 	'EntitiesWithoutDescription' => array( '無類型實體' ),
 	'ItemsWithoutSitelinks' => array( '沒有條目連結的項目' ),
 	'MyLanguageFallbackChain' => array( '我的備用語言鏈' ),
+);
+
+/** Chinese (Taiwan) (中文（台灣）‎) */
+$specialPageAliases['zh-tw'] = array(
+	'NewItem' => array( '建立項目' ),
+	'NewProperty' => array( '新增屬性' ),
 );

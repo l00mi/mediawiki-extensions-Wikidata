@@ -36,10 +36,11 @@ return call_user_func( function() {
 				'wikibase.dataTypes',
 				'wikibase.experts',
 				'wikibase.formatters.getStore',
-				'wikibase.ui.initEntity',
+				'wikibase.EntityInitializer',
 				'wikibase.ui.initTermBox',
-				'wikibase.parsers',
+				'wikibase.parsers.getStore',
 				'wikibase.RepoApi',
+				'wikibase.sites',
 				'wikibase.store.EntityStore',
 				'wikibase.compileEntityStoreFromMwConfig',
 				'wikibase.ValueViewBuilder'
@@ -56,15 +57,19 @@ return call_user_func( function() {
 			)
 		),
 
-		'wikibase.ui.initEntity' => $moduleTemplate + array(
+		'wikibase.EntityInitializer' => $moduleTemplate + array(
 			'scripts' => array(
-				'wikibase.ui.initEntity.js',
+				'wikibase.EntityInitializer.js',
 			),
 			'dependencies' => array(
 				'json',
 				'wikibase',
 				'wikibase.datamodel',
 				'wikibase.serialization',
+				// FIXME: Resolve implicitly required wikibase.serialization.entities dependency.
+				// wikibase.serialization.entities self-registers to the SerializerFactory provided
+				// by wikibase.serialization which is why wikibase.serialization.entities is
+				// implicitly required as dependency.
 				'wikibase.serialization.entities',
 			),
 		),
@@ -79,7 +84,6 @@ return call_user_func( function() {
 				'mediawiki.Title',
 				'wikibase',
 				'wikibase.templates',
-				'wikibase.ui.initEntity',
 				'wikibase.ui.PropertyEditTool',
 			),
 			'messages' => array(
@@ -129,6 +133,7 @@ return call_user_func( function() {
 				'wikibase.special/wikibase.special.itemByTitle.js'
 			),
 			'dependencies' => array(
+				'wikibase.sites',
 				'wikibase.special',
 				'jquery.ui.suggester'
 			)

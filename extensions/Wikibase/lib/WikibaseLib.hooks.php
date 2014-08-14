@@ -80,8 +80,6 @@ final class LibHooks {
 				'tests/qunit/templates.tests.js',
 				'tests/qunit/wikibase.tests.js',
 
-				'tests/qunit/wikibase.Site.tests.js',
-
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApi.tests.js',
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApiError.tests.js',
 
@@ -120,10 +118,11 @@ final class LibHooks {
 			'dependencies' => array(
 				'wikibase.tests.qunit.testrunner',
 				'wikibase',
+				'wikibase.RepoApi',
 				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel', // For RepoApi.tests
-				'wikibase.parsers',
 				'wikibase.store.FetchedContent',
+				'wikibase.templates',
 				'wikibase.utilities',
 				'wikibase.utilities.ClaimGuidGenerator',
 				'wikibase.utilities.GuidGenerator',
@@ -154,15 +153,17 @@ final class LibHooks {
 				'tests/qunit/jquery.wikibase/jquery.wikibase.claimview.tests.js',
 			),
 			'dependencies' => array(
+				'dataValues.values',
+				'jquery.valueview',
 				'jquery.wikibase.claimview',
-				'wikibase.store.EntityStore',
+				'mediawiki.Title',
+				'valueFormatters',
+				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel',
+				'wikibase.RepoApi',
+				'wikibase.store.EntityStore',
 				'wikibase.store.FetchedContent',
 				'wikibase.ValueViewBuilder',
-				'dataValues.values',
-				'mediawiki.Title',
-				'jquery.valueview',
-				'valueFormatters'
 			),
 		);
 
@@ -193,7 +194,9 @@ final class LibHooks {
 				'jquery.valueview.ExpertStore',
 				'jquery.wikibase.referenceview',
 				'mediawiki.Title',
+				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel',
+				'wikibase.RepoApi',
 				'wikibase.store.FetchedContent',
 				'wikibase.store.EntityStore',
 				'wikibase.ValueViewBuilder',
@@ -261,7 +264,6 @@ final class LibHooks {
 				'tests/qunit/wikibase.store/store.EntityStore.tests.js',
 			),
 			'dependencies' => array(
-				'jquery',
 				'wikibase.store.EntityStore',
 				'wikibase.tests.qunit.testrunner'
 			),
@@ -291,12 +293,23 @@ final class LibHooks {
 			),
 		);
 
+		$testModules['qunit']['wikibase.sites.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/wikibase.Site.tests.js',
+				'tests/qunit/wikibase.sites.tests.js',
+			),
+			'dependencies' => array(
+				'wikibase',
+				'wikibase.sites',
+				'wikibase.tests.qunit.testrunner',
+			),
+		);
+
 		$testModules['qunit']['wikibase.ValueViewBuilder.tests'] = $moduleBase + array(
 			'scripts' => array(
 				'tests/qunit/wikibase.ValueViewBuilder.tests.js'
 			),
 			'dependencies' => array(
-				'jquery',
 				'test.sinonjs',
 				'wikibase.ValueViewBuilder'
 			)

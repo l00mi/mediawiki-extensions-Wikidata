@@ -260,7 +260,7 @@ $.widget( 'wikibase.linkitem', {
 			currentSiteId;
 
 		currentSiteId = this.options.globalSiteId;
-		sites = wb.getSitesOfGroup( this.options.langLinkSiteGroup );
+		sites = wb.sites.getSitesOfGroup( this.options.langLinkSiteGroup );
 
 		for( site in sites ) {
 			if ( sites[ site ].getId() !== currentSiteId ) {
@@ -503,7 +503,7 @@ $.widget( 'wikibase.linkitem', {
 				.find( 'table' )
 				.append(
 					this._createSiteLinkRow(
-						wb.getSite( entity.sitelinks[ i ].site ),
+						wb.sites.getSite( entity.sitelinks[ i ].site ),
 						entity.sitelinks[ i ]
 					)
 				);
@@ -526,13 +526,13 @@ $.widget( 'wikibase.linkitem', {
 				$( '<td>' )
 				.addClass( 'wbclient-linkItem-column-site' )
 				.text( site.getName() )
-				.css( 'direction', site.getLanguage().dir )
+				.css( 'direction', site.getLanguageDirection() )
 			)
 			.append(
 				$( '<td>' )
 				.addClass( 'wbclient-linkItem-column-page' )
 				.append( site.getLinkTo( entitySitelinks.title ) )
-				.css( 'direction', site.getLanguage().dir )
+				.css( 'direction', site.getLanguageDirection() )
 			);
 	},
 

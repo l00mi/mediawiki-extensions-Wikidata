@@ -326,8 +326,8 @@ $.extend( wb.PageConnector.prototype, {
 				labels: {},
 				sitelinks: {}
 			},
-			firstSite = wb.getSite( firstSiteId ),
-			secondSite = wb.getSite( secondSiteId );
+			firstSite = wb.sites.getSite( firstSiteId ),
+			secondSite = wb.sites.getSite( secondSiteId );
 
 		// Labels (page titles)
 		// FIXME: Remove this after bug 57564 has been solved!
@@ -341,12 +341,12 @@ $.extend( wb.PageConnector.prototype, {
 		};
 
 		// Sitelinks
-		entityData.sitelinks[ firstSite.getGlobalSiteId() ] = {
-			site: firstSite.getGlobalSiteId(),
+		entityData.sitelinks[ firstSite.getId() ] = {
+			site: firstSite.getId(),
 			title: firstPageName
 		};
-		entityData.sitelinks[ secondSite.getGlobalSiteId() ] = {
-			site: secondSite.getGlobalSiteId(),
+		entityData.sitelinks[ secondSite.getId() ] = {
+			site: secondSite.getId(),
 			title: secondPageName
 		};
 

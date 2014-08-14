@@ -261,7 +261,7 @@ wb.ui.SiteLinksEditTool = util.inherit( PARENT, {
 		//  abusing the prototype field of the EditableValue instances here. Instead, the
 		//  "ignoredSiteLinks" thing (which is even named wrong) should go away, instead we should
 		//  have "allowedSites" options all the way to the SiteIdInterface.
-		$.each( wb.getSites(), function( siteId, site ) {
+		$.each( wb.sites.getSites(), function( siteId, site ) {
 			if( $.inArray( siteId, unusedAllowedSiteIds ) === -1 ) {
 				ignoredSiteIds.push( siteId );
 			}
@@ -339,7 +339,7 @@ wb.ui.SiteLinksEditTool = util.inherit( PARENT, {
 	 */
 	_fixateTableLayout: function() {
 		var self = this,
-			sites = wb.getSites(),
+			sites = wb.sites.getSites(),
 			$rulerTh = $( '<div/>' ).addClass( 'wb-ruler' ),
 			$rulerTd = $( '<div/>' ).addClass( 'wb-ruler' ),
 			$siteIdColumns,
@@ -361,7 +361,9 @@ wb.ui.SiteLinksEditTool = util.inherit( PARENT, {
 			$rulerTd.append( siteId ).append( $( '<br/>' ) );
 		} );
 		this._subject.children( 'tbody' ).append(
-			mw.template( 'wb-sitelink', '', 'wb-ruler', '', $rulerTd, '', '', $( '<td/>' ), '' )
+			mw.template( 'wb-sitelink',
+				'', 'wb-ruler', '', $rulerTd, '', '', $( '<td/>' ), '', ''
+			)
 		);
 
 		$siteIdColumns = this._subject.find( 'tr.wb-ruler .wb-sitelinks-siteid' );

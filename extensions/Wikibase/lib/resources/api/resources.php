@@ -30,7 +30,17 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'json',
-				'jquery',
+				'wikibase.api.__namespace',
+			)
+		),
+
+		'wikibase.api.ParseValueCaller' => $moduleTemplate + array(
+			'scripts' => array(
+				'ParseValueCaller.js',
+			),
+			'dependencies' => array(
+				'dataValues',
+				'json',
 				'wikibase.api.__namespace',
 			)
 		),

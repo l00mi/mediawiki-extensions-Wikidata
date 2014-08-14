@@ -300,9 +300,9 @@ class EntityDataSerializationService {
 		$this->fileExtensions = array();
 
 		$api = $this->newApiMain( "dummy" );
-		$formats = $api->getFormats();
+		$formatNames = $api->getModuleManager()->getNames( 'format' );
 
-		foreach ( $formats as $name => $class ) {
+		foreach ( $formatNames as $name ) {
 			if ( $this->formatWhiteList !== null && !in_array( $name, $this->formatWhiteList ) ) {
 				continue;
 			}
@@ -463,8 +463,8 @@ class EntityDataSerializationService {
 	public function createApiSerializer( $formatName ) {
 		//MediaWiki formats
 		$api = $this->newApiMain( $formatName );
-		$formats = $api->getFormats();
-		if ( $formatName !== null && array_key_exists( $formatName, $formats ) ) {
+		$formatNames = $api->getModuleManager()->getNames( 'format' );
+		if ( $formatName !== null && in_array( $formatName, $formatNames ) ) {
 			return $api->createPrinterByName( $formatName );
 		}
 
@@ -542,7 +542,7 @@ class EntityDataSerializationService {
 			$this->entityTitleLookup,
 			$this->serializerFactory
 		);
-		$resultBuilder->addEntityRevision( $entityRevision, $options );
+		$resultBuilder->addEntityRevision( null, $entityRevision, $options );
 
 		wfProfileOut( __METHOD__ );
 		return $res;

@@ -20,7 +20,7 @@ class SiteLinkTargetProvider {
 	/**
 	 * @var SiteStore
 	 */
-	protected $siteStore;
+	private $siteStore;
 
 	/**
 	 * @var array
@@ -39,7 +39,7 @@ class SiteLinkTargetProvider {
 	/**
 	 * Returns the list of sites that is suitable as a sitelink target.
 	 *
-	 * @param array $groups sitelink groups to get
+	 * @param string[] $groups sitelink groups to get
 	 *
 	 * @return SiteList
 	 */
@@ -51,7 +51,7 @@ class SiteLinkTargetProvider {
 		$sites = new SiteList();
 		$allSites = $this->siteStore->getSites();
 
-		/* @var Site $site */
+		/** @var Site $site */
 		foreach ( $allSites as $site ) {
 			if ( in_array( $site->getGroup(), $groups ) ) {
 				$sites->append( $site );

@@ -42,7 +42,7 @@ var
 	newTestEV = function( subject, overwrites ) {
 		// propertyEditTool is required for creating suited toolbar
 		var propertyEditTool = new wb.ui.PropertyEditTool( subject ),
-			editableValue = wb.ui.PropertyEditTool.EditableValue.newFromDom( subject ),
+			editableValue = wb.ui.PropertyEditTool.EditableValue.newFromDom( subject, { api: {} } ),
 			toolbar = propertyEditTool._buildSingleValueToolbar();
 
 		// add functions for testing:
@@ -99,6 +99,11 @@ var
 	QUnit.test( 'test helper functions for testing EditableValue properly', function( assert ) {
 		var subject = $( '<div id="parent"><div class="wb-value"/></div>' ),
 			ev = newTestEV( subject );
+
+		/**
+		 * Overwrite showError which involves animation.
+		 */
+		ev.showError = function() {};
 
 		assert.ok(
 			ev instanceof wb.ui.PropertyEditTool.EditableValue,
@@ -356,6 +361,12 @@ var
 			'changed value'
 		);
 
+		QUnit.stop();
+
+		ev.one( 'animationend', function() {
+			QUnit.start();
+		} );
+
 		assert.equal(
 			ev.stopEditing( true ).promisor.apiAction,
 			wb.ui.PropertyEditTool.EditableValue.prototype.API_ACTION.SAVE,
@@ -467,6 +478,12 @@ var
 			true,
 			'started editing and set value'
 		);
+
+		QUnit.stop();
+
+		ev.one( 'animationend', function() {
+			QUnit.start();
+		} );
 
 		assert.equal(
 			ev.stopEditing( true ).state(),

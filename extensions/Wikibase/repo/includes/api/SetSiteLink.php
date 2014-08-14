@@ -67,7 +67,7 @@ class SetSiteLink extends ModifyEntity {
 
 		// If we found anything then check if it is of the correct base class
 		if ( !is_null( $entityRev ) && !( $entityRev->getEntity() instanceof Item ) ) {
-			$this->dieUsage( 'The content on the found page is not of correct type', 'wrong-class' );
+			$this->dieError( 'The content on the found page is not of correct type', 'wrong-class' );
 		}
 
 		return $entityRev;
@@ -81,7 +81,7 @@ class SetSiteLink extends ModifyEntity {
 
 		if ( !( $entity instanceof Item ) ) {
 			wfProfileOut( __METHOD__ );
-			$this->dieUsage( "The given entity is not an item", "not-item" );
+			$this->dieError( "The given entity is not an item", "not-item" );
 		}
 
 		$item = $entity;
@@ -106,7 +106,7 @@ class SetSiteLink extends ModifyEntity {
 				$this->getResultBuilder()->addSiteLinks( array( $link ), 'entity', array( 'url' ) );
 			} else {
 				wfProfileOut( __METHOD__ );
-				$this->dieUsage( "Cannot modify badges: sitelink to '{$params['linktitle']}' doesn't exist", 'no-such-sitelink' );
+				$this->dieError( "Cannot modify badges: sitelink to '{$params['linktitle']}' doesn't exist", 'no-such-sitelink' );
 			}
 		}
 
@@ -133,7 +133,7 @@ class SetSiteLink extends ModifyEntity {
 
 			if ( $site === false ) {
 				wfProfileOut( __METHOD__ );
-				$this->dieUsage( 'The supplied site identifier was not recognized' , 'not-recognized-siteid' );
+				$this->dieError( 'The supplied site identifier was not recognized' , 'not-recognized-siteid' );
 			}
 
 			if ( isset( $params['linktitle'] ) ) {
@@ -141,7 +141,7 @@ class SetSiteLink extends ModifyEntity {
 
 				if ( $page === false ) {
 					wfProfileOut( __METHOD__ );
-					$this->dieUsage( 'The external client site did not provide page information' , 'no-external-page' );
+					$this->dieError( 'The external client site did not provide page information' , 'no-external-page' );
 				}
 			} else {
 				$page = null;
@@ -180,19 +180,6 @@ class SetSiteLink extends ModifyEntity {
 	public function getAllowedParams() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 
-		// Experimental setting of badges in api
-		// @todo remove experimental once JS UI is in place, (also remove the experimental examples below and TESTS)
-		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
-			$experimentalParams = array(
-				'badges' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_ISMULTI => true,
-				),
-			);
-		} else {
-			$experimentalParams = array();
-		}
-
 		return array_merge(
 			parent::getAllowedParams(),
 			parent::getAllowedParamsForId(),
@@ -206,8 +193,11 @@ class SetSiteLink extends ModifyEntity {
 				'linktitle' => array(
 					ApiBase::PARAM_TYPE => 'string',
 				),
-			),
-			$experimentalParams
+				'badges' => array(
+					ApiBase::PARAM_TYPE => array_keys( $this->badgeItems ),
+					ApiBase::PARAM_ISMULTI => true,
+				),
+			)
 		);
 	}
 
@@ -218,20 +208,6 @@ class SetSiteLink extends ModifyEntity {
 	 * @return array|bool False on no parameter descriptions
 	 */
 	public function getParamDescription() {
-
-		// Experimental setting of badges in api
-		// @todo remove experimental once JS UI is in place, (also remove the experimental examples below and tests)
-		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
-			$experimentalParams = array(
-				'badges' => 'The IDs of items to be set as badges. They will replace the current ones. If this parameter is not set, the badges will not be changed',
-				'linktitle' => 'The title of the article to link. If this parameter is an empty string or both linktitle and badges are not set, the link will be removed.',
-			);
-		} else {
-			$experimentalParams = array(
-				'linktitle' => 'The title of the article to link. If this parameter is an empty the link will be removed.'
-			);
-		}
-
 		return array_merge(
 			parent::getParamDescription(),
 			parent::getParamDescriptionForId(),
@@ -239,8 +215,9 @@ class SetSiteLink extends ModifyEntity {
 			parent::getParamDescriptionForEntity(),
 			array(
 				'linksite' => 'The identifier of the site on which the article to link resides',
-			),
-			$experimentalParams
+				'badges' => 'The IDs of items to be set as badges. They will replace the current ones. If this parameter is not set, the badges will not be changed',
+				'linktitle' => 'The title of the article to link. If this parameter is an empty string or both linktitle and badges are not set, the link will be removed.',
+			)
 		);
 	}
 
@@ -258,25 +235,7 @@ class SetSiteLink extends ModifyEntity {
 	 * @return bool|string|array
 	 */
 	protected function getExamples() {
-		// Experimental setting of badges in api
-		// @todo remove experimental once JS UI is in place, (also remove the experimental tests)
-		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
-
-			$experimentalExamples = array(
-				'api.php?action=wbsetsitelink&site=enwiki&title=Hydrogen&linksite=plwiki&linktitle=Wodór&badges=Q149'
-				=> 'Add a sitelink "Wodór" for the Polish page on item with the link for the English page to "Hydrogen" with one badge pointing to the item with id "Q149"',
-				'api.php?action=wbsetsitelink&id=Q42&linksite=plwiki&badges=Q2|Q149'
-				=> 'Change badges for the link to Polish page from the item with id "Q42" to two badges pointing to the items with ids "Q2" and "Q149" wothout providing the link title',
-				'api.php?action=wbsetsitelink&id=Q42&linksite=plwiki&linktitle=Warszawa'
-				=> 'Change the link to Polish page from the item with id "Q42" without changing badges',
-				'api.php?action=wbsetsitelink&id=Q42&linksite=plwiki&linktitle=Wodór&badges='
-				=> 'Change the link to Polish page from the item with id "Q42" and remove all of its badges',
-			);
-		} else {
-			$experimentalExamples = array();
-		}
-
-		$examples = array(
+		return array(
 			'api.php?action=wbsetsitelink&id=Q42&linksite=enwiki&linktitle=Hydrogen'
 			=> 'Add a sitelink "Hydrogen" for English page with id "Q42", if the site link does not exist',
 			'api.php?action=wbsetsitelink&id=Q42&linksite=enwiki&linktitle=Hydrogen&summary=World%20domination%20will%20be%20mine%20soon!'
@@ -285,9 +244,15 @@ class SetSiteLink extends ModifyEntity {
 			=> 'Add a sitelink "Wasserstoff" for the German page on item with the link for the English page to "Hydrogen", if the site link does not exist',
 			'api.php?action=wbsetsitelink&site=enwiki&title=Hydrogen&linksite=dewiki'
 			=> 'Removes the German sitelink from the item',
+			'api.php?action=wbsetsitelink&site=enwiki&title=Hydrogen&linksite=plwiki&linktitle=Wodór&badges=Q149'
+			=> 'Add a sitelink "Wodór" for the Polish page on item with the link for the English page to "Hydrogen" with one badge pointing to the item with id "Q149"',
+			'api.php?action=wbsetsitelink&id=Q42&linksite=plwiki&badges=Q2|Q149'
+			=> 'Change badges for the link to Polish page from the item with id "Q42" to two badges pointing to the items with ids "Q2" and "Q149" wothout providing the link title',
+			'api.php?action=wbsetsitelink&id=Q42&linksite=plwiki&linktitle=Warszawa'
+			=> 'Change the link to Polish page from the item with id "Q42" without changing badges',
+			'api.php?action=wbsetsitelink&id=Q42&linksite=plwiki&linktitle=Wodór&badges='
+			=> 'Change the link to Polish page from the item with id "Q42" and remove all of its badges',
 		);
-
-		return array_merge( $examples, $experimentalExamples );
 	}
 
 }

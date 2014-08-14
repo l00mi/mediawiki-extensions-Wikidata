@@ -345,21 +345,6 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * Returns the base to use when generating URIs for use in RDF output.
-	 *
-	 * @return string
-	 */
-	public function getRdfBaseURI() {
-		global $wgServer; //TODO: make this configurable
-
-		$uri = $wgServer;
-		$uri = preg_replace( '!^//!', 'http://', $uri );
-		$uri = $uri . '/entity/';
-		return $uri;
-	}
-
-
-	/**
 	 * @since 0.4
 	 *
 	 * @return EntityIdParser
@@ -766,8 +751,8 @@ class WikibaseRepo {
 	 */
 	public function getEntityFactory() {
 		$entityClasses = array(
-			Item::ENTITY_TYPE => '\Wikibase\Item',
-			Property::ENTITY_TYPE => '\Wikibase\Property',
+			Item::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Item',
+			Property::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Property',
 		);
 
 		//TODO: provide a hook or registry for adding more.
@@ -799,12 +784,31 @@ class WikibaseRepo {
 	public function getInternalEntitySerializer() {
 		$entitySerializerClass = $this->getSettings()->getSetting( 'internalEntitySerializerClass' );
 
-		if ( $entitySerializerClass !== null ) {
-			$serializer = new $entitySerializerClass;
-			return $serializer;
-		} else {
+		if ( $entitySerializerClass === null ) {
 			return $this->getInternalSerializerFactory()->newEntitySerializer();
 		}
+
+		return new $entitySerializerClass();
+	}
+
+	/**
+	 * @return Serializer
+	 */
+	public function getInternalClaimSerializer() {
+		$claimSerializerClass = $this->getSettings()->getSetting( 'internalClaimSerializerClass' );
+
+		if ( $claimSerializerClass === null ) {
+			return $this->getInternalSerializerFactory()->newClaimSerializer();
+		}
+
+		return new $claimSerializerClass();
+	}
+
+	/**
+	 * @return Deserializer
+	 */
+	public function getInternalClaimDeserializer() {
+		return $this->getInternalDeserializerFactory()->newClaimDeserializer();
 	}
 
 	/**
@@ -812,7 +816,18 @@ class WikibaseRepo {
 	 */
 	protected function getInternalDeserializerFactory() {
 		return new DeserializerFactory(
-			new DataValueDeserializer( $GLOBALS['evilDataValueMap'] ),
+			new DataValueDeserializer( array(
+				'boolean' => 'DataValues\BooleanValue',
+				'number' => 'DataValues\NumberValue',
+				'string' => 'DataValues\StringValue',
+				'unknown' => 'DataValues\UnknownValue',
+				'globecoordinate' => 'DataValues\GlobeCoordinateValue',
+				'monolingualtext' => 'DataValues\MonolingualTextValue',
+				'multilingualtext' => 'DataValues\MultilingualTextValue',
+				'quantity' => 'DataValues\QuantityValue',
+				'time' => 'DataValues\TimeValue',
+				'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
+			) ),
 			$this->getEntityIdParser()
 		);
 	}

@@ -4,6 +4,7 @@ namespace Wikibase;
 
 use ApiBase;
 use ApiEditPage;
+use BaseTemplate;
 use Content;
 use ContentHandler;
 use DatabaseUpdater;
@@ -998,11 +999,11 @@ final class RepoHooks {
 		list( $contentModel, $prefix ) = $data;
 
 		// If it is possible to avoid loading the whole page then the code will be lighter on the server.
-		if ( $title === null ) {
+		if ( !( $title instanceof Title ) ) {
 			$title = $wgTitle;
 		}
 
-		if ( $title->getContentModel() !== $contentModel ) {
+		if ( !( $title instanceof Title ) || $title->getContentModel() !== $contentModel ) {
 			return true;
 		}
 
@@ -1030,6 +1031,7 @@ final class RepoHooks {
 				$comment = $pre . $wgLang->getDirMark() . '<span dir="auto">' . $auto . $post . '</span>';
 			}
 		}
+
 		return true;
 	}
 
@@ -1268,6 +1270,54 @@ final class RepoHooks {
 				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is currently not supported.' );
 			}
 		}
+
+		return true;
+	}
+
+	/**
+	 * Called in SkinTemplate::buildNavUrls(), allows us to set up navigation URLs to later be used
+	 * in the toolbox.
+	 *
+	 * @param SkinTemplate $skinTemplate
+	 * @param array $navigationUrls
+	 *
+	 * @return bool
+	 */
+	public static function onSkinTemplateBuildNavUrlsNav_urlsAfterPermalink(
+		SkinTemplate $skinTemplate,
+		array &$navigationUrls
+	) {
+		$title = $skinTemplate->getTitle();
+
+		if ( !NamespaceUtils::isEntityNamespace( $title->getNamespace() ) ) {
+			return true;
+		}
+
+		$baseUri = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'conceptBaseUri' );
+		$navigationUrls['wb-concept-uri'] = array(
+			'text' => $skinTemplate->msg( 'wikibase-concept-uri' ),
+			'href' => $baseUri . $title->getDBKey(),
+			'title' => $skinTemplate->msg( 'wikibase-concept-uri-tooltip' )
+		);
+
+		return true;
+	}
+
+	/**
+	 * Called in BaseTemplate::getToolbox(), allows us to add navigation URLs to the toolbox.
+	 *
+	 * @param BaseTemplate $baseTemplate
+	 * @param array $toolbox
+	 *
+	 * @return bool
+	 */
+	public static function onBaseTemplateToolbox( BaseTemplate $baseTemplate, array &$toolbox ) {
+		if ( !isset( $baseTemplate->data['nav_urls']['wb-concept-uri'] ) ) {
+			return true;
+		}
+
+		$toolbox['wb-concept-uri'] = $baseTemplate->data['nav_urls']['wb-concept-uri'];
+		$toolbox['wb-concept-uri']['id'] = 't-wb-concept-uri';
 
 		return true;
 	}

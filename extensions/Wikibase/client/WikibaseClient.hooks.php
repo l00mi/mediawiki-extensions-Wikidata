@@ -32,10 +32,8 @@ use Wikibase\Client\Hooks\BaseTemplateAfterPortletHandler;
 use Wikibase\Client\Hooks\BeforePageDisplayHandler;
 use Wikibase\Client\Hooks\InfoActionHookHandler;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
-use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\SpecialWatchlistQueryHandler;
 use Wikibase\Client\MovePageNotice;
-use Wikibase\Client\OtherProjectsSitesProvider;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -577,7 +575,7 @@ final class ClientHooks {
 		$repoLinker = $wikibaseClient->newRepoLinker();
 		$entityIdParser = $wikibaseClient->getEntityIdParser();
 
-		$siteGroup = $wikibaseClient->getSiteGroup();
+		$siteGroup = $wikibaseClient->getLangLinkSiteGroup();
 
 		$langLinkGenerator = new RepoItemLinkGenerator(
 			WikibaseClient::getDefaultInstance()->getNamespaceChecker(),
@@ -728,6 +726,12 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onGetPreferences( User $user, array &$prefs ) {
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+
+		if ( !$settings->getSetting( 'showExternalRecentChanges' ) ) {
+			return true;
+		}
+
 		$prefs['rcshowwikidata'] = array(
 			'type' => 'toggle',
 			'label-message' => 'wikibase-rc-show-wikidata-pref',

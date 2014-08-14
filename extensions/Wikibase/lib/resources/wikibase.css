@@ -200,8 +200,6 @@ label and its toolbar */
 	 * the supplement will get jumbled without isolation */
 	unicode-bidi: -moz-isolate;
 	unicode-bidi: -webkit-isolate;
-	unicode-bidi: -ms-isolate;
-	unicode-bidi: -o-isolate;
 	unicode-bidi: isolate;
 }
 
@@ -515,6 +513,7 @@ div.wb-snak {
 
 div.wb-snak .wb-snak-value-container {
 	margin-left: 16px;
+	min-height: .8em; /* reduces jumping when clicking edit */
 }
 
 div .wb-snak-value span.error.wb-format-error {
@@ -944,6 +943,38 @@ table.wb-sitelinks .wb-sitelinks-link {
 	width: 65%;
 	word-wrap: break-word;
 	border-right: 1px solid #C9C9C9;
+}
+
+table.wb-sitelinks .wb-sitelinks-badges {
+	display: table-cell;
+}
+
+table.wb-sitelinks .wb-sitelinks-page {
+	display: table-cell;
+	width: 100%;
+}
+
+table.wb-sitelinks .wb-badge {
+	/* SVG support using a transparent gradient to guarantee cross-browser
+	 * compatibility (browsers able to understand gradient syntax support also SVG).
+	 * http://pauginer.tumblr.com/post/36614680636/invisible-gradient-technique */
+	background-image: url(images/wb-badges-default.png);
+	/* @embed */
+	background-image: -webkit-linear-gradient(transparent, transparent), url(images/wb-badges-default.svg);
+	/* @embed */
+	background-image: linear-gradient(transparent, transparent), url(images/wb-badges-default.svg);
+	background-repeat: no-repeat;
+	background-position: 0 center;
+	display: inline;
+	padding: 0 8px;
+}
+
+table.wb-sitelinks .wb-badge-empty {
+	background-image: url(images/wb-badges-empty.png);
+	/* @embed */
+	background-image: -webkit-linear-gradient(transparent, transparent), url(images/wb-badges-empty.svg);
+	/* @embed */
+	background-image: linear-gradient(transparent, transparent), url(images/wb-badges-empty.svg);
 }
 
 table.wb-sitelinks {
