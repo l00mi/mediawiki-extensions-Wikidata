@@ -603,23 +603,23 @@
     },
     {
         "name": "data-values/javascript",
-        "version": "0.5.1",
-        "version_normalized": "0.5.1.0",
+        "version": "0.5.2",
+        "version_normalized": "0.5.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48"
+            "reference": "36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
-            "reference": "cfe87b1d8f1e9d8721de8de59bace70393ce9f48",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d",
+            "reference": "36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d",
             "shasum": ""
         },
         "require": {
             "composer/installers": ">=1.0.1"
         },
-        "time": "2014-06-04 10:58:47",
+        "time": "2014-08-14 18:12:06",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -635,20 +635,15 @@
             {
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "homepage": "http://jeroendedauw.com"
             },
             {
                 "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
             },
             {
                 "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
+                "homepage": "http://www.snater.com"
             }
         ],
         "description": "DataValues implementation in Javascript",
@@ -659,24 +654,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.6.9",
-        "version_normalized": "0.6.9.0",
+        "version": "0.6.10",
+        "version_normalized": "0.6.10.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "3711c81bd2376c9b214b18f5f4e805d147978b5a"
+            "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/3711c81bd2376c9b214b18f5f4e805d147978b5a",
-            "reference": "3711c81bd2376c9b214b18f5f4e805d147978b5a",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
+            "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-08-13 16:55:28",
+        "time": "2014-08-14 18:40:52",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -812,23 +807,23 @@
     },
     {
         "name": "wikibase/data-model-javascript",
-        "version": "0.3.0",
-        "version_normalized": "0.3.0.0",
+        "version": "0.3.1",
+        "version_normalized": "0.3.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
-            "reference": "2d415cc002e3fe73c036696679abe25e71fd4463"
+            "reference": "983e8b2b334a4ec4d4418b2e46728818921abfa0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/2d415cc002e3fe73c036696679abe25e71fd4463",
-            "reference": "2d415cc002e3fe73c036696679abe25e71fd4463",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/983e8b2b334a4ec4d4418b2e46728818921abfa0",
+            "reference": "983e8b2b334a4ec4d4418b2e46728818921abfa0",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.5.0"
         },
-        "time": "2014-07-10 11:15:17",
+        "time": "2014-08-14 18:19:35",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -842,26 +837,21 @@
         ],
         "authors": [
             {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
                 "name": "Jeroen De Dauw",
                 "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
+                "homepage": "http://jeroendedauw.com"
             },
             {
                 "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
             },
             {
                 "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
+                "homepage": "http://www.snater.com"
             }
         ],
         "description": "Wikibase datamodel implementation in JavaScript"
@@ -1188,12 +1178,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "37398dd52b9f76a6fc5855633065a084d7502380"
+            "reference": "c2f07302fa28695afda71b1981987c6573b02afc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/37398dd52b9f76a6fc5855633065a084d7502380",
-            "reference": "37398dd52b9f76a6fc5855633065a084d7502380",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c2f07302fa28695afda71b1981987c6573b02afc",
+            "reference": "c2f07302fa28695afda71b1981987c6573b02afc",
             "shasum": ""
         },
         "require": {
@@ -1220,7 +1210,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-08-14 00:23:11",
+        "time": "2014-08-15 01:15:18",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
