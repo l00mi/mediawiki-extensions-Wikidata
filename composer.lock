@@ -1189,12 +1189,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "fbac56d82cfb7bfbf4f5de125e7a64653c21b056"
+                "reference": "c0f1cbc0489a6e380f2e7e2d7ed45ffc1b41594d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fbac56d82cfb7bfbf4f5de125e7a64653c21b056",
-                "reference": "fbac56d82cfb7bfbf4f5de125e7a64653c21b056",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c0f1cbc0489a6e380f2e7e2d7ed45ffc1b41594d",
+                "reference": "c0f1cbc0489a6e380f2e7e2d7ed45ffc1b41594d",
                 "shasum": ""
             },
             "require": {
@@ -1245,7 +1245,6 @@
                     "Wikibase\\Repo\\View\\": "repo/includes/View"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GNU GPL v2+"
             ],
@@ -1263,7 +1262,12 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-08-18 13:50:03"
+            "support": {
+                "issues": "https://bugzilla.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata",
+                "source": "https://github.com/wikimedia/mediawiki-extensions-Wikibase/tree/mw1.24-wmf17"
+            },
+            "time": "2014-08-19 20:18:42"
         }
     ],
     "packages-dev": [
