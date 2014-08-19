@@ -830,12 +830,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Wikidata.org.git",
-                "reference": "5330063609a80df846059ff138ce3929bdb6fc99"
+                "reference": "987ef97c09cab0bcd5820f17b989e3a71c654595"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/5330063609a80df846059ff138ce3929bdb6fc99",
-                "reference": "5330063609a80df846059ff138ce3929bdb6fc99",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/987ef97c09cab0bcd5820f17b989e3a71c654595",
+                "reference": "987ef97c09cab0bcd5820f17b989e3a71c654595",
                 "shasum": ""
             },
             "require": {
@@ -869,7 +869,7 @@
                 "source": "https://github.com/wmde/Wikidata.org/tree/master",
                 "issues": "https://github.com/wmde/Wikidata.org/issues"
             },
-            "time": "2014-08-14 16:28:54"
+            "time": "2014-08-19 22:33:33"
         },
         {
             "name": "wikibase/data-model",
