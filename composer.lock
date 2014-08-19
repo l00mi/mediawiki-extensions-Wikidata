@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.16",
+            "version": "v1.0.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "033679ad3cfc5ab759f9ed2a58881aeef13c342b"
+                "reference": "f22820dd0854a406f86e2fc29b81c1898d68e5fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/033679ad3cfc5ab759f9ed2a58881aeef13c342b",
-                "reference": "033679ad3cfc5ab759f9ed2a58881aeef13c342b",
+                "url": "https://api.github.com/repos/composer/installers/zipball/f22820dd0854a406f86e2fc29b81c1898d68e5fb",
+                "reference": "f22820dd0854a406f86e2fc29b81c1898d68e5fb",
                 "shasum": ""
             },
             "replace": {
@@ -64,6 +64,7 @@
                 "annotatecms",
                 "bitrix",
                 "cakephp",
+                "chef",
                 "codeigniter",
                 "concrete5",
                 "croogo",
@@ -93,7 +94,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2014-07-21 15:54:34"
+            "time": "2014-08-17 18:19:30"
         },
         {
             "name": "data-values/common",
@@ -723,16 +724,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "v1.0",
+            "version": "v1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
+                "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
-                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
+                "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
                 "shasum": ""
             },
             "require": {
@@ -766,20 +767,20 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-06-23 17:01:20"
+            "time": "2014-07-25 01:45:14"
         },
         {
             "name": "serialization/serialization",
-            "version": "3.2",
+            "version": "3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Serialization.git",
-                "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4"
+                "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Serialization/zipball/7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
-                "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
+                "url": "https://api.github.com/repos/wmde/Serialization/zipball/8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
+                "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
                 "shasum": ""
             },
             "require": {
@@ -822,7 +823,7 @@
                 "unserialization",
                 "wikidata"
             ],
-            "time": "2014-05-20 15:57:52"
+            "time": "2014-08-19 01:53:31"
         },
         {
             "name": "wikibase/data-model",
@@ -881,16 +882,16 @@
         },
         {
             "name": "wikibase/data-model-javascript",
-            "version": "0.3.1",
+            "version": "0.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
-                "reference": "983e8b2b334a4ec4d4418b2e46728818921abfa0"
+                "reference": "61e7b77530f2e8d34e1ec72702f0fdc5ad17a085"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/983e8b2b334a4ec4d4418b2e46728818921abfa0",
-                "reference": "983e8b2b334a4ec4d4418b2e46728818921abfa0",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/61e7b77530f2e8d34e1ec72702f0fdc5ad17a085",
+                "reference": "61e7b77530f2e8d34e1ec72702f0fdc5ad17a085",
                 "shasum": ""
             },
             "require": {
@@ -926,7 +927,7 @@
                 }
             ],
             "description": "Wikibase datamodel implementation in JavaScript",
-            "time": "2014-08-14 18:19:35"
+            "time": "2014-08-19 09:15:15"
         },
         {
             "name": "wikibase/data-model-serialization",
@@ -1142,12 +1143,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c2f07302fa28695afda71b1981987c6573b02afc"
+                "reference": "a73a16ba47c695050d2dc31e7320b54be8240b58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c2f07302fa28695afda71b1981987c6573b02afc",
-                "reference": "c2f07302fa28695afda71b1981987c6573b02afc",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a73a16ba47c695050d2dc31e7320b54be8240b58",
+                "reference": "a73a16ba47c695050d2dc31e7320b54be8240b58",
                 "shasum": ""
             },
             "require": {
@@ -1216,7 +1217,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-08-15 01:15:18"
+            "time": "2014-08-19 08:24:17"
         }
     ],
     "packages-dev": [

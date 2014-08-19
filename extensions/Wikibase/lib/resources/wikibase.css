@@ -387,14 +387,12 @@ table.wb-terms {
 }
 
 table.wb-terms td {
-    border-top: 1px solid #C9C9C9;
+	background: #F0F0F0;
+	border-top: 1px solid #C9C9C9;
 }
-
-table.wb-terms .uneven td {
-    background: #F0F0F0;
-}
-table.wb-terms .even td {
-    background: #F8F8F8;
+table.wb-terms tr:nth-child(4n) td,
+table.wb-terms tr:nth-child(4n-1) td {
+	background: #F8F8F8;
 }
 
 table.wb-terms td.wb-terms-label,
@@ -954,7 +952,7 @@ table.wb-sitelinks .wb-sitelinks-page {
 	width: 100%;
 }
 
-table.wb-sitelinks .wb-badge {
+.wb-badge {
 	/* SVG support using a transparent gradient to guarantee cross-browser
 	 * compatibility (browsers able to understand gradient syntax support also SVG).
 	 * http://pauginer.tumblr.com/post/36614680636/invisible-gradient-technique */
@@ -969,7 +967,7 @@ table.wb-sitelinks .wb-badge {
 	padding: 0 8px;
 }
 
-table.wb-sitelinks .wb-badge-empty {
+.wb-badge-empty {
 	background-image: url(images/wb-badges-empty.png);
 	/* @embed */
 	background-image: -webkit-linear-gradient(transparent, transparent), url(images/wb-badges-empty.svg);
@@ -990,16 +988,16 @@ table.wb-sitelinks td {
 	border-top: 1px solid #C9C9C9;
 }
 
-table.wb-sitelinks .uneven td {
+table.wb-sitelinks tbody td {
 	background: #F0F0F0;
 }
-table.wb-sitelinks .even td {
+table.wb-sitelinks tbody tr:nth-child(even) td {
 	background: #F8F8F8;
 }
-table.wb-sitelinks .uneven td.wb-sitelinks-siteid {
+table.wb-sitelinks tbody td.wb-sitelinks-siteid {
 	background: #E8E8E8;
 }
-table.wb-sitelinks .even td.wb-sitelinks-siteid {
+table.wb-sitelinks tbody tr:nth-child(even) td.wb-sitelinks-siteid {
 	background: #F0F0F0;
 }
 

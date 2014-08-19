@@ -70,6 +70,11 @@ abstract class EntityView extends ContextSource {
 	protected $claimHtmlGenerator;
 
 	/**
+	 * @var FingerprintView
+	 */
+	protected $fingerprintView;
+
+	/**
 	 * Maps entity types to the corresponding entity view.
 	 * FIXME: remove this stuff, big OCP violation
 	 *
@@ -134,6 +139,11 @@ abstract class EntityView extends ContextSource {
 		$this->claimHtmlGenerator = new ClaimHtmlGenerator(
 			$snakHtmlGenerator,
 			$entityTitleLookup
+		);
+
+		$this->fingerprintView = new FingerprintView(
+			$this->sectionEditLinkGenerator,
+			$this->getLanguage()->getCode()
 		);
 	}
 
@@ -249,8 +259,7 @@ if ( $ ) {
 	 * @return string
 	 */
 	protected function getHtmlForFingerprint( Entity $entity, $editable = true ) {
-		$fingerprintView = new FingerprintView( $this->sectionEditLinkGenerator, $this->getLanguage()->getCode() );
-		return $fingerprintView->getHtml( $entity->getFingerprint(), $entity->getId(), $editable );
+		return $this->fingerprintView->getHtml( $entity->getFingerprint(), $entity->getId(), $editable );
 	}
 
 	/**
