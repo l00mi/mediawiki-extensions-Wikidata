@@ -84,7 +84,6 @@ class SiteLinksView {
 	 * @throws InvalidArgumentException
 	 */
 	public function getHtml( array $siteLinks, $itemId, array $groups, $editable ) {
-		// FIXME: editable is completely unused
 		if ( $itemId !== null && !( $itemId instanceof ItemId ) ) {
 			throw new InvalidArgumentException( '$itemId must be an ItemId or null.' );
 		}
@@ -92,7 +91,7 @@ class SiteLinksView {
 		$html = '';
 
 		foreach ( $groups as $group ) {
-			$html .= $this->getHtmlForSiteLinkGroup( $siteLinks, $itemId, $group );
+			$html .= $this->getHtmlForSiteLinkGroup( $siteLinks, $itemId, $group, $editable );
 		}
 
 		return $html;
@@ -104,10 +103,11 @@ class SiteLinksView {
 	 * @param SiteLink[] $siteLinks the site links to render
 	 * @param ItemId|null $itemId The id of the item
 	 * @param string $group a site group ID
+	 * @param bool $editable
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLinkGroup( array $siteLinks, $itemId, $group ) {
+	private function getHtmlForSiteLinkGroup( array $siteLinks, $itemId, $group, $editable ) {
 		$isSpecialGroup = $group === 'special';
 
 		$sites = $this->getSitesForGroup( $group );
@@ -124,7 +124,12 @@ class SiteLinksView {
 
 		if ( !empty( $siteLinksForTable ) ) {
 			$thead = $this->getTableHeadHtml( $isSpecialGroup );
-			$tbody = $this->getTableBodyHtml( $siteLinksForTable, $itemId, $isSpecialGroup );
+			$tbody = $this->getTableBodyHtml(
+				$siteLinksForTable,
+				$itemId,
+				$isSpecialGroup,
+				$editable
+			);
 		}
 
 		// Build table footer with button to add site-links, consider list could be complete!
@@ -132,10 +137,10 @@ class SiteLinksView {
 		// $siteLinksForTable only has an entry for links to existing sites, this
 		// simple comparison works.
 		$isFull = count( $siteLinksForTable ) >= count( $sites );
-		$tfoot = $this->getTableFootHtml( $itemId, $isFull );
+		$tfoot = $this->getTableFootHtml( $itemId, $isFull, $editable );
 
 		return $html . wfTemplate(
-			'wb-sitelinks-table',
+			'wikibase-sitelinklistview',
 			$thead,
 			$tbody,
 			$tfoot,
@@ -222,7 +227,7 @@ class SiteLinksView {
 			$siteNameMessageKey .= '-special';
 		}
 
-		$thead = wfTemplate( 'wb-sitelinks-thead',
+		$thead = wfTemplate( 'wikibase-sitelinklistview-thead',
 			wfMessage( $siteNameMessageKey )->parse(),
 			wfMessage( 'wikibase-sitelinks-siteid-columnheading' )->parse(),
 			wfMessage( 'wikibase-sitelinks-link-columnheading' )->parse()
@@ -235,15 +240,20 @@ class SiteLinksView {
 	 * @param object[] $siteLinksForTable
 	 * @param ItemId|null $itemId
 	 * @param bool $isSpecialGroup
+	 * @param bool $editable
 	 *
 	 * @return string
 	 */
-	private function getTableBodyHtml( $siteLinksForTable, $itemId, $isSpecialGroup ) {
-		$i = 0;
+	private function getTableBodyHtml( $siteLinksForTable, $itemId, $isSpecialGroup, $editable ) {
 		$tbody = '';
 
 		foreach ( $siteLinksForTable as $siteLinkForTable ) {
-			$tbody .= $this->getHtmlForSiteLink( $siteLinkForTable, $itemId, $isSpecialGroup );
+			$tbody .= $this->getHtmlForSiteLink(
+				$siteLinkForTable,
+				$itemId,
+				$isSpecialGroup,
+				$editable
+			);
 		}
 
 		return $tbody;
@@ -252,13 +262,16 @@ class SiteLinksView {
 	/**
 	 * @param ItemId|null $itemId for the Item
 	 * @param bool $isFull
+	 * @param bool $editable
 	 *
 	 * @return string
 	 */
-	private function getTableFootHtml( $itemId, $isFull ) {
-		$tfoot = wfTemplate( 'wb-sitelinks-tfoot',
+	private function getTableFootHtml( $itemId, $isFull, $editable ) {
+		$editSection = $this->getHtmlForEditSection( $itemId, '', 'add', !$isFull && $editable );
+
+		$tfoot = wfTemplate( 'wikibase-sitelinklistview-tfoot',
 			$isFull ? wfMessage( 'wikibase-sitelinksedittool-full' )->parse() : '',
-			'<td>' . $this->getHtmlForEditSection( $itemId, '', 'add', !$isFull ) . '</td>'
+			'<td>' . $editSection . '</td>'
 		);
 
 		return $tfoot;
@@ -268,10 +281,11 @@ class SiteLinksView {
 	 * @param object $siteLinkForTable
 	 * @param ItemId|null $itemId The id of the item
 	 * @param bool $isSpecialGroup
+	 * @param bool $editable
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLink( $siteLinkForTable, $itemId, $isSpecialGroup ) {
+	private function getHtmlForSiteLink( $siteLinkForTable, $itemId, $isSpecialGroup, $editable ) {
 		/** @var Site $site */
 		$site = $siteLinkForTable['site'];
 
@@ -284,7 +298,6 @@ class SiteLinksView {
 
 		$languageCode = $site->getLanguageCode();
 		$siteId = $siteLink->getSiteId();
-		$pageName = $siteLink->getPageName();
 
 		// FIXME: this is a quickfix to allow a custom site-name for the site groups which are
 		// special according to the specialSiteLinkGroups setting
@@ -300,15 +313,32 @@ class SiteLinksView {
 		// TODO: for non-JS, also set the dir attribute on the link cell;
 		// but do not build language objects for each site since it causes too much load
 		// and will fail when having too much site links
-		return wfTemplate( 'wb-sitelink',
+		return wfTemplate( 'wikibase-sitelinkview',
+			htmlspecialchars( $siteId ), // ID used in classes
 			$languageCode,
+			'auto',
 			$siteName,
 			htmlspecialchars( $siteId ), // displayed site ID
+			$this->getHtmlForPage( $siteLink, $site ),
+			'<td>' . $this->getHtmlForEditSection( $itemId, $siteId, 'edit', $editable ) . '</td>'
+		);
+	}
+
+	/**
+	 * @param SiteLink $siteLink
+	 * @param Site $site
+	 *
+	 * @return string
+	 */
+	private function getHtmlForPage( $siteLink, $site ) {
+		$pageName = $siteLink->getPageName();
+
+		return wfTemplate( 'wikibase-sitelinkview-pagename',
 			htmlspecialchars( $site->getPageUrl( $pageName ) ),
 			htmlspecialchars( $pageName ),
-			'<td>' . $this->getHtmlForEditSection( $itemId, $siteId ) . '</td>',
-			htmlspecialchars( $siteId ), // ID used in classes
-			$this->getHtmlForBadges( $siteLink )
+			$this->getHtmlForBadges( $siteLink ),
+			$site->getLanguageCode(),
+			'auto'
 		);
 	}
 
@@ -322,7 +352,8 @@ class SiteLinksView {
 		$siteId = $siteLink->getSiteId();
 		$pageName = $siteLink->getPageName();
 
-		return wfTemplate( 'wb-sitelink-unknown',
+		// FIXME: No need for separate template; Use 'wikibase-sitelinkview' template.
+		return wfTemplate( 'wikibase-sitelinkview-unknown',
 			htmlspecialchars( $siteId ),
 			htmlspecialchars( $pageName ),
 			'<td>' . $this->getHtmlForEditSection( $itemId, $siteId ) . '</td>'

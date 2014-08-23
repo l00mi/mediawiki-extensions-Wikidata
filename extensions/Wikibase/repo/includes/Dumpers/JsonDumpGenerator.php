@@ -3,6 +3,7 @@
 namespace Wikibase\Dumpers;
 
 use InvalidArgumentException;
+use MWContentSerializationException;
 use MWException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\EntityIdPager;
@@ -38,27 +39,27 @@ class JsonDumpGenerator {
 	/**
 	 * @var resource File handle for output
 	 */
-	protected $out;
+	private $out;
 
 	/**
 	 * @var Serializer
 	 */
-	protected $entitySerializer;
+	private $entitySerializer;
 
 	/**
 	 * @var EntityLookup
 	 */
-	protected $entityLookup;
+	private $entityLookup;
 
 	/**
 	 * @var int Total number of shards a request should be split into
 	 */
-	protected $shardingFactor = 1;
+	private $shardingFactor = 1;
 
 	/**
 	 * @var int Number of the requested shard
 	 */
-	protected $shard = 0;
+	private $shard = 0;
 
 	/**
 	 * @var bool
@@ -68,17 +69,17 @@ class JsonDumpGenerator {
 	/**
 	 * @var string|null
 	 */
-	protected $entityType = null;
+	private $entityType = null;
 
 	/**
 	 * @var MessageReporter
 	 */
-	protected $progressReporter;
+	private $progressReporter;
 
 	/**
 	 * @var ExceptionHandler
 	 */
-	protected $exceptionHandler;
+	private $exceptionHandler;
 
 	/**
 	 * @param resource $out
@@ -228,21 +229,14 @@ class JsonDumpGenerator {
 	 * @param EntityId[] $entityIds
 	 * @param int &$dumpCount The number of entities already dumped (will be updated).
 	 */
-	protected function dumpEntities( array $entityIds, &$dumpCount ) {
+	private function dumpEntities( array $entityIds, &$dumpCount ) {
 		foreach ( $entityIds as $entityId ) {
 			if ( !$this->idMatchesFilters( $entityId ) ) {
 				continue;
 			}
 
 			try {
-				$entity = $this->entityLookup->getEntity( $entityId );
-
-				if ( !$entity ) {
-					throw new StorageException( 'Entity not found: ' . $entityId->getSerialization() );
-				}
-
-				$data = $this->entitySerializer->getSerialized( $entity );
-				$json = $this->encode( $data );
+				$json = $this->generateJsonForEntityId( $entityId );
 
 				if ( $dumpCount > 0 ) {
 					$this->writeToDump( ",\n" );
@@ -254,6 +248,24 @@ class JsonDumpGenerator {
 				$this->exceptionHandler->handleException( $ex, 'failed-to-dump', 'Failed to dump '. $entityId );
 			}
 		}
+	}
+
+	private function generateJsonForEntityId( EntityId $entityId ) {
+		try {
+			$entity = $this->entityLookup->getEntity( $entityId );
+
+			if ( !$entity ) {
+				throw new StorageException( 'Entity not found: ' . $entityId->getSerialization() );
+			}
+		} catch( MWContentSerializationException $ex ) {
+			throw new StorageException( 'Deserialization error for '
+				. $entityId->getSerialization() );
+		}
+
+		$data = $this->entitySerializer->getSerialized( $entity );
+		$json = $this->encode( $data );
+
+		return $json;
 	}
 
 	private function idMatchesFilters( EntityId $entityId ) {

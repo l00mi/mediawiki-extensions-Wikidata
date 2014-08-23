@@ -15,13 +15,9 @@
 	/* jshint nonew: false */
 
 	mw.hook( 'wikipage.content' ).add( function() {
-		// TODO: Remove global DOM adjustments
-		// remove most HTML edit links with links to special pages
-		$( 'span.wb-editsection, div.wb-editsection' )
-		// Do not remove td edit sections that are in a td that, itself, is not an edit section
-		// (site link "add" button):
-		.not( 'td:not( .wb-editsection ) > .wb-editsection' )
-		.remove();
+		// Edit sections are re-generated with JS functionality further below:
+		$( '.wb-editsection' ).parent( 'td' ).not( '.wb-terms td' ).remove();
+		$( '.wb-editsection:not(td)' ).remove();
 
 		// remove all infos about empty values which are displayed in non-JS
 		$( '.wb-value-empty' ).empty().removeClass( 'wb-value-empty' );
@@ -284,17 +280,75 @@
 			.attr( 'id', 'claims' );
 
 		// removing site links heading to rebuild it with value counter
-		$( 'table.wb-sitelinks' ).each( function() {
+		$( '.wikibase-sitelinklistview' ).each( function() {
+			var $sitelinklistview = $( this ),
+				siteIdsOfGroup = [];
+
+			$sitelinklistview.find( '.wikibase-sitelinkview' ).each( function() {
+				siteIdsOfGroup.push( $( this ).data( 'wb-siteid' ) );
+			} );
+
+			$sitelinklistview.toolbarcontroller( {
+				addtoolbar: ['sitelinklistview'],
+				edittoolbar: ['sitelinkview']
+			} );
+
+			// TODO: Implement sitelinkgrouplistview to manage sitelinklistview widgets
 			var group = $( this ).data( 'wb-sitelinks-group' ),
-				$sitesCounterContainer = $( '<span/>' );
+				groupSiteIds = [],
+				$sitesCounterContainer = $( '<span/>' ),
+				siteLinks = entity.getSiteLinks(),
+				siteLinksOfGroup = [];
+
+			$.each( wb.sites.getSitesOfGroup( group ), function( siteId, site ) {
+				groupSiteIds.push( siteId );
+			} );
+
+			for( var i = 0; i < siteIdsOfGroup.length; i++ ) {
+				for( var j = 0; j < siteLinks.length; j++ ) {
+					if( siteLinks[j].getSiteId() === siteIdsOfGroup[i] ) {
+						siteLinksOfGroup.push( siteLinks[j] );
+						break;
+					}
+				}
+			}
 
 			$( this ).prev().append( $sitesCounterContainer );
 
 			// actual initialization
-			new wb.ui.SiteLinksEditTool( $( this ), {
-				allowedSites: wb.sites.getSitesOfGroup( group ),
-				counterContainers: $sitesCounterContainer,
-				api: repoApi
+			$( this ).sitelinklistview( {
+				value: siteLinksOfGroup,
+				allowedSiteIds: groupSiteIds,
+				entityId: entity.getId(),
+				api: repoApi,
+				entityStore: entityStore,
+				$counter: $sitesCounterContainer
+			} );
+		} );
+
+		// TODO: Resolve this logic, merge with other toolbar management done in entityview and move
+		// it to a sensible place.
+		$( wb )
+		.on( 'startItemPageEditMode', function( event, target, options ) {
+			$( ':wikibase-sitelinklistview' )
+			.find( ':wikibase-toolbar' )
+			.not( $( target ).find( ':wikibase-toolbar' ) )
+			.each( function() {
+				$( this ).data( 'toolbar' ).disable();
+			} );
+		} )
+		.on( 'stopItemPageEditMode', function( event, target, options ) {
+			$( ':wikibase-sitelinklistview' ).each( function() {
+				var $sitelinklistview = $( this ),
+					sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
+
+				if( !sitelinklistview.isFull() ) {
+					$sitelinklistview.data( 'addtoolbar' ).toolbar.enable();
+				}
+
+				$sitelinklistview.find( 'tbody :wikibase-toolbar' ).each( function() {
+					$( this ).data( 'toolbar' ).enable();
+				} );
 			} );
 		} );
 
