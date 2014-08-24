@@ -427,7 +427,7 @@ return array(
     'Wikibase\\EntityPerPageBuilder' => $baseDir . '/extensions/Wikibase/repo/includes/store/sql/EntityPerPageBuilder.php',
     'Wikibase\\EntityPerPageIdPager' => $baseDir . '/extensions/Wikibase/repo/includes/store/sql/EntityPerPageIdPager.php',
     'Wikibase\\EntityPerPageTable' => $baseDir . '/extensions/Wikibase/repo/includes/store/sql/EntityPerPageTable.php',
-    'Wikibase\\EntityPermissionChecker' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityPermissionChecker.php',
+    'Wikibase\\EntityPermissionChecker' => $baseDir . '/extensions/Wikibase/repo/includes/store/EntityPermissionChecker.php',
     'Wikibase\\EntityRevision' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityRevision.php',
     'Wikibase\\EntityTitleLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityTitleLookup.php',
     'Wikibase\\EntityView' => $baseDir . '/extensions/Wikibase/repo/includes/EntityView.php',
