@@ -1,5 +1,10 @@
 # Wikibase DataModel release notes
 
+## Version 0.9 (2014-08-15)
+
+* Changed the signatures of `setLabel`, `setDescription` and `setAliasGroup` in `Fingerprint`
+* Added `hasLabel`, `hasDescription` and `hasAliasGroup` to `Fingerprint`
+
 ## Version 0.8.2 (2014-07-25)
 
 * Added `EntityDocument` interface, which is implemented by `Entity`

@@ -2,12 +2,13 @@
 
 namespace Wikibase;
 
-use Wikibase\Repo\WikibaseRepo;
+use InvalidArgumentException;
 use Wikibase\Repo\View\SiteLinksView;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
- * Class for creating views for Wikibase\Item instances.
- * For the Wikibase\Item this basically is what the Parser is for WikitextContent.
+ * Class for creating views for Item instances.
+ * For the Item this basically is what the Parser is for WikitextContent.
  *
  * @since 0.1
  *
@@ -21,31 +22,19 @@ class ItemView extends EntityView {
 	 * @see EntityView::getInnerHtml
 	 */
 	public function getInnerHtml( EntityRevision $entityRevision, $editable = true ) {
+		wfProfileIn( __METHOD__ );
+
+		$item = $entityRevision->getEntity();
+
+		if ( !( $item instanceof Item ) ) {
+			throw new InvalidArgumentException( '$entityRevision must contain an Item.' );
+		}
+
 		$html = parent::getInnerHtml( $entityRevision, $editable );
+		$html .= $this->claimsView->getHtml( $item->getClaims(), 'wikibase-statements' );
+		$html .= $this->getHtmlForSiteLinks( $item, $editable );
 
-		// add site-links to default entity stuff
-		$html .= $this->getHtmlForSiteLinks( $entityRevision->getEntity(), $editable );
-
-		return $html;
-	}
-
-	/**
-	 * Returns the HTML for the heading of the claims section
-	 *
-	 * @since 0.5
-	 *
-	 * @param Entity $entity
-	 * @param bool $editable
-	 *
-	 * @return string
-	 */
-	protected function getHtmlForClaimsSectionHeading( Entity $entity, $editable = true ) {
-		$html = wfTemplate(
-			'wb-section-heading',
-			wfMessage( 'wikibase-statements' ),
-			'claims' // ID - TODO: should not be added if output page is not the entity's page
-		);
-
+		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 
@@ -56,7 +45,7 @@ class ItemView extends EntityView {
 		$array = parent::getTocSections();
 		$array['claims'] = 'wikibase-statements';
 		$groups = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'siteLinkGroups' );
-		foreach( $groups as $group ) {
+		foreach ( $groups as $group ) {
 			$id = htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES );
 			$array[$id] = 'wikibase-sitelinks-' . $group;
 		}

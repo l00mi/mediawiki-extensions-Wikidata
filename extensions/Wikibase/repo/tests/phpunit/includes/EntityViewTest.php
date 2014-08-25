@@ -9,30 +9,30 @@ use Language;
 use RequestContext;
 use Title;
 use ValueFormatters\FormatterOptions;
-use Wikibase\Claim;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Entity;
+use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Snak\PropertySomeValueSnak;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\DataModel\Snak\Snak;
 use Wikibase\EntityRevision;
 use Wikibase\EntityTitleLookup;
 use Wikibase\EntityView;
-use Wikibase\Item;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\ParserOutputJsConfigBuilder;
-use Wikibase\Property;
-use Wikibase\PropertyNoValueSnak;
-use Wikibase\PropertySomeValueSnak;
-use Wikibase\PropertyValueSnak;
 use Wikibase\ReferencedEntitiesFinder;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Snak;
 use Wikibase\Utils;
 
 /**
@@ -239,61 +239,6 @@ abstract class EntityViewTest extends \MediaWikiLangTestCase {
 		$revision = new EntityRevision( $entity, $revId, $timestamp );
 
 		return $revision;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getHtmlForClaimsProvider() {
-		$item = $this->makeEntity( $this->makeEntityId( 33 ), array(
-			$this->makeClaim( new PropertyNoValueSnak(
-				new PropertyId( 'P11' )
-			) ),
-			$this->makeClaim( new PropertyValueSnak(
-				new PropertyId( 'P11' ),
-				new EntityIdValue( new ItemId( 'Q22' ) )
-			) ),
-			$this->makeClaim( new PropertyValueSnak(
-				new PropertyId( 'P23' ),
-				new StringValue( 'test' )
-			) ),
-		) );
-
-		return array(
-			array( $item )
-		);
-	}
-
-	/**
-	 * @dataProvider getHtmlForClaimsProvider
-	 *
-	 * @param Entity $entity
-	 */
-	public function testGetHtmlForClaims( Entity $entity ) {
-		$entityView = $this->newEntityView( $entity->getType() );
-
-		$lang = Language::factory( 'en' );
-
-		// Using a DOM document to parse HTML output:
-		$doc = new \DOMDocument();
-
-		// Disable default error handling in order to catch warnings caused by malformed markup:
-		libxml_use_internal_errors( true );
-
-		// Try loading the HTML:
-		$this->assertTrue( $doc->loadHTML( $entityView->getHtmlForClaims( $entity, $lang ) ) );
-
-		// Check if no warnings have been thrown:
-		$errorString = '';
-		foreach( libxml_get_errors() as $error ) {
-			$errorString .= "\r\n" . $error->message;
-		}
-
-		$this->assertEmpty( $errorString, 'Malformed markup:' . $errorString );
-
-		// Clear error cache and re-enable default error handling:
-		libxml_clear_errors();
-		libxml_use_internal_errors();
 	}
 
 	/**

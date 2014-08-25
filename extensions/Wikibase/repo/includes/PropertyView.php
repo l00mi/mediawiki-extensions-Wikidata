@@ -3,11 +3,12 @@
 namespace Wikibase;
 
 use DataTypes\DataType;
+use InvalidArgumentException;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * Class for creating views for Wikibase\Property instances.
- * For the Wikibase\Property this basically is what the Parser is for WikitextContent.
+ * Class for creating views for Property instances.
+ * For the Property this basically is what the Parser is for WikitextContent.
  *
  * @since 0.1
  *
@@ -18,35 +19,22 @@ use Wikibase\Repo\WikibaseRepo;
 class PropertyView extends EntityView {
 
 	/**
-	 * Builds and returns the inner HTML for representing a whole WikibaseEntity. The difference to getHtml() is that
-	 * this does not group all the HTMl within one parent node as one entity.
-	 *
-	 * @param EntityRevision $entityRevision
-	 * @param bool $editable
-	 *
-	 * @throws \InvalidArgumentException
-	 * @return string
+	 * @see EntityView::getInnerHtml
 	 */
 	public function getInnerHtml( EntityRevision $entityRevision, $editable = true ) {
 		wfProfileIn( __METHOD__ );
 
-		/* @var Property $property */
 		$property = $entityRevision->getEntity();
 
 		if ( !( $property instanceof Property ) ) {
-			throw new \InvalidArgumentException( '$propertyRevision must contain a Property' );
+			throw new InvalidArgumentException( '$entityRevision must contain a Property.' );
 		}
 
-		$html = '';
-
-		$html .= $this->getHtmlForFingerprint( $property, $editable );
-		$html .= $this->getHtmlForToc();
-		$html .= $this->getHtmlForTermBox( $entityRevision, $editable );
-
+		$html = parent::getInnerHtml( $entityRevision, $editable );
 		$html .= $this->getHtmlForDataType( $this->getDataType( $property ) );
 
 		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
-			$html .= $this->getHtmlForClaims( $property, $editable );
+			$html .= $this->claimsView->getHtml( $property->getClaims(), 'wikibase-attributes' );
 		}
 
 		$footer = $this->msg( 'wikibase-property-footer' );
@@ -56,26 +44,6 @@ class PropertyView extends EntityView {
 		}
 
 		wfProfileOut( __METHOD__ );
-		return $html;
-	}
-
-	/**
-	 * Returns the HTML for the heading of the claims section
-	 *
-	 * @since 0.5
-	 *
-	 * @param Entity $entity
-	 * @param bool $editable
-	 *
-	 * @return string
-	 */
-	protected function getHtmlForClaimsSectionHeading( Entity $entity, $editable = true ) {
-		$html = wfTemplate(
-			'wb-section-heading',
-			wfMessage( 'wikibase-attributes' )->escaped(),
-			'claims' // ID - TODO: should not be added if output page is not the entity's page
-		);
-
 		return $html;
 	}
 
