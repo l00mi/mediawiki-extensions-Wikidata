@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9b8e1059e6bc75ae46df037d4136ffad",
+    "hash": "e143161349a231c5831f20340b436973",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.16",
+            "version": "v1.0.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "033679ad3cfc5ab759f9ed2a58881aeef13c342b"
+                "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/033679ad3cfc5ab759f9ed2a58881aeef13c342b",
-                "reference": "033679ad3cfc5ab759f9ed2a58881aeef13c342b",
+                "url": "https://api.github.com/repos/composer/installers/zipball/74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
+                "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
                 "shasum": ""
             },
             "replace": {
@@ -64,6 +64,7 @@
                 "annotatecms",
                 "bitrix",
                 "cakephp",
+                "chef",
                 "codeigniter",
                 "concrete5",
                 "croogo",
@@ -93,7 +94,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2014-07-21 15:54:34"
+            "time": "2014-08-18 20:00:12"
         },
         {
             "name": "data-values/common",
@@ -723,16 +724,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "v1.0",
+            "version": "v1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
+                "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
-                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
+                "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
                 "shasum": ""
             },
             "require": {
@@ -766,7 +767,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-06-23 17:01:20"
+            "time": "2014-07-25 01:45:14"
         },
         {
             "name": "serialization/serialization",
@@ -1268,6 +1269,53 @@
                 "source": "https://github.com/wikimedia/mediawiki-extensions-Wikibase/tree/mw1.24-wmf17"
             },
             "time": "2014-08-19 20:18:42"
+        },
+        {
+            "name": "wikibase/wikimedia-badges",
+            "version": "dev-entrypoint",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wmde/WikimediaBadges.git",
+                "reference": "33a3fe175031eb9147ae8911a1585739831a2e61"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/33a3fe175031eb9147ae8911a1585739831a2e61",
+                "reference": "33a3fe175031eb9147ae8911a1585739831a2e61",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "mediawiki-extension",
+            "autoload": {
+                "classmap": [
+                    "WikimediaBadges.hooks.php"
+                ]
+            },
+            "license": [
+                "GNU GPL v2+"
+            ],
+            "authors": [
+                {
+                    "name": "Bene*",
+                    "email": "benestar.wikimedia@gmail.com",
+                    "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Extension which contains default themes to display badges on Wikimedia projects",
+            "homepage": "https://github.com/wmde/WikimediaBadges",
+            "keywords": [
+                "Wikibase",
+                "Wikidata"
+            ],
+            "support": {
+                "irc": "irc://irc.freenode.net/wikidata",
+                "source": "https://github.com/wmde/WikimediaBadges/tree/entrypoint",
+                "issues": "https://github.com/wmde/WikimediaBadges/issues"
+            },
+            "time": "2014-08-25 10:27:58"
         }
     ],
     "packages-dev": [
@@ -1279,6 +1327,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "wikibase/wikibase": 20,
+        "wikibase/wikimedia-badges": 20,
         "wikibase/wikidata.org": 20
     },
     "prefer-stable": false,

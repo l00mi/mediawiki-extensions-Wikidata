@@ -12,6 +12,7 @@ return array(
     'Composer\\Installers\\BaseInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/BaseInstaller.php',
     'Composer\\Installers\\BitrixInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/BitrixInstaller.php',
     'Composer\\Installers\\CakePHPInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/CakePHPInstaller.php',
+    'Composer\\Installers\\ChefInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/ChefInstaller.php',
     'Composer\\Installers\\CodeIgniterInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/CodeIgniterInstaller.php',
     'Composer\\Installers\\Concrete5Installer' => $vendorDir . '/composer/installers/src/Composer/Installers/Concrete5Installer.php',
     'Composer\\Installers\\CraftInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/CraftInstaller.php',
@@ -1032,6 +1033,7 @@ return array(
     'Wikibase\\WikibaseDiffOpFactory' => $baseDir . '/extensions/Wikibase/lib/includes/WikibaseDiffOpFactory.php',
     'Wikibase\\util\\Test\\GenericEventDispatcherTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/GenericEventDispatcherTest.php',
     'WikidataOrg\\Hooks' => $baseDir . '/extensions/Wikidata.org/WikidataOrg.hooks.php',
+    'WikimediaBadges\\Hooks' => $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.hooks.php',
     'importInterlang' => $baseDir . '/extensions/Wikibase/repo/maintenance/importInterlang.php',
     'importProperties' => $baseDir . '/extensions/Wikibase/repo/maintenance/importProperties.php',
 );
