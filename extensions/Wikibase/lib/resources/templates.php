@@ -56,11 +56,6 @@ HTML;
 <h2 class="wb-section-heading" dir="auto" id="$2">$1</h2>
 HTML;
 
-	$templates['wb-section-heading-sitelinks'] =
-<<<HTML
-<h2 class="wb-section-heading wb-sitelinks-heading" dir="auto" id="$2">$1</h2>
-HTML;
-
 	$templates['wb-claimgrouplistview'] =
 <<<HTML
 <div class="wb-claimgrouplistview">
@@ -195,24 +190,20 @@ HTML;
 <span class="wb-value-supplement">$1</span>
 HTML;
 
-	$templates['wb-aliases-wrapper'] =
+	$templates['wikibase-aliasesview'] =
 <<<HTML
-<div class="wb-aliases $1">
-	<div class="wb-gridhelper">
-		<span class="wb-aliases-label $2">$3</span>
-		$4
+<div class="wikibase-aliasesview $1">
+	<div class="wikibase-aliasesview-container">
+		<span class="wikibase-aliasesview-label">$2</span>
+		<ul class="wikibase-aliasesview-list">$3</ul>
+		<!-- wb-toolbar -->$4
 	</div>
 </div>
 HTML;
 
-	$templates['wb-aliases'] =
+	$templates['wikibase-aliasesview-list-item'] =
 <<<HTML
-<ul class="wb-aliases-container">$1</ul>
-HTML;
-
-	$templates['wb-alias'] =
-<<<HTML
-<li class="wb-aliases-alias">$1</li>
+<li class="wikibase-aliasesview-list-item">$1</li>
 HTML;
 
 	$templates['wb-editsection'] =
@@ -272,25 +263,35 @@ HTML;
 </tr>
 HTML;
 
+	$templates['wikibase-sitelinkgroupview'] =
+<<<HTML
+<div class="wikibase-sitelinkgroupview" data-wb-sitelinks-group="$5">
+	<h2 class="wb-section-heading wikibase-sitelinkgroupview-heading" dir="auto" id="$1">
+		$2<span class="wikibase-sitelinkgroupview-counter">$3</span>
+	</h2>
+	<table class="wikibase-sitelinkgroupview-sitelinklistview">
+		<!-- wikibase-sitelinklistview -->$4
+	</table>
+</div>
+HTML;
+
 	$templates['wikibase-sitelinklistview'] =
 <<<HTML
-<table class="wikibase-sitelinklistview" data-wb-sitelinks-group="$4">
-	<colgroup>
-		<col class="wikibase-sitelinklistview-sitename" />
-		<col class="wikibase-sitelinklistview-siteid" />
-		<col class="wikibase-sitelinklistview-link" />
-		<col class="wb-editsection" />
-	</colgroup>
-	<thead>
-		$1 <!-- wikibase-sitelinklist-thead -->
-	</thead>
-	<tbody>
-		$2 <!-- [0,*] wikibase-sitelinkview -->
-	</tbody>
-	<tfoot>
-		$3 <!-- wikibase-sitelinklistview-tfoot -->
-	</tfoot>
-</table>
+<colgroup>
+	<col class="wikibase-sitelinklistview-sitename" />
+	<col class="wikibase-sitelinklistview-siteid" />
+	<col class="wikibase-sitelinklistview-link" />
+	<col class="wb-editsection" />
+</colgroup>
+<thead>
+	$1 <!-- wikibase-sitelinklist-thead -->
+</thead>
+<tbody>
+	$2 <!-- [0,*] wikibase-sitelinkview -->
+</tbody>
+<tfoot>
+	$3 <!-- wikibase-sitelinklistview-tfoot -->
+</tfoot>
 HTML;
 
 	$templates['wikibase-sitelinklistview-thead'] =

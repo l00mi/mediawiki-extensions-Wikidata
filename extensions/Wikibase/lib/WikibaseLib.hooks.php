@@ -83,16 +83,13 @@ final class LibHooks {
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApi.tests.js',
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApiError.tests.js',
 
-				'tests/qunit/wikibase.ui.AliasesEditTool.tests.js',
 				'tests/qunit/wikibase.ui.DescriptionEditTool.tests.js',
 				'tests/qunit/wikibase.ui.LabelEditTool.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.tests.js',
-				'tests/qunit/wikibase.ui.PropertyEditTool.EditableAliases.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableDescription.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableLabel.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.Interface.tests.js',
-				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.ListInterface.tests.js',
 
 				'tests/qunit/wikibase.utilities/wikibase.utilities.ClaimGuidGenerator.tests.js',
 				'tests/qunit/wikibase.utilities/wikibase.utilities.GuidGenerator.tests.js',
@@ -126,6 +123,15 @@ final class LibHooks {
 				'jquery.event.special.eachchange',
 				'util.inherit',
 			)
+		);
+
+		$testModules['qunit']['jquery.wikibase.aliasesview.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/jquery.wikibase/jquery.wikibase.aliasesview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.aliasesview'
+			),
 		);
 
 		$testModules['qunit']['jquery.wikibase.claimgrouplabelscroll.tests'] = $moduleBase + array(
@@ -189,6 +195,18 @@ final class LibHooks {
 				'wikibase.store.EntityStore',
 				'wikibase.ValueViewBuilder',
 				'valueFormatters'
+			),
+		);
+
+		$testModules['qunit']['jquery.wikibase.sitelinkgroupview.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/jquery.wikibase/jquery.wikibase.sitelinkgroupview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.sitelinkgroupview',
+				'wikibase.datamodel',
+				'wikibase.store.EntityStore',
+				'wikibase.tests.qunit.testrunner',
 			),
 		);
 

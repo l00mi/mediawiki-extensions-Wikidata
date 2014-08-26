@@ -62,18 +62,6 @@
 		registerEditRestrictionHandlers();
 
 		if( mw.config.get( 'wbEntity' ) !== null ) {
-			// if there are no aliases yet, the DOM structure for creating new ones is created manually since it is not
-			// needed for running the page without JS
-			$( '.wb-aliases-empty' )
-			.each( function() {
-				$( this ).replaceWith( wb.ui.AliasesEditTool.getEmptyStructure() );
-			} );
-
-			// edit tool for aliases:
-			$( '.wb-aliases' ).each( function() {
-				new wb.ui.AliasesEditTool( this, { api: repoApi } );
-			} );
-
 			// BUILD CLAIMS VIEW:
 			// Note: $.entityview() only works for claims right now, the goal is to use it for more
 			var $claims = $( '.wb-claims' ).first(),
@@ -259,6 +247,20 @@
 		var entityStore = new wb.store.EntityStore( abstractedRepoApi );
 		wb.compileEntityStoreFromMwConfig( entityStore );
 
+		// TODO: Integrate into entityview
+		$( '.wikibase-aliasesview' )
+		.toolbarcontroller( {
+			edittoolbar: ['aliasesview']
+		} )
+		.aliasesview( {
+			value: {
+				language:  mw.config.get( 'wgUserLanguage' ),
+				aliases: entity.getAliases( mw.config.get( 'wgUserLanguage' ) )
+			},
+			entityId: entity.getId(),
+			api: repoApi
+		} );
+
 		// FIXME: Initializing entityview on $claims leads to the claim section inserted as
 		// child of $claims. It should be direct child of ".wb-entity".
 		$claims.entityview( {
@@ -279,8 +281,7 @@
 			.first()
 			.attr( 'id', 'claims' );
 
-		// removing site links heading to rebuild it with value counter
-		$( '.wikibase-sitelinklistview' ).each( function() {
+		$( '.wikibase-sitelinkgroupview' ).each( function() {
 			var $sitelinklistview = $( this ),
 				siteIdsOfGroup = [];
 
@@ -295,14 +296,8 @@
 
 			// TODO: Implement sitelinkgrouplistview to manage sitelinklistview widgets
 			var group = $( this ).data( 'wb-sitelinks-group' ),
-				groupSiteIds = [],
-				$sitesCounterContainer = $( '<span/>' ),
 				siteLinks = entity.getSiteLinks(),
 				siteLinksOfGroup = [];
-
-			$.each( wb.sites.getSitesOfGroup( group ), function( siteId, site ) {
-				groupSiteIds.push( siteId );
-			} );
 
 			for( var i = 0; i < siteIdsOfGroup.length; i++ ) {
 				for( var j = 0; j < siteLinks.length; j++ ) {
@@ -313,16 +308,14 @@
 				}
 			}
 
-			$( this ).prev().append( $sitesCounterContainer );
-
-			// actual initialization
-			$( this ).sitelinklistview( {
-				value: siteLinksOfGroup,
-				allowedSiteIds: groupSiteIds,
+			$( this ).sitelinkgroupview( {
+				value: {
+					group: group,
+					siteLinks: siteLinksOfGroup
+				},
 				entityId: entity.getId(),
 				api: repoApi,
-				entityStore: entityStore,
-				$counter: $sitesCounterContainer
+				entityStore: entityStore
 			} );
 		} );
 
@@ -330,7 +323,7 @@
 		// it to a sensible place.
 		$( wb )
 		.on( 'startItemPageEditMode', function( event, target, options ) {
-			$( ':wikibase-sitelinklistview' )
+			$( ':wikibase-aliasesview, :wikibase-sitelinklistview' )
 			.find( ':wikibase-toolbar' )
 			.not( $( target ).find( ':wikibase-toolbar' ) )
 			.each( function() {
@@ -338,6 +331,9 @@
 			} );
 		} )
 		.on( 'stopItemPageEditMode', function( event, target, options ) {
+			$( ':wikibase-aliasesview' ).find( ':wikibase-toolbar' ).each( function() {
+				$( this ).data( 'toolbar' ).enable();
+			} );
 			$( ':wikibase-sitelinklistview' ).each( function() {
 				var $sitelinklistview = $( this ),
 					sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );

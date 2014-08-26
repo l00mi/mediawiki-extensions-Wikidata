@@ -70,16 +70,18 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 */
 	_create: function() {
 		if( !this.options.entityId || !this.options.api || !this.options.entityStore ) {
-			throw new Error( 'Required options missing' );
+			throw new Error( 'Required option(s) missing' );
 		}
 
 		PARENT.prototype._create.call( this );
 
 		this._createListView();
 
+		this.element.addClass( 'wikibase-sitelinklistview' );
+
 		if( this.element.children( 'thead' ).children().length > 0 ) {
 			// Initially sort on the site id column.
-			this.element.tablesorter( { sortList: [{ 1:'asc' }] } );
+			this.element.tablesorter( { sortList: [{ 1: 'asc' }] } );
 		}
 
 		this._attachEventHandlers();
@@ -92,6 +94,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	destroy: function() {
 		this.$listview.data( 'listview' ).destroy();
 		this.element.removeData( 'tablesorter' );
+		this.element.removeClass( 'wikibase-sitelinklistview' );
 		PARENT.prototype.destroy.call( this );
 	},
 
