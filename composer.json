@@ -11,12 +11,12 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "propertysuggester/property-suggester": "~1.1",
+        "propertysuggester/property-suggester": "~1.0.0",
         "serialization/serialization": "3.2.0",
         "wikibase/data-model-javascript": "0.3.1",
         "wikibase/serialization-javascript": "1.1.1",
         "wikibase/wikibase": "dev-mw1.24-wmf17",
-        "wikibase/wikimedia-badges": "dev-dependency",
+        "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org" : "dev-master"
     },
     "config": {

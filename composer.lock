@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e143161349a231c5831f20340b436973",
+    "hash": "8fab8cdbc656cad955f34b8c567bc6ac",
     "packages": [
         {
             "name": "composer/installers",
@@ -724,16 +724,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "v1.1",
+            "version": "v1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1"
+                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
-                "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+                "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
                 "shasum": ""
             },
             "require": {
@@ -767,7 +767,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-07-25 01:45:14"
+            "time": "2014-06-23 17:01:20"
         },
         {
             "name": "serialization/serialization",
@@ -1272,16 +1272,16 @@
         },
         {
             "name": "wikibase/wikimedia-badges",
-            "version": "dev-entrypoint",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikimediaBadges.git",
-                "reference": "33a3fe175031eb9147ae8911a1585739831a2e61"
+                "reference": "f8677acc1c7fe8a597edf21da698094da74214a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/33a3fe175031eb9147ae8911a1585739831a2e61",
-                "reference": "33a3fe175031eb9147ae8911a1585739831a2e61",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/f8677acc1c7fe8a597edf21da698094da74214a3",
+                "reference": "f8677acc1c7fe8a597edf21da698094da74214a3",
                 "shasum": ""
             },
             "require": {
@@ -1289,6 +1289,9 @@
             },
             "type": "mediawiki-extension",
             "autoload": {
+                "files": [
+                    "WikimediaBadges.php"
+                ],
                 "classmap": [
                     "WikimediaBadges.hooks.php"
                 ]
@@ -1312,10 +1315,10 @@
             ],
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata",
-                "source": "https://github.com/wmde/WikimediaBadges/tree/entrypoint",
+                "source": "https://github.com/wmde/WikimediaBadges/tree/master",
                 "issues": "https://github.com/wmde/WikimediaBadges/issues"
             },
-            "time": "2014-08-25 10:27:58"
+            "time": "2014-08-25 13:43:19"
         }
     ],
     "packages-dev": [

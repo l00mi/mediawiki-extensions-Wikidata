@@ -24,6 +24,9 @@
 		"php": ">=5.3.0"
 	},
 	"autoload": {
+		"files": [
+			"WikimediaBadges.php"
+		],
 		"classmap": [
 			"WikimediaBadges.hooks.php"
 		]

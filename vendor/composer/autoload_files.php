@@ -22,4 +22,5 @@ return array(
     $baseDir . '/extensions/ValueView/ValueView.php',
     $vendorDir . '/wikibase/serialization-javascript/init.mw.php',
     $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
+    $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
 );

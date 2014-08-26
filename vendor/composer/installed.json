@@ -1095,55 +1095,6 @@
         ]
     },
     {
-        "name": "propertysuggester/property-suggester",
-        "version": "v1.1",
-        "version_normalized": "1.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
-            "reference": "fe77e3d6db4582d2b4cefbe51a1f74e8838f79d1",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2014-07-25 01:45:14",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [
-
-    ],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "serialization/serialization",
         "version": "3.2",
         "version_normalized": "3.2.0.0",
@@ -1311,26 +1262,29 @@
     },
     {
         "name": "wikibase/wikimedia-badges",
-        "version": "dev-entrypoint",
-        "version_normalized": "dev-entrypoint",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikimediaBadges.git",
-            "reference": "33a3fe175031eb9147ae8911a1585739831a2e61"
+            "reference": "f8677acc1c7fe8a597edf21da698094da74214a3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/33a3fe175031eb9147ae8911a1585739831a2e61",
-            "reference": "33a3fe175031eb9147ae8911a1585739831a2e61",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/f8677acc1c7fe8a597edf21da698094da74214a3",
+            "reference": "f8677acc1c7fe8a597edf21da698094da74214a3",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-08-25 10:27:58",
+        "time": "2014-08-25 13:43:19",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
+            "files": [
+                "WikimediaBadges.php"
+            ],
             "classmap": [
                 "WikimediaBadges.hooks.php"
             ]
@@ -1354,8 +1308,57 @@
         ],
         "support": {
             "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/WikimediaBadges/tree/entrypoint",
+            "source": "https://github.com/wmde/WikimediaBadges/tree/master",
             "issues": "https://github.com/wmde/WikimediaBadges/issues"
         }
+    },
+    {
+        "name": "propertysuggester/property-suggester",
+        "version": "v1.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2014-06-23 17:01:20",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [
+
+    ],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+        "keywords": [
+            "propertysuggester",
+            "wikibase",
+            "wikidata"
+        ]
     }
 ]

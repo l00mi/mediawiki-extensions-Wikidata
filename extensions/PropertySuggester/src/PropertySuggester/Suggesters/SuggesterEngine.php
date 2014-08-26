@@ -18,10 +18,9 @@ interface SuggesterEngine {
 	 * @param PropertyId[] $propertyIds
 	 * @param int $limit
 	 * @param float $minProbability
-	 * @param string $context
 	 * @return Suggestion[]
 	 */
-	public function suggestByPropertyIds( array $propertyIds, $limit, $minProbability, $context );
+	public function suggestByPropertyIds( array $propertyIds, $limit, $minProbability );
 
 	/**
 	 * Returns suggested attributes
@@ -29,10 +28,9 @@ interface SuggesterEngine {
 	 * @param Item $item
 	 * @param int $limit
 	 * @param float $minProbability
-	 * @param string $context
 	 * @return Suggestion[]
 	 */
-	public function suggestByItem( Item $item, $limit, $minProbability, $context );
+	public function suggestByItem( Item $item, $limit, $minProbability );
 
 	/**
 	 * @param int[] $numericIds - blacklist used to filter suggestions
