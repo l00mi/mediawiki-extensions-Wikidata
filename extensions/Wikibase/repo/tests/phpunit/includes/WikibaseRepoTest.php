@@ -33,12 +33,12 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetEntityContentFactoryReturnType() {
 		$returnValue = $this->getDefaultInstance()->getEntityContentFactory();
-		$this->assertInstanceOf( 'Wikibase\EntityContentFactory', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\Repo\Content\EntityContentFactory', $returnValue );
 	}
 
 	public function testGetEntityTitleLookupReturnType() {
 		$returnValue = $this->getDefaultInstance()->getEntityTitleLookup();
-		$this->assertInstanceOf( 'Wikibase\EntityTitleLookup', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\Lib\Store\EntityTitleLookup', $returnValue );
 	}
 
 	public function testGetEntityRevisionLookupReturnType() {
@@ -274,6 +274,11 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	private function getDefaultInstance() {
 		$settings = new SettingsArray( WikibaseRepo::getDefaultInstance()->getSettings()->getArrayCopy() );
 		return new WikibaseRepo( $settings );
+	}
+
+	public function testGetApiHelperFactory() {
+		$factory = $this->getDefaultInstance()->getApiHelperFactory();
+		$this->assertInstanceOf( 'Wikibase\Api\ApiHelperFactory', $factory );
 	}
 
 }

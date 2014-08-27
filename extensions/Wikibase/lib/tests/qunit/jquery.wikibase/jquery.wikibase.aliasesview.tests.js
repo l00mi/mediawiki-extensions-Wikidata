@@ -71,7 +71,7 @@ QUnit.test( 'Create & destroy', function( assert ) {
 	);
 } );
 
-QUnit.test( 'startEditing() & stopEditing()', 5, function( assert ) {
+QUnit.test( 'startEditing() & stopEditing()', 7, function( assert ) {
 	var $aliasesview = createAliasesview(),
 		aliasesview = $aliasesview.data( 'aliasesview' );
 
@@ -103,37 +103,15 @@ QUnit.test( 'startEditing() & stopEditing()', 5, function( assert ) {
 
 	aliasesview.startEditing();
 
-	// TODO: aliasesview's isValid() should not query for the class. tagadata should have a public
-	// function to check for conflicts.
-	aliasesview.$list.data( 'tagadata' ).getTags().first().addClass( 'tagadata-choice-equal' );
+	aliasesview.$list.data( 'tagadata' ).getTags().first().find( 'input' ).val( 'b' );
 
-	aliasesview.stopEditing(); // should not trigger event
+	aliasesview.stopEditing();
+	aliasesview.startEditing();
 
 	aliasesview.$list.data( 'tagadata' ).getTags().first().removeClass( 'tagadata-choice-equal' )
 		.find( 'input' ).val( 'd' );
 
 	aliasesview.stopEditing();
-} );
-
-QUnit.test( 'isValid()', function( assert ) {
-	var $aliasesview = createAliasesview(),
-		aliasesview = $aliasesview.data( 'aliasesview' );
-
-	aliasesview.startEditing();
-
-	assert.ok(
-		aliasesview.isValid(),
-		'Verified isValid() returning true.'
-	);
-
-	// TODO: aliasesview's isValid() should not query for the class. tagadata should have a public
-	// function to check for conflicts.
-	aliasesview.$list.data( 'tagadata' ).getTags().first().addClass( 'tagadata-choice-equal' );
-
-	assert.ok(
-		!aliasesview.isValid(),
-		'Verified isValid() returning false.'
-	);
 } );
 
 QUnit.test( 'isInitialValue()', function( assert ) {

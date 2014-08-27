@@ -14,8 +14,8 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\EditEntity;
-use Wikibase\EntityPermissionChecker;
-use Wikibase\EntityTitleLookup;
+use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityPermissionChecker;
 
 /**
  * @covers Wikibase\EditEntity
@@ -75,7 +75,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 	 * @return EntityTitleLookup
 	 */
 	protected function newTitleLookupMock() {
-		$titleLookup = $this->getMock( 'Wikibase\EntityTitleLookup' );
+		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
 
 		$titleLookup->expects( $this->any() )
 			->method( 'getTitleForID' )
@@ -96,7 +96,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 	 * @return EntityPermissionChecker
 	 */
 	protected function newEntityPermissionCheckerMock( $permissions ) {
-		$permissionChecker = $this->getMock( 'Wikibase\EntityPermissionChecker' );
+		$permissionChecker = $this->getMock( 'Wikibase\Repo\Store\EntityPermissionChecker' );
 
 		$checkAction = function ( $user, $action ) use( $permissions ) {
 			if ( $permissions === null ) {

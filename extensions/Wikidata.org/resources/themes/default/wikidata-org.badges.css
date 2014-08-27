@@ -1,0 +1,30 @@
+/**
+ * Different styles for specific badges.
+ *
+ * @since 0.1
+ *
+ * @license GNU GPL v2+
+ * @author Bene* < benestar.wikimedia@gmail.com >
+ */
+
+/* SVG support using a transparent gradient to guarantee cross-browser
+ * compatibility (browsers able to understand gradient syntax support also SVG).
+ * http://pauginer.tumblr.com/post/36614680636/invisible-gradient-technique */
+
+.wb-badge-featuredarticle {
+	background-image: url(../../images/wb-badges-gold.png);
+	/* @embed */
+	background-image: -webkit-linear-gradient(transparent, transparent), url(../../images/wb-badges-gold.svg);
+	/* @embed */
+	background-image: linear-gradient(transparent, transparent), url(../../images/wb-badges-gold.svg);
+}
+
+.wb-badge-goodarticle {
+	background-image: url(../../images/wb-badges-silver.png);
+	/* @embed */
+	background-image: -webkit-linear-gradient(transparent, transparent), url(../../images/wb-badges-silver.svg);
+	/* @embed */
+	background-image: linear-gradient(transparent, transparent), url(../../images/wb-badges-silver.svg);
+}
+
+/* @todo also support other css classes like .wb-badge-stub etc. */
