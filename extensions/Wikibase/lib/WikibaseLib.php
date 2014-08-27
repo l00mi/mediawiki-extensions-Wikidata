@@ -52,11 +52,10 @@ if ( ( !defined( 'WIKIBASE_DATAMODEL_VERSION' ) || !defined( 'Diff_VERSION' ) ||
 	include_once( __DIR__ . '/../vendor/autoload.php' );
 }
 
-// needed for deserializing Snaks in DataModel 0.8.2
+// TODO: Needed for deserializing Snaks in DataModel 0.x. Remove with DataModel 1.x!
 if( !array_key_exists( 'evilDataValueMap', $GLOBALS ) ) {
 	$GLOBALS['evilDataValueMap'] = array();
 }
-
 $GLOBALS['evilDataValueMap'] = array_merge(
 	$GLOBALS['evilDataValueMap'],
 	 array(
@@ -86,7 +85,7 @@ call_user_func( function() {
 	define( 'SUMMARY_MAX_LENGTH', 250 );
 
 	// i18n
-	$wgMessagesDirs['WikibaseLib']		   = __DIR__ . '/i18n';
+	$wgMessagesDirs['WikibaseLib']           = __DIR__ . '/i18n';
 
 	$wgJobClasses['ChangeNotification'] = 'Wikibase\ChangeNotificationJob';
 

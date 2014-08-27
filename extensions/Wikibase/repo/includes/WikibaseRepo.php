@@ -14,11 +14,7 @@ use SiteStore;
 use StubObject;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\ItemHandler;
-use Wikibase\PropertyHandler;
-use Wikibase\Repo\Notifications\ChangeNotifier;
-use Wikibase\Repo\Notifications\ChangeTransmitter;
-use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
+use Wikibase\Api\ApiHelperFactory;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\Claim\ClaimGuidParser;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
@@ -26,14 +22,13 @@ use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\Lib\Changes\EntityChangeFactory;
-use Wikibase\EntityContentFactory;
+use Wikibase\EntityFactory;
 use Wikibase\InternalSerialization\DeserializerFactory;
 use Wikibase\InternalSerialization\SerializerFactory;
-use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\EntityFactory;
+use Wikibase\ItemHandler;
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\DispatchingValueFormatter;
@@ -50,15 +45,22 @@ use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\SnakConstructionService;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
-use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\ParserOutputJsConfigBuilder;
+use Wikibase\PropertyHandler;
 use Wikibase\ReferencedEntitiesFinder;
+use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Localizer\ChangeOpValidationExceptionLocalizer;
 use Wikibase\Repo\Localizer\MessageParameterFormatter;
+use Wikibase\Repo\Notifications\ChangeNotifier;
+use Wikibase\Repo\Notifications\ChangeTransmitter;
+use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\DummyChangeTransmitter;
+use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\SnakFactory;
@@ -254,7 +256,7 @@ class WikibaseRepo {
 	/**
 	 * @since 0.5
 	 *
-	 * @return \Wikibase\EntityTitleLookup
+	 * @return EntityTitleLookup
 	 */
 	public function getEntityTitleLookup() {
 		return $this->getEntityContentFactory();
@@ -622,7 +624,7 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @return \Wikibase\EntityPermissionChecker
+	 * @return EntityPermissionChecker
 	 */
 	public function getEntityPermissionChecker() {
 		return $this->getEntityContentFactory();
@@ -905,4 +907,15 @@ class WikibaseRepo {
 		return array( 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer', 'isBlobUsingLegacyFormat' );
 	}
 
+	/**
+	 * @return ApiHelperFactory
+	 */
+	public function getApiHelperFactory() {
+		return new ApiHelperFactory(
+			$this->getEntityTitleLookup(),
+			$this->getExceptionLocalizer(),
+			$this->getPropertyDataTypeLookup(),
+			$this->getEntityFactory()
+		);
+	}
 }

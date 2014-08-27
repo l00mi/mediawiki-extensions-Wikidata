@@ -5,17 +5,17 @@ namespace Wikibase\Test;
 use DataValues\StringValue;
 use Diff\Comparer\ComparableComparer;
 use Diff\OrderedListDiffer;
-use Wikibase\Claim;
 use Wikibase\ClaimDiffer;
-use Wikibase\Claims;
 use Wikibase\ClaimSummaryBuilder;
-use Wikibase\PropertyNoValueSnak;
-use Wikibase\PropertySomeValueSnak;
-use Wikibase\PropertyValueSnak;
-use Wikibase\Reference;
-use Wikibase\Snak;
-use Wikibase\SnakList;
-use Wikibase\Statement;
+use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Claim\Statement;
+use Wikibase\DataModel\Reference;
+use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Snak\PropertySomeValueSnak;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Snak\SnakList;
 
 /**
  * @covers Wikibase\ClaimSummaryBuilder
@@ -166,4 +166,5 @@ class ClaimSummaryBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'wbsetclaim', $summary->getModuleName() );
 		$this->assertEquals( $action, $summary->getActionName() );
 	}
+
 }

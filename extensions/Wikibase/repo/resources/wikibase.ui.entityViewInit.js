@@ -15,13 +15,9 @@
 	/* jshint nonew: false */
 
 	mw.hook( 'wikipage.content' ).add( function() {
-		// TODO: Remove global DOM adjustments
-		// remove most HTML edit links with links to special pages
-		$( 'span.wb-editsection, div.wb-editsection' )
-		// Do not remove td edit sections that are in a td that, itself, is not an edit section
-		// (site link "add" button):
-		.not( 'td:not( .wb-editsection ) > .wb-editsection' )
-		.remove();
+		// Edit sections are re-generated with JS functionality further below:
+		$( '.wb-editsection' ).parent( 'td' ).not( '.wb-terms td' ).remove();
+		$( '.wb-editsection:not(td)' ).remove();
 
 		// remove all infos about empty values which are displayed in non-JS
 		$( '.wb-value-empty' ).empty().removeClass( 'wb-value-empty' );
@@ -66,18 +62,6 @@
 		registerEditRestrictionHandlers();
 
 		if( mw.config.get( 'wbEntity' ) !== null ) {
-			// if there are no aliases yet, the DOM structure for creating new ones is created manually since it is not
-			// needed for running the page without JS
-			$( '.wb-aliases-empty' )
-			.each( function() {
-				$( this ).replaceWith( wb.ui.AliasesEditTool.getEmptyStructure() );
-			} );
-
-			// edit tool for aliases:
-			$( '.wb-aliases' ).each( function() {
-				new wb.ui.AliasesEditTool( this, { api: repoApi } );
-			} );
-
 			// BUILD CLAIMS VIEW:
 			// Note: $.entityview() only works for claims right now, the goal is to use it for more
 			var $claims = $( '.wb-claims' ).first(),
@@ -263,6 +247,20 @@
 		var entityStore = new wb.store.EntityStore( abstractedRepoApi );
 		wb.compileEntityStoreFromMwConfig( entityStore );
 
+		// TODO: Integrate into entityview
+		$( '.wikibase-aliasesview' )
+		.toolbarcontroller( {
+			edittoolbar: ['aliasesview']
+		} )
+		.aliasesview( {
+			value: {
+				language:  mw.config.get( 'wgUserLanguage' ),
+				aliases: entity.getAliases( mw.config.get( 'wgUserLanguage' ) )
+			},
+			entityId: entity.getId(),
+			api: repoApi
+		} );
+
 		// FIXME: Initializing entityview on $claims leads to the claim section inserted as
 		// child of $claims. It should be direct child of ".wb-entity".
 		$claims.entityview( {
@@ -283,18 +281,70 @@
 			.first()
 			.attr( 'id', 'claims' );
 
-		// removing site links heading to rebuild it with value counter
-		$( 'table.wb-sitelinks' ).each( function() {
+		$( '.wikibase-sitelinkgroupview' ).each( function() {
+			var $sitelinklistview = $( this ),
+				siteIdsOfGroup = [];
+
+			$sitelinklistview.find( '.wikibase-sitelinkview' ).each( function() {
+				siteIdsOfGroup.push( $( this ).data( 'wb-siteid' ) );
+			} );
+
+			$sitelinklistview.toolbarcontroller( {
+				addtoolbar: ['sitelinklistview'],
+				edittoolbar: ['sitelinkview']
+			} );
+
+			// TODO: Implement sitelinkgrouplistview to manage sitelinklistview widgets
 			var group = $( this ).data( 'wb-sitelinks-group' ),
-				$sitesCounterContainer = $( '<span/>' );
+				siteLinks = entity.getSiteLinks(),
+				siteLinksOfGroup = [];
 
-			$( this ).prev().append( $sitesCounterContainer );
+			for( var i = 0; i < siteIdsOfGroup.length; i++ ) {
+				for( var j = 0; j < siteLinks.length; j++ ) {
+					if( siteLinks[j].getSiteId() === siteIdsOfGroup[i] ) {
+						siteLinksOfGroup.push( siteLinks[j] );
+						break;
+					}
+				}
+			}
 
-			// actual initialization
-			new wb.ui.SiteLinksEditTool( $( this ), {
-				allowedSites: wb.sites.getSitesOfGroup( group ),
-				counterContainers: $sitesCounterContainer,
-				api: repoApi
+			$( this ).sitelinkgroupview( {
+				value: {
+					group: group,
+					siteLinks: siteLinksOfGroup
+				},
+				entityId: entity.getId(),
+				api: repoApi,
+				entityStore: entityStore
+			} );
+		} );
+
+		// TODO: Resolve this logic, merge with other toolbar management done in entityview and move
+		// it to a sensible place.
+		$( wb )
+		.on( 'startItemPageEditMode', function( event, target, options ) {
+			$( ':wikibase-aliasesview, :wikibase-sitelinklistview' )
+			.find( ':wikibase-toolbar' )
+			.not( $( target ).find( ':wikibase-toolbar' ) )
+			.each( function() {
+				$( this ).data( 'toolbar' ).disable();
+			} );
+		} )
+		.on( 'stopItemPageEditMode', function( event, target, options ) {
+			$( ':wikibase-aliasesview' ).find( ':wikibase-toolbar' ).each( function() {
+				$( this ).data( 'toolbar' ).enable();
+			} );
+			$( ':wikibase-sitelinklistview' ).each( function() {
+				var $sitelinklistview = $( this ),
+					sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
+
+				if( !sitelinklistview.isFull() ) {
+					$sitelinklistview.data( 'addtoolbar' ).toolbar.enable();
+				}
+
+				$sitelinklistview.find( 'tbody :wikibase-toolbar' ).each( function() {
+					$( this ).data( 'toolbar' ).enable();
+				} );
 			} );
 		} );
 

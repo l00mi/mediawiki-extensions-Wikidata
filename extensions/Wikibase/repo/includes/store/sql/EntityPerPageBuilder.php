@@ -1,9 +1,10 @@
 <?php
 namespace Wikibase;
 
-use Wikibase\Lib\Reporting\MessageReporter;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\Lib\Reporting\MessageReporter;
+use Wikibase\Repo\Content\EntityContentFactory;
 
 /**
  * Utility class for rebuilding the wb_entity_per_page table.
@@ -247,7 +248,7 @@ class EntityPerPageBuilder {
 		$lb = wfGetLB(); //TODO: allow foreign DB, get from $this->table
 
 		while ( true ) {
-			list( $host, $maxLag ) = $lb->getMaxLag();
+			list( , $maxLag ) = $lb->getMaxLag();
 			if ( $maxLag < 2 ) {
 				break;
 			}

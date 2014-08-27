@@ -19,7 +19,6 @@ use QuickTemplate;
 use RecentChange;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RuntimeException;
 use Skin;
 use SpecialRecentChanges;
 use SpecialWatchlist;
@@ -30,6 +29,7 @@ use UnexpectedValueException;
 use User;
 use Wikibase\Client\Hooks\BaseTemplateAfterPortletHandler;
 use Wikibase\Client\Hooks\BeforePageDisplayHandler;
+use Wikibase\Client\Hooks\ChangesPageWikibaseFilterHandler;
 use Wikibase\Client\Hooks\InfoActionHookHandler;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\SpecialWatchlistQueryHandler;
@@ -317,7 +317,10 @@ final class ClientHooks {
 		array &$join_conds, array &$fields, $opts
 	) {
 		$db = wfGetDB( DB_SLAVE );
-		$handler = new SpecialWatchlistQueryHandler( $GLOBALS['wgUser'], $db );
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+		$showExternalChanges = $settings->getSetting( 'showExternalRecentChanges' );
+
+		$handler = new SpecialWatchlistQueryHandler( $GLOBALS['wgUser'], $db, $showExternalChanges );
 
 		$conds = $handler->addWikibaseConditions( $GLOBALS['wgRequest'], $conds, $opts );
 
@@ -704,15 +707,41 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onSpecialRecentChangesFilters( SpecialRecentChanges $special, array &$filters ) {
-		$context = $special->getContext();
+		$hookHandler = new ChangesPageWikibaseFilterHandler(
+			$special->getContext(),
+			WikibaseClient::getDefaultInstance()->getSettings()->getSetting( 'showExternalRecentChanges' ),
+			'hidewikidata',
+			'rcshowwikidata',
+			'wikibase-rc-hide-wikidata'
+		);
 
-		if ( $context->getRequest()->getBool( 'enhanced', $context->getUser()->getOption( 'usenewrc' ) ) === false ) {
-			$showWikidata = $special->getUser()->getOption( 'rcshowwikidata' );
-			$default = $showWikidata ? false : true;
-			if ( $context->getUser()->getOption( 'usenewrc' ) === 0 ) {
-				$filters['hidewikidata'] = array( 'msg' => 'wikibase-rc-hide-wikidata', 'default' => $default );
-			}
-		}
+		// @fixme remove wikidata-specific stuff!
+		$filters = $hookHandler->addFilterIfEnabled( $filters );
+
+		return true;
+	}
+
+	/**
+	 * Modifies watchlist options to show a toggle for Wikibase changes
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SpecialWatchlistFilters
+	 *
+	 * @since 0.4
+	 *
+	 * @param SpecialWatchlist $special
+	 * @param array $filters
+	 *
+	 * @return bool
+	 */
+	public static function onSpecialWatchlistFilters( $special, &$filters ) {
+		$hookHandler = new ChangesPageWikibaseFilterHandler(
+			$special->getContext(),
+			WikibaseClient::getDefaultInstance()->getSettings()->getSetting( 'showExternalRecentChanges' ),
+			'hideWikibase',
+			'wlshowwikibase',
+			'wikibase-rc-hide-wikidata'
+		);
+
+		$filters = $hookHandler->addFilterIfEnabled( $filters );
 
 		return true;
 	}
@@ -792,31 +821,6 @@ final class ClientHooks {
 			}
 		}
 
-		return true;
-	}
-
-	/**
-	 * Modifies watchlist options to show a toggle for Wikibase changes
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SpecialWatchlistFilters
-	 *
-	 * @since 0.4
-	 *
-	 * @param SpecialWatchlist $special
-	 * @param array $filters
-	 *
-	 * @return bool
-	 */
-	public static function onSpecialWatchlistFilters( $special, &$filters ) {
-		$user = $special->getContext()->getUser();
-
-		if ( $special->getContext()->getRequest()->getBool( 'enhanced',
-			$user->getOption( 'usenewrc' ) ) === false ) {
-			// Allow toggling wikibase changes in case the enhanced watchlist is disabled
-			$filters['hideWikibase'] = array(
-				'msg' => 'wikibase-rc-hide-wikidata',
-				'default' => !$user->getBoolOption( 'wlshowwikibase' )
-			);
-		}
 		return true;
 	}
 
@@ -918,9 +922,6 @@ final class ClientHooks {
 			// show a message to the user that the Wikibase item needs to be
 			// manually updated.
 			wfLogWarning( $e->getMessage() );
-		} catch( RuntimeException $e ) {
-			// B/C for MediaWiki 1.23
-			wfLogWarning( $e->getMessage() );
 		}
 
 		wfProfileOut( __METHOD__ );
@@ -942,4 +943,5 @@ final class ClientHooks {
 			$html .= $link;
 		}
 	}
+
 }

@@ -83,20 +83,13 @@ final class LibHooks {
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApi.tests.js',
 				'tests/qunit/wikibase.RepoApi/wikibase.RepoApiError.tests.js',
 
-				'tests/qunit/wikibase.ui.AliasesEditTool.tests.js',
 				'tests/qunit/wikibase.ui.DescriptionEditTool.tests.js',
 				'tests/qunit/wikibase.ui.LabelEditTool.tests.js',
-				'tests/qunit/wikibase.ui.SiteLinksEditTool.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.tests.js',
-				'tests/qunit/wikibase.ui.PropertyEditTool.EditableAliases.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableDescription.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableLabel.tests.js',
-				'tests/qunit/wikibase.ui.PropertyEditTool.EditableSiteLink.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.tests.js',
 				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.Interface.tests.js',
-				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.SiteIdInterface.tests.js',
-				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.SitePageInterface.tests.js',
-				'tests/qunit/wikibase.ui.PropertyEditTool.EditableValue.ListInterface.tests.js',
 
 				'tests/qunit/wikibase.utilities/wikibase.utilities.ClaimGuidGenerator.tests.js',
 				'tests/qunit/wikibase.utilities/wikibase.utilities.GuidGenerator.tests.js',
@@ -109,11 +102,6 @@ final class LibHooks {
 
 				'tests/qunit/jquery.wikibase/jquery.wikibase.entityselector.tests.js',
 				'tests/qunit/jquery.wikibase/jquery.wikibase.siteselector.tests.js',
-				'tests/qunit/jquery.wikibase/toolbar/toolbarbutton.tests.js',
-				'tests/qunit/jquery.wikibase/toolbar/toolbarlabel.tests.js',
-
-				'tests/qunit/jquery.wikibase/toolbar/toolbar.tests.js',
-				'tests/qunit/jquery.wikibase/toolbar/toolbareditgroup.tests.js',
 			),
 			'dependencies' => array(
 				'wikibase.tests.qunit.testrunner',
@@ -130,13 +118,20 @@ final class LibHooks {
 				'wikibase.ui.PropertyEditTool',
 				'jquery.ui.suggester',
 				'jquery.wikibase.entityselector',
-				'jquery.wikibase.toolbar',
-				'jquery.wikibase.toolbareditgroup',
 				'jquery.NativeEventHandler',
 				'jquery.client',
 				'jquery.event.special.eachchange',
 				'util.inherit',
 			)
+		);
+
+		$testModules['qunit']['jquery.wikibase.aliasesview.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/jquery.wikibase/jquery.wikibase.aliasesview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.aliasesview'
+			),
 		);
 
 		$testModules['qunit']['jquery.wikibase.claimgrouplabelscroll.tests'] = $moduleBase + array(
@@ -176,13 +171,12 @@ final class LibHooks {
 			),
 		);
 
-		$testModules['qunit']['jquery.wikibase.movetoolbar.tests'] = $moduleBase + array(
+		$testModules['qunit']['jquery.wikibase.pagesuggester.tests'] = $moduleBase + array(
 			'scripts' => array(
-				'tests/qunit/jquery.wikibase/toolbar/movetoolbar.tests.js',
+				'tests/qunit/jquery.wikibase/jquery.wikibase.pagesuggester.tests.js'
 			),
 			'dependencies' => array(
-				'jquery.wikibase.movetoolbar',
-				'jquery.wikibase.listview',
+				'jquery.wikibase.pagesuggester',
 			),
 		);
 
@@ -201,6 +195,42 @@ final class LibHooks {
 				'wikibase.store.EntityStore',
 				'wikibase.ValueViewBuilder',
 				'valueFormatters'
+			),
+		);
+
+		$testModules['qunit']['jquery.wikibase.sitelinkgroupview.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/jquery.wikibase/jquery.wikibase.sitelinkgroupview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.sitelinkgroupview',
+				'wikibase.datamodel',
+				'wikibase.store.EntityStore',
+				'wikibase.tests.qunit.testrunner',
+			),
+		);
+
+		$testModules['qunit']['jquery.wikibase.sitelinkview.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/jquery.wikibase/jquery.wikibase.sitelinkview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.sitelinkview',
+				'wikibase.datamodel',
+				'wikibase.store.EntityStore',
+				'wikibase.tests.qunit.testrunner',
+			),
+		);
+
+		$testModules['qunit']['jquery.wikibase.sitelinklistview.tests'] = $moduleBase + array(
+			'scripts' => array(
+				'tests/qunit/jquery.wikibase/jquery.wikibase.sitelinklistview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.sitelinklistview',
+				'wikibase.datamodel',
+				'wikibase.store.EntityStore',
+				'wikibase.tests.qunit.testrunner',
 			),
 		);
 
@@ -313,6 +343,11 @@ final class LibHooks {
 				'test.sinonjs',
 				'wikibase.ValueViewBuilder'
 			)
+		);
+
+		$testModules['qunit'] = array_merge(
+			$testModules['qunit'],
+			include( __DIR__ . '/tests/qunit/jquery.wikibase/toolbar/resources.php' )
 		);
 
 		return true;

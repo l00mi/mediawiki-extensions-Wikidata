@@ -35,11 +35,12 @@ return call_user_func( function() {
 				'Item.js',
 				'Property.js',
 				'Reference.js',
+				'SiteLink.js',
 				'SnakList.js',
 				'Statement.js',
 			),
 			'dependencies' => array(
-				// Used by wikibase.EntityId
+
 				'mw.ext.dataValues', // DataValues extension
 
 				'util.inherit',
@@ -102,9 +103,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'mw.ext.dataValues', // DataValues extension
-
-				'util.inherit',
-
 				'wikibase.datamodel.__namespace',
 			)
 		),

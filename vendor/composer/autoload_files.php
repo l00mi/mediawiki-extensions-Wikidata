@@ -17,10 +17,10 @@ return array(
     $vendorDir . '/data-values/number/Number.php',
     $vendorDir . '/data-values/geo/Geo.php',
     $vendorDir . '/wikibase/data-model-javascript/init.mw.php',
+    $vendorDir . '/wikibase/serialization-javascript/init.mw.php',
+    $baseDir . '/extensions/ValueView/ValueView.php',
     $vendorDir . '/data-values/data-types/DataTypes.php',
     $vendorDir . '/data-values/validators/Validators.php',
-    $baseDir . '/extensions/ValueView/ValueView.php',
-    $vendorDir . '/wikibase/serialization-javascript/init.mw.php',
     $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
     $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
 );

@@ -26,7 +26,11 @@ return call_user_func( function() {
 		// common styles independent from JavaScript being enabled or disabled
 		'wikibase.common' => $moduleTemplate + array(
 			'styles' => array(
+				// Order must be hierarchical, do not order alphabetically
 				'wikibase.css',
+				'jquery.wikibase/themes/default/jquery.wikibase.aliasesview.css',
+				'jquery.wikibase/themes/default/jquery.wikibase.sitelinklistview.css',
+				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkview.css',
 			)
 		),
 
@@ -296,18 +300,10 @@ return call_user_func( function() {
 				'wikibase.ui.PropertyEditTool.js',
 				'wikibase.ui.PropertyEditTool.EditableValue.js',
 				'wikibase.ui.PropertyEditTool.EditableValue.Interface.js',
-				'wikibase.ui.PropertyEditTool.EditableValue.SitePageInterface.js',
-				'wikibase.ui.PropertyEditTool.EditableValue.SiteIdInterface.js',
-				'wikibase.ui.PropertyEditTool.EditableValue.ListInterface.js',
-				'wikibase.ui.PropertyEditTool.EditableValue.AliasesInterface.js',
 				'wikibase.ui.PropertyEditTool.EditableDescription.js',
 				'wikibase.ui.PropertyEditTool.EditableLabel.js',
-				'wikibase.ui.PropertyEditTool.EditableSiteLink.js',
-				'wikibase.ui.PropertyEditTool.EditableAliases.js',
 				'wikibase.ui.LabelEditTool.js',
 				'wikibase.ui.DescriptionEditTool.js',
-				'wikibase.ui.SiteLinksEditTool.js',
-				'wikibase.ui.AliasesEditTool.js',
 			),
 			'styles' => array(
 				'wikibase.ui.PropertyEditTool.css'
@@ -316,12 +312,8 @@ return call_user_func( function() {
 				'jquery.event.special.eachchange',
 				'jquery.NativeEventHandler',
 				'jquery.inputautoexpand',
-				'jquery.tablesorter',
-				'jquery.ui.suggester',
 				'util.inherit',
-				'jquery.wikibase.entityselector',
 				'jquery.wikibase.toolbareditgroup',
-				'jquery.wikibase.siteselector',
 				'mediawiki.api',
 				'mediawiki.util',
 				'mediawiki.language',
@@ -330,7 +322,6 @@ return call_user_func( function() {
 				'wikibase',
 				'wikibase.RepoApiError',
 				'wikibase.templates',
-				'wikibase.sites',
 				'wikibase.ui.Base',
 				'wikibase.utilities',
 				'wikibase.utilities.jQuery',
@@ -346,19 +337,11 @@ return call_user_func( function() {
 				'wikibase-aliases-label',
 				'wikibase-aliases-input-help-message',
 				'wikibase-alias-edit-placeholder',
-				'wikibase-sitelink-site-edit-placeholder',
-				'wikibase-sitelink-page-edit-placeholder',
 				'wikibase-label-input-help-message',
 				'wikibase-description-input-help-message',
-				'wikibase-sitelinks-input-help-message',
-				'wikibase-sitelinks-sitename-columnheading',
-				'wikibase-sitelinks-sitename-columnheading-special',
-				'wikibase-sitelinks-siteid-columnheading',
-				'wikibase-sitelinks-link-columnheading',
 				'wikibase-propertyedittool-full',
 				'wikibase-propertyedittool-counter-pending-tooltip',
 				'wikibase-propertyedittool-counter-entrieslabel',
-				'wikibase-sitelinksedittool-full',
 				'wikibase-error-save-generic',
 				'wikibase-error-remove-generic',
 				'wikibase-error-save-connection',
@@ -374,7 +357,6 @@ return call_user_func( function() {
 				'wikibase-error-ui-link-exists',
 				'wikibase-error-ui-session-failure',
 				'wikibase-error-ui-edit-conflict',
-				'wikibase-add-badges',
 				'parentheses',
 			)
 		),
@@ -486,6 +468,97 @@ return call_user_func( function() {
 			)
 		),
 
+		'jquery.wikibase.aliasesview' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase/jquery.wikibase.aliasesview.js'
+			),
+			'styles' => array(
+				'jquery.wikibase/themes/default/jquery.wikibase.aliasesview.css',
+			),
+			'dependencies' => array(
+				'jquery.inputautoexpand',
+				'jquery.ui.TemplatedWidget',
+				'jquery.wikibase.edittoolbar',
+				'jquery.wikibase.toolbarcontroller',
+				'wikibase.RepoApiError',
+				'wikibase.templates',
+				'wikibase.utilities.jQuery.ui.tagadata',
+			),
+			'messages' => array(
+				'wikibase-aliases-label'
+			),
+		),
+
+		'jquery.wikibase.sitelinkgroupview' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase/jquery.wikibase.sitelinkgroupview.js'
+			),
+			'dependencies' => array(
+				'jquery.ui.TemplatedWidget',
+				'jquery.wikibase.sitelinklistview',
+				'wikibase.sites',
+			),
+		),
+
+		'jquery.wikibase.sitelinklistview' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase/jquery.wikibase.sitelinklistview.js'
+			),
+			'styles' => array(
+				'jquery.wikibase/themes/default/jquery.wikibase.sitelinklistview.css',
+			),
+			'dependencies' => array(
+				'jquery.event.special.eachchange',
+				'jquery.tablesorter',
+				'jquery.ui.TemplatedWidget',
+				'jquery.wikibase.addtoolbar',
+				'jquery.wikibase.edittoolbar',
+				'jquery.wikibase.listview',
+				'jquery.wikibase.sitelinkview',
+				'jquery.wikibase.toolbarcontroller',
+				'wikibase',
+				'wikibase.datamodel',
+				'wikibase.RepoApiError',
+				'wikibase.templates',
+				'wikibase.utilities', // wikibase.utilities.ui
+			),
+			'messages' => array(
+				'parentheses',
+				'wikibase-propertyedittool-counter-entrieslabel',
+				'wikibase-propertyedittool-counter-pending-tooltip',
+				'wikibase-sitelink-site-edit-placeholder',
+				'wikibase-sitelink-page-edit-placeholder',
+				'wikibase-sitelinks-sitename-columnheading',
+				'wikibase-sitelinks-sitename-columnheading-special',
+				'wikibase-sitelinks-siteid-columnheading',
+				'wikibase-sitelinks-link-columnheading',
+				'wikibase-sitelinksedittool-full',
+			)
+		),
+
+		'jquery.wikibase.sitelinkview' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase/jquery.wikibase.sitelinkview.js'
+			),
+			'styles' => array(
+				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkview.css',
+			),
+			'dependencies' => array(
+				'jquery.ui.TemplatedWidget',
+				'jquery.wikibase.pagesuggester',
+				'jquery.wikibase.siteselector',
+				'jquery.wikibase.toolbarcontroller',
+				'mediawiki.util',
+				'wikibase.datamodel',
+				'wikibase.sites',
+				'wikibase.templates',
+			),
+			'messages' => array(
+				'wikibase-add-badges',
+				'wikibase-sitelinks-input-help-message',
+			),
+		),
+
 		'jquery.wikibase.siteselector' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.wikibase/jquery.wikibase.siteselector.js'
@@ -495,6 +568,16 @@ return call_user_func( function() {
 				'jquery.ui.ooMenu',
 				'jquery.ui.suggester',
 			)
+		),
+
+		'jquery.wikibase.pagesuggester' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase/jquery.wikibase.pagesuggester.js',
+			),
+			'dependencies' => array(
+				'jquery.ui.suggester',
+				'wikibase.sites',
+			),
 		),
 
 		'jquery.wikibase.listview' => $moduleTemplate + array(

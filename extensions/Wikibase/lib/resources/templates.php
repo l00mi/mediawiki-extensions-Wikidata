@@ -56,11 +56,6 @@ HTML;
 <h2 class="wb-section-heading" dir="auto" id="$2">$1</h2>
 HTML;
 
-	$templates['wb-section-heading-sitelinks'] =
-<<<HTML
-<h2 class="wb-section-heading wb-sitelinks-heading" dir="auto" id="$2">$1</h2>
-HTML;
-
 	$templates['wb-claimgrouplistview'] =
 <<<HTML
 <div class="wb-claimgrouplistview">
@@ -195,24 +190,20 @@ HTML;
 <span class="wb-value-supplement">$1</span>
 HTML;
 
-	$templates['wb-aliases-wrapper'] =
+	$templates['wikibase-aliasesview'] =
 <<<HTML
-<div class="wb-aliases $1">
-	<div class="wb-gridhelper">
-		<span class="wb-aliases-label $2">$3</span>
-		$4
+<div class="wikibase-aliasesview $1">
+	<div class="wikibase-aliasesview-container">
+		<span class="wikibase-aliasesview-label">$2</span>
+		<ul class="wikibase-aliasesview-list">$3</ul>
+		<!-- wb-toolbar -->$4
 	</div>
 </div>
 HTML;
 
-	$templates['wb-aliases'] =
+	$templates['wikibase-aliasesview-list-item'] =
 <<<HTML
-<ul class="wb-aliases-container">$1</ul>
-HTML;
-
-	$templates['wb-alias'] =
-<<<HTML
-<li class="wb-aliases-alias">$1</li>
+<li class="wikibase-aliasesview-list-item">$1</li>
 HTML;
 
 	$templates['wb-editsection'] =
@@ -261,83 +252,94 @@ HTML;
 // $1: language-code
 	$templates['wb-term'] =
 <<<HTML
-<tr class="wb-terms-label wb-terms-$1 $2">
-	<td class="wb-terms-language wb-terms-language-$1" rowspan="2"><a href="$10">$3</a><!-- language name --></td>
-	<td class="wb-terms-label wb-terms-label-$1 wb-value wb-value-lang-$1 $8">$4<!-- label --></td>
-	<td class="wb-editsection">$6<!-- label toolbar --></td>
+<tr class="wb-terms-label wb-terms-$1">
+	<td class="wb-terms-language wb-terms-language-$1" rowspan="2"><a href="$9">$2</a><!-- language name --></td>
+	<td class="wb-terms-label wb-terms-label-$1 wb-value wb-value-lang-$1 $7">$3<!-- label --></td>
+	<td class="wb-editsection">$5<!-- label toolbar --></td>
 </tr>
-<tr class="wb-terms-description wb-terms-$1 $2">
-	<td class="wb-terms-description wb-terms-description-$1 wb-value wb-value-lang-$1 $9">$5<!-- description --></td>
-	<td class="wb-editsection">$7<!-- description toolbar --></td>
+<tr class="wb-terms-description wb-terms-$1">
+	<td class="wb-terms-description wb-terms-description-$1 wb-value wb-value-lang-$1 $8">$4<!-- description --></td>
+	<td class="wb-editsection">$6<!-- description toolbar --></td>
 </tr>
 HTML;
 
-	$templates['wb-sitelinks-table'] =
+	$templates['wikibase-sitelinkgroupview'] =
 <<<HTML
-<table class="wb-sitelinks" data-wb-sitelinks-group="$4">
+<div class="wikibase-sitelinkgroupview" data-wb-sitelinks-group="$5">
+	<h2 class="wb-section-heading wikibase-sitelinkgroupview-heading" dir="auto" id="$1">
+		$2<span class="wikibase-sitelinkgroupview-counter">$3</span>
+	</h2>
+	<!-- wikibase-sitelinklistview -->$4
+</div>
+HTML;
+
+	$templates['wikibase-sitelinklistview'] =
+<<<HTML
+<table class="wikibase-sitelinklistview">
 	<colgroup>
-		<col class="wb-sitelinks-sitename" />
-		<col class="wb-sitelinks-siteid" />
-		<col class="wb-sitelinks-link" />
+		<col class="wikibase-sitelinklistview-sitename" />
+		<col class="wikibase-sitelinklistview-siteid" />
+		<col class="wikibase-sitelinklistview-link" />
 		<col class="wb-editsection" />
 	</colgroup>
 	<thead>
-		$1 <!-- wb-sitelinks-thead -->
+		<!-- wikibase-sitelinklist-thead -->$1
 	</thead>
 	<tbody>
-		$2 <!-- [0,*] wb-sitelink -->
+		<!-- [0,*] wikibase-sitelinkview -->$2
 	</tbody>
 	<tfoot>
-		$3 <!-- wb-sitelinks-tfoot -->
+		<!-- wikibase-sitelinklistview-tfoot -->$3
 	</tfoot>
 </table>
 HTML;
 
-	$templates['wb-sitelinks-thead'] =
+	$templates['wikibase-sitelinklistview-thead'] =
 <<<HTML
-<tr class="wb-sitelinks-columnheaders">
-	<th class="wb-sitelinks-sitename">$1</th>
-	<th class="wb-sitelinks-siteid">$2</th>
-	<th class="wb-sitelinks-link">$3</th>
+<tr class="wikibase-sitelinklistview-columnheaders">
+	<th class="wikibase-sitelinkview-sitename">$1</th>
+	<th class="wikibase-sitelinkview-siteid">$2</th>
+	<th class="wikibase-sitelinkview-link">$3</th>
 	<th class="unsortable"></th>
 </tr>
 HTML;
 
-	$templates['wb-sitelinks-tfoot'] =
+	$templates['wikibase-sitelinklistview-tfoot'] =
 <<<HTML
 <tr>
-	<td colspan="3" class="wb-sitelinks-placeholder">$1</td>
+	<td colspan="3" class="wikibase-sitelinklistview-placeholder">$1</td>
 	$2 <!-- wb-editsection( param1: 'td' ) -->
 </tr>
 HTML;
 
-	$templates['wb-sitelink'] =
+	$templates['wikibase-sitelinkview'] =
 <<<HTML
-<tr class="wb-sitelinks-$8 $2">
-	<td class="wb-sitelinks-sitename wb-sitelinks-sitename-$8" lang="$1" dir="auto">$3</td>
-	<td class="wb-sitelinks-siteid wb-sitelinks-siteid-$8">$4</td>
-	<td class="wb-sitelinks-link wb-sitelinks-link-$8" lang="$1"><span class="wb-sitelinks-badges">$9</span><span class="wb-sitelinks-page"><a href="$5" hreflang="$1" dir="auto">$6</a></span></td>
+<tr class="wikibase-sitelinkview wikibase-sitelinkview-$1" data-wb-siteid="$1">
+	<td class="wikibase-sitelinkview-sitename wikibase-sitelinkview-sitename-$1" lang="$2" dir="$3">$4</td>
+	<td class="wikibase-sitelinkview-siteid wikibase-sitelinkview-siteid-$1">$5</td>
+	<td class="wikibase-sitelinkview-link wikibase-sitelinkview-link-$1" lang="$2" dir="$3"><!-- wikibase-sitelinkview-pagename -->$6</td>
 	$7
 </tr>
 HTML;
 
-	$templates['wb-sitelink-unknown'] =
+	$templates['wikibase-sitelinkview-pagename'] =
 <<<HTML
-<tr class="wb-sitelinks-site-unknown $1">
-	<td class="wb-sitelinks-sitename wb-sitelinks-sitename-unknown"></td>
-	<td class="wb-sitelinks-siteid wb-sitelinks-siteid-unknown">$2</td>
-	<td class="wb-sitelinks-link wb-sitelinks-link-unknown">$3</td>
+	<span class="wikibase-sitelinkview-badges">$3</span><span class="wikibase-sitelinkview-page"><a href="$1" hreflang="$4" dir="$5">$2</a></span>
+HTML;
+
+	$templates['wikibase-sitelinkview-unknown'] =
+<<<HTML
+<tr class="wikibase-sitelinkview-site-unknown">
+	<td class="wikibase-sitelinkview-sitename wikibase-sitelinkview-sitename-unknown"></td>
+	<td class="wikibase-sitelinkview-siteid wikibase-sitelinkview-siteid-unknown">$2</td>
+	<td class="wikibase-sitelinkview-link wikibase-sitelinkview-link-unknown">$3</td>
 	$4
 </tr>
 HTML;
 
-	$templates['wb-sitelink-new'] =
+	$templates['wb-badge'] =
 <<<HTML
-<tr>
-	<td colspan="2" class="wb-sitelinks-sitename"></td>
-	<td class="wb-sitelinks-link"><span class="wb-sitelinks-badges"></span><span class="wb-sitelinks-page"></span></td>
-	<td></td><!-- cell for toolbar -->
-</tr>
+<span class="wb-badge wb-badge-$1" title="$2"></span>
 HTML;
 
 	$templates['wb-property-datatype'] =

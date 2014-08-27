@@ -11,6 +11,11 @@
 	 * @since 0.2
 	 *
 	 * @example $( 'input' ).siteselector( { source: <{wb.Site[]}> } );
+	 *
+	 * @event selected
+	 *        Triggered whenever a site is selected or de-selected.
+	 *        (1) {jQuery.Event}
+	 *        (2) {string|null}
 	 */
 	$.widget( 'wikibase.siteselector', $.ui.suggester, {
 		/**
@@ -52,7 +57,7 @@
 					if( self.options.menu.element.is( ':visible' ) ) {
 						self._selectFirstSite();
 					} else {
-						self._trigger( 'selected', [null] );
+						self._trigger( 'selected', null, [null] );
 					}
 				} );
 			} )
@@ -73,20 +78,24 @@
 		 * Implicitly selects the first site from the suggested sites.
 		 */
 		_selectFirstSite: function() {
-			if( this._selectedSite ) {
-				// No need to select "fall-back" since a site is selected specifically.
-				return;
-			}
-
 			var menu = this.options.menu,
 				menuItems = menu.option( 'items' );
 
 			if( menuItems.length > 0 && menu.element.is( ':visible' ) ) {
 				this.options.menu.activate( menuItems[0] );
+
+				if( this._selectedSite && this._selectedSite === menuItems[0].getSite() ) {
+					return;
+				}
+
 				this._selectedSite = menuItems[0].getSite();
 			}
 
-			this._trigger( 'selected', [menuItems[0]] );
+			this._trigger(
+				'selected',
+				null,
+				menuItems.length ? [menuItems[0].getSite().getId()] : null
+			);
 		},
 
 		/**
@@ -103,10 +112,14 @@
 			.on( 'selected.siteselector', function( event, item ) {
 				if( item instanceof $.wikibase.siteselector.Item ) {
 					self._selectedSite  = item.getSite();
+					self.element.val( self._createItemLabel( self._selectedSite ) );
+					self._trigger( 'selected', null, [self._selectedSite.getId()] );
 				}
 			} )
 			.on( 'blur.siteselector', function() {
-				if( self.element.val() !== '' ) {
+				if( self._selectedSite ) {
+					self.element.val( self._createItemLabel( self._selectedSite ) );
+				} else if( self.element.val() !== '' ) {
 					self._selectFirstSite();
 				}
 			} );
@@ -149,28 +162,6 @@
 		},
 
 		/**
-		 * @see jQuery.ui.suggester._search
-		 */
-/*		_search: function( event ) {
-			var deferred = $.Deferred();
-
-			this._term = this.element.val();
-
-			if( this._term.length < 1 ) {
-				this._close();
-				return deferred.resolve( [], this._term ).promise();
-			}
-
-			this.element.addClass( 'ui-suggester-loading' );
-			this._pending++;
-
-			var suggestions = this._getSuggestions( this._term );
-			this._handleSuggestions( suggestions );
-
-			return deferred.resolve( suggestions );
-		},
-*/
-		/**
 		 * @see jQuery.ui.suggester._getSuggestionsFromArray
 		 */
 		_getSuggestionsFromArray: function( term, source ) {
@@ -205,8 +196,18 @@
 		 * @see jQuery.ui.suggester._getSuggestionsFromArray
 		 */
 		_createMenuItemFromSuggestion: function( suggestion ) {
-			var value = suggestion.getShortName() + ' (' + suggestion.getId() + ')';
+			var value = this._createItemLabel( suggestion );
 			return new $.wikibase.siteselector.Item( value, value, suggestion );
+		},
+
+		/**
+		 * Creates the label of a suggestion item.
+		 *
+		 * @param {wikibase.Site} site
+		 * @return {string}
+		 */
+		_createItemLabel: function( site ) {
+			return site.getShortName() + ' (' + site.getId() + ')';
 		},
 
 		/**

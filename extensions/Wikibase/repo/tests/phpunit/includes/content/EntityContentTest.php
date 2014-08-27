@@ -8,16 +8,14 @@ use IContextSource;
 use ParserOptions;
 use RequestContext;
 use Title;
-use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Entity;
-use Wikibase\DataModel\Term\Term;
-use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\DataModel\Entity\EntityDiff;
-use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Term\Term;
 use Wikibase\EntityContent;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageWithConversion;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\WikibaseRepo;
@@ -116,8 +114,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * Tests @see Wikibase\Entity::getTextForSearchIndex
-	 *
 	 * @dataProvider getTextForSearchIndexProvider
 	 *
 	 * @param EntityContent $entityContent
@@ -509,4 +505,5 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 			$this->assertNotNull( $content->getRedirectTarget() );
 		}
 	}
+
 }

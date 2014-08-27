@@ -11,8 +11,8 @@ use SpecialPage;
 use Title;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\EntityFactory;
-use Wikibase\Item;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\LinkedData\EntityDataRequestHandler;
@@ -78,7 +78,7 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 
 		$entityRevisionLookup = $mockRepo;
 
-		$titleLookup = $this->getMock( 'Wikibase\EntityTitleLookup' );
+		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
 		$titleLookup->expects( $this->any() )
 			->method( 'getTitleForId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
@@ -191,4 +191,5 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 			$this->assertRegExp( $expRegExp, $e->getHTML(), "error output" );
 		}
 	}
+
 }

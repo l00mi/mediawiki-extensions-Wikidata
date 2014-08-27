@@ -12,6 +12,8 @@ use Html;
 use IContextSource;
 use MWException;
 use SiteStore;
+use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Lib\Store\EntityTitleLookup;
 
 /**
  * Class for generating views of DiffOp objects.
@@ -47,6 +49,11 @@ class DiffView extends ContextSource {
 	private $diff;
 
 	/**
+	 * @var EntityTitleLookup
+	 */
+	private $entityTitleLookup;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 0.1
@@ -54,12 +61,20 @@ class DiffView extends ContextSource {
 	 * @param string[] $path
 	 * @param Diff $diff
 	 * @param SiteStore $siteStore
+	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param IContextSource|null $contextSource
 	 */
-	public function __construct( array $path, Diff $diff, SiteStore $siteStore, IContextSource $contextSource = null ) {
+	public function __construct(
+		array $path,
+		Diff $diff,
+		SiteStore $siteStore,
+		EntityTitleLookup $entityTitleLookup,
+		IContextSource $contextSource = null
+	) {
 		$this->path = $path;
 		$this->diff = $diff;
 		$this->siteStore = $siteStore;
+		$this->entityTitleLookup = $entityTitleLookup;
 
 		if ( !is_null( $contextSource ) ) {
 			$this->setContext( $contextSource );
@@ -159,14 +174,7 @@ class DiffView extends ContextSource {
 	 * @return string
 	 */
 	private function getDeletedLine( $value, array $path ) {
-		// @todo: inject a formatter instead of doing special cases based on the path here!
-		if ( $path[0] === $this->getLanguage()->getMessage( 'wikibase-diffview-link' ) ) {
-			return Html::rawElement( 'del', array( 'class' => 'diffchange diffchange-inline' ),
-				$this->getSiteLinkElement( $path[1], $value )
-			);
-		} else {
-			return Html::element( 'del', array( 'class' => 'diffchange diffchange-inline' ), $value );
-		}
+		return $this->getChangedLine( 'del', $value, $path );;
 	}
 
 	/**
@@ -175,14 +183,26 @@ class DiffView extends ContextSource {
 	 * @return string
 	 */
 	private function getAddedLine( $value, array $path ) {
+		return $this->getChangedLine( 'ins', $value, $path );
+	}
+
+	/**
+	 * @param string $tag
+	 * @param string $value
+	 * @param string[] $path
+	 * @return string
+	 */
+	private function getChangedLine( $tag, $value, array $path ) {
 		// @todo: inject a formatter instead of doing special cases based on the path here!
 		if ( $path[0] === $this->getLanguage()->getMessage( 'wikibase-diffview-link' ) ) {
-			return Html::rawElement( 'ins', array( 'class' => 'diffchange diffchange-inline' ),
-				$this->getSiteLinkElement( $path[1], $value )
-			);
-		} else {
-			return Html::element( 'ins', array( 'class' => 'diffchange diffchange-inline' ), $value );
+			if ( $path[2] === 'badges' ) {
+				$value = $this->getBadgeLinkElement( $value );
+			} else {
+				$value = $this->getSiteLinkElement( $path[1], $value );
+			}
+			return Html::rawElement( $tag, array( 'class' => 'diffchange diffchange-inline' ), $value );
 		}
+		return Html::element( $tag, array( 'class' => 'diffchange diffchange-inline' ), $value );
 	}
 
 	/**
@@ -199,6 +219,25 @@ class DiffView extends ContextSource {
 			'hreflang' => $site->getLanguageCode(),
 			'dir' => 'auto',
 		), $pageName );
+	}
+
+	/**
+	 * @param string $badgeId
+	 *
+	 * @return string
+	 */
+	private function getBadgeLinkElement( $badgeId ) {
+		try {
+			$title = $this->entityTitleLookup->getTitleForId( new ItemId( $badgeId ) );
+		} catch ( MWException $ex ) {
+			wfWarn( "Couldn't get Title for badge $badgeId" );
+			return $badgeId;
+		}
+
+		return Html::element( 'a', array(
+			'href' => $title->getLinkURL(),
+			'dir' => 'auto',
+		), $badgeId );
 	}
 
 	/**

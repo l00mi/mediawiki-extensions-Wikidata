@@ -14,7 +14,9 @@ use Title;
 use User;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
+use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\StorageException;
+use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
 
@@ -790,12 +792,7 @@ class EditEntity {
 			}
 		}
 
-		/**
-		 * @var Entity $entity
-		 */
-		$entity = $this->getNewEntity();
-		$baseRev = $this->getBaseRevision();
-		$base = $baseRev === null ? null : $baseRev->getEntity();
+		$this->getBaseRevision();
 
 		return $this->status;
 	}

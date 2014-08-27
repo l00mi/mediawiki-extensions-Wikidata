@@ -4,17 +4,17 @@ namespace Wikibase\Test;
 
 use DataValues\StringValue;
 use Title;
-use Wikibase\Claim;
 use Wikibase\ClaimHtmlGenerator;
+use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\EntityTitleLookup;
+use Wikibase\DataModel\Reference;
+use Wikibase\DataModel\ReferenceList;
+use Wikibase\DataModel\Snak\PropertySomeValueSnak;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\Lib\DispatchingSnakFormatter;
-use Wikibase\PropertySomeValueSnak;
-use Wikibase\PropertyValueSnak;
-use Wikibase\Reference;
-use Wikibase\ReferenceList;
-use Wikibase\SnakList;
-use Wikibase\Statement;
+use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\View\SnakHtmlGenerator;
 
 /**
@@ -61,7 +61,7 @@ class ClaimHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 	 * @return EntityTitleLookup
 	 */
 	protected function getEntityTitleLookupMock() {
-		$lookup = $this->getMock( 'Wikibase\EntityTitleLookup' );
+		$lookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
 		$lookup->expects( $this->any() )
 			->method( 'getTitleForId' )
 			->will( $this->returnCallback( array( $this, 'getTitleForId' ) ) );

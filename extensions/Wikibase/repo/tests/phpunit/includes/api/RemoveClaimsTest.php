@@ -89,6 +89,8 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 	 * @param Entity $entity
 	 */
 	public function doTestValidRequestSingle( Entity $entity ) {
+		$obtainedClaims = null;
+
 		/**
 		 * @var Claim[] $claims
 		 */
@@ -106,7 +108,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 			$this->assertTrue( $obtainedClaims->getHash() === $currentClaims->getHash() );
 		}
 
-		$this->assertTrue( $obtainedClaims->isEmpty() );
+		$this->assertTrue( $obtainedClaims === null || $obtainedClaims->isEmpty() );
 	}
 
 	/**
@@ -172,7 +174,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 	/**
 	 * @param string $type
 	 *
-	 * @return \Wikibase\Property
+	 * @return Property
 	 */
 	protected function getNewProperty( $type ) {
 		$property = Property::newFromType( $type );

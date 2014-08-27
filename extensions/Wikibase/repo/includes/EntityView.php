@@ -6,12 +6,15 @@ use ContextSource;
 use Html;
 use IContextSource;
 use InvalidArgumentException;
-use Linker;
 use ParserOutput;
+use Wikibase\DataModel\SiteLinkList;
 use Wikibase\Lib\PropertyDataTypeLookup;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
+use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\View\ClaimsView;
+use Wikibase\Repo\View\FingerprintView;
 use Wikibase\Repo\View\SectionEditLinkGenerator;
 use Wikibase\Repo\View\SnakHtmlGenerator;
 use Wikibase\Repo\View\TextInjector;
@@ -29,6 +32,7 @@ use Wikibase\Repo\View\TextInjector;
  * @author H. Snater < mediawiki at snater.com >
  * @author Daniel Werner
  * @author Daniel Kinzler
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 abstract class EntityView extends ContextSource {
 
@@ -63,9 +67,14 @@ abstract class EntityView extends ContextSource {
 	protected $configBuilder;
 
 	/**
-	 * @var ClaimHtmlGenerator
+	 * @var ClaimsView
 	 */
-	protected $claimHtmlGenerator;
+	protected $claimsView;
+
+	/**
+	 * @var FingerprintView
+	 */
+	protected $fingerprintView;
 
 	/**
 	 * Maps entity types to the corresponding entity view.
@@ -73,7 +82,7 @@ abstract class EntityView extends ContextSource {
 	 *
 	 * @since 0.2
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	public static $typeMap = array(
 		Item::ENTITY_TYPE => '\Wikibase\ItemView',
@@ -129,9 +138,22 @@ abstract class EntityView extends ContextSource {
 			$entityTitleLookup
 		);
 
-		$this->claimHtmlGenerator = new ClaimHtmlGenerator(
+		$claimHtmlGenerator = new ClaimHtmlGenerator(
 			$snakHtmlGenerator,
 			$entityTitleLookup
+		);
+
+		$this->claimsView =  new ClaimsView(
+			$entityInfoBuilderFactory,
+			$entityTitleLookup,
+			$this->sectionEditLinkGenerator,
+			$claimHtmlGenerator,
+			$this->getLanguage()->getCode()
+		);
+
+		$this->fingerprintView = new FingerprintView(
+			$this->sectionEditLinkGenerator,
+			$this->getLanguage()->getCode()
 		);
 	}
 
@@ -146,7 +168,7 @@ abstract class EntityView extends ContextSource {
 	 * Returns the placeholder map build while generating HTML.
 	 * The map returned here may be used with TextInjector.
 	 *
-	 * @return array string -> array
+	 * @return array[] string -> array
 	 */
 	public function getPlaceholders() {
 		return $this->textInjector->getMarkers();
@@ -217,10 +239,10 @@ if ( $ ) {
 	 * Builds and returns the inner HTML for representing a whole WikibaseEntity. The difference to getHtml() is that
 	 * this does not group all the HTMl within one parent node as one entity.
 	 *
-	 * @string
-	 *
 	 * @param EntityRevision $entityRevision
 	 * @param bool $editable
+	 *
+	 * @throws InvalidArgumentException
 	 * @return string
 	 */
 	public function getInnerHtml( EntityRevision $entityRevision, $editable = true ) {
@@ -229,23 +251,27 @@ if ( $ ) {
 		$entity = $entityRevision->getEntity();
 
 		$html = '';
-
-		$html .= $this->getHtmlForLabel( $entity, $editable );
-		$html .= $this->getHtmlForDescription( $entity, $editable );
-
-		$html .= wfTemplate( 'wb-entity-header-separator' );
-
-		$html .= $this->getHtmlForAliases( $entity, $editable );
+		$html .= $this->getHtmlForFingerprint( $entity, $editable );
 		$html .= $this->getHtmlForToc();
 		$html .= $this->getHtmlForTermBox( $entityRevision, $editable );
-		$html .= $this->getHtmlForClaims( $entity, $editable );
 
 		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 
 	/**
-	 * Builds and returns the html for the toc.
+	 * Builds and returns the HTML for the entity's fingerprint.
+	 *
+	 * @param Entity $entity
+	 * @param bool $editable
+	 * @return string
+	 */
+	protected function getHtmlForFingerprint( Entity $entity, $editable = true ) {
+		return $this->fingerprintView->getHtml( $entity->getFingerprint(), $entity->getId(), $editable );
+	}
+
+	/**
+	 * Builds and returns the HTML for the toc.
 	 *
 	 * @return string
 	 */
@@ -285,7 +311,7 @@ if ( $ ) {
 	/**
 	 * Returns the sections that should displayed in the toc.
 	 *
-	 * @return array( link target => system message key )
+	 * @return string[] array( link target => system message key )
 	 */
 	protected function getTocSections() {
 		return array();
@@ -360,6 +386,10 @@ if ( $ ) {
 			$pout->setExtensionData( 'wikibase-view-chunks', $this->getPlaceholders() );
 		}
 
+		if ( $entity instanceof Item ) {
+			$this->addBadgesToParserOutput( $pout, $entity->getSiteLinkList() );
+		}
+
 		//@todo: record sitelinks as iwlinks
 		//@todo: record CommonsMedia values as imagelinks
 
@@ -385,281 +415,12 @@ if ( $ ) {
 		return $pout;
 	}
 
-	/**
-	 * Builds and returns the HTML representing a WikibaseEntity's label.
-	 *
-	 * @since 0.1
-	 *
-	 * @param Entity $entity the entity to render
-	 * @param bool $editable whether editing is allowed (enabled edit links)
-	 * @return string
-	 */
-	public function getHtmlForLabel( Entity $entity, $editable = true ) {
-		wfProfileIn( __METHOD__ );
-
-		$languageCode = $this->getLanguage()->getCode();
-		$label = $entity->getLabel( $languageCode );
-		$entityId = $entity->getId();
-		$idString = 'new';
-		$supplement = '';
-
-		if ( $entityId !== null ) {
-			$idString = $entityId->getSerialization();
-			$supplement .= wfTemplate( 'wb-property-value-supplement', wfMessage( 'parentheses', $idString ) );
-			if ( $editable ) {
-				$supplement .= $this->getHtmlForEditSection( 'SetLabel', array( $idString, $languageCode ) );
+	private function addBadgesToParserOutput( ParserOutput $pout, SiteLinkList $siteLinkList ) {
+		foreach ( $siteLinkList as $siteLink ) {
+			foreach ( $siteLink->getBadges() as $badge ) {
+				$pout->addLink( $this->entityTitleLookup->getTitleForID( $badge ) );
 			}
 		}
-
-		$html = wfTemplate( 'wb-label',
-			$idString,
-			wfTemplate( 'wb-property',
-				$label === false ? 'wb-value-empty' : '',
-				htmlspecialchars( $label === false ? wfMessage( 'wikibase-label-empty' )->text() : $label ),
-				$supplement
-			)
-		);
-
-		wfProfileOut( __METHOD__ );
-		return $html;
-	}
-
-	/**
-	 * Builds and returns the HTML representing a WikibaseEntity's description.
-	 *
-	 * @since 0.1
-	 *
-	 * @param Entity $entity the entity to render
-	 * @param bool $editable whether editing is allowed (enabled edit links)
-	 * @return string
-	 */
-	public function getHtmlForDescription( Entity $entity, $editable = true ) {
-		wfProfileIn( __METHOD__ );
-
-		$languageCode = $this->getLanguage()->getCode();
-		$description = $entity->getDescription( $languageCode );
-		$entityId = $entity->getId();
-		$editSection = '';
-
-		if ( $entityId !== null && $editable ) {
-			$idString = $entityId->getSerialization();
-			$editSection .= $this->getHtmlForEditSection( 'SetDescription', array( $idString, $languageCode ) );
-		}
-
-		$html = wfTemplate( 'wb-description',
-			wfTemplate( 'wb-property',
-				$description === false ? 'wb-value-empty' : '',
-				htmlspecialchars( $description === false ? wfMessage( 'wikibase-description-empty' )->text() : $description ),
-				$editSection
-			)
-		);
-
-		wfProfileOut( __METHOD__ );
-		return $html;
-	}
-
-	/**
-	 * Builds and returns the HTML representing a WikibaseEntity's aliases.
-	 *
-	 * @since 0.1
-	 *
-	 * @param Entity $entity the entity to render
-	 * @param bool $editable whether editing is allowed (enabled edit links)
-	 * @return string
-	 */
-	public function getHtmlForAliases( Entity $entity, $editable = true ) {
-		wfProfileIn( __METHOD__ );
-
-		$languageCode = $this->getLanguage()->getCode();
-		$aliases = $entity->getAliases( $languageCode );
-		$entityId = $entity->getId();
-		$editSection = '';
-
-		if ( $entityId !== null && $editable ) {
-			$idString = $entityId->getSerialization();
-			$action = empty( $aliases ) ? 'add' : 'edit';
-			$editSection = $this->getHtmlForEditSection( 'SetAliases', array( $idString, $languageCode ), $action );
-		}
-
-		if ( empty( $aliases ) ) {
-			$html = wfTemplate( 'wb-aliases-wrapper',
-				'wb-aliases-empty',
-				'wb-value-empty',
-				wfMessage( 'wikibase-aliases-empty' )->text(),
-				$editSection
-			);
-		} else {
-			$aliasesHtml = '';
-			foreach ( $aliases as $alias ) {
-				$aliasesHtml .= wfTemplate( 'wb-alias', htmlspecialchars( $alias ) );
-			}
-			$aliasList = wfTemplate( 'wb-aliases', $aliasesHtml );
-
-			$html = wfTemplate( 'wb-aliases-wrapper',
-				'',
-				'',
-				wfMessage( 'wikibase-aliases-label' )->text(),
-				$aliasList . $editSection
-			);
-		}
-
-		wfProfileOut( __METHOD__ );
-		return $html;
-	}
-
-	/**
-	 * Returns the HTML for the heading of the claims section
-	 *
-	 * @since 0.5
-	 *
-	 * @param Entity $entity
-	 * @param bool $editable
-	 *
-	 * @return string
-	 */
-	protected function getHtmlForClaimsSectionHeading( Entity $entity, $editable = true ) {
-		$html = wfTemplate(
-			'wb-section-heading',
-			wfMessage( 'wikibase-claims' ),
-			'claims' // ID - TODO: should not be added if output page is not the entity's page
-		);
-
-		return $html;
-	}
-
-	/**
-	 * Builds and returns the HTML representing a WikibaseEntity's claims.
-	 *
-	 * @since 0.2
-	 *
-	 * @param Entity $entity the entity to render
-	 * @param bool $editable whether editing is allowed (enabled edit links)
-	 * @return string
-	 */
-	public function getHtmlForClaims( Entity $entity, $editable = true ) {
-		wfProfileIn( __METHOD__ );
-
-		$claims = $entity->getClaims();
-
-		$html = $this->getHtmlForClaimsSectionHeading( $entity, $editable );
-
-		// aggregate claims by properties
-		$claimsByProperty = array();
-		foreach ( $claims as $claim ) {
-			$propertyId = $claim->getMainSnak()->getPropertyId();
-			$claimsByProperty[$propertyId->getNumericId()][] = $claim;
-		}
-
-		$entityInfo = $this->getEntityInfo( $entity, $this->getLanguage()->getCode() );
-
-		/**
-		 * @var string $claimsHtml
-		 * @var Claim[] $claims
-		 */
-		$claimsHtml = '';
-
-		foreach ( $claimsByProperty as $claims ) {
-			$propertyHtml = '';
-
-			$propertyId = $claims[0]->getMainSnak()->getPropertyId();
-			$key = $propertyId->getSerialization();
-			$propertyLabel = $key;
-			if ( isset( $entityInfo[$key] ) && !empty( $entityInfo[$key]['labels'] ) ) {
-				$entityInfoLabel = reset( $entityInfo[$key]['labels'] );
-				$propertyLabel = $entityInfoLabel['value'];
-			}
-
-			$propertyLink = Linker::link(
-				$this->entityTitleLookup->getTitleForId( $propertyId ),
-				htmlspecialchars( $propertyLabel )
-			);
-
-			$htmlForEditSection = $this->getHtmlForEditSection( '', array() ); // TODO: add link to SpecialPage
-
-			foreach ( $claims as $claim ) {
-				$propertyHtml .= $this->claimHtmlGenerator->getHtmlForClaim(
-					$claim,
-					$entityInfo,
-					$htmlForEditSection
-				);
-			}
-
-			$toolbarHtml = wfTemplate( 'wikibase-toolbar',
-				'wb-addtoolbar',
-				// TODO: add link to SpecialPage
-				$this->getHtmlForEditSection( '', array(), 'add' )
-			);
-
-			$claimsHtml .= wfTemplate( 'wb-claimlistview',
-				$propertyHtml,
-				wfTemplate( 'wb-claimgrouplistview-groupname', $propertyLink ) . $toolbarHtml,
-				$propertyId->getSerialization()
-			);
-
-		}
-
-		$claimgrouplistviewHtml = wfTemplate( 'wb-claimgrouplistview', $claimsHtml, '' );
-
-		// TODO: Add link to SpecialPage that allows adding a new claim.
-		$html = $html . wfTemplate( 'wb-claimlistview', $claimgrouplistviewHtml, '', '' );
-
-		wfProfileOut( __METHOD__ );
-		return $html;
-	}
-
-	/**
-	 * Returns a toolbar with an edit link for a single statement. Equivalent to edit toolbar in JavaScript but with
-	 * an edit link pointing to a special page where the statement can be edited. In case JavaScript is available, this
-	 * toolbar will be removed an replaced with the interactive JavaScript one.
-	 *
-	 * @param string $specialPage specifies the special page
-	 * @param string[] $specialPageParams specifies additional params for the special page
-	 * @param string $action by default 'edit', for aliases this could also be 'add'
-	 *
-	 * @return string
-	 */
-	private function getHtmlForEditSection( $specialPage, array $specialPageParams, $action = 'edit' ) {
-		$key = $action === 'add' ? 'wikibase-add' : 'wikibase-edit';
-		$message = $this->getContext()->msg( $key );
-
-		return $this->sectionEditLinkGenerator->getHtmlForEditSection(
-			$specialPage,
-			$specialPageParams,
-			$message
-		);
-	}
-
-	/**
-	 * Fetches labels and descriptions for all entities used as properties in snaks in the given
-	 * entity.
-	 *
-	 * @param Entity $entity
-	 * @param string $languageCode the language code of the labels to fetch.
-	 *
-	 * @return array[] Entity info array that maps property IDs to labels and descriptions.
-	 */
-	protected function getEntityInfo( Entity $entity, $languageCode ) {
-		wfProfileIn( __METHOD__ );
-		// TODO: Share cache with PropertyLabelResolver
-		// TODO: ... or share info with getBasicEntityInfo.
-
-		// TODO: Make a finder just for properties, so we don't have to filter.
-		$refFinder = new ReferencedEntitiesFinder();
-		$entityIds = $refFinder->findSnakLinks( $entity->getAllSnaks() );
-		$propertyIds = array_filter( $entityIds, function ( EntityId $id ) {
-			return $id->getEntityType() === Property::ENTITY_TYPE;
-		} );
-
-		// NOTE: This is a bit hackish, it would be more appropriate to use a TermTable here.
-		$entityInfoBuilder = $this->entityInfoBuilderFactory->newEntityInfoBuilder( $propertyIds );
-		$entityInfoBuilder->removeMissing();
-		$entityInfoBuilder->collectTerms(
-			array( 'label', 'description' ),
-			array( $languageCode )
-		);
-
-		wfProfileOut( __METHOD__ );
-		return $entityInfoBuilder->getEntityInfo();
 	}
 
 }

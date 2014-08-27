@@ -8,8 +8,8 @@ use Wikibase\DataAccess\PropertyParserFunction\LanguageAwareRenderer;
 use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\Lib\PropertyLabelNotResolvedException;
-use Wikibase\PropertyValueSnak;
 
 /**
  * @covers Wikibase\DataAccess\PropertyParserFunction\LanguageAwareRenderer
@@ -27,6 +27,8 @@ class LanguageAwareRendererTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @param SnaksFinder $snaksFinder
 	 * @param string $languageCode
+	 *
+	 * @return LanguageAwareRenderer
 	 */
 	private function getRenderer( SnaksFinder $snaksFinder, $languageCode ) {
 		$targetLanguage = Language::factory( $languageCode );

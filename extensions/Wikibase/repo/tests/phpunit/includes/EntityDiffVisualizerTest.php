@@ -10,9 +10,10 @@ use Language;
 use Site;
 use Wikibase\ClaimDiffer;
 use Wikibase\ClaimDifferenceVisualizer;
-use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\DataModel\Entity\EntityDiff;
 use Wikibase\EntityDiffVisualizer;
+use Wikibase\Repo\Content\EntityContentDiff;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\EntityDiffVisualizer
@@ -119,12 +120,14 @@ class EntityDiffVisualizerTest extends \MediaWikiTestCase {
 	protected function getVisualizer() {
 		$enwiki = new Site();
 		$enwiki->setGlobalId( 'enwiki' );
+		$entityTitleLookup = WikibaseRepo::getDefaultInstance()->getEntityTitleLookup();
 
 		return new EntityDiffVisualizer(
 			$this->getMockContext(),
 			$this->getMockClaimDiffer(),
 			$this->getMockClaimDiffVisualizer(),
-			new MockSiteStore( array( $enwiki ) )
+			new MockSiteStore( array( $enwiki ) ),
+			$entityTitleLookup
 		);
 	}
 

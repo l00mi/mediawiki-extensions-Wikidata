@@ -2,11 +2,13 @@
 
 namespace Wikibase\Test;
 
+use Diff\Differ\MapDiffer;
 use Site;
 use Title;
 use Wikibase\Change;
 use Wikibase\ChangeHandler;
 use Wikibase\Client\WikibaseClient;
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDiff;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -127,10 +129,10 @@ class ChangeHandlerTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @param array                $values
-	 * @param \Wikibase\EntityDiff $diff
+	 * @param array $values
+	 * @param EntityDiff|null $diff
 	 *
-	 * @return \Wikibase\EntityChange
+	 * @return EntityChange
 	 */
 	public static function makeChange( array $values, EntityDiff $diff = null ) {
 		if ( !isset( $values['info'] ) ) {
@@ -171,7 +173,7 @@ class ChangeHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public static function makeDiff( $type, $before, $after ) {
-		$differ = new \Diff\MapDiffer( true );
+		$differ = new MapDiffer( true );
 
 		$diffOps = $differ->doDiff( $before, $after );
 		$diff = EntityDiff::newForType( $type, $diffOps );
@@ -1120,7 +1122,7 @@ class ChangeHandlerTest extends \MediaWikiTestCase {
 		$repo = self::getMockRepo();
 
 		foreach ( $entities as $id => $siteLinks ) {
-			if ( !( $siteLinks instanceof \Wikibase\Entity ) ) {
+			if ( !( $siteLinks instanceof Entity ) ) {
 				$entity = Item::newEmpty();
 				$entity->setId( new ItemId( $id ) );
 
@@ -1235,4 +1237,5 @@ class ChangeHandlerTest extends \MediaWikiTestCase {
 			$this->assertArrayEquals( $exp, $up );
 		}
 	}
+
 }

@@ -7,11 +7,11 @@ use Title;
 use ValueFormatters\FormatterOptions;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Item;
 use Wikibase\Lib\EntityIdLinkFormatter;
-use Wikibase\Property;
 
 /**
  * @covers Wikibase\Lib\EntityIdLinkFormatter
@@ -72,11 +72,12 @@ class EntityIdLinkFormatterTest extends \PHPUnit_Framework_TestCase {
 
 	protected function newEntityIdLinkFormatter() {
 		$options = new FormatterOptions();
-		$titleLookup = $this->getMock( 'Wikibase\EntityTitleLookup' );
+		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
 		$titleLookup->expects( $this->any() )->method( 'getTitleForId' )
 			->will( $this->returnCallback( array( $this, 'getTitleForId' ) ) );
 
 		$formatter = new EntityIdLinkFormatter( $options, $titleLookup );
 		return $formatter;
 	}
+
 }

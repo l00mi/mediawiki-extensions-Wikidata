@@ -4,9 +4,9 @@ namespace Wikibase\Lib\Serializers;
 
 use InvalidArgumentException;
 use OutOfBoundsException;
-use Wikibase\Reference;
-use Wikibase\Snak;
-use Wikibase\SnakList;
+use Wikibase\DataModel\Reference;
+use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Snak\SnakList;
 
 /**
  * Serializer for Reference objects.

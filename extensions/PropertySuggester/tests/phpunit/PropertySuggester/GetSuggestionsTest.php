@@ -92,7 +92,7 @@ class GetSuggestionTest extends WikibaseApiTestCase {
 		$p56 = self::$idMap['%P56%'];
 		$p72 = self::$idMap['%P72%'];
 
-		$params = array( 'action' => 'wbsgetsuggestions', 'properties' => $p56, 'search' => '*' );
+		$params = array( 'action' => 'wbsgetsuggestions', 'properties' => $p56, 'search' => '*', 'context' => 'item' );
 		$res = $this->doApiRequest( $params );
 		$result = $res[0];
 
@@ -106,14 +106,25 @@ class GetSuggestionTest extends WikibaseApiTestCase {
 	public function testExecutionWithSearch() {
 		$p56 = self::$idMap['%P56%'];
 
-		// TODO add terms to do a useful search!
-		$params = array( 'action' => 'wbsgetsuggestions', 'properties' => $p56, 'search' => 'IdontExist', 'continue' => 0);
+		$params = array( 'action' => 'wbsgetsuggestions', 'properties' => $p56, 'search' => 'IdontExist', 'continue' => 0, 'context' => 'item');
 		$res = $this->doApiRequest( $params );
 		$result = $res[0];
 
 		$this->assertEquals( 1, $result['success'] );
 		$this->assertEquals( 'IdontExist', $result['searchinfo']['search'] );
 		$this->assertCount( 0, $result['search'] );
+	}
+
+	public function testExecutionWithInvalidContext() {
+		$p56 = self::$idMap['%P56%'];
+		$params = array(
+			'action' => 'wbsgetsuggestions',
+			'properties' => $p56,
+			'context' => 'delete all the things!'
+		);
+
+		$this->setExpectedException( 'UsageException' );
+		$res = $this->doApiRequest( $params );
 	}
 
 	public function testGetAllowedParams() {

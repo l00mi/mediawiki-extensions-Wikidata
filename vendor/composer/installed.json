@@ -1,5 +1,97 @@
 [
     {
+        "name": "composer/installers",
+        "version": "v1.0.18",
+        "version_normalized": "1.0.18.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/composer/installers.git",
+            "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/composer/installers/zipball/74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
+            "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
+            "shasum": ""
+        },
+        "replace": {
+            "roundcube/plugin-installer": "*",
+            "shama/baton": "*"
+        },
+        "require-dev": {
+            "composer/composer": "1.0.*@dev",
+            "phpunit/phpunit": "4.1.*"
+        },
+        "time": "2014-08-18 20:00:12",
+        "type": "composer-installer",
+        "extra": {
+            "class": "Composer\\Installers\\Installer",
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Composer\\Installers\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Kyle Robinson Young",
+                "email": "kyle@dontkry.com",
+                "homepage": "https://github.com/shama"
+            }
+        ],
+        "description": "A multi-framework Composer library installer",
+        "homepage": "http://composer.github.com/installers/",
+        "keywords": [
+            "Craft",
+            "Dolibarr",
+            "Hurad",
+            "MODX Evo",
+            "OXID",
+            "WolfCMS",
+            "agl",
+            "annotatecms",
+            "bitrix",
+            "cakephp",
+            "chef",
+            "codeigniter",
+            "concrete5",
+            "croogo",
+            "drupal",
+            "elgg",
+            "fuelphp",
+            "installer",
+            "joomla",
+            "kohana",
+            "laravel",
+            "lithium",
+            "magento",
+            "mako",
+            "mediawiki",
+            "modulework",
+            "moodle",
+            "phpbb",
+            "piwik",
+            "ppi",
+            "puppet",
+            "roundcube",
+            "shopware",
+            "silverstripe",
+            "symfony",
+            "typo3",
+            "wordpress",
+            "zend",
+            "zikula"
+        ]
+    },
+    {
         "name": "wikibase/easyrdf_lite",
         "version": "0.8.1",
         "version_normalized": "0.8.1.0",
@@ -82,6 +174,218 @@
             "diffing",
             "diffop",
             "patching",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/javascript",
+        "version": "0.5.2",
+        "version_normalized": "0.5.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataValuesJavascript.git",
+            "reference": "36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d",
+            "reference": "36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": ">=1.0.1"
+        },
+        "time": "2014-08-14 18:12:06",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValuesJavascript.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            },
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "DataValues implementation in Javascript",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model-javascript",
+        "version": "0.3.2",
+        "version_normalized": "0.3.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
+            "reference": "61e7b77530f2e8d34e1ec72702f0fdc5ad17a085"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/61e7b77530f2e8d34e1ec72702f0fdc5ad17a085",
+            "reference": "61e7b77530f2e8d34e1ec72702f0fdc5ad17a085",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0"
+        },
+        "time": "2014-08-19 09:15:15",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.mw.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            },
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Wikibase datamodel implementation in JavaScript"
+    },
+    {
+        "name": "wikibase/serialization-javascript",
+        "version": "1.1.2",
+        "version_normalized": "1.1.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
+            "reference": "aeeca302e86383c36677d2b4b58a6a00ad834e2b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/aeeca302e86383c36677d2b4b58a6a00ad834e2b",
+            "reference": "aeeca302e86383c36677d2b4b58a6a00ad834e2b",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0",
+            "wikibase/data-model-javascript": "~0.3.0"
+        },
+        "time": "2014-08-20 15:36:05",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.mw.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            },
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Wikibase datamodel serialization implementation in JavaScript"
+    },
+    {
+        "name": "serialization/serialization",
+        "version": "3.2.1",
+        "version_normalized": "3.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Serialization.git",
+            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Serialization/zipball/8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
+            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-08-19 01:53:31",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Serialization.php"
+            ],
+            "psr-4": {
+                "Deserializers\\": "src/Deserializers/",
+                "Serializers\\": "src/Serializers/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
+        "homepage": "https://github.com/wmde/Serialization",
+        "keywords": [
+            "deserialization",
+            "deserializer",
+            "serialization",
+            "serializer",
+            "unserialization",
             "wikidata"
         ]
     },
@@ -193,17 +497,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "0.8.2",
-        "version_normalized": "0.8.2.0",
+        "version": "0.9.1",
+        "version_normalized": "0.9.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "b044086b9405cc6c5477f37652bf335e4cf53d7e"
+            "reference": "ee8c720b79332b7fe25d5544040e5418e195a438"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/b044086b9405cc6c5477f37652bf335e4cf53d7e",
-            "reference": "b044086b9405cc6c5477f37652bf335e4cf53d7e",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/ee8c720b79332b7fe25d5544040e5418e195a438",
+            "reference": "ee8c720b79332b7fe25d5544040e5418e195a438",
             "shasum": ""
         },
         "require": {
@@ -212,11 +516,11 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-07-25 02:49:31",
+        "time": "2014-08-26 09:31:29",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "0.8.x-dev"
+                "dev-master": "0.9.x-dev"
             }
         },
         "installation-source": "dist",
@@ -497,6 +801,50 @@
         ]
     },
     {
+        "name": "data-values/value-view",
+        "version": "0.6.10",
+        "version_normalized": "0.6.10.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/ValueView.git",
+            "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
+            "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.5.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-08-14 18:40:52",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
+    },
+    {
         "name": "data-values/data-types",
         "version": "0.4",
         "version_normalized": "0.4.0.0",
@@ -771,113 +1119,18 @@
         ]
     },
     {
-        "name": "data-values/javascript",
-        "version": "0.5.2",
-        "version_normalized": "0.5.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d",
-            "reference": "36ee3384a4bdf60883dbf3e16a6cf966a8db4b4d",
-            "shasum": ""
-        },
-        "require": {
-            "composer/installers": ">=1.0.1"
-        },
-        "time": "2014-08-14 18:12:06",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValuesJavascript.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "DataValues implementation in Javascript",
-        "keywords": [
-            "datavalues",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/value-view",
-        "version": "0.6.10",
-        "version_normalized": "0.6.10.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/ValueView.git",
-            "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
-            "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-08-14 18:40:52",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "ValueView.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
         "name": "wikibase/wikibase",
-        "version": "dev-mw1.24-wmf17",
-        "version_normalized": "dev-mw1.24-wmf17",
+        "version": "dev-mw1.24-wmf19",
+        "version_normalized": "dev-mw1.24-wmf19",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "c0f1cbc0489a6e380f2e7e2d7ed45ffc1b41594d"
+            "reference": "f8913a8b628b6d8dd686744138be1b4877bdd6cf"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c0f1cbc0489a6e380f2e7e2d7ed45ffc1b41594d",
-            "reference": "c0f1cbc0489a6e380f2e7e2d7ed45ffc1b41594d",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f8913a8b628b6d8dd686744138be1b4877bdd6cf",
+            "reference": "f8913a8b628b6d8dd686744138be1b4877bdd6cf",
             "shasum": ""
         },
         "require": {
@@ -894,7 +1147,7 @@
             "data-values/value-view": "~0.6.5",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~0.8.2",
+            "wikibase/data-model": "~0.9.0",
             "wikibase/data-model-javascript": "~0.3.0",
             "wikibase/data-model-serialization": "~1.0.1",
             "wikibase/easyrdf_lite": "~0.8.1",
@@ -904,7 +1157,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-08-19 20:18:42",
+        "time": "2014-08-27 14:14:23",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -930,6 +1183,7 @@
                 "Wikibase\\Repo\\View\\": "repo/includes/View"
             }
         },
+        "notification-url": "https://packagist.org/downloads/",
         "license": [
             "GNU GPL v2+"
         ],
@@ -946,319 +1200,7 @@
             "wikibaselib",
             "wikibaserepo",
             "wikidata"
-        ],
-        "support": {
-            "issues": "https://bugzilla.wikimedia.org/",
-            "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wikimedia/mediawiki-extensions-Wikibase/tree/mw1.24-wmf17"
-        }
-    },
-    {
-        "name": "wikibase/Wikidata.org",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Wikidata.org.git",
-            "reference": "987ef97c09cab0bcd5820f17b989e3a71c654595"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/987ef97c09cab0bcd5820f17b989e3a71c654595",
-            "reference": "987ef97c09cab0bcd5820f17b989e3a71c654595",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-08-19 22:33:33",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "WikidataOrg.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
-        "homepage": "https://github.com/wmde/Wikidata.org",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/Wikidata.org/tree/master",
-            "issues": "https://github.com/wmde/Wikidata.org/issues"
-        }
-    },
-    {
-        "name": "composer/installers",
-        "version": "v1.0.18",
-        "version_normalized": "1.0.18.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/composer/installers.git",
-            "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
-            "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
-            "shasum": ""
-        },
-        "replace": {
-            "roundcube/plugin-installer": "*",
-            "shama/baton": "*"
-        },
-        "require-dev": {
-            "composer/composer": "1.0.*@dev",
-            "phpunit/phpunit": "4.1.*"
-        },
-        "time": "2014-08-18 20:00:12",
-        "type": "composer-installer",
-        "extra": {
-            "class": "Composer\\Installers\\Installer",
-            "branch-alias": {
-                "dev-master": "1.0-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Composer\\Installers\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Kyle Robinson Young",
-                "email": "kyle@dontkry.com",
-                "homepage": "https://github.com/shama"
-            }
-        ],
-        "description": "A multi-framework Composer library installer",
-        "homepage": "http://composer.github.com/installers/",
-        "keywords": [
-            "Craft",
-            "Dolibarr",
-            "Hurad",
-            "MODX Evo",
-            "OXID",
-            "WolfCMS",
-            "agl",
-            "annotatecms",
-            "bitrix",
-            "cakephp",
-            "chef",
-            "codeigniter",
-            "concrete5",
-            "croogo",
-            "drupal",
-            "elgg",
-            "fuelphp",
-            "installer",
-            "joomla",
-            "kohana",
-            "laravel",
-            "lithium",
-            "magento",
-            "mako",
-            "mediawiki",
-            "modulework",
-            "moodle",
-            "phpbb",
-            "piwik",
-            "ppi",
-            "puppet",
-            "roundcube",
-            "shopware",
-            "silverstripe",
-            "symfony",
-            "typo3",
-            "wordpress",
-            "zend",
-            "zikula"
         ]
-    },
-    {
-        "name": "serialization/serialization",
-        "version": "3.2",
-        "version_normalized": "3.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Serialization.git",
-            "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Serialization/zipball/7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
-            "reference": "7e13a0bc0173adc3aea0f16545e871e03a2ac4c4",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-05-20 15:57:52",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.2.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Serialization.php"
-            ],
-            "psr-4": {
-                "Deserializers\\": "src/Deserializers/",
-                "Serializers\\": "src/Serializers/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
-        "homepage": "https://github.com/wmde/Serialization",
-        "keywords": [
-            "deserialization",
-            "deserializer",
-            "serialization",
-            "serializer",
-            "unserialization",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/data-model-javascript",
-        "version": "0.3.1",
-        "version_normalized": "0.3.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
-            "reference": "983e8b2b334a4ec4d4418b2e46728818921abfa0"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/983e8b2b334a4ec4d4418b2e46728818921abfa0",
-            "reference": "983e8b2b334a4ec4d4418b2e46728818921abfa0",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0"
-        },
-        "time": "2014-08-14 18:19:35",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "init.mw.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            },
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "Wikibase datamodel implementation in JavaScript"
-    },
-    {
-        "name": "wikibase/serialization-javascript",
-        "version": "1.1.1",
-        "version_normalized": "1.1.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-            "reference": "53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028",
-            "reference": "53cc6abd5e8fd612bb408bf2bc0ad6fc234bb028",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.5.0",
-            "wikibase/data-model-javascript": "~0.3.0"
-        },
-        "time": "2014-07-10 12:57:32",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "init.mw.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Daniel Werner",
-                "email": "danweetz@web.de",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe",
-                "role": "Developer"
-            },
-            {
-                "name": "H. Snater",
-                "email": "mediawiki@snater.com",
-                "homepage": "http://www.snater.com",
-                "role": "Developer"
-            },
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            }
-        ],
-        "description": "Wikibase datamodel serialization implementation in JavaScript"
     },
     {
         "name": "wikibase/wikimedia-badges",
@@ -1313,18 +1255,67 @@
         }
     },
     {
-        "name": "propertysuggester/property-suggester",
-        "version": "v1.0",
-        "version_normalized": "1.0.0.0",
+        "name": "wikibase/Wikidata.org",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913"
+            "url": "https://github.com/wmde/Wikidata.org.git",
+            "reference": "987ef97c09cab0bcd5820f17b989e3a71c654595"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/2fb712f58c368a1151b3e8aeb09876ffa1f66913",
-            "reference": "2fb712f58c368a1151b3e8aeb09876ffa1f66913",
+            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/987ef97c09cab0bcd5820f17b989e3a71c654595",
+            "reference": "987ef97c09cab0bcd5820f17b989e3a71c654595",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-08-19 22:33:33",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "WikidataOrg.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
+        "homepage": "https://github.com/wmde/Wikidata.org",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata",
+            "source": "https://github.com/wmde/Wikidata.org/tree/master",
+            "issues": "https://github.com/wmde/Wikidata.org/issues"
+        }
+    },
+    {
+        "name": "propertysuggester/property-suggester",
+        "version": "1.1.1",
+        "version_normalized": "1.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "25f96ca7d0734757a877a29e4dc7766f626f5e38"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/25f96ca7d0734757a877a29e4dc7766f626f5e38",
+            "reference": "25f96ca7d0734757a877a29e4dc7766f626f5e38",
             "shasum": ""
         },
         "require": {
@@ -1334,7 +1325,7 @@
             "phpunit/phpunit": "3.7.*",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2014-06-23 17:01:20",
+        "time": "2014-08-27 12:28:58",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1343,7 +1334,7 @@
             },
             "files": [
 
-    ],
+            ],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"

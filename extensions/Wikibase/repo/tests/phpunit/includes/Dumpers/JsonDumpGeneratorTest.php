@@ -2,9 +2,11 @@
 
 namespace Wikibase\Test\Dumpers;
 
+use MWContentSerializationException;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -12,7 +14,6 @@ use Wikibase\DataModel\SiteLink;
 use Wikibase\Dumpers\JsonDumpGenerator;
 use Wikibase\EntityFactory;
 use Wikibase\EntityIdPager;
-use Wikibase\Item;
 use Wikibase\Lib\Serializers\DispatchingEntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\SerializerFactory;
@@ -170,6 +171,49 @@ class JsonDumpGeneratorTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testGenerateDump( array $ids ) {
 		$this->testTypeFilterDump( $ids, null, $ids );
+	}
+
+	/**
+	 * @dataProvider idProvider
+	 */
+	public function testGenerateDump_HandlesMWContentSerializationException( array $ids ) {
+		$jsonDumper = $this->getJsonDumperWithExceptionHandler( $ids );
+		$pager = $this->makeIdPager( $ids );
+
+		ob_start();
+		$jsonDumper->generateDump( $pager );
+		$json = ob_get_clean();
+
+		$data = json_decode( $json, true );
+		$this->assertEquals( array(), $data );
+	}
+
+	private function getJsonDumperWithExceptionHandler( array $ids ) {
+		$entityLookup = $this->getEntityLookupThrowsMWContentSerializationException();
+		$out = fopen( 'php://output', 'w' );
+		$serializer = new DispatchingEntitySerializer( $this->serializerFactory );
+
+		$jsonDumper = new JsonDumpGenerator( $out, $entityLookup, $serializer );
+
+		$exceptionHandler = $this->getMock( 'Wikibase\Lib\Reporting\ExceptionHandler' );
+		$exceptionHandler->expects( $this->exactly( count( $ids ) ) )
+			->method( 'handleException' );
+
+		$jsonDumper->setExceptionHandler( $exceptionHandler );
+
+		return $jsonDumper;
+	}
+
+	private function getEntityLookupThrowsMWContentSerializationException() {
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
+		$entityLookup->expects( $this->any() )
+			->method( 'getEntity' )
+			->will( $this->returnCallback( function ( EntityId $id ) {
+					throw new MWContentSerializationException( 'cannot deserialize!' );
+				}
+			) );
+
+		return $entityLookup;
 	}
 
 	public static function idProvider() {
