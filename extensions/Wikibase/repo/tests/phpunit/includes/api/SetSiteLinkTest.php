@@ -3,6 +3,7 @@
 namespace Wikibase\Test\Api;
 
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -157,8 +158,8 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 			self::$otherItemId = $badge->getId();
 
 			WikibaseRepo::getDefaultInstance()->getSettings()->setSetting( 'badgeItems', array(
-				self::$gaItemId->getPrefixedId() => '',
-				self::$faItemId->getPrefixedId() => '',
+				self::$gaItemId->getSerialization() => '',
+				self::$faItemId->getSerialization() => '',
 				'Q99999' => '', // Just in case we have a wrong config
 			) );
 		}
@@ -178,11 +179,11 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 			}
 			foreach( $site['badges'] as &$dummy ) {
 				if ( $dummy === '{gaItem}' ) {
-					$dummy = self::$gaItemId->getPrefixedId();
+					$dummy = self::$gaItemId->getSerialization();
 				} elseif ( $dummy === '{faItem}' ) {
-					$dummy = self::$faItemId->getPrefixedId();
+					$dummy = self::$faItemId->getSerialization();
 				} elseif ( $dummy === '{otherItem}' ) {
-					$dummy = self::$otherItemId->getPrefixedId();
+					$dummy = self::$otherItemId->getSerialization();
 				}
 			}
 		}
@@ -204,7 +205,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		if ( isset( $params['badges'] ) ) {
 			$params['badges'] = str_replace(
 				array( '{gaItem}', '{faItem}', '{otherItem}' ),
-				array( self::$gaItemId->getPrefixedId(), self::$faItemId->getPrefixedId(), self::$otherItemId->getPrefixedId() ),
+				array( self::$gaItemId->getSerialization(), self::$faItemId->getSerialization(), self::$otherItemId->getSerialization() ),
 				$params['badges']
 			);
 		}
@@ -253,9 +254,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 			);
 
 			$this->assertArrayHasKey( 'badges', $sitelink );
-			$this->assertEquals( $expSitelink['badges'], $sitelink['badges'],
-				"Returned incorrect badges"
-			);
+			$this->assertArrayEquals( $expSitelink['badges'], $sitelink['badges'] );
 		} else if ( empty( $expected['value'] ) ) {
 			$this->assertArrayHasKey( 'removed', $sitelink,
 				"Entity doesn't return expected 'removed' marker"
@@ -312,7 +311,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		if ( isset( $params['badges'] ) ) {
 			$params['badges'] = str_replace(
 				array( '{gaItem}', '{faItem}', '{otherItem}' ),
-				array( self::$gaItemId->getPrefixedId(), self::$faItemId->getPrefixedId(), self::$otherItemId->getPrefixedId() ),
+				array( self::$gaItemId->getSerialization(), self::$faItemId->getSerialization(), self::$otherItemId->getSerialization() ),
 				$params['badges']
 			);
 		}
@@ -331,7 +330,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		if ( isset( $params['badges'] ) ) {
 			$params['badges'] = str_replace(
 				array( '{gaItem}', '{faItem}', '{otherItem}' ),
-				array( self::$gaItemId->getPrefixedId(), self::$faItemId->getPrefixedId(), self::$otherItemId->getPrefixedId() ),
+				array( self::$gaItemId->getSerialization(), self::$faItemId->getSerialization(), self::$otherItemId->getSerialization() ),
 				$params['badges']
 			);
 		}
@@ -341,5 +340,5 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		$warning = $result['warnings']['wbsetsitelink']['*'];
 		$this->assertRegExp( "/Unrecognized value for parameter 'badges'/", $warning );
 	}
-}
 
+}

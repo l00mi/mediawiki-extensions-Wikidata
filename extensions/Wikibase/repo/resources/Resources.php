@@ -27,7 +27,6 @@ return call_user_func( function() {
 				'mediawiki.api',
 				'mediawiki.user',
 				'wikibase.ui.PropertyEditTool',
-				'jquery.wikibase.aliasesview',
 				'jquery.wikibase.entityview',
 				'jquery.wikibase.toolbarcontroller',
 				'jquery.wikibase.wbtooltip',
@@ -81,7 +80,9 @@ return call_user_func( function() {
 				'wikibase.ui.initTermBox.js',
 			),
 			'dependencies' => array(
+				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbar',
+				'jquery.wikibase.toolbarcontroller',
 				'jquery.wikibase.toolbareditgroup',
 				'mediawiki.Title',
 				'wikibase',

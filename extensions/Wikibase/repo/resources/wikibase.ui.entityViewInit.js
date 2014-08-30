@@ -12,7 +12,6 @@
 
 ( function( $, mw, wb, dataTypes, experts, getFormatterStore, getParserStore ) {
 	'use strict';
-	/* jshint nonew: false */
 
 	mw.hook( 'wikipage.content' ).add( function() {
 		// Edit sections are re-generated with JS functionality further below:
@@ -22,7 +21,7 @@
 		// remove all infos about empty values which are displayed in non-JS
 		$( '.wb-value-empty' ).empty().removeClass( 'wb-value-empty' );
 
-		// Since the DOM is altered for the property edit tools to property initialize, the
+		// Since the DOM is altered for the property edit tools to initialize properly, the
 		// following hook informs about these operations having finished.
 		// TODO: This hook is not supposed to be permanent. Remove it as soon as no more global DOM
 		// adjustments are necessary.
@@ -30,71 +29,17 @@
 
 		var repoApi = new wb.RepoApi();
 
-		// add an edit tool for the main label. This will be integrated into the heading nicely:
-		var $firstHeading = $( '.wb-firstHeading' );
-		if ( $firstHeading.length ) { // Special pages do not have a custom wb heading
-			var labelEditTool = new wb.ui.LabelEditTool( $firstHeading[0], { api: repoApi } ),
-				editableLabel = labelEditTool.getValues( true )[0], // [0] will always be set
-				fn = function( event, origin ) {
-					// Limit the global stopItemPageEditMode event to that element
-					if ( event.type !== 'stopItemPageEditMode' || origin === editableLabel ) {
-						var title = editableLabel.isEmpty()
-							? mw.config.get( 'wgTitle' )
-							: editableLabel.getValue()[0];
-
-						// update 'title' tag
-						$( 'title' ).text( mw.msg( 'pagetitle', title ) );
-					}
-				};
-
-			editableLabel.getSubject().on( 'eachchange', fn );
-			// Can't use afterStopEditing because it does not fire on cancel
-			// but this is needed to reset the title
-			$( wb ).on( 'stopItemPageEditMode', fn );
-		}
-
-		// add an edit tool for all properties in the data view:
-		$( '.wb-property-container:has( > .wb-property-container-key[title=description] )' ).each( function() {
-			// TODO: Make this nicer when we have implemented the data model
-			new wb.ui.DescriptionEditTool( this, { api: repoApi } );
-		} );
-
 		registerEditRestrictionHandlers();
 
 		if( mw.config.get( 'wbEntity' ) !== null ) {
-			// BUILD CLAIMS VIEW:
-			// Note: $.entityview() only works for claims right now, the goal is to use it for more
-			var $claims = $( '.wb-claims' ).first(),
-				$claimsParent = $claims.parent();
+			var $entityview = $( '.wikibase-entityview' ).first();
 
-			// The toolbars (defined per jquery.wikibase.toolbarcontroller.definition) that should
-			// be initialized:
-			var toolbarControllerConfig = {
-				addtoolbar: [
-					'claimgrouplistview',
-					'claimlistview',
-					'claim-qualifiers-snak',
-					'references',
-					'referenceview-snakview'
-				],
-				edittoolbar: ['claimview', 'referenceview'],
-				removetoolbar: ['claim-qualifiers-snak', 'referenceview-snakview-remove'],
-				movetoolbar: [
-					'claimlistview-claimview',
-					'claim-qualifiers-snak',
-					'statementview-referenceview',
-					'referenceview-snakview'
-				]
-			};
-
-			// TODO: Initialize toolbarcontroller on entity node when initializing entityview on
-			// the entity node (see FIXME below).
-			$claims.toolbarcontroller( toolbarControllerConfig ); // BUILD TOOLBARS
+			initToolbarController( $entityview );
 
 			var entityInitializer = new wb.EntityInitializer( 'wbEntity' );
 
 			entityInitializer.getEntity().done( function( entity ) {
-				createEntityDom( entity, $claims, $claimsParent, repoApi );
+				createEntityDom( entity, $entityview, repoApi );
 				triggerEditRestrictionHandlers();
 			} );
 		}
@@ -115,26 +60,12 @@
 					return;
 				}
 
-				var $message = $( '<span><p>' + copyRightMessageHtml + '</p></span>' );
-				var $activeToolbar = $( '.wb-edit' )
-					// label/description of EditableValue always in edit mode if empty, 2nd '.wb-edit'
-					// on PropertyEditTool only appended when really being edited by the user though
-					.not( '.wb-ui-propertyedittool-editablevalue-ineditmode' )
-					.find( '.wikibase-toolbareditgroup-ineditmode' );
+				var $message = $( '<span><p>' + copyRightMessageHtml + '</p></span>' ),
+					edittoolbar = $( origin ).data( 'edittoolbar' );
 
-				if( !$activeToolbar.length ) {
-					return; // no toolbar for some reason, just stop
-				} else if ( $( 'table.wb-terms' ).hasClass( 'wb-edit' ) ) {
-					// TODO: When having multiple empty EditableValues which are initialized in edit
-					// mode, every EditableValue has the same classes assigned. This check should
-					// either be made more generic (not just invoked for the terms table) or an
-					// improved detection of the active toolbar be implemented.
-					$activeToolbar = origin.getSubject()
-						.find( '.wikibase-toolbareditgroup-ineditmode' );
+				if( !edittoolbar ) {
+					return;
 				}
-
-				var toolbar = $activeToolbar.data( 'toolbareditgroup' )
-					|| $activeToolbar.data( 'toolbar' );
 
 				var $hideMessage = $( '<a/>', {
 						text: mw.msg( 'wikibase-copyrighttooltip-acknowledge' )
@@ -153,7 +84,7 @@
 						content: $message,
 						permanent: true,
 						gravity: gravity,
-						$anchor: toolbar.getButton( 'save' )
+						$anchor: edittoolbar.toolbar.editGroup.getButton( 'save' )
 					} );
 
 				$hideMessage.on( 'click', function( event ) {
@@ -227,43 +158,62 @@
 		} );
 
 		// remove loading spinner after JavaScript has kicked in
-		$( '.wb-entity' ).removeClass( 'loading' );
+		$( '.wikibase-entityview' ).removeClass( 'loading' );
 		$( '.wb-entity-spinner' ).remove();
 
 	} );
 
 	/**
+	 * @param {jQuery} $entityview
+	 */
+	function initToolbarController( $entityview ) {
+		// The toolbars (defined per jquery.wikibase.toolbarcontroller.definition) that should
+		// be initialized:
+		var toolbarControllerConfig = {
+			addtoolbar: [
+				'claimgrouplistview',
+				'claimlistview',
+				'claim-qualifiers-snak',
+				'references',
+				'referenceview-snakview',
+				'sitelinklistview'
+			],
+			edittoolbar: [
+				'aliasesview',
+				'claimview',
+				'descriptionview',
+				'labelview',
+				'referenceview',
+				'sitelinkview',
+				'terms-labelview',
+				'terms-descriptionview'
+			],
+			removetoolbar: ['claim-qualifiers-snak', 'referenceview-snakview-remove'],
+			movetoolbar: [
+				'claimlistview-claimview',
+				'claim-qualifiers-snak',
+				'statementview-referenceview',
+				'referenceview-snakview'
+			]
+		};
+
+		$entityview.toolbarcontroller( toolbarControllerConfig );
+	}
+
+	/**
 	 * Creates the entity DOM structure.
 	 *
 	 * @param {wikibase.datamodel.Entity} entity
-	 * @param {jQuery} $claims
-	 * @param {jQuery} $claimsParent
+	 * @param {jQuery} $entityview
 	 * @param {wikibase.RepoApi} repoApi
 	 */
-	function createEntityDom( entity, $claims, $claimsParent, repoApi ) {
-		// FIXME: Initializing entityview on $claims leads to the claim section inserted as
-		// child of $claims. It should be direct child of ".wb-entity".
+	function createEntityDom( entity, $entityview, repoApi ) {
 		var abstractedRepoApi = new wb.AbstractedRepoApi( repoApi );
 		var entityStore = new wb.store.EntityStore( abstractedRepoApi );
 		wb.compileEntityStoreFromMwConfig( entityStore );
 
-		// TODO: Integrate into entityview
-		$( '.wikibase-aliasesview' )
-		.toolbarcontroller( {
-			edittoolbar: ['aliasesview']
-		} )
-		.aliasesview( {
-			value: {
-				language:  mw.config.get( 'wgUserLanguage' ),
-				aliases: entity.getAliases( mw.config.get( 'wgUserLanguage' ) )
-			},
-			entityId: entity.getId(),
-			api: repoApi
-		} );
-
-		// FIXME: Initializing entityview on $claims leads to the claim section inserted as
-		// child of $claims. It should be direct child of ".wb-entity".
-		$claims.entityview( {
+		$entityview
+		.entityview( {
 			value: entity,
 			entityStore: entityStore,
 			valueViewBuilder: new wb.ValueViewBuilder(
@@ -272,83 +222,17 @@
 				getParserStore( repoApi ),
 				mw
 			),
-			abstractedRepoApi: abstractedRepoApi
-		} ).appendTo( $claimsParent );
-
-		// This is here to be sure there is never a duplicate id
-		$( '.wb-claimgrouplistview' )
-			.prev( '.wb-section-heading' )
-			.first()
-			.attr( 'id', 'claims' );
-
-		$( '.wikibase-sitelinkgroupview' ).each( function() {
-			var $sitelinklistview = $( this ),
-				siteIdsOfGroup = [];
-
-			$sitelinklistview.find( '.wikibase-sitelinkview' ).each( function() {
-				siteIdsOfGroup.push( $( this ).data( 'wb-siteid' ) );
-			} );
-
-			$sitelinklistview.toolbarcontroller( {
-				addtoolbar: ['sitelinklistview'],
-				edittoolbar: ['sitelinkview']
-			} );
-
-			// TODO: Implement sitelinkgrouplistview to manage sitelinklistview widgets
-			var group = $( this ).data( 'wb-sitelinks-group' ),
-				siteLinks = entity.getSiteLinks(),
-				siteLinksOfGroup = [];
-
-			for( var i = 0; i < siteIdsOfGroup.length; i++ ) {
-				for( var j = 0; j < siteLinks.length; j++ ) {
-					if( siteLinks[j].getSiteId() === siteIdsOfGroup[i] ) {
-						siteLinksOfGroup.push( siteLinks[j] );
-						break;
-					}
-				}
-			}
-
-			$( this ).sitelinkgroupview( {
-				value: {
-					group: group,
-					siteLinks: siteLinksOfGroup
-				},
-				entityId: entity.getId(),
-				api: repoApi,
-				entityStore: entityStore
-			} );
-		} );
-
-		// TODO: Resolve this logic, merge with other toolbar management done in entityview and move
-		// it to a sensible place.
-		$( wb )
-		.on( 'startItemPageEditMode', function( event, target, options ) {
-			$( ':wikibase-aliasesview, :wikibase-sitelinklistview' )
-			.find( ':wikibase-toolbar' )
-			.not( $( target ).find( ':wikibase-toolbar' ) )
-			.each( function() {
-				$( this ).data( 'toolbar' ).disable();
-			} );
+			api: repoApi
 		} )
-		.on( 'stopItemPageEditMode', function( event, target, options ) {
-			$( ':wikibase-aliasesview' ).find( ':wikibase-toolbar' ).each( function() {
-				$( this ).data( 'toolbar' ).enable();
-			} );
-			$( ':wikibase-sitelinklistview' ).each( function() {
-				var $sitelinklistview = $( this ),
-					sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
+		.on( 'labelviewchange labelviewafterstopediting', function( event ) {
+			var $labelview = $( event.target ),
+				labelview = $labelview.data( 'labelview' ),
+				label = labelview.value().label;
 
-				if( !sitelinklistview.isFull() ) {
-					$sitelinklistview.data( 'addtoolbar' ).toolbar.enable();
-				}
-
-				$sitelinklistview.find( 'tbody :wikibase-toolbar' ).each( function() {
-					$( this ).data( 'toolbar' ).enable();
-				} );
-			} );
+			$( 'title' ).text(
+				mw.msg( 'pagetitle', label && label !== '' ? label : mw.config.get( 'wgTitle' ) )
+			);
 		} );
-
-		$( '.wb-entity' ).claimgrouplabelscroll();
 
 		$( wb ).on( 'startItemPageEditMode', function( event, origin, options ) {
 			// Display anonymous user edit warning:

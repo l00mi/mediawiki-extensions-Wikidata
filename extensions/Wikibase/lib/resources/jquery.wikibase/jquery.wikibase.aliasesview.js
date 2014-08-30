@@ -77,24 +77,6 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 		) {
 			this._draw();
 		}
-
-		this.element
-		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
-		.on( 'aliasesviewafterstartediting.' + this.widgetName, function( event ) {
-			$( wb ).trigger( 'startItemPageEditMode', [
-				event.target,
-				{
-					exclusive: false,
-					wbCopyrightWarningGravity: 'sw'
-				}
-			] );
-		} )
-		.on( 'aliasesviewafterstopediting.' + this.widgetName, function( event, dropValue ) {
-			$( wb ).trigger( 'stopItemPageEditMode', [
-				event.target,
-				{ save: dropValue !== true }
-			] );
-		} );
 	},
 
 	/**
@@ -501,6 +483,24 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 					}
 				);
 
+			} );
+
+			$aliasesview
+			// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
+			.on( 'edittoolbarafterstartediting.' + aliasesview.widgetName, function( event ) {
+				$( wb ).trigger( 'startItemPageEditMode', [
+					$aliasesview,
+					{
+						exclusive: false,
+						wbCopyrightWarningGravity: 'sw'
+					}
+				] );
+			} )
+			.on( 'edittoolbarafterstopediting.' + aliasesview.widgetName, function( event, dropValue ) {
+				$( wb ).trigger( 'stopItemPageEditMode', [
+					$aliasesview,
+					{ save: dropValue !== true }
+				] );
 			} );
 		},
 		toolbareditgroupedit: function( event, toolbarcontroller ) {

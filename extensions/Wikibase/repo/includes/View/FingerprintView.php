@@ -69,32 +69,33 @@ class FingerprintView {
 	 */
 	private function getHtmlForLabel( TermList $labels, EntityId $entityId = null, $editable ) {
 		$hasLabel = $labels->hasTermForLanguage( $this->languageCode );
+		$id = 'new';
+		$idInParentheses = '';
 		$editSection = $this->getHtmlForEditSection( 'SetLabel', $entityId, $editable );
 
-		if ( $entityId === null ) {
-			$idString = 'new';
-			$suplement = '';
-		} else {
-			$idString = $entityId->getSerialization();
-			$suplement = wfTemplate( 'wb-property-value-supplement', wfMessage( 'parentheses', $idString ) );
+		if ( $entityId !== null ) {
+			$id = $entityId->getSerialization();
+			$idInParentheses = wfMessage( 'parentheses', $id );
 		}
 
 		if ( $hasLabel ) {
-			return wfTemplate( 'wb-label',
-				$idString,
-				wfTemplate( 'wb-property',
+			return wfTemplate( 'wikibase-firstHeading',
+				$id,
+				wfTemplate( 'wikibase-labelview',
 					'',
 					htmlspecialchars( $labels->getByLanguage( $this->languageCode )->getText() ),
-					$suplement . $editSection
+					$idInParentheses,
+					$editSection
 				)
 			);
 		} else {
-			return wfTemplate( 'wb-label',
-				$idString,
-				wfTemplate( 'wb-property',
-					'wb-value-empty',
+			return wfTemplate( 'wikibase-firstHeading',
+				$id,
+				wfTemplate( 'wikibase-labelview',
+					'wb-empty',
 					wfMessage( 'wikibase-label-empty' )->escaped(),
-					$suplement . $editSection
+					$idInParentheses,
+					$editSection
 				)
 			);
 		}
@@ -112,20 +113,16 @@ class FingerprintView {
 		$editSection = $this->getHtmlForEditSection( 'SetDescription', $entityId, $editable );
 
 		if ( $hasDescription ) {
-			return wfTemplate( 'wb-description',
-				wfTemplate( 'wb-property',
-					'',
-					htmlspecialchars( $descriptions->getByLanguage( $this->languageCode )->getText() ),
-					$editSection
-				)
+			return wfTemplate( 'wikibase-descriptionview',
+				'',
+				htmlspecialchars( $descriptions->getByLanguage( $this->languageCode )->getText() ),
+				$editSection
 			);
 		} else {
-			return wfTemplate( 'wb-description',
-				wfTemplate( 'wb-property',
-					'wb-value-empty',
-					wfMessage( 'wikibase-description-empty' )->escaped(),
-					$editSection
-				)
+			return wfTemplate( 'wikibase-descriptionview',
+				'wb-empty',
+				wfMessage( 'wikibase-description-empty' )->escaped(),
+				$editSection
 			);
 		}
 	}
