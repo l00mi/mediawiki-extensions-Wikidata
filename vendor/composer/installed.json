@@ -1125,12 +1125,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "080e39060ddf9b8792213d8fad1dc055ba2219d2"
+            "reference": "da450bdaa5eaea80b9193dafa03c491a2e6428d9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/080e39060ddf9b8792213d8fad1dc055ba2219d2",
-            "reference": "080e39060ddf9b8792213d8fad1dc055ba2219d2",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/da450bdaa5eaea80b9193dafa03c491a2e6428d9",
+            "reference": "da450bdaa5eaea80b9193dafa03c491a2e6428d9",
             "shasum": ""
         },
         "require": {
@@ -1157,7 +1157,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-08-30 21:26:27",
+        "time": "2014-09-01 14:53:02",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1258,18 +1258,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikimediaBadges.git",
-            "reference": "f8677acc1c7fe8a597edf21da698094da74214a3"
+            "reference": "c88406d044b10dfdd9b94f96f80caec0a3139e71"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/f8677acc1c7fe8a597edf21da698094da74214a3",
-            "reference": "f8677acc1c7fe8a597edf21da698094da74214a3",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/c88406d044b10dfdd9b94f96f80caec0a3139e71",
+            "reference": "c88406d044b10dfdd9b94f96f80caec0a3139e71",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-08-25 13:43:19",
+        "time": "2014-08-31 21:50:21",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

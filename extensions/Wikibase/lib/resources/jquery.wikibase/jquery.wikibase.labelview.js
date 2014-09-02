@@ -141,29 +141,26 @@ $.widget( 'wikibase.labelview', PARENT, {
 	 * Main draw routine.
 	 */
 	_draw: function() {
+		if( this.options.showEntityId && !( this._isInEditMode && this.options.value.label ) ) {
+			this.$entityId.text( mw.msg( 'parentheses', this.options.entityId ) );
+		} else {
+			this.$entityId.empty();
+		}
+
 		if( !this._isInEditMode ) {
 			this.element.removeClass( 'wb-edit' );
 			this.$text.text( this.options.value.label );
-			if( this.options.showEntityId ) {
-				this.$entityId.text( mw.msg( 'parentheses', this.options.entityId ) );
-			}
 			return;
 		}
 
-		// TODO: Inject correct placeholder via options
-		var self = this,
-			languageName = wb.getLanguageNameByCode( this.options.value.language ),
-			placeholder = mw.msg( 'wikibase-label-edit-placeholder' );
-
-		if( languageName ) {
-			placeholder = mw.msg(
-				'wikibase-label-edit-placeholder-language-aware',
-				languageName
-			);
-		}
+		var self = this;
 
 		var $input = $( '<input/>' )
-		.attr( 'placeholder', placeholder )
+		// TODO: Inject correct placeholder via options
+		.attr( 'placeholder', mw.msg(
+			'wikibase-label-edit-placeholder-language-aware',
+			wb.getLanguageNameByCode( this.options.value.language )
+		) )
 		.on( 'eachchange.' + this.widgetName, function( event ) {
 			self._trigger( 'change' );
 		} );
@@ -174,8 +171,6 @@ $.widget( 'wikibase.labelview', PARENT, {
 
 		this.element.addClass( 'wb-edit' );
 		this.$text.empty().append( $input );
-
-		this.$entityId.empty();
 	},
 
 	/**

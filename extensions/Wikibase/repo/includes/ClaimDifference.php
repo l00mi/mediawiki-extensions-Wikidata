@@ -3,8 +3,8 @@
 namespace Wikibase;
 
 use Comparable;
-use Diff\Diff;
-use Diff\DiffOpChange;
+use Diff\DiffOp\Diff\Diff;
+use Diff\DiffOp\DiffOpChange;
 
 /**
  * Represents the difference between two Claim objects.
@@ -115,7 +115,11 @@ class ClaimDifference implements Comparable {
 	 * @return boolean
 	 */
 	public function equals( $target ) {
-		if ( !( $target instanceof ClaimDifference ) ) {
+		if ( $target === $this ) {
+			return true;
+		}
+
+		if ( !( $target instanceof self ) ) {
 			return false;
 		}
 
