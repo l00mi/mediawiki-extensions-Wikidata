@@ -628,16 +628,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.6.10",
+            "version": "0.6.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6"
+                "reference": "929703c64a107a334328e2913894fbda72cc046d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
-                "reference": "256ec8e61a6cbf7fbd8f4c8d7d0a6f4a64f6e1f6",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/929703c64a107a334328e2913894fbda72cc046d",
+                "reference": "929703c64a107a334328e2913894fbda72cc046d",
                 "shasum": ""
             },
             "require": {
@@ -666,7 +666,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-08-14 18:40:52"
+            "time": "2014-09-03 10:35:18"
         },
         {
             "name": "diff/diff",
@@ -750,7 +750,7 @@
                 },
                 "files": [
 
-                ],
+    ],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -1324,6 +1324,7 @@
         "wikibase/wikimedia-badges": 20,
         "wikibase/wikidata.org": 20
     },
+    "prefer-stable": false,
     "platform": {
         "php": ">=5.3.0"
     },
