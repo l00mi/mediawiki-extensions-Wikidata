@@ -4,25 +4,17 @@ namespace Wikibase\DataModel\Claim;
 
 use ArrayObject;
 use Comparable;
-use Diff\DiffOp\Diff\Diff;
-use Diff\Differ\Differ;
-use Diff\DiffOp\DiffOpAdd;
-use Diff\DiffOp\DiffOpChange;
-use Diff\DiffOp\DiffOpRemove;
-use Diff\Differ\MapDiffer;
 use Hashable;
 use InvalidArgumentException;
+use Traversable;
 use Wikibase\DataModel\ByPropertyIdArray;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\Snak;
 
 /**
- * Implementation of the Claims interface.
- * @see Claims
- *
  * A claim (identified using it's GUID) can only be added once.
  *
- * @since 0.1
+ * @deprecated since 1.0
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -44,25 +36,23 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 		parent::__construct( array() );
 
 		if ( $input !== null ) {
-			if ( !is_array( $input) && !( $input instanceof \Traversable ) ) {
+			if ( !is_array( $input ) && !( $input instanceof Traversable ) ) {
 				throw new InvalidArgumentException( '$input must be traversable' );
 			}
 
 			foreach ( $input as $claim ) {
-				$this->append( $claim );
+				$this[] = $claim;
 			}
 		}
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param string $guid
 	 *
 	 * @throws InvalidArgumentException
 	 * @return string
 	 */
-	protected function getGuidKey( $guid ) {
+	private function getGuidKey( $guid ) {
 		if ( !is_string( $guid ) ) {
 			throw new InvalidArgumentException( 'Expected a GUID string' );
 		}
@@ -74,14 +64,12 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	/**
 	 * @param Claim $claim
 	 *
-	 * @since 0.5
-	 *
 	 * @param Claim $claim
 	 *
 	 * @throws InvalidArgumentException
 	 * @return string
 	 */
-	protected function getClaimKey( Claim $claim ) {
+	private function getClaimKey( Claim $claim ) {
 		$guid = $claim->getGuid();
 
 		if ( $guid === null ) {
@@ -103,59 +91,33 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 * @throws InvalidArgumentException
 	 */
 	public function addClaim( Claim $claim, $index = null ) {
-		if( !is_null( $index ) && !is_integer( $index ) ) {
+		if ( !is_null( $index ) && !is_integer( $index ) ) {
 			throw new InvalidArgumentException( 'Index needs to be null or an integer value' );
 		} else if ( is_null( $index ) || $index >= count( $this ) ) {
-			$this->append( $claim );
+			$this[] = $claim;
 		} else {
 			$this->insertClaimAtIndex( $claim, $index );
 		}
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param Claim $claim
 	 * @param int $index
 	 */
-	protected function insertClaimAtIndex( Claim $claim, $index ) {
-		$claimsToShift = array();
-		$i = 0;
-
+	private function insertClaimAtIndex( Claim $claim, $index ) {
 		// Determine the claims to shift and remove them from the array:
-		foreach( $this as $object ) {
-			if( $i++ >= $index ) {
-				$claimsToShift[] = $object;
-			}
-		}
+		$claimsToShift = array_slice( (array)$this, $index );
 
-		foreach( $claimsToShift as $object ) {
+		foreach ( $claimsToShift as $object ) {
 			$this->offsetUnset( $this->getClaimKey( $object ) );
 		}
 
 		// Append the new claim and re-append the previously removed claims:
-		$this->append( $claim );
+		$this[] = $claim;
 
-		foreach( $claimsToShift as $object ) {
-			$this->append( $object );
+		foreach ( $claimsToShift as $object ) {
+			$this[] = $object;
 		}
-	}
-
-	/**
-	 * @see ArrayAccess::append
-	 *
-	 * @since 0.5
-	 *
-	 * @param Claim $claim
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	public function append( $claim ) {
-		if ( !( $claim instanceof Claim ) ) {
-			throw new InvalidArgumentException( '$claim must be a Claim instance' );
-		}
-
-		parent::append( $claim );
 	}
 
 	/**
@@ -194,8 +156,8 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 		/**
 		 * @var Claim $claimObject
 		 */
-		foreach( $this as $claimObject ) {
-			if( $claimObject->getGuid() === $guid ) {
+		foreach ( $this as $claimObject ) {
+			if ( $claimObject->getGuid() === $guid ) {
 				return $index;
 			}
 			$index++;
@@ -305,7 +267,7 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 * @throws InvalidArgumentException
 	 */
 	public function offsetSet( $guid, $claim ) {
-		if ( !is_object( $claim ) || !( $claim instanceof Claim ) ) {
+		if ( !( $claim instanceof Claim ) ) {
 			throw new InvalidArgumentException( 'Expected a Claim instance' );
 		}
 
@@ -359,10 +321,10 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 		$claimsByProp->buildIndex();
 
 		if ( !( in_array( $propertyId, $claimsByProp->getPropertyIds() ) ) ) {
-			return new Claims();
+			return new self();
 		}
 
-		return new Claims( $claimsByProp->getByPropertyId( $propertyId ) );
+		return new self( $claimsByProp->getByPropertyId( $propertyId ) );
 	}
 
 	/**
@@ -404,54 +366,6 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	}
 
 	/**
-	 * @since 0.4
-	 *
-	 * @param Claims $claims
-	 * @param Differ|null $differ for building a diff of two GUID-to-hash maps.
-	 *
-	 * @return Diff
-	 * @throws InvalidArgumentException
-	 */
-	public function getDiff( Claims $claims, Differ $differ = null ) {
-		if ( $differ === null ) {
-			$differ = new MapDiffer();
-		}
-
-		$sourceHashes = $this->getHashes();
-		$targetHashes = $claims->getHashes();
-
-		$diff = new Diff( array(), true );
-
-		foreach ( $differ->doDiff( $sourceHashes, $targetHashes ) as $guid => $diffOp ) {
-			if ( $diffOp instanceof DiffOpChange ) {
-				$oldClaim = $this->getClaimWithGuid( $guid );
-				$newClaim = $claims->getClaimWithGuid( $guid );
-
-				assert( $oldClaim instanceof Claim );
-				assert( $newClaim instanceof Claim );
-				assert( $oldClaim->getGuid() === $newClaim->getGuid() );
-
-				$diff[$guid] = new DiffOpChange( $oldClaim, $newClaim );
-			}
-			elseif ( $diffOp instanceof DiffOpAdd ) {
-				$claim = $claims->getClaimWithGuid( $guid );
-				assert( $claim instanceof Claim );
-				$diff[$guid] = new DiffOpAdd( $claim );
-			}
-			elseif ( $diffOp instanceof DiffOpRemove ) {
-				$claim = $this->getClaimWithGuid( $guid );
-				assert( $claim instanceof Claim );
-				$diff[$guid] = new DiffOpRemove( $claim );
-			}
-			else {
-				throw new InvalidArgumentException( 'Invalid DiffOp type cannot be handled' );
-			}
-		}
-
-		return $diff;
-	}
-
-	/**
 	 * Returns a hash based on the value of the object.
 	 * The hash is based on the hashes of the claims contained,
 	 * with the order of claims considered significant.
@@ -489,16 +403,16 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 * @return Claims
 	 */
 	public function getByRank( $rank ) {
-		$claims = array();
+		$claims = new self();
 
 		/* @var Claim $claim */
 		foreach ( $this as $claim ) {
-			if ( $claim->getRank() == $rank ) {
+			if ( $claim->getRank() === $rank ) {
 				$claims[] = $claim;
 			}
 		}
 
-		return new self( $claims );
+		return $claims;
 	}
 
 	/**
@@ -506,23 +420,32 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 *
 	 * @since 0.7.2
 	 *
-	 * @param array $acceptableRanks
+	 * @param int[] $ranks
 	 *
 	 * @return Claims
 	 */
-	public function getByRanks( array $acceptableRanks ) {
-		$newClaims = new Claims();
-		foreach( $acceptableRanks as $rank ) {
-			foreach( $this->getByRank( $rank ) as $claim ) {
-				$newClaims->append( $claim );
+	public function getByRanks( array $ranks ) {
+		$ranks = array_flip( $ranks );
+		$claims = new self();
+
+		/* @var Claim $claim */
+		foreach ( $this as $claim ) {
+			if ( isset( $ranks[$claim->getRank()] ) ) {
+				$claims[] = $claim;
 			}
 		}
-		return $newClaims;
+
+		return $claims;
 	}
 
 	/**
 	 * Returns a new instance only containing the best claims (these are the highest
-	 * ranked claims, but never deprecated ones).
+	 * ranked claims, but never deprecated ones). This implementation ignores the properties
+	 * so you probably want to call Claims::getClaimsForProperty first or use
+	 * ClaimList::getBestClaims instead.
+	 *
+	 * @see Claims::getClaimsForProperty
+	 * @see ClaimList::getBestClaimPerProperty
 	 *
 	 * @since 0.7
 	 *

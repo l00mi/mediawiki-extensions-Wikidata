@@ -199,7 +199,7 @@ abstract class EntityView extends ContextSource {
 		$entityId = $entityRevision->getEntity()->getId() ?: 'new'; // if id is not set, use 'new' suffix for css classes
 		$html = '';
 
-		$html .= wfTemplate( 'wb-entity',
+		$html .= wfTemplate( 'wikibase-entityview',
 			$entityRevision->getEntity()->getType(),
 			$entityId,
 			$lang->getCode(),
@@ -215,7 +215,7 @@ abstract class EntityView extends ContextSource {
 		// JavaScript is parsed.
 		$html .= Html::inlineScript( '
 if ( $ ) {
-	$( ".wb-entity" ).addClass( "loading" ).after( function() {
+	$( ".wikibase-entityview" ).addClass( "loading" ).after( function() {
 		var $div = $( "<div/>" ).addClass( "wb-entity-spinner mw-small-spinner" );
 		$div.css( "top", $div.height() + "px" );
 		$div.css(
@@ -225,7 +225,7 @@ if ( $ ) {
 		return $div;
 	} );
 	window.setTimeout( function() {
-		$( ".wb-entity" ).removeClass( "loading" );
+		$( ".wikibase-entityview" ).removeClass( "loading" );
 		$( ".wb-entity-spinner" ).remove();
 	}, 7000 );
 }
@@ -365,19 +365,27 @@ if ( $ ) {
 		$allSnaks = $entityRevision->getEntity()->getAllSnaks();
 
 		// treat referenced entities as page links ------
-		$refFinder = new ReferencedEntitiesFinder();
-		$usedEntityIds = $refFinder->findSnakLinks( $allSnaks );
+		$entitiesFinder = new ReferencedEntitiesFinder();
+		$usedEntityIds = $entitiesFinder->findSnakLinks( $allSnaks );
 
 		foreach ( $usedEntityIds as $entityId ) {
 			$pout->addLink( $this->entityTitleLookup->getTitleForId( $entityId ) );
 		}
 
+		$valuesFinder = new ValuesFinder( $this->dataTypeLookup );
+
 		// treat URL values as external links ------
-		$urlFinder = new ReferencedUrlFinder( $this->dataTypeLookup );
-		$usedUrls = $urlFinder->findSnakLinks( $allSnaks );
+		$usedUrls = $valuesFinder->findFromSnaks( $allSnaks, 'url' );
 
 		foreach ( $usedUrls as $url ) {
-			$pout->addExternalLink( $url );
+			$pout->addExternalLink( $url->getValue() );
+		}
+
+		// treat CommonsMedia values as file transclusions ------
+		$usedImages = $valuesFinder->findFromSnaks( $allSnaks, 'commonsMedia' );
+
+		foreach( $usedImages as $image ) {
+			$pout->addImage( $image->getValue() );
 		}
 
 		if ( $generateHtml ) {

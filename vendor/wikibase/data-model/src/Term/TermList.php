@@ -155,7 +155,7 @@ class TermList implements Countable, IteratorAggregate, Comparable {
 	 */
 	public function hasTerm( Term $term ) {
 		return array_key_exists( $term->getLanguageCode(), $this->terms )
-		&& $this->terms[$term->getLanguageCode()]->equals( $term );
+			&& $this->terms[$term->getLanguageCode()]->equals( $term );
 	}
 
 }

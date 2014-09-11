@@ -61,10 +61,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @see jQuery.claimview._create
 	 */
 	_create: function() {
-		if ( !this.option( 'abstractedRepoApi' ) ) {
-			throw new Error( 'wikibase.statementview requires a wikibase.AbstractedRepoApi' );
-		}
-
 		PARENT.prototype._create.call( this );
 
 		var self = this,
@@ -99,7 +95,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 							index: index,
 							entityStore: self.option( 'entityStore' ),
 							valueViewBuilder: self.option( 'valueViewBuilder' ),
-							abstractedRepoApi: self.option( 'abstractedRepoApi' )
+							api: self.option( 'api' )
 						};
 					}
 				} ),
@@ -352,7 +348,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @return {jQuery.Promise}
 	 */
 	_removeReferenceApiCall: function( reference ) {
-		var abstractedApi = this.option( 'abstractedRepoApi' ),
+		var abstractedApi = this.option( 'api' ),
 			guid = this.value().getGuid();
 
 		return abstractedApi.removeReferences(
@@ -463,6 +459,22 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 				},
 				addButtonLabel: mw.msg( 'wikibase-addreference' )
 			} );
+
+			toolbarController.registerEventHandler(
+				event.data.toolbar.type,
+				event.data.toolbar.id,
+				'listviewdisable',
+				function( event ) {
+					if( event.target !== $listview.get( 0 ) ) {
+						return;
+					}
+					$node.data( 'addtoolbar' )[
+						listview.option( 'disabled' )
+							? 'disable'
+							: 'enable'
+					]();
+				}
+			);
 		}
 	}
 } );

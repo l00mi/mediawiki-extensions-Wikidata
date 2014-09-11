@@ -28,9 +28,17 @@ are also triggered down the document */
 }
 
 .wb-entitypage .ui-state-disabled input,
+.wb-entitypage input.ui-state-disabled
 .wb-entitypage .ui-state-disabled textarea {
 	background-color: #F0F0F0;
 	color: #565656;
+}
+
+/* Overwrite colour for element that are in edit mode although their container element is not */
+.wb-entitypage .ui-state-disabled .wb-edit input:not(.ui-state-disabled),
+.wb-entitypage .ui-state-disabled .wb-edit textarea {
+	background-color: #FFFFFF;
+	color: inherit;
 }
 
 /* Messages displayed while some action is performed (e.g. an API call) */
@@ -49,21 +57,21 @@ h2.wb-section-heading {
 	position: relative;
 	float: left;
 	width: 100%;
-	padding-top: 2em;
 	margin-bottom: 0.2em;
+	margin-top: 1em;
 	padding-left: 10px;
 	border-bottom: none;
 }
 
 /* entity container */
-.wb-entity {
+.wikibase-entityview {
 	width: 100%;
 	max-width: 65em;
 	float: left; /* float left to let widget container float right next to it */
 	clear: both; /* wrap around success message */
 }
 
-.wb-entity input {
+.wikibase-entityview input {
 	/* prevent browsers from applying their default styles */
 	padding: 0 2px;
 	border: 1px solid #AAA;
@@ -74,7 +82,7 @@ h2.wb-section-heading {
 
 }
 
-.wb-entity textarea {
+.wikibase-entityview textarea {
 	font-family: inherit;
 }
 
@@ -118,11 +126,11 @@ h2.wb-section-heading {
 	display: block; /* need to force block explicitly to achieve 100% width */
 }
 
-.wb-value, .wb-value-supplement {
+.wb-value {
 	display: inline;
 }
 
-.wb-value-empty, .wb-value-supplement {
+.wb-empty {
 	color: #A1A1A1;
 }
 
@@ -157,120 +165,19 @@ div.wb-entity-spinner { /* loading spinner positioning (animation is taken from 
 	width: auto;
 }
 
+ul.tagadata {
+	padding: 0;
+}
+
+li.tagadata-choice-modified .tagadata-label-text {
+	/* highlight new tags since initialization */
+	text-decoration: underline;
+}
+
 /********** /BASIC LAYOUT **********/
 
 
-/********** LABEL & DESCRIPTION **********/
-
-.wb-ui-labeledittool .wb-value-container,
-.wb-ui-descriptionedittool .wb-value-container {
-	padding-right: 19em; /* width of toolbar + white space border */
-}
-
-/********** LABEL **********/
-
-#content .wb-firstHeading {
-	font-size: 100%; /* required since Gerrit Ic5ba836364d04b2c3814777b69b5f47fce25292a */
-}
-
-.wb-firstHeading {
-	border-bottom: 0;
-	margin-bottom: 0; /* FIXME: Should be removed if the Typography refresh is stable */
-	padding-top: 0; /* FIXME: Should be removed if the Typography refresh is stable */
-	clear: both; /* so success bar after new item created won't float heading */
-}
-
-.wb-firstHeading span {
-	line-height: 100%;
-}
-
-/* the label edit tool styles have to be further customized due to the differing font sizes of the
-label and its toolbar */
-
-/* preventing layout jittering toggling between view and edit mode */
-.wb-firstHeading .wb-value {
-	font-size: 188%;
-	line-height: 1.2; /* adjust line height to input box height in edit mode */
-	padding: 1px 0; /* even out border of input box in edit mode */
-}
-
-.wb-firstHeading .wb-value-supplement {
-	line-height: 188%;
-	/* In RTL UI, if the last word of the label is LTR,
-	 * the supplement will get jumbled without isolation */
-	unicode-bidi: -moz-isolate;
-	unicode-bidi: -webkit-isolate;
-	unicode-bidi: isolate;
-}
-
-.wb-firstHeading .wb-value-container {
-	display: block;
-	margin: .3em .3em .13em 10px; /* h1 natively has 0.17em bottom padding to avoid clipping */
-}
-
-.wb-firstHeading .wb-editsection {
-	/* this nodes font size will affect the toolbar padding which is specified in em; therefore, the
-	font size should be the same as on every other toolbar container node */
-	font-size: 100%;
-}
-
-/* vertical positioning */
-/* the following lines are used to vertically position the toolbar on the baseline of the heading
-(label) which has a bigger font size */
-.wb-firstHeading .wb-editsection {
-	/* FIXME: Should use the LESS variable @content-font-family */
-	font-family: sans-serif;
-	line-height: 188%;
-	top: .3em; /* even out margin of label container in view mode */
-}
-.wb-firstHeading .wikibase-toolbar {
-	font-size: 188%;
-	line-height: 1.2; /* adjust to height of value */
-	padding-top: 1px; /* even out border of input box */
-}
-.wb-firstHeading .wikibase-toolbar .wikibase-toolbareditgroup {
-	font-size: 53%;
-	margin-bottom: 2px;
-}
-.wb-firstHeading .wikibase-toolbar .wikibase-toolbar, /* inner group (buttons) */
-.wb-firstHeading .wikibase-toolbar .wikibase-toolbarlabel /* tooltip */ {
-	font-size: 100%;
-	margin-bottom: 0; /* even out border of label container in view mode */
-}
-
-/********** /LABEL **********/
-
-/********** DESCRIPTION **********/
-
-.wb-description {
-	margin-top: -2px; /* move to top decreasing space between label and description */
-}
-
-.wb-description .wb-value-container {
-	padding-left: 10px;
-	padding-top: 0.1em;
-	padding-bottom: 0.1em;
-}
-
-.wb-description .wb-value {
-	line-height: 2; /* force height to be able to align toolbar */
-}
-
-.wb-description .wb-editsection {
-	top: 0.1em; /* see padding-top of editablevalue container */
-	line-height: 2;
-}
-
-/********** /DESCRIPTION **********/
-
-/********** /LABEL & DESCRIPTION **********/
-
-
 /********** TERMS **********/
-
-.wb-terms .wb-value {
-    display: block;
-}
 
 h2.wb-terms-heading {
     float: left;
@@ -285,70 +192,16 @@ table.wb-terms {
     border-spacing: 0;
     width: 100%;
     border-bottom: 1px solid #C9C9C9;
-}
-
-table.wb-terms .wb-terms-language {
-    width: 25%;
-    word-wrap: break-word;
-    padding-left: 10px;
-    border-left: 1px solid #C9C9C9;
-}
-
-table.wb-terms .wb-terms-term {
-    width: 75%;
-    word-wrap: break-word;
-    padding-left: 10px;
-}
-
-table.wb-terms {
     clear: both;
     border-right: 1px solid #C9C9C9;
 }
 
-table.wb-terms td {
-	background: #F0F0F0;
-	border-top: 1px solid #C9C9C9;
-}
-table.wb-terms tr:nth-child(4n) td,
-table.wb-terms tr:nth-child(4n-1) td {
+.wb-terms tr td {
 	background: #F8F8F8;
 }
 
-table.wb-terms td.wb-terms-label,
-table.wb-terms td.wb-terms-description {
-	padding: 10px;
-}
-
-table.wb-terms .wb-edit td.wb-terms-label,
-table.wb-terms .wb-edit td.wb-terms-description {
-	padding: 8px 8px 9px 7px;
-}
-
-/* the right column of the site links table (...-toolbarparent) should be treated as "action" column */
-table.wb-terms .wb-editsection {
-    width: 18em;
-    position: static; /* clear absolute positioning */
-    float: none; /* overwrite edit section's float: right */
-    padding: 0;
-    margin-left: 0; /* reset edit section's margin which is set in the toolbar group instead;
-	                applying margin to the edit section cell should not have any effect at all */
-}
-
-table.wb-terms .wb-editsection .wikibase-toolbar {
-    width: 18em; /* additionally assign width to toolbar to enforce width in no-JS version */
-}
-
-table.wb-terms .wb-editsection .wikibase-toolbar .wikibase-toolbar {
-    margin-left: 1px; /* even out table cell's right border */
-}
-
-table.wb-terms .wb-editsection .wikibase-toolbar .wikibase-toolbar {
-    margin-left: 0; /* do not apply margin to nested toolbar groups */
-}
-
-table.wb-terms input {
-	font-family: inherit;
-	width: 100%;
+.wb-terms tbody:nth-child(even) td {
+	background: #F0F0F0;
 }
 
 /********** /TERMS **********/
@@ -847,6 +700,7 @@ h2.wb-sitelinks-heading {
 
 span.wb-itemlink-id { /* item id within a link to an item (especially on special pages) */
 	font-size: .85em;
+	unicode-bidi: embed;
 }
 
 

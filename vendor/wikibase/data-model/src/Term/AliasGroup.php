@@ -77,7 +77,7 @@ class AliasGroup implements Comparable, Countable {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isEmpty() {
 		return empty( $this->aliases );
@@ -88,12 +88,12 @@ class AliasGroup implements Comparable, Countable {
 	 *
 	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $target ) {
-		return $target instanceof AliasGroup
-		&& $this->languageCode === $target->languageCode
-		&& $this->aliases == $target->aliases;
+		return $target instanceof self
+			&& $this->languageCode === $target->languageCode
+			&& $this->aliases == $target->aliases;
 	}
 
 	/**

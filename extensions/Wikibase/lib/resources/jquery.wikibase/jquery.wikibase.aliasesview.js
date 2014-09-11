@@ -77,24 +77,6 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 		) {
 			this._draw();
 		}
-
-		this.element
-		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
-		.on( 'aliasesviewafterstartediting.' + this.widgetName, function( event ) {
-			$( wb ).trigger( 'startItemPageEditMode', [
-				event.target,
-				{
-					exclusive: false,
-					wbCopyrightWarningGravity: 'sw'
-				}
-			] );
-		} )
-		.on( 'aliasesviewafterstopediting.' + this.widgetName, function( event, dropValue ) {
-			$( wb ).trigger( 'stopItemPageEditMode', [
-				event.target,
-				{ save: dropValue !== true }
-			] );
-		} );
 	},
 
 	/**
@@ -193,7 +175,8 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 		var tagadata = this.$list.data( 'tagadata' );
 
 		// calculate size for all input elements initially:
-		tagadata.getTags().find( 'input' ).inputautoexpand( expansionOptions );
+		tagadata.getTags().add( tagadata.getHelperTag() )
+			.find( 'input' ).inputautoexpand( expansionOptions );
 
 		// also make sure that new helper tags will calculate size correctly:
 		this.$list.on( 'tagadatahelpertagadded.' + this.widgetName, function( event, tag ) {
@@ -416,8 +399,8 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 
 		var tagadata = this.$list.data( 'tagadata' );
 
-		value = $.map( tagadata.getTags(), function( $tag ) {
-			return tagadata.getTagLabel( $tag );
+		value = $.map( tagadata.getTags(), function( tag ) {
+			return tagadata.getTagLabel( $( tag ) );
 		} );
 
 		return {
@@ -502,6 +485,43 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				);
 
 			} );
+
+			$aliasesview
+			// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
+			.on( 'edittoolbarafterstartediting.' + aliasesview.widgetName, function( event ) {
+				$( wb ).trigger( 'startItemPageEditMode', [
+					$aliasesview,
+					{
+						exclusive: false,
+						wbCopyrightWarningGravity: 'sw'
+					}
+				] );
+			} )
+			.on( 'edittoolbarafterstopediting.' + aliasesview.widgetName, function( event, dropValue ) {
+				$( wb ).trigger( 'stopItemPageEditMode', [
+					$aliasesview,
+					{ save: dropValue !== true }
+				] );
+			} );
+		},
+		aliasesviewdisable: function( event ) {
+			var $aliasesview = $( event.target ),
+				aliasesview = $aliasesview.data( 'aliasesview' ),
+				toolbar = $aliasesview.data( 'edittoolbar' ).toolbar,
+				$btnSave = toolbar.editGroup.getButton( 'save' ),
+				btnSave = $btnSave.data( 'toolbarbutton' ),
+				enable = aliasesview.isValid() && !aliasesview.isInitialValue(),
+				currentAliases = aliasesview.value().aliases;
+
+			btnSave[enable ? 'enable' : 'disable']();
+
+			if( aliasesview.option( 'disabled' ) || currentAliases.length ) {
+				return;
+			}
+
+			if( !currentAliases ) {
+				toolbar.disable();
+			}
 		},
 		toolbareditgroupedit: function( event, toolbarcontroller ) {
 			var $aliasesview = $( event.target ).closest( ':wikibase-edittoolbar' ),

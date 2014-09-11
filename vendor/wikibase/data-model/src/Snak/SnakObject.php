@@ -2,9 +2,6 @@
 
 namespace Wikibase\DataModel\Snak;
 
-use DataValues\Deserializers\DataValueDeserializer;
-use DataValues\UnDeserializableValue;
-use Deserializers\Exceptions\DeserializationException;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
@@ -70,9 +67,7 @@ abstract class SnakObject implements Snak {
 	}
 
 	/**
-	 * @see Snak::getHash
-	 *
-	 * @since 0.1
+	 * @see Hashable::getHash
 	 *
 	 * @return string
 	 */
@@ -87,14 +82,18 @@ abstract class SnakObject implements Snak {
 	 *
 	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $target ) {
-		if ( is_object( $target ) && ( $target instanceof Snak ) ) {
-			return $this->getHash() === $target->getHash();
+		if ( $target === $this ) {
+			return true;
 		}
 
-		return false;
+		if ( !( $target instanceof Snak ) ) {
+			return false;
+		}
+
+		return $this->getHash() === $target->getHash();
 	}
 
 	/**
@@ -119,108 +118,6 @@ abstract class SnakObject implements Snak {
 	 */
 	public function unserialize( $serialized ) {
 		$this->propertyId = PropertyId::newFromNumber( unserialize( $serialized ) );
-	}
-
-	/**
-	 * @see Snak::toArray
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
-	 */
-	public function toArray() {
-		$data = array();
-
-		$data[] = $this->getType();
-		$data[] = $this->getPropertyId()->getNumericId();
-
-		return $data;
-	}
-
-	/**
-	 * Factory for constructing Snak objects from their array representation.
-	 * This is their internal array representation, which should not be confused
-	 * with whatever is used for external serialization.
-	 *
-	 * The array should have the following format:
-	 * - snak type (string)
-	 * - property id (int)
-	 * [
-	 * - data value (mixed)
-	 * - data value type (string)
-	 * ]
-	 *
-	 * @note: If a DataValue could not be unserialized properly, the respective data
-	 *        will be represented using an UnDeserializableValue object.
-	 *
-	 * @since 0.3
-	 * @deprecated since 0.4
-	 *
-	 * @param array $data
-	 *
-	 * @return Snak
-	 */
-	public static function newFromArray( array $data ) {
-		$snakType = array_shift( $data );
-
-		$data[0] = PropertyId::newFromNumber( $data[0] );
-
-		if ( $snakType === 'value' ) {
-			$deserializer = new DataValueDeserializer( $GLOBALS['evilDataValueMap'] );
-
-			try {
-				$value = $deserializer->deserialize( array(
-					'type' => $data[1],
-					'value' => $data[2],
-				) );
-			} catch ( DeserializationException $ex ) {
-				$value = new UnDeserializableValue( $data[2], $data[1], $ex->getMessage() );
-			}
-
-			return new PropertyValueSnak( $data[0], $value );
-		}
-
-		return self::newFromType( $snakType, $data );
-	}
-
-	/**
-	 * Constructs a new snak of specified type and returns it.
-	 *
-	 * @since 0.3
-	 * @deprecated since 0.4
-	 *
-	 * @param string $snakType
-	 * @param array $constructorArguments
-	 *
-	 * @return Snak
-	 * @throws InvalidArgumentException
-	 */
-	public static function newFromType( $snakType, array $constructorArguments ) {
-		if ( $constructorArguments === array() || ( $snakType === 'value' ) && count( $constructorArguments ) < 2 ) {
-			throw new InvalidArgumentException( __METHOD__ . ' got an array with to few constructor arguments' );
-		}
-
-		$snakJar = array(
-			'value' => '\Wikibase\PropertyValueSnak',
-			'novalue' => '\Wikibase\PropertyNoValueSnak',
-			'somevalue' => '\Wikibase\PropertySomeValueSnak',
-		);
-
-		if ( !array_key_exists( $snakType, $snakJar ) ) {
-			throw new InvalidArgumentException( 'Cannot construct a snak from array with unknown snak type "' . $snakType . '"' );
-		}
-
-		$snakClass = $snakJar[$snakType];
-
-		if ( $snakType === 'value' ) {
-			return new $snakClass(
-				$constructorArguments[0],
-				$constructorArguments[1]
-			);
-		}
-		else {
-			return new $snakClass( $constructorArguments[0] );
-		}
 	}
 
 }

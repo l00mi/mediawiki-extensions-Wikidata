@@ -26,8 +26,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'mediawiki.api',
 				'mediawiki.user',
-				'wikibase.ui.PropertyEditTool',
-				'jquery.wikibase.aliasesview',
 				'jquery.wikibase.entityview',
 				'jquery.wikibase.toolbarcontroller',
 				'jquery.wikibase.wbtooltip',
@@ -39,7 +37,6 @@ return call_user_func( function() {
 				'wikibase.experts',
 				'wikibase.formatters.getStore',
 				'wikibase.EntityInitializer',
-				'wikibase.ui.initTermBox',
 				'wikibase.parsers.getStore',
 				'wikibase.RepoApi',
 				'wikibase.sites',
@@ -74,23 +71,6 @@ return call_user_func( function() {
 				// implicitly required as dependency.
 				'wikibase.serialization.entities',
 			),
-		),
-
-		'wikibase.ui.initTermBox' => $moduleTemplate + array(
-			'scripts' => array(
-				'wikibase.ui.initTermBox.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.toolbar',
-				'jquery.wikibase.toolbareditgroup',
-				'mediawiki.Title',
-				'wikibase',
-				'wikibase.templates',
-				'wikibase.ui.PropertyEditTool',
-			),
-			'messages' => array(
-				'wikibase-terms',
-			)
 		),
 
 		'wikibase.ui.entitysearch' => $moduleTemplate + array(
@@ -159,8 +139,8 @@ return call_user_func( function() {
 	);
 
 	if ( defined( 'ULS_VERSION' ) ) {
-		$modules['wikibase.ui.initTermBox']['dependencies'][] = 'ext.uls.displaysettings';
-		$modules['wikibase.ui.initTermBox']['dependencies'][] = 'ext.uls.mediawiki';
+		$modules['wikibase.initTermBox']['dependencies'][] = 'ext.uls.displaysettings';
+		$modules['wikibase.initTermBox']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.itemDisambiguation']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
 	}

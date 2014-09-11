@@ -12,11 +12,11 @@
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~1.1",
-        "wikibase/wikibase": "dev-mw1.24-wmf19",
-        "wikibase/wikimedia-badges": "dev-master",
-        "wikibase/Wikidata.org" : "dev-master"
+        "wikibase/wikibase": "dev-mw1.24-wmf20",
+        "wikibase/Wikidata.org": "dev-master",
+        "wikibase/wikimedia-badges": "dev-master"
     },
     "config": {
-        "autoloader-suffix": "wikidata_mw1_24_wmf19"
+        "autoloader-suffix": "wikidata_mw1_24_wmf20x"
     }
 }

@@ -170,7 +170,7 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 			html: '&nbsp;' // TODO find nicer way to hack Webkit browsers to display tooltip image (see also css)
 		} ) )
 		// Tooltip anchor has no disabled/enabled behavior.
-		.toolbarlabel( { stateChangeable: false } );
+		.toolbarlabel();
 
 		this._attachEventHandler();
 
@@ -191,10 +191,10 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 					break;
 				case self._buttons.save.get( 0 ):
 					self._trigger( 'save', null, [ function() {
-						if( self.element.data( 'toolbareditgroup' ) && !self.isDisabled() ) {
+						if( self.element.data( 'toolbareditgroup' ) && !self.options.disabled ) {
 							// Only toggle EditGroup as long as it still exists.
-							// If edit group is disabled, the interaction target appears to be invalid and
-							// edit mode is supposed to persist.
+							// If edit group is disabled, the interaction target appears to be
+							// invalid and edit mode is supposed to persist.
 							self.toNonEditMode();
 						}
 					} ] );
@@ -203,12 +203,11 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 					self._trigger( 'remove' );
 					break;
 				case self._buttons.cancel.get( 0 ):
-// FIXME: Cancel button's event handler should be registered here and not in getButton.
-//					self._trigger( 'cancel', null, [ function() {
-//						if( self.element.data( 'toolbareditgroup' ) ) {
-//							self.toNonEditMode();
-//						}
-//					} ] );
+					self._trigger( 'cancel', null, [ function() {
+						if( self.element.data( 'toolbareditgroup' ) ) {
+							self.toNonEditMode();
+						}
+					} ] );
 					break;
 			}
 		} );
@@ -305,28 +304,24 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 			if( buttonCharacteristics.disabled ) {
 				this._buttons[buttonName].data( 'toolbarbutton' ).disable();
 			}
-
-			// FIXME: Handling the cancel button's action should be attached to the
-			// toolbareditgroup widget's node just like for the other buttons. However, due to the
-			// node replacing taking place in EditableAliases (see
-			// wikibase.ui.PropertyEditTool.EditableAliases._destroy() ), the event handler needs
-			// to be attached directly to the button since the cancel button's reference to the
-			// toolbareditgroup is removed via the event handler attached in
-			// wikibase.ui.AliasEditTool._buildSingleValueToolbar().
-			var self = this;
-			if( buttonName === 'cancel' ) {
-				this._buttons[buttonName]
-				.on( 'toolbarbuttonaction.' + this.widgetName, function( event ) {
-					self._trigger( 'cancel', null, [ function() {
-						if( self.element.data( 'toolbareditgroup' ) ) {
-							self.toNonEditMode();
-						}
-					} ] );
-				} );
-			}
 		}
 
 		return this._buttons[buttonName];
+	},
+
+	/**
+	 * @see jQuery.wikibase.toolbar._setOption
+	 */
+	_setOption: function( key, value ) {
+		var self = this;
+		if( key === 'disabled' ) {
+			$.each( this._buttons, function( buttonName, button ) {
+				if( button ) {
+					self[value ? 'disableButton' : 'enableButton']( buttonName );
+				}
+			} );
+		}
+		return PARENT.prototype._setOption.apply( this, arguments );
 	},
 
 	/**
@@ -353,6 +348,22 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 		if( this._buttons[buttonName] ) {
 			this._buttons[buttonName].data( 'toolbarbutton' ).enable();
 		}
+	},
+
+	/**
+	 * @param {string} state
+	 */
+	_setState: function( state ) {
+		// TODO: This special handling should not be necessary: Resolve toolbar state handling.
+		var self = this;
+
+		$.each( this.options.buttonCharacteristics, function( buttonName ) {
+			if( self._buttons[buttonName] ) {
+				self._buttons[buttonName].data( 'toolbarbutton' )[state]();
+			}
+		} );
+
+		return true;
 	},
 
 	/**
@@ -399,7 +410,7 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 			style: 'display:inline;text-decoration:none;', // TODO: Get rid of inline styles.
 			html: '&nbsp;' // TODO find nicer way to hack Webkit browsers to display tooltip image (see also css)
 		} ) )
-		.toolbarlabel( { stateChangeable: false } );
+		.toolbarlabel();
 
 		// Clone buttons:
 		clone._buttons.edit = this._buttons.edit ? this._buttons.edit.data( 'toolbarbutton' ).clone() : null;

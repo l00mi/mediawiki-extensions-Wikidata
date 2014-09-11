@@ -328,125 +328,6 @@ final class ClientHooks {
 	}
 
 	/**
-	 * Hook runs after internal parsing
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserAfterParse
-	 *
-	 * @since 0.1
-	 *
-	 * @param Parser $parser
-	 * @param string $text
-	 * @param StripState $stripState
-	 *
-	 * @return bool
-	 */
-	public static function onParserAfterParse( Parser &$parser, &$text, StripState $stripState ) {
-		// this hook tries to access repo SiteLinkTable
-		// it interferes with any test that parses something, like a page or a message
-		if ( defined( 'MW_PHPUNIT_TEST' ) ) {
-			return true;
-		}
-
-		if ( !self::isWikibaseEnabled( $parser->getTitle()->getNamespace() ) ) {
-			// shorten out
-			return true;
-		}
-
-		wfProfileIn( __METHOD__ );
-
-		// @todo split up the multiple responsibilities here and in lang link handler
-
-		$parserOutput = $parser->getOutput();
-
-		// only run this once, for the article content and not interface stuff
-		//FIXME: this also runs for messages in EditPage::showEditTools! Ugh!
-		if ( $parser->getOptions()->getInterfaceMessage() ) {
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
-
-		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$settings = $wikibaseClient->getSettings();
-
-		$langLinkHandler = new LangLinkHandler(
-			$settings->getSetting( 'siteGlobalID' ),
-			$wikibaseClient->getNamespaceChecker(),
-			$wikibaseClient->getStore()->getSiteLinkTable(),
-			$wikibaseClient->getSiteStore(),
-			$wikibaseClient->getLangLinkSiteGroup()
-		);
-
-		$useRepoLinks = $langLinkHandler->useRepoLinks( $parser->getTitle(), $parser->getOutput() );
-
-		try {
-			if ( $useRepoLinks ) {
-				// add links
-				$langLinkHandler->addLinksFromRepository( $parser->getTitle(), $parser->getOutput() );
-			}
-
-			$langLinkHandler->updateItemIdProperty( $parser->getTitle(), $parser->getOutput() );
-		} catch ( \Exception $e ) {
-			wfWarn( 'Failed to add repo links: ' . $e->getMessage() );
-		}
-
-		if ( $useRepoLinks || $settings->getSetting( 'alwaysSort' ) ) {
-			// sort links
-			$interwikiSorter = new InterwikiSorter(
-				$settings->getSetting( 'sort' ),
-				$settings->getSetting( 'interwikiSortOrders' ),
-				$settings->getSetting( 'sortPrepend' )
-			);
-			$interwikiLinks = $parserOutput->getLanguageLinks();
-			$sortedLinks = $interwikiSorter->sortLinks( $interwikiLinks );
-			$parserOutput->setLanguageLinks( $sortedLinks );
-		}
-
-		wfProfileOut( __METHOD__ );
-		return true;
-	}
-
-	/**
-	 * Add badges to the language links.
-	 *
-	 * @since 0.5
-	 *
-	 * @param array &$languageLink
-	 * @param Title $languageLinkTitle
-	 * @param Title $title
-	 *
-	 * @return bool
-	 */
-	public static function onSkinTemplateGetLanguageLink( &$languageLink, Title $languageLinkTitle, Title $title ) {
-		wfProfileIn( __METHOD__ );
-
-		global $wgLang;
-
-		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$settings = $wikibaseClient->getSettings();
-
-		$clientSiteLinkLookup = $wikibaseClient->getClientSiteLinkLookup();
-		$entityLookup = $wikibaseClient->getStore()->getEntityLookup();
-		$sites = $wikibaseClient->getSiteStore()->getSites();
-		$badgeClassNames = $settings->getSetting( 'badgeClassNames' );
-
-		if ( !is_array( $badgeClassNames ) ) {
-			$badgeClassNames = array();
-		}
-
-		$languageLinkBadgeDisplay = new LanguageLinkBadgeDisplay(
-			$clientSiteLinkLookup,
-			$entityLookup,
-			$sites,
-			$badgeClassNames,
-			$wgLang
-		);
-
-		$languageLinkBadgeDisplay->assignBadges( $title, $languageLinkTitle, $languageLink );
-
-		wfProfileOut( __METHOD__ );
-		return true;
-	}
-
-	/**
 	 * Add Wikibase item link in toolbox
 	 *
 	 * @since 0.4
@@ -522,39 +403,6 @@ final class ClientHooks {
 	}
 
 	/**
-	 * Add output page property if repo links are suppressed, and property for item id
-	 *
-	 * @since 0.4
-	 *
-	 * @param OutputPage &$out
-	 * @param ParserOutput $pout
-	 *
-	 * @return bool
-	 */
-	public static function onOutputPageParserOutput( OutputPage &$out, ParserOutput $pout ) {
-		if ( !self::isWikibaseEnabled( $out->getTitle()->getNamespace() ) ) {
-			// shorten out
-			return true;
-		}
-
-		$langLinkHandler = WikibaseClient::getDefaultInstance()->getLangLinkHandler();
-
-		$noExternalLangLinks = $langLinkHandler->getNoExternalLangLinks( $pout );
-
-		if ( $noExternalLangLinks !== array() ) {
-			$out->setProperty( 'noexternallanglinks', $noExternalLangLinks );
-		}
-
-		$itemId = $pout->getProperty( 'wikibase_item' );
-
-		if ( $itemId !== false ) {
-			$out->setProperty( 'wikibase_item', $itemId );
-		}
-
-		return true;
-	}
-
-	/**
 	 * Displays a list of links to pages on the central wiki at the end of the language box.
 	 *
 	 * @since 0.1
@@ -622,6 +470,13 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onSidebarBeforeOutput( Skin $skin, array &$sidebar ) {
+		$outputPage = $skin->getContext()->getOutput();
+		$title = $outputPage->getTitle();
+
+		if ( !self::isWikibaseEnabled( $title->getNamespace() ) ) {
+			return true;
+		}
+
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 		$settings = $wikibaseClient->getSettings();
 
@@ -630,11 +485,17 @@ final class ClientHooks {
 				BetaFeatures::isFeatureEnabled( $skin->getUser(), 'wikibase-otherprojects' );
 
 		if ( $settings->getSetting( 'otherProjectsLinksByDefault' ) || $betaFeatureEnabled ) {
-			$otherProjectsSidebarGenerator = $wikibaseClient->getOtherProjectsSidebarGenerator();
-			$title = $skin->getContext()->getTitle();
-			$otherProjectsSidebar = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $title );
+			$otherProjectsSidebar = $outputPage->getProperty( 'wikibase-otherprojects-sidebar' );
 
-			if ( count( $otherProjectsSidebar ) !== 0 ) {
+			// in case of stuff in cache without the other projects
+			if ( $otherProjectsSidebar === null ) {
+				// @todo remove this fallback before this graduates from
+				// a beta feature, if not sooner.
+				$otherProjectsSidebarGenerator = $wikibaseClient->getOtherProjectsSidebarGenerator();
+				$otherProjectsSidebar = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $title );
+			}
+
+			if ( !empty( $otherProjectsSidebar ) ) {
 				$sidebar['wikibase-otherprojects'] = $otherProjectsSidebar;
 			}
 		}

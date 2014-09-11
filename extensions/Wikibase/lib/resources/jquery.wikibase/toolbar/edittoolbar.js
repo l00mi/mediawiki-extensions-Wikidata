@@ -39,6 +39,14 @@
 	 *         this options, the "remove" button will not be shown if the interaction object has no
 	 *         "remove" method.
 	 *         Default value: true
+	 *
+	 * @event afterstartediting
+	 *        Triggered after the toolbar has switched to edit mode.
+	 *        (1) {jQuery.Event}
+	 *
+	 * @event afterstopediting
+	 *        Triggered after the toolbar has switched to non-edit mode.
+	 *        (1) {jQuery.Event}
 	 */
 	$.widget( 'wikibase.edittoolbar', PARENT, {
 		/**
@@ -189,6 +197,7 @@
 			this.element
 			.on( prefix + 'afterstartediting', function( event ) {
 				editGroup.toEditMode();
+				self._trigger( 'afterstartediting' );
 			} )
 			.on( prefix + 'stopediting', function( event, dropValue ) {
 				self.disable();
@@ -197,11 +206,12 @@
 					self.toggleActionMessage( { message: 'wikibase-save-inprogress' } );
 				}
 			} )
-			.on( prefix + 'afterstopediting', function( event ) {
+			.on( prefix + 'afterstopediting.' + this.widgetName, function( event ) {
 				editGroup.toNonEditMode();
 				self.enable();
 				self.toggleActionMessage( function() {
 					editGroup.getButton( 'edit' ).focus();
+					self._trigger( 'afterstopediting' );
 				} );
 			} )
 			.on( prefix + 'afterstartediting ' + prefix + 'change', function( event ) {
@@ -216,6 +226,9 @@
 				} else {
 					editGroup.disableButton( 'save' );
 				}
+			} )
+			.on( prefix + 'disable', function( event, disable ) {
+				self[disable ? 'disable' : 'enable']();
 			} )
 			.on( prefix + 'toggleerror', function( event, error ) {
 				if ( error && error instanceof wb.RepoApiError ) {

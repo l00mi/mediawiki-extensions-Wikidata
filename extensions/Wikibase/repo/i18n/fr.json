@@ -72,7 +72,6 @@
 	"wikibase-undo-badpage": "Numéro de version erroné&nbsp;: la révision $2 n'appartient pas à [[$1]].",
 	"wikibase-undo-firstrev": "Impossible d'annuler la création de la page",
 	"wikibase-undo-nocontent": "Impossible de charger le contenu de la modification $2 de la page $1",
-	"wikibase-propertyedittool-full": "La liste des valeurs est complète.",
 	"wikibase-ui-pendingquantitycounter-pending-pendingsubpart": "+$1",
 	"wikibase-propertyedittool-counter-pending-tooltip": "{{PLURAL:$1|Une valeur pas encore enregistrée|$1&nbsp;valeurs pas encore enregistrées}}",
 	"wikibase-propertyedittool-counter-entrieslabel": "{{PLURAL:$1|entrée|entrées}}",
@@ -115,6 +114,8 @@
 	"wikibase-wikibaserepopage-not-itemid": "« $1 » n’est pas un identifiant (''id'') d’élément valide.",
 	"wikibase-wikibaserepopage-invalid-langcode": "Le code de langue « $1 » n’est pas connu. Veuillez utiliser un code de langue connu du système, comme « fr ».",
 	"wikibase-wikibaserepopage-invalid-id": "L’ID « $1 » est inconnu du système. Veuillez utiliser un ID d’entité valide.",
+	"wikibase-wikibaserepopage-unresolved-redirect": "$1 est une redirection.",
+	"wikibase-wikibaserepopage-storage-exception": "Une erreur s’est produite lors d’un essai de chargement de $1 : $2.",
 	"special-itembytitle": "Élément par titre",
 	"wikibase-itembytitle-lookup-fieldset": "Rechercher des éléments par site et par titre",
 	"wikibase-itembytitle-lookup-site": "Site&nbsp;:&nbsp;",
@@ -342,6 +343,7 @@
 	"content-model-wikibase-query": "Requête de Wikibase",
 	"right-item-term": "Modifier les termes de l’élément (libellés, descriptions, alias)",
 	"right-item-merge": "Fusionner les éléments",
+	"right-item-redirect": "Créer des redirections d’élément",
 	"right-property-term": "Modifier les termes de la propriété (libellés, descriptions, alias)",
 	"right-property-create": "Créer des propriétés"
 }

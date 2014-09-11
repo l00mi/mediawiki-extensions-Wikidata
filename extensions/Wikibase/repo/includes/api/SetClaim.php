@@ -6,7 +6,7 @@ use ApiBase;
 use ApiMain;
 use DataValues\IllegalValueException;
 use Diff\Comparer\ComparableComparer;
-use Diff\OrderedListDiffer;
+use Diff\Differ\OrderedListDiffer;
 use FormatJson;
 use InvalidArgumentException;
 use LogicException;
@@ -160,15 +160,6 @@ class SetClaim extends ModifyClaim {
 			),
 			parent::getAllowedParams()
 		);
-	}
-
-	/**
-	 * @see ApiBase::getPossibleErrors()
-	 */
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'code' => 'invalid-claim', 'info' => $this->msg( 'wikibase-api-invalid-claim' )->text() ),
-		) );
 	}
 
 	/**
