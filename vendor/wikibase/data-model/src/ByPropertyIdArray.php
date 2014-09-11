@@ -43,13 +43,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 class ByPropertyIdArray extends \ArrayObject {
 
 	/**
-	 * @since 0.2
-	 *
-	 * @var array[]|null
-	 */
-	private $byId = null;
-
-	/**
 	 * @see \ArrayObject::__construct
 	 *
 	 * @param array|object $input
@@ -57,6 +50,13 @@ class ByPropertyIdArray extends \ArrayObject {
 	public function __construct( $input = null ) {
 		parent::__construct( (array)$input );
 	}
+
+	/**
+	 * @since 0.2
+	 *
+	 * @var null|object[][]
+	 */
+	protected $byId = null;
 
 	/**
 	 * Builds the index for doing look-ups by property id.
@@ -83,7 +83,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 *
 	 * @throws RuntimeException
 	 */
-	private function assertIndexIsBuild() {
+	protected function assertIndexIsBuild() {
 		if ( $this->byId === null ) {
 			throw new RuntimeException( 'Index not build, call buildIndex first' );
 		}
@@ -177,7 +177,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 *
 	 * @throws RuntimeException
 	 */
-	private function getFlatArrayIndices( PropertyId $propertyId ) {
+	protected function getFlatArrayIndices( PropertyId $propertyId ) {
 		$this->assertIndexIsBuild();
 
 		$propertyIndices = array();
@@ -185,7 +185,9 @@ class ByPropertyIdArray extends \ArrayObject {
 
 		foreach( $this->byId as $serializedPropertyId => $objects ) {
 			if( $serializedPropertyId === $propertyId->getSerialization() ) {
-				$propertyIndices = range( $i, $i + count( $objects ) - 1 );
+				for( $index = 0; $index < count( $objects ); $index++ ) {
+					$propertyIndices[] = $index + $i;
+				}
 				break;
 			} else {
 				$i += count( $objects );
@@ -204,7 +206,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 *
 	 * @throws OutOfBoundsException
 	 */
-	private function moveObjectInPropertyGroup( $object, $toIndex ) {
+	protected function moveObjectInPropertyGroup( $object, $toIndex ) {
 		$currentIndex = $this->getFlatArrayIndexOfObject( $object );
 
 		if( $toIndex === $currentIndex ) {
@@ -241,7 +243,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 *
 	 * @param object $object
 	 */
-	private function moveObjectToEndOfPropertyGroup( $object ) {
+	protected function moveObjectToEndOfPropertyGroup( $object ) {
 		$this->removeObject( $object );
 
 		/** @var PropertyId $propertyId */
@@ -264,7 +266,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 *
 	 * @param object $object
 	 */
-	private function removeObject( $object ) {
+	protected function removeObject( $object ) {
 		$flatArray = $this->toFlatArray();
 		$this->exchangeArray( $flatArray );
 		$this->offsetUnset( array_search( $object, $flatArray ) );
@@ -278,7 +280,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * @param object $object
 	 * @param int $index Absolute index within the flat list of objects.
 	 */
-	private function insertObjectAtIndex( $object, $index ) {
+	protected function insertObjectAtIndex( $object, $index ) {
 		$flatArray = $this->toFlatArray();
 
 		$this->exchangeArray( array_merge(
@@ -296,7 +298,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * @param PropertyId $propertyId
 	 * @param int $toIndex
 	 */
-	private function movePropertyGroup( PropertyId $propertyId, $toIndex ) {
+	protected function movePropertyGroup( PropertyId $propertyId, $toIndex ) {
 		if( $this->getPropertyGroupIndex( $propertyId ) === $toIndex ) {
 			return;
 		}
@@ -355,7 +357,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * @param PropertyId $propertyId
 	 * @return bool|int
 	 */
-	private function getPropertyGroupIndex( PropertyId $propertyId ) {
+	protected function getPropertyGroupIndex( PropertyId $propertyId ) {
 		$i = 0;
 
 		foreach( $this->byId as $serializedPropertyId => $objects ) {
@@ -458,7 +460,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 *
 	 * @throws OutOfBoundsException
 	 */
-	private function addObjectToPropertyGroup( $object, $index = null ) {
+	protected function addObjectToPropertyGroup( $object, $index = null ) {
 		/** @var PropertyId $propertyId */
 		$propertyId = $object->getPropertyId();
 		$validIndices = $this->getFlatArrayIndices( $propertyId );

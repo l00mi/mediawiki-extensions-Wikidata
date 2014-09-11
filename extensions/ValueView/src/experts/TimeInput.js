@@ -41,7 +41,7 @@
 			this.uiBaseClass + '-precision',
 			getPrecisionValues(),
 			$.proxy( this._onRotatorChange, this ),
-			function() {
+			function(){
 				var value = self.viewState().value();
 				return value && value.getValue().precision();
 			}
@@ -56,7 +56,7 @@
 			this.uiBaseClass + '-calendar',
 			getCalendarValues( this._messageProvider ),
 			$.proxy( this._onRotatorChange, this ),
-			function() {
+			function(){
 				var value = self.viewState().value();
 				return value && value.getValue().calendar();
 			}
@@ -73,10 +73,9 @@
 						return value && value.getValue();
 					},
 					function( value ) {
-						// FIXME: Do not use private function:
-						self.calendarRotator.rotator._setValue( value );
-						self.calendarRotator.rotator.value( value );
-						self.calendarRotator.rotator.activate();
+						self.calendarRotator._setValue( value );
+						self.calendarRotator.value( value );
+						self.calendarRotator.activate();
 					}
 				),
 				new vv.ExpertExtender.Toggler(
@@ -124,7 +123,7 @@
 		 */
 		calendarRotator: null,
 
-		_onRotatorChange: function() {
+		_onRotatorChange: function(){
 			this._viewNotifier.notify( 'change' );
 		},
 
@@ -147,7 +146,7 @@
 				precision = this.precisionRotator && this.precisionRotator.getValue() || null,
 				calendarname = this.calendarRotator && this.calendarRotator.getValue() || null;
 
-			if( precision !== null ) {
+			if( precision !== null ){
 				options.precision = precision;
 			}
 			if( calendarname !== null ) {
@@ -158,9 +157,6 @@
 		}
 	} );
 
-	/**
-	 * @return {Object[]} [{ value: <{number}>, label: <{string}>}, ...]
-	 */
 	function getPrecisionValues() {
 		var precisionValues = [];
 		$.each( timeSettings.precisiontexts, function( i, text ) {
@@ -172,10 +168,6 @@
 		return precisionValues;
 	}
 
-	/**
-	 * @param {util.MessageProvider} messageProvider
-	 * @return @return {Object[]} [{ value: <{string}>, label: <{string}>}, ...]
-	 */
 	function getCalendarValues( messageProvider ) {
 		var calendarValues = [];
 		$.each( timeSettings.calendarnames, function( calendarKey, calendarTerms ) {
@@ -187,10 +179,6 @@
 		return calendarValues;
 	}
 
-	/**
-	 * @param {string} calendarname
-	 * @return {time.Time}
-	 */
 	function calendarNameToUri( calendarname ) {
 		return new Time( { calendarname: calendarname, precision: 0, year: 0 } ).calendarURI();
 	}

@@ -2,16 +2,23 @@
 
 namespace Wikibase\Test\Entity;
 
+use DataValues\StringValue;
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
-use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Entity\Diff\EntityDiff;
+use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDiff;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Internal\ObjectComparer;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Snak\PropertySomeValueSnak;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
@@ -19,8 +26,7 @@ use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
 
 /**
- * @deprecated
- * This test class is to be phased out, and should not be used from outside of the component!
+ * Tests for the Wikibase\Entity deriving classes.
  *
  * @group Wikibase
  * @group WikibaseDataModel
@@ -44,6 +50,15 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	 * @return Entity
 	 */
 	protected abstract function getNewEmpty();
+
+	/**
+	 * @since 0.1
+	 *
+	 * @param array $data
+	 *
+	 * @return Entity
+	 */
+	protected abstract function getNewFromArray( array $data );
 
 	public function labelProvider() {
 		return array(
@@ -96,6 +111,12 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$entity->setLabel( $languageCode, $labelText );
 		$entity->removeLabel( $languageCode );
 		$this->assertFalse( $entity->getLabel( $languageCode ) );
+
+		$entity->setLabel( 'nl', 'sadefradtgsrduy' );
+		$entity->setLabel( $languageCode, $labelText );
+		$entity->removeLabel( array( $languageCode, 'nl' ) );
+		$this->assertFalse( $entity->getLabel( $languageCode ) );
+		$this->assertFalse( $entity->getLabel( 'nl' ) );
 	}
 
 	public function descriptionProvider() {
@@ -149,6 +170,12 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$entity->setDescription( $languageCode, $labelText );
 		$entity->removeDescription( $languageCode );
 		$this->assertFalse( $entity->getDescription( $languageCode ) );
+
+		$entity->setDescription( 'nl', 'sadefradtgsrduy' );
+		$entity->setDescription( $languageCode, $labelText );
+		$entity->removeDescription( array( $languageCode, 'nl' ) );
+		$this->assertFalse( $entity->getDescription( $languageCode ) );
+		$this->assertFalse( $entity->getDescription( 'nl' ) );
 	}
 
 	public function aliasesProvider() {
@@ -250,46 +277,52 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider aliasesProvider
 	 */
-	public function testSetAllAliases( array $aliasGroups ) {
+	public function testSetAllAliases( array $aliasesLists ) {
 
 		$entity = $this->getNewEmpty();
 		$entity->addAliases( 'zh' , array( 'qwertyuiop123' , '321poiuytrewq' ) );
 
 		$aliasesToSet = array();
-		foreach ( $aliasGroups as $langCode => $aliasGroup ) {
-			foreach ( $aliasGroup as $aliases ) {
+		foreach ( $aliasesLists as $langCode => $aliasesList ) {
+			foreach ( $aliasesList as $aliases ) {
 				$aliasesToSet[$langCode]= $aliases;
 			}
 		}
 
 		$entity->setAllAliases( $aliasesToSet );
 
-		foreach ( $aliasGroups as $langCode => $aliasGroup ) {
-			$expected = array_values( array_unique( array_pop( $aliasGroup ) ) );
-			asort( $aliasGroup );
+		foreach ( $aliasesLists as $langCode => $aliasesList ) {
+			$expected = array_values( array_unique( array_pop( $aliasesList ) ) );
+			asort( $aliasesList );
 
-			$actual = $entity->getFingerprint()->getAliasGroups()->getByLanguage( $langCode )->getAliases();
+			$actual = $entity->getAliases( $langCode );
 			asort( $actual );
 
 			$this->assertEquals( $expected, $actual );
 		}
 
-		/** @var AliasGroup $aliasGroup */
-		foreach ( $entity->getFingerprint()->getAliasGroups() as $langCode => $aliasGroup ) {
-			$this->assertEquals( $aliasGroup->getAliases(), array_unique( $aliasesToSet[$langCode] ) );
+		foreach ( $entity->getAllAliases() as $langCode => $aliasesList ) {
+			$this->assertEquals( $aliasesList , array_unique( $aliasesToSet[$langCode] ) );
 		}
+
 	}
 
-	public function testGetAliases() {
+	/**
+	 * @dataProvider aliasesProvider
+	 */
+	public function testGetAliases( array $aliasesLists ) {
 		$entity = $this->getNewEmpty();
-		$aliases =  array( 'a', 'b' );
 
-		$entity->getFingerprint()->setAliasGroup( 'en', $aliases );
+		foreach ( $aliasesLists as $langCode => $aliasesList ) {
+			$expected = array_unique( array_shift( $aliasesList ) );
+			$entity->setAliases( $langCode, $expected );
+			$actual = $entity->getAliases( $langCode );
 
-		$this->assertEquals(
-			$aliases,
-			$entity->getAliases( 'en' )
-		);
+			asort( $expected );
+			asort( $actual );
+
+			$this->assertEquals( $expected, $actual );
+		}
 	}
 
 	public function duplicateAliasesProvider() {
@@ -337,6 +370,111 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		}
 	}
 
+	public function testIsEmpty() {
+		$entity = $this->getNewEmpty();
+
+		$this->assertTrue( $entity->isEmpty() );
+
+		$entity->addAliases( 'en', array( 'ohi' ) );
+
+		$this->assertFalse( $entity->isEmpty() );
+
+		$entity = $this->getNewEmpty();
+		$entity->setDescription( 'en', 'o_O' );
+
+		$this->assertFalse( $entity->isEmpty() );
+
+		$entity = $this->getNewEmpty();
+		$entity->setLabel( 'en', 'o_O' );
+
+		$this->assertFalse( $entity->isEmpty() );
+	}
+
+	public function testClear() {
+		$entity = $this->getNewEmpty();
+
+		$entity->addAliases( 'en', array( 'ohi' ) );
+		$entity->setDescription( 'en', 'o_O' );
+		$entity->setLabel( 'en', 'o_O' );
+
+		$entity->clear();
+
+		$this->assertEmpty( $entity->getLabels(), "labels" );
+		$this->assertEmpty( $entity->getDescriptions(), "descriptions" );
+		$this->assertEmpty( $entity->getAllAliases(), "aliases" );
+
+		$this->assertTrue( $entity->isEmpty() );
+	}
+
+	public static function provideEquals() {
+		return array(
+			array( #0
+				array(),
+				array(),
+				true
+			),
+			array( #1
+				array( 'labels' => array() ),
+				array( 'descriptions' => null ),
+				true
+			),
+			array( #2
+				array( 'entity' => array( 'item', 23 ) ),
+				array(),
+				true
+			),
+			array( #3
+				array( 'entity' => array( 'item', 23 ) ),
+				array( 'entity' => array( 'item', 24 ) ),
+				true
+			),
+			array( #4
+				array( 'labels' => array(
+					'en' => 'foo',
+					'de' => 'bar',
+				) ),
+				array( 'labels' => array(
+					'en' => 'foo',
+				) ),
+				false
+			),
+			array( #5
+				array( 'labels' => array(
+					'en' => 'foo',
+					'de' => 'bar',
+				) ),
+				array( 'labels' => array(
+					'de' => 'bar',
+					'en' => 'foo',
+				) ),
+				true
+			),
+			array( #6
+				array( 'aliases' => array(
+					'en' => array( 'foo', 'FOO' ),
+				) ),
+				array( 'aliases' => array(
+					'en' => array( 'foo', 'FOO', 'xyz' ),
+				) ),
+				false
+			),
+		);
+	}
+
+	/**
+	 * @covers Wikibase\DataModel\Entity\Entity::equals
+	 * @covers Wikibase\DataModel\Internal\ObjectComparer::dataEquals
+	 *
+	 * @dataProvider provideEquals
+	 */
+	public function testEquals( array $a, array $b, $equals ) {
+		$itemA = $this->getNewFromArray( $a );
+		$itemB = $this->getNewFromArray( $b );
+
+		$this->assertEquals( $equals, $itemA->equals( $itemB ) );
+		$this->assertEquals( $equals, $itemB->equals( $itemA ) );
+	}
+
 	public function instanceProvider() {
 		$entities = array();
 
@@ -364,6 +502,13 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 		$entities[] = $entity;
 
+		// With claims
+		$entity = $this->getNewEmpty();
+		$entity->setClaims( new Claims( $this->makeClaims() ) );
+		$entity->setId( 55 );
+
+		$entities[] = $entity;
+
 		$argLists = array();
 
 		foreach ( $entities as $entity ) {
@@ -378,6 +523,18 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	 *
 	 * @param Entity $entity
 	 */
+	public function testStub( Entity $entity ) {
+		$copy = $entity->copy();
+		$entity->stub();
+
+		$this->assertTrue( $entity->equals( $copy ) );
+	}
+
+	/**
+	 * @dataProvider instanceProvider
+	 *
+	 * @param Entity $entity
+	 */
 	public function testCopy( Entity $entity ) {
 		$copy = $entity->copy();
 
@@ -385,20 +542,11 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue( $entity->equals( $copy ) );
 		$this->assertEquals( $entity->getId(), $copy->getId() );
 
+		// More checks that should also pass
+		$this->assertEquals( $entity->toArray(), $copy->toArray() );
 		$this->assertFalse( $entity === $copy );
 	}
 
-	public function testCopyRetainsLabels() {
-		$item = Item::newEmpty();
-
-		$item->getFingerprint()->setLabel( 'en', 'foo' );
-		$item->getFingerprint()->setLabel( 'de', 'bar' );
-
-		$newItem = unserialize( serialize( $item ) );
-
-		$this->assertTrue( $newItem->getFingerprint()->getLabels()->hasTermForLanguage( 'en' ) );
-		$this->assertTrue( $newItem->getFingerprint()->getLabels()->hasTermForLanguage( 'de' ) );
-	}
 
 	/**
 	 * @dataProvider instanceProvider
@@ -429,7 +577,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Tests Entity::newClaim
+	 * Tests Entity::newClaim and Entity::getIdFromClaimGuid
 	 *
 	 * @dataProvider instanceProvider
 	 *
@@ -437,20 +585,24 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testNewClaim( Entity $entity ) {
 		if ( $entity->getId() === null ) {
-			$entity->setId( 50 );
+			$entity->setId( new EntityId( $entity->getType(), 50 ) );
 		}
 
 		$snak = new PropertyNoValueSnak( 42 );
 		$claim = new Statement( $snak );
 		$claim->setGuid( 'q42$foobarbaz' );
 
-		$this->assertInstanceOf( 'Wikibase\DataModel\Claim\Claim', $claim );
+		$this->assertInstanceOf( '\Wikibase\Claim', $claim );
 
 		$this->assertTrue( $snak->equals( $claim->getMainSnak() ) );
 
 		$guid = $claim->getGuid();
 
 		$this->assertInternalType( 'string', $guid );
+
+		$prefixedEntityId = Entity::getIdFromClaimGuid( $guid );
+
+		$this->assertEquals( 'q42', $prefixedEntityId );
 	}
 
 	public function diffProvider() {
@@ -524,17 +676,26 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	 * @param EntityDiff $expected
 	 */
 	public function testDiffEntities( Entity $entity0, Entity $entity1, EntityDiff $expected ) {
-
 		$actual = $entity0->getDiff( $entity1 );
 
-		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\Diff\EntityDiff', $actual );
-		$this->assertSameSize( $expected, $actual );
+		$this->assertInstanceOf( '\Wikibase\EntityDiff', $actual );
+		$this->assertEquals( count( $expected ), count( $actual ) );
 
 		// TODO: equality check
 		// (simple serialize does not work, since the order is not relevant, and not only on the top level)
 	}
 
 	public function patchProvider() {
+		$claim0 = new Claim( new PropertyNoValueSnak( 42 ) );
+		$claim1 = new Claim( new PropertySomeValueSnak( 42 ) );
+		$claim2 = new Claim( new PropertyValueSnak( 42, new StringValue( 'ohi' ) ) );
+		$claim3 = new Claim( new PropertyNoValueSnak( 1 ) );
+
+		$claim0->setGuid( 'claim0' );
+		$claim1->setGuid( 'claim1' );
+		$claim2->setGuid( 'claim2' );
+		$claim3->setGuid( 'claim3' );
+
 		$argLists = array();
 
 
@@ -550,6 +711,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$source->setLabel( 'nl', 'bar' );
 		$source->setDescription( 'de', 'foobar' );
 		$source->setAliases( 'en', array( 'baz', 'bah' ) );
+		$source->addClaim( $claim1 );
 
 		$patch = new EntityDiff();
 		$expected = clone $source;
@@ -568,6 +730,22 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$expected = clone $source;
 		$expected->setDescription( 'de', 'onoez' );
 		$expected->setDescription( 'en', 'foobar' );
+
+		$argLists[] = array( $source, $patch, $expected );
+
+
+		$source = $this->getNewEmpty();
+		$source->addClaim( $claim0 );
+		$source->addClaim( $claim1 );
+		$patch = new EntityDiff( array( 'claim' => new Diff( array(
+			'claim0' => new DiffOpRemove( $claim0 ),
+			'claim2' => new DiffOpAdd( $claim2 ),
+			'claim3' => new DiffOpAdd( $claim3 )
+		), false ) ) );
+		$expected = $this->getNewEmpty();
+		$expected->addClaim( $claim1 );
+		$expected->addClaim( $claim2 );
+		$expected->addClaim( $claim3 );
 
 		$argLists[] = array( $source, $patch, $expected );
 
@@ -595,6 +773,25 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$claims = $entity->getClaims();
 
 		$this->assertInternalType( 'array', $claims );
+	}
+
+	public function testSetClaims() {
+		$entity = $this->getNewEmpty();
+		$this->assertCount( 0, $entity->getClaims(), "initially, no claims" );
+
+		$claims = array(
+			$claim0 = new Claim( new PropertyNoValueSnak( 42 ) ),
+			$claim1 = new Claim( new PropertySomeValueSnak( 42 ) ),
+		);
+
+		$claims[0]->setGuid( 'TEST$NVS42' );
+		$claims[1]->setGuid( 'TEST$SVS42' );
+
+		$entity->setClaims( new Claims( $claims ) );
+		$this->assertSameSize( $claims, $entity->getClaims(), "added some claims" );
+
+		$entity->setClaims( new Claims() );
+		$this->assertCount( 0, $entity->getClaims(), "should be empty again" );
 	}
 
 	/**
@@ -635,6 +832,23 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @dataProvider instanceProvider
+	 */
+	public function testArraySerlialzationRoundtrip( Entity $entity ) {
+		$class = get_class( $entity );
+
+		/**
+		 * @var Entity $newEntity
+		 */
+		$newEntity = new $class( $entity->toArray() );
+
+		$entity->stub();
+		$newEntity->stub();
+
+		$this->assertEquals( $entity, $newEntity );
 	}
 
 	public function testWhenNoStuffIsSet_getFingerprintReturnsEmptyFingerprint() {
@@ -717,20 +931,19 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	public function testWhenSettingFingerprint_getFingerprintReturnsIt() {
 		$fingerprint = new Fingerprint(
 			new TermList( array(
-				new Term( 'en', 'english label' ),
+				new Term( 'en', 'foo' ),
 			) ),
 			new TermList( array(
-				new Term( 'en', 'english description' )
+				new Term( 'en', 'foo bar' )
 			) ),
 			new AliasGroupList( array(
-				new AliasGroup( 'en', array( 'first en alias', 'second en alias' ) )
+				new AliasGroup( 'en', array( 'foo', 'bar' ) )
 			) )
 		);
 
 		$entity = $this->getNewEmpty();
 
 		$entity->setFingerprint( $fingerprint );
-
 		$newFingerprint = $entity->getFingerprint();
 
 		$this->assertEquals( $fingerprint, $newFingerprint );

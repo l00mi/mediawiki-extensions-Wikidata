@@ -41,6 +41,12 @@
  *
  * @event toggleerror: Triggered when one of the claimlistview's items produces an error.
  *        (1) {jQuery.Event}
+ *
+ * @event disable: Triggered whenever the claimlistview gets disabled.
+ *        (1) {jQuery.Event}
+ *
+ * @event enable: Triggered whenever the claimlistview gets enabled.
+ *        (1) {jQuery.Event}
  */
 $.widget( 'wikibase.claimlistview', PARENT, {
 	/**
@@ -346,8 +352,6 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	remove: function( claimview ) {
 		var self = this;
 
-		claimview.disable();
-
 		this._removeClaimApiCall( claimview.value() )
 		.done( function( savedClaim, pageInfo ) {
 			// NOTE: we don't update rev store here! If we want uniqueness for Claims, this
@@ -378,7 +382,36 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * Disables the snaklistview.
+	 * @since 0.4
+	 */
+	disable: function() {
+		var self = this;
+		$.each( this.listview().items(), function( i, item ) {
+			var $item = $( item );
+			self.listview().listItemAdapter().liInstance( $item ).disable();
+		} );
+		this._trigger( 'disable' );
+	},
+
+	/**
+	 * Enables the snaklistview.
+	 * @since 0.4
+	 */
+	enable: function() {
+		var self = this;
+		$.each( this.listview().items(), function( i, item ) {
+			var $item = $( item );
+			// Item might be about to be removed not being a list item instance.
+			if ( self.listview().listItemAdapter().liInstance( $item ) ) {
+				self.listview().listItemAdapter().liInstance( $item ).enable();
+			}
+		} );
+		this._trigger( 'enable' );
+	},
+
+	/**
+	 * @see jQuery.widget._setOption
 	 */
 	_setOption: function( key, value ) {
 		// The value should not be set from outside after the initialization because
@@ -388,14 +421,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		} else if( key === 'fistClaimIndex' ) {
 			throw new Error( 'firstClaimIndex cannot be set after initialization' );
 		}
-
-		var response = PARENT.prototype._setOption.apply( this, arguments );
-
-		if( key === 'disabled' ) {
-			this.listview().option( key, value );
-		}
-
-		return response;
+		$.Widget.prototype._setOption.call( this, key, value );
 	}
 
 } );
@@ -406,12 +432,11 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 		+ '-' + $.wikibase.claimlistview.prototype.widgetName,
 	events: {
 		claimlistviewcreate: function( event, toolbarcontroller ) {
-			var $claimlistview = $( event.target ),
-				claimlistview = $claimlistview.data( 'claimlistview' );
+			var $claimlistview = $( event.target );
 
 			$claimlistview.addtoolbar( {
 				addButtonAction: function() {
-					claimlistview.enterNewItem();
+					$claimlistview.data( 'claimlistview' ).enterNewItem();
 
 					// Re-focus "add" button after having added or having cancelled adding a claim:
 					var eventName = 'claimlistviewafterstopediting.addtoolbar';
@@ -429,21 +454,6 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 					);
 				}
 			} );
-
-			toolbarcontroller.registerEventHandler(
-				event.data.toolbar.type,
-				event.data.toolbar.id,
-				'claimlistviewdisable',
-				function() {
-					var addtoolbar = $claimlistview.data( 'addtoolbar' );
-					if( addtoolbar ) {
-						addtoolbar[claimlistview.option( 'disabled' )
-							? 'disable'
-							: 'enable'
-						]();
-					}
-				}
-			);
 		}
 	}
 } );
@@ -518,17 +528,6 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				);
 
 			} );
-		},
-		'claimviewdisable statementviewdisable': function( event ) {
-			var viewType = event.type.replace( /disable$/, '' ),
-				$view = $( event.target ),
-				view = $view.data( viewType ),
-				toolbar = $view.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
-				enable = view.isValid() && !view.isInitialValue();
-
-			btnSave[enable ? 'enable' : 'disable']();
 		}
 	}
 } );

@@ -1,6 +1,6 @@
 <?php
 
-if ( PHP_SAPI !== 'cli' ) {
+if ( php_sapi_name() !== 'cli' ) {
 	die( 'Not an entry point' );
 }
 
@@ -13,5 +13,3 @@ $classLoader = require_once( __DIR__ . '/../vendor/autoload.php' );
 $classLoader->addPsr4(
 	'Tests\\Integration\\Wikibase\\InternalSerialization\\', __DIR__ . '/integration/'
 );
-
-unset( $classLoader );

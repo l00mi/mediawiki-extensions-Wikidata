@@ -56,10 +56,6 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->langLinkHandler = $this->getLangLinkHandler( array() );
-	}
-
-	private function getLangLinkHandler( array $otherProjects ) {
 		$this->mockRepo = new MockRepository();
 
 		foreach ( $this->getItems() as $item ) {
@@ -68,26 +64,13 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 
 		$sites = MockSiteStore::newFromTestSites();
 
-		return new LangLinkHandler(
-			$this->getOtherProjectsSidebarGenerator( $otherProjects ),
+		$this->langLinkHandler = new LangLinkHandler(
 			'srwiki',
 			new NamespaceChecker( array( NS_TALK ), array() ),
 			$this->mockRepo,
 			$sites,
 			'wikipedia'
 		);
-	}
-
-	private function getOtherProjectsSidebarGenerator( array $otherProjects ) {
-		$otherProjectsSidebarGenerator = $this->getMockBuilder( 'Wikibase\Client\Hooks\OtherProjectsSidebarGenerator' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$otherProjectsSidebarGenerator->expects( $this->any() )
-			->method( 'buildProjectLinkSidebar' )
-			->will( $this->returnValue( $otherProjects ) );
-
-		return $otherProjectsSidebarGenerator;
 	}
 
 	public static function provideGetEntityLinks() {
@@ -491,59 +474,6 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 			array( $enwiki, 'en' ),
 			array( $bexold, 'be-x-old' ),
 			array( $dewikivoyage, 'de' )
-		);
-	}
-
-	public function testUpdateItemIdProperty() {
-		$langLinkHandler = $this->getLangLinkHandler( array() );
-
-		$parserOutput = new ParserOutput();
-
-		$titleText = 'Foo sr';
-		$title = Title::newFromText( $titleText );
-
-		$langLinkHandler->updateItemIdProperty( $title, $parserOutput );
-		$property = $parserOutput->getProperty( 'wikibase_item' );
-
-		$itemId = $this->mockRepo->getItemIdForLink( 'srwiki', $titleText );
-
-		$this->assertEquals( $itemId->getSerialization(), $property );
-	}
-
-	public function testUpdateItemIdPropertyForUnconnectedPage() {
-		$langLinkHandler = $this->getLangLinkHandler( array() );
-
-		$parserOutput = new ParserOutput();
-
-		$titleText = 'Foo xx';
-		$title = Title::newFromText( $titleText );
-
-		$langLinkHandler->updateItemIdProperty( $title, $parserOutput );
-		$property = $parserOutput->getProperty( 'wikibase_item' );
-
-		$this->assertEquals( false, $property );
-	}
-
-	/**
-	 * @dataProvider updateOtherProjectsLinksDataProvider
-	 */
-	public function testUpdateOtherProjectsLinksData( $expected, $otherProjects, $titleText ) {
-		$langLinkHandler = $this->getLangLinkHandler( $otherProjects );
-
-		$parserOutput = new ParserOutput();
-		$title = Title::newFromText( $titleText );
-
-		$langLinkHandler->updateOtherProjectsLinksData( $title, $parserOutput );
-		$extensionData = $parserOutput->getExtensionData( 'wikibase-otherprojects-sidebar' );
-
-		$this->assertEquals( $expected, $extensionData );
-	}
-
-	public function updateOtherProjectsLinksDataProvider() {
-		return array(
-			array( array( 'project' => 'catswiki' ), array( 'project' => 'catswiki' ), 'Foo sr' ),
-			array( array(), array(), 'Foo sr' ),
-			array( array(), array(), 'Foo xx' )
 		);
 	}
 

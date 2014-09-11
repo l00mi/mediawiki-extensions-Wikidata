@@ -152,33 +152,90 @@
 	} );
 
 
-	QUnit.test( 'disable(), enable()', function( assert ) {
+	QUnit.test( 'Dis- and enabling', function( assert ) {
 		var $toolbar = $( '<span/>' ).toolbar(),
 			toolbar = $toolbar.data( 'toolbar' ),
-			$label = $( '<span/>' ).text( 'label text' ).toolbarlabel(),
-			$button = $( '<a/>' ).text( 'button text' ).toolbarbutton();
+			$label = $( '<span/>' ).text( 'label text' ).toolbarlabel( { stateChangeable: false } );
 
 		toolbar.addElement( $label );
+
+		assert.equal(
+			toolbar.isStateChangeable(),
+			false,
+			'Toolbar state is not changeable (no elements that are changeable).'
+		);
+
+		var $button = $( '<a/>' ).text( 'button text' ).toolbarbutton();
 		toolbar.addElement( $button );
 
-		assert.ok(
-			!toolbar.option( 'disabled' ),
+		assert.equal(
+			toolbar.isStateChangeable(),
+			true,
+			'Toolbar state is changeable after adding a button.'
+		);
+
+		assert.equal(
+			toolbar.disable(),
+			true,
+			'Disabling toolbar.'
+		);
+
+		assert.equal(
+			toolbar.isDisabled(),
+			true,
+			'Toolbar is disabled.'
+		);
+
+		$label.data( 'toolbarlabel' ).option( 'stateChangeable', true );
+
+		assert.equal(
+			toolbar.getState(),
+			wb.utilities.ui.StatableObject.prototype.STATE.MIXED,
+			'Mixed state after making label changeable.'
+		);
+
+		assert.equal(
+			toolbar.isDisabled(),
+			false,
+			'Toolbar is not disabled (since element states are mixed).'
+		);
+
+		assert.equal(
+			toolbar.isEnabled(),
+			false,
+			'Toolbar is not enabled (since element states are mixed).'
+		);
+
+		assert.equal(
+			toolbar.enable(),
+			true,
+			'Enabling toolbar.'
+		);
+
+		assert.equal(
+			toolbar.isEnabled(),
+			true,
 			'Toolbar is enabled.'
 		);
 
-		toolbar.disable();
-
-		assert.ok(
-			toolbar.option( 'disabled' ),
-			'Disabled toolbar.'
+		assert.equal(
+			toolbar.disable(),
+			true,
+			'Disabling toolbar.'
 		);
 
-		toolbar.enable();
-
-		assert.ok(
-			!toolbar.option( 'disabled' ),
-			'Enabled toolbar.'
+		assert.equal(
+			toolbar.isDisabled(),
+			true,
+			'Toolbar is disabled.'
 		);
+
+		assert.equal(
+			toolbar.isEnabled(),
+			false,
+			'Toolbar is not enabled.'
+		);
+
 	} );
 
 }( wikibase, jQuery, QUnit ) );

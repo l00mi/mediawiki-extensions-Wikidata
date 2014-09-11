@@ -260,7 +260,6 @@ $.widget( 'valueview.valueview', PARENT, {
 		}
 		this._initialValue = null;
 		this._isInEditMode = false;
-		delete this.__lastValueCharacteristics;
 		if( this._expert ) {
 			this._destroyExpert();
 		}

@@ -5,7 +5,7 @@ namespace Wikibase\DataModel\Entity;
 use Comparable;
 use InvalidArgumentException;
 use Serializable;
-use Wikibase\DataModel\LegacyIdInterpreter;
+use Wikibase\DataModel\Internal\LegacyIdInterpreter;
 
 /**
  * @since 0.5
@@ -19,6 +19,7 @@ class EntityId implements Comparable, Serializable {
 	protected $serialization;
 
 	/**
+	 * @deprecated
 	 * Construct a derivative such as ItemId or PropertyId directly.
 	 * In the long term this class is meant to become abstract.
 	 *
@@ -34,7 +35,7 @@ class EntityId implements Comparable, Serializable {
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	protected function __construct( $entityType, $idSerialization ) {
+	public function __construct( $entityType, $idSerialization ) {
 		$this->setEntityType( $entityType );
 		$this->setIdSerialization( $idSerialization );
 	}
@@ -80,8 +81,7 @@ class EntityId implements Comparable, Serializable {
 
 	/**
 	 * Returns the id serialization.
-	 * @deprecated Use getSerialization instead.
-	 * (soft depreaction, this alias will stay untill it is no longer used)
+	 * Alias for @see getSerialization.
 	 *
 	 * @return string
 	 */
@@ -110,8 +110,9 @@ class EntityId implements Comparable, Serializable {
 	 * @return boolean
 	 */
 	public function equals( $target ) {
-		return $target instanceof self
-			&& $target->serialization === $this->serialization;
+		return $target instanceof EntityId
+			&& $target->getSerialization() === $this->serialization
+			&& $target->getEntityType() === $this->entityType;
 	}
 
 	/**
@@ -141,6 +142,29 @@ class EntityId implements Comparable, Serializable {
 		}
 
 		self::__construct( $entityType, $serialization );
+	}
+
+	/**
+	 * Constructs an EntityId object from a serialization (prefixed id).
+	 * This only works for ids of entity types defined in BasicEntityIdParser::getBuilders.
+	 *
+	 * @deprecated since 0.5, use an EntityIdParser
+	 *
+	 * @param string $prefixedId
+	 *
+	 * @return EntityId|null
+	 *
+	 * @see BasicEntityIdParser::getBuilders
+	 */
+	public static function newFromPrefixedId( $prefixedId ) {
+		$idParser = new BasicEntityIdParser();
+
+		try {
+			return $idParser->parse( $prefixedId );
+		}
+		catch ( EntityIdParsingException $parseException ) {
+			return null;
+		}
 	}
 
 }

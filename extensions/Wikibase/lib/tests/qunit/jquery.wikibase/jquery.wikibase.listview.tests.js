@@ -47,7 +47,7 @@
 		return value;
 	}
 
-	QUnit.module( 'jquery.wikibase.listview', QUnit.newMwEnvironment( {
+	QUnit.module( 'jquery.wikibase.listview', QUnit.newWbEnvironment( {
 		setup: function() {
 			/**
 			 * Basic widget to be used as list item.

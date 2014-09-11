@@ -6,7 +6,6 @@ use Language;
 use Message;
 use Title;
 use Wikibase\DataModel\Entity\Entity;
-use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\Utils;
 
 /**
@@ -64,88 +63,50 @@ class TermBoxView {
 
 		wfProfileIn( __METHOD__ );
 
-		$fingerprint = $entity->getFingerprint();
-		$labels = $fingerprint->getLabels();
-		$descriptions = $fingerprint->getDescriptions();
-		$aliasGroups = $fingerprint->getAliasGroups();
+		$html = $thead = $tbody = '';
 
-		$tbody = '';
+		$entityId = $entity->getId()->getSerialization();
+		$labels = $entity->getLabels();
+		$descriptions = $entity->getDescriptions();
 
+
+		$html .= wfTemplate( 'wb-terms-heading', $this->msg( 'wikibase-terms' ) );
+
+		$rowNumber = 0;
 		foreach ( $languageCodes as $languageCode ) {
-			$hasLabel = $labels->hasTermForLanguage( $languageCode );
-			$hasDescription = $descriptions->hasTermForLanguage( $languageCode );
+			$label = array_key_exists( $languageCode, $labels ) ? $labels[$languageCode] : false;
+			$description = array_key_exists( $languageCode, $descriptions ) ? $descriptions[$languageCode] : false;
 
-			$tbody .= wfTemplate( 'wikibase-fingerprintview',
+			$editLabelSection = $this->sectionEditLinkGenerator->getHtmlForEditSection(
+				'SetLabel',
+				array( $entityId, $languageCode ),
+				$this->msg( 'wikibase-edit' ),
+				$editable
+			);
+			$editDescriptionSection = $this->sectionEditLinkGenerator->getHtmlForEditSection(
+				'SetDescription',
+				array( $entityId, $languageCode ),
+				$this->msg( 'wikibase-edit' ),
+				$editable
+			);
+
+			$tbody .= wfTemplate( 'wb-term',
 				$languageCode,
-				$title->getLocalURL( array( 'setlang' => $languageCode ) ),
 				htmlspecialchars( Utils::fetchLanguageName( $languageCode ) ),
-				wfTemplate( 'wikibase-labelview',
-					$hasLabel ? '' : 'wb-empty',
-					htmlspecialchars( $hasLabel
-						? $labels->getByLanguage( $languageCode )->getText()
-						: $this->msg( 'wikibase-label-empty' )->text()
-					),
-					'',
-					''
-				),
-				wfTemplate( 'wikibase-descriptionview',
-					$hasDescription ? '' : 'wb-empty',
-					htmlspecialchars( $hasDescription
-						? $descriptions->getByLanguage( $languageCode )->getText()
-						: $this->msg( 'wikibase-description-empty' )->text()
-					),
-					'',
-					''
-				),
-				$this->getHtmlForAliases( $aliasGroups, $languageCode )
+				htmlspecialchars( $label !== false ? $label : $this->msg( 'wikibase-label-empty' )->text() ),
+				htmlspecialchars( $description !== false ? $description : $this->msg( 'wikibase-description-empty' )->text() ),
+				$editLabelSection,
+				$editDescriptionSection,
+				$label !== false ? '' : 'wb-value-empty',
+				$description !== false ? '' : 'wb-value-empty',
+				$title->getLocalURL( array( 'setlang' => $languageCode ) )
 			);
 		}
 
-		$html = wfTemplate( 'wikibase-fingerprintgroupview',
-			$this->msg( 'wikibase-terms' ),
-			wfTemplate( 'wikibase-fingerprintlistview', $tbody ),
-			$this->sectionEditLinkGenerator->getHtmlForEditSection(
-				'SpecialPages',
-				array(),
-				$this->msg( 'wikibase-edit' ),
-				$editable
-			)
-		);
+		$html = $html . wfTemplate( 'wb-terms-table', $tbody );
 
 		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 
-	/**
-	 * @param AliasGroupList $aliasGroups
-	 * @param string $languageCode
-	 *
-	 * @return string
-	 */
-	private function getHtmlForAliases( AliasGroupList $aliasGroups, $languageCode ) {
-		if ( !$aliasGroups->hasGroupForLanguage( $languageCode ) ) {
-			return wfTemplate( 'wikibase-aliasesview',
-				'wb-empty',
-				wfMessage( 'wikibase-aliases-empty' )->escaped(),
-				'',
-				''
-			);
-		} else {
-			$aliasesHtml = '';
-			$aliases = $aliasGroups->getByLanguage( $languageCode )->getAliases();
-			foreach ( $aliases as $alias ) {
-				$aliasesHtml .= wfTemplate(
-					'wikibase-aliasesview-list-item',
-					htmlspecialchars( $alias )
-				);
-			}
-
-			return wfTemplate( 'wikibase-aliasesview',
-				'',
-				wfMessage( 'wikibase-aliases-label' )->escaped(),
-				$aliasesHtml,
-				''
-			);
-		}
-	}
 }

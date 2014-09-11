@@ -84,7 +84,7 @@
 		return $( '<input/>' ).addClass( 'test-siteselector' ).siteselector( options );
 	};
 
-	QUnit.module( 'jquery.wikibase.siteselector', QUnit.newMwEnvironment( {
+	QUnit.module( 'jquery.wikibase.siteselector', QUnit.newWbEnvironment( {
 		teardown: function() {
 			$( '.test-siteselector' ).each( function( i, node ) {
 				var $node = $( node );

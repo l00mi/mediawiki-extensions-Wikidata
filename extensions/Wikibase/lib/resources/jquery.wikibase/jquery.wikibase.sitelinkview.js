@@ -137,8 +137,8 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 					siteLink ? site.getUrlTo( siteLink.getPageName() ) : '',
 					siteLink ? siteLink.getPageName() : '',
 					'', // badges
-					site ? site.getLanguageCode() : '',
-					site ? site.getLanguageDirection() : 'auto'
+					siteLink ? site.getLanguageCode() : '',
+					siteLink ? site.getLanguageDirection() : 'auto'
 				)
 			);
 		}
@@ -415,35 +415,10 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			throw new Error( 'Cannot set site link with new site id after initialization' );
 		}
 
-		var response = PARENT.prototype._setOption.apply( this, arguments );
+		PARENT.prototype._setOption.apply( this, arguments );
 
 		if( key === 'value' ) {
 			this._draw();
-		} else if( key === 'disabled' ) {
-			this._setState( value ? 'disable' : 'enable' );
-		}
-
-		return response;
-	},
-
-	/**
-	 * @param {string} state
-	 */
-	_setState: function( state ) {
-		if( this._isInEditMode ) {
-			var $siteInput = this.$siteId.find( 'input' ),
-				hasSiteId = !!( this.options.value && this.options.value.getSiteId() );
-
-			if( $siteInput.length ) {
-				var siteselector = $siteInput.data( 'siteselector' );
-				hasSiteId = !!siteselector.getSelectedSite();
-				siteselector[state]();
-			}
-
-			// Do not enable page input if no site is set:
-			if( state === 'disable' || hasSiteId ) {
-				this.$link.find( 'input' ).data( 'pagesuggester' )[state]();
-			}
 		}
 	},
 
@@ -524,16 +499,6 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				);
 
 			} );
-		},
-		sitelinkviewdisable: function( event ) {
-			var $sitelinkview = $( event.target ),
-				sitelinkview = $sitelinkview.data( 'sitelinkview' ),
-				toolbar = $sitelinkview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
-				enable = sitelinkview.isValid() && !sitelinkview.isInitialValue();
-
-			btnSave[enable ? 'enable' : 'disable']();
 		},
 		toolbareditgroupedit: function( event, toolbarcontroller ) {
 			var $sitelinkview = $( event.target ).closest( ':wikibase-edittoolbar' ),

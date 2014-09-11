@@ -3,7 +3,8 @@
 namespace Wikibase\DataModel\Snak;
 
 use Wikibase\DataModel\HashArray;
-use Wikibase\DataModel\Internal\MapValueHasher;
+use Wikibase\DataModel\MapHasher;
+use Wikibase\DataModel\MapValueHasher;
 
 /**
  * Implementation of the Snaks interface.
@@ -25,7 +26,7 @@ class SnakList extends HashArray implements Snaks {
 	 * @return string
 	 */
 	public function getObjectType() {
-		return 'Wikibase\DataModel\Snak\Snak';
+		return '\Wikibase\Snak';
 	}
 
 	/**
@@ -110,8 +111,14 @@ class SnakList extends HashArray implements Snaks {
 	 * @return string
 	 */
 	public function getHash() {
-		$hasher = new MapValueHasher();
-		return $hasher->hash( $this );
+		$args = func_get_args();
+
+		/**
+		 * @var MapHasher $hasher
+		 */
+		$hasher = array_key_exists( 0, $args ) ? $args[0] : new MapValueHasher( true );
+
+		return parent::getHash( $hasher );
 	}
 
 	/**
@@ -159,6 +166,46 @@ class SnakList extends HashArray implements Snaks {
 		}
 
 		return $snaksByProperty;
+	}
+
+	/**
+	 * @see Snaks::toArray
+	 *
+	 * @since 0.3
+	 *
+	 * @return string
+	 */
+	public function toArray() {
+		$snaks = array();
+
+		/**
+		 * @var Snak $snak
+		 */
+		foreach ( $this as $snak ) {
+			$snaks[] = $snak->toArray();
+		}
+
+		return $snaks;
+	}
+
+	/**
+	 * Factory for constructing a SnakList from its array representation.
+	 *
+	 * @since 0.3
+	 * @deprecated since 0.7.3
+	 *
+	 * @param array $data
+	 *
+	 * @return Snaks
+	 */
+	public static function newFromArray( array $data ) {
+		$snaks = array();
+
+		foreach ( $data as $snak ) {
+			$snaks[] = SnakObject::newFromArray( $snak );
+		}
+
+		return new static( $snaks );
 	}
 
 }

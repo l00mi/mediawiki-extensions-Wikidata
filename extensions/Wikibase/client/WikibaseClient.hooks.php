@@ -346,9 +346,7 @@ final class ClientHooks {
 			return true;
 		}
 
-		$title = $parser->getTitle();
-
-		if ( !self::isWikibaseEnabled( $title->getNamespace() ) ) {
+		if ( !self::isWikibaseEnabled( $parser->getTitle()->getNamespace() ) ) {
 			// shorten out
 			return true;
 		}
@@ -357,6 +355,8 @@ final class ClientHooks {
 
 		// @todo split up the multiple responsibilities here and in lang link handler
 
+		$parserOutput = $parser->getOutput();
+
 		// only run this once, for the article content and not interface stuff
 		//FIXME: this also runs for messages in EditPage::showEditTools! Ugh!
 		if ( $parser->getOptions()->getInterfaceMessage() ) {
@@ -364,26 +364,32 @@ final class ClientHooks {
 			return true;
 		}
 
-		$langLinkHandler = WikibaseClient::getDefaultInstance()->getLangLinkHandler();
+		$wikibaseClient = WikibaseClient::getDefaultInstance();
+		$settings = $wikibaseClient->getSettings();
 
-		$parserOutput = $parser->getOutput();
-		$useRepoLinks = $langLinkHandler->useRepoLinks( $title, $parserOutput );
+		$langLinkHandler = new LangLinkHandler(
+			$settings->getSetting( 'siteGlobalID' ),
+			$wikibaseClient->getNamespaceChecker(),
+			$wikibaseClient->getStore()->getSiteLinkTable(),
+			$wikibaseClient->getSiteStore(),
+			$wikibaseClient->getLangLinkSiteGroup()
+		);
+
+		$useRepoLinks = $langLinkHandler->useRepoLinks( $parser->getTitle(), $parser->getOutput() );
 
 		try {
 			if ( $useRepoLinks ) {
 				// add links
-				$langLinkHandler->addLinksFromRepository( $title, $parserOutput );
+				$langLinkHandler->addLinksFromRepository( $parser->getTitle(), $parser->getOutput() );
 			}
 
-			$langLinkHandler->updateItemIdProperty( $title, $parserOutput );
-			$langLinkHandler->updateOtherProjectsLinksData( $title, $parserOutput );
+			$langLinkHandler->updateItemIdProperty( $parser->getTitle(), $parser->getOutput() );
 		} catch ( \Exception $e ) {
 			wfWarn( 'Failed to add repo links: ' . $e->getMessage() );
 		}
 
-		$settings = WikibaseClient::getDefaultInstance()->getSettings();
-
 		if ( $useRepoLinks || $settings->getSetting( 'alwaysSort' ) ) {
+			// sort links
 			$interwikiSorter = new InterwikiSorter(
 				$settings->getSetting( 'sort' ),
 				$settings->getSetting( 'interwikiSortOrders' ),
@@ -545,12 +551,6 @@ final class ClientHooks {
 			$out->setProperty( 'wikibase_item', $itemId );
 		}
 
-		$otherProjects = $pout->getExtensionData( 'wikibase-otherprojects-sidebar' );
-
-		if ( $otherProjects !== null ) {
-			$out->setProperty( 'wikibase-otherprojects-sidebar', $otherProjects );
-		}
-
 		return true;
 	}
 
@@ -611,8 +611,36 @@ final class ClientHooks {
 	}
 
 	/**
-	 * Adds the "other projects" section to the sidebar, if enabled project wide or
-	 * the user has the beta featured enabled.
+	 * Displays a sidebar section for other project links.
+	 *
+	 * @since 0.5
+	 *
+	 * @param Skin $skin
+	 * @param array $bar
+	 *
+	 * @return bool
+	 */
+	public static function onSkinBuildSidebar( Skin $skin, &$bar ) {
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+
+		if (
+			!$settings->getSetting( 'otherProjectsLinksBeta' ) &&
+			!$settings->getSetting( 'otherProjectsLinksByDefault' )
+		) {
+			return true;
+		}
+
+		$otherProjectsSidebarGenerator = WikibaseClient::getDefaultInstance()->getOtherProjectsSidebarGenerator();
+		$otherProjectsSidebar = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $skin->getContext()->getTitle() );
+		if ( count( $otherProjectsSidebar ) !== 0 ) {
+			$bar['wikibase-otherprojects'] = $otherProjectsSidebar;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Filters the display of "other project" sidebar according to the beta feature
 	 *
 	 * @since 0.5
 	 *
@@ -622,34 +650,14 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onSidebarBeforeOutput( Skin $skin, array &$sidebar ) {
-		$outputPage = $skin->getContext()->getOutput();
-		$title = $outputPage->getTitle();
-
-		if ( !self::isWikibaseEnabled( $title->getNamespace() ) ) {
-			return true;
-		}
-
-		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$settings = $wikibaseClient->getSettings();
-
-		$betaFeatureEnabled = class_exists( '\BetaFeatures' ) &&
-				$settings->getSetting( 'otherProjectsLinksBeta' ) &&
-				BetaFeatures::isFeatureEnabled( $skin->getUser(), 'wikibase-otherprojects' );
-
-		if ( $settings->getSetting( 'otherProjectsLinksByDefault' ) || $betaFeatureEnabled ) {
-			$otherProjectsSidebar = $outputPage->getProperty( 'wikibase-otherprojects-sidebar' );
-
-			// in case of stuff in cache without the other projects
-			if ( $otherProjectsSidebar === null ) {
-				// @todo remove this fallback before this graduates from
-				// a beta feature, if not sooner.
-				$otherProjectsSidebarGenerator = $wikibaseClient->getOtherProjectsSidebarGenerator();
-				$otherProjectsSidebar = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $title );
-			}
-
-			if ( !empty( $otherProjectsSidebar ) ) {
-				$sidebar['wikibase-otherprojects'] = $otherProjectsSidebar;
-			}
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+		if (
+			$settings->getSetting( 'otherProjectsLinksBeta' ) &&
+			!$settings->getSetting( 'otherProjectsLinksByDefault' ) &&
+			class_exists( '\BetaFeatures' ) &&
+			!BetaFeatures::isFeatureEnabled( $skin->getUser(), 'wikibase-otherprojects' )
+		) {
+			unset( $sidebar['wikibase-otherprojects'] );
 		}
 
 		return true;

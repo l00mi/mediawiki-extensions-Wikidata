@@ -61,7 +61,12 @@ namespace Wikibase {
 	/**
 	 * @deprecated since 0.6, use the base class instead.
 	 */
-	interface MapHasher extends DataModel\Internal\MapHasher {}
+	interface MapHasher extends \Wikibase\DataModel\MapHasher {}
+
+	/**
+	 * @deprecated since 0.6, use the base class instead.
+	 */
+	class MapValueHasher extends \Wikibase\DataModel\MapValueHasher {}
 
 	/**
 	 * @deprecated since 0.6, use the base class instead.
@@ -75,6 +80,10 @@ namespace Wikibase {
 	/**
 	 * @deprecated since 0.6, use the base class instead.
 	 */
+	interface ClaimAggregate extends \Wikibase\DataModel\Claim\ClaimAggregate {}
+	/**
+	 * @deprecated since 0.6, use the base class instead.
+	 */
 	interface ClaimListAccess extends \Wikibase\DataModel\Claim\ClaimListAccess {}
 	/**
 	 * @deprecated since 0.6, use the base class instead.
@@ -83,7 +92,7 @@ namespace Wikibase {
 	/**
 	 * @deprecated since 0.6, use the base class instead.
 	 */
-	class Statement extends DataModel\Statement\Statement {}
+	class Statement extends \Wikibase\DataModel\Claim\Statement {}
 	/**
 	 * @deprecated since 0.6, use the base class instead.
 	 */
@@ -131,11 +140,11 @@ namespace Wikibase {
 	/**
 	 * @deprecated since 0.6, use the base class instead.
 	 */
-	class ItemDiff extends \Wikibase\DataModel\Entity\Diff\ItemDiff {}
+	class ItemDiff extends \Wikibase\DataModel\Entity\ItemDiff {}
 	/**
 	 * @deprecated since 0.6, use the base class instead.
 	 */
-	class EntityDiff extends \Wikibase\DataModel\Entity\Diff\EntityDiff {}
+	class EntityDiff extends \Wikibase\DataModel\Entity\EntityDiff {}
 
 }
 
@@ -145,27 +154,5 @@ namespace Wikibase\DataModel {
 	 * @deprecated since 0.6, use the base class instead.
 	 */
 	class SimpleSiteLink extends SiteLink {}
-
-}
-
-namespace Wikibase\DataModel\Entity {
-
-	/**
-	 * @deprecated since 1.0, use the base class instead.
-	 */
-	class ItemDiff extends \Wikibase\DataModel\Entity\Diff\ItemDiff {}
-	/**
-	 * @deprecated since 1.0, use the base class instead.
-	 */
-	class EntityDiff extends \Wikibase\DataModel\Entity\Diff\EntityDiff {}
-
-}
-
-namespace Wikibase\DataModel\Claim {
-
-	/**
-	 * @deprecated since 1.0, use the base class instead.
-	 */
-	class Statement extends \Wikibase\DataModel\Statement\Statement {}
 
 }

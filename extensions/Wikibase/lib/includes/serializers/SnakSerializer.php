@@ -113,7 +113,7 @@ class SnakSerializer extends SerializerObject implements Unserializer {
 		);
 
 		if ( array_key_exists( 'datavalue', $serialization ) ) {
-			$constructorArguments[] = DataValueFactory::singleton()->tryNewFromArray( $serialization['datavalue'] );
+			$constructorArguments[] = DataValueFactory::singleton()->newFromArray( $serialization['datavalue'] );
 		}
 
 		return $this->newSnakFromType( $serialization['snaktype'], $constructorArguments );

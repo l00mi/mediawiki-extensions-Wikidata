@@ -39,7 +39,7 @@ $.widget( 'wikibase.toolbarbutton', PARENT, {
 		this.element
 		.off( '.' + this.widgetName )
 		.on( 'click.' + this.widgetName, function( event ) {
-			if( self.options.disabled ) {
+			if( self.isDisabled() ) {
 				return false;
 			}
 			self._trigger( 'action' );

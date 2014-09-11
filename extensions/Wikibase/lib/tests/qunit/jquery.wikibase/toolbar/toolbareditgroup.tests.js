@@ -22,6 +22,12 @@
 			'Created tooltip.'
 		);
 
+		assert.equal(
+			editGroup.$tooltipAnchor.data( 'toolbarlabel' ).option( 'stateChangeable' ),
+			false,
+			'Tooltip state is not changeable.'
+		);
+
 		assert.ok(
 			editGroup.hasButton( 'edit' ) && editGroup.getButton( 'edit' ).data( 'toolbarbutton' )
 				instanceof $.wikibase.toolbarbutton,

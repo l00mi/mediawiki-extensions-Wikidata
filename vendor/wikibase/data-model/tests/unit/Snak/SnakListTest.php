@@ -12,16 +12,6 @@ use Wikibase\Test\HashArray\HashArrayTest;
 
 /**
  * @covers Wikibase\DataModel\Snak\SnakList
- * @uses DataValues\StringValue
- * @uses Wikibase\DataModel\Entity\PropertyId
- * @uses Wikibase\DataModel\Snak\PropertyNoValueSnak
- * @uses Wikibase\DataModel\Snak\PropertyValueSnak
- * @uses Wikibase\DataModel\Snak\Snak
- * @uses Wikibase\DataModel\Snak\SnakList
- * @uses Wikibase\DataModel\HashArray
- * @uses Wikibase\DataModel\Snak\SnakObject
- * @uses Wikibase\DataModel\Internal\MapValueHasher
- * @uses Wikibase\DataModel\Entity\EntityId
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -33,7 +23,7 @@ class SnakListTest extends HashArrayTest {
 	 * @see GenericArrayObjectTest::getInstanceClass
 	 */
 	public function getInstanceClass() {
-		return 'Wikibase\DataModel\Snak\SnakList';
+		return '\Wikibase\SnakList';
 	}
 
 	/**
@@ -151,6 +141,26 @@ class SnakListTest extends HashArrayTest {
 		$this->assertEquals( $elementCount, $array->count() );
 	}
 
+	/**
+	 * @dataProvider instanceProvider
+	 * 
+	 * @param SnakList $snaks
+	 */
+	public function testToArrayRoundtrip( SnakList $snaks ) {
+		$serialization = serialize( $snaks->toArray() );
+		$array = $snaks->toArray();
+
+		$this->assertInternalType( 'array', $array, 'toArray should return array' );
+
+		foreach ( array( $array, unserialize( $serialization ) ) as $data ) {
+			$copy = SnakList::newFromArray( $data );
+
+			$this->assertInstanceOf( '\Wikibase\Snaks', $copy, 'newFromArray should return object implementing Snaks' );
+
+			$this->assertTrue( $snaks->equals( $copy ), 'getArray newFromArray roundtrip should work' );
+		}
+	}
+
 	public function orderByPropertyProvider() {
 		$class = $this->getInstanceClass();
 
@@ -247,13 +257,13 @@ class SnakListTest extends HashArrayTest {
 	 * @param array $order
 	 */
 	public function testOrderByProperty( SnakList $snakList, SnakList $expected, $order = array() ) {
-		$initialSnakList = new SnakList( array_values( iterator_to_array( $snakList ) ) );
+		$initialSnakList = SnakList::newFromArray( $snakList->toArray() );
 
 		$snakList->orderByProperty( $order );
 
 		// Instantiate new SnakList resetting the snaks' array keys. This allows comparing the
 		// reordered SnakList to the expected SnakList.
-		$orderedSnakList = new SnakList( array_values( iterator_to_array( $snakList ) ) );
+		$orderedSnakList = SnakList::newFromArray( $snakList->toArray() );
 
 		$this->assertEquals( $expected, $orderedSnakList );
 

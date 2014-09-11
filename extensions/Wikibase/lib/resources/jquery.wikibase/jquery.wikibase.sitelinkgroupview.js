@@ -126,19 +126,6 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	},
 
 	/**
-	 * Sets/Gets the widget's value.
-	 *
-	 * @param {Object} [value]
-	 * @return {Object|*}
-	 */
-	value: function( value ) {
-		if( value === undefined ) {
-			return this.option( 'value' );
-		}
-		return this.option( 'value', value );
-	},
-
-	/**
 	 * @see jQuery.ui.TemplatedWidget._setOption
 	 */
 	_setOption: function( key, value ) {
@@ -146,7 +133,7 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			value = this._checkValue( value );
 		}
 
-		var response = PARENT.prototype._setOption.call( this, key, value );
+		PARENT.prototype._setOption.call( this, key, value );
 
 		if( key === 'value' ) {
 			this.$sitelinklistview.data( 'sitelinklistview' )
@@ -154,11 +141,7 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			.value( this.options.value.siteLinks );
 
 			this._update();
-		} else if( key === 'disabled' ) {
-			this.$sitelinklistview.data( 'sitelinklistview' ).option( key, value );
 		}
-
-		return response;
 	},
 
 	/**

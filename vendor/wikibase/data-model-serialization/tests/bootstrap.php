@@ -1,6 +1,6 @@
 <?php
 
-if ( PHP_SAPI !== 'cli' ) {
+if ( php_sapi_name() !== 'cli' ) {
 	die( 'Not an entry point' );
 }
 

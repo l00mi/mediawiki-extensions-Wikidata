@@ -2,12 +2,18 @@
 
 namespace Wikibase\DataModel\Entity;
 
+use Diff\Comparer\CallbackComparer;
+use Diff\Differ\Differ;
+use Diff\Differ\MapDiffer;
 use Diff\Patcher\MapPatcher;
+use Diff\Patcher\Patcher;
 use InvalidArgumentException;
 use RuntimeException;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Entity\Diff\EntityDiff;
-use Wikibase\DataModel\Entity\Diff\EntityDiffer;
+use Wikibase\DataModel\Claim\ClaimAggregate;
+use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\LegacyIdInterpreter;
+use Wikibase\DataModel\Internal\ObjectComparer;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
@@ -20,36 +26,207 @@ use Wikibase\DataModel\Term\TermList;
  * Represents a single Wikibase entity.
  * See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Values
  *
- * @deprecated since 1.0 - do not type hint against Entity. See
- * https://lists.wikimedia.org/pipermail/wikidata-tech/2014-June/000489.html
+ * @since 0.1
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-abstract class Entity implements \Comparable, FingerprintProvider, EntityDocument {
+abstract class Entity implements \Comparable, ClaimAggregate, \Serializable, FingerprintProvider, EntityDocument {
 
 	/**
-	 * @var EntityId|null
+	 * @since 0.1
+	 * @var array
 	 */
-	protected $id;
+	protected $data;
 
 	/**
-	 * @var Fingerprint
+	 * Id of the entity.
+	 *
+	 * This field can have several types:
+	 *
+	 * * EntityId: This means the entity has this id.
+	 * * Null: This means the entity does not have an associated id.
+	 * * False: This means the entity has an id, but it is stubbed in the $data field. Call getId to get an unstubbed version.
+	 *
+	 * @since 0.1
+	 * @var EntityId|bool|null
 	 */
-	protected $fingerprint;
+	protected $id = false;
 
 	/**
-	 * Returns the id of the entity or null if it does not have one.
+	 * @since 0.3
+	 *
+	 * @var Claim[]|null
+	 */
+	protected $claims;
+
+	/**
+	 * Constructor.
+	 * Do not use to construct new stuff from outside of this class, use the static newFoobar methods.
+	 * In other words: treat as protected (which it was, but now cannot be since we derive from Content).
+	 * @protected
+	 *
+	 * @since 0.1
+	 *
+	 * @param array $data
+	 */
+	public function __construct( array $data ) {
+		$this->data = $data;
+		$this->cleanStructure();
+		$this->initializeIdField();
+	}
+
+	protected function initializeIdField() {
+		if ( !array_key_exists( 'entity', $this->data ) ) {
+			$this->id = null;
+		}
+	}
+
+	/**
+	 * Get an array representing the Entity.
+	 * A new Entity can be constructed by passing this array to @see Entity::newFromArray
+	 *
+	 * @since 0.1
+	 *
+	 * @return array
+	 */
+	public function toArray() {
+		$this->stub();
+		return $this->data;
+	}
+
+	/**
+	 * @see Serializable::serialize
+	 *
+	 * @since 0.3
+	 *
+	 * @return string
+	 */
+	public function serialize() {
+		$data = $this->toArray();
+
+		// Add an identifier for the serialization version so we can switch behavior in
+		// the unserializer to avoid breaking compatibility after certain changes.
+		$data['v'] = 1;
+
+		return json_encode( $data );
+	}
+
+	/**
+	 * @see Serializable::unserialize
+	 *
+	 * @since 0.3
+	 *
+	 * @param string $value
+	 *
+	 * @return Entity
+	 * @throws RuntimeException
+	 */
+	public function unserialize( $value ) {
+		$unserialized = json_decode( $value, true );
+
+		if ( is_array( $unserialized ) && array_key_exists( 'v', $unserialized ) ) {
+			unset( $unserialized['v'] );
+
+			return $this->__construct( $unserialized );
+		}
+
+		throw new RuntimeException( 'Invalid serialization passed to Entity unserializer' );
+	}
+
+	/**
+	 * @since 0.3
+	 *
+	 * @deprecated Do not rely on this method being present, it will be removed soonish.
+	 */
+	public function __wakeup() {
+		// Compatibility with 0.1 and 0.2 serializations.
+		if ( is_int( $this->id ) ) {
+			$this->id = LegacyIdInterpreter::newIdFromTypeAndNumber( $this->getType(), $this->id );
+		}
+
+		// Compatibility with 0.2 and 0.3 ItemObjects.
+		// (statements key got renamed to claims)
+		if ( array_key_exists( 'statements', $this->data ) ) {
+			$this->data['claims'] = $this->data['statements'];
+			unset( $this->data['statements'] );
+		}
+	}
+
+	/**
+	 * Returns the id of the entity or null if it is not in the datastore yet.
 	 *
 	 * @since 0.1 return type changed in 0.3
 	 *
 	 * @return EntityId|null
 	 */
 	public function getId() {
+		if ( $this->id === false ) {
+			$this->unstubId();
+		}
+
 		return $this->id;
 	}
 
-	public abstract function setId( $id );
+	private function unstubId() {
+		if ( array_key_exists( 'entity', $this->data ) ) {
+			$this->id = $this->getUnstubbedId( $this->data['entity'] );
+		}
+		else {
+			$this->id = null;
+		}
+	}
+
+	private function getUnstubbedId( $stubbedId ) {
+		if ( is_string( $stubbedId ) ) {
+			// This is unstubbing of the current stubbing format
+			return $this->idFromSerialization( $stubbedId );
+		}
+		else {
+			// This is unstubbing of the legacy stubbing format
+			return LegacyIdInterpreter::newIdFromTypeAndNumber( $stubbedId[0], $stubbedId[1] );
+		}
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @param string $idSerialization
+	 *
+	 * @return EntityId
+	 */
+	protected abstract function idFromSerialization( $idSerialization );
+
+	/**
+	 * Can be EntityId since 0.3.
+	 * The support for setting an integer here is deprecated since 0.5.
+	 * New deriving classes are allowed to reject anything that is not an EntityId of the correct type.
+	 *
+	 * @since 0.1
+	 *
+	 * @param EntityId $id
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setId( $id ) {
+		if ( $id instanceof EntityId ) {
+			if ( $id->getEntityType() !== $this->getType() ) {
+				throw new InvalidArgumentException( 'Attempt to set an EntityId with mismatching entity type' );
+			}
+
+			$this->id = $id;
+		}
+		else if ( is_integer( $id ) ) {
+			$this->id = LegacyIdInterpreter::newIdFromTypeAndNumber( $this->getType(), $id );
+		}
+		else {
+			throw new InvalidArgumentException( __METHOD__ . ' only accepts EntityId and integer' );
+		}
+
+		// This ensures the id is an instance of the correct derivative of EntityId.
+		// EntityId (non-derivative) instances are thus converted.
+		$this->id = $this->idFromSerialization( $this->id->getSerialization() );
+	}
 
 	/**
 	 * Sets the value for the label in a certain value.
@@ -62,7 +239,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return string
 	 */
 	public function setLabel( $languageCode, $value ) {
-		$this->fingerprint->getLabels()->setTerm( new Term( $languageCode, $value ) );
+		$this->data['label'][$languageCode] = $value;
 		return $value;
 	}
 
@@ -77,7 +254,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return string
 	 */
 	public function setDescription( $languageCode, $value ) {
-		$this->fingerprint->getDescriptions()->setTerm( new Term( $languageCode, $value ) );
+		$this->data['description'][$languageCode] = $value;
 		return $value;
 	}
 
@@ -86,10 +263,10 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 *
 	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string $languageCode
+	 * @param string|string[] $languageCodes Note that an empty array removes labels for no languages while a null pointer removes all
 	 */
-	public function removeLabel( $languageCode ) {
-		$this->fingerprint->getLabels()->removeByLanguage( $languageCode );
+	public function removeLabel( $languageCodes = array() ) {
+		$this->removeMultilangTexts( 'label', (array)$languageCodes );
 	}
 
 	/**
@@ -97,14 +274,34 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 *
 	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
-	 * @param string $languageCode
+	 * @param string|string[] $languageCodes Note that an empty array removes descriptions for no languages while a null pointer removes all
 	 */
-	public function removeDescription( $languageCode ) {
-		$this->fingerprint->getDescriptions()->removeByLanguage( $languageCode );
+	public function removeDescription( $languageCodes = array() ) {
+		$this->removeMultilangTexts( 'description', (array)$languageCodes );
+	}
+
+	/**
+	 * Remove the value with a field specifier
+	 *
+	 * @since 0.1
+	 *
+	 * @param string $fieldKey
+	 * @param string[]|null languageCodes
+	 */
+	protected function removeMultilangTexts( $fieldKey, array $languageCodes = null ) {
+		if ( is_null( $languageCodes ) ) {
+			$this->data[$fieldKey] = array();
+		}
+		else {
+			foreach ( $languageCodes as $languageCode ) {
+				unset( $this->data[$fieldKey][$languageCode] );
+			}
+		}
 	}
 
 	/**
 	 * Returns the aliases for the item in the language with the specified code.
+	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
 	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
@@ -113,44 +310,39 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return string[]
 	 */
 	public function getAliases( $languageCode ) {
-		$aliases = $this->fingerprint->getAliasGroups();
-
-		if ( $aliases->hasGroupForLanguage( $languageCode ) ) {
-			return $aliases->getByLanguage( $languageCode )->getAliases();
-		}
-
-		return array();
+		return array_key_exists( $languageCode, $this->data['aliases'] ) ?
+			array_unique( $this->data['aliases'][$languageCode] ) : array();
 	}
 
 	/**
 	 * Returns all the aliases for the item.
 	 * The result is an array with language codes pointing to an array of aliases in the language they specify.
+	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
 	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
 	 * @param string[]|null $languageCodes
 	 *
-	 * @return array[]
+	 * @return string[]
 	 */
 	public function getAllAliases( array $languageCodes = null ) {
-		$aliases = $this->fingerprint->getAliasGroups();
+		$textList = $this->data['aliases'];
 
-		$textLists = array();
-
-		/**
-		 * @var AliasGroup $aliasGroup
-		 */
-		foreach ( $aliases as $languageCode => $aliasGroup ) {
-			if ( $languageCodes === null || in_array( $languageCode, $languageCodes ) ) {
-				$textLists[$languageCode] = $aliasGroup->getAliases();
-			}
+		if ( !is_null( $languageCodes ) ) {
+			$textList = array_intersect_key( $textList, array_flip( $languageCodes ) );
 		}
 
-		return $textLists;
+		$textList = array_map(
+			'array_unique',
+			$textList
+		);
+
+		return $textList;
 	}
 
 	/**
 	 * Sets the aliases for the item in the language with the specified code.
+	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
 	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
@@ -158,11 +350,18 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param string[] $aliases
 	 */
 	public function setAliases( $languageCode, array $aliases ) {
-		$this->fingerprint->getAliasGroups()->setGroup( new AliasGroup( $languageCode, $aliases ) );
+		$aliases = array_diff( $aliases, array( '' ) );
+		$aliases = array_values( array_unique( $aliases ) );
+		if( count( $aliases ) > 0 ) {
+			$this->data['aliases'][$languageCode] = $aliases;
+		} else {
+			unset( $this->data['aliases'][$languageCode] );
+		}
 	}
 
 	/**
 	 * Add the provided aliases to the aliases list of the item in the language with the specified code.
+	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
 	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
@@ -172,15 +371,16 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	public function addAliases( $languageCode, array $aliases ) {
 		$this->setAliases(
 			$languageCode,
-			array_merge(
+			array_unique( array_merge(
 				$this->getAliases( $languageCode ),
 				$aliases
-			)
+			) )
 		);
 	}
 
 	/**
 	 * Removed the provided aliases from the aliases list of the item in the language with the specified code.
+	 * TODO: decide on how to deal with duplicates, it is assumed all duplicates should be removed
 	 *
 	 * @deprecated since 0.7.3 - use getFingerprint and setFingerprint
 	 *
@@ -234,11 +434,8 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return string|bool
 	 */
 	public function getDescription( $languageCode ) {
-		if ( !$this->fingerprint->getDescriptions()->hasTermForLanguage( $languageCode ) ) {
-			return false;
-		}
-
-		return $this->fingerprint->getDescriptions()->getByLanguage( $languageCode )->getText();
+		return array_key_exists( $languageCode, $this->data['description'] )
+			? $this->data['description'][$languageCode] : false;
 	}
 
 	/**
@@ -252,37 +449,46 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return string|bool
 	 */
 	public function getLabel( $languageCode ) {
-		if ( !$this->fingerprint->getLabels()->hasTermForLanguage( $languageCode ) ) {
-			return false;
-		}
-
-		return $this->fingerprint->getLabels()->getByLanguage( $languageCode )->getText();
+		return array_key_exists( $languageCode, $this->data['label'] )
+			? $this->data['label'][$languageCode] : false;
 	}
 
 	/**
 	 * Get texts from an item with a field specifier.
 	 *
 	 * @since 0.1
-	 * @deprecated
 	 *
 	 * @param string $fieldKey
 	 * @param string[]|null $languageCodes
 	 *
 	 * @return string[]
 	 */
-	private function getMultilangTexts( $fieldKey, array $languageCodes = null ) {
-		if ( $fieldKey === 'label' ) {
-			$textList = $this->fingerprint->getLabels()->toTextArray();
-		}
-		else {
-			$textList = $this->fingerprint->getDescriptions()->toTextArray();
-		}
+	protected function getMultilangTexts( $fieldKey, array $languageCodes = null ) {
+		$textList = $this->data[$fieldKey];
 
 		if ( !is_null( $languageCodes ) ) {
 			$textList = array_intersect_key( $textList, array_flip( $languageCodes ) );
 		}
 
 		return $textList;
+	}
+
+	/**
+	 * Cleans the internal array structure.
+	 * This consists of adding elements the code expects to be present later on
+	 * and migrating or removing elements after changes to the structure are made.
+	 * Should typically be called before using any of the other methods.
+	 *
+	 * @param bool $wipeExisting Unconditionally wipe out all data
+	 *
+	 * @since 0.1
+	 */
+	protected function cleanStructure( $wipeExisting = false ) {
+		foreach ( array( 'label', 'description', 'aliases', 'claims' ) as $field ) {
+			if ( $wipeExisting || !array_key_exists( $field, $this->data ) ) {
+				$this->data[$field] = array();
+			}
+		}
 	}
 
 	/**
@@ -296,11 +502,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param string[] $labels
 	 */
 	public function setLabels( array $labels ) {
-		$this->fingerprint->setLabels( new TermList( array() ) );
-
-		foreach ( $labels as $languageCode => $labelText ) {
-			$this->setLabel( $languageCode, $labelText );
-		}
+		$this->data['label'] = $labels;
 	}
 
 	/**
@@ -314,11 +516,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param string[] $descriptions
 	 */
 	public function setDescriptions( array $descriptions ) {
-		$this->fingerprint->setDescriptions( new TermList( array() ) );
-
-		foreach ( $descriptions as $languageCode => $descriptionText ) {
-			$this->setDescription( $languageCode, $descriptionText );
-		}
+		$this->data['description'] = $descriptions;
 	}
 
 	/**
@@ -333,11 +531,86 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param array[] $aliasLists
 	 */
 	public function setAllAliases( array $aliasLists ) {
-		$this->fingerprint->setAliasGroups( new AliasGroupList( array() ) );
-
-		foreach( $aliasLists as $languageCode => $aliasList ) {
+		$this->data['aliases'] = array();
+		foreach( $aliasLists as $languageCode => $aliasList ){
 			$this->setAliases( $languageCode, $aliasList );
 		}
+	}
+
+	/**
+	 * TODO: change to take Claim[]
+	 *
+	 * @since 0.4
+	 *
+	 * @param Claims $claims
+	 */
+	public function setClaims( Claims $claims ) {
+		$this->claims = iterator_to_array( $claims );
+	}
+
+	/**
+	 * Clears the structure.
+	 *
+	 * @since 0.1
+	 */
+	public function clear() {
+		$this->cleanStructure( true );
+	}
+
+	/**
+	 * Returns if the entity is empty.
+	 *
+	 * @since 0.1
+	 *
+	 * @return boolean
+	 */
+	public function isEmpty() {
+		$fields = array( 'label', 'description', 'aliases' );
+
+		foreach ( $fields as $field ) {
+			if ( $this->data[$field] !== array() ) {
+				return false;
+			}
+		}
+
+		if ( $this->hasClaims() ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @see Comparable::equals
+	 *
+	 * Two entities are considered equal if they are of the same
+	 * type and have the same value. The value does not include
+	 * the id, so entities with the same value but different id
+	 * are considered equal.
+	 *
+	 * @since 0.1
+	 *
+	 * @param mixed $that
+	 *
+	 * @return boolean
+	 */
+	public function equals( $that ) {
+		if ( $that === $this ) {
+			return true;
+		}
+
+		if ( !is_object( $that ) || ( get_class( $this ) !== get_class( $that ) ) ) {
+			return false;
+		}
+
+		//@todo: ignore the order of aliases
+		$thisData = $this->toArray();
+		$thatData = $that->toArray();
+
+		$comparer = new ObjectComparer();
+		$equals = $comparer->dataEquals( $thisData, $thatData, array( 'entity' ) );
+
+		return $equals;
 	}
 
 	/**
@@ -345,35 +618,126 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 *
 	 * @since 0.1
 	 *
-	 * @return static
+	 * @return Entity
 	 */
 	public function copy() {
-		return unserialize( serialize( $this ) );
+		$array = array();
+
+		foreach ( $this->toArray() as $key => $value ) {
+			$array[$key] = is_object( $value ) ? clone $value : $value;
+		}
+
+		$copy = new static( $array );
+
+		return $copy;
+	}
+
+	/**
+	 * Stubs the entity as far as possible.
+	 * This is useful when one wants to conserve memory.
+	 *
+	 * @deprecated since 0.7.4
+	 * @since 0.2
+	 */
+	public function stub() {
+		if ( is_null( $this->getId() ) ) {
+			if ( array_key_exists( 'entity', $this->data ) ) {
+				unset( $this->data['entity'] );
+			}
+		}
+		else {
+			$this->data['entity'] = $this->getStubbedId();
+		}
+
+		$this->data['claims'] = $this->getStubbedClaims( empty( $this->data['claims'] ) ? array() : $this->data['claims'] );
+		$this->claims = null;
+	}
+
+	private function getStubbedId() {
+		$id = $this->getId();
+
+		if ( $id === null ) {
+			return $id;
+		}
+		else {
+			// FIXME: this only works for Item and Property
+			/** @var ItemId|PropertyId $id */
+			return array( $id->getEntityType(), $id->getNumericId() );
+		}
 	}
 
 	/**
 	 * @see ClaimListAccess::addClaim
 	 *
 	 * @since 0.3
-	 * @deprecated since 1.0
 	 *
 	 * @param Claim $claim
 	 *
 	 * @throws InvalidArgumentException
-	 * @throws RuntimeException
 	 */
 	public function addClaim( Claim $claim ) {
-		throw new RuntimeException( 'Claims on entities are not supported any more.' );
+		if ( $claim->getGuid() === null ) {
+			throw new InvalidArgumentException( 'Can\'t add a Claim without a GUID.' );
+		}
+
+		// TODO: ensure guid is valid for entity
+
+		$this->unstubClaims();
+		$this->claims[] = $claim;
 	}
 
 	/**
+	 * @see ClaimAggregate::getClaims
+	 *
 	 * @since 0.3
-	 * @deprecated since 1.0
 	 *
 	 * @return Claim[]
 	 */
 	public function getClaims() {
-		return array();
+		$this->unstubClaims();
+		return $this->claims;
+	}
+
+	/**
+	 * Unsturbs the statements from the JSON into the $statements field
+	 * if this field is not already set.
+	 *
+	 * @since 0.3
+	 *
+	 * @return Claims
+	 */
+	protected function unstubClaims() {
+		if ( $this->claims === null ) {
+			$this->claims = array();
+
+			foreach ( $this->data['claims'] as $claimSerialization ) {
+				$this->claims[] = Claim::newFromArray( $claimSerialization );
+			}
+		}
+	}
+
+	/**
+	 * Takes the claims element of the $data array of an item and writes the claims to it as stubs.
+	 *
+	 * @since 0.3
+	 *
+	 * @param Claim[] $claims
+	 *
+	 * @return Claim[]
+	 */
+	protected function getStubbedClaims( array $claims ) {
+		if ( $this->claims !== null ) {
+			$claims = array();
+
+			/**
+			 * @var Claim $claim
+			 */
+			foreach ( $this->claims as $claim ) {
+				$claims[] = $claim->toArray();
+			}
+		}
+
+		return $claims;
 	}
 
 	/**
@@ -383,17 +747,20 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * the check without forcing an unstub in contrast to count( $this->getClaims() ).
 	 *
 	 * @since 0.2
-	 * @deprecated since 1.0
 	 *
 	 * @return bool
 	 */
 	public function hasClaims() {
-		return false;
+		if ( $this->claims === null ) {
+			return $this->data['claims'] !== array();
+		}
+		else {
+			return count( $this->claims ) > 0;
+		}
 	}
 
 	/**
 	 * @since 0.3
-	 * @deprecated since 1.0
 	 *
 	 * @param Snak $mainSnak
 	 *
@@ -407,16 +774,50 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * Returns an EntityDiff between $this and the provided Entity.
 	 *
 	 * @since 0.1
-	 * @deprecated since 1.0 - use EntityDiffer or a more specific differ
 	 *
 	 * @param Entity $target
+	 * @param Differ|null $differ Since 0.4
 	 *
 	 * @return EntityDiff
 	 * @throws InvalidArgumentException
 	 */
-	public final function getDiff( Entity $target ) {
-		$differ = new EntityDiffer();
-		return $differ->diffEntities( $this, $target );
+	public final function getDiff( Entity $target, Differ $differ = null ) {
+		if ( $this->getType() !== $target->getType() ) {
+			throw new InvalidArgumentException( 'Can only diff between entities of the same type' );
+		}
+
+		if ( $differ === null ) {
+			$differ = new MapDiffer( true );
+		}
+
+		$oldEntity = $this->entityToDiffArray( $this );
+		$newEntity = $this->entityToDiffArray( $target );
+
+		$diffOps = $differ->doDiff( $oldEntity, $newEntity );
+
+		$claims = new Claims( $this->getClaims() );
+		$diffOps['claim'] = $claims->getDiff( new Claims( $target->getClaims() ) );
+
+		return EntityDiff::newForType( $this->getType(), $diffOps );
+	}
+
+	/**
+	 * Create and returns an array based serialization suitable for EntityDiff.
+	 *
+	 * @since 0.4
+	 *
+	 * @param Entity $entity
+	 *
+	 * @return array[]
+	 */
+	protected function entityToDiffArray( Entity $entity ) {
+		$array = array();
+
+		$array['aliases'] = $entity->getAllAliases();
+		$array['label'] = $entity->getLabels();
+		$array['description'] = $entity->getDescriptions();
+
+		return $array;
 	}
 
 	/**
@@ -433,19 +834,57 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 		$this->setDescriptions( $patcher->patch( $this->getDescriptions(), $patch->getDescriptionsDiff() ) );
 		$this->setAllAliases( $patcher->patch( $this->getAllAliases(), $patch->getAliasesDiff() ) );
 
-		$this->patchSpecificFields( $patch );
+		$this->patchSpecificFields( $patch, $patcher );
+
+		$patcher->setValueComparer( new CallbackComparer(
+			function( Claim $firstClaim, Claim $secondClaim ) {
+				return $firstClaim->getHash() === $secondClaim->getHash();
+			}
+		) );
+
+		$claims = array();
+
+		foreach ( $this->getClaims() as $claim ) {
+			$claims[$claim->getGuid()] = $claim;
+		}
+
+		$claims = $patcher->patch( $claims, $patch->getClaimsDiff() );
+
+		$this->setClaims( new Claims( $claims ) );
 	}
 
 	/**
 	 * Patch fields specific to the type of entity.
 	 * @see patch
 	 *
-	 * @since 1.0
+	 * @since 0.4
 	 *
 	 * @param EntityDiff $patch
+	 * @param Patcher $patcher
 	 */
-	protected function patchSpecificFields( EntityDiff $patch ) {
+	protected function patchSpecificFields( EntityDiff $patch, Patcher $patcher ) {
 		// No-op, meant to be overridden in deriving classes to add specific behavior
+	}
+
+	/**
+	 * Parses the claim GUID and returns the prefixed entity ID it contains.
+	 *
+	 * @since 0.3
+	 * @deprecated since 0.4
+	 *
+	 * @param string $claimKey
+	 *
+	 * @return string
+	 * @throws InvalidArgumentException
+	 */
+	public static function getIdFromClaimGuid( $claimKey ) {
+		$keyParts = explode( '$', $claimKey );
+
+		if ( count( $keyParts ) !== 2 ) {
+			throw new InvalidArgumentException( 'A claim key should have a single $ in it' );
+		}
+
+		return $keyParts[0];
 	}
 
 	/**
@@ -454,9 +893,6 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 *
 	 * This is a convenience method for use in code that needs to operate on all snaks, e.g.
 	 * to find all referenced Entities.
-	 *
-	 * @since 0.5
-	 * @deprecated since 1.0
 	 *
 	 * @return Snak[]
 	 */
@@ -477,7 +913,41 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return Fingerprint
 	 */
 	public function getFingerprint() {
-		return $this->fingerprint;
+		return new Fingerprint(
+			$this->getLabelList(),
+			$this->getDescriptionList(),
+			$this->getAliasGroupList()
+		);
+	}
+
+	private function getLabelList() {
+		$labels = array();
+
+		foreach ( $this->getLabels() as $languageCode => $label ) {
+			$labels[] = new Term( $languageCode, $label );
+		}
+
+		return new TermList( $labels );
+	}
+
+	private function getDescriptionList() {
+		$descriptions = array();
+
+		foreach ( $this->getDescriptions() as $languageCode => $description ) {
+			$descriptions[] = new Term( $languageCode, $description );
+		}
+
+		return new TermList( $descriptions );
+	}
+
+	private function getAliasGroupList() {
+		$groups = array();
+
+		foreach ( $this->getAllAliases() as $languageCode => $aliases ) {
+			$groups[] = new AliasGroup( $languageCode, $aliases );
+		}
+
+		return new AliasGroupList( $groups );
 	}
 
 	/**
@@ -486,25 +956,22 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param Fingerprint $fingerprint
 	 */
 	public function setFingerprint( Fingerprint $fingerprint ) {
-		$this->fingerprint = $fingerprint;
+		$this->setLabels( $fingerprint->getLabels()->toTextArray() );
+		$this->setDescriptions( $fingerprint->getDescriptions()->toTextArray() );
+		$this->setAliasGroupList( $fingerprint->getAliases() );
 	}
 
-	/**
-	 * Returns if the Entity has no content.
-	 * Having an id set does not count as having content.
-	 *
-	 * @since 0.1
-	 *
-	 * @return boolean
-	 */
-	public abstract function isEmpty();
+	private function setAliasGroupList( AliasGroupList $list ) {
+		$allAliases = array();
 
-	/**
-	 * Removes all content from the Entity.
-	 * The id is not part of the content.
-	 *
-	 * @since 0.1
-	 */
-	public abstract function clear();
+		/**
+		 * @var AliasGroup $aliasGroup
+		 */
+		foreach ( $list as $aliasGroup ) {
+			$allAliases[$aliasGroup->getLanguageCode()] = $aliasGroup->getAliases();
+		}
+
+		$this->setAllAliases( $allAliases );
+	}
 
 }

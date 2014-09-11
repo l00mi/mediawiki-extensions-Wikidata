@@ -170,7 +170,7 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 			html: '&nbsp;' // TODO find nicer way to hack Webkit browsers to display tooltip image (see also css)
 		} ) )
 		// Tooltip anchor has no disabled/enabled behavior.
-		.toolbarlabel();
+		.toolbarlabel( { stateChangeable: false } );
 
 		this._attachEventHandler();
 
@@ -191,10 +191,10 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 					break;
 				case self._buttons.save.get( 0 ):
 					self._trigger( 'save', null, [ function() {
-						if( self.element.data( 'toolbareditgroup' ) && !self.options.disabled ) {
+						if( self.element.data( 'toolbareditgroup' ) && !self.isDisabled() ) {
 							// Only toggle EditGroup as long as it still exists.
-							// If edit group is disabled, the interaction target appears to be
-							// invalid and edit mode is supposed to persist.
+							// If edit group is disabled, the interaction target appears to be invalid and
+							// edit mode is supposed to persist.
 							self.toNonEditMode();
 						}
 					} ] );
@@ -310,21 +310,6 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.wikibase.toolbar._setOption
-	 */
-	_setOption: function( key, value ) {
-		var self = this;
-		if( key === 'disabled' ) {
-			$.each( this._buttons, function( buttonName, button ) {
-				if( button ) {
-					self[value ? 'disableButton' : 'enableButton']( buttonName );
-				}
-			} );
-		}
-		return PARENT.prototype._setOption.apply( this, arguments );
-	},
-
-	/**
 	 * Disables a particular edit group button.
 	 * @since 0.5
 	 *
@@ -348,22 +333,6 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 		if( this._buttons[buttonName] ) {
 			this._buttons[buttonName].data( 'toolbarbutton' ).enable();
 		}
-	},
-
-	/**
-	 * @param {string} state
-	 */
-	_setState: function( state ) {
-		// TODO: This special handling should not be necessary: Resolve toolbar state handling.
-		var self = this;
-
-		$.each( this.options.buttonCharacteristics, function( buttonName ) {
-			if( self._buttons[buttonName] ) {
-				self._buttons[buttonName].data( 'toolbarbutton' )[state]();
-			}
-		} );
-
-		return true;
 	},
 
 	/**
@@ -410,7 +379,7 @@ $.widget( 'wikibase.toolbareditgroup', PARENT, {
 			style: 'display:inline;text-decoration:none;', // TODO: Get rid of inline styles.
 			html: '&nbsp;' // TODO find nicer way to hack Webkit browsers to display tooltip image (see also css)
 		} ) )
-		.toolbarlabel();
+		.toolbarlabel( { stateChangeable: false } );
 
 		// Clone buttons:
 		clone._buttons.edit = this._buttons.edit ? this._buttons.edit.data( 'toolbarbutton' ).clone() : null;

@@ -58,8 +58,6 @@ class ChangeOpsMerge {
 	 */
 	private $changeOpFactoryProvider;
 
-	static $conflictTypes = array( 'label', 'description', 'sitelink' );
-
 	/**
 	 * @param Item $fromItem
 	 * @param Item $toItem
@@ -100,11 +98,16 @@ class ChangeOpsMerge {
 		if ( !is_array( $ignoreConflicts ) ) {
 			throw new InvalidArgumentException( '$ignoreConflicts must be an array' );
 		}
-
-		if ( array_diff( $ignoreConflicts, self::$conflictTypes ) ) {
-			throw new InvalidArgumentException(
-				'$ignoreConflicts array can only contain "label", "description" and or "sitelink" values'
-			);
+		foreach ( $ignoreConflicts as $ignoreConflict ) {
+			if (
+				$ignoreConflict !== 'label' &&
+				$ignoreConflict !== 'description' &&
+				$ignoreConflict !== 'sitelink'
+			) {
+				throw new InvalidArgumentException(
+					'$ignoreConflicts array can only contain "label", "description" and or "sitelink" values'
+				);
+			}
 		}
 	}
 

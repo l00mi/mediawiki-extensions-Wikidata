@@ -24,7 +24,7 @@
 		return $node;
 	}
 
-	QUnit.module( 'jquery.wikibase.wbtooltip', QUnit.newMwEnvironment( {
+	QUnit.module( 'jquery.wikibase.wbtooltip', window.QUnit.newWbEnvironment( {
 		teardown: function() {
 			$( '.test_tooltip' ).each( function( i, node ) {
 				var $node = $( node ),

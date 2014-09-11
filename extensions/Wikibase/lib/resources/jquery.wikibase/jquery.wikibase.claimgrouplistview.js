@@ -346,20 +346,8 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 				index++;
 			}
 		}
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
-	 */
-	_setOption: function( key, value ) {
-		var response = PARENT.prototype._setOption.apply( this, arguments );
-
-		if( key === 'disabled' ) {
-			this.$listview.data( 'listview' ).option( key, value );
-		}
-
-		return response;
 	}
+
 } );
 
 $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
@@ -368,8 +356,7 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 		+ '-' + $.wikibase.claimgrouplistview.prototype.widgetName,
 	events: {
 		claimgrouplistviewcreate: function( event, toolbarcontroller ) {
-			var $claimgrouplistview = $( event.target ),
-				claimgrouplistview = $claimgrouplistview.data( 'claimgrouplistview' );
+			var $claimgrouplistview = $( event.target );
 
 			$claimgrouplistview.addtoolbar( {
 				addButtonAction: function() {
@@ -385,20 +372,6 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 					);
 				}
 			} );
-
-			// TODO: Integrate state management into addtoolbar
-			toolbarcontroller.registerEventHandler(
-				event.data.toolbar.type,
-				event.data.toolbar.id,
-				'claimgrouplistviewdisable',
-				function() {
-					$claimgrouplistview.data( 'addtoolbar' )[
-						claimgrouplistview.option( 'disabled' )
-						? 'disable'
-						: 'enable'
-					]();
-				}
-			);
 		}
 	}
 } );

@@ -1,12 +1,15 @@
 /**
+ * QUnit tests for wikibase.RepoApiError
+ * @see https://www.mediawiki.org/wiki/Extension:Wikibase
+ *
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
 
-( function( wb, mw, $, QUnit ) {
+( function( wb, $, QUnit ) {
 	'use strict';
 
-	QUnit.module( 'wikibase.RepoApiError' );
+	QUnit.module( 'wikibase.RepoApiError', QUnit.newWbEnvironment() );
 
 	QUnit.test( 'Create and validate errors', function( assert ) {
 		var error = new wb.RepoApiError( 'error-code', 'detailed message' );
@@ -117,4 +120,4 @@
 
 	} );
 
-}( wikibase, mediaWiki, jQuery, QUnit ) );
+}( wikibase, jQuery, QUnit ) );

@@ -37,7 +37,8 @@
 			.claimview( options );
 	}
 
-	QUnit.module( 'jquery.wikibase.claimview' );
+	QUnit.module( 'jquery.wikibase.claimview', window.QUnit.newWbEnvironment( {
+	} ) );
 
 	QUnit.test( 'Initialize and destroy', function( assert ) {
 		var $node = createClaimview(),

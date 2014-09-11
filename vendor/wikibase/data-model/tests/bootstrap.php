@@ -7,12 +7,14 @@
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 
-if ( PHP_SAPI !== 'cli' ) {
+if ( php_sapi_name() !== 'cli' ) {
 	die( 'Not an entry point' );
 }
 
-error_reporting( E_ALL | E_STRICT );
-ini_set( 'display_errors', 1 );
+$pwd = getcwd();
+chdir( __DIR__ . '/..' );
+passthru( 'composer update' );
+chdir( $pwd );
 
 if ( !is_readable( __DIR__ . '/../vendor/autoload.php' ) ) {
 	die( 'You need to install this package with Composer before you can run the tests' );
@@ -21,6 +23,3 @@ if ( !is_readable( __DIR__ . '/../vendor/autoload.php' ) ) {
 $autoLoader = require_once( __DIR__ . '/../vendor/autoload.php' );
 
 $autoLoader->addPsr4( 'Wikibase\\Test\\', __DIR__ . '/unit/' );
-$autoLoader->addPsr4( 'Wikibase\\Test\\DataModel\\Fixtures\\', __DIR__ . '/fixtures/' );
-
-unset( $autoLoader );

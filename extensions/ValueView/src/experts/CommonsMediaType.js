@@ -29,16 +29,16 @@
 			var notifier = this._viewNotifier,
 				$input = this.$input;
 
-			$input.commonssuggester();
+			$input.suggestCommons();
 
 			// Using the inputautoexpand plugin, the position of the dropdown needs to be updated
 			// whenever the input box expands vertically:
 			$input
 			.on( 'eachchange', function( event, oldValue ) {
 				// TODO/OPTIMIZE: Only reposition when necessary, i.e. when expanding vertically
-				$input.data( 'commonssuggester' ).repositionMenu();
+				$input.data( 'suggestCommons' ).repositionMenu();
 			} )
-			.on( 'commonssuggesterchange', function( event, response ) {
+			.on( 'suggestcommonschange', function( event, response ) {
 				notifier.notify( 'change' );
 				$input.data( 'inputautoexpand' ).expand();
 			} );

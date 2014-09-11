@@ -37,7 +37,6 @@ class ItemIdTest extends \PHPUnit_Framework_TestCase {
 			array( 'q31337' ),
 			array( 'Q31337' ),
 			array( 'Q42' ),
-			array( 'Q2147483648' ),
 		);
 	}
 
@@ -68,35 +67,9 @@ class ItemIdTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider numericIdProvider
-	 */
-	public function testNewFromNumber( $number ) {
-		$id = ItemId::newFromNumber( $number );
-		$this->assertEquals( 'Q' . $number, $id->getSerialization() );
-	}
-
-	public function numericIdProvider() {
-		return array(
-			array( 42 ),
-			array( 42.0 ),
-			array( 2147483648 ),
-		);
-	}
-
-	/**
-	 * @dataProvider invalidNumericIdProvider
-	 */
-	public function testNewFromNumberWithInvalidNumericId( $number ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
-		ItemId::newFromNumber( $number );
-	}
-
-	public function invalidNumericIdProvider() {
-		return array(
-			array( '42' ),
-			array( 2147483648.1 ),
-		);
+	public function testNewFromNumber() {
+		$id = ItemId::newFromNumber( 42 );
+		$this->assertEquals( 'Q42', $id->getSerialization() );
 	}
 
 }

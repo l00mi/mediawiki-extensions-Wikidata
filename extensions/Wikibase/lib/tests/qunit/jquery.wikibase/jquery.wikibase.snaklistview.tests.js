@@ -121,7 +121,7 @@
 		return snakValues.join( '' );
 	}
 
-	QUnit.module( 'jquery.wikibase.snaklistview', window.QUnit.newMwEnvironment( {
+	QUnit.module( 'jquery.wikibase.snaklistview', window.QUnit.newWbEnvironment( {
 		teardown: function() {
 			$( '.test_snaklistview' ).each( function( i, node ) {
 				var $node = $( node ),

@@ -27,6 +27,7 @@ $wgHooks['ResourceLoaderTestModules'][] = function( array &$testModules, \Resour
 			'Statement.tests.js',
 		),
 		'dependencies' => array(
+			'jquery',
 			'wikibase.datamodel',
 			'wikibase.datamodel.tests.testEntity',
 			'wikibase.tests.qunit.testrunner',
@@ -38,6 +39,7 @@ $wgHooks['ResourceLoaderTestModules'][] = function( array &$testModules, \Resour
 			'testEntity.js',
 		),
 		'dependencies' => array(
+			'jquery',
 			'wikibase.datamodel',
 		)
 	);

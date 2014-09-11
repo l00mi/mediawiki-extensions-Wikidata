@@ -10,10 +10,8 @@
          stopOnFailure="false"
          stopOnIncomplete="false"
          stopOnSkipped="false"
-         strict="false"
-         verbose="true"
-         printerFile="vendor/whatthejeff/nyancat-phpunit-resultprinter/src/NyanCat/PHPUnit/ResultPrinter.php"
-         printerClass="NyanCat\PHPUnit\ResultPrinter">
+         strict="true"
+         verbose="true">
     <testsuites>
         <testsuite name="WikibaseDataModel">
             <directory>tests</directory>
@@ -21,7 +19,7 @@
     </testsuites>
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
+            <directory suffix=".php">DataModel</directory>
         </whitelist>
     </filter>
 </phpunit>

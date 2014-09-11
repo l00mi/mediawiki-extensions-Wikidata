@@ -2,7 +2,6 @@
 
 namespace DataValues\Deserializers;
 
-use DataValues\IllegalValueException;
 use Deserializers\DispatchableDeserializer;
 use Deserializers\Exceptions\DeserializationException;
 use Deserializers\Exceptions\MissingAttributeException;
@@ -107,9 +106,6 @@ class DataValueDeserializer implements DispatchableDeserializer {
 			return $class::newFromArray( $this->getValue() );
 		}
 		catch ( InvalidArgumentException $ex ) {
-			throw new DeserializationException( $ex->getMessage(), $ex );
-		}
-		catch ( IllegalValueException $ex ) {
 			throw new DeserializationException( $ex->getMessage(), $ex );
 		}
 	}

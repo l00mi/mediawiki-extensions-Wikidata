@@ -26,7 +26,7 @@ class HashArrayWithoutDuplicatesTest extends HashArrayTest {
 	}
 
 	public function getInstanceClass() {
-		return 'Wikibase\Test\HashArray\HashArrayWithoutDuplicates';
+		return '\Wikibase\Test\HashArray\HashArrayWithoutDuplicates';
 	}
 
 	public function elementInstancesProvider() {
@@ -128,3 +128,5 @@ class HashArrayWithoutDuplicates extends HashArray {
 	}
 
 }
+
+

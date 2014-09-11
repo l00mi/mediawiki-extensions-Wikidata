@@ -14,7 +14,7 @@ use Wikibase\DataModel\Entity\EntityIdParsingException;
  * New usages of this class should be very carefully considered.
  * This class is internal to DataModel and should not be used by other components.
  *
- * @since 1.0
+ * @since 0.5
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com
@@ -50,7 +50,7 @@ class LegacyIdInterpreter {
 	 * @return string
 	 * @throws InvalidArgumentException
 	 */
-	private static function constructSerialization( $entityType, $numericId ) {
+	protected static function constructSerialization( $entityType, $numericId ) {
 		if ( !is_string( $entityType ) ) {
 			throw new InvalidArgumentException( '$entityType needs to be a string' );
 		}

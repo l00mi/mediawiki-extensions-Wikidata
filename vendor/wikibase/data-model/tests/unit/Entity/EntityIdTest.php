@@ -3,13 +3,13 @@
 namespace Wikibase\Test;
 
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 
 /**
  * @covers Wikibase\DataModel\Entity\EntityId
- * @uses Wikibase\DataModel\Entity\ItemId
- * @uses Wikibase\DataModel\Entity\PropertyId
  *
  * @group Wikibase
  * @group WikibaseDataModel
@@ -21,16 +21,79 @@ use Wikibase\DataModel\Entity\PropertyId;
  */
 class EntityIdTest extends \PHPUnit_Framework_TestCase {
 
+	/**
+	 * @dataProvider constructorProvider
+	 *
+	 * @param string $type
+	 * @param integer $serialization
+	 */
+	public function testConstructor( $type, $serialization ) {
+		$id = new EntityId( $type, $serialization );
+
+		$this->assertEquals( $type, $id->getEntityType() );
+		$this->assertEquals( strtoupper( $serialization ), $id->getSerialization() );
+	}
+
+	public function constructorProvider() {
+		$argLists = array();
+
+		$argLists[] = array( Item::ENTITY_TYPE, 'Q123' );
+		$argLists[] = array( Property::ENTITY_TYPE, 'P321' );
+
+		$argLists[] = array( Item::ENTITY_TYPE, 'q123' );
+		$argLists[] = array( Property::ENTITY_TYPE, 'p321' );
+
+		return $argLists;
+	}
+
+	public function testConstructorWithNumericId() {
+		$id = new ItemId( 'Q123' );
+		$this->assertEquals( $id->getSerialization(),'Q123' );
+
+		$id = new PropertyId( 'P123' );
+		$this->assertEquals( $id->getSerialization(), 'P123' );
+	}
+
 	public function instanceProvider() {
 		$ids = array();
 
-		$ids[] = array( new ItemId( 'Q1' ) );
-		$ids[] = array( new ItemId( 'Q42' ) );
-		$ids[] = array( new ItemId( 'Q31337' ) );
-		$ids[] = array( new ItemId( 'Q2147483648' ) );
-		$ids[] = array( new PropertyId( 'P101010' ) );
+		foreach ( $this->constructorProvider() as $argList ) {
+			$ids[] = array( new EntityId( $argList[0], $argList[1] ) );
+		}
 
 		return $ids;
+	}
+
+	public function equalityProvider() {
+		$argLists = array();
+
+		$types = array(
+			Item::ENTITY_TYPE,
+			Property::ENTITY_TYPE,
+		);
+
+		foreach ( array_values( $types ) as $type ) {
+			$id = new EntityId( $type, 42 );
+
+			foreach ( array( 1, 42, 9001 ) as $numericId ) {
+				foreach ( $types as $secondType ) {
+					$secondId = new EntityId( $secondType, $numericId );
+
+					$matches = $type === $secondType && $numericId === 42;
+
+					$argLists[] = array( $id, $secondId, $matches );
+				}
+			}
+		}
+
+		return $argLists;
+	}
+
+	/**
+	 * @dataProvider equalityProvider
+	 */
+	public function testEquals( EntityId $id0, EntityId $id1, $expectedEquals ) {
+		$this->assertEquals( $expectedEquals, $id0->equals( $id1 ) );
 	}
 
 	/**
@@ -38,7 +101,6 @@ class EntityIdTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testEqualsSimple( EntityId $id ) {
 		$this->assertTrue( $id->equals( $id ) );
-		$this->assertTrue( $id->equals( unserialize( serialize( $id ) ) ) );
 		$this->assertFalse( $id->equals( $id->getSerialization() ) );
 		$this->assertFalse( $id->equals( $id->getEntityType() ) );
 	}
@@ -53,8 +115,10 @@ class EntityIdTest extends \PHPUnit_Framework_TestCase {
 	public function testDeserializationCompatibility() {
 		$v04serialization = 'C:17:"Wikibase\EntityId":12:{["item",123]}';
 
-		$id = new ItemId( 'q123' );
-		$this->assertTrue( $id->equals( unserialize( $v04serialization ) ) );
+		$this->assertEquals(
+			new EntityId( 'item', 'q123' ),
+			unserialize( $v04serialization )
+		);
 
 		$v05serialization = 'C:32:"Wikibase\DataModel\Entity\ItemId":15:{["item","Q123"]}';
 
@@ -91,6 +155,16 @@ class EntityIdTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testGetPrefixedId( EntityId $id ) {
 		$this->assertEquals( $id->getSerialization(), $id->getPrefixedId() );
+	}
+
+	public function testCannotConstructWithNonStringEntityType() {
+		$this->setExpectedException( 'InvalidArgumentException' );
+		new EntityId( null, 42 );
+	}
+
+	public function testCannotConstructWithInvalidSerialization() {
+		$this->setExpectedException( 'InvalidArgumentException' );
+		new EntityId( 'item', null );
 	}
 
 }

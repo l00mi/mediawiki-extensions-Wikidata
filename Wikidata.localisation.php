@@ -13,7 +13,6 @@ require_once __DIR__ . '/extensions/Wikibase/repo/Wikibase.php';
 require_once __DIR__ . '/extensions/Wikidata.org/WikidataOrg.php';
 require_once __DIR__ . '/extensions/PropertySuggester/PropertySuggester.php';
 require_once __DIR__ . '/extensions/Wikibase/client/WikibaseClient.php';
-require_once __DIR__ . '/extensions/WikimediaBadges/WikimediaBadges.php';
 
 $wgExtensionCredits['wikibase'][] = array(
 	'path' => __DIR__,

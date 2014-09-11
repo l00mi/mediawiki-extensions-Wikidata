@@ -46,6 +46,7 @@ class SiteLinkList implements IteratorAggregate, Countable, Comparable {
 	 * @param SiteLink $link
 	 *
 	 * @throws InvalidArgumentException
+	 * @return self
 	 */
 	public function addSiteLink( SiteLink $link ) {
 		if ( array_key_exists( $link->getSiteId(), $this->siteLinks ) ) {
@@ -53,21 +54,23 @@ class SiteLinkList implements IteratorAggregate, Countable, Comparable {
 		}
 
 		$this->siteLinks[$link->getSiteId()] = $link;
+
+		return $this;
 	}
 
 	/**
-	 * @see SiteLink::__construct
-	 *
 	 * @since 0.8
+	 * @see SiteLink::__construct
 	 *
 	 * @param string $siteId
 	 * @param string $pageName
 	 * @param ItemIdSet|ItemId[] $badges
 	 *
 	 * @throws InvalidArgumentException
+	 * @return self
 	 */
 	public function addNewSiteLink( $siteId, $pageName, $badges = array() ) {
-		$this->addSiteLink( new SiteLink( $siteId, $pageName, $badges ) );
+		return $this->addSiteLink( new SiteLink( $siteId, $pageName, $badges ) );
 	}
 
 	/**
@@ -138,7 +141,7 @@ class SiteLinkList implements IteratorAggregate, Countable, Comparable {
 	}
 
 	/**
-	 * @since 1.0
+	 * @since 0.8
 	 *
 	 * @return boolean
 	 */

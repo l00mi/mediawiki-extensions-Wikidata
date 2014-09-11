@@ -17,7 +17,7 @@
 	 */
 	wb.tests = {};
 
-	QUnit.module( 'wikibase' );
+	QUnit.module( 'wikibase', QUnit.newWbEnvironment( { } ) );
 
 	QUnit.test( 'basic', 1, function( assert ) {
 		assert.ok(

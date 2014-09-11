@@ -51,11 +51,6 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	_isInEditMode: false,
 
 	/**
-	 * @type {boolean}
-	 */
-	_isBeingEdited: false,
-
-	/**
 	 * @see jQuery.ui.TemplatedWidget._create
 	 *
 	 * @throws {Error} if required parameters are not specified properly.
@@ -67,10 +62,17 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 
 		this.options.value = this._checkValue( this.options.value );
 
+		PARENT.prototype._create.call( this );
+
 		var self = this,
 			value = this.options.value;
 
+		if( value && value.description !== '' && this.$text.text() === '' ) {
+			this._draw();
+		}
+
 		this.element
+		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
 		.on(
 			'descriptionviewafterstartediting.' + this.widgetName
 			+ ' eachchange.' + this.widgetName,
@@ -85,13 +87,29 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 			}
 
 			self.element.removeClass( 'wb-empty' );
+
+			$( wb ).trigger( 'startItemPageEditMode', [
+				self.element,
+				{
+					exclusive: false,
+					wbCopyrightWarningGravity: 'sw'
+				}
+			] );
+		} )
+		.on(
+			'descriptionviewafterstopediting.' + this.widgetName
+			+ ' eachchange.' + this.widgetName,
+		function( event, dropValue ) {
+			if(
+				event.type !== 'eachchange'
+				|| !self.options.value.description && !self.value().description
+			) {
+				$( wb ).trigger( 'stopItemPageEditMode', [
+					self.element,
+					{ save: dropValue !== true }
+				] );
+			}
 		} );
-
-		PARENT.prototype._create.call( this );
-
-		if( value && value.description !== '' && this.$text.text() === '' ) {
-			this._draw();
-		}
 	},
 
 	/**
@@ -115,12 +133,9 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	 * Main draw routine.
 	 */
 	_draw: function() {
-		this.element[this.options.value.description ? 'removeClass' : 'addClass']( 'wb-empty' );
-
 		if( !this._isInEditMode ) {
-			this.$text.text(
-				this.options.value.description || mw.msg( 'wikibase-description-empty' )
-			);
+			this.element.removeClass( 'wb-edit' );
+			this.$text.text( this.options.value.description );
 			return;
 		}
 
@@ -140,31 +155,21 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 			$input.val( this.options.value.description );
 		}
 
+		this.element.addClass( 'wb-edit' );
 		this.$text.empty().append( $input );
-	},
-
-	/**
-	 * Switches to editable state.
-	 */
-	toEditMode: function() {
-		if( this._isInEditMode ) {
-			return;
-		}
-
-		this._isInEditMode = true;
-		this._draw();
 	},
 
 	/**
 	 * Starts the widget's edit mode.
 	 */
 	startEditing: function() {
-		if( this._isBeingEdited ) {
+		if( this._isInEditMode ) {
 			return;
 		}
-		this.element.addClass( 'wb-edit' );
-		this.toEditMode();
-		this._isBeingEdited = true;
+
+		this._isInEditMode = true;
+		this._draw();
+
 		this._trigger( 'afterstartediting' );
 	},
 
@@ -234,10 +239,9 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 			this.options.value = this.value();
 		} else if( !this.options.value.description ) {
 			this.$text.children( 'input' ).val( '' );
+			this._trigger( 'change' );
 		}
 
-		this.element.removeClass( 'wb-edit' );
-		this._isBeingEdited = false;
 		this._isInEditMode = false;
 		this._draw();
 
@@ -391,9 +395,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			} );
 
 			if( !descriptionview.value().description ) {
-				descriptionview.toEditMode();
-				$descriptionview.data( 'edittoolbar' ).toolbar.editGroup.toEditMode();
-				$descriptionview.data( 'edittoolbar' ).toolbar.editGroup.disable();
+				descriptionview.startEditing();
 			}
 
 			$descriptionview
@@ -402,21 +404,17 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				var edittoolbar = $( event.target ).data( 'edittoolbar' );
 				if( descriptionview.value().description ) {
 					edittoolbar.toolbar.editGroup.toNonEditMode();
-					edittoolbar.enable();
-					edittoolbar.toggleActionMessage( function() {
-						edittoolbar.toolbar.editGroup.getButton( 'edit' ).focus();
-					} );
 				} else {
-					descriptionview.toEditMode();
-					edittoolbar.toolbar.editGroup.toEditMode();
-					edittoolbar.toggleActionMessage( function() {
-						descriptionview.focus();
-					} );
-					$descriptionview.data( 'edittoolbar' ).toolbar.editGroup.disable();
+					descriptionview.startEditing();
 				}
+
+				edittoolbar.enable();
+				edittoolbar.toggleActionMessage( function() {
+					edittoolbar.toolbar.editGroup.getButton( 'edit' ).focus();
+				} );
 			} );
 		},
-		'descriptionviewchange descriptionviewafterstartediting descriptionviewafterstopediting': function( event ) {
+		'descriptionviewchange descriptionviewafterstartediting': function( event ) {
 			var $descriptionview = $( event.target ),
 				descriptionview = $descriptionview.data( 'descriptionview' ),
 				toolbar = $descriptionview.data( 'edittoolbar' ).toolbar,
@@ -430,33 +428,6 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			btnSave[enable ? 'enable' : 'disable']();
 			btnCancel[disableCancel ? 'disable' : 'enable']();
-
-			if( event.type === 'descriptionviewchange' ) {
-				if( !descriptionview.isInitialValue() ) {
-					descriptionview.startEditing();
-				} else if( descriptionview.isInitialValue() && !descriptionview.value().description ) {
-					descriptionview.cancelEditing();
-				}
-			}
-		},
-		descriptionviewdisable: function( event ) {
-			var $descriptionview = $( event.target ),
-				descriptionview = $descriptionview.data( 'descriptionview' ),
-				toolbar = $descriptionview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
-				enable = descriptionview.isValid() && !descriptionview.isInitialValue(),
-				currentDescription = descriptionview.value().description;
-
-			btnSave[enable ? 'enable' : 'disable']();
-
-			if( descriptionview.option( 'disabled' ) || currentDescription ) {
-				return;
-			}
-
-			if( !currentDescription ) {
-				toolbar.disable();
-			}
 		},
 		toolbareditgroupedit: function( event, toolbarcontroller ) {
 			var $descriptionview = $( event.target ).closest( ':wikibase-edittoolbar' ),

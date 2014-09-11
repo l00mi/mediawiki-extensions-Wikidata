@@ -9,17 +9,10 @@ use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Snak\SnakObject;
 
 /**
- * @covers Wikibase\DataModel\Snak\PropertyNoValueSnak
- * @covers Wikibase\DataModel\Snak\PropertySomeValueSnak
- * @covers Wikibase\DataModel\Snak\PropertyValueSnak
- * @covers Wikibase\DataModel\Snak\Snak
- * @uses Wikibase\DataModel\Snak\SnakObject
- * @uses DataValues\NumberValue
- * @uses DataValues\StringValue
- * @uses Wikibase\DataModel\Entity\EntityId
- * @uses Wikibase\DataModel\Entity\PropertyId
+ * Unit tests for classes that implement Wikibase\Snak.
  *
  * @group Wikibase
  * @group WikibaseDataModel
@@ -70,7 +63,7 @@ class SnakTest extends \PHPUnit_Framework_TestCase {
 	 * @param Snak $snak
 	 */
 	public function testGetPropertyId( Snak $snak ) {
-		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\EntityId', $snak->getPropertyId() );
+		$this->assertInstanceOf( '\Wikibase\EntityId', $snak->getPropertyId() );
 	}
 
 	/**
@@ -123,6 +116,26 @@ class SnakTest extends \PHPUnit_Framework_TestCase {
 		$id43 = new PropertyId( 'p43' );
 
 		$this->assertFalse( $snak->equals( new PropertyNoValueSnak( $id43 ) ) );
+	}
+
+	/**
+	 * @dataProvider snakProvider
+	 * @param Snak $snak
+	 */
+	public function testToArrayRoundtrip( Snak $snak ) {
+		$serialization = serialize( $snak->toArray() );
+		$array = $snak->toArray();
+
+		$this->assertInternalType( 'array', $array, 'toArray should return array' );
+
+		foreach ( array( $array, unserialize( $serialization ) ) as $data ) {
+			$copy = SnakObject::newFromArray( $data );
+
+			$this->assertInstanceOf( '\Wikibase\Snak', $copy, 'newFromArray should return object implementing Snak' );
+			$this->assertEquals( $snak->getHash(), $copy->getHash(), 'newFromArray should return object with same Hash used previously' );
+
+			$this->assertTrue( $snak->equals( $copy ), 'getArray newFromArray roundtrip should work' );
+		}
 	}
 
 }

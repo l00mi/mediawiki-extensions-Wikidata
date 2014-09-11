@@ -64,37 +64,58 @@
 			label = $node.data( 'toolbarlabel' );
 
 		assert.ok(
-			!label.option( 'disabled' ),
+			!label.isDisabled(),
 			'Label is enabled.'
 		);
 
 		label.disable();
 
 		assert.ok(
-			label.option( 'disabled' ),
+			label.isDisabled(),
 			'Disabled label.'
 		);
 
 		label.disable();
 
 		assert.ok(
-			label.option( 'disabled' ),
+			label.isDisabled(),
 			'Label still disabled after disabling twice.'
 		);
 
 		label.enable();
 
 		assert.ok(
-			!label.option( 'disabled' ),
+			!label.isDisabled(),
 			'Enabled label.'
 		);
 
 		label.enable();
 
 		assert.ok(
-			!label.option( 'disabled' ),
+			!label.isDisabled(),
 			'Label still enabled after enabling twice.'
 		);
+
+		label.option( 'stateChangeable', false );
+
+		assert.ok(
+			!label.isDisabled(),
+			'Unable to disable label after settings sateChangeable to false.'
+		);
+
+		label.option( 'stateChangeable', true );
+
+		label.disable();
+
+		label.option( 'stateChangeable', false );
+
+		label.enable();
+
+		assert.ok(
+			label.isDisabled(),
+			'Unable to enable disabled label when sateChangeable is set to false.'
+		);
+
 	} );
 
 }( jQuery, QUnit ) );

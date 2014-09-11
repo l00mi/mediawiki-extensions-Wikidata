@@ -182,7 +182,9 @@ class EntitySerializerTest extends SerializerBaseTest {
 		);
 
 		$entity = Item::newEmpty();
-		$entity->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ), null, null, 'test' );
+		$claim = new Claim( new PropertyNoValueSnak( 42 ) );
+		$claim->setGuid( 'test' );
+		$entity->setClaims( new Claims( array( $claim ) ) );
 		$argumentLists[] = array(
 			array(
 				'type' => 'item',

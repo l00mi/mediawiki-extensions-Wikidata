@@ -49,6 +49,12 @@
  * @event change: Triggered whenever the referenceview's content is changed.
  *        (1) {jQuery.Event} event
  *
+ * @event disable: Triggered whenever the referenceview gets disabled.
+ *        (1) {jQuery.Event} event
+ *
+ * @event enable: Triggered whenever the referenceview gets enabled.
+ *        (1) {jQuery.Event} event
+ *
  * @event toggleerror: Triggered when an error occurred or is resolved.
  *        (1) {jQuery.Event} event
  *        (2) {wb.RepoApiError|undefined} wb.RepoApiError object if an error occurred, undefined if
@@ -585,17 +591,33 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * Disables the referenceview.
+	 * @since 0.5
+	 *
+	 * @triggers disable
 	 */
-	_setOption: function( key, value ) {
-		var response = PARENT.prototype._setOption.apply( this, arguments );
-
-		if( key === 'disabled' ) {
-			this._listview.option( key, value );
+	disable: function() {
+		var $snaklistviews = this._listview.items();
+		for( var i = 0; i < $snaklistviews.length; i++ ) {
+			this.options.listItemAdapter.liInstance( $snaklistviews.eq( i ) ).disable();
 		}
+		this._trigger( 'disable' );
+	},
 
-		return response;
+	/**
+	 * Enables the referenceview.
+	 * @since 0.5
+	 *
+	 * @triggers enable
+	 */
+	enable: function() {
+		var $snaklistviews = this._listview.items();
+		for( var i = 0; i < $snaklistviews.length; i++ ) {
+			this.options.listItemAdapter.liInstance( $snaklistviews.eq( i ) ).enable();
+		}
+		this._trigger( 'enable' );
 	}
+
 } );
 
 // Register toolbars:
@@ -640,17 +662,23 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 				event.data.toolbar.id,
 				'referenceviewdisable',
 				function( event ) {
-					var referenceview = $( event.target ).data( 'referenceview' ),
-						addToolbar = $( event.target ).data( 'addtoolbar' );
+					$( event.target ).data( 'addtoolbar' ).toolbar.disable();
+				}
+			);
 
+			toolbarController.registerEventHandler(
+				event.data.toolbar.type,
+				event.data.toolbar.id,
+				'referenceviewenable',
+				function( event ) {
+					var addToolbar = $( event.target ).data( 'addtoolbar' );
+					// "add" toolbar might be remove already.
 					if( addToolbar ) {
-						addToolbar.toolbar[referenceview.option( 'disabled' )
-							? 'disable'
-							: 'enable'
-						]();
+						addToolbar.toolbar.enable();
 					}
 				}
 			);
+
 		}
 	}
 } );
@@ -695,20 +723,14 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 				toolbarController.registerEventHandler(
 					event.data.toolbar.type,
 					event.data.toolbar.id,
-					'referenceviewdisable listviewitemremoved',
+					'referenceviewdisable referenceviewenable',
 					function( event ) {
-						var $referenceview = event.type.indexOf( 'referenceview' ) !== -1
-							? $( event.target )
-							: $( event.target ).closest( ':wikibase-referenceview' );
-
-						var referenceview = $referenceview.data( 'referenceview' );
-
-						if( !referenceview ) {
-							return;
-						}
-
-						var $snaklistviews = referenceview._listview.items(),
-							lia = referenceview.options.listItemAdapter;
+						var referenceview = $( event.target ).data( 'referenceview' ),
+							$snaklistviews = referenceview._listview.items(),
+							lia = referenceview.options.listItemAdapter,
+							action = ( event.type.indexOf( 'disable' ) !== -1 )
+								? 'disable'
+								: 'enable';
 
 						for( var i = 0; i < $snaklistviews.length; i++ ) {
 							var snaklistview = lia.liInstance( $snaklistviews.eq( i ) );
@@ -718,16 +740,10 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 								var $snakviews = snaklistview._listview.items();
 
 								for( var j = 0; j < $snakviews.length; j++ ) {
-									var $snakview = $snakviews.eq( j ),
-										removetoolbar = $snakview.data( 'removetoolbar' );
+									var removetoolbar = $snakviews.eq( j ).data( 'removetoolbar' );
 
 									if( removetoolbar ) {
-										removetoolbar.toolbar[
-											referenceview.option( 'disabled' )
-											|| $snakviews.length === 1 && $snaklistviews.length === 1
-												? 'disable'
-												: 'enable'
-										]();
+										removetoolbar.toolbar[action]();
 									}
 								}
 							}

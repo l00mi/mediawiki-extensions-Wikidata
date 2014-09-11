@@ -15,19 +15,7 @@ On [Packagist](https://packagist.org/packages/data-values/javascript):
 
 ## Release notes
 
-### 0.6.0 (2014-09-01)
-
-#### Breaking changes
-
-* #40 Removed the arbitrary list of precisions for globe coordinates
-
-#### Enhancements
-
-* #44 Fixed comparing time values
-* #42 Removed 'to a degree' label, now shown as '±1°'
-* #45 Removed constructor naming debugging feature
-
-#### Bugfixes
+### 0.5.2 (2014-08-14)
 
 * Remove ResourceLoader dependencies on jquery and mediawiki (bug 69468)
 

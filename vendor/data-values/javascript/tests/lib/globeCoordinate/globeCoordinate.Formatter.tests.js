@@ -51,23 +51,49 @@ define( [
 	} );
 
 	QUnit.test( 'precisionText()', function( assert ) {
-		var precisions = {
-				1: '±1°',
-				0.016666666666666666: 'to an arcminute',
-				2.7777777777777776e-7: 'to 1/1000 of an arcsecond',
+		var c,
+			precisions = {
+				1: 1,
+				0.016666666666666666: 1 / 60,
+				2.7777777777777776e-7: 1 / 3600000,
 				10: '±10°'
 			},
 			formatter = new Formatter();
 
 		$.each( precisions, function( testPrecision, expected ) {
-			var precisionText = formatter.precisionText( testPrecision );
+			c = new GlobeCoordinate(
+				{ latitude: 1, longitude: 1, precision: testPrecision }
+			);
+
+			var precisionText = Formatter.PRECISIONTEXT( testPrecision );
 
 			// Look up precision text:
-			assert.strictEqual(
-				precisionText,
-				expected,
-				'Precision text for \'' + testPrecision + '\' results in text \'' + expected + '\'.'
-			);
+			if( typeof expected === 'number' ) {
+
+				$.each( globeCoordinate.GlobeCoordinate.PRECISIONS, function( i, precision ) {
+					if( '' + precision === testPrecision ) {
+
+						assert.strictEqual(
+							precisionText,
+							formatter.precisionText( c.getPrecision() ),
+							'Precision text for \'' + precision + '\' results in text \''
+								+ precisionText + '\'.'
+						);
+
+						return false;
+					}
+				} );
+
+			} else {
+
+				assert.strictEqual(
+					precisionText,
+					expected,
+					'Precision text for \'' + testPrecision + '\' results in text \'' + expected + '\'.'
+				);
+
+			}
+
 		} );
 
 	} );

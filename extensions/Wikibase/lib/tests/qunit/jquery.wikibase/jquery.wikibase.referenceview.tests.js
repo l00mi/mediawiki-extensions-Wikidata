@@ -45,7 +45,7 @@
 			.referenceview( options );
 	}
 
-	QUnit.module( 'jquery.wikibase.referenceview', window.QUnit.newMwEnvironment( {
+	QUnit.module( 'jquery.wikibase.referenceview', window.QUnit.newWbEnvironment( {
 		teardown: function() {
 			$( '.test_referenceview' ).each( function( i, node ) {
 				var $node = $( node ),

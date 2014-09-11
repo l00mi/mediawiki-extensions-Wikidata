@@ -3,7 +3,7 @@
  * @author H. Snater
  */
 
-( function( wb, $, QUnit ) {
+( function( mw, wb, $, QUnit ) {
 	'use strict';
 
 	var siteDetails = {
@@ -19,7 +19,7 @@
 	var string = 'test',
 		site = new wb.Site( siteDetails );
 
-	QUnit.module( 'wikibase.Site' );
+	QUnit.module( 'wikibase.Site', QUnit.newWbEnvironment() );
 
 	QUnit.test( 'check init', function( assert ) {
 		assert.strictEqual(
@@ -101,4 +101,4 @@
 
 	} );
 
-}( wikibase, jQuery, QUnit ) );
+}( mediaWiki, wikibase, jQuery, QUnit ) );

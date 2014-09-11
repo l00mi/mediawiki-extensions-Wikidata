@@ -39,9 +39,6 @@ class ClaimListAccessTest extends \PHPUnit_Framework_TestCase {
 
 		$argLists = array();
 
-		/**
-		 * @var Claim $claim
-		 */
 		foreach ( $claims as $i => $claim ) {
 			$claim->setGuid( "ClaimListAccessTest\$claim-$i" );
 		}

@@ -156,24 +156,14 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.ui.commonssuggester' => $moduleTemplate + array(
+		'jquery.ui.suggestCommons' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery.ui/jquery.ui.commonssuggester.js',
+				'jquery.ui/jquery.ui.suggestCommons.js',
 			),
 			'dependencies' => array(
 				'jquery.ui.suggester',
 				'jquery.ui.widget',
 				'jquery.util.highlightMatchingCharacters',
-			),
-		),
-
-		'jquery.ui.languagesuggester' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.ui/jquery.ui.languagesuggester.js',
-			),
-			'dependencies' => array(
-				'jquery.ui.suggester',
-				'jquery.ui.widget',
 			),
 		),
 
@@ -186,7 +176,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.animateWithEvent',
-				'jquery.ui.core',
 				'jquery.ui.widget',
 			),
 		),

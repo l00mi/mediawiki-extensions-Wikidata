@@ -28,13 +28,16 @@ class RealEntitiesTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider itemLegacySerializationProvider
 	 */
-	public function testGivenLegacyItem_DeserializationReturnsItem( $fileName, $serialization ) {
+	public function testGivenLegacyItem_DeserializationReturnsCorrectItem( $fileName, $serialization ) {
 		$item = $this->deserializer->deserialize( $serialization );
 
-		$this->assertInstanceOf(
-			'Wikibase\DataModel\Entity\Item',
-			$item,
-			$fileName . ' should deserialize into an Item'
+		$expectedItem = Item::newFromArray( $serialization );
+
+		$this->workAroundSomeOldEntityBug( $expectedItem );
+
+		$this->assertTrue(
+			$expectedItem->equals( $item ),
+			$fileName . ' should deserialize into the correct Item'
 		);
 	}
 
@@ -67,13 +70,16 @@ class RealEntitiesTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider propertyLegacySerializationProvider
 	 */
-	public function testGivenLegacyProperty_DeserializationReturnsProperty( $fileName, $serialization ) {
-		$property = $this->deserializer->deserialize( $serialization );
+	public function testGivenLegacyProperty_DeserializationReturnsCorrectProperty( $fileName, $serialization ) {
+		$item = $this->deserializer->deserialize( $serialization );
 
-		$this->assertInstanceOf(
-			'Wikibase\DataModel\Entity\Property',
-			$property,
-			$fileName . ' should deserialize into a Property'
+		$expectedProperty = Property::newFromArray( $serialization );
+
+		$this->workAroundSomeOldEntityBug( $expectedProperty );
+
+		$this->assertTrue(
+			$expectedProperty->equals( $item ),
+			$fileName . ' should deserialize into the correct Item'
 		);
 	}
 

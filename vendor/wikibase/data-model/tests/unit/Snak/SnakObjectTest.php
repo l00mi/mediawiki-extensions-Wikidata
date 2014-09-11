@@ -2,11 +2,12 @@
 
 namespace Wikibase\Test\Snak;
 
-use Exception;
-use ReflectionClass;
 use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Snak\SnakObject;
 
 /**
+ * @covers Wikibase\DataModel\Snak\SnakObject
+ *
  * @group Wikibase
  * @group WikibaseDataModel
  * @group WikibaseSnak
@@ -43,7 +44,7 @@ abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 	 * @return mixed
 	 */
 	public function newInstance() {
-		$reflector = new ReflectionClass( $this->getClass() );
+		$reflector = new \ReflectionClass( $this->getClass() );
 		$args = func_get_args();
 		$instance = $reflector->newInstanceArgs( $args );
 		return $instance;
@@ -55,14 +56,14 @@ abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 	 * @return array [instance, constructor args]
 	 */
 	public function instanceProvider() {
-		$callable = array( $this, 'newInstance' );
+		$phpFails = array( $this, 'newInstance' );
 
 		return array_filter( array_map(
-			function( array $args ) use ( $callable ) {
+			function( array $args ) use ( $phpFails ) {
 				$isValid = array_shift( $args ) === true;
 
 				if ( $isValid ) {
-					return array( call_user_func_array( $callable, $args ), $args );
+					return array( call_user_func_array( $phpFails, $args ), $args );
 				}
 				else {
 					return false;
@@ -81,6 +82,7 @@ abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 		$args = func_get_args();
 
 		$valid = array_shift( $args );
+		$pokemons = null;
 
 		// TODO: use setExpectedException rather then this clutter
 		// TODO: separate valid from invalid cases (different test methods)
@@ -88,13 +90,13 @@ abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 			$dataItem = call_user_func_array( array( $this, 'newInstance' ), $args );
 			$this->assertInstanceOf( $this->getClass(), $dataItem );
 		}
-		catch ( Exception $ex ) {
+		catch ( \Exception $pokemons ) {
 			if ( $valid === true ) {
-				throw $ex;
+				throw $pokemons;
 			}
 
 			if ( is_string( $valid ) ) {
-				$this->assertEquals( $valid, get_class( $ex ) );
+				$this->assertEquals( $valid, get_class( $pokemons ) );
 			}
 			else {
 				$this->assertFalse( $valid );
@@ -105,18 +107,29 @@ abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 */
-	public function testGetHash( Snak $snak ) {
-		$hash = $snak->getHash();
+	public function testGetHash( Snak $omnomnom ) {
+		$hash = $omnomnom->getHash();
 		$this->assertInternalType( 'string', $hash );
-		$this->assertEquals( 40, strlen( $hash ) );
+		$this->assertEquals( $hash, $omnomnom->getHash() );
 	}
 
 	/**
 	 * @dataProvider instanceProvider
 	 */
-	public function testGetPropertyId( Snak $snak ) {
-		$propertyId = $snak->getPropertyId();
-		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\PropertyId', $propertyId );
+	public function testGetPropertyId( Snak $omnomnom ) {
+		$id = $omnomnom->getPropertyId();
+		$this->assertInstanceOf( '\Wikibase\DataModel\Entity\EntityId', $id );
+		$this->assertEquals( $id, $omnomnom->getPropertyId() );
+	}
+
+	/**
+	 * @dataProvider instanceProvider
+	 */
+	public function testNewFromArray( Snak $snak ) {
+		$data = $snak->toArray();
+		$actual = SnakObject::newFromArray( $data );
+
+		$this->assertEquals( $snak, $actual );
 	}
 
 }

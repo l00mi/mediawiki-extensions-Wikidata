@@ -98,8 +98,6 @@ class SiteLinkTest extends \PHPUnit_Framework_TestCase {
 	public function badgesProvider() {
 		$argLists = array();
 
-		$argLists[] = array( null, array() );
-
 		$badges = array();
 		$expected = array_values( $badges );
 
@@ -149,6 +147,7 @@ class SiteLinkTest extends \PHPUnit_Framework_TestCase {
 		$argLists[] = array( 42 );
 		$argLists[] = array( true );
 		$argLists[] = array( 'nyan nyan' );
+		$argLists[] = array( null );
 
 		return $argLists;
 	}
@@ -181,6 +180,134 @@ class SiteLinkTest extends \PHPUnit_Framework_TestCase {
 			new PropertyId( 'P2' ),
 			new PropertyId( 'P3' )
 		) );
+
+		return $argLists;
+	}
+
+	/**
+	 * @dataProvider newFromArrayProvider
+	 */
+	public function testNewFromArray( $siteLink, $array ) {
+		$this->assertEquals( SiteLink::newFromArray( 'enwiki', $array ), $siteLink );
+	}
+
+	public function newFromArrayProvider() {
+		$argLists = array();
+
+		$siteLink = new SiteLink(
+			'enwiki',
+			'Nyan Cat'
+		);
+		$array = array(
+			'name' => 'Nyan Cat',
+		);
+		$argLists[] = array( $siteLink, $array );
+
+		return array_merge( $this->siteLinkProvider(), $argLists );
+	}
+
+	/**
+	 * @dataProvider siteLinkProvider
+	 */
+	public function testToArrayRoundtrip( $siteLink, $array ) {
+		$this->assertEquals( $siteLink->toArray(), $array );
+		$this->assertEquals( SiteLink::newFromArray( 'enwiki', $siteLink->toArray() ), $siteLink );
+	}
+
+	public function siteLinkProvider() {
+		$argLists = array();
+
+		$siteLink = new SiteLink(
+			'enwiki',
+			'Nyan Cat',
+			array(
+				new ItemId( "Q149" )
+			)
+		);
+		$array = array(
+			'name' => 'Nyan Cat',
+			'badges' => array(
+				"Q149"
+			)
+		);
+		$argLists[] = array( $siteLink, $array );
+
+		$siteLink = new SiteLink(
+			'enwiki',
+			'Nyan Cat'
+		);
+		$array = array(
+			'name' => 'Nyan Cat',
+			'badges' => array()
+		);
+		$argLists[] = array( $siteLink, $array );
+
+		$siteLink = new SiteLink(
+			'enwiki',
+			'Nyan Cat',
+			array(
+				new ItemId( "Q149" ),
+				new ItemId( "Q3" )
+			)
+		);
+		$array = array(
+			'name' => 'Nyan Cat',
+			'badges' => array(
+				"Q149",
+				"Q3"
+			)
+		);
+		$argLists[] = array( $siteLink, $array );
+
+		return $argLists;
+	}
+
+	/**
+	 * @dataProvider legacySiteLinkProvider
+	 */
+	public function testLegacyArrayConversion( $siteLink, $data ) {
+		$this->assertEquals( SiteLink::newFromArray( 'enwiki', $data ), $siteLink );
+	}
+
+	public function legacySiteLinkProvider() {
+		$argLists = array();
+
+		$siteLink = new SiteLink(
+			'enwiki',
+			'Nyan Cat'
+		);
+		$name = 'Nyan Cat';
+		$argLists[] = array( $siteLink, $name );
+
+
+		return $argLists;
+	}
+
+	/**
+	 * @dataProvider wrongSerializationProvider
+	 */
+	public function testWrongSerialization( $data ) {
+		$this->setExpectedException( 'InvalidArgumentException' );
+		SiteLink::newFromArray( 'enwiki', $data );
+	}
+
+	public function wrongSerializationProvider() {
+		$argLists = array();
+
+		$argLists[] = array( true );
+
+		$argLists[] = array( 42 );
+
+		$argLists[] = array( array(
+			'Nyan Takeover!' => 149,
+			'badges' => array()
+		) );
+
+		$argLists[] = array( array(
+			'name' => "Wikidata",
+			'badges' => "not an array"
+		) );
+
 
 		return $argLists;
 	}

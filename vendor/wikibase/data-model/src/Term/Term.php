@@ -56,10 +56,10 @@ class Term implements Comparable {
 	 *
 	 * @param mixed $target
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function equals( $target ) {
-		return $target instanceof self
+		return $target instanceof Term
 			&& $this->text === $target->getText()
 			&& $this->languageCode === $target->getLanguageCode();
 	}

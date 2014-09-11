@@ -48,10 +48,6 @@ as [Wikimedia Germany](https://wikimedia.de) employee for the [Wikidata project]
 
 ## Release notes
 
-### 1.0.1 (2014-09-09)
-
-* Handle IllegalValueException in DataValueDeserializer
-
 ### 1.0 (2014-03-05)
 
 * Switched usage of the Serialization component from version ~2.1 to version ~3.0.

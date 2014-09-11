@@ -3,6 +3,7 @@
 namespace Wikibase\DataModel\Snak;
 
 use DataValues\DataValue;
+use DataValues\UnDeserializableValue;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\PropertyId;
 
@@ -18,7 +19,12 @@ use Wikibase\DataModel\Entity\PropertyId;
  */
 class PropertyValueSnak extends SnakObject {
 
-	private $dataValue;
+	/**
+	 * @since 0.1
+	 *
+	 * @var DataValue
+	 */
+	protected $dataValue;
 
 	/**
 	 * Support for passing in an EntityId instance that is not a PropertyId instance has
@@ -72,6 +78,31 @@ class PropertyValueSnak extends SnakObject {
 			PropertyId::newFromNumber( $propertyId ),
 			$dataValue
 		);
+	}
+
+	/**
+	 * @see Snak::toArray
+	 *
+	 * @since 0.3
+	 *
+	 * @return array
+	 */
+	public function toArray() {
+		$data = parent::toArray();
+
+		// Since we use getArrayValue() and getType() directly instead of
+		// the generic toArray() method, we need to handle the special case
+		// of "bad" values separately, to restore the original type info.
+		if ( $this->dataValue instanceof UnDeserializableValue ) {
+			$type = $this->dataValue->getTargetType();
+		} else {
+			$type = $this->dataValue->getType();
+		}
+
+		$data[] = $type;
+		$data[] = $this->dataValue->getArrayValue();
+
+		return $data;
 	}
 
 	/**

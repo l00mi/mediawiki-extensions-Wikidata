@@ -5,7 +5,7 @@
 ( function( mw, wb ) {
 	'use strict';
 
-	QUnit.module( 'wikibase.seedEntityStoreFromMwConfig', QUnit.newMwEnvironment() );
+	QUnit.module( 'wikibase.seedEntityStoreFromMwConfig', QUnit.newWbEnvironment() );
 
 	QUnit.test( 'is a function', function( assert ) {
 		assert.equal(

@@ -98,6 +98,7 @@ call_user_func( function() {
 	$wgHooks['ParserGetVariableValueSwitch'][]		= '\Wikibase\ClientHooks::onParserGetVariableValueSwitch';
 	$wgHooks['SkinTemplateGetLanguageLink'][]		= '\Wikibase\ClientHooks::onSkinTemplateGetLanguageLink';
 	$wgHooks['SkinTemplateOutputPageBeforeExec'][]		= '\Wikibase\ClientHooks::onSkinTemplateOutputPageBeforeExec';
+	$wgHooks['SkinBuildSidebar'][]              = '\Wikibase\ClientHooks::onSkinBuildSidebar';
 	$wgHooks['SpecialMovepageAfterMove'][]				= '\Wikibase\ClientHooks::onSpecialMovepageAfterMove';
 	$wgHooks['SpecialWatchlistQuery'][]			= '\Wikibase\ClientHooks::onSpecialWatchlistQuery';
 	$wgHooks['SpecialRecentChangesQuery'][]				= '\Wikibase\ClientHooks::onSpecialRecentChangesQuery';

@@ -24,7 +24,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.event.special.eachchange',
-				'jquery.ui.commonssuggester',
+				'jquery.ui.suggestCommons',
 				'jquery.valueview.experts',
 				'jquery.valueview.experts.StringValue',
 				'jquery.valueview.Expert',

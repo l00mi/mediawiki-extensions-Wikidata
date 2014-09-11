@@ -179,7 +179,7 @@
 				this.options.menu.element.remove();
 			}
 
-			var response = $.Widget.prototype._setOption.apply( this, arguments );
+			$.Widget.prototype._setOption.apply( this, arguments );
 
 			if( key === 'menu' && value instanceof $.ui.ooMenu ) {
 				this.options.menu = this._initMenu( value );
@@ -191,8 +191,6 @@
 				}
 				this.element.prop( 'disabled', value );
 			}
-
-			return response;
 		},
 
 		/**
@@ -272,10 +270,7 @@
 
 					case keyCode.ESCAPE:
 						self.element.val( self._term );
-						if( self.options.menu.element.is( ':visible' ) ) {
-							event.stopPropagation();
-							self._close();
-						}
+						self._close();
 						break;
 
 					default:

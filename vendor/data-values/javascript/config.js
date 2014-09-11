@@ -226,6 +226,7 @@ this.config = ( function() {
 			]
 		},
 		tests: [
+			'tests/lib/util/util.inherit.tests',
 			'tests/lib/globeCoordinate/globeCoordinate.tests',
 			'tests/lib/globeCoordinate/globeCoordinate.Formatter.tests',
 			'tests/lib/globeCoordinate/globeCoordinate.GlobeCoordinate.tests',

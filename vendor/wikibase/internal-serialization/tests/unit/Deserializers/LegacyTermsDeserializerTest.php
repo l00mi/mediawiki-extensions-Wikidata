@@ -5,7 +5,6 @@ namespace Tests\Wikibase\InternalSerialization\Deserializers;
 use Deserializers\Deserializer;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
-use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\InternalSerialization\Deserializers\LegacyFingerprintDeserializer;
@@ -108,12 +107,9 @@ class LegacyFingerprintDeserializerTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider aliasesListProvider
 	 */
 	public function testGivenAliases_getAliasesReturnsThem( array $aliasesSerialization, $expected ) {
-		/**
-		 * @var Fingerprint $fingerprint
-		 */
 		$fingerprint = $this->deserializer->deserialize( array( 'aliases' => $aliasesSerialization ) );
 
-		$this->assertEquals( $expected, $fingerprint->getAliasGroups() );
+		$this->assertEquals( $expected, $fingerprint->getAliases() );
 	}
 
 	public function aliasesListProvider() {

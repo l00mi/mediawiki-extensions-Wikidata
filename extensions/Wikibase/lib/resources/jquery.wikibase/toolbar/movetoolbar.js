@@ -67,13 +67,13 @@
 				btnMoveDown = this.$btnMoveDown.data( 'toolbarbutton' );
 
 			this.$btnMoveUp.on( 'toolbarbuttonaction.' + this.widgetName, function( event ) {
-				if( !btnMoveUp.option( 'disabled' ) ) {
+				if( btnMoveUp.isEnabled() ) {
 					self._trigger( 'up' );
 				}
 			} );
 
 			this.$btnMoveDown.on( 'toolbarbuttonaction.' + this.widgetName, function( event ) {
-				if( !btnMoveDown.option( 'disabled' ) ) {
+				if( btnMoveDown.isEnabled() ) {
 					self._trigger( 'down' );
 				}
 			} );

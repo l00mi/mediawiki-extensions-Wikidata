@@ -25,6 +25,10 @@ class AutoloadingAliasesTest extends \PHPUnit_Framework_TestCase {
 			},
 			array(
 				'Wikibase\EntityId',
+				'Wikibase\ItemObject',
+				'Wikibase\ReferenceObject',
+				'Wikibase\StatementObject',
+				'Wikibase\ClaimObject',
 
 				'Wikibase\Reference',
 				'Wikibase\ReferenceList',
@@ -32,8 +36,10 @@ class AutoloadingAliasesTest extends \PHPUnit_Framework_TestCase {
 				'Wikibase\HashableObjectStorage',
 				'Wikibase\HashArray',
 				'Wikibase\MapHasher',
+				'Wikibase\MapValueHasher',
 				'Wikibase\ByPropertyIdArray',
 				'Wikibase\Claim',
+				'Wikibase\ClaimAggregate',
 				'Wikibase\ClaimListAccess',
 				'Wikibase\Claims',
 				'Wikibase\Statement',

@@ -1,87 +1,5 @@
 # Wikibase DataModel release notes
 
-## Version 1.0 (2014-09-02)
-
-#### Breaking changes
-
-Changes in the `Entity` hierarchy:
-
-* Changed the constructor signature of `Item`
-* Changed the constructor signature of `Property`
-* Removed `Entity::setClaims` (`Item::setClaims` has been retained)
-* Removed `Entity::stub`
-* Removed `Property::newEmpty`
-* Removed `Entity::getIdFromClaimGuid`
-* `Entity::removeLabel` no longer accepts an array of language codes
-* `Entity::removeDescription` no longer accepts an array of language codes
-* `Entity` no longer implements `Serializable`
-* Protected method `Entity::patchSpecificFields` no longer has a second parameter
-* `Entity::getFingerprint` is now returned by reference
-
-Removal of `toArray` and `newFromArray`:
-
-* Removed `Entity::toArray`, `Item::newFromArray` and `Property::newFromArray`
-* Removed `Claim::toArray` and `Statement::toArray`
-* Removed `Claim::newFromArray` and `Statement::newFromArray`
-* Removed `ReferenceList::toArray` and `ReferenceList::newFromArray`
-* Removed `toArray` from the `References` interface
-* Removed `SiteLink::toArray` and `SiteLink::newFromArray`
-* Removed `toArray` from the `Snak` and `Snaks` interfaces
-* Removed `PropertyValueSnak::toArray`
-* Removed `SnakList::toArray` and `SnakList::newFromArray`
-* Removed `SnakObject::toArray` and `SnakObject::newFromArray`
-* Removed `SnakObject::newFromType`
-
-Other breaking changes:
-
-* `Claim` and `Statement` no longer implement `Serializable`
-* Protected method `Entity::entityToDiffArray` got renamed to `Entity::getDiffArray`
-* Removed `Fingerprint::getAliases`
-* Removed `EntityId::newFromPrefixedId`
-* The constructor of `EntityId` is no longer public
-* `Claims::getDiff` no longer takes a second optional parameter
-* `Claims::getDiff` now throws an `UnexpectedValueException` rather than an `InvalidArgumentException`
-* Removed these class aliases deprecated since 0.4:
-`ItemObject`, `ReferenceObject`, `ClaimObject`, `StatementObject`
-* `HashArray` and `SnakList` no longer take an optional parameter in `getHash`
-* Calling `clear` on an `Item` will now cause its statements to be removed
-* `SiteLinkList::addNewSiteLink` no longer returns a `SiteLinkList` instance
-* Removed the global variable `evilDataValueMap`
-* Removed `ClaimAggregate` interface, which is thus no longer implemented by `Entity`
-* `HashableObjectStorage::getValueHash` no longer accepts a first optional parameter
-* `MapHasher` and `MapValueHasher` are now package private
-* Removed `Claims::getDiff`
-
-#### Additions
-
-* Added `ClaimList`
-* Added `StatementList`
-* Added `StatementListDiffer`
-* Added `PropertyDataTypeLookup` and trivial implementation `InMemoryDataTypeLookup`
-* Added `PropertyNotFoundException`
-* Added `ItemDiffer` and `PropertyDiffer`
-* Added `EntityDiffer` and `EntityDifferStrategy`
-* Added `Statement::getClaim`
-* Added `Item::getStatements`
-* Added `Item::setStatements`
-
-#### Deprecations
-
-* Deprecated `Claims`
-* Deprecated `Entity::setId`
-* Deprecated `Entity::newClaim`
-* Deprecated `Entity::getAllSnaks`
-* Deprecated `Entity::getDiff` in favour of `EntityDiffer` and more specific differs
-* Deprecated `Item::getClaims` in favour of `Item::getStatements`
-* Deprecated `Item::setClaims` in favour of `Item::setStatements`
-* Deprecated `Item::hasClaims` in favour of `Item::getStatements()->count`
-* Deprecated `Item::addClaim` in favour of `Item::getStatements()->add*`
-
-#### Other changes
-
-* Undeprecated passing an integer to `Item::setId` and `Property::setId`
-* The FQN of `Statement` is now `Wikibase\DataModel\Statement\Statement`. The old FQN is deprecated.
-
 ## Version 0.9.1 (2014-08-26)
 
 * Fixed error caused by redeclaration of getType in `Entity`, after it already got defined in `EntityDocument`
@@ -108,12 +26,10 @@ Other breaking changes:
 
 * `Item::removeSiteLink` no longer takes an optional second parameter and no longer returns a boolean
 * Shallow clones of `Item` will now share the same list of site links
-* `SiteLinkList` is now mutable
 
 #### Additions
 
 * `AliasGroupList::hasGroupForLanguage`
-* `AliasGroupList::setAliasesForLanguage`
 * `SiteLinkList::addSiteLink`
 * `SiteLinkList::addNewSiteLink`
 * `SiteLinkList::removeLinkWithSiteId`
@@ -122,6 +38,7 @@ Other breaking changes:
 * `Item::getSiteLinkList`
 * `Item::setSiteLinkList`
 * `TermList::setTextForLanguage`
+* `AliasGroupList::setAliasesForLanguage`
 
 #### Deprecations
 
@@ -169,8 +86,8 @@ Other breaking changes:
 
 #### Deprecations
 
-* ~~`Entity::clear` (to be removed in 1.0)~~
-* ~~`Entity::isEmpty` (to be removed in 1.0)~~
+* `Entity::clear` (to be removed in 1.0)
+* `Entity::isEmpty` (to be removed in 1.0)
 * `Entity::stub` (to be removed in 1.0)
 * `Fingerprint::getAliases` (in favour of `Fingerprint::getAliasGroups`)
 
@@ -248,7 +165,7 @@ They where no longer needed.
 #### Removals
 
 * Removed PropertySnak interface
-* Removed Claims::getObjectType
+* Claims::getObjectType removed
 
 ## Version 0.6 (2013-12-23)
 

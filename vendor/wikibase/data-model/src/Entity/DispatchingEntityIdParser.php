@@ -8,14 +8,11 @@ use InvalidArgumentException;
  * @since 0.5
  *
  * @licence GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Jeroen De Dauw < jeroendedauw@gmail.com
  */
 class DispatchingEntityIdParser implements EntityIdParser {
 
-	/**
-	 * @var callable[]
-	 */
-	private $idBuilders;
+	protected $idBuilders;
 
 	/**
 	 * Takes an array in which each key is a preg_match pattern.
@@ -24,7 +21,7 @@ class DispatchingEntityIdParser implements EntityIdParser {
 	 * that takes as only required argument the id serialization
 	 * (string) and returns an EntityId instance.
 	 *
-	 * @param callable[] $idBuilders
+	 * @param array $idBuilders
 	 */
 	public function __construct( array $idBuilders ) {
 		$this->idBuilders = $idBuilders;
@@ -33,8 +30,8 @@ class DispatchingEntityIdParser implements EntityIdParser {
 	/**
 	 * @param string $idSerialization
 	 *
-	 * @throws EntityIdParsingException
 	 * @return EntityId
+	 * @throws EntityIdParsingException
 	 */
 	public function parse( $idSerialization ) {
 		$this->assertIdIsString( $idSerialization );
@@ -45,43 +42,26 @@ class DispatchingEntityIdParser implements EntityIdParser {
 			}
 		}
 
-		throw $this->newInvalidIdException( $idSerialization );
+		$this->throwInvalidId( $idSerialization );
 	}
 
-	/**
-	 * @param string $idSerialization
-	 *
-	 * @throws EntityIdParsingException
-	 */
-	private function assertIdIsString( $idSerialization ) {
+	protected function assertIdIsString( $idSerialization ) {
 		if ( !is_string( $idSerialization ) ) {
 			throw new EntityIdParsingException( 'Entity id serializations need to be strings' );
 		}
 	}
 
-	/**
-	 * @param callable $idBuilder
-	 * @param string $idSerialization
-	 *
-	 * @throws EntityIdParsingException
-	 * @return EntityId
-	 */
-	private function buildId( $idBuilder, $idSerialization ) {
+	protected function buildId( $idBuilder, $idSerialization ) {
 		try {
 			return call_user_func( $idBuilder, $idSerialization );
 		}
 		catch ( InvalidArgumentException $ex ) {
-			throw $this->newInvalidIdException( $idSerialization );
+			$this->throwInvalidId( $idSerialization );
 		}
 	}
 
-	/**
-	 * @param string $idSerialization
-	 *
-	 * @return EntityIdParsingException
-	 */
-	private function newInvalidIdException( $idSerialization ) {
-		return new EntityIdParsingException(
+	protected function throwInvalidId( $idSerialization ) {
+		throw new EntityIdParsingException(
 			'The provided id serialization "' . $idSerialization . '" is not valid'
 		);
 	}

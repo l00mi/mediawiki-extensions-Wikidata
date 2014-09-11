@@ -21,12 +21,9 @@ class EntityDeserializationCompatibilityTest extends \PHPUnit_Framework_TestCase
 
 	public function setUp() {
 		$deserializerFactory = new DeserializerFactory(
-			new DataValueDeserializer(
+			new DataValueDeserializer( array_merge(
+				$GLOBALS['evilDataValueMap'],
 				array(
-					'boolean' => 'DataValues\BooleanValue',
-					'number' => 'DataValues\NumberValue',
-					'string' => 'DataValues\StringValue',
-					'unknown' => 'DataValues\UnknownValue',
 					'globecoordinate' => 'DataValues\GlobeCoordinateValue',
 					'monolingualtext' => 'DataValues\MonolingualTextValue',
 					'multilingualtext' => 'DataValues\MultilingualTextValue',
@@ -34,7 +31,7 @@ class EntityDeserializationCompatibilityTest extends \PHPUnit_Framework_TestCase
 					'time' => 'DataValues\TimeValue',
 					'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
 				)
-			),
+			) ),
 			new BasicEntityIdParser()
 		);
 

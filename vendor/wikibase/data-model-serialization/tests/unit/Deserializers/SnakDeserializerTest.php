@@ -161,7 +161,7 @@ class SnakDeserializerTest extends DeserializerBaseTest {
 		) );
 	}
 
-	public function testGivenInvalidDataValue_unDeserializableValueIsConstructed() {
+	public function testGivenInvalidDataValue_unDeseriableValueIsConstructed() {
 		$serialization = array(
 			'snaktype' => 'value',
 			'property' => 'P42',
@@ -174,29 +174,10 @@ class SnakDeserializerTest extends DeserializerBaseTest {
 		$snak = $this->buildDeserializer()->deserialize( $serialization );
 
 		$this->assertInstanceOf( 'Wikibase\DataModel\Snak\PropertyValueSnak', $snak );
-		$this->assertSnakHasUnDeserializableValue( $snak );
+		$this->assertSnakHasUnDeseriableValue( $snak );
 	}
 
-	public function testGivenInvalidDataValue_unDeserializableValueWithErrorText() {
-		$serialization = array(
-			'snaktype' => 'value',
-			'property' => 'P42',
-			'datavalue' => array(
-				'type' => 'string',
-				'value' => 1337,
-				'error' => 'omg, an error!'
-			)
-		);
-
-		$snak = $this->buildDeserializer()->deserialize( $serialization );
-
-		$expectedValue = new UnDeserializableValue( 1337, 'string', 'omg, an error!' );
-		$snakValue = $snak->getDataValue();
-
-		$this->assertTrue( $snak->getDataValue()->equals( $expectedValue ) );
-	}
-
-	private function assertSnakHasUnDeserializableValue( PropertyValueSnak $snak ) {
+	private function assertSnakHasUnDeseriableValue( PropertyValueSnak $snak ) {
 		$this->assertEquals( new PropertyId( 'P42' ), $snak->getPropertyId() );
 
 		$dataValue = $snak->getDataValue();

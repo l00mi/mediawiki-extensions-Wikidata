@@ -4,7 +4,6 @@ namespace Wikibase\DataModel;
 
 use Hashable;
 use InvalidArgumentException;
-use Wikibase\DataModel\Internal\MapValueHasher;
 
 /**
  * Generic array object with lookups based on hashes of the elements.
@@ -45,7 +44,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @since 0.3
 	 *
-	 * @var bool
+	 * @var boolean
 	 */
 	protected $acceptDuplicates = false;
 
@@ -114,7 +113,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 * @param int|string $index
 	 * @param Hashable $hashable
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	protected function preSetElement( $index, $hashable ) {
 		$hash = $hashable->getHash();
@@ -147,7 +146,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @param string $elementHash
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function hasElementHash( $elementHash ) {
 		return array_key_exists( $elementHash, $this->offsetHashes );
@@ -160,7 +159,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @param Hashable $element
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function hasElement( Hashable $element ) {
 		return $this->hasElementHash( $element->getHash() );
@@ -203,9 +202,11 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @param Hashable $element
 	 *
-	 * @return bool Indicates if the element was added or not.
+	 * @return boolean Indicates if the element was added or not.
 	 */
 	public function addElement( Hashable $element ) {
+		// TODO: this duplicates logic of preSetElement
+		// Probably best update setElement in GenericArrayObject to return boolean it got from preSetElement
 		$append = $this->acceptDuplicates || !$this->hasElementHash( $element->getHash() );
 
 		if ( $append ) {
@@ -281,10 +282,20 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @since 0.1
 	 *
+	 * @internal param MapHasher $mapHasher
+	 *
 	 * @return string
 	 */
 	public function getHash() {
-		$hasher = new MapValueHasher();
+		// We cannot have this as optional arg, because then we're no longer
+		// implementing the Hashable interface properly according to PHP...
+		$args = func_get_args();
+
+		/**
+		 * @var MapHasher $hasher
+		 */
+		$hasher = array_key_exists( 0, $args ) ? $args[0] : new MapValueHasher();
+
 		return $hasher->hash( $this );
 	}
 
@@ -297,10 +308,11 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @param mixed $mixed
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function equals( $mixed ) {
-		return $mixed instanceof self
+		return is_object( $mixed )
+			&& $mixed instanceof HashArray
 			&& $this->getHash() === $mixed->getHash();
 	}
 
@@ -337,7 +349,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @since 0.4
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function indicesAreUpToDate() {
 		foreach ( $this->offsetHashes as $hash => $offsets ) {
@@ -370,6 +382,16 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 		}
 	}
 
+
+
+
+
+
+
+
+
+
+
 	/**
 	 * @see ArrayObject::append
 	 *
@@ -401,7 +423,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @param mixed $value
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	protected function hasValidType( $value ) {
 		$class = $this->getObjectType();
@@ -482,10 +504,11 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @since 1.20
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isEmpty() {
 		return $this->count() === 0;
 	}
+
 
 }

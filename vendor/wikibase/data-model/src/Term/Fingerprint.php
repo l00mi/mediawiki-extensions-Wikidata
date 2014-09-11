@@ -66,7 +66,7 @@ class Fingerprint implements Comparable {
 	}
 
 	/**
-	 * @since 1.0
+	 * @since 0.9
 	 *
 	 * @param string $languageCode
 	 * @param string $labelText
@@ -117,7 +117,7 @@ class Fingerprint implements Comparable {
 	}
 
 	/**
-	 * @since 1.0
+	 * @since 0.9
 	 *
 	 * @param string $languageCode
 	 * @param string $descriptionText
@@ -135,6 +135,16 @@ class Fingerprint implements Comparable {
 	 */
 	public function removeDescription( $languageCode ) {
 		$this->descriptions->removeByLanguage( $languageCode );
+	}
+
+	/**
+	 * @since 0.7.3
+	 * @deprecated since 0.7.4 - use getAliasGroups instead
+	 *
+	 * @return AliasGroupList
+	 */
+	public function getAliases() {
+		return $this->aliasGroups;
 	}
 
 	/**
@@ -168,7 +178,7 @@ class Fingerprint implements Comparable {
 	}
 
 	/**
-	 * @since 1.0
+	 * @since 0.9
 	 *
 	 * @param string $languageCode
 	 * @param string[] $aliases
@@ -204,7 +214,7 @@ class Fingerprint implements Comparable {
 
 		return $this->descriptions->equals( $target->getDescriptions() )
 			&& $this->labels->equals( $target->getLabels() )
-			&& $this->aliasGroups->equals( $target->getAliasGroups() );
+			&& $this->aliasGroups->equals( $target->getAliases() );
 	}
 
 	/**

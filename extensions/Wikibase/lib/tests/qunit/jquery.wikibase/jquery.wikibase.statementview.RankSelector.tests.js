@@ -21,7 +21,7 @@
 		return rankSelector;
 	}
 
-	QUnit.module( 'jquery.wikibase.statementview.RankSelector', QUnit.newMwEnvironment( {
+	QUnit.module( 'jquery.wikibase.statementview.RankSelector', window.QUnit.newWbEnvironment( {
 		teardown: function() {
 			$( '.test_rankselector' ).each( function( i, node ) {
 				var $node = $( node );

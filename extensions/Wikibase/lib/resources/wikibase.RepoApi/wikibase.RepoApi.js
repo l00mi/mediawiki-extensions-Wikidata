@@ -14,17 +14,8 @@
  * @since 0.4 (since 0.3 as wb.Api without support for client usage)
  */
 wb.RepoApi = function wbRepoApi() {
-	var localApiEndpoint = mw.config.get( 'wgServer' )
-		+ mw.config.get( 'wgScriptPath' )
-		+ '/api.php';
-
-	this._repoConfig = mw.config.get( 'wbRepo' );
-	this._repoApiEndpoint = this._repoConfig.url + this._repoConfig.scriptPath + '/api.php';
-
-	if( localApiEndpoint === this._repoApiEndpoint ) {
-		// The current wiki *is* the repo so we can just use user.tokens to get the edit token
-		this._repoEditToken = mw.user.tokens.get( 'editToken' );
-	}
+	var wbRepo = mw.config.get( 'wbRepo' );
+	this._repoApiEndpoint = wbRepo.url + wbRepo.scriptPath + '/api.php';
 };
 
 $.extend( wb.RepoApi.prototype, {
@@ -32,16 +23,6 @@ $.extend( wb.RepoApi.prototype, {
 	 * @type {string}
 	 */
 	_repoApiEndpoint: null,
-
-	/**
-	 * @type {Object}
-	 */
-	_repoConfig: null,
-
-	/**
-	 * @type {string}
-	 */
-	_repoEditToken: null,
 
 	/**
 	 * mediaWiki.Api object for internal usage. By having this initialized in the prototype, we can
@@ -538,9 +519,7 @@ $.extend( wb.RepoApi.prototype, {
 	 * @throws {Error} If a parameter is not specified properly
 	 */
 	post: function( params ) {
-		var self = this,
-			options = {},
-			deferred = $.Deferred();
+		var options = {};
 
 		this._extendRepoCallParams( params, options );
 		// Unconditionally set the bot parameter to match the UI behaviour of core
@@ -552,51 +531,7 @@ $.extend( wb.RepoApi.prototype, {
 			}
 		} );
 
-		this._getRepoEditToken()
-		.done( function( token ) {
-			params.token = token;
-
-			self._api.post( params, options )
-			.done( deferred.resolve )
-			.fail( deferred.reject );
-		} )
-		.fail( deferred.reject );
-
-		return deferred.promise();
-	},
-
-	/**
-	 * Retrieves an edit token.
-	 *
-	 * @return {jQuery.Promise}
-	 *         Resolved parameters:
-	 *         - {string}
-	 *         Rejected parameters:
-	 *         - {string}
-	 *         - {*}
-	 */
-	_getRepoEditToken: function() {
-		var self = this,
-			deferred = $.Deferred();
-
-		if( this._repoEditToken ) {
-			return deferred.resolve( this._repoEditToken ).promise();
-		}
-
-		this.get( {
-			action: 'query',
-			intoken: 'edit',
-			titles: 'Main page',
-			prop: 'info',
-			indexpageids: 1
-		} )
-		.done( function( data ) {
-			self._repoEditToken = data.query.pages[data.query.pageids[0]].edittoken;
-			deferred.resolve( self._repoEditToken );
-		} )
-		.fail( deferred.reject );
-
-		return deferred.promise();
+		return this._api.postWithToken( 'edit', params, options );
 	},
 
 	/**

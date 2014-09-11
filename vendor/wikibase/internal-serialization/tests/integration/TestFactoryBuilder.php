@@ -57,17 +57,16 @@ class TestFactoryBuilder {
 	}
 
 	private static function newRealDataValueDeserializer() {
-		$dataValueClasses = array(
-			'boolean' => 'DataValues\BooleanValue',
-			'number' => 'DataValues\NumberValue',
-			'string' => 'DataValues\StringValue',
-			'unknown' => 'DataValues\UnknownValue',
-			'globecoordinate' => 'DataValues\GlobeCoordinateValue',
-			'monolingualtext' => 'DataValues\MonolingualTextValue',
-			'multilingualtext' => 'DataValues\MultilingualTextValue',
-			'quantity' => 'DataValues\QuantityValue',
-			'time' => 'DataValues\TimeValue',
-			'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
+		$dataValueClasses = array_merge(
+			$GLOBALS['evilDataValueMap'],
+			array(
+				'globecoordinate' => 'DataValues\GlobeCoordinateValue',
+				'monolingualtext' => 'DataValues\MonolingualTextValue',
+				'multilingualtext' => 'DataValues\MultilingualTextValue',
+				'quantity' => 'DataValues\QuantityValue',
+				'time' => 'DataValues\TimeValue',
+				'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
+			)
 		);
 
 		return new DataValueDeserializer( $dataValueClasses );

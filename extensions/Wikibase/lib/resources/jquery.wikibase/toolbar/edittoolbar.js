@@ -47,6 +47,7 @@
 	 * @event afterstopediting
 	 *        Triggered after the toolbar has switched to non-edit mode.
 	 *        (1) {jQuery.Event}
+	 *        (2) {boolean}
 	 */
 	$.widget( 'wikibase.edittoolbar', PARENT, {
 		/**
@@ -206,12 +207,13 @@
 					self.toggleActionMessage( { message: 'wikibase-save-inprogress' } );
 				}
 			} )
-			.on( prefix + 'afterstopediting.' + this.widgetName, function( event ) {
+			.on( prefix + 'afterstopediting.' + this.widgetName, function( event, dropValue ) {
 				editGroup.toNonEditMode();
 				self.enable();
 				self.toggleActionMessage( function() {
 					editGroup.getButton( 'edit' ).focus();
-					self._trigger( 'afterstopediting' );
+					// TODO: Remove dropValue since it should not be of interest for other components
+					self._trigger( 'afterstopediting', null, [dropValue] );
 				} );
 			} )
 			.on( prefix + 'afterstartediting ' + prefix + 'change', function( event ) {
@@ -226,9 +228,6 @@
 				} else {
 					editGroup.disableButton( 'save' );
 				}
-			} )
-			.on( prefix + 'disable', function( event, disable ) {
-				self[disable ? 'disable' : 'enable']();
 			} )
 			.on( prefix + 'toggleerror', function( event, error ) {
 				if ( error && error instanceof wb.RepoApiError ) {

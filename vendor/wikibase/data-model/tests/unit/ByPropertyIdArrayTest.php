@@ -8,7 +8,7 @@ use ReflectionMethod;
 use Wikibase\Claims;
 use Wikibase\DataModel\ByPropertyIdArray;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
@@ -52,7 +52,7 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 	 * @return ReflectionMethod
 	 */
 	protected static function getMethod( $methodName ) {
-		$class = new ReflectionClass( 'Wikibase\DataModel\ByPropertyIdArray' );
+		$class = new ReflectionClass( '\Wikibase\ByPropertyIdArray' );
 		$method = $class->getMethod( $methodName );
 		$method->setAccessible( true );
 		return $method;

@@ -12,10 +12,12 @@ var PARENT = $.Widget;
 /**
  * Toolbar widget that can be filled with compatible nodes that feature wikibase toolbar items.
  * These are label, button and toolbar which may be used as a subgroup. Compatible nodes have to
- * feature a "wikibase-toolbaritem" data attribute that references a jQuery widget.
+ * feature a "wikibase-toolbaritem" data attribute that references a jQuery widget extended with
+ * wikibase.utilities.ui.StatableObject.
  * TODO: Implement jQuery.wikibase.toolbaritem base class.
  *
  * @constructor
+ * @extends wikibase.utilities.ui.StatableObject
  * @since 0.4
  *
  * @option {boolean} renderItemSeparators: Defines whether the toolbar should be displayed with
@@ -227,6 +229,21 @@ $.widget( 'wikibase.toolbar', PARENT, {
 	},
 
 	/**
+	 * Determine whether the state (disabled, enabled) of any toolbar element can be changed.
+	 * @since 0.4
+	 *
+	 * @return {boolean} Whether the state of any toolbar element can be changed.
+	 */
+	isStateChangeable: function() {
+		for( var i = 0; i < this._items.length; i++ ) {
+			if( this._items[i].data( 'wikibase-toolbaritem' ).isStateChangeable() ) {
+				return true;
+			}
+		}
+		return false;
+	},
+
+	/**
 	 * Hides the toolbar.
 	 * @since 0.4
 	 *
@@ -259,30 +276,52 @@ $.widget( 'wikibase.toolbar', PARENT, {
 	 */
 	isHidden: function() {
 		return ( this.element.css( 'display' ) === 'none' );
-	},
+	}
 
+} );
+
+// Add disable/enable functionality overwriting required functions:
+wb.utilities.ui.StatableObject.useWith( $.wikibase.toolbar, {
 	/**
-	 * @see jQuery.Widget.disable
+	 * Determines the state (disabled, enabled or mixed) of all toolbar elements.
+	 * @see wb.utilities.ui.StatableObject.getState
 	 */
-	disable: function() {
-		return this._setState( 'disable' );
+	getState: function() {
+		var self = this,
+			state;
+		$.each( this._items, function( i, item ) {
+			if( !item.data( 'wikibase-toolbaritem' ).isStateChangeable() ) {
+				return true; // Ignore element if state is locked at the moment.
+			}
+			var currentState = item.data( 'wikibase-toolbaritem' ).getState();
+
+			if( state !== currentState) {
+				if( state === undefined ) {
+					state = currentState;
+				} else {
+					// State of this element different from others -> mixed state.
+					state = self.STATE.MIXED;
+					return false; // No point in checking other states, we are mixed!
+				}
+			}
+		} );
+		if( state === undefined ) {
+			// TODO/FIXME: This is quite ugly: Assume toolbar.disable(), remove last button,
+			//  toolbar.getState() which would then return enabled instead of disabled.
+			return this.STATE.ENABLED;
+		}
+		return state;
 	},
 
 	/**
-	 * @see jQuery.Widget.enable
-	 */
-	enable: function() {
-		return this._setState( 'enable' );
-	},
-
-	/**
-	 * @param {string} state
+	 * @see wb.utilities.ui.StatableObject._setState
 	 */
 	_setState: function( state ) {
-		$.each( this._items, function( i, $item ) {
-			$item.data( 'wikibase-toolbaritem' )[state]();
-		} );
-		return PARENT.prototype[state].call( this );
+		var success = true;
+		for( var i = 0; i < this._items.length; i++ ) {
+			success = this._items[i].data( 'wikibase-toolbaritem' ).setState( state ) && success;
+		}
+		return success;
 	}
 
 } );

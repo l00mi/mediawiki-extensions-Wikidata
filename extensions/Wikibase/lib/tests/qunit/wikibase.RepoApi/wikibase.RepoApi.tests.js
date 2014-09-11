@@ -86,7 +86,7 @@
 		} ).fail( onFail );
 	};
 
-	QUnit.module( 'wikibase.RepoApi', QUnit.newMwEnvironment( {
+	QUnit.module( 'wikibase.RepoApi', QUnit.newWbEnvironment( {
 		teardown: function() {
 			entityStack = [];
 		}

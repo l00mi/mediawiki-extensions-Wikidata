@@ -102,8 +102,7 @@ class SuggestionGeneratorTest extends MediaWikiTestCase {
 	}
 
 	public function testGenerateSuggestionsWithItem() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q42' ) );
+		$item = Item::newFromArray( array( 'entity' => 'Q42' ) );
 		$statement = new Statement( new PropertySomeValueSnak( new PropertyId( 'P12' ) ) );
 		$statement->setGuid( 'claim0' ); // otherwise "InvalidArgumentException: Can't add a Claim without a GUID."
 		$item->addClaim( $statement );

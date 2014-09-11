@@ -95,7 +95,7 @@
 		button.disable();
 
 		assert.ok(
-			button.option( 'disabled' ),
+			button.isDisabled(),
 			'Disabled button.'
 		);
 
@@ -109,7 +109,7 @@
 		button.enable();
 
 		assert.ok(
-			!button.option( 'disabled' ),
+			button.isEnabled(),
 			'Enabled button.'
 		);
 
