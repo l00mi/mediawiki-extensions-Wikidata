@@ -105,6 +105,22 @@ Other methods an Expert needs to provide:
 
 ## Release notes
 
+### 0.7.0 (2014-09-10)
+
+### Enhancements
+* Implemented jQuery.ui.languagesuggester.
+* Input extender extension will not be hidden on mousedown event.
+
+#### Breaking changes
+* Use version 0.6.0 of DataValuesJavascript
+* Renamed jQuery.ui.suggestCommons to jQuery.ui.commonssuggester.
+* When pressing ESC on a suggester enhanced input element while the suggester menu is visible, the key event's propagation is stopped.
+
+#### Bugfixes
+* Fixed eachchange event: Cancel event after it got removed.
+* Fixed calendar switch to Julian (Bug 65847).
+* Fixed bug that broke the ListRotator after edit and cancel (Bug 70294).
+
 ### 0.6.10 (2014-08-14)
 * Remove ResourceLoader dependencies on jquery and mediawiki (bug 69468)
 

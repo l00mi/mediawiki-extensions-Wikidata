@@ -8,21 +8,25 @@ use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Statement;
-use Wikibase\DataModel\Entity\Entity;
-use Wikibase\DataModel\Entity\EntityDiff;
+use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Entity\Diff\ItemDiff;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\ItemDiff;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\ItemIdSet;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\Term\Fingerprint;
 
 /**
  * @covers Wikibase\DataModel\Entity\Item
@@ -93,6 +97,9 @@ class ItemTest extends EntityTest {
 			) )
 		);
 
+		/**
+		 * @var Claim $claim
+		 */
 		foreach ( $claims as $i => $claim ) {
 			$claim->setGuid( "ItemTest\$claim-$i" );
 		}
@@ -111,34 +118,6 @@ class ItemTest extends EntityTest {
 		return Item::newEmpty();
 	}
 
-	/**
-	 * @see   EntityTest::getNewFromArray
-	 *
-	 * @since 0.1
-	 *
-	 * @param array $data
-	 *
-	 * @return Entity
-	 */
-	protected function getNewFromArray( array $data ) {
-		return Item::newFromArray( $data );
-	}
-
-	public function testConstructor() {
-		$instance = new Item( array() );
-
-		$this->assertInstanceOf( 'Wikibase\Item', $instance );
-	}
-
-	public function testToArray() {
-		/**
-		 * @var Item $item
-		 */
-		foreach ( TestItems::getItems() as $item ) {
-			$this->assertInternalType( 'array', $item->toArray() );
-		}
-	}
-
 	public function testGetId() {
 		/**
 		 * @var Item $item
@@ -153,28 +132,6 @@ class ItemTest extends EntityTest {
 			$item->setId( 42 );
 			$this->assertEquals( new ItemId( 'Q42' ), $item->getId() );
 		}
-	}
-
-	public function testIsEmpty() {
-		parent::testIsEmpty();
-
-		$item = Item::newEmpty();
-		$item->addSiteLink( new SiteLink( 'enwiki', 'Foobar' ) );
-
-		$this->assertFalse( $item->isEmpty() );
-	}
-
-	public function testClear() {
-		parent::testClear(); //NOTE: we must test the Item implementation of the functionality already tested for Entity.
-
-		$item = $this->getNewEmpty();
-
-		$item->addSiteLink( new SiteLink( "enwiki", "Foozzle" ) );
-
-		$item->clear();
-
-		$this->assertEmpty( $item->getSiteLinks(), "sitelinks" );
-		$this->assertTrue( $item->isEmpty() );
 	}
 
 	public function itemProvider() {
@@ -219,7 +176,7 @@ class ItemTest extends EntityTest {
 		$entity1 = $this->getNewEmpty();
 		$entity1->addSiteLink( new SiteLink( 'enwiki', 'Berlin' ) );
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'page'   => new DiffOpAdd( 'Berlin' )
@@ -253,7 +210,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'badges' => new Diff( array(
@@ -279,7 +236,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'page'   => new DiffOpAdd( 'Berlin' ),
@@ -298,7 +255,7 @@ class ItemTest extends EntityTest {
 		$entity0->addSiteLink( new SiteLink( 'enwiki', 'Berlin' ) );
 		$entity1 = $this->getNewEmpty();
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'page'   => new DiffOpRemove( 'Berlin' ),
@@ -332,7 +289,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'badges' => new Diff( array(
@@ -359,7 +316,7 @@ class ItemTest extends EntityTest {
 		);
 		$entity1 = $this->getNewEmpty();
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'name'   => new DiffOpRemove( 'Berlin' ),
@@ -398,7 +355,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'name'   => new DiffOpChange( 'Berlin', 'Foobar' ),
@@ -433,7 +390,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'badges' => new Diff( array(
@@ -471,7 +428,7 @@ class ItemTest extends EntityTest {
 			)
 		);
 
-		$expected = new EntityDiff( array(
+		$expected = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
 					'name'   => new DiffOpChange( 'Berlin', 'Foobar' ),
@@ -491,6 +448,32 @@ class ItemTest extends EntityTest {
 	public function patchProvider() {
 		$argLists = parent::patchProvider();
 
+		$statement0 = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement1 = new Statement( new PropertySomeValueSnak( 42 ) );
+		$statement2 = new Statement( new PropertyValueSnak( 42, new StringValue( 'ohi' ) ) );
+		$statement3 = new Statement( new PropertyNoValueSnak( 1 ) );
+
+		$statement0->setGuid( 'claim0' );
+		$statement1->setGuid( 'claim1' );
+		$statement2->setGuid( 'claim2' );
+		$statement3->setGuid( 'claim3' );
+
+		$source = Item::newEmpty();
+		$source->getStatements()->addStatement( $statement0 );
+		$source->getStatements()->addStatement( $statement1 );
+		$patch = new ItemDiff( array( 'claim' => new Diff( array(
+				'claim0' => new DiffOpRemove( $statement0 ),
+				'claim2' => new DiffOpAdd( $statement2 ),
+				'claim3' => new DiffOpAdd( $statement3 )
+			), false ) ) );
+
+		$expected = Item::newEmpty();
+		$expected->getStatements()->addStatement( $statement1 );
+		$expected->getStatements()->addStatement( $statement2 );
+		$expected->getStatements()->addStatement( $statement3 );
+
+		$argLists[] = array( $source, $patch, $expected );
+
 		// Addition of a sitelink
 		$source = $this->getNewEmpty();
 		$patch = new ItemDiff( array(
@@ -503,14 +486,13 @@ class ItemTest extends EntityTest {
 				), true ),
 			), true ),
 		) );
+
 		$expected = clone $source;
-		$expected->addSiteLink(
-			new SiteLink(
-				'enwiki',
-				'Berlin',
-				array(
-					new ItemId( 'Q42' )
-				)
+		$expected->getSiteLinkList()->addNewSiteLink(
+			'enwiki',
+			'Berlin',
+			array(
+				new ItemId( 'Q42' )
 			)
 		);
 
@@ -518,15 +500,15 @@ class ItemTest extends EntityTest {
 
 
 		// Retaining of a sitelink
-		$source = clone $expected;
-		$patch = new ItemDiff();
-		$expected = clone $source;
-
-		$argLists[] = array( $source, $patch, $expected );
+		$argLists[] = array(
+			$this->newItemWithSiteLinks(),
+			new ItemDiff(),
+			$this->newItemWithSiteLinks()
+		);
 
 
 		// Modification of a sitelink
-		$source = clone $expected;
+		$source = unserialize( serialize( $expected ) );
 		$patch = new ItemDiff( array(
 			'links' => new Diff( array(
 				'enwiki' => new Diff( array(
@@ -534,18 +516,16 @@ class ItemTest extends EntityTest {
 					'badges' => new Diff( array(
 						new DiffOpRemove( 'Q42' ),
 						new DiffOpAdd( 'Q149' )
-					), false ),
+						), false ),
 				), true ),
 			), true )
 		) );
 		$expected = $this->getNewEmpty();
-		$expected->addSiteLink(
-			new SiteLink(
-				'enwiki',
-				'Foobar',
-				array(
-					new ItemId( 'Q149' )
-				)
+		$expected->getSiteLinkList()->addNewSiteLink(
+			'enwiki',
+			'Foobar',
+			array(
+				new ItemId( 'Q149' )
 			)
 		);
 
@@ -569,6 +549,20 @@ class ItemTest extends EntityTest {
 		$argLists[] = array( $source, $patch, $expected );
 
 		return $argLists;
+	}
+
+	private function newItemWithSiteLinks() {
+		$item = Item::newEmpty();
+
+		$item->setSiteLinkList( new SiteLinkList( array(
+			new SiteLink( 'enwiki', 'Foo' ),
+			new SiteLink( 'dewiki', 'Bar', new ItemIdSet( array(
+				new ItemId( 'Q1337' ),
+				new ItemId( 'Q133742' ),
+			) ) ),
+		) ) );
+
+		return $item;
 	}
 
 	public function testGetSiteLinkWithNonSetSiteId() {
@@ -691,13 +685,37 @@ class ItemTest extends EntityTest {
 	}
 
 	public function testNewClaimReturnsStatementWithProvidedMainSnak() {
+		/** @var Snak $snak */
 		$snak = $this->getMock( 'Wikibase\DataModel\Snak\Snak' );
 
 		$item = Item::newEmpty();
 		$statement = $item->newClaim( $snak );
 
-		$this->assertInstanceOf( 'Wikibase\DataModel\Claim\Statement', $statement );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Statement\Statement', $statement );
 		$this->assertEquals( $snak, $statement->getMainSnak() );
+	}
+
+	public function testSetClaims() {
+		$item = Item::newEmpty();
+
+		$statement0 = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement0->setGuid( 'TEST$NVS42' );
+
+		$statement1 = new Statement( new PropertySomeValueSnak( 42 ) );
+		$statement1->setGuid( 'TEST$SVS42' );
+
+		$statements = array( $statement0, $statement1 );
+
+		$item->setClaims( new Claims( $statements ) );
+		$this->assertEquals( count( $statements ), $item->getStatements()->count(), "added some statements" );
+
+		$item->setClaims( new Claims() );
+		$this->assertTrue( $item->getStatements()->isEmpty(), "should be empty again" );
+	}
+
+
+	public function testEmptyItemReturnsEmptySiteLinkList() {
+		$this->assertTrue( Item::newEmpty()->getSiteLinkList()->isEmpty() );
 	}
 
 	public function testAddSiteLinkOverridesOldLinks() {
@@ -711,8 +729,165 @@ class ItemTest extends EntityTest {
 		$this->assertTrue( $item->getSiteLinkList()->getBySiteId( 'kittens' )->equals( $newLink ) );
 	}
 
-	public function testEmptyItemReturnsEmptySiteLinkList() {
-		$this->assertTrue( Item::newEmpty()->getSiteLinkList()->isEmpty() );
+	public function testEmptyItemIsEmpty() {
+		$this->assertTrue( Item::newEmpty()->isEmpty() );
+	}
+
+	public function testItemWithIdIsEmpty() {
+		$item = Item::newEmpty();
+		$item->setId( 1337 );
+		$this->assertTrue( $item->isEmpty() );
+	}
+
+	public function testItemWithStuffIsNotEmpty() {
+		$item = Item::newEmpty();
+		$item->getFingerprint()->setAliasGroup( 'en', array( 'foo' ) );
+		$this->assertFalse( $item->isEmpty() );
+
+		$item = Item::newEmpty();
+		$item->getSiteLinkList()->addNewSiteLink( 'en', 'o_O' );
+		$this->assertFalse( $item->isEmpty() );
+
+		$item = Item::newEmpty();
+		$item->addClaim( $this->newStatement() );
+		$this->assertFalse( $item->isEmpty() );
+	}
+
+	public function testItemWithSitelinksHasSitelinks() {
+		$item = Item::newEmpty();
+		$item->getSiteLinkList()->addNewSiteLink( 'en', 'foo' );
+		$this->assertTrue( $item->hasSiteLinks() );
+	}
+
+	public function testItemWithoutSitelinksHasNoSitelinks() {
+		$item = Item::newEmpty();
+		$this->assertFalse( $item->hasSiteLinks() );
+	}
+
+	private function newStatement() {
+		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement->setGuid( 'kittens' );
+		return $statement;
+	}
+
+	public function testClearRemovesAllButId() {
+		$item = Item::newEmpty();
+
+		$item->setId( 42 );
+		$item->getFingerprint()->setLabel( 'en', 'foo' );
+		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
+		$item->addClaim( $this->newStatement() );
+
+		$item->clear();
+
+		$this->assertEquals( new ItemId( 'Q42' ), $item->getId() );
+		$this->assertTrue( $item->getFingerprint()->isEmpty() );
+		$this->assertTrue( $item->getSiteLinkList()->isEmpty() );
+		$this->assertTrue( $item->getStatements()->isEmpty() );
+	}
+
+	public function testCanConstructWithStatementList() {
+		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement->setGuid( 'meh' );
+
+		$statements = new StatementList( array( $statement ) );
+
+		$item = new Item(
+			null,
+			Fingerprint::newEmpty(),
+			new SiteLinkList(),
+			$statements
+		);
+
+		$this->assertEquals(
+			$statements,
+			$item->getStatements()
+		);
+	}
+
+	public function testSetStatements() {
+		$item = Item::newEmpty();
+		$item->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
+
+		$item->setStatements( new StatementList() );
+		$this->assertTrue( $item->getStatements()->isEmpty() );
+	}
+
+	public function testGetStatementsReturnsCorrectTypeAfterClear() {
+		$item = Item::newEmpty();
+		$item->clear();
+
+		$this->assertTrue( $item->getStatements()->isEmpty() );
+	}
+
+	public function equalsProvider() {
+		$firstItem = Item::newEmpty();
+		$firstItem->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
+
+		$secondItem = Item::newEmpty();
+		$secondItem->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
+
+		return array(
+			array( Item::newEmpty(), Item::newEmpty() ),
+			array( $firstItem, $secondItem ),
+		);
+	}
+
+	/**
+	 * @dataProvider equalsProvider
+	 */
+	public function testEquals( Item $firstItem, Item $secondItem ) {
+		$this->assertTrue( $firstItem->equals( $secondItem ) );
+	}
+
+	private function getBaseItem() {
+		$item = Item::newEmpty();
+
+		$item->setId( 42 );
+		$item->getFingerprint()->setLabel( 'en', 'Same' );
+		$item->getFingerprint()->setDescription( 'en', 'Same' );
+		$item->getFingerprint()->setAliasGroup( 'en', array( 'Same' ) );
+		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Same' );
+		$item->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
+
+		return $item;
+	}
+
+	public function notEqualsProvider() {
+		$differentLabel = $this->getBaseItem();
+		$differentLabel->getFingerprint()->setLabel( 'en', 'Different' );
+
+		$differentDescription = $this->getBaseItem();
+		$differentDescription->getFingerprint()->setDescription( 'en', 'Different' );
+
+		$differentAlias = $this->getBaseItem();
+		$differentAlias->getFingerprint()->setAliasGroup( 'en', array( 'Different' ) );
+
+		$differentSiteLink = $this->getBaseItem();
+		$differentSiteLink->getSiteLinkList()->removeLinkWithSiteId( 'enwiki' );
+		$differentSiteLink->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Different' );
+
+		$differentStatement = $this->getBaseItem();
+		$differentStatement->setStatements( new StatementList() );
+		$differentStatement->getStatements()->addNewStatement( new PropertyNoValueSnak( 24 ) );
+
+		$item = $this->getBaseItem();
+
+		return array(
+			array( $item, Item::newEmpty() ),
+			array( $item, $differentLabel ),
+			array( $item, $differentDescription ),
+			array( $item, $differentAlias ),
+			array( $item, $differentSiteLink ),
+			array( $item, $differentStatement ),
+		);
+	}
+
+	/**
+	 * @dataProvider notEqualsProvider
+	 */
+	public function testNotEquals( Item $firstItem, Item $secondItem ) {
+		$this->assertFalse( $firstItem->equals( $secondItem ) );
 	}
 
 }

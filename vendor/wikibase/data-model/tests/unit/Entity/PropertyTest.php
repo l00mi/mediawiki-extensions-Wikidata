@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test\Entity;
 
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 
@@ -37,20 +36,7 @@ class PropertyTest extends EntityTest {
 	 * @return Property
 	 */
 	protected function getNewEmpty() {
-		return Property::newEmpty();
-	}
-
-	/**
-	 * @see   EntityTest::getNewFromArray
-	 *
-	 * @since 0.1
-	 *
-	 * @param array $data
-	 *
-	 * @return Entity
-	 */
-	protected function getNewFromArray( array $data ) {
-		return Property::newFromArray( $data );
+		return Property::newFromType( 'string' );
 	}
 
 	public function testNewFromType() {
@@ -86,13 +72,32 @@ class PropertyTest extends EntityTest {
 		$this->assertHasCorrectIdType( $property );
 	}
 
-	public function testWhenIdSetViaLegacyFormat_GetIdReturnsPropertyId() {
-		$property = Property::newFromArray( array(
-			'datatype' => 'string',
-			'entity' => array( 'property', 42 ),
-		) );
+	public function testPropertyWithTypeIsEmpty() {
+		$this->assertTrue( Property::newFromType( 'string' )->isEmpty() );
+	}
 
-		$this->assertHasCorrectIdType( $property );
+	public function testPropertyWithIdIsEmpty() {
+		$property = Property::newFromType( 'string' );
+		$property->setId( 1337 );
+		$this->assertTrue( $property->isEmpty() );
+	}
+
+	public function testPropertyWithFingerprintIsNotEmpty() {
+		$property = Property::newFromType( 'string' );
+		$property->getFingerprint()->setAliasGroup( 'en', array( 'foo' ) );
+		$this->assertFalse( $property->isEmpty() );
+	}
+
+	public function testClearRemovesAllButId() {
+		$property = Property::newFromType( 'string' );
+
+		$property->setId( 42 );
+		$property->getFingerprint()->setLabel( 'en', 'foo' );
+
+		$property->clear();
+
+		$this->assertEquals( new PropertyId( 'P42' ), $property->getId() );
+		$this->assertTrue( $property->getFingerprint()->isEmpty() );
 	}
 
 }

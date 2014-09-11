@@ -21,18 +21,18 @@ use Wikibase\DataModel\Entity\ItemIdSet;
  */
 class SiteLink implements Comparable {
 
-	protected $siteId;
-	protected $pageName;
+	private $siteId;
+	private $pageName;
 
 	/**
 	 * @var ItemIdSet
 	 */
-	protected $badges;
+	private $badges;
 
 	/**
 	 * @param string $siteId
 	 * @param string $pageName
-	 * @param ItemIdSet|ItemId[] $badges
+	 * @param ItemIdSet|ItemId[]|null $badges
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -51,11 +51,12 @@ class SiteLink implements Comparable {
 	}
 
 	private function setBadges( $badges ) {
-		if ( is_array( $badges ) ) {
+		if ( $badges === null ) {
+			$badges = new ItemIdSet();
+		} elseif ( is_array( $badges ) ) {
 			$badges = new ItemIdSet( $badges );
-		}
-		elseif ( !( $badges instanceof ItemIdSet ) ) {
-			throw new InvalidArgumentException( '$badges needs to be ItemIdSet or ItemId[]' );
+		} elseif ( !( $badges instanceof ItemIdSet ) ) {
+			throw new InvalidArgumentException( '$badges needs to be ItemIdSet, ItemId[] or null' );
 		}
 
 		$this->badges = $badges;
@@ -91,96 +92,19 @@ class SiteLink implements Comparable {
 	}
 
 	/**
-	 * Returns an array representing the SiteLink, without the siteid.
-	 *
-	 * @since 0.5
-	 * @deprecated
-	 *
-	 * @return array
-	 */
-	 public function toArray() {
-	 	$array = array(
-	 		'name' => $this->pageName,
-			'badges' => array()
-		);
-
-		foreach ( $this->badges as $badge ) {
-			$array['badges'][] = $badge->getSerialization();
-		}
-
-		return $array;
-	 }
-
-	/**
-	 * @since 0.5
-	 * @deprecated
-	 *
-	 * @param string $siteId
-	 * @param string|array $data
-	 *
-	 * @throws InvalidArgumentException
-	 * @return SiteLink
-	 */
-	public static function newFromArray( $siteId, $data ) {
-		if ( is_string( $data ) ) {
-			// legacy serialization format
-			$siteLink = new static( $siteId, $data );
-		} else {
-			if ( !is_array( $data ) ) {
-				throw new InvalidArgumentException( '$data needs to be an array or string (legacy)' );
-			}
-
-			if ( !array_key_exists( 'name' , $data ) ) {
-				throw new InvalidArgumentException( '$data needs to have a "name" key' );
-			}
-
-			$badges = self::getBadgesFromArray( $data );
-			$pageName = $data['name'];
-
-			$siteLink = new static( $siteId, $pageName, $badges );
-		}
-
-		return $siteLink;
-	}
-
-	/**
-	 * @since 0.5
-	 * @deprecated
-	 *
-	 * @param array $data
-	 *
-	 * @return ItemId[]
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	protected static function getBadgesFromArray( $data ) {
-		if ( !array_key_exists( 'badges', $data ) ) {
-			return array();
-		}
-
-		if ( !is_array( $data['badges'] ) ) {
-			throw new InvalidArgumentException( '$data["badges"] needs to be an array' );
-		}
-
-		$badges = array();
-
-		foreach ( $data['badges'] as $badge ) {
-			$badges[] = new ItemId( $badge );
-		}
-
-		return $badges;
-	}
-
-	/**
 	 * @see Comparable::equals
 	 *
 	 * @since 0.7.4
 	 *
 	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $target ) {
+		if ( $target === $this ) {
+			return true;
+		}
+
 		if ( !( $target instanceof self ) ) {
 			return false;
 		}

@@ -79,7 +79,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 
 		this.element.addClass( 'wikibase-sitelinklistview' );
 
-		if( this.element.children( 'thead' ).children().length > 0 ) {
+		if( this.element.children( 'thead' ).children().length ) {
 			// Initially sort on the site id column.
 			this.element.tablesorter( { sortList: [{ 1: 'asc' }] } );
 		}
@@ -178,22 +178,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 					sitelinkview.enable();
 				} );
 			}
-		} )
-		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
-		.on( 'sitelinkviewafterstartediting.' + this.widgetName, function( event ) {
-			$( wb ).trigger( 'startItemPageEditMode', [
-				$( event.target ),
-				{
-					exclusive: false,
-					wbCopyrightWarningGravity: 'sw'
-				}
-			] );
-		} )
-		.on( 'sitelinkviewafterstopediting.' + this.widgetName, function( event, dropValue ) {
-			$( wb ).trigger( 'stopItemPageEditMode', [
-				$( event.target ),
-				{ save: dropValue !== true }
-			] );
 		} );
 	},
 
@@ -235,6 +219,36 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		$parenthesesMsg.find( 'span' ).replaceWith( $counterMsg );
 
 		return $parenthesesMsg.contents();
+	},
+
+	/**
+	 * Sets/Gets the widget's value.
+	 *
+	 * @param {wikibase.datamodel.SiteLink[]} value
+	 * @return {wikibase.datamodel.SiteLink[]|*}
+	 */
+	value: function( value ) {
+		if( value === undefined ) {
+			return this.option( 'value' );
+		}
+		return this.option( 'value', value );
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget._setOption
+	 */
+	_setOption: function( key, value ) {
+		var response = PARENT.prototype._setOption.apply( this, arguments );
+
+		if( key === 'value' ) {
+			this.$listview.data( 'listview' ).value( value );
+			this._refreshCounter();
+			this._refreshTableHeader();
+		} else if( key === 'disabled' ) {
+			this.$listview.data( 'listview' ).option( key, value );
+		}
+
+		return response;
 	},
 
 	/**
@@ -313,7 +327,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			if( !self.options.value.length ) {
 				// Removed last site link.
 				self.$thead.empty();
-				self.element.removeData( 'tablesorter' );
 			}
 
 			self._refreshCounter();
@@ -353,47 +366,46 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				if( !dropValue && siteLink ) {
 					listview.addItem( siteLink );
 
-					// Init tablesorter if it has not been initialised yet (no site link existed
-					// previous to adding the just added site link):
-					if( !self.element.data( 'tablesorter' ) ) {
-						self.element.tablesorter();
-					} else {
-						// Reset sorting having the sort order appear undefined when appending a new
-						// site link to the bottom of the table:
-						self.element.data( 'tablesorter' ).sort( [] );
-					}
-
 					if( self.isFull() ) {
 						self.$tfoot.find( 'tr td' ).first()
 							.text( mw.msg( 'wikibase-sitelinksedittool-full' ) );
 					}
-				} else {
-					self._refreshTableHeader();
 				}
-
+				self._refreshTableHeader();
 				self._refreshCounter();
 
 				self._trigger( 'afterstopediting', null, [dropValue] );
 			} );
 
-			sitelinkview.startEditing();
-
+			self._refreshTableHeader();
 			self._refreshCounter();
+
+			sitelinkview.startEditing();
 		} );
 
 		listview.enterNewItem();
-		this._refreshTableHeader();
 	},
 
 	/**
 	 * Creates/Removes the table header.
 	 */
 	_refreshTableHeader: function() {
-		if( !this.$listview.data( 'listview' ).items().length ) {
+		var $items = this.$listview.data( 'listview' ).items();
+
+		if( !$items.length ) {
+			this.element.removeData( 'tablesorter' );
 			this.$thead.children().remove();
 			return;
-		} else if( this.$thead.children().length ) {
-			return;
+		} else {
+			if( !this.element.data( 'tablesorter' ) ) {
+				// Init tablesorter if it has not been initialised yet.
+				this.element.tablesorter();
+			} else if( this.$thead.children().length ) {
+				// Reset sorting having the sort order appear undefined when appending a new
+				// site link to the bottom of the table.
+				this.element.data( 'tablesorter' ).sort( [] );
+				return;
+			}
 		}
 
 		var siteNameMessageKey = 'wikibase-sitelinks-sitename-columnheading';
@@ -462,6 +474,21 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 					);
 				}
 			} );
+
+			toolbarcontroller.registerEventHandler(
+				event.data.toolbar.type,
+				event.data.toolbar.id,
+				'sitelinklistviewdisable',
+				function() {
+					var disabled = sitelinklistview.option( 'disabled' );
+
+					if( !disabled && sitelinklistview.isFull() ) {
+						return;
+					}
+
+					$sitelinklistview.data( 'addtoolbar' )[disabled ? 'disable' : 'enable']();
+				}
+			);
 
 			if( sitelinklistview.isFull() ) {
 				$sitelinklistview.data( 'addtoolbar' ).toolbar.disable();

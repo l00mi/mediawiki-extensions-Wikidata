@@ -3,7 +3,7 @@
 namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
-use RuntimeException;
+use Wikibase\DataModel\Term\Fingerprint;
 
 /**
  * Represents a single Wikibase property.
@@ -19,6 +19,48 @@ class Property extends Entity {
 	const ENTITY_TYPE = 'property';
 
 	/**
+	 * @var string
+	 */
+	private $dataTypeId;
+
+	/**
+	 * @since 1.0
+	 *
+	 * @param PropertyId|null $id
+	 * @param Fingerprint $fingerprint
+	 * @param string $dataTypeId
+	 */
+	public function __construct( PropertyId $id = null, Fingerprint $fingerprint, $dataTypeId ) {
+		$this->id = $id;
+		$this->fingerprint = $fingerprint;
+		$this->setDataTypeId( $dataTypeId );
+	}
+
+	/**
+	 * Can be integer since 0.1.
+	 * Can be PropertyId since 0.5.
+	 * Can be null since 1.0.
+	 *
+	 * @param PropertyId|int|null $id
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setId( $id ) {
+		if ( $id === null || $id instanceof PropertyId ) {
+			$this->id = $id;
+		}
+		else if ( is_integer( $id ) ) {
+			$this->id = PropertyId::newFromNumber( $id );
+		}
+		else if ( $id instanceof EntityId ) {
+			$this->id = new PropertyId( $id->getSerialization() );
+		}
+		else {
+			throw new InvalidArgumentException( __METHOD__ . ' only accepts PropertyId, integer and null' );
+		}
+	}
+
+	/**
 	 * @since 0.4
 	 *
 	 * @param string $dataTypeId
@@ -30,22 +72,16 @@ class Property extends Entity {
 			throw new InvalidArgumentException( '$dataTypeId needs to be a string' );
 		}
 
-		$this->data['datatype'] = $dataTypeId;
+		$this->dataTypeId = $dataTypeId;
 	}
 
 	/**
 	 * @since 0.4
 	 *
 	 * @return string
-	 * @throws RuntimeException
 	 */
 	public function getDataTypeId() {
-		if ( array_key_exists( 'datatype', $this->data ) ) {
-			assert( is_string( $this->data['datatype'] ) );
-			return $this->data['datatype'];
-		}
-
-		throw new RuntimeException( 'Cannot obtain the properties DataType as it has not been set' );
+		return $this->dataTypeId;
 	}
 
 	/**
@@ -56,29 +92,7 @@ class Property extends Entity {
 	 * @return string
 	 */
 	public function getType() {
-		return Property::ENTITY_TYPE;
-	}
-
-	/**
-	 * @see Entity::newFromArray
-	 *
-	 * @since 0.1
-	 *
-	 * @param array $data
-	 *
-	 * @return Property
-	 */
-	public static function newFromArray( array $data ) {
-		return new static( $data );
-	}
-
-	/**
-	 * @deprecated since 0.7.3. Use Property::newFromType
-	 *
-	 * @return Property
-	 */
-	public static function newEmpty() {
-		return self::newFromArray( array() );
+		return self::ENTITY_TYPE;
 	}
 
 	/**
@@ -89,18 +103,74 @@ class Property extends Entity {
 	 * @return Property
 	 */
 	public static function newFromType( $dataTypeId ) {
-		return self::newFromArray( array( 'datatype' => $dataTypeId ) );
+		return new self(
+			null,
+			Fingerprint::newEmpty(),
+			$dataTypeId
+		);
 	}
 
 	/**
-	 * @since 0.5
+	 * @see Comparable::equals
 	 *
-	 * @param string $idSerialization
+	 * Two items are considered equal if they are of the same
+	 * type and have the same value. The value does not include
+	 * the id, so entities with the same value but different id
+	 * are considered equal.
 	 *
-	 * @return EntityId
+	 * @since 0.1
+	 *
+	 * @param mixed $that
+	 *
+	 * @return boolean
 	 */
-	protected function idFromSerialization( $idSerialization ) {
-		return new PropertyId( $idSerialization );
+	public function equals( $that ) {
+		if ( $that === $this ) {
+			return true;
+		}
+
+		if ( !( $that instanceof self ) ) {
+			return false;
+		}
+
+		return $this->fieldsEqual( $that );
+	}
+
+	private function fieldsEqual( Property $that ) {
+		return ( $this->id === null && $that->id === null || $this->id->equals( $that->id ) )
+			&& $this->fingerprint->equals( $that->fingerprint )
+			&& $this->dataTypeId == $that->dataTypeId;
+	}
+
+	/**
+	 * Returns if the Property has no content.
+	 * Having an id and type set does not count as having content.
+	 *
+	 * @since 0.1
+	 *
+	 * @return boolean
+	 */
+	public function isEmpty() {
+		return $this->fingerprint->isEmpty();
+	}
+
+	/**
+	 * Removes all content from the Property.
+	 * The id and the type are not part of the content.
+	 *
+	 * @since 0.1
+	 */
+	public function clear() {
+		$this->fingerprint = Fingerprint::newEmpty();
+	}
+
+	/**
+	 * @deprecated since 0.7.3. Use Property::newFromType
+	 *
+	 * @return Property
+	 */
+	public static function newEmpty() {
+		return self::newFromType( '' );
 	}
 
 }
