@@ -1075,58 +1075,6 @@
         ]
     },
     {
-        "name": "wikibase/wikimedia-badges",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikimediaBadges.git",
-            "reference": "f8677acc1c7fe8a597edf21da698094da74214a3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/f8677acc1c7fe8a597edf21da698094da74214a3",
-            "reference": "f8677acc1c7fe8a597edf21da698094da74214a3",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-08-25 13:43:19",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikimediaBadges.php"
-            ],
-            "classmap": [
-                "WikimediaBadges.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Extension which contains default themes to display badges on Wikimedia projects",
-        "homepage": "https://github.com/wmde/WikimediaBadges",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/WikimediaBadges/tree/master",
-            "issues": "https://github.com/wmde/WikimediaBadges/issues"
-        }
-    },
-    {
         "name": "wikibase/Wikidata.org",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -1204,9 +1152,7 @@
             "psr-4": {
                 "PropertySuggester\\": "src/PropertySuggester/"
             },
-            "files": [
-
-    ],
+            "files": [],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"
@@ -1269,18 +1215,70 @@
         "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
     },
     {
+        "name": "wikibase/wikimedia-badges",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikimediaBadges.git",
+            "reference": "17b1db7281207709bd8cef4cbeb5009fa749edc2"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/17b1db7281207709bd8cef4cbeb5009fa749edc2",
+            "reference": "17b1db7281207709bd8cef4cbeb5009fa749edc2",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-09-02 17:56:18",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikimediaBadges.php"
+            ],
+            "classmap": [
+                "WikimediaBadges.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Extension which contains default themes to display badges on Wikimedia projects",
+        "homepage": "https://github.com/wmde/WikimediaBadges",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata",
+            "source": "https://github.com/wmde/WikimediaBadges/tree/master",
+            "issues": "https://github.com/wmde/WikimediaBadges/issues"
+        }
+    },
+    {
         "name": "wikibase/wikibase",
         "version": "dev-mw1.24-wmf19",
         "version_normalized": "dev-mw1.24-wmf19",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "c0ba9273d24710fef79afbfdd1a028eefe4a27eb"
+            "reference": "17b4efe972b4ba777e00df6a04bef0ddc3b4bf3e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c0ba9273d24710fef79afbfdd1a028eefe4a27eb",
-            "reference": "c0ba9273d24710fef79afbfdd1a028eefe4a27eb",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/17b4efe972b4ba777e00df6a04bef0ddc3b4bf3e",
+            "reference": "17b4efe972b4ba777e00df6a04bef0ddc3b4bf3e",
             "shasum": ""
         },
         "require": {
@@ -1307,9 +1305,9 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-09-08 14:03:36",
+        "time": "2014-09-16 13:32:44",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"
