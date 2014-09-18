@@ -745,6 +745,7 @@ return array(
     'Wikibase\\Test\\AliasSerializerTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/serializers/AliasSerializerTest.php',
     'Wikibase\\Test\\ApiErrorReporterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiErrorReporterTest.php',
     'Wikibase\\Test\\Api\\ApiHelperFactoryTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiHelperFactoryTest.php',
+    'Wikibase\\Test\\Api\\ApiXmlFormatTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiXmlFormatTest.php',
     'Wikibase\\Test\\Api\\AvailabeBadgesTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/AvailableBadgesTest.php',
     'Wikibase\\Test\\Api\\BotEditTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/BotEditTest.php',
     'Wikibase\\Test\\Api\\ClaimModificationHelperTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ClaimModificationHelperTest.php',
