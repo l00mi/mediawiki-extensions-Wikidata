@@ -93,6 +93,13 @@ It is based upon and contains a lot of code written by [Jeroen De Dauw]
 
 ## Release notes
 
+### 1.0 (2014-07-31)
+
+* All classes and interfaces have been moved into the `DataValues\Geo` namespace
+    * `DataValues\LatLongValue` has been left as deprecated alias
+    * `DataValues\GlobeCoordinateValue` has been left as deprecated alias
+* Globe in `GlobeCoordinateValue` now defaults to `http://www.wikidata.org/entity/Q2`
+
 ### 0.2 (2014-07-07)
 
 * Removed deprecated `GeoCoordinateValue`

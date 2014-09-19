@@ -4,7 +4,6 @@ namespace Wikibase\Test;
 
 use DataValues\StringValue;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
@@ -67,7 +66,7 @@ class ClaimTest extends \PHPUnit_Framework_TestCase {
 	public function testConstructor( Snak $snak, Snaks $qualifiers = null ) {
 		$claim = new Claim( $snak, $qualifiers );
 
-		$this->assertInstanceOf( '\Wikibase\Claim', $claim );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Claim\Claim', $claim );
 
 		$this->assertEquals( $snak, $claim->getMainSnak() );
 
@@ -159,19 +158,6 @@ class ClaimTest extends \PHPUnit_Framework_TestCase {
 		$copy = unserialize( serialize( $claim ) );
 
 		$this->assertEquals( $claim->getHash(), $copy->getHash(), 'Serialization roundtrip should not affect hash' );
-	}
-
-	/**
-	 * @dataProvider instanceProvider
-	 */
-	public function testToArrayRoundrip( Claim $claim ) {
-		$data = $claim->toArray();
-
-		$this->assertInternalType( 'array', $data );
-
-		$copy = Claim::newFromArray( $data );
-
-		$this->assertEquals( $claim->getHash(), $copy->getHash(), 'toArray newFromArray roundtrip should not affect hash' );
 	}
 
 	public function testGetHashStability() {

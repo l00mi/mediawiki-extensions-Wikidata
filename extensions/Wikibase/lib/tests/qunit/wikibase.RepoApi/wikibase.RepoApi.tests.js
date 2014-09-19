@@ -86,7 +86,7 @@
 		} ).fail( onFail );
 	};
 
-	QUnit.module( 'wikibase.RepoApi', QUnit.newWbEnvironment( {
+	QUnit.module( 'wikibase.RepoApi', QUnit.newMwEnvironment( {
 		teardown: function() {
 			entityStack = [];
 		}
@@ -437,21 +437,6 @@
 					);
 					testrun.dequeue( qkey );
 				} );
-		} );
-
-		testrun.queue( qkey, function() {
-			api.removeSitelink(
-				entity.id, entity.lastrevid, data.sitelinks.dewiki.site
-			).done( function( response ) {
-
-				assert.equal(
-					response.success,
-					1,
-					'Removed site link.'
-				);
-
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
 		} );
 
 		testrun.queue( qkey, function() {

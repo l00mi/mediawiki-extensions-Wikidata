@@ -7,7 +7,7 @@ if ( defined( 'DATA_VALUES_JAVASCRIPT_VERSION' ) ) {
 	return 1;
 }
 
-define( 'DATA_VALUES_JAVASCRIPT_VERSION', '0.5.2' );
+define( 'DATA_VALUES_JAVASCRIPT_VERSION', '0.6.0' );
 
 // Include the composer autoloader if it is present.
 if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
@@ -23,11 +23,13 @@ $GLOBALS['wgExtensionCredits']['datavalues'][] = array(
 		'[http://www.snater.com H. Snater]',
 		'[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]',
 	),
+	'url' => 'https://github.com/wmde/DataValuesJavascript',
+	'description' => 'JavaScript related to the DataValues library',
 );
 
 // Resource Loader module registration
 $GLOBALS['wgResourceModules'] = array_merge(
-	$GLOBALS['wgResourceModules'],
+	isset( $GLOBALS['wgResourceModules'] ) ? $GLOBALS['wgResourceModules'] : array(),
 	include( __DIR__ . '/lib/resources.php' ),
 	include( __DIR__ . '/src/resources.php' )
 );

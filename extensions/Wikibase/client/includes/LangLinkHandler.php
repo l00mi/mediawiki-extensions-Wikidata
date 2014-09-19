@@ -6,11 +6,16 @@ use ParserOutput;
 use Site;
 use SiteStore;
 use Title;
+use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
+use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 
 /**
- * Handles language links.
+ * @todo split this up and find a better home for stuff that adds
+ * parser output properties and extension data.
  *
  * @since 0.1
  *
@@ -20,6 +25,16 @@ use Wikibase\Lib\Store\SiteLinkLookup;
  * @author Katie Filbert
  */
 class LangLinkHandler {
+
+	/**
+	 * @var OtherProjectsSidebarGenerator
+	 */
+	private $otherProjectsSidebarGenerator;
+
+	/**
+	 * @var LanguageLinkBadgeDisplay
+	 */
+	private $badgeDisplay;
 
 	/**
 	 * @var string
@@ -37,9 +52,14 @@ class LangLinkHandler {
 	private $siteLinkLookup;
 
 	/**
+	 * @var EntityLookup
+	 */
+	private $entityLookup;
+
+	/**
 	 * @var SiteStore
 	 */
-	private $sites;
+	private $siteStore;
 
 	/**
 	 * @var string
@@ -47,25 +67,37 @@ class LangLinkHandler {
 	private $siteGroup;
 
 	/**
-	 * Constructs a new LangLinkHandler using the given service instances.
-	 *
+	 * @var ItemId[]
+	 */
+	private $itemIds;
+
+	/**
+	 * @param OtherProjectsSidebarGenerator $otherProjectsSidebarGenerator
+	 * @param LanguageLinkBadgeDisplay $badgeDisplay
 	 * @param string $siteId The global site ID for the local wiki
 	 * @param NamespaceChecker $namespaceChecker determines which namespaces wikibase is enabled on
 	 * @param SiteLinkLookup $siteLinkLookup A site link lookup service
-	 * @param SiteStore $sites A site definition lookup service
+	 * @param EntityLookup $entityLookup An entity lookup service
+	 * @param SiteStore $siteStore A site definition lookup service
 	 * @param string $siteGroup The ID of the site group to use for showing language links.
 	 */
 	public function __construct(
+		OtherProjectsSidebarGenerator $otherProjectsSidebarGenerator,
+		LanguageLinkBadgeDisplay $badgeDisplay,
 		$siteId,
 		NamespaceChecker $namespaceChecker,
 		SiteLinkLookup $siteLinkLookup,
-		SiteStore $sites,
+		EntityLookup $entityLookup,
+		SiteStore $siteStore,
 		$siteGroup
 	) {
+		$this->otherProjectsSidebarGenerator = $otherProjectsSidebarGenerator;
+		$this->badgeDisplay = $badgeDisplay;
 		$this->siteId = $siteId;
 		$this->namespaceChecker = $namespaceChecker;
 		$this->siteLinkLookup = $siteLinkLookup;
-		$this->sites = $sites;
+		$this->entityLookup = $entityLookup;
+		$this->siteStore = $siteStore;
 		$this->siteGroup = $siteGroup;
 	}
 
@@ -76,7 +108,7 @@ class LangLinkHandler {
 	 *
 	 * @param Title $title
 	 *
-	 * @return SiteLink[]
+	 * @return SiteLink[] A map of SiteLinks, indexed by global site id.
 	 */
 	public function getEntityLinks( Title $title ) {
 		wfProfileIn( __METHOD__ );
@@ -85,14 +117,25 @@ class LangLinkHandler {
 
 		$links = array();
 
-		$siteLink = new SiteLink( $this->siteId, $title->getFullText() );
-		$itemId = $this->siteLinkLookup->getEntityIdForSiteLink( $siteLink );
+		$itemId = $this->getItemIdForTitle( $title );
 
 		if ( $itemId !== null ) {
 			wfDebugLog( __CLASS__, __FUNCTION__ . ": Item ID for " . $title->getFullText()
 				. " is " . $itemId->getPrefixedId() );
 
-			$links = $this->siteLinkLookup->getSiteLinksForItem( $itemId );
+			//NOTE: SiteLinks we could get from $this->siteLinkLookup do not contain badges,
+			//      so we have to fetch the links from the Item.
+
+			/* @var Item $item */
+			$item = $this->entityLookup->getEntity( $itemId );
+
+			if ( $item ) {
+				$links = iterator_to_array( $item->getSiteLinkList() );
+				$links = $this->indexLinksBySiteId( $links );
+			} else {
+				wfWarn( __METHOD__ . ": Could not load item " . $itemId->getSerialization()
+					. " for " . $title->getFullText() );
+			}
 		} else {
 			wfDebugLog( __CLASS__, __FUNCTION__ . ": No corresponding item found for "
 				. $title->getFullText() );
@@ -102,6 +145,49 @@ class LangLinkHandler {
 		wfProfileOut( __METHOD__ );
 
 		return $links;
+	}
+
+	/**
+	 * @param SiteLink[] $links
+	 *
+	 * @return SiteLink[] The SiteLinks in $links, indexed by site ID
+	 */
+	private function indexLinksBySiteId( $links ) {
+		$indexed = array();
+
+		foreach ( $links as $link ) {
+			$key = $link->getSiteId();
+			$indexed[$key] = $link;
+		}
+
+		return $indexed;
+	}
+
+	/**
+	 * @param SiteLink[] $links
+	 *
+	 * @return SiteLink[] The SiteLinks in $links, indexed by interwiki prefix.
+	 */
+	private function indexLinksByInterwiki( $links ) {
+		$indexed = array();
+
+		foreach ( $links as $link ) {
+			$siteId = $link->getSiteId();
+			$site = $this->siteStore->getSite( $siteId );
+
+			if ( !$site ) {
+				continue;
+			}
+
+			$navIds = $site->getNavigationIds();
+			$key = reset( $navIds );
+
+			if ( $key !== false ) {
+				$indexed[$key] = $link;
+			}
+		}
+
+		return $indexed;
 	}
 
 	/**
@@ -122,7 +208,7 @@ class LangLinkHandler {
 
 		// use repoLinks in only the namespaces specified in settings
 		if ( $this->namespaceChecker->isWikibaseEnabled( $title->getNamespace() ) === true ) {
-			$nel = self::getNoExternalLangLinks( $out );
+			$nel = $this->getNoExternalLangLinks( $out );
 
 			if( in_array( '*', $nel ) ) {
 				wfProfileOut( __METHOD__ );
@@ -149,7 +235,7 @@ class LangLinkHandler {
 	 * @since 0.1
 	 *
 	 * @param ParserOutput $out
-	 * @param SiteLink[] $repoLinks An array that uses global site IDs as keys.
+	 * @param array $repoLinks An array that uses global site IDs as keys.
 	 *
 	 * @return SiteLink[] A filtered copy of $repoLinks, with any inappropriate
 	 *         entries removed.
@@ -165,7 +251,7 @@ class LangLinkHandler {
 				return array();
 			}
 
-			$siteList = $this->sites->getSites();
+			$siteList = $this->siteStore->getSites();
 
 			if ( $siteList->hasNavigationId( $code ) ) {
 				$site = $siteList->getSiteByNavigationId( $code );
@@ -186,17 +272,17 @@ class LangLinkHandler {
 	 *
 	 * @since  0.4
 	 *
-	 * @param SiteLink[] $repoLinks An array that uses global site IDs as keys.
+	 * @param array $repoLinks An array that uses global site IDs as keys.
 	 * @param string[] $allowedGroups A list of allowed site groups
 	 *
-	 * @return SiteLink[] A filtered copy of $repoLinks, retaining only the links
+	 * @return array A filtered copy of $repoLinks, retaining only the links
 	 *         pointing to a site in an allowed group.
 	 */
 	public function filterRepoLinksByGroup( array $repoLinks, array $allowedGroups ) {
 		wfProfileIn( __METHOD__ );
 
-		foreach ( $repoLinks as $wiki => $page ) {
-			$site = $this->sites->getSite( $wiki );
+		foreach ( $repoLinks as $wiki => $link ) {
+			$site = $this->siteStore->getSite( $wiki );
 
 			if ( $site === null ) {
 				wfDebugLog( __CLASS__, __FUNCTION__ . ': skipping link to unknown site ' . $wiki );
@@ -219,21 +305,10 @@ class LangLinkHandler {
 	}
 
 	/**
-	 * Suppress external language links
-	 *
-	 * @since 0.4
-	 *
-	 * @param ParserOutput $out
-	 * @param string[] $langs
-	 */
-	public function excludeRepoLangLinks( ParserOutput $out, array $langs ) {
-		$nel = array_merge( $this->getNoExternalLangLinks( $out ), $langs );
-		$this->setNoExternalLangLinks( $out, $nel );
-	}
-
-	/**
 	 * Get the noexternallanglinks page property from the ParserOutput,
 	 * which is set by the {{#noexternallanglinks}} parser function.
+	 *
+	 * @see NoLangLinkHandler::getNoExternalLangLinks
 	 *
 	 * @param ParserOutput $out
 	 *
@@ -241,28 +316,7 @@ class LangLinkHandler {
 	 *         Empty if {{#noexternallanglinks}} was not used on the page.
 	 */
 	public function getNoExternalLangLinks( ParserOutput $out ) {
-		wfProfileIn( __METHOD__ );
-
-		$property = $out->getProperty( 'noexternallanglinks' );
-		$nel = is_string( $property ) ? unserialize( $property ) : array();
-
-		wfProfileOut( __METHOD__ );
-		return $nel;
-	}
-
-	/**
-	 * Set the noexternallanglinks page property in the ParserOutput,
-	 * which is set by the {{#noexternallanglinks}} parser function.
-	 *
-	 * @since 0.4
-	 *
-	 * @param ParserOutput $out
-	 * @param string[] $noexternallanglinks a list of languages to suppress
-	 */
-	public function setNoExternalLangLinks( ParserOutput $out, array $noexternallanglinks ) {
-		wfProfileIn( __METHOD__ );
-		$out->setProperty( 'noexternallanglinks', serialize( $noexternallanglinks ) );
-		wfProfileOut( __METHOD__ );
+		return NoLangLinkHandler::getNoExternalLangLinks( $out );
 	}
 
 	/**
@@ -286,7 +340,7 @@ class LangLinkHandler {
 				$lang = $parts[0];
 				$page = $parts[1];
 
-				$siteList = $this->sites->getSites();
+				$siteList = $this->siteStore->getSites();
 
 				if ( $siteList->hasNavigationId( $lang ) ) {
 					$site = $siteList->getSiteByNavigationId( $lang );
@@ -296,31 +350,6 @@ class LangLinkHandler {
 					wfWarn( "Failed to map interlanguage prefix $lang to a global site ID." );
 				}
 			}
-		}
-
-		wfProfileOut( __METHOD__ );
-		return $links;
-	}
-
-	/**
-	 * Converts a list of SiteLink objects into an associative array that maps
-	 * global site IDs to the respective target pages on the designated wikis.
-	 *
-	 * @param SiteLink[] $repoLinks
-	 *
-	 * @return string[] An associative array, using site IDs for keys
-	 *         and the target pages on the respective wiki as the associated value.
-	 */
-	private function repoLinksToArray( array $repoLinks ) {
-		wfProfileIn( __METHOD__ );
-
-		$links = array();
-
-		foreach ( $repoLinks as $link ) {
-			$wiki = $link->getSiteId();
-			$page = $link->getPageName();
-
-			$links[$wiki] = $page;
 		}
 
 		wfProfileOut( __METHOD__ );
@@ -358,7 +387,6 @@ class LangLinkHandler {
 		$onPageLinks = $this->localLinksToArray( $onPageLinks );
 
 		$repoLinks = $this->getEntityLinks( $title );
-		$repoLinks = $this->repoLinksToArray( $repoLinks );
 
 		$repoLinks = $this->filterRepoLinksByGroup( $repoLinks, $allowedGroups );
 		$repoLinks = $this->suppressRepoLinks( $out, $repoLinks );
@@ -386,8 +414,25 @@ class LangLinkHandler {
 
 		$repoLinks = $this->getEffectiveRepoLinks( $title, $out );
 
-		foreach ( $repoLinks as $siteId => $page ) {
-			$targetSite = $this->sites->getSite( $siteId );
+		$this->addLinksToOutput( $repoLinks, $out );
+
+		$repoLinksByInterwiki = $this->indexLinksByInterwiki( $repoLinks );
+		$this->badgeDisplay->attachBadgesToOutput( $repoLinksByInterwiki, $out );
+
+		wfProfileOut( __METHOD__ );
+	}
+
+	/**
+	 * Adds the given SiteLinks to the given ParserOutput.
+	 *
+	 * @param SiteLink[] $links
+	 * @param ParserOutput $out
+	 */
+	private function addLinksToOutput( array $links, ParserOutput $out ) {
+		foreach ( $links as $siteId => $siteLink ) {
+			$page = $siteLink->getPageName();
+			$targetSite = $this->siteStore->getSite( $siteId );
+
 			if ( !$targetSite ) {
 				wfLogWarning( "Unknown wiki '$siteId' used as sitelink target" );
 				continue;
@@ -402,8 +447,6 @@ class LangLinkHandler {
 				wfWarn( "No interlanguage prefix found for $siteId." );
 			}
 		}
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -433,13 +476,46 @@ class LangLinkHandler {
 	public function updateItemIdProperty( Title $title, ParserOutput $out ) {
 		wfProfileIn( __METHOD__ );
 
-		$entityIdPropertyUpdater = new EntityIdPropertyUpdater(
-			$this->siteLinkLookup,
-			$this->siteId
-		);
+		$itemId = $this->getItemIdForTitle( $title );
 
-		$entityIdPropertyUpdater->updateItemIdProperty( $out, $title );
+		if ( $itemId ) {
+			$out->setProperty( 'wikibase_item', $itemId->getSerialization() );
+		} else {
+			$out->unsetProperty( 'wikibase_item' );
+		}
 
 		wfProfileOut( __METHOD__ );
 	}
+
+	/**
+	 * @param Title $title
+	 * @param ParserOutput $out
+	 */
+	public function updateOtherProjectsLinksData( Title $title, ParserOutput $out ) {
+		$itemId = $this->getItemIdForTitle( $title );
+
+		if ( $itemId ) {
+			$otherProjects = $this->otherProjectsSidebarGenerator->buildProjectLinkSidebar( $title );
+			$out->setExtensionData( 'wikibase-otherprojects-sidebar', $otherProjects );
+		} else {
+			$out->setExtensionData( 'wikibase-otherprojects-sidebar', array() );
+		}
+	}
+
+	/**
+	 * @param Title $title
+	 *
+	 * @return ItemId|null
+	 */
+	private function getItemIdForTitle( Title $title ) {
+		$key = $title->getFullText();
+
+		if ( !isset( $this->itemIds[$key] ) ) {
+			$siteLink = new SiteLink( $this->siteId, $title->getFullText() );
+			$this->itemIds[$key] = $this->siteLinkLookup->getEntityIdForSiteLink( $siteLink );
+		}
+
+		return $this->itemIds[$key];
+	}
+
 }

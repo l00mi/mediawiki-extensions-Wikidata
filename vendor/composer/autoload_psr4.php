@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Wikidata\\' => array($baseDir . '/src'),
     'Wikibase\\Repo\\View\\' => array($baseDir . '/extensions/Wikibase/repo/includes/View'),
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
     'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
@@ -15,6 +16,7 @@ return array(
     'Diff\\' => array($vendorDir . '/diff/diff/src'),
     'Deserializers\\' => array($vendorDir . '/serialization/serialization/src/Deserializers'),
     'DataValues\\Serializers\\' => array($vendorDir . '/data-values/serialization/src/Serializers'),
+    'DataValues\\Geo\\' => array($vendorDir . '/data-values/geo/src'),
     'DataValues\\Deserializers\\' => array($vendorDir . '/data-values/serialization/src/Deserializers'),
     'DataTypes\\' => array($vendorDir . '/data-values/data-types/src'),
 );

@@ -11,11 +11,11 @@
  */
 
 if ( defined( 'DATAVALUES_GEO_VERSION' ) ) {
-	// Do not initialize more then once.
+	// Do not initialize more than once.
 	return 1;
 }
 
-define( 'DATAVALUES_GEO_VERSION', '0.2' );
+define( 'DATAVALUES_GEO_VERSION', '1.0' );
 
 if ( defined( 'MEDIAWIKI' ) ) {
 	$GLOBALS['wgExtensionCredits']['datavalues'][] = array(
@@ -30,3 +30,7 @@ if ( defined( 'MEDIAWIKI' ) ) {
 		'description' => 'Geographical value objects, parsers and formatters',
 	);
 }
+
+// Aliases introduced in 1.0
+class_alias( 'DataValues\Geo\Values\LatLongValue', 'DataValues\LatLongValue' );
+class_alias( 'DataValues\Geo\Values\GlobeCoordinateValue', 'DataValues\GlobeCoordinateValue' );

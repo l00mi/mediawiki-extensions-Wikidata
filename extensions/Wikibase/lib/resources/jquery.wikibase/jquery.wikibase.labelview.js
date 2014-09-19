@@ -57,6 +57,11 @@ $.widget( 'wikibase.labelview', PARENT, {
 	_isInEditMode: false,
 
 	/**
+	 * @type {boolean}
+	 */
+	_isBeingEdited: false,
+
+	/**
 	 * @see jQuery.ui.TemplatedWidget._create
 	 *
 	 * @throws {Error} if required parameters are not specified properly.
@@ -68,19 +73,12 @@ $.widget( 'wikibase.labelview', PARENT, {
 
 		this.options.value = this._checkValue( this.options.value );
 
-		PARENT.prototype._create.call( this );
-
 		var self = this,
 			value = this.options.value;
 
 		this.element.attr( 'id', 'wb-firstHeading-' + this.options.entityId );
 
-		if( value && value.label !== '' && this.$text.text() === '' ) {
-			this._draw();
-		}
-
 		this.element
-		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
 		.on(
 			'labelviewafterstartediting.' + this.widgetName
 			+ ' eachchange.' + this.widgetName,
@@ -95,29 +93,13 @@ $.widget( 'wikibase.labelview', PARENT, {
 			}
 
 			self.element.removeClass( 'wb-empty' );
-
-			$( wb ).trigger( 'startItemPageEditMode', [
-				self.element,
-				{
-					exclusive: false,
-					wbCopyrightWarningGravity: 'sw'
-				}
-			] );
-		} )
-		.on(
-			'labelviewafterstopediting.' + this.widgetName
-			+ ' eachchange.' + this.widgetName,
-		function( event, dropValue ) {
-			if(
-				event.type !== 'eachchange'
-				|| !self.options.value.label && !self.value().label
-			) {
-				$( wb ).trigger( 'stopItemPageEditMode', [
-					self.element,
-					{ save: dropValue !== true }
-				] );
-			}
 		} );
+
+		PARENT.prototype._create.call( this );
+
+		if( value && value.label !== '' && this.$text.text() === '' ) {
+			this._draw();
+		}
 	},
 
 	/**
@@ -147,9 +129,10 @@ $.widget( 'wikibase.labelview', PARENT, {
 			this.$entityId.empty();
 		}
 
+		this.element[this.options.value.label ? 'removeClass' : 'addClass']( 'wb-empty' );
+
 		if( !this._isInEditMode ) {
-			this.element.removeClass( 'wb-edit' );
-			this.$text.text( this.options.value.label );
+			this.$text.text( this.options.value.label || mw.msg( 'wikibase-label-empty' ) );
 			return;
 		}
 
@@ -169,21 +152,31 @@ $.widget( 'wikibase.labelview', PARENT, {
 			$input.val( this.options.value.label );
 		}
 
-		this.element.addClass( 'wb-edit' );
 		this.$text.empty().append( $input );
 	},
 
 	/**
-	 * Starts the widget's edit mode.
+	 * Switches to editable state.
 	 */
-	startEditing: function() {
+	toEditMode: function() {
 		if( this._isInEditMode ) {
 			return;
 		}
 
 		this._isInEditMode = true;
 		this._draw();
+	},
 
+	/**
+	 * Starts the widget's edit mode.
+	 */
+	startEditing: function() {
+		if( this._isBeingEdited ) {
+			return;
+		}
+		this.element.addClass( 'wb-edit' );
+		this.toEditMode();
+		this._isBeingEdited = true;
 		this._trigger( 'afterstartediting' );
 	},
 
@@ -253,9 +246,10 @@ $.widget( 'wikibase.labelview', PARENT, {
 			this.options.value = this.value();
 		} else if( !this.options.value.label ) {
 			this.$text.children( 'input' ).val( '' );
-			this._trigger( 'change' );
 		}
 
+		this.element.removeClass( 'wb-edit' );
+		this._isBeingEdited = false;
 		this._isInEditMode = false;
 		this._draw();
 
@@ -409,7 +403,9 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			} );
 
 			if( !labelview.value().label ) {
-				labelview.startEditing();
+				labelview.toEditMode();
+				$labelview.data( 'edittoolbar' ).toolbar.editGroup.toEditMode();
+				$labelview.data( 'edittoolbar' ).toolbar.editGroup.disable();
 			}
 
 			$labelview
@@ -418,17 +414,21 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				var edittoolbar = $( event.target ).data( 'edittoolbar' );
 				if( labelview.value().label ) {
 					edittoolbar.toolbar.editGroup.toNonEditMode();
+					edittoolbar.enable();
+					edittoolbar.toggleActionMessage( function() {
+						edittoolbar.toolbar.editGroup.getButton( 'edit' ).focus();
+					} );
 				} else {
-					labelview.startEditing();
+					labelview.toEditMode();
+					edittoolbar.toolbar.editGroup.toEditMode();
+					edittoolbar.toggleActionMessage( function() {
+						labelview.focus();
+					} );
+					$labelview.data( 'edittoolbar' ).toolbar.editGroup.disable();
 				}
-
-				edittoolbar.enable();
-				edittoolbar.toggleActionMessage( function() {
-					edittoolbar.toolbar.editGroup.getButton( 'edit' ).focus();
-				} );
 			} );
 		},
-		'labelviewchange labelviewafterstartediting': function( event ) {
+		'labelviewchange labelviewafterstartediting labelviewafterstopediting': function( event ) {
 			var $labelview = $( event.target ),
 				labelview = $labelview.data( 'labelview' ),
 				toolbar = $labelview.data( 'edittoolbar' ).toolbar,
@@ -442,6 +442,33 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			btnSave[enable ? 'enable' : 'disable']();
 			btnCancel[disableCancel ? 'disable' : 'enable']();
+
+			if( event.type === 'labelviewchange' ) {
+				if( !labelview.isInitialValue() ) {
+					labelview.startEditing();
+				} else if( labelview.isInitialValue() && !labelview.value().label ) {
+					labelview.cancelEditing();
+				}
+			}
+		},
+		labelviewdisable: function( event ) {
+			var $labelview = $( event.target ),
+				labelview = $labelview.data( 'labelview' ),
+				toolbar = $labelview.data( 'edittoolbar' ).toolbar,
+				$btnSave = toolbar.editGroup.getButton( 'save' ),
+				btnSave = $btnSave.data( 'toolbarbutton' ),
+				enable = labelview.isValid() && !labelview.isInitialValue(),
+				currentLabel = labelview.value().label;
+
+			btnSave[enable ? 'enable' : 'disable']();
+
+			if( labelview.option( 'disabled' ) || currentLabel ) {
+				return;
+			}
+
+			if( !currentLabel ) {
+				toolbar.disable();
+			}
 		},
 		toolbareditgroupedit: function( event, toolbarcontroller ) {
 			var $labelview = $( event.target ).closest( ':wikibase-edittoolbar' ),

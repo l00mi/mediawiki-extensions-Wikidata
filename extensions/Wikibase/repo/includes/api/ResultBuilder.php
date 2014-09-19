@@ -23,6 +23,7 @@ use Wikibase\Lib\Store\EntityTitleLookup;
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
+ * @author Daniel Kinzler
  */
 class ResultBuilder {
 
@@ -71,10 +72,6 @@ class ResultBuilder {
 		$this->entityTitleLookup = $entityTitleLookup;
 		$this->serializerFactory = $serializerFactory;
 		$this->missingEntityCounter = -1;
-
-		$this->options = new SerializationOptions();
-		$this->options->setIndexTags( $this->getResult()->getIsRawMode() );
-		$this->options->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_NONE );
 	}
 
 	/**
@@ -84,14 +81,13 @@ class ResultBuilder {
 	 * @return SerializationOptions
 	 */
 	public function getOptions() {
-		return $this->options;
-	}
+		if ( !$this->options ) {
+			$this->options = new SerializationOptions();
+			$this->options->setIndexTags( $this->result->getIsRawMode() );
+			$this->options->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_NONE );
+		}
 
-	/**
-	 * @return ApiResult
-	 */
-	private function getResult() {
-		return $this->result;
+		return $this->options;
 	}
 
 	/**
@@ -136,15 +132,16 @@ class ResultBuilder {
 		$this->checkNameIsString( $name );
 		$this->checkTagIsString( $tag );
 
-		if ( $this->options->shouldIndexTags() ) {
+		if ( $this->result->getIsRawMode() ) {
+			// Unset first, so we don't make the tag name an actual value.
+			// We'll be setting this to $tag by calling setIndexedTagName().
+			unset( $values['_element'] );
+
 			$values = array_values( $values );
+			$this->result->setIndexedTagName( $values, $tag );
 		}
 
-		if ( $this->getResult()->getIsRawMode() ) {
-			$this->getResult()->setIndexedTagName( $values, $tag );
-		}
-
-		$this->getResult()->addValue( $path, $name, $values );
+		$this->result->addValue( $path, $name, $values );
 	}
 
 	/**
@@ -169,7 +166,7 @@ class ResultBuilder {
 		$this->checkNameIsString( $name );
 		$this->checkValueIsNotList( $value );
 
-		$this->getResult()->addValue( $path, $name, $value );
+		$this->result->addValue( $path, $name, $value );
 	}
 
 	/**
@@ -188,7 +185,7 @@ class ResultBuilder {
 	 *
 	 * @param $path array|string|null
 	 * @param $key int|string|null the key to use when appending, or null for automatic.
-	 * May be ignored even if given, based on $this->options->shouldIndexTags().
+	 * May be ignored even if given, based on $this->result->getIsRawMode().
 	 * @param $value mixed
 	 * @param string $tag tag name to use for $value in indexed mode
 	 *
@@ -201,14 +198,14 @@ class ResultBuilder {
 
 		$this->checkValueIsNotList( $value );
 
-		if ( $this->options->shouldIndexTags() ) {
+		if ( $this->result->getIsRawMode() ) {
 			$key = null;
 		}
 
-		$this->getResult()->addValue( $path, $key, $value );
+		$this->result->addValue( $path, $key, $value );
 
-		if ( $this->getResult()->getIsRawMode() && !is_string( $key ) ) {
-			$this->getResult()->setIndexedTagName_internal( $path, $tag );
+		if ( $this->result->getIsRawMode() && !is_string( $key ) ) {
+			$this->result->setIndexedTagName_internal( $path, $tag );
 		}
 	}
 
@@ -283,7 +280,14 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 */
-	public function addEntityRevision( $key, EntityRevision $entityRevision, SerializationOptions $options = null, $props = 'all', $siteIds = array() ) {
+	public function addEntityRevision(
+		$key,
+		EntityRevision $entityRevision,
+		SerializationOptions
+		$options = null,
+		$props = 'all',
+		$siteIds = array()
+	) {
 		$entity = $entityRevision->getEntity();
 		$entityId = $entity->getId();
 
@@ -293,12 +297,9 @@ class ResultBuilder {
 
 		$record = array();
 
+		$serializerOptions = $this->getOptions();
 		if ( $options ) {
-			$serializerOptions = new SerializationOptions();
-			$serializerOptions->merge( $this->options );
 			$serializerOptions->merge( $options );
-		} else {
-			$serializerOptions = $this->options;
 		}
 
 		//if there are no props defined only return type and id..
@@ -356,7 +357,7 @@ class ResultBuilder {
 	 * @param array|string $path where the data is located
 	 */
 	public function addLabels( array $labels, $path ) {
-		$labelSerializer = $this->serializerFactory->newLabelSerializer( $this->options );
+		$labelSerializer = $this->serializerFactory->newLabelSerializer( $this->getOptions() );
 
 		$values = $labelSerializer->getSerialized( $labels );
 		$this->setList( $path, 'labels', $values, 'label' );
@@ -371,7 +372,7 @@ class ResultBuilder {
 	 * @param array|string $path where the data is located
 	 */
 	public function addDescriptions( array $descriptions, $path ) {
-		$descriptionSerializer = $this->serializerFactory->newDescriptionSerializer( $this->options );
+		$descriptionSerializer = $this->serializerFactory->newDescriptionSerializer( $this->getOptions() );
 
 		$values = $descriptionSerializer->getSerialized( $descriptions );
 		$this->setList( $path, 'descriptions', $values, 'description' );
@@ -386,7 +387,7 @@ class ResultBuilder {
 	 * @param array|string $path where the data is located
 	 */
 	public function addAliases( array $aliases, $path ) {
-		$aliasSerializer = $this->serializerFactory->newAliasSerializer( $this->options );
+		$aliasSerializer = $this->serializerFactory->newAliasSerializer( $this->getOptions() );
 		$values = $aliasSerializer->getSerialized( $aliases );
 		$this->setList( $path, 'aliases', $values, 'alias' );
 	}
@@ -401,8 +402,7 @@ class ResultBuilder {
 	 * @param array|null $options
 	 */
 	public function addSiteLinks( array $siteLinks, $path, $options = null ) {
-		$serializerOptions = new SerializationOptions();
-		$serializerOptions->merge( $this->options );
+		$serializerOptions = $this->getOptions();
 
 		if ( is_array( $options ) ) {
 			if ( in_array( EntitySerializer::SORT_ASC, $options ) ) {
@@ -437,10 +437,13 @@ class ResultBuilder {
 	 * @param array|string $path where the data is located
 	 */
 	public function addClaims( array $claims, $path ) {
-		$claimsSerializer = $this->serializerFactory->newClaimsSerializer( $this->options );
+		$claimsSerializer = $this->serializerFactory->newClaimsSerializer( $this->getOptions() );
 
 		$values = $claimsSerializer->getSerialized( new Claims( $claims ) );
-		$this->setList( $path, 'claims', $values, 'claim' );
+
+		// HACK: comply with ApiResult::setIndexedTagName
+		$tag = isset( $values['_element'] ) ? $values['_element'] : 'claim';
+		$this->setList( $path, 'claims', $values, $tag );
 	}
 
 	/**
@@ -451,7 +454,7 @@ class ResultBuilder {
 	 * @since 0.5
 	 */
 	public function addClaim( Claim $claim ) {
-		$serializer = $this->serializerFactory->newClaimSerializer( $this->options );
+		$serializer = $this->serializerFactory->newClaimSerializer( $this->getOptions() );
 
 		//TODO: this is currently only used to add a Claim as the top level structure,
 		//      with a null path and a fixed name. Would be nice to also allow claims
@@ -469,7 +472,7 @@ class ResultBuilder {
 	 * @since 0.5
 	 */
 	public function addReference( Reference $reference ) {
-		$serializer = $this->serializerFactory->newReferenceSerializer( $this->options );
+		$serializer = $this->serializerFactory->newReferenceSerializer( $this->getOptions() );
 
 		//TODO: this is currently only used to add a Reference as the top level structure,
 		//      with a null path and a fixed name. Would be nice to also allow references

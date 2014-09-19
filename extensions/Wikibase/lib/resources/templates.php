@@ -200,11 +200,6 @@ HTML;
 </span>
 HTML;
 
-	$templates['wb-property-value-supplement'] =
-<<<HTML
-<span class="wb-value-supplement">$1</span>
-HTML;
-
 	$templates['wikibase-aliasesview'] =
 <<<HTML
 <div class="wikibase-aliasesview $1">
@@ -246,46 +241,53 @@ HTML;
 <a href="#" class="wikibase-toolbarbutton wikibase-toolbarbutton-disabled" tabindex="-1">$1</a>
 HTML;
 
-	$templates['wb-terms-heading'] =
+	$templates['wikibase-fingerprintgroupview'] =
 <<<HTML
-<h2 id="wb-terms" class="wb-terms-heading">$1</h2>
+<div class="wikibase-fingerprintgroupview">
+	<div class="wikibase-fingerprintgroupview-heading-container">
+		<h2 id="wb-terms" class="wb-section-heading wikibase-fingerprintgroupview-heading">$1</h2>
+		<!-- wb-editsection -->$3
+	</div>
+	<!-- wikibase-fingerprintlistview -->$2
+</div>
 HTML;
 
-	$templates['wb-terms-table'] =
+	$templates['wikibase-fingerprintlistview'] =
 <<<HTML
-<table class="wb-terms">
+<table class="wikibase-fingerprintlistview">
 	<colgroup>
-		<col class="wb-terms-language" />
-		<col class="wb-terms-term" />
-		<col class="wb-editsection" />
+		<col class="wikibase-fingerprintlistview-language" />
+		<col class="wikibase-fingerprintlistview-label wikibase-fingerprintlistview-description wikibase-fingerprintlistview-aliases" />
 	</colgroup>
-	<!-- [0,*] wb-term -->$1
+	<!-- [0,*] wikibase-fingerprintview -->$1
 </table>
 HTML;
 
-// make the wb-value-row a wb-property-container to start with the edit button stuff
-// $1: language-code
-	$templates['wb-term'] =
+	$templates['wikibase-fingerprintview'] =
 <<<HTML
-<tbody>
-	<tr class="wb-terms-label wb-terms-$1">
-		<td class="wb-terms-language wb-terms-language-$1" rowspan="2"><a href="$9">$2</a><!-- language name --></td>
-		<td class="wb-terms-label wb-terms-label-$1 wb-value wb-value-lang-$1 $7">$3<!-- label --></td>
-		<td class="wb-editsection">$5<!-- label toolbar --></td>
+<tbody class="wikibase-fingerprintview wikibase-fingerprintview-$1" >
+	<tr>
+		<td class="wikibase-fingerprintview-language" rowspan="3"><a href="$2">$3</a></td>
+		<td class="wikibase-fingerprintview-label">$4</td>
 	</tr>
-	<tr class="wb-terms-description wb-terms-$1">
-		<td class="wb-terms-description wb-terms-description-$1 wb-value wb-value-lang-$1 $8">$4<!-- description --></td>
-		<td class="wb-editsection">$6<!-- description toolbar --></td>
+	<tr>
+		<td class="wikibase-fingerprintview-description">$5</td>
+	</tr>
+	<tr>
+		<td class="wikibase-fingerprintview-aliases">$6</td>
 	</tr>
 </tbody>
+HTML;
+
+	$templates['wikibase-sitelinkgrouplistview'] =
+<<<HTML
+<div class="wikibase-sitelinkgrouplistview"><!-- wb-listview -->$1</div>
 HTML;
 
 	$templates['wikibase-sitelinkgroupview'] =
 <<<HTML
 <div class="wikibase-sitelinkgroupview" data-wb-sitelinks-group="$5">
-	<h2 class="wb-section-heading wikibase-sitelinkgroupview-heading" dir="auto" id="$1">
-		$2<span class="wikibase-sitelinkgroupview-counter">$3</span>
-	</h2>
+	<h2 class="wb-section-heading wikibase-sitelinkgroupview-heading" dir="auto" id="$1">$2<span class="wikibase-sitelinkgroupview-counter">$3</span></h2>
 	<!-- wikibase-sitelinklistview -->$4
 </div>
 HTML;

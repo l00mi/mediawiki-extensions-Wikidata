@@ -3,6 +3,7 @@
 namespace Wikibase\Repo\Interactors;
 
 use Exception;
+use MessageException;
 
 /**
  * Exception representing a failure to execute the "merge items" use case.
@@ -12,7 +13,7 @@ use Exception;
  * @license GPL 2+
  * @author Daniel Kinzler
  */
-class ItemMergeException extends Exception {
+class ItemMergeException extends MessageException {
 
 	/**
 	 * @var string
@@ -25,7 +26,7 @@ class ItemMergeException extends Exception {
 	 * @param Exception $previous The previous exception that caused this exception.
 	 */
 	public function __construct( $message, $errorCode = '', Exception $previous = null ) {
-		parent::__construct( $message, 0, $previous );
+		parent::__construct( 'wikibase-itemmerge-' . $errorCode, array(), $message, $previous );
 		$this->errorCode = $errorCode;
 	}
 

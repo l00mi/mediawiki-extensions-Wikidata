@@ -14,8 +14,17 @@
  * @since 0.4 (since 0.3 as wb.Api without support for client usage)
  */
 wb.RepoApi = function wbRepoApi() {
-	var wbRepo = mw.config.get( 'wbRepo' );
-	this._repoApiEndpoint = wbRepo.url + wbRepo.scriptPath + '/api.php';
+	var localApiEndpoint = mw.config.get( 'wgServer' )
+		+ mw.config.get( 'wgScriptPath' )
+		+ '/api.php';
+
+	this._repoConfig = mw.config.get( 'wbRepo' );
+	this._repoApiEndpoint = this._repoConfig.url + this._repoConfig.scriptPath + '/api.php';
+
+	if( localApiEndpoint === this._repoApiEndpoint ) {
+		// The current wiki *is* the repo so we can just use user.tokens to get the edit token
+		this._repoEditToken = mw.user.tokens.get( 'editToken' );
+	}
 };
 
 $.extend( wb.RepoApi.prototype, {
@@ -23,6 +32,16 @@ $.extend( wb.RepoApi.prototype, {
 	 * @type {string}
 	 */
 	_repoApiEndpoint: null,
+
+	/**
+	 * @type {Object}
+	 */
+	_repoConfig: null,
+
+	/**
+	 * @type {string}
+	 */
+	_repoEditToken: null,
 
 	/**
 	 * mediaWiki.Api object for internal usage. By having this initialized in the prototype, we can
@@ -69,6 +88,33 @@ $.extend( wb.RepoApi.prototype, {
 		}
 
 		return this.post( params );
+	},
+
+	/**
+	 * Formats values.
+	 *
+	 * @param {Object} dataValue
+	 * @param {Object} [options]
+	 * @param {string} [dataType]
+	 * @param {string} [outputFormat]
+	 * @return {jQuery.Promise}
+	 */
+	formatValue: function( dataValue, options, dataType, outputFormat ) {
+		var params = {
+			action: 'wbformatvalue',
+			datavalue:  JSON.stringify( dataValue ),
+			options: JSON.stringify( options || {} )
+		};
+
+		if( dataType ) {
+			params.datatype = dataType;
+		}
+
+		if( outputFormat ) {
+			params.generate = outputFormat;
+		}
+
+		return this.get( params );
 	},
 
 	/**
@@ -126,6 +172,24 @@ $.extend( wb.RepoApi.prototype, {
 			normalize: normalize || undefined
 		};
 
+		return this.get( params );
+	},
+
+	/**
+	 * Parses values.
+	 *
+	 * @param {string} parser
+	 * @param {string[]} values
+	 * @param {Object} options
+	 * @return {jQuery.Promise}
+	 */
+	parseValue: function( parser, values, options ) {
+		var params = {
+			action: 'wbparsevalue',
+			parser: parser,
+			values: values.join( '|' ),
+			options: JSON.stringify( options )
+		};
 		return this.get( params );
 	},
 
@@ -446,18 +510,6 @@ $.extend( wb.RepoApi.prototype, {
 	},
 
 	/**
-	 * Removes a sitelink of an item via the API.
-	 *
-	 * @param {String} id entity id
-	 * @param {Number} baseRevId revision id
-	 * @param {String} site the site of the link
-	 * @return {jQuery.Promise}
-	 */
-	removeSitelink: function( id, baseRevId, site ) {
-		return this.setSitelink( id, baseRevId, site, '' );
-	},
-
-	/**
 	 * Set the required options and parameters for a repo call from a client, if needed
 	 *
 	 * @since 0.4
@@ -519,7 +571,9 @@ $.extend( wb.RepoApi.prototype, {
 	 * @throws {Error} If a parameter is not specified properly
 	 */
 	post: function( params ) {
-		var options = {};
+		var self = this,
+			options = {},
+			deferred = $.Deferred();
 
 		this._extendRepoCallParams( params, options );
 		// Unconditionally set the bot parameter to match the UI behaviour of core
@@ -531,7 +585,48 @@ $.extend( wb.RepoApi.prototype, {
 			}
 		} );
 
-		return this._api.postWithToken( 'edit', params, options );
+		this._getRepoEditToken()
+		.done( function( token ) {
+			params.token = token;
+
+			self._api.post( params, options )
+			.done( deferred.resolve )
+			.fail( deferred.reject );
+		} )
+		.fail( deferred.reject );
+
+		return deferred.promise();
+	},
+
+	/**
+	 * Retrieves an edit token.
+	 *
+	 * @return {jQuery.Promise}
+	 *         Resolved parameters:
+	 *         - {string}
+	 *         Rejected parameters:
+	 *         - {string}
+	 *         - {*}
+	 */
+	_getRepoEditToken: function() {
+		var self = this,
+			deferred = $.Deferred();
+
+		if( this._repoEditToken ) {
+			return deferred.resolve( this._repoEditToken ).promise();
+		}
+
+		this.get( {
+			action: 'query',
+			meta: 'tokens'
+		} )
+		.done( function( data ) {
+			self._repoEditToken = data.query.tokens.csrftoken;
+			deferred.resolve( self._repoEditToken );
+		} )
+		.fail( deferred.reject );
+
+		return deferred.promise();
 	},
 
 	/**

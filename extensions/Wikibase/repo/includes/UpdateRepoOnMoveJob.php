@@ -4,7 +4,7 @@ namespace Wikibase;
 
 use Job;
 use OutOfBoundsException;
-use Site;
+use SiteStore;
 use Title;
 use User;
 use Wikibase\DataModel\Entity\ItemId;
@@ -13,15 +13,11 @@ use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\StorageException;
-use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Job for updating the repo after a page on the client has been moved.
- *
- * This needs to be in lib as the client needs it for injecting it and
- * the repo to execute it.
  *
  * @since 0.4
  *
@@ -29,6 +25,36 @@ use Wikibase\Repo\WikibaseRepo;
  * @author Marius Hoch < hoo@online.de >
  */
 class UpdateRepoOnMoveJob extends Job {
+
+	/**
+	 * @var EntityTitleLookup
+	 */
+	private $entityTitleLookup;
+
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $entityRevisionLookup;
+
+	/**
+	 * @var EntityStore
+	 */
+	private $entityStore;
+
+	/**
+	 * @var SummaryFormatter
+	 */
+	private $summaryFormatter;
+
+	/**
+	 * @var EntityPermissionChecker
+	 */
+	private $entityPermissionChecker;
+
+	/**
+	 * @var SiteStore
+	 */
+	private $siteStore;
 
 	/**
 	 * Constructs a UpdateRepoOnMoveJob propagating a page move to the repo
@@ -46,60 +72,32 @@ class UpdateRepoOnMoveJob extends Job {
 	 */
 	public function __construct( Title $title, $params = false ) {
 		parent::__construct( 'UpdateRepoOnMove', $title, $params );
+
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$this->initServices(
+			$wikibaseRepo->getEntityTitleLookup(),
+			$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
+			$wikibaseRepo->getEntityStore(),
+			$wikibaseRepo->getSummaryFormatter(),
+			$wikibaseRepo->getEntityPermissionChecker(),
+			$wikibaseRepo->getSiteStore()
+		);
 	}
 
-	/**
-	 * @return EntityContentFactory
-	 */
-	protected function getEntityContentFactory() {
-		return WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
-	}
-
-	/**
-	 * @return EntityTitleLookup
-	 */
-	protected function getEntityTitleLookup() {
-		return WikibaseRepo::getDefaultInstance()->getEntityTitleLookup();
-	}
-
-	/**
-	 * @return EntityRevisionLookup
-	 */
-	protected function getEntityRevisionLookup() {
-		return WikibaseRepo::getDefaultInstance()->getEntityRevisionLookup( 'uncached' );
-	}
-
-	/**
-	 * @return EntityStore
-	 */
-	protected function getEntityStore() {
-		return WikibaseRepo::getDefaultInstance()->getEntityStore();
-	}
-
-	/**
-	 * @return SummaryFormatter
-	 */
-	protected function getSummaryFormatter() {
-		return WikibaseRepo::getDefaultInstance()->getSummaryFormatter();
-	}
-
-	/**
-	 * @return EntityPermissionChecker
-	 */
-	protected function getEntityPermissionChecker() {
-		return WikibaseRepo::getDefaultInstance()->getEntityPermissionChecker();
-	}
-
-	/**
-	 * Get a Site object for a global id
-	 *
-	 * @param string $globalId
-	 *
-	 * @return Site
-	 */
-	protected function getSite( $globalId ) {
-		$sitesStore =  WikibaseRepo::getDefaultInstance()->getSiteStore();
-		return $sitesStore->getSite( $globalId );
+	public function initServices(
+		EntityTitleLookup $entityTitleLookup,
+		EntityRevisionLookup $entityRevisionLookup,
+		EntityStore $entityStore,
+		SummaryFormatter $summaryFormatter,
+		EntityPermissionChecker $entityPermissionChecker,
+		SiteStore $siteStore
+	) {
+		$this->entityTitleLookup = $entityTitleLookup;
+		$this->entityRevisionLookup = $entityRevisionLookup;
+		$this->entityStore = $entityStore;
+		$this->summaryFormatter = $summaryFormatter;
+		$this->entityPermissionChecker = $entityPermissionChecker;
+		$this->siteStore = $siteStore;
 	}
 
 	/**
@@ -156,7 +154,7 @@ class UpdateRepoOnMoveJob extends Job {
 		$itemId = new ItemId( $itemId );
 
 		try {
-			$entityRevision = $this->getEntityRevisionLookup()->getEntityRevision( $itemId );
+			$entityRevision = $this->entityRevisionLookup->getEntityRevision( $itemId );
 		} catch ( StorageException $ex ) {
 			$entityRevision = null;
 		}
@@ -170,7 +168,7 @@ class UpdateRepoOnMoveJob extends Job {
 		}
 
 		$item = $entityRevision->getEntity();
-		$site = $this->getSite( $siteId );
+		$site = $this->siteStore->getSite( $siteId );
 
 		$oldSiteLink = $this->getSiteLink( $item, $siteId );
 		if ( !$oldSiteLink || $oldSiteLink->getPageName() !== $oldPage ) {
@@ -212,23 +210,23 @@ class UpdateRepoOnMoveJob extends Job {
 		$item->addSiteLink( $siteLink );
 
 		$editEntity = new EditEntity(
-			$this->getEntityTitleLookup(),
-			$this->getEntityRevisionLookup(),
-			$this->getEntityStore(),
-			$this->getEntityPermissionChecker(),
+			$this->entityTitleLookup,
+			$this->entityRevisionLookup,
+			$this->entityStore,
+			$this->entityPermissionChecker,
 			$item,
 			$user,
 			true
 		);
 
-		$summaryString = $this->getSummaryFormatter()->formatSummary( $summary );
+		$summaryString = $this->summaryFormatter->formatSummary( $summary );
 
 		$status = $editEntity->attemptSave(
 			$summaryString,
 			EDIT_UPDATE,
 			false,
 			// Don't (un)watch any pages here, as the user didn't explicitly kick this off
-			$this->getEntityStore()->isWatching( $user, $item->getid() )
+			$this->entityStore->isWatching( $user, $item->getid() )
 		);
 
 		if ( !$status->isOK() ) {

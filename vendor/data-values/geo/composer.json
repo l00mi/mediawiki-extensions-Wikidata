@@ -4,11 +4,12 @@
 	"description": "Geographical value objects, parsers and formatters",
 	"keywords": [
 		"datavalues",
-		"valueparsers",
-		"valueformatters",
+		"parsers",
+		"formatters",
 		"wikidata",
 		"geo",
-		"geographical"
+		"geographical",
+		"latlong"
 	],
 	"homepage": "https://github.com/DataValues/Geo",
 	"license": "GPL-2.0+",
@@ -25,7 +26,6 @@
 		}
 	],
 	"support": {
-		"issues": "https://bugzilla.wikimedia.org/",
 		"irc": "irc://irc.freenode.net/wikidata"
 	},
 	"require": {
@@ -38,10 +38,13 @@
 		"files" : [
 			"Geo.php"
 		],
-		"psr-0": {
-			"DataValues\\": "src",
-			"ValueFormatters\\": "src",
-			"ValueParsers\\": "src"
+		"psr-4": {
+			"DataValues\\Geo\\": "src"
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
 		}
 	}
 }
