@@ -62,7 +62,7 @@ class RepoLinker {
 	 *
 	 * @return string
 	 */
-	public function getEntityNamespace( EntityId $entityId ) {
+	public function getEntityNamespace( $entityId ) {
 		$entityType = $entityId->getEntityType();
 		return $this->getNamespace( $entityType );
 	}
@@ -125,7 +125,7 @@ class RepoLinker {
 	 *
 	 * @return string (html)
 	 */
-	public function buildEntityLink( EntityId $entityId, array $classes = array() ) {
+	public function buildEntityLink( $entityId, array $classes = array() ) {
 		$title = $entityId->getSerialization();
 		$class = 'wb-entity-link';
 
@@ -149,7 +149,7 @@ class RepoLinker {
 	 *
 	 * @return string
 	 */
-	public function getEntityTitle( EntityId $entityId ) {
+	public function getEntityTitle( $entityId ) {
 		$entityNamespace = $this->getEntityNamespace( $entityId );
 		$title = $entityId->getSerialization();
 

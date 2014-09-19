@@ -124,7 +124,7 @@ class RepoItemLinkGenerator {
 	 *
 	 * @return string[]
 	 */
-	private function getEditLinksLink( EntityId $entityId ) {
+	private function getEditLinksLink( $entityId ) {
 		$fragment = '#sitelinks-' . htmlspecialchars( $this->langLinkSiteGroup, ENT_QUOTES );
 
 		$link = array(
