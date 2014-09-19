@@ -167,7 +167,7 @@ class RepoLinker {
 	 *
 	 * @return string
 	 */
-	public function getEntityUrl( EntityId $entityId ) {
+	public function getEntityUrl( $entityId ) {
 		$title = $this->getEntityTitle( $entityId );
 		return $this->getPageUrl( $title );
 	}
