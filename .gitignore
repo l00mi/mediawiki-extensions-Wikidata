@@ -1,3 +1,2 @@
 composer.lock
-extensions/
-vendor/
+node_modules/

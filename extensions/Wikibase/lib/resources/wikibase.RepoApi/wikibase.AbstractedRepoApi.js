@@ -17,46 +17,6 @@ var PARENT = wb.RepoApi;
  */
 wb.AbstractedRepoApi = util.inherit( 'wbAbstractedRepoApi', PARENT, {
 	/**
-	 * Removes an existing claim.
-	 *
-	 * @param {String} claimGuid The GUID of the Claim to be removed (wb.datamodel.Claim.getGuid)
-	 * @param {Number} baseRevId
-	 * @return {jQuery.Promise} When resolved, the first parameter in callbacks is the related
-	 *         page info which holds the revision ID of the related entity.
-	 */
-	removeClaim: function( claimGuid, baseRevId ) {
-		var deferred = $.Deferred();
-
-		PARENT.prototype.removeClaim.apply( this, arguments )
-		.done( function( result ) {
-			deferred.resolve( result.pageinfo );
-		} ).fail( function() {
-			deferred.reject.apply( deferred, arguments );
-		} );
-
-		return deferred.promise();
-	},
-
-	/**
-	 * Will remove one or more existing References of a Statement.
-	 *
-	 * @since 0.4
-	 *
-	 * @param {string} statementGuid
-	 * @param {string|string[]} referenceHashes One or more hashes of the References to be removed.
-	 * @param {number} baseRevId
-	 * @return {jQuery.Promise} Done callbacks will receive new base revision ID as first parameter.
-	 */
-	removeReferences: function( statementGuid, referenceHashes, baseRevId ) {
-		return this._abstract(
-			PARENT.prototype.removeReferences.apply( this, arguments ),
-			function( result ) {
-				return [ result.pageinfo ];
-			}
-		);
-	},
-
-	/**
 	 * Adds a new or updates an existing Reference of a Statement.
 	 *
 	 * @since 0.4

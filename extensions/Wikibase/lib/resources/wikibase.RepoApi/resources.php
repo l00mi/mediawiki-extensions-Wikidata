@@ -23,6 +23,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'util.inherit',
 				'wikibase.datamodel',
+				'wikibase.RepoApi',
 				'wikibase.serialization.entities',
 			),
 		),
@@ -33,10 +34,9 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'json',
-				'user.tokens',
-				'mediawiki.api',
 				'mw.config.values.wbRepo',
 				'wikibase',
+				'wikibase.api.getLocationAgnosticMwApi',
 			),
 		),
 

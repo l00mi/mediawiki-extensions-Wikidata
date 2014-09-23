@@ -53,7 +53,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetPropertyDataTypeLookupReturnType() {
 		$returnValue = $this->getDefaultInstance()->getPropertyDataTypeLookup();
-		$this->assertInstanceOf( 'Wikibase\Lib\PropertyDataTypeLookup', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup', $returnValue );
 	}
 
 	public function testGetStringNormalizerReturnType() {
@@ -162,13 +162,13 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testNewItemHandler() {
 		$repo = $this->getDefaultInstance();
 		$handler = $repo->newItemHandler();
-		$this->assertInstanceOf( 'Wikibase\EntityHandler', $handler );
+		$this->assertInstanceOf( 'Wikibase\Repo\Content\EntityHandler', $handler );
 	}
 
 	public function testNewPropertyHandler() {
 		$repo = $this->getDefaultInstance();
 		$handler = $repo->newPropertyHandler();
-		$this->assertInstanceOf( 'Wikibase\EntityHandler', $handler );
+		$this->assertInstanceOf( 'Wikibase\Repo\Content\EntityHandler', $handler );
 	}
 
 	public function testNewItemHandler_noTransform() {
