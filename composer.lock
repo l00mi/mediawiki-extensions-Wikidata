@@ -754,7 +754,7 @@
                 },
                 "files": [
 
-    ],
+                ],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -1191,12 +1191,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "a7e539713d70865b28cc526a021e68263195e628"
+                "reference": "47597574720e4381dbf976ee01894e6b2ce44b8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a7e539713d70865b28cc526a021e68263195e628",
-                "reference": "a7e539713d70865b28cc526a021e68263195e628",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/47597574720e4381dbf976ee01894e6b2ce44b8d",
+                "reference": "47597574720e4381dbf976ee01894e6b2ce44b8d",
                 "shasum": ""
             },
             "require": {
@@ -1265,7 +1265,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-09-23 14:28:52"
+            "time": "2014-09-24 09:01:52"
         },
         {
             "name": "wikibase/wikimedia-badges",

@@ -34,6 +34,9 @@ use Wikibase\Client\Hooks\InfoActionHookHandler;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\SpecialWatchlistQueryHandler;
 use Wikibase\Client\MovePageNotice;
+use Wikibase\Client\RecentChanges\ChangeLineFormatter;
+use Wikibase\Client\RecentChanges\ExternalChangeFactory;
+use Wikibase\Client\RecentChanges\RecentChangesFilterOptions;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -455,51 +458,6 @@ final class ClientHooks {
 		}
 
 		wfProfileOut( __METHOD__ );
-		return true;
-	}
-
-	/**
-	 * Adds the "other projects" section to the sidebar, if enabled project wide or
-	 * the user has the beta featured enabled.
-	 *
-	 * @since 0.5
-	 *
-	 * @param Skin $skin
-	 * @param array $sidebar
-	 *
-	 * @return bool
-	 */
-	public static function onSidebarBeforeOutput( Skin $skin, array &$sidebar ) {
-		$outputPage = $skin->getContext()->getOutput();
-		$title = $outputPage->getTitle();
-
-		if ( !self::isWikibaseEnabled( $title->getNamespace() ) ) {
-			return true;
-		}
-
-		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$settings = $wikibaseClient->getSettings();
-
-		$betaFeatureEnabled = class_exists( '\BetaFeatures' ) &&
-				$settings->getSetting( 'otherProjectsLinksBeta' ) &&
-				BetaFeatures::isFeatureEnabled( $skin->getUser(), 'wikibase-otherprojects' );
-
-		if ( $settings->getSetting( 'otherProjectsLinksByDefault' ) || $betaFeatureEnabled ) {
-			$otherProjectsSidebar = $outputPage->getProperty( 'wikibase-otherprojects-sidebar' );
-
-			// in case of stuff in cache without the other projects
-			if ( $otherProjectsSidebar === null ) {
-				// @todo remove this fallback before this graduates from
-				// a beta feature, if not sooner.
-				$otherProjectsSidebarGenerator = $wikibaseClient->getOtherProjectsSidebarGenerator();
-				$otherProjectsSidebar = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $title );
-			}
-
-			if ( !empty( $otherProjectsSidebar ) ) {
-				$sidebar['wikibase-otherprojects'] = $otherProjectsSidebar;
-			}
-		}
-
 		return true;
 	}
 
