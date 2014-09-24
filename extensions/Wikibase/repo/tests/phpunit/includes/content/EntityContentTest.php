@@ -6,6 +6,7 @@ use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpChange;
 use IContextSource;
 use ParserOptions;
+use PHPUnit_Framework_Assert;
 use RequestContext;
 use Title;
 use Wikibase\DataModel\Entity\Entity;
@@ -133,6 +134,39 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 		);
 	}
 
+	public function testWikibaseTextForSearchIndex() {
+		global $wgHooks;
+
+		$entityContent = $this->newEmpty();
+		$entityContent->getEntity()->setLabel( 'en', "cake" );
+
+		$this->stashMwGlobals( 'wgHooks' );
+		$wgHooks['WikibaseTextForSearchIndex'][] =
+			function ( $actualEntityContent, &$text ) use ( $entityContent ) {
+				PHPUnit_Framework_Assert::assertSame( $entityContent, $actualEntityContent );
+				PHPUnit_Framework_Assert::assertRegExp( '/cake/m', $text );
+
+				$text .= "\nHOOK";
+				return true;
+			};
+
+		$text = $entityContent->getTextForSearchIndex();
+		$this->assertRegExp( '/cake.*HOOK/s', $text, 'Text for search index should be updated by the hook' );
+	}
+
+	public function testWikibaseTextForSearchIndex_abort() {
+		global $wgHooks;
+
+		$entityContent = $this->newEmpty();
+		$entityContent->getEntity()->setLabel( 'en', "cake" );
+
+		$this->stashMwGlobals( 'wgHooks' );
+		$wgHooks['WikibaseTextForSearchIndex'][] = function () { return false; };
+
+		$text = $entityContent->getTextForSearchIndex();
+		$this->assertEquals( '', $text, 'Text for search index should be empty if the hook returned false' );
+	}
+
 	public function testGetParserOutput() {
 		$content = $this->newEmpty();
 
@@ -254,53 +288,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 		}
 
 		$this->assertArrayEquals( array_keys( $pageProps ), array_keys( $actual ) );
-	}
-
-	public function dataGetEntityView() {
-		$context = new RequestContext();
-		$context->setLanguage( 'de' );
-
-		$options = new ParserOptions();
-		$options->setUserLang( 'nl' );
-
-		$fallbackChain = new LanguageFallbackChain( array(
-			LanguageWithConversion::factory( $context->getLanguage() )
-		) );
-
-		return array(
-			array( $context, null, null ),
-			array( null, $options, null ),
-			array( $context, $options, null ),
-
-			array( $context, null, $fallbackChain ),
-			array( null, $options, $fallbackChain ),
-			array( $context, $options, $fallbackChain ),
-		);
-	}
-
-	/**
-	 * @dataProvider dataGetEntityView
-	 *
-	 * @param IContextSource $context
-	 * @param ParserOptions $parserOptions
-	 * @param LanguageFallbackChain $fallbackChain
-	 */
-	public function testGetEntityView(
-		IContextSource $context = null,
-		ParserOptions $parserOptions = null,
-		LanguageFallbackChain $fallbackChain = null
-	) {
-		$content = $this->newEmpty();
-		$view = $content->getEntityView( $context, $parserOptions, $fallbackChain );
-
-		$this->assertInstanceOf( 'Wikibase\EntityView', $view );
-
-		if ( $parserOptions ) {
-			// NOTE: the view must be using the language from the parser options.
-			$this->assertEquals( $view->getLanguage()->getCode(), $parserOptions->getUserLang() );
-		} elseif ( $content ) {
-			$this->assertEquals( $view->getLanguage()->getCode(), $context->getLanguage()->getCode() );
-		}
 	}
 
 	public function diffProvider() {

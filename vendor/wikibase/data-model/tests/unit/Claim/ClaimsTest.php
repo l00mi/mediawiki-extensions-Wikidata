@@ -7,11 +7,12 @@ use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
+use InvalidArgumentException;
 use ReflectionClass;
 use Wikibase\DataModel\ByPropertyIdArray;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Claim\Statement;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
@@ -315,6 +316,14 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 		$this->assertCount( 2, $claims );
 	}
 
+	/**
+	 * @expectedException InvalidArgumentException
+	 */
+	public function testAppendWithNonClaimFails() {
+		$claims = new Claims();
+		$claims->append( 'bad' );
+	}
+
 	public function testOffsetSet() {
 		$claims = new Claims();
 		$claim1 = $this->makeClaim( new PropertyNoValueSnak( new PropertyId( "P15" ) ) );
@@ -430,14 +439,14 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 
 		$hashes = $claims->getHashes();
 		$this->assertInternalType( 'array', $hashes );
+		$this->assertContainsOnly( 'string', $hashes );
 		$this->assertSameSize( $claims, $hashes );
-
-		foreach ( $hashes as $hash ) {
-			$this->assertInternalType( 'string', $hash );
-		}
 
 		$hashSet = array_flip( $hashes );
 
+		/**
+		 * @var Claim $claim
+		 */
 		foreach ( $claims as $claim ) {
 			$hash = $claim->getHash();
 			$this->assertArrayHasKey( $hash, $hashSet );
@@ -492,120 +501,6 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertNotNull( $list->getClaimWithGuid( $firstClaim->getGuid() ) );
 		$this->assertNull( $list->getClaimWithGuid( $secondClaim->getGuid() ) );
-	}
-
-	public function getDiffProvider() {
-		$argLists = array();
-
-		$claim0 = $this->makeClaim( new PropertyNoValueSnak( 42 ) );
-		$claim1 = $this->makeClaim( new PropertySomeValueSnak( 42 ) );
-		$claim2 = $this->makeClaim( new PropertyValueSnak( 42, new StringValue( 'ohi' ) ) );
-		$claim3 = $this->makeClaim( new PropertyNoValueSnak( 1 ) );
-		$claim4 = $this->makeClaim( new PropertyNoValueSnak( 2 ) );
-
-		$statement0 = $this->makeStatement( new PropertyNoValueSnak( 5 ) );
-		$statement0->setRank( Statement::RANK_PREFERRED );
-
-		$statement1 = $this->makeStatement( new PropertyNoValueSnak( 5 ) );
-		$statement1->setReferences( new ReferenceList( array( new Reference(
-			new SnakList( array( new PropertyValueSnak( 10, new StringValue( 'spam' ) ) ) )
-		) ) ) );
-
-		// same GUID, changed main snak
-		$claim2v2 = unserialize( serialize( $claim2 ) );
-		$claim2v2->setMainSnak( new PropertyValueSnak( 42, new StringValue( 'omnomnom' ) ) );
-
-		// different GUID, same contents, same hash
-		$claim0a = unserialize( serialize( $claim0 ) );
-		$claim0a->setGuid( 'TEST$claim0x' );
-		$claim0a->setMainSnak( new PropertyValueSnak( 99, new StringValue( 'frob' ) ) );
-
-		// same GUID as $claim0a, same content/hash as $claim0
-		$claim0b = unserialize( serialize( $claim0 ) );
-		$claim0b->setGuid( 'TEST$claim0x' );
-
-		$source = new Claims();
-		$target = new Claims();
-		$expected = new Diff( array(), true );
-		$argLists[] = array( $source, $target, $expected, 'Two empty lists should result in an empty diff' );
-
-
-		$source = new Claims();
-		$target = new Claims( array( $claim0 ) );
-		$expected = new Diff( array( $claim0->getGuid() => new DiffOpAdd( $claim0 ) ), true );
-		$argLists[] = array( $source, $target, $expected, 'List with no entries to list with one should result in one add op' );
-
-
-		$source = new Claims( array( $claim0 ) );
-		$target = new Claims();
-		$expected = new Diff( array( $claim0->getGuid() => new DiffOpRemove( $claim0 ) ), true );
-		$argLists[] = array( $source, $target, $expected, 'List with one entry to an empty list should result in one remove op' );
-
-
-		$source = new Claims( array( $claim0, $claim3, $claim2 ) );
-		$target = new Claims( array( $claim0, $claim2, $claim3 ) );
-		$expected = new Diff( array(), true );
-		$argLists[] = array( $source, $target, $expected, 'Two identical lists should result in an empty diff' );
-
-
-		$source = new Claims( array( $claim0 ) );
-		$target = new Claims( array( $claim1 ) );
-		$expected = new Diff( array(
-			$claim1->getGuid() => new DiffOpAdd( $claim1 ),
-			$claim0->getGuid() => new DiffOpRemove( $claim0 )
-		), true );
-		$argLists[] = array( $source, $target, $expected, 'Two lists with each a single different entry should result into one add and one remove op' );
-
-
-		$source = new Claims( array( $claim2, $claim3, $claim0, $claim4 ) );
-		$target = new Claims( array( $claim2, $claim1, $claim3, $claim4 ) );
-		$expected = new Diff( array(
-			$claim1->getGuid() => new DiffOpAdd( $claim1 ),
-			$claim0->getGuid() => new DiffOpRemove( $claim0 )
-		), true );
-		$argLists[] = array( $source, $target, $expected, 'Two lists with identical items except for one change should result in one add and one remove op' );
-
-
-		$source = new Claims( array( $claim0, $claim0, $claim3, $claim2, $claim2, $claim2, $statement0 ) );
-		$target = new Claims( array( $claim0, $claim0, $claim2, $claim3, $claim2, $claim2, $statement0 ) );
-		$expected = new Diff( array(), true );
-		$argLists[] = array( $source, $target, $expected, 'Two identical lists with duplicate items should result in an empty diff' );
-
-
-		$source = new Claims( array( $statement0, $statement1, $claim0 ) );
-		$target = new Claims( array( $claim1, $claim1, $claim0, $statement1 ) );
-		$expected = new Diff( array(
-			$claim1->getGuid() => new DiffOpAdd( $claim1 ),
-			$statement0->getGuid() => new DiffOpRemove( $statement0 ),
-		), true );
-		$argLists[] = array( $source, $target, $expected, 'Two lists with duplicate items and a different entry should result into one add and one remove op' );
-
-		$source = new Claims( array( $claim0, $claim3, $claim2 ) );
-		$target = new Claims( array( $claim0, $claim2v2, $claim3 ) );
-		$expected = new Diff( array( $claim2->getGuid() => new DiffOpChange( $claim2, $claim2v2 ) ), true );
-		$argLists[] = array( $source, $target, $expected, 'Changing the value of a claim should result in a change op' );
-
-		$source = new Claims( array( $claim0, $claim0a ) );
-		$target = new Claims( array( $claim0, $claim0b ) );
-		$expected = new Diff( array( $claim0a->getGuid() => new DiffOpChange( $claim0a, $claim0b ) ), true );
-		$argLists[] = array( $source, $target, $expected, 'It should be possible for a claim to become the same as another claim' );
-
-		return $argLists;
-	}
-
-	/**
-	 * @dataProvider getDiffProvider
-	 *
-	 * @param Claims $source
-	 * @param Claims $target
-	 * @param Diff $expected
-	 * @param string $message
-	 */
-	public function testGetDiff( Claims $source, Claims $target, Diff $expected, $message ) {
-		$actual = $source->getDiff( $target );
-
-		// Note: this makes order of inner arrays relevant, and this order is not guaranteed by the interface
-		$this->assertEquals( $expected->getOperations(), $actual->getOperations(), $message );
 	}
 
 	public function testGetHash() {
@@ -797,6 +692,18 @@ class ClaimsTest extends \PHPUnit_Framework_TestCase {
 
 		$claims = new Claims( array( $s3, $s1, $s2 ) );
 		$expected = new Claims( array( $s2, $s3 ) );
+		$this->assertEquals( $claims->getBestClaims(), $expected );
+	}
+
+	public function testGetBestClaimsReturnsTruthRanks() {
+		$s1 = new Claim( new PropertyNoValueSnak( new PropertyId( "P1" ) ) );
+		$s1->setGuid( 'kittens' );
+
+		$s2 = $this->makeStatement( new PropertyNoValueSnak( new PropertyId( "P2" ) ) );
+		$s2->setRank( Claim::RANK_NORMAL );
+
+		$claims = new Claims( array( $s1, $s2 ) );
+		$expected = new Claims( array( $s1 ) );
 		$this->assertEquals( $claims->getBestClaims(), $expected );
 	}
 

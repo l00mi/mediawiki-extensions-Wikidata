@@ -4,7 +4,6 @@ namespace Wikibase\DataModel;
 
 use Hashable;
 use InvalidArgumentException;
-use Wikibase\DataModel\Snak\SnakList;
 
 /**
  * Implementation of the References interface.
@@ -50,7 +49,7 @@ class ReferenceList extends HashableObjectStorage implements References {
 	 * @param Reference $reference
 	 * @param int $index
 	 */
-	protected function insertReferenceAtIndex( Reference $reference, $index ) {
+	private function insertReferenceAtIndex( Reference $reference, $index ) {
 		$referencesToShift = array();
 		$i = 0;
 
@@ -168,46 +167,6 @@ class ReferenceList extends HashableObjectStorage implements References {
 		}
 
 		return null;
-	}
-
-	/**
-	 * @see References::toArray
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
-	 */
-	public function toArray() {
-		$references = array();
-
-		/**
-		 * @var Reference $reference
-		 */
-		foreach ( $this as $reference ) {
-			$references[] = $reference->getSnaks()->toArray();
-		}
-
-		return $references;
-	}
-
-	/**
-	 * Factory for constructing a ReferenceList from its array representation.
-	 *
-	 * @since 0.3
-	 * @deprecated since 0.7.3
-	 *
-	 * @param array $data
-	 *
-	 * @return References
-	 */
-	public static function newFromArray( array $data ) {
-		$references = array();
-
-		foreach ( $data as $snaks ) {
-			$references[] = new Reference( SnakList::newFromArray( $snaks ) );
-		}
-
-		return new static( $references );
 	}
 
 }

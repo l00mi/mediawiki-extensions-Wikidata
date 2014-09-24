@@ -5,7 +5,7 @@ namespace Wikibase\Repo\View;
 use InvalidArgumentException;
 use ValueFormatters\FormattingException;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\Lib\PropertyNotFoundException;
+use Wikibase\DataModel\Entity\PropertyNotFoundException;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityTitleLookup;
 
@@ -38,11 +38,19 @@ class SnakHtmlGenerator {
 	/**
 	 * @param SnakFormatter $snakFormatter
 	 * @param EntityTitleLookup $entityTitleLookup
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(
 		SnakFormatter $snakFormatter,
 		EntityTitleLookup $entityTitleLookup
 	) {
+		if ( $snakFormatter->getFormat() !== SnakFormatter::FORMAT_HTML
+				&& $snakFormatter->getFormat() !== SnakFormatter::FORMAT_HTML_WIDGET ) {
+			throw new InvalidArgumentException( '$snakFormatter is expected to return text/html, not '
+					. $snakFormatter->getFormat() );
+		}
+
 		$this->snakFormatter = $snakFormatter;
 		$this->entityTitleLookup = $entityTitleLookup;
 	}

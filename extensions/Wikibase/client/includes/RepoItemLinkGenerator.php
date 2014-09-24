@@ -3,6 +3,7 @@
 namespace Wikibase;
 
 use Title;
+use Wikibase\Client\RepoLinker;
 use Wikibase\DataModel\Entity\EntityIdParser;
 
 /**
@@ -124,7 +125,7 @@ class RepoItemLinkGenerator {
 	 *
 	 * @return string[]
 	 */
-	private function getEditLinksLink( $entityId ) {
+	private function getEditLinksLink( EntityId $entityId ) {
 		$fragment = '#sitelinks-' . htmlspecialchars( $this->langLinkSiteGroup, ENT_QUOTES );
 
 		$link = array(

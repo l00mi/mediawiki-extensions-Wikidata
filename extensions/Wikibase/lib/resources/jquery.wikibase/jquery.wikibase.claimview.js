@@ -21,7 +21,7 @@
  *
  * @option {wikibase.ValueViewBuilder} valueViewBuilder
  *
- * @option {wikibase.AbstractedRepoApi} abstractedRepoApi
+ * @option {wikibase.AbstractedRepoApi} api
  *
  * @option {number|null} index The claim's index within the list of claims (if the claim is
  *         contained within such a list).
@@ -89,7 +89,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 		value: null,
 		entityStore: null,
 		valueViewBuilder: null,
-		abstractedRepoApi: null,
+		api: null,
 		predefined: {
 			mainSnak: false
 		},
@@ -145,11 +145,12 @@ $.widget( 'wikibase.claimview', PARENT, {
 
 	/**
 	 * @see jQuery.Widget._create
-	 * @throws {Error} if entityStore option is not set.
+	 *
+	 * @throws {Error} if any required option is not specified.
 	 */
 	_create: function() {
-		if ( !this.option( 'abstractedRepoApi' ) ) {
-			throw new Error( 'wikibase.claimview requires a wikibase.AbstractedRepoApi' );
+		if( !this.options.entityStore || !this.options.valueViewBuilder || !this.options.api ) {
+			throw new Error( 'Required option(s) missing' );
 		}
 
 		var self = this;
@@ -668,7 +669,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 			guid = guidGenerator.newGuid( mw.config.get( 'wbEntityId' ) );
 		}
 
-		return this.option( 'abstractedRepoApi' ).setClaim(
+		return this.option( 'api' ).setClaim(
 			this._instantiateClaim( guid ),
 			revStore.getClaimRevision( guid ),
 			this.option( 'index' )
@@ -695,36 +696,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 		} else {
 			this.element.removeClass( 'wb-error' );
 			this._trigger( 'toggleerror' );
-		}
-	},
-
-	/**
-	 * Disables the Claim view.
-	 * @since 0.4
-	 */
-	disable: function() {
-		this.$mainSnak.data( 'snakview' ).disable();
-		if ( this._qualifiers ) {
-			var snaklistviews = this._qualifiers.value();
-
-			for( var i = 0; i < snaklistviews.length; i++ ) {
-				snaklistviews[i].disable();
-			}
-		}
-	},
-
-	/**
-	 * Enables the Claim view.
-	 * @since 0.4
-	 */
-	enable: function() {
-		this.$mainSnak.data( 'snakview' ).enable();
-		if ( this._qualifiers ) {
-			var snaklistviews = this._qualifiers.value();
-
-			for( var i = 0; i < snaklistviews.length; i++ ) {
-				snaklistviews[i].enable();
-			}
 		}
 	},
 
@@ -769,14 +740,23 @@ $.widget( 'wikibase.claimview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.widget._setOption
-	 * We are using this to disallow changing the value option afterwards
+	 * @see jQuery.Widget._setOption
 	 */
 	_setOption: function( key, value ) {
 		if( key === 'value' ) {
 			throw new Error( 'Can not set value after initialization' );
 		}
-		$.Widget.prototype._setOption.apply( this, arguments );
+
+		var response = PARENT.prototype._setOption.apply( this, arguments );
+
+		if( key === 'disabled' ) {
+			this.$mainSnak.data( 'snakview' ).option( key, value );
+			if( this._qualifiers ) {
+				this._qualifiers.option( key, value );
+			}
+		}
+
+		return response;
 	}
 } );
 
@@ -846,14 +826,24 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 					event.data.toolbar.type,
 					event.data.toolbar.id,
 					// FIXME: When there are qualifiers, no state change events will be thrown.
-					'snaklistviewdisable snaklistviewenable',
+					'listviewdisable',
 					function( event ) {
 						var $qualifiers = $( event.target ).closest( '.wb-claim-qualifiers' ),
-							addToolbar = $qualifiers.data( 'addtoolbar' );
+							addToolbar = $qualifiers.data( 'addtoolbar' ),
+							$parentView = $qualifiers.closest( ':wikibase-statementview' ),
+							parentView = null;
+
+						if( $parentView.length ) {
+							parentView = $parentView.data( 'statementview' );
+						} else {
+							$parentView = $qualifiers.closest( ':wikibase-claimview' );
+							parentView = $parentView.data( 'claimview' );
+						}
+
 						// Toolbar might be removed from the DOM already after having stopped edit mode.
 						if( addToolbar ) {
 							var toolbar = addToolbar.toolbar;
-							toolbar[ ( event.type === 'snaklistviewdisable' ) ? 'disable' : 'enable' ]();
+							toolbar[parentView.option( 'disabled' ) ? 'disable' : 'enable']();
 						}
 					}
 				);
@@ -931,19 +921,35 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 			toolbarController.registerEventHandler(
 				event.data.toolbar.type,
 				event.data.toolbar.id,
-				'snaklistviewdisable snaklistviewenable',
+				'snaklistviewdisable',
 				function( event ) {
 					var $snaklistviewNode = $( event.target ),
 						listview = $snaklistviewNode.data( 'snaklistview' )._listview,
 						lia = listview.listItemAdapter(),
-						action = ( event.type.indexOf( 'disable' ) !== -1 ) ? 'disable' : 'enable';
+						$parentView = $snaklistviewNode.closest( ':wikibase-statementview' ),
+						parentView = null;
 
-					$.each( listview.items(), function( i, item ) {
-						var $item = $( item );
+					if( $parentView.length ) {
+						parentView = $parentView.data( 'statementview' );
+					} else {
+						$parentView = $snaklistviewNode.closest( ':wikibase-claimview' );
+						parentView = $parentView.data( 'claimview' );
+					}
+
+					$.each( listview.items(), function( i, node ) {
+						var $snakview = $( node ),
+							snakview = lia.liInstance( $snakview ),
+							removeToolbar = $snakview.data( 'removetoolbar' );
+
 						// Item might be about to be removed not being a list item instance.
-						if( lia.liInstance( $item ) && $item.data( 'removetoolbar' ) ) {
-							$item.data( 'removetoolbar' ).toolbar[action]();
+						if( !snakview || !removeToolbar ) {
+							return true;
 						}
+
+						$snakview.data( 'removetoolbar' ).toolbar[parentView.option( 'disabled' )
+							? 'disable'
+							: 'enable'
+						]();
 					} );
 				}
 			);

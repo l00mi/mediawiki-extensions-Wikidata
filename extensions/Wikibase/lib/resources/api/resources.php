@@ -29,9 +29,18 @@ return call_user_func( function() {
 				'FormatValueCaller.js',
 			),
 			'dependencies' => array(
-				'json',
 				'wikibase.api.__namespace',
 			)
+		),
+
+		'wikibase.api.getLocationAgnosticMwApi' => $moduleTemplate + array(
+			'scripts' => array(
+				'getLocationAgnosticMwApi.js',
+			),
+			'dependencies' => array(
+				'mediawiki.api',
+				'wikibase.api.__namespace',
+			),
 		),
 
 		'wikibase.api.ParseValueCaller' => $moduleTemplate + array(
@@ -40,7 +49,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'dataValues',
-				'json',
 				'wikibase.api.__namespace',
 			)
 		),

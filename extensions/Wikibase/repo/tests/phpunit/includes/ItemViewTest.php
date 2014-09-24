@@ -2,7 +2,7 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
@@ -27,12 +27,12 @@ class ItemViewTest extends EntityViewTest {
 
 	/**
 	 * @param EntityId $id
-	 * @param Claim[] $claims
+	 * @param Statement[] $statements
 	 *
 	 * @return Entity
 	 */
-	protected function makeEntity( EntityId $id, $claims = array() ) {
-		return $this->makeItem( $id, $claims );
+	protected function makeEntity( EntityId $id, array $statements = array() ) {
+		return $this->makeItem( $id, $statements );
 	}
 
 	/**

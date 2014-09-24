@@ -1,9 +1,10 @@
 <?php
 
-namespace Wikibase;
+namespace Wikibase\Client;
 
 use Html;
 use InvalidArgumentException;
+use Wikibase\DataModel\Entity\EntityId;
 
 /**
  * @since 0.2
@@ -22,12 +23,10 @@ class RepoLinker {
 	private $namespaces;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param string $baseUrl
 	 * @param string $articlePath
 	 * @param string $scriptPath
-	 * @param array $namespaces // repoNamespaces setting
+	 * @param string[] $namespaces // repoNamespaces setting
 	 */
 	public function __construct( $baseUrl, $articlePath, $scriptPath, array $namespaces ) {
 		$this->baseUrl = $baseUrl;
@@ -62,7 +61,7 @@ class RepoLinker {
 	 *
 	 * @return string
 	 */
-	public function getEntityNamespace( $entityId ) {
+	public function getEntityNamespace( EntityId $entityId ) {
 		$entityType = $entityId->getEntityType();
 		return $this->getNamespace( $entityType );
 	}
@@ -85,8 +84,6 @@ class RepoLinker {
 	}
 
 	/**
-	 * Encode a page title
-	 *
 	 * @param string $page
 	 *
 	 * @return string
@@ -125,7 +122,7 @@ class RepoLinker {
 	 *
 	 * @return string (html)
 	 */
-	public function buildEntityLink( $entityId, array $classes = array() ) {
+	public function buildEntityLink( EntityId $entityId, array $classes = array() ) {
 		$title = $entityId->getSerialization();
 		$class = 'wb-entity-link';
 
@@ -145,11 +142,11 @@ class RepoLinker {
 	 * @todo: use a more robust mechanism for building entity titles
 	 *   if efficient enough, maybe EntityTitleLookup.
 	 *
-	 * @param EntityId
+	 * @param EntityId $entityId
 	 *
 	 * @return string
 	 */
-	public function getEntityTitle( $entityId ) {
+	public function getEntityTitle( EntityId $entityId ) {
 		$entityNamespace = $this->getEntityNamespace( $entityId );
 		$title = $entityId->getSerialization();
 
@@ -163,11 +160,11 @@ class RepoLinker {
 	/**
 	 * Constructs a link to an entity
 	 *
-	 * @param EntityId
+	 * @param EntityId $entityId
 	 *
 	 * @return string
 	 */
-	public function getEntityUrl( $entityId ) {
+	public function getEntityUrl( EntityId $entityId ) {
 		$title = $this->getEntityTitle( $entityId );
 		return $this->getPageUrl( $title );
 	}

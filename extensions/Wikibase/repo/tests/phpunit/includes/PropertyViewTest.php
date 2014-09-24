@@ -2,7 +2,7 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
@@ -28,12 +28,12 @@ class PropertyViewTest extends EntityViewTest {
 
 	/**
 	 * @param EntityId $id
-	 * @param Claim[] $claims
+	 * @param Statement[] $statements
 	 *
 	 * @return Entity
 	 */
-	protected function makeEntity( EntityId $id, $claims = array() ) {
-		return $this->makeProperty( $id, 'string', $claims );
+	protected function makeEntity( EntityId $id, array $statements = array() ) {
+		return $this->makeProperty( $id, 'string', $statements );
 	}
 
 	/**
@@ -57,13 +57,6 @@ class PropertyViewTest extends EntityViewTest {
 	protected function prepareEntityData( Entity $entity, array &$entityData ) {
 		/* @var Property $entity */
 		$entityData['datatype'] = $entity->getDataTypeId();
-	}
-
-	public function testGetHtmlForToc() {
-		$entityView = $this->newEntityView( Property::ENTITY_TYPE );
-		$toc = $entityView->getHtmlForToc();
-
-		$this->assertSame( '', $toc, "properties should currently not have a TOC" );
 	}
 
 }

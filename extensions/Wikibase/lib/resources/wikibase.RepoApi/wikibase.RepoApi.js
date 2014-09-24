@@ -8,47 +8,25 @@
 ( function( mw, wb, $ ) {
 'use strict';
 
+var repoConfig = mw.config.get( 'wbRepo' );
+var repoApiEndpoint = repoConfig.url + repoConfig.scriptPath + '/api.php';
+var mwApi = wb.api.getLocationAgnosticMwApi( repoApiEndpoint );
+
 /**
  * Constructor to create an API object for interaction with the repo Wikibase API.
  * @constructor
  * @since 0.4 (since 0.3 as wb.Api without support for client usage)
  */
 wb.RepoApi = function wbRepoApi() {
-	var localApiEndpoint = mw.config.get( 'wgServer' )
-		+ mw.config.get( 'wgScriptPath' )
-		+ '/api.php';
-
-	this._repoConfig = mw.config.get( 'wbRepo' );
-	this._repoApiEndpoint = this._repoConfig.url + this._repoConfig.scriptPath + '/api.php';
-
-	if( localApiEndpoint === this._repoApiEndpoint ) {
-		// The current wiki *is* the repo so we can just use user.tokens to get the edit token
-		this._repoEditToken = mw.user.tokens.get( 'editToken' );
-	}
 };
 
 $.extend( wb.RepoApi.prototype, {
-	/**
-	 * @type {string}
-	 */
-	_repoApiEndpoint: null,
-
-	/**
-	 * @type {Object}
-	 */
-	_repoConfig: null,
-
-	/**
-	 * @type {string}
-	 */
-	_repoEditToken: null,
-
 	/**
 	 * mediaWiki.Api object for internal usage. By having this initialized in the prototype, we can
 	 * share one instance for all instances of the wikibase API.
 	 * @type mw.Api
 	 */
-	_api: new mw.Api(),
+	_api: mwApi,
 
 	/**
 	 * Creates a new entity with the given type and data.
@@ -63,7 +41,7 @@ $.extend( wb.RepoApi.prototype, {
 			data: JSON.stringify( data ),
 			'new': type
 		};
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -87,7 +65,34 @@ $.extend( wb.RepoApi.prototype, {
 			params.clear = true;
 		}
 
-		return this.post( params );
+		return this._post( params );
+	},
+
+	/**
+	 * Formats values.
+	 *
+	 * @param {Object} dataValue
+	 * @param {Object} [options]
+	 * @param {string} [dataType]
+	 * @param {string} [outputFormat]
+	 * @return {jQuery.Promise}
+	 */
+	formatValue: function( dataValue, options, dataType, outputFormat ) {
+		var params = {
+			action: 'wbformatvalue',
+			datavalue:  JSON.stringify( dataValue ),
+			options: JSON.stringify( options || {} )
+		};
+
+		if( dataType ) {
+			params.datatype = dataType;
+		}
+
+		if( outputFormat ) {
+			params.generate = outputFormat;
+		}
+
+		return this._api.get( params );
 	},
 
 	/**
@@ -114,7 +119,7 @@ $.extend( wb.RepoApi.prototype, {
 			dir: dir || undefined
 		};
 
-		return this.get( params );
+		return this._api.get( params );
 	},
 
 	/**
@@ -145,7 +150,25 @@ $.extend( wb.RepoApi.prototype, {
 			normalize: normalize || undefined
 		};
 
-		return this.get( params );
+		return this._api.get( params );
+	},
+
+	/**
+	 * Parses values.
+	 *
+	 * @param {string} parser
+	 * @param {string[]} values
+	 * @param {Object} options
+	 * @return {jQuery.Promise}
+	 */
+	parseValue: function( parser, values, options ) {
+		var params = {
+			action: 'wbparsevalue',
+			parser: parser,
+			values: values.join( '|' ),
+			options: JSON.stringify( options )
+		};
+		return this._api.get( params );
 	},
 
 	/**
@@ -168,7 +191,7 @@ $.extend( wb.RepoApi.prototype, {
 			'continue': offset || undefined
 		};
 
-		return this.get( params );
+		return this._api.get( params );
 	},
 
 	/**
@@ -188,7 +211,7 @@ $.extend( wb.RepoApi.prototype, {
 			language: language,
 			baserevid: baseRevId
 		};
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -208,7 +231,7 @@ $.extend( wb.RepoApi.prototype, {
 			language: language,
 			baserevid: baseRevId
 		};
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -232,7 +255,7 @@ $.extend( wb.RepoApi.prototype, {
 			language: language,
 			baserevid: baseRevId
 		};
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -255,7 +278,7 @@ $.extend( wb.RepoApi.prototype, {
 			params.index = index;
 		}
 
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -281,7 +304,7 @@ $.extend( wb.RepoApi.prototype, {
 			params.value = JSON.stringify( value );
 		}
 
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -291,7 +314,7 @@ $.extend( wb.RepoApi.prototype, {
 	 * @return {jQuery.Promise}
 	 */
 	removeClaim: function( claimGuid ) {
-		return this.post( {
+		return this._post( {
 			action: 'wbremoveclaims',
 			claim: claimGuid
 		} );
@@ -319,7 +342,7 @@ $.extend( wb.RepoApi.prototype, {
 			props: props
 		};
 
-		return this.get( params );
+		return this._api.get( params );
 	},
 
 	/**
@@ -347,7 +370,7 @@ $.extend( wb.RepoApi.prototype, {
 			params.value = JSON.stringify( value );
 		}
 
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -386,7 +409,7 @@ $.extend( wb.RepoApi.prototype, {
 			params.index = index;
 		}
 
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -407,7 +430,7 @@ $.extend( wb.RepoApi.prototype, {
 			baserevid: baseRevId
 		};
 
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -433,7 +456,7 @@ $.extend( wb.RepoApi.prototype, {
 			params.badges = this._normalizeParam( badges );
 		}
 
-		return this.post( params );
+		return this._post( params );
 	},
 
 	/**
@@ -461,52 +484,7 @@ $.extend( wb.RepoApi.prototype, {
 			params.summary = summary;
 		}
 
-		return this.post( params );
-	},
-
-	/**
-	 * Removes a sitelink of an item via the API.
-	 *
-	 * @param {String} id entity id
-	 * @param {Number} baseRevId revision id
-	 * @param {String} site the site of the link
-	 * @return {jQuery.Promise}
-	 */
-	removeSitelink: function( id, baseRevId, site ) {
-		return this.setSitelink( id, baseRevId, site, '' );
-	},
-
-	/**
-	 * Set the required options and parameters for a repo call from a client, if needed
-	 *
-	 * @since 0.4
-	 *
-	 * @param {object} params parameters for the API call
-	 * @param {object} options AJAX options
-	 */
-	_extendRepoCallParams: function( params, options ) {
-		var localServerRaw = mw.config.get( 'wgServer' ).replace( /.*\/\//, '' ),
-			repoServerRaw = mw.config.get( 'wbRepo' ).url.replace( /.*\/\//, '' ).replace( /\/.*/, '' );
-
-		options.url = this._repoApiEndpoint;
-
-		if ( localServerRaw === repoServerRaw ) {
-			// We don't need/ want CORS when on the same domain
-			return;
-		}
-
-		options.xhrFields = {
-			withCredentials: true
-		};
-		options.crossDomain = true;
-
-		var currentServer = mw.config.get( 'wgServer' );
-		if ( currentServer.indexOf( '//' ) === 0 ) {
-			// The origin parameter musn't be protocol relative
-			currentServer = document.location.protocol + currentServer;
-		}
-
-		params.origin = currentServer;
+		return this._post( params );
 	},
 
 	/**
@@ -537,12 +515,7 @@ $.extend( wb.RepoApi.prototype, {
 	 *
 	 * @throws {Error} If a parameter is not specified properly
 	 */
-	post: function( params ) {
-		var self = this,
-			options = {},
-			deferred = $.Deferred();
-
-		this._extendRepoCallParams( params, options );
+	_post: function( params ) {
 		// Unconditionally set the bot parameter to match the UI behaviour of core
 		params.bot = 1;
 
@@ -552,71 +525,7 @@ $.extend( wb.RepoApi.prototype, {
 			}
 		} );
 
-		this._getRepoEditToken()
-		.done( function( token ) {
-			params.token = token;
-
-			self._api.post( params, options )
-			.done( deferred.resolve )
-			.fail( deferred.reject );
-		} )
-		.fail( deferred.reject );
-
-		return deferred.promise();
-	},
-
-	/**
-	 * Retrieves an edit token.
-	 *
-	 * @return {jQuery.Promise}
-	 *         Resolved parameters:
-	 *         - {string}
-	 *         Rejected parameters:
-	 *         - {string}
-	 *         - {*}
-	 */
-	_getRepoEditToken: function() {
-		var self = this,
-			deferred = $.Deferred();
-
-		if( this._repoEditToken ) {
-			return deferred.resolve( this._repoEditToken ).promise();
-		}
-
-		this.get( {
-			action: 'query',
-			intoken: 'edit',
-			titles: 'Main page',
-			prop: 'info',
-			indexpageids: 1
-		} )
-		.done( function( data ) {
-			self._repoEditToken = data.query.pages[data.query.pageids[0]].edittoken;
-			deferred.resolve( self._repoEditToken );
-		} )
-		.fail( deferred.reject );
-
-		return deferred.promise();
-	},
-
-	/**
-	 * Performs an API get request.
-	 * @see mw.Api.get
-	 * @since 0.3
-	 *
-	 * @param {Object} params
-	 * @return {jQuery.Promise}
-	 *         Resolved parameters:
-	 *         - {*}
-	 *         Rejected parameters:
-	 *         - {string}
-	 *         - {*}
-	 */
-	'get': function( params ) {
-		var options = {};
-		this._extendRepoCallParams( params, options );
-
-		return this._api.get( params, options );
+		return this._api.postWithToken( 'edit', params );
 	}
 } );
 

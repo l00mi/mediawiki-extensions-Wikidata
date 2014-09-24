@@ -6,7 +6,8 @@
 			"Lockal",
 			"Okras",
 			"Ole Yves",
-			"ShinePhantom"
+			"ShinePhantom",
+			"Александр Сигачёв"
 		]
 	},
 	"wikibase-lib-desc": "Общие функции расширений Wikibase и Wikibase Client",
@@ -26,7 +27,7 @@
 	"wikibase-diffview-alias": "синоним",
 	"wikibase-diffview-description": "описание",
 	"wikibase-diffview-link": "ссылки",
-	"wikibase-error-unexpected": "Произошла непредвиденная ошибка: $1",
+	"wikibase-error-unexpected": "Ошибка: $1.",
 	"wikibase-error-save-generic": "При сохранении произошла ошибка. Ваши изменения не могут быть завершены.",
 	"wikibase-error-remove-generic": "Произошла ошибка при попытке выполнить удаление. Ваши изменения не могут быть завершены.",
 	"wikibase-error-save-connection": "При попытке выполнить сохранение произошла ошибка подключения. Ваши изменения не могут быть завершены. Пожалуйста, проверьте своё подключение к интернету.",
@@ -68,8 +69,8 @@
 	"wikibase-sitelinks-sitename-columnheading-special": "Сайт",
 	"wikibase-sitelinks-siteid-columnheading": "Код",
 	"wikibase-sitelinks-link-columnheading": "Связанная страница",
-	"wikibase-snakview-snaktypeselector-somevalue": "неизвестное значение",
-	"wikibase-snakview-snaktypeselector-novalue": "значение не задано",
+	"wikibase-snakview-snaktypeselector-somevalue": "значение неизвестно",
+	"wikibase-snakview-snaktypeselector-novalue": "значение отсутствует",
 	"wikibase-tooltip-error-details": "Подробности",
 	"wikibase-undeserializable-value": "Значение является недопустимым и не может быть отображено.",
 	"wikibase-validator-invalid": "Недопустимое значение",

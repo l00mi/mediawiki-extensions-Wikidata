@@ -27,12 +27,26 @@
  * @option {jQuery} [$counter]
  *         Node(s) that shall contain information about the number of site links.
  *
+ * @event change
+ *        - {jQuery.Event}
+ *
+ * @event afterstartediting
+ *       - {jQuery.Event}
+ *
+ * @event stopediting
+ *        - {jQuery.Event}
+ *        - {boolean} Whether to drop the value.
+ *
  * @event afterstopediting
  *        - {jQuery.Event}
  *        - {boolean} Whether to drop the value.
  *
  * @event afterremove
  *        - {jQuery.Event}
+ *
+ * @event toggleerror
+ *        - {jQuery.Event}
+ *        - {Error|null}
  */
 $.widget( 'wikibase.sitelinklistview', PARENT, {
 	options: {
@@ -79,12 +93,11 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 
 		this.element.addClass( 'wikibase-sitelinklistview' );
 
-		if( this.element.children( 'thead' ).children().length > 0 ) {
+		if( this.element.children( 'thead' ).children().length ) {
 			// Initially sort on the site id column.
 			this.element.tablesorter( { sortList: [{ 1: 'asc' }] } );
 		}
 
-		this._attachEventHandlers();
 		this._refreshCounter();
 	},
 
@@ -93,6 +106,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 */
 	destroy: function() {
 		this.$listview.data( 'listview' ).destroy();
+		this.$listview.off( '.' + this.widgetName );
 		this.element.removeData( 'tablesorter' );
 		this.element.removeClass( 'wikibase-sitelinklistview' );
 		PARENT.prototype.destroy.call( this );
@@ -102,56 +116,34 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 * Creates the listview widget managing the sitelinkview widgets
 	 */
 	_createListView: function() {
-		var self = this;
+		var self = this,
+			listItemWidget = $.wikibase.sitelinkview,
+			prefix = listItemWidget.prototype.widgetEventPrefix;
 
+		// Encapsulate sitelinkviews by suppressing their events:
 		this.$listview
-		.listview( {
-			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
-				listItemWidget: $.wikibase.sitelinkview,
-				listItemWidgetValueAccessor: 'value',
-				newItemOptionsFn: function( value ) {
-					return {
-						value: value,
-						allowedSiteIds: self._getUnusedAllowedSiteIds(),
-						entityStore: self.options.entityStore
-					};
-				}
-			} ),
-			value: self.options.value || null,
-			listItemNodeName: 'TR'
-		} );
-	},
-
-	/**
-	 * @return {string[]}
-	 */
-	_getUnusedAllowedSiteIds: function() {
-		var representedSiteIds = $.map( this.options.value, function( siteLink ) {
-			return siteLink.getSiteId();
-		} );
-
-		return $.grep( this.option( 'allowedSiteIds' ), function( siteId ) {
-			return $.inArray( siteId, representedSiteIds ) === -1;
-		} );
-	},
-
-	/**
-	 * Returns whether all allowed sites are linked.
-	 *
-	 * @return {boolean}
-	 */
-	isFull: function() {
-		return !this._getUnusedAllowedSiteIds().length;
-	},
-
-	/**
-	 * Attaches basic event handlers.
-	 */
-	_attachEventHandlers: function() {
-		var self = this;
-
-		this.element
+		.on( prefix + 'change.' + this.widgetName, function( event ) {
+			event.stopPropagation();
+			self._trigger( 'change' );
+		} )
+		.on( prefix + 'toggleerror.' + this.widgetName, function( event, error ) {
+			event.stopPropagation();
+			self.setError( error );
+		} )
+		.on(
+			[
+				prefix + 'create.' + this.widgetName,
+				prefix + 'afterstartediting.' + this.widgetName,
+				prefix + 'afterstopediting.' + this.widgetName,
+				prefix + 'disable.' + this.widgetName
+			].join( ' ' ),
+			function( event ) {
+				event.stopPropagation();
+			}
+		)
 		.on( 'sitelinkviewstopediting.' + this.widgetName, function( event, dropValue, callback ) {
+			event.stopPropagation();
+
 			var $sitelinkview = $( event.target ),
 				sitelinkview = $sitelinkview.data( 'sitelinkview' ),
 				value = sitelinkview.value();
@@ -179,22 +171,55 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				} );
 			}
 		} )
-		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
-		.on( 'sitelinkviewafterstartediting.' + this.widgetName, function( event ) {
-			$( wb ).trigger( 'startItemPageEditMode', [
-				event.target,
-				{
-					exclusive: false,
-					wbCopyrightWarningGravity: 'sw'
+		.on(
+			'listviewitemremoved.' + this.widgetName
+			+ ' listviewitemadded.' + this.widgetName,
+			function( event ) {
+				self._refreshCounter();
+				self._refreshTableHeader();
+				self._trigger( 'change' );
+			}
+		)
+		.listview( {
+			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
+				listItemWidget: listItemWidget,
+				listItemWidgetValueAccessor: 'value',
+				newItemOptionsFn: function( value ) {
+					return {
+						value: value,
+						getAllowedSiteIds: function() {
+							return self._getUnusedAllowedSiteIds();
+						},
+						entityStore: self.options.entityStore
+					};
 				}
-			] );
-		} )
-		.on( 'sitelinkviewafterstopediting.' + this.widgetName, function( event, dropValue ) {
-			$( wb ).trigger( 'stopItemPageEditMode', [
-				event.target,
-				{ save: dropValue !== true }
-			] );
+			} ),
+			value: self.options.value || null,
+			listItemNodeName: 'TR'
 		} );
+	},
+
+	/**
+	 * @return {string[]}
+	 */
+	_getUnusedAllowedSiteIds: function() {
+		var representedSiteIds = $.map( this.value(), function( siteLink ) {
+			return siteLink.getSiteId();
+		} );
+
+		return $.grep( this.option( 'allowedSiteIds' ), function( siteId ) {
+			return $.inArray( siteId, representedSiteIds ) === -1;
+		} );
+	},
+
+	/**
+	 * Returns whether all allowed sites are linked or no more site links may be added.
+	 *
+	 * @return {boolean}
+	 */
+	isFull: function() {
+		return !this._getUnusedAllowedSiteIds().length
+			|| this.value().length === this.options.allowedSiteIds.length;
 	},
 
 	/**
@@ -235,6 +260,272 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		$parenthesesMsg.find( 'span' ).replaceWith( $counterMsg );
 
 		return $parenthesesMsg.contents();
+	},
+
+	/**
+	 * @return {boolean}
+	 */
+	isValid: function() {
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter(),
+			isValid = true;
+
+		listview.items().each( function() {
+			var sitelinkview = lia.liInstance( $( this ) );
+			if( !sitelinkview.isValid() ) {
+				isValid = false;
+				return false;
+			}
+		} );
+
+		return isValid;
+	},
+
+	/**
+	 * @return {boolean}
+	 */
+	isInitialValue: function() {
+		var currentValue = this.value();
+
+		if( currentValue.length !== this.options.value.length ) {
+			return false;
+		}
+
+		// TODO: Use SiteLinkList.equals() as soon as implemented in DataModelJavaScript
+		for( var i = 0; i < currentValue.length; i++ ) {
+			if( currentValue[i] === null ) {
+				// Ignore empty values.
+				continue;
+			}
+			var found = false;
+			for( var j = 0; j < this.options.value.length; j++ ) {
+				if( currentValue[i].equals( this.options.value[j] ) ) {
+					found = true;
+					break;
+				}
+			}
+			if( !found ) {
+				return false;
+			}
+		}
+
+		return true;
+	},
+
+	startEditing: function() {
+		if( this._isInEditMode ) {
+			return;
+		}
+
+		this._isInEditMode = true;
+		this.element.addClass( 'wb-edit' );
+
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			var sitelinkview = lia.liInstance( $( this ) );
+			sitelinkview.startEditing();
+		} );
+
+		this._trigger( 'afterstartediting' );
+	},
+
+	/**
+	 * @param {boolean} [dropValue]
+	 */
+	stopEditing: function( dropValue ) {
+		var self = this;
+
+		if( !this._isInEditMode || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
+			return;
+		}
+
+		dropValue = !!dropValue;
+
+		this._trigger( 'stopediting', null, [dropValue] );
+
+		this.disable();
+
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		var $queue = $( {} );
+
+		/**
+		 * @param {jQuery} $queue
+		 * @param {string} siteId
+		 */
+		function addRemoveToQueue( $queue, siteId ) {
+			$queue.queue( 'stopediting', function( next ) {
+				var emptySiteLink = new wb.datamodel.SiteLink( siteId, '' );
+				self._saveSiteLink( emptySiteLink )
+					.done( function() {
+						self._afterRemove();
+						next();
+					} )
+					.fail( function( error ) {
+						self.setError( error );
+					} );
+			} );
+		}
+
+		if( !dropValue ) {
+			var removedSiteLinkIds = this._getRemovedSiteLinkIds();
+
+			for( var i = 0; i < removedSiteLinkIds.length; i++ ) {
+				addRemoveToQueue( $queue, removedSiteLinkIds[i] );
+			}
+		}
+
+		/**
+		 * @param {jQuery} $queue
+		 * @param {jQuery.wikibase.sitelinkview} sitelinkview
+		 * @param {boolean} dropValue
+		 */
+		function addStopEditToQueue( $queue, sitelinkview, dropValue ) {
+			$queue.queue( 'stopediting', function( next ) {
+				sitelinkview.element
+				.one( 'sitelinkviewafterstopediting.sitelinklistview', function( event ) {
+					next();
+				} );
+				sitelinkview.stopEditing( dropValue );
+			} );
+		}
+
+		listview.items().each( function() {
+			var sitelinkview = lia.liInstance( $( this ) );
+			addStopEditToQueue( $queue, sitelinkview, dropValue || sitelinkview.isInitialValue() );
+		} );
+
+		$queue.queue( 'stopediting', function() {
+			self._afterStopEditing( dropValue );
+		} );
+
+		$queue.dequeue( 'stopediting' );
+	},
+
+	/**
+	 * @return {string[]}
+	 */
+	_getRemovedSiteLinkIds: function() {
+		var currentSiteIds = $.map( this.value(), function( siteLink ) {
+			return siteLink.getSiteId();
+		} );
+
+		var removedSiteLinkIds = [];
+
+		for( var i = 0; i < this.options.value.length; i++ ) {
+			var siteId = this.options.value[i].getSiteId();
+			if( $.inArray( siteId, currentSiteIds ) === -1 ) {
+				removedSiteLinkIds.push( siteId );
+			}
+		}
+
+		return removedSiteLinkIds;
+	},
+
+	/**
+	 * @param {boolean} dropValue
+	 */
+	_afterStopEditing: function( dropValue ) {
+		if( !dropValue ) {
+			this.options.value = this.value();
+		}
+		this.$listview.data( 'listview' ).value( this.options.value );
+		this._refreshCounter();
+		this._refreshTableHeader();
+		this._isInEditMode = false;
+		this.enable();
+		this.element.removeClass( 'wb-edit' );
+		this._trigger( 'afterstopediting', null, [dropValue] );
+	},
+
+	cancelEditing: function() {
+		this.stopEditing( true );
+	},
+
+	focus: function() {
+		// Focus first invalid/incomplete item or - if there is none - the first item.
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter(),
+			$items = listview.items();
+
+		if( this.isValid() && $items.length ) {
+			lia.liInstance( $items.first() ).focus();
+			return;
+		}
+
+		$items.each( function( $item ) {
+			var sitelinkview = lia.liInstance( $item );
+			if( !sitelinkview.isValid() ) {
+				sitelinkview.focus();
+			}
+		} );
+	},
+
+	/**
+	 * Applies/Removes error state.
+	 *
+	 * @param {Error} [error]
+	 */
+	setError: function( error ) {
+		if( error ) {
+			this.element.addClass( 'wb-error' );
+			this._trigger( 'toggleerror', null, [error] );
+		} else if( this.element.hasClass( 'wb-error' ) ) {
+			this.element.removeClass( 'wb-error' );
+			this._trigger( 'toggleerror' );
+		}
+	},
+
+	/**
+	 * Sets/Gets the widget's value.
+	 *
+	 * @param {wikibase.datamodel.SiteLink[]} [value]
+	 * @return {wikibase.datamodel.SiteLink[]|*}
+	 */
+	value: function( value ) {
+		if( value !== undefined ) {
+			return this.option( 'value', value );
+		}
+
+		value = [];
+
+		if( !this.$listview ) {
+			return this.options.value;
+		}
+
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			var sitelinkview = lia.liInstance( $( this ) );
+			if( !sitelinkview.value() ) {
+				// Ignore pending value.
+				return true;
+			}
+			value.push( sitelinkview.value() );
+		} );
+
+		return value;
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget._setOption
+	 */
+	_setOption: function( key, value ) {
+		var response = PARENT.prototype._setOption.apply( this, arguments );
+
+		if( key === 'value' ) {
+			this.$listview.data( 'listview' ).value( value );
+			this._refreshCounter();
+			this._refreshTableHeader();
+		} else if( key === 'disabled' ) {
+			this.$listview.data( 'listview' ).option( key, value );
+		}
+
+		return response;
 	},
 
 	/**
@@ -309,19 +600,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		return this._saveSiteLink( emptySiteLink )
 		.done( function() {
 			self.$listview.data( 'listview' ).removeItem( sitelinkview.element );
-
-			if( !self.options.value.length ) {
-				// Removed last site link.
-				self.$thead.empty();
-				self.element.removeData( 'tablesorter' );
-			}
-
-			self._refreshCounter();
-			self._refreshTableHeader();
-
-			if( !self.isFull() ) {
-				self.$tfoot.find( 'tr td' ).first().text( '' );
-			}
+			self._afterRemove();
 		} )
 		.fail( function( error ) {
 			sitelinkview.setError( error );
@@ -329,6 +608,20 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		.always( function() {
 			self.enable();
 		} );
+	},
+
+	_afterRemove: function() {
+		if( !this.options.value.length ) {
+			// Removed last site link.
+			this.$thead.empty();
+		}
+
+		this._refreshCounter();
+		this._refreshTableHeader();
+
+		if( !this.isFull() ) {
+			this.$tfoot.find( 'tr td' ).first().text( '' );
+		}
 	},
 
 	/**
@@ -353,46 +646,54 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				if( !dropValue && siteLink ) {
 					listview.addItem( siteLink );
 
-					// Init tablesorter if it has not been initialised yet (no site link existed
-					// previous to adding the just added site link):
-					if( !self.element.data( 'tablesorter' ) ) {
-						self.element.tablesorter();
-					} else {
-						// Reset sorting having the sort order appear undefined when appending a new
-						// site link to the bottom of the table:
-						self.element.data( 'tablesorter' ).sort( [] );
-					}
-
 					if( self.isFull() ) {
 						self.$tfoot.find( 'tr td' ).first()
 							.text( mw.msg( 'wikibase-sitelinksedittool-full' ) );
 					}
-				} else {
-					self._refreshTableHeader();
 				}
 
+				if( self.__pendingItems && --self.__pendingItems !== 0 ) {
+					return;
+				}
+
+				self._refreshTableHeader();
 				self._refreshCounter();
 
 				self._trigger( 'afterstopediting', null, [dropValue] );
 			} );
 
-			sitelinkview.startEditing();
-
+			self._refreshTableHeader();
 			self._refreshCounter();
+
+			if( !self._isInEditMode ) {
+				self.startEditing();
+			} else {
+				sitelinkview.startEditing();
+			}
 		} );
 
 		listview.enterNewItem();
-		this._refreshTableHeader();
+
+		this.__pendingItems = this.__pendingItems ? this.__pendingItems + 1 : 1;
 	},
 
-	/**
-	 * Creates/Removes the table header.
-	 */
+	_refreshTablesorter: function() {
+		this.element.removeData( 'tablesorter' );
+
+		if( this.$thead.children().length ) {
+			this.element.tablesorter();
+			this.element.data( 'tablesorter' ).sort( [] );
+		}
+	},
+
 	_refreshTableHeader: function() {
-		if( !this.$listview.data( 'listview' ).items().length ) {
-			this.$thead.children().remove();
+		var $items = this.$listview.data( 'listview' ).items();
+
+		if( !$items.length ) {
+			this.$thead.empty();
 			return;
 		} else if( this.$thead.children().length ) {
+			this._refreshTablesorter();
 			return;
 		}
 
@@ -409,65 +710,10 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			mw.message( 'wikibase-sitelinks-siteid-columnheading' ).text(),
 			mw.message( 'wikibase-sitelinks-link-columnheading' ).text()
 		) );
+
+		this._refreshTablesorter();
 	}
 
-} );
-
-$.wikibase.toolbarcontroller.definition( 'addtoolbar', {
-	id: 'sitelinklistview',
-	events: {
-		sitelinklistviewcreate: function( event, toolbarcontroller ) {
-			var $sitelinklistview = $( event.target ),
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
-
-			$sitelinklistview.addtoolbar( {
-				$container: $( '<td/>' ).appendTo(
-					sitelinklistview.$tfoot.children( 'tr' ).last()
-				),
-				addButtonAction: function() {
-					$sitelinklistview.one( 'sitelinkviewafterstartediting', function( event ) {
-						$( event.target ).data( 'sitelinkview' ).focus();
-					} );
-
-					$sitelinklistview.data( 'sitelinklistview' ).enterNewItem();
-
-					// Re-focus "add" button after having added or having cancelled adding a link:
-					var eventName = 'sitelinklistviewafterstopediting.addtoolbar';
-					$sitelinklistview.one( eventName, function( event ) {
-						$sitelinklistview.data( 'addtoolbar' ).toolbar.$btnAdd.focus();
-					} );
-
-					toolbarcontroller.registerEventHandler(
-						event.data.toolbar.type,
-						event.data.toolbar.id,
-						'sitelinklistviewdestroy',
-						function( event, toolbarcontroller ) {
-							toolbarcontroller.destroyToolbar(
-								$( event.target ).data( 'addtoolbar' )
-							);
-						}
-					);
-
-					toolbarcontroller.registerEventHandler(
-						event.data.toolbar.type,
-						event.data.toolbar.id,
-						'sitelinklistviewafterremove',
-						function( event, toolbarcontroller ) {
-							var $sitelinklistview = $( event.target ),
-								sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
-								toolbar = $sitelinklistview.data( 'addtoolbar' ).toolbar;
-
-							toolbar[sitelinklistview.isFull() ? 'disable' : 'enable']();
-						}
-					);
-				}
-			} );
-
-			if( sitelinklistview.isFull() ) {
-				$sitelinklistview.data( 'addtoolbar' ).toolbar.disable();
-			}
-		}
-	}
 } );
 
 }( mediaWiki, wikibase, jQuery ) );

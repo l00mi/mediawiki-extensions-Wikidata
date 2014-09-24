@@ -2,22 +2,13 @@
 
 namespace Wikibase;
 
-use ContextSource;
 use Html;
-use IContextSource;
 use InvalidArgumentException;
-use ParserOutput;
-use Wikibase\DataModel\SiteLinkList;
-use Wikibase\Lib\PropertyDataTypeLookup;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityInfoBuilderFactory;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Language;
 use Wikibase\Repo\View\ClaimsView;
 use Wikibase\Repo\View\FingerprintView;
-use Wikibase\Repo\View\SectionEditLinkGenerator;
-use Wikibase\Repo\View\SnakHtmlGenerator;
 use Wikibase\Repo\View\TextInjector;
+use Wikibase\Repo\View\EntityViewPlaceholderExpander;
 
 /**
  * Base class for creating views for all different kinds of Wikibase\Entity.
@@ -34,37 +25,12 @@ use Wikibase\Repo\View\TextInjector;
  * @author Daniel Kinzler
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-abstract class EntityView extends ContextSource {
+abstract class EntityView {
 
 	/**
-	 * @var EntityInfoBuilderFactory
+	 * @var FingerprintView
 	 */
-	protected $entityInfoBuilderFactory;
-
-	/**
-	 * @var EntityTitleLookup
-	 */
-	protected $entityTitleLookup;
-
-	/**
-	 * @var PropertyDataTypeLookup
-	 */
-	protected $dataTypeLookup;
-
-	/**
-	 * @var SectionEditLinkGenerator
-	 */
-	protected $sectionEditLinkGenerator;
-
-	/**
-	 * @var TextInjector
-	 */
-	protected $textInjector;
-
-	/**
-	 * @var ParserOutputJsConfigBuilder
-	 */
-	protected $configBuilder;
+	protected $fingerprintView;
 
 	/**
 	 * @var ClaimsView
@@ -72,9 +38,14 @@ abstract class EntityView extends ContextSource {
 	protected $claimsView;
 
 	/**
-	 * @var FingerprintView
+	 * @var Language
 	 */
-	protected $fingerprintView;
+	protected $language;
+
+	/**
+	 * @var TextInjector
+	 */
+	protected $textInjector;
 
 	/**
 	 * Maps entity types to the corresponding entity view.
@@ -92,75 +63,15 @@ abstract class EntityView extends ContextSource {
 		'query' => '\Wikibase\QueryView',
 	);
 
-	/**
-	 * @since 0.1
-	 *
-	 * @param IContextSource|null $context
-	 * @param SnakFormatter $snakFormatter
-	 * @param PropertyDataTypeLookup $dataTypeLookup
-	 * @param EntityInfoBuilderFactory $entityInfoBuilderFactory
-	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param SerializationOptions $options
-	 * @param ParserOutputJsConfigBuilder $configBuilder
-	 *
-	 * @todo: move the $editable flag here, instead of passing it around everywhere
-	 *
-	 * @throws InvalidArgumentException
-	 */
 	public function __construct(
-		IContextSource $context,
-		SnakFormatter $snakFormatter,
-		PropertyDataTypeLookup $dataTypeLookup,
-		EntityInfoBuilderFactory $entityInfoBuilderFactory,
-		EntityTitleLookup $entityTitleLookup,
-		SerializationOptions $options,
-		ParserOutputJsConfigBuilder $configBuilder
+		FingerprintView $fingerprintView,
+		ClaimsView $claimsView,
+		Language $language
 	) {
-		if ( $snakFormatter->getFormat() !== SnakFormatter::FORMAT_HTML
-				&& $snakFormatter->getFormat() !== SnakFormatter::FORMAT_HTML_WIDGET ) {
-			throw new InvalidArgumentException( '$snakFormatter is expected to return text/html, not '
-					. $snakFormatter->getFormat() );
-		}
-
-		$this->setContext( $context );
-		$this->dataTypeLookup = $dataTypeLookup;
-		$this->entityInfoBuilderFactory = $entityInfoBuilderFactory;
-		$this->entityTitleLookup = $entityTitleLookup;
-		$this->options = $options;
-		$this->configBuilder = $configBuilder;
-
-		$this->sectionEditLinkGenerator = new SectionEditLinkGenerator();
-		$this->textInjector = new TextInjector();
-
-		// @todo inject in constructor
-		$snakHtmlGenerator = new SnakHtmlGenerator(
-			$snakFormatter,
-			$entityTitleLookup
-		);
-
-		$claimHtmlGenerator = new ClaimHtmlGenerator(
-			$snakHtmlGenerator,
-			$entityTitleLookup
-		);
-
-		$this->claimsView =  new ClaimsView(
-			$entityInfoBuilderFactory,
-			$entityTitleLookup,
-			$this->sectionEditLinkGenerator,
-			$claimHtmlGenerator,
-			$this->getLanguage()->getCode()
-		);
-
-		$this->fingerprintView = new FingerprintView(
-			$this->sectionEditLinkGenerator,
-			$this->getLanguage()->getCode()
-		);
-	}
-
-	/**
-	 * Resets the placeholders managed by this view
-	 */
-	public function resetPlaceholders() {
+		// @todo: move the $editable flag here, instead of passing it around everywhere
+		$this->fingerprintView = $fingerprintView;
+		$this->claimsView = $claimsView;
+		$this->language = $language;
 		$this->textInjector = new TextInjector();
 	}
 
@@ -189,21 +100,18 @@ abstract class EntityView extends ContextSource {
 	 * @return string HTML
 	 */
 	public function getHtml( EntityRevision $entityRevision, $editable = true ) {
-		wfProfileIn( __METHOD__ );
-
-		$this->resetPlaceholders();
+		$entity = $entityRevision->getEntity();
 
 		//NOTE: even though $editable is unused at the moment, we will need it for the JS-less editing model.
 
-		$lang = $this->getLanguage();
-		$entityId = $entityRevision->getEntity()->getId() ?: 'new'; // if id is not set, use 'new' suffix for css classes
+		$entityId = $entity->getId() ?: 'new'; // if id is not set, use 'new' suffix for css classes
 		$html = '';
 
-		$html .= wfTemplate( 'wb-entity',
-			$entityRevision->getEntity()->getType(),
+		$html .= wfTemplate( 'wikibase-entityview',
+			$entity->getType(),
 			$entityId,
-			$lang->getCode(),
-			$lang->getDir(),
+			$this->language->getCode(),
+			$this->language->getDir(),
 			$this->getInnerHtml( $entityRevision, $editable )
 		);
 
@@ -215,23 +123,21 @@ abstract class EntityView extends ContextSource {
 		// JavaScript is parsed.
 		$html .= Html::inlineScript( '
 if ( $ ) {
-	$( ".wb-entity" ).addClass( "loading" ).after( function() {
+	$( ".wikibase-entityview" ).addClass( "loading" ).after( function() {
 		var $div = $( "<div/>" ).addClass( "wb-entity-spinner mw-small-spinner" );
 		$div.css( "top", $div.height() + "px" );
 		$div.css(
-			"' . ( $lang->isRTL() ? 'right' : 'left' ) . '",
+			"' . ( $this->language->isRTL() ? 'right' : 'left' ) . '",
 			( ( $( this ).width() - $div.width() ) / 2 | 0 ) + "px"
 		);
 		return $div;
 	} );
 	window.setTimeout( function() {
-		$( ".wb-entity" ).removeClass( "loading" );
+		$( ".wikibase-entityview" ).removeClass( "loading" );
 		$( ".wb-entity-spinner" ).remove();
 	}, 7000 );
 }
 ' );
-
-		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 
@@ -245,7 +151,7 @@ if ( $ ) {
 	 * @throws InvalidArgumentException
 	 * @return string
 	 */
-	public function getInnerHtml( EntityRevision $entityRevision, $editable = true ) {
+	protected function getInnerHtml( EntityRevision $entityRevision, $editable = true ) {
 		wfProfileIn( __METHOD__ );
 
 		$entity = $entityRevision->getEntity();
@@ -275,7 +181,7 @@ if ( $ ) {
 	 *
 	 * @return string
 	 */
-	public function getHtmlForToc() {
+	protected function getHtmlForToc() {
 		$tocContent = '';
 		$tocSections = $this->getTocSections();
 
@@ -323,7 +229,7 @@ if ( $ ) {
 	 *
 	 * @return string
 	 */
-	protected function getHtmlForTermBox( EntityRevision $entityRevision, $editable = true ) {
+	protected function getHtmlForTermBox( EntityRevision $entityRevision ) {
 		if ( $entityRevision->getEntity()->getId() ) {
 			// Placeholder for a termbox for the present item.
 			// EntityViewPlaceholderExpander must know about the parameters used here.
@@ -335,92 +241,6 @@ if ( $ ) {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Renders an entity into an ParserOutput object
-	 *
-	 * @since 0.1
-	 *
-	 * @param EntityRevision $entityRevision the entity to analyze/render
-	 * @param bool $editable whether to make the page's content editable
-	 * @param bool $generateHtml whether to generate HTML. Set to false if only interested in meta-info. default: true.
-	 *
-	 * @return ParserOutput
-	 */
-	public function getParserOutput( EntityRevision $entityRevision, $editable = true,
-		$generateHtml = true
-	) {
-		wfProfileIn( __METHOD__ );
-
-		// fresh parser output with entity markup
-		$pout = new ParserOutput();
-
-		$entity =  $entityRevision->getEntity();
-		$isExperimental = defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES;
-
-		$configVars = $this->configBuilder->build( $entity, $this->options, $isExperimental );
-		$pout->addJsConfigVars( $configVars );
-
-		$allSnaks = $entityRevision->getEntity()->getAllSnaks();
-
-		// treat referenced entities as page links ------
-		$refFinder = new ReferencedEntitiesFinder();
-		$usedEntityIds = $refFinder->findSnakLinks( $allSnaks );
-
-		foreach ( $usedEntityIds as $entityId ) {
-			$pout->addLink( $this->entityTitleLookup->getTitleForId( $entityId ) );
-		}
-
-		// treat URL values as external links ------
-		$urlFinder = new ReferencedUrlFinder( $this->dataTypeLookup );
-		$usedUrls = $urlFinder->findSnakLinks( $allSnaks );
-
-		foreach ( $usedUrls as $url ) {
-			$pout->addExternalLink( $url );
-		}
-
-		if ( $generateHtml ) {
-			$html = $this->getHtml( $entityRevision, $editable );
-			$pout->setText( $html );
-			$pout->setExtensionData( 'wikibase-view-chunks', $this->getPlaceholders() );
-		}
-
-		if ( $entity instanceof Item ) {
-			$this->addBadgesToParserOutput( $pout, $entity->getSiteLinkList() );
-		}
-
-		//@todo: record sitelinks as iwlinks
-		//@todo: record CommonsMedia values as imagelinks
-
-		// make css available for JavaScript-less browsers
-		$pout->addModuleStyles( array(
-			'wikibase.common',
-			'wikibase.toc',
-			'jquery.ui.core',
-			'jquery.wikibase.statementview',
-			'jquery.wikibase.toolbar',
-		) );
-
-		// make sure required client sided resources will be loaded:
-		$pout->addModules( 'wikibase.ui.entityViewInit' );
-
-		//FIXME: some places, like Special:NewItem, don't want to override the page title.
-		//	 But we still want to use OutputPage::addParserOutput to apply the modules etc from the ParserOutput.
-		//	 So, for now, we leave it to the caller to override the display title, if desired.
-		// set the display title
-		//$pout->setTitleText( $entity>getLabel( $langCode ) );
-
-		wfProfileOut( __METHOD__ );
-		return $pout;
-	}
-
-	private function addBadgesToParserOutput( ParserOutput $pout, SiteLinkList $siteLinkList ) {
-		foreach ( $siteLinkList as $siteLink ) {
-			foreach ( $siteLink->getBadges() as $badge ) {
-				$pout->addLink( $this->entityTitleLookup->getTitleForID( $badge ) );
-			}
-		}
 	}
 
 }

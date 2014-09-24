@@ -6,7 +6,6 @@ use ApiBase;
 use ApiMain;
 use Exception;
 use FauxRequest;
-use Wikibase\DataModel\ByPropertyIdArray;
 use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
@@ -76,12 +75,7 @@ class ApiXmlFormatTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function replacePropertyId( $xml, EntityRevision $entityRevision ) {
-		$claims = $entityRevision->getEntity()->getClaims();
-
-		$byPropertyIdArray = new ByPropertyIdArray( $claims );
-		$byPropertyIdArray->buildIndex();
-
-		$propertyIds = $byPropertyIdArray->getPropertyIds();
+		$propertyIds = $entityRevision->getEntity()->getStatements()->getPropertyIds();
 
 		foreach( $propertyIds as $propertyId ) {
 			$propertyIdText = $propertyId->getSerialization();

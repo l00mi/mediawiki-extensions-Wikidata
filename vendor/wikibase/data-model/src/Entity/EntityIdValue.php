@@ -5,7 +5,7 @@ namespace Wikibase\DataModel\Entity;
 use DataValues\DataValue;
 use DataValues\DataValueObject;
 use DataValues\IllegalValueException;
-use Wikibase\DataModel\Internal\LegacyIdInterpreter;
+use Wikibase\DataModel\LegacyIdInterpreter;
 
 /**
  * @since 0.5
@@ -15,7 +15,7 @@ use Wikibase\DataModel\Internal\LegacyIdInterpreter;
  */
 class EntityIdValue extends DataValueObject {
 
-	protected $entityId;
+	private $entityId;
 
 	public function __construct( EntityId $entityId ) {
 		$this->entityId = $entityId;
@@ -41,10 +41,10 @@ class EntityIdValue extends DataValueObject {
 	 * though cannot be removed until we ditch the "numeric id" part
 	 * from the serialization.
 	 *
-	 * @return int
+	 * @return double Numeric id as a whole number. Can not be int because of 32-bit PHP.
 	 */
 	protected function getNumericId() {
-		return (int)substr( $this->entityId->getSerialization(), 1 );
+		return doubleval( substr( $this->entityId->getSerialization(), 1 ) );
 	}
 
 	/**

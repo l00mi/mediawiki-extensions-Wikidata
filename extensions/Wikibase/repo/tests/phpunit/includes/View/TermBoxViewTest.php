@@ -29,10 +29,13 @@ class TermBoxViewTest extends \PHPUnit_Framework_TestCase {
 		$entity = Item::newEmpty();
 		$entity->setId( new ItemId( 'Q23' ) );
 
-		$entity->setLabel( 'en', 'Moskow' );
-		$entity->setLabel( 'de', 'Moskau' );
+		$fingerprint = $entity->getFingerprint();
+		$fingerprint->setLabel( 'en', 'Moskow' );
+		$fingerprint->setLabel( 'de', 'Moskau' );
 
-		$entity->setDescription( 'de', 'Hauptstadt Russlands' );
+		$fingerprint->setDescription( 'de', 'Hauptstadt Russlands' );
+
+		$entity->setFingerprint( $fingerprint );
 
 		$languages = array( 'de', 'ru' );
 
@@ -44,7 +47,6 @@ class TermBoxViewTest extends \PHPUnit_Framework_TestCase {
 		$this->assertRegExp( '/Hauptstadt/', $html, 'expected German description' );
 
 		$this->assertRegExp( '/wikibase-label-empty/', $html, 'expected label-empty message for "ru"' );
-		$this->assertRegExp( '!Q23/de!', $html, 'expected edit link for Q23/de' );
 		$this->assertRegExp( '!<h2 id="wb-terms".*?>\(wikibase-terms\)</h2>!', $html, 'expected h2 header' );
 	}
 

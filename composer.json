@@ -11,12 +11,21 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "propertysuggester/property-suggester": "~1.1",
-        "wikibase/wikibase": "dev-mw1.24-wmf19",
+        "propertysuggester/property-suggester": "~1.1.2",
+        "wikibase/wikibase": "dev-wmf/1.25wmf1",
         "wikibase/wikimedia-badges": "dev-master",
-        "wikibase/Wikidata.org" : "dev-master"
+        "wikibase/Wikidata.org": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wikidata\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings",
+        "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_mw1_24_wmf19"
+        "autoloader-suffix": "wikidata_1_25wmf1"
     }
 }

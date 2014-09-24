@@ -29,7 +29,7 @@
 			value: value || null,
 			entityStore: entityStore,
 			valueViewBuilder: valueViewBuilder,
-			abstractedRepoApi: new wb.AbstractedRepoApi( new wb.RepoApi() )
+			api: new wb.AbstractedRepoApi( new wb.RepoApi() )
 		};
 
 		return $( '<div/>' )
@@ -37,8 +37,7 @@
 			.claimview( options );
 	}
 
-	QUnit.module( 'jquery.wikibase.claimview', window.QUnit.newWbEnvironment( {
-	} ) );
+	QUnit.module( 'jquery.wikibase.claimview' );
 
 	QUnit.test( 'Initialize and destroy', function( assert ) {
 		var $node = createClaimview(),

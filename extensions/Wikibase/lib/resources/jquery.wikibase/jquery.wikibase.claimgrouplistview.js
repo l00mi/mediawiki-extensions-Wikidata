@@ -21,7 +21,7 @@
  *
  * @option {wikibase.store.EntityStore} entityStore
  * @option {wikibase.ValueViewBuilder} valueViewBuilder
- * @option {wikibase.AbstractedRepoApi} abstractedRepoApi
+ * @option {wikibase.AbstractedRepoApi} api
  */
 $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	/**
@@ -41,15 +41,17 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 		entityType: wb.datamodel.Item.type,
 		entityStore: null,
 		valueViewBuilder: null,
-		abstractedRepoApi: null
+		api: null
 	},
 
 	/**
 	 * @see jQuery.Widget._create
+	 *
+	 * @throws {Error} if any required option is not specified.
 	 */
 	_create: function() {
-		if ( !this.option( 'abstractedRepoApi' ) ) {
-			throw new Error( 'wikibase.claimgrouplistview requires a wikibase.AbstractedRepoApi' );
+		if( !this.options.entityStore || !this.options.valueViewBuilder || !this.options.api ) {
+			throw new Error( 'Required option(s) missing' );
 		}
 
 		PARENT.prototype._create.call( this );
@@ -176,7 +178,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 						firstClaimIndex: indexOf( value, self.option( 'value' ) ),
 						entityStore: self.option( 'entityStore' ),
 						valueViewBuilder: self.option( 'valueViewBuilder' ),
-						abstractedRepoApi: self.option( 'abstractedRepoApi' )
+						api: self.option( 'api' )
 					};
 				}
 			} )
@@ -344,8 +346,20 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 				index++;
 			}
 		}
-	}
+	},
 
+	/**
+	 * @see jQuery.ui.TemplatedWidget._setOption
+	 */
+	_setOption: function( key, value ) {
+		var response = PARENT.prototype._setOption.apply( this, arguments );
+
+		if( key === 'disabled' ) {
+			this.$listview.data( 'listview' ).option( key, value );
+		}
+
+		return response;
+	}
 } );
 
 $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
@@ -354,7 +368,8 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 		+ '-' + $.wikibase.claimgrouplistview.prototype.widgetName,
 	events: {
 		claimgrouplistviewcreate: function( event, toolbarcontroller ) {
-			var $claimgrouplistview = $( event.target );
+			var $claimgrouplistview = $( event.target ),
+				claimgrouplistview = $claimgrouplistview.data( 'claimgrouplistview' );
 
 			$claimgrouplistview.addtoolbar( {
 				addButtonAction: function() {
@@ -370,6 +385,20 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 					);
 				}
 			} );
+
+			// TODO: Integrate state management into addtoolbar
+			toolbarcontroller.registerEventHandler(
+				event.data.toolbar.type,
+				event.data.toolbar.id,
+				'claimgrouplistviewdisable',
+				function() {
+					$claimgrouplistview.data( 'addtoolbar' )[
+						claimgrouplistview.option( 'disabled' )
+						? 'disable'
+						: 'enable'
+					]();
+				}
+			);
 		}
 	}
 } );

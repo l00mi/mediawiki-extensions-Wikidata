@@ -14,7 +14,9 @@
 			"Zhuyifei1999",
 			"乌拉跨氪",
 			"Mywood",
-			"Impersonator 1"
+			"Impersonator 1",
+			"Jason924tw",
+			"Duolaimi"
 		]
 	},
 	"wikibase-client-desc": "维基数据库扩展程序的客户端",
@@ -59,7 +61,7 @@
 	"wikibase-watchlist-show-changes-pref": "在你的监视列表中显示{{WBREPONAME}}编辑",
 	"wikibase-error-serialize-error": "无法序列化数据。",
 	"wikibase-error-invalid-entity-id": "输入的ID在系统中是未知的。请使用一个有效的实体ID。",
-	"special-unconnectedpages": "未连接项的页面",
+	"special-unconnectedpages": "未连接至项的页面",
 	"wikibase-unconnectedpages-legend": "未连接页面选项",
 	"wikibase-unconnectedpages-page": "结果列表的起始页面：",
 	"wikibase-unconnectedpages-submit": "提交",
@@ -71,6 +73,6 @@
 	"wikibase-pageinfo-entity-id-none": "无",
 	"wikibase-property-render-error": "无法生成属性$1：$2",
 	"wikibase-otherprojects": "其他项目",
-	"wikibase-otherprojects-beta-message": "其他项目边栏",
+	"wikibase-otherprojects-beta-message": "其他项目侧边栏",
 	"wikibase-otherprojects-beta-description": "在边栏添加“{{int:wikibase-otherprojects}}”节，它包含连入{{WBREPONAME}}数据的其他维基媒体项目的页面连接。"
 }

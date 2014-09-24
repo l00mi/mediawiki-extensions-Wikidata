@@ -15,8 +15,9 @@
  * @option {wikibase.datamodel.SiteLink} [value]
  *         Default: null
  *
- * @option {string[]} [allowedSiteIds]
- *         Default: []
+ * @option {Function} [getAllowedSiteIds]
+ *         Function returning an array of wikibase.datamodel.SiteLink objects.
+ *         Default: function() { return []; }
  *
  * @option {wikibase.store.EntityStore} entityStore
  *
@@ -27,7 +28,7 @@
  *        - {jQuery.Event}
  *
  * @event afterstartediting
- *       - [jQuery.Event}
+ *       - {jQuery.Event}
  *
  * @event stopediting
  *        - {jQuery.Event}
@@ -75,7 +76,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			'$link': '.wikibase-sitelinkview-link'
 		},
 		value: null,
-		allowedSiteIds: [],
+		getAllowedSiteIds: function() { return []; },
 		entityStore: null,
 		helpMessage: mw.msg( 'wikibase-sitelinks-input-help-message' )
 	},
@@ -137,8 +138,8 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 					siteLink ? site.getUrlTo( siteLink.getPageName() ) : '',
 					siteLink ? siteLink.getPageName() : '',
 					'', // badges
-					siteLink ? site.getLanguageCode() : '',
-					siteLink ? site.getLanguageDirection() : 'auto'
+					site ? site.getLanguageCode() : '',
+					site ? site.getLanguageDirection() : 'auto'
 				)
 			);
 		}
@@ -169,6 +170,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		$pageNameInput
 		.on( 'eachchange.' + this.widgetName + ' pagesuggesterchange.' + this.widgetName,
 			function( event ) {
+				self.setError();
 				self._trigger( 'change' );
 			}
 		);
@@ -183,7 +185,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		var $siteIdInput = $( '<input/>' )
 			.attr( 'placeholder', mw.msg( 'wikibase-sitelink-site-edit-placeholder' ) )
 			.siteselector( {
-				source: $.map( this.option( 'allowedSiteIds' ), function( siteId ) {
+				source: $.map( this.option( 'getAllowedSiteIds' )(), function( siteId ) {
 					return wb.sites.getSite( siteId );
 				} )
 			} );
@@ -270,7 +272,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			siteLink = this.options.value;
 
 		try {
-			entityId = this.element.closest( '.wb-entity' ).attr( 'id' ).split( '-' ).pop();
+			entityId = this.element.closest( '.wikibase-entityview' ).attr( 'id' ).split( '-' ).pop();
 		} catch( e ) {
 			entityId = null;
 		}
@@ -384,7 +386,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 				var site = siteselector.getSelectedSite();
 				siteId = site ? site.getId() : null;
 			} else {
-				siteId = this.options.value.getSiteId();
+				siteId = this.options.value ? this.options.value.getSiteId() : null;
 			}
 
 			// TODO: Do not allow null values for siteId and pageName in wikibase.datamodel.SiteLink
@@ -392,7 +394,20 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 				return null;
 			}
 
-			return new wb.datamodel.SiteLink( siteId, $pagesuggester.val() );
+			// Reconstruct SiteLink with original badges to check whether the actual link has
+			// changed. If the link changed, return SiteLink without any badges.
+			// TODO: Resolve this logic as soon as badge selector is implemented.
+			siteLink = new wb.datamodel.SiteLink(
+				siteId,
+				$pagesuggester.val(),
+				this.options.value ? this.options.value.getBadges() : []
+			);
+
+			if( siteLink.equals( this.options.value ) ) {
+				return siteLink;
+			} else {
+				return new wb.datamodel.SiteLink( siteId, $pagesuggester.val() );
+			}
 
 		} else if( !( siteLink instanceof wb.datamodel.SiteLink ) ) {
 			throw new Error( 'Value needs to be a SiteLink instance' );
@@ -415,10 +430,35 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			throw new Error( 'Cannot set site link with new site id after initialization' );
 		}
 
-		PARENT.prototype._setOption.apply( this, arguments );
+		var response = PARENT.prototype._setOption.apply( this, arguments );
 
 		if( key === 'value' ) {
 			this._draw();
+		} else if( key === 'disabled' ) {
+			this._setState( value ? 'disable' : 'enable' );
+		}
+
+		return response;
+	},
+
+	/**
+	 * @param {string} state
+	 */
+	_setState: function( state ) {
+		if( this._isInEditMode ) {
+			var $siteInput = this.$siteId.find( 'input' ),
+				hasSiteId = !!( this.options.value && this.options.value.getSiteId() );
+
+			if( $siteInput.length ) {
+				var siteselector = $siteInput.data( 'siteselector' );
+				hasSiteId = !!siteselector.getSelectedSite();
+				siteselector[state]();
+			}
+
+			// Do not enable page input if no site is set:
+			if( state === 'disable' || hasSiteId ) {
+				this.$link.find( 'input' ).data( 'pagesuggester' )[state]();
+			}
 		}
 	},
 
@@ -445,72 +485,12 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		if( error ) {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
-		} else {
+		} else if( this.element.hasClass( 'wb-error' ) ) {
 			this.element.removeClass( 'wb-error' );
 			this._trigger( 'toggleerror' );
 		}
 	}
 
-} );
-
-$.wikibase.toolbarcontroller.definition( 'edittoolbar', {
-	id: 'sitelinkview',
-	selector: ':' + $.wikibase.sitelinkview.prototype.namespace
-		+ '-' + $.wikibase.sitelinkview.prototype.widgetName,
-	events: {
-		sitelinkviewcreate: function( event, toolbarcontroller ) {
-			var $sitelinkview = $( event.target ),
-				sitelinkview = $sitelinkview.data( 'sitelinkview' );
-
-			$sitelinkview.edittoolbar( {
-				$container: $( '<td/>' ).appendTo( $sitelinkview ),
-				interactionWidgetName: $.wikibase.sitelinkview.prototype.widgetName,
-				parentWidgetFullName: 'wikibase.sitelinklistview',
-				enableRemove: !!sitelinkview.value()
-			} );
-
-			$sitelinkview.on( 'keyup', function( event ) {
-				if( sitelinkview.option( 'disabled' ) ) {
-					return;
-				}
-				if( event.keyCode === $.ui.keyCode.ESCAPE ) {
-					sitelinkview.stopEditing( true );
-				} else if( event.keyCode === $.ui.keyCode.ENTER ) {
-					sitelinkview.stopEditing( false );
-				}
-			} );
-
-			$sitelinkview.one( 'toolbareditgroupedit', function() {
-
-				toolbarcontroller.registerEventHandler(
-					event.data.toolbar.type,
-					event.data.toolbar.id,
-					sitelinkview.widgetEventPrefix + 'change',
-					function( event ) {
-						var $sitelinkview = $( event.target ),
-							sitelinkview = $sitelinkview.data( 'sitelinkview' ),
-							toolbar = $sitelinkview.data( 'edittoolbar' ).toolbar,
-							$btnSave = toolbar.editGroup.getButton( 'save' ),
-							btnSave = $btnSave.data( 'toolbarbutton' ),
-							enable = sitelinkview.isValid() && !sitelinkview.isInitialValue();
-
-						btnSave[enable ? 'enable' : 'disable']();
-					}
-				);
-
-			} );
-		},
-		toolbareditgroupedit: function( event, toolbarcontroller ) {
-			var $sitelinkview = $( event.target ).closest( ':wikibase-edittoolbar' ),
-				sitelinkview = $sitelinkview.data( 'sitelinkview' );
-
-			if( !sitelinkview ) {
-				return;
-			}
-
-			sitelinkview.focus();
-		}
-	}
 } );
 
 }( mediaWiki, wikibase, jQuery ) );

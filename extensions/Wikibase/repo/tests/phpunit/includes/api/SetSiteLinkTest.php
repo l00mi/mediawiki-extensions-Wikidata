@@ -3,6 +3,7 @@
 namespace Wikibase\Test\Api;
 
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -93,24 +94,24 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 	public function provideExceptionData() {
 		return array(
 			array( //0 badtoken
-				'p' => array( 'site' => 'dewiki', 'title' => 'Berlin', 'linksite' => 'svwiki', 'linktitle' => 'testSetLiteLinkWithNoToken' ),
+				'p' => array( 'site' => 'dewiki', 'title' => 'Berlin', 'linksite' => 'svwiki', 'linktitle' => 'testSetSiteLinkWithNoToken' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'notoken', 'message' => 'The token parameter must be set' ) ) ),
 			array( //1
-				'p' => array( 'site' => 'dewiki', 'title' => 'Berlin', 'linksite' => 'svwiki', 'linktitle' => 'testSetLiteLinkWithBadToken', 'token' => '88888888888888888888888888888888+\\' ),
+				'p' => array( 'site' => 'dewiki', 'title' => 'Berlin', 'linksite' => 'svwiki', 'linktitle' => 'testSetSiteLinkWithBadToken', 'token' => '88888888888888888888888888888888+\\' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'badtoken', 'message' => 'Invalid token' ) ) ),
-			array( //2 testSetLiteLinkWithNoId
-				'p' => array( 'linksite' => 'enwiki', 'linktitle' => 'testSetLiteLinkWithNoId' ),
+			array( //2 testSetSiteLinkWithNoId
+				'p' => array( 'linksite' => 'enwiki', 'linktitle' => 'testSetSiteLinkWithNoId' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException' ) ) ),
-			array( //3 testSetLiteLinkWithBadId
-				'p' => array( 'id' => 123456789, 'linksite' => 'enwiki', 'linktitle' => 'testSetLiteLinkWithNoId' ),
+			array( //3 testSetSiteLinkWithBadId
+				'p' => array( 'id' => 123456789, 'linksite' => 'enwiki', 'linktitle' => 'testSetSiteLinkWithNoId' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException' ) ) ),
-			array( //4 testSetLiteLinkWithBadSite
+			array( //4 testSetSiteLinkWithBadSite
 				'p' => array( 'site' => 'dewiktionary', 'title' => 'Berlin', 'linksite' => 'enwiki', 'linktitle' => 'Berlin' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException' ) ) ),
-			array( //5 testSetLiteLinkWithBadTitle
+			array( //5 testSetSiteLinkWithBadTitle
 				'p' => array( 'site' => 'dewiki', 'title' => 'BadTitle_de', 'linksite' => 'enwiki', 'linktitle' => 'BadTitle_en' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException' ) ) ),
-			array( //6 testSetLiteLinkWithBadTargetSite
+			array( //6 testSetSiteLinkWithBadTargetSite
 				'p' => array( 'site' => 'dewiki', 'title' => 'Berlin', 'linksite' => 'enwiktionary', 'linktitle' => 'Berlin' ),
 				'e' => array( 'exception' => array( 'type' => 'UsageException' ) ) ),
 			array( //7 badge item does not exist
@@ -157,8 +158,8 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 			self::$otherItemId = $badge->getId();
 
 			WikibaseRepo::getDefaultInstance()->getSettings()->setSetting( 'badgeItems', array(
-				self::$gaItemId->getPrefixedId() => '',
-				self::$faItemId->getPrefixedId() => '',
+				self::$gaItemId->getSerialization() => '',
+				self::$faItemId->getSerialization() => '',
 				'Q99999' => '', // Just in case we have a wrong config
 			) );
 		}
@@ -178,11 +179,11 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 			}
 			foreach( $site['badges'] as &$dummy ) {
 				if ( $dummy === '{gaItem}' ) {
-					$dummy = self::$gaItemId->getPrefixedId();
+					$dummy = self::$gaItemId->getSerialization();
 				} elseif ( $dummy === '{faItem}' ) {
-					$dummy = self::$faItemId->getPrefixedId();
+					$dummy = self::$faItemId->getSerialization();
 				} elseif ( $dummy === '{otherItem}' ) {
-					$dummy = self::$otherItemId->getPrefixedId();
+					$dummy = self::$otherItemId->getSerialization();
 				}
 			}
 		}
@@ -192,7 +193,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 	/**
 	 * @dataProvider provideData
 	 */
-	public function testSetLiteLink( $params, $expected ) {
+	public function testSetSiteLink( $params, $expected ) {
 		// -- set any defaults ------------------------------------
 		if ( array_key_exists( 'handle', $params ) ) {
 			$params['id'] = EntityTestHelper::getId( $params['handle'] );
@@ -204,7 +205,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		if ( isset( $params['badges'] ) ) {
 			$params['badges'] = str_replace(
 				array( '{gaItem}', '{faItem}', '{otherItem}' ),
-				array( self::$gaItemId->getPrefixedId(), self::$faItemId->getPrefixedId(), self::$otherItemId->getPrefixedId() ),
+				array( self::$gaItemId->getSerialization(), self::$faItemId->getSerialization(), self::$otherItemId->getSerialization() ),
 				$params['badges']
 			);
 		}
@@ -253,9 +254,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 			);
 
 			$this->assertArrayHasKey( 'badges', $sitelink );
-			$this->assertEquals( $expSitelink['badges'], $sitelink['badges'],
-				"Returned incorrect badges"
-			);
+			$this->assertArrayEquals( $expSitelink['badges'], $sitelink['badges'] );
 		} else if ( empty( $expected['value'] ) ) {
 			$this->assertArrayHasKey( 'removed', $sitelink,
 				"Entity doesn't return expected 'removed' marker"
@@ -277,17 +276,8 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		}
 		if ( $expectedInDb ) {
 			$this->assertArrayHasKey( 'sitelinks', $dbEntity );
-
-			foreach ( array( 'title', 'badges' ) as $prop ) {
-				$dbSitelinks = self::flattenArray( $dbEntity['sitelinks'], 'site', $prop );
-				$this->assertEquals( $expectedInDb, count( $dbSitelinks ) );
-				foreach ( $expected['value'] as $valueSite => $value ) {
-					$this->assertArrayHasKey( $valueSite, $dbSitelinks );
-					$this->assertEquals( $value[$prop], $dbSitelinks[$valueSite],
-						"'$prop' value is not correct"
-					);
-				}
-			}
+			$this->assertCount( $expectedInDb, $dbEntity['sitelinks'] );
+			$this->assertContainsAllSiteLinks( $expected['value'], $dbEntity['sitelinks'] );
 		} else {
 			$this->assertArrayNotHasKey( 'sitelinks', $dbEntity );
 		}
@@ -302,6 +292,25 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 	}
 
 	/**
+	 * @param array[] $expectedSiteLinks
+	 * @param array[] $dbSiteLinks
+	 */
+	private function assertContainsAllSiteLinks( array $expectedSiteLinks, array $dbSiteLinks ) {
+		foreach ( $expectedSiteLinks as $site => $expectedSiteLink ) {
+			$this->assertArrayHasKey( $site, $dbSiteLinks );
+			$dbSiteLink = $dbSiteLinks[$site];
+
+			$this->assertArrayHasKey( 'title', $dbSiteLink );
+			$this->assertInternalType( 'string', $dbSiteLink['title'] );
+			$this->assertSame( $expectedSiteLink['title'], $dbSiteLink['title'] );
+
+			$this->assertArrayHasKey( 'badges', $dbSiteLink );
+			$this->assertInternalType( 'array', $dbSiteLink['badges'] );
+			$this->assertArrayEquals( $expectedSiteLink['badges'], $dbSiteLink['badges'] );
+		}
+	}
+
+	/**
 	 * @dataProvider provideExceptionData
 	 */
 	public function testSetSiteLinkExceptions( $params, $expected ) {
@@ -312,7 +321,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		if ( isset( $params['badges'] ) ) {
 			$params['badges'] = str_replace(
 				array( '{gaItem}', '{faItem}', '{otherItem}' ),
-				array( self::$gaItemId->getPrefixedId(), self::$faItemId->getPrefixedId(), self::$otherItemId->getPrefixedId() ),
+				array( self::$gaItemId->getSerialization(), self::$faItemId->getSerialization(), self::$otherItemId->getSerialization() ),
 				$params['badges']
 			);
 		}
@@ -331,7 +340,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		if ( isset( $params['badges'] ) ) {
 			$params['badges'] = str_replace(
 				array( '{gaItem}', '{faItem}', '{otherItem}' ),
-				array( self::$gaItemId->getPrefixedId(), self::$faItemId->getPrefixedId(), self::$otherItemId->getPrefixedId() ),
+				array( self::$gaItemId->getSerialization(), self::$faItemId->getSerialization(), self::$otherItemId->getSerialization() ),
 				$params['badges']
 			);
 		}
@@ -341,5 +350,5 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		$warning = $result['warnings']['wbsetsitelink']['*'];
 		$this->assertRegExp( "/Unrecognized value for parameter 'badges'/", $warning );
 	}
-}
 
+}

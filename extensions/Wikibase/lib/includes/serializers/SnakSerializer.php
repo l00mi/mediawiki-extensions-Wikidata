@@ -7,8 +7,8 @@ use InvalidArgumentException;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\Lib\PropertyDataTypeLookup;
-use Wikibase\Lib\PropertyNotFoundException;
+use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\Entity\PropertyNotFoundException;
 
 /**
  * Serializer for Snak objects.
@@ -113,7 +113,7 @@ class SnakSerializer extends SerializerObject implements Unserializer {
 		);
 
 		if ( array_key_exists( 'datavalue', $serialization ) ) {
-			$constructorArguments[] = DataValueFactory::singleton()->newFromArray( $serialization['datavalue'] );
+			$constructorArguments[] = DataValueFactory::singleton()->tryNewFromArray( $serialization['datavalue'] );
 		}
 
 		return $this->newSnakFromType( $serialization['snaktype'], $constructorArguments );
