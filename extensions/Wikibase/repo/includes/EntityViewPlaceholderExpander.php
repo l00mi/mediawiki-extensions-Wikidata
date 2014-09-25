@@ -219,7 +219,7 @@ class EntityViewPlaceholderExpander {
 	 * @throws InvalidArgumentException
 	 * @return string HTML
 	 */
-	public function renderTermBox( EntityId $entityId, $revisionId ) {
+	public function renderTermBox( $entityId, $revisionId ) {
 		$languages = $this->getExtraUserLanguages();
 
 		if ( !$languages ) {

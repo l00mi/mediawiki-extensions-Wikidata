@@ -267,7 +267,7 @@ class ClaimDifferenceVisualizer {
 	 *
 	 * @return string HTML
 	 */
-	protected function formatPropertyId( EntityId $entityId ) {
+	protected function formatPropertyId( $entityId ) {
 		try {
 			return $this->propertyIdFormatter->format( $entityId );
 		} catch ( FormattingException $ex ) {

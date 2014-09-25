@@ -32,7 +32,7 @@ class ExternalChange {
 	 * @param RevisionData $rev
 	 * @param string $changeType
 	 */
-	public function __construct( EntityId $entityId, RevisionData $rev, $changeType ) {
+	public function __construct( $entityId, RevisionData $rev, $changeType ) {
 		$this->entityId = $entityId;
 		$this->rev = $rev;
 		$this->changeType = $changeType;
