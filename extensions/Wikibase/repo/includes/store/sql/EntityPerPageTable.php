@@ -53,7 +53,7 @@ class EntityPerPageTable implements EntityPerPage {
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function addEntityPage( EntityId $entityId, $pageId ) {
+	public function addEntityPage( $entityId, $pageId ) {
 		$this->addRow( $entityId, $pageId );
 	}
 
@@ -64,7 +64,7 @@ class EntityPerPageTable implements EntityPerPage {
 	 * @param int $pageId
 	 * @param EntityId $targetId
 	 */
-	public function addRedirectPage( EntityId $entityId, $pageId, EntityId $targetId ) {
+	public function addRedirectPage( $entityId, $pageId, $targetId ) {
 		$this->addRow( $entityId, $pageId, $targetId );
 	}
 

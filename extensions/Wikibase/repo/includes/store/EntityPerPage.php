@@ -27,7 +27,7 @@ interface EntityPerPage {
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function addEntityPage( EntityId $entityId, $pageId );
+	public function addEntityPage( $entityId, $pageId );
 
 	/**
 	 * Adds a new link between an entity redirect and a page
@@ -38,7 +38,7 @@ interface EntityPerPage {
 	 * @param int $pageId
 	 * @param EntityId $targetId
 	 */
-	public function addRedirectPage( EntityId $entityId, $pageId, EntityId $targetId );
+	public function addRedirectPage( $entityId, $pageId, $targetId );
 
 	/**
 	 * Lists entities of the given type.
