@@ -45,8 +45,10 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	include_once( __DIR__ . '/vendor/autoload.php' );
 }
 
+$GLOBALS['wgMessagesDirs']['Wikidata.org'] = __DIR__ . '/i18n';
+
 $GLOBALS['wgExtensionFunctions'][] = function() {
-	global $wgExtensionCredits, $wgMessagesDirs, $wgHooks, $wgResourceModules;
+	global $wgExtensionCredits, $wgHooks, $wgResourceModules;
 
 	if ( !defined( 'WB_VERSION' ) ) {
 		throw new Exception( 'The Wikidata.org extension requires Wikibase to be installed.' );
@@ -58,11 +60,9 @@ $GLOBALS['wgExtensionFunctions'][] = function() {
 		'version' => WIKIDATA_ORG_VERSION,
 		'author' => '[https://www.mediawiki.org/wiki/User:Bene* Bene*]',
 		'url' => 'https://github.com/wmde/Wikidata.org',
-		'descriptionmsg' => 'wikidata-org-desc'
+		'descriptionmsg' => 'wikidata-org-desc',
+		'license-name' => 'GPL-2.0+'
 	);
-
-	// i18n
-	$wgMessagesDirs['Wikidata.org'] = __DIR__ . '/i18n';
 
 	// Hooks
 	$wgHooks['BeforePageDisplay'][] = 'WikidataOrg\Hooks::onBeforePageDisplay';
