@@ -29,6 +29,8 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	include_once( __DIR__ . '/vendor/autoload.php' );
 }
 
+$GLOBALS['wgMessagesDirs']['WikimediaBadges'] = __DIR__ . '/i18n';
+
 $GLOBALS['wgExtensionFunctions'][] = function() {
 	global $wgExtensionCredits, $wgMessagesDirs, $wgHooks, $wgResourceModules;
 
@@ -38,11 +40,9 @@ $GLOBALS['wgExtensionFunctions'][] = function() {
 		'version' => WIKIMEDIA_BADGES_VERSION,
 		'author' => '[[mw:User:Bene*|Bene*]]',
 		'url' => 'https://github.com/wmde/WikimediaBadges',
-		'descriptionmsg' => 'wikimedia-badges-desc'
+		'descriptionmsg' => 'wikimedia-badges-desc',
+		'license-name' => 'GPL-2.0+'
 	);
-
-	// i18n
-	$wgMessagesDirs['WikimediaBadges'] = __DIR__ . '/i18n';
 
 	// Hooks
 	$wgHooks['BeforePageDisplay'][] = 'WikimediaBadges\Hooks::onBeforePageDisplay';

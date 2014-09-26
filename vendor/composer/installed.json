@@ -1180,12 +1180,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "47597574720e4381dbf976ee01894e6b2ce44b8d"
+            "reference": "e16fe63d80c9b395a8c7c871bec945d953f1aa0e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/47597574720e4381dbf976ee01894e6b2ce44b8d",
-            "reference": "47597574720e4381dbf976ee01894e6b2ce44b8d",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e16fe63d80c9b395a8c7c871bec945d953f1aa0e",
+            "reference": "e16fe63d80c9b395a8c7c871bec945d953f1aa0e",
             "shasum": ""
         },
         "require": {
@@ -1212,7 +1212,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-09-24 09:01:52",
+        "time": "2014-09-26 03:33:15",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1264,18 +1264,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikimediaBadges.git",
-            "reference": "0d5623b78502cc5642b43e9df770527322c32371"
+            "reference": "0fae9f0c106fedc5550994a5fc825e866944e999"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/0d5623b78502cc5642b43e9df770527322c32371",
-            "reference": "0d5623b78502cc5642b43e9df770527322c32371",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/0fae9f0c106fedc5550994a5fc825e866944e999",
+            "reference": "0fae9f0c106fedc5550994a5fc825e866944e999",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-09-18 15:42:03",
+        "time": "2014-09-26 02:48:21",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1316,18 +1316,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/Wikidata.org.git",
-            "reference": "ee3983e06188766df13f847c165b98d449c14e39"
+            "reference": "381190e89865e9d0fadcc490ca6f7c7dfdaefb04"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/ee3983e06188766df13f847c165b98d449c14e39",
-            "reference": "ee3983e06188766df13f847c165b98d449c14e39",
+            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/381190e89865e9d0fadcc490ca6f7c7dfdaefb04",
+            "reference": "381190e89865e9d0fadcc490ca6f7c7dfdaefb04",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-09-18 15:49:27",
+        "time": "2014-09-26 07:02:41",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

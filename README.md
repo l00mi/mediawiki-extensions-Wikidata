@@ -56,10 +56,32 @@ If you do not and can not define this variable please use the **runScript.php** 
 
 Manually updating a Wikidata build requires [composer](http://getcomposer.org/) to be installed on the system.
 
-In the root Wikidata "extension" directory, run:
+The Wikidata build uses grunt (node.js) to provide some convenience functions. To use this, do:
 
 ```bash
-composer update -o
+
+npm install
+```
+
+Then to make a build, run:
+
+```bash
+
+grunt install
+```
+
+To clean the install (remove composer.lock, /vendor and /extensions):
+
+```bash
+
+grunt uninstall
+```
+
+To make a deployment build, using appropriate branchName argument:
+
+```bash
+
+grunt branch --branchName="wmf/1.25wmf1"
 ```
 
 ## Updating this README

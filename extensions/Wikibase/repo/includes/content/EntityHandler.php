@@ -22,10 +22,10 @@ use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\EntityContent;
-use Wikibase\EntityPerPage;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\NamespaceUtils;
+use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\TermIndex;
 use Wikibase\Updates\DataUpdateAdapter;
 use Wikibase\Validators\EntityValidator;
@@ -136,7 +136,7 @@ abstract class EntityHandler extends ContentHandler {
 	 * @return string
 	 */
 	protected function getDiffEngineClass() {
-		return '\Wikibase\EntityContentDiffView';
+		return '\Wikibase\Repo\Diff\EntityContentDiffView';
 	}
 
 	/**
