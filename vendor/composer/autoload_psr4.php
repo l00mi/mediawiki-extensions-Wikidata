@@ -9,7 +9,7 @@ return array(
     'Wikidata\\' => array($baseDir . '/src'),
     'Wikibase\\Repo\\View\\' => array($baseDir . '/extensions/Wikibase/repo/includes/View'),
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
-    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
+    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model-serialization/src', $vendorDir . '/wikibase/data-model/src'),
     'ValueValidators\\' => array($vendorDir . '/data-values/validators/src'),
     'Serializers\\' => array($vendorDir . '/serialization/serialization/src/Serializers'),
     'PropertySuggester\\' => array($baseDir . '/extensions/PropertySuggester/src/PropertySuggester'),

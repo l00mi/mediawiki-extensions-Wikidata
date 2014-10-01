@@ -545,65 +545,6 @@
         ]
     },
     {
-        "name": "wikibase/data-model",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "afd3e610f71cfb10c10ccfdedc4115f55c32cfe7"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/afd3e610f71cfb10c10ccfdedc4115f55c32cfe7",
-            "reference": "afd3e610f71cfb10c10ccfdedc4115f55c32cfe7",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1|~1.0",
-            "diff/diff": "~1.0",
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "whatthejeff/nyancat-phpunit-resultprinter": "~1.2"
-        },
-        "time": "2014-09-02 16:08:03",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseDataModel.php"
-            ],
-            "psr-4": {
-                "Wikibase\\DataModel\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "PHP implementation of the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModel",
-        "keywords": [
-            "DataModel",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/data-model-serialization",
         "version": "1.1.1",
         "version_normalized": "1.1.1.0",
@@ -1275,19 +1216,72 @@
         }
     },
     {
+        "name": "wikibase/data-model",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModel.git",
+            "reference": "4bd23c28dc9dc0625db2b9b6aca4edd14c5e6feb"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/4bd23c28dc9dc0625db2b9b6aca4edd14c5e6feb",
+            "reference": "4bd23c28dc9dc0625db2b9b6aca4edd14c5e6feb",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1|~1.0",
+            "diff/diff": "~1.0",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "whatthejeff/nyancat-phpunit-resultprinter": "~1.2"
+        },
+        "time": "2014-10-01 14:45:42",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseDataModel.php"
+            ],
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP implementation of the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModel",
+        "keywords": [
+            "DataModel",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/wikibase",
         "version": "dev-wmf/1.25wmf1",
         "version_normalized": "dev-wmf/1.25wmf1",
         "source": {
             "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "210c5a0c936211fa8f3210c65bac38efa7958ea4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/210c5a0c936211fa8f3210c65bac38efa7958ea4",
-            "reference": "210c5a0c936211fa8f3210c65bac38efa7958ea4",
-            "shasum": ""
+            "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
+            "reference": "86e97ed5ebca2a56d8ec675d73a8a80164af0e42"
         },
         "require": {
             "data-values/common": "~0.2.0",
@@ -1313,9 +1307,9 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-09-30 13:33:12",
+        "time": "2014-10-01 12:59:01",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"
@@ -1339,7 +1333,6 @@
                 "Wikibase\\Repo\\View\\": "repo/includes/View"
             }
         },
-        "notification-url": "https://packagist.org/downloads/",
         "license": [
             "GNU GPL v2+"
         ],
@@ -1356,6 +1349,10 @@
             "wikibaselib",
             "wikibaserepo",
             "wikidata"
-        ]
+        ],
+        "support": {
+            "issues": "https://bugzilla.wikimedia.org/",
+            "irc": "irc://irc.freenode.net/wikidata"
+        }
     }
 ]

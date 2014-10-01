@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "03f334a04bd9ef94241b6e21a8b2f5a9",
+    "hash": "4be9a7215c326936159554d92df8545a",
     "packages": [
         {
             "name": "composer/installers",
@@ -878,16 +878,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "afd3e610f71cfb10c10ccfdedc4115f55c32cfe7"
+                "reference": "4bd23c28dc9dc0625db2b9b6aca4edd14c5e6feb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/afd3e610f71cfb10c10ccfdedc4115f55c32cfe7",
-                "reference": "afd3e610f71cfb10c10ccfdedc4115f55c32cfe7",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/4bd23c28dc9dc0625db2b9b6aca4edd14c5e6feb",
+                "reference": "4bd23c28dc9dc0625db2b9b6aca4edd14c5e6feb",
                 "shasum": ""
             },
             "require": {
@@ -931,7 +931,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-09-02 16:08:03"
+            "time": "2014-10-01 14:45:42"
         },
         {
             "name": "wikibase/data-model-javascript",
@@ -1190,14 +1190,8 @@
             "version": "dev-wmf/1.25wmf1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "210c5a0c936211fa8f3210c65bac38efa7958ea4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/210c5a0c936211fa8f3210c65bac38efa7958ea4",
-                "reference": "210c5a0c936211fa8f3210c65bac38efa7958ea4",
-                "shasum": ""
+                "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
+                "reference": "86e97ed5ebca2a56d8ec675d73a8a80164af0e42"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1247,7 +1241,6 @@
                     "Wikibase\\Repo\\View\\": "repo/includes/View"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GNU GPL v2+"
             ],
@@ -1265,7 +1258,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-09-30 13:33:12"
+            "support": {
+                "issues": "https://bugzilla.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata"
+            },
+            "time": "2014-10-01 14:35:34"
         },
         {
             "name": "wikibase/wikimedia-badges",
