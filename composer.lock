@@ -1191,7 +1191,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "86e97ed5ebca2a56d8ec675d73a8a80164af0e42"
+                "reference": "6f2bf7dbd02099b84bb0067d238343a7b65de690"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1262,7 +1262,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-10-01 14:35:34"
+            "time": "2014-10-02 14:52:57"
         },
         {
             "name": "wikibase/wikimedia-badges",
