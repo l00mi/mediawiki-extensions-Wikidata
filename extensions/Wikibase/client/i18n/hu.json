@@ -6,7 +6,8 @@
 			"Tgr",
 			"JulesWinnfield-hu",
 			"Tacsipacsi",
-			"Csega"
+			"Csega",
+			"Dorgan"
 		]
 	},
 	"wikibase-client-desc": "Kliens a Wikibase kiterjesztéshez",
@@ -41,5 +42,8 @@
 	"wikibase-rc-show-wikidata-pref": "{{WBREPONAME}} szerkesztések mutatása a friss változtatásokban",
 	"wikibase-rc-wikibase-edit-letter": "D",
 	"wikibase-rc-wikibase-edit-title": "{{WBREPONAME}}-szerkesztés",
-	"wikibase-watchlist-show-changes-pref": "{{WBREPONAME}}-változások mutatása a figyelőlistádon"
+	"wikibase-watchlist-show-changes-pref": "{{WBREPONAME}}-változások mutatása a figyelőlistádon",
+	"special-unconnectedpages": "Wikidata-hivatkozás nélküli lapok",
+	"wikibase-otherprojects": "Társlapok",
+	"wikibase-otherprojects-beta-message": "További projektek"
 }

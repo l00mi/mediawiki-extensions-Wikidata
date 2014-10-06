@@ -122,6 +122,23 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 
 		// Encapsulate sitelinkviews by suppressing their events:
 		this.$listview
+		.listview( {
+			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
+				listItemWidget: listItemWidget,
+				listItemWidgetValueAccessor: 'value',
+				newItemOptionsFn: function( value ) {
+					return {
+						value: value,
+						getAllowedSiteIds: function() {
+							return self._getUnusedAllowedSiteIds();
+						},
+						entityStore: self.options.entityStore
+					};
+				}
+			} ),
+			value: self.options.value || null,
+			listItemNodeName: 'TR'
+		} )
 		.on( prefix + 'change.' + this.widgetName, function( event ) {
 			event.stopPropagation();
 			self._trigger( 'change' );
@@ -179,24 +196,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				self._refreshTableHeader();
 				self._trigger( 'change' );
 			}
-		)
-		.listview( {
-			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
-				listItemWidget: listItemWidget,
-				listItemWidgetValueAccessor: 'value',
-				newItemOptionsFn: function( value ) {
-					return {
-						value: value,
-						getAllowedSiteIds: function() {
-							return self._getUnusedAllowedSiteIds();
-						},
-						entityStore: self.options.entityStore
-					};
-				}
-			} ),
-			value: self.options.value || null,
-			listItemNodeName: 'TR'
-		} );
+		);
 	},
 
 	/**
@@ -362,7 +362,11 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				self._saveSiteLink( emptySiteLink )
 					.done( function() {
 						self._afterRemove();
-						next();
+
+						// Use setTimeout here to break out of the current call stack.
+						// This is needed because the stack can get very large (if the queue
+						// is very large), eventually leading to failures.
+						setTimeout( next, 0 );
 					} )
 					.fail( function( error ) {
 						self.setError( error );
@@ -387,7 +391,10 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			$queue.queue( 'stopediting', function( next ) {
 				sitelinkview.element
 				.one( 'sitelinkviewafterstopediting.sitelinklistview', function( event ) {
-					next();
+					// Use setTimeout here to break out of the current call stack.
+					// This is needed because the stack can get very large (if the queue
+					// is very large), eventually leading to failures.
+					setTimeout( next, 0 );
 				} );
 				sitelinkview.stopEditing( dropValue );
 			} );

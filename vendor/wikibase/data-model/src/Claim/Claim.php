@@ -5,7 +5,8 @@ namespace Wikibase\DataModel\Claim;
 use Comparable;
 use Hashable;
 use InvalidArgumentException;
-use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\PropertyIdProvider;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Snak\Snaks;
@@ -20,7 +21,7 @@ use Wikibase\DataModel\Statement\Statement;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Claim implements Hashable, Comparable {
+class Claim implements Hashable, Comparable, PropertyIdProvider {
 
 	/**
 	 * Rank enum. Higher values are more preferred.
@@ -56,10 +57,6 @@ class Claim implements Hashable, Comparable {
 	protected $guid = null;
 
 	/**
-	 * Constructor.
-	 *
-	 * @since 0.1
-	 *
 	 * @param Snak $mainSnak
 	 * @param null|Snaks $qualifiers
 	 */
@@ -130,9 +127,11 @@ class Claim implements Hashable, Comparable {
 	 * Returns the id of the property of the main snak.
 	 * Short for ->getMainSnak()->getPropertyId()
 	 *
+	 * @see PropertyIdProvider::getPropertyId
+	 *
 	 * @since 0.2
 	 *
-	 * @return EntityId
+	 * @return PropertyId
 	 */
 	public function getPropertyId() {
 		return $this->getMainSnak()->getPropertyId();

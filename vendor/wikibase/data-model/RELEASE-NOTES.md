@@ -1,5 +1,21 @@
 # Wikibase DataModel release notes
 
+## Version 1.1 (2014-09-29)
+
+#### Additions
+
+* The `Property` constructor now accepts an optional `StatementList` parameter
+* Added `Property::getStatements` and `Property::setStatements`
+* Added `PropertyIdProvider` interface
+* Added `ByPropertyIdGrouper`
+* Added `BestStatementsFinder`
+* Added `EntityPatcher` and `EntityPatcherStrategy`
+* Added `StatementList::getAllSnaks` to use instead of `Entity::getAllSnaks`
+* The `Statement` constructor now also accepts a `Claim` parameter
+* Added `Statement::setClaim`
+* The `Reference` constructor now accepts a `Snak` array
+* Added `ReferenceList::addNewReference`
+
 ## Version 1.0 (2014-09-02)
 
 #### Breaking changes
@@ -34,6 +50,8 @@ Removal of `toArray` and `newFromArray`:
 
 Other breaking changes:
 
+* `Item` now has an array of `Statement` rather than an array of `Claim`
+* `Property` no longer has an array of `Claim`
 * `Claim` and `Statement` no longer implement `Serializable`
 * Protected method `Entity::entityToDiffArray` got renamed to `Entity::getDiffArray`
 * Removed `Fingerprint::getAliases`
@@ -67,6 +85,7 @@ Other breaking changes:
 
 #### Deprecations
 
+* Deprecated `Entity` (but not the derivatives)
 * Deprecated `Claims`
 * Deprecated `Entity::setId`
 * Deprecated `Entity::newClaim`

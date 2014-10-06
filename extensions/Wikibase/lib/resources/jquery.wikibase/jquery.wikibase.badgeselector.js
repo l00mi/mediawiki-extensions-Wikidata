@@ -239,13 +239,17 @@ $.widget( 'wikibase.badgeselector', PARENT, {
 			deferred = $.Deferred(),
 			$menu = this._getMenu();
 
+		self.repositionMenu();
+
 		this._fillMenu()
 		.done( function() {
 			$menu.children( 'li' ).each( function() {
 				var $li = $( this ),
 					badgeId = $li.data( self.widgetName + '-menuitem-badge' );
 
-				$li.toggleClass( 'ui-state-active', $.inArray( badgeId, self.value() ) !== -1 );
+				$li
+				.addClass( 'ui-menu-item' )
+				.toggleClass( 'ui-state-active', $.inArray( badgeId, self.value() ) !== -1 );
 			} );
 
 			$menu.hide();
@@ -284,9 +288,11 @@ $.widget( 'wikibase.badgeselector', PARENT, {
 					} );
 
 				if( item ) {
-					$item.text( item.getLabel( self.options.languageCode ) );
+					$item.text( item.getLabel( self.options.languageCode ) || item.getId() );
 				} else {
-					$item.append( wb.utilities.ui.buildMissingEntityInfo( itemId, wb.datamodel.Item.TYPE ) );
+					$item.append(
+						wb.utilities.ui.buildMissingEntityInfo( itemId, wb.datamodel.Item.TYPE )
+					);
 				}
 
 				$( '<li/>' )

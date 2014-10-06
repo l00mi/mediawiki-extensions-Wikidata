@@ -98,8 +98,12 @@ $.widget( 'wikibase.entityview', PARENT, {
 		this._initDescription();
 		this._initAliases();
 		this._initFingerprints();
-		this._initClaims();
-		this._initSiteLinks();
+
+		// TODO: Have an itemview and propertyview instead of ugly hack here.
+		if ( this.options.value.getType() === 'item' ) {
+			this._initClaims();
+			this._initSiteLinks();
+		}
 
 		this._attachEventHandlers();
 	},
@@ -240,6 +244,11 @@ $.widget( 'wikibase.entityview', PARENT, {
 
 		this.$siteLinks = $( '.wikibase-sitelinkgrouplistview', this.element );
 
+		if( this.$siteLinks.length === 0 ) {
+			// Properties for example don't have sitelinks
+			return;
+		}
+
 		// Scrape group and site link order from existing DOM:
 		var value = [];
 		this.$siteLinks.find( '.wikibase-sitelinkgroupview' ).each( function() {
@@ -357,15 +366,22 @@ $.widget( 'wikibase.entityview', PARENT, {
 		if( this.$fingerprints ) {
 			this.$fingerprints.data( 'fingerprintgroupview' )[state]();
 		}
-		this.$claims.data( 'claimgrouplistview' )[state]();
-		// TODO: Resolve integration of referenceviews
-		this.$claims.find( '.wb-statement-references' ).each( function() {
-			var $listview = $( this ).children( ':wikibase-listview' );
-			if( $listview.length ) {
-				$listview.data( 'listview' )[state]();
-			}
-		} );
-		this.$siteLinks.data( 'sitelinkgrouplistview' )[state]();
+
+		// horrible, horrible hack until we have proper item and property views
+		if( this.$claims ) {
+			this.$claims.data( 'claimgrouplistview' )[state]();
+			// TODO: Resolve integration of referenceviews
+			this.$claims.find( '.wb-statement-references' ).each( function() {
+				var $listview = $( this ).children( ':wikibase-listview' );
+				if( $listview.length ) {
+					$listview.data( 'listview' )[state]();
+				}
+			} );
+		}
+
+		if( this.$siteLinks && this.$siteLinks.length > 0 ) {
+			this.$siteLinks.data( 'sitelinkgrouplistview' )[state]();
+		}
 	},
 
 	/**
