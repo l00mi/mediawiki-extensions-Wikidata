@@ -1281,7 +1281,7 @@
         "source": {
             "type": "git",
             "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-            "reference": "6f2bf7dbd02099b84bb0067d238343a7b65de690"
+            "reference": "a69dcbf461a897bcb060a9322dc59c0145f160e9"
         },
         "require": {
             "data-values/common": "~0.2.0",
@@ -1307,7 +1307,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-10-02 14:52:57",
+        "time": "2014-10-06 09:25:56",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
