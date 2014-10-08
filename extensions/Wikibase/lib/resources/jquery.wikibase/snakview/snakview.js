@@ -112,13 +112,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 	_variation: null,
 
 	/**
-	 * Keeps track of values from previously used variations. This allows to display the same value
-	 * when using a previously used variation again during one edit-mode session.
-	 * @type Object
-	 */
-	_recentVariationValues: null,
-
-	/**
 	 * The property of the Snak currently represented by the view.
 	 * @type {String}
 	 */
@@ -169,8 +162,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 	_create: function() {
 		// apply template to this.element:
 		PARENT.prototype._create.call( this );
-
-		this._recentVariationValues = {};
 
 		this._entityStore = this.option( 'entityStore' );
 		this._valueViewBuilder = this.option( 'valueViewBuilder' );
@@ -388,9 +379,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 			// TODO: should throw an error somewhere when trying to leave edit mode while
 			//  this.snak() still returns null. For now setting {} is a simple solution for non-
 			//  existent error handling in the snak UI
-
-			// forget about values set in different variations
-			this._recentVariationValues = {};
 
 			this.element.off( 'keydown.' + this.widgetName );
 
@@ -650,7 +638,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 *
 	 * @since 0.4
 	 *
-	 * @param {String|null} snakType
+	 * @param {String|null} [snakType]
 	 * @return String|null
 	 */
 	snakType: function( snakType ) {
@@ -683,16 +671,12 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 */
 	_updateVariation: function() {
 		var variationsFactory = $.wikibase.snakview.variations,
-			variationType,
 			snakType = this._snakType,
 			VariationConstructor = variationsFactory.getVariation( snakType );
 
 		if( this._variation
 			&& ( !this._propertyId || this._variation.constructor !== VariationConstructor )
 		) {
-			// remember variation's value for next time variation is used during same edit mode:
-			variationType = this._variation.variationSnakConstructor.TYPE;
-			this._recentVariationValues[ variationType ] = this._variation.value();
 
 			this.$snakValue.empty();
 
@@ -709,10 +693,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 				this._entityStore,
 				this._valueViewBuilder
 			);
-			variationType = this._variation.variationSnakConstructor.TYPE;
-
-			// display value used last for this variation within same edit-mode session:
-			this._variation.value( this._recentVariationValues[ variationType ] || {} );
 		}
 	},
 

@@ -760,6 +760,7 @@ return array(
     'Wikibase\\Test\\ActionTestCase' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/actions/ActionTestCase.php',
     'Wikibase\\Test\\AliasSerializerTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/serializers/AliasSerializerTest.php',
     'Wikibase\\Test\\ApiErrorReporterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiErrorReporterTest.php',
+    'Wikibase\\Test\\Api\\ApiConventionsTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiConventionsTest.php',
     'Wikibase\\Test\\Api\\ApiHelperFactoryTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiHelperFactoryTest.php',
     'Wikibase\\Test\\Api\\ApiModuleTestHelper' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiModuleTestHelper.php',
     'Wikibase\\Test\\Api\\ApiXmlFormatTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/ApiXmlFormatTest.php',

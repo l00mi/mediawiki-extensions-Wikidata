@@ -327,39 +327,23 @@ $.widget( 'wikibase.badgeselector', PARENT, {
 	 *         No rejected parameters.
 	 */
 	_fetchItems: function( itemIds ) {
-		var self = this,
-			deferred = $.Deferred(),
-			i = 0;
+		var deferred = $.Deferred();
 
-		/**
-		 * @param {string} itemId
-		 * @param {wikibase.store.EntityStore} entityStore
-		 * @param {jQuery.Deferred} deferred
-		 */
-		function fetchItem( itemId, entityStore, deferred ) {
-			entityStore.get( itemId )
-			.done( function( fetchedContent ) {
-				if( fetchedContent ) {
-					badges[itemId] = fetchedContent.getContent();
+		this.options.entityStore.getMultiple( itemIds )
+		.done( function( items ) {
+			var item;
+			for( var i = 0; i < items.length; ++i ) {
+				if( items[i] ) {
+					item = items[i].getContent();
+					badges[item.getId()] = item;
 				}
-				if( --i === 0 ) {
-					deferred.resolve();
-				}
-			} )
-			.fail( function() {
-				// TODO: Have entityStore return a proper RepoApiError object.
-				deferred.reject();
-			} );
-		}
-
-		$.each( itemIds, function() {
-			i++;
-			fetchItem( this, self.options.entityStore, deferred );
-		} );
-
-		if( $.isEmptyObject( itemIds ) ) {
+			}
 			deferred.resolve();
-		}
+		} )
+		.fail( function() {
+			// TODO: Have entityStore return a proper RepoApiError object.
+			deferred.reject();
+		} );
 
 		return deferred.promise();
 	},

@@ -18,9 +18,7 @@ QUnit.module( 'jquery.wikibase.badgeselector', QUnit.newMwEnvironment( {
 	}
 } ) );
 
-var entityStore = new wb.store.EntityStore( 'i am an abstracted repo api' );
-
-entityStore.compile( {
+var entities =  {
 	Q1: new wb.store.FetchedContent( {
 		title: new mw.Title( 'Item:Q1' ),
 		content: new wb.datamodel.Item( {
@@ -45,7 +43,12 @@ entityStore.compile( {
 			labels: { en: { language: 'en', value: 'Q3-label' } }
 		} )
 	} )
-} );
+};
+
+var entityStore = new wb.store.EntityStore();
+entityStore.get = function( entityId ) {
+	return $.Deferred().resolve( entities[entityId] );
+};
 
 /**
  * @param {Object} [options]
