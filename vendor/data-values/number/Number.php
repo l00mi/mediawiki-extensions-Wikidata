@@ -15,7 +15,7 @@ if ( defined( 'DATAVALUES_NUMBER_VERSION' ) ) {
 	return 1;
 }
 
-define( 'DATAVALUES_NUMBER_VERSION', '0.4' );
+define( 'DATAVALUES_NUMBER_VERSION', '0.4.1' );
 
 if ( defined( 'MEDIAWIKI' ) ) {
 	$GLOBALS['wgExtensionCredits']['datavalues'][] = array(
@@ -27,5 +27,6 @@ if ( defined( 'MEDIAWIKI' ) ) {
 		),
 		'url' => 'https://github.com/DataValues/Number',
 		'description' => 'Numerical value objects, parsers and formatters',
+		'license-name' => 'GPL-2.0+'
 	);
 }

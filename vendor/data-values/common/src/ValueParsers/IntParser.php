@@ -14,10 +14,10 @@ use DataValues\NumberValue;
  */
 class IntParser extends StringValueParser {
 
+	const FORMAT_NAME = 'int';
+
 	/**
 	 * @see StringValueParser::stringParse
-	 *
-	 * @since 0.1
 	 *
 	 * @param string $value
 	 *
@@ -31,7 +31,7 @@ class IntParser extends StringValueParser {
 			return new NumberValue( (int)$value );
 		}
 
-		throw new ParseException( 'Not an integer' );
+		throw new ParseException( 'Not an integer', $value, self::FORMAT_NAME );
 	}
 
 }

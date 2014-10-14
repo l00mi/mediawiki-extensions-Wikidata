@@ -138,12 +138,18 @@ $.widget( 'wikibase.labelview', PARENT, {
 
 		var self = this;
 
-		var $input = $( '<input/>' )
-		// TODO: Inject correct placeholder via options
-		.attr( 'placeholder', mw.msg(
-			'wikibase-label-edit-placeholder-language-aware',
-			wb.getLanguageNameByCode( this.options.value.language )
-		) )
+		var dir = ( $.uls && $.uls.data ) ?
+			$.uls.data.getDir( this.options.value.language ) :
+			$( 'html' ).prop( 'dir' );
+
+		var $input = $( '<input>', {
+			// TODO: Inject correct placeholder via options
+			placeholder: mw.msg(
+				'wikibase-label-edit-placeholder-language-aware',
+				wb.getLanguageNameByCode( this.options.value.language )
+			),
+			dir: dir
+		} )
 		.on( 'eachchange.' + this.widgetName, function( event ) {
 			self._trigger( 'change' );
 		} );
@@ -188,11 +194,13 @@ $.widget( 'wikibase.labelview', PARENT, {
 	stopEditing: function( dropValue ) {
 		var self = this;
 
-		if( !this._isInEditMode || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
-			return;
-		}
+		dropValue = dropValue && this._isBeingEdited;
 
-		if( dropValue ) {
+		if( !this._isInEditMode ) {
+			return;
+		} else if( ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
+			return;
+		} else if( dropValue ) {
 			this._afterStopEditing( dropValue );
 			return;
 		}

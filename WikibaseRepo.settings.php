@@ -1,2 +1,2 @@
 <?php
-$wgWBRepoSettings["sharedCacheKeyPrefix"] = "wikibase:WBL/1412757975";
+$wgWBRepoSettings["sharedCacheKeyPrefix"] = "wikibase:WBL/1413283907";

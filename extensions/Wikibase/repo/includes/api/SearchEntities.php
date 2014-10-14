@@ -214,7 +214,7 @@ class SearchEntities extends ApiBase {
 			$key = $id->getSerialization();
 			$title = $this->titleLookup->getTitleForId( $id );
 			$entries[ $key ] = array(
-				'id' => $id->getPrefixedId(),
+				'id' => $id->getSerialization(),
 				'url' => $title->getFullUrl()
 			);
 		}
@@ -346,7 +346,10 @@ class SearchEntities extends ApiBase {
 				ApiBase::PARAM_MIN => 0,
 				ApiBase::PARAM_RANGE_ENFORCE => true,
 			),
-			'continue' => null,
+			'continue' => array(
+				ApiBase::PARAM_TYPE => 'integer',
+				ApiBase::PARAM_REQUIRED => false,
+			),
 		);
 	}
 

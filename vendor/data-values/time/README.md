@@ -8,6 +8,7 @@ It is part of the [DataValues set of libraries](https://github.com/DataValues).
 [![Build Status](https://secure.travis-ci.org/DataValues/Time.png?branch=master)](http://travis-ci.org/DataValues/Time)
 [![Code Coverage](https://scrutinizer-ci.com/g/DataValues/Time/badges/coverage.png?s=c5db7b37576dedaedd28d27a0e5fda2b79e86da6)](https://scrutinizer-ci.com/g/DataValues/Time/)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/DataValues/Time/badges/quality-score.png?s=3c66db1e59a8bf77f9e9a08760a92ca9c26538b9)](https://scrutinizer-ci.com/g/DataValues/Time/)
+[![Dependency Status](https://www.versioneye.com/php/data-values:time/badge.png)](https://www.versioneye.com/php/data-values:time)
 
 On [Packagist](https://packagist.org/packages/data-values/time):
 [![Latest Stable Version](https://poser.pugx.org/data-values/time/version.png)](https://packagist.org/packages/data-values/time)
@@ -51,14 +52,16 @@ DataValues Time has been written by the Wikidata team, as [Wikimedia Germany]
 
 ## Release notes
 
+### 0.6.1 (2014-10-09)
+
+* Made component installable with DataValues 1.x
+
 ### 0.6 (2014-06-05)
 
 * Added TimeValueCalculator
 * Removed TimeIsoFormatter interface
-* Introduce FORMAT_NAME class constants on ValueParsers in order to use them as
-	expectedFormat
-* Change ValueParsers to pass rawValue and expectedFormat arguments when constructing
-	a ParseException
+* Introduced FORMAT_NAME class constants on ValueParsers in order to use them as expectedFormat
+* Changed ValueParsers to pass rawValue and expectedFormat arguments when constructing a ParseException
 
 ### 0.5.2 (2014-04-28)
 

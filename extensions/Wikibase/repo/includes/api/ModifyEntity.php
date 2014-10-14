@@ -4,6 +4,7 @@ namespace Wikibase\Api;
 
 use ApiBase;
 use ApiMain;
+use InvalidArgumentException;
 use LogicException;
 use Status;
 use UsageException;
@@ -194,19 +195,14 @@ abstract class ModifyEntity extends ApiWikibase {
 
 		foreach ( $badgesParams as $badgeSerialization ) {
 			try {
-				$badgeId = $this->getIdParser()->parse( $badgeSerialization );
-			} catch( EntityIdParsingException $e ) {
+				$badgeId = new ItemId( $badgeSerialization );
+			} catch ( InvalidArgumentException $ex ) {
 				$this->dieError( 'Badges: could not parse "' . $badgeSerialization
-					. '", the id is invalid', 'no-such-entity-id' );
-				$badgeId = null;
+					. '", the id is invalid', 'invalid-entity-id' );
+				continue;
 			}
 
-			if ( !( $badgeId instanceof ItemId ) ) {
-				$this->dieError( 'Badges: entity with id "' . $badgeSerialization
-					. '" is not an item', 'not-item' );
-			}
-
-			if ( !array_key_exists( $badgeId->getPrefixedId(), $this->badgeItems ) ) {
+			if ( !array_key_exists( $badgeId->getSerialization(), $this->badgeItems ) ) {
 				$this->dieError( 'Badges: item "' . $badgeSerialization . '" is not a badge',
 					'not-badge' );
 			}

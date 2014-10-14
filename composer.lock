@@ -98,21 +98,21 @@
         },
         {
             "name": "data-values/common",
-            "version": "0.2.2",
+            "version": "0.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Common.git",
-                "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c"
+                "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Common/zipball/406663b2a68bcf88917d685ab53eb383ff60a56c",
-                "reference": "406663b2a68bcf88917d685ab53eb383ff60a56c",
+                "url": "https://api.github.com/repos/DataValues/Common/zipball/c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
+                "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
                 "shasum": ""
             },
             "require": {
-                "data-values/data-values": "~0.1",
-                "data-values/interfaces": "~0.1.3",
+                "data-values/data-values": "~1.0|~0.1",
+                "data-values/interfaces": "~0.1.4",
                 "php": ">=5.3.0"
             },
             "type": "library",
@@ -155,7 +155,7 @@
                 "valuevalidators",
                 "wikidata"
             ],
-            "time": "2014-04-11 13:19:16"
+            "time": "2014-10-09 18:21:19"
         },
         {
             "name": "data-values/data-types",
@@ -424,21 +424,21 @@
         },
         {
             "name": "data-values/number",
-            "version": "0.4",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Number.git",
-                "reference": "97f818062df6215d4fd267a33bff2d4f9fac7e4b"
+                "reference": "6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Number/zipball/97f818062df6215d4fd267a33bff2d4f9fac7e4b",
-                "reference": "97f818062df6215d4fd267a33bff2d4f9fac7e4b",
+                "url": "https://api.github.com/repos/DataValues/Number/zipball/6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47",
+                "reference": "6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2",
-                "data-values/data-values": "~0.1",
+                "data-values/data-values": "~1.0|~0.1",
                 "data-values/interfaces": "~0.1",
                 "php": ">=5.3.0"
             },
@@ -471,28 +471,33 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-04-24 07:22:17"
+            "time": "2014-10-09 19:14:53"
         },
         {
             "name": "data-values/serialization",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Serialization.git",
-                "reference": "9a624bb05524d5a6b58be469f61e37c6db3014b3"
+                "reference": "f51978a1abb9c97c83bbfea351ce94c8499c7988"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Serialization/zipball/9a624bb05524d5a6b58be469f61e37c6db3014b3",
-                "reference": "9a624bb05524d5a6b58be469f61e37c6db3014b3",
+                "url": "https://api.github.com/repos/DataValues/Serialization/zipball/f51978a1abb9c97c83bbfea351ce94c8499c7988",
+                "reference": "f51978a1abb9c97c83bbfea351ce94c8499c7988",
                 "shasum": ""
             },
             "require": {
-                "data-values/data-values": "~0.1.0",
+                "data-values/data-values": "~1.0|~0.1",
                 "php": ">=5.3.0",
                 "serialization/serialization": "~3.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "DataValues\\Serializers\\": "src/Serializers",
@@ -520,29 +525,34 @@
                 "serializers",
                 "wikidata"
             ],
-            "time": "2014-09-09 14:22:39"
+            "time": "2014-10-10 07:51:44"
         },
         {
             "name": "data-values/time",
-            "version": "0.6",
+            "version": "0.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "2aaa88e2ccd2998abda57d447fd1fc0b9c94651f"
+                "reference": "d0758c091d3c4d5f44825f311e6f526291bf7298"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/2aaa88e2ccd2998abda57d447fd1fc0b9c94651f",
-                "reference": "2aaa88e2ccd2998abda57d447fd1fc0b9c94651f",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/d0758c091d3c4d5f44825f311e6f526291bf7298",
+                "reference": "d0758c091d3c4d5f44825f311e6f526291bf7298",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
-                "data-values/data-values": "~0.1.0",
+                "data-values/data-values": "~1.0|~0.1",
                 "data-values/interfaces": "~0.1.4",
                 "php": ">=5.3.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.6.x-dev"
+                }
+            },
             "autoload": {
                 "files": [
                     "Time.php"
@@ -572,7 +582,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-06-05 17:58:16"
+            "time": "2014-10-09 19:09:29"
         },
         {
             "name": "data-values/validators",
@@ -1191,12 +1201,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "d960d246c53ed44372c7c9bf260bd435004e2365"
+                "reference": "c56032018a2aa1d604d75d25d0ba725950f09d7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d960d246c53ed44372c7c9bf260bd435004e2365",
-                "reference": "d960d246c53ed44372c7c9bf260bd435004e2365",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c56032018a2aa1d604d75d25d0ba725950f09d7f",
+                "reference": "c56032018a2aa1d604d75d25d0ba725950f09d7f",
                 "shasum": ""
             },
             "require": {
@@ -1265,7 +1275,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-10-07 17:06:15"
+            "time": "2014-10-14 10:38:47"
         },
         {
             "name": "wikibase/wikimedia-badges",
