@@ -835,12 +835,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Wikidata.org.git",
-                "reference": "381190e89865e9d0fadcc490ca6f7c7dfdaefb04"
+                "reference": "217ed7ece8c02fb1474b6ba0cabb936e3ef6c9f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/381190e89865e9d0fadcc490ca6f7c7dfdaefb04",
-                "reference": "381190e89865e9d0fadcc490ca6f7c7dfdaefb04",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/217ed7ece8c02fb1474b6ba0cabb936e3ef6c9f1",
+                "reference": "217ed7ece8c02fb1474b6ba0cabb936e3ef6c9f1",
                 "shasum": ""
             },
             "require": {
@@ -874,7 +874,7 @@
                 "source": "https://github.com/wmde/Wikidata.org/tree/master",
                 "issues": "https://github.com/wmde/Wikidata.org/issues"
             },
-            "time": "2014-09-26 07:02:41"
+            "time": "2014-10-06 14:34:12"
         },
         {
             "name": "wikibase/data-model",
@@ -1262,7 +1262,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-10-09 18:34:12"
+            "time": "2014-10-09 18:24:20"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1270,12 +1270,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikimediaBadges.git",
-                "reference": "0fae9f0c106fedc5550994a5fc825e866944e999"
+                "reference": "119353f0c3bcb39714df26ea74885f60b00df14d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/0fae9f0c106fedc5550994a5fc825e866944e999",
-                "reference": "0fae9f0c106fedc5550994a5fc825e866944e999",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/119353f0c3bcb39714df26ea74885f60b00df14d",
+                "reference": "119353f0c3bcb39714df26ea74885f60b00df14d",
                 "shasum": ""
             },
             "require": {
@@ -1312,7 +1312,7 @@
                 "source": "https://github.com/wmde/WikimediaBadges/tree/master",
                 "issues": "https://github.com/wmde/WikimediaBadges/issues"
             },
-            "time": "2014-09-26 02:48:21"
+            "time": "2014-10-16 12:27:50"
         }
     ],
     "packages-dev": [
