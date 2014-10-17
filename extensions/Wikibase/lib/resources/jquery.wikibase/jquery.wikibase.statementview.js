@@ -429,35 +429,40 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 				return;
 			}
 
-			$node.addtoolbar( {
-				addButtonAction: function() {
-					listview.enterNewItem();
+			$node
+			.addtoolbar( {
+				$container: $( '<div/>' ).appendTo( $node ),
+				label: mw.msg( 'wikibase-addreference' )
+			} )
+			.on( 'addtoolbaradd.addtoolbar', function( e ) {
+				if( e.target !== $node.get( 0 ) ) {
+					return;
+				}
 
-					// Re-focus "add" button after having added or having cancelled adding a
-					// reference:
-					var eventName = lia.prefixedEvent( 'afterstopediting.addtoolbar' );
-					$listview.one( eventName, function( event ) {
-						$node.data( 'addtoolbar' ).toolbar.$btnAdd.focus();
-					} );
+				listview.enterNewItem();
 
-					toolbarController.registerEventHandler(
-						event.data.toolbar.type,
-						event.data.toolbar.id,
-						'listviewdestroy',
-						function( event, toolbarController ) {
-							var $listview = $( event.target ),
-								$node = $listview.parent();
+				// Re-focus "add" button after having added or having cancelled adding a reference:
+				var eventName = lia.prefixedEvent( 'afterstopediting.addtoolbar' );
+				$listview.one( eventName, function( event ) {
+					$node.data( 'addtoolbar' ).focus();
+				} );
 
-							if( !$node.hasClass( '.wb-statement-references' ) ) {
-								return;
-							}
+				toolbarController.registerEventHandler(
+					event.data.toolbar.type,
+					event.data.toolbar.id,
+					'listviewdestroy',
+					function( event, toolbarController ) {
+						var $listview = $( event.target ),
+							$node = $listview.parent();
 
-							toolbarController.destroyToolbar( $node.data( 'addtoolbar' ) );
+						if( !$node.hasClass( '.wb-statement-references' ) ) {
+							return;
 						}
-					);
 
-				},
-				addButtonLabel: mw.msg( 'wikibase-addreference' )
+						toolbarController.destroyToolbar( $node.data( 'addtoolbar' ) );
+						$node.off( 'addtoolbar' );
+					}
+				);
 			} );
 
 			toolbarController.registerEventHandler(
@@ -489,7 +494,16 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				referenceview = $referenceview.data( 'referenceview' ),
 				options = {
 					interactionWidget: referenceview
-				};
+				},
+				$container = $referenceview.find( '.wikibase-toolbar-container' );
+
+			if( !$container.length ) {
+				$container = $( '<div/>' ).appendTo(
+					$referenceview.find( '.wb-referenceview-heading' )
+				);
+			}
+
+			options.$container = $container;
 
 			if( !!referenceview.value() ) {
 				options.onRemove = function() {
@@ -502,6 +516,33 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			}
 
 			$referenceview.edittoolbar( options );
+		},
+		referenceviewchange: function( event ) {
+			var $referenceview = $( event.target ),
+				referenceview = $referenceview.data( 'referenceview' ),
+				edittoolbar = $referenceview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
+				enableSave = referenceview.isValid() && !referenceview.isInitialValue();
+
+			btnSave[enableSave ? 'enable' : 'disable']();
+		},
+		referenceviewdisable: function( event ) {
+			var $referenceview = $( event.target ),
+				referenceview = $referenceview.data( 'referenceview' );
+
+			if( !referenceview ) {
+				return;
+			}
+
+			var disable = referenceview.option( 'disabled' ),
+				edittoolbar = $referenceview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
+				enableSave = ( referenceview.isValid() && !referenceview.isInitialValue() );
+
+			edittoolbar.option( 'disabled', disable );
+			if( !disable ) {
+				btnSave.option( 'disabled', !enableSave );
+			}
 		}
 
 		// Destroying the referenceview will destroy the toolbar. Trying to destroy the toolbar
@@ -528,7 +569,9 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 				return;
 			}
 
-			$referenceview.movetoolbar();
+			$referenceview.movetoolbar( {
+				$container: $( '<div/>' ).appendTo( $referenceview )
+			} );
 
 			// Disable "move up" button of topmost and "move down" button of bottommost
 			// referenceview:
@@ -536,11 +579,11 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 			var $bottomMostReferenceview = referencesListview.items().last();
 
 			if ( $topMostReferenceview.get( 0 ) === $referenceview.get( 0 ) ) {
-				$referenceview.data( 'movetoolbar' ).$btnMoveUp.data( 'toolbarbutton' ).disable();
+				$referenceview.data( 'movetoolbar' ).getButton( 'up' ).disable();
 			}
 
 			if( $bottomMostReferenceview.get( 0 ) === $referenceview.get( 0 ) ) {
-				$referenceview.data( 'movetoolbar' ).$btnMoveDown.data( 'toolbarbutton' ).disable();
+				$referenceview.data( 'movetoolbar' ).getButton( 'down' ).disable();
 			}
 
 			toolbarController.registerEventHandler(
@@ -581,17 +624,14 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 
 					// Disable "move up" button of topmost and "move down" button of bottommost
 					// referenceview:
-					var $btnMoveUp = $referenceview.data( 'movetoolbar' ).$btnMoveUp,
-						btnMoveUp = $btnMoveUp.data( 'toolbarbutton' ),
-						$btnMoveDown = $referenceview.data( 'movetoolbar' ).$btnMoveDown,
-						btnMoveDown = $btnMoveDown.data( 'toolbarbutton' ),
+					var movetoolbar = $referenceview.data( 'movetoolbar' ),
 						$topmostReferenceview = referencesListview.items().first(),
 						isTopmost = $topmostReferenceview.get( 0 ) === $referenceview.get( 0 ),
 						$bottommostReferenceview = referencesListview.items().last(),
 						isBottommost = $bottommostReferenceview.get( 0 ) === $referenceview.get( 0 );
 
-					btnMoveUp[( isTopmost ) ? 'disable' : 'enable' ]();
-					btnMoveDown[( isBottommost ) ? 'disable' : 'enable' ]();
+					movetoolbar.getButton( 'up' )[( isTopmost ) ? 'disable' : 'enable' ]();
+					movetoolbar.getButton( 'down' )[( isBottommost ) ? 'disable' : 'enable' ]();
 
 					// Update referenceview indices:
 					var $referenceviews = referencesListview.items(),

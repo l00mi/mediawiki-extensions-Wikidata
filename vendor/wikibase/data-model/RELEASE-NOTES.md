@@ -1,5 +1,24 @@
 # Wikibase DataModel release notes
 
+## Version 2.0 (2014-10-14)
+
+#### Breaking changes
+
+* Removed all class aliases
+* Removed support for deserializing `EntityId` instances serialized with version 0.4 or earlier
+* Removed `References` interface in favour of `ReferenceList`
+* The `Statement` constructor no longer supports a `Snak` parameter
+
+#### Additions
+
+* Added `Statement::RANK_` enum
+* Added `Statement::addNewReference`
+
+#### Deprecations
+
+* Deprecated `Claim::RANK_` enum in favour of `Statement::RANK_` enum
+* Deprecated `Claim::getRank`
+
 ## Version 1.1 (2014-09-29)
 
 #### Additions

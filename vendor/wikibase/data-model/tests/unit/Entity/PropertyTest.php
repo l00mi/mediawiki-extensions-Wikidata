@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test\Entity;
 
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
@@ -24,7 +25,7 @@ class PropertyTest extends EntityTest {
 	/**
 	 * Returns no claims
 	 *
-	 * @return array
+	 * @return Claim[]
 	 */
 	public function makeClaims() {
 		return array();
@@ -43,7 +44,7 @@ class PropertyTest extends EntityTest {
 
 	public function testNewFromType() {
 		$property = Property::newFromType( 'string' );
-		$this->assertInstanceOf( 'Wikibase\Property', $property );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\Property', $property );
 		$this->assertEquals( 'string', $property->getDataTypeId() );
 	}
 
@@ -125,12 +126,76 @@ class PropertyTest extends EntityTest {
 		return $statementList;
 	}
 
-	public function testPropertiesWithDifferentStatementsAreNotEqual() {
+	public function equalsProvider() {
 		$firstProperty = Property::newFromType( 'string' );
-		$secondProperty = Property::newFromType( 'string' );
+		$firstProperty->setStatements( $this->newNonEmptyStatementList() );
 
+		$secondProperty = Property::newFromType( 'string' );
 		$secondProperty->setStatements( $this->newNonEmptyStatementList() );
 
+		$secondPropertyWithId = unserialize( serialize( $secondProperty ) );
+		$secondPropertyWithId->setId( 42 );
+
+		$differentId = unserialize( serialize( $secondPropertyWithId ) );
+		$differentId->setId( 43 );
+
+		return array(
+			array( Property::newFromType( 'string' ), Property::newFromType( 'string' ) ),
+			array( $firstProperty, $secondProperty ),
+			array( $secondProperty, $secondPropertyWithId ),
+			array( $secondPropertyWithId, $differentId ),
+		);
+	}
+
+	/**
+	 * @dataProvider equalsProvider
+	 */
+	public function testEquals( Property $firstProperty, Property $secondProperty ) {
+		$this->assertTrue( $firstProperty->equals( $secondProperty ) );
+		$this->assertTrue( $secondProperty->equals( $firstProperty ) );
+	}
+
+	private function getBaseProperty() {
+		$property = Property::newFromType( 'string' );
+
+		$property->setId( 42 );
+		$property->getFingerprint()->setLabel( 'en', 'Same' );
+		$property->getFingerprint()->setDescription( 'en', 'Same' );
+		$property->getFingerprint()->setAliasGroup( 'en', array( 'Same' ) );
+		$property->setStatements( $this->newNonEmptyStatementList() );
+
+		return $property;
+	}
+
+	public function notEqualsProvider() {
+		$differentLabel = $this->getBaseProperty();
+		$differentLabel->getFingerprint()->setLabel( 'en', 'Different' );
+
+		$differentDescription = $this->getBaseProperty();
+		$differentDescription->getFingerprint()->setDescription( 'en', 'Different' );
+
+		$differentAlias = $this->getBaseProperty();
+		$differentAlias->getFingerprint()->setAliasGroup( 'en', array( 'Different' ) );
+
+		$differentStatement = $this->getBaseProperty();
+		$differentStatement->setStatements( new StatementList() );
+
+		$property = $this->getBaseProperty();
+
+		return array(
+			'empty' => array( $property, Property::newFromType( 'string' ) ),
+			'label' => array( $property, $differentLabel ),
+			'description' => array( $property, $differentDescription ),
+			'alias' => array( $property, $differentAlias ),
+			'dataType' => array( Property::newFromType( 'string' ), Property::newFromType( 'foo' ) ),
+			'statement' => array( $property, $differentStatement ),
+		);
+	}
+
+	/**
+	 * @dataProvider notEqualsProvider
+	 */
+	public function testNotEquals( Property $firstProperty, Property $secondProperty ) {
 		$this->assertFalse( $firstProperty->equals( $secondProperty ) );
 		$this->assertFalse( $secondProperty->equals( $firstProperty ) );
 	}

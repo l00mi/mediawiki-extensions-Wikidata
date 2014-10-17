@@ -131,7 +131,7 @@ class Property extends Entity {
 	/**
 	 * @see Comparable::equals
 	 *
-	 * Two items are considered equal if they are of the same
+	 * Two properties are considered equal if they are of the same
 	 * type and have the same value. The value does not include
 	 * the id, so entities with the same value but different id
 	 * are considered equal.
@@ -143,7 +143,7 @@ class Property extends Entity {
 	 * @return boolean
 	 */
 	public function equals( $that ) {
-		if ( $that === $this ) {
+		if ( $this === $that ) {
 			return true;
 		}
 
@@ -151,13 +151,8 @@ class Property extends Entity {
 			return false;
 		}
 
-		return $this->fieldsEqual( $that );
-	}
-
-	private function fieldsEqual( Property $that ) {
-		return ( $this->id === null && $that->id === null || $this->id->equals( $that->id ) )
+		return $this->dataTypeId === $that->dataTypeId
 			&& $this->fingerprint->equals( $that->fingerprint )
-			&& $this->dataTypeId == $that->dataTypeId
 			&& $this->statements->equals( $that->statements );
 	}
 

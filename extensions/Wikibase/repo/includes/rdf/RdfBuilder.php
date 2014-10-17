@@ -8,7 +8,12 @@ use EasyRdf_Literal;
 use EasyRdf_Namespace;
 use EasyRdf_Resource;
 use SiteList;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\Lib\Store\EntityLookup;
 
 /**
@@ -466,6 +471,7 @@ class RdfBuilder {
 	 * @param EntityLookup $entityLookup
 	 */
 	public function resolvedMentionedEntities( EntityLookup $entityLookup ) {
+		// @todo inject a DispatchingEntityIdParser
 		$idParser = new BasicEntityIdParser();
 
 		foreach ( $this->entitiesResolved as $id => $resolved ) {

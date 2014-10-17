@@ -3,12 +3,12 @@
 namespace Tests\Wikibase\DataModel\Deserializers;
 
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Deserializers\ClaimDeserializer;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\DataModel\Statement\Statement;
 
 /**
  * @covers Wikibase\DataModel\Deserializers\ClaimDeserializer
@@ -110,7 +110,7 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 		);
 
 		$serializations[] = array(
-			new Statement( new PropertyNoValueSnak( 42 ) ),
+			new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) ),
 			array(
 				'mainsnak' => array(
 					'snaktype' => 'novalue',
@@ -134,7 +134,7 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 			)
 		);
 
-		$claim = new Statement( new PropertyNoValueSnak( 42 ) );
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$claim->setRank( Claim::RANK_PREFERRED );
 		$serializations[] = array(
 			$claim,
@@ -148,7 +148,7 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 			)
 		);
 
-		$claim = new Statement( new PropertyNoValueSnak( 42 ) );
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$claim->setRank( Claim::RANK_NORMAL );
 		$serializations[] = array(
 			$claim,
@@ -162,7 +162,7 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 			)
 		);
 
-		$claim = new Statement( new PropertyNoValueSnak( 42 ) );
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$claim->setRank( Claim::RANK_DEPRECATED );
 		$serializations[] = array(
 			$claim,
@@ -176,7 +176,7 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 			)
 		);
 
-		$claim = new Statement( new PropertyNoValueSnak( 42 ) );
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$claim->setQualifiers( new SnakList( array() ) );
 		$serializations[] = array(
 			$claim,
@@ -190,7 +190,7 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 			)
 		);
 
-		$claim = new Statement( new PropertyNoValueSnak( 42 ) );
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$claim->setQualifiers( new SnakList( array(
 			new PropertyNoValueSnak( 42 )
 		) ) );
@@ -214,7 +214,7 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 			)
 		);
 
-		$claim = new Statement( new PropertyNoValueSnak( 42 ) );
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$claim->setReferences( new ReferenceList() );
 		$serializations[] = array(
 			$claim,
@@ -350,4 +350,29 @@ class ClaimDeserializerTest extends DeserializerBaseTest {
 
 		$this->assertEquals( $claim->getHash(), $claimDeserializer->deserialize( $serialization )->getHash() );
 	}
+
+	public function testQualifiersOrderDeserializationWithTypeError() {
+		$serialization = array(
+			'mainsnak' => array(
+				'snaktype' => 'novalue',
+				'property' => 'P42'
+			),
+			'qualifiers' => array(
+				'P42' => array(
+					array(
+						'snaktype' => 'novalue',
+						'property' => 'P42'
+					)
+				)
+			),
+			'qualifiers-order' => 'stringInsteadOfArray',
+			'type' => 'claim'
+		);
+
+		$deserializer = $this->buildDeserializer();
+
+		$this->setExpectedException( 'Deserializers\Exceptions\InvalidAttributeException' );
+		$deserializer->deserialize( $serialization );
+	}
+
 }

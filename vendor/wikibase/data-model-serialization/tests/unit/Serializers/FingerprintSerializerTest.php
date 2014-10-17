@@ -7,47 +7,34 @@ use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Serializers\FingerprintSerializer;
+use Wikibase\DataModel\Serializers\ItemSerializer;
+use Wikibase\DataModel\SiteLink;
+use stdClass;
 
 /**
- * @covers Wikibase\DataModel\Serializers\EntitySerializer
+ * @covers Wikibase\DataModel\Serializers\FingerprintSerializer
  *
  * @licence GNU GPL v2+
  * @author Thomas Pellissier Tanon
+ * @author Jan Zerebecki < jan.wikimedia@zerebecki.de >
  */
-class EntitySerializerTest extends SerializerBaseTest {
+class FingerprintSerializerTest extends SerializerBaseTest {
 
 	protected function buildSerializer() {
 		$claimsSerializerMock = $this->getMock( '\Serializers\Serializer' );
 		$claimsSerializerMock->expects( $this->any() )
 			->method( 'serialize' )
-			->will( $this->returnCallback( function( Claims $claims ) {
-				if ( $claims->isEmpty() ) {
-					return array();
-				}
-
-				return array(
-					'P42' => array(
-						array(
-							'mainsnak' => array(
-								'snaktype' => 'novalue',
-								'property' => 'P42'
-							),
-							'type' => 'statement',
-							'rank' => 'normal'
-						)
-					)
-				);
-			} ) );
-
-		$entitySerializerMock = $this->getMockForAbstractClass(
-			'\Wikibase\DataModel\Serializers\EntitySerializer',
-			array( $claimsSerializerMock )
-		);
-		$entitySerializerMock->expects( $this->any() )
-			->method( 'getSpecificSerialization' )
+			->with( $this->equalTo( new Claims() ) )
 			->will( $this->returnValue( array() ) );
 
-		return $entitySerializerMock;
+		$siteLinkSerializerMock = $this->getMock( '\Serializers\Serializer' );
+		$siteLinkSerializerMock->expects( $this->any() )
+			->method( 'serialize' );
+
+		$entitySerializer = new FingerprintSerializer( false );
+
+		return new ItemSerializer( $entitySerializer, $claimsSerializerMock, $siteLinkSerializerMock, false );
 	}
 
 	public function serializableProvider() {
@@ -82,6 +69,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 				'descriptions' => array(),
 				'aliases' => array(),
 				'claims' => array(),
+				'sitelinks' => array(),
 			),
 			Item::newEmpty()
 		);
@@ -96,6 +84,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 				'descriptions' => array(),
 				'aliases' => array(),
 				'claims' => array(),
+				'sitelinks' => array(),
 			),
 			$entity
 		);
@@ -121,6 +110,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 				'descriptions' => array(),
 				'aliases' => array(),
 				'claims' => array(),
+				'sitelinks' => array(),
 			),
 			$entity
 		);
@@ -146,6 +136,7 @@ class EntitySerializerTest extends SerializerBaseTest {
 				'labels' => array(),
 				'aliases' => array(),
 				'claims' => array(),
+				'sitelinks' => array(),
 			),
 			$entity
 		);
@@ -177,35 +168,50 @@ class EntitySerializerTest extends SerializerBaseTest {
 				'labels' => array(),
 				'descriptions' => array(),
 				'claims' => array(),
-			),
-			$entity
-		);
-
-		$entity = Item::newEmpty();
-		$entity->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ), null, null, 'test' );
-		$argumentLists[] = array(
-			array(
-				'type' => 'item',
-				'claims' => array(
-					'P42' => array(
-						array(
-							'mainsnak' => array(
-								'snaktype' => 'novalue',
-								'property' => 'P42'
-							),
-							'type' => 'statement',
-							'rank' => 'normal'
-						)
-					)
-				),
-				'labels' => array(),
-				'descriptions' => array(),
-				'aliases' => array(),
+				'sitelinks' => array(),
 			),
 			$entity
 		);
 
 		return $argumentLists;
+	}
+
+	public function testDescriptionWithOptionObjectsForMaps() {
+		$entitySerializer = new FingerprintSerializer( true );
+
+		$entity = Item::newEmpty();
+		$entity->setDescriptions( array(
+			'en' => 'A Nyan Cat',
+		) );
+
+		$result = array();
+
+		$descriptions = new stdClass();
+		$descriptions->en = array(
+			'language' => 'en',
+			'value' => 'A Nyan Cat'
+		);
+		$serial = array( 'descriptions' => $descriptions );
+		$entitySerializer->addDescriptionsToSerialization( $entity, $result );
+		$this->assertEquals( $serial, $result );
+	}
+
+	public function testAliasesWithOptionObjectsForMaps() {
+		$entitySerializer = new FingerprintSerializer( true );
+
+		$entity = Item::newEmpty();
+		$entity->setAliases( 'fr', array( 'Cat' ) );
+
+		$result = array();
+
+		$aliases = new stdClass();
+		$aliases->fr = array( array(
+			'language' => 'fr',
+			'value' => 'Cat'
+		) );
+		$serial = array( 'aliases' => $aliases );
+		$entitySerializer->addAliasesToSerialization( $entity, $result );
+		$this->assertEquals( $serial, $result );
 	}
 
 }

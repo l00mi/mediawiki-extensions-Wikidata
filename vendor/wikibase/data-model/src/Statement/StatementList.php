@@ -8,10 +8,10 @@ use Countable;
 use InvalidArgumentException;
 use IteratorAggregate;
 use Traversable;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
-use Wikibase\DataModel\References;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Snak\Snaks;
@@ -96,14 +96,14 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	/**
 	 * @param Snak $mainSnak
 	 * @param Snak[]|Snaks|null $qualifiers
-	 * @param Reference[]|References|null $references
+	 * @param Reference[]|ReferenceList|null $references
 	 * @param string|null $guid
 	 */
 	public function addNewStatement( Snak $mainSnak, $qualifiers = null, $references = null, $guid = null ) {
 		$qualifiers = is_array( $qualifiers ) ? new SnakList( $qualifiers ) : $qualifiers;
 		$references = is_array( $references ) ? new ReferenceList( $references ) : $references;
 
-		$statement = new Statement( $mainSnak, $qualifiers, $references );
+		$statement = new Statement( new Claim( $mainSnak, $qualifiers ), $references );
 		$statement->setGuid( $guid );
 
 		$this->addStatement( $statement );
@@ -174,11 +174,13 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	 * @return bool
 	 */
 	public function equals( $statementList ) {
-		if ( !( $statementList instanceof self ) ) {
-			return false;
+		if ( $this === $statementList ) {
+			return true;
 		}
 
-		if ( $this->count() !== $statementList->count() ) {
+		if ( !( $statementList instanceof self )
+			|| $this->count() !== $statementList->count()
+		) {
 			return false;
 		}
 

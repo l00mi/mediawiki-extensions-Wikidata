@@ -71,7 +71,9 @@ class FingerprintView {
 		$hasLabel = $labels->hasTermForLanguage( $this->languageCode );
 		$id = 'new';
 		$idInParentheses = '';
-		$editSection = $this->getHtmlForEditSection( 'SetLabel', $entityId, $editable );
+		$editSection = wfTemplate( 'wikibase-toolbar-wrapper',
+			$this->getHtmlForEditSection( 'SetLabel', $entityId, $editable )
+		);
 
 		if ( $entityId !== null ) {
 			$id = $entityId->getSerialization();
@@ -153,7 +155,7 @@ class FingerprintView {
 				'',
 				wfMessage( 'wikibase-aliases-label' )->escaped(),
 				$aliasesHtml,
-				'<div>' . $editSection . '</div>'
+				$editSection
 			);
 		} else {
 			return wfTemplate( 'wikibase-aliasesview',
@@ -181,6 +183,7 @@ class FingerprintView {
 		return $this->sectionEditLinkGenerator->getHtmlForEditSection(
 			$specialPageName,
 			array( $entityId->getSerialization(), $this->languageCode ),
+			$action,
 			wfMessage( $action === 'add' ? 'wikibase-add' : 'wikibase-edit' )
 		);
 	}

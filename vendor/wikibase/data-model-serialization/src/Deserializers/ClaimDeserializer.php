@@ -10,7 +10,7 @@ use Deserializers\Exceptions\MissingAttributeException;
 use Deserializers\Exceptions\MissingTypeException;
 use Deserializers\Exceptions\UnsupportedTypeException;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Statement;
+use Wikibase\DataModel\Statement\Statement;
 
 /**
  * @since 0.1
@@ -84,7 +84,7 @@ class ClaimDeserializer implements DispatchableDeserializer {
 	private function getDeserialized( array $serialization ) {
 		$mainSnak = $this->snakDeserializer->deserialize( $serialization['mainsnak'] );
 
-		$claim = $serialization['type'] === 'statement' ? new Statement( $mainSnak ) : new Claim( $mainSnak );
+		$claim = $serialization['type'] === 'statement' ? new Statement( new Claim( $mainSnak ) ) : new Claim( $mainSnak );
 
 		$this->setGuidFromSerialization( $serialization, $claim );
 		$this->setQualifiersFromSerialization( $serialization, $claim );

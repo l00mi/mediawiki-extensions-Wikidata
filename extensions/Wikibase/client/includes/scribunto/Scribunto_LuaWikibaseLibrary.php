@@ -13,10 +13,11 @@ use Wikibase\Utils;
  * @licence GNU GPL v2+
  * @author Jens Ohlig < jens.ohlig@wikimedia.de >
  */
-
 class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
-	/* @var Wikibase\Client\WikibaseLuaBindings */
+	/**
+	 * @var WikibaseLuaBindings
+	 */
 	private $wbLibrary;
 
 	/**
@@ -51,6 +52,8 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 * Register mw.wikibase.lua library
 	 *
 	 * @since 0.4
+	 *
+	 * @return array
 	 */
 	public function register() {
 		$lib = array(
@@ -98,7 +101,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 *
 	 * @param string $pageTitle
 	 *
-	 * @return string $id
+	 * @return array
 	 */
 	public function getEntityId( $pageTitle = null ) {
 		$this->checkType( 'getEntityByTitle', 1, $pageTitle, 'string' );
@@ -110,6 +113,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 *
 	 * @since 0.5
 	 *
+	 * @return string[]
 	 */
 	public function getGlobalSiteId() {
 		return array( $this->wbLibrary->getGlobalSiteId() );
@@ -122,10 +126,11 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 *
 	 * @param string $setting
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function getSetting( $setting ) {
 		$this->checkType( 'setting', 1, $setting, 'string' );
 		return array( $this->wbLibrary->getSetting( $setting ) );
 	}
+
 }

@@ -13,7 +13,6 @@ use Wikibase\DataModel\Entity\Diff\ItemDiff;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Entity\ItemIdSet;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
@@ -52,7 +51,7 @@ class ItemTest extends EntityTest {
 	/**
 	 * Returns several more or less complex claims
 	 *
-	 * @return array
+	 * @return Claim[]
 	 */
 	public function makeClaims() {
 		$id9001 = new EntityIdValue( new ItemId( 'q9001' ) );
@@ -63,8 +62,7 @@ class ItemTest extends EntityTest {
 		$claims[] = new Claim( new PropertyNoValueSnak( 42 ) );
 
 		$claims[] = new Statement(
-			new PropertyNoValueSnak( 42 ),
-			null,
+			new Claim( new PropertyNoValueSnak( 42 ), null ),
 			new ReferenceList( array(
 				new Reference( new SnakList( array(
 					new PropertyNoValueSnak( 24 ),
@@ -155,7 +153,7 @@ class ItemTest extends EntityTest {
 		 */
 		$item = $item->copy();
 		$item->addClaim( new Statement(
-			new PropertyNoValueSnak( new PropertyId( 'P42' ) )
+			new Claim( new PropertyNoValueSnak( new PropertyId( 'P42' ) ) )
 		) );
 		$items[] = $item;
 
@@ -578,10 +576,10 @@ class ItemTest extends EntityTest {
 	public function testSetClaims() {
 		$item = Item::newEmpty();
 
-		$statement0 = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement0 = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$statement0->setGuid( 'TEST$NVS42' );
 
-		$statement1 = new Statement( new PropertySomeValueSnak( 42 ) );
+		$statement1 = new Statement( new Claim( new PropertySomeValueSnak( 42 ) ) );
 		$statement1->setGuid( 'TEST$SVS42' );
 
 		$statements = array( $statement0, $statement1 );
@@ -645,7 +643,7 @@ class ItemTest extends EntityTest {
 	}
 
 	private function newStatement() {
-		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$statement->setGuid( 'kittens' );
 		return $statement;
 	}
@@ -667,7 +665,7 @@ class ItemTest extends EntityTest {
 	}
 
 	public function testCanConstructWithStatementList() {
-		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
 		$statement->setGuid( 'meh' );
 
 		$statements = new StatementList( array( $statement ) );
@@ -707,9 +705,17 @@ class ItemTest extends EntityTest {
 		$secondItem = Item::newEmpty();
 		$secondItem->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
 
+		$secondItemWithId = unserialize( serialize( $secondItem ) );
+		$secondItemWithId->setId( 42 );
+
+		$differentId = unserialize( serialize( $secondItemWithId ) );
+		$differentId->setId( 43 );
+
 		return array(
 			array( Item::newEmpty(), Item::newEmpty() ),
 			array( $firstItem, $secondItem ),
+			array( $secondItem, $secondItemWithId ),
+			array( $secondItemWithId, $differentId ),
 		);
 	}
 
@@ -718,6 +724,7 @@ class ItemTest extends EntityTest {
 	 */
 	public function testEquals( Item $firstItem, Item $secondItem ) {
 		$this->assertTrue( $firstItem->equals( $secondItem ) );
+		$this->assertTrue( $secondItem->equals( $firstItem ) );
 	}
 
 	private function getBaseItem() {
@@ -754,12 +761,12 @@ class ItemTest extends EntityTest {
 		$item = $this->getBaseItem();
 
 		return array(
-			array( $item, Item::newEmpty() ),
-			array( $item, $differentLabel ),
-			array( $item, $differentDescription ),
-			array( $item, $differentAlias ),
-			array( $item, $differentSiteLink ),
-			array( $item, $differentStatement ),
+			'empty' => array( $item, Item::newEmpty() ),
+			'label' => array( $item, $differentLabel ),
+			'description' => array( $item, $differentDescription ),
+			'alias' => array( $item, $differentAlias ),
+			'siteLink' => array( $item, $differentSiteLink ),
+			'statement' => array( $item, $differentStatement ),
 		);
 	}
 
@@ -768,6 +775,7 @@ class ItemTest extends EntityTest {
 	 */
 	public function testNotEquals( Item $firstItem, Item $secondItem ) {
 		$this->assertFalse( $firstItem->equals( $secondItem ) );
+		$this->assertFalse( $secondItem->equals( $firstItem ) );
 	}
 
 }
