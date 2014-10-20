@@ -122,7 +122,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 */
 	_create: function() {
 		if(
-			!this.options.statementGuid | !this.options.entityStore
+			!this.options.statementGuid || !this.options.entityStore
 			|| !this.options.valueViewBuilder || !this.options.api
 		) {
 			throw new Error( 'Required option(s) missing' );
@@ -273,7 +273,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		this.element.removeClassByRegex( /wb-reference-.+/ );
 		this.element.addClass( 'wb-reference-' + refHash );
 
-		this.element.removeClassByRegex( new RegExp( this.widgetBaseClass ) + '-.+' );
+		this.element.removeClassByRegex( new RegExp( this.widgetBaseClass + '-.+' ) );
 		this.element.addClass( this.widgetBaseClass + '-' + refHash );
 	},
 
