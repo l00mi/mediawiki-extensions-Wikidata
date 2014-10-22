@@ -1145,12 +1145,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "a57001afd2f7578bd5c27b0fe90db215b6f9eb50"
+            "reference": "2387d5bc3b4bc51d2292566c52e00d655031b0fe"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a57001afd2f7578bd5c27b0fe90db215b6f9eb50",
-            "reference": "a57001afd2f7578bd5c27b0fe90db215b6f9eb50",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/2387d5bc3b4bc51d2292566c52e00d655031b0fe",
+            "reference": "2387d5bc3b4bc51d2292566c52e00d655031b0fe",
             "shasum": ""
         },
         "require": {
@@ -1177,7 +1177,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-10-20 12:23:03",
+        "time": "2014-10-22 16:29:59",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1187,10 +1187,7 @@
             "classmap": [
                 "client/includes/",
                 "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/MockPageUpdater.php",
-                "client/tests/phpunit/MockClientStore.php",
-                "client/tests/phpunit/includes/scribunto/WikibaseLuaIntegrationTestItemSetUpHelper.php",
-                "client/tests/phpunit/includes/scribunto/Scribunto_LuaWikibaseLibraryTestCase.php",
+                "client/tests/phpunit/",
                 "lib/includes/",
                 "lib/WikibaseLib.hooks.php",
                 "lib/tests/phpunit/",
@@ -1281,18 +1278,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/Wikidata.org.git",
-            "reference": "d11539dde7a21f64c66e4ffca9620518caa7f6d4"
+            "reference": "508da5ac3cfe096e4351ad383066412c05892306"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/d11539dde7a21f64c66e4ffca9620518caa7f6d4",
-            "reference": "d11539dde7a21f64c66e4ffca9620518caa7f6d4",
+            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/508da5ac3cfe096e4351ad383066412c05892306",
+            "reference": "508da5ac3cfe096e4351ad383066412c05892306",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-10-16 14:33:49",
+        "time": "2014-10-22 08:18:30",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1325,17 +1322,17 @@
     },
     {
         "name": "propertysuggester/property-suggester",
-        "version": "1.1.3",
-        "version_normalized": "1.1.3.0",
+        "version": "1.1.4",
+        "version_normalized": "1.1.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "234ffebb1583748e6443bfe88c71cd803e8c6eb8"
+            "reference": "c8cdc7061b8a44e021eb2b3a98e83ff1cd18787e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/234ffebb1583748e6443bfe88c71cd803e8c6eb8",
-            "reference": "234ffebb1583748e6443bfe88c71cd803e8c6eb8",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/c8cdc7061b8a44e021eb2b3a98e83ff1cd18787e",
+            "reference": "c8cdc7061b8a44e021eb2b3a98e83ff1cd18787e",
             "shasum": ""
         },
         "require": {
@@ -1345,14 +1342,16 @@
             "phpunit/phpunit": "3.7.*",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2014-10-17 10:16:56",
+        "time": "2014-10-22 13:21:31",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
                 "PropertySuggester\\": "src/PropertySuggester/"
             },
-            "files": [],
+            "files": [
+
+            ],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"

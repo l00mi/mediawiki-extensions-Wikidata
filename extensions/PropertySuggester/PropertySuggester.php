@@ -9,7 +9,7 @@ if ( defined( 'PropertySuggester_VERSION' ) ) {
 	return;
 }
 
-define( 'PropertySuggester_VERSION', '1.1.3' );
+define( 'PropertySuggester_VERSION', '1.1.4' );
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -21,7 +21,8 @@ $wgExtensionCredits['wikibase'][] = array(
 	'name' => 'PropertySuggester',
 	'author' => array( 'Christian Dullweber', 'Moritz Finke', 'Felix Niemeyer', 'Virginia Weidhaas' ),
 	'url' => 'https://github.com/Wikidata-lib/PropertySuggester',
-	'descriptionmsg' => 'propertysuggester-desc'
+	'descriptionmsg' => 'propertysuggester-desc',
+	'license-name' => 'GPL-2.0+'
 );
 
 global $wgExtensionMessagesFiles;

@@ -5,7 +5,7 @@ namespace Wikibase\Test\Api;
 use ApiTestCase;
 use TestUser;
 use Title;
-use Wikibase\NamespaceUtils;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Tests for the ApiWikibase class.
@@ -33,22 +33,30 @@ class BotEditTest extends WikibaseApiTestCase {
 
 	private static $hasSetup;
 
+	/**
+	 * @var TestUser
+	 */
+	private static $wbBotUser;
+
 	public function setUp() {
 		parent::setUp();
+
+		if ( !isset( self::$wbBotUser ) ) {
+			self::$wbBotUser = new TestUser(
+				'Apitestbot',
+				'Api Test Bot',
+				'api_test_bot@example.com',
+				array( 'bot' )
+			);
+		}
+
+		ApiTestCase::$users['wbbot'] = self::$wbBotUser;
 
 		if( !isset( self::$hasSetup ) ){
 			$this->initTestEntities( array( 'Empty' ) );
 		}
+
 		self::$hasSetup = true;
-
-		ApiTestCase::$users['wbbot'] = new TestUser(
-			'Apitestbot',
-			'Api Test Bot',
-			'api_test_bot@example.com',
-			array( 'bot' )
-		);
-
-		$this->login( 'wbbot' );
 	}
 
 	public static function provideData() {
@@ -97,6 +105,8 @@ class BotEditTest extends WikibaseApiTestCase {
 	 * @dataProvider provideData
 	 */
 	public function testBotEdits( $params, $expected ) {
+		$this->login( 'wbbot' );
+
 		// -- do the request --------------------------------------------------
 		if( array_key_exists( 'handle', $params ) ){
 			$params['id'] = EntityTestHelper::getId( $params['handle'] );
@@ -131,7 +141,10 @@ class BotEditTest extends WikibaseApiTestCase {
 		//NOTE: the order of the entries in recentchanges is undefined if multiple
 		//      edits were done in the same second.
 		$change = null;
-		$itemNs = NamespaceUtils::getEntityNamespace( CONTENT_MODEL_WIKIBASE_ITEM );
+
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+		$itemNs = $entityNamespaceLookup->getEntityNamespace( CONTENT_MODEL_WIKIBASE_ITEM );
+
 		foreach ( $rcResult[0]['query']['recentchanges'] as $rc ) {
 			$title = Title::newFromText( $rc['title'] );
 			// XXX: strtoupper is a bit arcane, would ne nice to have a utility function for prefixed id -> title.
