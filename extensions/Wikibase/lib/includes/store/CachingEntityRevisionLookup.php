@@ -104,14 +104,7 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 		wfProfileIn( __METHOD__ );
 		$key = $this->getCacheKey( $entityId );
 
-		try {
-			$entityRevision = $this->cache->get( $key );
-		} catch ( \UnexpectedValueException $ex ) {
-			// @fixme ugly hack to work around hhvm issue, see bug 71461, in addition
-			// to varying cache key based on if HHVM_VERSION is defined.
-			wfLogWarning( 'Failed to deserialize ' . $entityId->getSerialization() . ' from cache.' );
-			$entityRevision = false;
-		}
+		$entityRevision = $this->cache->get( $key );
 
 		if ( $entityRevision !== false ) {
 			if ( $revisionId === 0  && $this->shouldVerifyRevision ) {

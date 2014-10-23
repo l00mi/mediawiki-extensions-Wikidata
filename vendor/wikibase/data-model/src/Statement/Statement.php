@@ -6,9 +6,8 @@ use InvalidArgumentException;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
-use Wikibase\DataModel\References;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\Snak\Snaks;
+use Wikibase\DataModel\Snak\SnakList;
 
 /**
  * Class representing a Wikibase statement.
@@ -18,28 +17,37 @@ use Wikibase\DataModel\Snak\Snaks;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class Statement extends Claim {
 
 	/**
-	 * @var References
+	 * Rank enum. Higher values are more preferred.
+	 *
+	 * @since 2.0
+	 */
+	const RANK_PREFERRED = 2;
+	const RANK_NORMAL = 1;
+	const RANK_DEPRECATED = 0;
+
+	/**
+	 * @var ReferenceList
 	 */
 	private $references;
 
 	/**
-	 * @var integer, element of the Claim::RANK_ enum
+	 * @var integer, element of the Statement::RANK_ enum
 	 */
 	private $rank = self::RANK_NORMAL;
 
 	/**
 	 * @since 0.1
 	 *
-	 * @param Snak $mainSnak
-	 * @param Snaks|null $qualifiers
-	 * @param References|null $references
+	 * @param Claim $claim
+	 * @param ReferenceList|null $references
 	 */
-	public function __construct( Snak $mainSnak, Snaks $qualifiers = null, References $references = null ) {
-		parent::__construct( $mainSnak, $qualifiers );
+	public function __construct( Claim $claim, ReferenceList $references = null ) {
+		$this->setClaim( $claim );
 		$this->references = $references === null ? new ReferenceList() : $references;
 	}
 
@@ -48,7 +56,7 @@ class Statement extends Claim {
 	 *
 	 * @since 0.1
 	 *
-	 * @return References
+	 * @return ReferenceList
 	 */
 	public function getReferences() {
 		return $this->references;
@@ -59,15 +67,26 @@ class Statement extends Claim {
 	 *
 	 * @since 0.1
 	 *
-	 * @param References $references
+	 * @param ReferenceList $references
 	 */
-	public function setReferences( References $references ) {
+	public function setReferences( ReferenceList $references ) {
 		$this->references = $references;
 	}
 
 	/**
+	 * @since 2.0
+	 *
+	 * @param Snak $snak
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function addNewReference( Snak $snak /* Snak, ... */ ) {
+		$this->references->addReference( new Reference( new SnakList( func_get_args() ) ) );
+	}
+
+	/**
 	 * Sets the rank of the statement.
-	 * The rank is an element of the Claim::RANK_ enum, excluding RANK_TRUTH.
+	 * The rank is an element of the Statement::RANK_ enum.
 	 *
 	 * @since 0.1
 	 *
@@ -126,7 +145,8 @@ class Statement extends Claim {
 
 		/* @var Reference $reference */
 		foreach( $this->getReferences() as $reference ) {
-			$snaks = array_merge( $snaks, iterator_to_array( $reference->getSnaks() ) );
+			$referenceSnaks = $reference->getSnaks();
+			$snaks = array_merge( $snaks, iterator_to_array( $referenceSnaks ) );
 		}
 
 		return $snaks;
@@ -148,6 +168,17 @@ class Statement extends Claim {
 
 		return $this->claimFieldsEqual( $target )
 			&& $this->references->equals( $target->references );
+	}
+
+	/**
+	 * @since 1.1
+	 *
+	 * @param Claim $claim
+	 */
+	public function setClaim( Claim $claim ) {
+		$this->mainSnak = $claim->getMainSnak();
+		$this->qualifiers = $claim->getQualifiers();
+		$this->guid = $claim->getGuid();
 	}
 
 	/**

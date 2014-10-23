@@ -8,6 +8,7 @@ use Language;
 use RequestContext;
 use Title;
 use ValueFormatters\FormatterOptions;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
@@ -55,7 +56,7 @@ abstract class EntityViewTest extends \MediaWikiLangTestCase {
 	}
 
 	public function getTitleForId( EntityId $id ) {
-		$name = $id->getEntityType() . ':' . $id->getPrefixedId();
+		$name = $id->getEntityType() . ':' . $id->getSerialization();
 		return Title::makeTitle( NS_MAIN, $name );
 	}
 
@@ -281,7 +282,7 @@ abstract class EntityViewTest extends \MediaWikiLangTestCase {
 			$guid = 'EntityViewTest$' . $this->guidCounter;
 		}
 
-		$statements = new Statement( $mainSnak );
+		$statements = new Statement( new Claim( $mainSnak ) );
 		$statements->setGuid( $guid );
 
 		return $statements;

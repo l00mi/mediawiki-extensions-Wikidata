@@ -22,7 +22,20 @@ return call_user_func( function() {
 				'jquery.wikibase.aliasesview.tests.js',
 			),
 			'dependencies' => array(
-				'jquery.wikibase.aliasesview'
+				'jquery.wikibase.aliasesview',
+			),
+		),
+
+		'jquery.wikibase.badgeselector.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery.wikibase.badgeselector.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.badgeselector',
+				'mediawiki.Title',
+				'wikibase.datamodel',
+				'wikibase.store.EntityStore',
+				'wikibase.store.FetchedContent',
 			),
 		),
 
@@ -31,7 +44,7 @@ return call_user_func( function() {
 				'jquery.wikibase.claimgrouplabelscroll.tests.js',
 			),
 			'dependencies' => array(
-				'jquery.wikibase.claimgrouplabelscroll'
+				'jquery.wikibase.claimgrouplabelscroll',
 			),
 		),
 
@@ -48,7 +61,6 @@ return call_user_func( function() {
 				'wikibase.AbstractedRepoApi',
 				'wikibase.datamodel',
 				'wikibase.RepoApi',
-				'wikibase.store.EntityStore',
 				'wikibase.store.FetchedContent',
 				'wikibase.ValueViewBuilder',
 			),
@@ -60,6 +72,16 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.descriptionview',
+			),
+		),
+
+		'jquery.wikibase.entityview.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery.wikibase.entityview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.entityview',
+				'wikibase.datamodel'
 			),
 		),
 
@@ -138,7 +160,6 @@ return call_user_func( function() {
 				'wikibase.datamodel',
 				'wikibase.RepoApi',
 				'wikibase.store.FetchedContent',
-				'wikibase.store.EntityStore',
 				'wikibase.ValueViewBuilder',
 				'valueFormatters'
 			),
@@ -207,7 +228,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.snaklistview',
-				'wikibase.store.EntityStore',
 				'wikibase.store.FetchedContent',
 				'wikibase.ValueViewBuilder',
 				'wikibase.datamodel',

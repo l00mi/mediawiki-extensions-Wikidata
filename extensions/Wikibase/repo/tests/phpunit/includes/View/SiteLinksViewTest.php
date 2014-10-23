@@ -3,6 +3,7 @@
 namespace Wikibase\Test;
 
 use MediaWikiSite;
+use MediaWikiTestCase;
 use SiteList;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
@@ -59,7 +60,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 
 		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups, $editable );
 		$this->assertInternalType( 'string', $value );
-		$this->assertTag( $expectedValue, $value, $value . ' did not match ' . var_export( $expectedValue, true ) );
+		MediaWikiTestCase::assertTag( $expectedValue, $value, $value . ' did not match ' . var_export( $expectedValue, true ) );
 	}
 
 	public function getHtmlProvider() {
@@ -142,49 +143,6 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 					'child' => array(
 						'tag' => 'thead',
 						'content' => ''
-					)
-				)
-			)
-		);
-
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1' ) );
-		$item->addSiteLink( new SiteLink( 'dewiki', 'test' ) );
-		$item->addSiteLink( new SiteLink( 'enwiki', 'test2' ) );
-
-		$testCases[] = array(
-			$item,
-			array( 'wikipedia' ),
-			true,
-			array(
-				'tag' => 'div',
-				'descendant' => array(
-					'tag' => 'table',
-					'child' => array(
-						'tag' => 'tfoot',
-						'descendant' => array(
-							'class' => 'wikibase-toolbarbutton-disabled'
-						)
-					)
-				)
-			)
-		);
-
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1' ) );
-		$item->addSiteLink( new SiteLink( 'dewiki', 'test' ) );
-		$item->addSiteLink( new SiteLink( 'nonexistingwiki', 'test2' ) );
-
-		$testCases[] = array(
-			$item,
-			array( 'wikipedia' ),
-			true,
-			array(
-				'tag' => 'div',
-				'descendant' => array(
-					'tag' => 'tfoot',
-					'descendant' => array(
-						'class' => 'wikibase-toolbarbutton-enabled'
 					)
 				)
 			)
@@ -305,7 +263,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 
 		$sectionEditLinkGenerator->expects( $this->any() )
 			->method( 'getHtmlForEditSection' )
-			->will( $this->returnCallback( function ( $url, $msg, $tag, $enabled ) {
+			->will( $this->returnCallback( function ( $url, $cssClassSuffix, $msg, $tag, $enabled ) {
 				if( $enabled ) {
 					return '<a class="wikibase-toolbarbutton-enabled">Edit link</a>';
 				} else {

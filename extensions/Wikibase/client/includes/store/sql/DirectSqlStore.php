@@ -3,9 +3,12 @@
 namespace Wikibase;
 
 use Language;
+use LoadBalancer;
 use ObjectCache;
 use Site;
+use Wikibase\Client\Usage\SubscriptionManager;
 use Wikibase\Client\WikibaseClient;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
@@ -15,6 +18,10 @@ use Wikibase\Lib\Store\RevisionBasedEntityLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Lib\Store\SiteLinkTable;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
+use Wikibase\Client\Store\Sql\ConnectionManager;
+use Wikibase\Client\Usage\Sql\SqlUsageTracker;
+use Wikibase\Client\Usage\UsageLookup;
+use Wikibase\Client\Usage\UsageTracker;
 
 /**
  * Implementation of the client store interface using direct access to the repository's
@@ -49,6 +56,16 @@ class DirectSqlStore implements ClientStore {
 	private $propertyInfoTable = null;
 
 	/**
+	 * @var ItemUsageIndex
+	 */
+	private $itemUsageIndex = null;
+
+	/**
+	 * @var EntityIdParser
+	 */
+	private $idParser;
+
+	/**
 	 * @var String|bool $repoWiki
 	 */
 	protected $repoWiki;
@@ -64,9 +81,9 @@ class DirectSqlStore implements ClientStore {
 	private $siteLinkTable = null;
 
 	/**
-	 * @var ItemUsageIndex
+	 * @var SqlUsageTracker|null
 	 */
-	private $entityUsageIndex = null;
+	private $usageTracker = null;
 
 	/**
 	 * @var Site|null
@@ -96,11 +113,13 @@ class DirectSqlStore implements ClientStore {
 	/**
 	 * @param EntityContentDataCodec $contentCodec
 	 * @param Language $wikiLanguage
-	 * @param string    $repoWiki the symbolic database name of the repo wiki
+	 * @param EntityIdParser $idParser
+	 * @param string $repoWiki the symbolic database name of the repo wiki
 	 */
 	public function __construct(
 		EntityContentDataCodec $contentCodec,
 		Language $wikiLanguage,
+		EntityIdParser $idParser,
 		$repoWiki
 	) {
 		$this->repoWiki = $repoWiki;
@@ -117,21 +136,70 @@ class DirectSqlStore implements ClientStore {
 		$this->cachePrefix = $cachePrefix;
 		$this->cacheDuration = $cacheDuration;
 		$this->cacheType = $cacheType;
+		$this->idParser = $idParser;
 	}
 
 	/**
-	 * @see Store::getEntityUsageIndex
+	 * @see Store::getSubscriptionManager
+	 *
+	 * @since 0.5
+	 *
+	 * @return SubscriptionManager
+	 */
+	public function getSubscriptionManager() {
+		return new SubscriptionManager();
+	}
+
+	/**
+	 * @see Store::getUsageLookup
+	 *
+	 * @since 0.5
+	 *
+	 * @return UsageLookup
+	 */
+	public function getUsageLookup() {
+		return $this->getUsageTracker();
+	}
+
+	/**
+	 * Returns a LoadBalancer that acts as a factory for connections to the local (client) wiki's
+	 * database.
+	 *
+	 * @return LoadBalancer
+	 */
+	private function getLocalLoadBalancer() {
+		return wfGetLB();
+	}
+
+	/**
+	 * @see Store::getUsageTracker
+	 *
+	 * @since 0.5
+	 *
+	 * @return UsageTracker
+	 */
+	public function getUsageTracker() {
+		if ( !$this->usageTracker ) {
+			$connectionManager = new ConnectionManager( $this->getLocalLoadBalancer() );
+			$this->usageTracker = new SqlUsageTracker( $this->idParser, $connectionManager );
+		}
+
+		return $this->usageTracker;
+	}
+
+	/**
+	 * @see Store::getItemUsageIndex
 	 *
 	 * @since 0.4
 	 *
 	 * @return ItemUsageIndex
 	 */
 	public function getItemUsageIndex() {
-		if ( !$this->entityUsageIndex ) {
-			$this->entityUsageIndex = $this->newEntityUsageIndex();
+		if ( !$this->itemUsageIndex ) {
+			$this->itemUsageIndex = $this->newItemUsageIndex();
 		}
 
-		return $this->entityUsageIndex;
+		return $this->itemUsageIndex;
 	}
 
 	/**
@@ -139,7 +207,7 @@ class DirectSqlStore implements ClientStore {
 	 *
 	 * @return ItemUsageIndex
 	 */
-	protected function newEntityUsageIndex() {
+	protected function newItemUsageIndex() {
 		return new ItemUsageIndex( $this->getSite(), $this->getSiteLinkTable() );
 	}
 

@@ -2,12 +2,12 @@
 
 namespace Wikibase;
 
-use Content;
 use InvalidArgumentException;
 use Language;
 use LogicException;
 use MWException;
 use Title;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\ItemSearchTextGenerator;
 use Wikibase\Repo\View\ClaimsView;
@@ -199,6 +199,10 @@ class ItemContent extends EntityContent {
 
 	/**
 	 * @see getEntityView()
+	 *
+	 * @param FingerprintView $fingerprintView
+	 * @param ClaimsView $claimsView
+	 * @param Language $language
 	 *
 	 * @return ItemView
 	 */

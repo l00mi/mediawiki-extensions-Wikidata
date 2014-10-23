@@ -7,6 +7,8 @@ use Site;
 use SiteList;
 use Title;
 use Wikibase\Client\WikibaseClient;
+use Wikibase\DataModel\Entity\Diff\EntityDiff;
+use Wikibase\DataModel\Entity\Diff\ItemDiff;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 
@@ -108,7 +110,7 @@ class ChangeHandler {
 		EntityChangeFactory $changeFactory = null,
 		PageUpdater $updater = null,
 		EntityRevisionLookup $entityRevisionLookup = null,
-		ItemUsageIndex $entityUsageIndex = null,
+		ItemUsageIndex $itemUsageIndex = null,
 		Site $localSite = null,
 		SiteList $sites = null
 	) {
@@ -130,8 +132,8 @@ class ChangeHandler {
 			$entityRevisionLookup = $wikibaseClient->getStore()->getEntityRevisionLookup();
 		}
 
-		if ( !$entityUsageIndex ) {
-			$entityUsageIndex = $wikibaseClient->getStore()->getItemUsageIndex();
+		if ( !$itemUsageIndex ) {
+			$itemUsageIndex = $wikibaseClient->getStore()->getItemUsageIndex();
 		}
 
 		if ( $sites === null ) {
@@ -154,7 +156,7 @@ class ChangeHandler {
 
 		$this->updater = $updater;
 		$this->entityRevisionLookup = $entityRevisionLookup;
-		$this->entityUsageIndex = $entityUsageIndex;
+		$this->itemUsageIndex = $itemUsageIndex;
 
 		$this->site = $localSite;
 		$this->siteId = $localSite->getGlobalId();
@@ -211,7 +213,7 @@ class ChangeHandler {
 		$groups = array();
 
 		foreach ( $changes as $change ) {
-			$id = $change->getEntityId()->getPrefixedId();
+			$id = $change->getEntityId()->getSerialization();
 
 			if ( !isset( $groups[$id] ) ) {
 				$groups[$id] = array();
@@ -467,8 +469,6 @@ class ChangeHandler {
 		return 0;
 	}
 
-	// ==========================================================================================
-
 	/**
 	 * Handle the provided changes.
 	 *
@@ -563,7 +563,7 @@ class ChangeHandler {
 
 		// todo inject!
 		$referencedPagesFinder = new ReferencedPagesFinder(
-			$this->entityUsageIndex,
+			$this->itemUsageIndex,
 			$this->namespaceChecker,
 			$this->siteId,
 			$this->checkPageExistence

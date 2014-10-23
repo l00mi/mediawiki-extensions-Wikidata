@@ -194,7 +194,7 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 
 		this.$fingerprintlistview.one(
 			'fingerprintlistviewafterstopediting',
-			function( dropValue ) {
+			function( event, dropValue ) {
 				self._afterStopEditing( dropValue );
 			}
 		);
@@ -275,15 +275,19 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 	events: {
 		fingerprintgroupviewcreate: function( event, toolbarcontroller ) {
 			var $fingerprintgroupview = $( event.target ),
-				fingerprintgroupview = $fingerprintgroupview.data( 'fingerprintgroupview' );
+				fingerprintgroupview = $fingerprintgroupview.data( 'fingerprintgroupview' ),
+				$headingContainer = $fingerprintgroupview.find(
+					'.wikibase-fingerprintgroupview-heading-container'
+				),
+				$container = $headingContainer.children( '.wikibase-toolbar-container' );
+
+			if( !$container.length ) {
+				$container = $( '<div/>' ).appendTo( $headingContainer );
+			}
 
 			$fingerprintgroupview.edittoolbar( {
-				$container: $( '<div/>' )
-					.appendTo( $fingerprintgroupview.find(
-						'.wikibase-fingerprintgroupview-heading-container'
-					) ),
-				interactionWidgetName: $.wikibase.fingerprintgroupview.prototype.widgetName,
-				enableRemove: false
+				$container: $container,
+				interactionWidget: fingerprintgroupview
 			} );
 
 			$fingerprintgroupview.on( 'keyup.edittoolbar', function( event ) {
@@ -300,9 +304,8 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 		'fingerprintgroupviewchange fingerprintgroupviewafterstartediting': function( event ) {
 			var $fingerprintgroupview = $( event.target ),
 				fingerprintgroupview = $fingerprintgroupview.data( 'fingerprintgroupview' ),
-				toolbar = $fingerprintgroupview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
+				edittoolbar = $fingerprintgroupview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
 				enable = fingerprintgroupview.isValid() && !fingerprintgroupview.isInitialValue();
 
 			btnSave[enable ? 'enable' : 'disable']();
@@ -310,15 +313,14 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 		fingerprintgroupviewdisable: function( event ) {
 			var $fingerprintgroupview = $( event.target ),
 				fingerprintgroupview = $fingerprintgroupview.data( 'fingerprintgroupview' ),
-				toolbar = $fingerprintgroupview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
+				edittoolbar = $fingerprintgroupview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
 				enable = fingerprintgroupview.isValid() && !fingerprintgroupview.isInitialValue();
 
 			btnSave[enable ? 'enable' : 'disable']();
 		},
 		toolbareditgroupedit: function( event, toolbarcontroller ) {
-			var $fingerprintgroupview = $( event.target ).closest( ':wikibase-edittoolbar' ),
+			var $fingerprintgroupview = $( event.target ),
 				fingerprintgroupview = $fingerprintgroupview.data( 'fingerprintgroupview' );
 
 			if( !fingerprintgroupview ) {

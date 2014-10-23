@@ -358,7 +358,14 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 		if( key === 'value' ) {
 			value = this._checkValue( value );
 		}
-		return PARENT.prototype._setOption.call( this, key, value );
+
+		var response = PARENT.prototype._setOption.call( this, key, value );
+
+		if( key === 'disabled' && this._isInEditMode ) {
+			this.$list.data( 'tagadata' ).option( 'disabled', value );
+		}
+
+		return response;
 	},
 
 	/**
@@ -416,28 +423,6 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 		if( this._isInEditMode ) {
 			this.$list.data( 'tagadata' ).getHelperTag().find( 'input' ).focus();
 		}
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.disable
-	 */
-	disable: function() {
-		if( this._isInEditMode ) {
-			this.$list.data( 'tagadata' ).disable();
-		}
-
-		return PARENT.prototype.disable.call( this );
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.enable
-	 */
-	enable: function() {
-		if( this._isInEditMode ) {
-			this.$list.data( 'tagadata' ).enable();
-		}
-
-		return PARENT.prototype.enable.call( this );
 	}
 
 } );
@@ -447,12 +432,16 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 	events: {
 		aliasesviewcreate: function( event, toolbarcontroller ) {
 			var $aliasesview = $( event.target ),
-				aliasesview = $aliasesview.data( 'aliasesview' );
+				aliasesview = $aliasesview.data( 'aliasesview' ),
+				$container = $aliasesview.find( 'ul' ).next( 'span' );
+
+			if( !$container.length ) {
+				$container = $( '<span/>' ).insertAfter( $aliasesview.find( 'ul' ) );
+			}
 
 			$aliasesview.edittoolbar( {
-				$container: $( '<div/>' ).insertAfter( $aliasesview.find( 'ul' ) ),
-				interactionWidgetName: $.wikibase.aliasesview.prototype.widgetName,
-				enableRemove: false
+				$container: $container,
+				interactionWidget: aliasesview
 			} );
 
 			$aliasesview.on( 'keyup', function( event ) {
@@ -466,8 +455,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				}
 			} );
 
-			$aliasesview.one( 'toolbareditgroupedit', function() {
-
+			$aliasesview.one( 'edittoolbaredit', function() {
 				toolbarcontroller.registerEventHandler(
 					event.data.toolbar.type,
 					event.data.toolbar.id,
@@ -475,41 +463,20 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 					function( event ) {
 						var $aliasesview = $( event.target ),
 							aliasesview = $aliasesview.data( 'aliasesview' ),
-							toolbar = $aliasesview.data( 'edittoolbar' ).toolbar,
-							$btnSave = toolbar.editGroup.getButton( 'save' ),
-							btnSave = $btnSave.data( 'toolbarbutton' ),
+							edittoolbar = $aliasesview.data( 'edittoolbar' ),
+							btnSave = edittoolbar.getButton( 'save' ),
 							enable = aliasesview.isValid() && !aliasesview.isInitialValue();
 
 						btnSave[enable ? 'enable' : 'disable']();
 					}
 				);
-
-			} );
-
-			$aliasesview
-			// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
-			.on( 'edittoolbarafterstartediting.' + aliasesview.widgetName, function( event ) {
-				$( wb ).trigger( 'startItemPageEditMode', [
-					$aliasesview,
-					{
-						exclusive: false,
-						wbCopyrightWarningGravity: 'sw'
-					}
-				] );
-			} )
-			.on( 'edittoolbarafterstopediting.' + aliasesview.widgetName, function( event, dropValue ) {
-				$( wb ).trigger( 'stopItemPageEditMode', [
-					$aliasesview,
-					{ save: dropValue !== true }
-				] );
 			} );
 		},
 		aliasesviewdisable: function( event ) {
 			var $aliasesview = $( event.target ),
 				aliasesview = $aliasesview.data( 'aliasesview' ),
-				toolbar = $aliasesview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
+				edittoolbar = $aliasesview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
 				enable = aliasesview.isValid() && !aliasesview.isInitialValue(),
 				currentAliases = aliasesview.value().aliases;
 
@@ -520,11 +487,11 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			}
 
 			if( !currentAliases ) {
-				toolbar.disable();
+				edittoolbar.disable();
 			}
 		},
-		toolbareditgroupedit: function( event, toolbarcontroller ) {
-			var $aliasesview = $( event.target ).closest( ':wikibase-edittoolbar' ),
+		edittoolbaredit: function( event, toolbarcontroller ) {
+			var $aliasesview = $( event.target ),
 				aliasesview = $aliasesview.data( 'aliasesview' );
 
 			if( !aliasesview ) {

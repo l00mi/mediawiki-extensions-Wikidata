@@ -4,7 +4,6 @@ namespace Wikibase\Test;
 
 use Wikibase\ChangeRow;
 use Wikibase\ChangesTable;
-use Wikibase\Settings;
 
 /**
  * @covers Wikibase\ChangeRow
@@ -123,14 +122,14 @@ class ChangeRowTest extends \ORMRowTest {
 	/**
 	 * @dataProvider instanceProvider
 	 */
-	public function testGetUser( $changeRow ) {
+	public function testGetUser( ChangeRow $changeRow ) {
 		$this->assertInstanceOf( '\User', $changeRow->getUser() );
 	}
 
 	/**
 	 * @dataProvider instanceProvider
 	 */
-	public function testGetAge( $changeRow ) {
+	public function testGetAge( ChangeRow $changeRow ) {
 		// Don't assert on equalness because all previous code takes time!
 		$this->assertTrue(
 			// the time used is one above the minimum run time (4s) for the test,
@@ -142,7 +141,7 @@ class ChangeRowTest extends \ORMRowTest {
 	/**
 	 * @dataProvider instanceProvider
 	 */
-	public function testGetTime( $changeRow ) {
+	public function testGetTime( ChangeRow $changeRow ) {
 		$this->assertEquals(
 			'20130101000000',
 			$changeRow->getTime()
@@ -159,25 +158,10 @@ class ChangeRowTest extends \ORMRowTest {
 		);
 	}
 
-	public function provideSaveAndLoad() {
-		$instanceCases = $this->instanceProvider();
-		$cases = array();
-
-		foreach ( $instanceCases as $case ) {
-			$cases[] = array( $case[0], true );
-			$cases[] = array( $case[0], false );
-		}
-
-		return $cases;
-	}
-
 	/**
-	 * @dataProvider provideSaveAndLoad
+	 * @dataProvider instanceProvider
 	 */
-	public function testSaveAndLoad( ChangeRow $changeRow, $json = false ) {
-		Settings::singleton()->offsetSet( "changesAsJson", $json );
-		$this->assertEquals( $json, Settings::get( "changesAsJson" ) ); // sanity
-
+	public function testSaveAndLoad( ChangeRow $changeRow ) {
 		$changeRow->save();
 		$id = $changeRow->getId();
 

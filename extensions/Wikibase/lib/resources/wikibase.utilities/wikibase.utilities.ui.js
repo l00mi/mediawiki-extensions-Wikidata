@@ -16,7 +16,7 @@
 	 * Whether page has rtl context.
 	 * @type {boolean}
 	 */
-	var IS_RTL = null;
+	var IS_RTL = false;
 
 	$( document ).ready( function() {
 		// have to wait for document to be loaded for this, otherwise 'rtl' might not yet be there!
@@ -82,7 +82,7 @@
 	 *
 	 * @since 0.5
 	 *
-	 * @param {wb.datamodel.Entity} entity
+	 * @param {wb.datamodel.Entity} [entity]
 	 * @return {string} Either the label, ID or empty string
 	 */
 	wb.utilities.ui.buildPrettyEntityLabelText = function( entity ) {

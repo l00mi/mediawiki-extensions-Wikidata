@@ -3,6 +3,8 @@
 namespace Wikibase;
 
 use InvalidArgumentException;
+use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Claims;
 use Wikibase\Repo\Diff\ClaimDiffer;
 
 /**
@@ -113,7 +115,7 @@ class ClaimSummaryBuilder {
 		foreach( $guids as $guid ) {
 			if ( $claims->hasClaimWithGuid( $guid ) ) {
 				$snak = $claims->getClaimWithGuid( $guid )->getMainSnak();
-				$key = $snak->getPropertyId()->getPrefixedId();
+				$key = $snak->getPropertyId()->getSerialization();
 
 				if ( !array_key_exists( $key, $pairs ) ) {
 					$pairs[$key] = array();

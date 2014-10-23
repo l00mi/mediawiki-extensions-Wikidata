@@ -6,12 +6,13 @@ use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
-use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Diff\EntityDiff;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
@@ -34,7 +35,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * Returns several more or less complex claims
 	 *
-	 * @return array
+	 * @return Claim[]
 	 */
 	public abstract function makeClaims();
 
@@ -251,7 +252,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider aliasesProvider
 	 */
 	public function testSetAllAliases( array $aliasGroups ) {
-
 		$entity = $this->getNewEmpty();
 		$entity->addAliases( 'zh' , array( 'qwertyuiop123' , '321poiuytrewq' ) );
 
@@ -441,7 +441,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		}
 
 		$snak = new PropertyNoValueSnak( 42 );
-		$claim = new Statement( $snak );
+		$claim = new Statement( new Claim( $snak ) );
 		$claim->setGuid( 'q42$foobarbaz' );
 
 		$this->assertInstanceOf( 'Wikibase\DataModel\Claim\Claim', $claim );
@@ -524,7 +524,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	 * @param EntityDiff $expected
 	 */
 	public function testDiffEntities( Entity $entity0, Entity $entity1, EntityDiff $expected ) {
-
 		$actual = $entity0->getDiff( $entity1 );
 
 		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\Diff\EntityDiff', $actual );
@@ -532,58 +531,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 		// TODO: equality check
 		// (simple serialize does not work, since the order is not relevant, and not only on the top level)
-	}
-
-	public function patchProvider() {
-		$argLists = array();
-
-
-		$source = $this->getNewEmpty();
-		$patch = new EntityDiff();
-		$expected = clone $source;
-
-		$argLists[] = array( $source, $patch, $expected );
-
-
-		$source = $this->getNewEmpty();
-		$source->setLabel( 'en', 'foo' );
-		$source->setLabel( 'nl', 'bar' );
-		$source->setDescription( 'de', 'foobar' );
-		$source->setAliases( 'en', array( 'baz', 'bah' ) );
-
-		$patch = new EntityDiff();
-		$expected = clone $source;
-
-		$argLists[] = array( $source, $patch, $expected );
-
-
-		$source = clone $source;
-
-		$patch = new EntityDiff( array(
-			'description' => new Diff( array(
-				'de' => new DiffOpChange( 'foobar', 'onoez' ),
-				'en' => new DiffOpAdd( 'foobar' ),
-			), true ),
-		) );
-		$expected = clone $source;
-		$expected->setDescription( 'de', 'onoez' );
-		$expected->setDescription( 'en', 'foobar' );
-
-		$argLists[] = array( $source, $patch, $expected );
-
-		return $argLists;
-	}
-
-	/**
-	 * @dataProvider patchProvider
-	 *
-	 * @param Entity $source
-	 * @param EntityDiff $patch
-	 * @param Entity $expected
-	 */
-	public function testPatch( Entity $source, EntityDiff $patch, Entity $expected ) {
-		$source->patch( $patch );
-		$this->assertTrue( $expected->equals( $source ) );
 	}
 
 	/**
@@ -690,7 +637,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGivenEmptyFingerprint_noTermsAreSet() {
 		$entity = $this->getNewEmpty();
-
 		$entity->setFingerprint( Fingerprint::newEmpty() );
 
 		$this->assertHasNoTerms( $entity );
@@ -728,9 +674,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$entity = $this->getNewEmpty();
-
 		$entity->setFingerprint( $fingerprint );
-
 		$newFingerprint = $entity->getFingerprint();
 
 		$this->assertEquals( $fingerprint, $newFingerprint );

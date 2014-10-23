@@ -15,6 +15,9 @@ use Wikibase\PropertyInfoStore;
  * @author Marius Hoch < hoo@online.de >
  */
 class MockClientStore implements ClientStore {
+	public function getUsageLookup() {}
+	public function getUsageTracker() {}
+	public function getSubscriptionManager() {}
 	public function getItemUsageIndex() {}
 	public function getPropertyLabelResolver() {}
 	public function getTermIndex() {}
@@ -62,4 +65,5 @@ class MockClientStore implements ClientStore {
 		}
 		return $mockPropertyInfoStore;
 	}
+
 }

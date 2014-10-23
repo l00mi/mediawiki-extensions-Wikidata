@@ -4,11 +4,11 @@ namespace Tests\Wikibase\InternalSerialization\Deserializers;
 
 use Deserializers\Deserializer;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Statement;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\InternalSerialization\Deserializers\LegacyClaimDeserializer;
 use Wikibase\InternalSerialization\Deserializers\LegacySnakDeserializer;
 use Wikibase\InternalSerialization\Deserializers\LegacySnakListDeserializer;
@@ -105,11 +105,13 @@ class LegacyClaimDeserializerTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGivenValidSerialization_deserializeReturnsStatement() {
 		$statement = new Statement(
-			new PropertyNoValueSnak( 42 ),
-			new SnakList( array(
-				new PropertyNoValueSnak( 23 ),
-				new PropertyNoValueSnak( 1337 ),
-			) ),
+			new Claim(
+				new PropertyNoValueSnak( 42 ),
+				new SnakList( array(
+					new PropertyNoValueSnak( 23 ),
+					new PropertyNoValueSnak( 1337 ),
+				) )
+			),
 			new ReferenceList( array(
 				new Reference(
 					new SnakList( array(

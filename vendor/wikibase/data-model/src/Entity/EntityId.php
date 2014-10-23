@@ -2,74 +2,22 @@
 
 namespace Wikibase\DataModel\Entity;
 
-use Comparable;
-use InvalidArgumentException;
-use Serializable;
-use Wikibase\DataModel\LegacyIdInterpreter;
-
 /**
  * @since 0.5
+ * Constructor non-public since 1.0
+ * Abstract since 2.0
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com
  */
-class EntityId implements Comparable, Serializable {
+abstract class EntityId implements \Comparable, \Serializable {
 
-	protected $entityType;
 	protected $serialization;
-
-	/**
-	 * Construct a derivative such as ItemId or PropertyId directly.
-	 * In the long term this class is meant to become abstract.
-	 *
-	 * The second argument, $idSerialization, should be the entire
-	 * id serialization. For compatibility reasons this also accepts
-	 * the numeric part for item and property ids. This is however
-	 * highly deprecated.
-	 *
-	 * Derivatives are allowed (and required) to use this constructor.
-	 *
-	 * @param string $entityType
-	 * @param string|int $idSerialization
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	protected function __construct( $entityType, $idSerialization ) {
-		$this->setEntityType( $entityType );
-		$this->setIdSerialization( $idSerialization );
-	}
-
-	private function setEntityType( $entityType ) {
-		if ( !is_string( $entityType ) ) {
-			throw new InvalidArgumentException( '$entityType needs to be a string' );
-		}
-
-		$this->entityType = $entityType;
-	}
-
-	private function setIdSerialization( $idSerialization ) {
-		if ( is_int( $idSerialization ) ) {
-			$idSerialization = $this->replaceNumericIdArgument( $idSerialization );
-		}
-
-		if ( !is_string( $idSerialization ) ) {
-			throw new InvalidArgumentException( '$idSerialization needs to be a string' );
-		}
-
-		$this->serialization = strtoupper( $idSerialization );
-	}
-
-	private function replaceNumericIdArgument( $numericId ) {
-		return LegacyIdInterpreter::newIdFromTypeAndNumber( $this->entityType, $numericId )
-			->getSerialization();
-	}
 
 	/**
 	 * @return string
 	 */
-	public function getEntityType() {
-		return $this->entityType;
-	}
+	public abstract function getEntityType();
 
 	/**
 	 * @return string
@@ -81,7 +29,7 @@ class EntityId implements Comparable, Serializable {
 	/**
 	 * Returns the id serialization.
 	 * @deprecated Use getSerialization instead.
-	 * (soft depreaction, this alias will stay untill it is no longer used)
+	 * (soft deprecation, this alias will stay until it is no longer used)
 	 *
 	 * @return string
 	 */
@@ -112,35 +60,6 @@ class EntityId implements Comparable, Serializable {
 	public function equals( $target ) {
 		return $target instanceof self
 			&& $target->serialization === $this->serialization;
-	}
-
-	/**
-	 * @see Serializable::serialize
-	 *
-	 * @return string
-	 */
-	public function serialize() {
-		return json_encode( array( $this->entityType, $this->serialization ) );
-	}
-
-	/**
-	 * @see Serializable::unserialize
-	 *
-	 * @param string $value
-	 *
-	 * @return EntityId
-	 */
-	public function unserialize( $value ) {
-		list( $entityType, $serialization ) = json_decode( $value );
-
-		// Compatibility with < 0.5.
-		// Numeric ids where stored in the serialization.
-		// Pass explicitly as int, so it is recognized properly.
-		if ( ctype_digit( $serialization ) ) {
-			$serialization = (int)$serialization;
-		}
-
-		self::__construct( $entityType, $serialization );
 	}
 
 }

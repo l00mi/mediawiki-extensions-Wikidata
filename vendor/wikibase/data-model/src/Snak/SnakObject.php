@@ -56,7 +56,7 @@ abstract class SnakObject implements Snak {
 	}
 
 	/**
-	 * @see Snak::getPropertyId
+	 * @see PropertyIdProvider::getPropertyId
 	 *
 	 * @since 0.1
 	 *
@@ -113,8 +113,6 @@ abstract class SnakObject implements Snak {
 	 * @since 0.1
 	 *
 	 * @param string $serialized
-	 *
-	 * @return Snak
 	 */
 	public function unserialize( $serialized ) {
 		$this->propertyId = PropertyId::newFromNumber( unserialize( $serialized ) );

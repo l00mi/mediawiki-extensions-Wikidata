@@ -2,13 +2,16 @@
 
 namespace Wikibase\DataModel\Statement;
 
+use ArrayIterator;
+use Comparable;
+use Countable;
 use InvalidArgumentException;
+use IteratorAggregate;
 use Traversable;
-use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
-use Wikibase\DataModel\References;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Snak\Snaks;
@@ -22,7 +25,7 @@ use Wikibase\DataModel\Snak\Snaks;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class StatementList implements \IteratorAggregate, \Comparable, \Countable {
+class StatementList implements IteratorAggregate, Comparable, Countable {
 
 	/**
 	 * @var Statement[]
@@ -36,24 +39,6 @@ class StatementList implements \IteratorAggregate, \Comparable, \Countable {
 	 */
 	public function __construct( $statements = array() ) {
 		$this->addStatements( $statements );
-	}
-
-	/**
-	 * Returns the best statements per property.
-	 * The best statements are those with the highest rank for a particular property.
-	 * Deprecated ranks are never included.
-	 *
-	 * @return self
-	 */
-	public function getBestStatementPerProperty() {
-		$statementList = new self();
-
-		foreach ( $this->getPropertyIds() as $propertyId ) {
-			$claims = new Claims( $this->statements );
-			$statementList->addStatements( $claims->getClaimsForProperty( $propertyId )->getBestClaims() );
-		}
-
-		return $statementList;
 	}
 
 	private function addStatements( $statements ) {
@@ -74,6 +59,18 @@ class StatementList implements \IteratorAggregate, \Comparable, \Countable {
 				throw new InvalidArgumentException( 'All elements need to be of type Statement' );
 			}
 		}
+	}
+
+	/**
+	 * Returns the best statements per property.
+	 * The best statements are those with the highest rank for a particular property.
+	 * Deprecated ranks are never included.
+	 *
+	 * @return self
+	 */
+	public function getBestStatementPerProperty() {
+		$bestStatementsFinder = new BestStatementsFinder( $this );
+		return new self( $bestStatementsFinder->getBestStatementsPerProperty() );
 	}
 
 	/**
@@ -99,14 +96,14 @@ class StatementList implements \IteratorAggregate, \Comparable, \Countable {
 	/**
 	 * @param Snak $mainSnak
 	 * @param Snak[]|Snaks|null $qualifiers
-	 * @param Reference[]|References|null $references
+	 * @param Reference[]|ReferenceList|null $references
 	 * @param string|null $guid
 	 */
 	public function addNewStatement( Snak $mainSnak, $qualifiers = null, $references = null, $guid = null ) {
 		$qualifiers = is_array( $qualifiers ) ? new SnakList( $qualifiers ) : $qualifiers;
 		$references = is_array( $references ) ? new ReferenceList( $references ) : $references;
 
-		$statement = new Statement( $mainSnak, $qualifiers, $references );
+		$statement = new Statement( new Claim( $mainSnak, $qualifiers ), $references );
 		$statement->setGuid( $guid );
 
 		$this->addStatement( $statement );
@@ -129,10 +126,29 @@ class StatementList implements \IteratorAggregate, \Comparable, \Countable {
 	}
 
 	/**
+	 * Returns a list of all Snaks on this StatementList. This includes at least the main snaks of
+	 * Claims, the snaks from Claim qualifiers, and the snaks from Statement References.
+	 *
+	 * This is a convenience method for use in code that needs to operate on all snaks, e.g.
+	 * to find all referenced Entities.
+	 *
+	 * @since 1.1
+	 *
+	 * @return Snak[]
+	 */
+	public function getAllSnaks() {
+		$snaks = array();
+		foreach ( $this->statements as $statement ) {
+			$snaks = array_merge( $snaks, $statement->getAllSnaks() );
+		}
+		return $snaks;
+	}
+
+	/**
 	 * @return Traversable
 	 */
 	public function getIterator() {
-		return new \ArrayIterator( $this->statements );
+		return new ArrayIterator( $this->statements );
 	}
 
 	/**
@@ -158,11 +174,13 @@ class StatementList implements \IteratorAggregate, \Comparable, \Countable {
 	 * @return bool
 	 */
 	public function equals( $statementList ) {
-		if ( !( $statementList instanceof self ) ) {
-			return false;
+		if ( $this === $statementList ) {
+			return true;
 		}
 
-		if ( $this->count() !== $statementList->count() ) {
+		if ( !( $statementList instanceof self )
+			|| $this->count() !== $statementList->count()
+		) {
 			return false;
 		}
 

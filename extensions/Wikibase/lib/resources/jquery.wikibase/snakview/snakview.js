@@ -112,13 +112,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 	_variation: null,
 
 	/**
-	 * Keeps track of values from previously used variations. This allows to display the same value
-	 * when using a previously used variation again during one edit-mode session.
-	 * @type Object
-	 */
-	_recentVariationValues: null,
-
-	/**
 	 * The property of the Snak currently represented by the view.
 	 * @type {String}
 	 */
@@ -169,8 +162,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 	_create: function() {
 		// apply template to this.element:
 		PARENT.prototype._create.call( this );
-
-		this._recentVariationValues = {};
 
 		this._entityStore = this.option( 'entityStore' );
 		this._valueViewBuilder = this.option( 'valueViewBuilder' );
@@ -225,7 +216,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 			repoConfig = mw.config.get( 'wbRepo' ),
 			repoApiUrl = repoConfig.url + repoConfig.scriptPath + '/api.php';
 
-		return $( '<input/>' ).entityselector( {
+		return $( '<input />' ).entityselector( {
 			url: repoApiUrl,
 			type: 'property'
 		} )
@@ -388,9 +379,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 			// TODO: should throw an error somewhere when trying to leave edit mode while
 			//  this.snak() still returns null. For now setting {} is a simple solution for non-
 			//  existent error handling in the snak UI
-
-			// forget about values set in different variations
-			this._recentVariationValues = {};
 
 			this.element.off( 'keydown.' + this.widgetName );
 
@@ -650,7 +638,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 *
 	 * @since 0.4
 	 *
-	 * @param {String|null} snakType
+	 * @param {String|null} [snakType]
 	 * @return String|null
 	 */
 	snakType: function( snakType ) {
@@ -683,16 +671,12 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 */
 	_updateVariation: function() {
 		var variationsFactory = $.wikibase.snakview.variations,
-			variationType,
 			snakType = this._snakType,
 			VariationConstructor = variationsFactory.getVariation( snakType );
 
 		if( this._variation
 			&& ( !this._propertyId || this._variation.constructor !== VariationConstructor )
 		) {
-			// remember variation's value for next time variation is used during same edit mode:
-			variationType = this._variation.variationSnakConstructor.TYPE;
-			this._recentVariationValues[ variationType ] = this._variation.value();
 
 			this.$snakValue.empty();
 
@@ -709,10 +693,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 				this._entityStore,
 				this._valueViewBuilder
 			);
-			variationType = this._variation.variationSnakConstructor.TYPE;
-
-			// display value used last for this variation within same edit-mode session:
-			this._variation.value( this._recentVariationValues[ variationType ] || {} );
 		}
 	},
 
@@ -725,12 +705,16 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 		// NOTE: Order of these shouldn't matter; If for any reasons draw functions start changing
 		//  the outcome of the variation (or Snak type), then something must be incredibly wrong!
-		this._entityStore.get( this._propertyId ).done( function( fetchedProperty ) {
-			self.drawProperty(
-				fetchedProperty ? fetchedProperty.getContent() : null,
-				fetchedProperty ? fetchedProperty.getTitle() : null
-			);
-		} );
+		if( this._propertyId ) {
+			this._entityStore.get( this._propertyId ).done( function( fetchedProperty ) {
+				self.drawProperty(
+					fetchedProperty ? fetchedProperty.getContent() : null,
+					fetchedProperty ? fetchedProperty.getTitle() : null
+				);
+			} );
+		} else {
+			this.drawProperty( null, null );
+		}
 		this.drawSnakTypeSelector();
 		this.drawVariation();
 	},
@@ -835,10 +819,9 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 			if( propertyId ) {
 				// property ID selected but apparently no variation available to handle it
-				this.$snakValue.append( $( '<span/>', {
-					'text': mw.msg( 'wikibase-snakview-choosesnaktype' ),
-					'class': this.widgetBaseClass + '-unsupportedsnaktype'
-				} ) );
+				$( '<span/>' ).text( mw.msg( 'wikibase-snakview-choosesnaktype' ) )
+				.addClass( this.widgetBaseClass + '-unsupportedsnaktype' )
+				.appendTo( this.$snakValue );
 				// NOTE: instead of doing this here and checking everywhere whether this._variation
 				//  is set, we could as well use variations for displaying system messages like
 				//  this, e.g. having a UnsupportedSnakType variation which is not registered for a

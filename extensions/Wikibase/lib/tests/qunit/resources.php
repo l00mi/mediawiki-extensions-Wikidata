@@ -53,20 +53,6 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.parsers.EntityIdParser.tests' => $moduleBase + array(
-			'scripts' => array(
-				'parsers/EntityIdParser.tests.js',
-			),
-			'dependencies' => array(
-				'util.inherit',
-				'valueParsers.tests',
-				'wikibase.tests',
-				'wikibase.datamodel',
-				'wikibase.EntityIdParser',
-				'wikibase.tests.qunit.testrunner',
-			),
-		),
-
 		'wikibase.dataTypes.tests' => $moduleBase + array(
 			'scripts' => array(
 				'wikibase.dataTypes/wikibase.dataTypes.tests.js',
@@ -82,7 +68,9 @@ return call_user_func( function() {
 				'wikibase.RepoApi/wikibase.RepoApi.tests.js',
 			),
 			'dependencies' => array(
+				'mw.config.values.wbRepo',
 				'wikibase',
+				'wikibase.api.getLocationAgnosticMwApi',
 				'wikibase.AbstractedRepoApi',
 				'wikibase.RepoApi',
 			),
@@ -103,12 +91,22 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.store.EntityStore.tests' => $moduleBase + array(
+		'wikibase.store.CombiningEntityStore.tests' => $moduleBase + array(
 			'scripts' => array(
-				'wikibase.store/store.EntityStore.tests.js',
+				'wikibase.store/store.CombiningEntityStore.tests.js',
 			),
 			'dependencies' => array(
+				'wikibase.store.CombiningEntityStore',
 				'wikibase.store.EntityStore',
+			),
+		),
+
+		'wikibase.store.MwConfigEntityStore.tests' => $moduleBase + array(
+			'scripts' => array(
+				'wikibase.store/store.MwConfigEntityStore.tests.js',
+			),
+			'dependencies' => array(
+				'wikibase.store.MwConfigEntityStore',
 			),
 		),
 
@@ -136,15 +134,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'wikibase.templates',
-			),
-		),
-
-		'wikibase.compileEntityStoreFromMwConfig.tests' => $moduleBase + array(
-			'scripts' => array(
-				'wikibase.compileEntityStoreFromMwConfig.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.compileEntityStoreFromMwConfig',
 			),
 		),
 

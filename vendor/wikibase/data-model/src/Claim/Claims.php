@@ -7,9 +7,10 @@ use Comparable;
 use Hashable;
 use InvalidArgumentException;
 use Traversable;
-use Wikibase\DataModel\ByPropertyIdArray;
+use Wikibase\DataModel\ByPropertyIdGrouper;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Statement\Statement;
 
 /**
  * A claim (identified using it's GUID) can only be added once.
@@ -317,14 +318,13 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 * @return Claims
 	 */
 	public function getClaimsForProperty( PropertyId $propertyId ) {
-		$claimsByProp = new ByPropertyIdArray( $this );
-		$claimsByProp->buildIndex();
+		$byPropertyIdGrouper = new ByPropertyIdGrouper( $this );
 
-		if ( !( in_array( $propertyId, $claimsByProp->getPropertyIds() ) ) ) {
+		if ( !$byPropertyIdGrouper->hasPropertyId( $propertyId ) ) {
 			return new self();
 		}
 
-		return new self( $claimsByProp->getByPropertyId( $propertyId ) );
+		return new self( $byPropertyIdGrouper->getByPropertyId( $propertyId ) );
 	}
 
 	/**
@@ -457,7 +457,7 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 		do {
 			$claims = $this->getByRank( $rank );
 			$rank--;
-		} while ( $claims->isEmpty() && $rank > Claim::RANK_DEPRECATED );
+		} while ( $claims->isEmpty() && $rank > Statement::RANK_DEPRECATED );
 
 		return $claims;
 	}

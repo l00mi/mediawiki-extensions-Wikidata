@@ -30,6 +30,8 @@ use SpecialSearch;
 use SplFileInfo;
 use Title;
 use User;
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\Hook\MakeGlobalVariablesScriptHandler;
 use Wikibase\Hook\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\Content\EntityHandler;
@@ -196,7 +198,9 @@ final class RepoHooks {
 	public static function onNamespaceIsMovable( $ns, &$movable ) {
 		wfProfileIn( __METHOD__ );
 
-		if ( NamespaceUtils::isEntityNamespace( $ns ) ) {
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
+		if ( $entityNamespaceLookup->isEntityNamespace( $ns ) ) {
 			$movable = false;
 		}
 
@@ -582,6 +586,8 @@ final class RepoHooks {
 	public static function onWikibaseDeleteData( $reportMessage ) {
 		wfProfileIn( __METHOD__ );
 
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
 		$reportMessage( 'Deleting data from changes table...' );
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -592,7 +598,7 @@ final class RepoHooks {
 
 		$reportMessage( 'Deleting revisions from Data NS...' );
 
-		$namespaceList = $dbw->makeList( NamespaceUtils::getEntityNamespaces(), LIST_COMMA );
+		$namespaceList = $dbw->makeList( $entityNamespaceLookup->getEntityNamespaces(), LIST_COMMA );
 
 		$dbw->deleteJoin(
 			'revision', 'page',
@@ -636,38 +642,57 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onOutputPageBodyAttributes( OutputPage $out, Skin $sk, array &$bodyAttrs ) {
-		wfProfileIn( __METHOD__ );
+		$entityId = self::getEntityIdFromOutputPage( $out );
 
-		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
+		if ( $entityId === null ) {
+			return true;
+		}
 
-		if ( $entityContentFactory->isEntityContentModel( $out->getTitle()->getContentModel() ) ) {
-			// We only add the classes, if there is an actual item and not just an empty Page in the right namespace.
-			// XXX: Let's hope the page isn't re-loaded from the database.
-			$entityPage = new WikiPage( $out->getTitle() );
-			/** @var EntityContent $entityContent */
-			$entityContent = $entityPage->getContent();
+		// TODO: preg_replace kind of ridiculous here, should probably change the ENTITY_TYPE constants instead
+		$entityType = preg_replace( '/^wikibase-/i', '', $entityId->getEntityType() );
 
-			if ( $entityContent !== null && !$entityContent->isRedirect() ) {
-				// TODO: preg_replace kind of ridiculous here, should probably change the ENTITY_TYPE constants instead
-				$entityType = preg_replace( '/^wikibase-/i', '', $entityContent->getEntity()->getType() );
+		// add class to body so it's clear this is a wb item:
+		$bodyAttrs['class'] .= ' wb-entitypage wb-' . $entityType . 'page';
+		// add another class with the ID of the item:
+		$bodyAttrs['class'] .= ' wb-' . $entityType . 'page-' . $entityId->getSerialization();
 
-				// add class to body so it's clear this is a wb item:
-				$bodyAttrs['class'] .= " wb-entitypage wb-{$entityType}page";
-				// add another class with the ID of the item:
-				$bodyAttrs['class'] .= " wb-{$entityType}page-{$entityContent->getEntityId()->getPrefixedId()}";
+		if ( $sk->getRequest()->getCheck( 'diff' ) ) {
+			$bodyAttrs['class'] .= ' wb-diffpage';
+		}
 
-				if ( $sk->getRequest()->getCheck( 'diff' ) ) {
-					$bodyAttrs['class'] .= ' wb-diffpage';
-				}
+		if ( $out->getRevisionId() !== $out->getTitle()->getLatestRevID() ) {
+			$bodyAttrs['class'] .= ' wb-oldrevpage';
+		}
 
-				if ( $out->getRevisionId() !== $out->getTitle()->getLatestRevID() ) {
-					$bodyAttrs['class'] .= ' wb-oldrevpage';
-				}
+		return true;
+	}
+
+	/**
+	 * @param OutputPage $out
+	 *
+	 * @return EntityId|null
+	 */
+	private static function getEntityIdFromOutputPage( OutputPage $out ) {
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$entityContentFactory = $wikibaseRepo->getEntityContentFactory();
+
+		if ( !$entityContentFactory->isEntityContentModel( $out->getTitle()->getContentModel() ) ) {
+			return null;
+		}
+
+		$jsConfigVars = $out->getJsConfigVars();
+
+		if ( array_key_exists( 'wbEntityId', $jsConfigVars ) ) {
+			$idString = $jsConfigVars['wbEntityId'];
+
+			try {
+				return $wikibaseRepo->getEntityIdParser()->parse( $idString );
+			} catch ( EntityIdParsingException $ex ) {
+				wfLogWarning( 'Failed to parse EntityId config var: ' . $idString );
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
-		return true;
+		return null;
 	}
 
 	/**
@@ -926,8 +951,9 @@ final class RepoHooks {
 	 */
 	public static function onShowSearchHitTitle( &$link_t, &$titleSnippet, SearchResult $result ) {
 		$title = $result->getTitle();
+		$entityNamespaceLookup = WikibsseRepo::getDefaultInstance()->getEntityNamespaceLookup();
 
-		if ( NamespaceUtils::isEntityNamespace( $title->getNamespace() ) ) {
+		if ( $entityNamespaceLookup->isEntityNamespace( $title->getNamespace() ) ) {
 			$titleSnippet = $title->getPrefixedText();
 		}
 
@@ -950,7 +976,9 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onTitleGetRestrictionTypes( Title $title, array &$types ) {
-		if ( NamespaceUtils::isEntityNamespace( $title->getNamespace() ) ) {
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
+		if ( $entityNamespaceLookup->isEntityNamespace( $title->getNamespace() ) ) {
 			// Remove create and move protection for Wikibase namespaces
 			$types = array_diff( $types, array( 'create', 'move' ) );
 		}
@@ -1053,9 +1081,6 @@ final class RepoHooks {
 			$out->setProperty( 'wikibase-view-chunks', $placeholders );
 		}
 
-		$configVars = $parserOutput->getExtensionData( 'wikibase-configvars' );
-		$out->setProperty( 'wikibase-configvars', $configVars );
-
 		return true;
 	}
 
@@ -1103,7 +1128,9 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onOutputPageBeforeHtmlRegisterConfig( OutputPage $out, &$html ) {
-		if ( !NamespaceUtils::isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
+		if ( !$entityNamespaceLookup->isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
 			return true;
 		}
 
@@ -1130,7 +1157,9 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onMakeGlobalVariablesScript( $vars, $out ) {
-		if ( !NamespaceUtils::isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
+		if ( !$entityNamespaceLookup->isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
 			return true;
 		}
 
@@ -1164,7 +1193,12 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onContentModelCanBeUsedOn( $contentModel, Title $title, &$ok ) {
-		$expectedModel = array_search( $title->getNamespace(), NamespaceUtils::getEntityNamespaces() );
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
+		$expectedModel = array_search(
+			$title->getNamespace(),
+			$entityNamespaceLookup->getEntityNamespaces()
+		);
 
 		// If the namespace is an entity namespace, the content model
 		// must be the model assigned to that namespace.
@@ -1290,8 +1324,9 @@ final class RepoHooks {
 		array &$navigationUrls
 	) {
 		$title = $skinTemplate->getTitle();
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
 
-		if ( !NamespaceUtils::isEntityNamespace( $title->getNamespace() ) ) {
+		if ( !$entityNamespaceLookup->isEntityNamespace( $title->getNamespace() ) ) {
 			return true;
 		}
 

@@ -77,13 +77,13 @@ class SearchEntities extends ApiBase {
 
 		$ids = WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex()->getMatchingIDs(
 			array(
-				new \Wikibase\Term( array(
-					'termType' 		=> \Wikibase\Term::TYPE_LABEL,
+				new Term( array(
+					'termType' 		=> Term::TYPE_LABEL,
 					'termLanguage' 	=> $language,
 					'termText' 		=> $term
 				) ),
-				new \Wikibase\Term( array(
-					'termType' 		=> \Wikibase\Term::TYPE_ALIAS,
+				new Term( array(
+					'termType' 		=> Term::TYPE_ALIAS,
 					'termLanguage' 	=> $language,
 					'termText' 		=> $term
 				) )
@@ -214,7 +214,7 @@ class SearchEntities extends ApiBase {
 			$key = $id->getSerialization();
 			$title = $this->titleLookup->getTitleForId( $id );
 			$entries[ $key ] = array(
-				'id' => $id->getPrefixedId(),
+				'id' => $id->getSerialization(),
 				'url' => $title->getFullUrl()
 			);
 		}
@@ -322,7 +322,7 @@ class SearchEntities extends ApiBase {
 	}
 
 	/**
-	 * @see \ApiBase::getAllowedParams
+	 * @see ApiBase::getAllowedParams
 	 */
 	public function getAllowedParams() {
 		return array(
@@ -346,12 +346,15 @@ class SearchEntities extends ApiBase {
 				ApiBase::PARAM_MIN => 0,
 				ApiBase::PARAM_RANGE_ENFORCE => true,
 			),
-			'continue' => null,
+			'continue' => array(
+				ApiBase::PARAM_TYPE => 'integer',
+				ApiBase::PARAM_REQUIRED => false,
+			),
 		);
 	}
 
 	/**
-	 * @see \ApiBase::getParamDescription
+	 * @see ApiBase::getParamDescription
 	 */
 	public function getParamDescription() {
 		return array(
@@ -364,7 +367,7 @@ class SearchEntities extends ApiBase {
 	}
 
 	/**
-	 * @see \ApiBase::getDescription
+	 * @see ApiBase::getDescription
 	 */
 	public function getDescription() {
 		return array(
@@ -373,7 +376,7 @@ class SearchEntities extends ApiBase {
 	}
 
 	/**
-	 * @see \ApiBase::getExamples
+	 * @see ApiBase::getExamples
 	 */
 	protected function getExamples() {
 		return array(
@@ -384,7 +387,7 @@ class SearchEntities extends ApiBase {
 	}
 
 	/**
-	 * @see \ApiBase::getVersion
+	 * @see ApiBase::getVersion
 	 */
 	public function getVersion() {
 		return __CLASS__ . '-' . WB_VERSION;

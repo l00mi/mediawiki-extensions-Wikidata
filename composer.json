@@ -15,9 +15,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "propertysuggester/property-suggester": "~1.1.2",
-        "wikibase/wikibase": "dev-wmf/1.25wmf4",
-        "wikibase/data-model": "1.0.1",
+        "propertysuggester/property-suggester": "~1.1.4",
+        "wikibase/wikibase": "dev-wmf/1.25wmf5",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
     },
@@ -31,6 +30,6 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_25wmf1"
+        "autoloader-suffix": "wikidata_1_25wmf5"
     }
 }

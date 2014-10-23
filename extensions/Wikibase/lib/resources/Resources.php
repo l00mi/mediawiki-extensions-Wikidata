@@ -57,6 +57,7 @@ return call_user_func( function() {
 				'jquery.wikibase/themes/default/jquery.wikibase.fingerprintview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.labelview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkgrouplistview.css',
+				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkgroupview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinklistview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkview.css',
 			)
@@ -65,21 +66,6 @@ return call_user_func( function() {
 		'wikibase.templates' => $moduleTemplate + array(
 			'class' => 'Wikibase\TemplateModule',
 			'scripts' => 'templates.js',
-		),
-
-		'wikibase.compileEntityStoreFromMwConfig' => $moduleTemplate + array(
-			'scripts' => array(
-				'wikibase.compileEntityStoreFromMwConfig.js',
-			),
-			'dependencies' => array(
-				'json',
-				'wikibase',
-				'wikibase.serialization',
-				'wikibase.serialization.entities',
-				'wikibase.store.FetchedContent',
-				'wikibase.store.FetchedContentUnserializer',
-				'wikibase.datamodel',
-			),
 		),
 
 		'wikibase' => $moduleTemplate + array(

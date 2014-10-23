@@ -56,8 +56,9 @@
  *        (2) {number} The item node's new index.
  *        (3) {number} Number of items in the list.
  *
- * @event destroy: Triggered when the widget has been destroyed.
- *        (1) {jQuery.Event}
+ * @event destroy
+ *        Triggered when the widget has been destroyed.
+ *        - {jQuery.Event}
  */
 $.widget( 'wikibase.listview', PARENT, {
 	/**
@@ -110,11 +111,12 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * @see $.widget.destroy
+	 * @see jQuery.TemplatedWidget.destroy
 	 */
 	destroy: function() {
-		this.element.removeClass( this.widgetBaseClass );
-		$.Widget.prototype.destroy.call( this );
+		this._lia = null;
+		this._reusedItems = null;
+		PARENT.prototype.destroy.call( this );
 		this._trigger( 'destroy' );
 	},
 
@@ -216,7 +218,7 @@ $.widget( 'wikibase.listview', PARENT, {
 	nonEmptyItems: function() {
 		var lia = this._lia;
 		return this.items().filter( function( i ) {
-			return !!lia.liValue( $( this ) );
+			return !!lia.liInstance( $( this ) ).value();
 		} );
 	},
 
@@ -367,10 +369,10 @@ $.widget( 'wikibase.listview', PARENT, {
 				throw new Error( 'The given node is not an element in this list' );
 			}
 			// even though this information is kind of redundant since the value can be accessed
-			// within custom events by using listview.listItemAdapter().liValue( $itemNode), we
-			// provide the value here for convenience and for consistent event argument order in all
+			// within custom events by using listview.listItemAdapter().liInstance( $itemNode).value(),
+			// we provide the value here for convenience and for consistent event argument order in all
 			// add/remove events
-			var value = this._lia.liValue( $itemNode );
+			var value = this._lia.liInstance( $itemNode ).value();
 			event.handlerArgs = [ value, $itemNode ];
 		},
 		natively: function( event, value, $itemNode ) {

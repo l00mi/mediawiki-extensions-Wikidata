@@ -160,14 +160,17 @@ $specialPageAliases['es'] = array(
 
 /** Finnish (suomi) */
 $specialPageAliases['fi'] = array(
-	'NewItem' => array( 'Luo_kohde' ),
+	'NewItem' => array( 'Uusi_kohde' ),
 	'NewProperty' => array( 'Uusi_ominaisuus' ),
 	'ItemByTitle' => array( 'Hae_kohdetta_otsikolla' ),
 	'ItemDisambiguation' => array( 'Kohteet_samalla_nimellä' ),
 	'SetLabel' => array( 'Aseta_nimi' ),
 	'SetDescription' => array( 'Aseta_kuvaus' ),
 	'SetAliases' => array( 'Aseta_aliakset' ),
+	'SetSiteLink' => array( 'Aseta_sivustolinkki' ),
+	'MergeItems' => array( 'Yhdistä_kohteita' ),
 	'EntitiesWithoutLabel' => array( 'Aiheet_ilman_nimeä' ),
+	'EntitiesWithoutDescription' => array( 'Aiheet_ilman_kuvausta' ),
 	'ItemsWithoutSitelinks' => array( 'Kohteet_ilman_sivustolinkkejä' ),
 );
 
@@ -226,6 +229,7 @@ $specialPageAliases['ko'] = array(
 	'NewItem' => array( '새항목', '항목만들기' ),
 	'NewProperty' => array( '새속성', '속성만들기' ),
 	'ItemByTitle' => array( '제목별항목' ),
+	'GoToLinkedPage' => array( '링크된문서로가기', '링크된문서로이동' ),
 	'ItemDisambiguation' => array( '레이블별항목', '라벨별항목' ),
 	'ListDatatypes' => array( '데이터유형목록' ),
 	'SetLabel' => array( '레이블설정' ),
@@ -267,12 +271,12 @@ $specialPageAliases['mk'] = array(
 	'GoToLinkedPage' => array( 'ОдиНаСврзанаСтраница' ),
 	'ItemDisambiguation' => array( 'ПојаснувањеНаПредмет' ),
 	'ListDatatypes' => array( 'СписокПодаточниТипови' ),
-	'SetLabel' => array( 'ЗадајЕтикета' ),
+	'SetLabel' => array( 'ЗадајНатпис' ),
 	'SetDescription' => array( 'ЗадајОпис' ),
 	'SetAliases' => array( 'ЗадајАлијаси' ),
 	'SetSiteLink' => array( 'ЗадајВикиврска' ),
 	'MergeItems' => array( 'СпојПредмети' ),
-	'EntitiesWithoutLabel' => array( 'ЕдинициБезЕтикета' ),
+	'EntitiesWithoutLabel' => array( 'ЕдинициБезНатпис' ),
 	'EntitiesWithoutDescription' => array( 'ЕдинициБезОпис' ),
 	'ItemsWithoutSitelinks' => array( 'ПредметиБезВикиврски' ),
 	'MyLanguageFallbackChain' => array( 'МојЛанецНаРезервниЈазици' ),

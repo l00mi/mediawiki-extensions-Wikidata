@@ -8,12 +8,15 @@ use Diff\Differ\OrderedListDiffer;
 use DifferenceEngine;
 use Html;
 use IContextSource;
+use Language;
 use Linker;
+use MWException;
 use ParserOptions;
 use ParserOutput;
 use Revision;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
+use Wikibase\EntityContent;
 use Wikibase\Lib\EntityIdLabelFormatter;
 use Wikibase\Lib\EscapingValueFormatter;
 use Wikibase\Lib\SnakFormatter;
@@ -108,6 +111,17 @@ class EntityContentDiffView extends DifferenceEngine {
 	}
 
 	/**
+	 * @return Language
+	 */
+	public function getDiffLang() {
+		if ( $this->mDiffLang === null ) {
+			$this->mDiffLang = $this->getLanguage();
+		}
+
+		return parent::getDiffLang();
+	}
+
+	/**
 	 * Get a header for a specified revision.
 	 *
 	 * @param $rev Revision
@@ -173,14 +187,16 @@ class EntityContentDiffView extends DifferenceEngine {
 	 * @param Content $old
 	 * @param Content $new
 	 *
+	 * @throws MWException If the two content objects are neither EntityContent nor TextContent.
 	 * @return string
 	 */
 	public function generateContentDiffBody( Content $old, Content $new ) {
-		/* @var EntityContent $old */
-		/* @var EntityContent $new */
-		$diff = $old->getDiff( $new );
+		if ( ( $old instanceof EntityContent ) && ( $new instanceof EntityContent ) ) {
+			$diff = $old->getDiff( $new );
+			return $this->diffVisualizer->visualizeEntityContentDiff( $diff );
+		}
 
-		return $this->diffVisualizer->visualizeEntityContentDiff( $diff );
+		return parent::generateContentDiffBody( $old, $new );
 	}
 
 	/**
@@ -195,7 +211,8 @@ class EntityContentDiffView extends DifferenceEngine {
 		$parserOptions->setTidy( true );
 
 		$parserOptions->setEditSection( false );
-		$parserOptions->addExtraKey("diff=1"); // don't poison parser cache with diff-specific stuff
+		// Do not poison parser cache with diff-specific stuff
+		$parserOptions->addExtraKey( 'diff=1' );
 
 		$parserOutput = $page->getParserOutput( $parserOptions, $rev->getId() );
 		return $parserOutput;
@@ -207,9 +224,13 @@ class EntityContentDiffView extends DifferenceEngine {
 	 * @return string
 	 */
 	protected function getDiffBodyCacheKey() {
-		return wfMemcKey( 'diff', 'version', MW_DIFF_VERSION,
-			'oldid', $this->getOldid(), 'newid', $this->getNewid(),
-			'lang', $this->getLanguage()->getCode() );
+		return wfMemcKey(
+			'diff',
+			'version', MW_DIFF_VERSION,
+			'oldid', $this->getOldid(),
+			'newid', $this->getNewid(),
+			'lang', $this->getLanguage()->getCode()
+		);
 	}
 
 }

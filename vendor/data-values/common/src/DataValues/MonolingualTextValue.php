@@ -15,8 +15,6 @@ class MonolingualTextValue extends DataValueObject {
 	/**
 	 * String value.
 	 *
-	 * @since 0.1
-	 *
 	 * @var string
 	 */
 	protected $value;
@@ -40,14 +38,14 @@ class MonolingualTextValue extends DataValueObject {
 	 */
 	public function __construct( $languageCode, $value ) {
 		if ( !is_string( $languageCode ) ) {
-			throw new IllegalValueException( 'Can only construct MonolingualTextValue with a string language code' );
+			throw new IllegalValueException( 'Can only construct MonolingualTextValue with a string language code.' );
 		}
 		elseif ( $languageCode === '' ) {
-			throw new IllegalValueException( 'Can only construct MonolingualTextValue with a language code of non-zero length' );
+			throw new IllegalValueException( 'Can not construct a MonolingualTextValue with an empty language code.' );
 		}
 
 		if ( !is_string( $value ) ) {
-			throw new IllegalValueException( 'Can only construct MonolingualTextValue with a string value' );
+			throw new IllegalValueException( 'Can only construct a MonolingualTextValue with a string value.' );
 		}
 
 		$this->value = $value;
@@ -57,8 +55,6 @@ class MonolingualTextValue extends DataValueObject {
 	/**
 	 * @see Serializable::serialize
 	 *
-	 * @since 0.1
-	 *
 	 * @return string
 	 */
 	public function serialize() {
@@ -67,8 +63,6 @@ class MonolingualTextValue extends DataValueObject {
 
 	/**
 	 * @see Serializable::unserialize
-	 *
-	 * @since 0.1
 	 *
 	 * @param string $value
 	 *
@@ -82,8 +76,6 @@ class MonolingualTextValue extends DataValueObject {
 	/**
 	 * @see DataValue::getType
 	 *
-	 * @since 0.1
-	 *
 	 * @return string
 	 */
 	public static function getType() {
@@ -92,8 +84,6 @@ class MonolingualTextValue extends DataValueObject {
 
 	/**
 	 * @see DataValue::getSortKey
-	 *
-	 * @since 0.1
 	 *
 	 * @return string
 	 */
@@ -104,8 +94,6 @@ class MonolingualTextValue extends DataValueObject {
 
 	/**
 	 * @see DataValue::getValue
-	 *
-	 * @since 0.1
 	 *
 	 * @return MonolingualTextValue
 	 */
@@ -138,9 +126,7 @@ class MonolingualTextValue extends DataValueObject {
 	/**
 	 * @see DataValue::getArrayValue
 	 *
-	 * @since 0.1
-	 *
-	 * @return mixed
+	 * @return string[]
 	 */
 	public function getArrayValue() {
 		return array(
@@ -155,7 +141,7 @@ class MonolingualTextValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @param mixed $data
+	 * @param string[] $data
 	 *
 	 * @return MonolingualTextValue
 	 * @throws IllegalValueException

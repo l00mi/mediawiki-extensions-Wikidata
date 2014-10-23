@@ -33,9 +33,6 @@
 	 *         be created, the value will be null. The callback's context is the ListItemAdapter
 	 *         instance.
 	 *
-	 * @option listItemWidgetValueAccessor {string} (required) The name of the function which acts
-	 *         as setter/getter for the value on the listItemWidget.
-	 *
 	 * @since 0.4
 	 */
 	var SELF = $.wikibase.listview.ListItemAdapter = function( options ) {
@@ -44,14 +41,11 @@
 		if( !$.isFunction( this._liWidget ) || !this._liWidget.prototype.widgetName ) {
 			throw new Error( 'For a new ListItemAdapter, a jQuery Widget constructor is required' );
 		}
+		if( !$.isFunction( this._liWidget.prototype.value ) ) {
+			throw new Error( 'For a new ListItemAdapter, the list item prototype needs a value method' );
+		}
 		if( !$.isFunction( options.newItemOptionsFn ) ) {
 			throw new Error( 'For a new ListItemAdapter, the \'newItemOptionsFn\' option is required' );
-		}
-		if( typeof options.listItemWidgetValueAccessor !== 'string'
-			|| this._liWidget.prototype[ options.listItemWidgetValueAccessor ] === undefined
-		) {
-			throw new Error( 'The \'listItemWidgetValueAccessor\' option has to be the name of the' +
-				'list item widget\'s function to set and get a value' );
 		}
 
 		this._options = options;
@@ -82,37 +76,8 @@
 			return this._liWidget.prototype.widgetEventPrefix + ( name || '' );
 		},
 
-		/**
-		 * Returns the given string but prefixed with the used list member's base class.
-		 *
-		 * @since 0.4
-		 *
-		 * @param {String} [name]
-		 * @return String
-		 */
-		prefixedClass: function( name ) {
-			return this._liWidget.prototype.widgetBaseClass + ( name || '' );
-		},
-
 		liInstance: function( $node ) {
 			return $node.data( this._liWidget.prototype.widgetName ) || null;
-		},
-
-		/**
-		 * Allows to get a value from a list item or to set a value on a list item.
-		 *
-		 * @since 0.4
-		 *
-		 * @param $listItem
-		 * @param [value] if provided, this will be set as the list item's new value.
-		 */
-		liValue: function( $listItem, value ) {
-			var li = this.liInstance( $listItem );
-
-			if( !li ) {
-				throw new Error( 'A proper list item must be provided' );
-			}
-			return li[ this._options.listItemWidgetValueAccessor ]( value );
 		},
 
 		/**

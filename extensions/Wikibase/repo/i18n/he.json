@@ -8,7 +8,8 @@
 			"Yona b",
 			"חיים",
 			"ערן",
-			"פוילישער"
+			"פוילישער",
+			"Guycn2"
 		]
 	},
 	"wikibase-desc": "מאגר נתונים מובנה",
@@ -38,9 +39,11 @@
 	"wikibase-statements": "קביעוֹת",
 	"wikibase-attributes": "מאפיינים",
 	"wikibase-terms": "בשפות אחרות",
+	"wikibase-sitelinkgroupview-input-help-message": "הוספת קישור אתר על־ידי ציון אתר ודף באותו האתר, עריכה או הסרה של קישורי אתר קיימים.",
 	"wikibase-sitelinks-empty": "שום דף עדיין אינו מקושר לפריט הזה.",
 	"wikibase-sitelinks-input-help-message": "הגדרת קישור לדף שקשור לפריט הזה.",
 	"wikibase-sitelinks-special": "דפים באתרים אחרים שמקושרים לפריט הזה",
+	"wikibase-badgeselector-badge-placeholder-title": "יש ללחוץ כאן לשיוך סמל.",
 	"wikibase-remove": "הסרה",
 	"wikibase-move-up": "להעלות",
 	"wikibase-move-down": "להוריד",
@@ -165,7 +168,7 @@
 	"wikibase-setsitelink-not-item": "המזהה $1 אינו שייך לפריט.",
 	"wikibase-setsitelink-not-badge": "הפריט $1 אינו סמל.",
 	"wikibase-setsitelink-add-failed": "לא התאפשרה שמירת קישור האתר.",
-	"wikibase-setsitelink-remove-failed": "אל התאפשרה הסרת קישור האתר.",
+	"wikibase-setsitelink-remove-failed": "לא התאפשרה הסרת קישור האתר.",
 	"wikibase-modifyentity-id": "מזהה:",
 	"wikibase-modifyterm-language": "שפה:",
 	"special-mergeitems": "מיזוג שני פריטים",

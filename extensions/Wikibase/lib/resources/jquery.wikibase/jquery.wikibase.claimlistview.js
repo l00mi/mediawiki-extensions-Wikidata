@@ -206,7 +206,6 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		.listview( {
 			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 				listItemWidget: listItemWidget,
-				listItemWidgetValueAccessor: 'value',
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value || null,
@@ -407,27 +406,44 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 	events: {
 		claimlistviewcreate: function( event, toolbarcontroller ) {
 			var $claimlistview = $( event.target ),
-				claimlistview = $claimlistview.data( 'claimlistview' );
+				claimlistview = $claimlistview.data( 'claimlistview' ),
+				$container = $claimlistview.children( '.wikibase-toolbar-wrapper' )
+					.children( '.wikibase-toolbar-container' );
+
+			if( !$container.length ) {
+				// TODO: Remove layout-specific toolbar wrapper
+				$container = $( '<div/>' ).appendTo(
+					mw.template( 'wikibase-toolbar-wrapper', '' ).appendTo( $claimlistview )
+				);
+			}
+
+			if( !claimlistview.value() ) {
+				return;
+			}
 
 			$claimlistview.addtoolbar( {
-				addButtonAction: function() {
-					claimlistview.enterNewItem();
-
-					// Re-focus "add" button after having added or having cancelled adding a claim:
-					var eventName = 'claimlistviewafterstopediting.addtoolbar';
-					$claimlistview.one( eventName, function( event ) {
-						$claimlistview.data( 'addtoolbar' ).toolbar.$btnAdd.focus();
-					} );
-
-					toolbarcontroller.registerEventHandler(
-						event.data.toolbar.type,
-						event.data.toolbar.id,
-						'claimlistviewdestroy',
-						function( event, toolbarcontroller ) {
-							toolbarcontroller.destroyToolbar( $( event.target ).data( 'addtoolbar' ) );
-						}
-					);
+				$container: $container
+			} )
+			.on( 'addtoolbaradd.addtoolbar', function( e ) {
+				if( e.target !== $claimlistview.get( 0 ) ) {
+					return;
 				}
+				claimlistview.enterNewItem();
+
+				// Re-focus "add" button after having added or having cancelled adding a claim:
+				var eventName = 'claimlistviewafterstopediting.addtoolbar';
+				$claimlistview.one( eventName, function( event ) {
+					$claimlistview.data( 'addtoolbar' ).focus();
+				} );
+
+				toolbarcontroller.registerEventHandler(
+					event.data.toolbar.type,
+					event.data.toolbar.id,
+					'claimlistviewdestroy',
+					function( event, toolbarcontroller ) {
+						toolbarcontroller.destroyToolbar( $( event.target ).data( 'addtoolbar' ) );
+					}
+				);
 			} );
 
 			toolbarcontroller.registerEventHandler(
@@ -437,10 +453,7 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 				function() {
 					var addtoolbar = $claimlistview.data( 'addtoolbar' );
 					if( addtoolbar ) {
-						addtoolbar[claimlistview.option( 'disabled' )
-							? 'disable'
-							: 'enable'
-						]();
+						addtoolbar[claimlistview.option( 'disabled' ) ? 'disable' : 'enable']();
 					}
 				}
 			);
@@ -456,76 +469,75 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 		'claimviewcreate statementviewcreate': function( event, toolbarcontroller ) {
 			var viewType = event.type.replace( /create$/, '' ),
 				$view = $( event.target ),
-				view = $view.data( viewType );
+				view = $view.data( viewType ),
+				options = {
+					interactionWidget: view
+				},
+				$container = $view.children( '.wikibase-toolbar-container' );
 
-			$view.edittoolbar( {
-				interactionWidgetName: $.wikibase[viewType].prototype.widgetName,
-				parentWidgetFullName: 'wikibase.claimlistview',
-				enableRemove: !!view.value()
-			} );
+			if( !$container.length ) {
+				$container = $( '<div/>' ).appendTo( $view );
+			}
 
-			$view.one( 'toolbareditgroupedit', function() {
+			options.$container = $container;
 
-				toolbarcontroller.registerEventHandler(
-					event.data.toolbar.type,
-					event.data.toolbar.id,
-					viewType + 'destroy',
-					function( event, toolbarController ) {
-						toolbarController.destroyToolbar( $( event.target ).data( 'editoolbar' ) );
+			if( !!view.value() ) {
+				options.onRemove = function() {
+					var $claimlistview = $view.closest( ':wikibase-claimlistview' ),
+						claimlistview = $claimlistview.data( 'claimlistview' );
+					if( claimlistview ) {
+						claimlistview.remove( view );
 					}
-				);
+				};
+			}
 
-				toolbarcontroller.registerEventHandler(
-					event.data.toolbar.type,
-					event.data.toolbar.id,
-					viewType + 'change',
-					function( event ) {
-						var $target = $( event.target ),
-							view = $target.data( viewType ),
-							toolbar = $target.data( 'edittoolbar' ).toolbar,
-							$btnSave = toolbar.editGroup.getButton( 'save' ),
-							btnSave = $btnSave.data( 'toolbarbutton' );
+			$view.edittoolbar( options );
+		},
+		'claimviewdestroy statementviewdestroy': function( event, toolbarController ) {
+			toolbarController.destroyToolbar( $( event.target ).data( 'editoolbar' ) );
+		},
+		'claimviewchange statementviewchange': function( event ) {
+			var $target = $( event.target ),
+				viewType = event.type.replace( /change$/, '' ),
+				view = $target.data( viewType ),
+				edittoolbar = $target.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' );
 
-						/**
-						 * Claimview's/Statementview's isValid() validates the qualifiers already.
-						 * However, the information whether all qualifiers (grouped by property)
-						 * have changed, needs to be gathered separately which, in addition, is done
-						 * by this function.
-						 *
-						 * @param {$.wikibase.claimview} claimview
-						 * @return {boolean}
-						 */
-						function shouldEnableSaveButton( claimview ) {
-							var enable = claimview.isValid() && !claimview.isInitialValue(),
-								snaklistviews = ( claimview._qualifiers )
-									? claimview._qualifiers.value()
-									: [],
-								areInitialQualifiers = true;
+			/**
+			 * Claimview's/Statementview's isValid() validates the qualifiers already.
+			 * However, the information whether all qualifiers (grouped by property)
+			 * have changed, needs to be gathered separately which, in addition, is done
+			 * by this function.
+			 *
+			 * @param {$.wikibase.claimview} claimview
+			 * @return {boolean}
+			 */
+			function shouldEnableSaveButton( claimview ) {
+				var enable = claimview.isValid() && !claimview.isInitialValue(),
+					snaklistviews = ( claimview._qualifiers )
+						? claimview._qualifiers.value()
+						: [],
+					areInitialQualifiers = true;
 
-							if( enable && snaklistviews.length ) {
-								for( var i = 0; i < snaklistviews.length; i++ ) {
-									if( !snaklistviews[i].isInitialValue() ) {
-										areInitialQualifiers = false;
-									}
-								}
-							}
-
-							return enable && !( areInitialQualifiers && claimview.isInitialValue() );
+				if( enable && snaklistviews.length ) {
+					for( var i = 0; i < snaklistviews.length; i++ ) {
+						if( !snaklistviews[i].isInitialValue() ) {
+							areInitialQualifiers = false;
 						}
-
-						btnSave[shouldEnableSaveButton( view ) ? 'enable' : 'disable']();
 					}
-				);
+				}
 
-			} );
+				return enable && !( areInitialQualifiers && claimview.isInitialValue() );
+			}
+
+			btnSave[shouldEnableSaveButton( view ) ? 'enable' : 'disable']();
 		},
 		'claimviewdisable statementviewdisable': function( event ) {
 			var viewType = event.type.replace( /disable$/, '' ),
 				$view = $( event.target ),
 				view = $view.data( viewType ),
-				toolbar = $view.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
+				edittoolbar = $view.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
 				enable = view.isValid() && !view.isInitialValue();
 
 			btnSave[enable ? 'enable' : 'disable']();

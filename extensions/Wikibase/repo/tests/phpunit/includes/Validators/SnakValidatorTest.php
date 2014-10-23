@@ -14,7 +14,6 @@ use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
-use Wikibase\DataModel\References;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -70,11 +69,11 @@ class SnakValidatorTest extends \PHPUnit_Framework_TestCase {
 
 		$cases = array();
 
-		$claim = new Statement( new PropertyNoValueSnak( $p1 ) );
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( $p1 ) ) );
 		$cases[] = array( $claim, 'empty claim', true );
 
 		$claim = new Statement(
-			new PropertyValueSnak( $p1, new StringValue( '12' ) )
+			new Claim( new PropertyValueSnak( $p1, new StringValue( '12' ) ) )
 		);
 		$claim->setQualifiers( new SnakList( array(
 			new PropertyValueSnak( $p2, new StringValue( 'abc' ) )
@@ -155,7 +154,7 @@ class SnakValidatorTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideValidateReferences
 	 */
-	public function testValidateReferences( References $references, $description, $expectedValid = true ) {
+	public function testValidateReferences( ReferenceList $references, $description, $expectedValid = true ) {
 		$validator = new SnakValidator( $this->propertyDataTypeLookup, $this->dataTypeFactory );
 
 		$result = $validator->validateReferences( $references );

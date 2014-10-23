@@ -8,9 +8,6 @@
 	'use strict';
 
 	mw.hook( 'wikipage.content' ).add( function() {
-		// Edit sections are re-generated with JS functionality further below:
-		$( '.wb-editsection' ).remove();
-
 		var $entityview = $( '.wikibase-entityview' );
 
 		if( mw.config.get( 'wbEntity' ) !== null ) {
@@ -85,13 +82,38 @@
 	}
 
 	/**
+	 * Builds an entity store.
+	 * @todo Move to a top-level factory or application scope
+	 *
+	 * @param {wikibase.RepoApi} repoApi
+	 * @return {wikibase.store.CombiningEntityStore}
+	 */
+	function buildEntityStore( repoApi ) {
+		// Unserializer for fetched content whose content is a wb.datamodel.Entity:
+		var fetchedEntityUnserializer = new wb.store.FetchedContentUnserializer( {
+				contentUnserializer: new wb.serialization.EntityUnserializer()
+			} );
+
+		return new wb.store.CombiningEntityStore( [
+			new wb.store.MwConfigEntityStore( fetchedEntityUnserializer ),
+			new wb.store.ApiEntityStore(
+				repoApi,
+				fetchedEntityUnserializer,
+				[ mw.config.get( 'wgUserLanguage' ) ]
+			)
+		] );
+
+	}
+
+	/**
 	 * @param {wikibase.datamodel.Entity} entity
 	 * @param {jQuery} $entityview
 	 */
 	function createEntityDom( entity, $entityview ) {
-		var abstractedRepoApi = new wb.AbstractedRepoApi();
-		var entityStore = new wb.store.EntityStore( abstractedRepoApi );
-		wb.compileEntityStoreFromMwConfig( entityStore );
+		var repoConfig = mw.config.get( 'wbRepo' );
+		var mwApi = wb.api.getLocationAgnosticMwApi( repoConfig.url + repoConfig.scriptPath + '/api.php' );
+		var abstractedRepoApi = new wb.AbstractedRepoApi( mwApi );
+		var entityStore = buildEntityStore( abstractedRepoApi );
 
 		$entityview
 		.entityview( {
@@ -236,12 +258,12 @@
 		// The 'save' button can still have its own tooltip though.
 		var $messageAnchor = $( '<span/>' )
 			.appendTo( 'body' )
-			.toolbarlabel()
+			.toolbaritem()
 			.wbtooltip( {
 				content: $message,
 				permanent: true,
 				gravity: gravity,
-				$anchor: edittoolbar.toolbar.editGroup.getButton( 'save' )
+				$anchor: edittoolbar.getButton( 'save' ).element
 			} );
 
 		$hideMessage.on( 'click', function( event ) {
@@ -275,14 +297,6 @@
 			restrict( 'blockeduser' );
 		} else if( !mw.config.get( 'wbUserCanEdit' ) ) {
 			restrict( 'restrictionedit' );
-		}
-
-		if( !mw.config.get( 'wbIsEditView' ) ) {
-			// no need to implement a 'disableEntityPageActions' since hiding all the toolbars
-			// directly like this is not really worse than hacking the Toolbar prototype to achieve
-			// this:
-			$( ':wikibase-toolbar' ).hide();
-			$( 'body' ).addClass( 'wb-editing-disabled' );
 		}
 	}
 

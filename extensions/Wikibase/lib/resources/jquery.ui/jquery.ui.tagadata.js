@@ -215,8 +215,9 @@ $.widget( 'ui.tagadata', {
 			var $tag = $( this );
 			if( self._formatLabel( label ) === self._formatLabel( self.getTagLabel( $tag ) ) ) {
 				result = $tag;
-				return false;
 			}
+
+			return result === null;
 		} );
 		return result;
 	},
@@ -307,7 +308,7 @@ $.widget( 'ui.tagadata', {
 		}
 
 		var $label = $( '<span/>' ).addClass( 'tagadata-label' ),
-			$input = $( '<input>' ).attr( 'name', this.options.itemName + '[]' );
+			$input = $( '<input />' ).attr( 'name', this.options.itemName + '[]' );
 
 		$tag = this._createTagNode().addClass( additionalClasses || '' ).append( $label );
 
@@ -585,8 +586,9 @@ $.widget( 'ui.tagadata', {
 
 			if( self._getTags( label ).length > 1 ) {
 				hasConflict = true;
-				return false;
 			}
+
+			return hasConflict === false;
 		} );
 
 		return hasConflict;

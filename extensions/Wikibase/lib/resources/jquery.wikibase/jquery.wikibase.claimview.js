@@ -156,12 +156,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 		var self = this;
 		this._claim = this.option( 'value' );
 
-		var entityStore = this.option( 'entityStore' );
-
-		if( !( entityStore instanceof wb.store.EntityStore ) ) {
-			throw new Error( 'Entity store needs to be set' );
-		}
-
 		// call template creation, this will require this._claim in template params callback!
 		PARENT.prototype._create.call( this );
 
@@ -178,7 +172,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 			value: this.mainSnak() || {},
 			locked: this.option( 'locked' ).mainSnak,
 			autoStartEditing: false, // manually, after toolbar is there, so events can access toolbar
-			entityStore: entityStore,
+			entityStore: this.options.entityStore,
 			valueViewBuilder: this.option( 'valueViewBuilder' )
 		} );
 
@@ -200,21 +194,22 @@ $.widget( 'wikibase.claimview', PARENT, {
 				: this.options.predefined.mainSnak.property;
 
 			var deferred = $.Deferred();
-			var oldHelpMessage = this.options.helpMessage;
+			var helpMessage = this.options.helpMessage;
 			this.options.helpMessage = deferred.promise();
 
-			entityStore.get( property ).done( function( fetchedProperty ) {
-				var helpMessage;
-				if( fetchedProperty ) {
-					helpMessage = mw.msg(
-						'wikibase-claimview-snak-tooltip',
-						wb.utilities.ui.buildPrettyEntityLabelText( fetchedProperty.getContent() )
-					);
-				} else {
-					helpMessage = oldHelpMessage;
-				}
+			if( property ) {
+				this.options.entityStore.get( property ).done( function( fetchedProperty ) {
+					if( fetchedProperty ) {
+						helpMessage = mw.msg(
+							'wikibase-claimview-snak-tooltip',
+							wb.utilities.ui.buildPrettyEntityLabelText( fetchedProperty.getContent() )
+						);
+					}
+					deferred.resolve( helpMessage );
+				} );
+			} else {
 				deferred.resolve( helpMessage );
-			} );
+			}
 		}
 	},
 
@@ -249,7 +244,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 		$qualifiers.listview( {
 				listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 					listItemWidget: $.wikibase.snaklistview,
-					listItemWidgetValueAccessor: 'value',
 					newItemOptionsFn: function( value ) {
 						return {
 							value: value || null,
@@ -768,18 +762,22 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 		'listviewcreate snaklistviewstartediting': function( event, toolbarController ) {
 			var $target = $( event.target ),
 				$qualifiers = $target.closest( '.wb-claim-qualifiers' ),
-				listview = $target.closest( ':wikibase-listview' ).data( 'listview' );
+				listview = $target.closest( ':wikibase-listview' ).data( 'listview' ),
+				listviewInited = event.type === 'listviewcreate' && listview.items().length === 0;
 
 			if(
-				event.type === 'listviewcreate' && listview.items().length === 0
-				|| event.type === 'snaklistviewstartediting'
+				( listviewInited || event.type === 'snaklistviewstartediting' )
+				&& !$qualifiers.data( 'addtoolbar' )
 			) {
-				$qualifiers.addtoolbar( {
-					addButtonAction: function() {
-						listview.enterNewItem();
-						listview.value()[listview.value().length - 1].enterNewItem();
-					},
-					addButtonLabel: mw.msg( 'wikibase-addqualifier' )
+				$qualifiers
+				.addtoolbar( {
+					$container: $( '<div/>' ).appendTo( $qualifiers ),
+					label: mw.msg( 'wikibase-addqualifier' )
+				} )
+				.off( '.addtoolbar' )
+				.on( 'addtoolbaradd.addtoolbar', function( e ) {
+					listview.enterNewItem();
+					listview.value()[listview.value().length - 1].enterNewItem();
 				} );
 
 				toolbarController.registerEventHandler(
@@ -811,10 +809,10 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 							snaklistviews = $listview.data( 'listview' ).value();
 
 						if( addToolbar ) {
-							addToolbar.toolbar.enable();
+							addToolbar.enable();
 							for( var i = 0; i < snaklistviews.length; i++ ) {
 								if( !snaklistviews[i].isValid() ) {
-									addToolbar.toolbar.disable();
+									addToolbar.disable();
 									break;
 								}
 							}
@@ -842,8 +840,7 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 
 						// Toolbar might be removed from the DOM already after having stopped edit mode.
 						if( addToolbar ) {
-							var toolbar = addToolbar.toolbar;
-							toolbar[parentView.option( 'disabled' ) ? 'disable' : 'enable']();
+							addToolbar[parentView.option( 'disabled' ) ? 'disable' : 'enable']();
 						}
 					}
 				);
@@ -867,9 +864,9 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 
 						// Disable "add" toolbar when the last qualifier has been removed:
 						if( !snaklistview.isValid() && listview.items().length ) {
-							addToolbar.toolbar.disable();
+							addToolbar.disable();
 						} else {
-							addToolbar.toolbar.enable();
+							addToolbar.enable();
 						}
 					}
 				);
@@ -884,8 +881,8 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	selector: '.wb-claim-qualifiers',
 	events: {
 		'snakviewstartediting': function( event, toolbarController ) {
-			var $target = $( event.target ),
-				$snaklistview = $target.closest( '.wb-snaklistview' ),
+			var $snakview = $( event.target ),
+				$snaklistview = $snakview.closest( '.wb-snaklistview' ),
 				snaklistview = $snaklistview.data( 'snaklistview' );
 
 			if( !snaklistview ) {
@@ -895,9 +892,13 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 			var qualifierPorpertyGroupListview = snaklistview._listview;
 
 			// Create toolbar for each snakview widget:
-			$target.removetoolbar( {
-				action: function( event ) {
-					qualifierPorpertyGroupListview.removeItem( $target );
+			$snakview
+			.removetoolbar( {
+				$container: $( '<div/>' ).appendTo( $snakview )
+			} )
+			.on( 'removetoolbarremove.removetoolbar', function( event ) {
+				if( event.target === $snakview.get( 0 ) ) {
+					qualifierPorpertyGroupListview.removeItem( $snakview );
 				}
 			} );
 
@@ -943,10 +944,10 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 
 						// Item might be about to be removed not being a list item instance.
 						if( !snakview || !removeToolbar ) {
-							return true;
+							return;
 						}
 
-						$snakview.data( 'removetoolbar' ).toolbar[parentView.option( 'disabled' )
+						$snakview.data( 'removetoolbar' )[parentView.option( 'disabled' )
 							? 'disable'
 							: 'enable'
 						]();
@@ -981,7 +982,9 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 
 			if( $snaklistview.data( 'snaklistview' ).value() !== null ) {
 				// Create toolbar for each snakview widget:
-				$snakview.movetoolbar();
+				$snakview.movetoolbar( {
+					$container: $( '<div/>' ).appendTo( $snakview )
+				} );
 
 				var $topMostSnakview = listview.items().first().data( 'snaklistview' )
 					._listview.items().first();
@@ -989,11 +992,11 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 					._listview.items().last();
 
 				if ( $topMostSnakview.get( 0 ) === $snakview.get( 0 ) ) {
-					$snakview.data( 'movetoolbar' ).$btnMoveUp.data( 'toolbarbutton' ).disable();
+					$snakview.data( 'movetoolbar' ).getButton( 'up' ).disable();
 				}
 
 				if( $bottomMostSnakview.get( 0 ) === $snakview.get( 0 ) ) {
-					$snakview.data( 'movetoolbar' ).$btnMoveDown.data( 'toolbarbutton' ).disable();
+					$snakview.data( 'movetoolbar' ).getButton( 'down' ).disable();
 				}
 
 				toolbarController.registerEventHandler(
@@ -1097,12 +1100,12 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 
 							snaklistviewItems.each( function( j, snakviewNode ) {
 								var $snakview = $( snakviewNode ),
-									toolbar = $snakview.data( 'movetoolbar' );
+									movetoolbar = $snakview.data( 'movetoolbar' );
 
 								// Pending snakviews do not feature a movetoolbar.
-								if( toolbar ) {
-									var btnUp = toolbar.$btnMoveUp.data( 'toolbarbutton' ),
-										btnDown = toolbar.$btnMoveDown.data( 'toolbarbutton' ),
+								if( movetoolbar ) {
+									var btnUp = movetoolbar.getButton( 'up' ),
+										btnDown = movetoolbar.getButton( 'down' ),
 										isOverallFirst = ( i === 0 && j === 0 ),
 										isLastInSnaklistview = ( j === snaklistviewItems.length - 1 ),
 										isOverallLast = ( i === listviewItems.length - 1 && isLastInSnaklistview ),

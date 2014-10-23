@@ -8,6 +8,7 @@ use SiteStore;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityLookup;
@@ -120,8 +121,8 @@ class LangLinkHandler {
 		$itemId = $this->getItemIdForTitle( $title );
 
 		if ( $itemId !== null ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": Item ID for " . $title->getFullText()
-				. " is " . $itemId->getPrefixedId() );
+			wfDebugLog( __CLASS__, __FUNCTION__ . ': Item ID for ' . $title->getFullText()
+				. ' is ' . $itemId->getSerialization() );
 
 			//NOTE: SiteLinks we could get from $this->siteLinkLookup do not contain badges,
 			//      so we have to fetch the links from the Item.

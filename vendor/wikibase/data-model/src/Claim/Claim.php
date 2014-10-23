@@ -5,7 +5,8 @@ namespace Wikibase\DataModel\Claim;
 use Comparable;
 use Hashable;
 use InvalidArgumentException;
-use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\PropertyIdProvider;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Snak\Snaks;
@@ -20,17 +21,22 @@ use Wikibase\DataModel\Statement\Statement;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Claim implements Hashable, Comparable {
+class Claim implements Hashable, Comparable, PropertyIdProvider {
 
 	/**
 	 * Rank enum. Higher values are more preferred.
 	 *
 	 * @since 0.1
 	 */
+
+	/** @deprecated since 2.0 */
 	const RANK_TRUTH = 3;
-	const RANK_PREFERRED = 2;
-	const RANK_NORMAL = 1;
-	const RANK_DEPRECATED = 0;
+	/** @deprecated since 2.0 - use Statement::RANK_PREFERRED instead */
+	const RANK_PREFERRED = Statement::RANK_PREFERRED;
+	/** @deprecated since 2.0 - use Statement::RANK_NORMAL instead */
+	const RANK_NORMAL = Statement::RANK_NORMAL;
+	/** @deprecated since 2.0 - use Statement::RANK_DEPRECATED instead */
+	const RANK_DEPRECATED = Statement::RANK_DEPRECATED;
 
 	/**
 	 * @since 0.1
@@ -56,10 +62,6 @@ class Claim implements Hashable, Comparable {
 	protected $guid = null;
 
 	/**
-	 * Constructor.
-	 *
-	 * @since 0.1
-	 *
 	 * @param Snak $mainSnak
 	 * @param null|Snaks $qualifiers
 	 */
@@ -130,9 +132,11 @@ class Claim implements Hashable, Comparable {
 	 * Returns the id of the property of the main snak.
 	 * Short for ->getMainSnak()->getPropertyId()
 	 *
+	 * @see PropertyIdProvider::getPropertyId
+	 *
 	 * @since 0.2
 	 *
-	 * @return EntityId
+	 * @return PropertyId
 	 */
 	public function getPropertyId() {
 		return $this->getMainSnak()->getPropertyId();
@@ -168,9 +172,10 @@ class Claim implements Hashable, Comparable {
 
 	/**
 	 * Gets the rank of the claim.
-	 * The rank is an element of the Claim::RANK_ enum.
+	 * The rank is an element of the Statement::RANK_ enum.
 	 *
 	 * @since 0.1
+	 * @deprecated since 2.0
 	 *
 	 * @return integer
 	 */
@@ -191,7 +196,8 @@ class Claim implements Hashable, Comparable {
 		$snaks = array();
 
 		$snaks[] = $this->getMainSnak();
-		$snaks = array_merge( $snaks, iterator_to_array( $this->getQualifiers() ) );
+		$qualifiers = $this->getQualifiers();
+		$snaks = array_merge( $snaks, iterator_to_array( $qualifiers ) );
 
 		return $snaks;
 	}

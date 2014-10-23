@@ -139,7 +139,6 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		this.$listview.listview( {
 			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 				listItemWidget: $.wikibase.snakview,
-				listItemWidgetValueAccessor: 'value',
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value || {
@@ -382,11 +381,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 		$.each( listview.items(), function( i, item ) {
 			var snakview = listview.listItemAdapter().liInstance( $( item ) );
-
-			if ( !snakview.isValid() || !snakview.snak() ) {
-				isValid = false;
-				return false;
-			}
+			isValid = snakview.isValid() && snakview.snak();
+			return isValid === true;
 		} );
 
 		return isValid;
@@ -544,8 +540,9 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 			if( self._listview.listItemAdapter().liInstance( $itemNode ).snak().equals( snak ) ) {
 				$snakview = $itemNode;
-				return false;
 			}
+
+			return $snakview === null;
 		} );
 
 		return $snakview;

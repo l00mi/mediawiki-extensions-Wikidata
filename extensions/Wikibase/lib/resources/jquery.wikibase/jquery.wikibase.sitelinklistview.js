@@ -125,7 +125,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		.listview( {
 			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 				listItemWidget: listItemWidget,
-				listItemWidgetValueAccessor: 'value',
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value,
@@ -165,7 +164,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				sitelinkview = $sitelinkview.data( 'sitelinkview' ),
 				value = sitelinkview.value();
 
-			if( dropValue ) {
+			if( dropValue || sitelinkview.isInitialValue() ) {
 				callback();
 			} else {
 				sitelinkview.disable();
@@ -271,11 +270,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			isValid = true;
 
 		listview.items().each( function() {
-			var sitelinkview = lia.liInstance( $( this ) );
-			if( !sitelinkview.isValid() ) {
-				isValid = false;
-				return false;
-			}
+			isValid = lia.liInstance( $( this ) ).isValid();
+			return isValid === true;
 		} );
 
 		return isValid;
@@ -507,12 +503,11 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			lia = listview.listItemAdapter();
 
 		listview.items().each( function() {
-			var sitelinkview = lia.liInstance( $( this ) );
-			if( !sitelinkview.value() ) {
-				// Ignore pending value.
-				return true;
+			var sitelinkviewValue = lia.liInstance( $( this ) ).value();
+			// Ignore pending value.
+			if( sitelinkviewValue ) {
+				value.push( sitelinkviewValue );
 			}
-			value.push( sitelinkview.value() );
 		} );
 
 		return value;

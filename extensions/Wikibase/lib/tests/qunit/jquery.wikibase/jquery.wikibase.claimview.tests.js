@@ -5,18 +5,19 @@
 ( function( $, mw, wb, dv, vf, vv, QUnit ) {
 	'use strict';
 
-	var entityStore = new wb.store.EntityStore( null );
-	entityStore.compile( {
-		p1: new wb.store.FetchedContent( {
-			title: new mw.Title( 'Property:P1' ),
-			content: new wb.datamodel.Property( {
-				id: 'P1',
-				type: 'property',
-				datatype: 'string',
-				label: { en: 'P1' }
-			} )
-		} )
-	} );
+	var entityStore = {
+		get: function() {
+			return $.Deferred().resolve( new wb.store.FetchedContent( {
+				title: new mw.Title( 'Property:P1' ),
+				content: new wb.datamodel.Property( {
+					id: 'P1',
+					type: 'property',
+					datatype: 'string',
+					label: { en: 'P1' }
+				} )
+			} ) );
+		}
+	};
 
 	var valueViewBuilder = new wb.ValueViewBuilder(
 		new vv.ExpertStore(),
@@ -29,7 +30,7 @@
 			value: value || null,
 			entityStore: entityStore,
 			valueViewBuilder: valueViewBuilder,
-			api: new wb.AbstractedRepoApi( new wb.RepoApi() )
+			api: new wb.AbstractedRepoApi( new mw.Api() )
 		};
 
 		return $( '<div/>' )

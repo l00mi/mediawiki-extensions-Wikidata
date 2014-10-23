@@ -4,6 +4,7 @@ namespace Wikibase\Test;
 
 use DataValues\StringValue;
 use SiteSQLStore;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -190,9 +191,11 @@ class ItemSerializerTest extends EntitySerializerBaseTest {
 		);
 
 		$statement = new Statement(
-			new PropertyValueSnak(
-				new PropertyId( 'P42' ),
-				new StringValue( 'foobar!' )
+			new Claim(
+				new PropertyValueSnak(
+					new PropertyId( 'P42' ),
+					new StringValue( 'foobar!' )
+				)
 			)
 		);
 
@@ -200,7 +203,7 @@ class ItemSerializerTest extends EntitySerializerBaseTest {
 		$statement->setGuid( $guidGenerator->newGuid( $item2->getId() ) );
 
 		$item2->setLabel( 'en', 'foo' );
-		$item2->addClaim( $statement );
+		$item2->getStatements()->addStatement( $statement );
 
 		$validArgs[] = array(
 			$item2,

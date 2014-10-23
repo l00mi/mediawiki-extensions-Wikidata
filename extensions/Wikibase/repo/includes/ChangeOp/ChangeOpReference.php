@@ -7,7 +7,7 @@ use ValueValidators\Result;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Reference;
-use Wikibase\DataModel\References;
+use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Summary;
@@ -132,12 +132,12 @@ class ChangeOpReference extends ChangeOpBase {
 	/**
 	 * @since 0.4
 	 *
-	 * @param References $references
+	 * @param ReferenceList $references
 	 * @param Summary $summary
 	 *
 	 * @throws ChangeOpException
 	 */
-	protected function addReference( References $references, Summary $summary = null ) {
+	protected function addReference( ReferenceList $references, Summary $summary = null ) {
 		if ( $references->hasReference( $this->reference ) ) {
 			$hash = $this->reference->getHash();
 			throw new ChangeOpException( "Claim has already a reference with hash $hash" );
@@ -149,12 +149,12 @@ class ChangeOpReference extends ChangeOpBase {
 	/**
 	 * @since 0.4
 	 *
-	 * @param References $references
+	 * @param ReferenceList $references
 	 * @param Summary $summary
 	 *
 	 * @throws ChangeOpException
 	 */
-	protected function setReference( References $references, Summary $summary = null ) {
+	protected function setReference( ReferenceList $references, Summary $summary = null ) {
 		if ( !$references->hasReferenceHash( $this->referenceHash ) ) {
 			throw new ChangeOpException( "Reference with hash $this->referenceHash does not exist" );
 		}
@@ -168,8 +168,8 @@ class ChangeOpReference extends ChangeOpBase {
 		}
 
 		if ( $references->hasReference( $this->reference ) && $this->index === $currentIndex ) {
-			throw new ChangeOpException( "Claim has already a reference with hash "
-			. "{$this->reference->getHash()} and index ($currentIndex) is not changed" );
+			throw new ChangeOpException( 'Claim has already a reference with hash '
+			. $this->reference->getHash() . ' and index (' . $currentIndex . ') is not changed' );
 		}
 		$references->removeReferenceHash( $this->referenceHash );
 		$references->addReference( $this->reference, $this->index );
@@ -185,7 +185,7 @@ class ChangeOpReference extends ChangeOpBase {
 	protected function getSnakSummaryArgs( Snak $snak ) {
 		$propertyId = $snak->getPropertyId();
 
-		return array( array( $propertyId->getPrefixedId() => $snak ) );
+		return array( array( $propertyId->getSerialization() => $snak ) );
 	}
 
 	/**
@@ -202,4 +202,5 @@ class ChangeOpReference extends ChangeOpBase {
 	public function validate( Entity $entity ) {
 		return $this->snakValidator->validateReference( $this->reference );
 	}
+
 }

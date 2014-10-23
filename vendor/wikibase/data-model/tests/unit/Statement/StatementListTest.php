@@ -83,7 +83,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 			$this->getStubStatement( 3, 'six', Statement::RANK_NORMAL ),
 
 			$this->getStubStatement( 4, 'seven', Statement::RANK_PREFERRED ),
-			$this->getStubStatement( 4, 'eight', Statement::RANK_TRUTH ),
+			$this->getStubStatement( 4, 'eight', Claim::RANK_TRUTH ),
 		) );
 
 		$this->assertEquals(
@@ -93,7 +93,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 
 				$this->getStubStatement( 3, 'six', Statement::RANK_NORMAL ),
 
-				$this->getStubStatement( 4, 'eight', Statement::RANK_TRUTH ),
+				$this->getStubStatement( 4, 'eight', Claim::RANK_TRUTH ),
 			),
 			$list->getBestStatementPerProperty()->toArray()
 		);
@@ -119,11 +119,32 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testGetAllSnaksReturnsAllSnaks() {
+		$list = new StatementList( array(
+			$this->getStatementWithSnak( 1, 'foo' ),
+			$this->getStatementWithSnak( 2, 'foo' ),
+			$this->getStatementWithSnak( 1, 'foo' ),
+			$this->getStatementWithSnak( 2, 'bar' ),
+			$this->getStatementWithSnak( 1, 'bar' ),
+		) );
+
+		$this->assertEquals(
+			array(
+				$this->newSnak( 1, 'foo' ),
+				$this->newSnak( 2, 'foo' ),
+				$this->newSnak( 1, 'foo' ),
+				$this->newSnak( 2, 'bar' ),
+				$this->newSnak( 1, 'bar' ),
+			),
+			$list->getAllSnaks()
+		);
+	}
+
 	private function getStatementWithSnak( $propertyId, $stringValue ) {
 		$snak = $this->newSnak( $propertyId, $stringValue );
-		$claim = new Statement( $snak );
-		$claim->setGuid( sha1( $snak->getHash() ) );
-		return $claim;
+		$statement = new Statement( new Claim( $snak ) );
+		$statement->setGuid( sha1( $snak->getHash() ) );
+		return $statement;
 	}
 
 	private function newSnak( $propertyId, $stringValue ) {
@@ -137,7 +158,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals(
 			new StatementList( array(
-				new Statement( $this->newSnak( 42, 'foo' ) )
+				new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) )
 			) ),
 			$list
 		);
@@ -155,12 +176,12 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals(
 			new StatementList( array(
-				new Statement(
+				new Statement( new Claim(
 					$this->newSnak( 42, 'foo' ),
 					new SnakList( array(
 						$this->newSnak( 1, 'bar' )
 					) )
-				)
+				) )
 			) ),
 			$list
 		);
@@ -179,10 +200,10 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals(
 			new StatementList( array(
-				new Statement(
+				new Statement( new Claim(
 					$this->newSnak( 42, 'foo' ),
 					$snakList
-				)
+				) )
 			) ),
 			$list
 		);
@@ -198,10 +219,10 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 			'kittens'
 		);
 
-		$statement = new Statement(
+		$statement = new Statement( new Claim(
 			$this->newSnak( 42, 'foo' ),
 			null
-		);
+		) );
 
 		$statement->setGuid( 'kittens' );
 

@@ -4,6 +4,10 @@ namespace Tests\Wikibase\DataModel\Deserializers;
 
 use Wikibase\DataModel\Deserializers\PropertyDeserializer;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Claim\Claim;
 
 /**
  * @covers Wikibase\DataModel\Deserializers\PropertyDeserializer
@@ -15,7 +19,27 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 
 	public function buildDeserializer() {
 		$entityIdDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
+
+		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$claim->setGuid( 'test' );
+
 		$claimsDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
+		$claimsDeserializerMock->expects( $this->any() )
+			->method( 'deserialize' )
+			->with( $this->equalTo( array(
+				'P42' => array(
+					array(
+						'mainsnak' => array(
+							'snaktype' => 'novalue',
+							'property' => 'P42'
+						),
+						'type' => 'statement',
+						'rank' => 'normal'
+					)
+				)
+			) ) )
+			->will( $this->returnValue( new Claims( array( $claim ) ) ) );
+
 
 		return new PropertyDeserializer( $entityIdDeserializerMock, $claimsDeserializerMock );
 	}
@@ -50,7 +74,7 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 		$property = Property::newEmpty();
 		$property->setDataTypeId( 'string' );
 
-		return array(
+		$provider = array(
 			array(
 				$property,
 				array(
@@ -59,5 +83,29 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 				)
 			),
 		);
+
+		$property = Property::newEmpty();
+		$property->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ), null, null, 'test' );
+		$provider[] = array(
+			$property,
+			array(
+				'type' => 'property',
+				'datatype' => '',
+				'claims' => array(
+					'P42' => array(
+						array(
+							'mainsnak' => array(
+								'snaktype' => 'novalue',
+								'property' => 'P42'
+							),
+							'type' => 'statement',
+							'rank' => 'normal'
+						)
+					)
+				)
+			)
+		);
+
+		return $provider;
 	}
 }

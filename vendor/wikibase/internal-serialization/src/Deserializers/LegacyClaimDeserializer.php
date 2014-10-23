@@ -7,9 +7,9 @@ use Deserializers\Exceptions\DeserializationException;
 use Deserializers\Exceptions\MissingAttributeException;
 use InvalidArgumentException;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
+use Wikibase\DataModel\Statement\Statement;
 
 /**
  * @licence GNU GPL v2+
@@ -86,8 +86,7 @@ class LegacyClaimDeserializer implements Deserializer {
 
 	private function getStatement() {
 		$statement = new Statement(
-			$this->getMainSnak(),
-			$this->getQualifiers(),
+			new Claim( $this->getMainSnak(), $this->getQualifiers() ),
 			$this->getReferences()
 		);
 

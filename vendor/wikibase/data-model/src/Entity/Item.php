@@ -10,8 +10,6 @@ use InvalidArgumentException;
 use OutOfBoundsException;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Entity\Diff\EntityDiff;
-use Wikibase\DataModel\Entity\Diff\ItemDiff;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Snak\Snak;
@@ -79,6 +77,15 @@ class Item extends Entity {
 		else {
 			throw new InvalidArgumentException( __METHOD__ . ' only accepts ItemId, integer and null' );
 		}
+	}
+
+	/**
+	 * @since 0.1 return type changed in 0.3
+	 *
+	 * @return ItemId|null
+	 */
+	public function getId() {
+		return $this->id;
 	}
 
 	/**
@@ -207,7 +214,7 @@ class Item extends Entity {
 	 * @return Statement
 	 */
 	public function newClaim( Snak $mainSnak ) {
-		return new Statement( $mainSnak );
+		return new Statement( new Claim( $mainSnak ) );
 	}
 
 	/**
@@ -234,88 +241,6 @@ class Item extends Entity {
 		$this->fingerprint = Fingerprint::newEmpty();
 		$this->siteLinks = new SiteLinkList();
 		$this->statements = new StatementList();
-	}
-
-	/**
-	 * @see Entity::patchSpecificFields
-	 *
-	 * @since 0.4
-	 *
-	 * @param EntityDiff $patch
-	 */
-	protected function patchSpecificFields( EntityDiff $patch ) {
-		if ( $patch instanceof ItemDiff ) {
-			if ( !$patch->getSiteLinkDiff()->isEmpty() ) {
-				$this->patchSiteLinks( $patch->getSiteLinkDiff() );
-			}
-
-			$this->patchClaims( $patch );
-		}
-	}
-
-	private function patchSiteLinks( Diff $siteLinksDiff ) {
-		$patcher = new MapPatcher( false, new ListPatcher() );
-
-		$links = $this->getLinksInDiffFormat();
-		$links = $patcher->patch( $links, $siteLinksDiff );
-
-		$this->siteLinks = new SiteLinkList();
-
-		foreach ( $links as $siteId => $linkData ) {
-			if ( array_key_exists( 'name', $linkData ) ) {
-				$this->siteLinks->addSiteLink( new SiteLink(
-					$siteId,
-					$linkData['name'],
-					array_map(
-						function( $idSerialization ) {
-							return new ItemId( $idSerialization );
-						},
-						$linkData['badges']
-					)
-				) );
-			}
-		}
-	}
-
-	private function getLinksInDiffFormat() {
-		$links = array();
-
-		/**
-		 * @var SiteLink $siteLink
-		 */
-		foreach ( $this->siteLinks as $siteLink ) {
-			$links[$siteLink->getSiteId()] = array(
-				'name' => $siteLink->getPageName(),
-				'badges' => array_map(
-					function( ItemId $id ) {
-						return $id->getSerialization();
-					},
-					$siteLink->getBadges()
-				)
-			);
-		}
-
-		return $links;
-	}
-
-	private function patchClaims( ItemDiff $patch ) {
-		$patcher = new MapPatcher();
-
-		$patcher->setValueComparer( new CallbackComparer(
-			function( Claim $firstClaim, Claim $secondClaim ) {
-				return $firstClaim->equals( $secondClaim );
-			}
-		) );
-
-		$claims = array();
-
-		foreach ( $this->getClaims() as $claim ) {
-			$claims[$claim->getGuid()] = $claim;
-		}
-
-		$claims = $patcher->patch( $claims, $patch->getClaimsDiff() );
-
-		$this->setClaims( new Claims( $claims ) );
 	}
 
 	/**
@@ -395,17 +320,14 @@ class Item extends Entity {
 	 * @return boolean
 	 */
 	public function equals( $that ) {
+		if ( $this === $that ) {
+			return true;
+		}
+
 		if ( !( $that instanceof self ) ) {
 			return false;
 		}
 
-		if ( $that === $this ) {
-			return true;
-		}
-
-		/**
-		 * @var $that Item
-		 */
 		return $this->fingerprint->equals( $that->fingerprint )
 			&& $this->siteLinks->equals( $that->siteLinks )
 			&& $this->statements->equals( $that->statements );

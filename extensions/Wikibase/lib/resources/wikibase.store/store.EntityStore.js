@@ -2,85 +2,84 @@
  * @licence GNU GPL v2+
  * @author Adrian Lang < adrian.lang@wikimedia.de >
  */
-( function( wb, $, mw ) {
+( function( wb, $ ) {
 	'use strict';
 
 	var MODULE = wb.store;
 
 	/**
-	 * Entity store managing wb.datamodel.Entity objects.
-	 * @constructor
-	 * @since 0.5
+	 * Entity store managing wikibase.datamodel.Entity objects.
 	 *
-	 * @param {wb.AbstractedRepoApi} abstractedRepoApi
+	 * Subclasses have to implement at least one of get, getMultiple or getMultipleRaw.
+	 *
+	 * @constructor
+	 * @abstract
+	 * @since 0.5
 	 */
-	var SELF = MODULE.EntityStore = function WbEntityStore( abstractedRepoApi ) {
-		this._repoApi = abstractedRepoApi;
-		this._entities = {};
-	};
+	var SELF = MODULE.EntityStore = function WbEntityStore() {};
 
 	$.extend( SELF.prototype, {
 		/**
-		 * Object containing wikibase.store.FetchedContent objects indexed by entity id.
-		 * @type {Object}
-		 */
-		_entities: null,
-
-		/**
-		 * @type {wb.AbstractedRepoApi}
-		 */
-		_repoApi: null,
-
-		/**
-		 * Returns a promise resolving to the entity, undefined or null
+		 * Returns a promise resolving to the entity, undefined or null.
 		 * @since 0.5
 		 *
 		 * @param {string} entityId
-		 *
-		 * @return {jQuery.Promise} Resolved parameters:
-		 *                          - {wikibase.store.FetchedContent|undefined|null}
+		 * @return {jQuery.Promise}
+		 *         Resolved parameters:
+		 *         - {wikibase.store.FetchedContent|undefined|null}
+		 *         No rejected parameters.
 		 */
 		get: function( entityId ) {
-			var store = this,
-				deferred = new $.Deferred();
+			var deferred = $.Deferred();
 
-			if( !entityId ) {
-				// FIXME: This should probably be fixed on the caller's side
-				deferred.resolve( null );
-			} else if( this._entities.hasOwnProperty( entityId ) ) {
-				// Caller should not assume synchronous behaviour:
-				window.setTimeout( function() {
-					deferred.resolve( store._entities[entityId] );
-				}, 0 );
-			} else {
-				var language = mw.config.get( 'wgUserLanguage' );
-
-				store._repoApi.getEntities( entityId, null, [language] ).done( function( entities ) {
-					var entity = entities[entityId];
-
-					if( entity ) {
-						store._entities[entityId] = new wb.store.FetchedContent( {
-							// FIXME: Accessing _data is not ok
-							title: new mw.Title( entity._data.title ),
-							content: entity
-						} );
-					}
-
-					deferred.resolve( store._entities[entityId] );
-				} );
-			}
+			this.getMultiple( [ entityId ] )
+			.done( function( entities ) {
+				deferred.resolve( entities[ 0 ] );
+			} )
+			// FIXME: Evaluate failing promise
+			.fail( deferred.reject );
 
 			return deferred.promise();
 		},
 
 		/**
-		 * Adds a batch of entities to the store.
+		 * Returns a promise resolving to an array with elements entity, undefined or null.
 		 * @since 0.5
 		 *
-		 * @param {Object} indexedEntities
+		 * @param {string[]} entityIds
+		 * @return {jQuery.Promise}
+		 *         Resolved parameters:
+		 *         - {wikibase.store.FetchedContent|undefined|null[]}
+		 *         No rejected parameters.
 		 */
-		compile: function( indexedEntities ) {
-			$.extend( this._entities, indexedEntities );
+		getMultiple: function( entityIds ) {
+			var deferred = $.Deferred();
+
+			$.when.apply( $, this.getMultipleRaw( entityIds ) )
+			.done( function( /*…*/ ) {
+				deferred.resolve( $.makeArray( arguments ) );
+			} )
+			// FIXME: Evaluate failing promise
+			.fail( function() {
+				deferred.reject();
+			} );
+
+			return deferred.promise();
+		},
+
+		/**
+		 * Returns an array of promises resolving to entity, undefined or null.
+		 * @since 0.5
+		 *
+		 * @param {string[]} entityIds
+		 * @return {jQuery.Promise[]}
+		 *         Resolved parameters:
+		 *         - {wikibase.store.FetchedContent|undefined|null}
+		 *         No rejected parameters.
+		 */
+		getMultipleRaw: function( entityIds ) {
+			return $.map( entityIds, $.proxy( this.get, this ) );
 		}
 	} );
-}( wikibase, jQuery, mediaWiki ) );
+
+}( wikibase, jQuery ) );

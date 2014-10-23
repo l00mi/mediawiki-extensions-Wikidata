@@ -8,25 +8,29 @@
 ( function( mw, wb, $ ) {
 'use strict';
 
-var repoConfig = mw.config.get( 'wbRepo' );
-var repoApiEndpoint = repoConfig.url + repoConfig.scriptPath + '/api.php';
-var mwApi = wb.api.getLocationAgnosticMwApi( repoApiEndpoint );
-
 /**
  * Constructor to create an API object for interaction with the repo Wikibase API.
  * @constructor
- * @since 0.4 (since 0.3 as wb.Api without support for client usage)
+ * @since 0.5 (in 0.4 without constructor parameters, in 0.3 as wb.Api without support for client
+ *        usage)
+ *
+ * @param {mw.Api} api
+ *
+ * @throws {Error} if parameters are not specified properly.
  */
-wb.RepoApi = function wbRepoApi() {
+wb.RepoApi = function wbRepoApi( api ) {
+	if( api === undefined ) {
+		throw new Error( 'Required parameters not specified properly' );
+	}
+
+	this._api = api;
 };
 
 $.extend( wb.RepoApi.prototype, {
 	/**
-	 * mediaWiki.Api object for internal usage. By having this initialized in the prototype, we can
-	 * share one instance for all instances of the wikibase API.
 	 * @type mw.Api
 	 */
-	_api: mwApi,
+	_api: null,
 
 	/**
 	 * Creates a new entity with the given type and data.
@@ -135,7 +139,7 @@ $.extend( wb.RepoApi.prototype, {
 	 *                          default: null (unsorted)
 	 * @param {String}          [dir] Sort direction may be 'ascending' or 'descending'
 	 *                          default: null (ascending)
-	 * @param {bool}            [normalize] Whether to normalize titles server side
+	 * @param {boolean} [normalize] Whether to normalize titles server side
 	 * @return {jQuery.Promise}
 	 */
 	getEntitiesByPage: function( sites, titles, props, languages, sort, dir, normalize ) {
@@ -311,12 +315,14 @@ $.extend( wb.RepoApi.prototype, {
 	 * Removes an existing claim.
 	 *
 	 * @param {String} claimGuid The GUID of the Claim to be removed (wb.datamodel.Claim.getGuid)
+	 * @param {Number} [claimRevisionId]
 	 * @return {jQuery.Promise}
 	 */
-	removeClaim: function( claimGuid ) {
+	removeClaim: function( claimGuid, claimRevisionId ) {
 		return this.post( {
 			action: 'wbremoveclaims',
-			claim: claimGuid
+			claim: claimGuid,
+			baserevid: claimRevisionId
 		} );
 	},
 
@@ -440,7 +446,7 @@ $.extend( wb.RepoApi.prototype, {
 	 * @param {Number} baseRevId revision id
 	 * @param {String} site the site of the link
 	 * @param {String} title the title to link to
-	 * @param {String[]|String} badges the list of badges
+	 * @param {String[]|String} [badges] the list of badges
 	 * @return {jQuery.Promise}
 	 */
 	setSitelink: function( id, baseRevId, site, title, badges ) {
@@ -492,7 +498,7 @@ $.extend( wb.RepoApi.prototype, {
 	 *
 	 * @since 0.4
 	 *
-	 * @param {Mixed} value
+	 * @param {string[]|string} [value]
 	 * @return {string|undefined}
 	 */
 	_normalizeParam: function( value ) {

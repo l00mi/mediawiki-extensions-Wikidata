@@ -79,18 +79,7 @@ class SetClaim extends ModifyClaim {
 
 		$this->claimModificationHelper->applyChangeOp( $changeop, $entity, $summary );
 
-		try {
-			$this->saveChanges( $entity, $summary );
-		} catch ( \Exception $ex ) {
-			$entityId = $entity->getId();
-			$prefixedId = $entityId ? $entityId->getSerialization() : '';
-
-			wfDebugLog( 'wikibase-debug', "Failed to set claim on entity $prefixedId: "
-				. var_export( $params, true ) );
-
-			$this->dieException( $ex, 'invalid-claim' );
-		}
-
+		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addClaim( $claim );
 	}

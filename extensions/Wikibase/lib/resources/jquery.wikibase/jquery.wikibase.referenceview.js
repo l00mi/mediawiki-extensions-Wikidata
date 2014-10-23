@@ -122,7 +122,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 */
 	_create: function() {
 		if(
-			!this.options.statementGuid | !this.options.entityStore
+			!this.options.statementGuid || !this.options.entityStore
 			|| !this.options.valueViewBuilder || !this.options.api
 		) {
 			throw new Error( 'Required option(s) missing' );
@@ -149,7 +149,6 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		if( !this.options.listItemAdapter ) {
 			this.options.listItemAdapter = new $.wikibase.listview.ListItemAdapter( {
 				listItemWidget: $.wikibase.snaklistview,
-				listItemWidgetValueAccessor: 'value',
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value || null,
@@ -274,7 +273,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		this.element.removeClassByRegex( /wb-reference-.+/ );
 		this.element.addClass( 'wb-reference-' + refHash );
 
-		this.element.removeClassByRegex( new RegExp( this.widgetBaseClass ) + '-.+' );
+		this.element.removeClassByRegex( new RegExp( this.widgetBaseClass + '-.+' ) );
 		this.element.addClass( this.widgetBaseClass + '-' + refHash );
 	},
 
@@ -299,7 +298,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 				snakList = new wb.datamodel.SnakList();
 
 			for( var i = 0; i < snaklistviews.length; i++ ) {
-				var snak = this.options.listItemAdapter.liValue( snaklistviews.eq( i ) );
+				var snak = this.options.listItemAdapter.liInstance( snaklistviews.eq( i ) ).value();
 				if( snak ) {
 					snakList.add( snak );
 				}
@@ -607,9 +606,10 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 			var $referenceview = $( event.target );
 
 			$referenceview.addtoolbar( {
-				addButtonAction: function() {
-					$referenceview.data( 'referenceview' ).enterNewItem();
-				}
+				$container: $( '<div/>' ).appendTo( $referenceview )
+			} )
+			.on( 'addtoolbaradd.addtoolbar', function() {
+				$referenceview.data( 'referenceview' ).enterNewItem();
 			} );
 
 			toolbarController.registerEventHandler(
@@ -617,7 +617,9 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 				event.data.toolbar.id,
 				'referenceviewafterstopediting',
 				function( event, toolbarController ) {
-					toolbarController.destroyToolbar( $( event.target ).data( 'addtoolbar' ) );
+					var $referenceview = $( event.target );
+					toolbarController.destroyToolbar( $referenceview.data( 'addtoolbar' ) );
+					$referenceview.off( '.addtoolbar' );
 				}
 			);
 
@@ -630,7 +632,7 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 						referenceview = $referenceview.data( 'referenceview' ),
 						addToolbar = $referenceview.data( 'addtoolbar' );
 					if( addToolbar ) {
-						addToolbar.toolbar[referenceview.isValid() ? 'enable' : 'disable']();
+						addToolbar[referenceview.isValid() ? 'enable' : 'disable']();
 					}
 				}
 			);
@@ -644,7 +646,7 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 						addToolbar = $( event.target ).data( 'addtoolbar' );
 
 					if( addToolbar ) {
-						addToolbar.toolbar[referenceview.option( 'disabled' )
+						addToolbar[referenceview.option( 'disabled' )
 							? 'disable'
 							: 'enable'
 						]();
@@ -674,7 +676,10 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 					snakviewPropertyGroupListview = snaklistview._listview;
 
 				$target.removetoolbar( {
-					action: function( event ) {
+					$container: $( '<div/>' ).appendTo( $target )
+				} )
+				.on( 'removetoolbarremove.removetoolbar',  function( event ) {
+					if( event.target === $target.get( 0 ) ) {
 						snakviewPropertyGroupListview.removeItem( $target );
 					}
 				} );
@@ -722,7 +727,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 										removetoolbar = $snakview.data( 'removetoolbar' );
 
 									if( removetoolbar ) {
-										removetoolbar.toolbar[
+										removetoolbar[
 											referenceview.option( 'disabled' )
 											|| $snakviews.length === 1 && $snaklistviews.length === 1
 												? 'disable'
@@ -765,7 +770,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 			}
 
 			if( removetoolbar ) {
-				removetoolbar.toolbar[
+				removetoolbar[
 					( event.type === 'snakviewstartediting' && numberOfSnakviews > 0 || numberOfSnakviews > 1 )
 						? 'enable'
 						: 'disable'
@@ -789,13 +794,15 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 				return;
 			}
 
-			var snakList = referenceview.options.listItemAdapter.liValue( $snaklistview );
+			var snakList = referenceview.options.listItemAdapter.liInstance( $snaklistview ).value();
 
 			// Prevent creating the toolbar for pending values.
 			if( snakList !== null ) {
 				// Since snakviewstartediting is triggered for every snakview, this creates the
 				// toolbar for each snakview widget:
-				$snakview.movetoolbar();
+				$snakview.movetoolbar( {
+					$container: $( '<div/>' ).appendTo( $snakview )
+				} );
 
 				// Disable "move up" button of topmost and "move down" button of bottommost
 				// snakview:
@@ -806,11 +813,11 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 					._listview.items().last();
 
 				if ( $topMostSnakview.get( 0 ) === $snakview.get( 0 ) ) {
-					$snakview.data( 'movetoolbar' ).$btnMoveUp.data( 'toolbarbutton' ).disable();
+					$snakview.data( 'movetoolbar' ).getButton( 'up' ).disable();
 				}
 
 				if( $bottomMostSnakview.get( 0 ) === $snakview.get( 0 ) ) {
-					$snakview.data( 'movetoolbar' ).$btnMoveDown.data( 'toolbarbutton' ).disable();
+					$snakview.data( 'movetoolbar' ).getButton( 'down' ).disable();
 				}
 
 				toolbarController.registerEventHandler(
@@ -915,12 +922,12 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 
 							snaklistview._listview.items().each( function( j, snakviewNode ) {
 								var $snakview = $( snakviewNode ),
-									toolbar = $snakview.data( 'movetoolbar' );
+									movetoolbar = $snakview.data( 'movetoolbar' );
 
-								if( !toolbar ) {
+								if( !movetoolbar ) {
 									// Continue if the movetoolbar is not present (the snakview is
 									// pending).
-									return true;
+									return;
 								}
 
 								var isOverallFirst = ( i === 0 && j === 0 ),
@@ -931,21 +938,21 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 									isBeforePending = false;
 
 								if( hasFollowingSnaklistview ) {
-									var nextSnakList = referenceviewLia.liValue(
+									var nextSnakList = referenceviewLia.liInstance(
 										$snaklistviews.eq( i + 1 )
-									);
+									).value();
 									isBeforePending = !nextSnakList;
 								}
 
-								toolbar.$btnMoveUp.data( 'toolbarbutton' ).enable();
-								toolbar.$btnMoveDown.data( 'toolbarbutton' ).enable();
+								movetoolbar.getButton( 'up' ).enable();
+								movetoolbar.getButton( 'down' ).enable();
 
 								if( isOverallFirst ) {
-									toolbar.$btnMoveUp.data( 'toolbarbutton' ).disable();
+									movetoolbar.getButton( 'up' ).disable();
 								}
 
 								if( isOverallLast || isBeforePending ) {
-									toolbar.$btnMoveDown.data( 'toolbarbutton' ).disable();
+									movetoolbar.getButton( 'down' ).disable();
 								}
 							} );
 						} );

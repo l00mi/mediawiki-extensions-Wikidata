@@ -12,7 +12,7 @@ use InvalidArgumentException;
  */
 class ItemId extends EntityId {
 
-	const PATTERN = '/^q[1-9][0-9]*$/i';
+	const PATTERN = '/^Q[1-9]\d*$/i';
 
 	/**
 	 * @param string $idSerialization
@@ -21,14 +21,10 @@ class ItemId extends EntityId {
 	 */
 	public function __construct( $idSerialization ) {
 		$this->assertValidIdFormat( $idSerialization );
-
-		parent::__construct(
-			Item::ENTITY_TYPE,
-			 $idSerialization
-		);
+		$this->serialization = strtoupper( $idSerialization );
 	}
 
-	protected function assertValidIdFormat( $idSerialization ) {
+	private function assertValidIdFormat( $idSerialization ) {
 		if ( !is_string( $idSerialization ) ) {
 			throw new InvalidArgumentException( 'The id serialization needs to be a string.' );
 		}
@@ -43,6 +39,31 @@ class ItemId extends EntityId {
 	 */
 	public function getNumericId() {
 		return (int)substr( $this->serialization, 1 );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getEntityType() {
+		return 'item';
+	}
+
+	/**
+	 * @see Serializable::serialize
+	 *
+	 * @return string
+	 */
+	public function serialize() {
+		return json_encode( array( 'item', $this->serialization ) );
+	}
+
+	/**
+	 * @see Serializable::unserialize
+	 *
+	 * @param string $value
+	 */
+	public function unserialize( $value ) {
+		list( , $this->serialization ) = json_decode( $value );
 	}
 
 	/**
@@ -62,7 +83,7 @@ class ItemId extends EntityId {
 			throw new InvalidArgumentException( '$number needs to be an integer or whole number float.' );
 		}
 
-		return new self( 'q' . $number );
+		return new self( 'Q' . $number );
 	}
 
 }

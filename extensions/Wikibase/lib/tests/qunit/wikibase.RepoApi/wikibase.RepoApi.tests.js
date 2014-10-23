@@ -6,21 +6,16 @@
  * @author H. Snater < mediawiki@snater.com >
  */
 
-( function( wb, $, QUnit, undefined ) {
+( function( mw, wb, $, QUnit, undefined ) {
 	'use strict';
+
+	var mwApi = new mw.Api();
 
 	/**
 	 * wb.RepoApi object
 	 * @var {Object}
 	 */
-	var api = new wb.RepoApi();
-
-	/**
-	 * wb.AbstractedRepoApi object
-	 * @var {Object}
-	 */
-	// @FIXME: Don't mix the plain RepoApi with the abstracted one
-	var abstractedApi = new wb.AbstractedRepoApi( api );
+	var api = new wb.RepoApi( mwApi );
 
 	/**
 	 * Queue used run asynchronous tests synchronously.
@@ -324,26 +319,6 @@
 			} );
 		} );
 
-		testrun.queue( qkey, function() {
-			abstractedApi.getEntities( entity.id, typesApiPropName ).done( function( entities ) {
-
-				assert.ok(
-					entities[ entity.id ] instanceof wb.datamodel.Entity,
-					'Entity "' + entity.id + '", the ' + type + ' has been set for, has been' +
-						'returned by wb.AbstractedRepoApi.getEntities.'
-				);
-
-				var entityData = entities[ entity.id ].toMap();
-				assert.deepEqual(
-					entityData[ type ] && entityData[ type ][ language ],
-					value,
-					'Verified that ' + type + ' "' + value + '" has been set for language "' + language + '"'
-				);
-
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
-
 		runTest();
 	}
 
@@ -538,4 +513,4 @@
 
 	} );
 
-}( wikibase, jQuery, QUnit ) );
+}( mediaWiki, wikibase, jQuery, QUnit ) );

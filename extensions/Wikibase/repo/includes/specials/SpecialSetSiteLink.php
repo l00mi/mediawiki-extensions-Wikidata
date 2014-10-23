@@ -3,14 +3,15 @@
 namespace Wikibase\Repo\Specials;
 
 use Html;
+use InvalidArgumentException;
 use OutOfBoundsException;
 use Status;
+use UserInputException;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\WikibaseRepo;
@@ -105,7 +106,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 
 		// check if id belongs to an item
 		if ( $this->entityRevision !== null && !( $this->entityRevision->getEntity() instanceof Item ) ) {
-			$this->showErrorHTML( $this->msg( 'wikibase-setsitelink-not-item', $this->entityRevision->getEntity()->getId()->getPrefixedId() )->parse() );
+			$this->showErrorHTML( $this->msg( 'wikibase-setsitelink-not-item', $this->entityRevision->getEntity()->getId()->getSerialization() )->parse() );
 			$this->entityRevision = null;
 		}
 
@@ -316,6 +317,10 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			$name = 'badge-' . $badgeId;
 			$title = $this->getTitleForBadge( new ItemId( $badgeId ) );
 
+			if ( $title === null ) {
+				continue;
+			}
+
 			$options .= Html::rawElement(
 				'div',
 				array(
@@ -346,17 +351,23 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 * @todo use TermLookup when we have one
 	 *
 	 * @param EntityId $badgeId
-	 * @return string
+	 * @return string|null
 	 */
 	private function getTitleForBadge( EntityId $badgeId ) {
-		$entity = $this->loadEntity( $badgeId )->getEntity();
-		$languageCode = $this->getLanguage()->getCode();
+		try {
+			$entity = $this->loadEntity( $badgeId )->getEntity();
+			$languageCode = $this->getLanguage()->getCode();
 
-		$labels = $entity->getFingerprint()->getLabels();
-		if ( $labels->hasTermForLanguage( $languageCode ) ) {
-			return $labels->getByLanguage( $languageCode )->getText();
-		} else {
-			return $badgeId->getSerialization();
+			$labels = $entity->getFingerprint()->getLabels();
+			if ( $labels->hasTermForLanguage( $languageCode ) ) {
+				return $labels->getByLanguage( $languageCode )->getText();
+			} else {
+				return $badgeId->getSerialization();
+			}
+		} catch ( UserInputException $ex ) {
+			// log a warning because this indicates a wrong configuration
+			wfLogWarning( 'Error fetching title for badge: ' . $ex->getMessage() );
+			return null;
 		}
 	}
 
@@ -365,7 +376,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 *
 	 * @since 0.4
 	 *
-	 * @param Item|null $entity
+	 * @param Item|null $item
 	 * @param string $siteId
 	 *
 	 * @throws OutOfBoundsException
@@ -384,7 +395,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 *
 	 * @since 0.5
 	 *
-	 * @param Item|null $entity
+	 * @param Item|null $item
 	 * @param string $siteId
 	 *
 	 * @throws OutOfBoundsException
@@ -397,7 +408,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 
 		$badges = array();
 		foreach ( $item->getSitelink( $siteId )->getBadges() as $badge ) {
-			$badges[] = $badge->getPrefixedId();
+			$badges[] = $badge->getSerialization();
 		}
 		return $badges;
 	}
@@ -413,34 +424,25 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 * @return ItemId[]|boolean
 	 */
 	protected function parseBadges( array $badges, Status $status ) {
-		$repo = WikibaseRepo::getDefaultInstance();
-
-		$entityIdParser = $repo->getEntityIdParser();
-
 		$badgesObjects = array();
 
 		foreach ( $badges as $badge ) {
 			try {
-				$badgeId = $entityIdParser->parse( $badge );
-			} catch ( EntityIdParsingException $ex ) {
-				$status->fatal( 'wikibase-setsitelink-not-badge', $badge );
+				$badgeId = new ItemId( $badge );
+			} catch ( InvalidArgumentException $ex ) {
+				$status->fatal( 'wikibase-wikibaserepopage-not-itemid', $badge );
 				return false;
 			}
 
-			if ( !( $badgeId instanceof ItemId ) ) {
-				$status->fatal( 'wikibase-setsitelink-not-item', $badgeId->getPrefixedId() );
-				return false;
-			}
-
-			if ( !array_key_exists( $badgeId->getPrefixedId(), $this->badgeItems ) ) {
-				$status->fatal( 'wikibase-setsitelink-not-badge', $badgeId->getPrefixedId() );
+			if ( !array_key_exists( $badgeId->getSerialization(), $this->badgeItems ) ) {
+				$status->fatal( 'wikibase-setsitelink-not-badge', $badgeId->getSerialization() );
 				return false;
 			}
 
 			$itemTitle = $this->getEntityTitle( $badgeId );
 
 			if ( is_null( $itemTitle ) || !$itemTitle->exists() ) {
-				$status->fatal( 'wikibase-setsitelink-not-badge', $badgeId );
+				$status->fatal( 'wikibase-wikibaserepopage-invalid-id', $badgeId );
 				return false;
 			}
 

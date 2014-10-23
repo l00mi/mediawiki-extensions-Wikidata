@@ -2,7 +2,9 @@
 
 namespace Wikibase;
 
+use Diff\DiffOp\DiffOp;
 use Diff\DiffOpFactory;
+use Wikibase\DataModel\Entity\Diff\EntityDiff;
 
 /**
  * Class for changes that can be represented as a Diff.
@@ -38,7 +40,7 @@ class WikibaseDiffOpFactory extends DiffOpFactory {
 	 * @todo: pull this up into DiffOpFactory
 	 *
 	 * @param array $data the input data
-	 * @return \Diff\DiffOp[] The diff ops
+	 * @return DiffOp[] The diff ops
 	 */
 	private function createOperations( array $data ) {
 		$operations = array();

@@ -126,12 +126,20 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 
 		var self = this;
 
-		var $input = $( '<input/>' )
-		// TODO: Inject correct placeholder via options
-		.attr( 'placeholder', mw.msg(
-			'wikibase-description-edit-placeholder-language-aware',
-			wb.getLanguageNameByCode( this.options.value.language )
-		) )
+		var langCode = this.options.value.language;
+
+		var dir = ( $.uls && $.uls.data ) ?
+			$.uls.data.getDir( langCode ) :
+			$( 'html' ).prop( 'dir' );
+
+		var $input = $( '<input />', {
+			// TODO: Inject correct placeholder via options
+			placeholder: mw.msg(
+				'wikibase-description-edit-placeholder-language-aware',
+				wb.getNativeLanguageNameByCode( langCode )
+			),
+			dir: dir
+		} )
 		.on( 'eachchange.' + this.widgetName, function( event ) {
 			self._trigger( 'change' );
 		} );
@@ -287,7 +295,14 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 		if( key === 'value' ) {
 			value = this._checkValue( value );
 		}
-		return PARENT.prototype._setOption.call( this, key, value );
+
+		var response = PARENT.prototype._setOption.call( this, key, value );
+
+		if( key === 'disabled' && this._isInEditMode ) {
+			this.$text.children( 'input' ).prop( 'disabled', value );
+		}
+
+		return response;
 	},
 
 	/**
@@ -341,28 +356,6 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 		if( this._isInEditMode ) {
 			this.$text.children( 'input' ).focus();
 		}
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.disable
-	 */
-	disable: function() {
-		if( this._isInEditMode ) {
-			this.$text.children( 'input' ).prop( 'disabled', true );
-		}
-
-		return PARENT.prototype.disable.call( this );
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.enable
-	 */
-	enable: function() {
-		if( this._isInEditMode ) {
-			this.$text.children( 'input' ).prop( 'disabled', false );
-		}
-
-		return PARENT.prototype.enable.call( this );
 	}
 
 } );
@@ -373,12 +366,18 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 	events: {
 		descriptionviewcreate: function( event, toolbarcontroller ) {
 			var $descriptionview = $( event.target ),
-				descriptionview = $descriptionview.data( 'descriptionview' );
+				descriptionview = $descriptionview.data( 'descriptionview' ),
+				$container = $descriptionview.find( '.wikibase-toolbar-container' );
+
+			if( !$container.length ) {
+				$container = $( '<span/>' ).appendTo(
+					$descriptionview.find( '.wikibase-descriptionview-container' )
+				);
+			}
 
 			$descriptionview.edittoolbar( {
-				$container: $descriptionview.find( '.wikibase-descriptionview-container' ),
-				interactionWidgetName: $.wikibase.descriptionview.prototype.widgetName,
-				enableRemove: false
+				$container: $container,
+				interactionWidget: descriptionview
 			} );
 
 			$descriptionview.on( 'keyup', function( event ) {
@@ -394,43 +393,41 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			if( !descriptionview.value().description ) {
 				descriptionview.toEditMode();
-				$descriptionview.data( 'edittoolbar' ).toolbar.editGroup.toEditMode();
-				$descriptionview.data( 'edittoolbar' ).toolbar.editGroup.disable();
+				$descriptionview.data( 'edittoolbar' ).toEditMode();
+				$descriptionview.data( 'edittoolbar' ).disable();
 			}
 
 			$descriptionview
 			.off( 'descriptionviewafterstopediting.edittoolbar' )
-			.on( 'descriptionviewafterstopediting', function( event ) {
+			.on( 'descriptionviewafterstopediting.edittoolbar', function( event ) {
 				var edittoolbar = $( event.target ).data( 'edittoolbar' );
 				if( descriptionview.value().description ) {
-					edittoolbar.toolbar.editGroup.toNonEditMode();
+					edittoolbar.toNonEditMode();
 					edittoolbar.enable();
 					edittoolbar.toggleActionMessage( function() {
-						edittoolbar.toolbar.editGroup.getButton( 'edit' ).focus();
+						edittoolbar.getButton( 'edit' ).focus();
 					} );
 				} else {
 					descriptionview.toEditMode();
-					edittoolbar.toolbar.editGroup.toEditMode();
+					edittoolbar.toEditMode();
 					edittoolbar.toggleActionMessage( function() {
 						descriptionview.focus();
 					} );
-					$descriptionview.data( 'edittoolbar' ).toolbar.editGroup.disable();
+					edittoolbar.disable();
 				}
 			} );
 		},
 		'descriptionviewchange descriptionviewafterstartediting descriptionviewafterstopediting': function( event ) {
 			var $descriptionview = $( event.target ),
 				descriptionview = $descriptionview.data( 'descriptionview' ),
-				toolbar = $descriptionview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
-				enable = descriptionview.isValid() && !descriptionview.isInitialValue(),
-				$btnCancel = toolbar.editGroup.getButton( 'cancel' ),
-				btnCancel = $btnCancel.data( 'toolbarbutton' ),
+				edittoolbar = $descriptionview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
+				enableSave = descriptionview.isValid() && !descriptionview.isInitialValue(),
+				btnCancel = edittoolbar.getButton( 'cancel' ),
 				currentDescription = descriptionview.value().description,
 				disableCancel = !currentDescription && descriptionview.isInitialValue();
 
-			btnSave[enable ? 'enable' : 'disable']();
+			btnSave[enableSave ? 'enable' : 'disable']();
 			btnCancel[disableCancel ? 'disable' : 'enable']();
 
 			if( event.type === 'descriptionviewchange' ) {
@@ -444,9 +441,8 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 		descriptionviewdisable: function( event ) {
 			var $descriptionview = $( event.target ),
 				descriptionview = $descriptionview.data( 'descriptionview' ),
-				toolbar = $descriptionview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
+				edittoolbar = $descriptionview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
 				enable = descriptionview.isValid() && !descriptionview.isInitialValue(),
 				currentDescription = descriptionview.value().description;
 
@@ -457,10 +453,10 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			}
 
 			if( !currentDescription ) {
-				toolbar.disable();
+				edittoolbar.disable();
 			}
 		},
-		toolbareditgroupedit: function( event, toolbarcontroller ) {
+		edittoolbaredit: function( event, toolbarcontroller ) {
 			var $descriptionview = $( event.target ).closest( ':wikibase-edittoolbar' ),
 				descriptionview = $descriptionview.data( 'descriptionview' );
 

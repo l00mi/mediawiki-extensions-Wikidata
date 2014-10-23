@@ -1,7 +1,50 @@
 # Wikibase DataModel release notes
 
-### Version 1.0.1 (2014-10-01)
-* More informative exception message for invalid type in HashArray::setElement.
+## Version 2.0.2 (2014-10-23)
+
+* Fixed issue in LegacyIdInterpreter, which needs to also accept numeric ids as string.
+* Added tests for LegacyIdInterpreter.
+
+## Version 2.0.1 (2014-10-23)
+
+* Fixed last remaining HHVM issue (caused by calling `reset` on an `ArrayObject` subclass)
+* Fixed the exception `EntityIdValue::unserialize` throws
+* Improved performance of `BasicEntityIdParser` and `LegacyIdInterpreter` without changing the contract of the classes
+
+## Version 2.0 (2014-10-14)
+
+#### Breaking changes
+
+* Removed all class aliases
+* Removed support for deserializing `EntityId` instances serialized with version 0.4 or earlier
+* Removed `References` interface in favour of `ReferenceList`
+* The `Statement` constructor no longer supports a `Snak` parameter
+
+#### Additions
+
+* Added `Statement::RANK_` enum
+* Added `Statement::addNewReference`
+
+#### Deprecations
+
+* Deprecated `Claim::RANK_` enum in favour of `Statement::RANK_` enum
+* Deprecated `Claim::getRank`
+
+## Version 1.1 (2014-09-29)
+
+#### Additions
+
+* The `Property` constructor now accepts an optional `StatementList` parameter
+* Added `Property::getStatements` and `Property::setStatements`
+* Added `PropertyIdProvider` interface
+* Added `ByPropertyIdGrouper`
+* Added `BestStatementsFinder`
+* Added `EntityPatcher` and `EntityPatcherStrategy`
+* Added `StatementList::getAllSnaks` to use instead of `Entity::getAllSnaks`
+* The `Statement` constructor now also accepts a `Claim` parameter
+* Added `Statement::setClaim`
+* The `Reference` constructor now accepts a `Snak` array
+* Added `ReferenceList::addNewReference`
 
 ## Version 1.0 (2014-09-02)
 
@@ -37,6 +80,8 @@ Removal of `toArray` and `newFromArray`:
 
 Other breaking changes:
 
+* `Item` now has an array of `Statement` rather than an array of `Claim`
+* `Property` no longer has an array of `Claim`
 * `Claim` and `Statement` no longer implement `Serializable`
 * Protected method `Entity::entityToDiffArray` got renamed to `Entity::getDiffArray`
 * Removed `Fingerprint::getAliases`
@@ -70,6 +115,7 @@ Other breaking changes:
 
 #### Deprecations
 
+* Deprecated `Entity` (but not the derivatives)
 * Deprecated `Claims`
 * Deprecated `Entity::setId`
 * Deprecated `Entity::newClaim`
@@ -145,7 +191,7 @@ Other breaking changes:
 #### Additions
 
 * Made these classes implement `Comparable`:
-	* `TermList`
+	* `TermList` 
 	* `AliasGroupList`
 	* `Fingerprint`
 	* `SiteLink`

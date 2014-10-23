@@ -2,8 +2,8 @@
 
 namespace Wikibase;
 
-use Content;
 use Language;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\Repo\View\ClaimsView;
 use Wikibase\Repo\View\FingerprintView;
 
@@ -106,6 +106,10 @@ class PropertyContent extends EntityContent {
 
 	/**
 	 * @see getEntityView()
+	 *
+	 * @param FingerprintView $fingerprintView
+	 * @param ClaimsView $claimsView
+	 * @param Language $language
 	 *
 	 * @return PropertyView
 	 */

@@ -3,8 +3,9 @@
 namespace Wikibase;
 
 use ParserOutput;
-use Wikibase\DataModel\SiteLinkList;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\SiteLinkList;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Store\EntityTitleLookup;
 
@@ -93,7 +94,7 @@ class EntityParserOutputGenerator {
 		//@todo: record sitelinks as iwlinks
 		//@todo: record CommonsMedia values as imagelinks
 
-		$this->addModules( $pout );
+		$this->addModules( $pout, $editable );
 
 		//FIXME: some places, like Special:NewItem, don't want to override the page title.
 		//	 But we still want to use OutputPage::addParserOutput to apply the modules etc from the ParserOutput.
@@ -119,14 +120,20 @@ class EntityParserOutputGenerator {
 		$usedUrls = $valuesFinder->findFromSnaks( $snaks, 'url' );
 
 		foreach ( $usedUrls as $url ) {
-			$pout->addExternalLink( $url->getValue() );
+			$value = $url->getValue();
+			if ( is_string( $value ) ) {
+				$pout->addExternalLink( $value );
+			}
 		}
 
 		// treat CommonsMedia values as file transclusions ------
 		$usedImages = $valuesFinder->findFromSnaks( $snaks, 'commonsMedia' );
 
-		foreach( $usedImages as $image ) {
-			$pout->addImage( str_replace( ' ', '_', $image->getValue() ) );
+		foreach ( $usedImages as $image ) {
+			$value = $image->getValue();
+			if ( is_string( $value ) ) {
+				$pout->addImage( str_replace( ' ', '_', $value ) );
+			}
 		}
 	}
 
@@ -144,7 +151,7 @@ class EntityParserOutputGenerator {
 		$pout->setExtensionData( 'wikibase-view-chunks', $this->entityView->getPlaceholders() );
 	}
 
-	private function addModules( ParserOutput $pout ) {
+	private function addModules( ParserOutput $pout, $editable ) {
 		// make css available for JavaScript-less browsers
 		$pout->addModuleStyles( array(
 			'wikibase.common',
@@ -154,8 +161,10 @@ class EntityParserOutputGenerator {
 			'jquery.wikibase.toolbar',
 		) );
 
-		// make sure required client sided resources will be loaded:
-		$pout->addModules( 'wikibase.ui.entityViewInit' );
+		if ( $editable ) {
+			// make sure required client sided resources will be loaded:
+			$pout->addModules( 'wikibase.ui.entityViewInit' );
+		}
 	}
 
 }

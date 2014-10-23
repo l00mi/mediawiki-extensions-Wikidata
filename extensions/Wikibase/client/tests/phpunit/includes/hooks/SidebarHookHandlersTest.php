@@ -13,7 +13,7 @@ use ParserOutput;
 use RequestContext;
 use Site;
 use SiteStore;
-use StripState;
+use Skin;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
@@ -256,8 +256,15 @@ class SidebarHookHandlersTest extends \MediaWikiTestCase {
 	}
 
 	public function testNewFromGlobalState() {
+		$settings = WikibaseClient::getDefaultInstance()->getSettings();
+
+		$oldSiteGroupValue = $settings->getSetting( 'siteGroup' );
+		$settings->setSetting( 'siteGroup', 'NYAN' );
+
 		$handler = SidebarHookHandlers::newFromGlobalState();
 		$this->assertInstanceOf( 'Wikibase\Client\Hooks\SidebarHookHandlers', $handler );
+
+		$settings->setSetting( 'siteGroup', $oldSiteGroupValue );
 	}
 
 	public function parserAfterParseProvider() {
@@ -335,10 +342,7 @@ class SidebarHookHandlersTest extends \MediaWikiTestCase {
 		$parser = $this->newParser( $title, $pagePropsBefore, array() );
 		$handler = $this->newSidebarHookHandlers();
 
-		$text = '';
-		$stripState = new StripState( 'x' );
-
-		$handler->doParserAfterParse( $parser, $text, $stripState );
+		$handler->doParserAfterParse( $parser );
 
 		$parserOutput = $parser->getOutput();
 		$this->assertEquals( $expectedItem, $parserOutput->getProperty( 'wikibase_item' ) );
@@ -437,7 +441,9 @@ class SidebarHookHandlersTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @return \Skin
+	 * @param IContextSource $context
+	 *
+	 * @return Skin
 	 */
 	private function newSkin( IContextSource $context ) {
 		$skin = $this->getMockBuilder( 'Skin' )

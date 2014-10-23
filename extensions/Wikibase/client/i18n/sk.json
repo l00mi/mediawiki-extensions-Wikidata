@@ -38,6 +38,8 @@
 	"wikibase-linkitem-not-loggedin-title": "Musíte byť prihlásený",
 	"wikibase-linkitem-success-link": "Stránky boli úspešne prepojené. Položku s odkazmi nájdete v [$1 centrálnom dátovom úložisku].",
 	"wikibase-rc-hide-wikidata": "$1 Wikiúdaje",
+	"wikibase-rc-hide-wikidata-hide": "Skryť",
+	"wikibase-rc-hide-wikidata-show": "Zobraziť",
 	"wikibase-rc-show-wikidata-pref": "Zobraziť úpravy Wikiúdajov v posledných úpravách",
 	"wikibase-rc-wikibase-edit-title": "Úprava Wikiúdajov",
 	"wikibase-watchlist-show-changes-pref": "Zobraziť úpravy Wikiúdajov v sledovaných stránkach",
@@ -51,5 +53,7 @@
 	"wikibase-unconnectedpages-format-row": "($1 {{PLURAL:$1|medzijazykový odkaz|medzijazykové odkazy|medzijazykových odkazov}})",
 	"wikibase-pageinfo-entity-id": "ID položky Wikiúdajov",
 	"wikibase-pageinfo-entity-id-none": "Žiadne",
-	"wikibase-otherprojects": "Iné projekty"
+	"wikibase-otherprojects": "Iné projekty",
+	"wikibase-otherprojects-beta-message": "Panel Iné projekty",
+	"wikibase-otherprojects-beta-description": "Pridáva na postranný panel sekciu „{{int:wikibase-otherprojects}}“ obsahujúcu odkazy na ostatné projekty Wikimedia podľa údajov na {{grammar:6sg|{{WBREPONAME}}}}."
 }

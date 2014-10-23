@@ -138,12 +138,20 @@ $.widget( 'wikibase.labelview', PARENT, {
 
 		var self = this;
 
-		var $input = $( '<input/>' )
-		// TODO: Inject correct placeholder via options
-		.attr( 'placeholder', mw.msg(
-			'wikibase-label-edit-placeholder-language-aware',
-			wb.getLanguageNameByCode( this.options.value.language )
-		) )
+		var langCode = this.options.value.language;
+
+		var dir = ( $.uls && $.uls.data ) ?
+			$.uls.data.getDir( langCode ) :
+			$( 'html' ).prop( 'dir' );
+
+		var $input = $( '<input />', {
+			// TODO: Inject correct placeholder via options
+			placeholder: mw.msg(
+				'wikibase-label-edit-placeholder-language-aware',
+				wb.getNativeLanguageNameByCode( langCode )
+			),
+			dir: dir
+		} )
 		.on( 'eachchange.' + this.widgetName, function( event ) {
 			self._trigger( 'change' );
 		} );
@@ -299,7 +307,14 @@ $.widget( 'wikibase.labelview', PARENT, {
 		if( key === 'value' ) {
 			value = this._checkValue( value );
 		}
-		return PARENT.prototype._setOption.call( this, key, value );
+
+		var response = PARENT.prototype._setOption.call( this, key, value );
+
+		if( key === 'disabled' && this._isInEditMode ) {
+			this.$text.children( 'input' ).prop( 'disabled', value );
+		}
+
+		return response;
 	},
 
 	/**
@@ -353,28 +368,6 @@ $.widget( 'wikibase.labelview', PARENT, {
 		if( this._isInEditMode ) {
 			this.$text.children( 'input' ).focus();
 		}
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.disable
-	 */
-	disable: function() {
-		if( this._isInEditMode ) {
-			this.$text.children( 'input' ).prop( 'disabled', true );
-		}
-
-		return PARENT.prototype.disable.call( this );
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.enable
-	 */
-	enable: function() {
-		if( this._isInEditMode ) {
-			this.$text.children( 'input' ).prop( 'disabled', false );
-		}
-
-		return PARENT.prototype.enable.call( this );
 	}
 
 } );
@@ -385,12 +378,21 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 	events: {
 		labelviewcreate: function( event, toolbarcontroller ) {
 			var $labelview = $( event.target ),
-				labelview = $labelview.data( 'labelview' );
+				labelview = $labelview.data( 'labelview' ),
+				$container = $labelview.find( '.wikibase-toolbar-container' );
+
+			// TODO: Remove toolbar-wrapper that is firstHeading specific (required to reset font
+			// size)
+			if( !$container.length ) {
+				$container = $( '<span/>' ).appendTo(
+					mw.template( 'wikibase-toolbar-wrapper', '' )
+					.appendTo( $labelview.find( '.wikibase-labelview-container' ) )
+				);
+			}
 
 			$labelview.edittoolbar( {
-				$container: $labelview.find( '.wikibase-labelview-container' ),
-				interactionWidgetName: $.wikibase.labelview.prototype.widgetName,
-				enableRemove: false
+				$container: $container,
+				interactionWidget: labelview
 			} );
 
 			$labelview.on( 'keyup', function( event ) {
@@ -406,43 +408,41 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			if( !labelview.value().label ) {
 				labelview.toEditMode();
-				$labelview.data( 'edittoolbar' ).toolbar.editGroup.toEditMode();
-				$labelview.data( 'edittoolbar' ).toolbar.editGroup.disable();
+				$labelview.data( 'edittoolbar' ).toEditMode();
+				$labelview.data( 'edittoolbar' ).disable();
 			}
 
 			$labelview
 			.off( 'labelviewafterstopediting.edittoolbar' )
-			.on( 'labelviewafterstopediting', function( event ) {
+			.on( 'labelviewafterstopediting.edittoolbar', function( event ) {
 				var edittoolbar = $( event.target ).data( 'edittoolbar' );
 				if( labelview.value().label ) {
-					edittoolbar.toolbar.editGroup.toNonEditMode();
+					edittoolbar.toNonEditMode();
 					edittoolbar.enable();
 					edittoolbar.toggleActionMessage( function() {
-						edittoolbar.toolbar.editGroup.getButton( 'edit' ).focus();
+						edittoolbar.getButton( 'edit' ).focus();
 					} );
 				} else {
 					labelview.toEditMode();
-					edittoolbar.toolbar.editGroup.toEditMode();
+					edittoolbar.toEditMode();
 					edittoolbar.toggleActionMessage( function() {
 						labelview.focus();
 					} );
-					$labelview.data( 'edittoolbar' ).toolbar.editGroup.disable();
+					edittoolbar.disable();
 				}
 			} );
 		},
 		'labelviewchange labelviewafterstartediting labelviewafterstopediting': function( event ) {
 			var $labelview = $( event.target ),
 				labelview = $labelview.data( 'labelview' ),
-				toolbar = $labelview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
-				enable = labelview.isValid() && !labelview.isInitialValue(),
-				$btnCancel = toolbar.editGroup.getButton( 'cancel' ),
-				btnCancel = $btnCancel.data( 'toolbarbutton' ),
+				edittoolbar = $labelview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
+				enableSave = labelview.isValid() && !labelview.isInitialValue(),
+				btnCancel = edittoolbar.getButton( 'cancel' ),
 				currentLabel = labelview.value().label,
 				disableCancel = !currentLabel && labelview.isInitialValue();
 
-			btnSave[enable ? 'enable' : 'disable']();
+			btnSave[enableSave ? 'enable' : 'disable']();
 			btnCancel[disableCancel ? 'disable' : 'enable']();
 
 			if( event.type === 'labelviewchange' ) {
@@ -456,9 +456,8 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 		labelviewdisable: function( event ) {
 			var $labelview = $( event.target ),
 				labelview = $labelview.data( 'labelview' ),
-				toolbar = $labelview.data( 'edittoolbar' ).toolbar,
-				$btnSave = toolbar.editGroup.getButton( 'save' ),
-				btnSave = $btnSave.data( 'toolbarbutton' ),
+				edittoolbar = $labelview.data( 'edittoolbar' ),
+				btnSave = edittoolbar.getButton( 'save' ),
 				enable = labelview.isValid() && !labelview.isInitialValue(),
 				currentLabel = labelview.value().label;
 
@@ -469,11 +468,11 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			}
 
 			if( !currentLabel ) {
-				toolbar.disable();
+				edittoolbar.disable();
 			}
 		},
-		toolbareditgroupedit: function( event, toolbarcontroller ) {
-			var $labelview = $( event.target ).closest( ':wikibase-edittoolbar' ),
+		edittoolbaredit: function( event, toolbarcontroller ) {
+			var $labelview = $( event.target ),
 				labelview = $labelview.data( 'labelview' );
 
 			if( !labelview ) {

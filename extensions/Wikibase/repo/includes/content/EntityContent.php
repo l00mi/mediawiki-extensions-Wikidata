@@ -23,7 +23,8 @@ use Title;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
@@ -227,9 +228,14 @@ abstract class EntityContent extends AbstractContent {
 
 		// Make sure to include the redirect link in pagelinks
 		$output->addLink( $target );
+
+		// Since the output depends on the user language, we must make sure
+		// ParserCache::getKey() includes it in the cache key.
+		$output->recordOption( 'userlang' );
 		if ( $generateHtml ) {
 			$chain = $this->getRedirectChain();
-			$html = Article::getRedirectHeaderHtml( $target->getPageLanguage(), $chain, false );
+			$language = $this->getContentHandler()->getPageViewLanguage( $target );
+			$html = Article::getRedirectHeaderHtml( $language, $chain, false );
 			$output->setText( $html );
 		}
 
@@ -310,19 +316,21 @@ abstract class EntityContent extends AbstractContent {
 			$context->setLanguage( $languageCode );
 		}
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+
 		if ( !$uiLanguageFallbackChain ) {
-			$factory = WikibaseRepo::getDefaultInstance()->getLanguageFallbackChainFactory();
+			$factory = $wikibaseRepo->getLanguageFallbackChainFactory();
 			$uiLanguageFallbackChain = $factory->newFromContextForPageView( $context );
 		}
 
 		$formatterOptions->setOption( 'languages', $uiLanguageFallbackChain );
 
 		// get all the necessary services ----
-		$snakFormatter = WikibaseRepo::getDefaultInstance()->getSnakFormatterFactory()
+		$snakFormatter = $wikibaseRepo->getSnakFormatterFactory()
 			->getSnakFormatter( SnakFormatter::FORMAT_HTML_WIDGET, $formatterOptions );
 
-		$entityInfoBuilderFactory = WikibaseRepo::getDefaultInstance()->getStore()->getEntityInfoBuilderFactory();
-		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
+		$entityInfoBuilderFactory = $wikibaseRepo->getStore()->getEntityInfoBuilderFactory();
+		$entityContentFactory = $wikibaseRepo->getEntityContentFactory();
 
 		$serializationOptions = $this->makeSerializationOptions( $languageCode, $uiLanguageFallbackChain );
 
@@ -335,17 +343,15 @@ abstract class EntityContent extends AbstractContent {
 
 		// ---------------------------------------------------------------------
 
-		$idParser = new BasicEntityIdParser();
-
 		$configBuilder = new ParserOutputJsConfigBuilder(
 			$entityInfoBuilderFactory,
-			$idParser,
+			$wikibaseRepo->getEntityIdParser(),
 			$entityContentFactory,
 			new ReferencedEntitiesFinder(),
 			$context->getLanguage()->getCode()
 		);
 
-		$dataTypeLookup = WikibaseRepo::getDefaultInstance()->getPropertyDataTypeLookup();
+		$dataTypeLookup = $wikibaseRepo->getPropertyDataTypeLookup();
 
 		return new EntityParserOutputGenerator(
 			$entityView,
