@@ -13,6 +13,15 @@ class WikidataSettingsBuilder {
 
 	private $commonSettings;
 
+	private $composerConfig;
+
+	/**
+	 * @param Composer\Config $composerConfig - null by default, as not available during tests.
+	 */
+	public function __construct( $composerConfig = null ) {
+		$this->composerConfig = $composerConfig;
+	}
+
 	/**
 	 * @return array
 	 */
@@ -40,7 +49,13 @@ class WikidataSettingsBuilder {
 	}
 
 	private function addSharedCacheKeyPrefix() {
-		$this->commonSettings['sharedCacheKeyPrefix'] = 'wikibase:WBL/' . time();
+		$suffix = null;
+
+		if ( $this->composerConfig !== null ) {
+			$suffix = $this->composerConfig->get( 'autoloader-suffix' );
+		}
+
+		$this->commonSettings['sharedCacheKeyPrefix'] = 'wikibase:WBL/' . $suffix ?: time();
 	}
 
 }

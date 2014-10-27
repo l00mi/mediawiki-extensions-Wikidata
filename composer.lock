@@ -893,16 +893,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "2.0.2",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "9fdd63b5ee941756f34aa9ecedf07b7a20668a8d"
+                "reference": "b79f935ee553392d71e71e6274bf3e78e9e2d5ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/9fdd63b5ee941756f34aa9ecedf07b7a20668a8d",
-                "reference": "9fdd63b5ee941756f34aa9ecedf07b7a20668a8d",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/b79f935ee553392d71e71e6274bf3e78e9e2d5ac",
+                "reference": "b79f935ee553392d71e71e6274bf3e78e9e2d5ac",
                 "shasum": ""
             },
             "require": {
@@ -946,7 +946,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-10-23 12:03:33"
+            "time": "2014-10-27 18:08:26"
         },
         {
             "name": "wikibase/data-model-javascript",
@@ -1204,8 +1204,14 @@
             "version": "dev-wmf/1.25wmf5",
             "source": {
                 "type": "git",
-                "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
+                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
                 "reference": "6a55876fb0153ff65686d8a9c9689105256d99f8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6a55876fb0153ff65686d8a9c9689105256d99f8",
+                "reference": "6a55876fb0153ff65686d8a9c9689105256d99f8",
+                "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1252,6 +1258,7 @@
                     "Wikibase\\Repo\\View\\": "repo/includes/View"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GNU GPL v2+"
             ],
@@ -1269,10 +1276,6 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "support": {
-                "issues": "https://bugzilla.wikimedia.org/",
-                "irc": "irc://irc.freenode.net/wikidata"
-            },
             "time": "2014-10-27 14:12:59"
         },
         {

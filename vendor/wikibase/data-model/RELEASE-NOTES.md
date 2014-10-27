@@ -1,17 +1,21 @@
 # Wikibase DataModel release notes
 
+## Version 2.1.0 (2014-10-27)
+
+* `ReferenceList` now implements `Serializable`
+* Enhanced 32 bit compatibility for numeric ids 
+
 ## Version 2.0.2 (2014-10-23)
 
-* Fixed issue in LegacyIdInterpreter, which needs to also accept numeric ids as string.
-* Added tests for LegacyIdInterpreter.
+* Fixed handling of numeric ids as string in `LegacyIdInterpreter` which was broken in 2.0.1.
 
 ## Version 2.0.1 (2014-10-23)
 
 * Fixed last remaining HHVM issue (caused by calling `reset` on an `ArrayObject` subclass)
-* Fixed the exception `EntityIdValue::unserialize` throws
-* Improved performance of `BasicEntityIdParser` and `LegacyIdInterpreter` without changing the contract of the classes
+* `EntityIdValue::unserialize` now throws the correct type of exception
+* Improved performance of `BasicEntityIdParser` and `LegacyIdInterpreter`
 
-## Version 2.0 (2014-10-14)
+## Version 2.0.0 (2014-10-14)
 
 #### Breaking changes
 
