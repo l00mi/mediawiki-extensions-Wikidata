@@ -13,6 +13,7 @@ use Wikibase\DataModel\Snak\Snak;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
 abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 
@@ -31,7 +32,7 @@ abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 	 *
 	 * @since 0.1
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public abstract function constructorProvider();
 
@@ -110,6 +111,11 @@ abstract class SnakObjectTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType( 'string', $hash );
 		$this->assertEquals( 40, strlen( $hash ) );
 	}
+
+	/**
+	 * This test is a safeguard to make sure hashes are not changed unintentionally.
+	 */
+	public abstract function testHashStability();
 
 	/**
 	 * @dataProvider instanceProvider

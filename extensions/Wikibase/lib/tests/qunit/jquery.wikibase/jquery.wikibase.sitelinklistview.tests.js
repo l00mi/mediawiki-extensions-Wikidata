@@ -12,8 +12,7 @@
  */
 function createSitelinklistview( options ) {
 	options = $.extend( {
-		entityId: 'i am an entity id',
-		api: 'i am an api',
+		siteLinksChanger: 'siteLinksChanger',
 		entityStore: new wb.store.EntityStore(),
 		allowedSiteIds: ['aawiki', 'enwiki']
 	}, options );
@@ -87,8 +86,8 @@ QUnit.test( 'Create and destroy', function( assert ) {
 		sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
 
 	assert.ok(
-		sitelinklistview !== 'undefined',
-		'Created widget'
+		sitelinklistview instanceof $.wikibase.sitelinklistview,
+		'Created widget.'
 	);
 
 	sitelinklistview.destroy();
@@ -107,8 +106,8 @@ QUnit.test( 'Create and destroy with initial value', function( assert ) {
 		sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
 
 	assert.ok(
-		sitelinklistview !== 'undefined',
-		'Created widget'
+		sitelinklistview instanceof $.wikibase.sitelinklistview,
+		'Created widget.'
 	);
 
 	sitelinklistview.destroy();

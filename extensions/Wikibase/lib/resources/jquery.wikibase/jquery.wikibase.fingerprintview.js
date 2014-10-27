@@ -24,9 +24,9 @@
  * @option {string} [helpMessage]
  *         Default: mw.msg( 'wikibase-fingerprintview-input-help-message' )
  *
- * @options {string} entityId
+ * @option {string} entityId
  *
- * @option {wikibase.RepoApi} api
+ * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  *
  * @event change
  *        - {jQuery.Event}
@@ -77,7 +77,7 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		value: null,
 		helpMessage: mw.msg( 'wikibase-fingerprintview-input-help-message' ),
 		entityId: null,
-		api: null
+		entityChangersFactory: null
 	},
 
 	/**
@@ -104,6 +104,10 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
+		if( !this.options.entityId || !this.options.entityChangersFactory ) {
+			throw new Error( 'Required option(s) missing' );
+		}
+
 		this.options.value = this._checkValue( this.options.value );
 
 		PARENT.prototype._create.call( this );
@@ -199,15 +203,24 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 				}
 			);
 
-			self['$' + widgetName][widgetName]( {
+			var options = {
 				value: self.options.value,
 				helpMessage: mw.msg(
 					'wikibase-' + subjectName + '-input-help-message',
 					wb.getLanguageNameByCode( self.options.value.language )
-				),
-				entityId: self.options.entityId,
-				api: self.options.api
-			} );
+				)
+			};
+
+			if( widgetName === 'aliasesview' ) {
+				options.aliasesChanger = self.options.entityChangersFactory.getAliasesChanger();
+			} else if ( widgetName === 'descriptionview' ) {
+				options.descriptionsChanger = self.options.entityChangersFactory.getDescriptionsChanger();
+			} else if ( widgetName === 'labelview' ) {
+				options.labelsChanger = self.options.entityChangersFactory.getLabelsChanger();
+				options.entityId = self.options.entityId;
+			}
+
+			self['$' + widgetName][widgetName]( options );
 		} );
 	},
 

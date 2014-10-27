@@ -18,9 +18,9 @@
  *           { language: <{string]>, label: <{string|null}>, description: <{string|null}> } [, ...]
  *         ]
  *
- * @options {string} entityId
+ * @option {string} entityId
  *
- * @option {wikibase.RepoApi} api
+ * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  *
  * @option {string} [helpMessage]
  *                  Default: 'Edit label, description and aliases per language.'
@@ -59,7 +59,7 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 		},
 		value: [],
 		entityId: null,
-		api: null,
+		entityChangersFactory: null,
 		helpMessage: 'Edit label, description and aliases per language.'
 	},
 
@@ -77,7 +77,11 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
-		if( !$.isArray( this.options.value ) || !this.options.entityId || !this.options.api ) {
+		if(
+			!$.isArray( this.options.value )
+			|| !this.options.entityId
+			|| !this.options.entityChangersFactory
+		) {
 			throw new Error( 'Required option(s) missing' );
 		}
 
@@ -145,7 +149,7 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 		.fingerprintlistview( {
 			value: this.options.value,
 			entityId: this.options.entityId,
-			api: this.options.api
+			entityChangersFactory: this.options.entityChangersFactory
 		} );
 	},
 

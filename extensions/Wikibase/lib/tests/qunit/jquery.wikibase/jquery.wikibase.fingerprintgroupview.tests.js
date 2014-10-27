@@ -23,7 +23,11 @@ var createFingerprintgroupview = function( options ) {
 			}
 		],
 		entityId: 'i am an entity id',
-		api: 'i am an api'
+		entityChangersFactory: {
+			getAliasesChanger: function () { return 'aliasesChanger'; },
+			getDescriptionsChanger: function () { return 'descriptionsChanger'; },
+			getLabelsChanger: function () { return 'labelsChanger'; }
+		}
 	}, options || {} );
 
 	return $( '<div/>' )

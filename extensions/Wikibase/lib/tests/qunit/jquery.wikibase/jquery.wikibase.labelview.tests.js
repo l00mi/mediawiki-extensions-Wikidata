@@ -13,8 +13,8 @@
  */
 var createLabelview = function( options, $node ) {
 	options = $.extend( {
+		labelsChanger: 'labelsChanger',
 		entityId: 'i am an entity id',
-		api: 'i am an api',
 		value: {
 			language: 'en',
 			label: 'test label'
@@ -65,7 +65,7 @@ QUnit.test( 'Create & destroy', function( assert ) {
 		labelview = $labelview.data( 'labelview' );
 
 	assert.ok(
-		labelview !== 'undefined',
+		labelview instanceof $.wikibase.labelview,
 		'Created widget.'
 	);
 
@@ -78,7 +78,11 @@ QUnit.test( 'Create & destroy', function( assert ) {
 } );
 
 QUnit.test( 'startEditing() & stopEditing()', 5, function( assert ) {
-	var $labelview = createLabelview(),
+	var $labelview = createLabelview( {
+			labelsChanger: {
+				setLabel: function () { return $.Deferred().resolve(); }
+			}
+		} ),
 		labelview = $labelview.data( 'labelview' );
 
 	$labelview
