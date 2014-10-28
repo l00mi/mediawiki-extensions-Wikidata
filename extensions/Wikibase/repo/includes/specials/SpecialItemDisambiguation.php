@@ -7,7 +7,6 @@ use Language;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\ItemDisambiguation;
 use Wikibase\Lib\EntityIdHtmlLinkFormatter;
 use Wikibase\Lib\Store\EntityLookup;
@@ -48,8 +47,6 @@ class SpecialItemDisambiguation extends SpecialItemResolver {
 	private $limit;
 
 	/**
-	 * Constructor.
-	 *
 	 * @see SpecialItemResolver::__construct
 	 *
 	 * @since 0.1

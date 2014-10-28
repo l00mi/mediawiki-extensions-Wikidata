@@ -318,17 +318,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "2.0.2",
-        "version_normalized": "2.0.2.0",
+        "version": "2.1.0",
+        "version_normalized": "2.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "9fdd63b5ee941756f34aa9ecedf07b7a20668a8d"
+            "reference": "b79f935ee553392d71e71e6274bf3e78e9e2d5ac"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/9fdd63b5ee941756f34aa9ecedf07b7a20668a8d",
-            "reference": "9fdd63b5ee941756f34aa9ecedf07b7a20668a8d",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/b79f935ee553392d71e71e6274bf3e78e9e2d5ac",
+            "reference": "b79f935ee553392d71e71e6274bf3e78e9e2d5ac",
             "shasum": ""
         },
         "require": {
@@ -339,7 +339,7 @@
         "require-dev": {
             "whatthejeff/nyancat-phpunit-resultprinter": "~1.2"
         },
-        "time": "2014-10-23 12:03:33",
+        "time": "2014-10-27 18:08:26",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1145,12 +1145,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "0569384f4e38c56d3c14b987e67b8ea5955de19a"
+            "reference": "e2b6bd9f9d53f67a37e26286419696ecbf59ef87"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0569384f4e38c56d3c14b987e67b8ea5955de19a",
-            "reference": "0569384f4e38c56d3c14b987e67b8ea5955de19a",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e2b6bd9f9d53f67a37e26286419696ecbf59ef87",
+            "reference": "e2b6bd9f9d53f67a37e26286419696ecbf59ef87",
             "shasum": ""
         },
         "require": {
@@ -1177,7 +1177,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-10-27 14:56:06",
+        "time": "2014-10-28 10:36:53",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1349,9 +1349,7 @@
             "psr-4": {
                 "PropertySuggester\\": "src/PropertySuggester/"
             },
-            "files": [
-
-            ],
+            "files": [],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"
