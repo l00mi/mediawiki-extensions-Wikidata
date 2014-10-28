@@ -1204,14 +1204,8 @@
             "version": "dev-wmf/1.25wmf5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "6a55876fb0153ff65686d8a9c9689105256d99f8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6a55876fb0153ff65686d8a9c9689105256d99f8",
-                "reference": "6a55876fb0153ff65686d8a9c9689105256d99f8",
-                "shasum": ""
+                "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
+                "reference": "c48807ffac63db8287c81e10ded91d1643be1161"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1258,7 +1252,6 @@
                     "Wikibase\\Repo\\View\\": "repo/includes/View"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GNU GPL v2+"
             ],
@@ -1276,7 +1269,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-10-27 14:12:59"
+            "support": {
+                "issues": "https://bugzilla.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata"
+            },
+            "time": "2014-10-28 11:35:06"
         },
         {
             "name": "wikibase/wikimedia-badges",
