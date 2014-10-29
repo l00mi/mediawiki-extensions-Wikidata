@@ -13,8 +13,9 @@
  */
 var createDescriptionview = function( options, $node ) {
 	options = $.extend( {
-		entityId: 'i am an entity id',
-		api: 'i am an api',
+		descriptionsChanger: {
+			setDescription: function () { return $.Deferred().resolve(); }
+		},
 		value: {
 			language: 'en',
 			description: 'test description'
@@ -65,7 +66,7 @@ QUnit.test( 'Create & destroy', function( assert ) {
 		descriptionview = $descriptionview.data( 'descriptionview' );
 
 	assert.ok(
-		descriptionview !== 'undefined',
+		descriptionview instanceof $.wikibase.descriptionview,
 		'Created widget.'
 	);
 

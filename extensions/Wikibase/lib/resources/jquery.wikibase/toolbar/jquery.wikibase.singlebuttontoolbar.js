@@ -46,24 +46,47 @@ $.widget( 'wikibase.singlebuttontoolbar', PARENT, {
 		PARENT.prototype._create.call( this );
 
 		if( !this.options.$content.length ) {
-			this.options.$content = this._createDefaultButton().appendTo( this._getContainer() );
-			this.draw();
+			var $scrapedButton = this._scrapeButton();
+			this.options.$content = this._initDefaultButton( $scrapedButton );
+			if( !$scrapedButton ) {
+				this.draw();
+			}
 		}
 	},
 
 	/**
+	 * @param {jQuery|null} $scrapedButton
 	 * @return {jQuery}
 	 */
-	_createDefaultButton: function() {
-		var self = this;
+	_initDefaultButton: function( $scrapedButton ) {
+		var self = this,
+			$defaultButton = $scrapedButton || $( '<span/>' );
 
-		return $( '<span/>' ).toolbarbutton( {
+		return $defaultButton.toolbarbutton( {
 			$label: this.options.label,
 			cssClassSuffix: this.options.buttonCssClassSuffix
 		} )
 		.on( 'toolbarbuttonaction.' + this.widgetName, function( event ) {
 			self._trigger( self.options.eventName );
 		} );
+	},
+
+	/**
+	 * @return {jQuery}
+	 */
+	_scrapeButton: function() {
+		var self = this,
+			$defaultButton = null;
+
+		this._getContainer().children( '.wikibase-toolbar-button' ).each( function() {
+			var $button = $( this );
+			if( $button.text() === self.options.label ) {
+				$defaultButton = $button;
+				return false;
+			}
+		} );
+
+		return $defaultButton;
 	},
 
 	focus: function() {

@@ -3,6 +3,7 @@
 namespace Wikibase\Test;
 
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\EntityContent;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -29,19 +30,13 @@ abstract class SpecialModifyTermTestCase extends SpecialPageTestBase {
 
 		// save the item
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
-		$store->saveEntity( $item, "testing", $GLOBALS['wgUser'], EDIT_NEW );
+		$store->saveEntity( $item, "testing", $GLOBALS['wgUser'], EDIT_NEW | EntityContent::EDIT_IGNORE_CONSTRAINTS );
 
 		// return the id
 		return $item->getId()->getSerialization();
 	}
 
 	public function testExecute() {
-		//TODO: Actually verify that the output is correct.
-		//      Currently this just tests that there is no fatal error,
-		//      and that the restriction handling is working and doesn't
-		//      block. That is, the default should let the user execute
-		//      the page.
-
 		$id = $this->createNewItem();
 
 		$page = $this->newSpecialPage();

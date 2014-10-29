@@ -83,27 +83,13 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 	}
 
 	/**
-	 * Re-indexes the given list of EntityIds so that each EntityId can be found by using its
-	 * string representation as a key.
+	 * Returns the string serialization of an EntityId.
 	 *
-	 * @param EntityId[] $entityIds
-	 *
-	 * @throws InvalidArgumentException
-	 * @return EntityId[]
+	 * @param EntityId $entityId
+	 * @return string
 	 */
-	private function reindexEntityIds( array $entityIds ) {
-		$reindexed = array();
-
-		foreach ( $entityIds as $id ) {
-			if ( !( $id instanceof EntityId ) ) {
-				throw new InvalidArgumentException( '$entityIds must contain EntityId objects.' );
-			}
-
-			$key = $id->getSerialization();
-			$reindexed[$key] = $id;
-		}
-
-		return $reindexed;
+	private function getEntityIdSerialization( EntityId $entityId ) {
+		return $entityId->getSerialization();
 	}
 
 	/**
@@ -154,11 +140,13 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 			return;
 		}
 
+		$entityIds = array_map( array( $this, 'getEntityIdSerialization' ), $entities );
+
 		$db = $this->connectionManager->beginAtomicSection( __METHOD__ );
 
 		try {
 			$tableUpdater = $this->newTableUpdater( $db );
-			$tableUpdater->removeEntities( $entities );
+			$tableUpdater->removeEntities( $entityIds );
 
 			$this->connectionManager->commitAtomicSection( $db, __METHOD__ );
 		} catch ( Exception $ex ) {
@@ -245,9 +233,9 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 			return array();
 		}
 
-		$entities = $this->reindexEntityIds( $entities );
+		$entityIds = array_map( array( $this, 'getEntityIdSerialization' ), $entities );
 
-		$where = array( 'eu_entity_id' => array_keys( $entities ) );
+		$where = array( 'eu_entity_id' => $entityIds );
 
 		if ( !empty( $aspects ) ) {
 			$where['eu_aspect'] = $aspects;
@@ -262,7 +250,7 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 			__METHOD__
 		);
 
-		$pages = $this->convertRowsToPageIds( $res );
+		$pages = $this->extractProperty( 'eu_page_id', $res );
 
 		$this->connectionManager->releaseConnection( $db );
 
@@ -271,36 +259,47 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 	}
 
 	/**
-	 * @param array|Iterator $rows
-	 *
-	 * @return array
-	 */
-	private function convertRowsToPageIds( $rows ) {
-		$pages = array();
-		foreach ( $rows as $row ) {
-			$pages[] = (int)$row->eu_page_id;
-		}
-
-		return $pages;
-	}
-
-
-	/**
 	 * @see UsageTracker::getUnusedEntities
 	 *
-	 * @param EntityId[] $entities
+	 * @param EntityId[] $entityIds
 	 *
 	 * @return EntityId[]
 	 * @throws UsageTrackerException
 	 */
-	public function getUnusedEntities( array $entities ) {
-		if ( empty( $entities ) ) {
+	public function getUnusedEntities( array $entityIds ) {
+		if ( empty( $entityIds ) ) {
 			return array();
 		}
 
-		$entities = $this->reindexEntityIds( $entities );
+		$entityIdsBySerialization = array();
+		$entityIdStrings = array();
 
-		$where = array( 'eu_entity_id' => array_keys( $entities ) );
+		foreach ( $entityIds as $id ) {
+			$serialization = $this->getEntityIdSerialization( $id );
+			$entityIdStrings[] = $serialization;
+			$entityIdsBySerialization[ $serialization ] = $id;
+		}
+
+		$usedEntityIdStrings = $this->getUsedEntities( $entityIdStrings );
+
+		$unusedEntityIdStrings = array_diff( $entityIdStrings, $usedEntityIdStrings );
+
+		$unusedEntityIds = array_intersect_key(
+			$entityIdsBySerialization,
+			array_flip( $unusedEntityIdStrings )
+		);
+
+		return $unusedEntityIds;
+	}
+
+	/**
+	 * Returns those entity ids which are used from a given set of entity ids.
+	 *
+	 * @param string[] $entityIds
+	 * @return string[]
+	 */
+	private function getUsedEntities( array $entityIds ) {
+		$where = array( 'eu_entity_id' => $entityIds );
 
 		$db = $this->connectionManager->getReadConnection();
 
@@ -313,26 +312,25 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 
 		$this->connectionManager->releaseConnection( $db );
 
-		$unused = $this->stripEntitiesFromList( $res, $entities );
-		return $unused;
+		return $this->extractProperty( 'eu_entity_id', $res );
 	}
 
 	/**
-	 * Unsets all keys in $entities that where found as values of eu_entity_id
-	 * in $rows.
+	 * Returns an array of values for $key property from the array $arr.
 	 *
-	 * @param array|Iterator $rows
-	 * @param EntityId[] $entities
+	 * @param string $key
+	 * @param array|Iterator $arr
 	 *
 	 * @return array
 	 */
-	private function stripEntitiesFromList( $rows, array $entities ) {
-		foreach ( $rows as $row ) {
-			$key = $row->eu_entity_id;
-			unset( $entities[$key] );
+	private function extractProperty( $key, $arr ) {
+		$newArr = array();
+
+		foreach( $arr as $arrItem ) {
+			$newArr[] = $arrItem->$key;
 		}
 
-		return $entities;
+		return $newArr;
 	}
 
 }

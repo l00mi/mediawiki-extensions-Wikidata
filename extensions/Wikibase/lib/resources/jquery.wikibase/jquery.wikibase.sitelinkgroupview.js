@@ -16,9 +16,7 @@
  *         Object representing the widget's value.
  *         Structure: { group: <{string}>, siteLinks: <{wikibase.datamodel.SiteLink[]}> }
  *
- * @options {string} entityId
- *
- * @option {wikibase.RepoApi} api
+ * @option {wikibase.entityChangers:SiteLinksChanger} siteLinksChanger
  *
  * @option {wikibase.store.EntityStore} entityStore
  *
@@ -62,9 +60,8 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			'$counter': '.wikibase-sitelinkgroupview-counter'
 		},
 		value: null,
-		entityId: null,
-		api: null,
 		entityStore: null,
+		siteLinksChanger: null,
 		helpMessage: 'Add a site link by specifying a site and a page of that site, edit or remove '
 			+ 'existing site links.'
 	},
@@ -85,7 +82,7 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	 * @throws {Error} if required parameters are not specified properly.
 	 */
 	_create: function() {
-		if( !this.options.entityId || !this.options.api || !this.options.entityStore ) {
+		if( !this.options.siteLinksChanger || !this.options.entityStore ) {
 			throw new Error( 'Required parameter(s) missing' );
 		}
 
@@ -150,9 +147,8 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			allowedSiteIds: this.options.value
 				? getSiteIdsOfGroup( this.options.value.group )
 				: [],
-			entityId: this.options.entityId,
-			api: this.options.api,
 			entityStore: this.options.entityStore,
+			siteLinksChanger: this.options.siteLinksChanger,
 			$counter: this.$counter
 		} );
 
@@ -370,7 +366,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				interactionWidget: sitelinkgroupview
 			} );
 
-			$sitelinkgroupview.on( 'keyup.edittoolbar', function( event ) {
+			$sitelinkgroupview.on( 'keydown.edittoolbar', function( event ) {
 				if( sitelinkgroupview.option( 'disabled' ) ) {
 					return;
 				}
@@ -404,7 +400,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			btnSave[enable ? 'enable' : 'disable']();
 		},
-		toolbareditgroupedit: function( event, toolbarcontroller ) {
+		edittoolbaredit: function( event, toolbarcontroller ) {
 			var $sitelinkgroupview = $( event.target ),
 				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' );
 
@@ -508,30 +504,8 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	selector: ':' + $.wikibase.sitelinkgroupview.prototype.namespace
 		+ '-' + $.wikibase.sitelinkgroupview.prototype.widgetName,
 	events: {
-		sitelinkgroupviewafterstartediting: function( event, toolbarcontroller ) {
+		'sitelinkgroupviewafterstartediting sitelinkgroupviewchange': function( event ) {
 			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
-				sitelinklistviewListview = sitelinklistview.$listview.data( 'listview' );
-
-			sitelinklistviewListview.items().each( function() {
-				var $sitelinkview = $( this );
-
-				$sitelinkview
-				.removetoolbar( {
-					$container: $( '<div/>' ).appendTo( $sitelinkview.children( 'td' ).last() )
-				} )
-				.on( 'removetoolbarremove.removetoolbar', function( event ) {
-					if( event.target !== $sitelinkview.get( 0 ) ) {
-						return;
-					}
-					sitelinklistview.$listview.data( 'listview' ).removeItem( $sitelinkview );
-				} );
-			} );
-		},
-		sitelinkgroupviewchange: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ).closest( ':wikibase-sitelinkgroupview' ),
 				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
 				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
 				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
@@ -548,8 +522,6 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 					return;
 				}
 
-				// TODO: Resolve toolbar initialization appearing twice within the toolbar
-				// definition
 				$sitelinkview
 				.removetoolbar( {
 					$container: $( '<div/>' ).appendTo( $sitelinkview.children( 'td' ).last() )

@@ -15,8 +15,8 @@
  * @option {wikibase.datamodel.SiteLink} [value]
  *         Default: null
  *
- * @option {Function} [getAllowedSiteIds]
- *         Function returning an array of wikibase.datamodel.SiteLink objects.
+ * @option {Function} [getAllowedSites]
+ *         Function returning an array of wikibase.Site objects.
  *         Default: function() { return []; }
  *
  * @option {wikibase.store.EntityStore} entityStore
@@ -76,7 +76,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			'$link': '.wikibase-sitelinkview-link'
 		},
 		value: null,
-		getAllowedSiteIds: function() { return []; },
+		getAllowedSites: function() { return []; },
 		entityStore: null,
 		helpMessage: mw.msg( 'wikibase-sitelinks-input-help-message' )
 	},
@@ -114,6 +114,10 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget.destroy
 	 */
 	destroy: function() {
+		if( this._badgeselector ) {
+			this._badgeselector.destroy();
+		}
+
 		if( this._isInEditMode ) {
 			var self = this;
 
@@ -121,7 +125,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 				PARENT.prototype.destroy.call( self );
 			} );
 
-			this.cancelEditing();
+			this.element.removeClass( 'wb-edit' );
 		} else {
 			PARENT.prototype.destroy.call( this );
 		}
@@ -224,9 +228,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		var $siteIdInput = $( '<input />' )
 			.attr( 'placeholder', mw.msg( 'wikibase-sitelink-site-edit-placeholder' ) )
 			.siteselector( {
-				source: $.map( this.option( 'getAllowedSiteIds' )(), function( siteId ) {
-					return wb.sites.getSite( siteId );
-				} )
+				source: self.options.getAllowedSites
 			} );
 
 		var pagesuggester = $pageNameInput.data( 'pagesuggester' );
@@ -255,6 +257,28 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		this.$siteId
 		.attr( 'colspan', '2' )
 		.append( $siteIdInput );
+
+		$pageNameInput
+		.on( 'keydown.' + this.widgetName, function( event ) {
+			if( event.keyCode === $.ui.keyCode.BACKSPACE && $pageNameInput.val() === '' ) {
+				event.stopPropagation();
+				$siteIdInput.val( '' ).focus();
+				$siteIdInput.data( 'siteselector' ).setSelectedSite( null );
+			}
+		} );
+	},
+
+	/**
+	 * @return {boolean}
+	 */
+	isEmpty: function() {
+		if( !this._isInEditMode ) {
+			return !this.options.value;
+		}
+
+		return !this.options.value
+			&& $.trim( this.$link.find( 'input' ).val() ) === ''
+			&& $.trim( this.$siteId.find( 'input' ).val() ) === '';
 	},
 
 	/**
@@ -441,10 +465,13 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		var $siteselector = this.element.find( ':wikibase-siteselector' ),
 			$pagesuggester = this.element.find( ':wikibase-pagesuggester' );
 
-		if( $siteselector.length ) {
-			$siteselector.focus();
-		} else if( $pagesuggester.length ) {
+		if(
+			$pagesuggester.length
+			&& !$pagesuggester.data( 'pagesuggester' ).option( 'disabled' )
+		) {
 			$pagesuggester.focus();
+		} else if( $siteselector.length ) {
+			$siteselector.focus();
 		}
 	},
 

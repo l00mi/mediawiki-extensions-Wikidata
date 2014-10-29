@@ -18,9 +18,9 @@
  *           { language: <{string]>, label: <{string|null}>, description: <{string|null}> } [, ...]
  *         ]
  *
- * @options {string} entityId
+ * @option {string} entityId
  *
- * @option {wikibase.RepoApi} api
+ * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  *
  * @event change
  *        - {jQuery.Event}
@@ -50,7 +50,7 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		templateShortCuts: {},
 		value: [],
 		entityId: null,
-		api: null
+		entityChangersFactory: null
 	},
 
 	/**
@@ -62,7 +62,11 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
-		if( !$.isArray( this.options.value ) || !this.options.entityId || !this.options.api ) {
+		if(
+			!$.isArray( this.options.value )
+			|| !this.options.entityId
+			|| !this.options.entityChangersFactory
+		) {
 			throw new Error( 'Required option(s) missing' );
 		}
 
@@ -127,7 +131,7 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 					return {
 						value: value,
 						entityId: self.options.entityId,
-						api: self.options.api,
+						entityChangersFactory: self.options.entityChangersFactory,
 						helpMessage: mw.msg(
 							'wikibase-fingerprintview-input-help-message',
 							wb.getLanguageNameByCode( value.language )

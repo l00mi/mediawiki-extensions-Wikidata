@@ -14,7 +14,19 @@
 var createFingerprintview = function( options, $node ) {
 	options = $.extend( {
 		entityId: 'i am an entity id',
-		api: 'i am an api',
+		entityChangersFactory: {
+			getAliasesChanger: function() { return 'aliasesChanger'; },
+			getDescriptionsChanger: function() {
+				return {
+					setDescription: function() { return $.Deferred().resolve(); }
+				};
+			},
+			getLabelsChanger: function () {
+				return {
+					setLabel: function() { return $.Deferred().resolve(); }
+				};
+			}
+		},
 		value: {
 			language: 'en',
 			label: 'test label',

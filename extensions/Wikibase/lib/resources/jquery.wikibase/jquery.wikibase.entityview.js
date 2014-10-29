@@ -12,10 +12,10 @@
  * @since 0.3
  * @extends jQuery.ui.TemplatedWidget
  *
+ * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  * @option {wikibase.datamodel.Entity} [value]
  * @option {wikibase.store.EntityStore} entityStore
  * @option {wikibase.ValueViewBuilder} valueViewBuilder
- * @option {wikibase.AbstractedRepoApi} api
  * @option {string[]} languages
  *
  * @event afterstartediting
@@ -44,7 +44,6 @@ $.widget( 'wikibase.entityview', PARENT, {
 		value: null,
 		entityStore: null,
 		valueViewBuilder: null,
-		api: null,
 		languages: []
 	},
 
@@ -87,7 +86,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 		if(
 			!this.options.entityStore
 			|| !this.options.valueViewBuilder
-			|| !this.options.api
+			|| !this.options.entityChangersFactory
 		) {
 			throw new Error( 'Required option(s) missing' );
 		}
@@ -132,7 +131,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 				wb.getLanguageNameByCode( mw.config.get( 'wgUserLanguage' ) )
 			),
 			entityId: this.options.value.getId(),
-			api: this.options.api,
+			labelsChanger: this.options.entityChangersFactory.getLabelsChanger(),
 			showEntityId: true
 		} );
 	},
@@ -155,8 +154,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 				'wikibase-description-input-help-message',
 				wb.getLanguageNameByCode( mw.config.get( 'wgUserLanguage' ) )
 			),
-			entityId: this.options.value.getId(),
-			api: this.options.api
+			descriptionsChanger: this.options.entityChangersFactory.getDescriptionsChanger()
 		} );
 	},
 
@@ -171,8 +169,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 				language:  mw.config.get( 'wgUserLanguage' ),
 				aliases: this.options.value.getAliases( mw.config.get( 'wgUserLanguage' ) )
 			},
-			entityId: this.options.value.getId(),
-			api: this.options.api
+			aliasesChanger: this.options.entityChangersFactory.getAliasesChanger()
 		} );
 	},
 
@@ -212,7 +209,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 		this.$fingerprints.fingerprintgroupview( {
 			value: value,
 			entityId: this.options.value.getId(),
-			api: this.options.api,
+			entityChangersFactory: this.options.entityChangersFactory,
 			helpMessage: mw.msg( 'wikibase-fingerprintgroupview-input-help-message' )
 		} );
 	},
@@ -229,7 +226,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 			entityType: this.options.value.getType(),
 			entityStore: this.options.entityStore,
 			valueViewBuilder: this.options.valueViewBuilder,
-			api: this.options.api
+			entityChangersFactory: this.options.entityChangersFactory
 		} )
 		.claimgrouplabelscroll();
 
@@ -282,7 +279,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 		this.$siteLinks.sitelinkgrouplistview( {
 			value: value,
 			entityId: self.options.value.getId(),
-			api: self.options.api,
+			siteLinksChanger: self.options.entityChangersFactory.getSiteLinksChanger(),
 			entityStore: self.options.entityStore
 		} );
 	},

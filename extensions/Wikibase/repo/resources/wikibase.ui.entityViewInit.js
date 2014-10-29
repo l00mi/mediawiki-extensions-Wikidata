@@ -112,20 +112,26 @@
 	function createEntityDom( entity, $entityview ) {
 		var repoConfig = mw.config.get( 'wbRepo' );
 		var mwApi = wb.api.getLocationAgnosticMwApi( repoConfig.url + repoConfig.scriptPath + '/api.php' );
-		var abstractedRepoApi = new wb.AbstractedRepoApi( mwApi );
-		var entityStore = buildEntityStore( abstractedRepoApi );
+		var repoApi = new wb.RepoApi( mwApi ),
+			entityStore = buildEntityStore( repoApi ),
+			revisionStore = new wb.RevisionStore( mw.config.get( 'wgCurRevisionId' ) ),
+			entityChangersFactory = new wb.entityChangers.EntityChangersFactory(
+				repoApi,
+				revisionStore,
+				entity
+			);
 
 		$entityview
 		.entityview( {
 			value: entity,
+			entityChangersFactory: entityChangersFactory,
 			entityStore: entityStore,
 			valueViewBuilder: new wb.ValueViewBuilder(
 				experts,
-				getFormatterStore( abstractedRepoApi, dataTypes ),
-				getParserStore( abstractedRepoApi ),
+				getFormatterStore( repoApi, dataTypes ),
+				getParserStore( repoApi ),
 				mw
 			),
-			api: abstractedRepoApi,
 			languages: getUserLanguages()
 		} )
 		.on( 'labelviewchange labelviewafterstopediting', function( event ) {

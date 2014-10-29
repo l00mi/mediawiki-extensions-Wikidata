@@ -18,9 +18,7 @@
  * @option {string[]} [allowedSiteIds]
  *         Default: []
  *
- * @options {string} entityId
- *
- * @option {wikibase.RepoApi} api
+ * @option {wikibase.entityChangers.SiteLinksChanger} siteLinksChanger
  *
  * @option {wikibase.store.EntityStore} entityStore
  *
@@ -68,8 +66,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		},
 		value: [],
 		allowedSiteIds: [],
-		entityId: null,
-		api: null,
+		siteLinksChanger: null,
 		entityStore: null,
 		$counter: null
 	},
@@ -83,7 +80,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
-		if( !this.options.entityId || !this.options.api || !this.options.entityStore ) {
+		if( !this.options.siteLinksChanger || !this.options.entityStore ) {
 			throw new Error( 'Required option(s) missing' );
 		}
 
@@ -128,8 +125,10 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value,
-						getAllowedSiteIds: function() {
-							return self._getUnusedAllowedSiteIds();
+						getAllowedSites: function() {
+							return $.map( self._getUnusedAllowedSiteIds(), function( siteId ) {
+								return wb.sites.getSite( siteId );
+							} );
 						},
 						entityStore: self.options.entityStore
 					};
@@ -170,13 +169,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				sitelinkview.disable();
 
 				self._saveSiteLink( value )
-				.done( function( response ) {
-					var siteId = value.getSiteId();
-
-					sitelinkview.value( new wb.datamodel.SiteLink(
-						siteId,
-						response.entity.sitelinks[siteId].title
-					) );
+				.done( function( newSiteLink ) {
+					sitelinkview.value( newSiteLink );
 					callback();
 				} )
 				.fail( function( error ) {
@@ -454,17 +448,42 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			lia = listview.listItemAdapter(),
 			$items = listview.items();
 
-		if( this.isValid() && $items.length ) {
-			lia.liInstance( $items.first() ).focus();
+		if( !$items.length ) {
 			return;
 		}
 
-		$items.each( function( $item ) {
-			var sitelinkview = lia.liInstance( $item );
-			if( !sitelinkview.isValid() ) {
-				sitelinkview.focus();
-			}
-		} );
+		/**
+		 * @param {jQuery} $nodes
+		 * @return {jQuery}
+		 */
+		function findFirstInViewPort( $nodes ) {
+			var $window = $( window );
+			var $foundNode = null;
+
+			$nodes.each( function() {
+				var $node = $( this );
+				if( $node.is( ':visible' ) && $node.offset().top > $window.scrollTop() ) {
+					$foundNode = $node;
+				}
+				return $foundNode === null;
+			} );
+
+			return $foundNode || $nodes.first();
+		}
+
+		if( !this.isValid() ) {
+			$items = $items.filter( function() {
+				var sitelinkview = lia.liInstance( $( this ) );
+				return !sitelinkview.isValid();
+			} );
+		}
+		$items = findFirstInViewPort( $items );
+
+		if( $items.length ) {
+			setTimeout( function() {
+				lia.liInstance( $items ).focus();
+			}, 10 );
+		}
 	},
 
 	/**
@@ -541,21 +560,10 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 *         - {wikibase.RepoApiError}
 	 */
 	_saveSiteLink: function( siteLink ) {
-		var self = this,
-			deferred = $.Deferred();
+		var self = this;
 
-		this.options.api.setSitelink(
-			this.options.entityId,
-			wb.getRevisionStore().getSitelinksRevision( siteLink.getSiteId() ),
-			siteLink.getSiteId(),
-			siteLink.getPageName(),
-			siteLink.getBadges()
-		)
-		.done( function( response, jqXHR ) {
-			wb.getRevisionStore().setSitelinksRevision(
-				response.entity.lastrevid,
-				siteLink.getSiteId()
-			);
+		return this.options.siteLinksChanger.setSiteLink( siteLink )
+		.done( function( savedSiteLink ) {
 
 			// Remove site link:
 			self.options.value = $.grep( self.options.value, function( sl ) {
@@ -566,20 +574,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			if( siteLink.getPageName() !== '' ) {
 				self.options.value.push( siteLink );
 			}
-
-			deferred.resolve( response );
-		} )
-		.fail( function( errorCode, details ) {
-			// TODO: Have API return an Error object instead of constructing it here.
-			var error = wb.RepoApiError.newFromApiResponse(
-				errorCode,
-				details,
-				siteLink.getPageName() === '' ? 'remove' : 'save'
-			);
-			deferred.reject( error );
 		} );
-
-		return deferred.promise();
 	},
 
 	/**

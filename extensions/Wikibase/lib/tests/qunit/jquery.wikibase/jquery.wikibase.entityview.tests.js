@@ -14,6 +14,11 @@
 var createEntityview = function( options, $node ) {
 	options = $.extend( {
 		entityStore: 'i am an entity store',
+		entityChangersFactory: {
+			getAliasesChanger: function() {
+				return 'i am an alias changer';
+			}
+		},
 		api: 'i am an api',
 		valueViewBuilder: 'i am a valueview builder',
 		value: new wb.datamodel.Item( {
@@ -66,7 +71,7 @@ QUnit.test( 'Create & destroy', function( assert ) {
 		entityview = $entityview.data( 'entityview' );
 
 	assert.ok(
-		entityview !== 'undefined',
+		entityview instanceof $.wikibase.entityview,
 		'Created widget.'
 	);
 

@@ -73,8 +73,8 @@
 			sitelinkview = $sitelinkview.data( 'sitelinkview' );
 
 		assert.ok(
-			sitelinkview !== 'undefined',
-			'Created widget'
+			sitelinkview instanceof $.wikibase.sitelinkview,
+			'Created widget.'
 		);
 
 		sitelinkview.destroy();
@@ -93,8 +93,8 @@
 			sitelinkview = $sitelinkview.data( 'sitelinkview' );
 
 		assert.ok(
-			sitelinkview !== 'undefined',
-			'Created widget'
+			sitelinkview instanceof $.wikibase.sitelinkview,
+			'Created widget.'
 		);
 
 		sitelinkview.destroy();
@@ -211,6 +211,59 @@
 			sitelinkview.value(),
 			siteLink,
 			'Returning SiteLink object when a valid value is set.'
+		);
+	} );
+
+	QUnit.test( 'isEmpty()', function( assert ) {
+		var siteLink = new wikibase.datamodel.SiteLink( 'enwiki', 'Main Page' ),
+			$sitelinkview = createSitelinkview(),
+			sitelinkview = $sitelinkview.data( 'sitelinkview' );
+
+		assert.ok(
+			sitelinkview.isEmpty(),
+			'isEmpty() returns TRUE when no site link is set and the widget is not in edit mode.'
+		);
+
+		sitelinkview.startEditing();
+
+		assert.ok(
+			sitelinkview.isEmpty(),
+			'Verified isEmpty() returning TRUE when no site link is set, the widget is in edit '
+			+ 'and input elements are empty.'
+		);
+
+		$sitelinkview.find( ':wikibase-siteselector' ).val( 'site' );
+
+		assert.ok(
+			!sitelinkview.isEmpty(),
+			'Widget is not empty when the site selector is filled with input.'
+		);
+
+		$sitelinkview.find( ':wikibase-siteselector' ).val( '' );
+		$sitelinkview.find( ':wikibase-pagesuggester' ).val( 'page' );
+
+		assert.ok(
+			!sitelinkview.isEmpty(),
+			'Widget is not empty when the page suggester is filled with input.'
+		);
+
+		$sitelinkview = createSitelinkview( {
+			value: siteLink
+		} );
+		sitelinkview = $sitelinkview.data( 'sitelinkview' );
+
+		assert.ok(
+			!sitelinkview.isEmpty(),
+			'isEmpty() returns FALSE when a site link is set initially.'
+		);
+
+		sitelinkview.startEditing();
+		$sitelinkview.find( ':wikibase-pagesuggester' ).val( '' );
+
+		assert.ok(
+			!sitelinkview.isEmpty(),
+			'isEmpty() returns FALSE when a site link is set initially although the page suggester '
+			+ ' input is cleared in edit mode.'
 		);
 	} );
 

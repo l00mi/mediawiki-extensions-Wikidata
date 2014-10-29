@@ -100,7 +100,16 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 
 		this._buttons = {};
 
-		this._initToolbar();
+		var $scrapedSubToolbar = this._getContainer().children( '.wikibase-toolbar' );
+
+		this._initSubToolbar( $scrapedSubToolbar );
+		this._attachEventHandlers();
+
+		if( $scrapedSubToolbar.length && $scrapedSubToolbar.children().length ) {
+			this.toNonEditMode();
+		} else {
+			this._toNonEditMode();
+		}
 	},
 
 	/**
@@ -152,21 +161,45 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 		return missingMethods;
 	},
 
-	_initToolbar: function() {
-		var $container = this._getContainer(),
-			$toolbar = $container.children( '.wikibase-toolbar' );
+	/**
+	 * Initializes the sub toolbar encapsulating the toolbar buttons excluding the tooltip anchor.
+	 *
+	 * @param {jQuery} $subToolbar
+	 */
+	_initSubToolbar: function( $subToolbar ) {
+		var $content = $();
 
-		if( !$toolbar.length ) {
-			$toolbar = $( '<span/>' ).appendTo( $container );
+		if( !$subToolbar.length ) {
+			$subToolbar = $( '<span/>' ).appendTo( this._getContainer() );
+		} else {
+			this._scrapeButtons( $subToolbar );
+			$content = $subToolbar.children();
 		}
 
-		$toolbar.toolbar( {
+		$subToolbar.toolbar( {
+			$content: $content,
 			renderItemSeparators: true
 		} );
+	},
 
-		this._attachEventHandlers();
+	/**
+	 * Analyzes a DOM structure in order to detect and reuse button nodes.
+	 *
+	 * @param {jQuery} $subToolbar
+	 */
+	_scrapeButtons: function( $subToolbar ) {
+		var self = this;
 
-		this._toNonEditMode();
+		$subToolbar.children( '.wikibase-toolbar-button' ).each( function() {
+			var $button = $( this );
+			$.each( self.options.buttonLabels, function( buttonName, label ) {
+				if( $button.text() === label ) {
+					self._buttons[buttonName] = $button.toolbarbutton( {
+						$label: self.options.buttonLabels[buttonName]
+					} );
+				}
+			} );
+		} );
 	},
 
 	_attachEventHandlers: function() {
@@ -228,27 +261,22 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 
 		this._getContainer()
 		.on( 'toolbarbuttonaction.' + this.widgetName, function( event ) {
-			switch( event.target ) {
-				case self._buttons.edit.get( 0 ):
-					self.options.interactionWidget.element.one(
-						prefix + 'afterstartediting.' + self.widgetName,
-						function() {
-							self._trigger( 'edit' );
-						}
-					);
-					self.options.interactionWidget.startEditing();
-					break;
-				case self._buttons.save.get( 0 ):
-					self.options.interactionWidget.stopEditing();
-					break;
-				case self.options.onRemove && self._buttons.remove.get( 0 ):
-					self.disable();
-					self.toggleActionMessage( mw.msg( 'wikibase-remove-inprogress' ) );
-					self.options.onRemove();
-					break;
-				case self._buttons.cancel.get( 0 ):
-					self.options.interactionWidget.cancelEditing();
-					break;
+			if( self._buttons.edit && event.target === self._buttons.edit.get( 0 ) ) {
+				self.options.interactionWidget.element.one(
+					prefix + 'afterstartediting.' + self.widgetName,
+					function() {
+						self._trigger( 'edit' );
+					}
+				);
+				self.options.interactionWidget.startEditing();
+			} else if( self._buttons.save && event.target === self._buttons.save.get( 0 ) ) {
+				self.options.interactionWidget.stopEditing();
+			} else if( self._buttons.remove && event.target === self._buttons.remove.get( 0 ) ) {
+				self.disable();
+				self.toggleActionMessage( mw.msg( 'wikibase-remove-inprogress' ) );
+				self.options.onRemove();
+			} else if( self._buttons.cancel && event.target === self._buttons.cancel.get( 0 ) ) {
+				self.options.interactionWidget.cancelEditing();
 			}
 		} );
 	},
@@ -262,15 +290,15 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 			return;
 		}
 
-		var $editGroup = this._getContainer().children( ':wikibase-toolbar' ),
-			editGroup = $editGroup.data( 'toolbar' );
+		var $subToolbar = this._getContainer().children( ':wikibase-toolbar' ),
+			subToolbar = $subToolbar.data( 'toolbar' );
 
 		var $buttons = this.getButton( 'save' ).element;
 		if( $.isFunction( this.options.onRemove ) ) {
 			$buttons = $buttons.add( this.getButton( 'remove' ).element );
 		}
 		$buttons = $buttons.add( this.getButton( 'cancel' ).element );
-		editGroup.option( '$content', $buttons );
+		subToolbar.option( '$content', $buttons );
 
 		this._getContainer()
 		.append( this._getTooltipAnchor() )
@@ -297,10 +325,10 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 			this._$tooltipAnchor.detach();
 		}
 
-		var $editGroup = this._getContainer().children( ':wikibase-toolbar' ),
-			editGroup = $editGroup.data( 'toolbar' );
+		var $subToolbar = this._getContainer().children( ':wikibase-toolbar' ),
+			subToolbar = $subToolbar.data( 'toolbar' );
 
-		editGroup.option( '$content', this.getButton( 'edit' ).element );
+		subToolbar.option( '$content', this.getButton( 'edit' ).element );
 
 		this._getContainer().removeClass( this.widgetBaseClass + '-ineditmode' );
 	},

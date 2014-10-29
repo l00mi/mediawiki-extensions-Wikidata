@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e913bbe1d90c8d9db790125148704e46",
+    "hash": "59c4bd8d66fc5f1e24ed0c2dc993e4ef",
     "packages": [
         {
             "name": "composer/installers",
@@ -893,16 +893,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "2.1.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "b79f935ee553392d71e71e6274bf3e78e9e2d5ac"
+                "reference": "ddb7d18bcd8ed835d3ebdfc20c7a22e0df4049e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/b79f935ee553392d71e71e6274bf3e78e9e2d5ac",
-                "reference": "b79f935ee553392d71e71e6274bf3e78e9e2d5ac",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/ddb7d18bcd8ed835d3ebdfc20c7a22e0df4049e6",
+                "reference": "ddb7d18bcd8ed835d3ebdfc20c7a22e0df4049e6",
                 "shasum": ""
             },
             "require": {
@@ -946,7 +946,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-10-27 18:08:26"
+            "time": "2014-10-28 13:04:15"
         },
         {
             "name": "wikibase/data-model-javascript",
@@ -1201,11 +1201,11 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.25wmf5",
+            "version": "dev-wmf/1.25wmf6",
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "85c64994ab955a2488e25261c5e658e71db4434c"
+                "reference": "0cbf92eb74ccde368ebcc53b9a5828ac2e336b7d"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1273,7 +1273,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-10-28 22:53:07"
+            "time": "2014-10-28 22:27:04"
         },
         {
             "name": "wikibase/wikimedia-badges",

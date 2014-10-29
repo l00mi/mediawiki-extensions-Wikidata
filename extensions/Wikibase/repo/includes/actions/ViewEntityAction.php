@@ -5,6 +5,7 @@ namespace Wikibase;
 use Article;
 use ContentHandler;
 use LogEventsList;
+use OutputPage;
 use SpecialPage;
 use ViewAction;
 use Wikibase\Repo\Content\EntityHandler;
@@ -130,27 +131,18 @@ abstract class ViewEntityAction extends ViewAction {
 	/**
 	 * Returns true if this view action is performing a plain view (not a diff, etc)
 	 * of the page's current revision.
+	 *
+	 * @return bool
 	 */
 	private function isEditable() {
-		$article = $this->getArticle();
+		return !$this->isDiff() && $this->getArticle()->isCurrent();
+	}
 
-		if ( !$article->getPage()->exists() ) {
-			// showing non-existing entity
-			return false;
-		}
-
-		if ( $article->getOldID() > 0
-			&&  ( $article->getOldID() !== $article->getPage()->getLatest() ) ) {
-			// showing old content
-			return false;
-		}
-
-		if ( $this->getRequest()->getCheck( 'diff' ) ) {
-			// showing a diff
-			return false;
-		}
-
-		return true;
+	/**
+	 * @return bool
+	 */
+	private function isDiff() {
+		return $this->getRequest()->getCheck( 'diff' );
 	}
 
 	/**
@@ -161,11 +153,11 @@ abstract class ViewEntityAction extends ViewAction {
 	 * @param EntityContent $content
 	 */
 	protected function displayEntityContent( EntityContent $content ) {
-		$out = $this->getOutput();
+		$outputPage = $this->getOutput();
 		$editable = $this->isEditable();
 
 		// NOTE: page-wide property, independent of user permissions
-		$out->addJsConfigVars( 'wbIsEditView', $editable );
+		$outputPage->addJsConfigVars( 'wbIsEditView', $editable );
 
 		if ( $editable && !$content->isRedirect() ) {
 			$permissionChecker = $this->getPermissionChecker();
@@ -178,7 +170,6 @@ abstract class ViewEntityAction extends ViewAction {
 			$editable = $permissionStatus->isOK();
 		}
 
-			// View it!
 		$parserOptions = $this->getArticle()->getPage()->makeParserOptions( $this->getContext()->getUser() );
 
 		if ( !$editable ) {
@@ -189,38 +180,72 @@ abstract class ViewEntityAction extends ViewAction {
 		$this->getArticle()->setParserOptions( $parserOptions );
 		$this->getArticle()->view();
 
+		$this->applyLabelToTitleText( $outputPage, $content );
+	}
+
+	/**
+	 * @param OutputPage $outputPage
+	 * @param EntityContent $content
+	 */
+	private function applyLabelToTitleText( OutputPage $outputPage, EntityContent $content ) {
+		// Figure out which label to use for title.
+		$labelText = $this->getLabelText( $content );
+
+		if ( $this->isDiff() ) {
+			$this->setPageTitle( $outputPage, $labelText );
+		} else {
+			$this->setHTMLTitle( $outputPage, $labelText );
+		}
+	}
+
+	/**
+	 * @param OutputPage $outputPage
+	 * @param string $labelText
+	 */
+	private function setPageTitle( OutputPage $outputPage, $labelText ) {
+		// Escaping HTML characters in order to retain original label that may contain HTML
+		// characters. This prevents having characters evaluated or stripped via
+		// OutputPage::setPageTitle:
+		$outputPage->setPageTitle(
+			$this->msg(
+				'difference-title'
+				// This should be something like the following,
+				// $labelLang->getDirMark() . $labelText . $wgLang->getDirMark()
+				// or should set the attribute of the h1 to correct direction.
+				// Still note that the direction is "auto" so guessing should
+				// give the right direction in most cases.
+			)->rawParams( htmlspecialchars( $labelText ) )
+		);
+	}
+
+	/**
+	 * @param OutputPage $outputPage
+	 * @param string $labelText
+	 */
+	private function setHTMLTitle( OutputPage $outputPage, $labelText ) {
+		// Prevent replacing {{...}} by using rawParams() instead of params():
+		$outputPage->setHTMLTitle( $this->msg( 'pagetitle' )->rawParams( $labelText ) );
+	}
+
+	/**
+	 * @param EntityContent $content
+	 *
+	 * @return string
+	 */
+	private function getLabelText( EntityContent $content ) {
 		// Figure out which label to use for title.
 		$languageFallbackChain = $this->getLanguageFallbackChain();
 		$labelData = null;
 
 		if ( !$content->isRedirect() ) {
-			$labelData = $languageFallbackChain->extractPreferredValueOrAny( $content->getEntity()->getLabels() );
+			$labels = $content->getEntity()->getLabels();
+			$labelData = $languageFallbackChain->extractPreferredValueOrAny( $labels );
 		}
 
 		if ( $labelData ) {
-			$labelText = $labelData['value'];
+			return $labelData['value'];
 		} else {
-			$labelText = $content->getEntityId()->getSerialization();
-		}
-
-		// Create and set the title.
-		if ( $this->getRequest()->getCheck( 'diff' ) ) {
-			// Escaping HTML characters in order to retain original label that may contain HTML
-			// characters. This prevents having characters evaluated or stripped via
-			// OutputPage::setPageTitle:
-			$out->setPageTitle(
-				$this->msg(
-					'difference-title'
-					// This should be something like the following,
-					// $labelLang->getDirMark() . $labelText . $wgLang->getDirMark()
-					// or should set the attribute of the h1 to correct direction.
-					// Still note that the direction is "auto" so guessing should
-					// give the right direction in most cases.
-				)->rawParams( htmlspecialchars( $labelText ) )
-			);
-		} else {
-			// Prevent replacing {{...}} by using rawParams() instead of params():
-			$this->getOutput()->setHTMLTitle( $this->msg( 'pagetitle' )->rawParams( $labelText ) );
+			return $content->getEntityId()->getSerialization();
 		}
 	}
 
@@ -230,8 +255,6 @@ abstract class ViewEntityAction extends ViewAction {
 	 * @since 0.1
 	 */
 	protected function displayMissingEntity() {
-		global $wgSend404Code;
-
 		$title = $this->getArticle()->getTitle();
 		$oldid = $this->getArticle()->getOldID();
 
@@ -242,7 +265,7 @@ abstract class ViewEntityAction extends ViewAction {
 		// TODO: Factor the "show stuff for missing page" code out from Article::showMissingArticle,
 		//       so it can be re-used here. The below code is copied & modified from there...
 
-		wfRunHooks( 'ShowMissingArticle', array( $this ) );
+		wfRunHooks( 'ShowMissingArticle', array( $this->getArticle() ) );
 
 		# Show delete and move logs
 		LogEventsList::showLogExtract( $out, array( 'delete', 'move' ), $title, '',
@@ -252,11 +275,7 @@ abstract class ViewEntityAction extends ViewAction {
 			        'msgKey' => array( 'moveddeleted-notice' ) )
 		);
 
-		if ( $wgSend404Code ) {
-			// If there's no backing content, send a 404 Not Found
-			// for better machine handling of broken links.
-			$this->getRequest()->response()->header( "HTTP/1.1 404 Not Found" );
-		}
+		$this->send404Code();
 
 		$hookResult = wfRunHooks( 'BeforeDisplayNoArticleText', array( $this ) );
 
@@ -294,6 +313,16 @@ abstract class ViewEntityAction extends ViewAction {
 			$text = "<div class='noarticletext'>\n$text\n</div>";
 
 			$out->addWikiText( $text );
+		}
+	}
+
+	private function send404Code() {
+		global $wgSend404Code;
+
+		if ( $wgSend404Code ) {
+			// If there's no backing content, send a 404 Not Found
+			// for better machine handling of broken links.
+			$this->getRequest()->response()->header( 'HTTP/1.1 404 Not Found' );
 		}
 	}
 

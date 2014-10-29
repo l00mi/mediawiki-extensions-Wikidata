@@ -27,7 +27,6 @@ use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\Store\SiteLinkCache;
-use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Validators\CompositeFingerprintValidator;
 use Wikibase\Validators\CompositeValidator;
 use Wikibase\Validators\DataValueValidator;
@@ -308,7 +307,7 @@ class ChangeOpTestMockProvider {
 		return Result::newSuccess();
 	}
 
-	public function detectTermConflicts( $labels, $descriptions, EntityId $entityId = null ) {
+	public function detectTermConflicts( $entityType, $labels, $descriptions, EntityId $entityId = null ) {
 		$code = ( ( $descriptions === null ) ? 'label-conflict' : 'label-with-description-conflict' );
 
 		if ( $entityId && $entityId->getSerialization() === 'P666' ) {

@@ -12,7 +12,11 @@
 var createFingerprintlistview = function( options ) {
 	options = $.extend( {
 		entityId: 'i am an entity id',
-		api: 'i am an api',
+		entityChangersFactory: {
+			getAliasesChanger: function () { return 'aliasesChanger'; },
+			getDescriptionsChanger: function () { return 'descriptionsChanger'; },
+			getLabelsChanger: function () { return 'labelsChanger'; }
+		},
 		value: [
 			{
 				language: 'de',

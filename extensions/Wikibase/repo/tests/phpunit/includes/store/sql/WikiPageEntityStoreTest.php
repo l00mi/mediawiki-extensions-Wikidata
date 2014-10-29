@@ -9,11 +9,11 @@ use User;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\EntityFactory;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
@@ -37,8 +37,13 @@ use Wikibase\SqlIdGenerator;
  */
 class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 
+	/**
+	 * @var EntityIdParser
+	 */
+	private $entityIdParser;
+
 	private function newEntityPerPageTable() {
-		$idParser = new BasicEntityIdParser();
+		$idParser = $this->getEntityIdParser();
 		$useRedirectTargetColumn = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'useRedirectTargetColumn' );
 		return new EntityPerPageTable( $idParser, $useRedirectTargetColumn );
 	}
@@ -55,7 +60,11 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		//NOTE: we want to test integration of WikiPageEntityRevisionLookup and WikiPageEntityStore here!
 		$contentCodec = WikibaseRepo::getDefaultInstance()->getEntityContentDataCodec();
 
-		$lookup = new WikiPageEntityRevisionLookup( $contentCodec, false );
+		$lookup = new WikiPageEntityRevisionLookup(
+			$contentCodec,
+			$this->getEntityIdParser(),
+			false
+		);
 
 		$typeMap = WikibaseRepo::getDefaultInstance()->getContentModelMappings();
 
@@ -66,6 +75,14 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		return array( $store, $lookup );
+	}
+
+	private function getEntityIdParser() {
+		if ( !isset( $this->entityIdParser ) ) {
+			$this->entityIdParser = new BasicEntityIdParser();
+		}
+
+		return $this->entityIdParser;
 	}
 
 	private function getSimpleEntities() {
@@ -208,8 +225,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		}
 
 		/* @var WikiPageEntityStore $store */
-		/* @var EntityRevisionLookup $lookup */
-		list( $store, $lookup ) = $this->createStoreAndLookup();
+		list( $store, ) = $this->createStoreAndLookup();
 		$user = $GLOBALS['wgUser'];
 
 		// register mock watcher
@@ -274,8 +290,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testSaveRedirectFailure( EntityRedirect $redirect ) {
 		/* @var WikiPageEntityStore $store */
-		/* @var EntityRevisionLookup $lookup */
-		list( $store, $lookup ) = $this->createStoreAndLookup();
+		list( $store, ) = $this->createStoreAndLookup();
 		$user = $GLOBALS['wgUser'];
 
 		$this->setExpectedException( 'Wikibase\Lib\Store\StorageException' );

@@ -38,7 +38,7 @@
 			statementGuid: statementGuid,
 			entityStore: entityStore,
 			valueViewBuilder: valueViewBuilder,
-			api: new wb.AbstractedRepoApi( new mw.Api() )
+			referencesChanger: 'referencesChanger'
 		} );
 
 		return $( '<div/>' )
@@ -170,6 +170,21 @@
 			referenceview.isValid(),
 			true,
 			'Referenceview is valid.'
+		);
+	} );
+
+	QUnit.test( 'recognizes initial value', function( assert ) {
+		var $node = createReferenceview( 'testGuid', {
+				value: new wb.datamodel.Reference( new wb.datamodel.SnakList( [
+					new wb.datamodel.PropertyNoValueSnak( 'P1' )
+				] ) )
+			} ),
+			referenceview = $node.data( 'referenceview' );
+
+		assert.strictEqual(
+			referenceview.isInitialValue(),
+			true,
+			'Referenceview has initial value.'
 		);
 	} );
 
