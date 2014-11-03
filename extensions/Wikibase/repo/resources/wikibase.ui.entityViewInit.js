@@ -130,6 +130,7 @@
 				experts,
 				getFormatterStore( repoApi, dataTypes ),
 				getParserStore( repoApi ),
+				mw.config.get( 'wgUserLanguage' ),
 				mw
 			),
 			languages: getUserLanguages()
@@ -153,9 +154,7 @@
 
 	function getUserLanguages() {
 		var userLanguages = mw.config.get( 'wbUserSpecifiedLanguages' ),
-			isUlsDefined = mw.uls !== undefined
-				&& $.uls !== undefined
-				&& $.uls.data !== undefined,
+			isUlsDefined = mw.uls && $.uls && $.uls.data,
 			languages = [];
 
 		if( !userLanguages.length && isUlsDefined ) {

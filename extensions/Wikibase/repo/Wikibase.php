@@ -151,8 +151,8 @@ call_user_func( function() {
 	$wgSpecialPages['SetDescription'] 					= 'Wikibase\Repo\Specials\SpecialSetDescription';
 	$wgSpecialPages['SetAliases'] 						= 'Wikibase\Repo\Specials\SpecialSetAliases';
 	$wgSpecialPages['SetSiteLink']						= 'Wikibase\Repo\Specials\SpecialSetSiteLink';
-	$wgSpecialPages['EntitiesWithoutLabel'] 			= 'Wikibase\Repo\Specials\SpecialEntitiesWithoutLabel';
-	$wgSpecialPages['EntitiesWithoutDescription']		= 'Wikibase\Repo\Specials\SpecialEntitiesWithoutDescription';
+	$wgSpecialPages['EntitiesWithoutLabel'] 			= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutLabel' );
+	$wgSpecialPages['EntitiesWithoutDescription']		= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutDescription' );
 	$wgSpecialPages['ListDatatypes']					= 'Wikibase\Repo\Specials\SpecialListDatatypes';
 	$wgSpecialPages['DispatchStats']					= 'Wikibase\Repo\Specials\SpecialDispatchStats';
 	$wgSpecialPages['EntityData'] 						= 'Wikibase\Repo\Specials\SpecialEntityData';
@@ -179,7 +179,7 @@ call_user_func( function() {
 	$wgSpecialPageGroups['MergeItems'] 					= 'wikibaserepo';
 
 	// Jobs
-	$wgJobClasses['UpdateRepoOnMove'] = 'Wikibase\UpdateRepoOnMoveJob';
+	$wgJobClasses['UpdateRepoOnMove'] = 'Wikibase\Repo\UpdateRepo\UpdateRepoOnMoveJob';
 
 	// Hooks
 	$wgHooks['BeforePageDisplay'][]						= 'Wikibase\RepoHooks::onBeforePageDisplay';
