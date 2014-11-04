@@ -43,6 +43,9 @@ function expertProxy( fnName ) {
  * @option {valueFormatters.valueFormatterStore} formatterStore Store providing the formatters
  *         values may be formatted with.
  *
+ * @option {string} language
+ *         Language code of the language the valueview shall interact with parsers and formatters.
+ *
  * @option {string|null} [dataTypeId] If set, an expert (jQuery.valueview.Expert), a parser
  *         (valueParsers.ValueParser) and a formatter (valueFormatters.ValueFormatter) will be
  *         determined from the provided factories according to the specified data type id.
@@ -148,6 +151,7 @@ $.widget( 'valueview.valueview', PARENT, {
 		dataTypeId: null,
 		dataValueType: null,
 		value: null,
+		language: null,
 		autoStartEditing: false,
 		parseDelay: 300,
 		mediaWiki: null
@@ -157,6 +161,15 @@ $.widget( 'valueview.valueview', PARENT, {
 	 * @see jQuery.Widget._create
 	 */
 	_create: function() {
+		if(
+			!this.options.expertStore
+			|| !this.options.parserStore
+			|| !this.options.formatterStore
+			|| typeof this.options.language !== 'string'
+		) {
+			throw new Error( 'Required option(s) not defined properly' );
+		}
+
 		// Build widget's basic dom:
 		this.element.addClass( this.widgetBaseClass );
 		this.$value = $( '<div/>', {
@@ -190,7 +203,6 @@ $.widget( 'valueview.valueview', PARENT, {
 
 		return PARENT.prototype.destroy.call( this );
 	},
-
 
 	/**
 	 * @see jQuery.widget._setOption
@@ -758,7 +770,9 @@ $.widget( 'valueview.valueview', PARENT, {
 		);
 
 		var parserOptions = $.extend(
-				{},
+				{
+					lang: this.options.language
+				},
 				Parser.prototype.getOptions(),
 				additionalParserOptions || {}
 			);
@@ -851,7 +865,9 @@ $.widget( 'valueview.valueview', PARENT, {
 		);
 
 		var formatterOptions = $.extend(
-			{},
+			{
+				lang: this.options.language
+			},
 			Formatter.prototype.getOptions(),
 			additionalFormatterOptions || {}
 		);
@@ -895,6 +911,8 @@ $.widget( 'valueview.valueview', PARENT, {
 
 		return new util.Notifier( {
 			change: function() {
+				var i;
+
 				if( !self._expert ) {
 					// someone notified about change while there couldn't have been one since there
 					// is no expert which allows for any change currently...
@@ -908,11 +926,11 @@ $.widget( 'valueview.valueview', PARENT, {
 					newValueCharacteristics = self._expert.valueCharacteristics(),
 					lastValueCharacteristics = self.__lastValueCharacteristics || {};
 
-				for( var i in newValueCharacteristics ) {
+				for( i in newValueCharacteristics ) {
 					differentValueCharacteristics = differentValueCharacteristics
 					|| newValueCharacteristics[i] !== lastValueCharacteristics[i];
 				}
-				for( var i in lastValueCharacteristics ) {
+				for( i in lastValueCharacteristics ) {
 					differentValueCharacteristics = differentValueCharacteristics
 					|| newValueCharacteristics[i] !== lastValueCharacteristics[i];
 				}

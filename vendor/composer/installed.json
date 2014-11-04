@@ -92,6 +92,101 @@
         ]
     },
     {
+        "name": "data-values/javascript",
+        "version": "0.6.0",
+        "version_normalized": "0.6.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataValuesJavascript.git",
+            "reference": "0006a69a10256d039ecbcbf99e8c2c7b3179fdc3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/0006a69a10256d039ecbcbf99e8c2c7b3179fdc3",
+            "reference": "0006a69a10256d039ecbcbf99e8c2c7b3179fdc3",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": ">=1.0.1"
+        },
+        "time": "2014-09-01 15:47:29",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValuesJavascript.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            },
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "DataValues implementation in Javascript",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/value-view",
+        "version": "0.8.0",
+        "version_normalized": "0.8.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/ValueView.git",
+            "reference": "ad0f7d4877dbc65f01c2a8d9104c92e18e69c015"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/ad0f7d4877dbc65f01c2a8d9104c92e18e69c015",
+            "reference": "ad0f7d4877dbc65f01c2a8d9104c92e18e69c015",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.6.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-11-03 13:08:06",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
+    },
+    {
         "name": "serialization/serialization",
         "version": "3.2.1",
         "version_normalized": "3.2.1.0",
@@ -688,101 +783,6 @@
         ]
     },
     {
-        "name": "data-values/javascript",
-        "version": "0.6.0",
-        "version_normalized": "0.6.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "0006a69a10256d039ecbcbf99e8c2c7b3179fdc3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/0006a69a10256d039ecbcbf99e8c2c7b3179fdc3",
-            "reference": "0006a69a10256d039ecbcbf99e8c2c7b3179fdc3",
-            "shasum": ""
-        },
-        "require": {
-            "composer/installers": ">=1.0.1"
-        },
-        "time": "2014-09-01 15:47:29",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValuesJavascript.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "DataValues implementation in Javascript",
-        "keywords": [
-            "datavalues",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/value-view",
-        "version": "0.7.0",
-        "version_normalized": "0.7.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/ValueView.git",
-            "reference": "e2032aacd3d92e529fd6485a0d3ac0f17fbaa66c"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/e2032aacd3d92e529fd6485a0d3ac0f17fbaa66c",
-            "reference": "e2032aacd3d92e529fd6485a0d3ac0f17fbaa66c",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.6.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-09-10 13:57:58",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "ValueView.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
         "name": "data-values/data-types",
         "version": "0.4",
         "version_normalized": "0.4.0.0",
@@ -1145,12 +1145,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "3dc1babc1cf9194450d6c1a28b5647ceabe5a880"
+            "reference": "740fc547a395b89d3b17d67d7d66ff111b7de936"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3dc1babc1cf9194450d6c1a28b5647ceabe5a880",
-            "reference": "3dc1babc1cf9194450d6c1a28b5647ceabe5a880",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/740fc547a395b89d3b17d67d7d66ff111b7de936",
+            "reference": "740fc547a395b89d3b17d67d7d66ff111b7de936",
             "shasum": ""
         },
         "require": {
@@ -1164,7 +1164,7 @@
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.6.0",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.7.0",
+            "data-values/value-view": "~0.8.0",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~2.0",
@@ -1177,7 +1177,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-11-03 10:04:25",
+        "time": "2014-11-04 10:29:08",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

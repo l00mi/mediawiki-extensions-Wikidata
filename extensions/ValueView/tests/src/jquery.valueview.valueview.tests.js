@@ -35,7 +35,8 @@
 		vvArgs: {
 			expertStore: new vv.ExpertStore(),
 			formatterStore: new vf.ValueFormatterStore( vf.NullFormatter ),
-			parserStore: new vp.ValueParserStore( vp.NullParser )
+			parserStore: new vp.ValueParserStore( vp.NullParser ),
+			language: 'en'
 		}
 	};
 
@@ -128,7 +129,7 @@
 		sinon.spy( vvArgs.parserStore, 'getParser' );
 		initVv( {
 			generateDom: function() {
-				return jQuery( '<div/>' ).append( 'FORMATTED VALUE' );
+				return $( '<div/>' ).append( 'FORMATTED VALUE' );
 			},
 			vvArgs: vvArgs
 		} );
