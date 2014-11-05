@@ -1290,12 +1290,12 @@
     },
     {
         "name": "wikibase/wikibase",
-        "version": "dev-wmf/1.25wmf6",
-        "version_normalized": "dev-wmf/1.25wmf6",
+        "version": "dev-wmf/1.25wmf7",
+        "version_normalized": "dev-wmf/1.25wmf7",
         "source": {
             "type": "git",
             "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-            "reference": "bd11aff9c9fed495317e7a8b1134e917a2952031"
+            "reference": "3173fd230a24a8edf38f365ccdec8537cd08378c"
         },
         "require": {
             "data-values/common": "~0.2.0",
@@ -1321,7 +1321,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-10-29 14:34:41",
+        "time": "2014-10-30 12:17:32",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

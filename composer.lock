@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "59c4bd8d66fc5f1e24ed0c2dc993e4ef",
+    "hash": "e7132cec9fa39f5a423e65e595fa44f2",
     "packages": [
         {
             "name": "composer/installers",
@@ -1201,11 +1201,11 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.25wmf6",
+            "version": "dev-wmf/1.25wmf7",
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "bd11aff9c9fed495317e7a8b1134e917a2952031"
+                "reference": "3173fd230a24a8edf38f365ccdec8537cd08378c"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1273,7 +1273,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-10-29 14:54:52"
+            "time": "2014-11-05 12:44:43"
         },
         {
             "name": "wikibase/wikimedia-badges",
