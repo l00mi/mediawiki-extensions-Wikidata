@@ -4,7 +4,6 @@ namespace Wikibase\DataAccess\PropertyParserFunction;
 
 use Language;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\Client\Usage\UsageAccumulator;
 
 /**
  * Handler of the {{#property}} parser function.
@@ -17,12 +16,7 @@ use Wikibase\Client\Usage\UsageAccumulator;
  * @author Daniel Kinzler
  * @author Liangent < liangent@gmail.com >
  */
-class VariantsAwareRenderer implements Renderer {
-
-	/**
-	 * @var RendererFactory
-	 */
-	private $rendererFactory;
+class VariantsAwareRenderer implements PropertyClaimsRenderer {
 
 	/**
 	 * @param string[]
@@ -30,44 +24,42 @@ class VariantsAwareRenderer implements Renderer {
 	private $variants;
 
 	/**
-	 * @var UsageAccumulator
+	 * @var LanguageAwareRenderer[]
 	 */
-	private $usageAccumulator;
+	private $languageAwareRenderers;
 
 	/**
-	 * @param RendererFactory $rendererFactory
+	 * @param LanguageAwareRenderer[] $languageAwareRenderers
 	 * @param string[] $variants
-	 * @param UsageAccumulator $usageAccumulator
 	 */
-	public function __construct( RendererFactory $rendererFactory, array $variants, UsageAccumulator $usageAccumulator ) {
-		$this->rendererFactory = $rendererFactory;
+	public function __construct( array $languageAwareRenderers, array $variants ) {
+		$this->languageAwareRenderers = $languageAwareRenderers;
 		$this->variants = $variants;
-		$this->usageAccumulator = $usageAccumulator;
 	}
 
 	/**
 	 * @param EntityId $entityId
-	 * @param string $propertyLabel property label or ID (pXXX)
+	 * @param string $propertyLabelOrId
 	 *
 	 * @return string
 	 */
-	public function render( EntityId $entityId, $propertyLabel ) {
-		$renderedVariantsArray = $this->buildRenderedVariantsArray( $entityId, $propertyLabel );
+	public function render( EntityId $entityId, $propertyLabelOrId ) {
+		$renderedVariantsArray = $this->buildRenderedVariantsArray( $entityId, $propertyLabelOrId );
 
 		return $this->processRenderedArray( $renderedVariantsArray );
 	}
 
 	/**
 	 * @param EntityId $entityId
-	 * @param string $propertyLabel
+	 * @param string $propertyLabelOrId
 	 *
 	 * @return string[], key by variant codes
 	 */
-	private function buildRenderedVariantsArray( EntityId $entityId, $propertyLabel ) {
+	private function buildRenderedVariantsArray( EntityId $entityId, $propertyLabelOrId ) {
 		$renderedVariantsArray = array();
 
 		foreach ( $this->variants as $variantCode ) {
-			$variantText = $this->getVariantText( $variantCode, $entityId, $propertyLabel );
+			$variantText = $this->getVariantText( $variantCode, $entityId, $propertyLabelOrId );
 
 			// LanguageConverter doesn't handle empty strings correctly, and it's more difficult
 			// to fix the issue there, as it's using empty string as a special value.
@@ -103,15 +95,28 @@ class VariantsAwareRenderer implements Renderer {
 	/**
 	 * @param string $variantCode
 	 * @param EntityId $entityId
-	 * @param string $propertyLabel
+	 * @param string $propertyLabelOrId
 	 *
 	 * @return string
 	 */
-	private function getVariantText( $variantCode, EntityId $entityId, $propertyLabel ) {
-		$variantLanguage = Language::factory( $variantCode );
-		$renderer = $this->rendererFactory->newLanguageAwareRenderer( $variantLanguage, $this->usageAccumulator );
+	private function getVariantText( $variantCode, EntityId $entityId, $propertyLabelOrId ) {
+		$renderer = $this->getLanguageAwareRendererFromCode( $variantCode );
 
-		return $renderer->render( $entityId, $propertyLabel );
+		return $renderer->render( $entityId, $propertyLabelOrId );
+	}
+
+	/**
+	 * @param string $variantCode
+	 *
+	 * @throws OutOfBoundsException
+	 * @return LanguageAwareRenderer
+	 */
+	private function getLanguageAwareRendererFromCode( $variantCode ) {
+		if ( !isset( $this->languageAwareRenderers[$variantCode] ) ) {
+			throw new OutOfBoundsException( 'No LanguageAwareRenderer set for ' . $variantCode );
+		}
+
+		return $this->languageAwareRenderers[$variantCode];
 	}
 
 }

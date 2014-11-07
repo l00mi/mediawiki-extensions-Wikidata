@@ -6,8 +6,11 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	$remoteExtPathParts = explode(
-		DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR, __DIR__, 2
+	preg_match(
+		'+^.*?' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '(?:vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '(.*)$+',
+		__DIR__,
+		$remoteExtPathParts
 	);
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
@@ -38,6 +41,8 @@ return call_user_func( function() {
 				'mediawiki.legacy.shared',
 				'mw.config.values.wbRepo',
 				'wikibase.datamodel',
+				'wikibase.serialization.SnakDeserializer',
+				'wikibase.serialization.SnakSerializer',
 				'wikibase.utilities',
 			),
 			'messages' => array(
@@ -101,6 +106,7 @@ return call_user_func( function() {
 				'snakview.variations.Value.js',
 			),
 			'dependencies' => array(
+				'dataValues',
 				'jquery.wikibase.snakview.variations',
 				'jquery.wikibase.snakview.variations.Variation',
 				'wikibase.datamodel',

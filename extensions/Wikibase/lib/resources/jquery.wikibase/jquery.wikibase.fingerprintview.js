@@ -113,25 +113,6 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		PARENT.prototype._create.call( this );
 
 		this._createWidgets();
-
-		var self = this;
-		this.element
-		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
-		.on( 'fingerprintviewafterstartediting.' + this.widgetName, function( event ) {
-			$( wb ).trigger( 'startItemPageEditMode', [
-				self.element,
-				{
-					exclusive: false,
-					wbCopyrightWarningGravity: 'sw'
-				}
-			] );
-		} )
-		.on( 'fingerprintviewafterstopediting.' + this.widgetName, function( event, dropValue ) {
-			$( wb ).trigger( 'stopItemPageEditMode', [
-				self.element,
-				{ save: dropValue !== true }
-			] );
-		} );
 	},
 
 	/**
@@ -293,12 +274,23 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		 * @param {boolean} dropValue
 		 */
 		function addStopEditToQueue( $queue, widget, dropValue ) {
-			var eventName = widget.widgetEventPrefix + 'afterstopediting';
 			$queue.queue( 'stopediting', function( next ) {
 				widget.element
-				.one( eventName + '.fingerprintview', function( event ) {
-					setTimeout( next, 0 );
-				} );
+				.one(
+					widget.widgetEventPrefix + 'afterstopediting.fingerprintviewstopediting',
+					function( event ) {
+						widget.element.off( '.fingerprintviewstopediting' );
+						setTimeout( next, 0 );
+					}
+				)
+				.one(
+					widget.widgetEventPrefix + 'toggleerror.fingerprintviewstopediting',
+					function( event ) {
+						widget.element.off( '.fingerprintviewstopediting' );
+						$queue.clearQueue();
+						self._resetEditMode();
+					}
+				);
 				widget.stopEditing( dropValue );
 			} );
 		}
@@ -316,6 +308,14 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		} );
 
 		$queue.dequeue( 'stopediting' );
+	},
+
+	_resetEditMode: function() {
+		this.enable();
+
+		this.$labelview.data( 'labelview' ).startEditing();
+		this.$descriptionview.data( 'descriptionview' ).startEditing();
+		this.$aliasesview.data( 'aliasesview' ).startEditing();
 	},
 
 	/**
@@ -442,9 +442,17 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
 		} else {
-			this.element.removeClass( 'wb-error' );
+			this.removeError();
 			this._trigger( 'toggleerror' );
 		}
+	},
+
+	removeError: function() {
+		this.element.removeClass( 'wb-error' );
+
+		this.$labelview.data( 'labelview' ).removeError();
+		this.$descriptionview.data( 'descriptionview' ).removeError();
+		this.$aliasesview.data( 'aliasesview' ).removeError();
 	}
 
 } );

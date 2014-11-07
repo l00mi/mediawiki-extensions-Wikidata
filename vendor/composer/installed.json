@@ -143,6 +143,330 @@
         ]
     },
     {
+        "name": "wikibase/data-model-javascript",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
+            "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
+            "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.6.0"
+        },
+        "time": "2014-11-05 09:59:08",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Wikibase datamodel implementation in JavaScript"
+    },
+    {
+        "name": "wikibase/serialization-javascript",
+        "version": "2.0.1",
+        "version_normalized": "2.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
+            "reference": "aa973b1b23cdf50b0b677a1f43bc2373400aba8d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/aa973b1b23cdf50b0b677a1f43bc2373400aba8d",
+            "reference": "aa973b1b23cdf50b0b677a1f43bc2373400aba8d",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.6.0",
+            "wikibase/data-model-javascript": "~1.0.0"
+        },
+        "time": "2014-11-05 10:07:12",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Wikibase datamodel serialization implementation in JavaScript"
+    },
+    {
+        "name": "data-values/interfaces",
+        "version": "0.1.4",
+        "version_normalized": "0.1.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Interfaces.git",
+            "reference": "38a04aede894929d822001e5e8851f4a08454a89"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/38a04aede894929d822001e5e8851f4a08454a89",
+            "reference": "38a04aede894929d822001e5e8851f4a08454a89",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-04-14 08:17:48",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Interfaces.php"
+            ],
+            "psr-0": {
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src",
+                "ValueValidators\\": "src"
+            },
+            "classmap": [
+                "tests/ValueFormatters/ValueFormatterTestBase.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
+        "homepage": "https://github.com/DataValues/Interfaces",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/data-values",
+        "version": "0.1.1",
+        "version_normalized": "0.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/DataValues.git",
+            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/603a19faeac34f5db23b786c6d9c20a151118c2a",
+            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "replace": {
+            "mediawiki/data-values": "*"
+        },
+        "time": "2013-11-22 00:39:57",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValues.php"
+            ],
+            "classmap": [
+                "src/interfaces",
+                "tests/phpunit/DataValueTest.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Defines the DataValue interface and some trivial implementations",
+        "homepage": "https://github.com/DataValues/DataValues",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/common",
+        "version": "0.2.3",
+        "version_normalized": "0.2.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Common.git",
+            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Common/zipball/c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
+            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "~0.1.4",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-10-09 18:21:19",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Common.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            },
+            "classmap": [
+                "tests/ValueParsers"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
+        "homepage": "https://github.com/DataValues/Common",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/geo",
+        "version": "1.1.1",
+        "version_normalized": "1.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Geo.git",
+            "reference": "ab544944fddefbf1a9db80b7e122e912d6b70dc0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Geo/zipball/ab544944fddefbf1a9db80b7e122e912d6b70dc0",
+            "reference": "ab544944fddefbf1a9db80b7e122e912d6b70dc0",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.1",
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "~0.1",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-10-21 09:35:45",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Geo.php"
+            ],
+            "psr-4": {
+                "DataValues\\Geo\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Geographical value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Geo",
+        "keywords": [
+            "datavalues",
+            "formatters",
+            "geo",
+            "geographical",
+            "latlong",
+            "parsers",
+            "wikidata"
+        ]
+    },
+    {
         "name": "data-values/value-view",
         "version": "0.8.0",
         "version_normalized": "0.8.0.0",
@@ -241,61 +565,6 @@
             "serialization",
             "serializer",
             "unserialization",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/data-values",
-        "version": "0.1.1",
-        "version_normalized": "0.1.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/DataValues.git",
-            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/603a19faeac34f5db23b786c6d9c20a151118c2a",
-            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "replace": {
-            "mediawiki/data-values": "*"
-        },
-        "time": "2013-11-22 00:39:57",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValues.php"
-            ],
-            "classmap": [
-                "src/interfaces",
-                "tests/phpunit/DataValueTest.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines the DataValue interface and some trivial implementations",
-        "homepage": "https://github.com/DataValues/DataValues",
-        "keywords": [
-            "datavalues",
             "wikidata"
         ]
     },
@@ -599,190 +868,6 @@
         ]
     },
     {
-        "name": "data-values/interfaces",
-        "version": "0.1.4",
-        "version_normalized": "0.1.4.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "38a04aede894929d822001e5e8851f4a08454a89"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/38a04aede894929d822001e5e8851f4a08454a89",
-            "reference": "38a04aede894929d822001e5e8851f4a08454a89",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-04-14 08:17:48",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Interfaces.php"
-            ],
-            "psr-0": {
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src",
-                "ValueValidators\\": "src"
-            },
-            "classmap": [
-                "tests/ValueFormatters/ValueFormatterTestBase.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
-        "homepage": "https://github.com/DataValues/Interfaces",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/common",
-        "version": "0.2.3",
-        "version_normalized": "0.2.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Common.git",
-            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Common/zipball/c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
-            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.1.4",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-10-09 18:21:19",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.2.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Common.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            },
-            "classmap": [
-                "tests/ValueParsers"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
-        "homepage": "https://github.com/DataValues/Common",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/geo",
-        "version": "1.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Geo.git",
-            "reference": "75e2addf06d24243ea77ca0a97e4c365db3d42eb"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Geo/zipball/75e2addf06d24243ea77ca0a97e4c365db3d42eb",
-            "reference": "75e2addf06d24243ea77ca0a97e4c365db3d42eb",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-values": "~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-07-31 15:41:42",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Geo.php"
-            ],
-            "psr-4": {
-                "DataValues\\Geo\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Geographical value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Geo",
-        "keywords": [
-            "datavalues",
-            "formatters",
-            "geo",
-            "geographical",
-            "latlong",
-            "parsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/data-types",
         "version": "0.4",
         "version_normalized": "0.4.0.0",
@@ -829,109 +914,6 @@
             "datatypes",
             "datavalues"
         ]
-    },
-    {
-        "name": "wikibase/data-model-javascript",
-        "version": "0.3.3",
-        "version_normalized": "0.3.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModelJavascript.git",
-            "reference": "840a265148deb7beebc17ebc0ef139efdb8510d1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavascript/zipball/840a265148deb7beebc17ebc0ef139efdb8510d1",
-            "reference": "840a265148deb7beebc17ebc0ef139efdb8510d1",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.6.0"
-        },
-        "time": "2014-09-10 15:56:36",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "init.mw.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            },
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "Wikibase datamodel implementation in JavaScript"
-    },
-    {
-        "name": "wikibase/serialization-javascript",
-        "version": "1.1.3",
-        "version_normalized": "1.1.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-            "reference": "46fcd29637f1096f721e37cb159845d5ff9bb5d1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/46fcd29637f1096f721e37cb159845d5ff9bb5d1",
-            "reference": "46fcd29637f1096f721e37cb159845d5ff9bb5d1",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.6.0",
-            "wikibase/data-model-javascript": "~0.3.0"
-        },
-        "time": "2014-09-10 16:14:50",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "init.mw.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            },
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "Wikibase datamodel serialization implementation in JavaScript"
     },
     {
         "name": "data-values/time",
@@ -1145,19 +1127,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "39268c44ce4d2ad38cd09b2ac0e8d75a1b396c8a"
+            "reference": "e327c7af987585412ddef9f7f68d989927e44066"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/39268c44ce4d2ad38cd09b2ac0e8d75a1b396c8a",
-            "reference": "39268c44ce4d2ad38cd09b2ac0e8d75a1b396c8a",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e327c7af987585412ddef9f7f68d989927e44066",
+            "reference": "e327c7af987585412ddef9f7f68d989927e44066",
             "shasum": ""
         },
         "require": {
             "data-values/common": "~0.2.0",
             "data-values/data-types": "~0.4.0",
             "data-values/data-values": "~0.1.0",
-            "data-values/geo": "~1.0.0",
+            "data-values/geo": "~1.0",
             "data-values/interfaces": "~0.1.4",
             "data-values/javascript": "~0.6.0",
             "data-values/number": "~0.4.0",
@@ -1168,16 +1150,16 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~2.0",
-            "wikibase/data-model-javascript": "~0.3.0",
+            "wikibase/data-model-javascript": "~1.0",
             "wikibase/data-model-serialization": "~1.2",
             "wikibase/easyrdf_lite": "~0.8.1",
             "wikibase/internal-serialization": "~1.3",
-            "wikibase/serialization-javascript": "~1.1.1"
+            "wikibase/serialization-javascript": "~2.0"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-11-05 12:05:47",
+        "time": "2014-11-07 13:08:07",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

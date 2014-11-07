@@ -175,7 +175,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 		this._cachedValues = {};
 
-		// set value, can be a wb.datamodel.Snak or plain Object as wb.datamodel.Snak.toMap() or just pieces of it
 		this.value( this.option( 'value' ) || {} );
 
 		if( this.option( 'autoStartEditing' ) && !this.snak() ) {
@@ -304,6 +303,10 @@ $.widget( 'wikibase.snakview', PARENT, {
 			this._isInEditMode = true;
 			this.draw();
 
+			if( this._variation ) {
+				this._variation.startEditing();
+			}
+
 			// attach keyboard input events
 			this.element.on( 'keydown.' + this.widgetName, function( event ) {
 				if ( self.options.disabled ) {
@@ -312,17 +315,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 				var propertySelector = self._getPropertySelector();
 
-				self._leavePropertyInput = false;
-
-				// TODO: (Bug 54021) Widget should not switch between edit modes on its own!
-				if ( event.keyCode === $.ui.keyCode.ESCAPE ) {
-					self.cancelEditing();
-				} else if ( event.keyCode === $.ui.keyCode.ENTER && self.isValid() ) {
-					if ( ( !propertySelector || event.target !== propertySelector.element[0] ) ) {
-						self.stopEditing();
-						event.preventDefault();
-					}
-				} else if ( event.keyCode === $.ui.keyCode.TAB && !self._variation ) {
+				if ( event.keyCode === $.ui.keyCode.TAB && !self._variation ) {
+					event.stopPropagation();
 					// When pressing TAB in the property input element while the value input element
 					// does not yet exist, we assume that the user wants to auto-complete/select the
 					// currently suggested property and tab into the value element. Since the API
@@ -334,10 +328,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 							event.preventDefault();
 						}
 					}
-				}
-				// no point in propagating event after having destroyed the event's target
-				if ( !self.isInEditMode() ) {
-					event.stopImmediatePropagation();
 				}
 			} );
 
@@ -383,8 +373,12 @@ $.widget( 'wikibase.snakview', PARENT, {
 			this._isInEditMode = false;
 			this._initialSnak = null;
 
+			if( this._variation ) {
+				this._variation.stopEditing( dropValue );
+			}
+
 			// update view; will remove edit interfaces and represent value statically
-			this._setValue( newSnak !== null ? newSnak.toMap() : {} ); // triggers this.draw()
+			this._setValue( newSnak !== null ? this._serializeSnak( newSnak ) : {} ); // triggers this.draw()
 			// TODO: should throw an error somewhere when trying to leave edit mode while
 			//  this.snak() still returns null. For now setting {} is a simple solution for non-
 			//  existent error handling in the snak UI
@@ -500,7 +494,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 * @return {Object}
 	 */
 	initialValue: function() {
-		return this.isInEditMode() ? this.initialSnak().toMap() : this._getValue();
+		return this.isInEditMode() ? this._serializeSnak( this.initialSnak() ) : this._getValue();
 	},
 
 	/**
@@ -532,7 +526,16 @@ $.widget( 'wikibase.snakview', PARENT, {
 			throw new Error( 'The given value has to be a plain object, an instance of' +
 				' wikibase.datamodel.Snak, or null' );
 		}
-		this._setValue( ( value instanceof wb.datamodel.Snak ) ? value.toMap() : value );
+		this._setValue( ( value instanceof wb.datamodel.Snak ) ? this._serializeSnak( value ) : value );
+	},
+
+	/**
+	 * @param {wikibase.datamodel.Snak} value
+	 * @return {Object}
+	 */
+	_serializeSnak: function( snak ) {
+		var snakSerializer = new wikibase.serialization.SnakSerializer();
+		return snakSerializer.serialize( snak );
 	},
 
 	/**
@@ -556,7 +559,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 	/**
 	 * Will update the view to represent a given Snak in form of a plain Object. The given object
-	 * can have all fields - or a subset of fields - wb.datamodel.Snak.toMap() would return.
+	 * can have all fields - or a subset of fields - a serialized wb.datamodel.Snak would have.
 	 *
 	 * @since 0.4
 	 *
@@ -612,7 +615,14 @@ $.widget( 'wikibase.snakview', PARENT, {
 			// TODO: variations should have a function to ask whether fully defined yet
 			try{
 				// NOTE: can still be null if user didn't enter essential information in variation's UI
-				return wb.datamodel.Snak.newFromMap( this.value() );
+				var value = this.value();
+				if( value.datavalue ) {
+					value.datavalue = {
+						type: value.datavalue.getType(),
+						value: value.datavalue.toJSON()
+					};
+				}
+				return ( new wb.serialization.SnakDeserializer() ).deserialize( value );
 			} catch( e ) {
 				return null;
 			}
@@ -768,7 +778,11 @@ $.widget( 'wikibase.snakview', PARENT, {
 			// TODO: use selectedEntity() or other command to set selected entity in both cases!
 			if( propertySelector && property ) {
 				// property selector in DOM already, just replace current value
-				propertySelector.widget().val( propertyLabel );
+				var currentValue = propertySelector.widget().val();
+				// Impose case-insensitivity:
+				if( propertyLabel.toLowerCase() !== currentValue.toLocaleLowerCase() ) {
+					propertySelector.widget().val( propertyLabel );
+				}
 				return;
 			} else if( !propertySelector ) {
 				// Create property selector and set value:
@@ -833,9 +847,15 @@ $.widget( 'wikibase.snakview', PARENT, {
 	drawVariation: function() {
 		// property ID will be null if not in edit mode and no Snak set or if in edit mode and user
 		// didn't choose property yet.
-		var propertyId = this._propertyId;
+		var propertyId = this._propertyId,
+			self = this;
 
 		if( propertyId && this._variation ) {
+			$( this._variation ).one( 'afterdraw', function() {
+				if( self.isInEditMode() ) {
+					self.variation().startEditing();
+				}
+			} );
 			this.variation().draw();
 		} else {
 			// remove any remains from previous rendering or initial template (e.g. '$4')

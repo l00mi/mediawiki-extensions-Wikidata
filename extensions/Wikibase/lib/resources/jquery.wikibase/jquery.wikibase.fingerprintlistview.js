@@ -251,9 +251,19 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		function addStopEditToQueue( $queue, fingerprintview, dropValue ) {
 			$queue.queue( 'stopediting', function( next ) {
 				fingerprintview.element
-				.one( 'fingerprintviewafterstopediting.fingerprintviewlistview', function( event ) {
-					setTimeout( next, 0 );
-				} );
+				.one( 'fingerprintviewafterstopediting.fingerprintlistviewstopediting',
+					function( event ) {
+						fingerprintview.element.off( '.fingerprintlistviewstopediting' );
+						setTimeout( next, 0 );
+					}
+				)
+				.one( 'fingerprintviewtoggleerror.fingerprintlistviewstopediting',
+					function( event ) {
+						fingerprintview.element.off( '.fingerprintlistviewstopediting' );
+						$queue.clearQueue();
+						self._resetEditMode();
+					}
+				);
 				fingerprintview.stopEditing( dropValue );
 			} );
 		}
@@ -272,6 +282,17 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		} );
 
 		$queue.dequeue( 'stopediting' );
+	},
+
+	_resetEditMode: function() {
+		this.enable();
+
+		var listview = this.element.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			lia.liInstance( $( this ) ).startEditing();
+		} );
 	},
 
 	/**
@@ -311,9 +332,20 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
 		} else {
-			this.element.removeClass( 'wb-error' );
+			this.removeError();
 			this._trigger( 'toggleerror' );
 		}
+	},
+
+	removeError: function() {
+		this.element.removeClass( 'wb-error' );
+
+		var listview = this.element.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			lia.liInstance( $( this ) ).removeError();
+		} );
 	},
 
 	/**

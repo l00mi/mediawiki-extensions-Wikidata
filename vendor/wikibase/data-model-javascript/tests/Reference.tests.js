@@ -4,83 +4,57 @@
  * @author H. Snater < mediawiki@snater.com >
  */
 
-( function( wb, dv, $, QUnit ) {
+( function( wb, QUnit ) {
 	'use strict';
 
-	QUnit.module( 'wikibase.datamodel.Reference', QUnit.newWbEnvironment() );
+	QUnit.module( 'wikibase.datamodel.Reference' );
 
-	var snakLists = [
-		new wb.datamodel.SnakList( [
-			new wb.datamodel.PropertyNoValueSnak( 'P9001' ),
-			new wb.datamodel.PropertySomeValueSnak( 'P42' ),
-			new wb.datamodel.PropertyValueSnak( 'P23', new dv.StringValue( '~=[,,_,,]:3' ) )
-		] ),
-		new wb.datamodel.SnakList( [] ),
-		new wb.datamodel.SnakList( [ new wb.datamodel.PropertyNoValueSnak( 'P9001' ) ] )
-	];
+	QUnit.test( 'constructor, getSnaks()', function( assert ) {
+		var snakLists = [
+			new wb.datamodel.SnakList( [] ),
+			new wb.datamodel.SnakList( [new wb.datamodel.PropertyNoValueSnak( 'P1' )] ),
+			new wb.datamodel.SnakList( [
+				new wb.datamodel.PropertyNoValueSnak( 'P1' ),
+				new wb.datamodel.PropertySomeValueSnak( 'P2' )
+			] )
+		];
 
-	QUnit.test( 'constructor', function( assert ) {
-		$.each( snakLists, function( i, snakList ) {
-			var reference = new wb.datamodel.Reference( snakList );
-
-			assert.ok(
-				reference.getSnaks().equals( snakList ),
-				'Snaks were set correctly'
-			);
-		} );
-	} );
-
-	QUnit.test( 'setSnaks and getSnaks', function( assert ) {
-		$.each( snakLists, function( i, snakList ) {
-			var reference = new wb.datamodel.Reference( [] );
-
-			reference.setSnaks( snakList );
+		for( var i = 0; i < snakLists.length; i++ ) {
+			var reference = new wb.datamodel.Reference( snakLists[i] );
 
 			assert.ok(
-				reference.getSnaks().equals( new wb.datamodel.SnakList( snakList ) ),
-				'Snaks were set correctly'
+				reference instanceof wb.datamodel.Reference,
+				'Test set #' + i + ': Instantiated Reference object.'
 			);
-		} );
+
+			assert.ok(
+				reference.getSnaks().equals( snakLists[i] ),
+				'Test set #' + i + ': Retrieved Snaks passed to the constructor.'
+			);
+		}
+
+		assert.throws(
+			function() {
+				return new wb.datamodel.Reference( [new wb.datamodel.PropertyNoValueSnak( 'P1' )] );
+			},
+			'Throwing an error when trying to instantiate a Reference with a plain array of Snak '
+			+ 'objects.'
+		);
 	} );
 
-	QUnit.test( 'getHash', function( assert ) {
-		var hash = 'hash12390213',
-			reference = new wb.datamodel.Reference( [], hash );
+	QUnit.test( 'getHash()', function( assert ) {
+		var hash = 'hash12390213';
 
 		assert.equal(
-			reference.getHash(),
+			( new wb.datamodel.Reference( null, hash ) ).getHash(),
 			hash,
 			'Reference\'s hash from constructor returned in getHash()'
 		);
 
-		reference.setSnaks( snakLists[0] );
 		assert.equal(
-			reference.getHash(),
-			hash,
-			'Reference\'s hash does not change when snak list changes'
-		);
-
-		assert.equal(
-			( new wb.datamodel.Reference( [] ) ).getHash(),
+			( new wb.datamodel.Reference() ).getHash(),
 			null,
 			'Reference without initial hash will return null in getHash()'
-		);
-	} );
-
-	QUnit.test( 'toJSON()', function( assert ) {
-		var reference = new wb.datamodel.Reference(
-			new wb.datamodel.SnakList(
-				[
-					new wb.datamodel.PropertyValueSnak( 'P42', new dv.StringValue( 'string' ) ),
-					new wb.datamodel.PropertySomeValueSnak( 'P9001' )
-				]
-			),
-			'hash12390213'
-		);
-
-		assert.ok(
-			reference.equals( wb.datamodel.Reference.newFromJSON( reference.toJSON() ) ),
-			'Exported reference to JSON.'
 		);
 	} );
 
@@ -88,46 +62,44 @@
 		var references = [
 			new wb.datamodel.Reference(),
 			new wb.datamodel.Reference(
-				new wb.datamodel.SnakList(
-					[
-						new wb.datamodel.PropertyValueSnak( 'P42', new dv.StringValue( 'string' ) ),
-						new wb.datamodel.PropertySomeValueSnak( 'P9001' )
-					]
-				),
+				new wb.datamodel.SnakList( [new wb.datamodel.PropertyNoValueSnak( 'P1' )] ),
 				'hash12390213'
 			),
 			new wb.datamodel.Reference(
 				new wb.datamodel.SnakList(
 					[
-						new wb.datamodel.PropertyValueSnak( 'P345', new dv.StringValue( 'string' ) ),
-						new wb.datamodel.PropertySomeValueSnak( 'P9001' )
+						new wb.datamodel.PropertyNoValueSnak( 'P1' ),
+						new wb.datamodel.PropertySomeValueSnak( 'P2' )
 					]
 				)
 			)
 		];
 
 		// Compare references:
-		$.each( references, function( i, reference ) {
-			var clonedReference = wb.datamodel.Reference.newFromJSON( reference.toJSON() );
+		for( var i = 0; i < references.length; i++ ) {
+			var clonedReference = new wb.datamodel.Reference(
+				references[i].getSnaks(),
+				references[i].getHash()
+			);
 
 			// Check if "cloned" reference is equal:
 			assert.ok(
-				reference.equals( clonedReference ),
+				references[i].equals( clonedReference ),
 				'Verified reference "' + i + '" on equality.'
 			);
 
 			// Compare to all other references:
-			$.each( references, function( j, otherReference ) {
+			for( var j = 0; j < references.length; j++ ) {
 				if ( j !== i ) {
 					assert.ok(
-						!reference.equals( otherReference ),
+						!references[i].equals( references[j] ),
 						'Reference "' + i + '" is not equal to reference "'+ j + '".'
 					);
 				}
-			} );
+			}
 
-		} );
+		}
 
 	} );
 
-}( wikibase, dataValues, jQuery, QUnit ) );
+}( wikibase, QUnit ) );

@@ -129,6 +129,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 		this._referencesChanger = this.options.entityChangersFactory.getReferencesChanger();
 		this._createClaimview( statement );
 
+		this._attachEditModeEventHandlers();
+
 		function indexOf( element, array ) {
 			var index = $.inArray( element, array );
 			return ( index !== -1 ) ? index : null;
@@ -144,14 +146,14 @@ $.widget( 'wikibase.statementview', PARENT, {
 				listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 					listItemWidget: $.wikibase.referenceview,
 					newItemOptionsFn: function( value ) {
-						var index = indexOf( value, self.value().getReferences() );
+						var index = indexOf( value, self.value().getReferences().toArray() );
 						if( index === null ) {
 							// The empty list view item for this is already appended to the list view
 							index = self._referencesListview.items().length - 1;
 						}
 						return {
 							value: value || null,
-							statementGuid: self.value().getGuid(),
+							statementGuid: self.value().getClaim().getGuid(),
 							index: index,
 							entityStore: self.option( 'entityStore' ),
 							valueViewBuilder: self.option( 'valueViewBuilder' ),
@@ -159,7 +161,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 						};
 					}
 				} ),
-				value: refs
+				value: refs.toArray()
 			} );
 
 			this._referencesListview = $listview.data( 'listview' );
@@ -244,7 +246,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			helpMessage: this.option( 'helpMessage' ),
 			predefined: this.option( 'predefined' ),
 			locked: this.option( 'locked' ),
-			value: statement,
+			value: statement && statement.getClaim(),
 			valueViewBuilder: this.option( 'valueViewBuilder' )
 		} );
 
@@ -301,6 +303,45 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
+	 * Attaches event listeners that shall trigger stopping the claimview's edit mode.
+	 */
+	_attachEditModeEventHandlers: function() {
+		var self = this;
+
+		this._detachEditModeEventHandlers();
+
+		function defaultHandling( event, dropValue ) {
+			event.stopImmediatePropagation();
+			event.preventDefault();
+			self._detachEditModeEventHandlers();
+			self._attachEditModeEventHandlers();
+			self.stopEditing( dropValue );
+		}
+
+		this._claimview.$mainSnak.one( 'snakviewstopediting.' + this.widgetName, function( event, dropValue ) {
+			defaultHandling( event, dropValue );
+		} );
+
+		if( this._claimview.$qualifiers ) {
+			this._claimview.$qualifiers
+			.one( 'snaklistviewstopediting.' + this.widgetName, function( event, dropValue ) {
+				defaultHandling( event, dropValue );
+			} );
+		}
+	},
+
+	/**
+	 * Detaches event listeners that shall trigger stopping the claimview's edit mode.
+	 */
+	_detachEditModeEventHandlers: function() {
+		this._claimview.$mainSnak.off( 'snakviewstopediting' );
+
+		if ( this._qualifiers && this._qualifiers.value().length ) {
+			this._qualifiers.element.off( 'snaklistviewstopediting' );
+		}
+	},
+
+	/**
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
@@ -322,11 +363,9 @@ $.widget( 'wikibase.statementview', PARENT, {
 		var claim = this._claimview._instantiateClaim( guid );
 
 		return new wb.datamodel.Statement(
-			claim.getMainSnak(),
-			claim.getQualifiers(),
-			this.getReferences(),
-			this._rankSelector.rank(),
-			guid
+			claim,
+			new wb.datamodel.ReferenceList( this.getReferences() ),
+			this._rankSelector.rank()
 		);
 	},
 
@@ -388,7 +427,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		referenceview.disable();
 
 		this._referencesChanger.removeReference(
-			this.value().getGuid(),
+			this.value().getClaim().getGuid(),
 			referenceview.value()
 		)
 		.done( function() {
@@ -472,6 +511,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 			var self = this,
 				claim = this._claimview.value();
 
+			this._detachEditModeEventHandlers();
+
 			this.disable();
 			this._rankSelector.disable();
 
@@ -481,6 +522,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 				self.enable();
 
 				self.element.removeClass( 'wb-edit' );
+
+				self._attachEditModeEventHandlers();
 
 				// transform toolbar and snak view after save complete
 				self._trigger( 'afterstopediting', null, [dropValue] );
@@ -505,6 +548,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 					// Claimview might have gotten the stopEditing before statementview
 					self._claimview.startEditing();
 
+					self._attachEditModeEventHandlers();
+
 					self.setError( error );
 				} );
 			}
@@ -526,13 +571,13 @@ $.widget( 'wikibase.statementview', PARENT, {
 			guid;
 
 		if( this.value() ) {
-			guid = this.value().getGuid();
+			guid = this.value().getClaim().getGuid();
 		} else {
 			var guidGenerator = new wb.utilities.ClaimGuidGenerator();
 			guid = guidGenerator.newGuid( mw.config.get( 'wbEntityId' ) );
 		}
 
-		return this.option( 'claimsChanger' ).setClaim(
+		return this.option( 'claimsChanger' ).setStatement(
 			this._instantiateStatement( guid ),
 			this.option( 'index' )
 		)
@@ -732,6 +777,17 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			}
 
 			$referenceview.edittoolbar( options );
+
+			$referenceview.on( 'keydown.edittoolbar', function( event ) {
+				if( referenceview.option( 'disabled' ) ) {
+					return;
+				}
+				if( event.keyCode === $.ui.keyCode.ESCAPE ) {
+					referenceview.stopEditing( true );
+				} else if( event.keyCode === $.ui.keyCode.ENTER ) {
+					referenceview.stopEditing( false );
+				}
+			} );
 		},
 		referenceviewchange: function( event ) {
 			var $referenceview = $( event.target ),

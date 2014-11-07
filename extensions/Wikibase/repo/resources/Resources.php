@@ -11,7 +11,12 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	$remoteExtPathParts = explode( DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR , __DIR__, 2 );
+	preg_match(
+		'+^.*?' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '(?:vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '(.*)$+',
+		__DIR__,
+		$remoteExtPathParts
+	);
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
 		'remoteExtPath' => $remoteExtPathParts[1],
@@ -41,7 +46,7 @@ return call_user_func( function() {
 				'wikibase.parsers.getStore',
 				'wikibase.RepoApi',
 				'wikibase.RevisionStore',
-				'wikibase.serialization.entities',
+				'wikibase.serialization.EntityDeserializer',
 				'wikibase.sites',
 				'wikibase.store.ApiEntityStore',
 				'wikibase.store.CombiningEntityStore',
@@ -68,13 +73,8 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'json',
 				'wikibase',
-				'wikibase.datamodel',
-				'wikibase.serialization',
-				// FIXME: Resolve implicitly required wikibase.serialization.entities dependency.
-				// wikibase.serialization.entities self-registers to the SerializerFactory provided
-				// by wikibase.serialization which is why wikibase.serialization.entities is
-				// implicitly required as dependency.
-				'wikibase.serialization.entities',
+				'wikibase.datamodel.Entity',
+				'wikibase.serialization.EntityDeserializer',
 			),
 		),
 

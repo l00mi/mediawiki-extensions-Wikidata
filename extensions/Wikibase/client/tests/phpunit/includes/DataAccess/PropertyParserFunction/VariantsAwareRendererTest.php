@@ -45,7 +45,7 @@ class VariantsAwareRendererTest extends \PHPUnit_Framework_TestCase {
 		$languageRenderer = $this->getLanguageAwareRenderer();
 
 		$rendererFactory = $this->getMockBuilder(
-				'Wikibase\DataAccess\PropertyParserFunction\RendererFactory'
+				'Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory'
 			)
 			->disableOriginalConstructor()
 			->getMock();
@@ -54,12 +54,21 @@ class VariantsAwareRendererTest extends \PHPUnit_Framework_TestCase {
 			->method( 'newLanguageAwareRenderer' )
 			->will( $this->returnValue( $languageRenderer ) );
 
+		$rendererFactory->expects( $this->any() )
+			->method( 'getLanguageAwareRendererFromCode' )
+			->will( $this->returnValue( $languageRenderer ) );
+
 		$usageAccumulator = $this->getUsageAccumulator();
 
+		$languageRenderers = array();
+
+		foreach( $variants as $variant ) {
+			$languageRenderers[$variant] = $languageRenderer;
+		}
+
 		$variantsRenderer = new VariantsAwareRenderer(
-			$rendererFactory,
-			$variants,
-			$usageAccumulator
+			$languageRenderers,
+			$variants
 		);
 
 		$result = $variantsRenderer->render( $itemId, $propertyLabel );
@@ -90,7 +99,7 @@ class VariantsAwareRendererTest extends \PHPUnit_Framework_TestCase {
 
 	private function getLanguageAwareRenderer() {
 		$languageRenderer = $this->getMockBuilder(
-			'Wikibase\DataAccess\PropertyParserFunction\Renderer'
+			'Wikibase\DataAccess\PropertyParserFunction\LanguageAwareRenderer'
 		)
 		->disableOriginalConstructor()
 		->getMock();

@@ -241,10 +241,12 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			'sitelinklistviewafterstopediting.sitelinkgroupviewstopediting',
 			function( event, dropValue ) {
 				self._afterStopEditing( dropValue );
+				self.$sitelinklistview.off( '.sitelinkgroupviewstopediting' );
 			}
 		)
 		.one( 'sitelinklistviewtoggleerror.sitelinkgroupviewstopediting', function( event ) {
 			self.enable();
+			self.$sitelinklistview.off( '.sitelinkgroupviewstopediting' );
 		} );
 
 		this.$sitelinklistview.data( 'sitelinklistview' ).stopEditing( dropValue );
@@ -258,7 +260,6 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			this.options.value = this.value();
 		}
 		this._isInEditMode = false;
-		this.$sitelinklistview.off( '.sitelinkgroupviewstopediting' );
 		this.enable();
 		this.element.removeClass( 'wb-edit' );
 		this._trigger( 'afterstopediting', null, [dropValue] );
@@ -381,6 +382,10 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 					sitelinkgroupview.stopEditing( false );
 				}
 			} );
+
+			$container.sticknode( {
+				$container: sitelinkgroupview.$sitelinklistview.data( 'sitelinklistview' ).$thead
+			} );
 		},
 		'sitelinkgroupviewchange sitelinkgroupviewafterstartediting': function( event ) {
 			var $sitelinkgroupview = $( event.target ),
@@ -414,92 +419,6 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			}
 
 			sitelinkgroupview.focus();
-		}
-	}
-} );
-
-$.wikibase.toolbarcontroller.definition( 'addtoolbar', {
-	id: 'sitelinkgroupview-sitelinklistview',
-	selector: ':' + $.wikibase.sitelinkgroupview.prototype.namespace
-		+ '-' + $.wikibase.sitelinkgroupview.prototype.widgetName,
-	events: {
-		sitelinkgroupviewafterstartediting: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview =sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
-
-			$sitelinklistview
-			.addtoolbar( {
-				$container: $( '<span/>' ).appendTo( sitelinklistview.$tfoot.find( 'td' ).last() )
-			} )
-			.on( 'addtoolbaradd.addtoolbar', function() {
-				sitelinklistview.$listview.one(
-					'sitelinkviewafterstartediting',
-					function( event ) {
-						$( event.target ).data( 'sitelinkview' ).focus();
-					}
-				);
-
-				$sitelinklistview.data( 'sitelinklistview' ).enterNewItem();
-
-				// Re-focus "add" button after having added or having cancelled adding a link:
-				var eventName = 'sitelinklistviewafterstopediting.addtoolbar';
-				$sitelinklistview.one( eventName, function( event ) {
-					$sitelinklistview.data( 'addtoolbar' ).focus();
-				} );
-			} );
-
-			if( sitelinklistview.isFull() ) {
-				$sitelinklistview.data( 'addtoolbar' ).disable();
-			}
-		},
-		sitelinkgroupviewafterstopediting: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview;
-
-			toolbarcontroller.destroyToolbar( $sitelinklistview.data( 'addtoolbar' ) );
-			$sitelinklistview.off( '.addtoolbar' );
-		},
-		sitelinklistviewafterremove: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
-
-			$sitelinklistview.data( 'addtoolbar' )[sitelinklistview.isFull()
-				? 'disable'
-				: 'enable'
-			]();
-		},
-		sitelinkgroupviewchange: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
-				addtoolbar = $sitelinklistview.data( 'addtoolbar' );
-
-			if( !addtoolbar ) {
-				return;
-			}
-
-			addtoolbar[!sitelinklistview.isValid() || sitelinklistview.isFull()
-				? 'disable'
-				: 'enable'
-			]();
-		},
-		sitelinkgroupviewdisable: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
-				addtoolbar = $sitelinklistview.data( 'addtoolbar' ),
-				disabled = sitelinkgroupview.option( 'disabled' );
-
-			if( addtoolbar && ( disabled || !sitelinklistview.isFull() ) ) {
-				$sitelinklistview.data( 'addtoolbar' )[disabled ? 'disable' : 'enable']();
-			}
 		}
 	}
 } );

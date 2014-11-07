@@ -6,8 +6,11 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	$remoteExtPathParts = explode(
-		DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR, __DIR__, 2
+	preg_match(
+		'+^.*?' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '(?:vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '(.*)$+',
+		__DIR__,
+		$remoteExtPathParts
 	);
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
@@ -319,6 +322,7 @@ return call_user_func( function() {
 				'themes/default/jquery.wikibase.sitelinkgroupview.css',
 			),
 			'dependencies' => array(
+				'jquery.sticknode',
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.sitelinklistview',
 				'mediawiki.jqueryMsg', // for {{plural}} and {{gender}} support in messages
@@ -335,6 +339,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.event.special.eachchange',
+				'jquery.sticknode',
 				'jquery.tablesorter',
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.addtoolbar',

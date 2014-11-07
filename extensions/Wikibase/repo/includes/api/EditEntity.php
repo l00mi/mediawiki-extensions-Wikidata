@@ -397,11 +397,11 @@ class EditEntity extends ModifyEntity {
 	 * @since 0.4
 	 *
 	 * @param array $siteLinks
-	 * @param Entity|Item $entity
+	 * @param Item $entity
 	 *
 	 * @return ChangeOp[]
 	 */
-	protected function getSiteLinksChangeOps( $siteLinks, Entity $entity ) {
+	protected function getSiteLinksChangeOps( $siteLinks, Item $item ) {
 		$siteLinksChangeOps = array();
 
 		if ( !is_array( $siteLinks ) ) {
@@ -436,15 +436,17 @@ class EditEntity extends ModifyEntity {
 					$linkPage = $linkSite->normalizePageName( $this->stringNormalizer->trimWhitespace( $arg['title'] ) );
 
 					if ( $linkPage === false ) {
-						$this->dieError(
-							"The external client site did not provide page information for site '{$globalSiteId}'",
-							'no-external-page' );
+						$this->dieMessage(
+							'no-external-page',
+							$globalSiteId,
+							$arg['title']
+						);
 					}
 				} else {
 					$linkPage = null;
 
-					if ( !$entity->hasLinkToSite( $globalSiteId ) ) {
-						$this->dieError( "Cannot modify badges: sitelink to '{$globalSiteId}' doesn't exist", 'no-such-sitelink' );
+					if ( !$item->hasLinkToSite( $globalSiteId ) ) {
+						$this->dieMessage( 'no-such-sitelink', $globalSiteId );
 					}
 				}
 

@@ -15,7 +15,7 @@ if ( defined( 'DATAVALUES_GEO_VERSION' ) ) {
 	return 1;
 }
 
-define( 'DATAVALUES_GEO_VERSION', '1.0' );
+define( 'DATAVALUES_GEO_VERSION', '1.1.1' );
 
 if ( defined( 'MEDIAWIKI' ) ) {
 	$GLOBALS['wgExtensionCredits']['datavalues'][] = array(
@@ -28,6 +28,7 @@ if ( defined( 'MEDIAWIKI' ) ) {
 		),
 		'url' => 'https://github.com/DataValues/Geo',
 		'description' => 'Geographical value objects, parsers and formatters',
+		'license-name' => 'GPL-2.0+'
 	);
 }
 

@@ -196,10 +196,19 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 
 		this.disable();
 
-		this.$fingerprintlistview.one(
-			'fingerprintlistviewafterstopediting',
+		this.$fingerprintlistview
+		.one(
+			'fingerprintlistviewafterstopediting.fingerprintgroupviewstopediting',
 			function( event, dropValue ) {
 				self._afterStopEditing( dropValue );
+				self.$fingerprintlistview.off( '.fingerprintgroupviewstopediting' );
+			}
+		)
+		.one(
+			'fingerprintlistviewtoggleerror.fingerprintgroupviewstopediting',
+			function( event, dropValue ) {
+				self.enable();
+				self.$fingerprintlistview.off( '.fingerprintgroupviewstopediting' );
 			}
 		);
 
@@ -237,9 +246,14 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
 		} else {
-			this.element.removeClass( 'wb-error' );
+			this.removeError();
 			this._trigger( 'toggleerror' );
 		}
+	},
+
+	removeError: function() {
+		this.element.removeClass( 'wb-error' );
+		this.$fingerprintlistview.data( 'fingerprintlistview' ).removeError();
 	},
 
 	/**
