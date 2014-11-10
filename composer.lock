@@ -375,16 +375,16 @@
         },
         {
             "name": "data-values/javascript",
-            "version": "0.6.0",
+            "version": "0.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataValuesJavascript.git",
-                "reference": "0006a69a10256d039ecbcbf99e8c2c7b3179fdc3"
+                "reference": "b2e6c22f59a1cd88839a5086bc8b0b286f91b223"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/0006a69a10256d039ecbcbf99e8c2c7b3179fdc3",
-                "reference": "0006a69a10256d039ecbcbf99e8c2c7b3179fdc3",
+                "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/b2e6c22f59a1cd88839a5086bc8b0b286f91b223",
+                "reference": "b2e6c22f59a1cd88839a5086bc8b0b286f91b223",
                 "shasum": ""
             },
             "require": {
@@ -420,7 +420,7 @@
                 "datavalues",
                 "wikidata"
             ],
-            "time": "2014-09-01 15:47:29"
+            "time": "2014-11-07 13:39:31"
         },
         {
             "name": "data-values/number",
@@ -647,16 +647,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.8.0",
+            "version": "0.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "ad0f7d4877dbc65f01c2a8d9104c92e18e69c015"
+                "reference": "9ee15e588beedd7d23179c3e14de5c6bae0974e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/ad0f7d4877dbc65f01c2a8d9104c92e18e69c015",
-                "reference": "ad0f7d4877dbc65f01c2a8d9104c92e18e69c015",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/9ee15e588beedd7d23179c3e14de5c6bae0974e7",
+                "reference": "9ee15e588beedd7d23179c3e14de5c6bae0974e7",
                 "shasum": ""
             },
             "require": {
@@ -685,7 +685,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-11-03 13:08:06"
+            "time": "2014-11-07 13:49:29"
         },
         {
             "name": "diff/diff",
@@ -1185,12 +1185,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e327c7af987585412ddef9f7f68d989927e44066"
+                "reference": "dab7bb5af4a00c25b12c235924899a73a0e0b8c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e327c7af987585412ddef9f7f68d989927e44066",
-                "reference": "e327c7af987585412ddef9f7f68d989927e44066",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/dab7bb5af4a00c25b12c235924899a73a0e0b8c9",
+                "reference": "dab7bb5af4a00c25b12c235924899a73a0e0b8c9",
                 "shasum": ""
             },
             "require": {
@@ -1204,7 +1204,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.6.0",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.8.0",
+                "data-values/value-view": "~0.8.1",
                 "diff/diff": "~1.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~2.0",
@@ -1256,7 +1256,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-11-07 13:08:07"
+            "time": "2014-11-09 20:55:23"
         },
         {
             "name": "wikibase/wikimedia-badges",

@@ -5,7 +5,6 @@ php:
 
 env:
 - RUNJOB=jshint
-- RUNJOB=qunit
 
 script: bash ./build/travis/script.sh
 

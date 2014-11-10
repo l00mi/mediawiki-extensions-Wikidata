@@ -7,7 +7,7 @@ if ( defined( 'DATA_VALUES_JAVASCRIPT_VERSION' ) ) {
 	return 1;
 }
 
-define( 'DATA_VALUES_JAVASCRIPT_VERSION', '0.6.0' );
+define( 'DATA_VALUES_JAVASCRIPT_VERSION', '0.6.1' );
 
 // Include the composer autoloader if it is present.
 if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
@@ -25,6 +25,7 @@ $GLOBALS['wgExtensionCredits']['datavalues'][] = array(
 	),
 	'url' => 'https://github.com/wmde/DataValuesJavascript',
 	'description' => 'JavaScript related to the DataValues library',
+	'license-name' => 'GPL-2.0+'
 );
 
 // Resource Loader module registration
@@ -47,13 +48,16 @@ $GLOBALS['wgHooks']['ResourceLoaderTestModules'][] = function(
 	array &$testModules,
 	\ResourceLoader &$resourceLoader
 ) {
-	$remoteExtPathParts = explode(
-		DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR, __DIR__, 2
+	preg_match(
+		'+^.*?' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
+		__DIR__,
+		$remoteExtPathParts
 	);
 
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__ . '/tests',
-		'remoteExtPath' => $remoteExtPathParts[1] . '/tests',
+		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1] . DIRECTORY_SEPARATOR . 'tests',
 	);
 
 	$testModuleTemplates = array(
