@@ -9,7 +9,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 
 /**
  * Base class for snaks.
- * See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Snaks
+ * See https://www.mediawiki.org/wiki/Wikibase/DataModel#Snaks
  *
  * @since 0.1
  *
@@ -41,11 +41,11 @@ abstract class SnakObject implements Snak {
 		}
 
 		if ( !$propertyId instanceof EntityId ) {
-			throw new InvalidArgumentException( '$propertyId should be a PropertyId' );
+			throw new InvalidArgumentException( '$propertyId must be an instance of EntityId' );
 		}
 
 		if ( $propertyId->getEntityType() !== Property::ENTITY_TYPE ) {
-			throw new InvalidArgumentException( 'The $propertyId of a property snak can only be an ID of a Property object' );
+			throw new InvalidArgumentException( '$propertyId must have an entityType of ' . Property::ENTITY_TYPE );
 		}
 
 		if ( !( $propertyId instanceof PropertyId ) ) {

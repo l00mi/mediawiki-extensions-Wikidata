@@ -11,7 +11,7 @@ use Wikibase\DataModel\Snak\SnakList;
 
 /**
  * Class representing a Wikibase statement.
- * See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Statements
+ * See https://www.mediawiki.org/wiki/Wikibase/DataModel#Statements
  *
  * @since 0.1
  *
@@ -41,7 +41,7 @@ class Statement extends Claim {
 	private $rank = self::RANK_NORMAL;
 
 	/**
-	 * @since 0.1
+	 * @since 2.0
 	 *
 	 * @param Claim $claim
 	 * @param ReferenceList|null $references
@@ -145,8 +145,9 @@ class Statement extends Claim {
 
 		/* @var Reference $reference */
 		foreach( $this->getReferences() as $reference ) {
-			$referenceSnaks = $reference->getSnaks();
-			$snaks = array_merge( $snaks, iterator_to_array( $referenceSnaks ) );
+			foreach( $reference->getSnaks() as $referenceSnak ) {
+				$snaks[] = $referenceSnak;
+			}
 		}
 
 		return $snaks;
@@ -167,6 +168,7 @@ class Statement extends Claim {
 		}
 
 		return $this->claimFieldsEqual( $target )
+			&& $this->rank === $target->getRank()
 			&& $this->references->equals( $target->references );
 	}
 

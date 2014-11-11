@@ -2,10 +2,6 @@
 
 namespace Wikibase\DataModel\Entity;
 
-use Diff\Comparer\CallbackComparer;
-use Diff\DiffOp\Diff\Diff;
-use Diff\Patcher\ListPatcher;
-use Diff\Patcher\MapPatcher;
 use InvalidArgumentException;
 use OutOfBoundsException;
 use Wikibase\DataModel\Claim\Claim;
@@ -15,18 +11,19 @@ use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\StatementListProvider;
 use Wikibase\DataModel\Term\Fingerprint;
 
 /**
  * Represents a single Wikibase item.
- * See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Items
+ * See https://www.mediawiki.org/wiki/Wikibase/DataModel#Items
  *
  * @since 0.1
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Item extends Entity {
+class Item extends Entity implements StatementListProvider {
 
 	const ENTITY_TYPE = 'item';
 
@@ -71,11 +68,8 @@ class Item extends Entity {
 		else if ( is_integer( $id ) ) {
 			$this->id = ItemId::newFromNumber( $id );
 		}
-		else if ( $id instanceof EntityId ) {
-			$this->id = new ItemId( $id->getSerialization() );
-		}
 		else {
-			throw new InvalidArgumentException( __METHOD__ . ' only accepts ItemId, integer and null' );
+			throw new InvalidArgumentException( '$id must be an instance of ItemId, an integer, or null' );
 		}
 	}
 
@@ -252,7 +246,7 @@ class Item extends Entity {
 	 */
 	public function addClaim( Claim $statement ) {
 		if ( !( $statement instanceof Statement ) ) {
-			throw new InvalidArgumentException( 'Claims are not supported any more, use Statements.' );
+			throw new InvalidArgumentException( '$statement must be an instance of Statement' );
 		} elseif ( $statement->getGuid() === null ) {
 			throw new InvalidArgumentException( 'Can\'t add a Claim without a GUID.' );
 		}
