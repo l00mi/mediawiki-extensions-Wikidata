@@ -14,11 +14,15 @@ use Site;
 use SiteSQLStore;
 use SiteStore;
 use ValueFormatters\FormatterOptions;
+use Wikibase\ChangeHandler;
+use Wikibase\Client\Changes\AffectedPagesFinder;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\ParserFunctionRegistrant;
+use Wikibase\Client\Store\TitleFactory;
 use Wikibase\ClientStore;
-use Wikibase\DataAccess\PropertyParserFunction\RendererFactory;
+use Wikibase\DataAccess\PropertyIdResolver;
+use Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory;
 use Wikibase\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
@@ -33,13 +37,11 @@ use Wikibase\InternalSerialization\DeserializerFactory;
 use Wikibase\LangLinkHandler;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
-use Wikibase\Lib\EntityIdLabelFormatter;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Serializers\ForbiddenSerializer;
-use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
@@ -49,6 +51,7 @@ use Wikibase\NamespaceChecker;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\StringNormalizer;
+use Wikibase\WikiPageUpdater;
 
 /**
  * Top level factory for the WikibaseClient extension.
@@ -193,23 +196,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.4
-	 *
-	 * @param string $languageCode
-	 *
-	 * @return EntityIdLabelFormatter
-	 */
-	public function newEntityIdLabelFormatter( $languageCode ) {
-		$options = new FormatterOptions( array(
-			EntityIdLabelFormatter::OPT_LANG => $languageCode
-		) );
-
-		$labelFormatter = new EntityIdLabelFormatter( $options, $this->getEntityLookup() );
-
-		return $labelFormatter;
-	}
-
-	/**
 	 * @return EntityLookup
 	 */
 	private function getEntityLookup() {
@@ -229,18 +215,6 @@ final class WikibaseClient {
 		}
 
 		return $this->propertyDataTypeLookup;
-	}
-
-	/**
-	 * @since 0.4
-	 *
-	 * @param string $format The desired format, use SnakFormatter::FORMAT_XXX
-	 * @param FormatterOptions $options
-	 *
-	 * @return SnakFormatter
-	 */
-	public function newSnakFormatter( $format = SnakFormatter::FORMAT_PLAIN, FormatterOptions $options ) {
-		return $this->getSnakFormatterFactory()->getSnakFormatter( $format, $options );
 	}
 
 	/**
@@ -710,13 +684,17 @@ final class WikibaseClient {
 	/**
 	 * @return RendererFactory
 	 */
-	private function getPropertyParserFunctionRendererFactory() {
+	private function getPropertyClaimsRendererFactory() {
 		$snaksFinder = new SnaksFinder(
-			$this->getEntityLookup(),
+			$this->getEntityLookup()
+		);
+
+		$propertyIdResolver = new PropertyIdResolver(
 			$this->getStore()->getPropertyLabelResolver()
 		);
 
-		return new RendererFactory(
+		return new PropertyClaimsRendererFactory(
+			$propertyIdResolver,
 			$snaksFinder,
 			$this->getLanguageFallbackChainFactory(),
 			$this->getSnakFormatterFactory()
@@ -728,7 +706,7 @@ final class WikibaseClient {
 	 */
 	public function getPropertyParserFunctionRunner() {
 		return new Runner(
-			$this->getPropertyParserFunctionRendererFactory(),
+			$this->getPropertyClaimsRendererFactory(),
 			$this->getStore()->getSiteLinkTable(),
 			$this->getSettings()->getSetting( 'siteGlobalID' )
 		);
@@ -742,6 +720,34 @@ final class WikibaseClient {
 			$this->getSiteStore(),
 			$this->getSite(),
 			$this->getSettings()->getSetting( 'specialSiteLinkGroups' )
+		);
+	}
+
+	/**
+	 * @return AffectedPagesFinder
+	 */
+	public function getAffectedPagesFinder() {
+		return new AffectedPagesFinder(
+			$this->getStore()->getUsageLookup(),
+			$this->getNamespaceChecker(),
+			new TitleFactory(),
+			$this->settings->getSetting( 'siteGlobalID' ),
+			true
+		);
+	}
+
+	/**
+	 * @return ChangeHandler
+	 */
+	public function getChangeHandler() {
+		return new ChangeHandler(
+			$this->getEntityChangeFactory(),
+			$this->getAffectedPagesFinder(),
+			new WikiPageUpdater(),
+			$this->getStore()->getEntityRevisionLookup(),
+			$this->getSite()->getGlobalId(),
+			$this->getSettings()->getSetting( 'injectRecentChanges' ),
+			$this->getSettings()->getSetting( 'allowDataTransclusion' )
 		);
 	}
 

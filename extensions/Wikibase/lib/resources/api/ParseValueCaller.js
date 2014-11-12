@@ -3,8 +3,10 @@
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( wb, $, dv ) {
+( function( wb, $ ) {
 'use strict';
+
+var MODULE = wb.api;
 
 /**
  * Provides functionality to parse a value using the API.
@@ -13,7 +15,7 @@
  *
  * @param {wikibase.RepoApi} api
  */
-var SELF = wb.api.ParseValueCaller = function( api ) {
+var SELF = MODULE.ParseValueCaller = function( api ) {
 	this._api = api;
 };
 
@@ -26,20 +28,17 @@ $.extend( SELF.prototype, {
 
 	/**
 	 * Makes a request to the API to parse values on the server side. Will return a jQuery.Promise
-	 * which will be resolved if the parsing is successful or rejected if it fails or the API can't
-	 * be reached.
+	 * which will be resolved if the call is successful or rejected if the API fails or can't be reached.
 	 * @since 0.5
 	 *
 	 * @param {string} parser
 	 * @param {string[]} values
 	 * @param {Object} options
-	 * @return {Object} jQuery Promise
+	 * @return {Object} jQuery.Promise
 	 *         Resolved parameters:
-	 *         - {dataValues.DataValues[]}
+	 *         - {Object[]}
 	 *         Rejected parameters:
-	 *         - {string} Error code.
-	 *         - {string|Object} Error message, original response containing "error" attribute or
-	 *           status object (see mediaWiki.Api.ajax).
+	 *         - {wikibase.RepoApiError}
 	 */
 	parseValues: function( parser, values, options ) {
 		var deferred = $.Deferred();
@@ -48,56 +47,48 @@ $.extend( SELF.prototype, {
 
 		this._api.parseValue( parser, values, options ).done( function( response ) {
 			if( !response.results ) {
-				deferred.reject(
+				deferred.reject( new wb.RepoApiError(
 					'result-unexpected',
 					'The parse API returned an unexpected result'
-				);
+				) );
 				return;
 			}
 
-			if( response.results.length === 0 ) {
-				deferred.reject( 'result-empty', 'Parse API returned an empty result set.' );
-				return;
-			}
-
-			var dataValues = [];
+			var dataValuesSerializations = [];
 
 			for( var i in response.results ) {
 				var result = response.results[i];
 
 				if( result.error ) {
-					deferred.reject( result.messages[0].html['*'], result );
-					break;
+					// This is a really strange error format, and it's not supported by
+					// wikibase.RepoApiError.newFromApiResponse, so we have to parse it manually here.
+					// See bug 72947.
+					deferred.reject( new wb.RepoApiError(
+						result.messages[0].name,
+						result.messages[0].html['*']
+					) );
+					return;
 				}
 
-				try {
-					dataValues.push( unserializeResult( result ) );
-				} catch( error ) {
-					deferred.reject( error.name, error.message );
-					break;
+				if( !( result.value && result.type ) ) {
+					deferred.reject( new wb.RepoApiError( 'result-unexpected', 'Unknown API error' ) );
+					return;
 				}
+
+				dataValuesSerializations.push( {
+					type: result.type,
+					value: result.value
+				} );
 			}
 
-			deferred.resolve( dataValues );
+			deferred.resolve( dataValuesSerializations );
 
 		} ).fail( function( code, details ) {
-			deferred.reject( code, details );
+			deferred.reject( wb.RepoApiError.newFromApiResponse( code, details ) );
 		} );
 
 		return deferred.promise();
 	}
 } );
 
-/**
- * @param {string} result
- * @return {dataValues.DataValue}
- */
-function unserializeResult( result ) {
-	if( !( result.value && result.type ) ) {
-		throw new Error( 'Unknown API error' );
-	} else {
-		return dv.newDataValue( result.type, result.value );
-	}
-}
-
-}( wikibase, jQuery, dataValues ) );
+}( wikibase, jQuery ) );

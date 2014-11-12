@@ -24,7 +24,6 @@
 			return self.viewState().getFormattedValue();
 		} );
 
-
 		var precisionMsgKey = 'valueview-expert-globecoordinateinput-precision';
 		var $precisionContainer = $( '<div/>' )
 			.addClass( this.uiBaseClass + '-precisioncontainer' )
@@ -36,7 +35,7 @@
 			function( newPrecisionLevel ) {
 				self._viewNotifier.notify( 'change' );
 			},
-			function(){
+			function() {
 				var value = self.viewState().value();
 				if( !value ) {
 					return value;
@@ -125,7 +124,7 @@
 	 * @return {number}
 	 */
 	function roundPrecision( precision ) {
-		return parseFloat( precision.toPrecision(4) );
+		return parseFloat( precision.toPrecision( 6 ) );
 	}
 
 	/**
@@ -137,14 +136,12 @@
 	 * @return {number|null}
 	 */
 	function getPrecisionSetting( precision ) {
-		var rounded,
-			actualPrecision = null,
+		var actualPrecision = null,
 			roundedPrecision = roundPrecision( precision );
 
 		$.each( PRECISIONS, function( i, precision ) {
-			rounded = roundPrecision( precision );
-			if( rounded === roundedPrecision ) {
-				actualPrecision = precision;
+			if( roundPrecision( precision ) === roundedPrecision ) {
+				actualPrecision = roundedPrecision;
 				return false;
 			}
 		} );

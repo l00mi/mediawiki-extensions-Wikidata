@@ -174,8 +174,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 					siteLink ? site.getUrlTo( siteLink.getPageName() ) : '',
 					siteLink ? siteLink.getPageName() : '',
 					mw.wbTemplate( 'wikibase-badgeselector', '' ),
-					site ? site.getLanguageCode() : '',
-					site ? site.getLanguageDirection() : 'auto'
+					site ? site.getLanguageCode() : ''
 				)
 			);
 		}
@@ -197,18 +196,25 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	 */
 	_drawEditMode: function() {
 		var self = this,
-			pageNameInputOptions = {};
+			pageNameInputOptions = {},
+			dir = $( 'html' ).prop( 'dir' );
 
 		if( this.options.value ) {
 			pageNameInputOptions = {
 				siteId: this.options.value.getSiteId(),
 				pageName: this.options.value.getPageName()
 			};
+
+			var site = wb.sites.getSite( this.options.value.getSiteId() );
+			if ( site ) {
+				dir = site.getLanguageDirection();
+			}
 		}
 
-		var $pageNameInput = $( '<input />' )
-			.attr( 'placeholder', mw.msg( 'wikibase-sitelink-page-edit-placeholder' ) )
-			.pagesuggester( pageNameInputOptions );
+		var $pageNameInput = $( '<input>', {
+			placeholder: mw.msg( 'wikibase-sitelink-page-edit-placeholder' ),
+			dir: dir
+		} ).pagesuggester( pageNameInputOptions );
 
 		$pageNameInput
 		.on( 'eachchange.' + this.widgetName + ' pagesuggesterchange.' + this.widgetName,
@@ -459,7 +465,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	},
 
 	/**
-	 * Sets keyboard focus on the first input element.
+	 * @see jQuery.ui.TemplatedWidget.focus
 	 */
 	focus: function() {
 		var $siteselector = this.element.find( ':wikibase-siteselector' ),
@@ -472,6 +478,8 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			$pagesuggester.focus();
 		} else if( $siteselector.length ) {
 			$siteselector.focus();
+		} else {
+			this.element.focus();
 		}
 	},
 

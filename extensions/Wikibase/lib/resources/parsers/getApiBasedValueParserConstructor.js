@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author Daniel Werner < danweetz@web.de >
  */
-( function( $, wb, vp, util ) {
+( function( $, wb, vp, dv, util ) {
 'use strict';
 
 wb.parsers = wb.parsers || {};
@@ -50,35 +50,22 @@ wb.parsers.getApiBasedValueParserConstructor = function( apiValueParser ) {
 
 			apiValueParser.parseValues( this.API_VALUE_PARSER_ID, [rawValue], this._options )
 				.done( function( results ) {
-					// Return actual DataValue only:
-					deferred.resolve( results[0] );
-				} )
-				.fail( function( code, details ) {
-					var message = code;
+					var result;
 
-					if( typeof details === 'string' ) {
-						// MediaWiki API rejecting with a plain string.
-						message = details;
-					} else if( details['error-html'] ) {
-						// Wikibase parseValue API module specific HTML error message.
-						message = details['error-html'];
-					} else if(
-						details.error
-						&& details.error.messages
-						&& details.error.messages.html
-						&& details.error.messages.html['*']
-					) {
-						// HTML message from Wikibase API.
-						message = details.error.messages.html['*'];
-					} else if( details.error && details.error.info ) {
-						// Wikibase API no-HTML error message fall-back.
-						message = details.error.info;
-					} else if( details.exception ) {
-						// Failed MediaWiki API call.
-						message = details.exception;
+					if( results.length === 0 ) {
+						deferred.reject( 'Parse API returned an empty result set.' );
+						return;
 					}
 
-					deferred.reject( message );
+					try {
+						result = dv.newDataValue( results[0].type, results[0].value );
+						deferred.resolve( result );
+					} catch( error ) {
+						deferred.reject( error.message );
+					}
+				} )
+				.fail( function( error ) {
+					deferred.reject( error.detailedMessage || error.code );
 				} );
 
 			return deferred.promise();
@@ -87,4 +74,4 @@ wb.parsers.getApiBasedValueParserConstructor = function( apiValueParser ) {
 	} );
 };
 
-}( jQuery, wikibase, valueParsers, util ) );
+}( jQuery, wikibase, valueParsers, dataValues, util ) );

@@ -46,14 +46,8 @@
 					save: 'wikibase-error-save-timeout',
 					remove: 'wikibase-error-remove-timeout'
 				},
-				'client-error': 'wikibase-error-ui-client-error',
 				'no-external-page': 'wikibase-error-ui-no-external-page',
-				'cant-edit': 'wikibase-error-ui-cant-edit',
-				'no-permissions': 'wikibase-error-ui-no-permissions',
-				'link-exists': 'wikibase-error-ui-link-exists',
-				'session-failure': 'wikibase-error-ui-session-failure',
-				'edit-conflict': 'wikibase-error-ui-edit-conflict',
-				'patch-incomplete': 'wikibase-error-ui-edit-conflict'
+				'edit-conflict': 'wikibase-error-ui-edit-conflict'
 			},
 
 			/**
@@ -88,17 +82,23 @@
 	 * @param {Object} details Object returned from the API containing detailed information
 	 * @param {string} [apiAction] API action (e.g. 'save', 'remove') that may be passed to
 	 *        determine a specific message
-	 * @return {wb.RepoApiError}
+	 * @return {wikibase.RepoApiError}
 	 */
 	wb.RepoApiError.newFromApiResponse = function( details, apiAction ) {
-		var detailedMessage = '';
-		var errorCode = '';
+		var errorCode = '',
+			detailedMessage = '';
 
 		if ( details.error ) {
 			errorCode = details.error.code;
-			detailedMessage = details.error.messages
-				&& messagesObjectToHtml( details.error.messages ) || details.error.info;
+			if( details.error.messages ) {
+				// HTML message from Wikibase API.
+				detailedMessage = messagesObjectToHtml( details.error.messages );
+			} else {
+				// Wikibase API no-HTML error message fall-back.
+				detailedMessage = details.error.info;
+			}
 		} else if ( details.exception ) {
+			// Failed MediaWiki API call.
 			errorCode = details.textStatus;
 			detailedMessage = details.exception;
 		}

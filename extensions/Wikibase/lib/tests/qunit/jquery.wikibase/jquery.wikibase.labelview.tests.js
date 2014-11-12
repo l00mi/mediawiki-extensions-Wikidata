@@ -2,8 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -13,12 +12,9 @@
  */
 var createLabelview = function( options, $node ) {
 	options = $.extend( {
-		labelsChanger: 'labelsChanger',
-		entityId: 'i am an entity id',
-		value: {
-			language: 'en',
-			label: 'test label'
-		}
+		entityId: 'i am an EntityId',
+		labelsChanger: 'i am a LabelsChanger',
+		value: new wb.datamodel.Term( 'en', 'test label' )
 	}, options || {} );
 
 	$node = $node || $( '<div/>' ).appendTo( 'body' );
@@ -160,36 +156,33 @@ QUnit.test( 'setError()', function( assert ) {
 
 QUnit.test( 'value()', function( assert ) {
 	var $labelview = createLabelview(),
-		labelview = $labelview.data( 'labelview' );
+		labelview = $labelview.data( 'labelview' ),
+		newValue = null;
 
 	assert.throws(
 		function() {
-			labelview.value( null );
+			labelview.value( newValue );
 		},
 		'Trying to set no value fails.'
 	);
 
-	labelview.value( {
-		language: 'de',
-		label: 'changed label'
-	} );
+	newValue = new wb.datamodel.Term( 'de', 'changed label' );
+
+	labelview.value( newValue );
 
 	assert.ok(
-		labelview.value().language === 'de'
-			&& labelview.value().label === 'changed label',
+		labelview.value().equals( newValue ),
 		'Set new value.'
 	);
 
-	labelview.value( {
-		language: 'en',
-		label: null
-	} );
+	newValue = new wb.datamodel.Term( 'en', '' );
+
+	labelview.value( newValue );
 
 	assert.ok(
-		labelview.value().language === 'en'
-			&& labelview.value().label === null,
+		labelview.value().equals( newValue ),
 		'Set another value.'
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );

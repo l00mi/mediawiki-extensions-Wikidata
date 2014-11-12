@@ -38,12 +38,11 @@
 				'claimlistview',
 				'claim-qualifiers-snak',
 				'references',
-				'referenceview-snakview',
-				'sitelinkgroupview-sitelinklistview'
+				'referenceview-snakview'
 			],
 			edittoolbar: [
 				'aliasesview',
-				'claimview',
+				'statementview',
 				'descriptionview',
 				'labelview',
 				'fingerprintgroupview',
@@ -73,6 +72,7 @@
 				$target.data( 'labelview' )
 				|| $target.data( 'descriptionview' )
 				|| $target.data( 'aliasesview' )
+				|| $target.data( 'sitelinkgroupview' )
 			) {
 				gravity = 'nw';
 			}
@@ -89,16 +89,16 @@
 	 * @return {wikibase.store.CombiningEntityStore}
 	 */
 	function buildEntityStore( repoApi ) {
-		// Unserializer for fetched content whose content is a wb.datamodel.Entity:
-		var fetchedEntityUnserializer = new wb.store.FetchedContentUnserializer( {
-				contentUnserializer: new wb.serialization.EntityUnserializer()
-			} );
+		// Deserializer for fetched content whose content is a wb.datamodel.Entity:
+		var fetchedEntityDeserializer = new wb.store.FetchedContentUnserializer(
+				new wb.serialization.EntityDeserializer()
+			);
 
 		return new wb.store.CombiningEntityStore( [
-			new wb.store.MwConfigEntityStore( fetchedEntityUnserializer ),
+			new wb.store.MwConfigEntityStore( fetchedEntityDeserializer ),
 			new wb.store.ApiEntityStore(
 				repoApi,
-				fetchedEntityUnserializer,
+				fetchedEntityDeserializer,
 				[ mw.config.get( 'wgUserLanguage' ) ]
 			)
 		] );
@@ -130,6 +130,7 @@
 				experts,
 				getFormatterStore( repoApi, dataTypes ),
 				getParserStore( repoApi ),
+				mw.config.get( 'wgUserLanguage' ),
 				mw
 			),
 			languages: getUserLanguages()
@@ -137,10 +138,10 @@
 		.on( 'labelviewchange labelviewafterstopediting', function( event ) {
 			var $labelview = $( event.target ),
 				labelview = $labelview.data( 'labelview' ),
-				label = labelview.value().label;
+				label = labelview.value().getText();
 
 			$( 'title' ).text(
-				mw.msg( 'pagetitle', label && label !== '' ? label : mw.config.get( 'wgTitle' ) )
+				mw.msg( 'pagetitle', label !== '' ? label : mw.config.get( 'wgTitle' ) )
 			);
 		} )
 		.on( 'entityviewafterstartediting', function() {
@@ -151,11 +152,12 @@
 		} );
 	}
 
+	/**
+	 * @return {string[]}
+	 */
 	function getUserLanguages() {
 		var userLanguages = mw.config.get( 'wbUserSpecifiedLanguages' ),
-			isUlsDefined = mw.uls !== undefined
-				&& $.uls !== undefined
-				&& $.uls.data !== undefined,
+			isUlsDefined = mw.uls && $.uls && $.uls.data,
 			languages = [];
 
 		if( !userLanguages.length && isUlsDefined ) {
@@ -269,12 +271,13 @@
 				content: $message,
 				permanent: true,
 				gravity: gravity,
-				$anchor: edittoolbar.getButton( 'save' ).element
+				$anchor: edittoolbar.getContainer()
 			} );
 
 		$hideMessage.on( 'click', function( event ) {
 			event.preventDefault();
 			$messageAnchor.data( 'wbtooltip' ).degrade( true );
+			$( window ).off( '.wbCopyrightTooltip' );
 			if( mw.user.isAnon() ) {
 				$.cookie( cookieKey, copyRightVersion, { 'expires': 365 * 3, 'path': '/' } );
 			} else {
@@ -291,11 +294,24 @@
 
 		// destroy tooltip after edit mode gets closed again:
 		$entityview
-		.one( 'entityviewafterstopediting', function( event, origin ) {
-			if( $messageAnchor.data( 'wbtooltip' ) !== undefined ) {
-				$messageAnchor.data( 'wbtooltip' ).degrade( true );
+		.one( 'entityviewafterstopediting.wbCopyRightTooltip', function( event, origin ) {
+			var tooltip = $messageAnchor.data( 'wbtooltip' );
+			if( tooltip ) {
+				tooltip.degrade( true );
 			}
+			$( window ).off( '.wbCopyrightTooltip' );
 		} );
+
+		$( window ).one(
+			'scroll.wbCopyrightTooltip touchmove.wbCopyrightTooltip resize.wbCopyrightTooltip',
+			function() {
+				var tooltip = $messageAnchor.data( 'wbtooltip' );
+				if( tooltip ) {
+					$messageAnchor.data( 'wbtooltip' ).hide();
+				}
+				$entityview.off( '.wbCopyRightTooltip' );
+			}
+		);
 	}
 
 	function evaluateRestrictions() {

@@ -8,19 +8,18 @@
 var PARENT = wb.datamodel.Snak;
 
 /**
- * Represents a Wikibase PropertyNoValueSnak in JavaScript.
  * @constructor
- * @extends wb.datamodel.Snak
- * @since 0.2
- * @see https://meta.wikimedia.org/wiki/Wikidata/Data_model#PropertyNoValueSnak
+ * @extends wikibase.datamodel.Snak
+ * @since 0.3
  *
- * @param {Number} propertyId
+ * @param {string} propertyId
  */
-var SELF = wb.datamodel.PropertyNoValueSnak = util.inherit( 'WbPropertyNoValueSnak', PARENT, {} );
+var SELF
+	= wb.datamodel.PropertyNoValueSnak
+	= util.inherit( 'WbDataModelPropertyNoValueSnak', PARENT, {} );
 
 /**
- * @see wb.datamodel.Snak.TYPE
- * @type String
+ * @see wikibase.datamodel.Snak.TYPE
  */
 SELF.TYPE = 'novalue';
 

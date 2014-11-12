@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -11,23 +11,23 @@
  */
 var createFingerprintlistview = function( options ) {
 	options = $.extend( {
-		entityId: 'i am an entity id',
+		entityId: 'i am an EntityId',
 		entityChangersFactory: {
-			getAliasesChanger: function () { return 'aliasesChanger'; },
-			getDescriptionsChanger: function () { return 'descriptionsChanger'; },
-			getLabelsChanger: function () { return 'labelsChanger'; }
+			getAliasesChanger: function() { return 'i am an AliasesChanger'; },
+			getDescriptionsChanger: function() { return 'i am a DescriptionsChanger'; },
+			getLabelsChanger: function() { return 'i am a LabelsChanger'; }
 		},
 		value: [
 			{
 				language: 'de',
-				label: 'de-label',
+				label: new wb.datamodel.Term( 'de', 'de-label' ),
 				description: 'de-description',
-				aliases: []
+				aliases: new wb.datamodel.MultiTerm( 'de', [] )
 			}, {
 				language: 'en',
-				label: 'en-label',
+				label: new wb.datamodel.Term( 'en', 'en-label' ),
 				description: 'en-description',
-				aliases: []
+				aliases: new wb.datamodel.MultiTerm( 'en', [] )
 			}
 		]
 	}, options || {} );
@@ -90,9 +90,9 @@ QUnit.test( 'isInitialValue()', function( assert ) {
 
 	var $item = $fingerprintlistview.data( 'listview' ).addItem( {
 		language: 'fa',
-		label: 'fa-label',
+		label: new wb.datamodel.Term( 'fa', 'fa-label' ),
 		description: 'fa-description',
-		aliases: []
+		aliases: new wb.datamodel.MultiTerm( 'fa', [] )
 	} );
 
 	assert.ok(
@@ -149,4 +149,4 @@ QUnit.test( 'value()', function( assert ) {
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );

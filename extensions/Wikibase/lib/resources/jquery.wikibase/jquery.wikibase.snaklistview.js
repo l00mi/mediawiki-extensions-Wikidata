@@ -7,11 +7,12 @@
 ( function( mw, wb, $ ) {
 	'use strict';
 
-	var PARENT = $.TemplatedWidget;
+	var PARENT = $.ui.TemplatedWidget;
 
 /**
  * View for displaying and editing a list of snaks (wb.datamodel.Snak objects).
  * @since 0.4
+ * @extends jQuery.ui.TemplatedWidget
  *
  * @option {wb.datamodel.SnakList|null} value The list of snaks displayed by this view. This should only be
  *         set initially. If this is null, the view will start edit mode upon initialization.
@@ -355,7 +356,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 			}
 		} );
 
-		return ( snaks.length > 0 ) ? new wb.datamodel.SnakList( snaks ): null;
+		return ( snaks.length > 0 ) ? new wb.datamodel.SnakList( snaks ) : null;
 	},
 
 	/**
@@ -407,7 +408,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 		$.each( this._listview.items(), function( i, item ) {
 			var snakview = self._lia.liInstance( $( item ) );
-			snakList.addSnak( snakview.snak() );
+			snakList.addItem( snakview.snak() );
 		} );
 
 		return this._snakList.equals( snakList );
@@ -462,6 +463,19 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		}
 
 		return response;
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
+	focus: function() {
+		var $items = this._listview.items();
+
+		if( $items.length ) {
+			this._listview.listItemAdapter().liInstance( $items.first() ).focus();
+		} else {
+			this.element.focus();
+		}
 	},
 
 	/**

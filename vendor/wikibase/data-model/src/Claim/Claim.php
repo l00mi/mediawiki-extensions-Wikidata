@@ -14,7 +14,7 @@ use Wikibase\DataModel\Statement\Statement;
 
 /**
  * Class that represents a single Wikibase claim.
- * See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Statements
+ * See https://www.mediawiki.org/wiki/Wikibase/DataModel#Statements
  *
  * @since 0.4 (as 'ClaimObject' and interface 'Claim' since 0.1)
  *
@@ -164,7 +164,7 @@ class Claim implements Hashable, Comparable, PropertyIdProvider {
 	 */
 	public function setGuid( $guid ) {
 		if ( !is_string( $guid ) && $guid !== null ) {
-			throw new InvalidArgumentException( 'Can only set the GUID to string values or null' );
+			throw new InvalidArgumentException( '$guid must be a string or null; got ' . gettype( $guid ) );
 		}
 
 		$this->guid = $guid;
@@ -193,11 +193,11 @@ class Claim implements Hashable, Comparable, PropertyIdProvider {
 	 * @return Snak[]
 	 */
 	public function getAllSnaks() {
-		$snaks = array();
+		$snaks = array( $this->mainSnak );
 
-		$snaks[] = $this->getMainSnak();
-		$qualifiers = $this->getQualifiers();
-		$snaks = array_merge( $snaks, iterator_to_array( $qualifiers ) );
+		foreach( $this->qualifiers as $qualifier ) {
+			$snaks[] = $qualifier;
+		}
 
 		return $snaks;
 	}

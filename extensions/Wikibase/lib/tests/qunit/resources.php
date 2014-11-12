@@ -44,6 +44,15 @@ return call_user_func( function() {
 			),
 		),
 
+		'jquery.sticknode.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery/jquery.sticknode.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.sticknode',
+			),
+		),
+
 		'jquery.ui.tagadata.tests' => $moduleBase + array(
 			'scripts' => array(
 				'jquery.ui/jquery.ui.tagadata.tests.js',
@@ -68,7 +77,6 @@ return call_user_func( function() {
 				'wikibase.RepoApi/wikibase.RepoApi.tests.js',
 			),
 			'dependencies' => array(
-				'mw.config.values.wbRepo',
 				'wikibase',
 				'wikibase.api.getLocationAgnosticMwApi',
 				'wikibase.RepoApi',
@@ -124,15 +132,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'wikibase.utilities.GuidGenerator',
-			),
-		),
-
-		'templates.tests' => $moduleBase + array(
-			'scripts' => array(
-				'templates.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.templates',
 			),
 		),
 

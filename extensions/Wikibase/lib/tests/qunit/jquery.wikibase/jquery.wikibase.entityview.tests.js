@@ -13,18 +13,15 @@
  */
 var createEntityview = function( options, $node ) {
 	options = $.extend( {
-		entityStore: 'i am an entity store',
+		entityStore: 'i am an EntityStore',
 		entityChangersFactory: {
-			getAliasesChanger: function() {
-				return 'i am an alias changer';
-			}
+			getAliasesChanger: function() { return 'i am an AliasesChanger'; },
+			getDescriptionsChanger: function() { return 'i am a DescriptionsChanger'; },
+			getLabelsChanger: function() { return 'i am a LabelsChanger'; }
 		},
-		api: 'i am an api',
+		api: 'i am an Api',
 		valueViewBuilder: 'i am a valueview builder',
-		value: new wb.datamodel.Item( {
-			id: 'Q1',
-			type: 'item'
-		} ) // FIXME: value is optional according to doc
+		value: new wb.datamodel.Item( 'Q1' ) // FIXME: value is optional according to doc
 	}, options || {} );
 
 	$node = $node || $( '<div/>' ).appendTo( 'body' );
@@ -80,6 +77,14 @@ QUnit.test( 'Create & destroy', function( assert ) {
 	assert.ok(
 		$entityview.data( 'entityview' ) === undefined,
 		'Destroyed widget.'
+	);
+
+	$entityview = createEntityview( { languages: [ 'ku' ] } );
+	entityview = $entityview.data( 'entityview' );
+
+	assert.ok(
+		entityview instanceof $.wikibase.entityview,
+		'Created widget with a language.'
 	);
 } );
 

@@ -1,10 +1,15 @@
 <?php
 
 return call_user_func( function() {
-	$remoteExtPathParts = explode( DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR , __DIR__, 2 );
+	preg_match(
+		'+' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
+		__DIR__,
+		$remoteExtPathParts
+	);
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => $remoteExtPathParts[1],
+		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1],
 	);
 
 	return array(
@@ -79,6 +84,7 @@ return call_user_func( function() {
 				'mediawiki.api',
 				'mediawiki.util',
 				'mediawiki.jqueryMsg',
+				'jquery.event.special.eachchange',
 				'wikibase.client.currentSite',
 				'wikibase.sites',
 				'wikibase.RepoApi',
@@ -86,6 +92,7 @@ return call_user_func( function() {
 				'wikibase.client.PageConnector'
 			),
 			'messages' => array(
+				'wikibase-error-unexpected',
 				'wikibase-linkitem-alreadylinked',
 				'wikibase-linkitem-title',
 				'wikibase-linkitem-linkpage',

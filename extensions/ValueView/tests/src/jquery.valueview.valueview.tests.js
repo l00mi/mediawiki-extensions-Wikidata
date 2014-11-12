@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author Adrian Lang < adrian.lang@wikimedia.de >
  */
-
+/* jshint nonew: false */
 ( function( $, vv, dv, vf, vp, sinon, QUnit, CompletenessTest ) {
 	'use strict';
 
@@ -35,7 +35,8 @@
 		vvArgs: {
 			expertStore: new vv.ExpertStore(),
 			formatterStore: new vf.ValueFormatterStore( vf.NullFormatter ),
-			parserStore: new vp.ValueParserStore( vp.NullParser )
+			parserStore: new vp.ValueParserStore( vp.NullParser ),
+			language: 'en'
 		}
 	};
 
@@ -128,19 +129,31 @@
 		sinon.spy( vvArgs.parserStore, 'getParser' );
 		initVv( {
 			generateDom: function() {
-				return jQuery( '<div/>' ).append( 'FORMATTED VALUE' );
+				return $( '<div/>' ).append( 'FORMATTED VALUE' );
 			},
 			vvArgs: vvArgs
 		} );
 
-		vvInst.draw();
+		QUnit.stop();
 
-		assert.equal( vvInst.getFormattedValue(), 'FORMATTED VALUE' );
-		sinon.assert.notCalled( vvArgs.formatterStore.getFormatter );
-		sinon.assert.notCalled( vvArgs.parserStore.getParser );
+		vvInst.draw()
+		.done( function() {
+			assert.equal( vvInst.getFormattedValue(), 'FORMATTED VALUE' );
+			sinon.assert.notCalled( vvArgs.formatterStore.getFormatter );
+			sinon.assert.notCalled( vvArgs.parserStore.getParser );
 
-		vvArgs.formatterStore.getFormatter.restore();
-		vvArgs.parserStore.getParser.restore();
+			vvArgs.formatterStore.getFormatter.restore();
+			vvArgs.parserStore.getParser.restore();
+		} )
+		.fail( function() {
+			assert.ok(
+				false,
+				'draw() returned rejected promise.'
+			);
+		} )
+		.always( function() {
+			QUnit.start();
+		} );
 	} );
 
 	QUnit.test( 'getFormattedValue without DOM', function( assert ) {
@@ -153,14 +166,26 @@
 			vvArgs: vvArgs
 		} );
 
-		vvInst.draw();
+		QUnit.stop();
 
-		assert.equal( vvInst.getFormattedValue(), 'STRING VALUE' );
-		sinon.assert.calledOnce( vvArgs.formatterStore.getFormatter );
-		sinon.assert.notCalled( vvArgs.parserStore.getParser );
+		vvInst.draw()
+		.done( function() {
+			assert.equal( vvInst.getFormattedValue(), 'STRING VALUE' );
+			sinon.assert.calledOnce( vvArgs.formatterStore.getFormatter );
+			sinon.assert.notCalled( vvArgs.parserStore.getParser );
 
-		vvArgs.formatterStore.getFormatter.restore();
-		vvArgs.parserStore.getParser.restore();
+			vvArgs.formatterStore.getFormatter.restore();
+			vvArgs.parserStore.getParser.restore();
+		} )
+		.fail( function() {
+			assert.ok(
+				false,
+				'draw() returned rejected promise.'
+			);
+		} )
+		.always( function() {
+			QUnit.start();
+		} );
 	} );
 
 	QUnit.test( 'disable', function( assert ) {

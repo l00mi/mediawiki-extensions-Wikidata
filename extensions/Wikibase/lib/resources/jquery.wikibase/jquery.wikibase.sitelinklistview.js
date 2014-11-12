@@ -10,7 +10,7 @@
 /**
  * Displays and allows editing multiple site links.
  * @since 0.5
- * @extends jQuery.TemplatedWidget
+ * @extends jQuery.ui.TemplatedWidget
  *
  * @option {wikibase.datamodel.SiteLink[]} [value]
  *         Default: []
@@ -24,6 +24,11 @@
  *
  * @option {jQuery} [$counter]
  *         Node(s) that shall contain information about the number of site links.
+ *
+ * @option {boolean} [autoInput]
+ *         Whether to automatically show and add new input fields to add a new value when in edit
+ *         mode.
+ *         Default: true
  *
  * @event change
  *        - {jQuery.Event}
@@ -68,7 +73,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		allowedSiteIds: [],
 		siteLinksChanger: null,
 		entityStore: null,
-		$counter: null
+		$counter: null,
+		autoInput: true
 	},
 
 	/**
@@ -96,12 +102,28 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		}
 
 		this._refreshCounter();
+
+		if( this.options.autoInput && !this.isFull() ) {
+			var self = this;
+
+			this.element
+			.on( this.widgetEventPrefix + 'afterstartediting', function() {
+				self._updateAutoInput();
+			} );
+		}
+
+		this.$thead.sticknode( {
+			$container: this.element
+		} );
+
+		this._applyStickiness();
 	},
 
 	/**
 	 * @see jQuery.ui.TemplatedWidget.destroy
 	 */
 	destroy: function() {
+		this.$thead.data( 'sticknode' ).destroy();
 		this.$listview.data( 'listview' ).destroy();
 		this.$listview.off( '.' + this.widgetName );
 		this.element.removeData( 'tablesorter' );
@@ -139,11 +161,24 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		} )
 		.on( prefix + 'change.' + this.widgetName, function( event ) {
 			event.stopPropagation();
+			if( self.options.autoInput ) {
+				self._updateAutoInput();
+			}
 			self._trigger( 'change' );
 		} )
 		.on( prefix + 'toggleerror.' + this.widgetName, function( event, error ) {
 			event.stopPropagation();
 			self.setError( error );
+		} )
+		.on( 'keydown.' + this.widgetName, function( event ) {
+			if( event.keyCode === $.ui.keyCode.BACKSPACE ) {
+				var $sitelinkview = $( event.target ).closest( ':wikibase-sitelinkview' ),
+					sitelinkview = $sitelinkview.data( 'sitelinkview' );
+
+				if( sitelinkview ) {
+					self._removeSitelinkviewIfEmpty( sitelinkview, event );
+				}
+			}
 		} )
 		.on(
 			[
@@ -190,6 +225,123 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				self._trigger( 'change' );
 			}
 		);
+	},
+
+	_applyStickiness: function() {
+		var self = this,
+			stickyNode = this.$thead.data( 'sticknode' );
+
+		this.$thead.on( 'sticknodeupdate', function() {
+			if( !stickyNode.isFixed() ) {
+				return;
+			}
+
+			var $firstBodyTrTds = self.$listview.find( 'tr:first td' );
+
+			if( !$firstBodyTrTds.length ) {
+				return;
+			}
+
+			self.$thead.find( 'th' ).each( function( i ) {
+				var $th = $( this );
+
+				if( !self._isInEditMode ) {
+					$th.removeAttr( 'style' );
+				}
+
+				if( i === 2 && !self._isInEditMode ) {
+					return;
+				}
+
+				var width = $firstBodyTrTds.eq( i ).width();
+
+				// Translate border width and padding added by tablesorter:
+				if( i === 0 ) {
+					width -= 10;
+				} else if( i === 3 ) {
+					width += 1;
+				} else {
+					width -= 11;
+				}
+
+				$th.width( width );
+			} );
+
+			self.$thead.width( self.element.width() );
+		} );
+	},
+
+	/**
+	 * @param {jQuery.wikibase.sitelinkview} sitelinkview
+	 * @param {jQuery.Event} event
+	 */
+	_removeSitelinkviewIfEmpty: function( sitelinkview, event ) {
+		var $sitelinkview = sitelinkview.element,
+			listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter(),
+			$items = listview.items(),
+			isLast = $sitelinkview.get( 0 ) === $items.last().get( 0 ),
+			isEmpty = sitelinkview.isEmpty()
+				|| sitelinkview.option( 'value' ) && !sitelinkview.value();
+
+		if( isEmpty ) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			// Shift focus to previous line or to following line if there is no previous:
+			$items.each( function( i ) {
+				if( this === $sitelinkview.get( 0 ) ) {
+					if( i > 0 ) {
+						lia.liInstance( $items.eq( i - 1 ) ).focus();
+					} else if( $items.length > 1 ) {
+						lia.liInstance( $items.eq( i + 1 ) ).focus();
+					}
+					return false;
+				}
+			} );
+
+			if( !isLast ) {
+				listview.removeItem( $sitelinkview );
+			}
+		}
+	},
+
+	_updateAutoInput: function() {
+		/**
+		 * @param {jQuery} $sitelinkview
+		 * @return {boolean}
+		 */
+		function moreThanOneEmpty( $sitelinkview ) {
+			var emptyItems = 0;
+
+			$sitelinkview.each( function() {
+				if( $( this ).data( 'sitelinkview' ).isEmpty() ) {
+					return ++emptyItems === 2;
+				}
+			} );
+
+			return emptyItems === 2;
+		}
+
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter(),
+			$items = listview.items(),
+			$lastSitelinkview = $items.last(),
+			lastSitelinkview = lia.liInstance( $lastSitelinkview ),
+			multipleEmpty = moreThanOneEmpty( $items ).length > 1,
+			secondToLast = $items.length > 1 && lia.liInstance( $items.eq( -2 ) ),
+			secondToLastInvalidPending
+				= secondToLast && !secondToLast.isValid() && !secondToLast.option( 'value' );
+
+		if(
+			lastSitelinkview
+			&& lastSitelinkview.isEmpty()
+			&& ( multipleEmpty || secondToLastInvalidPending )
+		) {
+			listview.removeItem( $lastSitelinkview );
+		} else if( !lastSitelinkview || lastSitelinkview.isValid() && !this.isFull() ) {
+			this.enterNewItem();
+		}
 	},
 
 	/**
@@ -264,7 +416,17 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			isValid = true;
 
 		listview.items().each( function() {
-			isValid = lia.liInstance( $( this ) ).isValid();
+			// Site link views are regarded valid if they have a valid site. Invalid site links
+			// (without a page name) and empty values (with no site id and page name input) are
+			// supposed to be stripped when querying this widget for its value.
+			// Put together, we consider sitelinkviews invalid only when they have something in
+			// the siteId input field which does not resolve to a valid siteId and which is not
+			// empty.
+			var sitelinkview = lia.liInstance( $( this ) );
+			isValid = sitelinkview.isValid()
+				|| sitelinkview.isEmpty()
+				// Previously existing values do always feature a valid site id:
+				|| Boolean( sitelinkview.option( 'value' ) );
 			return isValid === true;
 		} );
 
@@ -307,6 +469,10 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			return;
 		}
 
+		// Reset sort order before actually switching to edit mode since it should not be done while
+		// in edit mode (see comment in this._refreshTablesorter()).
+		this._refreshTablesorter();
+
 		this._isInEditMode = true;
 		this.element.addClass( 'wb-edit' );
 
@@ -336,6 +502,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		this._trigger( 'stopediting', null, [dropValue] );
 
 		this.disable();
+		this._removeIncompleteSiteLinks();
 
 		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
@@ -353,13 +520,13 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 					.done( function() {
 						self._afterRemove();
 
-						// Use setTimeout here to break out of the current call stack.
-						// This is needed because the stack can get very large (if the queue
-						// is very large), eventually leading to failures.
+						// Avoid exceeding call stack size.
 						setTimeout( next, 0 );
 					} )
 					.fail( function( error ) {
+						$queue.clearQueue( 'stopediting' );
 						self.setError( error );
+						self._resetEditMode();
 					} );
 			} );
 		}
@@ -380,11 +547,15 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		function addStopEditToQueue( $queue, sitelinkview, dropValue ) {
 			$queue.queue( 'stopediting', function( next ) {
 				sitelinkview.element
-				.one( 'sitelinkviewafterstopediting.sitelinklistview', function( event ) {
-					// Use setTimeout here to break out of the current call stack.
-					// This is needed because the stack can get very large (if the queue
-					// is very large), eventually leading to failures.
+				.one( 'sitelinkviewafterstopediting.sitelinklistviewstopediting', function( event ) {
+					sitelinkview.element.off( '.sitelinklistviewstopediting' );
+					// Avoid exceeding call stack size.
 					setTimeout( next, 0 );
+				} )
+				.one( 'sitelinkviewtoggleerror.sitelinklistviewstopediting', function() {
+					sitelinkview.element.off( '.sitelinklistviewstopediting' );
+					$queue.clearQueue( 'stopediting' );
+					self._resetEditMode();
 				} );
 				sitelinkview.stopEditing( dropValue );
 			} );
@@ -400,6 +571,25 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		} );
 
 		$queue.dequeue( 'stopediting' );
+	},
+
+	_removeIncompleteSiteLinks: function() {
+		var listview = this.$listview.data( 'listview' );
+
+		listview.items().not( listview.nonEmptyItems() ).each( function() {
+			listview.removeItem( $( this ) );
+		} );
+	},
+
+	_resetEditMode: function() {
+		this.enable();
+
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			lia.liInstance( $( this ) ).startEditing();
+		} );
 	},
 
 	/**
@@ -442,6 +632,9 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		this.stopEditing( true );
 	},
 
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
 	focus: function() {
 		// Focus first invalid/incomplete item or - if there is none - the first item.
 		var listview = this.$listview.data( 'listview' ),
@@ -449,6 +642,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			$items = listview.items();
 
 		if( !$items.length ) {
+			this.element.focus();
 			return;
 		}
 
@@ -521,12 +715,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
-		listview.items().each( function() {
-			var sitelinkviewValue = lia.liInstance( $( this ) ).value();
-			// Ignore pending value.
-			if( sitelinkviewValue ) {
-				value.push( sitelinkviewValue );
-			}
+		listview.nonEmptyItems().each( function() {
+			value.push( lia.liInstance( $( this ) ).value() );
 		} );
 
 		return value;
@@ -675,6 +865,13 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	_refreshTablesorter: function() {
+		if( this._isInEditMode ) {
+			// Re-sorting the table involves reconstructing the table's DOM. This may lead to
+			// interference with focusing (IE, though it does not lose focus, is unable to reflect
+			// character input into the input box).
+			return;
+		}
+
 		this.element.removeData( 'tablesorter' );
 
 		if( this.$thead.children().length ) {

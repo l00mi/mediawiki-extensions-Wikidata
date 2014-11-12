@@ -161,6 +161,7 @@ $.widget( 'wikibase.linkitem', {
 				title: mw.message( 'wikibase-linkitem-title' ).escaped(),
 				width: 500,
 				resizable: false,
+				position: { my: "top", at: "top+50", of: window },
 				buttons: [ {
 					text: mw.msg( 'wikibase-linkitem-linkpage' ),
 					id: 'wbclient-linkItem-goButton',
@@ -320,6 +321,8 @@ $.widget( 'wikibase.linkitem', {
 	 * @return {jQuery}
 	 */
 	_createPageInput: function() {
+		var self = this;
+
 		return $( '<label>' )
 		.attr( 'for', 'wbclient-linkItem-page' )
 		.text( mw.msg( 'wikibase-linkitem-input-page' ) )
@@ -331,10 +334,16 @@ $.widget( 'wikibase.linkitem', {
 				disabled: 'disabled',
 				'class' : 'wbclient-linkItem-input'
 			} )
-			.on( 'focus', $.proxy( function () {
-				// Enable the button by the time the user uses this field
-				this.$goButton.button( 'enable' );
-			}, this ) )
+			.on( 'eachchange', function () {
+				// Enable the button if the field has a value
+				self.$goButton.button( $( this ).val() === '' ? 'disable' : 'enable' );
+			} )
+			.on( 'keydown', function( e ) {
+				if ( !self.$goButton.prop( 'disabled' ) && e.which === 13 ) {
+					// Enter should submit
+					self.$goButton.trigger( 'click' );
+				}
+			} )
 		);
 	},
 
@@ -581,7 +590,7 @@ $.widget( 'wikibase.linkitem', {
 	 * @param {Object} [errorInfo]
 	 */
 	_onError: function( errorCode, errorInfo ) {
-		var error = ( errorInfo )
+		var error = errorInfo
 			? wb.RepoApiError.newFromApiResponse( errorInfo )
 			: errorCode;
 

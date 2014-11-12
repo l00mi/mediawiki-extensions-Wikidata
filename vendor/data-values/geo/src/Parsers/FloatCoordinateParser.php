@@ -14,12 +14,7 @@ use ValueParsers\ParserOptions;
  */
 class FloatCoordinateParser extends GeoCoordinateParserBase {
 
-	/**
-	 * @param ParserOptions|null $options
-	 */
-	public function __construct( ParserOptions $options = null ) {
-		parent::__construct( $options );
-	}
+	const FORMAT_NAME = 'float-coordinate';
 
 	/**
 	 * @see GeoCoordinateParserBase::getParsedCoordinate
@@ -74,7 +69,7 @@ class FloatCoordinateParser extends GeoCoordinateParserBase {
 			}
 		}
 
-		return $match;
+		return ( 1 === $match );
 	}
 
 	/**
@@ -114,8 +109,11 @@ class FloatCoordinateParser extends GeoCoordinateParserBase {
 		}
 
 		if( count( $normalizedCoordinateSegments ) !== 2 ) {
-			throw new ParseException( __CLASS__ . ': Unable to split string '
-			. $normalizedCoordinateString . ' into two coordinate segments' );
+			throw new ParseException(
+				'Unable to split input into two coordinate segments',
+				$normalizedCoordinateString,
+				self::FORMAT_NAME
+			);
 		}
 
 		return $normalizedCoordinateSegments;

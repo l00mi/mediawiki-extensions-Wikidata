@@ -56,7 +56,7 @@ $.widget( 'wikibase.toolbarbutton', PARENT, {
 		}
 
 		this.$link
-		.on( 'click.toolbarbutton keydow.toolbarbutton', function( event ) {
+		.on( 'click.toolbarbutton keydown.toolbarbutton', function( event ) {
 			event.preventDefault();
 
 			if( self.options.disabled ) {
@@ -101,6 +101,9 @@ $.widget( 'wikibase.toolbarbutton', PARENT, {
 			: this.options.$label;
 	},
 
+	/**
+	 * @see jQuery.wikibase.toolbaritem.focus
+	 */
 	focus: function() {
 		this.$link.focus();
 	},

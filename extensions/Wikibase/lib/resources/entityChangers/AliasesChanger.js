@@ -38,30 +38,29 @@ $.extend( SELF.prototype, {
 	_api: null,
 
 	/**
-	 * @param {Object[]} aliases
-	 * @param {string} language
+	 * @param {wikibase.datamodel.MultiTerm} aliases
 	 * @return {jQuery.Promise}
 	 *         No resolved parameters.
 	 *         Rejected parameters:
 	 *         - {wikibase.RepoApiError}
 	 */
-	setAliases: function( aliases, language ) {
+	setAliases: function( aliases ) {
 		var deferred = $.Deferred(),
-			self = this;
+			self = this,
+			language = aliases.getLanguageCode(),
+			initialAliases = this._getInitialAliases( language );
 
 		this._api.setAliases(
 			this._entity.getId(),
 			this._revisionStore.getAliasesRevision(),
-			this._getNewAliases( aliases, language ),
-			this._getRemovedAliases( aliases, language ),
+			this._getNewAliasesTexts( aliases, initialAliases ),
+			this._getRemovedAliasesTexts( aliases, initialAliases ),
 			language
 		)
 		.done( function( response ) {
 			self._revisionStore.setAliasesRevision( response.entity.lastrevid );
 
-			// FIXME: Introduce setter, get this right
-			self._entity._data.aliases = self._entity._data.aliases || {};
-			self._entity._data.aliases[ language ] = aliases;
+			self._entity.getFingerprint().setAliases( language, aliases );
 
 			deferred.resolve();
 		} )
@@ -73,17 +72,27 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * @param {string[]} currentAliases
 	 * @param {string} language
+	 * @return {wikibase.datamodel.MultiTerm}
+	 */
+	_getInitialAliases: function( language ) {
+		return this._entity.getFingerprint().getAliasesFor( language )
+			|| new wb.datamodel.MultiTerm( language, [] );
+	},
+
+	/**
+	 * @param {wikibase.datamodel.MultiTerm} currentAliases
+	 * @param {wikibase.datamodel.MultiTerm} initialAliases
 	 * @return {string[]}
 	 */
-	_getNewAliases: function( currentAliases, language ) {
-		var initialAliases = this._entity.getAliases( language ) || [],
+	_getNewAliasesTexts: function( currentAliases, initialAliases ) {
+		var currentTexts = currentAliases.getTexts(),
+			initialTexts = initialAliases.getTexts(),
 			newAliases = [];
 
-		for( var i = 0; i < currentAliases.length; i++ ) {
-			if( $.inArray( currentAliases[i], initialAliases ) === -1 ) {
-				newAliases.push( currentAliases[i] );
+		for( var i = 0; i < currentTexts.length; i++ ) {
+			if( $.inArray( currentTexts[i], initialTexts ) === -1 ) {
+				newAliases.push( currentTexts[i] );
 			}
 		}
 
@@ -91,17 +100,18 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * @param {string[]} currentAliases
-	 * @param {string} language
+	 * @param {wikibase.datamodel.MultiTerm} currentAliases
+	 * @param {wikibase.datamodel.MultiTerm} initialAliases
 	 * @return {string[]}
 	 */
-	_getRemovedAliases: function( currentAliases, language ) {
-		var initialAliases = this._entity.getAliases( language ) || [],
+	_getRemovedAliasesTexts: function( currentAliases, initialAliases ) {
+		var currentTexts = currentAliases.getTexts(),
+			initialTexts = initialAliases.getTexts(),
 			removedAliases = [];
 
-		for( var i = 0; i < initialAliases.length; i++ ) {
-			if( $.inArray( initialAliases[i], currentAliases ) === -1 ) {
-				removedAliases.push( initialAliases[i] );
+		for( var i = 0; i < initialTexts.length; i++ ) {
+			if( $.inArray( initialTexts[i], currentTexts ) === -1 ) {
+				removedAliases.push( initialTexts[i] );
 			}
 		}
 

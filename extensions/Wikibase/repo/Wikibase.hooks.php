@@ -32,7 +32,6 @@ use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\Hook\MakeGlobalVariablesScriptHandler;
 use Wikibase\Hook\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\View\EntityViewPlaceholderExpander;
@@ -179,6 +178,25 @@ final class RepoHooks {
 		$files = array_merge( $files, $ourFiles );
 		return true;
 		// @codeCoverageIgnoreEnd
+	}
+
+	/**
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ResourceLoaderTestModules
+	 *
+	 * @since 0.2 (in repo as RepoHooks::onResourceLoaderTestModules in 0.1)
+	 *
+	 * @param array &$testModules
+	 * @param \ResourceLoader &$resourceLoader
+	 *
+	 * @return boolean
+	 */
+	public static function registerQUnitTests( array &$testModules, \ResourceLoader &$resourceLoader ) {
+		$testModules['qunit'] = array_merge(
+			$testModules['qunit'],
+			include( __DIR__ . '/tests/qunit/resources.php' )
+		);
+
+		return true;
 	}
 
 	/**
@@ -1140,44 +1158,6 @@ final class RepoHooks {
 		$isExperimental = defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES;
 
 		$hookHandler->handle( $out, $isExperimental );
-
-		return true;
-	}
-
-	/**
-	 * Provides fallback for output page js config vars that are stored in parser cache.
-	 *
-	 * In some cases, e.g. stale parser cache contents, variables including wbEntity might be
-	 * missing, so we add them here as a fallback.  This hook is called after
-	 * OutputPage::setRevisionId is called. Revision id is needed to retrieve the correct entity.
-	 *
-	 * @param array $vars
-	 * @param OutputPage $out
-	 *
-	 * @return bool
-	 */
-	public static function onMakeGlobalVariablesScript( $vars, $out ) {
-		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
-
-		if ( !$entityNamespaceLookup->isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
-			return true;
-		}
-
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$languageCode = $out->getContext()->getLanguage()->getCode();
-
-		$fallbackChainFactory = $wikibaseRepo->getLanguageFallbackChainFactory();
-		$fallbackChain = $fallbackChainFactory->newFromContextForPageView( $out->getContext() );
-
-		$languageCodes = Utils::getLanguageCodes() + array( $languageCode => $fallbackChain );
-
-		$hookHandler = new MakeGlobalVariablesScriptHandler(
-			$wikibaseRepo->getEntityContentFactory(),
-			$wikibaseRepo->getParserOutputJsConfigBuilder( $languageCode ),
-			$languageCodes
-		);
-
-		$hookHandler->handle( $out );
 
 		return true;
 	}

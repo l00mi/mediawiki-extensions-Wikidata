@@ -3,7 +3,10 @@
 namespace Wikibase\Client\Scribunto;
 
 use Language;
+use InvalidArgumentException;
+use OutOfBoundsException;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Serializers\SerializationOptions;
@@ -11,6 +14,10 @@ use Wikibase\Lib\Serializers\Serializer;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
+use Wikibase\Lib\Store\LabelLookup;
+use Wikibase\Lib\Store\StorageException;
+use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\SettingsArray;
 
 /**
@@ -65,12 +72,24 @@ class WikibaseLuaBindings {
 	private $siteId;
 
 	/**
+	 * @var PropertyDataTypeLookup
+	 */
+	private $dataTypeLookup;
+
+	/**
+	 * @var LabelLookup
+	 */
+	private $labelLookup;
+
+	/**
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityLookup $entityLookup
 	 * @param SiteLinkLookup $siteLinkTable
 	 * @param LanguageFallbackChainFactory $fallbackChainFactory
 	 * @param Language $language
 	 * @param SettingsArray $settings
+	 * @param PropertyDataTypeLookup $dataTypeLookup
+	 * @param LabelLookup $labelLookup
 	 * @param string[] $languageCodes
 	 * @param string $siteId
 	 */
@@ -81,6 +100,8 @@ class WikibaseLuaBindings {
 		LanguageFallbackChainFactory $fallbackChainFactory,
 		Language $language,
 		SettingsArray $settings,
+		PropertyDataTypeLookup $dataTypeLookup,
+		LabelLookup $labelLookup,
 		$languageCodes,
 		$siteId
 	) {
@@ -90,6 +111,8 @@ class WikibaseLuaBindings {
 		$this->fallbackChainFactory = $fallbackChainFactory;
 		$this->language = $language;
 		$this->settings = $settings;
+		$this->dataTypeLookup = $dataTypeLookup;
+		$this->labelLookup = $labelLookup;
 		$this->languageCodes = $languageCodes;
 		$this->siteId = $siteId;
 	}
@@ -161,7 +184,7 @@ class WikibaseLuaBindings {
 	 */
 	private function getEntitySerializer( Entity $entityObject, $lowerCaseIds ) {
 		$opt = new SerializationOptions();
-		$serializerFactory = new SerializerFactory( $opt );
+		$serializerFactory = new SerializerFactory( $opt, $this->dataTypeLookup );
 
 		// Using "ID_KEYS_BOTH" here means that all lists of Snaks or Claims will be listed
 		// twice, once with a lower case key and once with an upper case key.
@@ -226,4 +249,48 @@ class WikibaseLuaBindings {
 		return $this->settings->getSetting( $setting );
 	}
 
+	/**
+	 * @param string $prefixedEntityId
+	 *
+	 * @since 0.5
+	 * @return string Empty string if entity couldn't be found/ no label present
+	 */
+	public function getLabel( $prefixedEntityId ) {
+		try {
+			$entityId = $this->entityIdParser->parse( $prefixedEntityId );
+		} catch( EntityIdParsingException $e ) {
+			return '';
+		}
+
+		try {
+			$label = $this->labelLookup->getLabel( $entityId );
+		} catch ( StorageException $ex ) {
+			return '';
+		} catch ( OutOfBoundsException $ex ) {
+			return '';
+		}
+
+		return $label;
+	}
+
+	/**
+	 * @param string $prefixedEntityId
+	 *
+	 * @since 0.5
+	 * @return string Empty string if entity couldn't be found/ no sitelink present
+	 */
+	public function getSiteLinkPageName( $prefixedEntityId ) {
+		try {
+			$itemId = new ItemId( $prefixedEntityId );
+		} catch( InvalidArgumentException $e ) {
+			return '';
+		}
+
+		$item = $this->entityLookup->getEntity( $itemId );
+		if ( !$item || !$item->getSiteLinkList()->hasLinkWithSiteId( $this->siteId ) ) {
+			return '';
+		}
+
+		return $item->getSiteLinkList()->getBySiteId( $this->siteId )->getPageName();
+	}
 }

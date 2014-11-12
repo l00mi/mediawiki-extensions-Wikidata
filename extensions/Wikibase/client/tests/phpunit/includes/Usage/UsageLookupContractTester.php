@@ -1,7 +1,6 @@
 <?php
 namespace Wikibase\Client\Tests\Usage;
 
-use PHPUnit_Framework_TestCase;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Client\Usage\UsageLookup;
@@ -9,7 +8,7 @@ use PHPUnit_Framework_Assert as Assert;
 use Wikibase\Client\Usage\UsageTracker;
 
 /**
- * Base class for unit tests for UsageLookup implementations, providing
+ * Helper class for unit tests for UsageLookup implementations, providing
  * generic tests for the interface's contract.
  *
  * @license GPL 2+
@@ -48,9 +47,9 @@ class UsageLookupContractTester {
 
 		$this->tracker->trackUsedEntities( 23, $usages );
 
-		Assert::assertEmpty( $this->lookup->getUsageForPage( 24 ) );
+		Assert::assertEmpty( $this->lookup->getUsagesForPage( 24 ) );
 
-		$actualUsage = $this->lookup->getUsageForPage( 23 );
+		$actualUsage = $this->lookup->getUsagesForPage( 23 );
 		Assert::assertCount( 3, $actualUsage );
 
 		$actualUsageStrings = $this->getUsageStrings( $actualUsage );

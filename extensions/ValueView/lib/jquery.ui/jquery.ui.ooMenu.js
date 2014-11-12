@@ -197,7 +197,7 @@ $.widget( 'ui.ooMenu', {
 	/**
 	 * Returns whether the menu currently features visible items.
 	 *
-	 * @param {boolean} includeCustomItems
+	 * @param {boolean} [includeCustomItems]
 	 * @return {boolean}
 	 */
 	hasVisibleItems: function( includeCustomItems ) {
@@ -307,8 +307,19 @@ $.widget( 'ui.ooMenu', {
 	 * Deactivates the menu (resets activated item).
 	 */
 	deactivate: function() {
-		this.element.children( '.ui-state-hover' ).removeClass( 'ui-state-hover' );
-		$( this ).trigger( 'blur' );
+		if( this._isActive() ) {
+			this.element.children( '.ui-state-hover' ).removeClass( 'ui-state-hover' );
+			$( this ).trigger( 'blur' );
+		}
+	},
+
+	/**
+	 * Returns whether there is an active menu item.
+	 *
+	 * @return {boolean}
+	 */
+	_isActive: function() {
+		return !!this.element.children( '.ui-state-hover' ).length;
 	},
 
 	/**
@@ -375,7 +386,6 @@ $.widget( 'ui.ooMenu', {
 	}
 } );
 
-
 /**
  * Default menu item.
  * @constructor
@@ -436,16 +446,16 @@ $.extend( Item.prototype, {
 	}
 } );
 
-
 /**
  * Customizable menu item.
  * @constructor
  * @extends jQuery.ui.ooMenu.Item
  *
  * @param {string|jQuery} label
- * @param {Function|null} [visibility] Function to determine the item's visibility. If "null", the
- *        item will always be visible.
- *        Parameters:
+ * @param {Function|boolean|null} [visibility]
+ *        Function to determine the item's visibility or boolean defining static visibility. If
+ *        "null" or omitted, the item will always be visible.
+ *        Function parameters:
  *        - {jQuery.ui.ooMenu}
  *        Expected return value:
  *        - {boolean}
@@ -461,9 +471,9 @@ var CustomItem = function( label, visibility, action, cssClass, link ) {
 	}
 
 	this._label = label;
-	this._visibility = visibility || null;
-	this._action = action || null;
-	this._cssClass = cssClass || '';
+	this.setVisibility( visibility );
+	this.setAction( action );
+	this.setCssClass( cssClass );
 	this._link = link || null;
 };
 
@@ -472,7 +482,7 @@ CustomItem = util.inherit(
 	CustomItem,
 	{
 		/**
-		 * @type {Function|null}
+		 * @type {Function|boolean|null}
 		 */
 		_visibility: null,
 
@@ -494,12 +504,22 @@ CustomItem = util.inherit(
 		},
 
 		/**
-		 * @return {Function}
+		 * @return {Function|boolean}
 		 */
 		getVisibility: function( menu ) {
-			return $.isFunction( this._visibility )
-				? this._visibility( menu )
-				: true;
+			if( $.isFunction( this._visibility ) ) {
+				return this._visibility( menu );
+			}
+			return this._visibility !== false;
+		},
+
+		/**
+		 * @param {Function|boolean|null} [visibility]
+		 */
+		setVisibility: function( visibility ) {
+			this._visibility = $.isFunction( visibility ) || typeof visibility === 'boolean'
+				? visibility
+				: null;
 		},
 
 		/**
@@ -510,10 +530,24 @@ CustomItem = util.inherit(
 		},
 
 		/**
+		 * @param {Function|null} [action]
+		 */
+		setAction: function( action ) {
+			this._action = $.isFunction( action ) ? action : null;
+		},
+
+		/**
 		 * @return {string}
 		 */
 		getCssClass: function() {
 			return this._cssClass;
+		},
+
+		/**
+		 * @param {string|null} [cssClass]
+		 */
+		setCssClass: function( cssClass ) {
+			this._cssClass = typeof cssClass === 'string' ? cssClass : '';
 		},
 
 		/**

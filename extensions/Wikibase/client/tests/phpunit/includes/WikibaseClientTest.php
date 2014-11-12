@@ -8,7 +8,6 @@ use SiteStore;
 use ValueFormatters\FormatterOptions;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\Lib\SnakFormatter;
 use Wikibase\SettingsArray;
 
 /**
@@ -35,22 +34,9 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\EntityIdParser', $returnValue );
 	}
 
-	public function testEntityIdLabelFormatterReturnType() {
-		$returnValue = $this->getDefaultInstance()->newEntityIdLabelFormatter( 'en' );
-		$this->assertInstanceOf( 'Wikibase\Lib\EntityIdLabelFormatter', $returnValue );
-	}
-
 	public function testGetPropertyDataTypeLookupReturnType() {
 		$returnValue = $this->getDefaultInstance()->getPropertyDataTypeLookup();
 		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup', $returnValue );
-	}
-
-	public function testNewSnakFormatterReturnType() {
-		$returnValue = $this->getDefaultInstance()->newSnakFormatter(
-			SnakFormatter::FORMAT_PLAIN,
-			new FormatterOptions()
-		);
-		$this->assertInstanceOf( 'Wikibase\Lib\SnakFormatter', $returnValue );
 	}
 
 	public function testGetStringNormalizerReturnType() {
@@ -210,6 +196,11 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	public function testGetEntityChangeFactory() {
 		$factory = $this->getDefaultInstance()->getEntityChangeFactory();
 		$this->assertInstanceOf( 'Wikibase\Lib\Changes\EntityChangeFactory', $factory );
+	}
+
+	public function testGetChangeHandler() {
+		$handler = $this->getDefaultInstance()->getChangeHandler();
+		$this->assertInstanceOf( 'Wikibase\ChangeHandler', $handler );
 	}
 
 	public function testGetParserFunctionRegistrant() {

@@ -266,9 +266,13 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
 		} else {
-			this.element.removeClass( 'wb-error' );
+			this.removeError();
 			this._trigger( 'toggleerror' );
 		}
+	},
+
+	removeError: function() {
+		this.element.removeClass( 'wb-error' );
 	},
 
 	/**
@@ -333,11 +337,13 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	},
 
 	/**
-	 * Puts Keyboard focus on the widget.
+	 * @see jQuery.ui.TemplatedWidget.focus
 	 */
 	focus: function() {
 		if( this._isInEditMode ) {
 			this.$text.children( 'input' ).focus();
+		} else {
+			this.element.focus();
 		}
 	}
 

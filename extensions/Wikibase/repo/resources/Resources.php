@@ -11,14 +11,50 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	$remoteExtPathParts = explode( DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR , __DIR__, 2 );
+	preg_match(
+		'+' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
+		__DIR__,
+		$remoteExtPathParts
+	);
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => $remoteExtPathParts[1],
+		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1],
 		'position' => 'top' // reducing the time between DOM construction and JS initialisation
 	);
 
 	$modules = array(
+
+		'jquery.ui.TemplatedWidget' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.ui/jquery.ui.TemplatedWidget.js',
+			),
+			'dependencies' => array(
+				'wikibase.templates',
+				'jquery.ui.widget',
+				'util.inherit',
+			),
+		),
+
+		'jquery.wikibase.entitysearch' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase/jquery.wikibase.entitysearch.js',
+			),
+			'styles' => array(
+				'jquery.wikibase/themes/default/jquery.wikibase.entitysearch.css',
+			),
+			'dependencies' => array(
+				'jquery.event.special.eachchange',
+				'jquery.ui.ooMenu',
+				'jquery.wikibase.entityselector',
+			),
+		),
+
+		'wikibase.templates' => $moduleTemplate + array(
+			'class' => 'Wikibase\TemplateModule',
+			'scripts' => 'templates.js',
+		),
+
 		'wikibase.ui.entityViewInit' => $moduleTemplate + array(
 			'scripts' => array(
 				'wikibase.ui.entityViewInit.js' // should probably be adjusted for more modularity
@@ -41,7 +77,7 @@ return call_user_func( function() {
 				'wikibase.parsers.getStore',
 				'wikibase.RepoApi',
 				'wikibase.RevisionStore',
-				'wikibase.serialization.entities',
+				'wikibase.serialization.EntityDeserializer',
 				'wikibase.sites',
 				'wikibase.store.ApiEntityStore',
 				'wikibase.store.CombiningEntityStore',
@@ -68,13 +104,8 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'json',
 				'wikibase',
-				'wikibase.datamodel',
-				'wikibase.serialization',
-				// FIXME: Resolve implicitly required wikibase.serialization.entities dependency.
-				// wikibase.serialization.entities self-registers to the SerializerFactory provided
-				// by wikibase.serialization which is why wikibase.serialization.entities is
-				// implicitly required as dependency.
-				'wikibase.serialization.entities',
+				'wikibase.datamodel.Entity',
+				'wikibase.serialization.EntityDeserializer',
 			),
 		),
 
@@ -82,11 +113,11 @@ return call_user_func( function() {
 			'scripts' => array(
 				'wikibase.ui.entitysearch.js',
 			),
-			'styles' => array(
-				'themes/default/wikibase.ui.entitysearch.css',
-			),
 			'dependencies' => array(
 				'jquery.event.special.eachchange',
+				'jquery.spinner',
+				'jquery.ui.ooMenu',
+				'jquery.wikibase.entitysearch',
 				'jquery.wikibase.entityselector',
 			),
 			'messages' => array(

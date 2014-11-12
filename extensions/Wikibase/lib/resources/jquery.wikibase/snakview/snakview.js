@@ -14,11 +14,12 @@
 	// Erase existing object to prevent jQuery.Widget detecting an existing constructor:
 	delete $.wikibase.snakview;
 
-	var PARENT = $.TemplatedWidget;
+	var PARENT = $.ui.TemplatedWidget;
 
 /**
  * View for displaying and editing Wikibase Snaks.
  * @since 0.3
+ * @extends jQuery.ui.TemplatedWidget
  *
  * @option {Object|wb.datamodel.Snak|null} value The snak this view should represent initially. If omitted,
  *         an empty view will be served, ready to take some input by the user. The value can also be
@@ -112,6 +113,13 @@ $.widget( 'wikibase.snakview', PARENT, {
 	_variation: null,
 
 	/**
+	 * Cache for the values of specific wikibase.snakview.variations in order to have those restored
+	 * when toggling he snak type.
+	 * @type {Object}
+	 */
+	_cachedValues: null,
+
+	/**
 	 * The property of the Snak currently represented by the view.
 	 * @type {String}
 	 */
@@ -166,7 +174,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 		this._entityStore = this.option( 'entityStore' );
 		this._valueViewBuilder = this.option( 'valueViewBuilder' );
 
-		// set value, can be a wb.datamodel.Snak or plain Object as wb.datamodel.Snak.toMap() or just pieces of it
+		this._cachedValues = {};
+
 		this.value( this.option( 'value' ) || {} );
 
 		if( this.option( 'autoStartEditing' ) && !this.snak() ) {
@@ -295,6 +304,10 @@ $.widget( 'wikibase.snakview', PARENT, {
 			this._isInEditMode = true;
 			this.draw();
 
+			if( this._variation ) {
+				this._variation.startEditing();
+			}
+
 			// attach keyboard input events
 			this.element.on( 'keydown.' + this.widgetName, function( event ) {
 				if ( self.options.disabled ) {
@@ -303,17 +316,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 				var propertySelector = self._getPropertySelector();
 
-				self._leavePropertyInput = false;
-
-				// TODO: (Bug 54021) Widget should not switch between edit modes on its own!
-				if ( event.keyCode === $.ui.keyCode.ESCAPE ) {
-					self.cancelEditing();
-				} else if ( event.keyCode === $.ui.keyCode.ENTER && self.isValid() ) {
-					if ( ( !propertySelector || event.target !== propertySelector.element[0] ) ) {
-						self.stopEditing();
-						event.preventDefault();
-					}
-				} else if ( event.keyCode === $.ui.keyCode.TAB && !self._variation ) {
+				if ( event.keyCode === $.ui.keyCode.TAB && !self._variation ) {
+					event.stopPropagation();
 					// When pressing TAB in the property input element while the value input element
 					// does not yet exist, we assume that the user wants to auto-complete/select the
 					// currently suggested property and tab into the value element. Since the API
@@ -326,10 +330,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 						}
 					}
 				}
-				// no point in propagating event after having destroyed the event's target
-				if ( !self.isInEditMode() ) {
-					event.stopImmediatePropagation();
-				}
 			} );
 
 			if ( this._getPropertySelector() !== null ) {
@@ -341,6 +341,22 @@ $.widget( 'wikibase.snakview', PARENT, {
 			}
 		}
 	} ),
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
+	focus: function() {
+		if( this._variation && this._variation.isFocusable() ) {
+			this._variation.focus();
+		} else {
+			var propertySelector = this._getPropertySelector();
+			if( propertySelector ) {
+				propertySelector.element.focus();
+			} else {
+				this.element.focus();
+			}
+		}
+	},
 
 	/**
 	 * Ends the edit mode where the snak can be edited.
@@ -374,8 +390,12 @@ $.widget( 'wikibase.snakview', PARENT, {
 			this._isInEditMode = false;
 			this._initialSnak = null;
 
+			if( this._variation ) {
+				this._variation.stopEditing( dropValue );
+			}
+
 			// update view; will remove edit interfaces and represent value statically
-			this._setValue( newSnak !== null ? newSnak.toMap() : {} ); // triggers this.draw()
+			this._setValue( newSnak !== null ? this._serializeSnak( newSnak ) : {} ); // triggers this.draw()
 			// TODO: should throw an error somewhere when trying to leave edit mode while
 			//  this.snak() still returns null. For now setting {} is a simple solution for non-
 			//  existent error handling in the snak UI
@@ -491,7 +511,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 * @return {Object}
 	 */
 	initialValue: function() {
-		return this.isInEditMode() ? this.initialSnak().toMap() : this._getValue();
+		return this.isInEditMode() ? this._serializeSnak( this.initialSnak() ) : this._getValue();
 	},
 
 	/**
@@ -523,7 +543,16 @@ $.widget( 'wikibase.snakview', PARENT, {
 			throw new Error( 'The given value has to be a plain object, an instance of' +
 				' wikibase.datamodel.Snak, or null' );
 		}
-		this._setValue( ( value instanceof wb.datamodel.Snak ) ? value.toMap() : value );
+		this._setValue( ( value instanceof wb.datamodel.Snak ) ? this._serializeSnak( value ) : value );
+	},
+
+	/**
+	 * @param {wikibase.datamodel.Snak} value
+	 * @return {Object}
+	 */
+	_serializeSnak: function( snak ) {
+		var snakSerializer = new wikibase.serialization.SnakSerializer();
+		return snakSerializer.serialize( snak );
 	},
 
 	/**
@@ -547,13 +576,17 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 	/**
 	 * Will update the view to represent a given Snak in form of a plain Object. The given object
-	 * can have all fields - or a subset of fields - wb.datamodel.Snak.toMap() would return.
+	 * can have all fields - or a subset of fields - a serialized wb.datamodel.Snak would have.
 	 *
 	 * @since 0.4
 	 *
 	 * @param {Object|null} value
 	 */
 	_setValue: function( value ) {
+		if( this._snakType && this._variation ) {
+			this._cachedValues[this._snakType] = this._variation.value();
+		}
+
 		value = value || {};
 
 		this._propertyId = value.property || null;
@@ -575,6 +608,11 @@ $.widget( 'wikibase.snakview', PARENT, {
 		this.draw();
 	},
 
+	/**
+	 * Updates specifics of the value.
+	 *
+	 * @param {Object} changes
+	 */
 	_updateValue: function( changes ) {
 		this._setValue( $.extend( this._getValue(), changes ) );
 	},
@@ -585,8 +623,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 *
 	 * @since 0.4
 	 *
-	 * @param {wb.datamodel.Snak|null} [snak]
-	 * @return wb.datamodel.Snak|null
+	 * @param {wikibase.datamodel.Snak|null} [snak]
+	 * @return {wikibase.datamodel.Snak|null}
 	 */
 	snak: function( snak ) {
 		if( snak === undefined ) {
@@ -594,7 +632,14 @@ $.widget( 'wikibase.snakview', PARENT, {
 			// TODO: variations should have a function to ask whether fully defined yet
 			try{
 				// NOTE: can still be null if user didn't enter essential information in variation's UI
-				return wb.datamodel.Snak.newFromMap( this.value() );
+				var value = this.value();
+				if( value.datavalue ) {
+					value.datavalue = {
+						type: value.datavalue.getType(),
+						value: value.datavalue.toJSON()
+					};
+				}
+				return ( new wb.serialization.SnakDeserializer() ).deserialize( value );
 			} catch( e ) {
 				return null;
 			}
@@ -647,9 +692,15 @@ $.widget( 'wikibase.snakview', PARENT, {
 		}
 		if( snakType !== this._snakType ) {
 			// TODO: check whether given snak type is actually valid!
-			this._updateValue( {
+			var changes = {
 				snaktype: snakType
-			} );
+			};
+
+			if( this._cachedValues[snakType] ) {
+				$.extend( changes, this._cachedValues[snakType] );
+			}
+
+			this._updateValue( changes );
 		}
 	},
 
@@ -744,7 +795,11 @@ $.widget( 'wikibase.snakview', PARENT, {
 			// TODO: use selectedEntity() or other command to set selected entity in both cases!
 			if( propertySelector && property ) {
 				// property selector in DOM already, just replace current value
-				propertySelector.widget().val( propertyLabel );
+				var currentValue = propertySelector.widget().val();
+				// Impose case-insensitivity:
+				if( propertyLabel.toLowerCase() !== currentValue.toLocaleLowerCase() ) {
+					propertySelector.widget().val( propertyLabel );
+				}
 				return;
 			} else if( !propertySelector ) {
 				// Create property selector and set value:
@@ -809,9 +864,15 @@ $.widget( 'wikibase.snakview', PARENT, {
 	drawVariation: function() {
 		// property ID will be null if not in edit mode and no Snak set or if in edit mode and user
 		// didn't choose property yet.
-		var propertyId = this._propertyId;
+		var propertyId = this._propertyId,
+			self = this;
 
 		if( propertyId && this._variation ) {
+			$( this._variation ).one( 'afterdraw', function() {
+				if( self.isInEditMode() ) {
+					self.variation().startEditing();
+				}
+			} );
 			this.variation().draw();
 		} else {
 			// remove any remains from previous rendering or initial template (e.g. '$4')

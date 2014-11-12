@@ -9,19 +9,22 @@
 		get: function() {
 			return $.Deferred().resolve( new wb.store.FetchedContent( {
 				title: new mw.Title( 'Property:P1' ),
-				content: new wb.datamodel.Property( {
-					id: 'P1',
-					type: 'property',
-					datatype: 'string',
-					label: { en: 'P1' }
-				} )
+				content: new wb.datamodel.Property(
+					'P1',
+					'string',
+					new wb.datamodel.Fingerprint( new wb.datamodel.TermMap( [
+						new wb.datamodel.Term( 'en', 'P1' )
+					] ) )
+				)
 			} ) );
 		}
 	};
 
 	var valueViewBuilder = new wb.ValueViewBuilder(
 		new vv.ExpertStore(),
-		new vf.ValueFormatterStore( vf.NullFormatter )
+		new vf.ValueFormatterStore( vf.NullFormatter ),
+		'I am a ParserStore',
+		'I am a language code'
 	);
 
 	function createClaimview( value ) {
@@ -30,7 +33,7 @@
 			value: value || null,
 			entityStore: entityStore,
 			valueViewBuilder: valueViewBuilder,
-			entityChangersFactory: 'entityChangersFactory'
+			claimsChanger: 'I am a ClaimsChanger'
 		};
 
 		return $( '<div/>' )
@@ -46,6 +49,25 @@
 
 		assert.ok(
 			claimview !== undefined,
+			'Initialized claimview widget.'
+		);
+
+		claimview.destroy();
+
+		assert.ok(
+			$node.data( 'listview' ) === undefined,
+			'Destroyed listview.'
+		);
+	} );
+
+	QUnit.test( 'Initialize and destroy claimview with value', function( assert ) {
+		var $node = createClaimview(
+				new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( 'P1' ) )
+			),
+			claimview = $node.data( 'claimview' );
+
+		assert.ok(
+			claimview instanceof $.wikibase.claimview,
 			'Initialized claimview widget.'
 		);
 

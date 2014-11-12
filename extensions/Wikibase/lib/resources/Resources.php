@@ -11,12 +11,15 @@ use Wikibase\Repo\WikibaseRepo;
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	$remoteExtPathParts = explode(
-		DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR, __DIR__, 2
+	preg_match(
+		'+' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
+			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
+		__DIR__,
+		$remoteExtPathParts
 	);
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => $remoteExtPathParts[1],
+		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1],
 	);
 
 	$modules = array(
@@ -61,11 +64,6 @@ return call_user_func( function() {
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinklistview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkview.css',
 			)
-		),
-
-		'wikibase.templates' => $moduleTemplate + array(
-			'class' => 'Wikibase\TemplateModule',
-			'scripts' => 'templates.js',
 		),
 
 		'wikibase' => $moduleTemplate + array(
@@ -128,6 +126,15 @@ return call_user_func( function() {
 			),
 		),
 
+		'jquery.sticknode' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery/jquery.sticknode.js',
+			),
+			'dependencies' => array(
+				'jquery.throttle-debounce',
+			),
+		),
+
 		'jquery.ui.tagadata' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.ui/jquery.ui.tagadata.js',
@@ -140,17 +147,6 @@ return call_user_func( function() {
 				'jquery.effects.blind',
 				'jquery.inputautoexpand',
 				'jquery.ui.widget',
-			),
-		),
-
-		'jquery.ui.TemplatedWidget' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.ui/jquery.ui.TemplatedWidget.js',
-			),
-			'dependencies' => array(
-				'wikibase.templates',
-				'jquery.ui.widget',
-				'util.inherit',
 			),
 		),
 

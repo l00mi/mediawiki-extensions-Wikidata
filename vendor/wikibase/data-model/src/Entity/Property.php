@@ -5,17 +5,18 @@ namespace Wikibase\DataModel\Entity;
 use InvalidArgumentException;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\StatementListProvider;
 
 /**
  * Represents a single Wikibase property.
- * See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Properties
+ * See https://www.mediawiki.org/wiki/Wikibase/DataModel#Properties
  *
  * @since 0.1
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Property extends Entity {
+class Property extends Entity implements StatementListProvider {
 
 	const ENTITY_TYPE = 'property';
 
@@ -60,11 +61,8 @@ class Property extends Entity {
 		else if ( is_integer( $id ) ) {
 			$this->id = PropertyId::newFromNumber( $id );
 		}
-		else if ( $id instanceof EntityId ) {
-			$this->id = new PropertyId( $id->getSerialization() );
-		}
 		else {
-			throw new InvalidArgumentException( __METHOD__ . ' only accepts PropertyId, integer and null' );
+			throw new InvalidArgumentException( '$id must be an instance of PropertyId, an integer, or null' );
 		}
 	}
 
@@ -86,7 +84,7 @@ class Property extends Entity {
 	 */
 	public function setDataTypeId( $dataTypeId ) {
 		if ( !is_string( $dataTypeId ) ) {
-			throw new InvalidArgumentException( '$dataTypeId needs to be a string' );
+			throw new InvalidArgumentException( '$dataTypeId must be a string; got ' . gettype( $dataTypeId ) );
 		}
 
 		$this->dataTypeId = $dataTypeId;

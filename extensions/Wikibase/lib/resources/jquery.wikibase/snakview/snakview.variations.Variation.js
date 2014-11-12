@@ -179,6 +179,27 @@
 		draw: util.abstractMember,
 
 		/**
+		 * Start the variation's edit mode.
+		 */
+		startEditing: function() {},
+
+		/**
+		 * Stops the variation's edit mode.
+		 *
+		 * @param {boolean} dropValue
+		 */
+		stopEditing: function( dropValue ) {},
+
+		/**
+		 * @since 0.5
+		 *
+		 * @return {boolean}
+		 */
+		isFocusable: function() {
+			return false;
+		},
+
+		/**
 		 * Will set the focus if there is some focusable input object.
 		 *
 		 * @since 0.4

@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author Daniel Werner < daniel.werner@wikimedia.de >
  */
-( function( mw, wb, $, dataTypeStore ) {
+( function( mw, wb, $, dataTypeStore, dv ) {
 	'use strict';
 
 	var MODULE = $.wikibase.snakview.variations,
@@ -48,7 +48,10 @@
 		 * @see jQuery.wikibase.snakview.variations.Variation._setValue
 		 */
 		_setValue: function( value ) {
-			this._newDataValue = value.datavalue || null;
+			this._newDataValue = null;
+			if( value.datavalue ) {
+				this._newDataValue = dv.newDataValue( value.datavalue.type, value.datavalue.value );
+			}
 		},
 
 		/**
@@ -87,16 +90,8 @@
 					// _setValue().
 					self._newDataValue = false;
 
-					// Switch to edit/non-edit view depending on snakview:
-					self._valueView[
-						( self._viewState.isInEditMode() ? 'start' : 'stop' ) + 'Editing'
-					]();
-
-					if( self._viewState.isInEditMode() ) {
-						self._attachEventHandlers();
-					} else {
+					if( !self._viewState.isInEditMode() ) {
 						self.$viewPort.css( 'height', 'auto' );
-						self._removeEventHandlers();
 					}
 
 					// Set state
@@ -168,7 +163,7 @@
 					// happen if a property got deleted but the Snaks using it didn't change the
 					// property.
 					var dataTypeId = fetchedProperty
-						? fetchedProperty.getContent().getDataType()
+						? fetchedProperty.getContent().getDataTypeId()
 						: false;
 					var dataType = false;
 
@@ -216,12 +211,36 @@
 		},
 
 		/**
+		 * @see jQuery.wikibase.snakview.variations.Variation.startEditing
+		 */
+		startEditing: function() {
+			if( !this._valueView || this._valueView.isInEditMode() ) {
+				return;
+			}
+			this._valueView.startEditing();
+			this._attachEventHandlers();
+			this.draw();
+		},
+
+		/**
+		 * @see jQuery.wikibase.snakview.variations.Variation.stopEditing
+		 */
+		stopEditing: function( dropValue ) {
+			if( !this._valueView || !this._valueView.isInEditMode() ) {
+				return;
+			}
+			this._valueView.stopEditing( dropValue );
+			this._removeEventHandlers();
+			this.draw();
+		},
+
+		/**
 		 * Attaches event handlers to the value view widget's element.
 		 */
 		_attachEventHandlers: function() {
-			var self = this;
-			var $viewPort = this.$viewPort;
-			var heightAnimationQueue = self.variationBaseClass + 'height';
+			var self = this,
+				$viewPort = this.$viewPort,
+				heightAnimationQueue = self.variationBaseClass + 'height';
 
 			this._removeEventHandlers();
 
@@ -234,9 +253,9 @@
 			} )
 			.on( 'inputextenderanimation.' + this.variationBaseClass, function( animationEvent ) {
 				animationEvent.animationCallbacks.add( 'done', function() {
-					var $input = $( animationEvent.target );
-					var $extension = $input.data( 'inputextender' ).extension();
-					var newHeight = 0;
+					var $input = $( animationEvent.target ),
+						$extension = $input.data( 'inputextender' ).extension(),
+						newHeight = 0;
 
 					$viewPort.stop( heightAnimationQueue, true );
 
@@ -262,9 +281,9 @@
 				} );
 			} )
 			.on( 'inputextendercontentanimation.' + this.variationBaseClass, function( animationEvent ) {
-				var $input = $( animationEvent.target );
-				var inputHeight = $input.outerHeight();
-				var $extension = $input.data( 'inputextender' ).extension();
+				var $input = $( animationEvent.target ),
+					inputHeight = $input.outerHeight(),
+					$extension = $input.data( 'inputextender' ).extension();
 
 				animationEvent.animationCallbacks
 				.add( 'progress', function() {
@@ -327,6 +346,13 @@
 			return true;
 		},
 
+		/*
+		 * @see jQuery.wikibase.snakview.variations.Variation.isFocusable
+		 */
+		isFocusable: function() {
+			return true;
+		},
+
 		/**
 		 * @see jQuery.wikibase.snakview.variations.Variation.focus
 		 */
@@ -346,4 +372,4 @@
 		}
 	} );
 
-}( mediaWiki, wikibase, jQuery, wikibase.dataTypes ) );
+}( mediaWiki, wikibase, jQuery, wikibase.dataTypes, dataValues ) );

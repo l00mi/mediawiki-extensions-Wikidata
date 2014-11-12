@@ -19,7 +19,7 @@ use Wikibase\DataModel\Term\TermList;
 
 /**
  * Represents a single Wikibase entity.
- * See https://meta.wikimedia.org/wiki/Wikidata/Data_model#Values
+ * See https://www.mediawiki.org/wiki/Wikibase/DataModel#Values
  *
  * @deprecated since 1.0 - do not type hint against Entity. See
  * https://lists.wikimedia.org/pipermail/wikidata-tech/2014-June/000489.html
@@ -446,11 +446,12 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return Snak[]
 	 */
 	public function getAllSnaks() {
-		$claims = $this->getClaims();
 		$snaks = array();
 
-		foreach ( $claims as $claim ) {
-			$snaks = array_merge( $snaks, $claim->getAllSnaks() );
+		foreach ( $this->getClaims() as $claim ) {
+			foreach( $claim->getAllSnaks() as $snak ) {
+				$snaks[] = $snak;
+			}
 		}
 
 		return $snaks;

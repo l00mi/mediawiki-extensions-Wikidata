@@ -105,9 +105,30 @@ Other methods an Expert needs to provide:
 
 ## Release notes
 
+### 0.8.1 (2014-11-07)
+
+#### Enhancements
+* `$.ui.ooMenu.CustomItem`: Added `setVisibility`, `setAction` and `setCssClass` functions. Visibility may be set to a static (boolean) value.
+* `$.valueview.draw` (`$.valueview.valueview.draw`), `$.valueview.drawContent` (`$.valueview.valueview.drawContent`) and `$.valueview.Expert.draw` return jQuery promises.
+* `$.valueview.draw` (`$.valueview.valueview.draw`) triggers `afterdraw` event.
+* `$.valueview.startEditing` (`$.valueview.valueview.startEditing`) triggers `afterstartediting` event.
+* `$.valueview.stopEditing` (`$.valueview.valueview.stopEditing`) triggers `afterstopediting` event.
+* Fixed precision auto-detection of `$.valueview.experts.GlobeCoordinateInput`.
+
+### 0.8.0 (2014-11-03)
+
+#### Enhancements
+* $.ui.suggester: Hitting the backspace or delete key if the input is empty already does not trigger search anymore.
+* $.ui.suggester: Refocus input element after selecting a suggestion via mouse click.
+* $.ui.suggester: Added "confineMinWidthTo" option for specifying an element, the suggestion list's minimum width shall be confined to.
+
+#### Breaking changes
+* Replaced $.util.highlightMatchingCharacters with util.highlightSubstring.
+* $.valueview(.valueview) requires new "language" option to be set.
+
 ### 0.7.0 (2014-09-10)
 
-### Enhancements
+#### Enhancements
 * Implemented jQuery.ui.languagesuggester.
 * Input extender extension will not be hidden on mousedown event.
 

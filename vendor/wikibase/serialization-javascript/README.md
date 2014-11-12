@@ -9,17 +9,69 @@ The recommended way to use this library is via [Composer](http://getcomposer.org
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `wikibase/serialization-javascript` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-version 1.0 of this package:
+version 2.0 of this package:
 
 ```json
 {
 	"require": {
-		"wikibase/serialization-javascript": "1.0.*"
+		"wikibase/serialization-javascript": "2.0.*"
 	}
 }
 ```
 
 ## Release notes
+
+### 2.0.1 (2014-11-05)
+* Fixed requiring DataModel JavaScript version.
+
+### 2.0 (2014-11-05)
+
+* Removed <code>wikibase.serialization.entities</code> ResourceLoader module; use <code>wikibase.serialization.EntityDeserializer</code> instead.
+* Removed options from Serializer/Deserializer as it was never used and there is no intention to use options.
+* Renamed <code>*Unserializer</code> to <code>*Deserializer</code>.
+* Added <code>wikibase.serialization.ClaimGroupSetSerializer</code>.
+* Added <code>wikibase.serialization.ClaimGroupSetDeserializer</code>.
+* Added <code>wikibase.serialization.ClaimGroupSerializer</code>.
+* Added <code>wikibase.serialization.ClaimGroupDeserializer</code>.
+* Added <code>wikibase.serialization.ClaimListSerializer</code>.
+* Added <code>wikibase.serialization.ClaimListDeserializer</code>.
+* Added <code>wikibase.serialization.ClaimSerializer</code>.
+* Added <code>wikibase.serialization.ClaimDeserializer</code>.
+* Added <code>wikibase.serialization.EntitySerializer</code>.
+* Added <code>wikibase.serialization.FingerprintSerializer</code>.
+* Added <code>wikibase.serialization.FingerprintDeserializer</code>.
+* Added <code>wikibase.serialization.ItemSerializer</code>.
+* Added <code>wikibase.serialization.ItemDeserializer</code>.
+* Added <code>wikibase.serialization.MultiTermSerializer</code>.
+* Added <code>wikibase.serialization.MultiTermDeserializer</code>.
+* Added <code>wikibase.serialization.MultiTermMapSerializer</code>.
+* Added <code>wikibase.serialization.MultiTermMapDeserializer</code>.
+* Added <code>wikibase.serialization.PropertySerializer</code>.
+* Added <code>wikibase.serialization.PropertyDeserializer</code>.
+* Added <code>wikibase.serialization.ReferenceListSerializer</code>.
+* Added <code>wikibase.serialization.ReferenceListDeserializer</code>.
+* Added <code>wikibase.serialization.ReferenceSerializer</code>.
+* Added <code>wikibase.serialization.ReferenceDeserializer</code>.
+* Added <code>wikibase.serialization.SiteLinkSerializer</code>.
+* Added <code>wikibase.serialization.SiteLinkDeserializer</code>.
+* Added <code>wikibase.serialization.SiteLinkSetSerializer</code>.
+* Added <code>wikibase.serialization.SiteLinkSetDeserializer</code>.
+* Added <code>wikibase.serialization.SnakListSerializer</code>.
+* Added <code>wikibase.serialization.SnakListDeserializer</code>.
+* Added <code>wikibase.serialization.SnakSerializer</code>.
+* Added <code>wikibase.serialization.SnakDeserializer</code>.
+* Added <code>wikibase.serialization.StatementGroupSerializer</code>.
+* Added <code>wikibase.serialization.StatementGroupDeserializer</code>.
+* Added <code>wikibase.serialization.StatementGroupSetSerializer</code>.
+* Added <code>wikibase.serialization.StatementGroupSetDeserializer</code>.
+* Added <code>wikibase.serialization.StatementListSerializer</code>.
+* Added <code>wikibase.serialization.StatementListDeserializer</code>.
+* Added <code>wikibase.serialization.StatementSerializer</code>.
+* Added <code>wikibase.serialization.StatementDeserializer</code>.
+* Added <code>wikibase.serialization.TermSerializer</code>.
+* Added <code>wikibase.serialization.TermDeserializer</code>.
+* Added <code>wikibase.serialization.TermMapSerializer</code>.
+* Added <code>wikibase.serialization.TermMapDeserializer</code>.
 
 ### 1.1.3 (2014-09-10)
 

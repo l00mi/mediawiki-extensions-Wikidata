@@ -5,7 +5,7 @@
 ( function( wb, $, mw ) {
 	'use strict';
 
-var PARENT = $.TemplatedWidget;
+var PARENT = $.ui.TemplatedWidget;
 
 /**
  * References one single $menu instance that is reused for all badgeselector instances.
@@ -22,6 +22,7 @@ var badges = {};
 /**
  * Selector for toggling badges.
  * @since 0.5
+ * @extends jQuery.ui.TemplatedWidget
  *
  * @option {string[]} [value]
  *         Item ids of badges currently assigned.
@@ -285,14 +286,17 @@ $.widget( 'wikibase.badgeselector', PARENT, {
 			$menu.empty();
 
 			$.each( self.options.badges, function( itemId, cssClasses ) {
-				var item = badges[itemId];
+				var item = badges[itemId],
+					term = item && item.getFingerprint().getLabelFor( self.options.languageCode ),
+					label = term && term.getText();
+
 				var $item = $( '<a/>' )
 					.on( 'click.' + self.widgetName, function( event ) {
 						event.preventDefault();
 					} );
 
 				if( item ) {
-					$item.text( item.getLabel( self.options.languageCode ) || item.getId() );
+					$item.text( label || itemId );
 				} else {
 					$item.append(
 						wb.utilities.ui.buildMissingEntityInfo( itemId, wb.datamodel.Item.TYPE )
@@ -305,7 +309,7 @@ $.widget( 'wikibase.badgeselector', PARENT, {
 				.append( $item
 					.prepend( mw.wbTemplate( 'wb-badge',
 						itemId + ' ' + cssClasses,
-						( item && item.getLabel( self.options.languageCode ) ) || itemId,
+						label || itemId,
 						itemId
 					) )
 				)
@@ -396,11 +400,15 @@ $.widget( 'wikibase.badgeselector', PARENT, {
 	 */
 	_addBadge: function( badgeId ) {
 		var badgeItem = badges[badgeId],
+			badgeLabelTerm = badgeItem && badgeItem.getFingerprint().getLabelFor(
+				this.options.languageCode
+			),
+			badgeLabel = badgeLabelTerm && badgeLabelTerm.getText(),
 			$placeholderBadge = this.element.children( '[data-wb-badge="' + badgeId + '"]' );
 
 		var $badge = mw.wbTemplate( 'wb-badge',
 			badgeId + ' ' + this.options.badges[badgeId],
-			badgeItem && badgeItem.getLabel( this.options.languageCode ) || badgeId,
+			badgeLabel || badgeId,
 			badgeId
 		);
 

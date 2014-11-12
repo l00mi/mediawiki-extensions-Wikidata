@@ -15,7 +15,12 @@
  * @option {Object[]} value
  *         Object representing the widget's value.
  *         Structure: [
- *           { language: <{string]>, label: <{string|null}>, description: <{string|null}> } [, ...]
+ *           {
+ *             language: <{string]>,
+ *             label: <{wikibase.datamodel.Term}>,
+ *             description: <{string|null}>,
+ *             aliases: <{wikibase.datamodel.MultiTerm}>
+ *           }[, ...]
  *         ]
  *
  * @option {string} entityId
@@ -181,19 +186,11 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		for( var i = 0; i < currentValue.length; i++ ) {
 			if(
 				currentValue[i].language !== this.options.value[i].language
-				|| currentValue[i].label !== this.options.value[i].label
+				|| !currentValue[i].label.equals( this.options.value[i].label )
 				|| currentValue[i].description !== this.options.value[i].description
-				|| currentValue[i].aliases.length !== this.options.value[i].aliases.length
+				|| !currentValue[i].aliases.equals( this.options.value[i].aliases )
 			) {
 				return false;
-			}
-
-			var currentAliases = currentValue[i].aliases;
-
-			for( var j = 0; j < currentAliases.length; j++ ) {
-				if( $.inArray( currentAliases[j], this.options.value[i].aliases ) === -1 ) {
-					return false;
-				}
 			}
 		}
 
@@ -251,9 +248,19 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		function addStopEditToQueue( $queue, fingerprintview, dropValue ) {
 			$queue.queue( 'stopediting', function( next ) {
 				fingerprintview.element
-				.one( 'fingerprintviewafterstopediting.fingerprintviewlistview', function( event ) {
-					setTimeout( next, 0 );
-				} );
+				.one( 'fingerprintviewafterstopediting.fingerprintlistviewstopediting',
+					function( event ) {
+						fingerprintview.element.off( '.fingerprintlistviewstopediting' );
+						setTimeout( next, 0 );
+					}
+				)
+				.one( 'fingerprintviewtoggleerror.fingerprintlistviewstopediting',
+					function( event ) {
+						fingerprintview.element.off( '.fingerprintlistviewstopediting' );
+						$queue.clearQueue();
+						self._resetEditMode();
+					}
+				);
 				fingerprintview.stopEditing( dropValue );
 			} );
 		}
@@ -274,6 +281,17 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		$queue.dequeue( 'stopediting' );
 	},
 
+	_resetEditMode: function() {
+		this.enable();
+
+		var listview = this.element.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			lia.liInstance( $( this ) ).startEditing();
+		} );
+	},
+
 	/**
 	 * @param {boolean} dropValue
 	 */
@@ -291,13 +309,17 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		this.stopEditing( true );
 	},
 
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
 	focus: function() {
 		var listview = this.element.data( 'listview' ),
-			lia = listview.listItemAdapter(),
 			$items = listview.items();
 
 		if( $items.length ) {
-			lia.liInstance( $items.first() ).focus();
+			listview.listItemAdapter().liInstance( $items.first() ).focus();
+		} else {
+			this.element.focus();
 		}
 	},
 
@@ -311,9 +333,20 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
 		} else {
-			this.element.removeClass( 'wb-error' );
+			this.removeError();
 			this._trigger( 'toggleerror' );
 		}
+	},
+
+	removeError: function() {
+		this.element.removeClass( 'wb-error' );
+
+		var listview = this.element.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			lia.liInstance( $( this ) ).removeError();
+		} );
 	},
 
 	/**

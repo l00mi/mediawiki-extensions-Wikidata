@@ -7,14 +7,31 @@
 ( function( mw, wb, $ ) {
 	'use strict';
 
-	var PARENT = $.wikibase.claimview;
+	var PARENT = $.ui.TemplatedWidget;
 
 /**
  * View for displaying and editing Wikibase Statements.
  * @since 0.4
- * @extends $.wikibase.claimview
+ * @extends jQuery.ui.TemplatedWidget
+ *
+ * @option {wikibase.datamodel.Statement|null} [value]
+ *         The statement displayed by this view. This can only be set initially, the value function
+ *         doesn't work as a setter in this view. If this is null, this view will start in edit
+ *         mode, allowing the user to define the claim.
+ *         Default: null
+ *
+ * @option {wb.store.EntityStore} entityStore
+ *
+ * @option {wikibase.ValueViewBuilder} valueViewBuilder
+ *
+ * @option {wikibase.entityChangers.ClaimsChanger} claimsChanger
  *
  * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
+ *
+ * @option {string} [helpMessage]
+ *         End-user message explaining how to use the statementview widget. The message is most
+ *         likely to be used inside the tooltip of the toolbar corresponding to the statementview.
+ *         Default: mw.msg( 'wikibase-claimview-snak-new-tooltip' )
  *
  * @event afterremove: Triggered after a reference(view) has been remove from the statementview's
  *        list of references/-views.
@@ -27,26 +44,38 @@ $.widget( 'wikibase.statementview', PARENT, {
 			function() { // Rank selector
 				return $( '<div>' );
 			},
-			function() { // class='wb-claim-$2'
-				return ( this._claim && this._claim.getGuid() ) || 'new';
-			},
 			function() {
-				return $( '<div/>' );
-			}, // .wb-claim-mainsnak
-			'', // Qualifiers
+				return $( '<div/>' ).addClass( 'wb-claimview' );
+			}, // .wb-claimview
 			'', // TODO: This toolbar placeholder should be removed from the template.
 			'', // References heading
 			'' // List of references
 		],
 		templateShortCuts: {
 			'$rankSelector': '.wb-statement-rank',
-			'$mainSnak': '.wb-claim-mainsnak > :first-child',
-			'$qualifiers': '.wb-statement-qualifiers',
+			'$claimview': '.wb-claimview',
 			'$refsHeading': '.wb-statement-references-heading',
 			'$references': '.wb-statement-references'
 		},
-		entityChangersFactory: null
+		value: null,
+		claimsChanger: null,
+		entityChangersFactory: null,
+		predefined: {
+			mainSnak: false
+		},
+		locked: {
+			mainSnak: false
+		},
+		helpMessage: mw.msg( 'wikibase-claimview-snak-new-tooltip' )
 	},
+
+	/**
+	* The statement's initial index within the list of statements (if it is contained within a list
+	 * of statements). The initial index is stored to be able to detect whether the index has
+	 * changed and the statement does not feature its initial value.
+	* @type {number|null}
+	*/
+	_initialIndex: null,
 
 	/**
 	 * Shortcut to the list item adapter in use in the reference view.
@@ -61,34 +90,54 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_referencesListview: null,
 
 	/**
+	 * @type {wikibase.datamodel.Statement|null}
+	 */
+	_statement: null,
+
+	/**
+	 * @type {jQuery.wikibase.claimview}
+	 */
+	_claimview: null,
+
+	/**
 	 * @type {wikibase.entityChangers.ReferencesChanger}
 	 */
 	_referencesChanger: null,
 
 	/**
-	 * @see jQuery.claimview._create
+	 * @see jQuery.TemplatedWidget._create
 	 */
 	_create: function() {
-		if( !this.options.entityStore || !this.options.valueViewBuilder || !this.options.entityChangersFactory ) {
+		if(
+			!this.options.entityStore
+			|| !this.options.valueViewBuilder
+			|| !this.options.claimsChanger
+			|| !this.options.entityChangersFactory
+		) {
 			throw new Error( 'Required option(s) missing' );
 		}
 
 		PARENT.prototype._create.call( this );
 
 		var self = this,
-			statement = this.value(),
+			statement = this._statement = this.option( 'value' ),
 			refs = statement ? statement.getReferences() : [];
+
+		this._initialIndex = this.option( 'index' );
 
 		this._createRankSelector( statement ? statement.getRank() : null );
 
 		this._referencesChanger = this.options.entityChangersFactory.getReferencesChanger();
+		this._createClaimview( statement );
+
+		this._attachEditModeEventHandlers();
 
 		function indexOf( element, array ) {
 			var index = $.inArray( element, array );
 			return ( index !== -1 ) ? index : null;
 		}
 
-		if( this.value() ) {
+		if( statement ) {
 			var $listview = this.$references.children();
 			if( !$listview.length ) {
 				$listview = $( '<div/>' ).prependTo( this.$references );
@@ -98,13 +147,14 @@ $.widget( 'wikibase.statementview', PARENT, {
 				listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 					listItemWidget: $.wikibase.referenceview,
 					newItemOptionsFn: function( value ) {
-						var index = indexOf( value, self.value().getReferences() );
+						var index = indexOf( value, self.value().getReferences().toArray() );
 						if( index === null ) {
-							index = self._referencesListview.items().length;
+							// The empty list view item for this is already appended to the list view
+							index = self._referencesListview.items().length - 1;
 						}
 						return {
 							value: value || null,
-							statementGuid: self.value().getGuid(),
+							statementGuid: self.value().getClaim().getGuid(),
 							index: index,
 							entityStore: self.option( 'entityStore' ),
 							valueViewBuilder: self.option( 'valueViewBuilder' ),
@@ -112,7 +162,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 						};
 					}
 				} ),
-				value: refs
+				value: refs.toArray()
 			} );
 
 			this._referencesListview = $listview.data( 'listview' );
@@ -186,6 +236,33 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
+	 * @param {wikibase.datamodel.Statement} statement
+	 * @return {jQuery.wikibase.claimview}
+	 */
+	_createClaimview: function( statement ) {
+		var self = this;
+
+		this.$claimview.claimview( {
+			entityStore: this.option( 'entityStore' ),
+			helpMessage: this.option( 'helpMessage' ),
+			predefined: this.option( 'predefined' ),
+			locked: this.option( 'locked' ),
+			value: statement && statement.getClaim(),
+			valueViewBuilder: this.option( 'valueViewBuilder' )
+		} );
+
+		this._claimview = this.$claimview.data( 'claimview' );
+
+		this.$claimview
+		.on( this._claimview.widgetEventPrefix + 'change.' + this.widgetName, function() {
+			self._trigger( 'change' );
+		} )
+		.on( this._claimview.widgetEventPrefix + 'afterstopediting.' + this.widgetName, function( event, dropValue ) {
+			self.stopEditing( dropValue );
+		} );
+	},
+
+	/**
 	 * Creates the rank selector to select the statement rank.
 	 * @since 0.5
 	 *
@@ -208,20 +285,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 		} );
 
 		this.element
-		.on( this.widgetEventPrefix + 'afterstartediting.' + this.widgetName, function( event ) {
-			// FIXME: This should be the responsibility of the rankSelector
-			$rankSelector.addClass( 'ui-state-default' );
-			if( !self._claim ) {
-				self._rankSelector.rank( wb.datamodel.Statement.RANK.NORMAL );
-			}
-			self._rankSelector.enable();
-		} )
-		.on(
-			this.widgetEventPrefix + 'stopediting.' + this.widgetName,
-			function( event, dropValue ) {
-				self._rankSelector.disable();
-			}
-		)
 		.on( this.widgetEventPrefix + 'toggleerror.' + this.widgetName, function( event, error ) {
 			if( !error ) {
 				self._rankSelector.enable();
@@ -232,8 +295,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 			function( event, dropValue ) {
 				// FIXME: This should be the responsibility of the rankSelector
 				$rankSelector.removeClass( 'ui-state-default' );
-				if( dropValue && self._claim ) {
-					self._rankSelector.rank( self._claim.getRank() );
+				if( dropValue && self._statement ) {
+					self._rankSelector.rank( self._statement.getRank() );
 				}
 				self._rankSelector.disable();
 			}
@@ -241,46 +304,69 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
-	 * @see $.wikibase.claimview.isInitialValue
+	 * Attaches event listeners that shall trigger stopping the claimview's edit mode.
+	 */
+	_attachEditModeEventHandlers: function() {
+		var self = this;
+
+		this._detachEditModeEventHandlers();
+
+		function defaultHandling( event, dropValue ) {
+			event.stopImmediatePropagation();
+			event.preventDefault();
+			self._detachEditModeEventHandlers();
+			self._attachEditModeEventHandlers();
+			self.stopEditing( dropValue );
+		}
+
+		this._claimview.$mainSnak.one( 'snakviewstopediting.' + this.widgetName, function( event, dropValue ) {
+			defaultHandling( event, dropValue );
+		} );
+
+		if( this._claimview.$qualifiers ) {
+			this._claimview.$qualifiers
+			.one( 'snaklistviewstopediting.' + this.widgetName, function( event, dropValue ) {
+				defaultHandling( event, dropValue );
+			} );
+		}
+	},
+
+	/**
+	 * Detaches event listeners that shall trigger stopping the claimview's edit mode.
+	 */
+	_detachEditModeEventHandlers: function() {
+		this._claimview.$mainSnak.off( 'snakviewstopediting' );
+
+		if ( this._qualifiers && this._qualifiers.value().length ) {
+			this._qualifiers.element.off( 'snaklistviewstopediting' );
+		}
+	},
+
+	/**
+	 * @return {boolean}
 	 */
 	isInitialValue: function() {
-		if( !PARENT.prototype.isInitialValue.call( this ) ) {
+		if( this.option( 'index' ) !== this._initialIndex || !this._claimview.isInitialValue() ) {
 			return false;
-		}
-		if( this._claim && this._rankSelector ) {
-			return this._claim.getRank() === this._rankSelector.rank();
+		} else if( this._statement && this._rankSelector ) {
+			return this._statement.getRank() === this._rankSelector.rank();
 		}
 		return true;
 	},
 
 	/**
 	 * Instantiates a statement with the statementview's current value.
-	 * @see $.wikibase.claimview._instantiateClaim
 	 *
 	 * @param {string} guid
-	 * @return {wb.datamodel.Statement}
+	 * @return {wikibase.datamodel.Statement}
 	 */
-	_instantiateClaim: function( guid ) {
-		var qualifiers = null;
-
-		// Gather qualifiers in one single wb.datamodel.SnakList object. (The qualifiers are split into
-		// separate snaklistivews grouping snaks featuring the same property.)
-		if( this._qualifiers ) {
-			var snaklistviews = this._qualifiers.value();
-
-			qualifiers = new wb.datamodel.SnakList();
-
-			for( var i = 0; i < snaklistviews.length; i++ ) {
-				qualifiers.add( snaklistviews[i].value() );
-			}
-		}
+	_instantiateStatement: function( guid ) {
+		var claim = this._claimview._instantiateClaim( guid );
 
 		return new wb.datamodel.Statement(
-			this.$mainSnak.data( 'snakview' ).snak(),
-			qualifiers,
-			this.getReferences(),
-			this._rankSelector.rank(),
-			guid
+			claim,
+			new wb.datamodel.ReferenceList( this.getReferences() ),
+			this._rankSelector.rank()
 		);
 	},
 
@@ -342,7 +428,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		referenceview.disable();
 
 		this._referencesChanger.removeReference(
-			this.value().getGuid(),
+			this.value().getClaim().getGuid(),
 			referenceview.value()
 		)
 		.done( function() {
@@ -361,7 +447,12 @@ $.widget( 'wikibase.statementview', PARENT, {
 		this._rankSelector.destroy();
 		this.$rankSelector.off( '.' + this.widgetName );
 
-		this.element.removeClass( 'wb-claimview' );
+		if( this._claimview ) {
+			this._claimview.destroy();
+			this._claimview = null;
+		}
+		this.$claimview.off( '.' + this.widgetName );
+
 		PARENT.prototype.destroy.call( this );
 	},
 
@@ -371,18 +462,10 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 *
 	 * @since 0.4
 	 *
-	 * @return {wb.datamodel.Statement|null}
+	 * @return {wikibase.datamodel.Statement|null}
 	 */
 	value: function() {
-		var claim = this._claim;
-
-		if( !claim ) {
-			return null;
-		}
-		if( !( claim instanceof wb.datamodel.Statement ) ) {
-			return new wb.datamodel.Statement( claim.getMainSnak(), null, [], 0, claim.getGuid() );
-		}
-		return claim;
+		return this._statement;
 	},
 
 	/**
@@ -403,6 +486,200 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		// update counter, don't touch the toggle!
 		this.$refsHeading.find( '.ui-toggler-label' ).empty().append( $counterMsg );
+	},
+
+	/**
+	 * @since 0.4
+	 *
+	 * @param {boolean} [dropValue] If true, the value from before edit mode has been started will
+	 *        be reinstated - basically a cancel/save switch. "false" by default. Consider using
+	 *        cancelEditing() instead.
+	 * @return {undefined} (allows chaining widget calls)
+	 */
+	stopEditing: $.NativeEventHandler( 'stopEditing', {
+		// don't stop edit mode or trigger event if not in edit mode currently:
+		initially: function( e, dropValue ) {
+			if(
+				!this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue
+			) {
+				e.cancel();
+			}
+
+			this.element.removeClass( 'wb-error' );
+		},
+		// start edit mode if custom event handlers didn't prevent default:
+		natively: function( e, dropValue ) {
+			var self = this,
+				claim = this._claimview.value();
+
+			this._detachEditModeEventHandlers();
+
+			this.disable();
+			this._rankSelector.disable();
+
+			function stopEditing() {
+				self._isInEditMode = false;
+				self._claimview.stopEditing( dropValue );
+				self.enable();
+
+				self.element.removeClass( 'wb-edit' );
+
+				self._attachEditModeEventHandlers();
+
+				// transform toolbar and snak view after save complete
+				self._trigger( 'afterstopediting', null, [dropValue] );
+			}
+
+			if( dropValue ) {
+				stopEditing();
+			} else {
+				// editing an existing claim
+				this._saveStatementApiCall()
+				.done( function( savedStatement, pageInfo ) {
+					if( !self._statement ) {
+						// statement must be newly entered, create a new statement:
+						self._statement = new wb.datamodel.Statement( claim.getMainSnak() );
+					}
+
+					stopEditing();
+				} )
+				.fail( function( error ) {
+					self.enable();
+
+					// Claimview might have gotten the stopEditing before statementview
+					self._claimview.startEditing();
+
+					self._attachEditModeEventHandlers();
+
+					self.setError( error );
+				} );
+			}
+		}
+	} ),
+
+	/**
+	 * TODO: would be nice to have all API related stuff out of here to allow concentrating on
+	 *       MVVM relation.
+	 *
+	 * @return {jQuery.Promise}
+	 *         Resolved parameters:
+	 *         - {wikibase.datamodel.Statement} The saved statement
+	 *         Rejected parameters:
+	 *         - {wikibase.RepoApiError}
+	 */
+	_saveStatementApiCall: function() {
+		var self = this,
+			guid;
+
+		if( this.value() ) {
+			guid = this.value().getClaim().getGuid();
+		} else {
+			var guidGenerator = new wb.utilities.ClaimGuidGenerator();
+			guid = guidGenerator.newGuid( mw.config.get( 'wbEntityId' ) );
+		}
+
+		return this.option( 'claimsChanger' ).setStatement(
+			this._instantiateStatement( guid ),
+			this.option( 'index' )
+		)
+		.done( function( savedStatement ) {
+			// Update model of represented Statement:
+			self._statement = savedStatement;
+		} );
+	},
+
+	/**
+	 * Exits edit mode and restores the value from before the edit mode has been started.
+	 *
+	 * @return {undefined} (allows chaining widget calls)
+	 */
+	cancelEditing: function() {
+		return this.stopEditing( true );
+	},
+
+	startEditing: $.NativeEventHandler( 'startEditing', {
+		// don't start edit mode or trigger event if in edit mode already:
+		initially: function( e ) {
+			if( this.isInEditMode() ) {
+				e.cancel();
+			}
+		},
+		// start edit mode if event doesn't prevent default:
+		natively: function( e ) {
+			this._claimview.startEditing();
+
+			this.element.addClass( 'wb-edit' );
+			this._isInEditMode = true;
+
+			// FIXME: This should be the responsibility of the rankSelector
+			this._rankSelector.element.addClass( 'ui-state-default' );
+			if( !this._statement ) {
+				this._rankSelector.rank( wb.datamodel.Statement.RANK.NORMAL );
+			}
+			this._rankSelector.enable();
+
+			this._trigger( 'afterstartediting' );
+		}
+	} ),
+
+	/**
+	 * Returns the statement's initial index within the list of statements (if in any).
+	 * @since 0.5
+	 *
+	 * @return {number|null}
+	 */
+	getInitialIndex: function() {
+		return this._initialIndex;
+	},
+
+	/**
+	 * Returns whether the statement is editable at the moment.
+	 * @since 0.4
+	 *
+	 * @return {boolean}
+	 */
+	isInEditMode: function() {
+		return this._isInEditMode;
+	},
+
+	/**
+	 * Sets/removes error state from the widget.
+	 * @since 0.4
+	 *
+	 * @param {wb.RepoApiError} [error]
+	 */
+	setError: function( error ) {
+		if( error ) {
+			this.element.addClass( 'wb-error' );
+			this._trigger( 'toggleerror', null, [ error ] );
+		} else {
+			this.element.removeClass( 'wb-error' );
+			this._trigger( 'toggleerror' );
+		}
+	},
+
+	/**
+	 * @return {boolean}
+	 */
+	isValid: function() {
+		if( !this._claimview.isValid() ) {
+			return false;
+		}
+
+		try {
+			this._instantiateStatement( null );
+		} catch( e ) {
+			return false;
+		}
+
+		return true;
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
+	focus: function() {
+		this._claimview.focus();
 	}
 } );
 
@@ -508,6 +785,17 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 			}
 
 			$referenceview.edittoolbar( options );
+
+			$referenceview.on( 'keydown.edittoolbar', function( event ) {
+				if( referenceview.option( 'disabled' ) ) {
+					return;
+				}
+				if( event.keyCode === $.ui.keyCode.ESCAPE ) {
+					referenceview.stopEditing( true );
+				} else if( event.keyCode === $.ui.keyCode.ENTER ) {
+					referenceview.stopEditing( false );
+				}
+			} );
 		},
 		referenceviewchange: function( event ) {
 			var $referenceview = $( event.target ),
@@ -567,8 +855,8 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 
 			// Disable "move up" button of topmost and "move down" button of bottommost
 			// referenceview:
-			var $topMostReferenceview = referencesListview.items().first();
-			var $bottomMostReferenceview = referencesListview.items().last();
+			var $topMostReferenceview = referencesListview.items().first(),
+				$bottomMostReferenceview = referencesListview.items().last();
 
 			if ( $topMostReferenceview.get( 0 ) === $referenceview.get( 0 ) ) {
 				$referenceview.data( 'movetoolbar' ).getButton( 'up' ).disable();

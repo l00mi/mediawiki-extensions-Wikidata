@@ -11,19 +11,22 @@
 		get: function() {
 			return $.Deferred().resolve( new wb.store.FetchedContent( {
 				title: new mw.Title( 'Property:P1' ),
-				content: new wb.datamodel.Property( {
-					id: 'P1',
-					type: 'property',
-					datatype: 'string',
-					label: { en: 'P1' }
-				} )
+				content: new wb.datamodel.Property(
+					'P1',
+					'string',
+					new wb.datamodel.Fingerprint( new wb.datamodel.TermMap( [
+						new wb.datamodel.Term( 'en', 'P1' )
+					] ) )
+				)
 			} ) );
 		}
 	};
 
 	var valueViewBuilder = new wb.ValueViewBuilder(
 		new vv.ExpertStore(),
-		new vf.ValueFormatterStore( vf.NullFormatter )
+		new vf.ValueFormatterStore( vf.NullFormatter ),
+		'I am a ParserStore',
+		'I am a language code'
 	);
 
 	/**
@@ -38,7 +41,7 @@
 			statementGuid: statementGuid,
 			entityStore: entityStore,
 			valueViewBuilder: valueViewBuilder,
-			referencesChanger: 'referencesChanger'
+			referencesChanger: 'i am a ReferencesChanger'
 		} );
 
 		return $( '<div/>' )
@@ -109,9 +112,9 @@
 
 	QUnit.test( 'is initialized with a value', function( assert ) {
 		var $node = createReferenceview( 'testGuid', {
-				value: new wb.datamodel.Reference(
+				value: new wb.datamodel.Reference( new wb.datamodel.SnakList( [
 					new wb.datamodel.PropertyNoValueSnak( 'P1' )
-				)
+				] ) )
 			} ),
 			referenceview = $node.data( 'referenceview' );
 

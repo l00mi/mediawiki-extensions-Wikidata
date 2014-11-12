@@ -14,11 +14,9 @@ wb.parsers = wb.parsers || {};
  * @return {valueParsers.ValueParserStore}
  */
 wb.parsers.getStore = function( api ) {
-	var apiCaller = new wb.api.ParseValueCaller( api );
-
-	var ApiBasedValueParser = wb.parsers.getApiBasedValueParserConstructor( apiCaller );
-
-	var parserStore = new vp.ValueParserStore( vp.NullParser );
+	var apiCaller = new wb.api.ParseValueCaller( api ),
+		ApiBasedValueParser = wb.parsers.getApiBasedValueParserConstructor( apiCaller ),
+		parserStore = new vp.ValueParserStore( vp.NullParser );
 
 	parserStore.registerDataValueParser(
 		vp.StringParser,
@@ -43,6 +41,22 @@ wb.parsers.getStore = function( api ) {
 
 		parserStore.registerDataValueParser( Parser, dvType );
 	} );
+
+	parserStore.registerDataTypeParser(
+		util.inherit(
+			ApiBasedValueParser,
+			{ API_VALUE_PARSER_ID: 'commonsMedia'}
+		),
+		'commonsMedia'
+	);
+
+	parserStore.registerDataTypeParser(
+		util.inherit(
+			ApiBasedValueParser,
+			{ API_VALUE_PARSER_ID: 'url'}
+		),
+		'url'
+	);
 
 	return parserStore;
 };

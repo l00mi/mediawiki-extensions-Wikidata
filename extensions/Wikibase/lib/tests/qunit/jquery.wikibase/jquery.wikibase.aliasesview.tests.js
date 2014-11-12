@@ -3,7 +3,7 @@
  * @author H. Snater < mediawiki@snater.com >
  */
 
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -12,12 +12,9 @@
  */
 var createAliasesview = function( options ) {
 	options = $.extend( {
-		entityId: 'i am an entity id',
-		aliasesChanger: 'i am an aliasesChanger',
-		value: {
-			language: 'en',
-			aliases: ['a', 'b', 'c']
-		}
+		entityId: 'i am an EntityId',
+		aliasesChanger: 'i am an AliasesChanger',
+		value: new wb.datamodel.MultiTerm( 'en', ['a', 'b', 'c'] )
 	}, options || {} );
 
 	var $aliasesview = $( '<div/>' )
@@ -59,7 +56,7 @@ QUnit.test( 'Create & destroy', function( assert ) {
 		aliasesview = $aliasesview.data( 'aliasesview' );
 
 	assert.ok(
-		aliasesview !== undefined,
+		aliasesview instanceof $.wikibase.aliasesview,
 		'Created widget'
 	);
 
@@ -157,34 +154,31 @@ QUnit.test( 'setError()', function( assert ) {
 
 QUnit.test( 'value()', function( assert ) {
 	var $aliasesview = createAliasesview(),
-		aliasesview = $aliasesview.data( 'aliasesview' );
+		aliasesview = $aliasesview.data( 'aliasesview' ),
+		newValue = null;
 
 	assert.throws(
 		function() {
-			aliasesview.value( null );
+			aliasesview.value( newValue );
 		},
 		'Trying to set no value fails.'
 	);
 
-	aliasesview.value( {
-		language: 'de',
-		aliases: ['x', 'y']
-	} );
+	newValue = new wb.datamodel.MultiTerm( 'de', ['x', 'y'] );
+	aliasesview.value( newValue );
 
 	assert.ok(
-		aliasesview.value().language === 'de' && aliasesview.value().aliases.length === 2,
+		aliasesview.value().equals( newValue ),
 		'Set new value.'
 	);
 
-	aliasesview.value( {
-		language: 'en',
-		aliases: []
-	} );
+	newValue = new wb.datamodel.MultiTerm( 'en', [] );
+	aliasesview.value( newValue );
 
 	assert.ok(
-		aliasesview.value().language === 'en' && aliasesview.value().aliases.length === 0,
+		aliasesview.value().equals( newValue ),
 		'Set another value.'
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );

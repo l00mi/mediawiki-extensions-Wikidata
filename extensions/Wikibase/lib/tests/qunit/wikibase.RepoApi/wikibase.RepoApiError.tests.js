@@ -37,20 +37,11 @@
 			'Picked specific message according to passed "action" parameter.'
 		);
 
-		error = new wb.RepoApiError( 'client-error', 'detailed message', 'remove' );
-
-		assert.equal(
-			error.message,
-			mw.msg( 'wikibase-error-ui-client-error' ),
-			'Picked message that has no "action" specific variations regardless of passed "action" '
-				+ 'parameter.'
-		);
-
 	} );
 
 	QUnit.test( 'Validate errors created via factory method', function( assert ) {
 		var error = wb.RepoApiError.newFromApiResponse( {
-				error: { info: 'detailed message', code: 'error-code' }
+				error: { code: 'error-code', info: 'detailed message' }
 			} );
 
 		assert.equal(

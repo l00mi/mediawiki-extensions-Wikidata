@@ -25,15 +25,15 @@
 		var api = {
 			setLabel: sinon.spy( function() {
 				return $.Deferred().promise();
-			} ),
+			} )
 		};
 		var labelsChanger = new SUBJECT(
 			api,
 			{ getLabelRevision: function() { return 0; } },
-			new wb.datamodel.Item()
+			new wb.datamodel.Item( 'Q1' )
 		);
 
-		labelsChanger.setLabel( 'label', 'language' );
+		labelsChanger.setLabel( new wb.datamodel.Term( 'language', 'label' ) );
 
 		assert.ok( api.setLabel.calledOnce );
 	} );
@@ -51,17 +51,17 @@
 						}
 					}
 				} ).promise();
-			} ),
+			} )
 		};
 		var labelsChanger = new SUBJECT(
 			api,
 			{ getLabelRevision: function() { return 0; }, setLabelRevision: function() {} },
-			new wb.datamodel.Item()
+			new wb.datamodel.Item( 'Q1' )
 		);
 
 		QUnit.stop();
 
-		labelsChanger.setLabel( 'label', 'language' )
+		labelsChanger.setLabel( new wb.datamodel.Term( 'language', 'label' ) )
 		.done( function( savedLabel ) {
 			QUnit.start();
 			assert.equal( savedLabel, 'label' );
@@ -75,17 +75,17 @@
 		var api = {
 			setLabel: sinon.spy( function() {
 				return $.Deferred().reject( 'errorCode', { error: { code: 'errorCode' } } ).promise();
-			} ),
+			} )
 		};
 		var labelsChanger = new SUBJECT(
 			api,
 			{ getLabelRevision: function() { return 0; }, setLabelRevision: function() {} },
-			new wb.datamodel.Item()
+			new wb.datamodel.Item( 'Q1' )
 		);
 
 		QUnit.stop();
 
-		labelsChanger.setLabel( 'label', 'language' )
+		labelsChanger.setLabel( new wb.datamodel.Term( 'language', 'label' ) )
 		.done( function( savedLabel ) {
 			assert.ok( false, 'setLabel should have failed' );
 		} )

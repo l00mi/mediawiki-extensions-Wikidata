@@ -15,7 +15,12 @@
  * @option {Object[]} value
  *         Object representing the widget's value.
  *         Structure: [
- *           { language: <{string]>, label: <{string|null}>, description: <{string|null}> } [, ...]
+ *           {
+ *             language: <{string]>,
+ *             label: <{wikibase.datamodel.Term}>,
+ *             description: <{string|null}>
+ *             aliases: <{wikibase.datamodel.MultiTerm}>
+ *           }[, ...]
  *         ]
  *
  * @option {string} entityId
@@ -196,10 +201,19 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 
 		this.disable();
 
-		this.$fingerprintlistview.one(
-			'fingerprintlistviewafterstopediting',
+		this.$fingerprintlistview
+		.one(
+			'fingerprintlistviewafterstopediting.fingerprintgroupviewstopediting',
 			function( event, dropValue ) {
 				self._afterStopEditing( dropValue );
+				self.$fingerprintlistview.off( '.fingerprintgroupviewstopediting' );
+			}
+		)
+		.one(
+			'fingerprintlistviewtoggleerror.fingerprintgroupviewstopediting',
+			function( event, dropValue ) {
+				self.enable();
+				self.$fingerprintlistview.off( '.fingerprintgroupviewstopediting' );
 			}
 		);
 
@@ -223,6 +237,9 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 		this.stopEditing( true );
 	},
 
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
 	focus: function() {
 		this.$fingerprintlistview.data( 'fingerprintlistview' ).focus();
 	},
@@ -237,9 +254,14 @@ $.widget( 'wikibase.fingerprintgroupview', PARENT, {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
 		} else {
-			this.element.removeClass( 'wb-error' );
+			this.removeError();
 			this._trigger( 'toggleerror' );
 		}
+	},
+
+	removeError: function() {
+		this.element.removeClass( 'wb-error' );
+		this.$fingerprintlistview.data( 'fingerprintlistview' ).removeError();
 	},
 
 	/**

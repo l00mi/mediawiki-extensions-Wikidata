@@ -14,11 +14,21 @@ var MODULE = wb.entityChangers;
  * @param {wikibase.RepoApi} api
  * @param {wikibase.RevisionStore} revisionStore
  * @param {wikibase.datamodel.Entity} entity
+ * @param {wikibase.serialization.ReferenceSerializer} referenceSerializer
+ * @param {wikibase.serialization.ReferenceDeserializer} referenceDeserializer
  */
-var SELF = MODULE.ReferencesChanger = function( api, revisionStore, entity ) {
+var SELF = MODULE.ReferencesChanger = function(
+	api,
+	revisionStore,
+	entity,
+	referenceSerializer,
+	referenceDeserializer
+) {
 	this._api = api;
 	this._revisionStore = revisionStore;
 	this._entity = entity;
+	this._referenceSerializer = referenceSerializer;
+	this._referenceDeserializer = referenceDeserializer;
 };
 
 $.extend( SELF.prototype, {
@@ -38,6 +48,16 @@ $.extend( SELF.prototype, {
 	_api: null,
 
 	/**
+	 * @type {wikibase.serialization.ReferenceSerializer}
+	 */
+	_referenceSerializer: null,
+
+	/**
+	 * @type {wikibase.serialization.ReferenceDeserializer}
+	 */
+	_referenceDeserializer: null,
+
+	/**
 	 * @param {string} statementGuid
 	 * @param {wikibase.datamodel.Reference} reference
 	 * @return {jQuery.Promise}
@@ -46,8 +66,8 @@ $.extend( SELF.prototype, {
 	 *         - {wikibase.RepoApiError}
 	 */
 	removeReference: function( statementGuid, reference ) {
-		var deferred = $.Deferred();
-		var self = this;
+		var deferred = $.Deferred(),
+			self = this;
 
 		this._api.removeReferences(
 			statementGuid,
@@ -57,7 +77,7 @@ $.extend( SELF.prototype, {
 		.done( function( result ) {
 			self._revisionStore.setClaimRevision( result.pageinfo, statementGuid );
 
-			// FIXME: Introduce Item.setReferences
+			// FIXME: Update self._entity
 			deferred.resolve();
 		} )
 		.fail( function( errorCode, error ) {
@@ -78,23 +98,24 @@ $.extend( SELF.prototype, {
 	 *         - {wikibase.RepoApiError}
 	 */
 	setReference: function( statementGuid, reference, index ) {
-		var deferred = $.Deferred();
-		var self = this;
+		var deferred = $.Deferred(),
+			self = this;
+
 		this._api.setReference(
 			statementGuid,
-			reference.getSnaks().toJSON(),
+			this._referenceSerializer.serialize( reference ).snaks,
 			this._revisionStore.getClaimRevision( statementGuid ),
 			reference.getHash(),
 			index
 		)
 		.done( function( result ) {
-			var savedReference = wb.datamodel.Reference.newFromJSON( result.reference );
-			var pageInfo = result.pageinfo;
+			var savedReference = self._referenceDeserializer.deserialize( result.reference ),
+				pageInfo = result.pageinfo;
 
 			// Update revision store:
 			self._revisionStore.setClaimRevision( pageInfo.lastrevid, statementGuid );
 
-			// FIXME: Introduce Item.setReferences
+			// FIXME: Update self._entity
 
 			deferred.resolve( savedReference );
 		} )

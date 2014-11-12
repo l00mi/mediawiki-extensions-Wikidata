@@ -78,7 +78,7 @@ $.widget( 'wikibase.singlebuttontoolbar', PARENT, {
 		var self = this,
 			$defaultButton = null;
 
-		this._getContainer().children( '.wikibase-toolbar-button' ).each( function() {
+		this.getContainer().children( '.wikibase-toolbar-button' ).each( function() {
 			var $button = $( this );
 			if( $button.text() === self.options.label ) {
 				$defaultButton = $button;
@@ -89,10 +89,15 @@ $.widget( 'wikibase.singlebuttontoolbar', PARENT, {
 		return $defaultButton;
 	},
 
+	/**
+	 * @see jQuery.wikibase.toolbaritem.focus
+	 */
 	focus: function() {
 		var button = this.options.$content.first().data( 'toolbarbutton' );
 		if( button ) {
 			button.focus();
+		} else {
+			this.element.focus();
 		}
 	}
 } );

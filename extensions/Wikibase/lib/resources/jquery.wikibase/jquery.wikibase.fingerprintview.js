@@ -16,9 +16,9 @@
  *         Object representing the widget's value.
  *         Structure: {
  *           language: <{string}>,
- *           label: <{string|null}>,
+ *           label: <{wikibase.datamodel.Term}>,
  *           description: <{string|null>,
- *           aliases: <{string[]}>
+ *           aliases: <{wikibase.datamodel.MultiTerm}>
  *         }
  *
  * @option {string} [helpMessage]
@@ -113,25 +113,6 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		PARENT.prototype._create.call( this );
 
 		this._createWidgets();
-
-		var self = this;
-		this.element
-		// TODO: Move that code to a sensible place (see jQuery.wikibase.entityview):
-		.on( 'fingerprintviewafterstartediting.' + this.widgetName, function( event ) {
-			$( wb ).trigger( 'startItemPageEditMode', [
-				self.element,
-				{
-					exclusive: false,
-					wbCopyrightWarningGravity: 'sw'
-				}
-			] );
-		} )
-		.on( 'fingerprintviewafterstopediting.' + this.widgetName, function( event, dropValue ) {
-			$( wb ).trigger( 'stopItemPageEditMode', [
-				self.element,
-				{ save: dropValue !== true }
-			] );
-		} );
 	},
 
 	/**
@@ -213,9 +194,11 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 
 			if( widgetName === 'aliasesview' ) {
 				options.aliasesChanger = self.options.entityChangersFactory.getAliasesChanger();
+				options.value = self.options.value.aliases;
 			} else if ( widgetName === 'descriptionview' ) {
 				options.descriptionsChanger = self.options.entityChangersFactory.getDescriptionsChanger();
 			} else if ( widgetName === 'labelview' ) {
+				options.value = self.options.value.label;
 				options.labelsChanger = self.options.entityChangersFactory.getLabelsChanger();
 				options.entityId = self.options.entityId;
 			}
@@ -293,12 +276,23 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		 * @param {boolean} dropValue
 		 */
 		function addStopEditToQueue( $queue, widget, dropValue ) {
-			var eventName = widget.widgetEventPrefix + 'afterstopediting';
 			$queue.queue( 'stopediting', function( next ) {
 				widget.element
-				.one( eventName + '.fingerprintview', function( event ) {
-					setTimeout( next, 0 );
-				} );
+				.one(
+					widget.widgetEventPrefix + 'afterstopediting.fingerprintviewstopediting',
+					function( event ) {
+						widget.element.off( '.fingerprintviewstopediting' );
+						setTimeout( next, 0 );
+					}
+				)
+				.one(
+					widget.widgetEventPrefix + 'toggleerror.fingerprintviewstopediting',
+					function( event ) {
+						widget.element.off( '.fingerprintviewstopediting' );
+						$queue.clearQueue();
+						self._resetEditMode();
+					}
+				);
 				widget.stopEditing( dropValue );
 			} );
 		}
@@ -316,6 +310,14 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		} );
 
 		$queue.dequeue( 'stopediting' );
+	},
+
+	_resetEditMode: function() {
+		this.enable();
+
+		this.$labelview.data( 'labelview' ).startEditing();
+		this.$descriptionview.data( 'descriptionview' ).startEditing();
+		this.$aliasesview.data( 'aliasesview' ).startEditing();
 	},
 
 	/**
@@ -351,9 +353,9 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 
 		return {
 			language: this.options.value.language,
-			label: this.$labelview.data( 'labelview' ).value().label,
+			label: this.$labelview.data( 'labelview' ).value(),
 			description: this.$descriptionview.data( 'descriptionview' ).value().description,
-			aliases: this.$aliasesview.data( 'aliasesview' ).value().aliases
+			aliases: this.$aliasesview.data( 'aliasesview' ).value()
 		};
 	},
 
@@ -370,20 +372,14 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 				throw new Error( 'Cannot alter language' );
 			}
 
-			this.$labelview.data( 'labelview' ).option( 'value', {
-				language: value.language,
-				label: value.label
-			} );
+			this.$labelview.data( 'labelview' ).option( 'value', value.label );
 
 			this.$descriptionview.data( 'descriptionview' ).option( 'value', {
 				language: value.language,
 				description: value.description
 			} );
 
-			this.$aliasesview.data( 'aliasesview' ).option( 'value', {
-				language: value.language,
-				aliases: value.aliases
-			} );
+			this.$aliasesview.data( 'aliasesview' ).option( 'value', value.aliases );
 		}
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -411,7 +407,7 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		}
 
 		if( !value.label ) {
-			value.label = null;
+			throw new Error( 'label needs to be a wb.datamodel.Term instance' );
 		}
 
 		if( !value.description ) {
@@ -419,14 +415,14 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		}
 
 		if( !value.aliases ) {
-			value.aliases = [];
+			throw new Error( 'aliases need to be a wb.datamodel.MultiTerm instance' );
 		}
 
 		return value;
 	},
 
 	/**
-	 * Sets keyboard focus on the first input element.
+	 * @see jQuery.ui.TemplatedWidget.focus
 	 */
 	focus: function() {
 		this.$labelview.data( 'labelview' ).focus();
@@ -442,9 +438,17 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 			this.element.addClass( 'wb-error' );
 			this._trigger( 'toggleerror', null, [error] );
 		} else {
-			this.element.removeClass( 'wb-error' );
+			this.removeError();
 			this._trigger( 'toggleerror' );
 		}
+	},
+
+	removeError: function() {
+		this.element.removeClass( 'wb-error' );
+
+		this.$labelview.data( 'labelview' ).removeError();
+		this.$descriptionview.data( 'descriptionview' ).removeError();
+		this.$aliasesview.data( 'aliasesview' ).removeError();
 	}
 
 } );

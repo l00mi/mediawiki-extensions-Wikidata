@@ -11,6 +11,7 @@ use Title;
 use User;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\EntityContent;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\Store\EntityPermissionChecker;
@@ -189,23 +190,32 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 	}
 
 	/**
-	 * @see EntityPermissionChecker::getPermissionStatusForEntityId
-	 *
 	 * @param User $user
 	 * @param string $permission
 	 * @param Title $entityPage
 	 * @param string $quick
 	 *
-	 * @return Status a status object representing the check's result.
-	 *
+	 * //XXX: would be nice to be able to pass the $short flag too,
+	 *        as used by getUserPermissionsErrorsInternal. But Title doesn't expose that.
 	 * @todo Move to a separate service (merge into WikiPageEntityStore?)
+	 *
+	 * @return Status a status object representing the check's result.
 	 */
 	protected function getPermissionStatus( User $user, $permission, Title $entityPage, $quick = '' ) {
 		wfProfileIn( __METHOD__ );
-
-		//XXX: would be nice to be able to pass the $short flag too,
-		//     as used by getUserPermissionsErrorsInternal. But Title doesn't expose that.
 		$errors = $entityPage->getUserPermissionsErrors( $permission, $user, $quick !== 'quick' );
+		$status = $this->getStatusForPermissionErrors( $errors );
+
+		wfProfileOut( __METHOD__ );
+		return $status;
+	}
+
+	/**
+	 * @param string[] $errors
+	 *
+	 * @return Status
+	 */
+	protected function getStatusForPermissionErrors( array $errors ) {
 		$status = Status::newGood();
 
 		foreach ( $errors as $error ) {

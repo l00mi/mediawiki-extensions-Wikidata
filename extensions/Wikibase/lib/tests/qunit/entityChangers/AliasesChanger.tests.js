@@ -30,13 +30,10 @@
 		var aliasesChanger = new SUBJECT(
 			api,
 			{ getAliasesRevision: function() { return 0; } },
-			new wb.datamodel.Item()
+			new wb.datamodel.Item( 'Q1' )
 		);
 
-		aliasesChanger.setAliases(
-			[],
-			'language'
-		);
+		aliasesChanger.setAliases( new wb.datamodel.MultiTerm( 'language', [] ) );
 
 		assert.ok( api.setAliases.calledOnce );
 	} );
@@ -55,15 +52,12 @@
 				getAliasesRevision: function() { return 0; },
 				setAliasesRevision: function() {}
 			},
-			new wb.datamodel.Item()
+			new wb.datamodel.Item( 'Q1' )
 		);
 
 		QUnit.stop();
 
-		aliasesChanger.setAliases(
-			[],
-			'language'
-		)
+		aliasesChanger.setAliases( new wb.datamodel.MultiTerm( 'language', [] ) )
 		.done( function( savedAliases ) {
 			QUnit.start();
 			assert.ok( true, 'setAliases succeeded' );
@@ -87,15 +81,12 @@
 				getAliasesRevision: function() { return 0; },
 				setAliasesRevision: function() {}
 			},
-			new wb.datamodel.Item()
+			new wb.datamodel.Item( 'Q1' )
 		);
 
 		QUnit.stop();
 
-		aliasesChanger.setAliases(
-			[],
-			'language'
-		)
+		aliasesChanger.setAliases( new wb.datamodel.MultiTerm( 'language', [] ) )
 		.done( function( savedAliases ) {
 			assert.ok( false, 'setAliases succeeded' );
 		} )
@@ -108,6 +99,59 @@
 			);
 
 			assert.equal( error.code, 'errorCode' );
+		} );
+	} );
+
+	QUnit.test( 'setAliases correctly removes aliases', function( assert ) {
+		var api = {
+			setAliases: sinon.spy( function() {
+				return $.Deferred().resolve( {
+					entity: {}
+				} ).promise();
+			} )
+		};
+
+		var item = new wb.datamodel.Item( 'Q1', new wb.datamodel.Fingerprint(
+			null,
+			null,
+			new wb.datamodel.MultiTermMap( {
+				language: new wb.datamodel.MultiTerm( 'language', ['alias'] )
+			} )
+		) );
+
+		var aliasesChanger = new SUBJECT(
+			api,
+			{
+				getAliasesRevision: function() { return 0; },
+				setAliasesRevision: function() {}
+			},
+			item
+		);
+
+		QUnit.stop();
+
+		aliasesChanger.setAliases( new wb.datamodel.MultiTerm( 'language', [] ) )
+		.done( function() {
+			QUnit.start();
+
+			assert.ok( true, 'setAliases succeeded' );
+
+			assert.ok(
+				item.getFingerprint().getAliasesFor( 'language' ).isEmpty(),
+				'Verified aliases being empty.'
+			);
+
+			sinon.assert.calledWith(
+				api.setAliases,
+				'Q1',
+				0,
+				sinon.match( [] ),
+				sinon.match( ['alias'] ),
+				'language'
+			);
+		} )
+		.fail( function() {
+			assert.ok( false, 'setAliases failed' );
 		} );
 	} );
 

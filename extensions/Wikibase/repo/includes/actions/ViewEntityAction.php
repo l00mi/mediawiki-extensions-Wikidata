@@ -9,7 +9,6 @@ use OutputPage;
 use SpecialPage;
 use ViewAction;
 use Wikibase\Repo\Content\EntityHandler;
-use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -27,11 +26,6 @@ abstract class ViewEntityAction extends ViewAction {
 	 * @var LanguageFallbackChain
 	 */
 	protected $languageFallbackChain;
-
-	/**
-	 * @var EntityPermissionChecker
-	 */
-	protected $permissionChecker;
 
 	/**
 	 * Get the language fallback chain.
@@ -59,29 +53,6 @@ abstract class ViewEntityAction extends ViewAction {
 	 */
 	public function setLanguageFallbackChain( LanguageFallbackChain $chain ) {
 		$this->languageFallbackChain = $chain;
-	}
-
-	/**
-	 * Get permission checker.
-	 * Uses the default WikibaseRepo instance to get the service if it was not previously set.
-	 *
-	 * @return EntityPermissionChecker
-	 */
-	public function getPermissionChecker() {
-		if ( $this->permissionChecker === null ) {
-			$this->permissionChecker = WikibaseRepo::getDefaultInstance()->getEntityPermissionChecker();
-		}
-
-		return $this->permissionChecker;
-	}
-
-	/**
-	 * Set permission checker.
-	 *
-	 * @param EntityPermissionChecker $permissionChecker
-	 */
-	public function setPermissionChecker( EntityPermissionChecker $permissionChecker ) {
-		$this->permissionChecker = $permissionChecker;
 	}
 
 	/**
@@ -115,15 +86,15 @@ abstract class ViewEntityAction extends ViewAction {
 	 * Parent is doing $this->checkCanExecute( $this->getUser() )
 	 */
 	public function show() {
-		$contentRetriever = new ContentRetriever();
-		$content = $contentRetriever->getContentForRequest(
-			$this->getRequest(),
-			$this->getArticle()
-		);
-
-		if ( is_null( $content ) ) {
+		if ( !$this->getArticle()->getPage()->exists() ) {
 			$this->displayMissingEntity();
 		} else {
+			$contentRetriever = new ContentRetriever();
+			$content = $contentRetriever->getContentForRequest(
+				$this->getRequest(),
+				$this->getArticle()
+			);
+
 			$this->displayEntityContent( $content );
 		}
 	}
@@ -159,23 +130,8 @@ abstract class ViewEntityAction extends ViewAction {
 		// NOTE: page-wide property, independent of user permissions
 		$outputPage->addJsConfigVars( 'wbIsEditView', $editable );
 
-		if ( $editable && !$content->isRedirect() ) {
-			$permissionChecker = $this->getPermissionChecker();
-			$permissionStatus = $permissionChecker->getPermissionStatusForEntity(
-				$this->getUser(),
-				'edit',
-				$content->getEntity(),
-				'quick' );
-
-			$editable = $permissionStatus->isOK();
-		}
-
-		$parserOptions = $this->getArticle()->getPage()->makeParserOptions( $this->getContext()->getUser() );
-
-		if ( !$editable ) {
-			// disable editing features ("sections" is a misnomer, it applies to the wikitext equivalent)
-			$parserOptions->setEditSection( $editable );
-		}
+		$user = $this->getContext()->getUser();
+		$parserOptions = $this->getArticle()->getPage()->makeParserOptions( $user );
 
 		$this->getArticle()->setParserOptions( $parserOptions );
 		$this->getArticle()->view();

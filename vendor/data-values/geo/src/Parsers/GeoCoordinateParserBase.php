@@ -2,7 +2,6 @@
 
 namespace DataValues\Geo\Parsers;
 
-use DataValues\Geo\Values\GlobeCoordinateValue;
 use DataValues\Geo\Values\LatLongValue;
 use ValueParsers\ParseException;
 use ValueParsers\ParserOptions;
@@ -16,6 +15,8 @@ use ValueParsers\StringValueParser;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 abstract class GeoCoordinateParserBase extends StringValueParser {
+
+	const FORMAT_NAME = 'coordinate';
 
 	/**
 	 * The symbols representing the different directions for usage in directional notation.
@@ -61,9 +62,8 @@ abstract class GeoCoordinateParserBase extends StringValueParser {
 	 *
 	 * @param string $coordinateSegment
 	 *
-	 * @return float
-	 *
 	 * @throws ParseException
+	 * @return float
 	 */
 	abstract protected function getParsedCoordinate( $coordinateSegment );
 
@@ -86,17 +86,18 @@ abstract class GeoCoordinateParserBase extends StringValueParser {
 	 *
 	 * @param string $value
 	 *
-	 * @return GlobeCoordinateValue
-	 *
 	 * @throws ParseException
+	 * @return LatLongValue
 	 */
 	protected function stringParse( $value ) {
+		$rawValue = $value;
+
 		$value = $this->removeInvalidChars( $value );
 
 		$normalizedCoordinateSegments = $this->splitString( $value );
 
 		if( !$this->areValidCoordinates( $normalizedCoordinateSegments ) ) {
-			throw new ParseException( __CLASS__ . ': Not a valid geographical coordinate' );
+			throw new ParseException( 'Not a valid geographical coordinate', $rawValue, static::FORMAT_NAME );
 		}
 
 		list( $latitude, $longitude ) = $normalizedCoordinateSegments;
@@ -146,9 +147,8 @@ abstract class GeoCoordinateParserBase extends StringValueParser {
 	 *
 	 * @param string $normalizedCoordinateString
 	 *
-	 * @return string[]
-	 *
 	 * @throws ParseException if unable to split input string into two segments
+	 * @return string[]
 	 */
 	protected function splitString( $normalizedCoordinateString ) {
 		$separator = $this->getOption( self::OPT_SEPARATOR_SYMBOL );

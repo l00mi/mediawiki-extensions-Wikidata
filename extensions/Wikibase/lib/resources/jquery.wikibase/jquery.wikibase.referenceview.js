@@ -6,10 +6,12 @@
 ( function( mw, wb, $ ) {
 	'use strict';
 
-	var PARENT = $.TemplatedWidget;
+	var PARENT = $.ui.TemplatedWidget;
 
 /**
  * View for displaying and editing Wikibase Statements.
+ * @since 0.4
+ * @extends jQuery.ui.TemplatedWidget
  *
  * @option statementGuid {string} (REQUIRED) The GUID of the statement the reference belongs to.
  *
@@ -53,9 +55,6 @@
  *        (1) {jQuery.Event} event
  *        (2) {wb.RepoApiError|undefined} wb.RepoApiError object if an error occurred, undefined if
  *            the current error state is resolved.
- *
- * @since 0.4
- * @extends jQuery.TemplatedWidget
  */
 $.widget( 'wikibase.referenceview', PARENT, {
 	/**
@@ -298,9 +297,11 @@ $.widget( 'wikibase.referenceview', PARENT, {
 				snakList = new wb.datamodel.SnakList();
 
 			for( var i = 0; i < snaklistviews.length; i++ ) {
-				var snak = this.options.listItemAdapter.liInstance( snaklistviews.eq( i ) ).value();
-				if( snak ) {
-					snakList.add( snak );
+				var curSnakList = this.options.listItemAdapter.liInstance(
+					snaklistviews.eq( i )
+				).value();
+				if( curSnakList ) {
+					snakList.merge( curSnakList );
 				}
 			}
 
@@ -436,7 +437,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 				} else if ( !dropValue ) {
 					// Gather all the current snaks in a single SnakList to set to reset the
 					// initial qualifiers:
-					this._initialSnakList.add( snaklistview.value() );
+					this._initialSnakList.merge( snaklistview.value() );
 				}
 			}
 		}
@@ -513,7 +514,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 			for( var i = 0; i < $snaklistviews.length; i++ ) {
 				var snakview = this.options.listItemAdapter.liInstance( $snaklistviews.eq( i ) );
 				if( snakview.value() ) {
-					snakList.add( snakview.value() );
+					snakList.merge( snakview.value() );
 				}
 			}
 		}
@@ -584,6 +585,19 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		}
 
 		return response;
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
+	focus: function() {
+		var $items = this._listview.items();
+
+		if( $items.length ) {
+			this._listview.listItemAdapter().liInstance( $items.first() ).focus();
+		} else {
+			this.element.focus();
+		}
 	}
 } );
 

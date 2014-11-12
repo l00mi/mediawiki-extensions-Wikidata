@@ -53,10 +53,10 @@
 		 * @see wikibase.store.EntityStore.getMultipleRaw
 		 */
 		getMultipleRaw: function( entityIds ) {
-			var deferreds = $.map( entityIds, function() { return $.Deferred(); } );
-			var self = this;
-			var entityIdsToFetch = [];
-			var entityIdToIndex = {};
+			var deferreds = $.map( entityIds, function() { return $.Deferred(); } ),
+				self = this,
+				entityIdsToFetch = [],
+				entityIdToIndex = {};
 
 			$.each( entityIds, function( i, entityId ) {
 				if( self._entities.hasOwnProperty( entityId ) ) {
@@ -75,7 +75,7 @@
 							return; // missing entity
 						}
 
-						var entity = self._fetchedEntityUnserializer.unserialize( {
+						var entity = self._fetchedEntityUnserializer.deserialize( {
 							title: entityData.title,
 							content: entityData
 						} );

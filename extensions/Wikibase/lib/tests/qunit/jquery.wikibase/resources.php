@@ -23,6 +23,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.aliasesview',
+				'wikibase.datamodel.MultiTerm',
 			),
 		),
 
@@ -45,6 +46,16 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.claimgrouplabelscroll',
+			),
+		),
+
+		'jquery.wikibase.claimgrouplistview.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery.wikibase.claimgrouplistview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.claimgrouplistview',
+				'wikibase.datamodel'
 			),
 		),
 
@@ -98,6 +109,8 @@ return call_user_func( function() {
 				),
 				'dependencies' => array(
 					'jquery.wikibase.fingerprintgroupview',
+					'wikibase.datamodel.MultiTerm',
+					'wikibase.datamodel.Term',
 				),
 			),
 
@@ -107,6 +120,8 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.fingerprintlistview',
+				'wikibase.datamodel.MultiTerm',
+				'wikibase.datamodel.Term',
 			),
 		),
 
@@ -125,6 +140,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.labelview',
+				'wikibase.datamodel.Term',
 			),
 		),
 
@@ -239,6 +255,17 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.statementview',
+				'wikibase.datamodel',
+			),
+		),
+
+		'jquery.wikibase.statementview.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery.wikibase.statementview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.statementview',
+				'test.sinonjs',
 				'wikibase.datamodel',
 			),
 		),

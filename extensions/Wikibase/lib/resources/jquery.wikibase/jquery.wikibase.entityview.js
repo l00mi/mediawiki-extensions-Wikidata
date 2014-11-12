@@ -99,8 +99,15 @@ $.widget( 'wikibase.entityview', PARENT, {
 		this._initFingerprints();
 
 		// TODO: Have an itemview and propertyview instead of ugly hack here.
-		if ( this.options.value.getType() === 'item' ) {
+		var entityType = this.options.value.getType();
+		if(
+			entityType === 'item'
+			|| entityType === 'property' && mw.config.get( 'wbExperimentalFeatures' )
+		) {
 			this._initClaims();
+		}
+
+		if( entityType === 'item' ) {
 			this._initSiteLinks();
 		}
 
@@ -118,14 +125,13 @@ $.widget( 'wikibase.entityview', PARENT, {
 			).appendTo( this.element );
 		}
 
+		// FIXME: entity object should not contain fallback strings
+		var label = this.options.value.getFingerprint().getLabelFor(
+			mw.config.get( 'wgUserLanguage' )
+		) || new wb.datamodel.Term( mw.config.get( 'wgUserLanguage' ), '' );
+
 		this.$label.labelview( {
-			value: {
-				language: mw.config.get( 'wgUserLanguage' ),
-				label: this.$label.hasClass( 'wb-empty' )
-					? null
-					// FIXME: entity object should not contain fallback strings
-					: this.options.value.getLabel( mw.config.get( 'wgUserLanguage' ) )
-			},
+			value: label,
 			helpMessage: mw.msg(
 				'wikibase-description-input-help-message',
 				wb.getLanguageNameByCode( mw.config.get( 'wgUserLanguage' ) )
@@ -142,13 +148,16 @@ $.widget( 'wikibase.entityview', PARENT, {
 			this.$description = $( '<div/>' ).appendTo( this.element );
 		}
 
+		var description = this.options.value.getFingerprint().getDescriptionFor(
+			mw.config.get( 'wgUserLanguage' )
+		);
 		this.$description.descriptionview( {
 			value: {
 				language: mw.config.get( 'wgUserLanguage' ),
 				description: this.$description.hasClass( 'wb-empty' )
 					? null
 					// FIXME: entity object should not contain fallback strings
-					: this.options.value.getDescription( mw.config.get( 'wgUserLanguage' ) )
+					: ( description && description.getText() )
 			},
 			helpMessage: mw.msg(
 				'wikibase-description-input-help-message',
@@ -164,11 +173,12 @@ $.widget( 'wikibase.entityview', PARENT, {
 			this.$aliases = $( '<div/>' ).appendTo( this.element );
 		}
 
+		var aliases = this.options.value.getFingerprint().getAliasesFor(
+			mw.config.get( 'wgUserLanguage' )
+		) || new wb.datamodel.MultiTerm( mw.config.get( 'wgUserLanguage' ), [] );
+
 		this.$aliases.aliasesview( {
-			value: {
-				language:  mw.config.get( 'wgUserLanguage' ),
-				aliases: this.options.value.getAliases( mw.config.get( 'wgUserLanguage' ) )
-			},
+			value: aliases,
 			aliasesChanger: this.options.entityChangersFactory.getAliasesChanger()
 		} );
 	},
@@ -196,14 +206,20 @@ $.widget( 'wikibase.entityview', PARENT, {
 			this.$fingerprints = $( '<div/>' ).insertAfter( $precedingNode );
 		}
 
-		var value = [];
+		var fingerprint = this.options.value.getFingerprint(),
+			value = [],
+			nextValue;
 		for( var i = 0; i < this.options.languages.length; i++ ) {
-			value.push( {
+			nextValue = {
 				language: this.options.languages[i],
-				label: this.options.value.getLabel( this.options.languages[i] ) || null,
-				description: this.options.value.getDescription( this.options.languages[i] ) || null,
-				aliases: this.options.value.getAliases( this.options.languages[i] ) || []
-			} );
+				label: fingerprint.getLabelFor( this.options.languages[i] )
+					|| new wb.datamodel.Term( this.options.languages[i], '' ),
+				description: fingerprint.getDescriptionFor( this.options.languages[i] ),
+				aliases: fingerprint.getAliasesFor( this.options.languages[i] )
+					|| new wb.datamodel.MultiTerm( this.options.languages[i], [] )
+			};
+			nextValue.description = nextValue.description ? nextValue.description.getText() : null;
+			value.push( nextValue );
 		}
 
 		this.$fingerprints.fingerprintgroupview( {
@@ -222,7 +238,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 
 		this.$claims
 		.claimgrouplistview( {
-			value: this.options.value.getClaims(),
+			value: this.options.value.getStatements(),
 			entityType: this.options.value.getType(),
 			entityStore: this.options.entityStore,
 			valueViewBuilder: this.options.valueViewBuilder,
@@ -254,7 +270,8 @@ $.widget( 'wikibase.entityview', PARENT, {
 				$sitelinklistview = $sitelinkgroupview.find( '.wikibase-sitelinklistview' ),
 				group = $sitelinkgroupview.data( 'wb-sitelinks-group' ),
 				siteIdsOfGroup = [],
-				siteLinks = self.options.value.getSiteLinks(),
+				siteLinkSet = self.options.value.getSiteLinks(),
+				siteLinkIds = siteLinkSet.getKeys(),
 				siteLinksOfGroup = [];
 
 			$sitelinklistview.find( '.wikibase-sitelinkview' ).each( function() {
@@ -262,9 +279,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 			} );
 
 			for( var i = 0; i < siteIdsOfGroup.length; i++ ) {
-				for( var j = 0; j < siteLinks.length; j++ ) {
-					if( siteLinks[j].getSiteId() === siteIdsOfGroup[i] ) {
-						siteLinksOfGroup.push( siteLinks[j] );
+				for( var j = 0; j < siteLinkIds.length; j++ ) {
+					if( siteLinkIds[j] === siteIdsOfGroup[i] ) {
+						siteLinksOfGroup.push( siteLinkSet.getItemByKey( siteLinkIds[j] ) );
 						break;
 					}
 				}
@@ -409,6 +426,13 @@ $.widget( 'wikibase.entityview', PARENT, {
 			.removeClass( 'tocsection-' + i )
 			.addClass( 'tocsection-' + ( i + 1 ) );
 		} );
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
+	focus: function() {
+		this.$label.data( 'labelview' ).focus();
 	}
 } );
 

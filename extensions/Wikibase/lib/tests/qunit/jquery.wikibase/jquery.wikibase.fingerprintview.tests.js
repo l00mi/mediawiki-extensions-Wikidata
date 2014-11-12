@@ -2,8 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -13,15 +12,15 @@
  */
 var createFingerprintview = function( options, $node ) {
 	options = $.extend( {
-		entityId: 'i am an entity id',
+		entityId: 'i am an EntityId',
 		entityChangersFactory: {
-			getAliasesChanger: function() { return 'aliasesChanger'; },
+			getAliasesChanger: function() { return 'i am an AliasesChanger'; },
 			getDescriptionsChanger: function() {
 				return {
 					setDescription: function() { return $.Deferred().resolve(); }
 				};
 			},
-			getLabelsChanger: function () {
+			getLabelsChanger: function() {
 				return {
 					setLabel: function() { return $.Deferred().resolve(); }
 				};
@@ -29,9 +28,9 @@ var createFingerprintview = function( options, $node ) {
 		},
 		value: {
 			language: 'en',
-			label: 'test label',
+			label: new wb.datamodel.Term( 'en', 'test label' ),
 			description: 'test description',
-			aliases: ['alias1', 'alias2']
+			aliases: new wb.datamodel.MultiTerm( 'en', ['alias1', 'alias2'] )
 		}
 	}, options || {} );
 
@@ -114,22 +113,93 @@ QUnit.test( 'startEditing() & stopEditing()', 6, function( assert ) {
 		);
 	} );
 
-	fingerprintview.startEditing();
+	/**
+	 * @param {Function} func
+	 * @param {boolean} expectingEvent
+	 * @return {jQuery.Promise}
+	 */
+	function testEditModeChange( func, expectingEvent ) {
+		var deferred = $.Deferred();
 
-	fingerprintview.startEditing(); // should not trigger event
-	fingerprintview.stopEditing( true );
-	fingerprintview.stopEditing( true ); // should not trigger event
-	fingerprintview.stopEditing(); // should not trigger event
-	fingerprintview.startEditing();
+		if( !expectingEvent ) {
+			func();
+			return deferred.resolve().promise();
+		}
 
-	fingerprintview.$label.find( 'input' ).val( '' );
+		$fingerprintview
+		.one( 'fingerprintviewafterstartediting.fingerprintviewtest', function( event ) {
+			$fingerprintview.off( '.fingerprintviewtest' );
+			deferred.resolve();
+		} )
+		.one( 'fingerprintviewafterstopediting.fingerprintviewtest', function( event, dropValue ) {
+			$fingerprintview.off( '.fingerprintviewtest' );
+			deferred.resolve();
+		} );
 
-	fingerprintview.stopEditing();
-	fingerprintview.startEditing();
+		func();
 
-	fingerprintview.$description.find( 'input' ).val( 'changed description' );
+		return deferred.promise();
+	}
 
-	fingerprintview.stopEditing();
+	var $queue = $( {} );
+
+	/**
+	 * @param {jQuery} $queue
+	 * @param {Function} func
+	 * @param {boolean} [expectingEvent]
+	 */
+	function addToQueue( $queue, func, expectingEvent ) {
+		if( expectingEvent === undefined ) {
+			expectingEvent = true;
+		}
+		$queue.queue( 'tests', function( next ) {
+			QUnit.stop();
+			testEditModeChange( func, expectingEvent ).always( function() {
+				QUnit.start();
+				next();
+			} );
+		} );
+	}
+
+	addToQueue( $queue, function() {
+		fingerprintview.startEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		fingerprintview.startEditing();
+	}, false );
+
+	addToQueue( $queue, function() {
+		fingerprintview.stopEditing( true );
+	} );
+
+	addToQueue( $queue, function() {
+		fingerprintview.stopEditing( true );
+	}, false );
+
+	addToQueue( $queue, function() {
+		fingerprintview.stopEditing();
+	}, false );
+
+	addToQueue( $queue, function() {
+		fingerprintview.startEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		fingerprintview.$label.find( 'input' ).val( '' );
+		fingerprintview.stopEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		fingerprintview.startEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		fingerprintview.$description.find( 'input' ).val( 'changed description' );
+		fingerprintview.stopEditing();
+	} );
+
+	$queue.dequeue( 'tests' );
 } );
 
 QUnit.test( 'isInitialValue()', function( assert ) {
@@ -175,7 +245,9 @@ QUnit.test( 'setError()', function( assert ) {
 
 QUnit.test( 'value()', function( assert ) {
 	var $fingerprintview = createFingerprintview(),
-		fingerprintview = $fingerprintview.data( 'fingerprintview' );
+		fingerprintview = $fingerprintview.data( 'fingerprintview' ),
+		label = new wb.datamodel.Term( 'en', 'changed label' ),
+		aliases = new wb.datamodel.MultiTerm( 'en', ['alias1', 'alias2'] );
 
 	assert.throws(
 		function() {
@@ -186,21 +258,14 @@ QUnit.test( 'value()', function( assert ) {
 
 	fingerprintview.value( {
 		language: 'en',
-		label: 'changed label',
+		label: label,
 		description: 'test description',
-		aliases: ['alias1', 'alias2']
+		aliases: aliases
 	} );
 
 	assert.ok(
-		fingerprintview.value().label,
-		'changed label',
+		fingerprintview.value().label.equals( label ),
 		'Set new label.'
-	);
-
-	assert.equal(
-		fingerprintview.value().language,
-		'en',
-		'Did not change language.'
 	);
 
 	assert.equal(
@@ -209,16 +274,17 @@ QUnit.test( 'value()', function( assert ) {
 		'Did not change description.'
 	);
 
+	label = new wb.datamodel.Term( 'en', 'test label' );
+
 	fingerprintview.value( {
 		language: 'en',
-		label: 'test label',
+		label: label,
 		description: null,
-		aliases: ['alias1', 'alias2']
+		aliases: aliases
 	} );
 
-	assert.equal(
-		fingerprintview.value().label,
-		'test label',
+	assert.ok(
+		fingerprintview.value().label.equals( label ),
 		'Reset label.'
 	);
 
@@ -228,29 +294,31 @@ QUnit.test( 'value()', function( assert ) {
 		'Removed description.'
 	);
 
+	aliases = new wb.datamodel.MultiTerm( 'en', ['alias1', 'alias2', 'alias3'] );
+
 	fingerprintview.value( {
 		language: 'en',
-		label: 'test label',
+		label: label,
 		description: null,
-		aliases: ['alias1', 'alias2', 'alias3']
+		aliases: aliases
 	} );
 
-	assert.deepEqual(
-		fingerprintview.value().aliases,
-		['alias1', 'alias2', 'alias3'],
+	assert.ok(
+		fingerprintview.value().aliases.equals( aliases ),
 		'Added alias.'
 	);
 
+	aliases = new wb.datamodel.MultiTerm( 'en', [] );
+
 	fingerprintview.value( {
 		language: 'en',
-		label: 'test label',
+		label: label,
 		description: null,
-		aliases: []
+		aliases: aliases
 	} );
 
-	assert.deepEqual(
-		fingerprintview.value().aliases,
-		[],
+	assert.ok(
+		fingerprintview.value().aliases.equals( aliases ),
 		'Removed aliases.'
 	);
 
@@ -258,13 +326,13 @@ QUnit.test( 'value()', function( assert ) {
 		function() {
 			fingerprintview.value( {
 				language: 'de',
-				label: 'test label',
+				label: label,
 				description: null,
-				aliases: ['alias1', 'alias2']
+				aliases: aliases
 			} );
 		},
 		'Trying to change language fails.'
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );

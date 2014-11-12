@@ -2,7 +2,6 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-
 ( function( $, wb, QUnit ) {
 	'use strict';
 
@@ -12,7 +11,7 @@
  */
 function createSitelinklistview( options ) {
 	options = $.extend( {
-		siteLinksChanger: 'siteLinksChanger',
+		siteLinksChanger: 'i am a SiteLinksChanger',
 		entityStore: new wb.store.EntityStore(),
 		allowedSiteIds: ['aawiki', 'enwiki']
 	}, options );
@@ -151,13 +150,22 @@ QUnit.test( 'isValid()', function( assert ) {
 		sitelinklistview.isValid(),
 		'Verified isValid() returning TRUE.'
 	);
+} );
+
+QUnit.test( 'isValid() with invalid sitelinkview', function( assert ) {
+	var $sitelinklistview = createSitelinklistview( {
+			value: []
+		} ),
+		sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
+
+	sitelinklistview.enterNewItem();
 
 	var listview = sitelinklistview.$listview.data( 'listview' ),
-		lia = listview.listItemAdapter();
+		lia = listview.listItemAdapter(),
+		sitelinkview = lia.liInstance( listview.items().first() );
 
-	lia.liInstance( listview.items().first() ).isValid = function() {
-		return false;
-	};
+	sitelinkview.startEditing();
+	sitelinkview.$siteId.find( 'input' ).val( 'foobar' );
 
 	assert.ok(
 		!sitelinklistview.isValid(),
@@ -311,6 +319,25 @@ QUnit.test( 'enterNewItem()', 2, function( assert ) {
 	} );
 
 	sitelinklistview.enterNewItem();
+} );
+
+QUnit.test( 'remove empty sitelinkview when hitting backspace', function( assert ) {
+	var $sitelinklistview = createSitelinklistview(),
+		sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
+
+	// Have to create two because the last empty item is never removed
+	sitelinklistview.enterNewItem();
+	sitelinklistview.enterNewItem();
+
+	var listview = sitelinklistview.$listview.data( 'listview' ),
+		$sitelinkview = listview.items().first();
+
+	assert.equal( listview.items().length, 2 );
+	var e = $.Event( 'keydown' );
+	e.which = e.keyCode = $.ui.keyCode.BACKSPACE;
+	$sitelinkview.trigger( e );
+
+	assert.equal( listview.items().length, 1 );
 } );
 
 }( jQuery, wikibase, QUnit ) );

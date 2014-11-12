@@ -49,6 +49,16 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 				} )
 			);
 
+		$propertyDataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$propertyDataTypeLookup->expects( $this->any() )
+			->method( 'getDataTypeIdForProperty' )
+			->will( $this->returnValue( 'structured-cat' ) );
+
+		$labelLookup = $this->getMock( 'Wikibase\Lib\Store\LabelLookup' );
+		$labelLookup->expects( $this->any() )
+			->method( 'getLabel' )
+			->will( $this->returnValue( 'LabelString' ) );
+
 		return new WikibaseLuaBindings(
 			new BasicEntityIdParser(),
 			$entityLookup ? $entityLookup : new MockRepository(),
@@ -56,6 +66,8 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 			new LanguageFallbackChainFactory(),
 			$language, // language
 			new SettingsArray(),
+			$propertyDataTypeLookup,
+			$labelLookup,
 			array( 'de', 'en', 'es', 'ja' ),
 			"enwiki" // siteId
 		);
@@ -99,6 +111,47 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 	public function testGetGlobalSiteId() {
 		$wikibaseLibrary = $this->getWikibaseLibraryImplementation();
 		$this->assertEquals( 'enwiki', $wikibaseLibrary->getGlobalSiteId() );
+	}
+
+	public function getLabelProvider() {
+		return array(
+			array( 'LabelString', 'Q123' ),
+			array( '', 'DoesntExist' )
+		);
+	}
+
+	/**
+	 * @dataProvider getLabelProvider
+	 *
+	 * @param string $expected
+	 * @param string $itemId
+	 */
+	public function testGetLabel( $expected, $itemId ) {
+		$wikibaseLibrary = $this->getWikibaseLibraryImplementation();
+		$this->assertSame( $expected, $wikibaseLibrary->getLabel( $itemId ) );
+	}
+
+	public function getSiteLinkPageNameProvider() {
+		return array(
+			array( 'Beer', 'Q666' ),
+			array( '', 'DoesntExist' )
+		);
+	}
+
+	/**
+	 * @dataProvider getSiteLinkPageNameProvider
+	 *
+	 * @param string $expected
+	 * @param string $itemId
+	 */
+	public function testGetSiteLinkPageName( $expected, $itemId ) {
+		$item = $this->getItem();
+
+		$entityLookup = new MockRepository();
+		$entityLookup->putEntity( $item );
+
+		$wikibaseLibrary = $this->getWikibaseLibraryImplementation( $entityLookup );
+		$this->assertSame( $expected, $wikibaseLibrary->getSiteLinkPageName( $itemId ) );
 	}
 
 	protected function getItem() {

@@ -7,11 +7,12 @@
 ( function( mw, wb, $ ) {
 	'use strict';
 
-	var PARENT = $.TemplatedWidget;
+	var PARENT = $.ui.TemplatedWidget;
 
 /**
  * View for displaying and editing Wikibase Claims.
  * @since 0.3
+ * @extends jQuery.ui.TemplatedWidget
  *
  * @option {wb.datamodel.Claim|null} value The claim displayed by this view. This can only be set initially,
  *         the value function doesn't work as a setter in this view. If this is null, this view will
@@ -21,7 +22,7 @@
  *
  * @option {wikibase.ValueViewBuilder} valueViewBuilder
  *
- * @option {wikibase.entityChangers.ClaimsChanger} claimsChanger
+ * @option {wikibase.entityChangers.ClaimsChanger} [claimsChanger] If not passed, claimview does not save.
  *
  * @option {number|null} index The claim's index within the list of claims (if the claim is
  *         contained within such a list).
@@ -149,7 +150,10 @@ $.widget( 'wikibase.claimview', PARENT, {
 	 * @throws {Error} if any required option is not specified.
 	 */
 	_create: function() {
-		if( !this.options.entityStore || !this.options.valueViewBuilder ) {
+		if(
+			!this.options.entityStore
+			|| !this.options.valueViewBuilder
+		) {
 			throw new Error( 'Required option(s) missing' );
 		}
 
@@ -158,9 +162,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 
 		// call template creation, this will require this._claim in template params callback!
 		PARENT.prototype._create.call( this );
-
-		// Make sure sub-classes have this class, too
-		this.element.addClass( 'wb-claimview' );
 
 		// set up event listeners:
 		this.$mainSnak
@@ -185,8 +186,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 			// Group qualifiers by property id:
 			this._createQualifiersListview( this._initialQualifiers );
 		}
-
-		this._attachEditModeEventHandlers();
 
 		if ( this._claim || this.options.predefined.mainSnak ) {
 			var property = this._claim
@@ -278,8 +277,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 			} );
 
 		this._qualifiers = $qualifiers.data( 'listview' );
-
-		this._attachEditModeEventHandlers();
 	},
 
 	/**
@@ -373,7 +370,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 			if( snaklistviews.length ) {
 				for( var i = 0; i < snaklistviews.length; i++ ) {
 					if( snaklistviews[i].value() ) {
-						qualifiers.add( snaklistviews[i].value() );
+						qualifiers.merge( snaklistviews[i].value() );
 					}
 				}
 			}
@@ -448,11 +445,9 @@ $.widget( 'wikibase.claimview', PARENT, {
 
 			this.element.removeClass( 'wb-error' );
 		},
-		// start edit mode if custom event handlers didn't prevent default:
+		// stop edit mode if custom event handlers didn't prevent default:
 		natively: function( e, dropValue ) {
 			var self = this;
-
-			this._detachEditModeEventHandlers();
 
 			this.disable();
 
@@ -466,8 +461,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 				self.enable();
 				self.element.removeClass( 'wb-edit' );
 				self._isInEditMode = false;
-
-				self._attachEditModeEventHandlers();
 
 				self._trigger( 'afterstopediting', null, [ dropValue ] );
 			} else {
@@ -490,16 +483,11 @@ $.widget( 'wikibase.claimview', PARENT, {
 					self.element.removeClass( 'wb-edit' );
 					self._isInEditMode = false;
 
-					self._attachEditModeEventHandlers();
-
 					// transform toolbar and snak view after save complete
 					self._trigger( 'afterstopediting', null, [ dropValue ] );
 				} )
 				.fail( function( error ) {
 					self.enable();
-
-					self._attachEditModeEventHandlers();
-
 					self.setError( error );
 				} );
 			}
@@ -535,7 +523,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 					} else if ( !dropValue ) {
 						// Gather all the current snaks in a single SnakList to set to reset the
 						// initial qualifiers:
-						this._initialQualifiers.add( snaklistviews[i].value() );
+						this._initialQualifiers.merge( snaklistviews[i].value() );
 					}
 				}
 			}
@@ -564,47 +552,6 @@ $.widget( 'wikibase.claimview', PARENT, {
 	},
 
 	/**
-	 * Attaches event listeners that shall trigger stopping the claimview's edit mode.
-	 * @since 0.4
-	 */
-	_attachEditModeEventHandlers: function() {
-		var self = this;
-
-		this._detachEditModeEventHandlers();
-
-		function defaultHandling( event, dropValue ) {
-			event.stopImmediatePropagation();
-			event.preventDefault();
-			self._detachEditModeEventHandlers();
-			self._attachEditModeEventHandlers();
-			self.stopEditing( dropValue );
-		}
-
-		this.$mainSnak.one( 'snakviewstopediting.' + this.widgetName, function( event, dropValue ) {
-			defaultHandling( event, dropValue );
-		} );
-
-		if( this._qualifiers ) {
-			this._qualifiers.element
-			.one( 'snaklistviewstopediting.' + this.widgetName, function( event, dropValue ) {
-				defaultHandling( event, dropValue );
-			} );
-		}
-	},
-
-	/**
-	 * Detaches event listeners that shall trigger stopping the claimview's edit mode.
-	 * @since 0.4
-	 */
-	_detachEditModeEventHandlers: function() {
-		this.$mainSnak.off( 'snakviewstopediting' );
-
-		if ( this._qualifiers && this._qualifiers.value().length ) {
-			this._qualifiers.element.off( 'snaklistviewstopediting' );
-		}
-	},
-
-	/**
 	 * Returns whether the Claim is editable at the moment.
 	 * @since 0.4
 	 *
@@ -628,7 +575,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 
 		// Combine qualifiers grouped by property to a single SnakList:
 		for( var i = 0; i < snaklistviews.length; i++ ) {
-			qualifiers.add( snaklistviews[i].value() );
+			qualifiers.merge( snaklistviews[i].value() );
 		}
 
 		return new wb.datamodel.Claim(
@@ -646,7 +593,8 @@ $.widget( 'wikibase.claimview', PARENT, {
 	 */
 	_saveClaimApiCall: function() {
 		var self = this,
-			guid;
+			guid,
+			claimsChanger = this.option( 'claimsChanger' );
 
 		if ( this.value() ) {
 			guid = this.value().getGuid();
@@ -655,7 +603,13 @@ $.widget( 'wikibase.claimview', PARENT, {
 			guid = guidGenerator.newGuid( mw.config.get( 'wbEntityId' ) );
 		}
 
-		return this.option( 'claimsChanger' ).setClaim(
+		if( !claimsChanger ) {
+			// Don't save if we are not responsible for saving
+			this._claim = this._instantiateClaim( guid );
+			return $.Deferred().resolve().promise();
+		}
+
+		return claimsChanger.setClaim(
 			this._instantiateClaim( guid ),
 			this.option( 'index' )
 		)
@@ -739,6 +693,13 @@ $.widget( 'wikibase.claimview', PARENT, {
 		}
 
 		return response;
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
+	focus: function() {
+		this.$mainSnak.data( 'snakview' ).focus();
 	}
 } );
 
@@ -816,19 +777,13 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 					function( event ) {
 						var $qualifiers = $( event.target ).closest( '.wb-claim-qualifiers' ),
 							addToolbar = $qualifiers.data( 'addtoolbar' ),
-							$parentView = $qualifiers.closest( ':wikibase-statementview' ),
-							parentView = null;
+							$claimview = $qualifiers.closest( ':wikibase-claimview' ),
+							claimview = $claimview.data( 'claimview' );
 
-						if( $parentView.length ) {
-							parentView = $parentView.data( 'statementview' );
-						} else {
-							$parentView = $qualifiers.closest( ':wikibase-claimview' );
-							parentView = $parentView.data( 'claimview' );
-						}
-
-						// Toolbar might be removed from the DOM already after having stopped edit mode.
+						// Toolbar might be removed from the DOM already after having stopped edit
+						// mode.
 						if( addToolbar ) {
-							addToolbar[parentView.option( 'disabled' ) ? 'disable' : 'enable']();
+							addToolbar[claimview.option( 'disabled' ) ? 'disable' : 'enable']();
 						}
 					}
 				);
@@ -915,15 +870,8 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 					var $snaklistviewNode = $( event.target ),
 						listview = $snaklistviewNode.data( 'snaklistview' )._listview,
 						lia = listview.listItemAdapter(),
-						$parentView = $snaklistviewNode.closest( ':wikibase-statementview' ),
-						parentView = null;
-
-					if( $parentView.length ) {
-						parentView = $parentView.data( 'statementview' );
-					} else {
-						$parentView = $snaklistviewNode.closest( ':wikibase-claimview' );
-						parentView = $parentView.data( 'claimview' );
-					}
+						$claimview = $snaklistviewNode.closest( ':wikibase-claimview' ),
+						claimview = $claimview.data( 'claimview' );
 
 					$.each( listview.items(), function( i, node ) {
 						var $snakview = $( node ),
@@ -935,7 +883,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 							return;
 						}
 
-						$snakview.data( 'removetoolbar' )[parentView.option( 'disabled' )
+						$snakview.data( 'removetoolbar' )[claimview.option( 'disabled' )
 							? 'disable'
 							: 'enable'
 						]();
@@ -1054,8 +1002,8 @@ $.wikibase.toolbarcontroller.definition( 'movetoolbar', {
 						// "move down" button of the bottommost snakview of the bottommost snaklistview. All
 						// other buttons shall be enabled.
 						var $target = $( event.target ),
-							$claimview = $target.closest( ':wikibase-statementview,:wikibase-claimview' ),
-							claimview = $claimview.data( 'statementview' ) || $claimview.data( 'claimview' ),
+							$claimview = $target.closest( ':wikibase-claimview' ),
+							claimview = $claimview.data( 'claimview' ),
 							listview;
 
 						if( event.type.indexOf( 'listview' ) !== 0 ) {

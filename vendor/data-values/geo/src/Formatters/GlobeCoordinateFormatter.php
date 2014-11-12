@@ -34,12 +34,12 @@ class GlobeCoordinateFormatter extends ValueFormatterBase {
 	 */
 	public function format( $value ) {
 		if ( !( $value instanceof GlobeCoordinateValue ) ) {
-			throw new InvalidArgumentException( 'The ValueFormatters\GlobeCoordinateFormatter can only format instances of DataValues\GlobeCoordinateValue' );
+			throw new InvalidArgumentException( 'The GlobeCoordinateFormatter can only format instances of GlobeCoordinateValue.' );
 		}
 
 		$formatter = new GeoCoordinateFormatter( $this->options );
 
-		return $formatter->format( $value->getLatLong() );
+		return $formatter->formatLatLongValue( $value->getLatLong(), $value->getPrecision() );
 	}
 
 }

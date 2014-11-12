@@ -106,7 +106,7 @@ class SetSiteLink extends ModifyEntity {
 				$this->getResultBuilder()->addSiteLinks( array( $link ), 'entity', array( 'url' ) );
 			} else {
 				wfProfileOut( __METHOD__ );
-				$this->dieError( "Cannot modify badges: sitelink to '{$params['linktitle']}' doesn't exist", 'no-such-sitelink' );
+				$this->dieMessage( 'no-such-sitelink', $params['linktitle'] );
 			}
 		}
 
@@ -141,7 +141,7 @@ class SetSiteLink extends ModifyEntity {
 
 				if ( $page === false ) {
 					wfProfileOut( __METHOD__ );
-					$this->dieError( 'The external client site did not provide page information' , 'no-external-page' );
+					$this->dieMessage( 'no-external-page', $linksite, $params['linktitle'] );
 				}
 			} else {
 				$page = null;
