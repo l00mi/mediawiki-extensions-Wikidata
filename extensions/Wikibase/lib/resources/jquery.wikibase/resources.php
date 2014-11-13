@@ -29,9 +29,10 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.inputautoexpand',
 				'jquery.ui.tagadata',
-				'jquery.ui.TemplatedWidget',
+				'jquery.ui.EditableTemplatedWidget',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
+				'wikibase.datamodel.MultiTerm',
 				'wikibase.templates',
 			),
 			'messages' => array(
@@ -134,6 +135,7 @@ return call_user_func( function() {
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase',
+				'wikibase.datamodel.Term',
 			),
 			'messages' => array(
 				'wikibase-description-edit-placeholder',
@@ -166,6 +168,9 @@ return call_user_func( function() {
 			'scripts' => array(
 				'jquery.wikibase.entityview.js',
 			),
+			'styles' => array(
+				'themes/default/jquery.wikibase.entityview.css',
+			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.aliasesview',
@@ -178,33 +183,13 @@ return call_user_func( function() {
 				'jquery.wikibase.sitelinkgrouplistview',
 				'jquery.wikibase.statementview',
 				'wikibase',
+				'wikibase.datamodel.MultiTerm',
+				'wikibase.datamodel.Term',
 				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-fingerprintgroupview-input-help-message',
 				'wikibase-terms',
-			),
-		),
-
-		'jquery.wikibase.labelview' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.wikibase.labelview.js'
-			),
-			'styles' => array(
-				'themes/default/jquery.wikibase.labelview.css',
-			),
-			'dependencies' => array(
-				'jquery.ui.TemplatedWidget',
-				'jquery.wikibase.edittoolbar',
-				'jquery.wikibase.toolbarcontroller',
-				'wikibase',
-			),
-			'messages' => array(
-				'parentheses',
-				'wikibase-label-edit-placeholder',
-				'wikibase-label-edit-placeholder-language-aware',
-				'wikibase-label-empty',
-				'wikibase-label-input-help-message',
 			),
 		),
 
@@ -249,16 +234,39 @@ return call_user_func( function() {
 				'themes/default/jquery.wikibase.fingerprintview.css',
 			),
 			'dependencies' => array(
-				'mediawiki.Title',
-				'wikibase',
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.descriptionview',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.labelview',
 				'jquery.wikibase.toolbarcontroller',
+				'mediawiki.Title',
+				'wikibase',
 			),
 			'messages' => array(
 				'wikibase-fingerprintview-input-help-message',
+			),
+		),
+
+		'jquery.wikibase.labelview' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase.labelview.js'
+			),
+			'styles' => array(
+				'themes/default/jquery.wikibase.labelview.css',
+			),
+			'dependencies' => array(
+				'jquery.ui.TemplatedWidget',
+				'jquery.wikibase.edittoolbar',
+				'jquery.wikibase.toolbarcontroller',
+				'wikibase',
+				'wikibase.datamodel.Term',
+			),
+			'messages' => array(
+				'parentheses',
+				'wikibase-label-edit-placeholder',
+				'wikibase-label-edit-placeholder-language-aware',
+				'wikibase-label-empty',
+				'wikibase-label-input-help-message',
 			),
 		),
 
@@ -279,7 +287,9 @@ return call_user_func( function() {
 				'jquery.wikibase.pagesuggester.js',
 			),
 			'dependencies' => array(
+				'jquery.ui.ooMenu',
 				'jquery.ui.suggester',
+				'util.highlightSubstring',
 				'wikibase.sites',
 			),
 		),
@@ -341,7 +351,7 @@ return call_user_func( function() {
 				'jquery.event.special.eachchange',
 				'jquery.sticknode',
 				'jquery.tablesorter',
-				'jquery.ui.TemplatedWidget',
+				'jquery.ui.EditableTemplatedWidget',
 				'jquery.wikibase.addtoolbar',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.listview',
@@ -400,6 +410,7 @@ return call_user_func( function() {
 				'jquery.event.special.eachchange',
 				'jquery.ui.ooMenu',
 				'jquery.ui.suggester',
+				'util.highlightSubstring',
 			),
 		),
 

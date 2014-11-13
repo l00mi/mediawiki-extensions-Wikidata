@@ -5,16 +5,14 @@
 ( function( $, mw, wb ) {
 	'use strict';
 
-	var PARENT = $.ui.TemplatedWidget;
+	var PARENT = $.ui.EditableTemplatedWidget;
 
 /**
- * Manages a aliases.
+ * Manages aliases.
  * @since 0.5
- * @extends jQuery.ui.TemplatedWidget
+ * @extends jQuery.ui.EditableTemplatedWidget
  *
- * @option {Object|null} value
- *         Object representing the widget's value.
- *         Structure: { language: <{string}>, aliases: <{string[]}> }
+ * @option {wikibase.datamodel.MultiTerm} value
  *
  * @option {string} [helpMessage]
  *         Default: mw.msg( 'wikibase-aliases-input-help-message' )
@@ -23,7 +21,7 @@
  */
 $.widget( 'wikibase.aliasesview', PARENT, {
 	/**
-	 * @see jQuery.ui.TemplatedWidget.options
+	 * @see jQuery.ui.EditableTemplatedWidget.options
 	 */
 	options: {
 		template: 'wikibase-aliasesview',
@@ -43,86 +41,50 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * @type {boolean}
-	 */
-	_isInEditMode: false,
-
-	/**
 	 * @see jQuery.ui.TemplatedWidget._create
-	 *
-	 * @throws {Error} if required parameters are not specified properly.
 	 */
 	_create: function() {
-		if( !this.options.aliasesChanger ) {
+		if(
+			!( this.options.value instanceof wb.datamodel.MultiTerm )
+			|| !this.options.aliasesChanger
+		) {
 			throw new Error( 'Required option(s) missing' );
 		}
-
-		this.options.value = this._checkValue( this.options.value );
 
 		PARENT.prototype._create.call( this );
 
 		this.element.removeClass( 'wb-empty' );
 		this.$label.text( mw.msg( 'wikibase-aliases-label' ) );
 
-		var value = this.options.value;
-
-		if(
-			value && value.aliases.length
-			&& this.$list.children( 'li' ).length !== value.aliases.length
-		) {
-			this._draw();
+		if( this.$list.children( 'li' ).length !== this.options.value.getTexts().length ) {
+			this.draw();
 		}
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.destroy
+	 * @see jQuery.ui.EditableTemplatedWidget.draw
 	 */
-	destroy: function() {
-		if( this._isInEditMode ) {
-			var self = this;
-
-			this.element.one( this.widgetEventPrefix + 'afterstopediting', function( event ) {
-				PARENT.prototype.destroy.call( self );
-			} );
-
-			this.cancelEditing();
-		} else {
-			PARENT.prototype.destroy.call( this );
-		}
-	},
-
-	/**
-	 * Main draw routine.
-	 */
-	_draw: function() {
+	draw: function() {
 		this.$list.off( '.' + this.widgetName );
 
-		if( !this._isInEditMode ) {
-			var tagadata = this.$list.data( 'tagadata' );
+		if( this.isInEditMode() ) {
+			this._initTagadata();
+		} else {
+			var self = this,
+				tagadata = this.$list.data( 'tagadata' );
 
 			if( tagadata ) {
 				tagadata.destroy();
 			}
 
-			this.element.removeClass( 'wb-edit' );
-
 			this.$list.empty();
-			if( !this.options.value ) {
-				return;
-			}
 
-			for( var i = 0; i < this.options.value.aliases.length; i++ ) {
-				this.$list.append(
-					mw.wbTemplate( 'wikibase-aliasesview-list-item', this.options.value.aliases[i] )
-				);
-			}
-
-			return;
+			$.each( this.options.value.getTexts(), function() {
+				self.$list.append( mw.wbTemplate( 'wikibase-aliasesview-list-item', this ) );
+			} );
 		}
 
-		this.element.addClass( 'wb-edit' );
-
-		this._initTagadata();
+		return $.Deferred().resolve().promise();
 	},
 
 	/**
@@ -180,144 +142,37 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * Starts the widget's edit mode.
-	 */
-	startEditing: function() {
-		if( this._isInEditMode ) {
-			return;
-		}
-
-		this._isInEditMode = true;
-		this._draw();
-
-		this._trigger( 'afterstartediting' );
-	},
-
-	/**
-	 * Stops the widget's edit mode.
-	 *
-	 * @param {boolean} dropValue
-	 */
-	stopEditing: function( dropValue ) {
-		var self = this;
-
-		if( !this._isInEditMode || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
-			return;
-		}
-
-		if( dropValue ) {
-			this._afterStopEditing( dropValue );
-			return;
-		}
-
-		this.disable();
-
-		this._trigger( 'stopediting', null, [dropValue] );
-
-		// TODO: Performing API interaction should be managed in parent component (probably
-		// entityview)
-		this._save()
-		.done( function() {
-			self.enable();
-			self._afterStopEditing( dropValue );
-		} )
-		.fail( function( error ) {
-			self.setError( error );
-		} );
-	},
-
-	/**
-	 * @return {jQuery.Promise}
+	 * @see jQuery.ui.EditableTemplatedWidget.save
 	 */
 	_save: function() {
-		var newValue = this.value();
-		return this.options.aliasesChanger.setAliases( newValue.aliases, newValue.language );
+		return this.options.aliasesChanger.setAliases( this.value() );
 	},
 
 	/**
-	 * Cancels the widget's edit mode.
-	 */
-	cancelEditing: function() {
-		this.stopEditing( true );
-	},
-
-	/**
-	 * Callback tearing down edit mode.
-	 *
-	 * @param {boolean} dropValue
-	 */
-	_afterStopEditing: function( dropValue ) {
-		if( !dropValue ) {
-			this.options.value = this.value();
-		}
-
-		this._isInEditMode = false;
-		this._draw();
-
-		this._trigger( 'afterstopediting', null, [dropValue] );
-	},
-
-	/**
-	 * @return {boolean}
+	 * @see jQuery.ui.EditableTemplatedWidget.isValid
 	 */
 	isValid: function() {
-		// Function required by edittoolbar.
 		return true;
 	},
 
 	/**
-	 * @return {boolean}
+	 * @see jQuery.ui.EditableTemplatedWidget.isValid
 	 */
 	isInitialValue: function() {
-		var initialValue = this.options.value,
-			currentValue = this.value();
-
-		if(
-			currentValue.language !== initialValue.language
-			|| currentValue.aliases.length !== initialValue.aliases.length
-		) {
-			return false;
-		}
-
-		for( var i = 0; i < currentValue.aliases.length; i++ ) {
-			if( currentValue.aliases[i] !== initialValue.aliases[i] ) {
-				return false;
-			}
-		}
-
-		return true;
-	},
-
-	/**
-	 * Toggles error state.
-	 *
-	 * @param {Error} error
-	 */
-	setError: function( error ) {
-		if( error ) {
-			this.element.addClass( 'wb-error' );
-			this._trigger( 'toggleerror', null, [error] );
-		} else {
-			this.removeError();
-			this._trigger( 'toggleerror' );
-		}
-	},
-
-	removeError: function() {
-		this.element.removeClass( 'wb-error' );
+		return this.value().equals( this.options.value );
 	},
 
 	/**
 	 * @see jQuery.ui.TemplatedWidget._setOption
 	 */
 	_setOption: function( key, value ) {
-		if( key === 'value' ) {
-			value = this._checkValue( value );
+		if( key === 'value' && !( value instanceof wb.datamodel.MultiTerm ) ) {
+			throw new Error( 'Value needs to be a wb.datamodel.MultiTerm instance' );
 		}
 
 		var response = PARENT.prototype._setOption.call( this, key, value );
 
-		if( key === 'disabled' && this._isInEditMode ) {
+		if( key === 'disabled' && this.isInEditMode() ) {
 			this.$list.data( 'tagadata' ).option( 'disabled', value );
 		}
 
@@ -325,30 +180,10 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * @param {*} value
-	 * @return {Object}
-	 *
-	 * @throws {Error} if value is not defined properly.
-	 */
-	_checkValue: function( value ) {
-		if( !$.isPlainObject( value ) ) {
-			throw new Error( 'Value needs to be an object' );
-		} else if( !value.language ) {
-			throw new Error( 'Value needs language to be specified' );
-		}
-
-		if( !value.aliases ) {
-			value.aliases = [];
-		}
-
-		return value;
-	},
-
-	/**
 	 * Gets/Sets the widget's value.
 	 *
-	 * @param {Object} [value]
-	 * @return {Object|undefined}
+	 * @param {wikibase.datamodel.MultiTerm} [value]
+	 * @return {wikibase.datamodel.MultiTerm|undefined}
 	 */
 	value: function( value ) {
 		if( value !== undefined ) {
@@ -356,27 +191,25 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 			return;
 		}
 
-		if( !this._isInEditMode ) {
+		if( !this.isInEditMode() ) {
 			return this.option( 'value' );
 		}
 
 		var tagadata = this.$list.data( 'tagadata' );
 
-		value = $.map( tagadata.getTags(), function( tag ) {
-			return tagadata.getTagLabel( $( tag ) );
-		} );
-
-		return {
-			language: this.options.value.language,
-			aliases: value
-		};
+		return new wb.datamodel.MultiTerm(
+			this.options.value.getLanguageCode(),
+			$.map( tagadata.getTags(), function( tag ) {
+				return tagadata.getTagLabel( $( tag ) );
+			} )
+		);
 	},
 
 	/**
 	 * @see jQuery.ui.TemplatedWidget.focus
 	 */
 	focus: function() {
-		if( this._isInEditMode ) {
+		if( this.isInEditMode() ) {
 			this.$list.data( 'tagadata' ).getHelperTag().find( 'input' ).focus();
 		} else {
 			this.element.focus();
@@ -436,11 +269,11 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				edittoolbar = $aliasesview.data( 'edittoolbar' ),
 				btnSave = edittoolbar.getButton( 'save' ),
 				enable = aliasesview.isValid() && !aliasesview.isInitialValue(),
-				currentAliases = aliasesview.value().aliases;
+				currentAliases = aliasesview.value();
 
 			btnSave[enable ? 'enable' : 'disable']();
 
-			if( aliasesview.option( 'disabled' ) || currentAliases.length ) {
+			if( aliasesview.option( 'disabled' ) || currentAliases && currentAliases.length ) {
 				return;
 			}
 

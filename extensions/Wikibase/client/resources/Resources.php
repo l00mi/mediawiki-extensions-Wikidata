@@ -84,10 +84,11 @@ return call_user_func( function() {
 				'mediawiki.api',
 				'mediawiki.util',
 				'mediawiki.jqueryMsg',
+				'jquery.event.special.eachchange',
 				'wikibase.client.currentSite',
 				'wikibase.sites',
-				'wikibase.RepoApi',
-				'wikibase.RepoApiError',
+				'wikibase.api.RepoApi',
+				'wikibase.api.RepoApiError',
 				'wikibase.client.PageConnector'
 			),
 			'messages' => array(

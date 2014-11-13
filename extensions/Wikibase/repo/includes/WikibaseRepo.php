@@ -23,6 +23,7 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\EntityFactory;
+use Wikibase\EntityParserOutputGeneratorFactory;
 use Wikibase\InternalSerialization\DeserializerFactory;
 use Wikibase\InternalSerialization\SerializerFactory;
 use Wikibase\LabelDescriptionDuplicateDetector;
@@ -69,11 +70,13 @@ use Wikibase\SqlStore;
 use Wikibase\Store;
 use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
+use Wikibase\TemplateRegistry;
 use Wikibase\Utils;
 use Wikibase\Validators\EntityConstraintProvider;
 use Wikibase\Validators\SnakValidator;
 use Wikibase\Validators\TermValidatorFactory;
 use Wikibase\Validators\ValidatorErrorLocalizer;
+use Wikibase\Lib\Store\EntityTitleLookup;
 
 /**
  * Top level factory for the WikibaseRepo extension.
@@ -154,6 +157,11 @@ class WikibaseRepo {
 	 * @var Store
 	 */
 	private $store;
+
+	/**
+	 * @var TemplateRegistry
+	 */
+	private $templateRegistry;
 
 	/**
 	 * Returns the default instance constructed using newInstance().
@@ -944,4 +952,26 @@ class WikibaseRepo {
 		return $this->entityNamespaceLookup;
 	}
 
+	/**
+	 * @return EntityParserOutputGeneratorFactory
+	 */
+	public function getEntityParserOutputGeneratorFactory() {
+		return new EntityParserOutputGeneratorFactory(
+			$this->getSnakFormatterFactory(),
+			$this->getStore()->getEntityInfoBuilderFactory(),
+			$this->getEntityContentFactory(),
+			$this->getEntityIdParser(),
+			$this->getPropertyDataTypeLookup(),
+			$this->getLanguageFallbackChainFactory(),
+			new ReferencedEntitiesFinder()
+		);
+	}
+
+	public function getTemplateRegistry() {
+		if( !isset( $this->templateRegistry ) ) {
+			$this->templateRegistry = new TemplateRegistry();
+			$this->templateRegistry->addTemplates( include( __DIR__ . "/../resources/templates.php" ) );
+		}
+		return $this->templateRegistry;
+	}
 }

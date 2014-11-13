@@ -5,6 +5,7 @@
 ( function( mw, wb, util ) {
 	'use strict';
 
+	var MODULE = wb.api;
 	var PARENT = Error;
 
 	/**
@@ -29,7 +30,7 @@
 		this.message = this.getMessage();
 	};
 
-	wb.RepoApiError = util.inherit( 'WbRepoApiError', PARENT, constructor,
+	var SELF = MODULE.RepoApiError = util.inherit( 'WbRepoApiError', PARENT, constructor,
 		{
 			/**
 			 * Message keys of API related error messages.
@@ -82,9 +83,9 @@
 	 * @param {Object} details Object returned from the API containing detailed information
 	 * @param {string} [apiAction] API action (e.g. 'save', 'remove') that may be passed to
 	 *        determine a specific message
-	 * @return {wikibase.RepoApiError}
+	 * @return {wikibase.api.RepoApiError}
 	 */
-	wb.RepoApiError.newFromApiResponse = function( details, apiAction ) {
+	SELF.newFromApiResponse = function( details, apiAction ) {
 		var errorCode = '',
 			detailedMessage = '';
 
@@ -103,7 +104,7 @@
 			detailedMessage = details.exception;
 		}
 
-		return new wb.RepoApiError( errorCode, detailedMessage, apiAction );
+		return new SELF( errorCode, detailedMessage, apiAction );
 	};
 
 	/**

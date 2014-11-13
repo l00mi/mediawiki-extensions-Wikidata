@@ -19,17 +19,17 @@ return call_user_func( function() {
 
 	$modules = array(
 
-		'wikibase.RepoApi' => $moduleTemplate + array(
+		'wikibase.api.RepoApi' => $moduleTemplate + array(
 			'scripts' => array(
 				'wikibase.RepoApi.js',
 			),
 			'dependencies' => array(
 				'json',
-				'wikibase',
+				'wikibase.api.__namespace',
 			),
 		),
 
-		'wikibase.RepoApiError' => $moduleTemplate + array(
+		'wikibase.api.RepoApiError' => $moduleTemplate + array(
 			'scripts' => array(
 				'wikibase.RepoApiError.js',
 			),
@@ -44,7 +44,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'util.inherit',
-				'wikibase',
+				'wikibase.api.__namespace',
 			),
 		),
 

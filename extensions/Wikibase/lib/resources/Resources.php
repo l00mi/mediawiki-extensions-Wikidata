@@ -55,6 +55,7 @@ return call_user_func( function() {
 				'wikibase.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.aliasesview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.descriptionview.css',
+				'jquery.wikibase/themes/default/jquery.wikibase.entityview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.fingerprintgroupview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.fingerprintlistview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.fingerprintview.css',
@@ -64,11 +65,6 @@ return call_user_func( function() {
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinklistview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkview.css',
 			)
-		),
-
-		'wikibase.templates' => $moduleTemplate + array(
-			'class' => 'Wikibase\TemplateModule',
-			'scripts' => 'templates.js',
 		),
 
 		'wikibase' => $moduleTemplate + array(
@@ -82,15 +78,6 @@ return call_user_func( function() {
 				'special-createitem',
 				'wb-special-newitem-new-item-notification',
 			),
-		),
-
-		'wikibase.RevisionStore' => $moduleTemplate + array(
-			'scripts' => array(
-				'wikibase.RevisionStore.js',
-			),
-			'dependencies' => array(
-				'wikibase'
-			)
 		),
 
 		'wikibase.Site' => $moduleTemplate + array(
@@ -115,16 +102,6 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.ValueViewBuilder' => $moduleTemplate + array(
-			'scripts' => array(
-				'wikibase.ValueViewBuilder.js',
-			),
-			'dependencies' => array(
-				'wikibase',
-				'jquery.valueview',
-			),
-		),
-
 		'jquery.removeClassByRegex' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery/jquery.removeClassByRegex.js',
@@ -136,33 +113,16 @@ return call_user_func( function() {
 				'jquery/jquery.sticknode.js',
 			),
 			'dependencies' => array(
+				'jquery.util.EventSingletonManager',
+			),
+		),
+
+		'jquery.util.EventSingletonManager' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery/jquery.util.EventSingletonManager.js',
+			),
+			'dependencies' => array(
 				'jquery.throttle-debounce',
-			),
-		),
-
-		'jquery.ui.tagadata' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.ui/jquery.ui.tagadata.js',
-			),
-			'styles' => array(
-				'jquery.ui/jquery.ui.tagadata.css',
-			),
-			'dependencies' => array(
-				'jquery.event.special.eachchange',
-				'jquery.effects.blind',
-				'jquery.inputautoexpand',
-				'jquery.ui.widget',
-			),
-		),
-
-		'jquery.ui.TemplatedWidget' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.ui/jquery.ui.TemplatedWidget.js',
-			),
-			'dependencies' => array(
-				'wikibase.templates',
-				'jquery.ui.widget',
-				'util.inherit',
 			),
 		),
 
@@ -183,14 +143,10 @@ return call_user_func( function() {
 	$modules = array_merge(
 		$modules,
 		include( __DIR__ . '/api/resources.php' ),
-		include( __DIR__ . '/entityChangers/resources.php' ),
+		include( __DIR__ . '/deprecated/resources.php' ),
 		include( __DIR__ . '/experts/resources.php' ),
-		include( __DIR__ . '/formatters/resources.php' ),
 		include( __DIR__ . '/jquery.wikibase/resources.php' ),
-		include( __DIR__ . '/parsers/resources.php' ),
-		include( __DIR__ . '/wikibase.RepoApi/resources.php' ),
-		include( __DIR__ . '/wikibase.store/resources.php' ),
-		include( __DIR__ . '/wikibase.utilities/resources.php' )
+		include( __DIR__ . '/wikibase.RepoApi/resources.php' )
 	);
 
 	if ( defined( 'ULS_VERSION' ) ) {

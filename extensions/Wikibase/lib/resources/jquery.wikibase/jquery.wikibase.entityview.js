@@ -38,7 +38,8 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'', // entity id
 			'', // language code
 			'', // language direction
-			'' // content
+			'', // main content
+			'' // sidebar
 		],
 		templateShortCuts: {},
 		value: null,
@@ -125,17 +126,13 @@ $.widget( 'wikibase.entityview', PARENT, {
 			).appendTo( this.element );
 		}
 
+		// FIXME: entity object should not contain fallback strings
 		var label = this.options.value.getFingerprint().getLabelFor(
 			mw.config.get( 'wgUserLanguage' )
-		);
+		) || new wb.datamodel.Term( mw.config.get( 'wgUserLanguage' ), '' );
+
 		this.$label.labelview( {
-			value: {
-				language: mw.config.get( 'wgUserLanguage' ),
-				label: this.$label.hasClass( 'wb-empty' )
-					? null
-					// FIXME: entity object should not contain fallback strings
-					: ( label && label.getText() )
-			},
+			value: label,
 			helpMessage: mw.msg(
 				'wikibase-description-input-help-message',
 				wb.getLanguageNameByCode( mw.config.get( 'wgUserLanguage' ) )
@@ -152,17 +149,13 @@ $.widget( 'wikibase.entityview', PARENT, {
 			this.$description = $( '<div/>' ).appendTo( this.element );
 		}
 
+		// FIXME: entity object should not contain fallback strings
 		var description = this.options.value.getFingerprint().getDescriptionFor(
 			mw.config.get( 'wgUserLanguage' )
-		);
+		) || new wb.datamodel.Term( mw.config.get( 'wgUserLanguage' ), '' );
+
 		this.$description.descriptionview( {
-			value: {
-				language: mw.config.get( 'wgUserLanguage' ),
-				description: this.$description.hasClass( 'wb-empty' )
-					? null
-					// FIXME: entity object should not contain fallback strings
-					: ( description && description.getText() )
-			},
+			value: description,
 			helpMessage: mw.msg(
 				'wikibase-description-input-help-message',
 				wb.getLanguageNameByCode( mw.config.get( 'wgUserLanguage' ) )
@@ -179,12 +172,10 @@ $.widget( 'wikibase.entityview', PARENT, {
 
 		var aliases = this.options.value.getFingerprint().getAliasesFor(
 			mw.config.get( 'wgUserLanguage' )
-		);
+		) || new wb.datamodel.MultiTerm( mw.config.get( 'wgUserLanguage' ), [] );
+
 		this.$aliases.aliasesview( {
-			value: {
-				language:  mw.config.get( 'wgUserLanguage' ),
-				aliases: aliases && aliases.getTexts()
-			},
+			value: aliases,
 			aliasesChanger: this.options.entityChangersFactory.getAliasesChanger()
 		} );
 	},
@@ -213,19 +204,18 @@ $.widget( 'wikibase.entityview', PARENT, {
 		}
 
 		var fingerprint = this.options.value.getFingerprint(),
-			value = [],
-			nextValue;
+			value = [];
+
 		for( var i = 0; i < this.options.languages.length; i++ ) {
-			nextValue = {
+			value.push( {
 				language: this.options.languages[i],
-				label: fingerprint.getLabelFor( this.options.languages[i] ),
-				description: fingerprint.getDescriptionFor( this.options.languages[i] ),
+				label: fingerprint.getLabelFor( this.options.languages[i] )
+					|| new wb.datamodel.Term( this.options.languages[i], '' ),
+				description: fingerprint.getDescriptionFor( this.options.languages[i] )
+					|| new wb.datamodel.Term( this.options.languages[i], '' ),
 				aliases: fingerprint.getAliasesFor( this.options.languages[i] )
-			};
-			nextValue.label = nextValue.label ? nextValue.label.getText() : null;
-			nextValue.description = nextValue.description ? nextValue.description.getText() : null;
-			nextValue.aliases = nextValue.aliases ? nextValue.aliases.getTexts() : [];
-			value.push( nextValue );
+					|| new wb.datamodel.MultiTerm( this.options.languages[i], [] )
+			} );
 		}
 
 		this.$fingerprints.fingerprintgroupview( {
@@ -322,10 +312,6 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'sitelinkgroupviewafterstartediting.' + this.widgetName
 		].join( ' ' ),
 		function( event ) {
-			var widgetName = event.type.replace( /afterstartediting/, '' );
-
-			self._disable( $( event.target ).data( widgetName ) );
-
 			self._trigger( 'afterstartediting' );
 		} );
 
@@ -343,25 +329,8 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'sitelinkgroupviewafterstopediting.' + this.widgetName
 		].join( ' ' ),
 		function( event, dropValue ) {
-			self.enable();
-
 			self._trigger( 'afterstopediting', null, [dropValue] );
 		} );
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.disable
-	 *
-	 * @param {jQuery.Widget} [exceptWidget]
-	 */
-	_disable: function( exceptWidget ) {
-		if( exceptWidget ) {
-			this._setState( 'disable' );
-			exceptWidget.enable();
-			return;
-		}
-
-		this.disable();
 	},
 
 	/**

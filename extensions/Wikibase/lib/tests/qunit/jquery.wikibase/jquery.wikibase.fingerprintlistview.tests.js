@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -20,14 +20,14 @@ var createFingerprintlistview = function( options ) {
 		value: [
 			{
 				language: 'de',
-				label: 'de-label',
-				description: 'de-description',
-				aliases: []
+				label: new wb.datamodel.Term( 'de', 'de-label' ),
+				description: new wb.datamodel.Term( 'de', 'de-description' ),
+				aliases: new wb.datamodel.MultiTerm( 'de', [] )
 			}, {
 				language: 'en',
-				label: 'en-label',
-				description: 'en-description',
-				aliases: []
+				label: new wb.datamodel.Term( 'en', 'en-label' ),
+				description: new wb.datamodel.Term( 'en', 'en-description' ),
+				aliases: new wb.datamodel.MultiTerm( 'en', [] )
 			}
 		]
 	}, options || {} );
@@ -90,9 +90,9 @@ QUnit.test( 'isInitialValue()', function( assert ) {
 
 	var $item = $fingerprintlistview.data( 'listview' ).addItem( {
 		language: 'fa',
-		label: 'fa-label',
-		description: 'fa-description',
-		aliases: []
+		label: new wb.datamodel.Term( 'fa', 'fa-label' ),
+		description: new wb.datamodel.Term( 'fa', 'fa-description' ),
+		aliases: new wb.datamodel.MultiTerm( 'fa', [] )
 	} );
 
 	assert.ok(
@@ -149,4 +149,4 @@ QUnit.test( 'value()', function( assert ) {
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );

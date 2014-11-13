@@ -16,9 +16,9 @@
  *         Object representing the widget's value.
  *         Structure: {
  *           language: <{string}>,
- *           label: <{string|null}>,
- *           description: <{string|null>,
- *           aliases: <{string[]}>
+ *           label: <{wikibase.datamodel.Term}>,
+ *           description: <{wikibase.datamodel.Term}>,
+ *           aliases: <{wikibase.datamodel.MultiTerm}>
  *         }
  *
  * @option {string} [helpMessage]
@@ -185,7 +185,7 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 			);
 
 			var options = {
-				value: self.options.value,
+				value: self.options.value[subjectName],
 				helpMessage: mw.msg(
 					'wikibase-' + subjectName + '-input-help-message',
 					wb.getLanguageNameByCode( self.options.value.language )
@@ -351,9 +351,9 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 
 		return {
 			language: this.options.value.language,
-			label: this.$labelview.data( 'labelview' ).value().label,
-			description: this.$descriptionview.data( 'descriptionview' ).value().description,
-			aliases: this.$aliasesview.data( 'aliasesview' ).value().aliases
+			label: this.$labelview.data( 'labelview' ).value(),
+			description: this.$descriptionview.data( 'descriptionview' ).value(),
+			aliases: this.$aliasesview.data( 'aliasesview' ).value()
 		};
 	},
 
@@ -370,20 +370,9 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 				throw new Error( 'Cannot alter language' );
 			}
 
-			this.$labelview.data( 'labelview' ).option( 'value', {
-				language: value.language,
-				label: value.label
-			} );
-
-			this.$descriptionview.data( 'descriptionview' ).option( 'value', {
-				language: value.language,
-				description: value.description
-			} );
-
-			this.$aliasesview.data( 'aliasesview' ).option( 'value', {
-				language: value.language,
-				aliases: value.aliases
-			} );
+			this.$labelview.data( 'labelview' ).option( 'value', value.label );
+			this.$descriptionview.data( 'descriptionview' ).option( 'value', value.description );
+			this.$aliasesview.data( 'aliasesview' ).option( 'value', value.aliases );
 		}
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -411,15 +400,15 @@ $.widget( 'wikibase.fingerprintview', PARENT, {
 		}
 
 		if( !value.label ) {
-			value.label = null;
+			throw new Error( 'label needs to be a wb.datamodel.Term instance' );
 		}
 
 		if( !value.description ) {
-			value.description = null;
+			throw new Error( 'description needs to be a wb.datamodel.Term instance' );
 		}
 
 		if( !value.aliases ) {
-			value.aliases = [];
+			throw new Error( 'aliases need to be a wb.datamodel.MultiTerm instance' );
 		}
 
 		return value;

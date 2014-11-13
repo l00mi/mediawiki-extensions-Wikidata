@@ -6,18 +6,15 @@ use Job;
 use OutOfBoundsException;
 use SiteStore;
 use Title;
-use User;
 use Wikibase\Summary;
 use Wikibase\SummaryFormatter;
-use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\EditEntity;
 
 /**
  * Job for updating the repo after a page on the client has been moved.
@@ -27,32 +24,7 @@ use Wikibase\EditEntity;
  * @licence GNU GPL v2+
  * @author Marius Hoch < hoo@online.de >
  */
-class UpdateRepoOnMoveJob extends Job {
-
-	/**
-	 * @var EntityTitleLookup
-	 */
-	private $entityTitleLookup;
-
-	/**
-	 * @var EntityRevisionLookup
-	 */
-	private $entityRevisionLookup;
-
-	/**
-	 * @var EntityStore
-	 */
-	private $entityStore;
-
-	/**
-	 * @var SummaryFormatter
-	 */
-	private $summaryFormatter;
-
-	/**
-	 * @var EntityPermissionChecker
-	 */
-	private $entityPermissionChecker;
+class UpdateRepoOnMoveJob extends UpdateRepoJob {
 
 	/**
 	 * @var SiteStore
@@ -95,11 +67,13 @@ class UpdateRepoOnMoveJob extends Job {
 		EntityPermissionChecker $entityPermissionChecker,
 		SiteStore $siteStore
 	) {
-		$this->entityTitleLookup = $entityTitleLookup;
-		$this->entityRevisionLookup = $entityRevisionLookup;
-		$this->entityStore = $entityStore;
-		$this->summaryFormatter = $summaryFormatter;
-		$this->entityPermissionChecker = $entityPermissionChecker;
+		$this->initRepoJobServices(
+			$entityTitleLookup,
+			$entityRevisionLookup,
+			$entityStore,
+			$summaryFormatter,
+			$entityPermissionChecker
+		);
 		$this->siteStore = $siteStore;
 	}
 
@@ -111,9 +85,9 @@ class UpdateRepoOnMoveJob extends Job {
 	 *
 	 * @return SiteLink|null
 	 */
-	protected function getSiteLink( $item, $globalId ) {
+	private function getSiteLink( $item, $globalId ) {
 		try {
-			return $item->getSiteLink( $globalId );
+			return $item->getSiteLinkList()->getBySiteId( $globalId );
 		} catch( OutOfBoundsException $e ) {
 			return null;
 		}
@@ -122,155 +96,81 @@ class UpdateRepoOnMoveJob extends Job {
 	/**
 	 * Get a Summary object for the edit
 	 *
-	 * @param string $globalId Global id of the target site
-	 * @param string $oldPage
-	 * @param string $newPage
-	 *
 	 * @return Summary
 	 */
-	public function getSummary( $globalId, $oldPage, $newPage ) {
+	public function getSummary() {
+		$params = $this->getParams();
+		$siteId = $params['siteId'];
+		$oldPage = $params['oldTitle'];
+		$newPage = $params['newTitle'];
+
 		return new Summary(
 			'clientsitelink',
 			'update',
-			$globalId,
+			$siteId,
 			array(
-				$globalId . ":$oldPage",
-				$globalId . ":$newPage",
+				$siteId . ":$oldPage",
+				$siteId . ":$newPage",
 			)
 		);
 	}
 
 	/**
-	 * Update the siteLink on the repo to reflect the change in the client
+	 * Whether the propagated update is valid (and thus should be applied)
 	 *
-	 * @param string $siteId Id of the client the change comes from
-	 * @param string $itemId
-	 * @param string $oldPage
-	 * @param string $newPage
-	 * @param User $user User who we'll attribute the update to
+	 * @param Item $item
 	 *
-	 * @return bool Whether something changed
+	 * @return bool
 	 */
-	public function updateSiteLink( $siteId, $itemId, $oldPage, $newPage, $user ) {
+	protected function verifyValid( Item $item ) {
 		wfProfileIn( __METHOD__ );
-
-		$itemId = new ItemId( $itemId );
-
-		try {
-			$entityRevision = $this->entityRevisionLookup->getEntityRevision( $itemId );
-		} catch ( StorageException $ex ) {
-			$entityRevision = null;
-		}
-
-		if ( $entityRevision === null ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": EntityRevision not found for "
-				. $itemId->getSerialization() );
-
-			wfProfileOut( __METHOD__ );
-			return false;
-		}
-
-		$item = $entityRevision->getEntity();
-		$site = $this->siteStore->getSite( $siteId );
+		$params = $this->getParams();
+		$siteId = $params['siteId'];
+		$oldPage = $params['oldTitle'];
+		$newPage = $params['newTitle'];
 
 		$oldSiteLink = $this->getSiteLink( $item, $siteId );
 		if ( !$oldSiteLink || $oldSiteLink->getPageName() !== $oldPage ) {
 			// Probably something changed since the job has been inserted
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": The site link to " . $siteId . " is no longer $oldPage" );
+			wfDebugLog( 'UpdateRepo', "OnMove: The site link to " . $siteId . " is no longer $oldPage" );
 			wfProfileOut( __METHOD__ );
 			return false;
 		}
 
+		$site = $this->siteStore->getSite( $siteId );
 		// Normalize the name again, just in case the page has been updated in the mean time
-		$newPageNormalized = $site->normalizePageName( $newPage );
-		if ( !$newPageNormalized ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": Normalizing the page name $newPage on $siteId failed" );
+		if ( !$site || !$site->normalizePageName( $newPage ) ) {
+			wfDebugLog( 'UpdateRepo', "OnMove: Normalizing the page name $newPage on $siteId failed" );
 			wfProfileOut( __METHOD__ );
 			return false;
 		}
 
-		$siteLink = new SiteLink(
-			$siteId,
-			$newPageNormalized,
-			$oldSiteLink->getBadges()
-		);
-
-		$summary = $this->getSummary( $siteId, $oldPage, $newPageNormalized );
-
-		return $this->doUpdateSiteLink( $item, $siteLink, $summary, $user );
+		return true;
 	}
 
 	/**
-	 * Update the given item with the given sitelink
+	 * Apply the changes needed to the given Item.
 	 *
 	 * @param Item $item
-	 * @param SiteLink $siteLink
-	 * @param Summary $summary
-	 * @param User $user User who we'll attribute the update to
 	 *
-	 * @return bool Whether something changed
+	 * @return bool
 	 */
-	public function doUpdateSiteLink( $item, $siteLink, $summary, $user ) {
-		$item->addSiteLink( $siteLink );
-
-		$editEntity = new EditEntity(
-			$this->entityTitleLookup,
-			$this->entityRevisionLookup,
-			$this->entityStore,
-			$this->entityPermissionChecker,
-			$item,
-			$user,
-			true
-		);
-
-		$summaryString = $this->summaryFormatter->formatSummary( $summary );
-
-		$status = $editEntity->attemptSave(
-			$summaryString,
-			EDIT_UPDATE,
-			false,
-			// Don't (un)watch any pages here, as the user didn't explicitly kick this off
-			$this->entityStore->isWatching( $user, $item->getid() )
-		);
-
-		if ( !$status->isOK() ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": attemptSave failed: " . $status->getMessage()->text() );
-		}
-
-		wfProfileOut( __METHOD__ );
-
-		// TODO: Analyze what happened and let the user know in case a manual fix could be needed
-		return $status->isOK();
-	}
-
-	/**
-	 * Run the job
-	 *
-	 * @return boolean success
-	 */
-	public function run() {
-		wfProfileIn( __METHOD__ );
+	protected function applyChanges( Item $item ) {
 		$params = $this->getParams();
+		$siteId = $params['siteId'];
+		$newPage = $params['newTitle'];
 
-		$user = User::newFromName( $params['user'] );
-		if ( !$user || !$user->isLoggedIn() ) {
-			// This should never happen as we check with CentralAuth
-			// that the user actually does exist
-			wfLogWarning( 'User ' . $params['user'] . " doesn't exist while CentralAuth pretends it does" );
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
+		$oldSiteLink = $this->getSiteLink( $item, $siteId );
 
-		$this->updateSiteLink(
-			$params['siteId'],
-			$params['entityId'],
-			$params['oldTitle'],
-			$params['newTitle'],
-			$user
+		$site = $this->siteStore->getSite( $siteId );
+		$siteLink = new SiteLink(
+			$siteId,
+			$site->normalizePageName( $newPage ),
+			$oldSiteLink->getBadges() // Keep badges
 		);
 
-		wfProfileOut( __METHOD__ );
-		return true;
+		$item->getSiteLinkList()->removeLinkWithSiteId( $siteId );
+		$item->getSiteLinkList()->addSiteLink( $siteLink );
 	}
 
 }

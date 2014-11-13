@@ -2,8 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -29,9 +28,9 @@ var createFingerprintview = function( options, $node ) {
 		},
 		value: {
 			language: 'en',
-			label: 'test label',
-			description: 'test description',
-			aliases: ['alias1', 'alias2']
+			label: new wb.datamodel.Term( 'en', 'test label' ),
+			description: new wb.datamodel.Term( 'en', 'test description' ),
+			aliases: new wb.datamodel.MultiTerm( 'en', ['alias1', 'alias2'] )
 		}
 	}, options || {} );
 
@@ -246,7 +245,10 @@ QUnit.test( 'setError()', function( assert ) {
 
 QUnit.test( 'value()', function( assert ) {
 	var $fingerprintview = createFingerprintview(),
-		fingerprintview = $fingerprintview.data( 'fingerprintview' );
+		fingerprintview = $fingerprintview.data( 'fingerprintview' ),
+		label = new wb.datamodel.Term( 'en', 'changed label' ),
+		description = new wb.datamodel.Term( 'en', 'test description' ),
+		aliases = new wb.datamodel.MultiTerm( 'en', ['alias1', 'alias2'] );
 
 	assert.throws(
 		function() {
@@ -257,71 +259,66 @@ QUnit.test( 'value()', function( assert ) {
 
 	fingerprintview.value( {
 		language: 'en',
-		label: 'changed label',
-		description: 'test description',
-		aliases: ['alias1', 'alias2']
+		label: label,
+		description: description,
+		aliases: aliases
 	} );
 
 	assert.ok(
-		fingerprintview.value().label,
-		'changed label',
+		fingerprintview.value().label.equals( label ),
 		'Set new label.'
 	);
 
-	assert.equal(
-		fingerprintview.value().language,
-		'en',
-		'Did not change language.'
-	);
-
-	assert.equal(
-		fingerprintview.value().description,
-		'test description',
+	assert.ok(
+		fingerprintview.value().description.equals( description ),
 		'Did not change description.'
 	);
 
+	label = new wb.datamodel.Term( 'en', 'test label' );
+	description = new wb.datamodel.Term( 'en', '' );
+
 	fingerprintview.value( {
 		language: 'en',
-		label: 'test label',
-		description: null,
-		aliases: ['alias1', 'alias2']
+		label: label,
+		description: description,
+		aliases: aliases
 	} );
 
-	assert.equal(
-		fingerprintview.value().label,
-		'test label',
+	assert.ok(
+		fingerprintview.value().label.equals( label ),
 		'Reset label.'
 	);
 
-	assert.strictEqual(
-		fingerprintview.value().description,
-		null,
+	assert.ok(
+		fingerprintview.value().description.equals( description ),
 		'Removed description.'
 	);
 
+	aliases = new wb.datamodel.MultiTerm( 'en', ['alias1', 'alias2', 'alias3'] );
+
 	fingerprintview.value( {
 		language: 'en',
-		label: 'test label',
-		description: null,
-		aliases: ['alias1', 'alias2', 'alias3']
+		label: label,
+		description: description,
+		aliases: aliases
 	} );
 
-	assert.deepEqual(
-		fingerprintview.value().aliases,
-		['alias1', 'alias2', 'alias3'],
+	assert.ok(
+		fingerprintview.value().aliases.equals( aliases ),
 		'Added alias.'
 	);
 
+	aliases = new wb.datamodel.MultiTerm( 'en', [] );
+
 	fingerprintview.value( {
 		language: 'en',
-		label: 'test label',
-		description: null,
-		aliases: []
+		label: label,
+		description: description,
+		aliases: aliases
 	} );
 
-	assert.deepEqual(
-		fingerprintview.value().aliases,
-		[],
+	assert.ok(
+		fingerprintview.value().aliases.equals( aliases ),
 		'Removed aliases.'
 	);
 
@@ -329,13 +326,13 @@ QUnit.test( 'value()', function( assert ) {
 		function() {
 			fingerprintview.value( {
 				language: 'de',
-				label: 'test label',
-				description: null,
-				aliases: ['alias1', 'alias2']
+				label: label,
+				description: description,
+				aliases: aliases
 			} );
 		},
 		'Trying to change language fails.'
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );

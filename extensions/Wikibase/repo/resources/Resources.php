@@ -25,6 +25,43 @@ return call_user_func( function() {
 
 	$modules = array(
 
+		'jquery.ui.tagadata' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.ui/jquery.ui.tagadata.js',
+			),
+			'styles' => array(
+				'jquery.ui/jquery.ui.tagadata.css',
+			),
+			'dependencies' => array(
+				'jquery.event.special.eachchange',
+				'jquery.effects.blind',
+				'jquery.inputautoexpand',
+				'jquery.ui.widget',
+			),
+		),
+
+		'jquery.ui.EditableTemplatedWidget' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.ui/jquery.ui.EditableTemplatedWidget.js',
+			),
+			'dependencies' => array(
+				'jquery.ui.TemplatedWidget',
+				'util.inherit',
+				'wikibase.templates',
+			),
+		),
+
+		'jquery.ui.TemplatedWidget' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.ui/jquery.ui.TemplatedWidget.js',
+			),
+			'dependencies' => array(
+				'wikibase.templates',
+				'jquery.ui.widget',
+				'util.inherit',
+			),
+		),
+
 		'jquery.wikibase.entitysearch' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.wikibase/jquery.wikibase.entitysearch.js',
@@ -36,6 +73,30 @@ return call_user_func( function() {
 				'jquery.event.special.eachchange',
 				'jquery.ui.ooMenu',
 				'jquery.wikibase.entityselector',
+			),
+		),
+
+		'wikibase.RevisionStore' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.RevisionStore.js',
+			),
+			'dependencies' => array(
+				'wikibase'
+			)
+		),
+
+		'wikibase.templates' => $moduleTemplate + array(
+			'class' => 'Wikibase\TemplateModule',
+			'scripts' => 'templates.js',
+		),
+
+		'wikibase.ValueViewBuilder' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.ValueViewBuilder.js',
+			),
+			'dependencies' => array(
+				'wikibase',
+				'jquery.valueview',
 			),
 		),
 
@@ -55,11 +116,11 @@ return call_user_func( function() {
 				'wikibase.api.getLocationAgnosticMwApi',
 				'wikibase.dataTypes',
 				'wikibase.entityChangers.EntityChangersFactory',
-				'wikibase.experts',
+				'wikibase.experts.getStore',
 				'wikibase.formatters.getStore',
 				'wikibase.EntityInitializer',
 				'wikibase.parsers.getStore',
-				'wikibase.RepoApi',
+				'wikibase.api.RepoApi',
 				'wikibase.RevisionStore',
 				'wikibase.serialization.EntityDeserializer',
 				'wikibase.sites',
@@ -165,6 +226,13 @@ return call_user_func( function() {
 		$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
 	}
 
-	return $modules;
+	return array_merge(
+		$modules,
+		include( __DIR__ . '/entityChangers/resources.php' ),
+		include( __DIR__ . '/formatters/resources.php' ),
+		include( __DIR__ . '/parsers/resources.php' ),
+		include( __DIR__ . '/store/resources.php' ),
+		include( __DIR__ . '/utilities/resources.php' )
+	);
 } );
 // @codeCoverageIgnoreEnd

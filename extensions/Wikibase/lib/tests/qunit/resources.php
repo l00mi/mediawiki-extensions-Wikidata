@@ -53,12 +53,12 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.ui.tagadata.tests' => $moduleBase + array(
+		'jquery.util.EventSingletonManager.tests' => $moduleBase + array(
 			'scripts' => array(
-				'jquery.ui/jquery.ui.tagadata.tests.js',
+				'jquery/jquery.util.EventSingletonManager.tests.js',
 			),
 			'dependencies' => array(
-				'jquery.ui.tagadata',
+				'jquery.util.EventSingletonManager',
 			),
 		),
 
@@ -72,75 +72,29 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.RepoApi.tests' => $moduleBase + array(
+		'wikibase.api.RepoApi.tests' => $moduleBase + array(
 			'scripts' => array(
 				'wikibase.RepoApi/wikibase.RepoApi.tests.js',
 			),
 			'dependencies' => array(
 				'wikibase',
 				'wikibase.api.getLocationAgnosticMwApi',
-				'wikibase.RepoApi',
+				'wikibase.api.RepoApi',
 			),
 		),
 
-		'wikibase.RepoApiError.tests' => $moduleBase + array(
+		'wikibase.api.RepoApiError.tests' => $moduleBase + array(
 			'scripts' => array(
 				'wikibase.RepoApi/wikibase.RepoApiError.tests.js',
 			),
 			'dependencies' => array(
 				'wikibase',
-				'wikibase.RepoApiError',
+				'wikibase.api.RepoApiError',
 			),
 			'messages' => array(
 				'wikibase-error-unexpected',
 				'wikibase-error-remove-timeout',
 				'wikibase-error-ui-client-error',
-			),
-		),
-
-		'wikibase.store.CombiningEntityStore.tests' => $moduleBase + array(
-			'scripts' => array(
-				'wikibase.store/store.CombiningEntityStore.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.store.CombiningEntityStore',
-				'wikibase.store.EntityStore',
-			),
-		),
-
-		'wikibase.store.MwConfigEntityStore.tests' => $moduleBase + array(
-			'scripts' => array(
-				'wikibase.store/store.MwConfigEntityStore.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.store.MwConfigEntityStore',
-			),
-		),
-
-		'wikibase.utilities.ClaimGuidGenerator.tests' => $moduleBase + array(
-			'scripts' => array(
-				'wikibase.utilities/wikibase.utilities.ClaimGuidGenerator.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.utilities.ClaimGuidGenerator',
-			),
-		),
-
-		'wikibase.utilities.GuidGenerator.tests' => $moduleBase + array(
-			'scripts' => array(
-				'wikibase.utilities/wikibase.utilities.GuidGenerator.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.utilities.GuidGenerator',
-			),
-		),
-
-		'templates.tests' => $moduleBase + array(
-			'scripts' => array(
-				'templates.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.templates',
 			),
 		),
 
@@ -174,21 +128,10 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.ValueViewBuilder.tests' => $moduleBase + array(
-			'scripts' => array(
-				'wikibase.ValueViewBuilder.tests.js'
-			),
-			'dependencies' => array(
-				'test.sinonjs',
-				'wikibase.ValueViewBuilder'
-			)
-		),
-
 	);
 
 	return array_merge(
 		$modules,
-		include( __DIR__ . '/entityChangers/resources.php' ),
 		include( __DIR__ . '/jquery.wikibase/resources.php' )
 	);
 

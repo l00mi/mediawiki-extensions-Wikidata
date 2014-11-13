@@ -15,7 +15,12 @@
  * @option {Object[]} value
  *         Object representing the widget's value.
  *         Structure: [
- *           { language: <{string]>, label: <{string|null}>, description: <{string|null}> } [, ...]
+ *           {
+ *             language: <{string]>,
+ *             label: <{wikibase.datamodel.Term}>,
+ *             description: <{wikibase.datamodel.Term}>,
+ *             aliases: <{wikibase.datamodel.MultiTerm}>
+ *           }[, ...]
  *         ]
  *
  * @option {string} entityId
@@ -181,19 +186,11 @@ $.widget( 'wikibase.fingerprintlistview', PARENT, {
 		for( var i = 0; i < currentValue.length; i++ ) {
 			if(
 				currentValue[i].language !== this.options.value[i].language
-				|| currentValue[i].label !== this.options.value[i].label
-				|| currentValue[i].description !== this.options.value[i].description
-				|| currentValue[i].aliases.length !== this.options.value[i].aliases.length
+				|| !currentValue[i].label.equals( this.options.value[i].label )
+				|| !currentValue[i].description.equals( this.options.value[i].description )
+				|| !currentValue[i].aliases.equals( this.options.value[i].aliases )
 			) {
 				return false;
-			}
-
-			var currentAliases = currentValue[i].aliases;
-
-			for( var j = 0; j < currentAliases.length; j++ ) {
-				if( $.inArray( currentAliases[j], this.options.value[i].aliases ) === -1 ) {
-					return false;
-				}
 			}
 		}
 

@@ -3,7 +3,7 @@
  * @author H. Snater < mediawiki@snater.com >
  */
 
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -14,10 +14,7 @@ var createAliasesview = function( options ) {
 	options = $.extend( {
 		entityId: 'i am an EntityId',
 		aliasesChanger: 'i am an AliasesChanger',
-		value: {
-			language: 'en',
-			aliases: ['a', 'b', 'c']
-		}
+		value: new wb.datamodel.MultiTerm( 'en', ['a', 'b', 'c'] )
 	}, options || {} );
 
 	var $aliasesview = $( '<div/>' )
@@ -59,7 +56,7 @@ QUnit.test( 'Create & destroy', function( assert ) {
 		aliasesview = $aliasesview.data( 'aliasesview' );
 
 	assert.ok(
-		aliasesview !== undefined,
+		aliasesview instanceof $.wikibase.aliasesview,
 		'Created widget'
 	);
 
@@ -71,7 +68,31 @@ QUnit.test( 'Create & destroy', function( assert ) {
 	);
 } );
 
-QUnit.test( 'startEditing() & stopEditing()', 7, function( assert ) {
+QUnit.test( 'Instantiating tagadata widget on startEditing()', function( assert ) {
+	var $aliasesview = createAliasesview(),
+		aliasesview = $aliasesview.data( 'aliasesview' );
+
+	QUnit.stop();
+
+	aliasesview.startEditing()
+	.done( function() {
+		assert.ok(
+			aliasesview.$list.data( 'tagadata' ) !== undefined,
+			'Instantiated tagadata widget.'
+		);
+	} )
+	.fail( function() {
+		assert.ok(
+			false,
+			'Failed to start edit mode.'
+		);
+	} )
+	.always( function() {
+		QUnit.start();
+	} );
+} );
+
+QUnit.test( 'startEditing() & stopEditing()', 6, function( assert ) {
 	var $aliasesview = createAliasesview(),
 		aliasesview = $aliasesview.data( 'aliasesview' );
 
@@ -89,29 +110,94 @@ QUnit.test( 'startEditing() & stopEditing()', 7, function( assert ) {
 		);
 	} );
 
-	aliasesview.startEditing();
+	/**
+	 * @param {Function} func
+	 * @param {boolean} expectingEvent
+	 * @return {Object} jQuery.Promise
+	 */
+	function testEditModeChange( func, expectingEvent ) {
+		var deferred = $.Deferred();
 
-	assert.ok(
-		aliasesview.$list.data( 'tagadata' ) !== undefined,
-		'Instantiated tagadata widget.'
-	);
+		if( !expectingEvent ) {
+			func();
+			return deferred.resolve().promise();
+		}
 
-	aliasesview.startEditing(); // should not trigger event
-	aliasesview.stopEditing( true );
-	aliasesview.stopEditing( true ); // should not trigger event
-	aliasesview.stopEditing(); // should not trigger event
+		$aliasesview
+		.one( 'aliasesviewafterstartediting.aliasesviewtest', function( event ) {
+			$aliasesview.off( '.aliasesviewtest' );
+			deferred.resolve();
+		} )
+		.one( 'aliasesviewafterstopediting.aliasesviewtest', function( event, dropValue ) {
+			$aliasesview.off( '.aliasesviewtest' );
+			deferred.resolve();
+		} );
 
-	aliasesview.startEditing();
+		func();
 
-	aliasesview.$list.data( 'tagadata' ).getTags().first().find( 'input' ).val( 'b' );
+		return deferred.promise();
+	}
 
-	aliasesview.stopEditing();
-	aliasesview.startEditing();
+	var $queue = $( {} );
 
-	aliasesview.$list.data( 'tagadata' ).getTags().first().removeClass( 'tagadata-choice-equal' )
-		.find( 'input' ).val( 'd' );
+	/**
+	 * @param {jQuery} $queue
+	 * @param {Function} func
+	 * @param {boolean} [expectingEvent]
+	 */
+	function addToQueue( $queue, func, expectingEvent ) {
+		if( expectingEvent === undefined ) {
+			expectingEvent = true;
+		}
+		$queue.queue( 'tests', function( next ) {
+			QUnit.stop();
+			testEditModeChange( func, expectingEvent ).always( function() {
+				QUnit.start();
+				next();
+			} );
+		} );
+	}
 
-	aliasesview.stopEditing();
+	addToQueue( $queue, function() {
+		aliasesview.startEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		aliasesview.startEditing();
+	}, false );
+
+	addToQueue( $queue, function() {
+		aliasesview.stopEditing( true );
+	} );
+
+	addToQueue( $queue, function() {
+		aliasesview.stopEditing( true );
+	}, false );
+
+	addToQueue( $queue, function() {
+		aliasesview.stopEditing();
+	}, false );
+
+	addToQueue( $queue, function() {
+		aliasesview.startEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		aliasesview.$list.data( 'tagadata' ).getTags().first().find( 'input' ).val( 'b' );
+		aliasesview.stopEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		aliasesview.startEditing();
+	} );
+
+	addToQueue( $queue, function() {
+		aliasesview.$list.data( 'tagadata' ).getTags().first()
+			.removeClass( 'tagadata-choice-equal' ).find( 'input' ).val( 'd' );
+		aliasesview.stopEditing();
+	} );
+
+	$queue.dequeue( 'tests' );
 } );
 
 QUnit.test( 'isInitialValue()', function( assert ) {
@@ -157,34 +243,31 @@ QUnit.test( 'setError()', function( assert ) {
 
 QUnit.test( 'value()', function( assert ) {
 	var $aliasesview = createAliasesview(),
-		aliasesview = $aliasesview.data( 'aliasesview' );
+		aliasesview = $aliasesview.data( 'aliasesview' ),
+		newValue = null;
 
 	assert.throws(
 		function() {
-			aliasesview.value( null );
+			aliasesview.value( newValue );
 		},
 		'Trying to set no value fails.'
 	);
 
-	aliasesview.value( {
-		language: 'de',
-		aliases: ['x', 'y']
-	} );
+	newValue = new wb.datamodel.MultiTerm( 'de', ['x', 'y'] );
+	aliasesview.value( newValue );
 
 	assert.ok(
-		aliasesview.value().language === 'de' && aliasesview.value().aliases.length === 2,
+		aliasesview.value().equals( newValue ),
 		'Set new value.'
 	);
 
-	aliasesview.value( {
-		language: 'en',
-		aliases: []
-	} );
+	newValue = new wb.datamodel.MultiTerm( 'en', [] );
+	aliasesview.value( newValue );
 
 	assert.ok(
-		aliasesview.value().language === 'en' && aliasesview.value().aliases.length === 0,
+		aliasesview.value().equals( newValue ),
 		'Set another value.'
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );

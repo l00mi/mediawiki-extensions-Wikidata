@@ -4,7 +4,7 @@
  * @author Daniel Werner < daniel.werner at wikimedia.de >
  */
 
-( function( $, mw, wb, dataTypes, experts, getFormatterStore, getParserStore ) {
+( function( $, mw, wb, dataTypes, getExpertsStore, getFormatterStore, getParserStore ) {
 	'use strict';
 
 	mw.hook( 'wikipage.content' ).add( function() {
@@ -85,7 +85,7 @@
 	 * Builds an entity store.
 	 * @todo Move to a top-level factory or application scope
 	 *
-	 * @param {wikibase.RepoApi} repoApi
+	 * @param {wikibase.api.RepoApi} repoApi
 	 * @return {wikibase.store.CombiningEntityStore}
 	 */
 	function buildEntityStore( repoApi ) {
@@ -112,7 +112,7 @@
 	function createEntityDom( entity, $entityview ) {
 		var repoConfig = mw.config.get( 'wbRepo' );
 		var mwApi = wb.api.getLocationAgnosticMwApi( repoConfig.url + repoConfig.scriptPath + '/api.php' );
-		var repoApi = new wb.RepoApi( mwApi ),
+		var repoApi = new wb.api.RepoApi( mwApi ),
 			entityStore = buildEntityStore( repoApi ),
 			revisionStore = new wb.RevisionStore( mw.config.get( 'wgCurRevisionId' ) ),
 			entityChangersFactory = new wb.entityChangers.EntityChangersFactory(
@@ -127,7 +127,7 @@
 			entityChangersFactory: entityChangersFactory,
 			entityStore: entityStore,
 			valueViewBuilder: new wb.ValueViewBuilder(
-				experts,
+				getExpertsStore( dataTypes ),
 				getFormatterStore( repoApi, dataTypes ),
 				getParserStore( repoApi ),
 				mw.config.get( 'wgUserLanguage' ),
@@ -138,10 +138,10 @@
 		.on( 'labelviewchange labelviewafterstopediting', function( event ) {
 			var $labelview = $( event.target ),
 				labelview = $labelview.data( 'labelview' ),
-				label = labelview.value().label;
+				label = labelview.value().getText();
 
 			$( 'title' ).text(
-				mw.msg( 'pagetitle', label && label !== '' ? label : mw.config.get( 'wgTitle' ) )
+				mw.msg( 'pagetitle', label !== '' ? label : mw.config.get( 'wgTitle' ) )
 			);
 		} )
 		.on( 'entityviewafterstartediting', function() {
@@ -342,7 +342,7 @@
 	mediaWiki,
 	wikibase,
 	wikibase.dataTypes,
-	wikibase.experts.store,
+	wikibase.experts.getStore,
 	wikibase.formatters.getStore,
 	wikibase.parsers.getStore
 );

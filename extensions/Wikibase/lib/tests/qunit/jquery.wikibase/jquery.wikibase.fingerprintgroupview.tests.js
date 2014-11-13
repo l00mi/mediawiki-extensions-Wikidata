@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( $, QUnit ) {
+( function( $, wb, QUnit ) {
 'use strict';
 
 /**
@@ -14,12 +14,14 @@ var createFingerprintgroupview = function( options ) {
 		value: [
 			{
 				language: 'de',
-				label: 'de-label',
-				description: 'de-description'
+				label: new wb.datamodel.Term( 'de', 'de-label' ),
+				description: new wb.datamodel.Term( 'de', 'de-description' ),
+				aliases: new wb.datamodel.MultiTerm( 'de', [] )
 			}, {
 				language: 'en',
-				label: 'en-label',
-				description: 'en-description'
+				label: new wb.datamodel.Term( 'en', 'en-label' ),
+				description: new wb.datamodel.Term( 'en', 'en-description' ),
+				aliases: new wb.datamodel.MultiTerm( 'en', [] )
 			}
 		],
 		entityId: 'i am an EntityId',
@@ -109,4 +111,4 @@ QUnit.test( 'value()', function( assert ) {
 	);
 } );
 
-}( jQuery, QUnit ) );
+}( jQuery, wikibase, QUnit ) );
