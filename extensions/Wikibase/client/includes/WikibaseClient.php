@@ -14,8 +14,10 @@ use Site;
 use SiteSQLStore;
 use SiteStore;
 use ValueFormatters\FormatterOptions;
-use Wikibase\Client\Changes\ChangeHandler;
 use Wikibase\Client\Changes\AffectedPagesFinder;
+use Wikibase\Client\Changes\ChangeHandler;
+use Wikibase\Client\Changes\ChangeRunCoalescer;
+use Wikibase\Client\Changes\WikiPageUpdater;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\ParserFunctionRegistrant;
@@ -51,7 +53,6 @@ use Wikibase\NamespaceChecker;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\StringNormalizer;
-use Wikibase\Client\Changes\WikiPageUpdater;
 
 /**
  * Top level factory for the WikibaseClient extension.
@@ -538,7 +539,7 @@ final class WikibaseClient {
 				$this->getNamespaceChecker(),
 				$this->getStore()->getSiteLinkTable(),
 				$this->getStore()->getEntityLookup(),
-				$this->getSiteStore(),
+				$this->getSiteStore()->getSites(),
 				$this->getLangLinkSiteGroup()
 			);
 		}
@@ -648,7 +649,7 @@ final class WikibaseClient {
 		return new OtherProjectsSidebarGenerator(
 			$settings->getSetting( 'siteGlobalID' ),
 			$this->getStore()->getSiteLinkTable(),
-			$this->getSiteStore(),
+			$this->getSiteStore()->getSites(),
 			$settings->getSetting( 'otherProjectsLinks' )
 		);
 	}
@@ -717,7 +718,7 @@ final class WikibaseClient {
 	 */
 	public function getOtherProjectsSitesProvider() {
 		return new OtherProjectsSitesProvider(
-			$this->getSiteStore(),
+			$this->getSiteStore()->getSites(),
 			$this->getSite(),
 			$this->getSettings()->getSetting( 'specialSiteLinkGroups' )
 		);
@@ -740,12 +741,17 @@ final class WikibaseClient {
 	 * @return ChangeHandler
 	 */
 	public function getChangeHandler() {
+		$siteId = $this->getSite()->getGlobalId();
+
 		return new ChangeHandler(
-			$this->getEntityChangeFactory(),
 			$this->getAffectedPagesFinder(),
 			new WikiPageUpdater(),
-			$this->getStore()->getEntityRevisionLookup(),
-			$this->getSite()->getGlobalId(),
+			new ChangeRunCoalescer(
+				$this->getStore()->getEntityRevisionLookup(),
+				$this->getEntityChangeFactory(),
+				$siteId
+			),
+			$siteId,
 			$this->getSettings()->getSetting( 'injectRecentChanges' ),
 			$this->getSettings()->getSetting( 'allowDataTransclusion' )
 		);

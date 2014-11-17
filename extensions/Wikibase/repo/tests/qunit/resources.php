@@ -17,6 +17,33 @@ return call_user_func( function() {
 
 	$modules = array(
 
+		'jquery.removeClassByRegex.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery/jquery.removeClassByRegex.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.removeClassByRegex',
+			),
+		),
+
+		'jquery.sticknode.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery/jquery.sticknode.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.sticknode',
+			),
+		),
+
+		'jquery.util.EventSingletonManager.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery/jquery.util.EventSingletonManager.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.util.EventSingletonManager',
+			),
+		),
+
 		'jquery.ui.tagadata.tests' => $moduleBase + array(
 			'scripts' => array(
 				'jquery.ui/jquery.ui.tagadata.tests.js',
@@ -43,6 +70,15 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'wikibase.templates',
+			),
+		),
+
+		'jquery.wikibase.entitysearch.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery.wikibase/jquery.wikibase.entitysearch.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.entitysearch',
 			),
 		),
 

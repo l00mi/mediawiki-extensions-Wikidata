@@ -5,10 +5,8 @@ namespace Wikibase\DataAccess\PropertyParserFunction;
 use InvalidArgumentException;
 use Language;
 use Status;
-use Wikibase\Client\WikibaseClient;
+use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\DataAccess\PropertyIdResolver;
-use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -16,7 +14,6 @@ use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\Lib\PropertyLabelNotResolvedException;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Client\Usage\UsageAccumulator;
 
 /**
  * PropertyClaimsRenderer of the {{#property}} parser function.
@@ -135,6 +132,7 @@ class LanguageAwareRenderer implements PropertyClaimsRenderer {
 	}
 
 	/**
+	 * @todo Share code with WikibaseLuaEntityBindings::trackUsage
 	 * @param Snak[] $snaks
 	 */
 	private function trackUsage( array $snaks ) {
@@ -156,6 +154,8 @@ class LanguageAwareRenderer implements PropertyClaimsRenderer {
 	}
 
 	/**
+	 * @todo Share code with WikibaseLuaEntityBindings.
+	 *
 	 * @param EntityId $entityId
 	 * @param PropertyId $propertyId
 	 *

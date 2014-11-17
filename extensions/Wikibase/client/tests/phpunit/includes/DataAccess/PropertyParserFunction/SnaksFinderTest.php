@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\DataAccess\Tests\PropertyParserFunction;
+namespace Wikibase\Client\Tests\DataAccess\PropertyParserFunction;
 
 use DataValues\StringValue;
 use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
@@ -11,7 +11,6 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Test\MockPropertyLabelResolver;
 use Wikibase\Test\MockRepository;
 
 /**

@@ -1,17 +1,13 @@
 <?php
 
-namespace Wikibase\DataAccess\Tests;
+namespace Wikibase\Client\Tests\DataAccess\PropertyParserFunction;
 
 use Language;
 use Parser;
 use ParserOptions;
 use Title;
 use User;
-use Wikibase\Client\Usage\HashUsageAccumulator;
 use Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory;
-use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\SnakFormatter;
 
 /**
  * @covers Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory
