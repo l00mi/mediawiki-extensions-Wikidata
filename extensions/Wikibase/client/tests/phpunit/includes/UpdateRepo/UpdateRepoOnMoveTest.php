@@ -15,14 +15,14 @@ use Wikibase\DataModel\Entity\ItemId;
  * @licence GNU GPL v2+
  * @author Marius Hoch < hoo@online.de >
  */
-class UpdateRepoOnMoveTest extends \MediaWikiTestCase {
+class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * Return some fake data for testing
 	 *
 	 * @return array
 	 */
-	protected function getFakeMoveData() {
+	private function getFakeMoveData() {
 		$entityId = new ItemId( 'Q123' );
 
 		$siteLinkLookupMock = $this->getMock( 'Wikibase\Lib\Store\SiteLinkLookup' );
@@ -46,7 +46,7 @@ class UpdateRepoOnMoveTest extends \MediaWikiTestCase {
 	 *
 	 * @return UpdateRepoOnMove
 	 */
-	protected function getNewLocal() {
+	private function getNewLocal() {
 		static $updateRepo = null;
 
 		if ( !$updateRepo ) {
@@ -75,7 +75,7 @@ class UpdateRepoOnMoveTest extends \MediaWikiTestCase {
 	 *
 	 * @return object
 	 */
-	protected function getJobQueueGroupMock( $expectedJob, $success ) {
+	private function getJobQueueGroupMock( $expectedJob, $success ) {
 		$jobQueueGroupMock = $this->getMockBuilder( '\JobQueueGroup' )
 			->disableOriginalConstructor()
 			->getMock();

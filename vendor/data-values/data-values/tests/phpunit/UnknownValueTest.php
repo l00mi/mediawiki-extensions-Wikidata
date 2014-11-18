@@ -7,11 +7,6 @@ use DataValues\UnknownValue;
 /**
  * @covers DataValues\UnknownValue
  *
- * @file
- * @since 0.1
- *
- * @ingroup DataValue
- *
  * @group DataValue
  * @group DataValueExtensions
  * @group UnknownValueTest
@@ -23,8 +18,6 @@ class UnknownValueTest extends DataValueTest {
 
 	/**
 	 * @see DataValueTest::getClass
-	 *
-	 * @since 0.1
 	 *
 	 * @return string
 	 */

@@ -142,16 +142,16 @@ class EditEntity extends ModifyEntity {
 	protected function validateParameters( array $params ) {
 		$hasId = isset( $params['id'] );
 		$hasNew = isset( $params['new'] );
-		$hasSitelink = ( isset( $params['site'] ) && isset( $params['title'] ) );
-		$hasSitelinkPart = ( isset( $params['site'] ) || isset( $params['title'] ) );
+		$hasSiteLink = isset( $params['site'] ) && isset( $params['title'] );
+		$hasSiteLinkPart = isset( $params['site'] ) || isset( $params['title'] );
 
-		if ( !( $hasId XOR $hasSitelink XOR $hasNew ) ) {
+		if ( !( $hasId XOR $hasSiteLink XOR $hasNew ) ) {
 			$this->dieError( 'Either provide the item "id" or pairs of "site" and "title" or a "new" type for an entity' , 'param-missing' );
 		}
-		if( $hasId && $hasSitelink ){
+		if ( $hasId && $hasSiteLink ) {
 			$this->dieError( "Parameter 'id' and 'site', 'title' combination are not allowed to be both set in the same request", 'param-illegal' );
 		}
-		if( ( $hasId || $hasSitelinkPart ) && $hasNew ){
+		if ( ( $hasId || $hasSiteLinkPart ) && $hasNew ) {
 			$this->dieError( "Parameters 'id', 'site', 'title' and 'new' are not allowed to be both set in the same request", 'param-illegal' );
 		}
 	}
@@ -181,11 +181,6 @@ class EditEntity extends ModifyEntity {
 				}
 			}
 			$entity->clear();
-
-			// bug 67791 (can be removed with DataModel 1.0)
-			if ( method_exists( $entity, 'setClaims' ) ) {
-				$entity->setClaims( new Claims() );
-			}
 		}
 
 		// if we create a new property, make sure we set the datatype

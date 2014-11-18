@@ -92,6 +92,182 @@
         ]
     },
     {
+        "name": "data-values/data-values",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/DataValues.git",
+            "reference": "de2b9abdbc26c4c393b25aa621619dfe3fc10fdc"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/de2b9abdbc26c4c393b25aa621619dfe3fc10fdc",
+            "reference": "de2b9abdbc26c4c393b25aa621619dfe3fc10fdc",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "replace": {
+            "mediawiki/data-values": "*"
+        },
+        "time": "2014-09-26 07:02:27",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValues.php"
+            ],
+            "classmap": [
+                "src/interfaces",
+                "tests/phpunit/DataValueTest.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Defines the DataValue interface and some trivial implementations",
+        "homepage": "https://github.com/DataValues/DataValues",
+        "keywords": [
+            "datavalues",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "diff/diff",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Diff.git",
+            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Diff/zipball/07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
+            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-05-07 16:35:49",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Diff.php"
+            ],
+            "psr-4": {
+                "Diff\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Library for diffing, patching and representing differences between complex objects",
+        "homepage": "https://github.com/wmde/Diff",
+        "keywords": [
+            "diff",
+            "diffing",
+            "diffop",
+            "patching",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model",
+        "version": "2.3.0",
+        "version_normalized": "2.3.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModel.git",
+            "reference": "6a0bd5d43c95e290c159d59ca0dc82fd21d6cc78"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/6a0bd5d43c95e290c159d59ca0dc82fd21d6cc78",
+            "reference": "6a0bd5d43c95e290c159d59ca0dc82fd21d6cc78",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1|~1.0",
+            "diff/diff": "~1.0",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "whatthejeff/nyancat-phpunit-resultprinter": "~1.2"
+        },
+        "time": "2014-11-18 16:29:13",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.3.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseDataModel.php"
+            ],
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP implementation of the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModel",
+        "keywords": [
+            "DataModel",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
         "name": "data-values/javascript",
         "version": "0.6.1",
         "version_normalized": "0.6.1.0",
@@ -328,61 +504,6 @@
         ]
     },
     {
-        "name": "data-values/data-values",
-        "version": "0.1.1",
-        "version_normalized": "0.1.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/DataValues.git",
-            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/603a19faeac34f5db23b786c6d9c20a151118c2a",
-            "reference": "603a19faeac34f5db23b786c6d9c20a151118c2a",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "replace": {
-            "mediawiki/data-values": "*"
-        },
-        "time": "2013-11-22 00:39:57",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValues.php"
-            ],
-            "classmap": [
-                "src/interfaces",
-                "tests/phpunit/DataValueTest.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines the DataValue interface and some trivial implementations",
-        "homepage": "https://github.com/DataValues/DataValues",
-        "keywords": [
-            "datavalues",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/common",
         "version": "0.2.3",
         "version_normalized": "0.2.3.0",
@@ -447,17 +568,17 @@
     },
     {
         "name": "data-values/geo",
-        "version": "1.1.1",
-        "version_normalized": "1.1.1.0",
+        "version": "1.1.2",
+        "version_normalized": "1.1.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Geo.git",
-            "reference": "ab544944fddefbf1a9db80b7e122e912d6b70dc0"
+            "reference": "0c89b028569c5c97136993ce16f32638150b5e99"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Geo/zipball/ab544944fddefbf1a9db80b7e122e912d6b70dc0",
-            "reference": "ab544944fddefbf1a9db80b7e122e912d6b70dc0",
+            "url": "https://api.github.com/repos/DataValues/Geo/zipball/0c89b028569c5c97136993ce16f32638150b5e99",
+            "reference": "0c89b028569c5c97136993ce16f32638150b5e99",
             "shasum": ""
         },
         "require": {
@@ -466,7 +587,7 @@
             "data-values/interfaces": "~0.1",
             "php": ">=5.3.0"
         },
-        "time": "2014-10-21 09:35:45",
+        "time": "2014-11-18 15:51:16",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -625,121 +746,6 @@
         ]
     },
     {
-        "name": "diff/diff",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Diff.git",
-            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Diff/zipball/07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
-            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-05-07 16:35:49",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Diff.php"
-            ],
-            "psr-4": {
-                "Diff\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Library for diffing, patching and representing differences between complex objects",
-        "homepage": "https://github.com/wmde/Diff",
-        "keywords": [
-            "diff",
-            "diffing",
-            "diffop",
-            "patching",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/data-model",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "5077367f7585615a583cbe291c868ca8ffbd1faa"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/5077367f7585615a583cbe291c868ca8ffbd1faa",
-            "reference": "5077367f7585615a583cbe291c868ca8ffbd1faa",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1|~1.0",
-            "diff/diff": "~1.0",
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "whatthejeff/nyancat-phpunit-resultprinter": "~1.2"
-        },
-        "time": "2014-11-10 16:30:27",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.2.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseDataModel.php"
-            ],
-            "psr-4": {
-                "Wikibase\\DataModel\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "PHP implementation of the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModel",
-        "keywords": [
-            "DataModel",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/data-model-serialization",
         "version": "1.2.0",
         "version_normalized": "1.2.0.0",
@@ -869,23 +875,23 @@
     },
     {
         "name": "data-values/data-types",
-        "version": "0.4",
-        "version_normalized": "0.4.0.0",
+        "version": "0.4.1",
+        "version_normalized": "0.4.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataTypes.git",
-            "reference": "5f6eee1eaf32762fa143d57fb6799bdc67d57c11"
+            "reference": "68675f39f8ba310e284dec6e600855b014c57950"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/5f6eee1eaf32762fa143d57fb6799bdc67d57c11",
-            "reference": "5f6eee1eaf32762fa143d57fb6799bdc67d57c11",
+            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/68675f39f8ba310e284dec6e600855b014c57950",
+            "reference": "68675f39f8ba310e284dec6e600855b014c57950",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-05-21 13:11:36",
+        "time": "2014-11-18 15:51:40",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1127,18 +1133,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "bd054b74df822260fec3cf3e89e194c5e7c766cd"
+            "reference": "a74d09ab08769a7dfb98a454675ebf1582c0644f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bd054b74df822260fec3cf3e89e194c5e7c766cd",
-            "reference": "bd054b74df822260fec3cf3e89e194c5e7c766cd",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a74d09ab08769a7dfb98a454675ebf1582c0644f",
+            "reference": "a74d09ab08769a7dfb98a454675ebf1582c0644f",
             "shasum": ""
         },
         "require": {
             "data-values/common": "~0.2.0",
             "data-values/data-types": "~0.4.0",
-            "data-values/data-values": "~0.1.0",
+            "data-values/data-values": "~1.0.0",
             "data-values/geo": "~1.0",
             "data-values/interfaces": "~0.1.4",
             "data-values/javascript": "~0.6.0",
@@ -1149,7 +1155,7 @@
             "data-values/value-view": "~0.8.1",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~2.0",
+            "wikibase/data-model": "~2.3",
             "wikibase/data-model-javascript": "~1.0",
             "wikibase/data-model-serialization": "~1.2",
             "wikibase/easyrdf_lite": "~0.8.1",
@@ -1159,7 +1165,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-11-17 12:23:53",
+        "time": "2014-11-19 07:55:57",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1184,7 +1190,7 @@
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "GNU GPL v2+"
+            "GPL-2.0+"
         ],
         "authors": [
             {

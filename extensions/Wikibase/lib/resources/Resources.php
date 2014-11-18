@@ -121,11 +121,11 @@ return call_user_func( function() {
 		include( __DIR__ . '/deprecated/resources.php' ),
 		include( __DIR__ . '/experts/resources.php' ),
 		include( __DIR__ . '/jquery.wikibase/resources.php' ),
+		include( __DIR__ . '/jquery.wikibase-shared/resources.php' ),
 		include( __DIR__ . '/wikibase.RepoApi/resources.php' )
 	);
 
 	if ( defined( 'ULS_VERSION' ) ) {
-		$modules['wikibase']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.Site']['dependencies'][] = 'ext.uls.mediawiki';
 	}
 

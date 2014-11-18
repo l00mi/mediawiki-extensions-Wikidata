@@ -7,11 +7,6 @@ use DataValues\StringValue;
 /**
  * @covers DataValues\StringValue
  *
- * @file
- * @since 0.1
- *
- * @ingroup DataValue
- *
  * @group DataValue
  * @group DataValueExtensions
  *
@@ -22,8 +17,6 @@ class StringValueTest extends DataValueTest {
 
 	/**
 	 * @see DataValueTest::getClass
-	 *
-	 * @since 0.1
 	 *
 	 * @return string
 	 */

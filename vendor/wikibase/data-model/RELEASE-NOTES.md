@@ -1,5 +1,12 @@
 # Wikibase DataModel release notes
 
+## Version 2.3.0 (2014-11-18)
+
+* Added `AliasGroupList::toArray`
+* Added `StatementList::getMainSnaks`
+* Added `StatementList::getWithPropertyId`
+* `BestStatementsFinder::getBestStatementsForProperty` no longer throws an `OutOfBounds` exception
+
 ## Version 2.2.0 (2014-11-10)
 
 * `Item` and `Property` now implement `StatementListProvider`

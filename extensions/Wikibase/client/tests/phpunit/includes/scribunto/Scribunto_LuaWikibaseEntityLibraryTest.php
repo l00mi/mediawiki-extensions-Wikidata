@@ -1,13 +1,12 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Client\Tests\Scribunto;
 
 use Parser;
 use ParserOptions;
 use Scribunto;
 use Scribunto_LuaWikibaseEntityLibrary;
 use Title;
-use Wikibase\Client\Scribunto\Test\Scribunto_LuaWikibaseLibraryTestCase;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -22,9 +21,10 @@ use Wikibase\Client\WikibaseClient;
  * @author Marius Hoch < hoo@online.de >
  */
 class Scribunto_LuaWikibaseEntityLibraryTest extends Scribunto_LuaWikibaseLibraryTestCase {
+
 	protected static $moduleName = 'LuaWikibaseEntityLibraryTests';
 
-	function getTestModules() {
+	protected function getTestModules() {
 		return parent::getTestModules() + array(
 			'LuaWikibaseEntityLibraryTests' => __DIR__ . '/LuaWikibaseEntityLibraryTests.lua',
 		);
