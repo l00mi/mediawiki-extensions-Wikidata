@@ -767,9 +767,7 @@
                 "psr-4": {
                     "PropertySuggester\\": "src/PropertySuggester/"
                 },
-                "files": [
-
-                ],
+                "files": [],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -1187,7 +1185,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "9e857679ebe48ab1c35130dd1e85675e27cd004e"
+                "reference": "b2e57f4c6734c70d8e8e4c5a2f94721de2131c45"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1255,7 +1253,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-11-12 11:33:55"
+            "time": "2014-11-18 21:03:37"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1308,12 +1306,8 @@
             "time": "2014-11-11 18:42:07"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "wikibase/wikibase": 20,
@@ -1324,7 +1318,5 @@
     "platform": {
         "php": ">=5.3.0"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }
