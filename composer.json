@@ -1,4 +1,6 @@
 {
+    "name": "wikibase/wikidata",
+    "description": "Wikidata build, including related components used for wikidata.org.",
     "repositories": [
         {
             "type": "vcs",
@@ -11,6 +13,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/wmde/WikimediaBadges.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/DataValues/Geo.git"
         }
     ],
     "require": {
