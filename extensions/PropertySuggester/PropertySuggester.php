@@ -9,7 +9,7 @@ if ( defined( 'PropertySuggester_VERSION' ) ) {
 	return;
 }
 
-define( 'PropertySuggester_VERSION', '1.1.5' );
+define( 'PropertySuggester_VERSION', '2.0.1' );
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -51,10 +51,15 @@ $wgResourceModules['ext.PropertySuggester.EntitySelector'] = array(
 	'remoteExtPath' => $remoteExtPathParts[1],
 );
 
-
 global $wgPropertySuggesterDeprecatedIds;
 $wgPropertySuggesterDeprecatedIds = array(
 	107 // ( DEPRECATED main type )
 );
+
+global $wgPropertySuggesterClassifyingPropertyIds;
+$wgPropertySuggesterClassifyingPropertyIds = array(
+	31 // instance of
+);
+
 global $wgPropertySuggesterMinProbability;
 $wgPropertySuggesterMinProbability = 0.05;

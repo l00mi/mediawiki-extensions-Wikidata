@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "212a0758023436b3e764996d7d305cdb",
+    "hash": "a5be434fdca7130d9322a8d1b5190cc7",
     "packages": [
         {
             "name": "composer/installers",
@@ -747,16 +747,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "1.1.5",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "0d106a6cb2e30a34cdec2e0eda52cca66a479733"
+                "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/0d106a6cb2e30a34cdec2e0eda52cca66a479733",
-                "reference": "0d106a6cb2e30a34cdec2e0eda52cca66a479733",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
+                "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
                 "shasum": ""
             },
             "require": {
@@ -771,9 +771,7 @@
                 "psr-4": {
                     "PropertySuggester\\": "src/PropertySuggester/"
                 },
-                "files": [
-
-                ],
+                "files": [],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -790,7 +788,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-11-10 15:13:08"
+            "time": "2014-11-11 11:23:20"
         },
         {
             "name": "serialization/serialization",
@@ -1259,7 +1257,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-11-19 17:29:23"
+            "time": "2014-11-19 17:15:03"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1312,12 +1310,8 @@
             "time": "2014-11-11 18:42:07"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "wikibase/wikibase": 20,
@@ -1328,7 +1322,5 @@
     "platform": {
         "php": ">=5.3.0"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }
