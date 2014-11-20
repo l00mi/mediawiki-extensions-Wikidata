@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "236f65a74f9da86a0eafa52e8caefe82",
+    "hash": "111e40007b6379fcbdb42cccafd57475",
     "packages": [
         {
             "name": "composer/installers",
@@ -749,16 +749,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "1.1.5",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "0d106a6cb2e30a34cdec2e0eda52cca66a479733"
+                "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/0d106a6cb2e30a34cdec2e0eda52cca66a479733",
-                "reference": "0d106a6cb2e30a34cdec2e0eda52cca66a479733",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
+                "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
                 "shasum": ""
             },
             "require": {
@@ -773,7 +773,9 @@
                 "psr-4": {
                     "PropertySuggester\\": "src/PropertySuggester/"
                 },
-                "files": [],
+                "files": [
+
+                ],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -790,7 +792,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-11-10 15:13:08"
+            "time": "2014-11-11 11:23:20"
         },
         {
             "name": "serialization/serialization",
@@ -1191,12 +1193,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "11cc4430d6e7032f2eb6c412f22da4296ec29682"
+                "reference": "d75afa49d3e66e6da218a653476bfe2ae6a4b798"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/11cc4430d6e7032f2eb6c412f22da4296ec29682",
-                "reference": "11cc4430d6e7032f2eb6c412f22da4296ec29682",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d75afa49d3e66e6da218a653476bfe2ae6a4b798",
+                "reference": "d75afa49d3e66e6da218a653476bfe2ae6a4b798",
                 "shasum": ""
             },
             "require": {
@@ -1262,7 +1264,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-11-19 21:42:01"
+            "time": "2014-11-20 13:18:45"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1315,8 +1317,12 @@
             "time": "2014-11-11 18:42:07"
         }
     ],
-    "packages-dev": [],
-    "aliases": [],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
     "minimum-stability": "stable",
     "stability-flags": {
         "wikibase/wikibase": 20,
@@ -1327,5 +1333,7 @@
     "platform": {
         "php": ">=5.3.0"
     },
-    "platform-dev": []
+    "platform-dev": [
+
+    ]
 }

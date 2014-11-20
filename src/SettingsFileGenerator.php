@@ -2,6 +2,8 @@
 
 namespace Wikidata;
 
+use Composer\Script\Event;
+
 /**
  * @license GNU GPL v2+
  *
@@ -9,8 +11,10 @@ namespace Wikidata;
  */
 class SettingsFileGenerator {
 
-	public static function generateDefaultSettings() {
-		$settingsBuilder = new WikidataSettingsBuilder();
+	public static function generateDefaultSettings( Event $event ) {
+		$composerConfig = $event->getComposer()->getConfig();
+
+		$settingsBuilder = new WikidataSettingsBuilder( $composerConfig );
 		$settingsFileGenerator = new self();
 
 		$settingsFileGenerator->generate(
