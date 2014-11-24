@@ -120,9 +120,7 @@
             "psr-4": {
                 "PropertySuggester\\": "src/PropertySuggester/"
             },
-            "files": [
-
-            ],
+            "files": [],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"
@@ -259,17 +257,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "2.3.0",
-        "version_normalized": "2.3.0.0",
+        "version": "2.4.0",
+        "version_normalized": "2.4.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "6a0bd5d43c95e290c159d59ca0dc82fd21d6cc78"
+            "reference": "66de8e091eeb93bd201d9fdf52ebda958fae5b2a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/6a0bd5d43c95e290c159d59ca0dc82fd21d6cc78",
-            "reference": "6a0bd5d43c95e290c159d59ca0dc82fd21d6cc78",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/66de8e091eeb93bd201d9fdf52ebda958fae5b2a",
+            "reference": "66de8e091eeb93bd201d9fdf52ebda958fae5b2a",
             "shasum": ""
         },
         "require": {
@@ -277,14 +275,11 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.0"
         },
-        "require-dev": {
-            "whatthejeff/nyancat-phpunit-resultprinter": "~1.2"
-        },
-        "time": "2014-11-18 16:29:13",
+        "time": "2014-11-23 00:54:35",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.3.x-dev"
+                "dev-master": "2.4.x-dev"
             }
         },
         "installation-source": "dist",
@@ -1182,12 +1177,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "d75afa49d3e66e6da218a653476bfe2ae6a4b798"
+            "reference": "75d3f0f31119ba16a93a5ce293f42b858a821d2c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d75afa49d3e66e6da218a653476bfe2ae6a4b798",
-            "reference": "d75afa49d3e66e6da218a653476bfe2ae6a4b798",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/75d3f0f31119ba16a93a5ce293f42b858a821d2c",
+            "reference": "75d3f0f31119ba16a93a5ce293f42b858a821d2c",
             "shasum": ""
         },
         "require": {
@@ -1204,7 +1199,7 @@
             "data-values/value-view": "~0.8.1",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~2.3",
+            "wikibase/data-model": "~2.4",
             "wikibase/data-model-javascript": "~1.0",
             "wikibase/data-model-serialization": "~1.2",
             "wikibase/easyrdf_lite": "~0.8.1",
@@ -1214,7 +1209,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-11-20 13:18:45",
+        "time": "2014-11-24 12:57:12",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

@@ -17,8 +17,11 @@ use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Snak\Snaks;
 
 /**
- * Ordered, non-unique, mutable, collection of Statement objects.
- * Provides various filter operations though does not do any indexing by default.
+ * Ordered, non-unique, collection of Statement objects.
+ * Provides various filter operations.
+ *
+ * Does not do any indexing by default.
+ * Does not provide complex modification functionality.
  *
  * @since 1.0
  *
@@ -146,6 +149,45 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	}
 
 	/**
+	 * @since 2.4
+	 *
+	 * @param int|int[] $acceptableRanks
+	 *
+	 * @return StatementList
+	 */
+	public function getWithRank( $acceptableRanks ) {
+		$acceptableRanks = array_flip( (array)$acceptableRanks );
+		$statements = array();
+
+		foreach ( $this->statements as $statement ) {
+			if ( array_key_exists( $statement->getRank(), $acceptableRanks ) ) {
+				$statements[] = $statement;
+			}
+		}
+
+		return new self( $statements );
+	}
+
+	/**
+	 * Returns the so called "best statements".
+	 * If there are preferred statements, then this is all the preferred statements.
+	 * If there are no preferred statements, then this is all normal statements.
+	 *
+	 * @since 2.4
+	 *
+	 * @return StatementList
+	 */
+	public function getBestStatements() {
+		$statements = $this->getWithRank( Statement::RANK_PREFERRED );
+
+		if ( !$statements->isEmpty() ) {
+			return $statements;
+		}
+
+		return $this->getWithRank( Statement::RANK_NORMAL );
+	}
+
+	/**
 	 * Returns a list of all Snaks on this StatementList. This includes at least the main snaks of
 	 * Claims, the snaks from Claim qualifiers, and the snaks from Statement References.
 	 *
@@ -208,22 +250,22 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	/**
 	 * @see Comparable::equals
 	 *
-	 * @param mixed $statementList
+	 * @param mixed $target
 	 *
 	 * @return bool
 	 */
-	public function equals( $statementList ) {
-		if ( $this === $statementList ) {
+	public function equals( $target ) {
+		if ( $this === $target ) {
 			return true;
 		}
 
-		if ( !( $statementList instanceof self )
-			|| $this->count() !== $statementList->count()
+		if ( !( $target instanceof self )
+			|| $this->count() !== $target->count()
 		) {
 			return false;
 		}
 
-		return $this->statementsEqual( $statementList->statements );
+		return $this->statementsEqual( $target->statements );
 	}
 
 	private function statementsEqual( array $statements ) {

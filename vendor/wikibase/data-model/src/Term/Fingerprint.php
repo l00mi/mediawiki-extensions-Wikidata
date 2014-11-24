@@ -25,8 +25,19 @@ class Fingerprint implements Comparable {
 		);
 	}
 
+	/**
+	 * @var TermList
+	 */
 	private $labels;
+
+	/**
+	 * @var TermList
+	 */
 	private $descriptions;
+
+	/**
+	 * @var AliasGroupList
+	 */
 	private $aliasGroups;
 
 	public function __construct( TermList $labels, TermList $descriptions, AliasGroupList $aliasGroups ) {
@@ -195,14 +206,15 @@ class Fingerprint implements Comparable {
 	 *
 	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $target ) {
-		if ( !( $target instanceof self ) ) {
-			return false;
+		if ( $this === $target ) {
+			return true;
 		}
 
-		return $this->descriptions->equals( $target->getDescriptions() )
+		return $target instanceof self
+			&& $this->descriptions->equals( $target->getDescriptions() )
 			&& $this->labels->equals( $target->getLabels() )
 			&& $this->aliasGroups->equals( $target->getAliasGroups() );
 	}
@@ -213,9 +225,9 @@ class Fingerprint implements Comparable {
 	 * @return bool
 	 */
 	public function isEmpty() {
-		return $this->labels->count() === 0
-			&& $this->descriptions->count() === 0
-			&& $this->aliasGroups->count() === 0;
+		return $this->labels->isEmpty()
+			&& $this->descriptions->isEmpty()
+			&& $this->aliasGroups->isEmpty();
 	}
 
 	/**

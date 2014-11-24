@@ -217,12 +217,12 @@ class Item extends Entity implements StatementListProvider {
 	 *
 	 * @since 0.1
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isEmpty() {
 		return $this->fingerprint->isEmpty()
-			&& $this->siteLinks->isEmpty()
-			&& $this->statements->count() === 0;
+			&& $this->statements->isEmpty()
+			&& $this->siteLinks->isEmpty();
 	}
 
 	/**
@@ -296,7 +296,7 @@ class Item extends Entity implements StatementListProvider {
 	 * @return bool
 	 */
 	public function hasClaims() {
-		return $this->statements->count() !== 0;
+		return !$this->statements->isEmpty();
 	}
 
 	/**
@@ -309,22 +309,19 @@ class Item extends Entity implements StatementListProvider {
 	 *
 	 * @since 0.1
 	 *
-	 * @param mixed $that
+	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function equals( $that ) {
-		if ( $this === $that ) {
+	public function equals( $target ) {
+		if ( $this === $target ) {
 			return true;
 		}
 
-		if ( !( $that instanceof self ) ) {
-			return false;
-		}
-
-		return $this->fingerprint->equals( $that->fingerprint )
-			&& $this->siteLinks->equals( $that->siteLinks )
-			&& $this->statements->equals( $that->statements );
+		return $target instanceof self
+			&& $this->fingerprint->equals( $target->fingerprint )
+			&& $this->siteLinks->equals( $target->siteLinks )
+			&& $this->statements->equals( $target->statements );
 	}
 
 }

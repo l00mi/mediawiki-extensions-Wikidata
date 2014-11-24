@@ -1,5 +1,15 @@
 # Wikibase DataModel release notes
 
+## Version 2.4.0 (2014-11-23)
+
+* `Property` now implements the deprecated claim related methods defined in `Entity`
+* Added `AliasGroup::isEmpty`
+* Added `StatementList::getBestStatements`
+* Added `StatementList::getWithRank`
+* Added `TermList::isEmpty`
+* Added `AliasGroupFallback`
+* Added `TermFallback`
+
 ## Version 2.3.0 (2014-11-18)
 
 * Added `AliasGroupList::toArray`

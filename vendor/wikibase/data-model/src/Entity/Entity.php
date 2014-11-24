@@ -2,7 +2,6 @@
 
 namespace Wikibase\DataModel\Entity;
 
-use Diff\Patcher\MapPatcher;
 use InvalidArgumentException;
 use RuntimeException;
 use Wikibase\DataModel\Claim\Claim;
@@ -481,7 +480,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 *
 	 * @since 0.1
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public abstract function isEmpty();
 
