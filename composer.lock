@@ -258,16 +258,16 @@
         },
         {
             "name": "data-values/geo",
-            "version": "1.1.3",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Geo.git",
-                "reference": "ed6d1e54302e7e455b27d4e54d2bfb1e3cfe8645"
+                "reference": "e7222bc743ae05bfc5213cb1e20150aa772d8668"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Geo/zipball/ed6d1e54302e7e455b27d4e54d2bfb1e3cfe8645",
-                "reference": "ed6d1e54302e7e455b27d4e54d2bfb1e3cfe8645",
+                "url": "https://api.github.com/repos/DataValues/Geo/zipball/e7222bc743ae05bfc5213cb1e20150aa772d8668",
+                "reference": "e7222bc743ae05bfc5213cb1e20150aa772d8668",
                 "shasum": ""
             },
             "require": {
@@ -318,10 +318,10 @@
             ],
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata",
-                "source": "https://github.com/DataValues/Geo/tree/1.1.3",
+                "source": "https://github.com/DataValues/Geo/tree/1.1.4",
                 "issues": "https://github.com/DataValues/Geo/issues"
             },
-            "time": "2014-11-19 17:53:17"
+            "time": "2014-11-25 16:48:57"
         },
         {
             "name": "data-values/interfaces",
@@ -852,12 +852,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Wikidata.org.git",
-                "reference": "f5c714145472733c23e4afa897d3c6feaf36ec8b"
+                "reference": "bf5acbdb7f236614ae08d99cbca9c7aefdb784c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/f5c714145472733c23e4afa897d3c6feaf36ec8b",
-                "reference": "f5c714145472733c23e4afa897d3c6feaf36ec8b",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/bf5acbdb7f236614ae08d99cbca9c7aefdb784c2",
+                "reference": "bf5acbdb7f236614ae08d99cbca9c7aefdb784c2",
                 "shasum": ""
             },
             "require": {
@@ -891,7 +891,7 @@
                 "source": "https://github.com/wmde/Wikidata.org/tree/master",
                 "issues": "https://github.com/wmde/Wikidata.org/issues"
             },
-            "time": "2014-11-11 18:42:29"
+            "time": "2014-11-25 18:32:14"
         },
         {
             "name": "wikibase/data-model",
@@ -1188,8 +1188,14 @@
             "version": "dev-wmf/1.25wmf8",
             "source": {
                 "type": "git",
-                "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "f23cc183c2c2cef60fce53231df8b4a4d09d96a6"
+                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+                "reference": "6388f3c8cc7da263ec793beacead1591f65a5261"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6388f3c8cc7da263ec793beacead1591f65a5261",
+                "reference": "6388f3c8cc7da263ec793beacead1591f65a5261",
+                "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1236,6 +1242,7 @@
                     "Wikibase\\Repo\\View\\": "repo/includes/View"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GNU GPL v2+"
             ],
@@ -1253,11 +1260,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "support": {
-                "issues": "https://bugzilla.wikimedia.org/",
-                "irc": "irc://irc.freenode.net/wikidata"
-            },
-            "time": "2014-11-19 17:15:03"
+            "time": "2014-11-25 18:02:38"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1265,12 +1268,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikimediaBadges.git",
-                "reference": "dcf01e7be8c379083abec0eab89abb1ab5ce6102"
+                "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/dcf01e7be8c379083abec0eab89abb1ab5ce6102",
-                "reference": "dcf01e7be8c379083abec0eab89abb1ab5ce6102",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/bb5baa8e74f45b66929cc721a112605ba947dbc1",
+                "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1",
                 "shasum": ""
             },
             "require": {
@@ -1307,7 +1310,7 @@
                 "source": "https://github.com/wmde/WikimediaBadges/tree/master",
                 "issues": "https://github.com/wmde/WikimediaBadges/issues"
             },
-            "time": "2014-11-11 18:42:07"
+            "time": "2014-11-25 18:25:26"
         }
     ],
     "packages-dev": [],
