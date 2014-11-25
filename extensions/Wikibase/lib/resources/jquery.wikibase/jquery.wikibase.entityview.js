@@ -16,6 +16,7 @@
  * @option {wikibase.datamodel.Entity} [value]
  * @option {wikibase.store.EntityStore} entityStore
  * @option {wikibase.ValueViewBuilder} valueViewBuilder
+ * @option {dataTypes.DataTypeStore} dataTypeStore
  * @option {string[]} languages
  *
  * @event afterstartediting
@@ -38,12 +39,14 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'', // entity id
 			'', // language code
 			'', // language direction
-			'' // content
+			'', // main content
+			'' // sidebar
 		],
 		templateShortCuts: {},
 		value: null,
 		entityStore: null,
 		valueViewBuilder: null,
+		dataTypeStore: null,
 		languages: []
 	},
 
@@ -148,17 +151,13 @@ $.widget( 'wikibase.entityview', PARENT, {
 			this.$description = $( '<div/>' ).appendTo( this.element );
 		}
 
+		// FIXME: entity object should not contain fallback strings
 		var description = this.options.value.getFingerprint().getDescriptionFor(
 			mw.config.get( 'wgUserLanguage' )
-		);
+		) || new wb.datamodel.Term( mw.config.get( 'wgUserLanguage' ), '' );
+
 		this.$description.descriptionview( {
-			value: {
-				language: mw.config.get( 'wgUserLanguage' ),
-				description: this.$description.hasClass( 'wb-empty' )
-					? null
-					// FIXME: entity object should not contain fallback strings
-					: ( description && description.getText() )
-			},
+			value: description,
 			helpMessage: mw.msg(
 				'wikibase-description-input-help-message',
 				wb.getLanguageNameByCode( mw.config.get( 'wgUserLanguage' ) )
@@ -184,6 +183,8 @@ $.widget( 'wikibase.entityview', PARENT, {
 	},
 
 	_initFingerprints: function() {
+		var self = this;
+
 		if( !this.options.languages.length ) {
 			return;
 		}
@@ -204,22 +205,35 @@ $.widget( 'wikibase.entityview', PARENT, {
 			}
 
 			this.$fingerprints = $( '<div/>' ).insertAfter( $precedingNode );
+		} else {
+			// Scrape languages from static HTML:
+			// FIXME: Currently, this simply overrules the languages options.
+			self.options.languages = [];
+			this.$fingerprints.find( '.wikibase-fingerprintview' ).each( function() {
+				$.each( $( this ).attr( 'class' ).split( ' ' ), function() {
+					if( this.indexOf( 'wikibase-fingerprintview-' ) === 0 ) {
+						self.options.languages.push(
+							this.split( 'wikibase-fingerprintview-' )[1]
+						);
+						return false;
+					}
+				} );
+			} );
 		}
 
 		var fingerprint = this.options.value.getFingerprint(),
-			value = [],
-			nextValue;
+			value = [];
+
 		for( var i = 0; i < this.options.languages.length; i++ ) {
-			nextValue = {
+			value.push( {
 				language: this.options.languages[i],
 				label: fingerprint.getLabelFor( this.options.languages[i] )
 					|| new wb.datamodel.Term( this.options.languages[i], '' ),
-				description: fingerprint.getDescriptionFor( this.options.languages[i] ),
+				description: fingerprint.getDescriptionFor( this.options.languages[i] )
+					|| new wb.datamodel.Term( this.options.languages[i], '' ),
 				aliases: fingerprint.getAliasesFor( this.options.languages[i] )
 					|| new wb.datamodel.MultiTerm( this.options.languages[i], [] )
-			};
-			nextValue.description = nextValue.description ? nextValue.description.getText() : null;
-			value.push( nextValue );
+			} );
 		}
 
 		this.$fingerprints.fingerprintgroupview( {
@@ -239,6 +253,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 		this.$claims
 		.claimgrouplistview( {
 			value: this.options.value.getStatements(),
+			dataTypeStore: this.option( 'dataTypeStore' ),
 			entityType: this.options.value.getType(),
 			entityStore: this.options.entityStore,
 			valueViewBuilder: this.options.valueViewBuilder,
@@ -316,10 +331,6 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'sitelinkgroupviewafterstartediting.' + this.widgetName
 		].join( ' ' ),
 		function( event ) {
-			var widgetName = event.type.replace( /afterstartediting/, '' );
-
-			self._disable( $( event.target ).data( widgetName ) );
-
 			self._trigger( 'afterstartediting' );
 		} );
 
@@ -337,25 +348,8 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'sitelinkgroupviewafterstopediting.' + this.widgetName
 		].join( ' ' ),
 		function( event, dropValue ) {
-			self.enable();
-
 			self._trigger( 'afterstopediting', null, [dropValue] );
 		} );
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.disable
-	 *
-	 * @param {jQuery.Widget} [exceptWidget]
-	 */
-	_disable: function( exceptWidget ) {
-		if( exceptWidget ) {
-			this._setState( 'disable' );
-			exceptWidget.enable();
-			return;
-		}
-
-		this.disable();
 	},
 
 	/**

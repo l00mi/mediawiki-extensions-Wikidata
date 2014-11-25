@@ -4,16 +4,16 @@ namespace Wikibase;
 
 use ParserOutput;
 use Site;
-use SiteStore;
+use SiteList;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
-use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
+use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
+use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
-use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 
 /**
  * @todo split this up and find a better home for stuff that adds
@@ -29,9 +29,9 @@ use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 class LangLinkHandler {
 
 	/**
-	 * @var OtherProjectsSidebarGenerator
+	 * @var OtherProjectsSidebarGeneratorFactory
 	 */
-	private $otherProjectsSidebarGenerator;
+	private $otherProjectsSidebarGeneratorFactory;
 
 	/**
 	 * @var LanguageLinkBadgeDisplay
@@ -59,9 +59,9 @@ class LangLinkHandler {
 	private $entityLookup;
 
 	/**
-	 * @var SiteStore
+	 * @var SiteList
 	 */
-	private $siteStore;
+	private $sites;
 
 	/**
 	 * @var string
@@ -74,32 +74,32 @@ class LangLinkHandler {
 	private $itemIds;
 
 	/**
-	 * @param OtherProjectsSidebarGenerator $otherProjectsSidebarGenerator
+	 * @param OtherProjectsSidebarGeneratorFactory $otherProjectsSidebarGeneratorFactory
 	 * @param LanguageLinkBadgeDisplay $badgeDisplay
 	 * @param string $siteId The global site ID for the local wiki
 	 * @param NamespaceChecker $namespaceChecker determines which namespaces wikibase is enabled on
 	 * @param SiteLinkLookup $siteLinkLookup A site link lookup service
 	 * @param EntityLookup $entityLookup An entity lookup service
-	 * @param SiteStore $siteStore A site definition lookup service
+	 * @param SiteList $sites
 	 * @param string $siteGroup The ID of the site group to use for showing language links.
 	 */
 	public function __construct(
-		OtherProjectsSidebarGenerator $otherProjectsSidebarGenerator,
+		OtherProjectsSidebarGeneratorFactory $otherProjectsSidebarGeneratorFactory,
 		LanguageLinkBadgeDisplay $badgeDisplay,
 		$siteId,
 		NamespaceChecker $namespaceChecker,
 		SiteLinkLookup $siteLinkLookup,
 		EntityLookup $entityLookup,
-		SiteStore $siteStore,
+		SiteList $sites,
 		$siteGroup
 	) {
-		$this->otherProjectsSidebarGenerator = $otherProjectsSidebarGenerator;
+		$this->otherProjectsSidebarGeneratorFactory = $otherProjectsSidebarGeneratorFactory;
 		$this->badgeDisplay = $badgeDisplay;
 		$this->siteId = $siteId;
 		$this->namespaceChecker = $namespaceChecker;
 		$this->siteLinkLookup = $siteLinkLookup;
 		$this->entityLookup = $entityLookup;
-		$this->siteStore = $siteStore;
+		$this->sites = $sites;
 		$this->siteGroup = $siteGroup;
 	}
 
@@ -175,7 +175,7 @@ class LangLinkHandler {
 
 		foreach ( $links as $link ) {
 			$siteId = $link->getSiteId();
-			$site = $this->siteStore->getSite( $siteId );
+			$site = $this->sites->getSite( $siteId );
 
 			if ( !$site ) {
 				continue;
@@ -253,10 +253,8 @@ class LangLinkHandler {
 				return array();
 			}
 
-			$siteList = $this->siteStore->getSites();
-
-			if ( $siteList->hasNavigationId( $code ) ) {
-				$site = $siteList->getSiteByNavigationId( $code );
+			if ( $this->sites->hasNavigationId( $code ) ) {
+				$site = $this->sites->getSiteByNavigationId( $code );
 				$wiki = $site->getGlobalId();
 				unset( $repoLinks[$wiki] );
 			}
@@ -284,14 +282,14 @@ class LangLinkHandler {
 		wfProfileIn( __METHOD__ );
 
 		foreach ( $repoLinks as $wiki => $link ) {
-			$site = $this->siteStore->getSite( $wiki );
-
-			if ( $site === null ) {
+			if ( !$this->sites->hasSite( $wiki ) ) {
 				wfDebugLog( __CLASS__, __FUNCTION__ . ': skipping link to unknown site ' . $wiki );
 
 				unset( $repoLinks[$wiki] );
 				continue;
 			}
+
+			$site = $this->sites->getSite( $wiki );
 
 			if ( !in_array( $site->getGroup(), $allowedGroups ) ) {
 				wfDebugLog( __CLASS__, __FUNCTION__ . ': skipping link to other group: ' . $wiki
@@ -342,10 +340,8 @@ class LangLinkHandler {
 				$lang = $parts[0];
 				$page = $parts[1];
 
-				$siteList = $this->siteStore->getSites();
-
-				if ( $siteList->hasNavigationId( $lang ) ) {
-					$site = $siteList->getSiteByNavigationId( $lang );
+				if ( $this->sites->hasNavigationId( $lang ) ) {
+					$site = $this->sites->getSiteByNavigationId( $lang );
 					$wiki = $site->getGlobalId();
 					$links[$wiki] = $page;
 				} else {
@@ -433,7 +429,7 @@ class LangLinkHandler {
 	private function addLinksToOutput( array $links, ParserOutput $out ) {
 		foreach ( $links as $siteId => $siteLink ) {
 			$page = $siteLink->getPageName();
-			$targetSite = $this->siteStore->getSite( $siteId );
+			$targetSite = $this->sites->getSite( $siteId );
 
 			if ( !$targetSite ) {
 				wfLogWarning( "Unknown wiki '$siteId' used as sitelink target" );
@@ -484,7 +480,7 @@ class LangLinkHandler {
 			$out->setProperty( 'wikibase_item', $itemId->getSerialization() );
 
 			$usageAccumulator = new ParserOutputUsageAccumulator( $out );
-			$usageAccumulator->addSitelinksUsage( $itemId );
+			$usageAccumulator->addSiteLinksUsage( $itemId );
 		} else {
 			$out->unsetProperty( 'wikibase_item' );
 		}
@@ -500,7 +496,10 @@ class LangLinkHandler {
 		$itemId = $this->getItemIdForTitle( $title );
 
 		if ( $itemId ) {
-			$otherProjects = $this->otherProjectsSidebarGenerator->buildProjectLinkSidebar( $title );
+			$otherProjectsSidebarGenerator = $this->otherProjectsSidebarGeneratorFactory->
+				getOtherProjectsSidebarGenerator();
+
+			$otherProjects = $otherProjectsSidebarGenerator->buildProjectLinkSidebar( $title );
 			$out->setExtensionData( 'wikibase-otherprojects-sidebar', $otherProjects );
 		} else {
 			$out->setExtensionData( 'wikibase-otherprojects-sidebar', array() );

@@ -19,17 +19,17 @@ class UnDeserializableValue extends DataValueObject {
 	/**
 	 * @var mixed
 	 */
-	protected $data;
+	private $data;
 
 	/**
 	 * @var string
 	 */
-	protected $type;
+	private $type;
 
 	/**
 	 * @var string
 	 */
-	protected $error;
+	private $error;
 
 	/**
 	 * @since 0.1
@@ -158,7 +158,7 @@ class UnDeserializableValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return string|float|int
+	 * @return int Always 0 in this implementation.
 	 */
 	public function getSortKey() {
 		return 0;
@@ -183,19 +183,20 @@ class UnDeserializableValue extends DataValueObject {
 	 *
 	 * @param mixed $value
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $value ) {
-		if ( !is_object( $value ) ) {
+		if ( $value === $this ) {
+			return true;
+		}
+
+		if ( !( $value instanceof self ) ) {
 			return false;
 		}
 
-		return $value === $this ||
-			( $value instanceof  UnDeserializableValue
-				&& $value->data === $this->data
-				&& $value->type === $this->type
-				&& $value->error === $this->error
-			);
+		return $value->data === $this->data
+			&& $value->type === $this->type
+			&& $value->error === $this->error;
 	}
 
 }

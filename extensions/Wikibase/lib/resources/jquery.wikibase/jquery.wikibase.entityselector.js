@@ -25,10 +25,10 @@
  *         Number of results to query the API for.
  *         Default value: null (will pick limit specified server-side)
  *
- * @option {boolean} caseInsensitive
+ * @option {boolean} caseSensitive
  *         Whether the widget shall consider letter case when determining if the first suggestion
  *         matches with the current input triggering the "select" mechanism.
- *         Default: true
+ *         Default: false
  *
  * @option {number} timeout
  *         Default AJAX timeout in milliseconds.
@@ -99,7 +99,7 @@
 			language: ( IS_MW_CONTEXT ) ? mw.config.get( 'wgUserLanguage' ) : null,
 			type: 'item',
 			limit: null,
-			caseInsensitive: true,
+			caseSensitive: false,
 			timeout: 8000,
 			messages: {
 				'aliases-label': mwMsgOrString( 'wikibase-aliases-label', 'also known as:' ),
@@ -149,29 +149,10 @@
 			this.options.menu.element.addClass( 'ui-entityselector-list' );
 
 			this.element
-			.on( 'eachchange.' + this.widgetName, function( event, previousValue ) {
-				self._cache = {};
-
-				self._select( null );
-
-				clearTimeout( self.__searching );
-				self.search( event )
-				.done( function( suggestions, requestTerm ) {
-					if( suggestions.length === 0 || self.element.val() !== requestTerm ) {
-						return;
-					}
-
-					if(
-						suggestions[0].label === requestTerm
-						|| self.options.caseInsensitive
-							&& suggestions[0].label.toLowerCase() === requestTerm.toLowerCase()
-					) {
-						self._select( suggestions[0] );
-					}
-				} );
+			.off( 'blur' )
+			.on( 'eachchange.' + this.widgetName, function( event ) {
+				self._search( event );
 			} );
-
-			this.element.off( 'blur' );
 		},
 
 		/**
@@ -183,6 +164,34 @@
 			this._cache = {};
 
 			$.ui.suggester.prototype.destroy.call( this );
+		},
+
+		/**
+		 * @param {jQuery.Event} event
+		 */
+		_search: function( event ) {
+			var self = this;
+
+			this._cache = {};
+			this._select( null );
+
+			clearTimeout( this.__searching );
+			this.__searching = setTimeout( function() {
+				self.search( event )
+				.done( function( suggestions, requestTerm ) {
+					if( !suggestions.length || self.element.val() !== requestTerm ) {
+						return;
+					}
+
+					var label = suggestions[0].label || suggestions[0].id;
+					if( label === requestTerm
+						|| !self.options.caseSensitive
+							&& label.toLowerCase() === requestTerm.toLowerCase()
+					) {
+						self._select( suggestions[0] );
+					}
+				} );
+			}, this.options.delay );
 		},
 
 		/**
@@ -314,7 +323,7 @@
 					&& !( item instanceof $.ui.ooMenu.CustomItem )
 				) {
 					if(
-						self.options.caseInsensitive
+						!self.options.caseSensitive
 						&& item.getValue().toLowerCase() === self._term.toLowerCase()
 					) {
 						self._term = item.getValue();

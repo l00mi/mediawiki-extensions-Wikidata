@@ -1,11 +1,12 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Client\Tests\Scribunto;
 
+use Parser;
+use ParserOptions;
 use Scribunto;
 use Scribunto_LuaWikibaseEntityLibrary;
 use Title;
-use Wikibase\Client\Scribunto\Test\Scribunto_LuaWikibaseLibraryTestCase;
 use Wikibase\Client\WikibaseClient;
 
 /**
@@ -20,9 +21,10 @@ use Wikibase\Client\WikibaseClient;
  * @author Marius Hoch < hoo@online.de >
  */
 class Scribunto_LuaWikibaseEntityLibraryTest extends Scribunto_LuaWikibaseLibraryTestCase {
+
 	protected static $moduleName = 'LuaWikibaseEntityLibraryTests';
 
-	function getTestModules() {
+	protected function getTestModules() {
 		return parent::getTestModules() + array(
 			'LuaWikibaseEntityLibraryTests' => __DIR__ . '/LuaWikibaseEntityLibraryTests.lua',
 		);
@@ -69,8 +71,13 @@ class Scribunto_LuaWikibaseEntityLibraryTest extends Scribunto_LuaWikibaseLibrar
 	}
 
 	private function newScribuntoLuaWikibaseLibrary() {
+		$title =  Title::newFromText( 'Whatever' );
+		$parser = new Parser();
+		$parser->startExternalParse( $title, new ParserOptions(), Parser::OT_HTML );
+
 		$engine = Scribunto::newDefaultEngine( array(
-			'title' => Title::newFromText( 'Whatever' )
+			'parser' => $parser,
+			'title' => $title
 		) );
 		$engine->load();
 

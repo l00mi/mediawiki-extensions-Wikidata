@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Client\Tests\DataAccess\PropertyParserFunction;
 
 use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\DataAccess\PropertyParserFunction\VariantsAwareRenderer;
@@ -33,7 +33,7 @@ class VariantsAwareRendererTest extends \PHPUnit_Framework_TestCase {
 			->method( 'addAllUsage' );
 
 		$mock->expects( $this->never() )
-			->method( 'addSitelinksUsage' );
+			->method( 'addSiteLinksUsage' );
 
 		return $mock;
 	}

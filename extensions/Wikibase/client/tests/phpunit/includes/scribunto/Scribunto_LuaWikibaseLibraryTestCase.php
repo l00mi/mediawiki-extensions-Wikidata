@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Client\Scribunto\Test;
+namespace Wikibase\Client\Tests\Scribunto;
 
 if ( !class_exists( 'Scribunto_LuaEngineTestBase' ) ) {
 	// This needs Scribunto
@@ -100,7 +100,7 @@ abstract class Scribunto_LuaWikibaseLibraryTestCase extends \Scribunto_LuaEngine
 		parent::setUp();
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		parent::tearDown();
 
 		$wikibaseClient = WikibaseClient::getDefaultInstance( 'reset' );

@@ -4,7 +4,6 @@ namespace Wikibase\Test\Entity;
 
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
-use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Diff\EntityDiff;
@@ -428,31 +427,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( count( $entity->getClaims() ) !== 0, $has );
 	}
 
-	/**
-	 * Tests Entity::newClaim
-	 *
-	 * @dataProvider instanceProvider
-	 *
-	 * @param Entity $entity
-	 */
-	public function testNewClaim( Entity $entity ) {
-		if ( $entity->getId() === null ) {
-			$entity->setId( 50 );
-		}
-
-		$snak = new PropertyNoValueSnak( 42 );
-		$claim = new Statement( new Claim( $snak ) );
-		$claim->setGuid( 'q42$foobarbaz' );
-
-		$this->assertInstanceOf( 'Wikibase\DataModel\Claim\Claim', $claim );
-
-		$this->assertTrue( $snak->equals( $claim->getMainSnak() ) );
-
-		$guid = $claim->getGuid();
-
-		$this->assertInternalType( 'string', $guid );
-	}
-
 	public function diffProvider() {
 		$argLists = array();
 
@@ -605,8 +579,8 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 					new Term( 'en', 'foo' ),
 					new Term( 'de', 'bar' ),
 				) ),
-				new TermList( array() ),
-				new AliasGroupList( array() )
+				new TermList(),
+				new AliasGroupList()
 			),
 			$entity->getFingerprint()
 		);

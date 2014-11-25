@@ -3,9 +3,13 @@
 namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
+use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
-use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Term\Fingerprint;
 
 /**
  * Represents a single Wikibase property.
@@ -136,22 +140,19 @@ class Property extends Entity implements StatementListProvider {
 	 *
 	 * @since 0.1
 	 *
-	 * @param mixed $that
+	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function equals( $that ) {
-		if ( $this === $that ) {
+	public function equals( $target ) {
+		if ( $this === $target ) {
 			return true;
 		}
 
-		if ( !( $that instanceof self ) ) {
-			return false;
-		}
-
-		return $this->dataTypeId === $that->dataTypeId
-			&& $this->fingerprint->equals( $that->fingerprint )
-			&& $this->statements->equals( $that->statements );
+		return $target instanceof self
+			&& $this->dataTypeId === $target->dataTypeId
+			&& $this->fingerprint->equals( $target->fingerprint )
+			&& $this->statements->equals( $target->statements );
 	}
 
 	/**
@@ -160,10 +161,11 @@ class Property extends Entity implements StatementListProvider {
 	 *
 	 * @since 0.1
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isEmpty() {
-		return $this->fingerprint->isEmpty() && $this->statements->isEmpty();
+		return $this->fingerprint->isEmpty()
+			&& $this->statements->isEmpty();
 	}
 
 	/**
@@ -201,6 +203,61 @@ class Property extends Entity implements StatementListProvider {
 	 */
 	public function setStatements( StatementList $statements ) {
 		$this->statements = $statements;
+	}
+
+	/**
+	 * @deprecated since 1.0, use getStatements instead
+	 *
+	 * @return Statement[]
+	 */
+	public function getClaims() {
+		return $this->statements->toArray();
+	}
+
+	/**
+	 * @deprecated since 1.0, use setStatements instead
+	 *
+	 * @param Claims $claims
+	 */
+	public function setClaims( Claims $claims ) {
+		$this->statements = new StatementList( iterator_to_array( $claims ) );
+	}
+
+	/**
+	 * @deprecated since 1.0, use getStatements instead
+	 *
+	 * @return bool
+	 */
+	public function hasClaims() {
+		return !$this->statements->isEmpty();
+	}
+
+	/**
+	 * @deprecated since 1.0
+	 *
+	 * @param Snak $mainSnak
+	 *
+	 * @return Statement
+	 */
+	public function newClaim( Snak $mainSnak ) {
+		return new Statement( new Claim( $mainSnak ) );
+	}
+
+	/**
+	 * @deprecated since 1.0, use getStatements instead
+	 *
+	 * @param Claim $statement This needs to be a Statement as of 1.0
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function addClaim( Claim $statement ) {
+		if ( !( $statement instanceof Statement ) ) {
+			throw new InvalidArgumentException( '$statement must be an instance of Statement' );
+		} elseif ( $statement->getGuid() === null ) {
+			throw new InvalidArgumentException( 'Can\'t add a Claim without a GUID.' );
+		}
+
+		$this->statements->addStatement( $statement );
 	}
 
 }

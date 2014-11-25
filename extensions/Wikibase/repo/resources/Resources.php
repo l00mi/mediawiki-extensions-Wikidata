@@ -1,4 +1,7 @@
 <?php
+
+use Wikibase\Repo\WikibaseRepo;
+
 /**
  * Wikibase Repo ResourceLoader modules
  *
@@ -11,19 +14,66 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	preg_match(
-		'+' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
-			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
-		__DIR__,
-		$remoteExtPathParts
-	);
+	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
+
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1],
+		'remoteExtPath' => '..' . $remoteExtPath[0],
 		'position' => 'top' // reducing the time between DOM construction and JS initialisation
 	);
 
 	$modules = array(
+
+		'jquery.removeClassByRegex' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery/jquery.removeClassByRegex.js',
+			),
+		),
+
+		'jquery.sticknode' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery/jquery.sticknode.js',
+			),
+			'dependencies' => array(
+				'jquery.util.EventSingletonManager',
+			),
+		),
+
+		'jquery.util.EventSingletonManager' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery/jquery.util.EventSingletonManager.js',
+			),
+			'dependencies' => array(
+				'jquery.throttle-debounce',
+			),
+		),
+
+		'jquery.ui.tagadata' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.ui/jquery.ui.tagadata.js',
+			),
+			'styles' => array(
+				'jquery.ui/jquery.ui.tagadata.css',
+			),
+			'dependencies' => array(
+				'jquery.event.special.eachchange',
+				'jquery.effects.blind',
+				'jquery.inputautoexpand',
+				'jquery.ui.widget',
+			),
+		),
+
+		'jquery.ui.EditableTemplatedWidget' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.ui/jquery.ui.EditableTemplatedWidget.js',
+			),
+			'dependencies' => array(
+				'jquery.ui.TemplatedWidget',
+				'util.inherit',
+				'wikibase.templates',
+			),
+		),
 
 		'jquery.ui.TemplatedWidget' => $moduleTemplate + array(
 			'scripts' => array(
@@ -50,9 +100,57 @@ return call_user_func( function() {
 			),
 		),
 
+		'mw.config.values.wbDataTypes' => $moduleTemplate + array(
+			'class' => 'DataTypes\DataTypesModule',
+			'datatypefactory' => function() {
+				return WikibaseRepo::getDefaultInstance()->getDataTypeFactory();
+			},
+			'datatypesconfigvarname' => 'wbDataTypes',
+		),
+
+		'wikibase.dataTypes' => $moduleTemplate + array(
+			'scripts' => array(
+				'dataTypes/wikibase.dataTypes.js',
+			),
+			'dependencies' => array(
+				'dataTypes.DataType',
+				'dataTypes.DataTypeStore',
+				'mw.config.values.wbDataTypes',
+				'wikibase',
+			),
+		),
+
+		'wikibase.getLanguageNameByCode' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.getLanguageNameByCode.js'
+			),
+			'dependencies' => array(
+				'wikibase'
+			)
+		),
+
+		'wikibase.RevisionStore' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.RevisionStore.js',
+			),
+			'dependencies' => array(
+				'wikibase'
+			)
+		),
+
 		'wikibase.templates' => $moduleTemplate + array(
 			'class' => 'Wikibase\TemplateModule',
 			'scripts' => 'templates.js',
+		),
+
+		'wikibase.ValueViewBuilder' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.ValueViewBuilder.js',
+			),
+			'dependencies' => array(
+				'wikibase',
+				'jquery.valueview',
+			),
 		),
 
 		'wikibase.ui.entityViewInit' => $moduleTemplate + array(
@@ -71,11 +169,11 @@ return call_user_func( function() {
 				'wikibase.api.getLocationAgnosticMwApi',
 				'wikibase.dataTypes',
 				'wikibase.entityChangers.EntityChangersFactory',
-				'wikibase.experts',
+				'wikibase.experts.getStore',
 				'wikibase.formatters.getStore',
 				'wikibase.EntityInitializer',
 				'wikibase.parsers.getStore',
-				'wikibase.RepoApi',
+				'wikibase.api.RepoApi',
 				'wikibase.RevisionStore',
 				'wikibase.serialization.EntityDeserializer',
 				'wikibase.sites',
@@ -175,12 +273,21 @@ return call_user_func( function() {
 	);
 
 	if ( defined( 'ULS_VERSION' ) ) {
+		$modules['wikibase.getLanguageNameByCode']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.initTermBox']['dependencies'][] = 'ext.uls.displaysettings';
 		$modules['wikibase.initTermBox']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.itemDisambiguation']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
 	}
 
-	return $modules;
+	return array_merge(
+		$modules,
+		include( __DIR__ . '/entityChangers/resources.php' ),
+		include( __DIR__ . '/experts/resources.php' ),
+		include( __DIR__ . '/formatters/resources.php' ),
+		include( __DIR__ . '/parsers/resources.php' ),
+		include( __DIR__ . '/store/resources.php' ),
+		include( __DIR__ . '/utilities/resources.php' )
+	);
 } );
 // @codeCoverageIgnoreEnd

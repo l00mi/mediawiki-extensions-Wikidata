@@ -30,13 +30,18 @@
 	 *        input elements for user interaction.
 	 * @param {wb.store.EntityStore} entityStore
 	 * @param {wb.ValueViewBuilder} valueViewBuilder
+	 * @param {dataTypes.DataTypeStore} dataTypeStore
 	 *
 	 * @event afterdraw: Triggered on the Variation object after drawing the variation.
 	 *        (1) {jQuery.Event}
 	 */
-	var SELF = $.wikibase.snakview.variations.Variation =
-		function WbSnakviewVariationsVariation( viewState, $viewPort, entityStore, valueViewBuilder )
-	{
+	var SELF = $.wikibase.snakview.variations.Variation = function WbSnakviewVariationsVariation(
+		viewState,
+		$viewPort,
+		entityStore,
+		valueViewBuilder,
+		dataTypeStore
+	) {
 		if( !( viewState instanceof $.wikibase.snakview.ViewState ) ) {
 			throw new Error( 'No ViewState object was provided to the snakview variation' );
 		}
@@ -47,6 +52,7 @@
 		this._entityStore = entityStore;
 		this._valueViewBuilder = valueViewBuilder;
 		this._viewState = viewState;
+		this._dataTypeStore = dataTypeStore;
 
 		this.$viewPort = $viewPort;
 		this.$viewPort.addClass( this.variationBaseClass );
@@ -92,6 +98,11 @@
 		_viewState: null,
 
 		/**
+		 * @type {dataTypes.DataTypeStore}
+		 */
+		_dataTypeStore: null,
+
+		/**
 		 * Will be called initially for new variation instances.
 		 *
 		 * @since 0.4
@@ -128,9 +139,10 @@
 		 * @since 0.4
 		 *
 		 * @param {Object} [value]
-		 * @return {Object|undefined} Plain Object with parts of the Snak specific to the variation's
-		 *         kind of Snak. Equivalent to what wb.datamodel.Snak.toMap() would return, just without the
-		 *         basic fields 'snaktype' and 'property'.
+		 * @return {Object|undefined} Plain Object with parts of the Snak specific to the
+		 *         variation's kind of Snak. Equivalent to what the serialize() function of
+		 *         wb.serialization.SnakSerializer would return, just without the basic fields
+		 *         'snaktype' and 'property'.
 		 *         undefined in case value() is called to set the value.
 		 */
 		value: function( value ) {
@@ -143,11 +155,12 @@
 		/**
 		 * Setter for value(). Does not trigger draw() but value( value ) will trigger draw().
 		 * Receives an Object which holds fields of the part of the Snak the variation is handling.
-		 * The fields are the same as wb.datamodel.Snak.toMap() would provide them. The 'property' and
-		 * 'snaktype' fields will not be provided, they can be received per viewState().property()
-		 * and viewState().snakType() if necessary. If a field is missing, this means that the
-		 * aspect of the Snak has not been defined yet, the view should then display a useful
-		 * message or, in edit-mode, show empty input forms for user interaction.
+		 * The fields are the same as wb.serialization.SnakSerializer.serialize() would provide
+		 * them.
+		 * The 'property' and 'snaktype' fields will not be provided, they can be received per
+		 * viewState().property() and viewState().snakType() if necessary. A missing field implies
+		 * that the aspect of the Snak has not been defined yet. Then, the view should display a
+		 * useful message or, in edit-mode, show empty input forms for user interaction.
 		 *
 		 * @since 0.4
 		 *
@@ -157,8 +170,9 @@
 
 		/**
 		 * Getter for value(). Should return the aspects of the Snak which the variation is taking
-		 * care of. Should be an Object with fields as the toMap() function of the related Snak
-		 * would return. For aspects of the Snak not defined yet, the related field should hold null.
+		 * care of. Should be an Object with fields as the serialize() function of
+		 * wb.serialization.SnakSerializer would return. For aspects of the Snak not defined yet,
+		 * the related field should hold null.
 		 *
 		 * @since 0.4
 		 *
@@ -181,7 +195,9 @@
 		/**
 		 * Start the variation's edit mode.
 		 */
-		startEditing: function() {},
+		startEditing: function() {
+			$( this ).triggerHandler( 'afterstartediting' );
+		},
 
 		/**
 		 * Stops the variation's edit mode.

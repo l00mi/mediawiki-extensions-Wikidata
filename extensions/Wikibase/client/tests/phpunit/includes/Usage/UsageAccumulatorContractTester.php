@@ -1,10 +1,10 @@
 <?php
 namespace Wikibase\Client\Usage\Tests;
 
-use Wikibase\Client\Usage\EntityUsage;
-use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\Client\Usage\UsageAccumulator;
 use PHPUnit_Framework_Assert as Assert;
+use Wikibase\Client\Usage\EntityUsage;
+use Wikibase\Client\Usage\UsageAccumulator;
+use Wikibase\DataModel\Entity\ItemId;
 
 /**
  * Contract tester for implementations of the UsageAccumulator interface
@@ -31,7 +31,7 @@ class UsageAccumulatorContractTester  {
 		$q2 = new ItemId( 'Q2' );
 		$q3 = new ItemId( 'Q3' );
 
-		$this->usageAccumulator->addSitelinksUsage( $q2 );
+		$this->usageAccumulator->addSiteLinksUsage( $q2 );
 		$this->usageAccumulator->addLabelUsage( $q2 );
 		$this->usageAccumulator->addPageUsage( $q2 );
 		$this->usageAccumulator->addAllUsage( $q3 );

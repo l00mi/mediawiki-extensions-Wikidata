@@ -81,11 +81,12 @@ abstract class EntityView {
 	 * @since 0.1
 	 *
 	 * @param EntityRevision $entityRevision the entity to render
+	 * @param array obtained from EntityInfoBuilder::getEntityInfo
 	 * @param bool $editable whether editing is allowed (enabled edit links)
 	 *
 	 * @return string HTML
 	 */
-	public function getHtml( EntityRevision $entityRevision, $editable = true ) {
+	public function getHtml( EntityRevision $entityRevision, array $entityInfo, $editable = true ) {
 		$entity = $entityRevision->getEntity();
 
 		//NOTE: even though $editable is unused at the moment, we will need it for the JS-less editing model.
@@ -97,7 +98,8 @@ abstract class EntityView {
 			$entityId,
 			$this->language->getCode(),
 			$this->language->getDir(),
-			$this->getInnerHtml( $entityRevision, $editable )
+			$this->getMainHtml( $entityRevision, $entityInfo, $editable ),
+			$this->getSideHtml( $entityRevision, $editable )
 		);
 
 		if ( $editable ) {
@@ -128,16 +130,18 @@ if ( $ ) {
 	}
 
 	/**
-	 * Builds and returns the inner HTML for representing a whole WikibaseEntity. The difference to getHtml() is that
-	 * this does not group all the HTMl within one parent node as one entity.
+	 * Builds and returns the HTML to be put into the main container of an entity's HTML structure.
 	 *
 	 * @param EntityRevision $entityRevision
+	 * @param array obtained from EntityInfoBuilder::getEntityInfo
 	 * @param bool $editable
 	 *
 	 * @throws InvalidArgumentException
 	 * @return string
 	 */
-	protected function getInnerHtml( EntityRevision $entityRevision, $editable = true ) {
+	protected function getMainHtml( EntityRevision $entityRevision, array $entityInfo,
+		$editable = true
+	) {
 		wfProfileIn( __METHOD__ );
 
 		$entity = $entityRevision->getEntity();
@@ -148,6 +152,17 @@ if ( $ ) {
 
 		wfProfileOut( __METHOD__ );
 		return $html;
+	}
+
+	/**
+	 * Builds and Returns HTML to put into the sidebar of the entity's HTML structure.
+	 *
+	 * @param EntityRevision $entityRevision
+	 * @param bool $editable
+	 * @return string
+	 */
+	protected function getSideHtml( EntityRevision $entityRevision, $editable = true ) {
+		return '';
 	}
 
 	/**

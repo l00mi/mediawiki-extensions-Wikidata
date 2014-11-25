@@ -22,13 +22,12 @@ use Wikibase\Settings;
  */
 class SqlEntityInfoBuilderTest extends EntityInfoBuilderTest {
 
+	/**
+	 * @var bool
+	 */
 	private $useRedirectTargetColumn;
 
-	public function __construct( $name = null, $data = array(), $dataName = '' ) {
-		parent::__construct( $name, $data, $dataName );
-	}
-
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		if ( !defined( 'WB_VERSION' ) ) {

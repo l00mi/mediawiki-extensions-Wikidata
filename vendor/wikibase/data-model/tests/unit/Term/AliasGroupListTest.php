@@ -14,8 +14,16 @@ use Wikibase\DataModel\Term\AliasGroupList;
  */
 class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 
+	public function testIsEmpty() {
+		$list = new AliasGroupList();
+		$this->assertTrue( $list->isEmpty() );
+
+		$list = new AliasGroupList( array( new AliasGroup( 'en', array( 'foo' ) ) ) );
+		$this->assertFalse( $list->isEmpty() );
+	}
+
 	public function testGivenNoTerms_sizeIsZero() {
-		$list = new AliasGroupList( array() );
+		$list = new AliasGroupList();
 		$this->assertCount( 0, $list );
 	}
 
@@ -87,23 +95,23 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 		$enGroup = new AliasGroup( 'en', array( 'foo' ) );
 
 		$list = new AliasGroupList( array(
-			new AliasGroup( 'de', array() ),
+			new AliasGroup( 'de' ),
 			$enGroup,
-			new AliasGroup( 'nl', array() ),
+			new AliasGroup( 'nl' ),
 		) );
 
 		$this->assertEquals( $enGroup, $list->getByLanguage( 'en' ) );
 	}
 
 	public function testGivenNonString_getByLanguageThrowsException() {
-		$list = new AliasGroupList( array() );
+		$list = new AliasGroupList();
 
 		$this->setExpectedException( 'InvalidArgumentException' );
 		$list->getByLanguage( null );
 	}
 
 	public function testGivenNonSetLanguageCode_getByLanguageThrowsException() {
-		$list = new AliasGroupList( array() );
+		$list = new AliasGroupList();
 
 		$this->setExpectedException( 'OutOfBoundsException' );
 		$list->getByLanguage( 'en' );
@@ -146,21 +154,21 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 
 		$list->removeByLanguage( 'en' );
 
-		$this->assertEquals( new AliasGroupList( array() ), $list );
+		$this->assertEquals( new AliasGroupList(), $list );
 	}
 
 	public function testGivenEmptyGroups_constructorRemovesThem() {
 		$enGroup = new AliasGroup( 'en', array( 'foo' ) );
 
 		$list = new AliasGroupList( array(
-			new AliasGroup( 'de', array() ),
+			new AliasGroup( 'de' ),
 			$enGroup,
-			new AliasGroup( 'en', array() ),
-			new AliasGroup( 'nl', array() ),
+			new AliasGroup( 'en' ),
+			new AliasGroup( 'nl' ),
 		) );
 
 		$expectedList = new AliasGroupList( array(
-			new AliasGroup( 'en', array() ),
+			new AliasGroup( 'en' ),
 		) );
 
 		$this->assertEquals( $expectedList, $list );
@@ -171,17 +179,17 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 			new AliasGroup( 'en', array( 'foo' ) ),
 		) );
 
-		$expectedList = new AliasGroupList( array() );
+		$expectedList = new AliasGroupList();
 
-		$list->setGroup( new AliasGroup( 'en', array() ) );
-		$list->setGroup( new AliasGroup( 'de', array() ) );
+		$list->setGroup( new AliasGroup( 'en' ) );
+		$list->setGroup( new AliasGroup( 'de' ) );
 
 		$this->assertEquals( $expectedList, $list );
 	}
 
 	public function testEmptyListEqualsEmptyList() {
-		$list = new AliasGroupList( array() );
-		$this->assertTrue( $list->equals( new AliasGroupList( array() ) ) );
+		$list = new AliasGroupList();
+		$this->assertTrue( $list->equals( new AliasGroupList() ) );
 	}
 
 	public function testFilledListEqualsItself() {
@@ -200,7 +208,7 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 			new AliasGroup( 'de', array( 'bar' ) ),
 		) );
 
-		$this->assertFalse( $list->equals( new AliasGroupList( array() ) ) );
+		$this->assertFalse( $list->equals( new AliasGroupList() ) );
 
 		$this->assertFalse( $list->equals(
 			new AliasGroupList( array(
@@ -212,7 +220,7 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenNonAliasGroupList_equalsReturnsFalse() {
-		$list = new AliasGroupList( array() );
+		$list = new AliasGroupList();
 		$this->assertFalse( $list->equals( null ) );
 		$this->assertFalse( $list->equals( new \stdClass() ) );
 	}
@@ -232,7 +240,7 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenNonSetLanguageGroup_hasAliasGroupReturnsFalse() {
-		$list = new AliasGroupList( array() );
+		$list = new AliasGroupList();
 		$this->assertFalse( $list->hasAliasGroup( new AliasGroup( 'en', array( 'kittens' ) ) ) );
 	}
 
@@ -269,6 +277,18 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 
 		$this->setExpectedException( 'InvalidArgumentException' );
 		$list->setAliasesForLanguage( 'en', array( 'foo', null ) );
+	}
+
+	public function testToArray() {
+		$array = array(
+			'en' => new AliasGroup( 'en', array( 'foo' ) ),
+			'de' => new AliasGroup( 'de', array( 'bar' ) ),
+			'nl' => new AliasGroup( 'nl', array( 'baz' ) ),
+		);
+
+		$list = new AliasGroupList( $array );
+
+		$this->assertEquals( $array, $list->toArray() );
 	}
 
 }

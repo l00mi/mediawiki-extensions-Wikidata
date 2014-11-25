@@ -2,9 +2,9 @@
 
 namespace Wikibase;
 
-use Wikibase\Lib\Store\LabelConflictFinder;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\Lib\Store\LabelConflictFinder;
 
 /**
  * Interface to a cache for terms with both write and lookup methods.
@@ -37,11 +37,11 @@ interface TermIndex extends LabelConflictFinder {
 	 *
 	 * @since 0.1
 	 *
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 *
 	 * @return boolean Success indicator
 	 */
-	public function saveTermsOfEntity( Entity $entity );
+	public function saveTermsOfEntity( EntityDocument $entity );
 
 	/**
 	 * Deletes the terms of the provided entity from the term cache.

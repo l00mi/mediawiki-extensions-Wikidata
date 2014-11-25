@@ -58,6 +58,17 @@ class AliasGroupList implements Countable, IteratorAggregate {
 	}
 
 	/**
+	 * The array keys are the language codes of their associated AliasGroup.
+	 *
+	 * @since 2.3
+	 *
+	 * @return AliasGroup[]
+	 */
+	public function toArray() {
+		return $this->groups;
+	}
+
+	/**
 	 * @param string $languageCode
 	 *
 	 * @return AliasGroup
@@ -111,14 +122,16 @@ class AliasGroupList implements Countable, IteratorAggregate {
 	 *
 	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $target ) {
-		if ( !( $target instanceof self ) ) {
-			return false;
+		if ( $this === $target ) {
+			return true;
 		}
 
-		if ( $this->count() !== $target->count() ) {
+		if ( !( $target instanceof self )
+			|| $this->count() !== $target->count()
+		) {
 			return false;
 		}
 
@@ -129,6 +142,15 @@ class AliasGroupList implements Countable, IteratorAggregate {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @since 2.4.0
+	 *
+	 * @return bool
+	 */
+	public function isEmpty() {
+		return empty( $this->groups );
 	}
 
 	/**

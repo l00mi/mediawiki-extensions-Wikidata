@@ -24,6 +24,8 @@
  *
  * @option {wikibase.entityChangers.ClaimsChanger} [claimsChanger] If not passed, claimview does not save.
  *
+ * @option {dataTypes.DataTypeStore} dataTypeStore
+ *
  * @option {number|null} index The claim's index within the list of claims (if the claim is
  *         contained within such a list).
  *         Default: null
@@ -64,7 +66,7 @@
  *
  * @event toggleerror: Triggered when an error occurred or is resolved.
  *        (1) {jQuery.Event} event
- *        (2) {wb.RepoApiError|undefined} wb.RepoApiError object if an error occurred, undefined if
+ *        (2) {wikibase.api.RepoApiError|undefined} RepoApiError object if an error occurred, undefined if
  *            the current error state is resolved.
  */
 $.widget( 'wikibase.claimview', PARENT, {
@@ -88,6 +90,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 			'$qualifiers': '.wb-claim-qualifiers'
 		},
 		value: null,
+		dataTypeStore: null,
 		entityStore: null,
 		valueViewBuilder: null,
 		claimsChanger: null,
@@ -165,14 +168,21 @@ $.widget( 'wikibase.claimview', PARENT, {
 
 		// set up event listeners:
 		this.$mainSnak
-		.on ( 'snakviewchange', function( event, status ) {
-			self._trigger( 'change' );
-		} );
+		.on(
+			[
+				'snakviewchange.' + this.widgetName,
+				'snakviewafterstartediting.' + this.widgetName
+			].join( ' ' ),
+			function( event, status ) {
+				self._trigger( 'change' );
+			}
+		);
 
 		this.$mainSnak.snakview( {
 			value: this.mainSnak() || {},
 			locked: this.option( 'locked' ).mainSnak,
 			autoStartEditing: false, // manually, after toolbar is there, so events can access toolbar
+			dataTypeStore: this.option( 'dataTypeStore' ),
 			entityStore: this.options.entityStore,
 			valueViewBuilder: this.option( 'valueViewBuilder' )
 		} );
@@ -247,6 +257,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 						return {
 							value: value || null,
 							singleProperty: true,
+							dataTypeStore: self.option( 'dataTypeStore' ),
 							entityStore: self.option( 'entityStore' ),
 							valueViewBuilder: self.option( 'valueViewBuilder' )
 						};
@@ -398,30 +409,34 @@ $.widget( 'wikibase.claimview', PARENT, {
 		},
 		// start edit mode if event doesn't prevent default:
 		natively: function( e ) {
-			this.$mainSnak.data( 'snakview' ).startEditing();
+			var self = this;
 
-			if( !this._qualifiers && this._claim ) {
-				this._createQualifiersListview();
-			}
-
-			// Start edit mode of all qualifiers:
-			if( this._qualifiers ) {
-				var snaklistviews = this._qualifiers.value();
-				if ( snaklistviews.length ) {
-					for( var i = 0; i < snaklistviews.length; i++ ) {
-						snaklistviews[i].startEditing();
-					}
+			this.$mainSnak.one( 'snakviewafterstartediting', function() {
+				if( !self._qualifiers && self._claim ) {
+					self._createQualifiersListview();
 				}
-				// If there are no snaklistviews, there is no way for the "add qualifier" toolbar
-				// to be
-				this._qualifiers.element.trigger( 'qualifiersstartediting' );
-			}
+
+				// Start edit mode of all qualifiers:
+				if( self._qualifiers ) {
+					var snaklistviews = self._qualifiers.value();
+					if( snaklistviews.length ) {
+						for( var i = 0; i < snaklistviews.length; i++ ) {
+							snaklistviews[i].startEditing();
+						}
+					}
+					// If there are no snaklistviews, there is no way for the "add qualifier" toolbar
+					// to be
+					self._qualifiers.element.trigger( 'qualifiersstartediting' );
+				}
 
 
-			this.element.addClass( 'wb-edit' );
-			this._isInEditMode = true;
+				self.element.addClass( 'wb-edit' );
+				self._isInEditMode = true;
 
-			this._trigger( 'afterstartediting' );
+				self._trigger( 'afterstartediting' );
+			} );
+
+			this.$mainSnak.data( 'snakview' ).startEditing();
 		}
 	} ),
 
@@ -623,7 +638,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 	 * Sets/removes error state from the widget.
 	 * @since 0.4
 	 *
-	 * @param {wb.RepoApiError} [error]
+	 * @param {wikibase.api.RepoApiError} [error]
 	 */
 	setError: function( error ) {
 		if ( error ) {
@@ -640,6 +655,7 @@ $.widget( 'wikibase.claimview', PARENT, {
 	 */
 	destroy: function() {
 		this.$mainSnak.snakview( 'destroy' );
+		this.$mainSnak.off( '.' + this.widgetName );
 		PARENT.prototype.destroy.call( this );
 	},
 

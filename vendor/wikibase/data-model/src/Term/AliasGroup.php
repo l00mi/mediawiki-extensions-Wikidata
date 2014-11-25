@@ -18,7 +18,14 @@ use InvalidArgumentException;
  */
 class AliasGroup implements Comparable, Countable {
 
+	/**
+	 * @var string
+	 */
 	private $languageCode;
+
+	/**
+	 * @var string[]
+	 */
 	private $aliases;
 
 	/**
@@ -27,7 +34,7 @@ class AliasGroup implements Comparable, Countable {
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct( $languageCode, array $aliases ) {
+	public function __construct( $languageCode, array $aliases = array() ) {
 		$this->setLanguageCode( $languageCode );
 		$this->setAliases( $aliases );
 	}
@@ -91,6 +98,10 @@ class AliasGroup implements Comparable, Countable {
 	 * @return bool
 	 */
 	public function equals( $target ) {
+		if ( $this === $target ) {
+			return true;
+		}
+
 		return $target instanceof self
 			&& $this->languageCode === $target->languageCode
 			&& $this->aliases == $target->aliases;

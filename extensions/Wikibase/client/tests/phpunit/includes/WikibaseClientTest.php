@@ -1,14 +1,14 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Client\Tests;
 
 use Language;
 use MediaWikiSite;
 use SiteStore;
-use ValueFormatters\FormatterOptions;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\SettingsArray;
+use Wikibase\Test\MockSiteStore;
 
 /**
  * @covers Wikibase\Client\WikibaseClient
@@ -156,15 +156,17 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf( 'Wikibase\Client\Hooks\LanguageLinkBadgeDisplay', $returnValue );
 	}
 
-	public function testGetOtherProjectsSidebarGeneratorReturnType() {
+	public function testGetOtherProjectsSidebarGeneratorFactoryReturnType() {
 		$settings = $this->getDefaultInstance()->getSettings();
 
 		$otherProjectsLinks = $settings->getSetting( 'otherProjectsLinks' );
 
 		$settings->setSetting( 'otherProjectsLinks', array( 'my_wiki' ) );
 
-		$returnValue = $this->getDefaultInstance()->getOtherProjectsSidebarGenerator();
-		$this->assertInstanceOf( 'Wikibase\Client\Hooks\OtherProjectsSidebarGenerator', $returnValue );
+		$this->assertInstanceOf(
+			'Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory',
+			$this->getDefaultInstance()->getOtherProjectsSidebarGeneratorFactory()
+		);
 
 		$settings->setSetting( 'otherProjectsLinks', $otherProjectsLinks );
 	}
@@ -200,7 +202,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetChangeHandler() {
 		$handler = $this->getDefaultInstance()->getChangeHandler();
-		$this->assertInstanceOf( 'Wikibase\ChangeHandler', $handler );
+		$this->assertInstanceOf( 'Wikibase\Client\Changes\ChangeHandler', $handler );
 	}
 
 	public function testGetParserFunctionRegistrant() {

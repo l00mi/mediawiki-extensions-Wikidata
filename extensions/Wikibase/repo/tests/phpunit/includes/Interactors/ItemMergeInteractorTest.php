@@ -39,7 +39,7 @@ class ItemMergeInteractorTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private $testHelper = null;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->testHelper = new EntityModificationTestHelper();
@@ -256,7 +256,7 @@ class ItemMergeInteractorTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider mergeProvider
 	 */
-	function testMergeItems( $fromData, $toData, $expectedFrom, $expectedTo, $ignoreConflicts = array() ){
+	public function testMergeItems( $fromData, $toData, $expectedFrom, $expectedTo, $ignoreConflicts = array() ){
 		$interactor = $this->newInteractor();
 
 		$fromId = new ItemId( 'Q1' );
@@ -350,7 +350,6 @@ class ItemMergeInteractorTest extends \PHPUnit_Framework_TestCase {
 			$this->assertEquals( 'failed-modify', $ex->getErrorCode() );
 		}
 	}
-
 
 	public function permissionProvider() {
 		return array(

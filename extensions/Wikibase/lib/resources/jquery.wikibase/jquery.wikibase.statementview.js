@@ -28,6 +28,8 @@
  *
  * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  *
+ * @option {dataTypes.DataTypeStore} dataTypeStore
+ *
  * @option {string} [helpMessage]
  *         End-user message explaining how to use the statementview widget. The message is most
  *         likely to be used inside the tooltip of the toolbar corresponding to the statementview.
@@ -59,6 +61,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		},
 		value: null,
 		claimsChanger: null,
+		dataTypeStore: null,
 		entityChangersFactory: null,
 		predefined: {
 			mainSnak: false
@@ -105,7 +108,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_referencesChanger: null,
 
 	/**
-	 * @see jQuery.TemplatedWidget._create
+	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
 		if(
@@ -156,6 +159,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 							value: value || null,
 							statementGuid: self.value().getClaim().getGuid(),
 							index: index,
+							dataTypeStore: self.option( 'dataTypeStore' ),
 							entityStore: self.option( 'entityStore' ),
 							valueViewBuilder: self.option( 'valueViewBuilder' ),
 							referencesChanger: self._referencesChanger
@@ -243,6 +247,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		var self = this;
 
 		this.$claimview.claimview( {
+			dataTypeStore: this.option( 'dataTypeStore' ),
 			entityStore: this.option( 'entityStore' ),
 			helpMessage: this.option( 'helpMessage' ),
 			predefined: this.option( 'predefined' ),
@@ -257,9 +262,25 @@ $.widget( 'wikibase.statementview', PARENT, {
 		.on( this._claimview.widgetEventPrefix + 'change.' + this.widgetName, function() {
 			self._trigger( 'change' );
 		} )
-		.on( this._claimview.widgetEventPrefix + 'afterstopediting.' + this.widgetName, function( event, dropValue ) {
-			self.stopEditing( dropValue );
-		} );
+		.on(
+			this._claimview.widgetEventPrefix + 'afterstopediting.' + this.widgetName,
+			function( event, dropValue ) {
+				self.stopEditing( dropValue );
+			}
+		)
+		.on( [
+			this._claimview.widgetEventPrefix + 'startediting.' + this.widgetName,
+			this._claimview.widgetEventPrefix + 'afterstartediting.' + this.widgetName,
+			this._claimview.widgetEventPrefix + 'stopediting.' + this.widgetName,
+			this._claimview.widgetEventPrefix + 'afterstopediting.' + this.widgetName,
+			this._claimview.widgetEventPrefix + 'change.' + this.widgetName,
+			this._claimview.widgetEventPrefix + 'toggleerror.' + this.widgetName
+		].join( ' ' ),
+			function( event ) {
+				// Encapsulate claimview.
+				event.stopPropagation();
+			}
+		);
 	},
 
 	/**
@@ -509,8 +530,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		},
 		// start edit mode if custom event handlers didn't prevent default:
 		natively: function( e, dropValue ) {
-			var self = this,
-				claim = this._claimview.value();
+			var self = this;
 
 			this._detachEditModeEventHandlers();
 
@@ -537,14 +557,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			} else {
 				// editing an existing claim
 				this._saveStatementApiCall()
-				.done( function( savedStatement, pageInfo ) {
-					if( !self._statement ) {
-						// statement must be newly entered, create a new statement:
-						self._statement = new wb.datamodel.Statement( claim.getMainSnak() );
-					}
-
-					stopEditing();
-				} )
+				.done( stopEditing )
 				.fail( function( error ) {
 					self.enable();
 
@@ -567,7 +580,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 *         Resolved parameters:
 	 *         - {wikibase.datamodel.Statement} The saved statement
 	 *         Rejected parameters:
-	 *         - {wikibase.RepoApiError}
+	 *         - {wikibase.api.RepoApiError}
 	 */
 	_saveStatementApiCall: function() {
 		var self = this,
@@ -608,19 +621,23 @@ $.widget( 'wikibase.statementview', PARENT, {
 		},
 		// start edit mode if event doesn't prevent default:
 		natively: function( e ) {
+			var self = this;
+
+			this._claimview.element.one( 'claimviewafterstartediting', function() {
+				self.element.addClass( 'wb-edit' );
+				self._isInEditMode = true;
+
+				// FIXME: This should be the responsibility of the rankSelector
+				self._rankSelector.element.addClass( 'ui-state-default' );
+				if( !self._statement ) {
+					self._rankSelector.rank( wb.datamodel.Statement.RANK.NORMAL );
+				}
+				self._rankSelector.enable();
+
+				self._trigger( 'afterstartediting' );
+			} );
+
 			this._claimview.startEditing();
-
-			this.element.addClass( 'wb-edit' );
-			this._isInEditMode = true;
-
-			// FIXME: This should be the responsibility of the rankSelector
-			this._rankSelector.element.addClass( 'ui-state-default' );
-			if( !this._statement ) {
-				this._rankSelector.rank( wb.datamodel.Statement.RANK.NORMAL );
-			}
-			this._rankSelector.enable();
-
-			this._trigger( 'afterstartediting' );
 		}
 	} ),
 
@@ -648,7 +665,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * Sets/removes error state from the widget.
 	 * @since 0.4
 	 *
-	 * @param {wb.RepoApiError} [error]
+	 * @param {wikibase.api.RepoApiError} [error]
 	 */
 	setError: function( error ) {
 		if( error ) {

@@ -5,12 +5,12 @@
 ( function( mw, wb, $ ) {
 	'use strict';
 
-	var PARENT = $.ui.TemplatedWidget;
+	var PARENT = $.ui.EditableTemplatedWidget;
 
 /**
  * Displays and allows editing multiple site links.
  * @since 0.5
- * @extends jQuery.ui.TemplatedWidget
+ * @extends jQuery.ui.EditableTemplatedWidget
  *
  * @option {wikibase.datamodel.SiteLink[]} [value]
  *         Default: []
@@ -22,6 +22,10 @@
  *
  * @option {wikibase.store.EntityStore} entityStore
  *
+ * @option {jQuery.util.EventSingletonManager} [eventSingletonManager]
+ *         Should be set when the widget instance is part of a sitelinkgroupview.
+ *         Default: null (will be constructed automatically)
+ *
  * @option {jQuery} [$counter]
  *         Node(s) that shall contain information about the number of site links.
  *
@@ -29,27 +33,6 @@
  *         Whether to automatically show and add new input fields to add a new value when in edit
  *         mode.
  *         Default: true
- *
- * @event change
- *        - {jQuery.Event}
- *
- * @event afterstartediting
- *       - {jQuery.Event}
- *
- * @event stopediting
- *        - {jQuery.Event}
- *        - {boolean} Whether to drop the value.
- *
- * @event afterstopediting
- *        - {jQuery.Event}
- *        - {boolean} Whether to drop the value.
- *
- * @event afterremove
- *        - {jQuery.Event}
- *
- * @event toggleerror
- *        - {jQuery.Event}
- *        - {Error|null}
  */
 $.widget( 'wikibase.sitelinklistview', PARENT, {
 	options: {
@@ -73,14 +56,15 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		allowedSiteIds: [],
 		siteLinksChanger: null,
 		entityStore: null,
+		eventSingletonManager: null,
 		$counter: null,
 		autoInput: true
 	},
 
 	/**
-	 * @type {boolean}
+	 * @type {jQuery.util.EventSingletonManager}
 	 */
-	_isInEditMode: false,
+	_eventSingletonManager: null,
 
 	/**
 	 * @see jQuery.ui.TemplatedWidget._create
@@ -92,35 +76,19 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 
 		PARENT.prototype._create.call( this );
 
-		this._createListView();
-
-		this.element.addClass( 'wikibase-sitelinklistview' );
-
 		if( this.element.children( 'thead' ).children().length ) {
 			// Initially sort on the site id column.
 			this.element.tablesorter( { sortList: [{ 1: 'asc' }] } );
 		}
 
-		this._refreshCounter();
+		this._eventSingletonManager = this.options.eventSingletonManager
+			|| new $.util.EventSingletonManager();
 
-		if( this.options.autoInput && !this.isFull() ) {
-			var self = this;
-
-			this.element
-			.on( this.widgetEventPrefix + 'afterstartediting', function() {
-				self._updateAutoInput();
-			} );
-		}
-
-		this.$thead.sticknode( {
-			$container: this.element
-		} );
-
-		this._applyStickiness();
+		this.draw();
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.destroy
+	 * @see jQuery.ui.EditableTemplatedWidget.destroy
 	 */
 	destroy: function() {
 		this.$thead.data( 'sticknode' ).destroy();
@@ -128,7 +96,43 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		this.$listview.off( '.' + this.widgetName );
 		this.element.removeData( 'tablesorter' );
 		this.element.removeClass( 'wikibase-sitelinklistview' );
+
+		this._eventSingletonManager.unregister( this, window, '.' + this.widgetName );
+
 		PARENT.prototype.destroy.call( this );
+	},
+
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.draw
+	 */
+	draw: function() {
+		if( !this.$listview.data( 'listview' ) ) {
+			this._createListView();
+		}
+
+		this._refreshCounter();
+
+		if( this.options.autoInput && !this.isFull() ) {
+			var self = this,
+				event = this.widgetEventPrefix + 'afterstartediting.' + this.widgetName,
+				updateAutoInput = function() {
+					self._updateAutoInput();
+				};
+
+			this.element
+			.off( event, updateAutoInput )
+			.on( event, updateAutoInput );
+		}
+
+		if( !this.$thead.data( 'sticknode' ) ) {
+			this.$thead.sticknode( {
+				$container: this.element
+			} );
+
+			this._applyStickiness();
+		}
+
+		return $.Deferred().resolve().promise();
 	},
 
 	/**
@@ -191,31 +195,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				event.stopPropagation();
 			}
 		)
-		.on( 'sitelinkviewstopediting.' + this.widgetName, function( event, dropValue, callback ) {
-			event.stopPropagation();
-
-			var $sitelinkview = $( event.target ),
-				sitelinkview = $sitelinkview.data( 'sitelinkview' ),
-				value = sitelinkview.value();
-
-			if( dropValue || sitelinkview.isInitialValue() ) {
-				callback();
-			} else {
-				sitelinkview.disable();
-
-				self._saveSiteLink( value )
-				.done( function( newSiteLink ) {
-					sitelinkview.value( newSiteLink );
-					callback();
-				} )
-				.fail( function( error ) {
-					sitelinkview.setError( error );
-				} )
-				.always( function() {
-					sitelinkview.enable();
-				} );
-			}
-		} )
 		.on(
 			'listviewitemremoved.' + this.widgetName
 			+ ' listviewitemadded.' + this.widgetName,
@@ -245,11 +224,11 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			self.$thead.find( 'th' ).each( function( i ) {
 				var $th = $( this );
 
-				if( !self._isInEditMode ) {
+				if( !self.isInEditMode() ) {
 					$th.removeAttr( 'style' );
 				}
 
-				if( i === 2 && !self._isInEditMode ) {
+				if( i === 2 && !self.isInEditMode() ) {
 					return;
 				}
 
@@ -408,6 +387,13 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isEmpty
+	 */
+	isEmpty: function() {
+		return !this.$listview.data( 'listview' ).items().length;
+	},
+
+	/**
 	 * @return {boolean}
 	 */
 	isValid: function() {
@@ -434,7 +420,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	/**
-	 * @return {boolean}
+	 * @see jQuery.ui.EditableTemplatedWidget.isInitialValue
 	 */
 	isInitialValue: function() {
 		var currentValue = this.value();
@@ -464,47 +450,94 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		return true;
 	},
 
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.startEditing
+	 */
 	startEditing: function() {
-		if( this._isInEditMode ) {
-			return;
-		}
+		var self = this;
 
-		// Reset sort order before actually switching to edit mode since it should not be done while
-		// in edit mode (see comment in this._refreshTablesorter()).
 		this._refreshTablesorter();
 
-		this._isInEditMode = true;
-		this.element.addClass( 'wb-edit' );
+		this._eventSingletonManager.register(
+			this,
+			window,
+			namespaceEventNames( 'scroll touchmove resize', this.widgetName ),
+			function( event, self ) {
+				self._startEditingInViewport();
+			},
+			{
+				throttle: 150
+			}
+		);
+
+		self._startEditingInViewport();
+
+		return PARENT.prototype.startEditing.call( this );
+	},
+
+	_startEditingInViewport: function() {
+		/**
+		 * @param {HTMLElement} node
+		 * @return {boolean}
+		 */
+		function touchesViewport( node ) {
+			var rect = node.getBoundingClientRect(),
+				$window = $( window ),
+				wHeight = $window.height(),
+				wWidth = $window.width(),
+				touchesViewportHorizontally = rect.right >= 0 && rect.right < wWidth
+					|| rect.left >= 0 && rect.left < wWidth,
+				touchesViewportVertically = rect.top >= 0 && rect.top < wHeight
+					|| rect.bottom >= 0 && rect.bottom < wHeight;
+			return touchesViewportHorizontally && touchesViewportVertically;
+		}
 
 		var listview = this.$listview.data( 'listview' ),
-			lia = listview.listItemAdapter();
+			lia = listview.listItemAdapter(),
+			foundOne = false;
 
-		listview.items().each( function() {
-			var sitelinkview = lia.liInstance( $( this ) );
-			sitelinkview.startEditing();
+		listview.items().each( function( i ) {
+			if( touchesViewport( this ) ) {
+				lia.liInstance( $( this ) ).startEditing();
+				foundOne = true;
+			}
 		} );
-
-		this._trigger( 'afterstartediting' );
+		if( !foundOne && listview.items().length > 0 ) {
+			lia.liInstance( $( listview.items()[0] ) ).startEditing();
+		}
 	},
 
 	/**
-	 * @param {boolean} [dropValue]
+	 * @see jQuery.ui.EditableTemplatedWidget.stopEditing
 	 */
 	stopEditing: function( dropValue ) {
 		var self = this;
 
-		if( !this._isInEditMode || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
-			return;
+		if( dropValue ) {
+			self.$listview.data( 'listview' ).value( self.options.value );
+		} else {
+			this._removeIncompleteSiteLinks();
 		}
 
-		dropValue = !!dropValue;
+		return PARENT.prototype.stopEditing.call( this, dropValue )
+			.done( function() {
+				self.$listview.data( 'listview' ).value( self.value() );
 
-		this._trigger( 'stopediting', null, [dropValue] );
+				self._eventSingletonManager.unregister(
+					self,
+					window,
+					namespaceEventNames( 'scroll touchmove resize', self.widgetName )
+				);
+			} );
+	},
 
-		this.disable();
-		this._removeIncompleteSiteLinks();
-
-		var listview = this.$listview.data( 'listview' ),
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget._save
+	 */
+	_save: function() {
+		var self = this,
+			deferred = $.Deferred(),
+			listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
 		var $queue = $( {} );
@@ -525,52 +558,95 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 					} )
 					.fail( function( error ) {
 						$queue.clearQueue( 'stopediting' );
-						self.setError( error );
 						self._resetEditMode();
+						deferred.reject( error );
 					} );
 			} );
 		}
 
-		if( !dropValue ) {
-			var removedSiteLinkIds = this._getRemovedSiteLinkIds();
+		var removedSiteLinkIds = this._getRemovedSiteLinkIds();
 
-			for( var i = 0; i < removedSiteLinkIds.length; i++ ) {
-				addRemoveToQueue( $queue, removedSiteLinkIds[i] );
-			}
+		for( var i = 0; i < removedSiteLinkIds.length; i++ ) {
+			addRemoveToQueue( $queue, removedSiteLinkIds[i] );
 		}
 
 		/**
 		 * @param {jQuery} $queue
 		 * @param {jQuery.wikibase.sitelinkview} sitelinkview
-		 * @param {boolean} dropValue
 		 */
-		function addStopEditToQueue( $queue, sitelinkview, dropValue ) {
+		function addStopEditToQueue( $queue, sitelinkview ) {
 			$queue.queue( 'stopediting', function( next ) {
 				sitelinkview.element
+				.one( 'sitelinkviewstopediting.sitelinklistviewstopediting', function( event, dropValue, callback ) {
+					event.stopPropagation();
+
+					var $sitelinkview = $( event.target ),
+						sitelinkview = $sitelinkview.data( 'sitelinkview' ),
+						value = sitelinkview.value();
+
+					if( !dropValue && !sitelinkview.isInitialValue() ) {
+						sitelinkview.disable();
+
+						self._saveSiteLink( value )
+						.done( function( newSiteLink ) {
+							sitelinkview.value( newSiteLink );
+							callback();
+						} )
+						.fail( function( error ) {
+							sitelinkview.setError( error );
+						} )
+						.always( function() {
+							sitelinkview.enable();
+						} );
+					}
+				} )
 				.one( 'sitelinkviewafterstopediting.sitelinklistviewstopediting', function( event ) {
 					sitelinkview.element.off( '.sitelinklistviewstopediting' );
 					// Avoid exceeding call stack size.
 					setTimeout( next, 0 );
 				} )
-				.one( 'sitelinkviewtoggleerror.sitelinklistviewstopediting', function() {
-					sitelinkview.element.off( '.sitelinklistviewstopediting' );
-					$queue.clearQueue( 'stopediting' );
-					self._resetEditMode();
-				} );
-				sitelinkview.stopEditing( dropValue );
+				.one(
+					'sitelinkviewtoggleerror.sitelinklistviewstopediting',
+					function( event, error ) {
+						sitelinkview.element.off( '.sitelinklistviewstopediting' );
+						$queue.clearQueue( 'stopediting' );
+						self._resetEditMode();
+						deferred.reject( error );
+					}
+				);
+				sitelinkview.stopEditing();
 			} );
 		}
 
 		listview.items().each( function() {
 			var sitelinkview = lia.liInstance( $( this ) );
-			addStopEditToQueue( $queue, sitelinkview, dropValue || sitelinkview.isInitialValue() );
+
+			if( sitelinkview.isInitialValue() ) {
+				sitelinkview.stopEditing( true );
+			} else {
+				addStopEditToQueue( $queue, sitelinkview );
+			}
 		} );
 
 		$queue.queue( 'stopediting', function() {
-			self._afterStopEditing( dropValue );
+			deferred.resolve();
 		} );
 
 		$queue.dequeue( 'stopediting' );
+
+		return deferred.promise();
+	},
+
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget._afterStopEditing
+	 */
+	_afterStopEditing: function( dropValue ) {
+		var self = this;
+
+		return PARENT.prototype._afterStopEditing.call( this, dropValue )
+			.done( function() {
+				self.$listview.data( 'listview' ).value( self.options.value );
+			} );
 	},
 
 	_removeIncompleteSiteLinks: function() {
@@ -610,26 +686,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		}
 
 		return removedSiteLinkIds;
-	},
-
-	/**
-	 * @param {boolean} dropValue
-	 */
-	_afterStopEditing: function( dropValue ) {
-		if( !dropValue ) {
-			this.options.value = this.value();
-		}
-		this.$listview.data( 'listview' ).value( this.options.value );
-		this._refreshCounter();
-		this._refreshTableHeader();
-		this._isInEditMode = false;
-		this.enable();
-		this.element.removeClass( 'wb-edit' );
-		this._trigger( 'afterstopediting', null, [dropValue] );
-	},
-
-	cancelEditing: function() {
-		this.stopEditing( true );
 	},
 
 	/**
@@ -681,22 +737,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	/**
-	 * Applies/Removes error state.
-	 *
-	 * @param {Error} [error]
-	 */
-	setError: function( error ) {
-		if( error ) {
-			this.element.addClass( 'wb-error' );
-			this._trigger( 'toggleerror', null, [error] );
-		} else if( this.element.hasClass( 'wb-error' ) ) {
-			this.element.removeClass( 'wb-error' );
-			this._trigger( 'toggleerror' );
-		}
-	},
-
-	/**
-	 * Sets/Gets the widget's value.
+	 * @see jQuery.ui.EditableTemplatedWidget.value
 	 *
 	 * @param {wikibase.datamodel.SiteLink[]} [value]
 	 * @return {wikibase.datamodel.SiteLink[]|*}
@@ -747,7 +788,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 *         Resolved parameters:
 	 *         - {Object}
 	 *         Rejected parameters:
-	 *         - {wikibase.RepoApiError}
+	 *         - {wikibase.api.RepoApiError}
 	 */
 	_saveSiteLink: function( siteLink ) {
 		var self = this;
@@ -775,7 +816,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 *         Resolved parameters:
 	 *         - {Object}
 	 *         Rejected parameters:
-	 *         - {wikibase.RepoApiError}
+	 *         - {wikibase.api.RepoApiError}
 	 */
 	remove: function( sitelinkview ) {
 		var self = this,
@@ -852,7 +893,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			self._refreshTableHeader();
 			self._refreshCounter();
 
-			if( !self._isInEditMode ) {
+			if( !self.isInEditMode() ) {
 				self.startEditing();
 			} else {
 				sitelinkview.startEditing();
@@ -865,7 +906,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	_refreshTablesorter: function() {
-		if( this._isInEditMode ) {
+		if( this.isInEditMode() ) {
 			// Re-sorting the table involves reconstructing the table's DOM. This may lead to
 			// interference with focusing (IE, though it does not lose focus, is unable to reflect
 			// character input into the input box).
@@ -909,5 +950,14 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	}
 
 } );
+
+/**
+ * @param {string} eventNames
+ * @param {string} namespace
+ * @return {string}
+ */
+function namespaceEventNames( eventNames, namespace ) {
+	return eventNames.split( ' ' ).join( '.' + namespace + ' ' ) + '.' + namespace;
+}
 
 }( mediaWiki, wikibase, jQuery ) );

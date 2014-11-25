@@ -2,7 +2,7 @@
 
 namespace Wikibase\Lib\Store;
 
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
@@ -43,8 +43,8 @@ class RedirectResolvingEntityLookup implements EntityLookup {
 	 *
 	 * @param EntityId $entityId
 	 *
-	 * @throw StorageException
-	 * @return Entity|null
+	 * @throws StorageException
+	 * @return EntityDocument|null
 	 */
 	public function getEntity( EntityId $entityId ) {
 		return $this->lookup->getEntity( $entityId );
@@ -58,7 +58,7 @@ class RedirectResolvingEntityLookup implements EntityLookup {
 	 *
 	 * @param EntityId $entityId
 	 *
-	 * @throw StorageException
+	 * @throws StorageException
 	 * @return bool
 	 */
 	public function hasEntity( EntityId $entityId ) {

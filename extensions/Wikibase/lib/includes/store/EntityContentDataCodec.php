@@ -51,7 +51,7 @@ class EntityContentDataCodec {
 	 * @param Serializer $entitySerializer
 	 * @param Deserializer $entityDeserializer
 	 */
-	function __construct(
+	public function __construct(
 		EntityIdParser $entityIdParser,
 		Serializer $entitySerializer,
 		Deserializer $entityDeserializer
@@ -126,7 +126,6 @@ class EntityContentDataCodec {
 	/**
 	 * Encodes an Entity into a blob for storage.
 	 *
-	 * @see Entity::toArray()
 	 * @see EntityHandler::serializeContent()
 	 *
 	 * @param Entity $entity

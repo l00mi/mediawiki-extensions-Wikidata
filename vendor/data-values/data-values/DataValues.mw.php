@@ -18,8 +18,10 @@ $GLOBALS['wgExtensionCredits']['datavalues'][] = array(
 	),
 	'url' => 'https://github.com/DataValues/DataValues',
 	'descriptionmsg' => 'datavalues-desc',
+	'license-name' => 'GPL-2.0+'
 );
 
+$GLOBALS['wgMessagesDirs']['DataValues'] = __DIR__ . '/i18n';
 $GLOBALS['wgExtensionMessagesFiles']['DataValues'] = __DIR__ . '/DataValues.i18n.php';
 
 /**

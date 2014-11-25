@@ -4,6 +4,7 @@ namespace Wikibase\DataModel;
 
 use Hashable;
 use InvalidArgumentException;
+use Traversable;
 use Wikibase\DataModel\Internal\MapValueHasher;
 
 /**
@@ -66,14 +67,14 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	/**
 	 * @see ArrayObject::__construct
 	 *
-	 * @param null|array $input
+	 * @param array|Traversable|null $input
 	 * @param int $flags
 	 * @param string $iterator_class
 	 */
 	public function __construct( $input = null, $flags = 0, $iterator_class = 'ArrayIterator' ) {
 		parent::__construct( array(), $flags, $iterator_class );
 
-		if ( !is_null( $input ) ) {
+		if ( $input !== null ) {
 			foreach ( $input as $offset => $value ) {
 				$this->offsetSet( $offset, $value );
 			}
@@ -289,13 +290,17 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 *
 	 * @since 0.3
 	 *
-	 * @param mixed $mixed
+	 * @param mixed $target
 	 *
 	 * @return bool
 	 */
-	public function equals( $mixed ) {
-		return $mixed instanceof self
-			&& $this->getHash() === $mixed->getHash();
+	public function equals( $target ) {
+		if ( $this === $target ) {
+			return true;
+		}
+
+		return $target instanceof self
+			&& $this->getHash() === $target->getHash();
 	}
 
 	/**
@@ -417,7 +422,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 			throw new InvalidArgumentException( '$value must be an instance of ' . $this->getObjectType() . '; got ' . $type );
 		}
 
-		if ( is_null( $index ) ) {
+		if ( $index === null ) {
 			$index = $this->getNewOffset();
 		}
 
@@ -461,7 +466,7 @@ abstract class HashArray extends \ArrayObject implements \Hashable, \Comparable 
 	 * @return bool
 	 */
 	public function isEmpty() {
-		return $this->count() === 0;
+		return !$this->getIterator()->valid();
 	}
 
 }

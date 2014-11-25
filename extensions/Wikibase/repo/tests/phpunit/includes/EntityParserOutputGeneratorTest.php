@@ -9,10 +9,11 @@ use Wikibase\DataModel\Entity\InMemoryDataTypeLookup;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\EntityParserOutputGenerator;
 use Wikibase\EntityRevision;
+use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
+use Wikibase\ValuesFinder;
 
 /**
  * @covers Wikibase\EntityParserOutputGenerator
@@ -25,9 +26,9 @@ use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
  */
 class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 
-	static $html = '<html>Nyan data!!!</html>';
-	static $placeholders = array( 'key' => 'value' );
-	static $configVars = array( 'foo' => 'bar' );
+	private static $html = '<html>Nyan data!!!</html>';
+	private static $placeholders = array( 'key' => 'value' );
+	private static $configVars = array( 'foo' => 'bar' );
 
 	public function testGetParserOutput() {
 		$entityParserOutputGenerator = $this->newEntityParserOutputGenerator();
@@ -48,19 +49,19 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 
 	private function newEntityParserOutputGenerator() {
 		return new EntityParserOutputGenerator(
-			$this->getEntityViewMock(),
+			$this->getEntityViewFactory(),
 			$this->getConfigBuilderMock(),
-			$this->getMock( 'Wikibase\Lib\Serializers\SerializationOptions' ),
 			$this->getEntityTitleLookupMock(),
-			$this->getDataTypeLookup(),
+			$this->getValuesFinder(),
 			new SqlEntityInfoBuilderFactory(),
+			new LanguageFallbackChain( array() ),
 			'en'
 		);
 	}
 
 	private function newItem() {
 		$item = Item::newEmpty();
-		$statements = new StatementList();
+		$statements = $item->getStatements();
 
 		$statements->addNewStatement( new PropertyValueSnak( 42, new StringValue( 'http://an.url.com' ) ) );
 		$statements->addNewStatement( new PropertyValueSnak( 42, new StringValue( 'https://another.url.org' ) ) );
@@ -68,25 +69,31 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 		$statements->addNewStatement( new PropertyValueSnak( 10, new StringValue( 'File:This is a file.pdf' ) ) );
 		$statements->addNewStatement( new PropertyValueSnak( 10, new StringValue( 'File:Selfie.jpg' ) ) );
 
-		$item->setStatements( $statements );
-
 		return $item;
 	}
 
-	private function getEntityViewMock() {
+	private function getEntityViewFactory() {
+		$entityViewFactory = $this->getMockBuilder( 'Wikibase\Repo\View\EntityViewFactory' )
+			->disableOriginalConstructor()
+			->getMock();
+
 		$entityView = $this->getMockBuilder( 'Wikibase\EntityView' )
 			->disableOriginalConstructor()
 			->getMock();
 
 		$entityView->expects( $this->any() )
 			->method( 'getHtml' )
-			->will( $this->returnValue( self::$html ) );
+			->will( $this->returnValue( '<html>Nyan data!!!</html>' ) );
 
 		$entityView->expects( $this->any() )
 			->method( 'getPlaceholders' )
-			->will( $this->returnValue( self::$placeholders ) );
+			->will( $this->returnValue( array( 'key' => 'value' ) ) );
 
-		return $entityView;
+		$entityViewFactory->expects( $this->any() )
+			->method( 'newEntityView' )
+			->will( $this->returnValue( $entityView ) );
+
+		return $entityViewFactory;
 	}
 
 	private function getConfigBuilderMock() {
@@ -114,11 +121,13 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 		return $entityTitleLookup;
 	}
 
-	private function getDataTypeLookup() {
+	private function getValuesFinder() {
 		$dataTypeLookup = new InMemoryDataTypeLookup();
+
 		$dataTypeLookup->setDataTypeForProperty( new PropertyId( 'P42' ), 'url' );
 		$dataTypeLookup->setDataTypeForProperty( new PropertyId( 'P10' ), 'commonsMedia' );
-		return $dataTypeLookup;
+
+		return new ValuesFinder( $dataTypeLookup );
 	}
 
 }

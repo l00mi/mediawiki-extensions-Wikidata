@@ -14,6 +14,14 @@ use Wikibase\DataModel\Term\TermList;
  */
 class TermListTest extends \PHPUnit_Framework_TestCase {
 
+	public function testIsEmpty() {
+		$list = new TermList();
+		$this->assertTrue( $list->isEmpty() );
+
+		$list = new TermList( array( new Term( 'en', 'foo' ) ) );
+		$this->assertFalse( $list->isEmpty() );
+	}
+
 	public function testGivenNoTerms_sizeIsZero() {
 		$list = new TermList();
 		$this->assertCount( 0, $list );
@@ -65,7 +73,7 @@ class TermListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenNoTerms_toTextArrayReturnsEmptyArray() {
-		$list = new TermList( array() );
+		$list = new TermList();
 		$this->assertEquals( array(), $list->toTextArray() );
 	}
 
@@ -108,14 +116,14 @@ class TermListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenNonString_getByLanguageThrowsException() {
-		$list = new TermList( array() );
+		$list = new TermList();
 
 		$this->setExpectedException( 'InvalidArgumentException' );
 		$list->getByLanguage( null );
 	}
 
 	public function testGivenNonSetLanguageCode_getByLanguageThrowsException() {
-		$list = new TermList( array() );
+		$list = new TermList();
 
 		$this->setExpectedException( 'OutOfBoundsException' );
 		$list->getByLanguage( 'en' );
@@ -188,8 +196,8 @@ class TermListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testEmptyListEqualsEmptyList() {
-		$list = new TermList( array() );
-		$this->assertTrue( $list->equals( new TermList( array() ) ) );
+		$list = new TermList();
+		$this->assertTrue( $list->equals( new TermList() ) );
 	}
 
 	public function testFilledListEqualsItself() {
@@ -208,7 +216,7 @@ class TermListTest extends \PHPUnit_Framework_TestCase {
 			new Term( 'de', 'bar' ),
 		) );
 
-		$this->assertFalse( $list->equals( new TermList( array() ) ) );
+		$this->assertFalse( $list->equals( new TermList() ) );
 
 		$this->assertFalse( $list->equals(
 			new TermList( array(
@@ -233,7 +241,7 @@ class TermListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenNonTermList_equalsReturnsFalse() {
-		$list = new TermList( array() );
+		$list = new TermList();
 		$this->assertFalse( $list->equals( null ) );
 		$this->assertFalse( $list->equals( new \stdClass() ) );
 	}
@@ -253,7 +261,7 @@ class TermListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenNonSetLanguageTerm_hasTermReturnsFalse() {
-		$list = new TermList( array() );
+		$list = new TermList();
 		$this->assertFalse( $list->hasTerm( new Term( 'en', 'kittens' ) ) );
 	}
 

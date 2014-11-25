@@ -1,16 +1,15 @@
 <?php
 
-namespace Wikibase\DataAccess\Tests\PropertyParserFunction;
+namespace Wikibase\Client\Tests\DataAccess\PropertyParserFunction;
 
 use Parser;
 use ParserOptions;
 use ParserOutput;
 use Title;
 use Wikibase\Client\Usage\EntityUsage;
-use Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRenderer;
+use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 
 /**
  * @covers Wikibase\DataAccess\PropertyParserFunction\Runner

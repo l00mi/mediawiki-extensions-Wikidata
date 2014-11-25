@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Client\Tests\Api;
 
 use ApiMain;
 use ApiQuery;
@@ -30,7 +30,7 @@ class ApiClientInfoTest extends \MediaWikiTestCase {
 	 */
 	protected $apiContext;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->apiContext = new \ApiTestContext();

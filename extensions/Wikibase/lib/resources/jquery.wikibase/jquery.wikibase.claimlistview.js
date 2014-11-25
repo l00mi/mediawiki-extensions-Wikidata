@@ -23,6 +23,8 @@
 
  * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  *
+ * @option {dataTypes.DataTypeStore} dataTypeStore
+ *
  * @option {number|null} [firstClaimIndex] The index of the claimlistview's first statement within a
  *         list of statements.
  *         Default: null
@@ -63,6 +65,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		},
 		value: null,
 		entityType: null,
+		dataTypeStore: null,
 		entityStore: null,
 		firstClaimIndex: null,
 		valueViewBuilder: null,
@@ -230,6 +233,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 								property: !!propertyId
 							}
 						},
+						dataTypeStore: self.option( 'dataTypeStore' ),
 						entityStore: self.option( 'entityStore' ),
 						valueViewBuilder: self.option( 'valueViewBuilder' ),
 						entityChangersFactory: self.option( 'entityChangersFactory' ),
@@ -561,6 +565,16 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				enable = view.isValid() && !view.isInitialValue();
 
 			btnSave[enable ? 'enable' : 'disable']();
+		},
+		edittoolbaredit: function( event, toolbarcontroller ) {
+			var $statementview = $( event.target ),
+				statementview = $statementview.data( 'statementview' );
+
+			if( !statementview ) {
+				return;
+			}
+
+			statementview.focus();
 		}
 	}
 } );

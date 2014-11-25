@@ -42,7 +42,7 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 	 */
 	private $obLevel;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->interfaceTitle = Title::newFromText( "Special:EntityDataRequestHandlerTest" );
@@ -50,7 +50,7 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 		$this->obLevel = ob_get_level();
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		$obLevel = ob_get_level();
 
 		while ( ob_get_level() > $this->obLevel ) {
@@ -68,7 +68,7 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 	 * @return EntityDataRequestHandler
 	 */
 	protected function newHandler() {
-		$entityLookup = EntityDataTestProvider::getMockRepo();
+		$entityLookup = EntityDataTestProvider::getMockRepository();
 
 		$idParser = new BasicEntityIdParser(); // we only test for items and properties here.
 

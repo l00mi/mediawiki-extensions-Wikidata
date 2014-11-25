@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Client\Tests\Store\Sql;
 
 use Language;
 use MediaWikiSite;
@@ -60,6 +60,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 			array( 'getUsageTracker', 'Wikibase\Client\Usage\UsageTracker' ),
 			array( 'getUsageLookup', 'Wikibase\Client\Usage\UsageLookup' ),
 			array( 'getSubscriptionManager', 'Wikibase\Client\Usage\SubscriptionManager' ),
+			array( 'getEntityIdLookup', 'Wikibase\Client\Store\EntityIdLookup' ),
 		);
 	}
 

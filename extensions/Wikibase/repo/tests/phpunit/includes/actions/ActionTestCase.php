@@ -42,7 +42,7 @@ class ActionTestCase extends \MediaWikiTestCase {
 	 */
 	protected $languageCode = 'qqx';
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$testUser = new \TestUser( 'ActionTestUser' );
@@ -59,12 +59,12 @@ class ActionTestCase extends \MediaWikiTestCase {
 		ApiQueryInfo::resetTokenCache();
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		ApiQueryInfo::resetTokenCache();
 		parent::tearDown();
 	}
 
-	function applyPermissions( $permissions ) {
+	protected function applyPermissions( $permissions ) {
 		global $wgGroupPermissions, $wgUser;
 
 		if ( !$permissions ) {
@@ -220,6 +220,7 @@ class ActionTestCase extends \MediaWikiTestCase {
 	 * @param Title $title the page to return the token for
 	 * @param String $for the action to return the token for, e.g. 'edit'.
 	 *
+	 * @throws MWException
 	 * @return String the token
 	 */
 	protected function getToken( Title $title, $for = 'edit' ) {

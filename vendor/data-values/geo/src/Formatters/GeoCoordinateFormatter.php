@@ -113,6 +113,10 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 
 		$precision = $this->options->getOption( self::OPT_PRECISION );
 
+		if ( $precision <= 0 ) {
+			$precision = 1 / 3600;
+		}
+
 		return $this->formatLatLongValue( $value, $precision );
 	}
 
@@ -128,10 +132,6 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	 * @throws InvalidArgumentException
 	 */
 	public function formatLatLongValue( LatLongValue $value, $precision ) {
-		if ( $precision <= 0 ) {
-			$precision = 1 / 3600;
-		}
-
 		$formatted = implode(
 			$this->getOption( self::OPT_SEPARATOR_SYMBOL ) . $this->getSpacing( self::OPT_SPACE_LATLONG ),
 			array(

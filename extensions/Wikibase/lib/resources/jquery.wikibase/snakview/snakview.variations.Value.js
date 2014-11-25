@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author Daniel Werner < daniel.werner@wikimedia.de >
  */
-( function( mw, wb, $, dataTypeStore, dv ) {
+( function( mw, wb, $, dv ) {
 	'use strict';
 
 	var MODULE = $.wikibase.snakview.variations,
@@ -168,7 +168,7 @@
 					var dataType = false;
 
 					if( dataTypeId ) {
-						dataType = dataTypeStore.getDataType( dataTypeId );
+						dataType = self._dataTypeStore.getDataType( dataTypeId );
 					}
 
 					// If the new value's type is not the data value type used by the Snak's
@@ -217,6 +217,16 @@
 			if( !this._valueView || this._valueView.isInEditMode() ) {
 				return;
 			}
+
+			var self = this;
+
+			this._valueView.element.one(
+				this._valueView.widgetEventPrefix + 'afterstartediting',
+				function() {
+					$( self ).triggerHandler( 'afterstartediting' );
+				}
+			);
+
 			this._valueView.startEditing();
 			this._attachEventHandlers();
 			this.draw();
@@ -372,4 +382,4 @@
 		}
 	} );
 
-}( mediaWiki, wikibase, jQuery, wikibase.dataTypes, dataValues ) );
+}( mediaWiki, wikibase, jQuery, dataValues ) );

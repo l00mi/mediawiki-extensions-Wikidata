@@ -29,7 +29,7 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 *
 	 * @since 0.3
 	 *
-	 * @param null|array $input
+	 * @param Claim[]|Traversable|null $input
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -128,7 +128,7 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 *
 	 * @param Claim $claim
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasClaim( Claim $claim ) {
 		$guid = $claim->getGuid();
@@ -148,7 +148,7 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 *
 	 * @param Claim $claim
 	 *
-	 * @return int|boolean
+	 * @return int|bool
 	 */
 	public function indexOf( Claim $claim ) {
 		$guid = $claim->getGuid();
@@ -195,7 +195,7 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 *
 	 * @param string $claimGuid
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasClaimWithGuid( $claimGuid ) {
 		return $this->offsetExists( $claimGuid );
@@ -386,11 +386,10 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	}
 
 	/**
-	 * Returns true if this list contains no claims
+	 * @return bool
 	 */
 	public function isEmpty() {
-		$iter = $this->getIterator();
-		return !$iter->valid();
+		return !$this->getIterator()->valid();
 	}
 
 	/**
@@ -469,14 +468,16 @@ class Claims extends ArrayObject implements ClaimListAccess, Hashable, Comparabl
 	 *
 	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $target ) {
-		if ( !( $target instanceof self ) ) {
-			return false;
+		if ( $this === $target ) {
+			return true;
 		}
 
-		if ( $this->count() !== $target->count() ) {
+		if ( !( $target instanceof self )
+			|| $this->count() !== $target->count()
+		) {
 			return false;
 		}
 

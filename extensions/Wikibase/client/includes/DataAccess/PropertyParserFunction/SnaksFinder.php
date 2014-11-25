@@ -2,17 +2,14 @@
 
 namespace Wikibase\DataAccess\PropertyParserFunction;
 
-use InvalidArgumentException;
-use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\Lib\PropertyLabelNotResolvedException;
+use Wikibase\DataModel\Statement\BestStatementsFinder;
+use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\StatementListProvider;
 use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\PropertyLabelResolver;
 
 /**
  * Find Snaks for claims in an entity, with EntityId, based on property label or property id.
@@ -40,8 +37,6 @@ class SnaksFinder {
 	 * @param PropertyId $propertyId - the PropertyId for which we want the formatted Snaks
 	 * @param string $languageCode - language to render values
 	 *
-	 * TODO: use SnakList instead of array of Snaks
-	 *
 	 * @return Snak[]
 	 */
 	public function findSnaks( EntityId $entityId, PropertyId $propertyId, $languageCode ) {
@@ -55,38 +50,30 @@ class SnaksFinder {
 			return array();
 		}
 
-		// We only want the best claims over here, so that we only show the most
-		// relevant information.
-		$claims = $this->getClaimsForProperty( $entity, $propertyId, $languageCode );
+		$snaks = $this->getBestMainSnaksForProperty( $entity, $propertyId );
 
-		$bestClaims = $claims->getBestClaims();
-
-		if ( $bestClaims->isEmpty() ) {
+		if ( empty( $snaks ) ) {
 			wfDebugLog( __CLASS__, __METHOD__ . ': no claims found.' );
 			wfProfileOut( __METHOD__ );
 			return array();
 		}
-
-		$snaks = $bestClaims->getMainSnaks();
 
 		wfProfileOut( __METHOD__ );
 		return $snaks;
 	}
 
 	/**
-	 * Returns such Claims from $entity that have a main Snak for the property that
-	 * is specified by $propertyId.
+	 * @param EntityDocument $entity The Entity from which to get the clams
+	 * @param PropertyId $propertyId
 	 *
-	 * @param Entity $entity The Entity from which to get the clams
-	 * @param string $propertyId
-	 * @param string $languageCode
-	 *
-	 * @return Claims The claims for the given property.
+	 * @return Snak[]
 	 */
-	private function getClaimsForProperty( Entity $entity, $propertyId, $languageCode ) {
-		$allClaims = new Claims( $entity->getClaims() );
+	private function getBestMainSnaksForProperty( EntityDocument $entity, PropertyId $propertyId ) {
+		if ( $entity instanceof StatementListProvider ) {
+			return $entity->getStatements()->getWithPropertyId( $propertyId )->getBestStatements()->getMainSnaks();
+		}
 
-		return $allClaims->getClaimsForProperty( $propertyId );
+		return array();
 	}
 
 }

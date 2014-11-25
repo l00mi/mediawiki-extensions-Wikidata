@@ -5,12 +5,12 @@
 ( function( $, mw, wb ) {
 	'use strict';
 
-	var PARENT = $.ui.TemplatedWidget;
+	var PARENT = $.ui.EditableTemplatedWidget;
 
 /**
  * Manages a sitelinklistview widget specific to a particular site link group.
  * @since 0.5
- * @extends jQuery.ui.TemplatedWidget
+ * @extends jQuery.ui.EditableTemplatedWidget
  *
  * @option {Object} value
  *         Object representing the widget's value.
@@ -20,27 +20,13 @@
  *
  * @option {wikibase.store.EntityStore} entityStore
  *
+ * @option {jQuery.util.EventSingletonManager} [eventSingletonManager]
+ *         Should be set when the widget instance is part of a jQuery.wikibase.sitelinkgrouplistview.
+ *         Default: null (will be constructed automatically)
+ *
  * @option {string} [helpMessage]
  *                  Default: 'Add a site link by specifying a site and a page of that site, edit or
  *                  remove existing site links.'
- *
- * @event change
- *        - {jQuery.Event}
- *
- * @event afterstartediting
- *       - {jQuery.Event}
- *
- * @event stopediting
- *        - {jQuery.Event}
- *        - {boolean} Whether to drop the value.
- *
- * @event afterstopediting
- *        - {jQuery.Event}
- *        - {boolean} Whether to drop the value.
- *
- * @event toggleerror
- *        - {jQuery.Event}
- *        - {Error|null}
  */
 $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	/**
@@ -62,14 +48,10 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 		value: null,
 		entityStore: null,
 		siteLinksChanger: null,
+		eventSingletonManager: null,
 		helpMessage: 'Add a site link by specifying a site and a page of that site, edit or remove '
 			+ 'existing site links.'
 	},
-
-	/**
-	 * @type {boolean}
-	 */
-	_isInEditMode: false,
 
 	/**
 	 * @type {jQuery}
@@ -77,9 +59,12 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	$sitelinklistview: null,
 
 	/**
+	 * @type {jQuery.util.EventSingletonManager}
+	 */
+	_eventSingletonManager: null,
+
+	/**
 	 * @see jQuery.ui.TemplatedWidget._create
-	 *
-	 * @throws {Error} if required parameters are not specified properly.
 	 */
 	_create: function() {
 		if( !this.options.siteLinksChanger || !this.options.entityStore ) {
@@ -99,19 +84,46 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			this.$sitelinklistview = $( '<table/>' ).appendTo( this.element );
 		}
 
-		this._createSitelinklistview();
+		this._eventSingletonManager
+			= this.options.eventSingletonManager || new $.util.EventSingletonManager();
 
-		this._update();
+		this.draw();
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.destroy
+	 * @see jQuery.ui.EditableTemplatedWidget.destroy
 	 */
 	destroy: function() {
 		if( this.$sitelinklistview ) {
 			this.$sitelinklistview.data( 'sitelinklistview' ).destroy();
 		}
 		PARENT.prototype.destroy.call( this );
+	},
+
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.draw
+	 */
+	draw: function() {
+		var deferred = $.Deferred();
+
+		this.element.data( 'group', this.options.value.group );
+
+		this.$h
+		.attr( 'id', 'sitelinks-' + this.options.value.group )
+//		.text( mw.msg( 'wikibase-sitelinks-' + this.options.value.group ) )
+		.text( this.__headingText )
+		.append( this.$counter );
+
+		if( !this.$sitelinklistview.data( 'sitelinklistview' ) ) {
+			this._createSitelinklistview();
+			deferred.resolve();
+		} else {
+			this.$sitelinklistview.data( 'sitelinklistview' ).draw()
+				.done( deferred.resolve )
+				.fail( deferred.reject );
+		}
+
+		return deferred.promise();
 	},
 
 	/**
@@ -149,10 +161,9 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 				: [],
 			entityStore: this.options.entityStore,
 			siteLinksChanger: this.options.siteLinksChanger,
+			eventSingleton: this._eventSingleton,
 			$counter: this.$counter
 		} );
-
-		this._update();
 	},
 
 	/**
@@ -194,43 +205,33 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	},
 
 	/**
-	 * @return {boolean}
+	 * @see jQuery.ui.EditableTemplatedWidget.startEditing
 	 */
-	isValid: function() {
-		return this.$sitelinklistview.data( 'sitelinklistview' ).isValid();
-	},
-
-	/**
-	 * @return {boolean}
-	 */
-	isInitialValue: function() {
-		return this.$sitelinklistview.data( 'sitelinklistview' ).isInitialValue();
-	},
-
 	startEditing: function() {
-		if( this._isInEditMode ) {
-			return;
-		}
+		var self = this,
+			deferred = $.Deferred();
 
-		this._isInEditMode = true;
-		this.element.addClass( 'wb-edit' );
+		this.$sitelinklistview.one( 'sitelinklistviewafterstartediting', function() {
+			PARENT.prototype.startEditing.call( self )
+				.done( deferred.resolve )
+				.fail( deferred.reject );
+		} );
 
 		this.$sitelinklistview.data( 'sitelinklistview' ).startEditing();
 
-		this._trigger( 'afterstartediting' );
+		return deferred.promise();
 	},
 
 	/**
-	 * @param {boolean} [dropValue]
+	 * @see jQuery.ui.EditableTemplatedWidget.stopEditing
 	 */
 	stopEditing: function( dropValue ) {
-		var self = this;
+		var self = this,
+			deferred = $.Deferred();
 
-		if( !this._isInEditMode || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
-			return;
+		if( !this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
+			return deferred.resolve().promise();
 		}
-
-		dropValue = !!dropValue;
 
 		this._trigger( 'stopediting', null, [dropValue] );
 
@@ -242,57 +243,22 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			function( event, dropValue ) {
 				self._afterStopEditing( dropValue );
 				self.$sitelinklistview.off( '.sitelinkgroupviewstopediting' );
+				deferred.resolve();
 			}
 		)
-		.one( 'sitelinklistviewtoggleerror.sitelinkgroupviewstopediting', function( event ) {
+		.one( 'sitelinklistviewtoggleerror.sitelinkgroupviewstopediting', function( event, error ) {
 			self.enable();
 			self.$sitelinklistview.off( '.sitelinkgroupviewstopediting' );
+			deferred.reject( error );
 		} );
 
 		this.$sitelinklistview.data( 'sitelinklistview' ).stopEditing( dropValue );
+
+		return deferred.promise();
 	},
 
 	/**
-	 * @param {boolean} dropValue
-	 */
-	_afterStopEditing: function( dropValue ) {
-		if( !dropValue ) {
-			this.options.value = this.value();
-		}
-		this._isInEditMode = false;
-		this.enable();
-		this.element.removeClass( 'wb-edit' );
-		this._trigger( 'afterstopediting', null, [dropValue] );
-	},
-
-	cancelEditing: function() {
-		this.stopEditing( true );
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
-	 */
-	focus: function() {
-		this.$sitelinklistview.data( 'sitelinklistview' ).focus();
-	},
-
-	/**
-	 * Applies/Removes error state.
-	 *
-	 * @param {Error} [error]
-	 */
-	setError: function( error ) {
-		if( error ) {
-			this.element.addClass( 'wb-error' );
-			this._trigger( 'toggleerror', null, [error] );
-		} else if( this.element.hasClass( 'wb-error' ) ) {
-			this.element.removeClass( 'wb-error' );
-			this._trigger( 'toggleerror' );
-		}
-	},
-
-	/**
-	 * Sets/Gets the widget's value.
+	 * @see jQuery.ui.EditableTemplatedWidget.value
 	 *
 	 * @param {Object} [value]
 	 * @return {Object|*}
@@ -302,6 +268,34 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			return this.option( 'value' );
 		}
 		return this.option( 'value', value );
+	},
+
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isEmpty
+	 */
+	isEmpty: function() {
+		return !this.value().siteLinks.length;
+	},
+
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isValid
+	 */
+	isValid: function() {
+		return this.$sitelinklistview.data( 'sitelinklistview' ).isValid();
+	},
+
+	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isInitialValue
+	 */
+	isInitialValue: function() {
+		return this.$sitelinklistview.data( 'sitelinklistview' ).isInitialValue();
+	},
+
+	/**
+	 * @see jQuery.ui.TemplatedWidget.focus
+	 */
+	focus: function() {
+		this.$sitelinklistview.data( 'sitelinklistview' ).focus();
 	},
 
 	/**
@@ -319,25 +313,12 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			.option( 'allowedSiteIds', getSiteIdsOfGroup( this.options.value.group ) )
 			.value( this.options.value.siteLinks );
 
-			this._update();
+			this.draw();
 		} else if( key === 'disabled' ) {
 			this.$sitelinklistview.data( 'sitelinklistview' ).option( key, value );
 		}
 
 		return response;
-	},
-
-	/**
-	 * Updates the widget's group references.
-	 */
-	_update: function() {
-		this.element.data( 'group', this.options.value.group );
-
-		this.$h
-		.attr( 'id', 'sitelinks-' + this.options.value.group )
-//		.text( mw.msg( 'wikibase-sitelinks-' + this.options.value.group ) )
-		.text( this.__headingText )
-		.append( this.$counter );
 	}
 } );
 
@@ -438,7 +419,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
 				sitelinklistviewListview = sitelinklistview.$listview.data( 'listview' );
 
-			if( !$sitelinkgroupview.length || !sitelinkgroupview._isInEditMode ) {
+			if( !$sitelinkgroupview.length || !sitelinkgroupview.isInEditMode() ) {
 				return;
 			}
 

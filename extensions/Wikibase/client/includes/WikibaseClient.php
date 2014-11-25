@@ -13,11 +13,12 @@ use MWException;
 use Site;
 use SiteSQLStore;
 use SiteStore;
-use ValueFormatters\FormatterOptions;
-use Wikibase\ChangeHandler;
 use Wikibase\Client\Changes\AffectedPagesFinder;
+use Wikibase\Client\Changes\ChangeHandler;
+use Wikibase\Client\Changes\ChangeRunCoalescer;
+use Wikibase\Client\Changes\WikiPageUpdater;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
-use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
+use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
 use Wikibase\Client\Hooks\ParserFunctionRegistrant;
 use Wikibase\Client\Store\TitleFactory;
 use Wikibase\ClientStore;
@@ -51,7 +52,6 @@ use Wikibase\NamespaceChecker;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\StringNormalizer;
-use Wikibase\WikiPageUpdater;
 
 /**
  * Top level factory for the WikibaseClient extension.
@@ -67,7 +67,7 @@ final class WikibaseClient {
 	/**
 	 * @var PropertyDataTypeLookup
 	 */
-	public $propertyDataTypeLookup;
+	private $propertyDataTypeLookup;
 
 	/**
 	 * @var SettingsArray
@@ -163,7 +163,7 @@ final class WikibaseClient {
 	 */
 	public function getDataTypeFactory() {
 		if ( $this->dataTypeFactory === null ) {
-			$urlSchemes = $this->getSettings()->getSetting( 'urlSchemes' );
+			$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
 			$builders = new WikibaseDataTypeBuilders(
 				$this->getEntityLookup(),
 				$this->getEntityIdParser(),
@@ -276,7 +276,7 @@ final class WikibaseClient {
 		if ( $this->store === null ) {
 			$this->store = new DirectSqlStore(
 				$this->getEntityContentDataCodec(),
-				$this->getContentLanguage(),
+				$this->contentLanguage,
 				$this->getEntityIdParser(),
 				$repoDatabase
 			);
@@ -475,9 +475,7 @@ final class WikibaseClient {
 			$this->getDataTypeFactory()
 		);
 
-		$factory = new OutputFormatSnakFormatterFactory( $builders->getSnakFormatterBuildersForFormats() );
-
-		return $factory;
+		return new OutputFormatSnakFormatterFactory( $builders->getSnakFormatterBuildersForFormats() );
 	}
 
 	/**
@@ -503,9 +501,7 @@ final class WikibaseClient {
 			$this->contentLanguage
 		);
 
-		$factory = new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
-
-		return $factory;
+		return new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
 	}
 
 	/**
@@ -513,11 +509,9 @@ final class WikibaseClient {
 	 */
 	public function getNamespaceChecker() {
 		if ( !$this->namespaceChecker ) {
-			$settings = $this->getSettings();
-
 			$this->namespaceChecker = new NamespaceChecker(
-				$settings->getSetting( 'excludeNamespaces' ),
-				$settings->getSetting( 'namespaces' )
+				$this->settings->getSetting( 'excludeNamespaces' ),
+				$this->settings->getSetting( 'namespaces' )
 			);
 		}
 
@@ -529,16 +523,14 @@ final class WikibaseClient {
 	 */
 	public function getLangLinkHandler() {
 		if ( !$this->langLinkHandler ) {
-			$settings = $this->getSettings();
-
 			$this->langLinkHandler = new LangLinkHandler(
-				$this->getOtherProjectsSidebarGenerator(),
+				$this->getOtherProjectsSidebarGeneratorFactory(),
 				$this->getLanguageLinkBadgeDisplay(),
-				$settings->getSetting( 'siteGlobalID' ),
+				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getNamespaceChecker(),
 				$this->getStore()->getSiteLinkTable(),
 				$this->getStore()->getEntityLookup(),
-				$this->getSiteStore(),
+				$this->getSiteStore()->getSites(),
 				$this->getLangLinkSiteGroup()
 			);
 		}
@@ -552,7 +544,7 @@ final class WikibaseClient {
 	public function getLanguageLinkBadgeDisplay() {
 		global $wgLang;
 
-		$badgeClassNames = $this->getSettings()->getSetting( 'badgeClassNames' );
+		$badgeClassNames = $this->settings->getSetting( 'badgeClassNames' );
 
 		return new LanguageLinkBadgeDisplay(
 			$this->getEntityLookup(),
@@ -640,16 +632,13 @@ final class WikibaseClient {
 	/**
 	 * @since 0.5
 	 *
-	 * @return OtherProjectsSidebarGenerator
+	 * @return OtherProjectsSidebarGeneratorFactory
 	 */
-	public function getOtherProjectsSidebarGenerator() {
-		$settings = $this->getSettings();
-
-		return new OtherProjectsSidebarGenerator(
-			$settings->getSetting( 'siteGlobalID' ),
+	public function getOtherProjectsSidebarGeneratorFactory() {
+		return new OtherProjectsSidebarGeneratorFactory(
+			$this->settings,
 			$this->getStore()->getSiteLinkTable(),
-			$this->getSiteStore(),
-			$settings->getSetting( 'otherProjectsLinks' )
+			$this->getSiteStore()
 		);
 	}
 
@@ -677,12 +666,12 @@ final class WikibaseClient {
 	 */
 	public function getParserFunctionRegistrant() {
 		return new ParserFunctionRegistrant(
-			$this->getSettings()->getSetting( 'allowDataTransclusion' )
+			$this->settings->getSetting( 'allowDataTransclusion' )
 		);
 	}
 
 	/**
-	 * @return RendererFactory
+	 * @return PropertyClaimsRendererFactory
 	 */
 	private function getPropertyClaimsRendererFactory() {
 		$snaksFinder = new SnaksFinder(
@@ -708,7 +697,7 @@ final class WikibaseClient {
 		return new Runner(
 			$this->getPropertyClaimsRendererFactory(),
 			$this->getStore()->getSiteLinkTable(),
-			$this->getSettings()->getSetting( 'siteGlobalID' )
+			$this->settings->getSetting( 'siteGlobalID' )
 		);
 	}
 
@@ -717,9 +706,9 @@ final class WikibaseClient {
 	 */
 	public function getOtherProjectsSitesProvider() {
 		return new OtherProjectsSitesProvider(
-			$this->getSiteStore(),
+			$this->getSiteStore()->getSites(),
 			$this->getSite(),
-			$this->getSettings()->getSetting( 'specialSiteLinkGroups' )
+			$this->settings->getSetting( 'specialSiteLinkGroups' )
 		);
 	}
 
@@ -740,14 +729,19 @@ final class WikibaseClient {
 	 * @return ChangeHandler
 	 */
 	public function getChangeHandler() {
+		$siteId = $this->getSite()->getGlobalId();
+
 		return new ChangeHandler(
-			$this->getEntityChangeFactory(),
 			$this->getAffectedPagesFinder(),
 			new WikiPageUpdater(),
-			$this->getStore()->getEntityRevisionLookup(),
-			$this->getSite()->getGlobalId(),
-			$this->getSettings()->getSetting( 'injectRecentChanges' ),
-			$this->getSettings()->getSetting( 'allowDataTransclusion' )
+			new ChangeRunCoalescer(
+				$this->getStore()->getEntityRevisionLookup(),
+				$this->getEntityChangeFactory(),
+				$siteId
+			),
+			$siteId,
+			$this->settings->getSetting( 'injectRecentChanges' ),
+			$this->settings->getSetting( 'allowDataTransclusion' )
 		);
 	}
 

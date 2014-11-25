@@ -8,11 +8,11 @@
  */
 
 if ( defined( 'DataValues_VERSION' ) ) {
-	// Do not initialize more then once.
-	return;
+	// Do not initialize more than once.
+	return 1;
 }
 
-define( 'DATAVALUES_VERSION', '0.1.1' );
+define( 'DATAVALUES_VERSION', '1.0' );
 
 /**
  * @deprecated

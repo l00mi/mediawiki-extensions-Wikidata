@@ -1,6 +1,7 @@
 {
-    "name": "wikibase/wikidata",
+    "name": "wikidata/wikidata",
     "description": "Wikidata build, including related components used for wikidata.org.",
+    "license": "GPL-2.0+",
     "repositories": [
         {
             "type": "vcs",
@@ -9,16 +10,12 @@
         {
             "type": "vcs",
             "url": "https://github.com/wmde/WikimediaBadges.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/DataValues/Geo.git"
         }
     ],
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~2.0.1",
-        "wikibase/wikibase": "dev-wmf/1.25wmf8",
+        "wikibase/wikibase": "dev-wmf/1.25wmf10",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
     },
@@ -32,6 +29,6 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_25wmf8"
+        "autoloader-suffix": "wikidata_1_25wmf10"
     }
 }

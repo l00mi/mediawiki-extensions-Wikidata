@@ -27,7 +27,7 @@ class SiteLinkTableTest extends \MediaWikiTestCase {
 	 */
 	protected $siteLinkTable;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		if ( !defined( 'WB_VERSION' ) ) {
@@ -44,14 +44,14 @@ class SiteLinkTableTest extends \MediaWikiTestCase {
 		$item->setId( new ItemId( 'q1' ) );
 		$item->setLabel( 'en', 'Beer' );
 
-		$sitelinks = array(
+		$siteLinks = array(
 			'cswiki' => 'Pivo',
 			'enwiki' => 'Beer',
 			'jawiki' => 'ビール'
 		);
 
-		foreach( $sitelinks as $site => $page ) {
-			$item->addSiteLink( new SiteLink( $site, $page ) );
+		foreach( $siteLinks as $siteId => $pageName ) {
+			$item->getSiteLinkList()->addNewSiteLink( $siteId, $pageName );
 		}
 
 		$items[] = $item;

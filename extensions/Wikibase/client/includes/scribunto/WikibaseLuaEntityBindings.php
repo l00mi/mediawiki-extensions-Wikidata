@@ -3,12 +3,17 @@
 namespace Wikibase\Client\Scribunto;
 
 use Language;
-use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\Client\Usage\UsageAccumulator;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\StatementListProvider;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityLookup;
 
@@ -20,7 +25,6 @@ use Wikibase\Lib\Store\EntityLookup;
  * @licence GNU GPL v2+
  * @author Marius Hoch < hoo@online.de >
  */
-
 class WikibaseLuaEntityBindings {
 
 	/**
@@ -34,6 +38,11 @@ class WikibaseLuaEntityBindings {
 	private $entityLookup;
 
 	/**
+	 * @var UsageAccumulator
+	 */
+	private $usageAccumulator;
+
+	/**
 	 * @var string
 	 */
 	private $siteId;
@@ -44,26 +53,75 @@ class WikibaseLuaEntityBindings {
 	private $language;
 
 	/**
-	 * @var Entity[]
+	 * @var EntityIdParser
+	 */
+	private $entityIdParser;
+
+	/**
+	 * @var EntityDocument[]
 	 */
 	private $entities = array();
 
 	/**
 	 * @param SnakFormatter $snakFormatter
-	 * @param EntityLookup $entityLookup,
-	 * @param string $siteId,
+	 * @param EntityLookup $entityLookup
+	 * @param UsageAccumulator $usageAccumulator
+	 * @param string $siteId
 	 * @param Language $language
+	 * @param EntityIdParser $entityIdParser
 	 */
 	public function __construct(
 		SnakFormatter $snakFormatter,
 		EntityLookup $entityLookup,
+		UsageAccumulator $usageAccumulator,
 		$siteId,
-		Language $language
+		Language $language,
+		EntityIdParser $entityIdParser
 	) {
 		$this->snakFormatter = $snakFormatter;
 		$this->entityLookup = $entityLookup;
+		$this->usageAccumulator = $usageAccumulator;
 		$this->siteId = $siteId;
 		$this->language = $language;
+		$this->entityIdParser = $entityIdParser;
+	}
+
+	/**
+	 * Render the main Snaks belonging to a Statement (which is identified by a PropertyId).
+	 *
+	 * @since 0.5
+	 * @todo Share code with LanguageAwareRenderer.
+	 *
+	 * @param string $entityId
+	 * @param string $propertyId
+	 * @param int[]|null $acceptableRanks
+	 *
+	 * @return string
+	 */
+	public function formatPropertyValues( $entityId, $propertyId, array $acceptableRanks = null ) {
+		$propertyId = new PropertyId( $propertyId );
+
+		$entity = $this->getEntity( $this->entityIdParser->parse( $entityId ) );
+
+		if ( !( $entity instanceof StatementListProvider ) ) {
+			return '';
+		}
+
+		$statements = $entity->getStatements()->getWithPropertyId( $propertyId );
+
+		if ( $acceptableRanks === null ) {
+			// We only want the best claims over here, so that we only show the most
+			// relevant information.
+			$statements = $statements->getBestStatements();
+		} else {
+			// ... unless the user passed in a table of acceptable ranks
+			$statements = $statements->getWithRank( $acceptableRanks );
+		}
+
+		$snakList = $statements->getMainSnaks();
+
+		$this->trackUsage( $snakList );
+		return $this->formatSnakList( $snakList );
 	}
 
 	/**
@@ -73,7 +131,7 @@ class WikibaseLuaEntityBindings {
 	 *
 	 * @param EntityId $entityId
 	 *
-	 * @return Entity|null
+	 * @return EntityDocument|null
 	 */
 	private function getEntity( EntityId $entityId ) {
 		if ( !isset( $this->entities[ $entityId->getSerialization() ] ) ) {
@@ -82,21 +140,6 @@ class WikibaseLuaEntityBindings {
 		}
 
 		return $this->entities[ $entityId->getSerialization() ];
-	}
-
-	/**
-	 * Returns such Claims from $entity that have a main Snak for the property that
-	 * is specified by $propertyLabel.
-	 *
-	 * @param Entity $entity
-	 * @param PropertyId $propertyId
-	 *
-	 * @return Claims
-	 */
-	private function getClaimsForProperty( Entity $entity, PropertyId $propertyId ) {
-		$allClaims = new Claims( $entity->getClaims() );
-
-		return $allClaims->getClaimsForProperty( $propertyId );
 	}
 
 	/**
@@ -125,43 +168,25 @@ class WikibaseLuaEntityBindings {
 	}
 
 	/**
-	 * Render the main Snaks belonging to a Claim (which is identified by a PropertyId).
-	 *
-	 * @since 0.5
-	 *
-	 * @param string $entityId
-	 * @param string $propertyId
-	 * @param int[] $acceptableRanks
-	 *
-	 * @return string
+	 * @todo Share code with LanguageAwareRenderer::trackUsage
+	 * @param Snak[] $snaks
 	 */
-	public function formatPropertyValues( $entityId, $propertyId, array $acceptableRanks = null ) {
-		$entityId = new ItemId( $entityId );
-		$propertyId = new PropertyId( $propertyId );
+	private function trackUsage( array $snaks ) {
+		// Note: we track any EntityIdValue as a label usage.
+		// This is making assumptions about what the respective formatter actually does.
+		// Ideally, the formatter itself would perform the tracking, but that seems nasty to model.
 
-		$entity = $this->getEntity( $entityId );
+		foreach ( $snaks as $snak ) {
+			if ( !( $snak instanceof PropertyValueSnak ) ) {
+				continue;
+			}
 
-		if ( !$entity ) {
-			return '';
+			$value = $snak->getDataValue();
+
+			if ( $value instanceof EntityIdValue ) {
+				$this->usageAccumulator->addLabelUsage( $value->getEntityId() );
+			}
 		}
-
-		$claims = $this->getClaimsForProperty( $entity, $propertyId );
-
-		if ( !$acceptableRanks ) {
-			// We only want the best claims over here, so that we only show the most
-			// relevant information.
-			$claims = $claims->getBestClaims();
-		} else {
-			// ... unless the user passed in a table of acceptable ranks
-			$claims = $claims->getByRanks( $acceptableRanks );
-		}
-
-		if ( $claims->isEmpty() ) {
-			return '';
-		}
-
-		$snakList = $claims->getMainSnaks();
-		return $this->formatSnakList( $snakList );
 	}
 
 	/**

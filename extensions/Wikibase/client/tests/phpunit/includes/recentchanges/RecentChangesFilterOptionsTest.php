@@ -1,5 +1,6 @@
 <?php
-namespace Wikibase\Test;
+
+namespace Wikibase\Client\Tests\RecentChanges;
 
 use FormOptions;
 use User;
@@ -17,7 +18,7 @@ use Wikibase\Client\WikibaseClient;
  * @author Marius Hoch < hoo@online.de >
  */
 class RecentChangesFilterOptionsTest extends \MediaWikiTestCase {
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$user = User::newFromName( 'RecentChangesFilterOptionsTest' );
@@ -88,4 +89,5 @@ class RecentChangesFilterOptionsTest extends \MediaWikiTestCase {
 			),
 		);
 	}
+
 }

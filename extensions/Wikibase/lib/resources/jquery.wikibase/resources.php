@@ -6,15 +6,12 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	preg_match(
-		'+' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
-			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
-		__DIR__,
-		$remoteExtPathParts
-	);
+	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
+
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1],
+		'remoteExtPath' => '..' . $remoteExtPath[0],
 	);
 
 	$modules = array(
@@ -29,7 +26,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.inputautoexpand',
 				'jquery.ui.tagadata',
-				'jquery.ui.TemplatedWidget',
+				'jquery.ui.EditableTemplatedWidget',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase.datamodel.MultiTerm',
@@ -78,7 +75,6 @@ return call_user_func( function() {
 				'jquery.wikibase.claimlistview',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase',
 				'wikibase.datamodel',
 			),
 		),
@@ -94,7 +90,6 @@ return call_user_func( function() {
 				'jquery.wikibase.listview',
 				'jquery.wikibase.statementview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase',
 				'wikibase.datamodel',
 				'wikibase.templates',
 				'wikibase.utilities',
@@ -134,7 +129,8 @@ return call_user_func( function() {
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase',
+				'wikibase.datamodel.Term',
+				'wikibase.getLanguageNameByCode',
 			),
 			'messages' => array(
 				'wikibase-description-edit-placeholder',
@@ -153,6 +149,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.event.special.eachchange',
+				'jquery.throttle-debounce',
 				'jquery.ui.suggester',
 				'jquery.ui.ooMenu',
 				'jquery.ui.widget',
@@ -167,6 +164,9 @@ return call_user_func( function() {
 			'scripts' => array(
 				'jquery.wikibase.entityview.js',
 			),
+			'styles' => array(
+				'themes/default/jquery.wikibase.entityview.css',
+			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.aliasesview',
@@ -178,9 +178,9 @@ return call_user_func( function() {
 				'jquery.wikibase.toolbarcontroller',
 				'jquery.wikibase.sitelinkgrouplistview',
 				'jquery.wikibase.statementview',
-				'wikibase',
 				'wikibase.datamodel.MultiTerm',
 				'wikibase.datamodel.Term',
+				'wikibase.getLanguageNameByCode',
 				'wikibase.templates',
 			),
 			'messages' => array(
@@ -213,9 +213,9 @@ return call_user_func( function() {
 				'themes/default/jquery.wikibase.fingerprintlistview.css',
 			),
 			'dependencies' => array(
-				'wikibase',
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.fingerprintview',
+				'wikibase.getLanguageNameByCode',
 			),
 			'messages' => array(
 				'wikibase-fingerprintview-input-help-message',
@@ -236,7 +236,7 @@ return call_user_func( function() {
 				'jquery.wikibase.labelview',
 				'jquery.wikibase.toolbarcontroller',
 				'mediawiki.Title',
-				'wikibase',
+				'wikibase.getLanguageNameByCode',
 			),
 			'messages' => array(
 				'wikibase-fingerprintview-input-help-message',
@@ -254,8 +254,8 @@ return call_user_func( function() {
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase',
 				'wikibase.datamodel.Term',
+				'wikibase.getLanguageNameByCode',
 			),
 			'messages' => array(
 				'parentheses',
@@ -312,6 +312,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
+				'jquery.util.EventSingletonManager',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.sitelinkgroupview',
 			),
@@ -330,6 +331,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.sticknode',
 				'jquery.ui.TemplatedWidget',
+				'jquery.util.EventSingletonManager',
 				'jquery.wikibase.sitelinklistview',
 				'mediawiki.jqueryMsg', // for {{plural}} and {{gender}} support in messages
 				'wikibase.sites',
@@ -347,13 +349,13 @@ return call_user_func( function() {
 				'jquery.event.special.eachchange',
 				'jquery.sticknode',
 				'jquery.tablesorter',
-				'jquery.ui.TemplatedWidget',
+				'jquery.ui.EditableTemplatedWidget',
+				'jquery.util.EventSingletonManager',
 				'jquery.wikibase.addtoolbar',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.sitelinkview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase',
 				'wikibase.datamodel',
 				'wikibase.sites',
 				'wikibase.templates',
@@ -383,6 +385,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
+				'jquery.util.EventSingletonManager',
 				'jquery.wikibase.badgeselector',
 				'jquery.wikibase.pagesuggester',
 				'jquery.wikibase.siteselector',
@@ -395,18 +398,6 @@ return call_user_func( function() {
 			'messages' => array(
 				'wikibase-add-badges',
 				'wikibase-sitelinks-input-help-message',
-			),
-		),
-
-		'jquery.wikibase.siteselector' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.wikibase.siteselector.js',
-			),
-			'dependencies' => array(
-				'jquery.event.special.eachchange',
-				'jquery.ui.ooMenu',
-				'jquery.ui.suggester',
-				'util.highlightSubstring',
 			),
 		),
 
@@ -456,23 +447,6 @@ return call_user_func( function() {
 				'wikibase-statementview-referencesheading-pendingcountersubject',
 				'wikibase-statementview-referencesheading-pendingcountertooltip',
 				'wikibase-addreference',
-			),
-		),
-
-		'jquery.wikibase.wbtooltip' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.wikibase.wbtooltip.js',
-			),
-			'styles' => array(
-				'themes/default/jquery.wikibase.wbtooltip.css'
-			),
-			'dependencies' => array(
-				'jquery.tipsy',
-				'jquery.ui.toggler',
-				'jquery.ui.widget',
-			),
-			'messages' => array(
-				'wikibase-tooltip-error-details',
 			),
 		),
 

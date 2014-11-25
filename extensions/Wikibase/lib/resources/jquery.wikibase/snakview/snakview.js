@@ -38,23 +38,33 @@
  *
  * @option {wikibase.ValueViewBuilder} valueViewBuilder
  *
- * @event startediting: Called before edit mode gets initialized.
- *        (1) {jQuery.Event} event
+ * @option {dataTypes.DataTypeStore} dataTypeStore
  *
- * @event stopediting: Called before edit mode gets closed.
- *        (1) {jQuery.Event} event
- *        (2) {Boolean} dropValue Will be false if the value will be kept.
- *        (3) {wb.datamodel.Snak|null} newSnak The Snak which will be displayed after editing has stopped.
- *            Normally this is the Snak representing the last state of the view during edit mode
- *            but can also be the Snak from before edit mode in case editing has been cancelled.
+ * @event startediting
+ *        Triggered before edit mode gets rendered.
+ *        - {jQuery.Event}
  *
- * @event afterstopediting: Called after edit mode got closed.
- *        (1) {jQuery.Event} event
- *        (2) {Boolean} droppedValue false if the value edited during edit mode has been preserved.
+ * @event afterstartediting
+ *        Triggered after having rendered edit mode.
+ *        - {jQuery.Event}
  *
- * @event change: Triggered whenever the snakview's status ("valid"/"invalid") is changed in any
- *        way.
- *        (1) {jQuery.Event} event
+ * @event stopediting
+ *        Triggered before edit mode is stopped.
+ *        - {jQuery.Event}
+ *        - {boolean} dropValue
+ *        - {wikibase.datamodel.Snak|null} newSnak
+ *          The Snak which will be displayed after editing has stopped. Normally, this is the Snak
+ *          representing the last state of the view during edit mode but can also be the Snak from
+ *          before edit mode in case editing has been cancelled.
+ *
+ * @event afterstopediting
+ *        Triggered after edit mode has been stopped an the view id redrawn.
+ *        - {jQuery.Event}
+ *        - {boolean} dropValue
+ *
+ * @event change
+ *        Triggered whenever the snakview's status ("valid"/"invalid") is changed in any way.
+ *        - {jQuery.Event}
  */
 $.widget( 'wikibase.snakview', PARENT, {
 	widgetName: 'wikibase-snakview',
@@ -81,7 +91,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 		},
 		autoStartEditing: true,
 		entityStore: null,
-		valueViewBuilder: null
+		valueViewBuilder: null,
+		dataTypeStore: null
 	},
 
 	/**
@@ -302,11 +313,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 			this._initialSnak = this.snak();
 			this._isInEditMode = true;
-			this.draw();
-
-			if( this._variation ) {
-				this._variation.startEditing();
-			}
 
 			// attach keyboard input events
 			this.element.on( 'keydown.' + this.widgetName, function( event ) {
@@ -332,12 +338,15 @@ $.widget( 'wikibase.snakview', PARENT, {
 				}
 			} );
 
-			if ( this._getPropertySelector() !== null ) {
-				this._getPropertySelector().element.focus();
-			} else if( this._variation ) {
-				$( this._variation ).one( 'afterdraw', function() {
-					this.focus();
+			if( this._variation ) {
+				$( this._variation ).one( 'afterstartediting', function() {
+					self._trigger( 'afterstartediting' );
 				} );
+				this.draw();
+				this._variation.startEditing();
+			} else {
+				this.draw();
+				this._trigger( 'afterstartediting' );
 			}
 		}
 	} ),
@@ -696,8 +705,13 @@ $.widget( 'wikibase.snakview', PARENT, {
 				snaktype: snakType
 			};
 
-			if( this._cachedValues[snakType] ) {
-				$.extend( changes, this._cachedValues[snakType] );
+			if( this._cachedValues[snakType] && this._cachedValues[snakType].datavalue ) {
+				$.extend( changes, {
+					datavalue: {
+						type: this._cachedValues[snakType].datavalue.getType(),
+						value: this._cachedValues[snakType].datavalue.toJSON()
+					}
+				} );
 			}
 
 			this._updateValue( changes );
@@ -742,7 +756,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 				new $.wikibase.snakview.ViewState( this ),
 				this.$snakValue,
 				this._entityStore,
-				this._valueViewBuilder
+				this._valueViewBuilder,
+				this.options.dataTypeStore
 			);
 		}
 	},

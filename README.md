@@ -84,6 +84,10 @@ To make a deployment build, using appropriate branchName argument:
 grunt branch --branchName="wmf/1.25wmf1"
 ```
 
+For deployment builds, this sets the autoloader-suffix config option in the composer.json to be based on the branch name, which makes the composer autoloader code more stable when deployed and synced to multiple servers.
+
+The sharedCacheKeyPrefix setting is also set to be based on the branch version, and can be manually changed when doing backports to a deployment branch, as needed for invalidating memcached entries.
+
 ## Updating this README
 
 This readme is located [here](https://github.com/wmde/WikidataBuildResources/blob/master/README.md). Any changes made to the README in the Wikidata build repo will be overwritten by this file daily.

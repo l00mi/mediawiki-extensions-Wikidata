@@ -27,7 +27,7 @@ use Wikibase\TermSqlIndex;
  */
 class TermSqlIndexTest extends TermIndexTest {
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->tablesUsed[] = 'wb_terms';
@@ -127,7 +127,7 @@ class TermSqlIndexTest extends TermIndexTest {
 		$fingerprint = new Fingerprint(
 			new TermList( $labels ),
 			new TermList( $descriptions ),
-			new AliasGroupList( array() )
+			new AliasGroupList()
 		);
 
 		$label = new Term( array( 'termType' => Term::TYPE_LABEL ) );

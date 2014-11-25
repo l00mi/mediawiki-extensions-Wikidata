@@ -1,10 +1,11 @@
 <?php
 
-namespace Wikibase\DataAccess\Tests\PropertyParserFunction;
+namespace Wikibase\Client\Tests\DataAccess\PropertyParserFunction;
 
 use DataValues\StringValue;
 use Language;
 use Wikibase\Client\Usage\EntityUsage;
+use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\DataAccess\PropertyIdResolver;
 use Wikibase\DataAccess\PropertyParserFunction\LanguageAwareRenderer;
 use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
@@ -16,7 +17,6 @@ use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\Lib\PropertyLabelNotResolvedException;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Client\Usage\UsageAccumulator;
 
 /**
  * @covers Wikibase\DataAccess\PropertyParserFunction\LanguageAwareRenderer
@@ -54,7 +54,7 @@ class LanguageAwareRendererTest extends \PHPUnit_Framework_TestCase {
 			->method( 'addAllUsage' );
 
 		$mock->expects( $this->never() )
-			->method( 'addSitelinksUsage' );
+			->method( 'addSiteLinksUsage' );
 
 		return $mock;
 	}

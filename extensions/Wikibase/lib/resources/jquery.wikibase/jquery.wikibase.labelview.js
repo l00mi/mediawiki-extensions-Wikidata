@@ -93,7 +93,7 @@ $.widget( 'wikibase.labelview', PARENT, {
 
 		PARENT.prototype._create.call( this );
 
-		if( this.options.value.getText() !== '' && this.$text.text() === '' ) {
+		if( this.$text.text() === '' ) {
 			this._draw();
 		}
 	},
@@ -148,7 +148,7 @@ $.widget( 'wikibase.labelview', PARENT, {
 			// TODO: Inject correct placeholder via options
 			placeholder: mw.msg(
 				'wikibase-label-edit-placeholder-language-aware',
-				wb.getNativeLanguageNameByCode( languageCode )
+				wb.getLanguageNameByCode( languageCode )
 			),
 			dir: dir
 		} )

@@ -6,6 +6,8 @@ use DataValues\StringValue;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
@@ -394,9 +396,134 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	public function testNonEmptyListIsNotEmpty() {
 		$list = new StatementList( array(
 			$this->getStatementWithSnak( 1, 'foo' ),
-		));
+		) );
 
 		$this->assertFalse( $list->isEmpty() );
+	}
+
+	public function testGetMainSnaks() {
+		$list = new StatementList();
+
+		$list->addNewStatement( new PropertyNoValueSnak( 42 ) );
+		$list->addNewStatement( new PropertyNoValueSnak( 1337 ), array( new PropertyNoValueSnak( 32202 ) ) );
+		$list->addNewStatement( new PropertyNoValueSnak( 9001 ) );
+
+		$this->assertEquals(
+			array(
+				new PropertyNoValueSnak( 42 ),
+				new PropertyNoValueSnak( 1337 ),
+				new PropertyNoValueSnak( 9001 ),
+			),
+			$list->getMainSnaks()
+		);
+	}
+
+	public function testGivenNotKnownPropertyId_getWithPropertyIdReturnsEmptyList() {
+		$list = new StatementList();
+		$list->addNewStatement( new PropertyNoValueSnak( 42 ) );
+
+		$this->assertEquals(
+			new StatementList(),
+			$list->getWithPropertyId( new PropertyId( 'P2' ) )
+		);
+	}
+
+	public function testGivenKnownPropertyId_getWithPropertyIdReturnsListWithOnlyMatchingStatements() {
+		$list = new StatementList();
+		$list->addNewStatement( new PropertyNoValueSnak( 42 ) );
+		$list->addNewStatement( new PropertyNoValueSnak( 9001 ) );
+		$list->addNewStatement( new PropertySomeValueSnak( 42 ) );
+		$list->addNewStatement( new PropertySomeValueSnak( 9001 ) );
+
+		$expected = new StatementList();
+		$expected->addNewStatement( new PropertyNoValueSnak( 42 ) );
+		$expected->addNewStatement( new PropertySomeValueSnak( 42 ) );
+
+		$this->assertEquals(
+			$expected,
+			$list->getWithPropertyId( new PropertyId( 'P42' ) )
+		);
+	}
+
+	public function testGivenInvalidRank_getWithRankReturnsEmptyList() {
+		$list = new StatementList();
+		$this->assertEquals( new StatementList(), $list->getWithRank( 42 ) );
+	}
+
+	public function testGivenValidRank_getWithRankReturnsOnlyMatchingStatements() {
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement->setRank( Statement::RANK_PREFERRED );
+
+		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 1337 ) ) );
+		$secondStatement->setRank( Statement::RANK_NORMAL );
+
+		$thirdStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$thirdStatement->setRank( Statement::RANK_DEPRECATED );
+
+		$list = new StatementList( array( $statement, $secondStatement, $thirdStatement ) );
+
+		$this->assertEquals(
+			new StatementList( array( $statement ) ),
+			$list->getWithRank( Statement::RANK_PREFERRED )
+		);
+
+		$this->assertEquals(
+			new StatementList( array( $secondStatement, $thirdStatement ) ),
+			$list->getWithRank( array( Statement::RANK_NORMAL, Statement::RANK_DEPRECATED ) )
+		);
+	}
+
+	public function testWhenListIsEmpty_getBestStatementsReturnsEmptyList() {
+		$list = new StatementList();
+		$this->assertEquals( new StatementList(), $list->getBestStatements() );
+	}
+
+	public function testWhenOnlyDeprecatedStatements_getBestStatementsReturnsEmptyList() {
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement->setRank( Statement::RANK_DEPRECATED );
+
+		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$secondStatement->setRank( Statement::RANK_DEPRECATED );
+
+		$list = new StatementList( array( $statement, $secondStatement ) );
+		$this->assertEquals( new StatementList(), $list->getBestStatements() );
+	}
+
+	public function testWhenPreferredStatements_getBestStatementsReturnsOnlyThose() {
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement->setRank( Statement::RANK_PREFERRED );
+
+		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 1337 ) ) );
+		$secondStatement->setRank( Statement::RANK_NORMAL );
+
+		$thirdStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$thirdStatement->setRank( Statement::RANK_DEPRECATED );
+
+		$fourthStatement = new Statement( new Claim( new PropertyNoValueSnak( 23 ) ) );
+		$fourthStatement->setRank( Statement::RANK_PREFERRED );
+
+		$list = new StatementList( array( $statement, $secondStatement, $thirdStatement, $fourthStatement ) );
+		$this->assertEquals(
+			new StatementList( array( $statement, $fourthStatement ) ),
+			$list->getBestStatements()
+		);
+	}
+
+	public function testWhenNoPreferredStatements_getBestStatementsReturnsOnlyNormalOnes() {
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement->setRank( Statement::RANK_NORMAL );
+
+		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 1337 ) ) );
+		$secondStatement->setRank( Statement::RANK_NORMAL );
+
+		$thirdStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$thirdStatement->setRank( Statement::RANK_DEPRECATED );
+
+		$list = new StatementList( array( $statement, $secondStatement, $thirdStatement ) );
+		$this->assertEquals(
+			new StatementList( array( $statement, $secondStatement ) ),
+			$list->getBestStatements()
+		);
 	}
 
 }

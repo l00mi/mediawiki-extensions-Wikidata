@@ -14,15 +14,11 @@ namespace DataValues;
 class UnknownValue extends DataValueObject {
 
 	/**
-	 * @since 0.1
-	 *
 	 * @var mixed
 	 */
-	protected $value;
+	private $value;
 
 	/**
-	 * @since 0.1
-	 *
 	 * @param mixed $value
 	 */
 	public function __construct( $value ) {
@@ -69,7 +65,7 @@ class UnknownValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return string|float|int
+	 * @return int Always 0 in this implementation.
 	 */
 	public function getSortKey() {
 		return 0;

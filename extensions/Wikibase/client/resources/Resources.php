@@ -1,15 +1,12 @@
 <?php
 
 return call_user_func( function() {
-	preg_match(
-		'+' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
-			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
-		__DIR__,
-		$remoteExtPathParts
-	);
+	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
+
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1],
+		'remoteExtPath' => '..' . $remoteExtPath[0],
 	);
 
 	return array(
@@ -87,8 +84,8 @@ return call_user_func( function() {
 				'jquery.event.special.eachchange',
 				'wikibase.client.currentSite',
 				'wikibase.sites',
-				'wikibase.RepoApi',
-				'wikibase.RepoApiError',
+				'wikibase.api.RepoApi',
+				'wikibase.api.RepoApiError',
 				'wikibase.client.PageConnector'
 			),
 			'messages' => array(
