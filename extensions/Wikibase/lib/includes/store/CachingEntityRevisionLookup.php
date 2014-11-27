@@ -19,31 +19,31 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 	/**
 	 * @var EntityRevisionLookup
 	 */
-	protected $lookup;
+	private $lookup;
 
 	/**
 	 * The cache to use for caching entities.
 	 *
 	 * @var BagOStuff
 	 */
-	protected $cache;
+	private $cache;
 
 	/**
 	 * @var int $cacheTimeout
 	 */
-	protected $cacheTimeout;
+	private $cacheTimeout;
 
 	/**
 	 * The key prefix to use when caching entities in memory.
 	 *
 	 * @var $cacheKeyPrefix
 	 */
-	protected $cacheKeyPrefix;
+	private $cacheKeyPrefix;
 
 	/**
 	 * @var bool $shouldVerifyRevision
 	 */
-	protected $shouldVerifyRevision;
+	private $shouldVerifyRevision;
 
 	/**
 	 * @param EntityRevisionLookup $entityRevisionLookup The lookup to use
@@ -81,7 +81,7 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 	 *
 	 * @return String
 	 */
-	protected function getCacheKey( EntityId $entityId ) {
+	private function getCacheKey( EntityId $entityId ) {
 		$cacheKey = $this->cacheKeyPrefix . ':' . $entityId->getSerialization();
 
 		return $cacheKey;
@@ -104,6 +104,7 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 		wfProfileIn( __METHOD__ );
 		$key = $this->getCacheKey( $entityId );
 
+		/** @var EntityRevision $entityRevision */
 		$entityRevision = $this->cache->get( $key );
 
 		if ( $entityRevision !== false ) {
@@ -117,7 +118,7 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 				}
 			}
 
-			if ( $revisionId !== 0 && $entityRevision->getRevision() !== $revisionId ) {
+			if ( $revisionId !== 0 && $entityRevision->getRevisionId() !== $revisionId ) {
 				$entityRevision = false;
 			}
 		}
@@ -174,10 +175,11 @@ class CachingEntityRevisionLookup implements EntityRevisionLookup, EntityStoreWa
 	public function getLatestRevisionId( EntityId $entityId ) {
 		if ( !$this->shouldVerifyRevision ) {
 			$key = $this->getCacheKey( $entityId );
+			/** @var EntityRevision $entityRevision */
 			$entityRevision = $this->cache->get( $key );
 
 			if ( $entityRevision ) {
-				return $entityRevision->getRevision();
+				return $entityRevision->getRevisionId();
 			}
 		}
 

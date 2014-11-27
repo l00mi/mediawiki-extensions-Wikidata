@@ -488,12 +488,22 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider invalidPrecisionProvider
 	 */
-	public function testInvalidPrecision_fallsBackToDefaultPrecision( $precision ) {
+	public function testFormatWithInvalidPrecision_fallsBackToDefaultPrecision( $precision ) {
 		$options = new FormatterOptions();
 		$options->setOption( GeoCoordinateFormatter::OPT_PRECISION, $precision );
 		$formatter = new GeoCoordinateFormatter( $options );
 
 		$formatted = $formatter->format( new LatLongValue( 1.2, 3.4 ) );
+		$this->assertEquals( '1.2, 3.4', $formatted );
+	}
+
+	/**
+	 * @dataProvider invalidPrecisionProvider
+	 */
+	public function testFormatLatLongValueWithInvalidPrecision_fallsBackToDefaultPrecision( $precision ) {
+		$formatter = new GeoCoordinateFormatter( new FormatterOptions() );
+
+		$formatted = $formatter->formatLatLongValue( new LatLongValue( 1.2, 3.4 ), $precision );
 		$this->assertEquals( '1.2, 3.4', $formatted );
 	}
 

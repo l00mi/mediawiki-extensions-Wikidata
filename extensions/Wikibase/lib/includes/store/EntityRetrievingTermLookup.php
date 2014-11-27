@@ -3,7 +3,7 @@
 namespace Wikibase\Lib\Store;
 
 use OutOfBoundsException;
-use Wikibaes\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
@@ -86,22 +86,22 @@ class EntityRetrievingTermLookup implements TermLookup {
 	}
 
 	/**
-	 * @param EntityId
+	 * @param EntityId $entityId
 	 *
 	 * @return Fingerprint
 	 */
 	private function getFingerprint( EntityId $entityId ) {
-		$prefixedId = $entityId->getSerialization();
+		$idSerialization = $entityId->getSerialization();
 
-		if ( !isset( $this->fingerprints[$prefixedId] ) ) {
-			$this->fingerprints[$prefixedId] = $this->fetchFingerprint( $entityId );
+		if ( !isset( $this->fingerprints[$idSerialization] ) ) {
+			$this->fingerprints[$idSerialization] = $this->fetchFingerprint( $entityId );
 		}
 
-		return $this->fingerprints[$prefixedId];
+		return $this->fingerprints[$idSerialization];
 	}
 
 	/**
-	 * @param EntityId
+	 * @param EntityId $entityId
 	 *
 	 * @throws StorageException
 	 * @return Fingerprint

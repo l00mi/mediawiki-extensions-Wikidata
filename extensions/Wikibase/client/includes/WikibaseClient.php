@@ -18,7 +18,7 @@ use Wikibase\Client\Changes\ChangeHandler;
 use Wikibase\Client\Changes\ChangeRunCoalescer;
 use Wikibase\Client\Changes\WikiPageUpdater;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
-use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
+use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
 use Wikibase\Client\Hooks\ParserFunctionRegistrant;
 use Wikibase\Client\Store\TitleFactory;
 use Wikibase\ClientStore;
@@ -45,6 +45,7 @@ use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Serializers\ForbiddenSerializer;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
@@ -200,6 +201,13 @@ final class WikibaseClient {
 	 */
 	private function getEntityLookup() {
 		return $this->getStore()->getEntityLookup();
+	}
+
+	/**
+	 * @return TermLookup
+	 */
+	private function getTermLookup() {
+		return new EntityRetrievingTermLookup( $this->getEntityLookup() );
 	}
 
 	/**
@@ -465,7 +473,7 @@ final class WikibaseClient {
 	 */
 	private function newSnakFormatterFactory() {
 		$valueFormatterBuilders = new WikibaseValueFormatterBuilders(
-			$this->getEntityLookup(),
+			$this->getTermLookup(),
 			$this->contentLanguage
 		);
 
@@ -497,7 +505,7 @@ final class WikibaseClient {
 	 */
 	private function newValueFormatterFactory() {
 		$builders = new WikibaseValueFormatterBuilders(
-			$this->getEntityLookup(),
+			$this->getTermLookup(),
 			$this->contentLanguage
 		);
 
@@ -524,7 +532,7 @@ final class WikibaseClient {
 	public function getLangLinkHandler() {
 		if ( !$this->langLinkHandler ) {
 			$this->langLinkHandler = new LangLinkHandler(
-				$this->getOtherProjectsSidebarGenerator(),
+				$this->getOtherProjectsSidebarGeneratorFactory(),
 				$this->getLanguageLinkBadgeDisplay(),
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getNamespaceChecker(),
@@ -632,14 +640,13 @@ final class WikibaseClient {
 	/**
 	 * @since 0.5
 	 *
-	 * @return OtherProjectsSidebarGenerator
+	 * @return OtherProjectsSidebarGeneratorFactory
 	 */
-	public function getOtherProjectsSidebarGenerator() {
-		return new OtherProjectsSidebarGenerator(
-			$this->settings->getSetting( 'siteGlobalID' ),
+	public function getOtherProjectsSidebarGeneratorFactory() {
+		return new OtherProjectsSidebarGeneratorFactory(
+			$this->settings,
 			$this->getStore()->getSiteLinkTable(),
-			$this->getSiteStore()->getSites(),
-			$this->settings->getSetting( 'otherProjectsLinks' )
+			$this->getSiteStore()
 		);
 	}
 

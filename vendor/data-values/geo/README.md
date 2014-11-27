@@ -93,9 +93,13 @@ It is based upon and contains a lot of code written by [Jeroen De Dauw]
 
 ## Release notes
 
+### 1.1.4 (2014-11-25)
+
+* Add fall back to default on invalid precision to more places.
+
 ### 1.1.3 (2014-11-19)
 
-* On invalid precision fall back to default instead of dividing by zero.
+* Fall back to default on invalid precision instead of dividing by zero.
 
 ### 1.1.2 (2014-11-18)
 

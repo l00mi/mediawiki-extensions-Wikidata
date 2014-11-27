@@ -7,7 +7,6 @@ use DBAccessBase;
 use InvalidArgumentException;
 use Iterator;
 use MWException;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
@@ -106,7 +105,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 		$termsToDelete = array_udiff( $oldTerms, $newTerms, 'Wikibase\Term::compare' );
 
 		if ( !$termsToInsert && !$termsToDelete ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": terms did not change, returning." );
+			wfDebugLog( __CLASS__, __FUNCTION__ . ': terms did not change, returning.' );
 			wfProfileOut( __METHOD__ );
 			return true;
 		}
@@ -115,18 +114,13 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 		$dbw = $this->getConnection( DB_MASTER );
 
 		if ( $ok && $termsToDelete ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": " . count( $termsToDelete ) . " terms to delete." );
-			$ok = $dbw->deadlockLoop( array( $this, 'deleteTermsInternal' ), $entity, $termsToDelete, $dbw );
+			wfDebugLog( __CLASS__, __FUNCTION__ . ': ' . count( $termsToDelete ) . ' terms to delete.' );
+			$ok = $dbw->deadlockLoop( array( $this, 'deleteTermsInternal' ), $entity->getId(), $termsToDelete, $dbw );
 		}
 
 		if ( $ok && $termsToInsert ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": " . count( $termsToInsert ) . " terms to insert." );
-
-			// TODO: remove silly self hack when we can use PHP 5.4
-			$self = $this;
-			$ok = $dbw->deadlockLoop( function() use ( $self, $entity, $termsToInsert, $dbw ) {
-				return $self->insertTermsInternal( $entity, $termsToInsert, $dbw );
-			} );
+			wfDebugLog( __CLASS__, __FUNCTION__ . ': ' . count( $termsToInsert ) . ' terms to insert.' );
+			$ok = $dbw->deadlockLoop( array( $this, 'insertTermsInternal' ), $entity, $termsToInsert, $dbw );
 		}
 
 		$this->releaseConnection( $dbw );
@@ -251,26 +245,26 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 	 *
 	 * @since 0.5
 	 *
-	 * @param Entity $entity
+	 * @param EntityId $entityId
 	 * @param Term[] $terms
 	 * @param DatabaseBase $dbw
 	 *
 	 * @return boolean Success indicator
 	 */
-	public function deleteTermsInternal( Entity $entity, $terms, DatabaseBase $dbw ) {
+	public function deleteTermsInternal( EntityId $entityId, $terms, DatabaseBase $dbw ) {
 		wfProfileIn( __METHOD__ );
 
 		//TODO: Make getTermsOfEntity() collect term_row_id values, so we can use them here.
 		//      That would allow us to do the deletion in a single query, based on a set of ids.
 
 		$entityIdentifiers = array(
-			'term_entity_id' => $entity->getId()->getNumericId(),
-			'term_entity_type' => $entity->getId()->getEntityType()
+			'term_entity_id' => $entityId->getNumericId(),
+			'term_entity_type' => $entityId->getEntityType()
 		);
 
 		$uniqueKeyFields = array( 'term_entity_type', 'term_entity_id', 'term_language', 'term_type', 'term_text' );
 
-		wfDebugLog( __CLASS__, __FUNCTION__ . ': deleting terms for ' . $entity->getId()->getSerialization() );
+		wfDebugLog( __CLASS__, __FUNCTION__ . ': deleting terms for ' . $entityId->getSerialization() );
 
 		$success = true;
 		foreach ( $terms as $term ) {
@@ -379,16 +373,16 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 	 * Returns the terms stored for the given entity.
 	 * @see TermIndex::getTermsOfEntity
 	 *
-	 * @param EntityId $id
+	 * @param EntityId $entityId
 	 *
 	 * @return Term[]
 	 */
-	public function getTermsOfEntity( EntityId $id ) {
+	public function getTermsOfEntity( EntityId $entityId ) {
 		wfProfileIn( __METHOD__ );
 
 		$entityIdentifiers = array(
-			'term_entity_id' => $id->getNumericId(),
-			'term_entity_type' => $id->getEntityType()
+			'term_entity_id' => $entityId->getNumericId(),
+			'term_entity_type' => $entityId->getEntityType()
 		);
 
 		$fields = array(
@@ -420,17 +414,17 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 	 *
 	 * @see TermIndex::getTermsOfEntities
 	 *
-	 * @param EntityId[] $ids
+	 * @param EntityId[] $entityIds
 	 * @param string $entityType
 	 * @param string|null $language Language code
 	 *
 	 * @throws MWException
 	 * @return Term[]
 	 */
-	public function getTermsOfEntities( array $ids, $entityType, $language = null ) {
+	public function getTermsOfEntities( array $entityIds, $entityType, $language = null ) {
 		wfProfileIn( __METHOD__ );
 
-		if ( empty($ids) ) {
+		if ( empty( $entityIds ) ) {
 			wfProfileOut( __METHOD__ );
 			return array();
 		}
@@ -443,13 +437,13 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 		}
 
 		$numericIds = array();
-		foreach ( $ids as $id ) {
-			if ( $id->getEntityType() !== $entityType ) {
-				throw new MWException( 'ID ' . $id->getSerialization()
+		foreach ( $entityIds as $entityId ) {
+			if ( $entityId->getEntityType() !== $entityType ) {
+				throw new MWException( 'ID ' . $entityId->getSerialization()
 					. " does not refer to an entity of type $entityType." );
 			}
 
-			$numericIds[] = $id->getNumericId();
+			$numericIds[] = $entityId->getNumericId();
 		}
 
 		$entityIdentifiers['term_entity_id'] = $numericIds;

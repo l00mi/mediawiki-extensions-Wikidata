@@ -2,19 +2,18 @@
 
 namespace Wikibase;
 
-use Language;
 use ParserOutput;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\SiteLinkList;
-use Wikibase\LanguageFallbackChain;
-use Wikibase\Lib\Serializers\SerializationOptions;
+use Wikibase\DataModel\StatementListProvider;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
+use Wikibase\Lib\Store\EntityInfoTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\LanguageFallbackLabelLookup;
 use Wikibase\Repo\View\EntityViewFactory;
 
 /**
@@ -108,16 +107,23 @@ class EntityParserOutputGenerator {
 		$parserOutput = new ParserOutput();
 
 		$entity = $entityRevision->getEntity();
-		$snaks = $entity->getAllSnaks();
+
+		if ( $entity instanceof StatementListProvider ) {
+			$snaks = $entity->getStatements()->getAllSnaks();
+		}
+		else {
+			$snaks = array();
+		}
 
 		$usedEntityIds = $this->referencedEntitiesFinder->findSnakLinks( $snaks );
-		$entityInfo = $this->getEntityInfoForJsConfig( $usedEntityIds );
+		$entityInfo = $this->getEntityInfo( $usedEntityIds );
 
 		$configVars = $this->configBuilder->build( $entity, $entityInfo );
 		$parserOutput->addJsConfigVars( $configVars );
 
 		$this->addLinksToParserOutput( $parserOutput, $usedEntityIds, $snaks );
 
+		// FIXME: OCP violation - https://phabricator.wikimedia.org/T75495
 		if ( $entity instanceof Item ) {
 			$this->addBadgesToParserOutput( $parserOutput, $entity->getSiteLinkList() );
 		}
@@ -126,7 +132,7 @@ class EntityParserOutputGenerator {
 			$this->addHtmlToParserOutput(
 				$parserOutput,
 				$entityRevision,
-				$usedEntityIds,
+				$entityInfo,
 				$editable
 			);
 		}
@@ -202,24 +208,20 @@ class EntityParserOutputGenerator {
 	}
 
 	/**
-	 * Fetches some basic entity information required for the entity view in JavaScript from a
-	 * set of entity IDs.
+	 * Fetches some basic entity information from a set of entity IDs.
 	 *
 	 * @param EntityId[] $entityIds
 	 * @return array obtained from EntityInfoBuilder::getEntityInfo
 	 */
-	private function getEntityInfoForJsConfig( array $entityIds ) {
+	private function getEntityInfo( array $entityIds ) {
 		wfProfileIn( __METHOD__ );
 
-		// @todo: use same instance of entity info, as for the view (see below)
-		// but appears there are some differences in what is collected for each.
-
-		// @todo: apply language fallback!
 		$entityInfoBuilder = $this->entityInfoBuilderFactory->newEntityInfoBuilder( $entityIds );
 
 		$entityInfoBuilder->resolveRedirects();
 		$entityInfoBuilder->removeMissing();
 
+		// @todo: apply language fallback!
 		$entityInfoBuilder->collectTerms(
 			array( 'label', 'description' ),
 			array( $this->languageCode )
@@ -232,27 +234,6 @@ class EntityParserOutputGenerator {
 
 		wfProfileOut( __METHOD__ );
 		return $entityInfo;
-	}
-
-	/**
-	 * @param EntityId[] $entityIds
-	 * @return array obtained from EntityInfoBuilder::getEntityInfo
-	 */
-	private function getEntityInfoForView( array $entityIds ) {
-		$propertyIds = array_filter( $entityIds, function ( EntityId $id ) {
-			return $id->getEntityType() === Property::ENTITY_TYPE;
-		} );
-
-		$entityInfoBuilder = $this->entityInfoBuilderFactory->newEntityInfoBuilder( $propertyIds );
-
-		$entityInfoBuilder->removeMissing();
-
-		$entityInfoBuilder->collectTerms(
-			array( 'label', 'description' ),
-			array( $this->languageCode )
-		);
-
-		return $entityInfoBuilder->getEntityInfo();
 	}
 
 	/**
@@ -270,22 +251,27 @@ class EntityParserOutputGenerator {
 	/**
 	 * @param ParserOutput $parserOutput
 	 * @param EntityRevision $entityRevision
-	 * @param array $entityIds obtained from EntityInfoBuilder::getEntityInfo
-	 * $param boolean $editable
+	 * @param array $entityInfo obtained from EntityInfoBuilder::getEntityInfo
+	 * @param boolean $editable
 	 */
 	private function addHtmlToParserOutput(
 		ParserOutput $parserOutput,
 		EntityRevision $entityRevision,
-		array $entityIds,
+		array $entityInfo,
 		$editable
 	) {
-		$entityView = $this->entityViewFactory->newEntityView(
-			$this->languageFallbackChain,
-			$this->languageCode,
-			$entityRevision->getEntity()->getType()
+
+		$labelLookup = new LanguageFallbackLabelLookup(
+			new EntityInfoTermLookup( $entityInfo ),
+			$this->languageFallbackChain
 		);
 
-		$entityInfo = $this->getEntityInfoForView( $entityIds );
+		$entityView = $this->entityViewFactory->newEntityView(
+			$entityRevision->getEntity()->getType(),
+			$this->languageCode,
+			$this->languageFallbackChain,
+			$labelLookup
+		);
 
 		$html = $entityView->getHtml( $entityRevision, $entityInfo, $editable );
 		$parserOutput->setText( $html );

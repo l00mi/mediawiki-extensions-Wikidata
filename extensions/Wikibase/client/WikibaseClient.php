@@ -65,7 +65,7 @@ if ( !defined( 'WBL_VERSION' ) ) {
 
 call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks;
-	global $wgAPIMetaModules, $wgSpecialPages, $wgSpecialPageGroups, $wgResourceModules;
+	global $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages, $wgSpecialPageGroups, $wgResourceModules;
 	global $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
 
 	$wgExtensionCredits['wikibase'][] = array(
@@ -92,7 +92,7 @@ call_user_func( function() {
 	$wgHooks['OldChangesListRecentChangesLine'][]		= '\Wikibase\ClientHooks::onOldChangesListRecentChangesLine';
 	$wgHooks['OutputPageParserOutput'][]		= '\Wikibase\Client\Hooks\SidebarHookHandlers::onOutputPageParserOutput';
 	$wgHooks['SkinTemplateGetLanguageLink'][]		= '\Wikibase\Client\Hooks\SidebarHookHandlers::onSkinTemplateGetLanguageLink';
-	$wgHooks['ParserAfterParse'][]				= '\Wikibase\Client\Hooks\SidebarHookHandlers::onParserAfterParse';
+	$wgHooks['ParserAfterParse'][]				= '\Wikibase\Client\Hooks\ParserAfterParseHookHandler::onParserAfterParse';
 	$wgHooks['SidebarBeforeOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSidebarBeforeOutput';
 	$wgHooks['ParserAfterParse'][]				= '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onParserAfterParse';
 	$wgHooks['ParserFirstCallInit'][]			= '\Wikibase\ClientHooks::onParserFirstCallInit';
@@ -124,6 +124,18 @@ call_user_func( function() {
 
 	// api modules
 	$wgAPIMetaModules['wikibase'] = 'Wikibase\ApiClientInfo';
+	$wgAPIPropModules['pageterms'] = array(
+		'class' => 'Wikibase\Client\Api\PageTerms',
+		'factory' => function ( ApiQuery $query, $moduleName ) {
+			$client = \Wikibase\Client\WikibaseClient::getDefaultInstance();
+			return new Wikibase\Client\Api\PageTerms(
+				$client->getStore()->getTermIndex(),
+				$client->getStore()->getEntityIdLookup(),
+				$query,
+				$moduleName
+			);
+		}
+	);
 
 	// Special page registration
 	$wgSpecialPages['UnconnectedPages']						= 'Wikibase\Client\Specials\SpecialUnconnectedPages';
