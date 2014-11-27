@@ -42,11 +42,16 @@ class Property extends Entity implements StatementListProvider {
 	 * @param string $dataTypeId
 	 * @param StatementList|null $statements Since 1.1
 	 */
-	public function __construct( PropertyId $id = null, Fingerprint $fingerprint, $dataTypeId, StatementList $statements = null ) {
+	public function __construct(
+		PropertyId $id = null,
+		Fingerprint $fingerprint,
+		$dataTypeId,
+		StatementList $statements = null
+	) {
 		$this->id = $id;
 		$this->fingerprint = $fingerprint;
 		$this->setDataTypeId( $dataTypeId );
-		$this->statements = $statements === null ? new StatementList() : $statements;
+		$this->statements = $statements ?: new StatementList();
 	}
 
 	/**
@@ -125,8 +130,7 @@ class Property extends Entity implements StatementListProvider {
 		return new self(
 			null,
 			Fingerprint::newEmpty(),
-			$dataTypeId,
-			new StatementList()
+			$dataTypeId
 		);
 	}
 

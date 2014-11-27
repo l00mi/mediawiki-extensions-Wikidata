@@ -536,62 +536,6 @@
         ]
     },
     {
-        "name": "wikibase/data-model",
-        "version": "2.4.0",
-        "version_normalized": "2.4.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "66de8e091eeb93bd201d9fdf52ebda958fae5b2a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/66de8e091eeb93bd201d9fdf52ebda958fae5b2a",
-            "reference": "66de8e091eeb93bd201d9fdf52ebda958fae5b2a",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1|~1.0",
-            "diff/diff": "~1.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-11-23 00:54:35",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.4.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseDataModel.php"
-            ],
-            "psr-4": {
-                "Wikibase\\DataModel\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "PHP implementation of the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModel",
-        "keywords": [
-            "DataModel",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/data-model-serialization",
         "version": "1.2.0",
         "version_normalized": "1.2.0.0",
@@ -1171,87 +1115,6 @@
         ]
     },
     {
-        "name": "wikibase/wikibase",
-        "version": "dev-wmf/1.25wmf10",
-        "version_normalized": "dev-wmf/1.25wmf10",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "e8d02191319edc1f8c1821fb8c7adfa68cb20e2d"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e8d02191319edc1f8c1821fb8c7adfa68cb20e2d",
-            "reference": "e8d02191319edc1f8c1821fb8c7adfa68cb20e2d",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.2.0",
-            "data-values/data-types": "~0.4.0",
-            "data-values/data-values": "~1.0.0",
-            "data-values/geo": "~1.0",
-            "data-values/interfaces": "~0.1.4",
-            "data-values/javascript": "~0.6.0",
-            "data-values/number": "~0.4.0",
-            "data-values/serialization": "~1.0",
-            "data-values/time": "~0.6.0",
-            "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.8.1",
-            "diff/diff": "~1.0",
-            "php": ">=5.3.2",
-            "wikibase/data-model": "~2.4",
-            "wikibase/data-model-javascript": "~1.0",
-            "wikibase/data-model-serialization": "~1.2",
-            "wikibase/easyrdf_lite": "~0.8.1",
-            "wikibase/internal-serialization": "~1.3",
-            "wikibase/serialization-javascript": "~2.0"
-        },
-        "conflict": {
-            "mediawiki/mediawiki": "<1.23"
-        },
-        "time": "2014-11-25 19:41:13",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Wikibase.composer.php"
-            ],
-            "classmap": [
-                "client/includes/",
-                "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/",
-                "lib/includes/",
-                "lib/WikibaseLib.hooks.php",
-                "lib/tests/phpunit/",
-                "repo/includes/",
-                "repo/maintenance/",
-                "repo/tests/phpunit/",
-                "repo/Wikibase.hooks.php"
-            ],
-            "psr-4": {
-                "Wikibase\\Repo\\View\\": "repo/includes/View"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Structured data repository for MediaWiki",
-        "homepage": "http://wikiba.se",
-        "keywords": [
-            "wikibase",
-            "wikibaseclient",
-            "wikibaselib",
-            "wikibaserepo",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/wikimedia-badges",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -1351,5 +1214,142 @@
             "source": "https://github.com/wmde/Wikidata.org/tree/master",
             "issues": "https://github.com/wmde/Wikidata.org/issues"
         }
+    },
+    {
+        "name": "wikibase/data-model",
+        "version": "2.4.1",
+        "version_normalized": "2.4.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModel.git",
+            "reference": "6223a24ac1df8688c0d429995ebe71ba37e26cd5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/6223a24ac1df8688c0d429995ebe71ba37e26cd5",
+            "reference": "6223a24ac1df8688c0d429995ebe71ba37e26cd5",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1|~1.0",
+            "diff/diff": "~1.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-11-26 21:29:26",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.4.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseDataModel.php"
+            ],
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP implementation of the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModel",
+        "keywords": [
+            "DataModel",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/wikibase",
+        "version": "dev-wmf/1.25wmf10",
+        "version_normalized": "dev-wmf/1.25wmf10",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "9a20e61a5c862a31bb7da1de661691f73e740124"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9a20e61a5c862a31bb7da1de661691f73e740124",
+            "reference": "9a20e61a5c862a31bb7da1de661691f73e740124",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.2.0",
+            "data-values/data-types": "~0.4.0",
+            "data-values/data-values": "~1.0.0",
+            "data-values/geo": "~1.0",
+            "data-values/interfaces": "~0.1.4",
+            "data-values/javascript": "~0.6.0",
+            "data-values/number": "~0.4.0",
+            "data-values/serialization": "~1.0",
+            "data-values/time": "~0.6.0",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.8.1",
+            "diff/diff": "~1.0",
+            "php": ">=5.3.2",
+            "wikibase/data-model": "~2.4",
+            "wikibase/data-model-javascript": "~1.0",
+            "wikibase/data-model-serialization": "~1.2",
+            "wikibase/easyrdf_lite": "~0.8.1",
+            "wikibase/internal-serialization": "~1.3",
+            "wikibase/serialization-javascript": "~2.0"
+        },
+        "conflict": {
+            "mediawiki/mediawiki": "<1.23"
+        },
+        "time": "2014-11-27 14:51:02",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "Wikibase.composer.php"
+            ],
+            "classmap": [
+                "client/includes/",
+                "client/WikibaseClient.hooks.php",
+                "client/tests/phpunit/",
+                "lib/includes/",
+                "lib/WikibaseLib.hooks.php",
+                "lib/tests/phpunit/",
+                "repo/includes/",
+                "repo/maintenance/",
+                "repo/tests/phpunit/",
+                "repo/Wikibase.hooks.php"
+            ],
+            "psr-4": {
+                "Wikibase\\Repo\\View\\": "repo/includes/View"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Structured data repository for MediaWiki",
+        "homepage": "http://wikiba.se",
+        "keywords": [
+            "wikibase",
+            "wikibaseclient",
+            "wikibaselib",
+            "wikibaserepo",
+            "wikidata"
+        ]
     }
 ]
