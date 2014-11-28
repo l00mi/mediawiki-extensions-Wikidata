@@ -139,6 +139,99 @@
         ]
     },
     {
+        "name": "data-values/javascript",
+        "version": "0.6.1",
+        "version_normalized": "0.6.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataValuesJavascript.git",
+            "reference": "b2e6c22f59a1cd88839a5086bc8b0b286f91b223"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/b2e6c22f59a1cd88839a5086bc8b0b286f91b223",
+            "reference": "b2e6c22f59a1cd88839a5086bc8b0b286f91b223",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": ">=1.0.1"
+        },
+        "time": "2014-11-07 13:39:31",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValuesJavascript.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            },
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "DataValues implementation in Javascript",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/javascript-api",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
+            "reference": "9e74bc0691f264d633e5e635114bc289436874ff"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/9e74bc0691f264d633e5e635114bc289436874ff",
+            "reference": "9e74bc0691f264d633e5e635114bc289436874ff",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.6.0"
+        },
+        "time": "2014-11-28 08:49:55",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Wikibase API client in JavaScript"
+    },
+    {
         "name": "data-values/data-values",
         "version": "1.0.0",
         "version_normalized": "1.0.0.0",
@@ -308,57 +401,6 @@
         "keywords": [
             "DataModel",
             "wikibase",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/javascript",
-        "version": "0.6.1",
-        "version_normalized": "0.6.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "b2e6c22f59a1cd88839a5086bc8b0b286f91b223"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/b2e6c22f59a1cd88839a5086bc8b0b286f91b223",
-            "reference": "b2e6c22f59a1cd88839a5086bc8b0b286f91b223",
-            "shasum": ""
-        },
-        "require": {
-            "composer/installers": ">=1.0.1"
-        },
-        "time": "2014-11-07 13:39:31",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValuesJavascript.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "DataValues implementation in Javascript",
-        "keywords": [
-            "datavalues",
             "wikidata"
         ]
     },
@@ -1177,12 +1219,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "fc62a91e880c42d620956d1c0b216d5a39652523"
+            "reference": "c39be3ce59bc175ee1d54f3a1cc02008da9fd57c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fc62a91e880c42d620956d1c0b216d5a39652523",
-            "reference": "fc62a91e880c42d620956d1c0b216d5a39652523",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c39be3ce59bc175ee1d54f3a1cc02008da9fd57c",
+            "reference": "c39be3ce59bc175ee1d54f3a1cc02008da9fd57c",
             "shasum": ""
         },
         "require": {
@@ -1204,12 +1246,13 @@
             "wikibase/data-model-serialization": "~1.2",
             "wikibase/easyrdf_lite": "~0.8.1",
             "wikibase/internal-serialization": "~1.3",
+            "wikibase/javascript-api": "~1.0",
             "wikibase/serialization-javascript": "~2.0"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-11-26 21:38:00",
+        "time": "2014-11-28 10:07:13",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

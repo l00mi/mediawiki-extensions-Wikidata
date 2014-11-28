@@ -3,14 +3,9 @@
 namespace Wikibase\Repo\View;
 
 use Linker;
-use Wikibase\ClaimHtmlGenerator;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\ReferencedEntitiesFinder;
 
 /**
  * Generates HTML to display claims.
@@ -67,10 +62,9 @@ class ClaimsView {
 	 *
 	 * @param Claim[] $claims the claims to render
 	 * @param array $entityInfo
-	 * @param string $heading the message key of the heading
 	 * @return string
 	 */
-	public function getHtml( array $claims, array $entityInfo, $heading = 'wikibase-claims' ) {
+	public function getHtml( array $claims, array $entityInfo ) {
 		// aggregate claims by properties
 		$claimsByProperty = $this->groupClaimsByProperties( $claims );
 
@@ -82,7 +76,7 @@ class ClaimsView {
 		$claimgrouplistviewHtml = wfTemplate( 'wb-claimgrouplistview', $claimsHtml, '' );
 
 		// TODO: Add link to SpecialPage that allows adding a new claim.
-		$sectionHeading = $this->getHtmlForSectionHeading( $heading );
+		$sectionHeading = $this->getHtmlForSectionHeading( 'wikibase-statements' );
 		// FIXME: claimgrouplistview should be the topmost claims related template
 		$html = wfTemplate( 'wb-claimlistview', $claimgrouplistviewHtml, '', '' );
 		return $sectionHeading . $html;
@@ -117,21 +111,6 @@ class ClaimsView {
 			$claimsByProperty[$propertyId->getNumericId()][] = $claim;
 		}
 		return $claimsByProperty;
-	}
-
-	/**
-	 * Returns all snaks which are stored in this list of claims.
-	 *
-	 * @param Claim[] $claims
-	 * @return Snak[]
-	 */
-	private function getSnaksFromClaims( array $claims ) {
-		$snaks = array();
-		/** @var Claim $claim */
-		foreach ( $claims as $claim ) {
-			$snaks = array_merge( $snaks, $claim->getAllSnaks() );
-		}
-		return $snaks;
 	}
 
 	/**

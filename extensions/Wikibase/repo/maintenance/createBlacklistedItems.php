@@ -2,7 +2,7 @@
 
 namespace Wikibase;
 
-use Wikibase\DataModel\SiteLink;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\Repo\WikibaseRepo;
 
 $basePath = getenv( 'MW_INSTALL_PATH' ) !== false ? getenv( 'MW_INSTALL_PATH' ) : __DIR__ . '/../../../..';
@@ -17,7 +17,7 @@ require_once $basePath . '/maintenance/Maintenance.php';
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class CreatedBlacklistedItems extends \Maintenance {
+class CreateBlacklistedItems extends \Maintenance {
 
 	public function __construct() {
 		$this->mDescription = 'Created blacklisted items';
@@ -70,8 +70,8 @@ class CreatedBlacklistedItems extends \Maintenance {
 			$item = Item::newEmpty();
 
 			$item->setId( $id );
-			$item->setLabel( 'en', $name );
-			$item->addSiteLink( new SiteLink( 'enwiki', $name ) );
+			$item->getFingerprint()->setLabel( 'en', $name );
+			$item->getSiteLinkList()->addNewSiteLink( 'enwiki', $name );
 
 			$store->saveEntity( $item, 'Import', $user, EDIT_NEW );
 		}
@@ -81,5 +81,5 @@ class CreatedBlacklistedItems extends \Maintenance {
 
 }
 
-$maintClass = 'Wikibase\CreatedBlacklistedItems';
+$maintClass = 'Wikibase\CreateBlacklistedItems';
 require_once( RUN_MAINTENANCE_IF_MAIN );
