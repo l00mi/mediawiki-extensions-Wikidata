@@ -1,14 +1,12 @@
 <?php
 
-namespace Wikibase;
+namespace Wikibase\Repo\View;
 
 use Html;
 use InvalidArgumentException;
 use Language;
 use Wikibase\DataModel\Entity\Entity;
-use Wikibase\Repo\View\ClaimsView;
-use Wikibase\Repo\View\FingerprintView;
-use Wikibase\Repo\View\TextInjector;
+use Wikibase\EntityRevision;
 
 /**
  * Base class for creating views for all different kinds of Wikibase\Entity.
@@ -47,6 +45,11 @@ abstract class EntityView {
 	 */
 	protected $textInjector;
 
+	/**
+	 * @param FingerprintView $fingerprintView
+	 * @param ClaimsView $claimsView
+	 * @param Language $language
+	 */
 	public function __construct(
 		FingerprintView $fingerprintView,
 		ClaimsView $claimsView,

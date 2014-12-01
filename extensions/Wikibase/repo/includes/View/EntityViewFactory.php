@@ -6,15 +6,12 @@ use InvalidArgumentException;
 use Language;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\EntityView;
-use Wikibase\ItemView;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LabelLookup;
-use Wikibase\PropertyView;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -45,15 +42,22 @@ class EntityViewFactory {
 	 */
 	private $sectionEditLinkGenerator;
 
+	/**
+	 * @var string[]
+	 */
+	private $siteLinkGroups;
+
 	public function __construct(
 		EntityTitleLookup $entityTitleLookup,
 		EntityLookup $entityLookup,
-		OutputFormatSnakFormatterFactory $snakFormatterFactory
+		OutputFormatSnakFormatterFactory $snakFormatterFactory,
+		array $siteLinkGroups
 	) {
 		$this->entityTitleLookup = $entityTitleLookup;
 		$this->entityLookup = $entityLookup;
 		$this->snakFormatterFactory = $snakFormatterFactory;
 		$this->sectionEditLinkGenerator = new SectionEditLinkGenerator();
+		$this->siteLinkGroups = $siteLinkGroups;
 	}
 
 	/**
@@ -81,7 +85,7 @@ class EntityViewFactory {
 
 		// @fixme support more entity types
 		if ( $entityType === 'item' ) {
-			return new ItemView( $fingerprintView, $claimsView, $language );
+			return new ItemView( $fingerprintView, $claimsView, $language, $this->siteLinkGroups );
 		} elseif ( $entityType === 'property' ) {
 			$displayStatementsOnProperties = WikibaseRepo::getDefaultInstance()->getSettings()
 					->getSetting( 'displayStatementsOnProperties' );
