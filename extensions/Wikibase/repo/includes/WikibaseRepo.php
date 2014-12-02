@@ -49,17 +49,13 @@ use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Store\LanguageLabelLookup;
 use Wikibase\Lib\Store\TermLookup;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
-use Wikibase\ParserOutputJsConfigBuilder;
-use Wikibase\ReferencedEntitiesFinder;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\ItemHandler;
 use Wikibase\Repo\Content\PropertyHandler;
-use Wikibase\Repo\EntityNamespaceLookup;
 use Wikibase\Repo\Localizer\ChangeOpValidationExceptionLocalizer;
 use Wikibase\Repo\Localizer\MessageParameterFormatter;
 use Wikibase\Repo\Notifications\ChangeNotifier;
@@ -67,6 +63,7 @@ use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\DummyChangeTransmitter;
 use Wikibase\Repo\Store\EntityPermissionChecker;
+use Wikibase\Repo\Store\PageEntityIdLookup;
 use Wikibase\Repo\View\EntityViewFactory;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
@@ -273,6 +270,15 @@ class WikibaseRepo {
 	 * @return EntityTitleLookup
 	 */
 	public function getEntityTitleLookup() {
+		return $this->getEntityContentFactory();
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return PageEntityIdLookup
+	 */
+	public function getPageEntityIdLookup() {
 		return $this->getEntityContentFactory();
 	}
 

@@ -6,14 +6,16 @@ use DataValues\DataValue;
 use EasyRdf_Graph;
 use EasyRdf_Literal;
 use EasyRdf_Namespace;
-use EasyRdf_Resource;
 use SiteList;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\DataModel\StatementListProvider;
 use Wikibase\Lib\Store\EntityLookup;
 
 /**
@@ -337,7 +339,10 @@ class RdfBuilder {
 	public function addSiteLinks( Item $item ) {
 		$entityResource = $this->getEntityResource( $item->getId() );
 
-		foreach ( $item->getSiteLinks() as $siteLink ) {
+		/**
+		 * @var SiteLink $siteLink
+		 */
+		foreach ( $item->getSiteLinkList() as $siteLink ) {
 			$site = $this->sites->getSite( $siteLink->getSiteId() );
 
 			$languageCode = $site->getLanguageCode();
@@ -360,23 +365,26 @@ class RdfBuilder {
 	/**
 	 * Adds all Claims/Statements from the given entity to the RDF graph.
 	 *
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 */
-	public function addClaims( Entity $entity ) {
-		/* @var Claim $claim */
-		foreach( $entity->getClaims() as $claim ) {
-			$this->addClaim( $entity, $claim );
+	public function addClaims( EntityDocument $entity ) {
+		$id = $entity->getId();
+
+		if ( $entity instanceof StatementListProvider ) {
+			foreach ( $entity->getStatements() as $statement ) {
+				$this->addClaim( $id, $statement );
+			}
 		}
 	}
 
 	/**
 	 * Adds the given Claim from the given Entity to the RDF graph.
 	 *
-	 * @param Entity $entity
-	 * @param Claim  $claim
+	 * @param EntityId $entityId
+	 * @param Claim $claim
 	 */
-	public function addClaim( Entity $entity, Claim $claim ) {
-		$this->addMainSnak( $entity, $claim );
+	private function addClaim( EntityId $entityId, Claim $claim ) {
+		$this->addMainSnak( $entityId, $claim );
 
 		//TODO: add qualifiers
 		//TODO: add references
@@ -385,14 +393,14 @@ class RdfBuilder {
 	/**
 	 * Adds the given Claim's main Snak to the RDF graph.
 	 *
-	 * @param Entity $entity
-	 * @param Claim  $claim
+	 * @param EntityId $entityId
+	 * @param Claim $claim
 	 */
-	public function addMainSnak( Entity $entity, Claim $claim ) {
+	private function addMainSnak( EntityId $entityId, Claim $claim ) {
 		$snak = $claim->getMainSnak();
 
 		if ( $snak instanceof PropertyValueSnak ) {
-			$this->addPropertyValueSnak( $entity, $claim, $snak );
+			$this->addPropertyValueSnak( $entityId, $claim, $snak );
 		} else {
 			//TODO: NoValueSnak, SomeValueSnak
 			wfDebug( __METHOD__ . ": Unsupported snak type: " . get_class( $snak ) );
@@ -415,12 +423,12 @@ class RdfBuilder {
 	/**
 	 * Adds the given PropertyValueSnak to the RDF graph.
 	 *
-	 * @param Entity            $entity
+	 * @param EntityId $entityId
 	 * @param PropertyValueSnak $snak
-	 * @param Claim             $claim
+	 * @param Claim $claim
 	 */
-	public function addPropertyValueSnak( Entity $entity, Claim $claim, PropertyValueSnak $snak ) {
-		$entityResource = $this->getEntityResource( $entity->getId() );
+	private function addPropertyValueSnak( EntityId $entityId, Claim $claim, PropertyValueSnak $snak ) {
+		$entityResource = $this->getEntityResource( $entityId );
 
 		$propertyId = $claim->getMainSnak()->getPropertyId();
 		$propertyQName = $this->getEntityQName( self::NS_ENTITY, $propertyId );

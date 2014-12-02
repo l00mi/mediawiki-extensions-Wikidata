@@ -14,17 +14,15 @@ use MWException;
 use ParserOptions;
 use RequestContext;
 use Revision;
-use Status;
 use Title;
 use User;
-use ValueValidators\Result;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityContent;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityRedirect;
-use Wikibase\Repo\EntityNamespaceLookup;
 use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\TermIndex;
@@ -408,6 +406,7 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @param Title $target
 	 *
+	 * @throws EntityIdParsingException
 	 * @return EntityId
 	 */
 	public function getIdForTitle( Title $target ) {
