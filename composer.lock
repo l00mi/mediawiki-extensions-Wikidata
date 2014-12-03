@@ -773,9 +773,7 @@
                 "psr-4": {
                     "PropertySuggester\\": "src/PropertySuggester/"
                 },
-                "files": [
-
-                ],
+                "files": [],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -1190,12 +1188,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c031e11cb9e47928c76670c290feb43109a7a058"
+                "reference": "830c9e8909ef8b35c7eb77d77c30a2e20e033b55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c031e11cb9e47928c76670c290feb43109a7a058",
-                "reference": "c031e11cb9e47928c76670c290feb43109a7a058",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/830c9e8909ef8b35c7eb77d77c30a2e20e033b55",
+                "reference": "830c9e8909ef8b35c7eb77d77c30a2e20e033b55",
                 "shasum": ""
             },
             "require": {
@@ -1261,7 +1259,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-12-01 01:57:44"
+            "time": "2014-12-03 14:44:36"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1314,12 +1312,8 @@
             "time": "2014-11-25 18:25:26"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "wikibase/wikibase": 20,
@@ -1330,7 +1324,5 @@
     "platform": {
         "php": ">=5.3.0"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }
