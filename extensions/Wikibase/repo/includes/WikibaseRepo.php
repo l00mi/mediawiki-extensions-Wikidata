@@ -22,6 +22,7 @@ use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\EntityFactory;
 use Wikibase\EntityParserOutputGeneratorFactory;
 use Wikibase\InternalSerialization\DeserializerFactory;
@@ -32,8 +33,10 @@ use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\DispatchingValueFormatter;
+use Wikibase\Lib\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
+use Wikibase\Lib\FormatterLabelLookupFactory;
 use Wikibase\Lib\Localizer\DispatchingExceptionLocalizer;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\Localizer\GenericExceptionLocalizer;
@@ -41,7 +44,6 @@ use Wikibase\Lib\Localizer\MessageExceptionLocalizer;
 use Wikibase\Lib\Localizer\ParseExceptionLocalizer;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\SnakConstructionService;
 use Wikibase\Lib\SnakFormatter;
@@ -515,8 +517,8 @@ class WikibaseRepo {
 		global $wgContLang;
 
 		return new WikibaseValueFormatterBuilders(
-			$termLookup,
 			$wgContLang,
+			new FormatterLabelLookupFactory( $termLookup ),
 			$this->getEntityTitleLookup()
 		);
 	}
@@ -969,15 +971,20 @@ class WikibaseRepo {
 		return $this->entityNamespaceLookup;
 	}
 
+	private function getEntityIdHtmlLinkFormatter() {
+		return new EntityIdHtmlLinkFormatterFactory(
+			new FormatterLabelLookupFactory( $this->getTermLookup() ),
+			$this->getEntityTitleLookup()
+		);
+	}
+
 	/**
 	 * @return EntityParserOutputGeneratorFactory
 	 */
 	public function getEntityParserOutputGeneratorFactory() {
-		$entityTitleLookup = $this->getEntityContentFactory();
 
 		$entityViewFactory = new EntityViewFactory(
-			$entityTitleLookup,
-			$this->getEntityLookup(),
+			$this->getEntityIdHtmlLinkFormatter(),
 			$this->getSnakFormatterFactory(),
 			$this->getSettings()->getSetting( 'siteLinkGroups' )
 		);
@@ -985,7 +992,7 @@ class WikibaseRepo {
 		return new EntityParserOutputGeneratorFactory(
 			$entityViewFactory,
 			$this->getStore()->getEntityInfoBuilderFactory(),
-			$entityTitleLookup,
+			$this->getEntityContentFactory(),
 			$this->getEntityIdParser(),
 			new ValuesFinder( $this->getPropertyDataTypeLookup() ),
 			$this->getLanguageFallbackChainFactory()

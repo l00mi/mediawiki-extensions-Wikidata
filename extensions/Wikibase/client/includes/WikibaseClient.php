@@ -13,6 +13,7 @@ use MWException;
 use Site;
 use SiteSQLStore;
 use SiteStore;
+use StubObject;
 use Wikibase\Client\Changes\AffectedPagesFinder;
 use Wikibase\Client\Changes\ChangeHandler;
 use Wikibase\Client\Changes\ChangeRunCoalescer;
@@ -39,6 +40,7 @@ use Wikibase\LangLinkHandler;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
+use Wikibase\Lib\FormatterLabelLookupFactory;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
@@ -46,6 +48,7 @@ use Wikibase\Lib\Serializers\ForbiddenSerializer;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRetrievingTermLookup;
+use Wikibase\Lib\Store\TermLookup;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
@@ -473,8 +476,8 @@ final class WikibaseClient {
 	 */
 	private function newSnakFormatterFactory() {
 		$valueFormatterBuilders = new WikibaseValueFormatterBuilders(
-			$this->getTermLookup(),
-			$this->contentLanguage
+			$this->contentLanguage,
+			new FormatterLabelLookupFactory( $this->getTermLookup() )
 		);
 
 		$builders = new WikibaseSnakFormatterBuilders(
@@ -505,8 +508,8 @@ final class WikibaseClient {
 	 */
 	private function newValueFormatterFactory() {
 		$builders = new WikibaseValueFormatterBuilders(
-			$this->getTermLookup(),
-			$this->contentLanguage
+			$this->contentLanguage,
+			new FormatterLabelLookupFactory( $this->getTermLookup() )
 		);
 
 		return new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
@@ -536,9 +539,9 @@ final class WikibaseClient {
 				$this->getLanguageLinkBadgeDisplay(),
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getNamespaceChecker(),
-				$this->getStore()->getSiteLinkTable(),
+				$this->getStore()->getSiteLinkLookup(),
 				$this->getStore()->getEntityLookup(),
-				$this->getSiteStore()->getSites(),
+				$this->getSiteStore(),
 				$this->getLangLinkSiteGroup()
 			);
 		}
@@ -551,6 +554,7 @@ final class WikibaseClient {
 	 */
 	public function getLanguageLinkBadgeDisplay() {
 		global $wgLang;
+		StubObject::unstub( $wgLang );
 
 		$badgeClassNames = $this->settings->getSetting( 'badgeClassNames' );
 
@@ -645,7 +649,7 @@ final class WikibaseClient {
 	public function getOtherProjectsSidebarGeneratorFactory() {
 		return new OtherProjectsSidebarGeneratorFactory(
 			$this->settings,
-			$this->getStore()->getSiteLinkTable(),
+			$this->getStore()->getSiteLinkLookup(),
 			$this->getSiteStore()
 		);
 	}
@@ -704,7 +708,7 @@ final class WikibaseClient {
 	public function getPropertyParserFunctionRunner() {
 		return new Runner(
 			$this->getPropertyClaimsRendererFactory(),
-			$this->getStore()->getSiteLinkTable(),
+			$this->getStore()->getSiteLinkLookup(),
 			$this->settings->getSetting( 'siteGlobalID' )
 		);
 	}
@@ -729,7 +733,7 @@ final class WikibaseClient {
 			$this->getNamespaceChecker(),
 			new TitleFactory(),
 			$this->settings->getSetting( 'siteGlobalID' ),
-			true
+			$this->getContentLanguage()->getCode()
 		);
 	}
 
@@ -741,6 +745,7 @@ final class WikibaseClient {
 
 		return new ChangeHandler(
 			$this->getAffectedPagesFinder(),
+			new TitleFactory(),
 			new WikiPageUpdater(),
 			new ChangeRunCoalescer(
 				$this->getStore()->getEntityRevisionLookup(),
