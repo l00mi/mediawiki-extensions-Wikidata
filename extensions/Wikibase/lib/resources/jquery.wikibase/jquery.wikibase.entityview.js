@@ -1,36 +1,55 @@
-/**
- * @licence GNU GPL v2+
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( wb, $, mw ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
 
 /**
- * View for displaying an entire wikibase entity.
- * @since 0.3
+ * Abstract base view for displaying Wikibase `Entity`s.
+ * @class jQuery.wikibase.entityview
  * @extends jQuery.ui.TemplatedWidget
+ * @abstract
+ * @since 0.3
+ * @licence GNU GPL v2+
+ * @author H. Snater < mediawiki@snater.com >
  *
- * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
- * @option {wikibase.datamodel.Entity} [value]
- * @option {wikibase.store.EntityStore} entityStore
- * @option {wikibase.ValueViewBuilder} valueViewBuilder
- * @option {dataTypes.DataTypeStore} dataTypeStore
- * @option {string[]} languages
+ * @constructor
  *
+ * @param {Object} options
+ * @param {wikibase.datamodel.Entity} options.value
+ * @param {wikibase.entityChangers.EntityChangersFactory} options.entityChangersFactory
+ *        Required to be able to store changes applied to the entity.
+ * @param {wikibase.store.EntityStore} options.entityStore
+ *        Required by sub-components of the `entityview` to enable those to dynamically query for
+ *        `Entity` objects.
+ * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
+ *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
+ *        `jQuery.valueview`.
+ * @param {dataTypes.DataTypeStore} options.dataTypeStore
+ *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
+ *        object when interacting on a "value" `Variation`.
+ * @param {string[]} [languages=[]]
+ *        Language codes of the languages to display label-/description-/aliasesview in addition to
+ *        the "base" language.
+ *
+ * @throws {Error} when called.
+ */
+/**
  * @event afterstartediting
- *        Triggered after the widget has switched to edit mode.
- *        - {jQuery.Event}
- *
+ * Triggered after the widget has switched to edit mode.
+ * @param {jQuery.Event} event
+ */
+/**
  * @event afterstopediting
- *        Triggered after the widget has left edit mode.
- *        - {jQuery.Event}
- *        - {boolean} Whether the pending value has been dropped (editing has been cancelled).
+ * Triggered after the widget has left edit mode.
+ * @param {jQuery.Event} event
+ * @param {boolean} dropValue Whether the pending value has been dropped (editing has been
+ *        cancelled).
  */
 $.widget( 'wikibase.entityview', PARENT, {
 	/**
-	 * @see jQuery.ui.TemplatedWidget.options
+	 * @inheritdoc
+	 * @property {Object}
+	 * @protected
 	 */
 	options: {
 		template: 'wikibase-entityview',
@@ -51,48 +70,64 @@ $.widget( 'wikibase.entityview', PARENT, {
 	},
 
 	/**
-	 * @type {jQuery}
+	 * @property {jQuery}
+	 * @protected
 	 */
 	$toc: null,
 
 	/**
-	 * @type {jQuery}
+	 * @property {jQuery}
+	 * @protected
 	 */
 	$label: null,
 
 	/**
-	 * @type {jQuery}
+	 * @property {jQuery}
+	 * @protected
 	 */
 	$description: null,
 
 	/**
-	 * @type {jQuery}
+	 * @property {jQuery}
+	 * @protected
 	 */
 	$aliases: null,
 
 	/**
-	 * @type {jQuery|null}
+	 * @property {jQuery|null}
+	 * @protected
 	 */
 	$fingerprints: null,
 
 	/**
-	 * @type {jQuery}
+	 * @inheritdoc
+	 *
+	 * @throws {Error} when called.
 	 */
-	$claims: null,
+	_create: function() {
+		throw new Error( 'Abstract entityview cannot be created directly' );
+	},
 
 	/**
+	 * Main initialization actually calling parent's _create().
 	 * @see jQuery.ui.TemplatedWidget._create
+	 * @protected
 	 *
 	 * @throws {Error} if a required options is missing.
 	 */
-	_create: function() {
+	_initEntityview: function() {
 		if(
-			!this.options.entityStore
+			!this.options.value
+			|| !this.options.entityStore
 			|| !this.options.valueViewBuilder
 			|| !this.options.entityChangersFactory
 		) {
 			throw new Error( 'Required option(s) missing' );
 		}
+
+		PARENT.prototype._create.call( this );
+
+		this.element.data( $.wikibase.entityview.prototype.widgetName, this );
 
 		this.$toc = $( '.toc', this.element );
 
@@ -101,21 +136,13 @@ $.widget( 'wikibase.entityview', PARENT, {
 		this._initAliases();
 		this._initFingerprints();
 
-		// TODO: Have an itemview and propertyview instead of ugly hack here.
-		var entityType = this.options.value.getType();
-		if( this.element.find( '.wb-claimlistview' ).length > 0 ) {
-			this._initClaims();
-		}
-
-		if( entityType === 'item' ) {
-			this._initSiteLinks();
-		}
-
 		this._attachEventHandlers();
 	},
 
+	/**
+	 * @protected
+	 */
 	_initLabel: function() {
-		// TODO: Allow initializing entitview on empty DOM
 		this.$label = $( '.wb-firstHeading .wikibase-labelview', this.element ).first();
 		if( !this.$label.length ) {
 			this.$label = $( '<div/>' );
@@ -142,6 +169,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 		} );
 	},
 
+	/**
+	 * @protected
+	 */
 	_initDescription: function() {
 		this.$description = $( '.wikibase-descriptionview', this.element ).first();
 		if( !this.$description.length ) {
@@ -163,6 +193,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 		} );
 	},
 
+	/**
+	 * @protected
+	 */
 	_initAliases: function() {
 		this.$aliases = $( '.wikibase-aliasesview', this.element ).first();
 		if( !this.$aliases.length ) {
@@ -179,6 +212,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 		} );
 	},
 
+	/**
+	 * @protected
+	 */
 	_initFingerprints: function() {
 		var self = this;
 
@@ -186,7 +222,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 			return;
 		}
 
-		this.$fingerprints = $( '.wikibase-fingerprintgroupview' );
+		this.$fingerprints = $( '.wikibase-fingerprintgroupview', this.element );
 
 		if( !this.$fingerprints.length ) {
 			var $precedingNode = this.$toc;
@@ -241,78 +277,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 		} );
 	},
 
-	_initClaims: function() {
-		this.$claims = $( '.wb-claimgrouplistview', this.element ).first();
-		if( this.$claims.length === 0 ) {
-			this.$claims = $( '<div/>' ).appendTo( this.element );
-		}
-
-		this.$claims
-		.claimgrouplistview( {
-			value: this.options.value.getStatements(),
-			dataTypeStore: this.option( 'dataTypeStore' ),
-			entityType: this.options.value.getType(),
-			entityStore: this.options.entityStore,
-			valueViewBuilder: this.options.valueViewBuilder,
-			entityChangersFactory: this.options.entityChangersFactory
-		} )
-		.claimgrouplabelscroll();
-
-		// This is here to be sure there is never a duplicate id:
-		$( '.wb-claimgrouplistview' )
-		.prev( '.wb-section-heading' )
-		.first()
-		.attr( 'id', 'claims' );
-	},
-
-	_initSiteLinks: function() {
-		var self = this;
-
-		this.$siteLinks = $( '.wikibase-sitelinkgrouplistview', this.element );
-
-		if( this.$siteLinks.length === 0 ) {
-			// Properties for example don't have sitelinks
-			return;
-		}
-
-		// Scrape group and site link order from existing DOM:
-		var value = [];
-		this.$siteLinks.find( '.wikibase-sitelinkgroupview' ).each( function() {
-			var $sitelinkgroupview = $( this ),
-				$sitelinklistview = $sitelinkgroupview.find( '.wikibase-sitelinklistview' ),
-				group = $sitelinkgroupview.data( 'wb-sitelinks-group' ),
-				siteIdsOfGroup = [],
-				siteLinkSet = self.options.value.getSiteLinks(),
-				siteLinkIds = siteLinkSet.getKeys(),
-				siteLinksOfGroup = [];
-
-			$sitelinklistview.find( '.wikibase-sitelinkview' ).each( function() {
-				siteIdsOfGroup.push( $( this ).data( 'wb-siteid' ) );
-			} );
-
-			for( var i = 0; i < siteIdsOfGroup.length; i++ ) {
-				for( var j = 0; j < siteLinkIds.length; j++ ) {
-					if( siteLinkIds[j] === siteIdsOfGroup[i] ) {
-						siteLinksOfGroup.push( siteLinkSet.getItemByKey( siteLinkIds[j] ) );
-						break;
-					}
-				}
-			}
-
-			value.push( {
-				group: group,
-				siteLinks: siteLinksOfGroup
-			} );
-		} );
-
-		this.$siteLinks.sitelinkgrouplistview( {
-			value: value,
-			entityId: self.options.value.getId(),
-			siteLinksChanger: self.options.entityChangersFactory.getSiteLinksChanger(),
-			entityStore: self.options.entityStore
-		} );
-	},
-
+	/**
+	 * @protected
+	 */
 	_attachEventHandlers: function() {
 		var self = this;
 
@@ -321,11 +288,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'labelviewafterstartediting.' + this.widgetName,
 			'descriptionviewafterstartediting.' + this.widgetName,
 			'aliasesviewafterstartediting.' + this.widgetName,
-			'fingerprintgroupviewafterstartediting.' + this.widgetName,
-			'claimviewafterstartediting.' + this.widgetName,
-			'statementviewafterstartediting.' + this.widgetName,
-			'referenceviewafterstartediting.' + this.widgetName,
-			'sitelinkgroupviewafterstartediting.' + this.widgetName
+			'fingerprintgroupviewafterstartediting.' + this.widgetName
 		].join( ' ' ),
 		function( event ) {
 			self._trigger( 'afterstartediting' );
@@ -336,13 +299,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'labelviewafterstopediting.' + this.widgetName,
 			'descriptionviewafterstopediting.' + this.widgetName,
 			'aliasesviewafterstopediting.' + this.widgetName,
-			'fingerprintgroupviewafterstopediting.' + this.widgetName,
-			'claimlistviewafterremove.' + this.widgetName,
-			'claimviewafterstopediting.' + this.widgetName,
-			'statementviewafterstopediting.' + this.widgetName,
-			'statementviewafterremove.' + this.widgetName,
-			'referenceviewafterstopediting.' + this.widgetName,
-			'sitelinkgroupviewafterstopediting.' + this.widgetName
+			'fingerprintgroupviewafterstopediting.' + this.widgetName
 		].join( ' ' ),
 		function( event, dropValue ) {
 			self._trigger( 'afterstopediting', null, [dropValue] );
@@ -350,7 +307,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget
+	 * @inheritdoc
 	 */
 	_setOption: function( key, value ) {
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -363,7 +320,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 	},
 
 	/**
-	 * @param {string} state
+	 * @protected
+	 *
+	 * @param {string} state "disable" or "enable"
 	 */
 	_setState: function( state ) {
 		this.$label.data( 'labelview' )[state]();
@@ -372,26 +331,11 @@ $.widget( 'wikibase.entityview', PARENT, {
 		if( this.$fingerprints ) {
 			this.$fingerprints.data( 'fingerprintgroupview' )[state]();
 		}
-
-		// horrible, horrible hack until we have proper item and property views
-		if( this.$claims ) {
-			this.$claims.data( 'claimgrouplistview' )[state]();
-			// TODO: Resolve integration of referenceviews
-			this.$claims.find( '.wb-statement-references' ).each( function() {
-				var $listview = $( this ).children( ':wikibase-listview' );
-				if( $listview.length ) {
-					$listview.data( 'listview' )[state]();
-				}
-			} );
-		}
-
-		if( this.$siteLinks && this.$siteLinks.length > 0 ) {
-			this.$siteLinks.data( 'sitelinkgrouplistview' )[state]();
-		}
 	},
 
 	/**
 	 * Adds an item to the table of contents.
+	 * @protected
 	 *
 	 * @param {string} href
 	 * @param {string} text
@@ -420,11 +364,32 @@ $.widget( 'wikibase.entityview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		this.$label.data( 'labelview' ).focus();
 	}
 } );
+
+/**
+ * List of entityview types. Every entityview type should add itself to the list in order to be
+ * matched by $( ':wikibase-entityview' ) pseudo selector.
+ * @property {string[]}
+ * @static
+ */
+$.wikibase.entityview.TYPES = [];
+
+$.expr[':'][$.wikibase.entityview.prototype.widgetFullName]
+	= $.expr.createPseudo( function( fullName ) {
+		return function( elem ) {
+			for( var i = 0; i < $.wikibase.entityview.TYPES.length; i++ ) {
+				if( !!$.data( elem, $.wikibase.entityview.TYPES[i] ) ) {
+					return true;
+				}
+			}
+			return false;
+		};
+	}
+);
 
 }( wikibase, jQuery, mediaWiki ) );

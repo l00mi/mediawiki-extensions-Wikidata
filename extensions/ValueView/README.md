@@ -105,6 +105,15 @@ Other methods an Expert needs to provide:
 
 ## Release notes
 
+### 0.9.0 (2014-12-05)
+
+#### Breaking changes
+* `util.highlightSubstring`: Replaced `caseInsensitive` option with `caseSensitive` option defaulting to `false`.
+* `$.ui.suggester`: Moved protected `_minTermLength` member to `options`.
+
+#### Enhancements
+* `$.ui.suggester`: Fixed input element being refocused when selecting a suggestion via keyboard input.
+
 ### 0.8.1 (2014-11-07)
 
 #### Enhancements
