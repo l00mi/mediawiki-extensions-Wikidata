@@ -120,7 +120,9 @@
             "psr-4": {
                 "PropertySuggester\\": "src/PropertySuggester/"
             },
-            "files": [],
+            "files": [
+
+            ],
             "classmap": [
                 "PropertySuggesterHooks.php",
                 "maintenance/UpdateTable.php"
@@ -1278,12 +1280,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "e329a1bc63f7a97d9df124edeb7b6761a6c9f9d4"
+            "reference": "a33baac47bed4eef1b699852b2729cea29f4e7f7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e329a1bc63f7a97d9df124edeb7b6761a6c9f9d4",
-            "reference": "e329a1bc63f7a97d9df124edeb7b6761a6c9f9d4",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a33baac47bed4eef1b699852b2729cea29f4e7f7",
+            "reference": "a33baac47bed4eef1b699852b2729cea29f4e7f7",
             "shasum": ""
         },
         "require": {
@@ -1310,9 +1312,9 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-12-04 23:30:12",
+        "time": "2014-12-08 21:22:14",
         "type": "mediawiki-extension",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"
