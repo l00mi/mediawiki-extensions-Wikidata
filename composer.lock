@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "160994c2ae015eba1be8bed56d31cfa2",
+    "hash": "ca31d96ad0daa495e09321be8dd90716",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.18",
+            "version": "v1.0.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067"
+                "reference": "89d77bfbee79e16653f7162c86e602cc188471db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
-                "reference": "74fb0a7a1a23696d9c8cc2fba5903f6711cdd067",
+                "url": "https://api.github.com/repos/composer/installers/zipball/89d77bfbee79e16653f7162c86e602cc188471db",
+                "reference": "89d77bfbee79e16653f7162c86e602cc188471db",
                 "shasum": ""
             },
             "replace": {
@@ -59,6 +59,7 @@
                 "Hurad",
                 "MODX Evo",
                 "OXID",
+                "Thelia",
                 "WolfCMS",
                 "agl",
                 "annotatecms",
@@ -68,9 +69,11 @@
                 "codeigniter",
                 "concrete5",
                 "croogo",
+                "dokuwiki",
                 "drupal",
                 "elgg",
                 "fuelphp",
+                "grav",
                 "installer",
                 "joomla",
                 "kohana",
@@ -94,7 +97,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2014-08-18 20:00:12"
+            "time": "2014-11-29 01:29:17"
         },
         {
             "name": "data-values/common",
@@ -1186,17 +1189,11 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.25wmf10",
+            "version": "dev-wmf/1.25wmf11",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "a33baac47bed4eef1b699852b2729cea29f4e7f7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a33baac47bed4eef1b699852b2729cea29f4e7f7",
-                "reference": "a33baac47bed4eef1b699852b2729cea29f4e7f7",
-                "shasum": ""
+                "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
+                "reference": "8ee18cb94f632dc328d4a62a3d968ab1321c2046"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1243,7 +1240,6 @@
                     "Wikibase\\Repo\\View\\": "repo/includes/View"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0+"
             ],
@@ -1261,7 +1257,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2014-12-08 21:22:14"
+            "support": {
+                "issues": "https://bugzilla.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata"
+            },
+            "time": "2014-12-09 15:55:53"
         },
         {
             "name": "wikibase/wikimedia-badges",
