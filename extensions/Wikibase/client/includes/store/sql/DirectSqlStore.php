@@ -2,7 +2,7 @@
 
 namespace Wikibase;
 
-use Language;
+use HashBagOStuff;
 use LoadBalancer;
 use ObjectCache;
 use Site;
@@ -71,14 +71,14 @@ class DirectSqlStore implements ClientStore {
 	private $entityIdParser;
 
 	/**
-	 * @var string|bool
+	 * @var string|bool The database name of the repo wiki or false for the local wiki
 	 */
-	protected $repoWiki;
+	private $repoWiki;
 
 	/**
-	 * @var Language
+	 * @var string
 	 */
-	protected $language;
+	private $languageCode;
 
 	/**
 	 * @var SiteLinkTable
@@ -121,25 +121,33 @@ class DirectSqlStore implements ClientStore {
 	private $contentCodec;
 
 	/**
+	 * @var string
+	 */
+	private $siteId;
+
+	/**
 	 * @param EntityContentDataCodec $contentCodec
-	 * @param Language $wikiLanguage
 	 * @param EntityIdParser $entityIdParser
 	 * @param string|bool $repoWiki the symbolic database name of the repo wiki
+	 * @param string $languageCode
 	 */
 	public function __construct(
 		EntityContentDataCodec $contentCodec,
-		Language $wikiLanguage,
 		EntityIdParser $entityIdParser,
-		$repoWiki
+		$repoWiki = false,
+		$languageCode
 	) {
-		$this->repoWiki = $repoWiki;
-		$this->language = $wikiLanguage;
 		$this->contentCodec = $contentCodec;
+		$this->entityIdParser = $entityIdParser;
+		$this->repoWiki = $repoWiki;
+		$this->languageCode = $languageCode;
 
+		// @TODO: Inject
 		$settings = WikibaseClient::getDefaultInstance()->getSettings();
 		$cachePrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
 		$cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
 		$cacheType = $settings->getSetting( 'sharedCacheType' );
+		$siteId = $settings->getSetting( 'siteGlobalID' );
 
 		$this->changesDatabase = $settings->getSetting( 'changesDatabase' );
 		$this->useLegacyUsageIndex = $settings->getSetting( 'useLegacyUsageIndex' );
@@ -147,13 +155,11 @@ class DirectSqlStore implements ClientStore {
 		$this->cachePrefix = $cachePrefix;
 		$this->cacheDuration = $cacheDuration;
 		$this->cacheType = $cacheType;
-		$this->entityIdParser = $entityIdParser;
+		$this->siteId = $siteId;
 	}
 
 	/**
-	 * @see Store::getSubscriptionManager
-	 *
-	 * @since 0.5
+	 * @see ClientStore::getSubscriptionManager
 	 *
 	 * @return SubscriptionManager
 	 */
@@ -172,11 +178,9 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * @see Store::getUsageLookup
+	 * @see ClientStore::getUsageLookup
 	 *
 	 * @note: If the useLegacyUsageIndex option is set, this returns a SiteLinkUsageLookup.
-	 *
-	 * @since 0.5
 	 *
 	 * @return UsageLookup
 	 */
@@ -184,7 +188,7 @@ class DirectSqlStore implements ClientStore {
 		if ( !$this->usageLookup ) {
 			if ( $this->useLegacyUsageIndex ) {
 				$this->usageLookup = new SiteLinkUsageLookup(
-					$this->getSite()->getGlobalId(),
+					$this->siteId,
 					$this->getSiteLinkLookup(),
 					new TitleFactory()
 				);
@@ -197,11 +201,9 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * @see Store::getUsageTracker
+	 * @see ClientStore::getUsageTracker
 	 *
 	 * @note: If the useLegacyUsageIndex option is set, this returns a NullUsageTracker!
-	 *
-	 * @since 0.5
 	 *
 	 * @return UsageTracker
 	 */
@@ -219,32 +221,6 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * Sets the site object representing the local wiki.
-	 * For testing only!
-	 *
-	 * @todo: remove this once the Site can be injected via the constructor!
-	 *
-	 * @param Site $site
-	 */
-	public function setSite( Site $site ) {
-		$this->site = $site;
-	}
-
-	/**
-	 * Returns the site object representing the local wiki.
-	 *
-	 * @return Site
-	 */
-	private function getSite() {
-		// @FIXME: inject the site
-		if ( $this->site === null ) {
-			$this->site = WikibaseClient::getDefaultInstance()->getSite();
-		}
-
-		return $this->site;
-	}
-
-	/**
 	 * @see ClientStore::getSiteLinkLookup
 	 *
 	 * @return SiteLinkLookup
@@ -258,21 +234,16 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * @since 0.3
-	 *
 	 * @return SiteLinkLookup
 	 */
-	protected function newSiteLinkTable() {
+	private function newSiteLinkTable() {
 		return new SiteLinkTable( 'wb_items_per_site', true, $this->repoWiki );
 	}
-
 
 	/**
 	 * @see ClientStore::getEntityLookup
 	 *
 	 * The EntityLookup returned by this method will resolve redirects.
-	 *
-	 * @since 0.4
 	 *
 	 * @return EntityLookup
 	 */
@@ -286,8 +257,6 @@ class DirectSqlStore implements ClientStore {
 	/**
 	 * @see ClientStore::getEntityRevisionLookup
 	 *
-	 * @since 0.5
-	 *
 	 * @return EntityRevisionLookup
 	 */
 	public function getEntityRevisionLookup() {
@@ -299,11 +268,9 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * Create a new EntityLookup
-	 *
-	 * @return CachingEntityRevisionLookup
+	 * @return EntityRevisionLookup
 	 */
-	protected function newEntityRevisionLookup() {
+	private function newEntityRevisionLookup() {
 		//NOTE: Keep in sync with SqlStore::newEntityLookup on the repo
 		$key = $this->cachePrefix . ':WikiPageEntityRevisionLookup';
 
@@ -320,14 +287,14 @@ class DirectSqlStore implements ClientStore {
 
 		// Top caching layer using an in-process hash.
 		// No need to verify the revision ID, we'll ignore updates that happen during the request.
-		$lookup = new CachingEntityRevisionLookup( $lookup, new \HashBagOStuff() );
+		$lookup = new CachingEntityRevisionLookup( $lookup, new HashBagOStuff() );
 		$lookup->setVerifyRevision( false );
 
 		return $lookup;
 	}
 
 	/**
-	 * Get a TermIndex object
+	 * @see ClientStore::getTermIndex
 	 *
 	 * @return TermIndex
 	 */
@@ -340,7 +307,7 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * Get a EntityIdLookup object
+	 * @see ClientStore::getEntityIdLookup
 	 *
 	 * @return EntityIdLookup
 	 */
@@ -356,19 +323,17 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * Create a new TermIndex instance
-	 *
 	 * @return TermIndex
 	 */
-	protected function newTermIndex() {
+	private function newTermIndex() {
 		//TODO: Get $stringNormalizer from WikibaseClient?
 		//      Can't really pass this via the constructor...
 		$stringNormalizer = new StringNormalizer();
-		return new TermSqlIndex( $stringNormalizer , $this->repoWiki );
+		return new TermSqlIndex( $stringNormalizer, $this->repoWiki );
 	}
 
 	/**
-	 * Get a PropertyLabelResolver object
+	 * @see ClientStore::getPropertyLabelResolver
 	 *
 	 * @return PropertyLabelResolver
 	 */
@@ -380,20 +345,15 @@ class DirectSqlStore implements ClientStore {
 		return $this->propertyLabelResolver;
 	}
 
-
 	/**
-	 * Create a new PropertyLabelResolver instance
-	 *
 	 * @return PropertyLabelResolver
 	 */
-	protected function newPropertyLabelResolver() {
-		$langCode = $this->language->getCode();
-
+	private function newPropertyLabelResolver() {
 		// cache key needs to be language specific
-		$key = $this->cachePrefix . ':TermPropertyLabelResolver' . '/' . $langCode;
+		$key = $this->cachePrefix . ':TermPropertyLabelResolver' . '/' . $this->languageCode;
 
 		return new TermPropertyLabelResolver(
-			$langCode,
+			$this->languageCode,
 			$this->getTermIndex(),
 			ObjectCache::getInstance( $this->cacheType ),
 			$this->cacheDuration,
@@ -402,9 +362,7 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * @see Store::newChangesTable
-	 *
-	 * @since 0.4
+	 * @see ClientStore::newChangesTable
 	 *
 	 * @return ChangesTable
 	 */
@@ -413,28 +371,25 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * Does nothing.
+	 * @see ClientStore::clear
 	 *
-	 * @since 0.3
+	 * Does nothing.
 	 */
 	public function clear() {
 		// noop
 	}
 
 	/**
-	 * Does nothing.
+	 * @see ClientStore::rebuild
 	 *
-	 * @since 0.3
+	 * Does nothing.
 	 */
 	public function rebuild() {
 		$this->clear();
 	}
 
-
 	/**
-	 * @see Store::getPropertyInfoStore
-	 *
-	 * @since 0.4
+	 * @see ClientStore::getPropertyInfoStore
 	 *
 	 * @return PropertyInfoStore
 	 */
@@ -447,11 +402,9 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * Creates a new PropertyInfoTable
-	 *
 	 * @return PropertyInfoTable
 	 */
-	protected function newPropertyInfoTable() {
+	private function newPropertyInfoTable() {
 		$usePropertyInfoTable = WikibaseClient::getDefaultInstance()
 			->getSettings()->getSetting( 'usePropertyInfoTable' );
 
@@ -465,4 +418,5 @@ class DirectSqlStore implements ClientStore {
 			return new DummyPropertyInfoStore();
 		}
 	}
+
 }
