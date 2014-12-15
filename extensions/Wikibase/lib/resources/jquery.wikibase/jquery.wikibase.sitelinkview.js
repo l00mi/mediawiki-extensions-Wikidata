@@ -154,6 +154,8 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			}
 		} )
 		.on( 'badgeselectorchange', function( event ) {
+			// Adding/removing badges decreases/increases available space:
+			self.updatePageNameInputAutoExpand();
 			self._trigger( 'change' );
 		} );
 
@@ -216,16 +218,15 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		} ).pagesuggester( pageNameInputOptions );
 
 		$pageNameInput
-		.on( 'eachchange.' + this.widgetName + ' pagesuggesterchange.' + this.widgetName,
-			function( event ) {
-				self.setError();
-				self._trigger( 'change' );
-			}
-		);
+		.on( 'pagesuggesterchange.' + this.widgetName, function( event ) {
+			self.setError();
+			self._trigger( 'change' );
+		} );
 
 		this.$link.find( '.wikibase-sitelinkview-page' ).empty().append( $pageNameInput );
 
 		if( this.options.value ) {
+			this.updatePageNameInputAutoExpand();
 			// Site of an existing site link is not supposed to be changeable.
 			return;
 		}
@@ -255,9 +256,29 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			pagesuggester.option( 'siteId', siteId );
 
 			self._trigger( 'change' );
-		} );
+		} )
+		.on(
+			'siteselectorselected.' + this.widgetName + ' siteselectorchange.' + this.widgetName,
+			function( event, siteId ) {
+				var inputautoexpand = $siteIdInput.data( 'inputautoexpand' );
+
+				if( inputautoexpand ) {
+					inputautoexpand.expand();
+				}
+
+				self.updatePageNameInputAutoExpand();
+			}
+		);
 
 		this.$siteId.append( $siteIdInput );
+
+		$siteIdInput.inputautoexpand( {
+			maxWidth: this.element.width() - (
+				this.$siteIdContainer.outerWidth( true ) - $siteIdInput.width()
+			)
+		} );
+
+		this.updatePageNameInputAutoExpand();
 
 		$pageNameInput
 		.on( 'keydown.' + this.widgetName, function( event ) {
@@ -267,6 +288,25 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 				$siteIdInput.data( 'siteselector' ).setSelectedSite( null );
 			}
 		} );
+	},
+
+	/**
+	 * Updates the maximum width the page name input element may grow to.
+	 */
+	updatePageNameInputAutoExpand: function() {
+		var $pageNameInput = this.$link.find( 'input' );
+
+		if( !$pageNameInput.length ) {
+			return;
+		}
+
+		$pageNameInput.inputautoexpand( {
+			maxWidth: Math.floor( this.element.width()
+				- this.$siteIdContainer.outerWidth( true )
+				- ( this.$link.outerWidth( true ) - $pageNameInput.width() ) )
+		} );
+
+		$pageNameInput.data( 'inputautoexpand' ).expand( true );
 	},
 
 	/**

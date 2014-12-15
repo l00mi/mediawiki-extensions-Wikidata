@@ -2,14 +2,12 @@
 
 namespace Wikibase;
 
-use Article;
 use ContentHandler;
 use LogEventsList;
 use OutputPage;
 use SpecialPage;
 use ViewAction;
 use Wikibase\Repo\Content\EntityHandler;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Handles the view action for Wikibase entities.
@@ -23,89 +21,20 @@ use Wikibase\Repo\WikibaseRepo;
 abstract class ViewEntityAction extends ViewAction {
 
 	/**
-	 * @var LanguageFallbackChain
-	 */
-	protected $languageFallbackChain;
-
-	/**
-	 * Get the language fallback chain.
-	 * Uses the default WikibaseRepo instance to get the service if it was not previously set.
+	 * @see ViewAction::show
 	 *
-	 * @since 0.4
-	 *
-	 * @return LanguageFallbackChain
-	 */
-	public function getLanguageFallbackChain() {
-		if ( $this->languageFallbackChain === null ) {
-			$this->languageFallbackChain = WikibaseRepo::getDefaultInstance()->getLanguageFallbackChainFactory()
-				->newFromContext( $this->getContext() );
-		}
-
-		return $this->languageFallbackChain;
-	}
-
-	/**
-	 * Set language fallback chain.
-	 *
-	 * @since 0.4
-	 *
-	 * @param LanguageFallbackChain $chain
-	 */
-	public function setLanguageFallbackChain( LanguageFallbackChain $chain ) {
-		$this->languageFallbackChain = $chain;
-	}
-
-	/**
-	 * @see Action::getName()
-	 *
-	 * @since 0.1
-	 *
-	 * @return string
-	 */
-	public function getName() {
-		return 'view';
-	}
-
-	/**
-	 * Returns the current article.
-	 *
-	 * @since 0.1
-	 *
-	 * @return Article
-	 */
-	protected function getArticle() {
-		return $this->page;
-	}
-
-	/**
-	 * @see FormlessAction::show()
-	 *
-	 * @since 0.1
-	 *
-	 * TODO: permissing checks?
 	 * Parent is doing $this->checkCanExecute( $this->getUser() )
 	 */
 	public function show() {
-		if ( !$this->getArticle()->getPage()->exists() ) {
+		if ( !$this->page->exists() ) {
+			// @fixme could use ShowMissingArticle hook instead.
+			// Article checks for missing / deleted revisions and either
+			// shows appropriate error page or deleted revision, if permission allows.
 			$this->displayMissingEntity();
-		} else {
-			$contentRetriever = new ContentRetriever();
-			$content = $contentRetriever->getContentForRequest(
-				$this->getRequest(),
-				$this->getArticle()
-			);
-
-			if ( !( $content instanceof EntityContent ) ) {
-				$this->getOutput()->showErrorPage(
-						'wikibase-entity-not-viewable-title',
-						'wikibase-entity-not-viewable',
-						$content->getModel()
-				);
-				return;
-			}
-
-			$this->displayEntityContent( $content );
+			return;
 		}
+
+		$this->showEntityPage();
 	}
 
 	/**
@@ -115,7 +44,7 @@ abstract class ViewEntityAction extends ViewAction {
 	 * @return bool
 	 */
 	private function isEditable() {
-		return !$this->isDiff() && $this->getArticle()->isCurrent();
+		return !$this->isDiff() && $this->page->isCurrent();
 	}
 
 	/**
@@ -126,49 +55,49 @@ abstract class ViewEntityAction extends ViewAction {
 	}
 
 	/**
-	 * Displays the entity content.
-	 *
-	 * @since 0.1
-	 *
-	 * @param EntityContent $content
+	 * Displays the entity page.
 	 */
-	private function displayEntityContent( EntityContent $content ) {
+	private function showEntityPage() {
 		$outputPage = $this->getOutput();
-
 		$editable = $this->isEditable();
 
 		// NOTE: page-wide property, independent of user permissions
 		$outputPage->addJsConfigVars( 'wbIsEditView', $editable );
 
-		$user = $this->getContext()->getUser();
-		$parserOptions = $this->getArticle()->getPage()->makeParserOptions( $user );
+		$user = $this->getUser();
+		$parserOptions = $this->page->makeParserOptions( $user );
 
-		$this->getArticle()->setParserOptions( $parserOptions );
-		$this->getArticle()->view();
+		$this->page->setParserOptions( $parserOptions );
+		$this->page->view();
 
-		$this->applyLabelToTitleText( $outputPage, $content );
+		$this->overrideTitleText( $outputPage );
 	}
 
 	/**
+	 * This will be the label, if available, or else the entity id (e.g. 'Q42').
+	 * This is passed via parser output and output page to save overhead on view actions.
+	 *
 	 * @param OutputPage $outputPage
-	 * @param EntityContent $content
 	 */
-	private function applyLabelToTitleText( OutputPage $outputPage, EntityContent $content ) {
-		// Figure out which label to use for title.
-		$labelText = $this->getLabelText( $content );
+	private function overrideTitleText( OutputPage $outputPage ) {
+		$titleText = $this->getOutput()->getProperty( 'wikibase-titletext' );
+
+		if ( $titleText === null ) {
+			return;
+		}
 
 		if ( $this->isDiff() ) {
-			$this->setPageTitle( $outputPage, $labelText );
+			$this->setPageTitle( $outputPage, $titleText );
 		} else {
-			$this->setHTMLTitle( $outputPage, $labelText );
+			$this->setHTMLTitle( $outputPage, $titleText );
 		}
 	}
 
 	/**
 	 * @param OutputPage $outputPage
-	 * @param string $labelText
+	 * @param string $titleText
 	 */
-	private function setPageTitle( OutputPage $outputPage, $labelText ) {
+	private function setPageTitle( OutputPage $outputPage, $titleText ) {
 		// Escaping HTML characters in order to retain original label that may contain HTML
 		// characters. This prevents having characters evaluated or stripped via
 		// OutputPage::setPageTitle:
@@ -176,53 +105,29 @@ abstract class ViewEntityAction extends ViewAction {
 			$this->msg(
 				'difference-title'
 				// This should be something like the following,
-				// $labelLang->getDirMark() . $labelText . $wgLang->getDirMark()
+				// $labelLang->getDirMark() . $titleText . $wgLang->getDirMark()
 				// or should set the attribute of the h1 to correct direction.
 				// Still note that the direction is "auto" so guessing should
 				// give the right direction in most cases.
-			)->rawParams( htmlspecialchars( $labelText ) )
+			)->rawParams( htmlspecialchars( $titleText ) )
 		);
 	}
 
 	/**
 	 * @param OutputPage $outputPage
-	 * @param string $labelText
+	 * @param string $titleText
 	 */
-	private function setHTMLTitle( OutputPage $outputPage, $labelText ) {
+	private function setHTMLTitle( OutputPage $outputPage, $titleText ) {
 		// Prevent replacing {{...}} by using rawParams() instead of params():
-		$outputPage->setHTMLTitle( $this->msg( 'pagetitle' )->rawParams( $labelText ) );
-	}
-
-	/**
-	 * @param EntityContent $content
-	 *
-	 * @return string
-	 */
-	private function getLabelText( EntityContent $content ) {
-		// Figure out which label to use for title.
-		$languageFallbackChain = $this->getLanguageFallbackChain();
-		$labelData = null;
-
-		if ( !$content->isRedirect() ) {
-			$labels = $content->getEntity()->getLabels();
-			$labelData = $languageFallbackChain->extractPreferredValueOrAny( $labels );
-		}
-
-		if ( $labelData ) {
-			return $labelData['value'];
-		} else {
-			return $content->getEntityId()->getSerialization();
-		}
+		$outputPage->setHTMLTitle( $this->msg( 'pagetitle' )->rawParams( $titleText ) );
 	}
 
 	/**
 	 * Displays there is no entity for the current page.
-	 *
-	 * @since 0.1
 	 */
-	protected function displayMissingEntity() {
-		$title = $this->getArticle()->getTitle();
-		$oldid = $this->getArticle()->getOldID();
+	private function displayMissingEntity() {
+		$title = $this->getTitle();
+		$oldid = $this->page->getOldID();
 
 		$out = $this->getOutput();
 
@@ -231,7 +136,7 @@ abstract class ViewEntityAction extends ViewAction {
 		// TODO: Factor the "show stuff for missing page" code out from Article::showMissingArticle,
 		//       so it can be re-used here. The below code is copied & modified from there...
 
-		wfRunHooks( 'ShowMissingArticle', array( $this->getArticle() ) );
+		wfRunHooks( 'ShowMissingArticle', array( $this->page ) );
 
 		# Show delete and move logs
 		LogEventsList::showLogExtract( $out, array( 'delete', 'move' ), $title, '',
@@ -260,9 +165,9 @@ abstract class ViewEntityAction extends ViewAction {
 
 				$text = wfMessage( 'wikibase-noentity' )->plain();
 
-				if( $entityCreationPage !== null
-					&& $this->getTitle()->quickUserCan( 'create', $this->getContext()->getUser() )
-					&& $this->getTitle()->quickUserCan( 'edit', $this->getContext()->getUser() )
+				if ( $entityCreationPage !== null
+					&& $this->getTitle()->quickUserCan( 'create', $this->getUser() )
+					&& $this->getTitle()->quickUserCan( 'edit', $this->getUser() )
 				) {
 					/*
 					 * add text with link to special page for creating an entity of that type if possible and
@@ -293,21 +198,27 @@ abstract class ViewEntityAction extends ViewAction {
 	}
 
 	/**
-	 * @see Action::getDescription()
+	 * @see Action::getDescription
+	 *
+	 * @return string Empty.
 	 */
 	protected function getDescription() {
 		return '';
 	}
 
 	/**
-	 * @see Action::requiresUnblock()
+	 * @see Action::requiresUnblock
+	 *
+	 * @return bool Always false.
 	 */
 	public function requiresUnblock() {
 		return false;
 	}
 
 	/**
-	 * @see Action::requiresWrite()
+	 * @see Action::requiresWrite
+	 *
+	 * @return bool Always false.
 	 */
 	public function requiresWrite() {
 		return false;

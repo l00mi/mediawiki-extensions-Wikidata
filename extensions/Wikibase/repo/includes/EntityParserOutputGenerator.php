@@ -3,10 +3,15 @@
 namespace Wikibase;
 
 use ParserOutput;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
+use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\Lib\Store\EntityInfo;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityInfoTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -98,7 +103,9 @@ class EntityParserOutputGenerator {
 	 *
 	 * @return ParserOutput
 	 */
-	public function getParserOutput( EntityRevision $entityRevision, $editable = true,
+	public function getParserOutput(
+		EntityRevision $entityRevision,
+		$editable = true,
 		$generateHtml = true
 	) {
 		$parserOutput = new ParserOutput();
@@ -124,6 +131,8 @@ class EntityParserOutputGenerator {
 		if ( $entity instanceof Item ) {
 			$this->addBadgesToParserOutput( $parserOutput, $entity->getSiteLinkList() );
 		}
+
+		$this->addTitleTextToParserOutput( $parserOutput, $entity );
 
 		if ( $generateHtml ) {
 			$this->addHtmlToParserOutput(
@@ -208,7 +217,8 @@ class EntityParserOutputGenerator {
 	 * Fetches some basic entity information from a set of entity IDs.
 	 *
 	 * @param EntityId[] $entityIds
-	 * @return array obtained from EntityInfoBuilder::getEntityInfo
+	 *
+	 * @return EntityInfo
 	 */
 	private function getEntityInfo( array $entityIds ) {
 		wfProfileIn( __METHOD__ );
@@ -237,6 +247,7 @@ class EntityParserOutputGenerator {
 	 * @param SiteLinkList $siteLinkList
 	 */
 	private function addBadgesToParserOutput( ParserOutput $parserOutput, SiteLinkList $siteLinkList ) {
+		/** @var SiteLink $siteLink */
 		foreach ( $siteLinkList as $siteLink ) {
 			foreach ( $siteLink->getBadges() as $badge ) {
 				$parserOutput->addLink( $this->entityTitleLookup->getTitleForId( $badge ) );
@@ -246,15 +257,42 @@ class EntityParserOutputGenerator {
 
 	/**
 	 * @param ParserOutput $parserOutput
+	 * @param EntityDocument $entity
+	 */
+	private function addTitleTextToParserOutput( ParserOutput $parserOutput, EntityDocument $entity ) {
+		$titleText = null;
+
+		if ( $entity instanceof FingerprintProvider ) {
+			$labels = $entity->getFingerprint()->getLabels()->toTextArray();
+			$preferred = $this->languageFallbackChain->extractPreferredValue( $labels );
+
+			if ( is_array( $preferred ) ) {
+				$titleText = $preferred['value'];
+			}
+		}
+
+		if ( !is_string( $titleText ) ) {
+			$entityId = $entity->getId();
+
+			if ( $entityId !== null ) {
+				$titleText = $entityId->getSerialization();
+			}
+		}
+
+		$parserOutput->setExtensionData( 'wikibase-titletext', $titleText );
+	}
+
+	/**
+	 * @param ParserOutput $parserOutput
 	 * @param EntityRevision $entityRevision
-	 * @param array $entityInfo obtained from EntityInfoBuilder::getEntityInfo
-	 * @param boolean $editable
+	 * @param EntityInfo $entityInfo obtained from EntityInfoBuilder::getEntityInfo
+	 * @param bool $editable
 	 */
 	private function addHtmlToParserOutput(
 		ParserOutput $parserOutput,
 		EntityRevision $entityRevision,
-		array $entityInfo,
-		$editable
+		EntityInfo $entityInfo,
+		$editable = true
 	) {
 
 		$labelLookup = new LanguageFallbackLabelLookup(
@@ -275,7 +313,11 @@ class EntityParserOutputGenerator {
 		$parserOutput->setExtensionData( 'wikibase-view-chunks', $entityView->getPlaceholders() );
 	}
 
-	private function addModules( ParserOutput $parserOutput, $editable ) {
+	/**
+	 * @param ParserOutput $parserOutput
+	 * @param bool $editable
+	 */
+	private function addModules( ParserOutput $parserOutput, $editable = true ) {
 		// make css available for JavaScript-less browsers
 		$parserOutput->addModuleStyles( array(
 			'wikibase.common',

@@ -4,6 +4,7 @@ namespace Wikibase\Lib\Store;
 
 use OutOfBoundsException;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\Term;
 use Wikibase\TermIndex;
 
 /**
@@ -11,6 +12,7 @@ use Wikibase\TermIndex;
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Daniel Kinzler
  */
 class EntityTermLookup implements TermLookup {
 
@@ -20,114 +22,98 @@ class EntityTermLookup implements TermLookup {
 	private $termIndex;
 
 	/**
-	 * @var EntityLookup
-	 */
-	private $entityLookup;
-
-	/**
 	 * @param TermIndex $termIndex
-	 * @param EntityLookup $entityLookup
 	 */
-	public function __construct( TermIndex $termIndex, EntityLookup $entityLookup ) {
+	public function __construct( TermIndex $termIndex ) {
 		$this->termIndex = $termIndex;
-		$this->entityLookup = $entityLookup;
 	}
 
 	/**
+	 * @see TermLookup::getLabel
+	 *
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @throws StorageException if entity does not exist
-	 * @throws OutOfBoundsException
+	 * @throws OutOfBoundsException if no label in that language is known
 	 * @return string
 	 */
 	public function getLabel( EntityId $entityId, $languageCode ) {
-		$labels = $this->getLabels( $entityId );
-		return $this->filterByLanguage( $labels, $languageCode );
+		$labels = $this->getLabels( $entityId, array( $languageCode ) );
+
+		if ( !isset( $labels[$languageCode] ) ) {
+			throw new OutOfBoundsException( 'No label found for language ' . $languageCode );
+		}
+
+		return $labels[$languageCode];
 	}
 
 	/**
-	 * @param EntityId $entityId
+	 * @see TermLookup::getLabels
 	 *
-	 * @throws StorageException if entity does not exist
+	 * @param EntityId $entityId
+	 * @param string[]|null $languageCodes The languages to get terms for; null means all languages.
+	 *
 	 * @return string[]
 	 */
-	public function getLabels( EntityId $entityId ) {
-		return $this->getTermsOfType( $entityId, 'label' );
+	public function getLabels( EntityId $entityId, array $languageCodes = null ) {
+		return $this->getTermsOfType( $entityId, 'label', $languageCodes );
 	}
 
 	/**
+	 * @see TermLookup::getDescription
+	 *
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @throws StorageException if entity does not exist
-	 * @throws OutOfBoundsException
+	 * @throws OutOfBoundsException if no description in that language is known
 	 * @return string
 	 */
 	public function getDescription( EntityId $entityId, $languageCode ) {
-		$descriptions = $this->getTermsOfType( $entityId, 'description' );
-		return $this->filterByLanguage( $descriptions, $languageCode );
+		$descriptions = $this->getDescriptions( $entityId, array( $languageCode ) );
+
+		if ( !isset( $descriptions[$languageCode] ) ) {
+			throw new OutOfBoundsException( 'No description found for language ' . $languageCode );
+		}
+
+		return $descriptions[$languageCode];
 	}
 
 	/**
-	 * @param EntityId $entityId
+	 * @see TermLookup::getDescriptions
 	 *
-	 * @throws StorageException if entity does not exist
+	 * @param EntityId $entityId
+	 * @param string[]|null $languageCodes The languages to get terms for; null means all languages.
+	 *
 	 * @return string[]
 	 */
-	public function getDescriptions( EntityId $entityId ) {
-		return $this->getTermsOfType( $entityId, 'description' );
+	public function getDescriptions( EntityId $entityId, array $languageCodes = null ) {
+		return $this->getTermsOfType( $entityId, 'description', $languageCodes );
 	}
 
 	/**
 	 * @param EntityId $entityId
 	 * @param string $termType
-	 *
-	 * @throws StorageException if entity does not exist.
-	 * @return string[]
-	 */
-	private function getTermsOfType( EntityId $entityId, $termType ) {
-		$wikibaseTerms = $this->termIndex->getTermsOfEntity( $entityId );
-
-		if ( $wikibaseTerms === array() ) {
-			if ( !$this->entityLookup->hasEntity( $entityId ) ) {
-				throw new StorageException( 'Entity not found for '
-					. $entityId->getSerialization() );
-			}
-		}
-
-		return $this->convertTermsToTermTypeArray( $wikibaseTerms, $termType );
-	}
-
-	/**
-	 * @param string[] $terms
-	 * @param string $languageCode
-	 *
-	 * @throws OutOfBoundsException
-	 * @return string
-	 */
-	private function filterByLanguage( array $terms, $languageCode ) {
-		if ( array_key_exists( $languageCode, $terms ) ) {
-			return $terms[$languageCode];
-		}
-
-		throw new OutOfBoundsException( 'Term not found for ' . $languageCode );
-	}
-
-	/**
-	 * @param \Wikibase\Term[] $wikibaseTerms
-	 * @param string $termType
+	 * @param string[]|null $languageCodes The languages to get terms for; null means all languages.
 	 *
 	 * @return string[]
 	 */
-	private function convertTermsToTermTypeArray( array $wikibaseTerms, $termType ) {
+	private function getTermsOfType( EntityId $entityId, $termType, array $languageCodes = null ) {
+		$wikibaseTerms = $this->termIndex->getTermsOfEntity( $entityId, array( $termType ), $languageCodes );
+
+		return $this->convertTermsToMap( $wikibaseTerms );
+	}
+
+	/**
+	 * @param Term[] $wikibaseTerms
+	 *
+	 * @return string[] strings keyed by language code
+	 */
+	private function convertTermsToMap( array $wikibaseTerms ) {
 		$terms = array();
 
 		foreach( $wikibaseTerms as $wikibaseTerm ) {
-			if ( $wikibaseTerm->getType() === $termType ) {
-				$languageCode = $wikibaseTerm->getLanguage();
-				$terms[$languageCode] = $wikibaseTerm->getText();
-			}
+			$languageCode = $wikibaseTerm->getLanguage();
+			$terms[$languageCode] = $wikibaseTerm->getText();
 		}
 
 		return $terms;
