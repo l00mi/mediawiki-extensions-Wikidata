@@ -3,7 +3,6 @@
 namespace Wikibase\Repo\View;
 
 use Linker;
-use Wikibase\ClaimHtmlGenerator;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -39,7 +38,7 @@ class ClaimsView {
 	private $languageCode;
 
 	/**
-	 * @param EnttiyTitleLookup $entityTitleLookup
+	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param SectionEditLinkGenerator $sectionEditLinkGenerator
 	 * @param ClaimHtmlGenerator $claimHtmlGenerator
 	 * @param string $languageCode
@@ -112,21 +111,6 @@ class ClaimsView {
 			$claimsByProperty[$propertyId->getNumericId()][] = $claim;
 		}
 		return $claimsByProperty;
-	}
-
-	/**
-	 * Returns all snaks which are stored in this list of claims.
-	 *
-	 * @param Claim[] $claims
-	 * @return Snak[]
-	 */
-	private function getSnaksFromClaims( array $claims ) {
-		$snaks = array();
-		/** @var Claim $claim */
-		foreach ( $claims as $claim ) {
-			$snaks = array_merge( $snaks, $claim->getAllSnaks() );
-		}
-		return $snaks;
 	}
 
 	/**

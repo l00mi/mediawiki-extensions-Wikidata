@@ -119,14 +119,14 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$this->assertNotNull( $item, "Entity " . $itemId );
 		$this->assertInstanceOf( '\Wikibase\EntityRevision', $itemRev, "Entity " . $itemId );
 		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\Item', $itemRev->getEntity(), "Entity " . $itemId );
-		$this->assertEquals( 24, $itemRev->getRevision() );
+		$this->assertEquals( 24, $itemRev->getRevisionId() );
 
 		// test item by rev id
 		$itemRev = $this->repo->getEntityRevision( $itemId, 23 );
 		$this->assertNotNull( $item, "Entity " . $itemId . "@23" );
 		$this->assertInstanceOf( '\Wikibase\EntityRevision', $itemRev, "Entity " . $itemId );
 		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\Item', $itemRev->getEntity(), "Entity " . $itemId );
-		$this->assertEquals( 23, $itemRev->getRevision() );
+		$this->assertEquals( 23, $itemRev->getRevisionId() );
 		$this->assertEquals( "20130101000000", $itemRev->getTimestamp() );
 
 		// test latest prop
@@ -138,7 +138,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 
 	public function testGetItemIdForLink() {
 		$item = Item::newEmpty();
-		$item->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
+		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
 
 		// test item lookup
 		$this->repo->putEntity( $item );
@@ -167,42 +167,42 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		// #0: same link ---------
 		$a = Item::newEmpty();
 		$a->setId( 1 );
-		$a->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
-		$a->addSiteLink( new SiteLink( 'dewiki', 'Foo' ) );
+		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
+		$a->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Foo' );
 
 		$b = Item::newEmpty();
 		$b->setId( 2 );
-		$b->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
-		$b->addSiteLink( new SiteLink( 'dewiki', 'Bar' ) );
+		$b->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
+		$b->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Bar' );
 
 		$cases[] = array( $a, $b, array( array( 'enwiki', 'Foo', 1 ) ) );
 
 		// #1: same site ---------
 		$a = Item::newEmpty();
 		$a->setId( 1 );
-		$a->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
+		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
 
 		$b = Item::newEmpty();
 		$b->setId( 2 );
-		$b->addSiteLink( new SiteLink( 'enwiki', 'Bar' ) );
+		$b->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Bar' );
 
 		$cases[] = array( $a, $b, array() );
 
 		// #2: same page ---------
 		$a = Item::newEmpty();
 		$a->setId( 1 );
-		$a->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
+		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
 
 		$b = Item::newEmpty();
 		$b->setId( 2 );
-		$b->addSiteLink( new SiteLink( 'dewiki', 'Foo' ) );
+		$b->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Foo' );
 
 		$cases[] = array( $a, $b, array() );
 
 		// #3: same item ---------
 		$a = Item::newEmpty();
 		$a->setId( 1 );
-		$a->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
+		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
 
 		$cases[] = array( $a, $a, array() );
 
@@ -224,13 +224,13 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 
 		$a = Item::newEmpty();
 		$a->setId( 1 );
-		$a->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
-		$a->addSiteLink( new SiteLink( 'dewiki', 'Bar' ) );
+		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
+		$a->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Bar' );
 
 		$b = Item::newEmpty();
 		$b->setId( 2 );
-		$b->addSiteLink( new SiteLink( 'enwiki', 'Bar' ) );
-		$b->addSiteLink( new SiteLink( 'dewiki', 'Xoo' ) );
+		$b->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Bar' );
+		$b->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Xoo' );
 
 		$items = array( $a, $b );
 
@@ -464,8 +464,8 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$one = Item::newEmpty();
 		$one->setId( 1 );
 
-		$one->addSiteLink( new SiteLink( 'dewiki', 'Xoo' ) );
-		$one->addSiteLink( new SiteLink( 'enwiki', 'Foo' ) );
+		$one->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Xoo' );
+		$one->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
 
 		$this->repo->putEntity( $one );
 
@@ -553,9 +553,9 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 
 		$rev = $this->repo->saveEntity( $entity, 'f00', $GLOBALS['wgUser'], $flags, $baseRevId );
 
-		$logEntry = $this->repo->getLogEntry( $rev->getRevision() );
+		$logEntry = $this->repo->getLogEntry( $rev->getRevisionId() );
 		$this->assertNotNull( $logEntry );
-		$this->assertEquals( $rev->getRevision(), $logEntry['revision'] );
+		$this->assertEquals( $rev->getRevisionId(), $logEntry['revision'] );
 		$this->assertEquals( $entity->getId()->getSerialization(), $logEntry['entity'] );
 		$this->assertEquals( 'f00', $logEntry['summary'] );
 
@@ -563,7 +563,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$this->assertEquals( $entity->getLabels(), $this->repo->getEntity( $entity->getId() )->getLabels() );
 
 		// test we can't mess with entities in the repo
-		$entity->setLabel( 'en', 'STRANGE' );
+		$entity->getFingerprint()->setLabel( 'en', 'STRANGE' );
 		$entity = $this->repo->getEntity( $entity->getId() );
 		$this->assertNotNull( $entity );
 		$this->assertNotEquals( 'STRANGE', $entity->getLabel( 'en' ) );
@@ -679,25 +679,25 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$rev1 = $this->repo->saveEntity( $item, 'testing 1', $user1, EDIT_NEW );
 		$itemId = $item->getId();
 
-		$this->assertTrue( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevision() ), 'user was first and last to edit' );
-		$this->assertFalse( $this->repo->userWasLastToEdit( $user2, $itemId, $rev1->getRevision() ), 'user has not edited yet' );
+		$this->assertTrue( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevisionId() ), 'user was first and last to edit' );
+		$this->assertFalse( $this->repo->userWasLastToEdit( $user2, $itemId, $rev1->getRevisionId() ), 'user has not edited yet' );
 
 		// second edit by another user
 		$item = $item->copy();
 		$item->setLabel( 'en', 'two' );
 		$rev2 = $this->repo->saveEntity( $item, 'testing 2', $user2, EDIT_UPDATE );
 
-		$this->assertFalse( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevision() ), 'original user was no longer last to edit' );
-		$this->assertTrue( $this->repo->userWasLastToEdit( $user2, $itemId, $rev2->getRevision() ), 'second user has just edited' );
+		$this->assertFalse( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevisionId() ), 'original user was no longer last to edit' );
+		$this->assertTrue( $this->repo->userWasLastToEdit( $user2, $itemId, $rev2->getRevisionId() ), 'second user has just edited' );
 
 		// subsequent edit by the original user
 		$item = $item->copy();
 		$item->setLabel( 'en', 'three' );
 		$rev3 = $this->repo->saveEntity( $item, 'testing 3', $user1, EDIT_UPDATE );
 
-		$this->assertFalse( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevision() ), 'another user had edited at some point' );
-		$this->assertTrue( $this->repo->userWasLastToEdit( $user1, $itemId, $rev3->getRevision() ), 'original user was last to edit' );
-		$this->assertFalse( $this->repo->userWasLastToEdit( $user2, $itemId, $rev2->getRevision() ), 'other user was no longer last to edit' );
+		$this->assertFalse( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevisionId() ), 'another user had edited at some point' );
+		$this->assertTrue( $this->repo->userWasLastToEdit( $user1, $itemId, $rev3->getRevisionId() ), 'original user was last to edit' );
+		$this->assertFalse( $this->repo->userWasLastToEdit( $user2, $itemId, $rev2->getRevisionId() ), 'other user was no longer last to edit' );
 	}
 
 }

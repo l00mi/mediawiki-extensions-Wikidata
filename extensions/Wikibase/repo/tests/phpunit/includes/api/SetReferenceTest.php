@@ -15,6 +15,7 @@ use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -69,7 +70,7 @@ class SetReferenceTest extends WikibaseApiTestCase {
 		$item = Item::newEmpty();
 		$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_NEW );
 
-		$statement = $item->newClaim( new PropertyNoValueSnak( self::$propertyIds[0] ) );
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( self::$propertyIds[0] ) ) );
 		$statement->setGuid( $item->getId()->getSerialization() . '$D8505CDA-25E4-4334-AG93-A3290BCD9C0P' );
 
 		$reference = new Reference( new SnakList(
@@ -138,7 +139,7 @@ class SetReferenceTest extends WikibaseApiTestCase {
 		$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_NEW );
 
 		// Create a statement to act upon:
-		$statement = $item->newClaim( new PropertyNoValueSnak( self::$propertyIds[0] ) );
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( self::$propertyIds[0] ) ) );
 		$statement->setGuid(
 			$item->getId()->getSerialization() . '$D8505CDA-25E4-4334-AG93-A3290BCD9C0P'
 		);
@@ -160,7 +161,7 @@ class SetReferenceTest extends WikibaseApiTestCase {
 		$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_NEW );
 
 		// Create a statement to act upon:
-		$statement = $item->newClaim( new PropertyNoValueSnak( self::$propertyIds[0] ) );
+		$statement = new Statement( new Claim( new PropertyNoValueSnak( self::$propertyIds[0] ) ) );
 		$statement->setGuid(
 			$item->getId()->getSerialization() . '$D8505CDA-25E4-4334-AG93-A3290BCD9C0P'
 		);
@@ -310,35 +311,64 @@ class SetReferenceTest extends WikibaseApiTestCase {
 	}
 
 	/**
-	 * Currently tests bad calender model
-	 * @todo test more bad serializations...
+	 * @dataProvider provideInvalidSerializations
 	 */
-	public function testInvalidSerialization() {
+	public function testInvalidSerialization( $snaksSerialization ) {
 		$this->setExpectedException( 'UsageException' );
 		$params = array(
 			'action' => 'wbsetreference',
 			'statement' => 'Foo$Guid',
-			'snaks' => '{
-   "P813":[
-      {
-         "snaktype":"value",
-         "property":"P813",
-         "datavalue":{
-            "value":{
-               "time":"+00000002013-10-05T00:00:00Z",
-               "timezone":0,
-               "before":0,
-               "after":0,
-               "precision":11,
-               "calendarmodel":"FOOBAR :D"
-            },
-            "type":"time"
-         }
-      }
-   ]
-}',
+			'snaks' => $snaksSerialization
 		);
 		$this->doApiRequestWithToken( $params );
+	}
+
+	public function provideInvalidSerializations() {
+		return array(
+			array(
+			'{
+				 "P813":[
+						{
+							 "snaktype":"value",
+							 "property":"P813",
+							 "datavalue":{
+									"value":{
+										 "time":"+00000002013-10-05T00:00:00Z",
+										 "timezone":0,
+										 "before":0,
+										 "after":0,
+										 "precision":11,
+										 "calendarmodel":"FOOBAR :D"
+									},
+									"type":"time"
+							 }
+						}
+				 ]
+			}'
+		),
+			array(
+			'{
+				 "P813":[
+						{
+							 "snaktype":"wubbledubble",
+							 "property":"P813",
+							 "datavalue":{
+									"value":{
+										 "time":"+00000002013-10-05T00:00:00Z",
+										 "timezone":0,
+										 "before":0,
+										 "after":0,
+										 "precision":11,
+										 "calendarmodel":"http:\/\/www.wikidata.org\/entity\/Q1985727"
+									},
+									"type":"time"
+							 }
+						}
+				 ]
+			}'
+		),
+	);
+
 	}
 
 

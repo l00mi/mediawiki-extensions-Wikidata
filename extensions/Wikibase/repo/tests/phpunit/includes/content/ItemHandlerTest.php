@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
@@ -54,7 +55,7 @@ class ItemHandlerTest extends EntityHandlerTest {
 		 * @var ItemContent $content
 		 */
 		$content = clone $contents[1][0];
-		$content->getItem()->addSiteLink( new SiteLink( 'enwiki', 'Foobar' ) );
+		$content->getItem()->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foobar' );
 		$contents[] = array( $content );
 
 		return $contents;
@@ -102,7 +103,7 @@ class ItemHandlerTest extends EntityHandlerTest {
 			$entity->setId( new ItemId( 'Q42' ) );
 		}
 
-		return $this->getHandler()->makeEntityContent( $entity );
+		return $this->getHandler()->makeEntityContent( new EntityInstanceHolder( $entity ) );
 	}
 
 	public function testMakeEntityRedirectContent() {

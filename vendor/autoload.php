@@ -4,4 +4,4 @@
 
 require_once __DIR__ . '/composer' . '/autoload_real.php';
 
-return ComposerAutoloaderInitwikidata_1_25wmf11::getLoader();
+return ComposerAutoloaderInitwikidata_1_25wmf12c::getLoader();

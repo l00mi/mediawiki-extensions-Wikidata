@@ -2,7 +2,7 @@
 
 Wikidata is using a build with Wikibase and its dependencies packaged into one git repo.
 
-If you update the master branch of this repo it will likely be overwritten in the next 24 hours. To change things please see [here](https://github.com/wmde/WikidataBuilder/blob/master/build_config/Wikidata_master)
+If you update the master branch of this repo it will likely be overwritten in the next 24 hours. To change things please see [here](https://github.com/wmde/WikidataBuildResources).
 
 ## Installation
 

@@ -37,13 +37,13 @@ final class TestChanges {
 
 	protected static function getItem() {
 		$item = Item::newEmpty();
-		$item->setLabel( 'en', 'Venezuela' );
-		$item->setDescription( 'en', 'a country' );
-		$item->addAliases( 'en', array( 'Bolivarian Republic of Venezuela' ) );
+		$item->getFingerprint()->setLabel( 'en', 'Venezuela' );
+		$item->getFingerprint()->setDescription( 'en', 'a country' );
+		$item->getFingerprint()->setAliasGroup( 'en', array( 'Bolivarian Republic of Venezuela' ) );
 
-		$item->addSiteLink( new SiteLink( 'enwiki', 'Venezuela' )  );
-		$item->addSiteLink( new SiteLink( 'jawiki', 'ベネズエラ' )  );
-		$item->addSiteLink( new SiteLink( 'cawiki', 'Veneçuela' )  );
+		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Venezuela' );
+		$item->getSiteLinkList()->addNewSiteLink( 'jawiki', 'ベネズエラ' );
+		$item->getSiteLinkList()->addNewSiteLink( 'cawiki', 'Veneçuela' );
 
 		return $item;
 	}
@@ -127,8 +127,8 @@ final class TestChanges {
 			$old = $new->copy();
 
 			// -----
-			$new->removeSiteLink( 'enwiki' );
-			$new->removeSiteLink( 'dewiki' );
+			$new->getSiteLinkList()->removeLinkWithSiteId( 'enwiki' );
+			$new->getSiteLinkList()->removeLinkWithSiteId( 'dewiki' );
 
 			$link = new SiteLink( 'enwiki', "Emmy" );
 			$new->addSiteLink( $link, 'add' );
@@ -155,7 +155,7 @@ final class TestChanges {
 			$changes['change-enwiki-sitelink-badges'] = $changeFactory->newFromUpdate( EntityChange::UPDATE, $old, $new );
 			$old = $new->copy();
 
-			$new->removeSiteLink( 'dewiki' );
+			$new->getSiteLinkList()->removeLinkWithSiteId( 'dewiki' );
 			$changes['remove-dewiki-sitelink'] = $changeFactory->newFromUpdate( EntityChange::UPDATE, $old, $new );
 			$old = $new->copy();
 
@@ -192,7 +192,7 @@ final class TestChanges {
 			$changes['item-deletion-linked'] = $changeFactory->newFromUpdate( EntityChange::REMOVE, $old, null );
 
 			// -----
-			$new->removeSiteLink( 'enwiki' );
+			$new->getSiteLinkList()->removeLinkWithSiteId( 'enwiki' );
 			$changes['remove-enwiki-sitelink'] = $changeFactory->newFromUpdate( EntityChange::UPDATE, $old, $new );
 
 			// apply all the defaults ----------

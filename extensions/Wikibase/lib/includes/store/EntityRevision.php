@@ -18,17 +18,17 @@ class EntityRevision {
 	/**
 	 * @var Entity
 	 */
-	protected $entity;
+	private $entity;
 
 	/**
 	 * @var int
 	 */
-	protected $revisionId;
+	private $revisionId;
 
 	/**
 	 * @var string
 	 */
-	protected $mwTimestamp;
+	private $mwTimestamp;
 
 	/**
 	 * @param Entity $entity
@@ -52,6 +52,8 @@ class EntityRevision {
 	}
 
 	/**
+	 * TODO: change return type to EntityDocument
+	 *
 	 * @return Entity
 	 */
 	public function getEntity() {
@@ -60,11 +62,10 @@ class EntityRevision {
 
 	/**
 	 * @see Revision::getId
-	 * @todo Rename to getRevisionId, it does not return a Revision.
 	 *
 	 * @return int
 	 */
-	public function getRevision() {
+	public function getRevisionId() {
 		return $this->revisionId;
 	}
 

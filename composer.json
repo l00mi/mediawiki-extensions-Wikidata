@@ -5,7 +5,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git"
+            "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git" 
         },
         {
             "type": "vcs",
@@ -19,7 +19,7 @@
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~2.0.1",
-        "wikibase/wikibase": "dev-wmf/1.25wmf11",
+        "wikibase/wikibase": "dev-wmf/1.25wmf12c",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
     },
@@ -33,6 +33,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_25wmf11"
+        "prepend-autoloader": false,
+        "autoloader-suffix": "wikidata_1_25wmf12c"
     }
 }

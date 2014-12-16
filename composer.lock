@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ca31d96ad0daa495e09321be8dd90716",
+    "hash": "f18db4453864ada5b4025ca294b32a1f",
     "packages": [
         {
             "name": "composer/installers",
@@ -1147,6 +1147,46 @@
             "time": "2014-10-15 14:28:48"
         },
         {
+            "name": "wikibase/javascript-api",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
+                "reference": "9e74bc0691f264d633e5e635114bc289436874ff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/9e74bc0691f264d633e5e635114bc289436874ff",
+                "reference": "9e74bc0691f264d633e5e635114bc289436874ff",
+                "shasum": ""
+            },
+            "require": {
+                "data-values/javascript": "~0.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "init.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Lang",
+                    "email": "adrian.lang@wikimedia.de"
+                },
+                {
+                    "name": "H. Snater",
+                    "homepage": "http://www.snater.com"
+                }
+            ],
+            "description": "Wikibase API client in JavaScript",
+            "time": "2014-11-28 08:49:55"
+        },
+        {
             "name": "wikibase/serialization-javascript",
             "version": "2.0.1",
             "source": {
@@ -1189,11 +1229,11 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.25wmf11",
+            "version": "dev-wmf/1.25wmf12c",
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "8ee18cb94f632dc328d4a62a3d968ab1321c2046"
+                "reference": "d468d07fddcda650d333207b24779ab4064c9ffe"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1214,6 +1254,7 @@
                 "wikibase/data-model-serialization": "~1.2",
                 "wikibase/easyrdf_lite": "~0.8.1",
                 "wikibase/internal-serialization": "~1.3",
+                "wikibase/javascript-api": "~1.0",
                 "wikibase/serialization-javascript": "~2.0"
             },
             "conflict": {
@@ -1261,7 +1302,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-12-09 15:55:53"
+            "time": "2014-12-15 23:57:18"
         },
         {
             "name": "wikibase/wikimedia-badges",
