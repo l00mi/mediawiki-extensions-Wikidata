@@ -14,11 +14,6 @@ MODULE.getStore = function( dataTypeStore ) {
 	var expertStore = new vv.ExpertStore( vv.experts.UnsupportedValue );
 
 	expertStore.registerDataValueExpert(
-		wb.experts.EntityIdInput,
-		wb.datamodel.EntityId.TYPE
-	);
-
-	expertStore.registerDataValueExpert(
 		vv.experts.GlobeCoordinateInput,
 		dv.GlobeCoordinateValue.TYPE
 	);
@@ -41,28 +36,22 @@ MODULE.getStore = function( dataTypeStore ) {
 	// Register experts for data types defined in Wikibase. Since those data types are defined by a
 	// setting, it needs to be checked whether they are actually defined.
 
-	var commonsMediaType = dataTypeStore.getDataType( 'commonsMedia' );
-	if( commonsMediaType ) {
-		expertStore.registerDataTypeExpert(
-			vv.experts.CommonsMediaType,
-			commonsMediaType.getId()
-		);
-	}
+	var dataTypeIdToExpertConstructor = {
+		'commonsMedia': vv.experts.CommonsMediaType,
+		'monolingualtext': vv.experts.MonolingualText,
+		'url': vv.experts.StringValue,
+		'wikibase-item': wb.experts.Item,
+		'wikibase-property': wb.experts.Property
+	};
 
-	var urlType = dataTypeStore.getDataType( 'url' );
-	if( urlType ) {
-		expertStore.registerDataTypeExpert(
-			vv.experts.StringValue,
-			urlType.getId()
-		);
-	}
-
-	var monoTextType = dataTypeStore.getDataType( 'monolingualtext' );
-	if( monoTextType ) {
-		expertStore.registerDataTypeExpert(
-			vv.experts.MonolingualText,
-			monoTextType.getId()
-		);
+	for( var dataTypeId in dataTypeIdToExpertConstructor ) {
+		var dataType = dataTypeStore.getDataType( dataTypeId );
+		if( dataType ) {
+			expertStore.registerDataTypeExpert(
+				dataTypeIdToExpertConstructor[dataTypeId],
+				dataType.getId()
+			);
+		}
 	}
 
 	return expertStore;
