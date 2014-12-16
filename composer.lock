@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f18db4453864ada5b4025ca294b32a1f",
+    "hash": "d230ff7b34059e4ff0addb97fa03e53d",
     "packages": [
         {
             "name": "composer/installers",
@@ -859,12 +859,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Wikidata.org.git",
-                "reference": "bf5acbdb7f236614ae08d99cbca9c7aefdb784c2"
+                "reference": "cf0faf6ad182408e8b8ae59365caf9e475a74bbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/bf5acbdb7f236614ae08d99cbca9c7aefdb784c2",
-                "reference": "bf5acbdb7f236614ae08d99cbca9c7aefdb784c2",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/cf0faf6ad182408e8b8ae59365caf9e475a74bbd",
+                "reference": "cf0faf6ad182408e8b8ae59365caf9e475a74bbd",
                 "shasum": ""
             },
             "require": {
@@ -895,10 +895,9 @@
             ],
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata",
-                "source": "https://github.com/wmde/Wikidata.org/tree/master",
-                "issues": "https://github.com/wmde/Wikidata.org/issues"
+                "source": "https://github.com/wmde/Wikidata.org/tree/master"
             },
-            "time": "2014-11-25 18:32:14"
+            "time": "2014-12-16 15:35:52"
         },
         {
             "name": "wikibase/data-model",
@@ -1229,7 +1228,7 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.25wmf12c",
+            "version": "dev-wmf/1.25wmf13",
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",

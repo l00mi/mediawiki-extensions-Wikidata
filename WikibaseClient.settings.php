@@ -1,2 +1,2 @@
 <?php
-$wgWBClientSettings["sharedCacheKeyPrefix"] = "wikibase:WBL/wikidata_1_25wmf12c";
+$wgWBClientSettings["sharedCacheKeyPrefix"] = "wikibase:WBL/wikidata_1_25wmf13";
