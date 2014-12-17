@@ -1,14 +1,12 @@
 <?php
 
-namespace Wikibase;
+namespace Wikibase\Repo\View;
 
 use DataTypes\DataType;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\EntityRevision;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Repo\View\FingerprintView;
-use Wikibase\Repo\View\ClaimsView;
-use Language;
 
 /**
  * Class for creating views for Property instances.
@@ -23,26 +21,9 @@ use Language;
 class PropertyView extends EntityView {
 
 	/**
-	 * @var bool
-	 */
-	private $displayStatementsOnProperties;
-
-	/**
-	 * @param FingerprintView $fingerprintView
-	 * @param ClaimsView $claimsView
-	 * @param Language $language
-	 * @param bool $displayStatementsOnProperties
-	 */
-	public function __construct( FingerprintView $fingerprintView, ClaimsView $claimsView, Language $language, $displayStatementsOnProperties ) {
-		parent::__construct($fingerprintView, $claimsView, $language);
-
-		$this->displayStatementsOnProperties = $displayStatementsOnProperties;
-	}
-
-	/**
 	 * @see EntityView::getMainHtml
 	 */
-	public function getMainHtml( EntityRevision $entityRevision, array $entityInfo,
+	public function getMainHtml( EntityRevision $entityRevision,
 		$editable = true
 	) {
 		wfProfileIn( __METHOD__ );
@@ -53,15 +34,12 @@ class PropertyView extends EntityView {
 			throw new InvalidArgumentException( '$entityRevision must contain a Property.' );
 		}
 
-		$html = parent::getMainHtml( $entityRevision, $entityInfo, $editable );
+		$html = parent::getMainHtml( $entityRevision );
 		$html .= $this->getHtmlForDataType( $this->getDataType( $property ) );
 
-		if ( $this->displayStatementsOnProperties ) {
-			$html .= $this->claimsView->getHtml(
-				$property->getStatements()->toArray(),
-				$entityInfo
-			);
-		}
+		$html .= $this->claimsView->getHtml(
+			$property->getStatements()->toArray()
+		);
 
 		$footer = wfMessage( 'wikibase-property-footer' );
 

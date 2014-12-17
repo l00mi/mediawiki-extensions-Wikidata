@@ -6,16 +6,12 @@ use InvalidArgumentException;
 use Language;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\EntityView;
-use Wikibase\ItemView;
 use Wikibase\LanguageFallbackChain;
+use Wikibase\Lib\EntityIdFormatter;
+use Wikibase\Lib\EntityIdFormatterFactory;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LabelLookup;
-use Wikibase\PropertyView;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @since 0.5
@@ -24,16 +20,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
 class EntityViewFactory {
-
-	/**
-	 * @var EntityTitleLookup
-	 */
-	private $entityTitleLookup;
-
-	/**
-	 * @var EntityLookup
-	 */
-	private $entityLookup;
 
 	/**
 	 * @var OutputFormatSnakFormatterFactory
@@ -45,15 +31,43 @@ class EntityViewFactory {
 	 */
 	private $sectionEditLinkGenerator;
 
+	/**
+	 * @var EntityIdFormatterFactory
+	 */
+	private $idFormatterFactory;
+
+	/**
+	 * @param EntityIdFormatterFactory $idFormatterFactory
+	 * @param OutputFormatSnakFormatterFactory $snakFormatterFactory
+	 */
+	/**
+	 * @var string[]
+	 */
+	private $siteLinkGroups;
+
 	public function __construct(
-		EntityTitleLookup $entityTitleLookup,
-		EntityLookup $entityLookup,
-		OutputFormatSnakFormatterFactory $snakFormatterFactory
+		EntityIdFormatterFactory $idFormatterFactory,
+		OutputFormatSnakFormatterFactory $snakFormatterFactory,
+		array $siteLinkGroups
 	) {
-		$this->entityTitleLookup = $entityTitleLookup;
-		$this->entityLookup = $entityLookup;
+		$this->checkOutputFormat( $idFormatterFactory->getOutputFormat() );
+
+		$this->idFormatterFactory = $idFormatterFactory;
 		$this->snakFormatterFactory = $snakFormatterFactory;
 		$this->sectionEditLinkGenerator = new SectionEditLinkGenerator();
+		$this->siteLinkGroups = $siteLinkGroups;
+	}
+
+	/**
+	 * @param string $format
+	 */
+	private function checkOutputFormat( $format ) {
+		if ( $format !== SnakFormatter::FORMAT_HTML
+			&& $format !== SnakFormatter::FORMAT_HTML_DIFF
+			&& $format !== SnakFormatter::FORMAT_HTML_WIDGET
+		) {
+			throw new InvalidArgumentException( 'HTML format expected, got ' . $format );
+		}
 	}
 
 	/**
@@ -63,6 +77,7 @@ class EntityViewFactory {
 	 * @param string $languageCode
 	 * @param LanguageFallbackChain|null $fallbackChain
 	 * @param LabelLookup|null $labelLookup
+	 * @param bool $editable
 	 *
 	 * @throws InvalidArgumentException
 	 * @return EntityView
@@ -71,7 +86,8 @@ class EntityViewFactory {
 		$entityType,
 		$languageCode,
 		LanguageFallbackChain $fallbackChain = null,
-		LabelLookup $labelLookup = null
+		LabelLookup $labelLookup = null,
+		$editable = true
 	 ) {
 		$fingerprintView = $this->newFingerprintView( $languageCode );
 		$claimsView = $this->newClaimsView( $languageCode, $fallbackChain, $labelLookup );
@@ -81,12 +97,9 @@ class EntityViewFactory {
 
 		// @fixme support more entity types
 		if ( $entityType === 'item' ) {
-			return new ItemView( $fingerprintView, $claimsView, $language );
+			return new ItemView( $fingerprintView, $claimsView, $language, $this->siteLinkGroups, $editable );
 		} elseif ( $entityType === 'property' ) {
-			$displayStatementsOnProperties = WikibaseRepo::getDefaultInstance()->getSettings()
-					->getSetting( 'displayStatementsOnProperties' );
-
-			return new PropertyView( $fingerprintView, $claimsView, $language, $displayStatementsOnProperties );
+			return new PropertyView( $fingerprintView, $claimsView, $language );
 		}
 
 		throw new InvalidArgumentException( 'No EntityView for entity type: ' . $entityType );
@@ -104,21 +117,21 @@ class EntityViewFactory {
 		LanguageFallbackChain $fallbackChain = null,
 		LabelLookup $labelLookup = null
 	) {
+		$propertyIdFormatter = $this->getPropertyIdFormatter( $languageCode, $fallbackChain, $labelLookup );
+
 		$snakHtmlGenerator = new SnakHtmlGenerator(
 			$this->getSnakFormatter( $languageCode, $fallbackChain, $labelLookup ),
-			$this->entityTitleLookup
+			$propertyIdFormatter
 		);
 
 		$claimHtmlGenerator = new ClaimHtmlGenerator(
-			$snakHtmlGenerator,
-			$this->entityTitleLookup
+			$snakHtmlGenerator
 		);
 
 		return new ClaimsView(
-			$this->entityTitleLookup,
+			$propertyIdFormatter,
 			$this->sectionEditLinkGenerator,
-			$claimHtmlGenerator,
-			$languageCode
+			$claimHtmlGenerator
 		);
 	}
 
@@ -135,13 +148,13 @@ class EntityViewFactory {
 	}
 
 	/**
-	 * @param string $languageCode
-	 * @param LanguageFallbackChain|null $languageFallbackChain
-	 * @param LabelLookup|null $labelLookup
+	 * @param $languageCode
+	 * @param LanguageFallbackChain $languageFallbackChain
+	 * @param LabelLookup $labelLookup
 	 *
-	 * @return SnakFormatter
+	 * @return FormatterOptions
 	 */
-	private function getSnakFormatter(
+	private function getFormatterOptions(
 		$languageCode,
 		LanguageFallbackChain $languageFallbackChain = null,
 		LabelLookup $labelLookup = null
@@ -157,8 +170,44 @@ class EntityViewFactory {
 			$formatterOptions->setOption( 'LabelLookup', $labelLookup );
 		}
 
+		return $formatterOptions;
+	}
+
+	/**
+	 * @param string $languageCode
+	 * @param LanguageFallbackChain|null $languageFallbackChain
+	 * @param LabelLookup|null $labelLookup
+	 *
+	 * @return SnakFormatter
+	 */
+	private function getSnakFormatter(
+		$languageCode,
+		LanguageFallbackChain $languageFallbackChain = null,
+		LabelLookup $labelLookup = null
+	) {
+		$formatterOptions = $this->getFormatterOptions( $languageCode, $languageFallbackChain, $labelLookup );
+
 		return $this->snakFormatterFactory->getSnakFormatter(
 			SnakFormatter::FORMAT_HTML_WIDGET,
+			$formatterOptions
+		);
+	}
+
+	/**
+	 * @param string $languageCode
+	 * @param LanguageFallbackChain|null $languageFallbackChain
+	 * @param LabelLookup|null $labelLookup
+	 *
+	 * @return EntityIdFormatter
+	 */
+	private function getPropertyIdFormatter(
+		$languageCode,
+		LanguageFallbackChain $languageFallbackChain = null,
+		LabelLookup $labelLookup = null
+	) {
+		$formatterOptions = $this->getFormatterOptions( $languageCode, $languageFallbackChain, $labelLookup );
+
+		return $this->idFormatterFactory->getEntityIdFormater(
 			$formatterOptions
 		);
 	}

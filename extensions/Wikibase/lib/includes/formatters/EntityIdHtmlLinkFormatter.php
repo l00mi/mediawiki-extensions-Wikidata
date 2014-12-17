@@ -4,7 +4,6 @@ namespace Wikibase\Lib;
 
 use Html;
 use OutOfBoundsException;
-use Title;
 use ValueFormatters\FormatterOptions;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -22,14 +21,14 @@ use Wikibase\Lib\Store\LabelLookup;
 class EntityIdHtmlLinkFormatter extends EntityIdLabelFormatter {
 
 	/**
-	 * @var EntityTitleLookup|null
+	 * @var EntityTitleLookup
 	 */
 	protected $entityTitleLookup;
 
 	public function __construct(
 		FormatterOptions $options,
 		LabelLookup $labelLookup,
-		EntityTitleLookup $entityTitleLookup = null
+		EntityTitleLookup $entityTitleLookup
 	) {
 		parent::__construct( $options, $labelLookup );
 
@@ -44,11 +43,8 @@ class EntityIdHtmlLinkFormatter extends EntityIdLabelFormatter {
 	 * @return string
 	 */
 	protected function formatEntityId( EntityId $entityId ) {
-		if ( isset( $this->entityTitleLookup ) ) {
-			$title = $this->entityTitleLookup->getTitleForId( $entityId );
-		} else {
-			$title = Title::newFromText( $entityId->getSerialization() );
-		}
+		$title = $this->entityTitleLookup->getTitleForId( $entityId );
+
 		$attributes = array(
 			'title' => $title->getPrefixedText(),
 			'href' => $title->getLocalURL()

@@ -14,11 +14,7 @@ use ValueFormatters\QuantityFormatter;
 use ValueFormatters\ValueFormatter;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\Store\TermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Store\LabelLookup;
-use Wikibase\Lib\Store\LanguageFallbackLabelLookup;
-use Wikibase\Lib\Store\LanguageLabelLookup;
 
 /**
  * Defines the formatters for DataValues supported by Wikibase.
@@ -31,14 +27,14 @@ use Wikibase\Lib\Store\LanguageLabelLookup;
 class WikibaseValueFormatterBuilders {
 
 	/**
-	 * @var TermLookup
-	 */
-	private $termLookup;
-
-	/**
 	 * @var Language
 	 */
 	private $defaultLanguage;
+
+	/**
+	 * @var FormatterLabelLookupFactory
+	 */
+	private $labelLookupFactory;
 
 	/**
 	 * @var EntityTitleLookup|null
@@ -93,7 +89,7 @@ class WikibaseValueFormatterBuilders {
 		SnakFormatter::FORMAT_HTML => array(
 			'PT:url' => 'Wikibase\Lib\HtmlUrlFormatter',
 			'PT:commonsMedia' => 'Wikibase\Lib\CommonsLinkFormatter',
-			'PT:wikibase-item' =>  array( 'this', 'newEntityIdHtmlLinkFormatter' ),
+			'PT:wikibase-item' =>  array( 'this', 'newEntityIdHtmlFormatter' ),
 			'VT:time' => array( 'this', 'newHtmlTimeFormatter' ),
 			'VT:monolingualtext' => 'Wikibase\Formatters\MonolingualHtmlFormatter',
 		),
@@ -113,12 +109,12 @@ class WikibaseValueFormatterBuilders {
 	);
 
 	public function __construct(
-		TermLookup $termLookup,
 		Language $defaultLanguage,
+		FormatterLabelLookupFactory $labelLookupFactory,
 		EntityTitleLookup $entityTitleLookup = null
 	) {
-		$this->termLookup = $termLookup;
 		$this->defaultLanguage = $defaultLanguage;
+		$this->labelLookupFactory = $labelLookupFactory;
 		$this->entityTitleLookup = $entityTitleLookup;
 	}
 
@@ -506,40 +502,6 @@ class WikibaseValueFormatterBuilders {
 	}
 
 	/**
-	 * @param FormatterOptions $options
-	 *
-	 * @throws InvalidArgumentException
-	 * @return LabelLookup
-	 */
-	private function newLabelLookup( FormatterOptions $options ) {
-		$termLookup = $this->termLookup;
-
-		if ( $options->hasOption( 'LabelLookup' ) ) {
-			$labelLookup = $options->getOption( 'LabelLookup' );
-
-			if ( !( $labelLookup instanceof LabelLookup ) ) {
-				throw new InvalidArgumentException( 'Option LabelLookup must be used ' .
-					'with an instance of LabelLookup.' );
-			}
-		} elseif ( $options->hasOption( 'languages' ) ) {
-			$labelLookup = new LanguageFallbackLabelLookup(
-				$termLookup,
-				$options->getOption( 'languages' )
-			);
-		} else if ( $options->hasOption( ValueFormatter::OPT_LANG ) ) {
-			$labelLookup = new LanguageLabelLookup(
-				$termLookup,
-				$options->getOption( ValueFormatter::OPT_LANG )
-			);
-		} else {
-			throw new InvalidArgumentException( 'OPT_LANG or languages (fallback chain) '
-				. 'must be set in FormatterOptions.' );
-		}
-
-		return $labelLookup;
-	}
-
-	/**
 	 * Builder callback for use in WikibaseValueFormatterBuilders::$valueFormatterSpecs.
 	 * Used to inject services into the EntityIdLabelFormatter.
 	 *
@@ -548,7 +510,7 @@ class WikibaseValueFormatterBuilders {
 	 * @return EntityIdLabelFormatter
 	 */
 	private function newEntityIdFormatter( FormatterOptions $options ) {
-		$labelLookup = $this->newLabelLookup( $options );
+		$labelLookup = $this->labelLookupFactory->getLabelLookup( $options );
 		return new EntityIdLabelFormatter( $options, $labelLookup );
 	}
 
@@ -558,14 +520,19 @@ class WikibaseValueFormatterBuilders {
 	 *
 	 * @param FormatterOptions $options
 	 *
-	 * @return EntityIdHtmlLinkFormatter
+	 * @return ValueFormatter
 	 */
-	private function newEntityIdHtmlLinkFormatter( FormatterOptions $options ) {
-		return new EntityIdHtmlLinkFormatter(
-			$options,
-			$this->newLabelLookup( $options ),
-			$this->entityTitleLookup
-		);
+	private function newEntityIdHtmlFormatter( FormatterOptions $options ) {
+		$labelLookup = $this->labelLookupFactory->getLabelLookup( $options );
+
+		if ( !$this->entityTitleLookup ) {
+			return new EscapingValueFormatter(
+				new EntityIdLabelFormatter( $options, $labelLookup ),
+				'htmlspecialchars'
+			);
+		}
+
+		return new EntityIdHtmlLinkFormatter( $options, $labelLookup, $this->entityTitleLookup );
 	}
 
 	/**

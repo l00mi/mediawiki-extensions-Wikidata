@@ -6,6 +6,7 @@ use Language;
 use ParserOptions;
 use TestUser;
 use Wikibase\LanguageFallbackChain;
+use Wikibase\Lib\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityInfoTermLookup;
 use Wikibase\Lib\Store\LanguageLabelLookup;
@@ -38,8 +39,8 @@ class EntityViewFactoryTest extends \PHPUnit_Framework_TestCase {
 
 	public function newEntityViewProvider() {
 		return array(
-			array( 'Wikibase\ItemView', 'item' ),
-			array( 'Wikibase\PropertyView', 'property' )
+			array( 'Wikibase\Repo\View\ItemView', 'item' ),
+			array( 'Wikibase\Repo\View\PropertyView', 'property' )
 		);
 	}
 
@@ -56,23 +57,26 @@ class EntityViewFactoryTest extends \PHPUnit_Framework_TestCase {
 
 	private function getEntityViewFactory() {
 		return new EntityViewFactory(
-			$this->getEntityTitleLookup(),
-			new MockRepository(),
-			$this->getSnakFormatterFactory()
+			$this->getEntityIdFormatterFactory(),
+			$this->getSnakFormatterFactory(),
+			array()
 		);
 	}
 
-	private function getEntityTitleLookup() {
-		$entityTitleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+	private function getEntityIdFormatterFactory() {
+		$labelLookup = $this->getMock( 'Wikibase\Lib\Store\LabelLookup' );
 
-		$entityTitleLookup->expects( $this->any() )
-			->method( 'getTitleForId' )
-			->will( $this->returnCallback( function( EntityId $id ) {
-				$name = $id->getEntityType() . ':' . $id->getSerialization();
-				return Title::makeTitle( NS_MAIN, $name );
-			} ) );
+		$labelLookupFactory = $this->getMockBuilder( 'Wikibase\Lib\FormatterLabelLookupFactory' )
+			->disableOriginalConstructor()
+			->getMock();
 
-		return $entityTitleLookup;
+		$labelLookupFactory->expects( $this->any() )
+			->method( 'getLabelLookup' )
+			->will( $this->returnValue( $labelLookup ) );
+
+		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+
+		return new EntityIdHtmlLinkFormatterFactory( $labelLookupFactory, $titleLookup );
 	}
 
 	private function getSnakFormatterFactory() {
