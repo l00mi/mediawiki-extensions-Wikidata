@@ -993,7 +993,10 @@ class WikibaseRepo {
 			$this->getSnakFormatterFactory(),
 			$this->getEntityLookup(),
 			$this->getSiteStore(),
-			$this->getSettings()->getSetting( 'siteLinkGroups' )
+			$this->getDataTypeFactory(),
+			$this->getSettings()->getSetting( 'siteLinkGroups' ),
+			$this->getSettings()->getSetting( 'specialSiteLinkGroups' ),
+			$this->getSettings()->getSetting( 'badgeItems' )
 		);
 
 		return new EntityParserOutputGeneratorFactory(

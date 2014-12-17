@@ -105,6 +105,12 @@ Other methods an Expert needs to provide:
 
 ## Release notes
 
+### 0.9.1 (2014-12-17)
+
+#### Enhancements
+* `$.ui.suggester`: Added `isSearching()` function to determine whether searching is in progress.
+* Added `force` parameter to `$.AutoInputExpand.prototype.expand()`.
+
 ### 0.9.0 (2014-12-05)
 
 #### Breaking changes
@@ -320,3 +326,7 @@ Other methods an Expert needs to provide:
 ### 0.1 (2013-12-23)
 
 Initial release.
+
+# Bugs on Phabricator
+
+https://phabricator.wikimedia.org/project/view/918/

@@ -95,53 +95,6 @@
         ]
     },
     {
-        "name": "propertysuggester/property-suggester",
-        "version": "2.0.1",
-        "version_normalized": "2.0.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
-            "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2014-11-11 11:23:20",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/javascript",
         "version": "0.6.1",
         "version_normalized": "0.6.1.0",
@@ -194,24 +147,24 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.9.0",
-        "version_normalized": "0.9.0.0",
+        "version": "0.9.1",
+        "version_normalized": "0.9.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/ValueView.git",
-            "reference": "f30a1e5a3220832001217f1a8bf97375a8f4850c"
+            "reference": "b0b228f77a4624a479aad6b3eba8dcd41e4ccf0e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/f30a1e5a3220832001217f1a8bf97375a8f4850c",
-            "reference": "f30a1e5a3220832001217f1a8bf97375a8f4850c",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/b0b228f77a4624a479aad6b3eba8dcd41e4ccf0e",
+            "reference": "b0b228f77a4624a479aad6b3eba8dcd41e4ccf0e",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.6.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-12-05 09:59:07",
+        "time": "2014-12-17 14:27:22",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -495,24 +448,24 @@
     },
     {
         "name": "wikibase/serialization-javascript",
-        "version": "2.0.1",
-        "version_normalized": "2.0.1.0",
+        "version": "2.0.2",
+        "version_normalized": "2.0.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-            "reference": "aa973b1b23cdf50b0b677a1f43bc2373400aba8d"
+            "reference": "4104a21dc4a677cc0e125ca38dc7ef362444226b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/aa973b1b23cdf50b0b677a1f43bc2373400aba8d",
-            "reference": "aa973b1b23cdf50b0b677a1f43bc2373400aba8d",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/4104a21dc4a677cc0e125ca38dc7ef362444226b",
+            "reference": "4104a21dc4a677cc0e125ca38dc7ef362444226b",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.6.0",
             "wikibase/data-model-javascript": "~1.0.0"
         },
-        "time": "2014-11-05 10:07:12",
+        "time": "2014-12-17 14:25:47",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1222,12 +1175,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "89ae9af2d7d54883ead5fd9ba2238f1db50afc36"
+            "reference": "eef0a2e7febce0de00553a2a4e6d89112a6396da"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/89ae9af2d7d54883ead5fd9ba2238f1db50afc36",
-            "reference": "89ae9af2d7d54883ead5fd9ba2238f1db50afc36",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/eef0a2e7febce0de00553a2a4e6d89112a6396da",
+            "reference": "eef0a2e7febce0de00553a2a4e6d89112a6396da",
             "shasum": ""
         },
         "require": {
@@ -1241,7 +1194,7 @@
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.6.0",
             "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.9.0",
+            "data-values/value-view": "~0.9.1",
             "diff/diff": "~1.0",
             "php": ">=5.3.2",
             "wikibase/data-model": "~2.4",
@@ -1255,7 +1208,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2014-12-16 11:25:00",
+        "time": "2014-12-18 09:01:43",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1356,18 +1309,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/Wikidata.org.git",
-            "reference": "bf5acbdb7f236614ae08d99cbca9c7aefdb784c2"
+            "reference": "cf0faf6ad182408e8b8ae59365caf9e475a74bbd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/bf5acbdb7f236614ae08d99cbca9c7aefdb784c2",
-            "reference": "bf5acbdb7f236614ae08d99cbca9c7aefdb784c2",
+            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/cf0faf6ad182408e8b8ae59365caf9e475a74bbd",
+            "reference": "cf0faf6ad182408e8b8ae59365caf9e475a74bbd",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-11-25 18:32:14",
+        "time": "2014-12-16 15:35:52",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1394,8 +1347,54 @@
         ],
         "support": {
             "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/Wikidata.org/tree/master",
-            "issues": "https://github.com/wmde/Wikidata.org/issues"
+            "source": "https://github.com/wmde/Wikidata.org/tree/master"
         }
+    },
+    {
+        "name": "propertysuggester/property-suggester",
+        "version": "2.0.2",
+        "version_normalized": "2.0.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "75d07b5ecbd24b4250cc3ac525063a6f7ab4df7c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/75d07b5ecbd24b4250cc3ac525063a6f7ab4df7c",
+            "reference": "75d07b5ecbd24b4250cc3ac525063a6f7ab4df7c",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2014-12-17 16:08:45",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+        "keywords": [
+            "propertysuggester",
+            "wikibase",
+            "wikidata"
+        ]
     }
 ]

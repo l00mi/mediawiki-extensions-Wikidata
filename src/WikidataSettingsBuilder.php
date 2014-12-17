@@ -52,7 +52,9 @@ class WikidataSettingsBuilder {
 		$suffix = time();
 
 		if ( $this->composerConfig !== null ) {
-			if ( $autoloaderSuffix = $this->composerConfig->get( 'autoloader-suffix' ) ) {
+			$autoloaderSuffix = $this->composerConfig->get( 'autoloader-suffix' );
+
+			if ( $autoloaderSuffix !== null ) {
 				$suffix = $autoloaderSuffix;
 			}
 		}

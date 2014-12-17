@@ -2,6 +2,7 @@
 
 namespace Wikibase\Repo\View;
 
+use DataTypes\DataTypeFactory;
 use InvalidArgumentException;
 use Language;
 use SiteStore;
@@ -49,22 +50,41 @@ class EntityViewFactory {
 	private $siteStore;
 
 	/**
+	 * @var DataTypeFactory
+	 */
+	private $dataTypeFactory;
+
+	/**
 	 * @var string[]
 	 */
 	private $siteLinkGroups;
+
+	/**
+	 * @var string[]
+	 */
+	private $specialSiteLinkGroups;
+
+	/**
+	 * @var array
+	 */
+	private $badgeItems;
 
 	/**
 	 * @param EntityIdFormatterFactory $idFormatterFactory
 	 * @param OutputFormatSnakFormatterFactory $snakFormatterFactory
 	 * @param EntityLookup $entityLookup
 	 * @param SiteStore $siteStore
+	 * @param DataTypeFactory $dataTypeFactory
 	 */
 	public function __construct(
 		EntityIdFormatterFactory $idFormatterFactory,
 		OutputFormatSnakFormatterFactory $snakFormatterFactory,
 		EntityLookup $entityLookup,
 		SiteStore $siteStore,
-		array $siteLinkGroups
+		DataTypeFactory $dataTypeFactory,
+		array $siteLinkGroups,
+		array $specialSiteLinkGroups,
+		array $badgeItems
 	) {
 		$this->checkOutputFormat( $idFormatterFactory->getOutputFormat() );
 
@@ -73,7 +93,10 @@ class EntityViewFactory {
 		$this->sectionEditLinkGenerator = new SectionEditLinkGenerator();
 		$this->entityLookup = $entityLookup;
 		$this->siteStore = $siteStore;
+		$this->dataTypeFactory = $dataTypeFactory;
 		$this->siteLinkGroups = $siteLinkGroups;
+		$this->specialSiteLinkGroups = $specialSiteLinkGroups;
+		$this->badgeItems = $badgeItems;
 	}
 
 	/**
@@ -120,6 +143,8 @@ class EntityViewFactory {
 					$this->siteStore->getSites(),
 					$this->sectionEditLinkGenerator,
 					$this->entityLookup,
+					$this->badgeItems,
+					$this->specialSiteLinkGroups,
 					$language->getCode()
 				);
 
@@ -132,7 +157,13 @@ class EntityViewFactory {
 					$editable
 				);
 			case 'property':
-				return new PropertyView( $fingerprintView, $claimsView, $language, $editable );
+				return new PropertyView(
+					$fingerprintView,
+					$claimsView,
+					$this->dataTypeFactory,
+					$language,
+					$editable
+				);
 		}
 
 		throw new InvalidArgumentException( 'No EntityView for entity type: ' . $entityType );
