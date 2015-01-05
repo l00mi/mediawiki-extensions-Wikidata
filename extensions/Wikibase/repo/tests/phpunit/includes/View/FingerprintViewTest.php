@@ -7,15 +7,14 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\Repo\View\FingerprintView;
 use Wikibase\Repo\View\SectionEditLinkGenerator;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\FingerprintView
  *
  * @group Wikibase
  * @group WikibaseRepo
- *
- * @group Database
- *		^---- needed because we rely on Title objects internally
  *
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
@@ -46,7 +45,13 @@ class FingerprintViewTest extends \MediaWikiLangTestCase {
 	}
 
 	private function getFingerprintView( $languageCode = 'en' ) {
-		return new FingerprintView( new SectionEditLinkGenerator(), $languageCode );
+		$templateFactory = new TemplateFactory( TemplateRegistry::getDefaultInstance() );
+
+		return new FingerprintView(
+			$templateFactory,
+			new SectionEditLinkGenerator( $templateFactory ),
+			$languageCode
+		);
 	}
 
 	private function getFingerprint( $languageCode = 'en' ) {

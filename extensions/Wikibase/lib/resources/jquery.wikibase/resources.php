@@ -84,7 +84,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'jquery.ui.widget',
-				'jquery.wikibase.claimview',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.statementview',
 				'jquery.wikibase.toolbarcontroller',
@@ -95,23 +94,6 @@ return call_user_func( function() {
 			),
 			'messages' => array(
 				'wikibase-entity-property',
-			),
-		),
-
-		'jquery.wikibase.claimview' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.wikibase.claimview.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.snakview',
-				'jquery.wikibase.snaklistview',
-				'wikibase.datamodel',
-				'jquery.wikibase.toolbarcontroller',
-			),
-			'messages' => array(
-				'wikibase-addqualifier',
-				'wikibase-claimview-snak-tooltip',
-				'wikibase-claimview-snak-new-tooltip',
 			),
 		),
 
@@ -170,7 +152,7 @@ return call_user_func( function() {
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.aliasesview',
 				'jquery.wikibase.descriptionview',
-				'jquery.wikibase.fingerprintgroupview',
+				'jquery.wikibase.entitytermsview',
 				'jquery.wikibase.labelview',
 				'wikibase.datamodel.MultiTerm',
 				'wikibase.datamodel.Term',
@@ -183,32 +165,32 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.wikibase.fingerprintgroupview' => $moduleTemplate + array(
+		'jquery.wikibase.entitytermsview' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery.wikibase.fingerprintgroupview.js',
+				'jquery.wikibase.entitytermsview.js',
 			),
 			'styles' => array(
-				'themes/default/jquery.wikibase.fingerprintgroupview.css',
+				'themes/default/jquery.wikibase.entitytermsview.css',
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
-				'jquery.wikibase.fingerprintlistview',
+				'jquery.wikibase.entitytermsforlanguagelistview',
 			),
 			'messages' => array(
 				'wikibase-terms',
 			),
 		),
 
-		'jquery.wikibase.fingerprintlistview' => $moduleTemplate + array(
+		'jquery.wikibase.entitytermsforlanguagelistview' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery.wikibase.fingerprintlistview.js',
+				'jquery.wikibase.entitytermsforlanguagelistview.js',
 			),
 			'styles' => array(
-				'themes/default/jquery.wikibase.fingerprintlistview.css',
+				'themes/default/jquery.wikibase.entitytermsforlanguagelistview.css',
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
-				'jquery.wikibase.fingerprintview',
+				'jquery.wikibase.entitytermsforlanguageview',
 				'wikibase.getLanguageNameByCode',
 			),
 			'messages' => array(
@@ -216,12 +198,12 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.wikibase.fingerprintview' => $moduleTemplate + array(
+		'jquery.wikibase.entitytermsforlanguageview' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery.wikibase.fingerprintview.js',
+				'jquery.wikibase.entitytermsforlanguageview.js',
 			),
 			'styles' => array(
-				'themes/default/jquery.wikibase.fingerprintview.css',
+				'themes/default/jquery.wikibase.entitytermsforlanguageview.css',
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
@@ -445,20 +427,27 @@ return call_user_func( function() {
 				'jquery.ui.position',
 				'jquery.ui.toggler',
 				'util.inherit',
-				'jquery.wikibase.claimview',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.referenceview',
+				'jquery.wikibase.snakview',
+				'jquery.wikibase.snaklistview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase.datamodel',
+				'wikibase.datamodel.Claim',
+				'wikibase.datamodel.ReferenceList',
+				'wikibase.datamodel.SnakList',
+				'wikibase.datamodel.Statement',
 				'wikibase.utilities',
 			),
 			'messages' => array(
+				'wikibase-addreference',
+				'wikibase-addqualifier',
+				'wikibase-claimview-snak-tooltip',
+				'wikibase-claimview-snak-new-tooltip',
 				'wikibase-statementview-rank-preferred',
 				'wikibase-statementview-rank-normal',
 				'wikibase-statementview-rank-deprecated',
 				'wikibase-statementview-referencesheading-pendingcountersubject',
 				'wikibase-statementview-referencesheading-pendingcountertooltip',
-				'wikibase-addreference',
 			),
 		),
 

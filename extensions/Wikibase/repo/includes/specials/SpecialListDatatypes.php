@@ -21,6 +21,11 @@ class SpecialListDatatypes extends SpecialWikibasePage {
 		parent::__construct( 'ListDatatypes' );
 	}
 
+	/**
+	 * @see SpecialWikibasePage::execute
+	 *
+	 * @param string|null $subPage
+	 */
 	public function execute( $subPage ) {
 		parent::execute( $subPage );
 
@@ -30,10 +35,12 @@ class SpecialListDatatypes extends SpecialWikibasePage {
 		// some of the datatype descriptions
 		// 'wikibase-listdatatypes-wikibase-item-head'
 		// 'wikibase-listdatatypes-wikibase-item-body'
+		// 'wikibase-listdatatypes-wikibase-property-head'
+		// 'wikibase-listdatatypes-wikibase-property-body'
 		// 'wikibase-listdatatypes-commonsmedia-head'
 		// 'wikibase-listdatatypes-commonsmedia-body'
-		// 'wikibase-listdatatypes-geo-coordinate-head'
-		// 'wikibase-listdatatypes-geo-coordinate-body'
+		// 'wikibase-listdatatypes-globe-coordinate-head'
+		// 'wikibase-listdatatypes-globe-coordinate-body'
 		// 'wikibase-listdatatypes-quantity-head'
 		// 'wikibase-listdatatypes-quantity-body'
 		// 'wikibase-listdatatypes-monolingualtext-head'
@@ -41,7 +48,11 @@ class SpecialListDatatypes extends SpecialWikibasePage {
 		// 'wikibase-listdatatypes-multilingualtext-head'
 		// 'wikibase-listdatatypes-multilingualtext-body'
 		// 'wikibase-listdatatypes-time-head'
-		// 'wikibase-listdatatypes-text-body'
+		// 'wikibase-listdatatypes-time-body'
+		// 'wikibase-listdatatypes-string-head'
+		// 'wikibase-listdatatypes-string-body'
+		// 'wikibase-listdatatypes-url-head'
+		// 'wikibase-listdatatypes-url-body'
 
 		foreach ( $this->getDataTypeIds() as $dataTypeId ) {
 			$this->getOutput()->addHTML( $this->getHtmlForDataTypeId( $dataTypeId ) );

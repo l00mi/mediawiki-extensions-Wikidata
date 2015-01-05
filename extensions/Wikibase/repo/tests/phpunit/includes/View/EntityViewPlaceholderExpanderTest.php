@@ -12,6 +12,8 @@ use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\View\EntityViewPlaceholderExpander;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\EntityViewPlaceholderExpander
@@ -31,7 +33,9 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 	 * @param ItemId $itemId
 	 */
 	private function newExpander( User $user, EntityRevisionLookup $entityRevisionLookup, ItemId $itemId ) {
-		$title = new Title( 'EntityViewPlaceholderExpanderTest-DummyTitleForLocalUrls' );
+		$title = $this->getMockBuilder( 'Title')
+			->disableOriginalConstructor()
+			->getMock();
 
 		$language = Language::factory( 'en' );
 
@@ -48,10 +52,11 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 			->getMock();
 
 		$userLanguages->expects( $this->any() )
-			->method( 'getExtraUserLanguages' )
+			->method( 'getAllUserLanguages' )
 			->will( $this->returnValue( array( 'de', 'en', 'ru' ) ) );
 
 		return new EntityViewPlaceholderExpander(
+			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 			$title,
 			$user,
 			$language,
@@ -177,7 +182,7 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		$this->assertArrayEquals( array(), $expander->getExtraUserLanguages() );
 
 		$expander = $this->newExpander( $this->newUser( false ), $entityRevisionLookup, $itemId );
-		$this->assertArrayEquals( array( 'de', 'en', 'ru' ), $expander->getExtraUserLanguages() );
+		$this->assertArrayEquals( array( 'de', 'ru' ), $expander->getExtraUserLanguages() );
 	}
 
 }

@@ -10,6 +10,7 @@ use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\Snaks;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Lib\Serializers\ClaimSerializer;
+use Wikibase\Template\TemplateFactory;
 
 /**
  * Base class for generating the HTML for a Claim in Entity View.
@@ -27,17 +28,25 @@ use Wikibase\Lib\Serializers\ClaimSerializer;
 class ClaimHtmlGenerator {
 
 	/**
+	 * @var TemplateFactory
+	 */
+	private $templateFactory;
+
+	/**
 	 * @var SnakHtmlGenerator
 	 */
 	private $snakHtmlGenerator;
 
 	/**
+	 * @param TemplateFactory $templateFactory
 	 * @param SnakHtmlGenerator $snakHtmlGenerator
 	 */
 	public function __construct(
+		TemplateFactory $templateFactory,
 		SnakHtmlGenerator $snakHtmlGenerator
 	) {
 		$this->snakHtmlGenerator = $snakHtmlGenerator;
+		$this->templateFactory = $templateFactory;
 	}
 
 	/**
@@ -58,12 +67,17 @@ class ClaimHtmlGenerator {
 			false
 		);
 
+		// TODO: Resolve if-statement after concept of Claim has been removed
+		//  (see https://github.com/wmde/WikibaseDataModel/pull/317)
 		if ( !( $claim instanceof Statement ) ) {
-			$claimHtml = wfTemplate( 'wb-claim',
+			$claimHtml = $this->templateFactory->render( 'wikibase-statementview',
 				$claim->getGuid(),
+				'',
 				$mainSnakHtml,
 				$this->getHtmlForQualifiers( $claim->getQualifiers() ),
-				$editSectionHtml
+				$editSectionHtml,
+				'',
+				''
 			);
 		} else {
 			/** @var Statement $claim */
@@ -71,7 +85,7 @@ class ClaimHtmlGenerator {
 
 			// Messages: wikibase-statementview-rank-preferred, wikibase-statementview-rank-normal,
 			// wikibase-statementview-rank-deprecated
-			$rankHtml = wfTemplate( 'wb-rankselector',
+			$rankHtml = $this->templateFactory->render( 'wb-rankselector',
 				'ui-state-disabled',
 				'wb-rankselector-' . $serializedRank,
 				wfMessage( 'wikibase-statementview-rank-' . $serializedRank )->text()
@@ -90,14 +104,11 @@ class ClaimHtmlGenerator {
 				$claim->getReferences()
 			);
 
-			$claimHtml = wfTemplate( 'wb-statement',
+			$claimHtml = $this->templateFactory->render( 'wikibase-statementview',
+				$claim->getGuid(),
 				$rankHtml,
-				wfTemplate( 'wb-claim',
-					$claim->getGuid(),
-					$mainSnakHtml,
-					$this->getHtmlForQualifiers( $claim->getQualifiers() ),
-					''
-				),
+				$mainSnakHtml,
+				$this->getHtmlForQualifiers( $claim->getQualifiers() ),
 				$editSectionHtml,
 				$referencesHeading,
 				$referencesHtml
@@ -149,7 +160,7 @@ class ClaimHtmlGenerator {
 
 	private function wrapInListview( $listviewContent ) {
 		if( $listviewContent !== '' ) {
-			return wfTemplate( 'wb-listview', $listviewContent );
+			return $this->templateFactory->render( 'wb-listview', $listviewContent );
 		} else {
 			return '';
 		}
@@ -176,7 +187,7 @@ class ClaimHtmlGenerator {
 			);
 		}
 
-		return wfTemplate( 'wb-referenceview',
+		return $this->templateFactory->render( 'wb-referenceview',
 			'wb-referenceview-' . $reference->getHash(),
 			$snaklistviewsHtml
 		);
@@ -197,7 +208,7 @@ class ClaimHtmlGenerator {
 			$snaksHtml .= $this->snakHtmlGenerator->getSnakHtml( $snak, ( $i++ === 0 ) );
 		}
 
-		return wfTemplate(
+		return $this->templateFactory->render(
 			'wb-snaklistview',
 			$snaksHtml
 		);

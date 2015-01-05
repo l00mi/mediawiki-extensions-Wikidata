@@ -7,10 +7,11 @@ use Message;
 use Sanitizer;
 use Site;
 use SiteList;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Template\TemplateFactory;
 use Wikibase\Utils;
 
 /**
@@ -23,6 +24,11 @@ use Wikibase\Utils;
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class SiteLinksView {
+
+	/**
+	 * @var TemplateFactory
+	 */
+	private $templateFactory;
 
 	/**
 	 * @var SiteList
@@ -40,9 +46,9 @@ class SiteLinksView {
 	private $entityLookup;
 
 	/**
-	 * @var string
+	 * @var string[]
 	 */
-	private $languageCode;
+	private $badgeItems;
 
 	/**
 	 * @var string[]
@@ -50,11 +56,20 @@ class SiteLinksView {
 	private $specialSiteLinkGroups;
 
 	/**
-	 * @var array
+	 * @var string
 	 */
-	private $badgeItems;
+	private $languageCode;
 
+	/**
+	 * @param SiteList $sites
+	 * @param SectionEditLinkGenerator $sectionEditLinkGenerator
+	 * @param EntityLookup $entityLookup
+	 * @param string[] $badgeItems
+	 * @param string[] $specialSiteLinkGroups
+	 * @param string $languageCode
+	 */
 	public function __construct(
+		TemplateFactory $templateFactory,
 		SiteList $sites,
 		SectionEditLinkGenerator $sectionEditLinkGenerator,
 		EntityLookup $entityLookup,
@@ -68,6 +83,7 @@ class SiteLinksView {
 		$this->badgeItems = $badgeItems;
 		$this->specialSiteLinkGroups = $specialSiteLinkGroups;
 		$this->languageCode = $languageCode;
+		$this->templateFactory = $templateFactory;
 	}
 
 	/**
@@ -98,8 +114,8 @@ class SiteLinksView {
 			$html .= $this->getHtmlForSiteLinkGroup( $siteLinks, $itemId, $group, $editable );
 		}
 
-		return wfTemplate( 'wikibase-sitelinkgrouplistview',
-			wfTemplate( 'wb-listview', $html )
+		return $this->templateFactory->render( 'wikibase-sitelinkgrouplistview',
+			$this->templateFactory->render( 'wb-listview', $html )
 		);
 	}
 
@@ -114,12 +130,12 @@ class SiteLinksView {
 	 * @return string
 	 */
 	private function getHtmlForSiteLinkGroup( array $siteLinks, $itemId, $group, $editable ) {
-		return wfTemplate( 'wikibase-sitelinkgroupview',
+		return $this->templateFactory->render( 'wikibase-sitelinkgroupview',
 			// TODO: support entity-id as prefix for element IDs.
 			htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES ),
 			wfMessage( 'wikibase-sitelinks-' . $group )->parse(),
 			'', // counter
-			wfTemplate( 'wikibase-sitelinklistview',
+			$this->templateFactory->render( 'wikibase-sitelinklistview',
 				$this->getHtmlForSiteLinks(
 					$this->getSiteLinksForTable( $this->getSitesForGroup( $group ), $siteLinks ),
 					$group === 'special'
@@ -246,7 +262,7 @@ class SiteLinksView {
 		// TODO: for non-JS, also set the dir attribute on the link cell;
 		// but do not build language objects for each site since it causes too much load
 		// and will fail when having too much site links
-		return wfTemplate( 'wikibase-sitelinkview',
+		return $this->templateFactory->render( 'wikibase-sitelinkview',
 			htmlspecialchars( $siteId ), // ID used in classes
 			$languageCode,
 			'auto',
@@ -265,7 +281,7 @@ class SiteLinksView {
 	private function getHtmlForPage( $siteLink, $site ) {
 		$pageName = $siteLink->getPageName();
 
-		return wfTemplate( 'wikibase-sitelinkview-pagename',
+		return $this->templateFactory->render( 'wikibase-sitelinkview-pagename',
 			htmlspecialchars( $site->getPageUrl( $pageName ) ),
 			htmlspecialchars( $pageName ),
 			$this->getHtmlForBadges( $siteLink ),
@@ -280,7 +296,7 @@ class SiteLinksView {
 	 */
 	private function getHtmlForUnknownSiteLink( $siteLink ) {
 		// FIXME: No need for separate template; Use 'wikibase-sitelinkview' template.
-		return wfTemplate( 'wikibase-sitelinkview-unknown',
+		return $this->templateFactory->render( 'wikibase-sitelinkview-unknown',
 			htmlspecialchars( $siteLink->getSiteId() ),
 			htmlspecialchars(  $siteLink->getPageName() )
 		);
@@ -317,7 +333,6 @@ class SiteLinksView {
 	private function getHtmlForBadges( SiteLink $siteLink ) {
 		$html = '';
 
-		/** @var ItemId $badge */
 		foreach ( $siteLink->getBadges() as $badge ) {
 			$serialization = $badge->getSerialization();
 			$classes = Sanitizer::escapeClass( $serialization );
@@ -325,36 +340,36 @@ class SiteLinksView {
 				$classes .= ' ' . Sanitizer::escapeClass( $this->badgeItems[$serialization] );
 			}
 
-			$html .= wfTemplate( 'wb-badge',
+			$html .= $this->templateFactory->render( 'wb-badge',
 				$classes,
 				$this->getTitleForBadge( $badge ),
 				$badge
 			);
 		}
 
-		return wfTemplate( 'wikibase-badgeselector', $html );
+		return $this->templateFactory->render( 'wikibase-badgeselector', $html );
 	}
 
 	/**
 	 * Returns the title for the given badge id.
 	 * @todo use TermLookup when we have one
 	 *
-	 * @param EntityId $badgeId
+	 * @param ItemId $badgeId
 	 *
 	 * @return string
 	 */
-	private function getTitleForBadge( EntityId $badgeId ) {
-		$entity = $this->entityLookup->getEntity( $badgeId );
-		if ( $entity === null ) {
-			return $badgeId->getSerialization();
+	private function getTitleForBadge( ItemId $badgeId ) {
+		$badge = $this->entityLookup->getEntity( $badgeId );
+
+		if ( $badge instanceof FingerprintProvider ) {
+			$labels = $badge->getFingerprint()->getLabels();
+
+			if ( $labels->hasTermForLanguage( $this->languageCode ) ) {
+				return $labels->getByLanguage( $this->languageCode )->getText();
+			}
 		}
 
-		$labels = $entity->getFingerprint()->getLabels();
-		if ( $labels->hasTermForLanguage( $this->languageCode ) ) {
-			return $labels->getByLanguage( $this->languageCode )->getText();
-		} else {
-			return $badgeId->getSerialization();
-		}
+		return $badgeId->getSerialization();
 	}
 
 }

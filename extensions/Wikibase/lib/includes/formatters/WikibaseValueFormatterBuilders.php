@@ -90,6 +90,7 @@ class WikibaseValueFormatterBuilders {
 			'PT:url' => 'Wikibase\Lib\HtmlUrlFormatter',
 			'PT:commonsMedia' => 'Wikibase\Lib\CommonsLinkFormatter',
 			'PT:wikibase-item' =>  array( 'this', 'newEntityIdHtmlFormatter' ),
+			'PT:wikibase-property' => array( 'this', 'newEntityIdHtmlFormatter' ),
 			'VT:time' => array( 'this', 'newHtmlTimeFormatter' ),
 			'VT:monolingualtext' => 'Wikibase\Formatters\MonolingualHtmlFormatter',
 		),
@@ -520,7 +521,7 @@ class WikibaseValueFormatterBuilders {
 	 *
 	 * @param FormatterOptions $options
 	 *
-	 * @return ValueFormatter
+	 * @return EntityIdHtmlLinkFormatter
 	 */
 	private function newEntityIdHtmlFormatter( FormatterOptions $options ) {
 		$labelLookup = $this->labelLookupFactory->getLabelLookup( $options );
@@ -588,7 +589,7 @@ class WikibaseValueFormatterBuilders {
 	 * @param ValueFormatter[] $formatters
 	 * @param string $escape The escape callback, e.g. 'htmlspecialchars' or 'wfEscapeWikitext'.
 	 *
-	 * @return array
+	 * @return ValueFormatter[]
 	 */
 	public function makeEscapingFormatters( array $formatters, $escape ) {
 		$escapingFormatters = array();
