@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d230ff7b34059e4ff0addb97fa03e53d",
+    "hash": "64e0ff3a87207f5a213f5aa19d32587c",
     "packages": [
         {
             "name": "composer/installers",
@@ -776,9 +776,7 @@
                 "psr-4": {
                     "PropertySuggester\\": "src/PropertySuggester/"
                 },
-                "files": [
-
-                ],
+                "files": [],
                 "classmap": [
                     "PropertySuggesterHooks.php",
                     "maintenance/UpdateTable.php"
@@ -1232,7 +1230,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "a3b7f3e940749f80be2434b6e18dfefbc74d1642"
+                "reference": "20cfe0694eff0277733cc53a4ab35ea346ba3817"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1301,7 +1299,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2014-12-18 20:17:13"
+            "time": "2015-01-05 16:21:17"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1354,12 +1352,8 @@
             "time": "2014-11-25 18:25:26"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "wikibase/wikibase": 20,
@@ -1367,10 +1361,9 @@
         "wikibase/wikidata.org": 20
     },
     "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": {
         "php": ">=5.3.0"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }

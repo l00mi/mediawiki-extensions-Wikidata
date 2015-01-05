@@ -1145,6 +1145,7 @@ return array(
     'Wikibase\\Tests\\Repo\\SiteLinkTargetProviderTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/SiteLinkTargetProviderTest.php',
     'Wikibase\\Tests\\Repo\\ValueParserFactoryTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/ValueParserFactoryTest.php',
     'Wikibase\\Tests\\Repo\\WikibaseRepoTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/WikibaseRepoTest.php',
+    'Wikibase\\UnloggedHttpError' => $baseDir . '/extensions/Wikibase/lib/includes/UnloggedHttpError.php',
     'Wikibase\\Updates\\DataUpdateAdapter' => $baseDir . '/extensions/Wikibase/repo/includes/updates/DataUpdateAdapter.php',
     'Wikibase\\Updates\\Test\\DataUpdateAdapterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/updates/DataUpdateAdapterTest.php',
     'Wikibase\\UserLanguageLookup' => $baseDir . '/extensions/Wikibase/repo/includes/UserLanguageLookup.php',
