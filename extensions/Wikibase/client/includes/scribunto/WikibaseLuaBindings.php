@@ -9,6 +9,7 @@ use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\LanguageFallbackChainFactory;
@@ -256,7 +257,7 @@ class WikibaseLuaBindings {
 	 *
 	 * @param string $pageTitle
 	 *
-	 * @return string|null $id
+	 * @return string|null
 	 */
 	public function getEntityId( $pageTitle ) {
 		$id = $this->siteLinkTable->getItemIdForLink( $this->siteId, $pageTitle );
@@ -265,7 +266,7 @@ class WikibaseLuaBindings {
 			return null;
 		}
 
-		$this->usageAccumulator->addPageUsage( $id );
+		$this->usageAccumulator->addTitleUsage( $id );
 		return $id->getSerialization();
 	}
 
@@ -334,12 +335,13 @@ class WikibaseLuaBindings {
 			return null;
 		}
 
+		/** @var Item $item */
 		$item = $this->entityLookup->getEntity( $itemId );
 		if ( !$item || !$item->getSiteLinkList()->hasLinkWithSiteId( $this->siteId ) ) {
 			return null;
 		}
 
-		$this->usageAccumulator->addPageUsage( $itemId );
+		$this->usageAccumulator->addTitleUsage( $itemId );
 		return $item->getSiteLinkList()->getBySiteId( $this->siteId )->getPageName();
 	}
 

@@ -61,19 +61,18 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			},
 			function() {
 				var site = this._getSite();
-				return site ? site.getShortName() : '';
+				return site ? site.getId() : '';
 			},
 			function() {
 				var site = this._getSite();
-				return site ? site.getId() : '';
+				return site ? site.getShortName() : '';
 			},
-			'', // page name
-			'' // toolbar
+			'' // page name
 		],
 		templateShortCuts: {
-			'$siteName': '.wikibase-sitelinkview-sitename',
-			'$siteId' : '.wikibase-sitelinkview-siteid',
-			'$link': '.wikibase-sitelinkview-link'
+			$siteIdContainer: '.wikibase-sitelinkview-siteid-container',
+			$siteId : '.wikibase-sitelinkview-siteid',
+			$link: '.wikibase-sitelinkview-link'
 		},
 		value: null,
 		getAllowedSites: function() { return []; },
@@ -87,7 +86,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	_isInEditMode: false,
 
 	/**
-	 * @type {jQuery.wikibase.badgeselector}
+	 * @type {jQuery.wikibase.badgeselector|null}
 	 */
 	_badgeselector: null,
 
@@ -105,6 +104,8 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			// sitelinkview is created dynamically, in contrast to being initialized on pre-existing
 			// DOM.
 			this._draw();
+		} else {
+			this._shortenPageName();
 		}
 
 		this._createBadgeSelector();
@@ -155,6 +156,8 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			}
 		} )
 		.on( 'badgeselectorchange', function( event ) {
+			// Adding/removing badges decreases/increases available space:
+			self.updatePageNameInputAutoExpand();
 			self._trigger( 'change' );
 		} );
 
@@ -188,7 +191,39 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			this._drawEditMode();
 		} else {
 			this.element.removeClass( 'wb-edit' );
+			this._shortenPageName();
 		}
+	},
+
+	/**
+	 * Shortens the page name using the ellipsis character in order to prevent the page name from
+	 * wrapping.
+	 * @private
+	 */
+	_shortenPageName: function() {
+		if( this._isInEditMode ) {
+			return;
+		}
+		var $a = this.$link.find( 'a' ),
+			fullText = $a.text(),
+			text = fullText;
+
+		$a.text( '.' );
+
+		var lineHeight = this.element.height();
+
+		$a.text( text );
+
+		if( this.element.height() <= lineHeight ) {
+			return;
+		}
+
+		while( this.element.height() > lineHeight && text.length > 0 ) {
+			text = text.substring( 0, text.length - 1 );
+			$a.text( text + '…' );
+		}
+
+		$a.attr( 'title', fullText );
 	},
 
 	/**
@@ -216,17 +251,20 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			dir: dir
 		} ).pagesuggester( pageNameInputOptions );
 
+		var pagesuggester = $pageNameInput.data( 'pagesuggester' );
+
 		$pageNameInput
-		.on( 'eachchange.' + this.widgetName + ' pagesuggesterchange.' + this.widgetName,
-			function( event ) {
+		.on( 'pagesuggesterchange.' + this.widgetName, function( event ) {
+			if( !pagesuggester.isSearching() ) {
 				self.setError();
 				self._trigger( 'change' );
 			}
-		);
+		} );
 
 		this.$link.find( '.wikibase-sitelinkview-page' ).empty().append( $pageNameInput );
 
 		if( this.options.value ) {
+			this.updatePageNameInputAutoExpand();
 			// Site of an existing site link is not supposed to be changeable.
 			return;
 		}
@@ -237,10 +275,15 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 				source: self.options.getAllowedSites
 			} );
 
-		var pagesuggester = $pageNameInput.data( 'pagesuggester' );
-
-		// Disable initially and wait for valid site input:
+		// Disable and hide initially and wait for valid site input:
 		pagesuggester.disable();
+		$pageNameInput.hide();
+
+		if(
+			this._badgeselector && ( !this.options.value || !this.options.value.getBadges().length )
+		) {
+			this._badgeselector.element.hide();
+		}
 
 		$siteIdInput
 		.on( 'siteselectorselected.' + this.widgetName, function( event, siteId ) {
@@ -249,20 +292,43 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			if( site ) {
 				$pageNameInput
 				.attr( 'lang', site.getLanguageCode() )
-				.attr( 'dir', site.getLanguageDirection() );
+				.attr( 'dir', site.getLanguageDirection() )
+				.show();
+			} else {
+				$pageNameInput.hide();
+			}
+
+			if( self._badgeselector ) {
+				self._badgeselector.element[site ? 'show' : 'hide']();
 			}
 
 			pagesuggester[site ? 'enable' : 'disable']();
 			pagesuggester.option( 'siteId', siteId );
 
 			self._trigger( 'change' );
+		} )
+		.on(
+			'siteselectorselected.' + this.widgetName + ' siteselectorchange.' + this.widgetName,
+			function( event, siteId ) {
+				var inputautoexpand = $siteIdInput.data( 'inputautoexpand' );
+
+				if( inputautoexpand ) {
+					inputautoexpand.expand();
+				}
+
+				self.updatePageNameInputAutoExpand();
+			}
+		);
+
+		this.$siteId.append( $siteIdInput );
+
+		$siteIdInput.inputautoexpand( {
+			maxWidth: this.element.width() - (
+				this.$siteIdContainer.outerWidth( true ) - $siteIdInput.width()
+			)
 		} );
 
-		this.$siteName.remove();
-
-		this.$siteId
-		.attr( 'colspan', '2' )
-		.append( $siteIdInput );
+		this.updatePageNameInputAutoExpand();
 
 		$pageNameInput
 		.on( 'keydown.' + this.widgetName, function( event ) {
@@ -272,6 +338,25 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 				$siteIdInput.data( 'siteselector' ).setSelectedSite( null );
 			}
 		} );
+	},
+
+	/**
+	 * Updates the maximum width the page name input element may grow to.
+	 */
+	updatePageNameInputAutoExpand: function() {
+		var $pageNameInput = this.$link.find( 'input' );
+
+		if( !$pageNameInput.length ) {
+			return;
+		}
+
+		$pageNameInput.inputautoexpand( {
+			maxWidth: Math.floor( this.element.width()
+				- this.$siteIdContainer.outerWidth( true )
+				- ( this.$link.outerWidth( true ) - $pageNameInput.width() ) )
+		} );
+
+		$pageNameInput.data( 'inputautoexpand' ).expand( true );
 	},
 
 	/**

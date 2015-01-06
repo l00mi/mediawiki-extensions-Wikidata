@@ -12,6 +12,11 @@ var $window = $( window ),
 /**
  * jQuery sticknode plugin.
  * Sticks a node with "position: fixed" when vertically scrolling it out of the viewport.
+ * Be aware that plugin does not handle dynamic height changes (e.g. if the node contains
+ * interactive elements that wipe out additional content). The code applying the widget needs to be
+ * aware of dynamic height changes. Consequently, whenever the height of the node the plugin is
+ * initialized on changes, a call to the refresh() function should be made to avoid undesired
+ * clipping.
  *
  * @param {Object} [options]
  *        - {jQuery} $container
@@ -92,6 +97,11 @@ $.extend( StickyNode.prototype, {
 	$node: null,
 
 	/**
+	 * @type {jQuery|null}
+	 */
+	_$clone: null,
+
+	/**
 	 * @type {Object}
 	 */
 	_options: null,
@@ -116,6 +126,11 @@ $.extend( StickyNode.prototype, {
 			'.' + PLUGIN_NAME
 		);
 		this.$node.removeData( PLUGIN_NAME );
+
+		if( this._$clone ) {
+			this._$clone.remove();
+			this._$clone = null;
+		}
 	},
 
 	/**
@@ -172,19 +187,38 @@ $.extend( StickyNode.prototype, {
 			offset: this.$node.offset(),
 			position: this.$node.css( 'position' ),
 			top: this.$node.css( 'top' ),
-			left: this.$node.css( 'left' )
+			left: this.$node.css( 'left' ),
+			width: this.$node.css( 'width' )
 		};
+
+		// Cannot fix the clone instead of the original node since the clone does not feature event
+		// bindings.
+		this._$clone = this.$node.clone()
+			.css( 'visibility', 'hidden' )
+			.insertBefore( this.$node );
 
 		this.$node
 		.css( 'left', this._initialAttributes.offset.left + 'px' )
 		.css( 'top', this.$node.outerHeight() - this.$node.outerHeight( true ) )
-		.css( 'position', 'fixed' );
+		.css( 'width', this.$node.width() )
+		.css( 'position', 'fixed' )
+		.css( 'z-index', '1');
 	},
 
 	_unfix: function() {
+		if( !this.isFixed() ) {
+			return;
+		}
+
+		if( this._$clone ) {
+			this._$clone.remove();
+			this._$clone = null;
+		}
+
 		this.$node
 		.css( 'left', this._initialAttributes.left )
 		.css( 'top', this._initialAttributes.top )
+		.css( 'width', this._initialAttributes.width )
 		.css( 'position', this._initialAttributes.position );
 
 		this._initialAttributes.offset = null;
@@ -207,10 +241,7 @@ $.extend( StickyNode.prototype, {
 	 * @return {boolean}
 	 */
 	update: function( scrollTop, force ) {
-		var changedState = false,
-			$document = $( document ),
-			initialDocumentHeight = $document.height(),
-			newDocumentHeight;
+		var changedState = false;
 
 		if( force && this.isFixed() ) {
 			this._unfix();
@@ -222,14 +253,6 @@ $.extend( StickyNode.prototype, {
 			&& !this._isScrolledAfterContainer()
 		) {
 			this._fix();
-
-			newDocumentHeight = $document.height();
-			if( newDocumentHeight < initialDocumentHeight ) {
-				$window.scrollTop( scrollTop - ( initialDocumentHeight - newDocumentHeight ) );
-				initialDocumentHeight = newDocumentHeight;
-				this._changesDocumentHeight = true;
-			}
-
 			changedState = true;
 		}
 
@@ -238,17 +261,21 @@ $.extend( StickyNode.prototype, {
 			|| this._clipsContainer()
 		) {
 			this._unfix();
-
-			newDocumentHeight = $document.height();
-			if( newDocumentHeight > initialDocumentHeight ) {
-				$window.scrollTop( scrollTop + ( newDocumentHeight - initialDocumentHeight ) );
-				this._changesDocumentHeight = true;
-			}
-
 			changedState = !changedState;
 		}
 
 		return changedState;
+	},
+
+	/**
+	 * Re-fixes the node if it is fixed, properly updating scroll position. Should be called
+	 * whenever the node's content has been updated.
+	 */
+	refresh: function() {
+		if( this.isFixed() ) {
+			this._unfix();
+			this._fix();
+		}
 	}
 } );
 

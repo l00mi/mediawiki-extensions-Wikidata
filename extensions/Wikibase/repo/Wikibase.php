@@ -64,7 +64,7 @@ if ( !defined( 'WBL_VERSION' ) ) {
 
 call_user_func( function() {
 	global $wgExtensionCredits, $wgGroupPermissions, $wgExtensionMessagesFiles, $wgMessagesDirs;
-	global $wgAPIModules, $wgSpecialPages, $wgSpecialPageGroups, $wgHooks;
+	global $wgAPIModules, $wgSpecialPages, $wgHooks;
 	global $wgWBRepoSettings, $wgResourceModules, $wgValueParsers, $wgJobClasses;
 
 	$wgExtensionCredits['wikibase'][] = array(
@@ -159,25 +159,6 @@ call_user_func( function() {
 	$wgSpecialPages['MyLanguageFallbackChain'] 			= 'Wikibase\Repo\Specials\SpecialMyLanguageFallbackChain';
 	$wgSpecialPages['MergeItems'] 						= 'Wikibase\Repo\Specials\SpecialMergeItems';
 
-	// Special page groups
-	$wgSpecialPageGroups['NewItem']						= 'wikibaserepo';
-	$wgSpecialPageGroups['NewProperty']					= 'wikibaserepo';
-	$wgSpecialPageGroups['ItemByTitle']					= 'wikibaserepo';
-	$wgSpecialPageGroups['GoToLinkedPage']					= 'wikibaserepo';
-	$wgSpecialPageGroups['ItemDisambiguation']			= 'wikibaserepo';
-	$wgSpecialPageGroups['ItemsWithoutSitelinks']		= 'wikibaserepo';
-	$wgSpecialPageGroups['SetLabel']					= 'wikibaserepo';
-	$wgSpecialPageGroups['SetDescription']				= 'wikibaserepo';
-	$wgSpecialPageGroups['SetAliases']					= 'wikibaserepo';
-	$wgSpecialPageGroups['SetSiteLink']					= 'wikibaserepo';
-	$wgSpecialPageGroups['EntitiesWithoutLabel']		= 'wikibaserepo';
-	$wgSpecialPageGroups['EntitiesWithoutDescription']	= 'wikibaserepo';
-	$wgSpecialPageGroups['ListDatatypes']				= 'wikibaserepo';
-	$wgSpecialPageGroups['DispatchStats']				= 'wikibaserepo';
-	$wgSpecialPageGroups['EntityData']					= 'wikibaserepo';
-	$wgSpecialPageGroups['MyLanguageFallbackChain'] 	= 'wikibaserepo';
-	$wgSpecialPageGroups['MergeItems'] 					= 'wikibaserepo';
-
 	// Jobs
 	$wgJobClasses['UpdateRepoOnMove'] = 'Wikibase\Repo\UpdateRepo\UpdateRepoOnMoveJob';
 	$wgJobClasses['UpdateRepoOnDelete'] = 'Wikibase\Repo\UpdateRepo\UpdateRepoOnDeleteJob';
@@ -195,7 +176,7 @@ call_user_func( function() {
 	$wgHooks['ArticleDeleteComplete'][] 				= 'Wikibase\RepoHooks::onArticleDeleteComplete';
 	$wgHooks['ArticleUndelete'][]						= 'Wikibase\RepoHooks::onArticleUndelete';
 	$wgHooks['GetPreferences'][]						= 'Wikibase\RepoHooks::onGetPreferences';
-	$wgHooks['LinkBegin'][] 							= 'Wikibase\RepoHooks::onLinkBegin';
+	$wgHooks['LinkBegin'][] 							= 'Wikibase\Repo\Hook\LinkBeginHookHandler::onLinkBegin';
 	$wgHooks['OutputPageBodyAttributes'][] 				= 'Wikibase\RepoHooks::onOutputPageBodyAttributes';
 	//FIXME: handle other types of entities with autocomments too!
 	$wgHooks['FormatAutocomments'][]					= array( 'Wikibase\RepoHooks::onFormat', array( CONTENT_MODEL_WIKIBASE_ITEM, "wikibase-item" ) );
@@ -232,5 +213,4 @@ call_user_func( function() {
 		include_once( __DIR__ . '/config/Wikibase.experimental.php' );
 	}
 
-	require __DIR__ . '/includes/GlobalFunctions.php';
 } );

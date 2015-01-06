@@ -270,7 +270,10 @@ class EditEntity {
 		wfProfileIn( __METHOD__ );
 		if ( $this->latestRev === null ) {
 			//NOTE: it's important to remember this, if someone calls clear() on $this->getPage(), this should NOT change!
-			$this->latestRev = $this->entityRevisionLookup->getEntityRevision( $this->getEntityId() );
+			$this->latestRev = $this->entityRevisionLookup->getEntityRevision(
+				$this->getEntityId(),
+				EntityRevisionLookup::LATEST_FROM_MASTER
+			);
 		}
 
 		wfProfileOut( __METHOD__ );
@@ -292,7 +295,10 @@ class EditEntity {
 			if ( $this->latestRev !== null ) {
 				$this->latestRevId = $this->latestRev->getRevisionId();
 			} else {
-				$this->latestRevId = $this->entityRevisionLookup->getLatestRevisionId( $this->getEntityId() );
+				$this->latestRevId = $this->entityRevisionLookup->getLatestRevisionId(
+					$this->getEntityId(),
+					EntityRevisionLookup::LATEST_FROM_MASTER
+				);
 			}
 		}
 
@@ -351,6 +357,10 @@ class EditEntity {
 			} else if ( $baseRevId === $this->getLatestRevisionId() ) {
 				$this->baseRev = $this->getLatestRevision();
 			} else {
+				if ( $baseRevId === 0 ) {
+					$baseRevId = EntityRevisionLookup::LATEST_FROM_MASTER;
+				}
+
 				$entityId = $this->getEntityId();
 				$this->baseRev = $this->entityRevisionLookup->getEntityRevision( $entityId, $baseRevId );
 
@@ -797,6 +807,16 @@ class EditEntity {
 		} else {
 			$context = $this->context;
 			$entityType = $entity->getType();
+
+			// This constructs a "fake" title of the form Property:NewProperty,
+			// where the title text is assumed to be name of the special page used
+			// to create entities of the given type. This is used by the
+			// LinkBeginHookHandler::doOnLinkBegin to replace the link to the
+			// fake title with a link to the respective special page.
+			// The effect is that e.g. the AbuseFilter log will show a link to
+			// "Special:NewProperty" instead of "Property:NewProperty", while
+			// the AbuseFilter itself will get a Title object with the correct
+			// namespace IDs for Property entities.
 			$namespace = $this->titleLookup->getNamespaceForType( $entityType );
 			$title = Title::makeTitle( $namespace, 'New' . ucfirst( $entityType ) );
 		}

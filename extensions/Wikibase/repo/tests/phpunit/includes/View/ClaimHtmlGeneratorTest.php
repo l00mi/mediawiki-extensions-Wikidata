@@ -4,7 +4,6 @@ namespace Wikibase\Test;
 
 use DataValues\StringValue;
 use Html;
-use Title;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Reference;
@@ -13,12 +12,12 @@ use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\DispatchingSnakFormatter;
 use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\View\ClaimHtmlGenerator;
 use Wikibase\Repo\View\SnakHtmlGenerator;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\ClaimHtmlGenerator
@@ -37,12 +36,10 @@ use Wikibase\Repo\View\SnakHtmlGenerator;
 class ClaimHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 
 	/**
-	 * @return DispatchingSnakFormatter
+	 * @return SnakFormatter
 	 */
 	protected function getSnakFormatterMock() {
-		$snakFormatter = $this->getMockBuilder( 'Wikibase\Lib\DispatchingSnakFormatter' )
-			->disableOriginalConstructor()
-			->getMock();
+		$snakFormatter = $this->getMock( 'Wikibase\Lib\SnakFormatter' );
 
 		$snakFormatter->expects( $this->any() )
 			->method( 'formatSnak' )
@@ -90,12 +87,18 @@ class ClaimHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 		Claim $claim,
 		$patterns
 	) {
+		$templateFactory = new TemplateFactory(
+			TemplateRegistry::getDefaultInstance()
+		);
+
 		$snakHtmlGenerator = new SnakHtmlGenerator(
+			$templateFactory,
 			$snakFormatter,
 			$propertyIdFormatter
 		);
 
 		$claimHtmlGenerator = new ClaimHtmlGenerator(
+			$templateFactory,
 			$snakHtmlGenerator
 		);
 

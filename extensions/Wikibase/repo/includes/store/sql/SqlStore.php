@@ -18,6 +18,7 @@ use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
+use Wikibase\Lib\Store\LabelConflictFinder;
 use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Store\RevisionBasedEntityLookup;
 use Wikibase\Lib\Store\SiteLinkCache;
@@ -26,8 +27,8 @@ use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Repo\Store\DispatchingEntityStoreWatcher;
 use Wikibase\Repo\Store\EntityPerPage;
-use Wikibase\Repo\Store\WikiPageEntityStore;
 use Wikibase\Repo\Store\SQL\EntityPerPageTable;
+use Wikibase\Repo\Store\WikiPageEntityStore;
 use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
 
@@ -89,7 +90,7 @@ class SqlStore implements Store {
 	/**
 	 * @var string
 	 */
-	private $cachePrefix;
+	private $cacheKeyPrefix;
 
 	/**
 	 * @var int
@@ -127,14 +128,14 @@ class SqlStore implements Store {
 
 		//TODO: inject settings
 		$settings = WikibaseRepo::getDefaultInstance()->getSettings();
-		$cachePrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
+		$cacheKeyPrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
 		$cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
 		$cacheType = $settings->getSetting( 'sharedCacheType' );
 
 		$this->entityIdParser = $entityIdParser;
 		$this->useRedirectTargetColumn = $settings->getSetting( 'useRedirectTargetColumn' );
 
-		$this->cachePrefix = $cachePrefix;
+		$this->cacheKeyPrefix = $cacheKeyPrefix;
 		$this->cacheDuration = $cacheDuration;
 		$this->cacheType = $cacheType;
 
@@ -154,6 +155,15 @@ class SqlStore implements Store {
 		}
 
 		return $this->termIndex;
+	}
+
+	/**
+	 * @see Store::getLabelConflictFinder
+	 *
+	 * @return LabelConflictFinder
+	 */
+	public function getLabelConflictFinder() {
+		return $this->getTermIndex();
 	}
 
 	/**
@@ -247,7 +257,7 @@ class SqlStore implements Store {
 
 		if ( !$updater->tableExists( $table ) ) {
 			$type = $updater->getDB()->getType();
-			$fileBase = __DIR__ . '/../../../../lib/includes/store/sql/' . $table;
+			$fileBase = __DIR__ . '/../../../sql/' . $table;
 
 			$file = $fileBase . '.' . $type . '.sql';
 			if ( !file_exists( $file ) ) {
@@ -573,8 +583,8 @@ class SqlStore implements Store {
 	 * @return array( WikiPageEntityRevisionLookup, CachingEntityRevisionLookup )
 	 */
 	protected function newEntityRevisionLookup() {
-		//NOTE: Keep in sync with DirectSqlStore::newEntityLookup on the client
-		$key = $this->cachePrefix . ':WikiPageEntityRevisionLookup';
+		// NOTE: Keep cache key in sync with DirectSqlStore::newEntityRevisionLookup in WikibaseClient
+		$cacheKeyPrefix = $this->cacheKeyPrefix . ':WikiPageEntityRevisionLookup';
 
 		$rawLookup = new WikiPageEntityRevisionLookup(
 			$this->contentCodec,
@@ -592,7 +602,7 @@ class SqlStore implements Store {
 			$rawLookup,
 			wfGetCache( $this->cacheType ),
 			$this->cacheDuration,
-			$key
+			$cacheKeyPrefix
 		);
 		// We need to verify the revision ID against the database to avoid stale data.
 		$persistentCachingLookup->setVerifyRevision( true );
@@ -660,9 +670,13 @@ class SqlStore implements Store {
 
 		if ( $usePropertyInfoTable ) {
 			$table = new PropertyInfoTable( false );
-			$key = $this->cachePrefix . ':CachingPropertyInfoStore';
-			return new CachingPropertyInfoStore( $table, ObjectCache::getInstance( $this->cacheType ),
-				$this->cacheDuration, $key );
+			$cacheKey = $this->cacheKeyPrefix . ':CachingPropertyInfoStore';
+			return new CachingPropertyInfoStore(
+				$table,
+				ObjectCache::getInstance( $this->cacheType ),
+				$this->cacheDuration,
+				$cacheKey
+			);
 		} else {
 			// dummy info store
 			return new DummyPropertyInfoStore();

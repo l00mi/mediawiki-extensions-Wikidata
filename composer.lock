@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "64e0ff3a87207f5a213f5aa19d32587c",
+    "hash": "6de233ea57f3c021103737043a9f2c50",
     "packages": [
         {
             "name": "composer/installers",
@@ -656,16 +656,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.8.1",
+            "version": "0.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "9ee15e588beedd7d23179c3e14de5c6bae0974e7"
+                "reference": "95d5d4e984f8f0e16e900fbf51426ce7c6a59266"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/9ee15e588beedd7d23179c3e14de5c6bae0974e7",
-                "reference": "9ee15e588beedd7d23179c3e14de5c6bae0974e7",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/95d5d4e984f8f0e16e900fbf51426ce7c6a59266",
+                "reference": "95d5d4e984f8f0e16e900fbf51426ce7c6a59266",
                 "shasum": ""
             },
             "require": {
@@ -694,7 +694,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2014-11-07 13:49:29"
+            "time": "2015-01-06 12:43:01"
         },
         {
             "name": "diff/diff",
@@ -752,16 +752,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "2.0.1",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9"
+                "reference": "d29d2c91191a40e8d0eb0a3eaaaccc6c6c989202"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
-                "reference": "7a5279ed5a7f87da6ecf40928d6aabda23d043f9",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/d29d2c91191a40e8d0eb0a3eaaaccc6c6c989202",
+                "reference": "d29d2c91191a40e8d0eb0a3eaaaccc6c6c989202",
                 "shasum": ""
             },
             "require": {
@@ -793,7 +793,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-11-11 11:23:20"
+            "time": "2015-01-06 13:02:51"
         },
         {
             "name": "serialization/serialization",
@@ -1085,16 +1085,16 @@
         },
         {
             "name": "wikibase/internal-serialization",
-            "version": "1.3.0",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseInternalSerialization.git",
-                "reference": "c05ebf0c191b972b1b0f070104730382b8a2f76a"
+                "reference": "01e26e060bf99ef132ca1b51827a69b88fbf8894"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/c05ebf0c191b972b1b0f070104730382b8a2f76a",
-                "reference": "c05ebf0c191b972b1b0f070104730382b8a2f76a",
+                "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/01e26e060bf99ef132ca1b51827a69b88fbf8894",
+                "reference": "01e26e060bf99ef132ca1b51827a69b88fbf8894",
                 "shasum": ""
             },
             "require": {
@@ -1105,14 +1105,14 @@
             },
             "require-dev": {
                 "data-values/common": "~0.2.2",
-                "data-values/geo": "~0.2.0",
+                "data-values/geo": "~1.0|~0.2.0",
                 "data-values/number": "~0.4.0",
                 "data-values/time": "~0.6.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -1141,7 +1141,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2014-10-15 14:28:48"
+            "time": "2015-01-06 01:49:26"
         },
         {
             "name": "wikibase/javascript-api",
@@ -1185,16 +1185,16 @@
         },
         {
             "name": "wikibase/serialization-javascript",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-                "reference": "aa973b1b23cdf50b0b677a1f43bc2373400aba8d"
+                "reference": "4104a21dc4a677cc0e125ca38dc7ef362444226b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/aa973b1b23cdf50b0b677a1f43bc2373400aba8d",
-                "reference": "aa973b1b23cdf50b0b677a1f43bc2373400aba8d",
+                "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/4104a21dc4a677cc0e125ca38dc7ef362444226b",
+                "reference": "4104a21dc4a677cc0e125ca38dc7ef362444226b",
                 "shasum": ""
             },
             "require": {
@@ -1222,15 +1222,21 @@
                 }
             ],
             "description": "Wikibase datamodel serialization implementation in JavaScript",
-            "time": "2014-11-05 10:07:12"
+            "time": "2014-12-17 14:25:47"
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.25wmf13",
+            "version": "dev-wmf/1.25wmf14",
             "source": {
                 "type": "git",
-                "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "20cfe0694eff0277733cc53a4ab35ea346ba3817"
+                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+                "reference": "ceb32e746c825a864ccce776daab8b0baee4cbf6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ceb32e746c825a864ccce776daab8b0baee4cbf6",
+                "reference": "ceb32e746c825a864ccce776daab8b0baee4cbf6",
+                "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1243,7 +1249,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.6.0",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.8.1",
+                "data-values/value-view": "~0.10.0",
                 "diff/diff": "~1.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~2.4",
@@ -1278,6 +1284,7 @@
                     "Wikibase\\Repo\\View\\": "repo/includes/View"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0+"
             ],
@@ -1295,11 +1302,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "support": {
-                "issues": "https://bugzilla.wikimedia.org/",
-                "irc": "irc://irc.freenode.net/wikidata"
-            },
-            "time": "2015-01-05 16:21:17"
+            "time": "2015-01-06 14:11:14"
         },
         {
             "name": "wikibase/wikimedia-badges",

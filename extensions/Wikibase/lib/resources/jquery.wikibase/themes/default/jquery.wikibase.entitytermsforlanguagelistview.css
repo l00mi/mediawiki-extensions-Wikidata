@@ -1,0 +1,23 @@
+/**
+ * @licence GNU GPL v2+
+ * @author H. Snater < mediawiki@snater.com >
+ */
+.wikibase-entitytermsforlanguagelistview {
+	border-bottom: 1px solid #C9C9C9;
+	border-right: 1px solid #C9C9C9;
+	border-spacing: 0;
+	clear: both;
+	width: 100%;
+}
+
+.wikibase-entitytermsforlanguagelistview tr td {
+	background: #F8F8F8;
+}
+
+.wikibase-entitytermsforlanguagelistview tbody:nth-child(even) td {
+	background: #F0F0F0;
+}
+
+.wikibase-entitytermsforlanguagelistview .wb-edit tr td {
+	background: #D6F3FF;
+}

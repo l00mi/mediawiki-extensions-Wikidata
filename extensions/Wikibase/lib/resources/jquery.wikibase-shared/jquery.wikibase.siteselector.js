@@ -16,9 +16,8 @@
 	 *         An array of Site objects that shall be used to provide suggestions. Alternatively, a
 	 *         function dynamically retrieving an array of Site objects may be provided.
 	 *
-	 * @option {number} [delay]
+	 * @option {number} [delay=150]
 	 *         Delay in milliseconds of the request querying for suggestions.
-	 *         Default: 0
 	 *
 	 * @event selected
 	 *        Triggered whenever a site is selected or de-selected.
@@ -30,7 +29,7 @@
 		 * @see jQuery.ui.suggester.options
 		 */
 		options: {
-			delay: 0
+			delay: 150
 		},
 
 		/**
@@ -59,15 +58,17 @@
 				self._selectedSite = null;
 				self._term = self.element.val();
 
-				clearTimeout( self.__searching );
-				self.search()
-				.done( function( suggestions ) {
-					if( self.options.menu.element.is( ':visible' ) ) {
-						self._selectFirstSite();
-					} else {
-						self._trigger( 'selected', null, [null] );
-					}
-				} );
+				clearTimeout( self._searching );
+				self._searching = setTimeout( function() {
+					self.search()
+					.done( function( suggestions ) {
+						if( self.options.menu.element.is( ':visible' ) ) {
+							self._selectFirstSite();
+						} else {
+							self._trigger( 'selected', null, [null] );
+						}
+					} );
+				}, self.options.delay );
 			} )
 			.on( 'siteselectoropen.' + this.widgetName, function() {
 				self._selectFirstSite();
@@ -191,23 +192,33 @@
 			}
 
 			var suggestedSites = $.grep( source, function( site ) {
-				var check = [
-					site.getId(),
-					site.getShortName(),
-					site.getName(),
-					site.getShortName() + ' (' + site.getId() + ')'
-				];
-
-				for( var i = 0; i < check.length; i++ ) {
-					if( check[i].toLowerCase().indexOf( self._term.toLowerCase() ) === 0 ) {
-						return true;
-					}
-				}
-
-				return false;
+				return self._considerSuggestion( site );
 			} );
 
 			return deferred.resolve( suggestedSites, term ).promise();
+		},
+
+		/**
+		 * @protected
+		 *
+		 * @param {wikibase.Site} site
+		 * @return {boolean}
+		 */
+		_considerSuggestion: function( site ) {
+			var check = [
+				site.getId(),
+				site.getShortName(),
+				site.getName(),
+				site.getShortName() + ' (' + site.getId() + ')'
+			];
+
+			for( var i = 0; i < check.length; i++ ) {
+				if( check[i].toLowerCase().indexOf( this._term.toLowerCase() ) === 0 ) {
+					return true;
+				}
+			}
+
+			return false;
 		},
 
 		/**
@@ -229,12 +240,8 @@
 		 * @return {string}
 		 */
 		_createItemLabel: function( site, requestTerm ) {
-			return util.highlightSubstring( requestTerm, site.getShortName(), {
-				caseInsensitive: true
-			} )
-			+ ' (' + util.highlightSubstring( requestTerm, site.getId(), {
-				caseInsensitive: true
-			} ) + ')';
+			return util.highlightSubstring( requestTerm, site.getShortName() )
+			+ ' (' + util.highlightSubstring( requestTerm, site.getId() ) + ')';
 		},
 
 		/**
@@ -244,7 +251,7 @@
 		 * @return {string}
 		 */
 		_createItemValue: function( site ) {
-			return site.getShortName() + ' (' + site.getId() + ')';
+			return site.getId();
 		},
 
 		/**

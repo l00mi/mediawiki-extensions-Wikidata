@@ -8,6 +8,7 @@ use SiteList;
 use Status;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Summary;
@@ -113,7 +114,7 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId === null && $toId !== null ) {
 			// reuse to-site's item
 			/** @var Item $item */
-			$itemRev = $lookup->getEntityRevision( $toId );
+			$itemRev = $lookup->getEntityRevision( $toId, EntityRevisionLookup::LATEST_FROM_MASTER );
 			$item = $itemRev->getEntity();
 			$fromLink = new SiteLink( $fromSite->getGlobalId(), $fromPage );
 			$item->addSiteLink( $fromLink );
@@ -123,7 +124,7 @@ class LinkTitles extends ApiWikibase {
 		elseif ( $fromId !== null && $toId === null ) {
 			// reuse from-site's item
 			/** @var Item $item */
-			$itemRev = $lookup->getEntityRevision( $fromId );
+			$itemRev = $lookup->getEntityRevision( $fromId, EntityRevisionLookup::LATEST_FROM_MASTER );
 			$item = $itemRev->getEntity();
 			$toLink = new SiteLink( $toSite->getGlobalId(), $toPage );
 			$item->addSiteLink( $toLink );
@@ -238,50 +239,14 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
-	 * Get final parameter descriptions, after hooks have had a chance to tweak it as
-	 * needed.
+	 * @see ApiBase::getExamplesMessages()
 	 *
-	 * @return array|bool False on no parameter descriptions
+	 * @return array
 	 */
-	public function getParamDescription() {
-		return array_merge( parent::getParamDescription(), array(
-			'tosite' => array( 'An identifier for the site on which the page resides.',
-				"Use together with 'totitle' to make a complete sitelink."
-			),
-			'totitle' => array( 'Title of the page to associate.',
-				"Use together with 'tosite' to make a complete sitelink."
-			),
-			'fromsite' => array( 'An identifier for the site on which the page resides.',
-				"Use together with 'fromtitle' to make a complete sitelink."
-			),
-			'fromtitle' => array( 'Title of the page to associate.',
-				"Use together with 'fromsite' to make a complete sitelink."
-			),
-			'token' => 'A "edittoken" token previously obtained through the token module (prop=info).',
-			'bot' => array( 'Mark this edit as bot',
-				'This URL flag will only be respected if the user belongs to the group "bot".'
-			),
-		) );
-	}
-
-	/**
-	 * Returns the description string for this module
-	 * @return mixed string or array of strings
-	 */
-	public function getDescription() {
+	protected function getExamplesMessages() {
 		return array(
-			'API module to associate two articles on two different wikis with a Wikibase item.'
-		);
-	}
-
-	/**
-	 * Returns usage examples for this module. Return false if no examples are available.
-	 * @return bool|string|array
-	 */
-	protected function getExamples() {
-		return array(
-			'api.php?action=wblinktitles&fromsite=enwiki&fromtitle=Hydrogen&tosite=dewiki&totitle=Wasserstoff'
-			=> 'Add a link "Hydrogen" from the English page to "Wasserstoff" at the German page',
+			'action=wblinktitles&fromsite=enwiki&fromtitle=Hydrogen&tosite=dewiki&totitle=Wasserstoff'
+			=> 'apihelp-wblinktitles-example-1',
 		);
 	}
 

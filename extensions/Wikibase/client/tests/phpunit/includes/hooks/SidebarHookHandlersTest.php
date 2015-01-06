@@ -16,7 +16,6 @@ use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
 use Wikibase\Client\Hooks\SidebarHookHandlers;
-use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -272,7 +271,7 @@ class SidebarHookHandlersTest extends \MediaWikiTestCase {
 
 		$parserOutput = new ParserOutput();
 
-		$context = new RequestContext( new FauxRequest() );
+		$context = new RequestContext();
 		$outputPage = new OutputPage( $context );
 		$outputPage->setTitle( $title );
 
@@ -306,7 +305,7 @@ class SidebarHookHandlersTest extends \MediaWikiTestCase {
 
 		$dummy = Title::makeTitle( NS_MAIN, 'Dummy' );
 
-		$context = new RequestContext( new FauxRequest() );
+		$context = new RequestContext();
 		$output = new OutputPage( $context );
 		$output->setProperty( 'wikibase_badges', $badges );
 

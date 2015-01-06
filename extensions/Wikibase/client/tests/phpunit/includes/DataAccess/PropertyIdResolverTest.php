@@ -20,14 +20,14 @@ use Wikibase\Test\MockRepository;
  */
 class PropertyIdResolverTest extends \PHPUnit_Framework_TestCase {
 
-	private function getDefaultInstance() {
-		$repo = $this->newMockRepository();
-		$propertyLabelResolver = new MockPropertyLabelResolver( 'en', $repo );
+	private function getPropertyIdResolver() {
+		$mockRepository = $this->getMockRepository();
+		$propertyLabelResolver = new MockPropertyLabelResolver( 'en', $mockRepository );
 
-		return new PropertyIdResolver( $propertyLabelResolver );
+		return new PropertyIdResolver( $mockRepository, $propertyLabelResolver );
 	}
 
-	private function newMockRepository() {
+	private function getMockRepository() {
 		$propertyId = new PropertyId( 'P1337' );
 
 		$property = Property::newFromType( 'string' );
@@ -43,8 +43,8 @@ class PropertyIdResolverTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider resolvePropertyIdProvider
 	 */
-	public function testResolvePropertyId( $expected, $propertyLabelOrId ) {
-		$propertyIdResolver = $this->getDefaultInstance();
+	public function testResolvePropertyId( PropertyId $expected, $propertyLabelOrId ) {
+		$propertyIdResolver = $this->getPropertyIdResolver();
 
 		$propertyId = $propertyIdResolver->resolvePropertyId( $propertyLabelOrId, 'en' );
 		$this->assertEquals( $expected, $propertyId );
@@ -55,7 +55,6 @@ class PropertyIdResolverTest extends \PHPUnit_Framework_TestCase {
 			array( new PropertyId( 'P1337' ), 'a kitten!' ),
 			array( new PropertyId( 'P1337' ), 'p1337' ),
 			array( new PropertyId( 'P1337' ), 'P1337' ),
-			array( new PropertyId( 'P1444' ), 'P1444' )
 		);
 	}
 
@@ -63,7 +62,7 @@ class PropertyIdResolverTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider resolvePropertyIdWithInvalidInput_throwsExceptionProvider
 	 */
 	public function testResolvePropertyIdWithInvalidInput_throwsException( $propertyIdOrLabel ) {
-		$propertyIdResolver = $this->getDefaultInstance();
+		$propertyIdResolver = $this->getPropertyIdResolver();
 
 		$this->setExpectedException( 'Wikibase\Lib\PropertyLabelNotResolvedException' );
 
@@ -73,7 +72,8 @@ class PropertyIdResolverTest extends \PHPUnit_Framework_TestCase {
 	public function resolvePropertyIdWithInvalidInput_throwsExceptionProvider() {
 		return array(
 			array( 'hedgehog' ),
-			array( 'Q100' )
+			array( 'Q100' ),
+			array( 'P1444' )
 		);
 	}
 

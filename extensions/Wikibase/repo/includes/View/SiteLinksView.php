@@ -7,11 +7,11 @@ use Message;
 use Sanitizer;
 use Site;
 use SiteList;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Template\TemplateFactory;
 use Wikibase\Utils;
 
 /**
@@ -24,6 +24,11 @@ use Wikibase\Utils;
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class SiteLinksView {
+
+	/**
+	 * @var TemplateFactory
+	 */
+	private $templateFactory;
 
 	/**
 	 * @var SiteList
@@ -41,9 +46,9 @@ class SiteLinksView {
 	private $entityLookup;
 
 	/**
-	 * @var string
+	 * @var string[]
 	 */
-	private $languageCode;
+	private $badgeItems;
 
 	/**
 	 * @var string[]
@@ -51,23 +56,34 @@ class SiteLinksView {
 	private $specialSiteLinkGroups;
 
 	/**
-	 * @var array
+	 * @var string
 	 */
-	private $badgeItems;
+	private $languageCode;
 
-	public function __construct( SiteList $sites, SectionEditLinkGenerator $sectionEditLinkGenerator,
-			EntityLookup $entityLookup, $languageCode ) {
+	/**
+	 * @param SiteList $sites
+	 * @param SectionEditLinkGenerator $sectionEditLinkGenerator
+	 * @param EntityLookup $entityLookup
+	 * @param string[] $badgeItems
+	 * @param string[] $specialSiteLinkGroups
+	 * @param string $languageCode
+	 */
+	public function __construct(
+		TemplateFactory $templateFactory,
+		SiteList $sites,
+		SectionEditLinkGenerator $sectionEditLinkGenerator,
+		EntityLookup $entityLookup,
+		array $badgeItems,
+		array $specialSiteLinkGroups,
+		$languageCode
+	) {
 		$this->sites = $sites;
 		$this->sectionEditLinkGenerator = $sectionEditLinkGenerator;
 		$this->entityLookup = $entityLookup;
+		$this->badgeItems = $badgeItems;
+		$this->specialSiteLinkGroups = $specialSiteLinkGroups;
 		$this->languageCode = $languageCode;
-
-		// @todo inject option/objects instead of using the singleton
-		$repo = WikibaseRepo::getDefaultInstance();
-
-		$settings = $repo->getSettings();
-		$this->specialSiteLinkGroups = $settings->getSetting( 'specialSiteLinkGroups' );
-		$this->badgeItems = $settings->getSetting( 'badgeItems' );
+		$this->templateFactory = $templateFactory;
 	}
 
 	/**
@@ -98,8 +114,8 @@ class SiteLinksView {
 			$html .= $this->getHtmlForSiteLinkGroup( $siteLinks, $itemId, $group, $editable );
 		}
 
-		return wfTemplate( 'wikibase-sitelinkgrouplistview',
-			wfTemplate( 'wb-listview', $html )
+		return $this->templateFactory->render( 'wikibase-sitelinkgrouplistview',
+			$this->templateFactory->render( 'wb-listview', $html )
 		);
 	}
 
@@ -114,39 +130,16 @@ class SiteLinksView {
 	 * @return string
 	 */
 	private function getHtmlForSiteLinkGroup( array $siteLinks, $itemId, $group, $editable ) {
-		$isSpecialGroup = $group === 'special';
-
-		$sites = $this->getSitesForGroup( $group );
-		$siteLinksForTable = $this->getSiteLinksForTable( $sites, $siteLinks );
-
-		$html = $thead = $tbody = $tfoot = '';
-
-		if ( !empty( $siteLinksForTable ) ) {
-			$thead = $this->getTableHeadHtml( $isSpecialGroup );
-			$tbody = $this->getTableBodyHtml(
-				$siteLinksForTable,
-				$itemId,
-				$isSpecialGroup,
-				$editable
-			);
-		}
-
-		// Build table footer with button to add site-links, consider list could be complete!
-		// The list is complete if it has a site link for every known site. Since
-		// $siteLinksForTable only has an entry for links to existing sites, this
-		// simple comparison works.
-		$isFull = count( $siteLinksForTable ) >= count( $sites );
-		$tfoot = $this->getTableFootHtml( $isFull );
-
-		return $html . wfTemplate( 'wikibase-sitelinkgroupview',
+		return $this->templateFactory->render( 'wikibase-sitelinkgroupview',
 			// TODO: support entity-id as prefix for element IDs.
 			htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES ),
 			wfMessage( 'wikibase-sitelinks-' . $group )->parse(),
 			'', // counter
-			wfTemplate( 'wikibase-sitelinklistview',
-				$thead,
-				$tbody,
-				$tfoot
+			$this->templateFactory->render( 'wikibase-sitelinklistview',
+				$this->getHtmlForSiteLinks(
+					$this->getSiteLinksForTable( $this->getSitesForGroup( $group ), $siteLinks ),
+					$group === 'special'
+				)
 			),
 			htmlspecialchars( $group ),
 			$this->getHtmlForEditSection( $itemId, '', 'edit', $editable )
@@ -220,70 +213,28 @@ class SiteLinksView {
 	}
 
 	/**
+	 * @param array[] $siteLinksForTable
 	 * @param bool $isSpecialGroup
 	 *
 	 * @return string
 	 */
-	private function getTableHeadHtml( $isSpecialGroup ) {
-		// FIXME: quickfix to allow a custom site-name / handling for the site groups which are
-		// special according to the specialSiteLinkGroups setting
-		$siteNameMessageKey = 'wikibase-sitelinks-sitename-columnheading';
-		if ( $isSpecialGroup ) {
-			$siteNameMessageKey .= '-special';
-		}
-
-		$thead = wfTemplate( 'wikibase-sitelinklistview-thead',
-			wfMessage( $siteNameMessageKey )->parse(),
-			wfMessage( 'wikibase-sitelinks-siteid-columnheading' )->parse(),
-			wfMessage( 'wikibase-sitelinks-link-columnheading' )->parse()
-		);
-
-		return $thead;
-	}
-
-	/**
-	 * @param object[] $siteLinksForTable
-	 * @param ItemId|null $itemId
-	 * @param bool $isSpecialGroup
-	 *
-	 * @return string
-	 */
-	private function getTableBodyHtml( $siteLinksForTable, $itemId, $isSpecialGroup ) {
-		$tbody = '';
+	private function getHtmlForSiteLinks( $siteLinksForTable, $isSpecialGroup ) {
+		$html = '';
 
 		foreach ( $siteLinksForTable as $siteLinkForTable ) {
-			$tbody .= $this->getHtmlForSiteLink(
-				$siteLinkForTable,
-				$itemId,
-				$isSpecialGroup
-			);
+			$html .= $this->getHtmlForSiteLink( $siteLinkForTable, $isSpecialGroup );
 		}
 
-		return $tbody;
+		return $html;
 	}
 
 	/**
-	 * @param bool $isFull
-	 *
-	 * @return string
-	 */
-	private function getTableFootHtml( $isFull ) {
-		$tfoot = wfTemplate( 'wikibase-sitelinklistview-tfoot',
-			$isFull ? wfMessage( 'wikibase-sitelinksedittool-full' )->parse() : '',
-			''
-		);
-
-		return $tfoot;
-	}
-
-	/**
-	 * @param object $siteLinkForTable
-	 * @param ItemId|null $itemId The id of the item
+	 * @param array $siteLinkForTable
 	 * @param bool $isSpecialGroup
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLink( $siteLinkForTable, $itemId, $isSpecialGroup ) {
+	private function getHtmlForSiteLink( $siteLinkForTable, $isSpecialGroup ) {
 		/** @var Site $site */
 		$site = $siteLinkForTable['site'];
 
@@ -291,7 +242,7 @@ class SiteLinksView {
 		$siteLink = $siteLinkForTable['siteLink'];
 
 		if ( $site->getDomain() === '' ) {
-			return $this->getHtmlForUnknownSiteLink( $siteLink, $itemId );
+			return $this->getHtmlForUnknownSiteLink( $siteLink );
 		}
 
 		$languageCode = $site->getLanguageCode();
@@ -311,12 +262,12 @@ class SiteLinksView {
 		// TODO: for non-JS, also set the dir attribute on the link cell;
 		// but do not build language objects for each site since it causes too much load
 		// and will fail when having too much site links
-		return wfTemplate( 'wikibase-sitelinkview',
+		return $this->templateFactory->render( 'wikibase-sitelinkview',
 			htmlspecialchars( $siteId ), // ID used in classes
 			$languageCode,
 			'auto',
-			$siteName,
 			htmlspecialchars( $siteId ), // displayed site ID
+			$siteName,
 			$this->getHtmlForPage( $siteLink, $site )
 		);
 	}
@@ -330,7 +281,7 @@ class SiteLinksView {
 	private function getHtmlForPage( $siteLink, $site ) {
 		$pageName = $siteLink->getPageName();
 
-		return wfTemplate( 'wikibase-sitelinkview-pagename',
+		return $this->templateFactory->render( 'wikibase-sitelinkview-pagename',
 			htmlspecialchars( $site->getPageUrl( $pageName ) ),
 			htmlspecialchars( $pageName ),
 			$this->getHtmlForBadges( $siteLink ),
@@ -340,19 +291,14 @@ class SiteLinksView {
 
 	/**
 	 * @param SiteLink $siteLink
-	 * @param ItemId|null $itemId The id of the item
 	 *
 	 * @return string
 	 */
-	private function getHtmlForUnknownSiteLink( $siteLink, $itemId ) {
-		$siteId = $siteLink->getSiteId();
-		$pageName = $siteLink->getPageName();
-
+	private function getHtmlForUnknownSiteLink( $siteLink ) {
 		// FIXME: No need for separate template; Use 'wikibase-sitelinkview' template.
-		return wfTemplate( 'wikibase-sitelinkview-unknown',
-			htmlspecialchars( $siteId ),
-			htmlspecialchars( $pageName ),
-			$this->getHtmlForEditSection( $itemId, $siteId )
+		return $this->templateFactory->render( 'wikibase-sitelinkview-unknown',
+			htmlspecialchars( $siteLink->getSiteId() ),
+			htmlspecialchars(  $siteLink->getPageName() )
 		);
 	}
 
@@ -387,7 +333,6 @@ class SiteLinksView {
 	private function getHtmlForBadges( SiteLink $siteLink ) {
 		$html = '';
 
-		/** @var ItemId $badge */
 		foreach ( $siteLink->getBadges() as $badge ) {
 			$serialization = $badge->getSerialization();
 			$classes = Sanitizer::escapeClass( $serialization );
@@ -395,36 +340,36 @@ class SiteLinksView {
 				$classes .= ' ' . Sanitizer::escapeClass( $this->badgeItems[$serialization] );
 			}
 
-			$html .= wfTemplate( 'wb-badge',
+			$html .= $this->templateFactory->render( 'wb-badge',
 				$classes,
 				$this->getTitleForBadge( $badge ),
 				$badge
 			);
 		}
 
-		return wfTemplate( 'wikibase-badgeselector', $html );
+		return $this->templateFactory->render( 'wikibase-badgeselector', $html );
 	}
 
 	/**
 	 * Returns the title for the given badge id.
 	 * @todo use TermLookup when we have one
 	 *
-	 * @param EntityId $badgeId
+	 * @param ItemId $badgeId
 	 *
 	 * @return string
 	 */
-	private function getTitleForBadge( EntityId $badgeId ) {
-		$entity = $this->entityLookup->getEntity( $badgeId );
-		if ( $entity === null ) {
-			return $badgeId->getSerialization();
+	private function getTitleForBadge( ItemId $badgeId ) {
+		$badge = $this->entityLookup->getEntity( $badgeId );
+
+		if ( $badge instanceof FingerprintProvider ) {
+			$labels = $badge->getFingerprint()->getLabels();
+
+			if ( $labels->hasTermForLanguage( $this->languageCode ) ) {
+				return $labels->getByLanguage( $this->languageCode )->getText();
+			}
 		}
 
-		$labels = $entity->getFingerprint()->getLabels();
-		if ( $labels->hasTermForLanguage( $this->languageCode ) ) {
-			return $labels->getByLanguage( $this->languageCode )->getText();
-		} else {
-			return $badgeId->getSerialization();
-		}
+		return $badgeId->getSerialization();
 	}
 
 }

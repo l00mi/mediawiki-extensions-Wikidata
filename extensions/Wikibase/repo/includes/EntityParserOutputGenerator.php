@@ -2,15 +2,18 @@
 
 namespace Wikibase;
 
-use OutOfBoundsException;
+use LinkBatch;
 use ParserOutput;
-use ValueFormatters\FormatterOptions;
-use ValueFormatters\ValueFormatter;
+use Title;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
+use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\Lib\Store\EntityInfo;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityInfoTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -102,7 +105,9 @@ class EntityParserOutputGenerator {
 	 *
 	 * @return ParserOutput
 	 */
-	public function getParserOutput( EntityRevision $entityRevision, $editable = true,
+	public function getParserOutput(
+		EntityRevision $entityRevision,
+		$editable = true,
 		$generateHtml = true
 	) {
 		$parserOutput = new ParserOutput();
@@ -172,8 +177,21 @@ class EntityParserOutputGenerator {
 	 * @param EntityId[] $entityIds
 	 */
 	private function addEntityLinksToParserOutput( ParserOutput $parserOutput, array $entityIds ) {
-		foreach ( $entityIds as $entityId ) {
-			$parserOutput->addLink( $this->entityTitleLookup->getTitleForId( $entityId ) );
+		$linkBatch = new LinkBatch();
+
+		foreach( $entityIds as $entityId ) {
+			$linkBatch->addObj( $this->entityTitleLookup->getTitleForId( $entityId ) );
+		}
+
+		$pages = $linkBatch->doQuery();
+
+		if ( $pages === false ) {
+			return;
+		}
+
+		foreach( $pages as $page ) {
+			$title = Title::makeTitle( $page->page_namespace, $page->page_title );
+			$parserOutput->addLink( $title, $page->page_id );
 		}
 	}
 
@@ -214,7 +232,8 @@ class EntityParserOutputGenerator {
 	 * Fetches some basic entity information from a set of entity IDs.
 	 *
 	 * @param EntityId[] $entityIds
-	 * @return array obtained from EntityInfoBuilder::getEntityInfo
+	 *
+	 * @return EntityInfo
 	 */
 	private function getEntityInfo( array $entityIds ) {
 		wfProfileIn( __METHOD__ );
@@ -243,6 +262,7 @@ class EntityParserOutputGenerator {
 	 * @param SiteLinkList $siteLinkList
 	 */
 	private function addBadgesToParserOutput( ParserOutput $parserOutput, SiteLinkList $siteLinkList ) {
+		/** @var SiteLink $siteLink */
 		foreach ( $siteLinkList as $siteLink ) {
 			foreach ( $siteLink->getBadges() as $badge ) {
 				$parserOutput->addLink( $this->entityTitleLookup->getTitleForId( $badge ) );
@@ -252,21 +272,26 @@ class EntityParserOutputGenerator {
 
 	/**
 	 * @param ParserOutput $parserOutput
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 */
-	private function addTitleTextToParserOutput( ParserOutput $parserOutput, Entity $entity ) {
-		$preferred = $this->languageFallbackChain->extractPreferredValue( $entity->getLabels() );
+	private function addTitleTextToParserOutput( ParserOutput $parserOutput, EntityDocument $entity ) {
+		$titleText = null;
 
-		if ( is_array( $preferred ) ) {
-			$titleText = $preferred['value'];
-		} else {
+		if ( $entity instanceof FingerprintProvider ) {
+			$labels = $entity->getFingerprint()->getLabels()->toTextArray();
+			$preferred = $this->languageFallbackChain->extractPreferredValue( $labels );
+
+			if ( is_array( $preferred ) ) {
+				$titleText = $preferred['value'];
+			}
+		}
+
+		if ( !is_string( $titleText ) ) {
 			$entityId = $entity->getId();
 
-			if ( !$entityId ) {
-				return;
+			if ( $entityId !== null ) {
+				$titleText = $entityId->getSerialization();
 			}
-
-			$titleText = $entityId->getSerialization();
 		}
 
 		$parserOutput->setExtensionData( 'wikibase-titletext', $titleText );
@@ -275,14 +300,14 @@ class EntityParserOutputGenerator {
 	/**
 	 * @param ParserOutput $parserOutput
 	 * @param EntityRevision $entityRevision
-	 * @param array $entityInfo obtained from EntityInfoBuilder::getEntityInfo
-	 * @param boolean $editable
+	 * @param EntityInfo $entityInfo obtained from EntityInfoBuilder::getEntityInfo
+	 * @param bool $editable
 	 */
 	private function addHtmlToParserOutput(
 		ParserOutput $parserOutput,
 		EntityRevision $entityRevision,
-		array $entityInfo,
-		$editable
+		EntityInfo $entityInfo,
+		$editable = true
 	) {
 
 		$labelLookup = new LanguageFallbackLabelLookup(
@@ -303,7 +328,11 @@ class EntityParserOutputGenerator {
 		$parserOutput->setExtensionData( 'wikibase-view-chunks', $entityView->getPlaceholders() );
 	}
 
-	private function addModules( ParserOutput $parserOutput, $editable ) {
+	/**
+	 * @param ParserOutput $parserOutput
+	 * @param bool $editable
+	 */
+	private function addModules( ParserOutput $parserOutput, $editable = true ) {
 		// make css available for JavaScript-less browsers
 		$parserOutput->addModuleStyles( array(
 			'wikibase.common',

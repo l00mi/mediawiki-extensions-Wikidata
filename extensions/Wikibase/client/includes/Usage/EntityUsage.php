@@ -17,9 +17,12 @@ use Wikibase\DataModel\Entity\EntityId;
 class EntityUsage {
 
 	/**
-	 * Usage flag indicating that the entity's sitelinks were used.
+	 * Usage flag indicating that the entity's sitelinks were used as links.
 	 * This would be the case when generating language links or sister links from
-	 * an entity's sitelinks.
+	 * an entity's sitelinks, for display in the sidebar.
+	 *
+	 * @note: This does NOT cover sitelinks used in wikitext (e.g. via Lua).
+	 *        Use OTHER_USAGE for that.
 	 */
 	const SITELINK_USAGE = 'S';
 
@@ -43,6 +46,14 @@ class EntityUsage {
 	const ALL_USAGE = 'X';
 
 	/**
+	 * Usage flag indicating that some aspect of the entity was changed
+	 * which is not covered by any other usage flag (except "all"). That is,
+	 * the specific usage flags together with the "other" flag are equivalent
+	 * to the "all" flag ( S + T + L + O = X or rather O = X - S - T - L ).
+	 */
+	const OTHER_USAGE = 'O';
+
+	/**
 	 * A list of all valid aspects
 	 *
 	 * @var array
@@ -51,6 +62,7 @@ class EntityUsage {
 		self::SITELINK_USAGE,
 		self::LABEL_USAGE,
 		self::TITLE_USAGE,
+		self::OTHER_USAGE,
 		self::ALL_USAGE
 	);
 

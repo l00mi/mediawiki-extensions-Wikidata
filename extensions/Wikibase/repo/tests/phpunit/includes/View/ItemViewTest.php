@@ -2,12 +2,12 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Repo\View\ItemView;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\ItemView
@@ -49,6 +49,7 @@ class ItemViewTest extends EntityViewTest {
 
 	public function provideTestGetHtml() {
 		$itemView = new ItemView(
+			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 			$this->getMockBuilder( 'Wikibase\Repo\View\FingerprintView' )
 				->disableOriginalConstructor()
 				->getMock(),
@@ -56,6 +57,9 @@ class ItemViewTest extends EntityViewTest {
 				->disableOriginalConstructor()
 				->getMock(),
 			$this->getMock( 'Language' ),
+			$this->getMockBuilder( 'Wikibase\Repo\View\SiteLinksView' )
+				->disableOriginalConstructor()
+				->getMock(),
 			array()
 		);
 

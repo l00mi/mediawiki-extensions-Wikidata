@@ -14,6 +14,7 @@ use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageLabelLookup;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Term;
 use Wikibase\TermIndex;
 
 /**
@@ -26,7 +27,7 @@ use Wikibase\TermIndex;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
-class SpecialItemDisambiguation extends SpecialItemResolver {
+class SpecialItemDisambiguation extends SpecialWikibasePage {
 
 	/**
 	 * @var TermIndex
@@ -49,7 +50,7 @@ class SpecialItemDisambiguation extends SpecialItemResolver {
 	private $limit;
 
 	/**
-	 * @see SpecialItemResolver::__construct
+	 * @see SpecialWikibasePage::__construct
 	 *
 	 * @since 0.1
 	 */
@@ -81,14 +82,14 @@ class SpecialItemDisambiguation extends SpecialItemResolver {
 	}
 
 	/**
-	 * @see SpecialItemResolver::execute
+	 * @see SpecialWikibasePage::execute
 	 *
 	 * @since 0.1
+	 *
+	 * @param string|null $subPage
 	 */
 	public function execute( $subPage ) {
-		if ( !parent::execute( $subPage ) ) {
-			return false;
-		}
+		parent::execute( $subPage );
 
 		// Setup
 		$request = $this->getRequest();
@@ -123,8 +124,6 @@ class SpecialItemDisambiguation extends SpecialItemResolver {
 				$this->showNothingFound( $languageCode, $label );
 			}
 		}
-
-		return true;
 	}
 
 	/**
@@ -273,7 +272,23 @@ class SpecialItemDisambiguation extends SpecialItemResolver {
 	 * @return Item[]
 	 */
 	private function findLabelUsage( $languageCode, $label ) {
-		$entityIds = $this->termIndex->getEntityIdsForLabel( $label, $languageCode, Item::ENTITY_TYPE, true );
+		//@todo: optionally
+		$protoTerms = array(
+			new Term( array(
+				'termType' 		=> Term::TYPE_LABEL,
+				'termLanguage' 	=> $languageCode,
+				'termText' 		=> $label
+			) ),
+		);
+
+		//@todo: expose options
+		$options = array(
+			'caseSensitive' => true,
+			'prefixSearch' => false,
+			'LIMIT' => $this->limit
+		);
+
+		$entityIds = $this->termIndex->getMatchingIDs( $protoTerms, Item::ENTITY_TYPE, $options );
 		$entities = array();
 
 		$count = 0;

@@ -27,7 +27,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	 */
 	public abstract function getTermIndex();
 
-	public function testGetEntityIdsForLabel() {
+	public function testGetMatchingIDs() {
 		$lookup = $this->getTermIndex();
 
 		$item0 = Item::newEmpty();
@@ -47,65 +47,24 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$item1->setDescription( 'en', 'foo bar baz' );
 		$lookup->saveTermsOfEntity( $item1 );
 
-		$ids = $lookup->getEntityIdsForLabel( 'foobar' );
+		$foobar = new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'foobar' ) );
+		$bazNl= new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'baz', 'termLanguage' => 'nl' ) );
+		$froggerNl = new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'o_O', 'termLanguage' => 'nl' ) );
+
+		$ids = $lookup->getMatchingIDs( array( $foobar ), Item::ENTITY_TYPE );
 		$this->assertInternalType( 'array', $ids );
 		$this->assertContainsOnlyInstancesOf( '\Wikibase\DataModel\Entity\ItemId', $ids );
 		$this->assertArrayEquals( array( $id0, $id1 ), $ids );
 
-		$ids = $lookup->getEntityIdsForLabel( 'baz', 'nl' );
+		$ids = $lookup->getMatchingIDs( array( $bazNl ), Item::ENTITY_TYPE );
 		$this->assertInternalType( 'array', $ids );
 		$this->assertContainsOnlyInstancesOf( '\Wikibase\DataModel\Entity\ItemId', $ids );
 		$this->assertArrayEquals( array( $id0 ), $ids );
 
-		$ids = $lookup->getEntityIdsForLabel( 'o_O', 'nl' );
+		$ids = $lookup->getMatchingIDs( array( $froggerNl ), Item::ENTITY_TYPE );
 		$this->assertInternalType( 'array', $ids );
 		$this->assertContainsOnlyInstancesOf( '\Wikibase\DataModel\Entity\ItemId', $ids );
 		$this->assertArrayEquals( array( $id1 ), $ids );
-	}
-
-	public function testTermExists() {
-		$lookup = $this->getTermIndex();
-
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1234' )  );
-
-		$item->setLabel( 'en', 'foobarz' );
-		$item->setLabel( 'de', 'foobarz' );
-		$item->setLabel( 'nl', 'bazz' );
-		$item->setDescription( 'en', 'foobarz' );
-		$item->setDescription( 'fr', 'fooz barz bazz' );
-		$item->setAliases( 'nl', array( 'a42', 'b42', 'c42' ) );
-
-		$lookup->saveTermsOfEntity( $item );
-
-		$this->assertFalse( $lookup->termExists( 'foobarz', 'does-not-exist' ) );
-		$this->assertFalse( $lookup->termExists( 'foobarz', null, 'does-not-exist' ) );
-		$this->assertFalse( $lookup->termExists( 'foobarz', null, null, 'does-not-exist' ) );
-
-		$this->assertTrue( $lookup->termExists( 'foobarz' ) );
-		$this->assertTrue( $lookup->termExists( 'foobarz', Term::TYPE_LABEL ) );
-		$this->assertTrue( $lookup->termExists( 'foobarz', Term::TYPE_LABEL, 'en' ) );
-		$this->assertTrue( $lookup->termExists( 'foobarz', Term::TYPE_LABEL, 'de' ) );
-		$this->assertTrue( $lookup->termExists( 'foobarz', Term::TYPE_LABEL, 'de', $item::ENTITY_TYPE ) );
-
-		$this->assertFalse( $lookup->termExists( 'foobarz', Term::TYPE_LABEL, 'de', Property::ENTITY_TYPE ) );
-		$this->assertFalse( $lookup->termExists( 'foobarz', Term::TYPE_LABEL, 'nl' ) );
-		$this->assertFalse( $lookup->termExists( 'foobarz', Term::TYPE_DESCRIPTION, 'de' ) );
-		$this->assertFalse( $lookup->termExists( 'foobarz', Term::TYPE_DESCRIPTION, null, Property::ENTITY_TYPE ) );
-		$this->assertFalse( $lookup->termExists( 'dzxfzdtrgfdrtgryfth', Term::TYPE_LABEL ) );
-
-		$this->assertTrue( $lookup->termExists( 'foobarz', Term::TYPE_DESCRIPTION ) );
-		$this->assertTrue( $lookup->termExists( 'foobarz', Term::TYPE_DESCRIPTION, 'en' ) );
-		$this->assertFalse( $lookup->termExists( 'foobarz', Term::TYPE_DESCRIPTION, 'fr' ) );
-
-		$this->assertFalse( $lookup->termExists( 'a42', Term::TYPE_DESCRIPTION ) );
-		$this->assertFalse( $lookup->termExists( 'b42', Term::TYPE_LABEL ) );
-		$this->assertTrue( $lookup->termExists( 'a42' ) );
-		$this->assertTrue( $lookup->termExists( 'b42' ) );
-		$this->assertTrue( $lookup->termExists( 'a42', Term::TYPE_ALIAS ) );
-		$this->assertTrue( $lookup->termExists( 'b42', Term::TYPE_ALIAS ) );
-		$this->assertFalse( $lookup->termExists( 'b42', Term::TYPE_ALIAS, 'de' ) );
-		$this->assertTrue( $lookup->termExists( 'b42', null, 'nl' ) );
 	}
 
 	public function testGetMatchingTerms() {
@@ -251,13 +210,14 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$item->setId( $id );
 		$lookup->saveTermsOfEntity( $item );
 
-		$this->assertTrue( $lookup->termExists( 'testDeleteTermsForEntity' ) );
+		$this->assertTermExists( $lookup, 'testDeleteTermsForEntity' );
 
 		$this->assertTrue( $lookup->deleteTermsOfEntity( $item->getId() ) !== false );
 
-		$this->assertFalse( $lookup->termExists( 'testDeleteTermsForEntity' ) );
+		$this->assertNotTermExists( $lookup, 'testDeleteTermsForEntity' );
 
-		$ids = $lookup->getEntityIdsForLabel( 'abc' );
+		$abc = new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'abc' ) );
+		$ids = $lookup->getMatchingIDs( array( $abc ), Item::ENTITY_TYPE );
 
 		$this->assertNotContains( $id, $ids );
 	}
@@ -276,77 +236,77 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$this->assertTrue( $lookup->saveTermsOfEntity( $item ) );
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'testDeleteTermsForEntity',
 			Term::TYPE_DESCRIPTION,
 			'en',
 			Item::ENTITY_TYPE
-		) );
+		);
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'ghi',
 			Term::TYPE_LABEL,
 			'nl',
 			Item::ENTITY_TYPE
-		) );
+		);
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'o',
 			Term::TYPE_ALIAS,
 			'fr',
 			Item::ENTITY_TYPE
-		) );
+		);
 
 		// save again - this should hit an optimized code path
 		// that avoids re-saving the terms if they are the same as before.
 		$this->assertTrue( $lookup->saveTermsOfEntity( $item ) );
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'testDeleteTermsForEntity',
 			Term::TYPE_DESCRIPTION,
 			'en',
 			Item::ENTITY_TYPE
-		) );
+		);
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'ghi',
 			Term::TYPE_LABEL,
 			'nl',
 			Item::ENTITY_TYPE
-		) );
+		);
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'o',
 			Term::TYPE_ALIAS,
 			'fr',
 			Item::ENTITY_TYPE
-		) );
+		);
 
 		// modify and save again - this should NOT skip saving,
 		// and make sure the modified term is in the database.
 		$item->setLabel( 'nl', 'xyz' );
 		$this->assertTrue( $lookup->saveTermsOfEntity( $item ) );
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'testDeleteTermsForEntity',
 			Term::TYPE_DESCRIPTION,
 			'en',
 			Item::ENTITY_TYPE
-		) );
+		);
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'xyz',
 			Term::TYPE_LABEL,
 			'nl',
 			Item::ENTITY_TYPE
-		) );
+		);
 
-		$this->assertTrue( $lookup->termExists(
+		$this->assertTermExists( $lookup,
 			'o',
 			Term::TYPE_ALIAS,
 			'fr',
 			Item::ENTITY_TYPE
-		) );
+		);
 	}
 
 	public function testUpdateTermsOfEntity() {
@@ -547,9 +507,23 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$this->assertTrue( $lookup->saveTermsOfEntity( $item ) );
 
-		$terms = $lookup->getTermsOfEntity( $item->getId() );
+		$labelTerms = $lookup->getTermsOfEntity( $item->getId(), array( 'label' ) );
+		$this->assertEquals( 3, count( $labelTerms ), "expected 3 labels" );
 
-		$this->assertEquals( 7, count( $terms ), "expected 5 terms for item" );
+		$englishTerms = $lookup->getTermsOfEntity( $item->getId(), null, array( 'en' ) );
+		$this->assertEquals( 2, count( $englishTerms ), "expected 2 English terms" );
+
+		$germanLabelTerms = $lookup->getTermsOfEntity( $item->getId(), array( 'label' ), array( 'de' ) );
+		$this->assertEquals( 1, count( $germanLabelTerms ), "expected 1 German label" );
+
+		$noTerms = $lookup->getTermsOfEntity( $item->getId(), array( 'label' ), array() );
+		$this->assertEmpty( $noTerms, "expected no labels" );
+
+		$noTerms = $lookup->getTermsOfEntity( $item->getId(), array(), array( 'de' ) );
+		$this->assertEmpty( $noTerms, "expected no labels" );
+
+		$terms = $lookup->getTermsOfEntity( $item->getId() );
+		$this->assertEquals( 7, count( $terms ), "expected 7 terms for item" );
 
 		// make list of strings for easy checking
 		$term_keys = array();
@@ -570,4 +544,93 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 			"expected to find $k in terms for item" );
 	}
 
+	public function testGetTermsOfEntities() {
+		$lookup = $this->getTermIndex();
+
+		$item1 = Item::newEmpty();
+		$item1->setId( 568234314 );
+
+		$item1->setLabel( 'en', 'abc' );
+		$item1->setLabel( 'de', 'def' );
+		$item1->setLabel( 'nl', 'ghi' );
+		$item1->setDescription( 'en', 'one description' );
+		$item1->setAliases( 'fr', array( 'o', '_', 'O' ) );
+
+		$item2 = Item::newEmpty();
+		$item2->setId( 87236423 );
+
+		$item2->setLabel( 'en', 'xyz' );
+		$item2->setLabel( 'de', 'uvw' );
+		$item2->setLabel( 'nl', 'rst' );
+		$item2->setDescription( 'en', 'another description' );
+		$item2->setAliases( 'fr', array( 'X', '~', 'x' ) );
+
+		$this->assertTrue( $lookup->saveTermsOfEntity( $item1 ) );
+		$this->assertTrue( $lookup->saveTermsOfEntity( $item2 ) );
+
+		$ids = array( $item1->getId(), $item2->getId() );
+
+		$labelTerms = $lookup->getTermsOfEntities( $ids, Item::ENTITY_TYPE, array( Term::TYPE_LABEL ) );
+		$this->assertEquals( 6, count( $labelTerms ), "expected 3 labels" );
+
+		$englishTerms = $lookup->getTermsOfEntities( $ids, Item::ENTITY_TYPE, null, array( 'en' ) );
+		$this->assertEquals( 4, count( $englishTerms ), "expected 2 English terms" );
+
+		$englishTerms = $lookup->getTermsOfEntities( array( $item1->getId() ), Item::ENTITY_TYPE, null, array( 'en' ) );
+		$this->assertEquals( 2, count( $englishTerms ), "expected 2 English terms" );
+
+		$germanLabelTerms = $lookup->getTermsOfEntities( $ids, Item::ENTITY_TYPE, array( Term::TYPE_LABEL ), array( 'de' ) );
+		$this->assertEquals( 2, count( $germanLabelTerms ), "expected 1 German label" );
+
+		$noTerms = $lookup->getTermsOfEntities( $ids, Item::ENTITY_TYPE, array( Term::TYPE_LABEL ), array() );
+		$this->assertEmpty( $noTerms, "expected no labels" );
+
+		$noTerms = $lookup->getTermsOfEntities( $ids, Item::ENTITY_TYPE, array(), array( 'de' ) );
+		$this->assertEmpty( $noTerms, "expected no labels" );
+
+		$terms = $lookup->getTermsOfEntities( $ids, Item::ENTITY_TYPE );
+		$this->assertEquals( 14, count( $terms ), "expected 7 terms for item" );
+
+		// make list of strings for easy checking
+		$term_keys = array();
+		foreach ( $terms as $t ) {
+			$term_keys[] = $t->getType() . '/' .  $t->getLanguage() . '/' . $t->getText();
+		}
+
+		$k = Term::TYPE_LABEL . '/en/abc';
+		$this->assertContains( $k, $term_keys,
+			"expected to find $k in terms for item" );
+
+		$k = Term::TYPE_LABEL . '/en/xyz';
+		$this->assertContains( $k, $term_keys,
+			"expected to find $k in terms for item" );
+
+		$k = Term::TYPE_DESCRIPTION . '/en/another description';
+		$this->assertContains( $k, $term_keys,
+			"expected to find $k in terms for item" );
+
+		$k = Term::TYPE_ALIAS . '/fr/x';
+		$this->assertContains( $k, $term_keys,
+			"expected to find $k in terms for item" );
+	}
+
+	protected function assertTermExists( TermIndex $termIndex, $text, $termType = null, $language = null, $entityType = null ) {
+		$this->assertTrue( $this->termExists( $termIndex, $text, $termType, $language, $entityType ) );
+	}
+
+	protected function assertNotTermExists( TermIndex $termIndex, $text, $termType = null, $language = null, $entityType = null ) {
+		$this->assertFalse( $this->termExists( $termIndex, $text, $termType, $language, $entityType ) );
+	}
+
+	private function termExists( TermIndex $termIndex, $text, $termType = null, $language = null, $entityType = null ) {
+		$termFields = array();
+		$termFields['termText'] = $text;
+
+		if ( $language !== null ) {
+			$termFields['termLanguage'] = $language;
+		}
+
+		$matches = $termIndex->getMatchingTerms( array( new Term( $termFields ) ), $termType, $entityType );
+		return !empty( $matches );
+	}
 }

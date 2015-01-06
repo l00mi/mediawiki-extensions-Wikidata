@@ -33,13 +33,11 @@ class EntityRetrievingTermLookup implements TermLookup {
 	}
 
 	/**
-	 * Gets the label of an Entity with the specified EntityId and language code.
+	 * @see TermLookup::getLabel()
 	 *
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @throws OutOfBoundsException
-	 * @throws StorageException for entity not found
 	 * @return string
 	 */
 	public function getLabel( EntityId $entityId, $languageCode ) {
@@ -48,25 +46,30 @@ class EntityRetrievingTermLookup implements TermLookup {
 	}
 
 	/**
-	 * Gets all labels of an Entity with the specified EntityId.
+	 * @see TermLookup::getLabels()
 	 *
 	 * @param EntityId $entityId
+	 * @param string[]|null $languages
 	 *
-	 * @throws StorageException for entity not found
+	 * @throws OutOfBoundsException if the entity does not exist
 	 * @return string[]
 	 */
-	public function getLabels( EntityId $entityId ) {
-		return $this->getFingerprint( $entityId )->getLabels()->toTextArray();
+	public function getLabels( EntityId $entityId, array $languages = null ) {
+		$labels = $this->getFingerprint( $entityId )->getLabels()->toTextArray();
+
+		if ( $languages !== null ) {
+			$labels = array_intersect_key( $labels, array_flip( $languages ) );
+		}
+
+		return $labels;
 	}
 
 	/**
-	 * Gets the description of an Entity with the specified EntityId and language code.
+	 * @see TermLookup::getDescription()
 	 *
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @throws OutOfBoundsException
-	 * @throws StorageException for entity not found
 	 * @return string
 	 */
 	public function getDescription( EntityId $entityId, $languageCode ) {
@@ -75,15 +78,22 @@ class EntityRetrievingTermLookup implements TermLookup {
 	}
 
 	/**
-	 * Gets all descriptions of an Entity with the specified EntityId.
+	 * @see TermLookup::getDescriptions()
 	 *
 	 * @param EntityId $entityId
+	 * @param string[]|null $languages
 	 *
-	 * @throws StorageException for entity not found
+	 * @throws OutOfBoundsException if the entity does not exist
 	 * @return string[]
 	 */
-	public function getDescriptions( EntityId $entityId ) {
-		return $this->getFingerprint( $entityId )->getDescriptions()->toTextArray();
+	public function getDescriptions( EntityId $entityId, array $languages = null ) {
+		$descriptions = $this->getFingerprint( $entityId )->getDescriptions()->toTextArray();
+
+		if ( $languages !== null ) {
+			$descriptions = array_intersect_key( $descriptions, array_flip( $languages ) );
+		}
+
+		return $descriptions;
 	}
 
 	/**
@@ -104,7 +114,7 @@ class EntityRetrievingTermLookup implements TermLookup {
 	/**
 	 * @param EntityId $entityId
 	 *
-	 * @throws StorageException
+	 * @throws OutOfBoundsException
 	 * @return Fingerprint
 	 */
 	private function fetchFingerprint( EntityId $entityId ) {
@@ -121,7 +131,7 @@ class EntityRetrievingTermLookup implements TermLookup {
 
 		if ( $entity === null ) {
 			// double redirect, deleted entity, etc
-			throw new StorageException( "An Entity with the id $entityId could not be loaded" );
+			throw new OutOfBoundsException( "An Entity with the id $entityId could not be loaded" );
 		}
 
 		return $entity instanceof FingerprintProvider ? $entity->getFingerprint() : Fingerprint::newEmpty();

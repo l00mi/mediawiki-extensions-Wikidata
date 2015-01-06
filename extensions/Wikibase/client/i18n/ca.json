@@ -11,11 +11,12 @@
 			"Qllach",
 			"Toniher",
 			"Vriullop",
-			"Àlex"
+			"Àlex",
+			"Macofe"
 		]
 	},
 	"wikibase-client-desc": "Client per l'extensió Wikibase",
-	"specialpages-group-wikibaseclient": "Client de Wikidata",
+	"specialpages-group-wikibaseclient": "Client de {{WBREPONAME}}",
 	"tooltip-t-wikibase": "Enllaç a l'element del repositori de dades connectades",
 	"wikibase-after-page-move": "També podeu [$1 actualitzar] l'element associat de Wikidata per tal de mantenir els enllaços d'idioma a la pàgina que s'ha desplaçat.",
 	"wikibase-after-page-move-queued": "L'[$1 element de Wikidata] associat amb aquesta pàgina s'actualitzarà automàticament aviat.",
@@ -66,5 +67,6 @@
 	"wikibase-pageinfo-entity-id-none": "Cap",
 	"wikibase-property-render-error": "No s'ha pogut representar la propietat $1: $2",
 	"wikibase-otherprojects": "Altres projectes",
-	"wikibase-otherprojects-beta-message": "Barra lateral d'altres projectes"
+	"wikibase-otherprojects-beta-message": "Barra lateral d'altres projectes",
+	"wikibase-otherprojects-beta-description": "Afegeix una secció «{{int:wikibase-otherprojects}}» en la barra lateral que proporciona enllaços a altres projectes de Wikimedia segons les dades de {{WBREPONAME}}."
 }

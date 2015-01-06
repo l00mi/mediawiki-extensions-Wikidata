@@ -11,7 +11,6 @@ use Title;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\NamespaceChecker;
 use Wikibase\NoLangLinkHandler;
-use Wikibase\SettingsArray;
 
 /**
  * ParserOutput related hook handlers.

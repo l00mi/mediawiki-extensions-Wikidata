@@ -8,25 +8,20 @@ use BaseTemplate;
 use Content;
 use ContentHandler;
 use DatabaseUpdater;
-use DummyLinker;
 use HistoryPager;
 use Html;
-use Language;
 use Linker;
 use LogEntryBase;
-use MWContentSerializationException;
 use MWException;
 use OutputPage;
 use ParserOutput;
 use RecentChange;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RequestContext;
 use Revision;
 use SearchResult;
 use Skin;
 use SkinTemplate;
-use SpecialPageFactory;
 use SpecialSearch;
 use SplFileInfo;
 use Title;
@@ -38,6 +33,8 @@ use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\View\EntityViewPlaceholderExpander;
 use Wikibase\Repo\View\TextInjector;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\Template\TemplateRegistry;
 use WikiPage;
 
 /**
@@ -715,145 +712,6 @@ final class RepoHooks {
 	}
 
 	/**
-	 * Special page handling where we want to display meaningful link labels instead of just the items ID.
-	 * This is only handling special pages right now and gets disabled in normal pages.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LinkBegin
-	 *
-	 * @param DummyLinker $skin
-	 * @param Title $target
-	 * @param string $html
-	 * @param array $customAttribs
-	 * @param string $query
-	 * @param array $options
-	 * @param mixed $ret
-	 * @return bool true
-	 */
-	public static function onLinkBegin( $skin, $target, &$html, array &$customAttribs, &$query, &$options, &$ret ) {
-		global $wgTitle;
-		wfProfileIn( __METHOD__ );
-
-		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
-
-		// $wgTitle is temporarily set to special pages Title in case of special page inclusion! Therefore we can
-		// just check whether the page is a special page and if not, disable the behavior.
-		if ( $wgTitle === null || !$wgTitle->isSpecialPage() ) {
-			// no special page, we don't handle this for now
-			// NOTE: If we want to handle this, messages would have to be generated in sites language instead of
-			//       users language so they are cache independent.
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
-
-		if ( !$entityNamespaceLookup->isEntityNamespace( $target->getNamespace() ) ) {
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
-
-		$targetText = $target->getText();
-
-		if ( SpecialPageFactory::exists( $targetText ) ) {
-			$target = Title::makeTitle( NS_SPECIAL, $targetText );
-			$html = Linker::linkKnown( $target );
-
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
-
-		// if custom link text is given, there is no point in overwriting it
-		// but not if it is similar to the plain title
-		if ( $html !== null && $target->getFullText() !== $html ) {
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
-
-		// The following three vars should all exist, unless there is a failurre
-		// somewhere, and then it will fail hard. Better test it now!
-		$page = new WikiPage( $target );
-		$content = null;
-
-		try {
-			$content = $page->getContent();
-		} catch ( MWContentSerializationException $ex ) {
-			// if this fails, it's not horrible.
-			wfWarn( 'Failed to get entity object for [[' . $page->getTitle()->getFullText() . ']]'
-					. ': ' . $ex->getMessage() );
-		}
-
-		if ( !( $content instanceof EntityContent ) ) {
-			// Failed, can't continue. This could happen because the content is empty (page doesn't exist),
-			// e.g. after item was deleted.
-
-			// Due to bug 37209, we may also get non-entity content here, despite checking
-			// Title::getContentModel up front.
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
-
-		if ( $content->isRedirect() ) {
-			// TODO: resolve redirect, show redirect info in link
-			wfProfileOut( __METHOD__ );
-			return true;
-		}
-
-		// Try to find the most preferred available language to display data in current context.
-		$languageFallbackChainFactory = WikibaseRepo::getDefaultInstance()->getLanguageFallbackChainFactory();
-		$context = RequestContext::getMain();
-		$languageFallbackChain = $languageFallbackChainFactory->newFromContext( $context );
-
-		/** @var EntityContent $content */
-		$entity = $content->getEntity();
-		$labelData = $languageFallbackChain->extractPreferredValueOrAny( $entity->getLabels() );
-		$descriptionData = $languageFallbackChain->extractPreferredValueOrAny( $entity->getDescriptions() );
-
-		if ( $labelData ) {
-			$labelText = $labelData['value'];
-			$labelLang = Language::factory( $labelData['language'] );
-		} else {
-			$labelText = '';
-			$labelLang = $context->getLanguage();
-		}
-
-		if ( $descriptionData ) {
-			$descriptionText = $descriptionData['value'];
-			$descriptionLang = Language::factory( $descriptionData['language'] );
-		} else {
-			$descriptionText = '';
-			$descriptionLang = $context->getLanguage();
-		}
-
-		// Go on and construct the link
-		$idHtml = Html::openElement( 'span', array( 'class' => 'wb-itemlink-id' ) )
-			. wfMessage( 'wikibase-itemlink-id-wrapper', $target->getText() )->inContentLanguage()->escaped()
-			. Html::closeElement( 'span' );
-
-		$labelHtml = Html::openElement( 'span', array( 'class' => 'wb-itemlink-label', 'lang' => $labelLang->getHtmlCode(), 'dir' => $labelLang->getDir() ) )
-			. htmlspecialchars( $labelText )
-			. Html::closeElement( 'span' );
-
-		$html = Html::openElement( 'span', array( 'class' => 'wb-itemlink' ) )
-			. wfMessage( 'wikibase-itemlink' )->rawParams( $labelHtml, $idHtml )->inContentLanguage()->escaped()
-			. Html::closeElement( 'span' );
-
-		// Set title attribute for constructed link, and make tricks with the directionality to get it right
-		$titleText = ( $labelText !== '' )
-			? $labelLang->getDirMark() . $labelText . $context->getLanguage()->getDirMark()
-			: $target->getPrefixedText();
-		$customAttribs[ 'title' ] = ( $descriptionText !== '' ) ?
-			wfMessage(
-				'wikibase-itemlink-title',
-				$titleText,
-				$descriptionLang->getDirMark() . $descriptionText . $context->getLanguage()->getDirMark()
-			)->inContentLanguage()->text() :
-			$titleText; // no description, just display the title then
-
-		// add wikibase styles in all cases, so we can format the link properly:
-		$context->getOutput()->addModuleStyles( array( 'wikibase.common' ) );
-
-		wfProfileOut( __METHOD__ );
-		return true;
-	}
-
-	/**
 	 * Handler for the ApiCheckCanExecute hook in ApiMain.
 	 *
 	 * This implementation causes the execution of ApiEditPage (action=edit) to fail
@@ -1100,19 +958,18 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onOutputPageParserOutput( OutputPage $out, ParserOutput $parserOutput ) {
+		// Set in EntityParserOutputGenerator.
 		$placeholders = $parserOutput->getExtensionData( 'wikibase-view-chunks' );
-
-		if ( $placeholders ) {
+		if ( $placeholders !== null ) {
 			$out->setProperty( 'wikibase-view-chunks', $placeholders );
 		}
 
-		// used in ViewEntityAction and EditEntityAction to override the page html title
+		// Used in ViewEntityAction and EditEntityAction to override the page HTML title
 		// with the label, if available, or else the id. Passed via parser output
 		// and output page to save overhead of fetching content and accessing an entity
 		// on page view.
 		$titleText = $parserOutput->getExtensionData( 'wikibase-titletext' );
-
-		if ( $titleText ) {
+		if ( $titleText !== null ) {
 			$out->setProperty( 'wikibase-titletext', $titleText );
 		}
 
@@ -1132,10 +989,11 @@ final class RepoHooks {
 	public static function onOutputPageBeforeHTML( OutputPage $out, &$html ) {
 		$placeholders = $out->getProperty( 'wikibase-view-chunks' );
 
-		if ( $placeholders ) {
+		if ( !empty( $placeholders ) ) {
 			$injector = new TextInjector( $placeholders );
 			$userLanguageLookup = new UserLanguageLookup();
 			$expander = new EntityViewPlaceholderExpander(
+				new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 				$out->getTitle(),
 				$out->getUser(),
 				$out->getLanguage(),

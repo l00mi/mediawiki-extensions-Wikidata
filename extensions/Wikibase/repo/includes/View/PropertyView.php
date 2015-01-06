@@ -3,10 +3,12 @@
 namespace Wikibase\Repo\View;
 
 use DataTypes\DataType;
+use DataTypes\DataTypeFactory;
 use InvalidArgumentException;
+use Language;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\EntityRevision;
-use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Template\TemplateFactory;
 
 /**
  * Class for creating views for Property instances.
@@ -21,11 +23,34 @@ use Wikibase\Repo\WikibaseRepo;
 class PropertyView extends EntityView {
 
 	/**
-	 * @see EntityView::getMainHtml
+	 * @var DataTypeFactory
 	 */
-	public function getMainHtml( EntityRevision $entityRevision,
+	private $dataTypeFactory;
+
+	/**
+	 * @param TemplateFactory $templateFactory
+	 * @param FingerprintView $fingerprintView
+	 * @param ClaimsView $claimsView
+	 * @param Language $language
+	 * @param bool $editable
+	 */
+	public function __construct(
+		TemplateFactory $templateFactory,
+		FingerprintView $fingerprintView,
+		ClaimsView $claimsView,
+		DataTypeFactory $dataTypeFactory,
+		Language $language,
 		$editable = true
 	) {
+		parent::__construct( $templateFactory, $fingerprintView, $claimsView, $language, $editable );
+
+		$this->dataTypeFactory = $dataTypeFactory;
+	}
+
+	/**
+	 * @see EntityView::getMainHtml
+	 */
+	public function getMainHtml( EntityRevision $entityRevision ) {
 		wfProfileIn( __METHOD__ );
 
 		$property = $entityRevision->getEntity();
@@ -52,8 +77,7 @@ class PropertyView extends EntityView {
 	}
 
 	private function getDataType( Property $property ) {
-		return WikibaseRepo::getDefaultInstance()->getDataTypeFactory()
-			->getType( $property->getDataTypeId() );
+		return $this->dataTypeFactory->getType( $property->getDataTypeId() );
 	}
 
 	/**
@@ -64,11 +88,11 @@ class PropertyView extends EntityView {
 	 * @return string
 	 */
 	private function getHtmlForDataType( DataType $dataType ) {
-		return wfTemplate( 'wb-section-heading',
+		return $this->templateFactory->render( 'wb-section-heading',
 			wfMessage( 'wikibase-propertypage-datatype' )->escaped(),
 			'datatype'
 		)
-		. wfTemplate( 'wb-property-datatype',
+		. $this->templateFactory->render( 'wikibase-propertyview-datatype',
 			htmlspecialchars( $dataType->getLabel( $this->language->getCode() ) )
 		);
 	}

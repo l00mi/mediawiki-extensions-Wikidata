@@ -4,9 +4,9 @@ namespace Wikibase\Test;
 
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\ChangeOp\ChangeOpsMerge;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Validators\EntityConstraintProvider;
 
@@ -191,8 +191,11 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 		$testCases['ignoreConflictLabelMerge'] = array(
 			array( 'label' => array( 'en' => 'foo' ) ),
 			array( 'label' => array( 'en' => 'bar' ) ),
-			array( 'label' => array( 'en' => 'foo' ) ),
-			array( 'label' => array( 'en' => 'bar' ) ),
+			array( 'label' => array( ) ),
+			array(
+				'label' => array( 'en' => 'bar' ),
+				'aliases' => array( 'en' => array( 'foo' ) )
+			),
 			array( 'label' )
 		);
 		$testCases['descriptionMerge'] = array(
@@ -246,7 +249,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 					'q' => array( ),
 					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A390BCD9C556',
 					'refs' => array(),
-					'rank' => Claim::RANK_NORMAL,
+					'rank' => Statement::RANK_NORMAL,
 				)
 			),
 			),
@@ -258,7 +261,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 					'q' => array( ),
 					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A390BCD9C556',
 					'refs' => array(),
-					'rank' => Claim::RANK_NORMAL,
+					'rank' => Statement::RANK_NORMAL,
 				)
 			),
 			),
@@ -270,7 +273,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 					'q' => array( array(  'novalue', 56  ) ),
 					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A3290BCD9C0F',
 					'refs' => array(),
-					'rank' => Claim::RANK_NORMAL,
+					'rank' => Statement::RANK_NORMAL,
 				)
 			),
 			),
@@ -282,7 +285,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 					'q' => array( array(  'novalue', 56  ) ),
 					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A3290BCD9C0F',
 					'refs' => array(),
-					'rank' => Claim::RANK_NORMAL,
+					'rank' => Statement::RANK_NORMAL,
 				)
 			),
 			),
@@ -299,7 +302,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 						'q' => array( array(  'novalue', 88  ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
-						'rank' => Claim::RANK_NORMAL,
+						'rank' => Statement::RANK_NORMAL,
 					)
 				),
 			),
@@ -316,7 +319,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 						'q' => array( array(  'novalue', 88  ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
-						'rank' => Claim::RANK_NORMAL,
+						'rank' => Statement::RANK_NORMAL,
 					)
 				),
 			),
@@ -336,7 +339,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 						'q' => array( array(  'novalue', 88  ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
-						'rank' => Claim::RANK_NORMAL,
+						'rank' => Statement::RANK_NORMAL,
 					)
 				),
 			),
@@ -346,7 +349,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 				'links' => array( 'plwiki' => array( 'name' => 'toLink', 'badges' => array() ) ),
 			),
 			array(
-				'label' => array( 'en' => 'foo' ),
+				'label' => array( ),
 				'description' => array( 'pl' => 'pldesc' ),
 				'links' => array( 'plwiki' => array( 'name' => 'bar', 'badges' => array() ) ),
 			),
@@ -364,7 +367,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 						'q' => array( array(  'novalue', 88  ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
-						'rank' => Claim::RANK_NORMAL,
+						'rank' => Statement::RANK_NORMAL,
 					)
 				),
 			),

@@ -6,6 +6,10 @@ use OutOfBoundsException;
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
+ * A service interface for looking up entity terms.
+ *
+ * @note: A TermLookup cannot be used to determine whether an entity exists or not.
+ *
  * @since 0.5
  *
  * @licence GNU GPL v2+
@@ -19,8 +23,7 @@ interface TermLookup {
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @throws OutOfBoundsException for label not found
-	 * @throws StorageException for Entity not found
+	 * @throws OutOfBoundsException for label or entity not found
 	 *
 	 * @return string
 	 * @throws OutOfBoundsException if no such label was found
@@ -30,12 +33,17 @@ interface TermLookup {
 	/**
 	 * Gets all labels of an Entity with the specified EntityId.
 	 *
-	 * @param EntityId $entityId
+	 * If $languages is given, the result will contain the entries for the
+	 * requested languages, if they exist.
 	 *
-	 * @throws StorageException for Entity not found
+	 * @param EntityId $entityId
+	 * @param string[]|null $languageCodes The list of languages to fetch (or null for all)
+	 *
+	 * @throws OutOfBoundsException if the entity was not found (not guaranteed).
 	 * @return string[] labels, keyed by language.
+	 *         An empty array may or may not indicate that the entity does not exist.
 	 */
-	public function getLabels( EntityId $entityId );
+	public function getLabels( EntityId $entityId, array $languageCodes = null );
 
 	/**
 	 * Gets the description of an Entity with the specified EntityId and language code.
@@ -43,21 +51,24 @@ interface TermLookup {
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @throws OutOfBoundsException for description not found
-	 * @throws StorageException for Entity not found
+	 * @throws OutOfBoundsException for description or entity not found
 	 * @return string
-	 * @throws OutOfBoundsException if no such description was found
 	 */
 	public function getDescription( EntityId $entityId, $languageCode );
 
 	/**
 	 * Gets all descriptions of an Entity with the specified EntityId.
 	 *
-	 * @param EntityId $entityId
+	 * If $languages is given, the result will contain the entries for the
+	 * requested languages, if they exist.
 	 *
-	 * @throws StorageException for Entity not found
+	 * @param EntityId $entityId
+	 * @param string[]|null $languageCodes The list of languages to fetch (or null for all)
+	 *
+	 * @throws OutOfBoundsException if the entity was not found (not guaranteed).
 	 * @return string[] descriptions, keyed by language.
+	 *         An empty array may or may not indicate that the entity does not exist.
 	 */
-	public function getDescriptions( EntityId $entityId );
+	public function getDescriptions( EntityId $entityId, array $languageCodes = null );
 
 }

@@ -4,7 +4,6 @@ namespace Wikibase;
 
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\Lib\Store\LabelConflictFinder;
 
 /**
  * Interface to a cache for terms with both write and lookup methods.
@@ -14,23 +13,7 @@ use Wikibase\Lib\Store\LabelConflictFinder;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-interface TermIndex extends LabelConflictFinder {
-
-	/**
-	 * Returns the type, id tuples for the entities with the provided label in the specified language.
-	 *
-	 * @since 0.1
-	 *
-	 * @param string $label
-	 * @param string|null $languageCode
-	 * @param string|null $entityType
-	 * @param bool $fuzzySearch if false, only exact matches are returned, otherwise more relaxed search . Defaults to false.
-	 *
-	 * @return EntityId[]
-	 *
-	 * TODO: update to use Term interface
-	 */
-	public function getEntityIdsForLabel( $label, $languageCode = null, $entityType = null, $fuzzySearch = false );
+interface TermIndex {
 
 	/**
 	 * Saves the terms of the provided entity in the term cache.
@@ -58,10 +41,14 @@ interface TermIndex extends LabelConflictFinder {
 	 * Returns the terms stored for the given entity.
 	 *
 	 * @param EntityId $entityId
+	 * @param string[]|null $termTypes The types of terms to return, e.g. "label", "description",
+	 *        or "alias". Compare the Term::TYPE_XXX constants. If null, all types are returned.
+	 * @param string[]|null $languageCodes The desired languages, given as language codes.
+	 *        If null, all languages are returned.
 	 *
 	 * @return Term[]
 	 */
-	public function getTermsOfEntity( EntityId $entityId );
+	public function getTermsOfEntity( EntityId $entityId, array $termTypes = null, array $languageCodes = null );
 
 	/**
 	 * Returns the terms stored for the given entities. Can be filtered by language.
@@ -69,27 +56,16 @@ interface TermIndex extends LabelConflictFinder {
 	 *
 	 * @since 0.4
 	 *
-	 * @param EntityId[] $ids
+	 * @param EntityId[] $entityIds
 	 * @param string $entityType
-	 * @param string|null $language language code
+	 * @param string[]|null $termTypes The types of terms to return, e.g. "label", "description",
+	 *        or "alias". Compare the Term::TYPE_XXX constants. If null, all types are returned.
+	 * @param string[]|null $languageCodes The desired languages, given as language codes.
+	 *        If null, all languages are returned.
 	 *
 	 * @return Term[]
 	 */
-	public function getTermsOfEntities( array $ids, $entityType, $language = null );
-
-	/**
-	 * Returns if a term with the specified parameters exists.
-	 *
-	 * @since 0.1
-	 *
-	 * @param string $termValue
-	 * @param string|null $termType
-	 * @param string|null $termLanguage Language code
-	 * @param string|null $entityType
-	 *
-	 * @return boolean
-	 */
-	public function termExists( $termValue, $termType = null, $termLanguage = null, $entityType = null );
+	public function getTermsOfEntities( array $entityIds, $entityType, array $termTypes = null, array $languageCodes = null );
 
 	/**
 	 * Returns the terms that match the provided conditions.

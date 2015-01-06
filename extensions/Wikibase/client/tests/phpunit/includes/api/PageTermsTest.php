@@ -9,7 +9,7 @@ use Language;
 use RequestContext;
 use Title;
 use Wikibase\Client\Api\PageTerms;
-use Wikibase\Client\Store\EntityIdLookup;
+use Wikibase\Store\EntityIdLookup;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -127,8 +127,8 @@ class PageTermsTest extends \MediaWikiTestCase {
 		$termIndex->expects( $this->any() )
 			->method( 'getTermsOfEntities' )
 			->will( $this->returnCallback(
-				function ( array $entityIds, $entityType, $language = null ) use( $termObjectsByEntityId, $this_ ) {
-					return $this_->getTermsOfEntities( $termObjectsByEntityId, $entityIds, $entityType, $language );
+				function ( array $entityIds, $entityType, $termTypes = null, $languages = null ) use( $termObjectsByEntityId, $this_ ) {
+					return $this_->getTermsOfEntities( $termObjectsByEntityId, $entityIds, $entityType, $termTypes, $languages );
 				}
 			) );
 
@@ -146,7 +146,7 @@ class PageTermsTest extends \MediaWikiTestCase {
 	 *
 	 * @return Term[]
 	 */
-	public function getTermsOfEntities( $termObjectsByEntityId, $entityIds, $entityType, $language = null ) {
+	public function getTermsOfEntities( $termObjectsByEntityId, $entityIds, $entityType, $termTypes, $languages ) {
 		$result = array();
 
 		foreach ( $entityIds as $id ) {
@@ -158,9 +158,15 @@ class PageTermsTest extends \MediaWikiTestCase {
 
 			/** @var Term $term */
 			foreach ( $termObjectsByEntityId[$key] as $term ) {
-				if ( $term->getLanguage() === $language ) {
-					$result[] = $term;
+				if ( $languages !== null && !in_array( $term->getLanguage(), $languages ) ) {
+					continue;
 				}
+
+				if ( $termTypes !== null && !in_array( $term->getType(), $termTypes ) ) {
+					continue;
+				}
+
+				$result[] = $term;
 			}
 		}
 
@@ -201,10 +207,11 @@ class PageTermsTest extends \MediaWikiTestCase {
 
 	/**
 	 * @param EntityId[] $entityIds
+	 *
 	 * @return EntityIdLookup
 	 */
 	private function getEntityIdLookup( $entityIds ) {
-		$idLookup = $this->getMock( 'Wikibase\Client\Store\EntityIdLookup' );
+		$idLookup = $this->getMock( 'Wikibase\Store\EntityIdLookup' );
 		$idLookup->expects( $this->any() )
 			->method( 'getEntityIds' )
 			->will( $this->returnValue( $entityIds ) );

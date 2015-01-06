@@ -38,19 +38,10 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	options: {
 		template: 'wikibase-sitelinklistview',
 		templateParams: [
-			'', // table header
-			'', // listview
-			function() {
-				return mw.wbTemplate( 'wikibase-sitelinklistview-tfoot',
-					this.isFull() ? mw.msg( 'wikibase-sitelinksedittool-full' ) : '',
-					'' // toolbar
-				);
-			}
+			'' // listview
 		],
 		templateShortCuts: {
-			'$thead': 'thead',
-			'$listview': 'tbody',
-			'$tfoot': 'tfoot'
+			'$listview': 'ul'
 		},
 		value: [],
 		allowedSiteIds: [],
@@ -76,11 +67,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 
 		PARENT.prototype._create.call( this );
 
-		if( this.element.children( 'thead' ).children().length ) {
-			// Initially sort on the site id column.
-			this.element.tablesorter( { sortList: [{ 1: 'asc' }] } );
-		}
-
 		this._eventSingletonManager = this.options.eventSingletonManager
 			|| new $.util.EventSingletonManager();
 
@@ -91,10 +77,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 * @see jQuery.ui.EditableTemplatedWidget.destroy
 	 */
 	destroy: function() {
-		this.$thead.data( 'sticknode' ).destroy();
 		this.$listview.data( 'listview' ).destroy();
 		this.$listview.off( '.' + this.widgetName );
-		this.element.removeData( 'tablesorter' );
 		this.element.removeClass( 'wikibase-sitelinklistview' );
 
 		this._eventSingletonManager.unregister( this, window, '.' + this.widgetName );
@@ -122,14 +106,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			this.element
 			.off( event, updateAutoInput )
 			.on( event, updateAutoInput );
-		}
-
-		if( !this.$thead.data( 'sticknode' ) ) {
-			this.$thead.sticknode( {
-				$container: this.element
-			} );
-
-			this._applyStickiness();
 		}
 
 		return $.Deferred().resolve().promise();
@@ -161,7 +137,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				}
 			} ),
 			value: self.options.value || null,
-			listItemNodeName: 'TR'
+			listItemNodeName: 'LI'
 		} )
 		.on( prefix + 'change.' + this.widgetName, function( event ) {
 			event.stopPropagation();
@@ -172,7 +148,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		} )
 		.on( prefix + 'toggleerror.' + this.widgetName, function( event, error ) {
 			event.stopPropagation();
-			self.setError( error );
 		} )
 		.on( 'keydown.' + this.widgetName, function( event ) {
 			if( event.keyCode === $.ui.keyCode.BACKSPACE ) {
@@ -200,54 +175,9 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			+ ' listviewitemadded.' + this.widgetName,
 			function( event ) {
 				self._refreshCounter();
-				self._refreshTableHeader();
 				self._trigger( 'change' );
 			}
 		);
-	},
-
-	_applyStickiness: function() {
-		var self = this,
-			stickyNode = this.$thead.data( 'sticknode' );
-
-		this.$thead.on( 'sticknodeupdate', function() {
-			if( !stickyNode.isFixed() ) {
-				return;
-			}
-
-			var $firstBodyTrTds = self.$listview.find( 'tr:first td' );
-
-			if( !$firstBodyTrTds.length ) {
-				return;
-			}
-
-			self.$thead.find( 'th' ).each( function( i ) {
-				var $th = $( this );
-
-				if( !self.isInEditMode() ) {
-					$th.removeAttr( 'style' );
-				}
-
-				if( i === 2 && !self.isInEditMode() ) {
-					return;
-				}
-
-				var width = $firstBodyTrTds.eq( i ).width();
-
-				// Translate border width and padding added by tablesorter:
-				if( i === 0 ) {
-					width -= 10;
-				} else if( i === 3 ) {
-					width += 1;
-				} else {
-					width -= 11;
-				}
-
-				$th.width( width );
-			} );
-
-			self.$thead.width( self.element.width() );
-		} );
 	},
 
 	/**
@@ -286,36 +216,20 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	_updateAutoInput: function() {
-		/**
-		 * @param {jQuery} $sitelinkview
-		 * @return {boolean}
-		 */
-		function moreThanOneEmpty( $sitelinkview ) {
-			var emptyItems = 0;
-
-			$sitelinkview.each( function() {
-				if( $( this ).data( 'sitelinkview' ).isEmpty() ) {
-					return ++emptyItems === 2;
-				}
-			} );
-
-			return emptyItems === 2;
-		}
-
 		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter(),
 			$items = listview.items(),
 			$lastSitelinkview = $items.last(),
 			lastSitelinkview = lia.liInstance( $lastSitelinkview ),
-			multipleEmpty = moreThanOneEmpty( $items ).length > 1,
 			secondToLast = $items.length > 1 && lia.liInstance( $items.eq( -2 ) ),
+			secondToLastEmpty = secondToLast && secondToLast.isEmpty(),
 			secondToLastInvalidPending
 				= secondToLast && !secondToLast.isValid() && !secondToLast.option( 'value' );
 
 		if(
 			lastSitelinkview
 			&& lastSitelinkview.isEmpty()
-			&& ( multipleEmpty || secondToLastInvalidPending )
+			&& ( secondToLastEmpty || secondToLastInvalidPending )
 		) {
 			listview.removeItem( $lastSitelinkview );
 		} else if( !lastSitelinkview || lastSitelinkview.isValid() && !this.isFull() ) {
@@ -456,8 +370,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	startEditing: function() {
 		var self = this;
 
-		this._refreshTablesorter();
-
 		this._eventSingletonManager.register(
 			this,
 			window,
@@ -473,50 +385,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		self._startEditingInViewport();
 
 		return PARENT.prototype.startEditing.call( this );
-	},
-
-	_refreshTablesorter: function() {
-		if( this.isInEditMode() ) {
-			// Re-sorting the table involves reconstructing the table's DOM. This may lead to
-			// interference with focusing (IE, though it does not lose focus, is unable to reflect
-			// character input into the input box).
-			return;
-		}
-
-		this.element.removeData( 'tablesorter' );
-
-		if( this.$thead.children().length ) {
-			this.element.tablesorter();
-			this.element.data( 'tablesorter' ).sort( [] );
-		}
-	},
-
-	_refreshTableHeader: function() {
-		var $items = this.$listview.data( 'listview' ).items();
-
-		if( !$items.length ) {
-			this.$thead.empty();
-			return;
-		} else if( this.$thead.children().length ) {
-			this._refreshTablesorter();
-			return;
-		}
-
-		var siteNameMessageKey = 'wikibase-sitelinks-sitename-columnheading';
-
-		// FIXME: quickfix to allow a custom site-name / handling for the site groups which
-		// are special according to the specialSiteLinkGroups setting
-		if( this.element.data( 'wikibase-sitelinks-group' ) === 'special' ) {
-			siteNameMessageKey += '-special';
-		}
-
-		this.$thead.append( mw.wbTemplate( 'wikibase-sitelinklistview-thead',
-			mw.message( siteNameMessageKey ).text(),
-			mw.message( 'wikibase-sitelinks-siteid-columnheading' ).text(),
-			mw.message( 'wikibase-sitelinks-link-columnheading' ).text()
-		) );
-
-		this._refreshTablesorter();
 	},
 
 	_startEditingInViewport: function() {
@@ -816,7 +684,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		if( key === 'value' ) {
 			this.$listview.data( 'listview' ).value( value );
 			this._refreshCounter();
-			this._refreshTableHeader();
 		} else if( key === 'disabled' ) {
 			this.$listview.data( 'listview' ).option( key, value );
 		}
@@ -883,17 +750,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	_afterRemove: function() {
-		if( !this.options.value.length ) {
-			// Removed last site link.
-			this.$thead.empty();
-		}
-
 		this._refreshCounter();
-		this._refreshTableHeader();
-
-		if( !this.isFull() ) {
-			this.$tfoot.find( 'tr td' ).first().text( '' );
-		}
 	},
 
 	/**
@@ -922,24 +779,15 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 
 				if( !dropValue && siteLink ) {
 					listview.addItem( siteLink );
-
-					if( self.isFull() ) {
-						self.$tfoot.find( 'tr td' ).first()
-							.text( mw.msg( 'wikibase-sitelinksedittool-full' ) );
-					}
 				}
 
 				if( self.__pendingItems && --self.__pendingItems !== 0 ) {
 					return;
 				}
 
-				self._refreshTableHeader();
 				self._refreshCounter();
-
-				self._trigger( 'afterstopediting', null, [dropValue] );
 			} );
 
-			self._refreshTableHeader();
 			self._refreshCounter();
 
 			if( !self.isInEditMode() ) {
@@ -951,7 +799,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			this.__pendingItems = this.__pendingItems ? this.__pendingItems + 1 : 1;
 		} );
 	}
-
 } );
 
 /**

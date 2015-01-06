@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\EntityTermLookup;
 
@@ -10,7 +9,7 @@ use Wikibase\Lib\Store\EntityTermLookup;
  * @covers Wikibase\Lib\Store\EntityTermLookup
  *
  * @licence GNU GPL v2+
- * @author Katie Filbert
+ * @author Katie Filbert < aude.wiki@gmail.com >
  */
 class EntityTermLookupTest extends \MediaWikiTestCase {
 
@@ -39,15 +38,6 @@ class EntityTermLookupTest extends \MediaWikiTestCase {
 		$labels = $termLookup->getLabels( new ItemId( 'Q116' ) );
 		$this->assertEquals( $expected, $labels );
 	}
-
-	public function testGetLabels_entityNotFoundThrowsStorageException() {
-		$termLookup = $this->getEntityTermLookup();
-
-		$this->setExpectedException( 'Wikibase\Lib\Store\StorageException' );
-
-		$termLookup->getLabels( new ItemId( 'Q9999' ) );
-	}
-
 
 	public function testGetDescription() {
 		$termLookup = $this->getEntityTermLookup();
@@ -79,18 +69,8 @@ class EntityTermLookupTest extends \MediaWikiTestCase {
 	}
 
 	private function getEntityTermLookup() {
-		$entityLookup = $this->getMockBuilder( 'Wikibase\Lib\Store\EntityLookup' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$entityLookup->expects( $this->any() )
-			->method( 'hasEntity' )
-			->will( $this->returnCallback( function( EntityId $entityId ) {
-				return $entityId->getSerialization() === 'Q116';
-			} ) );
-
 		$termIndex = $this->getTermIndex();
-		return new EntityTermLookup( $termIndex, $entityLookup );
+		return new EntityTermLookup( $termIndex );
 	}
 
 	private function getTermIndex() {

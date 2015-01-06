@@ -6,6 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\Lib\Store\LabelConflictFinder;
 use Wikibase\Term;
 use Wikibase\TermIndex;
 
@@ -24,7 +25,7 @@ use Wikibase\TermIndex;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class MockTermIndex implements TermIndex {
+class MockTermIndex implements TermIndex, LabelConflictFinder {
 
 	/**
 	 * @var Term[]
@@ -180,25 +181,52 @@ class MockTermIndex implements TermIndex {
 	}
 
 	/**
+	 * @param EntityId $id
+	 * @param string[]|null $termTypes
+	 * @param string[]|null $languages
+	 *
 	 * @return Term[]
 	 */
-	public function getTermsOfEntity( EntityId $id ) {
+	public function getTermsOfEntity( EntityId $id, array $termTypes = null, array $languages = null ) {
 		$matchingTerms = array();
 
+		if ( $termTypes ) {
+			$termTypes = array_flip( $termTypes );
+		}
+
+		if ( $languages ) {
+			$languages = array_flip( $languages );
+		}
+
 		foreach( $this->terms as $term ) {
-			if ( $term->getEntityId()->equals( $id ) ) {
-				$matchingTerms[] = $term;
+			if ( $termTypes !== null && !isset( $termTypes[$term->getType()] ) ) {
+				continue;
 			}
+
+			if ( $languages !== null && !isset( $languages[$term->getLanguage()] ) ) {
+				continue;
+			}
+
+			if ( !$id->equals( $term->getEntityId() ) ) {
+				continue;
+			}
+
+			$matchingTerms[] = $term;
 		}
 
 		return $matchingTerms;
 	}
 
 	/**
-	 * @throws Exception always
+	 * @see TermIndex::getTermsOfEntities
 	 */
-	public function getTermsOfEntities( array $ids, $entityType, $language = null ) {
-		throw new Exception( 'not implemented by mock class ' );
+	public function getTermsOfEntities( array $entityIds, $entityType, array $termTypes = null, array $languageCodes = null ) {
+		$terms = array();
+		foreach ( $entityIds as $id ) {
+			$terms = array_merge( $terms, $this->getTermsOfEntity( $id, $termTypes, $languageCodes ) );
+		}
+
+		return $terms;
 	}
 
 	/**

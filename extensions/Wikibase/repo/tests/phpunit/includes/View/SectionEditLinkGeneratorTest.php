@@ -3,6 +3,8 @@
 namespace Wikibase\Test;
 
 use Wikibase\Repo\View\SectionEditLinkGenerator;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\SectionEditLinkGenerator
@@ -12,7 +14,7 @@ use Wikibase\Repo\View\SectionEditLinkGenerator;
  * @group EntityView
  *
  * @licence GNU GPL v2+
- * @author Katie Filbert
+ * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
  * @author Adrian Lang
  */
@@ -22,7 +24,7 @@ class SectionEditLinkGeneratorTest extends \MediaWikiLangTestCase {
 	 * @dataProvider getHtmlForEditSectionProvider
 	 */
 	public function testGetHtmlForEditSection( $expected, $pageName, $action, $enabled, $langCode ) {
-		$generator = new SectionEditLinkGenerator();
+		$generator = $this->newSectionEditLinkGenerator();
 
 		$key = $action === 'add' ? 'wikibase-add' : 'wikibase-edit';
 		$msg = wfMessage( $key )->inLanguage( $langCode );
@@ -60,7 +62,7 @@ class SectionEditLinkGeneratorTest extends \MediaWikiLangTestCase {
 	 * @dataProvider getHtmlForEditSection_editUrlProvider
 	 */
 	public function testGetHtmlForEditSection_editUrl( $expected, $specialPageName, $specialPageParams ) {
-		$generator = new SectionEditLinkGenerator();
+		$generator = $this->newSectionEditLinkGenerator();
 
 		$html = $generator->getHtmlForEditSection(
 			$specialPageName,
@@ -97,7 +99,7 @@ class SectionEditLinkGeneratorTest extends \MediaWikiLangTestCase {
 	 * @dataProvider getHtmlForEditSection_disabledProvider
 	 */
 	public function testGetHtmlForEditSection_disabled( $specialPageName, $specialPageUrlParams, $enabled ) {
-		$generator = new SectionEditLinkGenerator();
+		$generator = $this->newSectionEditLinkGenerator();
 
 		$html = $generator->getHtmlForEditSection(
 			$specialPageName,
@@ -119,4 +121,7 @@ class SectionEditLinkGeneratorTest extends \MediaWikiLangTestCase {
 		);
 	}
 
+	private function newSectionEditLinkGenerator() {
+		return new SectionEditLinkGenerator( new TemplateFactory( TemplateRegistry::getDefaultInstance() ) );
+	}
 }

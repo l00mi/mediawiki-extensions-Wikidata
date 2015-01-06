@@ -11,8 +11,9 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Repo\View\SectionEditLinkGenerator;
-use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Repo\View\SiteLinksView;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\SiteLinksView
@@ -25,32 +26,6 @@ use Wikibase\Repo\View\SiteLinksView;
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
-
-	private $settings = array(
-		'specialSiteLinkGroups' => array( 'special group' ),
-		'badgeItems' => array(
-			'Q42' => 'wb-badge-featuredarticle',
-			'Q12' => 'wb-badge-goodarticle'
-		)
-	);
-
-	protected function setUp() {
-		parent::setUp();
-		$this->switchSettings();
-	}
-
-	protected function tearDown() {
-		parent::tearDown();
-		$this->switchSettings();
-	}
-
-	private function switchSettings() {
-		$settings = WikibaseRepo::getDefaultInstance()->getSettings();
-		foreach ( $this->settings as $name => $value ) {
-			$this->settings[$name] = $settings->getSetting( $name );
-			$settings->setSetting( $name, $value );
-		}
-	}
 
 	/**
 	 * @dataProvider getHtmlProvider
@@ -80,7 +55,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 					'data-wb-sitelinks-group' => 'wikipedia'
 				),
 				'descendant' => array(
-					'tag' => 'td',
+					'tag' => 'span',
 					'class' => 'wikibase-sitelinkview-link-enwiki',
 					'content' => 'test'
 				)
@@ -97,7 +72,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 					'data-wb-sitelinks-group' => 'wikipedia'
 				),
 				'descendant' => array(
-					'tag' => 'td',
+					'tag' => 'span',
 					'class' => 'wikibase-sitelinkview-link-enwiki',
 					'content' => 'test'
 				)
@@ -117,34 +92,6 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 				'attributes' => array(
 					'data-wb-sitelinks-group' => 'special'
 				),
-				'child' => array(
-					'tag' => 'table',
-					'child' => array(
-						'tag' => 'thead',
-						'child' => array(
-							'tag' => 'tr'
-						)
-					)
-				)
-			)
-		);
-
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1' ) );
-
-		$testCases[] = array(
-			$item,
-			array( 'wikipedia', 'special' ),
-			true,
-			array(
-				'tag' => 'div',
-				'descendant' => array(
-					'tag' => 'table',
-					'child' => array(
-						'tag' => 'thead',
-						'content' => ''
-					)
-				)
 			)
 		);
 
@@ -241,10 +188,17 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 	 * @return SiteLinksView
 	 */
 	private function getSiteLinksView() {
+
 		return new SiteLinksView(
+			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 			$this->newSiteList(),
 			$this->getSectionEditLinkGeneratorMock(),
 			$this->getEntityLookupMock(),
+			array(
+				'Q42' => 'wb-badge-featuredarticle',
+				'Q12' => 'wb-badge-goodarticle'
+			),
+			array( 'special group' ),
 			'en'
 		);
 	}

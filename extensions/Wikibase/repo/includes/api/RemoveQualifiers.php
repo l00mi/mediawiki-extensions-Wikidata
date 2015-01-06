@@ -25,7 +25,7 @@ class RemoveQualifiers extends ModifyClaim {
 	/**
 	 * @var ClaimChangeOpFactory
 	 */
-	protected $claimChangeOpFactory;
+	private $claimChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -78,10 +78,8 @@ class RemoveQualifiers extends ModifyClaim {
 
 	/**
 	 * Check the provided parameters
-	 *
-	 * @since 0.4
 	 */
-	protected function validateParameters( array $params ) {
+	private function validateParameters( array $params ) {
 		if ( !( $this->claimModificationHelper->validateClaimGuid( $params['claim'] ) ) ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
@@ -91,11 +89,11 @@ class RemoveQualifiers extends ModifyClaim {
 	 * @since 0.4
 	 *
 	 * @param string $claimGuid
-	 * @param array $qualifierHashes
+	 * @param string[] $qualifierHashes
 	 *
-	 * @return ChangeOp[] $changeOps
+	 * @return ChangeOp[]
 	 */
-	protected function getChangeOps( $claimGuid, array $qualifierHashes ) {
+	private function getChangeOps( $claimGuid, array $qualifierHashes ) {
 		$changeOps = array();
 
 		foreach ( $qualifierHashes as $qualifierHash ) {
@@ -106,14 +104,12 @@ class RemoveQualifiers extends ModifyClaim {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $params
 	 * @param Claim $claim
 	 *
 	 * @return string[]
 	 */
-	protected function getQualifierHashesFromParams( array $params, Claim $claim ) {
+	private function getQualifierHashesFromParams( array $params, Claim $claim ) {
 		$qualifiers = $claim->getQualifiers();
 		$hashes = array();
 
@@ -152,46 +148,15 @@ class RemoveQualifiers extends ModifyClaim {
 	}
 
 	/**
-	 * @see \ApiBase::getParamDescription
-	 *
-	 * @since 0.3
+	 * @see ApiBase::getExamplesMessages()
 	 *
 	 * @return array
 	 */
-	public function getParamDescription() {
-		return array_merge(
-			parent::getParamDescription(),
-			array(
-				'claim' => 'A GUID identifying the claim from which to remove qualifiers',
-				'qualifiers' => 'Snak hashes of the qualifiers to remove',
-			)
+	protected function getExamplesMessages() {
+		return array(
+			'action=wbremovequalifiers&statement=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&references=1eb8793c002b1d9820c833d234a1b54c8e94187e&token=foobar&baserevid=7201010'=>
+				'apihelp-wbremovequalifiers-example-1',
 		);
 	}
 
-	/**
-	 * @see \ApiBase::getDescription
-	 *
-	 * @since 0.3
-	 *
-	 * @return string
-	 */
-	public function getDescription() {
-		return array(
-			'API module for removing a qualifier from a claim.'
-		);
-	}
-
-	/**
-	 * @see \ApiBase::getExamples
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
-	 */
-	protected function getExamples() {
-		return array(
-			'api.php?action=wbremovequalifiers&statement=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&references=1eb8793c002b1d9820c833d234a1b54c8e94187e&token=foobar&baserevid=7201010'=>
-				'Remove qualifier with hash "1eb8793c002b1d9820c833d234a1b54c8e94187e" from claim with GUID of "Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F"',
-		);
-	}
 }

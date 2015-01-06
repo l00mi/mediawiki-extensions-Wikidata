@@ -12,6 +12,8 @@
 	"tooltip-t-wikibase": "Odkaz na propojenou položku datového úložiště",
 	"wikibase-after-page-move": "Můžete také [$1 aktualizovat] související položku {{grammar:2sg|{{WBREPONAME}}}}, aby na přesunuté stránce zůstaly odkazy na další jazyky.",
 	"wikibase-after-page-move-queued": "Související [$1 položka {{grammar:2sg|{{WBREPONAME}}}}] bude zanedlouho automaticky aktualizována.",
+	"wikibase-after-page-delete": "Můžete také provést údržbu mezijazykových odkazů odstraněním odkazu na tuto stránku z [$1 položky {{grammar:2sg|{{WBREPONAME}}}}].",
+	"wikibase-after-page-delete-queued": "Související [$1 položka {{grammar:2sg|{{WBREPONAME}}}}] bude zanedlouho automaticky aktualizována.",
 	"wikibase-comment-add": "Byla vytvořena položka na {{grammar:6sg|{{WBREPONAME}}}}.",
 	"wikibase-comment-remove": "Související položka {{grammar:2sg|{{WBREPONAME}}}} odstraněna. Mezijazykové odkazy odstraněny.",
 	"wikibase-comment-linked": "S touto stránkou byla na {{grammar:6sg|{{WBREPONAME}}}} propojena položka.",
@@ -46,8 +48,9 @@
 	"wikibase-rc-show-wikidata-pref": "Zobrazit změny {{grammar:2sg|{{WBREPONAME}}}} v posledních změnách",
 	"wikibase-rc-wikibase-edit-letter": "D",
 	"wikibase-rc-wikibase-edit-title": "Editace {{grammar:2sg|{{WBREPONAME}}}}",
+	"wikibase-replicationnote": "Vezměte prosím na vědomí, že než se změny projeví na všech wiki, může to trvat pár minut.",
 	"wikibase-watchlist-show-changes-pref": "Zobrazit změny {{grammar:2sg|{{WBREPONAME}}}} ve sledovaných stránkách",
-	"wikibase-error-serialize-error": "Nepodařilo se zaserializovat data",
+	"wikibase-error-serialize-error": "Nepodařilo se zaserializovat data.",
 	"wikibase-error-invalid-entity-id": "Systém zadané ID nezná. Použijte platné ID entity.",
 	"special-unconnectedpages": "Stránky nepropojené s položkou",
 	"wikibase-unconnectedpages-legend": "Nastavení nepropojených stránek",
@@ -62,5 +65,5 @@
 	"wikibase-property-render-error": "Nepodařilo se zobrazit vlastnost $1: $2",
 	"wikibase-otherprojects": "Jiné projekty",
 	"wikibase-otherprojects-beta-message": "Panel Jiné projekty",
-	"wikibase-otherprojects-beta-description": "Přidává na postranní panel sekci „{{int:wikibase-otherprojects}}“ obsahující odkazy na ostatní projekty Wikimedia podle údajů na {{grammar:6sg|{{WBREPONAME}}}}."
+	"wikibase-otherprojects-beta-description": "Přidává do postranní lišty sekci „{{int:wikibase-otherprojects}}“, obsahující odkazy na ostatní projekty Wikimedia podle údajů na {{grammar:6sg|{{WBREPONAME}}}}."
 }

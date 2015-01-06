@@ -14,19 +14,17 @@ use MWException;
 use ParserOptions;
 use RequestContext;
 use Revision;
-use Status;
 use Title;
 use User;
-use ValueValidators\Result;
 use Wikibase\Content\DeferredDecodingEntityHolder;
 use Wikibase\Content\EntityHolder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityContent;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityRedirect;
-use Wikibase\Repo\EntityNamespaceLookup;
 use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\TermIndex;
@@ -36,7 +34,7 @@ use Wikibase\Validators\EntityValidator;
 use Wikibase\Validators\ValidatorErrorLocalizer;
 
 /**
- * Base handler class for Wikibase\DataModel\Entity\Entity content classes.
+ * Base handler class for Entity content classes.
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
@@ -89,7 +87,7 @@ abstract class EntityHandler extends ContentHandler {
 	 *        the blob an the serialization format. It must return true if re-serialization is needed.
 	 *        False positives are acceptable, false negatives are not.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(
 		$modelId,
@@ -143,7 +141,7 @@ abstract class EntityHandler extends ContentHandler {
 	 * @return string
 	 */
 	protected function getDiffEngineClass() {
-		return '\Wikibase\Repo\Diff\EntityContentDiffView';
+		return 'Wikibase\Repo\Diff\EntityContentDiffView';
 	}
 
 	/**
@@ -408,6 +406,7 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @param Title $target
 	 *
+	 * @throws EntityIdParsingException
 	 * @return EntityId
 	 */
 	public function getIdForTitle( Title $target ) {
@@ -426,7 +425,7 @@ abstract class EntityHandler extends ContentHandler {
 	 * @param EntityId $id
 	 *
 	 * @throws InvalidArgumentException if $id refers to an entity of the wrong type.
-	 * @return Title $target
+	 * @return Title
 	 */
 	public function getTitleForId( EntityId $id ) {
 		if ( $id->getEntityType() !== $this->getEntityType() ) {
@@ -434,8 +433,7 @@ abstract class EntityHandler extends ContentHandler {
 				. $this->getEntityType() );
 		}
 
-		$title = Title::makeTitle( $this->getEntityNamespace(), $id->getSerialization() );
-		return $title;
+		return Title::makeTitle( $this->getEntityNamespace(), $id->getSerialization() );
 	}
 
 	/**

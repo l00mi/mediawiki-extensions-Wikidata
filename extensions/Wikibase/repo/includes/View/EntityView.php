@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Language;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\EntityRevision;
+use Wikibase\Template\TemplateFactory;
 
 /**
  * Base class for creating views for all different kinds of Wikibase\Entity.
@@ -26,9 +27,14 @@ use Wikibase\EntityRevision;
 abstract class EntityView {
 
 	/**
+	 * @var TemplateFactory
+	 */
+	protected $templateFactory;
+
+	/**
 	 * @var FingerprintView
 	 */
-	protected $fingerprintView;
+	private $fingerprintView;
 
 	/**
 	 * @var ClaimsView
@@ -48,15 +54,17 @@ abstract class EntityView {
 	/**
 	 * @var TextInjector
 	 */
-	protected $textInjector;
+	private $textInjector;
 
 	/**
+	 * @param TemplateFactory $templateFactory
 	 * @param FingerprintView $fingerprintView
 	 * @param ClaimsView $claimsView
 	 * @param Language $language
 	 * @param bool $editable
 	 */
 	public function __construct(
+		TemplateFactory $templateFactory,
 		FingerprintView $fingerprintView,
 		ClaimsView $claimsView,
 		Language $language,
@@ -68,6 +76,7 @@ abstract class EntityView {
 		$this->editable = $editable;
 
 		$this->textInjector = new TextInjector();
+		$this->templateFactory = $templateFactory;
 	}
 
 	/**
@@ -101,7 +110,7 @@ abstract class EntityView {
 
 		$entityId = $entity->getId() ?: 'new'; // if id is not set, use 'new' suffix for css classes
 
-		$html = wfTemplate( 'wikibase-entityview',
+		$html = $this->templateFactory->render( 'wikibase-entityview',
 			$entity->getType(),
 			$entityId,
 			$this->language->getCode(),
@@ -176,7 +185,7 @@ if ( $ ) {
 	 *
 	 * @return string
 	 */
-	protected function getHtmlForFingerprint( Entity $entity ) {
+	private function getHtmlForFingerprint( Entity $entity ) {
 		return $this->fingerprintView->getHtml( $entity->getFingerprint(), $entity->getId(), $this->editable );
 	}
 
@@ -185,7 +194,7 @@ if ( $ ) {
 	 *
 	 * @return string
 	 */
-	protected function getHtmlForToc() {
+	private function getHtmlForToc() {
 		$tocSections = $this->getTocSections();
 
 		if ( count( $tocSections ) < 2 ) {
@@ -202,14 +211,14 @@ if ( $ ) {
 		$i = 1;
 
 		foreach ( $tocSections as $id => $message ) {
-			$tocContent .= wfTemplate( 'wb-entity-toc-section',
+			$tocContent .= $this->templateFactory->render( 'wb-entity-toc-section',
 				$i++,
 				$id,
 				wfMessage( $message )->text()
 			);
 		}
 
-		return wfTemplate( 'wb-entity-toc',
+		return $this->templateFactory->render( 'wb-entity-toc',
 			wfMessage( 'toc' )->text(),
 			$tocContent
 		);
@@ -229,7 +238,7 @@ if ( $ ) {
 	 *
 	 * @return string
 	 */
-	protected function getHtmlForTermBox( EntityRevision $entityRevision ) {
+	private function getHtmlForTermBox( EntityRevision $entityRevision ) {
 		$entityId = $entityRevision->getEntity()->getId();
 
 		if ( $entityId !== null ) {

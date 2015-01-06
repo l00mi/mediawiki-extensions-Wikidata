@@ -21,8 +21,16 @@ version 2.0 of this package:
 
 ## Release notes
 
+### 2.0.2 (2014-12-17)
+
+#### Bugfixes
+* Fixed parameter order when instantiating `dataValues.UnUnserializableValue` in `SnakSerializer`.
+
+#### Enhancements
+* Updated code documentation for being able to automatically generate a proper documentation using JSDuck.
+
 ### 2.0.1 (2014-11-05)
-* Fixed requiring DataModel JavaScript version.
+* Fixed the required DataModel JavaScript version.
 
 ### 2.0 (2014-11-05)
 
@@ -89,3 +97,7 @@ version 2.0 of this package:
 ### 1.0.0 (2014-07-03)
 
 Initial release as a library.
+
+# Bugs on Phabricator
+
+https://phabricator.wikimedia.org/project/view/919/

@@ -39,10 +39,20 @@ class SpecialMyLanguageFallbackChain extends SpecialPage {
 	}
 
 	/**
+	 * @see SpecialPage::getGroupName
+	 *
+	 * @return string
+	 */
+	protected function getGroupName() {
+		return 'wikibaserepo';
+	}
+
+	/**
 	 * @see SpecialPage::getDescription
 	 *
 	 * @since 0.4
-	 * @return String
+	 *
+	 * @return string
 	 */
 	public function getDescription() {
 		// Message: special-mylanguagefallbackchain
@@ -82,11 +92,11 @@ class SpecialMyLanguageFallbackChain extends SpecialPage {
 	}
 
 	/**
-	 * Main method
+	 * @see SpecialPage::execute
 	 *
 	 * @since 0.4
 	 *
-	 * @param string $subPage
+	 * @param string|null $subPage
 	 */
 	public function execute( $subPage ) {
 		$this->setHeaders();

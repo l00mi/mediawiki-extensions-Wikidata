@@ -54,6 +54,17 @@ class SpecialUnconnectedPages extends SpecialPage {
 	}
 
 	/**
+	 * @see SpecialPage::getGroupName
+	 *
+	 * @return string
+	 */
+	protected function getGroupName() {
+		return 'wikibaseclient';
+	}
+
+	/**
+	 * @see SpecialPage::getDescription
+	 *
 	 * @return string
 	 */
 	public function getDescription() {
@@ -69,13 +80,11 @@ class SpecialUnconnectedPages extends SpecialPage {
 	/**
 	 * @see SpecialPage::execute
 	 *
-	 * @param null|string $subPage
+	 * @param string|null $subPage
 	 */
 	public function execute( $subPage ) {
 		$this->setHeaders();
-
-		$contLang = $this->getContext()->getLanguage();
-		$this->outputHeader( $contLang->lc( 'wikibase-' . $this->getName() ) . '-summary' );
+		$this->outputHeader( 'wikibase-' . strtolower( $this->getName() ) . '-summary' );
 
 		// If the user is authorized, display the page, if not, show an error.
 		if ( !$this->userCanExecute( $this->getUser() ) ) {

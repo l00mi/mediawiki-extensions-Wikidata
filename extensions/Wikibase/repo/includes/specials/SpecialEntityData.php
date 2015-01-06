@@ -73,30 +73,30 @@ class SpecialEntityData extends SpecialWikibasePage {
 	private function newDefaultRequestHandler() {
 		global $wgUseSquid, $wgApiFrameOptions;
 
-		$repo = WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
-		$entityRevisionLookup = $repo->getEntityRevisionLookup();
-		$titleLookup = $repo->getEntityTitleLookup();
-		$entityIdParser = $repo->getEntityIdParser();
+		$entityRevisionLookup = $wikibaseRepo->getEntityRevisionLookup();
+		$titleLookup = $wikibaseRepo->getEntityTitleLookup();
+		$entityIdParser = $wikibaseRepo->getEntityIdParser();
 
 		$serializationOptions = new SerializationOptions();
 		$serializerFactory = new SerializerFactory(
 			$serializationOptions,
-			$repo->getPropertyDataTypeLookup(),
+			$wikibaseRepo->getPropertyDataTypeLookup(),
 			EntityFactory::singleton()
 		);
 
 		$serializationService = new EntityDataSerializationService(
-			$repo->getSettings()->getSetting( 'conceptBaseUri' ),
+			$wikibaseRepo->getSettings()->getSetting( 'conceptBaseUri' ),
 			$this->getPageTitle()->getCanonicalURL() . '/',
-			$repo->getStore()->getEntityLookup(),
+			$wikibaseRepo->getStore()->getEntityLookup(),
 			$titleLookup,
 			$serializerFactory,
-			$repo->getSiteStore()->getSites()
+			$wikibaseRepo->getSiteStore()->getSites()
 		);
 
-		$maxAge = $repo->getSettings()->getSetting( 'dataSquidMaxage' );
-		$formats = $repo->getSettings()->getSetting( 'entityDataFormats' );
+		$maxAge = $wikibaseRepo->getSettings()->getSetting( 'dataSquidMaxage' );
+		$formats = $wikibaseRepo->getSettings()->getSetting( 'entityDataFormats' );
 		$serializationService->setFormatWhiteList( $formats );
 
 		$defaultFormat = empty( $formats ) ? 'html' : $formats[0];
@@ -132,14 +132,13 @@ class SpecialEntityData extends SpecialWikibasePage {
 	}
 
 	/**
-	 * Main method.
+	 * @see SpecialWikibasePage::execute
 	 *
 	 * @since 0.4
 	 *
 	 * @param string|null $subPage
 	 *
 	 * @throws HttpError
-	 * @return bool
 	 */
 	public function execute( $subPage ) {
 		$this->initDependencies();
@@ -148,12 +147,10 @@ class SpecialEntityData extends SpecialWikibasePage {
 		// TODO: Don't do this if HTML is not acceptable according to HTTP headers.
 		if ( !$this->requestHandler->canHandleRequest( $subPage, $this->getRequest() ) ) {
 			$this->showForm();
-			return true;
+			return;
 		}
 
 		$this->requestHandler->handleRequest( $subPage, $this->getRequest(), $this->getOutput() );
-
-		return true;
 	}
 
 	/**

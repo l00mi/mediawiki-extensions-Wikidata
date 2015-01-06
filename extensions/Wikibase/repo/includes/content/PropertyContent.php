@@ -2,13 +2,10 @@
 
 namespace Wikibase;
 
-use Language;
 use InvalidArgumentException;
 use Wikibase\Content\EntityHolder;
 use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\Repo\View\ClaimsView;
-use Wikibase\Repo\View\FingerprintView;
 
 /**
  * Content object for articles representing Wikibase properties.

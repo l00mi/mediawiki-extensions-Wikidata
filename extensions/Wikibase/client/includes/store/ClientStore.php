@@ -2,7 +2,7 @@
 
 namespace Wikibase;
 
-use Wikibase\Client\Store\EntityIdLookup;
+use Wikibase\Store\EntityIdLookup;
 use Wikibase\Client\Usage\SubscriptionManager;
 use Wikibase\Client\Usage\UsageLookup;
 use Wikibase\Client\Usage\UsageTracker;
@@ -26,7 +26,7 @@ interface ClientStore {
 	 *
 	 * @return SiteLinkLookup
 	 */
-	public function getSiteLinkTable();
+	public function getSiteLinkLookup();
 
 	/**
 	 * @since 0.5

@@ -45,7 +45,7 @@
 				'statementview',
 				'descriptionview',
 				'labelview',
-				'fingerprintgroupview',
+				'entitytermsview',
 				'referenceview',
 				'sitelinkgroupview'
 			],
@@ -108,6 +108,8 @@
 	/**
 	 * @param {wikibase.datamodel.Entity} entity
 	 * @param {jQuery} $entityview
+	 *
+	 * @throws {Error} if no widget to render the entity exists.
 	 */
 	function createEntityDom( entity, $entityview ) {
 		var repoConfig = mw.config.get( 'wbRepo' );
@@ -121,9 +123,15 @@
 				entity
 			);
 
-		$entityview
-		.entityview( {
+		var view = entity.getType() + 'view';
+
+		if( !$.wikibase[view] ) {
+			throw new Error( 'View for entity type ' + entity.getType() + ' does not exist' );
+		}
+
+		$entityview[entity.getType() + 'view']( {
 			value: entity,
+			languages: getUserLanguages(),
 			entityChangersFactory: entityChangersFactory,
 			entityStore: entityStore,
 			valueViewBuilder: new wb.ValueViewBuilder(
@@ -133,8 +141,7 @@
 				mw.config.get( 'wgUserLanguage' ),
 				mw
 			),
-			dataTypeStore: dataTypeStore,
-			languages: getUserLanguages()
+			dataTypeStore: dataTypeStore
 		} )
 		.on( 'labelviewchange labelviewafterstopediting', function( event ) {
 			var $labelview = $( event.target ),
@@ -167,6 +174,8 @@
 			languages = $.merge( [], userLanguages );
 			languages.splice( $.inArray( mw.config.get( 'wgUserLanguage' ), userLanguages ), 1 );
 		}
+
+		languages.unshift( mw.config.get( 'wgUserLanguage' ) );
 
 		return languages;
 	}
@@ -251,15 +260,37 @@
 		}
 
 		var $message = $( '<span><p>' + copyRightMessageHtml + '</p></span>' ),
-			edittoolbar = $origin.data( 'edittoolbar' );
+			$hideMessage = $( '<a/>', {
+				text: mw.msg( 'wikibase-copyrighttooltip-acknowledge' )
+			} ).appendTo( $message ),
+			editableTemplatedWidget = $origin.data( 'EditableTemplatedWidget' );
+
+		// TODO: Use notification system for copyright messages on all widgets.
+		if( editableTemplatedWidget ) {
+			editableTemplatedWidget.notification( $message, 'wb-edit' );
+
+			$hideMessage.on( 'click', function( event ) {
+				event.preventDefault();
+				editableTemplatedWidget.notification();
+				if( mw.user.isAnon() ) {
+					$.cookie( cookieKey, copyRightVersion, { 'expires': 365 * 3, 'path': '/' } );
+				} else {
+					var api = new mw.Api();
+					api.postWithToken( 'options', {
+						'action': 'options',
+						'optionname': optionsKey,
+						'optionvalue': copyRightVersion
+					} );
+				}
+			} );
+			return;
+		}
+
+		var edittoolbar = $origin.data( 'edittoolbar' );
 
 		if( !edittoolbar ) {
 			return;
 		}
-
-		var $hideMessage = $( '<a/>', {
-			text: mw.msg( 'wikibase-copyrighttooltip-acknowledge' )
-		} ).appendTo( $message );
 
 		// Tooltip gets its own anchor since other elements might have their own tooltip.
 		// we don't even have to add this new toolbar element to the toolbar, we only use it

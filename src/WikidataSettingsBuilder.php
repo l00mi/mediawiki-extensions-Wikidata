@@ -51,8 +51,12 @@ class WikidataSettingsBuilder {
 	private function addSharedCacheKeyPrefix() {
 		$suffix = time();
 
-		if ( $this->composerConfig !== null && $this->composerConfig->has( 'autoloader-suffix' ) ) {
-			$suffix = $this->composerConfig->get( 'autoloader-suffix' );
+		if ( $this->composerConfig !== null ) {
+			$autoloaderSuffix = $this->composerConfig->get( 'autoloader-suffix' );
+
+			if ( $autoloaderSuffix !== null ) {
+				$suffix = $autoloaderSuffix;
+			}
 		}
 
 		$this->commonSettings['sharedCacheKeyPrefix'] = 'wikibase:WBL/' . $suffix;

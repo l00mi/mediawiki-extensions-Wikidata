@@ -27,6 +27,7 @@ return call_user_func( function() {
 				'jquery.inputautoexpand',
 				'jquery.ui.tagadata',
 				'jquery.ui.EditableTemplatedWidget',
+				'jquery.util.getDirectionality',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase.datamodel.MultiTerm',
@@ -49,9 +50,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.menu',
 				'jquery.ui.TemplatedWidget',
-				'wikibase.datamodel',
 				'wikibase.templates',
-				'wikibase.utilities',
 			),
 		),
 
@@ -86,7 +85,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'jquery.ui.widget',
-				'jquery.wikibase.claimview',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.statementview',
 				'jquery.wikibase.toolbarcontroller',
@@ -100,23 +98,6 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.wikibase.claimview' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery.wikibase.claimview.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.snakview',
-				'jquery.wikibase.snaklistview',
-				'wikibase.datamodel',
-				'jquery.wikibase.toolbarcontroller',
-			),
-			'messages' => array(
-				'wikibase-addqualifier',
-				'wikibase-claimview-snak-tooltip',
-				'wikibase-claimview-snak-new-tooltip',
-			),
-		),
-
 		'jquery.wikibase.descriptionview' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.wikibase.descriptionview.js',
@@ -127,6 +108,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.inputautoexpand',
 				'jquery.ui.TemplatedWidget',
+				'jquery.util.getDirectionality',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase.datamodel.Term',
@@ -170,14 +152,9 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.aliasesview',
-				'jquery.wikibase.claimgrouplistview',
-				'jquery.wikibase.claimlistview',
 				'jquery.wikibase.descriptionview',
-				'jquery.wikibase.fingerprintgroupview',
+				'jquery.wikibase.entitytermsview',
 				'jquery.wikibase.labelview',
-				'jquery.wikibase.toolbarcontroller',
-				'jquery.wikibase.sitelinkgrouplistview',
-				'jquery.wikibase.statementview',
 				'wikibase.datamodel.MultiTerm',
 				'wikibase.datamodel.Term',
 				'wikibase.getLanguageNameByCode',
@@ -189,32 +166,32 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.wikibase.fingerprintgroupview' => $moduleTemplate + array(
+		'jquery.wikibase.entitytermsview' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery.wikibase.fingerprintgroupview.js',
+				'jquery.wikibase.entitytermsview.js',
 			),
 			'styles' => array(
-				'themes/default/jquery.wikibase.fingerprintgroupview.css',
+				'themes/default/jquery.wikibase.entitytermsview.css',
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
-				'jquery.wikibase.fingerprintlistview',
+				'jquery.wikibase.entitytermsforlanguagelistview',
 			),
 			'messages' => array(
 				'wikibase-terms',
 			),
 		),
 
-		'jquery.wikibase.fingerprintlistview' => $moduleTemplate + array(
+		'jquery.wikibase.entitytermsforlanguagelistview' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery.wikibase.fingerprintlistview.js',
+				'jquery.wikibase.entitytermsforlanguagelistview.js',
 			),
 			'styles' => array(
-				'themes/default/jquery.wikibase.fingerprintlistview.css',
+				'themes/default/jquery.wikibase.entitytermsforlanguagelistview.css',
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
-				'jquery.wikibase.fingerprintview',
+				'jquery.wikibase.entitytermsforlanguageview',
 				'wikibase.getLanguageNameByCode',
 			),
 			'messages' => array(
@@ -222,12 +199,12 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.wikibase.fingerprintview' => $moduleTemplate + array(
+		'jquery.wikibase.entitytermsforlanguageview' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery.wikibase.fingerprintview.js',
+				'jquery.wikibase.entitytermsforlanguageview.js',
 			),
 			'styles' => array(
-				'themes/default/jquery.wikibase.fingerprintview.css',
+				'themes/default/jquery.wikibase.entitytermsforlanguageview.css',
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
@@ -243,6 +220,19 @@ return call_user_func( function() {
 			),
 		),
 
+		'jquery.wikibase.itemview' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase.itemview.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.claimgrouplabelscroll',
+				'jquery.wikibase.claimgrouplistview',
+				'jquery.wikibase.entityview',
+				'jquery.wikibase.sitelinkgrouplistview',
+				'wikibase.sites',
+			),
+		),
+
 		'jquery.wikibase.labelview' => $moduleTemplate + array(
 			'scripts' => array(
 				'jquery.wikibase.labelview.js'
@@ -252,6 +242,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
+				'jquery.util.getDirectionality',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase.datamodel.Term',
@@ -287,6 +278,17 @@ return call_user_func( function() {
 				'jquery.ui.suggester',
 				'util.highlightSubstring',
 				'wikibase.sites',
+			),
+		),
+
+		'jquery.wikibase.propertyview' => $moduleTemplate + array(
+			'scripts' => array(
+				'jquery.wikibase.propertyview.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.claimgrouplabelscroll',
+				'jquery.wikibase.claimgrouplistview',
+				'jquery.wikibase.entityview',
 			),
 		),
 
@@ -335,6 +337,7 @@ return call_user_func( function() {
 				'jquery.wikibase.sitelinklistview',
 				'mediawiki.jqueryMsg', // for {{plural}} and {{gender}} support in messages
 				'wikibase.sites',
+				'wikibase.utilities',
 			),
 		),
 
@@ -347,32 +350,20 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.event.special.eachchange',
-				'jquery.sticknode',
-				'jquery.tablesorter',
 				'jquery.ui.EditableTemplatedWidget',
 				'jquery.util.EventSingletonManager',
-				'jquery.wikibase.addtoolbar',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.sitelinkview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase.datamodel',
+				'wikibase.datamodel.SiteLink',
 				'wikibase.sites',
-				'wikibase.templates',
 				'wikibase.utilities', // wikibase.utilities.ui
 			),
 			'messages' => array(
 				'parentheses',
-				'wikibase-badgeselector-badge-placeholder-title',
 				'wikibase-propertyedittool-counter-entrieslabel',
 				'wikibase-propertyedittool-counter-pending-tooltip',
-				'wikibase-sitelink-site-edit-placeholder',
-				'wikibase-sitelink-page-edit-placeholder',
-				'wikibase-sitelinks-sitename-columnheading',
-				'wikibase-sitelinks-sitename-columnheading-special',
-				'wikibase-sitelinks-siteid-columnheading',
-				'wikibase-sitelinks-link-columnheading',
-				'wikibase-sitelinksedittool-full',
 			),
 		),
 
@@ -391,13 +382,17 @@ return call_user_func( function() {
 				'jquery.wikibase.siteselector',
 				'jquery.wikibase.toolbarcontroller',
 				'mediawiki.util',
-				'wikibase.datamodel',
+				'oojs-ui',
+				'wikibase.datamodel.SiteLink',
 				'wikibase.sites',
 				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-add-badges',
+				'wikibase-badgeselector-badge-placeholder-title',
 				'wikibase-sitelinks-input-help-message',
+				'wikibase-sitelink-site-edit-placeholder',
+				'wikibase-sitelink-page-edit-placeholder',
 			),
 		),
 
@@ -433,20 +428,27 @@ return call_user_func( function() {
 				'jquery.ui.position',
 				'jquery.ui.toggler',
 				'util.inherit',
-				'jquery.wikibase.claimview',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.referenceview',
+				'jquery.wikibase.snakview',
+				'jquery.wikibase.snaklistview',
 				'jquery.wikibase.toolbarcontroller',
-				'wikibase.datamodel',
+				'wikibase.datamodel.Claim',
+				'wikibase.datamodel.ReferenceList',
+				'wikibase.datamodel.SnakList',
+				'wikibase.datamodel.Statement',
 				'wikibase.utilities',
 			),
 			'messages' => array(
+				'wikibase-addreference',
+				'wikibase-addqualifier',
+				'wikibase-claimview-snak-tooltip',
+				'wikibase-claimview-snak-new-tooltip',
 				'wikibase-statementview-rank-preferred',
 				'wikibase-statementview-rank-normal',
 				'wikibase-statementview-rank-deprecated',
 				'wikibase-statementview-referencesheading-pendingcountersubject',
 				'wikibase-statementview-referencesheading-pendingcountertooltip',
-				'wikibase-addreference',
 			),
 		),
 

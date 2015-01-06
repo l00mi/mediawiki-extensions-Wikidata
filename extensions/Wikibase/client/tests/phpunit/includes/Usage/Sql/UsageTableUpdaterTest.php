@@ -2,8 +2,6 @@
 namespace Wikibase\Client\Tests\Usage\Sql;
 
 use DatabaseBase;
-use PHPUnit_Framework_Assert as Assert;
-use PHPUnit_Framework_TestCase;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\Sql\UsageTableUpdater;
 use Wikibase\Client\WikibaseClient;
@@ -27,7 +25,7 @@ class UsageTableUpdaterTest extends \MediaWikiTestCase {
 
 	protected function setUp() {
 		if ( WikibaseClient::getDefaultInstance()->getSettings()->getSetting( 'useLegacyUsageIndex' ) ) {
-			$this->markTestSkipped( 'Skipping test for SqlUsageTracker, because the useLegacyUsageIndex option is set.' );
+			$this->markTestSkipped( 'Skipping test for UsageTableUpdater, because the useLegacyUsageIndex option is set.' );
 		}
 
 		$this->tablesUsed[] = $this->tableName;

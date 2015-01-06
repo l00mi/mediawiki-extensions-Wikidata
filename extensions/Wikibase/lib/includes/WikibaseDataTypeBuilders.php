@@ -10,6 +10,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Utils;
+use Wikibase\Validators\AlternativeValidator;
 use Wikibase\Validators\CompositeValidator;
 use Wikibase\Validators\DataFieldValidator;
 use Wikibase\Validators\DataValueValidator;
@@ -168,13 +169,14 @@ class WikibaseDataTypeBuilders {
 		$validators = $this->getCommonStringValidators( 240 );
 
 		$validators[] = new RegexValidator( '@[#/:\\\\]@u', true ); // no nasty chars
-		$validators[] = new RegexValidator( '@\..+@u', false ); // must contain a file extension
+		// Must contain a non-empty file name and a non-empty, character-only file extension.
+		$validators[] = new RegexValidator( '/.\.\w+$/u' );
 		//TODO: add a validator that checks the rules that MediaWiki imposes on filenames for uploads.
 		//      $wgLegalTitleChars and $wgIllegalFileChars define this, but we need these for the *target* wiki.
 		//TODO: add a validator that uses a foreign DB query to check whether the file actually exists on commons.
 
-		$topValidator = new DataValueValidator( //Note: validate the DataValue's native value.
-			new CompositeValidator( $validators, true ) //Note: each validator is fatal
+		$topValidator = new DataValueValidator(
+			new CompositeValidator( $validators ) //Note: each validator is fatal
 		);
 
 		return new DataType( $id, 'string', array( new TypeValidator( 'DataValues\DataValue' ), $topValidator ) );
@@ -188,8 +190,8 @@ class WikibaseDataTypeBuilders {
 	public function buildStringType( $id ) {
 		$validators = $this->getCommonStringValidators();
 
-		$topValidator = new DataValueValidator( //Note: validate the DataValue's native value.
-			new CompositeValidator( $validators, true ) //Note: each validator is fatal
+		$topValidator = new DataValueValidator(
+			new CompositeValidator( $validators ) //Note: each validator is fatal
 		);
 
 		return new DataType( $id, 'string', array( new TypeValidator( 'DataValues\DataValue' ), $topValidator ) );
@@ -201,23 +203,21 @@ class WikibaseDataTypeBuilders {
 	 * @return DataType
 	 */
 	public function buildMonolingualTextType( $id ) {
-		$textValidator = new DataFieldValidator(
+		$validators = array();
+
+		$validators[] = new DataFieldValidator(
 			'text',
-			new CompositeValidator(
-				$this->getCommonStringValidators(),
-				true //Note: each validator is fatal
-			)
+			new CompositeValidator( $this->getCommonStringValidators() ) //Note: each validator is fatal
 		);
 
-		$languageValidator = new DataFieldValidator(
+		$validators[] = new DataFieldValidator(
 			'language',
 			new MembershipValidator( Utils::getLanguageCodes() )
 		);
 
-		$topValidator = new DataValueValidator( new CompositeValidator(
-			array( $textValidator, $languageValidator ),
-			true
-		) );
+		$topValidator = new DataValueValidator(
+			new CompositeValidator( $validators ) //Note: each validator is fatal
+		);
 
 		return new DataType( $id, 'monolingualtext', array( new TypeValidator( 'DataValues\DataValue' ), $topValidator ) );
 	}
@@ -231,15 +231,11 @@ class WikibaseDataTypeBuilders {
 		$validators = array();
 		$validators[] = new TypeValidator( 'array' );
 
-		// calendar model field
-		$calendarIdValidators = array();
 		// Expected to be a short IRI, see TimeFormatter and TimeParser.
-		$calendarIdValidators[] = $urlValidator = $this->buildUrlValidator( array( 'http', 'https' ), 255 );
+		$urlValidator = $this->buildUrlValidator( array( 'http', 'https' ), 255 );
 		//TODO: enforce well known calendar models from config
 
-		$validators[] = new DataFieldValidator( 'calendarmodel', // Note: validate the 'calendarmodel' field
-			new CompositeValidator( $calendarIdValidators, true ) //Note: each validator is fatal
-		);
+		$validators[] = new DataFieldValidator( 'calendarmodel', $urlValidator );
 
 		// time string field
 		$timeStringValidators = array();
@@ -255,21 +251,22 @@ class WikibaseDataTypeBuilders {
 
 		$timeStringValidators[] = new RegexValidator( $isoDataPattern );
 
-		$validators[] = new DataFieldValidator( 'time', // Note: validate the 'time' field
-			new CompositeValidator( $timeStringValidators, true ) //Note: each validator is fatal
+		$validators[] = new DataFieldValidator(
+			'time',
+			new CompositeValidator( $timeStringValidators ) //Note: each validator is fatal
 		);
 
 		$precisionValidators = array();
 		$precisionValidators[] = new TypeValidator( 'integer' );
 		$precisionValidators[] = new NumberRangeValidator( TimeValue::PRECISION_Ga, $maxPrecision );
 
-		$validators[] = new DataFieldValidator( 'precision', // Note: validate the 'precision' field
-			new CompositeValidator( $precisionValidators, true ) //Note: each validator is fatal
+		$validators[] = new DataFieldValidator(
+			'precision',
+			new CompositeValidator( $precisionValidators ) //Note: each validator is fatal
 		);
 
-		// top validator
-		$topValidator = new DataValueValidator( //Note: validate the DataValue's native value.
-			new CompositeValidator( $validators, true ) //Note: each validator is fatal
+		$topValidator = new DataValueValidator(
+			new CompositeValidator( $validators ) //Note: each validator is fatal
 		);
 
 		return new DataType( $id, 'time', array( new TypeValidator( 'DataValues\DataValue' ), $topValidator ) );
@@ -284,25 +281,16 @@ class WikibaseDataTypeBuilders {
 		$validators = array();
 		$validators[] = new TypeValidator( 'array' );
 
-		$globeIdValidators = array();
 		// Expected to be a short IRI, see GlobeCoordinateValue and GlobeCoordinateParser.
-		$globeIdValidators[] = $urlValidator = $this->buildUrlValidator( array( 'http', 'https' ), 255 );
+		$urlValidator = $this->buildUrlValidator( array( 'http', 'https' ), 255 );
 		//TODO: enforce well known reference globes from config
 
-		$precisionValidators = array();
-		$precisionValidators[] = new NumberValidator();
+		$validators[] = new DataFieldValidator( 'precision', new NumberValidator() );
 
-		$validators[] = new DataFieldValidator( 'precision',
-			new CompositeValidator( $precisionValidators, true )
-		);
+		$validators[] = new DataFieldValidator( 'globe', $urlValidator );
 
-		$validators[] = new DataFieldValidator( 'globe', // Note: validate the 'globe' field
-			new CompositeValidator( $globeIdValidators, true ) //Note: each validator is fatal
-		);
-
-		// top validator
-		$topValidator = new DataValueValidator( //Note: validate the DataValue's native value.
-			new CompositeValidator( $validators, true ) //Note: each validator is fatal
+		$topValidator = new DataValueValidator(
+			new CompositeValidator( $validators ) //Note: each validator is fatal
 		);
 
 		return new DataType( $id, 'globecoordinate', array( new TypeValidator( 'DataValues\DataValue' ), $topValidator ) );
@@ -317,6 +305,7 @@ class WikibaseDataTypeBuilders {
 	 * @return CompositeValidator
 	 */
 	public function buildUrlValidator( $urlSchemes, $maxLength = 500 ) {
+		$validators = array();
 		$validators[] = new TypeValidator( 'string' );
 		$validators[] = new StringLengthValidator( 2, $maxLength );
 
@@ -324,7 +313,7 @@ class WikibaseDataTypeBuilders {
 		$urlSchemeValidators = $urlValidators->getValidators( $urlSchemes );
 		$validators[] = new UrlValidator( $urlSchemeValidators );
 
-		return new CompositeValidator( $validators, true ); //Note: each validator is fatal
+		return new CompositeValidator( $validators ); //Note: each validator is fatal
 	}
 
 	/**
@@ -335,7 +324,7 @@ class WikibaseDataTypeBuilders {
 	public function buildUrlType( $id ) {
 		$urlValidator = $this->buildUrlValidator( $this->urlSchemes );
 
-		$topValidator = new DataValueValidator( //Note: validate the DataValue's native value.
+		$topValidator = new DataValueValidator(
 			$urlValidator
 		);
 
@@ -354,19 +343,17 @@ class WikibaseDataTypeBuilders {
 		// the 'amount' field is already validated by QuantityValue's constructor
 		// the 'digits' field is already validated by QuantityValue's constructor
 
-		// only allow the '1' unit for now:
-		$unitValidators = array(
-			new TypeValidator( 'string' ),
-			new RegexValidator( '/^1$/', false, 'unknown-unit' ),
-		);
+		$unitValidators = new AlternativeValidator( array(
+			// NOTE: "1" is always considered legal for historical reasons,
+			// since we use it to represent "unitless" quantities. We could also use
+			// http://qudt.org/vocab/unit#Unitless or https://www.wikidata.org/entity/Q199
+			new MembershipValidator( array( '1' ) ),
+			$this->buildUrlValidator( array( 'http', 'https' ), 255 ),
+		) );
+		$validators[] = new DataFieldValidator( 'unit', $unitValidators );
 
-		$validators[] = new DataFieldValidator( 'unit', // Note: validate the 'unit' field
-			new CompositeValidator( $unitValidators, true ) //Note: each validator is fatal
-		);
-
-		// top validator
-		$topValidator = new DataValueValidator( //Note: validate the DataValue's native value.
-			new CompositeValidator( $validators, true ) //Note: each validator is fatal
+		$topValidator = new DataValueValidator(
+			new CompositeValidator( $validators ) //Note: each validator is fatal
 		);
 
 		return new DataType( $id, 'quantity', array( new TypeValidator( 'DataValues\QuantityValue' ), $topValidator ) );

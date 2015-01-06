@@ -10,7 +10,6 @@ use Content;
 use ManualLogEntry;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\NamespaceChecker;
-use Wikibase\SettingsArray;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Client\UpdateRepo\UpdateRepo;
 use Wikibase\Client\UpdateRepo\UpdateRepoOnDelete;
@@ -76,7 +75,7 @@ class UpdateRepoHookHandlers {
 			return true;
 		}
 
-		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkTable();
+		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkLookup();
 
 		return new UpdateRepoHookHandlers(
 			$namespaceChecker,

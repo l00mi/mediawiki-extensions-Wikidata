@@ -13,6 +13,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\LegacyIdInterpreter;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\Lib\Store\LabelConflictFinder;
 
 /**
  * Term lookup cache.
@@ -25,7 +26,7 @@ use Wikibase\DataModel\Term\FingerprintProvider;
  * @author Daniel Kinzler
  * @author Denny
  */
-class TermSqlIndex extends DBAccessBase implements TermIndex {
+class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinder {
 
 	/**
 	 * @since 0.1
@@ -371,42 +372,25 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 
 	/**
 	 * Returns the terms stored for the given entity.
+	 *
 	 * @see TermIndex::getTermsOfEntity
+	 * @todo: share more code with getTermsOfEntities. There are only subtle differences
+	 * regarding what fields are loaded.
 	 *
 	 * @param EntityId $entityId
+	 * @param string[]|null $termTypes
+	 * @param string[]|null $languageCodes
 	 *
 	 * @return Term[]
 	 */
-	public function getTermsOfEntity( EntityId $entityId ) {
-		wfProfileIn( __METHOD__ );
-
-		$entityIdentifiers = array(
-			'term_entity_id' => $entityId->getNumericId(),
-			'term_entity_type' => $entityId->getEntityType()
-		);
-
+	public function getTermsOfEntity( EntityId $entityId, array $termTypes = null, array $languageCodes = null ) {
 		$fields = array(
 			'term_language',
 			'term_type',
 			'term_text',
 		);
 
-		$dbr = $this->getReadDb();
-
-		$res = $dbr->select(
-			$this->tableName,
-			$fields,
-			$entityIdentifiers,
-			__METHOD__
-		);
-
-		$terms = $this->buildTermResult( $res );
-
-		$this->releaseConnection( $dbr );
-
-		wfProfileOut( __METHOD__ );
-
-		return $terms;
+		return $this->fetchTerms( array( $entityId ), $entityId->getEntityType(), $fields, $termTypes, $languageCodes );
 	}
 
 	/**
@@ -416,38 +400,13 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 	 *
 	 * @param EntityId[] $entityIds
 	 * @param string $entityType
-	 * @param string|null $language Language code
+	 * @param string[]|null $termTypes
+	 * @param string[]|null $languageCodes Language codes
 	 *
-	 * @throws MWException
+	 * @throws \MWException
 	 * @return Term[]
 	 */
-	public function getTermsOfEntities( array $entityIds, $entityType, $language = null ) {
-		wfProfileIn( __METHOD__ );
-
-		if ( empty( $entityIds ) ) {
-			wfProfileOut( __METHOD__ );
-			return array();
-		}
-
-		$entityIdentifiers = array(
-			'term_entity_type' => $entityType
-		);
-		if ( $language !== null ) {
-			$entityIdentifiers['term_language'] = $language;
-		}
-
-		$numericIds = array();
-		foreach ( $entityIds as $entityId ) {
-			if ( $entityId->getEntityType() !== $entityType ) {
-				throw new MWException( 'ID ' . $entityId->getSerialization()
-					. " does not refer to an entity of type $entityType." );
-			}
-
-			$numericIds[] = $entityId->getNumericId();
-		}
-
-		$entityIdentifiers['term_entity_id'] = $numericIds;
-
+	public function getTermsOfEntities( array $entityIds, $entityType, array $termTypes = null, array $languageCodes = null ) {
 		$fields = array(
 			'term_entity_id',
 			'term_entity_type',
@@ -456,12 +415,65 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 			'term_text',
 		);
 
+		return $this->fetchTerms( $entityIds, $entityType, $fields, $termTypes, $languageCodes );
+	}
+
+	/**
+	 * @param EntityId[] $entityIds
+	 * @param string|null $entityType
+	 * @param string[] $fields
+	 * @param string[]|null $termTypes
+	 * @param string[]|null $languageCodes
+	 *
+	 * @throws \MWException
+	 * @return array
+	 */
+	private function fetchTerms( array $entityIds, $entityType, array $fields, array $termTypes = null, array $languageCodes = null ) {
+		if ( is_array( $entityIds ) && empty( $entityIds ) ) {
+			return array();
+		}
+
+		if ( is_array( $languageCodes ) && empty( $languageCodes ) ) {
+			return array();
+		}
+
+		if ( is_array( $termTypes ) && empty( $termTypes ) ) {
+			return array();
+		}
+
+		wfProfileIn( __METHOD__ );
+
+		$conditions = array();
+
+		if ( $languageCodes !== null ) {
+			$conditions['term_language'] = $languageCodes;
+		}
+
+		if ( $termTypes !== null ) {
+			$conditions['term_type'] = $termTypes;
+		}
+
+		$numericIds = array();
+		foreach ( $entityIds as $entityId ) {
+			if( $entityType === null ) {
+				$entityType = $entityId->getEntityType();
+			} elseif ( $entityId->getEntityType() !== $entityType ) {
+				throw new MWException( 'ID ' . $entityId->getSerialization()
+					. " does not refer to an entity of type $entityType." );
+			}
+
+			$numericIds[] = $entityId->getNumericId();
+		}
+
+		$conditions['term_entity_type'] = $entityType;
+		$conditions['term_entity_id'] = $numericIds;
+
 		$dbr = $this->getReadDb();
 
 		$res = $dbr->select(
 			$this->tableName,
 			$fields,
-			$entityIdentifiers,
+			$conditions,
 			__METHOD__
 		);
 
@@ -494,116 +506,6 @@ class TermSqlIndex extends DBAccessBase implements TermIndex {
 	 */
 	public function getWriteDb() {
 		return $this->getConnection( DB_MASTER );
-	}
-
-	/**
-	 * @see TermIndex::termExists
-	 *
-	 * @since 0.1
-	 *
-	 * @param string $termValue
-	 * @param string|null $termType
-	 * @param string|null $termLanguage Language code
-	 * @param string|null $entityType
-	 *
-	 * @return boolean
-	 */
-	public function termExists( $termValue, $termType = null, $termLanguage = null, $entityType = null ) {
-		wfProfileIn( __METHOD__ );
-
-		$conditions = array(
-			'term_text' => $termValue,
-		);
-
-		if ( $termType !== null ) {
-			$conditions['term_type'] = $termType;
-		}
-
-		if ( $termLanguage !== null ) {
-			$conditions['term_language'] = $termLanguage;
-		}
-
-		if ( $entityType !== null ) {
-			$conditions['term_entity_type'] = $entityType;
-		}
-
-		$dbr = $this->getReadDb();
-
-		$result = $dbr->selectRow(
-			$this->tableName,
-			array(
-				'term_entity_id',
-			),
-			$conditions,
-			__METHOD__
-		);
-
-		$this->releaseConnection( $dbr );
-
-		wfProfileOut( __METHOD__ );
-
-		return $result !== false;
-	}
-
-	/**
-	 * @see TermIndex::getEntityIdsForLabel
-	 *
-	 * @since 0.1
-	 *
-	 * @param string $label
-	 * @param string|null $languageCode
-	 * @param string|null $entityType
-	 * @param bool $fuzzySearch if false, only exact matches are returned, otherwise more relaxed search . Defaults to false.
-	 *
-	 * @return EntityId[]
-	 */
-	public function getEntityIdsForLabel( $label, $languageCode = null, $entityType = null, $fuzzySearch = false ) {
-		wfProfileIn( __METHOD__ );
-
-		$fuzzySearch = false; // TODO switched off for now until we have a solution for limiting the results
-		$db = $this->getReadDb();
-
-		$tables = array( 'terms0' => $this->tableName );
-
-		$conds = array( 'terms0.term_type' => Term::TYPE_LABEL );
-		if ( $fuzzySearch ) {
-			$conds[] = 'terms0.term_text' . $db->buildLike( $label, $db->anyString() );
-		} else {
-			$conds['terms0.term_text'] = $label;
-		}
-
-		$joinConds = array();
-
-		if ( !is_null( $languageCode ) ) {
-			$conds['terms0.term_language'] = $languageCode;
-		}
-
-		if ( !is_null( $entityType ) ) {
-			$conds['terms0.term_entity_type'] = $entityType;
-		}
-
-		$entities = $db->select(
-			$tables,
-			array( 'terms0.term_entity_id', 'terms0.term_entity_type' ),
-			$conds,
-			__METHOD__,
-			array( 'DISTINCT' ),
-			$joinConds
-		);
-
-		$this->releaseConnection( $db );
-
-		$entityIds = array_map(
-			function( $entity ) {
-				// FIXME: this only works for items and properties
-				return LegacyIdInterpreter::newIdFromTypeAndNumber( $entity->term_entity_type, $entity->term_entity_id );
-			},
-			iterator_to_array( $entities )
-		);
-
-		wfProfileOut( __METHOD__ );
-
-		return $entityIds;
 	}
 
 	/**

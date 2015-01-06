@@ -25,27 +25,15 @@ return call_user_func( function() {
 
 	$modules = array(
 
-		'jquery.removeClassByRegex' => $moduleTemplate + array(
+		'jquery.ui.closeable' => $moduleTemplate + array(
 			'scripts' => array(
-				'jquery/jquery.removeClassByRegex.js',
+				'jquery.ui/jquery.ui.closeable.js',
 			),
-		),
-
-		'jquery.sticknode' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery/jquery.sticknode.js',
+			'styles' => array(
+				'jquery.ui/jquery.ui.closeable.css',
 			),
 			'dependencies' => array(
-				'jquery.util.EventSingletonManager',
-			),
-		),
-
-		'jquery.util.EventSingletonManager' => $moduleTemplate + array(
-			'scripts' => array(
-				'jquery/jquery.util.EventSingletonManager.js',
-			),
-			'dependencies' => array(
-				'jquery.throttle-debounce',
+				'jquery.ui.TemplatedWidget',
 			),
 		),
 
@@ -69,9 +57,9 @@ return call_user_func( function() {
 				'jquery.ui/jquery.ui.EditableTemplatedWidget.js',
 			),
 			'dependencies' => array(
+				'jquery.ui.closeable',
 				'jquery.ui.TemplatedWidget',
 				'util.inherit',
-				'wikibase.templates',
 			),
 		),
 
@@ -160,12 +148,11 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'mediawiki.user',
 				'mw.config.values.wbRepo',
-				'jquery.wikibase.entityview',
+				'jquery.wikibase.itemview',
+				'jquery.wikibase.propertyview',
 				'jquery.wikibase.toolbarcontroller',
 				'jquery.wikibase.wbtooltip',
 				'jquery.cookie',
-				'jquery.wikibase.claimgrouplabelscroll',
-				'jquery.wikibase.sitelinkgroupview',
 				'wikibase.api.getLocationAgnosticMwApi',
 				'wikibase.dataTypeStore',
 				'wikibase.entityChangers.EntityChangersFactory',
@@ -286,6 +273,7 @@ return call_user_func( function() {
 		include( __DIR__ . '/experts/resources.php' ),
 		include( __DIR__ . '/formatters/resources.php' ),
 		include( __DIR__ . '/parsers/resources.php' ),
+		include( __DIR__ . '/jquery/resources.php' ),
 		include( __DIR__ . '/store/resources.php' ),
 		include( __DIR__ . '/utilities/resources.php' )
 	);

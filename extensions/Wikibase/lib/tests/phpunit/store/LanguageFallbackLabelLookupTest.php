@@ -7,9 +7,14 @@ use Wikibase\Lib\Store\EntityTermLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelLookup;
 
 /**
+ * @covers Wikibase\Lib\Store\LanguageFallbackLabelLookup
+ *
  * @group Wikibase
  * @group WikibaseLib
  * @group WikibaseStore
+ *
+ * @licence GNU GPL v2+
+ * @author Katie Filbert < aude.wiki@gmail.com >
  */
 class LanguageFallbackLabelLookupTest extends \MediaWikiTestCase {
 
@@ -29,7 +34,7 @@ class LanguageFallbackLabelLookupTest extends \MediaWikiTestCase {
 
 		$labelLookup = new LanguageFallbackLabelLookup( $termLookup, $fallbackChain );
 
-		$this->setExpectedException( 'Wikibase\Lib\Store\StorageException' );
+		$this->setExpectedException( 'OutOfBoundsException' );
 		$labelLookup->getLabel( new ItemId( 'Q120' ) );
 	}
 
@@ -62,9 +67,7 @@ class LanguageFallbackLabelLookupTest extends \MediaWikiTestCase {
 	}
 
 	private function getTermLookup() {
-		$entityLookup = new MockRepository();
-
-		return new EntityTermLookup( $this->getTermIndex(), $entityLookup );
+		return new EntityTermLookup( $this->getTermIndex() );
 	}
 
 	private function getTermIndex() {

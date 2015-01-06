@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use DataTypes\DataType;
 use Language;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
@@ -9,6 +10,8 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Repo\View\PropertyView;
+use Wikibase\Template\TemplateFactory;
+use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\PropertyView
@@ -75,12 +78,14 @@ class PropertyViewTest extends EntityViewTest {
 
 	public function provideTestGetHtml() {
 		$propertyView = new PropertyView(
+			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 			$this->getMockBuilder( 'Wikibase\Repo\View\FingerprintView' )
 				->disableOriginalConstructor()
 				->getMock(),
 			$this->getMockBuilder( 'Wikibase\Repo\View\ClaimsView' )
 				->disableOriginalConstructor()
 				->getMock(),
+			$this->getDataTypeFactory(),
 			Language::factory( 'en' ),
 			true,
 			false
@@ -97,4 +102,17 @@ class PropertyViewTest extends EntityViewTest {
 		);
 	}
 
+	private function getDataTypeFactory() {
+		$dataTypeFactory = $this->getMock( 'DataTypes\DataTypeFactory' );
+
+		$dataTypeFactory->expects( $this->any() )
+			->method( 'getType' )
+			->will( $this->returnValue( new DataType(
+				'type',
+				'datavalue',
+				array()
+			) ) );
+
+		return $dataTypeFactory;
+	}
 }

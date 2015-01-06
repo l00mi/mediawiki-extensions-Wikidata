@@ -69,7 +69,7 @@ abstract class ModifyEntity extends ApiWikibase {
 	 * @see EditEntity::attemptSave
 	 * @see WikiPage::doEditContent
 	 *
-	 * @var int $flags
+	 * @var int
 	 */
 	protected $flags;
 
@@ -83,19 +83,20 @@ abstract class ModifyEntity extends ApiWikibase {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$repo = WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$settings = $wikibaseRepo->getSettings();
 
 		//TODO: provide a mechanism to override the services
-		$this->stringNormalizer = $repo->getStringNormalizer();
+		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
 
 		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
-			$repo->getSiteStore(),
-			$repo->getSettings()->getSetting( 'specialSiteLinkGroups' )
+			$wikibaseRepo->getSiteStore(),
+			$settings->getSetting( 'specialSiteLinkGroups' )
 		);
 
-		$this->siteLinkGroups = $repo->getSettings()->getSetting( 'siteLinkGroups' );
-		$this->siteLinkLookup = $repo->getStore()->newSiteLinkCache();
-		$this->badgeItems = $repo->getSettings()->getSetting( 'badgeItems' );
+		$this->siteLinkGroups = $settings->getSetting( 'siteLinkGroups' );
+		$this->siteLinkLookup = $wikibaseRepo->getStore()->newSiteLinkCache();
+		$this->badgeItems = $settings->getSetting( 'badgeItems' );
 	}
 
 	/**
@@ -112,6 +113,10 @@ abstract class ModifyEntity extends ApiWikibase {
 		// Things that use this method assume null means we want a new entity
 		if ( $entityId !== null ) {
 			$baseRevisionId = isset( $params['baserevid'] ) ? intval( $params['baserevid'] ) : 0;
+
+			if ( $baseRevisionId === 0 ) {
+				$baseRevisionId = EntityRevisionLookup::LATEST_FROM_MASTER;
+			}
 
 			try {
 				$entityRevision = $this->getEntityRevisionLookup()->getEntityRevision( $entityId, $baseRevisionId );
@@ -464,64 +469,4 @@ abstract class ModifyEntity extends ApiWikibase {
 			'bot' => false,
 		);
 	}
-
-	/**
-	 * Get param descriptions for identification of the entity
-	 * Lookup through an id is common for all entities
-	 *
-	 * @since 0.1
-	 *
-	 * @return array[] the param descriptions
-	 */
-	protected function getParamDescriptionForId() {
-		return array(
-			'id' => array( 'The identifier for the entity, including the prefix.',
-				"Use either 'id' or 'site' and 'title' together."
-			),
-		);
-	}
-
-	/**
-	 * Get param descriptions for identification by a sitelink pair
-	 * Lookup through the sitelink object is not used in every subclasses
-	 *
-	 * @since 0.1
-	 *
-	 * @return array[] the param descriptions
-	 */
-	protected function getParamDescriptionForSiteLink() {
-		return array(
-			'site' => array( 'An identifier for the site on which the page resides.',
-				"Use together with 'title' to make a complete sitelink."
-			),
-			'title' => array( 'Title of the page to associate.',
-				"Use together with 'site' to make a complete sitelink."
-			),
-		);
-	}
-
-	/**
-	 * Get param descriptions for the entity in general
-	 *
-	 * @since 0.1
-	 *
-	 * @return array[] the param descriptions
-	 */
-	protected function getParamDescriptionForEntity() {
-		return array(
-			'baserevid' => array( 'The numeric identifier for the revision to base the modification on.',
-				"This is used for detecting conflicts during save."
-			),
-			'summary' => array( 'Summary for the edit.',
-				"Will be prepended by an automatically generated comment. The length limit of the
-				autocomment together with the summary is 260 characters. Be aware that everything above that
-				limit will be cut off."
-			),
-			'token' => 'A "edittoken" token previously obtained through the token module (prop=info).',
-			'bot' => array( 'Mark this edit as bot',
-				'This URL flag will only be respected if the user belongs to the group "bot".'
-			),
-		);
-	}
-
 }

@@ -254,7 +254,10 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 
 				self.enable();
 				self.toggleActionMessage( function() {
-					self.displayError( error, $anchor );
+					// FIXME Move responsibility of displaying error out of here completely.
+					if( $( event.target ).data( 'sitelinkgroupview' ) === undefined ) {
+						self.displayError( error, $anchor );
+					}
 				} );
 			}
 		} );
@@ -364,7 +367,7 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 			html: '&nbsp;' // TODO find nicer way to hack Webkit browsers to display tooltip image (see also css)
 		} ).toolbaritem();
 
-		// Support promises instead of strings, too, since $.wikibase.claimview does not know
+		// Support promises instead of strings, too, since $.wikibase.statementview does not know
 		// immediately after creation which help message to show.
 		// TODO: This should be replaced by a dynamic getter so that views can arbitrarily
 		// change their help messages anywhere in their lifecycle.

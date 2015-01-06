@@ -5,7 +5,6 @@ namespace Wikibase;
 use Action;
 use BaseTemplate;
 use ChangesList;
-use Content;
 use FormOptions;
 use IContextSource;
 use Message;
@@ -35,12 +34,9 @@ use Wikibase\Client\RecentChanges\ChangeLineFormatter;
 use Wikibase\Client\RecentChanges\ExternalChangeFactory;
 use Wikibase\Client\RecentChanges\RecentChangesFilterOptions;
 use Wikibase\Client\RepoItemLinkGenerator;
-use Wikibase\Client\UpdateRepo\UpdateRepoOnDelete;
-use Wikibase\Client\UpdateRepo\UpdateRepoOnMove;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\SiteLink;
-use WikiPage;
 
 /**
  * File defining the hook handlers for the Wikibase Client extension.
@@ -178,7 +174,7 @@ final class ClientHooks {
 	public static function onSpecialMovepageAfterMove( MovePageForm $movePage, Title &$oldTitle,
 		Title &$newTitle ) {
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkTable();
+		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkLookup();
 		$repoLinker = $wikibaseClient->newRepoLinker();
 
 		$movePageNotice = new MovePageNoticeCreator(
@@ -381,7 +377,7 @@ final class ClientHooks {
 		}
 
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkTable();
+		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkLookup();
 		return $siteLinkLookup->getEntityIdForSiteLink(
 			new SiteLink(
 				$wikibaseClient->getSettings()->getSetting( 'siteGlobalID' ),
@@ -518,8 +514,8 @@ final class ClientHooks {
 			'label-message' => 'wikibase-otherprojects-beta-message',
 			'desc-message' => 'wikibase-otherprojects-beta-description',
 			'screenshot' => array(
-				'ltr' => $assetsPath . '/resources/images/wb-otherprojects-beta-ltr.png',
-				'rtl' => $assetsPath . '/resources/images/wb-otherprojects-beta-rtl.png'
+				'ltr' => $assetsPath . '/resources/images/wb-otherprojects-beta-ltr.svg',
+				'rtl' => $assetsPath . '/resources/images/wb-otherprojects-beta-rtl.svg'
 			),
 			'info-link' => 'https://www.mediawiki.org/wiki/Wikibase/Beta_Features/Other_projects_sidebar',
 			'discussion-link' => 'https://www.mediawiki.org/wiki/Talk:Wikibase/Beta_Features/Other_projects_sidebar'
@@ -676,7 +672,7 @@ final class ClientHooks {
 		$infoActionHookHandler = new InfoActionHookHandler(
 			$namespaceChecker,
 			$wikibaseClient->newRepoLinker(),
-			$wikibaseClient->getStore()->getSiteLinkTable(),
+			$wikibaseClient->getStore()->getSiteLinkLookup(),
 			$settings->getSetting( 'siteGlobalID' )
 		);
 
@@ -696,7 +692,7 @@ final class ClientHooks {
 	 */
 	public static function onArticleDeleteAfterSuccess( Title $title, OutputPage $out ) {
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
-		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkTable();
+		$siteLinkLookup = $wikibaseClient->getStore()->getSiteLinkLookup();
 		$repoLinker = $wikibaseClient->newRepoLinker();
 
 		$deletePageNotice = new DeletePageNoticeCreator(

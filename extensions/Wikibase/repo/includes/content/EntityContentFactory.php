@@ -12,10 +12,13 @@ use User;
 use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityContent;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\Store\EntityPermissionChecker;
+use Wikibase\Store\EntityIdLookup;
 
 /**
  * Factory for EntityContent objects.
@@ -26,7 +29,7 @@ use Wikibase\Repo\Store\EntityPermissionChecker;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
-class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker {
+class EntityContentFactory implements EntityTitleLookup, EntityIdLookup, EntityPermissionChecker {
 
 	/**
 	 * @since 0.5
@@ -86,6 +89,60 @@ class EntityContentFactory implements EntityTitleLookup, EntityPermissionChecker
 	public function getTitleForId( EntityId $id ) {
 		$handler = $this->getContentHandlerForType( $id->getEntityType() );
 		return $handler->getTitleForId( $id );
+	}
+
+	/**
+	 * Returns the ID of the entity associated with the given page title.
+	 *
+	 * @note There is no guarantee that the EntityId returned by this method refers to
+	 * an existing entity.
+	 *
+	 * @param Title $title
+	 *
+	 * @return EntityId|null
+	 */
+	public function getEntityIdForTitle( Title $title ) {
+		$contentModel = $title->getContentModel();
+		$handler = ContentHandler::getForModelID( $contentModel );
+
+		if ( $handler instanceof EntityHandler ) {
+			try {
+				return $handler->getIdForTitle( $title );
+			} catch ( EntityIdParsingException $ex ) {
+				// Not a valid entity page title.
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @see EntityIdLookup::getEntityIds
+	 *
+	 * @note: the current implementation skips non-existing entities, but there is no guarantee
+	 * that this will always be the case.
+	 *
+	 * @param Title[] $titles
+	 *
+	 * @throws StorageException
+	 * @return EntityId[] Entity IDs, keyed by page IDs.
+	 */
+	public function getEntityIds( array $titles ) {
+		$entityIds = array();
+
+		foreach ( $titles as $title ) {
+			$pageId = $title->getArticleID();
+
+			if ( $pageId > 0 ) {
+				$entityId = $this->getEntityIdForTitle( $title );
+
+				if ( $entityId !== null ) {
+					$entityIds[$pageId] = $entityId;
+				}
+			}
+		}
+
+		return $entityIds;
 	}
 
 	/**
