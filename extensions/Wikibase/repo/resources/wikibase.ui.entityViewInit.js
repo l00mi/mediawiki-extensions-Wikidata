@@ -34,10 +34,10 @@
 		// be initialized:
 		var toolbarControllerConfig = {
 			addtoolbar: [
-				'claimgrouplistview',
-				'claimlistview',
-				'claim-qualifiers-snak',
-				'references',
+				'claimgrouplistview-claimlistview',
+				'claimlistview-statementview',
+				'statementview-snakview',
+				'statementview-referenceview',
 				'referenceview-snakview'
 			],
 			edittoolbar: [
@@ -50,15 +50,9 @@
 				'sitelinkgroupview'
 			],
 			removetoolbar: [
-				'claim-qualifiers-snak',
-				'referenceview-snakview-remove',
+				'statementview-snakview',
+				'referenceview-snakview',
 				'sitelinkgroupview-sitelinkview'
-			],
-			movetoolbar: [
-				'claimlistview-claimview',
-				'claim-qualifiers-snak',
-				'statementview-referenceview',
-				'referenceview-snakview'
 			]
 		};
 
