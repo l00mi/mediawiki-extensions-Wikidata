@@ -29,7 +29,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "prepend-autoloader": false,
+	"prepend-autoloader": false,
         "preferred-install": "dist",
         "autoloader-suffix": "wikidata_1_25wmf14"
     }
