@@ -365,7 +365,6 @@ return array(
     'Wikibase\\Client\\Tests\\Hooks\\InfoActionHookHandlerTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/hooks/InfoActionHookHandlerTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\LanguageLinkBadgeDisplayTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/hooks/LanguageLinkBadgeDisplayTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\MovePageNoticeCreatorTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/hooks/MovePageNoticeCreatorTest.php',
-    'Wikibase\\Client\\Tests\\Hooks\\NoLangLinkHandlerTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/hooks/NoLangLinkHandlerTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\ParserFunctionRegistrantTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/hooks/ParserFunctionRegistrantTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\SpecialWatchlistQueryHandlerTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/hooks/SpecialWatchlistQueryHandlerTest.php',
     'Wikibase\\Client\\Tests\\InterwikiSorterTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/InterwikiSorterTest.php',
