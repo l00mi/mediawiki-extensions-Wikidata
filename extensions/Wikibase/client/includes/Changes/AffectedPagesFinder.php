@@ -30,7 +30,6 @@ use Wikibase\NamespaceChecker;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  * @author Katie Filbert < aude.wiki@gmail.com >
- * @author Daniel Kinzler
  */
 class AffectedPagesFinder {
 
@@ -270,7 +269,12 @@ class AffectedPagesFinder {
 
 		/** @var PageEntityUsages $pageEntityUsages */
 		foreach ( $usages as $pageEntityUsages ) {
-			$title = $this->titleFactory->newFromID( $pageEntityUsages->getPageId() );
+			try {
+				$title = $this->titleFactory->newFromID( $pageEntityUsages->getPageId() );
+			} catch ( StorageException $ex ) {
+				// page not found, skip
+				continue;
+			}
 
 			if ( $this->checkPageExistence && !$title->exists() ) {
 				continue;
@@ -324,6 +328,14 @@ class AffectedPagesFinder {
 		$usagesPerPage = array();
 		foreach ( $titles as $title ) {
 			$pageId = $title->getArticleID();
+
+			if ( $pageId === 0 ) {
+				wfDebugLog( 'WikibaseChangeNotification', __METHOD__ . ': Article ID for '
+					. $title->getFullText() . ' is 0.' );
+
+				continue;
+			}
+
 			$usagesPerPage[$pageId] = new PageEntityUsages( $pageId, $usagesForItem );
 		}
 

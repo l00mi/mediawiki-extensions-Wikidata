@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8b0547279bb6c9379c71e2e95a8d0c60",
+    "hash": "2bbed3804e67ce53cb3fd49925e2ddcd",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.19",
+            "version": "v1.0.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "89d77bfbee79e16653f7162c86e602cc188471db"
+                "reference": "1bff8aa77a18f3616f468ed8000cf86a5725bac3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/89d77bfbee79e16653f7162c86e602cc188471db",
-                "reference": "89d77bfbee79e16653f7162c86e602cc188471db",
+                "url": "https://api.github.com/repos/composer/installers/zipball/1bff8aa77a18f3616f468ed8000cf86a5725bac3",
+                "reference": "1bff8aa77a18f3616f468ed8000cf86a5725bac3",
                 "shasum": ""
             },
             "replace": {
@@ -59,6 +59,7 @@
                 "Hurad",
                 "MODX Evo",
                 "OXID",
+                "SMF",
                 "Thelia",
                 "WolfCMS",
                 "agl",
@@ -97,7 +98,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2014-11-29 01:29:17"
+            "time": "2015-01-11 03:51:11"
         },
         {
             "name": "data-values/common",
@@ -1230,12 +1231,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "ffbb3137ef2b7fb0b1a31f6c283b3316407f4cf3"
+                "reference": "f6864965a008f5113c3b128d8d5c32ddd66ce5b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ffbb3137ef2b7fb0b1a31f6c283b3316407f4cf3",
-                "reference": "ffbb3137ef2b7fb0b1a31f6c283b3316407f4cf3",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f6864965a008f5113c3b128d8d5c32ddd66ce5b5",
+                "reference": "f6864965a008f5113c3b128d8d5c32ddd66ce5b5",
                 "shasum": ""
             },
             "require": {
@@ -1302,7 +1303,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-01-14 16:01:07"
+            "time": "2015-01-18 21:23:35"
         },
         {
             "name": "wikibase/wikimedia-badges",
