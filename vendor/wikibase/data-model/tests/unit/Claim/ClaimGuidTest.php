@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\DataModel\Tests\Claim;
 
 use Exception;
 use Wikibase\DataModel\Claim\ClaimGuid;
@@ -62,7 +62,7 @@ class ClaimGuidTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testBadConstruction( $entityId, $guid ) {
 		$this->setExpectedException( 'InvalidArgumentException' );
-		new ClaimGuid( $entityId,$guid );
+		new ClaimGuid( $entityId, $guid );
 	}
 
 	public function provideBadConstruction() {

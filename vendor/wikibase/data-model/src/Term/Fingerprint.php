@@ -15,14 +15,12 @@ use InvalidArgumentException;
 class Fingerprint implements Comparable {
 
 	/**
+	 * @deprecated since 2.5, use new Fingerprint() instead.
+	 *
 	 * @return Fingerprint
 	 */
 	public static function newEmpty() {
-		return new self(
-			new TermList(),
-			new TermList(),
-			new AliasGroupList()
-		);
+		return new self();
 	}
 
 	/**
@@ -40,10 +38,19 @@ class Fingerprint implements Comparable {
 	 */
 	private $aliasGroups;
 
-	public function __construct( TermList $labels, TermList $descriptions, AliasGroupList $aliasGroups ) {
-		$this->labels = $labels;
-		$this->descriptions = $descriptions;
-		$this->aliasGroups = $aliasGroups;
+	/**
+	 * @param TermList|null $labels
+	 * @param TermList|null $descriptions
+	 * @param AliasGroupList|null $aliasGroups
+	 */
+	public function __construct(
+		TermList $labels = null,
+		TermList $descriptions = null,
+		AliasGroupList $aliasGroups = null
+	) {
+		$this->labels = $labels ?: new TermList();
+		$this->descriptions = $descriptions ?: new TermList();
+		$this->aliasGroups = $aliasGroups ?: new AliasGroupList();
 	}
 
 	/**

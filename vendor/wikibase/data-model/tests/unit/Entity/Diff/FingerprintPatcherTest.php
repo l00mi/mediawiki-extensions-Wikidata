@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Entity\Diff;
+namespace Wikibase\DataModel\Tests\Entity\Diff;
 
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
@@ -24,7 +24,7 @@ class FingerprintPatcherTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function newSimpleFingerprint() {
-		$fingerprint = Fingerprint::newEmpty();
+		$fingerprint = new Fingerprint();
 
 		$fingerprint->setLabel( 'en', 'foo' );
 		$fingerprint->setDescription( 'de', 'bar' );
@@ -96,4 +96,3 @@ class FingerprintPatcherTest extends \PHPUnit_Framework_TestCase {
 	}
 
 }
-

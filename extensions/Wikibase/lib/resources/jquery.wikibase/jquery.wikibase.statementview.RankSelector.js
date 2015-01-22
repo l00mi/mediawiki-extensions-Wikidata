@@ -1,66 +1,70 @@
-/**
- * @licence GNU GPL v2+
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( mw, wb, $, util ) {
 	'use strict';
 
-	var PARENT = $.ui.TemplatedWidget;
+	var PARENT = $.ui.EditableTemplatedWidget;
 
 	/**
-	 * The node of the rank selector menu to select a rank from.
-	 * @type {jQuery}
+	 * The node of the `RankSelector` menu to select a `RANK` from.
+	 * @property {jQuery|null} [$menu=null]
+	 * @ignore
 	 */
 	var $menu = null;
 
 	/**
-	 * Selector for choosing a statement rank.
+	 * Selector for choosing a `Statement` rank.
+	 * @see wikibase.datamodel.Statement.RANK
+	 * @class jQuery.wikibase.statementview.RankSelector
+	 * @extends jQuery.ui.EditableTemplatedWidget
 	 * @since 0.5
-	 * @extends jQuery.ui.TemplatedWidget
+	 * @licence GNU GPL v2+
+	 * @author H. Snater < mediawiki@snater.com >
 	 *
-	 * @option [rank] {boolean} The rank that shall be selected.
-	 *         Default: wb.datamodel.Statement.RANK.NORMAL
+	 * @constructor
 	 *
-	 * @option [isRTL] {boolean} Defines whether the widget is displayed in right-to-left context.
-	 *         If not specified, the context is detected by checking whether the 'rtl' css class is
-	 *         set on the HTML body element.
-	 *         Default: undefined
-	 *
-	 * @event afterchange Triggered after the snak type got changed
-	 *        (1) {jQuery.Event}
+	 * @param {Object} [options]
+	 * @param {number} [options.value=wikibase.datamodel.Statement.RANK.NORMAL]
+	 *        The `RANK` that shall be selected.
+	 * @param {boolean} [options.isRTL=false]
+	 *        Whether the widget is displayed in right-to-left context.
+	 */
+	/**
+	 * @event afterchange
+	 * Triggered after the snak type got changed.
+	 * @param {jQuery.Event} event
 	 */
 	$.wikibase.statementview.RankSelector = util.inherit( PARENT, {
-		widgetName: 'wikibase-rankselector',
-		widgetBaseClass: 'wb-rankselector',
+		namespace: 'wikibase',
+		widgetName: 'rankselector',
+		widgetFullName: 'wikibase-rankselector',
 
 		/**
-		 * @type {Object}
+		 * @inheritdoc
+		 * @protected
+		 * @readonly
 		 */
 		options: {
-			template: 'wb-rankselector',
+			template: 'wikibase-rankselector',
 			templateParams: [
 				'',
 				'',
 				''
 			],
-
 			templateShortCuts: {
 				'$icon': '.ui-icon-rankselector'
 			},
-
-			rank: wb.datamodel.Statement.RANK.NORMAL,
-			isRtl: undefined
+			value: wb.datamodel.Statement.RANK.NORMAL,
+			isRtl: false
 		},
 
 		/**
-		 * The rank currently featured by the rank selector.
-		 * @see wb.datamodel.Statement.RANK
+		 * The `RANK` currently featured by the `RankSelector`.
+		 * @see wikibase.datamodel.Statement.RANK
 		 * @type {number}
 		 */
 		_rank: null,
 
 		/**
-		 * @see jQuery.Widget._create
+		 * @inheritdoc
 		 */
 		_create: function() {
 			var self = this;
@@ -75,25 +79,25 @@
 						rank = $li.data( self.widgetName + '-menuitem-rank' );
 
 					if( rank !== undefined ) {
-						$.data( this, self.widgetName ).rank( rank );
+						$.data( this, self.widgetName ).value( rank );
 					}
 				} );
 			}
 
 			this.element
-			.addClass( this.widgetBaseClass )
+			.addClass( this.widgetFullName )
 			.on( 'mouseover.' + this.widgetName, function( event ) {
-				if( !self.isDisabled() ) {
+				if( !self.option( 'disabled' ) && self.isInEditMode() ) {
 					self.element.addClass( 'ui-state-hover' );
 				}
 			} )
 			.on( 'mouseout.' + this.widgetName, function( event ) {
-				if( !self.isDisabled() ) {
+				if( !self.option( 'disabled' ) && self.isInEditMode() ) {
 					self.element.removeClass( 'ui-state-hover' );
 				}
 			} )
 			.on( 'click.' + this.widgetName, function( event ) {
-				if( self.isDisabled() || $menu.is( ':visible' ) ) {
+				if( self.option( 'disabled' ) || !self.isInEditMode() || $menu.is( ':visible' ) ) {
 					$menu.hide();
 					return;
 				}
@@ -119,21 +123,21 @@
 				$( window ).on( 'resize.' + self.widgetName, degrade );
 			} );
 
-			this._setRank( this.options.rank );
+			this._setRank( this.options.value );
 		},
 
 		/**
-		 * @see jQuery.Widget.destroy
+		 * @inheritdoc
 		 */
 		destroy: function() {
-			if( $( '.' + this.widgetBaseClass ).length === 0 ) {
+			if( $( '.' + this.widgetFullName ).length === 0 ) {
 				$menu.data( 'menu' ).destroy();
 				$menu.remove();
 				$menu = null;
 			}
 			this.$icon.remove();
 
-			this.element.removeClass( 'ui-state-default ui-state-hover ' + this.widgetBaseClass );
+			this.element.removeClass( 'ui-state-default ui-state-hover ' + this.widgetFullName );
 
 			this._unbindGlobalEventListeners();
 
@@ -141,39 +145,44 @@
 		},
 
 		/**
-		 * @see jQuery.Widget._setOption
-		 * @triggers afterchange
+		 * @inheritdoc
+		 * @protected
 		 */
 		_setOption: function( key, value ) {
-			PARENT.prototype._setOption.apply( this, arguments );
+			var response = PARENT.prototype._setOption.apply( this, arguments );
 			if( key === 'rank' ) {
 				this._setRank( value );
 				this._trigger( 'afterchange' );
+			} else if( key === 'disabled' ) {
+				this.draw();
 			}
+			return response;
 		},
 
 		/**
-		 * Removes all global event listeners generated by the rank selector.
+		 * Removes all global event listeners generated by the `RankSelector`.
+		 * @private
 		 */
 		_unbindGlobalEventListeners: function() {
 			$( document ).add( $( window ) ).off( '.' + this.widgetName );
 		},
 
 		/**
-		 * Generates the menu the rank may be chosen from.
+		 * Generates the menu the `RANK` may be chosen from.
+		 * @private
 		 *
 		 * @return {jQuery}
 		 */
 		_buildMenu: function() {
 			var self = this,
-				$menu = $( '<ul/>' ).addClass( this.widgetBaseClass + '-menu' );
+				$menu = $( '<ul/>' ).addClass( this.widgetFullName + '-menu' );
 
 			$.each( wb.datamodel.Statement.RANK, function( rankId, i ) {
 				rankId = rankId.toLowerCase();
 
 				$menu.append(
 					$( '<li/>' )
-					.addClass( self.widgetBaseClass + '-menuitem-' + rankId )
+					.addClass( self.widgetFullName + '-menuitem-' + rankId )
 					.data( self.widgetName + '-menuitem-rank', i )
 					.append(
 						$( '<a/>' )
@@ -189,15 +198,13 @@
 		},
 
 		/**
-		 * Sets the rank if a rank is specified or gets the current rank if parameter is omitted.
-		 * @since 0.5
+		 * Sets the `RANK` if a `RANK` is specified or gets the current `RANK` if parameter is
+		 * omitted.
 		 *
 		 * @param {number} [rank]
 		 * @return {number|undefined}
-		 *
-		 * @triggers afterchange
 		 */
-		rank: function( rank ) {
+		value: function( rank ) {
 			if( rank === undefined ) {
 				return this._rank;
 			}
@@ -208,7 +215,8 @@
 		},
 
 		/**
-		 * Sets the rank activating the menu item representing the specified rank.
+		 * Sets the `RANK` activating the menu item representing the specified `RANK`.
+		 * @private
 		 *
 		 * @param {number} rank
 		 */
@@ -223,85 +231,110 @@
 		},
 
 		/**
-		 * Updates the menu's css classes.
+		 * Updates the menu's CSS classes.
+		 * @private
 		 */
 		_updateMenuCss: function() {
 			$menu.children().removeClass( 'ui-state-active' );
 			$menu
-			.children( '.' + this.widgetBaseClass + '-menuitem-' + getRankString( this.rank() ) )
+			.children( '.' + this.widgetFullName + '-menuitem-' + getRankString( this.value() ) )
 			.addClass( 'ui-state-active' );
 		},
 
 		/**
 		 * Updates the rank icon to reflect the rank currently set.
+		 * @private
 		 */
 		_updateIcon: function() {
 			var self = this,
-				rankString = getRankString( this.rank() );
+				rankString = getRankString( this.value() );
 
 			$.each( wb.datamodel.Statement.RANK, function( rankId, i ) {
-				self.$icon.removeClass( 'wb-rankselector-' + rankId.toLowerCase() );
+				self.$icon.removeClass( self.widgetFullName + '-' + rankId.toLowerCase() );
 			} );
 
 			this.$icon
-			.addClass( 'wb-rankselector-' + rankString )
+			.addClass( this.widgetFullName + '-' + rankString )
 			.attr( 'title', mw.msg( 'wikibase-statementview-rank-' + rankString ) );
 		},
 
 		/**
-		 * Positions the menu.
-		 * @since 0.5
+		 * (Re-)positions the menu.
 		 */
 		repositionMenu: function() {
-			var isRtl = ( this.options.isRTL )
-				? this.options.isRTL
-				: $( 'body' ).hasClass( 'rtl' );
-
 			$menu.position( {
 				of: this.$icon,
-				my: ( isRtl ? 'right' : 'left' ) + ' top',
-				at: ( isRtl ? 'right' : 'left' ) + ' bottom',
+				my: ( this.options.isRTL ? 'right' : 'left' ) + ' top',
+				at: ( this.options.isRTL ? 'right' : 'left' ) + ' bottom',
 				offset: '0 1',
 				collision: 'none'
 			} );
 		},
 
 		/**
-		 * @see jQuery.Widget.disable
-		 * @since 0.5
+		 * @inheritdoc
 		 */
-		disable: function() {
+		draw: function() {
+			if( this.isInEditMode() ) {
+				this.element
+				.addClass( 'ui-state-default ui-state-active' )
+				.removeClass( 'ui-state-disabled' );
+			} else {
+				this.element
+				.removeClass( 'ui-state-default ui-state-active ui-state-hover' )
+				.addClass( 'ui-state-disabled' );
+			}
+
+			return $.Deferred().resolve().promise();
+		},
+
+		/**
+		 * @inheritdoc
+		 */
+		stopEditing: function( dropValue ) {
+			if( dropValue ) {
+				this._setRank( this.options.value );
+			}
+			// Hide the menu the rank selector currently references to:
 			if( $menu && $menu.data( this.widgetName ) === this ) {
-				// Disabling the rank selector the menu currently references to.
 				$menu.hide();
 			}
-			this.element.removeClass( 'ui-state-active ui-state-hover' );
-			this.element.addClass( 'ui-state-disabled' );
-			return PARENT.prototype.disable.call( this );
+			return PARENT.prototype.stopEditing.call( this, dropValue );
 		},
 
 		/**
-		 * @see jQuery.Widget.enable
-		 * @since 0.5
+		 * @inheritdoc
 		 */
-		enable: function() {
-			this.element.removeClass( 'ui-state-disabled' );
-			return PARENT.prototype.enable.call( this );
+		_save: function() {
+			return $.Deferred().resolve().promise();
 		},
 
 		/**
-		 * Returns whether the widget is currently disabled.
-		 * @return 0.5
+		 * @inheritdoc
 		 */
-		isDisabled: function() {
-			return this.element.hasClass( 'ui-state-disabled' );
+		isEmpty: function() {
+			return false;
+		},
+
+		/**
+		 * @inheritdoc
+		 */
+		isValid: function() {
+			return true;
+		},
+
+		/**
+		 * @inheritdoc
+		 */
+		isInitialValue: function() {
+			return this.value() === this.options.value;
 		}
-
 	} );
 
 	/**
-	 * Returns a rank's serialized string.
-	 * @see wb.datamodel.Statement.RANK
+	 * Returns a `RANK`'s serialized string.
+	 * @see wikibase.datamodel.Statement.RANK
+	 * @ignore
 	 *
 	 * @param {number} rank
 	 * @return {string|null}

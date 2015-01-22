@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Entity\Diff;
+namespace Wikibase\DataModel\Tests\Entity\Diff;
 
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
@@ -53,7 +53,7 @@ class PropertyPatcherTest extends \PHPUnit_Framework_TestCase {
 		$patcher = new PropertyPatcher();
 
 		$this->setExpectedException( 'InvalidArgumentException' );
-		$patcher->patchEntity( Item::newEmpty(), new EntityDiff() );
+		$patcher->patchEntity( new Item(), new EntityDiff() );
 	}
 
 	public function testStatementsArePatched() {
@@ -89,4 +89,3 @@ class PropertyPatcherTest extends \PHPUnit_Framework_TestCase {
 	}
 
 }
-

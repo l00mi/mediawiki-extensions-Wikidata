@@ -73,14 +73,17 @@ class Statement extends Claim {
 		$this->references = $references;
 	}
 
+	// @codingStandardsIgnoreStart
 	/**
 	 * @since 2.0
 	 *
 	 * @param Snak $snak
+	 * @param Snak [$snak2, ...]
 	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function addNewReference( Snak $snak /* Snak, ... */ ) {
+		// @codingStandardsIgnoreEnd
 		$this->references->addReference( new Reference( new SnakList( func_get_args() ) ) );
 	}
 
@@ -125,7 +128,7 @@ class Statement extends Claim {
 		return sha1( implode(
 			'|',
 			array(
-				parent::getHash(),
+				sha1( $this->mainSnak->getHash() . $this->qualifiers->getHash() ),
 				$this->rank,
 				$this->references->getValueHash(),
 			)
@@ -141,7 +144,11 @@ class Statement extends Claim {
 	 * @return Snak[]
 	 */
 	public function getAllSnaks() {
-		$snaks = parent::getAllSnaks();
+		$snaks = array( $this->mainSnak );
+
+		foreach( $this->qualifiers as $qualifier ) {
+			$snaks[] = $qualifier;
+		}
 
 		/* @var Reference $reference */
 		foreach( $this->getReferences() as $reference ) {

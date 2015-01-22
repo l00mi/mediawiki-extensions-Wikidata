@@ -1,14 +1,13 @@
 ( function( mw, wb, $ ) {
 	'use strict';
 
-	var PARENT = $.ui.TemplatedWidget;
+	var PARENT = $.ui.EditableTemplatedWidget;
 
 /**
  * View for displaying and editing `wikibase.datamodel.Statement` objects.
  * @see wikibase.datamodel.Statement
  * @class jQuery.wikibase.statementview
- * @extends jQuery.ui.TemplatedWidget
- * @uses jQuery.NativeEventHandler
+ * @extends jQuery.ui.EditableTemplatedWidget
  * @uses jQuery.ui.toggler
  * @uses jQuery.wikibase.listview
  * @uses jQuery.wikibase.listview.ListItemAdapter
@@ -32,7 +31,8 @@
  *
  * @param {Object} options
  * @param {wikibase.datamodel.Statement|null} [options.value=null]
- *        The `Statement` displayed by the view. May be set initially only.
+ *        The `Statement` displayed by the view. May be set initially only and gets updated
+ *        automatically if changes to the `Statement` are saved.
  *        If `null`, the view will be switched to edit mode initially.
  * @param {wikibase.entityChangers.ClaimsChanger} options.claimsChanger
  *        Required to store the view's `Statement`.
@@ -42,7 +42,7 @@
  *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
  *        `jQuery.valueview`.
  * @param {wikibase.entityChangers.EntityChangersFactory} options.entityChangersFactory
- *        Required to store the `Reference`s gatherd from the `referenceview`s aggregated by the
+ *        Required to store the `Reference`s gathered from the `referenceview`s aggregated by the
  *        `statementview`.
  * @param {dataTypes.DataTypeStore} options.dataTypeStore
  *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
@@ -103,13 +103,12 @@ $.widget( 'wikibase.statementview', PARENT, {
 	/**
 	 * @inheritdoc
 	 * @protected
-	 * @readonly
 	 */
 	options: {
 		template: 'wikibase-statementview',
 		templateParams: [
 			function() { // GUID
-				return ( this._statement && this._statement.getClaim().getGuid() ) || 'new';
+				return ( this.options.value && this.options.value.getClaim().getGuid() ) || 'new';
 			},
 			function() { // Rank selector
 				return $( '<div/>' );
@@ -163,14 +162,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_referencesListview: null,
 
 	/**
-	 * The `Statement` represented by this view. This is the `Statement` actually stored in the data
-	 * base. Updates to the `Statement` not yet stored are not reflected in this object.
-	 * @property {wikibase.datamodel.Statement|null}
-	 * @private
-	 */
-	_statement: null,
-
-	/**
 	 * Reference to the `listview` widget managing the qualifier `snaklistview`s.
 	 * @property {jQuery.wikibase.listview}
 	 * @private
@@ -213,27 +204,15 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		PARENT.prototype._create.call( this );
 
-		this._statement = this.options.value;
-
-		this._createRankSelector( this._statement ? this._statement.getRank() : null );
-		this._createMainSnak( this._statement
-			? this._statement.getClaim().getMainSnak()
-			: this.option( 'predefined' ).mainSnak || null
-		);
-
-		this._initialQualifiers = this._statement
-			? this._statement.getClaim().getQualifiers()
+		this._initialQualifiers = this.options.value
+			? this.options.value.getClaim().getQualifiers()
 			: new wb.datamodel.SnakList();
 
-		// TODO: Allow adding qualifiers when adding a new claim.
-		if( this._statement && this._initialQualifiers.length ) {
-			this._createQualifiersListview( this._initialQualifiers );
-		}
-
 		this._referencesChanger = this.options.entityChangersFactory.getReferencesChanger();
-		this._createReferences( this._statement );
 
 		this._updateHelpMessage();
+
+		this.draw();
 	},
 
 	/**
@@ -243,10 +222,16 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @param {number} rank
 	 */
 	_createRankSelector: function( rank ) {
+		if( this._rankSelector ) {
+			return;
+		}
+
 		var $rankSelector = this.$rankSelector.children().first();
 		this._rankSelector = new $.wikibase.statementview.RankSelector( {
-			rank: rank,
-			templateParams: ['ui-state-disabled', '', '']
+			value: rank,
+			templateParams: ['ui-state-disabled', '', ''],
+			// TODO: Directionality should be determined on entityview level and forwarded to here
+			isRTL: $( 'html' ).prop( 'dir' ) === 'rtl'
 		}, $rankSelector );
 
 		var self = this,
@@ -257,24 +242,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 				self._trigger( 'change' );
 			}
 		} );
-
-		this.element
-		.on( this.widgetEventPrefix + 'toggleerror.' + this.widgetName, function( event, error ) {
-			if( !error ) {
-				self._rankSelector.enable();
-			}
-		} )
-		.on(
-			this.widgetEventPrefix + 'afterstopediting.' + this.widgetName,
-			function( event, dropValue ) {
-				// FIXME: This should be the responsibility of the rankSelector
-				$rankSelector.removeClass( 'ui-state-default' );
-				if( dropValue && self._statement ) {
-					self._rankSelector.rank( self._statement.getRank() );
-				}
-				self._rankSelector.disable();
-			}
-		);
 	},
 
 	/**
@@ -283,19 +250,17 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @param {wikibase.datamodel.Snak|null} [snak=null]
 	 */
 	_createMainSnak: function( snak ) {
+		if( this.$mainSnak.data( 'snakview' ) ) {
+			return;
+		}
+
 		var self = this;
 
 		this.$mainSnak
-		.on(
-			[
-				'snakviewchange.' + this.widgetName,
-				'snakviewafterstartediting.' + this.widgetName
-			].join( ' ' ),
-			function( event, status ) {
-				event.stopPropagation();
-				self._trigger( 'change' );
-			}
-		)
+		.on( 'snakviewchange.' + this.widgetName, function( event, status ) {
+			event.stopPropagation();
+			self._trigger( 'change' );
+		} )
 		.on( 'snakviewstopediting.' + this.widgetName, function( event ) {
 			event.stopPropagation();
 		} );
@@ -316,6 +281,10 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @param {wikibase.datamodel.SnakList|null} [qualifiers=null]
 	 */
 	_createQualifiersListview: function( qualifiers ) {
+		if( this._qualifiers ) {
+			return;
+		}
+
 		var self = this,
 			groupedQualifierSnaks = null;
 
@@ -396,6 +365,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 		var $listview = this.$references.children();
 		if( !$listview.length ) {
 			$listview = $( '<div/>' ).prependTo( this.$references );
+		} else if( $listview.data( 'listview' ) ) {
+			return;
 		}
 
 		$listview.listview( {
@@ -404,7 +375,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value || null,
-						statementGuid: self.value().getClaim().getGuid(),
+						statementGuid: self.options.value.getClaim().getGuid(),
 						dataTypeStore: self.options.dataTypeStore,
 						entityStore: self.options.entityStore,
 						valueViewBuilder: self.options.valueViewBuilder,
@@ -476,12 +447,12 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @private
 	 */
 	_updateHelpMessage: function() {
-		if( !this._statement && !this.options.predefined.mainSnak ) {
+		if( !this.options.value && !this.options.predefined.mainSnak ) {
 			return;
 		}
 
-		var property = this._statement
-			? this._statement.getClaim().getMainSnak().getPropertyId()
+		var property = this.options.value
+			? this.options.value.getClaim().getMainSnak().getPropertyId()
 			: this.options.predefined.mainSnak.property;
 
 		var deferred = $.Deferred(),
@@ -533,11 +504,35 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
+	 * @inheritdoc
+	 */
+	draw: function() {
+		this._createRankSelector( this.options.value
+			? this.options.value.getRank()
+			: wb.datamodel.Statement.RANK.NORMAL
+		);
+
+		this._createMainSnak( this.options.value
+				? this.options.value.getClaim().getMainSnak()
+				: this.option( 'predefined' ).mainSnak || null
+		);
+
+		// TODO: Allow adding qualifiers when adding a new statement.
+		if( this.options.value && ( this.isInEditMode() || this._initialQualifiers.length ) ) {
+			this._createQualifiersListview();
+		}
+
+		this._createReferences( this.options.value );
+
+		return $.Deferred().resolve().promise();
+	},
+
+	/**
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
-		if( this._statement ) {
-			if( this._statement.getRank() !== this._rankSelector.rank() ) {
+		if( this.options.value ) {
+			if( !this._rankSelector.isInitialValue() ) {
 				return false;
 			}
 
@@ -567,9 +562,15 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @private
 	 *
 	 * @param {string} guid
-	 * @return {wikibase.datamodel.Statement}
+	 * @return {wikibase.datamodel.Statement|null}
 	 */
 	_instantiateStatement: function( guid ) {
+		var mainSnak = this.$mainSnak.data( 'snakview' ).snak();
+
+		if( !mainSnak ) {
+			return null;
+		}
+
 		var qualifiers = new wb.datamodel.SnakList(),
 			snaklistviews = this._qualifiers ? this._qualifiers.value() : [];
 
@@ -579,13 +580,9 @@ $.widget( 'wikibase.statementview', PARENT, {
 		}
 
 		return new wb.datamodel.Statement(
-			new wb.datamodel.Claim(
-				this.$mainSnak.data( 'snakview' ).snak(),
-				qualifiers,
-				guid
-			),
+			new wb.datamodel.Claim( mainSnak, qualifiers, guid ),
 			new wb.datamodel.ReferenceList( this._getReferences() ),
-			this._rankSelector.rank()
+			this._rankSelector.value()
 		);
 	},
 
@@ -617,7 +614,9 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		$.each( this._referencesListview.items(), function( i, item ) {
 			var referenceview = self._referenceviewLia.liInstance( $( item ) );
-			references.push( referenceview.value() );
+			if( referenceview ) {
+				references.push( referenceview.value() );
+			}
 		} );
 
 		return references;
@@ -647,13 +646,14 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
-	 * Returns the current `Statement` represented by the view. If `null` is returned, the view's
-	 * `Statement` has not yet been stored.
+	 * Returns the current `Statement` represented by the view, considering all pending changes not
+	 * yet stored. Use `this.option( 'value' )` to retrieve the stored/original `Statement`.
 	 *
 	 * @return {wikibase.datamodel.Statement|null}
 	 */
 	value: function() {
-		return this._statement;
+		var guid = this.options.value ? this.options.value.getClaim().getGuid() : null;
+		return this._instantiateStatement( guid );
 	},
 
 	/**
@@ -676,60 +676,48 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
-	 * Stops the view's edit mode.
-	 *
-	 * @param {boolean} [dropValue=false] If `true`, the value from before edit mode has been
-	 *        started will be reinstated--basically a cancel/save switch.
-	 *
-	 * @return {undefined}
+	 * @inheritdoc
 	 */
-	stopEditing: $.NativeEventHandler( 'stopEditing', {
-		// don't stop edit mode or trigger event if not in edit mode currently:
-		initially: function( e, dropValue ) {
-			if(
-				!this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue
-			) {
-				e.cancel();
-			}
+	startEditing: function() {
+		var self = this,
+			deferred = $.Deferred();
 
-			this.element.removeClass( 'wb-error' );
-		},
-		// start edit mode if custom event handlers didn't prevent default:
-		natively: function( e, dropValue ) {
-			var self = this;
+		this.$mainSnak.one( 'snakviewafterstartediting', function() {
+			PARENT.prototype.startEditing.call( self ).done( function() {
+				self._rankSelector.startEditing();
 
-			this.disable();
-			this._rankSelector.disable();
-
-			function stopEditing() {
-				if( self.$mainSnak.data( 'snakview' ) ) {
-					self.$mainSnak.data( 'snakview' ).stopEditing( dropValue );
+				if( this._qualifiers ) {
+					var snaklistviews = self._qualifiers.value();
+					if( snaklistviews.length ) {
+						for( var i = 0; i < snaklistviews.length; i++ ) {
+							snaklistviews[i].startEditing();
+						}
+					}
 				}
 
-				self._stopEditingQualifiers( dropValue );
+				deferred.resolve();
+			} )
+			.fail( deferred.reject );
+		} );
 
-				self._isInEditMode = false;
-				self.enable();
+		this.$mainSnak.data( 'snakview' ).startEditing();
 
-				self.element.removeClass( 'wb-edit' );
+		return deferred.promise();
+	},
 
-				// transform toolbar and snak view after save complete
-				self._trigger( 'afterstopediting', null, [dropValue] );
-			}
-
-			if( dropValue ) {
-				stopEditing();
-			} else {
-				// editing an existing claim
-				this._saveStatementApiCall()
-				.done( stopEditing )
-				.fail( function( error ) {
-					self.enable();
-					self.setError( error );
-				} );
-			}
+	/**
+	 * @inheritdoc
+	 * @protected
+	 */
+	_afterStopEditing: function( dropValue ) {
+		if( this.$mainSnak.data( 'snakview' ) ) {
+			this.$mainSnak.data( 'snakview' ).stopEditing( dropValue );
 		}
-	} ),
+		this._stopEditingQualifiers( dropValue );
+		this._rankSelector.stopEditing( dropValue );
+
+		return PARENT.prototype._afterStopEditing.call( this );
+	},
 
 	/**
 	 * @private
@@ -777,29 +765,38 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
+	 * @inheritdoc
 	 * @private
 	 *
 	 * @return {Object} jQuery.Promise
 	 * @return {Function} return.done
-	 * @return {wikibase.datamodel.Statement} return.done.statement The saved statement-
+	 * @return {wikibase.datamodel.Statement} return.done.statement The saved statement.
 	 * @return {Function} return.fail
 	 * @return {wikibase.api.RepoApiError} return.fail.error
+	 *
+	 * @throws {Error} if unable to instantiate a `Statement` from the current view state.
 	 */
-	_saveStatementApiCall: function() {
+	_save: function() {
 		var self = this,
 			guid;
 
-		if( this.value() ) {
-			guid = this.value().getClaim().getGuid();
+		if( this.options.value ) {
+			guid = this.options.value.getClaim().getGuid();
 		} else {
 			var guidGenerator = new wb.utilities.ClaimGuidGenerator();
 			guid = guidGenerator.newGuid( mw.config.get( 'wbEntityId' ) );
 		}
 
-		return this.option( 'claimsChanger' ).setStatement( this._instantiateStatement( guid ) )
+		var statement = this._instantiateStatement( guid );
+
+		if( !statement ) {
+			throw new Error( 'Unable to instantiate Statement' );
+		}
+
+		return this.option( 'claimsChanger' ).setStatement( statement )
 		.done( function( savedStatement ) {
 			// Update model of represented Statement:
-			self._statement = savedStatement;
+			self.options.value = savedStatement;
 		} );
 	},
 
@@ -814,71 +811,12 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
-	 * Starts the view's edit mode.
+	 * @inheritdoc
 	 */
-	startEditing: $.NativeEventHandler( 'startEditing', {
-		// don't start edit mode or trigger event if in edit mode already:
-		initially: function( e ) {
-			if( this.isInEditMode() ) {
-				e.cancel();
-			}
-		},
-		// start edit mode if event doesn't prevent default:
-		natively: function( e ) {
-			var self = this;
-
-			this.$mainSnak.one( 'snakviewafterstartediting', function() {
-				if( !self._qualifiers && self._statement ) {
-					self._createQualifiersListview();
-				}
-
-				// Start edit mode of all qualifiers:
-				if( self._qualifiers ) {
-					var snaklistviews = self._qualifiers.value();
-					if( snaklistviews.length ) {
-						for( var i = 0; i < snaklistviews.length; i++ ) {
-							snaklistviews[i].startEditing();
-						}
-					}
-				}
-
-				self.element.addClass( 'wb-edit' );
-				self._isInEditMode = true;
-
-				// FIXME: This should be the responsibility of the rankSelector
-				self._rankSelector.element.addClass( 'ui-state-default' );
-				if( !self._statement ) {
-					self._rankSelector.rank( wb.datamodel.Statement.RANK.NORMAL );
-				}
-				self._rankSelector.enable();
-
-				self._trigger( 'afterstartediting' );
-			} );
-
-			this.$mainSnak.data( 'snakview' ).startEditing();
-		}
-	} ),
-
-	/**
-	 * @return {boolean}
-	 */
-	isInEditMode: function() {
-		return this._isInEditMode;
-	},
-
-	/**
-	 * Sets/removes error state from the view.
-	 *
-	 * @param {wikibase.api.RepoApiError} [error]
-	 */
-	setError: function( error ) {
-		if( error ) {
-			this.element.addClass( 'wb-error' );
-			this._trigger( 'toggleerror', null, [ error ] );
-		} else {
-			this.element.removeClass( 'wb-error' );
-			this._trigger( 'toggleerror' );
-		}
+	isEmpty: function() {
+		return false;
+		// TODO: Supposed to do at least...
+		// this.$mainSnak.data( 'snakview' ).isEmpty(); (does not exist at the moment of writing)
 	},
 
 	/**
@@ -924,6 +862,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			if( this._qualifiers ) {
 				this._qualifiers.option( key, value );
 			}
+			this._rankSelector.option( key, value );
 		}
 
 		return response;

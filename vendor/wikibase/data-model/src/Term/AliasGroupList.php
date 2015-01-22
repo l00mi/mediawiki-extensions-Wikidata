@@ -62,7 +62,7 @@ class AliasGroupList implements Countable, IteratorAggregate {
 	 *
 	 * @since 2.3
 	 *
-	 * @return AliasGroup[]
+	 * @return AliasGroup[] Array indexed by language code.
 	 */
 	public function toArray() {
 		return $this->groups;
@@ -86,6 +86,17 @@ class AliasGroupList implements Countable, IteratorAggregate {
 	}
 
 	/**
+	 * @since 2.5
+	 *
+	 * @param string[] $languageCodes
+	 *
+	 * @return AliasGroupList
+	 */
+	public function getWithLanguages( array $languageCodes ) {
+		return new self( array_intersect_key( $this->groups, array_flip( $languageCodes ) ) );
+	}
+
+	/**
 	 * @param string $languageCode
 	 * @throws InvalidArgumentException
 	 */
@@ -95,8 +106,8 @@ class AliasGroupList implements Countable, IteratorAggregate {
 	}
 
 	private function assertIsLanguageCode( $languageCode ) {
-		if ( !is_string( $languageCode ) ) {
-			throw new InvalidArgumentException( '$languageCode must be a string; got ' . gettype( $languageCode ) );
+		if ( !is_string( $languageCode ) || $languageCode === '' ) {
+			throw new InvalidArgumentException( '$languageCode must be a non-empty string' );
 		}
 	}
 
@@ -185,6 +196,23 @@ class AliasGroupList implements Countable, IteratorAggregate {
 	 */
 	public function setAliasesForLanguage( $languageCode, array $aliases ) {
 		$this->setGroup( new AliasGroup( $languageCode, $aliases ) );
+	}
+
+	/**
+	 * Returns an array with language codes as keys the aliases as array values.
+	 *
+	 * @since 2.5
+	 *
+	 * @return array[]
+	 */
+	public function toTextArray() {
+		$array = array();
+
+		foreach ( $this->groups as $group ) {
+			$array[$group->getLanguageCode()] = $group->getAliases();
+		}
+
+		return $array;
 	}
 
 }

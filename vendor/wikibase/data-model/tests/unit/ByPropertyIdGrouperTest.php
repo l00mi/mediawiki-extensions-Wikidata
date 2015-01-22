@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\DataModel\Test;
+namespace Wikibase\DataModel\Tests;
 
 use OutOfBoundsException;
 use Wikibase\DataModel\ByPropertyIdGrouper;
@@ -114,7 +114,6 @@ class ByPropertyIdGrouperTest extends \PHPUnit_Framework_TestCase {
 		$cases[] = array( $propertyIdProviders, 'P15', true );
 		$cases[] = array( $propertyIdProviders, 'P10', true );
 		$cases[] = array( $propertyIdProviders, 'P11', false );
-		
 
 		return $cases;
 	}

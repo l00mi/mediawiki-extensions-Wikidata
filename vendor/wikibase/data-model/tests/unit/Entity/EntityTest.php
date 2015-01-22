@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Entity;
+namespace Wikibase\DataModel\Tests\Entity;
 
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
@@ -9,8 +9,6 @@ use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Diff\EntityDiff;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Reference;
-use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
@@ -252,12 +250,12 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testSetAllAliases( array $aliasGroups ) {
 		$entity = $this->getNewEmpty();
-		$entity->addAliases( 'zh' , array( 'qwertyuiop123' , '321poiuytrewq' ) );
+		$entity->addAliases( 'zh', array( 'qwertyuiop123', '321poiuytrewq' ) );
 
 		$aliasesToSet = array();
 		foreach ( $aliasGroups as $langCode => $aliasGroup ) {
 			foreach ( $aliasGroup as $aliases ) {
-				$aliasesToSet[$langCode]= $aliases;
+				$aliasesToSet[$langCode] = $aliases;
 			}
 		}
 
@@ -281,7 +279,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetAliases() {
 		$entity = $this->getNewEmpty();
-		$aliases =  array( 'a', 'b' );
+		$aliases = array( 'a', 'b' );
 
 		$entity->getFingerprint()->setAliasGroup( 'en', $aliases );
 
@@ -321,7 +319,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 		foreach ( $aliasesLists as $langCode => $aliasesList ) {
 			$aliases = array_shift( $aliasesList );
-			$removedAliases =  array_shift( $aliasesList );
+			$removedAliases = array_shift( $aliasesList );
 
 			$entity->setAliases( $langCode, $aliases );
 			$entity->removeAliases( $langCode, $removedAliases );
@@ -388,7 +386,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCopyRetainsLabels() {
-		$item = Item::newEmpty();
+		$item = new Item();
 
 		$item->getFingerprint()->setLabel( 'en', 'foo' );
 		$item->getFingerprint()->setLabel( 'de', 'bar' );
@@ -544,15 +542,8 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 			// check the first reference
 			if ( $claim instanceof Statement ) {
-				$references = $claim->getReferences();
-
-				/* @var Reference $ref */
-				foreach ( $references as $ref ) {
-					$refSnaks = $ref->getSnaks();
-
-					foreach ( $refSnaks as $snak ) {
-						$this->assertContains( $snak, $snaks, "reference snak" );
-					}
+				foreach ( $claim->getAllSnaks() as $snak ) {
+					$this->assertContains( $snak, $snaks, "statement snak" );
 				}
 			}
 		}
@@ -562,7 +553,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$entity = $this->getNewEmpty();
 
 		$this->assertEquals(
-			Fingerprint::newEmpty(),
+			new Fingerprint(),
 			$entity->getFingerprint()
 		);
 	}
@@ -578,9 +569,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 				new TermList( array(
 					new Term( 'en', 'foo' ),
 					new Term( 'de', 'bar' ),
-				) ),
-				new TermList(),
-				new AliasGroupList()
+				) )
 			),
 			$entity->getFingerprint()
 		);
@@ -611,7 +600,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGivenEmptyFingerprint_noTermsAreSet() {
 		$entity = $this->getNewEmpty();
-		$entity->setFingerprint( Fingerprint::newEmpty() );
+		$entity->setFingerprint( new Fingerprint() );
 
 		$this->assertHasNoTerms( $entity );
 	}
@@ -629,7 +618,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$entity->setDescription( 'en', 'foo bar' );
 		$entity->setAliases( 'en', array( 'foo', 'bar' ) );
 
-		$entity->setFingerprint( Fingerprint::newEmpty() );
+		$entity->setFingerprint( new Fingerprint() );
 
 		$this->assertHasNoTerms( $entity );
 	}

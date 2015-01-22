@@ -351,17 +351,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "2.4.1",
-        "version_normalized": "2.4.1.0",
+        "version": "2.5.0",
+        "version_normalized": "2.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "6223a24ac1df8688c0d429995ebe71ba37e26cd5"
+            "reference": "ee8b492c2209168aa89d4b537652864abffe3e73"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/6223a24ac1df8688c0d429995ebe71ba37e26cd5",
-            "reference": "6223a24ac1df8688c0d429995ebe71ba37e26cd5",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/ee8b492c2209168aa89d4b537652864abffe3e73",
+            "reference": "ee8b492c2209168aa89d4b537652864abffe3e73",
             "shasum": ""
         },
         "require": {
@@ -369,11 +369,14 @@
             "diff/diff": "~1.0",
             "php": ">=5.3.0"
         },
-        "time": "2014-11-26 21:29:26",
+        "require-dev": {
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-01-20 11:31:47",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.4.x-dev"
+                "dev-master": "2.5.x-dev"
             }
         },
         "installation-source": "dist",
@@ -1176,12 +1179,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "f6864965a008f5113c3b128d8d5c32ddd66ce5b5"
+            "reference": "8aeef48a1b0fcba17ae35d4827945cf8df61a4a3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f6864965a008f5113c3b128d8d5c32ddd66ce5b5",
-            "reference": "f6864965a008f5113c3b128d8d5c32ddd66ce5b5",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8aeef48a1b0fcba17ae35d4827945cf8df61a4a3",
+            "reference": "8aeef48a1b0fcba17ae35d4827945cf8df61a4a3",
             "shasum": ""
         },
         "require": {
@@ -1209,7 +1212,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-01-18 21:23:35",
+        "time": "2015-01-19 21:06:15",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

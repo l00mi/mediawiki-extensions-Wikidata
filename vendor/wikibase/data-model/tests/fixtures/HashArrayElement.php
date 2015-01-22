@@ -1,8 +1,14 @@
 <?php
 
-namespace Wikibase\Test\HashArray;
+namespace Wikibase\DataModel\Fixtures;
 
-class HashArrayElement implements \Hashable {
+use Hashable;
+
+/**
+ * @licence GNU GPL v2+
+ * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ */
+class HashArrayElement implements Hashable {
 
 	public $text = '';
 

@@ -1,7 +1,8 @@
 <?php
 
-namespace Wikibase\DataModel\Term\Test;
+namespace Wikibase\DataModel\Tests\Term;
 
+use InvalidArgumentException;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 
@@ -103,11 +104,13 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $enGroup, $list->getByLanguage( 'en' ) );
 	}
 
-	public function testGivenNonString_getByLanguageThrowsException() {
+	/**
+	 * @dataProvider invalidLanguageCodeProvider
+	 * @expectedException InvalidArgumentException
+	 */
+	public function testGivenInvalidLanguageCode_getByLanguageThrowsException( $languageCode ) {
 		$list = new AliasGroupList();
-
-		$this->setExpectedException( 'InvalidArgumentException' );
-		$list->getByLanguage( null );
+		$list->getByLanguage( $languageCode );
 	}
 
 	public function testGivenNonSetLanguageCode_getByLanguageThrowsException() {
@@ -155,6 +158,15 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 		$list->removeByLanguage( 'en' );
 
 		$this->assertEquals( new AliasGroupList(), $list );
+	}
+
+	/**
+	 * @dataProvider invalidLanguageCodeProvider
+	 * @expectedException InvalidArgumentException
+	 */
+	public function testGivenInvalidLanguageCode_removeByLanguageThrowsException( $languageCode ) {
+		$list = new AliasGroupList();
+		$list->removeByLanguage( $languageCode );
 	}
 
 	public function testGivenEmptyGroups_constructorRemovesThem() {
@@ -254,6 +266,38 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue( $list->hasAliasGroup( new AliasGroup( 'en', array( 'kittens' ) ) ) );
 	}
 
+	public function testGivenNonSetLanguageGroup_hasGroupForLanguageReturnsFalse() {
+		$list = new AliasGroupList();
+		$this->assertFalse( $list->hasGroupForLanguage( 'en' ) );
+	}
+
+	/**
+	 * @dataProvider invalidLanguageCodeProvider
+	 * @expectedException InvalidArgumentException
+	 */
+	public function testGivenInvalidLanguageCode_hasGroupForLanguageThrowsException( $languageCode ) {
+		$list = new AliasGroupList();
+		$list->hasGroupForLanguage( $languageCode );
+	}
+
+	public function invalidLanguageCodeProvider() {
+		return array(
+			array( null ),
+			array( 21 ),
+			array( '' ),
+		);
+	}
+
+	public function testGivenMismatchingGroup_hasGroupForLanguageReturnsFalse() {
+		$list = new AliasGroupList( array( new AliasGroup( 'en', array( 'cats' ) ) ) );
+		$this->assertFalse( $list->hasGroupForLanguage( 'de' ) );
+	}
+
+	public function testGivenMatchingGroup_hasGroupForLanguageReturnsTrue() {
+		$list = new AliasGroupList( array( new AliasGroup( 'en', array( 'kittens' ) ) ) );
+		$this->assertTrue( $list->hasGroupForLanguage( 'en' ) );
+	}
+
 	public function testGivenAliasGroupArgs_setGroupTextsSetsAliasGroup() {
 		$list = new AliasGroupList();
 
@@ -289,6 +333,55 @@ class AliasGroupListTest extends \PHPUnit_Framework_TestCase {
 		$list = new AliasGroupList( $array );
 
 		$this->assertEquals( $array, $list->toArray() );
+	}
+
+	public function testGivenEmptyList_getWithLanguagesReturnsEmptyList() {
+		$list = new AliasGroupList();
+		$this->assertEquals( new AliasGroupList(), $list->getWithLanguages( array() ) );
+		$this->assertEquals( new AliasGroupList(), $list->getWithLanguages( array( 'en', 'de' ) ) );
+	}
+
+	public function testGivenNoLanguages_getWithLanguagesReturnsEmptyList() {
+		$list = new AliasGroupList();
+		$list->setAliasesForLanguage( 'en', array( 'foo' ) );
+		$list->setAliasesForLanguage( 'de', array( 'bar' ) );
+
+		$this->assertEquals( new AliasGroupList(), $list->getWithLanguages( array() ) );
+	}
+
+	public function testGivenAllLanguages_getWithLanguagesReturnsFullList() {
+		$list = new AliasGroupList();
+		$list->setAliasesForLanguage( 'en', array( 'foo' ) );
+		$list->setAliasesForLanguage( 'de', array( 'bar' ) );
+
+		$this->assertEquals( $list, $list->getWithLanguages( array( 'en', 'de' ) ) );
+	}
+
+	public function testGivenSomeLanguages_getWithLanguagesReturnsPartialList() {
+		$list = new AliasGroupList();
+		$list->setAliasesForLanguage( 'en', array( 'foo' ) );
+		$list->setAliasesForLanguage( 'de', array( 'bar' ) );
+		$list->setAliasesForLanguage( 'nl', array( 'baz' ) );
+		$list->setAliasesForLanguage( 'fr', array( 'hax' ) );
+
+		$expectedList = new AliasGroupList();
+		$expectedList->setAliasesForLanguage( 'en', array( 'foo' ) );
+		$expectedList->setAliasesForLanguage( 'nl', array( 'baz' ) );
+
+		$this->assertEquals( $expectedList, $list->getWithLanguages( array( 'en', 'nl' ) ) );
+	}
+
+	public function testToTextArray() {
+		$list = new AliasGroupList();
+		$list->setAliasesForLanguage( 'en', array( 'foo', 'baz' ) );
+		$list->setAliasesForLanguage( 'de', array( 'bar' ) );
+
+		$expected = array(
+			'en' => array( 'foo', 'baz' ),
+			'de' => array( 'bar' ),
+		);
+
+		$this->assertEquals( $expected, $list->toTextArray() );
 	}
 
 }

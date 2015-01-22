@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\DataModel\Tests\Statement;
 
 use DataValues\StringValue;
 use Wikibase\DataModel\Claim\Claim;
@@ -280,9 +280,38 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 		new StatementList( $claimsObject );
 	}
 
-	public function testGivenNonTraversable_constructorThrowsException() {
+	public function testGivenNonTraversableOrArgList_constructorThrowsException() {
 		$this->setExpectedException( 'InvalidArgumentException' );
 		new StatementList( null );
+	}
+
+	public function testCanConstructWithStatement() {
+		$statement = new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) );
+
+		$this->assertEquals(
+			new StatementList( array( $statement ) ),
+			new StatementList( $statement )
+		);
+	}
+
+	public function testCanConstructWithStatementArgumentList() {
+		$statement0 = new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) );
+		$statement1 = new Statement( new Claim( $this->newSnak( 42, 'bar' ) ) );
+		$statement2 = new Statement( new Claim( $this->newSnak( 42, 'baz' ) ) );
+
+		$this->assertEquals(
+			new StatementList( array( $statement0, $statement1, $statement2 ) ),
+			new StatementList( $statement0, $statement1, $statement2 )
+		);
+	}
+
+	public function testGivenArgumentListWithNonStatement_constructorThrowsException() {
+		$statement0 = new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) );
+		$statement1 = new Statement( new Claim( $this->newSnak( 42, 'bar' ) ) );
+		$statement2 = new Statement( new Claim( $this->newSnak( 42, 'baz' ) ) );
+
+		$this->setExpectedException( 'InvalidArgumentException' );
+		new StatementList( $statement0, $statement1, array(), $statement2 );
 	}
 
 	public function testCountForEmptyList() {
