@@ -193,17 +193,27 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		// FIXME: OCP violation. No support for new types of entities can be registered
 
 		if ( $entity instanceof FingerprintProvider ) {
-			return $this->getFingerprintTerms( $entity->getFingerprint() );
+			$extraFields = array(
+				'entityType' => $entity->getType(),
+			);
+
+			$entityId = $entity->getId();
+
+			if ( $entityId !== null ) {
+				$extraFields['entityId'] = $entityId->getNumericId();
+			}
+
+			return $this->getFingerprintTerms( $entity->getFingerprint(), $extraFields );
 		}
 
 		return array();
 	}
 
-	private function getFingerprintTerms( Fingerprint $fingerprint ) {
+	private function getFingerprintTerms( Fingerprint $fingerprint, array $extraFields = array() ) {
 		$terms = array();
 
 		foreach ( $fingerprint->getDescriptions()->toTextArray() as $languageCode => $description ) {
-			$term = new Term();
+			$term = new Term( $extraFields );
 
 			$term->setLanguage( $languageCode );
 			$term->setType( Term::TYPE_DESCRIPTION );
@@ -213,7 +223,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		}
 
 		foreach ( $fingerprint->getLabels()->toTextArray() as $languageCode => $label ) {
-			$term = new Term();
+			$term = new Term( $extraFields );
 
 			$term->setLanguage( $languageCode );
 			$term->setType( Term::TYPE_LABEL );
@@ -224,7 +234,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 
 		foreach ( $fingerprint->getAliasGroups() as $aliasGroup ) {
 			foreach ( $aliasGroup->getAliases() as $alias ) {
-				$term = new Term();
+				$term = new Term( $extraFields );
 
 				$term->setLanguage( $aliasGroup->getLanguageCode() );
 				$term->setType( Term::TYPE_ALIAS );
@@ -236,7 +246,6 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 
 		return $terms;
 	}
-
 
 	/**
 	 * Internal callback for deleting a list of terms.
@@ -383,14 +392,16 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 *
 	 * @return Term[]
 	 */
-	public function getTermsOfEntity( EntityId $entityId, array $termTypes = null, array $languageCodes = null ) {
-		$fields = array(
-			'term_language',
-			'term_type',
-			'term_text',
+	public function getTermsOfEntity(
+		EntityId $entityId,
+		array $termTypes = null,
+		array $languageCodes = null
+	) {
+		return $this->getTermsOfEntities(
+			array( $entityId ),
+			$termTypes,
+			$languageCodes
 		);
-
-		return $this->fetchTerms( array( $entityId ), $entityId->getEntityType(), $fields, $termTypes, $languageCodes );
 	}
 
 	/**
@@ -399,51 +410,59 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 * @see TermIndex::getTermsOfEntities
 	 *
 	 * @param EntityId[] $entityIds
-	 * @param string $entityType
 	 * @param string[]|null $termTypes
-	 * @param string[]|null $languageCodes Language codes
+	 * @param string[]|null $languageCodes
 	 *
-	 * @throws \MWException
+	 * @throws MWException
 	 * @return Term[]
 	 */
-	public function getTermsOfEntities( array $entityIds, $entityType, array $termTypes = null, array $languageCodes = null ) {
-		$fields = array(
-			'term_entity_id',
-			'term_entity_type',
-			'term_language',
-			'term_type',
-			'term_text',
-		);
-
-		return $this->fetchTerms( $entityIds, $entityType, $fields, $termTypes, $languageCodes );
+	public function getTermsOfEntities(
+		array $entityIds,
+		array $termTypes = null,
+		array $languageCodes = null
+	) {
+		return $this->fetchTerms( $entityIds, $termTypes, $languageCodes );
 	}
 
 	/**
 	 * @param EntityId[] $entityIds
-	 * @param string|null $entityType
-	 * @param string[] $fields
 	 * @param string[]|null $termTypes
 	 * @param string[]|null $languageCodes
 	 *
-	 * @throws \MWException
+	 * @throws MWException
 	 * @return array
 	 */
-	private function fetchTerms( array $entityIds, $entityType, array $fields, array $termTypes = null, array $languageCodes = null ) {
-		if ( is_array( $entityIds ) && empty( $entityIds ) ) {
-			return array();
-		}
-
-		if ( is_array( $languageCodes ) && empty( $languageCodes ) ) {
-			return array();
-		}
-
-		if ( is_array( $termTypes ) && empty( $termTypes ) ) {
+	private function fetchTerms(
+		array $entityIds,
+		array $termTypes = null,
+		array $languageCodes = null
+	) {
+		if ( empty( $entityIds )
+			|| ( is_array( $termTypes ) && empty( $termTypes ) )
+			|| ( is_array( $languageCodes ) && empty( $languageCodes ) )
+		) {
 			return array();
 		}
 
 		wfProfileIn( __METHOD__ );
 
-		$conditions = array();
+		$entityType = null;
+		$numericIds = array();
+
+		foreach ( $entityIds as $id ) {
+			if ( $entityType === null ) {
+				$entityType = $id->getEntityType();
+			} elseif ( $id->getEntityType() !== $entityType ) {
+				throw new MWException( "ID $id does not refer to an entity of type $entityType" );
+			}
+
+			$numericIds[] = $id->getNumericId();
+		}
+
+		$conditions = array(
+			'term_entity_type' => $entityType,
+			'term_entity_id' => $numericIds,
+		);
 
 		if ( $languageCodes !== null ) {
 			$conditions['term_language'] = $languageCodes;
@@ -453,26 +472,11 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			$conditions['term_type'] = $termTypes;
 		}
 
-		$numericIds = array();
-		foreach ( $entityIds as $entityId ) {
-			if( $entityType === null ) {
-				$entityType = $entityId->getEntityType();
-			} elseif ( $entityId->getEntityType() !== $entityType ) {
-				throw new MWException( 'ID ' . $entityId->getSerialization()
-					. " does not refer to an entity of type $entityType." );
-			}
-
-			$numericIds[] = $entityId->getNumericId();
-		}
-
-		$conditions['term_entity_type'] = $entityType;
-		$conditions['term_entity_id'] = $numericIds;
-
 		$dbr = $this->getReadDb();
 
 		$res = $dbr->select(
 			$this->tableName,
-			$fields,
+			array_keys( $this->termFieldMap ),
 			$conditions,
 			__METHOD__
 		);
@@ -932,7 +936,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 * @param string[] $textsByLanguage A list of texts, or a list of lists of texts (keyed by language on the top level)
 	 * @param string $type
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 * @return Term[]
 	 */
 	private function makeQueryTerms( $textsByLanguage, $type ) {

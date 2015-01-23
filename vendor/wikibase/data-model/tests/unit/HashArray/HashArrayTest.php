@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\HashArray;
+namespace Wikibase\DataModel\Tests\HashArray;
 
 use Hashable;
 use Wikibase\DataModel\HashArray;
@@ -119,12 +119,3 @@ abstract class HashArrayTest extends \PHPUnit_Framework_TestCase {
 
 }
 
-class MutableHashable implements Hashable {
-
-	public $text = '';
-
-	public function getHash() {
-		return sha1( __CLASS__ . $this->text );
-	}
-
-}

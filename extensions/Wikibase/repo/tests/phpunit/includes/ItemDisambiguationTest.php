@@ -2,12 +2,11 @@
 
 namespace Wikibase\Test;
 
+use MediaWikiTestCase;
 use ValueFormatters\FormatterOptions;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\ItemDisambiguation;
-use Wikibase\Lib\EntityIdFormatter;
-use MediaWikiTestCase;
 
 /**
  * @covers Wikibase\ItemDisambiguation
@@ -29,10 +28,18 @@ class ItemDisambiguationTest extends \PHPUnit_Framework_TestCase {
 	 * @return ItemDisambiguation
 	 */
 	private function newItemDisambiguation( $searchLanguageCode, $userLanguageCode ) {
+		$entityIdFormatter = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
+
+		$entityIdFormatter->expects( $this->any() )
+			->method( 'format' )
+			->will( $this->returnCallback( function( ItemId $itemId ) {
+				return $itemId->getSerialization();
+			} ) );
+
 		return new ItemDisambiguation(
 			$searchLanguageCode,
 			$userLanguageCode,
-			new EntityIdFormatter( new FormatterOptions() )
+			$entityIdFormatter
 		);
 	}
 

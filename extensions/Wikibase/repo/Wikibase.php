@@ -176,7 +176,8 @@ call_user_func( function() {
 	$wgHooks['ArticleDeleteComplete'][] 				= 'Wikibase\RepoHooks::onArticleDeleteComplete';
 	$wgHooks['ArticleUndelete'][]						= 'Wikibase\RepoHooks::onArticleUndelete';
 	$wgHooks['GetPreferences'][]						= 'Wikibase\RepoHooks::onGetPreferences';
-	$wgHooks['LinkBegin'][] 							= 'Wikibase\Repo\Hook\LinkBeginHookHandler::onLinkBegin';
+	$wgHooks['LinkBegin'][] 							= 'Wikibase\Repo\Hooks\LinkBeginHookHandler::onLinkBegin';
+	$wgHooks['ChangesListInitRows'][] 					= 'Wikibase\Repo\Hooks\LabelPrefetchHookHandlers::onChangesListInitRows';
 	$wgHooks['OutputPageBodyAttributes'][] 				= 'Wikibase\RepoHooks::onOutputPageBodyAttributes';
 	//FIXME: handle other types of entities with autocomments too!
 	$wgHooks['FormatAutocomments'][]					= array( 'Wikibase\RepoHooks::onFormat', array( CONTENT_MODEL_WIKIBASE_ITEM, "wikibase-item" ) );
@@ -200,6 +201,9 @@ call_user_func( function() {
 	$wgHooks['ImportHandleRevisionXMLTag'][]	    = 'Wikibase\RepoHooks::onImportHandleRevisionXMLTag';
 	$wgHooks['BaseTemplateToolbox'][]               = 'Wikibase\RepoHooks::onBaseTemplateToolbox';
 	$wgHooks['SkinTemplateBuildNavUrlsNav_urlsAfterPermalink'][] = 'Wikibase\RepoHooks::onSkinTemplateBuildNavUrlsNav_urlsAfterPermalink';
+
+	// update hooks
+	$wgHooks['LoadExtensionSchemaUpdates'][] = '\Wikibase\Repo\Store\Sql\ChangesSubscriptionSchemaUpdater::onSchemaUpdate';
 
 	// Resource Loader Modules:
 	$wgResourceModules = array_merge( $wgResourceModules, include( __DIR__ . "/resources/Resources.php" ) );

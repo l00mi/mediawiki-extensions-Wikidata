@@ -19,6 +19,7 @@ use Wikibase\ChangeOp\FingerprintChangeOpFactory;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
@@ -247,8 +248,8 @@ class EditEntity extends ModifyEntity {
 		}
 
 		if ( array_key_exists( 'sitelinks', $data ) ) {
-			if ( $entity->getType() !== Item::ENTITY_TYPE ) {
-				$this->dieError( "Non Items can not have sitelinks", 'not-recognized' );
+			if ( !( $entity instanceof Item ) ) {
+				$this->dieError( 'Non Items can not have sitelinks', 'not-recognized' );
 			}
 
 			$changeOps->add( $this->getSiteLinksChangeOps( $data['sitelinks'], $entity ) );
@@ -394,7 +395,7 @@ class EditEntity extends ModifyEntity {
 	 * @since 0.4
 	 *
 	 * @param array $siteLinks
-	 * @param Item $entity
+	 * @param Item $item
 	 *
 	 * @return ChangeOp[]
 	 */
@@ -402,7 +403,7 @@ class EditEntity extends ModifyEntity {
 		$siteLinksChangeOps = array();
 
 		if ( !is_array( $siteLinks ) ) {
-			$this->dieError( "List of sitelinks must be an array", 'not-recognized-array' );
+			$this->dieError( 'List of sitelinks must be an array', 'not-recognized-array' );
 		}
 
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
@@ -563,10 +564,10 @@ class EditEntity extends ModifyEntity {
 	 * @since 0.4
 	 *
 	 * @param mixed $data
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 * @param int $revId
 	 */
-	protected function validateDataProperties( $data, Entity $entity, $revId = 0 ) {
+	private function validateDataProperties( $data, EntityDocument $entity, $revId = 0 ) {
 		$entityId = $entity->getId();
 		$title = $entityId === null ? null : $this->getTitleLookup()->getTitleForId( $entityId );
 
@@ -702,7 +703,7 @@ class EditEntity extends ModifyEntity {
 		}
 	}
 
-	private function checkEntityType( $data, Entity $entity ) {
+	private function checkEntityType( $data, EntityDocument $entity ) {
 		if ( isset( $data['type'] )
 			&& $entity->getType() !== $data['type'] ) {
 			$this->dieError(

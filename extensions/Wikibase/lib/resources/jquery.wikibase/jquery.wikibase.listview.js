@@ -99,8 +99,8 @@ $.widget( 'wikibase.listview', PARENT, {
 		if( typeof this._lia !== 'object'
 			|| !( this._lia instanceof $.wikibase.listview.ListItemAdapter )
 		) {
-			throw new Error( "Option 'listItemAdapter' has to be an instance of $.wikibase." +
-				"listview.ListItemAdapter" );
+			throw new Error( 'Option "listItemAdapter" has to be an instance of '
+				+ 'jQuery.wikibase.listview.ListItemAdapter' );
 		}
 
 		this._reusedItems = $.makeArray( this.element.children( this.options.listItemNodeName ) );
@@ -191,7 +191,7 @@ $.widget( 'wikibase.listview', PARENT, {
 
 		// Add new values:
 		for( var i = 0; i < value.length; i++ ) {
-			var $newLi = $( '<' + this.option( 'listItemNodeName' ) +'/>' )
+			var $newLi = $( '<' + this.option( 'listItemNodeName' ) + '/>' )
 				.addClass( this.widgetName + '-item' );
 			this.element.append( $newLi );
 			this._lia.newListItem( $newLi, value[i] );

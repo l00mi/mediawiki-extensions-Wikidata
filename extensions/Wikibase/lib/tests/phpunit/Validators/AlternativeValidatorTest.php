@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test\Validators;
 
-use DataValues\StringValue;
 use Wikibase\Validators\AlternativeValidator;
 use Wikibase\Validators\RegexValidator;
 use Wikibase\Validators\ValidatorErrorLocalizer;
@@ -20,7 +19,7 @@ use Wikibase\Validators\ValidatorErrorLocalizer;
  */
 class AlternativeValidatorTest extends \PHPUnit_Framework_TestCase {
 
-	public static function provideValidate() {
+	public function provideValidate() {
 		$validators = array(
 			new RegexValidator( '/aaa/' ),
 			new RegexValidator( '/bbb/' ),

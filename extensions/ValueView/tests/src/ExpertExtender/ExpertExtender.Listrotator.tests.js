@@ -14,16 +14,11 @@
 		} );
 	}
 
-	testExpertExtenderExtension.constructor(
+	testExpertExtenderExtension.all(
 		ExpertExtender.Listrotator,
-		new ExpertExtender.Listrotator( '', [ { value: 'value', label: 'label' } ] )
-	);
-	testExpertExtenderExtension.destroy(
-		ExpertExtender.Listrotator,
-		new ExpertExtender.Listrotator( '', [ { value: 'value', label: 'label' } ] )
-	);
-	testExpertExtenderExtension.init(
-		new ExpertExtender.Listrotator( '', [ { value: 'value', label: 'label' } ] )
+		function() {
+			return new ExpertExtender.Listrotator( '', [ { value: 'value', label: 'label' } ] );
+		}
 	);
 
 	QUnit.test( 'supports custom values', function( assert ) {

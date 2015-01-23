@@ -12,7 +12,8 @@
 			"Vitorvicentevalente",
 			"Vivaelcelta",
 			"He7d3r",
-			"Macofe"
+			"Macofe",
+			"Imperadeiro90"
 		]
 	},
 	"wikibase-desc": "Repositório de dados estruturados",
@@ -56,7 +57,7 @@
 	"wikibase-sitelinkgroupview-input-help-message": "Adicione uma ligação de sítio, especificando um sítio e uma respetiva página, edite ou remova ligações de sítio existentes.",
 	"wikibase-sitelinks-empty": "Nenhuma página está ligada a este item ainda.",
 	"wikibase-sitelinks-input-help-message": "Defina uma ligação para uma página relacionada com este item.",
-	"wikibase-sitelinks-special": "Páginas em outros sítios com ligação a este item",
+	"wikibase-sitelinks-special": "Outros sítios",
 	"wikibase-badgeselector-badge-placeholder-title": "Clique para atribuir um emblema.",
 	"wikibase-remove": "remover",
 	"wikibase-move-up": "mover para cima",
@@ -122,6 +123,7 @@
 	"wikibase-gotolinkedpage-lookup-site": "Sítio:",
 	"wikibase-gotolinkedpage-lookup-item": "ID do item:",
 	"wikibase-gotolinkedpage-submit": "Ir",
+	"wikibase-gotolinkedpage-summary": "Special:GoToLinkedPage é uma página especial utilizada para localizar o sítio para um item numa página interligada.<br /> O campo da esquerda, \"Sítio:\", é onde insere o idioma e o código do sítio.<br /> Para o campo da direita, \"ID do item:\", deve colocar o identificador do item de que está à procura.",
 	"special-itemdisambiguation": "Desambiguação de item",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Pesquisar itens por idioma e rótulo",
 	"wikibase-itemdisambiguation-lookup-language": "Idioma:",
@@ -132,6 +134,7 @@
 	"wikibase-itemdisambiguation-create": "Pode [{{fullurl:Special:NewItem|label=$1}} criar o item].",
 	"wikibase-itemdisambiguation-invalid-langcode": "Desculpe, o código de idioma que forneceu é desconhecido pelo sistema.\nPor favor, utilize um válido, como \"en\".",
 	"wikibase-itemdisambiguation-description": "Os valores usados para pesquisa devem possuir a entrada de texto completa. O idioma é um identificador, como \"pt\".",
+	"wikibase-itemdisambiguation-summary": "Procure todos os itens com o mesmo rótulo.",
 	"special-newproperty": "Criar uma nova propriedade",
 	"wikibase-newproperty-summary": "Por favor, verifique se a propriedade já existe!<br />Deve criar um [[Help:Label|rótulo]] e uma [[Help:Description|descrição]] para todas as novas propriedades, além de incluir um tipo de propriedade válido.",
 	"wikibase-newproperty-fieldset": "Criar uma nova propriedade",
@@ -143,7 +146,6 @@
 	"wikibase-newitem-site": "Sítio da primeira página ligada",
 	"wikibase-newitem-page": "Nome da primeira página ligada",
 	"wikibase-newitem-no-external-page": "A página especificada não pôde ser encontrada no sítio correspondente.",
-	"wikibase-newitem-add-sitelink-failed": "A ligação ao sítio não pôde ser guardada.",
 	"wikibase-newitem-not-recognized-siteid": "O identificador do sítio fornecido não foi reconhecido.",
 	"wikibase-newentity-label": "Rótulo:",
 	"wikibase-newentity-description": "Descrição:",
@@ -285,6 +287,7 @@
 	"wikibase-property-summary-wbcreateclaim-create": "Alegação criada",
 	"wikibase-property-summary-wbcreateclaim": "Criou {{PLURAL:$1|uma alegação|alegações}}",
 	"wikibase-property-summary-wbsetclaimvalue": "Definiu {{PLURAL:$1|um valor de alegação|valores de alegação}}",
+	"wikibase-property-summary-wbsetreference": "Definiu uma referência",
 	"wikibase-property-summary-wbsetreference-add": "Adicionou uma referência à alegação",
 	"wikibase-property-summary-wbsetreference-set": "Alterou a referência da alegação",
 	"wikibase-property-summary-wbremoveclaims": "Removeu {{PLURAL:$1|uma alegação|alegações}}",
@@ -301,6 +304,7 @@
 	"wikibase-property-summary-wbsetaliases-add-remove": "Adicionou ou removeu {{PLURAL:$1|nome alternativo|nomes alternativos}} [$2]",
 	"wikibase-property-summary-wbsetaliases-add": "Adicionou {{PLURAL:$1|nome alternativo|nomes alternativos}} [$2]",
 	"wikibase-property-summary-wbsetaliases-remove": "Removeu {{PLURAL:$1|nome alternativo|nomes alternativos}} [$2]",
+	"wikibase-property-summary-wbsetclaim-update": "Alterou {{PLURAL:$3|uma alegação|alegações}}",
 	"wikibase-property-summary-wbsetclaim-create": "Criou {{PLURAL:$3|uma alegação|alegações}}",
 	"wikibase-property-summary-wbsetclaim-update-qualifiers": "Alterou {{PLURAL:$4|um qualificador|$4 qualificadores}} de {{PLURAL:$3|uma alegação|alegações}}",
 	"wikibase-property-summary-wbsetclaim-update-references": "Alterou {{PLURAL:$4|uma referência|referências}} de {{PLURAL:$3|uma alegação|alegações}}",
@@ -332,5 +336,8 @@
 	"right-item-merge": "Fundir itens",
 	"right-property-term": "Altere termos de propriedade (rótulos, descrições, nomes alternativos)",
 	"right-property-create": "Criar propriedades",
+	"apihelp-wbcreateclaim-description": "Cria alegações do Wikidata.",
+	"apihelp-wbmergeitems-description": "Faz a fusão de vários itens.",
+	"apihelp-wbremoveclaims-description": "Remove alegações do Wikidata.",
 	"apihelp-wbsetdescription-param-language": "Idioma da descrição"
 }

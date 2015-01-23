@@ -9,8 +9,8 @@ use Status;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Repo\SiteLinkTargetProvider;
+use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
 
 /**
@@ -100,7 +100,7 @@ class LinkTitles extends ApiWikibase {
 		// Figure out which parts to use and what to create anew
 		if ( $fromId === null && $toId === null ) {
 			// create new item
-			$item = Item::newEmpty();
+			$item = new Item();
 			$toLink = new SiteLink( $toSite->getGlobalId(), $toPage );
 			$item->addSiteLink( $toLink );
 			$return[] = $toLink;

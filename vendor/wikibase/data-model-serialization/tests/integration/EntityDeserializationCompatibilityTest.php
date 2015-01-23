@@ -9,6 +9,8 @@ use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 
 /**
+ * @group slow
+ *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
@@ -19,7 +21,7 @@ class EntityDeserializationCompatibilityTest extends \PHPUnit_Framework_TestCase
 	 */
 	private $deserializer;
 
-	public function setUp() {
+	protected function setUp() {
 		$deserializerFactory = new DeserializerFactory(
 			new DataValueDeserializer(
 				array(

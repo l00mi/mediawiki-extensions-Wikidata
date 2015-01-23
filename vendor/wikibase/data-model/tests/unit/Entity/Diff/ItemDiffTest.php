@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Entity\Diff;
+namespace Wikibase\DataModel\Tests\Entity\Diff;
 
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
@@ -27,7 +27,7 @@ use Wikibase\DataModel\SiteLink;
  */
 class ItemDiffTest extends EntityDiffOldTest {
 
-	public static function provideApplyData() {
+	public function provideApplyData() {
 		$originalTests = parent::generateApplyData( Item::ENTITY_TYPE );
 		$tests = array();
 
@@ -37,7 +37,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 		 */
 
 		// add link ------------------------------
-		$a = Item::newEmpty();
+		$a = new Item();
 		$a->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -63,7 +63,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 		$tests[] = array( $a, $b );
 
 		// add badges
-		$a = Item::newEmpty();
+		$a = new Item();
 		$a->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -74,7 +74,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 			)
 		);
 
-		$b = Item::newEmpty();
+		$b = new Item();
 		$b->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -89,7 +89,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 		$tests[] = array( $a, $b );
 
 		// remove badges
-		$a = Item::newEmpty();
+		$a = new Item();
 		$a->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -101,7 +101,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 			)
 		);
 
-		$b = Item::newEmpty();
+		$b = new Item();
 		$b->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -113,7 +113,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 		);
 
 		// modify badges
-		$a = Item::newEmpty();
+		$a = new Item();
 		$a->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -125,7 +125,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 			)
 		);
 
-		$b = Item::newEmpty();
+		$b = new Item();
 		$b->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -140,7 +140,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 		$tests[] = array( $a, $b );
 
 		// remove link
-		$a = Item::newEmpty();
+		$a = new Item();
 		$a->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -166,7 +166,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 		$tests[] = array( $a, $b );
 
 		// change link
-		$a = Item::newEmpty();
+		$a = new Item();
 		$a->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -178,7 +178,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 			)
 		);
 
-		$b = Item::newEmpty();
+		$b = new Item();
 		$b->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'enwiki',
@@ -231,11 +231,20 @@ class ItemDiffTest extends EntityDiffOldTest {
 
 		$argLists['no ops'] = array( array(), true );
 
-		$argLists['label changed'] = array( array( 'label' => new Diff( array( 'x' => new DiffOpAdd( 'foo' ) ) ) ), false );
+		$argLists['label changed'] = array(
+			array( 'label' => new Diff( array( 'x' => new DiffOpAdd( 'foo' ) ) ) ),
+			false
+		);
 
-		$argLists['empty links diff'] = array( array( 'links' => new Diff( array(), true ) ), true );
+		$argLists['empty links diff'] = array(
+			array( 'links' => new Diff( array(), true ) ),
+			true
+		);
 
-		$argLists['non-empty links diff'] = array( array( 'links' => new Diff( array( new DiffOpAdd( 'foo' ) ), true ) ), false );
+		$argLists['non-empty links diff'] = array(
+			array( 'links' => new Diff( array( new DiffOpAdd( 'foo' ) ), true ) ),
+			false
+		);
 
 		return $argLists;
 	}
@@ -259,7 +268,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 	 */
 	public function testAtomicSubstructureWorkaround() {
 		$oldErrorLevel = error_reporting( E_USER_ERROR );
-		
+
 		$atomicListDiff = new DiffOpChange(
 			array( 'a' => 'A', 'b' => 'B' ),
 			array( 'b' => 'B', 'a' => 'A' )
@@ -278,7 +287,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 		$this->assertInstanceOf( 'Diff\Diff', $diff->getDescriptionsDiff() );
 		$this->assertInstanceOf( 'Diff\Diff', $diff->getClaimsDiff() );
 		$this->assertInstanceOf( 'Diff\Diff', $diff->getSiteLinkDiff() );
-		
+
 		error_reporting( $oldErrorLevel );
 	}
 

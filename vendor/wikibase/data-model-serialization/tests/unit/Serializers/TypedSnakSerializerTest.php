@@ -4,8 +4,8 @@ namespace Tests\Wikibase\DataModel\Serializers;
 
 use Serializers\Serializer;
 use Wikibase\DataModel\Serializers\TypedSnakSerializer;
-use Wikibase\DataModel\Snak\TypedSnak;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Snak\TypedSnak;
 
 /**
  * @covers Wikibase\DataModel\Serializers\TypedSnakSerializer
@@ -20,7 +20,7 @@ class TypedSnakSerializerTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private $serializer;
 
-	public function setUp() {
+	protected function setUp() {
 		$snakSerializer = $this->getMock( 'Serializers\Serializer' );
 
 		$snakSerializer->expects( $this->any() )

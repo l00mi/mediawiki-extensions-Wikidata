@@ -2,6 +2,7 @@
 
 namespace Wikibase\DataModel;
 
+use InvalidArgumentException;
 use Serializers\DispatchingSerializer;
 use Serializers\Serializer;
 use Wikibase\DataModel\Serializers\ClaimSerializer;
@@ -9,12 +10,12 @@ use Wikibase\DataModel\Serializers\ClaimsSerializer;
 use Wikibase\DataModel\Serializers\FingerprintSerializer;
 use Wikibase\DataModel\Serializers\ItemSerializer;
 use Wikibase\DataModel\Serializers\PropertySerializer;
-use Wikibase\DataModel\Serializers\ReferenceSerializer;
 use Wikibase\DataModel\Serializers\ReferenceListSerializer;
+use Wikibase\DataModel\Serializers\ReferenceSerializer;
 use Wikibase\DataModel\Serializers\SiteLinkSerializer;
 use Wikibase\DataModel\Serializers\SnakSerializer;
 use Wikibase\DataModel\Serializers\SnaksSerializer;
-use InvalidArgumentException;
+use Wikibase\DataModel\Serializers\TypedSnakSerializer;
 
 /**
  * Factory for constructing Serializer objects that can serialize WikibaseDataModel objects.
@@ -28,12 +29,11 @@ class SerializerFactory {
 
 	const OPTION_DEFAULT = 0;
 	const OPTION_OBJECTS_FOR_MAPS = 1;
-	const OPTION_MAXIMUM_VALUE = 1;
 
 	/**
-	 * @var integer $options
+	 * @var int
 	 */
-	private $options = 0;
+	private $options;
 
 	/**
 	 * @var Serializer
@@ -42,13 +42,16 @@ class SerializerFactory {
 
 	/**
 	 * @param Serializer $dataValueSerializer serializer for DataValue objects
-	 * @param integer $options set multiple with bitwise or
+	 * @param int $options set multiple with bitwise or
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct( Serializer $dataValueSerializer, $options = 0 ) {
-		$this->dataValueSerializer = $dataValueSerializer;
-		if ( $options > self::OPTION_MAXIMUM_VALUE ) {
-			throw new InvalidArgumentException('The value of argument 2 $options must be less than 1.');
+		if ( !is_int( $options ) ) {
+			throw new InvalidArgumentException( '$options must be an integer' );
 		}
+
+		$this->dataValueSerializer = $dataValueSerializer;
 		$this->options = $options;
 	}
 
@@ -133,6 +136,17 @@ class SerializerFactory {
 	 */
 	public function newSnakSerializer() {
 		return new SnakSerializer( $this->dataValueSerializer );
+	}
+
+	/**
+	 * Returns a Serializer that can serialize TypedSnak objects.
+	 *
+	 * @since 1.3
+	 *
+	 * @return Serializer
+	 */
+	public function newTypedSnakSerializer() {
+		return new TypedSnakSerializer( $this->newSnakSerializer() );
 	}
 
 }

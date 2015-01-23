@@ -1,7 +1,8 @@
 <?php
 
-namespace Wikibase\DataModel\Term\Test;
+namespace Wikibase\DataModel\Tests\Term;
 
+use InvalidArgumentException;
 use Wikibase\DataModel\Term\Term;
 
 /**
@@ -19,11 +20,19 @@ class TermTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @dataProvider nonStringProvider
+	 * @dataProvider invalidLanguageCodeProvider
+	 * @expectedException InvalidArgumentException
 	 */
-	public function testGivenNonStringLanguageCode_constructorThrowsException( $nonString ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
-		new Term( $nonString, 'bar' );
+	public function testGivenInvalidLanguageCode_constructorThrowsException( $languageCode ) {
+		new Term( $languageCode, 'bar' );
+	}
+
+	public function invalidLanguageCodeProvider() {
+		return array(
+			array( null ),
+			array( 21 ),
+			array( '' ),
+		);
 	}
 
 	/**

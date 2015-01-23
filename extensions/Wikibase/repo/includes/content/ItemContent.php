@@ -5,11 +5,9 @@ namespace Wikibase;
 use InvalidArgumentException;
 use LogicException;
 use MWException;
-use RuntimeException;
 use Title;
 use Wikibase\Content\EntityHolder;
 use Wikibase\Content\EntityInstanceHolder;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\ItemSearchTextGenerator;
@@ -171,7 +169,7 @@ class ItemContent extends EntityContent {
 	 * @return ItemContent
 	 */
 	public static function newEmpty() {
-		return new static( new EntityInstanceHolder( Item::newEmpty() ) );
+		return new static( new EntityInstanceHolder( new Item() ) );
 	}
 
 	/**

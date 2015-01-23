@@ -12,10 +12,10 @@ use User;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\EditEntity;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\Lib\Store\BadRevisionException;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
@@ -206,17 +206,6 @@ abstract class ApiWikibase extends ApiBase {
 	 */
 	public function isReadMode() {
 		return true;
-	}
-
-	/**
-	 * @see ApiBase::getVersion
-	 *
-	 * @since 0.4
-	 *
-	 * @return string
-	 */
-	public function getVersion() {
-		return get_class( $this ) . '-' . WB_VERSION;
 	}
 
 	/**

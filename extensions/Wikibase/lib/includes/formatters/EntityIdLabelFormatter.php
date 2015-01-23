@@ -7,6 +7,7 @@ use OutOfBoundsException;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\FormattingException;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Term\Term;
 use Wikibase\Lib\Store\LabelLookup;
 
 /**
@@ -17,7 +18,7 @@ use Wikibase\Lib\Store\LabelLookup;
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
  */
-class EntityIdLabelFormatter extends EntityIdFormatter {
+class EntityIdLabelFormatter extends PlainEntityIdFormatter {
 
 	/**
 	 * Whether we should try to find the label of the entity
@@ -82,27 +83,25 @@ class EntityIdLabelFormatter extends EntityIdFormatter {
 	 * @return string
 	 */
 	protected function formatEntityId( EntityId $entityId ) {
-		$label = null;
+		$term = null;
 
 		if ( $this->getOption( self::OPT_LOOKUP_LABEL ) ) {
-			$label = $this->lookupEntityLabel( $entityId );
+			$term = $this->lookupEntityLabel( $entityId );
+		}
+
+		if ( $term !== null ) {
+			return $term->getText();
 		}
 
 		// @fixme check if the entity is deleted and format differently?
-		if ( !is_string( $label ) ) {
-			switch ( $this->getOption( self::OPT_LABEL_FALLBACK ) ) {
-				case self::FALLBACK_PREFIXED_ID:
-					$label = $entityId->getSerialization();
-					break;
-				case self::FALLBACK_EMPTY_STRING:
-					$label = '';
-					break;
-				default:
-					throw new FormattingException( 'No label found for ' . $entityId );
-			}
+		switch ( $this->getOption( self::OPT_LABEL_FALLBACK ) ) {
+			case self::FALLBACK_PREFIXED_ID:
+				return $entityId->getSerialization();
+			case self::FALLBACK_EMPTY_STRING:
+				return '';
+			default:
+				throw new FormattingException( 'No label found for ' . $entityId );
 		}
-
-		return $label;
 	}
 
 	/**
@@ -112,13 +111,13 @@ class EntityIdLabelFormatter extends EntityIdFormatter {
 	 *
 	 * @param EntityId $entityId
 	 *
-	 * @return string|bool False if no label was found in the language or language fallback chain.
+	 * @return Term|null Null if no label was found in the language or language fallback chain.
 	 */
 	protected function lookupEntityLabel( EntityId $entityId ) {
 		try {
 			return $this->labelLookup->getLabel( $entityId );
 		} catch ( OutOfBoundsException $e ) {
-			return false;
+			return null;
 		}
 	}
 

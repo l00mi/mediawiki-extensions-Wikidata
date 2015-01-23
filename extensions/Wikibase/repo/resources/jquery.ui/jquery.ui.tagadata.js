@@ -384,7 +384,7 @@ $.widget( 'ui.tagadata', {
 			// remove tag if it is empty already:
 			if( self._formatLabel( $input.val() ) === ''
 				&& self.getTags().length > 1
-				&& !$tag.is( '.tagadata-choice:last' )
+				&& !$tag.is( self.element.children( '.tagadata-choice' ).last() )
 			) {
 				self.removeTag( $tag );
 			}
@@ -537,7 +537,7 @@ $.widget( 'ui.tagadata', {
 
 		if(
 			!$tag.hasClass( 'tagadata-choice' )
-			|| !$.contains( this._$tagList.get( 0 ), $tag.get( 0 ) )
+			|| !this._$tagList[0].contains( $tag[0] )
 		) {
 			return false;
 		}

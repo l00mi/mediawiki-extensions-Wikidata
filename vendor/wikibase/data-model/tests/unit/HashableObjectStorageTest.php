@@ -1,7 +1,8 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\DataModel\Tests;
 
+use Wikibase\DataModel\Fixtures\HashableObject;
 use Wikibase\DataModel\HashableObjectStorage;
 
 /**
@@ -126,20 +127,6 @@ class HashableObjectStorageTest extends \PHPUnit_Framework_TestCase {
 		$list->attach( new HashableObject( 1 ) );
 
 		$this->assertTrue( $list->equals( $newList ), 'Two lists with the same element should be equal' );
-	}
-
-}
-
-class HashableObject implements \Hashable {
-
-	protected $var;
-
-	public function __construct( $var ) {
-		$this->var = $var;
-	}
-
-	public function getHash() {
-		return sha1( $this->var );
 	}
 
 }

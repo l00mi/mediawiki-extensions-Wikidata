@@ -1,16 +1,20 @@
-/**
- * @licence GNU GPL v2+
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( wb, $ ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
 
 /**
- * View for displaying claim groups (claimlistviews).
+ * View for displaying `wikibase.datamodel.Statement` objects grouped by their main `Snak`'s
+ * `Property` id by managing a list of `jQuery.wikibase.claimlistview` widgets.
+ * @see wikibase.datamodel.StatementGroup
+ * @see wikibase.datamodel.StatementGroupSet
+ * @uses jQuery.wikibase.claimlistview
+ * @uses jQuery.wikibase.listview
+ * @uses jQuery.wikibase.listview.ListItemAdapter
  * @since 0.5
  * @extends jQuery.ui.TemplatedWidget
+ * @licence GNU GPL v2+
+ * @author H. Snater < mediawiki@snater.com >
  *
  * @option {wikibase.datamodel.ClaimGroupSet|{wikibase.datamodel.StatementGroupSet} [value]
  *         The claims to be displayed by this view. If null, the view will display only an add
@@ -48,19 +52,24 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.Widget._create
+	 * @inheritdoc
+	 * @protected
 	 *
-	 * @throws {Error} if any required option is not specified.
+	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
-		if( !this.options.entityStore || !this.options.valueViewBuilder || !this.options.entityChangersFactory ) {
-			throw new Error( 'Required option(s) missing' );
+		if(
+			!this.options.entityStore
+			|| !this.options.valueViewBuilder
+			|| !this.options.entityChangersFactory
+		) {
+			throw new Error( 'Required option not specified properly' );
 		}
 
 		PARENT.prototype._create.call( this );
 
 		var self = this,
-			claims = this.option( 'value' );
+			statements = this.option( 'value' );
 
 		this._createClaimGroupListview();
 
@@ -78,20 +87,6 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 		.on( afterStopEditingEvent, function( event, dropValue ) {
 			self._toggleGroupTitleClass( $( event.target ), 'wb-error' );
 			self._removeGroupTitleClass( $( event.target ), 'wb-edit' );
-
-			if( dropValue ) {
-				// Re-order claimlistviews according to their initial indices:
-				var listview = self.$listview.data( 'listview' ),
-					$claimlistviews = listview.items();
-
-					for( var i = 0; i < $claimlistviews.length; i++ ) {
-						var lia = listview.listItemAdapter(),
-							claimlistviewInstance = lia.liInstance( $claimlistviews.eq( i ) );
-						listview.move( $claimlistviews.eq( i ), claimlistviewInstance.getInitialIndex() );
-					}
-			} else {
-				self.__updateIndices( !dropValue );
-			}
 		} )
 		.on( startEditingEvent, function( event ) {
 			self._addGroupTitleClass( $( event.target ), 'wb-edit' );
@@ -107,28 +102,29 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 			}
 		} );
 
-		if( claims ) {
-			this._initClaims( claims );
+		if( statements ) {
+			this._initStatements( statements );
 		}
 	},
 
 	/**
-	 * Fills the listview with the initially passed claims by ordering the claims according to their
-	 * property.
+	 * Fills the `listview` with the initially passed `Statement`s by ordering the `Statement`s
+	 * according to their main `Snak`'s `Property` id.
 	 * @since 0.5
 	 *
-	 * @param {wikibase.datamodel.ClaimGroupSet|wikibase.datamodel.StatementGroupSet} claimGroups
+	 * @param {wikibase.datamodel.StatementGroupSet} statementGroups
 	 */
-	_initClaims: function( claimGroups ) {
+	_initStatements: function( statementGroups ) {
 		var self = this;
 
-		claimGroups.each( function( propertyId, claimGroup ) {
-			self.listview().addItem( claimGroup );
+		statementGroups.each( function( propertyId, statementGroup ) {
+			self.listview().addItem( statementGroup );
 		} );
 	},
 
 	/**
-	 * @see jQuery.Widget.destroy
+	 * @inheritdoc
+	 * @protected
 	 */
 	destroy: function() {
 		this.listview().destroy();
@@ -136,30 +132,12 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	},
 
 	/**
-	 * Creates the listview that contains any number of claimlistviews.
+	 * Creates the `listview` widget used to manage the `claimlistview` widgets.
 	 * @since 0.5
+	 * @private
 	 */
 	_createClaimGroupListview: function() {
 		var self = this;
-
-		function indexOf( claim, claimGroupSet ) {
-			var offset = 0,
-				curIndex = null;
-
-			if( !claim || !claimGroupSet ) {
-				return curIndex;
-			}
-			claimGroupSet.each( function( propertyId, claimGroup ) {
-				var indexInGroup = claimGroup.getItemContainer().indexOf( claim );
-				if( indexInGroup !== -1 ) {
-					curIndex = offset + indexInGroup;
-				} else {
-					offset += claimGroup.getItemContainer().length;
-				}
-				return curIndex === null;
-			} );
-			return curIndex;
-		}
 
 		this.$listview.listview( {
 			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
@@ -168,10 +146,6 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 					return {
 						value: value,
 						entityType: self.option( 'entityType' ),
-						firstClaimIndex: value && indexOf(
-							value.getItemContainer().toArray()[0],
-							self.option( 'value' )
-						),
 						dataTypeStore: self.option( 'dataTypeStore' ),
 						entityStore: self.option( 'entityStore' ),
 						valueViewBuilder: self.option( 'valueViewBuilder' ),
@@ -185,6 +159,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	/**
 	 * Toggles a specific css class on the group title node.
 	 * @since 0.5
+	 * @private
 	 *
 	 * @param {jQuery} $claimlistview
 	 * @param {string} cssClass
@@ -201,6 +176,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	/**
 	 * Adds a specific css class to the group title node.
 	 * @since 0.5
+	 * @private
 	 *
 	 * @param {jQuery} $claimlistview
 	 * @param {string} cssClass
@@ -213,6 +189,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	/**
 	 * Removes a specific css class from the group title node.
 	 * @since 0.5
+	 * @private
 	 *
 	 * @param {jQuery} $claimlistview
 	 * @param {string} cssClass
@@ -223,10 +200,11 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	},
 
 	/**
-	 * Returns the listview widget containing the claimlistviews managed by the claimgrouplistview.
+	 * Returns a reference to the `listview` widget containing the `claimlistview`s managed by the
+	 * `claimgrouplistview`.
 	 * @since 0.5
 	 *
-	 * @return {$.wikibase.listview}
+	 * @return {jQuery.wikibase.listview}
 	 */
 	listview: function() {
 		return this.$listview.data( 'listview' );
@@ -290,12 +268,12 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	},
 
 	/**
-	 * Finds the claimlistview that features a specific property. Returns null if no claimlist
-	 * featuring that property exists.
+	 * Finds the `claimlistview` that features `Statment`s whose main `Snak` feature a specific
+	 * `Property` id. Returns `null` if no `claimlistview` featuring that `Property` id exists.
 	 * @since 0.5
 	 *
 	 * @param {string} propertyId
-	 * @return {$.wikibase.claimlistview|null}
+	 * @return {jQuery.wikibase.claimlistview|null}
 	 */
 	_findClaimlistview: function( propertyId ) {
 		var $claimlistviews = this.listview().items(),
@@ -322,43 +300,8 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	},
 
 	/**
-	 * Updates the claimlistview indices as well as their claimview indices.
-	 *
-	 * @param {boolean} save
-	 *
-	 * @deprecated See bug #56050
-	 */
-	__updateIndices: function( save ) {
-		var index = 0,
-			listview = this.$listview.data( 'listview' ),
-			$claimlistviews = listview.items();
-
-		for( var i = 0; i < $claimlistviews.length; i++ ) {
-			var claimlistview = listview.listItemAdapter().liInstance(
-				$claimlistviews.eq( i )
-			);
-
-			var claimlistviewListview = claimlistview.$listview.data( 'listview' ),
-				$claimviews = claimlistviewListview.items();
-
-			for( var j = 0; j < $claimviews.length; j++ ) {
-				if( j === 0 ) {
-					claimlistview.option( 'firstClaimIndex', index );
-
-					if( save ) {
-						claimlistview._initialIndex = index;
-					}
-				}
-
-				claimlistview.__updateClaimIndices( save );
-
-				index++;
-			}
-		}
-	},
-
-	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * @inheritdoc
+	 * @protected
 	 */
 	_setOption: function( key, value ) {
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -371,7 +314,7 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		var listview = this.listview(),
@@ -381,181 +324,6 @@ $.widget( 'wikibase.claimgrouplistview', PARENT, {
 			listview.listItemAdapter().liInstance( $items.first() ).focus();
 		} else {
 			this.element.focus();
-		}
-	}
-} );
-
-$.wikibase.toolbarcontroller.definition( 'addtoolbar', {
-	id: 'claimgrouplistview',
-	selector: ':' + $.wikibase.claimgrouplistview.prototype.namespace
-		+ '-' + $.wikibase.claimgrouplistview.prototype.widgetName,
-	events: {
-		claimgrouplistviewcreate: function( event, toolbarcontroller ) {
-			var $claimgrouplistview = $( event.target ),
-				claimgrouplistview = $claimgrouplistview.data( 'claimgrouplistview' );
-
-			$claimgrouplistview.addtoolbar( {
-				$container: $( '<div/>' ).appendTo( $claimgrouplistview )
-			} )
-			.on( 'addtoolbaradd.addtoolbar', function( e ) {
-				if( e.target !== $claimgrouplistview.get( 0 ) ) {
-					return;
-				}
-
-				claimgrouplistview.enterNewItem().done( function( $claimlistview ) {
-					var claimlistview = $claimlistview.data( 'claimlistview' ),
-						listview = claimlistview.$listview.data( 'listview' );
-					listview.listItemAdapter().liInstance( listview.items() ).focus();
-				} );
-
-				toolbarcontroller.registerEventHandler(
-					event.data.toolbar.type,
-					event.data.toolbar.id,
-					'claimgrouplistviewdestroy',
-					function( event, toolbarController ) {
-						toolbarController.destroyToolbar( $( event.target ).data( 'addtoolbar' ) );
-					}
-				);
-			} );
-
-			// TODO: Integrate state management into addtoolbar
-			toolbarcontroller.registerEventHandler(
-				event.data.toolbar.type,
-				event.data.toolbar.id,
-				'claimgrouplistviewdisable',
-				function() {
-					$claimgrouplistview.data( 'addtoolbar' )[
-						claimgrouplistview.option( 'disabled' )
-						? 'disable'
-						: 'enable'
-					]();
-				}
-			);
-		}
-	}
-} );
-
-// TODO: The following toolbar manages claimviews/statementviews as well as claimgrouplistviews.
-//   There should be separate toolbars for managing the content of these two widgets.
-$.wikibase.toolbarcontroller.definition( 'movetoolbar', {
-	id: 'claimlistview-claimview',
-	selector: '.wikibase-statementview',
-	events: {
-		'claimviewstartediting statementviewstartediting': function( event, toolbarController ) {
-			// Initialize movetoolbar.
-
-			var $claimview = $( event.target ),
-				$claimlistview = $claimview.closest( ':wikibase-claimlistview' ),
-				claimlistview = $claimlistview.data( 'claimlistview' ),
-				claimlistviewListview = claimlistview.$listview.data( 'listview' ),
-				claimview = claimlistviewListview.listItemAdapter().liInstance( $claimview ),
-				$claimviews = claimlistviewListview.items(),
-				$claimgrouplistview = $claimlistview.closest( ':wikibase-claimgrouplistview' ),
-				claimgrouplistview = $claimgrouplistview.data( 'claimgrouplistview' ),
-				claimgrouplistviewListview = claimgrouplistview.$listview.data( 'listview' ),
-				$claimlistviews = claimgrouplistviewListview.items();
-
-			if( !claimview || !claimview.value() ) {
-				// Do not initialize the movetoolbar when the claim is pending since that might
-				// cause disturbances with the indices.
-				return;
-			}
-
-			$claimview.movetoolbar( {
-				$container: $( '<div/>' ).appendTo( $claimview )
-			} );
-
-			// If the claimview is the topmost claimview in the topmost claimgroup, the "move up"
-			// button needs to be disabled; Same for the "move down" button if the claimview is
-			// the bottommost claimview in the bottommost claimgroup.
-			var isInTopmostClaimgroup = $claimlistviews.first().get( 0 ) === $claimlistview.get( 0 ),
-				isTopmostInClaimlistview = $claimviews.first().get( 0 ) === $claimview.get( 0 ),
-				isInBottommostClaimgroup = $claimlistviews.last().get( 0 ) === $claimlistview.get( 0 ),
-				isBottommostInClaimlistview = $claimviews.last().get( 0 ) === $claimview.get( 0 );
-
-			if ( isInTopmostClaimgroup && isTopmostInClaimlistview ) {
-				$claimview.data( 'movetoolbar' ).getButton( 'up' ).disable();
-			}
-
-			if( isInBottommostClaimgroup && isBottommostInClaimlistview ) {
-				$claimview.data( 'movetoolbar' ).getButton( 'down' ).disable();
-			}
-
-			toolbarController.registerEventHandler(
-				event.data.toolbar.type,
-				event.data.toolbar.id,
-				'statementviewafterstopediting',
-				function( event, toolbarcontroller ) {
-					// Destroy movetoolbar.
-
-					var $claimview = $( event.target ),
-						movetoolbar = $claimview.data( 'movetoolbar' );
-
-					if( movetoolbar ) {
-						// Toolbar might be destroyed already by cancelling a pending claimview.
-						toolbarcontroller.destroyToolbar( movetoolbar );
-					}
-				}
-			);
-
-			toolbarController.registerEventHandler(
-				event.data.toolbar.type,
-				event.data.toolbar.id,
-				'movetoolbarup movetoolbardown',
-				function( event ) {
-					var $claimview = $( event.target ),
-						claimview = $claimview.data( 'claimview' )
-							|| $claimview.data( 'statementview' );
-
-					if( !claimview ) {
-						// Not the event of the corresponding toolbar but of some other movetoolbar.
-						return;
-					}
-
-					var action = ( event.type === 'movetoolbarup' ) ? 'moveUp' : 'moveDown',
-						$claimlistview = $claimview.closest( ':wikibase-claimlistview' ),
-						claimlistview = $claimlistview.data( 'claimlistview' ),
-						claimlistviewListview = claimlistview.$listview.data( 'listview' ),
-						$claimviews = claimlistviewListview.items(),
-						$claimgrouplistview = $claimlistview.closest( ':wikibase-claimgrouplistview' ),
-						claimgrouplistview = $claimgrouplistview.data( 'claimgrouplistview' ),
-						claimgrouplistviewListview = claimgrouplistview.$listview.data( 'listview' );
-
-					// Determine whether the whole group has to be moved:
-					var isTopmostInClaimlistview = $claimview.get( 0 ) === $claimviews.first().get( 0 ),
-						isBottommostInClaimlistview = $claimview.get( 0 ) === $claimviews.last().get( 0 );
-
-					if(
-						isTopmostInClaimlistview && action === 'moveUp'
-						|| isBottommostInClaimlistview && action === 'moveDown'
-					) {
-						claimgrouplistviewListview[action]( $claimlistview );
-					} else {
-						claimlistviewListview[action]( $claimview );
-					}
-
-					// Reflect the position change in the button state:
-					$claimviews = claimlistviewListview.items();
-					$claimlistviews = claimgrouplistviewListview.items();
-					isTopmostInClaimlistview = $claimview.get( 0 ) === $claimviews.first().get( 0 );
-					isBottommostInClaimlistview = $claimview.get( 0 ) === $claimviews.last().get( 0 );
-
-					var movetoolbar = $claimview.data( 'movetoolbar' ),
-						isInTopmostClaimgroup = $claimlistviews.first().get( 0 ) === $claimlistview.get( 0 ),
-						isInBottommostClaimgroup = $claimlistviews.last().get( 0 ) === $claimlistview.get( 0 ),
-						isTopmost = isTopmostInClaimlistview && isInTopmostClaimgroup,
-						isBottommost = isBottommostInClaimlistview && isInBottommostClaimgroup;
-
-					movetoolbar.getButton( 'up' )[isTopmost ? 'disable' : 'enable' ]();
-					movetoolbar.getButton( 'down' )[isBottommost ? 'disable' : 'enable' ]();
-
-					claimgrouplistview.__updateIndices();
-
-					// Stop repeatedly triggering the event on the moved DOM node:
-					event.stopImmediatePropagation();
-				}
-			);
-
 		}
 	}
 } );

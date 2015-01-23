@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\DataModel\Tests\Entity;
 
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\ItemIdSet;
@@ -15,6 +15,27 @@ use Wikibase\DataModel\Entity\ItemIdSet;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ItemIdSetTest extends \PHPUnit_Framework_TestCase {
+
+	public function testGetIterator() {
+		$set = new ItemIdSet();
+		$this->assertInstanceOf( 'Traversable', $set->getIterator() );
+	}
+
+	/**
+	 * @dataProvider serializationsProvider
+	 */
+	public function testGetSerializations( array $itemIds, array $expected ) {
+		$set = new ItemIdSet( $itemIds );
+		$this->assertEquals( $expected, $set->getSerializations() );
+	}
+
+	public function serializationsProvider() {
+		return array(
+			array( array(), array() ),
+			array( array( new ItemId( 'Q1' ) ), array( 'Q1' ) ),
+			array( array( new ItemId( 'Q1' ), new ItemId( 'Q2' ) ), array( 'Q1', 'Q2' ) ),
+		);
+	}
 
 	public function testGivenEmptySet_countReturnsZero() {
 		$set = new ItemIdSet();

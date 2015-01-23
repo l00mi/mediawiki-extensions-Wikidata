@@ -14,6 +14,7 @@ use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\DataModel\Snak\TypedSnak;
 
 /**
  * @licence GNU GPL v2+
@@ -93,13 +94,20 @@ class SerializerFactoryTest extends \PHPUnit_Framework_TestCase {
 
 	public function testFactoryCreateWithUnexpectedValue() {
 		$this->setExpectedException( 'InvalidArgumentException' );
-		new SerializerFactory( new DataValueSerializer(), 2 );
+		new SerializerFactory( new DataValueSerializer(), 1.0 );
 	}
 
 	public function testNewSnaksSerializerWithUseObjectsForMaps() {
 		$factory = new SerializerFactory( new DataValueSerializer(), SerializerFactory::OPTION_OBJECTS_FOR_MAPS );
 		$serializer = $factory->newSnaksSerializer();
 		$this->assertAttributeSame( true, 'useObjectsForMaps' , $serializer );
+	}
+
+	public function testNewTypedSnakSerializer() {
+		$this->assertSerializesWithoutException(
+			$this->buildSerializerFactory()->newTypedSnakSerializer(),
+			new TypedSnak( new PropertyNoValueSnak( 42 ), 'kittens' )
+		);
 	}
 
 }

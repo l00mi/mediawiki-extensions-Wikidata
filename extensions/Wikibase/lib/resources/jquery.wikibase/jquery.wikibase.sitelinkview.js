@@ -71,7 +71,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		],
 		templateShortCuts: {
 			$siteIdContainer: '.wikibase-sitelinkview-siteid-container',
-			$siteId : '.wikibase-sitelinkview-siteid',
+			$siteId: '.wikibase-sitelinkview-siteid',
 			$link: '.wikibase-sitelinkview-link'
 		},
 		value: null,
@@ -153,7 +153,8 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 				'badge-placeholder-title': mw.msg(
 					'wikibase-badgeselector-badge-placeholder-title'
 				)
-			}
+			},
+			encapsulate: true
 		} )
 		.on( 'badgeselectorchange', function( event ) {
 			// Adding/removing badges decreases/increases available space:

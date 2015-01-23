@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Entity\Diff;
+namespace Wikibase\DataModel\Tests\Entity\Diff;
 
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
@@ -19,19 +19,15 @@ use Wikibase\DataModel\Entity\Property;
  */
 abstract class EntityDiffOldTest extends \PHPUnit_Framework_TestCase {
 
-	private static function newEntity ( $entityType ) {
+	private static function newEntity( $entityType ) {
 		switch ( $entityType ) {
 			case Item::ENTITY_TYPE:
-				$entity = Item::newEmpty();
-				break;
+				return new Item();
 			case Property::ENTITY_TYPE:
-				$entity = Property::newFromType( 'string' );
-				break;
+				return Property::newFromType( 'string' );
 			default:
 				throw new \RuntimeException( "unknown entity type: $entityType" );
 		}
-
-		return $entity;
 	}
 
 	public static function generateApplyData( $entityType ) {
@@ -138,7 +134,7 @@ abstract class EntityDiffOldTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue( $a->getFingerprint()->equals( $b->getFingerprint() ) );
 	}
 
-	public static function provideConflictDetection() {
+	public function provideConflictDetection() {
 		$cases = array();
 
 		// #0: adding a label where there was none before

@@ -1,54 +1,72 @@
-/**
- * @licence GNU GPL v2+
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( mw, wb, $ ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
 
 /**
- * View for displaying and editing a list of statements (wb.datamodel.Statement objects).
- * @since 0.4
+ * View for displaying and editing a list of `wikibase.datamodel.Statement` objects by using
+ * `jQuery.wikibase.statementview` widgets.
+ * @see jQuery.wikibase.statementview
+ * @see wikibase.datamodel.Statement
+ * @see wikibase.datamodel.StatementList
+ * @class jQuery.wikibase.claimlistview
  * @extends jQuery.ui.TemplatedWidget
+ * @uses jQuery.wikibase.listview
+ * @uses jQuery.wikibase.listview.ListItemAdapter
+ * @uses jQuery.wikibase.statementview
+ * @uses mediaWiki
+ * @uses wikibase.utilities.ui
+ * @since 0.4
+ * @licence GNU GPL v2+
+ * @author H. Snater < mediawiki@snater.com >
  *
- * @option {wikibase.datamodel.ClaimGroup|wikibase.datamodel.StatementGroup} [value]
- *         The list of statements to be displayed by this view. If null, the view will initialize an
- *         empty statementview with edit mode started.
- *         Default: null
+ * @constructor
  *
- * @option {wb.store.EntityStore} entityStore
- *
- * @option {wikibase.ValueViewBuilder} valueViewBuilder
-
- * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
- *
- * @option {dataTypes.DataTypeStore} dataTypeStore
- *
- * @option {number|null} [firstClaimIndex] The index of the claimlistview's first statement within a
- *         list of statements.
- *         Default: null
- *         TODO: Remove this option and use a proper mechanism to store the ordered statement structure
- *         at a higher level independent from claimlistview (bug #56050).
- *
- * @event startediting: Triggered when one of the claimlistview's items enters edit mode.
- *        (1) {jQuery.Event}
- *
- * @event afterstopediting: Triggered when one of the claimlistview's items has successfully left
- *        edit mode.
- *        (1) {jQuery.Event}
- *        (2) {boolean} Whether pending value has been dropped or saved.
- *
- * @event afterremove: Triggered when one of the claimlistview's items has just been removed.
- *        (1) {jQuery.Event}
- *
- * @event toggleerror: Triggered when one of the claimlistview's items produces an error.
- *        (1) {jQuery.Event}
+ * @param {Object} options
+ * @param {wikibase.datamodel.ClaimGroup|wikibase.datamodel.StatementGroup} [options.value=null]
+ *        The list of `Statement`s to be displayed by this view. If null, the view will initialize
+ *        with edit mode being started.
+ * @param {wikibase.store.EntityStore} options.entityStore
+ *        Required for dynamically gathering `Entity`/`Property` information.
+ * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
+ *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
+ *        `jQuery.valueview`.
+ * @param {wikibase.entityChangers.EntityChangersFactory} options.entityChangersFactory
+ *        Required to store the `Reference`s gathered from the `referenceview`s aggregated by the
+ *        `statementview`.
+ * @param {dataTypes.DataTypeStore} options.dataTypeStore
+ *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
+ *        object when interacting on a "value" `Variation`.
+/**
+ * @event startediting
+ * Triggered when edit mode is started for one of the `statementview` widgets managed by the
+ * `claimlistview`.
+ * @param {jQuery.Event} event
+ */
+/**
+ * @event afterstopediting
+ * Triggered when one of the `statementview` widgets managed by the `claimlistview` has successfully
+ * stopped edit mode.
+ * @param {jQuery.Event} event
+ * @param {boolean} dropValue If true, the value from before edit mode has been started will be
+ *        reinstated (basically, a cancel/save switch).
+ */
+/**
+ * @event afterremove
+ * Triggered after one of the `statementview` widgets managed by the `claimlistview` was removed
+ * from the `claimlistview`.
+ * @param {jQuery.Event} event
+ */
+/**
+ * @event toggleerror
+ * Triggered when one of the `statementview` widgets managed by the `claimlistview` produces an
+ * error.
+ * @param {jQuery.Event} event
  */
 $.widget( 'wikibase.claimlistview', PARENT, {
 	/**
-	 * (Additional) default options.
-	 * @see jQuery.Widget.options
+	 * @inheritdoc
+	 * @protected
 	 */
 	options: {
 		template: 'wb-claimlistview',
@@ -67,34 +85,21 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		entityType: null,
 		dataTypeStore: null,
 		entityStore: null,
-		firstClaimIndex: null,
 		valueViewBuilder: null,
 		entityChangersFactory: null
 	},
 
 	/**
-	 * The widget to be managed by the claimlistview.
-	 * @type {$.wikibase.statementview}
-	 */
-	_listItemWidget: null,
-
-	/**
-	 * The index of the claimlistview's first statement within the flat list of statements (if it is
-	 * contained within a list of statements). The initial index is stored to be able to detect whether
-	 * the index has changed and the statement list does not feature its initial value.
-	 * @type {number|null}
-	 */
-	_initialIndex: null,
-
-	/**
-	 * @type {wb.entityChangers.ClaimsChanger}
+	 * @type {wikibase.entityChangers.ClaimsChanger}
+	 * @private
 	 */
 	_claimsChanger: null,
 
 	/**
-	 * @see jQuery.Widget._create
+	 * @inheritdoc
+	 * @protected
 	 *
-	 * @throws {Error} if any required option is not specified.
+	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
 		if(
@@ -102,14 +107,10 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 			|| !this.options.valueViewBuilder
 			|| !this.options.entityChangersFactory
 		) {
-			throw new Error( 'Required option(s) missing' );
+			throw new Error( 'Required option not specified properly' );
 		}
 
 		PARENT.prototype._create.call( this );
-
-		this._listItemWidget = $.wikibase.statementview;
-
-		this._initialIndex = this.option( 'firstClaimIndex' );
 
 		this._claimsChanger = this.options.entityChangersFactory.getClaimsChanger();
 
@@ -131,17 +132,6 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 			var $statementview = $( event.target ),
 				statementview = lia.liInstance( $statementview );
 
-			if( dropValue ) {
-				// Re-order statements according to their initial indices:
-				var listview = self.$listview.data( 'listview' ),
-					$statementviews = listview.items();
-
-				for( var i = 0; i < $statementviews.length; i++ ) {
-					var statementviewInstance = listview.listItemAdapter().liInstance( $statementviews.eq( i ) );
-					listview.move( $statementviews.eq( i ), statementviewInstance.getInitialIndex() );
-				}
-			}
-
 			// Cancelling edit mode or having stopped edit mode after saving an existing (not
 			// pending) statement.
 			if( dropValue || !statementview || statementview.value() ) {
@@ -155,6 +145,9 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		this._createGroupName();
 	},
 
+	/**
+	 * @private
+	 */
 	_createGroupName: function() {
 		var self = this,
 			statements = this.option( 'value' ),
@@ -189,7 +182,8 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.Widget.destroy
+	 * @inheritdoc
+	 * @protected
 	 */
 	destroy: function() {
 		this.listview().destroy();
@@ -197,12 +191,12 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	},
 
 	/**
-	 * Creates the listview widget managing the statementview widgets.
+	 * Creates the `listview` widget managing the `statementview` widgets.
 	 * @since 0.5
+	 * @private
 	 */
 	_createListView: function() {
 		var self = this,
-			listItemWidget = this._listItemWidget,
 			statements = this.option( 'value' ),
 			propertyId;
 
@@ -211,15 +205,10 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 			statements = statements.getItemContainer().toArray();
 		}
 
-		function indexOf( element, array, firstClaimIndex ) {
-			var index = $.inArray( element, array );
-			return ( index !== -1 ) ? index + firstClaimIndex : null;
-		}
-
 		this.$listview
 		.listview( {
 			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
-				listItemWidget: listItemWidget,
+				listItemWidget: $.wikibase.statementview,
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value || null,
@@ -237,70 +226,30 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 						entityStore: self.option( 'entityStore' ),
 						valueViewBuilder: self.option( 'valueViewBuilder' ),
 						entityChangersFactory: self.option( 'entityChangersFactory' ),
-						claimsChanger: self._claimsChanger,
-						index: indexOf( value, ( statements || [] ), self.option( 'firstClaimIndex' ) )
+						claimsChanger: self._claimsChanger
 					};
 				}
 			} ),
 			value: statements || null
-		} )
-		.on( 'listviewitemadded listviewitemremoved', function( event, value, $li ) {
-			self.__updateClaimIndices();
 		} );
-
-		this.__updateClaimIndices();
 	},
 
 	/**
-	 * Updates the statement indices.
-	 *
-	 * @param {boolean} save
-	 *
-	 * @deprecated See bug #56050
-	 */
-	__updateClaimIndices: function( save ) {
-		var listview = this.$listview.data( 'listview' ),
-			$statementviews = listview.items();
-
-		for( var i = 0; i < $statementviews.length; i++ ) {
-			var statementview = listview.listItemAdapter().liInstance( $statementviews.eq( i ) ),
-				index = this.options.firstClaimIndex + i;
-
-			statementview.option( 'index', index );
-
-			if( save ) {
-				statementview._initialIndex = index;
-			}
-		}
-	},
-
-	/**
-	 * Returns the initial index of the statementlist's first statement within the flat list of statements (if
-	 * in any).
+	 * Returns a reference to the `listview` widget used to manage the `statementview`s.
 	 * @since 0.5
 	 *
-	 * @return {number|null}
-	 */
-	getInitialIndex: function() {
-		return this._initialIndex;
-	},
-
-	/**
-	 * Returns the listview widget used to manage the statementviews.
-	 * @since 0.5
-	 *
-	 * @return {$.wikibase.listview}
+	 * @return {jQuery.wikibase.listview}
 	 */
 	listview: function() {
 		return this.$listview.data( 'listview' );
 	},
 
 	/**
-	 * Returns the current list of statements represented by the view. If there are no statements, null is
-	 * returned.
+	 * Returns the current list of `Statement` objects represented by the `claimlistview`. If there
+	 * are no `Statement`s, `null` is returned.
 	 * @since 0.5
 	 *
-	 * @return {wb.datamodel.Statement[]|null}
+	 * @return {wikibase.datamodel.Statement[]|null}
 	 */
 	value: function( statements ) {
 		// TODO: Implement setter logic.
@@ -354,10 +303,9 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	},
 
 	/**
-	 * Removes a statementview widget from the statement list.
-	 * @since 0.4
+	 * Removes a `statementview` widget.
 	 *
-	 * @param {$.wikibase.statementview} statementview
+	 * @param {jQuery.wikibase.statementview} statementview
 	 */
 	remove: function( statementview ) {
 		var self = this;
@@ -376,15 +324,14 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * @inheritdoc
+	 * @protected
 	 */
 	_setOption: function( key, value ) {
 		// The value should not be set from outside after the initialization because
 		// currently, the widget lacks a mechanism to update the value.
 		if( key === 'value' ) {
 			throw new Error( 'Can not set value after initialization' );
-		} else if( key === 'fistClaimIndex' ) {
-			throw new Error( 'firstClaimIndex cannot be set after initialization' );
 		}
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -397,7 +344,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		var listview = this.listview(),
@@ -410,181 +357,6 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		}
 	}
 
-} );
-
-$.wikibase.toolbarcontroller.definition( 'addtoolbar', {
-	id: 'claimlistview',
-	selector: ':' + $.wikibase.claimlistview.prototype.namespace
-		+ '-' + $.wikibase.claimlistview.prototype.widgetName,
-	events: {
-		claimlistviewcreate: function( event, toolbarcontroller ) {
-			var $claimlistview = $( event.target ),
-				claimlistview = $claimlistview.data( 'claimlistview' ),
-				$container = $claimlistview.children( '.wikibase-toolbar-wrapper' )
-					.children( '.wikibase-toolbar-container' );
-
-			if( !$container.length ) {
-				// TODO: Remove layout-specific toolbar wrapper
-				$container = $( '<div/>' ).appendTo(
-					mw.wbTemplate( 'wikibase-toolbar-wrapper', '' ).appendTo( $claimlistview )
-				);
-			}
-
-			if( !claimlistview.value() ) {
-				return;
-			}
-
-			$claimlistview.addtoolbar( {
-				$container: $container
-			} )
-			.on( 'addtoolbaradd.addtoolbar', function( e ) {
-				if( e.target !== $claimlistview.get( 0 ) ) {
-					return;
-				}
-
-				claimlistview.enterNewItem().done( function( $view ) {
-					$view.one( 'statementviewafterstartediting.addtoolbar', function() {
-						var listview = claimlistview.$listview.data( 'listview' ),
-							lia = listview.listItemAdapter();
-						lia.liInstance( $view ).focus();
-					} );
-				} );
-
-				// Re-focus "add" button after having added or having cancelled adding a statement:
-				var eventName = 'claimlistviewafterstopediting.addtoolbar';
-				$claimlistview.one( eventName, function( event ) {
-					$claimlistview.data( 'addtoolbar' ).focus();
-				} );
-
-				toolbarcontroller.registerEventHandler(
-					event.data.toolbar.type,
-					event.data.toolbar.id,
-					'claimlistviewdestroy',
-					function( event, toolbarcontroller ) {
-						toolbarcontroller.destroyToolbar( $( event.target ).data( 'addtoolbar' ) );
-					}
-				);
-			} );
-
-			toolbarcontroller.registerEventHandler(
-				event.data.toolbar.type,
-				event.data.toolbar.id,
-				'claimlistviewdisable',
-				function() {
-					var addtoolbar = $claimlistview.data( 'addtoolbar' );
-					if( addtoolbar ) {
-						addtoolbar[claimlistview.option( 'disabled' ) ? 'disable' : 'enable']();
-					}
-				}
-			);
-		}
-	}
-} );
-
-$.wikibase.toolbarcontroller.definition( 'edittoolbar', {
-	id: 'statementview',
-	selector: ':' + $.wikibase.claimlistview.prototype.namespace
-		+ '-' + $.wikibase.claimlistview.prototype.widgetName,
-	events: {
-		'statementviewcreate': function( event, toolbarcontroller ) {
-			var viewType = event.type.replace( /create$/, '' ),
-				$view = $( event.target ),
-				view = $view.data( viewType ),
-				options = {
-					interactionWidget: view
-				},
-				$container = $view.children( '.wikibase-toolbar-container' );
-
-			if( !$container.length ) {
-				$container = $( '<div/>' ).appendTo( $view );
-			}
-
-			options.$container = $container;
-
-			if( !!view.value() ) {
-				options.onRemove = function() {
-					var $claimlistview = $view.closest( ':wikibase-claimlistview' ),
-						claimlistview = $claimlistview.data( 'claimlistview' );
-					if( claimlistview ) {
-						claimlistview.remove( view );
-					}
-				};
-			}
-
-			$view.edittoolbar( options );
-
-			$view.on( 'keydown.edittoolbar', function( event ) {
-				if( view.option( 'disabled' ) ) {
-					return;
-				}
-				if( event.keyCode === $.ui.keyCode.ESCAPE ) {
-					view.stopEditing( true );
-				} else if( event.keyCode === $.ui.keyCode.ENTER ) {
-					view.stopEditing( false );
-				}
-			} );
-		},
-		'statementviewdestroy': function( event, toolbarController ) {
-			var $statementview = $( event.target );
-			toolbarController.destroyToolbar( $statementview.data( 'editoolbar' ) );
-			$statementview.off( '.edittoolbar' );
-		},
-		'statementviewchange': function( event ) {
-			var $target = $( event.target ),
-				viewType = event.type.replace( /change$/, '' ),
-				view = $target.data( viewType ),
-				edittoolbar = $target.data( 'edittoolbar' ),
-				btnSave = edittoolbar.getButton( 'save' );
-
-			/**
-			 * statementview.isValid() validates the qualifiers already. However, the information
-			 * whether all qualifiers (grouped by property) have changed, needs to be gathered
-			 * separately which, in addition, is done by this function.
-			 *
-			 * @param {jQuery.wikibase.statementview} statementview
-			 * @return {boolean}
-			 */
-			function shouldEnableSaveButton( statementview ) {
-				var enable = statementview.isValid() && !statementview.isInitialValue(),
-					snaklistviews = ( statementview._qualifiers )
-						? statementview._qualifiers.value()
-						: [],
-					areInitialQualifiers = true;
-
-				if( enable && snaklistviews.length ) {
-					for( var i = 0; i < snaklistviews.length; i++ ) {
-						if( !snaklistviews[i].isInitialValue() ) {
-							areInitialQualifiers = false;
-						}
-					}
-				}
-
-				return enable && !( areInitialQualifiers && statementview.isInitialValue() );
-			}
-
-			btnSave[shouldEnableSaveButton( view ) ? 'enable' : 'disable']();
-		},
-		'statementviewdisable': function( event ) {
-			var viewType = event.type.replace( /disable$/, '' ),
-				$view = $( event.target ),
-				view = $view.data( viewType ),
-				edittoolbar = $view.data( 'edittoolbar' ),
-				btnSave = edittoolbar.getButton( 'save' ),
-				enable = view.isValid() && !view.isInitialValue();
-
-			btnSave[enable ? 'enable' : 'disable']();
-		},
-		edittoolbaredit: function( event, toolbarcontroller ) {
-			var $statementview = $( event.target ),
-				statementview = $statementview.data( 'statementview' );
-
-			if( !statementview ) {
-				return;
-			}
-
-			statementview.focus();
-		}
-	}
 } );
 
 // We have to override this here because $.widget sets it no matter what's in

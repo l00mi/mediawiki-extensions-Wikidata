@@ -47,9 +47,7 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 			->method( 'parse' )
 			->will( $this->returnValue( $itemId ) );
 
-		$userLanguages = $this->getMockBuilder( 'Wikibase\UserLanguageLookup' )
-			->disableOriginalConstructor()
-			->getMock();
+		$userLanguages = $this->getMock( 'Wikibase\Lib\UserLanguageLookup' );
 
 		$userLanguages->expects( $this->any() )
 			->method( 'getAllUserLanguages' )
@@ -146,7 +144,7 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		$this->assertRegExp( '/#wb-terms/', $html );
 	}
 
-	public function renderTermBox() {
+	public function testRenderTermBox() {
 		$item = $this->getItem();
 		$entityRevisionLookup = $this->getEntityRevisionLookup( $item );
 		$expander = $this->newExpander( $this->newUser( false ), $entityRevisionLookup, $item->getId() );

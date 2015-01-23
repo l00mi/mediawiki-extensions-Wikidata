@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\DataModel\Tests\Claim;
 
 use Wikibase\DataModel\Claim\ClaimGuid;
 use Wikibase\DataModel\Claim\ClaimGuidParser;
@@ -21,7 +21,7 @@ class ClaimGuidParserTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider guidProvider
 	 */
-	public function testCanParseClaimGuid( ClaimGuid $expected ){
+	public function testCanParseClaimGuid( ClaimGuid $expected ) {
 		$actual = $this->newParser()->parse( $expected->getSerialization() );
 
 		$this->assertEquals( $actual, $expected );

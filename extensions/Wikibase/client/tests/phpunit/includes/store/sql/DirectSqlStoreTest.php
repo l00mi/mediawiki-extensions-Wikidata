@@ -2,7 +2,6 @@
 
 namespace Wikibase\Client\Tests\Store\Sql;
 
-use Language;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DirectSqlStore;
@@ -43,7 +42,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 		$this->assertInstanceOf( $expectedType, $obj );
 	}
 
-	public static function provideGetters() {
+	public function provideGetters() {
 		return array(
 			array( 'getSiteLinkLookup', 'Wikibase\Lib\Store\SiteLinkTable' ),
 			array( 'getEntityLookup', 'Wikibase\Lib\Store\EntityLookup' ),

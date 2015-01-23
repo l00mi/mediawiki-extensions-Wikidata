@@ -23,16 +23,11 @@
 		} );
 	}
 
-	testExpertExtenderExtension.constructor(
+	testExpertExtenderExtension.all(
 		ExpertExtender.CalendarHint,
-		new ExpertExtender.CalendarHint()
-	);
-	testExpertExtenderExtension.destroy(
-		ExpertExtender.CalendarHint,
-		new ExpertExtender.CalendarHint()
-	);
-	testExpertExtenderExtension.init(
-		new ExpertExtender.CalendarHint()
+		function() {
+			return new ExpertExtender.CalendarHint();
+		}
 	);
 
 	QUnit.test( 'calendarhint is hidden if it should not be shown', function( assert ) {
@@ -43,8 +38,8 @@
 					'valueview-expertextender-calendarhint-switch-julian': 'MSG2'
 				}
 			} ),
-			function () {
-				return new time.Time('2014-01-01');
+			function() {
+				return new time.Time( '2014-01-01' );
 			},
 			null
 		);
@@ -66,8 +61,8 @@
 					'valueview-expertextender-calendarhint-switch-julian': 'MSG2'
 				}
 			} ),
-			function () {
-				return new Time('1901-01-01');
+			function() {
+				return new Time( '1901-01-01' );
 			},
 			null
 		);
@@ -83,7 +78,7 @@
 
 	QUnit.test( 'switch switches the calendar model', function( assert ) {
 		var setSpy = sinon.spy();
-		var timeValue = new Time('1901-01-01');
+		var timeValue = new Time( '1901-01-01' );
 		var calendarHint = new ExpertExtender.CalendarHint(
 			new MessageProvider( {
 				defaultMessages: {
@@ -91,7 +86,7 @@
 					'valueview-expertextender-calendarhint-switch-julian': 'MSG2'
 				}
 			} ),
-			function () {
+			function() {
 				return timeValue;
 			},
 			setSpy
@@ -113,7 +108,7 @@
 
 	QUnit.test( 'switch twice switches the calendar model back', function( assert ) {
 		var setSpy = sinon.spy();
-		var timeValue = new Time('1901-01-01');
+		var timeValue = new Time( '1901-01-01' );
 		var calendarHint = new ExpertExtender.CalendarHint(
 			new MessageProvider( {
 				defaultMessages: {
@@ -123,7 +118,7 @@
 					'valueview-expertextender-calendarhint-switch-gregorian': 'MSG4'
 				}
 			} ),
-			function () {
+			function() {
 				return timeValue;
 			},
 			setSpy

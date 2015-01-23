@@ -84,15 +84,20 @@ objects implementing the Deserializers/Deserializer interface.
 Serializers can be obtained via an instance of SerializerFactory and deserializers can be obtained
 via an instance of DeserializerFactory. You are not allowed to construct these serializers and
 deserializers directly yourself or to have any kind of knowledge of them (ie type hinting). These
-objects are internal to this serialization and might change name or structure at any time. All you
+objects are internal to this component and might change name or structure at any time. All you
 are allowed to know when calling $serializerFactory->newEntitySerializer() is that you get back
 an instance of Serializers\Serializer.
 
 ## Tests
 
 This library comes with a set up PHPUnit tests that cover all non-trivial code. You can run these
-tests using the PHPUnit configuration file found in the root directory. The tests can also be run
-via TravisCI, as a TravisCI configuration file is also provided in the root directory.
+tests using the PHPUnit configuration file found in the root directory.
+
+    phpunit
+    
+By default the slow tests are not run. You can run them with
+
+    phpunit --group slow
 
 ## Authors
 
@@ -101,6 +106,13 @@ and by [Jeroen De Dauw](https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw) as [
 (https://wikimedia.de) employee for the [Wikidata project](https://wikidata.org/).
 
 ## Release notes
+
+### 1.3.0 (dev)
+
+* `FingerprintSerializer` now supports serializing `AliasGroupFallback`s and `TermFallback`s
+* `EntityDeserializer` now fails if the given serialization contains a term or alias that was either
+  the result of a fallback or transliteration
+* Added `newTypedSnakSerializer` to `SerializerFactory`
 
 ### 1.2.0 (2014-10-15)
 
@@ -163,3 +175,7 @@ Initial release with these features:
 * [Wikibase DataModel](https://github.com/wmde/WikibaseDataModel)
 * [Ask Serialization](https://github.com/wmde/AskSerialization)
 * [Wikibase Internal Serialization](https://github.com/wmde/WikibaseInternalSerialization) (For the "internal" serialization format)
+
+# Bugs on Phabricator
+
+https://phabricator.wikimedia.org/project/view/922/

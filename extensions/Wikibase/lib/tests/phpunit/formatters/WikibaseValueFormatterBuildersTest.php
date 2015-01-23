@@ -17,9 +17,10 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Term\Term;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\EntityIdFormatter;
+use Wikibase\Lib\PlainEntityIdFormatter;
 use Wikibase\Lib\FormatterLabelLookupFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
@@ -194,7 +195,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 					1 * 60 * 60, 0, 0,
 					TimeValue::PRECISION_DAY,
 					TimeFormatter::CALENDAR_GREGORIAN ),
-				'/^1 May 1520 <sup class="wb-calendar-name">Gregorian<\/sup>$/'
+				'/^1 May 1520<sup class="wb-calendar-name">Gregorian<\/sup>$/'
 			),
 			'a julian day in 1980' => array(
 				SnakFormatter::FORMAT_HTML,
@@ -203,7 +204,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 					1 * 60 * 60, 0, 0,
 					TimeValue::PRECISION_DAY,
 					TimeFormatter::CALENDAR_JULIAN ),
-				'/^1 May 1980 <sup class="wb-calendar-name">Julian<\/sup>$/'
+				'/^1 May 1980<sup class="wb-calendar-name">Julian<\/sup>$/'
 			),
 			'text in english' => array(
 				SnakFormatter::FORMAT_PLAIN,
@@ -288,7 +289,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 		$labelLookup = $this->getMock( 'Wikibase\Lib\Store\LabelLookup' );
 		$labelLookup->expects( $this->any() )
 			->method( 'getLabel' )
-			->will( $this->returnValue( 'Custom LabelLookup' ) );
+			->will( $this->returnValue( new Term( 'xy', 'Custom LabelLookup' ) ) );
 
 		$fallbackFactory = new LanguageFallbackChainFactory();
 		$fallbackChain = $fallbackFactory->newFromLanguage( Language::factory( 'de-ch' ) );
@@ -360,7 +361,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 		$builders->setValueFormatterClass(
 			SnakFormatter::FORMAT_PLAIN,
 			'VT:wikibase-entityid',
-			'Wikibase\Lib\EntityIdFormatter'
+			'Wikibase\Lib\PlainEntityIdFormatter'
 		);
 		$builders->setValueFormatterClass(
 			SnakFormatter::FORMAT_PLAIN,
@@ -401,7 +402,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 	public function testSetValueFormatterBuilder() {
 		$builder = function () {
 			$options = new FormatterOptions();
-			return new EntityIdFormatter( $options );
+			return new PlainEntityIdFormatter( $options );
 		};
 
 		$builders = $this->newWikibaseValueFormatterBuilders();

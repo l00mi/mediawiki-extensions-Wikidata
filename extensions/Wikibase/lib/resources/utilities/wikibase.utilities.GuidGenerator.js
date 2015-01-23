@@ -11,7 +11,9 @@
  * @constructor
  * @since 0.4
  */
-wb.utilities.GuidGenerator = function GuidGenerator(){};
+wb.utilities.GuidGenerator = function GuidGenerator() {
+};
+
 $.extend( wb.utilities.GuidGenerator.prototype, {
 	/**
 	 * Generates and returns a Globally Unique IDentifier.
@@ -67,7 +69,7 @@ wb.utilities.V4GuidGenerator = util.inherit(
 					hex = self._getRandomHex( 0, 65535 );
 				}
 
-				while ( hex.length < 4 ) {
+				while( hex.length < 4 ) {
 					hex = '0' +  hex;
 				}
 

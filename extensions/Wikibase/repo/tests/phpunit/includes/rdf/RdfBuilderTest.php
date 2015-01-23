@@ -86,7 +86,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 	 *
 	 * @return EasyRdf_Graph
 	 */
-	protected static function makeEntityGraph( EntityId $entityId, $entityProps, $dataProps ) {
+	private static function makeEntityGraph( EntityId $entityId, $entityProps, $dataProps ) {
 		$graph = new EasyRdf_Graph();
 
 		$builder = self::newRdfBuilder( 'rdf' ); //XXX: ugh, dummy object
@@ -107,7 +107,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 	 * @param EasyRdf_Resource $resource
 	 * @param array $properties
 	 */
-	protected static function addProperties( EasyRdf_Graph $graph, EasyRdf_Resource $resource, $properties ) {
+	private static function addProperties( EasyRdf_Graph $graph, EasyRdf_Resource $resource, $properties ) {
 		foreach ( $properties as $prop => $values ) {
 			if ( !is_array( $values ) ) {
 				$values = array( $values );
@@ -144,7 +144,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 		$graphs['empty'] = self::makeEntityGraph(
 			$entities['empty']->getId(),
 			array(
-				'rdf:type' => $builder->getEntityTypeQName( Item::ENTITY_TYPE ),
+				'rdf:type' => RdfBuilder::NS_ONTOLOGY . ':Item',
 			),
 			array(
 				'rdf:type' => RdfBuilder::NS_SCHEMA_ORG . ':Dataset',
@@ -157,7 +157,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 		$graphs['terms'] = self::makeEntityGraph(
 			$entities['terms']->getId(),
 			array(
-				'rdf:type' => $builder->getEntityTypeQName( Item::ENTITY_TYPE ),
+				'rdf:type' => RdfBuilder::NS_ONTOLOGY . ':Item',
 				'rdfs:label' => array(
 					new EasyRdf_Literal( 'Berlin', 'en' ),
 					new EasyRdf_Literal( 'Берлин', 'ru' )
@@ -198,7 +198,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 	/**
 	 * @return RdfBuilder
 	 */
-	protected static function newRdfBuilder() {
+	private static function newRdfBuilder() {
 		return new RdfBuilder(
 			new SiteList(),
 			self::URI_BASE,
@@ -233,7 +233,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 	 * @dataProvider provideAddEntity
 	 */
 	public function testAddEntity( EntityRevision $entityRevision, EasyRdf_Graph $expectedGraph ) {
-		$builder = $this->newRdfBuilder();
+		$builder = self::newRdfBuilder();
 
 		$builder->addEntity( $entityRevision->getEntity() );
 		$builder->addEntityRevisionInfo( $entityRevision->getEntity()->getId(), $entityRevision->getRevisionId(), $entityRevision->getTimestamp() );

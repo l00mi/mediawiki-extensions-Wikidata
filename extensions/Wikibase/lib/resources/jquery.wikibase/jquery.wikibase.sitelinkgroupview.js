@@ -114,7 +114,7 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 
 		this.$h
 		.attr( 'id', 'sitelinks-' + this.options.value.group )
-//		.text( mw.msg( 'wikibase-sitelinks-' + this.options.value.group ) )
+		// .text( mw.msg( 'wikibase-sitelinks-' + this.options.value.group ) )
 		.text( this.__headingText )
 		.append( this.$counter );
 
@@ -156,25 +156,11 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 
 		this.$sitelinklistview
 		.on( prefix + 'change.' + this.widgetName, function( event ) {
-			event.stopPropagation();
 			self._trigger( 'change' );
 		} )
 		.on( prefix + 'toggleerror.' + this.widgetName, function( event, error ) {
-			event.stopPropagation();
 			self.setError( error );
 		} )
-		.on(
-			[
-				prefix + 'create.' + this.widgetName,
-				prefix + 'afterstartediting.' + this.widgetName,
-				prefix + 'stopediting.' + this.widgetName,
-				prefix + 'afterstopediting.' + this.widgetName,
-				prefix + 'disable.' + this.widgetName
-			].join( ' ' ),
-			function( event ) {
-				event.stopPropagation();
-			}
-		)
 		.sitelinklistview( {
 			value: this._getSiteLinksOfGroup(),
 			allowedSiteIds: this.options.value
@@ -183,7 +169,8 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			entityStore: this.options.entityStore,
 			siteLinksChanger: this.options.siteLinksChanger,
 			eventSingleton: this._eventSingleton,
-			$counter: this.$counter
+			$counter: this.$counter,
+			encapsulate: true
 		} );
 	},
 
@@ -379,171 +366,5 @@ function getSiteIdsOfGroup( group ) {
 	} );
 	return siteIds;
 }
-
-$.wikibase.toolbarcontroller.definition( 'edittoolbar', {
-	id: 'sitelinkgroupview',
-	selector: ':' + $.wikibase.sitelinkgroupview.prototype.namespace
-		+ '-' + $.wikibase.sitelinkgroupview.prototype.widgetName,
-	events: {
-		sitelinkgroupviewcreate: function( event ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$headingContainer = $sitelinkgroupview.find(
-					'.wikibase-sitelinkgroupview-heading-container'
-				),
-				$container = $headingContainer.children( '.wikibase-toolbar-container' );
-
-			if( !$container.length ) {
-				$container = $( '<div/>' ).appendTo( $headingContainer );
-			}
-
-			$sitelinkgroupview.edittoolbar( {
-				$container: $container,
-				interactionWidget: sitelinkgroupview
-			} );
-
-			$sitelinkgroupview.on( 'keydown.edittoolbar', function( event ) {
-				if( sitelinkgroupview.option( 'disabled' ) ) {
-					return;
-				}
-				if( event.keyCode === $.ui.keyCode.ESCAPE ) {
-					sitelinkgroupview.stopEditing( true );
-				} else if( event.keyCode === $.ui.keyCode.ENTER ) {
-					sitelinkgroupview.stopEditing( false );
-				}
-			} );
-		},
-		'sitelinkgroupviewchange sitelinkgroupviewafterstartediting': function( event ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				edittoolbar = $sitelinkgroupview.data( 'edittoolbar' );
-
-			if( !edittoolbar ) {
-				return;
-			}
-
-			var btnSave = edittoolbar.getButton( 'save' ),
-				enable = sitelinkgroupview.isValid() && !sitelinkgroupview.isInitialValue();
-
-			btnSave[enable ? 'enable' : 'disable']();
-		},
-		sitelinkgroupviewdisable: function( event ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				edittoolbar = $sitelinkgroupview.data( 'edittoolbar' ),
-				btnSave = edittoolbar.getButton( 'save' ),
-				enable = sitelinkgroupview.isValid() && !sitelinkgroupview.isInitialValue();
-
-			btnSave[enable ? 'enable' : 'disable']();
-		},
-		edittoolbaredit: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' );
-
-			if( !sitelinkgroupview ) {
-				return;
-			}
-
-			sitelinkgroupview.focus();
-		}
-	}
-} );
-
-$.wikibase.toolbarcontroller.definition( 'removetoolbar', {
-	id: 'sitelinkgroupview-sitelinkview',
-	selector: ':' + $.wikibase.sitelinkgroupview.prototype.namespace
-		+ '-' + $.wikibase.sitelinkgroupview.prototype.widgetName,
-	events: {
-		'sitelinkgroupviewafterstartediting sitelinkgroupviewchange': function( event ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
-				sitelinklistviewListview = sitelinklistview.$listview.data( 'listview' );
-
-			if( !$sitelinkgroupview.length || !sitelinkgroupview.isInEditMode() ) {
-				return;
-			}
-
-			sitelinklistviewListview.items().each( function() {
-				var $sitelinkview = $( this ),
-					sitelinkview = $sitelinkview.data( 'sitelinkview' );
-
-				if( !$sitelinkview.data( 'removetoolbar' ) ) {
-					$sitelinkview
-					.removetoolbar( {
-						$container: $( '<span/>' ).appendTo(
-							$sitelinkview.data( 'sitelinkview' ).$siteIdContainer
-						),
-						renderItemSeparators: false,
-						icon: true
-					} )
-					.on( 'removetoolbarremove.removetoolbar', function( event ) {
-						if( event.target !== $sitelinkview.get( 0 ) ) {
-							return;
-						}
-						sitelinklistview.$listview.data( 'listview' ).removeItem( $sitelinkview );
-					} );
-				}
-
-				var removetoolbar = $sitelinkview.data( 'removetoolbar' ),
-					isDisabled = removetoolbar.option( 'disabled' ),
-					isValid = sitelinkview.isValid(),
-					isEmpty = sitelinkview.isEmpty();
-
-				if( ( !isValid || isEmpty ) && !isDisabled ) {
-					removetoolbar.disable();
-				} else if( isValid && !isEmpty && isDisabled ) {
-					removetoolbar.enable();
-				}
-
-				// Update inputautoexpand maximum width after adding "remove" toolbar:
-				var $siteIdInput = sitelinkview.$siteId.find( 'input' ),
-					inputautoexpand = $siteIdInput.length
-						? $siteIdInput.data( 'inputautoexpand' )
-						: null;
-				if( inputautoexpand ) {
-					$siteIdInput.inputautoexpand( {
-						maxWidth: $sitelinkview.width() - (
-							sitelinkview.$siteIdContainer.outerWidth( true ) - $siteIdInput.width()
-						)
-					} );
-				}
-
-				sitelinkview.updatePageNameInputAutoExpand();
-			} );
-		},
-		sitelinkgroupviewafterstopediting: function( event, toolbarcontroller ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
-				sitelinklistviewListview = sitelinklistview.$listview.data( 'listview' );
-
-			sitelinklistviewListview.items().each( function() {
-				var $sitelinkview = $( this );
-				toolbarcontroller.destroyToolbar( $sitelinkview.data( 'removetoolbar' ) );
-			} );
-		},
-		sitelinkgroupviewdisable: function( event ) {
-			var $sitelinkgroupview = $( event.target ),
-				sitelinkgroupview = $sitelinkgroupview.data( 'sitelinkgroupview' ),
-				$sitelinklistview = sitelinkgroupview.$sitelinklistview,
-				sitelinklistview = $sitelinklistview.data( 'sitelinklistview' ),
-				sitelinklistviewListview = sitelinklistview.$listview.data( 'listview' );
-
-			sitelinklistviewListview.items().each( function() {
-				var $sitelinkview = $( this ),
-					removetoolbar = $sitelinkview.data( 'removetoolbar' );
-
-				if( !removetoolbar ) {
-					return;
-				}
-
-				removetoolbar[sitelinkgroupview.option( 'disabled' ) ? 'disable' : 'enable']();
-			} );
-		}
-	}
-} );
 
 }( jQuery, mediaWiki, wikibase ) );

@@ -28,8 +28,9 @@ use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\Hook\OutputPageJsConfigHookHandler;
+use Wikibase\Repo\BabelUserLanguageLookup;
 use Wikibase\Repo\Content\EntityHandler;
+use Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\View\EntityViewPlaceholderExpander;
 use Wikibase\Repo\View\TextInjector;
 use Wikibase\Repo\WikibaseRepo;
@@ -1001,7 +1002,7 @@ final class RepoHooks {
 
 		if ( !empty( $placeholders ) ) {
 			$injector = new TextInjector( $placeholders );
-			$userLanguageLookup = new UserLanguageLookup();
+			$userLanguageLookup = new BabelUserLanguageLookup();
 			$expander = new EntityViewPlaceholderExpander(
 				new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 				$out->getTitle(),
