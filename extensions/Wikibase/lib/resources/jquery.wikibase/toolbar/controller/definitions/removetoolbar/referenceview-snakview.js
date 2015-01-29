@@ -9,9 +9,9 @@
  */
 $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	id: 'referenceview-snakview',
-	selector: '.wikibase-statementview-references .wb-referenceview',
+	selector: '.wikibase-statementview-references .wikibase-referenceview',
 	events: {
-		'snakviewstartediting snakviewchange referenceviewitemremoved': function( event, toolbarController ) {
+		'snakviewafterstartediting snakviewchange referenceviewitemremoved': function( event, toolbarController ) {
 			var $target = $( event.target ),
 				$referenceview = $target.closest( ':wikibase-referenceview' ),
 				referenceview = $referenceview.data( 'referenceview' );
@@ -20,7 +20,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 				return;
 			}
 
-			if ( event.type === 'snakviewstartediting' ) {
+			if ( event.type === 'snakviewafterstartediting' ) {
 				var $snaklistview = $target.closest( ':wikibase-snaklistview' ),
 					snaklistview = $snaklistview.data( 'snaklistview' ),
 					snakviewPropertyGroupListview = snaklistview._listview;
@@ -41,7 +41,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 					function( event, toolbarcontroller ) {
 						// Destroy the snakview toolbars:
 						var $referenceviewNode = $( event.target );
-						$.each( $referenceviewNode.find( '.wb-snakview' ), function( i, snakviewNode ) {
+						$.each( $referenceviewNode.find( '.wikibase-snakview' ), function( i, snakviewNode ) {
 							toolbarcontroller.destroyToolbar( $( snakviewNode ).data( 'removetoolbar' ) );
 						} );
 					}
@@ -120,11 +120,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 			}
 
 			if( removetoolbar ) {
-				removetoolbar[
-					( event.type === 'snakviewstartediting' && numberOfSnakviews > 0 || numberOfSnakviews > 1 )
-						? 'enable'
-						: 'disable'
-				]();
+				removetoolbar[ numberOfSnakviews > 1 ? 'enable' : 'disable' ]();
 			}
 		}
 	}

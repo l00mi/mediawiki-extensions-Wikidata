@@ -1,87 +1,68 @@
-/**
- *
- * @licence GNU GPL v2+
- * @author Daniel Werner < daniel.werner@wikimedia.de >
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( $ ) {
 	'use strict';
 
 	var PARENT =  $.ui.TemplatedWidget;
 
 /**
- * View for displaying and editing several list items, each represented by another widget.
- * @since 0.4
+ * View for displaying and editing list items, each represented by a single random widget.
+ * @class jQuery.wikibase.listview
  * @extends jQuery.ui.TemplatedWidget
+ * @since 0.4
+ * @licence GNU GPL v2+
+ * @author Daniel Werner < daniel.werner@wikimedia.de >
+ * @author H. Snater < mediawiki@snater.com >
  *
- * @option {*|null} value The values displayed by this view. Each value is represented by a widget
- *         defined in the 'listItemAdapter' option.
+ * @constructor
  *
- * @option {jQuery.wikibase.listview.ListItemAdapter} listItemAdapter (required) Can not
- *         be changed after initialization.
- *
- * @option {string} [listItemNodeName]
+ * @param {Object} options
+ * @param {*[]} [options.value=null]
+ *        The values displayed by this view. More specifically, a list of each list item widget's
+ *        value.
+ * @param {jQuery.wikibase.listview.ListItemAdapter} options.listItemAdapter
+ *        Interfaces the actual widget instances to be used by the `listview`. Cannot be changed
+ *        after initialization.
+ * @param {string} [options.listItemNodeName='DIV']
  *         Node name of the base node of new list items.
- *         Default: 'DIV'
- *
- * @event additem: Triggered before a list item will be added to the list.
- *        (1) {jQuery.Event}
- *        (2) {*|null} The value the new list item will represent. This can also be null in case a
- *            new, empty list item, not yet representing any value but ready for the user to enter
- *            a value, will be added.
- *        (3) {jQuery} the DOM node on which a widget representing the new list item's value will
- *            be initialized. The widget will be initialized on this DOM node after the DOM node is
- *            appended to the list, so events can bubble during widget initialization.
- *
- * @event itemadded: Triggered after a list item got added to the list.
- *        (1) {jQuery.Event}
- *        (2) {*|null} The value the new list item is representing. null for empty value.
- *        (3) {jQuery} The DOM node with the widget, representing the value.
- *
- * @event removeitem: Triggered before a list item will be removed from the list.
- *        (1) {jQuery.Event}
- *        (2) {*|null} The value of the list item which will be removed. null for empty value.
- *        (3) {jQuery} The list item's DOM node, which will be removed.
- *
- * @event itemremoved: Triggered after a list got removed from the list.
- *        (1) {jQuery.Event}
- *        (2) {*|null} The value of the list item which will be removed. null for empty value.
- *        (3) {jQuery} The list item's DOM node, removed.
- *
- * @event enternewitem: Triggered when initializing the process of adding a new item to the list.
- *        (1) {jQuery.Event}
- *        (2) {jQuery} The DOM node pending to be added permanently to the list.
- *
- * @event afteritemmove: Triggered when an item node is moved within the list.
- *        (1) {jQuery.Event}
- *        (2) {number} The item node's new index.
- *        (3) {number} Number of items in the list.
- *
+ */
+/**
+ * @event itemadded
+ * Triggered after a list item got added to the list.
+ * @param {jQuery.Event} event
+ * @param {*|null} value The value the new list item is representing. `null` for empty value.
+ * @param {jQuery} $li The DOM node of the widget representing the value.
+ */
+/**
+ * @event itemremoved
+ * Triggered after a list got removed from the list.
+ * @param {jQuery.Event} event
+ * @param {*|null} value The value of the list item which will be removed. `null` for empty value.
+ * @param {jQuery} $li The list item's DOM node that was removed.
+ */
+/**
+ * @event enternewitem
+ * Triggered when initializing the process of adding a new item to the list.
+ * @param {jQuery.Event} event
+ * @param {jQuery} $li The DOM node pending to be added permanently to the list.
+ */
+/**
+ * @event afteritemmove
+ * Triggered when an item node is moved within the list.
+ * @param {jQuery.Event} event
+ * @param {number} The item node's new index.
+ * @param {number} Number of items in the list.
+ */
+/**
  * @event destroy
- *        Triggered when the widget has been destroyed.
- *        - {jQuery.Event}
+ * Triggered when the widget has been destroyed.
+ * @param {jQuery.Event} event
  */
 $.widget( 'wikibase.listview', PARENT, {
 	/**
-	 * Short cut for 'listItemAdapter' option
-	 * @type jQuery.wikibase.listview.ListItemAdapter
-	 */
-	_lia: null,
-
-	/**
-	 * The DOM elements this ListView's element contained when it was initialized.
-	 * These DOM elements are reused in addItem until the array is empty.
-	 *
-	 * @type [HTMLElement]
-	 */
-	_reusedItems: [],
-
-	/**
-	 * (Additional) default options
-	 * @see jQuery.Widget.options
+	 * @inheritdoc
+	 * @protected
 	 */
 	options: {
-		template: 'wb-listview',
+		template: 'wikibase-listview',
 		templateParams: [
 			'' // list items
 		],
@@ -91,28 +72,45 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.Widget._create
+	 * Short-cut for `this.options.listItemAdapter`.
+	 * @property {jQuery.wikibase.listview.ListItemAdapter}
+	 * @private
+	 */
+	_lia: null,
+
+	/**
+	 * The DOM elements this `listview`'s element contained when it was initialized. These DOM
+	 * elements are reused in `this.addItem` until the array is empty.
+	 * @property [HTMLElement[]]
+	 * @private
+	 */
+	_reusedItems: [],
+
+	/**
+	 * @inheritdoc
+	 * @protected
+	 *
+	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
-		this._lia = this.options.listItemAdapter; // create short-cut for this
+		this._lia = this.options.listItemAdapter;
 
 		if( typeof this._lia !== 'object'
 			|| !( this._lia instanceof $.wikibase.listview.ListItemAdapter )
 		) {
-			throw new Error( "Option 'listItemAdapter' has to be an instance of $.wikibase." +
-				"listview.ListItemAdapter" );
+			throw new Error( 'Option "listItemAdapter" has to be an instance of '
+				+ 'jQuery.wikibase.listview.ListItemAdapter' );
 		}
 
 		this._reusedItems = $.makeArray( this.element.children( this.options.listItemNodeName ) );
 
-		// apply template to this.element:
 		PARENT.prototype._create.call( this );
 
-		this._createList(); // fill list with items
+		this._createList();
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.destroy
+	 * @inheritdoc
 	 */
 	destroy: function() {
 		this._lia = null;
@@ -122,14 +120,26 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.widget._setOption
-	 * We are using this to disallow changing the 'listItemAdapter' option afterwards
+	 * @inheritdoc
+	 * @protected
+	 *
+	 * @throws {Error} when trying to set `listItemAdapter` option.
 	 */
 	_setOption: function( key, value ) {
 		var self = this;
 
 		if( key === 'listItemAdapter' ) {
 			throw new Error( 'Can not change the ListItemAdapter after initialization' );
+		} else if( key === 'value' ) {
+			this.items().each( function( i, node ) {
+				var $node = $( node );
+				self._lia.liInstance( $node ).destroy();
+				$node.remove();
+			} );
+
+			for( var i = 0; i < value.length; i++ ) {
+				this._addLiValue( value[i] );
+			}
 		}
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -148,10 +158,8 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * Will fill the list element with sections DOM, all sections will already contain their related
-	 * list items DOM.
-	 *
-	 * @since 0.4
+	 * Fills the list element with DOM structure for each list item.
+	 * @private
 	 */
 	_createList: function() {
 		var i, items = this.option( 'value' );
@@ -163,45 +171,30 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * Sets/gets the listview's list item instances.
+	 * Sets the widget's value or gets the widget's current value. The widget's non-pending value
+	 * (the value the widget was initialized with) may be retrieved via `this.option( 'value' )`.
 	 *
-	 * @param {*[]} [value]
+	 * @param {*[]} [value] List containing a value for each list item widget.
 	 * @return {*[]|undefined}
 	 */
 	value: function( value ) {
-		var self = this;
-
-		// Getter:
 		if( value === undefined ) {
-			var values = [];
+			var self = this,
+				values = [];
 
-			this.items().each( function( i, node ) {
-				values.push( self._lia.liInstance( $( node ) ) );
+			this.items().each( function() {
+				values.push( self._lia.liInstance( $( this ) ) );
 			} );
 
 			return values;
 		}
 
-		// Clear listview:
-		this.items().each( function( i, node ) {
-			var $node = $( node );
-			self._lia.liInstance( $node ).destroy();
-			$node.remove();
-		} );
-
-		// Add new values:
-		for( var i = 0; i < value.length; i++ ) {
-			var $newLi = $( '<' + this.option( 'listItemNodeName' ) + '/>' )
-				.addClass( this.widgetName + '-item' );
-			this.element.append( $newLi );
-			this._lia.newListItem( $newLi, value[i] );
-		}
+		this.option( 'value', value );
 	},
 
 	/**
-	 * Returns all list item nodes.
-	 *
-	 * @since 0.4
+	 * Returns all list item nodes. The `listItemAdapter` may be used to retrieve the list item
+	 * instance.
 	 *
 	 * @return {jQuery}
 	 */
@@ -210,9 +203,7 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * Returns all list items which have a value not considered empty (not null).
-	 *
-	 * @since 0.4
+	 * Returns all list items which have a value not considered empty (not `null`).
 	 *
 	 * @return {jQuery}
 	 */
@@ -224,9 +215,8 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * Returns the index of a given item node within the list managed by the listview. Returns -1 if
-	 * the node could not be found.
-	 * @since 0.4
+	 * Returns the index of a given item node within the list managed by the `listview`. Returns
+	 * `-1` if the node could not be found.
 	 *
 	 * @param {jQuery} $itemNode
 	 * @return {number}
@@ -246,12 +236,9 @@ $.widget( 'wikibase.listview', PARENT, {
 
 	/**
 	 * Moves a list item to a new index.
-	 * @since 0.4
 	 *
 	 * @param {jQuery} $itemNode
 	 * @param {number} toIndex
-	 *
-	 * @triggers afteritemmove
 	 */
 	move: function( $itemNode, toIndex ) {
 		var currIndex = this.indexOf( $itemNode ),
@@ -281,7 +268,6 @@ $.widget( 'wikibase.listview', PARENT, {
 
 	/**
 	 * Moves an item node one index towards the top of the list.
-	 * @since 0.4
 	 *
 	 * @param {jQuery} $itemNode
 	 */
@@ -293,7 +279,6 @@ $.widget( 'wikibase.listview', PARENT, {
 
 	/**
 	 * Moves an item node one index towards the bottom of the list.
-	 * @since 0.4
 	 *
 	 * @param {jQuery} $itemNode
 	 */
@@ -303,7 +288,8 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * Returns the list item adapter object to deal with this list's list items.
+	 * Returns the list item adapter object interfacing to this list's list items.
+	 *
 	 * @return {jQuery.wikibase.listview.ListItemAdapter}
 	 */
 	listItemAdapter: function() {
@@ -312,82 +298,64 @@ $.widget( 'wikibase.listview', PARENT, {
 
 	/**
 	 * Adds one list item into the list and renders it in the view.
-	 * @since 0.4
 	 *
-	 * @triggers additem
-	 * @triggers itemadded If default was not prevented by 'additem' event.
-	 *
-	 * @param {*} value
-	 * @return {jQuery} The DOM node representing the value. If default was prevented in the
-	 *         'additem' event, the node will be returned even though not appended to the list.
+	 * @param {*} liValue One list item widget's value.
+	 * @return {jQuery} New list item's node.
 	 */
-	addItem: $.NativeEventHandler( 'additem', {
-		initially: function( event, value ) {
-			// in custom handlers, we provide the DOM node without initialized value widget because
-			// we want to initialize widget AFTER the node is in the DOM, so we can have events
-			// triggered during widget initialization bubble up the DOM!
-			var $newLi;
-			if( this._reusedItems.length > 0 ) {
-				$newLi = $( this._reusedItems.shift() );
+	addItem: function( liValue ) {
+		var $li = this._addLiValue( liValue );
+		this._trigger( 'itemadded', null, [liValue, $li] );
+		return $li;
+	},
+
+	/**
+	 * Adds one list item into the list and renders it in the view.
+	 * @private
+	 *
+	 * @param {*} liValue One list item widget's value.
+	 * @return {jQuery} New list item's node.
+	 */
+	_addLiValue: function( liValue ) {
+		var $newLi = this._reusedItems.length > 0
+			? $( this._reusedItems.shift() )
+			: $( '<' + this.option( 'listItemNodeName' ) + '/>' );
+
+		$newLi.addClass( this.widgetName + '-item' );
+
+		if( !$newLi.parent( this.element ).length ) {
+			// Insert DOM first, to allow events bubbling up the DOM tree.
+			var items = this.items();
+
+			if( items.length ) {
+				items.last().after( $newLi );
 			} else {
-				$newLi = $( '<' + this.option( 'listItemNodeName' ) + '/>' );
+				this.element.append( $newLi );
 			}
-			$newLi.addClass( this.widgetName + '-item' );
-			event.handlerArgs = [ value || null, $newLi ];
-			return $newLi;
-		},
-		natively: function( event, value, $newLi ) {
-			if( !$newLi.parent( this.element ).length ) {
-				// first insert DOM so value widget's events can already bubble during initialization!
-				var items = this.items();
-
-				if( items.length ) {
-					items.last().after( $newLi );
-				} else {
-					this.element.append( $newLi );
-				}
-			}
-
-			this._lia.newListItem( $newLi, value );
-
-			this._trigger( 'itemadded', null, [ value, $newLi ] );
 		}
-	} ),
+
+		this._lia.newListItem( $newLi, liValue );
+
+		return $newLi;
+	},
 
 	/**
 	 * Removes one list item from the list and renders the update in the view.
-	 * @since 0.4
 	 *
-	 * @triggers removeitem
-	 * @triggers itemremoved If default was not prevented by 'removeitem' event.
+	 * @param {jQuery} $li The list item's node to be removed.
 	 *
-	 * @param {jQuery} $itemNode The list item's node to be removed
+	 * @throws {Error} if the node provided is not a list item.
 	 */
-	removeItem: $.NativeEventHandler( 'removeitem', {
-		initially: function( event, $itemNode ) {
-			// check whether given node actually is in this list. If not, fail!
-			if( !$itemNode.parent( this.element ).length ) {
-				throw new Error( 'The given node is not an element in this list' );
-			}
-			// even though this information is kind of redundant since the value can be accessed
-			// within custom events by using listview.listItemAdapter().liInstance( $itemNode).value(),
-			// we provide the value here for convenience and for consistent event argument order in all
-			// add/remove events
-			var value = this._lia.liInstance( $itemNode ).value();
-			event.handlerArgs = [ value, $itemNode ];
-		},
-		natively: function( event, value, $itemNode ) {
-			// destroy widget representing the list item's value and remove node from list:
-			this._lia.liInstance( $itemNode ).destroy();
-
-			$itemNode.remove();
-
-			// For correctly counting the listview items (e.g. for the references), the
-			// "itemremoved" event has to be triggered after the item node got removed to not count
-			// a pending list item that is about to be removed.
-			this._trigger( 'itemremoved', null, [ value, $itemNode ] );
+	removeItem: function( $li ) {
+		if( !$li.parent( this.element ).length ) {
+			throw new Error( 'The given node is not an element in this list' );
 		}
-	} ),
+
+		var liValue = this._lia.liInstance( $li ).value();
+
+		this._lia.liInstance( $li ).destroy();
+		$li.remove();
+		this._trigger( 'itemremoved', null, [liValue, $li] );
+	},
 
 	/**
 	 * Inserts a new list item into the list. The new list item will be a widget instance of the
@@ -405,13 +373,13 @@ $.widget( 'wikibase.listview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		var $items = this.items();
 
 		if( $items.length ) {
-			var item = this.listItemAdapter().liInstance( $items.first() );
+			var item = this._lia.liInstance( $items.first() );
 			if( item.focus ) {
 				item.focus();
 				return;
@@ -422,9 +390,5 @@ $.widget( 'wikibase.listview', PARENT, {
 	}
 
 } );
-
-// We have to override this here because $.widget sets it no matter what's in
-// the prototype
-$.wikibase.listview.prototype.widgetBaseClass = 'wb-listview';
 
 }( jQuery ) );

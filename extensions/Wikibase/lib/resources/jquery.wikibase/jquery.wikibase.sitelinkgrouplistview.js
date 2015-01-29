@@ -76,9 +76,10 @@ $.widget( 'wikibase.sitelinkgrouplistview', PARENT, {
 	},
 
 	_createListview: function() {
-		var self = this;
+		var self = this,
+			prefix = $.wikibase.sitelinkgroupview.prototype.widgetEventPrefix;
 
-		this.$listview = this.element.find( '.wb-listview' );
+		this.$listview = this.element.find( '.wikibase-listview' );
 
 		if( !this.$listview.length ) {
 			this.$listview = $( '<div/>' ).appendTo( this.element );
@@ -98,7 +99,11 @@ $.widget( 'wikibase.sitelinkgrouplistview', PARENT, {
 					};
 				}
 			} ),
-			value: self.options.value || null
+			value: self.options.value || null,
+			encapsulate: true
+		} )
+		.on( prefix + 'disable.' + this.widgetName, function( event ) {
+			event.stopPropagation();
 		} );
 	},
 

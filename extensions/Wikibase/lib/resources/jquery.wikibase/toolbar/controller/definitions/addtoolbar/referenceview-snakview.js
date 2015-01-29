@@ -9,9 +9,9 @@
  */
 $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 	id: 'referenceview-snakview',
-	selector: '.wikibase-statementview-references .wb-referenceview',
+	selector: '.wikibase-statementview-references .wikibase-referenceview',
 	events: {
-		referenceviewstartediting: function( event, toolbarController ) {
+		referenceviewafterstartediting: function( event, toolbarController ) {
 			var $referenceview = $( event.target ),
 				referenceview = $referenceview.data( 'referenceview' ),
 				lia = referenceview.$listview.data( 'listview' ).listItemAdapter();

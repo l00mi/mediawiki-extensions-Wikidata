@@ -40,22 +40,55 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.wikibase.claimgrouplabelscroll.tests' => $moduleBase + array(
+		'jquery.wikibase.statementgrouplabelscroll.tests' => $moduleBase + array(
 			'scripts' => array(
-				'jquery.wikibase.claimgrouplabelscroll.tests.js',
+				'jquery.wikibase.statementgrouplabelscroll.tests.js',
 			),
 			'dependencies' => array(
-				'jquery.wikibase.claimgrouplabelscroll',
+				'jquery.wikibase.statementgrouplabelscroll',
 			),
 		),
 
-		'jquery.wikibase.claimgrouplistview.tests' => $moduleBase + array(
+		'jquery.wikibase.statementgrouplistview.tests' => $moduleBase + array(
 			'scripts' => array(
-				'jquery.wikibase.claimgrouplistview.tests.js',
+				'jquery.wikibase.statementgrouplistview.tests.js',
 			),
 			'dependencies' => array(
-				'jquery.wikibase.claimgrouplistview',
-				'wikibase.datamodel'
+				'jquery.wikibase.statementgrouplistview',
+				'wikibase.datamodel.Claim',
+				'wikibase.datamodel.PropertyNoValueSnak',
+				'wikibase.datamodel.Statement',
+				'wikibase.datamodel.StatementGroup',
+				'wikibase.datamodel.StatementGroupSet',
+				'wikibase.datamodel.StatementList',
+			),
+		),
+
+		'jquery.wikibase.statementgroupview.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery.wikibase.statementgroupview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.statementgroupview',
+				'wikibase.datamodel.Claim',
+				'wikibase.datamodel.PropertyNoValueSnak',
+				'wikibase.datamodel.PropertySomeValueSnak',
+				'wikibase.datamodel.Statement',
+				'wikibase.datamodel.StatementGroup',
+				'wikibase.datamodel.StatementList',
+			),
+		),
+
+		'jquery.wikibase.statementlistview.tests' => $moduleBase + array(
+			'scripts' => array(
+				'jquery.wikibase.statementlistview.tests.js',
+			),
+			'dependencies' => array(
+				'jquery.wikibase.statementlistview',
+				'wikibase.datamodel.Claim',
+				'wikibase.datamodel.PropertyNoValueSnak',
+				'wikibase.datamodel.Statement',
+				'wikibase.datamodel.StatementList',
 			),
 		),
 

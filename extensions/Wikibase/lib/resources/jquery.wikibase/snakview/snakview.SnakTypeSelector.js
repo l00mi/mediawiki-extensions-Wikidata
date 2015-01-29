@@ -24,16 +24,10 @@
 	 *
 	 * @since 0.4
 	 *
-	 * @event change Triggered before the snak type changes
-	 *        (1) {jQuery.Event}
-	 *        (2) {string|null} The new Snak type or null if emptied
-	 *
-	 * @event afterchange Triggered after the snak type got changed
+	 * @event change Triggered when the snak type changed.
 	 *        (1) {jQuery.Event}
 	 */
 	$.widget( 'wikibase.SnakTypeSelector', PARENT, {
-		widgetName: 'wikibase-snaktypeselector',
-
 		/**
 		 * Icon node.
 		 * @type {jQuery}
@@ -183,9 +177,13 @@
 					$( '<li/>' )
 					.addClass( classPrefix + type ) // type should only be lower case string anyhow!
 					.data( 'snaktypeselector-menuitem-type', type )
-					.append( $( '<a/>' ).attr( 'href', 'javascript:void(0);' ).text(
-						mw.msg( 'wikibase-snakview-snaktypeselector-' + type )
-					) )
+					.append(
+						$( '<a/>' )
+						.text( mw.msg( 'wikibase-snakview-snaktypeselector-' + type ) )
+						.on( 'click.' + this.widgetName, function( event ) {
+							event.preventDefault();
+						} )
+					)
 				);
 			} );
 
@@ -216,27 +214,20 @@
 		 *
 		 * @param {string|null} snakType
 		 */
-		_setSnakType: $.NativeEventHandler( 'change', {
-			initially: function( event, snakType ) {
-				if( this.snakType() === snakType ) {
-					event.cancel(); // same type selected already, no change
-				}
-			},
-			natively: function( event, snakType ) {
-				var $menu = this._menu.element;
-
-				// take active status from currently active Snak type list item:
-				$menu.children( '.ui-state-active' ).removeClass( 'ui-state-active' );
-
-				if( snakType !== null ) {
-					// set list item of new type active:
-					$menu.children( '.' + this.widgetBaseClass + '-menuitem-' + snakType )
-						.addClass( 'ui-state-active' );
-				}
-
-				this._trigger( 'afterchange' );
+		_setSnakType: function( snakType ) {
+			if( this.snakType() === snakType ) {
+				return;
 			}
-		} ),
+
+			this._menu.element.children( '.ui-state-active' ).removeClass( 'ui-state-active' );
+
+			if( snakType !== null ) {
+				this._menu.element.children( '.' + this.widgetBaseClass + '-menuitem-' + snakType )
+					.addClass( 'ui-state-active' );
+			}
+
+			this._trigger( 'change' );
+		},
 
 		/**
 		 * Positions the menu.
@@ -259,6 +250,6 @@
 
 	// We have to override this here because $.widget sets it no matter what's in
 	// the prototype
-	$.wikibase.snakview.SnakTypeSelector.prototype.widgetBaseClass = 'wb-snaktypeselector';
+	$.wikibase.snakview.SnakTypeSelector.prototype.widgetBaseClass = 'wikibase-snaktypeselector';
 
 }( mediaWiki, jQuery ) );

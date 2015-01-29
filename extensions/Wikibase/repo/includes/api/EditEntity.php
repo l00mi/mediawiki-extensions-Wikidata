@@ -19,6 +19,7 @@ use Wikibase\ChangeOp\FingerprintChangeOpFactory;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
@@ -44,33 +45,29 @@ use Wikibase\Utils;
 class EditEntity extends ModifyEntity {
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var string[]
 	 */
-	protected $validLanguageCodes;
+	private $validLanguageCodes;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var EntityRevisionLookup
 	 */
-	protected $entityRevisionLookup;
+	private $entityRevisionLookup;
 
 	/**
 	 * @var FingerprintChangeOpFactory
 	 */
-	protected $termChangeOpFactory;
+	private $termChangeOpFactory;
 
 	/**
 	 * @var ClaimChangeOpFactory
 	 */
-	protected $claimChangeOpFactory;
+	private $claimChangeOpFactory;
 
 	/**
 	 * @var SiteLinkChangeOpFactory
 	 */
-	protected $siteLinkChangeOpFactory;
+	private $siteLinkChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -228,7 +225,7 @@ class EditEntity extends ModifyEntity {
 	 *
 	 * @return ChangeOps
 	 */
-	protected function getChangeOps( array $data, Entity $entity ) {
+	private function getChangeOps( array $data, Entity $entity ) {
 		$changeOps = new ChangeOps();
 
 		//FIXME: Use a ChangeOpBuilder so we can batch fingerprint ops etc,
@@ -247,8 +244,8 @@ class EditEntity extends ModifyEntity {
 		}
 
 		if ( array_key_exists( 'sitelinks', $data ) ) {
-			if ( $entity->getType() !== Item::ENTITY_TYPE ) {
-				$this->dieError( "Non Items can not have sitelinks", 'not-recognized' );
+			if ( !( $entity instanceof Item ) ) {
+				$this->dieError( 'Non Items can not have sitelinks', 'not-recognized' );
 			}
 
 			$changeOps->add( $this->getSiteLinksChangeOps( $data['sitelinks'], $entity ) );
@@ -264,11 +261,10 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.4
 	 * @param array $labels
 	 * @return ChangeOp[]
 	 */
-	protected function getLabelChangeOps( $labels  ) {
+	private function getLabelChangeOps( $labels  ) {
 		$labelChangeOps = array();
 
 		if ( !is_array( $labels ) ) {
@@ -294,11 +290,10 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.4
 	 * @param array $descriptions
 	 * @return ChangeOp[]
 	 */
-	protected function getDescriptionChangeOps( $descriptions ) {
+	private function getDescriptionChangeOps( $descriptions ) {
 		$descriptionChangeOps = array();
 
 		if ( !is_array( $descriptions ) ) {
@@ -324,11 +319,10 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.4
 	 * @param array $aliases
 	 * @return ChangeOp[]
 	 */
-	protected function getAliasesChangeOps( $aliases ) {
+	private function getAliasesChangeOps( $aliases ) {
 		if ( !is_array( $aliases ) ) {
 			$this->dieError( "List of aliases must be an array", 'not-recognized-array' );
 		}
@@ -343,7 +337,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $aliases
 	 * @return array
 	 */
-	protected function getIndexedAliases( array $aliases ) {
+	private function getIndexedAliases( array $aliases ) {
 		$indexedAliases = array();
 
 		foreach ( $aliases as $langCode => $arg ) {
@@ -361,7 +355,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $indexedAliases
 	 * @return ChangeOp[]
 	 */
-	protected function getIndexedAliasesChangeOps( array $indexedAliases ) {
+	private function getIndexedAliasesChangeOps( array $indexedAliases ) {
 		$aliasesChangeOps = array();
 		foreach ( $indexedAliases as $langCode => $args ) {
 			$aliasesToSet = array();
@@ -391,18 +385,16 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $siteLinks
-	 * @param Item $entity
+	 * @param Item $item
 	 *
 	 * @return ChangeOp[]
 	 */
-	protected function getSiteLinksChangeOps( $siteLinks, Item $item ) {
+	private function getSiteLinksChangeOps( $siteLinks, Item $item ) {
 		$siteLinksChangeOps = array();
 
 		if ( !is_array( $siteLinks ) ) {
-			$this->dieError( "List of sitelinks must be an array", 'not-recognized-array' );
+			$this->dieError( 'List of sitelinks must be an array', 'not-recognized-array' );
 		}
 
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
@@ -455,12 +447,10 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param array $claims
 	 * @return ChangeOp[]
 	 */
-	protected function getClaimsChangeOps( $claims ) {
+	private function getClaimsChangeOps( $claims ) {
 		if ( !is_array( $claims ) ) {
 			$this->dieError( "List of claims must be an array", 'not-recognized-array' );
 		}
@@ -537,7 +527,7 @@ class EditEntity extends ModifyEntity {
 	/**
 	 * @param Entity $entity
 	 */
-	protected function buildResult( Entity $entity ) {
+	private function buildResult( Entity $entity ) {
 		$this->getResultBuilder()->addLabels( $entity->getLabels(), 'entity' );
 		$this->getResultBuilder()->addDescriptions( $entity->getDescriptions(), 'entity' );
 		$this->getResultBuilder()->addAliases( $entity->getAllAliases(), 'entity' );
@@ -560,13 +550,11 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param mixed $data
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 * @param int $revId
 	 */
-	protected function validateDataProperties( $data, Entity $entity, $revId = 0 ) {
+	private function validateDataProperties( $data, EntityDocument $entity, $revId = 0 ) {
 		$entityId = $entity->getId();
 		$title = $entityId === null ? null : $this->getTitleLookup()->getTitleForId( $entityId );
 
@@ -604,7 +592,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $data
 	 * @param array $allowedProps
 	 */
-	protected function checkValidJson( $data, array $allowedProps ) {
+	private function checkValidJson( $data, array $allowedProps ) {
 		if ( is_null( $data ) ) {
 			$this->dieError( 'Invalid json: The supplied JSON structure could not be parsed or '
 				. 'recreated as a valid structure' , 'invalid-json' );
@@ -630,7 +618,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $data
 	 * @param Title|null $title
 	 */
-	protected function checkPageIdProp( $data, $title ) {
+	private function checkPageIdProp( $data, $title ) {
 		if ( isset( $data['pageid'] )
 			&& ( is_object( $title ) ? $title->getArticleID() !== $data['pageid'] : true ) ) {
 			$this->dieError(
@@ -644,7 +632,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $data
 	 * @param Title|null $title
 	 */
-	protected function checkNamespaceProp( $data, $title ) {
+	private function checkNamespaceProp( $data, $title ) {
 		// not completely convinced that we can use title to get the namespace in this case
 		if ( isset( $data['ns'] )
 			&& ( is_object( $title ) ? $title->getNamespace() !== $data['ns'] : true ) ) {
@@ -659,7 +647,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $data
 	 * @param Title|null $title
 	 */
-	protected function checkTitleProp( $data, $title ) {
+	private function checkTitleProp( $data, $title ) {
 		if ( isset( $data['title'] )
 			&& ( is_object( $title ) ? $title->getPrefixedText() !== $data['title'] : true ) ) {
 			$this->dieError(
@@ -673,7 +661,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $data
 	 * @param int|null $revisionId
 	 */
-	protected function checkRevisionProp( $data, $revisionId ) {
+	private function checkRevisionProp( $data, $revisionId ) {
 		if ( isset( $data['lastrevid'] )
 			&& ( is_int( $revisionId ) ? $revisionId !== $data['lastrevid'] : true ) ) {
 			$this->dieError(
@@ -702,7 +690,7 @@ class EditEntity extends ModifyEntity {
 		}
 	}
 
-	private function checkEntityType( $data, Entity $entity ) {
+	private function checkEntityType( $data, EntityDocument $entity ) {
 		if ( isset( $data['type'] )
 			&& $entity->getType() !== $data['type'] ) {
 			$this->dieError(
@@ -774,7 +762,7 @@ class EditEntity extends ModifyEntity {
 	 * @param array $arg The argument array to verify
 	 * @param string $langCode The language code used in the value part
 	 */
-	public function validateMultilangArgs( $arg, $langCode ) {
+	private function validateMultilangArgs( $arg, $langCode ) {
 		if ( !is_array( $arg ) ) {
 			$this->dieError(
 				"An array was expected, but not found in the json for the langCode {$langCode}" ,
@@ -818,7 +806,7 @@ class EditEntity extends ModifyEntity {
 	 * @param string $siteCode The site code used in the argument
 	 * @param SiteList $sites The valid site codes as an assoc array
 	 */
-	public function checkSiteLinks( $arg, $siteCode, SiteList &$sites = null ) {
+	private function checkSiteLinks( $arg, $siteCode, SiteList &$sites = null ) {
 		if ( !is_array( $arg ) ) {
 			$this->dieError( 'An array was expected, but not found' , 'not-recognized-array' );
 		}

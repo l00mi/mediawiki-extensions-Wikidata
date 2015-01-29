@@ -1,4 +1,4 @@
-( function( mw, wb, $ ) {
+( function( wb, $ ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
@@ -9,7 +9,7 @@
  * @see jQuery.wikibase.statementview
  * @see wikibase.datamodel.Statement
  * @see wikibase.datamodel.StatementList
- * @class jQuery.wikibase.claimlistview
+ * @class jQuery.wikibase.statementlistview
  * @extends jQuery.ui.TemplatedWidget
  * @uses jQuery.wikibase.listview
  * @uses jQuery.wikibase.listview.ListItemAdapter
@@ -23,7 +23,7 @@
  * @constructor
  *
  * @param {Object} options
- * @param {wikibase.datamodel.ClaimGroup|wikibase.datamodel.StatementGroup} [options.value=null]
+ * @param {wikibase.datamodel.StatementList} options.value
  *        The list of `Statement`s to be displayed by this view. If null, the view will initialize
  *        with edit mode being started.
  * @param {wikibase.store.EntityStore} options.entityStore
@@ -38,55 +38,50 @@
  *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
  *        object when interacting on a "value" `Variation`.
 /**
- * @event startediting
- * Triggered when edit mode is started for one of the `statementview` widgets managed by the
- * `claimlistview`.
+ * @event afterstartediting
+ * Triggered when edit mode has been started for one of the `statementview` widgets managed by the
+ * `statementlistview`.
  * @param {jQuery.Event} event
  */
 /**
  * @event afterstopediting
- * Triggered when one of the `statementview` widgets managed by the `claimlistview` has successfully
- * stopped edit mode.
+ * Triggered when one of the `statementview` widgets managed by the `statementlistview` has
+ * successfully stopped edit mode.
  * @param {jQuery.Event} event
  * @param {boolean} dropValue If true, the value from before edit mode has been started will be
  *        reinstated (basically, a cancel/save switch).
  */
 /**
  * @event afterremove
- * Triggered after one of the `statementview` widgets managed by the `claimlistview` was removed
- * from the `claimlistview`.
+ * Triggered after one of the `statementview` widgets managed by the `statementlistview` was removed
+ * from the `statementlistview`.
  * @param {jQuery.Event} event
  */
 /**
  * @event toggleerror
- * Triggered when one of the `statementview` widgets managed by the `claimlistview` produces an
+ * Triggered when one of the `statementview` widgets managed by the `statementlistview` produces an
  * error.
  * @param {jQuery.Event} event
  */
-$.widget( 'wikibase.claimlistview', PARENT, {
+$.widget( 'wikibase.statementlistview', PARENT, {
 	/**
 	 * @inheritdoc
 	 * @protected
 	 */
 	options: {
-		template: 'wb-claimlistview',
+		template: 'wikibase-statementlistview',
 		templateParams: [
 			'', // listview widget
-			'', // group name and toolbar
-			function() {
-				var statements = this.option( 'value' );
-				return statements ? statements.getKey() : '';
-			}
+			'' // toolbar
 		],
 		templateShortCuts: {
-			'$listview': '.wb-claims'
+			'$listview': '.wikibase-statementlistview-listview'
 		},
 		value: null,
-		entityType: null,
-		dataTypeStore: null,
 		entityStore: null,
 		valueViewBuilder: null,
-		entityChangersFactory: null
+		entityChangersFactory: null,
+		dataTypeStore: null
 	},
 
 	/**
@@ -106,6 +101,8 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 			!this.options.entityStore
 			|| !this.options.valueViewBuilder
 			|| !this.options.entityChangersFactory
+			|| !this.options.dataTypeStore
+			|| !( this.options.value instanceof wb.datamodel.StatementList )
 		) {
 			throw new Error( 'Required option not specified properly' );
 		}
@@ -118,15 +115,16 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 
 		var self = this,
 			lia = this.listview().listItemAdapter(),
-			startEditingEvent = lia.prefixedEvent( 'startediting.' + this.widgetName ),
+			afterStartEditingEvent
+				= lia.prefixedEvent( 'afterstartediting.' + this.widgetName ),
 			afterStopEditingEvent = lia.prefixedEvent( 'afterstopediting.' + this.widgetName ),
 			toggleErrorEvent = lia.prefixedEvent( 'toggleerror.' + this.widgetName );
 
 		this.element
-		.on( startEditingEvent, function( event ) {
-			// Forward "startediting" event for higher components (e.g. claimgrouplistview) to
-			// recognize that edit mode has been started.
-			self._trigger( 'startediting' );
+		.on( afterStartEditingEvent, function( event ) {
+			// Forward "afterstartediting" event for higher components (e.g. statementgrouplistview)
+			// to recognize that edit mode has been started.
+			self._trigger( 'afterstartediting' );
 		} )
 		.on( afterStopEditingEvent, function( event, dropValue ) {
 			var $statementview = $( event.target ),
@@ -140,44 +138,6 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 		} )
 		.on( toggleErrorEvent, function( event, error ) {
 			self._trigger( 'toggleerror' );
-		} );
-
-		this._createGroupName();
-	},
-
-	/**
-	 * @private
-	 */
-	_createGroupName: function() {
-		var self = this,
-			statements = this.option( 'value' ),
-			propertyId;
-
-		if( this.element.find( '.wb-claimgrouplistview-groupname' ).length > 0 ) {
-			return;
-		}
-
-		if( !statements ) {
-			return;
-		}
-
-		propertyId = statements.getKey();
-
-		this.option( 'entityStore' ).get( propertyId ).done( function( property ) {
-			var $title;
-
-			if( property ) {
-				// Default: Create a link to the property to be used as group title.
-				$title = wb.utilities.ui.buildLinkToEntityPage(
-					property.getContent(),
-					property.getTitle()
-				);
-			} else {
-				// The statements group features a property that has been deleted.
-				$title = wb.utilities.ui.buildMissingEntityInfo( propertyId, wb.datamodel.Property );
-			}
-
-			self.element.append( mw.wbTemplate( 'wb-claimgrouplistview-groupname', $title ) );
 		} );
 	},
 
@@ -197,12 +157,13 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	 */
 	_createListView: function() {
 		var self = this,
-			statements = this.option( 'value' ),
 			propertyId;
 
-		if( statements ) {
-			propertyId = statements.getKey();
-			statements = statements.getItemContainer().toArray();
+		if( $.expr[':']['wikibase-statementgroupview'] ) {
+			var $statementgroupview = this.element.closest( ':wikibase-statementgroupview' ),
+				statementgroupview = $statementgroupview.data( 'statementgroupview' ),
+				statementGroup = statementgroupview && statementgroupview.option( 'value' );
+			propertyId = statementGroup && statementGroup.getKey();
 		}
 
 		this.$listview
@@ -214,12 +175,14 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 						value: value || null,
 						predefined: {
 							mainSnak: {
-								property: propertyId
+								property: value
+									? value.getClaim().getMainSnak().getPropertyId()
+									: propertyId
 							}
 						},
 						locked: {
 							mainSnak: {
-								property: !!propertyId
+								property: !!( value || propertyId )
 							}
 						},
 						dataTypeStore: self.option( 'dataTypeStore' ),
@@ -230,7 +193,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 					};
 				}
 			} ),
-			value: statements || null
+			value: this.options.value.toArray()
 		} );
 	},
 
@@ -245,31 +208,43 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	},
 
 	/**
-	 * Returns the current list of `Statement` objects represented by the `claimlistview`. If there
-	 * are no `Statement`s, `null` is returned.
-	 * @since 0.5
+	 * Sets the widget's value or gets the widget's current value (including pending items). (The
+	 * value the widget was initialized with may be retrieved via `.option( 'value' )`.)
 	 *
-	 * @return {wikibase.datamodel.Statement[]|null}
+	 * @param {wikibase.datamodel.StatementList} [statementList]
+	 * @return {wikibase.datamodel.StatementList|undefined}
 	 */
-	value: function( statements ) {
-		// TODO: Implement setter logic.
+	value: function( statementList ) {
+		if( statementList === undefined ) {
+			var listview = this.$listview.data( 'listview' ),
+				lia = listview.listItemAdapter();
 
-		var listview = this.$listview.data( 'listview' ),
-			$statementviews = listview.items();
+			statementList = new wb.datamodel.StatementList();
 
-		statements = [];
+			listview.items().each( function() {
+				var statement = lia.liInstance( $( this ) ).value();
+				if( statement ) {
+					statementList.addItem( statement );
+				}
+			} );
 
-		for( var i = 0; i < $statementviews.length; i++ ) {
-			var statementview = listview.listItemAdapter().liInstance( $statementviews.eq( i ) );
-
-			statements.push( statementview.value() );
+			return statementList;
 		}
 
-		return ( statements.length > 0 ) ? statements : null;
+		this.option( 'value', statementList );
 	},
 
 	/**
-	 * Adds a new, pending `statementview` to the `claimlistview`.
+	 * Returns whether the widget currently features any `statementview` widgets.
+	 *
+	 * @return {boolean}
+	 */
+	isEmpty: function() {
+		return !this.listview().items().length;
+	},
+
+	/**
+	 * Adds a new, pending `statementview` to the `statementlistview`.
 	 * @see jQuery.wikibase.listview.enterNewItem
 	 *
 	 * @return {Object} jQuery.Promise
@@ -286,7 +261,7 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 
 			$statementview
 			.addClass( 'wb-new' )
-			.on( afterStopEditingEvent, function( event, dropValue ) {
+			.one( afterStopEditingEvent, function( event, dropValue ) {
 				var statement = statementview.value();
 
 				self.listview().removeItem( $statementview );
@@ -328,10 +303,11 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 	 * @protected
 	 */
 	_setOption: function( key, value ) {
-		// The value should not be set from outside after the initialization because
-		// currently, the widget lacks a mechanism to update the value.
-		if( key === 'value' ) {
-			throw new Error( 'Can not set value after initialization' );
+		if( key === 'value' && !!value ) {
+			if( !( value instanceof wb.datamodel.StatementList ) ) {
+				throw new Error( 'value needs to be a wb.datamodel.StatementList instance' );
+			}
+			this.$listview.data( 'listview' ).value( value.toArray() );
 		}
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -359,8 +335,4 @@ $.widget( 'wikibase.claimlistview', PARENT, {
 
 } );
 
-// We have to override this here because $.widget sets it no matter what's in
-// the prototype
-$.wikibase.claimlistview.prototype.widgetBaseClass = 'wb-claimlistview';
-
-}( mediaWiki, wikibase, jQuery ) );
+}( wikibase, jQuery ) );

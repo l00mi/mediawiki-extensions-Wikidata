@@ -137,12 +137,14 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				}
 			} ),
 			value: self.options.value || null,
-			listItemNodeName: 'LI'
+			listItemNodeName: 'LI',
+			encapsulate: true
 		} )
 		.on( prefix + 'change.' + this.widgetName, function( event ) {
 			event.stopPropagation();
 			if( self.options.autoInput ) {
 				self._updateAutoInput();
+				self._refreshCounter();
 			}
 			self._trigger( 'change' );
 		} )
@@ -283,8 +285,12 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	 * @return {jQuery}
 	 */
 	_getFormattedCounterText: function() {
-		var $items = this.$listview.data( 'listview' ).items(),
-			$pendingItems = $items.filter( '.wb-new' );
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter(),
+			$items = listview.items(),
+			$pendingItems = $items.filter( '.wb-new' ).filter( function() {
+				return !lia.liInstance( $( this ) ).isEmpty();
+			} );
 
 		var $counterMsg = wb.utilities.ui.buildPendingCounter(
 			$items.length - $pendingItems.length,

@@ -7,10 +7,12 @@
 			"Lazowik",
 			"Maćko",
 			"Rzuwig",
-			"WTM"
+			"WTM",
+			"Debeet"
 		]
 	},
 	"wikibase-lib-desc": "Zawiera wspólne funkcje dla rozszerzeń Wikibase i Wikibase Client",
+	"specialpages-group-wikibase": "Wikibase",
 	"wikibase-deletedentity-item": "Usunięty element",
 	"wikibase-deletedentity-property": "Usunięta właściwość",
 	"wikibase-deletedentity-query": "Skasowane zapytanie",
@@ -25,6 +27,7 @@
 	"wikibase-error-autocomplete-response": "Serwer odpowiedział: $1",
 	"wikibase-error-ui-no-external-page": "Nie można odnaleźć artykułu na odpowiadającej witrynie.",
 	"wikibase-error-ui-edit-conflict": "Wystąpił konflikt edycji. Załaduj raz jeszcze i zapisz.",
+	"wikibase-language-fallback-transliteration-hint": "$1 (transliterowane)",
 	"wikibase-quantitydetails-amount": "Liczność",
 	"wikibase-quantitydetails-upperbound": "Górna granica",
 	"wikibase-quantitydetails-lowerbound": "Dolna granica",
@@ -70,6 +73,7 @@
 	"wikibase-validator-bad-url-scheme": "Nieobsługiwany schemat adresu URL: $1",
 	"wikibase-validator-unknown-unit": "Nieznana jednostka: $1",
 	"wikibase-validator-not-allowed": "Niepoprawna wartość: $1",
+	"wikibase-validator-no-validators": "Odmowa dostępu",
 	"datatypes-type-wikibase-item": "Element",
 	"datatypes-type-wikibase-property": "Właściwość",
 	"datatypes-type-commonsMedia": "Plik multimedialny na Commons",

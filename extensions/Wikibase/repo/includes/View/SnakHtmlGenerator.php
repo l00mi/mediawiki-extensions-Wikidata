@@ -29,18 +29,14 @@ class SnakHtmlGenerator {
 	private $templateFactory;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var SnakFormatter
 	 */
-	protected $snakFormatter;
+	private $snakFormatter;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var EntityIdFormatter
 	 */
-	protected $propertyIdFormatter;
+	private $propertyIdFormatter;
 
 	/**
 	 * @param SnakFormatter $snakFormatter
@@ -74,7 +70,7 @@ class SnakHtmlGenerator {
 	 */
 	public function getSnakHtml( Snak $snak, $showPropertyLink = false ) {
 		$snakViewVariation = $this->getSnakViewVariation( $snak );
-		$snakViewCssClass = 'wb-snakview-variation-' . $snakViewVariation;
+		$snakViewCssClass = 'wikibase-snakview-variation-' . $snakViewVariation;
 
 		$formattedValue = $this->getFormattedSnakValue( $snak );
 
@@ -84,7 +80,7 @@ class SnakHtmlGenerator {
 
 		$propertyLink = $showPropertyLink ? $this->makePropertyLink( $snak ) : '';
 
-		$html = $this->templateFactory->render( 'wb-snak',
+		$html = $this->templateFactory->render( 'wikibase-snakview',
 			// Display property link only once for snaks featuring the same property:
 			$propertyLink,
 			$snakViewCssClass,
@@ -122,7 +118,7 @@ class SnakHtmlGenerator {
 	 * @param Snak $snak
 	 * @return string
 	 */
-	protected function getFormattedSnakValue( $snak ) {
+	private function getFormattedSnakValue( $snak ) {
 		try {
 			$formattedSnak = $this->snakFormatter->formatSnak( $snak );
 		} catch ( FormattingException $ex ) {

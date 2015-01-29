@@ -16,10 +16,13 @@
 			"Tititou36",
 			"Wyz",
 			"Scoopfinder",
-			"Macofe"
+			"Macofe",
+			"Benjozork",
+			"Weft"
 		]
 	},
 	"wikibase-lib-desc": "Regroupe des fonctionnalités communes aux extensions Wikibase et Wikibase Client",
+	"specialpages-group-wikibase": "Wikibase",
 	"wikibase-deletedentity-item": "Élément supprimé",
 	"wikibase-deletedentity-property": "Propriété supprimée",
 	"wikibase-deletedentity-query": "Requête supprimée",
@@ -34,6 +37,7 @@
 	"wikibase-error-autocomplete-response": "Le serveur a répondu&nbsp;: $1",
 	"wikibase-error-ui-no-external-page": "L'article spécifié est introuvable sur le site correspondant.",
 	"wikibase-error-ui-edit-conflict": "Il y a conflit d’édition. Rechargez la page et enregistrez de nouveau.",
+	"wikibase-language-fallback-transliteration-hint": "$1 (translittéré)",
 	"wikibase-quantitydetails-amount": "Montant",
 	"wikibase-quantitydetails-upperbound": "Limite supérieure",
 	"wikibase-quantitydetails-lowerbound": "Limite inférieure",
@@ -54,7 +58,7 @@
 	"wikibase-parse-error-entity-id": "L’id de l’entité n’a pas le bon format.",
 	"wikibase-parse-error-quantity": "La valeur de la quantité n’a pas le bon format.",
 	"wikibase-parse-error-time": "La valeur temporelle n’a pas le bon format.",
-	"wikibase-sitelinks-wikipedia": "Pages de Wikipédia liées à cet élément",
+	"wikibase-sitelinks-wikipedia": "Wikipédia",
 	"wikibase-sitelinks-sitename-columnheading": "Langue",
 	"wikibase-sitelinks-link-columnheading": "Page liée",
 	"wikibase-snakview-snaktypeselector-somevalue": "valeur inconnue",

@@ -1,75 +1,76 @@
-/**
- *
- * @licence GNU GPL v2+
- * @author Daniel Werner < daniel.werner@wikimedia.de >
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( mw, wb, $ ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
 
 /**
- * View for displaying and editing a list of snaks (wb.datamodel.Snak objects).
- * @since 0.4
+ * View for displaying and editing a `wikibase.datamodel.SnakList` object.
+ * @see wikibase.datamodel.SnakList
+ * @class jQuery.wikibase.snaklistview
  * @extends jQuery.ui.TemplatedWidget
+ * @uses jQuery.wikibase.listview
+ * @since 0.4
+ * @licence GNU GPL v2+
+ * @author Daniel Werner < daniel.werner@wikimedia.de >
+ * @author H. Snater < mediawiki@snater.com >
  *
- * @option {wb.datamodel.SnakList|null} value The list of snaks displayed by this view. This should only be
- *         set initially. If this is null, the view will start edit mode upon initialization.
- *         Default: null
+ * @constructor
  *
- * @option {boolean} singleProperty If set to true, it is assumed that the widget is filled with
- *         snakviews featuring a single property only.
- *         Default: false
- *
- * @option {string} helpMessage End-user message explaining how to use the snaklistview widget. The
- *         message is most likely to be used inside the tooltip of the toolbar corresponding to
- *         the snaklistview.
- *         Default:  mw.msg( 'wikibase-claimview-snak-new-tooltip' )
- *
- * @option {wb.store.EntityStore} entityStore
- *
- * @option {wikibase.ValueViewBuilder} valueViewBuilder
- *
- * @option {dataTypes.DataTypeStore} dataTypeStore
- *
- * @event startediting: Triggered when starting the snaklistview's edit mode.
- *        (1) {jQuery.Event}
- *
- * @event afterstartediting: Triggered after having started the snaklistview's edit mode.
- *        (1) {jQuery.Event}
- *
- * @event stopediting: Triggered when stopping the snaklistview's edit mode.
- *        (1) {jQuery.Event}
- *        (2) {boolean} If true, the value from before edit mode has been started will be reinstated
- *            (basically a cancel/save switch).
- *
- * @event afterstopediting: Triggered after having stopped the snaklistview's edit mode.
- *        (1) {jQuery.Event}
- *        (2) {boolean} If true, the value from before edit mode has been started will be reinstated
- *            (basically a cancel/save switch).
- *
- * @event change: Triggered whenever the snaklistview's content is changed.
- *        (1) {jQuery.Event} event
- *
- * @event disable: Triggered whenever the snaklistview gets disabled.
- *        (1) {jQuery.Event} event
- *
- * @event enable: Triggered whenever the snaklistview gets enabled.
- *        (1) {jQuery.Event} event
+ * @param {Object} options
+ * @param {wikibase.datamodel.SnakList|null} [value=null]
+ *        The `SnakList` to be displayed by this view. If `null`, the view will start edit mode upon
+ *        initialization.
+ * @param {boolean} [singleProperty=true]
+ *        If `true`, it is assumed that the widget is filled with `Snak`s featuring a single common
+ *        property.
+ * @param {wikibase.store.EntityStore} options.entityStore
+ *        Required for dynamically gathering `Entity`/`Property` information.
+ * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
+ *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
+ *        `jQuery.valueview`.
+ * @param {dataTypes.DataTypeStore} options.dataTypeStore
+ *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
+ *        object when interacting on a "value" `Variation`.
+ * @param {string} [optionshelpMessage=mw.msg( 'wikibase-claimview-snak-new-tooltip' )]
+ *        End-user message explaining how to use the `snaklistview` widget. The message is most
+ *        likely to be used inside the tooltip of the toolbar corresponding to the `snaklistview`.
+ */
+/**
+ * @event afterstartediting
+ * Triggered after having started the widget's edit mode.
+ * @param {jQuery.Event} event
+ */
+/**
+ * @event stopediting
+ * Triggered when stopping the widget's edit mode.
+ * @param {jQuery.Event}
+ * @param {boolean} If `true`, the widget's value will be reset to the one from before edit mode was
+ *        started.
+ */
+/**
+ * @event afterstopediting
+ * Triggered after having stopped the widget's edit mode.
+ * @param {jQuery.Event} event
+ * @param {boolean} If `true`, the widget's value was reset to the one from before edit mode was
+ *        started.
+ */
+/**
+ * @event change
+ * Triggered whenever the widget's content is changed.
+ * @param {jQuery.Event} event
  */
 $.widget( 'wikibase.snaklistview', PARENT, {
 	/**
-	 * (Additional) default options.
-	 * @see jQuery.Widget.options
+	 * @inheritdoc
+	 * @protected
 	 */
 	options: {
-		template: 'wb-snaklistview',
+		template: 'wikibase-snaklistview',
 		templateParams: [
 			'' // listview widget
 		],
 		templateShortCuts: {
-			'$listview': '.wb-snaklistview-listview'
+			$listview: '.wikibase-snaklistview-listview'
 		},
 		value: null,
 		singleProperty: false,
@@ -80,35 +81,40 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * The list of snaks represented by this widget. This variable is not updated while in edit
-	 * mode and does not contain temporary snaks. To get the temporary snaks, value() should be
-	 * used. As soon as the snaklistview's save operation via stopEditing() is performed, this
-	 * variable gets updated.
-	 * @type {wb.datamodel.SnakList}
+	 * The `SnakList` represented by this widget. This variable is not updated while in edit
+	 * mode and does not contain temporary `Snak`s. To get the temporary `Snak`s, `value()` should
+	 * be used. As soon as the `snaklistview`'s "save" operation is performed via `stopEditing()` is
+	 * performed, this variable gets updated.
+	 * @property {wikibase.datamodel.SnakList}
+	 * @private
 	 */
 	_snakList: null,
 
 	/**
-	 * Shortcut to the listview widget used by the snaklistview to manage the snakview widgets.
-	 * @type {$.wikibase.listview}
+	 * Short-cut to the `listview` widget used by the `snaklistview` to manage the `snakview`
+	 * widgets.
+	 * @property {$.wikibase.listview}
+	 * @private
 	 */
 	_listview: null,
 
 	/**
-	 * Shortcut to the list item adapter in use with the listview widget used to manage the
-	 * snakview widgets.
-	 * @type {$.wikibase.listview.ListItemAdapter}
+	 * Short-cut to the `ListItemAdapter` in use with the `listview` widget used to manage the
+	 * `snakview` widgets.
+	 * @property {jQuery.wikibase.listview.ListItemAdapter}
+	 * @private
 	 */
 	_lia: null,
 
 	/**
-	 * Whether the snaklistview is currently in edit mode.
-	 * @type {boolean}
+	 * Whether the `snaklistview` currently is in edit mode.
+	 * @property {boolean} [_isInEditMode=false]
 	 */
 	_isInEditMode: false,
 
 	/**
-	 * @see jQuery.Widget._create
+	 * @inheritdoc
+	 * @protected
 	 */
 	_create: function() {
 		this._snakList = this.option( 'value' );
@@ -116,15 +122,15 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		PARENT.prototype._create.call( this );
 
 		if ( !this.option( 'value' ) ) {
-			this.$listview.addClass( 'wb-snaklistview-listview-new' );
+			this.$listview.addClass( 'wikibase-snaklistview-listview-new' );
 		}
 
 		this._createListView();
 	},
 
 	/**
-	 * (Re-)creates the listview widget managing the snakview widgets.
-	 * @since 0.4
+	 * (Re-)creates the `listview` widget managing the `snakview` widgets.
+	 * @private
 	 */
 	_createListView: function() {
 		var self = this,
@@ -192,8 +198,9 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Updates the visibility of the snakviews' property labels which has an effect if the
-	 * "singleProperty" options is set.
+	 * Updates the visibility of the `snakview`s' `Property` labels. (Effective only if the
+	 * `singleProperty` option is set.)
+	 * @private
 	 * @since 0.5
 	 */
 	_updatePropertyLabels: function() {
@@ -208,99 +215,82 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Starts the snaklistview's edit mode by starting the edit mode of all the list's snakviews.
-	 * @since 0.4
-	 *
-	 * @return {undefined} (allows chaining widget calls)
+	 * Starts the widget's edit mode.
 	 */
-	startEditing: $.NativeEventHandler( 'startEditing', {
-		initially: function( e ) {
-			if( this.isInEditMode() ) {
-				e.cancel();
-			}
-		},
-		natively: function( e ) {
-			var self = this;
+	startEditing: function() {
+		if( this.isInEditMode() ) {
+			return;
+		}
 
+		var self = this;
+
+		$.each( this._listview.items(), function( i, item ) {
+			var snakview = self._lia.liInstance( $( item ) );
+			snakview.startEditing();
+		} );
+
+		this.element.addClass( 'wb-edit' );
+		this._isInEditMode = true;
+
+		this._trigger( 'afterstartediting' );
+	},
+
+	/**
+	 * Stops the widget's edit mode.
+	 *
+	 * @param {boolean} [dropValue=false] If `true`, the widget's value will be reset to the one from
+	 *        before edit mode was started
+	 */
+	stopEditing: function( dropValue ) {
+		if( !this.isInEditMode() ) {
+			return;
+		}
+
+		this._trigger( 'stopediting', null, [dropValue] );
+
+		var self = this;
+
+		this.element.removeClass( 'wb-error' );
+		this._detachEditModeEventHandlers();
+		this.disable();
+
+		if ( dropValue ) {
+			// If the whole item was pending, remove the whole list item. This has to be
+			// performed in the widget using the snaklistview.
+
+			// Re-create the list view to restore snakviews that have been removed during
+			// editing:
+			this._createListView();
+		} else {
 			$.each( this._listview.items(), function( i, item ) {
-				var snakview = self._lia.liInstance( $( item ) );
-				snakview.startEditing();
+				var $item = $( item ),
+					snakview = self._lia.liInstance( $item );
+
+				snakview.stopEditing( dropValue );
+
+				// After saving, the property should not be editable anymore.
+				snakview.options.locked.property = true;
 			} );
-
-			this.element.addClass( 'wb-edit' );
-			this._isInEditMode = true;
-
-			this._trigger( 'afterstartediting' );
 		}
-	} ),
+
+		this.enable();
+
+		this.element.removeClass( 'wb-edit' );
+		this._isInEditMode = false;
+
+		this._trigger( 'afterstopediting', null, [ dropValue ] );
+	},
 
 	/**
-	 * Exits the snaklistview's edit mode.
-	 * @since 0.4
-	 *
-	 * @param {boolean} [dropValue] If true, the value from before edit mode has been started will
-	 *        be reinstated - basically a cancel/save switch. "false" by default. Consider using
-	 *        cancelEditing() instead.
-	 * @return {undefined} (allows chaining widget calls)
-	 */
-	stopEditing: $.NativeEventHandler( 'stopEditing', {
-		initially: function( e, dropValue ) {
-			if( !this.isInEditMode() ) {
-				e.cancel();
-			}
-
-			this.element.removeClass( 'wb-error' );
-		},
-		natively: function( e, dropValue ) {
-			var self = this;
-
-			this._detachEditModeEventHandlers();
-
-			this.disable();
-
-			if ( dropValue ) {
-				// If the whole item was pending, remove the whole list item. This has to be
-				// performed in the widget using the snaklistview.
-
-				// Re-create the list view to restore snakviews that have been removed during
-				// editing:
-				this._createListView();
-			} else {
-				$.each( this._listview.items(), function( i, item ) {
-					var $item = $( item ),
-						snakview = self._lia.liInstance( $item );
-
-					snakview.stopEditing( dropValue );
-
-					// After saving, the property should not be editable anymore.
-					snakview.options.locked.property = true;
-				} );
-			}
-
-			this.enable();
-
-			this.element.removeClass( 'wb-edit' );
-			this._isInEditMode = false;
-
-			// Transform toolbar and snak view after save complete
-			this._trigger( 'afterstopediting', null, [ dropValue ] );
-		}
-	} ),
-
-	/**
-	 * Short-cut for stopEditing(false). Exits edit mode and restores the value from before the
-	 * edit mode has been started.
-	 * @since 0.4
-	 *
-	 * @return {undefined} (allows chaining widget calls)
+	 * Cancels editing. (Short-cut for `stopEditing( true )`.)
 	 */
 	cancelEditing: function() {
 		return this.stopEditing( true ); // stop editing and drop value
 	},
 
 	/**
-	 * Attaches event listeners that shall trigger stopping the snaklistview's edit mode.
-	 * @since 0.4
+	 * Attaches event listeners that shall trigger stopping the `snaklistview`'s edit mode.
+	 * @private
 	 */
 	_attachEditModeEventHandlers: function() {
 		var self = this;
@@ -317,20 +307,19 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Detaches event listeners that shall trigger stopping the snaklistview's edit mode.
-	 * @since 0.4
+	 * Detaches event listeners that shall trigger stopping the `snaklistview`'s edit mode.
+	 * @private
 	 */
 	_detachEditModeEventHandlers: function() {
 		this.$listview.off( this._lia.prefixedEvent( 'stopediting.' + this.widgetName ) );
 	},
 
 	/**
-	 * Sets/Returns the current list of snaks represented by the view. If there are no snaks, null
-	 * will be returned.
-	 * @since 0.4
+	 * Sets a new `SnakList` or returns the current `SnakList` (including pending `Snaks` not yet
+	 * committed). If there are no snaks, `null` will be returned.
 	 *
-	 * @param {wb.datamodel.SnakList} [snakList] New snak list to be set
-	 * @return {wb.datamodel.SnakList|null}
+	 * @param {wikibase.datamodel.SnakList} [snakList]
+	 * @return {wikibase.datamodel.SnakList|null|undefined}
 	 */
 	value: function( snakList ) {
 		if ( snakList ) { // setter:
@@ -364,19 +353,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Returns the snaks currently represented by the snaklistview.
-	 * @since 0.5
-	 *
-	 * @return {wb.datamodel.SnakList|null}
-	 */
-	getSnakList: function() {
-		return this.value();
-	},
-
-	/**
-	 * Returns whether all of the snaklistview's snaks are currently valid and the currently listed
-	 * snaks are not the same than those set initially.
-	 * @since 0.4
+	 * Returns whether all of the `snaklistview`'s `Snak`s are currently valid.
 	 *
 	 * @return {boolean}
 	 */
@@ -394,9 +371,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Returns whether the current snaks of the listview are the same than the ones the snaklistview
-	 * got initialized with.
-	 * @since 0.4
+	 * Returns whether the current `Snak`s are the same than the ones the `snaklistview` was
+	 * initialized with.
 	 *
 	 * @return {boolean}
 	 */
@@ -419,8 +395,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Will insert a new list member into the list. The new list member will be a widget of the type
-	 * displayed in the list, but without value, so the user can specify a value.
+	 * Adds a new empty `snakview` to the `listview` with edit mode started instantly.
 	 * @see jQuery.wikibase.listview.enterNewItem
 	 *
 	 * @return {Object} jQuery.Promise
@@ -440,9 +415,6 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Returns whether the snaklist is editable at the moment.
-	 * @since 0.4
-	 *
 	 * @return {boolean}
 	 */
 	isInEditMode: function() {
@@ -450,7 +422,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.widget.destroy
+	 * @inheritdoc
 	 */
 	destroy: function() {
 		this._listview.destroy();
@@ -458,7 +430,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * @inheritdoc
 	 */
 	_setOption: function( key, value ) {
 		// The value should not be set from outside after the initialization because
@@ -477,7 +449,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		var $items = this._listview.items();
@@ -490,18 +462,18 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Moves a snak within the snak list.
-	 * @since 0.4
+	 * Moves a `Snak`'s `snakview` within the `snaklistview`. Instead of a `Snak` and an index, a
+	 * reordered `SnakList` may be provided.
 	 *
-	 * @param {wb.datamodel.Snak} snak
-	 * @param {number} toIndex
+	 * @param {wikibase.datamodel.Snak|wikibase.datamodel.SnakList} snak
+	 * @param {number} [toIndex]
 	 */
 	move: function( snak, toIndex ) {
 		var self = this,
 			snakList;
 
 		if( snak instanceof wb.datamodel.Snak ) {
-			snakList = this.getSnakList();
+			snakList = this.value();
 			if( snakList ) {
 				snakList.move( snak, toIndex );
 			}
@@ -522,13 +494,12 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Moves a snak towards the top of the snak list by one step.
-	 * @since 0.4
+	 * Moves a `Snak`'s `snakview` towards the top of the `snaklistview` by one step.
 	 *
-	 * @param {wb.datamodel.Snak} snak
+	 * @param {wikibase.datamodel.Snak} snak
 	 */
 	moveUp: function( snak ) {
-		var snakList = this.getSnakList();
+		var snakList = this.value();
 
 		if( snakList ) {
 			this.move( snakList.moveUp( snak ) );
@@ -536,13 +507,12 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Moves a snak towards the bottom of the snak list by one step.
-	 * @since 0.4
+	 * Moves a `Snak`'s `snakview` towards the bottom of the `snaklistview` by one step.
 	 *
-	 * @param {wb.datamodel.Snak} snak
+	 * @param {wikibase.datamodel.Snak} snak
 	 */
 	moveDown: function( snak ) {
-		var snakList = this.getSnakList();
+		var snakList = this.value();
 
 		if( snakList ) {
 			this.move( snakList.moveDown( snak ) );
@@ -550,10 +520,10 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	},
 
 	/**
-	 * Finds a snak's snakview node within the snaklistview's listview widget.
-	 * @since 0.4
+	 * Finds a `Snak`'s `snakview` node within the `snaklistview`'s `listview` widget.
+	 * @private
 	 *
-	 * @param {wb.datamodel.Snak} snak
+	 * @param {wikibase.datamodel.Snak} snak
 	 * @return {jQuery|null}
 	 */
 	_findListItem: function( snak ) {
@@ -574,9 +544,5 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	}
 
 } );
-
-// We have to override this here because $.widget sets it no matter what's in
-// the prototype
-$.wikibase.snaklistview.prototype.widgetBaseClass = 'wb-snaklistview';
 
 }( mediaWiki, wikibase, jQuery ) );

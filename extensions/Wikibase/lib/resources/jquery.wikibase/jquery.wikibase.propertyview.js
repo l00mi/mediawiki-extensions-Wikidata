@@ -8,8 +8,8 @@ var PARENT = $.wikibase.entityview;
  * @see wikibase.datamodel.Property
  * @class jQuery.wikibase.propertyview
  * @extends jQuery.wikibase.entityview
- * @uses jQuery.wikibase.claimgrouplistview
- * @uses jQuery.wikibase.claimgrouplabelscroll
+ * @uses jQuery.wikibase.statementgrouplistview
+ * @uses jQuery.wikibase.statementgrouplabelscroll
  * @since 0.5
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
@@ -68,13 +68,13 @@ $.widget( 'wikibase.propertyview', PARENT, {
 	 * @protected
 	 */
 	_initStatements: function() {
-		this.$statements = $( '.wb-claimgrouplistview', this.element ).first();
+		this.$statements = $( '.wikibase-statementgrouplistview', this.element ).first();
 		if( this.$statements.length === 0 ) {
 			this.$statements = $( '<div/>' ).appendTo( this.element );
 		}
 
 		this.$statements
-		.claimgrouplistview( {
+		.statementgrouplistview( {
 			value: this.options.value.getStatements(),
 			dataTypeStore: this.option( 'dataTypeStore' ),
 			entityType: this.options.value.getType(),
@@ -82,10 +82,10 @@ $.widget( 'wikibase.propertyview', PARENT, {
 			valueViewBuilder: this.options.valueViewBuilder,
 			entityChangersFactory: this.options.entityChangersFactory
 		} )
-		.claimgrouplabelscroll();
+		.statementgrouplabelscroll();
 
 		// This is here to be sure there is never a duplicate id:
-		$( '.wb-claimgrouplistview' )
+		$( '.wikibase-statementgrouplistview' )
 		.prev( '.wb-section-heading' )
 		.first()
 		.attr( 'id', 'claims' );
@@ -111,7 +111,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 
 		this.element
 		.on( [
-			'claimlistviewafterremove.' + this.widgetName,
+			'statementlistviewafterremove.' + this.widgetName,
 			'statementviewafterstopediting.' + this.widgetName,
 			'statementviewafterremove.' + this.widgetName,
 			'referenceviewafterstopediting.' + this.widgetName
@@ -128,7 +128,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 	_setState: function( state ) {
 		PARENT.prototype._setState.call( this, state );
 
-		this.$statements.data( 'claimgrouplistview' )[state]();
+		this.$statements.data( 'statementgrouplistview' )[state]();
 		// TODO: Resolve integration of referenceviews
 		this.$statements.find( '.wb-statement-references' ).each( function() {
 			var $listview = $( this ).children( ':wikibase-listview' );

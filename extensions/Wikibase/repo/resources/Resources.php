@@ -151,8 +151,8 @@ return call_user_func( function() {
 				'jquery.wikibase.itemview',
 				'jquery.wikibase.propertyview',
 				'jquery.wikibase.toolbarcontroller',
-				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.claimgrouplistview-claimlistview',
-				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.claimlistview-statementview',
+				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementgrouplistview-statementgroupview',
+				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementlistview-statementview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.referenceview-snakview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-referenceview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-snakview',
@@ -187,7 +187,6 @@ return call_user_func( function() {
 			),
 			'messages' => array(
 				'pagetitle',
-				'wikibase-statements',
 				'wikibase-copyrighttooltip-acknowledge',
 				'wikibase-anonymouseditwarning',
 				'wikibase-entity-item',
@@ -276,8 +275,6 @@ return call_user_func( function() {
 
 	if ( defined( 'ULS_VERSION' ) ) {
 		$modules['wikibase.getLanguageNameByCode']['dependencies'][] = 'ext.uls.mediawiki';
-		$modules['wikibase.initTermBox']['dependencies'][] = 'ext.uls.displaysettings';
-		$modules['wikibase.initTermBox']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.itemDisambiguation']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
 	}

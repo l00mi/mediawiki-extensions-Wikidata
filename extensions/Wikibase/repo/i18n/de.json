@@ -23,7 +23,6 @@
 		]
 	},
 	"wikibase-desc": "Ermöglicht ein Repositorium strukturierter Daten",
-	"specialpages-group-wikibaserepo": "Wikibase-Repositorium",
 	"wikibase-entity-item": "Datenobjekt",
 	"wikibase-entity-property": "Eigenschaft",
 	"wikibase-entity-query": "Abfrage",
@@ -133,6 +132,7 @@
 	"wikibase-gotolinkedpage-lookup-site": "Website:",
 	"wikibase-gotolinkedpage-lookup-item": "Objektkennung:",
 	"wikibase-gotolinkedpage-submit": "Los",
+	"wikibase-gotolinkedpage-summary": "„Spezial:Gehe zur verlinkten Seite“ wird verwendet, um die Website nach einem Objekt auf einer verbundenen Seite zu durchsuchen.<br />Beim linken Feld „Website:“ kannst du den Sprach- und Websitecode eingeben.<br />Im rechten Feld „Objektkennung:“ musst du die Objektkennung eingeben, nach der du suchst.",
 	"special-itemdisambiguation": "Objekt-Begriffsklärung",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Suche Datenobjekte nach Sprache und Bezeichnung",
 	"wikibase-itemdisambiguation-lookup-language": "Sprache:",
@@ -143,6 +143,7 @@
 	"wikibase-itemdisambiguation-create": "Du kannst auch [{{fullurl:Special:NewItem|label=$1}} ein Datenobjekt erstellen].",
 	"wikibase-itemdisambiguation-invalid-langcode": "Der angegebene Sprachcode ist dem System leider nicht bekannt. Bitte verwende einen gültigen Sprachcode, bspw. „de“.",
 	"wikibase-itemdisambiguation-description": "Die für die Suche genutzten Werte müssen vollständige Texteinträge sein. Sprache ist eine Kennung, z.&nbsp;B. „de“.",
+	"wikibase-itemdisambiguation-summary": "Nach allen Objekten mit der gleichen genauen Bezeichnung suchen.",
 	"special-newproperty": "Ein neues Attribut erstellen",
 	"wikibase-newproperty-summary": "Überprüfe, ob die Eigenschaft bereits vorhanden ist!<br />Du solltest eine [[Help:Label|Bezeichnung]] und eine [[Help:Description|Beschreibung]] für alle neuen Eigenschaften erstellen und zusätzlich einen gültigen Eigenschaftstyp.",
 	"wikibase-newproperty-fieldset": "Ein neues Attribut erstellen",
@@ -154,7 +155,6 @@
 	"wikibase-newitem-site": "Website der ersten verlinkten Seite",
 	"wikibase-newitem-page": "Titel der ersten verlinkten Seite",
 	"wikibase-newitem-no-external-page": "Die angegebene Seite konnte nicht auf der dazugehörigen Website gefunden werden.",
-	"wikibase-newitem-add-sitelink-failed": "Der Websitelink konnte nicht gespeichert werden.",
 	"wikibase-newitem-not-recognized-siteid": "Die angegebene Websitekennung ist nicht bekannt.",
 	"wikibase-newentity-label": "Bezeichnung:",
 	"wikibase-newentity-description": "Beschreibung:",
@@ -386,5 +386,12 @@
 	"right-property-term": "Bezeichner (Bezeichnungen, Beschreibungen und Aliasse) von Eigenschaften ändern",
 	"right-property-create": "Eigenschaften erstellen",
 	"wikibase-entity-not-viewable-title": "Inhaltstypfehler: Inhalt kann nicht angezeigt werden",
-	"wikibase-entity-not-viewable": "Der angegebene Inhalt des Typs „$1“ ist kein Objekt und kann von Wikibase nicht angezeigt werden."
+	"wikibase-entity-not-viewable": "Der angegebene Inhalt des Typs „$1“ ist kein Objekt und kann von Wikibase nicht angezeigt werden.",
+	"apihelp-wbsearchentities-param-search": "Nach diesem Text suchen.",
+	"apihelp-wbsearchentities-param-language": "In dieser Sprache suchen.",
+	"apihelp-wbsetaliases-description": "Legt die Aliasse für ein Wikibase-Objekt fest.",
+	"apihelp-wbsetdescription-param-language": "Sprache der Beschreibung",
+	"apihelp-wbsetlabel-param-language": "Sprache der Bezeichnung",
+	"apihelp-wbsetlabel-param-value": "Der Wert der Bezeichnung",
+	"apihelp-wbsetreference-example-1": "Erstellt eine neue Referenz für die Behauptung mit der GUID Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF"
 }

@@ -4,7 +4,6 @@ namespace Wikibase\Client\Hooks;
 
 use Content;
 use ManualLogEntry;
-use Title;
 use User;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
@@ -133,7 +132,7 @@ class DataUpdateHookHandlers {
 	/**
 	 * Hook run after a page was deleted.
 	 *
-	 * @param int $namespaceId
+	 * @param int $namespace
 	 * @param int $pageId
 	 */
 	public function doArticleDeleteComplete( $namespace, $pageId ) {

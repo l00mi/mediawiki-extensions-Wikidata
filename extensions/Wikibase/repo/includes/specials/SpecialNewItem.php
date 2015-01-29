@@ -6,7 +6,6 @@ use Html;
 use Status;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\SiteLink;
 
 /**
  * Page for creating new Wikibase items.
@@ -52,7 +51,7 @@ class SpecialNewItem extends SpecialNewEntity {
 	 * @return Item
 	 */
 	protected function createEntity() {
-		return Item::newEmpty();
+		return new Item();
 	}
 
 	/**
@@ -81,13 +80,7 @@ class SpecialNewItem extends SpecialNewEntity {
 				return $status;
 			}
 
-			$link = new SiteLink( $site->getGlobalId(), $page );
-			$ret = $item->addSiteLink( $link );
-
-			if ( $ret === false ) {
-				$status->error( 'wikibase-newitem-add-sitelink-failed' );
-				return $status;
-			}
+			$item->getSiteLinkList()->addNewSiteLink( $site->getGlobalId(), $page );
 		}
 
 		return $status;

@@ -10,7 +10,7 @@ use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\Snaks;
 
 /**
- * @since 0.1
+ * Package private
  *
  * @licence GNU GPL v2+
  * @author Thomas Pellissier Tanon
@@ -73,7 +73,7 @@ class SnaksSerializer implements DispatchableSerializer {
 		 * @var Snak $snak
 		 */
 		foreach( $snaks as $snak ) {
-			$serialization[$snak->getPropertyId()->getPrefixedId()][] = $this->snakSerializer->serialize( $snak );
+			$serialization[$snak->getPropertyId()->getSerialization()][] = $this->snakSerializer->serialize( $snak );
 		}
 
 		if ( $this->useObjectsForMaps ) {

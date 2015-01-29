@@ -11,14 +11,14 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 	id: 'statementview-snakview',
 	selector: '.wikibase-statementview-qualifiers',
 	events: {
-		'listviewcreate snaklistviewstartediting': function( event, toolbarController ) {
+		'listviewcreate snaklistviewafterstartediting': function( event, toolbarController ) {
 			var $target = $( event.target ),
 				$qualifiers = $target.closest( '.wikibase-statementview-qualifiers' ),
 				listview = $target.closest( ':wikibase-listview' ).data( 'listview' ),
 				listviewInited = event.type === 'listviewcreate' && listview.items().length === 0;
 
 			if(
-				( listviewInited || event.type === 'snaklistviewstartediting' )
+				( listviewInited || event.type === 'snaklistviewafterstartediting' )
 				&& !$qualifiers.data( 'addtoolbar' )
 			) {
 				$qualifiers
@@ -100,7 +100,7 @@ $.wikibase.toolbarcontroller.definition( 'addtoolbar', {
 						// Enable "add" link when all qualifiers have been removed:
 						var $listviewNode = $( event.target ),
 							listview = $listviewNode.data( 'listview' ),
-							$snaklistviewNode = $listviewNode.closest( '.wb-snaklistview' ),
+							$snaklistviewNode = $listviewNode.closest( '.wikibase-snaklistview' ),
 							snaklistview = $snaklistviewNode.data( 'snaklistview' ),
 							addToolbar = $snaklistviewNode.data( 'addtoolbar' );
 

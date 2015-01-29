@@ -26,9 +26,6 @@
  *         the referenceview.
  *         Default: mw.msg( 'wikibase-claimview-snak-new-tooltip' )
  *
- * @event startediting: Triggered when starting the referenceview's edit mode.
- *        (1) {jQuery.Event}
- *
  * @event afterstartediting: Triggered after having started the referenceview's edit mode.
  *        (1) {jQuery.Event}
  *
@@ -56,13 +53,13 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 * @see jQuery.Widget.options
 	 */
 	options: {
-		template: 'wb-referenceview',
+		template: 'wikibase-referenceview',
 		templateParams: [
 			'', // additional css classes
 			'' // snaklistview widget
 		],
 		templateShortCuts: {
-			'$listview': '.wb-referenceview-listview'
+			$listview: '.wikibase-referenceview-listview'
 		},
 		statementGuid: null,
 		entityStore: null,
@@ -268,91 +265,73 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	},
 
 	/**
-	 * Starts the referenceview's edit mode.
+	 * Starts the widget's edit mode.
 	 * @since 0.5
-	 *
-	 * @triggers startediting
-	 * @triggers afterstartediting
 	 */
-	startEditing: $.NativeEventHandler( 'startediting', {
-		initially: function( e ) {
-			if( this.isInEditMode() ) {
-				e.cancel();
-			}
-		},
-		natively: function( e ) {
-			var $snaklistviews = this._listview.items();
-
-			for( var i = 0; i < $snaklistviews.length; i++ ) {
-				this.options.listItemAdapter.liInstance( $snaklistviews.eq( [i] ) ).startEditing();
-			}
-
-			this._attachEditModeEventHandlers();
-
-			this.element.addClass( 'wb-edit' );
-			this._isInEditMode = true;
-
-			this._trigger( 'afterstartediting' );
+	startEditing: function() {
+		if( this.isInEditMode() ) {
+			return;
 		}
-	} ),
+
+		var $snaklistviews = this._listview.items();
+
+		for( var i = 0; i < $snaklistviews.length; i++ ) {
+			this.options.listItemAdapter.liInstance( $snaklistviews.eq( [i] ) ).startEditing();
+		}
+
+		this._attachEditModeEventHandlers();
+
+		this.element.addClass( 'wb-edit' );
+		this._isInEditMode = true;
+
+		this._trigger( 'afterstartediting' );
+	},
 
 	/**
-	 * Stops the referenceview's edit mode.
+	 * Stops the widget's edit mode.
 	 * @since 0.5
-	 *
-	 * @triggers stopediting
-	 * @triggers afterstopediting
 	 */
-	stopEditing: $.NativeEventHandler( 'stopediting', {
-		initially: function( e, dropValue ) {
-			if (
-				!this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue
-			) {
-				e.cancel();
-			}
-
-			this.element.removeClass( 'wb-error' );
-		},
-		natively: function( e, dropValue ) {
-			var self = this;
-
-			this._detachEditModeEventHandlers();
-
-			this.disable();
-
-			if( dropValue ) {
-				this._stopEditingReferenceSnaks( dropValue );
-
-				this.enable();
-				this.element.removeClass( 'wb-edit' );
-				this._isInEditMode = false;
-
-				this._trigger( 'afterstopediting', null, [ dropValue ] );
-			} else {
-
-				this._saveReferenceApiCall()
-				.done( function( savedObject ) {
-					self._stopEditingReferenceSnaks( dropValue );
-
-					self.enable();
-
-					self.element.removeClass( 'wb-edit' );
-					self._isInEditMode = false;
-
-					self._trigger( 'afterstopediting', null, [ dropValue ] );
-				} )
-				.fail( function( error ) {
-					self.enable();
-
-					self._attachEditModeEventHandlers();
-
-					self.setError( error );
-				} );
-
-			}
-
+	stopEditing: function( dropValue ) {
+		if ( !this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
+			return;
 		}
-	} ),
+
+		this._trigger( 'stopediting', null, [dropValue] );
+
+		var self = this;
+
+		this.element.removeClass( 'wb-error' );
+		this._detachEditModeEventHandlers();
+		this.disable();
+
+		if( dropValue ) {
+			this._stopEditingReferenceSnaks( dropValue );
+
+			this.enable();
+			this.element.removeClass( 'wb-edit' );
+			this._isInEditMode = false;
+
+			this._trigger( 'afterstopediting', null, [ dropValue ] );
+		} else {
+			this._saveReferenceApiCall()
+			.done( function( savedObject ) {
+				self._stopEditingReferenceSnaks( dropValue );
+
+				self.enable();
+
+				self.element.removeClass( 'wb-edit' );
+				self._isInEditMode = false;
+
+				self._trigger( 'afterstopediting', null, [ dropValue ] );
+			} )
+			.fail( function( error ) {
+				self.enable();
+
+				self._attachEditModeEventHandlers();
+				self.setError( error );
+			} );
+		}
+	},
 
 	/**
 	 * Cancels edit mode.
@@ -554,9 +533,5 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		}
 	}
 } );
-
-// We have to override this here because $.widget sets it no matter what's in
-// the prototype
-$.wikibase.referenceview.prototype.widgetBaseClass = 'wb-referenceview';
 
 }( mediaWiki, wikibase, jQuery ) );

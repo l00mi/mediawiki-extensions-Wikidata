@@ -58,30 +58,6 @@
  *        likely to be used inside the tooltip of the toolbar corresponding to the `statementview`.
  */
 /**
- * @event startediting
- * Triggered when starting the view's edit mode.
- * @param {jQuery.Event} event
- */
-/**
- * @event afterstartediting
- * Triggered after having started the view's edit mode.
- * @param {jQuery.Event} event
- */
-/**
- * @event stopediting
- * Triggered when stopping the view's edit mode.
- * @param {jQuery.Event} event
- * @param {boolean} dropValue If true, the value from before edit mode has been started will be
- *        reinstated (basically, a cancel/save switch).
- */
-/**
- * @event afterstopediting
- * Triggered after having stopped the view's edit mode.
- * @param {jQuery.Event} event
- * @param {boolean} dropValue If true, the value from before edit mode has been started has been
- * reinstated (basically, a cancel/save switch).
- */
-/**
  * @event afterremove
  * Triggered after a `referenceview` has been remove from the `statementview`'s list of
  * `referenceview`s.
@@ -91,13 +67,6 @@
  * @event change
  * Triggered whenever the view's content is changed.
  * @param {jQuery.Event} event
- */
-/**
- * @event toggleerror
- * Triggered when an error occurred or is resolved.
- * @param {jQuery.Event} event
- * @param {wikibase.api.RepoApiError} [error] `wikikibase.api.RepoApiError` object if an error
- *        occurred, `undefined` if the current error state is resolved.
  */
 $.widget( 'wikibase.statementview', PARENT, {
 	/**
@@ -519,7 +488,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		// TODO: Allow adding qualifiers when adding a new statement.
 		if( this.options.value && ( this.isInEditMode() || this._initialQualifiers.length ) ) {
-			this._createQualifiersListview();
+			this._createQualifiersListview( this.options.value.getClaim().getQualifiers() );
 		}
 
 		this._createReferences( this.options.value );
@@ -608,14 +577,15 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		// If the statement is pending (not yet stored), the listview widget for the references is
 		// not defined.
-		if ( !this._referencesListview ) {
+		if( !this._referencesListview ) {
 			return references;
 		}
 
 		$.each( this._referencesListview.items(), function( i, item ) {
-			var referenceview = self._referenceviewLia.liInstance( $( item ) );
-			if( referenceview ) {
-				references.push( referenceview.value() );
+			var referenceview = self._referenceviewLia.liInstance( $( item ) ),
+				reference = referenceview ? referenceview.value() : null;
+			if( reference ) {
+				references.push( reference );
 			}
 		} );
 
@@ -686,7 +656,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			PARENT.prototype.startEditing.call( self ).done( function() {
 				self._rankSelector.startEditing();
 
-				if( this._qualifiers ) {
+				if( self._qualifiers ) {
 					var snaklistviews = self._qualifiers.value();
 					if( snaklistviews.length ) {
 						for( var i = 0; i < snaklistviews.length; i++ ) {
@@ -716,7 +686,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		this._stopEditingQualifiers( dropValue );
 		this._rankSelector.stopEditing( dropValue );
 
-		return PARENT.prototype._afterStopEditing.call( this );
+		return PARENT.prototype._afterStopEditing.call( this, dropValue );
 	},
 
 	/**
@@ -835,13 +805,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			}
 		}
 
-		try {
-			this._instantiateStatement( null );
-		} catch( e ) {
-			return false;
-		}
-
-		return true;
+		return this._instantiateStatement( null ) instanceof wb.datamodel.Statement;
 	},
 
 	/**

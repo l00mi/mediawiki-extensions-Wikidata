@@ -48,38 +48,38 @@ class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function getSnakHtmlProvider() {
-		$snakFormatter = $this->getSnakFormatterMock();
+		$snakFormatter = $this->getSnakFormatter();
 
-		$propertyIdFormatterMock = $this->getPropertyIdFormatterMock();
+		$propertyIdFormatter = $this->getEntityIdFormatter();
 
 		$testCases = array();
 
 		$testCases[] = array(
 			$snakFormatter,
-			$propertyIdFormatterMock,
+			$propertyIdFormatter,
 			new PropertySomeValueSnak( 42 ),
 			array(
-				'snak variation css' => '/wb-snakview-variation-somevalue/',
+				'snak variation css' => '/wikibase-snakview-variation-somevalue/',
 				'formatted snak' => '/a snak!/'
 			)
 		);
 
 		$testCases[] = array(
 			$snakFormatter,
-			$propertyIdFormatterMock,
+			$propertyIdFormatter,
 			new PropertySomeValueSnak( 42 ),
 			array(
-				'snak variation css' => '/wb-snakview-variation-somevalue/',
+				'snak variation css' => '/wikibase-snakview-variation-somevalue/',
 				'formatted snak' => '/a snak!/s'
 			)
 		);
 
 		$testCases[] = array(
 			$snakFormatter,
-			$propertyIdFormatterMock,
+			$propertyIdFormatter,
 			new PropertyValueSnak( 50, new StringValue( 'chocolate!' ) ),
 			array(
-				'snak variation css' => '/wb-snakview-variation-value/',
+				'snak variation css' => '/wikibase-snakview-variation-value/',
 				'formatted snak' => '/a snak!/s'
 			)
 		);
@@ -90,7 +90,7 @@ class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @return SnakFormatter
 	 */
-	protected function getSnakFormatterMock() {
+	private function getSnakFormatter() {
 		$snakFormatter = $this->getMock( 'Wikibase\Lib\SnakFormatter' );
 
 		$snakFormatter->expects( $this->any() )
@@ -105,27 +105,20 @@ class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param EntityId $id
-	 * @return string
-	 */
-	public function getLinkForId( EntityId $id ) {
-		$name = $id->getEntityType() . ':' . $id->getSerialization();
-		$url = 'http://wiki.acme.com/wiki/' . urlencode( $name );
-
-		return Html::element( 'a', array( 'href' => $url ), $name );
-	}
-
-	/**
 	 * @return EntityIdFormatter
 	 */
-	protected function getPropertyIdFormatterMock() {
+	private function getEntityIdFormatter() {
 		$lookup = $this->getMockBuilder( 'Wikibase\Lib\EntityIdFormatter' )
 			->disableOriginalConstructor()
 			->getMock();
 
 		$lookup->expects( $this->any() )
 			->method( 'format' )
-			->will( $this->returnCallback( array( $this, 'getLinkForId' ) ) );
+			->will( $this->returnCallback( function( EntityId $id ) {
+				$name = $id->getEntityType() . ':' . $id->getSerialization();
+				$url = 'http://wiki.acme.com/wiki/' . urlencode( $name );
+				return Html::element( 'a', array( 'href' => $url ), $name );
+			} ) );
 
 		return $lookup;
 	}

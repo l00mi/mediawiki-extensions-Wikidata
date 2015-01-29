@@ -50,7 +50,7 @@ var createStatementview = function( options, $node ) {
 				return 'I am a ReferencesChanger';
 			}
 		},
-		api: 'i am an api'
+		dataTypeStore: 'I am a DataTypeStore'
 	}, options || {} );
 
 	$node = $node || $( '<div/>' ).appendTo( 'body' );
@@ -186,6 +186,23 @@ QUnit.asyncTest( 'Using tooltip specific for existing claims', 1, function( asse
 		statementview.options.helpMessage,
 		mw.msg( 'wikibase-claimview-snak-tooltip', 'P1' )
 	);
+} );
+
+QUnit.test( 'value with empty reference', function( assert ) {
+	var $statementview = createStatementview( {
+			value: new wb.datamodel.Statement( new wb.datamodel.Claim(
+					new wb.datamodel.PropertyNoValueSnak( 'P1' ),
+					null,
+					'guid'
+				),
+				new wb.datamodel.ReferenceList( [ ] )
+			)
+		} ),
+		statementview = $statementview.data( 'statementview' );
+
+	statementview._addReference( null );
+
+	assert.ok( statementview.value(), 'value should return a value' );
 } );
 
 }( jQuery, mediaWiki, wikibase, dataValues, QUnit, sinon ) );

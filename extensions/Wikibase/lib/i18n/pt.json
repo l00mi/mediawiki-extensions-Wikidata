@@ -15,6 +15,7 @@
 		]
 	},
 	"wikibase-lib-desc": "Contém funcionalidades comuns para as extensões Wikibase e Wikibase Client",
+	"specialpages-group-wikibase": "Wikibase",
 	"wikibase-deletedentity-item": "Item eliminado",
 	"wikibase-deletedentity-property": "Propriedade eliminada",
 	"wikibase-deletedentity-query": "Consulta eliminada",
@@ -29,6 +30,7 @@
 	"wikibase-error-autocomplete-response": "O servidor respondeu: $1",
 	"wikibase-error-ui-no-external-page": "O artigo especificado não pôde ser encontrado no respectivo sítio",
 	"wikibase-error-ui-edit-conflict": "Conflito de edição. Por favor, recarregue a página e guarde novamente os dados.",
+	"wikibase-language-fallback-transliteration-hint": "$1 (transliterado)",
 	"wikibase-quantitydetails-amount": "Quantia",
 	"wikibase-quantitydetails-upperbound": "Limite superior",
 	"wikibase-quantitydetails-lowerbound": "Limite inferior",

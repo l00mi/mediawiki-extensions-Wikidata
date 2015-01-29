@@ -89,7 +89,7 @@ class WikibaseLuaBindings {
 	private $usageAccumulator;
 
 	/**
-	 * @var SerializationOptions
+	 * @var SerializationOptions|null
 	 */
 	private $serializationOptions = null;
 
@@ -191,8 +191,6 @@ class WikibaseLuaBindings {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param EntityDocument $entityObject
 	 * @param bool $lowerCaseIds Whether to also use lower case ids
 	 *

@@ -2,7 +2,6 @@
 
 namespace Wikibase\Client\Hooks;
 
-use Action;
 use OutputPage;
 use ParserOutput;
 use Skin;
@@ -50,7 +49,7 @@ class SidebarHookHandlers {
 	private $otherProjectsLinksDefault;
 
 	/**
-	 * @var SidebarHookHandlers
+	 * @var SidebarHookHandlers|null
 	 */
 	private static $instance = null;
 
