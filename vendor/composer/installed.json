@@ -1107,85 +1107,6 @@
         ]
     },
     {
-        "name": "wikibase/wikibase",
-        "version": "dev-wmf/1.25wmf16",
-        "version_normalized": "dev-wmf/1.25wmf16",
-        "source": {
-            "type": "git",
-            "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-            "reference": "b524cfa4bc0c7df27bbbae36f233bd7c4af4d4a9"
-        },
-        "require": {
-            "data-values/common": "~0.2.0",
-            "data-values/data-types": "~0.4.0",
-            "data-values/data-values": "~1.0.0",
-            "data-values/geo": "~1.0",
-            "data-values/interfaces": "~0.1.4",
-            "data-values/javascript": "~0.6.0",
-            "data-values/number": "~0.4.0",
-            "data-values/serialization": "~1.0",
-            "data-values/time": "~0.6.0",
-            "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.11.0",
-            "diff/diff": "~1.0",
-            "php": ">=5.3.2",
-            "wikibase/data-model": "~2.5",
-            "wikibase/data-model-javascript": "~1.0",
-            "wikibase/data-model-serialization": "~1.2",
-            "wikibase/easyrdf_lite": "~0.8.1",
-            "wikibase/internal-serialization": "~1.3",
-            "wikibase/javascript-api": "~1.0",
-            "wikibase/serialization-javascript": "~2.0"
-        },
-        "conflict": {
-            "mediawiki/mediawiki": "<1.23"
-        },
-        "time": "2015-01-13 10:02:43",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "files": [
-                "Wikibase.composer.php"
-            ],
-            "classmap": [
-                "client/includes/",
-                "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/",
-                "lib/includes/",
-                "lib/WikibaseLib.hooks.php",
-                "lib/tests/phpunit/",
-                "repo/includes/",
-                "repo/maintenance/",
-                "repo/tests/phpunit/",
-                "repo/Wikibase.hooks.php"
-            ],
-            "psr-4": {
-                "Wikibase\\Repo\\View\\": "repo/includes/View"
-            }
-        },
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Structured data repository for MediaWiki",
-        "homepage": "http://wikiba.se",
-        "keywords": [
-            "wikibase",
-            "wikibaseclient",
-            "wikibaselib",
-            "wikibaserepo",
-            "wikidata"
-        ],
-        "support": {
-            "issues": "https://bugzilla.wikimedia.org/",
-            "irc": "irc://irc.freenode.net/wikidata"
-        }
-    },
-    {
         "name": "wikibase/wikimedia-badges",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -1395,6 +1316,88 @@
         "keywords": [
             "propertysuggester",
             "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/wikibase",
+        "version": "dev-wmf/1.25wmf16",
+        "version_normalized": "dev-wmf/1.25wmf16",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "fdecc8befeb84bb66094c619eaccdad77cf55858"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fdecc8befeb84bb66094c619eaccdad77cf55858",
+            "reference": "fdecc8befeb84bb66094c619eaccdad77cf55858",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.2.0",
+            "data-values/data-types": "~0.4.0",
+            "data-values/data-values": "~1.0.0",
+            "data-values/geo": "~1.0",
+            "data-values/interfaces": "~0.1.4",
+            "data-values/javascript": "~0.6.0",
+            "data-values/number": "~0.4.0",
+            "data-values/serialization": "~1.0",
+            "data-values/time": "~0.6.0",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.11.0",
+            "diff/diff": "~1.0",
+            "php": ">=5.3.2",
+            "wikibase/data-model": "~2.5",
+            "wikibase/data-model-javascript": "~1.0",
+            "wikibase/data-model-serialization": "~1.2",
+            "wikibase/easyrdf_lite": "~0.8.1",
+            "wikibase/internal-serialization": "~1.3",
+            "wikibase/javascript-api": "~1.0",
+            "wikibase/serialization-javascript": "~2.0"
+        },
+        "conflict": {
+            "mediawiki/mediawiki": "<1.23"
+        },
+        "time": "2015-01-31 22:50:24",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Wikibase.composer.php"
+            ],
+            "classmap": [
+                "client/includes/",
+                "client/WikibaseClient.hooks.php",
+                "client/tests/phpunit/",
+                "lib/includes/",
+                "lib/WikibaseLib.hooks.php",
+                "lib/tests/phpunit/",
+                "repo/includes/",
+                "repo/maintenance/",
+                "repo/tests/phpunit/",
+                "repo/Wikibase.hooks.php"
+            ],
+            "psr-4": {
+                "Wikibase\\Repo\\View\\": "repo/includes/View"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Structured data repository for MediaWiki",
+        "homepage": "http://wikiba.se",
+        "keywords": [
+            "wikibase",
+            "wikibaseclient",
+            "wikibaselib",
+            "wikibaserepo",
             "wikidata"
         ]
     }
