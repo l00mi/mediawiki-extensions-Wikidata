@@ -27,13 +27,11 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 		template: 'wikibase-aliasesview',
 		templateParams: [
 			'', // additional class
-			mw.msg( 'wikibase-aliases-label' ), // label
 			'', // list items
 			'' // toolbar
 		],
 		templateShortCuts: {
-			'$label': '.wikibase-aliasesview-label',
-			'$list': 'ul'
+			$list: 'ul'
 		},
 		value: null,
 		helpMessage: mw.msg( 'wikibase-aliases-input-help-message' ),
@@ -54,7 +52,6 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 		PARENT.prototype._create.call( this );
 
 		this.element.removeClass( 'wb-empty' );
-		this.$label.text( mw.msg( 'wikibase-aliases-label' ) );
 
 		if( this.$list.children( 'li' ).length !== this.options.value.getTexts().length ) {
 			this.draw();
@@ -63,6 +60,18 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 			.prop( 'lang', this.options.value.getLanguageCode() )
 			.prop( 'dir', $.util.getDirectionality( this.options.value.getLanguageCode() ) );
 		}
+
+		this.$list.addClass( this.widgetFullName + '-input' );
+	},
+
+	/**
+	 * @inheritdoc
+	 */
+	destroy: function() {
+		if( this.$list ) {
+			this.$list.removeClass( this.widgetFullName + '-input' );
+		}
+		PARENT.prototype.destroy.call( this );
 	},
 
 	/**

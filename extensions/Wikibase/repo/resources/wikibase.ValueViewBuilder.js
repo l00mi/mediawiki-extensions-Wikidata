@@ -1,6 +1,6 @@
 /**
  * @licence GNU GPL v2+
- * @author Adrian Lang <adrian.lang@wikimedia.de>
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 ( function( wb, $ ) {
 	'use strict';
@@ -8,23 +8,24 @@
 	/**
 	 * @constructor
 	 *
-	 * @param {$.valueview.ExpertStore} expertStore
+	 * @param {jQuery.valueview.ExpertStore} expertStore
 	 * @param {valueFormatters.ValueFormatterStore} formatterStore
 	 * @param {valueParsers.ValueParserStore} parserStore
 	 * @param {string} language
-	 * @param {Object} mediaWiki
+	 * @param {util.MessageProvider} messageProvider
+	 * @param {util.ContentLanguages} contentLanguages
 	 */
 	var SELF = wb.ValueViewBuilder = function(
-		expertStore, formatterStore, parserStore, language, mediaWiki
+		expertStore, formatterStore, parserStore, language, messageProvider, contentLanguages
 	) {
 		this._baseOptions = {
 			expertStore: expertStore,
 			formatterStore: formatterStore,
 			parserStore: parserStore,
-			language: language
+			language: language,
+			messageProvider: messageProvider,
+			contentLanguages: contentLanguages
 		};
-
-		this._mw = mediaWiki;
 	};
 
 	$.extend( SELF.prototype, {
@@ -32,11 +33,6 @@
 		 * @type {Object}
 		 */
 		_baseOptions: null,
-
-		/**
-		 * @type {Object}
-		 */
-		_mw: null,
 
 		/**
 		 * @param {jQuery} $valueViewDom
@@ -53,10 +49,6 @@
 			// initializing this over and over again and doing the checks.
 			$valueViewDom.valueview( valueViewOptions );
 			valueView = $valueViewDom.data( 'valueview' );
-
-			// Setting this option must be delayed, otherwise the deep copy call
-			// $.extend( true, ... ) in _createWidget() will clone the full mw object.
-			valueView.option( { mediaWiki: this._mw } );
 
 			return valueView;
 		},

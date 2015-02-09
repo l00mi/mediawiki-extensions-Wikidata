@@ -138,6 +138,8 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.ui.widget',
+				'util.CombiningMessageProvider',
+				'util.HashMessageProvider'
 			),
 		),
 
@@ -205,6 +207,15 @@ return call_user_func( function() {
 		),
 
 
+		'util.ContentLanguages' => $moduleTemplate + array(
+			'scripts' => array(
+				'util/util.ContentLanguages.js',
+			),
+			'dependencies' => array(
+				'util.inherit',
+			)
+		),
+
 		'util.Extendable' => $moduleTemplate + array(
 			'scripts' => array(
 				'util/util.Extendable.js',
@@ -220,6 +231,21 @@ return call_user_func( function() {
 		'util.MessageProvider' => $moduleTemplate + array(
 			'scripts' => array(
 				'util/util.MessageProvider.js',
+			),
+		),
+		'util.HashMessageProvider' => $moduleTemplate + array(
+			'scripts' => array(
+				'util/util.HashMessageProvider.js',
+			),
+		),
+		'util.CombiningMessageProvider' => $moduleTemplate + array(
+			'scripts' => array(
+				'util/util.CombiningMessageProvider.js',
+			),
+		),
+		'util.PrefixingMessageProvider' => $moduleTemplate + array(
+			'scripts' => array(
+				'util/util.PrefixingMessageProvider.js',
 			),
 		),
 

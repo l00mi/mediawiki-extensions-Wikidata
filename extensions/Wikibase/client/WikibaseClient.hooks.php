@@ -13,12 +13,9 @@ use OutputPage;
 use Parser;
 use QuickTemplate;
 use RecentChange;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Skin;
 use SpecialRecentChanges;
 use SpecialWatchlist;
-use SplFileInfo;
 use Title;
 use UnexpectedValueException;
 use User;
@@ -72,25 +69,14 @@ final class ClientHooks {
 	 *
 	 * @since 0.1
 	 *
-	 * @param array $files
+	 * @param string[] &$paths
 	 *
 	 * @return bool
 	 */
-	public static function registerUnitTests( array &$files ) {
-		// @codeCoverageIgnoreStart
-		$directoryIterator = new RecursiveDirectoryIterator( __DIR__ . '/tests/phpunit/' );
-
-		/**
-		 * @var SplFileInfo $fileInfo
-		 */
-		foreach ( new RecursiveIteratorIterator( $directoryIterator ) as $fileInfo ) {
-			if ( substr( $fileInfo->getFilename(), -8 ) === 'Test.php' ) {
-				$files[] = $fileInfo->getPathname();
-			}
-		}
+	public static function registerUnitTests( array &$paths ) {
+		$paths[] = __DIR__ . '/tests/phpunit/';
 
 		return true;
-		// @codeCoverageIgnoreEnd
 	}
 
 	/**

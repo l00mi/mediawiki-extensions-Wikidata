@@ -54,8 +54,6 @@ class ClaimDifferenceVisualizer {
 	private $languageCode;
 
 	/**
-	 * Constructor.
-	 *
 	 * @since 0.4
 	 *
 	 * @param ValueFormatter $propertyIdFormatter Formatter for IDs, must generate HTML.
@@ -259,7 +257,7 @@ class ClaimDifferenceVisualizer {
 	}
 
 	/**
-	 * @param EntityId
+	 * @param EntityId $entityId
 	 *
 	 * @return string HTML
 	 */

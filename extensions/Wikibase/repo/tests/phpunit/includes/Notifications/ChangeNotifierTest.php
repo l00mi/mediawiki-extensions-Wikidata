@@ -46,8 +46,7 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	 * @return EntityContent
 	 */
 	private function makeItemContent( ItemId $id ) {
-		$item = Item::newEmpty();
-		$item->setId( $id );
+		$item = new Item( $id );
 
 		$content = ItemContent::newFromItem( $item );
 		return $content;
@@ -62,6 +61,7 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	 * @param ItemId $id
 	 * @param ItemId $target
 	 *
+	 * @throws RuntimeException
 	 * @return EntityContent
 	 */
 	protected function makeItemRedirectContent( ItemId $id, ItemId $target ) {

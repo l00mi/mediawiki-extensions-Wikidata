@@ -2,6 +2,7 @@
 
 namespace Wikibase\Client\Store\Sql;
 
+use DatabaseBase;
 use IDatabase;
 use LoadBalancer;
 
@@ -14,28 +15,48 @@ use LoadBalancer;
 class ConnectionManager {
 
 	/**
-	 * @param LoadBalancer $loadBalancer
+	 * @var LoadBalancer
 	 */
-	public function __construct( LoadBalancer $loadBalancer ) {
+	private $loadBalancer;
+
+	/**
+	 * @var string|null
+	 */
+	private $dbName;
+
+	/**
+	 * @param LoadBalancer $loadBalancer
+	 * @param string|null $dbName Optional, defaults to current wiki.
+	 */
+	public function __construct( LoadBalancer $loadBalancer, $dbName = null ) {
 		$this->loadBalancer = $loadBalancer;
+		$this->dbName = $dbName;
 	}
 
 	/**
-	 * @return IDatabase
+	 * @return DatabaseBase
 	 */
 	public function getReadConnection() {
-		return $this->loadBalancer->getConnection( DB_READ );
+		if ( $this->dbName === null ) {
+			return $this->loadBalancer->getConnection( DB_READ );
+		}
+
+		return $this->loadBalancer->getConnection( DB_READ, array(), $this->dbName );
 	}
 
 	/**
-	 * @return IDatabase
+	 * @return DatabaseBase
 	 */
 	private function getWriteConnection() {
-		return $this->loadBalancer->getConnection( DB_WRITE );
+		if ( $this->dbName === null ) {
+			return $this->loadBalancer->getConnection( DB_WRITE );
+		}
+
+		return $this->loadBalancer->getConnection( DB_WRITE, array(), $this->dbName );
 	}
 
 	/**
-	 * @param IDatabase $db
+	 * @param DatabaseBase $db
 	 */
 	public function releaseConnection( IDatabase $db ) {
 		$this->loadBalancer->reuseConnection( $db );
@@ -44,7 +65,7 @@ class ConnectionManager {
 	/**
 	 * @param string $fname
 	 *
-	 * @return IDatabase
+	 * @return DatabaseBase
 	 */
 	public function beginAtomicSection( $fname ) {
 		$db = $this->getWriteConnection();
@@ -53,10 +74,8 @@ class ConnectionManager {
 	}
 
 	/**
-	 * @param IDatabase $db
+	 * @param DatabaseBase $db
 	 * @param string $fname
-	 *
-	 * @return IDatabase
 	 */
 	public function commitAtomicSection( IDatabase $db, $fname ) {
 		$db->endAtomic( $fname );
@@ -64,10 +83,8 @@ class ConnectionManager {
 	}
 
 	/**
-	 * @param IDatabase $db
+	 * @param DatabaseBase $db
 	 * @param string $fname
-	 *
-	 * @return IDatabase
 	 */
 	public function rollbackAtomicSection( IDatabase $db, $fname ) {
 		//FIXME: there does not seem to be a clean way to roll back an atomic section?!

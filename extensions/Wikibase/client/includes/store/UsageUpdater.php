@@ -61,7 +61,7 @@ class UsageUpdater {
 	 * any subscriptions based on that usage.
 	 *
 	 * @param int $pageId The ID of the page the entities are used on.
-	 * @param array $usages A list of EntityUsage objects.
+	 * @param EntityUsage[] $usages A list of EntityUsage objects.
 	 * See docs/usagetracking.wiki for details.
 	 *
 	 * @throws InvalidArgumentException
@@ -80,38 +80,28 @@ class UsageUpdater {
 		$added = array_diff_key( $currentlyUsedEntities, $previouslyUsedEntities );
 		$removed = array_diff_key( $previouslyUsedEntities, $currentlyUsedEntities );
 
-		if ( empty( $added ) && empty( $removed ) ) {
-			return;
+		// Subscribe to anything that was added
+		if ( !empty( $added ) ) {
+			$this->subscriptionManager->subscribe( $this->clientId, $added );
 		}
 
-		$unused =  $this->usageLookup->getUnusedEntities( $removed );
-
-		if ( empty( $added ) && empty( $unused ) ) {
-			return;
-		}
-
-		// Subscribe to anything that was added, unsubscribe from anything
-		// that was removed and is otherwise unused.
-		$this->subscriptionManager->subscribe( $this->clientId, $added );
-		$this->subscriptionManager->unsubscribe( $this->clientId, $unused );
+		$this->unsubscribeUnused( $removed );
 	}
 
 	/**
-	 * Re-indexes the given list of EntityUsages so that each EntityUsage can be found by using its
-	 * string representation as a key.
+	 * Unsubscribe from anything that was removed and is otherwise unused.
 	 *
-	 * @param EntityUsage[] $usages
-	 * @return EntityUsage[]
+	 * @param EntityId[] $removedIds
 	 */
-	private function reindexEntityUsages( array $usages ) {
-		$reindexed = array();
+	private function unsubscribeUnused( array $removedIds ) {
+		if ( !empty( $removedIds ) ) {
+			$unusedIds =  $this->usageLookup->getUnusedEntities( $removedIds );
 
-		foreach ( $usages as $usage ) {
-			$key = $usage->getIdentityString();
-			$reindexed[$key] = $usage;
+			if ( !empty( $unusedIds ) ) {
+				// Unsubscribe from anything that was removed and is otherwise unused.
+				$this->subscriptionManager->unsubscribe( $this->clientId, $unusedIds );
+			}
 		}
-
-		return $reindexed;
 	}
 
 	/**

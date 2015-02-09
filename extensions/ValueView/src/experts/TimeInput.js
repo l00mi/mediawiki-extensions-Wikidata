@@ -20,9 +20,12 @@
 
 		var self = this;
 
-		this.preview = new vv.ExpertExtender.Preview( function() {
-			return self.viewState().getFormattedValue();
-		} );
+		this.preview = new vv.ExpertExtender.Preview(
+			function() {
+				return self.viewState().getFormattedValue();
+			},
+			this._messageProvider
+		);
 
 		var precisionMsgKey = 'valueview-expert-timeinput-precision';
 		var $precisionContainer = $( '<div/>' )
@@ -190,7 +193,7 @@
 	 * @ignore
 	 *
 	 * @param {string} calendarname
-	 * @return {time.Time}
+	 * @return {string}
 	 */
 	function calendarNameToUri( calendarname ) {
 		return new Time( { calendarname: calendarname, precision: 0, year: 0 } ).calendarURI();

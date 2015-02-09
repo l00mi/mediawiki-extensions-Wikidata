@@ -25,28 +25,9 @@ return call_user_func( function() {
 </div>
 HTML;
 
-
 	$templates['wb-entity-header-separator'] =
 <<<HTML
 <hr class="wb-hr" />
-HTML;
-
-	$templates['wb-entity-toc'] =
-<<<HTML
-<div id="toc" class="toc wb-toc">
-	<div id="toctitle">
-		<h2>$1</h2>
-	</div>
-	<ul>$2</ul>
-</div>
-HTML;
-
-// $1: Index of the section
-// $2: Target of the link
-// $3: Text of the link
-	$templates['wb-entity-toc-section'] =
-<<<HTML
-<li class="toclevel-1 tocsection-$1"><a href="#$2"><span class="toctext">$3</span></a></li>
 HTML;
 
 // $1: Text of the heading.
@@ -138,18 +119,6 @@ HTML;
 </div>
 HTML;
 
-	$templates['wikibase-firstHeading'] =
-// add an h1 for displaying the entity's label; the actual firstHeading is being hidden by
-// css since the original MediaWiki DOM does not represent a Wikidata entity's structure
-// where the combination of label and description is the unique "title" of an entity which
-// should not be semantically disconnected by having elements in between, like siteSub,
-// contentSub and jump-to-nav
-<<<HTML
-<h1 id="wb-firstHeading-$1" class="wb-firstHeading">
-	<!-- wikibase-labelview -->$2
-</h1>
-HTML;
-
 	$templates['wikibase-labelview'] =
 <<<HTML
 <div class="wikibase-labelview $1" dir="auto">
@@ -174,11 +143,8 @@ HTML;
 	$templates['wikibase-aliasesview'] =
 <<<HTML
 <div class="wikibase-aliasesview $1">
-	<div class="wikibase-aliasesview-container">
-		<span class="wikibase-aliasesview-label">$2</span>
-		<ul class="wikibase-aliasesview-list">$3</ul>
-		<!-- wb-toolbar -->$4
-	</div>
+	<ul class="wikibase-aliasesview-list">$2</ul>
+	<!-- wikibase-toolbar -->$3
 </div>
 HTML;
 
@@ -190,39 +156,60 @@ HTML;
 	$templates['wikibase-entitytermsview'] =
 <<<HTML
 <div class="wikibase-entitytermsview">
-	<div class="wikibase-entitytermsview-heading-container">
-		<h2 id="wb-terms" class="wb-section-heading wikibase-entitytermsview-heading">$1</h2>
-		<!-- wikibase-toolbar -->$3
+	<div class="wikibase-entitytermsview-heading">
+		<h1 class="wikibase-entitytermsview-heading-label $1"><!-- wikibase-entitytermsview-label -->$2</h1>
+		<div class="wikibase-entitytermsview-heading-aliases $3"><!-- wikibase-entitytermsview-aliases -->$4</div>
+		<div class="wikibase-entitytermsview-heading-description $5">$6</div>
 	</div>
-	<!-- wikibase-entitytermsforlanguagelistview -->$2
+	<!-- ? wikibase-toolbar -->$9
+	<div class="wikibase-entitytermsview-entitytermsforlanguagelistview $8"><!-- wikibase-entitytermsforlanguagelistview -->$7</div>
 </div>
+HTML;
+
+	$templates['wikibase-entitytermsview-heading-label'] =
+<<<HTML
+$1<span class="wikibase-entitytermsview-heading-label-id">$2</span>
+HTML;
+
+	$templates['wikibase-entitytermsview-aliases'] =
+<<<HTML
+<ul class="wikibase-entitytermsview-aliases"><!-- wikibase-entitytermsview-aliases-alias -->$1</ul>
+HTML;
+
+	$templates['wikibase-entitytermsview-aliases-alias'] =
+<<<HTML
+<li class="wikibase-entitytermsview-aliases-alias">$1</li>
 HTML;
 
 	$templates['wikibase-entitytermsforlanguagelistview'] =
 <<<HTML
 <table class="wikibase-entitytermsforlanguagelistview">
-	<colgroup>
-		<col class="wikibase-entitytermsforlanguagelistview-language" />
-		<col class="wikibase-entitytermsforlanguagelistview-label wikibase-entitytermsforlanguagelistview-description wikibase-entitytermsforlanguagelistview-aliases" />
-	</colgroup>
-	<!-- [0,*] wikibase-entitytermsforlanguageview -->$1
+	<thead class="wikibase-entitytermsforlanguagelistview-header">
+		<tr class="wikibase-entitytermsforlanguagelistview-header-row">
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-language">$1</td>
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-label">$2</td>
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-aliases">$3</td>
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-description">$4</td>
+		</tr>
+	</thead>
+	<tbody class="wikibase-entitytermsforlanguagelistview-listview"><!-- [0,*] wikibase-entitytermsforlanguageview -->$5</tbody>
 </table>
 HTML;
 
 	$templates['wikibase-entitytermsforlanguageview'] =
 <<<HTML
-<tbody class="wikibase-entitytermsforlanguageview wikibase-entitytermsforlanguageview-$1" >
-	<tr>
-		<td class="wikibase-entitytermsforlanguageview-language" rowspan="3"><a href="$2">$3</a></td>
-		<td class="wikibase-entitytermsforlanguageview-label">$4</td>
-	</tr>
-	<tr>
-		<td class="wikibase-entitytermsforlanguageview-description">$5</td>
-	</tr>
-	<tr>
-		<td class="wikibase-entitytermsforlanguageview-aliases">$6</td>
-	</tr>
-</tbody>
+<$1 class="wikibase-entitytermsforlanguageview wikibase-entitytermsforlanguageview-$3" >
+	<$2 class="wikibase-entitytermsforlanguageview-language"><!-- wikibase-entitytermsforlanguageview-language -->$4</$2>
+	<$2 class="wikibase-entitytermsforlanguageview-label">$5</$2>
+	<$2 class="wikibase-entitytermsforlanguageview-aliases">$6</$2>
+	<$2 class="wikibase-entitytermsforlanguageview-description">$7</$2>
+	<!-- ? wikibase-toolbar -->$8
+</$1>
+HTML;
+
+	$templates['wikibase-entitytermsforlanguageview-language'] =
+<<<HTML
+<a href="$1">$2</a>
 HTML;
 
 	$templates['wikibase-sitelinkgrouplistview'] =

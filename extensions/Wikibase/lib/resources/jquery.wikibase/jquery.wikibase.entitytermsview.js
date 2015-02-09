@@ -5,12 +5,12 @@
 ( function( mw, $ ) {
 	'use strict';
 
-	var PARENT = $.ui.TemplatedWidget;
+	var PARENT = $.ui.EditableTemplatedWidget;
 
 /**
  * Encapsulates a entitytermsforlanguagelistview widget.
  * @since 0.5
- * @extends jQuery.ui.TemplatedWidget
+ * @extends jQuery.ui.EditableTemplatedWidget
  *
  * @option {Object[]} value
  *         Object representing the widget's value.
@@ -53,14 +53,22 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	options: {
 		template: 'wikibase-entitytermsview',
 		templateParams: [
-			function() {
-				return mw.msg( 'wikibase-terms' );
-			},
+			'', // label class
+			'', // labelview
+			'', // aliases class
+			'', // aliasesview
+			'', // description class
+			'', // descriptionview
 			'', // entitytermsforlanguagelistview
-			'' // edit section
+			'', // additional entitytermsforlanguagelistview container class(es)
+			'' // toolbar placeholder
 		],
 		templateShortCuts: {
-			$h: 'h2'
+			$headingLabel: '.wikibase-entitytermsview-heading-label',
+			$headingAliases: '.wikibase-entitytermsview-heading-aliases',
+			$headingDescription: '.wikibase-entitytermsview-heading-description',
+			$entitytermsforlanguagelistviewContainer:
+				'.wikibase-entitytermsview-entitytermsforlanguagelistview'
 		},
 		value: [],
 		entityId: null,
@@ -69,14 +77,14 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	},
 
 	/**
-	 * @type {boolean}
+	 * @type {jQuery}
 	 */
-	_isInEditMode: false,
+	$entitytermsforlanguagelistview: null,
 
 	/**
 	 * @type {jQuery}
 	 */
-	$entitytermsforlanguagelistview: null,
+	$entitytermsforlanguagelistviewToggler: null,
 
 	/**
 	 * @see jQuery.ui.TemplatedWidget._create
@@ -92,16 +100,51 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 
 		PARENT.prototype._create.call( this );
 
-		this.element.addClass( 'wikibase-entitytermsview' );
+		var self = this;
 
-		this.$entitytermsforlanguagelistview
-			= this.element.find( '.wikibase-entitytermsforlanguagelistview' );
+		this.element
+		.on(
+			this.widgetEventPrefix + 'change.' + this.widgetName
+				+ ' ' + this.widgetEventPrefix + 'afterstopediting.' + this.widgetName,
+			function() {
+				$.each( self.value(), function() {
+					if( this.language !== self.options.value[0].language ) {
+						return true;
+					}
 
-		if( !this.$entitytermsforlanguagelistview.length ) {
-			this.$entitytermsforlanguagelistview = $( '<table/>' ).appendTo( this.element );
-		}
+					var $labelChildren = self.$headingLabel.children(),
+						labelText = this.label.getText(),
+						descriptionText = this.description.getText();
 
-		this._createEntitytermsforlanguagelistview();
+					self.$headingLabel
+						.toggleClass( 'wb-empty', labelText === '' )
+						.text( labelText === '' ? mw.msg( 'wikibase-label-empty' ) : labelText )
+						.append( $labelChildren );
+
+					self.$headingDescription
+						.toggleClass( 'wb-empty', labelText === '' )
+						.text( descriptionText === ''
+							? mw.msg( 'wikibase-description-empty' )
+							: descriptionText
+						);
+
+					var aliasesTexts = this.aliases.getTexts(),
+						$ul = self.$headingAliases.children( 'ul' ).empty();
+
+					for( var i = 0; i < aliasesTexts.length; i++ ) {
+						$ul.append(
+							mw.wbTemplate( 'wikibase-entitytermsview-aliases-alias',
+								aliasesTexts[i]
+							)
+						);
+					}
+
+					return false;
+				} );
+			}
+		);
+
+		this.draw();
 	},
 
 	/**
@@ -120,8 +163,99 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 			this.$entitytermsforlanguagelistview.remove();
 		}
 
+		if( this.$entitytermsforlanguagelistviewToggler ) {
+			this.$entitytermsforlanguagelistviewToggler.remove();
+		}
+
+		this.element.off( '.' + this.widgetName );
 		this.element.removeClass( 'wikibase-entitytermsview' );
 		PARENT.prototype.destroy.call( this );
+	},
+
+	/**
+	 * @inheritdoc
+	 */
+	draw: function() {
+		var self = this,
+			deferred = $.Deferred();
+
+		this.$entitytermsforlanguagelistview
+			= this.element.find( '.wikibase-entitytermsforlanguagelistview' );
+
+		if( !this.$entitytermsforlanguagelistview.length ) {
+			this.$entitytermsforlanguagelistview = $( '<div/>' )
+				.appendTo( this.$entitytermsforlanguagelistviewContainer );
+		}
+
+		if( !this._getEntitytermsforlanguagelistview() ) {
+			this._createEntitytermsforlanguagelistview();
+		}
+
+		if(
+			!this.element
+				.find( '.wikibase-entitytermsview-entitytermsforlanguagelistview-toggler' )
+				.length
+		) {
+			// TODO: Remove as soon as drop-down edit buttons are implemented. The language list may
+			// then be shown (without directly switching to edit mode) using the drop down menu.
+			this._createEntitytermsforlanguagelistviewToggler();
+		}
+
+		if( !this._$notification ) {
+			this.notification()
+				.appendTo( this._getEntitytermsforlanguagelistview().$header )
+				.on( 'closeableupdate.' + this.widgetName, function() {
+					var sticknode = self.element.data( 'sticknode' );
+					if( sticknode ) {
+						sticknode.refresh();
+					}
+				} );
+		}
+
+		return deferred.resolve().promise();
+	},
+
+	/**
+	 * Creates the dedicated toggler for showing/hiding the list of entity terms. This function is
+	 * supposed to be removed as soon as drop-down edit buttons are implemented with the mechanism
+	 * toggling the list's visibility while not starting edit mode will be part of the drop-down
+	 * menu.
+	 * @private
+	 */
+	_createEntitytermsforlanguagelistviewToggler: function() {
+		var api = new mw.Api();
+
+		this.$entitytermsforlanguagelistviewToggler = $( '<div/>' )
+			.addClass( 'wikibase-entitytermsview-entitytermsforlanguagelistview-toggler' )
+			.text( mw.msg( 'wikibase-entitytermsview-entitytermsforlanguagelistview-toggler' ) )
+			.toggler( {
+				$subject: this.$entitytermsforlanguagelistviewContainer
+			} )
+			.on( 'toggleranimation.' + this.widgetName, function( event, params ) {
+				if( mw.user.isAnon() ) {
+					$.cookie(
+						'wikibase-entitytermsview-showEntitytermslistview',
+						params.visible,
+						{ expires: 365, path: '/' }
+					);
+				} else {
+					api.postWithToken( 'options', {
+						action: 'options',
+						optionname: 'wikibase-entitytermsview-showEntitytermslistview',
+						optionvalue: params.visible ? '1' : '0'
+					} )
+					.done( function() {
+						mw.user.options.set(
+							'wikibase-entitytermsview-showEntitytermslistview',
+							params.visible ? '1' : '0'
+						);
+					} );
+				}
+			} );
+
+		this.$entitytermsforlanguagelistviewContainer.before(
+			this.$entitytermsforlanguagelistviewToggler
+		);
 	},
 
 	/**
@@ -165,6 +299,11 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 			entityId: this.options.entityId,
 			entityChangersFactory: this.options.entityChangersFactory
 		} );
+
+		this.$entitytermsforlanguagelistview.data( 'entitytermsforlanguagelistview' )
+			.$header.sticknode( {
+				$container: this.$entitytermsforlanguagelistview
+			} );
 	},
 
 	/**
@@ -181,30 +320,25 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 		return this._getEntitytermsforlanguagelistview().isInitialValue();
 	},
 
+	/**
+	 * @inheritdoc
+	 */
 	startEditing: function() {
-		if( this._isInEditMode ) {
-			return;
-		}
-
-		this._isInEditMode = true;
-		this.element.addClass( 'wb-edit' );
-
 		this._getEntitytermsforlanguagelistview().startEditing();
 
-		this._trigger( 'afterstartediting' );
+		return PARENT.prototype.startEditing.call( this );
 	},
 
 	/**
-	 * @param {boolean} [dropValue]
+	 * @inheritdoc
 	 */
 	stopEditing: function( dropValue ) {
-		var self = this;
+		var self = this,
+			deferred = $.Deferred();
 
-		if( !this._isInEditMode || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
-			return;
+		if( !this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
+			return deferred.resolve().promise();
 		}
-
-		dropValue = !!dropValue;
 
 		this._trigger( 'stopediting', null, [dropValue] );
 
@@ -216,64 +350,61 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 			function( event, dropValue ) {
 				self._afterStopEditing( dropValue );
 				self.$entitytermsforlanguagelistview.off( '.entitytermsviewstopediting' );
+				deferred.resolve();
 			}
 		)
 		.one(
 			'entitytermsforlanguagelistviewtoggleerror.entitytermsviewstopediting',
-			function( event, dropValue ) {
+			function( event, error ) {
 				self.enable();
 				self.$entitytermsforlanguagelistview.off( '.entitytermsviewstopediting' );
+				deferred.reject( error );
 			}
 		);
 
 		this._getEntitytermsforlanguagelistview().stopEditing( dropValue );
+
+		return deferred.promise();
+	},
+
+	/**
+	 * @inheritdoc
+	 */
+	_save: function() {
+		// Currently unused.
+		// TODO: Implement function directly saving all (updated) entity terms instead of deferring
+		// the functionality to sub-components.
 	},
 
 	/**
 	 * @param {boolean} dropValue
 	 */
 	_afterStopEditing: function( dropValue ) {
+		this.notification();
 		if( !dropValue ) {
 			this.options.value = this.value();
 		}
-		this._isInEditMode = false;
-		this.enable();
-		this.element.removeClass( 'wb-edit' );
-		this._trigger( 'afterstopediting', null, [dropValue] );
-	},
-
-	cancelEditing: function() {
-		this.stopEditing( true );
+		return PARENT.prototype._afterStopEditing.apply( this, arguments );
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		this._getEntitytermsforlanguagelistview().focus();
 	},
 
 	/**
-	 * Applies/Removes error state.
-	 *
-	 * @param {Error} [error]
+	 * @inheritdoc
 	 */
-	setError: function( error ) {
-		if( error ) {
-			this.element.addClass( 'wb-error' );
-			this._trigger( 'toggleerror', null, [error] );
-		} else {
-			this.removeError();
-			this._trigger( 'toggleerror' );
-		}
-	},
-
 	removeError: function() {
 		this.element.removeClass( 'wb-error' );
 		this._getEntitytermsforlanguagelistview().removeError();
 	},
 
 	/**
+	 * @inheritdoc
+	 *
 	 * @param {Object[]} [value]
 	 * @return {Object[]|*}
 	 */
@@ -286,7 +417,14 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * @inheritdoc
+	 */
+	isEmpty: function() {
+		return this._getEntitytermsforlanguagelistview().isEmpty();
+	},
+
+	/**
+	 * @inheritdoc
 	 */
 	_setOption: function( key, value ) {
 		if( key === 'value' ) {
@@ -300,6 +438,25 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 		}
 
 		return response;
+	},
+
+	/**
+	 * @inheritdoc
+	 */
+	notification: function( $content, additionalCssClasses ) {
+		if( !this._$notification ) {
+			var $closeable = $( '<div/>' ).closeable();
+
+			this._$notification = $( '<tr/>' ).append( $( '<td/>' ).append( $closeable ) );
+
+			this._$notification.data( 'closeable', $closeable.data( 'closeable' ) );
+		}
+
+		var $headerTr = this._getEntitytermsforlanguagelistview().$header.children( 'tr' ).first();
+		this._$notification.children( 'td' ).attr( 'colspan', $headerTr.children().length );
+
+		this._$notification.data( 'closeable' ).setContent( $content, additionalCssClasses );
+		return this._$notification;
 	}
 } );
 

@@ -61,8 +61,6 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	);
 
 	/**
-	 * Constructor.
-	 *
 	 * @since    0.4
 	 *
 	 * @param StringNormalizer $stringNormalizer
@@ -522,7 +520,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 * @param string|null $entityType
 	 * @param array $options
 	 *
-	 * @return array
+	 * @return Term[]
 	 */
 	public function getMatchingTerms( array $terms, $termType = null, $entityType = null, array $options = array() ) {
 		if ( empty( $terms ) ) {
@@ -662,17 +660,14 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 * @param string|null $entityType
 	 * @param array $options
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function termsToConditions( DatabaseBase $db, array $terms, $termType, $entityType, array $options = array() ) {
 		wfProfileIn( __METHOD__ );
 
 		$conditions = array();
 
-		/**
-		 * @var Term $term
-		 */
-		foreach ( $terms as $index => $term ) {
+		foreach ( $terms as $term ) {
 			$termConditions = $this->termMatchConditions( $db, $term, $termType, $entityType, $options );
 			$conditions[] = '(' . implode( ' AND ', $termConditions ) . ')';
 		}
@@ -766,7 +761,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 *
 	 * @param Iterator|array $obtainedTerms PHP fails for not having a common iterator/array thing :<0
 	 *
-	 * @return array
+	 * @return Term[]
 	 */
 	protected function buildTermResult( $obtainedTerms ) {
 		wfProfileIn( __METHOD__ );

@@ -2,10 +2,6 @@
 
 namespace Wikibase;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use SplFileInfo;
-
 /**
  * File defining the hook handlers for the WikibaseLib extension.
  *
@@ -24,25 +20,14 @@ final class LibHooks {
 	 *
 	 * @since 0.2
 	 *
-	 * @param string[] $files
+	 * @param string[] &$paths
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public static function registerPhpUnitTests( array &$files ) {
-		// @codeCoverageIgnoreStart
-		$directoryIterator = new RecursiveDirectoryIterator( __DIR__ . '/tests/phpunit/' );
-
-		/**
-		 * @var SplFileInfo $fileInfo
-		 */
-		foreach ( new RecursiveIteratorIterator( $directoryIterator ) as $fileInfo ) {
-			if ( substr( $fileInfo->getFilename(), -8 ) === 'Test.php' ) {
-				$files[] = $fileInfo->getPathname();
-			}
-		}
+	public static function registerPhpUnitTests( array &$paths ) {
+		$paths[] = __DIR__ . '/tests/phpunit/';
 
 		return true;
-		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -63,4 +48,5 @@ final class LibHooks {
 
 		return true;
 	}
+
 }

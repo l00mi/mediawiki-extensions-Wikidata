@@ -61,6 +61,7 @@ class SiteLinksView {
 	private $languageCode;
 
 	/**
+	 * @param TemplateFactory $templateFactory
 	 * @param SiteList $sites
 	 * @param SectionEditLinkGenerator $sectionEditLinkGenerator
 	 * @param EntityLookup $entityLookup
@@ -200,7 +201,7 @@ class SiteLinksView {
 		$safetyCopy = $siteLinksForTable; // keep a shallow copy
 		$sortOk = usort(
 			$siteLinksForTable,
-			function( $a, $b ) {
+			function( array $a, array $b ) {
 				return strcmp( $a['siteLink']->getSiteId(), $b['siteLink']->getSiteId() );
 			}
 		);

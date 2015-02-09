@@ -73,8 +73,7 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->clear();
 
-		$item = Item::newEmpty();
-		$item->setId( 42 );
+		$item = new Item( new ItemId( 'Q42' ) );
 
 		$item->setLabel( $languageCode, $termText );
 
@@ -131,9 +130,7 @@ class TermSqlIndexTest extends TermIndexTest {
 			new AliasGroupList()
 		);
 
-		$label = new Term( array( 'termType' => Term::TYPE_LABEL ) );
 		$labelFooEn = new Term( array( 'termLanguage' => 'en', 'termType' => Term::TYPE_LABEL, 'termText' => 'Foo' ) );
-		$labelFuhDe = new Term( array( 'termLanguage' => 'de', 'termType' => Term::TYPE_LABEL, 'termText' => 'Fuh' ) );
 		$descriptionBarEn = new Term( array( 'termLanguage' => 'en', 'termType' => Term::TYPE_DESCRIPTION, 'termText' => 'Bar' ) );
 
 		return array(
@@ -154,13 +151,16 @@ class TermSqlIndexTest extends TermIndexTest {
 
 	/**
 	 * @dataProvider getMatchingTermsOptionsProvider
+	 * @param Fingerprint $fingerprint
+	 * @param Term[] $queryTerms
+	 * @param array $options
+	 * @param Term[] $expected
 	 */
 	public function testGetMatchingTerms_options( Fingerprint $fingerprint, array $queryTerms, array $options, array $expected ) {
 		$termIndex = $this->getTermIndex();
 		$termIndex->clear();
 
-		$item = Item::newEmpty();
-		$item->setId( 42 );
+		$item = new Item( new ItemId( 'Q42' ) );
 		$item->setFingerprint( $fingerprint );
 
 		$termIndex->saveTermsOfEntity( $item );
@@ -195,16 +195,14 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->clear();
 
-		$item1 = Item::newEmpty();
-		$item1->setId( 42 );
+		$item1 = new Item( new ItemId( 'Q42' ) );
 
 		$item1->setLabel( $languageCode, $termText );
 		$item1->getSiteLinkList()->addNewSiteLink( 'enwiki', 'A' );
 
 		$termIndex->saveTermsOfEntity( $item1 );
 
-		$item2 = Item::newEmpty();
-		$item2->setId( 23 );
+		$item2 = new Item( new ItemId( 'Q23' ) );
 
 		$item2->setLabel( $languageCode, $termText );
 		$item2->getSiteLinkList()->addNewSiteLink( 'enwiki', 'B' );
@@ -214,8 +212,7 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->saveTermsOfEntity( $item2 );
 
-		$item3 = Item::newEmpty();
-		$item3->setId( 108 );
+		$item3 = new Item( new ItemId( 'Q108' ) );
 
 		$item3->setLabel( $languageCode, $termText );
 		$item3->getSiteLinkList()->addNewSiteLink( 'hrwiki', 'C' );
@@ -253,8 +250,7 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->clear();
 
-		$item1 = Item::newEmpty();
-		$item1->setId( 42 );
+		$item1 = new Item( new ItemId( 'Q42' ) );
 
 		$item1->setLabel( $languageCode, $termText );
 
@@ -282,8 +278,7 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->clear();
 
-		$item1 = Item::newEmpty();
-		$item1->setId( 42 );
+		$item1 = new Item( new ItemId( 'Q42' ) );
 
 		$item1->setLabel( $languageCode, $termText );
 
@@ -378,8 +373,7 @@ class TermSqlIndexTest extends TermIndexTest {
 		$fingerprint->setDescription( 'es', 'es un gato!' );
 		$fingerprint->setAliasGroup( 'en', array( 'kitten-alias' ) );
 
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q999' ) );
+		$item = new Item( new ItemId( 'Q999' ) );
 		$item->setFingerprint( $fingerprint );
 
 		$expectedTerms = array(

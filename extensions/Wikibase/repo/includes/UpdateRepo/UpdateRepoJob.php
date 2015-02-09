@@ -179,7 +179,7 @@ abstract class UpdateRepoJob extends Job {
 		);
 
 		if ( !$status->isOK() ) {
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": attemptSave failed: " . $status->getMessage()->text() );
+			wfDebugLog( __CLASS__, __FUNCTION__ . ": attemptSave for " . $item->getId()->getSerialization() . " failed: " . $status->getMessage()->text() );
 		}
 
 		wfProfileOut( __METHOD__ );
@@ -188,7 +188,9 @@ abstract class UpdateRepoJob extends Job {
 	}
 
 	/**
-	 * @return bool
+	 * @param string $name
+	 *
+	 * @return User|bool
 	 */
 	private function getUser( $name ) {
 		$user = User::newFromName( $name );
@@ -204,9 +206,7 @@ abstract class UpdateRepoJob extends Job {
 	}
 
 	/**
-	 * Run the job
-	 *
-	 * @return boolean success
+	 * @return bool success
 	 */
 	public function run() {
 		wfProfileIn( __METHOD__ );

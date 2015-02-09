@@ -72,8 +72,6 @@ $.widget( 'wikibase.labelview', PARENT, {
 
 		var self = this;
 
-		this.element.attr( 'id', 'wb-firstHeading-' + this.options.entityId );
-
 		this.element
 		.on(
 			'labelviewafterstartediting.' + this.widgetName
@@ -140,20 +138,27 @@ $.widget( 'wikibase.labelview', PARENT, {
 			return;
 		}
 
-		var $input = $( '<input />', {
-			// TODO: Inject correct placeholder via options
-			placeholder: mw.msg(
+		var $input = $( '<input />' );
+
+		$input
+		.addClass( this.widgetFullName + '-input' )
+		// TODO: Inject correct placeholder via options
+		.attr( 'placeholder', mw.msg(
 				'wikibase-label-edit-placeholder-language-aware',
 				wb.getLanguageNameByCode( languageCode )
-			),
-			dir: $.util.getDirectionality( languageCode )
-		} )
+			)
+		)
+		.attr( 'dir', $.util.getDirectionality( languageCode ) )
 		.on( 'eachchange.' + this.widgetName, function( event ) {
 			self._trigger( 'change' );
 		} );
 
 		if( labelText ) {
 			$input.val( labelText );
+		}
+
+		if( $.fn.inputautoexpand ) {
+			$input.inputautoexpand();
 		}
 
 		this.$text.empty().append( $input );

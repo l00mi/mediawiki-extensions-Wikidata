@@ -16,14 +16,11 @@ use MWException;
 use OutputPage;
 use ParserOutput;
 use RecentChange;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Revision;
 use SearchResult;
 use Skin;
 use SkinTemplate;
 use SpecialSearch;
-use SplFileInfo;
 use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
@@ -158,25 +155,14 @@ final class RepoHooks {
 	 *
 	 * @since 0.1
 	 *
-	 * @param array &$files
+	 * @param string[] &$paths
 	 *
 	 * @return bool
 	 */
-	public static function registerUnitTests( array &$files ) {
-		// @codeCoverageIgnoreStart
-		$directoryIterator = new RecursiveDirectoryIterator( __DIR__ . '/tests/phpunit/' );
+	public static function registerUnitTests( array &$paths ) {
+		$paths[] = __DIR__ . '/tests/phpunit/';
 
-		/** @var SplFileInfo $fileInfo */
-		$ourFiles = array();
-		foreach ( new RecursiveIteratorIterator( $directoryIterator ) as $fileInfo ) {
-			if ( substr( $fileInfo->getFilename(), -8 ) === 'Test.php' ) {
-				$ourFiles[] = $fileInfo->getPathname();
-			}
-		}
-
-		$files = array_merge( $files, $ourFiles );
 		return true;
-		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -426,6 +412,19 @@ final class RepoHooks {
 		$preferences['wb-acknowledgedcopyrightversion'] = array(
 			'type' => 'api'
 		);
+
+		if( class_exists( 'Babel' ) ) {
+			$preferences['wikibase-entitytermsview-showEntitytermslistview'] = array(
+				'type' => 'toggle',
+				'label-message' => 'wikibase-setting-entitytermsview-showEntitytermslistview',
+				'help-message' => 'wikibase-setting-entitytermsview-showEntitytermslistview-help',
+				'section' => 'rendering/advancedrendering',
+			);
+		} else if( $user->getBoolOption( 'wikibase-entitytermsview-showEntitytermslistview' ) ) {
+			// Clear setting after uninstalling Babel extension.
+			unset( $user->mOptions['wikibase-entitytermsview-showEntitytermslistview'] );
+			$user->saveSettings();
+		}
 
 		wfProfileOut( __METHOD__ );
 		return true;

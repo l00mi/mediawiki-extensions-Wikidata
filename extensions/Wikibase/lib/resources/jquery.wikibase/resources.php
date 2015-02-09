@@ -31,7 +31,6 @@ return call_user_func( function() {
 				'wikibase.datamodel.MultiTerm',
 			),
 			'messages' => array(
-				'wikibase-aliases-label',
 				'wikibase-aliases-input-help-message',
 				'wikibase-alias-edit-placeholder',
 			),
@@ -104,9 +103,6 @@ return call_user_func( function() {
 				'wikibase.datamodel.StatementList',
 				'wikibase.utilities.ClaimGuidGenerator',
 			),
-			'messages' => array(
-				'wikibase-entity-property',
-			),
 		),
 
 		'jquery.wikibase.descriptionview' => $moduleTemplate + array(
@@ -118,6 +114,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.inputautoexpand',
+				'jquery.ui.core',
 				'jquery.ui.TemplatedWidget',
 				'jquery.util.getDirectionality',
 				'wikibase.datamodel.Term',
@@ -183,10 +180,18 @@ return call_user_func( function() {
 				'themes/default/jquery.wikibase.entitytermsview.css',
 			),
 			'dependencies' => array(
-				'jquery.ui.TemplatedWidget',
+				'jquery.cookie',
+				'jquery.ui.closeable',
+				'jquery.ui.EditableTemplatedWidget',
+				'jquery.ui.toggler',
 				'jquery.wikibase.entitytermsforlanguagelistview',
+				'mediawiki.api',
+				'mediawiki.user',
 			),
 			'messages' => array(
+				'wikibase-description-empty',
+				'wikibase-entitytermsview-entitytermsforlanguagelistview-toggler',
+				'wikibase-label-empty',
 				'wikibase-terms',
 			),
 		),
@@ -204,6 +209,10 @@ return call_user_func( function() {
 				'wikibase.getLanguageNameByCode',
 			),
 			'messages' => array(
+				'wikibase-entitytermsforlanguagelistview-aliases',
+				'wikibase-entitytermsforlanguagelistview-description',
+				'wikibase-entitytermsforlanguagelistview-label',
+				'wikibase-entitytermsforlanguagelistview-language',
 				'wikibase-fingerprintview-input-help-message',
 			),
 		),
@@ -221,6 +230,7 @@ return call_user_func( function() {
 				'jquery.wikibase.labelview',
 				'mediawiki.Title',
 				'wikibase.getLanguageNameByCode',
+				'wikibase.templates',
 			),
 			'messages' => array(
 				'wikibase-fingerprintview-input-help-message',
@@ -339,6 +349,7 @@ return call_user_func( function() {
 				'jquery.util.EventSingletonManager',
 				'jquery.wikibase.sitelinklistview',
 				'mediawiki.jqueryMsg', // for {{plural}} and {{gender}} support in messages
+				'wikibase.buildErrorOutput',
 				'wikibase.sites',
 				'wikibase.utilities',
 			),

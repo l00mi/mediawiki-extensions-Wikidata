@@ -10,10 +10,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/wmde/WikimediaBadges.git"
-        },
-		{
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase"
         }
     ],
     "require": {

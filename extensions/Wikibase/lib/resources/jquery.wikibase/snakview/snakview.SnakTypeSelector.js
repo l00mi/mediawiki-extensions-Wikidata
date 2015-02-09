@@ -1,54 +1,56 @@
-/**
- * @licence GNU GPL v2+
- * @author H. Snater < mediawiki@snater.com >
- * @author Daniel Werner < daniel.werner@wikimedia.de >
- */
 ( function( mw, $ ) {
 	'use strict';
 
 	var PARENT = $.Widget;
 
 	/**
-	 * Selector for choosing a Snak type. This will display all Snak types which can be displayed
-	 * by jQuery.snakview (this is the case if there is a jQuery.snakview.variations.Variation
-	 * object registered for a certain type of Snak).
-	 *
-	 * NOTE: Because this is tightly bound to the snakview variations, this can't be considered an
-	 *  independent wiki an thus should be considered part of the jQuery.wikibase.snakview rather
-	 *  than as a stand alone widget.
-	 *  There could also be some sort of generic menu widget. Menu items could be defined via some
-	 *  array of plain objects with label/key fields and this widget would be obsolete since all
-	 *  available variations could be given to such a widget without much overhead in code. This
-	 *  would also allow for an independent snak type selector widget which does not only list
-	 *  Snaks which are available as variation objects.
-	 *
+	 * Selector for choosing a `Snak` type offering to select from a list of all `Snak` types which
+	 * a `jQuery.snakview.variations.Variation` is registered for and, thus, can be displayed by a
+	 * `jQuery.wikibase.snakview`.
+	 * Because of being tightly bound to the `jQuery.wikibase.snakview.variations`, the widget is
+	 * considered part of the `jQuery.wikibase.snakview` rather than being a stand-alone widget.
+	 * @see jQuery.wikibase.snakview
+	 * @see jQuery.wikibase.snakview.variations
+	 * @see jQuery.wikibase.snakview.variations.Variation
+	 * @see wikibase.datamodel.Snak
+	 * @class jQuery.wikibase.snakview.SnakTypeSelector
+	 * @extends jQuery.Widget
 	 * @since 0.4
+	 * @licence GNU GPL v2+
+	 * @author H. Snater < mediawiki@snater.com >
+	 * @author Daniel Werner < daniel.werner@wikimedia.de >
 	 *
-	 * @event change Triggered when the snak type changed.
-	 *        (1) {jQuery.Event}
+	 * @constructor
+	 */
+	/**
+	 * @event change
+	 * Triggered when the `Snak` type changed.
+	 * @param {jQuery.Event} event
 	 */
 	$.widget( 'wikibase.SnakTypeSelector', PARENT, {
 		/**
-		 * Icon node.
-		 * @type {jQuery}
+		 * @property {jQuery}
+		 * @private
 		 */
-		$icon: null,
+		_$icon: null,
 
 		/**
-		 * The menu's Widget object
-		 * @type Object
+		 * @property {jQuery.ui.menu}
+		 * @private
 		 */
 		_menu: null,
 
 		/**
-		 * Will hold the function for removing global listeners if there are any. If not, this
-		 * will hold an empty function instead.
-		 * @type Function
+		 * The function for removing global event listeners, if there are any. Empty function if
+		 * no gloabel event listeners are registered.
+		 * @property {Function}
+		 * @private
 		 */
 		_unbindGlobalListenersFn: $.noop,
 
 		/**
 		 * @see jQuery.Widget._create
+		 * @protected
 		 */
 		_create: function() {
 			var self = this,
@@ -57,19 +59,15 @@
 
 			this._menu = $menu.data( 'menu' );
 
+			this._hoverable( this.element );
+
 			// TODO: add a title message
 			this.element
 			.addClass( 'ui-state-default ' + this.widgetBaseClass )
-			.on( 'mouseover.' + widgetName, function( event ) {
-				self.element.addClass( 'ui-state-hover' );
-			} )
-			.on( 'mouseout.' + widgetName, function( event ) {
-				self.element.removeClass( 'ui-state-hover' );
-			} )
 			.on( 'click.' + widgetName, function( event ) {
 				// don't show menu if selector is disabled!
 				// otherwise, simply toggle menu's visibility
-				if( self.isDisabled() || $menu.is( ':visible' ) ) {
+				if( self.options.disabled || $menu.is( ':visible' ) ) {
 					$menu.hide();
 					return;
 				}
@@ -100,7 +98,7 @@
 				$( window ).on( 'resize.' + widgetName, degrade );
 			} );
 
-			this.$icon = $( '<span/>' )
+			this._$icon = $( '<span/>' )
 				.addClass( 'ui-icon ui-icon-snaktypeselector' )
 				.appendTo( this.element );
 
@@ -123,9 +121,9 @@
 			this._menu.destroy();
 			$menu.remove();
 
-			this.$icon.remove();
+			this._$icon.remove();
 
-			this.element.removeClass( 'ui-state-default ui-state-hover ' + this.widgetBaseClass );
+			this.element.removeClass( 'ui-state-default ' + this.widgetBaseClass );
 
 			// remove event listeners responsible for closing this instance's menu:
 			this._unbindGlobalListenersFn();
@@ -134,36 +132,24 @@
 		},
 
 		/**
-		 * @see jQuery.Widget.disable
-		 * @since 0.4
+		 * @see jQuery.Widget._setOption
+		 * @protected
+		 *
+		 * @param {string} key
+		 * @param {*} value
+		 * @return {jQuery.Widget}
 		 */
-		disable: function() {
-			this._menu.element.hide();
-			this.element.removeClass( 'ui-state-active ui-state-hover' );
-			this.element.addClass( 'ui-state-disabled' );
-			return PARENT.prototype.disable.call( this );
+		_setOption: function( key, value ) {
+			if( key === 'disabled' && value ) {
+				this._menu.element.hide();
+				this.element.removeClass( 'ui-state-active' );
+			}
+			return PARENT.prototype._setOption.apply( this, arguments );
 		},
 
 		/**
-		 * @see jQuery.Widget.enable
-		 * @since 0.4
-		 */
-		enable: function() {
-			this.element.removeClass( 'ui-state-disabled' );
-			return PARENT.prototype.enable.call( this );
-		},
-
-		/**
-		 * Returns whether the widget is currently disabled.
-		 * @return 0.4
-		 */
-		isDisabled: function() {
-			return this.option( 'disabled' );
-		},
-
-		/**
-		 * Returns a DOM structure for the selector's menu where the Snak type can be chosen from.
-		 * @since 0.4
+		 * Returns a DOM structure for the selector's menu the `Snak` type can be chosen from.
+		 * @private
 		 *
 		 * @return jQuery
 		 */
@@ -191,12 +177,10 @@
 		},
 
 		/**
-		 * Returns the Snak type marked as selected. If the first parameter is set, it is has to
-		 * be a string and is considered the new Snak type.
-		 * @since 0.4
+		 * Gets the current `Snak` type or sets a new `Snak` type.
 		 *
 		 * @param {string|null} [snakType]
-		 * @return {string|null|undefined} undefined in case of using this as a setter.
+		 * @return {string|null|undefined}
 		 */
 		snakType: function( snakType ) {
 			if( snakType === undefined ) {
@@ -209,8 +193,8 @@
 		},
 
 		/**
-		 * Activates the given snak type while enabling all others.
-		 * @since 0.4
+		 * Activates a `Snak` type in the menu.
+		 * @private
 		 *
 		 * @param {string|null} snakType
 		 */
@@ -230,14 +214,13 @@
 		},
 
 		/**
-		 * Positions the menu.
-		 * @since 0.4
+		 * (Re-)aligns the menu.
 		 */
 		repositionMenu: function() {
 			var isRtl = $( 'body' ).hasClass( 'rtl' );
 
 			this._menu.element.position( {
-				of: this.$icon,
+				of: this._$icon,
 				my: ( isRtl ? 'right' : 'left' ) + ' top',
 				at: ( isRtl ? 'left' : 'right' ) + ' bottom',
 				offset: '0 1',

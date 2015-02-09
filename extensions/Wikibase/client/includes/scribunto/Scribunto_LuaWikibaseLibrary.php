@@ -1,9 +1,11 @@
 <?php
 
+use Wikibase\Client\Scribunto\EntityAccessor;
 use Wikibase\Client\Scribunto\WikibaseLuaBindings;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelLookup;
@@ -16,55 +18,113 @@ use Wikibase\Utils;
  *
  * @licence GNU GPL v2+
  * @author Jens Ohlig < jens.ohlig@wikimedia.de >
+ * @author Marius Hoch < hoo@online.de >
  */
 class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
 	/**
-	 * @var WikibaseLuaBindings
+	 * @var WikibaseLuaBindings|null
 	 */
-	private $wbLibrary;
+	private $luaBindings;
 
-	private function getImplementation() {
-		if ( !$this->wbLibrary ) {
-			$this->wbLibrary = $this->newImplementation();
+	/**
+	 * @var EntityAccessor
+	 */
+	private $entityAccessor;
+
+	/**
+	 * @var ParserOutputUsageAccumulator|null
+	 */
+	private $usageAccumulator = null;
+
+	/**
+	 * @var LanguageFallbackChain|null
+	 */
+	private $fallbackChain = null;
+
+	private function getLuaBindings() {
+		if ( !$this->luaBindings ) {
+			$this->luaBindings = $this->newLuaBindings();
 		}
 
-		return $this->wbLibrary;
+		return $this->luaBindings;
 	}
 
-	private function newImplementation() {
+	private function getEntityAccessor() {
+		if ( !$this->entityAccessor ) {
+			$this->entityAccessor = $this->newEntityAccessor();
+		}
+
+		return $this->entityAccessor;
+	}
+
+	private function getLanguage() {
 		// For the language we need $wgContLang, not parser target language or anything else.
 		// See Scribunto_LuaLanguageLibrary::getContLangCode().
 		global $wgContLang;
-		$language = $wgContLang;
+		return $wgContLang;
+	}
 
+	private function newEntityAccessor() {
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 
-		$entityLookup = $wikibaseClient->getStore()->getEntityLookup();
-
-		$fallbackChain = $wikibaseClient->getLanguageFallbackChainFactory()->newFromLanguage(
-			$language,
-			LanguageFallbackChainFactory::FALLBACK_SELF | LanguageFallbackChainFactory::FALLBACK_VARIANTS
+		return new EntityAccessor(
+			$wikibaseClient->getEntityIdParser(),
+			$wikibaseClient->getStore()->getEntityLookup(),
+			$this->getUsageAccumulator(),
+			$wikibaseClient->getPropertyDataTypeLookup(),
+			$this->getLanguageFallbackChain(),
+			$this->getLanguage(),
+			Utils::getLanguageCodes()
 		);
+	}
+
+	private function newLuaBindings() {
+		$wikibaseClient = WikibaseClient::getDefaultInstance();
+		$entityLookup = $wikibaseClient->getStore()->getEntityLookup();
 
 		$labelLookup = new LanguageFallbackLabelLookup(
 			new EntityRetrievingTermLookup( $entityLookup ),
-			$fallbackChain
+			$this->getLanguageFallbackChain()
 		);
 
 		return new WikibaseLuaBindings(
 			$wikibaseClient->getEntityIdParser(),
 			$entityLookup,
 			$wikibaseClient->getStore()->getSiteLinkLookup(),
-			$wikibaseClient->getLanguageFallbackChainFactory(),
-			$language,
 			$wikibaseClient->getSettings(),
-			$wikibaseClient->getPropertyDataTypeLookup(),
 			$labelLookup,
-			new ParserOutputUsageAccumulator( $this->getParser()->getOutput() ),
-			Utils::getLanguageCodes(),
+			$this->getUsageAccumulator(),
 			$wikibaseClient->getSettings()->getSetting( 'siteGlobalID' )
 		);
+	}
+
+	/**
+	 * @return LanguageFallbackChain
+	 */
+	private function getLanguageFallbackChain() {
+		if ( $this->fallbackChain === null ) {
+			$fallbackChainFactory = WikibaseClient::getDefaultInstance()->getLanguageFallbackChainFactory();
+
+			$this->fallbackChain = $fallbackChainFactory->newFromLanguage(
+				$this->getLanguage(),
+				LanguageFallbackChainFactory::FALLBACK_SELF | LanguageFallbackChainFactory::FALLBACK_VARIANTS
+			);
+		}
+
+		return $this->fallbackChain;
+	}
+
+	/**
+	 * @return ParserOutputUsageAccumulator
+	 */
+	private function getUsageAccumulator() {
+		if ( $this->usageAccumulator === null ) {
+			$parserOutput = $this->getParser()->getOutput();
+			$this->usageAccumulator = new ParserOutputUsageAccumulator( $parserOutput );
+		}
+
+		return $this->usageAccumulator;
 	}
 
 	/**
@@ -81,7 +141,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 			'getSetting' => array( $this, 'getSetting' ),
 			'getEntityId' => array( $this, 'getEntityId' ),
 			'getSiteLinkPageName' => array( $this, 'getSiteLinkPageName' ),
-			'getGlobalSiteId' => array( $this, 'getGlobalSiteId' )
 		);
 
 		return $this->getEngine()->registerInterface(
@@ -104,7 +163,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 		$this->checkType( 'getEntity', 1, $prefixedEntityId, 'string' );
 		$this->checkType( 'getEntity', 2, $legacyStyle, 'boolean' );
 		try {
-			$entityArr = $this->getImplementation()->getEntity( $prefixedEntityId, $legacyStyle );
+			$entityArr = $this->getEntityAccessor()->getEntity( $prefixedEntityId, $legacyStyle );
 			return array( $entityArr );
 		}
 		catch ( EntityIdParsingException $e ) {
@@ -126,18 +185,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 */
 	public function getEntityId( $pageTitle = null ) {
 		$this->checkType( 'getEntityByTitle', 1, $pageTitle, 'string' );
-		return array( $this->getImplementation()->getEntityId( $pageTitle ) );
-	}
-
-	/**
-	 * Wrapper for getGlobalSiteId in Scribunto_LuaWikibaseLibraryImplementation
-	 *
-	 * @since 0.5
-	 *
-	 * @return string[]
-	 */
-	public function getGlobalSiteId() {
-		return array( $this->getImplementation()->getGlobalSiteId() );
+		return array( $this->getLuaBindings()->getEntityId( $pageTitle ) );
 	}
 
 	/**
@@ -151,7 +199,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 */
 	public function getSetting( $setting ) {
 		$this->checkType( 'setting', 1, $setting, 'string' );
-		return array( $this->getImplementation()->getSetting( $setting ) );
+		return array( $this->getLuaBindings()->getSetting( $setting ) );
 	}
 
 	/**
@@ -165,7 +213,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 */
 	public function getLabel( $prefixedEntityId ) {
 		$this->checkType( 'getLabel', 1, $prefixedEntityId, 'string' );
-		return array( $this->getImplementation()->getLabel( $prefixedEntityId ) );
+		return array( $this->getLuaBindings()->getLabel( $prefixedEntityId ) );
 	}
 
 	/**
@@ -179,6 +227,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 */
 	public function getSiteLinkPageName( $prefixedEntityId ) {
 		$this->checkType( 'getSiteLinkPageName', 1, $prefixedEntityId, 'string' );
-		return array( $this->getImplementation()->getSiteLinkPageName( $prefixedEntityId ) );
+		return array( $this->getLuaBindings()->getSiteLinkPageName( $prefixedEntityId ) );
 	}
 }

@@ -4,6 +4,7 @@ namespace Wikibase\Api;
 
 use ApiBase;
 use ApiMain;
+use Site;
 use SiteList;
 use Status;
 use Wikibase\DataModel\Entity\Item;
@@ -71,11 +72,13 @@ class LinkTitles extends ApiWikibase {
 		// Sites are already tested through allowed params ;)
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 
+		/** @var Site $fromSite */
 		list( $fromSite, $fromPage ) = $this->getSiteAndNormalizedPageName(
 			$sites,
 			$params['fromsite'],
 			$params['fromtitle']
 		);
+		/** @var Site $toSite */
 		list( $toSite, $toPage ) = $this->getSiteAndNormalizedPageName(
 			$sites,
 			$params['tosite'],
@@ -153,6 +156,8 @@ class LinkTitles extends ApiWikibase {
 	 * @param SiteList $sites
 	 * @param string $site
 	 * @param string $pageTitle
+	 *
+	 * @return array( Site $site, string $pageName )
 	 */
 	private function getSiteAndNormalizedPageName( SiteList $sites, $site, $pageTitle ) {
 		$siteObj = $sites->getSite( $site );
@@ -212,13 +217,9 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
-	 * Returns an array of allowed parameters (parameter name) => (default
-	 * value) or (parameter name) => (array with PARAM_* constants as keys)
-	 * Don't call this function directly: use getFinalParams() to allow
-	 * hooks to modify parameters as needed.
-	 * @return array|bool
+	 * @see ApiBase::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 		return array_merge( parent::getAllowedParams(), array(
 			'tosite' => array(
