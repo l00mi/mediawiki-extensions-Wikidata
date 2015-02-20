@@ -11,6 +11,12 @@ use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\ItemView
+ * @covers Wikibase\Repo\View\EntityView
+ *
+ * @uses Wikibase\Repo\View\TextInjector
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
  *
  * @group Wikibase
  * @group WikibaseItemView
@@ -49,7 +55,7 @@ class ItemViewTest extends EntityViewTest {
 	public function provideTestGetHtml() {
 		$itemView = new ItemView(
 			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
-			$this->getMockBuilder( 'Wikibase\Repo\View\FingerprintView' )
+			$this->getMockBuilder( 'Wikibase\Repo\View\EntityTermsView' )
 				->disableOriginalConstructor()
 				->getMock(),
 			$this->getMockBuilder( 'Wikibase\Repo\View\StatementGroupListView' )

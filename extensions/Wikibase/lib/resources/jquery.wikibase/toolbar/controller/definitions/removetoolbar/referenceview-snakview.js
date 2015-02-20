@@ -11,9 +11,9 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	id: 'referenceview-snakview',
 	selector: '.wikibase-statementview-references .wikibase-referenceview',
 	events: {
-		'snakviewafterstartediting snakviewchange referenceviewitemremoved': function( event, toolbarController ) {
-			var $target = $( event.target ),
-				$referenceview = $target.closest( ':wikibase-referenceview' ),
+		'snakviewafterstartediting snakviewchange': function( event, toolbarcontroller ) {
+			var $snakview = $( event.target ),
+				$referenceview = $snakview.closest( ':wikibase-referenceview' ),
 				referenceview = $referenceview.data( 'referenceview' );
 
 			if( !referenceview ) {
@@ -21,33 +21,38 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 			}
 
 			if ( event.type === 'snakviewafterstartediting' ) {
-				var $snaklistview = $target.closest( ':wikibase-snaklistview' ),
+				var $snaklistview = $snakview.closest( ':wikibase-snaklistview' ),
 					snaklistview = $snaklistview.data( 'snaklistview' ),
 					snakviewPropertyGroupListview = snaklistview._listview;
 
-				$target.removetoolbar( {
-					$container: $( '<div/>' ).appendTo( $target )
+				$snakview.removetoolbar( {
+					$container: $( '<div/>' ).appendTo( $snakview )
 				} )
 				.on( 'removetoolbarremove.removetoolbar', function( event ) {
-					if( event.target === $target.get( 0 ) ) {
-						snakviewPropertyGroupListview.removeItem( $target );
+					if( event.target === $snakview[0] ) {
+						snakviewPropertyGroupListview.removeItem( $snakview );
 					}
 				} );
 
-				toolbarController.registerEventHandler(
+				toolbarcontroller.registerEventHandler(
 					event.data.toolbar.type,
 					event.data.toolbar.id,
 					'referenceviewafterstopediting',
 					function( event, toolbarcontroller ) {
 						// Destroy the snakview toolbars:
 						var $referenceviewNode = $( event.target );
-						$.each( $referenceviewNode.find( '.wikibase-snakview' ), function( i, snakviewNode ) {
-							toolbarcontroller.destroyToolbar( $( snakviewNode ).data( 'removetoolbar' ) );
-						} );
+						$.each(
+							$referenceviewNode.find( '.wikibase-snakview' ),
+							function( i, snakviewNode ) {
+								toolbarcontroller.destroyToolbar(
+									$( snakviewNode ).data( 'removetoolbar' )
+								);
+							}
+						);
 					}
 				);
 
-				toolbarController.registerEventHandler(
+				toolbarcontroller.registerEventHandler(
 					event.data.toolbar.type,
 					event.data.toolbar.id,
 					'referenceviewdisable listviewitemremoved',
@@ -62,8 +67,9 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 							return;
 						}
 
-						var $snaklistviews = referenceview._listview.items(),
-							lia = referenceview.options.listItemAdapter;
+						var listview = referenceview.$listview.data( 'listview' ),
+							lia = listview.listItemAdapter(),
+							$snaklistviews = listview.items();
 
 						for( var i = 0; i < $snaklistviews.length; i++ ) {
 							var snaklistview = lia.liInstance( $snaklistviews.eq( i ) );
@@ -93,23 +99,26 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 			}
 
 			// If there is only one snakview widget, disable its "remove" link:
-			if( referenceview._listview.items().length === 0 ) {
+			var $listview = referenceview.$listview,
+				listview = $listview.data( 'listview' ),
+				lia = listview.listItemAdapter(),
+				$snaklistviews = listview.items();
+
+			if( !$snaklistviews.length ) {
 				return;
 			}
 
-			var $snaklistviews = referenceview._listview.items(),
-				$firstSnaklistview = $snaklistviews.first(),
-				referenceviewLia = referenceview.options.listItemAdapter,
-				firstSnaklistview = referenceviewLia.liInstance( $firstSnaklistview ),
+			var $firstSnaklistview = $snaklistviews.first(),
+				firstSnaklistview = lia.liInstance( $firstSnaklistview ),
 				$firstSnakview = firstSnaklistview.$listview.data( 'listview' ).items().first(),
 				removetoolbar = $firstSnakview.data( 'removetoolbar' ),
 				numberOfSnakviews = 0;
 
 			for( var i = 0; i < $snaklistviews.length; i++ ) {
-				var snaklistviewWidget = referenceviewLia.liInstance( $snaklistviews.eq( i ) ),
-					snaklistviewListview = snaklistviewWidget._listview,
+				var snaklistviewWidget = lia.liInstance( $snaklistviews.eq( i ) ),
+					snaklistviewListview = snaklistviewWidget.$listview.data( 'listview' ),
 					snaklistviewListviewLia = snaklistviewListview.listItemAdapter(),
-					$snakviews = snaklistviewWidget._listview.items();
+					$snakviews = snaklistviewListview.items();
 
 				for( var j = 0; j < $snakviews.length; j++ ) {
 					var snakview = snaklistviewListviewLia.liInstance( $snakviews.eq( j ) );

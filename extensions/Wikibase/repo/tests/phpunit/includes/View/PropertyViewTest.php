@@ -15,6 +15,12 @@ use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\PropertyView
+ * @covers Wikibase\Repo\View\EntityView
+ *
+ * @uses Wikibase\Repo\View\TextInjector
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
  *
  * @group Wikibase
  * @group WikibasePropertyView
@@ -79,7 +85,7 @@ class PropertyViewTest extends EntityViewTest {
 	public function provideTestGetHtml() {
 		$propertyView = new PropertyView(
 			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
-			$this->getMockBuilder( 'Wikibase\Repo\View\FingerprintView' )
+			$this->getMockBuilder( 'Wikibase\Repo\View\EntityTermsView' )
 				->disableOriginalConstructor()
 				->getMock(),
 			$this->getMockBuilder( 'Wikibase\Repo\View\StatementGroupListView' )

@@ -13,6 +13,7 @@
  */
 var createStatementgrouplistview = function( options, $node ) {
 	options = $.extend( {
+		claimGuidGenerator: 'I am a ClaimGuidGenerator',
 		entityStore: {
 			get: function () {
 				return $.Deferred().resolve().promise();
@@ -174,9 +175,10 @@ QUnit.test( 'enterNewItem & save', function( assert ) {
 		statementgroupview = statementgrouplistviewListviewLia.liInstance( $statementgroupview ),
 		$statementlistview = statementgroupview.$statementlistview;
 
-	$statementlistview.find( ':wikibase-snakview' ).data( 'snakview' ).value(
-		new wb.datamodel.PropertyNoValueSnak( 'P1' )
-	);
+	// Simulate having altered snakview's value:
+	$statementlistview.find( ':wikibase-snakview' ).data( 'snakview' ).snak = function() {
+		return new wb.datamodel.PropertyNoValueSnak( 'P1' );
+	};
 
 	assert.ok(
 		$statementgroupview.hasClass( 'wb-new' ),

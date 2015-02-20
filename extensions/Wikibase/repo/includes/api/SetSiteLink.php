@@ -29,7 +29,7 @@ class SetSiteLink extends ModifyEntity {
 	/**
 	 * @var SiteLinkChangeOpFactory
 	 */
-	protected $siteLinkChangeOpFactory;
+	private $siteLinkChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -44,14 +44,13 @@ class SetSiteLink extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * Checks whether the link should be removed based on params
 	 *
 	 * @param array $params
+	 *
 	 * @return bool
 	 */
-	protected function shouldRemove( array $params ) {
+	private function shouldRemove( array $params ) {
 		if ( $params['linktitle'] === '' || ( !isset( $params['linktitle'] ) && !isset( $params['badges'] ) ) ) {
 			return true;
 		} else {
@@ -74,7 +73,7 @@ class SetSiteLink extends ModifyEntity {
 	}
 
 	/**
-	 * @see ApiModifyEntity::modifyEntity()
+	 * @see ModifyEntity::modifyEntity
 	 */
 	protected function modifyEntity( Entity &$entity, array $params, $baseRevId ) {
 		wfProfileIn( __METHOD__ );
@@ -115,12 +114,11 @@ class SetSiteLink extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $params
+	 *
 	 * @return ChangeOpSiteLink
 	 */
-	protected function getChangeOp( array $params ) {
+	private function getChangeOp( array $params ) {
 		wfProfileIn( __METHOD__ );
 		if ( $this->shouldRemove( $params ) ) {
 			$linksite = $this->stringNormalizer->trimToNFC( $params['linksite'] );
@@ -181,9 +179,7 @@ class SetSiteLink extends ModifyEntity {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

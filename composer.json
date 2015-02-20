@@ -14,7 +14,7 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "propertysuggester/property-suggester": "~2.0.5",
+        "propertysuggester/property-suggester": "~2.0.6",
         "wikibase/wikibase": "dev-master",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
@@ -32,6 +32,7 @@
         "github-oauth":{
             "github.com":"845d568f46a682fbf7fc5f92ed9397fc4ebdc072"
         },
-        "prepend-autoloader": false
+        "prepend-autoloader": false,
+        "preferred-install": "dist"
     }
 }

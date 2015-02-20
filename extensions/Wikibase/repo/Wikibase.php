@@ -64,7 +64,7 @@ if ( !defined( 'WBL_VERSION' ) ) {
 
 call_user_func( function() {
 	global $wgExtensionCredits, $wgGroupPermissions, $wgExtensionMessagesFiles, $wgMessagesDirs;
-	global $wgAPIModules, $wgSpecialPages, $wgHooks;
+	global $wgAPIModules, $wgSpecialPages, $wgHooks, $wgAvailableRights;
 	global $wgWBRepoSettings, $wgResourceModules, $wgValueParsers, $wgJobClasses;
 
 	$wgExtensionCredits['wikibase'][] = array(
@@ -89,6 +89,12 @@ call_user_func( function() {
 	$wgGroupPermissions['*']['item-merge']			= true;
 	$wgGroupPermissions['*']['item-redirect']		= true;
 	$wgGroupPermissions['*']['property-create']		= true;
+
+	$wgAvailableRights[] = 'item-term';
+	$wgAvailableRights[] = 'property-term';
+	$wgAvailableRights[] = 'item-merge';
+	$wgAvailableRights[] = 'item-redirect';
+	$wgAvailableRights[] = 'property-create';
 
 	// i18n
 	$wgMessagesDirs['Wikibase']                         = __DIR__ . '/i18n';
@@ -150,6 +156,7 @@ call_user_func( function() {
 	$wgSpecialPages['SetLabel'] 						= 'Wikibase\Repo\Specials\SpecialSetLabel';
 	$wgSpecialPages['SetDescription'] 					= 'Wikibase\Repo\Specials\SpecialSetDescription';
 	$wgSpecialPages['SetAliases'] 						= 'Wikibase\Repo\Specials\SpecialSetAliases';
+	$wgSpecialPages['SetLabelDescriptionAliases'] 		= 'Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases';
 	$wgSpecialPages['SetSiteLink']						= 'Wikibase\Repo\Specials\SpecialSetSiteLink';
 	$wgSpecialPages['EntitiesWithoutLabel'] 			= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutLabel' );
 	$wgSpecialPages['EntitiesWithoutDescription']		= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutDescription' );

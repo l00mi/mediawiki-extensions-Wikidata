@@ -3,11 +3,14 @@
 namespace Wikibase\Test;
 
 use MediaWikiSite;
+use MediaWikiTestCase;
+use PHPUnit_Framework_TestCase;
 use SiteList;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Repo\View\SectionEditLinkGenerator;
 use Wikibase\Repo\View\SiteLinksView;
@@ -17,6 +20,10 @@ use Wikibase\Template\TemplateRegistry;
 /**
  * @covers Wikibase\Repo\View\SiteLinksView
  *
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
+ *
  * @group Wikibase
  * @group WikibaseRepo
  *
@@ -24,7 +31,7 @@ use Wikibase\Template\TemplateRegistry;
  * @author Adrian Lang <adrian.lang@wikimedia.de>
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
+class SiteLinksViewTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider getHtmlProvider
@@ -34,7 +41,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 
 		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups, $editable );
 		$this->assertInternalType( 'string', $value );
-		\MediaWikiTestCase::assertTag( $expectedValue, $value, $value . ' did not match ' . var_export( $expectedValue, true ) );
+		MediaWikiTestCase::assertTag( $expectedValue, $value, $value . ' did not match ' . var_export( $expectedValue, true ) );
 	}
 
 	public function getHtmlProvider() {
@@ -167,7 +174,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 			false,
 		);
 
-		$newItem = Item::newEmpty();
+		$newItem = new Item();
 
 		// item with no id, as happens with new items
 		$testCases[] = array(
@@ -189,6 +196,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 			$this->newSiteList(),
 			$this->getSectionEditLinkGeneratorMock(),
 			$this->getEntityLookupMock(),
+			new LanguageNameLookup(),
 			array(
 				'Q42' => 'wb-badge-featuredarticle',
 				'Q12' => 'wb-badge-goodarticle'
@@ -251,7 +259,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 			->method( 'getEntity' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				if ( $id->getSerialization() === 'Q42' ) {
-					$item = Item::newEmpty();
+					$item = new Item();
 					$item->setLabel( 'en', 'Featured article' );
 					return $item;
 				}

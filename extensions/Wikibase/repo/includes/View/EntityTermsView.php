@@ -8,8 +8,8 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\TermList;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Template\TemplateFactory;
-use Wikibase\Utils;
 
 /**
  * Generates HTML to display the fingerprint of an entity
@@ -22,7 +22,7 @@ use Wikibase\Utils;
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
  */
-class FingerprintView {
+class EntityTermsView {
 
 	/**
 	 * @var TemplateFactory
@@ -40,18 +40,26 @@ class FingerprintView {
 	private $languageCode;
 
 	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
+
+	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param SectionEditLinkGenerator|null $sectionEditLinkGenerator
+	 * @param LanguageNameLookup $languageNameLookup
 	 * @param string $languageCode
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
 		SectionEditLinkGenerator $sectionEditLinkGenerator = null,
+		LanguageNameLookup $languageNameLookup,
 		$languageCode
 	) {
 		$this->sectionEditLinkGenerator = $sectionEditLinkGenerator;
 		$this->languageCode = $languageCode;
 		$this->templateFactory = $templateFactory;
+		$this->languageNameLookup = $languageNameLookup;
 	}
 
 	/**
@@ -85,7 +93,7 @@ class FingerprintView {
 			$textInjector->newMarker(
 				'entityViewPlaceholder-entitytermsview-entitytermsforlanguagelistview-class'
 			),
-			$this->getHtmlForEditSection( 'SetLabel', $entityId, $editable )
+			$this->getHtmlForEditSection( 'SetLabelDescriptionAliases', $entityId, $editable )
 		);
 	}
 
@@ -151,7 +159,7 @@ class FingerprintView {
 
 	/**
 	 * @param Fingerprint $fingerprint
-	 * @param string[] $languageCodes
+	 * @param string[] $languageCodes The languages the user requested to be shown
 	 * @param Title|null $title
 	 * @param boolean $showEntitytermslistview
 	 *
@@ -214,7 +222,7 @@ class FingerprintView {
 				is_null( $title )
 					? '#'
 					: $title->getLocalURL( array( 'setlang' => $languageCode ) ),
-				htmlspecialchars( Utils::fetchLanguageName( $languageCode ) )
+				htmlspecialchars( $this->languageNameLookup->getName( $languageCode, $this->languageCode ) )
 			),
 			$this->templateFactory->render( 'wikibase-labelview',
 				$hasLabel ? '' : 'wb-empty',

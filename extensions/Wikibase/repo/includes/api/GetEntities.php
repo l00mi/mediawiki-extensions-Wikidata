@@ -14,7 +14,6 @@ use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StringNormalizer;
-use Wikibase\Utils;
 
 /**
  * API module to get the data for one or more Wikibase entities.
@@ -32,12 +31,12 @@ class GetEntities extends ApiWikibase {
 	/**
 	 * @var StringNormalizer
 	 */
-	protected $stringNormalizer;
+	private $stringNormalizer;
 
 	/**
 	 * @var LanguageFallbackChainFactory
 	 */
-	protected $languageFallbackChainFactory;
+	private $languageFallbackChainFactory;
 
 	/**
 	 * @var SiteLinkTargetProvider
@@ -45,11 +44,9 @@ class GetEntities extends ApiWikibase {
 	private $siteLinkTargetProvider;
 
 	/**
-	 * @since 0.5
-	 *
-	 * @var array
+	 * @var string[]
 	 */
-	protected $siteLinkGroups;
+	private $siteLinkGroups;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -114,7 +111,7 @@ class GetEntities extends ApiWikibase {
 	 *
 	 * @return EntityId[]
 	 */
-	protected function getEntityIdsFromParams( array $params ) {
+	private function getEntityIdsFromParams( array $params ) {
 		$fromIds = $this->getEntityIdsFromIdParam( $params );
 		$fromSiteTitleCombinations = $this->getItemIdsFromSiteTitleParams( $params );
 		$ids = array_merge( $fromIds, $fromSiteTitleCombinations );
@@ -180,13 +177,11 @@ class GetEntities extends ApiWikibase {
 	/**
 	 * Returns props based on request parameters
 	 *
-	 * @since 0.5
-	 *
 	 * @param array $params
 	 *
 	 * @return array
 	 */
-	protected function getPropsFromParams( $params ) {
+	private function getPropsFromParams( $params ) {
 		if ( in_array( 'sitelinks/urls', $params['props'] ) ) {
 			$params['props'][] = 'sitelinks';
 		}
@@ -200,7 +195,7 @@ class GetEntities extends ApiWikibase {
 	 *
 	 * @return EntityRevision[]
 	 */
-	protected function getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects = false ) {
+	private function getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects = false ) {
 		$revisionArray = array();
 
 		foreach ( $entityIds as $entityId ) {
@@ -241,7 +236,7 @@ class GetEntities extends ApiWikibase {
 	 * @param EntityRevision|null $entityRevision
 	 * @param array $params
 	 */
-	protected function handleEntity( $key, EntityRevision $entityRevision = null, array $params = array() ) {
+	private function handleEntity( $key, EntityRevision $entityRevision = null, array $params = array() ) {
 		wfProfileIn( __METHOD__ );
 
 		if ( $entityRevision === null ) {
@@ -319,7 +314,7 @@ class GetEntities extends ApiWikibase {
 				ApiBase::PARAM_ISMULTI => true,
 			),
 			'languages' => array(
-				ApiBase::PARAM_TYPE => Utils::getLanguageCodes(),
+				ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
 				ApiBase::PARAM_ISMULTI => true,
 			),
 			'languagefallback' => array(
@@ -343,9 +338,7 @@ class GetEntities extends ApiWikibase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

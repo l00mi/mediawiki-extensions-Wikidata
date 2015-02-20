@@ -1,17 +1,17 @@
 [
     {
         "name": "composer/installers",
-        "version": "v1.0.20",
-        "version_normalized": "1.0.20.0",
+        "version": "v1.0.21",
+        "version_normalized": "1.0.21.0",
         "source": {
             "type": "git",
             "url": "https://github.com/composer/installers.git",
-            "reference": "1bff8aa77a18f3616f468ed8000cf86a5725bac3"
+            "reference": "d64e23fce42a4063d63262b19b8e7c0f3b5e4c45"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/1bff8aa77a18f3616f468ed8000cf86a5725bac3",
-            "reference": "1bff8aa77a18f3616f468ed8000cf86a5725bac3",
+            "url": "https://api.github.com/repos/composer/installers/zipball/d64e23fce42a4063d63262b19b8e7c0f3b5e4c45",
+            "reference": "d64e23fce42a4063d63262b19b8e7c0f3b5e4c45",
             "shasum": ""
         },
         "replace": {
@@ -22,7 +22,7 @@
             "composer/composer": "1.0.*@dev",
             "phpunit/phpunit": "4.1.*"
         },
-        "time": "2015-01-11 03:51:11",
+        "time": "2015-02-18 17:17:01",
         "type": "composer-installer",
         "extra": {
             "class": "Composer\\Installers\\Installer",
@@ -59,6 +59,7 @@
             "Thelia",
             "WolfCMS",
             "agl",
+            "aimeos",
             "annotatecms",
             "bitrix",
             "cakephp",
@@ -97,17 +98,17 @@
     },
     {
         "name": "propertysuggester/property-suggester",
-        "version": "2.0.5",
-        "version_normalized": "2.0.5.0",
+        "version": "2.0.6",
+        "version_normalized": "2.0.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "482496ef805ca7d8fb7621649f0ed99704edf0a5"
+            "reference": "bfb69b3b39075b321538e8cbd59e4c886f202de8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/482496ef805ca7d8fb7621649f0ed99704edf0a5",
-            "reference": "482496ef805ca7d8fb7621649f0ed99704edf0a5",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/bfb69b3b39075b321538e8cbd59e4c886f202de8",
+            "reference": "bfb69b3b39075b321538e8cbd59e4c886f202de8",
             "shasum": ""
         },
         "require": {
@@ -117,7 +118,7 @@
             "phpunit/phpunit": "3.7.*",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2015-01-29 10:33:56",
+        "time": "2015-02-20 16:43:12",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -542,23 +543,23 @@
     },
     {
         "name": "data-values/interfaces",
-        "version": "0.1.4",
-        "version_normalized": "0.1.4.0",
+        "version": "0.1.5",
+        "version_normalized": "0.1.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "38a04aede894929d822001e5e8851f4a08454a89"
+            "reference": "f563e6a55547046070e3d79b5662b620005558d8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/38a04aede894929d822001e5e8851f4a08454a89",
-            "reference": "38a04aede894929d822001e5e8851f4a08454a89",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/f563e6a55547046070e3d79b5662b620005558d8",
+            "reference": "f563e6a55547046070e3d79b5662b620005558d8",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-04-14 08:17:48",
+        "time": "2015-02-14 02:37:02",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1226,12 +1227,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "7d875b4542dc139bc347b815d6c6c51b74ed9799"
+            "reference": "25502a067c6bbf902ffadda7c7dbf618079a97fb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7d875b4542dc139bc347b815d6c6c51b74ed9799",
-            "reference": "7d875b4542dc139bc347b815d6c6c51b74ed9799",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/25502a067c6bbf902ffadda7c7dbf618079a97fb",
+            "reference": "25502a067c6bbf902ffadda7c7dbf618079a97fb",
             "shasum": ""
         },
         "require": {
@@ -1259,7 +1260,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-02-08 20:51:14",
+        "time": "2015-02-20 15:24:28",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

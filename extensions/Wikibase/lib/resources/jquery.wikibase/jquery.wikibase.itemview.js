@@ -11,6 +11,7 @@ var PARENT = $.wikibase.entityview;
  * @uses jQuery.wikibase.statementgrouplistview
  * @uses jQuery.wikibase.statementgrouplabelscroll
  * @uses jQuery.wikibase.sitelinkgrouplistview
+ * @uses wikibase.utilities.ClaimGuidGenerator
  * @since 0.5
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
@@ -29,23 +30,40 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 * @protected
 	 */
 	_create: function() {
+		this._createEntityview();
+
+		this.$statements = $( '.wikibase-statementgrouplistview', this.element ).first();
+		if( this.$statements.length === 0 ) {
+			this.$statements = $( '<div/>' ).appendTo( this.element );
+		}
+
+		this.$siteLinks = $( '.wikibase-sitelinkgrouplistview', this.element );
+
+		if( !this.$siteLinks.length ) {
+			this.$siteLinks = $( '<div/>' ).appendTo( this.element );
+		}
+	},
+
+	/**
+	 * @inheritdoc
+	 * @protected
+	 */
+	_init: function() {
 		this._initStatements();
 		this._initSiteLinks();
-		this._initEntityview();
+		PARENT.prototype._init.call( this );
 	},
 
 	/**
 	 * @protected
 	 */
 	_initStatements: function() {
-		this.$statements = $( '.wikibase-statementgrouplistview', this.element ).first();
-		if( this.$statements.length === 0 ) {
-			this.$statements = $( '<div/>' ).appendTo( this.element );
-		}
+		var claimGuidGenerator = new wb.utilities.ClaimGuidGenerator( this.options.value.getId() );
 
 		this.$statements
 		.statementgrouplistview( {
 			value: this.options.value.getStatements(),
+			claimGuidGenerator: claimGuidGenerator,
 			dataTypeStore: this.option( 'dataTypeStore' ),
 			entityType: this.options.value.getType(),
 			entityStore: this.options.entityStore,
@@ -66,16 +84,9 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 */
 	_initSiteLinks: function() {
 		var self = this,
-			value = [];
-
-		this.$siteLinks = $( '.wikibase-sitelinkgrouplistview', this.element );
-
-		if( this.$siteLinks.length ) {
-			value = scrapeSiteLinks( this.$siteLinks, this.options.value.getSiteLinks() );
-		} else {
-			this.$siteLinks = $( '<div/>' ).appendTo( this.element );
-			value = orderSiteLinksByGroup( this.options.value.getSiteLinks() );
-		}
+			value = $( '.wikibase-sitelinkgrouplistview', this.element ).length
+				? scrapeSiteLinks( this.$siteLinks, this.options.value.getSiteLinks() )
+				: orderSiteLinksByGroup( this.options.value.getSiteLinks() );
 
 		this.$siteLinks.sitelinkgrouplistview( {
 			value: value,

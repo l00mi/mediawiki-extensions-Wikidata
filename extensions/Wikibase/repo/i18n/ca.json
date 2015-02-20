@@ -12,7 +12,9 @@
 			"Vriullop",
 			"පසිඳු කාවින්ද",
 			"Fitoschido",
-			"Davidpar"
+			"Davidpar",
+			"Macofe",
+			"Joan manel"
 		]
 	},
 	"wikibase-desc": "Repositori de dades estructurades",
@@ -27,6 +29,11 @@
 	"wikibase-addreference": "afegiu una referència",
 	"wikibase-save-inprogress": "S'està desant…",
 	"wikibase-remove-inprogress": "S'està suprimint…",
+	"wikibase-entitytermsview-entitytermsforlanguagelistview-toggler": "En més idiomes",
+	"wikibase-entitytermsforlanguagelistview-aliases": "També conegut com",
+	"wikibase-entitytermsforlanguagelistview-description": "Descripció",
+	"wikibase-entitytermsforlanguagelistview-label": "Etiqueta",
+	"wikibase-entitytermsforlanguagelistview-language": "Llengua",
 	"wikibase-label-empty": "Encara no s'ha definit cap etiqueta.",
 	"wikibase-label-edit-placeholder": "introduïu una etiqueta",
 	"wikibase-label-edit-placeholder-language-aware": "introduïu una etiqueta en $1",
@@ -64,7 +71,8 @@
 	"wikibase-propertypage-datatype": "Tipus de dades",
 	"wikibase-claimview-snak-tooltip": "Introduïu un valor corresponent a la propietat anomenada \"$1\". Si la propietat no té cap valor designat, o si el valor real no es coneix, podeu triar una alternativa per indicar un valor personalitzat fent clic a la icona al costat de la caixa d'entrada del valor.",
 	"wikibase-claimview-snak-new-tooltip": "Després d'especificar una propietat podeu introduir-ne el valor corresponent. Si la propietat no té cap valor designat, o si el valor real no es coneix, podeu triar una alternativa per indicar un valor personalitzat fent clic a la icona al costat de la caixa d'entrada del valor.",
-	"wikibase-statementview-referencesheading-pendingcountersubject": "{{PLURAL:$1|font|fonts}}",
+	"wikibase-statementview-rank-normal": "Rang normal",
+	"wikibase-statementview-referencesheading-pendingcountersubject": "{{PLURAL:$1|referència|referències}}",
 	"wikibase-statementview-referencesheading-pendingcountertooltip": "{{PLURAL:$1|Una font|$1 fonts}} no s'han desat encara",
 	"wikibase-snakview-property-input-placeholder": "propietat",
 	"wikibase-snakview-choosesnaktype": "Trieu un tipus de valor.",

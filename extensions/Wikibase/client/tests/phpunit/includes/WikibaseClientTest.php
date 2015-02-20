@@ -151,6 +151,11 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf( 'Wikibase\Lib\OutputFormatValueFormatterFactory', $returnValue );
 	}
 
+	public function testGetDeserializerFactoryReturnType() {
+		$returnValue = $this->getWikibaseClient()->getDeserializerFactory();
+		$this->assertInstanceOf( 'Wikibase\DataModel\DeserializerFactory', $returnValue );
+	}
+
 	public function testGetLanguageLinkBadgeDisplay() {
 		$returnValue = $this->getWikibaseClient()->getLanguageLinkBadgeDisplay();
 		$this->assertInstanceOf( 'Wikibase\Client\Hooks\LanguageLinkBadgeDisplay', $returnValue );
@@ -182,7 +187,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf( 'Wikibase\Lib\Store\EntityContentDataCodec', $codec );
 
 		$this->setExpectedException( 'RuntimeException' );
-		$codec->encodeEntity( Item::newEmpty(), CONTENT_FORMAT_JSON );
+		$codec->encodeEntity( new Item(), CONTENT_FORMAT_JSON );
 	}
 
 	public function testGetInternalEntityDeserializer() {
@@ -205,10 +210,15 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf( 'Wikibase\Client\Hooks\ParserFunctionRegistrant', $registrant );
 	}
 
-    public function testGetPropertyParserFunctionRunner() {
-        $runner = $this->getWikibaseClient()->getPropertyParserFunctionRunner();
-        $this->assertInstanceOf( 'Wikibase\DataAccess\PropertyParserFunction\Runner', $runner );
-    }
+	public function testGetPropertyParserFunctionRunner() {
+		$runner = $this->getWikibaseClient()->getPropertyParserFunctionRunner();
+		$this->assertInstanceOf( 'Wikibase\DataAccess\PropertyParserFunction\Runner', $runner );
+	}
+
+	public function testGetTermsLanguages() {
+		$langs = $this->getWikibaseClient()->getTermsLanguages();
+		$this->assertInstanceOf( 'Wikibase\Lib\ContentLanguages', $langs );
+	}
 
 	/**
 	 * @return WikibaseClient

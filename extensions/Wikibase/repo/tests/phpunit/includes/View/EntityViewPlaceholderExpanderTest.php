@@ -9,12 +9,19 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\StorageException;
+use Wikibase\Lib\LanguageNameLookup;
+use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Repo\View\EntityViewPlaceholderExpander;
 use Wikibase\Template\TemplateFactory;
 use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\EntityViewPlaceholderExpander
+ *
+ * @uses Wikibase\Repo\View\EntityTermsView
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
  *
  * @group Wikibase
  * @group WikibaseRepo
@@ -60,7 +67,9 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 			$language,
 			$idParser,
 			$entityRevisionLookup,
-			$userLanguages
+			$userLanguages,
+			new WikibaseContentLanguages(),
+			new LanguageNameLookup()
 		);
 	}
 

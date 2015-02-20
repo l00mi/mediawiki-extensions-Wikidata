@@ -12,6 +12,7 @@ use ValueFormatters\DecimalFormatter;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\QuantityFormatter;
 use ValueFormatters\ValueFormatter;
+use Wikibase\Formatters\MonolingualHtmlFormatter;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -40,6 +41,11 @@ class WikibaseValueFormatterBuilders {
 	 * @var EntityTitleLookup|null
 	 */
 	private $entityTitleLookup;
+
+	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
 
 	/**
 	 * This determines which value is formatted how by providing a formatter mapping
@@ -92,7 +98,7 @@ class WikibaseValueFormatterBuilders {
 			'PT:wikibase-item' =>  array( 'this', 'newEntityIdHtmlFormatter' ),
 			'PT:wikibase-property' => array( 'this', 'newEntityIdHtmlFormatter' ),
 			'VT:time' => array( 'this', 'newHtmlTimeFormatter' ),
-			'VT:monolingualtext' => 'Wikibase\Formatters\MonolingualHtmlFormatter',
+			'VT:monolingualtext' => array( 'this', 'newMonolingualHtmlFormatter' ),
 		),
 
 		// Formatters to use for HTML widgets.
@@ -109,13 +115,21 @@ class WikibaseValueFormatterBuilders {
 		),
 	);
 
+	/**
+	 * @param Language $defaultLanguage
+	 * @param FormatterLabelLookupFactory $labelLookupFactory
+	 * @param LanguageNameLookup $languageNameLookup
+	 * @param EntityTitleLookup|null $entityTitleLookup
+	 */
 	public function __construct(
 		Language $defaultLanguage,
 		FormatterLabelLookupFactory $labelLookupFactory,
+		LanguageNameLookup $languageNameLookup,
 		EntityTitleLookup $entityTitleLookup = null
 	) {
 		$this->defaultLanguage = $defaultLanguage;
 		$this->labelLookupFactory = $labelLookupFactory;
+		$this->languageNameLookup = $languageNameLookup;
 		$this->entityTitleLookup = $entityTitleLookup;
 	}
 
@@ -533,7 +547,12 @@ class WikibaseValueFormatterBuilders {
 			);
 		}
 
-		return new EntityIdHtmlLinkFormatter( $options, $labelLookup, $this->entityTitleLookup );
+		return new EntityIdHtmlLinkFormatter(
+			$options,
+			$labelLookup,
+			$this->entityTitleLookup,
+			$this->languageNameLookup
+		);
 	}
 
 	/**
@@ -579,6 +598,18 @@ class WikibaseValueFormatterBuilders {
 		) );
 		$options->setOption( GeoCoordinateFormatter::OPT_DIRECTIONAL, true );
 		return new GlobeCoordinateFormatter( $options );
+	}
+
+	/**
+	 * Builder callback for use in WikibaseValueFormatterBuilders::$valueFormatterSpecs.
+	 * Used to compose the MonolingualHtmlFormatter.
+	 *
+	 * @param FormatterOptions $options
+	 *
+	 * @return MonolingualHtmlFormatter
+	 */
+	private function newMonolingualHtmlFormatter( FormatterOptions $options ) {
+		return new MonolingualHtmlFormatter( $options, $this->languageNameLookup );
 	}
 
 	/**

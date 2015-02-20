@@ -9,7 +9,6 @@ use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermFallback;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LabelLookup;
-use Wikibase\Utils;
 
 /**
  * Formats entity IDs by generating an HTML link to the corresponding page title.
@@ -23,18 +22,31 @@ use Wikibase\Utils;
 class EntityIdHtmlLinkFormatter extends EntityIdLabelFormatter {
 
 	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
+
+	/**
 	 * @var EntityTitleLookup
 	 */
 	protected $entityTitleLookup;
 
+	/**
+	 * @param FormatterOptions $options
+	 * @param LabelLookup $labelLookup
+	 * @param EntityTitleLookup $entityTitleLookup
+	 * @param LanguageNameLookup $languageNameLookup
+	 */
 	public function __construct(
 		FormatterOptions $options,
 		LabelLookup $labelLookup,
-		EntityTitleLookup $entityTitleLookup
+		EntityTitleLookup $entityTitleLookup,
+		LanguageNameLookup $languageNameLookup
 	) {
 		parent::__construct( $options, $labelLookup );
 
 		$this->entityTitleLookup = $entityTitleLookup;
+		$this->languageNameLookup = $languageNameLookup;
 	}
 
 	/**
@@ -121,8 +133,7 @@ class EntityIdHtmlLinkFormatter extends EntityIdLabelFormatter {
 	 * @return string
 	 */
 	private function getLanguageName( $languageCode, $inLanguage ) {
-		//TODO: inject language name lookup!
-		return Utils::fetchLanguageName( $languageCode, $inLanguage );
+		return $this->languageNameLookup->getName( $languageCode, $inLanguage );
 	}
 
 	private function getHtmlForFallbackIndicator( TermFallback $term ) {

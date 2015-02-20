@@ -22,29 +22,22 @@ use ValueFormatters\ValueFormatterBase;
 class TimeDetailsFormatter extends ValueFormatterBase {
 
 	/**
-	 * @var MwTimeIsoFormatter
-	 */
-	protected $isoTimeFormatter;
-
-	/**
 	 * @var TimeFormatter
 	 */
-	protected $timeFormatter;
+	private $timeFormatter;
 
 	/**
-	 * @param FormatterOptions $options
+	 * @param FormatterOptions|null $options
 	 */
-	public function __construct( FormatterOptions $options ) {
+	public function __construct( FormatterOptions $options = null ) {
 		parent::__construct( $options );
 
-		if ( $options->hasOption( TimeFormatter::OPT_TIME_ISO_FORMATTER ) ) {
-			$this->isoTimeFormatter = $options->getOption( TimeFormatter::OPT_TIME_ISO_FORMATTER );
-		} else {
-			$this->isoTimeFormatter = new MwTimeIsoFormatter( $options );
-			$options->setOption( TimeFormatter::OPT_TIME_ISO_FORMATTER, $this->isoTimeFormatter );
-		}
+		$this->defaultOption(
+			TimeFormatter::OPT_TIME_ISO_FORMATTER,
+			new MwTimeIsoFormatter( $this->options )
+		);
 
-		$this->timeFormatter = new TimeFormatter( $options );
+		$this->timeFormatter = new TimeFormatter( $this->options );
 	}
 
 	/**
@@ -64,29 +57,109 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 		}
 
 		$html = '';
-		$html .= Html::element( 'h4',
+		$html .= Html::element(
+			'h4',
 			array( 'class' => 'wb-details wb-time-details wb-time-rendered' ),
 			$this->timeFormatter->format( $value )
 		);
+		$html .= Html::openElement( 'table', array( 'class' => 'wb-details wb-time-details' ) );
 
-		$html .= Html::openElement( 'table',
-			array( 'class' => 'wb-details wb-time-details' ) );
-		$html .= $this->renderLabelValuePair( 'isotime', htmlspecialchars( $value->getTime() ) );
-
-		//TODO: provide "nice" rendering of timezone, calendar, precision, etc.
-		$html .= $this->renderLabelValuePair( 'timezone',
-			htmlspecialchars( $value->getTimezone() ) );
-		$html .= $this->renderLabelValuePair( 'calendar',
-			htmlspecialchars( $value->getCalendarModel() ) );
-		$html .= $this->renderLabelValuePair( 'precision',
-			htmlspecialchars( $value->getPrecision() ) );
-
-		$html .= $this->renderLabelValuePair( 'before', htmlspecialchars( $value->getBefore() ) );
-		$html .= $this->renderLabelValuePair( 'after', htmlspecialchars( $value->getAfter() ) );
+		$html .= $this->renderLabelValuePair(
+			'isotime',
+			htmlspecialchars( $value->getTime() )
+		);
+		$html .= $this->renderLabelValuePair(
+			'timezone',
+			$this->getTimezoneHtml( $value->getTimezone() )
+		);
+		$html .= $this->renderLabelValuePair(
+			'calendar',
+			$this->getCalendarModelHtml( $value->getCalendarModel() )
+		);
+		// TODO: Provide "nice" rendering of precision, etc.
+		$html .= $this->renderLabelValuePair(
+			'precision',
+			$this->getAmountAndPrecisionHtml( $value->getPrecision() )
+		);
+		$html .= $this->renderLabelValuePair(
+			'before',
+			$this->getAmountAndPrecisionHtml( $value->getPrecision(), $value->getBefore() )
+		);
+		$html .= $this->renderLabelValuePair(
+			'after',
+			$this->getAmountAndPrecisionHtml( $value->getPrecision(), $value->getAfter() )
+		);
 
 		$html .= Html::closeElement( 'table' );
 
 		return $html;
+	}
+
+	/**
+	 * @param int $timezone
+	 *
+	 * @return string HTML
+	 */
+	private function getTimezoneHtml( $timezone ) {
+		// Actual MINUS SIGN (U+2212) instead of HYPHEN-MINUS (U+002D)
+		$sign = $timezone < 0 ? "\xE2\x88\x92" : '+';
+		$hour = floor( abs( $timezone ) / 60 );
+		$minute = abs( $timezone ) - $hour * 60;
+		return $sign . sprintf( '%02d:%02d', $hour, $minute );
+	}
+
+	/**
+	 * @param string $calendarModel
+	 *
+	 * @return string HTML
+	 */
+	private function getCalendarModelHtml( $calendarModel ) {
+		switch ( $calendarModel ) {
+			case TimeFormatter::CALENDAR_GREGORIAN:
+				$key = 'valueview-expert-timevalue-calendar-gregorian';
+				break;
+			case TimeFormatter::CALENDAR_JULIAN:
+				$key = 'valueview-expert-timevalue-calendar-julian';
+				break;
+			default:
+				return htmlspecialchars( $calendarModel );
+		}
+
+		$lang = $this->getOption( ValueFormatter::OPT_LANG );
+		$msg = wfMessage( $key )->inLanguage( $lang );
+		return $msg->text();
+	}
+
+	/**
+	 * @param int $precision
+	 * @param int $amount
+	 *
+	 * @return string HTML
+	 */
+	private function getAmountAndPrecisionHtml( $precision, $amount = 1 ) {
+		$key = 'years';
+
+		switch ( $precision ) {
+			case TimeValue::PRECISION_MONTH: $key = 'months'; break;
+			case TimeValue::PRECISION_DAY: $key = 'days'; break;
+			case TimeValue::PRECISION_HOUR: $key = 'hours'; break;
+			case TimeValue::PRECISION_MINUTE: $key = 'minutes'; break;
+			case TimeValue::PRECISION_SECOND: $key = 'seconds'; break;
+		}
+
+		if ( $precision < TimeValue::PRECISION_YEAR ) {
+			// PRECISION_10a becomes 10 years, PRECISION_100a becomes 100 years, and so on.
+			$precisionInYears = pow( 10, TimeValue::PRECISION_YEAR - $precision );
+			$amount *= $precisionInYears;
+		} elseif ( $precision > TimeValue::PRECISION_SECOND ) {
+			// Sub-second precisions become 0.1 second, 0.01 second, and so on.
+			$precisionInSeconds = pow( 10, $precision - TimeValue::PRECISION_SECOND );
+			$amount /= $precisionInSeconds;
+		}
+
+		$lang = $this->getOption( ValueFormatter::OPT_LANG );
+		$msg = wfMessage( $key, $amount )->inLanguage( $lang );
+		return $msg->text();
 	}
 
 	/**
@@ -95,7 +168,7 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 	 *
 	 * @return string HTML for the label/value pair
 	 */
-	protected function renderLabelValuePair( $fieldName, $valueHtml ) {
+	private function renderLabelValuePair( $fieldName, $valueHtml ) {
 		$html = Html::openElement( 'tr' );
 
 		$html .= Html::element( 'th', array( 'class' => 'wb-time-' . $fieldName ),
@@ -112,9 +185,7 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 	 *
 	 * @return Message
 	 */
-	protected function getFieldLabel( $fieldName ) {
-		$lang = $this->getOption( ValueFormatter::OPT_LANG );
-
+	private function getFieldLabel( $fieldName ) {
 		// Messages:
 		// wikibase-timedetails-isotime
 		// wikibase-timedetails-timezone
@@ -123,8 +194,9 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 		// wikibase-timedetails-before
 		// wikibase-timedetails-after
 		$key = 'wikibase-timedetails-' . strtolower( $fieldName );
-		$msg = wfMessage( $key )->inLanguage( $lang );
 
+		$lang = $this->getOption( ValueFormatter::OPT_LANG );
+		$msg = wfMessage( $key )->inLanguage( $lang );
 		return $msg;
 	}
 

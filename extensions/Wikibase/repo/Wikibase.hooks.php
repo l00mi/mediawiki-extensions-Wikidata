@@ -25,6 +25,7 @@ use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Repo\BabelUserLanguageLookup;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler;
@@ -369,7 +370,17 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onRecentChangeSave( RecentChange $recentChange ) {
-		if ( $recentChange->getAttribute( 'rc_log_type' ) === null ) {
+		$logType = $recentChange->getAttribute( 'rc_log_type' );
+		$logAction = $recentChange->getAttribute( 'rc_log_action' );
+		$revId = $recentChange->getAttribute( 'rc_this_oldid' );
+
+		if ( $revId <= 0 ) {
+			// If we don't have a revision ID, we have no chance to find the right change to update.
+			// NOTE: As of February 2015, RC entries for undeletion have rc_this_oldid = 0.
+			return true;
+		}
+
+		if ( $logType === null || ( $logType === 'delete' && $logAction === 'restore' ) ) {
 			$changesTable = ChangesTable::singleton();
 
 			$slave = $changesTable->getReadDb();
@@ -378,7 +389,7 @@ final class RepoHooks {
 			/** @var EntityChange $change */
 			$change = $changesTable->selectRow(
 				null,
-				array( 'revision_id' => $recentChange->getAttribute( 'rc_this_oldid' ) )
+				array( 'revision_id' => $revId )
 			);
 
 			$changesTable->setReadDb( $slave );
@@ -1002,6 +1013,7 @@ final class RepoHooks {
 		if ( !empty( $placeholders ) ) {
 			$injector = new TextInjector( $placeholders );
 			$userLanguageLookup = new BabelUserLanguageLookup();
+			$termsLanguages = WikibaseRepo::getDefaultInstance()->getTermsLanguages();
 			$expander = new EntityViewPlaceholderExpander(
 				new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 				$out->getTitle(),
@@ -1009,13 +1021,21 @@ final class RepoHooks {
 				$out->getLanguage(),
 				WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
 				WikibaseRepo::getDefaultInstance()->getEntityRevisionLookup(),
-				$userLanguageLookup
+				$userLanguageLookup,
+				WikibaseRepo::getDefaultInstance()->getTermsLanguages(),
+				new LanguageNameLookup()
 			);
 
 			$html = $injector->inject( $html, array( $expander, 'getHtmlForPlaceholder' ) );
 
-			$out->addJsConfigVars( 'wbUserSpecifiedLanguages',
-				$userLanguageLookup->getUserSpecifiedLanguages( $out->getUser() ) );
+			$out->addJsConfigVars(
+				'wbUserSpecifiedLanguages',
+				// All user-specified languages, that are valid term languages
+				array_intersect(
+					$userLanguageLookup->getUserSpecifiedLanguages( $out->getUser() ),
+					$termsLanguages->getLanguages()
+				)
+			);
 		}
 
 		return true;
@@ -1164,11 +1184,12 @@ final class RepoHooks {
 	public static function onImportHandleRevisionXMLTag( $importer, $pageInfo, $revisionInfo ) {
 		if ( isset( $revisionInfo['model'] ) ) {
 			$contentModels = WikibaseRepo::getDefaultInstance()->getContentModelMappings();
+			$allowImport = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'allowEntityImport' );
 
-			if ( in_array( $revisionInfo['model'], $contentModels ) ) {
+			if ( !$allowImport && in_array( $revisionInfo['model'], $contentModels ) ) {
 				// Skip entities.
 				// XXX: This is rather rough.
-				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is currently not supported.' );
+				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is not supported. You can enable imports using the `allowEntityImport` setting.' );
 			}
 		}
 

@@ -25,9 +25,9 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\ContentLanguages;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
-use Wikibase\Utils;
 
 /**
  * Derived class for API modules modifying a single entity identified by id xor a combination of
@@ -45,9 +45,9 @@ use Wikibase\Utils;
 class EditEntity extends ModifyEntity {
 
 	/**
-	 * @var string[]
+	 * @var ContentLanguages
 	 */
-	private $validLanguageCodes;
+	private $termsLanguages;
 
 	/**
 	 * @var FingerprintChangeOpFactory
@@ -74,7 +74,7 @@ class EditEntity extends ModifyEntity {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$this->validLanguageCodes = array_flip( Utils::getLanguageCodes() );
+		$this->termsLanguages = WikibaseRepo::getDefaultInstance()->getTermsLanguages();
 
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
 		$this->termChangeOpFactory = $changeOpFactoryProvider->getFingerprintChangeOpFactory();
@@ -743,8 +743,6 @@ class EditEntity extends ModifyEntity {
 
 	/**
 	 * @see ApiBase:getExamplesMessages
-	 *
-	 * @return string[]
 	 */
 	protected function getExamplesMessages() {
 		return array(
@@ -805,7 +803,8 @@ class EditEntity extends ModifyEntity {
 					'inconsistent-language' );
 			}
 		}
-		if ( isset( $this->validLanguageCodes ) && !array_key_exists( $arg['language'], $this->validLanguageCodes ) ) {
+
+		if ( !$this->termsLanguages->hasLanguage( $arg['language'] ) ) {
 			$this->dieError(
 				"unknown language: {$arg['language']}",
 				'not-recognized-language' );

@@ -4,9 +4,10 @@ namespace Wikibase\Formatters;
 
 use DataValues\MonolingualTextValue;
 use InvalidArgumentException;
+use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use ValueFormatters\ValueFormatterBase;
-use Wikibase\Utils;
+use Wikibase\Lib\LanguageNameLookup;
 
 /**
  * @since 0.5
@@ -15,6 +16,20 @@ use Wikibase\Utils;
  * @author Daniel Kinzler
  */
 class MonolingualHtmlFormatter extends ValueFormatterBase {
+
+	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
+
+	/**
+	 * @param FormatterOptions $options
+	 * @param LanguageNameLookup $languageNameLookup
+	 */
+	public function __construct( FormatterOptions $options, LanguageNameLookup $languageNameLookup ) {
+		parent::__construct( $options );
+		$this->languageNameLookup = $languageNameLookup;
+	}
 
 	/**
 	 * @see ValueFormatter::format
@@ -28,7 +43,7 @@ class MonolingualHtmlFormatter extends ValueFormatterBase {
 
 		$text = $value->getText();
 		$languageCode = $value->getLanguageCode();
-		$languageName = Utils::fetchLanguageName( $languageCode, $userLanguage );
+		$languageName = $this->languageNameLookup->getName( $languageCode, $userLanguage );
 
 		$msg = wfMessage( 'wikibase-monolingualtext' )->params(
 			wfEscapeWikiText( $text ),

@@ -10,6 +10,8 @@ use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\Lib\ContentLanguages;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\UserLanguageLookup;
@@ -74,6 +76,16 @@ class EntityViewPlaceholderExpander {
 	private $extraLanguages = null;
 
 	/**
+	 * @var ContentLanguages
+	 */
+	private $termsLanguages;
+
+	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
+
+	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param Title $targetPage the page for which this expander is supposed to handle expansion.
 	 * @param User $user the current user
@@ -81,6 +93,8 @@ class EntityViewPlaceholderExpander {
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param UserLanguageLookup $userLanguageLookup
+	 * @param ContentLanguages $termsLanguages
+	 * @param LanguageNameLookup $languageNameLookup
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
@@ -89,7 +103,9 @@ class EntityViewPlaceholderExpander {
 		Language $uiLanguage,
 		EntityIdParser $entityIdParser,
 		EntityRevisionLookup $entityRevisionLookup,
-		UserLanguageLookup $userLanguageLookup
+		UserLanguageLookup $userLanguageLookup,
+		ContentLanguages $termsLanguages,
+		LanguageNameLookup $languageNameLookup
 	) {
 		$this->targetPage = $targetPage;
 		$this->user = $user;
@@ -98,12 +114,14 @@ class EntityViewPlaceholderExpander {
 		$this->entityRevisionLookup = $entityRevisionLookup;
 		$this->userLanguageLookup = $userLanguageLookup;
 		$this->templateFactory = $templateFactory;
+		$this->termsLanguages = $termsLanguages;
+		$this->languageNameLookup = $languageNameLookup;
 	}
 
 	/**
 	 * Returns a list of languages desired by the user in addition to the current interface language.
 	 *
-	 * @see UserLanguages
+	 * @see UserLanguageLookup
 	 *
 	 * @return string[]
 	 */
@@ -115,10 +133,12 @@ class EntityViewPlaceholderExpander {
 			} else {
 				// ignore current interface language
 				$skip = array( $this->uiLanguage->getCode() );
-				$this->extraLanguages = array_diff(
+				$langs = array_diff(
 					$this->userLanguageLookup->getAllUserLanguages( $this->user ),
 					$skip
 				);
+				// Make sure we only report actual term languages
+				$this->extraLanguages = array_intersect( $langs, $this->termsLanguages->getLanguages() );
 			}
 		}
 
@@ -133,7 +153,7 @@ class EntityViewPlaceholderExpander {
 	 * the meaning of each placeholder name, as used by EntityView.
 	 *
 	 * @param string $name the name (or kind) of placeholder; determines how the expansion is done.
-	 * @param mixed ... additional arguments associated with the placeholder
+	 * @param mixed [$arg,...] Additional arguments associated with the placeholder.
 	 *
 	 * @return string HTML to be substituted for the placeholder in the output.
 	 */
@@ -211,7 +231,7 @@ class EntityViewPlaceholderExpander {
 	/**
 	 * Generates HTML of the term box, to be injected into the entity page.
 	 *
-	 * @param Entityid $entityId
+	 * @param EntityId $entityId
 	 * @param int $revisionId
 	 *
 	 * @throws InvalidArgumentException
@@ -236,16 +256,17 @@ class EntityViewPlaceholderExpander {
 			return '';
 		}
 
-		$fingerprintView = new FingerprintView(
+		$entityTermsView = new EntityTermsView(
 			$this->templateFactory,
 			null,
+			$this->languageNameLookup,
 			$this->uiLanguage->getCode()
 		);
-		$html = $fingerprintView->getEntityTermsForLanguageListView(
+		$html = $entityTermsView->getEntityTermsForLanguageListView(
 			$entity->getFingerprint(),
 			$languages,
 			$this->targetPage,
-			$this->user->getOption( 'wikibase-entitytermsvi-showEntitytermslistview' )
+			$this->user->getOption( 'wikibase-entitytermsview-showEntitytermslistview' )
 		);
 
 		return $html;

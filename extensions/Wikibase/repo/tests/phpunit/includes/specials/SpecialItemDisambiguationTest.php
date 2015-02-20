@@ -106,7 +106,8 @@ class SpecialItemDisambiguationTest extends SpecialPageTestBase {
 		$page->initServices(
 			$this->getTermIndex(),
 			$this->getEntityLookup(),
-			$this->getEntityTitleLookup()
+			$this->getEntityTitleLookup(),
+			$this->getMock( 'Wikibase\Lib\LanguageNameLookup' )
 		);
 
 		return $page;

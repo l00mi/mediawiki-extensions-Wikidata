@@ -31,11 +31,9 @@ class LinkTitles extends ApiWikibase {
 	private $siteLinkTargetProvider;
 
 	/**
-	 * @since 0.5
-	 *
-	 * @var array
+	 * @var string[]
 	 */
-	protected $siteLinkGroups;
+	private $siteLinkGroups;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -240,9 +238,7 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

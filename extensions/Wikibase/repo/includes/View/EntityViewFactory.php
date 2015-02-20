@@ -9,6 +9,7 @@ use SiteStore;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\LanguageFallbackChain;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Lib\EntityIdFormatterFactory;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
@@ -76,12 +77,18 @@ class EntityViewFactory {
 	private $templateFactory;
 
 	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
+
+	/**
 	 * @param EntityIdFormatterFactory $idFormatterFactory
 	 * @param OutputFormatSnakFormatterFactory $snakFormatterFactory
 	 * @param EntityLookup $entityLookup
 	 * @param SiteStore $siteStore
 	 * @param DataTypeFactory $dataTypeFactory
 	 * @param TemplateFactory $templateFactory
+	 * @param LanguageNameLookup $languageNameLookup
 	 * @param string[] $siteLinkGroups
 	 * @param string[] $specialSiteLinkGroups
 	 * @param string[] $badgeItems
@@ -93,6 +100,7 @@ class EntityViewFactory {
 		SiteStore $siteStore,
 		DataTypeFactory $dataTypeFactory,
 		TemplateFactory $templateFactory,
+		LanguageNameLookup $languageNameLookup,
 		array $siteLinkGroups,
 		array $specialSiteLinkGroups,
 		array $badgeItems
@@ -111,6 +119,7 @@ class EntityViewFactory {
 		$this->sectionEditLinkGenerator = new SectionEditLinkGenerator(
 			$this->templateFactory
 		);
+		$this->languageNameLookup = $languageNameLookup;
 	}
 
 	/**
@@ -146,7 +155,7 @@ class EntityViewFactory {
 		LabelLookup $labelLookup = null,
 		$editable = true
 	 ) {
-		$fingerprintView = $this->newFingerprintView( $languageCode );
+		$entityTermsView = $this->newEntityTermsView( $languageCode );
 		$statementGroupListView = $this->newStatementGroupListView(
 			$languageCode,
 			$fallbackChain,
@@ -164,6 +173,7 @@ class EntityViewFactory {
 					$this->siteStore->getSites(),
 					$this->sectionEditLinkGenerator,
 					$this->entityLookup,
+					$this->languageNameLookup,
 					$this->badgeItems,
 					$this->specialSiteLinkGroups,
 					$language->getCode()
@@ -171,7 +181,7 @@ class EntityViewFactory {
 
 				return new ItemView(
 					$this->templateFactory,
-					$fingerprintView,
+					$entityTermsView,
 					$statementGroupListView,
 					$language,
 					$siteLinksView,
@@ -181,7 +191,7 @@ class EntityViewFactory {
 			case 'property':
 				return new PropertyView(
 					$this->templateFactory,
-					$fingerprintView,
+					$entityTermsView,
 					$statementGroupListView,
 					$this->dataTypeFactory,
 					$language,
@@ -228,12 +238,13 @@ class EntityViewFactory {
 	/**
 	 * @param string $languageCode
 	 *
-	 * @return FingerprintView
+	 * @return EntityTermsView
 	 */
-	private function newFingerprintView( $languageCode ) {
-		return new FingerprintView(
+	private function newEntityTermsView( $languageCode ) {
+		return new EntityTermsView(
 			$this->templateFactory,
 			$this->sectionEditLinkGenerator,
+			$this->languageNameLookup,
 			$languageCode
 		);
 	}

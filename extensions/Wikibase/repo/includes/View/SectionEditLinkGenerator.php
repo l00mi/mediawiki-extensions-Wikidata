@@ -3,7 +3,7 @@
 namespace Wikibase\Repo\View;
 
 use Message;
-use SpecialPageFactory;
+use SpecialPage;
 use Wikibase\Template\TemplateFactory;
 
 /**
@@ -111,16 +111,14 @@ class SectionEditLinkGenerator {
 	 * @return string
 	 */
 	private function getEditUrl( $specialPageName, array $specialPageUrlParams ) {
-		if ( $specialPageName !== null && !empty( $specialPageUrlParams ) ) {
-			$specialPage = SpecialPageFactory::getPage( $specialPageName );
-
-			if ( $specialPage !== null ) {
-				$subPage = implode( '/', array_map( 'wfUrlencode', $specialPageUrlParams ) );
-				return $specialPage->getPageTitle( $subPage )->getLocalURL();
-			}
+		if ( $specialPageName === null || empty( $specialPageUrlParams ) ) {
+			return null;
 		}
 
-		return null;
+		$subPage = implode( '/', array_map( 'wfUrlencode', $specialPageUrlParams ) );
+		$specialPageTitle = SpecialPage::getTitleFor( $specialPageName, $subPage );
+
+		return $specialPageTitle->getLocalURL();
 	}
 
 	/**
@@ -131,17 +129,19 @@ class SectionEditLinkGenerator {
 	 * @return string
 	 */
 	private function getToolbarButton( $cssClassSuffix, $buttonLabel, $editUrl = null ) {
-		if ( $editUrl !== null ) {
-			return $this->templateFactory->render( 'wikibase-toolbar-bracketed',
-				$this->templateFactory->render( 'wikibase-toolbar-button',
-					'wikibase-toolbar-button-' . $cssClassSuffix,
-					$editUrl,
-					$buttonLabel
-				)
-			);
+		if ( $editUrl === null ) {
+			return '';
 		}
 
-		return '';
+		return $this->templateFactory->render(
+			'wikibase-toolbar-bracketed',
+			$this->templateFactory->render(
+				'wikibase-toolbar-button',
+				'wikibase-toolbar-button-' . $cssClassSuffix,
+				$editUrl,
+				$buttonLabel
+			)
+		);
 	}
 
 }

@@ -2,7 +2,7 @@
 
 namespace Wikibase\Test;
 
-use ContentHandler;
+use PHPUnit_Framework_TestCase;
 use Revision;
 use Status;
 use User;
@@ -16,7 +16,6 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Repo\Content\EntityContentFactory;
@@ -35,7 +34,7 @@ use Wikibase\SqlIdGenerator;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
+class WikiPageEntityStoreTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @var EntityIdParser
@@ -54,7 +53,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 	 * @return array array( EntityStore, EntityLookup )
 	 */
 	protected function createStoreAndLookup() {
-		// make sure the term index is empty to avoid conlficts.
+		// make sure the term index is empty to avoid conflicts.
 		WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex()->clear();
 
 		//NOTE: we want to test integration of WikiPageEntityRevisionLookup and WikiPageEntityStore here!
@@ -70,8 +69,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 
 		$store = new WikiPageEntityStore(
 			new EntityContentFactory( $typeMap ),
-			new SqlIdGenerator( 'wb_id_counters', wfGetDB( DB_MASTER ) ),
-			$this->newEntityPerPageTable()
+			new SqlIdGenerator( 'wb_id_counters', wfGetDB( DB_MASTER ) )
 		);
 
 		return array( $store, $lookup );
@@ -86,7 +84,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function getSimpleEntities() {
-		$item = Item::newEmpty();
+		$item = new Item();
 		$item->setLabel( 'en', 'Item' );
 		$item->setDescription( 'en', 'Item description' );
 
@@ -158,7 +156,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function provideSaveEntityError() {
-		$firstItem = Item::newEmpty();
+		$firstItem = new Item();
 		$firstItem->setLabel( 'en', 'one' );
 
 		$secondItem = new Item( new ItemId( 'Q768476834' ) );
@@ -191,7 +189,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		$user = $GLOBALS['wgUser'];
 
 		// setup target item
-		$one = Item::newEmpty();
+		$one = new Item();
 		$one->setLabel( 'en', 'one' );
 		$r1 = $store->saveEntity( $one, 'create one', $user, EDIT_NEW );
 
@@ -211,18 +209,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		$store->saveEntity( $entity, '', $GLOBALS['wgUser'], $flags, $baseRevId );
 	}
 
-	private function itemSupportsRedirects() {
-		$handler = ContentHandler::getForModelID( CONTENT_MODEL_WIKIBASE_ITEM );
-		return $handler->supportsRedirects();
-	}
-
 	public function testSaveRedirect() {
-		if ( !$this->itemSupportsRedirects() ) {
-			// As of 2014-06-30, redirects are still experimental.
-			// So do a feature check before trying to test redirects.
-			$this->markTestSkipped( 'Redirects not yet supported.' );
-		}
-
 		/* @var WikiPageEntityStore $store */
 		list( $store, ) = $this->createStoreAndLookup();
 		$user = $GLOBALS['wgUser'];
@@ -237,7 +224,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		$store->registerWatcher( $watcher );
 
 		// create one
-		$one = Item::newEmpty();
+		$one = new Item();
 		$one->setLabel( 'en', 'one' );
 
 		$r1 = $store->saveEntity( $one, 'create one', $user, EDIT_NEW );
@@ -304,7 +291,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 		$anonUser = User::newFromId(0);
 		$anonUser->setName( '127.0.0.1' );
 		$user = User::newFromName( "EditEntityTestUser" );
-		$item = Item::newEmpty();
+		$item = new Item();
 
 		// check for default values, last revision by anon --------------------
 		$item->setLabel( 'en', "Test Anon default" );
@@ -364,7 +351,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 			$user->addToDatabase();
 		}
 
-		$item = Item::newEmpty();
+		$item = new Item();
 		$store->saveEntity( $item, 'testing', $user, EDIT_NEW );
 
 		$itemId = $item->getId();
@@ -377,7 +364,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	protected function newEntity() {
-		$item = Item::newEmpty();
+		$item = new Item();
 		return $item;
 	}
 
@@ -587,11 +574,7 @@ class WikiPageEntityStoreTest extends \PHPUnit_Framework_TestCase {
 
 		$targetId = $epp->getRedirectForEntityId( $entityId );
 
-		if ( $expected === true ) {
-			$this->assertNotNull( $targetId );
-		} else {
-			$this->assertEquals( $expected, $targetId );
-		}
+		$this->assertEquals( $expected, $targetId );
 	}
 
 }

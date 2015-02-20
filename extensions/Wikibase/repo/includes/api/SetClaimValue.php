@@ -21,7 +21,7 @@ class SetClaimValue extends ModifyClaim {
 	/**
 	 * @var ClaimChangeOpFactory
 	 */
-	protected $claimChangeOpFactory;
+	private $claimChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -73,11 +73,9 @@ class SetClaimValue extends ModifyClaim {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $params
 	 */
-	protected function validateParameters( array $params ) {
+	private function validateParameters( array $params ) {
 		if ( !( $this->claimModificationHelper->validateClaimGuid( $params['claim'] ) ) ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
@@ -107,13 +105,12 @@ class SetClaimValue extends ModifyClaim {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(
 			'action=wbsetclaimvalue&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&snaktype=value&value={"entity-type":"item","numeric-id":1}&token=foobar&baserevid=7201010' => 'apihelp-wbsetclaimvalue-example-1',
 		);
 	}
+
 }

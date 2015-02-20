@@ -5,6 +5,7 @@
 			"Papuass"
 		]
 	},
+	"wikibase-comment-update": "{{WBREPONAME}} vienums izmainīts",
 	"wikibase-comment-sitelink-add": "Valodas saite pievienota: $1",
 	"wikibase-comment-sitelink-change": "Valodas saite mainīta no $1 uz $2",
 	"wikibase-comment-sitelink-remove": "Valodas saite noņemta: $1",
@@ -20,10 +21,10 @@
 	"wikibase-linkitem-input-page": "Lapa:",
 	"wikibase-linkitem-confirmitem-button": "Apstiprināt",
 	"wikibase-linkitem-not-loggedin-title": "Jums ir jāpieslēdzas",
-	"wikibase-rc-hide-wikidata": "$1 Wikidata",
+	"wikibase-rc-hide-wikidata": "$1 {{WBREPONAME}}",
 	"wikibase-rc-show-wikidata-pref": "Rādīt labojumos Vikidatos pēdējās izmaiņās",
 	"wikibase-rc-wikibase-edit-letter": "D",
-	"wikibase-rc-wikibase-edit-title": "Labojums Vikidatos",
+	"wikibase-rc-wikibase-edit-title": "Labojums {{WBREPONAME}}",
 	"wikibase-watchlist-show-changes-pref": "Rādīt labojumus Vikidatos uzraugāmo lapu sarakstā",
 	"wikibase-unconnectedpages-invalid-language": "\"$1\" nav derīgs valodas kods.",
 	"wikibase-unconnectedpages-iwdata-label": "Tikai lapas ar starpvalodu saitēm",
