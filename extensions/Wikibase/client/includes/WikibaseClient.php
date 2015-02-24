@@ -26,7 +26,7 @@ use Wikibase\ClientStore;
 use Wikibase\DataAccess\PropertyIdResolver;
 use Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory;
 use Wikibase\DataAccess\PropertyParserFunction\Runner;
-use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
+use Wikibase\DataAccess\SnaksFinder;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
@@ -698,8 +698,6 @@ final class WikibaseClient {
 	private function getPropertyClaimsRendererFactory() {
 		$entityLookup = $this->getEntityLookup();
 
-		$snaksFinder = new SnaksFinder( $entityLookup );
-
 		$propertyIdResolver = new PropertyIdResolver(
 			$entityLookup,
 			$this->getStore()->getPropertyLabelResolver()
@@ -707,9 +705,10 @@ final class WikibaseClient {
 
 		return new PropertyClaimsRendererFactory(
 			$propertyIdResolver,
-			$snaksFinder,
+			new SnaksFinder(),
 			$this->getLanguageFallbackChainFactory(),
-			$this->getSnakFormatterFactory()
+			$this->getSnakFormatterFactory(),
+			$entityLookup
 		);
 	}
 

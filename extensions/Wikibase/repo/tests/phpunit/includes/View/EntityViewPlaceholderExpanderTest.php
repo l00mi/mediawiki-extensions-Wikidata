@@ -3,13 +3,14 @@
 namespace Wikibase\Test;
 
 use Language;
+use MediaWikiTestCase;
 use User;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityRevision;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\StorageException;
-use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Repo\View\EntityViewPlaceholderExpander;
 use Wikibase\Template\TemplateFactory;
@@ -30,7 +31,7 @@ use Wikibase\Template\TemplateRegistry;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
+class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 
 	/**
 	 * @param User $user
@@ -105,6 +106,18 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		return $entityLookup;
 	}
 
+	/**
+	 * @return EntityRevisionLookup
+	 */
+	private function getNullReturningEntityRevisionLookup() {
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityRevisionLookup' );
+		$entityLookup->expects( $this->any() )
+			->method( 'getEntityRevision' )
+			->will( $this->returnValue( null ) );
+
+		return $entityLookup;
+	}
+
 	private function getItem() {
 		$item = new Item( new ItemId( 'Q23' ) );
 
@@ -163,6 +176,17 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		$item = $this->getItem();
 		$itemId = $item->getId();
 		$entityRevisionLookup = $this->getExceptionThrowingEntityRevisionLookup();
+
+		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
+
+		$html = $expander->renderTermBox( $itemId, 1 );
+		$this->assertEquals( '', $html );
+	}
+
+	public function testRenderTermBoxForNonEntityRevision() {
+		$item = $this->getItem();
+		$itemId = $item->getId();
+		$entityRevisionLookup = $this->getNullReturningEntityRevisionLookup();
 
 		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
 

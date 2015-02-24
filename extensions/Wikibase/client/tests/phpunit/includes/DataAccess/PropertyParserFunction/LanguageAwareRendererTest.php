@@ -8,7 +8,7 @@ use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\DataAccess\PropertyIdResolver;
 use Wikibase\DataAccess\PropertyParserFunction\LanguageAwareRenderer;
-use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
+use Wikibase\DataAccess\SnaksFinder;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
@@ -75,7 +75,8 @@ class LanguageAwareRendererTest extends \PHPUnit_Framework_TestCase {
 			$propertyIdResolver,
 			$snaksFinder,
 			$this->getSnakFormatter(),
-			$this->getUsageAccumulator( $usages )
+			$this->getUsageAccumulator( $usages ),
+			$this->getEntityLookup()
 		);
 	}
 
@@ -151,7 +152,7 @@ class LanguageAwareRendererTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private function getSnaksFinder( array $snaks ) {
 		$snaksFinder = $this->getMockBuilder(
-				'Wikibase\DataAccess\PropertyParserFunction\SnaksFinder'
+				'Wikibase\DataAccess\SnaksFinder'
 			)
 			->disableOriginalConstructor()
 			->getMock();
@@ -210,6 +211,17 @@ class LanguageAwareRendererTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		return $propertyIdResolver;
+	}
+
+	private function getEntityLookup() {
+		$lookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
+		$lookup->expects( $this->any() )
+			->method( 'getEntity' )
+			->will( $this->returnValue(
+				$this->getMock( 'Wikibase\DataModel\StatementListProvider' )
+			) );
+
+		return $lookup;
 	}
 
 	/***

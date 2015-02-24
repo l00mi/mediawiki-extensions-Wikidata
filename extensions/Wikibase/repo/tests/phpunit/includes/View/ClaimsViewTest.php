@@ -4,6 +4,7 @@ namespace Wikibase\Test;
 
 use DataValues\StringValue;
 use Html;
+use MediaWikiLangTestCase;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
@@ -30,7 +31,7 @@ use Wikibase\Template\TemplateRegistry;
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class StatementGroupListViewTest extends \MediaWikiLangTestCase {
+class StatementGroupListViewTest extends MediaWikiLangTestCase {
 
 	protected function setUp() {
 		parent::setUp();
@@ -164,12 +165,10 @@ class StatementGroupListViewTest extends \MediaWikiLangTestCase {
 	 * @return EntityIdFormatter
 	 */
 	private function getEntityIdFormatter() {
-		$lookup = $this->getMockBuilder( 'Wikibase\Lib\EntityIdFormatter' )
-			->disableOriginalConstructor()
-			->getMock();
+		$lookup = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
 
 		$lookup->expects( $this->any() )
-			->method( 'format' )
+			->method( 'formatEntityId' )
 			->will( $this->returnCallback( array( $this, 'getLinkForId' ) ) );
 
 		return $lookup;

@@ -110,7 +110,8 @@ class PropertyClaimsRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 			$this->getPropertyIdResolver(),
 			$this->getSnaksFinder(),
 			$this->getLanguageFallbackChainFactory(),
-			$this->getSnakFormatterFactory()
+			$this->getSnakFormatterFactory(),
+			$this->getMock( 'Wikibase\Lib\Store\EntityLookup' )
 		);
 	}
 
@@ -126,7 +127,7 @@ class PropertyClaimsRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 
 	private function getSnaksFinder() {
 		$snakListFinder = $this->getMockBuilder(
-				'Wikibase\DataAccess\PropertyParserFunction\SnaksFinder'
+				'Wikibase\DataAccess\SnaksFinder'
 			)
 			->disableOriginalConstructor()
 			->getMock();
