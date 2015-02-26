@@ -6,6 +6,7 @@ use DataValues\StringValue;
 use Language;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\UsageAccumulator;
+use Wikibase\DataAccess\StatementTransclusionInteractor;
 use Wikibase\DataAccess\PropertyIdResolver;
 use Wikibase\DataAccess\PropertyParserFunction\LanguageAwareRenderer;
 use Wikibase\DataAccess\SnaksFinder;
@@ -70,13 +71,18 @@ class LanguageAwareRendererTest extends \PHPUnit_Framework_TestCase {
 	private function getRenderer( PropertyIdResolver $propertyIdResolver, SnaksFinder $snaksFinder, $languageCode, array &$usages = array() ) {
 		$targetLanguage = Language::factory( $languageCode );
 
-		return new LanguageAwareRenderer(
+		$entityStatementsRenderer = new StatementTransclusionInteractor(
 			$targetLanguage,
 			$propertyIdResolver,
 			$snaksFinder,
 			$this->getSnakFormatter(),
-			$this->getUsageAccumulator( $usages ),
 			$this->getEntityLookup()
+		);
+
+		return new LanguageAwareRenderer(
+			$targetLanguage,
+			$entityStatementsRenderer,
+			$this->getUsageAccumulator( $usages )
 		);
 	}
 

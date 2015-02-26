@@ -66,7 +66,7 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 
 		$html .= $this->renderLabelValuePair(
 			'isotime',
-			htmlspecialchars( $value->getTime() )
+			$this->getTimeHtml( $value->getTime() )
 		);
 		$html .= $this->renderLabelValuePair(
 			'timezone',
@@ -93,6 +93,25 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 		$html .= Html::closeElement( 'table' );
 
 		return $html;
+	}
+
+	/**
+	 * @param string $time
+	 *
+	 * @return string HTML
+	 */
+	private function getTimeHtml( $time ) {
+		// Loose check if the ISO-like string contains at least year, month, day and hour.
+		if ( !preg_match( '/^([-+])(\d+)(-\d+-\d+T\d+(?::\d+)*)Z?$/i', $time, $matches ) ) {
+			return htmlspecialchars( $time );
+		}
+
+		// Actual MINUS SIGN (U+2212) instead of HYPHEN-MINUS (U+002D)
+		$sign = $matches[1] !== '+' ? "\xE2\x88\x92" : '+';
+		// Warning, never cast the year to integer to not run into 32-bit integer overflows!
+		$year = ltrim( $matches[2], '0' );
+		// Keep the sign. Pad the year. Keep month, day, and time. Drop the trailing "Z".
+		return htmlspecialchars( $sign . str_pad( $year, 4, '0', STR_PAD_LEFT ) . $matches[3] );
 	}
 
 	/**

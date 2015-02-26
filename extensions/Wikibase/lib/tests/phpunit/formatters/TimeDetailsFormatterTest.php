@@ -28,9 +28,10 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 	 * @param string $pattern
 	 */
 	public function testFormat( TimeValue $value, $pattern ) {
-		$formatter = new TimeDetailsFormatter( new FormatterOptions( array(
+		$options = new FormatterOptions( array(
 			ValueFormatter::OPT_LANG => 'qqx',
-		) ) );
+		) );
+		$formatter = new TimeDetailsFormatter( $options );
 
 		$html = $formatter->format( $value );
 		$this->assertRegExp( $pattern, $html );
@@ -46,7 +47,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 				'@' . implode( '.*',
 					array(
 						'<h4[^<>]*>[^<>]*2001[^<>]*</h4>',
-						'<td[^<>]*>\+0*2001-01-01T00:00:00Z</td>',
+						'<td[^<>]*>\+0*2001-01-01T00:00:00</td>',
 						'<td[^<>]*>\+01:00</td>',
 						'<td[^<>]*>\(valueview-expert-timevalue-calendar-gregorian\)</td>',
 						'<td[^<>]*>\(months: 1\)</td>',
@@ -54,6 +55,14 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 						'<td[^<>]*>\(months: 1\)</td>',
 					)
 				) . '@s'
+			),
+			array(
+				new TimeValue( '+999-01-01T00:00:00Z', 0, 0, 0, $day, $gregorian ),
+				'@.*<td[^<>]*isotime">\+0999-01-01T00:00:00</td>.*@s'
+			),
+			array(
+				new TimeValue( '-099999-01-01T00:00:00Z', 0, 0, 0, $day, $gregorian ),
+				'@.*<td[^<>]*isotime">\xE2\x88\x9299999-01-01T00:00:00</td>.*@s'
 			),
 			array(
 				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, $day, TimeFormatter::CALENDAR_JULIAN ),

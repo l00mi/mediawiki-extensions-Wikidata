@@ -75,7 +75,7 @@ class SubmitEntityAction extends EditEntityAction {
 
 		$revisions = $this->loadRevisions();
 		if ( !$revisions->isOK() ) {
-			$this->showStatusErrorsPage( 'wikibase-undo-revision-error', $revisions );
+			$this->showUndoErrorPage( $revisions );
 			return;
 		}
 
@@ -129,7 +129,7 @@ class SubmitEntityAction extends EditEntityAction {
 		if ( $status->isOK() ) {
 			$this->getOutput()->redirect( $title->getFullUrl() );
 		} else {
-			$this->showStatusErrorsPage( 'wikibase-undo-title', $status );
+			$this->showUndoErrorPage( $status );
 		}
 	}
 
@@ -186,8 +186,6 @@ class SubmitEntityAction extends EditEntityAction {
 	 * @return Status a status object representing the check's result.
 	 */
 	private function getPermissionStatus( $permission, Title $title, $quick = '' ) {
-		wfProfileIn( __METHOD__ );
-
 		//XXX: would be nice to be able to pass the $short flag too,
 		//     as used by getUserPermissionsErrorsInternal. But Title doesn't expose that.
 		$errors = $title->getUserPermissionsErrors( $permission, $this->getUser(), $quick !== 'quick' );
@@ -198,7 +196,6 @@ class SubmitEntityAction extends EditEntityAction {
 			$status->setResult( false );
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $status;
 	}
 
