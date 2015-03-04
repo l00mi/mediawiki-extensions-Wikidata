@@ -3,6 +3,7 @@
 namespace Wikibase\Test;
 
 use DataValues\StringValue;
+use ParserOptions;
 use Title;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\InMemoryDataTypeLookup;
@@ -37,7 +38,7 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 		$timestamp = wfTimestamp( TS_MW );
 		$revision = new EntityRevision( $item, 13044, $timestamp );
 
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision, new ParserOptions() );
 
 		$this->assertEquals(
 			self::$html,
@@ -74,6 +75,14 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 			array_keys( $parserOutput->getImages() ),
 			'images'
 		);
+
+		$expectedUsedOptions = array( 'userlang', 'editsection' );
+		$actualOptions = $parserOutput->getUsedOptions();
+		$missingOptions = array_diff( $expectedUsedOptions, $actualOptions );
+		$this->assertEmpty(
+			$missingOptions,
+			'Missing cache-split flags: ' . join( '|', $missingOptions ) . '. Options: ' . join( '|', $actualOptions )
+		);
 	}
 
 	public function testTitleText_ItemHasNolabel() {
@@ -85,7 +94,7 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 		$timestamp = wfTimestamp( TS_MW );
 		$revision = new EntityRevision( $item, 13045, $timestamp );
 
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision, new ParserOptions() );
 
 		$this->assertEquals(
 			'Q7799929',

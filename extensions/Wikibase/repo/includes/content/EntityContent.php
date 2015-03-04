@@ -289,13 +289,8 @@ abstract class EntityContent extends AbstractContent {
 		);
 
 		$entityRevision = $this->getEntityRevision( $title, $revisionId );
-		$editable = $options ? $options->getEditSection() : true;
 
-		$output = $outputGenerator->getParserOutput( $entityRevision, $editable, $generateHtml );
-
-		// Since the output depends on the user language, we must make sure
-		// ParserCache::getKey() includes it in the cache key.
-		$output->recordOption( 'userlang' );
+		$output = $outputGenerator->getParserOutput( $entityRevision, $options, $generateHtml );
 
 		// register page properties
 		$this->applyEntityPageProperties( $output );
