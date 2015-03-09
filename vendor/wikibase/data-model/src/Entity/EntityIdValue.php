@@ -42,10 +42,10 @@ class EntityIdValue extends DataValueObject {
 	 * though cannot be removed until we ditch the "numeric id" part
 	 * from the serialization.
 	 *
-	 * @return double Numeric id as a whole number. Can not be int because of 32-bit PHP.
+	 * @return float Numeric id as a whole number. Can not be int because of 32-bit PHP.
 	 */
 	protected function getNumericId() {
-		return doubleval( substr( $this->entityId->getSerialization(), 1 ) );
+		return floatval( substr( $this->entityId->getSerialization(), 1 ) );
 	}
 
 	/**
@@ -56,7 +56,6 @@ class EntityIdValue extends DataValueObject {
 	 * @param string $value
 	 *
 	 * @throws IllegalValueException
-	 * @return EntityIdValue
 	 */
 	public function unserialize( $value ) {
 		list( $entityType, $numericId ) = json_decode( $value );
@@ -67,7 +66,7 @@ class EntityIdValue extends DataValueObject {
 			throw new IllegalValueException( 'Invalid EntityIdValue serialization.' );
 		}
 
-		return $this->__construct( $entityId );
+		$this->__construct( $entityId );
 	}
 
 	/**
@@ -97,7 +96,7 @@ class EntityIdValue extends DataValueObject {
 	 *
 	 * @since 0.5
 	 *
-	 * @return EntityId
+	 * @return EntityIdValue
 	 */
 	public function getValue() {
 		return $this;

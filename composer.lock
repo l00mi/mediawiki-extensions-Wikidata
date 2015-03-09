@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7f21de88704fdbc16faaee5e5977492a",
+    "hash": "d3d7b1d98e01a4b204b05ccedeef69db",
     "packages": [
         {
             "name": "composer/installers",
@@ -901,16 +901,16 @@
         },
         {
             "name": "wikibase/data-model",
-            "version": "2.5.0",
+            "version": "2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "ee8b492c2209168aa89d4b537652864abffe3e73"
+                "reference": "e9d9e8ff37d50227ab3082bb1c15f20584dfa5fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/ee8b492c2209168aa89d4b537652864abffe3e73",
-                "reference": "ee8b492c2209168aa89d4b537652864abffe3e73",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/e9d9e8ff37d50227ab3082bb1c15f20584dfa5fd",
+                "reference": "e9d9e8ff37d50227ab3082bb1c15f20584dfa5fd",
                 "shasum": ""
             },
             "require": {
@@ -924,7 +924,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.5.x-dev"
+                    "dev-master": "2.6.x-dev"
                 }
             },
             "autoload": {
@@ -941,10 +941,12 @@
             ],
             "authors": [
                 {
+                    "name": "Thiemo Mättig"
+                },
+                {
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
-                    "homepage": "http://jeroendedauw.com",
-                    "role": "Developer"
+                    "homepage": "http://jeroendedauw.com"
                 }
             ],
             "description": "PHP implementation of the Wikibase DataModel",
@@ -954,7 +956,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-01-20 11:31:47"
+            "time": "2015-03-09 12:08:31"
         },
         {
             "name": "wikibase/data-model-javascript",
@@ -1235,12 +1237,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c27029d21594b0f371ae4173d7e8c631158681e9"
+                "reference": "8d3df54e0e43c3e0b4e35685a64e5c30ee4c9bc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c27029d21594b0f371ae4173d7e8c631158681e9",
-                "reference": "c27029d21594b0f371ae4173d7e8c631158681e9",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8d3df54e0e43c3e0b4e35685a64e5c30ee4c9bc0",
+                "reference": "8d3df54e0e43c3e0b4e35685a64e5c30ee4c9bc0",
                 "shasum": ""
             },
             "require": {
@@ -1307,7 +1309,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-03-06 14:36:25"
+            "time": "2015-03-09 14:35:41"
         },
         {
             "name": "wikibase/wikimedia-badges",
