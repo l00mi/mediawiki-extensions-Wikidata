@@ -24,20 +24,12 @@ use Wikibase\Lib\Serializers\SnakSerializer;
 class ListSerializerTest extends SerializerBaseTest {
 
 	/**
-	 * @see SerializerBaseTest::getClass
+	 * @see SerializerBaseTest::getInstance
 	 *
-	 * @return string
-	 */
-	protected function getClass() {
-		return '\Wikibase\Lib\Serializers\ListSerializer';
-	}
-
-	/**
 	 * @return ListSerializer
 	 */
 	protected function getInstance() {
-		$snakSerializer = new SnakSerializer();
-		return new ListSerializer( 'foo' ,$snakSerializer );
+		return new ListSerializer( 'foo', new SnakSerializer() );
 	}
 
 	/**

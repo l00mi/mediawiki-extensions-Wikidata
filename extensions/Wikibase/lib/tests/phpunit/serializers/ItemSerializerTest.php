@@ -30,20 +30,15 @@ use Wikibase\Lib\Serializers\SnakSerializer;
 class ItemSerializerTest extends EntitySerializerBaseTest {
 
 	/**
-	 * @see SerializerBaseTest::getClass
+	 * @see SerializerBaseTest::getInstance
 	 *
-	 * @return string
-	 */
-	protected function getClass() {
-		return 'Wikibase\Lib\Serializers\ItemSerializer';
-	}
-
-	/**
 	 * @return ItemSerializer
 	 */
 	protected function getInstance() {
-		$class = $this->getClass();
-		return new $class( new ClaimSerializer( new SnakSerializer() ), SiteSQLStore::newInstance() );
+		return new ItemSerializer(
+			new ClaimSerializer( new SnakSerializer() ),
+			SiteSQLStore::newInstance()
+		);
 	}
 
 	/**

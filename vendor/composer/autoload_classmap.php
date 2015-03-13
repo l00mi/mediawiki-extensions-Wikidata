@@ -789,6 +789,7 @@ return array(
     'Wikibase\\PropertyLabelResolver' => $baseDir . '/extensions/Wikibase/lib/includes/store/PropertyLabelResolver.php',
     'Wikibase\\PruneChanges' => $baseDir . '/extensions/Wikibase/repo/maintenance/pruneChanges.php',
     'Wikibase\\RdfBuilder' => $baseDir . '/extensions/Wikibase/repo/includes/rdf/RdfBuilder.php',
+    'Wikibase\\RdfProducer' => $baseDir . '/extensions/Wikibase/repo/includes/rdf/RdfProducer.php',
     'Wikibase\\RdfSerializer' => $baseDir . '/extensions/Wikibase/repo/includes/rdf/RdfSerializer.php',
     'Wikibase\\RebuildPropertyInfo' => $baseDir . '/extensions/Wikibase/repo/maintenance/rebuildPropertyInfo.php',
     'Wikibase\\RebuildTermsSearchKey' => $baseDir . '/extensions/Wikibase/repo/maintenance/rebuildTermsSearchKey.php',

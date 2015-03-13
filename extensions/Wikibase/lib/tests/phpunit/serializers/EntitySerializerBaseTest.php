@@ -3,7 +3,6 @@
 namespace Wikibase\Test;
 
 use Wikibase\DataModel\Entity\Entity;
-use Wikibase\Lib\Serializers\SerializationOptions;
 
 /**
  * @covers Wikibase\Lib\Serializers\EntitySerializer
@@ -25,10 +24,5 @@ abstract class EntitySerializerBaseTest extends SerializerBaseTest {
 	 * @return Entity
 	 */
 	abstract protected function getEntityInstance();
-
-	protected function getInstance() {
-		$class = $this->getClass();
-		return new $class( new SerializationOptions() );
-	}
 
 }

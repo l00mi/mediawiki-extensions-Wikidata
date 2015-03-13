@@ -17,11 +17,11 @@ return array(
     $vendorDir . '/data-values/time/Time.php',
     $vendorDir . '/data-values/number/Number.php',
     $vendorDir . '/wikibase/data-model-javascript/init.php',
-    $baseDir . '/extensions/ValueView/ValueView.php',
     $vendorDir . '/wikibase/javascript-api/init.php',
     $vendorDir . '/wikibase/serialization-javascript/init.php',
     $vendorDir . '/data-values/data-types/DataTypes.php',
     $vendorDir . '/data-values/validators/Validators.php',
-    $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
+    $baseDir . '/extensions/ValueView/ValueView.php',
     $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
+    $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
 );

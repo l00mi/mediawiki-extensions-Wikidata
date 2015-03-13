@@ -23,15 +23,8 @@ use Wikibase\Lib\Serializers\SnakSerializer;
 class SnakSerializerTest extends SerializerBaseTest {
 
 	/**
-	 * @see SerializerBaseTest::getClass
+	 * @see SerializerBaseTest::getInstance
 	 *
-	 * @return string
-	 */
-	protected function getClass() {
-		return '\Wikibase\Lib\Serializers\SnakSerializer';
-	}
-
-	/**
 	 * @return SnakSerializer
 	 */
 	protected function getInstance() {
@@ -40,8 +33,7 @@ class SnakSerializerTest extends SerializerBaseTest {
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnCallback( array( $this, 'getDataTypeIdForProperty' ) ) );
 
-		$class = $this->getClass();
-		return new $class( $dataTypeLookup );
+		return new SnakSerializer( $dataTypeLookup );
 	}
 
 	public function getDataTypeIdForProperty( PropertyId $propertyId ) {

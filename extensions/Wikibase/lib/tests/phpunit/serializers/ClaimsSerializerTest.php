@@ -26,20 +26,12 @@ use Wikibase\Lib\Serializers\SnakSerializer;
 class ClaimsSerializerTest extends SerializerBaseTest {
 
 	/**
-	 * @see SerializerBaseTest::getClass
+	 * @see SerializerBaseTest::getInstance
 	 *
-	 * @return string
-	 */
-	protected function getClass() {
-		return '\Wikibase\Lib\Serializers\ClaimsSerializer';
-	}
-
-	/**
 	 * @return ClaimsSerializer
 	 */
 	protected function getInstance() {
-		$class = $this->getClass();
-		return new $class( new ClaimSerializer( new SnakSerializer() ) );
+		return new ClaimsSerializer( new ClaimSerializer( new SnakSerializer() ) );
 	}
 
 	/**

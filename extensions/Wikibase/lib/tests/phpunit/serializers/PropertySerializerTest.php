@@ -20,20 +20,12 @@ use Wikibase\Lib\Serializers\SnakSerializer;
 class PropertySerializerTest extends EntitySerializerBaseTest {
 
 	/**
-	 * @see SerializerBaseTest::getClass
+	 * @see SerializerBaseTest::getInstance
 	 *
-	 * @return string
-	 */
-	protected function getClass() {
-		return '\Wikibase\Lib\Serializers\PropertySerializer';
-	}
-
-	/**
 	 * @return PropertySerializer
 	 */
 	protected function getInstance() {
-		$class = $this->getClass();
-		return new $class( new ClaimSerializer( new SnakSerializer() ) );
+		return new PropertySerializer( new ClaimSerializer( new SnakSerializer() ) );
 	}
 
 	/**

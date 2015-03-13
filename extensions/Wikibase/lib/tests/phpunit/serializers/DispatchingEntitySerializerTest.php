@@ -7,7 +7,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Lib\Serializers\ItemSerializer;
+use Wikibase\Lib\Serializers\DispatchingEntitySerializer;
 use Wikibase\Lib\Serializers\SerializerFactory;
 
 /**
@@ -23,22 +23,12 @@ use Wikibase\Lib\Serializers\SerializerFactory;
 class DispatchingEntitySerializerTest extends EntitySerializerBaseTest {
 
 	/**
-	 * @see SerializerBaseTest::getClass
+	 * @see SerializerBaseTest::getInstance
 	 *
-	 * @return string
-	 */
-	protected function getClass() {
-		return '\Wikibase\Lib\Serializers\DispatchingEntitySerializer';
-	}
-
-	/**
-	 * @return ItemSerializer
+	 * @return DispatchingEntitySerializer
 	 */
 	protected function getInstance() {
-		$factory = new SerializerFactory();
-
-		$class = $this->getClass();
-		return new $class( $factory );
+		return new DispatchingEntitySerializer( new SerializerFactory() );
 	}
 
 	/**

@@ -73,7 +73,7 @@ class ClaimDifferTest extends \MediaWikiTestCase {
 				null,
 				null,
 				new Diff( array(
-					new DiffOpAdd( new PropertyNoValueSnak( 2 ) )
+					new DiffOpAdd( new Reference( array( new PropertyNoValueSnak( 2 ) ) ) )
 				), false )
 			)
 		);
@@ -87,7 +87,7 @@ class ClaimDifferTest extends \MediaWikiTestCase {
 					new DiffOpRemove( new PropertyNoValueSnak( 1 ) )
 				), false ),
 				new Diff( array(
-					new DiffOpAdd( new PropertyNoValueSnak( 2 ) )
+					new DiffOpAdd( new Reference( array( new PropertyNoValueSnak( 2 ) ) ) )
 				), false )
 			)
 		);
@@ -111,25 +111,12 @@ class ClaimDifferTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider diffClaimsProvider
-	 *
-	 * @param Claim $oldClaim
-	 * @param Claim $newClaim
-	 * @param ClaimDifference $expected
 	 */
 	public function testDiffClaims( Claim $oldClaim, Claim $newClaim, ClaimDifference $expected ) {
 		$differ = new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) );
 		$actual = $differ->diffClaims( $oldClaim, $newClaim );
 
-		$this->assertInstanceOf( 'Wikibase\Repo\Diff\ClaimDifference', $actual );
-
-		if ( !$expected->equals( $actual ) ) {
-			$this->assertEquals($expected, $actual);
-		}
-
-		$this->assertTrue(
-			$expected->equals( $actual ),
-			'Diffing the claims results in the correct ClaimDifference'
-		);
+		$this->assertTrue( $expected->equals( $actual ) );
 	}
 
 }
