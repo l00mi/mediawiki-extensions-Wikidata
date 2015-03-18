@@ -11,6 +11,12 @@ use Wikibase\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\Repo\View\ItemView
+ * @covers Wikibase\Repo\View\EntityView
+ *
+ * @uses Wikibase\Repo\View\TextInjector
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
  *
  * @group Wikibase
  * @group WikibaseItemView
@@ -24,8 +30,7 @@ use Wikibase\Template\TemplateRegistry;
 class ItemViewTest extends EntityViewTest {
 
 	protected function makeEntity( EntityId $id, array $statements = array() ) {
-		$item = Item::newEmpty();
-		$item->setId( $id );
+		$item = new Item( $id );
 		$item->setLabel( 'en', "label:$id" );
 		$item->setDescription( 'en', "description:$id" );
 
@@ -50,10 +55,10 @@ class ItemViewTest extends EntityViewTest {
 	public function provideTestGetHtml() {
 		$itemView = new ItemView(
 			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
-			$this->getMockBuilder( 'Wikibase\Repo\View\FingerprintView' )
+			$this->getMockBuilder( 'Wikibase\Repo\View\EntityTermsView' )
 				->disableOriginalConstructor()
 				->getMock(),
-			$this->getMockBuilder( 'Wikibase\Repo\View\ClaimsView' )
+			$this->getMockBuilder( 'Wikibase\Repo\View\StatementGroupListView' )
 				->disableOriginalConstructor()
 				->getMock(),
 			$this->getMock( 'Language' ),
@@ -67,10 +72,9 @@ class ItemViewTest extends EntityViewTest {
 			array(
 				$itemView,
 				$this->newEntityRevisionForStatements( array() ),
-				array(),
-				true,
 				'/wb-item/'
 			)
 		);
 	}
+
 }

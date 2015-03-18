@@ -13,8 +13,10 @@
 		{
 			"name": "Jeroen De Dauw",
 			"email": "jeroendedauw@gmail.com",
-			"homepage": "http://jeroendedauw.com",
-			"role": "Developer"
+			"homepage": "http://jeroendedauw.com"
+		},
+		{
+			"name": "Thiemo Mättig"
 		}
 	],
 	"support": {
@@ -38,7 +40,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "2.5.x-dev"
+			"dev-master": "2.6.x-dev"
 		}
 	},
 	"scripts": {

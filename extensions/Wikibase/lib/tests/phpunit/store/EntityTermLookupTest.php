@@ -8,6 +8,10 @@ use Wikibase\Lib\Store\EntityTermLookup;
 /**
  * @covers Wikibase\Lib\Store\EntityTermLookup
  *
+ * @group Wikibase
+ * @group WikibaseLib
+ * @group WikibaseStore
+ *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
@@ -33,7 +37,7 @@ class EntityTermLookupTest extends \MediaWikiTestCase {
 		return array(
 			'all languages' => array(
 				$q116,
-				null,
+				array( 'en', 'es' ),
 				array(
 					'en' => 'New York City',
 					'es' => 'Nueva York'
@@ -86,7 +90,7 @@ class EntityTermLookupTest extends \MediaWikiTestCase {
 		return array(
 			'all languages' => array(
 				$q116,
-				null,
+				array( 'de', 'en' ),
 				array(
 					'de' => 'Metropole an der Ostküste der Vereinigten Staaten',
 					'en' => 'largest city in New York and the United States of America',

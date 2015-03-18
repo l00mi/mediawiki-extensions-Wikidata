@@ -28,14 +28,15 @@ use Wikibase\Test\MockRepository;
  * @group Wikibase
  * @group WikibaseAPI
  * @group WikibaseRepo
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class CreateRedirectModuleTest extends \PHPUnit_Framework_TestCase {
+class CreateRedirectModuleTest extends \MediaWikiTestCase {
 
 	/**
-	 * @var MockRepository
+	 * @var MockRepository|null
 	 */
 	private $repo = null;
 
@@ -45,8 +46,7 @@ class CreateRedirectModuleTest extends \PHPUnit_Framework_TestCase {
 		$this->repo = new MockRepository();
 
 		// empty item
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q11' ) );
+		$item = new Item( new ItemId( 'Q11' ) );
 		$this->repo->putEntity( $item );
 
 		// non-empty item

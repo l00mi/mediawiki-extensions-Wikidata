@@ -3,12 +3,13 @@
 namespace Wikibase\Test;
 
 use Diff\Comparer\ComparableComparer;
+use Diff\Differ\OrderedListDiffer;
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
-use Diff\Differ\OrderedListDiffer;
 use Wikibase\DataModel\Claim\Claim;
+use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
@@ -61,7 +62,7 @@ class ClaimDifferTest extends \MediaWikiTestCase {
 			)
 		);
 
-		$references = new ReferenceList( array( new PropertyNoValueSnak( 2 ) ) );
+		$references = new ReferenceList( array( new Reference( array( new PropertyNoValueSnak( 2 ) ) ) ) );
 		$withReferences = clone $noValueForP42;
 		$withReferences->setReferences( $references );
 
@@ -72,7 +73,7 @@ class ClaimDifferTest extends \MediaWikiTestCase {
 				null,
 				null,
 				new Diff( array(
-					new DiffOpAdd( new PropertyNoValueSnak( 2 ) )
+					new DiffOpAdd( new Reference( array( new PropertyNoValueSnak( 2 ) ) ) )
 				), false )
 			)
 		);
@@ -86,7 +87,7 @@ class ClaimDifferTest extends \MediaWikiTestCase {
 					new DiffOpRemove( new PropertyNoValueSnak( 1 ) )
 				), false ),
 				new Diff( array(
-					new DiffOpAdd( new PropertyNoValueSnak( 2 ) )
+					new DiffOpAdd( new Reference( array( new PropertyNoValueSnak( 2 ) ) ) )
 				), false )
 			)
 		);
@@ -110,24 +111,21 @@ class ClaimDifferTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider diffClaimsProvider
-	 *
-	 * @param Claim $oldClaim
-	 * @param Claim $newClaim
-	 * @param ClaimDifference $expected
 	 */
 	public function testDiffClaims( Claim $oldClaim, Claim $newClaim, ClaimDifference $expected ) {
 		$differ = new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) );
 		$actual = $differ->diffClaims( $oldClaim, $newClaim );
 
-		$this->assertInstanceOf( 'Wikibase\Repo\Diff\ClaimDifference', $actual );
-
-		if ( !$expected->equals( $actual ) ) {
-			$this->assertEquals($expected, $actual);
-		}
-
-		$this->assertTrue(
-			$expected->equals( $actual ),
-			'Diffing the claims results in the correct ClaimDifference'
+		$this->assertTrue( $expected->equals( $actual ) );
+		// Additional fail-safe checks to guard against an ArrayObject bug in PHP 5.3, that returned
+		// true when using == to compare two ArrayObject instances with differing content.
+		$this->assertEquals(
+			$expected->getQualifierChanges()->getArrayCopy(),
+			$actual->getQualifierChanges()->getArrayCopy()
+		);
+		$this->assertEquals(
+			$expected->getReferenceChanges()->getArrayCopy(),
+			$actual->getReferenceChanges()->getArrayCopy()
 		);
 	}
 

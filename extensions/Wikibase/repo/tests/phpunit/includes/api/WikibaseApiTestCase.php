@@ -8,7 +8,6 @@ use TestSites;
 use TestUser;
 use UsageException;
 use User;
-use Wikibase\EntityFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -60,6 +59,16 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 		ApiTestCase::$users['wbeditor'] = self::$wbTestUser;
 
 		$this->setMwGlobals( 'wgUser', self::$users['wbeditor']->user );
+		$this->setMwGlobals( 'wgGroupPermissions', array( '*' => array(
+			'property-create' => true,
+			'createpage' => true,
+			'bot' => true,
+			'item-term' => true,
+			'property-term' => true,
+			'read' => true,
+			'edit' => true,
+			'writeapi' => true
+		) ) );
 	}
 
 	/**
@@ -337,10 +346,12 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 	 * @param array $response
 	 */
 	public function assertResultHasEntityType( $response ) {
+		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
+
 		if ( isset( $response['entity'] ) ) {
 			if ( isset( $response['entity']['type'] ) ) {
 				$this->assertTrue(
-					EntityFactory::singleton()->isEntityType( $response['entity']['type'] ),
+					$entityFactory->isEntityType( $response['entity']['type'] ),
 					"Missing valid 'type' in response."
 				);
 			}
@@ -348,7 +359,7 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 			foreach ( $response['entities'] as $entity ) {
 				if ( isset( $entity['type'] ) ) {
 					$this->assertTrue(
-						EntityFactory::singleton()->isEntityType( $entity['type'] ),
+						$entityFactory->isEntityType( $entity['type'] ),
 						"Missing valid 'type' in response."
 					);
 				}

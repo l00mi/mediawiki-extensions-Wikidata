@@ -118,9 +118,7 @@ class ParserOutputJsConfigBuilderTest extends \MediaWikiTestCase {
 	}
 
 	private function getMainItem() {
-		$item = Item::newEmpty();
-		$itemId = new ItemId( 'Q5881' );
-		$item->setId( $itemId );
+		$item = new Item( new ItemId( 'Q5881' ) );
 		$item->setLabel( 'en', 'Cake' );
 
 		$snak = new PropertyValueSnak(
@@ -137,8 +135,7 @@ class ParserOutputJsConfigBuilderTest extends \MediaWikiTestCase {
 	}
 
 	private function getReferencedItem() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q55' ) );
+		$item = new Item( new ItemId( 'Q55' ) );
 		$item->setLabel( 'en', 'Vanilla' );
 
 		return $item;

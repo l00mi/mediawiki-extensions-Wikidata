@@ -25,20 +25,12 @@ use Wikibase\Lib\Serializers\SnakSerializer;
 class ReferenceSerializerTest extends SerializerBaseTest {
 
 	/**
-	 * @see SerializerBaseTest::getClass
+	 * @see SerializerBaseTest::getInstance
 	 *
-	 * @return string
-	 */
-	protected function getClass() {
-		return '\Wikibase\Lib\Serializers\ReferenceSerializer';
-	}
-
-	/**
 	 * @return ReferenceSerializer
 	 */
 	protected function getInstance() {
-		$class = $this->getClass();
-		return new $class( new SnakSerializer() );
+		return new ReferenceSerializer( new SnakSerializer() );
 	}
 
 	/**

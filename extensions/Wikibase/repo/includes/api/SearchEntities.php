@@ -7,11 +7,9 @@ use ApiMain;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\EntityFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Term;
-use Wikibase\Utils;
 
 /**
  * API module to search for Wikibase entities.
@@ -36,12 +34,12 @@ class SearchEntities extends ApiBase {
 	/**
 	 * @var EntityTitleLookup
 	 */
-	protected $titleLookup;
+	private $titleLookup;
 
 	/**
 	 * @var EntityIdParser
 	 */
-	protected $idParser;
+	private $idParser;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -62,8 +60,6 @@ class SearchEntities extends ApiBase {
 	 * Get the entities corresponding to the provided language and term pair.
 	 * Term means it is either a label or an alias.
 	 *
-	 * @since 0.2
-	 *
 	 * @param string $term
 	 * @param string|null $entityType
 	 * @param string $language
@@ -72,10 +68,8 @@ class SearchEntities extends ApiBase {
 	 *
 	 * @return EntityId[]
 	 */
-	protected function searchEntities( $term, $entityType, $language, $limit, $prefixSearch ) {
-		wfProfileIn( __METHOD__ );
-
-		$ids = WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex()->getMatchingIDs(
+	private function searchEntities( $term, $entityType, $language, $limit, $prefixSearch ) {
+		return WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex()->getMatchingIDs(
 			array(
 				new Term( array(
 					'termType' 		=> Term::TYPE_LABEL,
@@ -95,9 +89,6 @@ class SearchEntities extends ApiBase {
 				'LIMIT' => $limit,
 			)
 		);
-
-		wfProfileOut( __METHOD__ );
-		return $ids;
 	}
 
 	/**
@@ -106,15 +97,11 @@ class SearchEntities extends ApiBase {
 	 * If there are not enough exact matches, the list of returned entries will be additionally
 	 * filled with prefixed matches.
 	 *
-	 * @since 0.4
-	 *
 	 * @param array $params
 	 *
 	 * @return array[]
 	 */
 	private function getSearchEntries( array $params ) {
-		wfProfileIn( __METHOD__ );
-
 		$ids = array();
 		$required = $params['continue'] + $params['limit'] + 1;
 
@@ -130,10 +117,7 @@ class SearchEntities extends ApiBase {
 		);
 		$ids = array_unique( $ids );
 
-		$entries = $this->getEntries( $ids, $params['search'], $params['language'] );
-
-		wfProfileOut( __METHOD__ );
-		return $entries;
+		return $this->getEntries( $ids, $params['search'], $params['language'] );
 	}
 
 	/**
@@ -264,8 +248,6 @@ class SearchEntities extends ApiBase {
 	 * @see ApiBase::execute()
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 
 		$entries = $this->getSearchEntries( $params );
@@ -317,25 +299,25 @@ class SearchEntities extends ApiBase {
 			'success',
 			(int)true
 		);
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
 	 * @see ApiBase::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
+		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
+
 		return array(
 			'search' => array(
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => true,
 			),
 			'language' => array(
-				ApiBase::PARAM_TYPE => Utils::getLanguageCodes(),
+				ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
 				ApiBase::PARAM_REQUIRED => true,
 			),
 			'type' => array(
-				ApiBase::PARAM_TYPE => EntityFactory::singleton()->getEntityTypes(),
+				ApiBase::PARAM_TYPE => $entityFactory->getEntityTypes(),
 				ApiBase::PARAM_DFLT => 'item',
 			),
 			'limit' => array(
@@ -354,9 +336,7 @@ class SearchEntities extends ApiBase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

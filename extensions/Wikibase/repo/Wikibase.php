@@ -62,6 +62,14 @@ if ( !defined( 'WBL_VERSION' ) ) {
 	throw new Exception( 'Wikibase depends on the WikibaseLib extension.' );
 }
 
+if ( !defined( 'WIKIBASE_VIEW_VERSION' ) ) {
+	include_once( __DIR__ . '/../view/WikibaseView.php' );
+}
+
+if ( !defined( 'WIKIBASE_VIEW_VERSION' ) ) {
+    throw new Exception( 'Wikibase depends on WikibaseView.' );
+}
+
 call_user_func( function() {
 	global $wgExtensionCredits, $wgGroupPermissions, $wgExtensionMessagesFiles, $wgMessagesDirs;
 	global $wgAPIModules, $wgSpecialPages, $wgHooks, $wgAvailableRights;
@@ -156,6 +164,7 @@ call_user_func( function() {
 	$wgSpecialPages['SetLabel'] 						= 'Wikibase\Repo\Specials\SpecialSetLabel';
 	$wgSpecialPages['SetDescription'] 					= 'Wikibase\Repo\Specials\SpecialSetDescription';
 	$wgSpecialPages['SetAliases'] 						= 'Wikibase\Repo\Specials\SpecialSetAliases';
+	$wgSpecialPages['SetLabelDescriptionAliases'] 		= 'Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases';
 	$wgSpecialPages['SetSiteLink']						= 'Wikibase\Repo\Specials\SpecialSetSiteLink';
 	$wgSpecialPages['EntitiesWithoutLabel'] 			= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutLabel' );
 	$wgSpecialPages['EntitiesWithoutDescription']		= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutDescription' );

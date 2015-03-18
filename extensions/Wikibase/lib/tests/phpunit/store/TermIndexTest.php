@@ -30,9 +30,8 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	public function testGetMatchingIDs() {
 		$lookup = $this->getTermIndex();
 
-		$item0 = Item::newEmpty();
 		$id0 = new ItemId( 'Q10' );
-		$item0->setId( $id0 );
+		$item0 = new Item( $id0 );
 
 		$item0->setLabel( 'en', 'foobar' );
 		$item0->setLabel( 'de', 'foobar' );
@@ -70,15 +69,13 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	public function testGetMatchingTerms() {
 		$lookup = $this->getTermIndex();
 
-		$item0 = Item::newEmpty();
-		$item0->setId( new ItemId( 'Q10' ) );
+		$item0 = new Item( new ItemId( 'Q10' ) );
 		$id0 = $item0->getId()->getSerialization();
 
 		$item0->setLabel( 'en', 'getmatchingterms-0' );
 		$lookup->saveTermsOfEntity( $item0 );
 
-		$item1 = Item::newEmpty();
-		$item1->setId( new ItemId( 'Q11' )  );
+		$item1 = new Item( new ItemId( 'Q11' )  );
 		$id1 = $item1->getId()->getSerialization();
 
 		$item1->setLabel( 'nl', 'getmatchingterms-1' );
@@ -127,15 +124,13 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	public function testGetMatchingPrefixTerms() {
 		$lookup = $this->getTermIndex();
 
-		$item0 = Item::newEmpty();
+		$item0 = new Item( new ItemId( 'Q10' ) );
 		$item0->setLabel( 'en', 'prefix' );
-		$item0->setId( new ItemId( 'Q10' ) );
 		$id0 = $item0->getId()->getSerialization();
 		$lookup->saveTermsOfEntity( $item0 );
 
-		$item1 = Item::newEmpty();
+		$item1 = new Item( new ItemId( 'Q11' ) );
 		$item1->setLabel( 'nl', 'postfix' );
-		$item1->setId( new ItemId( 'Q11' ) );
 		$id1 = $item1->getId()->getSerialization();
 		$lookup->saveTermsOfEntity( $item1 );
 
@@ -198,7 +193,8 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	public function testDeleteTermsForEntity() {
 		$lookup = $this->getTermIndex();
 
-		$item = Item::newEmpty();
+		$id = new ItemId( 'Q10' );
+		$item = new Item( $id );
 
 		$item->setLabel( 'en', 'abc' );
 		$item->setLabel( 'de', 'def' );
@@ -206,8 +202,6 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$item->setDescription( 'en', 'testDeleteTermsForEntity' );
 		$item->setAliases( 'fr', array( 'o', '_', 'O' ) );
 
-		$id = new ItemId( 'Q10' );
-		$item->setId( $id );
 		$lookup->saveTermsOfEntity( $item );
 
 		$this->assertTermExists( $lookup, 'testDeleteTermsForEntity' );
@@ -225,8 +219,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	public function testSaveTermsOfEntity() {
 		$lookup = $this->getTermIndex();
 
-		$item = Item::newEmpty();
-		$item->setId( 568431314 );
+		$item = new Item( new ItemId( 'Q568431314' ) );
 
 		$item->setLabel( 'en', 'abc' );
 		$item->setLabel( 'de', 'def' );
@@ -310,8 +303,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	}
 
 	public function testUpdateTermsOfEntity() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q568431314' ) );
+		$item = new Item( new ItemId( 'Q568431314' ) );
 
 		// save original set of terms
 		$item->setLabel( 'en', 'abc' );
@@ -350,28 +342,23 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	}
 
 	private function getTermConflictEntities() {
-		$deFooBar1 = Item::newEmpty();
-		$deFooBar1->setId( new ItemId( 'Q1' ) );
+		$deFooBar1 = new Item( new ItemId( 'Q1' ) );
 		$deFooBar1->setLabel( 'de', 'Foo' );
 		$deFooBar1->setDescription( 'de', 'Bar' );
 
-		$deBarFoo2 = Item::newEmpty();
-		$deBarFoo2->setId( new ItemId( 'Q2' ) );
+		$deBarFoo2 = new Item( new ItemId( 'Q2' ) );
 		$deBarFoo2->setLabel( 'de', 'Bar' );
 		$deBarFoo2->setDescription( 'de', 'Foo' );
 
-		$enFooBar3 = Item::newEmpty();
-		$enFooBar3->setId( new ItemId( 'Q3' ) );
+		$enFooBar3 = new Item( new ItemId( 'Q3' ) );
 		$enFooBar3->setLabel( 'en', 'Foo' );
 		$enFooBar3->setDescription( 'en', 'Bar' );
 
-		$enBarFoo4 = Item::newEmpty();
-		$enBarFoo4->setId( new ItemId( 'Q4' ) );
+		$enBarFoo4 = new Item( new ItemId( 'Q4' ) );
 		$enBarFoo4->setLabel( 'en', 'Bar' );
 		$enBarFoo4->setDescription( 'en', 'Foo' );
 
-		$deFooQuux5 = Item::newEmpty();
-		$deFooQuux5->setId( new ItemId( 'Q5' ) );
+		$deFooQuux5 = new Item( new ItemId( 'Q5' ) );
 		$deFooQuux5->setLabel( 'de', 'Foo' );
 		$deFooQuux5->setDescription( 'de', 'Quux' );
 
@@ -496,8 +483,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	public function testGetTermsOfEntity() {
 		$lookup = $this->getTermIndex();
 
-		$item = Item::newEmpty();
-		$item->setId( 568234314 );
+		$item = new Item( new ItemId( 'Q568234314' ) );
 
 		$item->setLabel( 'en', 'abc' );
 		$item->setLabel( 'de', 'def' );
@@ -547,8 +533,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	public function testGetTermsOfEntities() {
 		$lookup = $this->getTermIndex();
 
-		$item1 = Item::newEmpty();
-		$item1->setId( 568234314 );
+		$item1 = new Item( new ItemId( 'Q568234314' ) );
 
 		$item1->setLabel( 'en', 'abc' );
 		$item1->setLabel( 'de', 'def' );
@@ -556,8 +541,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$item1->setDescription( 'en', 'one description' );
 		$item1->setAliases( 'fr', array( 'o', '_', 'O' ) );
 
-		$item2 = Item::newEmpty();
-		$item2->setId( 87236423 );
+		$item2 = new Item( new ItemId( 'Q87236423' ) );
 
 		$item2->setLabel( 'en', 'xyz' );
 		$item2->setLabel( 'de', 'uvw' );
@@ -633,4 +617,5 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$matches = $termIndex->getMatchingTerms( array( new Term( $termFields ) ), $termType, $entityType );
 		return !empty( $matches );
 	}
+
 }

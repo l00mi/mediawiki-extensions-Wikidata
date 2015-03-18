@@ -7,6 +7,7 @@ use ParserOutput;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
+use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\DataModel\Entity\Item;
@@ -43,8 +44,7 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	private function getItems() {
 		$items = array();
 
-		$item = Item::newEmpty();
-		$item->setId( 1 );
+		$item = new Item( new ItemId( 'Q1' ) );
 		$item->setLabel( 'en', 'Foo' );
 		$links = $item->getSiteLinkList();
 		$links->addNewSiteLink( 'dewiki', 'Foo de' );
@@ -54,8 +54,7 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 		$links->addNewSiteLink( 'enwiktionary', 'Foo en word' );
 		$items[] = $item;
 
-		$item = Item::newEmpty();
-		$item->setId( 2 );
+		$item = new Item( new ItemId( 'Q2' ) );
 		$item->setLabel( 'en', 'Talk:Foo' );
 		$links = $item->getSiteLinkList();
 		$links->addNewSiteLink( 'dewiki', 'Talk:Foo de' );
@@ -69,10 +68,15 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	protected function setUp() {
 		parent::setUp();
 
-		$this->langLinkHandler = $this->getLangLinkHandler( array() );
+		$this->langLinkHandler = $this->getLangLinkHandler();
 	}
 
-	private function getLangLinkHandler( array $otherProjects ) {
+	/**
+	 * @param string[] $otherProjects
+	 *
+	 * @return LangLinkHandler
+	 */
+	private function getLangLinkHandler( array $otherProjects = array() ) {
 		$this->mockRepo = new MockRepository();
 
 		foreach ( $this->getItems() as $item ) {
@@ -93,6 +97,11 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 		);
 	}
 
+	/**
+	 * @param string[] $otherProjects
+	 *
+	 * @return OtherProjectsSidebarGeneratorFactory
+	 */
 	private function getOtherProjectsSidebarGeneratorFactory( array $otherProjects ) {
 		$otherProjectsSidebarGenerator = $this->getOtherProjectsSidebarGenerator( $otherProjects );
 
@@ -110,7 +119,7 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @param array $otherProjects
+	 * @param string[] $otherProjects
 	 *
 	 * @return OtherProjectsSidebarGenerator
 	 */
@@ -460,8 +469,7 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 
 		$out = $this->makeParserOutput( $langLinks, $noExternalLangLinks );
 
-		$langLinkHandler = $this->getLangLinkHandler( array() );
-		$langLinkHandler->addLinksFromRepository( $title, $out );
+		$this->langLinkHandler->addLinksFromRepository( $title, $out );
 
 		$this->assertArrayEquals( $expectedLinks, $out->getLanguageLinks(), false, false );
 		$this->assertArrayEquals( $expectedBadges, $out->getExtensionData( 'wikibase_badges' ), false, true );
@@ -602,14 +610,12 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function testUpdateItemIdProperty() {
-		$langLinkHandler = $this->getLangLinkHandler( array() );
-
 		$parserOutput = new ParserOutput();
 
 		$titleText = 'Foo sr';
 		$title = Title::newFromText( $titleText );
 
-		$langLinkHandler->updateItemIdProperty( $title, $parserOutput );
+		$this->langLinkHandler->updateItemIdProperty( $title, $parserOutput );
 		$property = $parserOutput->getProperty( 'wikibase_item' );
 
 		$itemId = $this->mockRepo->getItemIdForLink( 'srwiki', $titleText );
@@ -627,14 +633,12 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function testUpdateItemIdPropertyForUnconnectedPage() {
-		$langLinkHandler = $this->getLangLinkHandler( array() );
-
 		$parserOutput = new ParserOutput();
 
 		$titleText = 'Foo xx';
 		$title = Title::newFromText( $titleText );
 
-		$langLinkHandler->updateItemIdProperty( $title, $parserOutput );
+		$this->langLinkHandler->updateItemIdProperty( $title, $parserOutput );
 		$property = $parserOutput->getProperty( 'wikibase_item' );
 
 		$this->assertEquals( false, $property );

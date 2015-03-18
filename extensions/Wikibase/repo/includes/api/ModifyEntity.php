@@ -315,8 +315,6 @@ abstract class ModifyEntity extends ApiWikibase {
 	 * @since 0.1
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 		$user = $this->getUser();
 		$this->flags = 0;
@@ -346,7 +344,6 @@ abstract class ModifyEntity extends ApiWikibase {
 		$status = $this->checkPermissions( $entity, $user, $params );
 
 		if ( !$status->isOK() ) {
-			wfProfileOut( __METHOD__ );
 			$this->dieError( 'You do not have sufficient permissions', 'permissiondenied' );
 		}
 
@@ -355,7 +352,6 @@ abstract class ModifyEntity extends ApiWikibase {
 		if ( !$summary ) {
 			//XXX: This could rather be used for "silent" failure, i.e. in cases where
 			//     there was simply nothing to do.
-			wfProfileOut( __METHOD__ );
 			$this->dieError( 'Attempted modification of the item failed', 'failed-modify' );
 		}
 
@@ -374,8 +370,6 @@ abstract class ModifyEntity extends ApiWikibase {
 		);
 
 		$this->addToOutput( $entity, $status );
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -415,14 +409,26 @@ abstract class ModifyEntity extends ApiWikibase {
 	}
 
 	/**
+	 * @see ApiBase::getAllowedParams
+	 */
+	protected function getAllowedParams() {
+		return array_merge(
+			parent::getAllowedParams(),
+			$this->getAllowedParamsForId(),
+			$this->getAllowedParamsForSiteLink(),
+			$this->getAllowedParamsForEntity()
+		);
+	}
+
+	/**
 	 * Get allowed params for the identification of the entity
 	 * Lookup through an id is common for all entities
 	 *
 	 * @since 0.1
 	 *
-	 * @return array the allowed params
+	 * @return array
 	 */
-	public function getAllowedParamsForId() {
+	protected function getAllowedParamsForId() {
 		return array(
 			'id' => array(
 				ApiBase::PARAM_TYPE => 'string',
@@ -436,9 +442,9 @@ abstract class ModifyEntity extends ApiWikibase {
 	 *
 	 * @since 0.1
 	 *
-	 * @return array the allowed params
+	 * @return array
 	 */
-	public function getAllowedParamsForSiteLink() {
+	protected function getAllowedParamsForSiteLink() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 		return array(
 			'site' => array(
@@ -455,9 +461,9 @@ abstract class ModifyEntity extends ApiWikibase {
 	 *
 	 * @since 0.1
 	 *
-	 * @return array the allowed params
+	 * @return array
 	 */
-	public function getAllowedParamsForEntity() {
+	protected function getAllowedParamsForEntity() {
 		return array(
 			'baserevid' => array(
 				ApiBase::PARAM_TYPE => 'integer',
@@ -469,4 +475,5 @@ abstract class ModifyEntity extends ApiWikibase {
 			'bot' => false,
 		);
 	}
+
 }

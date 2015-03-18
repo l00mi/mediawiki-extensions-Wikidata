@@ -4,7 +4,6 @@ namespace Wikibase\Test;
 
 use Wikibase\ChangesTable;
 use Wikibase\Client\Usage\NullSubscriptionManager;
-use Wikibase\Store\EntityIdLookup;
 use Wikibase\Client\Usage\NullUsageTracker;
 use Wikibase\Client\Usage\SubscriptionManager;
 use Wikibase\Client\Usage\UsageLookup;
@@ -26,6 +25,18 @@ use Wikibase\TermIndex;
  * @author Marius Hoch < hoo@online.de >
  */
 class MockClientStore implements ClientStore {
+
+	/**
+	 * @var string|null
+	 */
+	private $languageCode;
+
+	/**
+	 * @param string|null $languageCode
+	 */
+	public function __construct( $languageCode = null ) {
+		$this->languageCode = $languageCode;
+	}
 
 	/**
 	 * @var MockRepository|null
@@ -70,7 +81,10 @@ class MockClientStore implements ClientStore {
 	 * @return PropertyLabelResolver
 	 */
 	public function getPropertyLabelResolver() {
-		// FIXME: Incomplete
+		return new MockPropertyLabelResolver(
+			$this->languageCode ?: 'en',
+			$this->getMockRepository()
+		);
 	}
 
 	/**
@@ -112,6 +126,9 @@ class MockClientStore implements ClientStore {
 	public function rebuild() {
 	}
 
+	/**
+	 * @return MockRepository
+	 */
 	private function getMockRepository() {
 		if ( self::$mockRepository === null ) {
 			self::$mockRepository = new MockRepository();

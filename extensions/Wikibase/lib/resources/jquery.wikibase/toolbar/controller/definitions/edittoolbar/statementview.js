@@ -12,7 +12,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 	selector: ':' + $.wikibase.statementview.prototype.namespace
 		+ '-' + $.wikibase.statementview.prototype.widgetName,
 	events: {
-		'statementviewcreate': function( event, toolbarcontroller ) {
+		statementviewcreate: function( event, toolbarcontroller ) {
 			var $statementview = $( event.target ),
 				statementview = $statementview.data( 'statementview' ),
 				options = {
@@ -28,10 +28,11 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			if( !!statementview.value() ) {
 				options.onRemove = function() {
-					var $claimlistview = $statementview.closest( ':wikibase-claimlistview' ),
-						claimlistview = $claimlistview.data( 'claimlistview' );
-					if( claimlistview ) {
-						claimlistview.remove( statementview );
+					var $statementlistview
+							= $statementview.closest( ':wikibase-statementlistview' ),
+						statementlistview = $statementlistview.data( 'statementlistview' );
+					if( statementlistview ) {
+						statementlistview.remove( statementview );
 					}
 				};
 			}
@@ -49,7 +50,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				}
 			} );
 		},
-		'statementviewdestroy': function( event, toolbarController ) {
+		statementviewdestroy: function( event, toolbarController ) {
 			var $statementview = $( event.target );
 			toolbarController.destroyToolbar( $statementview.data( 'edittoolbar' ) );
 			$statementview.off( '.edittoolbar' );
@@ -88,7 +89,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			btnSave[shouldEnableSaveButton( statementview ) ? 'enable' : 'disable']();
 		},
-		'statementviewdisable': function( event ) {
+		statementviewdisable: function( event ) {
 			var $statementview = $( event.target ),
 				statementview = $statementview.data( 'statementview' ),
 				edittoolbar = $statementview.data( 'edittoolbar' ),
@@ -97,7 +98,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			btnSave[enable ? 'enable' : 'disable']();
 		},
-		'edittoolbaredit': function( event, toolbarcontroller ) {
+		edittoolbaredit: function( event, toolbarcontroller ) {
 			var $statementview = $( event.target ),
 				statementview = $statementview.data( 'statementview' );
 

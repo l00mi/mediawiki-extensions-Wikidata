@@ -2,12 +2,13 @@
 	"@metadata": {
 		"authors": [
 			"C.R.",
-			"Chelin"
+			"Chelin",
+			"Macofe"
 		]
 	},
 	"wikibase-error-unexpected": "Sbaglio: $1",
 	"wikibase-timedetails-time": "Tiempo",
-	"wikibase-timedetails-isotime": "Ora e data ISO",
+	"wikibase-timedetails-isotime": "Data e ora",
 	"wikibase-timedetails-timezone": "Fuso orario",
 	"wikibase-timedetails-calendar": "Calannario",
 	"wikibase-timedetails-precision": "Precisiona",
@@ -16,5 +17,6 @@
 	"wikibase-globedetails-longitude": "Longitudine",
 	"wikibase-globedetails-latitude": "Latitudine",
 	"wikibase-globedetails-precision": "Precisiona",
-	"wikibase-globedetails-globe": "Globbo"
+	"wikibase-globedetails-globe": "Globbo",
+	"wikibase-sitelinks-wikipedia": "Wikipedia"
 }

@@ -1,39 +1,38 @@
-/**
- * @licence GNU GPL v2+
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( $, mw, wb ) {
 	'use strict';
 
 	var PARENT = $.ui.EditableTemplatedWidget;
 
 /**
- * Manages aliases.
- * @since 0.5
+ * Displays and allows editing of `wikibase.datamodel.MultiTerm` objects.
+ * @see wikibase.datamodel.MultiTerm
+ * @class jQuery.wikibase.aliasesview
  * @extends jQuery.ui.EditableTemplatedWidget
+ * @since 0.5
+ * @licence GNU GPL v2+
+ * @author H. Snater < mediawiki@snater.com >
  *
- * @option {wikibase.datamodel.MultiTerm} value
+ * @constructor
  *
- * @option {string} [helpMessage]
- *         Default: mw.msg( 'wikibase-aliases-input-help-message' )
- *
- * @option {wikibase.entityChangers.AliasesChanger} aliasesChanger
+ * @param {Object} options
+ * @param {wikibase.datamodel.MultiTerm} options.value
+ * @param {string} [options.helpMessage=mw.msg( 'wikibase-aliases-input-help-message' )]
+ * @param {wikibase.entityChangers.AliasesChanger} aliasesChanger
  */
 $.widget( 'wikibase.aliasesview', PARENT, {
 	/**
-	 * @see jQuery.ui.EditableTemplatedWidget.options
+	 * @inheritdoc
+	 * @protected
 	 */
 	options: {
 		template: 'wikibase-aliasesview',
 		templateParams: [
 			'', // additional class
-			mw.msg( 'wikibase-aliases-label' ), // label
 			'', // list items
 			'' // toolbar
 		],
 		templateShortCuts: {
-			'$label': '.wikibase-aliasesview-label',
-			'$list': 'ul'
+			$list: 'ul'
 		},
 		value: null,
 		helpMessage: mw.msg( 'wikibase-aliases-input-help-message' ),
@@ -41,20 +40,22 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._create
+	 * @inheritdoc
+	 * @protected
+	 *
+	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
 		if(
 			!( this.options.value instanceof wb.datamodel.MultiTerm )
 			|| !this.options.aliasesChanger
 		) {
-			throw new Error( 'Required option(s) missing' );
+			throw new Error( 'Required option not specified properly' );
 		}
 
 		PARENT.prototype._create.call( this );
 
 		this.element.removeClass( 'wb-empty' );
-		this.$label.text( mw.msg( 'wikibase-aliases-label' ) );
 
 		if( this.$list.children( 'li' ).length !== this.options.value.getTexts().length ) {
 			this.draw();
@@ -63,10 +64,22 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 			.prop( 'lang', this.options.value.getLanguageCode() )
 			.prop( 'dir', $.util.getDirectionality( this.options.value.getLanguageCode() ) );
 		}
+
+		this.$list.addClass( this.widgetFullName + '-input' );
 	},
 
 	/**
-	 * @see jQuery.ui.EditableTemplatedWidget.draw
+	 * @inheritdoc
+	 */
+	destroy: function() {
+		if( this.$list ) {
+			this.$list.removeClass( this.widgetFullName + '-input' );
+		}
+		PARENT.prototype.destroy.call( this );
+	},
+
+	/**
+	 * @inheritdoc
 	 */
 	draw: function() {
 		this.$list.off( '.' + this.widgetName );
@@ -95,7 +108,8 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * Creates and initializes the tagadata widget.
+	 * Creates and initializes the `jQuery.ui.tagadata` widget.
+	 * @private
 	 */
 	_initTagadata: function() {
 		var self = this;
@@ -149,28 +163,33 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.EditableTemplatedWidget.save
+	 * @inheritdoc
+	 * @protected
 	 */
 	_save: function() {
 		return this.options.aliasesChanger.setAliases( this.value() );
 	},
 
 	/**
-	 * @see jQuery.ui.EditableTemplatedWidget.isValid
+	 * @inheritdoc
 	 */
 	isValid: function() {
 		return true;
 	},
 
 	/**
-	 * @see jQuery.ui.EditableTemplatedWidget.isValid
+	 * @inheritdoc
 	 */
 	isInitialValue: function() {
 		return this.value().equals( this.options.value );
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * @inheritdoc
+	 * @protected
+	 *
+	 * @throws {Error} when trying to set the widget's value to something other than a
+	 *         `wikibase.datamodel.MultiTerm` instance.
 	 */
 	_setOption: function( key, value ) {
 		if( key === 'value' && !( value instanceof wb.datamodel.MultiTerm ) ) {
@@ -187,7 +206,7 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * Gets/Sets the widget's value.
+	 * @inheritdoc
 	 *
 	 * @param {wikibase.datamodel.MultiTerm} [value]
 	 * @return {wikibase.datamodel.MultiTerm|undefined}
@@ -213,7 +232,7 @@ $.widget( 'wikibase.aliasesview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		if( this.isInEditMode() ) {

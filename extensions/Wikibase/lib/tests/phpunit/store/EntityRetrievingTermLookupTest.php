@@ -9,6 +9,10 @@ use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 /**
  * @covers Wikibase\Lib\Store\EntityRetrievingTermLookup
  *
+ * @group Wikibase
+ * @group WikibaseLib
+ * @group WikibaseStore
+ *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
@@ -40,7 +44,8 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 		return array(
 			array(
 				array( 'en' => 'New York City', 'es' => 'Nueva York' ),
-				new ItemId( 'Q116' )
+				new ItemId( 'Q116' ),
+				array( 'en', 'es' )
 			),
 			array(
 				array( 'es' => 'Nueva York' ),
@@ -49,7 +54,8 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 			),
 			array(
 				array( 'de' => 'Berlin' ),
-				new ItemId( 'Q117' )
+				new ItemId( 'Q117' ),
+				array( 'de' )
 			)
 		);
 	}
@@ -57,7 +63,7 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider getLabelsProvider
 	 */
-	public function testGetLabels( array $expected, ItemId $itemId, array $languageCodes = null ) {
+	public function testGetLabels( array $expected, ItemId $itemId, array $languageCodes ) {
 		$termLookup = $this->getEntityTermLookup();
 
 		$labels = $termLookup->getLabels( $itemId, $languageCodes );
@@ -88,7 +94,8 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 					'de' => 'Metropole an der Ostküste der Vereinigten Staaten',
 					'en' => 'largest city in New York and the United States of America',
 				),
-				new ItemId( 'Q116' )
+				new ItemId( 'Q116' ),
+				array( 'de', 'en' )
 			),
 			array(
 				array(
@@ -99,7 +106,8 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 			),
 			array(
 				array(),
-				new ItemId( 'Q117' )
+				new ItemId( 'Q117' ),
+				array()
 			)
 		);
 	}
@@ -107,7 +115,7 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider getDescriptionsProvider
 	 */
-	public function testGetDescriptions( array $expected, ItemId $itemId, array $languageCodes = null ) {
+	public function testGetDescriptions( array $expected, ItemId $itemId, array $languageCodes ) {
 		$termLookup = $this->getEntityTermLookup();
 
 		$descriptions = $termLookup->getDescriptions( $itemId, $languageCodes );
@@ -121,8 +129,7 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 	private function getEntityLookup() {
 		$mockRepo = new MockRepository();
 
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q116' ) );
+		$item = new Item( new ItemId( 'Q116' ) );
 
 		$item->setLabel( 'en', 'New York City' );
 		$item->setLabel( 'es', 'Nueva York' );
@@ -132,8 +139,7 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 
 		$mockRepo->putEntity( $item );
 
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q117' ) );
+		$item = new Item( new ItemId( 'Q117' ) );
 
 		$item->setLabel( 'de', 'Berlin' );
 

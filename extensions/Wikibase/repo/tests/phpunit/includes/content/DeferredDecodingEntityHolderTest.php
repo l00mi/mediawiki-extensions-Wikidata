@@ -2,10 +2,8 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\Content\DeferredCopyEntityHolder;
 use Wikibase\Content\DeferredDecodingEntityHolder;
 use Wikibase\Content\EntityHolder;
-use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
@@ -29,8 +27,7 @@ class DeferredDecodingEntityHolderTest extends \PHPUnit_Framework_TestCase {
 	 * @return Entity
 	 */
 	private function newEntity() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q17' ) );
+		$item = new Item( new ItemId( 'Q17' ) );
 		$item->setLabel( 'en', 'Foo' );
 
 		return $item;

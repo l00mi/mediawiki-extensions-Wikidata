@@ -8,6 +8,7 @@ use DataValues\QuantityValue;
 use DataValues\StringValue;
 use DataValues\TimeValue;
 use Language;
+use MediaWikiTestCase;
 use Title;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\StringFormatter;
@@ -20,9 +21,10 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\PlainEntityIdFormatter;
+use Wikibase\Lib\EntityIdValueFormatter;
 use Wikibase\Lib\FormatterLabelLookupFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
+use Wikibase\Lib\PlainEntityIdFormatter;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
@@ -34,11 +36,12 @@ use Wikibase\Lib\WikibaseValueFormatterBuilders;
  * @group DataValueExtensions
  * @group WikibaseLib
  * @group Wikibase
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
+class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 
 	protected function setUp() {
 		parent::setUp();
@@ -73,9 +76,15 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 				);
 			} ) );
 
+		$languageNameLookup = $this->getMock( 'Wikibase\Lib\LanguageNameLookup' );
+		$languageNameLookup->expects( $this->any() )
+			->method( 'getName' )
+			->will( $this->returnValue( 'Deutsch' ));
+
 		return new WikibaseValueFormatterBuilders(
 			Language::factory( 'en' ),
 			new FormatterLabelLookupFactory( $termLookup ),
+			$languageNameLookup,
 			$entityTitleLookup
 		);
 	}
@@ -216,7 +225,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 				SnakFormatter::FORMAT_HTML,
 				$this->newFormatterOptions( 'en' ),
 				new MonolingualTextValue( 'de', 'Hallo Welt' ),
-				'/^<span lang="de".*?>Hallo Welt<\/span>.*\((German|Deutsch)\).*$/'
+				'/^<span lang="de".*?>Hallo Welt<\/span>.*\Deutsch.*$/'
 			),
 			'text in spanish' => array(
 				SnakFormatter::FORMAT_WIKI,
@@ -360,8 +369,8 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 		$builders = $this->newWikibaseValueFormatterBuilders();
 		$builders->setValueFormatterClass(
 			SnakFormatter::FORMAT_PLAIN,
-			'VT:wikibase-entityid',
-			'Wikibase\Lib\PlainEntityIdFormatter'
+			'VT:monolingualtext',
+			'Wikibase\Formatters\MonolingualTextFormatter'
 		);
 		$builders->setValueFormatterClass(
 			SnakFormatter::FORMAT_PLAIN,
@@ -380,8 +389,8 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 		);
 
 		$this->assertEquals(
-			'Q5',
-			$formatter->format( new EntityIdValue( new ItemId( "Q5" ) ) ),
+			'value',
+			$formatter->format( new MonolingualTextValue( 'en', 'value' ) ),
 			'Extra formatter'
 		);
 
@@ -401,8 +410,7 @@ class WikibaseValueFormatterBuildersTest extends \MediaWikiTestCase {
 
 	public function testSetValueFormatterBuilder() {
 		$builder = function () {
-			$options = new FormatterOptions();
-			return new PlainEntityIdFormatter( $options );
+			return new EntityIdValueFormatter( new PlainEntityIdFormatter() );
 		};
 
 		$builders = $this->newWikibaseValueFormatterBuilders();

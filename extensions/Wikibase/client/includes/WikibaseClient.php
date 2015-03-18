@@ -26,7 +26,7 @@ use Wikibase\ClientStore;
 use Wikibase\DataAccess\PropertyIdResolver;
 use Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory;
 use Wikibase\DataAccess\PropertyParserFunction\Runner;
-use Wikibase\DataAccess\PropertyParserFunction\SnaksFinder;
+use Wikibase\DataAccess\SnaksFinder;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
@@ -42,6 +42,7 @@ use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\FormatterLabelLookupFactory;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
@@ -50,6 +51,7 @@ use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\Store\TermLookup;
+use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
@@ -475,10 +477,7 @@ final class WikibaseClient {
 	 * @return OutputFormatSnakFormatterFactory
 	 */
 	private function newSnakFormatterFactory() {
-		$valueFormatterBuilders = new WikibaseValueFormatterBuilders(
-			$this->contentLanguage,
-			new FormatterLabelLookupFactory( $this->getTermLookup() )
-		);
+		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
 
 		$builders = new WikibaseSnakFormatterBuilders(
 			$valueFormatterBuilders,
@@ -507,12 +506,16 @@ final class WikibaseClient {
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	private function newValueFormatterFactory() {
-		$builders = new WikibaseValueFormatterBuilders(
-			$this->contentLanguage,
-			new FormatterLabelLookupFactory( $this->getTermLookup() )
-		);
-
+		$builders = $this->newWikibaseValueFormatterBuilders();
 		return new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
+	}
+
+	private function newWikibaseValueFormatterBuilders() {
+		return new WikibaseValueFormatterBuilders(
+			$this->contentLanguage,
+			new FormatterLabelLookupFactory( $this->getTermLookup() ),
+			new LanguageNameLookup()
+		);
 	}
 
 	/**
@@ -695,8 +698,6 @@ final class WikibaseClient {
 	private function getPropertyClaimsRendererFactory() {
 		$entityLookup = $this->getEntityLookup();
 
-		$snaksFinder = new SnaksFinder( $entityLookup );
-
 		$propertyIdResolver = new PropertyIdResolver(
 			$entityLookup,
 			$this->getStore()->getPropertyLabelResolver()
@@ -704,9 +705,10 @@ final class WikibaseClient {
 
 		return new PropertyClaimsRendererFactory(
 			$propertyIdResolver,
-			$snaksFinder,
+			new SnaksFinder(),
 			$this->getLanguageFallbackChainFactory(),
-			$this->getSnakFormatterFactory()
+			$this->getSnakFormatterFactory(),
+			$entityLookup
 		);
 	}
 
@@ -769,6 +771,15 @@ final class WikibaseClient {
 			$siteId,
 			$this->settings->getSetting( 'injectRecentChanges' )
 		);
+	}
+
+	/**
+	 * Get a ContentLanguages object holding the languages available for labels, descriptions and aliases.
+	 *
+	 * @return ContentLanguages
+	 */
+	public function getTermsLanguages() {
+		return new WikibaseContentLanguages();
 	}
 
 	/**

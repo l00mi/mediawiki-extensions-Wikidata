@@ -36,7 +36,7 @@ function createSitelinklistview( options ) {
 
 QUnit.module( 'jquery.wikibase.sitelinklistview', QUnit.newWbEnvironment( {
 	config: {
-		'wbSiteDetails': {
+		wbSiteDetails: {
 			aawiki: {
 				apiUrl: 'http://aa.wikipedia.org/w/api.php',
 				name: 'Qafár af',
@@ -354,11 +354,19 @@ QUnit.test( 'enterNewItem()', 2, function( assert ) {
 	var $sitelinklistview = createSitelinklistview(),
 		sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
 
+	sitelinklistview.$listview
+	.on( 'listviewenternewitem', function() {
+		assert.ok(
+			true,
+			'Triggered listview\'s "enternewitem" event on the listview node.'
+		);
+	} );
+
 	$sitelinklistview
 	.on( 'listviewenternewitem', function( event, $sitelinkview ) {
 		assert.ok(
-			true,
-			'Added listview item.'
+			false,
+			'Triggered listview\'s "enternewitem" event on the sitelinklistview node.'
 		);
 	} )
 	.on( 'sitelinklistviewafterstartediting', function() {

@@ -6,11 +6,11 @@
 			"Hede2000",
 			"HenrikKbh",
 			"Poul G",
-			"Steenth"
+			"Steenth",
+			"Peter Alberti"
 		]
 	},
 	"wikibase-client-desc": "Klient til Wikibase-udvidelsen",
-	"specialpages-group-wikibaseclient": "Wikidata-klient",
 	"tooltip-t-wikibase": "Link til tilknyttet emne i Wikidata",
 	"wikibase-after-page-move": "Du kan også [$1 opdatere] det tilknyttede Wikidata-emne for at bevare sproghenvisninger på den flyttede side.",
 	"wikibase-after-page-move-queued": "[$1 Wikidataemnet] tilknyttet denne side vil snart blive opdateret automatisk.",
@@ -42,10 +42,13 @@
 	"wikibase-linkitem-not-loggedin": "Du skal være logget ind på denne wiki og i det [$1 centrale datadepot] for at bruge denne funktion.",
 	"wikibase-linkitem-success-link": "Siderne er blevet linket. Du kan finde det emne, der indeholder links, i vores [$1 centrale datadepot].",
 	"wikibase-property-notfound": "Egenskaben $1 ikke fundet.",
-	"wikibase-rc-hide-wikidata": "$1 Wikidata",
+	"wikibase-rc-hide-wikidata": "$1 {{WBREPONAME}}",
+	"wikibase-rc-hide-wikidata-hide": "Skjul",
+	"wikibase-rc-hide-wikidata-show": "Vis",
 	"wikibase-rc-show-wikidata-pref": "Vis redigeringer af Wikidata i seneste ændringer",
 	"wikibase-rc-wikibase-edit-letter": "D",
 	"wikibase-rc-wikibase-edit-title": "Dette er en redigering af Wikidata",
+	"wikibase-replicationnote": "Vær opmærksom på, at der kan gå flere minutter før ændringerne er synlige på alle wikier.",
 	"wikibase-watchlist-show-changes-pref": "Vis redigeringer af Wikidata på din overvågningsliste",
 	"wikibase-error-serialize-error": "Serialisering af data mislykkkedes",
 	"wikibase-error-invalid-entity-id": "Den indtastede ID er ukendt i systemet. Anvend venligst en gyldig ID.",

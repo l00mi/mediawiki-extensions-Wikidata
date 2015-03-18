@@ -8,7 +8,7 @@ use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\LanguageFallbackChain;
-use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\Serializer;
 use Wikibase\Lib\Serializers\SerializerFactory;
@@ -62,9 +62,9 @@ class EntityAccessor {
 	private $language;
 
 	/**
-	 * @var string[]
+	 * @var ContentLanguages
 	 */
-	private $languageCodes;
+	private $termsLanguages;
 
 	/**
 	 * @param EntityIdParser $entityIdParser
@@ -73,7 +73,7 @@ class EntityAccessor {
 	 * @param PropertyDataTypeLookup $dataTypeLookup
 	 * @param LanguageFallbackChain $fallbackChain
 	 * @param Language $language
-	 * @param string[] $languageCodes
+	 * @param ContentLanguages $termsLanguages
 	 */
 	public function __construct(
 		EntityIdParser $entityIdParser,
@@ -82,7 +82,7 @@ class EntityAccessor {
 		PropertyDataTypeLookup $dataTypeLookup,
 		LanguageFallbackChain $fallbackChain,
 		Language $language,
-		array $languageCodes
+		ContentLanguages $termsLanguages
 	) {
 		$this->entityIdParser = $entityIdParser;
 		$this->entityLookup = $entityLookup;
@@ -90,14 +90,12 @@ class EntityAccessor {
 		$this->dataTypeLookup = $dataTypeLookup;
 		$this->fallbackChain = $fallbackChain;
 		$this->language = $language;
-		$this->languageCodes = $languageCodes;
+		$this->termsLanguages = $termsLanguages;
 	}
 
 	/**
 	 * Recursively renumber a serialized array in place, so it is indexed at 1, not 0.
 	 * Just like Lua wants it.
-	 *
-	 * @since 0.5
 	 *
 	 * @param array &$entityArr
 	 */
@@ -196,7 +194,8 @@ class EntityAccessor {
 		// See mw.wikibase.lua. This is the only way to inject values into mw.wikibase.label( ),
 		// so any customized Lua modules can access labels of another entity written in another variant,
 		// unless we give them the ability to getEntity() any entity by specifying its ID, not just self.
-		$languages = $this->languageCodes + array( $this->language->getCode() => $this->fallbackChain );
+		$languages = $this->termsLanguages->getLanguages() +
+			array( $this->language->getCode() => $this->fallbackChain );
 
 		// SerializationOptions accepts mixed types of keys happily.
 		$options->setLanguages( $languages );

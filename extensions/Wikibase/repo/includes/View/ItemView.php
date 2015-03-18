@@ -21,6 +21,11 @@ use Wikibase\Template\TemplateFactory;
 class ItemView extends EntityView {
 
 	/**
+	 * @var StatementGroupListView
+	 */
+	private $statementGroupListView;
+
+	/**
 	 * @var string[]
 	 */
 	private $siteLinkGroups;
@@ -34,24 +39,23 @@ class ItemView extends EntityView {
 	 * @see EntityView::__construct
 	 *
 	 * @param TemplateFactory $templateFactory
-	 * @param FingerprintView $fingerprintView
-	 * @param ClaimsView $claimsView
+	 * @param EntityTermsView $entityTermsView
+	 * @param StatementGroupListView $statementGroupListView
 	 * @param Language $language
 	 * @param SiteLinksView $siteLinksView
 	 * @param string[] $siteLinkGroups
-	 * @param bool $editable
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
-		FingerprintView $fingerprintView,
-		ClaimsView $claimsView,
+		EntityTermsView $entityTermsView,
+		StatementGroupListView $statementGroupListView,
 		Language $language,
 		SiteLinksView $siteLinksView,
-		array $siteLinkGroups,
-		$editable = true
+		array $siteLinkGroups
 	) {
-		parent::__construct( $templateFactory, $fingerprintView, $claimsView, $language, $editable );
+		parent::__construct( $templateFactory, $entityTermsView, $language );
 
+		$this->statementGroupListView = $statementGroupListView;
 		$this->siteLinkGroups = $siteLinkGroups;
 		$this->siteLinksView = $siteLinksView;
 	}
@@ -67,7 +71,7 @@ class ItemView extends EntityView {
 		}
 
 		$html = parent::getMainHtml( $entityRevision );
-		$html .= $this->claimsView->getHtml(
+		$html .= $this->statementGroupListView->getHtml(
 			$item->getStatements()->toArray()
 		);
 
@@ -83,19 +87,6 @@ class ItemView extends EntityView {
 	}
 
 	/**
-	 * @see EntityView::getTocSections
-	 */
-	protected function getTocSections() {
-		$array = parent::getTocSections();
-		$array['claims'] = 'wikibase-statements';
-		foreach ( $this->siteLinkGroups as $group ) {
-			$id = htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES );
-			$array[$id] = 'wikibase-sitelinks-' . $group;
-		}
-		return $array;
-	}
-
-	/**
 	 * Builds and returns the HTML representing a WikibaseEntity's site-links.
 	 *
 	 * @since 0.1
@@ -108,8 +99,7 @@ class ItemView extends EntityView {
 		return $this->siteLinksView->getHtml(
 			$item->getSiteLinks(),
 			$item->getId(),
-			$this->siteLinkGroups,
-			$this->editable
+			$this->siteLinkGroups
 		);
 	}
 

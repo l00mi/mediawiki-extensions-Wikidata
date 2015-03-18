@@ -6,7 +6,6 @@ use Wikibase\Change;
 use Wikibase\ChangeRow;
 use Wikibase\ChangesTable;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
@@ -15,6 +14,7 @@ use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\DiffChange;
 use Wikibase\EntityChange;
 use Wikibase\EntityFactory;
@@ -36,14 +36,17 @@ use Wikibase\Lib\Changes\EntityChangeFactory;
 final class TestChanges {
 
 	protected static function getItem() {
-		$item = Item::newEmpty();
-		$item->getFingerprint()->setLabel( 'en', 'Venezuela' );
-		$item->getFingerprint()->setDescription( 'en', 'a country' );
-		$item->getFingerprint()->setAliasGroup( 'en', array( 'Bolivarian Republic of Venezuela' ) );
+		$item = new Item();
 
-		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Venezuela' );
-		$item->getSiteLinkList()->addNewSiteLink( 'jawiki', 'ベネズエラ' );
-		$item->getSiteLinkList()->addNewSiteLink( 'cawiki', 'Veneçuela' );
+		$fingerprint = $item->getFingerprint();
+		$fingerprint->setLabel( 'en', 'Venezuela' );
+		$fingerprint->setDescription( 'en', 'a country' );
+		$fingerprint->setAliasGroup( 'en', array( 'Bolivarian Republic of Venezuela' ) );
+
+		$siteLinks = $item->getSiteLinkList();
+		$siteLinks->addNewSiteLink( 'enwiki', 'Venezuela' );
+		$siteLinks->addNewSiteLink( 'jawiki', 'ベネズエラ' );
+		$siteLinks->addNewSiteLink( 'cawiki', 'Veneçuela' );
 
 		return $item;
 	}
@@ -100,8 +103,7 @@ final class TestChanges {
 			$changes['property-set-label'] = $changeFactory->newFromUpdate( EntityChange::UPDATE, $old, $new );
 
 			// -----
-			$old = Item::newEmpty();
-			$old->setId( new ItemId( 'q100' ) );
+			$old = new Item( new ItemId( 'Q100' ) );
 
 			/* @var Item $new */
 			$new = $old->copy();
@@ -301,19 +303,16 @@ final class TestChanges {
 	public static function getEntities() {
 		$entityList = array();
 
+		/** @var FingerprintProvider[] $entities */
 		$entities = array(
-			Item::newEmpty(),
-			Property::newFromType( 'string' ),
+			new Item( new ItemId( 'Q112' ) ),
+			new Property( new PropertyId( 'P112' ), null, 'string' ),
 		);
 
-		/**
-		 * @var Entity $entity
-		 */
-		foreach( $entities as $entity ) {
+		foreach ( $entities as $entity ) {
 			$entityList[] = $entity;
 
-			$entity->setId( 112 );
-			$entity->setLabel( 'ja', '\u30d3\u30fc\u30eb' );
+			$entity->getFingerprint()->setLabel( 'ja', '\u30d3\u30fc\u30eb' );
 
 			$entityList[] = $entity;
 		}

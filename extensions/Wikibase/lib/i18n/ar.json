@@ -8,9 +8,12 @@
 			"مشعل الحربي",
 			"Tarawneh",
 			"سامي الرحيلي",
-			"Abanima"
+			"Abanima",
+			"Fitoschido",
+			"Macofe"
 		]
 	},
+	"specialpages-group-wikibase": "مستودع قاعدة ويكي",
 	"wikibase-deletedentity-item": "عنصر محذوف",
 	"wikibase-deletedentity-property": "خاصية محذوفة",
 	"wikibase-deletedentity-query": "طلب محذوف",
@@ -30,7 +33,7 @@
 	"wikibase-quantitydetails-lowerbound": "الحد الأدنى",
 	"wikibase-quantitydetails-unit": "وحدة",
 	"wikibase-timedetails-time": "زمن",
-	"wikibase-timedetails-isotime": "الطابع الزمني ISO",
+	"wikibase-timedetails-isotime": "طابع زمني",
 	"wikibase-timedetails-timezone": "المنطقة الزمنية",
 	"wikibase-timedetails-calendar": "التقويم",
 	"wikibase-timedetails-precision": "الدقة",
@@ -44,7 +47,7 @@
 	"wikibase-parse-error-entity-id": "معرف الكائن سيء التشكيل.",
 	"wikibase-parse-error-quantity": "قيمة الكمية سيئة التشكيل.",
 	"wikibase-parse-error-time": "قيمة الزمن سيئة التشكيل.",
-	"wikibase-sitelinks-wikipedia": "صفحات ويكيبيديا المرتبطة بهذا العنصر",
+	"wikibase-sitelinks-wikipedia": "ويكيبيديا",
 	"wikibase-sitelinks-sitename-columnheading": "اللغة",
 	"wikibase-sitelinks-link-columnheading": "صفحة مرتبطة",
 	"wikibase-snakview-snaktypeselector-somevalue": "قيمة مجهولة",

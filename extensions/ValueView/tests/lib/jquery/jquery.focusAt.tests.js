@@ -5,9 +5,6 @@
 ( function( $, QUnit ) {
 	'use strict';
 
-	var BROWSER_FOCUS_NOTE = '(An error at this stage might also occur if you removed the focus ' +
-		'from the browser window.)';
-
 	/**
 	 * Returns a DOM object within a HTML page
 	 * @return {jQuery}
@@ -119,11 +116,10 @@
 		elem.remove();
 	} );
 
-	// TODO: Skip test if the browser is not focused.
-	//  See http://stackoverflow.com/questions/13748129/skipping-a-test-in-qunit
 	elemsCases.test( 'Focusing element in DOM', function( params, assert ) {
 		var $dom = getDomInsertionTestViewport(),
-			elem = params.elem;
+			elem = params.elem,
+			isOk;
 
 		if( !$dom.length ) {
 			throw new Error( 'Can only run this test on a HTML page with "body" tag in the browser.' );
@@ -131,6 +127,15 @@
 
 		$( ':focus' ).blur();
 		elem.appendTo( $dom );
+
+		// Check if focussing actually works
+		elem.focus();
+		if( !elem.is( ':focus' ) ) {
+			assert.ok( 'Could not test because focussing does not work.' );
+			return;
+		}
+		elem.blur();
+		assert.ok( !elem.is( ':focus' ) );
 
 		assert.ok(
 			elem.focusAt( 0 ),
@@ -144,10 +149,8 @@
 				'Element is a non-focusable element and no focus is active'
 			);
 		} else {
-			assert.ok(
-				$( ':focus' ).filter( elem ).length,
-				'Focused element has focus set. ' + BROWSER_FOCUS_NOTE
-			);
+			isOk = $( ':focus' ).filter( elem ).length;
+			assert.ok( isOk, 'Focused element has focus set.' );
 		}
 		elem.remove();
 	} );

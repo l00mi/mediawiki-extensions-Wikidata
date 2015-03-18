@@ -36,7 +36,7 @@ class SetClaim extends ModifyClaim {
 	/**
 	 * @var ClaimChangeOpFactory
 	 */
-	protected $claimChangeOpFactory;
+	private $claimChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -94,7 +94,7 @@ class SetClaim extends ModifyClaim {
 	 *
 	 * @todo this summary builder is ugly and summary stuff needs to be refactored
 	 */
-	protected function getSummary( array $params, Claim $claim, Entity $entity ){
+	private function getSummary( array $params, Claim $claim, Entity $entity ){
 		$claimSummaryBuilder = new ClaimSummaryBuilder(
 			$this->getModuleName(),
 			new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) )
@@ -112,8 +112,6 @@ class SetClaim extends ModifyClaim {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $params
 	 *
 	 * @throws IllegalValueException
@@ -121,7 +119,7 @@ class SetClaim extends ModifyClaim {
 	 * @throws LogicException
 	 * @return Claim
 	 */
-	protected function getClaimFromParams( array $params ) {
+	private function getClaimFromParams( array $params ) {
 		$serializerFactory = new SerializerFactory();
 		$unserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Claim\Claim' );
 
@@ -147,12 +145,8 @@ class SetClaim extends ModifyClaim {
 
 	/**
 	 * @see ApiBase::getAllowedParams
-	 *
-	 * @since 0.4
-	 *
-	 * @return array
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array_merge(
 			array(
 				'claim' => array(
@@ -168,9 +162,7 @@ class SetClaim extends ModifyClaim {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(
@@ -178,6 +170,8 @@ class SetClaim extends ModifyClaim {
 			=> 'apihelp-wbsetclaim-example-1',
 			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee","type":"claim","mainsnak":{"snaktype":"value","property":"P1","datavalue":{"value":"City","type":"string"}}}&index=0'
 			=> 'apihelp-wbsetclaim-example-2',
+			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee","type":"statement","mainsnak":{"snaktype":"value","property":"P1","datavalue":{"value":"City","type":"string"}},"references":[{"snaks":{"P2":[{"snaktype":"value","property":"P2","datavalue":{"value":"The Economy of Cities","type":"string"}}]},"snaks-order":["P2"]}],"rank":"normal"}'
+			=> 'apihelp-wbsetclaim-example-3',
 		);
 	}
 

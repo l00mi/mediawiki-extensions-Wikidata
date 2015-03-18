@@ -33,13 +33,13 @@ class QuantityDetailsFormatter extends ValueFormatterBase {
 	protected $quantityFormatter;
 
 	/**
-	 * @param FormatterOptions $options
+	 * @param FormatterOptions|null $options
 	 */
-	public function __construct( FormatterOptions $options ) {
+	public function __construct( FormatterOptions $options = null ) {
 		parent::__construct( $options );
 
-		$this->decimalFormatter = new DecimalFormatter( $options );
-		$this->quantityFormatter = new QuantityFormatter( $this->decimalFormatter, $options );
+		$this->decimalFormatter = new DecimalFormatter( $this->options );
+		$this->quantityFormatter = new QuantityFormatter( $this->decimalFormatter, $this->options );
 	}
 
 	/**
@@ -106,8 +106,11 @@ class QuantityDetailsFormatter extends ValueFormatterBase {
 	protected function getFieldLabel( $fieldName ) {
 		$lang = $this->getOption( ValueFormatter::OPT_LANG );
 
-		// Messages: wb-quantitydetails-amount, wb-quantitydetails-upperbound,
-		// wb-quantitydetails-lowerbound, wb-quantitydetails-unit
+		// Messages:
+		// wikibase-quantitydetails-amount
+		// wikibase-quantitydetails-upperbound
+		// wikibase-quantitydetails-lowerbound
+		// wikibase-quantitydetails-unit
 		$key = 'wikibase-quantitydetails-' . strtolower( $fieldName );
 		$msg = wfMessage( $key )->inLanguage( $lang );
 

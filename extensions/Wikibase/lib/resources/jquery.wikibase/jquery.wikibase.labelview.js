@@ -37,8 +37,8 @@ $.widget( 'wikibase.labelview', PARENT, {
 			'' // toolbar
 		],
 		templateShortCuts: {
-			'$text': '.wikibase-labelview-text',
-			'$entityId': '.wikibase-labelview-entityid'
+			$text: '.wikibase-labelview-text',
+			$entityId: '.wikibase-labelview-entityid'
 		},
 		value: null,
 		helpMessage: mw.msg( 'wikibase-label-input-help-message' ),
@@ -50,11 +50,6 @@ $.widget( 'wikibase.labelview', PARENT, {
 	 * @type {boolean}
 	 */
 	_isInEditMode: false,
-
-	/**
-	 * @type {boolean}
-	 */
-	_isBeingEdited: false,
 
 	/**
 	 * @see jQuery.ui.TemplatedWidget._create
@@ -71,8 +66,6 @@ $.widget( 'wikibase.labelview', PARENT, {
 		}
 
 		var self = this;
-
-		this.element.attr( 'id', 'wb-firstHeading-' + this.options.entityId );
 
 		this.element
 		.on(
@@ -140,14 +133,17 @@ $.widget( 'wikibase.labelview', PARENT, {
 			return;
 		}
 
-		var $input = $( '<input />', {
-			// TODO: Inject correct placeholder via options
-			placeholder: mw.msg(
+		var $input = $( '<input />' );
+
+		$input
+		.addClass( this.widgetFullName + '-input' )
+		// TODO: Inject correct placeholder via options
+		.attr( 'placeholder', mw.msg(
 				'wikibase-label-edit-placeholder-language-aware',
 				wb.getLanguageNameByCode( languageCode )
-			),
-			dir: $.util.getDirectionality( languageCode )
-		} )
+			)
+		)
+		.attr( 'dir', $.util.getDirectionality( languageCode ) )
 		.on( 'eachchange.' + this.widgetName, function( event ) {
 			self._trigger( 'change' );
 		} );
@@ -156,31 +152,23 @@ $.widget( 'wikibase.labelview', PARENT, {
 			$input.val( labelText );
 		}
 
-		this.$text.empty().append( $input );
-	},
-
-	/**
-	 * Switches to editable state.
-	 */
-	toEditMode: function() {
-		if( this._isInEditMode ) {
-			return;
+		if( $.fn.inputautoexpand ) {
+			$input.inputautoexpand();
 		}
 
-		this._isInEditMode = true;
-		this._draw();
+		this.$text.empty().append( $input );
 	},
 
 	/**
 	 * Starts the widget's edit mode.
 	 */
 	startEditing: function() {
-		if( this._isBeingEdited ) {
+		if( this._isInEditMode ) {
 			return;
 		}
 		this.element.addClass( 'wb-edit' );
-		this.toEditMode();
-		this._isBeingEdited = true;
+		this._isInEditMode = true;
+		this._draw();
 		this._trigger( 'afterstartediting' );
 	},
 
@@ -191,8 +179,6 @@ $.widget( 'wikibase.labelview', PARENT, {
 	 */
 	stopEditing: function( dropValue ) {
 		var self = this;
-
-		dropValue = dropValue && this._isBeingEdited;
 
 		if( !this._isInEditMode ) {
 			return;
@@ -238,7 +224,6 @@ $.widget( 'wikibase.labelview', PARENT, {
 		}
 
 		this.element.removeClass( 'wb-edit' );
-		this._isBeingEdited = false;
 		this._isInEditMode = false;
 		this._draw();
 

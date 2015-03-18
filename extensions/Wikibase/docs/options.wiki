@@ -62,7 +62,8 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 ;useRedirectTargetColumn: Whether to use the epp_redirect_target column in the wb_entity_per_page table for detecting redirects. True per default, can be set to false in an environment where the necessary database update can't be deployed right away. To set up the table manually, run repo/sql/AddEppRedirectTarget.sql to create it, then use repo/maintenance/rebuildEntityPerPage.php to rebuild the table if neccessary.
 ;internalEntitySerializerClass: The class name of a serializer that is to be used when serializing entities for storage. Defaults to null, causing the default entity serializer from the SerializerFactory to be used. Should be set to Wikibase\Lib\Serializers\LegacyInternalEntitySerializer for compatibility with client wikis that run older code.
 ;transformLegacyFormatOnExport: Whether entity revisions stored in a legacy format should be converted on the fly while exporting. Enabled per default, if internalEntitySerializerClass is not set, and disable by default if internalEntitySerializerClass is set.  Must be disabled if internalEntitySerializerClass is set to the legacy serializer.
-;useLegacyChangesSubscription: whether the sitelinks table should be used to emulate notification subscriptions. Should be set to true if the approproate database schema change has not been deployed yet.
+;useLegacyChangesSubscription: whether the sitelinks table should be used to emulate notification subscriptions. Should be set to true if the appropriate database schema change has not been deployed yet.
+;allowEntityImport: allow importing entities via Special:Import and importDump.php. Per default, imports are forbidden, since entities defined in another wiki would have or use IDs that conflict with entities defined locally.
 
 == Client Settings ==
 
@@ -97,6 +98,7 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 </poem>
 ;allowDataTransclusion: switch to enable data transclusion features like the <nowiki>{{#property}}</nowiki> parser function and the <tt>wikibase</tt> Scribunto module. Defaults to <tt>true</tt>.
 ;allowArbitraryDataAccess: switch to allow accessing abitrary items from the <tt>wikibase</tt> Scribunto module and the via the parser functions (instead of just the item which is linked to the current page). Defaults to <tt>true</tt>.
+;allowDataAccessInUserLanguage: switch to allow accessing data in the user's language rather than the content language from the <tt>wikibase</tt> Scribunto module and the via the parser functions. Useful for multilingual wikis: Allows users to split the ParserCache by user language. Defaults to <tt>false</tt>.
 ;propagateChangesToRepo: switch to enable or disable the propagation of client changes to the repo. Defaults to <tt>true</tt>.
 ;languageLinkSiteGroup: the ID of the site group to be shown as language links. Defaults to <tt>null</tt>, which means the site's own site group.
 ;badgeClassNames: A list of additional CSS class names for site links that have badges. The array has to consist of serialized item ids pointing to their CSS class names, like <code>array( 'Q101' => 'badge-goodarticle' )</code>. Note that this extension does not add any CSS to actually display the badges.

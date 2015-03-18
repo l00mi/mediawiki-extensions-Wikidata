@@ -24,7 +24,7 @@ class SetLabel extends ModifyTerm {
 	/**
 	 * @var FingerprintChangeOpFactory
 	 */
-	protected $termChangeOpFactory;
+	private $termChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -39,10 +39,9 @@ class SetLabel extends ModifyTerm {
 	}
 
 	/**
-	 * @see \Wikibase\Api\ModifyEntity::modifyEntity()
+	 * @see ModifyEntity::modifyEntity
 	 */
 	protected function modifyEntity( Entity &$entity, array $params, $baseRevId ) {
-		wfProfileIn( __METHOD__ );
 		$summary = $this->createSummary( $params );
 		$language = $params['language'];
 
@@ -53,18 +52,15 @@ class SetLabel extends ModifyTerm {
 
 		$this->getResultBuilder()->addLabels( $labels, 'entity' );
 
-		wfProfileOut( __METHOD__ );
 		return $summary;
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $params
+	 *
 	 * @return ChangeOpLabel
 	 */
-	protected function getChangeOp( array $params ) {
-		wfProfileIn( __METHOD__ );
+	private function getChangeOp( array $params ) {
 		$label = "";
 		$language = $params['language'];
 
@@ -78,14 +74,11 @@ class SetLabel extends ModifyTerm {
 			$op = $this->termChangeOpFactory->newSetLabelOp( $language, $label );
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $op;
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

@@ -3,10 +3,13 @@
 		"authors": [
 			"Amire80",
 			"Yona b",
-			"Guycn2"
+			"Guycn2",
+			"Macofe",
+			"ערן"
 		]
 	},
 	"wikibase-lib-desc": "הפעולות המשותפות להרחבות Wikibase ו־Wikibase Client",
+	"specialpages-group-wikibase": "ויקיבייס",
 	"wikibase-deletedentity-item": "פריט מחוק",
 	"wikibase-deletedentity-property": "מאפיין מחוק",
 	"wikibase-deletedentity-query": "שאילתה מחוקה",
@@ -21,12 +24,13 @@
 	"wikibase-error-autocomplete-response": "השרת ענה: $1",
 	"wikibase-error-ui-no-external-page": "הערך שהוזן לא נמצא באתר המתאים.",
 	"wikibase-error-ui-edit-conflict": "אירעה התנגשות עריכה. נא לרענן את הדף ולשמור מחדש.",
+	"wikibase-language-fallback-transliteration-hint": "$1 (מתועתק)",
 	"wikibase-quantitydetails-amount": "כמות",
 	"wikibase-quantitydetails-upperbound": "גבול עליון",
 	"wikibase-quantitydetails-lowerbound": "גבול תחתון",
 	"wikibase-quantitydetails-unit": "יחידה",
 	"wikibase-timedetails-time": "זמן",
-	"wikibase-timedetails-isotime": "חותם זמן של ISO",
+	"wikibase-timedetails-isotime": "חותם זמן",
 	"wikibase-timedetails-timezone": "אזור זמן",
 	"wikibase-timedetails-calendar": "לוח שנה",
 	"wikibase-timedetails-precision": "דיוק",

@@ -3,6 +3,8 @@
 namespace Wikibase\Test;
 
 use DataValues\StringValue;
+use ParserOptions;
+use Language;
 use Title;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\InMemoryDataTypeLookup;
@@ -12,7 +14,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\EntityParserOutputGenerator;
 use Wikibase\EntityRevision;
-use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
 use Wikibase\ValuesFinder;
 
@@ -21,11 +22,12 @@ use Wikibase\ValuesFinder;
  *
  * @group Wikibase
  * @group WikibaseRepo
+ * @group Database
  *
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
+class EntityParserOutputGeneratorTest extends \MediaWikiTestCase {
 
 	private static $html = '<html>Nyan data!!!</html>';
 	private static $placeholders = array( 'key' => 'value' );
@@ -38,7 +40,7 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 		$timestamp = wfTimestamp( TS_MW );
 		$revision = new EntityRevision( $item, 13044, $timestamp );
 
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision, $this->getParserOptions() );
 
 		$this->assertEquals(
 			self::$html,
@@ -75,19 +77,26 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 			array_keys( $parserOutput->getImages() ),
 			'images'
 		);
+
+		$expectedUsedOptions = array( 'userlang', 'editsection' );
+		$actualOptions = $parserOutput->getUsedOptions();
+		$missingOptions = array_diff( $expectedUsedOptions, $actualOptions );
+		$this->assertEmpty(
+			$missingOptions,
+			'Missing cache-split flags: ' . join( '|', $missingOptions ) . '. Options: ' . join( '|', $actualOptions )
+		);
 	}
 
 	public function testTitleText_ItemHasNolabel() {
 		$entityParserOutputGenerator = $this->newEntityParserOutputGenerator();
 
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q7799929' ) );
+		$item = new Item( new ItemId( 'Q7799929' ) );
 		$item->setDescription( 'en', 'a kitten' );
 
 		$timestamp = wfTimestamp( TS_MW );
 		$revision = new EntityRevision( $item, 13045, $timestamp );
 
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision, $this->getParserOptions() );
 
 		$this->assertEquals(
 			'Q7799929',
@@ -131,8 +140,7 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function newItem() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q7799929' ) );
+		$item = new Item( new ItemId( 'Q7799929' ) );
 
 		$item->setLabel( 'en', 'kitten item' );
 
@@ -207,4 +215,7 @@ class EntityParserOutputGeneratorTest extends \PHPUnit_Framework_TestCase {
 		return new ValuesFinder( $dataTypeLookup );
 	}
 
+	private function getParserOptions() {
+		return new ParserOptions( null, Language::factory( 'en' ) );
+	}
 }

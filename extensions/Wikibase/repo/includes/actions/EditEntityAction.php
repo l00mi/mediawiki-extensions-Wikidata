@@ -2,8 +2,10 @@
 
 namespace Wikibase;
 
+use Action;
 use Diff\Comparer\ComparableComparer;
 use Diff\Differ\OrderedListDiffer;
+use FormlessAction;
 use Html;
 use IContextSource;
 use Linker;
@@ -14,14 +16,17 @@ use Status;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use WebRequest;
+use Wikibase\Lib\EntityIdHtmlLinkFormatter;
 use Wikibase\Lib\EntityIdLabelFormatter;
-use Wikibase\Lib\EscapingValueFormatter;
+use Wikibase\Lib\EscapingEntityIdFormatter;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\Store\LanguageLabelLookup;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Diff\ClaimDiffer;
 use Wikibase\Repo\Diff\ClaimDifferenceVisualizer;
+use Wikibase\Repo\Diff\DifferencesSnakVisualizer;
 use Wikibase\Repo\Diff\EntityDiffVisualizer;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -62,9 +67,9 @@ abstract class EditEntityAction extends ViewEntityAction {
 
 		$termLookup = new EntityRetrievingTermLookup( $wikibaseRepo->getEntityLookup() );
 		$labelLookup = new LanguageLabelLookup( $termLookup, $languageCode );
-		$labelFormatter = new EntityIdLabelFormatter( $options, $labelLookup );
+		$labelFormatter = new EntityIdLabelFormatter( $labelLookup );
 
-		$propertyIdFormatter = new EscapingValueFormatter( $labelFormatter, 'htmlspecialchars' );
+		$propertyIdFormatter = new EscapingEntityIdFormatter( $labelFormatter, 'htmlspecialchars' );
 
 		$formatterFactory = $wikibaseRepo->getSnakFormatterFactory();
 		$snakDetailsFormatter = $formatterFactory->getSnakFormatter( SnakFormatter::FORMAT_HTML_DIFF, $options );
@@ -74,14 +79,20 @@ abstract class EditEntityAction extends ViewEntityAction {
 			$this->getContext(),
 			new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) ),
 			new ClaimDifferenceVisualizer(
-				$propertyIdFormatter,
-				$snakDetailsFormatter,
-				$snakBreadCrumbFormatter,
+				new DifferencesSnakVisualizer(
+					$propertyIdFormatter,
+					$snakDetailsFormatter,
+					$snakBreadCrumbFormatter,
+					$languageCode
+				),
 				$languageCode
 			),
 			$wikibaseRepo->getSiteStore(),
-			$wikibaseRepo->getEntityTitleLookup(),
-			$wikibaseRepo->getEntityRevisionLookup()
+			new EntityIdHtmlLinkFormatter(
+				$labelLookup,
+				$wikibaseRepo->getEntityTitleLookup(),
+				new LanguageNameLookup()
+			)
 		);
 	}
 
@@ -224,13 +235,13 @@ abstract class EditEntityAction extends ViewEntityAction {
 	 *
 	 * @since 0.1
 	 *
-	 * @param string $title Message key for page title
 	 * @param Status $status The status to report.
-	 *
-	 * @todo: would be handy to have this in OutputPage
 	 */
-	protected function showStatusErrorsPage( $title, Status $status ) {
-		$this->getOutput()->prepareErrorPage( $this->msg( $title ), $this->msg( 'errorpagetitle' ) );
+	protected function showUndoErrorPage( Status $status ) {
+		$this->getOutput()->prepareErrorPage(
+			$this->msg( 'wikibase-undo-revision-error' ),
+			$this->msg( 'errorpagetitle' )
+		);
 
 		$this->getOutput()->addWikiText( $status->getMessage()->text() );
 
@@ -263,7 +274,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 
 		$revisions = $this->loadRevisions();
 		if ( !$revisions->isOK() ) {
-			$this->showStatusErrorsPage( 'wikibase-undo-revision-error', $revisions ); //TODO: define message
+			$this->showUndoErrorPage( $revisions );
 			return;
 		}
 

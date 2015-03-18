@@ -4,8 +4,6 @@ namespace Wikibase\Lib;
 
 use DataValues\TimeValue;
 use InvalidArgumentException;
-use Language;
-use Message;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\TimeFormatter;
 use ValueFormatters\ValueFormatter;
@@ -16,13 +14,14 @@ use ValueFormatters\ValueFormatterBase;
  *
  * @license GNU GPL v2+
  * @author Adrian Lang < adrian.lang@wikimedia.de >
+ * @author Thiemo Mättig
  */
 class HtmlTimeFormatter extends ValueFormatterBase {
 
-	/**
-	 * @var Language
-	 */
-	private $language;
+	private static $calendarKeys = array(
+		TimeFormatter::CALENDAR_GREGORIAN => 'valueview-expert-timevalue-calendar-gregorian',
+		TimeFormatter::CALENDAR_JULIAN => 'valueview-expert-timevalue-calendar-julian',
+	);
 
 	/**
 	 * @var ValueFormatter
@@ -30,19 +29,13 @@ class HtmlTimeFormatter extends ValueFormatterBase {
 	private $dateTimeFormatter;
 
 	/**
-	 * @param FormatterOptions $options
+	 * @param FormatterOptions|null $options
 	 * @param ValueFormatter $dateTimeFormatter
 	 */
-	public function __construct( FormatterOptions $options, ValueFormatter $dateTimeFormatter ) {
+	public function __construct( FormatterOptions $options = null, ValueFormatter $dateTimeFormatter ) {
+		parent::__construct( $options );
+
 		$this->dateTimeFormatter = $dateTimeFormatter;
-
-		$this->options = $options;
-
-		$this->options->defaultOption( ValueFormatter::OPT_LANG, 'en' );
-
-		$this->language = Language::factory(
-			$this->options->getOption( ValueFormatter::OPT_LANG )
-		);
 	}
 
 	/**
@@ -52,7 +45,7 @@ class HtmlTimeFormatter extends ValueFormatterBase {
 	 *
 	 * @param TimeValue $value The time to format
 	 *
-	 * @return string
+	 * @return string HTML
 	 * @throws InvalidArgumentException
 	 */
 	public function format( $value ) {
@@ -60,64 +53,52 @@ class HtmlTimeFormatter extends ValueFormatterBase {
 			throw new InvalidArgumentException( 'Data value type mismatch. Expected a TimeValue.' );
 		}
 
-		$dateTime = $this->dateTimeFormatter->format( $value );
-		$calendarName = $this->formatOptionalCalendarName( $value );
-		return $dateTime . ( $calendarName ? "<sup class=\"wb-calendar-name\">$calendarName</sup>" : '' );
+		$formatted = $this->dateTimeFormatter->format( $value );
+
+		if ( $this->calendarNameNeeded( $value ) ) {
+			$formatted .= '<sup class="wb-calendar-name">'
+				. $this->formatCalendarName( $value->getCalendarModel() )
+				. '</sup>';
+		}
+
+		return $formatted;
 	}
 
 	/**
-	 * Display the calendar being used if the date lies within a time frame when
-	 * multiple calendars have been in use or if the time value features a calendar that
-	 * is uncommon for the specified time.
+	 * @param TimeValue $value
 	 *
-	 * @param TimeValue $value
-	 * @return string
-	 */
-	private function formatOptionalCalendarName( TimeValue $value ) {
-		return $this->calendarNameNeeded( $value ) ? $this->formatCalendarName( $value ) : '';
-	}
-
-	/**
-	 * @param TimeValue $value
 	 * @return bool
 	 */
 	private function calendarNameNeeded( TimeValue $value ) {
-		preg_match( '/^[+-](\d+)-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/',
-			$value->getTime(), $matches );
-		$year = intval( $matches[1] );
-		$calendar = $this->getCalendarKey( $value->getCalendarModel() );
+		preg_match( '/^[-+]\d+/', $value->getTime(), $matches );
+		$year = intval( $matches[0] );
 
-		return $value->getPrecision() > 10 && ( $year <= 1581 || $calendar !== 'gregorian' );
-	}
-
-	/**
-	 * @param TimeValue $value
-	 * @return string
-	 */
-	private function formatCalendarName( TimeValue $value ) {
-		$calendarKey = $this->getCalendarKey( $value->getCalendarModel() );
-		return $this->getMessage( 'valueview-expert-timevalue-calendar-' . $calendarKey );
-	}
-
-	/**
-	 * @param string $uri
-	 * @return string
-	 */
-	private function getCalendarKey( $uri ) {
-		$calendars = array(
-		TimeFormatter::CALENDAR_GREGORIAN => 'gregorian',
-			TimeFormatter::CALENDAR_JULIAN => 'julian',
+		// This is how the original JavaScript UI decided this:
+		// year <= 1581 && calendar === 'Gregorian' ||
+		// year > 1581 && year < 1930 ||
+		// year >= 1930 && calendar === 'Julian'
+		return $value->getPrecision() >= TimeValue::PRECISION_DAY && (
+			$year <= 1581 || $value->getCalendarModel() !== TimeFormatter::CALENDAR_GREGORIAN
 		);
-		return $calendars[ $uri ];
 	}
 
 	/**
-	 * @param string $key
-	 * @return string
+	 * @param string $calendarModel
+	 *
+	 * @return string HTML
 	 */
-	private function getMessage( $key ) {
-		$message = new Message( $key );
-		$message->inLanguage( $this->language );
-		return $message->text();
+	private function formatCalendarName( $calendarModel ) {
+		if ( array_key_exists( $calendarModel, self::$calendarKeys ) ) {
+			$key = self::$calendarKeys[$calendarModel];
+			$lang = $this->getOption( ValueFormatter::OPT_LANG );
+			$msg = wfMessage( $key )->inLanguage( $lang );
+
+			if ( $msg->exists() ) {
+				return htmlspecialchars( $msg->text() );
+			}
+		}
+
+		return htmlspecialchars( $calendarModel );
 	}
+
 }

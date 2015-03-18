@@ -101,7 +101,7 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		timeout: 8000,
 		messages: {
 			'aliases-label': mwMsgOrString( 'wikibase-aliases-label', 'also known as:' ),
-			'more': mwMsgOrString( 'wikibase-entityselector-more', 'more' )
+			more: mwMsgOrString( 'wikibase-entityselector-more', 'more' )
 		}
 	},
 
@@ -186,7 +186,7 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 					return;
 				}
 
-				if( self._termMatchesLabel( requestTerm, suggestions[0] ) ) {
+				if( self._termMatchesSuggestion( requestTerm, suggestions[0] ) ) {
 					self._select( suggestions[0] );
 				}
 			} );
@@ -201,10 +201,11 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	 * @param {Object} suggestion
 	 * @return {boolean}
 	 */
-	_termMatchesLabel: function( term, suggestion ) {
+	_termMatchesSuggestion: function( term, suggestion ) {
 		var label = suggestion.label || suggestion.id;
 		return label === term
-			|| !this.options.caseSensitive && label.toLowerCase() === term.toLowerCase();
+			|| !this.options.caseSensitive && label.toLowerCase() === term.toLowerCase()
+			|| term === suggestion.id;
 	},
 
 	/**
@@ -354,7 +355,11 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 				self._close();
 				self._trigger( 'change' );
 
-				self._select( item.getEntityStub() );
+				var entityStub = item.getEntityStub();
+
+				if( !self._selectedEntity || entityStub.id !== self._selectedEntity.id ) {
+					self._select( entityStub );
+				}
 			}
 		} );
 
@@ -398,7 +403,7 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 			var deferred = $.Deferred();
 
 			if( self._cache[searchTerm] ) {
-				$.merge( self._cache[searchTerm].suggestions, suggestions );
+				self._cache[searchTerm].suggestions = self._cache[searchTerm].suggestions.concat( suggestions );
 				self._cache[searchTerm].nextSuggestionOffset = nextSuggestionOffset;
 			} else {
 				self._cache = {};
@@ -453,7 +458,7 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	/**
 	 * Gets the selected entity.
 	 *
-	 * @return {Object} Plain object featuring `` Entity``` stub data.
+	 * @return {Object} Plain object featuring `Entity` stub data.
 	 */
 	selectedEntity: function() {
 		// TODO: Implement setter.

@@ -2,6 +2,7 @@
 
 namespace Wikibase\DataAccess\PropertyParserFunction;
 
+use OutOfBoundsException;
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
@@ -18,7 +19,7 @@ use Wikibase\DataModel\Entity\EntityId;
 class VariantsAwareRenderer implements PropertyClaimsRenderer {
 
 	/**
-	 * @param string[]
+	 * @var string[]
 	 */
 	private $variants;
 

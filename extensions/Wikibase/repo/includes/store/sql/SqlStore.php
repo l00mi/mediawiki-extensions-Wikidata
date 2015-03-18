@@ -43,37 +43,47 @@ use WikiPage;
 class SqlStore implements Store {
 
 	/**
-	 * @var EntityRevisionLookup
+	 * @var EntityContentDataCodec
+	 */
+	private $contentCodec;
+
+	/**
+	 * @var EntityIdParser
+	 */
+	private $entityIdParser;
+
+	/**
+	 * @var EntityRevisionLookup|null
 	 */
 	private $entityRevisionLookup = null;
 
 	/**
-	 * @var EntityRevisionLookup
+	 * @var EntityRevisionLookup|null
 	 */
 	private $rawEntityRevisionLookup = null;
 
 	/**
-	 * @var EntityStore
+	 * @var EntityStore|null
 	 */
 	private $entityStore = null;
 
 	/**
-	 * @var DispatchingEntityStoreWatcher
+	 * @var DispatchingEntityStoreWatcher|null
 	 */
 	private $entityStoreWatcher = null;
 
 	/**
-	 * @var EntityInfoBuilderFactory
+	 * @var EntityInfoBuilderFactory|null
 	 */
 	private $entityInfoBuilderFactory = null;
 
 	/**
-	 * @var PropertyInfoTable
+	 * @var PropertyInfoTable|null
 	 */
 	private $propertyInfoTable = null;
 
 	/**
-	 * @var ChangesTable
+	 * @var ChangesTable|null
 	 */
 	private $changesTable = null;
 
@@ -83,7 +93,7 @@ class SqlStore implements Store {
 	private $changesDatabase;
 
 	/**
-	 * @var TermIndex
+	 * @var TermIndex|null
 	 */
 	private $termIndex = null;
 
@@ -103,43 +113,28 @@ class SqlStore implements Store {
 	private $cacheDuration;
 
 	/**
-	 * @var EntityContentDataCodec
-	 */
-	private $contentCodec;
-
-	/**
-	 * @var EntityIdParser
-	 */
-	private $entityIdParser;
-
-	/**
 	 * @var bool
 	 */
 	private $useRedirectTargetColumn;
 
 	/**
 	 * @param EntityContentDataCodec $contentCodec
+	 * @param EntityIdParser $entityIdParser
 	 */
 	public function __construct(
 		EntityContentDataCodec $contentCodec,
 		EntityIdParser $entityIdParser
 	) {
 		$this->contentCodec = $contentCodec;
+		$this->entityIdParser = $entityIdParser;
 
 		//TODO: inject settings
 		$settings = WikibaseRepo::getDefaultInstance()->getSettings();
-		$cacheKeyPrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
-		$cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
-		$cacheType = $settings->getSetting( 'sharedCacheType' );
-
-		$this->entityIdParser = $entityIdParser;
-		$this->useRedirectTargetColumn = $settings->getSetting( 'useRedirectTargetColumn' );
-
-		$this->cacheKeyPrefix = $cacheKeyPrefix;
-		$this->cacheDuration = $cacheDuration;
-		$this->cacheType = $cacheType;
-
 		$this->changesDatabase = $settings->getSetting( 'changesDatabase' );
+		$this->cacheKeyPrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
+		$this->cacheType = $settings->getSetting( 'sharedCacheType' );
+		$this->cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
+		$this->useRedirectTargetColumn = $settings->getSetting( 'useRedirectTargetColumn' );
 	}
 
 	/**
@@ -167,11 +162,9 @@ class SqlStore implements Store {
 	}
 
 	/**
-	 * @since 0.1
-	 *
 	 * @return TermIndex
 	 */
-	protected function newTermIndex() {
+	private function newTermIndex() {
 		//TODO: Get $stringNormalizer from WikibaseRepo?
 		//      Can't really pass this via the constructor...
 		$stringNormalizer = new StringNormalizer();
@@ -506,9 +499,9 @@ class SqlStore implements Store {
 	 */
 	public function getEntityLookup( $uncached = '' ) {
 		$revisionLookup = $this->getEntityRevisionLookup( $uncached );
-		$lookup = new RevisionBasedEntityLookup( $revisionLookup );
-		$lookup = new RedirectResolvingEntityLookup( $lookup );
-		return $lookup;
+		$revisionBasedLookup = new RevisionBasedEntityLookup( $revisionLookup );
+		$resolvingLookup = new RedirectResolvingEntityLookup( $revisionBasedLookup );
+		return $resolvingLookup;
 	}
 
 	/**
@@ -544,16 +537,14 @@ class SqlStore implements Store {
 	/**
 	 * @return WikiPageEntityStore
 	 */
-	protected function newEntityStore() {
+	private function newEntityStore() {
 		$contentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 		$idGenerator = $this->newIdGenerator();
-		$entityPerPage = $this->newEntityPerPage();
 
-		$store = new WikiPageEntityStore( $contentFactory, $idGenerator, $entityPerPage );
+		$store = new WikiPageEntityStore( $contentFactory, $idGenerator );
 		$store->registerWatcher( $this->getEntityStoreWatcher() );
 		return $store;
 	}
-
 
 	/**
 	 * @see Store::getEntityRevisionLookup
@@ -582,7 +573,7 @@ class SqlStore implements Store {
 	 *
 	 * @return array( WikiPageEntityRevisionLookup, CachingEntityRevisionLookup )
 	 */
-	protected function newEntityRevisionLookup() {
+	private function newEntityRevisionLookup() {
 		// NOTE: Keep cache key in sync with DirectSqlStore::newEntityRevisionLookup in WikibaseClient
 		$cacheKeyPrefix = $this->cacheKeyPrefix . ':WikiPageEntityRevisionLookup';
 
@@ -640,7 +631,7 @@ class SqlStore implements Store {
 	 *
 	 * @return EntityInfoBuilderFactory
 	 */
-	protected function newEntityInfoBuilderFactory() {
+	private function newEntityInfoBuilderFactory() {
 		return new SqlEntityInfoBuilderFactory( $this->useRedirectTargetColumn );
 	}
 
@@ -664,13 +655,14 @@ class SqlStore implements Store {
 	 *
 	 * @return PropertyInfoTable
 	 */
-	protected function newPropertyInfoTable() {
+	private function newPropertyInfoTable() {
 		$usePropertyInfoTable = WikibaseRepo::getDefaultInstance()->
 			getSettings()->getSetting( 'usePropertyInfoTable' );
 
 		if ( $usePropertyInfoTable ) {
 			$table = new PropertyInfoTable( false );
 			$cacheKey = $this->cacheKeyPrefix . ':CachingPropertyInfoStore';
+
 			return new CachingPropertyInfoStore(
 				$table,
 				ObjectCache::getInstance( $this->cacheType ),

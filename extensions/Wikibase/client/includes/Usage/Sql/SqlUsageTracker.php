@@ -8,7 +8,7 @@ use DBError;
 use Exception;
 use InvalidArgumentException;
 use Iterator;
-use Wikibase\Client\Store\Sql\ConnectionManager;
+use Wikibase\Client\Store\Sql\ConsistentReadConnectionManager;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\PageEntityUsages;
 use Wikibase\Client\Usage\UsageLookup;
@@ -31,7 +31,7 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 	private $idParser;
 
 	/**
-	 * @var ConnectionManager
+	 * @var ConsistentReadConnectionManager
 	 */
 	private $connectionManager;
 
@@ -42,9 +42,9 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 
 	/**
 	 * @param EntityIdParser $idParser
-	 * @param ConnectionManager $connectionManager
+	 * @param ConsistentReadConnectionManager $connectionManager
 	 */
-	public function __construct( EntityIdParser $idParser, ConnectionManager $connectionManager ) {
+	public function __construct( EntityIdParser $idParser, ConsistentReadConnectionManager $connectionManager ) {
 		$this->idParser = $idParser;
 		$this->connectionManager = $connectionManager;
 	}
@@ -62,8 +62,14 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 	 * Sets the query batch size.
 	 *
 	 * @param int $batchSize
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function setBatchSize( $batchSize ) {
+		if ( !is_int( $batchSize ) || $batchSize < 1 ) {
+			throw new InvalidArgumentException( '$batchSize must be an integer >= 1' );
+		}
+
 		$this->batchSize = $batchSize;
 	}
 
@@ -158,7 +164,7 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 	}
 
 	/**
-	 * @see UsageTracker::getUsagesForPage
+	 * @see UsageLookup::getUsagesForPage
 	 *
 	 * @param int $pageId
 	 *
@@ -190,7 +196,7 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 		$res = $db->select(
 			'wbc_entity_usage',
 			array( 'eu_aspect', 'eu_entity_id' ),
-			array( 'eu_page_id' => (int)$pageId ),
+			array( 'eu_page_id' => $pageId ),
 			__METHOD__
 		);
 
@@ -217,7 +223,7 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 	}
 
 	/**
-	 * @see UsageTracker::getPagesUsing
+	 * @see UsageLookup::getPagesUsing
 	 *
 	 * @param EntityId[] $entityIds
 	 * @param string[] $aspects
@@ -281,9 +287,8 @@ class SqlUsageTracker implements UsageTracker, UsageLookup {
 		return $usagesPerPage;
 	}
 
-
 	/**
-	 * @see UsageTracker::getUnusedEntities
+	 * @see UsageLookup::getUnusedEntities
 	 *
 	 * @param EntityId[] $entityIds
 	 *

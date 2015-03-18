@@ -50,9 +50,16 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	options: {
 		template: 'wikibase-entitytermsforlanguagelistview',
 		templateParams: [
-			'' // tbodys
+			mw.msg( 'wikibase-entitytermsforlanguagelistview-language' ),
+			mw.msg( 'wikibase-entitytermsforlanguagelistview-label' ),
+			mw.msg( 'wikibase-entitytermsforlanguagelistview-aliases' ),
+			mw.msg( 'wikibase-entitytermsforlanguagelistview-description' ),
+			'' // entitytermsforlanguageview
 		],
-		templateShortCuts: {},
+		templateShortCuts: {
+			$header: '.wikibase-entitytermsforlanguagelistview-header',
+			$listview: '.wikibase-entitytermsforlanguagelistview-listview'
+		},
 		value: [],
 		entityId: null,
 		entityChangersFactory: null
@@ -86,11 +93,14 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget.destroy
 	 */
 	destroy: function() {
-		// When destroying a widget not initialized properly, listview will not have been created.
-		var listview = this.element.data( 'listview' );
+		// When destroying a widget not initialized properly, shortcuts will not have been created.
+		if( this.$listview ) {
+			// When destroying a widget not initialized properly, listview will not have been created.
+			var listview = this.$listview.data( 'listview' );
 
-		if( listview ) {
-			listview.destroy();
+			if( listview ) {
+				listview.destroy();
+			}
 		}
 
 		this.element.removeClass( 'wikibase-entitytermsforlanguagelistview' );
@@ -128,7 +138,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			}
 		);
 
-		this.element
+		this.$listview
 		.listview( {
 			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 				listItemWidget: listItemWidget,
@@ -138,22 +148,29 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 						entityId: self.options.entityId,
 						entityChangersFactory: self.options.entityChangersFactory,
 						helpMessage: mw.msg(
-							'wikibase-fingerprintview-input-help-message',
+							'wikibase-entitytermsforlanguageview-input-help-message',
 							wb.getLanguageNameByCode( value.language )
 						)
 					};
 				}
 			} ),
 			value: self.options.value || null,
-			listItemNodeName: 'TBODY'
+			listItemNodeName: 'TR'
 		} );
 	},
 
 	/**
 	 * @return {boolean}
 	 */
+	isEmpty: function() {
+		return !!this.$listview.data( 'listview' ).items().length;
+	},
+
+	/**
+	 * @return {boolean}
+	 */
 	isValid: function() {
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter(),
 			isValid = true;
 
@@ -169,7 +186,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter(),
 			currentValue = [];
 
@@ -205,13 +222,15 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 		this._isInEditMode = true;
 		this.element.addClass( 'wb-edit' );
 
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
 		listview.items().each( function() {
 			var entitytermsforlanguageview = lia.liInstance( $( this ) );
 			entitytermsforlanguageview.startEditing();
 		} );
+
+		this.updateInputSize();
 
 		this._trigger( 'afterstartediting' );
 	},
@@ -232,7 +251,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 
 		this.disable();
 
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
 		// TODO: This widget should not need to queue the requests of its encapsulated widgets.
@@ -285,7 +304,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	_resetEditMode: function() {
 		this.enable();
 
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
 		listview.items().each( function() {
@@ -311,10 +330,35 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	},
 
 	/**
+	 * Updates the size of the input boxes by triggering the inputautoexpand plugin's `expand()`
+	 * function.
+	 */
+	updateInputSize: function() {
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		listview.items().each( function() {
+			var entitytermsforlanguageview = lia.liInstance( $( this ) );
+
+			$.each( ['label', 'description', 'aliases'], function() {
+				var $view = entitytermsforlanguageview['$' + this + 'view'],
+					autoExpandInput = $view.find( 'input,textarea' ).data( 'inputautoexpand' );
+
+				if( autoExpandInput ) {
+					autoExpandInput.options( {
+						maxWidth: $view.width()
+					} );
+					autoExpandInput.expand( true );
+				}
+			} );
+		} );
+	},
+
+	/**
 	 * @see jQuery.ui.TemplatedWidget.focus
 	 */
 	focus: function() {
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			$items = listview.items();
 
 		if( $items.length ) {
@@ -342,7 +386,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	removeError: function() {
 		this.element.removeClass( 'wb-error' );
 
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
 		listview.items().each( function() {
@@ -359,7 +403,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			return this.option( 'value', value );
 		}
 
-		var listview = this.element.data( 'listview' ),
+		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
 		value = [];
@@ -383,7 +427,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 		var response = PARENT.prototype._setOption.apply( this, arguments );
 
 		if( key === 'disabled' ) {
-			this.element.data( 'listview' ).option( key, value );
+			this.$listview.data( 'listview' ).option( key, value );
 		}
 
 		return response;

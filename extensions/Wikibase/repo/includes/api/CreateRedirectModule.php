@@ -75,8 +75,6 @@ class CreateRedirectModule extends ApiBase {
 	 * @see ApiBase::execute()
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 		$bot = $this->getUser()->isAllowed( 'bot' ) && $params['bot'];
 
@@ -90,8 +88,6 @@ class CreateRedirectModule extends ApiBase {
 		} catch ( RedirectCreationException $ex ) {
 			$this->handleRedirectCreationException( $ex );
 		}
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -153,13 +149,9 @@ class CreateRedirectModule extends ApiBase {
 	}
 
 	/**
-	 * Returns an array of allowed parameters (parameter name) => (default
-	 * value) or (parameter name) => (array with PARAM_* constants as keys)
-	 * Don't call this function directly: use getFinalParams() to allow
-	 * hooks to modify parameters as needed.
-	 * @return array|bool
+	 * @see ApiBase::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array(
 			'from' => array(
 				ApiBase::PARAM_TYPE => 'string',
@@ -179,9 +171,7 @@ class CreateRedirectModule extends ApiBase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

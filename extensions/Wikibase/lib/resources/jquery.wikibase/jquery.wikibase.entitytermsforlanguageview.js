@@ -22,7 +22,7 @@
  *         }
  *
  * @option {string} [helpMessage]
- *         Default: mw.msg( 'wikibase-fingerprintview-input-help-message' )
+ *         Default: mw.msg( 'wikibase-entitytermsforlanguageview-input-help-message' )
  *
  * @option {string} entityId
  *
@@ -51,6 +51,8 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 	options: {
 		template: 'wikibase-entitytermsforlanguageview',
 		templateParams: [
+			'tr',
+			'td',
 			function() {
 				return this.options.value.language;
 			},
@@ -59,14 +61,15 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 					mw.config.get( 'wgTitle' ),
 					mw.config.get( 'wgNamespaceNumber' )
 				);
-				return title.getUrl( { setlang: this.options.value.language } );
-			},
-			function() {
-				return wb.getLanguageNameByCode( this.options.value.language );
+				return mw.wbTemplate( 'wikibase-entitytermsforlanguageview-language',
+					title.getUrl( { setlang: this.options.value.language } ),
+					wb.getLanguageNameByCode( this.options.value.language )
+				);
 			},
 			'', // label
+			'', // aliases
 			'', // description
-			'' // aliases
+			'' // toolbar placeholder
 		],
 		templateShortCuts: {
 			$language: '.wikibase-entitytermsforlanguageview-language',
@@ -75,7 +78,7 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 			$aliases: '.wikibase-entitytermsforlanguageview-aliases'
 		},
 		value: null,
-		helpMessage: mw.msg( 'wikibase-fingerprintview-input-help-message' ),
+		helpMessage: mw.msg( 'wikibase-entitytermsforlanguageview-input-help-message' ),
 		entityId: null,
 		entityChangersFactory: null
 	},
@@ -194,9 +197,9 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 
 			if( widgetName === 'aliasesview' ) {
 				options.aliasesChanger = self.options.entityChangersFactory.getAliasesChanger();
-			} else if ( widgetName === 'descriptionview' ) {
+			} else if( widgetName === 'descriptionview' ) {
 				options.descriptionsChanger = self.options.entityChangersFactory.getDescriptionsChanger();
-			} else if ( widgetName === 'labelview' ) {
+			} else if( widgetName === 'labelview' ) {
 				options.labelsChanger = self.options.entityChangersFactory.getLabelsChanger();
 				options.entityId = self.options.entityId;
 			}

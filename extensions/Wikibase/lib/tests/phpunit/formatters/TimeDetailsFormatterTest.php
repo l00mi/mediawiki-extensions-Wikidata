@@ -11,6 +11,7 @@ use Wikibase\Lib\TimeDetailsFormatter;
 
 /**
  * @covers Wikibase\Lib\TimeDetailsFormatter
+ * @uses DataValues\TimeValue
  *
  * @group ValueFormatters
  * @group WikibaseLib
@@ -18,48 +19,216 @@ use Wikibase\Lib\TimeDetailsFormatter;
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
 class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 
 	/**
-	 * @dataProvider quantityFormatProvider
+	 * @param string $formattedHeading
+	 *
+	 * @return TimeDetailsFormatter
 	 */
-	public function testFormat( $value, $options, $pattern ) {
-		$formatter = new TimeDetailsFormatter( $options );
+	private function getFormatter( $formattedHeading = '' ) {
+		$options = new FormatterOptions();
+		$options->setOption( ValueFormatter::OPT_LANG, 'qqx' );
+
+		$timeFormatter = $this->getMockBuilder( 'ValueFormatters\ValueFormatter' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$timeFormatter->expects( $this->any() )
+			->method( 'format' )
+			->will( $this->returnValue( $formattedHeading ) );
+
+		return new TimeDetailsFormatter( $options, $timeFormatter );
+	}
+
+	/**
+	 * @param string $time
+	 * @param int|string $timezone
+	 * @param int|string $before
+	 * @param int|string $after
+	 * @param int|string $precision
+	 * @param string $calendarModel
+	 *
+	 * @return TimeValue
+	 */
+	private function getTimeValue(
+		$time = '<a>time</a>',
+		$timezone = '<a>timezone</a>',
+		$before = '<a>before</a>',
+		$after = '<a>after</a>',
+		$precision = '<a>precision</a>',
+		$calendarModel = '<a>calendarmodel</a>'
+	) {
+		$value = $this->getMockBuilder( 'DataValues\TimeValue' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$value->expects( $this->any() )
+			->method( 'getTime' )
+			->will( $this->returnValue( $time ) );
+		$value->expects( $this->any() )
+			->method( 'getTimezone' )
+			->will( $this->returnValue( $timezone ) );
+		$value->expects( $this->any() )
+			->method( 'getBefore' )
+			->will( $this->returnValue( $before ) );
+		$value->expects( $this->any() )
+			->method( 'getAfter' )
+			->will( $this->returnValue( $after ) );
+		$value->expects( $this->any() )
+			->method( 'getPrecision' )
+			->will( $this->returnValue( $precision ) );
+		$value->expects( $this->any() )
+			->method( 'getCalendarModel' )
+			->will( $this->returnValue( $calendarModel ) );
+
+		return $value;
+	}
+
+	/**
+	 * @dataProvider quantityFormatProvider
+	 * @param TimeValue $value
+	 * @param string $pattern
+	 */
+	public function testFormat( TimeValue $value, $pattern ) {
+		$formatter = $this->getFormatter( '<a>HTML</a>' );
 
 		$html = $formatter->format( $value );
 		$this->assertRegExp( $pattern, $html );
 	}
 
 	public function quantityFormatProvider() {
-		$options = new FormatterOptions( array(
-			ValueFormatter::OPT_LANG => 'en'
-		) );
+		$gregorian = TimeFormatter::CALENDAR_GREGORIAN;
+		$day = TimeValue::PRECISION_DAY;
 
 		return array(
-			array(
-				new TimeValue( '+00000002001-01-01T00:00:00Z', 60, 0, 1, 10, TimeFormatter::CALENDAR_GREGORIAN ),
-				$options,
+			'Basic test' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 60, 0, 1, TimeValue::PRECISION_MONTH, $gregorian ),
 				'@' . implode( '.*',
 					array(
-						'<h4[^<>]*>[^<>]*2001[^<>]*</h4>',
-						'<td[^<>]*>[^<>]*\+00000002001-01-01T00:00:00Z[^<>]*</td>',
-						'<td[^<>]*>[^<>]*60[^<>]*</td>',
-						'<td[^<>]*>[^<>]*.*Q1985727[^<>]*</td>',
-						'<td[^<>]*>[^<>]*10[^<>]*</td>',
-						'<td[^<>]*>[^<>]*0[^<>]*</td>',
-						'<td[^<>]*>[^<>]*1[^<>]*</td>',
+						'<h4[^<>]*><a>HTML</a></h4>',
+						'<td[^<>]*>\+0*2001-01-01T00:00:00</td>',
+						'<td[^<>]*>\+01:00</td>',
+						'<td[^<>]*>\(valueview-expert-timevalue-calendar-gregorian\)</td>',
+						'<td[^<>]*>\(months: 1\)</td>',
+						'<td[^<>]*>\(months: 0\)</td>',
+						'<td[^<>]*>\(months: 1\)</td>',
 					)
 				) . '@s'
+			),
+			'3 digit year' => array(
+				new TimeValue( '+999-01-01T00:00:00Z', 0, 0, 0, $day, $gregorian ),
+				'@.*<td[^<>]*isotime">\+0999-01-01T00:00:00</td>.*@s'
+			),
+			'Negative, padded year' => array(
+				new TimeValue( '-099999-01-01T00:00:00Z', 0, 0, 0, $day, $gregorian ),
+				'@.*<td[^<>]*isotime">\xE2\x88\x9299999-01-01T00:00:00</td>.*@s'
+			),
+			'Optional Z' => array(
+				$this->getTimeValue( '-099999-01-01T00:00:00' ),
+				'@.*<td[^<>]*isotime">\xE2\x88\x9299999-01-01T00:00:00</td>.*@s'
+			),
+			'Optional sign' => array(
+				$this->getTimeValue( '099999-01-01T00:00:00Z' ),
+				'@.*<td[^<>]*isotime">\+99999-01-01T00:00:00</td>.*@s'
+			),
+			'Julian' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, $day, TimeFormatter::CALENDAR_JULIAN ),
+				'@.*<td[^<>]*calendar">\(valueview-expert-timevalue-calendar-julian\)</td>.*@s'
+			),
+			'Non-standard calendar model' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, $day, 'Stardate' ),
+				'@.*<td[^<>]*calendar">Stardate</td>.*@s'
+			),
+			'Negative time zone' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', -179, 0, 0, $day, $gregorian ),
+				'@.*<td[^<>]*timezone">\xE2\x88\x9202:59</td>.*@s'
+			),
+			'Seconds precision' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_SECOND, $gregorian ),
+				'@.*<td[^<>]*precision">\(seconds: 1\)</td>.*@s'
+			),
+			'10 years precision' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_10a, $gregorian ),
+				'@.*<td[^<>]*precision">\(years: 10\)</td>.*@s'
+			),
+			'Max. precision' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_Ga, $gregorian ),
+				'@.*<td[^<>]*precision">\(years: 1000000000\)</td>.*@s'
+			),
+			'Before' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 2, 0, TimeValue::PRECISION_YEAR, $gregorian ),
+				'@.*<td[^<>]*before">\(years: 2\)</td>.*@s'
+			),
+			'After in years' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 5, TimeValue::PRECISION_10a, $gregorian ),
+				'@.*<td[^<>]*after">\(years: 50\)</td>.*@s'
+			),
+			'After in days' => array(
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 125, $day, $gregorian ),
+				'@.*<td[^<>]*after">\(days: 125\)</td>.*@s'
 			),
 		);
 	}
 
 	public function testFormatError() {
-		$formatter = new TimeDetailsFormatter( new FormatterOptions() );
+		$formatter = $this->getFormatter();
 		$value = new NumberValue( 23 );
 
 		$this->setExpectedException( 'InvalidArgumentException' );
 		$formatter->format( $value );
 	}
+
+	public function testGivenInvalidTimeValue_formatDoesNotThrowException() {
+		$formatter = $this->getFormatter();
+		$value = $this->getTimeValue();
+
+		$html = $formatter->format( $value );
+		$this->assertInternalType( 'string', $html );
+	}
+
+	public function testGivenInvalidTimeValue_formatDoesNotAllowHtmlInjection() {
+		$formatter = $this->getFormatter();
+		$value = $this->getTimeValue();
+
+		$html = $formatter->format( $value );
+		$this->assertNotContains( '<a>', $html, 'Should not be unescaped' );
+		$this->assertContains( '&lt;', $html, 'Should be escaped' );
+		$this->assertNotContains( '&amp;', $html, 'Should not be double escape' );
+	}
+
+	public function testGivenInvalidTimeValue_formatEchoesTimeValueFields() {
+		$formatter = $this->getFormatter();
+		$value = $this->getTimeValue();
+
+		$html = $formatter->format( $value );
+		$this->assertContains( '>&lt;a&gt;time&lt;/a&gt;<', $html );
+		$this->assertContains( '>&lt;a&gt;timezone&lt;/a&gt;<', $html );
+		$this->assertContains( '>&lt;a&gt;before&lt;/a&gt;<', $html );
+		$this->assertContains( '>&lt;a&gt;after&lt;/a&gt;<', $html );
+		$this->assertContains( '>&lt;a&gt;precision&lt;/a&gt;<', $html );
+		$this->assertContains( '>&lt;a&gt;calendarmodel&lt;/a&gt;<', $html );
+	}
+
+	public function testGivenValidTimeValueWithInvalidPrecision_formatEchoesTimeValueFields() {
+		$formatter = $this->getFormatter();
+		$value = $this->getTimeValue( '+2001-01-01T00:00:00Z', 0, 1, 1, 'precision' );
+
+		$html = $formatter->format( $value );
+		$this->assertEquals( 1, substr_count( $html, '>precision<' ), 'precision' );
+		$this->assertEquals( 2, substr_count( $html, '>1<' ), 'before' );
+	}
+
+	public function testGivenValidTimeValueWithInvalidBeforeAndAfter_formatEchoesTimeValueFields() {
+		$formatter = $this->getFormatter();
+		$value = $this->getTimeValue( '+2001-01-01T00:00:00Z', 0, 'before', 'after', TimeValue::PRECISION_DAY );
+
+		$html = $formatter->format( $value );
+		$this->assertEquals( 1, substr_count( $html, '>11<' ), 'precision' );
+		$this->assertEquals( 1, substr_count( $html, '>before<' ), 'before' );
+		$this->assertEquals( 1, substr_count( $html, '>after<' ), 'after' );
+	}
+
 }

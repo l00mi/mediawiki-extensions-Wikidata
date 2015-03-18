@@ -1,4 +1,4 @@
-( function( $ ) {
+( function( $, mw ) {
 	'use strict';
 
 /**
@@ -15,18 +15,28 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 		entitytermsviewcreate: function( event, toolbarcontroller ) {
 			var $entitytermsview = $( event.target ),
 				entitytermsview = $entitytermsview.data( 'entitytermsview' ),
-				$headingContainer = $entitytermsview.find(
-					'.wikibase-entitytermsview-heading-container'
-				),
-				$container = $headingContainer.children( '.wikibase-toolbar-container' );
+				$container = $entitytermsview.children( '.wikibase-toolbar-container' );
 
 			if( !$container.length ) {
-				$container = $( '<div/>' ).appendTo( $headingContainer );
+				$container = $( '<div/>' ).appendTo( $container );
 			}
 
 			$entitytermsview.edittoolbar( {
 				$container: $container,
 				interactionWidget: entitytermsview
+			} );
+
+			$entitytermsview.data( 'edittoolbar' ).option( '$container' )
+			.sticknode( {
+				$container: entitytermsview.$entitytermsforlanguagelistview,
+				autoWidth: true,
+				zIndex: 2
+			} )
+			.on( 'sticknodeupdate', function( event ) {
+				if( !$( event.target ).data( 'sticknode' ).isFixed() ) {
+					$entitytermsview.data( 'edittoolbar' )
+						.option( '$container' ).css( 'width', 'auto' );
+				}
 			} );
 
 			$entitytermsview.on( 'keyup.edittoolbar', function( event ) {
@@ -48,6 +58,34 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				enable = entitytermsview.isValid() && !entitytermsview.isInitialValue();
 
 			btnSave[enable ? 'enable' : 'disable']();
+
+			$entitytermsview.data( 'edittoolbar' )
+				.option( '$container' ).data( 'sticknode' ).refresh();
+		},
+		entitytermsviewafterstopediting: function( event ) {
+			var $entitytermsview = $( event.target ),
+				entitytermsview = $entitytermsview.data( 'entitytermsview' ),
+				showEntitytermslistviewValue = mw.user.isAnon()
+					? $.cookie( 'wikibase-entitytermsview-showEntitytermslistview' )
+					: mw.user.options.get( 'wikibase-entitytermsview-showEntitytermslistview' ),
+				showEntitytermslistview = showEntitytermslistviewValue === 'true'
+					|| showEntitytermslistviewValue === '1';
+
+			if(
+				entitytermsview.$entitytermsforlanguagelistviewContainer.is( ':visible' )
+				&& !showEntitytermslistview
+			) {
+				entitytermsview.$entitytermsforlanguagelistviewContainer.slideUp( {
+					complete: function() {
+						entitytermsview.$entitytermsforlanguagelistviewToggler.data( 'toggler' )
+							.refresh();
+					},
+					duration: 'fast'
+				} );
+			}
+
+			$entitytermsview.data( 'edittoolbar' )
+				.option( '$container' ).data( 'sticknode' ).refresh();
 		},
 		entitytermsviewdisable: function( event ) {
 			var $entitytermsview = $( event.target ),
@@ -58,7 +96,7 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 
 			btnSave[enable ? 'enable' : 'disable']();
 		},
-		toolbareditgroupedit: function( event, toolbarcontroller ) {
+		edittoolbaredit: function( event, toolbarcontroller ) {
 			var $entitytermsview = $( event.target ),
 				entitytermsview = $entitytermsview.data( 'entitytermsview' );
 
@@ -66,9 +104,21 @@ $.wikibase.toolbarcontroller.definition( 'edittoolbar', {
 				return;
 			}
 
+			if( !entitytermsview.$entitytermsforlanguagelistviewContainer.is( ':visible' ) ) {
+				entitytermsview.$entitytermsforlanguagelistviewContainer.slideDown( {
+					complete: function() {
+						entitytermsview.$entitytermsforlanguagelistview
+							.data( 'entitytermsforlanguagelistview' ).updateInputSize();
+						entitytermsview.$entitytermsforlanguagelistviewToggler.data( 'toggler' )
+							.refresh();
+					},
+					duration: 'fast'
+				} );
+			}
+
 			entitytermsview.focus();
 		}
 	}
 } );
 
-}( jQuery ) );
+}( jQuery, mediaWiki ) );

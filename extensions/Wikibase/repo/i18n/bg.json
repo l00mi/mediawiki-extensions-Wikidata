@@ -2,10 +2,15 @@
 	"@metadata": {
 		"authors": [
 			"Spiritia",
-			"පසිඳු කාවින්ද"
+			"පසිඳු කාවින්ද",
+			"Borislav",
+			"DCLXVI"
 		]
 	},
 	"wikibase-desc": "Хранилище на структурирани данни",
+	"wikibase-entity-item": "обект",
+	"wikibase-entity-property": "свойство",
+	"wikibase-entity-query": "заявка",
 	"wikibase-edit": "редактиране",
 	"wikibase-save": "съхраняване",
 	"wikibase-cancel": "отказ",
@@ -20,13 +25,14 @@
 	"wikibase-description-input-help-message": "Въведете кратко описание на $1.",
 	"wikibase-terms": "На други езици",
 	"wikibase-sitelinks-empty": "За този обект все още липсват междуезикови препратки.",
+	"wikibase-sitelinks-special": "Други сайтове",
 	"wikibase-remove": "премахване",
 	"wikibase-restore-title": "Възстановяване на стара версия на \"$1\"",
 	"wikibase-aliases-label": "Среща се и като:",
 	"wikibase-propertypage-datatype": "Тип на данните",
 	"wikibase-statementview-referencesheading-pendingcountersubject": "{{PLURAL:$1|източник|източници}}",
 	"wikibase-snakview-property-input-placeholder": "свойство",
-	"wikibase-snakview-variations-somevalue-label": "неразпозната стойност",
+	"wikibase-snakview-variations-somevalue-label": "неизвестна стойност",
 	"wikibase-shortcopyrightwarning": "Натискайки \"$1\", се съгласявате с  [[$2|Условията за ползване]] и безвъзвратно публикувате приноса си под условията на $3.",
 	"wikibase-copyrighttooltip-acknowledge": "Приемам тези условия за моите бъдещи редакции. Не показвай повече това съобщение.",
 	"wikibase-itembytitle-lookup-fieldset": "Търсене на обекти по сайт и заглавие",

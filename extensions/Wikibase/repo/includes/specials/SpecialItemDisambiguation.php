@@ -4,11 +4,10 @@ namespace Wikibase\Repo\Specials;
 
 use Html;
 use Language;
-use ValueFormatters\FormatterOptions;
-use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\ItemDisambiguation;
 use Wikibase\Lib\EntityIdHtmlLinkFormatter;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -45,6 +44,11 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 	private $entityTitleLookup;
 
 	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
+
+	/**
 	 * @var int
 	 */
 	private $limit;
@@ -60,7 +64,8 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 		$this->initServices(
 			WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex(),
 			WikibaseRepo::getDefaultInstance()->getEntityLookup(),
-			WikibaseRepo::getDefaultInstance()->getEntityTitleLookup()
+			WikibaseRepo::getDefaultInstance()->getEntityTitleLookup(),
+			new LanguageNameLookup()
 		);
 
 		//@todo: make this configurable
@@ -74,11 +79,13 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 	public function initServices(
 		TermIndex $termIndex,
 		EntityLookup $entityLookup,
-		EntityTitleLookup $entityTitleLookup
+		EntityTitleLookup $entityTitleLookup,
+		LanguageNameLookup $languageNameLookup
 	) {
 		$this->termIndex = $termIndex;
 		$this->entityLookup = $entityLookup;
 		$this->entityTitleLookup = $entityTitleLookup;
+		$this->languageNameLookup = $languageNameLookup;
 	}
 
 	/**
@@ -138,13 +145,15 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 			$this->getOutput()->addWikiMsg( 'wikibase-itemdisambiguation-nothing-found' );
 
 			if ( $languageCode === $this->getLanguage()->getCode() ) {
+				$searchLink = $this->getTitleFor( 'Search' );
 				$this->getOutput()->addWikiMsg(
 					'wikibase-itemdisambiguation-search',
-					urlencode( $label )
+					$searchLink->getFullURL( array( 'search' => $label ) )
 				);
+				$createLink = $this->getTitleFor( 'NewItem' );
 				$this->getOutput()->addWikiMsg(
 					'wikibase-itemdisambiguation-create',
-					urlencode( $label )
+					$createLink->getFullURL( array( 'label' => $label ) )
 				);
 			}
 		} else {
@@ -163,10 +172,6 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 		// @fixme it is confusing to have so many $langCodes here, coming from
 		// different places and maybe not necessary to be this way.
 
-		$formatterOptions = new FormatterOptions( array(
-			ValueFormatter::OPT_LANG => $this->getLanguage()->getCode()
-		) );
-
 		// @fixme inject this!
 		$labelLookup = new LanguageLabelLookup(
 			new EntityRetrievingTermLookup( $this->entityLookup ),
@@ -174,14 +179,15 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 		);
 
 		$linkFormatter = new EntityIdHtmlLinkFormatter(
-			$formatterOptions,
 			$labelLookup,
-			$this->entityTitleLookup
+			$this->entityTitleLookup,
+			$this->languageNameLookup
 		);
 
 		$disambiguationList = new ItemDisambiguation(
 			$languageCode,
 			$this->getContext()->getLanguage()->getCode(),
+			$this->languageNameLookup,
 			$linkFormatter
 		);
 

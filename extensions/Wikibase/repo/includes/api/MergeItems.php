@@ -111,8 +111,6 @@ class MergeItems extends ApiBase {
 	 * @see ApiBase::execute()
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 
 		try {
@@ -132,8 +130,6 @@ class MergeItems extends ApiBase {
 		} catch ( ItemMergeException $ex ) {
 			$this->handleItemMergeException( $ex );
 		}
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -182,7 +178,7 @@ class MergeItems extends ApiBase {
 	/**
 	 * @see ApiBase::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array(
 			'fromid' => array(
 				ApiBase::PARAM_TYPE => 'string',
@@ -204,9 +200,7 @@ class MergeItems extends ApiBase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

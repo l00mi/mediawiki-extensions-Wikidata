@@ -4,11 +4,12 @@ namespace Wikibase\Api;
 
 use ApiBase;
 use InvalidArgumentException;
+use Status;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
-use Wikibase\Utils;
 
 /**
  * API module to set the terms for a Wikibase entity.
@@ -44,13 +45,13 @@ abstract class ModifyTerm extends ModifyEntity {
 	}
 
 	/**
-	 * @see \Wikibase\Api\ModifyEntity::getRequiredPermissions()
+	 * @see ApiWikibase::getRequiredPermissions
 	 *
 	 * @param Entity $entity
 	 * @param array $params
 	 *
-	 * @throws \InvalidArgumentException
-	 * @return array|\Status
+	 * @throws InvalidArgumentException
+	 * @return string[]
 	 */
 	protected function getRequiredPermissions( Entity $entity, array $params ) {
 		$permissions = parent::getRequiredPermissions( $entity, $params );
@@ -66,17 +67,14 @@ abstract class ModifyTerm extends ModifyEntity {
 	}
 
 	/**
-	 * @see \ApiBase::getAllowedParams()
+	 * @see ModifyEntity::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array_merge(
 			parent::getAllowedParams(),
-			parent::getAllowedParamsForId(),
-			parent::getAllowedParamsForSiteLink(),
-			parent::getAllowedParamsForEntity(),
 			array(
 				'language' => array(
-					ApiBase::PARAM_TYPE => Utils::getLanguageCodes(),
+					ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
 					ApiBase::PARAM_REQUIRED => true,
 				),
 				'value' => array(
@@ -85,4 +83,5 @@ abstract class ModifyTerm extends ModifyEntity {
 			)
 		);
 	}
+
 }

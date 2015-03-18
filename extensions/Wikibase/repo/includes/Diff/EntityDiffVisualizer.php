@@ -12,8 +12,7 @@ use MWException;
 use SiteStore;
 use Wikibase\DataModel\Entity\Diff\EntityDiff;
 use Wikibase\DataModel\Entity\Diff\ItemDiff;
-use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Repo\Content\EntityContentDiff;
 
 /**
@@ -29,22 +28,16 @@ use Wikibase\Repo\Content\EntityContentDiff;
 class EntityDiffVisualizer {
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var IContextSource
 	 */
 	private $context;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var ClaimDiffer|null
 	 */
 	private $claimDiffer;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var ClaimDifferenceVisualizer|null
 	 */
 	private $claimDiffVisualizer;
@@ -55,38 +48,30 @@ class EntityDiffVisualizer {
 	private $siteStore;
 
 	/**
-	 * @var EntityTitleLookup
+	 * @var EntityIdFormatter
 	 */
-	private $entityTitleLookup;
+	private $entityIdFormatter;
 
 	/**
-	 * @var EntityRevisionLookup
-	 */
-	private $entityRevisionLookup;
-
-	/**
-	 * Constructor.
-	 *
 	 * @since 0.4
 	 *
 	 * @param IContextSource $contextSource
 	 * @param ClaimDiffer $claimDiffer
 	 * @param ClaimDifferenceVisualizer $claimDiffView
 	 * @param SiteStore $siteStore
+	 * @param EntityIdFormatter $entityIdFormatter
 	 */
 	public function __construct( IContextSource $contextSource,
 		ClaimDiffer $claimDiffer,
 		ClaimDifferenceVisualizer $claimDiffView,
 		SiteStore $siteStore,
-		EntityTitleLookup $entityTitleLookup,
-		EntityRevisionLookup $entityRevisionLookup
+		EntityIdFormatter $entityIdFormatter
 	) {
 		$this->context = $contextSource;
 		$this->claimDiffer = $claimDiffer;
 		$this->claimDiffVisualizer = $claimDiffView;
 		$this->siteStore = $siteStore;
-		$this->entityTitleLookup = $entityTitleLookup;
-		$this->entityRevisionLookup = $entityRevisionLookup;
+		$this->entityIdFormatter = $entityIdFormatter;
 	}
 
 	/**
@@ -132,8 +117,7 @@ class EntityDiffVisualizer {
 				true
 			),
 			$this->siteStore,
-			$this->entityTitleLookup,
-			$this->entityRevisionLookup,
+			$this->entityIdFormatter,
 			$this->context
 		);
 
@@ -154,8 +138,7 @@ class EntityDiffVisualizer {
 					true
 				),
 				$this->siteStore,
-				$this->entityTitleLookup,
-				$this->entityRevisionLookup,
+				$this->entityIdFormatter,
 				$this->context
 			);
 
@@ -186,8 +169,7 @@ class EntityDiffVisualizer {
 			array(),
 			$diff,
 			$this->siteStore,
-			$this->entityTitleLookup,
-			$this->entityRevisionLookup,
+			$this->entityIdFormatter,
 			$this->context
 		);
 

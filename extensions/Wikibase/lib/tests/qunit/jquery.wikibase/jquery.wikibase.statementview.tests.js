@@ -50,7 +50,8 @@ var createStatementview = function( options, $node ) {
 				return 'I am a ReferencesChanger';
 			}
 		},
-		api: 'i am an api'
+		dataTypeStore: 'I am a DataTypeStore',
+		guidGenerator: 'I am a ClaimGuidGenerator'
 	}, options || {} );
 
 	$node = $node || $( '<div/>' ).appendTo( 'body' );
@@ -186,6 +187,58 @@ QUnit.asyncTest( 'Using tooltip specific for existing claims', 1, function( asse
 		statementview.options.helpMessage,
 		mw.msg( 'wikibase-claimview-snak-tooltip', 'P1' )
 	);
+} );
+
+QUnit.test( 'value with empty reference', function( assert ) {
+	var $statementview = createStatementview( {
+			value: new wb.datamodel.Statement( new wb.datamodel.Claim(
+					new wb.datamodel.PropertyNoValueSnak( 'P1' ),
+					null,
+					'guid'
+				),
+				new wb.datamodel.ReferenceList( [ ] )
+			)
+		} ),
+		statementview = $statementview.data( 'statementview' );
+
+	statementview._addReference( null );
+
+	assert.ok( statementview.value(), 'value should return a value' );
+} );
+
+QUnit.test( 'performs correct claimsChanger call', function( assert ) {
+	var guid = 'GUID',
+		snak = new wb.datamodel.PropertyNoValueSnak( 'P1' ),
+		setStatement = sinon.spy( function() {
+			return $.Deferred().resolve().promise();
+		} ),
+		$statementview = createStatementview( {
+			claimsChanger: {
+				setStatement: setStatement
+			},
+			dataTypeStore: {
+				getDataType: function() { return null; }
+			},
+			guidGenerator: {
+				newGuid: function() { return guid; }
+			}
+		} ),
+		statementview = $statementview.data( 'statementview' );
+
+	statementview.startEditing();
+
+	statementview.$mainSnak.find( ':wikibase-entityselector' ).data( 'wikibase-entityselector' )._select( { id: 'P1' } );
+	statementview.$mainSnak.find( ':wikibase-snaktypeselector' ).data( 'snaktypeselector' ).snakType( 'novalue' );
+
+	QUnit.stop();
+
+	statementview.stopEditing( false ).then( function() {
+		QUnit.start();
+		sinon.assert.calledWith(
+			setStatement,
+			new wb.datamodel.Statement( new wb.datamodel.Claim( snak, null, guid ) )
+		);
+	} );
 } );
 
 }( jQuery, mediaWiki, wikibase, dataValues, QUnit, sinon ) );

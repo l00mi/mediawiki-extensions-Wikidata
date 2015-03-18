@@ -26,17 +26,17 @@ class ApiErrorReporter {
 	/**
 	 * @var ApiBase
 	 */
-	protected $apiModule;
+	private $apiModule;
 
 	/**
 	 * @var ExceptionLocalizer
 	 */
-	protected $localizer;
+	private $localizer;
 
 	/**
 	 * @var Language
 	 */
-	protected $language;
+	private $language;
 
 	/**
 	 * @param ApiBase $apiModule the API module for collaboration
@@ -97,13 +97,16 @@ class ApiErrorReporter {
 	 * @param string $key
 	 * @param string|array $warningData Warning message
 	 */
-	protected function setWarning( $key, $warningData ) {
+	private function setWarning( $key, $warningData ) {
 		$result = $this->apiModule->getResult();
 		$moduleName = $this->apiModule->getModuleName();
 
-		$result->disableSizeCheck();
-		$result->addValue( array( 'warnings', $moduleName ), $key, $warningData );
-		$result->enableSizeCheck();
+		$result->addValue(
+			array( 'warnings', $moduleName ),
+			$key,
+			$warningData,
+			ApiResult::NO_SIZE_CHECK
+		);
 	}
 
 	/**
@@ -182,7 +185,7 @@ class ApiErrorReporter {
 	 * Aborts the request with an error message derived from the error code.
 	 *
 	 * @param string $errorCode A code identifying the error.
-	 * @param string ... Parameters for the Message.
+	 * @param string [$param,...] Parameters for the Message.
 	 *
 	 * @throws LogicException
 	 */
@@ -280,7 +283,7 @@ class ApiErrorReporter {
 	 *
 	 * @throws LogicException
 	 */
-	protected function throwUsageException( $description, $errorCode, $httpRespCode = 0, $extradata = null ) {
+	private function throwUsageException( $description, $errorCode, $httpRespCode = 0, $extradata = null ) {
 		$this->apiModule->getMain()->dieUsage( $description, $errorCode, $httpRespCode, $extradata );
 
 		throw new LogicException( 'UsageException not thrown' );
@@ -360,7 +363,7 @@ class ApiErrorReporter {
 	 * @return array a result structure containing the messages from $errors as well as what
 	 *         was already present in the $messages parameter.
 	 */
-	protected function convertMessagesToResult( array $messageSpecs ) {
+	private function convertMessagesToResult( array $messageSpecs ) {
 		$result = array();
 		$res = $this->apiModule->getResult();
 
@@ -404,7 +407,7 @@ class ApiErrorReporter {
 	 * @return array a result structure containing the messages from $errors as well as what
 	 *         was already present in the $messages parameter.
 	 */
-	protected function convertToMessageList( array $messageSpecs ) {
+	private function convertToMessageList( array $messageSpecs ) {
 		$messages = array();
 
 		foreach ( $messageSpecs as $message ) {
@@ -429,7 +432,7 @@ class ApiErrorReporter {
 	 *
 	 * @return array
 	 */
-	protected function convertMessageToResult( Message $message ) {
+	private function convertMessageToResult( Message $message ) {
 		$res = $this->apiModule->getResult();
 
 		$name = $message->getKey();
@@ -471,7 +474,7 @@ class ApiErrorReporter {
 	 *
 	 * @return Message|null
 	 */
-	protected function convertToMessage( $messageSpec ) {
+	private function convertToMessage( $messageSpec ) {
 		$name = null;
 		$params = null;
 

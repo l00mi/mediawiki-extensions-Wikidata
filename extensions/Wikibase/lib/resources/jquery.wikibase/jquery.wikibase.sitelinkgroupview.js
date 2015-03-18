@@ -43,10 +43,10 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			'' // toolbar
 		],
 		templateShortCuts: {
-			'$headingSection': '.wikibase-sitelinkgroupview-heading-section',
-			'$headingContainer': '.wikibase-sitelinkgroupview-heading-container',
-			'$h': 'h2',
-			'$counter': '.wikibase-sitelinkgroupview-counter'
+			$headingSection: '.wikibase-sitelinkgroupview-heading-section',
+			headingContainer: '.wikibase-sitelinkgroupview-heading-container',
+			$h: 'h2',
+			$counter: '.wikibase-sitelinkgroupview-counter'
 		},
 		value: null,
 		entityStore: null,
@@ -337,7 +337,7 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 		if( error ) {
 			var self = this;
 
-			var $error = wb.utilities.ui.buildErrorOutput( error, {
+			var $error = wb.buildErrorOutput( error, {
 				progress: function() {
 					self.$headingSection.data( 'sticknode' ).refresh();
 				}

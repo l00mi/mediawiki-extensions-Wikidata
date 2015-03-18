@@ -54,12 +54,14 @@ abstract class UpdateRepoJob extends Job {
 	protected $entityPermissionChecker;
 
 	/**
-	 * @param string $command job command
-	 * @param Title $title Ignored
-	 * @param array $params
+	 * @see Job::__construct
+	 *
+	 * @param string $command
+	 * @param Title $title
+	 * @param array|bool $params
 	 */
-	public function __construct( $name, Title $title, array $params ) {
-		parent::__construct( $name, $title, $params );
+	public function __construct( $command, Title $title, $params = false ) {
+		parent::__construct( $command, $title, $params );
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
 		$this->initRepoJobServices(
@@ -185,13 +187,13 @@ abstract class UpdateRepoJob extends Job {
 			wfDebugLog( 'UpdateRepo', __FUNCTION__ . ": attemptSave for " . $itemId->getSerialization() . " failed: " . $status->getMessage()->text() );
 		}
 
-		wfProfileOut( __METHOD__ );
-
 		return $status->isOK();
 	}
 
 	/**
-	 * @return bool
+	 * @param string $name
+	 *
+	 * @return User|bool
 	 */
 	private function getUser( $name ) {
 		$user = User::newFromName( $name );
@@ -199,7 +201,6 @@ abstract class UpdateRepoJob extends Job {
 			// This should never happen as we check with CentralAuth
 			// that the user actually does exist
 			wfLogWarning( "User $name doesn't exist while CentralAuth pretends it does" );
-			wfProfileOut( __METHOD__ );
 			return false;
 		}
 
@@ -207,12 +208,9 @@ abstract class UpdateRepoJob extends Job {
 	}
 
 	/**
-	 * Run the job
-	 *
-	 * @return boolean success
+	 * @return bool success
 	 */
 	public function run() {
-		wfProfileIn( __METHOD__ );
 		$params = $this->getParams();
 
 		$user = $this->getUser( $params['user'] );
@@ -226,7 +224,6 @@ abstract class UpdateRepoJob extends Job {
 			$this->saveChanges( $item, $user );
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 

@@ -3,14 +3,15 @@
 namespace Wikibase\Test;
 
 use Language;
-use Title;
+use MediaWikiTestCase;
 use User;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\StorageException;
+use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Repo\View\EntityViewPlaceholderExpander;
 use Wikibase\Template\TemplateFactory;
 use Wikibase\Template\TemplateRegistry;
@@ -18,19 +19,27 @@ use Wikibase\Template\TemplateRegistry;
 /**
  * @covers Wikibase\Repo\View\EntityViewPlaceholderExpander
  *
+ * @uses Wikibase\Repo\View\EntityTermsView
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
+ *
  * @group Wikibase
  * @group WikibaseRepo
  * @group EntityView
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
+class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 
 	/**
 	 * @param User $user
-	 * @param EntityLookup $entityLookup
+	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param ItemId $itemId
+	 *
+	 * @return EntityViewPlaceholderExpander
 	 */
 	private function newExpander( User $user, EntityRevisionLookup $entityRevisionLookup, ItemId $itemId ) {
 		$title = $this->getMockBuilder( 'Title')
@@ -60,7 +69,9 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 			$language,
 			$idParser,
 			$entityRevisionLookup,
-			$userLanguages
+			$userLanguages,
+			new WikibaseContentLanguages(),
+			new LanguageNameLookup()
 		);
 	}
 
@@ -96,9 +107,20 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		return $entityLookup;
 	}
 
+	/**
+	 * @return EntityRevisionLookup
+	 */
+	private function getNullReturningEntityRevisionLookup() {
+		$entityLookup = $this->getMock( 'Wikibase\Lib\Store\EntityRevisionLookup' );
+		$entityLookup->expects( $this->any() )
+			->method( 'getEntityRevision' )
+			->will( $this->returnValue( null ) );
+
+		return $entityLookup;
+	}
+
 	private function getItem() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q23' ) );
+		$item = new Item( new ItemId( 'Q23' ) );
 
 		$item->setLabel( 'en', 'Moskow' );
 		$item->setLabel( 'de', 'Moskau' );
@@ -108,13 +130,20 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		return $item;
 	}
 
-	private function newUser( $isAnon ) {
-		$user = $this->getMockBuilder( '\User' )
+	/**
+	 * @param bool $isAnon
+	 *
+	 * @return User
+	 */
+	private function newUser( $isAnon = false ) {
+		$user = $this->getMockBuilder( 'User' )
 			->disableOriginalConstructor()
 			->getMock();
 		$user->expects( $this->any() )
 			->method( 'isAnon' )
 			->will( $this->returnValue( $isAnon ) );
+
+		/** @var User $user */
 		$user->setName( 'EntityViewPlaceholderExpanderTest-DummyUser' );
 
 		return $user;
@@ -123,41 +152,25 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 	public function testGetHtmlForPlaceholder() {
 		$item = $this->getItem();
 		$entityRevisionLookup = $this->getEntityRevisionLookup( $item );
-		$expander = $this->newExpander( $this->newUser( false ), $entityRevisionLookup, $item->getId() );
-
-		$html = $expander->getHtmlForPlaceholder( 'termbox-toc' );
-		$this->assertInternalType( 'string', $html );
+		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $item->getId() );
 
 		$html = $expander->getHtmlForPlaceholder( 'termbox', 'Q23' );
 		$this->assertInternalType( 'string', $html );
 	}
 
-	public function testRenderTermBoxTocEntry() {
-		$item = $this->getItem();
-		$entityRevisionLookup = $this->getEntityRevisionLookup( $item );
-		$expander = $this->newExpander( $this->newUser( false ), $entityRevisionLookup, $item->getId() );
-
-		// According to the mock objects, this should generate a term box for
-		// 'de' and 'ru', since 'en' is already covered by the interface language.
-		$html = $expander->renderTermBoxTocEntry( new ItemId( 'Q23' ) );
-		$this->assertNotNull( $html );
-		$this->assertRegExp( '/#wb-terms/', $html );
-	}
-
 	public function testRenderTermBox() {
 		$item = $this->getItem();
 		$entityRevisionLookup = $this->getEntityRevisionLookup( $item );
-		$expander = $this->newExpander( $this->newUser( false ), $entityRevisionLookup, $item->getId() );
+		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $item->getId() );
 
 		// According to the mock objects, this should generate a term box for
 		// 'de' and 'ru', since 'en' is already covered by the interface language.
 		$html = $expander->renderTermBox( new ItemId( 'Q23' ), 0 );
 
+		$this->assertRegExp( '/Moskow/', $html );
+
 		$this->assertRegExp( '/Moskau/', $html );
 		$this->assertRegExp( '/Hauptstadt/', $html );
-
-		$this->assertNotRegExp( '/Moskow/', $html );
-		$this->assertNotRegExp( '/Capitol/', $html );
 	}
 
 	public function testRenderTermBoxForDeleteRevision() {
@@ -165,7 +178,18 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		$itemId = $item->getId();
 		$entityRevisionLookup = $this->getExceptionThrowingEntityRevisionLookup();
 
-		$expander = $this->newExpander( $this->newUser( false ), $entityRevisionLookup, $itemId );
+		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
+
+		$html = $expander->renderTermBox( $itemId, 1 );
+		$this->assertEquals( '', $html );
+	}
+
+	public function testRenderTermBoxForNonEntityRevision() {
+		$item = $this->getItem();
+		$itemId = $item->getId();
+		$entityRevisionLookup = $this->getNullReturningEntityRevisionLookup();
+
+		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
 
 		$html = $expander->renderTermBox( $itemId, 1 );
 		$this->assertEquals( '', $html );
@@ -179,7 +203,7 @@ class EntityViewPlaceholderExpanderTest extends \MediaWikiTestCase {
 		$expander = $this->newExpander( $this->newUser( true ), $entityRevisionLookup, $itemId );
 		$this->assertArrayEquals( array(), $expander->getExtraUserLanguages() );
 
-		$expander = $this->newExpander( $this->newUser( false ), $entityRevisionLookup, $itemId );
+		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
 		$this->assertArrayEquals( array( 'de', 'ru' ), $expander->getExtraUserLanguages() );
 	}
 

@@ -49,7 +49,7 @@ class SidebarHookHandlers {
 	private $otherProjectsLinksDefault;
 
 	/**
-	 * @var SidebarHookHandlers
+	 * @var SidebarHookHandlers|null
 	 */
 	private static $instance = null;
 
@@ -205,11 +205,8 @@ class SidebarHookHandlers {
 			return true;
 		}
 
-		wfProfileIn( __METHOD__ );
-
 		$this->badgeDisplay->applyBadges( $languageLink, $languageLinkTitle, $output );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 

@@ -7,10 +7,12 @@
 			"Okras",
 			"Ole Yves",
 			"ShinePhantom",
-			"Александр Сигачёв"
+			"Александр Сигачёв",
+			"Macofe"
 		]
 	},
 	"wikibase-lib-desc": "Общие функции расширений Wikibase и Wikibase Client",
+	"specialpages-group-wikibase": "Вики-база",
 	"wikibase-deletedentity-item": "Удалённый элемент",
 	"wikibase-deletedentity-property": "Удалённое свойство",
 	"wikibase-deletedentity-query": "Удалённый запрос",
@@ -30,7 +32,7 @@
 	"wikibase-quantitydetails-lowerbound": "Нижняя граница",
 	"wikibase-quantitydetails-unit": "Единица",
 	"wikibase-timedetails-time": "Время",
-	"wikibase-timedetails-isotime": "Отметка времени в ISO-формате",
+	"wikibase-timedetails-isotime": "Отметка",
 	"wikibase-timedetails-timezone": "Часовой пояс",
 	"wikibase-timedetails-calendar": "Календарь",
 	"wikibase-timedetails-precision": "Точность",

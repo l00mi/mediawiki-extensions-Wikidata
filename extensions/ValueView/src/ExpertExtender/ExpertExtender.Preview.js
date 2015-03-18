@@ -1,4 +1,4 @@
-( function( $, ExpertExtender, mw, MessageProvider ) {
+( function( $, ExpertExtender, PrefixingMessageProvider ) {
 	'use strict';
 
 	/**
@@ -11,17 +11,15 @@
 	 * @constructor
 	 *
 	 * @param {Function} getUpstreamValue A getter for the current formatted upstream value
+	 * @param {util.MessageProvider} messageProvider
 	 */
-	ExpertExtender.Preview = function( getUpstreamValue ) {
+	ExpertExtender.Preview = function( getUpstreamValue, messageProvider ) {
 		this._getUpstreamValue = getUpstreamValue;
 
-		var messageProvider = null;
-		if( mw && mw.msg ) {
-			messageProvider = new MessageProvider( {
-				messageGetter: mw.msg,
-				prefix: 'valueview-preview-'
-			} );
-		}
+		var messageProvider = new PrefixingMessageProvider(
+			'valueview-preview-',
+			messageProvider
+		);
 
 		var $preview = $( '<div/>' ).preview( {
 			messageProvider: messageProvider
@@ -47,21 +45,21 @@
 		 *
 		 * @param {jQuery} $extender
 		 */
-		init: function( $extender ){
+		init: function( $extender ) {
 			$extender.append( this._preview.element );
 		},
 
 		/**
 		 * Callback for the draw ExpertExtender event
 		 */
-		draw: function( ){
+		draw: function() {
 			this.update( this._getUpstreamValue() );
 		},
 
 		/**
 		 * Callback for the `destroy` `ExpertExtender` event.
 		 */
-		destroy: function( ){
+		destroy: function() {
 			this._preview.destroy();
 			this._preview.element.remove();
 
@@ -74,7 +72,7 @@
 		 *
 		 * @param {string} value HTML to show
 		 */
-		update: function( value ){
+		update: function( value ) {
 			this._preview.update( value );
 		},
 
@@ -87,4 +85,4 @@
 			}
 		}
 	} );
-} ( jQuery, jQuery.valueview.ExpertExtender, mediaWiki, util.MessageProvider ) );
+}( jQuery, jQuery.valueview.ExpertExtender, util.PrefixingMessageProvider ) );

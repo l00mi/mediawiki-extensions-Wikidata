@@ -117,7 +117,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		$instance = clone $baseInstance;
 
 		$instance->setReferences( new ReferenceList( array(
-			new Reference( new SnakList(
+			new Reference( array(
 				new PropertyValueSnak( new PropertyId( 'P1' ), new StringValue( 'a' ) )
 			) )
 		) ) );
@@ -145,14 +145,13 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testSetReferences( Statement $statement ) {
 		$references = new ReferenceList( array(
-			new Reference( new SnakList(
+			new Reference( array(
 				new PropertyValueSnak(
 					new PropertyId( 'P1' ),
 					new StringValue( 'a' )
 				)
 			) )
 		) );
-
 
 		$statement->setReferences( $references );
 
@@ -260,7 +259,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 				) )
 			),
 			new ReferenceList( array(
-				new PropertyNoValueSnak( 1337 ),
+				new Reference( array( new PropertyNoValueSnak( 1337 ) ) ),
 			) )
 		);
 
@@ -314,7 +313,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 				new SnakList( array() )
 			),
 			new ReferenceList( array(
-				new PropertyNoValueSnak( 1337 ),
+				new Reference( array( new PropertyNoValueSnak( 1337 ) ) ),
 			) )
 		);
 
@@ -324,7 +323,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 				new SnakList( array() )
 			),
 			new ReferenceList( array(
-				new PropertyNoValueSnak( 32202 ),
+				new Reference( array( new PropertyNoValueSnak( 32202 ) ) ),
 			) )
 		);
 
@@ -353,7 +352,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		$statement = new Statement(
 			new Claim( new PropertyNoValueSnak( 42 ), $qualifiers ),
 			new ReferenceList( array(
-				new PropertyNoValueSnak( 1337 ),
+				new Reference( array( new PropertyNoValueSnak( 1337 ) ) ),
 			) )
 		);
 		$statement->setGuid( '~=[,,_,,]:3' );
@@ -410,7 +409,9 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 
 		$statement = new Statement(
 			new Claim( new PropertyNoValueSnak( 42 ), $qualifiers ),
-			new ReferenceList( array( new PropertyNoValueSnak( 1337 ) ) )
+			new ReferenceList( array(
+				new Reference( array( new PropertyNoValueSnak( 1337 ) ) ),
+			) )
 		);
 
 		$statement->setRank( Statement::RANK_NORMAL );

@@ -20,13 +20,11 @@ class SpecialMyLanguageFallbackChain extends SpecialPage {
 
 	/**
 	 * @var LanguageFallbackChain
-	 * @since 0.4
 	 */
 	private $chain;
 
 	/**
 	 * @var LanguageFallbackChainFactory
-	 * @since 0.4
 	 */
 	private $factory;
 
@@ -44,7 +42,7 @@ class SpecialMyLanguageFallbackChain extends SpecialPage {
 	 * @return string
 	 */
 	protected function getGroupName() {
-		return 'wikibaserepo';
+		return 'wikibase';
 	}
 
 	/**

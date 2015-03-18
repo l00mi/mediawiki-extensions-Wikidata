@@ -4,10 +4,12 @@
 			"Ainali",
 			"Jopparn",
 			"Lokal Profil",
-			"WikiPhoenix"
+			"WikiPhoenix",
+			"Macofe"
 		]
 	},
 	"wikibase-lib-desc": "Håller gemensamma funktioner för Wikibase- och Wikibase Client-tilläggen.",
+	"specialpages-group-wikibase": "Wikibase-databas",
 	"wikibase-deletedentity-item": "Raderat objekt",
 	"wikibase-deletedentity-property": "Raderad egenskap",
 	"wikibase-deletedentity-query": "Raderad fråga",
@@ -27,7 +29,7 @@
 	"wikibase-quantitydetails-lowerbound": "Undre gräns",
 	"wikibase-quantitydetails-unit": "Enhet",
 	"wikibase-timedetails-time": "Tid",
-	"wikibase-timedetails-isotime": "ISO-tidsstämpel",
+	"wikibase-timedetails-isotime": "Tidsstämpel",
 	"wikibase-timedetails-timezone": "Tidszon",
 	"wikibase-timedetails-calendar": "Kalender",
 	"wikibase-timedetails-precision": "Precision",
@@ -42,7 +44,7 @@
 	"wikibase-parse-error-entity-id": "Entitets-id:et är felformaterat.",
 	"wikibase-parse-error-quantity": "Kvantitetsvärdet är felformaterat.",
 	"wikibase-parse-error-time": "Tidsvärdet är felformaterat.",
-	"wikibase-sitelinks-wikipedia": "Wikipedia-sidor som är länkade till detta objekt",
+	"wikibase-sitelinks-wikipedia": "Wikipedia",
 	"wikibase-sitelinks-sitename-columnheading": "Språk",
 	"wikibase-sitelinks-link-columnheading": "Länkad sida",
 	"wikibase-snakview-snaktypeselector-somevalue": "okänt värde",

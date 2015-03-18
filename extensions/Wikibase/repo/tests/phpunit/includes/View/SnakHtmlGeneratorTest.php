@@ -4,6 +4,7 @@ namespace Wikibase\Test;
 
 use DataValues\StringValue;
 use Html;
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -17,13 +18,17 @@ use Wikibase\Template\TemplateRegistry;
 /**
  * @covers Wikibase\Repo\View\SnakHtmlGenerator
  *
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
+ *
  * @group Wikibase
  * @group WikibaseRepo
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
+class SnakHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider getSnakHtmlProvider
@@ -59,7 +64,7 @@ class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 			$propertyIdFormatter,
 			new PropertySomeValueSnak( 42 ),
 			array(
-				'snak variation css' => '/wb-snakview-variation-somevalue/',
+				'snak variation css' => '/wikibase-snakview-variation-somevalue/',
 				'formatted snak' => '/a snak!/'
 			)
 		);
@@ -69,7 +74,7 @@ class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 			$propertyIdFormatter,
 			new PropertySomeValueSnak( 42 ),
 			array(
-				'snak variation css' => '/wb-snakview-variation-somevalue/',
+				'snak variation css' => '/wikibase-snakview-variation-somevalue/',
 				'formatted snak' => '/a snak!/s'
 			)
 		);
@@ -79,7 +84,7 @@ class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 			$propertyIdFormatter,
 			new PropertyValueSnak( 50, new StringValue( 'chocolate!' ) ),
 			array(
-				'snak variation css' => '/wb-snakview-variation-value/',
+				'snak variation css' => '/wikibase-snakview-variation-value/',
 				'formatted snak' => '/a snak!/s'
 			)
 		);
@@ -108,12 +113,10 @@ class SnakHtmlGeneratorTest extends \PHPUnit_Framework_TestCase {
 	 * @return EntityIdFormatter
 	 */
 	private function getEntityIdFormatter() {
-		$lookup = $this->getMockBuilder( 'Wikibase\Lib\EntityIdFormatter' )
-			->disableOriginalConstructor()
-			->getMock();
+		$lookup = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
 
 		$lookup->expects( $this->any() )
-			->method( 'format' )
+			->method( 'formatEntityId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				$name = $id->getEntityType() . ':' . $id->getSerialization();
 				$url = 'http://wiki.acme.com/wiki/' . urlencode( $name );

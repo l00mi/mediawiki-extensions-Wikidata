@@ -4,6 +4,7 @@ namespace Wikibase\Test;
 
 use DataValues\StringValue;
 use Html;
+use MediaWikiLangTestCase;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
@@ -15,13 +16,12 @@ use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Repo\View\ClaimHtmlGenerator;
-use Wikibase\Repo\View\ClaimsView;
-use Wikibase\Repo\View\SectionEditLinkGenerator;
+use Wikibase\Repo\View\StatementGroupListView;
 use Wikibase\Template\TemplateFactory;
 use Wikibase\Template\TemplateRegistry;
 
 /**
- * @covers Wikibase\Repo\View\ClaimsView
+ * @covers Wikibase\Repo\View\StatementGroupListView
  *
  * @group Wikibase
  * @group WikibaseRepo
@@ -30,7 +30,7 @@ use Wikibase\Template\TemplateRegistry;
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class ClaimsViewTest extends \MediaWikiLangTestCase {
+class StatementGroupListViewTest extends MediaWikiLangTestCase {
 
 	protected function setUp() {
 		parent::setUp();
@@ -40,6 +40,12 @@ class ClaimsViewTest extends \MediaWikiLangTestCase {
 		) );
 	}
 
+	/**
+	 * @uses Wikibase\Repo\View\SectionEditLinkGenerator
+	 * @uses Wikibase\Template\Template
+	 * @uses Wikibase\Template\TemplateFactory
+	 * @uses Wikibase\Template\TemplateRegistry
+	 */
 	public function testGetHtml() {
 		$propertyId = new PropertyId( 'P77' );
 		$claims = $this->makeClaims( $propertyId );
@@ -47,9 +53,9 @@ class ClaimsViewTest extends \MediaWikiLangTestCase {
 		$propertyIdFormatter = $this->getEntityIdFormatter();
 		$link = $this->getLinkForId( $propertyId );
 
-		$claimsView = $this->newClaimsView( $propertyIdFormatter );
+		$statementGroupListView = $this->newStatementGroupListView( $propertyIdFormatter );
 
-		$html = $claimsView->getHtml( $claims );
+		$html = $statementGroupListView->getHtml( $claims );
 
 		foreach ( $claims as $claim ) {
 			$this->assertContains( $claim->getGuid(), $html );
@@ -58,8 +64,13 @@ class ClaimsViewTest extends \MediaWikiLangTestCase {
 		$this->assertContains( $link, $html );
 	}
 
+	/**
+	 * @param PropertyId $propertyId
+	 *
+	 * @return Claim[]
+	 */
 	private function makeClaims( PropertyId $propertyId ) {
-		$claims = array(
+		return array(
 			$this->makeClaim( new PropertyNoValueSnak(
 				$propertyId
 			) ),
@@ -83,10 +94,14 @@ class ClaimsViewTest extends \MediaWikiLangTestCase {
 				new EntityIdValue( new ItemId( 'Q555' ) )
 			) ),
 		);
-
-		return $claims;
 	}
 
+	/**
+	 * @param Snak $mainSnak
+	 * @param string|null $guid
+	 *
+	 * @return Claim
+	 */
 	private function makeClaim( Snak $mainSnak, $guid = null ) {
 		static $guidCounter = 0;
 
@@ -104,14 +119,15 @@ class ClaimsViewTest extends \MediaWikiLangTestCase {
 	/**
 	 * @param EntityIdFormatter $propertyIdFormatter
 	 *
-	 * @return ClaimsView
+	 * @return StatementGroupListView
 	 */
-	private function newClaimsView( EntityIdFormatter $propertyIdFormatter ) {
+	private function newStatementGroupListView( EntityIdFormatter $propertyIdFormatter ) {
 		$templateFactory = new TemplateFactory( TemplateRegistry::getDefaultInstance() );
-		return new ClaimsView(
+
+		return new StatementGroupListView(
 			$templateFactory,
 			$propertyIdFormatter,
-			new SectionEditLinkGenerator( $templateFactory ),
+			$this->getMock( 'Wikibase\Repo\View\EditSectionGenerator' ),
 			$this->getClaimHtmlGenerator()
 		);
 	}
@@ -126,7 +142,7 @@ class ClaimsViewTest extends \MediaWikiLangTestCase {
 
 		$claimHtmlGenerator->expects( $this->any() )
 			->method( 'getHtmlForClaim' )
-			->will( $this->returnCallback( function( Claim $claim, $htmlForEditSection ) {
+			->will( $this->returnCallback( function( Claim $claim, $editSectionHtml = null ) {
 				return $claim->getGuid();
 			} ) );
 
@@ -148,12 +164,10 @@ class ClaimsViewTest extends \MediaWikiLangTestCase {
 	 * @return EntityIdFormatter
 	 */
 	private function getEntityIdFormatter() {
-		$lookup = $this->getMockBuilder( 'Wikibase\Lib\EntityIdFormatter' )
-			->disableOriginalConstructor()
-			->getMock();
+		$lookup = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
 
 		$lookup->expects( $this->any() )
-			->method( 'format' )
+			->method( 'formatEntityId' )
 			->will( $this->returnCallback( array( $this, 'getLinkForId' ) ) );
 
 		return $lookup;

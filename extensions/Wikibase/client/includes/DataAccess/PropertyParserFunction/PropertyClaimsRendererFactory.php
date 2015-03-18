@@ -8,9 +8,12 @@ use ValueFormatters\FormatterOptions;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\DataAccess\PropertyIdResolver;
+use Wikibase\DataAccess\StatementTransclusionInteractor;
+use Wikibase\DataAccess\SnaksFinder;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * @since 0.5
@@ -46,27 +49,35 @@ class PropertyClaimsRendererFactory {
 	private $languageAwareRenderers = array();
 
 	/**
+	 * @var EntityLookup
+	 */
+	private $entityLookup;
+
+	/**
 	 * @param PropertyIdResolver $propertyIdResolver
 	 * @param SnaksFinder $snaksFinder
 	 * @param LanguageFallbackChainFactory $languageFallbackChainFactory
 	 * @param OutputFormatSnakFormatterFactory $snakFormatterFactory
+	 * @param EntityLookup $entityLookup
 	 */
 	public function __construct(
 		PropertyIdResolver $propertyIdResolver,
 		SnaksFinder $snaksFinder,
 		LanguageFallbackChainFactory $languageFallbackChainFactory,
-		OutputFormatSnakFormatterFactory $snakFormatterFactory
+		OutputFormatSnakFormatterFactory $snakFormatterFactory,
+		EntityLookup $entityLookup
 	) {
 		$this->propertyIdResolver = $propertyIdResolver;
 		$this->snaksFinder = $snaksFinder;
 		$this->languageFallbackChainFactory = $languageFallbackChainFactory;
 		$this->snakFormatterFactory = $snakFormatterFactory;
+		$this->entityLookup = $entityLookup;
 	}
 
 	/**
 	 * @param Parser $parser
 	 *
-	 * @return Renderer
+	 * @return PropertyClaimsRenderer
 	 */
 	public function newRendererFromParser( Parser $parser ) {
 		$usageAccumulator = new ParserOutputUsageAccumulator( $parser->getOutput() );
@@ -87,11 +98,17 @@ class PropertyClaimsRendererFactory {
 	 * @return LanguageAwareRenderer
 	 */
 	private function newLanguageAwareRenderer( Language $language, UsageAccumulator $usageAccumulator ) {
-		return new LanguageAwareRenderer(
+		$entityStatementsRenderer = new StatementTransclusionInteractor(
 			$language,
 			$this->propertyIdResolver,
 			$this->snaksFinder,
 			$this->newSnakFormatterForLanguage( $language ),
+			$this->entityLookup
+		);
+
+		return new LanguageAwareRenderer(
+			$language,
+			$entityStatementsRenderer,
 			$usageAccumulator
 		);
 	}

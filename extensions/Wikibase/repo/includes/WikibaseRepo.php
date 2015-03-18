@@ -32,11 +32,14 @@ use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
+use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\DispatchingValueFormatter;
 use Wikibase\Lib\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Lib\EntityIdLinkFormatter;
+use Wikibase\Lib\EntityIdValueFormatter;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\FormatterLabelLookupFactory;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Localizer\DispatchingExceptionLocalizer;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\Localizer\GenericExceptionLocalizer;
@@ -54,6 +57,7 @@ use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\TermLookup;
+use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
@@ -80,7 +84,6 @@ use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
 use Wikibase\Template\TemplateFactory;
 use Wikibase\Template\TemplateRegistry;
-use Wikibase\Utils;
 use Wikibase\Validators\EntityConstraintProvider;
 use Wikibase\Validators\SnakValidator;
 use Wikibase\Validators\TermValidatorFactory;
@@ -173,9 +176,14 @@ class WikibaseRepo {
 	private $entityNamespaceLookup = null;
 
 	/**
-	 * @var TermLookup
+	 * @var TermLookup|null
 	 */
 	private $termLookup;
+
+	/**
+	 * @var ContentLanguages|null
+	 */
+	private $monolingualTextLanguages = null;
 
 	/**
 	 * Returns the default instance constructed using newInstance().
@@ -211,12 +219,7 @@ class WikibaseRepo {
 	 */
 	public function getDataTypeFactory() {
 		if ( $this->dataTypeFactory === null ) {
-			$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
-			$builders = new WikibaseDataTypeBuilders(
-				$this->getEntityLookup(),
-				$this->getEntityIdParser(),
-				$urlSchemes
-			);
+			$builders = new WikibaseDataTypeBuilders();
 
 			$typeBuilderSpecs = array_intersect_key(
 				$builders->getDataTypeBuilders(),
@@ -424,7 +427,8 @@ class WikibaseRepo {
 	public function getSnakValidator() {
 		return new SnakValidator(
 			$this->getPropertyDataTypeLookup(),
-			$this->getDataTypeFactory()
+			$this->getDataTypeFactory(),
+			$this->getDataTypeValidatorFactory()
 		);
 	}
 
@@ -534,6 +538,8 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @param TermLookup $termLookup
+	 *
 	 * @return WikibaseValueFormatterBuilders
 	 */
 	public function getValueFormatterBuildersForTermLookup( TermLookup $termLookup ) {
@@ -542,6 +548,7 @@ class WikibaseRepo {
 		return new WikibaseValueFormatterBuilders(
 			$wgContLang,
 			new FormatterLabelLookupFactory( $termLookup ),
+			new LanguageNameLookup(),
 			$this->getEntityTitleLookup()
 		);
 	}
@@ -633,8 +640,7 @@ class WikibaseRepo {
 	protected function newSummaryFormatter() {
 		global $wgContLang;
 
-		$options = new FormatterOptions();
-		$idFormatter = new EntityIdLinkFormatter( $options, $this->getEntityContentFactory() );
+		$idFormatter = new EntityIdLinkFormatter( $this->getEntityContentFactory() );
 
 		$valueFormatterBuilders = $this->getValueFormatterBuilders();
 
@@ -647,7 +653,7 @@ class WikibaseRepo {
 		$valueFormatterBuilders->setValueFormatter(
 			SnakFormatter::FORMAT_PLAIN,
 			'VT:wikibase-entityid',
-			$idFormatter
+			new EntityIdValueFormatter( $idFormatter )
 		);
 
 		$snakFormatterFactory = new OutputFormatSnakFormatterFactory(
@@ -657,6 +663,7 @@ class WikibaseRepo {
 			$valueFormatterBuilders->getValueFormatterBuildersForFormats()
 		);
 
+		$options = new FormatterOptions();
 		$snakFormatter = $snakFormatterFactory->getSnakFormatter(
 			SnakFormatter::FORMAT_PLAIN,
 			$options
@@ -691,7 +698,7 @@ class WikibaseRepo {
 		$constraints = $this->settings->getSetting( 'multilang-limits' );
 		$maxLength = $constraints['length'];
 
-		$languages = Utils::getLanguageCodes();
+		$languages = $this->getTermsLanguages()->getLanguages();
 
 		return new TermValidatorFactory(
 			$maxLength,
@@ -754,7 +761,7 @@ class WikibaseRepo {
 
 		return new MessageParameterFormatter(
 			new DispatchingValueFormatter( $valueFormatters ),
-			$this->getEntityTitleLookup(),
+			new EntityIdLinkFormatter( $this->getEntityTitleLookup() ),
 			$this->getSiteStore(),
 			$wgLang
 		);
@@ -994,10 +1001,10 @@ class WikibaseRepo {
 		return $this->entityNamespaceLookup;
 	}
 
-	private function getEntityIdHtmlLinkFormatter() {
+	private function getEntityIdHtmlLinkFormatterFactory() {
 		return new EntityIdHtmlLinkFormatterFactory(
-			new FormatterLabelLookupFactory( $this->getTermLookup() ),
-			$this->getEntityTitleLookup()
+			$this->getEntityTitleLookup(),
+			new LanguageNameLookup()
 		);
 	}
 
@@ -1007,12 +1014,13 @@ class WikibaseRepo {
 	public function getEntityParserOutputGeneratorFactory() {
 
 		$entityViewFactory = new EntityViewFactory(
-			$this->getEntityIdHtmlLinkFormatter(),
+			$this->getEntityIdHtmlLinkFormatterFactory(),
 			$this->getSnakFormatterFactory(),
 			$this->getEntityLookup(),
 			$this->getSiteStore(),
 			$this->getDataTypeFactory(),
 			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
+			new LanguageNameLookup(),
 			$this->getSettings()->getSetting( 'siteLinkGroups' ),
 			$this->getSettings()->getSetting( 'specialSiteLinkGroups' ),
 			$this->getSettings()->getSetting( 'badgeItems' )
@@ -1026,6 +1034,35 @@ class WikibaseRepo {
 			new ValuesFinder( $this->getPropertyDataTypeLookup() ),
 			$this->getLanguageFallbackChainFactory()
 		);
+	}
+
+	private function getDataTypeValidatorFactory() {
+		$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
+
+		return new BuilderBasedDataTypeValidatorFactory(
+			new ValidatorBuilders(
+				$this->getEntityLookup(),
+				$this->getEntityIdParser(),
+				$urlSchemes,
+				$this->getMonolingualTextLanguages()
+			)
+		);
+	}
+
+	private function getMonolingualTextLanguages() {
+		if( $this->monolingualTextLanguages === null ) {
+			$this->monolingualTextLanguages = new WikibaseContentLanguages();
+		}
+		return $this->monolingualTextLanguages;
+	}
+
+	/**
+	 * Get a ContentLanguages object holding the languages available for labels, descriptions and aliases.
+	 *
+	 * @return ContentLanguages
+	 */
+	public function getTermsLanguages() {
+		return new WikibaseContentLanguages();
 	}
 
 }

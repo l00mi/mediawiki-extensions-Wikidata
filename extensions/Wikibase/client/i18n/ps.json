@@ -1,12 +1,25 @@
 {
 	"@metadata": {
 		"authors": [
-			"Ahmed-Najib-Biabani-Ibrahimkhel"
+			"Ahmed-Najib-Biabani-Ibrahimkhel",
+			"عثمان خان شاہ"
 		]
 	},
-	"specialpages-group-wikibaseclient": "{{WBREPONAME}} پېرن",
-	"wikibase-after-page-move-queued": "د [$1 ويکيډاټا توکی] چې همدې مخ سره اړونده و هغه به په اتوماتيکه توگه ډېر ژر هممهاله شي.",
+	"tooltip-t-wikibase": "د نښلېدلي اومتوک زېرمتون توکي سره تړنه",
+	"wikibase-after-page-move-queued": "د [$1 {{WBREPONAME}} توکی] چې دې مخ سره تړل شوی هغه به په اتوماتيکه توگه ډېر ژر هممهاله شي.",
+	"wikibase-after-page-delete-queued": "د [$1 {{WBREPONAME}} توکی] چې دې مخ سره تړل شوی هغه به په اتوماتيکه توگه ډېر ژر هممهاله شي.",
+	"wikibase-comment-update": "{{WBREPONAME}} توکی بدل شو",
+	"wikibase-dataitem": "{{WBREPONAME}} توکی",
+	"wikibase-editlinks": "تړنې سمول",
+	"wikibase-editlinkstitle": "د ژبو خپلمنځي تړنې سمول",
+	"wikibase-addlinkstitle": "د ژبو خپلمنځي تړنې ورگډول",
+	"wikibase-linkitem-title": "مخ سره تړل",
+	"wikibase-linkitem-linkpage": "مخ سره تړنه",
+	"wikibase-linkitem-selectlink": "د دې مخ د اړوندې موضوع سره سم د ويکيډاټا يو بل وېبځی او يو بل مخ وټاکئ.",
+	"wikibase-rc-hide-wikidata": "$1 {{WBREPONAME}}",
 	"wikibase-rc-hide-wikidata-hide": "پټول",
 	"wikibase-rc-hide-wikidata-show": "ښکاره کول",
-	"wikibase-rc-wikibase-edit-title": "{{WBREPONAME}} سمون"
+	"wikibase-rc-wikibase-edit-letter": "اومتوک",
+	"wikibase-rc-wikibase-edit-title": "{{WBREPONAME}} سمون",
+	"wikibase-otherprojects": "نورې پروژې"
 }

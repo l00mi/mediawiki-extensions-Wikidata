@@ -39,9 +39,10 @@ class UpdateRepoOnDeleteJob extends UpdateRepoJob {
 	 * @note: the constructor's signature is dictated by Job::factory, so we'll have to
 	 *           live with it even though it's rather ugly for our use case.
 	 *
-	 * @see Job::factory.
+	 * @see Job::factory
+	 * @see UpdateRepoJob::__construct
 	 *
-	 * @param Title $title Ignored
+	 * @param Title $title
 	 * @param array|bool $params
 	 */
 	public function __construct( Title $title, $params = false ) {
@@ -119,7 +120,6 @@ class UpdateRepoOnDeleteJob extends UpdateRepoJob {
 	 * @return bool
 	 */
 	protected function verifyValid( Item $item ) {
-		wfProfileIn( __METHOD__ );
 		$params = $this->getParams();
 		$siteId = $params['siteId'];
 		$page = $params['title'];
@@ -128,7 +128,6 @@ class UpdateRepoOnDeleteJob extends UpdateRepoJob {
 		if ( !$siteLink || $siteLink->getPageName() !== $page ) {
 			// Probably something changed since the job has been inserted
 			wfDebugLog( 'UpdateRepo', "OnDelete: The site link to " . $siteId . " is no longer $page" );
-			wfProfileOut( __METHOD__ );
 			return false;
 		}
 
@@ -138,7 +137,6 @@ class UpdateRepoOnDeleteJob extends UpdateRepoJob {
 		$exists = $site->normalizePageName( $page );
 		if ( $exists !== false ) {
 			wfDebugLog( 'UpdateRepo', "OnDelete: $page on $siteId exists" );
-			wfProfileOut( __METHOD__ );
 			return false;
 		}
 

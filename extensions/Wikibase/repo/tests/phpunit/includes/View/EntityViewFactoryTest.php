@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use PHPUnit_Framework_TestCase;
 use SiteList;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\SnakFormatter;
@@ -10,10 +11,29 @@ use Wikibase\Template\TemplateFactory;
 use Wikibase\Template\TemplateRegistry;
 
 /**
+ * @covers \Wikibase\Repo\View\EntityViewFactory
+ *
+ * @uses Wikibase\Repo\View\ClaimHtmlGenerator
+ * @uses Wikibase\Repo\View\EntityTermsView
+ * @uses Wikibase\Repo\View\EntityView
+ * @uses Wikibase\Repo\View\ItemView
+ * @uses Wikibase\Repo\View\PropertyView
+ * @uses Wikibase\Repo\View\SectionEditLinkGenerator
+ * @uses Wikibase\Repo\View\SiteLinksView
+ * @uses Wikibase\Repo\View\StatementGroupListView
+ * @uses Wikibase\Repo\View\SnakHtmlGenerator
+ * @uses Wikibase\Repo\View\TextInjector
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
+ *
+ * @group Wikibase
+ * @group WikibaseRepo
+ *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class EntityViewFactoryTest extends \PHPUnit_Framework_TestCase {
+class EntityViewFactoryTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider newEntityViewProvider
@@ -26,8 +46,8 @@ class EntityViewFactoryTest extends \PHPUnit_Framework_TestCase {
 		$entityView = $entityViewFactory->newEntityView(
 			$entityType,
 			'de',
-			$languageFallback,
-			$this->getMock( 'Wikibase\Lib\Store\LabelLookup' )
+			$this->getMock( 'Wikibase\Lib\Store\LabelLookup' ),
+			$languageFallback
 		);
 
 		$this->assertInstanceOf( $expectedClass, $entityView );
@@ -47,7 +67,8 @@ class EntityViewFactoryTest extends \PHPUnit_Framework_TestCase {
 
 		$entityViewFactory->newEntityView(
 			'kittens',
-			'de'
+			'de',
+			$this->getMock( 'Wikibase\Lib\Store\LabelLookup' )
 		);
 	}
 
@@ -59,6 +80,7 @@ class EntityViewFactoryTest extends \PHPUnit_Framework_TestCase {
 			$this->getSiteStore(),
 			$this->getMock( 'DataTypes\DataTypeFactory' ),
 			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
+			$this->getMock( 'Wikibase\Lib\LanguageNameLookup' ),
 			array(),
 			array(),
 			array()
@@ -66,9 +88,7 @@ class EntityViewFactoryTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function getEntityIdFormatterFactory() {
-		$entityIdFormatter = $this->getMockBuilder( 'Wikibase\Lib\EntityIdFormatter' )
-			->disableOriginalConstructor()
-			->getMock();
+		$entityIdFormatter = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
 
 		$formatterFactory = $this->getMock( 'Wikibase\Lib\EntityIdFormatterFactory' );
 		$formatterFactory->expects( $this->any() )

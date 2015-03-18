@@ -16,18 +16,17 @@ use MWException;
 use OutputPage;
 use ParserOutput;
 use RecentChange;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
+use ResourceLoader;
 use Revision;
 use SearchResult;
 use Skin;
 use SkinTemplate;
 use SpecialSearch;
-use SplFileInfo;
 use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Repo\BabelUserLanguageLookup;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler;
@@ -81,14 +80,12 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onSetupAfterCache() {
-		wfProfileIn( __METHOD__ );
 		global $wgNamespaceContentModels;
 
 		$namespaces = WikibaseRepo::getDefaultInstance()->
 			getSettings()->getSetting( 'entityNamespaces' );
 
 		if ( empty( $namespaces ) ) {
-			wfProfileOut( __METHOD__ );
 			throw new MWException( 'Wikibase: Incomplete configuration: '
 				. '$wgWBRepoSettings["entityNamespaces"] has to be set to an '
 				. 'array mapping content model IDs to namespace IDs. '
@@ -101,7 +98,6 @@ final class RepoHooks {
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -158,25 +154,14 @@ final class RepoHooks {
 	 *
 	 * @since 0.1
 	 *
-	 * @param array &$files
+	 * @param string[] &$paths
 	 *
 	 * @return bool
 	 */
-	public static function registerUnitTests( array &$files ) {
-		// @codeCoverageIgnoreStart
-		$directoryIterator = new RecursiveDirectoryIterator( __DIR__ . '/tests/phpunit/' );
+	public static function registerUnitTests( array &$paths ) {
+		$paths[] = __DIR__ . '/tests/phpunit/';
 
-		/** @var SplFileInfo $fileInfo */
-		$ourFiles = array();
-		foreach ( new RecursiveIteratorIterator( $directoryIterator ) as $fileInfo ) {
-			if ( substr( $fileInfo->getFilename(), -8 ) === 'Test.php' ) {
-				$ourFiles[] = $fileInfo->getPathname();
-			}
-		}
-
-		$files = array_merge( $files, $ourFiles );
 		return true;
-		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -185,11 +170,11 @@ final class RepoHooks {
 	 * @since 0.2 (in repo as RepoHooks::onResourceLoaderTestModules in 0.1)
 	 *
 	 * @param array &$testModules
-	 * @param \ResourceLoader &$resourceLoader
+	 * @param ResourceLoader &$resourceLoader
 	 *
 	 * @return boolean
 	 */
-	public static function registerQUnitTests( array &$testModules, \ResourceLoader &$resourceLoader ) {
+	public static function registerQUnitTests( array &$testModules, ResourceLoader &$resourceLoader ) {
 		$testModules['qunit'] = array_merge(
 			$testModules['qunit'],
 			include( __DIR__ . '/tests/qunit/resources.php' )
@@ -213,15 +198,12 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onNamespaceIsMovable( $ns, &$movable ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
 
 		if ( $entityNamespaceLookup->isEntityNamespace( $ns ) ) {
 			$movable = false;
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -239,8 +221,6 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onNewRevisionFromEditComplete( $article, Revision $revision, $baseID, User $user ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		if ( $entityContentFactory->isEntityContentModel( $article->getContent()->getModel() ) ) {
@@ -256,7 +236,6 @@ final class RepoHooks {
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -304,13 +283,10 @@ final class RepoHooks {
 	public static function onArticleDeleteComplete( WikiPage $wikiPage, User $user, $reason, $id,
 		Content $content = null, LogEntryBase $logEntry = null
 	) {
-		wfProfileIn( __METHOD__ );
-
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		// Bail out if we are not looking at an entity
 		if ( !$content || !$entityContentFactory->isEntityContentModel( $content->getModel() ) ) {
-			wfProfileOut( __METHOD__ );
 			return true;
 		}
 
@@ -323,7 +299,6 @@ final class RepoHooks {
 		$notifier = WikibaseRepo::getDefaultInstance()->getChangeNotifier();
 		$notifier->notifyOnPageDeleted( $content, $user, $logEntry->getTimestamp() );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -339,13 +314,10 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onArticleUndelete( Title $title, $created, $comment ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		// Bail out if we are not looking at an entity
 		if ( !$entityContentFactory->isEntityContentModel( $title->getContentModel() ) ) {
-			wfProfileOut( __METHOD__ );
 			return true;
 		}
 
@@ -354,7 +326,6 @@ final class RepoHooks {
 		$content = $revision ? $revision->getContent() : null;
 
 		if ( !( $content instanceof EntityContent ) ) {
-			wfProfileOut( __METHOD__ );
 			return true;
 		}
 
@@ -367,7 +338,6 @@ final class RepoHooks {
 		$notifier = WikibaseRepo::getDefaultInstance()->getChangeNotifier();
 		$notifier->notifyOnPageUndeleted( $revision );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -383,7 +353,17 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onRecentChangeSave( RecentChange $recentChange ) {
-		if ( $recentChange->getAttribute( 'rc_log_type' ) === null ) {
+		$logType = $recentChange->getAttribute( 'rc_log_type' );
+		$logAction = $recentChange->getAttribute( 'rc_log_action' );
+		$revId = $recentChange->getAttribute( 'rc_this_oldid' );
+
+		if ( $revId <= 0 ) {
+			// If we don't have a revision ID, we have no chance to find the right change to update.
+			// NOTE: As of February 2015, RC entries for undeletion have rc_this_oldid = 0.
+			return true;
+		}
+
+		if ( $logType === null || ( $logType === 'delete' && $logAction === 'restore' ) ) {
 			$changesTable = ChangesTable::singleton();
 
 			$slave = $changesTable->getReadDb();
@@ -392,7 +372,7 @@ final class RepoHooks {
 			/** @var EntityChange $change */
 			$change = $changesTable->selectRow(
 				null,
-				array( 'revision_id' => $recentChange->getAttribute( 'rc_this_oldid' ) )
+				array( 'revision_id' => $revId )
 			);
 
 			$changesTable->setReadDb( $slave );
@@ -421,13 +401,23 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onGetPreferences( User $user, array &$preferences ) {
-		wfProfileIn( __METHOD__ );
-
 		$preferences['wb-acknowledgedcopyrightversion'] = array(
 			'type' => 'api'
 		);
 
-		wfProfileOut( __METHOD__ );
+		if( class_exists( 'Babel' ) ) {
+			$preferences['wikibase-entitytermsview-showEntitytermslistview'] = array(
+				'type' => 'toggle',
+				'label-message' => 'wikibase-setting-entitytermsview-showEntitytermslistview',
+				'help-message' => 'wikibase-setting-entitytermsview-showEntitytermslistview-help',
+				'section' => 'rendering/advancedrendering',
+			);
+		} else if( $user->getBoolOption( 'wikibase-entitytermsview-showEntitytermslistview' ) ) {
+			// Clear setting after uninstalling Babel extension.
+			unset( $user->mOptions['wikibase-entitytermsview-showEntitytermslistview'] );
+			$user->saveSettings();
+		}
+
 		return true;
 	}
 
@@ -440,13 +430,10 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onUserGetDefaultOptions( array &$defaultOptions ) {
-		wfProfileIn( __METHOD__ );
-
 		// pre-select default language in the list of fallback languages
 		$defaultLang = $defaultOptions['language'];
 		$defaultOptions[ 'wb-languages-' . $defaultLang ] = 1;
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -464,8 +451,6 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onPageHistoryLineEnding( HistoryPager $history, &$row, &$s, array &$classes  ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		$article = $history->getArticle();
@@ -488,7 +473,6 @@ final class RepoHooks {
 			$s .= " " . $history->msg( 'parentheses' )->rawParams( $link )->escaped();
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -504,8 +488,6 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onPageTabs( SkinTemplate &$skinTemplate, array &$links ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		$title = $skinTemplate->getTitle();
@@ -544,7 +526,6 @@ final class RepoHooks {
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -559,8 +540,6 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onWikibaseRebuildData( $reportMessage ) {
-		wfProfileIn( __METHOD__ );
-
 		$store = WikibaseRepo::getDefaultInstance()->getStore();
 
 		$reportMessage(
@@ -571,7 +550,6 @@ final class RepoHooks {
 
 		$reportMessage( "done!\n" );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -601,8 +579,6 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onWikibaseDeleteData( $reportMessage ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
 
 		$reportMessage( 'Deleting data from changes table...' );
@@ -642,7 +618,6 @@ final class RepoHooks {
 
 		$reportMessage( "done!\n" );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -728,8 +703,6 @@ final class RepoHooks {
 	 * @return bool true to continue execution, false to abort and with $message as an error message.
 	 */
 	public static function onApiCheckCanExecute( ApiBase $module, User $user, &$message ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		if ( $module instanceof ApiEditPage ) {
@@ -747,7 +720,6 @@ final class RepoHooks {
 
 					// allow undo
 					if ( $params['undo'] > 0 ) {
-						wfProfileOut( __METHOD__ );
 						return true;
 					}
 
@@ -757,13 +729,11 @@ final class RepoHooks {
 						$pageObj->getTitle()->getNsText()
 					);
 
-					wfProfileOut( __METHOD__ );
 					return false;
 				}
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -790,8 +760,6 @@ final class RepoHooks {
 	public static function onShowSearchHit( SpecialSearch $searchPage, SearchResult $result, $terms,
 		&$link, &$redirect, &$section, &$extract, &$score, &$size, &$date, &$related, &$html
 	) {
-		wfProfileIn( __METHOD__ );
-
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		$title = $result->getTitle();
@@ -817,7 +785,6 @@ final class RepoHooks {
 			$extract = ''; // TODO: set this to something useful.
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -1003,6 +970,7 @@ final class RepoHooks {
 		if ( !empty( $placeholders ) ) {
 			$injector = new TextInjector( $placeholders );
 			$userLanguageLookup = new BabelUserLanguageLookup();
+			$termsLanguages = WikibaseRepo::getDefaultInstance()->getTermsLanguages();
 			$expander = new EntityViewPlaceholderExpander(
 				new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 				$out->getTitle(),
@@ -1010,13 +978,21 @@ final class RepoHooks {
 				$out->getLanguage(),
 				WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
 				WikibaseRepo::getDefaultInstance()->getEntityRevisionLookup(),
-				$userLanguageLookup
+				$userLanguageLookup,
+				WikibaseRepo::getDefaultInstance()->getTermsLanguages(),
+				new LanguageNameLookup()
 			);
 
 			$html = $injector->inject( $html, array( $expander, 'getHtmlForPlaceholder' ) );
 
-			$out->addJsConfigVars( 'wbUserSpecifiedLanguages',
-				$userLanguageLookup->getUserSpecifiedLanguages( $out->getUser() ) );
+			$out->addJsConfigVars(
+				'wbUserSpecifiedLanguages',
+				// All user-specified languages, that are valid term languages
+				array_intersect(
+					$userLanguageLookup->getUserSpecifiedLanguages( $out->getUser() ),
+					$termsLanguages->getLanguages()
+				)
+			);
 		}
 
 		return true;
@@ -1165,11 +1141,12 @@ final class RepoHooks {
 	public static function onImportHandleRevisionXMLTag( $importer, $pageInfo, $revisionInfo ) {
 		if ( isset( $revisionInfo['model'] ) ) {
 			$contentModels = WikibaseRepo::getDefaultInstance()->getContentModelMappings();
+			$allowImport = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'allowEntityImport' );
 
-			if ( in_array( $revisionInfo['model'], $contentModels ) ) {
+			if ( !$allowImport && in_array( $revisionInfo['model'], $contentModels ) ) {
 				// Skip entities.
 				// XXX: This is rather rough.
-				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is currently not supported.' );
+				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is not supported. You can enable imports using the `allowEntityImport` setting.' );
 			}
 		}
 

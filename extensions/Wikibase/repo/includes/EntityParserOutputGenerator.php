@@ -2,7 +2,9 @@
 
 namespace Wikibase;
 
+use InvalidArgumentException;
 use LinkBatch;
+use ParserOptions;
 use ParserOutput;
 use Title;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -99,18 +101,31 @@ class EntityParserOutputGenerator {
 	 *
 	 * @since 0.5
 	 *
+	 * @note: the new ParserOutput will be registered as a watcher with $options by
+	 *        calling $options->registerWatcher( array( $parserOutput, 'recordOption' ) ).
+	 *
 	 * @param EntityRevision $entityRevision
-	 * @param bool $editable
+	 * @param ParserOptions $options
 	 * @param bool $generateHtml
 	 *
 	 * @return ParserOutput
 	 */
 	public function getParserOutput(
 		EntityRevision $entityRevision,
-		$editable = true,
+		ParserOptions $options,
 		$generateHtml = true
 	) {
 		$parserOutput = new ParserOutput();
+		$options->registerWatcher( array( $parserOutput, 'recordOption' ) );
+
+		// @note: SIDE EFFECT: the call to $options->getUserLang() effectively splits
+		// the parser cache. It gets reported to the ParserOutput which is registered
+		// as a watcher to $options above.
+		if ( $options->getUserLang() !== $this->languageCode ) {
+			// The language requested by $parserOptions is different from what
+			// this generator was configured for. This indicates an inconsistency.
+			throw new InvalidArgumentException( 'Unexpected user language in ParserOptions' );
+		}
 
 		$entity = $entityRevision->getEntity();
 
@@ -120,6 +135,8 @@ class EntityParserOutputGenerator {
 		else {
 			$snaks = array();
 		}
+
+		$editable = $options->getEditSection();
 
 		$usedEntityIds = $this->referencedEntitiesFinder->findSnakLinks( $snaks );
 		$entityInfo = $this->getEntityInfo( $usedEntityIds );
@@ -236,8 +253,6 @@ class EntityParserOutputGenerator {
 	 * @return EntityInfo
 	 */
 	private function getEntityInfo( array $entityIds ) {
-		wfProfileIn( __METHOD__ );
-
 		$entityInfoBuilder = $this->entityInfoBuilderFactory->newEntityInfoBuilder( $entityIds );
 
 		$entityInfoBuilder->resolveRedirects();
@@ -251,10 +266,7 @@ class EntityParserOutputGenerator {
 		$entityInfoBuilder->collectDataTypes();
 		$entityInfoBuilder->retainEntityInfo( $entityIds );
 
-		$entityInfo = $entityInfoBuilder->getEntityInfo();
-
-		wfProfileOut( __METHOD__ );
-		return $entityInfo;
+		return $entityInfoBuilder->getEntityInfo();
 	}
 
 	/**
@@ -318,14 +330,25 @@ class EntityParserOutputGenerator {
 		$entityView = $this->entityViewFactory->newEntityView(
 			$entityRevision->getEntity()->getType(),
 			$this->languageCode,
-			$this->languageFallbackChain,
 			$labelLookup,
+			$this->languageFallbackChain,
 			$editable
 		);
 
 		$html = $entityView->getHtml( $entityRevision );
 		$parserOutput->setText( $html );
 		$parserOutput->setExtensionData( 'wikibase-view-chunks', $entityView->getPlaceholders() );
+
+		// Force parser cache split by whether edit links are show.
+		// MediaWiki core has the ability to split on editsection, but does not trigger it
+		// automatically when $parserOptions->getEditSection() is called. Presumably this
+		// is because core uses <mw:editsection> tags that are substituted by ParserOutput::getText
+		// using the info from ParserOutput::getEditSectionTokens.
+		$parserOutput->recordOption( 'editsection' );
+
+		// Since the output depends on the user language, we must make sure
+		// ParserCache::getKey() includes it in the cache key.
+		$parserOutput->recordOption( 'userlang' );
 	}
 
 	/**
@@ -336,16 +359,16 @@ class EntityParserOutputGenerator {
 		// make css available for JavaScript-less browsers
 		$parserOutput->addModuleStyles( array(
 			'wikibase.common',
-			'wikibase.toc',
 			'jquery.ui.core',
 			'jquery.wikibase.statementview',
 			'jquery.wikibase.toolbar',
 		) );
 
-		if ( $editable ) {
-			// make sure required client sided resources will be loaded:
-			$parserOutput->addModules( 'wikibase.ui.entityViewInit' );
-		}
+		// make sure required client-side resources will be loaded
+		// FIXME: Separate the JavaScript that is also needed in read-only mode from
+		// the JavaScript that is only necessary for editing.
+		// Then load JavaScript accordingly depending on $editable.
+		$parserOutput->addModules( 'wikibase.ui.entityViewInit' );
 	}
 
 }

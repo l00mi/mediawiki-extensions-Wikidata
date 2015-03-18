@@ -13,12 +13,9 @@ use OutputPage;
 use Parser;
 use QuickTemplate;
 use RecentChange;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Skin;
 use SpecialRecentChanges;
 use SpecialWatchlist;
-use SplFileInfo;
 use Title;
 use UnexpectedValueException;
 use User;
@@ -72,25 +69,14 @@ final class ClientHooks {
 	 *
 	 * @since 0.1
 	 *
-	 * @param array $files
+	 * @param string[] &$paths
 	 *
 	 * @return bool
 	 */
-	public static function registerUnitTests( array &$files ) {
-		// @codeCoverageIgnoreStart
-		$directoryIterator = new RecursiveDirectoryIterator( __DIR__ . '/tests/phpunit/' );
-
-		/**
-		 * @var SplFileInfo $fileInfo
-		 */
-		foreach ( new RecursiveIteratorIterator( $directoryIterator ) as $fileInfo ) {
-			if ( substr( $fileInfo->getFilename(), -8 ) === 'Test.php' ) {
-				$files[] = $fileInfo->getPathname();
-			}
-		}
+	public static function registerUnitTests( array &$paths ) {
+		$paths[] = __DIR__ . '/tests/phpunit/';
 
 		return true;
-		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -103,8 +89,6 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onWikibaseDeleteData( $reportMessage ) {
-		wfProfileIn( __METHOD__ );
-
 		$store = WikibaseClient::getDefaultInstance()->getStore();
 
 		$reportMessage( "Deleting data from the " . get_class( $store ) . " store..." );
@@ -121,7 +105,6 @@ final class ClientHooks {
 
 		$reportMessage( "done!\n" );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -137,8 +120,6 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onWikibaseRebuildData( $reportMessage ) {
-		wfProfileIn( __METHOD__ );
-
 		$store = WikibaseClient::getDefaultInstance()->getStore();
 		$reportMessage( "Rebuilding all data in the " . get_class( $store )
 			. " store on the client..." );
@@ -155,7 +136,6 @@ final class ClientHooks {
 		ChangeHandler::singleton()->handleChanges( iterator_to_array( $changes ) );
 		$reportMessage( "done!\n" );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -232,15 +212,12 @@ final class ClientHooks {
 	public static function onSpecialRecentChangesQuery( array &$conds, array &$tables,
 		array &$join_conds, FormOptions $opts, array &$query_options, array &$fields
 	) {
-		wfProfileIn( __METHOD__ );
-
 		$rcFilterOpts = new RecentChangesFilterOptions( $opts );
 
 		if ( $rcFilterOpts->showWikibaseEdits() === false ) {
 			$conds[] = 'rc_type != ' . RC_EXTERNAL;
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -259,8 +236,6 @@ final class ClientHooks {
 	 */
 	public static function onOldChangesListRecentChangesLine( ChangesList &$changesList, &$s,
 		RecentChange $rc, &$classes = array() ) {
-
-		wfProfileIn( __METHOD__ );
 
 		$type = $rc->getAttribute( 'rc_type' );
 
@@ -297,7 +272,6 @@ final class ClientHooks {
 		// OutputPage will ignore multiple calls
 		$changesList->getOutput()->addModuleStyles( 'wikibase.client.changeslist.css' );
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -418,15 +392,11 @@ final class ClientHooks {
 	 * @return bool
 	 */
 	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
-		wfProfileIn( __METHOD__ );
-
 		$namespaceChecker = WikibaseClient::getDefaultInstance()->getNamespaceChecker();
 		$beforePageDisplayHandler = new BeforePageDisplayHandler( $namespaceChecker );
 
 		$actionName = Action::getActionName( $skin->getContext() );
-		$beforePageDisplayHandler->addModules( $out, $skin, $actionName );
-
-		wfProfileOut( __METHOD__ );
+		$beforePageDisplayHandler->addModules( $out, $actionName );
 
 		return true;
 	}
@@ -450,40 +420,44 @@ final class ClientHooks {
 			return true;
 		}
 
-		wfProfileIn( __METHOD__ );
-
 		$repoLinker = $wikibaseClient->newRepoLinker();
 		$entityIdParser = $wikibaseClient->getEntityIdParser();
 
 		$siteGroup = $wikibaseClient->getLangLinkSiteGroup();
 
+		$languageUrls = $template->get( 'language_urls' );
+		$hasLangLinks = $languageUrls !== false && !empty( $languageUrls );
+
 		$langLinkGenerator = new RepoItemLinkGenerator(
 			WikibaseClient::getDefaultInstance()->getNamespaceChecker(),
 			$repoLinker,
 			$entityIdParser,
-			$siteGroup
+			$siteGroup,
+			$wikibaseClient->getSettings()->getSetting( 'siteGlobalID' )
 		);
 
 		$action = Action::getActionName( $skin->getContext() );
 
-		$isAnon = ! $skin->getContext()->getUser()->isLoggedIn();
 		$noExternalLangLinks = $skin->getOutput()->getProperty( 'noexternallanglinks' );
 		$prefixedId = $skin->getOutput()->getProperty( 'wikibase_item' );
 
-		$editLink = $langLinkGenerator->getLink( $title, $action, $isAnon, $noExternalLangLinks, $prefixedId );
+		$editLink = $langLinkGenerator->getLink( $title, $action, $hasLangLinks, $noExternalLangLinks, $prefixedId );
 
 		// there will be no link in some situations, like add links widget disabled
 		if ( $editLink ) {
 			$template->set( 'wbeditlanglinks', $editLink );
 		}
 
-		// needed to have "Other languages" section display, so we can add "add links"
-		// by default, the css then hides it if the widget is not enabled for a page or user
-		if ( $template->get( 'language_urls' ) === false && $title->exists() ) {
+		// Needed to have "Other languages" section display, so we can add "add links".
+		// Only force the section to display if we are going to actually add such a link:
+		// Where external langlinks aren't suppressed and where action == 'view'.
+		if ( $languageUrls === false && $title->exists()
+			&& ( $noExternalLangLinks === null || !in_array( '*', $noExternalLangLinks ) )
+			&& $action === 'view'
+		) {
 			$template->set( 'language_urls', array() );
 		}
 
-		wfProfileOut( __METHOD__ );
 		return true;
 	}
 
@@ -717,7 +691,7 @@ final class ClientHooks {
 	 */
 	public static function onBaseTemplateAfterPortlet( BaseTemplate $skinTemplate, $name, &$html ) {
 		$handler = new BaseTemplateAfterPortletHandler();
-		$link = $handler->makeEditLink( $skinTemplate, $name );
+		$link = $handler->getEditLink( $skinTemplate, $name );
 
 		if ( $link ) {
 			$html .= $link;

@@ -3,13 +3,15 @@
 namespace Wikibase\Test;
 
 use MediaWikiSite;
+use MediaWikiTestCase;
 use SiteList;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\Repo\View\SectionEditLinkGenerator;
+use Wikibase\Repo\View\EditSectionGenerator;
 use Wikibase\Repo\View\SiteLinksView;
 use Wikibase\Template\TemplateFactory;
 use Wikibase\Template\TemplateRegistry;
@@ -17,37 +19,40 @@ use Wikibase\Template\TemplateRegistry;
 /**
  * @covers Wikibase\Repo\View\SiteLinksView
  *
+ * @uses Wikibase\Template\Template
+ * @uses Wikibase\Template\TemplateFactory
+ * @uses Wikibase\Template\TemplateRegistry
+ *
  * @group Wikibase
  * @group WikibaseRepo
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Adrian Lang <adrian.lang@wikimedia.de>
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
+class SiteLinksViewTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider getHtmlProvider
 	 */
-	public function testGetHtml( Item $item, array $groups, $editable, $expectedValue ) {
+	public function testGetHtml( Item $item, array $groups, $expectedValue ) {
 		$siteLinksView = $this->getSiteLinksView();
 
-		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups, $editable );
+		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups );
 		$this->assertInternalType( 'string', $value );
-		\MediaWikiTestCase::assertTag( $expectedValue, $value, $value . ' did not match ' . var_export( $expectedValue, true ) );
+		MediaWikiTestCase::assertTag( $expectedValue, $value, $value . ' did not match ' . var_export( $expectedValue, true ) );
 	}
 
 	public function getHtmlProvider() {
 		$testCases = array();
 
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1' ) );
+		$item = new Item( new ItemId( 'Q1' ) );
 		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'test' );
 
 		$testCases[] = array(
 			$item,
 			array( 'wikipedia' ),
-			false,
 			array(
 				'tag' => 'div',
 				'attributes' => array(
@@ -61,31 +66,12 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 			)
 		);
 
-		$testCases[] = array(
-			$item,
-			array( 'wikipedia' ),
-			true,
-			array(
-				'tag' => 'div',
-				'attributes' => array(
-					'data-wb-sitelinks-group' => 'wikipedia'
-				),
-				'descendant' => array(
-					'tag' => 'span',
-					'class' => 'wikibase-sitelinkview-link-enwiki',
-					'content' => 'test'
-				)
-			)
-		);
-
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1' ) );
+		$item = new Item( new ItemId( 'Q1' ) );
 		$item->getSiteLinkList()->addNewSiteLink( 'specialwiki', 'test' );
 
 		$testCases[] = array(
 			$item,
 			array( 'special' ),
-			true,
 			array(
 				'tag' => 'div',
 				'attributes' => array(
@@ -94,15 +80,13 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 			)
 		);
 
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1' ) );
+		$item = new Item( new ItemId( 'Q1' ) );
 		$item->addSiteLink( new SiteLink( 'enwiki', 'en test', array( new ItemId( 'Q42' ) ) ) );
 		$item->addSiteLink( new SiteLink( 'dewiki', 'de test', array( new ItemId( 'Q42' ), new ItemId( 'Q12' ) ) ) );
 
 		$testCases[] = array(
 			$item,
 			array( 'wikipedia' ),
-			true,
 			array(
 				'tag' => 'div',
 				'descendant' => array(
@@ -118,7 +102,6 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		$testCases[] = array(
 			$item,
 			array( 'wikipedia' ),
-			true,
 			array(
 				'tag' => 'div',
 				'descendant' => array(
@@ -137,47 +120,38 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider getEmptyHtmlProvider
 	 */
-	public function testGetEmptyHtml( Item $item, array $groups, $editable ) {
+	public function testGetEmptyHtml( Item $item, array $groups ) {
 		$siteLinksView = $this->getSiteLinksView();
 
-		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups, $editable );
+		$value = $siteLinksView->getHtml( $item->getSiteLinks(), $item->getId(), $groups );
 		$this->assertInternalType( 'string', $value );
 		$this->assertEquals( '', $value );
 	}
 
 	public function getEmptyHtmlProvider() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q1' ) );
+		$item = new Item( new ItemId( 'Q1' ) );
 
 		$testCases = array();
 
 		$testCases[] = array(
 			$item,
 			array(),
-			true,
 		);
 
-		$testCases[] = array(
-			$item,
-			array(),
-			false,
-		);
-
+		$item = $item->copy();
 		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'test' );
 
 		$testCases[] = array(
 			$item,
-			array(),
-			false,
+			array()
 		);
 
-		$newItem = Item::newEmpty();
+		$newItem = new Item();
 
 		// item with no id, as happens with new items
 		$testCases[] = array(
 			$newItem,
-			array(),
-			true
+			array()
 		);
 
 		return $testCases;
@@ -191,8 +165,9 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 		return new SiteLinksView(
 			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
 			$this->newSiteList(),
-			$this->getSectionEditLinkGeneratorMock(),
+			$this->getEditSectionGeneratorMock(),
 			$this->getEntityLookupMock(),
+			new LanguageNameLookup(),
 			array(
 				'Q42' => 'wb-badge-featuredarticle',
 				'Q12' => 'wb-badge-goodarticle'
@@ -203,28 +178,12 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @return SectionEditLinkGenerator
+	 * @return EditSectionGenerator
 	 */
-	private function getSectionEditLinkGeneratorMock() {
-		$sectionEditLinkGenerator = $this->getMockBuilder( 'Wikibase\Repo\View\SectionEditLinkGenerator' )
-			->disableOriginalConstructor()
-			->getMock();
+	private function getEditSectionGeneratorMock() {
+		$editSectionGenerator = $this->getMock( 'Wikibase\Repo\View\EditSectionGenerator' );
 
-		$sectionEditLinkGenerator->expects( $this->any() )
-			->method( 'getEditUrl' )
-			->will( $this->returnValue( 'editUrl' ) );
-
-		$sectionEditLinkGenerator->expects( $this->any() )
-			->method( 'getHtmlForEditSection' )
-			->will( $this->returnCallback( function( $url, $cssClassSuffix, $msg, $tag, $enabled ) {
-				if ( $enabled ) {
-					return '<a class="wikibase-toolbarbutton-enabled">Edit link</a>';
-				} else {
-					return '<a class="wikibase-toolbarbutton-disabled">Disabled edit link</a>';
-				}
-			} ) );
-
-		return $sectionEditLinkGenerator;
+		return $editSectionGenerator;
 	}
 
 	/**
@@ -255,7 +214,7 @@ class SiteLinksViewTest extends \PHPUnit_Framework_TestCase {
 			->method( 'getEntity' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				if ( $id->getSerialization() === 'Q42' ) {
-					$item = Item::newEmpty();
+					$item = new Item();
 					$item->setLabel( 'en', 'Featured article' );
 					return $item;
 				}

@@ -132,6 +132,11 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	}
 
 	/**
+	 * @param string $label
+	 * @param string|null $languageCode
+	 * @param string|null $entityType
+	 * @param bool $fuzzySearch
+	 *
 	 * @return EntityId[]
 	 */
 	public function getEntityIdsForLabel( $label, $languageCode = null, $entityType = null,
@@ -321,26 +326,6 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 		$filter = $this->rekeyConflicts( $filter );
 
 		return array_intersect_key( $base, $filter );
-	}
-
-	/**
-	 * @param Term[] $conflicts
-	 * @param EntityId $excludeId
-	 *
-	 * @return Term[]
-	 */
-	private function filterConflictsByEntity( array $conflicts, EntityId $excludeId ) {
-		$filtered = array();
-
-		foreach ( $conflicts as $key => $term ) {
-			$entityId = $term->getEntityId();
-
-			if ( $entityId === null || !$excludeId->equals( $entityId ) ) {
-				$filtered[$key] = $term;
-			}
-		}
-
-		return $filtered;
 	}
 
 	/**

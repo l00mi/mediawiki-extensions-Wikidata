@@ -28,17 +28,15 @@ class GlobeCoordinateDetailsFormatter extends ValueFormatterBase {
 	protected $coordinateFormatter;
 
 	/**
-	 * @param FormatterOptions $options
+	 * @param FormatterOptions|null $options
 	 */
-	public function __construct( FormatterOptions $options ) {
+	public function __construct( FormatterOptions $options = null ) {
 		parent::__construct( $options );
 
-		if ( !$options->hasOption( GeoCoordinateFormatter::OPT_FORMAT ) ) {
-			//TODO: what'S a good default? Should this be locale dependant? Configurable?
-			$options->setOption( GeoCoordinateFormatter::OPT_FORMAT, GeoCoordinateFormatter::TYPE_DMS );
-		}
+		// TODO: What's a good default? Should this be locale dependant? Configurable?
+		$this->defaultOption( GeoCoordinateFormatter::OPT_FORMAT, GeoCoordinateFormatter::TYPE_DMS );
 
-		$this->coordinateFormatter = new GlobeCoordinateFormatter( $options );
+		$this->coordinateFormatter = new GlobeCoordinateFormatter( $this->options );
 	}
 
 	/**
@@ -107,8 +105,11 @@ class GlobeCoordinateDetailsFormatter extends ValueFormatterBase {
 	protected function getFieldLabel( $fieldName ) {
 		$lang = $this->getOption( ValueFormatter::OPT_LANG );
 
-		// Messages: wb-globedetails-amount, wb-globedetails-upperbound,
-		// wb-globedetails-lowerbound, wb-globedetails-unit
+		// Messages:
+		// wikibase-globedetails-latitude
+		// wikibase-globedetails-longitude
+		// wikibase-globedetails-precision
+		// wikibase-globedetails-globe
 		$key = 'wikibase-globedetails-' . strtolower( $fieldName );
 		$msg = wfMessage( $key )->inLanguage( $lang );
 

@@ -173,14 +173,6 @@ abstract class ApiWikibase extends ApiBase {
 	}
 
 	/**
-	 * @see ApiBase::getAllowedParams()
-	 */
-	public function getAllowedParams() {
-		return array(
-		);
-	}
-
-	/**
 	 * @see ApiBase::needsToken()
 	 */
 	public function needsToken() {
@@ -218,7 +210,7 @@ abstract class ApiWikibase extends ApiBase {
 	 * @param Entity $entity The entity to check permissions for
 	 * @param array $params Arguments for the module, describing the operation to be performed
 	 *
-	 * @return array A list of permissions
+	 * @return string[] A list of permissions
 	 */
 	protected function getRequiredPermissions( Entity $entity, array $params ) {
 		$permissions = array();
@@ -306,7 +298,7 @@ abstract class ApiWikibase extends ApiBase {
 	 *
 	 * @param Status $status The status to report
 	 */
-	protected function handleSaveStatus( Status $status ) {
+	private function handleSaveStatus( Status $status ) {
 		$value = $status->getValue();
 		$errorCode = null;
 
@@ -348,8 +340,6 @@ abstract class ApiWikibase extends ApiBase {
 	 * @throws UsageException If $status->isOK() returns false.
 	 */
 	private function handleStatus( Status $status, $errorCode, array $extradata = array(), $httpRespCode = 0 ) {
-		wfProfileIn( __METHOD__ );
-
 		if ( $status->isGood() ) {
 			return;
 		} elseif ( $status->isOK() ) {
@@ -358,8 +348,6 @@ abstract class ApiWikibase extends ApiBase {
 			$this->errorReporter->reportStatusWarnings( $status );
 			$this->errorReporter->dieStatus( $status, $errorCode, $httpRespCode, $extradata );
 		}
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -395,7 +383,7 @@ abstract class ApiWikibase extends ApiBase {
 		}
 
 		if ( $summary instanceof Summary ) {
-			$summary = $this->formatSummary( $summary );
+			$summary = $this->summaryFormatter->formatSummary( $summary );
 		}
 
 		$params = $this->extractRequestParams();
@@ -457,16 +445,6 @@ abstract class ApiWikibase extends ApiBase {
 		$baseRevisionId = $baseRevisionId > 0 ? $baseRevisionId : false;
 
 		return $baseRevisionId;
-	}
-
-	/**
-	 * @param Summary $summary
-	 *
-	 * @return string
-	 */
-	protected function formatSummary( Summary $summary ) {
-		$formatter = $this->summaryFormatter;
-		return $formatter->formatSummary( $summary );
 	}
 
 	/**
@@ -536,7 +514,7 @@ abstract class ApiWikibase extends ApiBase {
 	 * @since 0.5
 	 *
 	 * @param string $errorCode A code identifying the error.
-	 * @param string ... Parameters for the Message.
+	 * @param string [$param,...] Parameters for the Message.
 	 */
 	protected function dieMessage( $errorCode ) {
 		call_user_func_array( array( $this->errorReporter, 'dieMessage' ), func_get_args() );

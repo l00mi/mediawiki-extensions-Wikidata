@@ -96,7 +96,6 @@ class UpdateRepoOnMoveJobTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider runProvider
-	 *
 	 * @param string $expected
 	 * @param string $normalizedPageName
 	 * @param string $oldTitle
@@ -107,7 +106,7 @@ class UpdateRepoOnMoveJobTest extends \MediaWikiTestCase {
 		// Needed as UpdateRepoOnMoveJob instantiates a User object
 		$user->addToDatabase();
 
-		$item = Item::newEmpty();
+		$item = new Item();
 		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Old page name', array( new ItemId( 'Q42' ) ) );
 
 		$store = new MockRepository();
@@ -134,6 +133,7 @@ class UpdateRepoOnMoveJobTest extends \MediaWikiTestCase {
 
 		$job->run();
 
+		/** @var Item $item */
 		$item = $store->getEntity( $item->getId() );
 
 		$this->assertSame(

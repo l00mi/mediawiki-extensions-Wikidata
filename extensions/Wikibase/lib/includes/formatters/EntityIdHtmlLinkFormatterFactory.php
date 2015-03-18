@@ -1,8 +1,9 @@
 <?php
+
 namespace Wikibase\Lib;
 
-use ValueFormatters\FormatterOptions;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\LabelLookup;
 
 /**
  * A factory for generating EntityIdHtmlLinkFormatters.
@@ -13,22 +14,25 @@ use Wikibase\Lib\Store\EntityTitleLookup;
 class EntityIdHtmlLinkFormatterFactory implements EntityIdFormatterFactory {
 
 	/**
-	 * @var FormatterLabelLookupFactory
-	 */
-	private $labelLookupFactory;
-
-	/**
 	 * @var EntityTitleLookup
 	 */
 	private $titleLookup;
 
 	/**
-	 * @param FormatterLabelLookupFactory $labelLookupFactory
-	 * @param EntityTitleLookup $titleLookup
+	 * @var LanguageNameLookup
 	 */
-	public function __construct( FormatterLabelLookupFactory $labelLookupFactory, EntityTitleLookup $titleLookup ) {
-		$this->labelLookupFactory = $labelLookupFactory;
+	private $languageNameLookup;
+
+	/**
+	 * @param EntityTitleLookup $titleLookup
+	 * @param LanguageNameLookup $languageNameLookup
+	 */
+	public function __construct(
+		EntityTitleLookup $titleLookup,
+		LanguageNameLookup $languageNameLookup
+	) {
 		$this->titleLookup = $titleLookup;
+		$this->languageNameLookup = $languageNameLookup;
 	}
 
 	/**
@@ -43,13 +47,16 @@ class EntityIdHtmlLinkFormatterFactory implements EntityIdFormatterFactory {
 	/**
 	 * @see EntityIdFormatterFactory::getEntityIdFormater
 	 *
-	 * @param FormatterOptions $options
+	 * @param LabelLookup $labelLookup
 	 *
 	 * @return EntityIdHtmlLinkFormatter
 	 */
-	public function getEntityIdFormater( FormatterOptions $options ) {
-		$labelLookup = $this->labelLookupFactory->getLabelLookup( $options );
-		return new EntityIdHtmlLinkFormatter( $options, $labelLookup, $this->titleLookup );
+	public function getEntityIdFormater( LabelLookup $labelLookup ) {
+		return new EntityIdHtmlLinkFormatter(
+			$labelLookup,
+			$this->titleLookup,
+			$this->languageNameLookup
+		);
 	}
 
 }

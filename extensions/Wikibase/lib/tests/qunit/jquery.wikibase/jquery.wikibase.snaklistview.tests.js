@@ -26,8 +26,8 @@
 		new wb.datamodel.PropertyValueSnak( 'p4',  new dv.StringValue( 'g' ) )
 	];
 
-	// We need a filled entity store for the instances of $.wikibase.snakview.variations.Value
-	// and $.wikibase.snakview created by $.wikibase.snaklistview.
+	// We need a filled entity store for the instances of jQuery.wikibase.snakview.variations.Value
+	// and jQuery.wikibase.snakview created by jQuery.wikibase.snaklistview.
 	var entities = {
 		p1: new wb.store.FetchedContent( {
 			title: new mw.Title( 'Property:P1' ),
@@ -63,13 +63,13 @@
 	/**
 	 * Generates a snaklistview widget suitable for testing.
 	 *
-	 * @param {wb.datamodel.SnakList} [value]
+	 * @param {wikibase.datamodel.SnakList} [value]
 	 * @param {Object} [additionalOptions]
 	 * @return {jQuery}
 	 */
 	function createSnaklistview( value, additionalOptions ) {
 		var options = $.extend( additionalOptions, {
-			value: ( value || null ),
+			value: value || undefined,
 			dataTypeStore: {
 				getDataType: function() {}
 			},
@@ -86,15 +86,15 @@
 	 * Sets a snak list on a given snaklistview retaining the initial snak list (since it gets
 	 * overwritten by using value() to set a snak list).
 	 *
-	 * @param {$.wikibase.snaklistview} snaklistview
-	 * @param {wb.datamodel.SnakList} value
-	 * @return {$.wikibase.snaklistview}
+	 * @param {jQuery.wikibase.snaklistview} snaklistview
+	 * @param {wikibase.datamodel.SnakList} value
+	 * @return {jQuery.wikibase.snaklistview}
 	 */
 	function setValueKeepingInitial( snaklistview, value ) {
-		var initialValue = snaklistview._snakList;
+		var initialValue = snaklistview.option( 'value' );
 
 		snaklistview.value( value );
-		snaklistview._snakList = initialValue;
+		snaklistview.options.value = initialValue;
 
 		return snaklistview;
 	}
@@ -102,7 +102,7 @@
 	/**
 	 * Returns the concatenated string values of a snak list's snaks.
 	 *
-	 * @param {wb.datamodel.SnakList} snakList
+	 * @param {wikibase.datamodel.SnakList} snakList
 	 * @return {string}
 	 */
 	function snakOrder( snakList ) {
@@ -140,8 +140,8 @@
 		);
 
 		assert.strictEqual(
-			snaklistview.value(),
-			null,
+			snaklistview.value().length,
+			0,
 			'Snaklistview contains no snaks.'
 		);
 
@@ -175,6 +175,15 @@
 			null,
 			'Destroyed listview.'
 		);
+
+		assert.throws(
+			function() {
+				createSnaklistview( {
+					value: null
+				} );
+			},
+			'Throwing error when trying to instantiate widget without a proper value.'
+		);
 	} );
 
 	QUnit.test( 'Setting and getting value while not in edit mode', function( assert ) {
@@ -182,19 +191,16 @@
 			snaklistview = $node.data( 'snaklistview' );
 
 		assert.strictEqual(
-			snaklistview.value(),
-			null,
+			snaklistview.value().length,
+			0,
 			'Snaklistview is empty.'
 		);
 
-		assert.ok(
-			snaklistview.value( snakLists[0] ).equals( snakLists[0] ),
-			'Set snak list.'
-		);
+		snaklistview.value( snakLists[0] );
 
 		assert.ok(
 			snaklistview.value().equals( snakLists[0] ),
-			'Verified set snak list.'
+			'Set snak list.'
 		);
 
 		assert.ok(
@@ -202,25 +208,19 @@
 			'Snaklistview is not in edit mode.'
 		);
 
-		assert.ok(
-			snaklistview.value( snakLists[1] ).equals( snakLists[1] ),
-			'Overwrote snak list.'
-		);
+		snaklistview.value( snakLists[1] );
 
 		assert.ok(
 			snaklistview.value().equals( snakLists[1] ),
-			'Verified set snak list.'
+			'Overwrote snak list.'
 		);
 
-		assert.ok(
-			snaklistview.value( new wb.datamodel.SnakList() ),
-			'Set empty snak list.'
-		);
+		snaklistview.value( new wb.datamodel.SnakList() );
 
 		assert.strictEqual(
-			snaklistview.value(),
-			null,
-			'Verified snaklistview being empty.'
+			snaklistview.value().length,
+			0,
+			'Set empty snak list.'
 		);
 	} );
 
@@ -236,50 +236,41 @@
 		);
 
 		assert.strictEqual(
-			snaklistview.value(),
-			null,
+			snaklistview.value().length,
+			0,
 			'Snaklistview is empty.'
 		);
 
+		snaklistview.value( snakLists[0] );
+
 		assert.ok(
-			snaklistview.value( snakLists[0] ).equals( snakLists[0] ),
+			snaklistview.value().equals( snakLists[0] ),
 			'Set snak list.'
 		);
 
 		assert.ok(
-			snaklistview.value().equals( snakLists[0] ),
-			'Verified set snak list.'
-		);
-
-		assert.ok(
 			snaklistview.isInEditMode(),
 			'Snaklistview is in edit mode.'
 		);
 
+		snaklistview.value( snakLists[1] );
+
 		assert.ok(
-			snaklistview.value( snakLists[1] ).equals( snakLists[1] ),
+			snaklistview.value().equals( snakLists[1] ),
 			'Overwrote snak list.'
 		);
 
 		assert.ok(
-			snaklistview.value().equals( snakLists[1] ),
-			'Verified set snak list.'
-		);
-
-		assert.ok(
 			snaklistview.isInEditMode(),
 			'Snaklistview is in edit mode.'
 		);
 
-		assert.ok(
-			snaklistview.value( new wb.datamodel.SnakList() ),
-			'Set empty snak list.'
-		);
+		snaklistview.value( new wb.datamodel.SnakList() );
 
 		assert.strictEqual(
-			snaklistview.value(),
-			null,
-			'Verified snaklistview being empty.'
+			snaklistview.value().length,
+			0,
+			'Set empty snak list.'
 		);
 
 		assert.ok(
@@ -350,20 +341,11 @@
 		);
 	} );
 
-	QUnit.test( 'Basic start and stop editing', 7, function( assert ) {
+	QUnit.test( 'Basic start and stop editing', 6, function( assert ) {
 		var $node = createSnaklistview(),
 			snaklistview = $node.data( 'snaklistview' );
 
-		QUnit.stop( 2 );
-
-		$node.on( 'snaklistviewstartediting', function( e ) {
-			assert.ok(
-				true,
-				'Triggered "startediting" event.'
-			);
-
-			QUnit.start();
-		} );
+		QUnit.stop();
 
 		$node.on( 'snaklistviewafterstartediting', function( e ) {
 			assert.ok(
@@ -414,8 +396,8 @@
 		);
 
 		assert.strictEqual(
-			snaklistview.value(),
-			null,
+			snaklistview.value().length,
+			0,
 			'Snaklistview is still empty.'
 		);
 
@@ -423,20 +405,11 @@
 		snaklistview.stopEditing();
 	} );
 
-	QUnit.test( 'Basic start and stop editing of filled snaklistview', 7, function( assert ) {
+	QUnit.test( 'Basic start and stop editing of filled snaklistview', 6, function( assert ) {
 		var $node = createSnaklistview( snakLists[0] ),
 			snaklistview = $node.data( 'snaklistview' );
 
-		QUnit.stop( 2 );
-
-		$node.on( 'snaklistviewstartediting', function( e ) {
-			assert.ok(
-				true,
-				'Triggered "startediting" event.'
-			);
-
-			QUnit.start();
-		} );
+		QUnit.stop();
 
 		$node.on( 'snaklistviewafterstartediting', function( e ) {
 			assert.ok(
@@ -493,7 +466,7 @@
 		assert.strictEqual(
 			snaklistview.isInitialValue(),
 			true,
-			'Snaklistview is still empty.'
+			'Snaklistview still features initial value.'
 		);
 
 		// Should not trigger any events since not in edit mode:
@@ -506,15 +479,7 @@
 		var $node = createSnaklistview(),
 			snaklistview = $node.data( 'snaklistview' );
 
-		QUnit.stop( 3 );
-
-		$node.on( 'snaklistviewstartediting', function( e ) {
-			assert.ok(
-				true,
-				'Triggered "startediting" event.'
-			);
-			QUnit.start();
-		} );
+		QUnit.stop( 2 );
 
 		$node.on( 'snaklistviewafterstartediting', function( e ) {
 			assert.ok(
@@ -540,8 +505,8 @@
 		);
 
 		assert.ok(
-			!snaklistview.isInitialValue(),
-			'Snaklistview does not feature its initial value anymore.'
+			snaklistview.isInitialValue(),
+			'Snaklistview still features its initial value ignoring pending empty value.'
 		);
 
 		assert.ok(
@@ -695,8 +660,8 @@
 		);
 
 		assert.strictEqual(
-			snaklistview.value(),
-			null,
+			snaklistview.value().length,
+			0,
 			'Snaklistview is empty.'
 		);
 
@@ -719,8 +684,8 @@
 				isEnabled = true;
 
 			for( var i = 0; i < snakviews.length; i++ ) {
-				isDisabled = isDisabled && snakviews[i].isDisabled();
-				isEnabled = isEnabled && !snakviews[i].isDisabled();
+				isDisabled = isDisabled && snakviews[i].option( 'disabled' );
+				isEnabled = isEnabled && !snakviews[i].option( 'disabled' );
 			}
 
 			if( isDisabled && !isEnabled ) {

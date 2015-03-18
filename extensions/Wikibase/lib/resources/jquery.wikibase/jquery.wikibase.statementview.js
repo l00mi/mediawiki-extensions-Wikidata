@@ -20,7 +20,6 @@
  * @uses wikibase.datamodel.SnakList
  * @uses wikibase.datamodel.ReferenceList
  * @uses wikibase.datamodel.Statement
- * @uses wikibase.utilities.ClaimGuidGenerator
  * @uses wikibase.utilities.ui
  * @since 0.4
  * @licence GNU GPL v2+
@@ -34,6 +33,8 @@
  *        The `Statement` displayed by the view. May be set initially only and gets updated
  *        automatically if changes to the `Statement` are saved.
  *        If `null`, the view will be switched to edit mode initially.
+ * @param {wikibase.utilities.ClaimGuidGenerator} options.guidGenerator
+ *        Required for dynamically generating GUIDs for new `Statement`s.
  * @param {wikibase.entityChangers.ClaimsChanger} options.claimsChanger
  *        Required to store the view's `Statement`.
  * @param {wikibase.store.EntityStore} options.entityStore
@@ -53,33 +54,9 @@
  *        property existing already by specifying, for example: `{ mainSnak.property: 'P1' }`.
  * @param {Object} [options.locked={ mainSnak: false }]
  *        Elements that shall be locked and may not be changed by user interaction.
- * @param {string} [optionshelpMessage=mw.msg( 'wikibase-claimview-snak-new-tooltip' )]
+ * @param {string} [options.helpMessage=mw.msg( 'wikibase-claimview-snak-new-tooltip' )]
  *        End-user message explaining how to use the `statementview` widget. The message is most
  *        likely to be used inside the tooltip of the toolbar corresponding to the `statementview`.
- */
-/**
- * @event startediting
- * Triggered when starting the view's edit mode.
- * @param {jQuery.Event} event
- */
-/**
- * @event afterstartediting
- * Triggered after having started the view's edit mode.
- * @param {jQuery.Event} event
- */
-/**
- * @event stopediting
- * Triggered when stopping the view's edit mode.
- * @param {jQuery.Event} event
- * @param {boolean} dropValue If true, the value from before edit mode has been started will be
- *        reinstated (basically, a cancel/save switch).
- */
-/**
- * @event afterstopediting
- * Triggered after having stopped the view's edit mode.
- * @param {jQuery.Event} event
- * @param {boolean} dropValue If true, the value from before edit mode has been started has been
- * reinstated (basically, a cancel/save switch).
  */
 /**
  * @event afterremove
@@ -91,13 +68,6 @@
  * @event change
  * Triggered whenever the view's content is changed.
  * @param {jQuery.Event} event
- */
-/**
- * @event toggleerror
- * Triggered when an error occurred or is resolved.
- * @param {jQuery.Event} event
- * @param {wikibase.api.RepoApiError} [error] `wikikibase.api.RepoApiError` object if an error
- *        occurred, `undefined` if the current error state is resolved.
  */
 $.widget( 'wikibase.statementview', PARENT, {
 	/**
@@ -169,17 +139,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_qualifiers: null,
 
 	/**
-	 * Caches the `SnakList` of the qualifiers the `statementview` has been initialized with. The
-	 * qualifiers are split into groups featuring the same `Property`. Removing one of those groups
-	 * results in losing the reference to those qualifiers. Therefore, `_initialQualifiers` is used
-	 * to rebuild the list of qualifiers when cancelling and is used to query whether the qualifiers
-	 * represent the initial state.
-	 * @property {wikibase.datamodel.SnakList}
-	 * @private
-	 */
-	_initialQualifiers: null,
-
-	/**
 	 * @property {wikibase.entityChangers.ReferencesChanger}
 	 * @private
 	 */
@@ -198,15 +157,12 @@ $.widget( 'wikibase.statementview', PARENT, {
 			|| !this.options.claimsChanger
 			|| !this.options.entityChangersFactory
 			|| !this.options.dataTypeStore
+			|| !this.options.guidGenerator
 		) {
 			throw new Error( 'Required option not specified properly' );
 		}
 
 		PARENT.prototype._create.call( this );
-
-		this._initialQualifiers = this.options.value
-			? this.options.value.getClaim().getQualifiers()
-			: new wb.datamodel.SnakList();
 
 		this._referencesChanger = this.options.entityChangersFactory.getReferencesChanger();
 
@@ -266,12 +222,13 @@ $.widget( 'wikibase.statementview', PARENT, {
 		} );
 
 		this.$mainSnak.snakview( {
-			value: snak || null,
+			value: snak || undefined,
 			locked: this.options.locked.mainSnak,
 			autoStartEditing: false,
 			dataTypeStore: this.options.dataTypeStore,
 			entityStore: this.options.entityStore,
-			valueViewBuilder: this.options.valueViewBuilder
+			valueViewBuilder: this.options.valueViewBuilder,
+			encapsulatedBy: ':' + this.widgetFullName.toLowerCase()
 		} );
 	},
 
@@ -310,7 +267,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 				listItemWidget: $.wikibase.snaklistview,
 				newItemOptionsFn: function( value ) {
 					return {
-						value: value || null,
+						value: value || undefined,
 						singleProperty: true,
 						dataTypeStore: self.options.dataTypeStore,
 						entityStore: self.options.entityStore,
@@ -341,7 +298,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			var $snaklistview = $( event.target ).closest( ':wikibase-snaklistview' ),
 				snaklistview = $snaklistview.data( 'snaklistview' );
 
-			if( !snaklistview.value() ) {
+			if( !snaklistview.value().length ) {
 				self._qualifiers.removeItem( snaklistview.element );
 			}
 		} );
@@ -392,11 +349,15 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		$listview
 		.on( 'listviewitemadded listviewitemremoved', function( event, value, $li ) {
-			if( event.target === $listview.get( 0 ) ) {
+			if( event.target === $listview[0] ) {
 				self._drawReferencesCounter();
 			}
 		} )
 		.on( 'listviewenternewitem', function( event, $newLi ) {
+			if( event.target !== $listview[0] ) {
+				return;
+			}
+
 			// Enter first item into the referenceview.
 			self._referenceviewLia.liInstance( $newLi ).enterNewItem();
 
@@ -517,11 +478,13 @@ $.widget( 'wikibase.statementview', PARENT, {
 				: this.option( 'predefined' ).mainSnak || null
 		);
 
-		// TODO: Allow adding qualifiers when adding a new statement.
-		if( this.options.value && ( this.isInEditMode() || this._initialQualifiers.length ) ) {
-			this._createQualifiersListview( this.options.value.getClaim().getQualifiers() );
+		if( this.isInEditMode() ) {
+			this._createQualifiersListview(
+				this.options.value
+					? this.options.value.getClaim().getQualifiers()
+					: new wb.datamodel.SnakList()
+			);
 		}
-
 		this._createReferences( this.options.value );
 
 		return $.Deferred().resolve().promise();
@@ -549,12 +512,12 @@ $.widget( 'wikibase.statementview', PARENT, {
 				}
 			}
 
-			if( !qualifiers.equals( this._initialQualifiers ) ) {
+			if( !qualifiers.equals( this.options.value.getClaim().getQualifiers() ) ) {
 				return false;
 			}
 		}
 
-		return this.$mainSnak.data( 'snakview' ).isInitialSnak();
+		return this.$mainSnak.data( 'snakview' ).isInitialValue();
 	},
 
 	/**
@@ -611,14 +574,15 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		// If the statement is pending (not yet stored), the listview widget for the references is
 		// not defined.
-		if ( !this._referencesListview ) {
+		if( !this._referencesListview ) {
 			return references;
 		}
 
 		$.each( this._referencesListview.items(), function( i, item ) {
-			var referenceview = self._referenceviewLia.liInstance( $( item ) );
-			if( referenceview ) {
-				references.push( referenceview.value() );
+			var referenceview = self._referenceviewLia.liInstance( $( item ) ),
+				reference = referenceview ? referenceview.value() : null;
+			if( reference ) {
+				references.push( reference );
 			}
 		} );
 
@@ -719,7 +683,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		this._stopEditingQualifiers( dropValue );
 		this._rankSelector.stopEditing( dropValue );
 
-		return PARENT.prototype._afterStopEditing.call( this );
+		return PARENT.prototype._afterStopEditing.call( this, dropValue );
 	},
 
 	/**
@@ -734,11 +698,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 		if( this._qualifiers ) {
 			snaklistviews = this._qualifiers.value();
 
-			if( !dropValue ) {
-				// When saving the qualifier snaks, reset the initial qualifiers to the new ones.
-				this._initialQualifiers = new wb.datamodel.SnakList();
-			}
-
 			if( snaklistviews.length ) {
 				for( i = 0; i < snaklistviews.length; i++ ) {
 					snaklistviews[i].stopEditing( dropValue );
@@ -747,10 +706,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 						// Remove snaklistview from qualifier listview if no snakviews are left in
 						// that snaklistview:
 						this._qualifiers.removeItem( snaklistviews[i].element );
-					} else if ( !dropValue ) {
-						// Gather all the current snaks in a single SnakList to set to reset the
-						// initial qualifiers:
-						this._initialQualifiers.merge( snaklistviews[i].value() );
 					}
 				}
 			}
@@ -761,9 +716,11 @@ $.widget( 'wikibase.statementview', PARENT, {
 		// the "add qualifier" toolbar.
 		this._destroyQualifiersListView();
 
-		if( this._initialQualifiers.length > 0 ) {
+		var qualifiers = this.options.value ? this.options.value.getClaim().getQualifiers() : [];
+
+		if( qualifiers.length > 0 ) {
 			// Refill the qualifier listview with the initial (or new initial) qualifiers:
-			this._createQualifiersListview( this._initialQualifiers );
+			this._createQualifiersListview( qualifiers );
 		}
 	},
 
@@ -780,15 +737,11 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @throws {Error} if unable to instantiate a `Statement` from the current view state.
 	 */
 	_save: function() {
-		var self = this,
-			guid;
+		var self = this;
 
-		if( this.options.value ) {
-			guid = this.options.value.getClaim().getGuid();
-		} else {
-			var guidGenerator = new wb.utilities.ClaimGuidGenerator();
-			guid = guidGenerator.newGuid( mw.config.get( 'wbEntityId' ) );
-		}
+		var guid = this.options.value
+			? this.options.value.getClaim().getGuid()
+			: this.options.guidGenerator.newGuid();
 
 		var statement = this._instantiateStatement( guid );
 

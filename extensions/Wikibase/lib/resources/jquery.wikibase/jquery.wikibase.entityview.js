@@ -4,7 +4,7 @@
 	var PARENT = $.ui.TemplatedWidget;
 
 /**
- * Abstract base view for displaying Wikibase `Entity`s.
+ * Abstract base view for displaying a Wikibase `Entity`.
  * @class jQuery.wikibase.entityview
  * @extends jQuery.ui.TemplatedWidget
  * @abstract
@@ -22,17 +22,6 @@
  *        single language code.
  * @param {wikibase.entityChangers.EntityChangersFactory} options.entityChangersFactory
  *        Required to be able to store changes applied to the entity.
- * @param {wikibase.store.EntityStore} options.entityStore
- *        Required by sub-components of the `entityview` to enable those to dynamically query for
- *        `Entity` objects.
- * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
- *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
- *        `jQuery.valueview`.
- * @param {dataTypes.DataTypeStore} options.dataTypeStore
- *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
- *        object when interacting on a "value" `Variation`.
- *
- * @throws {Error} when called.
  */
 /**
  * @event afterstartediting
@@ -49,7 +38,6 @@
 $.widget( 'wikibase.entityview', PARENT, {
 	/**
 	 * @inheritdoc
-	 * @property {Object}
 	 * @protected
 	 */
 	options: {
@@ -62,43 +50,38 @@ $.widget( 'wikibase.entityview', PARENT, {
 			'', // main content
 			'' // sidebar
 		],
-		templateShortCuts: {},
+		templateShortCuts: {
+			$main: '.wikibase-entityview-main',
+			$side: '.wikibase-entityview-side'
+		},
 		value: null,
 		languages: null,
-		entityStore: null,
-		valueViewBuilder: null,
-		dataTypeStore: null
+		entityChangersFactory: null
 	},
 
 	/**
 	 * @property {jQuery}
-	 * @protected
-	 */
-	$toc: null,
-
-	/**
-	 * @property {jQuery}
-	 * @protected
+	 * @readonly
 	 */
 	$label: null,
 
 	/**
 	 * @property {jQuery}
-	 * @protected
+	 * @readonly
 	 */
 	$description: null,
 
 	/**
 	 * @property {jQuery}
-	 * @protected
+	 * @readonly
 	 */
 	$aliases: null,
 
 	/**
 	 * @property {jQuery|null}
-	 * @protected
+	 * @readonly
 	 */
-	$fingerprints: null,
+	$entityTerms: null,
 
 	/**
 	 * @inheritdoc
@@ -113,10 +96,18 @@ $.widget( 'wikibase.entityview', PARENT, {
 	 * Main initialization actually calling parent's _create().
 	 * @see jQuery.ui.TemplatedWidget._create
 	 * @protected
+	 */
+	_createEntityview: function() {
+		PARENT.prototype._create.call( this );
+	},
+
+	/**
+	 * @inheritdoc
+	 * @protected
 	 *
 	 * @throws {Error} if a required options is missing.
 	 */
-	_initEntityview: function() {
+	_init: function() {
 		if(
 			!this.options.value
 			|| !this.options.languages
@@ -131,14 +122,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 
 		this.element.data( $.wikibase.entityview.prototype.widgetName, this );
 
-		this.$toc = $( '.toc', this.element );
+		this._initEntityTerms();
 
-		this._initLabel();
-		this._initDescription();
-		this._initAliases();
-		this._initFingerprints();
-
-		PARENT.prototype._create.call( this );
+		PARENT.prototype._init.call( this );
 
 		this._attachEventHandlers();
 	},
@@ -146,120 +132,55 @@ $.widget( 'wikibase.entityview', PARENT, {
 	/**
 	 * @protected
 	 */
-	_initLabel: function() {
-		this.$label = $( '.wb-firstHeading .wikibase-labelview', this.element ).first();
-		if( !this.$label.length ) {
-			this.$label = $( '<div/>' );
-			mw.wbTemplate( 'wikibase-firstHeading',
-				this.options.value.getId(),
-				this.$label
-			).appendTo( this.element );
-		}
+	_initEntityTerms: function() {
+		var i;
 
-		// FIXME: entity object should not contain fallback strings
-		var label = this.options.value.getFingerprint().getLabelFor( this.options.languages[0] )
-			|| new wb.datamodel.Term( this.options.languages[0], '' );
+		this.$entityTerms = $( '.wikibase-entitytermsview', this.element );
 
-		this.$label.labelview( {
-			value: label,
-			helpMessage: mw.msg(
-				'wikibase-description-input-help-message',
-				wb.getLanguageNameByCode( this.options.languages[0] )
-			),
-			entityId: this.options.value.getId(),
-			labelsChanger: this.options.entityChangersFactory.getLabelsChanger(),
-			showEntityId: true
-		} );
-	},
+		if( !this.$entityTerms.length ) {
+			this.$entityTerms = $( '<div/>' ).prependTo( this.$main );
+		} else {
+			var $entitytermsforlanguageview = this.$entityTerms
+				.find( '.wikibase-entitytermsforlanguageview' );
 
-	/**
-	 * @protected
-	 */
-	_initDescription: function() {
-		this.$description = $( '.wikibase-descriptionview', this.element ).first();
-		if( !this.$description.length ) {
-			this.$description = $( '<div/>' ).appendTo( this.element );
-		}
-
-		// FIXME: entity object should not contain fallback strings
-		var description = this.options.value.getFingerprint().getDescriptionFor(
-			this.options.languages[0]
-		) || new wb.datamodel.Term( this.options.languages[0], '' );
-
-		this.$description.descriptionview( {
-			value: description,
-			helpMessage: mw.msg(
-				'wikibase-description-input-help-message',
-				wb.getLanguageNameByCode( this.options.languages[0] )
-			),
-			descriptionsChanger: this.options.entityChangersFactory.getDescriptionsChanger()
-		} );
-	},
-
-	/**
-	 * @protected
-	 */
-	_initAliases: function() {
-		this.$aliases = $( '.wikibase-aliasesview', this.element ).first();
-		if( !this.$aliases.length ) {
-			this.$aliases = $( '<div/>' ).appendTo( this.element );
-		}
-
-		var aliases = this.options.value.getFingerprint().getAliasesFor( this.options.languages[0] )
-			|| new wb.datamodel.MultiTerm( this.options.languages[0], [] );
-
-		this.$aliases.aliasesview( {
-			value: aliases,
-			aliasesChanger: this.options.entityChangersFactory.getAliasesChanger()
-		} );
-	},
-
-	/**
-	 * @protected
-	 */
-	_initFingerprints: function() {
-		var self = this;
-
-		if( this.options.languages.length === 1 ) {
-			return;
-		}
-
-		this.$fingerprints = $( '.wikibase-entitytermsview', this.element );
-
-		if( !this.$fingerprints.length ) {
-			var $precedingNode = this.$toc;
-
-			if( !$precedingNode.length ) {
-				$precedingNode = $( '.wikibase-aliasesview' );
-			} else {
-				this._addTocItem(
-					'#wb-terms',
-					mw.msg( 'wikibase-terms' ),
-					this.$toc.find( 'li' ).first()
-				);
+			// Scrape languages from static HTML:
+			var scrapedLanguages = [];
+			if( $entitytermsforlanguageview.length > 0 ) {
+				$entitytermsforlanguageview.each( function() {
+					$.each( $( this ).attr( 'class' ).split( ' ' ), function() {
+						if( this.indexOf( 'wikibase-entitytermsforlanguageview-' ) === 0 ) {
+							scrapedLanguages.push(
+								this.split( 'wikibase-entitytermsforlanguageview-' )[1]
+							);
+							return false;
+						}
+					} );
+				} );
 			}
 
-			this.$fingerprints = $( '<div/>' ).insertAfter( $precedingNode );
-		} else {
-			// Scrape languages from static HTML:
-			// FIXME: Currently, this simply overrules the languages options.
-			self.options.languages = [ self.options.languages[0] ];
-			this.$fingerprints.find( '.wikibase-entitytermsforlanguageview' ).each( function() {
-				$.each( $( this ).attr( 'class' ).split( ' ' ), function() {
-					if( this.indexOf( 'wikibase-entitytermsforlanguageview-' ) === 0 ) {
-						self.options.languages.push(
-							this.split( 'wikibase-entitytermsforlanguageview-' )[1]
-						);
-						return false;
+			var mismatch = scrapedLanguages.length !== this.options.languages.length;
+
+			if( !mismatch ) {
+				for( i = 0; i < scrapedLanguages.length; i++ ) {
+					if( scrapedLanguages[i] !== this.options.languages[i] ) {
+						mismatch = true;
+						break;
 					}
-				} );
-			} );
+				}
+			}
+
+			if( mismatch ) {
+				// TODO: While this triggers rebuilding the whole DOM structure, the user interface
+				// language is always rendered statically and would not need to be re-rendered.
+				// However, that requires additional logic in respective widgets.
+				$entitytermsforlanguageview.remove();
+			}
 		}
 
 		var fingerprint = this.options.value.getFingerprint(),
 			value = [];
 
-		for( var i = 1; i < this.options.languages.length; i++ ) {
+		for( i = 0; i < this.options.languages.length; i++ ) {
 			value.push( {
 				language: this.options.languages[i],
 				label: fingerprint.getLabelFor( this.options.languages[i] )
@@ -271,11 +192,11 @@ $.widget( 'wikibase.entityview', PARENT, {
 			} );
 		}
 
-		this.$fingerprints.entitytermsview( {
+		this.$entityTerms.entitytermsview( {
 			value: value,
 			entityId: this.options.value.getId(),
 			entityChangersFactory: this.options.entityChangersFactory,
-			helpMessage: mw.msg( 'wikibase-fingerprintgroupview-input-help-message' )
+			helpMessage: mw.msg( 'wikibase-entitytermsview-input-help-message' )
 		} );
 	},
 
@@ -340,39 +261,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 		this.$label.data( 'labelview' )[state]();
 		this.$description.data( 'descriptionview' )[state]();
 		this.$aliases.data( 'aliasesview' )[state]();
-		if( this.$fingerprints ) {
-			this.$fingerprints.data( 'entitytermsview' )[state]();
+		if( this.$entityTerms ) {
+			this.$entityTerms.data( 'entitytermsview' )[state]();
 		}
-	},
-
-	/**
-	 * Adds an item to the table of contents.
-	 * @protected
-	 *
-	 * @param {string} href
-	 * @param {string} text
-	 * @param {jQuery} [$insertBefore] Omit to have the item inserted at the end
-	 */
-	_addTocItem: function( href, text, $insertBefore ) {
-		if( !this.$toc.length ) {
-			return;
-		}
-
-		var $li = $( '<li>' )
-			.addClass( 'toclevel-1' )
-			.append( $( '<a>' ).attr( 'href', href ).text( text ) );
-
-		if( $insertBefore ) {
-			$li.insertBefore( $insertBefore );
-		} else {
-			this.$toc.append( $li );
-		}
-
-		this.$toc.find( 'li' ).each( function( i, li ) {
-			$( li )
-			.removeClass( 'tocsection-' + i )
-			.addClass( 'tocsection-' + ( i + 1 ) );
-		} );
 	},
 
 	/**

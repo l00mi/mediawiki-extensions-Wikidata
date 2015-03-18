@@ -150,8 +150,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 		$otherUser = $this->getUser( 'EditEntityTestUser2' );
 
 		/* @var Item $item */
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q17' ) );
+		$item = new Item( new ItemId( 'Q17' ) );
 		$item->setLabel('en', 'foo' );
 		$repo->putEntity( $item, 10, 0, $user );
 
@@ -336,7 +335,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 
 		$titleLookup = WikibaseRepo::getDefaultInstance()->getEntityTitleLookup();
 
-		$item = Item::newEmpty();
+		$item = new Item();
 		$item->setLabel( 'en', 'omg' );
 		$editEntity = $this->makeEditEntity( $this->getMockRepository(), $item, $titleLookup );
 		$editEntity->attemptSave( "Testing", EDIT_NEW, false );
@@ -365,7 +364,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 		$user = $this->getUser( 'EditEntityTestUser' );
 
 		// create item
-		$entity = Item::newEmpty();
+		$entity = new Item();
 		$entity->getFingerprint()->setLabel( 'en', 'Test' );
 
 		$repo->putEntity( $entity, 0, 0, $user );
@@ -422,7 +421,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 			$repo,
 			$repo,
 			$this->getEntityPermissionChecker( $permissions ),
-			Item::newEmpty(),
+			new Item(),
 			$this->getUser( 'EditEntityTestUser' ),
 			false,
 			$context
@@ -452,7 +451,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 	}
 
 	private function prepareItemForPermissionCheck( User $user, MockRepository $mockRepository, $create ) {
-		$item = Item::newEmpty();
+		$item = new Item();
 
 		if ( $create ) {
 			$item->setLabel( 'de', 'Test' );
@@ -542,7 +541,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 					)
 				),
 				array( // groups:
-					'sysop' // assume sysop has the noratelimit permission, as per default
+					'sysop' // sysop has the noratelimit permission set in the test case
 				),
 				array(  // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
@@ -631,6 +630,14 @@ class EditEntityTest extends \MediaWikiTestCase {
 			$limits
 		);
 
+		$this->setMwGlobals(
+			'wgGroupPermissions',
+			array(
+				'*' => array( 'edit' => true ),
+				'sysop' => array( 'noratelimit' => true )
+			)
+		);
+
 		// make sure we have a fresh, working cache
 		$this->setMwGlobals(
 			'wgMemc',
@@ -653,7 +660,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 				$item = $items[$name];
 			} else {
 				// create item
-				$item = Item::newEmpty();
+				$item = new Item();
 				$items[$name] = $item;
 			}
 
@@ -695,7 +702,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 		$repo = $this->getMockRepository();
 		$user = $this->getUser( 'EditEntityTestUser' );
 
-		$item = Item::newEmpty();
+		$item = new Item();
 		$titleLookup = $this->getEntityTitleLookup();
 		$edit = $this->makeEditEntity( $repo, $item, $titleLookup, $user );
 
@@ -744,7 +751,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 		$user->setOption( 'watchdefault', $watchdefault );
 		$user->setOption( 'watchcreations', $watchcreations );
 
-		$item = Item::newEmpty();
+		$item = new Item();
 		$item->setLabel( "en", "Test" );
 
 		if ( !$new ) {

@@ -22,6 +22,7 @@ use Wikibase\SummaryFormatter;
  * @group Wikibase
  * @group WikibaseRepo
  * @group WikibaseSummary
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author John Erling Blad < jeblad@gmail.com >
@@ -79,10 +80,8 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 	 * @return SummaryFormatter
 	 */
 	protected function newFormatter() {
-		$idFormatter = $this->getMockBuilder( 'Wikibase\Lib\EntityIdFormatter' )
-			->disableOriginalConstructor()
-			->getMock();
-		$idFormatter->expects( $this->any() )->method( 'format' )
+		$idFormatter = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
+		$idFormatter->expects( $this->any() )->method( 'formatEntityId' )
 			->will( $this->returnCallback( array( $this, 'formatId' ) ) );
 
 		$valueFormatter = $this->getMock( 'ValueFormatters\ValueFormatter' );

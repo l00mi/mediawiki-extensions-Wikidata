@@ -25,7 +25,7 @@ class SetQualifier extends ModifyClaim {
 	/**
 	 * @var ClaimChangeOpFactory
 	 */
-	protected $claimChangeOpFactory;
+	private $claimChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -45,8 +45,6 @@ class SetQualifier extends ModifyClaim {
 	 * @since 0.3
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
@@ -69,17 +67,13 @@ class SetQualifier extends ModifyClaim {
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addClaim( $claim );
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
 	 * Checks if the required parameters are set and the ones that make no sense given the
 	 * snaktype value are not set.
-	 *
-	 * @since 0.2
 	 */
-	protected function validateParameters( array $params ) {
+	private function validateParameters( array $params ) {
 		if ( !( $this->claimModificationHelper->validateClaimGuid( $params['claim'] ) ) ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
@@ -100,23 +94,19 @@ class SetQualifier extends ModifyClaim {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param Claim $claim
 	 * @param string $qualifierHash
 	 */
-	protected function validateQualifierHash( Claim $claim, $qualifierHash ) {
+	private function validateQualifierHash( Claim $claim, $qualifierHash ) {
 		if ( !$claim->getQualifiers()->hasSnakHash( $qualifierHash ) ) {
 			$this->dieError( "Claim does not have a qualifier with the given hash" , 'no-such-qualifier' );
 		}
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return ChangeOpQualifier
 	 */
-	protected function getChangeOp() {
+	private function getChangeOp() {
 		$params = $this->extractRequestParams();
 
 		$claimGuid = $params['claim'];
@@ -141,12 +131,8 @@ class SetQualifier extends ModifyClaim {
 
 	/**
 	 * @see ApiBase::getAllowedParams
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array_merge(
 			array(
 				'claim' => array(
@@ -175,13 +161,12 @@ class SetQualifier extends ModifyClaim {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(
 			'action=wbsetqualifier&claim=Q2$4554c0f4-47b2-1cd9-2db9-aa270064c9f3&property=P1&value=GdyjxP8I6XB3&snaktype=value&token=foobar' => 'apihelp-wbsetqualifier-example-1',
 		);
 	}
+
 }

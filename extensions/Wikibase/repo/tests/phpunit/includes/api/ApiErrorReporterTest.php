@@ -5,7 +5,6 @@ namespace Wikibase\Test;
 use ApiMain;
 use DataValues\IllegalValueException;
 use Language;
-use Message;
 use Status;
 use UsageException;
 use ValueParsers\ParseException;
@@ -20,6 +19,7 @@ use Wikibase\Lib\Localizer\ParseExceptionLocalizer;
  * @group Wikibase
  * @group WikibaseValidators
  * @group WikibaseAPI
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler

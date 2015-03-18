@@ -6,6 +6,7 @@
 		]
 	},
 	"wikibase-lib-desc": "Holds common functionality for the Wikibase and Wikibase Client extensions",
+	"specialpages-group-wikibase": "Wikibase",
 	"wikibase-deletedentity-item": "Deleted item",
 	"wikibase-deletedentity-property": "Deleted property",
 	"wikibase-deletedentity-query": "Deleted query",
@@ -26,7 +27,7 @@
 	"wikibase-quantitydetails-lowerbound": "Lower bound",
 	"wikibase-quantitydetails-unit": "Unit",
 	"wikibase-timedetails-time": "Time",
-	"wikibase-timedetails-isotime": "ISO timestamp",
+	"wikibase-timedetails-isotime": "Timestamp",
 	"wikibase-timedetails-timezone": "Timezone",
 	"wikibase-timedetails-calendar": "Calendar",
 	"wikibase-timedetails-precision": "Precision",

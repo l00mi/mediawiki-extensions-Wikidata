@@ -1,9 +1,4 @@
-/**
- * @licence GNU GPL v2+
- * @author Daniel Werner < daniel.werner@wikimedia.de >
- * @author H. Snater < mediawiki@snater.com >
- */
-( function( mw, wb, $ ) {
+( function( mw, wb, $, dv ) {
 	'use strict';
 
 	// Back-up components already initialized in the namespace to re-apply them after initializing
@@ -17,72 +12,77 @@
 	var PARENT = $.ui.TemplatedWidget;
 
 /**
- * View for displaying and editing Wikibase Snaks.
- * @since 0.3
+ * View for displaying and editing `wikibase.datamodel.Snak` objects.
+ * @see wikibase.datamodel.Snak
+ * @class jQuery.wikibase.snakview
  * @extends jQuery.ui.TemplatedWidget
+ * @since 0.3
+ * @author Daniel Werner < daniel.werner@wikimedia.de >
+ * @author H. Snater < mediawiki@snater.com >
  *
- * @option {Object|wb.datamodel.Snak|null} value The snak this view should represent initially. If omitted,
- *         an empty view will be served, ready to take some input by the user. The value can also be
- *         overwritten later, by using the value() or snak() functions.
- *         Default: { property: null, snaktype: wb.datamodel.PropertyValueSnak.TYPE }
+ * @constructor
  *
- * @option {Object|boolean} locked Key-value pairs determining which snakview elements to lock for
- *         being edited by the user. May also be a boolean value enabling/disabling all elements.
- *         Default: false (no elements to be locked)
- *
- * @option {boolean} autoStartEditing Whether or not view should go into edit mode by its own upon
- *         initialization if its initial value is empty.
- *         Default: true
- *
- * @option {wb.store.EntityStore} entityStore
- *
- * @option {wikibase.ValueViewBuilder} valueViewBuilder
- *
- * @option {dataTypes.DataTypeStore} dataTypeStore
- *
- * @event startediting
- *        Triggered before edit mode gets rendered.
- *        - {jQuery.Event}
- *
+ * @param {Object} options
+ * @param {Object|wikibase.datamodel.Snak|null} [options.value]
+ *        The `Snak` this `snakview` should represent initially. If omitted, an empty view will be
+ *        served, ready to take some input by the user. The value may be overwritten later, by using
+ *        the `value()` or the `snak()` function.
+ *        Default: `{ snaktype: wikibase.datamodel.PropertyValueSnak.TYPE }`
+ * @param {Object|boolean} [options.locked=false]
+ *        Key-value pairs determining which `snakview` elements to lock from being edited by the
+ *        user. May also be a boolean value enabling/disabling all elements. If `false`, no elements
+ *        will be locked.
+ * @param {boolean} [options.autoStartEditing=true]
+ *        Whether the `snakview` should switch to edit mode automatically upon initialization if its
+ *        initial value is empty.
+ * @param {wikibase.store.EntityStore} options.entityStore
+ *        Required for dynamically gathering `Entity`/`Property` information.
+ * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
+ *        Required to interfacing a `snakview` "value" `Variation` to `jQuery.valueview`.
+ * @param {dataTypes.DataTypeStore} options.dataTypeStore
+ *        Required to retrieve and evaluate a proper `dataTypes.DataType` object when interacting on
+ *        a "value" `Variation`.
+ * @param {string} [options.encapsulatedBy]
+ *        If the `snakview`s DOM node has a parent that is selectable by the provided CSS selector,
+ *        the `Property` part of the `snakview` is not (re-)rendered when initializing the
+ *        `snakview` unless the `snakview`s whole DOM structure is empty.
+ */
+/**
  * @event afterstartediting
- *        Triggered after having rendered edit mode.
- *        - {jQuery.Event}
- *
+ * Triggered after having started the widget's edit mode.
+ * @param {jQuery.Event} event
+ */
+/**
  * @event stopediting
- *        Triggered before edit mode is stopped.
- *        - {jQuery.Event}
- *        - {boolean} dropValue
- *        - {wikibase.datamodel.Snak|null} newSnak
- *          The Snak which will be displayed after editing has stopped. Normally, this is the Snak
- *          representing the last state of the view during edit mode but can also be the Snak from
- *          before edit mode in case editing has been cancelled.
- *
+ * Triggered when stopping the widget's edit mode.
+ * @param {jQuery.Event} event
+ * @param {boolean} dropValue
+ */
+/**
  * @event afterstopediting
- *        Triggered after edit mode has been stopped an the view id redrawn.
- *        - {jQuery.Event}
- *        - {boolean} dropValue
- *
+ * Triggered after having stopped the widget's edit mode.
+ * @param {jQuery.Event} event
+ * @param {boolean} dropValue
+ */
+/**
  * @event change
- *        Triggered whenever the snakview's status ("valid"/"invalid") is changed in any way.
- *        - {jQuery.Event}
+ * Triggered whenever the widget's content or status is changed.
+ * @param {jQuery.Event} event
  */
 $.widget( 'wikibase.snakview', PARENT, {
-	widgetName: 'wikibase-snakview',
-
 	/**
-	 * (Additional) default options
-	 * @see jQuery.Widget.options
+	 * @inheritdoc
+	 * @protected
 	 */
 	options: {
-		template: 'wb-snak',
+		template: 'wikibase-snakview',
 		templateParams: [ '', '', '' ],
 		templateShortCuts: {
-			'$property': '.wb-snak-property',
-			'$snakValue': '.wb-snak-value',
-			'$snakTypeSelector': '.wb-snak-typeselector'
+			$property: '.wikibase-snakview-property',
+			$snakValue: '.wikibase-snakview-value',
+			$snakTypeSelector: '.wikibase-snakview-typeselector'
 		},
 		value: {
-			property: null,
 			snaktype: wb.datamodel.PropertyValueSnak.TYPE
 		},
 		locked: {
@@ -92,102 +92,77 @@ $.widget( 'wikibase.snakview', PARENT, {
 		autoStartEditing: true,
 		entityStore: null,
 		valueViewBuilder: null,
-		dataTypeStore: null
+		dataTypeStore: null,
+		encapsulatedBy: null
 	},
 
 	/**
-	 * The DOM node of the entity selector for choosing a property or the node with plain text of
-	 * the properties label. This is a selector widget only the first time in edit mode.
-	 * @type jQuery
-	 */
-	$property: null,
-
-	/**
-	 * The DOM node of the Snak's value, some message if the value is not supported or "no value"/
-	 * "some value" message.
-	 * @type jQuery
-	 */
-	$snakValue: null,
-
-	/**
-	 * The DOM node of the Snak type selector.
-	 * @type jQuery
-	 */
-	$snakTypeSelector: null,
-
-	/**
-	 * Variation object responsible for presenting the essential parts of a certain kind of Snak.
-	 * Can be null if a unsupported Snak Type is represented by the snakview. In this case the
-	 * snakview won't be able to display the Snak but display an appropriate message instead.
-	 * @type $.wikibase.snakview.variations.Variation|null
+	 * `Variation` object responsible for presenting the essential parts of a certain kind of
+	 * `Snak`. May be `null` if an unsupported `Snak` type is represented by the `snakview`. In this
+	 * case, the `snakview` won't be able to display the `Snak` but displays an appropriate message
+	 * instead.
+	 * @property {jQuery.wikibase.snakview.variations.Variation|null}
+	 * @private
 	 */
 	_variation: null,
 
 	/**
-	 * Cache for the values of specific wikibase.snakview.variations in order to have those restored
-	 * when toggling he snak type.
-	 * @type {Object}
+	 * Cache for the values of specific `jQuery.wikibase.snakview.variation`s used to have those
+	 * values restored when toggling the `Snak` type.
+	 * @property {Object}
+	 * @private
 	 */
 	_cachedValues: null,
 
 	/**
-	 * The property of the Snak currently represented by the view.
-	 * @type {String}
-	 */
-	_propertyId: null,
-
-	/**
-	 * The Snak type of the Snak currently represented by the view.
-	 * @type {String}
-	 */
-	_snakType: null,
-
-	/**
-	 * The Snak from before edit mode has been entered.
-	 * @type wb.datamodel.Snak|null
-	 */
-	_initialSnak: null,
-
-	/**
-	 * @type Boolean
+	 * @property {boolean}
+	 * @private
 	 */
 	_isInEditMode: false,
 
 	/**
-	 * Caching whether to move the focus from the property input to the value input after pressing
+	 * Caching whether to move the focus from the `Property` input to the value input after pressing
 	 * the TAB key.
-	 * @type Boolean
+	 * @property {boolean}
+	 * @private
 	 */
 	_tabToValueView: false,
 
 	/**
-	 * @type boolean
+	 * Whether then `snakview`'s value is regarded "valid" at the moment.
+	 * @property {boolean}
+	 * @private
 	 */
 	_isValid: false,
 
 	/**
-	 * @type {wb.store.EntityStore}
-	 */
-	_entityStore: null,
-
-	/**
-	 * @type {wikibase.ValueViewBuilder}
-	 */
-	_valueViewBuilder: null,
-
-	/**
-	 * @see jQuery.Widget._create
+	 * @inheritdoc
+	 * @protected
 	 */
 	_create: function() {
-		// apply template to this.element:
 		PARENT.prototype._create.call( this );
-
-		this._entityStore = this.option( 'entityStore' );
-		this._valueViewBuilder = this.option( 'valueViewBuilder' );
 
 		this._cachedValues = {};
 
-		this.value( this.option( 'value' ) || {} );
+		this.updateVariation();
+
+		// Re-render on previously generated DOM should be avoided. However, when regenerating the
+		// whole snakview, every component needs to be drawn.
+		var propertyIsEmpty = !this.$property.contents().length,
+			snakTypeSelectorIsEmpty = !this.$snakTypeSelector.contents().length,
+			snakValueIsEmpty = !this.$snakValue.contents().length;
+
+		if( propertyIsEmpty && !this._isEncapsulated() ) {
+			this.drawProperty();
+		}
+
+		if( snakTypeSelectorIsEmpty ) {
+			this.drawSnakTypeSelector();
+		}
+
+		if( snakValueIsEmpty ) {
+			this.drawVariation();
+		}
 
 		if( this.option( 'autoStartEditing' ) && !this.snak() ) {
 			// If no Snak is represented, offer UI to build one.
@@ -197,10 +172,33 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * @private
+	 *
+	 * @return {boolean}
+	 */
+	_isEncapsulated: function() {
+		return !!(
+			this.options.encapsulatedBy
+			&& this.element.closest( this.options.encapsulatedBy ).length
+		);
+	},
+
+	/**
+	 * @inheritdoc
+	 * @protected
+	 *
+	 * @throws {Error} when trying to set an invalid value.
 	 */
 	_setOption: function( key, value ) {
-		if ( key === 'locked' && typeof value === 'boolean' ) {
+		if( key === 'value' ) {
+			if(
+				value !== null
+				&& !$.isPlainObject( value ) && !( value instanceof wb.datamodel.Snak )
+			) {
+				throw new Error( 'The given value has to be a plain object, an instance of '
+					+ 'wikibase.datamodel.Snak, or null' );
+			}
+		} else if( key === 'locked' && typeof value === 'boolean' ) {
 			var locked = value;
 			value = $.extend( {}, $.wikibase.snakview.prototype.options.locked );
 			$.each( $.wikibase.snakview.prototype.options.locked, function( k, v ) {
@@ -210,24 +208,32 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
 
-		if( key === 'disabled' ) {
+		if( key === 'value' ) {
+			this.updateVariation();
 			this.draw();
+		} else if( key === 'disabled' ) {
+			var propertySelector = this._getPropertySelector(),
+				snakTypeSelector = this._getSnakTypeSelector();
+
+			if( propertySelector ) {
+				propertySelector.option( 'disabled', key );
+			}
+
+			if( snakTypeSelector ) {
+				snakTypeSelector.option( 'disabled', key );
+			}
+
+			if( this._variation ) {
+				this._variation[value ? 'disable' : 'enable']();
+			}
 		}
 
 		return response;
 	},
 
 	/**
-	 * @return {boolean}
-	 */
-	isDisabled: function() {
-		// Function is required by snakview.ViewState.
-		return this.option( 'disabled' );
-	},
-
-	/**
-	 * Returns an input element with initialized entity selector for selecting entities.
-	 * @since 0.3
+	 * Returns an input element with initialized `entityselector` for selecting entities.
+	 * @private
 	 *
 	 * @return {jQuery}
 	 */
@@ -247,26 +253,22 @@ $.widget( 'wikibase.snakview', PARENT, {
 		.on( 'eachchange', function( event, oldValue ) {
 			// remove out-dated variations
 			if( self._variation ) {
-				self.propertyId( null );
+				self.drawSnakTypeSelector();
+				self.updateVariation();
+				self.drawVariation();
 				self._trigger( 'change' );
 			}
 		} )
 		.on( 'entityselectorselected', function( e, entityId ) {
-			// Display spinner as long as the value view is loading. There is no need to display the
-			// spinner when the selected item actually has not changed since the variation will stay
-			// in place.
-			if( !self._propertyId || self._propertyId !== entityId ) {
-				// Reset the cached property id for re-rendering being triggered as soon as the new
-				// property's attributes have been received:
-				self.propertyId( null );
+			// Display spinner as long as the ValueView is loading:
+			self.$snakValue.empty().append(
+				$( '<div/>' ).append( $( '<span/>' ).addClass( 'mw-small-spinner' ) )
+			);
 
-				self.$snakValue.empty().append(
-					$( '<div/>' ).append( $( '<span/>' ).addClass( 'mw-small-spinner' ) )
-				);
-			}
-
-			self._entityStore.get( entityId ).done( function( entity ) {
-				self.propertyId( entityId );
+			self.options.entityStore.get( entityId ).done( function( entity ) {
+				self.updateVariation();
+				self.drawSnakTypeSelector();
+				self.drawVariation();
 
 				self._trigger( 'change' );
 
@@ -283,7 +285,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * @see $.widget.destroy
+	 * @inheritdoc
 	 */
 	destroy: function() {
 		var snakTypeSelector = this._getSnakTypeSelector();
@@ -295,64 +297,54 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Starts the edit mode where the snak can be edited.
-	 * @since 0.3
-	 *
-	 * @return {undefined} (allows chaining widget calls)
+	 * Starts the widget's edit mode.
 	 */
-	startEditing: $.NativeEventHandler( 'startEditing', {
-		// don't start edit mode or trigger event if in edit mode already:
-		initially: function( e ) {
-			if( this.isInEditMode() ) {
-				e.cancel();
+	startEditing: function() {
+		if( this.isInEditMode() ) {
+			return;
+		}
+
+		var self = this;
+
+		this._isInEditMode = true;
+
+		this.element.on( 'keydown.' + this.widgetName, function( event ) {
+			if ( self.options.disabled ) {
+				return;
 			}
-		},
-		// start edit mode if event doesn't prevent default:
-		natively: function( e ) {
-			var self = this;
 
-			this._initialSnak = this.snak();
-			this._isInEditMode = true;
+			var propertySelector = self._getPropertySelector();
 
-			// attach keyboard input events
-			this.element.on( 'keydown.' + this.widgetName, function( event ) {
-				if ( self.options.disabled ) {
-					return;
-				}
-
-				var propertySelector = self._getPropertySelector();
-
-				if ( event.keyCode === $.ui.keyCode.TAB && !self._variation ) {
-					event.stopPropagation();
-					// When pressing TAB in the property input element while the value input element
-					// does not yet exist, we assume that the user wants to auto-complete/select the
-					// currently suggested property and tab into the value element. Since the API
-					// needs to be queried to construct the correct value input, the intended action
-					// needs to be cached and triggered as soon as the value input has been created.
-					if ( propertySelector && event.target === propertySelector.element[0] ) {
-						if( self._getPropertySelector().selectedEntity() ) {
-							self._tabToValueView = true;
-							event.preventDefault();
-						}
+			if ( event.keyCode === $.ui.keyCode.TAB && !self._variation ) {
+				event.stopPropagation();
+				// When pressing TAB in the property input element while the value input element
+				// does not yet exist, we assume that the user wants to auto-complete/select the
+				// currently suggested property and tab into the value element. Since the API needs
+				// to be queried to construct the correct value input, the intended action needs to
+				// be cached and triggered as soon as the value input has been created.
+				if ( propertySelector && event.target === propertySelector.element[0] ) {
+					if( self._getPropertySelector().selectedEntity() ) {
+						self._tabToValueView = true;
+						event.preventDefault();
 					}
 				}
-			} );
-
-			if( this._variation ) {
-				$( this._variation ).one( 'afterstartediting', function() {
-					self._trigger( 'afterstartediting' );
-				} );
-				this.draw();
-				this._variation.startEditing();
-			} else {
-				this.draw();
-				this._trigger( 'afterstartediting' );
 			}
+		} );
+
+		if( this._variation ) {
+			$( this._variation ).one( 'afterstartediting', function() {
+				self._trigger( 'afterstartediting' );
+			} );
+			this.draw();
+			this._variation.startEditing();
+		} else {
+			this.draw();
+			this._trigger( 'afterstartediting' );
 		}
-	} ),
+	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
 		if( this._variation && this._variation.isFocusable() ) {
@@ -368,66 +360,53 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Ends the edit mode where the snak can be edited.
-	 * @since 0.3
+	 * Stops the widget's edit mode.
 	 *
-	 * @param {Boolean} [dropValue] If true, the value from before edit mode has been started will
-	 *        be reinstated. false by default. Consider using cancelEditing() instead.
-	 * @return {undefined} (allows chaining widget calls)
+	 * @param {boolean} [dropValue=false] If `true`, the widget's value will be reset to the one
+	 *        from before edit mode was started.
 	 */
-	stopEditing: $.NativeEventHandler( 'stopEditing', {
-		// don't stop edit mode or trigger event if not in edit mode currently:
-		initially: function( e, dropValue ) {
-			if( !this.isInEditMode() ) {
-				e.cancel();
-			}
-			var snak;
-
-			if( dropValue ) {
-				// cancel edit, or no variation, e.g. because no valid data type is chosen
-				snak = this._initialSnak;
-			} else if( !this._variation ) {
-				snak = null;
-			} else {
-				snak = this.snak();
-			}
-
-			e.handlerArgs = [ !!dropValue, snak ];
-		},
-		// start edit mode if custom event handlers didn't prevent default:
-		natively: function( e, dropValue, newSnak ) {
-			this._isInEditMode = false;
-			this._initialSnak = null;
-
-			if( this._variation ) {
-				this._variation.stopEditing( dropValue );
-			}
-
-			// update view; will remove edit interfaces and represent value statically
-			this._setValue( newSnak !== null ? this._serializeSnak( newSnak ) : {} ); // triggers this.draw()
-			// TODO: should throw an error somewhere when trying to leave edit mode while
-			//  this.snak() still returns null. For now setting {} is a simple solution for non-
-			//  existent error handling in the snak UI
-
-			this.element.off( 'keydown.' + this.widgetName );
-
-			this._trigger( 'afterStopEditing', null, [ dropValue, newSnak ] );
+	stopEditing: function( dropValue ) {
+		if( !this.isInEditMode() ) {
+			return;
 		}
-	} ),
 
-	/**
-	 * short-cut for stopEditing( false ). Closes the edit view and restores the value from before
-	 * the edit mode has been started.
-	 * @since 0.3
-	 *
-	 * @return {undefined} (allows chaining widget calls)
-	 */
-	cancelEditing: function() {
-		return this.stopEditing( true ); // stop editing and drop value
+		var snak = this.snak();
+
+		this._trigger( 'stopediting', null, [dropValue] );
+
+		this._isInEditMode = false;
+
+		if( this._variation ) {
+			this._variation.stopEditing( dropValue );
+
+			if( !dropValue ) {
+				// TODO: "this.snak( this.snak() )" is supposed to work to update the Snak. However,
+				// the Variation asking the ValueView returns null as soon as edit mode is left.
+				this.snak( snak );
+			}
+		}
+
+		if( !this._variation || dropValue ) {
+			this.value( this.options.value );
+		}
+
+		// TODO: Should throw an error somewhere when trying to leave edit mode while this.snak()
+		//  still returns null.
+
+		this.element.off( 'keydown.' + this.widgetName );
+
+		this._trigger( 'afterStopEditing', null, [dropValue] );
 	},
 
 	/**
-	 * Updates this snakview's status.
+	 * Cancels editing. (Short-cut for `stopEditing( true )`.)
+	 */
+	cancelEditing: function() {
+		return this.stopEditing( true );
+	},
+
+	/**
+	 * Updates this `snakview`'s status.
 	 * @since 0.4
 	 *
 	 * @param {string} status May either be 'valid' or 'invalid'
@@ -444,7 +423,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Returns whether the Snak is valid in its current state.
+	 * Returns whether the `snakview`'s `Snak` is valid in its current state.
 	 * @since 0.4
 	 *
 	 * @return {boolean}
@@ -454,43 +433,46 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Returns whether the current snak matches the one the snakview has been initialized with.
-	 *
-	 * TODO/FIXME: think about logic behind true being returned if initial and current Snaks are
-	 *             null. Perhaps a 'hasChanged' or 'isInitialValue' function would be conceptually
-	 *             less confusing, though, different in their result.
-	 *
-	 * @since 0.4
+	 * Returns whether the current value matches the one the `snakview` was initialized with by
+	 * comparing the (deserialized) `Snak` objects of that stages.
+	 * @since 0.5
 	 *
 	 * @return {boolean}
 	 */
-	isInitialSnak: function() {
-		var snak = this.snak(),
-			initialSnak = this.initialSnak();
+	isInitialValue: function() {
+		var currentSnak = this.snak(),
+			initialSnak;
 
-		if( !initialSnak && !snak ) {
-			// no snaks at all, but we consider this situation as having same Snaks anyhow.
+		if( this.options.value instanceof wb.datamodel.Snak ) {
+			initialSnak = this.options.value;
+		} else {
+			var snakDeserializer = new wb.serialization.SnakDeserializer();
+			try {
+				initialSnak = snakDeserializer.deserialize( this.options.value );
+			} catch( e ) {
+				initialSnak = null;
+			}
+		}
+
+		if( !initialSnak && !currentSnak ) {
 			return true;
 		}
-		return snak && snak.equals( initialSnak );
+		return currentSnak && currentSnak.equals( initialSnak );
 	},
 
 	/**
-	 * Returns whether the Snak is editable at the moment.
-	 * @since 0.3
-	 *
-	 * @return Boolean
+	 * @return {boolean}
 	 */
 	isInEditMode: function() {
 		return this._isInEditMode;
 	},
 
 	/**
-	 * Returns the property selector for choosing the Snak's property. Returns null if the Snak is
-	 * created already and has a Property (once created, the Property is immutable).
-	 * @since 0.3
+	 * Returns the `entityselector` for choosing the `Snak`'s `Property`. Returns `null` if the
+	 * `Snak` is created and has a `Property` already. (Once created, the `Property` is immutable.)
+	 * @private
 	 *
-	 * @return $.wikibase.entityselector|null
+	 * @return {jQuery.wikibase.entityselector|null}
 	 */
 	_getPropertySelector: function() {
 		if( this.$property ) {
@@ -500,11 +482,11 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Returns the Snak type selector for choosing the Snak's type. Returns null if the Snak is
-	 * created already and has a Property (once created, the Property is immutable).
-	 * @since 0.3
+	 * Returns the `snaktypeselector` for choosing the `Snak`'s type. Returns `null` if the `Snak`
+	 * is created and has a `Property` already. (Once created, the `Property` is immutable.)
+	 * @private
 	 *
-	 * @return $.wikibase.snakview.SnakTypeSelector|null
+	 * @return {jQuery.wikibase.snakview.SnakTypeSelector|null}
 	 */
 	_getSnakTypeSelector: function() {
 		if( this.$snakTypeSelector ) {
@@ -514,234 +496,174 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Returns the initial value from before edit mode has been entered. If not in edit mode, this
-	 * will return the same as value().
+	 * Returns an object representing the currently displayed `Snak`. This is equivalent to the JSON
+	 * structure of a `Snak`, except that it does not have to be complete. For example, for a
+	 * `PropertyValueSnak` where only the `Property` and `Snak` type are specified, but the value
+	 * has not yet been supplied, the returned object would not have a field for the value either.
 	 *
-	 * @return {Object}
-	 */
-	initialValue: function() {
-		return this.isInEditMode() ? this._serializeSnak( this.initialSnak() ) : this._getValue();
-	},
-
-	/**
-	 * Just like initialValue() but returns a Snak object or null if there was no Snak set before
-	 * edit mode.
-	 *
-	 * @return {wb.datamodel.Snak|null}
-	 */
-	initialSnak: function() {
-		return this.isInEditMode() ? this._initialSnak : this.snak();
-	},
-
-	/**
-	 * Returns an object representing the currently displayed Snak. This is equivalent to the JSON
-	 * structure of a Snak, except that it does not have to be complete. For example for a
-	 * PropertyValueSnak where only the property and snak types are chosen but the value has not
-	 * been entered yet, the returned Object would not have a field for the value either.
-	 *
-	 * @since 0.3
-	 *
-	 * @param {Object|wb.datamodel.Snak|null} [value]
-	 * @return {wb.datamodel.Snak|null|undefined} undefined in case value() is called to set the value
+	 * @param {Object|wikibase.datamodel.Snak|null} [value]
+	 * @return {wikibase.datamodel.Snak|Object|undefined} `undefined` in case `value()` is called to
+	 *         set the value.
 	 */
 	value: function( value ) {
-		if( value === undefined ) {
-			return this._getValue();
+		if( value !== undefined ) {
+			this.option( 'value', value );
+			return;
 		}
-		if( value !== null && typeof value !== 'object' ) {
-			throw new Error( 'The given value has to be a plain object, an instance of' +
-				' wikibase.datamodel.Snak, or null' );
+
+		var snakSerializer = new wikibase.serialization.SnakSerializer(),
+			serialization = this.options.value instanceof wb.datamodel.Snak
+				? snakSerializer.serialize( this.options.value )
+				: this.options.value;
+
+		if( !this.isInEditMode() ) {
+			return serialization;
 		}
-		this._setValue( ( value instanceof wb.datamodel.Snak ) ? this._serializeSnak( value ) : value );
+
+		value = {};
+
+		if( this.options.locked.property && serialization.property !== undefined ) {
+			value.property = serialization.property;
+		} else if( !this.options.locked.property ) {
+			var propertySelector = this._getPropertySelector(),
+				propertyStub = propertySelector && propertySelector.selectedEntity();
+			if( propertyStub && propertyStub.id !== undefined ) {
+				value.property = propertyStub.id;
+			}
+		}
+
+		if( this.options.locked.snaktype && serialization.snaktype !== undefined ) {
+			value.snaktype = serialization.snaktype;
+		} else if( !this.options.locked.snaktype ) {
+			var snakTypeSelector = this._getSnakTypeSelector(),
+				snakType = snakTypeSelector && snakTypeSelector.snakType();
+			if( snakType ) {
+				value.snaktype = snakType;
+			}
+		}
+
+		return this._variation ? $.extend( this._variation.value(), value ) : value;
 	},
 
 	/**
-	 * @param {wikibase.datamodel.Snak} value
-	 * @return {Object}
-	 */
-	_serializeSnak: function( snak ) {
-		var snakSerializer = new wikibase.serialization.SnakSerializer();
-		return snakSerializer.serialize( snak );
-	},
-
-	/**
-	 * Private getter for this.value()
-	 * @since 0.3
-	 *
-	 * @return Object
-	 */
-	_getValue: function() {
-		var value = {
-			property: this.propertyId(),
-			snaktype: this.snakType()
-		};
-
-		if( !this._variation ) {
-			return value;
-		}
-
-		return $.extend( this._variation.value(), value );
-	},
-
-	/**
-	 * Will update the view to represent a given Snak in form of a plain Object. The given object
-	 * can have all fields - or a subset of fields - a serialized wb.datamodel.Snak would have.
-	 *
-	 * @since 0.4
-	 *
-	 * @param {Object|null} value
-	 */
-	_setValue: function( value ) {
-		if( this._snakType && this._variation ) {
-			this._cachedValues[this._snakType] = this._variation.value();
-		}
-
-		value = value || {};
-
-		this._propertyId = value.property || null;
-		this._snakType = value.snaktype || null ;
-
-		this._updateVariation();
-
-		if( this._variation ) {
-			// give other Snak information to variation object. Remove basic info since these should
-			// rather be accessed via the variation's ViewState object. Also, use a fresh object so
-			// the given object doesn't change for outside world.
-			var valueCopy = $.extend( {}, value );
-			delete valueCopy.property;
-			delete valueCopy.snaktype;
-
-			this._variation.value( valueCopy );
-		}
-
-		this.draw();
-	},
-
-	/**
-	 * Updates specifics of the value.
-	 *
-	 * @param {Object} changes
-	 */
-	_updateValue: function( changes ) {
-		this._setValue( $.extend( this._getValue(), changes ) );
-	},
-
-	/**
-	 * Returns the current Snak represented by the view or null in case the view is in edit mode,
-	 * also allows to set the view to represent a given Snak.
-	 *
+	 * If a `wikibase.datamodel.Snak` instance is passed, the `snakview` is updated to represent the
+	 * `Snak`. If no parameter is supplied, the current `Snak` represented by the `snakview` is
+	 * returned.
 	 * @since 0.4
 	 *
 	 * @param {wikibase.datamodel.Snak|null} [snak]
-	 * @return {wikibase.datamodel.Snak|null}
+	 * @return {wikibase.datamodel.Snak|null|undefined}
 	 */
 	snak: function( snak ) {
-		if( snak === undefined ) {
-			// factory method will fail when essential data is not yet defined!
-			// TODO: variations should have a function to ask whether fully defined yet
-			try {
-				// NOTE: can still be null if user didn't enter essential information in variation's UI
-				var value = this.value();
-				if( value.datavalue ) {
-					value.datavalue = {
-						type: value.datavalue.getType(),
-						value: value.datavalue.toJSON()
-					};
-				}
-				return ( new wb.serialization.SnakDeserializer() ).deserialize( value );
-			} catch( e ) {
-				return null;
-			}
-			// TODO: have a cached version of that snak! Not only for performance, but also to allow
-			//  x.snak() === x.snak() which would return false because a new instance of wb.datamodel.Snak
-			//  would be factored on each call. On the other hand, wb.datamodel.Snak.equals() should be used.
-			// NOTE: One possibility would be to use the Flyweight pattern in wb.datamodel.Snak factories.
+		if( snak !== undefined ) {
+			this.value( snak || {} );
+			return;
 		}
-		if( snak !== null && !( snak instanceof wb.datamodel.Snak ) ) {
-			throw new Error( 'The given value has to be null or an instance of wikibase.datamodel.Snak' );
+
+		var value = this.value();
+		if( value.datavalue instanceof dv.DataValue ) {
+			value.datavalue = {
+				type: value.datavalue.getType(),
+				value: value.datavalue.toJSON()
+			};
 		}
-		return this.value( snak );
+
+		var snakDeserializer =  new wb.serialization.SnakDeserializer();
+		try {
+			return snakDeserializer.deserialize( value );
+		} catch( e ) {
+			return null;
+		}
 	},
 
 	/**
-	 * Returns the property ID of the property chosen for this Snak or null if none is set.
-	 * Equal to .value().getPropertyId() but might be set while .value() still returns null, e.g.
-	 * if property has been selected or pre-defined while value or Snak type are not yet set.
-	 *
+	 * Sets/Gets the ID of the `Property` for the `Snak` represented by the `snakview`. If no
+	 * `Property` is set, `null` is returned.
 	 * @since 0.3 (setter since 0.4)
 	 *
-	 * @return String|null
+	 * @param {string|null} [propertyId]
+	 * @return {string|null|undefined}
 	 */
 	propertyId: function( propertyId ) {
 		if( propertyId === undefined ) {
-			return this._propertyId;
-		}
-		if( propertyId !== this._propertyId ) {
-			this._updateValue( {
-				property: propertyId
-			} );
+			return this.value().property || null;
+		} else {
+			var value = this.value();
+
+			if( propertyId !== value.property ) {
+				if( propertyId === null ) {
+					delete value.property;
+				} else {
+					value.property = propertyId;
+				}
+				this.option( 'value', value );
+			}
 		}
 	},
 
 	/**
-	 * Returns the Snak type ID in use for the Snak represented by the view or null if not defined.
-	 * Equal to .value().getType() but might be set while .value() still returns null, e.g. if
-	 * Snak type has been selected or pre-defined while other required information for constructing
-	 * the Snak object has not been defined yet.
-	 * If the first parameter is set, it will replace the current Snak type.
-	 *
+	 * Sets/Gets the ID of the `Snak` type for the `Snak` represented by the `snakview`. If no
+	 * `Snak` type is set, `null` is returned.
+	 * @see wikibase.datamodel.Snak.TYPE
 	 * @since 0.4
 	 *
-	 * @param {String|null} [snakType]
-	 * @return String|null
+	 * @param {string|null} [snakType]
+	 * @return {string|null|undefined}
 	 */
 	snakType: function( snakType ) {
+		var value = this.value();
+
 		if( snakType === undefined ) {
-			return this._snakType;
+			return value.snaktype || null;
+		} else if( snakType === value.snaktype ) {
+			return;
 		}
-		if( snakType !== this._snakType ) {
+
+		if( snakType === null ) {
+			delete value.snaktype;
+		} else {
 			// TODO: check whether given snak type is actually valid!
-			var changes = {
-				snaktype: snakType
-			};
-
-			if( this._cachedValues[snakType] && this._cachedValues[snakType].datavalue ) {
-				$.extend( changes, {
-					datavalue: {
-						type: this._cachedValues[snakType].datavalue.getType(),
-						value: this._cachedValues[snakType].datavalue.toJSON()
-					}
-				} );
-			}
-
-			this._updateValue( changes );
+			value.snaktype = snakType;
 		}
+
+		this.option( 'value', value );
 	},
 
 	/**
-	 * Returns the jQuery.snakview variation object required for presenting the current Snak type.
-	 * If a Snak type has not been defined yet, this will return null.
+	 * Returns the `snakview`'s `Variation` object required for presenting the current `Snak` type.
+	 * If a `Snak` type has not been defined yet, `null` is returned.
 	 * @since 0.4
 	 *
-	 * @return {$.wikibase.snakview.variations.Variation|null}
+	 * @return {jQuery.wikibase.snakview.variations.Variation|null}
 	 */
 	variation: function() {
 		return this._variation;
 	},
 
 	/**
-	 * Checks whether the Snak type has been changed by the user and will build a new variation
-	 * object for that type if necessary.
-	 * @since 0.4
+	 * Updates the `Variation` according to the widget's current value.
+	 * @since 0.5
 	 */
-	_updateVariation: function() {
-		var variationsFactory = $.wikibase.snakview.variations,
-			snakType = this._snakType,
-			VariationConstructor = variationsFactory.getVariation( snakType );
+	updateVariation: function() {
+		var value = this.value(),
+			propertyId = value ? value.property : null,
+			snakType = value ? value.snaktype : null,
+			variationsFactory = $.wikibase.snakview.variations,
+			VariationConstructor = snakType ? variationsFactory.getVariation( snakType ) : null;
 
 		if( this._variation
-			&& ( !this._propertyId || this._variation.constructor !== VariationConstructor )
+			&& ( !propertyId || this._variation.constructor !== VariationConstructor )
 		) {
+			var variationValue = this._variation.value();
+
+			if( variationValue.datavalue ) {
+				variationValue.datavalue = {
+					type: variationValue.datavalue.getType(),
+					value: variationValue.datavalue.toJSON()
+				};
+			}
+
+			this._cachedValues[this._variation.variationSnakConstructor.TYPE] = variationValue;
 
 			this.$snakValue.empty();
 
@@ -750,91 +672,163 @@ $.widget( 'wikibase.snakview', PARENT, {
 			this._variation = null;
 		}
 
-		if( !this._variation && this._propertyId && VariationConstructor ) {
+		if( !this._variation && propertyId && VariationConstructor ) {
 			// Snak type has changed so we need another variation Object!
 			this._variation = new VariationConstructor(
 				new $.wikibase.snakview.ViewState( this ),
 				this.$snakValue,
-				this._entityStore,
-				this._valueViewBuilder,
+				this.options.entityStore,
+				this.options.valueViewBuilder,
 				this.options.dataTypeStore
 			);
+
+			if( !value.datavalue
+				&& this._cachedValues[snakType] && this._cachedValues[snakType].datavalue
+			) {
+				value.datavalue = $.extend( {}, this._cachedValues[snakType].datavalue );
+			}
+
+			// Update Variation with fields not directly managed by the snakview. If necessary
+			// within the Variation, those fields should be accessed via the Variation's
+			// ViewState object.
+			var serializationCopy = $.extend( {}, value );
+			delete serializationCopy.property;
+			delete serializationCopy.snaktype;
+			this._variation.value( serializationCopy );
 		}
 	},
 
 	/**
-	 * Will render the view's current state (does consider edit mode, current value, etc.).
+	 * (Re-)renders the widget.
 	 * @since 0.4
 	 */
 	draw: function() {
-		var self = this;
-
-		// NOTE: Order of these shouldn't matter; If for any reasons draw functions start changing
-		//  the outcome of the variation (or Snak type), then something must be incredibly wrong!
-		if( this._propertyId ) {
-			this._entityStore.get( this._propertyId ).done( function( fetchedProperty ) {
-				self.drawProperty(
-					fetchedProperty ? fetchedProperty.getContent() : null,
-					fetchedProperty ? fetchedProperty.getTitle() : null
-				);
-			} );
-		} else {
-			this.drawProperty( null, null );
-		}
+		this.drawProperty();
 		this.drawSnakTypeSelector();
 		this.drawVariation();
 	},
 
 	/**
-	 * Will make sure the current Snak's property is displayed properly. If not Snak is set, then
-	 * this will serve the input form for the Snak's property.
-	 * @since 0.4
+	 * (Re-)renders the Property DOM structure according to the current value. The `Property` DOM
+	 * is not (re-)rendered if changing the `Property` is locked via the `locked` option and
+	 * previously generated HTML is detected.
+	 * @since 0.5
 	 *
-	 * @param {wb.datamodel.Property|null} property
-	 * @param {mediawiki.Title|null} title Only null if property is null
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {Function} return.fail
 	 */
-	drawProperty: function( property, title ) {
-		var $propertyDom, propertyId = this._propertyId;
+	drawProperty: function() {
+		var self = this,
+			deferred = $.Deferred(),
+			propertyId = this.value().property;
+
+		if( this.options.locked.property
+			&& ( this.$property.contents().length || this._isEncapsulated() )
+		) {
+			return deferred.resolve().promise();
+		}
+
+		this._getPropertyDOM( propertyId )
+		.done( function( $property ) {
+			self.$property.empty().append( $property );
+			deferred.resolve();
+		} )
+		.fail( function() {
+			self.$property.empty().text( propertyId );
+			deferred.reject();
+		} );
+
+		return deferred.promise();
+	},
+
+	/**
+	 * Retrieves the DOM structure representing the `Property` of the `Snak` represented by the
+	 * `snakview`.
+	 * @private
+	 *
+	 * @param {string} [propertyId]
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {jQuery} return.$property
+	 * @return {Function} return.fail
+	 */
+	_getPropertyDOM: function( propertyId ) {
+		var self = this,
+			deferred = $.Deferred();
+
+		if( propertyId ) {
+			this.options.entityStore.get( propertyId )
+			.done( function( fetchedProperty ) {
+				deferred.resolve( self._createPropertyDOM(
+					fetchedProperty ? fetchedProperty.getContent() : undefined,
+					fetchedProperty ? fetchedProperty.getTitle() : undefined
+				) );
+			} )
+			.fail( deferred.reject );
+		} else {
+			deferred.resolve( this._createPropertyDOM() );
+		}
+
+		return deferred.promise();
+	},
+
+	/**
+	 * Creates the DOM structure specific for a `Property`-`Title` combination, a generic DOM
+	 * structure or an input element if parameters are omitted.
+	 * @private
+	 *
+	 * @param {wikibase.datamodel.Property} [property] `Property` object or `Property` id. Returns
+	 *        generic DOM structure if omitted.
+	 * @param {mediawiki.Title} [title]
+	 * @return {jQuery}
+	 */
+	_createPropertyDOM: function( property, title ) {
+		var $propertyDom;
 
 		if( this.options.locked.property || !this.isInEditMode() ) {
-			// property set and can't be changed afterwards, only display label
-			$propertyDom = property
+			// Property is set already and cannot be changed, display label only:
+			$propertyDom = property instanceof wb.datamodel.Property
 				? wb.utilities.ui.buildLinkToEntityPage( property, title )
 				// shouldn't usually happen, only in non-edit mode, while no Snak is set:
-				: wb.utilities.ui.buildMissingEntityInfo( propertyId, wb.datamodel.Property );
+				: wb.utilities.ui.buildMissingEntityInfo( property, wb.datamodel.Property );
 		} else {
-			// no property set for this Snak, serve edit view to specify it:
+			// No Property set for this Snak, serve edit view to specify it:
 			var propertySelector = this._getPropertySelector(),
-				propertyLabel = wb.utilities.ui.buildPrettyEntityLabelText( property );
+				propertyLabel = property instanceof wb.datamodel.Property
+					? wb.utilities.ui.buildPrettyEntityLabelText( property )
+					: property;
 
 			// TODO: use selectedEntity() or other command to set selected entity in both cases!
-			if( propertySelector && property ) {
+			if( propertySelector ) {
 				// property selector in DOM already, just replace current value
 				var currentValue = propertySelector.widget().val();
 				// Impose case-insensitivity:
 				if( propertyLabel.toLowerCase() !== currentValue.toLocaleLowerCase() ) {
 					propertySelector.widget().val( propertyLabel );
 				}
-				return;
-			} else if( !propertySelector ) {
-				// Create property selector and set value:
+			} else {
 				$propertyDom = this._buildPropertySelector().val( propertyLabel );
 
 				// propagate snakview state:
 				$propertyDom.data( 'entityselector' ).option( 'disabled', this.options.disabled );
-			} else {
-				return;
 			}
 		}
 
-		this.$property.empty().append( $propertyDom );
+		return $propertyDom;
 	},
 
 	/**
-	 * Will update the selector for choosing the Snak type to represent the currently chosen type.
+	 * Updates the `SnakTypeSelector` for choosing the `Snak` type. The `SnakTypeSelector` DOM
+	 * is not (re-)rendered if changing the `Snak` type is locked via the `locked` option and
+	 * previously generated HTML is detected.
 	 * @since 0.4
 	 */
 	drawSnakTypeSelector: function() {
+		if( this.options.locked.snaktype && this.$snakTypeSelector.contents().length ) {
+			return;
+		}
+
 		var snakTypes = $.wikibase.snakview.variations.getCoveredSnakTypes(),
 			selector = this._getSnakTypeSelector();
 
@@ -857,30 +851,29 @@ $.widget( 'wikibase.snakview', PARENT, {
 		}
 
 		// mark current Snak type as chosen one in the menu:
-		selector.snakType( this.snakType() );
+		selector.snakType(
+			this.options.value instanceof wb.datamodel.Snak
+				? this.options.value.getType()
+				: this.options.value.snaktype
+		);
 
 		// only show selector if a property is chosen:
-		this.$snakTypeSelector[ ( this._propertyId ? 'show' : 'hide' ) ]();
+		this.$snakTypeSelector[ ( this.value().property ? 'show' : 'hide' ) ]();
 
 		// propagate snakview state:
-		if ( this.options.disabled ) {
-			selector.disable();
-		} else {
-			selector.enable();
-		}
+		selector.option( 'disabled', this.options.disabled );
 	},
 
 	/**
-	 * Convenience function for this.variation().draw( ... ), does not require additional check
-	 * whether the variation is null.
-	 *
+	 * Renders the `Variation` or placeholder text if no proper `Variation` is available.
 	 * @since 0.4
 	 */
 	drawVariation: function() {
 		// property ID will be null if not in edit mode and no Snak set or if in edit mode and user
 		// didn't choose property yet.
-		var propertyId = this._propertyId,
-			self = this;
+		var self = this,
+			value = this.value(),
+			propertyId = value ? value.property : null;
 
 		if( propertyId && this._variation ) {
 			$( this._variation ).one( 'afterdraw', function() {
@@ -901,13 +894,13 @@ $.widget( 'wikibase.snakview', PARENT, {
 				// NOTE: instead of doing this here and checking everywhere whether this._variation
 				//  is set, we could as well use variations for displaying system messages like
 				//  this, e.g. having a UnsupportedSnakType variation which is not registered for a
-				//  specific snak type but is known to _updateVariation().
+				//  specific snak type but is known to updateVariation().
 			}
 		}
 	},
 
 	/**
-	 * Returns the DOM of the Snak type selector for choosing what kind of Snak this is.
+	 * @private
 	 * @since 0.4
 	 *
 	 * @return {jQuery}
@@ -922,24 +915,22 @@ $.widget( 'wikibase.snakview', PARENT, {
 		// ...add the data information nevertheless:
 		$anchor.data( 'snaktypeselector', selector );
 
-		var changeEvent = ( selector.widgetEventPrefix + 'afterchange' ).toLowerCase();
+		var changeEvent = ( selector.widgetEventPrefix + 'change' ).toLowerCase();
 
 		// bind user interaction on selector to snakview's state:
 		$anchor.on( changeEvent + '.' + this.widgetName, function( event ) {
-			self.snakType( selector.snakType() );
+			self.updateVariation();
+			self.drawVariation();
 			if( self._variation ) {
 				self._variation.focus();
 			}
-			if ( self.snak() ) {
-				self._trigger( 'change' );
-			}
+			self._trigger( 'change' );
 		} );
 
 		return $anchor;
 	},
 
 	/**
-	 * Hides the property label.
 	 * @since 0.5
 	 */
 	hidePropertyLabel: function() {
@@ -947,7 +938,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Shows the property label.
 	 * @since 0.5
 	 */
 	showPropertyLabel: function() {
@@ -955,7 +945,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 	},
 
 	/**
-	 * Returns whether the property label is currently visible.
+	 * Returns whether the property label currently is visible.
 	 * @since 0.5
 	 */
 	propertyLabelIsVisible: function() {
@@ -963,10 +953,6 @@ $.widget( 'wikibase.snakview', PARENT, {
 	}
 } );
 
-// We have to override this here because $.widget sets it no matter what's in
-// the prototype
-$.wikibase.snakview.prototype.widgetBaseClass = 'wb-snakview';
-
 $.extend( $.wikibase.snakview, existingSnakview );
 
-}( mediaWiki, wikibase, jQuery ) );
+}( mediaWiki, wikibase, jQuery, dataValues ) );

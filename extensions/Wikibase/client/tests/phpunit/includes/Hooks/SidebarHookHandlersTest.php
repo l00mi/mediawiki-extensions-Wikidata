@@ -4,12 +4,9 @@ namespace Wikibase\Client\Tests\Hooks;
 
 use IContextSource;
 use Language;
-use MediaWikiSite;
 use OutputPage;
 use ParserOutput;
 use RequestContext;
-use Site;
-use SiteStore;
 use Skin;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
@@ -24,7 +21,6 @@ use Wikibase\NamespaceChecker;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\Test\MockRepository;
-use Wikibase\Test\MockSiteStore;
 
 /**
  * @covers Wikibase\Client\Hooks\SidebarHookHandlers
@@ -38,43 +34,8 @@ use Wikibase\Test\MockSiteStore;
  */
 class SidebarHookHandlersTest extends \MediaWikiTestCase {
 
-	/**
-	 * @param string $globalId
-	 * @param string $group
-	 * @param $language
-	 *
-	 * @return Site
-	 */
-	private function newSite( $globalId, $group, $language ) {
-		$site = new MediaWikiSite();
-		$site->setGlobalId( $globalId );
-		$site->setGroup( $group );
-		$site->setLanguageCode( $language );
-		$site->addNavigationId( $language );
-		$site->setPagePath( 'wiki/' );
-		$site->setFilePath( 'w/' );
-		$site->setLinkPath( 'http://' . $globalId . '.test.com/wiki/$1' );
-
-		return $site;
-	}
-
-	/**
-	 * @return SiteStore
-	 */
-	private function getSiteStore() {
-		$siteStore = new MockSiteStore( array(
-			$this->newSite( 'wikidatawiki', 'wikidata', 'en' ),
-			$this->newSite( 'commonswiki', 'commons', 'en' ),
-			$this->newSite( 'enwiki', 'wikipedia', 'en' ),
-			$this->newSite( 'dewiki', 'wikipedia', 'de' ),
-		) );
-
-		return $siteStore;
-	}
-
 	private function getBadgeItem() {
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q17' ) );
+		$item = new Item( new ItemId( 'Q17' ) );
 		$item->setLabel( 'de', 'exzellent' );
 		$item->setLabel( 'en', 'featured' );
 
@@ -88,8 +49,7 @@ class SidebarHookHandlersTest extends \MediaWikiTestCase {
 	 * @return Item
 	 */
 	private function newItem( ItemId $id, $links ) {
-		$item = Item::newEmpty();
-		$item->setId( $id );
+		$item = new Item( $id );
 
 		foreach ( $links as $link ) {
 			$item->addSiteLink( $link );
@@ -196,11 +156,8 @@ class SidebarHookHandlersTest extends \MediaWikiTestCase {
 		$en = Language::factory( 'en' );
 		$settings = $this->newSettings( $settings );
 
-		$siteGroup = $settings->getSetting( 'languageLinkSiteGroup' );
 		$namespaces = $settings->getSetting( 'namespaces' );
-
 		$namespaceChecker = new NamespaceChecker( array(), $namespaces );
-		$siteStore = $this->getSiteStore();
 
 		$mockRepo = $this->getMockRepository( $siteLinksPerItem );
 		$mockRepo->putEntity( $this->getBadgeItem() );

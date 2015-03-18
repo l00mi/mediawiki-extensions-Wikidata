@@ -3,10 +3,10 @@
 namespace Wikibase\Test;
 
 use MediaWikiTestCase;
-use ValueFormatters\FormatterOptions;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\ItemDisambiguation;
+use Wikibase\Lib\LanguageNameLookup;
 
 /**
  * @covers Wikibase\ItemDisambiguation
@@ -15,11 +15,12 @@ use Wikibase\ItemDisambiguation;
  * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class ItemDisambiguationTest extends \PHPUnit_Framework_TestCase {
+class ItemDisambiguationTest extends \MediaWikiTestCase {
 
 	/**
 	 * @param string $searchLanguageCode
@@ -31,7 +32,7 @@ class ItemDisambiguationTest extends \PHPUnit_Framework_TestCase {
 		$entityIdFormatter = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
 
 		$entityIdFormatter->expects( $this->any() )
-			->method( 'format' )
+			->method( 'formatEntityId' )
 			->will( $this->returnCallback( function( ItemId $itemId ) {
 				return $itemId->getSerialization();
 			} ) );
@@ -39,23 +40,21 @@ class ItemDisambiguationTest extends \PHPUnit_Framework_TestCase {
 		return new ItemDisambiguation(
 			$searchLanguageCode,
 			$userLanguageCode,
+			new LanguageNameLookup(),
 			$entityIdFormatter
 		);
 	}
 
 	public function getHTMLProvider() {
-		$one = Item::newEmpty();
-		$one->setId( new ItemId( 'Q1' ) );
+		$one = new Item( new ItemId( 'Q1' ) );
 		$one->setLabel( 'en', 'one' );
 		$one->setLabel( 'de', 'eins' );
 		$one->setDescription( 'en', 'number' );
 		$one->setDescription( 'de', 'Zahl' );
 
-		$oneone = Item::newEmpty();
-		$oneone->setId( new ItemId( 'Q11' ) );
+		$oneone = new Item( new ItemId( 'Q11' ) );
 		$oneone->setLabel( 'en', 'oneone' );
 		$oneone->setLabel( 'de', 'einseins' );
-
 
 		$cases = array();
 		$matchers = array();

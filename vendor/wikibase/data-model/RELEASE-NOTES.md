@@ -1,23 +1,32 @@
 # Wikibase DataModel release notes
 
+## Version 2.6.0 (2015-03-08)
+
+* Added `Reference::isEmpty`
+* Empty strings are now detected as invalid in the `SiteLink` constructor
+* Empty References are now ignored when added to `ReferenceList`
+* The `ReferenceList` constructor now throws an `InvalidArgumentException` when getting a non-iterable input
+* The `SnakList` constructor now throws an `InvalidArgumentException` when getting a non-iterable input
+* The `AliasGroup::equals` and `Term::equals` methods no longer incorrectly return true for fallback objects
+
 ## Version 2.5.0 (2014-01-20)
 
-* Added `TermList::getWithLanguages`
-* Added `AliasGroupList::getWithLanguages`
-* Added `AliasGroupList::toTextArray`
-* Added `SiteLinkList::toArray`
-* Added `SiteLinkList::setSiteLink`
-* Added `SiteLinkList::setNewSiteLink`
-* Added `ItemIdSet::getSerializations`
 * Added `ItemLookup` and `PropertyLookup` interfaces
 * Added `ItemNotFoundException`
+* Added `AliasGroupList::getWithLanguages`
+* Added `AliasGroupList::toTextArray`
+* Added `ItemIdSet::getSerializations`
+* Added `SiteLinkList::setNewSiteLink`
+* Added `SiteLinkList::setSiteLink`
+* Added `SiteLinkList::toArray`
+* Added `TermList::getWithLanguages`
 * Empty strings are now detected as invalid language codes in the term classes
-* Made the `Item` constructor parameters optional
-* Made the `Fingerprint` constructor parameters optional
-* Made the `Property` constructors fingerprint parameter optional
-* Deprecated `Item::newEmpty` in favour of `new Item()`
-* Deprecated `Fingerprint::newEmpty` in favour of `new Fingerprint()`
+* Made all `Fingerprint` constructor parameters optional
+* Made all `Item` constructor parameters optional
+* Made the `Property` constructor's fingerprint parameter nullable
 * The `StatementList` constructor now accepts `Statement` objects in variable-length argument list format
+* Deprecated `Fingerprint::newEmpty` in favour of `new Fingerprint()`
+* Deprecated `Item::newEmpty` in favour of `new Item()`
 * Added PHPCS support
 
 ## Version 2.4.1 (2014-11-26)

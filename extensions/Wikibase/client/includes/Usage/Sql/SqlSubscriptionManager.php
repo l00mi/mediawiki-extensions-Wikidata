@@ -3,17 +3,17 @@
 namespace Wikibase\Client\Usage\Sql;
 
 use DatabaseBase;
-use Exception;
 use DBError;
+use Exception;
 use InvalidArgumentException;
 use ResultWrapper;
-use Wikibase\Client\Store\Sql\ConnectionManager;
+use Wikibase\Client\Store\Sql\ConsistentReadConnectionManager;
 use Wikibase\Client\Usage\SubscriptionManager;
 use Wikibase\Client\Usage\UsageTrackerException;
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
- * SubascriptionManager implementation backed by an SQL table.
+ * SubscriptionManager implementation backed by an SQL table.
  *
  * @see docs/usagetracking.wiki
  *
@@ -23,14 +23,14 @@ use Wikibase\DataModel\Entity\EntityId;
 class SqlSubscriptionManager implements SubscriptionManager {
 
 	/**
-	 * @var ConnectionManager
+	 * @var ConsistentReadConnectionManager
 	 */
 	private $connectionManager;
 
 	/**
-	 * @param ConnectionManager $connectionManager
+	 * @param ConsistentReadConnectionManager $connectionManager
 	 */
-	public function __construct( ConnectionManager $connectionManager ) {
+	public function __construct( ConsistentReadConnectionManager $connectionManager ) {
 		$this->connectionManager = $connectionManager;
 	}
 
@@ -46,10 +46,14 @@ class SqlSubscriptionManager implements SubscriptionManager {
 	}
 
 	/**
-	 * @see SubscriptionManager::subscribe()
+	 * @see SubscriptionManager::subscribe
 	 *
 	 * @param string $subscriber
-	 * @param EntityId[]
+	 * @param EntityId[] $entityIds
+	 *
+	 * @throws InvalidArgumentException
+	 * @throws UsageTrackerException
+	 * @throws Exception
 	 */
 	public function subscribe( $subscriber, array $entityIds ) {
 		if ( !is_string( $subscriber ) ) {
@@ -77,10 +81,14 @@ class SqlSubscriptionManager implements SubscriptionManager {
 	}
 
 	/**
-	 * @see SubscriptionManager::unsubscribe()
+	 * @see SubscriptionManager::unsubscribe
 	 *
 	 * @param string $subscriber Global site ID of the client
 	 * @param EntityId[] $entityIds The entities to subscribe to.
+	 *
+	 * @throws InvalidArgumentException
+	 * @throws UsageTrackerException
+	 * @throws Exception
 	 */
 	public function unsubscribe( $subscriber, array $entityIds ) {
 		if ( !is_string( $subscriber ) ) {
@@ -148,7 +156,7 @@ class SqlSubscriptionManager implements SubscriptionManager {
 			'wb_changes_subscription',
 			$rows,
 			__METHOD__,
-			array ( 'IGNORE' )
+			array( 'IGNORE' )
 		);
 	}
 
@@ -209,4 +217,5 @@ class SqlSubscriptionManager implements SubscriptionManager {
 
 		return $values;
 	}
+
 }

@@ -7,10 +7,12 @@
 			"Mormegil",
 			"Vks",
 			"Matěj Suchánek",
-			"DobyvatelCZ"
+			"DobyvatelCZ",
+			"Macofe"
 		]
 	},
 	"wikibase-lib-desc": "Obsahuje společné funkce pro rozšíření Wikibase a Klient Wikibase",
+	"specialpages-group-wikibase": "Wikibáze",
 	"wikibase-deletedentity-item": "Smazaná položka",
 	"wikibase-deletedentity-property": "Smazaná vlastnost",
 	"wikibase-deletedentity-query": "Smazaný dotaz",
@@ -25,12 +27,13 @@
 	"wikibase-error-autocomplete-response": "Odpověď serveru: $1",
 	"wikibase-error-ui-no-external-page": "Takový článek nebyl na příslušném webu nalezen.",
 	"wikibase-error-ui-edit-conflict": "Nastal editační konflikt. Prosím obnovte stránku a uložte ji znovu.",
+	"wikibase-language-fallback-transliteration-hint": "$1 (transliterováno)",
 	"wikibase-quantitydetails-amount": "Množství",
 	"wikibase-quantitydetails-upperbound": "Horní mez",
 	"wikibase-quantitydetails-lowerbound": "Dolní mez",
 	"wikibase-quantitydetails-unit": "Jednotka",
 	"wikibase-timedetails-time": "Čas",
-	"wikibase-timedetails-isotime": "ISO časová značka",
+	"wikibase-timedetails-isotime": "Časová značka",
 	"wikibase-timedetails-timezone": "Časové pásmo",
 	"wikibase-timedetails-calendar": "Kalendář",
 	"wikibase-timedetails-precision": "Přesnost",

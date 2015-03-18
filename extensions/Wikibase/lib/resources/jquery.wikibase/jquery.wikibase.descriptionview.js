@@ -14,6 +14,9 @@
  *
  * @option {wikibase.datamodel.Term} value
  *
+ * @option {string} [inputNodeName='TEXTAREA']
+ *         Should either be 'TEXTAREA' or 'INPUT'.
+ *
  * @option {string} [helpMessage]
  *         Default: mw.msg( 'wikibase-description-input-help-message' )
  *
@@ -33,9 +36,10 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 			'' // toolbar
 		],
 		templateShortCuts: {
-			'$text': '.wikibase-descriptionview-text'
+			$text: '.wikibase-descriptionview-text'
 		},
 		value: null,
+		inputNodeName: 'TEXTAREA',
 		helpMessage: mw.msg( 'wikibase-description-input-help-message' ),
 		descriptionsChanger: null
 	},
@@ -46,11 +50,6 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	_isInEditMode: false,
 
 	/**
-	 * @type {boolean}
-	 */
-	_isBeingEdited: false,
-
-	/**
 	 * @see jQuery.ui.TemplatedWidget._create
 	 *
 	 * @throws {Error} if required parameters are not specified properly.
@@ -59,6 +58,7 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 		if(
 			!( this.options.value instanceof wb.datamodel.Term )
 			|| !this.options.descriptionsChanger
+			|| this.options.inputNodeName !== 'INPUT' && this.options.inputNodeName !== 'TEXTAREA'
 		) {
 			throw new Error( 'Required parameter(s) missing' );
 		}
@@ -125,13 +125,21 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 			return;
 		}
 
-		var $input = $( '<input />', {
-			// TODO: Inject correct placeholder via options
-			placeholder: mw.msg(
+		var $input = $( document.createElement( this.options.inputNodeName ) );
+
+		$input
+		.addClass( this.widgetFullName + '-input' )
+		// TODO: Inject correct placeholder via options
+		.attr( 'placeholder', mw.msg(
 				'wikibase-description-edit-placeholder-language-aware',
 				wb.getLanguageNameByCode( languageCode )
-			),
-			dir: $.util.getDirectionality( languageCode )
+			)
+		)
+		.attr( 'dir', $.util.getDirectionality( languageCode ) )
+		.on( 'keydown.' + this.widgetName, function( event ) {
+			if( event.keyCode === $.ui.keyCode.ENTER ) {
+				event.preventDefault();
+			}
 		} )
 		.on( 'eachchange.' + this.widgetName, function( event ) {
 			self._trigger( 'change' );
@@ -141,31 +149,26 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 			$input.val( descriptionText );
 		}
 
-		this.$text.empty().append( $input );
-	},
-
-	/**
-	 * Switches to editable state.
-	 */
-	toEditMode: function() {
-		if( this._isInEditMode ) {
-			return;
+		if( $.fn.inputautoexpand ) {
+			$input.inputautoexpand( {
+				expandHeight: true,
+				suppressNewLine: true
+			} );
 		}
 
-		this._isInEditMode = true;
-		this._draw();
+		this.$text.empty().append( $input );
 	},
 
 	/**
 	 * Starts the widget's edit mode.
 	 */
 	startEditing: function() {
-		if( this._isBeingEdited ) {
+		if( this._isInEditMode ) {
 			return;
 		}
 		this.element.addClass( 'wb-edit' );
-		this.toEditMode();
-		this._isBeingEdited = true;
+		this._isInEditMode = true;
+		this._draw();
 		this._trigger( 'afterstartediting' );
 	},
 
@@ -176,8 +179,6 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	 */
 	stopEditing: function( dropValue ) {
 		var self = this;
-
-		dropValue = dropValue && this._isBeingEdited;
 
 		if( !this._isInEditMode ) {
 			return;
@@ -219,11 +220,10 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 		if( !dropValue ) {
 			this.options.value = this.value();
 		} else if( this.options.value.getText() === '' ) {
-			this.$text.children( 'input' ).val( '' );
+			this.$text.children( '.' + this.widgetFullName + '-input' ).val( '' );
 		}
 
 		this.element.removeClass( 'wb-edit' );
-		this._isBeingEdited = false;
 		this._isInEditMode = false;
 		this._draw();
 
@@ -275,7 +275,7 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 		var response = PARENT.prototype._setOption.call( this, key, value );
 
 		if( key === 'disabled' && this._isInEditMode ) {
-			this.$text.children( 'input' ).prop( 'disabled', value );
+			this.$text.children( '.' + this.widgetFullName + '-input' ).prop( 'disabled', value );
 		}
 
 		return response;
@@ -299,7 +299,7 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 
 		return new wb.datamodel.Term(
 			this.options.value.getLanguageCode(),
-			$.trim( this.$text.children( 'input' ).val() )
+			$.trim( this.$text.children( '.' + this.widgetFullName + '-input' ).val() )
 		);
 	},
 
@@ -308,7 +308,7 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	 */
 	focus: function() {
 		if( this._isInEditMode ) {
-			this.$text.children( 'input' ).focus();
+			this.$text.children( '.' + this.widgetFullName + '-input' ).focus();
 		} else {
 			this.element.focus();
 		}

@@ -23,7 +23,6 @@ function apply_client_settings {
   echo '$wgEnableWikibaseClient = true;' >> LocalSettings.php
   echo '$wmgUseWikibaseRepo = false;' >> LocalSettings.php
   echo '$wmgUseWikibaseClient = true;' >> LocalSettings.php
-  echo 'require_once __DIR__ . "/extensions/Scribunto/Scribunto.php";' >> LocalSettings.php
   if [ $BUILD = true ]
   then
     echo 'require_once __DIR__ . "/extensions/Wikidata/Wikidata.php";' >> LocalSettings.php
@@ -35,6 +34,9 @@ function apply_client_settings {
 }
 
 function apply_repo_settings {
+  # Workaround for T90453
+  # This can be removed once core has a default value
+  echo 'if( !$wgResourceLoaderMaxQueryLength ) { $wgResourceLoaderMaxQueryLength = 4096; }' >> LocalSettings.php
   echo '$wgEnableWikibaseRepo = true;' >> LocalSettings.php
   echo '$wgEnableWikibaseClient = false;' >> LocalSettings.php
   echo '$wmgUseWikibaseRepo = true;' >> LocalSettings.php
@@ -49,15 +51,6 @@ function apply_repo_settings {
   fi
 }
 
-function apply_common_settings {
-  echo 'error_reporting(E_ALL| E_STRICT);' >> LocalSettings.php
-  echo 'ini_set("display_errors", 1);' >> LocalSettings.php
-  echo '$wgShowExceptionDetails = true;' >> LocalSettings.php
-  echo '$wgDevelopmentWarnings = true;' >> LocalSettings.php
-  echo '$wgLanguageCode = "'$LANG'";' >> LocalSettings.php
-  echo '$wgDebugLogFile = "mw-debug.log";' >> LocalSettings.php
-}
-
 function apply_experimental_settings {
   echo "define( 'WB_EXPERIMENTAL_FEATURES', $EXPERIMENTAL );" >> LocalSettings.php
 }
@@ -66,7 +59,6 @@ cd $WORKSPACE
 
 echo '<?php' >> LocalSettings.php
 
-apply_common_settings
 apply_experimental_settings
 
 if [ "$REPO" = "repo" ]

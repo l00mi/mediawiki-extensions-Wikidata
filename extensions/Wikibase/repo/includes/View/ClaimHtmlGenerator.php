@@ -70,8 +70,6 @@ class ClaimHtmlGenerator {
 	 * @return string
 	 */
 	public function getHtmlForClaim( Claim $claim, $editSectionHtml = null ) {
-		wfProfileIn( __METHOD__ );
-
 		$mainSnakHtml = $this->snakHtmlGenerator->getSnakHtml(
 			$claim->getMainSnak(),
 			false
@@ -79,23 +77,14 @@ class ClaimHtmlGenerator {
 
 		// TODO: Resolve if-statement after concept of Claim has been removed
 		//  (see https://github.com/wmde/WikibaseDataModel/pull/317)
-		if ( !( $claim instanceof Statement ) ) {
-			$claimHtml = $this->templateFactory->render( 'wikibase-statementview',
-				$claim->getGuid(),
-				'',
-				$mainSnakHtml,
-				$this->getHtmlForQualifiers( $claim->getQualifiers() ),
-				$editSectionHtml,
-				'',
-				''
-			);
-		} else {
+		if ( $claim instanceof Statement ) {
 			/** @var Statement $claim */
 			$serializedRank = ClaimSerializer::serializeRank( $claim->getRank() );
 
 			// Messages: wikibase-statementview-rank-preferred, wikibase-statementview-rank-normal,
 			// wikibase-statementview-rank-deprecated
-			$rankHtml = $this->templateFactory->render( 'wikibase-rankselector',
+			$rankHtml = $this->templateFactory->render(
+				'wikibase-rankselector',
 				'ui-state-disabled',
 				'wikibase-rankselector-' . $serializedRank,
 				$this->getStatementRankText( $serializedRank )
@@ -106,20 +95,22 @@ class ClaimHtmlGenerator {
 			$referencesHtml = $this->getHtmlForReferences(
 				$claim->getReferences()
 			);
-
-			$claimHtml = $this->templateFactory->render( 'wikibase-statementview',
-				$claim->getGuid(),
-				$rankHtml,
-				$mainSnakHtml,
-				$this->getHtmlForQualifiers( $claim->getQualifiers() ),
-				$editSectionHtml,
-				$referencesHeading,
-				$referencesHtml
-			);
+		} else {
+			$rankHtml = '';
+			$referencesHeading = '';
+			$referencesHtml = '';
 		}
 
-		wfProfileOut( __METHOD__ );
-		return $claimHtml;
+		return $this->templateFactory->render(
+			'wikibase-statementview',
+			$claim->getGuid(),
+			$rankHtml,
+			$mainSnakHtml,
+			$this->getHtmlForQualifiers( $claim->getQualifiers() ),
+			$editSectionHtml,
+			$referencesHeading,
+			$referencesHtml
+		);
 	}
 
 	/**
@@ -135,7 +126,7 @@ class ClaimHtmlGenerator {
 
 		$snaklistviewsHtml = '';
 
-		foreach( $qualifiersByProperty->getPropertyIds() as $propertyId ) {
+		foreach ( $qualifiersByProperty->getPropertyIds() as $propertyId ) {
 			$snaklistviewsHtml .= $this->getSnaklistviewHtml(
 				$qualifiersByProperty->getByPropertyId( $propertyId )
 			);
@@ -154,7 +145,7 @@ class ClaimHtmlGenerator {
 	protected function getHtmlForReferences( ReferenceList $referenceList ) {
 		$referencesHtml = '';
 
-		foreach( $referenceList as $reference ) {
+		foreach ( $referenceList as $reference ) {
 			$referencesHtml .= $this->getHtmlForReference( $reference );
 		}
 
@@ -162,8 +153,8 @@ class ClaimHtmlGenerator {
 	}
 
 	private function wrapInListview( $listviewContent ) {
-		if( $listviewContent !== '' ) {
-			return $this->templateFactory->render( 'wb-listview', $listviewContent );
+		if ( $listviewContent !== '' ) {
+			return $this->templateFactory->render( 'wikibase-listview', $listviewContent );
 		} else {
 			return '';
 		}
@@ -184,14 +175,15 @@ class ClaimHtmlGenerator {
 
 		$snaklistviewsHtml = '';
 
-		foreach( $referenceSnaksByProperty->getPropertyIds() as $propertyId ) {
+		foreach ( $referenceSnaksByProperty->getPropertyIds() as $propertyId ) {
 			$snaklistviewsHtml .= $this->getSnaklistviewHtml(
 				$referenceSnaksByProperty->getByPropertyId( $propertyId )
 			);
 		}
 
-		return $this->templateFactory->render( 'wb-referenceview',
-			'wb-referenceview-' . $reference->getHash(),
+		return $this->templateFactory->render(
+			'wikibase-referenceview',
+			'wikibase-referenceview-' . $reference->getHash(),
 			$snaklistviewsHtml
 		);
 	}
@@ -207,14 +199,11 @@ class ClaimHtmlGenerator {
 		$snaksHtml = '';
 		$i = 0;
 
-		foreach( $snaks as $snak ) {
+		foreach ( $snaks as $snak ) {
 			$snaksHtml .= $this->snakHtmlGenerator->getSnakHtml( $snak, ( $i++ === 0 ) );
 		}
 
-		return $this->templateFactory->render(
-			'wb-snaklistview',
-			$snaksHtml
-		);
+		return $this->templateFactory->render( 'wikibase-snaklistview', $snaksHtml );
 	}
 
 	/**
@@ -226,7 +215,7 @@ class ClaimHtmlGenerator {
 		$referenceCount = count( $statement->getReferences() );
 
 		if ( !array_key_exists( $referenceCount, $this->referenceHeadings ) ) {
-			$this->referenceHeadings[$referenceCount] = wfMessage(
+			$this->referenceHeadings[ $referenceCount ] = wfMessage(
 				'wikibase-ui-pendingquantitycounter-nonpending',
 				wfMessage(
 					'wikibase-statementview-referencesheading-pendingcountersubject'
@@ -234,7 +223,7 @@ class ClaimHtmlGenerator {
 			)->numParams( $referenceCount )->text();
 		}
 
-		return $this->referenceHeadings[$referenceCount];
+		return $this->referenceHeadings[ $referenceCount ];
 	}
 
 	/**
@@ -245,10 +234,10 @@ class ClaimHtmlGenerator {
 	private function getStatementRankText( $serializedRank ) {
 		if ( !array_key_exists( $serializedRank, $this->statementRankText ) ) {
 			$rankText = wfMessage( 'wikibase-statementview-rank-' . $serializedRank )->text();
-			$this->statementRankText[$serializedRank] = $rankText;
+			$this->statementRankText[ $serializedRank ] = $rankText;
 		}
 
-		return $this->statementRankText[$serializedRank];
+		return $this->statementRankText[ $serializedRank ];
 	}
 
 }

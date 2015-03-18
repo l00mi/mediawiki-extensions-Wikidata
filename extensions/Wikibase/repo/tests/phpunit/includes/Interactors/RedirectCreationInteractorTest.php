@@ -30,7 +30,7 @@ use Wikibase\Test\MockRepository;
 class RedirectCreationInteractorTest extends \PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var MockRepository
+	 * @var MockRepository|null
 	 */
 	private $repo = null;
 
@@ -40,8 +40,7 @@ class RedirectCreationInteractorTest extends \PHPUnit_Framework_TestCase {
 		$this->repo = new MockRepository();
 
 		// empty item
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q11' ) );
+		$item = new Item( new ItemId( 'Q11' ) );
 		$this->repo->putEntity( $item );
 
 		// non-empty item

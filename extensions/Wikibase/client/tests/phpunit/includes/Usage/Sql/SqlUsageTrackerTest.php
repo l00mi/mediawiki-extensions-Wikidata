@@ -1,7 +1,8 @@
 <?php
+
 namespace Wikibase\Client\Tests\Usage\Sql;
 
-use Wikibase\Client\Store\Sql\ConnectionManager;
+use Wikibase\Client\Store\Sql\ConsistentReadConnectionManager;
 use Wikibase\Client\Tests\Usage\UsageLookupContractTester;
 use Wikibase\Client\Tests\Usage\UsageTrackerContractTester;
 use Wikibase\Client\Usage\Sql\SqlUsageTracker;
@@ -47,7 +48,7 @@ class SqlUsageTrackerTest extends \MediaWikiTestCase {
 
 		$this->sqlUsageTracker = new SqlUsageTracker(
 			new BasicEntityIdParser(),
-			new ConnectionManager( wfGetLB() )
+			new ConsistentReadConnectionManager( wfGetLB() )
 		);
 
 		$this->trackerTester = new UsageTrackerContractTester( $this->sqlUsageTracker );

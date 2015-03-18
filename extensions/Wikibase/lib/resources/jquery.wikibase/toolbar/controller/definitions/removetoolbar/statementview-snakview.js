@@ -11,9 +11,9 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	id: 'statementview-snakview',
 	selector: '.wikibase-statementview-qualifiers',
 	events: {
-		'snakviewstartediting': function( event, toolbarController ) {
+		snakviewafterstartediting: function( event, toolbarController ) {
 			var $snakview = $( event.target ),
-				$snaklistview = $snakview.closest( '.wb-snaklistview' ),
+				$snaklistview = $snakview.closest( '.wikibase-snaklistview' ),
 				snaklistview = $snaklistview.data( 'snaklistview' );
 
 			if( !snaklistview ) {

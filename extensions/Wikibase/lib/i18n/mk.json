@@ -1,10 +1,12 @@
 {
 	"@metadata": {
 		"authors": [
-			"Bjankuloski06"
+			"Bjankuloski06",
+			"Macofe"
 		]
 	},
 	"wikibase-lib-desc": "Содржи почести функции за додатоците Викибаза и Клиент на Викибазата.",
+	"specialpages-group-wikibase": "Викибаза",
 	"wikibase-deletedentity-item": "Избришан предмет",
 	"wikibase-deletedentity-property": "Избришано својство",
 	"wikibase-deletedentity-query": "Избришано барање",
@@ -19,12 +21,13 @@
 	"wikibase-error-autocomplete-response": "Одговор на опслужувачот: $1",
 	"wikibase-error-ui-no-external-page": "Укажаната статија не е најдена на соодветното вики.",
 	"wikibase-error-ui-edit-conflict": "Се јави спротиставеност во уредувањата. Превчитајте и зачувајте повторно.",
+	"wikibase-language-fallback-transliteration-hint": "$1 (транслитерирано)",
 	"wikibase-quantitydetails-amount": "Износ",
 	"wikibase-quantitydetails-upperbound": "Горна граница",
 	"wikibase-quantitydetails-lowerbound": "Долна граница",
 	"wikibase-quantitydetails-unit": "Единица",
 	"wikibase-timedetails-time": "Време",
-	"wikibase-timedetails-isotime": "Време и датум во ISO",
+	"wikibase-timedetails-isotime": "Време и датум",
 	"wikibase-timedetails-timezone": "Часовен појас:",
 	"wikibase-timedetails-calendar": "Календар",
 	"wikibase-timedetails-precision": "Уточнетост:",

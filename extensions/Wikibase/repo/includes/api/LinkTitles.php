@@ -4,6 +4,7 @@ namespace Wikibase\Api;
 
 use ApiBase;
 use ApiMain;
+use Site;
 use SiteList;
 use Status;
 use Wikibase\DataModel\Entity\Item;
@@ -30,11 +31,9 @@ class LinkTitles extends ApiWikibase {
 	private $siteLinkTargetProvider;
 
 	/**
-	 * @since 0.5
-	 *
-	 * @var array
+	 * @var string[]
 	 */
-	protected $siteLinkGroups;
+	private $siteLinkGroups;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -61,8 +60,6 @@ class LinkTitles extends ApiWikibase {
 	 * @since 0.1
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$lookup = $this->getEntityRevisionLookup();
 
 		$params = $this->extractRequestParams();
@@ -71,11 +68,13 @@ class LinkTitles extends ApiWikibase {
 		// Sites are already tested through allowed params ;)
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 
+		/** @var Site $fromSite */
 		list( $fromSite, $fromPage ) = $this->getSiteAndNormalizedPageName(
 			$sites,
 			$params['fromsite'],
 			$params['fromtitle']
 		);
+		/** @var Site $toSite */
 		list( $toSite, $toPage ) = $this->getSiteAndNormalizedPageName(
 			$sites,
 			$params['tosite'],
@@ -134,25 +133,24 @@ class LinkTitles extends ApiWikibase {
 		// we can be sure that $fromId and $toId are not null here
 		elseif ( $fromId->equals( $toId ) ) {
 			// no-op
-			wfProfileOut( __METHOD__ );
 			$this->dieError( 'Common item detected, sitelinks are both on the same item', 'common-item' );
 		}
 		else {
 			// dissimilar items
-			wfProfileOut( __METHOD__ );
 			$this->dieError( 'No common item detected, unable to link titles' , 'no-common-item' );
 		}
 
 		$this->getResultBuilder()->addSiteLinks( $return, 'entity' );
 		$status = $this->getAttemptSaveStatus( $item, $summary, $flags );
 		$this->buildResult( $item, $status );
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
 	 * @param SiteList $sites
 	 * @param string $site
 	 * @param string $pageTitle
+	 *
+	 * @return array( Site $site, string $pageName )
 	 */
 	private function getSiteAndNormalizedPageName( SiteList $sites, $site, $pageTitle ) {
 		$siteObj = $sites->getSite( $site );
@@ -212,13 +210,9 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
-	 * Returns an array of allowed parameters (parameter name) => (default
-	 * value) or (parameter name) => (array with PARAM_* constants as keys)
-	 * Don't call this function directly: use getFinalParams() to allow
-	 * hooks to modify parameters as needed.
-	 * @return array|bool
+	 * @see ApiBase::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 		return array_merge( parent::getAllowedParams(), array(
 			'tosite' => array(
@@ -239,9 +233,7 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

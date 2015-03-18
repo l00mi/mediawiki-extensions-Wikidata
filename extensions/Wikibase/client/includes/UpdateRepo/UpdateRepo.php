@@ -132,15 +132,11 @@ abstract class UpdateRepo {
 	 * @param JobQueueGroup $jobQueueGroup
 	 */
 	public function injectJob( JobQueueGroup $jobQueueGroup ) {
-		wfProfileIn( __METHOD__ );
-
 		$job = $this->createJob( $jobQueueGroup );
 
 		wfProfileIn( __METHOD__ . '#push' );
 		$jobQueueGroup->push( $job );
 		wfProfileOut( __METHOD__ . '#push' );
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -151,21 +147,15 @@ abstract class UpdateRepo {
 	 * @return IJobSpecification
 	 */
 	private function createJob( JobQueueGroup $jobQueueGroup ) {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->getJobParameters();
 		if ( $this->delayJobs( $jobQueueGroup ) ) {
 			$params['jobReleaseTimestamp'] = time() + $this->getJobDelay();
 		}
 
-		$job = new JobSpecification(
+		return new JobSpecification(
 			$this->getJobName(),
 			$params
 		);
-
-		wfProfileOut( __METHOD__ );
-
-		return $job;
 	}
 
 	/**
@@ -180,7 +170,7 @@ abstract class UpdateRepo {
 	/**
 	 * Get the time (in seconds) for which the job execution should be delayed
 	 * (if delayed jobs are enabled). Defaults to the max replag of any pooled
-	 * DB server + 1 seconds.
+	 * DB server + 2 seconds.
 	 *
 	 * @return int
 	 */
@@ -189,8 +179,10 @@ abstract class UpdateRepo {
 		// This should be good enough, especially given that lagged servers get
 		// less load by the load balancer, thus it's very unlikely we'll end
 		// up on the server with the highest lag.
-		// Note: Always add at least +1 here, otherwise this can be -1
-		return $lagArray[1] + 1;
+		// We add +2 here, to make sure we have a minimum delay of a full
+		// second (this is being added to time() so +1 actually just means
+		// wait until this second is over).
+		return $lagArray[1] + 2;
 	}
 
 	/**

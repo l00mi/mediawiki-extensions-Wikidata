@@ -178,7 +178,7 @@ class SummaryFormatter {
 			if ( $arg instanceof Snak ) {
 				return $this->snakFormatter->formatSnak( $arg );
 			} elseif ( $arg instanceof EntityId ) {
-				return $this->idFormatter->format( $arg );
+				return $this->idFormatter->formatEntityId( $arg );
 			} elseif ( $arg instanceof DataValue ) {
 				return $this->valueFormatter->format( $arg );
 			} elseif ( method_exists( $arg, '__toString' ) ) {
@@ -229,7 +229,7 @@ class SummaryFormatter {
 
 	private function formatIfEntityId( $value ) {
 		try {
-			return $this->idFormatter->format( $this->idParser->parse( $value ) );
+			return $this->idFormatter->formatEntityId( $this->idParser->parse( $value ) );
 		}
 		catch ( EntityIdParsingException $ex ) {
 			return $value;
@@ -238,8 +238,6 @@ class SummaryFormatter {
 
 	/**
 	 * Merge the total summary
-	 *
-	 * @since 0.5
 	 *
 	 * @param string $comment autocomment part, will be placed in a block comment
 	 * @param string $summary human readable string to be appended after the autocomment part

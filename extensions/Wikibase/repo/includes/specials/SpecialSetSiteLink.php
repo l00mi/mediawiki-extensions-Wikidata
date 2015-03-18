@@ -183,8 +183,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	/**
 	 * Checks if the site id is valid.
 	 *
-	 * @since 0.4
-	 *
 	 * @param $siteId string the site id
 	 *
 	 * @return bool
@@ -223,7 +221,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 				array(
 					'class' => 'wb-input wb-input-text',
 					'id' => 'wb-setsitelink-page',
-					'size' => 50
 				)
 			);
 
@@ -360,8 +357,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	/**
 	 * Returning the site page of the entity.
 	 *
-	 * @since 0.4
-	 *
 	 * @param Item|null $item
 	 * @param string $siteId
 	 *
@@ -378,8 +373,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 
 	/**
 	 * Returning the badges of the entity.
-	 *
-	 * @since 0.5
 	 *
 	 * @param Item|null $item
 	 * @param string $siteId
@@ -402,8 +395,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 
 	/**
 	 * Validates badges from params and turns them into an array of ItemIds.
-	 *
-	 * @since 0.5
 	 *
 	 * @param string[] $badges
 	 * @param Status $status
@@ -442,8 +433,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	/**
 	 * Setting the sitepage of the entity.
 	 *
-	 * @since 0.4
-	 *
 	 * @param Item $item
 	 * @param string $siteId
 	 * @param string $pageName
@@ -461,7 +450,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			return $status;
 		}
 
-		$summary = $this->getSummary( 'wbsetsitelink' );
+		$summary = new Summary( 'wbsetsitelink' );
 
 		if ( $pageName === '' ) {
 			$pageName = null;

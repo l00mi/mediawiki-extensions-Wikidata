@@ -11,6 +11,7 @@ use Wikibase\SettingsArray;
  * @group Wikibase
  * @group WikibaseRepo
  * @group WikibaseRepoTest
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -251,6 +252,11 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 		$service = $repo->getTermBuffer();
 		$this->assertSame( $service, $repo->getTermBuffer(), 'Second call should return same instance' );
 		$this->assertSame( $service, $repo->getTermLookup(), 'TermBuffer and TermLookup should be the same object' );
+	}
+
+	public function testGetTermsLanguages() {
+		$service = $this->getWikibaseRepo()->getTermsLanguages();
+		$this->assertInstanceOf( 'Wikibase\Lib\ContentLanguages', $service );
 	}
 
 }

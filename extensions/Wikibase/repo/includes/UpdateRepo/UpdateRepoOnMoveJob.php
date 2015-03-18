@@ -44,9 +44,10 @@ class UpdateRepoOnMoveJob extends UpdateRepoJob {
 	 * @note: the constructor's signature is dictated by Job::factory, so we'll have to
 	 *           live with it even though it's rather ugly for our use case.
 	 *
-	 * @see Job::factory.
+	 * @see Job::factory
+	 * @see UpdateRepoJob::__construct
 	 *
-	 * @param Title $title Ignored
+	 * @param Title $title
 	 * @param array|bool $params
 	 */
 	public function __construct( Title $title, $params = false ) {
@@ -148,7 +149,6 @@ class UpdateRepoOnMoveJob extends UpdateRepoJob {
 	 * @return bool
 	 */
 	protected function verifyValid( Item $item ) {
-		wfProfileIn( __METHOD__ );
 		$params = $this->getParams();
 		$siteId = $params['siteId'];
 		$oldPage = $params['oldTitle'];
@@ -157,13 +157,11 @@ class UpdateRepoOnMoveJob extends UpdateRepoJob {
 		if ( !$oldSiteLink || $oldSiteLink->getPageName() !== $oldPage ) {
 			// Probably something changed since the job has been inserted
 			wfDebugLog( 'UpdateRepo', "OnMove: The site link to " . $siteId . " is no longer $oldPage" );
-			wfProfileOut( __METHOD__ );
 			return false;
 		}
 
 		// Normalize the name, just in case the page has been updated in the mean time
 		if ( $this->getNormalizedPageName() === false ) {
-			wfProfileOut( __METHOD__ );
 			return false;
 		}
 

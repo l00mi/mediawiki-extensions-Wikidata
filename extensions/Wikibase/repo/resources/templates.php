@@ -25,28 +25,9 @@ return call_user_func( function() {
 </div>
 HTML;
 
-
 	$templates['wb-entity-header-separator'] =
 <<<HTML
 <hr class="wb-hr" />
-HTML;
-
-	$templates['wb-entity-toc'] =
-<<<HTML
-<div id="toc" class="toc wb-toc">
-	<div id="toctitle">
-		<h2>$1</h2>
-	</div>
-	<ul>$2</ul>
-</div>
-HTML;
-
-// $1: Index of the section
-// $2: Target of the link
-// $3: Text of the link
-	$templates['wb-entity-toc-section'] =
-<<<HTML
-<li class="toclevel-1 tocsection-$1"><a href="#$2"><span class="toctext">$3</span></a></li>
 HTML;
 
 // $1: Text of the heading.
@@ -56,44 +37,40 @@ HTML;
 <h2 class="wb-section-heading" dir="auto" id="$2">$1</h2>
 HTML;
 
-	$templates['wb-claimgrouplistview'] =
+	$templates['wikibase-statementgrouplistview'] =
 <<<HTML
-<div class="wb-claimgrouplistview">
-	<div class="wb-claimlists">$1<!-- [0,*] wb-claimlist--></div>
-	$2<!-- {1} wb-toolbar -->
-</div>
+<div class="wikibase-statementgrouplistview"><!-- wikibase-listview -->$1</div>
 HTML;
 
-	$templates['wb-claimgrouplistview-groupname'] =
+	$templates['wikibase-statementgroupview'] =
 <<<HTML
-<div class="wb-claimgrouplistview-groupname">
-	<div class="wb-claim-name" dir="auto">$1</div>
-</div>
-HTML;
-
-	$templates['wb-claimlistview'] =
-<<<HTML
-<div class="wb-claimlistview">
-	<div class="wb-claims" id="$3">
-		$1 <!-- [0,*] wb-claim|wb-statement -->
+<div class="wikibase-statementgroupview" id="$3">
+	<div class="wikibase-statementgroupview-property">
+		<div class="wikibase-statementgroupview-property-label" dir="auto">$1</div>
 	</div>
-	$2 <!-- [0,*] wb-toolbar -->
+	<!-- wikibase-statementlistview -->$2
 </div>
 HTML;
 
-	// TODO: .wb-snakview should not be part of the template; check uses of that class and move them
-	// to .wb-snak
-	$templates['wb-snak'] =
-// This template is not only used for PropertyValueSnak Snaks but also for other Snaks without a
-// value which may display some message in the value node.
+	$templates['wikibase-statementlistview'] =
 <<<HTML
-<div class="wb-snak wb-snakview">
-	<div class="wb-snak-property-container">
-		<div class="wb-snak-property" dir="auto">$1</div>
+<div class="wikibase-statementlistview">
+	<div class="wikibase-statementlistview-listview">
+		<!-- [0,*] wikibase-statementview -->$1
 	</div>
-	<div class="wb-snak-value-container" dir="auto">
-		<div class="wb-snak-typeselector"></div>
-		<div class="wb-snak-value $2">$3</div>
+	<!-- [0,1] wikibase-toolbar -->$2
+</div>
+HTML;
+
+	$templates['wikibase-snakview'] =
+<<<HTML
+<div class="wikibase-snakview">
+	<div class="wikibase-snakview-property-container">
+		<div class="wikibase-snakview-property" dir="auto">$1</div>
+	</div>
+	<div class="wikibase-snakview-value-container" dir="auto">
+		<div class="wikibase-snakview-typeselector"></div>
+		<div class="wikibase-snakview-value $2">$3</div>
 	</div>
 </div>
 HTML;
@@ -103,13 +80,13 @@ HTML;
 <div class="wikibase-statementview wikibase-statement-$1">
 	<div class="wikibase-statementview-rankselector">$2</div>
 	<div class="wikibase-statementview-mainsnak-container">
-		<div class="wikibase-statementview-mainsnak" dir="auto"><!-- wb-snak -->$3</div>
-		<div class="wikibase-statementview-qualifiers"><!-- wb-listview -->$4</div>
+		<div class="wikibase-statementview-mainsnak" dir="auto"><!-- wikibase-snakview -->$3</div>
+		<div class="wikibase-statementview-qualifiers"><!-- wikibase-listview -->$4</div>
 	</div>
 	<!-- wikibase-toolbar -->$5
 	<div class="wikibase-statementview-references-container">
 		<div class="wikibase-statementview-references-heading">$6</div>
-		<div class="wikibase-statementview-references"><!-- wb-listview -->$7</div>
+		<div class="wikibase-statementview-references"><!-- wikibase-listview -->$7</div>
 	</div>
 </div>
 HTML;
@@ -121,37 +98,25 @@ HTML;
 </div>
 HTML;
 
-	$templates['wb-referenceview'] =
+	$templates['wikibase-referenceview'] =
 <<<HTML
-<div class="wb-referenceview $1">
-	<div class="wb-referenceview-heading"></div>
-	<div class="wb-referenceview-listview">$2<!-- [0,*] wb-snaklistview --></div>
+<div class="wikibase-referenceview $1">
+	<div class="wikibase-referenceview-heading"></div>
+	<div class="wikibase-referenceview-listview">$2<!-- [0,*] wikibase-snaklistview --></div>
 </div>
 HTML;
 
 
-	$templates['wb-listview'] =
+	$templates['wikibase-listview'] =
 <<<HTML
-<div class="wb-listview">$1</div>
+<div class="wikibase-listview">$1</div>
 HTML;
 
-	$templates['wb-snaklistview'] =
+	$templates['wikibase-snaklistview'] =
 <<<HTML
-<div class="wb-snaklistview">
-	<div class="wb-snaklistview-listview">$1<!-- wb-listview --></div>
+<div class="wikibase-snaklistview">
+	<div class="wikibase-snaklistview-listview"><!-- wikibase-listview -->$1</div>
 </div>
-HTML;
-
-	$templates['wikibase-firstHeading'] =
-// add an h1 for displaying the entity's label; the actual firstHeading is being hidden by
-// css since the original MediaWiki DOM does not represent a Wikidata entity's structure
-// where the combination of label and description is the unique "title" of an entity which
-// should not be semantically disconnected by having elements in between, like siteSub,
-// contentSub and jump-to-nav
-<<<HTML
-<h1 id="wb-firstHeading-$1" class="wb-firstHeading">
-	<!-- wikibase-labelview -->$2
-</h1>
 HTML;
 
 	$templates['wikibase-labelview'] =
@@ -178,11 +143,8 @@ HTML;
 	$templates['wikibase-aliasesview'] =
 <<<HTML
 <div class="wikibase-aliasesview $1">
-	<div class="wikibase-aliasesview-container">
-		<span class="wikibase-aliasesview-label">$2</span>
-		<ul class="wikibase-aliasesview-list">$3</ul>
-		<!-- wb-toolbar -->$4
-	</div>
+	<ul class="wikibase-aliasesview-list">$2</ul>
+	<!-- wikibase-toolbar -->$3
 </div>
 HTML;
 
@@ -194,44 +156,65 @@ HTML;
 	$templates['wikibase-entitytermsview'] =
 <<<HTML
 <div class="wikibase-entitytermsview">
-	<div class="wikibase-entitytermsview-heading-container">
-		<h2 id="wb-terms" class="wb-section-heading wikibase-entitytermsview-heading">$1</h2>
-		<!-- wikibase-toolbar -->$3
+	<div class="wikibase-entitytermsview-heading">
+		<h1 class="wikibase-entitytermsview-heading-label $1"><!-- wikibase-entitytermsview-label -->$2</h1>
+		<div class="wikibase-entitytermsview-heading-aliases $3"><!-- wikibase-entitytermsview-aliases -->$4</div>
+		<div class="wikibase-entitytermsview-heading-description $5">$6</div>
 	</div>
-	<!-- wikibase-entitytermsforlanguagelistview -->$2
+	<!-- ? wikibase-toolbar -->$9
+	<div class="wikibase-entitytermsview-entitytermsforlanguagelistview $8"><!-- wikibase-entitytermsforlanguagelistview -->$7</div>
 </div>
+HTML;
+
+	$templates['wikibase-entitytermsview-heading-label'] =
+<<<HTML
+$1<span class="wikibase-entitytermsview-heading-label-id">$2</span>
+HTML;
+
+	$templates['wikibase-entitytermsview-aliases'] =
+<<<HTML
+<ul class="wikibase-entitytermsview-aliases"><!-- wikibase-entitytermsview-aliases-alias -->$1</ul>
+HTML;
+
+	$templates['wikibase-entitytermsview-aliases-alias'] =
+<<<HTML
+<li class="wikibase-entitytermsview-aliases-alias">$1</li>
 HTML;
 
 	$templates['wikibase-entitytermsforlanguagelistview'] =
 <<<HTML
 <table class="wikibase-entitytermsforlanguagelistview">
-	<colgroup>
-		<col class="wikibase-entitytermsforlanguagelistview-language" />
-		<col class="wikibase-entitytermsforlanguagelistview-label wikibase-entitytermsforlanguagelistview-description wikibase-entitytermsforlanguagelistview-aliases" />
-	</colgroup>
-	<!-- [0,*] wikibase-entitytermsforlanguageview -->$1
+	<thead class="wikibase-entitytermsforlanguagelistview-header">
+		<tr class="wikibase-entitytermsforlanguagelistview-header-row">
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-language">$1</td>
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-label">$2</td>
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-aliases">$3</td>
+			<td class="wikibase-entitytermsforlanguagelistview-cell wikibase-entitytermsforlanguagelistview-description">$4</td>
+		</tr>
+	</thead>
+	<tbody class="wikibase-entitytermsforlanguagelistview-listview"><!-- [0,*] wikibase-entitytermsforlanguageview -->$5</tbody>
 </table>
 HTML;
 
 	$templates['wikibase-entitytermsforlanguageview'] =
 <<<HTML
-<tbody class="wikibase-entitytermsforlanguageview wikibase-entitytermsforlanguageview-$1" >
-	<tr>
-		<td class="wikibase-entitytermsforlanguageview-language" rowspan="3"><a href="$2">$3</a></td>
-		<td class="wikibase-entitytermsforlanguageview-label">$4</td>
-	</tr>
-	<tr>
-		<td class="wikibase-entitytermsforlanguageview-description">$5</td>
-	</tr>
-	<tr>
-		<td class="wikibase-entitytermsforlanguageview-aliases">$6</td>
-	</tr>
-</tbody>
+<$1 class="wikibase-entitytermsforlanguageview wikibase-entitytermsforlanguageview-$3" >
+	<$2 class="wikibase-entitytermsforlanguageview-language"><!-- wikibase-entitytermsforlanguageview-language -->$4</$2>
+	<$2 class="wikibase-entitytermsforlanguageview-label">$5</$2>
+	<$2 class="wikibase-entitytermsforlanguageview-aliases">$6</$2>
+	<$2 class="wikibase-entitytermsforlanguageview-description">$7</$2>
+	<!-- ? wikibase-toolbar -->$8
+</$1>
+HTML;
+
+	$templates['wikibase-entitytermsforlanguageview-language'] =
+<<<HTML
+<a href="$1">$2</a>
 HTML;
 
 	$templates['wikibase-sitelinkgrouplistview'] =
 <<<HTML
-<div class="wikibase-sitelinkgrouplistview"><!-- wb-listview -->$1</div>
+<div class="wikibase-sitelinkgrouplistview"><!-- wikibase-listview -->$1</div>
 HTML;
 
 	$templates['wikibase-sitelinkgroupview'] =
@@ -259,13 +242,13 @@ HTML;
 <li class="wikibase-sitelinkview wikibase-sitelinkview-$1" data-wb-siteid="$1">
 	<span class="wikibase-sitelinkview-siteid-container">
 		<span class="wikibase-sitelinkview-siteid wikibase-sitelinkview-siteid-$1" title="$5">$4</span>
-	</span><span class="wikibase-sitelinkview-link wikibase-sitelinkview-link-$1" lang="$2" dir="$3"><!-- wikibase-sitelinkview-pagename -->$6</span>
+	</span><span class="wikibase-sitelinkview-link wikibase-sitelinkview-link-$1" lang="$2"><!-- wikibase-sitelinkview-pagename -->$6</span>
 </li>
 HTML;
 
 	$templates['wikibase-sitelinkview-pagename'] =
 <<<HTML
-<span class="wikibase-sitelinkview-page"><a href="$1" hreflang="$4">$2</a></span>$3
+<span class="wikibase-sitelinkview-page" dir="$5"><a href="$1" hreflang="$4">$2</a></span>$3
 HTML;
 
 	$templates['wikibase-sitelinkview-unknown'] =

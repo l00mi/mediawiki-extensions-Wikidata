@@ -15,6 +15,7 @@
 		]
 	},
 	"wikibase-lib-desc": "{{desc|name=Wikibase Lib|url=http://www.mediawiki.org/wiki/Extension:WikibaseLib}}",
+	"specialpages-group-wikibase": "{{doc-special-group|that=are related to the Wikibase extension|like=[[Special:NewItem]], [[Special:UnconnectedPages]], [[Special:NewProperty]], [[Special:ItemByTitle]], [[Special:ItemDisambiguation]], [[Special:ItemsWithoutSitelinks]], [[Special:SetLabel]], [[Special:SetDescription]], [[Special:SetAliases]], [[Special:EntitiesWithoutLabel]], [[Special:EntityData]], [[Special:ListDatatypes]], [[Special:DispatchStats]]}}\nSee example: [[d:Special:SpecialPages#mw-specialpagesgroup-wikibase|d:Special:SpecialPages]]\n{{Identical|Wikibase}}",
 	"wikibase-deletedentity-item": "Message displayed instead of an Item's label if the Item has been deleted (see [[d:Wikidata:Glossary]]).\n\nSee also:\n* {{msg-mw|Wikibase-entity-item}}\n* {{msg-mw|Wikibase-deletedentity-property}}\n* {{msg-mw|Wikibase-deletedentity-query}}",
 	"wikibase-deletedentity-property": "Message displayed instead of a Property's label if the Property has been deleted (see [[d:Wikidata:Glossary]]).\n\nSee also:\n* {{msg-mw|Wikibase-entity-property}}\n* {{msg-mw|Wikibase-deletedentity-item}}\n* {{msg-mw|Wikibase-deletedentity-query}}",
 	"wikibase-deletedentity-query": "Message displayed instead of a Query's label if the Query has been deleted (see [[d:Wikidata:Glossary]]).\n\nSee also:\n* {{msg-mw|Wikibase-entity-query}}\n* {{msg-mw|Wikibase-deletedentity-item}}\n* {{msg-mw|Wikibase-deletedentity-property}}",
@@ -35,7 +36,7 @@
 	"wikibase-quantitydetails-lowerbound": "Label used for the \"lower bound\" field of a quantity value when showing a detailed representation of the quantity, e.g. in a diff.",
 	"wikibase-quantitydetails-unit": "Label used for the \"unit\" field of a quantity value when showing a detailed representation of the quantity, e.g. in a diff.\n{{Identical|Unit}}",
 	"wikibase-timedetails-time": "Label used for the rendered version of a time value when showing a detailed representation of the time, e.g. in a diff.\n{{Identical|Time}}",
-	"wikibase-timedetails-isotime": "Label used for the \"isotime\" field of a time value when showing a detailed representation of the time, e.g. in a diff.",
+	"wikibase-timedetails-isotime": "Label used for the \"isotime\" field of a time value when showing a detailed representation of the time, e.g. in a diff.\n{{Identical|Timestamp}}",
 	"wikibase-timedetails-timezone": "Label used for the \"timezone\" field of a time value when showing a detailed representation of the time, e.g. in a diff.\n{{Identical|Time zone}}",
 	"wikibase-timedetails-calendar": "Label used for the \"calendar\" field of a time value when showing a detailed representation of the time, e.g. in a diff.\n{{Identical|Calendar}}",
 	"wikibase-timedetails-precision": "Label used for the \"precision\" field of a time value when showing a detailed representation of the time, e.g. in a diff.\n{{Identical|Precision}}",

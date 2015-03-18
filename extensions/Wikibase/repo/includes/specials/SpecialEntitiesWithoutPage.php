@@ -4,8 +4,8 @@ namespace Wikibase\Repo\Specials;
 
 use Html;
 use Wikibase\EntityFactory;
+use Wikibase\Lib\ContentLanguages;
 use Wikibase\Repo\Store\EntityPerPage;
-use Wikibase\Utils;
 use XmlSelect;
 
 /**
@@ -29,16 +29,9 @@ class SpecialEntitiesWithoutPage extends SpecialWikibaseQueryPage {
 	/**
 	 * The type used
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $type = null;
-
-	/**
-	 * Map entity types to objects representing the corresponding entity
-	 *
-	 * @var array
-	 */
-	private $possibleTypes;
 
 	/**
 	 * @var string
@@ -60,8 +53,18 @@ class SpecialEntitiesWithoutPage extends SpecialWikibaseQueryPage {
 	 */
 	private $entityFactory;
 
-	public function __construct( $name,  $termType, $legendMsg,
-		EntityPerPage $entityPerPage, EntityFactory $entityFactory
+	/**
+	 * @var ContentLanguages
+	 */
+	private $termsLanguages;
+
+	public function __construct(
+		$name,
+		$termType,
+		$legendMsg,
+		EntityPerPage $entityPerPage,
+		EntityFactory $entityFactory,
+		ContentLanguages $termsLanguages
 	) {
 		parent::__construct( $name );
 
@@ -69,6 +72,7 @@ class SpecialEntitiesWithoutPage extends SpecialWikibaseQueryPage {
 		$this->legendMsg = $legendMsg;
 		$this->entityPerPage = $entityPerPage;
 		$this->entityFactory = $entityFactory;
+		$this->termsLanguages = $termsLanguages;
 	}
 
 	/**
@@ -92,8 +96,6 @@ class SpecialEntitiesWithoutPage extends SpecialWikibaseQueryPage {
 	/**
 	 * Prepare the arguments
 	 *
-	 * @since 0.4
-	 *
 	 * @param string $subPage
 	 */
 	private function prepareArguments( $subPage ) {
@@ -110,17 +112,16 @@ class SpecialEntitiesWithoutPage extends SpecialWikibaseQueryPage {
 		}
 
 		$this->language = $request->getText( 'language', $this->language );
-		if ( $this->language !== '' && !in_array( $this->language, Utils::getLanguageCodes() ) ) {
+		if ( $this->language !== '' && !$this->termsLanguages->hasLanguage( $this->language ) ) {
 			$this->showErrorHTML( $this->msg( 'wikibase-entitieswithoutlabel-invalid-language', $this->language )->parse() );
 			$this->language = '';
 		}
 
 		$this->type = $request->getText( 'type', $this->type );
-		$this->possibleTypes = $this->entityFactory->getEntityTypes();
 		if ( $this->type === '' ) {
 			$this->type = null;
 		}
-		if ( $this->type !== null && !in_array( $this->type, $this->possibleTypes ) ) {
+		if ( $this->type !== null && !$this->entityFactory->isEntityType( $this->type ) ) {
 			$this->showErrorHTML( $this->msg( 'wikibase-entitieswithoutlabel-invalid-type', $this->type )->parse() );
 			$this->type = null;
 		}
@@ -128,13 +129,11 @@ class SpecialEntitiesWithoutPage extends SpecialWikibaseQueryPage {
 
 	/**
 	 * Build the HTML form
-	 *
-	 * @since 0.4
 	 */
 	private function setForm() {
 		$typeSelect = new XmlSelect( 'type', 'wb-entitieswithoutpage-type', $this->type );
 		$typeSelect->addOption( $this->msg( 'wikibase-entitieswithoutlabel-label-alltypes' )->text(), '' );
-		foreach( $this->possibleTypes as $type ) {
+		foreach ( $this->entityFactory->getEntityTypes() as $type ) {
 			// Messages: wikibase-entity-item, wikibase-entity-property, wikibase-entity-query
 			$typeSelect->addOption( $this->msg( 'wikibase-entity-' . $type )->text(), $type );
 		}

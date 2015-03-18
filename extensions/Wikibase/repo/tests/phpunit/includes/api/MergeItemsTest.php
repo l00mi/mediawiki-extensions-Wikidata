@@ -22,24 +22,25 @@ use Wikibase\Test\MockRepository;
  * @group WikibaseAPI
  * @group WikibaseRepo
  * @group MergeItemsTest
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
  */
-class MergeItemsTest extends \PHPUnit_Framework_TestCase {
+class MergeItemsTest extends \MediaWikiTestCase {
 
 	/**
-	 * @var MockRepository
+	 * @var MockRepository|null
 	 */
 	private $repo = null;
 
 	/**
-	 * @var EntityModificationTestHelper
+	 * @var EntityModificationTestHelper|null
 	 */
 	private $entityModificationTestHelper = null;
 
 	/**
-	 * @var ApiModuleTestHelper
+	 * @var ApiModuleTestHelper|null
 	 */
 	private $apiModuleTestHelper = null;
 

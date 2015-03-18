@@ -3,8 +3,8 @@
 namespace Wikibase\Lib\Test;
 
 use OutOfBoundsException;
+use PHPUnit_Framework_TestCase;
 use Title;
-use ValueFormatters\FormatterOptions;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\Term;
@@ -12,7 +12,6 @@ use Wikibase\DataModel\Term\TermFallback;
 use Wikibase\Lib\EntityIdHtmlLinkFormatter;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LabelLookup;
-use Wikibase\Utils;
 
 /**
  * @covers Wikibase\Lib\EntityIdHtmlLinkFormatter
@@ -20,11 +19,12 @@ use Wikibase\Utils;
  * @group ValueFormatters
  * @group WikibaseLib
  * @group Wikibase
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Marius Hoch < hoo@online.de >
  */
-class EntityIdHtmlLinkFormatterTest extends \PHPUnit_Framework_TestCase {
+class EntityIdHtmlLinkFormatterTest extends \MediaWikiTestCase {
 
 	/**
 	 * @param Term $term
@@ -78,37 +78,51 @@ class EntityIdHtmlLinkFormatterTest extends \PHPUnit_Framework_TestCase {
 		return array(
 			'has a label' => array(
 				'expectedRegex'	=> '/' . $escapedItemUrl . '.*>A label</',
-				'lookupLabel'	=> true
 			),
 			"has no label" => array(
 				'expectedRegex'	=> '/' . $escapedItemUrl . '.*>Q42</',
-				'lookupLabel'	=> true,
 				'hasLabel'		=> false
 			),
 			"doesn't exist, lookup labels" => array(
 				'expectedRegex'	=> '/^Q42' . preg_quote( wfMessage( 'word-separator' )->text(), '/' ) . '.*>' .
 					preg_quote( wfMessage( 'parentheses', wfMessage( 'wikibase-deletedentity-item' )->text() )->text(), '/' ) .
 					'</',
-				'lookupLabel'	=> true,
 				'hasLabel'		=> false,
 				'exists'		=> false
-			),
-			"doesn't exist, don't lookup labels" => array(
-				'expectedRegex'	=> '/' . $escapedItemUrl . '.*>Q42</',
-				'lookupLabel'	=> false,
-				'hasLabel'		=> false,
-				'exists'		=> false
-			),
-			"Don't lookup labels, has label" => array(
-				'expectedRegex'	=> '/' . $escapedItemUrl . '.*>Q42</',
-				'lookupLabel'	=> false
-			),
-			"Don't lookup labels, no label" => array(
-				'expectedRegex'	=> '/' . $escapedItemUrl . '.*>Q42</',
-				'lookupLabel'	=> false,
-				'hasLabel'		=> false
 			),
 		);
+	}
+
+	private function getFormatter( $hasLabel, $exists, $term = null ) {
+		if ( $hasLabel ) {
+			$labelLookup = $this->getLabelLookup( $term );
+		} else {
+			$labelLookup = $this->getLabelLookupNoLabel();
+		}
+
+		$entityTitleLookup = $this->newEntityTitleLookup( $exists );
+
+		$languageNameLookup = $this->getMock( 'Wikibase\Lib\LanguageNameLookup' );
+		$languageNameLookup->expects( $this->any() )
+			->method( 'getName' )
+			->will( $this->returnCallback( function( $languageCode ) {
+				$names = array(
+						'de' => 'Deutsch',
+						'de-at' => 'Österreichisches Deutsch',
+						'de-ch' => 'Schweizer Hochdeutsch',
+						'en' => 'english in german',
+						'en-ca' => 'Canadian English'
+				);
+				return $names[ $languageCode ];
+			} ) );
+
+		$entityIdHtmlLinkFormatter = new EntityIdHtmlLinkFormatter(
+			$labelLookup,
+			$entityTitleLookup,
+			$languageNameLookup
+		);
+
+		return $entityIdHtmlLinkFormatter;
 	}
 
 	/**
@@ -119,19 +133,9 @@ class EntityIdHtmlLinkFormatterTest extends \PHPUnit_Framework_TestCase {
 	 * @param bool $hasLabel
 	 * @param bool $exists
 	 */
-	public function testFormat( $expectedRegex, $lookupLabel, $hasLabel = true, $exists = true ) {
-		$options = new FormatterOptions( array( EntityIdHtmlLinkFormatter::OPT_LOOKUP_LABEL => $lookupLabel ) );
-
-		if ( $hasLabel ) {
-			$labelLookup = $this->getLabelLookup();
-		} else {
-			$labelLookup = $this->getLabelLookupNoLabel();
-		}
-
-		$entityTitleLookup = $this->newEntityTitleLookup( $exists );
-
-		$entityIdHtmlLinkFormatter = new EntityIdHtmlLinkFormatter( $options, $labelLookup, $entityTitleLookup );
-		$result = $entityIdHtmlLinkFormatter->format( new ItemId( 'Q42' ) );
+	public function testFormat( $expectedRegex, $hasLabel = true, $exists = true ) {
+		$entityIdHtmlLinkFormatter = $this->getFormatter( $hasLabel, $exists );
+		$result = $entityIdHtmlLinkFormatter->formatEntityId( new ItemId( 'Q42' ) );
 
 		$this->assertRegExp( $expectedRegex, $result );
 	}
@@ -147,8 +151,6 @@ class EntityIdHtmlLinkFormatterTest extends \PHPUnit_Framework_TestCase {
 
 		$translitDeCh = wfMessage( 'wikibase-language-fallback-transliteration-hint', 'Deutsch', 'Schweizer Hochdeutsch' )->text();
 		$translitEnCa = wfMessage( 'wikibase-language-fallback-transliteration-hint', 'Canadian English', 'English' )->text();
-
-		$englishInGerman = Utils::fetchLanguageName( 'en', 'de' );
 
 		return array(
 			'plain term' => array(
@@ -180,7 +182,7 @@ class EntityIdHtmlLinkFormatterTest extends \PHPUnit_Framework_TestCase {
 				'term'	=> $enGbEnCaTerm,
 			),
 			'fallback to alternative language' => array(
-				'expectedRegex'	=> '@ lang="en">Kitten</a><sup class="wb-language-fallback-indicator">' . $englishInGerman . '</sup>@',
+				'expectedRegex'	=> '@ lang="en">Kitten</a><sup class="wb-language-fallback-indicator">english in german</sup>@',
 				'term'	=> $deEnTerm,
 			),
 		);
@@ -193,13 +195,9 @@ class EntityIdHtmlLinkFormatterTest extends \PHPUnit_Framework_TestCase {
 	 * @param TermFallback $term
 	 */
 	public function testFormat_fallback( $expectedRegex, $term ) {
-		$options = new FormatterOptions( array( EntityIdHtmlLinkFormatter::OPT_LOOKUP_LABEL => true ) );
+		$entityIdHtmlLinkFormatter = $this->getFormatter( true, true, $term );
 
-		$labelLookup = $this->getLabelLookup( $term );
-		$entityTitleLookup = $this->newEntityTitleLookup( true );
-
-		$entityIdHtmlLinkFormatter = new EntityIdHtmlLinkFormatter( $options, $labelLookup, $entityTitleLookup );
-		$result = $entityIdHtmlLinkFormatter->format( new ItemId( 'Q42' ) );
+		$result = $entityIdHtmlLinkFormatter->formatEntityId( new ItemId( 'Q42' ) );
 
 		$this->assertRegExp( $expectedRegex, $result );
 	}

@@ -21,7 +21,7 @@ class SetClaimValue extends ModifyClaim {
 	/**
 	 * @var ClaimChangeOpFactory
 	 */
-	protected $claimChangeOpFactory;
+	private $claimChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -41,8 +41,6 @@ class SetClaimValue extends ModifyClaim {
 	 * @since 0.3
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
@@ -68,16 +66,12 @@ class SetClaimValue extends ModifyClaim {
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addClaim( $claim );
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $params
 	 */
-	protected function validateParameters( array $params ) {
+	private function validateParameters( array $params ) {
 		if ( !( $this->claimModificationHelper->validateClaimGuid( $params['claim'] ) ) ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
@@ -85,12 +79,8 @@ class SetClaimValue extends ModifyClaim {
 
 	/**
 	 * @see ApiBase::getAllowedParams
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array_merge(
 			array(
 				'claim' => array(
@@ -111,13 +101,12 @@ class SetClaimValue extends ModifyClaim {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(
 			'action=wbsetclaimvalue&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&snaktype=value&value={"entity-type":"item","numeric-id":1}&token=foobar&baserevid=7201010' => 'apihelp-wbsetclaimvalue-example-1',
 		);
 	}
+
 }

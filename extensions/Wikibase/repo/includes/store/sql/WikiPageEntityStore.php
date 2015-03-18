@@ -44,23 +44,15 @@ class WikiPageEntityStore implements EntityStore {
 	protected $idGenerator;
 
 	/**
-	 * @var EntityPerPage
-	 */
-	protected $entityPerPage;
-
-	/**
 	 * @param EntityContentFactory $contentFactory
 	 * @param IdGenerator $idGenerator
-	 * @param EntityPerPage $entityPerPage
 	 */
 	public function __construct(
 		EntityContentFactory $contentFactory,
-		IdGenerator $idGenerator,
-		EntityPerPage $entityPerPage
+		IdGenerator $idGenerator
 	) {
 		$this->contentFactory = $contentFactory;
 		$this->idGenerator = $idGenerator;
-		$this->entityPerPage = $entityPerPage;
 
 		$this->dispatcher = new GenericEventDispatcher( 'Wikibase\Lib\Store\EntityStoreWatcher' );
 	}
@@ -77,15 +69,11 @@ class WikiPageEntityStore implements EntityStore {
 			throw new StorageException( 'This entity already has an ID!' );
 		}
 
-		wfProfileIn( __METHOD__ );
-
 		$contentModelId = $this->contentFactory->getContentModelForType( $entity->getType() );
 		$numericId = $this->idGenerator->getNewId( $contentModelId );
 
 		//FIXME: this relies on setId() accepting numeric IDs!
 		$entity->setId( $numericId );
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -132,11 +120,8 @@ class WikiPageEntityStore implements EntityStore {
 	 * @return EntityRevision
 	 */
 	public function saveEntity( Entity $entity, $summary, User $user, $flags = 0, $baseRevId = false ) {
-		wfProfileIn( __METHOD__ );
-
 		if ( $entity->getId() === null ) {
 			if ( ( $flags & EDIT_NEW ) !== EDIT_NEW ) {
-				wfProfileOut( __METHOD__ );
 				throw new StorageException( Status::newFatal( 'edit-gone-missing' ) );
 			}
 
@@ -150,7 +135,6 @@ class WikiPageEntityStore implements EntityStore {
 
 		$this->dispatcher->dispatch( 'entityUpdated', $entityRevision );
 
-		wfProfileOut( __METHOD__ );
 		return $entityRevision;
 	}
 
@@ -168,8 +152,6 @@ class WikiPageEntityStore implements EntityStore {
 	 * @return int The new revision ID
 	 */
 	public function saveRedirect( EntityRedirect $redirect, $summary, User $user, $flags = 0, $baseRevId = false ) {
-		wfProfileIn( __METHOD__ );
-
 		$content = $this->contentFactory->newFromRedirect( $redirect );
 
 		if ( !$content ) {
@@ -182,7 +164,6 @@ class WikiPageEntityStore implements EntityStore {
 
 		$this->dispatcher->dispatch( 'redirectUpdated', $redirect, $revision->getId() );
 
-		wfProfileOut( __METHOD__ );
 		return $revision->getId();
 	}
 
@@ -195,8 +176,6 @@ class WikiPageEntityStore implements EntityStore {
 	 *        triggered when the save is performed by calling WikiPage::doEditContent.
 	 *
 	 * @see WikiPage::doEditContent
-	 *
-	 * @since 0.5
 	 *
 	 * @param EntityContent $entityContent the entity to save.
 	 * @param string $summary
@@ -214,14 +193,11 @@ class WikiPageEntityStore implements EntityStore {
 		$flags = 0,
 		$baseRevId = false
 	) {
-		wfProfileIn( __METHOD__ );
-
 		$page = $this->getWikiPageForEntity( $entityContent->getEntityId() );
 
 		if ( ( $flags & EDIT_NEW ) === EDIT_NEW ) {
 			$title = $page->getTitle();
 			if ( $title->exists() ) {
-				wfProfileOut( __METHOD__ );
 				throw new StorageException( Status::newFatal( 'edit-already-exists' ) );
 			}
 		}
@@ -246,7 +222,6 @@ class WikiPageEntityStore implements EntityStore {
 		);
 
 		if ( !$status->isOK() ) {
-			wfProfileOut( __METHOD__ );
 			throw new StorageException( $status );
 		}
 
@@ -260,7 +235,6 @@ class WikiPageEntityStore implements EntityStore {
 			$revision = $page->getRevision();
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $revision;
 	}
 
@@ -309,11 +283,8 @@ class WikiPageEntityStore implements EntityStore {
 	 * @return bool
 	 */
 	public function userWasLastToEdit( User $user, EntityId $id, $lastRevId ) {
-		wfProfileIn( __METHOD__ );
-
 		$revision = Revision::newFromId( $lastRevId );
 		if ( !$revision ) {
-			wfProfileOut( __METHOD__ );
 			return false;
 		}
 
@@ -334,7 +305,6 @@ class WikiPageEntityStore implements EntityStore {
 			array( 'ORDER BY' => 'rev_timestamp ASC', 'LIMIT' => 1 )
 		);
 
-		wfProfileOut( __METHOD__ );
 		return $res->current() === false; // return true if query had no match
 	}
 

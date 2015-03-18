@@ -45,8 +45,6 @@ class RemoveReferences extends ModifyClaim {
 	 * @since 0.3
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
@@ -76,8 +74,6 @@ class RemoveReferences extends ModifyClaim {
 
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -90,8 +86,6 @@ class RemoveReferences extends ModifyClaim {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param string $claimGuid
 	 * @param string[] $referenceHashes
 	 *
@@ -129,12 +123,8 @@ class RemoveReferences extends ModifyClaim {
 
 	/**
 	 * @see ApiBase::getAllowedParams
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array_merge(
 			array(
 				'statement' => array(
@@ -152,9 +142,7 @@ class RemoveReferences extends ModifyClaim {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

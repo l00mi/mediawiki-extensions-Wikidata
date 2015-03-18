@@ -203,8 +203,6 @@ abstract class EntityContent extends AbstractContent {
 
 	/**
 	 * Returns a ParserOutput object containing the HTML.
-	 * The actual work of generating a ParserOutput object is done by calling
-	 * EntityView::getParserOutput().
 	 *
 	 * @note: this calls ParserOutput::recordOption( 'userlang' ) to split the cache
 	 * by user language.
@@ -227,6 +225,10 @@ abstract class EntityContent extends AbstractContent {
 		if ( $this->isRedirect() ) {
 			return $this->getParserOutputForRedirect( $generateHtml );
 		} else {
+			if ( $options === null ) {
+				$options = $this->getContentHandler()->makeParserOptions( 'canonical' );
+			}
+
 			return $this->getParserOutputFromEntityView( $title, $revisionId, $options, $generateHtml );
 		}
 	}
@@ -268,7 +270,7 @@ abstract class EntityContent extends AbstractContent {
 	 *
 	 * @param Title $title
 	 * @param int|null $revisionId
-	 * @param ParserOptions|null $options
+	 * @param ParserOptions $options
 	 * @param bool $generateHtml
 	 *
 	 * @return ParserOutput
@@ -276,7 +278,7 @@ abstract class EntityContent extends AbstractContent {
 	protected function getParserOutputFromEntityView(
 		Title $title,
 		$revisionId = null,
-		ParserOptions $options = null,
+		ParserOptions $options,
 		$generateHtml = true
 	) {
 		// @todo: move this to the ContentHandler
@@ -287,13 +289,8 @@ abstract class EntityContent extends AbstractContent {
 		);
 
 		$entityRevision = $this->getEntityRevision( $title, $revisionId );
-		$editable = $options ? $options->getEditSection() : true;
 
-		$output = $outputGenerator->getParserOutput( $entityRevision, $editable, $generateHtml );
-
-		// Since the output depends on the user language, we must make sure
-		// ParserCache::getKey() includes it in the cache key.
-		$output->recordOption( 'userlang' );
+		$output = $outputGenerator->getParserOutput( $entityRevision, $options, $generateHtml );
 
 		// register page properties
 		$this->applyEntityPageProperties( $output );
@@ -324,7 +321,6 @@ abstract class EntityContent extends AbstractContent {
 			return '';
 		}
 
-		wfProfileIn( __METHOD__ );
 		$searchTextGenerator = new EntitySearchTextGenerator();
 		$text = $searchTextGenerator->generate( $this->getEntity() );
 
@@ -332,7 +328,6 @@ abstract class EntityContent extends AbstractContent {
 			return '';
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $text;
 	}
 
@@ -357,8 +352,6 @@ abstract class EntityContent extends AbstractContent {
 			return $this->getRedirectText();
 		}
 
-		wfProfileIn( __METHOD__ );
-
 		//XXX: $ignore contains knowledge about the Entity's internal representation.
 		//     This list should therefore rather be maintained in the Entity class.
 		static $ignore = array(
@@ -374,10 +367,7 @@ abstract class EntityContent extends AbstractContent {
 
 		$values = self::collectValues( $data, $ignore );
 
-		$text = implode( "\n", $values );
-
-		wfProfileOut( __METHOD__ );
-		return $text;
+		return implode( "\n", $values );
 	}
 
 	/**
@@ -685,8 +675,6 @@ abstract class EntityContent extends AbstractContent {
 	 * @return Status
 	 */
 	public function prepareSave( WikiPage $page, $flags, $baseRevId, User $user ) {
-		wfProfileIn( __METHOD__ );
-
 		// Chain to parent
 		$status = parent::prepareSave( $page, $flags, $baseRevId, $user );
 
@@ -699,7 +687,6 @@ abstract class EntityContent extends AbstractContent {
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $status;
 	}
 

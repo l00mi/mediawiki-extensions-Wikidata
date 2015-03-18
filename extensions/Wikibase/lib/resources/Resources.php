@@ -42,6 +42,7 @@ return call_user_func( function() {
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkgroupview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinklistview.css',
 				'jquery.wikibase/themes/default/jquery.wikibase.sitelinkview.css',
+				'jquery.wikibase/themes/default/jquery.wikibase.statementgroupview.css',
 			)
 		),
 
@@ -54,6 +55,19 @@ return call_user_func( function() {
 			'messages' => array(
 				'special-createitem',
 				'wb-special-newitem-new-item-notification',
+			),
+		),
+
+		'wikibase.buildErrorOutput' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.buildErrorOutput.js',
+			),
+			'dependencies' => array(
+				'wikibase',
+				'jquery.ui.toggler'
+			),
+			'messages' => array(
+				'wikibase-tooltip-error-details',
 			),
 		),
 

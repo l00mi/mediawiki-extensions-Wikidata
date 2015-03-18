@@ -2,7 +2,7 @@
 
 namespace Wikibase\Lib\Test;
 
-use ValueFormatters\FormatterOptions;
+use PHPUnit_Framework_TestCase;
 use Wikibase\Lib\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
 
@@ -16,22 +16,15 @@ use Wikibase\Lib\SnakFormatter;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class EntityIdHtmlLinkFormatterFactoryTest extends \PHPUnit_Framework_TestCase {
+class EntityIdHtmlLinkFormatterFactoryTest extends PHPUnit_Framework_TestCase {
 
 	private function getFormatterFactory() {
-		$labelLookup = $this->getMock( 'Wikibase\Lib\Store\LabelLookup' );
-
-		$labelLookupFactory = $this->getMockBuilder( 'Wikibase\Lib\FormatterLabelLookupFactory' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$labelLookupFactory->expects( $this->any() )
-			->method( 'getLabelLookup' )
-			->will( $this->returnValue( $labelLookup ) );
-
 		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
 
-		return new EntityIdHtmlLinkFormatterFactory( $labelLookupFactory, $titleLookup );
+		return new EntityIdHtmlLinkFormatterFactory(
+			$titleLookup,
+			$this->getMock( 'Wikibase\Lib\LanguageNameLookup' )
+		);
 	}
 
 	public function testGetFormat() {
@@ -43,7 +36,7 @@ class EntityIdHtmlLinkFormatterFactoryTest extends \PHPUnit_Framework_TestCase {
 	public function testGetEntityIdFormatter() {
 		$factory = $this->getFormatterFactory();
 
-		$formatter = $factory->getEntityIdFormater( new FormatterOptions() );
+		$formatter = $factory->getEntityIdFormater( $this->getMock( 'Wikibase\Lib\Store\LabelLookup' ) );
 		$this->assertInstanceOf( 'Wikibase\Lib\EntityIdFormatter', $formatter );
 	}
 

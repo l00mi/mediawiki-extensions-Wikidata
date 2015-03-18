@@ -10,10 +10,11 @@ use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
 use Html;
 use IContextSource;
+use InvalidArgumentException;
 use MWException;
 use SiteStore;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 
@@ -37,54 +38,40 @@ class DiffView extends ContextSource {
 	private $siteStore;
 
 	/**
-	 * @since 0.1
-	 *
 	 * @var string[]
 	 */
 	private $path;
 
 	/**
-	 * @since 0.1
-	 *
 	 * @var Diff
 	 */
 	private $diff;
 
 	/**
-	 * @var EntityTitleLookup
+	 * @var EntityIdFormatter
 	 */
-	private $entityTitleLookup;
+	private $entityIdFormatter;
 
 	/**
-	 * @var EntityRevisionLookup
-	 */
-	private $entityRevisionLookup;
-
-	/**
-	 * Constructor.
-	 *
 	 * @since 0.1
 	 *
 	 * @param string[] $path
 	 * @param Diff $diff
 	 * @param SiteStore $siteStore
-	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param EntityRevisionLookup $entityRevisionLookup
+	 * @param EntityIdFormatter $entityIdFormatter that must return only HTML! otherwise injections might be possible
 	 * @param IContextSource|null $contextSource
 	 */
 	public function __construct(
 		array $path,
 		Diff $diff,
 		SiteStore $siteStore,
-		EntityTitleLookup $entityTitleLookup,
-		EntityRevisionLookup $entityRevisionLookup,
+		EntityIdFormatter $entityIdFormatter,
 		IContextSource $contextSource = null
 	) {
 		$this->path = $path;
 		$this->diff = $diff;
+		$this->entityIdFormatter = $entityIdFormatter;
 		$this->siteStore = $siteStore;
-		$this->entityTitleLookup = $entityTitleLookup;
-		$this->entityRevisionLookup = $entityRevisionLookup;
 
 		if ( !is_null( $contextSource ) ) {
 			$this->setContext( $contextSource );
@@ -104,8 +91,6 @@ class DiffView extends ContextSource {
 
 	/**
 	 * Does the actual work.
-	 *
-	 * @since 0.1
 	 *
 	 * @param string[] $path
 	 * @param DiffOp $op
@@ -147,8 +132,6 @@ class DiffView extends ContextSource {
 
 	/**
 	 * Generates HTML for an change diffOp
-	 *
-	 * @since 0.4
 	 *
 	 * @param string|null $oldValue
 	 * @param string|null $newValue
@@ -234,54 +217,22 @@ class DiffView extends ContextSource {
 	}
 
 	/**
-	 * @param string $badgeId
+	 * @param string $idString
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
-	private function getBadgeLinkElement( $badgeId ) {
+	private function getBadgeLinkElement( $idString ) {
 		try {
-			$title = $this->entityTitleLookup->getTitleForId( new ItemId( $badgeId ) );
-		} catch ( MWException $ex ) {
-			wfWarn( "Couldn't get Title for badge $badgeId" );
-			return $badgeId;
+			$itemId = new ItemId( $idString );
+		} catch ( InvalidArgumentException $ex ) {
+			return $idString;
 		}
 
-		return Html::element( 'a', array(
-			'href' => $title->getLinkURL(),
-			'dir' => 'auto',
-		), $this->getLabelForBadge( new ItemId( $badgeId ) ) );
-	}
-
-	/**
-	 * Returns the title for the given badge id.
-	 * @todo use TermLookup when we have one
-	 * @todo this is copied from SpecialSetSiteLink
-	 *
-	 * @param EntityId $badgeId
-	 *
-	 * @return string
-	 */
-	private function getLabelForBadge( EntityId $badgeId ) {
-		$entityRevision = $this->entityRevisionLookup->getEntityRevision( $badgeId );
-
-		if ( $entityRevision === null ) {
-			return $badgeId->getSerialization();
-		}
-
-		$languageCode = $this->getLanguage()->getCode();
-		$labels = $entityRevision->getEntity()->getFingerprint()->getLabels();
-
-		if ( $labels->hasTermForLanguage( $languageCode ) ) {
-			return $labels->getByLanguage( $languageCode )->getText();
-		} else {
-			return $badgeId->getSerialization();
-		}
+		return $this->entityIdFormatter->formatEntityId( $itemId );
 	}
 
 	/**
 	 * Generates HTML for the header of the diff operation
-	 *
-	 * @since 0.4
 	 *
 	 * @param string $name
 	 *

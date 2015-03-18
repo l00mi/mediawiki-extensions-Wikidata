@@ -11,9 +11,9 @@ use Wikibase\ChangeOp\FingerprintChangeOpFactory;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\Lib\ContentLanguages;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
-use Wikibase\Utils;
 
 /**
  * Abstract special page for setting a value of a Wikibase entity.
@@ -45,6 +45,11 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	protected $termChangeOpFactory;
 
 	/**
+	 * @var ContentLanguages
+	 */
+	private $termsLanguages;
+
+	/**
 	 * @since 0.4
 	 *
 	 * @param string $title The title of the special page
@@ -55,6 +60,7 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
 		$this->termChangeOpFactory = $changeOpFactoryProvider->getFingerprintChangeOpFactory();
+		$this->termsLanguages = WikibaseRepo::getDefaultInstance()->getTermsLanguages();
 	}
 
 	/**
@@ -77,19 +83,26 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 			$this->languageCode = null;
 		}
 
-		if ( $this->languageCode !== null && !$this->isValidLanguageCode( $this->languageCode ) ) {
+		$this->checkSubPageLanguage();
+
+		// Value
+		$this->value = $this->getPostedValue();
+		if ( $this->value === null ) {
+			$this->value = $request->getVal( 'value' );
+		}
+	}
+
+	/**
+	 * Check the language given as sup page argument.
+	 */
+	private function checkSubPageLanguage() {
+		if ( $this->languageCode !== null && !$this->termsLanguages->hasLanguage( $this->languageCode ) ) {
 			$errorMessage = $this->msg(
 				'wikibase-wikibaserepopage-invalid-langcode',
 				$this->languageCode
 			)->parse();
 
 			$this->showErrorHTML( $errorMessage );
-		}
-
-		// Value
-		$this->value = $this->getPostedValue();
-		if ( $this->value === null ) {
-			$this->value = $request->getVal( 'value' );
 		}
 	}
 
@@ -172,19 +185,6 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	}
 
 	/**
-	 * Checks if the language code is valid.
-	 *
-	 * @since 0.4
-	 *
-	 * @param $languageCode string the language code
-	 *
-	 * @return bool
-	 */
-	private function isValidLanguageCode( $languageCode ) {
-		return $languageCode !== null && Language::isValidBuiltInCode( $languageCode ) && in_array( $languageCode, Utils::getLanguageCodes() );
-	}
-
-	/**
 	 * @see SpecialModifyEntity::getFormElements()
 	 *
 	 * @param Entity $entity
@@ -206,7 +206,6 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 			array(
 				'class' => 'wb-input',
 				'id' => 'wb-modifyterm-value',
-				'size' => 50
 			)
 		)
 		. Html::element( 'br' );

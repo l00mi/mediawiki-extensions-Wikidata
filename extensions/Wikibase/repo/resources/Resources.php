@@ -146,20 +146,16 @@ return call_user_func( function() {
 				'wikibase.ui.entityViewInit.js' // should probably be adjusted for more modularity
 			),
 			'dependencies' => array(
+				'mediawiki.page.watch.ajax',
 				'mediawiki.user',
 				'mw.config.values.wbRepo',
-				'jquery.wikibase.itemview',
-				'jquery.wikibase.propertyview',
 				'jquery.wikibase.toolbarcontroller',
-				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.claimgrouplistview-claimlistview',
-				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.claimlistview-statementview',
+				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementgrouplistview-statementgroupview',
+				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementlistview-statementview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.referenceview-snakview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-referenceview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-snakview',
-				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.aliasesview',
-				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.descriptionview',
 				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.entitytermsview',
-				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.labelview',
 				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.referenceview',
 				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.sitelinkgroupview',
 				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.statementview',
@@ -183,17 +179,15 @@ return call_user_func( function() {
 				'wikibase.store.CombiningEntityStore',
 				'wikibase.store.FetchedContentUnserializer',
 				'wikibase.store.MwConfigEntityStore',
-				'wikibase.ValueViewBuilder'
+				'wikibase.view.ViewFactory',
+				'wikibase.WikibaseContentLanguages'
 			),
 			'messages' => array(
 				'pagetitle',
-				'wikibase-statements',
 				'wikibase-copyrighttooltip-acknowledge',
 				'wikibase-anonymouseditwarning',
 				'wikibase-entity-item',
 				'wikibase-entity-property',
-				'wikibase-restrictionedit-tooltip-message',
-				'wikibase-blockeduser-tooltip-message',
 			)
 		),
 
@@ -267,17 +261,24 @@ return call_user_func( function() {
 			)
 		),
 
-		'wikibase.toc' => $moduleTemplate + array(
-			'styles' => array(
-				'themes/default/wikibase.toc.css',
+		'wikibase.WikibaseContentLanguages' => $moduleTemplate + array(
+			'scripts' => array(
+				'wikibase.WikibaseContentLanguages.js',
+			),
+			'dependencies' => array(
+				'util.ContentLanguages',
+				'util.inherit',
+				'wikibase',
 			),
 		),
+
 	);
 
 	if ( defined( 'ULS_VERSION' ) ) {
 		$modules['wikibase.getLanguageNameByCode']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.itemDisambiguation']['dependencies'][] = 'ext.uls.mediawiki';
 		$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
+		$modules['wikibase.WikibaseContentLanguages']['dependencies'][] = 'ext.uls.languagenames';
 	}
 
 	return array_merge(
@@ -290,4 +291,3 @@ return call_user_func( function() {
 		include( __DIR__ . '/store/resources.php' )
 	);
 } );
-// @codeCoverageIgnoreEnd

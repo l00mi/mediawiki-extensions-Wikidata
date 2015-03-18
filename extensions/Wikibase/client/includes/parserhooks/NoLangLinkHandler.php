@@ -2,6 +2,7 @@
 
 namespace Wikibase;
 
+use Parser;
 use ParserOutput;
 use Wikibase\Client\WikibaseClient;
 
@@ -29,7 +30,7 @@ class NoLangLinkHandler {
 	 * @since 0.4
 	 *
 	 * @param Parser &$parser
-	 * @param mixed ... language codes or '*'
+	 * @param string [$languageCode,...] Language codes or '*'
 	 *
 	 * @return string
 	 */

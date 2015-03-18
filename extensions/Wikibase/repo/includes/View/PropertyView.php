@@ -23,27 +23,32 @@ use Wikibase\Template\TemplateFactory;
 class PropertyView extends EntityView {
 
 	/**
+	 * @var StatementGroupListView
+	 */
+	private $statementGroupListView;
+
+	/**
 	 * @var DataTypeFactory
 	 */
 	private $dataTypeFactory;
 
 	/**
 	 * @param TemplateFactory $templateFactory
-	 * @param FingerprintView $fingerprintView
-	 * @param ClaimsView $claimsView
+	 * @param EntityTermsView $entityTermsView
+	 * @param StatementGroupListView $statementGroupListView
+	 * @param DataTypeFactory $dataTypeFactory
 	 * @param Language $language
-	 * @param bool $editable
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
-		FingerprintView $fingerprintView,
-		ClaimsView $claimsView,
+		EntityTermsView $entityTermsView,
+		StatementGroupListView $statementGroupListView,
 		DataTypeFactory $dataTypeFactory,
-		Language $language,
-		$editable = true
+		Language $language
 	) {
-		parent::__construct( $templateFactory, $fingerprintView, $claimsView, $language, $editable );
+		parent::__construct( $templateFactory, $entityTermsView, $language );
 
+		$this->statementGroupListView = $statementGroupListView;
 		$this->dataTypeFactory = $dataTypeFactory;
 	}
 
@@ -51,8 +56,6 @@ class PropertyView extends EntityView {
 	 * @see EntityView::getMainHtml
 	 */
 	public function getMainHtml( EntityRevision $entityRevision ) {
-		wfProfileIn( __METHOD__ );
-
 		$property = $entityRevision->getEntity();
 
 		if ( !( $property instanceof Property ) ) {
@@ -62,7 +65,7 @@ class PropertyView extends EntityView {
 		$html = parent::getMainHtml( $entityRevision );
 		$html .= $this->getHtmlForDataType( $this->getDataType( $property ) );
 
-		$html .= $this->claimsView->getHtml(
+		$html .= $this->statementGroupListView->getHtml(
 			$property->getStatements()->toArray()
 		);
 
@@ -72,7 +75,6 @@ class PropertyView extends EntityView {
 			$html .= "\n" . $footer->parse();
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 

@@ -12,6 +12,7 @@
 		]
 	},
 	"wikibase-lib-desc": "Bevat gemeenschappelijke functies voor de uitbreidingen Wikibase en Wikibase Client",
+	"specialpages-group-wikibase": "Wikibase",
 	"wikibase-deletedentity-item": "Verwijderd item",
 	"wikibase-deletedentity-property": "Verwijderde eigenschap",
 	"wikibase-deletedentity-query": "Verwijderde zoekopdracht",
@@ -32,7 +33,7 @@
 	"wikibase-quantitydetails-lowerbound": "Ondergrens",
 	"wikibase-quantitydetails-unit": "Eenheid",
 	"wikibase-timedetails-time": "Tijd",
-	"wikibase-timedetails-isotime": "ISO-tijdstempel",
+	"wikibase-timedetails-isotime": "Tijdstip",
 	"wikibase-timedetails-timezone": "Tijdzone",
 	"wikibase-timedetails-calendar": "Kalender",
 	"wikibase-timedetails-precision": "Precisie",

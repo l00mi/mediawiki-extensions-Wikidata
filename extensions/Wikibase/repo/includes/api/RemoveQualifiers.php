@@ -45,8 +45,6 @@ class RemoveQualifiers extends ModifyClaim {
 	 * @since 0.3
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
@@ -72,8 +70,6 @@ class RemoveQualifiers extends ModifyClaim {
 
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -86,8 +82,6 @@ class RemoveQualifiers extends ModifyClaim {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param string $claimGuid
 	 * @param string[] $qualifierHashes
 	 *
@@ -124,13 +118,9 @@ class RemoveQualifiers extends ModifyClaim {
 	}
 
 	/**
-	 * @see \ApiBase::getAllowedParams
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
+	 * @see ApiBase::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array_merge(
 			array(
 				'claim' => array(
@@ -148,9 +138,7 @@ class RemoveQualifiers extends ModifyClaim {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

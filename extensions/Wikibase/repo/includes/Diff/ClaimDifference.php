@@ -7,42 +7,36 @@ use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpChange;
 
 /**
- * Represents the difference between two Claim objects.
+ * Represents the difference between two Statement objects.
  *
  * @since 0.4
  *
  * @licence GNU GPL v2+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
+ * @author Thiemo Mättig
  */
+// FIXME: Contains references and rank? It's a StatementDifference!
 class ClaimDifference implements Comparable {
 
 	/**
-	 * @since 0.4
-	 *
-	 * @var Diff|null
-	 */
-	private $referenceChanges;
-
-	/**
-	 * @since 0.4
-	 *
 	 * @var DiffOpChange|null
 	 */
 	private $mainSnakChange;
 
 	/**
-	 * @since 0.4
-	 *
-	 * @var DiffOpChange|null
-	 */
-	private $rankChange;
-
-	/**
-	 * @since 0.4
-	 *
 	 * @var Diff|null
 	 */
 	private $qualifierChanges;
+
+	/**
+	 * @var Diff|null
+	 */
+	private $referenceChanges;
+
+	/**
+	 * @var DiffOpChange|null
+	 */
+	private $rankChange;
 
 	/**
 	 * @since 0.4
@@ -52,28 +46,31 @@ class ClaimDifference implements Comparable {
 	 * @param Diff|null $referenceChanges
 	 * @param DiffOpChange|null $rankChange
 	 */
-	public function __construct( DiffOpChange $mainSnakChange = null, Diff $qualifierChanges = null,
-								 Diff $referenceChanges = null, DiffOpChange $rankChange = null ) {
-
-		$this->referenceChanges = $referenceChanges;
+	public function __construct(
+		DiffOpChange $mainSnakChange = null,
+		Diff $qualifierChanges = null,
+		Diff $referenceChanges = null,
+		DiffOpChange $rankChange = null
+	) {
 		$this->mainSnakChange = $mainSnakChange;
-		$this->rankChange = $rankChange;
 		$this->qualifierChanges = $qualifierChanges;
+		$this->referenceChanges = $referenceChanges;
+		$this->rankChange = $rankChange;
 	}
 
 	/**
-	 * Returns the reference change.
+	 * Returns the set of reference changes.
 	 *
 	 * @since 0.4
 	 *
 	 * @return Diff
 	 */
 	public function getReferenceChanges() {
-		return $this->referenceChanges === null ? new Diff( array(), false ) : $this->referenceChanges;
+		return $this->referenceChanges ?: new Diff( array(), false );
 	}
 
 	/**
-	 * Returns the mainsnak change.
+	 * Returns the main snak change.
 	 *
 	 * @since 0.4
 	 *
@@ -95,14 +92,14 @@ class ClaimDifference implements Comparable {
 	}
 
 	/**
-	 * Returns the qualifier change.
+	 * Returns the set of qualifier changes.
 	 *
 	 * @since 0.4
 	 *
 	 * @return Diff
 	 */
 	public function getQualifierChanges() {
-		return $this->qualifierChanges === null ? new Diff( array(), false ) : $this->qualifierChanges;
+		return $this->qualifierChanges ?: new Diff( array(), false );
 	}
 
 	/**
@@ -112,7 +109,7 @@ class ClaimDifference implements Comparable {
 	 *
 	 * @param mixed $target
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function equals( $target ) {
 		if ( $target === $this ) {
@@ -123,37 +120,38 @@ class ClaimDifference implements Comparable {
 			return false;
 		}
 
-		return $this->getMainSnakChange() == $target->getMainSnakChange()
-			&& $this->getRankChange() == $target->getRankChange()
-			&& $this->getQualifierChanges() == $target->getQualifierChanges()
-			&& $this->getReferenceChanges() == $target->getReferenceChanges();
+		return $this->mainSnakChange == $target->mainSnakChange
+			// FIXME: Use Diff::equals when released.
+			&& $this->getQualifierChanges()->getArrayCopy() == $target->getQualifierChanges()->getArrayCopy()
+			&& $this->getReferenceChanges()->getArrayCopy() == $target->getReferenceChanges()->getArrayCopy()
+			&& $this->rankChange == $target->rankChange;
 	}
 
 	/**
-	 * Checks whether the ClaimDifference is atomic, which means
-	 * the Claim has only changed either its MainSnak, Qualifiers, References or Rank
+	 * Checks whether the difference represented by this object is atomic, which means
+	 * the Statement has only changed either its main snak, qualifiers, references or rank.
 	 *
 	 * @since 0.4
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isAtomic() {
-		$claimChanges = 0;
+		$aspects = 0;
 
-		if ( $this->getMainSnakChange() !== null ) {
-			$claimChanges++;
-		}
-		if ( $this->getRankChange() !== null ) {
-			$claimChanges++;
+		if ( $this->mainSnakChange !== null ) {
+			$aspects++;
 		}
 		if ( !$this->getQualifierChanges()->isEmpty() ) {
-			$claimChanges++;
+			$aspects++;
 		}
 		if ( !$this->getReferenceChanges()->isEmpty() ) {
-			$claimChanges++;
+			$aspects++;
+		}
+		if ( $this->rankChange !== null ) {
+			$aspects++;
 		}
 
-		return $claimChanges === 1;
+		return $aspects === 1;
 	}
 
 }

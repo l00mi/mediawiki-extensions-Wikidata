@@ -17,6 +17,7 @@ use Wikibase\Repo\Diff\EntityContentDiffView;
  *
  * @group Wikibase
  * @group WikibaseRepo
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -31,11 +32,9 @@ class EntityContentDiffViewTest extends \MediaWikiTestCase {
 	}
 
 	public function itemProvider() {
-		$emptyItem = Item::newEmpty();
-		$emptyItem->setId( new ItemId( 'Q1' ) );
+		$emptyItem = new Item( new ItemId( 'Q1' ) );
 
-		$item = Item::newEmpty();
-		$item->setId( new ItemId( 'Q11' ) );
+		$item = new Item( new ItemId( 'Q11' ) );
 		$item->setDescription( 'en', 'ohi there' );
 		$item->setLabel( 'de', 'o_O' );
 		$item->addAliases( 'nl', array( 'foo', 'bar' ) );

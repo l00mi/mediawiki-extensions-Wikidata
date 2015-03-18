@@ -17,9 +17,12 @@
 
 		var self = this;
 
-		this.preview = new vv.ExpertExtender.Preview( function() {
-			return self.viewState().getFormattedValue();
-		} );
+		this.preview = new vv.ExpertExtender.Preview(
+			function() {
+				return self.viewState().getFormattedValue();
+			},
+			this._messageProvider
+		);
 
 		var precisionMsgKey = 'valueview-expert-globecoordinateinput-precision';
 		var $precisionContainer = $( '<div/>' )
@@ -41,7 +44,10 @@
 				return getPrecisionSetting( value ) || {
 					custom: true,
 					value: value,
-					label: self._messageProvider.getMessage('valueview-expert-globecoordinateinput-customprecision', [ Formatter.PRECISIONTEXT( value ) ] )
+					label: self._messageProvider.getMessage(
+						'valueview-expert-globecoordinateinput-customprecision',
+						[ Formatter.PRECISIONTEXT( value ) ]
+					)
 				};
 			}
 		);

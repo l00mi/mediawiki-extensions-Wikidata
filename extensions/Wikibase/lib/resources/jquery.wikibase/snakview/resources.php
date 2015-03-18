@@ -25,8 +25,8 @@ return call_user_func( function() {
 				'themes/default/snakview.SnakTypeSelector.css',
 			),
 			'dependencies' => array(
+				'dataValues.DataValue',
 				'jquery.event.special.eachchange',
-				'jquery.NativeEventHandler',
 				'jquery.ui.position',
 				'jquery.ui.TemplatedWidget',
 				'jquery.wikibase.entityselector',

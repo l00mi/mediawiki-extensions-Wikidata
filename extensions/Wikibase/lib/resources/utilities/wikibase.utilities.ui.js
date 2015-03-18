@@ -77,8 +77,8 @@
 			}
 			var $undefinedInfo = $( '<span/>', {
 				'class': 'wb-entity-undefinedinfo',
-				'dir': IS_RTL ? 'rtl' : 'ltr',
-				'text': mw.msg( 'parentheses', mw.msg( 'wikibase-label-empty' ) )
+				dir: IS_RTL ? 'rtl' : 'ltr',
+				text: mw.msg( 'parentheses', mw.msg( 'wikibase-label-empty' ) )
 			} );
 			$label = $label.add( $undefinedInfo );
 		}
@@ -115,8 +115,8 @@
 		return $( '<span/>' ).text( entityId + SPACE ).append(
 			$( '<span>', {
 				'class': 'wb-entity-undefinedinfo',
-				'dir': IS_RTL ? 'rtl' : 'ltr',
-				'text': mw.msg( 'parentheses', mw.msg( 'wikibase-deletedentity-' + entityType ) )
+				dir: IS_RTL ? 'rtl' : 'ltr',
+				text: mw.msg( 'parentheses', mw.msg( 'wikibase-deletedentity-' + entityType ) )
 			} )
 		);
 	};
@@ -171,48 +171,12 @@
 				mw.msg( 'wikibase-ui-pendingquantitycounter-pending-pendingsubpart', pqNumMsg )
 			);
 			$msgSpan.tipsy( {
-				'gravity': ( IS_RTL ? 'ne' : 'nw' )
+				gravity: ( IS_RTL ? 'ne' : 'nw' )
 			} );
 		}
 
 		$msg.addClass( 'wb-ui-pendingcounter' );
 		return $msg;
-	};
-
-	/**
-	 * Generates standardized output for errors.
-	 *
-	 * @param {Error} error
-	 * @param {Object} [animationOptions={ duration: 'fast' }] jQuery animation options.
-	 * @return {jQuery}
-	 */
-	wb.utilities.ui.buildErrorOutput = function( error, animationOptions ) {
-		var $message = $( '<div/>' ).addClass( 'wb-error' );
-
-		$message.append( $( '<div/>' ).addClass( 'wb-error-message' ).text( error.message ) );
-
-		// Append detailed error message if given; hide it behind toggle:
-		if( error.detailedMessage ) {
-			var $detailedMessage = $( '<div/>', {
-				'class': 'wb-error-details',
-				html: error.detailedMessage
-			} )
-			.hide();
-
-			var $toggler = $( '<a/>' )
-				.addClass( 'wb-error-details-link' )
-				.text( mw.msg( 'wikibase-tooltip-error-details' ) )
-				.toggler( $.extend( {
-					$subject: $detailedMessage,
-					duration: 'fast'
-				}, animationOptions || {} ) );
-
-			$message
-			.append( $toggler )
-			.append( $detailedMessage );
-		}
-
-		return $message;
 	};
 
 }( mediaWiki, wikibase, jQuery ) );

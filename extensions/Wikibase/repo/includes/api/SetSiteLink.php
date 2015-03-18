@@ -29,7 +29,7 @@ class SetSiteLink extends ModifyEntity {
 	/**
 	 * @var SiteLinkChangeOpFactory
 	 */
-	protected $siteLinkChangeOpFactory;
+	private $siteLinkChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -44,14 +44,13 @@ class SetSiteLink extends ModifyEntity {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * Checks whether the link should be removed based on params
 	 *
 	 * @param array $params
+	 *
 	 * @return bool
 	 */
-	protected function shouldRemove( array $params ) {
+	private function shouldRemove( array $params ) {
 		if ( $params['linktitle'] === '' || ( !isset( $params['linktitle'] ) && !isset( $params['badges'] ) ) ) {
 			return true;
 		} else {
@@ -74,13 +73,10 @@ class SetSiteLink extends ModifyEntity {
 	}
 
 	/**
-	 * @see ApiModifyEntity::modifyEntity()
+	 * @see ModifyEntity::modifyEntity
 	 */
 	protected function modifyEntity( Entity &$entity, array $params, $baseRevId ) {
-		wfProfileIn( __METHOD__ );
-
 		if ( !( $entity instanceof Item ) ) {
-			wfProfileOut( __METHOD__ );
 			$this->dieError( "The given entity is not an item", "not-item" );
 		}
 
@@ -105,26 +101,21 @@ class SetSiteLink extends ModifyEntity {
 				$link = $item->getSiteLink( $linksite );
 				$this->getResultBuilder()->addSiteLinks( array( $link ), 'entity', array( 'url' ) );
 			} else {
-				wfProfileOut( __METHOD__ );
 				$this->dieMessage( 'no-such-sitelink', $params['linktitle'] );
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $summary;
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $params
+	 *
 	 * @return ChangeOpSiteLink
 	 */
-	protected function getChangeOp( array $params ) {
-		wfProfileIn( __METHOD__ );
+	private function getChangeOp( array $params ) {
 		if ( $this->shouldRemove( $params ) ) {
 			$linksite = $this->stringNormalizer->trimToNFC( $params['linksite'] );
-			wfProfileOut( __METHOD__ );
 			return $this->siteLinkChangeOpFactory->newRemoveSiteLinkOp( $linksite );
 		} else {
 			$linksite = $this->stringNormalizer->trimToNFC( $params['linksite'] );
@@ -132,7 +123,6 @@ class SetSiteLink extends ModifyEntity {
 			$site = $sites->getSite( $linksite );
 
 			if ( $site === false ) {
-				wfProfileOut( __METHOD__ );
 				$this->dieError( 'The supplied site identifier was not recognized' , 'not-recognized-siteid' );
 			}
 
@@ -140,7 +130,6 @@ class SetSiteLink extends ModifyEntity {
 				$page = $site->normalizePageName( $this->stringNormalizer->trimWhitespace( $params['linktitle'] ) );
 
 				if ( $page === false ) {
-					wfProfileOut( __METHOD__ );
 					$this->dieMessage( 'no-external-page', $linksite, $params['linktitle'] );
 				}
 			} else {
@@ -151,26 +140,18 @@ class SetSiteLink extends ModifyEntity {
 				? $this->parseSiteLinkBadges( $params['badges'] )
 				: null;
 
-			wfProfileOut( __METHOD__ );
 			return $this->siteLinkChangeOpFactory->newSetSiteLinkOp( $linksite, $page, $badges );
 		}
 	}
 
 	/**
-	 * Returns an array of allowed parameters (parameter name) => (default
-	 * value) or (parameter name) => (array with PARAM_* constants as keys)
-	 * Don't call this function directly: use getFinalParams() to allow
-	 * hooks to modify parameters as needed.
-	 * @return array|bool
+	 * @see ModifyEntity::getAllowedParams
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 
 		return array_merge(
 			parent::getAllowedParams(),
-			parent::getAllowedParamsForId(),
-			parent::getAllowedParamsForSiteLink(),
-			parent::getAllowedParamsForEntity(),
 			array(
 				'linksite' => array(
 					ApiBase::PARAM_TYPE => $sites->getGlobalIdentifiers(),
@@ -188,9 +169,7 @@ class SetSiteLink extends ModifyEntity {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

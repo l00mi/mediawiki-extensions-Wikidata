@@ -16,24 +16,24 @@ return call_user_func( function() {
 
 	$modules = array(
 
-		'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.claimgrouplistview-claimlistview' => $moduleTemplate + array(
+		'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementgrouplistview-statementgroupview' => $moduleTemplate + array(
 			'scripts' => array(
-				'definitions/addtoolbar/claimgrouplistview-claimlistview.js',
+				'definitions/addtoolbar/statementgrouplistview-statementgroupview.js',
 			),
 			'dependencies' => array(
 				'jquery.wikibase.addtoolbar',
-				'jquery.wikibase.claimgrouplistview',
+				'jquery.wikibase.statementgrouplistview',
 				'jquery.wikibase.toolbarcontroller',
 			),
 		),
 
-		'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.claimlistview-statementview' => $moduleTemplate + array(
+		'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementlistview-statementview' => $moduleTemplate + array(
 			'scripts' => array(
-				'definitions/addtoolbar/claimlistview-statementview.js',
+				'definitions/addtoolbar/statementlistview-statementview.js',
 			),
 			'dependencies' => array(
 				'jquery.wikibase.addtoolbar',
-				'jquery.wikibase.claimlistview',
+				'jquery.wikibase.statementlistview',
 				'jquery.wikibase.toolbarcontroller',
 				'wikibase.templates',
 			),
@@ -79,48 +79,16 @@ return call_user_func( function() {
 		),
 
 
-		'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.aliasesview' => $moduleTemplate + array(
-			'scripts' => array(
-				'definitions/edittoolbar/aliasesview.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.aliasesview',
-				'jquery.wikibase.edittoolbar',
-				'jquery.wikibase.toolbarcontroller',
-			),
-		),
-
-		'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.descriptionview' => $moduleTemplate + array(
-			'scripts' => array(
-				'definitions/edittoolbar/descriptionview.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.descriptionview',
-				'jquery.wikibase.edittoolbar',
-				'jquery.wikibase.toolbarcontroller',
-			),
-		),
-
 		'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.entitytermsview' => $moduleTemplate + array(
 			'scripts' => array(
 				'definitions/edittoolbar/entitytermsview.js',
 			),
 			'dependencies' => array(
+				'jquery.sticknode',
 				'jquery.wikibase.entitytermsview',
 				'jquery.wikibase.edittoolbar',
 				'jquery.wikibase.toolbarcontroller',
-			),
-		),
-
-		'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.labelview' => $moduleTemplate + array(
-			'scripts' => array(
-				'definitions/edittoolbar/labelview.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.edittoolbar',
-				'jquery.wikibase.labelview',
-				'jquery.wikibase.toolbarcontroller',
-				'wikibase.templates',
+				'mediawiki.user',
 			),
 		),
 

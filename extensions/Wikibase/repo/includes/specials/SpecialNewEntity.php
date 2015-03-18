@@ -9,7 +9,6 @@ use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
-use Wikibase\SummaryFormatter;
 
 /**
  * Page for creating new Wikibase entities.
@@ -26,19 +25,19 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	/**
 	 * Contains pieces of the sub-page name of this special page if a subpage was called.
 	 * E.g. array( 'a', 'b' ) in case of 'Special:NewEntity/a/b'
-	 * @var string[]
+	 * @var string[]|null
 	 */
 	protected $parts = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected $label = null;
+	private $label = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected $description = null;
+	private $description = null;
 
 	/**
 	 * @var Language
@@ -46,19 +45,14 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	private $contentLanguage = null;
 
 	/**
-	 * @var SummaryFormatter
+	 * @var string
 	 */
-	protected $summaryFormatter;
+	private $rightsUrl;
 
 	/**
 	 * @var string
 	 */
-	protected $rightsUrl;
-
-	/**
-	 * @var string
-	 */
-	protected $rightsText;
+	private $rightsText;
 
 	/**
 	 * @param string $name Name of the special page, as seen in links and URLs.
@@ -153,10 +147,18 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	 * @since 0.1
 	 */
 	protected function prepareArguments() {
-		$this->label = $this->getRequest()->getVal( 'label', isset( $this->parts[0] ) ? $this->parts[0] : '' );
-		$this->description = $this->getRequest()->getVal( 'description', isset( $this->parts[1] ) ? $this->parts[1] : '' );
-		$this->contentLanguage = Language::factory( $this->getRequest()->getVal( 'lang', $this->getLanguage()->getCode() ) );
-		return true;
+		$this->label = $this->getRequest()->getVal(
+			'label',
+			isset( $this->parts[0] ) ? $this->parts[0] : ''
+		);
+		$this->description = $this->getRequest()->getVal(
+			'description',
+			isset( $this->parts[1] ) ? $this->parts[1] : ''
+		);
+		$this->contentLanguage = Language::factory( $this->getRequest()->getVal(
+			'lang',
+			$this->getLanguage()->getCode()
+		) );
 	}
 
 	/**
@@ -172,8 +174,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	}
 
 	/**
-	 * Create entity
-	 *
 	 * @since 0.1
 	 *
 	 * @return Entity Created entity of correct subtype
@@ -208,9 +208,7 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	 * @return string Formatted HTML for inclusion in the form
 	 */
 	protected function additionalFormElements() {
-		global $wgLang;
-		return
-		Html::hidden(
+		return Html::hidden(
 			'lang',
 			$this->contentLanguage->getCode()
 		)
@@ -228,7 +226,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 			'text',
 			array(
 				'id' => 'wb-newentity-label',
-				'size' => 12,
 				'class' => 'wb-input',
 				'lang' => $this->contentLanguage->getCode(),
 				'dir' => $this->contentLanguage->getDir(),
@@ -238,7 +235,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 				)->text(),
 			)
 		)
-		. Html::element( 'br' )
 		. Html::element(
 			'label',
 			array(
@@ -253,7 +249,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 			'text',
 			array(
 				'id' => 'wb-newentity-description',
-				'size' => 36,
 				'class' => 'wb-input',
 				'lang' => $this->contentLanguage->getCode(),
 				'dir' => $this->contentLanguage->getDir(),
@@ -262,19 +257,16 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 					Language::fetchLanguageName( $this->contentLanguage->getCode() )
 				)->text(),
 			)
-		)
-		. Html::element( 'br' );
+		);
 	}
 
 	/**
 	 * Building the HTML form for creating a new item.
 	 *
-	 * @since 0.1
-	 *
 	 * @param string|null $legend initial value for the label input box
 	 * @param string $additionalHtml initial value for the description input box
 	 */
-	public function createForm( $legend = null, $additionalHtml = '' ) {
+	private function createForm( $legend = null, $additionalHtml = '' ) {
 		$this->addCopyrightText();
 
 		$this->getOutput()->addHTML(
@@ -319,7 +311,7 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	/**
 	 * @todo could factor this out into a special page form builder and renderer
 	 */
-	protected function addCopyrightText() {
+	private function addCopyrightText() {
 		$copyrightView = new SpecialPageCopyrightView(
 			new CopyrightMessageBuilder(),
 			$this->rightsUrl,
@@ -332,8 +324,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	}
 
 	/**
-	 * Get legend
-	 *
 	 * @since 0.1
 	 *
 	 * @return string Legend for the fieldset

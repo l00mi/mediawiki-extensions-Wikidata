@@ -2,6 +2,8 @@
 
 namespace Wikibase\Client\Tests\Scribunto;
 
+use Language;
+use ParserOptions;
 use Wikibase\Client\Scribunto\WikibaseLuaBindings;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\HashUsageAccumulator;
@@ -38,9 +40,16 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @param EntityLookup|null $entityLookup
+	 * @param UsageAccumulator|null $usageAccumulator
+	 * @param ParserOptions|null $parserOptions
+	 * @return WikibaseLuaBindings
+	 */
 	private function getWikibaseLuaBindings(
 		EntityLookup $entityLookup = null,
-		UsageAccumulator $usageAccumulator = null
+		UsageAccumulator $usageAccumulator = null,
+		ParserOptions $parserOptions = null
 	) {
 
 		$siteLinkTable = $this->getMockBuilder( 'Wikibase\Lib\Store\SiteLinkTable' )
@@ -65,7 +74,8 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 			$siteLinkTable,
 			new SettingsArray(),
 			$labelLookup,
-			$usageAccumulator ? $usageAccumulator : new HashUsageAccumulator(),
+			$usageAccumulator ?: new HashUsageAccumulator(),
+			$parserOptions ?: new ParserOptions(),
 			"enwiki" // siteId
 		);
 	}
@@ -161,11 +171,27 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse( $this->hasUsage( $usages->getUsages(), $itemId, EntityUsage::ALL_USAGE ), 'all usage' );
 	}
 
-	protected function getItem() {
-		$itemId = new ItemId( 'Q666' );
+	public function testGetUserLang() {
+		$parserOptions = new ParserOptions();
+		$parserOptions->setUserLang( Language::factory( 'ru' ) );
 
-		$item = Item::newEmpty();
-		$item->setId( $itemId );
+		$self = $this;  // PHP 5.3 ...
+		$cacheSplit = false;
+		$parserOptions->registerWatcher(
+			function( $optionName ) use ( $self, &$cacheSplit ) {
+				$self->assertSame( 'userlang', $optionName );
+				$cacheSplit = true;
+			}
+		);
+
+		$wikibaseLuaBindings = $this->getWikibaseLuaBindings( null, null, $parserOptions );
+		$userLang = $wikibaseLuaBindings->getUserLang();
+		$this->assertSame( 'ru', $userLang );
+		$this->assertTrue( $cacheSplit );
+	}
+
+	protected function getItem() {
+		$item = new Item( new ItemId( 'Q666' ) );
 		$item->setLabel( 'en', 'Beer' );
 		$item->setDescription( 'en', 'yummy beverage' );
 		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Beer' );

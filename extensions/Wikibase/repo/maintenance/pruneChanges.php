@@ -2,6 +2,7 @@
 
 namespace Wikibase;
 use Maintenance;
+use Wikibase\Lib\PidLock;
 
 /**
  * Prune the Wikibase changes table to a maximum number of entries.
@@ -19,17 +20,22 @@ class PruneChanges extends Maintenance {
 	/**
 	 * @var int the minimum number of seconds to keep changes for.
 	 */
-	protected $keepSeconds = 0;
+	private $keepSeconds = 0;
 
 	/**
 	 * @var int the minimum number of seconds after dispatching to keep changes for.
 	 */
-	protected $graceSeconds = 0;
+	private $graceSeconds = 0;
 
 	/**
 	 * @var bool whether the dispatch time should be ignored
 	 */
-	protected $ignoreDispatch = false;
+	private $ignoreDispatch = false;
+
+	/**
+	 * @var int The amount of rows to delete at once.
+	 */
+	private $pruneLimit = 0;
 
 	public function __construct() {
 		parent::__construct();
@@ -40,6 +46,8 @@ class PruneChanges extends Maintenance {
 		$this->addOption( 'keep-hours', 'Keep changes at least N hours.', false, true, 'h' );
 		$this->addOption( 'keep-minutes', 'Keep changes at least N minutes.', false, true, 'm' );
 		$this->addOption( 'grace-minutes', 'Keep changes at least N more minutes after they have been dispatched.', false, true, 'g' );
+
+		$this->addOption( 'limit', 'Only prune up to N rows at once.', false, true, 'l' );
 
 		$this->addOption( 'force', 'Run regardless of whether the PID file says it is running already.',
 						 false, false, 'f' );
@@ -55,9 +63,9 @@ class PruneChanges extends Maintenance {
 		}
 
 		$force = $this->getOption( 'force', false );
-		$pidfile = Utils::makePidFilename( 'WBpruneChanges', wfWikiID() );
+		$pidLock = new PidLock( 'WBpruneChanges', wfWikiID() );
 
-		if ( !Utils::getPidLock( $pidfile, $force ) ) {
+		if ( !$pidLock->getLock( $force ) ) {
 			$this->output( date( 'H:i:s' ) . " already running, exiting\n" );
 			exit( 5 );
 		}
@@ -83,6 +91,8 @@ class PruneChanges extends Maintenance {
 			$this->graceSeconds = 1 * 60 * 60;
 		}
 
+		$this->pruneLimit = intval( $this->getOption( 'limit', 25000 ) );
+
 		$until = $this->getCutoffTimestamp();
 		$this->output( date( 'H:i:s' ) . " pruning entries older than "
 			. wfTimestamp( TS_ISO_8601, $until ) . "\n" );
@@ -90,20 +100,20 @@ class PruneChanges extends Maintenance {
 		$deleted = $this->pruneChanges( $until );
 		$this->output( date( 'H:i:s' ) . " $deleted rows pruned.\n" );
 
-		unlink( $pidfile ); // delete lockfile on normal exit
+		$pidLock->removeLock(); // delete lockfile on normal exit
 	}
 
 	/**
 	 * Calculates the timestamp up to which changes can be pruned.
 	 *
-	 * @return int timstamp up to which changes can be pruned (as unix period)
+	 * @return int Timestamp up to which changes can be pruned (as Unix period).
 	 */
-	protected function getCutoffTimestamp() {
+	private function getCutoffTimestamp() {
 		$until = time() - $this->keepSeconds;
 
 		if ( !$this->ignoreDispatch ) {
-			$dbw = wfGetDB( DB_MASTER );
-			$row = $dbw->selectRow(
+			$dbr = wfGetDB( DB_SLAVE );
+			$row = $dbr->selectRow(
 				array ( 'wb_changes_dispatch', 'wb_changes' ),
 				'min(change_time) as timestamp',
 				array(
@@ -120,22 +130,46 @@ class PruneChanges extends Maintenance {
 			}
 		}
 
-		return $until;
+		return $this->limitCutoffTimestamp( $until );
+	}
+
+	/**
+	 * Changes the cutoff timestamp to not affect more than $this->pruneLimit
+	 * rows, if needed.
+	 *
+	 * @param int $until
+	 *
+	 * @return int
+	 */
+	private function limitCutoffTimestamp( $until ) {
+		$dbr = wfGetDB( DB_SLAVE );
+		$changeTime = $dbr->selectField(
+			'wb_changes',
+			'change_time',
+			array( 'change_time < ' . $dbr->addQuotes( wfTimestamp( TS_MW, $until ) ) ),
+			__METHOD__,
+			array(
+				'OFFSET' => $this->pruneLimit,
+				'ORDER BY' => 'change_time ASC',
+			)
+		);
+
+		return $changeTime ? intval( $changeTime ) : $until;
 	}
 
 	/**
 	 * Prunes all changes older than $until from the changes table.
 	 *
-	 * @param $until
+	 * @param int $until
 	 *
 	 * @return int the number of changes deleted.
 	 */
-	public function pruneChanges( $until ) {
+	private function pruneChanges( $until ) {
 		$dbw = wfGetDB( DB_MASTER );
 
 		$dbw->delete(
 			'wb_changes',
-			array( "change_time < " . $dbw->addQuotes( wfTimestamp( TS_MW, $until ) ) ),
+			array( 'change_time < ' . $dbw->addQuotes( wfTimestamp( TS_MW, $until ) ) ),
 			__METHOD__
 		);
 

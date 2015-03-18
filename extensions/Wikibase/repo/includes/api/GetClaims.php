@@ -30,12 +30,12 @@ class GetClaims extends ApiWikibase {
 	/**
 	 * @var ClaimGuidValidator
 	 */
-	protected $claimGuidValidator;
+	private $claimGuidValidator;
 
 	/**
 	 * @var ClaimGuidParser
 	 */
-	protected $claimGuidParser;
+	private $claimGuidParser;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -58,8 +58,6 @@ class GetClaims extends ApiWikibase {
 	 * @since 0.3
 	 */
 	public function execute() {
-		wfProfileIn( __METHOD__ );
-
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
@@ -84,25 +82,21 @@ class GetClaims extends ApiWikibase {
 
 		$claims = $this->getClaims( $entity, $claimGuid );
 		$this->getResultBuilder()->addClaims( $claims, null );
-
-		wfProfileOut( __METHOD__ );
 	}
 
-	protected function validateParameters( array $params ) {
+	private function validateParameters( array $params ) {
 		if ( !isset( $params['entity'] ) && !isset( $params['claim'] ) ) {
 			$this->dieError( 'Either the entity parameter or the claim parameter need to be set', 'param-missing' );
 		}
 	}
 
 	/**
-	 * @since 0.3
-	 *
 	 * @param Entity $entity
 	 * @param null|string $claimGuid
 	 *
 	 * @return Claim[]
 	 */
-	protected function getClaims( Entity $entity, $claimGuid ) {
+	private function getClaims( Entity $entity, $claimGuid ) {
 		$claimsList = new Claims( $entity->getClaims() );
 
 		if ( $claimGuid !== null ) {
@@ -122,12 +116,12 @@ class GetClaims extends ApiWikibase {
 		return $claims;
 	}
 
-	protected function claimMatchesFilters( Claim $claim ) {
+	private function claimMatchesFilters( Claim $claim ) {
 		return $this->rankMatchesFilter( $claim->getRank() )
 			&& $this->propertyMatchesFilter( $claim->getPropertyId() );
 	}
 
-	protected function rankMatchesFilter( $rank ) {
+	private function rankMatchesFilter( $rank ) {
 		if ( $rank === null ) {
 			return true;
 		}
@@ -142,7 +136,7 @@ class GetClaims extends ApiWikibase {
 		return true;
 	}
 
-	protected function propertyMatchesFilter( EntityId $propertyId ) {
+	private function propertyMatchesFilter( EntityId $propertyId ) {
 		$params = $this->extractRequestParams();
 
 		if ( isset( $params['property'] ) ){
@@ -163,14 +157,13 @@ class GetClaims extends ApiWikibase {
 	 * Obtains the id of the entity for which to obtain claims and the claim GUID
 	 * in case it was also provided.
 	 *
-	 * @since 0.3
-	 *
 	 * @param $params
+	 *
 	 * @return array
 	 * First element is a prefixed entity id
 	 * Second element is either null or a claim GUID
 	 */
-	protected function getIdentifiers( $params ) {
+	private function getIdentifiers( $params ) {
 		if ( isset( $params['claim'] ) ) {
 			$claimGuid = $params['claim'];
 			$entityId = $this->getEntityIdFromClaimGuid( $params['claim'] );
@@ -186,7 +179,7 @@ class GetClaims extends ApiWikibase {
 		return array( $entityId, $claimGuid );
 	}
 
-	protected function getEntityIdFromClaimGuid( $claimGuid ) {
+	private function getEntityIdFromClaimGuid( $claimGuid ) {
 		if ( $this->claimGuidValidator->validateFormat( $claimGuid ) === false ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
@@ -196,12 +189,8 @@ class GetClaims extends ApiWikibase {
 
 	/**
 	 * @see ApiBase::getAllowedParams
-	 *
-	 * @since 0.3
-	 *
-	 * @return array
 	 */
-	public function getAllowedParams() {
+	protected function getAllowedParams() {
 		return array(
 			'entity' => array(
 				ApiBase::PARAM_TYPE => 'string',
@@ -229,9 +218,7 @@ class GetClaims extends ApiWikibase {
 	}
 
 	/**
-	 * @see ApiBase::getExamplesMessages()
-	 *
-	 * @return array
+	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
 		return array(

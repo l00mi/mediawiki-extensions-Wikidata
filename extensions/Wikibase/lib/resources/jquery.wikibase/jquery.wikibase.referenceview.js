@@ -1,69 +1,78 @@
-/**
- *
- * @licence GNU GPL v2+
- * @author H. Snater < mediawiki@snater.com >
- */
 ( function( mw, wb, $ ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
 
 /**
- * View for displaying and editing Wikibase Statements.
- * @since 0.4
+ * View for displaying and editing `wikibase.datamodel.Reference` objects.
+ * @see wikibase.datamodel.Reference
+ * @class jQuery.wikibase.referenceview
  * @extends jQuery.ui.TemplatedWidget
+ * @since 0.4
+ * @licence GNU GPL v2+
+ * @author H. Snater < mediawiki@snater.com >
  *
- * @option statementGuid {string} (REQUIRED) The GUID of the statement the reference belongs to.
+ * @constructor
  *
- * @option entityStore {wikibase.store.EntityStore}
- *
- * @option valueViewBuilder {wikibase.ValueViewBuilder}
- *
- * @option referencesChanger {wikibase.entityChangers.ReferencesChanger}
- *
- * @option helpMessage {string} End-user message explaining how to use the referenceview widget. The
- *         message is most likely to be used inside the tooltip of the toolbar corresponding to
- *         the referenceview.
- *         Default: mw.msg( 'wikibase-claimview-snak-new-tooltip' )
- *
- * @event startediting: Triggered when starting the referenceview's edit mode.
- *        (1) {jQuery.Event}
- *
- * @event afterstartediting: Triggered after having started the referenceview's edit mode.
- *        (1) {jQuery.Event}
- *
- * @event stopediting: Triggered when stopping the referenceview's edit mode.
- *        (1) {jQuery.Event}
- *        (2) {boolean} If true, the value from before edit mode has been started will be reinstated
- *            (basically a cancel/save switch).
- *
- * @event afterstopediting: Triggered after having stopped the referenceview's edit mode.
- *        (1) {jQuery.Event}
- *        (2) {boolean} If true, the value from before edit mode has been started will be reinstated
- *            (basically a cancel/save switch).
- *
- * @event change: Triggered whenever the referenceview's content is changed.
- *        (1) {jQuery.Event} event
- *
- * @event toggleerror: Triggered when an error occurred or is resolved.
- *        (1) {jQuery.Event} event
- *        (2) {wikibase.api.RepoApiError|undefined} RepoApiError object if an error occurred, undefined if
- *            the current error state is resolved.
+ * @param {Object} options
+ * @param {wikibase.datamodel.Reference|null} options.value
+ * @param {string} options.statementGuid
+ *        The GUID of the `Statement` the `Reference` represented by the widget instance belongs to.
+ * @param {wikibase.store.EntityStore} options.entityStore
+ *        Required for dynamically gathering `Entity`/`Property` information.
+ * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
+ *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
+ *        `jQuery.valueview`.
+ * @param {wikibase.entityChangers.ReferencesChanger} options.referencesChanger
+ *        Required for saving the `Reference` represented by the widget instance.
+ * @param {string} [options.helpMessage=mw.msg( 'wikibase-claimview-snak-new-tooltip' )]
+ *        End-user message explaining how to interact with the widget. The message is most likely to
+ *        be used inside the tooltip of the toolbar corresponding to the widget.
+ */
+/**
+ * @event afterstartediting
+ * Triggered after having started the widget's edit mode and edit mode has been rendered.
+ * @param {jQuery.Event} event
+ */
+/**
+ * @event stopediting
+ * Triggered when stopping the widget's edit mode, immediately before re-drawing.
+ * @param {jQuery.Event} event
+ * @param {boolean} dropValue
+ *        Whether the widget's value will be reset to the one from before starting edit mode.
+ */
+/**
+ * @event afterstopediting
+ * Triggered after having stopped the widget's edit mode and non-edit mode is redrawn.
+ * @param {boolean} dropValue
+ *        Whether the widget's value has been be reset to the one from before starting edit mode.
+ */
+/**
+ * @event change
+ * Triggered whenever the `Reference` represented by the widget is changed.
+ * @param {jQuery.Event} event
+ */
+/**
+ * @event toggleerror
+ * Triggered when an error occurred or has been resolved.
+ * @param {jQuery.Event} event
+ * @param {wikibase.api.RepoApiError|undefined} RepoApiError
+ *        Object if an error occurred, `undefined` if the current error state is resolved.
  */
 $.widget( 'wikibase.referenceview', PARENT, {
 	/**
-	 * (Additional) default options.
-	 * @see jQuery.Widget.options
+	 * @inheritdoc
 	 */
 	options: {
-		template: 'wb-referenceview',
+		template: 'wikibase-referenceview',
 		templateParams: [
 			'', // additional css classes
 			'' // snaklistview widget
 		],
 		templateShortCuts: {
-			'$listview': '.wb-referenceview-listview'
+			$listview: '.wikibase-referenceview-listview'
 		},
+		value: null,
 		statementGuid: null,
 		entityStore: null,
 		valueViewBuilder: null,
@@ -72,102 +81,61 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	},
 
 	/**
-	 * Reference object represented by this view.
-	 * @type {wb.datamodel.Reference}
-	 */
-	_reference: null,
-
-	/**
-	 * Caches the snak list of the reference snaks the referenceview has been initialized with. The
-	 * snaks are split into groups featuring the same property. Removing one of those groups results
-	 * in losing the reference to those snaks. Therefore, _initialSnakList is used to rebuild the
-	 * list of snaks when cancelling and is used to query whether the snaks represent the initial
-	 * state.
-	 * @type {wb.datamodel.SnakList}
-	 */
-	_initialSnakList: null,
-
-	/**
-	 * Whether the reference is currently in edit mode.
-	 * @type {boolean}
+	 * Whether the widget is currently in edit mode.
+	 * @property {boolean} [_isInEditMode=false]
+	 * @private
 	 */
 	_isInEditMode: false,
 
 	/**
-	 * Shortcut to the listview widget used by the referenceview to manage the snaklistview widgets.
-	 * @type {$.wikibase.listview}
-	 */
-	_listview: null,
-
-	/**
-	 * @see $.wikibase.snaklistview._create
+	 * @inheritdoc
+	 * @protected
 	 *
-	 * @throws {Error} if any required option is not specified.
+	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
 		if(
 			!this.options.statementGuid || !this.options.entityStore
 			|| !this.options.valueViewBuilder || !this.options.referencesChanger
 		) {
-			throw new Error( 'Required option(s) missing' );
+			throw new Error( 'Required option not specified properly' );
 		}
 
 		PARENT.prototype._create.call( this );
 
 		var self = this;
 
-		if ( this.option( 'value' ) ) {
-			this._reference = this.option( 'value' );
-			// Overwrite the value since listItemAdapter is the snakview prototype which requires a
-			// wb.datamodel.SnakList object for initialization:
-			this._initialSnakList = this._reference.getSnaks();
-			this.options.value = this._initialSnakList.getGroupedSnakLists();
-		}
-
-		if( !this._initialSnakList ) {
-			this._initialSnakList = new wb.datamodel.SnakList();
-		}
-
-		if( !this.options.listItemAdapter ) {
-			this.options.listItemAdapter = new $.wikibase.listview.ListItemAdapter( {
+		this.$listview.listview( {
+			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 				listItemWidget: $.wikibase.snaklistview,
 				newItemOptionsFn: function( value ) {
 					return {
-						value: value || null,
+						value: value || undefined,
 						singleProperty: true,
-						dataTypeStore: self.option( 'dataTypeStore' ),
-						entityStore: self.option( 'entityStore' ),
-						valueViewBuilder: self.option( 'valueViewBuilder' )
+						dataTypeStore: self.options.dataTypeStore,
+						entityStore: self.options.entityStore,
+						valueViewBuilder: self.options.valueViewBuilder
 					};
 				}
-			} );
-		}
-
-		this.$listview.listview( {
-			listItemAdapter: this.options.listItemAdapter,
-			value: this.option( 'value' )
+			} ),
+			value: this.options.value ? this.options.value.getSnaks().getGroupedSnakLists() : []
 		} );
-
-		this._listview = this.$listview.data( 'listview' );
-		// Some who actually want to get the listview's events are listening on referenceview*,
-		// others who do not want to get the events of this listview are listening on
-		// listview*.
-		// FIXME: Rather fix the event bindings
-		this._listview.widgetEventPrefix = 'referenceview';
 
 		this._updateReferenceHashClass( this.value() );
 	},
 
 	/**
 	 * Attaches event listeners needed during edit mode.
+	 * @private
 	 */
 	_attachEditModeEventHandlers: function() {
-		var self = this;
+		var self = this,
+			lia = this.$listview.data( 'listview' ).listItemAdapter();
 
 		var changeEvents = [
 			'snakviewchange.' + this.widgetName,
 			'snaklistviewchange.' + this.widgetName,
-			'referenceviewafteritemmove.' + this.widgetName,
+			'listviewafteritemmove.' + this.widgetName,
 			'listviewitemadded.' + this.widgetName,
 			'listviewitemremoved.' + this.widgetName
 		];
@@ -181,14 +149,14 @@ $.widget( 'wikibase.referenceview', PARENT, {
 					snaklistview = $snaklistview.data( 'snaklistview' );
 
 				if( snaklistview && !snaklistview.value() ) {
-					self._listview.removeItem( snaklistview.element );
+					self.$listview.data( 'listview' ).removeItem( snaklistview.element );
 				}
 			}
 
 			// Propagate "change" event.
 			self._trigger( 'change' );
 		} )
-		.one( this.options.listItemAdapter.prefixedEvent( 'stopediting.' + this.widgetName ),
+		.one( lia.prefixedEvent( 'stopediting.' + this.widgetName ),
 			function( event, dropValue ) {
 				event.stopPropagation();
 				event.preventDefault();
@@ -198,25 +166,28 @@ $.widget( 'wikibase.referenceview', PARENT, {
 
 	/**
 	 * Detaches the event handlers needed during edit mode.
+	 * @private
 	 */
 	_detachEditModeEventHandlers: function() {
-		var events = [
-			'snakviewchange.' + this.widgetName,
-			'snaklistviewchange.' + this.widgetName,
-			'referenceviewafteritemmove.' + this.widgetName,
-			'listviewitemadded.' + this.widgetName,
-			'listviewitemremoved.' + this.widgetName,
-			this.options.listItemAdapter.prefixedEvent( 'stopediting.' + this.widgetName )
-		];
+		var lia = this.$listview.data( 'listview' ).listItemAdapter(),
+			events = [
+				'snakviewchange.' + this.widgetName,
+				'listviewafteritemmove.' + this.widgetName,
+				'listviewitemadded.' + this.widgetName,
+				'listviewitemremoved.' + this.widgetName,
+				lia.prefixedEvent( 'change.' + this.widgetName ),
+				lia.prefixedEvent( 'stopediting.' + this.widgetName )
+			];
 		this.$listview.off( events.join( ' ' ) );
 	},
 
 	/**
-	 * Will update the 'wb-reference-<hash>' class on the widget's root element to a given
-	 * reference's hash. If null is given or if the reference has no hash, 'wb-reference-new' will
-	 * be added as class.
+	 * Will update the `wb-reference-<hash>` CSS class on the widget's root element to a given
+	 * `Reference`'s hash. If `null` is given or if the `Reference` has no hash, `wb-reference-new`
+	 * will be added as class.
+	 * @private
 	 *
-	 * @param {wb.datamodel.Reference|null} reference
+	 * @param {wikibase.datamodel.Reference|null} reference
 	 */
 	_updateReferenceHashClass: function( reference ) {
 		var refHash = reference && reference.getHash() || 'new';
@@ -229,130 +200,104 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	},
 
 	/**
-	 * Sets/Returns the current reference represented by the view. In case of an empty reference
-	 * view, without any snak values set yet, null will be returned.
-	 * @see $.wikibase.snaklistview.value
-	 * @since 0.4
+	 * Sets the `Reference` to be represented by the view or returns the `Reference` currently
+	 * represented by the widget.
 	 *
-	 * @param {wb.datamodel.Reference} [reference] New reference to be set
-	 * @return {wb.datamodel.Reference|null}
+	 * @param {wikibase.datamodel.Reference|null} [reference]
+	 * @return {wikibase.datamodel.Reference|null|undefined}
 	 */
 	value: function( reference ) {
-		if ( reference ) {
-			if ( !( reference instanceof wb.datamodel.Reference ) ) {
-				throw new Error( 'Value has to be an instance of wikibase.datamodel.Reference' );
-			}
-			this._reference = reference;
-			return this._reference;
-		} else {
-			var snaklistviews = this._listview.items(),
-				snakList = new wb.datamodel.SnakList();
-
-			for( var i = 0; i < snaklistviews.length; i++ ) {
-				var curSnakList = this.options.listItemAdapter.liInstance(
-					snaklistviews.eq( i )
-				).value();
-				if( curSnakList ) {
-					snakList.merge( curSnakList );
-				}
-			}
-
-			if ( this._reference ) {
-				return new wb.datamodel.Reference( snakList || [], this._reference.getHash() );
-			} else if ( snakList.length ) {
-				return new wb.datamodel.Reference( snakList );
-			} else {
-				return null;
-			}
+		if( reference ) {
+			this.option( 'value', reference );
 		}
+
+		var snakList = new wb.datamodel.SnakList();
+
+		$.each( this.$listview.data( 'listview' ).value(), function() {
+			var snakListForProperty = this.value();
+			if( snakListForProperty ) {
+				snakList.merge( snakListForProperty );
+			}
+		} );
+
+		if( this.options.value || snakList.length ) {
+			return new wb.datamodel.Reference(
+				snakList,
+				this.options.value ? this.options.value.getHash() : undefined
+			);
+		}
+
+		return null;
 	},
 
 	/**
-	 * Starts the referenceview's edit mode.
+	 * Starts the widget's edit mode.
 	 * @since 0.5
-	 *
-	 * @triggers startediting
-	 * @triggers afterstartediting
 	 */
-	startEditing: $.NativeEventHandler( 'startediting', {
-		initially: function( e ) {
-			if( this.isInEditMode() ) {
-				e.cancel();
-			}
-		},
-		natively: function( e ) {
-			var $snaklistviews = this._listview.items();
-
-			for( var i = 0; i < $snaklistviews.length; i++ ) {
-				this.options.listItemAdapter.liInstance( $snaklistviews.eq( [i] ) ).startEditing();
-			}
-
-			this._attachEditModeEventHandlers();
-
-			this.element.addClass( 'wb-edit' );
-			this._isInEditMode = true;
-
-			this._trigger( 'afterstartediting' );
+	startEditing: function() {
+		if( this.isInEditMode() ) {
+			return;
 		}
-	} ),
+
+		$.each( this.$listview.data( 'listview' ).value(), function() {
+			this.startEditing();
+		} );
+
+		this._attachEditModeEventHandlers();
+
+		this.element.addClass( 'wb-edit' );
+		this._isInEditMode = true;
+
+		this._trigger( 'afterstartediting' );
+	},
 
 	/**
-	 * Stops the referenceview's edit mode.
+	 * Stops the widget's edit mode.
 	 * @since 0.5
-	 *
-	 * @triggers stopediting
-	 * @triggers afterstopediting
 	 */
-	stopEditing: $.NativeEventHandler( 'stopediting', {
-		initially: function( e, dropValue ) {
-			if (
-				!this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue
-			) {
-				e.cancel();
-			}
-
-			this.element.removeClass( 'wb-error' );
-		},
-		natively: function( e, dropValue ) {
-			var self = this;
-
-			this._detachEditModeEventHandlers();
-
-			this.disable();
-
-			if( dropValue ) {
-				this._stopEditingReferenceSnaks( dropValue );
-
-				this.enable();
-				this.element.removeClass( 'wb-edit' );
-				this._isInEditMode = false;
-
-				this._trigger( 'afterstopediting', null, [ dropValue ] );
-			} else {
-
-				this._saveReferenceApiCall()
-				.done( function( savedObject ) {
-					self._stopEditingReferenceSnaks( dropValue );
-
-					self.enable();
-
-					self.element.removeClass( 'wb-edit' );
-					self._isInEditMode = false;
-
-					self._trigger( 'afterstopediting', null, [ dropValue ] );
-				} )
-				.fail( function( error ) {
-					self.enable();
-
-					self._attachEditModeEventHandlers();
-
-					self.setError( error );
-				} );
-
-			}
-
+	stopEditing: function( dropValue ) {
+		if ( !this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
+			return;
 		}
-	} ),
+
+		this._trigger( 'stopediting', null, [dropValue] );
+
+		var self = this;
+
+		this.element.removeClass( 'wb-error' );
+		this._detachEditModeEventHandlers();
+		this.disable();
+
+		if( dropValue ) {
+			this._stopEditingReferenceSnaks( dropValue );
+
+			this.enable();
+			this.element.removeClass( 'wb-edit' );
+			this._isInEditMode = false;
+
+			this._trigger( 'afterstopediting', null, [ dropValue ] );
+		} else {
+			this._saveReferenceApiCall()
+			.done( function( savedReference ) {
+				self.options.value = savedReference;
+
+				self._stopEditingReferenceSnaks( dropValue );
+
+				self.enable();
+
+				self.element.removeClass( 'wb-edit' );
+				self._isInEditMode = false;
+
+				self._trigger( 'afterstopediting', null, [ dropValue ] );
+			} )
+			.fail( function( error ) {
+				self.enable();
+
+				self._attachEditModeEventHandlers();
+				self.setError( error );
+			} );
+		}
+	},
 
 	/**
 	 * Cancels edit mode.
@@ -363,62 +308,47 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	},
 
 	/**
-	 * Stops all the referenceview's snaklistviews' edit mode and regenerates the referenceview's
-	 * content.
+	 * @private
 	 *
 	 * @param {boolean} dropValue
 	 */
 	_stopEditingReferenceSnaks: function( dropValue ) {
-		var $snaklistviews = this._listview.items(),
-			i;
+		var listview = this.$listview.data( 'listview' );
 
-		if( !dropValue ) {
-			// When saving the qualifier snaks, reset the initial qualifiers to the new ones.
-			this._initialSnakList = new wb.datamodel.SnakList();
-		}
+		$.each( listview.value(), function() {
+			this.stopEditing( dropValue );
 
-		if( $snaklistviews.length ) {
-			for( i = 0; i < $snaklistviews.length; i++ ) {
-				var snaklistview = this.options.listItemAdapter.liInstance( $snaklistviews.eq( i ) );
-				snaklistview.stopEditing( dropValue );
-
-				if( dropValue && !snaklistview.value() ) {
-					// Remove snaklistview from referenceview if no snakviews are left in
-					// that snaklistview:
-					this._listview.removeItem( snaklistview.element );
-				} else if ( !dropValue ) {
-					// Gather all the current snaks in a single SnakList to set to reset the
-					// initial qualifiers:
-					this._initialSnakList.merge( snaklistview.value() );
-				}
+			if( dropValue && !this.value() ) {
+				// Remove snaklistview from referenceview if no snakviews are left in that
+				// snaklistview:
+				listview.removeItem( this.element );
 			}
-		}
+		} );
 
 		this.clear();
 
-		var snakLists = this._initialSnakList.getGroupedSnakLists();
-
-		if( snakLists ) {
-			for( i = 0; i < snakLists.length; i++ ) {
-				this._listview.addItem( snakLists[i] );
-			}
+		if( this.options.value ) {
+			$.each( this.options.value.getSnaks().getGroupedSnakLists(), function() {
+				listview.addItem( this );
+			} );
 		}
 	},
 
 	/**
-	 * Clears the referenceview's content.
+	 * Clears the widget's content.
 	 * @since 0.5
 	 */
 	clear: function() {
-		var items = this._listview.items();
+		var listview = this.$listview.data( 'listview' ),
+			items = listview.items();
 
 		for( var i = 0; i < items.length; i++ ) {
-			this._listview.removeItem( items.eq( i ) );
+			listview.removeItem( items.eq( i ) );
 		}
 	},
 
 	/**
-	 * Returns whether the referenceview currently is in edit mode.
+	 * Returns whether the widget is currently in edit mode.
 	 * @since 0.5
 	 *
 	 * @return {boolean}
@@ -428,50 +358,41 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	},
 
 	/**
-	 * Returns whether the referenceview (all its snaklistviews) currently is valid.
+	 * Returns whether the widget (all its `snaklistview`s) is currently valid.
 	 * @since 0.5
 	 *
 	 * @return {boolean}
 	 */
 	isValid: function() {
-		var $snaklistviews = this._listview.items();
-
-		for( var i = 0; i < $snaklistviews.length; i++ ) {
-			if( !this.options.listItemAdapter.liInstance( $snaklistviews.eq( i ) ).isValid() ) {
-				return false;
+		var isValid = true;
+		$.each( this.$listview.data( 'listview' ).value(), function() {
+			if( !this.isValid() ) {
+				isValid = false;
 			}
-		}
-
-		return true;
+			return isValid;
+		} );
+		return isValid;
 	},
 
 	/**
-	 * Returns whether the referenceview's current value matches the value it has been initialized
-	 * with.
+	 * Returns whether the widget's current value matches the value it has been initialized with by
+	 * checking the `Reference`'s `Snak`s.
 	 * @since 0.5
 	 *
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
-		var $snaklistviews = this._listview.items(),
-			snakList = new wb.datamodel.SnakList();
-
-		// Generate a SnakList object featuring all current reference snaks to be able to compare it
-		// to the SnakList object the referenceview has been initialized with:
-		if( $snaklistviews.length ) {
-			for( var i = 0; i < $snaklistviews.length; i++ ) {
-				var snakview = this.options.listItemAdapter.liInstance( $snaklistviews.eq( i ) );
-				if( snakview.value() ) {
-					snakList.merge( snakview.value() );
-				}
-			}
-		}
-
-		return snakList.equals( this._initialSnakList );
+		var currentReference = this.value(),
+			currentSnakList = currentReference
+				? currentReference.getSnaks()
+				: new wb.datamodel.SnakList();
+		return currentSnakList.equals(
+			this.options.value ? this.options.value.getSnaks() : new wb.datamodel.SnakList()
+		);
 	},
 
 	/**
-	 * Adds a pending `snaklistview` to the referenceview.
+	 * Adds a pending `snaklistview` to the widget.
 	 * @see jQuery.wikibase.listview.enterNewItem
 	 * @since 0.5
 	 *
@@ -480,12 +401,14 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 * @return {jQuery} return.done.$snaklistview
 	 */
 	enterNewItem: function() {
-		var self = this;
+		var self = this,
+			listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter();
 
 		this.startEditing();
 
-		return this._listview.enterNewItem().done( function( $snaklistview ) {
-			self.options.listItemAdapter.liInstance( $snaklistview ).enterNewItem()
+		return listview.enterNewItem().done( function( $snaklistview ) {
+			lia.liInstance( $snaklistview ).enterNewItem()
 			.done( function() {
 				// Since the new snakview will be initialized empty which invalidates the
 				// snaklistview, external components using the snaklistview will be noticed via
@@ -497,24 +420,27 @@ $.widget( 'wikibase.referenceview', PARENT, {
 
 	/**
 	 * Triggers the API call to save the reference.
-	 * @since 0.4
+	 * @see wikibase.entityChangers.ReferencesChanger.setReference
+	 * @private
 	 *
-	 * @return {jQuery.promise}
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {Reference} return.done.savedReference
+	 * @return {Function} return.fail
+	 * @return {wikibase.api.RepoApiError} return.fail.error
 	 */
 	_saveReferenceApiCall: function() {
 		var self = this,
-			guid = this.option( 'statementGuid' );
+			guid = this.options.statementGuid;
 
-		return this.option( 'referencesChanger' ).setReference( guid, this.value() )
+		return this.options.referencesChanger.setReference( guid, this.value() )
 			.done( function( savedReference ) {
-			self._reference = savedReference;
 			self._updateReferenceHashClass( savedReference );
 		} );
 	},
 
 	/**
 	 * Sets/removes error state from the widget.
-	 * @since 0.4
 	 *
 	 * @param {wikibase.api.RepoApiError} [error]
 	 */
@@ -529,34 +455,43 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget._setOption
+	 * @inheritdoc
+	 * @protected
+	 *
+	 * @throws {Error} when trying to set the value to something different that a
+	 *         `wikibase.datamodel.Reference` object.
 	 */
 	_setOption: function( key, value ) {
+		if( key === 'value' ) {
+			if( !( value instanceof wb.datamodel.Reference ) ) {
+				throw new Error( 'Value has to be an instance of wikibase.datamodel.Reference' );
+			}
+			// TODO: Redraw
+		}
+
 		var response = PARENT.prototype._setOption.apply( this, arguments );
 
 		if( key === 'disabled' ) {
-			this._listview.option( key, value );
+			this.$listview.data( 'listview' ).option( key, value );
 		}
 
 		return response;
 	},
 
 	/**
-	 * @see jQuery.ui.TemplatedWidget.focus
+	 * @inheritdoc
 	 */
 	focus: function() {
-		var $items = this._listview.items();
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter(),
+			$items = listview.items();
 
 		if( $items.length ) {
-			this._listview.listItemAdapter().liInstance( $items.first() ).focus();
+			lia.liInstance( $items.first() ).focus();
 		} else {
 			this.element.focus();
 		}
 	}
 } );
-
-// We have to override this here because $.widget sets it no matter what's in
-// the prototype
-$.wikibase.referenceview.prototype.widgetBaseClass = 'wb-referenceview';
 
 }( mediaWiki, wikibase, jQuery ) );

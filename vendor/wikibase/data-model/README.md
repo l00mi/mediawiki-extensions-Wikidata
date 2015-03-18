@@ -11,7 +11,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/wikibase/data-model/v/unstable.svg)](//packagist.org/packages/wikibase/data-model)
 
 **Wikibase DataModel** is the canonical PHP implementation of the
-[Data Model](https://meta.wikimedia.org/wiki/Wikidata/Data_model)
+[Data Model](https://www.mediawiki.org/wiki/Wikibase/DataModel)
 at the heart of the [Wikibase software](http://wikiba.se/).
 
 It is primarily used by the Wikibase MediaWiki extensions, though
@@ -64,7 +64,8 @@ via TravisCI, as a TravisCI configuration file is also provided in the root dire
 ### Development
 
 Wikibase DataModel has been written by [Jeroen De Dauw](https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw)
-as [Wikimedia Germany](https://wikimedia.de) employee for the [Wikidata project](https://wikidata.org/).
+and Thiemo Mättig as [Wikimedia Germany](https://wikimedia.de) employees for the [Wikidata project]
+(https://wikidata.org/).
 
 Contributions where also made by [several other people]
 (https://www.ohloh.net/p/wikibasedatamodel/contributors?sort=commits).

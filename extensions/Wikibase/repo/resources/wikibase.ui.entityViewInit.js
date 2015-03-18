@@ -2,27 +2,61 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  * @author Daniel Werner < daniel.werner at wikimedia.de >
+ * @author Adrian Heine < adrian.heine@wikimedia.de >
  */
 
 ( function( $, mw, wb, dataTypeStore, getExpertsStore, getFormatterStore, getParserStore ) {
 	'use strict';
 
 	mw.hook( 'wikipage.content' ).add( function() {
+
+		if( mw.config.get( 'wbEntity' ) === null ) {
+			return;
+		}
+
 		var $entityview = $( '.wikibase-entityview' );
+		var entityInitializer = new wb.EntityInitializer( 'wbEntity' );
+		var canEdit = !mw.config.get( 'wbUserIsBlocked' ) && mw.config.get( 'wbUserCanEdit' );
 
-		if( mw.config.get( 'wbEntity' ) !== null ) {
+		if( canEdit ) {
 			initToolbarController( $entityview );
+		}
 
-			var entityInitializer = new wb.EntityInitializer( 'wbEntity' );
+		entityInitializer.getEntity().done( function( entity ) {
+			var viewName = createEntityView( entity, $entityview.first() );
 
-			entityInitializer.getEntity().done( function( entity ) {
-				createEntityDom( entity, $entityview.first() );
-				evaluateRestrictions();
+			if( canEdit ) {
+				attachAnonymousEditWarningTrigger( $entityview, viewName, entity.getType() );
+				attachWatchLinkUpdater( $entityview, viewName );
+			}
 
-				// Remove loading spinner after JavaScript has kicked in:
-				$entityview.removeClass( 'loading' );
-				$( '.wb-entity-spinner' ).remove();
+			// Remove loading spinner after JavaScript has kicked in:
+			$entityview.removeClass( 'loading' );
+			$( '.wb-entity-spinner' ).remove();
+		} );
+
+		if( canEdit ) {
+			$entityview
+			.on( 'entitytermsviewchange entitytermsviewafterstopediting', function( event ) {
+				var $entitytermsview = $( event.target ),
+					entitytermsview = $entitytermsview.data( 'entitytermsview' );
+
+				$.each( entitytermsview.value(), function() {
+					if( this.language !== mw.config.get( 'wgUserLanguage' ) ) {
+						return true;
+					}
+
+					var label = this.label.getText();
+
+					$( 'title' ).text(
+						mw.msg( 'pagetitle', label !== '' ? label : mw.config.get( 'wgTitle' ) )
+					);
+
+					return false;
+				} );
 			} );
+
+			attachCopyrightTooltip( $entityview );
 		}
 	} );
 
@@ -35,17 +69,14 @@
 		var toolbarControllerConfig = {
 			toolbars: {
 				addtoolbar: [
-					'claimgrouplistview-claimlistview',
-					'claimlistview-statementview',
+					'statementgrouplistview-statementgroupview',
+					'statementlistview-statementview',
 					'statementview-snakview',
 					'statementview-referenceview',
 					'referenceview-snakview'
 				],
 				edittoolbar: [
-					'aliasesview',
 					'statementview',
-					'descriptionview',
-					'labelview',
 					'entitytermsview',
 					'referenceview',
 					'sitelinkgroupview'
@@ -58,33 +89,35 @@
 			}
 		};
 
-		$entityview
-		.toolbarcontroller( toolbarControllerConfig )
-		.on( 'edittoolbarafterstartediting', function( event ) {
+		$entityview.toolbarcontroller( toolbarControllerConfig );
+	}
+
+	/**
+	 * @param {jQuery} $entityview
+	 */
+	function attachCopyrightTooltip( $entityview ) {
+		$entityview.on( 'edittoolbarafterstartediting', function( event ) {
 			var $target = $( event.target ),
 				gravity = 'sw';
 
-			if(
-				$target.data( 'labelview' )
-				|| $target.data( 'descriptionview' )
-				|| $target.data( 'aliasesview' )
-				|| $target.data( 'sitelinkgroupview' )
-			) {
+			if( $target.data( 'sitelinkgroupview' ) ) {
 				gravity = 'nw';
+			} else if( $target.data( 'entitytermsview' ) ) {
+				gravity = 'w';
 			}
 
-			showCopyrightTooltip( $entityview, $( event.target ), gravity );
+			showCopyrightTooltip( $entityview, $target, gravity );
 		} );
 	}
 
 	/**
 	 * Builds an entity store.
-	 * @todo Move to a top-level factory or application scope
 	 *
 	 * @param {wikibase.api.RepoApi} repoApi
+	 * @param {string} languageCode The language code of the ui language
 	 * @return {wikibase.store.CombiningEntityStore}
 	 */
-	function buildEntityStore( repoApi ) {
+	function buildEntityStore( repoApi, languageCode ) {
 		// Deserializer for fetched content whose content is a wb.datamodel.Entity:
 		var fetchedEntityDeserializer = new wb.store.FetchedContentUnserializer(
 				new wb.serialization.EntityDeserializer()
@@ -95,79 +128,65 @@
 			new wb.store.ApiEntityStore(
 				repoApi,
 				fetchedEntityDeserializer,
-				[ mw.config.get( 'wgUserLanguage' ) ]
+				[ languageCode ]
 			)
 		] );
-
 	}
 
 	/**
 	 * @param {wikibase.datamodel.Entity} entity
 	 * @param {jQuery} $entityview
+	 * @return {string} The name of the entity view widget class
 	 *
 	 * @throws {Error} if no widget to render the entity exists.
 	 */
-	function createEntityDom( entity, $entityview ) {
+	function createEntityView( entity, $entityview ) {
 		var repoConfig = mw.config.get( 'wbRepo' );
 		var mwApi = wb.api.getLocationAgnosticMwApi( repoConfig.url + repoConfig.scriptPath + '/api.php' );
 		var repoApi = new wb.api.RepoApi( mwApi ),
-			entityStore = buildEntityStore( repoApi ),
+			userLanguages = getUserLanguages(),
+			entityStore = buildEntityStore( repoApi, userLanguages[0] ),
 			revisionStore = new wb.RevisionStore( mw.config.get( 'wgCurRevisionId' ) ),
 			entityChangersFactory = new wb.entityChangers.EntityChangersFactory(
 				repoApi,
 				revisionStore,
 				entity
-			);
-
-		var view = entity.getType() + 'view';
-
-		if( !$.wikibase[view] ) {
-			throw new Error( 'View for entity type ' + entity.getType() + ' does not exist' );
-		}
-
-		$entityview[view]( {
-			value: entity,
-			languages: getUserLanguages(),
-			entityChangersFactory: entityChangersFactory,
-			entityStore: entityStore,
-			valueViewBuilder: new wb.ValueViewBuilder(
+			),
+			contentLanguages = new wikibase.WikibaseContentLanguages(),
+			viewFactory = new wikibase.view.ViewFactory(
+				contentLanguages,
+				dataTypeStore,
+				entityChangersFactory,
+				entityStore,
 				getExpertsStore( dataTypeStore ),
 				getFormatterStore( repoApi, dataTypeStore ),
+				{
+					getMessage: function( key, params ) {
+						return mw.msg.apply( mw, [ key ].concat( params ) );
+					}
+				},
 				getParserStore( repoApi ),
-				mw.config.get( 'wgUserLanguage' ),
-				mw
-			),
-			dataTypeStore: dataTypeStore
-		} )
-		.on( 'labelviewchange labelviewafterstopediting', function( event ) {
-			var $labelview = $( event.target ),
-				labelview = $labelview.data( 'labelview' ),
-				label = labelview.value().getText();
-
-			$( 'title' ).text(
-				mw.msg( 'pagetitle', label !== '' ? label : mw.config.get( 'wgTitle' ) )
+				userLanguages
 			);
-		} )
-		.on( view + 'afterstartediting', function() {
-			triggerAnonymousEditWarning( entity.getType() );
-		} )
-		.on( view + 'afterstopediting', function( event, dropValue ) {
-			updateWatchLink( dropValue );
-		} );
+
+		var entityView = viewFactory.getEntityView( entity, $entityview );
+
+		return entityView.widgetName;
 	}
 
 	/**
-	 * @return {string[]}
+	 * @return {string[]} An ordered list of languages the user wants to use, the first being her
+	 *                    preferred language, and thus the UI language (currently wgUserLanguage).
 	 */
 	function getUserLanguages() {
 		var userLanguages = mw.config.get( 'wbUserSpecifiedLanguages' ),
 			isUlsDefined = mw.uls && $.uls && $.uls.data,
-			languages = [];
+			languages;
 
 		if( !userLanguages.length && isUlsDefined ) {
 			languages = mw.uls.getFrequentLanguageList().slice( 1, 4 );
 		} else {
-			languages = $.merge( [], userLanguages );
+			languages = userLanguages.slice();
 			languages.splice( $.inArray( mw.config.get( 'wgUserLanguage' ), userLanguages ), 1 );
 		}
 
@@ -177,22 +196,26 @@
 	}
 
 	/**
-	 * @param {boolean} dropValue
+	 * Update the state of the watch link if the user has watchdefault enabled.
 	 */
-	function updateWatchLink( dropValue ) {
+	function attachWatchLinkUpdater( $entityview, viewName ) {
 		var update = mw.page && mw.page.watch ? mw.page.watch.updateWatchLink : null;
 
-		if( dropValue || !update || !mw.user.options.get( 'watchdefault' ) ) {
+		if( !update || !mw.user.options.get( 'watchdefault' ) ) {
 			return;
 		}
 
-		// All four supported skins are using the same ID, the other selectors
-		// in mediawiki.page.watch.ajax.js are undocumented and probably legacy stuff
-		var $link = $( '#ca-watch a' );
+		function updateWatchLink() {
+			// All four supported skins are using the same ID, the other selectors
+			// in mediawiki.page.watch.ajax.js are undocumented and probably legacy stuff
+			var $link = $( '#ca-watch a' );
 
-		// Skip if page is already watched and there is no "watch this page" link
-		// Note: The exposed function fails for empty jQuery collections
-		if( $link.length ) {
+			// Skip if page is already watched and there is no "watch this page" link
+			// Note: The exposed function fails for empty jQuery collections
+			if( !$link.length ) {
+				return;
+			}
+
 			update( $link, 'watch', 'loading' );
 
 			var api = new mw.Api(),
@@ -211,23 +234,36 @@
 				update( $link, 'watch' );
 			} );
 		}
+
+		$entityview.on( viewName + 'afterstopediting', function( event, dropValue ) {
+			if( !dropValue ) {
+				updateWatchLink();
+			}
+		} );
 	}
 
 	/**
+	 * @param {jQuery.wikibase.entityview} $entityview
+	 * @param {string} viewName
 	 * @param {string} entityType
 	 */
-	function triggerAnonymousEditWarning( entityType ) {
-		if(
-			mw.user && mw.user.isAnon()
-				&& $.find( '.mw-notification-content' ).length === 0
-				&& !$.cookie( 'wikibase-no-anonymouseditwarning' )
-		) {
-			mw.notify(
-				mw.msg( 'wikibase-anonymouseditwarning',
-					mw.msg( 'wikibase-entity-' + entityType )
-				)
-			);
+	function attachAnonymousEditWarningTrigger( $entityview, viewName, entityType ) {
+		if( !mw.user || !mw.user.isAnon() ) {
+			return;
 		}
+
+		$entityview.on( viewName + 'afterstartediting', function() {
+			if(
+				$.find( '.mw-notification-content' ).length === 0
+				&& !$.cookie( 'wikibase-no-anonymouseditwarning' )
+			) {
+				mw.notify(
+					mw.msg( 'wikibase-anonymouseditwarning',
+						mw.msg( 'wikibase-entity-' + entityType )
+					)
+				);
+			}
+		} );
 	}
 
 	/**
@@ -255,27 +291,32 @@
 			return;
 		}
 
-		var $message = $( '<span><p>' + copyRightMessageHtml + '</p></span>' ),
+		var $message = $( '<span><p>' + copyRightMessageHtml + '</p></span>' )
+				.addClass( 'wikibase-copyrightnotification-container' ),
 			$hideMessage = $( '<a/>', {
 				text: mw.msg( 'wikibase-copyrighttooltip-acknowledge' )
 			} ).appendTo( $message ),
 			editableTemplatedWidget = $origin.data( 'EditableTemplatedWidget' );
 
 		// TODO: Use notification system for copyright messages on all widgets.
-		if( editableTemplatedWidget ) {
+		if(
+			editableTemplatedWidget
+			&& !( editableTemplatedWidget instanceof $.wikibase.statementview )
+			&& !( editableTemplatedWidget instanceof $.wikibase.aliasesview )
+		) {
 			editableTemplatedWidget.notification( $message, 'wb-edit' );
 
 			$hideMessage.on( 'click', function( event ) {
 				event.preventDefault();
 				editableTemplatedWidget.notification();
 				if( mw.user.isAnon() ) {
-					$.cookie( cookieKey, copyRightVersion, { 'expires': 365 * 3, 'path': '/' } );
+					$.cookie( cookieKey, copyRightVersion, { expires: 365 * 3, path: '/' } );
 				} else {
 					var api = new mw.Api();
 					api.postWithToken( 'options', {
-						'action': 'options',
-						'optionname': optionsKey,
-						'optionvalue': copyRightVersion
+						action: 'options',
+						optionname: optionsKey,
+						optionvalue: copyRightVersion
 					} );
 				}
 			} );
@@ -307,13 +348,13 @@
 			$messageAnchor.data( 'wbtooltip' ).degrade( true );
 			$( window ).off( '.wbCopyrightTooltip' );
 			if( mw.user.isAnon() ) {
-				$.cookie( cookieKey, copyRightVersion, { 'expires': 365 * 3, 'path': '/' } );
+				$.cookie( cookieKey, copyRightVersion, { expires: 365 * 3, path: '/' } );
 			} else {
 				var api = new mw.Api();
 				api.postWithToken( 'options', {
-					'action': 'options',
-					'optionname': optionsKey,
-					'optionvalue': copyRightVersion
+					action: 'options',
+					optionname: optionsKey,
+					optionvalue: copyRightVersion
 				} );
 			}
 		} );
@@ -340,29 +381,6 @@
 				$entityview.off( '.wbCopyRightTooltip' );
 			}
 		);
-	}
-
-	function evaluateRestrictions() {
-		if( mw.config.get( 'wbUserIsBlocked' ) ) {
-			restrict( 'blockeduser' );
-		} else if( !mw.config.get( 'wbUserCanEdit' ) ) {
-			restrict( 'restrictionedit' );
-		}
-	}
-
-	/**
-	 * @param {string} key
-	 */
-	function restrict( key ) {
-		$( ':wikibase-toolbarbutton' ).each( function() {
-			var toolbarButton = $( this ).data( 'toolbarbutton' );
-			toolbarButton.disable();
-
-			toolbarButton.element.wbtooltip( {
-				content: mw.message( 'wikibase-' + key + '-tooltip-message' ).escaped(),
-				gravity: 'nw'
-			} );
-		} );
 	}
 
 } )(

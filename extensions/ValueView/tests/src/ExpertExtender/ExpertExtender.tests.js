@@ -57,6 +57,12 @@
 
 		$input.focus();
 		expertExtender.init();
+		// inputextender immediately extends if $input has focus
+		// If, after focussing, $input does not have focus, we are running in phantomjs
+		// or an unfocused firefox window. Force showing the extension, then.
+		if( !$input.is( ':focus' ) ) {
+			expertExtender._inputextender.showExtension();
+		}
 
 		window.setTimeout( function() {
 			sinon.assert.calledOnce( init );
@@ -66,7 +72,7 @@
 			$input.remove();
 
 			QUnit.start();
-		}, 200 );
+		}, 0 );
 	} );
 
 } )( jQuery, jQuery.valueview.ExpertExtender, sinon, QUnit, CompletenessTest );

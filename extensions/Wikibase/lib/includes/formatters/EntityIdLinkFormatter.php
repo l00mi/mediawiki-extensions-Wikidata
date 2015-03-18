@@ -1,6 +1,7 @@
 <?php
 
 namespace Wikibase\Lib;
+
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
@@ -20,10 +21,10 @@ class EntityIdLinkFormatter extends EntityIdTitleFormatter {
 	 *
 	 * @return string
 	 */
-	protected function formatEntityId( EntityId $entityId ) {
+	public function formatEntityId( EntityId $entityId ) {
 		$title = parent::formatEntityId( $entityId );
 
-		return "[[$title]]";
+		return "[[$title|" . wfEscapeWikiText( $entityId->getSerialization() ) . "]]";
 	}
 
 }

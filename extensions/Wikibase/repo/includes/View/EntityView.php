@@ -32,24 +32,14 @@ abstract class EntityView {
 	protected $templateFactory;
 
 	/**
-	 * @var FingerprintView
+	 * @var EntityTermsView
 	 */
-	private $fingerprintView;
-
-	/**
-	 * @var ClaimsView
-	 */
-	protected $claimsView;
+	private $entityTermsView;
 
 	/**
 	 * @var Language
 	 */
 	protected $language;
-
-	/**
-	 * @var bool
-	 */
-	protected $editable;
 
 	/**
 	 * @var TextInjector
@@ -58,22 +48,16 @@ abstract class EntityView {
 
 	/**
 	 * @param TemplateFactory $templateFactory
-	 * @param FingerprintView $fingerprintView
-	 * @param ClaimsView $claimsView
+	 * @param EntityTermsView $entityTermsView
 	 * @param Language $language
-	 * @param bool $editable
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
-		FingerprintView $fingerprintView,
-		ClaimsView $claimsView,
-		Language $language,
-		$editable  = true
+		EntityTermsView $entityTermsView,
+		Language $language
 	) {
-		$this->fingerprintView = $fingerprintView;
-		$this->claimsView = $claimsView;
+		$this->entityTermsView = $entityTermsView;
 		$this->language = $language;
-		$this->editable = $editable;
 
 		$this->textInjector = new TextInjector();
 		$this->templateFactory = $templateFactory;
@@ -106,8 +90,6 @@ abstract class EntityView {
 	public function getHtml( EntityRevision $entityRevision ) {
 		$entity = $entityRevision->getEntity();
 
-		//NOTE: even though $editable is unused at the moment, we will need it for the JS-less editing model.
-
 		$entityId = $entity->getId() ?: 'new'; // if id is not set, use 'new' suffix for css classes
 
 		$html = $this->templateFactory->render( 'wikibase-entityview',
@@ -119,9 +101,7 @@ abstract class EntityView {
 			$this->getSideHtml( $entityRevision )
 		);
 
-		if ( $this->editable ) {
-			$html .= $this->getLoadingSpinnerInlineScript();
-		}
+		$html .= $this->getLoadingSpinnerInlineScript();
 
 		return $html;
 	}
@@ -155,16 +135,12 @@ if ( $ ) {
 	 * @return string
 	 */
 	protected function getMainHtml( EntityRevision $entityRevision ) {
-		wfProfileIn( __METHOD__ );
-
 		$entity = $entityRevision->getEntity();
 
-		$html = $this->getHtmlForFingerprint( $entity );
-		$html .= $this->getHtmlForToc();
-		$html .= $this->getHtmlForTermBox( $entityRevision );
-
-		wfProfileOut( __METHOD__ );
-		return $html;
+		return $this->getHtmlForFingerprint(
+			$entity,
+			$this->getHtmlForTermBox( $entityRevision )
+		);
 	}
 
 	/**
@@ -182,55 +158,17 @@ if ( $ ) {
 	 * Builds and returns the HTML for the entity's fingerprint.
 	 *
 	 * @param Entity $entity
+	 * @param string $termBoxHtml
 	 *
 	 * @return string
 	 */
-	private function getHtmlForFingerprint( Entity $entity ) {
-		return $this->fingerprintView->getHtml( $entity->getFingerprint(), $entity->getId(), $this->editable );
-	}
-
-	/**
-	 * Builds and returns the HTML for the toc.
-	 *
-	 * @return string
-	 */
-	private function getHtmlForToc() {
-		$tocSections = $this->getTocSections();
-
-		if ( count( $tocSections ) < 2 ) {
-			// Including the marker for the termbox toc entry, there is fewer
-			// 3 sections. MediaWiki core doesn't show a TOC unless there are
-			// at least 3 sections, so we shouldn't either.
-			return '';
-		}
-
-		// Placeholder for the TOC entry for the term box (which may or may not be used for a given user).
-		// EntityViewPlaceholderExpander must know about the 'termbox-toc' name.
-		$tocContent = $this->textInjector->newMarker( 'termbox-toc' );
-
-		$i = 1;
-
-		foreach ( $tocSections as $id => $message ) {
-			$tocContent .= $this->templateFactory->render( 'wb-entity-toc-section',
-				$i++,
-				$id,
-				wfMessage( $message )->text()
-			);
-		}
-
-		return $this->templateFactory->render( 'wb-entity-toc',
-			wfMessage( 'toc' )->text(),
-			$tocContent
+	private function getHtmlForFingerprint( Entity $entity, $termBoxHtml ) {
+		return $this->entityTermsView->getHtml(
+			$entity->getFingerprint(),
+			$entity->getId(),
+			$termBoxHtml,
+			$this->textInjector
 		);
-	}
-
-	/**
-	 * Returns the sections that should displayed in the toc.
-	 *
-	 * @return string[] array( link target => system message key )
-	 */
-	protected function getTocSections() {
-		return array();
 	}
 
 	/**

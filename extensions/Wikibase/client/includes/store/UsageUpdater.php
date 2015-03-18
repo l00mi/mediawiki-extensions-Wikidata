@@ -61,7 +61,7 @@ class UsageUpdater {
 	 * any subscriptions based on that usage.
 	 *
 	 * @param int $pageId The ID of the page the entities are used on.
-	 * @param array $usages A list of EntityUsage objects.
+	 * @param EntityUsage[] $usages A list of EntityUsage objects.
 	 * See docs/usagetracking.wiki for details.
 	 *
 	 * @throws InvalidArgumentException
@@ -102,24 +102,6 @@ class UsageUpdater {
 				$this->subscriptionManager->unsubscribe( $this->clientId, $unusedIds );
 			}
 		}
-	}
-
-	/**
-	 * Re-indexes the given list of EntityUsages so that each EntityUsage can be found by using its
-	 * string representation as a key.
-	 *
-	 * @param EntityUsage[] $usages
-	 * @return EntityUsage[]
-	 */
-	private function reindexEntityUsages( array $usages ) {
-		$reindexed = array();
-
-		foreach ( $usages as $usage ) {
-			$key = $usage->getIdentityString();
-			$reindexed[$key] = $usage;
-		}
-
-		return $reindexed;
 	}
 
 	/**

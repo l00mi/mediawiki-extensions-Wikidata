@@ -11,8 +11,8 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Template\TemplateFactory;
-use Wikibase\Utils;
 
 /**
  * Creates views for lists of site links.
@@ -36,7 +36,7 @@ class SiteLinksView {
 	private $sites;
 
 	/**
-	 * @var SectionEditLinkGenerator
+	 * @var EditSectionGenerator
 	 */
 	private $sectionEditLinkGenerator;
 
@@ -44,6 +44,11 @@ class SiteLinksView {
 	 * @var EntityLookup
 	 */
 	private $entityLookup;
+
+	/**
+	 * @var LanguageNameLookup
+	 */
+	private $languageNameLookup;
 
 	/**
 	 * @var string[]
@@ -61,9 +66,11 @@ class SiteLinksView {
 	private $languageCode;
 
 	/**
+	 * @param TemplateFactory $templateFactory
 	 * @param SiteList $sites
-	 * @param SectionEditLinkGenerator $sectionEditLinkGenerator
+	 * @param EditSectionGenerator $sectionEditLinkGenerator
 	 * @param EntityLookup $entityLookup
+	 * @param LanguageNameLookup $languageNameLookup
 	 * @param string[] $badgeItems
 	 * @param string[] $specialSiteLinkGroups
 	 * @param string $languageCode
@@ -71,8 +78,9 @@ class SiteLinksView {
 	public function __construct(
 		TemplateFactory $templateFactory,
 		SiteList $sites,
-		SectionEditLinkGenerator $sectionEditLinkGenerator,
+		EditSectionGenerator $sectionEditLinkGenerator,
 		EntityLookup $entityLookup,
+		LanguageNameLookup $languageNameLookup,
 		array $badgeItems,
 		array $specialSiteLinkGroups,
 		$languageCode
@@ -84,6 +92,7 @@ class SiteLinksView {
 		$this->specialSiteLinkGroups = $specialSiteLinkGroups;
 		$this->languageCode = $languageCode;
 		$this->templateFactory = $templateFactory;
+		$this->languageNameLookup = $languageNameLookup;
 	}
 
 	/**
@@ -94,12 +103,11 @@ class SiteLinksView {
 	 * @param SiteLink[] $siteLinks the site links to render
 	 * @param ItemId|null $itemId The id of the item or might be null, if a new item.
 	 * @param string[] $groups An array of site group IDs
-	 * @param bool $editable whether editing is allowed (enabled edit links)
 	 *
 	 * @return string
 	 * @throws InvalidArgumentException
 	 */
-	public function getHtml( array $siteLinks, $itemId, array $groups, $editable ) {
+	public function getHtml( array $siteLinks, $itemId, array $groups ) {
 		if ( $itemId !== null && !( $itemId instanceof ItemId ) ) {
 			throw new InvalidArgumentException( '$itemId must be an ItemId or null.' );
 		}
@@ -111,11 +119,11 @@ class SiteLinksView {
 		}
 
 		foreach ( $groups as $group ) {
-			$html .= $this->getHtmlForSiteLinkGroup( $siteLinks, $itemId, $group, $editable );
+			$html .= $this->getHtmlForSiteLinkGroup( $siteLinks, $itemId, $group );
 		}
 
 		return $this->templateFactory->render( 'wikibase-sitelinkgrouplistview',
-			$this->templateFactory->render( 'wb-listview', $html )
+			$this->templateFactory->render( 'wikibase-listview', $html )
 		);
 	}
 
@@ -125,11 +133,10 @@ class SiteLinksView {
 	 * @param SiteLink[] $siteLinks the site links to render
 	 * @param ItemId|null $itemId The id of the item
 	 * @param string $group a site group ID
-	 * @param bool $editable
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLinkGroup( array $siteLinks, $itemId, $group, $editable ) {
+	private function getHtmlForSiteLinkGroup( array $siteLinks, $itemId, $group ) {
 		return $this->templateFactory->render( 'wikibase-sitelinkgroupview',
 			// TODO: support entity-id as prefix for element IDs.
 			htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES ),
@@ -142,7 +149,7 @@ class SiteLinksView {
 				)
 			),
 			htmlspecialchars( $group ),
-			$this->getHtmlForEditSection( $itemId, '', 'edit', $editable )
+			$this->sectionEditLinkGenerator->getSiteLinksEditSection( $itemId )
 		);
 	}
 
@@ -200,7 +207,7 @@ class SiteLinksView {
 		$safetyCopy = $siteLinksForTable; // keep a shallow copy
 		$sortOk = usort(
 			$siteLinksForTable,
-			function( $a, $b ) {
+			function( array $a, array $b ) {
 				return strcmp( $a['siteLink']->getSiteId(), $b['siteLink']->getSiteId() );
 			}
 		);
@@ -256,7 +263,7 @@ class SiteLinksView {
 			$siteName = $siteNameMsg->exists() ? $siteNameMsg->parse() : $siteId;
 		} else {
 			// TODO: get an actual site name rather then just the language
-			$siteName = htmlspecialchars( Utils::fetchLanguageName( $languageCode ) );
+			$siteName = htmlspecialchars( $this->languageNameLookup->getName( $languageCode ) );
 		}
 
 		// TODO: for non-JS, also set the dir attribute on the link cell;
@@ -285,7 +292,8 @@ class SiteLinksView {
 			htmlspecialchars( $site->getPageUrl( $pageName ) ),
 			htmlspecialchars( $pageName ),
 			$this->getHtmlForBadges( $siteLink ),
-			$site->getLanguageCode()
+			$site->getLanguageCode(),
+			'auto'
 		);
 	}
 
@@ -299,34 +307,6 @@ class SiteLinksView {
 		return $this->templateFactory->render( 'wikibase-sitelinkview-unknown',
 			htmlspecialchars( $siteLink->getSiteId() ),
 			htmlspecialchars(  $siteLink->getPageName() )
-		);
-	}
-
-	/**
-	 * @param ItemId|null $itemId
-	 * @param string $subPage defaults to ''
-	 * @param string $action defaults to 'edit'
-	 * @param bool $enabled defaults to true
-	 *
-	 * @return string
-	 */
-	private function getHtmlForEditSection( $itemId, $subPage = '', $action = 'edit', $enabled = true ) {
-		$specialPageUrlParams = array();
-
-		if ( $itemId !== null ) {
-			$specialPageUrlParams[] = $itemId->getSerialization();
-
-			if ( $subPage !== '' ) {
-				$specialPageUrlParams[] = $subPage;
-			}
-		}
-
-		return $this->sectionEditLinkGenerator->getHtmlForEditSection(
-			'SetSiteLink',
-			$specialPageUrlParams,
-			$action,
-			new Message( 'wikibase-' . $action ),
-			$enabled
 		);
 	}
 

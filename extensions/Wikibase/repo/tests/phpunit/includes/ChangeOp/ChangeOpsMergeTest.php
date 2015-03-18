@@ -16,11 +16,12 @@ use Wikibase\Validators\EntityConstraintProvider;
  * @group Wikibase
  * @group WikibaseRepo
  * @group ChangeOp
+ * @group Database
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
  */
-class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
+class ChangeOpsMergeTest extends \MediaWikiTestCase {
 
 	/**
 	 * @var ChangeOpTestMockProvider
@@ -128,9 +129,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function newItemWithId( $idString ) {
-		$item = Item::newEmpty();
-		$item->setId( new Itemid( $idString ) );
-		return $item;
+		return new Item( new ItemId( $idString ) );
 	}
 
 	/**
@@ -221,13 +220,13 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 			array( 'aliases' => array( 'en' => array( 'foo', 'bar' ) ) ),
 			array(),
 			array(),
-			array( 'aliases' => array( 'en' =>  array( 'foo', 'bar' ) ) ),
+			array( 'aliases' => array( 'en' => array( 'foo', 'bar' ) ) ),
 		);
 		$testCases['duplicateAliasMerge'] = array(
 			array( 'aliases' => array( 'en' => array( 'foo', 'bar' ) ) ),
 			array( 'aliases' => array( 'en' => array( 'foo', 'bar', 'baz' ) ) ),
 			array(),
-			array( 'aliases' => array( 'en' =>  array( 'foo', 'bar', 'baz' ) ) ),
+			array( 'aliases' => array( 'en' => array( 'foo', 'bar', 'baz' ) ) ),
 		);
 		$testCases['linkMerge'] = array(
 			array( 'links' => array( 'enwiki' => array( 'name' => 'foo', 'badges' => array() ) ) ),
@@ -293,13 +292,13 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 		$testCases['itemMerge'] = array(
 			array(
 				'label' => array( 'en' => 'foo', 'pt' => 'ptfoo' ),
-				'description' => array( 'en' => 'foo', 'pl' => 'pldesc'  ),
+				'description' => array( 'en' => 'foo', 'pl' => 'pldesc' ),
 				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
 				'links' => array( 'dewiki' => array( 'name' => 'foo', 'badges' => array() ) ),
 				'claims' => array(
 					array(
 						'm' => array( 'novalue', 88 ),
-						'q' => array( array(  'novalue', 88  ) ),
+						'q' => array( array( 'novalue', 88 ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
 						'rank' => Statement::RANK_NORMAL,
@@ -309,14 +308,14 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 			array(),
 			array(),
 			array(
-				'label' => array( 'en' => 'foo', 'pt' => 'ptfoo'  ),
+				'label' => array( 'en' => 'foo', 'pt' => 'ptfoo' ),
 				'description' => array( 'en' => 'foo', 'pl' => 'pldesc' ),
 				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
 				'links' => array( 'dewiki' => array( 'name' => 'foo', 'badges' => array() ) ),
 				'claims' => array(
 					array(
 						'm' => array( 'novalue', 88 ),
-						'q' => array( array(  'novalue', 88  ) ),
+						'q' => array( array( 'novalue', 88 ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
 						'rank' => Statement::RANK_NORMAL,
@@ -327,7 +326,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 		$testCases['ignoreConflictItemMerge'] = array(
 			array(
 				'label' => array( 'en' => 'foo', 'pt' => 'ptfoo' ),
-				'description' => array( 'en' => 'foo', 'pl' => 'pldesc'  ),
+				'description' => array( 'en' => 'foo', 'pl' => 'pldesc' ),
 				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
 				'links' => array(
 					'dewiki' => array( 'name' => 'foo', 'badges' => array() ),
@@ -336,7 +335,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 				'claims' => array(
 					array(
 						'm' => array( 'novalue', 88 ),
-						'q' => array( array(  'novalue', 88  ) ),
+						'q' => array( array( 'novalue', 88 ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
 						'rank' => Statement::RANK_NORMAL,
@@ -349,12 +348,12 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 				'links' => array( 'plwiki' => array( 'name' => 'toLink', 'badges' => array() ) ),
 			),
 			array(
-				'label' => array( ),
+				'label' => array(),
 				'description' => array( 'pl' => 'pldesc' ),
 				'links' => array( 'plwiki' => array( 'name' => 'bar', 'badges' => array() ) ),
 			),
 			array(
-				'label' => array( 'en' => 'toLabel', 'pt' => 'ptfoo'  ),
+				'label' => array( 'en' => 'toLabel', 'pt' => 'ptfoo' ),
 				'description' => array( 'en' => 'foo', 'pl' => 'toLabel' ),
 				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
 				'links' => array(
@@ -364,7 +363,7 @@ class ChangeOpsMergeTest extends \PHPUnit_Framework_TestCase {
 				'claims' => array(
 					array(
 						'm' => array( 'novalue', 88 ),
-						'q' => array( array(  'novalue', 88  ) ),
+						'q' => array( array( 'novalue', 88 ) ),
 						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
 						'refs' => array(),
 						'rank' => Statement::RANK_NORMAL,
