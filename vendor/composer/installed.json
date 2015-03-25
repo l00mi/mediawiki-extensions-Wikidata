@@ -1328,14 +1328,8 @@
         "version_normalized": "dev-wmf/1.25wmf22",
         "source": {
             "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "7d3a0b11d0321ff09fde1b5692599860fea6496c"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7d3a0b11d0321ff09fde1b5692599860fea6496c",
-            "reference": "7d3a0b11d0321ff09fde1b5692599860fea6496c",
-            "shasum": ""
+            "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
+            "reference": "c42291f422f391dd14388859caf39857e80a4959"
         },
         "require": {
             "data-values/common": "~0.2.0",
@@ -1362,9 +1356,9 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-03-25 00:03:14",
+        "time": "2015-03-25 14:50:27",
         "type": "mediawiki-extension",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "files": [
                 "Wikibase.composer.php"
@@ -1385,7 +1379,6 @@
                 "Wikibase\\Repo\\View\\": "repo/includes/View"
             }
         },
-        "notification-url": "https://packagist.org/downloads/",
         "license": [
             "GPL-2.0+"
         ],
@@ -1402,6 +1395,10 @@
             "wikibaselib",
             "wikibaserepo",
             "wikidata"
-        ]
+        ],
+        "support": {
+            "issues": "https://bugzilla.wikimedia.org/",
+            "irc": "irc://irc.freenode.net/wikidata"
+        }
     }
 ]
