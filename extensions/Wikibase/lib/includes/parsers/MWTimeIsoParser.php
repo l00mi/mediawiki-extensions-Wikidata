@@ -10,6 +10,7 @@ use ValueParsers\CalendarModelParser;
 use ValueParsers\ParseException;
 use ValueParsers\ParserOptions;
 use ValueParsers\StringValueParser;
+use ValueParsers\TimeParser as IsoTimestampParser;
 use ValueParsers\ValueParser;
 
 /**
@@ -67,27 +68,23 @@ class MWTimeIsoParser extends StringValueParser {
 	/**
 	 * @var Language
 	 */
-	protected $lang;
+	private $lang;
 
 	/**
-	 * @var \ValueParsers\TimeParser
+	 * @var ValueParser
 	 */
-	protected $timeValueTimeParser;
+	private $isoTimestampParser;
 
 	/**
 	 * @see StringValueParser::__construct
 	 */
 	public function __construct( ParserOptions $options = null ) {
-		if( is_null( $options ) ) {
-			$options = new ParserOptions();
-		}
-
 		parent::__construct( $options );
-		$this->lang = Language::factory( $this->getOptions()->getOption( ValueParser::OPT_LANG ) );
 
-		$this->timeValueTimeParser = new \ValueParsers\TimeParser(
-			new CalendarModelParser(),
-			$this->getOptions()
+		$this->lang = Language::factory( $this->getOption( ValueParser::OPT_LANG ) );
+		$this->isoTimestampParser = new IsoTimestampParser(
+			new CalendarModelParser( $this->options ),
+			$this->options
 		);
 	}
 
@@ -190,15 +187,15 @@ class MWTimeIsoParser extends StringValueParser {
 
 		$timeString = $sign . $year . '-00-00T00:00:00Z';
 
-		return $this->timeValueTimeParser->parse( $timeString );
+		return $this->isoTimestampParser->parse( $timeString );
 	}
 
 	/**
 	 * @param int $precision
 	 */
 	private function setPrecision( $precision ) {
-		$this->timeValueTimeParser->getOptions()->setOption(
-			\ValueParsers\TimeParser::OPT_PRECISION,
+		$this->isoTimestampParser->getOptions()->setOption(
+			IsoTimestampParser::OPT_PRECISION,
 			$precision
 		);
 	}

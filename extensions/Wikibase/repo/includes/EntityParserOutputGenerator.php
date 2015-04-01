@@ -20,7 +20,11 @@ use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityInfoTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelLookup;
-use Wikibase\Repo\View\EntityViewFactory;
+use Wikibase\Repo\View\RepoSpecialPageLinker;
+use Wikibase\View\EmptyEditSectionGenerator;
+use Wikibase\View\EntityViewFactory;
+use Wikibase\View\Template\TemplateFactory;
+use Wikibase\View\ToolbarEditSectionGenerator;
 
 /**
  * Creates the parser output for an entity.
@@ -76,6 +80,11 @@ class EntityParserOutputGenerator {
 	 */
 	private $referencedEntitiesFinder;
 
+	/**
+	 * @var TemplateFactory
+	 */
+	private $templateFactory;
+
 	public function __construct(
 		EntityViewFactory $entityViewFactory,
 		ParserOutputJsConfigBuilder $configBuilder,
@@ -83,7 +92,8 @@ class EntityParserOutputGenerator {
 		ValuesFinder $valuesFinder,
 		EntityInfoBuilderFactory $entityInfoBuilderFactory,
 		LanguageFallbackChain $languageFallbackChain,
-		$languageCode
+		$languageCode,
+		TemplateFactory $templateFactory
 	) {
 		$this->entityViewFactory = $entityViewFactory;
 		$this->configBuilder = $configBuilder;
@@ -94,6 +104,7 @@ class EntityParserOutputGenerator {
 		$this->languageCode = $languageCode;
 
 		$this->referencedEntitiesFinder = new ReferencedEntitiesFinder();
+		$this->templateFactory = $templateFactory;
 	}
 
 	/**
@@ -141,7 +152,7 @@ class EntityParserOutputGenerator {
 		$usedEntityIds = $this->referencedEntitiesFinder->findSnakLinks( $snaks );
 		$entityInfo = $this->getEntityInfo( $usedEntityIds );
 
-		$configVars = $this->configBuilder->build( $entity, $entityInfo );
+		$configVars = $this->configBuilder->build( $entity );
 		$parserOutput->addJsConfigVars( $configVars );
 
 		$this->addLinksToParserOutput( $parserOutput, $usedEntityIds, $snaks );
@@ -312,7 +323,7 @@ class EntityParserOutputGenerator {
 	/**
 	 * @param ParserOutput $parserOutput
 	 * @param EntityRevision $entityRevision
-	 * @param EntityInfo $entityInfo obtained from EntityInfoBuilder::getEntityInfo
+	 * @param EntityInfo $entityInfo
 	 * @param bool $editable
 	 */
 	private function addHtmlToParserOutput(
@@ -327,12 +338,17 @@ class EntityParserOutputGenerator {
 			$this->languageFallbackChain
 		);
 
+		$editSectionGenerator = $editable ? new ToolbarEditSectionGenerator(
+			new RepoSpecialPageLinker(),
+			$this->templateFactory
+		) : new EmptyEditSectionGenerator();
+
 		$entityView = $this->entityViewFactory->newEntityView(
 			$entityRevision->getEntity()->getType(),
 			$this->languageCode,
 			$labelLookup,
 			$this->languageFallbackChain,
-			$editable
+			$editSectionGenerator
 		);
 
 		$html = $entityView->getHtml( $entityRevision );

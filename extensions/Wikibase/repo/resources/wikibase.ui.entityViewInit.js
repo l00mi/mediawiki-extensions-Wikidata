@@ -123,14 +123,14 @@
 				new wb.serialization.EntityDeserializer()
 			);
 
-		return new wb.store.CombiningEntityStore( [
-			new wb.store.MwConfigEntityStore( fetchedEntityDeserializer ),
+		return new wb.store.CachingEntityStore(
 			new wb.store.ApiEntityStore(
 				repoApi,
 				fetchedEntityDeserializer,
 				[ languageCode ]
 			)
-		] );
+		);
+
 	}
 
 	/**

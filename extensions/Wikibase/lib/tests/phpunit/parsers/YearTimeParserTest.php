@@ -3,10 +3,10 @@
 namespace Wikibase\Lib\Parsers\Test;
 
 use DataValues\TimeValue;
-use ValueFormatters\TimeFormatter;
 use ValueParsers\Test\StringValueParserTest;
+use ValueParsers\TimeParser;
 use Wikibase\Lib\Parsers\EraParser;
-use Wikibase\Lib\Parsers\MWTimeIsoParser;
+use Wikibase\Lib\Parsers\YearTimeParser;
 
 /**
  * @covers Wikibase\Lib\Parsers\YearTimeParser
@@ -22,11 +22,19 @@ use Wikibase\Lib\Parsers\MWTimeIsoParser;
 class YearTimeParserTest extends StringValueParserTest {
 
 	/**
-	 * @return MWTimeIsoParser
+	 * @deprecated since 0.3, just use getInstance.
+	 */
+	protected function getParserClass() {
+		throw new \LogicException( 'Should not be called, use getInstance' );
+	}
+
+	/**
+	 * @see ValueParserTestBase::getInstance
+	 *
+	 * @return YearTimeParser
 	 */
 	protected function getInstance() {
-		$class = $this->getParserClass();
-		return new $class( $this->getMockEraParser(), $this->newParserOptions() );
+		return new YearTimeParser( $this->getMockEraParser() );
 	}
 
 	private function getMockEraParser() {
@@ -51,13 +59,6 @@ class YearTimeParserTest extends StringValueParserTest {
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function getParserClass() {
-		return 'Wikibase\Lib\Parsers\YearTimeParser';
-	}
-
-	/**
 	 * @see ValueParserTestBase::validInputProvider
 	 *
 	 * @return array
@@ -67,32 +68,32 @@ class YearTimeParserTest extends StringValueParserTest {
 
 		$valid = array(
 			'1999' =>
-				array( '+0000000000001999-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000000001999-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 			'2000' =>
-				array( '+0000000000002000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000000002000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 			'2010' =>
-				array( '+0000000000002010-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000000002010-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 			'2000000' =>
-				array( '+0000000002000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ma , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000002000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ma , TimeParser::CALENDAR_GREGORIAN ),
 			'2000000000' =>
-				array( '+0000002000000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ga , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000002000000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ga , TimeParser::CALENDAR_GREGORIAN ),
 			'2000020000' =>
-				array( '+0000002000020000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_10ka , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000002000020000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_10ka , TimeParser::CALENDAR_GREGORIAN ),
 			'2000001' =>
-				array( '+0000000002000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000002000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 			'02000001' =>
-				array( '+0000000002000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000002000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 			'1' =>
-				array( '+0000000000000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000000000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 			'000000001' =>
-				array( '+0000000000000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '+0000000000000001-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 			'-1000000' =>
-				array( '-0000000001000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ma , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '-0000000001000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ma , TimeParser::CALENDAR_GREGORIAN ),
 			'-1 000 000' =>
-				array( '-0000000001000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ma , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '-0000000001000000-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_Ma , TimeParser::CALENDAR_GREGORIAN ),
 			// Digit grouping in the Indian numbering system
 			'-1,99,999' =>
-				array( '-0000000000199999-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeFormatter::CALENDAR_GREGORIAN ),
+				array( '-0000000000199999-00-00T00:00:00Z', 0 , 0 , 0 , TimeValue::PRECISION_YEAR , TimeParser::CALENDAR_GREGORIAN ),
 		);
 
 		foreach ( $valid as $value => $expected ) {
@@ -144,7 +145,8 @@ class YearTimeParserTest extends StringValueParserTest {
 	 * @expectedExceptionMessage Failed to parse year
 	 */
 	public function testParseExceptionMessage() {
-		$this->getInstance()->parse( 'ju5t 1nval1d' );
+		$parser = $this->getInstance();
+		$parser->parse( 'ju5t 1nval1d' );
 	}
 
 }

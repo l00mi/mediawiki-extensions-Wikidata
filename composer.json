@@ -5,10 +5,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git"
-	},
-	{
-            "type": "vcs",
             "url": "https://github.com/wmde/Wikidata.org.git"
         },
         {
@@ -19,7 +15,7 @@
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~2.0.6",
-        "wikibase/wikibase": "dev-wmf/1.25wmf22",
+        "wikibase/wikibase": "dev-wmf/1.25wmf24",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
     },
@@ -35,6 +31,6 @@
     "config": {
         "prepend-autoloader": false,
         "preferred-install": "dist",
-        "autoloader-suffix": "wikidata_1_25wmf22"
+        "autoloader-suffix": "wikidata_1_25wmf24"
     }
 }

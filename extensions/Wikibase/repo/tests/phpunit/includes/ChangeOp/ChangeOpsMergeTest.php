@@ -2,13 +2,19 @@
 
 namespace Wikibase\Test;
 
+use MediaWikiTestCase;
+use ValueValidators\Error;
+use ValueValidators\Result;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\ChangeOp\ChangeOpsMerge;
+use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Snak\PropertyNoValueSnak;
+use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Validators\EntityConstraintProvider;
+use Wikibase\DataModel\Statement\StatementList;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpsMerge
@@ -21,7 +27,7 @@ use Wikibase\Validators\EntityConstraintProvider;
  * @licence GNU GPL v2+
  * @author Adam Shorland
  */
-class ChangeOpsMergeTest extends \MediaWikiTestCase {
+class ChangeOpsMergeTest extends MediaWikiTestCase {
 
 	/**
 	 * @var ChangeOpTestMockProvider
@@ -44,15 +50,28 @@ class ChangeOpsMergeTest extends \MediaWikiTestCase {
 		Item $toItem,
 		array $ignoreConflicts = array()
 	) {
-		$duplicateDetector = $this->mockProvider->getMockLabelDescriptionDuplicateDetector();
-		$linkCache = $this->mockProvider->getMockSitelinkCache();
+		// A validator which makes sure that no site link is for page 'DUPE'
+		$siteLinkUniquenessValidator = $this->getMock( 'Wikibase\Validators\EntityValidator' );
+		$siteLinkUniquenessValidator->expects( $this->any() )
+			->method( 'validateEntity' )
+			->will( $this->returnCallback( function( Item $item ) {
+					$siteLinks = $item->getSiteLinkList();
+					foreach ( $siteLinks as $siteLink ) {
+						if ( $siteLink->getPageName() === 'DUPE' ) {
+							return Result::newError( array( Error::newError( 'SiteLink conflict' ) ) );
+						}
+					}
+					return Result::newSuccess();
+				} ) );
 
-		$constraintProvider = new EntityConstraintProvider(
-			$duplicateDetector,
-			$linkCache
-		);
+		$constraintProvider = $this->getMockBuilder( 'Wikibase\Validators\EntityConstraintProvider' )
+			->disableOriginalConstructor()
+			->getMock();
+		$constraintProvider->expects( $this->any() )
+			->method( 'getUpdateValidators' )
+			->will( $this->returnValue( array( $siteLinkUniquenessValidator ) ) );
 
-		$changeOpFactoryProvider =  new ChangeOpFactoryProvider(
+		$changeOpFactoryProvider = new ChangeOpFactoryProvider(
 			$constraintProvider,
 			$this->mockProvider->getMockGuidGenerator(),
 			$this->mockProvider->getMockGuidValidator(),
@@ -115,19 +134,6 @@ class ChangeOpsMergeTest extends \MediaWikiTestCase {
 		);
 	}
 
-	/**
-	 * @param string $id
-	 * @param array $data
-	 *
-	 * @return Item
-	 */
-	private function getItem( $id, array $data = array() ) {
-		$deserializer = WikibaseRepo::getDefaultInstance()->getInternalEntityDeserializer();
-		$item = $deserializer->deserialize( $data );
-		$item->setId( new ItemId( $id ) );
-		return $item;
-	}
-
 	private function newItemWithId( $idString ) {
 		return new Item( new ItemId( $idString ) );
 	}
@@ -135,9 +141,15 @@ class ChangeOpsMergeTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider provideData
 	 */
-	public function testCanApply( array $fromData, array $toData, $expectedFromData, $expectedToData, array $ignoreConflicts = array() ) {
-		$from = $this->getItem( 'Q111', $fromData );
-		$to = $this->getItem( 'Q222', $toData );
+	public function testCanApply(
+		Item $from,
+		Item $to,
+		Item $expectedFrom,
+		Item $expectedTo,
+		array $ignoreConflicts = array()
+	) {
+		$from->setId( new ItemId( 'Q111' ) );
+		$to->setId( new ItemId( 'Q222' ) );
 
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
@@ -145,15 +157,7 @@ class ChangeOpsMergeTest extends \MediaWikiTestCase {
 			$ignoreConflicts
 		);
 
-		$deserializer = WikibaseRepo::getDefaultInstance()->getInternalEntityDeserializer();
-
-		$this->assertTrue( $from->equals( $deserializer->deserialize( $fromData ) ), 'FromItem was not filled correctly' );
-		$this->assertTrue( $to->equals( $deserializer->deserialize( $toData ) ), 'ToItem was not filled correctly' );
-
 		$changeOps->apply();
-
-		$expectedFrom = $deserializer->deserialize( $expectedFromData );
-		$expectedTo = $deserializer->deserialize( $expectedToData );
 
 		$this->removeClaimsGuids( $from );
 		$this->removeClaimsGuids( $expectedFrom );
@@ -171,205 +175,189 @@ class ChangeOpsMergeTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @return array 1=>fromData 2=>toData 3=>expectedFromData 4=>expectedToData
+	 * @return array 1=>from 2=>to 3=>expectedFrom 4=>expectedTo
 	 */
 	public function provideData() {
 		$testCases = array();
+
+		$itemWithEnLabel = new Item();
+		$itemWithEnLabel->getFingerprint()->setLabel( 'en', 'foo' );
+
 		$testCases['labelMerge'] = array(
-			array( 'label' => array( 'en' => 'foo' ) ),
-			array(),
-			array(),
-			array( 'label' => array( 'en' => 'foo' ) ),
+			$itemWithEnLabel->copy(),
+			new Item(),
+			new Item(),
+			$itemWithEnLabel->copy(),
 		);
 		$testCases['identicalLabelMerge'] = array(
-			array( 'label' => array( 'en' => 'foo' ) ),
-			array( 'label' => array( 'en' => 'foo' ) ),
-			array(),
-			array( 'label' => array( 'en' => 'foo' ) ),
+			$itemWithEnLabel->copy(),
+			$itemWithEnLabel->copy(),
+			new Item(),
+			$itemWithEnLabel->copy(),
 		);
+
+		$itemWithEnBarLabel = new Item();
+		$itemWithEnBarLabel->getFingerprint()->setLabel( 'en', 'bar' );
+
+		$itemWithLabelAndAlias = new Item();
+		$itemWithLabelAndAlias->getFingerprint()->setLabel( 'en', 'bar' );
+		$itemWithLabelAndAlias->getFingerprint()->setAliasGroup( 'en', array( 'foo' ) );
+
 		$testCases['ignoreConflictLabelMerge'] = array(
-			array( 'label' => array( 'en' => 'foo' ) ),
-			array( 'label' => array( 'en' => 'bar' ) ),
-			array( 'label' => array( ) ),
-			array(
-				'label' => array( 'en' => 'bar' ),
-				'aliases' => array( 'en' => array( 'foo' ) )
-			),
+			$itemWithEnLabel->copy(),
+			$itemWithEnBarLabel->copy(),
+			new Item(),
+			$itemWithLabelAndAlias->copy(),
 			array( 'label' )
 		);
+
+		$itemWithDescription = new Item();
+		$itemWithDescription->getFingerprint()->setDescription( 'en', 'foo' );
+
 		$testCases['descriptionMerge'] = array(
-			array( 'description' => array( 'en' => 'foo' ) ),
-			array(),
-			array(),
-			array( 'description' => array( 'en' => 'foo' ) ),
+			$itemWithDescription->copy(),
+			new Item(),
+			new Item(),
+			$itemWithDescription->copy(),
 		);
 		$testCases['identicalDescriptionMerge'] = array(
-			array( 'description' => array( 'en' => 'foo' ) ),
-			array( 'description' => array( 'en' => 'foo' ) ),
-			array(),
-			array( 'description' => array( 'en' => 'foo' ) ),
+			$itemWithDescription->copy(),
+			$itemWithDescription->copy(),
+			new Item(),
+			$itemWithDescription->copy(),
 		);
+
+		$itemWithBarDescription = new Item();
+		$itemWithBarDescription->getFingerprint()->setDescription( 'en', 'bar' );
 		$testCases['ignoreConflictDescriptionMerge'] = array(
-			array( 'description' => array( 'en' => 'foo' ) ),
-			array( 'description' => array( 'en' => 'bar' ) ),
-			array( 'description' => array( 'en' => 'foo' ) ),
-			array( 'description' => array( 'en' => 'bar' ) ),
+			$itemWithDescription->copy(),
+			$itemWithBarDescription->copy(),
+			$itemWithDescription->copy(),
+			$itemWithBarDescription->copy(),
 			array( 'description' )
 		);
+
+		$itemWithFooBarAliases = new Item();
+		$itemWithFooBarAliases->getFingerprint()->setAliasGroup( 'en', array( 'foo', 'bar' ) );
+
 		$testCases['aliasMerge'] = array(
-			array( 'aliases' => array( 'en' => array( 'foo', 'bar' ) ) ),
-			array(),
-			array(),
-			array( 'aliases' => array( 'en' => array( 'foo', 'bar' ) ) ),
+			$itemWithFooBarAliases->copy(),
+			new Item(),
+			new Item(),
+			$itemWithFooBarAliases->copy(),
 		);
+
+		$itemWithFooBarBazAliases = new Item();
+		$itemWithFooBarBazAliases->getFingerprint()->setAliasGroup( 'en', array( 'foo', 'bar', 'baz' ) );
+
 		$testCases['duplicateAliasMerge'] = array(
-			array( 'aliases' => array( 'en' => array( 'foo', 'bar' ) ) ),
-			array( 'aliases' => array( 'en' => array( 'foo', 'bar', 'baz' ) ) ),
-			array(),
-			array( 'aliases' => array( 'en' => array( 'foo', 'bar', 'baz' ) ) ),
+			$itemWithFooBarAliases->copy(),
+			$itemWithFooBarBazAliases->copy(),
+			new Item(),
+			$itemWithFooBarBazAliases->copy(),
 		);
+
+		$itemWithLink = new Item();
+		$itemWithLink->getSiteLinkList()->addNewSiteLink( 'enwiki', 'foo' );
+
 		$testCases['linkMerge'] = array(
-			array( 'links' => array( 'enwiki' => array( 'name' => 'foo', 'badges' => array() ) ) ),
-			array(),
-			array(),
-			array( 'links' => array( 'enwiki' => array( 'name' => 'foo', 'badges' => array() ) ) ),
+			$itemWithLink->copy(),
+			new Item(),
+			new Item(),
+			$itemWithLink->copy(),
 		);
+
+		$itemWithBarLink = new Item();
+		$itemWithBarLink->getSiteLinkList()->addNewSiteLink( 'enwiki', 'bar' );
+
 		$testCases['ignoreConflictLinkMerge'] = array(
-			array( 'links' => array( 'enwiki' => array( 'name' => 'foo', 'badges' => array() ) ) ),
-			array( 'links' => array( 'enwiki' => array( 'name' => 'bar', 'badges' => array() ) ) ),
-			array( 'links' => array( 'enwiki' => array( 'name' => 'foo', 'badges' => array() ) ) ),
-			array( 'links' => array( 'enwiki' => array( 'name' => 'bar', 'badges' => array() ) ) ),
+			$itemWithLink->copy(),
+			$itemWithBarLink->copy(),
+			$itemWithLink->copy(),
+			$itemWithBarLink->copy(),
 			array( 'sitelink' ),
 		);
+
+		$claim = new Claim( new PropertyNoValueSnak( new PropertyId( 'P56' ) ) );
+		$claim->setGuid( 'Q111$D8404CDA-25E4-4334-AF13-A390BCD9C556' );
+
+		$itemWithStatement = new Item();
+		$itemWithStatement->getStatements()->addStatement( new Statement( $claim ) );
 		$testCases['claimMerge'] = array(
-			array( 'claims' => array(
-				array(
-					'm' => array( 'novalue', 56 ),
-					'q' => array( ),
-					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A390BCD9C556',
-					'refs' => array(),
-					'rank' => Statement::RANK_NORMAL,
-				)
-			),
-			),
-			array(),
-			array(),
-			array( 'claims' => array(
-				array(
-					'm' => array( 'novalue', 56 ),
-					'q' => array( ),
-					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A390BCD9C556',
-					'refs' => array(),
-					'rank' => Statement::RANK_NORMAL,
-				)
-			),
-			),
+			$itemWithStatement->copy(),
+			new Item(),
+			new Item(),
+			$itemWithStatement->copy()
 		);
+
+		$qualifiedClaim = new Claim(
+			new PropertyNoValueSnak( new PropertyId( 'P56' ) ),
+			new SnakList( array( new PropertyNoValueSnak( new PropertyId( 'P56' ) ) ) )
+		);
+		$qualifiedClaim->setGuid( 'Q111$D8404CDA-25E4-4334-AF13-A390BCD9C556' );
+
+		$itemWithQualifiedStatement = new Item();
+		$itemWithQualifiedStatement->getStatements()->addStatement( new Statement( $qualifiedClaim ) );
+
 		$testCases['claimWithQualifierMerge'] = array(
-			array( 'claims' => array(
-				array(
-					'm' => array( 'novalue', 56 ),
-					'q' => array( array(  'novalue', 56  ) ),
-					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A3290BCD9C0F',
-					'refs' => array(),
-					'rank' => Statement::RANK_NORMAL,
-				)
-			),
-			),
-			array(),
-			array(),
-			array( 'claims' => array(
-				array(
-					'm' => array( 'novalue', 56 ),
-					'q' => array( array(  'novalue', 56  ) ),
-					'g' => 'Q111$D8404CDA-25E4-4334-AF13-A3290BCD9C0F',
-					'refs' => array(),
-					'rank' => Statement::RANK_NORMAL,
-				)
-			),
-			),
+			$itemWithQualifiedStatement->copy(),
+			new Item(),
+			new Item(),
+			$itemWithQualifiedStatement->copy()
 		);
+
+		$anotherQualifiedClaim = new Claim(
+			new PropertyNoValueSnak( new PropertyId( 'P88' ) ),
+			new SnakList( array( new PropertyNoValueSnak( new PropertyId( 'P88' ) ) ) )
+		);
+		$anotherQualifiedClaim->setGuid( 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F' );
+
+		$bigItem = new Item();
+		$bigItem->getFingerprint()->setLabel( 'en', 'foo' );
+		$bigItem->getFingerprint()->setLabel( 'pt', 'ptfoo' );
+		$bigItem->getFingerprint()->setDescription( 'en', 'foo' );
+		$bigItem->getFingerprint()->setDescription( 'pl', 'pldesc' );
+		$bigItem->getFingerprint()->setAliasGroup( 'en', array( 'foo', 'bar' ) );
+		$bigItem->getFingerprint()->setAliasGroup( 'de', array( 'defoo', 'debar' ) );
+		$bigItem->getSiteLinkList()->addNewSiteLink( 'dewiki', 'foo' );
+		$bigItem->getStatements()->addStatement( new Statement( $anotherQualifiedClaim ) );
+
 		$testCases['itemMerge'] = array(
-			array(
-				'label' => array( 'en' => 'foo', 'pt' => 'ptfoo' ),
-				'description' => array( 'en' => 'foo', 'pl' => 'pldesc' ),
-				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
-				'links' => array( 'dewiki' => array( 'name' => 'foo', 'badges' => array() ) ),
-				'claims' => array(
-					array(
-						'm' => array( 'novalue', 88 ),
-						'q' => array( array( 'novalue', 88 ) ),
-						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
-						'refs' => array(),
-						'rank' => Statement::RANK_NORMAL,
-					)
-				),
-			),
-			array(),
-			array(),
-			array(
-				'label' => array( 'en' => 'foo', 'pt' => 'ptfoo' ),
-				'description' => array( 'en' => 'foo', 'pl' => 'pldesc' ),
-				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
-				'links' => array( 'dewiki' => array( 'name' => 'foo', 'badges' => array() ) ),
-				'claims' => array(
-					array(
-						'm' => array( 'novalue', 88 ),
-						'q' => array( array( 'novalue', 88 ) ),
-						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
-						'refs' => array(),
-						'rank' => Statement::RANK_NORMAL,
-					)
-				),
-			),
+			$bigItem->copy(),
+			new Item(),
+			new Item(),
+			$bigItem->copy(),
 		);
+
+		$bigItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'bar' );
+
+
+		$smallerItem = new Item();
+		$smallerItem->getFingerprint()->setLabel( 'en', 'toLabel' );
+		$smallerItem->getFingerprint()->setDescription( 'pl', 'toLabel' ); // FIXME: this is not a label
+		$smallerItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'toLink' );
+
+		$smallerMergedItem = new Item();
+		$smallerMergedItem->getFingerprint()->setDescription( 'pl', 'pldesc' );
+		$smallerMergedItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'bar' );
+
+		$bigMergedItem = new Item();
+		$bigMergedItem->getFingerprint()->setLabel( 'en', 'toLabel' );
+		$bigMergedItem->getFingerprint()->setLabel( 'pt', 'ptfoo' );
+		$bigMergedItem->getFingerprint()->setDescription( 'en', 'foo' );
+		$bigMergedItem->getFingerprint()->setDescription( 'pl', 'toLabel' );
+		$bigMergedItem->getFingerprint()->setAliasGroup( 'en', array( 'foo', 'bar' ) );
+		$bigMergedItem->getFingerprint()->setAliasGroup( 'de', array( 'defoo', 'debar' ) );
+
+		$bigMergedItem->getSiteLinkList()->addNewSiteLink( 'dewiki', 'foo' );
+		$bigMergedItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'toLink' );
+		$bigMergedItem->setStatements( new StatementList( new Statement( $anotherQualifiedClaim ) ) );
+
 		$testCases['ignoreConflictItemMerge'] = array(
-			array(
-				'label' => array( 'en' => 'foo', 'pt' => 'ptfoo' ),
-				'description' => array( 'en' => 'foo', 'pl' => 'pldesc' ),
-				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
-				'links' => array(
-					'dewiki' => array( 'name' => 'foo', 'badges' => array() ),
-					'plwiki' => array( 'name' => 'bar', 'badges' => array() ),
-				),
-				'claims' => array(
-					array(
-						'm' => array( 'novalue', 88 ),
-						'q' => array( array( 'novalue', 88 ) ),
-						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
-						'refs' => array(),
-						'rank' => Statement::RANK_NORMAL,
-					)
-				),
-			),
-			array(
-				'label' => array( 'en' => 'toLabel' ),
-				'description' => array( 'pl' => 'toLabel' ),
-				'links' => array( 'plwiki' => array( 'name' => 'toLink', 'badges' => array() ) ),
-			),
-			array(
-				'label' => array(),
-				'description' => array( 'pl' => 'pldesc' ),
-				'links' => array( 'plwiki' => array( 'name' => 'bar', 'badges' => array() ) ),
-			),
-			array(
-				'label' => array( 'en' => 'toLabel', 'pt' => 'ptfoo' ),
-				'description' => array( 'en' => 'foo', 'pl' => 'toLabel' ),
-				'aliases' => array( 'en' => array( 'foo', 'bar' ), 'de' => array( 'defoo', 'debar' ) ),
-				'links' => array(
-					'dewiki' => array( 'name' => 'foo', 'badges' => array() ),
-					'plwiki' => array( 'name' => 'toLink', 'badges' => array() ),
-				),
-				'claims' => array(
-					array(
-						'm' => array( 'novalue', 88 ),
-						'q' => array( array( 'novalue', 88 ) ),
-						'g' => 'Q111$D8404CDA-25E4-4334-AF88-A3290BCD9C0F',
-						'refs' => array(),
-						'rank' => Statement::RANK_NORMAL,
-					)
-				),
-			),
+			$bigItem->copy(),
+			$smallerItem->copy(),
+			$smallerMergedItem->copy(),
+			$bigMergedItem->copy(),
 			array( 'label', 'description', 'sitelink' )
 		);
 		return $testCases;

@@ -34,8 +34,8 @@ use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\DispatchingValueFormatter;
-use Wikibase\Lib\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Lib\EntityIdLinkFormatter;
+use Wikibase\Lib\EntityIdPlainLinkFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
 use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\FormatterLabelLookupFactory;
@@ -71,7 +71,6 @@ use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\DummyChangeTransmitter;
 use Wikibase\Repo\Store\EntityPermissionChecker;
-use Wikibase\Repo\View\EntityViewFactory;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\SnakFactory;
@@ -82,13 +81,14 @@ use Wikibase\Store\EntityIdLookup;
 use Wikibase\Store\TermBuffer;
 use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
-use Wikibase\Template\TemplateFactory;
-use Wikibase\Template\TemplateRegistry;
 use Wikibase\Validators\EntityConstraintProvider;
 use Wikibase\Validators\SnakValidator;
 use Wikibase\Validators\TermValidatorFactory;
 use Wikibase\Validators\ValidatorErrorLocalizer;
 use Wikibase\ValuesFinder;
+use Wikibase\View\EntityViewFactory;
+use Wikibase\View\Template\TemplateFactory;
+use Wikibase\View\Template\TemplateRegistry;
 
 /**
  * Top level factory for the WikibaseRepo extension.
@@ -640,7 +640,10 @@ class WikibaseRepo {
 	protected function newSummaryFormatter() {
 		global $wgContLang;
 
-		$idFormatter = new EntityIdLinkFormatter( $this->getEntityContentFactory() );
+		// This needs to use an EntityIdPlainLinkFormatter as we want to mangle
+		// the links created in LinkBeginHookHandler afterwards (the links must not
+		// contain a display text: [[Item:Q1]] is fine but [[Item:Q1|Q1]] isn't).
+		$idFormatter = new EntityIdPlainLinkFormatter( $this->getEntityContentFactory() );
 
 		$valueFormatterBuilders = $this->getValueFormatterBuilders();
 
@@ -761,7 +764,7 @@ class WikibaseRepo {
 
 		return new MessageParameterFormatter(
 			new DispatchingValueFormatter( $valueFormatters ),
-			$this->getEntityTitleLookup(),
+			new EntityIdLinkFormatter( $this->getEntityTitleLookup() ),
 			$this->getSiteStore(),
 			$wgLang
 		);
@@ -1012,14 +1015,15 @@ class WikibaseRepo {
 	 * @return EntityParserOutputGeneratorFactory
 	 */
 	public function getEntityParserOutputGeneratorFactory() {
+		$templateFactory = new TemplateFactory( TemplateRegistry::getDefaultInstance() );
 
 		$entityViewFactory = new EntityViewFactory(
 			$this->getEntityIdHtmlLinkFormatterFactory(),
-			$this->getSnakFormatterFactory(),
+			$this->getHtmlSnakFormatterFactory(),
 			$this->getEntityLookup(),
 			$this->getSiteStore(),
 			$this->getDataTypeFactory(),
-			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
+			$templateFactory,
 			new LanguageNameLookup(),
 			$this->getSettings()->getSetting( 'siteLinkGroups' ),
 			$this->getSettings()->getSetting( 'specialSiteLinkGroups' ),
@@ -1030,9 +1034,9 @@ class WikibaseRepo {
 			$entityViewFactory,
 			$this->getStore()->getEntityInfoBuilderFactory(),
 			$this->getEntityContentFactory(),
-			$this->getEntityIdParser(),
 			new ValuesFinder( $this->getPropertyDataTypeLookup() ),
-			$this->getLanguageFallbackChainFactory()
+			$this->getLanguageFallbackChainFactory(),
+			$templateFactory
 		);
 	}
 
@@ -1063,6 +1067,10 @@ class WikibaseRepo {
 	 */
 	public function getTermsLanguages() {
 		return new WikibaseContentLanguages();
+	}
+
+	private function getHtmlSnakFormatterFactory() {
+		return new WikibaseHtmlSnakFormatterFactory( $this->getSnakFormatterFactory() );
 	}
 
 }

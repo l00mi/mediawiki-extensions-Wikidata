@@ -2,11 +2,12 @@
 	"@metadata": {
 		"authors": [
 			"Ilnur efende",
-			"Умар"
+			"Умар",
+			"Derslek"
 		]
 	},
 	"tooltip-t-wikibase": "Үзара бәйләнгән мәгълүматләр репозиториясе элементларына сылтама",
-	"wikibase-dataitem": "Мәгълүмат элементы",
+	"wikibase-dataitem": "{{grammar:genitive|{{WBREPONAME}}}} мәгълүмат элементы",
 	"wikibase-editlinks": "Сылтамалар өстәү",
 	"wikibase-editlinkstitle": "Башка телләргә сылтамалар өстәү",
 	"wikibase-linkitem-addlinks": "Сылтамалар өстәү",
@@ -26,5 +27,6 @@
 	"wikibase-watchlist-show-changes-pref": "Викимәгълүматлардагы үзгәртүләрне күзәтү исемлегендә күрсәтү.",
 	"wikibase-unconnectedpages-submit": "Куллану",
 	"wikibase-unconnectedpages-invalid-language": "\"$1\" - дөрес булмаган тел коды.",
-	"wikibase-pageinfo-entity-id-none": "Юк"
+	"wikibase-pageinfo-entity-id-none": "Юк",
+	"wikibase-otherprojects": "Башка проектларда"
 }

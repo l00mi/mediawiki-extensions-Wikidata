@@ -5,7 +5,8 @@ namespace Wikibase\Lib;
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
- * Formats entity IDs by generating a wiki link to the corresponding page title.
+ * Formats entity IDs by generating a wiki link to the corresponding page title
+ * with the id serialization as text.
  *
  * @since 0.5
  *
@@ -24,7 +25,7 @@ class EntityIdLinkFormatter extends EntityIdTitleFormatter {
 	public function formatEntityId( EntityId $entityId ) {
 		$title = parent::formatEntityId( $entityId );
 
-		return "[[$title]]";
+		return "[[$title|" . wfEscapeWikiText( $entityId->getSerialization() ) . "]]";
 	}
 
 }

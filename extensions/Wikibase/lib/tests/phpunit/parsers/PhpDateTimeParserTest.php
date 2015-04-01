@@ -3,9 +3,12 @@
 namespace Wikibase\Lib\Parsers\Test;
 
 use DataValues\TimeValue;
-use ValueFormatters\TimeFormatter;
+use ValueParsers\CalendarModelParser;
+use ValueParsers\ParserOptions;
 use ValueParsers\Test\StringValueParserTest;
+use ValueParsers\TimeParser as IsoTimestampParser;
 use Wikibase\Lib\Parsers\EraParser;
+use Wikibase\Lib\Parsers\MonthNameUnlocalizer;
 use Wikibase\Lib\Parsers\PhpDateTimeParser;
 
 /**
@@ -23,11 +26,25 @@ use Wikibase\Lib\Parsers\PhpDateTimeParser;
 class PhpDateTimeParserTest extends StringValueParserTest {
 
 	/**
+	 * @deprecated since 0.3, just use getInstance.
+	 */
+	protected function getParserClass() {
+		throw new \LogicException( 'Should not be called, use getInstance' );
+	}
+
+	/**
+	 * @see ValueParserTestBase::getInstance
+	 *
 	 * @return PhpDateTimeParser
 	 */
 	protected function getInstance() {
-		$class = $this->getParserClass();
-		return new $class( $this->getEraParser(), $this->newParserOptions() );
+		$options = new ParserOptions();
+
+		return new PhpDateTimeParser(
+			new MonthNameUnlocalizer( array() ),
+			$this->getEraParser(),
+			new IsoTimestampParser( new CalendarModelParser( $options ), $options )
+		);
 	}
 
 	/**
@@ -37,6 +54,7 @@ class PhpDateTimeParserTest extends StringValueParserTest {
 		$mock = $this->getMockBuilder( 'Wikibase\Lib\Parsers\EraParser' )
 			->disableOriginalConstructor()
 			->getMock();
+
 		$mock->expects( $this->any() )
 			->method( 'parse' )
 			->with( $this->isType( 'string' ) )
@@ -51,16 +69,8 @@ class PhpDateTimeParserTest extends StringValueParserTest {
 					return array( $sign, $value ) ;
 				}
 			) );
-		return $mock;
-	}
 
-	/**
-	 * @see ValueParserTestBase::getParserClass
-	 *
-	 * @return string
-	 */
-	protected function getParserClass() {
-		return 'Wikibase\Lib\Parsers\PhpDateTimeParser';
+		return $mock;
 	}
 
 	/**
@@ -226,7 +236,7 @@ class PhpDateTimeParserTest extends StringValueParserTest {
 				array_key_exists( 2, $args ) ? $args[2] : 0,
 				array_key_exists( 3, $args ) ? $args[3] : 0,
 				array_key_exists( 4, $args ) ? $args[4] : TimeValue::PRECISION_DAY,
-				array_key_exists( 5, $args ) ? $args[5] : TimeFormatter::CALENDAR_GREGORIAN
+				array_key_exists( 5, $args ) ? $args[5] : IsoTimestampParser::CALENDAR_GREGORIAN
 			);
 			$argList[] = array( (string)$value, $expected );
 		}

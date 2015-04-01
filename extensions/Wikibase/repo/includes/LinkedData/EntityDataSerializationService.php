@@ -8,7 +8,6 @@ use ApiMain;
 use ApiResult;
 use DerivativeContext;
 use DerivativeRequest;
-use EasyRdf_Format;
 use MWException;
 use RequestContext;
 use SiteList;
@@ -18,8 +17,10 @@ use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikimedia\Purtle\RdfWriterFactory;
 use Wikibase\RdfSerializer;
 use Wikibase\RdfProducer;
+use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 
 /**
  * Service for serializing entity data.
@@ -100,6 +101,11 @@ class EntityDataSerializationService {
 	private $serializerFactory;
 
 	/**
+	 * @var PropertyInfoDataTypeLookup
+	 */
+	private $propertyLookup;
+
+	/**
 	 * @var SiteList
 	 */
 	private $sites;
@@ -120,6 +126,7 @@ class EntityDataSerializationService {
 		EntityLookup $entityLookup,
 		EntityTitleLookup $entityTitleLookup,
 		SerializerFactory $serializerFactory,
+		PropertyDataTypeLookup $propertyLookup,
 		SiteList $sites
 	) {
 		$this->rdfBaseURI = $rdfBaseURI;
@@ -127,6 +134,7 @@ class EntityDataSerializationService {
 		$this->entityLookup = $entityLookup;
 		$this->entityTitleLookup = $entityTitleLookup;
 		$this->serializerFactory = $serializerFactory;
+		$this->propertyLookup = $propertyLookup;
 		$this->sites = $sites;
 	}
 
@@ -308,18 +316,22 @@ class EntityDataSerializationService {
 				continue;
 			}
 
-			$mime = self::getApiMimeType( $name );
+			$mimes = self::getApiMimeTypes( $name );
 			$ext = self::getApiFormatName( $name );
 
-			$this->mimeTypes[ $mime ] = $name;
+			foreach ( $mimes as $mime ) {
+				if ( !isset( $this->mimeTypes[$mime]) ) {
+					$this->mimeTypes[$mime] = $name;
+				}
+			}
+
 			$this->fileExtensions[ $ext ] = $name;
 		}
 
-		$formats = EasyRdf_Format::getFormats();
+		$rdfWriterFactory = new RdfWriterFactory(); //FIXME: inject
+		$formats = $rdfWriterFactory->getSupportedFormats();
 
-		/* @var EasyRdf_Format $format */
-		foreach ( $formats as $format ) {
-			$name = $format->getName();
+		foreach ( $formats as $name ) {
 
 			// check whitelist, and don't override API formats
 			if ( ( $this->formatWhiteList !== null
@@ -330,14 +342,16 @@ class EntityDataSerializationService {
 			}
 
 			// use all mime types. to improve content negotiation
-			foreach ( array_keys( $format->getMimeTypes() ) as $mime ) {
-				$this->mimeTypes[ $mime ] = $name;
+			foreach ( $rdfWriterFactory->getMimeTypes( $name ) as $mime ) {
+				if ( !isset( $this->mimeTypes[$mime]) ) {
+					$this->mimeTypes[$mime] = $name;
+				}
 			}
 
-			// use only one file extension, to keep purging simple
-			if ( $format->getExtensions() && $format->getDefaultExtension() ) {
-				$ext = $format->getDefaultExtension();
-				$this->fileExtensions[ $ext ] = $name;
+			// only one file extension, to keep purging simple
+			$ext = $rdfWriterFactory->getFileExtension( $name );
+			if ( !isset( $this->fileExtensions[$ext]) ) {
+				$this->fileExtensions[$ext] = $name;
 			}
 		}
 	}
@@ -376,7 +390,9 @@ class EntityDataSerializationService {
 			$data = $this->apiSerialize( $entityRevision, $serializer );
 			$contentType = $serializer->getIsHtml() ? 'text/html' : $serializer->getMimeType();
 		} else {
-			$data = $serializer->serializeEntityRevision( $entityRevision );
+			$data = $serializer->startDocument() .
+				$serializer->serializeEntityRevision( $entityRevision ) .
+				$serializer->finishDocument();
 			$contentType = $serializer->getDefaultMimeType();
 		}
 
@@ -410,24 +426,28 @@ class EntityDataSerializationService {
 	 *
 	 * @param String $format the API format name
 	 *
-	 * @return String|null the MIME type for the given format
+	 * @return String[]|null the MIME types for the given format
 	 */
-	protected static function getApiMimeType( $format ) {
+	protected static function getApiMimeTypes( $format ) {
 		$format = trim( strtolower( $format ) );
 		$type = null;
 
-		if ( $format === 'php' ) {
-			$type = 'application/vnd.php.serialized';
-		} else if ( $format === 'txt' ) {
-			$type = "text/text"; // NOTE: not text/plain, to avoid HTML sniffing in IE7
-		} else if ( in_array( $format, array( 'xml', 'javascript', 'text' ) ) ) {
-			$type = "text/$format";
-		} else {
-			// hack: assume application type
-			$type = "application/$format";
-		}
+		switch ( $format ) {
+			case 'php':
+				return array( 'application/vnd.php.serialized' );
 
-		return $type;
+			case 'txt':
+				return array( "text/text", "text/plain" );
+
+			case 'xml':
+				return array( "application/xml", "text/xml" );
+
+			case 'javascript':
+				return array( "text/javascript" );
+
+			default:
+				return array( "application/$format" );
+		}
 	}
 
 	/**
@@ -485,7 +505,7 @@ class EntityDataSerializationService {
 			case 'full':
 				return RdfProducer::PRODUCE_ALL;
 			case 'dump':
-				return RdfProducer::PRODUCE_ALL_STATEMENTS | RdfProducer::PRODUCE_TRUTHY_STATEMENTS | RdfProducer::PRODUCE_QUALIFIERS | RdfProducer::PRODUCE_REFERENCES | RdfProducer::PRODUCE_SITELINKS;
+				return RdfProducer::PRODUCE_ALL_STATEMENTS | RdfProducer::PRODUCE_TRUTHY_STATEMENTS | RdfProducer::PRODUCE_QUALIFIERS | RdfProducer::PRODUCE_REFERENCES | RdfProducer::PRODUCE_SITELINKS | RdfProducer::PRODUCE_FULL_VALUES;
 			case 'long':
 				return RdfProducer::PRODUCE_ALL_STATEMENTS | RdfProducer::PRODUCE_QUALIFIERS | RdfProducer::PRODUCE_REFERENCES | RdfProducer::PRODUCE_SITELINKS | RdfProducer::PRODUCE_VERSION_INFO;
 			case null: // No flavor given
@@ -506,7 +526,7 @@ class EntityDataSerializationService {
 	 */
 	public function createRdfSerializer( $format, $flavor = null ) {
 		//MediaWiki formats
-		$rdfFormat = RdfSerializer::getFormat( $format );
+		$rdfFormat = RdfSerializer::getRdfWriter( $format );
 
 		if ( !$rdfFormat ) {
 			return null;
@@ -517,8 +537,11 @@ class EntityDataSerializationService {
 			$this->rdfBaseURI,
 			$this->rdfDataURI,
 			$this->sites,
+			$this->propertyLookup,
 			$this->entityLookup,
-			$this->getFlavor( $flavor )
+			$this->getFlavor( $flavor ),
+			// needed to eliminate duplicate refs/values within entity
+			new \HashBagOStuff()
 		);
 
 		return $serializer;

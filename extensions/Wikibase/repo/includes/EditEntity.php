@@ -33,78 +33,76 @@ use WikiPage;
  * @licence GNU GPL v2+
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
 class EditEntity {
 
 	/**
 	 * @var EntityRevisionLookup
 	 */
-	protected $entityRevisionLookup;
+	private $entityRevisionLookup;
 
 	/**
 	 * @var EntityTitleLookup
 	 */
-	protected $titleLookup;
+	private $titleLookup;
 
 	/**
 	 * @var EntityStore
 	 */
-	protected $entityStore;
+	private $entityStore;
 
 	/**
 	 * The modified entity we are trying to save
 	 *
 	 * @var Entity|null
 	 */
-	protected $newEntity = null;
+	private $newEntity = null;
 
 	/**
 	 * @var EntityRevision|null
 	 */
-	protected $baseRev = null;
+	private $baseRev = null;
 
 	/**
 	 * @var int|null
 	 */
-	protected $baseRevId = null;
+	private $baseRevId = null;
 
 	/**
 	 * @var EntityRevision|null
 	 */
-	protected $latestRev = null;
+	private $latestRev = null;
 
 	/**
-	 * @var int|null
+	 * @var int
 	 */
-	protected $latestRevId = null;
+	private $latestRevId = 0;
 
 	/**
 	 * @var Status|null
 	 */
-	protected $status = null;
+	private $status = null;
 
 	/**
 	 * @var User|null
 	 */
-	protected $user = null;
+	private $user = null;
 
 	/**
 	 * @var Title|null
 	 */
-	protected $title = null;
+	private $title = null;
 
 	/**
-	 * @var IContextSource|null
+	 * @var RequestContext|DerivativeContext
 	 */
-	protected $context = null;
+	private $context;
 
 	/**
-	 * Bit field for error types, using the EditEntity::XXX_ERROR constants
-	 *
-	 * @since 0.1
-	 * @var int
+	 * @var int Bit field for error types, using the EditEntity::XXX_ERROR constants.
 	 */
-	protected $errorType = 0;
+	private $errorType = 0;
 
 	/**
 	 * indicates a permission error
@@ -149,16 +147,11 @@ class EditEntity {
 	const ANY_ERROR = 0xFFFFFFFF;
 
 	/**
-	 * @since 0.1
-	 * @var array
+	 * @var string[]
 	 */
-	protected $requiredPermissions = array(
-		'edit',
-	);
+	private $requiredPermissions = array( 'edit' );
 
 	/**
-	 * Constructs a new EditEntity
-	 *
 	 * @since 0.1
 	 *
 	 * @param EntityTitleLookup $titleLookup
@@ -167,13 +160,13 @@ class EditEntity {
 	 * @param EntityPermissionChecker $permissionChecker
 	 * @param Entity $newEntity the new entity object
 	 * @param User $user the user performing the edit
-	 * @param int|boolean $baseRevId the base revision ID for conflict checking.
+	 * @param int|bool $baseRevId the base revision ID for conflict checking.
 	 *        Defaults to false, disabling conflict checks.
 	 *        `true` can be used to set the base revision to the latest revision:
 	 *        This will detect "late" edit conflicts, i.e. someone squeezing in an edit
 	 *        just before the actual database transaction for saving beings.
 	 *        The empty string and 0 are both treated as `false`, disabling conflict checks.
-	 * @param RequestContext|DerivativeContext $context the context to use while processing
+	 * @param RequestContext|DerivativeContext|null $context the context to use while processing
 	 *        the edit; defaults to RequestContext::getMain().
 	 *
 	 * @throws InvalidArgumentException
@@ -232,26 +225,17 @@ class EditEntity {
 	}
 
 	/**
-	 * Returns the ID of the entity that is being edited.
-	 *
-	 * @return EntityId
-	 */
-	public function getEntityId() {
-		return $this->getNewEntity()->getId();
-	}
-
-	/**
 	 * Returns the Title of the page holding the entity that is being edited.
 	 *
 	 * @return Title|null
 	 */
-	public function getTitle() {
-		if ( $this->isNew() ) {
-			return null;
-		}
-
+	private function getTitle() {
 		if ( $this->title === null ) {
-			$this->title = $this->titleLookup->getTitleForId( $this->getEntityId() );
+			$id = $this->newEntity->getId();
+
+			if ( $id !== null ) {
+				$this->title = $this->titleLookup->getTitleForId( $id );
+			}
 		}
 
 		return $this->title;
@@ -263,16 +247,17 @@ class EditEntity {
 	 * @return EntityRevision|null
 	 */
 	public function getLatestRevision() {
-		if ( $this->isNew() ) {
-			return null;
-		}
-
 		if ( $this->latestRev === null ) {
-			//NOTE: it's important to remember this, if someone calls clear() on $this->getPage(), this should NOT change!
-			$this->latestRev = $this->entityRevisionLookup->getEntityRevision(
-				$this->getEntityId(),
-				EntityRevisionLookup::LATEST_FROM_MASTER
-			);
+			$id = $this->newEntity->getId();
+
+			if ( $id !== null ) {
+				// NOTE: It's important to remember this, if someone calls clear() on
+				// $this->getPage(), this should NOT change!
+				$this->latestRev = $this->entityRevisionLookup->getEntityRevision(
+					$id,
+					EntityRevisionLookup::LATEST_FROM_MASTER
+				);
+			}
 		}
 
 		return $this->latestRev;
@@ -281,19 +266,19 @@ class EditEntity {
 	/**
 	 * Returns the latest revision ID.
 	 *
-	 * @return int
+	 * @return int 0 if the entity doesn't exist
 	 */
-	public function getLatestRevisionId() {
-		if ( $this->isNew() ) {
-			return 0;
-		}
+	private function getLatestRevisionId() {
+		// Don't do negative caching: We call this to see whether the entity yet exists
+		// before creating.
+		if ( $this->latestRevId === 0 ) {
+			$id = $this->newEntity->getId();
 
-		if ( $this->latestRevId === null ) {
 			if ( $this->latestRev !== null ) {
 				$this->latestRevId = $this->latestRev->getRevisionId();
-			} else {
-				$this->latestRevId = $this->entityRevisionLookup->getLatestRevisionId(
-					$this->getEntityId(),
+			} elseif ( $id !== null ) {
+				$this->latestRevId = (int)$this->entityRevisionLookup->getLatestRevisionId(
+					$id,
 					EntityRevisionLookup::LATEST_FROM_MASTER
 				);
 			}
@@ -303,19 +288,14 @@ class EditEntity {
 	}
 
 	/**
-	 * Returns the user who performs the edit.
+	 * Is the entity new?
+	 * An entity is new in case it either doesn't have an id or the Title belonging
+	 * to it doesn't (yet) exist.
 	 *
-	 * @return User
+	 * @return bool
 	 */
-	public function getUser() {
-		return $this->user;
-	}
-
-	/**
-	 * Returns whether the new content is new, that is, does not have an ID yet and thus no title, page or revisions.
-	 */
-	public function isNew() {
-		return $this->newEntity->getId() === null;
+	private function isNew() {
+		return $this->newEntity->getId() === null || $this->getLatestRevisionId() === 0;
 	}
 
 	/**
@@ -323,9 +303,9 @@ class EditEntity {
 	 * If no base revision was supplied to the constructor, this will return false.
 	 * In the trivial non-conflicting case, this will be the same as $this->getLatestRevisionId().
 	 *
-	 * @return int|boolean
+	 * @return int|bool
 	 */
-	public function getBaseRevisionId() {
+	private function getBaseRevisionId() {
 		if ( $this->baseRevId === null || $this->baseRevId === true ) {
 			$this->baseRevId = $this->getLatestRevisionId();
 		}
@@ -341,25 +321,25 @@ class EditEntity {
 	 * @return EntityRevision|null
 	 * @throws MWException
 	 */
-	public function getBaseRevision() {
+	private function getBaseRevision() {
 		if ( $this->baseRev === null ) {
 			$baseRevId = $this->getBaseRevisionId();
 
 			if ( $baseRevId === false ) {
 				return null;
-			} else if ( $baseRevId === $this->getLatestRevisionId() ) {
+			} elseif ( $baseRevId === $this->getLatestRevisionId() ) {
 				$this->baseRev = $this->getLatestRevision();
 			} else {
 				if ( $baseRevId === 0 ) {
 					$baseRevId = EntityRevisionLookup::LATEST_FROM_MASTER;
 				}
 
-				$entityId = $this->getEntityId();
-				$this->baseRev = $this->entityRevisionLookup->getEntityRevision( $entityId, $baseRevId );
+				$id = $this->newEntity->getId();
+				$this->baseRev = $this->entityRevisionLookup->getEntityRevision( $id, $baseRevId );
 
 				if ( $this->baseRev === null ) {
 					throw new MWException( 'Base revision ID not found: rev ' . $baseRevId
-						. ' of ' . $entityId->getSerialization() );
+						. ' of ' . $id->getSerialization() );
 				}
 			}
 		}
@@ -380,7 +360,7 @@ class EditEntity {
 	 *
 	 * @since 0.1
 	 *
-	 * @return null|Status
+	 * @return Status|null
 	 */
 	public function getStatus() {
 		return $this->status;
@@ -394,28 +374,7 @@ class EditEntity {
 	 * @return bool false if attemptSave() failed, true otherwise
 	 */
 	public function isSuccess() {
-		if ( $this->errorType > 0 ) {
-			return false;
-		}
-
-		return $this->status->isOK();
-	}
-
-	/**
-	 * Returns the revision created by attemptSave(), if it was successful.
-	 * If attemptSave() has not yet been called or failed, null is returned.
-	 *
-	 * @since 0.3
-	 *
-	 * @return EntityRevision|null
-	 */
-	public function getNewRevision() {
-		if ( $this->errorType > 0 || !$this->status || !$this->status->isOK() ) {
-			return null;
-		}
-
-		$value = $this->status->getValue();
-		return isset( $value['revision'] ) ? $value['revision'] : null;
+		return $this->errorType === 0 && $this->status->isOK();
 	}
 
 	/**
@@ -426,21 +385,10 @@ class EditEntity {
 	 * @param int $errorType bit field using the EditEntity::XXX_ERROR constants.
 	 *            Defaults to EditEntity::ANY_ERROR.
 	 *
-	 * @return boolean true if this EditEntity encountered any of the error types in $errorType, false otherwise.
+	 * @return bool true if this EditEntity encountered any of the error types in $errorType, false otherwise.
 	 */
 	public function hasError( $errorType = self::ANY_ERROR ) {
-		return ( $this->errorType & $errorType ) > 0;
-	}
-
-	/**
-	 * Returns a bitfield indicating errors encountered while saving.
-	 *
-	 * @since 0.4
-	 *
-	 * @return int $errorType bit field using the EditEntity::XXX_ERROR constants.
-	 */
-	public function getErrors( ) {
-		return $this->errorType;
+		return ( $this->errorType & $errorType ) !== 0;
 	}
 
 	/**
@@ -450,15 +398,9 @@ class EditEntity {
 	 * @return bool
 	 */
 	public function hasEditConflict() {
-		if ( $this->isNew() || !$this->doesCheckForEditConflicts() ) {
-			return false;
-		}
-
-		if ( !is_int( $this->getBaseRevisionId() ) || $this->getBaseRevisionId() == $this->getLatestRevisionId() ) {
-			return false;
-		}
-
-		return true;
+		return $this->doesCheckForEditConflicts()
+			&& !$this->isNew()
+			&& $this->getBaseRevisionId() !== $this->getLatestRevisionId();
 	}
 
 	/**
@@ -471,10 +413,9 @@ class EditEntity {
 	public function fixEditConflict() {
 		$baseRev = $this->getBaseRevision();
 		$latestRev = $this->getLatestRevision();
-		$newEntity = $this->getNewEntity();
 
 		if ( !$latestRev ) {
-			wfLogWarning( 'Failed to load latest revision of entity ' . $this->getEntityId() . '! '
+			wfLogWarning( 'Failed to load latest revision of entity ' . $this->newEntity->getId() . '! '
 				. 'This may indicate entries missing from thw wb_entities_per_page table.' );
 			return false;
 		}
@@ -483,7 +424,7 @@ class EditEntity {
 		// NOTE: will fail if $baseRev or $base are null, which they may be if
 		// this gets called at an inappropriate time. The data flow in this class
 		// should be improved.
-		$patch = $baseRev->getEntity()->getDiff( $newEntity ); // diff from base to new
+		$patch = $baseRev->getEntity()->getDiff( $this->newEntity ); // diff from base to new
 
 		if ( $patch->isEmpty() ) {
 			// we didn't technically fix anything, but if there is nothing to change,
@@ -503,13 +444,12 @@ class EditEntity {
 
 		if ( $conflicts > 0 ) {
 			// patch doesn't apply cleanly
-			if ( $this->userWasLastToEdit( $this->getUser(), $this->getEntityId(), $this->getBaseRevisionId() ) ) {
+			if ( $this->userWasLastToEdit( $this->user, $this->newEntity->getId(), $this->getBaseRevisionId() ) ) {
 				// it's a self-conflict
 				if ( $cleanPatch->count() === 0 ) {
 					// patch collapsed, possibly because of diff operation change from base to latest
 					return false;
-				}
-				else {
+				} else {
 					// we still have a working patch, try to apply
 					$this->status->warning( 'wikibase-self-conflict-patched' );
 				}
@@ -519,7 +459,6 @@ class EditEntity {
 			}
 		} else {
 			// can apply cleanly
-
 			$this->status->warning( 'wikibase-conflict-patched' );
 		}
 
@@ -539,8 +478,8 @@ class EditEntity {
 	 *
 	 * @return bool
 	 */
-	protected function userWasLastToEdit( User $user = null, EntityId $entityId = null, $lastRevId = false ) {
-		if ( $user === null ||  $entityId === null || $lastRevId === false ) {
+	private function userWasLastToEdit( User $user = null, EntityId $entityId = null, $lastRevId = false ) {
+		if ( $user === null || $entityId === null || $lastRevId === false ) {
 			return false;
 		}
 
@@ -549,9 +488,9 @@ class EditEntity {
 
 	/**
 	 * Adds another permission (action) to be checked by checkEditPermissions().
-	 * Per default, the 'edit' permission (and if needed, the 'create' permission) is checked.
+	 * Per default, the 'edit' permission is checked.
 	 *
-	 * @param String $permission
+	 * @param string $permission
 	 */
 	public function addRequiredPermission( $permission ) {
 		$this->requiredPermissions[] = $permission;
@@ -559,7 +498,7 @@ class EditEntity {
 
 	/**
 	 * Checks the necessary permissions to perform this edit.
-	 * Per default, the 'edit' permission (and if needed, the 'create' permission) is checked.
+	 * Per default, the 'edit' permission is checked.
 	 * Use addRequiredPermission() to check more permissions.
 	 */
 	public function checkEditPermissions() {
@@ -581,32 +520,25 @@ class EditEntity {
 	/**
 	 * Checks if rate limits have been exceeded.
 	 */
-	public function checkRateLimits() {
-		$exceeded = false;
-
-		if ( $this->getUser()->pingLimiter( 'edit' ) ) {
-			$exceeded = true;
-		} else if ( $this->isNew() && $this->getUser()->pingLimiter( 'create' ) ) {
-			$exceeded = true;
-		}
-
-		if ( $exceeded ) {
+	private function checkRateLimits() {
+		if ( $this->user->pingLimiter( 'edit' )
+			|| ( $this->isNew() && $this->user->pingLimiter( 'create' ) )
+		) {
 			$this->errorType |= self::RATE_LIMIT;
 			$this->status->fatal( 'actionthrottledtext' );
 		}
 	}
 
-
 	/**
 	 * Make sure the given WebRequest contains a valid edit token.
 	 *
-	 * @param String $token the token to check
+	 * @param string $token The token to check.
 	 *
 	 * @return bool true if the token is valid
 	 */
 	public function isTokenOK( $token ) {
-		$tokenOk = $this->getUser()->matchEditToken( $token );
-		$tokenOkExceptSuffix = $this->getUser()->matchEditTokenNoSuffix( $token );
+		$tokenOk = $this->user->matchEditToken( $token );
+		$tokenOkExceptSuffix = $this->user->matchEditTokenNoSuffix( $token );
 
 		if ( !$tokenOk ) {
 			if ( $tokenOkExceptSuffix ) {
@@ -625,10 +557,10 @@ class EditEntity {
 	/**
 	 * Attempts to save the new entity content, chile first checking for permissions, edit conflicts, etc.
 	 *
-	 * @param String      $summary    The edit summary
+	 * @param string $summary The edit summary.
 	 * @param int         $flags      The EDIT_XXX flags as used by WikiPage::doEditContent().
 	 *        Additionally, the EntityContent::EDIT_XXX constants can be used.
-	 * @param String|bool $token      Edit token to check, or false to disable the token check.
+	 * @param string|bool $token Edit token to check, or false to disable the token check.
 	 *                                Null will fail the token text, as will the empty string.
 	 * @param bool|null $watch        Whether the user wants to watch the entity.
 	 *                                Set to null to apply default according to getWatchDefault().
@@ -697,7 +629,7 @@ class EditEntity {
 			$entityRevision = $this->entityStore->saveEntity(
 				$this->newEntity,
 				$summary,
-				$this->getUser(),
+				$this->user,
 				$flags | EDIT_AUTOSUMMARY,
 				$this->doesCheckForEditConflicts() ? $this->getLatestRevisionId() : false
 			);
@@ -735,7 +667,7 @@ class EditEntity {
 	 *
 	 * @todo: move the implementation elsewhere, it depends on WikiPage.
 	 */
-	protected function runEditFilterHooks( $summary ) {
+	private function runEditFilterHooks( $summary ) {
 		if ( !Hooks::isRegistered( 'EditFilterMergedContent' ) ) {
 			return;
 		}
@@ -749,7 +681,7 @@ class EditEntity {
 		$context = $this->getContextForEditFilter( $this->newEntity );
 
 		if ( !wfRunHooks( 'EditFilterMergedContent',
-			array( $context, $entityContent, &$filterStatus, $summary, $this->getUser(), false ) ) ) {
+			array( $context, $entityContent, &$filterStatus, $summary, $this->user, false ) ) ) {
 
 			# Error messages etc. were handled inside the hook.
 			$filterStatus->setResult( false, $filterStatus->getValue() );
@@ -768,9 +700,10 @@ class EditEntity {
 	 * @return IContextSource
 	 */
 	private function getContextForEditFilter( EntityDocument $entity ) {
-		if ( !$this->isNew() ) {
+		$title = $this->getTitle();
+
+		if ( $title !== null ) {
 			$context = clone $this->context;
-			$title = $this->getTitle();
 		} else {
 			$context = $this->context;
 			$entityType = $entity->getType();
@@ -794,7 +727,7 @@ class EditEntity {
 		return $context;
 	}
 
-	protected function applyPreSaveChecks() {
+	private function applyPreSaveChecks() {
 		if ( $this->hasEditConflict() ) {
 			if ( !$this->fixEditConflict() ) {
 				$this->status->fatal( 'edit-conflict' );
@@ -804,6 +737,7 @@ class EditEntity {
 			}
 		}
 
+		// FIXME: Why is this dummy call here?
 		$this->getBaseRevision();
 
 		return $this->status;
@@ -824,7 +758,7 @@ class EditEntity {
 	 * If $titleMessage is set it is made an assumption that the page is still the original
 	 * one, and there should be no link back from a special error page.
 	 *
-	 * @param String|null $titleMessage message key for the page title
+	 * @param string|null $titleMessage Message key for the page title.
 	 *
 	 * @return bool true if an error page was shown, false if there were no errors to show.
 	 */
@@ -855,13 +789,12 @@ class EditEntity {
 	 *
 	 * @return bool true if any message was shown, false if there were no errors to show.
 	 */
-	protected function showStatus( ) {
-		$out = $this->context->getOutput();
-
+	private function showStatus( ) {
 		if ( $this->status === null || $this->status->isGood() ) {
 			return false;
 		}
 
+		$out = $this->context->getOutput();
 		$text = $this->status->getHTML();
 
 		$out->addHTML( Html::rawElement( 'div', array( 'class' => 'error' ), $text ) );
@@ -876,44 +809,38 @@ class EditEntity {
 	 * This uses the user's watchdefault and watchcreations settings
 	 * and considers whether the entity is already watched by the user.
 	 *
-	 * @return bool
+	 * @note Keep in sync with logic in EditPage!
 	 *
-	 * @note: keep in sync with logic in EditPage
+	 * @return bool
 	 */
-	protected function getWatchDefault() {
-		$user = $this->getUser();
-
-		if ( $user->getOption( 'watchdefault' ) ) {
-			// Watch all edits
-			return true;
-		} elseif ( $user->getOption( 'watchcreations' ) && $this->isNew() ) {
-			// Watch creations
+	private function getWatchDefault() {
+		// User wants to watch all edits or all creations.
+		if ( $this->user->getOption( 'watchdefault' )
+			|| ( $this->user->getOption( 'watchcreations' ) && $this->isNew() )
+		) {
 			return true;
 		}
 
 		// keep current state
-		return !$this->isNew() && $this->entityStore->isWatching( $user, $this->getEntityId() );
+		return !$this->isNew() && $this->entityStore->isWatching( $this->user, $this->newEntity->getId() );
 	}
 
 	/**
 	 * Watches or unwatches the entity.
 	 *
+	 * @note Keep in sync with logic in EditPage!
 	 * @todo: move to separate service
 	 *
 	 * @param bool $watch whether to watch or unwatch the page.
 	 *
 	 * @throws MWException
-	 * @return void : keep in sync with logic in EditPage
 	 */
-	public function updateWatchlist( $watch ) {
-		$user = $this->getUser();
-		$title = $this->getTitle();
-
-		if ( !$title ) {
-			throw new MWException( "Title not yet known!" );
+	private function updateWatchlist( $watch ) {
+		if ( $this->getTitle() === null ) {
+			throw new MWException( 'Title not yet known!' );
 		}
 
-		$this->entityStore->updateWatchlist( $user, $this->getEntityId(), $watch );
+		$this->entityStore->updateWatchlist( $this->user, $this->newEntity->getId(), $watch );
 	}
 
 }

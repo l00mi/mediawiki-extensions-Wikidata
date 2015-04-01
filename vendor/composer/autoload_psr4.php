@@ -6,8 +6,10 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Wikimedia\\Purtle\\Tests\\' => array($baseDir . '/extensions/Wikibase/purtle/tests/phpunit'),
+    'Wikimedia\\Purtle\\' => array($baseDir . '/extensions/Wikibase/purtle/src'),
     'Wikidata\\' => array($baseDir . '/src'),
-    'Wikibase\\Repo\\View\\' => array($baseDir . '/extensions/Wikibase/repo/includes/View'),
+    'Wikibase\\View\\' => array($baseDir . '/extensions/Wikibase/view/src'),
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
     'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
     'ValueValidators\\' => array($vendorDir . '/data-values/validators/src'),

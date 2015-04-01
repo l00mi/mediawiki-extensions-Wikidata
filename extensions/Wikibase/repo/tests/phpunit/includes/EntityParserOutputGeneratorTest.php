@@ -3,8 +3,9 @@
 namespace Wikibase\Test;
 
 use DataValues\StringValue;
-use ParserOptions;
 use Language;
+use MediaWikiTestCase;
+use ParserOptions;
 use Title;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\InMemoryDataTypeLookup;
@@ -16,6 +17,8 @@ use Wikibase\EntityParserOutputGenerator;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
 use Wikibase\ValuesFinder;
+use Wikibase\View\Template\TemplateFactory;
+use Wikibase\View\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\EntityParserOutputGenerator
@@ -27,7 +30,7 @@ use Wikibase\ValuesFinder;
  * @license GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class EntityParserOutputGeneratorTest extends \MediaWikiTestCase {
+class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 
 	private static $html = '<html>Nyan data!!!</html>';
 	private static $placeholders = array( 'key' => 'value' );
@@ -113,7 +116,8 @@ class EntityParserOutputGeneratorTest extends \MediaWikiTestCase {
 			$this->getValuesFinder(),
 			new SqlEntityInfoBuilderFactory(),
 			$this->newLanguageFallbackChain(),
-			'en'
+			'en',
+			new TemplateFactory( TemplateRegistry::getDefaultInstance() )
 		);
 	}
 
@@ -156,11 +160,11 @@ class EntityParserOutputGeneratorTest extends \MediaWikiTestCase {
 	}
 
 	private function getEntityViewFactory() {
-		$entityViewFactory = $this->getMockBuilder( 'Wikibase\Repo\View\EntityViewFactory' )
+		$entityViewFactory = $this->getMockBuilder( 'Wikibase\View\EntityViewFactory' )
 			->disableOriginalConstructor()
 			->getMock();
 
-		$entityView = $this->getMockBuilder( 'Wikibase\Repo\View\EntityView' )
+		$entityView = $this->getMockBuilder( 'Wikibase\View\EntityView' )
 			->disableOriginalConstructor()
 			->getMock();
 

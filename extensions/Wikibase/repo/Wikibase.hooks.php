@@ -30,11 +30,11 @@ use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Repo\BabelUserLanguageLookup;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler;
-use Wikibase\Repo\View\EntityViewPlaceholderExpander;
-use Wikibase\Repo\View\TextInjector;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Template\TemplateFactory;
-use Wikibase\Template\TemplateRegistry;
+use Wikibase\View\EntityViewPlaceholderExpander;
+use Wikibase\View\Template\TemplateFactory;
+use Wikibase\View\Template\TemplateRegistry;
+use Wikibase\View\TextInjector;
 use WikiPage;
 
 /**
@@ -525,30 +525,6 @@ final class RepoHooks {
 				}
 			}
 		}
-
-		return true;
-	}
-
-	/**
-	 * Handles a rebuild request by rebuilding all secondary storage of the repository.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/WikibaseRebuildData
-	 *
-	 * @since 0.1
-	 *
-	 * @param callable $reportMessage Takes a string parameter and echos it.
-	 *
-	 * @return bool
-	 */
-	public static function onWikibaseRebuildData( $reportMessage ) {
-		$store = WikibaseRepo::getDefaultInstance()->getStore();
-
-		$reportMessage(
-			'Starting rebuild of the Wikibase repository ' . get_class( $store ) . ' store...'
-		);
-
-		$store->rebuild();
-
-		$reportMessage( "done!\n" );
 
 		return true;
 	}

@@ -4,6 +4,7 @@ namespace Wikibase\Repo\Specials;
 
 use Html;
 use Language;
+use SiteStore;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\FingerprintChangeOpFactory;
@@ -11,12 +12,17 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\ContentLanguages;
+use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityStore;
+use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
+use Wikibase\SummaryFormatter;
 
 /**
- * Special page for setting label, description and aliases of a Wikibase Entity that features a
- * Fingerprint.
+ * Special page for setting label, description and aliases of a Wikibase entity that features
+ * labels, descriptions and aliases.
  *
  * @since 0.5
  * @licence GNU GPL v2+
@@ -58,9 +64,45 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 		parent::__construct( 'SetLabelDescriptionAliases', 'edit' );
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+
 		$this->changeOpFactory = $wikibaseRepo->getChangeOpFactoryProvider()
 			->getFingerprintChangeOpFactory();
 		$this->termsLanguages = $wikibaseRepo->getTermsLanguages();
+	}
+
+	/**
+	 * @see SpecialWikibaseRepoPage::setSpecialWikibaseRepoPageServices
+	 *
+	 * @param SummaryFormatter $summaryFormatter
+	 * @param EntityRevisionLookup $entityRevisionLookup
+	 * @param EntityTitleLookup $entityTitleLookup
+	 * @param EntityStore $entityStore
+	 * @param EntityPermissionChecker $permissionChecker
+	 * @param SiteStore $siteStore
+	 * @param FingerprintChangeOpFactory $changeOpFactory
+	 * @param ContentLanguages $termsLanguages
+	 */
+	public function setServices(
+		SummaryFormatter $summaryFormatter,
+		EntityRevisionLookup $entityRevisionLookup,
+		EntityTitleLookup $entityTitleLookup,
+		EntityStore $entityStore,
+		EntityPermissionChecker $permissionChecker,
+		SiteStore $siteStore,
+		FingerprintChangeOpFactory $changeOpFactory,
+		ContentLanguages $termsLanguages
+	) {
+		$this->setSpecialWikibaseRepoPageServices(
+			$summaryFormatter,
+			$entityRevisionLookup,
+			$entityTitleLookup,
+			$entityStore,
+			$permissionChecker,
+			$siteStore
+		);
+
+		$this->changeOpFactory = $changeOpFactory;
+		$this->termsLanguages = $termsLanguages;
 	}
 
 	/**
@@ -72,7 +114,21 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 		return parent::validateInput()
 			&& $this->entityRevision->getEntity() instanceof FingerprintProvider
 			&& $this->isValidLanguageCode( $this->languageCode )
+			&& $this->wasPostedWithLabelDescriptionOrAliases()
 			&& $this->isAllowedToChangeTerms( $this->entityRevision->getEntity() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function wasPostedWithLabelDescriptionOrAliases() {
+		$request = $this->getRequest();
+
+		return $request->wasPosted() && (
+			$request->getCheck( 'label' )
+			|| $request->getCheck( 'description' )
+			|| $request->getCheck( 'aliases' )
+		);
 	}
 
 	/**
@@ -109,30 +165,23 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 				$languageName
 			);
 
-			$html = Html::rawElement(
-					'p',
-					array(),
-					$intro->parse()
+			$html = Html::hidden(
+					'id',
+					$entity->getId()->getSerialization()
 				)
 				. Html::hidden(
 					'language',
 					$this->languageCode
 				)
-				. Html::hidden(
-					'id',
-					$entity->getId()->getSerialization()
-				);
+				. $this->getLabeledInputField( 'label', $this->label )
+				. $this->getLabeledInputField( 'description', $this->description )
+				. $this->getLabeledInputField( 'aliases', implode( '|', $this->aliases ) );
 		} else {
 			$intro = $this->msg( 'wikibase-setlabeldescriptionaliases-intro' );
 			$fieldId = 'wikibase-setlabeldescriptionaliases-language';
 			$languageCode = $this->languageCode ? : $this->getLanguage()->getCode();
 
-			$html = Html::rawElement(
-					'p',
-					array(),
-					$intro->parse()
-				)
-				. parent::getFormElements( $entity )
+			$html = parent::getFormElements( $entity )
 				. Html::label(
 					$this->msg( 'wikibase-modifyterm-language' )->text(),
 					$fieldId,
@@ -151,11 +200,12 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 				);
 		}
 
-		$html .= $this->getLabeledInputField( 'label', $this->label )
-			. $this->getLabeledInputField( 'description', $this->description )
-			. $this->getLabeledInputField( 'aliases', implode( '|', $this->aliases ) );
-
-		return $html;
+		return Html::rawElement(
+			'p',
+			array(),
+			$intro->parse()
+		)
+		. $html;
 	}
 
 	/**
@@ -187,6 +237,7 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 			array(
 				'class' => 'wb-input',
 				'id' => $fieldId,
+				'placeholder' => $value,
 			)
 		);
 	}
@@ -223,18 +274,21 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 		) {
 			$fingerprint = $this->entityRevision->getEntity()->getFingerprint();
 
-			// FIXME: Currently this special page can not be used to unset the label.
-			if ( $this->label === '' && $fingerprint->hasLabel( $this->languageCode ) ) {
+			if ( !$request->getCheck( 'label' )
+				&& $fingerprint->hasLabel( $this->languageCode )
+			) {
 				$this->label = $fingerprint->getLabel( $this->languageCode )->getText();
 			}
 
-			// FIXME: Currently this special page can not be used to unset the description.
-			if ( $this->description === '' && $fingerprint->hasDescription( $this->languageCode ) ) {
+			if ( !$request->getCheck( 'description' )
+				&& $fingerprint->hasDescription( $this->languageCode )
+			) {
 				$this->description = $fingerprint->getDescription( $this->languageCode )->getText();
 			}
 
-			// FIXME: Currently this special page can not be used to empty the aliases.
-			if ( empty( $this->aliases ) && $fingerprint->hasAliasGroup( $this->languageCode ) ) {
+			if ( !$request->getCheck( 'aliases' )
+				&& $fingerprint->hasAliasGroup( $this->languageCode )
+			) {
 				$this->aliases = $fingerprint->getAliasGroup( $this->languageCode )->getAliases();
 			}
 		}

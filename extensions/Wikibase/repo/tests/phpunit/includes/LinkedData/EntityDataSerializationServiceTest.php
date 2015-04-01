@@ -40,6 +40,10 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 			->will( $this->returnCallback( function( EntityId $id ) {
 				return Title::newFromText( $id->getEntityType() . ':' . $id->getSerialization() );
 			} ) );
+		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$dataTypeLookup->expects( $this->any() )
+			->method( 'getDataTypeIdForProperty' )
+			->will( $this->returnValue( 'string' ) );
 
 		$serializerOptions = new SerializationOptions();
 		$serializerFactory = new SerializerFactory( $serializerOptions, $dataTypeLookup );
@@ -50,6 +54,7 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 			$entityLookup,
 			$titleLookup,
 			$serializerFactory,
+			$dataTypeLookup,
 			new SiteList()
 		);
 
@@ -60,7 +65,7 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 				'php',
 				'xml',
 
-				// using easyRdf
+				// using RdfWriter
 				'rdfxml',
 				'n3',
 				'turtle',
@@ -116,8 +121,9 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 		'text/n3',
 		'text/rdf+n3',
 		'text/turtle',
-		'application/turtle',
-		'application/ntriples',
+		'application/x-turtle',
+		'text/n-triples',
+		'application/n-triples',
 	);
 
 	private static $rdfExtensions = array(
@@ -151,21 +157,33 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 		'text',
 	);
 
+	private static $formatMappings = array(
+		'json' => 'json', // should be api json
+		'application/json' => 'json', // should be api json
+		'xml' => 'xml', // should be api xml, not rdfxml
+		'text/xml' => 'xml', // should be api xml, not rdfxml
+		'application/xml' => 'xml', // should be api xml, not rdfxml
+		'application/rdf+xml' => 'rdfxml', // should be rdfxml
+		'text/n-triples' => 'ntriples', // should be ntriples
+		'text/plain' => 'ntriples', // should be ntriples
+		'ttl' => 'turtle', // should be turtle
+	);
+
 	public function testGetSupportedMimeTypes() {
 		$service = $this->newService();
 
 		$types = $service->getSupportedMimeTypes();
 
 		foreach ( self::$apiMimeTypes as $type ) {
-			$this->assertTrue( in_array( $type, $types), $type );
+			$this->assertTrue( in_array( $type, $types), $type, "api mime type $type" );
 		}
 
 		foreach ( self::$rdfMimeTypes as $type ) {
-			$this->assertTrue( in_array( $type, $types), $type );
+			$this->assertTrue( in_array( $type, $types), $type, "rdf mime type $type" );
 		}
 
 		foreach ( self::$badMimeTypes as $type ) {
-			$this->assertFalse( in_array( $type, $types), $type );
+			$this->assertFalse( in_array( $type, $types), $type, "bad mime type $type" );
 		}
 	}
 
@@ -175,15 +193,15 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 		$types = $service->getSupportedExtensions();
 
 		foreach ( self::$apiExtensions as $type ) {
-			$this->assertTrue( in_array( $type, $types), $type );
+			$this->assertTrue( in_array( $type, $types), $type, "api extension $type" );
 		}
 
 		foreach ( self::$rdfExtensions as $type ) {
-			$this->assertTrue( in_array( $type, $types), $type );
+			$this->assertTrue( in_array( $type, $types), $type, "rdf extension $type" );
 		}
 
 		foreach ( self::$badExtensions as $type ) {
-			$this->assertFalse( in_array( $type, $types), $type );
+			$this->assertFalse( in_array( $type, $types), $type, "bad extension $type" );
 		}
 	}
 
@@ -193,15 +211,15 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 		$types = $service->getSupportedFormats();
 
 		foreach ( self::$apiFormats as $type ) {
-			$this->assertTrue( in_array( $type, $types), $type );
+			$this->assertTrue( in_array( $type, $types), $type, "api format $type" );
 		}
 
 		foreach ( self::$rdfFormats as $type ) {
-			$this->assertTrue( in_array( $type, $types), $type );
+			$this->assertTrue( in_array( $type, $types), $type, "rdf format $type" );
 		}
 
 		foreach ( self::$badFormats as $type ) {
-			$this->assertFalse( in_array( $type, $types), $type );
+			$this->assertFalse( in_array( $type, $types), $type, "bad format $type" );
 		}
 	}
 
@@ -227,6 +245,11 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 		foreach ( $types as $type ) {
 			$format = $service->getFormatName( $type );
 			$this->assertNotNull( $format, $type );
+		}
+
+		foreach ( self::$formatMappings as $type => $expectedName ) {
+			$name = $service->getFormatName( $type );
+			$this->assertEquals( $expectedName, $name, $type );
 		}
 	}
 
