@@ -91,6 +91,13 @@ abstract class UpdateRepo {
 					$this->title->getFullText()
 				)
 			);
+
+			if ( $this->entityId === null ) {
+				wfDebugLog(
+					'UpdateRepo',
+					"Couldn't find an item for {$this->title->getFullText()}"
+				);
+			}
 		}
 
 		return $this->entityId;
@@ -106,18 +113,33 @@ abstract class UpdateRepo {
 		if ( !class_exists( 'CentralAuthUser' ) ) {
 			// We can't do anything without CentralAuth as there's no way to verify that
 			// the local user equals the repo one with the same name
+			wfDebugLog(
+				'UpdateRepo',
+				"Can't validate user " . $this->user->getName() . ": class CentralAuthUser doesn't exist"
+			);
+
 			return false;
 		}
 
 		$caUser = CentralAuthUser::getInstance( $this->user );
 		if ( !$caUser || !$caUser->exists() ) {
 			// The current user doesn't have a central account
+			wfDebugLog(
+				'UpdateRepo',
+				"Can't validate user " . $this->user->getName() . ": User doesn't have a global account"
+			);
+
 			return false;
 		}
 
 		if ( !$caUser->isAttached() || !$caUser->attachedOn( $this->repoDB ) ) {
 			// Either the user account on this wiki or the one on the repo do not exist
 			// or they aren't connected
+			wfDebugLog(
+				'UpdateRepo',
+				"Can't validate user " . $this->user->getName() . ": User is not attached locally or on {$this->repoDB}"
+			);
+
 			return false;
 		}
 
@@ -170,7 +192,7 @@ abstract class UpdateRepo {
 	/**
 	 * Get the time (in seconds) for which the job execution should be delayed
 	 * (if delayed jobs are enabled). Defaults to the max replag of any pooled
-	 * DB server + 1 seconds.
+	 * DB server + 2 seconds.
 	 *
 	 * @return int
 	 */
@@ -179,8 +201,10 @@ abstract class UpdateRepo {
 		// This should be good enough, especially given that lagged servers get
 		// less load by the load balancer, thus it's very unlikely we'll end
 		// up on the server with the highest lag.
-		// Note: Always add at least +1 here, otherwise this can be -1
-		return $lagArray[1] + 1;
+		// We add +2 here, to make sure we have a minimum delay of a full
+		// second (this is being added to time() so +1 actually just means
+		// wait until this second is over).
+		return $lagArray[1] + 2;
 	}
 
 	/**

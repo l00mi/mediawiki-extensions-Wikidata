@@ -50,9 +50,9 @@ class SqlUsageTrackerSchemaUpdater {
 	 */
 	public function doSchemaUpdate() {
 		$table = 'wbc_entity_usage';
+		$db = $this->dbUpdater->getDB();
 
 		if ( !$this->dbUpdater->tableExists( $table ) ) {
-			$db = $this->dbUpdater->getDB();
 			$script = $this->getUpdateScriptPath( 'entity_usage', $db->getType() );
 			$this->dbUpdater->addExtensionTable( $table, $script );
 
@@ -63,6 +63,15 @@ class SqlUsageTrackerSchemaUpdater {
 				array( __CLASS__, 'fillUsageTable' ),
 				$table
 			) );
+		} else {
+			$script = $this->getUpdateScriptPath( 'entity_usage-alter-aspect-varbinary-37', $db->getType() );
+			$this->dbUpdater->modifyExtensionField( $table, 'eu_aspect', $script );
+
+			$script = $this->getUpdateScriptPath( 'entity_usage-add-touched', $db->getType() );
+			$this->dbUpdater->addExtensionField( $table, 'eu_touched', $script );
+
+			$script = $this->getUpdateScriptPath( 'entity_usage-drop-entity_type', $db->getType() );
+			$this->dbUpdater->dropExtensionField( $table, 'eu_entity_type', $script );
 		}
 	}
 

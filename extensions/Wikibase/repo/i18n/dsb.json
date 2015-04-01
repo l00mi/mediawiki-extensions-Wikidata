@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Derbeth",
-			"Michawiki"
+			"Michawiki",
+			"Macofe"
 		]
 	},
 	"wikibase-desc": "Repozitorium strukturěrowanych datow",
@@ -67,8 +68,6 @@
 	"wikibase-copyrighttooltip-acknowledge": "Akceptěruju toś te wuměnjenja za swóje pśiduce změny. Njepokaž toś tu powěźeńku hyšći raz.",
 	"wikibase-entityselector-more": "wěcej",
 	"wikibase-anonymouseditwarning": "Warnowanje: Njejsy pśizjawjony. Twója IP-adresa pśewzejo se do wersijoweje historije toś teje entity.",
-	"wikibase-restrictionedit-tooltip-message": "Toś ten bok jo šćitany, wobźěłowanje njejo dowólone.",
-	"wikibase-blockeduser-tooltip-message": "Njamaš pšawo wobźěłaś, dokulaž twójo wužywarske mě abo twója IP-adresa jo se zablokěrowała.",
 	"wikibase-move-error": "Njamóžoš boki pśesunuś, kótarež su w datowem mjenjowem rumje, a njamóžoš boki do njego pśesunuś.",
 	"wikibase-validator-label-conflict": "Druga kakosć ($3) ma južo pomjenjenje \"$1\" z rěcnym kodom $2.",
 	"wikibase-validator-label-with-description-conflict": "Drugi element ($3) ma južo pomjenjenje \"$1\" a wopisanje \"$4\" z rěcnym kodom $2.",
@@ -82,7 +81,7 @@
 	"wikibase-itembytitle-create": "Móžoš teke [$1 element napóraś].",
 	"special-itemdisambiguation": "Bok wěcejzmysłnosći elementa",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Elementy pó rěcy a pomjenjenju pytaś",
-	"wikibase-itemdisambiguation-lookup-language": "Rěc:",
+	"wikibase-itemdisambiguation-lookup-language": "Rěcny kod:",
 	"wikibase-itemdisambiguation-lookup-label": "Pomjenjenje:",
 	"wikibase-itemdisambiguation-submit": "Pytaś",
 	"wikibase-itemdisambiguation-nothing-found": "Bóžko njejo se žeden element z tym pomjenim namakał.",
@@ -123,14 +122,14 @@
 	"wikibase-setaliases-submit": "Aliase póstajiś",
 	"wikibase-setaliases-warning-remove": "Coš napšawdu wšykne aliase z [[$1]] wótpóraś?",
 	"wikibase-modifyentity-id": "ID:",
-	"wikibase-modifyterm-language": "Rěc:",
+	"wikibase-modifyterm-language": "Rěcny kod:",
 	"special-listdatatypes": "Lisćina wšych k dispoziciji stojecych datowych typow",
 	"wikibase-listdatatypes-intro": "To jo lisćina wšych datowych typow, kótarež stoje k dispoziciji w toś tej instalaciji:",
 	"wikibase-history-title-with-label": "Wersijowa historija \"$2\" ($1)",
 	"wikibase-history-title-without-label": "Wersijowa historija ($1)",
 	"special-entitieswithoutlabel": "Entity bźez pomjenjenja",
 	"wikibase-entitieswithoutlabel-legend": "Lisćinu entitow bźez pomjenjenja wótwołaś",
-	"wikibase-entitieswithoutlabel-label-language": "Rěc:",
+	"wikibase-entitieswithoutlabel-label-language": "Rěcny kod:",
 	"wikibase-entitieswithoutlabel-label-type": "Typ:",
 	"wikibase-entitieswithoutlabel-label-alltypes": "wšykne",
 	"wikibase-entitieswithoutlabel-submit": "Pytaś",

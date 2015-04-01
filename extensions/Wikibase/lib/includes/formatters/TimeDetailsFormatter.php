@@ -5,7 +5,6 @@ namespace Wikibase\Lib;
 use DataValues\TimeValue;
 use Html;
 use InvalidArgumentException;
-use Message;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\TimeFormatter;
 use ValueFormatters\ValueFormatter;
@@ -18,26 +17,30 @@ use ValueFormatters\ValueFormatterBase;
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
 class TimeDetailsFormatter extends ValueFormatterBase {
 
 	/**
-	 * @var TimeFormatter
+	 * @var ValueFormatter A TimeValue formatter that outputs HTML.
 	 */
 	private $timeFormatter;
 
 	/**
 	 * @param FormatterOptions|null $options
+	 * @param ValueFormatter|null $timeFormatter A TimeValue formatter that outputs a single line of
+	 * HTML, suitable for headings.
 	 */
-	public function __construct( FormatterOptions $options = null ) {
+	public function __construct(
+		FormatterOptions $options = null,
+		ValueFormatter $timeFormatter = null
+	) {
 		parent::__construct( $options );
 
-		$this->defaultOption(
-			TimeFormatter::OPT_TIME_ISO_FORMATTER,
+		$this->timeFormatter = $timeFormatter ?: new HtmlTimeFormatter(
+			$this->options,
 			new MwTimeIsoFormatter( $this->options )
 		);
-
-		$this->timeFormatter = new TimeFormatter( $this->options );
 	}
 
 	/**
@@ -46,49 +49,52 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 	 *
 	 * @since 0.5
 	 *
-	 * @param TimeValue $value The ID to format
+	 * @param TimeValue $value
 	 *
 	 * @throws InvalidArgumentException
-	 * @return string
+	 * @return string HTML
 	 */
 	public function format( $value ) {
 		if ( !( $value instanceof TimeValue ) ) {
-			throw new InvalidArgumentException( 'Data value type mismatch. Expected an TimeValue.' );
+			throw new InvalidArgumentException( 'Data value type mismatch. Expected a TimeValue.' );
+		}
+
+		$timeHtml = $this->getTimeHtml( $value->getTime() );
+
+		$timeZone = $value->getTimezone();
+		$timeZoneHtml = is_int( $timeZone )
+			? $this->getTimeZoneHtml( $timeZone )
+			: htmlspecialchars( $timeZone );
+
+		$calendarHtml = $this->getCalendarModelHtml( $value->getCalendarModel() );
+
+		$precision = $value->getPrecision();
+		$before = $value->getBefore();
+		$after = $value->getAfter();
+		if ( is_int( $precision ) && is_int( $before ) && is_int( $after ) ) {
+			$precisionHtml = $this->getAmountAndPrecisionHtml( $precision );
+			$beforeHtml = $this->getAmountAndPrecisionHtml( $precision, $before );
+			$afterHtml = $this->getAmountAndPrecisionHtml( $precision, $after );
+		} else {
+			$precisionHtml = htmlspecialchars( $precision );
+			$beforeHtml = htmlspecialchars( $value->getBefore() );
+			$afterHtml = htmlspecialchars( $value->getAfter() );
 		}
 
 		$html = '';
-		$html .= Html::element(
+		$html .= Html::rawElement(
 			'h4',
 			array( 'class' => 'wb-details wb-time-details wb-time-rendered' ),
 			$this->timeFormatter->format( $value )
 		);
 		$html .= Html::openElement( 'table', array( 'class' => 'wb-details wb-time-details' ) );
 
-		$html .= $this->renderLabelValuePair(
-			'isotime',
-			$this->getTimeHtml( $value->getTime() )
-		);
-		$html .= $this->renderLabelValuePair(
-			'timezone',
-			$this->getTimezoneHtml( $value->getTimezone() )
-		);
-		$html .= $this->renderLabelValuePair(
-			'calendar',
-			$this->getCalendarModelHtml( $value->getCalendarModel() )
-		);
-		// TODO: Provide "nice" rendering of precision, etc.
-		$html .= $this->renderLabelValuePair(
-			'precision',
-			$this->getAmountAndPrecisionHtml( $value->getPrecision() )
-		);
-		$html .= $this->renderLabelValuePair(
-			'before',
-			$this->getAmountAndPrecisionHtml( $value->getPrecision(), $value->getBefore() )
-		);
-		$html .= $this->renderLabelValuePair(
-			'after',
-			$this->getAmountAndPrecisionHtml( $value->getPrecision(), $value->getAfter() )
-		);
+		$html .= $this->getFieldHtml( 'isotime', $timeHtml );
+		$html .= $this->getFieldHtml( 'timezone', $timeZoneHtml );
+		$html .= $this->getFieldHtml( 'calendar', $calendarHtml );
+		$html .= $this->getFieldHtml( 'precision', $precisionHtml );
+		$html .= $this->getFieldHtml( 'before', $beforeHtml );
+		$html .= $this->getFieldHtml( 'after', $afterHtml );
 
 		$html .= Html::closeElement( 'table' );
 
@@ -102,12 +108,12 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 	 */
 	private function getTimeHtml( $time ) {
 		// Loose check if the ISO-like string contains at least year, month, day and hour.
-		if ( !preg_match( '/^([-+])(\d+)(-\d+-\d+T\d+(?::\d+)*)Z?$/i', $time, $matches ) ) {
+		if ( !preg_match( '/^([-+]?)(\d+)(-\d+-\d+T\d+(?::\d+)*)Z?$/i', $time, $matches ) ) {
 			return htmlspecialchars( $time );
 		}
 
 		// Actual MINUS SIGN (U+2212) instead of HYPHEN-MINUS (U+002D)
-		$sign = $matches[1] !== '+' ? "\xE2\x88\x92" : '+';
+		$sign = $matches[1] === '-' ? "\xE2\x88\x92" : '+';
 		// Warning, never cast the year to integer to not run into 32-bit integer overflows!
 		$year = ltrim( $matches[2], '0' );
 		// Keep the sign. Pad the year. Keep month, day, and time. Drop the trailing "Z".
@@ -119,7 +125,7 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 	 *
 	 * @return string HTML
 	 */
-	private function getTimezoneHtml( $timezone ) {
+	private function getTimeZoneHtml( $timezone ) {
 		// Actual MINUS SIGN (U+2212) instead of HYPHEN-MINUS (U+002D)
 		$sign = $timezone < 0 ? "\xE2\x88\x92" : '+';
 		$hour = floor( abs( $timezone ) / 60 );
@@ -144,9 +150,7 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 				return htmlspecialchars( $calendarModel );
 		}
 
-		$lang = $this->getOption( ValueFormatter::OPT_LANG );
-		$msg = wfMessage( $key )->inLanguage( $lang );
-		return $msg->text();
+		return htmlspecialchars( $this->msg( $key ) );
 	}
 
 	/**
@@ -171,7 +175,7 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 			$precisionInYears = pow( 10, TimeValue::PRECISION_YEAR - $precision );
 			$amount *= $precisionInYears;
 		} elseif ( $precision > TimeValue::PRECISION_SECOND ) {
-			// Sub-second precisions become 0.1 second, 0.01 second, and so on.
+			// Sub-second precisions become 0.1 seconds, 0.01 seconds, and so on.
 			$precisionInSeconds = pow( 10, $precision - TimeValue::PRECISION_SECOND );
 			$amount /= $precisionInSeconds;
 		}
@@ -185,26 +189,9 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 	 * @param string $fieldName
 	 * @param string $valueHtml
 	 *
-	 * @return string HTML for the label/value pair
+	 * @return string HTML
 	 */
-	private function renderLabelValuePair( $fieldName, $valueHtml ) {
-		$html = Html::openElement( 'tr' );
-
-		$html .= Html::element( 'th', array( 'class' => 'wb-time-' . $fieldName ),
-			$this->getFieldLabel( $fieldName )->text() );
-		$html .= Html::rawElement( 'td', array( 'class' => 'wb-time-' . $fieldName ),
-			$valueHtml );
-
-		$html .= Html::closeElement( 'tr' );
-		return $html;
-	}
-
-	/**
-	 * @param string $fieldName
-	 *
-	 * @return Message
-	 */
-	private function getFieldLabel( $fieldName ) {
+	private function getFieldHtml( $fieldName, $valueHtml ) {
 		// Messages:
 		// wikibase-timedetails-isotime
 		// wikibase-timedetails-timezone
@@ -214,9 +201,27 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 		// wikibase-timedetails-after
 		$key = 'wikibase-timedetails-' . strtolower( $fieldName );
 
+		$html = Html::openElement( 'tr' );
+
+		$html .= Html::element( 'th', array( 'class' => 'wb-time-' . $fieldName ),
+			$this->msg( $key ) );
+		$html .= Html::rawElement( 'td', array( 'class' => 'wb-time-' . $fieldName ),
+			$valueHtml );
+
+		$html .= Html::closeElement( 'tr' );
+
+		return $html;
+	}
+
+	/**
+	 * @param string $key
+	 *
+	 * @return string
+	 */
+	private function msg( $key ) {
 		$lang = $this->getOption( ValueFormatter::OPT_LANG );
 		$msg = wfMessage( $key )->inLanguage( $lang );
-		return $msg;
+		return $msg->text();
 	}
 
 }

@@ -8,7 +8,7 @@
 
 	QUnit.module( 'jquery.valueview.ExpertExtender' );
 
-	if( QUnit.urlParams.completenesstest ) {
+	if( QUnit.urlParams.completenesstest && CompletenessTest ) {
 		new CompletenessTest( ExpertExtender.prototype, function( cur, tester, path ) {
 			return false;
 		} );
@@ -56,18 +56,18 @@
 			} ] );
 
 		$input.focus();
-
-		// inputextender immediately extends if $input has focus
 		expertExtender.init();
+		// inputextender immediately extends if $input has focus
+		// If, after focussing, $input does not have focus, we are running in phantomjs
+		// or an unfocused firefox window. Force showing the extension, then.
+		if( !$input.is( ':focus' ) ) {
+			expertExtender._inputextender.showExtension();
+		}
 
 		window.setTimeout( function() {
-			if( !init.called && 'hidden' in document && document.hidden ) {
-				assert.ok( true, 'Could not test since browser window is not focused' );
-			} else {
-				sinon.assert.calledOnce( init );
-				sinon.assert.calledOnce( onInitialShow );
-				sinon.assert.calledOnce( draw );
-			}
+			sinon.assert.calledOnce( init );
+			sinon.assert.calledOnce( onInitialShow );
+			sinon.assert.calledOnce( draw );
 
 			$input.remove();
 
@@ -75,4 +75,10 @@
 		}, 0 );
 	} );
 
-} )( jQuery, jQuery.valueview.ExpertExtender, sinon, QUnit, CompletenessTest );
+} )(
+	jQuery,
+	jQuery.valueview.ExpertExtender,
+	sinon,
+	QUnit,
+	typeof CompletenessTest !== 'undefined' ? CompletenessTest : null
+);

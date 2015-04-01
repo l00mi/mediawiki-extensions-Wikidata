@@ -66,14 +66,6 @@ class EntityChange extends DiffChange {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getEntityType() {
-		$id = $this->getEntityId();
-		return $id->getEntityType();
-	}
-
-	/**
 	 * @return EntityId
 	 */
 	public function getEntityId() {
@@ -224,13 +216,6 @@ class EntityChange extends DiffChange {
 			'object_id' => $entityId->getSerialization(),
 			'time' => $revision->getTimestamp(),
 		) );
-	}
-
-	/**
-	 * @param EntityId $id
-	 */
-	public function setEntityId( EntityId $id ) {
-		$this->setField( 'object_id', $id->getSerialization() );
 	}
 
 	/**

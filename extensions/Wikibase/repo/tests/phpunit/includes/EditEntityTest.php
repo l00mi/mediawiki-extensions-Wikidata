@@ -5,6 +5,7 @@ namespace Wikibase\Test;
 use FauxRequest;
 use HashBagOStuff;
 use IContextSource;
+use ReflectionMethod;
 use RequestContext;
 use Status;
 use Title;
@@ -541,7 +542,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 					)
 				),
 				array( // groups:
-					'sysop' // assume sysop has the noratelimit permission, as per default
+					'sysop' // sysop has the noratelimit permission set in the test case
 				),
 				array(  // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
@@ -628,6 +629,14 @@ class EditEntityTest extends \MediaWikiTestCase {
 		$this->setMwGlobals(
 			'wgRateLimits',
 			$limits
+		);
+
+		$this->setMwGlobals(
+			'wgGroupPermissions',
+			array(
+				'*' => array( 'edit' => true ),
+				'sysop' => array( 'noratelimit' => true )
+			)
 		);
 
 		// make sure we have a fresh, working cache
@@ -760,4 +769,23 @@ class EditEntityTest extends \MediaWikiTestCase {
 		$this->assertEquals( $expected, $repo->isWatching( $user, $item->getId() ), "watched" );
 	}
 
+	public function testIsNew() {
+		$repo = $this->getMockRepository();
+		$titleLookup = $this->getEntityTitleLookup();
+		$item = new Item();
+
+		$isNew = new ReflectionMethod( 'Wikibase\EditEntity', 'isNew' );
+		$isNew->setAccessible( true );
+
+		$edit = $this->makeEditEntity( $repo, $item, $titleLookup );
+		$this->assertTrue( $isNew->invoke( $edit ), 'New entity: No id' );
+
+		$repo->assignFreshId( $item );
+		$edit = $this->makeEditEntity( $repo, $item, $titleLookup );
+		$this->assertTrue( $isNew->invoke( $edit ), "New entity: Has an id, but doesn't exist, yet" );
+
+		$repo->saveEntity( $item, 'testIsNew', $this->getUser( 'EditEntityTestUser1' ) );
+		$edit = $this->makeEditEntity( $repo, $item, $titleLookup );
+		$this->assertFalse( $isNew->invoke( $edit ), "Entity exists" );
+	}
 }

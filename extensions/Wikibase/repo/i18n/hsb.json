@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Michawiki"
+			"Michawiki",
+			"Macofe"
 		]
 	},
 	"wikibase-desc": "Repozitorij strukturowanych datow",
@@ -69,8 +70,6 @@
 	"wikibase-copyrighttooltip-acknowledge": "Akceptuju tute wuměnjenja za swoje přichodne změny. Njepokazaj tutu zdźělenku hišće raz.",
 	"wikibase-entityselector-more": "wjace",
 	"wikibase-anonymouseditwarning": "Warnowanje: Njejsy přizjewjeny. Twoja IP-adresa so do wersijowych stawiznow tuteje entity přewozmje.",
-	"wikibase-restrictionedit-tooltip-message": "Tuta strona je škitana, wobdźěłowanje njeje dowolene.",
-	"wikibase-blockeduser-tooltip-message": "Nimaš prawo wobdźěłać, dokelž twoje wužiwarske mjeno abo twoja IP-adresa je so zablokowała.",
 	"wikibase-move-error": "Njemóžeš strony přesunyć, kotrež su w datowym mjenowym rumje, a njemóžeš strony do njeho přesunyć.",
 	"wikibase-validator-label-conflict": "Druha kajkosć ($3) ma hižo pomjenowanje \"$1\" z rěčnym kodom $2.",
 	"wikibase-validator-label-with-description-conflict": "Druhi element ($3) ma hižo woznamjenjenje \"$1\" a wopisanje \"$4\" z rěčnym kodom $2.",
@@ -84,7 +83,7 @@
 	"wikibase-itembytitle-create": "Móžeš tež [$1 element wutworić].",
 	"special-itemdisambiguation": "Strona wjacezmysłnosće elementa",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Elementy po rěči a pomjenjowanju pytać",
-	"wikibase-itemdisambiguation-lookup-language": "Rěč:",
+	"wikibase-itemdisambiguation-lookup-language": "Rěčny kod:",
 	"wikibase-itemdisambiguation-lookup-label": "Pomjenowanje:",
 	"wikibase-itemdisambiguation-submit": "Pytać",
 	"wikibase-itemdisambiguation-nothing-found": "Bohužel njeje so žadyn element z tym pomjenjowanjom namakał.",
@@ -130,7 +129,7 @@
 	"wikibase-setsitelink-add-failed": "Sydłowy wotkaz njeda so składować.",
 	"wikibase-setsitelink-remove-failed": "Sydłowy wotkaz njeda so wotstronić.",
 	"wikibase-modifyentity-id": "ID:",
-	"wikibase-modifyterm-language": "Rěč:",
+	"wikibase-modifyterm-language": "Rěčny kod:",
 	"wikibase-mergeitems-submit": "Zapiski zjednoćić",
 	"wikibase-dispatchstats-no-stats": "Tuchwilu statistiki k dispoziciji njejsu.",
 	"wikibase-dispatchstats-changes": "Statistiki protokola změnow",
@@ -150,7 +149,7 @@
 	"special-entitieswithoutdescription": "Entity bjez wopisanja",
 	"special-entitieswithoutlabel": "Entity bjez pomjenowanja",
 	"wikibase-entitieswithoutlabel-legend": "Lisćinu entitow bjez pomjenowanja wotwołać",
-	"wikibase-entitieswithoutlabel-label-language": "Rěč:",
+	"wikibase-entitieswithoutlabel-label-language": "Rěčny kod:",
 	"wikibase-entitieswithoutlabel-label-type": "Typ:",
 	"wikibase-entitieswithoutlabel-label-alltypes": "wšě",
 	"wikibase-entitieswithoutlabel-submit": "Pytać",

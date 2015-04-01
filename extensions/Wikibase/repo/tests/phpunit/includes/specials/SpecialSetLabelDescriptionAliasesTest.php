@@ -2,10 +2,20 @@
 
 namespace Wikibase\Test;
 
+use FauxRequest;
+use FauxResponse;
+use ValueValidators\Result;
+use WebRequest;
+use Wikibase\ChangeOp\FingerprintChangeOpFactory;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\EntityContent;
+use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\LabelDescriptionDuplicateDetector;
+use Wikibase\Lib\ContentLanguages;
 use Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases;
-use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Validators\TermValidatorFactory;
+use Wikibase\Validators\UniquenessViolation;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases
@@ -21,8 +31,11 @@ use Wikibase\Repo\WikibaseRepo;
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
+ * @author Daniel Kinzler
  */
-class SpecialSetLabelDescriptionAliasesTest extends SpecialPageTestBase {
+class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestBase {
+
+	private static $languageCodes = array( 'en', 'de', 'de-ch', 'ii', 'zh' );
 
 	/**
 	 * @see SpecialPageTestBase::newSpecialPage()
@@ -30,33 +43,144 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialPageTestBase {
 	 * @return SpecialSetLabelDescriptionAliases
 	 */
 	protected function newSpecialPage() {
-		return new SpecialSetLabelDescriptionAliases();
+		$page = new SpecialSetLabelDescriptionAliases();
+
+		$page->setServices(
+			$this->getSummaryFormatter(),
+			$this->getEntityRevisionLookup(),
+			$this->getEntityTitleLookup(),
+			$this->getEntityStore(),
+			$this->getEntityPermissionChecker(),
+			$this->getSiteStore(),
+			$this->getFingerprintChangeOpsFactory(),
+			$this->getContentLanguages()
+		);
+
+		return $page;
 	}
 
 	/**
-	 * @return string
+	 * @return FingerprintChangeOpFactory
 	 */
-	private function createNewItem() {
-		$item = Item::newEmpty();
-		// add data and check if it is shown in the form
-		$item->setLabel( 'de', 'foo' );
-		$item->setDescription( 'de', 'foo' );
-		$item->setAliases( 'de', array( 'foo' ) );
+	private function getFingerprintChangeOpsFactory() {
+		$maxLength = 32;
 
-		// save the item
-		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
-		$store->saveEntity( $item, "testing", $GLOBALS['wgUser'], EDIT_NEW | EntityContent::EDIT_IGNORE_CONSTRAINTS );
-
-		// return the id
-		return $item->getId()->getSerialization();
+		return new FingerprintChangeOpFactory(
+			new TermValidatorFactory(
+				$maxLength,
+				self::$languageCodes,
+				$this->getIdParser(),
+				$this->getLabelDescriptionDuplicateDetector(),
+				$this->mockRepository
+			)
+		);
 	}
 
-	public function testExecute() {
-		$id = $this->createNewItem();
+	/**
+	 * @return LabelDescriptionDuplicateDetector
+	 */
+	private function getLabelDescriptionDuplicateDetector() {
+		$detector = $this->getMockBuilder( 'Wikibase\LabelDescriptionDuplicateDetector' )
+			->disableOriginalConstructor()
+			->getMock();
 
-		$this->newSpecialPage();
+		$self = $this;
+		$detector->expects( $this->any() )
+			->method( 'detectTermConflicts' )
+			->will( $this->returnCallback( function(
+				$entityType,
+				array $labels,
+				array $descriptions = null,
+				EntityId $ignoreEntityId = null
+			) use ( $self ) {
+				$errors = array();
 
-		$matchers['id'] = array(
+				$errors = array_merge( $errors, $self->detectDupes( $labels ) );
+				$errors = array_merge( $errors, $self->detectDupes( $descriptions ) );
+
+				$result = empty( $errors ) ? Result::newSuccess() : Result::newError( $errors );
+				return $result;
+			} ) );
+
+		return $detector;
+	}
+
+	/**
+	 * Mock duplicate detection: the term "DUPE" is considered a duplicate.
+	 *
+	 * @param string[] $terms
+	 *
+	 * @return UniquenessViolation[]
+	 */
+	public function detectDupes( array $terms ) {
+		$errors = array();
+
+		foreach ( $terms as $languageCode => $term ) {
+			if ( $term === 'DUPE' ) {
+				$q666 = new ItemId( 'Q666' );
+
+				$errors[] = new UniquenessViolation(
+					$q666,
+					'found conflicting terms',
+					'test-conflict',
+					array(
+						$term,
+						$languageCode,
+						$q666,
+					)
+				);
+			}
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * @return ContentLanguages
+	 */
+	private function getContentLanguages() {
+		$fake = $this->getMock( 'Wikibase\Lib\ContentLanguages' );
+
+		$fake->expects( $this->any() )
+			->method( 'hasLanguage' )
+			->will( $this->returnValue( true ) );
+
+		return $fake;
+	}
+
+	/**
+	 * @param string[] $labels
+	 * @param string[] $descriptions
+	 * @param array[] $aliases
+	 *
+	 * @return Fingerprint
+	 */
+	private function makeFingerprint(
+		array $labels = array(),
+		array $descriptions = array(),
+		array $aliases = array()
+	) {
+		$fingerprint = new Fingerprint();
+
+		foreach ( $labels as $lang => $text ) {
+			$fingerprint->setLabel( $lang, $text );
+		}
+
+		foreach ( $descriptions as $lang => $text ) {
+			$fingerprint->setDescription( $lang, $text );
+		}
+
+		foreach ( $aliases as $lang => $texts ) {
+			$fingerprint->setAliasGroup( $lang, $texts );
+		}
+
+		return $fingerprint;
+	}
+
+	public function executeProvider() {
+		global $wgLang;
+
+		$formMatchers['id'] = array(
 			'tag' => 'input',
 			'attributes' => array(
 				'id' => 'wb-modifyentity-id',
@@ -64,40 +188,16 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialPageTestBase {
 				'name' => 'id',
 			),
 		);
-		$matchers['language'] = array(
+		$formMatchers['language'] = array(
 			'tag' => 'input',
 			'attributes' => array(
 				'id' => 'wikibase-setlabeldescriptionaliases-language',
 				'class' => 'wb-input',
 				'name' => 'language',
-				'value' => 'en',
+				'value' => $wgLang->getCode(), // Default user language
 			),
 		);
-		$matchers['label'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wikibase-setlabeldescriptionaliases-label',
-				'class' => 'wb-input',
-				'name' => 'label',
-			),
-		);
-		$matchers['description'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wikibase-setlabeldescriptionaliases-description',
-				'class' => 'wb-input',
-				'name' => 'description',
-			),
-		);
-		$matchers['aliases'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wikibase-setlabeldescriptionaliases-aliases',
-				'class' => 'wb-input',
-				'name' => 'aliases',
-			),
-		);
-		$matchers['submit'] = array(
+		$formMatchers['submit'] = array(
 			'tag' => 'input',
 			'attributes' => array(
 				'id' => 'wb-setlabeldescriptionaliases-submit',
@@ -107,37 +207,171 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialPageTestBase {
 			),
 		);
 
-		// execute with no subpage value
-		list( $output, ) = $this->executeSpecialPage( '', null, 'en' );
-		foreach( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}'" );
-		}
-
-		// execute with one subpage value
-		list( $output, ) = $this->executeSpecialPage( $id, null, 'en' );
-		$matchers['id']['attributes'] = array(
+		$withIdMatchers = $formMatchers;
+		$withIdMatchers['id']['attributes'] = array(
 			'type' => 'hidden',
 			'name' => 'id',
-			'value' => $id,
+			'value' => 'regexp:/Q\d+/',
 		);
-		$matchers['language']['attributes'] = array(
+		$withIdMatchers['language']['attributes'] = array(
 			'type' => 'hidden',
 			'name' => 'language',
-			'value' => 'en',
+			'value' => $wgLang->getCode(), // Default user language
+		);
+		$withIdMatchers['label'] = array(
+			'tag' => 'input',
+			'attributes' => array(
+				'id' => 'wikibase-setlabeldescriptionaliases-label',
+				'class' => 'wb-input',
+				'name' => 'label',
+			),
+		);
+		$withIdMatchers['description'] = array(
+			'tag' => 'input',
+			'attributes' => array(
+				'id' => 'wikibase-setlabeldescriptionaliases-description',
+				'class' => 'wb-input',
+				'name' => 'description',
+			),
+		);
+		$withIdMatchers['aliases'] = array(
+			'tag' => 'input',
+			'attributes' => array(
+				'id' => 'wikibase-setlabeldescriptionaliases-aliases',
+				'class' => 'wb-input',
+				'name' => 'aliases',
+			),
 		);
 
-		foreach( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}' passing one subpage value" );
+		$withLanguageMatchers = $withIdMatchers;
+		$withLanguageMatchers['language']['attributes']['value'] = 'de';
+		$withLanguageMatchers['label']['attributes']['value'] = 'foo';
+
+		$fooFingerprint = $this->makeFingerprint(
+			array( 'de' => 'foo' )
+		);
+
+		return array(
+			'no input' => array(
+				$fooFingerprint,
+				'',
+				null,
+				$formMatchers,
+				null
+			),
+
+			'with id but no language' => array(
+				$fooFingerprint,
+				'$id',
+				null,
+				$withIdMatchers,
+				null
+			),
+
+			'with id and language' => array(
+				$fooFingerprint,
+				'$id/de',
+				null,
+				$withLanguageMatchers,
+				null
+			),
+
+			'with id and language attribute' => array(
+				$fooFingerprint,
+				'$id',
+				new FauxRequest( array( 'language' => 'de' ) ),
+				$withLanguageMatchers,
+				null
+			),
+
+			'add label' => array(
+				$fooFingerprint,
+				'$id',
+				new FauxRequest( array( 'language' => 'en', 'label' => 'FOO' ), true ),
+				array(),
+				$this->makeFingerprint(
+					array( 'de' => 'foo', 'en' => 'FOO' )
+				),
+			),
+
+			'replace label' => array(
+				$fooFingerprint,
+				'$id',
+				new FauxRequest( array( 'language' => 'de', 'label' => 'FOO' ), true ),
+				array(),
+				$this->makeFingerprint(
+					array( 'de' => 'FOO' )
+				),
+			),
+
+			'add description, keep label' => array(
+				$fooFingerprint,
+				'$id',
+				new FauxRequest( array( 'language' => 'de', 'description' => 'Lorem Ipsum' ), true ),
+				array(),
+				$this->makeFingerprint(
+					array( 'de' => 'foo' ),
+					array( 'de' => 'Lorem Ipsum' )
+				),
+			),
+
+			'set aliases' => array(
+				$fooFingerprint,
+				'$id',
+				new FauxRequest( array( 'language' => 'de', 'aliases' => 'foo|bar' ), true ),
+				array(),
+				$this->makeFingerprint(
+					array( 'de' => 'foo' ),
+					array(),
+					array( 'de' => array( 'foo', 'bar' ) )
+				),
+			),
+
+		);
+	}
+
+	/**
+	 * @dataProvider executeProvider
+	 */
+	public function testExecute(
+		Fingerprint $inputFingerprint,
+		$subpage,
+		WebRequest $request = null,
+		array $tagMatchers,
+		Fingerprint $expectedFingerprint = null
+	) {
+		$inputEntity = new Item();
+		$inputEntity->setFingerprint( $inputFingerprint );
+
+		$this->mockRepository->putEntity( $inputEntity );
+		$id = $inputEntity->getId();
+
+		$this->newSpecialPage();
+
+		$subpage = str_replace( '$id', $id->getSerialization(), $subpage );
+		list( $output, $response ) = $this->executeSpecialPage( $subpage, $request );
+
+		$redirect = $response instanceof FauxResponse ? $response->getHeader( 'Location' ) : null;
+
+		foreach ( $tagMatchers as $key => $matcher ) {
+			$this->assertTag( $matcher, $output, "Failed to assert output: $key" );
 		}
 
-		// execute with two subpage values
-		list( $output, ) = $this->executeSpecialPage( $id . '/de', null, 'en' );
-		$matchers['language']['attributes']['value'] = 'de';
-		$matchers['value']['attributes']['value'] = 'foo';
+		if ( $expectedFingerprint !== null ) {
+			// TODO: Look for an error message in $output.
+			$this->assertNotEmpty( $redirect, 'Expected redirect after successful edit' );
 
-		foreach( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}' passing two subpage values" );
+			/** @var Item $actualEntity */
+			$actualEntity = $this->mockRepository->getEntity( $id );
+			$actualFingerprint = $actualEntity->getFingerprint();
+
+			$this->assetFingerprintEquals( $expectedFingerprint, $actualFingerprint );
 		}
+	}
+
+	private function assetFingerprintEquals( Fingerprint $expected, Fingerprint $actual, $message = 'Fingerprint mismatches' ) {
+		// TODO: Compare serializations.
+		$this->assertTrue( $expected->equals( $actual ), $message );
 	}
 
 }

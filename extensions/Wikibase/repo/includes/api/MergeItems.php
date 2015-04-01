@@ -176,6 +176,15 @@ class MergeItems extends ApiBase {
 	}
 
 	/**
+	 * @see ApiBase::needsToken
+	 *
+	 * @return string
+	 */
+	public function needsToken() {
+		return 'csrf';
+	}
+
+	/**
 	 * @see ApiBase::getAllowedParams
 	 */
 	protected function getAllowedParams() {
@@ -194,7 +203,6 @@ class MergeItems extends ApiBase {
 			'summary' => array(
 				ApiBase::PARAM_TYPE => 'string',
 			),
-			'token' => null,
 			'bot' => false
 		);
 	}
@@ -208,9 +216,9 @@ class MergeItems extends ApiBase {
 				'apihelp-wbmergeitems-example-1',
 			'action=wbmergeitems&fromid=Q555&toid=Q3' =>
 				'apihelp-wbmergeitems-example-2',
-			'action=wbmergeitems&fromid=Q66&toid=Q99&ignoreconflicts=sitelinks' =>
+			'action=wbmergeitems&fromid=Q66&toid=Q99&ignoreconflicts=sitelink' =>
 				'apihelp-wbmergeitems-example-3',
-			'action=wbmergeitems&fromid=Q66&toid=Q99&ignoreconflicts=sitelinks|description' =>
+			'action=wbmergeitems&fromid=Q66&toid=Q99&ignoreconflicts=sitelink|description' =>
 				'apihelp-wbmergeitems-example-4',
 		);
 	}

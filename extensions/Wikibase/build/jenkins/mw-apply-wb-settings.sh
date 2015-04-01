@@ -52,7 +52,7 @@ function apply_experimental_settings {
   echo "define( 'WB_EXPERIMENTAL_FEATURES', $EXPERIMENTAL );" >> LocalSettings.php
 }
 
-cd $WORKSPACE
+cd $WORKSPACE/src
 
 echo '<?php' >> LocalSettings.php
 

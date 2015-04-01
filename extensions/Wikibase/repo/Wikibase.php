@@ -70,6 +70,14 @@ if ( !defined( 'WIKIBASE_VIEW_VERSION' ) ) {
     throw new Exception( 'Wikibase depends on WikibaseView.' );
 }
 
+if ( !defined( 'PURTLE_VERSION' ) ) {
+	include_once( __DIR__ . '/../purtle/Purtle.php' );
+}
+
+if ( !defined( 'PURTLE_VERSION' ) ) {
+	throw new Exception( 'Wikibase depends on Purtle.' );
+}
+
 call_user_func( function() {
 	global $wgExtensionCredits, $wgGroupPermissions, $wgExtensionMessagesFiles, $wgMessagesDirs;
 	global $wgAPIModules, $wgSpecialPages, $wgHooks, $wgAvailableRights;
@@ -114,8 +122,7 @@ call_user_func( function() {
 		//TODO: make ID builders configurable.
 		$builders = \Wikibase\DataModel\Entity\BasicEntityIdParser::getBuilders();
 		return new \Wikibase\Lib\EntityIdValueParser(
-			new \Wikibase\DataModel\Entity\DispatchingEntityIdParser( $builders, $options ),
-			$options
+			new \Wikibase\DataModel\Entity\DispatchingEntityIdParser( $builders, $options )
 		);
 	};
 
@@ -125,7 +132,11 @@ call_user_func( function() {
 		return new \ValueParsers\QuantityParser( $options, $unlocalizer );
 	};
 
-	$wgValueParsers['time'] = 'Wikibase\Lib\Parsers\TimeParser';
+	$wgValueParsers['time'] = function( ValueParsers\ParserOptions $options ) {
+		$factory = new Wikibase\Lib\Parsers\TimeParserFactory( $options );
+		return $factory->getTimeParser();
+	};
+
 	$wgValueParsers['globecoordinate'] = 'DataValues\Geo\Parsers\GlobeCoordinateParser';
 	$wgValueParsers['null'] = 'ValueParsers\NullParser';
 	$wgValueParsers['monolingualtext'] = 'Wikibase\Parsers\MonolingualTextParser';
@@ -198,7 +209,6 @@ call_user_func( function() {
 	$wgHooks['FormatAutocomments'][]					= array( 'Wikibase\RepoHooks::onFormat', array( CONTENT_MODEL_WIKIBASE_ITEM, "wikibase-item" ) );
 	$wgHooks['FormatAutocomments'][]					= array( 'Wikibase\RepoHooks::onFormat', array( CONTENT_MODEL_WIKIBASE_PROPERTY, "wikibase-property" ) );
 	$wgHooks['PageHistoryLineEnding'][]					= 'Wikibase\RepoHooks::onPageHistoryLineEnding';
-	$wgHooks['WikibaseRebuildData'][] 					= 'Wikibase\RepoHooks::onWikibaseRebuildData';
 	$wgHooks['WikibaseDeleteData'][] 					= 'Wikibase\RepoHooks::onWikibaseDeleteData';
 	$wgHooks['ApiCheckCanExecute'][] 					= 'Wikibase\RepoHooks::onApiCheckCanExecute';
 	$wgHooks['SetupAfterCache'][] 						= 'Wikibase\RepoHooks::onSetupAfterCache';

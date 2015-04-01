@@ -83,8 +83,6 @@
 	"wikibase-copyrighttooltip-acknowledge": "Te pogoje sprejmem za vsa prihodnja urejanja. Tega sporočila ne prikaži več.",
 	"wikibase-entityselector-more": "več",
 	"wikibase-anonymouseditwarning": "Opozorilo: niste prijavljeni.\nV povzetku urejanja tega predmeta bo shranjen vaš IP-naslov.",
-	"wikibase-restrictionedit-tooltip-message": "Ta stran je zaščitena. Urejanje ni dovoljeno.",
-	"wikibase-blockeduser-tooltip-message": "Nimate dovoljenja za urejanje, saj je vaše uporabniško ime ali IP-naslov blokiran.",
 	"wikibase-move-error": "Strani v imenskem prostoru podatkov ne morete prestavljati, prav tako tudi ne morete strani prestavljati vanj.",
 	"special-itembytitle": "Predmet po naslovu",
 	"wikibase-itembytitle-lookup-fieldset": "Iskanje predmetov po spletišču in naslovu",
@@ -94,7 +92,7 @@
 	"wikibase-itembytitle-create": "Predmet lahko tudi [$1 ustvarite].",
 	"special-itemdisambiguation": "Razločitev predmetov",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Iskanje predmetov po jeziku in oznaki",
-	"wikibase-itemdisambiguation-lookup-language": "Jezik:",
+	"wikibase-itemdisambiguation-lookup-language": "Koda jezika:",
 	"wikibase-itemdisambiguation-lookup-label": "Oznaka:",
 	"wikibase-itemdisambiguation-submit": "Išči",
 	"wikibase-itemdisambiguation-nothing-found": "Za to oznako žal ni mogoče najti nobenega predmeta.",
@@ -109,6 +107,6 @@
 	"wikibase-setlabel-submit": "Določite oznako",
 	"wikibase-setdescription-label": "Opis:",
 	"wikibase-setdescription-submit": "Določite opis",
-	"wikibase-modifyterm-language": "Jezik:",
-	"wikibase-entitieswithoutlabel-label-language": "Jezik:"
+	"wikibase-modifyterm-language": "Koda jezika:",
+	"wikibase-entitieswithoutlabel-label-language": "Koda jezika:"
 }

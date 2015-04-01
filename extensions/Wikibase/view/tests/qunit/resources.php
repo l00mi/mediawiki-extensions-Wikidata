@@ -4,28 +4,13 @@
  * @license GNU GPL v2+
  * @author Adrian Heine < adrian.heine@wikimedia.de >
  */
-return call_user_func( function() {
-	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
-		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
-
-	$moduleTemplate = array(
-		'localBasePath' => __DIR__,
-		'remoteExtPath' => '..' . $remoteExtPath[0]
-	);
-
-	$modules = array(
-
-		'wikibase.view.ViewFactory.tests' => $moduleTemplate + array(
-			'scripts' => array(
-				'ViewFactory.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.view.ViewFactory',
-				'wikibase.ValueViewBuilder'
-			),
-		),
-
-	);
-
-	return $modules;
-} );
+return array_merge(
+	include( __DIR__ . '/jquery/resources.php' ),
+	include( __DIR__ . '/jquery/ui/resources.php' ),
+	include( __DIR__ . '/jquery/wikibase/resources.php' ),
+	include( __DIR__ . '/wikibase/resources.php' ),
+	include( __DIR__ . '/wikibase/entityChangers/resources.php' ),
+	include( __DIR__ . '/wikibase/store/resources.php' ),
+	include( __DIR__ . '/wikibase/utilities/resources.php' ),
+	include( __DIR__ . '/wikibase/view/resources.php' )
+);

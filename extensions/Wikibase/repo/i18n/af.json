@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Naudefj"
+			"Naudefj",
+			"Macofe"
 		]
 	},
 	"wikibase-desc": "Databank vir gestruktureerde data",
@@ -56,8 +57,6 @@
 	"wikibase-shortcopyrightwarning": "Deur op \"$1\" te kliek stem u tot die [[$2|voorwaardes]] in en gee u onherroeplik toestemming om die bydrae onder die \"$3\" te publiseer.",
 	"wikibase-copyrighttooltip-acknowledge": "Ek aanvaar die voorwaardes vir al my toekomstige wysigings. Moenie die boodskap weer wys nie.",
 	"wikibase-entityselector-more": "meer",
-	"wikibase-restrictionedit-tooltip-message": "Hierdie bladsy is beskerm. Wysigings word nie toegelaat nie.",
-	"wikibase-blockeduser-tooltip-message": "U is geblokkeer en kan nie wysiging maak nie.",
 	"special-itembytitle": "Item volgens naam",
 	"wikibase-itembytitle-lookup-fieldset": "Items soek volgens webwerf en bladsynaam",
 	"wikibase-itembytitle-lookup-site": "Webwerf:",
@@ -65,7 +64,7 @@
 	"wikibase-itembytitle-submit": "Soek",
 	"wikibase-itembytitle-create": "U kan ook [$1 'n item skep].",
 	"wikibase-itemdisambiguation-lookup-fieldset": "Soek vir items volgens taal en eitiket",
-	"wikibase-itemdisambiguation-lookup-language": "Taal:",
+	"wikibase-itemdisambiguation-lookup-language": "Taalkode:",
 	"wikibase-itemdisambiguation-lookup-label": "Etiket:",
 	"wikibase-itemdisambiguation-submit": "Soek",
 	"wikibase-itemdisambiguation-nothing-found": "Jammer, geen items met die etiket kon gevind word nie.",
@@ -92,7 +91,7 @@
 	"wikibase-setaliases-label": "Aliasse:",
 	"wikibase-setaliases-submit": "Stel aliasse",
 	"wikibase-modifyentity-id": "ID:",
-	"wikibase-modifyterm-language": "Taal:",
+	"wikibase-modifyterm-language": "Taalkode:",
 	"wikibase-dispatchstats-change-id": "ID",
 	"wikibase-dispatchstats-change-timestamp": "Tydstip",
 	"wikibase-dispatchstats-oldest-change": "Oudste",
@@ -110,7 +109,7 @@
 	"special-listdatatypes": "Lys van beskikbare datatipes",
 	"special-entitieswithoutlabel": "Entiteite sonder etiket",
 	"wikibase-entitieswithoutlabel-legend": "Lys van entiteite sonder 'n etiket",
-	"wikibase-entitieswithoutlabel-label-language": "Taal:",
+	"wikibase-entitieswithoutlabel-label-language": "Taalkode:",
 	"wikibase-entitieswithoutlabel-label-type": "Tipe:",
 	"wikibase-entitieswithoutlabel-label-alltypes": "alle",
 	"wikibase-entitieswithoutlabel-submit": "Vind",
