@@ -14,7 +14,7 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "propertysuggester/property-suggester": "~2.0.6",
+        "propertysuggester/property-suggester": "~2.1.0",
         "wikibase/wikibase": "dev-wmf/1.25wmf24",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
