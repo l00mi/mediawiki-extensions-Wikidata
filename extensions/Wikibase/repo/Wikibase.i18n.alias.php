@@ -132,9 +132,9 @@ $specialPageAliases['de'] = array(
 /** Zazaki (Zazaki) */
 $specialPageAliases['diq'] = array(
 	'NewItem' => array( 'LeteVırazên' ),
-	'NewProperty' => array( 'XısusiyetêNewey' ),
-	'ItemByTitle' => array( 'SernuşteyêLetey' ),
-	'ItemDisambiguation' => array( 'EtiketêLetey' ),
+	'NewProperty' => array( 'XısusiyetêNeweyi' ),
+	'ItemByTitle' => array( 'SernuşteyêLeteyi' ),
+	'ItemDisambiguation' => array( 'EtiketêLeteyi' ),
 	'ListDatatypes' => array( 'ListaBabetanêMelumati' ),
 	'SetLabel' => array( 'SazêEtiketan' ),
 );
@@ -265,6 +265,21 @@ $specialPageAliases['lb'] = array(
 	'EntitiesWithoutDescription' => array( 'Elementer_ouni_Beschreiwung' ),
 	'ItemsWithoutSitelinks' => array( 'Elementer_ouni_Weblinken' ),
 	'MyLanguageFallbackChain' => array( 'Meng_Ersatzsproochketten' ),
+);
+
+/** لوری (لوری) */
+$specialPageAliases['lrc'] = array(
+	'ListDatatypes' => array( 'میزونکاری_جور_داده_یا' ),
+	'SetLabel' => array( 'میزونکاری_ریتراز' ),
+	'SetDescription' => array( 'میزونکاری_توضیح' ),
+	'SetAliases' => array( 'میزونکاری_هوم_قطاریا' ),
+	'SetLabelDescriptionAliases' => array( 'میزونکاری_نیائن_ریتراز_توضیح_سی_هوم_قطاریا' ),
+	'SetSiteLink' => array( 'میزونکاری_هوم_پیوند_دیارگه' ),
+	'MergeItems' => array( 'سریک_سازی_چیا' ),
+	'EntitiesWithoutLabel' => array( 'چیایی_که_ریتراز_نارن' ),
+	'EntitiesWithoutDescription' => array( 'چیایی_که_شرح_نارن' ),
+	'ItemsWithoutSitelinks' => array( 'چیایی_که_هوم_پیوند_دیارگه_نارن' ),
+	'MyLanguageFallbackChain' => array( 'زنجیره_دماکاری_زون_مه' ),
 );
 
 /** Macedonian (македонски) */

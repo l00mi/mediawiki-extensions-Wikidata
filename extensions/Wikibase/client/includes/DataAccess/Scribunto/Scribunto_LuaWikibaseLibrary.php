@@ -3,9 +3,9 @@
 use Deserializers\Exceptions\DeserializationException;
 use ValueFormatters\FormatterOptions;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Client\Scribunto\EntityAccessor;
-use Wikibase\Client\Scribunto\WikibaseLuaBindings;
-use Wikibase\Client\Scribunto\SnakSerializationRenderer;
+use Wikibase\Client\DataAccess\Scribunto\EntityAccessor;
+use Wikibase\Client\DataAccess\Scribunto\WikibaseLuaBindings;
+use Wikibase\Client\DataAccess\Scribunto\SnakSerializationRenderer;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
@@ -188,6 +188,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 			'getEntityId' => array( $this, 'getEntityId' ),
 			'getUserLang' => array( $this, 'getUserLang' ),
 			'getSiteLinkPageName' => array( $this, 'getSiteLinkPageName' ),
+			'incrementExpensiveFunctionCount' => array( $this, 'incrementExpensiveFunctionCount' ),
 		);
 
 		return $this->getEngine()->registerInterface(

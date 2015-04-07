@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7f21de88704fdbc16faaee5e5977492a",
+    "hash": "aa80624960cf129c02bd573cf8321f7b",
     "packages": [
         {
             "name": "composer/installers",
@@ -658,16 +658,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.14.2",
+            "version": "0.14.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "c26e42ecee85ffcbd6861290553331c0d2deea72"
+                "reference": "1bb0a5ad6e060484e525903c2a170cb4b8dccaac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/c26e42ecee85ffcbd6861290553331c0d2deea72",
-                "reference": "c26e42ecee85ffcbd6861290553331c0d2deea72",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/1bb0a5ad6e060484e525903c2a170cb4b8dccaac",
+                "reference": "1bb0a5ad6e060484e525903c2a170cb4b8dccaac",
                 "shasum": ""
             },
             "require": {
@@ -696,7 +696,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2015-03-31 14:27:42"
+            "time": "2015-04-02 16:24:37"
         },
         {
             "name": "diff/diff",
@@ -754,16 +754,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "2.0.6",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "bfb69b3b39075b321538e8cbd59e4c886f202de8"
+                "reference": "6aa918d6a9b1131801a16bcf3b121c41f1ec70ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/bfb69b3b39075b321538e8cbd59e4c886f202de8",
-                "reference": "bfb69b3b39075b321538e8cbd59e4c886f202de8",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/6aa918d6a9b1131801a16bcf3b121c41f1ec70ab",
+                "reference": "6aa918d6a9b1131801a16bcf3b121c41f1ec70ab",
                 "shasum": ""
             },
             "require": {
@@ -795,7 +795,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-02-20 16:43:12"
+            "time": "2015-04-02 09:44:17"
         },
         {
             "name": "serialization/serialization",
@@ -1209,12 +1209,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "53e2bbaeaeca489ca4ac54d2c1b319f1b941a5b3"
+                "reference": "86f87316c8f8c0ea438839f98aabd0345b23be4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/53e2bbaeaeca489ca4ac54d2c1b319f1b941a5b3",
-                "reference": "53e2bbaeaeca489ca4ac54d2c1b319f1b941a5b3",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/86f87316c8f8c0ea438839f98aabd0345b23be4f",
+                "reference": "86f87316c8f8c0ea438839f98aabd0345b23be4f",
                 "shasum": ""
             },
             "require": {
@@ -1282,7 +1282,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-04-01 12:10:49"
+            "time": "2015-04-07 09:45:04"
         },
         {
             "name": "wikibase/wikimedia-badges",
