@@ -24,11 +24,14 @@ use Wikibase\Lib\Store\EntityRedirect;
  */
 class MockRepositoryTest extends \MediaWikiTestCase {
 
-	/* @var MockRepository */
-	protected $repo;
+	/**
+	 * @var MockRepository|null
+	 */
+	private $repo = null;
 
 	protected function setUp() {
 		parent::setUp();
+
 		$this->repo = new MockRepository();
 	}
 
@@ -302,19 +305,6 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$links = $this->repo->getLinks( $itemIds, $sites, $pages );
 
 		$this->assertArrayEquals( $expectedLinks, $links );
-	}
-
-	/**
-	 * @dataProvider provideGetLinks
-	 */
-	public function testCountLinks( array $items, array $itemIds, array $sites, array $pages, array $expectedLinks ) {
-		foreach ( $items as $item ) {
-			$this->repo->putEntity( $item );
-		}
-
-		$n = $this->repo->countLinks( $itemIds, $sites, $pages );
-
-		$this->assertEquals( count( $expectedLinks ), $n );
 	}
 
 	public function provideGetEntities() {

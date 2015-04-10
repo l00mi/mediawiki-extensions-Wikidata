@@ -3,6 +3,7 @@
 namespace Wikibase\Lib\Store;
 
 use DatabaseBase;
+use DBAccessBase;
 use MWException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -18,7 +19,7 @@ use Wikibase\DataModel\SiteLink;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
-class SiteLinkTable extends \DBAccessBase implements SiteLinkCache {
+class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConflictLookup {
 
 	/**
 	 * @since 0.1
@@ -272,7 +273,7 @@ class SiteLinkTable extends \DBAccessBase implements SiteLinkCache {
 	}
 
 	/**
-	 * @see SiteLinkLookup::getConflictsForItem
+	 * @see SiteLinkConflictLookup::getConflictsForItem
 	 *
 	 * @param Item $item
 	 * @param DatabaseBase|null $db
@@ -358,43 +359,6 @@ class SiteLinkTable extends \DBAccessBase implements SiteLinkCache {
 
 		$this->releaseConnection( $dbw );
 		return $ok;
-	}
-
-	/**
-	 * @see SiteLinkLookup::countLinks
-	 *
-	 * @param int[] $numericIds Numeric (unprefixed) item ids
-	 * @param string[] $siteIds
-	 * @param string[] $pageNames
-	 *
-	 * @return int
-	 */
-	public function countLinks( array $numericIds = array(), array $siteIds = array(), array $pageNames = array() ) {
-		$dbr = $this->getConnection( DB_SLAVE );
-
-		$conditions = array();
-
-		if ( $numericIds !== array() ) {
-			$conditions['ips_item_id'] = $numericIds;
-		}
-
-		if ( $siteIds !== array() ) {
-			$conditions['ips_site_id'] = $siteIds;
-		}
-
-		if ( $pageNames !== array() ) {
-			$conditions['ips_site_page'] = $pageNames;
-		}
-
-		$res = $dbr->selectRow(
-			$this->table,
-			array( 'COUNT(*) AS rowcount' ),
-			$conditions,
-			__METHOD__
-		)->rowcount;
-
-		$this->releaseConnection( $dbr );
-		return $res;
 	}
 
 	/**

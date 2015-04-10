@@ -19,7 +19,7 @@ use Wikibase\Lib\Store\EntityInfo;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityInfoTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Store\LanguageFallbackLabelLookup;
+use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\Repo\View\RepoSpecialPageLinker;
 use Wikibase\View\EmptyEditSectionGenerator;
 use Wikibase\View\EntityViewFactory;
@@ -150,6 +150,14 @@ class EntityParserOutputGenerator {
 		$editable = $options->getEditSection();
 
 		$usedEntityIds = $this->referencedEntitiesFinder->findSnakLinks( $snaks );
+
+		// FIXME: Bad
+		if( $entity instanceof Item ) {
+			foreach( $entity->getSiteLinkList()->getIterator() as $sitelink ) {
+				$usedEntityIds = array_merge( $usedEntityIds, $sitelink->getBadges() );
+			}
+		}
+
 		$entityInfo = $this->getEntityInfo( $usedEntityIds );
 
 		$configVars = $this->configBuilder->build( $entity );
@@ -333,7 +341,7 @@ class EntityParserOutputGenerator {
 		$editable = true
 	) {
 
-		$labelLookup = new LanguageFallbackLabelLookup(
+		$labelDescriptionLookup = new LanguageFallbackLabelDescriptionLookup(
 			new EntityInfoTermLookup( $entityInfo ),
 			$this->languageFallbackChain
 		);
@@ -346,7 +354,7 @@ class EntityParserOutputGenerator {
 		$entityView = $this->entityViewFactory->newEntityView(
 			$entityRevision->getEntity()->getType(),
 			$this->languageCode,
-			$labelLookup,
+			$labelDescriptionLookup,
 			$this->languageFallbackChain,
 			$editSectionGenerator
 		);

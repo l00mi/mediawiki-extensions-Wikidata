@@ -45,7 +45,7 @@ class EntityViewFactoryTest extends PHPUnit_Framework_TestCase {
 		$entityView = $entityViewFactory->newEntityView(
 			$entityType,
 			'de',
-			$this->getMock( 'Wikibase\Lib\Store\LabelLookup' ),
+			$this->getMock( 'Wikibase\Lib\Store\LabelDescriptionLookup' ),
 			$languageFallback,
 			$this->getMock( 'Wikibase\View\EditSectionGenerator' )
 		);
@@ -70,7 +70,7 @@ class EntityViewFactoryTest extends PHPUnit_Framework_TestCase {
 		$entityViewFactory->newEntityView(
 			'kittens',
 			'de',
-			$this->getMock( 'Wikibase\Lib\Store\LabelLookup' ),
+			$this->getMock( 'Wikibase\Lib\Store\LabelDescriptionLookup' ),
 			$languageFallback,
 			$this->getMock( 'Wikibase\View\EditSectionGenerator' )
 		);
@@ -80,9 +80,9 @@ class EntityViewFactoryTest extends PHPUnit_Framework_TestCase {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 
 		return new EntityViewFactory(
-			$this->getEntityIdFormatterFactory(),
+			$this->getEntityIdFormatterFactory( SnakFormatter::FORMAT_HTML ),
+			$this->getEntityIdFormatterFactory( SnakFormatter::FORMAT_PLAIN ),
 			$this->getSnakFormatterFactory(),
-			$this->getMock( 'Wikibase\Lib\Store\EntityLookup' ),
 			$this->getSiteStore(),
 			$this->getMock( 'DataTypes\DataTypeFactory' ),
 			$templateFactory,
@@ -93,13 +93,14 @@ class EntityViewFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	private function getEntityIdFormatterFactory() {
+	private function getEntityIdFormatterFactory( $format ) {
 		$entityIdFormatter = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
 
 		$formatterFactory = $this->getMock( 'Wikibase\View\EntityIdFormatterFactory' );
+
 		$formatterFactory->expects( $this->any() )
 			->method( 'getOutputFormat' )
-			->will( $this->returnValue( SnakFormatter::FORMAT_HTML ) );
+			->will( $this->returnValue( $format ) );
 
 		$formatterFactory->expects( $this->any() )
 			->method( 'getEntityIdFormater' )
