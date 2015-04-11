@@ -8,18 +8,11 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgEnableWikibaseRepo = false;
 $wgEnableWikibaseClient = false;
 
-$wgWikidataBaseDir = $IP;
-
-if ( file_exists(  __DIR__ . '/vendor/autoload.php' ) ) {
-	$wgWikidataBaseDir = __DIR__;
-	require_once __DIR__ . '/vendor/autoload.php';
-}
-
-require_once "$wgWikidataBaseDir/extensions/Wikibase/repo/Wikibase.php";
-require_once "$wgWikidataBaseDir/extensions/Wikidata.org/WikidataOrg.php";
-require_once "$wgWikidataBaseDir/extensions/WikimediaBadges/WikimediaBadges.php";
-require_once "$wgWikidataBaseDir/extensions/PropertySuggester/PropertySuggester.php";
-require_once "$wgWikidataBaseDir/extensions/Wikibase/client/WikibaseClient.php";
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/extensions/Wikibase/repo/Wikibase.php';
+require_once __DIR__ . '/extensions/Wikidata.org/WikidataOrg.php';
+require_once __DIR__ . '/extensions/PropertySuggester/PropertySuggester.php';
+require_once __DIR__ . '/extensions/Wikibase/client/WikibaseClient.php';
 
 $wgExtensionCredits['wikibase'][] = array(
 	'path' => __DIR__,
