@@ -59,7 +59,7 @@ class WikidataSettingsBuilder {
 			}
 		}
 
-		$this->commonSettings['sharedCacheKeyPrefix'] = 'wikibase:WBL/' . $suffix;
+		$this->commonSettings['sharedCacheKeyPrefix'] = 'wikibase_shared/' . $suffix;
 	}
 
 }

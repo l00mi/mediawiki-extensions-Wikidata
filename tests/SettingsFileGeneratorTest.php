@@ -6,7 +6,10 @@ use Wikidata\SettingsFileGenerator;
 
 /**
  * @covers Wikidata\SettingsFileGenerator
+ *
  * @group Wikidata
+ * @group WikidataBuild
+ * @group Wikibase
  *
  * @license GNU GPL v2+
  *
@@ -41,12 +44,12 @@ class SettingsFileGeneratorTest extends \PHPUnit_Framework_TestCase {
 		$expectedSuffix = $this->getExpectedCacheSuffix();
 
 		$this->assertRegExp(
-			'/wikibase:WBL\/' . $expectedSuffix . '/',
+			'/wikibase_shared\/' . $expectedSuffix . '/',
 			$wgWBClientSettings['sharedCacheKeyPrefix']
 		);
 
 		$this->assertRegExp(
-			'/wikibase:WBL\/' . $expectedSuffix . '/',
+			'/wikibase_shared\/' . $expectedSuffix . '/',
 			$wgWBRepoSettings['sharedCacheKeyPrefix']
 		);
 
@@ -54,6 +57,77 @@ class SettingsFileGeneratorTest extends \PHPUnit_Framework_TestCase {
 			$wgWBClientSettings['sharedCacheKeyPrefix'],
 			$wgWBRepoSettings['sharedCacheKeyPrefix']
 		);
+	}
+
+	public function testClientSettingsOverride() {
+		if ( !defined( 'WBC_VERSION' ) ) {
+			$this->markTestSkipped( 'WikibaseClient is not enabled.' );
+		}
+
+		$defaultPrefix = $this->getSharedCacheKeyPrefixDefault(
+			$GLOBALS['wgWikidataBaseDir']
+				. '/extensions/Wikibase/client/config/WikibaseClient.default.php'
+		);
+
+		$actualSettings = \Wikibase\Client\WikibaseClient::getDefaultInstance()->getSettings();
+		$cachePrefix = $actualSettings->getSetting( 'sharedCacheKeyPrefix' );
+
+		$this->assertNotSame(
+			$defaultPrefix,
+			$cachePrefix,
+			"Build cache key prefix ($cachePrefix) should be different than"
+				. " the default ($defaultPrefix)."
+		);
+	}
+
+	public function testClientSharedCacheKeyPrefix_isString() {
+		if ( !defined( 'WBC_VERSION' ) ) {
+			$this->markTestSkipped( 'WikibaseClient is not enabled.' );
+		}
+
+		$defaults = include( $GLOBALS['wgWikidataBaseDir']
+			. '/extensions/Wikibase/client/config/WikibaseClient.default.php' );
+
+		$this->assertInternalType( 'string', $defaults['sharedCacheKeyPrefix'] );
+	}
+
+	public function testRepoSettingsOverride() {
+		if ( !defined( 'WB_VERSION' ) ) {
+			$this->markTestSkipped( 'WikibaseRepo is not enabled.' );
+		}
+
+		$defaultPrefix = $this->getSharedCacheKeyPrefixDefault(
+			$GLOBALS['wgWikidataBaseDir']
+				. '/extensions/Wikibase/repo/config/Wikibase.default.php'
+		);
+
+		$actualSettings = \Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getSettings();
+		$cachePrefix = $actualSettings->getSetting( 'sharedCacheKeyPrefix' );
+
+		$this->assertNotSame(
+			$defaultPrefix,
+			$cachePrefix,
+			"Build cache key prefix ($cachePrefix) should be different than"
+				. " the default ($defaultPrefix)."
+		);
+	}
+
+	public function testRepoSharedCacheKeyPrefix_isString() {
+		if ( !defined( 'WB_VERSION' ) ) {
+			$this->markTestSkipped( 'WikibaseRepo is not enabled.' );
+		}
+
+		$defaults = include( $GLOBALS['wgWikidataBaseDir']
+			. '/extensions/Wikibase/repo/config/Wikibase.default.php' );
+
+		$this->assertInternalType( 'string', $defaults['sharedCacheKeyPrefix'] );
+	}
+
+	private function getSharedCacheKeyPrefixDefault( $settingsFile ) {
+		$defaults = include( $settingsFile );
+		$defaultSettings = new \Wikibase\SettingsArray( $defaults );
+
+		return $defaultSettings->getSetting( 'sharedCacheKeyPrefix' );
 	}
 
 	private function getExpectedCacheSuffix() {

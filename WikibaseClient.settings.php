@@ -1,2 +1,2 @@
 <?php
-$wgWBClientSettings["sharedCacheKeyPrefix"] = "wikibase:WBL/_mediawiki_extension_wikidata";
+$wgWBClientSettings["sharedCacheKeyPrefix"] = "wikibase_shared/_mediawiki_extension_wikidata";
