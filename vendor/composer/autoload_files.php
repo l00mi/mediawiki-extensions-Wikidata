@@ -22,6 +22,6 @@ return array(
     $vendorDir . '/wikibase/serialization-javascript/init.php',
     $vendorDir . '/data-values/data-types/DataTypes.php',
     $vendorDir . '/data-values/validators/Validators.php',
-    $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
     $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
+    $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
 );
