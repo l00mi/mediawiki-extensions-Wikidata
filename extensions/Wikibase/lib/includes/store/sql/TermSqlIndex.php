@@ -295,8 +295,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	/**
 	 * Calculate a weight the given entity to be used for ranking. Should be normalized
 	 * between 0 and 1, but that's not a strong constraint.
-	 * This implementation relies on sitelinks, and simply takes the number of sitelinks
-	 * as the weight.
+	 * This implementation uses the max of the number of labels and the number of sitelinks.
 	 *
 	 * TODO Should be moved to its own object and be added via dependency injection
 	 *
@@ -307,11 +306,17 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	private function getWeight( EntityDocument $entity ) {
 		// FIXME: OCP violation. No support for new types of entities can be registered
 
-		if ( $entity instanceof Item ) {
-			return $entity->getSiteLinkList()->count() / 1000.0;
+		$weight = 0.0;
+
+		if ( $entity instanceof FingerprintProvider ) {
+			$weight = max( $weight, $entity->getFingerprint()->getLabels()->count() / 1000.0 );
 		}
 
-		return 0.0;
+		if ( $entity instanceof Item ) {
+			$weight = max( $weight, $entity->getSiteLinkList()->count() / 1000.0 );
+		}
+
+		return $weight;
 	}
 
 	/**
@@ -828,6 +833,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			$entityType,
 			array(
 				'LIMIT' => $this->maxConflicts,
+				'caseSensitive' => false
 			)
 		);
 
@@ -886,8 +892,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 
 			$matchConditions = array(
 				'L.term_language' => $lang,
-				'L.term_text' => $label,
-				'D.term_text' => $description,
+				'L.term_search_key' => $this->getSearchKey( $label, $lang ),
+				'D.term_search_key' => $this->getSearchKey( $description, $lang )
 			);
 
 			$termConditions[] = $dbr->makeList( $matchConditions, LIST_AND );

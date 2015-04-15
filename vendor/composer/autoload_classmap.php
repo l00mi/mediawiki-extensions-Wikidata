@@ -700,6 +700,7 @@ return array(
     'Wikibase\\Lib\\Store\\LabelDescriptionLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/LabelDescriptionLookup.php',
     'Wikibase\\Lib\\Store\\LanguageFallbackLabelDescriptionLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/LanguageFallbackLabelDescriptionLookup.php',
     'Wikibase\\Lib\\Store\\LanguageLabelDescriptionLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/LanguageLabelDescriptionLookup.php',
+    'Wikibase\\Lib\\Store\\NullEntityPrefetcher' => $baseDir . '/extensions/Wikibase/lib/includes/store/NullEntityPrefetcher.php',
     'Wikibase\\Lib\\Store\\RedirectResolvingEntityLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/RedirectResolvingEntityLookup.php',
     'Wikibase\\Lib\\Store\\RevisionBasedEntityLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/RevisionBasedEntityLookup.php',
     'Wikibase\\Lib\\Store\\SiteLinkCache' => $baseDir . '/extensions/Wikibase/lib/includes/store/SiteLinkCache.php',
