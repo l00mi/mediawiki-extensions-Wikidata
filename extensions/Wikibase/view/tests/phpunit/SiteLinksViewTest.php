@@ -14,7 +14,6 @@ use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\View\EditSectionGenerator;
 use Wikibase\View\SiteLinksView;
 use Wikibase\View\Template\TemplateFactory;
-use Wikibase\View\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\View\SiteLinksView
@@ -30,7 +29,7 @@ use Wikibase\View\Template\TemplateRegistry;
  * @author Adrian Heine <adrian.heine@wikimedia.de>
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class SiteLinksViewTest extends \MediaWikiTestCase {
+class SiteLinksViewTest extends MediaWikiTestCase {
 
 	/**
 	 * @dataProvider getHtmlProvider
@@ -160,19 +159,19 @@ class SiteLinksViewTest extends \MediaWikiTestCase {
 	 * @return SiteLinksView
 	 */
 	private function getSiteLinksView() {
+		$templateFactory = TemplateFactory::getDefaultInstance();
 
 		return new SiteLinksView(
-			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
+			$templateFactory,
 			$this->newSiteList(),
 			$this->getEditSectionGeneratorMock(),
-			$this->getEntityLookupMock(),
+			$this->getEntityIdFormatterMock(),
 			new LanguageNameLookup(),
 			array(
 				'Q42' => 'wb-badge-featuredarticle',
 				'Q12' => 'wb-badge-goodarticle'
 			),
-			array( 'special group' ),
-			'en'
+			array( 'special group' )
 		);
 	}
 
@@ -202,26 +201,22 @@ class SiteLinksViewTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @return EntityLookup
+	 * @return EntityIdFormatter
 	 */
-	private function getEntityLookupMock() {
-		$entityLookup = $this->getMockBuilder( 'Wikibase\Lib\Store\EntityLookup' )
-			->disableOriginalConstructor()
-			->getMock();
+	private function getEntityIdFormatterMock() {
+		$entityIdFormatter = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
 
-		$entityLookup->expects( $this->any() )
-			->method( 'getEntity' )
+		$entityIdFormatter->expects( $this->any() )
+			->method( 'formatEntityId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				if ( $id->getSerialization() === 'Q42' ) {
-					$item = new Item();
-					$item->setLabel( 'en', 'Featured article' );
-					return $item;
+					return 'Featured article';
 				}
 
-				return null;
+				return $id->getSerialization();
 			} ) );
 
-		return $entityLookup;
+		return $entityIdFormatter;
 	}
 
 }

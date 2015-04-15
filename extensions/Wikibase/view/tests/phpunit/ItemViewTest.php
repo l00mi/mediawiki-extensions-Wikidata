@@ -5,9 +5,9 @@ namespace Wikibase\Test;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\View\ItemView;
 use Wikibase\View\Template\TemplateFactory;
-use Wikibase\View\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\View\ItemView
@@ -28,12 +28,11 @@ class ItemViewTest extends EntityViewTest {
 
 	protected function makeEntity( EntityId $id, array $statements = array() ) {
 		$item = new Item( $id );
+
 		$item->setLabel( 'en', "label:$id" );
 		$item->setDescription( 'en', "description:$id" );
 
-		foreach ( $statements as $statement ) {
-			$item->addClaim( $statement );
-		}
+		$item->setStatements( new StatementList( $statements ) );
 
 		return $item;
 	}
@@ -50,8 +49,9 @@ class ItemViewTest extends EntityViewTest {
 	}
 
 	public function provideTestGetHtml() {
+		$templateFactory = TemplateFactory::getDefaultInstance();
 		$itemView = new ItemView(
-			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
+			$templateFactory,
 			$this->getMockBuilder( 'Wikibase\View\EntityTermsView' )
 				->disableOriginalConstructor()
 				->getMock(),

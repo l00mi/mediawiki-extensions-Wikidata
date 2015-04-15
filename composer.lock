@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "db41781d4204eee1a703ca860ecbda65",
+    "hash": "1c72dd86462211ebb8f32cf372738281",
     "packages": [
         {
             "name": "composer/installers",
@@ -858,7 +858,7 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:wmde/Wikidata.org.git",
+                "url": "https://github.com/wmde/Wikidata.org.git",
                 "reference": "ce48f0e0a1516f84bf8ab1a8381fb62f4f1960bd"
             },
             "dist": {
@@ -894,7 +894,8 @@
                 "Wikidata"
             ],
             "support": {
-                "irc": "irc://irc.freenode.net/wikidata"
+                "irc": "irc://irc.freenode.net/wikidata",
+                "source": "https://github.com/wmde/Wikidata.org/tree/master"
             },
             "time": "2015-03-24 16:36:10"
         },
@@ -1204,16 +1205,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.25wmf24",
+            "version": "dev-wmf/1.26wmf2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "af0ad51dc4a30498e1fb3b7eb14ba47006b4b63c"
+                "reference": "74e802a19e4f3e0e072ea18320fe7dd567982f02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/af0ad51dc4a30498e1fb3b7eb14ba47006b4b63c",
-                "reference": "af0ad51dc4a30498e1fb3b7eb14ba47006b4b63c",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/74e802a19e4f3e0e072ea18320fe7dd567982f02",
+                "reference": "74e802a19e4f3e0e072ea18320fe7dd567982f02",
                 "shasum": ""
             },
             "require": {
@@ -1281,14 +1282,14 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-04-08 08:09:44"
+            "time": "2015-04-15 13:52:19"
         },
         {
             "name": "wikibase/wikimedia-badges",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:wmde/WikimediaBadges.git",
+                "url": "https://github.com/wmde/WikimediaBadges.git",
                 "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1"
             },
             "dist": {
@@ -1327,7 +1328,9 @@
                 "Wikidata"
             ],
             "support": {
-                "irc": "irc://irc.freenode.net/wikidata"
+                "irc": "irc://irc.freenode.net/wikidata",
+                "source": "https://github.com/wmde/WikimediaBadges/tree/master",
+                "issues": "https://github.com/wmde/WikimediaBadges/issues"
             },
             "time": "2014-11-25 18:25:26"
         }

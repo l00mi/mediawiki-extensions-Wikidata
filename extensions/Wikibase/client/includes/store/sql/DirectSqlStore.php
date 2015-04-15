@@ -18,6 +18,7 @@ use Wikibase\Client\Usage\UsageTracker;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
+use Wikibase\Lib\Store\CachingSiteLinkLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -25,7 +26,8 @@ use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Store\RevisionBasedEntityLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Lib\Store\SiteLinkTable;
-use Wikibase\Lib\Store\WikiPageEntityMetaDataLookup;
+use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
+use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Store\EntityIdLookup;
 
@@ -122,9 +124,9 @@ class DirectSqlStore implements ClientStore {
 	private $propertyInfoTable = null;
 
 	/**
-	 * @var SiteLinkTable|null
+	 * @var SiteLinkLookup|null
 	 */
-	private $siteLinkTable = null;
+	private $siteLinkLookup = null;
 
 	/**
 	 * @var UsageTracker|null
@@ -140,6 +142,11 @@ class DirectSqlStore implements ClientStore {
 	 * @var SubscriptionManager|null
 	 */
 	private $subscriptionManager = null;
+
+	/**
+	 * @var PrefetchingWikiPageEntityMetaDataAccessor|null
+	 */
+	private $entityPrefetcher = null;
 
 	/**
 	 * @var string
@@ -269,11 +276,14 @@ class DirectSqlStore implements ClientStore {
 	 * @return SiteLinkLookup
 	 */
 	public function getSiteLinkLookup() {
-		if ( $this->siteLinkTable === null ) {
-			$this->siteLinkTable = new SiteLinkTable( 'wb_items_per_site', true, $this->repoWiki );
+		if ( $this->siteLinkLookup === null ) {
+			$this->siteLinkLookup = new CachingSiteLinkLookup(
+				new SiteLinkTable( 'wb_items_per_site', true, $this->repoWiki ),
+				new HashBagOStuff()
+			);
 		}
 
-		return $this->siteLinkTable;
+		return $this->siteLinkLookup;
 	}
 
 	/**
@@ -310,9 +320,10 @@ class DirectSqlStore implements ClientStore {
 		// NOTE: Keep cache key in sync with SqlStore::newEntityRevisionLookup in WikibaseRepo
 		$cacheKeyPrefix = $this->cacheKeyPrefix . ':WikiPageEntityRevisionLookup';
 
+		$metaDataFetcher = $this->getEntityPrefetcher();
 		$rawLookup = new WikiPageEntityRevisionLookup(
 			$this->contentCodec,
-			new WikiPageEntityMetaDataLookup( $this->entityIdParser, $this->repoWiki ),
+			$metaDataFetcher,
 			$this->repoWiki
 		);
 
@@ -442,4 +453,19 @@ class DirectSqlStore implements ClientStore {
 		return $this->propertyInfoTable;
 	}
 
+	/**
+	 * @return PrefetchingWikiPageEntityMetaDataAccessor
+	 */
+	public function getEntityPrefetcher() {
+		if ( $this->entityPrefetcher === null ) {
+			$this->entityPrefetcher = new PrefetchingWikiPageEntityMetaDataAccessor(
+				new WikiPageEntityMetaDataLookup(
+					$this->entityIdParser,
+					$this->repoWiki
+				)
+			);
+		}
+
+		return $this->entityPrefetcher;
+	}
 }

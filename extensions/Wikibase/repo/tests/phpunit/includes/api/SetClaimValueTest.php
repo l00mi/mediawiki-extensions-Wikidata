@@ -19,7 +19,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Lib\EntityIdPlainLinkFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
@@ -77,11 +76,12 @@ class SetClaimValueTest extends WikibaseApiTestCase {
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 		$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_NEW );
 
-		$statement = new Statement( new Claim( new PropertyValueSnak( $propertyId, new StringValue( 'o_O' ) ) ) );
-		$statement->setGuid( $item->getId()->getSerialization() . '$D8404CDA-25E4-4334-AG93-A3290BCD9C0P' );
-		$item->addClaim( $statement );
+		$snak = new PropertyValueSnak( $propertyId, new StringValue( 'o_O' ) );
+		$guid = $item->getId()->getSerialization() . '$D8404CDA-25E4-4334-AG93-A3290BCD9C0P';
+		$item->getStatements()->addNewStatement( $snak, null, null, $guid );
 
 		$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_UPDATE );
+
 		return $item;
 	}
 
@@ -158,11 +158,13 @@ class SetClaimValueTest extends WikibaseApiTestCase {
 
 		$this->assertEquals( $claimCount, $claims->count(), 'Claim count should not change after doing a setclaimvalue request' );
 
-		$this->assertTrue( $claims->hasClaimWithGuid( $claimGuid ) );
+		$obtainedClaim = $claims->getClaimWithGuid( $claimGuid );
+
+		$this->assertNotNull( $obtainedClaim );
 
 		$dataValue = DataValueFactory::singleton()->newFromArray( $claim['mainsnak']['datavalue'] );
 
-		$this->assertTrue( $claims->getClaimWithGuid( $claimGuid )->getMainSnak()->getDataValue()->equals( $dataValue ) );
+		$this->assertTrue( $obtainedClaim->getMainSnak()->getDataValue()->equals( $dataValue ) );
 	}
 
 	/**

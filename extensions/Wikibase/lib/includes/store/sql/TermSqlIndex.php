@@ -139,7 +139,6 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		$entityIdentifiers = array(
 			// FIXME: this will fail for IDs that do not have a numeric form
 			'term_entity_id' => $entity->getId()->getNumericId(),
-
 			'term_entity_type' => $entity->getType()
 		);
 
@@ -180,22 +179,30 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		// FIXME: OCP violation. No support for new types of entities can be registered
 
 		if ( $entity instanceof FingerprintProvider ) {
+			$fingerprint = $entity->getFingerprint();
+
+			/** @var EntityDocument $entity */
 			$extraFields = array(
 				'entityType' => $entity->getType(),
 			);
 
 			$entityId = $entity->getId();
-
 			if ( $entityId !== null ) {
 				$extraFields['entityId'] = $entityId->getNumericId();
 			}
 
-			return $this->getFingerprintTerms( $entity->getFingerprint(), $extraFields );
+			return $this->getFingerprintTerms( $fingerprint, $extraFields );
 		}
 
 		return array();
 	}
 
+	/**
+	 * @param Fingerprint $fingerprint
+	 * @param array $extraFields
+	 *
+	 * @return Term[]
+	 */
 	private function getFingerprintTerms( Fingerprint $fingerprint, array $extraFields = array() ) {
 		$terms = array();
 
@@ -288,8 +295,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	/**
 	 * Calculate a weight the given entity to be used for ranking. Should be normalized
 	 * between 0 and 1, but that's not a strong constraint.
-	 * This implementation relies on sitelinks, and simply takes the number of sitelinks
-	 * as the weight.
+	 * This implementation uses the max of the number of labels and the number of sitelinks.
 	 *
 	 * TODO Should be moved to its own object and be added via dependency injection
 	 *
@@ -300,11 +306,17 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	private function getWeight( EntityDocument $entity ) {
 		// FIXME: OCP violation. No support for new types of entities can be registered
 
-		if ( $entity instanceof Item ) {
-			return $entity->getSiteLinkList()->count() / 1000.0;
+		$weight = 0.0;
+
+		if ( $entity instanceof FingerprintProvider ) {
+			$weight = max( $weight, $entity->getFingerprint()->getLabels()->count() / 1000.0 );
 		}
 
-		return 0.0;
+		if ( $entity instanceof Item ) {
+			$weight = max( $weight, $entity->getSiteLinkList()->count() / 1000.0 );
+		}
+
+		return $weight;
 	}
 
 	/**
@@ -312,7 +324,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 *
 	 * @param Term $term
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function getTermFields( Term $term ) {
 		$fields = array(
@@ -321,7 +333,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			'term_text' => $term->getText(),
 		);
 
-		if ( !Settings::get( 'withoutTermSearchKey' ) ) {
+		if ( $this->supportsSearchKeys() ) {
 			$fields['term_search_key'] = $this->getSearchKey( $term->getText(), $term->getLanguage() );
 		}
 
@@ -541,12 +553,12 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 * @since 0.4
 	 *
 	 * @param Term[] $terms
-	 * @param string $entityType
+	 * @param string|null $entityType
 	 * @param array $options There is an implicit LIMIT of 5000 items in this implementation
 	 *
 	 * @return EntityId[]
 	 */
-	public function getMatchingIDs( array $terms, $entityType, array $options = array() ) {
+	public function getMatchingIDs( array $terms, $entityType = null, array $options = array() ) {
 		if ( empty( $terms ) ) {
 			return array();
 		}
@@ -559,11 +571,12 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 
 		$conditions = $this->termsToConditions( $dbr, $terms, null, $entityType, $options );
 
-		$selectionFields = array( 'term_entity_id' );
+		$selectionFields = array(
+			'term_entity_type',
+			'term_entity_id',
+		);
 
-		// TODO instead of a DB query, get a setting. Should save on a few Database round trips.
 		$hasWeight = $this->supportsWeight();
-
 		if ( $hasWeight ) {
 			$selectionFields[] = 'term_weight';
 		}
@@ -576,11 +589,11 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		$requestedLimit = isset( $options['LIMIT'] ) ? max( intval( $options['LIMIT'] ), 0 ) : 0;
 		// if we take the weight into account, we need to grab basically all hits in order
 		// to allow for the post-search sorting below.
-		if ( !$hasWeight && $requestedLimit && $requestedLimit < $queryOptions['LIMIT'] ) {
+		if ( !$hasWeight && $requestedLimit > 0 && $requestedLimit < $queryOptions['LIMIT'] ) {
 			$queryOptions['LIMIT'] = $requestedLimit;
 		}
 
-		$obtainedIDs = $dbr->select(
+		$rows = $dbr->select(
 			$this->tableName,
 			$selectionFields,
 			implode( ' OR ', $conditions ),
@@ -588,41 +601,60 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			$queryOptions
 		);
 
+		$entityIds = array();
+
 		if ( $hasWeight ) {
-			$weights = array();
-			foreach ( $obtainedIDs as $obtainedID ) {
-				$weights[$obtainedID->term_entity_id] = floatval( $obtainedID->term_weight );
-			}
-
-			// this is a post-search sorting by weight. This allows us to not require an additional
-			// index on the wb_terms table that is very big already. This is also why we have
-			// the internal limit of 5000, since SQL's index would explode in size if we added the
-			// weight to it here (which would allow us to delegate the sorting to SQL itself)
-			arsort( $weights, SORT_NUMERIC );
-
-			if ( $requestedLimit ) {
-				$numericIds = array_keys( array_slice( $weights, 0, $requestedLimit, true ) );
-			} else {
-				$numericIds = array_keys( $weights );
-			}
+			$entityIds = $this->getEntityIdsOrderedByWeight( $rows, $requestedLimit );
 		} else {
-			$numericIds = array();
-			foreach ( $obtainedIDs as $obtainedID ) {
-				$numericIds[] = $obtainedID->term_entity_id;
+			foreach ( $rows as $row ) {
+				// FIXME: this only works for items and properties
+				$id = LegacyIdInterpreter::newIdFromTypeAndNumber( $row->term_entity_type, $row->term_entity_id );
+
+				$entityIds[] = $id;
 			}
 		}
 
 		$this->releaseConnection( $dbr );
 
-		// turn numbers into entity ids
-		$result = array();
+		return $entityIds;
+	}
 
-		foreach ( $numericIds as $numericId ) {
+	/**
+	 * @param Iterator $rows
+	 * @param int $limit
+	 *
+	 * @return EntityId[]
+	 */
+	private function getEntityIdsOrderedByWeight( Iterator $rows, $limit = 0 ) {
+		$weights = array();
+		$idMap = array();
+
+		foreach ( $rows as $row ) {
 			// FIXME: this only works for items and properties
-			$result[] = LegacyIdInterpreter::newIdFromTypeAndNumber( $entityType, $numericId );
+			$id = LegacyIdInterpreter::newIdFromTypeAndNumber( $row->term_entity_type, $row->term_entity_id );
+
+			$key = $id->getSerialization();
+			$weights[$key] = floatval( $row->term_weight );
+			$idMap[$key] = $id;
 		}
 
-		return $result;
+		// this is a post-search sorting by weight. This allows us to not require an additional
+		// index on the wb_terms table that is very big already. This is also why we have
+		// the internal limit of 5000, since SQL's index would explode in size if we added the
+		// weight to it here (which would allow us to delegate the sorting to SQL itself)
+		arsort( $weights, SORT_NUMERIC );
+
+		if ( $limit > 0 ) {
+			$weights = array_slice( $weights, 0, $limit, true );
+		}
+
+		$entityIds = array();
+
+		foreach ( $weights as $key => $weight ) {
+			$entityIds[] = $idMap[$key];
+		}
+
+		return $entityIds;
 	}
 
 	/**
@@ -637,8 +669,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	private function termsToConditions(
 		DatabaseBase $db,
 		array $terms,
-		$termType,
-		$entityType,
+		$termType = null,
+		$entityType = null,
 		array $options = array()
 	) {
 		$conditions = array();
@@ -663,8 +695,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	private function termMatchConditions(
 		DatabaseBase $db,
 		Term $term,
-		$termType,
-		$entityType,
+		$termType = null,
+		$entityType = null,
 		array $options = array()
 	) {
 		$options = array_merge(
@@ -686,35 +718,31 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		$text = $term->getText();
 
 		if ( $text !== null ) {
-			if ( $options['caseSensitive']
-				|| Settings::get( 'withoutTermSearchKey' ) ) {
-				//NOTE: whether this match is *actually* case sensitive depends on the collation used in the database.
-				$textField = 'term_text';
-			}
-			else {
+			// NOTE: Whether this match is *actually* case sensitive depends on the collation
+			// used in the database.
+			$textField = 'term_text';
+
+			if ( !$options['caseSensitive'] && $this->supportsSearchKeys() ) {
 				$textField = 'term_search_key';
 				$text = $this->getSearchKey( $term->getText(), $term->getLanguage() );
 			}
 
 			if ( $options['prefixSearch'] ) {
 				$conditions[] = $textField . $db->buildLike( $text, $db->anyString() );
-			}
-			else {
+			} else {
 				$conditions[$textField] = $text;
 			}
 		}
 
 		if ( $term->getType() !== null ) {
 			$conditions['term_type'] = $term->getType();
-		}
-		elseif ( $termType !== null ) {
+		} elseif ( $termType !== null ) {
 			$conditions['term_type'] = $termType;
 		}
 
 		if ( $term->getEntityType() !== null ) {
 			$conditions['term_entity_type'] = $term->getEntityType();
-		}
-		elseif ( $entityType !== null ) {
+		} elseif ( $entityType !== null ) {
 			$conditions['term_entity_type'] = $entityType;
 		}
 
@@ -805,6 +833,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			$entityType,
 			array(
 				'LIMIT' => $this->maxConflicts,
+				'caseSensitive' => false
 			)
 		);
 
@@ -863,8 +892,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 
 			$matchConditions = array(
 				'L.term_language' => $lang,
-				'L.term_text' => $label,
-				'D.term_text' => $description,
+				'L.term_search_key' => $this->getSearchKey( $label, $lang ),
+				'D.term_search_key' => $this->getSearchKey( $description, $lang )
 			);
 
 			$termConditions[] = $dbr->makeList( $matchConditions, LIST_AND );
@@ -945,12 +974,11 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			wfWarn( "Unicode normalization failed for `$text`" );
 		}
 
-		// \p{Z} - whitespace
-		// \p{C} - control chars
 		// WARNING: *any* invalid UTF8 sequence causes preg_replace to return an empty string.
-		$strippedText = $nfcText;
-		$strippedText = preg_replace( '/[\p{Cc}\p{Cf}\p{Cn}\p{Cs}]+/u', ' ', $strippedText );
-		$strippedText = preg_replace( '/^[\p{Z}]+|[\p{Z}]+$/u', '', $strippedText );
+		// Control character classes excluding private use areas.
+		$strippedText = preg_replace( '/[\p{Cc}\p{Cf}\p{Cn}\p{Cs}]+/u', ' ', $nfcText );
+		// \p{Z} includes all whitespace characters and invisible separators.
+		$strippedText = preg_replace( '/^\p{Z}+|\p{Z}+$/u', '', $strippedText );
 
 		if ( $strippedText === '' ) {
 			// NOTE: This happens when there is only whitespace in the string.
@@ -973,7 +1001,14 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
+	 */
+	public function supportsSearchKeys() {
+		return !Settings::get( 'withoutTermSearchKey' );
+	}
+
+	/**
+	 * @return bool
 	 */
 	public function supportsWeight() {
 		return !Settings::get( 'withoutTermWeight' );

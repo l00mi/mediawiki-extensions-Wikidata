@@ -5,13 +5,29 @@ namespace Wikibase\View\Template;
 /**
  * @license GNU GPL v2+
  * @author Adrian Lang < adrian.lang@wikimedia.de >
+ * @author Thiemo Mättig
  */
 class TemplateFactory {
+
+	/**
+	 * @var TemplateFactory
+	 */
+	private static $instance;
 
 	/**
 	 * @var TemplateRegistry
 	 */
 	private $templateRegistry;
+
+	public static function getDefaultInstance() {
+		if ( self::$instance === null ) {
+			self::$instance = new self(
+				new TemplateRegistry( include( __DIR__ . '/../../resources/templates.php' ) )
+			);
+		}
+
+		return self::$instance;
+	}
 
 	/**
 	 * @param TemplateRegistry $templateRegistry
@@ -21,8 +37,16 @@ class TemplateFactory {
 	}
 
 	/**
+	 * @return string[] Array containing all raw template strings.
+	 */
+	public function getTemplates() {
+		return $this->templateRegistry->getTemplates();
+	}
+
+	/**
 	 * @param string $key
 	 * @param array $params
+	 *
 	 * @return Template
 	 */
 	public function get( $key, array $params ) {
@@ -42,7 +66,7 @@ class TemplateFactory {
 	 *
 	 * @return string
 	 */
-	public function render( $key /* ... */ ) {
+	public function render( $key /*...*/ ) {
 		$params = func_get_args();
 		array_shift( $params );
 

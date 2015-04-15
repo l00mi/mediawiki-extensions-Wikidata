@@ -53,7 +53,7 @@ class RdfSerializerTest extends \MediaWikiTestCase {
 	 * @return Entity[]
 	 */
 	private function getTestEntities() {
-		static $entities = array ();
+		static $entities = array();
 
 		if ( !empty( $entities ) ) {
 			return $entities;
@@ -64,28 +64,24 @@ class RdfSerializerTest extends \MediaWikiTestCase {
 
 		$entity = new Item();
 		$entities['terms'] = $entity;
-		$entity->setFingerprint( self::newTestFingerprint() );
+		$entity->setFingerprint( $this->newTestFingerprint() );
 
 		// TODO: test links
 		// TODO: test data values
 
-
 		$i = 1;
 
 		/**
-		 *
 		 * @var Entity $entity
 		 */
 		foreach ( $entities as $entity ) {
-			$entity->setId( ItemId::newFromNumber( $i ++ ) );
+			$entity->setId( ItemId::newFromNumber( $i++ ) );
 		}
 
 		return $entities;
-
 	}
-
-	private static function newTestFingerprint() {
-		$fingerprint = Fingerprint::newEmpty();
+	private function newTestFingerprint() {
+		$fingerprint = new Fingerprint();
 
 		$fingerprint->setLabel( 'en', 'Berlin' );
 		$fingerprint->setLabel( 'ru', 'Берлин' );
@@ -142,10 +138,10 @@ class RdfSerializerTest extends \MediaWikiTestCase {
 
 	private function newRdfSerializer( $formatName ) {
 		$emitter = RdfSerializer::getRdfWriter( $formatName );
-		$mockRepo = RdfBuilderTest::getMockRepository();
+		$mockRepository = RdfBuilderTest::getMockRepository();
 
-		foreach( $this->getTestEntities() as $entity ) {
-			$mockRepo->putEntity( $entity );
+		foreach ( $this->getTestEntities() as $entity ) {
+			$mockRepository->putEntity( $entity );
 		}
 
 		$serializer = new RdfSerializer(
@@ -153,7 +149,8 @@ class RdfSerializerTest extends \MediaWikiTestCase {
 			RdfBuilderTest::URI_BASE,
 			RdfBuilderTest::URI_DATA,
 			RdfBuilderTest::getSiteList(),
-			$mockRepo, $mockRepo,
+			$mockRepository,
+			$mockRepository,
 			RdfSerializer::PRODUCE_ALL
 		);
 		return $serializer;

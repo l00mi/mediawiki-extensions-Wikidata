@@ -8,7 +8,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\TermList;
-use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StringNormalizer;
 use Wikibase\Term;
 use Wikibase\TermSqlIndex;
@@ -58,14 +57,12 @@ class TermSqlIndexTest extends TermIndexTest {
 	 * @dataProvider termProvider
 	 */
 	public function testGetMatchingTerms2( $languageCode, $termText, $searchText, $matches ) {
-		$withoutTermSearchKey = WikibaseRepo::getDefaultInstance()->
-			getSettings()->getSetting( 'withoutTermSearchKey' );
+		$termIndex = $this->getTermIndex();
 
-		if ( $withoutTermSearchKey ) {
+		if ( !$termIndex->supportsSearchKeys() ) {
 			$this->markTestSkipped( "can't test search key if withoutTermSearchKey option is set." );
 		}
 
-		$termIndex = $this->getTermIndex();
 		$termIndex->clear();
 
 		$item = new Item( new ItemId( 'Q42' ) );
@@ -200,10 +197,11 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->saveTermsOfEntity( $item2 );
 
+		// The number of labels counts too
 		$item3 = new Item( new ItemId( 'Q108' ) );
 		$item3->setLabel( $languageCode, $termText );
-		$item3->getSiteLinkList()->addNewSiteLink( 'hrwiki', 'C' );
-		$item3->getSiteLinkList()->addNewSiteLink( 'uzwiki', 'C' );
+		$item3->setLabel( 'qxy', $termText );
+		$item3->setLabel( 'qxz', $termText );
 
 		$termIndex->saveTermsOfEntity( $item3 );
 
@@ -223,6 +221,27 @@ class TermSqlIndexTest extends TermIndexTest {
 			$expectedResult = array( $item2->getId(), $item3->getId(), $item1->getId() );
 			$this->assertArrayEquals( $expectedResult, $obtainedIDs, true );
 		}
+	}
+
+	/**
+	 * @dataProvider termProvider
+	 */
+	public function testGetMatchingIDs_withoutEntityType( $languageCode, $termText, $searchText, $matches ) {
+		$termIndex = $this->getTermIndex();
+		$termIndex->clear();
+
+		$item1 = new Item( new ItemId( 'Q42' ) );
+		$item1->setLabel( $languageCode, $termText );
+
+		$termIndex->saveTermsOfEntity( $item1 );
+
+		$term = new Term();
+		$term->setLanguage( $languageCode );
+		$term->setText( $termText );
+
+		$obtainedIDs = $termIndex->getMatchingIDs( array( $term ) );
+
+		$this->assertNotEmpty( $obtainedIDs );
 	}
 
 	/**
@@ -347,7 +366,7 @@ class TermSqlIndexTest extends TermIndexTest {
 	}
 
 	public function getEntityTermsProvider() {
-		$fingerprint = Fingerprint::newEmpty();
+		$fingerprint = new Fingerprint();
 		$fingerprint->setLabel( 'en', 'kittens!!!:)' );
 		$fingerprint->setDescription( 'es', 'es un gato!' );
 		$fingerprint->setAliasGroup( 'en', array( 'kitten-alias' ) );

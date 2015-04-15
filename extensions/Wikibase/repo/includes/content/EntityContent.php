@@ -30,7 +30,7 @@ use Wikibase\DataModel\StatementListProvider;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Content\EntityHandler;
-use Wikibase\Repo\EntitySearchTextGenerator;
+use Wikibase\Repo\FingerprintSearchTextGenerator;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Validators\EntityValidator;
 use WikiPage;
@@ -288,7 +288,7 @@ abstract class EntityContent extends AbstractContent {
 			$options
 		);
 
-		$entityRevision = $this->getEntityRevision( $title, $revisionId );
+		$entityRevision = $this->getEntityRevision( $revisionId );
 
 		$output = $outputGenerator->getParserOutput( $entityRevision, $options, $generateHtml );
 
@@ -299,17 +299,21 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @param Title $title
 	 * @param int|null $revisionId
 	 *
 	 * @return EntityRevision
 	 */
-	private function getEntityRevision( Title $title, $revisionId = null ) {
-		if ( $revisionId === null || $revisionId === 0 ) {
-			$revisionId = $title->getLatestRevID();
+	private function getEntityRevision( $revisionId = null ) {
+		$entity = $this->getEntity();
+
+		if ( $revisionId !== null ) {
+			return new EntityRevision( $entity, $revisionId );
 		}
 
-		return new EntityRevision( $this->getEntity(), $revisionId );
+		// Revision defaults to 0 (latest), which is desired and suitable in cases where
+		// getParserOutput specifies no revision. (e.g. is called during save process
+		// when revision id is unknown or not assigned yet)
+		return new EntityRevision( $entity );
 	}
 
 	/**
@@ -321,8 +325,8 @@ abstract class EntityContent extends AbstractContent {
 			return '';
 		}
 
-		$searchTextGenerator = new EntitySearchTextGenerator();
-		$text = $searchTextGenerator->generate( $this->getEntity() );
+		$searchTextGenerator = new FingerprintSearchTextGenerator();
+		$text = $searchTextGenerator->generate( $this->getEntity()->getFingerprint() );
 
 		if ( !wfRunHooks( 'WikibaseTextForSearchIndex', array( $this, &$text ) ) ) {
 			return '';

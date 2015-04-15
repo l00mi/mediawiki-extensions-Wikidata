@@ -22,9 +22,11 @@ use Wikibase\Lib\Store\LabelConflictFinder;
 use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Store\RevisionBasedEntityLookup;
 use Wikibase\Lib\Store\SiteLinkCache;
+use Wikibase\Lib\Store\SiteLinkConflictLookup;
 use Wikibase\Lib\Store\SiteLinkTable;
+use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
 use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
-use Wikibase\Lib\Store\WikiPageEntityMetaDataLookup;
+use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Repo\Store\DispatchingEntityStoreWatcher;
 use Wikibase\Repo\Store\EntityPerPage;
@@ -99,6 +101,11 @@ class SqlStore implements Store {
 	private $termIndex = null;
 
 	/**
+	 * @var PrefetchingWikiPageEntityMetaDataAccessor|null
+	 */
+	private $entityPrefetcher = null;
+
+	/**
 	 * @var string
 	 */
 	private $cacheKeyPrefix;
@@ -119,6 +126,11 @@ class SqlStore implements Store {
 	private $useRedirectTargetColumn;
 
 	/**
+	 * @var int[]
+	 */
+	private $idBlacklist;
+
+	/**
 	 * @param EntityContentDataCodec $contentCodec
 	 * @param EntityIdParser $entityIdParser
 	 */
@@ -136,6 +148,7 @@ class SqlStore implements Store {
 		$this->cacheType = $settings->getSetting( 'sharedCacheType' );
 		$this->cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
 		$this->useRedirectTargetColumn = $settings->getSetting( 'useRedirectTargetColumn' );
+		$this->idBlacklist = $settings->getSetting( 'idBlacklist' );
 	}
 
 	/**
@@ -458,7 +471,7 @@ class SqlStore implements Store {
 	 * @return IdGenerator
 	 */
 	public function newIdGenerator() {
-		return new SqlIdGenerator( 'wb_id_counters', wfGetDB( DB_MASTER ) );
+		return new SqlIdGenerator( wfGetLB(), $this->idBlacklist );
 	}
 
 	/**
@@ -578,16 +591,19 @@ class SqlStore implements Store {
 		// NOTE: Keep cache key in sync with DirectSqlStore::newEntityRevisionLookup in WikibaseClient
 		$cacheKeyPrefix = $this->cacheKeyPrefix . ':WikiPageEntityRevisionLookup';
 
-		$rawLookup = new WikiPageEntityRevisionLookup(
-			$this->contentCodec,
-			new WikiPageEntityMetaDataLookup( $this->entityIdParser ),
-			false
-		);
-
 		// Maintain a list of watchers to be notified of changes to any entities,
 		// in order to update caches.
 		/** @var WikiPageEntityStore $dispatcher */
 		$dispatcher = $this->getEntityStoreWatcher();
+
+		$metaDataFetcher = $this->getEntityPrefetcher();
+		$dispatcher->registerWatcher( $metaDataFetcher );
+
+		$rawLookup = new WikiPageEntityRevisionLookup(
+			$this->contentCodec,
+			$metaDataFetcher,
+			false
+		);
 
 		// Lower caching layer using persistent cache (e.g. memcached).
 		$persistentCachingLookup = new CachingEntityRevisionLookup(
@@ -689,6 +705,26 @@ class SqlStore implements Store {
 		}
 
 		return $this->changesTable;
+	}
+
+	/**
+	 * @return SiteLinkConflictLookup
+	 */
+	public function getSiteLinkConflictLookup() {
+		return new SiteLinkTable( 'wb_items_per_site', false );
+	}
+
+	/**
+	 * @return PrefetchingWikiPageEntityMetaDataAccessor
+	 */
+	public function getEntityPrefetcher() {
+		if ( $this->entityPrefetcher === null ) {
+			$this->entityPrefetcher = new PrefetchingWikiPageEntityMetaDataAccessor(
+				new WikiPageEntityMetaDataLookup( $this->entityIdParser )
+			);
+		}
+
+		return $this->entityPrefetcher;
 	}
 
 }

@@ -11,11 +11,14 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\SnakFactory;
 use Wikibase\Test\MockClientStore;
+use Wikibase\Test\MockRepository;
 
 /**
  * Helper class for Lua integration tests.
@@ -28,10 +31,10 @@ class WikibaseDataAccessTestItemSetUpHelper {
 	/**
 	 * @var MockRepository
 	 */
-	protected $mockRepository;
+	private $siteLinkLookup;
 
-	public function __construct( MockClientStore $mockClientStore ) {
-		$this->mockRepository = $mockClientStore->getEntityLookup();
+	public function __construct( MockClientStore $clientStore ) {
+		$this->siteLinkLookup = $clientStore->getSiteLinkLookup();
 	}
 
 	/**
@@ -43,7 +46,7 @@ class WikibaseDataAccessTestItemSetUpHelper {
 			'WikibaseClientDataAccessTest'
 		);
 
-		if ( $this->mockRepository->getEntityIdForSiteLink( $siteLink ) ) {
+		if ( $this->siteLinkLookup->getEntityIdForSiteLink( $siteLink ) ) {
 			// Already set up for this MockRepository
 			return;
 		}
@@ -78,7 +81,7 @@ class WikibaseDataAccessTestItemSetUpHelper {
 		$statement1->addNewReference( $referenceSnak );
 
 		$stringProperty->getStatements()->addStatement( $statement1 );
-		$this->mockRepository->putEntity( $stringProperty );
+		$this->siteLinkLookup->putEntity( $stringProperty );
 
 		$stringSnak2 = $this->getTestSnak(
 			$stringProperty->getId(),
@@ -127,28 +130,24 @@ class WikibaseDataAccessTestItemSetUpHelper {
 	/**
 	 * @param ItemId $id
 	 * @param string[] $labels
-	 * @param Claim[]|null $claims
+	 * @param Statement[]|null $statements
 	 * @param SiteLink[]|null $siteLinks
 	 *
 	 * @return Item
 	 */
-	private function createTestItem( ItemId $id, array $labels, array $claims = null, array $siteLinks = null ) {
+	private function createTestItem( ItemId $id, array $labels, array $statements = null, array $siteLinks = null ) {
 		$item = new Item( $id );
 		$item->setLabels( $labels );
 
-		if ( is_array( $siteLinks ) ) {
-			foreach( $siteLinks as $siteLink ) {
-				$item->addSiteLink( $siteLink );
-			}
+		if ( $statements !== null ) {
+			$item->setStatements( new StatementList( $statements ) );
 		}
 
-		if ( is_array( $claims ) ) {
-			foreach( $claims as $claim ) {
-				$item->addClaim( $claim );
-			}
+		if ( $siteLinks !== null ) {
+			$item->setSiteLinkList( new SiteLinkList( $siteLinks ) );
 		}
 
-		$this->mockRepository->putEntity( $item );
+		$this->siteLinkLookup->putEntity( $item );
 
 		return $item;
 	}

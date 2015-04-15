@@ -60,7 +60,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 		foreach ( $statements as $statement ) {
 			$guidGenerator = new ClaimGuidGenerator();
 			$statement->setGuid( $guidGenerator->newGuid( $item->getId() ) );
-			$item->addClaim( $statement );
+			$item->getStatements()->addStatement( $statement );
 		}
 
 		$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_UPDATE );
@@ -72,7 +72,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 	 * @return Item[]
 	 */
 	public function itemProvider() {
-		$fingerprint = Fingerprint::newEmpty();
+		$fingerprint = new Fingerprint();
 		$fingerprint->setLabel( 'en', 'kittens' );
 
 		$nonEmptyItem = new Item();

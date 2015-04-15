@@ -33,7 +33,6 @@ use Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\View\EntityViewPlaceholderExpander;
 use Wikibase\View\Template\TemplateFactory;
-use Wikibase\View\Template\TemplateRegistry;
 use Wikibase\View\TextInjector;
 use WikiPage;
 
@@ -945,10 +944,11 @@ final class RepoHooks {
 
 		if ( !empty( $placeholders ) ) {
 			$injector = new TextInjector( $placeholders );
+			$templateFactory = TemplateFactory::getDefaultInstance();
 			$userLanguageLookup = new BabelUserLanguageLookup();
 			$termsLanguages = WikibaseRepo::getDefaultInstance()->getTermsLanguages();
 			$expander = new EntityViewPlaceholderExpander(
-				new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
+				$templateFactory,
 				$out->getTitle(),
 				$out->getUser(),
 				$out->getLanguage(),
@@ -964,10 +964,12 @@ final class RepoHooks {
 			$out->addJsConfigVars(
 				'wbUserSpecifiedLanguages',
 				// All user-specified languages, that are valid term languages
-				array_intersect(
+				// Reindex the keys so that javascript still works if an unknown
+				// language code in the babel box causes an index to miss
+				array_values( array_intersect(
 					$userLanguageLookup->getUserSpecifiedLanguages( $out->getUser() ),
 					$termsLanguages->getLanguages()
-				)
+				) )
 			);
 		}
 
@@ -1174,6 +1176,27 @@ final class RepoHooks {
 
 		$toolbox['wb-concept-uri'] = $baseTemplate->data['nav_urls']['wb-concept-uri'];
 		$toolbox['wb-concept-uri']['id'] = 't-wb-concept-uri';
+
+		return true;
+	}
+
+	/**
+	 * Disable mobile editor for entity pages in Extension:MobileFrontend.
+	 * @see https://www.mediawiki.org/wiki/Extension:MobileFrontend
+	 *
+	 * @param Skin $skin
+	 * @param array &$modules associative array of resource loader modules
+	 *
+	 * @return bool
+	 */
+	public static function onSkinMinervaDefaultModules( Skin $skin, array &$modules ) {
+		$title = $skin->getTitle();
+		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
+		// remove the editor module so that it does not get loaded on entity pages
+		if ( $entityNamespaceLookup->isEntityNamespace( $title->getNamespace() ) ) {
+			unset( $modules['editor'] );
+		}
 
 		return true;
 	}

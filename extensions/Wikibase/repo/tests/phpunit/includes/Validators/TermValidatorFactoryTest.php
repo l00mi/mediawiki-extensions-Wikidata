@@ -35,9 +35,8 @@ class TermValidatorFactoryTest extends \PHPUnit_Framework_TestCase {
 
 		$mockProvider = new ChangeOpTestMockProvider( $this );
 		$dupeDetector = $mockProvider->getMockLabelDescriptionDuplicateDetector();
-		$siteLinkLookup = $mockProvider->getMockSitelinkCache();
 
-		$builders = new TermValidatorFactory( $maxLength, $languages, $idParser, $dupeDetector, $siteLinkLookup );
+		$builders = new TermValidatorFactory( $maxLength, $languages, $idParser, $dupeDetector );
 		return $builders;
 	}
 

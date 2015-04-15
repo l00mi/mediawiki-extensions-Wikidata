@@ -9,9 +9,9 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\View\PropertyView;
 use Wikibase\View\Template\TemplateFactory;
-use Wikibase\View\Template\TemplateRegistry;
 
 /**
  * @covers Wikibase\View\EntityView
@@ -37,21 +37,13 @@ class PropertyViewTest extends EntityViewTest {
 	 * @return Entity
 	 */
 	protected function makeEntity( EntityId $id, array $statements = array() ) {
-		$dataTypeId = 'string';
-
-		if ( is_string( $id ) ) {
-			$id = new PropertyId( $id );
-		}
-
-		$property = Property::newFromType( $dataTypeId );
+		$property = Property::newFromType( 'string' );
 		$property->setId( $id );
 
 		$property->setLabel( 'en', "label:$id" );
 		$property->setDescription( 'en', "description:$id" );
 
-		foreach ( $statements as $statement ) {
-			$property->addClaim( $statement );
-		}
+		$property->setStatements( new StatementList( $statements ) );
 
 		return $property;
 	}
@@ -80,8 +72,9 @@ class PropertyViewTest extends EntityViewTest {
 	}
 
 	public function provideTestGetHtml() {
+		$templateFactory = TemplateFactory::getDefaultInstance();
 		$propertyView = new PropertyView(
-			new TemplateFactory( TemplateRegistry::getDefaultInstance() ),
+			$templateFactory,
 			$this->getMockBuilder( 'Wikibase\View\EntityTermsView' )
 				->disableOriginalConstructor()
 				->getMock(),
@@ -116,4 +109,5 @@ class PropertyViewTest extends EntityViewTest {
 
 		return $dataTypeFactory;
 	}
+
 }
