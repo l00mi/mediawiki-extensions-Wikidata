@@ -5,24 +5,22 @@ namespace Wikibase\Repo\Specials;
 use Exception;
 use Html;
 use UserInputException;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\EntityRevision;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
-use Wikibase\Repo\Interactors\ItemMergeInteractor;
+use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * Special page for merging one item to another.
+ * Special page for creating redirects between entities
  *
  * @since 0.5
  * @licence GNU GPL v2+
- * @author Bene* < benestar.wikimedia@gmail.com >
- * @author Daniel Kinzler
+ * @author Addshore
  */
-class SpecialMergeItems extends SpecialWikibasePage {
+class SpecialRedirectEntity extends SpecialWikibasePage {
 
 	/**
 	 * @var EntityIdParser
@@ -35,7 +33,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 	private $exceptionLocalizer;
 
 	/**
-	 * @var ItemMergeInteractor
+	 * @var RedirectCreationInteractor
 	 */
 	private $interactor;
 
@@ -48,7 +46,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 	 * @since 0.5
 	 */
 	public function __construct() {
-		parent::__construct( 'MergeItems', 'item-merge' );
+		parent::__construct( 'RedirectEntity' );
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
@@ -58,8 +56,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 			new TokenCheckInteractor(
 				$this->getUser()
 			),
-			new ItemMergeInteractor(
-				$wikibaseRepo->getChangeOpFactoryProvider()->getMergeChangeOpFactory(),
+			new RedirectCreationInteractor(
 				$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
 				$wikibaseRepo->getEntityStore(),
 				$wikibaseRepo->getEntityPermissionChecker(),
@@ -73,7 +70,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 		EntityIdParser $idParser,
 		ExceptionLocalizer $exceptionLocalizer,
 		TokenCheckInteractor $tokenCheck,
-		ItemMergeInteractor $interactor
+		RedirectCreationInteractor $interactor
 	) {
 		$this->idParser = $idParser;
 		$this->exceptionLocalizer = $exceptionLocalizer;
@@ -84,10 +81,10 @@ class SpecialMergeItems extends SpecialWikibasePage {
 	/**
 	 * @param string $name
 	 *
-	 * @return ItemId|null
+	 * @return EntityId|null
 	 * @throws UserInputException
 	 */
-	private function getItemIdParam( $name ) {
+	private function getEntityIdParam( $name ) {
 		$rawId = $this->getTextParam( $name );
 
 		if ( $rawId === '' ) {
@@ -95,17 +92,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 		}
 
 		try {
-			$id = $this->idParser->parse( $rawId );
-
-			if ( !( $id instanceof ItemId ) ) {
-				throw new UserInputException(
-					'wikibase-itemmerge-not-item',
-					array( $name ),
-					'Id does not refer to an item: ' . $name
-				);
-			}
-
-			return $id;
+			return $this->idParser->parse( $rawId );
 		} catch ( EntityIdParsingException $ex ) {
 			throw new UserInputException(
 				'wikibase-wikibaserepopage-invalid-id',
@@ -142,14 +129,11 @@ class SpecialMergeItems extends SpecialWikibasePage {
 		$this->outputHeader();
 
 		try {
-			$fromId = $this->getItemIdParam( 'fromid' );
-			$toId = $this->getItemIdParam( 'toid' );
-
-			$ignoreConflicts = $this->getStringListParam( 'ignoreconflicts' );
-			$summary = $this->getTextParam( 'summary' );
+			$fromId = $this->getEntityIdParam( 'fromid' );
+			$toId = $this->getEntityIdParam( 'toid' );
 
 			if ( $fromId && $toId ) {
-				$this->mergeItems( $fromId, $toId, $ignoreConflicts, $summary );
+				$this->redirectEntity( $fromId, $toId );
 			}
 		} catch ( Exception $ex ) {
 			$this->showExceptionMessage( $ex );
@@ -170,55 +154,50 @@ class SpecialMergeItems extends SpecialWikibasePage {
 	}
 
 	/**
-	 * @param ItemId $fromId
-	 * @param ItemId $toId
-	 * @param array $ignoreConflicts
-	 * @param string $summary
+	 * @param EntityId $fromId
+	 * @param EntityId $toId
 	 */
-	private function mergeItems( ItemId $fromId, ItemId $toId, array $ignoreConflicts, $summary ) {
+	private function redirectEntity( EntityId $fromId, EntityId $toId ) {
 		$this->tokenCheck->checkRequestToken( $this->getRequest(), 'token' );
 
-		/** @var EntityRevision $newRevisionFrom  */
-		/** @var EntityRevision $newRevisionTo */
-		list( $newRevisionFrom, $newRevisionTo ) = $this->interactor->mergeItems( $fromId, $toId, $ignoreConflicts, $summary );
+		$this->interactor->createRedirect( $fromId, $toId, false );
 
-		//XXX: might be nicer to pass pre-rendered links as parameters
 		$this->getOutput()->addWikiMsg(
-			'wikibase-mergeitems-success',
+			'wikibase-redirectentity-success',
 			$fromId->getSerialization(),
-			$newRevisionFrom->getRevisionId(),
-			$toId->getSerialization(),
-			$newRevisionTo->getRevisionId() );
+			$toId->getSerialization()
+		);
 	}
 
 	/**
-	 * Creates the HTML form for merging two items.
+	 * Creates the HTML form for redirecting an entity
 	 */
 	protected function createForm() {
-		$this->getOutput()->addModuleStyles( array( 'wikibase.special' ) );
+		$out = $this->getOutput();
+		$out->addModuleStyles( array( 'wikibase.special' ) );
 
 		if ( $this->getUser()->isAnon() ) {
-			$this->getOutput()->addHTML(
+			$out->addHTML(
 				Html::rawElement(
 					'p',
 					array( 'class' => 'warning' ),
 					$this->msg(
 						'wikibase-anonymouseditwarning',
-						$this->msg( 'wikibase-entity-item' )->text()
+						$this->msg( 'wikibase-entity' )->text()
 					)->parse()
 				)
 			);
 		}
 
 		// Form header
-		$this->getOutput()->addHTML(
+		$out->addHTML(
 			Html::openElement(
 				'form',
 				array(
 					'method' => 'post',
 					'action' => $this->getPageTitle()->getFullUrl(),
-					'name' => 'mergeitems',
-					'id' => 'wb-mergeitems-form1',
+					'name' => 'redirectentity',
+					'id' => 'wb-redirectentity-form1',
 					'class' => 'wb-form'
 				)
 			)
@@ -229,21 +208,21 @@ class SpecialMergeItems extends SpecialWikibasePage {
 			. Html::element(
 				'legend',
 				array( 'class' => 'wb-legend' ),
-				$this->msg( 'special-mergeitems' )->text()
+				$this->msg( 'special-redirectentity' )->text()
 			)
 		);
 
 		// Form elements
-		$this->getOutput()->addHTML( $this->getFormElements() );
+		$out->addHTML( $this->getFormElements() );
 
 		// Form body
-		$this->getOutput()->addHTML(
+		$out->addHTML(
 			Html::input(
-				'wikibase-mergeitems-submit',
-				$this->msg( 'wikibase-mergeitems-submit' )->text(),
+				'wikibase-redirectentity-submit',
+				$this->msg( 'wikibase-redirectentity-submit' )->text(),
 				'submit',
 				array(
-					'id' => 'wb-mergeitems-submit',
+					'id' => 'wb-redirectentity-submit',
 					'class' => 'wb-button'
 				)
 			)
@@ -263,19 +242,13 @@ class SpecialMergeItems extends SpecialWikibasePage {
 	 * @return string
 	 */
 	protected function getFormElements() {
-		return Html::rawElement(
-			'p',
-			array(),
-			// Message: wikibase-mergeitems-intro
-			$this->msg( 'wikibase-mergeitems-intro' )->parse()
-		)
-		. Html::element(
+		return Html::element(
 			'label',
 			array(
-				'for' => 'wb-mergeitems-fromid',
+				'for' => 'wb-redirectentity-fromid',
 				'class' => 'wb-label'
 			),
-			$this->msg( 'wikibase-mergeitems-fromid' )->text()
+			$this->msg( 'wikibase-redirectentity-fromid' )->text()
 		)
 		. Html::input(
 			'fromid',
@@ -283,17 +256,17 @@ class SpecialMergeItems extends SpecialWikibasePage {
 			'text',
 			array(
 				'class' => 'wb-input',
-				'id' => 'wb-mergeitems-fromid'
+				'id' => 'wb-redirectentity-fromid'
 			)
 		)
 		. Html::element( 'br' )
 		. Html::element(
 			'label',
 			array(
-				'for' => 'wb-mergeitems-toid',
+				'for' => 'wb-redirectentity-toid',
 				'class' => 'wb-label'
 			),
-			$this->msg( 'wikibase-mergeitems-toid' )->text()
+			$this->msg( 'wikibase-redirectentity-toid' )->text()
 		)
 		. Html::input(
 			'toid',
@@ -301,11 +274,10 @@ class SpecialMergeItems extends SpecialWikibasePage {
 			'text',
 			array(
 				'class' => 'wb-input',
-				'id' => 'wb-mergeitems-toid'
+				'id' => 'wb-redirectentity-toid'
 			)
 		)
 		. Html::element( 'br' );
-		// TODO: Selector for ignoreconflicts
 	}
 
 }
