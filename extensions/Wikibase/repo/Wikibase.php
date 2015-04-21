@@ -163,7 +163,7 @@ call_user_func( function() {
 	$wgAPIModules['wbformatvalue']						= 'Wikibase\Api\FormatSnakValue';
 	$wgAPIModules['wbparsevalue']						= 'Wikibase\Api\ParseValue';
 	$wgAPIModules['wbavailablebadges']					= 'Wikibase\Api\AvailableBadges';
-	$wgAPIModules['wbcreateredirect']					= 'Wikibase\Api\CreateRedirectModule';
+	$wgAPIModules['wbcreateredirect']					= 'Wikibase\Api\CreateRedirect';
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] 							= 'Wikibase\Repo\Specials\SpecialNewItem';
@@ -180,6 +180,7 @@ call_user_func( function() {
 	$wgSpecialPages['EntitiesWithoutLabel'] 			= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutLabel' );
 	$wgSpecialPages['EntitiesWithoutDescription']		= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutDescription' );
 	$wgSpecialPages['ListDatatypes']					= 'Wikibase\Repo\Specials\SpecialListDatatypes';
+	$wgSpecialPages['ListProperties']					= 'Wikibase\Repo\Specials\SpecialListProperties';
 	$wgSpecialPages['DispatchStats']					= 'Wikibase\Repo\Specials\SpecialDispatchStats';
 	$wgSpecialPages['EntityData'] 						= 'Wikibase\Repo\Specials\SpecialEntityData';
 	$wgSpecialPages['MyLanguageFallbackChain'] 			= 'Wikibase\Repo\Specials\SpecialMyLanguageFallbackChain';

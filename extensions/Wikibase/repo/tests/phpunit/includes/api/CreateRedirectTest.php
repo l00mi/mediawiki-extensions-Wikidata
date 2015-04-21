@@ -5,11 +5,12 @@ namespace Wikibase\Test\Api;
 use ApiMain;
 use FauxRequest;
 use Language;
+use RequestContext;
 use Status;
 use UsageException;
 use User;
 use Wikibase\Api\ApiErrorReporter;
-use Wikibase\Api\CreateRedirectModule;
+use Wikibase\Api\CreateRedirect;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
@@ -22,7 +23,7 @@ use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Test\MockRepository;
 
 /**
- * @covers Wikibase\Api\CreateRedirectModule
+ * @covers Wikibase\Api\CreateRedirect
  *
  * @group API
  * @group Wikibase
@@ -33,7 +34,7 @@ use Wikibase\Test\MockRepository;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class CreateRedirectModuleTest extends \MediaWikiTestCase {
+class CreateRedirectTest extends \MediaWikiTestCase {
 
 	/**
 	 * @var MockRepository|null
@@ -84,11 +85,22 @@ class CreateRedirectModuleTest extends \MediaWikiTestCase {
 		return $permissionChecker;
 	}
 
+	public function getMockEditFilterHookRunner() {
+		$mock = $this->getMockBuilder( 'Wikibase\Repo\Hooks\EditFilterHookRunner' )
+			->setMethods( array( 'run' ) )
+			->disableOriginalConstructor()
+			->getMock();
+		$mock->expects( $this->any() )
+			->method( 'run' )
+			->will( $this->returnValue( Status::newGood() ) );
+		return $mock;
+	}
+
 	/**
 	 * @param array $params
 	 * @param User $user
 	 *
-	 * @return CreateRedirectModule
+	 * @return CreateRedirect
 	 */
 	private function newApiModule( $params, User $user = null ) {
 		if ( !$user ) {
@@ -99,7 +111,7 @@ class CreateRedirectModuleTest extends \MediaWikiTestCase {
 		$main = new ApiMain( $request );
 		$main->getContext()->setUser( $user );
 
-		$module = new CreateRedirectModule( $main, 'wbcreateredirect' );
+		$module = new CreateRedirect( $main, 'wbcreateredirect' );
 
 		$idParser = new BasicEntityIdParser();
 
@@ -111,6 +123,9 @@ class CreateRedirectModuleTest extends \MediaWikiTestCase {
 
 		$summaryFormatter = WikibaseRepo::getDefaultInstance()->getSummaryFormatter();
 
+		$context = new RequestContext();
+		$context->setRequest( new FauxRequest() );
+
 		$module->setServices(
 			$idParser,
 			$errorReporter,
@@ -119,7 +134,8 @@ class CreateRedirectModuleTest extends \MediaWikiTestCase {
 				$this->mockRepository,
 				$this->getPermissionCheckers(),
 				$summaryFormatter,
-				$user
+				$user,
+				$this->getMockEditFilterHookRunner()
 			)
 		);
 

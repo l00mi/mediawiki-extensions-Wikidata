@@ -914,7 +914,7 @@ class WikibaseRepo {
 		$codec = $this->getEntityContentDataCodec();
 		$constraintProvider = $this->getEntityConstraintProvider();
 		$errorLocalizer = $this->getValidatorErrorLocalizer();
-		$siteLinkStore = $this->getStore()->newSiteLinkCache();
+		$siteLinkStore = $this->getStore()->newSiteLinkStore();
 		$legacyFormatDetector = $this->getLegacyFormatDetectorCallback();
 
 		$handler = new ItemHandler(
@@ -1003,7 +1003,10 @@ class WikibaseRepo {
 		return $this->entityNamespaceLookup;
 	}
 
-	private function getEntityIdHtmlLinkFormatterFactory() {
+	/**
+	 * @return EntityIdHtmlLinkFormatterFactory
+	 */
+	public function getEntityIdHtmlLinkFormatterFactory() {
 		return new EntityIdHtmlLinkFormatterFactory(
 			$this->getEntityTitleLookup(),
 			new LanguageNameLookup()
