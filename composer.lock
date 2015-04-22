@@ -540,28 +540,28 @@
         },
         {
             "name": "data-values/time",
-            "version": "0.6.1",
+            "version": "0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "d0758c091d3c4d5f44825f311e6f526291bf7298"
+                "reference": "660ac31cc7af8f19a342d2065874f0e358d968ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/d0758c091d3c4d5f44825f311e6f526291bf7298",
-                "reference": "d0758c091d3c4d5f44825f311e6f526291bf7298",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/660ac31cc7af8f19a342d2065874f0e358d968ab",
+                "reference": "660ac31cc7af8f19a342d2065874f0e358d968ab",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2.0",
                 "data-values/data-values": "~1.0|~0.1",
-                "data-values/interfaces": "~0.1.4",
+                "data-values/interfaces": "^0.1.5",
                 "php": ">=5.3.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.6.x-dev"
+                    "dev-master": "0.7.x-dev"
                 }
             },
             "autoload": {
@@ -593,7 +593,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-10-09 19:09:29"
+            "time": "2015-04-20 15:06:13"
         },
         {
             "name": "data-values/validators",
@@ -1209,12 +1209,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "9b0faca3053854c66fba2b42372b143655ba0474"
+                "reference": "d4279e9d6f30a93cb3f86f31c68c31fed52b6100"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9b0faca3053854c66fba2b42372b143655ba0474",
-                "reference": "9b0faca3053854c66fba2b42372b143655ba0474",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d4279e9d6f30a93cb3f86f31c68c31fed52b6100",
+                "reference": "d4279e9d6f30a93cb3f86f31c68c31fed52b6100",
                 "shasum": ""
             },
             "require": {
@@ -1226,7 +1226,7 @@
                 "data-values/javascript": "~0.6.0",
                 "data-values/number": "~0.4.0",
                 "data-values/serialization": "~1.0",
-                "data-values/time": "~0.6.0",
+                "data-values/time": "~0.7.0",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.14.0",
                 "diff/diff": "~1.0",
@@ -1282,7 +1282,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-04-20 20:19:04"
+            "time": "2015-04-21 20:16:04"
         },
         {
             "name": "wikibase/wikimedia-badges",

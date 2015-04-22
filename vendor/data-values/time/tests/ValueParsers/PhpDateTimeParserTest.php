@@ -1,18 +1,17 @@
 <?php
 
-namespace Wikibase\Lib\Parsers\Test;
+namespace ValueParsers\Test;
 
 use DataValues\TimeValue;
 use ValueParsers\CalendarModelParser;
+use ValueParsers\IsoTimestampParser;
+use ValueParsers\MonthNameUnlocalizer;
 use ValueParsers\ParserOptions;
-use ValueParsers\Test\StringValueParserTest;
-use ValueParsers\TimeParser as IsoTimestampParser;
-use Wikibase\Lib\Parsers\EraParser;
-use Wikibase\Lib\Parsers\MonthNameUnlocalizer;
-use Wikibase\Lib\Parsers\PhpDateTimeParser;
+use ValueParsers\PhpDateTimeParser;
+use ValueParsers\ValueParser;
 
 /**
- * @covers Wikibase\Lib\Parsers\PhpDateTimeParser
+ * @covers ValueParsers\PhpDateTimeParser
  *
  * @group ValueParsers
  * @group WikibaseLib
@@ -48,10 +47,10 @@ class PhpDateTimeParserTest extends StringValueParserTest {
 	}
 
 	/**
-	 * @return EraParser
+	 * @return ValueParser
 	 */
 	private function getEraParser() {
-		$mock = $this->getMockBuilder( 'Wikibase\Lib\Parsers\EraParser' )
+		$mock = $this->getMockBuilder( 'ValueParsers\ValueParser' )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -60,10 +59,10 @@ class PhpDateTimeParserTest extends StringValueParserTest {
 			->with( $this->isType( 'string' ) )
 			->will( $this->returnCallback(
 				function( $value ) {
-					$sign = EraParser::CURRENT_ERA;
+					$sign = '+';
 					// Tiny parser that supports a single negative sign only
-					if ( $value[0] === EraParser::BEFORE_CURRENT_ERA ) {
-						$sign = EraParser::BEFORE_CURRENT_ERA;
+					if ( $value[0] === '-' ) {
+						$sign = '-';
 						$value = substr( $value, 1 );
 					}
 					return array( $sign, $value ) ;

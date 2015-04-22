@@ -1,13 +1,10 @@
 <?php
 
-namespace Wikibase\Lib\Parsers;
+namespace ValueParsers;
 
 use DataValues\TimeValue;
 use DateTime;
 use Exception;
-use ValueParsers\ParseException;
-use ValueParsers\StringValueParser;
-use ValueParsers\ValueParser;
 
 /**
  * Time parser using PHP's DateTime object. Since the behavior of PHP's parser can be quite odd
@@ -24,13 +21,11 @@ use ValueParsers\ValueParser;
  * - The third number in the input.
  * - The last number in the input otherwise.
  *
- * @since 0.5
+ * @since 0.7
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
  * @author Thiemo Mättig
- *
- * @todo Move to data-values/time.
  */
 class PhpDateTimeParser extends StringValueParser {
 

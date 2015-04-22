@@ -1,12 +1,12 @@
 <?php
 
-namespace Wikibase\Lib\Parsers\Test;
+namespace ValueParsers\Test;
 
 use PHPUnit_Framework_TestCase;
-use Wikibase\Lib\Parsers\MonthNameUnlocalizer;
+use ValueParsers\MonthNameUnlocalizer;
 
 /**
- * @covers Wikibase\Lib\Parsers\MonthNameUnlocalizer
+ * @covers ValueParsers\MonthNameUnlocalizer
  *
  * @group ValueParsers
  * @group WikibaseLib

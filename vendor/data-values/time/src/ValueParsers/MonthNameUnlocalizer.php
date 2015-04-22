@@ -1,17 +1,15 @@
 <?php
 
-namespace Wikibase\Lib\Parsers;
+namespace ValueParsers;
 
 /**
  * Base class to unlocalize a month name in a date string.
  *
- * @since 0.5
+ * @since 0.7
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
  * @author Thiemo Mättig
- *
- * @todo move me to DataValues-time
  */
 class MonthNameUnlocalizer {
 
