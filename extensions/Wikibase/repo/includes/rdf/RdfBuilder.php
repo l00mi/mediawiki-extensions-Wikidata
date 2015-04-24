@@ -28,9 +28,10 @@ class RdfBuilder implements EntityRdfBuilder {
 
 	/**
 	 * A list of entities mentioned/touched to or by this builder.
-	 * The prefixed entity IDs are used as keys in the array, the values 'true'
-	 * is used to indicate that the entity has been resolved, 'false' indicates
-	 * that the entity was mentioned but not resolved (defined).
+	 * The prefixed entity IDs are used as keys in the array, the value 'true'
+	 * is used to indicate that the entity has been resolved. If the value
+	 * is an EntityId, this indicates that the entity has not yet been resolved
+	 * (defined).
 	 *
 	 * @var array
 	 */
@@ -100,10 +101,6 @@ class RdfBuilder implements EntityRdfBuilder {
 		$this->termsBuilder = new TermsRdfBuilder( $vocabulary, $writer );
 		$this->builders[] = $this->termsBuilder;
 
-		if ( $this->shouldProduce( RdfProducer::PRODUCE_SITELINKS ) ) {
-			$this->builders[] = new SiteLinksRdfBuilder( $vocabulary, $writer, $sites );
-		}
-
 		if ( $this->shouldProduce( RdfProducer::PRODUCE_TRUTHY_STATEMENTS ) ) {
 			$this->builders[] = $this->newTruthyStatementRdfBuilder();
 		}
@@ -111,6 +108,12 @@ class RdfBuilder implements EntityRdfBuilder {
 		if ( $this->shouldProduce( RdfProducer::PRODUCE_ALL_STATEMENTS ) ) {
 			$this->builders[] = $this->newFullStatementRdfBuilder();
 		}
+
+		// placing this last produces more readable output since all entity things are together
+		if ( $this->shouldProduce( RdfProducer::PRODUCE_SITELINKS ) ) {
+			$this->builders[] = new SiteLinksRdfBuilder( $vocabulary, $writer, $sites );
+		}
+
 	}
 
 	/**
@@ -239,7 +242,7 @@ class RdfBuilder implements EntityRdfBuilder {
 		$prefixedId = $entityId->getSerialization();
 
 		if ( !isset( $this->entitiesResolved[$prefixedId] ) ) {
-			$this->entitiesResolved[$prefixedId] = false;
+			$this->entitiesResolved[$prefixedId] = $entityId;
 		}
 	}
 
@@ -268,6 +271,21 @@ class RdfBuilder implements EntityRdfBuilder {
 		$this->writer->about( RdfVocabulary::NS_DATA, $entityId )
 			->say( RdfVocabulary::NS_SCHEMA_ORG, 'version' )->value( $revision, 'xsd', 'integer' )
 			->say( RdfVocabulary::NS_SCHEMA_ORG, 'dateModified' )->value( $timestamp, 'xsd', 'dateTime' );
+	}
+
+	/**
+	 * Write predicates linking property entity to property predicates
+	 * @param string $id
+	 */
+	private function writePropertyPredicates( $id ) {
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'directClaim')->is( RdfVocabulary::NSP_DIRECT_CLAIM, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'claim')->is( RdfVocabulary::NSP_CLAIM, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'statementProperty' )->is( RdfVocabulary::NSP_CLAIM_STATEMENT, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'statementValue' )->is( RdfVocabulary::NSP_CLAIM_VALUE, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'qualifier' )->is( RdfVocabulary::NSP_QUALIFIER, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'qualifierValue' )->is( RdfVocabulary::NSP_QUALIFIER_VALUE, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'reference' )->is( RdfVocabulary::NSP_REFERENCE, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'referenceValue' )->is( RdfVocabulary::NSP_REFERENCE_VALUE, $id );
 	}
 
 	/**
@@ -301,6 +319,7 @@ class RdfBuilder implements EntityRdfBuilder {
 		if( $entity instanceof Property ) {
 			$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'propertyType' )
 				->is( RdfVocabulary::NS_ONTOLOGY, $this->vocabulary->getDataTypeName( $entity ) );
+			$this->writePropertyPredicates( $entity->getId()->getSerialization() );
 		}
 	}
 
@@ -328,13 +347,9 @@ class RdfBuilder implements EntityRdfBuilder {
 	 * @param EntityLookup $entityLookup
 	 */
 	public function resolveMentionedEntities( EntityLookup $entityLookup ) { //FIXME: needs test
-		// @todo FIXME inject a DispatchingEntityIdParser
-		$idParser = new BasicEntityIdParser();
-
-		foreach ( $this->entitiesResolved as $entityId => $resolved ) {
-			if ( !$resolved ) {
-				$entityId = $idParser->parse( $entityId );
-				$entity = $entityLookup->getEntity( $entityId );
+		foreach ( $this->entitiesResolved as $entityId => $value ) {
+			if ( $value instanceof EntityId ) {
+				$entity = $entityLookup->getEntity( $value );
 				if ( !$entity ) {
 					continue;
 				}
