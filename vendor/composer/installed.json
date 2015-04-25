@@ -535,28 +535,28 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "2.6.0",
-        "version_normalized": "2.6.0.0",
+        "version": "2.6.1",
+        "version_normalized": "2.6.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "e9d9e8ff37d50227ab3082bb1c15f20584dfa5fd"
+            "reference": "eda53cf9c88126eda89d92afb4db7f26c652de06"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/e9d9e8ff37d50227ab3082bb1c15f20584dfa5fd",
-            "reference": "e9d9e8ff37d50227ab3082bb1c15f20584dfa5fd",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/eda53cf9c88126eda89d92afb4db7f26c652de06",
+            "reference": "eda53cf9c88126eda89d92afb4db7f26c652de06",
             "shasum": ""
         },
         "require": {
             "data-values/data-values": "~0.1|~1.0",
-            "diff/diff": "~1.0",
+            "diff/diff": "~1.0|2.0",
             "php": ">=5.3.0"
         },
         "require-dev": {
             "squizlabs/php_codesniffer": "~2.1"
         },
-        "time": "2015-03-09 12:08:31",
+        "time": "2015-04-25 01:11:54",
         "type": "library",
         "extra": {
             "branch-alias": {
