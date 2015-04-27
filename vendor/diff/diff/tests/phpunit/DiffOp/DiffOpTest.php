@@ -4,6 +4,8 @@ namespace Diff\Tests\DiffOp;
 
 use Diff\DiffOp\DiffOp;
 use Diff\Tests\DiffTestCase;
+use Exception;
+use ReflectionClass;
 
 /**
  * Base test class for the Diff\DiffOp\DiffOp deriving classes.
@@ -31,8 +33,6 @@ abstract class DiffOpTest extends DiffTestCase {
 	 * or a string indicating the type of exception that should be thrown (ie not valid either).
 	 *
 	 * @since 0.1
-	 *
-	 * @return array
 	 */
 	public abstract function constructorProvider();
 
@@ -44,30 +44,28 @@ abstract class DiffOpTest extends DiffTestCase {
 	 * @return mixed
 	 */
 	public function newInstance() {
-		$reflector = new \ReflectionClass( $this->getClass() );
-		$args = func_get_args();
-		$instance = $reflector->newInstanceArgs( $args );
-		return $instance;
+		$reflector = new ReflectionClass( $this->getClass() );
+		return $reflector->newInstanceArgs( func_get_args() );
 	}
 
 	/**
 	 * @since 0.1
 	 *
-	 * @return array [instance, constructor args]
+	 * @return array[] An array of arrays, each containing an instance and an array of constructor
+	 * arguments used to construct the instance.
 	 */
 	public function instanceProvider() {
-		$phpFails = array( $this, 'newInstance' );
+		$self = $this;
 
 		return array_filter( array_map(
-			function( array $args ) use ( $phpFails ) {
+			function( array $args ) use ( $self ) {
 				$isValid = array_shift( $args ) === true;
 
-				if ( $isValid ) {
-					return array( call_user_func_array( $phpFails, $args ), $args );
-				}
-				else {
+				if ( !$isValid ) {
 					return false;
 				}
+
+				return array( call_user_func_array( array( $self, 'newInstance' ), $args ), $args );
 			},
 			$this->constructorProvider()
 		), 'is_array' );
@@ -80,21 +78,18 @@ abstract class DiffOpTest extends DiffTestCase {
 	 */
 	public function testConstructor() {
 		$args = func_get_args();
-
 		$valid = array_shift( $args );
-		$pokemons = null;
 
 		try {
 			$dataItem = call_user_func_array( array( $this, 'newInstance' ), $args );
 			$this->assertInstanceOf( $this->getClass(), $dataItem );
-		}
-		catch ( \Exception $pokemons ) {
+		} catch ( Exception $ex ) {
 			if ( $valid === true ) {
-				throw $pokemons;
+				throw $ex;
 			}
 
 			if ( is_string( $valid ) ) {
-				$this->assertEquals( $valid, get_class( $pokemons ) );
+				$this->assertEquals( $valid, get_class( $ex ) );
 			}
 			else {
 				$this->assertFalse( $valid );
@@ -131,7 +126,7 @@ abstract class DiffOpTest extends DiffTestCase {
 	 */
 	public function testCount( DiffOp $diffOp ) {
 		if ( $diffOp->isAtomic() ) {
-			$this->assertEquals( 1, count( $diffOp ) );
+			$this->assertSame( 1, $diffOp->count() );
 		}
 		else {
 			$count = 0;
@@ -143,7 +138,7 @@ abstract class DiffOpTest extends DiffTestCase {
 				$count += $childOp->count();
 			}
 
-			$this->assertEquals( $count, count( $diffOp ) );
+			$this->assertSame( $count, $diffOp->count() );
 		}
 	}
 

@@ -111,7 +111,6 @@ return array(
     'Deserializers\\StrategicDeserializer' => $vendorDir . '/serialization/serialization/src/Deserializers/StrategicDeserializer.php',
     'Deserializers\\TypedDeserializationStrategy' => $vendorDir . '/serialization/serialization/src/Deserializers/TypedDeserializationStrategy.php',
     'Deserializers\\TypedObjectDeserializer' => $vendorDir . '/serialization/serialization/src/Deserializers/TypedObjectDeserializer.php',
-    'Diff\\Appendable' => $vendorDir . '/diff/diff/src/Appendable.php',
     'Diff\\ArrayComparer\\ArrayComparer' => $vendorDir . '/diff/diff/src/ArrayComparer/ArrayComparer.php',
     'Diff\\ArrayComparer\\NativeArrayComparer' => $vendorDir . '/diff/diff/src/ArrayComparer/NativeArrayComparer.php',
     'Diff\\ArrayComparer\\OrderedArrayComparer' => $vendorDir . '/diff/diff/src/ArrayComparer/OrderedArrayComparer.php',

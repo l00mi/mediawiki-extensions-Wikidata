@@ -3,7 +3,6 @@
 namespace Diff\Patcher;
 
 use Diff\DiffOp\Diff\Diff;
-use Diff\DiffOp\DiffOp;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpRemove;
 
@@ -35,28 +34,22 @@ class ListPatcher extends ThrowingPatcher {
 	 * @throws PatcherException
 	 */
 	public function patch( array $base, Diff $diff ) {
-		if ( $this->throwErrors && $diff->looksAssociative() ) {
+		if ( $diff->looksAssociative() ) {
 			$this->handleError( 'ListPatcher can only patch using non-associative diffs' );
 		}
 
-		/**
-		 * @var DiffOp $diffOp
-		 */
 		foreach ( $diff as $diffOp ) {
-			switch ( true ) {
-				case $diffOp instanceof DiffOpAdd:
-					$base[] = $diffOp->getNewValue();
-					break;
-				case $diffOp instanceof DiffOpRemove:
-					$key = array_search( $diffOp->getOldValue(), $base, true );
+			if ( $diffOp instanceof DiffOpAdd ) {
+				$base[] = $diffOp->getNewValue();
+			} elseif ( $diffOp instanceof DiffOpRemove ) {
+				$key = array_search( $diffOp->getOldValue(), $base, true );
 
-					if ( $key === false ) {
-						$this->handleError( 'Cannot remove an element from a list if it is not present' );
-						continue;
-					}
+				if ( $key === false ) {
+					$this->handleError( 'Cannot remove an element from a list if it is not present' );
+					continue;
+				}
 
-					unset( $base[$key] );
-					break;
+				unset( $base[$key] );
 			}
 		}
 

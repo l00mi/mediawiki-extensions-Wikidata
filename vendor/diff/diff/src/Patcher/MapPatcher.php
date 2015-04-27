@@ -5,7 +5,6 @@ namespace Diff\Patcher;
 use Diff\Comparer\StrictComparer;
 use Diff\Comparer\ValueComparer;
 use Diff\DiffOp\Diff\Diff;
-use Diff\DiffOp\DiffOp;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
@@ -21,18 +20,14 @@ use Diff\DiffOp\DiffOpRemove;
 class MapPatcher extends ThrowingPatcher {
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var Patcher
 	 */
-	protected $listPatcher;
+	private $listPatcher;
 
 	/**
-	 * @since 0.6
-	 *
 	 * @var ValueComparer|null
 	 */
-	protected $comparer = null;
+	private $comparer = null;
 
 	/**
 	 * @since 0.4
@@ -69,67 +64,87 @@ class MapPatcher extends ThrowingPatcher {
 	 * @throws PatcherException
 	 */
 	public function patch( array $base, Diff $diff ) {
-		/**
-		 * @var DiffOp $diffOp
-		 */
 		foreach ( $diff as $key => $diffOp ) {
-			if ( $diffOp instanceof DiffOpAdd ) {
-				if ( array_key_exists( $key, $base ) ) {
-					$this->handleError( 'Cannot add an element already present in a map' );
-					continue;
-				}
-
-				$base[$key] = $diffOp->getNewValue();
-			}
-			else if ( $diffOp instanceof Diff ) {
-				if ( !array_key_exists( $key, $base )
-				&& ( $diffOp->getChanges() !== array() || $diffOp->getRemovals() !== array() )
-				) {
-					$this->handleError( 'Cannot apply a diff with non-add operations to an element not present in a map' );
-					continue;
-				}
-
-				if ( !array_key_exists( $key, $base ) ) {
-					$base[$key] = array();
-				}
-
-				$base[$key] = $this->patchMapOrList( $base[$key], $diffOp );
-			}
-			else if ( $diffOp instanceof DiffOpRemove ) {
-				if ( !array_key_exists( $key, $base ) ) {
-					$this->handleError( 'Cannot do a non-add operation with an element not present in a map' );
-					continue;
-				}
-
-				if ( !$this->valuesAreEqual( $base[$key], $diffOp->getOldValue() ) ) {
-					$this->handleError( 'Tried removing a map value that mismatches the current value' );
-					continue;
-				}
-
-				unset( $base[$key] );
-			}
-			else if ( $diffOp instanceof DiffOpChange ) {
-				if ( !array_key_exists( $key, $base ) ) {
-					$this->handleError( 'Cannot do a non-add operation with an element not present in a map' );
-					continue;
-				}
-
-				if ( !$this->valuesAreEqual( $base[$key], $diffOp->getOldValue() ) ) {
-					$this->handleError( 'Tried changing a map value from an invalid source value' );
-					continue;
-				}
-
-				$base[$key] = $diffOp->getNewValue();
-			}
-			else {
-				$this->handleError( 'Unknown diff operation cannot be applied to map element' );
-			}
+			$this->applyOperation( $base, $key, $diffOp );
 		}
 
 		return $base;
 	}
 
-	protected function patchMapOrList( array $base, Diff $diff ) {
+	private function applyOperation( &$base, $key, $diffOp ) {
+		if ( $diffOp instanceof DiffOpAdd ) {
+			$this->applyDiffOpAdd( $base, $key, $diffOp );
+		}
+		elseif ( $diffOp instanceof DiffOpChange ) {
+			$this->applyDiffOpChange( $base, $key, $diffOp );
+		}
+		elseif ( $diffOp instanceof DiffOpRemove ) {
+			$this->applyDiffOpRemove( $base, $key, $diffOp );
+		}
+		elseif ( $diffOp instanceof Diff ) {
+			$this->applyDiff( $base, $key, $diffOp );
+		}
+		else {
+			$this->handleError( 'Unknown diff operation cannot be applied to map element' );
+		}
+	}
+
+	private function applyDiffOpAdd( &$base, $key, DiffOpAdd $diffOp ) {
+		if ( array_key_exists( $key, $base ) ) {
+			$this->handleError( 'Cannot add an element already present in a map' );
+			return;
+		}
+
+		$base[$key] = $diffOp->getNewValue();
+	}
+
+	private function applyDiffOpRemove( &$base, $key, DiffOpRemove $diffOp ) {
+		if ( !array_key_exists( $key, $base ) ) {
+			$this->handleError( 'Cannot do a non-add operation with an element not present in a map' );
+			return;
+		}
+
+		if ( !$this->valuesAreEqual( $base[$key], $diffOp->getOldValue() ) ) {
+			$this->handleError( 'Tried removing a map value that mismatches the current value' );
+			return;
+		}
+
+		unset( $base[$key] );
+	}
+
+	private function applyDiffOpChange( &$base, $key, DiffOpChange $diffOp ) {
+		if ( !array_key_exists( $key, $base ) ) {
+			$this->handleError( 'Cannot do a non-add operation with an element not present in a map' );
+			return;
+		}
+
+		if ( !$this->valuesAreEqual( $base[$key], $diffOp->getOldValue() ) ) {
+			$this->handleError( 'Tried changing a map value from an invalid source value' );
+			return;
+		}
+
+		$base[$key] = $diffOp->getNewValue();
+	}
+
+	private function applyDiff( &$base, $key, Diff $diffOp ) {
+		if ( $this->isAttemptToModifyNotExistingElement( $base, $key, $diffOp ) ) {
+			$this->handleError( 'Cannot apply a diff with non-add operations to an element not present in a map' );
+			return;
+		}
+
+		if ( !array_key_exists( $key, $base ) ) {
+			$base[$key] = array();
+		}
+
+		$base[$key] = $this->patchMapOrList( $base[$key], $diffOp );
+	}
+
+	private function isAttemptToModifyNotExistingElement( $base, $key, Diff $diffOp ) {
+		return !array_key_exists( $key, $base )
+			&& ( $diffOp->getChanges() !== array() || $diffOp->getRemovals() !== array() );
+	}
+
+	private function patchMapOrList( array $base, Diff $diff ) {
 		if ( $diff->looksAssociative() ) {
 			$base = $this->patch( $base, $diff );
 		}
@@ -140,7 +155,7 @@ class MapPatcher extends ThrowingPatcher {
 		return $base;
 	}
 
-	protected function valuesAreEqual( $firstValue, $secondValue ) {
+	private function valuesAreEqual( $firstValue, $secondValue ) {
 		if ( $this->comparer === null ) {
 			$this->comparer = new StrictComparer();
 		}

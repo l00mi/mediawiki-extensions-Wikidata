@@ -13,7 +13,7 @@ namespace Diff\DiffOp;
  */
 class DiffOpAdd extends AtomicDiffOp {
 
-	protected $newValue;
+	private $newValue;
 
 	/**
 	 * @see DiffOp::getType
@@ -27,8 +27,6 @@ class DiffOpAdd extends AtomicDiffOp {
 	}
 
 	/**
-	 * Constructor.
-	 *
 	 * @since 0.1
 	 *
 	 * @param mixed $newValue

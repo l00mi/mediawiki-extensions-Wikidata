@@ -700,25 +700,29 @@
         },
         {
             "name": "diff/diff",
-            "version": "1.0.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Diff.git",
-                "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b"
+                "reference": "779bd922b53a4483f722c546621c0a401e3f2900"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Diff/zipball/07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
-                "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
+                "url": "https://api.github.com/repos/wmde/Diff/zipball/779bd922b53a4483f722c546621c0a401e3f2900",
+                "reference": "779bd922b53a4483f722c546621c0a401e3f2900",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
+            "require-dev": {
+                "phpmd/phpmd": "~2.1",
+                "squizlabs/php_codesniffer": "~2.1"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -741,7 +745,7 @@
                     "role": "Developer"
                 }
             ],
-            "description": "Library for diffing, patching and representing differences between complex objects",
+            "description": "Small standalone library for representing differences between data structures, computing such differences, and applying them as patches",
             "homepage": "https://github.com/wmde/Diff",
             "keywords": [
                 "diff",
@@ -750,7 +754,7 @@
                 "patching",
                 "wikidata"
             ],
-            "time": "2014-05-07 16:35:49"
+            "time": "2015-03-17 15:21:21"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1209,12 +1213,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "0e655ddc165617fdb28b60a5ec5b4de2ce4c8afa"
+                "reference": "f4b4e1163fa9792961b84e1b598722600bd383d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0e655ddc165617fdb28b60a5ec5b4de2ce4c8afa",
-                "reference": "0e655ddc165617fdb28b60a5ec5b4de2ce4c8afa",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f4b4e1163fa9792961b84e1b598722600bd383d7",
+                "reference": "f4b4e1163fa9792961b84e1b598722600bd383d7",
                 "shasum": ""
             },
             "require": {
@@ -1229,9 +1233,9 @@
                 "data-values/time": "~0.7.0",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.14.0",
-                "diff/diff": "~1.0",
+                "diff/diff": "~2.0|~1.0",
                 "php": ">=5.3.2",
-                "wikibase/data-model": "~2.5",
+                "wikibase/data-model": "~2.6",
                 "wikibase/data-model-javascript": "~1.0",
                 "wikibase/data-model-serialization": "~1.2",
                 "wikibase/internal-serialization": "~1.3",
@@ -1282,7 +1286,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-04-26 01:59:56"
+            "time": "2015-04-27 00:47:00"
         },
         {
             "name": "wikibase/wikimedia-badges",

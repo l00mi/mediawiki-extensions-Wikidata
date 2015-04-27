@@ -144,38 +144,42 @@
         ]
     },
     {
-        "name": "data-values/interfaces",
-        "version": "0.1.5",
-        "version_normalized": "0.1.5.0",
+        "name": "diff/diff",
+        "version": "2.0.0",
+        "version_normalized": "2.0.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "f563e6a55547046070e3d79b5662b620005558d8"
+            "url": "https://github.com/wmde/Diff.git",
+            "reference": "779bd922b53a4483f722c546621c0a401e3f2900"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/f563e6a55547046070e3d79b5662b620005558d8",
-            "reference": "f563e6a55547046070e3d79b5662b620005558d8",
+            "url": "https://api.github.com/repos/wmde/Diff/zipball/779bd922b53a4483f722c546621c0a401e3f2900",
+            "reference": "779bd922b53a4483f722c546621c0a401e3f2900",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-02-14 02:37:02",
+        "require-dev": {
+            "phpmd/phpmd": "~2.1",
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-03-17 15:21:21",
         "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.0.x-dev"
+            }
+        },
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "Interfaces.php"
+                "Diff.php"
             ],
-            "psr-0": {
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src",
-                "ValueValidators\\": "src"
-            },
-            "classmap": [
-                "tests/ValueFormatters/ValueFormatterTestBase.php"
-            ]
+            "psr-4": {
+                "Diff\\": "src/"
+            }
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -189,13 +193,13 @@
                 "role": "Developer"
             }
         ],
-        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
-        "homepage": "https://github.com/DataValues/Interfaces",
+        "description": "Small standalone library for representing differences between data structures, computing such differences, and applying them as patches",
+        "homepage": "https://github.com/wmde/Diff",
         "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
+            "diff",
+            "diffing",
+            "diffop",
+            "patching",
             "wikidata"
         ]
     },
@@ -257,6 +261,123 @@
         "keywords": [
             "datavalues",
             "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model",
+        "version": "2.6.1",
+        "version_normalized": "2.6.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModel.git",
+            "reference": "eda53cf9c88126eda89d92afb4db7f26c652de06"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/eda53cf9c88126eda89d92afb4db7f26c652de06",
+            "reference": "eda53cf9c88126eda89d92afb4db7f26c652de06",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1|~1.0",
+            "diff/diff": "~1.0|2.0",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-04-25 01:11:54",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.6.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseDataModel.php"
+            ],
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Thiemo Mättig"
+            },
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            }
+        ],
+        "description": "PHP implementation of the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModel",
+        "keywords": [
+            "DataModel",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/interfaces",
+        "version": "0.1.5",
+        "version_normalized": "0.1.5.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Interfaces.git",
+            "reference": "f563e6a55547046070e3d79b5662b620005558d8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/f563e6a55547046070e3d79b5662b620005558d8",
+            "reference": "f563e6a55547046070e3d79b5662b620005558d8",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-02-14 02:37:02",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Interfaces.php"
+            ],
+            "psr-0": {
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src",
+                "ValueValidators\\": "src"
+            },
+            "classmap": [
+                "tests/ValueFormatters/ValueFormatterTestBase.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
+        "homepage": "https://github.com/DataValues/Interfaces",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
             "wikidata"
         ]
     },
@@ -476,123 +597,6 @@
         ],
         "description": "Provides JS widgets to edit values defined by the DataValues library",
         "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
-        "name": "diff/diff",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Diff.git",
-            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Diff/zipball/07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
-            "reference": "07f23a7a723bcba69c0b569acefb2f8d8d432c6b",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-05-07 16:35:49",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Diff.php"
-            ],
-            "psr-4": {
-                "Diff\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Library for diffing, patching and representing differences between complex objects",
-        "homepage": "https://github.com/wmde/Diff",
-        "keywords": [
-            "diff",
-            "diffing",
-            "diffop",
-            "patching",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/data-model",
-        "version": "2.6.1",
-        "version_normalized": "2.6.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "eda53cf9c88126eda89d92afb4db7f26c652de06"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/eda53cf9c88126eda89d92afb4db7f26c652de06",
-            "reference": "eda53cf9c88126eda89d92afb4db7f26c652de06",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1|~1.0",
-            "diff/diff": "~1.0|2.0",
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "squizlabs/php_codesniffer": "~2.1"
-        },
-        "time": "2015-04-25 01:11:54",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.6.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseDataModel.php"
-            ],
-            "psr-4": {
-                "Wikibase\\DataModel\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Thiemo Mättig"
-            },
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            }
-        ],
-        "description": "PHP implementation of the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModel",
-        "keywords": [
-            "DataModel",
-            "wikibase",
-            "wikidata"
-        ]
     },
     {
         "name": "wikibase/javascript-api",
@@ -1199,12 +1203,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "0e655ddc165617fdb28b60a5ec5b4de2ce4c8afa"
+            "reference": "f4b4e1163fa9792961b84e1b598722600bd383d7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0e655ddc165617fdb28b60a5ec5b4de2ce4c8afa",
-            "reference": "0e655ddc165617fdb28b60a5ec5b4de2ce4c8afa",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f4b4e1163fa9792961b84e1b598722600bd383d7",
+            "reference": "f4b4e1163fa9792961b84e1b598722600bd383d7",
             "shasum": ""
         },
         "require": {
@@ -1219,9 +1223,9 @@
             "data-values/time": "~0.7.0",
             "data-values/validators": "~0.1.0",
             "data-values/value-view": "~0.14.0",
-            "diff/diff": "~1.0",
+            "diff/diff": "~2.0|~1.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~2.5",
+            "wikibase/data-model": "~2.6",
             "wikibase/data-model-javascript": "~1.0",
             "wikibase/data-model-serialization": "~1.2",
             "wikibase/internal-serialization": "~1.3",
@@ -1231,7 +1235,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-04-26 01:59:56",
+        "time": "2015-04-27 00:47:00",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

@@ -20,7 +20,7 @@ use RuntimeException;
  */
 class OrderedArrayComparer implements ArrayComparer {
 
-	protected $valueComparer;
+	private $valueComparer;
 
 	public function __construct( ValueComparer $valueComparer ) {
 		$this->valueComparer = $valueComparer;
@@ -52,8 +52,6 @@ class OrderedArrayComparer implements ArrayComparer {
 	}
 
 	/**
-	 * @since 0.9
-	 *
 	 * @param string|int $needle
 	 * @param array $haystack
 	 * @param int|string $valueOffset
@@ -61,7 +59,7 @@ class OrderedArrayComparer implements ArrayComparer {
 	 * @return bool
 	 * @throws RuntimeException
 	 */
-	protected function arraySearch( $needle, array $haystack, $valueOffset ) {
+	private function arraySearch( $needle, array $haystack, $valueOffset ) {
 		if ( array_key_exists( $valueOffset, $haystack )) {
 			$areEqual = $this->valueComparer->valuesAreEqual( $needle, $haystack[$valueOffset] );
 

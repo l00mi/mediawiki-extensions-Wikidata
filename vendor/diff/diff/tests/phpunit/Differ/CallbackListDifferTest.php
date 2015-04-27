@@ -22,7 +22,7 @@ class CallbackListDifferTest extends DiffTestCase {
 	/**
 	 * Returns those that both work for native and strict mode.
 	 */
-	protected function getCommonArgLists() {
+	private function getCommonArgLists() {
 		$argLists = array();
 
 		$old = array();
@@ -85,8 +85,13 @@ class CallbackListDifferTest extends DiffTestCase {
 		$new = array( 9001, 2, 0, 42 );
 		$expected = array( new DiffOpRemove( 1 ), new DiffOpAdd( 2 ) );
 
-		$argLists[] = array( $old, $new, $expected,
-			'Two arrays with a single different element should differ by an add and a remove op even when they share identical elements' );
+		$argLists[] = array(
+			$old,
+			$new,
+			$expected,
+			'Two arrays with a single different element should differ by an add '
+				. 'and a remove op even when they share identical elements'
+		);
 
 		return $argLists;
 	}
@@ -170,7 +175,7 @@ class CallbackListDifferTest extends DiffTestCase {
 		$this->doTestDiff( new CallbackListDiffer( $callback ), $old, $new, $expected, $message );
 	}
 
-	protected function doTestDiff( Differ $differ, $old, $new, $expected, $message ) {
+	private function doTestDiff( Differ $differ, $old, $new, $expected, $message ) {
 		$actual = $differ->doDiff( $old, $new );
 
 		$this->assertArrayEquals( $expected, $actual, false, false, $message );

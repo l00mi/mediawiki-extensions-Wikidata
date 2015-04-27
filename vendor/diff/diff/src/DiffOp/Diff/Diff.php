@@ -2,6 +2,7 @@
 
 namespace Diff\DiffOp\Diff;
 
+use ArrayObject;
 use Diff\DiffOp\DiffOp;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
@@ -17,24 +18,21 @@ use InvalidArgumentException;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
-class Diff extends \ArrayObject implements DiffOp {
+class Diff extends ArrayObject implements DiffOp {
 
 	/**
-	 * @since 0.4
-	 *
-	 * @var boolean|null
+	 * @var bool|null
 	 */
-	protected $isAssociative = null;
+	private $isAssociative = null;
 
 	/**
 	 * Pointers to the operations of certain types for quick lookup.
 	 *
-	 * @since 0.1
-	 *
-	 * @var array
+	 * @var array[]
 	 */
-	protected $typePointers = array(
+	private $typePointers = array(
 		'add' => array(),
 		'remove' => array(),
 		'change' => array(),
@@ -44,17 +42,15 @@ class Diff extends \ArrayObject implements DiffOp {
 	);
 
 	/**
-	 * @since 0.1
-	 *
-	 * @var integer
+	 * @var int
 	 */
-	protected $indexOffset = 0;
+	private $indexOffset = 0;
 
 	/**
 	 * @since 0.1
 	 *
 	 * @param DiffOp[] $operations
-	 * @param boolean|null $isAssociative
+	 * @param bool|null $isAssociative
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -74,17 +70,6 @@ class Diff extends \ArrayObject implements DiffOp {
 		}
 
 		$this->isAssociative = $isAssociative;
-	}
-
-	/**
-	 * Returns the name of an interface/class that the element should implement/extend.
-	 *
-	 * @since 0.1
-	 *
-	 * @return string
-	 */
-	private function getObjectType() {
-		return '\Diff\DiffOp\DiffOp';
 	}
 
 	/**
@@ -134,18 +119,13 @@ class Diff extends \ArrayObject implements DiffOp {
 	 * Should return a boolean. When false is returned the element
 	 * does not get added to the ArrayObject.
 	 *
-	 * @since 0.1
+	 * @param int|string $index
+	 * @param DiffOp $value
 	 *
-	 * @param integer|string $index
-	 * @param mixed $value
-	 *
-	 * @return boolean
+	 * @return bool
 	 * @throws InvalidArgumentException
 	 */
-	protected function preSetElement( $index, $value ) {
-		/**
-		 * @var DiffOp $value
-		 */
+	private function preSetElement( $index, DiffOp $value ) {
 		if ( $this->isAssociative === false && ( $value->getType() !== 'add' && $value->getType() !== 'remove' ) ) {
 			throw new InvalidArgumentException( 'Diff operation with invalid type "' . $value->getType() . '" provided.' );
 		}
@@ -166,8 +146,6 @@ class Diff extends \ArrayObject implements DiffOp {
 	 * @since 0.1
 	 *
 	 * @param string $serialization
-	 *
-	 * @return array
 	 */
 	public function unserialize( $serialization ) {
 		$serializationData = unserialize( $serialization );
@@ -191,8 +169,6 @@ class Diff extends \ArrayObject implements DiffOp {
 		elseif ( $this instanceof ListDiff ) {
 			$this->isAssociative = false;
 		}
-
-		return $serializationData;
 	}
 
 	/**
@@ -259,7 +235,7 @@ class Diff extends \ArrayObject implements DiffOp {
 	 *
 	 * @since 0.1
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isAtomic() {
 		return false;
@@ -286,7 +262,7 @@ class Diff extends \ArrayObject implements DiffOp {
 	 *
 	 * @since 0.1
 	 *
-	 * @return integer
+	 * @return int
 	 */
 	public function count() {
 		$count = 0;
@@ -295,7 +271,7 @@ class Diff extends \ArrayObject implements DiffOp {
 		 * @var DiffOp $diffOp
 		 */
 		foreach ( $this as $diffOp ) {
-			$count += count( $diffOp );
+			$count += $diffOp->count();
 		}
 
 		return $count;
@@ -319,7 +295,7 @@ class Diff extends \ArrayObject implements DiffOp {
 	 *
 	 * @since 0.4
 	 *
-	 * @return boolean|null
+	 * @return bool|null
 	 */
 	public function isAssociative() {
 		return $this->isAssociative;
@@ -332,7 +308,7 @@ class Diff extends \ArrayObject implements DiffOp {
 	 *
 	 * @since 0.4
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function looksAssociative() {
 		return $this->isAssociative === null ? $this->hasAssociativeOperations() : $this->isAssociative;
@@ -344,7 +320,7 @@ class Diff extends \ArrayObject implements DiffOp {
 	 *
 	 * @since 0.4
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasAssociativeOperations() {
 		return !empty( $this->typePointers['change'] )
@@ -380,15 +356,33 @@ class Diff extends \ArrayObject implements DiffOp {
 	}
 
 	/**
+	 * @since 2.0
+	 *
+	 * @param mixed $target
+	 *
+	 * @return bool
+	 */
+	public function equals( $target ) {
+		if ( $target === $this ) {
+			return true;
+		}
+
+		if ( !( $target instanceof self ) ) {
+			return false;
+		}
+
+		return $this->isAssociative === $target->isAssociative
+			&& $this->getArrayCopy() == $target->getArrayCopy();
+	}
+
+	/**
 	 * Finds a new offset for when appending an element.
 	 * The base class does this, so it would be better to integrate,
 	 * but there does not appear to be any way to do this...
 	 *
-	 * @since 0.1
-	 *
-	 * @return integer
+	 * @return int
 	 */
-	protected function getNewOffset() {
+	private function getNewOffset() {
 		while ( $this->offsetExists( $this->indexOffset ) ) {
 			$this->indexOffset++;
 		}
@@ -412,26 +406,11 @@ class Diff extends \ArrayObject implements DiffOp {
 	 *
 	 * @since 0.1
 	 *
-	 * @param mixed $index
+	 * @param int|string $index
 	 * @param mixed $value
 	 */
 	public function offsetSet( $index, $value ) {
 		$this->setElement( $index, $value );
-	}
-
-	/**
-	 * Returns if the provided value has the same type as the elements
-	 * that can be added to this ArrayObject.
-	 *
-	 * @since 0.1
-	 *
-	 * @param mixed $value
-	 *
-	 * @return boolean
-	 */
-	protected function hasValidType( $value ) {
-		$class = $this->getObjectType();
-		return $value instanceof $class;
 	}
 
 	/**
@@ -443,21 +422,19 @@ class Diff extends \ArrayObject implements DiffOp {
 	 * otherwise needs to be executed whenever an element is added,
 	 * you can overload @see preSetElement.
 	 *
-	 * @since 0.1
-	 *
-	 * @param mixed $index
+	 * @param int|string|null $index
 	 * @param mixed $value
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	protected function setElement( $index, $value ) {
-		if ( !$this->hasValidType( $value ) ) {
+	private function setElement( $index, $value ) {
+		if ( !( $value instanceof DiffOp ) ) {
 			throw new InvalidArgumentException(
-				'Can only add ' . $this->getObjectType() . ' implementing objects to ' . get_called_class() . '.'
+				'Can only add DiffOp implementing objects to ' . get_called_class() . '.'
 			);
 		}
 
-		if ( is_null( $index ) ) {
+		if ( $index === null ) {
 			$index = $this->getNewOffset();
 		}
 
@@ -491,7 +468,7 @@ class Diff extends \ArrayObject implements DiffOp {
 	 *
 	 * @since 0.1
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isEmpty() {
 		return $this->count() === 0;

@@ -20,21 +20,19 @@ use Diff\DiffOp\DiffOp;
 class CallbackListDiffer implements Differ {
 
 	/**
-	 * @since 0.8
-	 *
 	 * @var ListDiffer
 	 */
-	protected $differ = null;
+	private $differ;
 
 	/**
-	 * Constructor.
-	 *
 	 * @since 0.5
 	 *
 	 * @param callable $comparisonCallback
 	 */
 	public function __construct( $comparisonCallback ) {
-		$this->differ = new ListDiffer( new StrategicArrayComparer( new CallbackComparer( $comparisonCallback ) ) );
+		$this->differ = new ListDiffer(
+			new StrategicArrayComparer( new CallbackComparer( $comparisonCallback ) )
+		);
 	}
 
 	/**
