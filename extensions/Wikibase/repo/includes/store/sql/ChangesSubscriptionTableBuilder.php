@@ -43,13 +43,24 @@ class ChangesSubscriptionTableBuilder {
 	private $progressReporter;
 
 	/**
+	 * @var string 'verbose' or 'standard'
+	 */
+	private $verbosity;
+
+	/**
 	 * @param LoadBalancer $loadBalancer
 	 * @param string $tableName
 	 * @param int $batchSize
+	 * @param string $verbosity Either 'standard' or 'verbose'
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct( LoadBalancer $loadBalancer, $tableName, $batchSize = 1000 ) {
+	public function __construct(
+		LoadBalancer $loadBalancer,
+		$tableName,
+		$batchSize,
+		$verbosity = 'standard'
+	) {
 		if ( !is_string( $tableName ) ) {
 			throw new InvalidArgumentException( '$tableName must be a string' );
 		}
@@ -58,9 +69,15 @@ class ChangesSubscriptionTableBuilder {
 			throw new InvalidArgumentException( '$batchSize must be an integer >= 1' );
 		}
 
+		if ( $verbosity !== 'standard' && $verbosity !== 'verbose' ) {
+			throw new InvalidArgumentException( '$verbosity must be either "verbose"'
+				. ' or "standard".' );
+		}
+
 		$this->loadBalancer = $loadBalancer;
 		$this->tableName = $tableName;
 		$this->batchSize = $batchSize;
+		$this->verbosity = $verbosity;
 
 		$this->exceptionHandler = new LogWarningExceptionHandler();
 		$this->progressReporter = new NullMessageReporter();
@@ -100,7 +117,7 @@ class ChangesSubscriptionTableBuilder {
 	 * @param ItemId $startItem The item to start with.
 	 */
 	public function fillSubscriptionTable( ItemId $startItem = null ) {
-		$continuation = $startItem === null ? null : array( $startItem->getNumericId(), '' );
+		$continuation = $startItem === null ? null : array( $startItem->getNumericId(), 0 );
 
 		while ( true ) {
 			$count = $this->processSubscriptionBatch( $continuation );
@@ -157,6 +174,11 @@ class ChangesSubscriptionTableBuilder {
 				)
 			);
 
+			if ( $this->verbosity === 'verbose' ) {
+				$this->progressReporter->reportMessage( 'Inserted ' . $db->affectedRows()
+					. ' into wb_changes_subscription' );
+			}
+
 			$c+= count( $rows );
 		}
 
@@ -171,29 +193,33 @@ class ChangesSubscriptionTableBuilder {
 	 * @return array[] An associative array mapping item IDs to lists of site IDs.
 	 */
 	private function getSubscriptionsPerItemBatch( DatabaseBase $db, &$continuation = array() ) {
-
 		if ( empty( $continuation ) ) {
 			$continuationCondition = '1';
 		} else {
-			list( $fromItemId, $fromSiteId ) = $continuation;
+			list( $fromItemId, $fromRowId ) = $continuation;
 			$continuationCondition = 'ips_item_id > ' . (int)$fromItemId
 				. ' OR ( '
 					. 'ips_item_id = ' . (int)$fromItemId
 					. ' AND '
-					. 'ips_site_id > ' . $db->addQuotes( $fromSiteId )
+					. 'ips_row_id > ' . $fromRowId
 				. ' )';
 		}
 
 		$res = $db->select(
 			'wb_items_per_site',
-			array( 'ips_item_id', 'ips_site_id' ),
+			array( 'ips_row_id', 'ips_item_id', 'ips_site_id' ),
 			$continuationCondition,
 			__METHOD__,
 			array(
 				'LIMIT' => $this->batchSize,
-				'ORDER BY' => 'ips_item_id, ips_site_id'
+				'ORDER BY' => 'ips_item_id, ips_row_id'
 			)
 		);
+
+		if ( $this->verbosity === 'verbose' ) {
+			$this->progressReporter->reportMessage( 'Selected ' . $res->numRows() . ' wb_item_per_site records'
+				. ' with continuation: ' . $continuationCondition );
+		}
 
 		return $this->getSubscriptionsPerItemFromRows( $res, $continuation );
 	}
@@ -211,17 +237,17 @@ class ChangesSubscriptionTableBuilder {
 	) {
 		$subscriptionsPerItem = array();
 
-		$currentId = 0;
+		$currentItemId = 0;
 		$itemId = null;
 
 		foreach ( $res as $row ) {
-			if ( $row->ips_item_id != $currentId ) {
+			if ( $row->ips_item_id != $currentItemId ) {
 				$currentItemId = $row->ips_item_id;
 				$itemId = ItemId::newFromNumber( $currentItemId )->getSerialization();
 			}
 
 			$subscriptionsPerItem[$itemId][] = $row->ips_site_id;
-			$continuation = array( $currentItemId, $row->ips_site_id );
+			$continuation = array( $currentItemId, $row->ips_row_id );
 		}
 
 		return $subscriptionsPerItem;
