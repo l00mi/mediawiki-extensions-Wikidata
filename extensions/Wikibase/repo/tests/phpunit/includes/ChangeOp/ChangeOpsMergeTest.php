@@ -48,8 +48,12 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 	protected function makeChangeOpsMerge(
 		Item $fromItem,
 		Item $toItem,
-		array $ignoreConflicts = array()
+		array $ignoreConflicts = array(),
+		$siteLookup = null
 	) {
+		if ( $siteLookup === null ) {
+			$siteLookup = MockSiteStore::newFromTestSites();
+		}
 		// A validator which makes sure that no site link is for page 'DUPE'
 		$siteLinkUniquenessValidator = $this->getMock( 'Wikibase\Validators\EntityValidator' );
 		$siteLinkUniquenessValidator->expects( $this->any() )
@@ -77,7 +81,8 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 			$this->mockProvider->getMockGuidValidator(),
 			$this->mockProvider->getMockGuidParser( $toItem->getId() ),
 			$this->mockProvider->getMockSnakValidator(),
-			$this->mockProvider->getMockTermValidatorFactory()
+			$this->mockProvider->getMockTermValidatorFactory(),
+			$siteLookup
 		);
 
 		return new ChangeOpsMerge(
@@ -85,7 +90,8 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 			$toItem,
 			$ignoreConflicts,
 			$constraintProvider,
-			$changeOpFactoryProvider
+			$changeOpFactoryProvider,
+			$siteLookup
 		);
 	}
 
@@ -106,10 +112,9 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$to = $this->newItemWithId( 'Q222' );
 		return array(
 			array( $from, $to, array() ),
-			array( $from, $to, array( 'label' ) ),
+			array( $from, $to, array( 'sitelink' ) ),
 			array( $from, $to, array( 'description' ) ),
-			array( $from, $to, array( 'description', 'label' ) ),
-			array( $from, $to, array( 'description', 'label', 'sitelink' ) ),
+			array( $from, $to, array( 'description', 'sitelink' ) ),
 		);
 	}
 
@@ -129,8 +134,9 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$from = $this->newItemWithId( 'Q111' );
 		$to = $this->newItemWithId( 'Q222' );
 		return array(
+			array( $from, $to, array( 'label' ) ),
 			array( $from, $to, array( 'foo' ) ),
-			array( $from, $to, array( 'label', 'foo' ) ),
+			array( $from, $to, array( 'description', 'foo' ) ),
 		);
 	}
 
@@ -169,8 +175,9 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 	}
 
 	private function removeClaimsGuids( Item $item ) {
-		foreach ( $item->getClaims() as $claim ) {
-			$claim->setGuid( null );
+		/** @var Statement $statement */
+		foreach ( $item->getStatements() as $statement ) {
+			$statement->setGuid( null );
 		}
 	}
 
@@ -203,12 +210,11 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$itemWithLabelAndAlias->getFingerprint()->setLabel( 'en', 'bar' );
 		$itemWithLabelAndAlias->getFingerprint()->setAliasGroup( 'en', array( 'foo' ) );
 
-		$testCases['ignoreConflictLabelMerge'] = array(
+		$testCases['labelAsAliasMerge'] = array(
 			$itemWithEnLabel->copy(),
 			$itemWithEnBarLabel->copy(),
 			new Item(),
-			$itemWithLabelAndAlias->copy(),
-			array( 'label' )
+			$itemWithLabelAndAlias->copy()
 		);
 
 		$itemWithDescription = new Item();
@@ -263,6 +269,13 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$testCases['linkMerge'] = array(
 			$itemWithLink->copy(),
 			new Item(),
+			new Item(),
+			$itemWithLink->copy(),
+		);
+
+		$testCases['sameLinkLinkMerge'] = array(
+			$itemWithLink->copy(),
+			$itemWithLink->copy(),
 			new Item(),
 			$itemWithLink->copy(),
 		);
@@ -329,17 +342,17 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 			$bigItem->copy(),
 		);
 
-		$bigItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'bar' );
+		$bigItem->getSiteLinkList()->addNewSiteLink( 'nlwiki', 'bar' );
 
 
 		$smallerItem = new Item();
 		$smallerItem->getFingerprint()->setLabel( 'en', 'toLabel' );
 		$smallerItem->getFingerprint()->setDescription( 'pl', 'toLabel' ); // FIXME: this is not a label
-		$smallerItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'toLink' );
+		$smallerItem->getSiteLinkList()->addNewSiteLink( 'nlwiki', 'toLink' );
 
 		$smallerMergedItem = new Item();
 		$smallerMergedItem->getFingerprint()->setDescription( 'pl', 'pldesc' );
-		$smallerMergedItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'bar' );
+		$smallerMergedItem->getSiteLinkList()->addNewSiteLink( 'nlwiki', 'bar' );
 
 		$bigMergedItem = new Item();
 		$bigMergedItem->getFingerprint()->setLabel( 'en', 'toLabel' );
@@ -350,7 +363,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$bigMergedItem->getFingerprint()->setAliasGroup( 'de', array( 'defoo', 'debar' ) );
 
 		$bigMergedItem->getSiteLinkList()->addNewSiteLink( 'dewiki', 'foo' );
-		$bigMergedItem->getSiteLinkList()->addNewSiteLink( 'plwiki', 'toLink' );
+		$bigMergedItem->getSiteLinkList()->addNewSiteLink( 'nlwiki', 'toLink' );
 		$bigMergedItem->setStatements( new StatementList( new Statement( $anotherQualifiedClaim ) ) );
 
 		$testCases['ignoreConflictItemMerge'] = array(
@@ -358,15 +371,70 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 			$smallerItem->copy(),
 			$smallerMergedItem->copy(),
 			$bigMergedItem->copy(),
-			array( 'label', 'description', 'sitelink' )
+			array( 'description', 'sitelink' )
 		);
 		return $testCases;
+	}
+
+	public function testSitelinkConflictNormalization() {
+		$from = new Item( new ItemId( 'Q111' ) );
+		$expectedFrom = clone $from;
+		$from->getSiteLinkList()->addNewSiteLink( 'enwiki', 'FOo' );
+
+		$to = new Item( new ItemId( 'Q222' ) );
+		$expectedTo = clone $to;
+		$to->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
+
+		$enwiki = $this->getMock( 'Site' );
+		$enwiki->expects( $this->once() )
+			->method( 'getGlobalId' )
+			->will( $this->returnValue( 'enwiki' ) );
+		$enwiki->expects( $this->exactly( 2 ) )
+			->method( 'normalizePageName' )
+			->will( $this->returnValue( 'Foo' ) );
+		$mockSiteStore = MockSiteStore::newFromTestSites();
+		$mockSiteStore->saveSite( $enwiki );
+
+		$changeOps = $this->makeChangeOpsMerge(
+			$from,
+			$to,
+			array(),
+			$mockSiteStore
+		);
+
+		$changeOps->apply();
+
+		$this->assertTrue( $from->equals( $expectedFrom ) );
+		$this->assertTrue( $to->equals( $expectedTo ) );
+	}
+
+	public function testExceptionThrownWhenNormalizingSiteNotFound() {
+		$from = new Item();
+		$from->setId( new ItemId( 'Q111' ) );
+		$from->getSiteLinkList()->addNewSiteLink( 'enwiki', 'FOo' );
+		$to = new Item();
+		$to->setId( new ItemId( 'Q222' ) );
+		$to->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
+
+		$changeOps = $this->makeChangeOpsMerge(
+			$from,
+			$to,
+			array(),
+			new MockSiteStore()
+		);
+
+		$this->setExpectedException(
+			'\Wikibase\ChangeOp\ChangeOpException',
+			'Conflicting sitelinks for enwiki, Failed to normalize'
+		);
+
+		$changeOps->apply();
 	}
 
 	public function testExceptionThrownWhenSitelinkDuplicatesDetected() {
 		$from = $this->newItemWithId( 'Q111' );
 		$to = $this->newItemWithId( 'Q222' );
-		$to->getSiteLinkList()->addNewSiteLink( 'eewiki', 'DUPE' );
+		$to->getSiteLinkList()->addNewSiteLink( 'nnwiki', 'DUPE' );
 
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,
@@ -383,10 +451,10 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 	public function testExceptionNotThrownWhenSitelinkDuplicatesDetectedOnFromItem() {
 		// the from-item keeps the sitelinks
 		$from = $this->newItemWithId( 'Q111' );
-		$from->getSiteLinkList()->addNewSiteLink( 'eewiki', 'DUPE' );
+		$from->getSiteLinkList()->addNewSiteLink( 'nnwiki', 'DUPE' );
 
 		$to = $this->newItemWithId( 'Q222' );
-		$to->getSiteLinkList()->addNewSiteLink( 'eewiki', 'BLOOP' );
+		$to->getSiteLinkList()->addNewSiteLink( 'nnwiki', 'BLOOP' );
 
 		$changeOps = $this->makeChangeOpsMerge(
 			$from,

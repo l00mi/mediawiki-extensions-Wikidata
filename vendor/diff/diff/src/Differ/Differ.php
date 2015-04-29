@@ -3,6 +3,7 @@
 namespace Diff\Differ;
 
 use Diff\DiffOp\DiffOp;
+use Exception;
 
 /**
  * Interface for objects that can diff two arrays to an array of DiffOp.
@@ -22,8 +23,8 @@ interface Differ {
 	 * @param array $oldValues The first array
 	 * @param array $newValues The second array
 	 *
+	 * @throws Exception
 	 * @return DiffOp[]
-	 * @throws \Exception
 	 */
 	public function doDiff( array $oldValues, array $newValues );
 

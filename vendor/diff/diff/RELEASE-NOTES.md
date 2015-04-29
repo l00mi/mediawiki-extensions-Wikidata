@@ -3,6 +3,20 @@ These are the release notes for the [Diff library](README.md).
 Latest release:
 [![Latest Stable Version](https://poser.pugx.org/diff/diff/version.png)](https://packagist.org/packages/diff/diff)
 
+## Version 2.0 (2015-03-17)
+
+* Added `Diff::equals`
+* Removed unused `Diff\Appendable` interface
+* Removed `Diff.credits.php`
+* Changed visibility of most protected fields and methods to private
+
+#### Internal changes
+
+* `bootstrap.php` no longer runs `composer update`
+* Added PHPCS and PHPMD support and configuration (`phpcs.xml` and `phpmd.xml`)
+* Added `composer cs` command for running the code style checks
+* CI now runs `composer ci` (includes code style checks) instead of `phpunit`
+
 ## Version 1.0.1 (2014-05-07)
 
 * Removed not needed support for the MediaWiki i18n system
@@ -16,8 +30,8 @@ Latest release:
 
 #### Compatibility breaks
 
-* Removed the Diff\IDiff interface (deprecated since 0.5)
-* Removed the Diff\IDiffOp interface (deprecated since 0.4)
+* Removed the `Diff\IDiff` interface (deprecated since 0.5)
+* Removed the `Diff\IDiffOp` interface (deprecated since 0.4)
 * Replaced custom autoloader with PSR-4 based loading via Composer
 
 #### Deprecations
@@ -31,9 +45,9 @@ Latest release:
 
 #### Additions
 
-* Added OrderedArrayComparer, an ArrayComparer for ordered arrays
-* Added OrderedListDiffer, a Differ that acts as facade for a ListDiffer using an OrderedArrayComparer
-* Added ComparableComparer, a ValueComparer that makes use of a "equals" method of the objects it compares
+* Added `OrderedArrayComparer`, an `ArrayComparer` for ordered arrays
+* Added `OrderedListDiffer`, a Differ that acts as facade for a `ListDiffer` using an `OrderedArrayComparer`
+* Added `ComparableComparer`, a `ValueComparer` that makes use of a "equals" method of the objects it compares
 
 ## Version 0.8 (2013-08-26)
 

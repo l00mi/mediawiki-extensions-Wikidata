@@ -2,6 +2,7 @@
 
 namespace Diff\Tests\Differ;
 
+use Diff\ArrayComparer\NativeArrayComparer;
 use Diff\Differ\Differ;
 use Diff\Differ\ListDiffer;
 use Diff\DiffOp\DiffOpAdd;
@@ -22,7 +23,7 @@ class ListDifferTest extends DiffTestCase {
 	/**
 	 * Returns those that both work for native and strict mode.
 	 */
-	protected function getCommonArgLists() {
+	private function getCommonArgLists() {
 		$argLists = array();
 
 		$old = array();
@@ -85,8 +86,13 @@ class ListDifferTest extends DiffTestCase {
 		$new = array( 9001, 2, 0, 42 );
 		$expected = array( new DiffOpRemove( 1 ), new DiffOpAdd( 2 ) );
 
-		$argLists[] = array( $old, $new, $expected,
-			'Two arrays with a single different element should differ by an add and a remove op even when they share identical elements' );
+		$argLists[] = array(
+			$old,
+			$new,
+			$expected,
+			'Two arrays with a single different element should differ by an add'
+				. 'and a remove op even when they share identical elements'
+		);
 
 		return $argLists;
 	}
@@ -201,10 +207,10 @@ class ListDifferTest extends DiffTestCase {
 	 * @dataProvider toDiffNativeProvider
 	 */
 	public function testDoNativeDiff( $old, $new, $expected, $message = '' ) {
-		$this->doTestDiff( new ListDiffer( ListDiffer::MODE_NATIVE ), $old, $new, $expected, $message );
+		$this->doTestDiff( new ListDiffer( new NativeArrayComparer() ), $old, $new, $expected, $message );
 	}
 
-	protected function doTestDiff( Differ $differ, $old, $new, $expected, $message ) {
+	private function doTestDiff( Differ $differ, $old, $new, $expected, $message ) {
 		$actual = $differ->doDiff( $old, $new );
 
 		$this->assertArrayEquals( $expected, $actual, false, false, $message );

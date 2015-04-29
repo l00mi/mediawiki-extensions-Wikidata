@@ -4,12 +4,13 @@ namespace DataValues;
 
 /**
  * Class representing a time value.
- * @see https://meta.wikimedia.org/wiki/Wikidata/Data_model#Dates_and_times
+ * @see https://www.mediawiki.org/wiki/Wikibase/DataModel#Dates_and_times
  *
  * @since 0.1
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
 class TimeValue extends DataValueObject {
 
@@ -30,15 +31,23 @@ class TimeValue extends DataValueObject {
 	const PRECISION_SECOND = 14;
 
 	/**
-	 * Point in time, represented per ISO8601.
-	 * The year always having 11 digits, the date always be signed, in the format +00000002013-01-01T00:00:00Z
+	 * Timestamp describing a point in time. The actual format depends on the calendar model.
+	 *
+	 * Gregorian and Julian dates use the same YMD ordered format, resembling ISO 8601, e.g.
+	 * +2013-01-01T00:00:00Z. In this format the year is always signed and padded with zero
+	 * characters to have between 4 and 16 digits. Month and day can be zero, indicating they are
+	 * unknown. The timezone suffix Z is meaningless and must be ignored. Use getTimezone() instead.
+	 *
+	 * @see $timezone
+	 * @see $calendarModel
 	 *
 	 * @var string
 	 */
-	private $time;
+	private $timestamp;
 
 	/**
-	 * Unit used for the $after and $before values.
+	 * Unit used for the getBefore() and getAfter() values. Use one of the TimeValue::PRECISION_...
+	 * constants.
 	 *
 	 * @var int
 	 */
@@ -48,7 +57,7 @@ class TimeValue extends DataValueObject {
 	 * If the date is uncertain, how many units after the given time could it be?
 	 * The unit is given by the precision.
 	 *
-	 * @var int
+	 * @var int Amount
 	 */
 	private $after;
 
@@ -56,77 +65,64 @@ class TimeValue extends DataValueObject {
 	 * If the date is uncertain, how many units before the given time could it be?
 	 * The unit is given by the precision.
 	 *
-	 * @var int
+	 * @var int Amount
 	 */
 	private $before;
 
 	/**
-	 * Timezone information as an offset from UTC in minutes.
+	 * Time zone information as an offset from UTC in minutes.
 	 *
-	 * @var int
+	 * @var int Minutes
 	 */
 	private $timezone;
 
 	/**
-	 * URI identifying the calendar model that should be used to display this time value.
-	 * Note that time is always saved in proleptic Gregorian, this URI states how the value should be displayed.
+	 * URI identifying the calendar model. The actual timestamp should be in this calendar model,
+	 * but note that there is nothing this class can do to enforce this convention.
 	 *
-	 * @var string
+	 * @var string URI
 	 */
 	private $calendarModel;
 
 	/**
 	 * @since 0.1
 	 *
-	 * @param string $time an ISO 8601 date and time
-	 * @param int $timezone offset from UTC in minutes
-	 * @param int $before number of units given by the precision
-	 * @param int $after number of units given by the precision
-	 * @param int $precision one of the PRECISION_... constants
-	 * @param string $calendarModel a URI identifying the calendar model
+	 * @param string $timestamp Timestamp in a format resembling ISO 8601.
+	 * @param int $timezone Time zone offset from UTC in minutes.
+	 * @param int $before Number of units given by the precision.
+	 * @param int $after Number of units given by the precision.
+	 * @param int $precision One of the TimeValue::PRECISION_... constants.
+	 * @param string $calendarModel An URI identifying the calendar model.
 	 *
 	 * @throws IllegalValueException
 	 */
-	public function __construct( $time, $timezone, $before, $after, $precision, $calendarModel ) {
-		if ( !is_string( $time ) ) {
-			throw new IllegalValueException( '$time needs to be a string' );
-		}
-
-		if ( !preg_match( '!^[-+]\d{1,16}-(0\d|1[012])-([012]\d|3[01])T([01]\d|2[0123]):[0-5]\d:([0-5]\d|6[012])Z$!', $time ) ) {
-			throw new IllegalValueException( '$time needs to be a valid ISO 8601 date, given ' . $time );
-		}
-
-		if ( !is_integer( $timezone ) ) {
-			throw new IllegalValueException( '$timezone needs to be an integer' );
-		}
-
-		if ( $timezone < -12 * 3600 || $timezone > 14 * 3600 ) {
+	public function __construct( $timestamp, $timezone, $before, $after, $precision, $calendarModel ) {
+		if ( !is_int( $timezone ) ) {
+			throw new IllegalValueException( '$timezone must be an integer' );
+		} elseif ( $timezone < -12 * 3600 || $timezone > 14 * 3600 ) {
 			throw new IllegalValueException( '$timezone out of allowed bounds' );
 		}
 
-		if ( !is_integer( $before ) || $before < 0 ) {
-			throw new IllegalValueException( '$before needs to be an unsigned integer' );
+		if ( !is_int( $before ) || $before < 0 ) {
+			throw new IllegalValueException( '$before must be an unsigned integer' );
 		}
 
-		if ( !is_integer( $after ) || $after < 0 ) {
-			throw new IllegalValueException( '$after needs to be an unsigned integer' );
+		if ( !is_int( $after ) || $after < 0 ) {
+			throw new IllegalValueException( '$after must be an unsigned integer' );
 		}
 
-		if ( !is_integer( $precision ) ) {
-			throw new IllegalValueException( '$precision needs to be an integer' );
-		}
-
-		if ( $precision < self::PRECISION_Ga || $precision > self::PRECISION_SECOND ) {
+		if ( !is_int( $precision ) ) {
+			throw new IllegalValueException( '$precision must be an integer' );
+		} elseif ( $precision < self::PRECISION_Ga || $precision > self::PRECISION_SECOND ) {
 			throw new IllegalValueException( '$precision out of allowed bounds' );
 		}
 
-		if ( !is_string( $calendarModel ) ) { //XXX: enforce IRI? Or at least a size limit?
-			throw new IllegalValueException( '$calendarModel needs to be a string' );
+		// XXX: Enforce an IRI? Or at least a size limit?
+		if ( !is_string( $calendarModel ) || $calendarModel === '' ) {
+			throw new IllegalValueException( '$calendarModel must be a non-empty string' );
 		}
 
-		// Can haz scalar type hints plox? ^^
-
-		$this->time = $time;
+		$this->timestamp = $this->validateIsoTimestamp( $timestamp );
 		$this->timezone = $timezone;
 		$this->before = $before;
 		$this->after = $after;
@@ -135,14 +131,45 @@ class TimeValue extends DataValueObject {
 	}
 
 	/**
-	 * @see $time
+	 * @param string $timestamp
+	 *
+	 * @throws IllegalValueException
+	 * @return string
+	 */
+	private function validateIsoTimestamp( $timestamp ) {
+		if ( !is_string( $timestamp ) || $timestamp === '' ) {
+			throw new IllegalValueException( '$timestamp must be a non-empty string' );
+		} elseif ( !preg_match(
+			'/^([-+])(\d{1,16})-(\d\d)-(\d\d)(T(?:[01]\d|2[0-3]):[0-5]\d:(?:[0-5]\d|6[012])Z)$/',
+			$timestamp,
+			$matches
+		) ) {
+			throw new IllegalValueException( '$timestamp must resemble ISO 8601, given ' . $timestamp );
+		}
+
+		list( , $sign, $year, $month, $day, $time ) = $matches;
+
+		if ( $month > 12 ) {
+			throw new IllegalValueException( 'Month out of allowed bounds' );
+		} elseif ( $day > 31 ) {
+			throw new IllegalValueException( 'Day out of allowed bounds' );
+		}
+
+		$year = ltrim( $year, '0' );
+		$year = str_pad( $year, 4, '0', STR_PAD_LEFT );
+
+		return $sign . $year . '-' . $month . '-' . $day . $time;
+	}
+
+	/**
+	 * @see $timestamp
 	 *
 	 * @since 0.1
 	 *
 	 * @return string
 	 */
 	public function getTime() {
-		return $this->time;
+		return $this->timestamp;
 	}
 
 	/**
@@ -150,7 +177,7 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return string
+	 * @return string URI
 	 */
 	public function getCalendarModel() {
 		return $this->calendarModel;
@@ -161,7 +188,7 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return int
+	 * @return int Amount
 	 */
 	public function getBefore() {
 		return $this->before;
@@ -172,7 +199,7 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return int
+	 * @return int Amount
 	 */
 	public function getAfter() {
 		return $this->after;
@@ -183,7 +210,7 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return int
+	 * @return int one of the TimeValue::PRECISION_... constants
 	 */
 	public function getPrecision() {
 		return $this->precision;
@@ -194,7 +221,7 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return int
+	 * @return int Minutes
 	 */
 	public function getTimezone() {
 		return $this->timezone;
@@ -216,14 +243,13 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return string|float|int
+	 * @return string
 	 */
 	public function getSortKey() {
-		return $this->time;
+		return $this->timestamp;
 	}
 
 	/**
-	 * Returns the text.
 	 * @see DataValue::getValue
 	 *
 	 * @since 0.1
@@ -252,12 +278,11 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @param string $value
 	 *
-	 * @return MonolingualTextValue
 	 * @throws IllegalValueException
 	 */
 	public function unserialize( $value ) {
-		list( $time, $timezone, $before, $after, $precision, $calendarModel ) = json_decode( $value );
-		$this->__construct( $time, $timezone, $before, $after, $precision, $calendarModel );
+		list( $timestamp, $timezone, $before, $after, $precision, $calendarModel ) = json_decode( $value );
+		$this->__construct( $timestamp, $timezone, $before, $after, $precision, $calendarModel );
 	}
 
 	/**
@@ -265,11 +290,11 @@ class TimeValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function getArrayValue() {
 		return array(
-			'time' => $this->time,
+			'time' => $this->timestamp,
 			'timezone' => $this->timezone,
 			'before' => $this->before,
 			'after' => $this->after,
@@ -303,7 +328,7 @@ class TimeValue extends DataValueObject {
 	}
 
 	public function __toString() {
-		return $this->time;
+		return $this->timestamp;
 	}
 
 }

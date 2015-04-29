@@ -2,13 +2,15 @@
 
 namespace Wikibase;
 
-use Wikibase\Store\EntityIdLookup;
+use MWException;
 use Wikibase\Client\Usage\SubscriptionManager;
 use Wikibase\Client\Usage\UsageLookup;
 use Wikibase\Client\Usage\UsageTracker;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityPrefetcher;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
+use Wikibase\Store\EntityIdLookup;
 
 /**
  * Client store interface.
@@ -87,9 +89,8 @@ interface ClientStore {
 	/**
 	 * @since 0.4
 	 *
+	 * @throws MWException if no changes table can be supplied.
 	 * @return ChangesTable
-	 *
-	 * @throws \MWException if no changes table can be supplied.
 	 */
 	public function newChangesTable();
 
@@ -123,4 +124,5 @@ interface ClientStore {
 	 * @return EntityPrefetcher
 	 */
 	public function getEntityPrefetcher();
+
 }

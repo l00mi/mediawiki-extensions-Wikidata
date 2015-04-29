@@ -21,7 +21,7 @@ use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\LabelConflictFinder;
 use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Store\RevisionBasedEntityLookup;
-use Wikibase\Lib\Store\SiteLinkCache;
+use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Lib\Store\SiteLinkConflictLookup;
 use Wikibase\Lib\Store\SiteLinkTable;
 use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
@@ -81,9 +81,9 @@ class SqlStore implements Store {
 	private $entityInfoBuilderFactory = null;
 
 	/**
-	 * @var PropertyInfoTable|null
+	 * @var PropertyInfoStore|null
 	 */
-	private $propertyInfoTable = null;
+	private $propertyInfoStore = null;
 
 	/**
 	 * @var ChangesTable|null
@@ -191,7 +191,7 @@ class SqlStore implements Store {
 	 * @since 0.1
 	 */
 	public function clear() {
-		$this->newSiteLinkCache()->clear();
+		$this->newSiteLinkStore()->clear();
 		$this->getTermIndex()->clear();
 		$this->newEntityPerPage()->clear();
 	}
@@ -475,13 +475,13 @@ class SqlStore implements Store {
 	}
 
 	/**
-	 * @see Store::newSiteLinkCache
+	 * @see Store::newSiteLinkStore
 	 *
 	 * @since 0.1
 	 *
-	 * @return SiteLinkCache
+	 * @return SiteLinkStore
 	 */
-	public function newSiteLinkCache() {
+	public function newSiteLinkStore() {
 		return new SiteLinkTable( 'wb_items_per_site', false );
 	}
 
@@ -660,19 +660,19 @@ class SqlStore implements Store {
 	 * @return PropertyInfoStore
 	 */
 	public function getPropertyInfoStore() {
-		if ( !$this->propertyInfoTable ) {
-			$this->propertyInfoTable = $this->newPropertyInfoTable();
+		if ( !$this->propertyInfoStore ) {
+			$this->propertyInfoStore = $this->newPropertyInfoStore();
 		}
 
-		return $this->propertyInfoTable;
+		return $this->propertyInfoStore;
 	}
 
 	/**
-	 * Creates a new PropertyInfoTable
+	 * Creates a new PropertyInfoStore
 	 *
-	 * @return PropertyInfoTable
+	 * @return PropertyInfoStore
 	 */
-	private function newPropertyInfoTable() {
+	private function newPropertyInfoStore() {
 		$usePropertyInfoTable = WikibaseRepo::getDefaultInstance()->
 			getSettings()->getSetting( 'usePropertyInfoTable' );
 

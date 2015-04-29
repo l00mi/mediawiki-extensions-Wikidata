@@ -19,7 +19,7 @@ use Wikibase\DataModel\SiteLink;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
-class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConflictLookup {
+class SiteLinkTable extends DBAccessBase implements SiteLinkStore, SiteLinkConflictLookup {
 
 	/**
 	 * @since 0.1
@@ -84,7 +84,7 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConfl
 	}
 
 	/**
-	 * @see SiteLinkCache::saveLinksOfItem
+	 * @see SiteLinkStore::saveLinksOfItem
 	 *
 	 * @since 0.1
 	 *
@@ -94,7 +94,7 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConfl
 	 */
 	public function saveLinksOfItem( Item $item ) {
 		//First check whether there's anything to update
-		$newLinks = $item->getSiteLinks();
+		$newLinks = $item->getSiteLinkList()->toArray();
 		$oldLinks = $this->getSiteLinksForItem( $item->getId() );
 
 		$linksToInsert = array_udiff( $newLinks, $oldLinks, array( $this, 'compareSiteLinks' ) );
@@ -203,7 +203,7 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConfl
 
 
 	/**
-	 * @see SiteLinkCache::deleteLinksOfItem
+	 * @see SiteLinkStore::deleteLinksOfItem
 	 *
 	 * @since 0.1
 	 *
@@ -281,9 +281,9 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConfl
 	 * @return array[]
 	 */
 	public function getConflictsForItem( Item $item, DatabaseBase $db = null ) {
-		$links = $item->getSiteLinks();
+		$siteLinks = $item->getSiteLinkList();
 
-		if ( $links === array() ) {
+		if ( $siteLinks->isEmpty() ) {
 			return array();
 		}
 
@@ -295,7 +295,8 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConfl
 
 		$anyOfTheLinks = '';
 
-		foreach ( $links as $siteLink ) {
+		/** @var SiteLink $siteLink */
+		foreach ( $siteLinks as $siteLink ) {
 			if ( $anyOfTheLinks !== '' ) {
 				$anyOfTheLinks .= "\nOR ";
 			}
@@ -339,7 +340,7 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkCache, SiteLinkConfl
 	}
 
 	/**
-	 * @see SiteLinkCache::clear
+	 * @see SiteLinkStore::clear
 	 *
 	 * @since 0.2
 	 *

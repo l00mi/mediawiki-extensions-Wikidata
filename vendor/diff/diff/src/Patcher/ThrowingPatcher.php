@@ -19,16 +19,14 @@ use Diff\DiffOp\Diff\Diff;
 abstract class ThrowingPatcher implements PreviewablePatcher {
 
 	/**
-	 * @since 0.4
-	 *
-	 * @var boolean
+	 * @var bool
 	 */
-	protected $throwErrors;
+	private $throwErrors;
 
 	/**
 	 * @since 0.4
 	 *
-	 * @param boolean $throwErrors
+	 * @param bool $throwErrors
 	 */
 	public function __construct( $throwErrors = false ) {
 		$this->throwErrors = $throwErrors;

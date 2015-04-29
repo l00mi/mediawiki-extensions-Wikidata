@@ -159,16 +159,9 @@ class SpecialMergeItems extends SpecialWikibasePage {
 	}
 
 	protected function showExceptionMessage( Exception $ex ) {
-		$class = 'error';
 		$msg = $this->exceptionLocalizer->getExceptionMessage( $ex );
 
-		$this->getOutput()->addHTML(
-			Html::rawElement(
-				'p',
-				array( 'class' => $class ),
-				$msg->parse()
-			)
-		);
+		$this->showErrorHTML( $msg->parse(), 'error' );
 
 		// Report chained exceptions recursively
 		if ( $ex->getPrevious() ) {
@@ -224,7 +217,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 				array(
 					'method' => 'post',
 					'action' => $this->getPageTitle()->getFullUrl(),
-					'name' => strtolower( $this->getName() ),
+					'name' => 'mergeitems',
 					'id' => 'wb-mergeitems-form1',
 					'class' => 'wb-form'
 				)
@@ -236,8 +229,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 			. Html::element(
 				'legend',
 				array( 'class' => 'wb-legend' ),
-				// Message: special-mergeitems
-				$this->msg( 'special-' . strtolower( $this->getName() ) )->text()
+				$this->msg( 'special-mergeitems' )->text()
 			)
 		);
 

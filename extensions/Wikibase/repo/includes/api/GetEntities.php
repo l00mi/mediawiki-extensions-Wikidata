@@ -10,6 +10,7 @@ use Wikibase\EntityRevision;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
+use Wikibase\Lib\Store\EntityPrefetcher;
 use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\WikibaseRepo;
@@ -94,14 +95,12 @@ class GetEntities extends ApiWikibase {
 		$entityIds = $this->getEntityIdsFromParams( $params );
 		$entityRevisions = $this->getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects );
 
-		foreach( $entityRevisions as $key => $entityRevision ) {
-			$this->handleEntity( $key, $entityRevision, $params );
+		foreach( $entityRevisions as $sourceEntityId => $entityRevision ) {
+			$this->handleEntity( $sourceEntityId, $entityRevision, $params );
 		}
 
 		//todo remove once result builder is used... (what exactly does this do....?)
-		if ( $this->getResult()->getIsRawMode() ) {
-			$this->getResult()->setIndexedTagName_internal( array( 'entities' ), 'entity' );
-		}
+		$this->getResult()->addIndexedTagName( array( 'entities' ), 'entity' );
 
 		$this->getResultBuilder()->markSuccess( 1 );
 	}
@@ -156,11 +155,11 @@ class GetEntities extends ApiWikibase {
 	 * @return ItemByTitleHelper
 	 */
 	private function getItemByTitleHelper() {
-		$siteLinkCache = WikibaseRepo::getDefaultInstance()->getStore()->newSiteLinkCache();
+		$siteLinkStore = WikibaseRepo::getDefaultInstance()->getStore()->newSiteLinkStore();
 		$siteStore = WikibaseRepo::getDefaultInstance()->getSiteStore();
 		return new ItemByTitleHelper(
 			$this->getResultBuilder(),
-			$siteLinkCache,
+			$siteLinkStore,
 			$siteStore,
 			$this->stringNormalizer
 		);
@@ -202,10 +201,10 @@ class GetEntities extends ApiWikibase {
 		$this->entityPrefetcher->prefetch( $entityIds );
 
 		foreach ( $entityIds as $entityId ) {
-			$key = $entityId->getSerialization();
+			$sourceEntityId = $entityId->getSerialization();
 			$entityRevision = $this->getEntityRevision( $entityId, $resolveRedirects );
 
-			$revisionArray[$key] = $entityRevision;
+			$revisionArray[$sourceEntityId] = $entityRevision;
 		}
 
 		return $revisionArray;
@@ -235,19 +234,19 @@ class GetEntities extends ApiWikibase {
 	/**
 	 * Adds the given EntityRevision to the API result.
 	 *
-	 * @param string|null $key
+	 * @param string|null $sourceEntityId
 	 * @param EntityRevision|null $entityRevision
 	 * @param array $params
 	 */
-	private function handleEntity( $key, EntityRevision $entityRevision = null, array $params = array() ) {
+	private function handleEntity( $sourceEntityId, EntityRevision $entityRevision = null, array $params = array() ) {
 		if ( $entityRevision === null ) {
-			$this->getResultBuilder()->addMissingEntity( $key, array( 'id' => $key ) );
+			$this->getResultBuilder()->addMissingEntity( $sourceEntityId, array( 'id' => $sourceEntityId ) );
 		} else {
 			$props = $this->getPropsFromParams( $params );
 			$options = $this->getSerializationOptions( $params, $props );
 			$siteFilterIds = $params['sitefilter'];
 
-			$this->getResultBuilder()->addEntityRevision( $key, $entityRevision, $options, $props, $siteFilterIds );
+			$this->getResultBuilder()->addEntityRevision( $sourceEntityId, $entityRevision, $options, $props, $siteFilterIds );
 		}
 	}
 

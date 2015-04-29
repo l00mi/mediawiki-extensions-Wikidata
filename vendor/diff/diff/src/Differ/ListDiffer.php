@@ -28,7 +28,7 @@ class ListDiffer implements Differ {
 	 * This makes use of @see array_diff
 	 *
 	 * @since 0.4
-	 * @deprecated since 0.8
+	 * @deprecated since 0.8, use new NativeArrayComparer() instead
 	 */
 	const MODE_NATIVE = 0;
 
@@ -37,16 +37,14 @@ class ListDiffer implements Differ {
 	 * This makes use of @see ListDiffer::strictDiff
 	 *
 	 * @since 0.4
-	 * @deprecated since 0.8
+	 * @deprecated since 0.8, use null instead
 	 */
 	const MODE_STRICT = 1;
 
 	/**
-	 * @since 0.8
-	 *
 	 * @var ArrayComparer
 	 */
-	protected $arrayComparer;
+	private $arrayComparer;
 
 	/**
 	 * @param ArrayComparer $arrayComparer
@@ -65,13 +63,13 @@ class ListDiffer implements Differ {
 	 * @return ArrayComparer
 	 * @throws InvalidArgumentException
 	 */
-	protected function getRealArrayComparer( $arrayComparer ) {
+	private function getRealArrayComparer( $arrayComparer ) {
 		if ( $arrayComparer === null || $arrayComparer === self::MODE_STRICT ) {
 			return new StrictArrayComparer();
 		}
 
 		if ( $arrayComparer === self::MODE_NATIVE ) {
-			 return new NativeArrayComparer();
+			return new NativeArrayComparer();
 		}
 
 		if ( is_object( $arrayComparer ) && $arrayComparer instanceof ArrayComparer ) {
@@ -90,7 +88,6 @@ class ListDiffer implements Differ {
 	 * @param array $newValues The second array
 	 *
 	 * @return DiffOp[]
-	 * @throws \Exception
 	 */
 	public function doDiff( array $oldValues, array $newValues ) {
 		$operations = array();
@@ -107,14 +104,12 @@ class ListDiffer implements Differ {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param array $arrayOne
 	 * @param array $arrayTwo
 	 *
 	 * @return array
 	 */
-	protected function diffArrays( array $arrayOne, array $arrayTwo ) {
+	private function diffArrays( array $arrayOne, array $arrayTwo ) {
 		return $this->arrayComparer->diffArrays( $arrayOne, $arrayTwo );
 	}
 

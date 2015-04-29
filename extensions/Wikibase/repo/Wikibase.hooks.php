@@ -24,16 +24,10 @@ use SkinTemplate;
 use SpecialSearch;
 use Title;
 use User;
-use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Repo\BabelUserLanguageLookup;
 use Wikibase\Repo\Content\EntityHandler;
+use Wikibase\Repo\Hooks\OutputPageEntityIdReader;
 use Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\View\EntityViewPlaceholderExpander;
-use Wikibase\View\Template\TemplateFactory;
-use Wikibase\View\TextInjector;
 use WikiPage;
 
 /**
@@ -609,7 +603,12 @@ final class RepoHooks {
 	 * @return bool
 	 */
 	public static function onOutputPageBodyAttributes( OutputPage $out, Skin $sk, array &$bodyAttrs ) {
-		$entityId = self::getEntityIdFromOutputPage( $out );
+		$outputPageEntityIdReader = new OutputPageEntityIdReader(
+			WikibaseRepo::getDefaultInstance()->getEntityContentFactory(),
+			WikibaseRepo::getDefaultInstance()->getEntityIdParser()
+		);
+
+		$entityId = $outputPageEntityIdReader->getEntityIdFromOutputPage( $out );
 
 		if ( $entityId === null ) {
 			return true;
@@ -632,34 +631,6 @@ final class RepoHooks {
 		}
 
 		return true;
-	}
-
-	/**
-	 * @param OutputPage $out
-	 *
-	 * @return EntityId|null
-	 */
-	private static function getEntityIdFromOutputPage( OutputPage $out ) {
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$entityContentFactory = $wikibaseRepo->getEntityContentFactory();
-
-		if ( !$entityContentFactory->isEntityContentModel( $out->getTitle()->getContentModel() ) ) {
-			return null;
-		}
-
-		$jsConfigVars = $out->getJsConfigVars();
-
-		if ( array_key_exists( 'wbEntityId', $jsConfigVars ) ) {
-			$idString = $jsConfigVars['wbEntityId'];
-
-			try {
-				return $wikibaseRepo->getEntityIdParser()->parse( $idString );
-			} catch ( EntityIdParsingException $ex ) {
-				wfLogWarning( 'Failed to parse EntityId config var: ' . $idString );
-			}
-		}
-
-		return null;
 	}
 
 	/**
@@ -924,53 +895,6 @@ final class RepoHooks {
 		$titleText = $parserOutput->getExtensionData( 'wikibase-titletext' );
 		if ( $titleText !== null ) {
 			$out->setProperty( 'wikibase-titletext', $titleText );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Called when pushing HTML from the ParserOutput into OutputPage.
-	 * Used to expand any placeholders in the OutputPage's 'wb-placeholders' property
-	 * in the HTML.
-	 *
-	 * @param OutputPage $out
-	 * @param string &$html the HTML to mangle
-	 *
-	 * @return bool
-	 */
-	public static function onOutputPageBeforeHTML( OutputPage $out, &$html ) {
-		$placeholders = $out->getProperty( 'wikibase-view-chunks' );
-
-		if ( !empty( $placeholders ) ) {
-			$injector = new TextInjector( $placeholders );
-			$templateFactory = TemplateFactory::getDefaultInstance();
-			$userLanguageLookup = new BabelUserLanguageLookup();
-			$termsLanguages = WikibaseRepo::getDefaultInstance()->getTermsLanguages();
-			$expander = new EntityViewPlaceholderExpander(
-				$templateFactory,
-				$out->getTitle(),
-				$out->getUser(),
-				$out->getLanguage(),
-				WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
-				WikibaseRepo::getDefaultInstance()->getEntityRevisionLookup(),
-				$userLanguageLookup,
-				WikibaseRepo::getDefaultInstance()->getTermsLanguages(),
-				new LanguageNameLookup()
-			);
-
-			$html = $injector->inject( $html, array( $expander, 'getHtmlForPlaceholder' ) );
-
-			$out->addJsConfigVars(
-				'wbUserSpecifiedLanguages',
-				// All user-specified languages, that are valid term languages
-				// Reindex the keys so that javascript still works if an unknown
-				// language code in the babel box causes an index to miss
-				array_values( array_intersect(
-					$userLanguageLookup->getUserSpecifiedLanguages( $out->getUser() ),
-					$termsLanguages->getLanguages()
-				) )
-			);
 		}
 
 		return true;

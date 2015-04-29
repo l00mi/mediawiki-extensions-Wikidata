@@ -147,7 +147,7 @@
                             "datatype": "time",
                             "datavalue": {
                                 "value": {
-                                    "time": "-00000000200-00-00T00:00:00Z",
+                                    "time": "-0200-00-00T00:00:00Z",
                                     "timezone": 0,
                                     "before": 0,
                                     "after": 0,
@@ -166,6 +166,16 @@
                             "datatype": "url",
                             "datavalue": {
                                 "value": "http:\/\/url.acme.test\/",
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "hash": "42669d541dfd2d6cc0105927bff02bbe0eec0e921",
+                            "snaktype": "value",
+                            "property": "P9",
+                            "datatype": "url",
+                            "datavalue": {
+                                "value": " http:\/\/url.acme2.test\/\n",
                                 "type": "string"
                             }
                         }

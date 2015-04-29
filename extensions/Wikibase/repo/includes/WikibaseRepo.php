@@ -414,7 +414,8 @@ class WikibaseRepo {
 			$this->getClaimGuidValidator(),
 			$this->getClaimGuidParser(),
 			$this->getSnakValidator(),
-			$this->getTermValidatorFactory()
+			$this->getTermValidatorFactory(),
+			$this->getSiteStore()
 		);
 	}
 
@@ -881,20 +882,27 @@ class WikibaseRepo {
 	 */
 	protected function getInternalDeserializerFactory() {
 		return new DeserializerFactory(
-			new DataValueDeserializer( array(
-				'boolean' => 'DataValues\BooleanValue',
-				'number' => 'DataValues\NumberValue',
-				'string' => 'DataValues\StringValue',
-				'unknown' => 'DataValues\UnknownValue',
-				'globecoordinate' => 'DataValues\Geo\Values\GlobeCoordinateValue',
-				'monolingualtext' => 'DataValues\MonolingualTextValue',
-				'multilingualtext' => 'DataValues\MultilingualTextValue',
-				'quantity' => 'DataValues\QuantityValue',
-				'time' => 'DataValues\TimeValue',
-				'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
-			) ),
+			$this->getDataValueDeserializer(),
 			$this->getEntityIdParser()
 		);
+	}
+
+	/**
+	 * @return Deserializer
+	 */
+	public function getDataValueDeserializer() {
+		return new DataValueDeserializer( array(
+			'boolean' => 'DataValues\BooleanValue',
+			'number' => 'DataValues\NumberValue',
+			'string' => 'DataValues\StringValue',
+			'unknown' => 'DataValues\UnknownValue',
+			'globecoordinate' => 'DataValues\Geo\Values\GlobeCoordinateValue',
+			'monolingualtext' => 'DataValues\MonolingualTextValue',
+			'multilingualtext' => 'DataValues\MultilingualTextValue',
+			'quantity' => 'DataValues\QuantityValue',
+			'time' => 'DataValues\TimeValue',
+			'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
+		) );
 	}
 
 	/**
@@ -913,7 +921,7 @@ class WikibaseRepo {
 		$codec = $this->getEntityContentDataCodec();
 		$constraintProvider = $this->getEntityConstraintProvider();
 		$errorLocalizer = $this->getValidatorErrorLocalizer();
-		$siteLinkStore = $this->getStore()->newSiteLinkCache();
+		$siteLinkStore = $this->getStore()->newSiteLinkStore();
 		$legacyFormatDetector = $this->getLegacyFormatDetectorCallback();
 
 		$handler = new ItemHandler(
@@ -1002,7 +1010,10 @@ class WikibaseRepo {
 		return $this->entityNamespaceLookup;
 	}
 
-	private function getEntityIdHtmlLinkFormatterFactory() {
+	/**
+	 * @return EntityIdHtmlLinkFormatterFactory
+	 */
+	public function getEntityIdHtmlLinkFormatterFactory() {
 		return new EntityIdHtmlLinkFormatterFactory(
 			$this->getEntityTitleLookup(),
 			new LanguageNameLookup()

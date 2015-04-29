@@ -2,6 +2,7 @@
 
 namespace Diff\Tests\Differ;
 
+use Diff\ArrayComparer\NativeArrayComparer;
 use Diff\Differ\Differ;
 use Diff\Differ\ListDiffer;
 use Diff\Differ\MapDiffer;
@@ -159,15 +160,21 @@ class MapDifferTest extends DiffTestCase {
 
 		$argLists[] = array( $old, $new, $expected,
 			'Setting a non-default Differ for non-associative diffs should work',
-			true, new ListDiffer( ListDiffer::MODE_NATIVE ) );
+			true, new ListDiffer( new NativeArrayComparer() ) );
 
 
 		$old = array( 'a' => array( 42 ), 1, array( 'a' => 'b', 5 ), 'bah' => array( 'foo' => 'bar' ) );
 		$new = array( 'a' => array( 42 ), 1, array( 'a' => 'b', 5 ), 'bah' => array( 'foo' => 'baz' ) );
 		$expected = array( 'bah' => new Diff( array( 'foo' => new DiffOpChange( 'bar', 'baz' ) ), true ) );
 
-		$argLists[] = array( $old, $new, $expected,
-			'Nested structures with no differences should not result in nested empty diffs (these empty diffs should be omitted)', true );
+		$argLists[] = array(
+			$old,
+			$new,
+			$expected,
+			'Nested structures with no differences should not result '
+				. 'in nested empty diffs (these empty diffs should be omitted)',
+			true
+		);
 
 
 		$old = array( 'links' => array(
@@ -356,7 +363,8 @@ class MapDifferTest extends DiffTestCase {
 
 		$this->assertArrayEquals(
 			$expected, $actual, false, true,
-			'No change ops should be created when the arrays have the same length and the comparison callback always returns true'
+			'No change ops should be created when the arrays have '
+				. 'the same length and the comparison callback always returns true'
 		);
 	}
 

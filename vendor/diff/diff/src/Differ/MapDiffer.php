@@ -22,25 +22,21 @@ use LogicException;
 class MapDiffer implements Differ {
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
-	protected $recursively;
+	private $recursively;
 
 	/**
 	 * @var Differ
 	 */
-	protected $listDiffer;
+	private $listDiffer;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var callable|null
 	 */
-	protected $comparisonCallback = null;
+	private $comparisonCallback = null;
 
 	/**
-	 * Constructor.
-	 *
 	 * @since 0.4
 	 *
 	 * @param bool $recursively
@@ -78,8 +74,8 @@ class MapDiffer implements Differ {
 	 * @param array $oldValues The first array
 	 * @param array $newValues The second array
 	 *
+	 * @throws Exception
 	 * @return DiffOp[]
-	 * @throws \Exception
 	 */
 	public function doDiff( array $oldValues, array $newValues ) {
 		$newSet = $this->arrayDiffAssoc( $newValues, $oldValues );
@@ -98,14 +94,14 @@ class MapDiffer implements Differ {
 		return $diffSet;
 	}
 
-	protected function getAllKeys( $oldSet, $newSet ) {
+	private function getAllKeys( $oldSet, $newSet ) {
 		return array_unique( array_merge(
 			array_keys( $oldSet ),
 			array_keys( $newSet )
 		) );
 	}
 
-	protected function getDiffOpForElement( $key, array $oldSet, array $newSet ) {
+	private function getDiffOpForElement( $key, array $oldSet, array $newSet ) {
 		$hasOld = array_key_exists( $key, $oldSet );
 		$hasNew = array_key_exists( $key, $newSet );
 
@@ -137,7 +133,7 @@ class MapDiffer implements Differ {
 		// @codeCoverageIgnoreEnd
 	}
 
-	protected function getDiffOpForElementRecursively( $key, array $oldSet, array $newSet ) {
+	private function getDiffOpForElementRecursively( $key, array $oldSet, array $newSet ) {
 		$old = array_key_exists( $key, $oldSet ) ? $oldSet[$key] : array();
 		$new = array_key_exists( $key, $newSet ) ? $newSet[$key] : array();
 
@@ -149,7 +145,7 @@ class MapDiffer implements Differ {
 		return null;
 	}
 
-	protected function getDiffForArrays( array $old, array $new ) {
+	private function getDiffForArrays( array $old, array $new ) {
 		if ( $this->isAssociative( $old ) || $this->isAssociative( $new ) ) {
 			return new Diff( $this->doDiff( $old, $new ), true );
 		}
@@ -161,13 +157,11 @@ class MapDiffer implements Differ {
 	/**
 	 * Returns if an array is associative or not.
 	 *
-	 * @since 0.4
-	 *
 	 * @param array $array
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	protected function isAssociative( array $array ) {
+	private function isAssociative( array $array ) {
 		foreach ( $array as $key => $value ) {
 			if ( is_string( $key ) ) {
 				return true;
@@ -184,14 +178,12 @@ class MapDiffer implements Differ {
 	 *
 	 * @see http://php.net/manual/en/function.array-diff-assoc.php
 	 *
-	 * @since 0.4
-	 *
 	 * @param array $from
 	 * @param array $to
 	 *
 	 * @return array
 	 */
-	protected function arrayDiffAssoc( array $from, array $to ) {
+	private function arrayDiffAssoc( array $from, array $to ) {
 		$diff = array();
 
 		foreach ( $from as $key => $value ) {
@@ -204,15 +196,13 @@ class MapDiffer implements Differ {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param mixed $value0
 	 * @param mixed $value1
 	 *
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function valuesAreEqual( $value0, $value1 ) {
+	private function valuesAreEqual( $value0, $value1 ) {
 		if ( $this->comparisonCallback === null ) {
 			return $value0 === $value1;
 		}

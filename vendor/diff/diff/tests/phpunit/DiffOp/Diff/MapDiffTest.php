@@ -122,7 +122,7 @@ class MapDiffTest extends DiffOpTest {
 				array(
 					'bar' => array( 4, 2 ),
 					'en' => array( 'd' => 4, 'b' => 2 ),
-					'de' => array( 'a' =>'hax' ),
+					'de' => array( 'a' => 'hax' ),
 				),
 				array(
 					'en' => 'map',
@@ -324,9 +324,9 @@ class MapDiffTest extends DiffOpTest {
 		$this->assertInstanceOf( 'Diff\DiffOp\Diff\Diff', $diff['nl'] );
 		$this->assertInstanceOf( 'Diff\DiffOp\Diff\Diff', $diff['en'] );
 
-		$this->assertEquals( 2, count( $diff['de'] ) );
-		$this->assertEquals( 2, count( $diff['nl'] ) );
-		$this->assertEquals( 2, count( $diff['en'] ) );
+		$this->assertSame( 2, count( $diff['de'] ) );
+		$this->assertSame( 2, count( $diff['nl'] ) );
+		$this->assertSame( 2, count( $diff['en'] ) );
 
 		/**
 		 * @var Diff $listDiff
@@ -359,4 +359,3 @@ class MapDiffTest extends DiffOpTest {
 	}
 
 }
-	
