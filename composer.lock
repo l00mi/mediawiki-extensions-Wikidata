@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "acfea3b9e0c96edc8c43534c53e9b2c9",
+    "hash": "2d06e773cea8b137fee09f6f007b1660",
     "packages": [
         {
             "name": "composer/installers",
@@ -758,16 +758,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "2.1.0",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "6aa918d6a9b1131801a16bcf3b121c41f1ec70ab"
+                "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/6aa918d6a9b1131801a16bcf3b121c41f1ec70ab",
-                "reference": "6aa918d6a9b1131801a16bcf3b121c41f1ec70ab",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
+                "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
                 "shasum": ""
             },
             "require": {
@@ -799,7 +799,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-04-02 09:44:17"
+            "time": "2015-04-29 13:47:31"
         },
         {
             "name": "serialization/serialization",
@@ -1213,12 +1213,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "9c03b460d8bb199c9c7f07aa872281c4f9004ea1"
+                "reference": "a8ebc465ebef676cae0e0bef36ddbd799133200d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9c03b460d8bb199c9c7f07aa872281c4f9004ea1",
-                "reference": "9c03b460d8bb199c9c7f07aa872281c4f9004ea1",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a8ebc465ebef676cae0e0bef36ddbd799133200d",
+                "reference": "a8ebc465ebef676cae0e0bef36ddbd799133200d",
                 "shasum": ""
             },
             "require": {
@@ -1286,7 +1286,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-04-29 09:48:45"
+            "time": "2015-04-30 07:57:39"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1294,12 +1294,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikimediaBadges.git",
-                "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1"
+                "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/bb5baa8e74f45b66929cc721a112605ba947dbc1",
-                "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/a4cb3fa96adee3f634999873c8bfe432783bf47e",
+                "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e",
                 "shasum": ""
             },
             "require": {
@@ -1336,7 +1336,7 @@
                 "source": "https://github.com/wmde/WikimediaBadges/tree/master",
                 "issues": "https://github.com/wmde/WikimediaBadges/issues"
             },
-            "time": "2014-11-25 18:25:26"
+            "time": "2015-04-29 15:52:39"
         }
     ],
     "packages-dev": [],

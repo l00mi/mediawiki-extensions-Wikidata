@@ -57,7 +57,7 @@ class PidLock {
 				}
 
 				if ( preg_match( '/\d+/', $process, $matches )
-					&& intval( $pid ) === intval( $matches[0] )
+					&& (int)$pid === (int)$matches[0]
 				) {
 					return true;
 				}
@@ -87,7 +87,7 @@ class PidLock {
 			// check if the process still exist and is alive
 			// XXX: there's a race condition here.
 			if ( file_exists( $file ) ) {
-				$pid = file_get_contents( $file );
+				$pid = (int)file_get_contents( $file );
 				if ( $this->isAlive( $pid ) === true ) {
 					return false;
 				}
