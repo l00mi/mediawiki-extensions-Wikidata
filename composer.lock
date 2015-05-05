@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3612bab46da204bdcf9c99f1ada84c67",
+    "hash": "70bd36b4d0c521e3a184fdd7e0c95fe3",
     "packages": [
         {
             "name": "composer/installers",
@@ -1212,14 +1212,8 @@
             "version": "dev-wmf/1.26wmf4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e7c0348da1ccae020e232a6e246480a39dcb26a2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e7c0348da1ccae020e232a6e246480a39dcb26a2",
-                "reference": "e7c0348da1ccae020e232a6e246480a39dcb26a2",
-                "shasum": ""
+                "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
+                "reference": "eedce83fe41a299f242c2933e23bbbc8ce2dc944"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1268,7 +1262,6 @@
                     "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0+"
             ],
@@ -1286,7 +1279,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-04-29 01:26:39"
+            "support": {
+                "issues": "https://bugzilla.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata"
+            },
+            "time": "2015-05-05 19:13:08"
         },
         {
             "name": "wikibase/wikimedia-badges",
