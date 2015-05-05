@@ -70,7 +70,7 @@ class MergeItemsTest extends \MediaWikiTestCase {
 
 		$permissionChecker->expects( $this->any() )
 			->method( 'getPermissionStatusForEntityId' )
-			->will( $this->returnCallback( function( User $user, $permission, EntityId $id ) {
+			->will( $this->returnCallback( function( User $user, $permission ) {
 				if ( $user->getName() === 'UserWithoutPermission' && $permission === 'edit' ) {
 					return Status::newFatal( 'permissiondenied' );
 				} else {
@@ -119,7 +119,6 @@ class MergeItemsTest extends \MediaWikiTestCase {
 
 		$module->execute();
 
-		$result = $module->getResult();
 		$data = $module->getResult()->getResultData( null, array(
 			'BC' => array(),
 			'Types' => array(),
