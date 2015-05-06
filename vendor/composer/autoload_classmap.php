@@ -684,6 +684,7 @@ return array(
     'Wikibase\\Lib\\Store\\EntityLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityLookup.php',
     'Wikibase\\Lib\\Store\\EntityPrefetcher' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityPrefetcher.php',
     'Wikibase\\Lib\\Store\\EntityRedirect' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityRedirect.php',
+    'Wikibase\\Lib\\Store\\EntityRedirectLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityRedirectLookup.php',
     'Wikibase\\Lib\\Store\\EntityRedirectResolvingDecorator' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityRedirectResolvingDecorator.php',
     'Wikibase\\Lib\\Store\\EntityRetrievingTermLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityRetrievingTermLookup.php',
     'Wikibase\\Lib\\Store\\EntityRevisionLookup' => $baseDir . '/extensions/Wikibase/lib/includes/store/EntityRevisionLookup.php',

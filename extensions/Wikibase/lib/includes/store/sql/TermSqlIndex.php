@@ -261,6 +261,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		//      That would allow us to do the deletion in a single query, based on a set of ids.
 
 		$entityIdentifiers = array(
+			// FIXME: this will fail for IDs that do not have a numeric form
 			'term_entity_id' => $entityId->getNumericId(),
 			'term_entity_type' => $entityId->getEntityType()
 		);
@@ -331,11 +332,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			'term_language' => $term->getLanguage(),
 			'term_type' => $term->getType(),
 			'term_text' => $term->getText(),
+			'term_search_key' => $this->getSearchKey( $term->getText(), $term->getLanguage() )
 		);
-
-		if ( $this->supportsSearchKeys() ) {
-			$fields['term_search_key'] = $this->getSearchKey( $term->getText(), $term->getLanguage() );
-		}
 
 		return $fields;
 	}
@@ -355,6 +353,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		$success = $dbw->delete(
 			$this->tableName,
 			array(
+				// FIXME: this will fail for IDs that do not have a numeric form
 				'term_entity_id' => $entityId->getNumericId(),
 				'term_entity_type' => $entityId->getEntityType()
 			),
@@ -443,6 +442,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 				throw new MWException( "ID $id does not refer to an entity of type $entityType" );
 			}
 
+			// FIXME: this will fail for IDs that do not have a numeric form
 			$numericIds[] = $id->getNumericId();
 		}
 
@@ -722,7 +722,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			// used in the database.
 			$textField = 'term_text';
 
-			if ( !$options['caseSensitive'] && $this->supportsSearchKeys() ) {
+			if ( !$options['caseSensitive'] ) {
 				$textField = 'term_search_key';
 				$text = $this->getSearchKey( $term->getText(), $term->getLanguage() );
 			}
@@ -998,13 +998,6 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		}
 
 		return $normalized;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function supportsSearchKeys() {
-		return !Settings::get( 'withoutTermSearchKey' );
 	}
 
 	/**

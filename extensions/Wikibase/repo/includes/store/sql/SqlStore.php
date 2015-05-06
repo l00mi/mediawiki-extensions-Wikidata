@@ -15,6 +15,7 @@ use Wikibase\Lib\Store\CachingEntityRevisionLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityRedirectLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
@@ -413,11 +414,8 @@ class SqlStore implements Store {
 	 * @param DatabaseBase $db
 	 */
 	private function updateTermsTable( DatabaseUpdater $updater, DatabaseBase $db ) {
-		$withoutTermSearchKey = WikibaseRepo::getDefaultInstance()->
-			getSettings()->getSetting( 'withoutTermSearchKey' );
-
 		// ---- Update from 0.1 or 0.2. ----
-		if ( !$db->fieldExists( 'wb_terms', 'term_search_key' ) && !$withoutTermSearchKey ) {
+		if ( !$db->fieldExists( 'wb_terms', 'term_search_key' ) ) {
 
 			$updater->addExtensionField(
 				'wb_terms',
@@ -497,6 +495,15 @@ class SqlStore implements Store {
 			$this->entityIdParser,
 			$this->useRedirectTargetColumn
 		);
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return EntityRedirectLookup
+	 */
+	public function getEntityRedirectLookup() {
+		return $this->newEntityPerPage();
 	}
 
 	/**
