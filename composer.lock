@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "70bd36b4d0c521e3a184fdd7e0c95fe3",
@@ -1213,7 +1213,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "b83449d82ca0a5f2fb890e37ef76bb3d0075d463"
+                "reference": "c6df5a162ec8128ff9036217739b3e0927caa2ce"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1283,7 +1283,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-05-06 01:04:37"
+            "time": "2015-05-11 10:40:03"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1295,7 +1295,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/bb5baa8e74f45b66929cc721a112605ba947dbc1",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/a4cb3fa96adee3f634999873c8bfe432783bf47e",
                 "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1",
                 "shasum": ""
             },

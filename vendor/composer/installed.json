@@ -1160,7 +1160,7 @@
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/bb5baa8e74f45b66929cc721a112605ba947dbc1",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/a4cb3fa96adee3f634999873c8bfe432783bf47e",
             "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1",
             "shasum": ""
         },
@@ -1303,7 +1303,7 @@
         "source": {
             "type": "git",
             "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-            "reference": "b83449d82ca0a5f2fb890e37ef76bb3d0075d463"
+            "reference": "c6df5a162ec8128ff9036217739b3e0927caa2ce"
         },
         "require": {
             "data-values/common": "~0.2.0",
@@ -1329,7 +1329,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-05-05 20:16:30",
+        "time": "2015-05-10 21:41:06",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
