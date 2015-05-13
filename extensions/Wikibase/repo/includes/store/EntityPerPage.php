@@ -19,6 +19,21 @@ use Wikibase\DataModel\Entity\EntityId;
 interface EntityPerPage {
 
 	/**
+	 * Omit redirects from entity listing.
+	 */
+	const NO_REDIRECTS = 'no';
+
+	/**
+	 * Include redirects in entity listing.
+	 */
+	const INCLUDE_REDIRECTS = 'include';
+
+	/**
+	 * Include only redirects in listing.
+	 */
+	const ONLY_REDIRECTS = 'only';
+
+	/**
 	 * Adds a new link between an entity and a page
 	 *
 	 * @since 0.5
@@ -42,19 +57,18 @@ interface EntityPerPage {
 	public function addRedirectPage( EntityId $entityId, $pageId, EntityId $targetId );
 
 	/**
-	 * Lists entities of the given type.
-	 * This does not include redirects.
+	 * Lists entities of the given type (optionally including redirects).
 	 *
 	 * @since 0.5
 	 *
 	 * @param null|string $entityType The entity type to look for.
 	 * @param int $limit The maximum number of IDs to return.
 	 * @param EntityId $after Only return entities with IDs greater than this.
+	 * @param mixed $redirects A XXX_REDIRECTS constant (default is NO_REDIRECTS).
 	 *
-	 * @throws InvalidArgumentException
 	 * @return EntityId[]
 	 */
-	public function listEntities( $entityType, $limit, EntityId $after = null );
+	public function listEntities( $entityType, $limit, EntityId $after = null, $redirects = self::NO_REDIRECTS );
 
 	/**
 	 * Removes a link between an entity (or entity redirect) and a page
@@ -122,13 +136,4 @@ interface EntityPerPage {
 	 */
 	public function getItemsWithoutSitelinks( $siteId = null, $limit = 50, $offset = 0 );
 
-	/**
-	 * @since 0.5
-	 *
-	 * @param EntityId $entityId
-	 *
-	 * @return EntityId|null|false The ID of the redirect target, or null if $entityId
-	 *         does not refer to a redirect, or false if $entityId is not known.
-	 */
-	public function getRedirectForEntityId( EntityId $entityId );
 }

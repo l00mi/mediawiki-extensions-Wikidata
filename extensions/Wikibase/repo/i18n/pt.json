@@ -17,6 +17,7 @@
 		]
 	},
 	"wikibase-desc": "Repositório de dados estruturados",
+	"wikibase-entity": "entidade",
 	"wikibase-entity-item": "item",
 	"wikibase-entity-property": "propriedade",
 	"wikibase-entity-query": "consulta",
@@ -352,6 +353,7 @@
 	"right-item-merge": "Fundir itens",
 	"right-property-term": "Altere termos de propriedade (rótulos, descrições, nomes alternativos)",
 	"right-property-create": "Criar propriedades",
+	"action-item-merge": "fundir itens",
 	"action-property-create": "criar propriedades",
 	"apihelp-wbcreateclaim-description": "Cria alegações do Wikidata.",
 	"apihelp-wbmergeitems-description": "Faz a fusão de vários itens.",

@@ -52,6 +52,7 @@ $specialPageAliases['ar'] = array(
 	'SetLabelDescriptionAliases' => array( 'ضبط_كنى_وصف_العلامات' ),
 	'SetSiteLink' => array( 'ضبط_وصلة_الموقع' ),
 	'MergeItems' => array( 'دمج_المدخلات' ),
+	'RedirectEntity' => array( 'كينونة_تحويل', 'مدخلة_تحويل' ),
 	'EntitiesWithoutLabel' => array( 'الكيانات_بدون_علامة' ),
 	'EntitiesWithoutDescription' => array( 'الكيانات_بدون_وصف' ),
 	'ItemsWithoutSitelinks' => array( 'المدخلات_بدون_وصلات_موقع' ),
@@ -63,7 +64,7 @@ $specialPageAliases['arc'] = array(
 	'NewProperty' => array( 'ܕܝܠܝܘ̈ܬܐ_ܚܕ̈ܬܬܐ' ),
 );
 
-/** Egyptian Spoken Arabic (مصرى) */
+/** Egyptian Arabic (مصرى) */
 $specialPageAliases['arz'] = array(
 	'DispatchStats' => array( 'احصاءات_الوصول' ),
 	'EntityData' => array( 'بيانات_الكيانات' ),
@@ -269,7 +270,7 @@ $specialPageAliases['lb'] = array(
 	'MyLanguageFallbackChain' => array( 'Meng_Ersatzsproochketten' ),
 );
 
-/** لوری (لوری) */
+/** لوری مینجایی (لوری مینجایی) */
 $specialPageAliases['lrc'] = array(
 	'ListDatatypes' => array( 'میزونکاری_جور_داده_یا' ),
 	'SetLabel' => array( 'میزونکاری_ریتراز' ),

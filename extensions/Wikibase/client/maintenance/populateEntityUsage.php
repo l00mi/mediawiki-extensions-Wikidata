@@ -43,7 +43,7 @@ class PopulateEntityUsage extends LoggedUpdateMaintenance {
 			exit;
 		}
 
-		$startPage = intval( $this->getOption( 'start-page', 0 ) );
+		$startPage = (int)$this->getOption( 'start-page', 0 );
 
 		$reporter = new ObservableMessageReporter();
 		$reporter->registerReporterCallback(
@@ -87,4 +87,4 @@ class PopulateEntityUsage extends LoggedUpdateMaintenance {
 }
 
 $maintClass = 'Wikibase\PopulateEntityUsage';
-require_once( RUN_MAINTENANCE_IF_MAIN );
+require_once RUN_MAINTENANCE_IF_MAIN;

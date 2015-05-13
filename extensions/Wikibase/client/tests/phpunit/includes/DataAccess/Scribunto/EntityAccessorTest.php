@@ -12,7 +12,6 @@ use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Test\MockRepository;
@@ -110,8 +109,7 @@ class EntityAccessorTest extends \PHPUnit_Framework_TestCase {
 		$entityLookup = new MockRepository();
 		$entityLookup->putEntity( $item );
 
-		$item2 = $item->newEmpty();
-		$item2->setId( new ItemId( 'Q9999' ) );
+		$item2 = new Item( new ItemId( 'Q9999' ) );
 
 		return array(
 			array( array( 'id', 'type', 'descriptions', 'labels', 'sitelinks', 'schemaVersion' ), $item, $entityLookup ),

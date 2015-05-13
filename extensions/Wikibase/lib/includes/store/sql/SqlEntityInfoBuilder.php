@@ -31,7 +31,7 @@ class SqlEntityInfoBuilder extends DBAccessBase implements EntityInfoBuilder {
 	 *
 	 * @var string[]
 	 */
-	static $termTypeFields = array(
+	private static $termTypeFields = array(
 		'label' => 'labels',
 		'description' => 'descriptions',
 		'alias' => 'aliases',
@@ -275,6 +275,7 @@ class SqlEntityInfoBuilder extends DBAccessBase implements EntityInfoBuilder {
 
 		$this->entityIds[$key] = $id;
 		$this->entityInfo[$key]['id'] = $key;
+		// FIXME: this will fail for IDs that do not have a numeric form
 		$this->numericIdsByType[$type][$key] = $id->getNumericId();
 	}
 

@@ -97,6 +97,153 @@
         ]
     },
     {
+        "name": "propertysuggester/property-suggester",
+        "version": "2.2.0",
+        "version_normalized": "2.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
+            "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2015-04-29 13:47:31",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+        "keywords": [
+            "propertysuggester",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/wikimedia-badges",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikimediaBadges.git",
+            "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/a4cb3fa96adee3f634999873c8bfe432783bf47e",
+            "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-04-29 15:52:39",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikimediaBadges.php"
+            ],
+            "classmap": [
+                "WikimediaBadges.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Extension which contains default themes to display badges on Wikimedia projects",
+        "homepage": "https://github.com/wmde/WikimediaBadges",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata",
+            "source": "https://github.com/wmde/WikimediaBadges/tree/master",
+            "issues": "https://github.com/wmde/WikimediaBadges/issues"
+        }
+    },
+    {
+        "name": "wikibase/Wikidata.org",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Wikidata.org.git",
+            "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
+            "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-04-28 19:08:33",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "WikidataOrg.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
+        "homepage": "https://github.com/wmde/Wikidata.org",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata",
+            "source": "https://github.com/wmde/Wikidata.org/tree/master"
+        }
+    },
+    {
         "name": "diff/diff",
         "version": "2.0.0",
         "version_normalized": "2.0.0.0",
@@ -1150,160 +1297,13 @@
         ]
     },
     {
-        "name": "wikibase/wikimedia-badges",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikimediaBadges.git",
-            "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/a4cb3fa96adee3f634999873c8bfe432783bf47e",
-            "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-11-25 18:25:26",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikimediaBadges.php"
-            ],
-            "classmap": [
-                "WikimediaBadges.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Extension which contains default themes to display badges on Wikimedia projects",
-        "homepage": "https://github.com/wmde/WikimediaBadges",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/WikimediaBadges/tree/master",
-            "issues": "https://github.com/wmde/WikimediaBadges/issues"
-        }
-    },
-    {
-        "name": "wikibase/Wikidata.org",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Wikidata.org.git",
-            "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
-            "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2015-04-28 19:08:33",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "WikidataOrg.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
-        "homepage": "https://github.com/wmde/Wikidata.org",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/Wikidata.org/tree/master"
-        }
-    },
-    {
-        "name": "propertysuggester/property-suggester",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
-            "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2015-04-29 13:47:31",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/wikibase",
-        "version": "dev-wmf/1.26wmf4",
-        "version_normalized": "dev-wmf/1.26wmf4",
+        "version": "dev-wmf/1.26wmf6",
+        "version_normalized": "dev-wmf/1.26wmf6",
         "source": {
             "type": "git",
             "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-            "reference": "c6df5a162ec8128ff9036217739b3e0927caa2ce"
+            "reference": "1be5ea067d20ff52f8d55d4132736ed65af49588"
         },
         "require": {
             "data-values/common": "~0.2.0",
@@ -1329,7 +1329,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-05-10 21:41:06",
+        "time": "2015-05-13 10:19:29",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

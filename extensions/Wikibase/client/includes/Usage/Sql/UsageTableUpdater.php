@@ -31,11 +31,6 @@ class UsageTableUpdater {
 	private $batchSize;
 
 	/**
-	 * @var bool
-	 */
-	private $hasTouchedField;
-
-	/**
 	 * @param DatabaseBase $connection
 	 * @param string $tableName
 	 * @param int $batchSize
@@ -57,7 +52,7 @@ class UsageTableUpdater {
 	}
 
 	/**
-	 * Re-indexes the given list of EntityUsagess so that each EntityUsage can be found by using its
+	 * Re-indexes the given list of EntityUsages so that each EntityUsage can be found by using its
 	 * string representation as a key.
 	 *
 	 * @param EntityUsage[] $usages
@@ -142,7 +137,7 @@ class UsageTableUpdater {
 	 * @param string|false $touched timestamp
 	 */
 	private function touchUsageForPage( $pageId, $touched ) {
-		if ( $touched === false || !$this->hasTouchedField() ) {
+		if ( $touched === false ) {
 			return;
 		}
 
@@ -156,22 +151,6 @@ class UsageTableUpdater {
 			),
 			__METHOD__
 		);
-	}
-
-	/**
-	 * Check if the usage tracking table has the touched field.
-	 *
-	 * @return bool
-	 */
-	private function hasTouchedField() {
-		if ( !isset( $this->hasTouchedField ) ) {
-			$this->hasTouchedField = $this->connection->fieldExists(
-				$this->tableName,
-				'eu_touched'
-			);
-		}
-
-		return $this->hasTouchedField;
 	}
 
 	/**
@@ -214,17 +193,12 @@ class UsageTableUpdater {
 				throw new InvalidArgumentException( '$usages must contain EntityUsage objects.' );
 			}
 
-			$fields = array(
+			$rows[] = array(
 				'eu_page_id' => (int)$pageId,
 				'eu_aspect' => $usage->getAspect(),
-				'eu_entity_id' => $usage->getEntityId()->getSerialization()
+				'eu_entity_id' => $usage->getEntityId()->getSerialization(),
+				'eu_touched' => wfTimestamp( TS_MW, $touched ),
 			);
-
-			if ( $this->hasTouchedField() ) {
-				$fields['eu_touched'] = wfTimestamp( TS_MW, $touched );
-			}
-
-			$rows[] = $fields;
 		}
 
 		return $rows;

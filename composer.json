@@ -4,10 +4,10 @@
     "license": "GPL-2.0+",
     "repositories": [
         {
-	    "type": "vcs",
-	    "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git"
-	},
-	{
+            "type": "vcs",
+            "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git"
+        },
+        {
             "type": "vcs",
             "url": "https://github.com/wmde/Wikidata.org.git"
         },
@@ -19,7 +19,7 @@
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~2.2.0",
-        "wikibase/wikibase": "dev-wmf/1.26wmf4",
+        "wikibase/wikibase": "dev-wmf/1.26wmf6",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
     },
@@ -33,7 +33,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_26wmf4",
+        "autoloader-suffix": "wikidata_1_26wmf6",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

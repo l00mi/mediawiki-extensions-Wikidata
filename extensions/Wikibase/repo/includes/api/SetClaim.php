@@ -72,7 +72,7 @@ class SetClaim extends ModifyClaim {
 		}
 
 		$entityId = $claimGuid->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? intval( $params['baserevid'] ) : null;
+		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
 		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
 		$entity = $entityRevision->getEntity();
 
@@ -104,8 +104,11 @@ class SetClaim extends ModifyClaim {
 			$this->getModuleName(),
 			new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) )
 		);
+
+		$claims = new Claims( $entity->getClaims() );
+
 		$summary = $claimSummaryBuilder->buildClaimSummary(
-			new Claims( $entity->getClaims() ),
+			$claims->getClaimWithGuid( $claim->getGuid() ),
 			$claim
 		);
 

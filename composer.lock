@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "70bd36b4d0c521e3a184fdd7e0c95fe3",
+    "hash": "4a3036c7ac17f609f86543c37c121922",
     "packages": [
         {
             "name": "composer/installers",
@@ -1209,11 +1209,11 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.26wmf4",
+            "version": "dev-wmf/1.26wmf6",
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "c6df5a162ec8128ff9036217739b3e0927caa2ce"
+                "reference": "1be5ea067d20ff52f8d55d4132736ed65af49588"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1283,7 +1283,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-05-11 10:40:03"
+            "time": "2015-05-13 10:19:29"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1291,12 +1291,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikimediaBadges.git",
-                "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1"
+                "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/a4cb3fa96adee3f634999873c8bfe432783bf47e",
-                "reference": "bb5baa8e74f45b66929cc721a112605ba947dbc1",
+                "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e",
                 "shasum": ""
             },
             "require": {
@@ -1333,7 +1333,7 @@
                 "source": "https://github.com/wmde/WikimediaBadges/tree/master",
                 "issues": "https://github.com/wmde/WikimediaBadges/issues"
             },
-            "time": "2014-11-25 18:25:26"
+            "time": "2015-04-29 15:52:39"
         }
     ],
     "packages-dev": [],

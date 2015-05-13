@@ -11,10 +11,12 @@ use MWException;
 use RequestContext;
 use SiteList;
 use Wikibase\Api\ResultBuilder;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Rdf\HashDedupeBag;
 use Wikibase\Rdf\RdfBuilder;
@@ -122,6 +124,7 @@ class EntityDataSerializationService {
 	 * @param EntityLookup $entityLookup
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param SerializerFactory $serializerFactory
+	 * @param PropertyDataTypeLookup $propertyLookup
 	 * @param SiteList $sites
 	 *
 	 * @since 0.4
@@ -307,7 +310,7 @@ class EntityDataSerializationService {
 	/**
 	 * Initializes the internal mapping of MIME types and file extensions to format names.
 	 */
-	protected function initFormats() {
+	private function initFormats() {
 		if ( $this->mimeTypes !== null
 			&& $this->fileExtensions !== null ) {
 			return;
@@ -368,14 +371,20 @@ class EntityDataSerializationService {
 	 *
 	 * @param string $format The name (mime type of file extension) of the format to use
 	 * @param EntityRevision $entityRevision The entity
+	 * @param EntityRedirect|null $followedRedirect The redirect that led to the entity, or null
+	 * @param EntityId[] $incomingRedirects Incoming redirects to include in the output
 	 * @param string|null $flavor The type of the output provided by serializer
 	 *
 	 * @return array tuple of ( $data, $contentType )
-	 * @throws MWException if the format is not supported
+	 * @throws MWException
 	 */
-	public function getSerializedData( $format, EntityRevision $entityRevision, $flavor = null ) {
-
-		//TODO: handle IfModifiedSince!
+	public function getSerializedData(
+		$format,
+		EntityRevision $entityRevision,
+		EntityRedirect $followedRedirect = null,
+		array $incomingRedirects = array(),
+		$flavor = null
+	) {
 
 		$formatName = $this->getFormatName( $format );
 
@@ -386,7 +395,7 @@ class EntityDataSerializationService {
 		$serializer = $this->createApiSerializer( $formatName );
 
 		if( $serializer ) {
-			$data = $this->apiSerialize( $entityRevision, $serializer );
+			$data = $this->apiSerialize( $entityRevision, $followedRedirect, $incomingRedirects, $serializer );
 			$contentType = $serializer->getIsHtml() ? 'text/html' : $serializer->getMimeType();
 		} else {
 			$rdfBuilder = $this->createRdfBuilder( $formatName, $flavor );
@@ -394,7 +403,7 @@ class EntityDataSerializationService {
 			if ( !$rdfBuilder ) {
 				throw new MWException( "Could not create serializer for $formatName" );
 			} else {
-				$data = $this->rdfSerialize( $entityRevision, $rdfBuilder );
+				$data = $this->rdfSerialize( $entityRevision, $followedRedirect, $incomingRedirects, $rdfBuilder, $flavor );
 
 				$mimeTypes = $this->rdfWriterFactory->getMimeTypes( $formatName );
 				$contentType = reset( $mimeTypes );
@@ -406,26 +415,65 @@ class EntityDataSerializationService {
 
 	/**
 	 * @param EntityRevision $entityRevision
+	 * @param EntityRedirect|null $followedRedirect a redirect leading to the entity for use in the output
+	 * @param EntityId[] $incomingRedirects Incoming redirects to include in the output
 	 * @param RdfBuilder $rdfBuilder
+	 * @param string|null $flavor The type of the output provided by serializer
 	 *
 	 * @return string RDF
 	 */
-	private function rdfSerialize( EntityRevision $entityRevision, RdfBuilder $rdfBuilder ) {
+	private function rdfSerialize(
+		EntityRevision $entityRevision,
+		EntityRedirect $followedRedirect = null,
+		array $incomingRedirects,
+		RdfBuilder $rdfBuilder,
+		$flavor = null
+	) {
 		$rdfBuilder->startDocument();
-		$rdfBuilder->addDumpHeader();
 
-		$rdfBuilder->addEntityRevisionInfo(
-			$entityRevision->getEntity()->getId(),
-			$entityRevision->getRevisionId(),
-			$entityRevision->getTimestamp()
-		);
+		if ( $followedRedirect ) {
+			$rdfBuilder->addEntityRedirect( $followedRedirect->getEntityId(), $followedRedirect->getTargetId() );
+		}
 
-		$rdfBuilder->addEntity( $entityRevision->getEntity() );
+		if ( $followedRedirect && $flavor === 'dump' ) {
+			// For redirects, don't output the target entity data if the "dump" flavor is requested.
+			// @todo: In this case, avoid loading the Entity all together.
+		} else {
+			$rdfBuilder->addEntityRevisionInfo(
+				$entityRevision->getEntity()->getId(),
+				$entityRevision->getRevisionId(),
+				$entityRevision->getTimestamp()
+			);
 
-		$rdfBuilder->resolveMentionedEntities( $this->entityLookup );
+			$rdfBuilder->addEntity( $entityRevision->getEntity() );
+			$rdfBuilder->resolveMentionedEntities( $this->entityLookup );
+		}
+
+		if ( $flavor !== 'dump' ) {
+			// For $flavor === 'dump' we don't need to output incoming redirects.
+
+			$targetId = $entityRevision->getEntity()->getId();
+			$this->addIncomingRedirects( $targetId, $followedRedirect, $incomingRedirects, $rdfBuilder );
+		}
+
 		$rdfBuilder->finishDocument();
 
 		return $rdfBuilder->getRDF();
+	}
+
+	/**
+	 * @param EntityId $targetId
+	 * @param EntityRedirect $followedRedirect The followed redirect, will be omitted from the output
+	 * @param EntityId[] $incomingRedirects
+	 * @param RdfBuilder $rdfBuilder
+	 */
+	private function addIncomingRedirects( EntityId $targetId, EntityRedirect $followedRedirect = null, array $incomingRedirects, RdfBuilder $rdfBuilder ) {
+		foreach ( $incomingRedirects as $rId ) {
+			// don't add the followed redirect again
+			if ( !$followedRedirect || !$followedRedirect->getEntityId()->equals( $rId ) ) {
+				$rdfBuilder->addEntityRedirect( $rId, $targetId );
+			}
+		}
 	}
 
 	/**
@@ -435,7 +483,7 @@ class EntityDataSerializationService {
 	 *
 	 * @return String|null the normalized format name, or null if the format is unknown
 	 */
-	protected static function getApiFormatName( $format ) {
+	private static function getApiFormatName( $format ) {
 		$format = trim( strtolower( $format ) );
 
 		if ( $format === 'application/vnd.php.serialized' ) {
@@ -457,7 +505,7 @@ class EntityDataSerializationService {
 	 *
 	 * @return String[]|null the MIME types for the given format
 	 */
-	protected static function getApiMimeTypes( $format ) {
+	private static function getApiMimeTypes( $format ) {
 		$format = trim( strtolower( $format ) );
 		$type = null;
 
@@ -483,7 +531,7 @@ class EntityDataSerializationService {
 	 *
 	 * @return ApiMain
 	 */
-	protected function newApiMain( $format ) {
+	private function newApiMain( $format ) {
 		// Fake request params to ApiMain, with forced format parameters.
 		// We can override additional parameters here, as needed.
 		$params = array(
@@ -508,7 +556,7 @@ class EntityDataSerializationService {
 	 * @return ApiFormatBase|null A suitable result printer, or null
 	 *           if the given format is not supported by the API.
 	 */
-	public function createApiSerializer( $formatName ) {
+	private function createApiSerializer( $formatName ) {
 		//MediaWiki formats
 		$api = $this->newApiMain( $formatName );
 		$formatNames = $api->getModuleManager()->getNames( 'format' );
@@ -552,7 +600,7 @@ class EntityDataSerializationService {
 	 * @return RdfBuilder|null A suitable result printer, or null
 	 *   if the given format is not supported.
 	 */
-	public function createRdfBuilder( $format, $flavorName = null ) {
+	private function createRdfBuilder( $format, $flavorName = null ) {
 		$canonicalFormat = $this->rdfWriterFactory->getFormatName( $format );
 
 		if ( !$canonicalFormat ) {
@@ -586,7 +634,7 @@ class EntityDataSerializationService {
 	 *
 	 * @return ApiResult
 	 */
-	protected function generateApiResult( EntityRevision $entityRevision, ApiFormatBase $printer ) {
+	private function generateApiResult( EntityRevision $entityRevision, ApiFormatBase $printer ) {
 		$res = $printer->getResult();
 
 		// Make sure result is empty. May still be full if this
@@ -614,16 +662,25 @@ class EntityDataSerializationService {
 	 * expose internal implementation details.
 	 *
 	 * @param EntityRevision $entityRevision the entity to output.
+	 * @param EntityRedirect|null $followedRedirect a redirect leading to the entity for use in the output
+	 * @param EntityId[] $incomingRedirects Incoming redirects to include in the output
 	 * @param ApiFormatBase $printer the printer to use to generate the output
 	 *
 	 * @return string the serialized data
 	 */
-	public function apiSerialize( EntityRevision $entityRevision, ApiFormatBase $printer ) {
+	private function apiSerialize(
+		EntityRevision $entityRevision,
+		EntityRedirect $followedRedirect = null,
+		array $incomingRedirects,
+		ApiFormatBase $printer
+	) {
 		// NOTE: The way the ApiResult is provided to $printer is somewhat
 		//       counter-intuitive. Basically, the relevant ApiResult object
 		//       is owned by the ApiMain module provided by newApiMain().
 
 		// Pushes $entity into the ApiResult held by the ApiMain module
+		// TODO: where to put the followed redirect?
+		// TODO: where to put the incoming redirects? See T98039
 		$this->generateApiResult( $entityRevision, $printer );
 
 		$printer->profileIn();

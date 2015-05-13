@@ -98,12 +98,14 @@ class ResultBuilder {
 	 * @throws InvalidArgumentException
 	 */
 	public function markSuccess( $success = true ) {
-		$value = intval( $success );
-		if( $value !== 1 && $value !== 0 ){
+		$value = (int)$success;
+
+		if ( $value !== 1 && $value !== 0 ) {
 			throw new InvalidArgumentException(
-				'$wasSuccess must evaluate to either 1 or 0 when using intval()'
+				'$success must evaluate to either 1 or 0 when casted to integer'
 			);
 		}
+
 		$this->result->addValue( null, 'success', $value );
 	}
 
@@ -309,9 +311,9 @@ class ResultBuilder {
 			if ( $props == 'all' || in_array( 'info', $props ) ) {
 				$title = $this->entityTitleLookup->getTitleForId( $entityId );
 				$record['pageid'] = $title->getArticleID();
-				$record['ns'] = intval( $title->getNamespace() );
+				$record['ns'] = $title->getNamespace();
 				$record['title'] = $title->getPrefixedText();
-				$record['lastrevid'] = intval( $entityRevision->getRevisionId() );
+				$record['lastrevid'] = $entityRevision->getRevisionId();
 				$record['modified'] = wfTimestamp( TS_ISO_8601, $entityRevision->getTimestamp() );
 			}
 			if ( $sourceEntityIdSerialization !== $entityId->getSerialization() ) {

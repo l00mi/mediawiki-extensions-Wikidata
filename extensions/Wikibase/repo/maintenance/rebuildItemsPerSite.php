@@ -40,7 +40,7 @@ class RebuildItemsPerSite extends Maintenance {
 			exit;
 		}
 
-		$batchSize = intval( $this->getOption( 'batch-size', 100 ) );
+		$batchSize = (int)$this->getOption( 'batch-size', 100 );
 
 		$reporter = new ObservableMessageReporter();
 		$reporter->registerReporterCallback(
@@ -80,4 +80,4 @@ class RebuildItemsPerSite extends Maintenance {
 }
 
 $maintClass = 'Wikibase\Repo\Maintenance\RebuildItemsPerSite';
-require_once( RUN_MAINTENANCE_IF_MAIN );
+require_once RUN_MAINTENANCE_IF_MAIN;

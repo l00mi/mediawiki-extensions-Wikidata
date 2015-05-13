@@ -57,7 +57,7 @@ class PidLock {
 				}
 
 				if ( preg_match( '/\d+/', $process, $matches )
-					&& intval( $pid ) === intval( $matches[0] )
+					&& (int)$pid === (int)$matches[0]
 				) {
 					return true;
 				}
@@ -87,7 +87,7 @@ class PidLock {
 			// check if the process still exist and is alive
 			// XXX: there's a race condition here.
 			if ( file_exists( $file ) ) {
-				$pid = file_get_contents( $file );
+				$pid = (int)file_get_contents( $file );
 				if ( $this->isAlive( $pid ) === true ) {
 					return false;
 				}
@@ -114,8 +114,8 @@ class PidLock {
 	 * @return string File path
 	 */
 	private function getStateFile() {
-		$fileName = preg_replace('/[^a-z\d]/i', '', $this->module ) . '_'
-			. preg_replace('/[^a-z\d]/i', '', $this->wikiId ?: wfWikiID() ) . '.pid';
+		$fileName = preg_replace( '/[^a-z\d]+/i', '', $this->module ) . '_'
+			. preg_replace( '/[^a-z\d]+/i', '', $this->wikiId ?: wfWikiID() ) . '.pid';
 
 		// Directory /var/run/ with system specific separators
 		$dir = DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'run' . DIRECTORY_SEPARATOR;

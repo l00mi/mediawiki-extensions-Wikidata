@@ -56,7 +56,7 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 					throw new StorageException( 'Bad title text: ' . $text );
 				}
 
-				$title->resetArticleID( intval( $text ) );
+				$title->resetArticleID( $text );
 				return $title;
 			} ) );
 
@@ -437,7 +437,7 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 
 		$usages = $affectedPagesFinder->getAffectedUsagesByPage( $change );
 
-		$this->assertEquals( 0, $usages->count() );
+		$this->assertCount( 0, $usages );
 	}
 
 	private function getSiteLinkUsageLookup( $pageTitle ) {

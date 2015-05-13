@@ -9,7 +9,9 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikibase\RdfProducer;
 use Wikimedia\Purtle\RdfWriter;
 
@@ -24,7 +26,7 @@ use Wikimedia\Purtle\RdfWriter;
  * @author Daniel Kinzler
  * @author Stas Malyshev
  */
-class RdfBuilder implements EntityRdfBuilder {
+class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 
 	/**
 	 * A list of entities mentioned/touched to or by this builder.
@@ -69,6 +71,7 @@ class RdfBuilder implements EntityRdfBuilder {
 	 * @var RdfVocabulary
 	 */
 	private $vocabulary;
+
 	/**
 	 * @var PropertyDataTypeLookup
 	 */
@@ -121,10 +124,7 @@ class RdfBuilder implements EntityRdfBuilder {
 	 */
 	private function newSimpleValueRdfBuilder() {
 		$simpleValueBuilder = new SimpleValueRdfBuilder( $this->vocabulary, $this->propertyLookup );
-
-		if ( $this->shouldProduce( RdfProducer::PRODUCE_RESOLVED_ENTITIES ) ) {
-			$simpleValueBuilder->setEntityMentionCallback( array( $this, 'entityMentioned' ) );
-		}
+		$simpleValueBuilder->setEntityMentionListener( $this );
 
 		return $simpleValueBuilder;
 	}
@@ -139,10 +139,7 @@ class RdfBuilder implements EntityRdfBuilder {
 
 			$statementValueBuilder = new ComplexValueRdfBuilder( $this->vocabulary, $valueWriter, $this->propertyLookup );
 			$statementValueBuilder->setDedupeBag( $this->dedupBag );
-
-			if ( $this->shouldProduce( RdfProducer::PRODUCE_RESOLVED_ENTITIES ) ) {
-				$statementValueBuilder->setEntityMentionCallback( array( $this, 'entityMentioned' ) );
-			}
+			$statementValueBuilder->setEntityMentionListener( $this );
 		} else {
 			$statementValueBuilder = $this->newSimpleValueRdfBuilder();
 
@@ -169,11 +166,7 @@ class RdfBuilder implements EntityRdfBuilder {
 
 		$statementBuilder = new FullStatementRdfBuilder( $this->vocabulary, $this->writer, $statementValueBuilder );
 		$statementBuilder->setDedupeBag( $this->dedupBag );
-
-		if ( $this->shouldProduce( RdfProducer::PRODUCE_PROPERTIES ) ) {
-			$statementBuilder->setPropertyMentionCallback( array( $this, 'entityMentioned' ) );
-		}
-
+		$statementBuilder->setEntityMentionListener( $this );
 		$statementBuilder->setProduceQualifiers( $this->shouldProduce( RdfProducer::PRODUCE_QUALIFIERS ) );
 		$statementBuilder->setProduceReferences( $this->shouldProduce( RdfProducer::PRODUCE_REFERENCES ) );
 
@@ -230,15 +223,35 @@ class RdfBuilder implements EntityRdfBuilder {
 	}
 
 	/**
+	 * @see EntityMentionListener::entityReferenceMentioned
+	 *
+	 * @param EntityId $id
+	 */
+	public function entityReferenceMentioned( EntityId $id ) {
+		if ( $this->shouldProduce( RdfProducer::PRODUCE_RESOLVED_ENTITIES ) ) {
+			$this->entityToResolve( $id );
+		}
+	}
+
+	/**
+	 * @see EntityMentionListener::propertyMentioned
+	 *
+	 * @param PropertyId $id
+	 */
+	public function propertyMentioned( PropertyId $id ) {
+		if ( $this->shouldProduce( RdfProducer::PRODUCE_PROPERTIES ) ) {
+			$this->entityToResolve( $id );
+		}
+	}
+
+	/**
 	 * Registers an entity as mentioned.
 	 * Will be recorded as unresolved
 	 * if it wasn't already marked as resolved.
 	 *
-	 * @todo Make callback private once we drop PHP 5.3 compat.
-	 *
 	 * @param EntityId $entityId
 	 */
-	public function entityMentioned( EntityId $entityId ) {
+	private function entityToResolve( EntityId $entityId ) {
 		$prefixedId = $entityId->getSerialization();
 
 		if ( !isset( $this->entitiesResolved[$prefixedId] ) ) {
@@ -274,6 +287,19 @@ class RdfBuilder implements EntityRdfBuilder {
 	}
 
 	/**
+	 * Write definition for wdno:P123 class to use as novalue
+	 * @param string $id
+	 */
+	private function writeNovalueClass( $id ) {
+		$this->writer->about( RdfVocabulary::NSP_NOVALUE, $id )->say( 'a' )->is( 'owl', 'Class' );
+		$internalClass = $this->writer->blank();
+		$this->writer->say( 'owl', 'complementOf' )->is( '_', $internalClass );
+		$this->writer->about( '_', $internalClass )->say( 'a' )->is( 'owl', 'Restriction' );
+		$this->writer->say( 'owl', 'onProperty' )->is( RdfVocabulary::NSP_DIRECT_CLAIM, $id );
+		$this->writer->say( 'owl', 'someValuesFrom' )->is( 'owl', 'Thing' );
+	}
+
+	/**
 	 * Write predicates linking property entity to property predicates
 	 * @param string $id
 	 */
@@ -286,6 +312,7 @@ class RdfBuilder implements EntityRdfBuilder {
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'qualifierValue' )->is( RdfVocabulary::NSP_QUALIFIER_VALUE, $id );
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'reference' )->is( RdfVocabulary::NSP_REFERENCE, $id );
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'referenceValue' )->is( RdfVocabulary::NSP_REFERENCE_VALUE, $id );
+		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'novalue' )->is( RdfVocabulary::NSP_NOVALUE, $id );
 	}
 
 	/**
@@ -319,7 +346,9 @@ class RdfBuilder implements EntityRdfBuilder {
 		if( $entity instanceof Property ) {
 			$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'propertyType' )
 				->is( RdfVocabulary::NS_ONTOLOGY, $this->vocabulary->getDataTypeName( $entity ) );
-			$this->writePropertyPredicates( $entity->getId()->getSerialization() );
+			$id = $entity->getId()->getSerialization();
+			$this->writePropertyPredicates( $id );
+			$this->writeNovalueClass( $id );
 		}
 	}
 
@@ -346,15 +375,41 @@ class RdfBuilder implements EntityRdfBuilder {
 	 *
 	 * @param EntityLookup $entityLookup
 	 */
-	public function resolveMentionedEntities( EntityLookup $entityLookup ) { //FIXME: needs test
-		foreach ( $this->entitiesResolved as $entityId => $value ) {
-			if ( $value instanceof EntityId ) {
+	public function resolveMentionedEntities( EntityLookup $entityLookup ) {
+		$hasRedirect = false;
+
+		foreach ( $this->entitiesResolved as $key => $value ) {
+			// $value is true if the entity has already been resolved,
+			// or an EntityId to resolve.
+			if ( !( $value instanceof EntityId ) ) {
+				continue;
+			}
+
+			try {
 				$entity = $entityLookup->getEntity( $value );
+
 				if ( !$entity ) {
 					continue;
 				}
+
 				$this->addEntityStub( $entity );
+			} catch ( UnresolvedRedirectException $ex ) {
+				// NOTE: this may add more entries to the end of entitiesResolved
+				$target = $ex->getRedirectTargetId();
+				$this->addEntityRedirect( $value, $target );
+				$hasRedirect = true;
 			}
+		}
+
+		// If we encountered redirects, the redirect targets may now need resolving.
+		// They actually got added to $this->entitiesResolved, but may not have been 
+		// processed by the loop above, because they got added while the loop was in progress.
+		if ( $hasRedirect ) {
+			// Call resolveMentionedEntities() recursively to resolve any yet unresolved
+			// redirect targets. The regress will eventually terminate even for circular
+			// redirect chains, because the second time an entity ID is encountered, it
+			// will be marked as already resolved.
+			$this->resolveMentionedEntities( $entityLookup );
 		}
 	}
 
@@ -377,6 +432,27 @@ class RdfBuilder implements EntityRdfBuilder {
 
 			$this->termsBuilder->addLabels( $entityLName, $fingerprint->getLabels() );
 			$this->termsBuilder->addDescriptions( $entityLName, $fingerprint->getDescriptions() );
+		}
+	}
+
+	/**
+	 * Declares $from to be an alias for $to, using the owl:sameAs relationship.
+	 *
+	 * @param EntityId $from
+	 * @param EntityId $to
+	 */
+	public function addEntityRedirect( EntityId $from, EntityId $to ) {
+		$fromLName = $this->vocabulary->getEntityLName( $from );
+		$toLName = $this->vocabulary->getEntityLName( $to );
+
+		$this->writer->about( RdfVocabulary::NS_ENTITY, $fromLName )
+			->say( 'owl', 'sameAs' )
+			->is( RdfVocabulary::NS_ENTITY, $toLName );
+
+		$this->entityResolved( $from );
+
+		if ( $this->shouldProduce( RdfProducer::PRODUCE_RESOLVED_ENTITIES ) ) {
+			$this->entityToResolve( $to );
 		}
 	}
 

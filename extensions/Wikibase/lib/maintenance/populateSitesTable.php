@@ -99,8 +99,7 @@ class PopulateSitesTable extends Maintenance {
 	protected function getSiteMatrixData( $url ) {
 		$url .= '?action=sitematrix&format=json';
 
-		//NOTE: the raiseException option needs change Iad3995a6 to be merged, otherwise it is ignored.
-		$json = Http::get( $url, 'default', array( 'raiseException' => true ) );
+		$json = Http::get( $url );
 
 		if ( !$json ) {
 			throw new MWException( "Got no data from $url\n" );
@@ -111,4 +110,4 @@ class PopulateSitesTable extends Maintenance {
 }
 
 $maintClass = 'PopulateSitesTable';
-require_once ( RUN_MAINTENANCE_IF_MAIN );
+require_once RUN_MAINTENANCE_IF_MAIN;

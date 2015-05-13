@@ -3,11 +3,11 @@
 namespace Wikibase\Content;
 
 use RuntimeException;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 
 /**
- * A holder for entities.
+ * A holder for entity objects.
  *
  * @license GPL 2+
  * @author Daniel Kinzler
@@ -19,17 +19,17 @@ interface EntityHolder {
 	 * Depending on the implementation, this operation may be expensive or trivial.
 	 *
 	 * @param string $expectedClass The class with which the result is expected to be compatible.
-	 * Defaults to Entity.
+	 * Defaults to EntityDocument.
 	 *
 	 * @throws RuntimeException If the entity held by this EntityHolder is not compatible with $expectedClass.
-	 * @return Entity
+	 * @return EntityDocument
 	 */
-	public function getEntity( $expectedClass = 'Wikibase\DataModel\Entity\Entity' );
+	public function getEntity( $expectedClass = 'Wikibase\DataModel\Entity\EntityDocument' );
 
 	/**
 	 * Returns the ID of the entity held by this EntityHolder.
 	 * May or may not require the actual entity to be instantiated.
-	 * May be null if the Entity does not have an ID set.
+	 * May be null if the entity does not have an ID set.
 	 *
 	 * @return EntityId|null
 	 */

@@ -12,10 +12,12 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\BadRevisionException;
-use Wikibase\Lib\Store\EntityRedirectResolvingDecorator;
+use Wikibase\Lib\Store\EntityRedirect;
+use Wikibase\Lib\Store\EntityRedirectLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\StorageException;
+use Wikibase\Lib\Store\UnresolvedRedirectException;
 
 /**
  * Request handler implementing a linked data interface for Wikibase entities.
@@ -55,6 +57,11 @@ class EntityDataRequestHandler {
 	private $entityRevisionLookup;
 
 	/**
+	 * @var EntityRedirectLookup
+	 */
+	private $entityRedirectLookup;
+
+	/**
 	 * @var EntityTitleLookup
 	 */
 	private $entityTitleLookup;
@@ -77,21 +84,23 @@ class EntityDataRequestHandler {
 	/**
 	 * @since 0.4
 	 *
-	 * @param EntityDataUriManager           $uriManager
-	 * @param EntityTitleLookup              $entityTitleLookup
-	 * @param EntityIdParser                 $entityIdParser
-	 * @param EntityRevisionLookup           $entityRevisionLookup
+	 * @param EntityDataUriManager $uriManager
+	 * @param EntityTitleLookup $entityTitleLookup
+	 * @param EntityIdParser $entityIdParser
+	 * @param EntityRevisionLookup $entityRevisionLookup
+	 * @param EntityRedirectLookup $entityRedirectLookup
 	 * @param EntityDataSerializationService $serializationService
-	 * @param string                         $defaultFormat
-	 * @param int                            $maxAge number of seconds to cache entity data
-	 * @param bool                           $useSquids do we have web caches configured?
-	 * @param string|null                    $frameOptionsHeader for X-Frame-Options
+	 * @param string $defaultFormat
+	 * @param int $maxAge number of seconds to cache entity data
+	 * @param bool $useSquids do we have web caches configured?
+	 * @param string|null $frameOptionsHeader for X-Frame-Options
 	 */
 	public function __construct(
 		EntityDataUriManager $uriManager,
 		EntityTitleLookup $entityTitleLookup,
 		EntityIdParser $entityIdParser,
 		EntityRevisionLookup $entityRevisionLookup,
+		EntityRedirectLookup $entityRedirectLookup,
 		EntityDataSerializationService $serializationService,
 		$defaultFormat,
 		$maxAge,
@@ -102,6 +111,7 @@ class EntityDataRequestHandler {
 		$this->entityTitleLookup = $entityTitleLookup;
 		$this->entityIdParser = $entityIdParser;
 		$this->entityRevisionLookup = $entityRevisionLookup;
+		$this->entityRedirectLookup = $entityRedirectLookup;
 		$this->serializationService = $serializationService;
 		$this->defaultFormat = $defaultFormat;
 		$this->maxAge = $maxAge;
@@ -323,29 +333,36 @@ class EntityDataRequestHandler {
 	 * @param EntityId $id
 	 * @param int $revision The revision ID (use 0 for the current revision).
 	 *
-	 * @return EntityRevision
+	 * @return array list( EntityRevision, EntityRedirect|null )
 	 * @throws HttpError
 	 */
-	protected function getEntityRevision( EntityId $id, $revision ) {
+	private function getEntityRevision( EntityId $id, $revision ) {
 		$prefixedId = $id->getSerialization();
-
-		$lookup = $this->entityRevisionLookup;
 
 		if ( $revision === 0 ) {
 			$revision = EntityRevisionLookup::LATEST_FROM_SLAVE;
 		}
 
-		if ( is_string( $revision ) ) {
-			// If no specific revision is requested, enable automatic redirect resolution.
-			$lookup = new EntityRedirectResolvingDecorator( $lookup );
-		}
+		$entityRedirect = null;
 
 		try {
-			$entityRevision = $lookup->getEntityRevision( $id, $revision );
+			$entityRevision = $this->entityRevisionLookup->getEntityRevision( $id, $revision );
 
 			if ( $entityRevision === null ) {
 				wfDebugLog( __CLASS__, __FUNCTION__ . ": entity not found: $prefixedId"  );
 				throw new HttpError( 404, wfMessage( 'wikibase-entitydata-not-found' )->params( $prefixedId ) );
+			}
+		} catch ( UnresolvedRedirectException $ex ) {
+			$entityRedirect = new EntityRedirect( $id, $ex->getRedirectTargetId() );
+
+			if ( is_string( $revision ) ) {
+				// If no specific revision is requested, resolve the redirect.
+				list( $entityRevision, ) = $this->getEntityRevision( $ex->getRedirectTargetId(), $revision );
+			} else {
+				// The requested revision is a redirect
+				wfDebugLog( __CLASS__, __FUNCTION__ . ": revision $revision of $prefixedId is a redirect: $ex"  );
+				$msg = wfMessage( 'wikibase-entitydata-bad-revision' );
+				throw new HttpError( 400, $msg->params( $prefixedId, $revision ) );
 			}
 		} catch ( BadRevisionException $ex ) {
 			wfDebugLog( __CLASS__, __FUNCTION__ . ": could not load revision $revision or $prefixedId: $ex"  );
@@ -357,7 +374,25 @@ class EntityDataRequestHandler {
 			throw new \HttpError( 500, $msg->params( $prefixedId, $revision ) );
 		}
 
-		return $entityRevision;
+		return array( $entityRevision, $entityRedirect );
+	}
+
+	/**
+	 * Loads incoming redirects referring to the given entity ID.
+	 *
+	 * @param EntityId $id
+	 *
+	 * @return EntityId[]
+	 * @throws HttpError
+	 */
+	private function getIncomingRedirects( EntityId $id ) {
+		try {
+			return $this->entityRedirectLookup->getRedirectIds( $id );
+		} catch ( StorageException $ex ) {
+			$prefixedId = $id->getSerialization();
+			wfDebugLog( __CLASS__, __FUNCTION__ . ": failed to load incoming redirects of $prefixedId: $ex"  );
+			return array();
+		}
 	}
 
 	/**
@@ -373,7 +408,11 @@ class EntityDataRequestHandler {
 	 */
 	public function showData( WebRequest $request, OutputPage $output, $format, EntityId $id, $revision ) {
 
-		$entityRevision = $this->getEntityRevision( $id, $revision );
+		$flavor = $request->getVal("flavor");
+
+		/** @var EntityRevision $entityRevision */
+		/** @var EntityRedirect $followedRedirect */
+		list( $entityRevision, $followedRedirect ) = $this->getEntityRevision( $id, $revision );
 
 		// handle If-Modified-Since
 		$imsHeader = $request->getHeader( 'IF-MODIFIED-SINCE' );
@@ -387,8 +426,20 @@ class EntityDataRequestHandler {
 			}
 		}
 
+		if ( $flavor === 'dump' || $revision > 0  ) {
+			// In dump mode and when fetching a specific revision, don't include incoming redirects.
+			$incomingRedirects = array();
+		} else {
+			// Get the incoming redirects of the entity (if we followed a redirect, use the target id).
+			$incomingRedirects = $this->getIncomingRedirects( $entityRevision->getEntity()->getId() );
+		}
+
 		list( $data, $contentType ) = $this->serializationService->getSerializedData(
-			$format, $entityRevision, $request->getVal("flavor")
+			$format,
+			$entityRevision,
+			$followedRedirect,
+			$incomingRedirects,
+			$flavor
 		);
 
 		$output->disable();
@@ -443,4 +494,5 @@ class EntityDataRequestHandler {
 
 		// exit normally here, keeping all levels of output buffering.
 	}
+
 }

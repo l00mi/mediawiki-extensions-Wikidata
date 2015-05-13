@@ -55,21 +55,24 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @param EntityId[] &$mentioned receives the IDs of any mentioned entities.
-	 * @param string[] $valuesSeen A list of value hashes that should be considered "already seen".
+	 * @param DedupeBag|null $bag A list of value hashes that should be considered "already seen".
 	 *
 	 * @return ComplexValueRdfBuilder
 	 */
 	private function newBuilder( array &$mentioned = array(), DedupeBag $bag = null ) {
-		$entityMentioned = function( EntityId $id ) use ( &$mentioned ) {
-			$key = $id->getSerialization();
-			$mentioned[$key] = $id;
-		};
+		$mentionTracker = $this->getMock( 'Wikibase\Rdf\EntityMentionListener' );
+		$mentionTracker->expects( $this->any() )
+			->method( 'entityReferenceMentioned' )
+			->will( $this->returnCallback( function( EntityId $id ) use ( &$mentioned ) {
+				$key = $id->getSerialization();
+				$mentioned[$key] = $id;
+			} ) );
 
 		$vocabulary = $this->getTestData()->getVocabulary();
 		$valueWriter = $this->getTestData()->getNTriplesWriter();
 
 		$builder = new ComplexValueRdfBuilder( $vocabulary, $valueWriter, $this->getTestData()->getMockRepository() );
-		$builder->setEntityMentionCallback( $entityMentioned );
+		$builder->setEntityMentionListener( $mentionTracker );
 		$builder->setDedupeBag( $bag ?: new NullDedupeBag() );
 
 		// HACK: glue on the value writer as a public field, so we can evaluate it later.
@@ -136,11 +139,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P4> <http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> .',
 				),
 				array(
-					0 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://www.wikidata.org/ontology-beta#geoGlobe> <https://www.wikidata.org/entity/Q2> .',
-					2 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://www.wikidata.org/ontology-beta#geoLatitude> "12.25"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
-					3 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://www.wikidata.org/ontology-beta#geoLongitude> "-45.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
-					4 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://www.wikidata.org/ontology-beta#geoPrecision> "0.025"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					0 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://wikiba.se/ontology-beta#geoGlobe> <https://www.wikidata.org/entity/Q2> .',
+					2 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://wikiba.se/ontology-beta#geoLatitude> "12.25"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					3 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://wikiba.se/ontology-beta#geoLongitude> "-45.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					4 => '<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> <http://wikiba.se/ontology-beta#geoPrecision> "0.025"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
 				),
 			),
 			'monolingualtext' => array(
@@ -163,11 +166,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P6> <http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> .',
 				),
 				array(
-					0 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://www.wikidata.org/ontology-beta#quantityAmount> "+0.00011"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
-					2 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://www.wikidata.org/ontology-beta#quantityLowerBound> "+0.00010"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
-					3 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://www.wikidata.org/ontology-beta#quantityUnit> "1" .',
-					4 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://www.wikidata.org/ontology-beta#quantityUpperBound> "+0.00013"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					0 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://wikiba.se/ontology-beta#quantityAmount> "+0.00011"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					2 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://wikiba.se/ontology-beta#quantityLowerBound> "+0.00010"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					3 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://wikiba.se/ontology-beta#quantityUnit> "1" .',
+					4 => '<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> <http://wikiba.se/ontology-beta#quantityUpperBound> "+0.00013"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
 				),
 			),
 			'quantity-unit' => array(
@@ -182,11 +185,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P6> <http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> .',
 				),
 				array(
-					0 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://www.wikidata.org/ontology-beta#quantityAmount> "-2.3"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
-					2 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://www.wikidata.org/ontology-beta#quantityLowerBound> "-2.3"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
-					3 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://www.wikidata.org/ontology-beta#quantityUnit> "https://www.wikidata.org/entity/Q11573" .',
-					4 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://www.wikidata.org/ontology-beta#quantityUpperBound> "-2.3"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					0 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://wikiba.se/ontology-beta#quantityAmount> "-2.3"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					2 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://wikiba.se/ontology-beta#quantityLowerBound> "-2.3"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					3 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://wikiba.se/ontology-beta#quantityUnit> "https://www.wikidata.org/entity/Q11573" .',
+					4 => '<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> <http://wikiba.se/ontology-beta#quantityUpperBound> "-2.3"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
 				),
 			),
 			'string' => array(
@@ -205,11 +208,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/7a453935e4288ff180c20a7304bab948> .'
 				),
 				array(
-					0 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://www.wikidata.org/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
-					2 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://www.wikidata.org/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
-					3 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://www.wikidata.org/ontology-beta#timeValue> "2015-03-03T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
-					4 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://www.wikidata.org/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					0 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://wikiba.se/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
+					2 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://wikiba.se/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					3 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://wikiba.se/ontology-beta#timeValue> "2015-03-03T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+					4 => '<http://acme.test/value/7a453935e4288ff180c20a7304bab948> <http://wikiba.se/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
 				),
 			),
 			'time-year' => array( // NOTE: may changed to use xsd:gYear
@@ -220,11 +223,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/418aedfba643e02a5ba758952f8f7765> .',
 				),
 				array(
-					0 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://www.wikidata.org/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
-					2 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://www.wikidata.org/ontology-beta#timePrecision> "9"^^<http://www.w3.org/2001/XMLSchema#integer> .',
-					3 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://www.wikidata.org/ontology-beta#timeValue> "2015-01-01T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
-					4 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://www.wikidata.org/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					0 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://wikiba.se/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
+					2 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://wikiba.se/ontology-beta#timePrecision> "9"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					3 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://wikiba.se/ontology-beta#timeValue> "2015-01-01T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+					4 => '<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> <http://wikiba.se/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
 				),
 			),
 			'time-margin' => array(
@@ -235,11 +238,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> .',
 				),
 				array(
-					0 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://www.wikidata.org/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
-					2 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://www.wikidata.org/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
-					3 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://www.wikidata.org/ontology-beta#timeValue> "2015-03-03T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
-					4 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://www.wikidata.org/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					0 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://wikiba.se/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
+					2 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://wikiba.se/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					3 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://wikiba.se/ontology-beta#timeValue> "2015-03-03T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+					4 => '<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> <http://wikiba.se/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
 				),
 			),
 			'time-bce' => array( // NOTE: This assumes that internal data and the RDF data use the
@@ -254,11 +257,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> .',
 				),
 				array(
-					0 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://www.wikidata.org/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
-					2 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://www.wikidata.org/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
-					3 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://www.wikidata.org/ontology-beta#timeValue> "-0044-03-15T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
-					4 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://www.wikidata.org/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					0 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://wikiba.se/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
+					2 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://wikiba.se/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					3 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://wikiba.se/ontology-beta#timeValue> "-0044-03-15T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+					4 => '<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> <http://wikiba.se/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
 				),
 			),
 			'time-julian' => array( // NOTE: Currently, giving a calendar other than gregorian
@@ -274,11 +277,11 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/23a636870974bab8f1771b34aa994936> .',
 				),
 				array(
-					0 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.wikidata.org/ontology-beta#Value> .',
-					1 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://www.wikidata.org/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985786> .',
-					2 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://www.wikidata.org/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
-					3 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://www.wikidata.org/ontology-beta#timeValue> "1492-10-21T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
-					4 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://www.wikidata.org/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					0 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#Value> .',
+					1 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://wikiba.se/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985786> .',
+					2 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://wikiba.se/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
+					3 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://wikiba.se/ontology-beta#timeValue> "1492-10-21T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+					4 => '<http://acme.test/value/23a636870974bab8f1771b34aa994936> <http://wikiba.se/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
 				),
 			),
 			'url' => array(

@@ -22,8 +22,7 @@ class RdfVocabulary {
 	// Change this when changing data format!
 	const FORMAT_VERSION = '0.0.1';
 
-	//FIXME: this is the wikibase ontology, NOT the wikidata ontology!
-	const ONTOLOGY_BASE_URI = 'http://www.wikidata.org/ontology';
+	const ONTOLOGY_BASE_URI = 'http://wikiba.se/ontology';
 	const NS_ONTOLOGY = 'wikibase'; // wikibase ontology (shared)
 	// Nodes
 	const NS_ENTITY = 'wd'; // concept uris
@@ -40,6 +39,7 @@ class RdfVocabulary {
 	const NSP_QUALIFIER_VALUE = 'pqv'; // statement ->  qualifier deep value
 	const NSP_REFERENCE = 'pr'; // reference -> simple value
 	const NSP_REFERENCE_VALUE = 'prv'; // reference -> deep value
+	const NSP_NOVALUE = 'wdno'; // novalue class
 	// other prefixes
 	const NS_SKOS = 'skos'; // SKOS vocabulary
 	const NS_SCHEMA_ORG = 'schema'; // schema.org vocabulary
@@ -110,6 +110,8 @@ class RdfVocabulary {
 				'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
 				'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#',
 				'xsd' => 'http://www.w3.org/2001/XMLSchema#',
+				'owl' => 'http://www.w3.org/2002/07/owl#',
+				// TODO: drop beta once we have stable ontology
 				self::NS_ONTOLOGY => self::ONTOLOGY_BASE_URI . "-beta#",
 				// nodes
 				self::NS_DATA => $this->dataUri,
@@ -126,6 +128,7 @@ class RdfVocabulary {
 				self::NSP_QUALIFIER_VALUE => $propUri . 'qualifier/value/',
 				self::NSP_REFERENCE => $propUri . 'reference/',
 				self::NSP_REFERENCE_VALUE => $propUri . 'reference/value/',
+				self::NSP_NOVALUE => $propUri . 'novalue/',
 				// external
 				self::NS_SKOS => self::SKOS_URI,
 				self::NS_SCHEMA_ORG => self::SCHEMA_ORG_URI,
@@ -180,11 +183,13 @@ class RdfVocabulary {
 
 	/**
 	 * Get Wikibase property name for ontology
+	 *
 	 * @param Property $prop
+	 *
 	 * @return string
 	 */
 	public function getDataTypeName( Property $prop ) {
-		return preg_replace( '/[^\w]/', '', ucwords( strtr($prop->getDataTypeId(), "-", " ") ) );
+		return preg_replace( '/\W+/', '', ucwords( strtr( $prop->getDataTypeId(), '-', ' ' ) ) );
 	}
 
 	/**

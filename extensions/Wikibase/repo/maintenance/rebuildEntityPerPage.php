@@ -42,7 +42,7 @@ class RebuildEntityPerPage extends LoggedUpdateMaintenance {
 			exit;
 		}
 
-		$batchSize = intval( $this->getOption( 'batch-size', 100 ) );
+		$batchSize = (int)$this->getOption( 'batch-size', 100 );
 		$rebuildAll = $this->getOption( 'rebuild-all', false );
 
 		$reporter = new ObservableMessageReporter();
@@ -92,4 +92,4 @@ class RebuildEntityPerPage extends LoggedUpdateMaintenance {
 }
 
 $maintClass = 'Wikibase\Repo\Maintenance\RebuildEntityPerPage';
-require_once( RUN_MAINTENANCE_IF_MAIN );
+require_once RUN_MAINTENANCE_IF_MAIN;

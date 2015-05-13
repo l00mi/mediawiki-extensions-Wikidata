@@ -10,6 +10,7 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\LegacyIdInterpreter;
+use Wikibase\Lib\Store\EntityRedirectLookup;
 use Wikibase\Repo\Store\EntityPerPage;
 
 /**
@@ -22,7 +23,7 @@ use Wikibase\Repo\Store\EntityPerPage;
  * @author Thomas Pellissier Tanon
  * @author Daniel Kinzler
  */
-class EntityPerPageTable implements EntityPerPage {
+class EntityPerPageTable implements EntityPerPage, EntityRedirectLookup {
 
 	/**
 	 * @var EntityIdParser
@@ -31,6 +32,7 @@ class EntityPerPageTable implements EntityPerPage {
 
 	/**
 	 * @var bool
+	 * @todo Drop this backwards compat flag.
 	 */
 	private $useRedirectTargetColumn;
 
@@ -343,11 +345,11 @@ class EntityPerPageTable implements EntityPerPage {
 	 * @param null|string $entityType The entity type to look for.
 	 * @param int $limit The maximum number of IDs to return.
 	 * @param EntityId $after Only return entities with IDs greater than this.
+	 * @param mixed $redirects A XXX_REDIRECTS constant (default is NO_REDIRECTS).
 	 *
-	 * @throws InvalidArgumentException
 	 * @return EntityId[]
 	 */
-	public function listEntities( $entityType, $limit, EntityId $after = null ) {
+	public function listEntities( $entityType, $limit, EntityId $after = null, $redirects = self::NO_REDIRECTS ) {
 		if ( $entityType == null  ) {
 			$where = array();
 			//NOTE: needs to be id/type, not type/id, according to the definition of the relevant
@@ -363,7 +365,11 @@ class EntityPerPageTable implements EntityPerPage {
 		}
 
 		if ( $this->useRedirectTargetColumn ) {
-			$where[ 'epp_redirect_target' ] = null;
+			if ( $redirects === self::NO_REDIRECTS ) {
+				$where[] = 'epp_redirect_target IS NULL';
+			} elseif ( $redirects === self::ONLY_REDIRECTS ) {
+				$where[] = 'epp_redirect_target IS NOT NULL';
+			}
 		}
 
 		if ( !is_int( $limit ) || $limit < 1 ) {
@@ -373,14 +379,16 @@ class EntityPerPageTable implements EntityPerPage {
 		$dbr = wfGetDB( DB_SLAVE );
 
 		if ( $after ) {
+			$numericId = (int)$after->getNumericId();
+
 			if ( $entityType === null ) {
 				// Ugly. About time we switch to qualified, string based IDs!
 				// NOTE: this must be consistent with the sort order, see above!
-				$where[] = '( ( epp_entity_type > ' . $dbr->addQuotes( $after->getEntityType() ) .
-						' AND epp_entity_id = ' . $after->getNumericId() . ' )' .
-						' OR epp_entity_id > ' . $after->getNumericId() . ' )';
+				$where[] = '( ( epp_entity_type > ' . $dbr->addQuotes( $after->getEntityType() )
+					. ' AND epp_entity_id = ' . $numericId . ' )'
+					. ' OR epp_entity_id > ' . $numericId . ' )';
 			} else {
-				$where[] = 'epp_entity_id > ' . $after->getNumericId();
+				$where[] = 'epp_entity_id > ' . $numericId;
 			}
 		}
 
@@ -394,6 +402,43 @@ class EntityPerPageTable implements EntityPerPage {
 				// MySQL tends to use the epp_redirect_target key which has a very low selectivity
 				'USE INDEX' => 'wb_epp_entity',
 				'LIMIT' => $limit
+			)
+		);
+
+		$ids = $this->getEntityIdsFromRows( $rows );
+		return $ids;
+	}
+
+	/**
+	 * Returns the IDs that redirect to (are aliases of) the given target entity.
+	 *
+	 * @note If $this->useRedirectTargetColumn, this returns the empty array.
+	 *
+	 * @since 0.5
+	 *
+	 * @param EntityId $targetId
+	 *
+	 * @return EntityId[]
+	 */
+	public function getRedirectIds( EntityId $targetId ) {
+		if ( !$this->useRedirectTargetColumn ) {
+			return array();
+		}
+
+		$where = array(
+			'epp_entity_type' => $targetId->getEntityType(),
+			'epp_redirect_target' => $targetId->getSerialization(),
+		);
+
+		$dbr = wfGetDB( DB_SLAVE );
+
+		$rows = $dbr->select(
+			'wb_entity_per_page',
+			array( 'entity_type' => 'epp_entity_type', 'entity_id' => 'epp_entity_id' ),
+			$where,
+			__METHOD__,
+			array(
+				'LIMIT' => 1000 // everything should have a hard limit
 			)
 		);
 
@@ -426,7 +471,7 @@ class EntityPerPageTable implements EntityPerPage {
 			return false;
 		}
 
-		return intval( $row->epp_page_id );
+		return (int)$row->epp_page_id;
 	}
 
 	/**

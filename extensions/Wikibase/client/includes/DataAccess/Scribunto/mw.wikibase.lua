@@ -10,6 +10,9 @@
 ]]
 
 local wikibase = {}
+local util = require 'libraryUtil'
+local checkType = util.checkType
+local checkTypeMulti = util.checkTypeMulti
 
 function wikibase.setupInterface()
 	local php = mw_interface
@@ -58,9 +61,7 @@ function wikibase.setupInterface()
 
 	-- Get the mw.wikibase.entity object for the current page
 	wikibase.getEntity = function( id )
-		if id ~= nil and type( id ) ~= 'string' then
-			error( 'id must be either of type string or nil, ' .. type( id ) .. ' given', 2 )
-		end
+		checkTypeMulti( 'getEntity', 1, id, { 'string', 'nil' } )
 
 		if id == nil then
 			id = getEntityIdForCurrentPage()
@@ -84,20 +85,25 @@ function wikibase.setupInterface()
 	--
 	-- @param id
 	wikibase.label = function( id )
-		if type( id ) ~= 'string' then
-			error( 'id must be of type string, ' .. type( id ) .. ' given', 2 )
-		end
+		checkType( 'label', 1, id, 'string' )
 
 		return php.getLabel( id )
+	end
+
+	-- Get the description for the given entity id (in content language)
+	--
+	-- @param id
+	wikibase.description = function( id )
+		checkType( 'description', 1, id, 'string' )
+
+		return php.getDescription( id )
 	end
 
 	-- Get the local sitelink title for the given entity id (if one exists)
 	--
 	-- @param id
 	wikibase.sitelink = function( id )
-		if type( id ) ~= 'string' then
-			error( 'id must be of type string, ' .. type( id ) .. ' given', 2 )
-		end
+		checkType( 'sitelink', 1, id, 'string' )
 
 		return php.getSiteLinkPageName( id )
 	end
@@ -107,9 +113,7 @@ function wikibase.setupInterface()
 	--
 	-- @param snakSerialization
 	wikibase.renderSnak = function( snakSerialization )
-		if type( snakSerialization ) ~= 'table' then
-			error( 'snakSerialization must be a table, ' .. type( snakSerialization ) .. ' given', 2 )
-		end
+		checkType( 'renderSnak', 1, snakSerialization, 'table' )
 
 		return php.renderSnak( snakSerialization )
 	end
@@ -118,9 +122,7 @@ function wikibase.setupInterface()
 	--
 	-- @param snaksSerialization
 	wikibase.renderSnaks = function( snaksSerialization )
-		if type( snaksSerialization ) ~= 'table' then
-			error( 'snaksSerialization must be a table, ' .. type( snaksSerialization ) .. ' given', 2 )
-		end
+		checkType( 'renderSnaks', 1, snaksSerialization, 'table' )
 
 		return php.renderSnaks( snaksSerialization )
 	end
