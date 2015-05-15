@@ -863,12 +863,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Wikidata.org.git",
-                "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028"
+                "reference": "b024e917b202be21c1f5df10408167b28003c911"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
-                "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/b024e917b202be21c1f5df10408167b28003c911",
+                "reference": "b024e917b202be21c1f5df10408167b28003c911",
                 "shasum": ""
             },
             "require": {
@@ -901,7 +901,7 @@
                 "irc": "irc://irc.freenode.net/wikidata",
                 "source": "https://github.com/wmde/Wikidata.org/tree/master"
             },
-            "time": "2015-04-28 19:08:33"
+            "time": "2015-05-14 19:02:19"
         },
         {
             "name": "wikibase/data-model",
@@ -1213,12 +1213,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "456ca4c59e191b0904b5fd35c8d88d53034f6acf"
+                "reference": "8697e9d68ecc10e5e97dba15845031d16c8b2e61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/456ca4c59e191b0904b5fd35c8d88d53034f6acf",
-                "reference": "456ca4c59e191b0904b5fd35c8d88d53034f6acf",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8697e9d68ecc10e5e97dba15845031d16c8b2e61",
+                "reference": "8697e9d68ecc10e5e97dba15845031d16c8b2e61",
                 "shasum": ""
             },
             "require": {
@@ -1286,7 +1286,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-05-13 20:41:00"
+            "time": "2015-05-14 20:11:42"
         },
         {
             "name": "wikibase/wikimedia-badges",
