@@ -867,7 +867,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/2ce996a452942f27a1345b5446ca1a6e60c689ed",
                 "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
                 "shasum": ""
             },
@@ -1213,7 +1213,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.wikimedia.org/git/mediawiki/extensions/Wikibase.git",
-                "reference": "1be5ea067d20ff52f8d55d4132736ed65af49588"
+                "reference": "9eabd536196d41b66b6921aa28c506c94960e4bc"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1283,7 +1283,7 @@
                 "issues": "https://bugzilla.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-05-13 10:19:29"
+            "time": "2015-05-16 15:55:32"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1295,7 +1295,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/a4cb3fa96adee3f634999873c8bfe432783bf47e",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/8dfea8bb0afa937cdca0e33c24115d83f9b417cf",
                 "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e",
                 "shasum": ""
             },
