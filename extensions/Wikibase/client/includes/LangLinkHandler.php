@@ -39,11 +39,6 @@ class LangLinkHandler {
 	private $badgeDisplay;
 
 	/**
-	 * @var string
-	 */
-	private $siteId;
-
-	/**
 	 * @var NamespaceChecker
 	 */
 	private $namespaceChecker;
@@ -66,40 +61,40 @@ class LangLinkHandler {
 	/**
 	 * @var string
 	 */
-	private $siteGroup;
+	private $siteId;
 
 	/**
-	 * @var ItemId[]
+	 * @var string
 	 */
-	private $itemIds;
+	private $siteGroup;
 
 	/**
 	 * @param OtherProjectsSidebarGeneratorFactory $otherProjectsSidebarGeneratorFactory
 	 * @param LanguageLinkBadgeDisplay $badgeDisplay
-	 * @param string $siteId The global site ID for the local wiki
 	 * @param NamespaceChecker $namespaceChecker determines which namespaces wikibase is enabled on
 	 * @param SiteLinkLookup $siteLinkLookup A site link lookup service
 	 * @param EntityLookup $entityLookup An entity lookup service
 	 * @param SiteStore $sites
+	 * @param string $siteId The global site ID for the local wiki
 	 * @param string $siteGroup The ID of the site group to use for showing language links.
 	 */
 	public function __construct(
 		OtherProjectsSidebarGeneratorFactory $otherProjectsSidebarGeneratorFactory,
 		LanguageLinkBadgeDisplay $badgeDisplay,
-		$siteId,
 		NamespaceChecker $namespaceChecker,
 		SiteLinkLookup $siteLinkLookup,
 		EntityLookup $entityLookup,
-		SiteStore $sites,
+		SiteStore $siteStore,
+		$siteId,
 		$siteGroup
 	) {
 		$this->otherProjectsSidebarGeneratorFactory = $otherProjectsSidebarGeneratorFactory;
 		$this->badgeDisplay = $badgeDisplay;
-		$this->siteId = $siteId;
 		$this->namespaceChecker = $namespaceChecker;
 		$this->siteLinkLookup = $siteLinkLookup;
 		$this->entityLookup = $entityLookup;
-		$this->siteStore = $sites;
+		$this->siteStore = $siteStore;
+		$this->siteId = $siteId;
 		$this->siteGroup = $siteGroup;
 	}
 
@@ -471,14 +466,10 @@ class LangLinkHandler {
 	 * @return ItemId|null
 	 */
 	private function getItemIdForTitle( Title $title ) {
-		$key = $title->getFullText();
-
-		if ( !isset( $this->itemIds[$key] ) ) {
-			$siteLink = new SiteLink( $this->siteId, $title->getFullText() );
-			$this->itemIds[$key] = $this->siteLinkLookup->getEntityIdForSiteLink( $siteLink );
-		}
-
-		return $this->itemIds[$key];
+		return $this->siteLinkLookup->getItemIdForLink(
+			$this->siteId,
+			$title->getFullText()
+		);
 	}
 
 }
