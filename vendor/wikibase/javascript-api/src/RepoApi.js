@@ -1,10 +1,3 @@
-/**
- * @licence GNU GPL v2+
- * @author Daniel Werner < daniel.werner@wikimedia.de >
- * @author Tobias Gritschacher
- * @author H. Snater < mediawiki@snater.com >
- * @author Marius Hoch < hoo@online.de >
- */
 ( function( wb, $ ) {
 'use strict';
 
@@ -12,17 +5,29 @@ var MODULE = wb.api;
 
 /**
  * Constructor to create an API object for interaction with the repo Wikibase API.
+ * Functions of `wikibase.api.RepoApi` act on serializations. Before passing native
+ * `wikibase.datamodel` objects to a function, such objects need to be serialized, just like return
+ * values of `wikibase.api.RepoApi` may be used to construct `wikibase.datamodel` objects.
+ * @see wikibase.datamodel
+ * @see wikibase.serialization
+ *
+ * @class wikibase.api.RepoApi
+ * @since 1.0
+ * @licence GNU GPL v2+
+ * @author Daniel Werner < daniel.werner@wikimedia.de >
+ * @author Tobias Gritschacher
+ * @author H. Snater < mediawiki@snater.com >
+ * @author Marius Hoch < hoo@online.de >
+ *
  * @constructor
- * @since 0.5 (in 0.4 without constructor parameters, in 0.3 as wikibase.Api
- *        without support for client usage)
  *
  * @param {mediaWiki.Api} api
  *
- * @throws {Error} if parameters are not specified properly.
+ * @throws {Error} if no `mediaWiki.Api` instance is provided.
  */
-var SELF = MODULE.RepoApi = function wbRepoApi( api ) {
+var SELF = MODULE.RepoApi = function WbApiRepoApi( api ) {
 	if( api === undefined ) {
-		throw new Error( 'Required parameters not specified properly' );
+		throw new Error( 'mediaWiki.Api instance needs to be provided' );
 	}
 
 	this._api = api;
@@ -30,36 +35,68 @@ var SELF = MODULE.RepoApi = function wbRepoApi( api ) {
 
 $.extend( SELF.prototype, {
 	/**
-	 * @type mediaWiki.Api
+	 * @property {mediaWiki.Api}
+	 * @private
 	 */
 	_api: null,
 
 	/**
 	 * Creates a new entity with the given type and data.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} type The type of the entity that should be created.
-	 * @param {Object} [data] The entity data (may be omitted to create an empty entity)
-	 * @return {jQuery.Promise}
+	 * @param {string} type The type of the `Entity` that should be created.
+	 * @param {Object} [data={}] The `Entity` data (may be omitted to create an empty `Entity`).
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	createEntity: function( type, data ) {
+		if( typeof type !== 'string' || data && typeof data !== 'object' ) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbeditentity',
-			data: JSON.stringify( data ),
-			'new': type
+			'new': type,
+			data: JSON.stringify( data || {} )
 		};
 		return this._post( params );
 	},
 
 	/**
-	 * Edits an entity.
+	 * Edits an `Entity`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} id Entity id
-	 * @param {Number} baseRevId Revision id the edit shall be performed on
-	 * @param {Object} data The entity's structure
-	 * @param {Boolean} [clear] Whether to clear whole entity before editing (default: false)
-	 * @return {jQuery.Promise}
+	 * @param {string} id `Entity` id.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {Object} data The `Entity`'s structure.
+	 * @param {boolean} [clear] Whether to clear whole entity before editing.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	editEntity: function( id, baseRevId, data, clear ) {
+		if(
+			typeof id !== 'string'
+			|| typeof baseRevId !== 'number'
+			|| typeof data !== 'object'
+			|| clear && typeof clear !== 'boolean'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbeditentity',
 			id: id,
@@ -67,23 +104,41 @@ $.extend( SELF.prototype, {
 			data: JSON.stringify( data )
 		};
 
-		if ( clear ) {
-			params.clear = true;
+		if( clear ) {
+			params.clear = clear;
 		}
 
 		return this._post( params );
 	},
 
 	/**
-	 * Formats values.
+	 * Formats values (`dataValues.DataValue`s).
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {Object} dataValue
-	 * @param {Object} [options]
-	 * @param {string} [dataType]
+	 * @param {Object} dataValue `DataValue` serialization.
+	 * @param {Object} [options={}]
+	 * @param {string} [dataType] `dataTypes.DataType` id.
 	 * @param {string} [outputFormat]
-	 * @return {jQuery.Promise}
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	formatValue: function( dataValue, options, dataType, outputFormat ) {
+		if(
+			typeof dataValue !== 'object'
+			|| options && typeof options !== 'object'
+			|| dataType && typeof dataType !== 'string'
+			|| outputFormat && typeof outputFormat !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbformatvalue',
 			datavalue:  JSON.stringify( dataValue ),
@@ -102,49 +157,96 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Gets one or more Entities.
+	 * Gets one or more `Entity`s.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String[]|String} ids
-	 * @param {String[]|String} [props] Key(s) of property/ies to retrieve from the API
-	 *                          default: null (will return all properties)
-	 * @param {String[]}        [languages]
-	 *                          default: null (will return results in all languages)
-	 * @param {String[]|String} [sort] Key(s) of property/ies to sort on
-	 *                          default: null (unsorted)
-	 * @param {String}          [dir] Sort direction may be 'ascending' or 'descending'
-	 *                          default: null (ascending)
-	 * @return {jQuery.Promise}
+	 * @param {string|string[]} ids `Entity` id(s).
+	 * @param {string|string[]|null} [props] Key(s) of property/ies to retrieve from the API.
+	 *        Omitting/`null` will return all properties.
+	 * @param {string|string[]|null} [languages] Language code(s) of the languages the
+	 *        property/ies values should be retrieved in. Omitting/`null` returns values in all
+	 *        languages.
+	 * @param {string|string[]|null} [sort] Key(s) of property/ies to sort on. Omitting/`null` will
+	 *        result in unsorted output.
+	 * @param {string} [dir] Sort direction, may be 'ascending' or 'descending'.
+	 *        Anything but 'descending' resolves to 'ascending'.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	getEntities: function( ids, props, languages, sort, dir ) {
+		if(
+			( typeof ids !== 'string' && !$.isArray( ids ) )
+			|| props && ( typeof props !== 'string' && !$.isArray( props ) )
+			|| languages && ( typeof languages !== 'string' && !$.isArray( languages ) )
+			|| sort && ( typeof sort !== 'string' && !$.isArray( sort ) )
+			|| dir && typeof dir !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbgetentities',
 			ids: this._normalizeParam( ids ),
 			props: this._normalizeParam( props ),
 			languages: this._normalizeParam( languages ),
 			sort: this._normalizeParam( sort ),
-			dir: dir || undefined
+			dir: dir === 'descending' ? 'descending' : 'ascending'
 		};
 
 		return this._api.get( params );
 	},
 
 	/**
-	 * Gets an Entity which is linked with a given page.
+	 * Gets an `Entity` which is linked with on or more specific sites/pages.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String[]|String} [sites] Site(s) the given page is linked on
-	 * @param {String[]|String} [titles] Linked page(s)
-	 * @param {String[]|String} [props] Key(s) of property/ies to retrieve from the API
-	 *                          default: null (will return all properties)
-	 * @param {String[]}        [languages]
-	 *                          default: null (will return results in all languages)
-	 * @param {String[]|String} [sort] Key(s) of property/ies to sort on
-	 *                          default: null (unsorted)
-	 * @param {String}          [dir] Sort direction may be 'ascending' or 'descending'
-	 *                          default: null (ascending)
+	 * @param {string|string[]} sites `Site`(s). May be used with `titles`. May not be a list when
+	 *        `titles` is a list.
+	 * @param {string|string[]} titles Linked page(s). May be used with `sites`. May not be a list
+	 *        when `sites` is a list.
+	 * @param {string|string[]|null} [props] Key(s) of property/ies to retrieve from the API.
+	 *        Omitting/`null` returns all properties.
+	 * @param {string|string[]|null} [languages] Language code(s) of the languages the
+	 *        property/ies values should be retrieved in. Omitting/`null` returns values in all
+	 *        languages.
+	 * @param {string|string[]|null} [sort] Key(s) of property/ies to sort on. Omitting/`null` will
+	 *        result in unsorted output.
+	 * @param {string} [dir] Sort direction, may be 'ascending' or 'descending'.
+	 *        Anything but 'descending' resolves to 'ascending'.
 	 * @param {boolean} [normalize] Whether to normalize titles server side
-	 * @return {jQuery.Promise}
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
+	 * @throws {Error} if both, `sites` and `titles`, are passed as `array`s.
 	 */
 	getEntitiesByPage: function( sites, titles, props, languages, sort, dir, normalize ) {
+		if(
+			( typeof sites !== 'string' && !$.isArray( sites ) )
+			|| ( typeof titles !== 'string' && !$.isArray( titles ) )
+			|| props && ( typeof props !== 'string' && !$.isArray( props ) )
+			|| languages && ( typeof languages !== 'string' && !$.isArray( languages ) )
+			|| sort && ( typeof sort !== 'string' && !$.isArray( sort ) )
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
+		if( $.isArray( sites ) && $.isArray( titles ) ) {
+			throw new Error( 'sites and titles may not be passed as arrays at the same time' );
+		}
+
 		var params = {
 			action: 'wbgetentities',
 			sites: this._normalizeParam( sites ),
@@ -152,22 +254,39 @@ $.extend( SELF.prototype, {
 			props: this._normalizeParam( props ),
 			languages: this._normalizeParam( languages ),
 			sort: this._normalizeParam( sort ),
-			dir: dir || undefined,
-			normalize: normalize || undefined
+			dir: dir === 'descending' ? 'descending' : 'ascending',
+			normalize: typeof normalize === 'boolean' ? normalize : undefined
 		};
 
 		return this._api.get( params );
 	},
 
 	/**
-	 * Parses values.
+	 * Parses values (`dataValues.DataValue`s).
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {string} parser
-	 * @param {string[]} values
-	 * @param {Object} options
-	 * @return {jQuery.Promise}
+	 * @param {string} parser Parser id.
+	 * @param {string[]} values `DataValue` serializations.
+	 * @param {Object} [options]
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	parseValue: function( parser, values, options ) {
+		if(
+			typeof parser !== 'string'
+			|| !$.isArray( values )
+			|| options && typeof options !== 'object'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbparsevalue',
 			parser: parser,
@@ -178,38 +297,73 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Searches for entities containing the given text.
+	 * Searches for `Entity`s containing the given text.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} search search for this text
-	 * @param {String} language search in this language
-	 * @param {String} type search for this entity type
-	 * @param {Number} limit maximum number of results to return
-	 * @param {Number} offset offset where to continue the search
-	 * @return {jQuery.Promise}
+	 * @param {string} search Text to search for.
+	 * @param {string} language Language code of the language to search in.
+	 * @param {string} type `Entity` type to search for.
+	 * @param {number} [limit] Maximum number of results to return.
+	 * @param {number} [offset] Offset where to continue returning the search results.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	searchEntities: function( search, language, type, limit, offset ) {
+		if(
+			typeof search !== 'string'
+			|| typeof language !== 'string'
+			|| typeof type !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsearchentities',
 			search: search,
 			language: language,
 			type: type,
-			limit: limit || undefined,
-			'continue': offset || undefined
+			limit: typeof limit === 'number' ? limit : undefined,
+			'continue': typeof offset === 'number' ? offset : undefined
 		};
 
 		return this._api.get( params );
 	},
 
 	/**
-	 * Sets the label of an entity via the API.
+	 * Sets the label of an `Entity`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} id entity id
-	 * @param {Number} baseRevId revision id
-	 * @param {String} label the label to set
-	 * @param {String} language the language in which the label should be set
-	 * @return {jQuery.Promise}
+	 * @param {string} id `Entity` id.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {string} label New label text.
+	 * @param {string} language Language code of the language the new label should be set in.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	setLabel: function( id, baseRevId, label, language ) {
+		if(
+			typeof id !== 'string'
+			|| typeof baseRevId !== 'number'
+			|| typeof label !== 'string'
+			|| typeof language !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsetlabel',
 			id: id,
@@ -217,19 +371,38 @@ $.extend( SELF.prototype, {
 			language: language,
 			baserevid: baseRevId
 		};
+
 		return this._post( params );
 	},
 
 	/**
-	 * Sets the description of an entity via the API.
+	 * Sets the description of an `Entity`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} id entity id
-	 * @param {Number} baseRevId revision id
-	 * @param {String} description the description to set
-	 * @param {String} language the language in which the description should be set
-	 * @return {jQuery.Promise}
+	 * @param {string} id `Entity` id.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {string} description New description text.
+	 * @param {string} language Language code of the language the new description should be set in.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	setDescription: function( id, baseRevId, description, language ) {
+		if(
+			typeof id !== 'string'
+			|| typeof baseRevId !== 'number'
+			|| typeof description !== 'string'
+			|| typeof language !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsetdescription',
 			id: id,
@@ -237,50 +410,83 @@ $.extend( SELF.prototype, {
 			language: language,
 			baserevid: baseRevId
 		};
+
 		return this._post( params );
 	},
 
 	/**
-	 * Adds and/or remove a number of aliases of an item via the API.
+	 * Adds and/or remove a number of aliases of an `Entity`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} id entity id
-	 * @param {Number} baseRevId revision id
-	 * @param {String[]|String} add Alias(es) to add
-	 * @param {String[]|String} remove Alias(es) to remove
-	 * @param {String} language the language in which the aliases should be added/removed
-	 * @return {jQuery.Promise}
+	 * @param {string} id `Entity` id.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {string|string[]} add Alias(es) to add.
+	 * @param {string|string[]} remove Alias(es) to remove.
+	 * @param {string} language Language code of the language the aliases should be added/removed
+	 *        in.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	setAliases: function( id, baseRevId, add, remove, language ) {
-		add = this._normalizeParam( add );
-		remove = this._normalizeParam( remove );
+		if(
+			typeof id !== 'string'
+			|| typeof baseRevId !== 'number'
+			|| !$.isArray( add )
+			|| !$.isArray( remove )
+			|| typeof language !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsetaliases',
 			id: id,
-			add: add,
-			remove: remove,
+			add: this._normalizeParam( add ),
+			remove: this._normalizeParam( remove ),
 			language: language,
 			baserevid: baseRevId
 		};
+
 		return this._post( params );
 	},
 
 	/**
-	 * Creates/Updates an entire claim.
+	 * Creates/Updates an entire `Claim`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {object} claim
-	 * @param {number} baseRevId
-	 * @param {number} [index] The claim index. Only needs to be specified if the claim's index
-	 *        within the list of all claims of the parent entity shall be changed.
-	 * @return {jQuery.Promise}
+	 * @param {Object} claim `Claim` serialization.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {number} [index] The `Claim`'s index. Only needs to be specified if the `Claim`'s
+	 *        index within the list of all `Claim`s of the parent `Entity` shall be changed.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	setClaim: function( claim, baseRevId, index ) {
+		if( typeof claim !== 'object' || typeof baseRevId !== 'number' ) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsetclaim',
 			claim: JSON.stringify( claim ),
 			baserevid: baseRevId
 		};
 
-		if( index !== undefined ) {
+		if( typeof index === 'number' ) {
 			params.index = index;
 		}
 
@@ -288,25 +494,45 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Creates a claim.
+	 * Creates a `Claim`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {string} entityId Entity id
-	 * @param {number} baseRevId revision id
-	 * @param {string} snakType The type of the snak
-	 * @param {string} property Id of the snak's property
-	 * @param {Object|string} value The value to set the datavalue of the claim's main snak to
-	 * @return {jQuery.Promise}
+	 * @param {string} entityId `Entity` id.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {string} snakType The type of the `Snak` (see `wikibase.datamodel.Snak.TYPE`).
+	 * @param {string} propertyId Id of the `Snak`'s `Property`.
+	 * @param {Object|string} [value] `DataValue` serialization that needs to be provided when the
+	 *        specified `Snak` type requires a value.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
-	createClaim: function( entityId, baseRevId, snakType, property, value ) {
+	createClaim: function( entityId, baseRevId, snakType, propertyId, value ) {
+		if(
+			typeof entityId !== 'string'
+			|| typeof baseRevId !== 'number'
+			|| typeof snakType !== 'string'
+			|| typeof propertyId !== 'string'
+			|| value && typeof value !== 'string' && typeof value !== 'object'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbcreateclaim',
 			entity: entityId,
 			baserevid: baseRevId,
 			snaktype: snakType,
-			property: property
+			property: propertyId
 		};
 
-		if ( value ) {
+		if( value ) {
 			params.value = JSON.stringify( value );
 		}
 
@@ -314,33 +540,78 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Removes an existing claim.
+	 * Removes a `Claim`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} claimGuid The GUID of the Claim to be removed
-	 * @param {Number} [claimRevisionId]
-	 * @return {jQuery.Promise}
+	 * @param {string} claimGuid The GUID of the `Claim` to be removed.
+	 * @param {number} [claimRevisionId] Revision id the edit shall be performed on.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	removeClaim: function( claimGuid, claimRevisionId ) {
-		return this._post( {
+		if(
+			typeof claimGuid !== 'string'
+			|| claimRevisionId && typeof claimRevisionId !== 'number'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
+		var params = {
 			action: 'wbremoveclaims',
-			claim: claimGuid,
-			baserevid: claimRevisionId
-		} );
+			claim: claimGuid
+		};
+
+		if( claimRevisionId ) {
+			params.baserevid = claimRevisionId;
+		}
+
+		return this._post( params );
 	},
 
 	/**
-	 * Returns claims of a specific entity by providing an entity id or a specific claim by
-	 * providing a claim GUID.
+	 * Returns `Claim`s of a specific `Entity` by providing an `Entity` id or a specific `Claim` by
+	 * providing a `Claim` GUID.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {string} entityId Entity id
-	 * @param {string} [propertyId] Only return claims featuring this property
-	 * @param {string} claimGuid GUID of the claim to return. Either claimGuid or entityID has to be
-	 *        provided.
-	 * @param {string} [rank] Only return claims of this rank
-	 * @param {string} [props] Optional parts of the claims to return
-	 * @return {jQuery.Promise}
+	 * @param {string|null} entityId `Entity` id. May be `null` if `claimGuid` is specified.
+	 * @param {string} [propertyId] Only return `Claim`s featuring this `Property`.
+	 * @param {string} [claimGuid] GUID of the `Claim` to return. Either `claimGuid` or `entityID`
+	 *        has to be provided.
+	 * @param {string} [rank] Only return `Claim`s of this `rank`.
+	 * @param {string} [props] Specific parts of the `Claim`s to include in the response.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
+	 * @throws {Error} if neither `entityId` nor `claimGuid` is provided.
 	 */
 	getClaims: function( entityId, propertyId, claimGuid, rank, props ) {
+		if(
+			entityId && typeof entityId !== 'string'
+			|| propertyId && typeof propertyId !== 'string'
+			|| claimGuid && typeof claimGuid !== 'string'
+			|| rank && typeof rank !== 'string'
+			|| props && typeof props !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
+		if( !entityId && !claimGuid ) {
+			throw new Error( 'Either entity id or claim GUID needs to be provided.' );
+		}
+
 		var params = {
 			action: 'wbgetclaims',
 			entity: entityId,
@@ -354,16 +625,36 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Changes the Main Snak of an existing claim.
+	 * Changes the main `Snak` of an existing `Claim`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {string} claimGuid The GUID of the Claim to be changed
-	 * @param {number} baseRevId
-	 * @param {string} snakType The type of the snak
-	 * @param {string} property Id of the snak's property
-	 * @param {object} value The value to set the datavalue of the the main snak of the claim to
-	 * @return {jQuery.Promise}
+	 * @param {string} claimGuid The GUID of the `Claim` to be changed.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {string} snakType The type of the `Snak` (see `wikibase.datamodel.Snak.TYPE`).
+	 * @param {string} propertyId Id of the `Snak`'s `Property`.
+	 * @param {Object|string} [value] `DataValue` serialization that needs to be provided when the
+	 *        specified `Snak` type requires a value.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
-	setClaimValue: function( claimGuid, baseRevId, snakType, property, value ) {
+	setClaimValue: function( claimGuid, baseRevId, snakType, propertyId, value ) {
+		if(
+			typeof claimGuid !== 'string'
+			|| typeof baseRevId !== 'number'
+			|| typeof snakType !== 'string'
+			|| typeof propertyId !== 'string'
+			|| value && typeof value !== 'string' && typeof value !== 'object'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsetclaimvalue',
 			claim: claimGuid,
@@ -371,10 +662,10 @@ $.extend( SELF.prototype, {
 			snaktype: snakType,
 			// NOTE: currently 'wbsetclaimvalue' API allows to change snak type but not property,
 			//  set it anyhow. The abstracted API won't propagate the API warning we will get here.
-			property: property
+			property: propertyId
 		};
 
-		if ( value ) {
+		if( value ) {
 			params.value = JSON.stringify( value );
 		}
 
@@ -382,32 +673,51 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Adds a new or updates an existing Reference of a Statement.
+	 * Adds a new or updates an existing `Reference` of a `Statement`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @since 0.4
-	 *
-	 * @param {string} statementGuid
-	 * @param {object} snaks
-	 * @param {number} baseRevId
-	 * @param {string} [referenceHash] A hash of the reference that should be updated.
+	 * @param {string} statementGuid `GUID` of the `Statement` which a `Reference`.
+	 *        should be added to or changed of.
+	 * @param {Object} snaks `snak` portion of a serialized `Reference`.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {string|number} [referenceHash] A hash of the reference that should be updated.
 	 *        If not provided, a new reference is created.
-	 * @param {number} [index] The reference index. Only needs to be specified if the reference's
-	 *        index within the list of all references of the parent statement shall be changed or
-	 *        when the reference should be inserted at a specific position.
-	 * @return {jQuery.Promise}
+	 *        Assumed to be `index` if of type `number`.
+	 * @param {number} [index] The `Reference` index. Only needs to be specified if the
+	 *        `Reference`'s index within the list of all `Reference`s of the parent `Statement`
+	 *        shall be changed or when the `Reference` should be inserted at a specific position.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	setReference: function( statementGuid, snaks, baseRevId, referenceHash, index ) {
+		if( index === undefined && typeof referenceHash === 'number' ) {
+			index = referenceHash;
+			referenceHash = undefined;
+		}
+
+		if(
+			typeof statementGuid !== 'string'
+			|| typeof snaks !== 'object'
+			|| typeof baseRevId !== 'number'
+			|| referenceHash && typeof referenceHash !== 'string'
+			|| index && typeof index !== 'number'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsetreference',
 			statement: statementGuid,
 			snaks: JSON.stringify( snaks ),
 			baserevid: baseRevId
 		};
-
-		if( index === undefined && typeof referenceHash === 'number' ) {
-			index = referenceHash;
-			referenceHash = undefined;
-		}
 
 		if( referenceHash ) {
 			params.reference = referenceHash;
@@ -421,16 +731,33 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Will remove one or more existing References of a Statement.
+	 * Removes one or more `Reference`s of a `Statement`.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @since 0.4
+	 * @param {string} statementGuid `GUID` of the `Statement` which `Reference`s should be removed
+	 *        of.
+	 * @param {string|string[]} referenceHashes One or more hashes of the `Reference`s to be
+	 *        removed.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
 	 *
-	 * @param {string} statementGuid
-	 * @param {string|string[]} referenceHashes One or more hashes of the References to be removed.
-	 * @param {number} baseRevId
-	 * @return {jQuery.Promise}
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	removeReferences: function( statementGuid, referenceHashes, baseRevId ) {
+		if(
+			typeof statementGuid !== 'string'
+			|| typeof referenceHashes !== 'string' && !$.isArray( referenceHashes )
+			|| typeof baseRevId !== 'number'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbremovereferences',
 			statement: statementGuid,
@@ -442,16 +769,35 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Sets a site link for an item via the API.
+	 * Sets a `SiteLink` for an item via the API.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {String} id entity id
-	 * @param {Number} baseRevId revision id
-	 * @param {String} site the site of the link
-	 * @param {String} title the title to link to
-	 * @param {String[]|String} [badges] the list of badges
-	 * @return {jQuery.Promise}
+	 * @param {string} id `Entity` id.
+	 * @param {number} baseRevId Revision id the edit shall be performed on.
+	 * @param {string} site Site of the link.
+	 * @param {string} title Title to link to.
+	 * @param {string[]|string} [badges] List of `Entity` ids to be assigned as badges.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
+	 *
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	setSitelink: function( id, baseRevId, site, title, badges ) {
+		if(
+			typeof id !== 'string'
+			|| typeof baseRevId !== 'number'
+			|| typeof site !== 'string'
+			|| typeof title !== 'string'
+			|| badges && typeof badges !== 'string' && !$.isArray( badges )
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbsetsitelink',
 			id: id,
@@ -460,7 +806,7 @@ $.extend( SELF.prototype, {
 			baserevid: baseRevId
 		};
 
-		if ( badges ) {
+		if( badges ) {
 			params.badges = this._normalizeParam( badges );
 		}
 
@@ -469,26 +815,45 @@ $.extend( SELF.prototype, {
 
 	/**
 	 * Sets a site link for an item via the API.
+	 * @see wikibase.api.RepoApi._post
 	 *
-	 * @param {string} [fromId] The id to merge from
-	 * @param {string} [toId] The id to merge to
-	 * @param {string[]|string} [ignoreConflicts] Elements of the item to ignore conflicts for
-	 * @param {string} [summary] Summary for the edit
+	 * @param {string} fromId `Entity` id to merge from.
+	 * @param {string} toId `Entity` id to merge to.
+	 * @param {string[]|string} [ignoreConflicts] Elements of the `Item` to ignore conflicts for.
+	 * @param {string} [summary] Summary for the edit.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error
 	 *
-	 * @return {jQuery.Promise}
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	mergeItems: function( fromId, toId, ignoreConflicts, summary ) {
+		if(
+			typeof fromId !== 'string'
+			|| typeof toId !== 'string'
+			|| ignoreConflicts
+				&& typeof ignoreConflicts !== 'string'
+				&& !$.isArray( ignoreConflicts )
+			|| summary && typeof summary !== 'string'
+		) {
+			throw new Error( 'Parameter not specified properly' );
+		}
+
 		var params = {
 			action: 'wbmergeitems',
 			fromid: fromId,
 			toid: toId
 		};
 
-		if ( ignoreConflicts ) {
+		if( ignoreConflicts ) {
 			params.ignoreconflicts = this._normalizeParam( ignoreConflicts );
 		}
 
-		if ( summary ) {
+		if( summary ) {
 			params.summary = summary;
 		}
 
@@ -496,11 +861,10 @@ $.extend( SELF.prototype, {
 	},
 
 	/**
-	 * Converts the given value into a string usable by the API
+	 * Converts the given value into a string usable by the API.
+	 * @private
 	 *
-	 * @since 0.4
-	 *
-	 * @param {string[]|string} [value]
+	 * @param {string[]|string|null} [value]
 	 * @return {string|undefined}
 	 */
 	_normalizeParam: function( value ) {
@@ -512,16 +876,21 @@ $.extend( SELF.prototype, {
 	 * automatically add the required 'token' information for editing into the given parameters
 	 * sent to the API.
 	 * @see mediaWiki.Api.post
+	 * @see mediaWiki.Api.ajax
+	 * @private
 	 *
-	 * @param {Object} params parameters for the API call
-	 * @return {jQuery.Promise}
-	 *         Resolved parameters:
-	 *         - {*}
-	 *         Rejected parameters:
-	 *         - {string}
-	 *         - {*}
+	 * @param {Object} params parameters for the API call.
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {*} return.done.result
+	 * @return {jqXHR} return.done.jqXHR
+	 * @return {Function} return.fail
+	 * @return {string} return.fail.code
+	 * @return {*} return.fail.error A plain object with information about the error if `code` is
+	 *         "http", a string, if the call was successful but the response is empty or the result
+	 *         result if it contains an `error` field.
 	 *
-	 * @throws {Error} If a parameter is not specified properly
+	 * @throws {Error} if a parameter is not specified properly.
 	 */
 	_post: function( params ) {
 		// Unconditionally set the bot parameter to match the UI behaviour of core

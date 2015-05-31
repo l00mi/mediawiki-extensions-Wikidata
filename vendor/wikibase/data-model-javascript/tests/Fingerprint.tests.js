@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( wb, QUnit, $ ) {
+( function( wb, QUnit ) {
 'use strict';
 
 QUnit.module( 'wikibase.datamodel.Fingerprint' );
@@ -283,6 +283,13 @@ QUnit.test( 'setAliases()', function( assert ) {
 		'Set aliases passing a MultiTerm object.'
 	);
 
+	assert.throws(
+		function() {
+			fingerprint.setAliases( 'de', aliases );
+		},
+		'Throwing error when trying to set a MultiTermMap with a language code.'
+	);
+
 	assert.ok(
 		!fingerprint.hasAliases( 'en', enAliases ),
 		'Verified fingerprint not featuring the aliases that will be added.'
@@ -412,4 +419,4 @@ QUnit.test( 'equals()', function( assert ) {
 	}
 } );
 
-}( wikibase, QUnit, jQuery ) );
+}( wikibase, QUnit ) );

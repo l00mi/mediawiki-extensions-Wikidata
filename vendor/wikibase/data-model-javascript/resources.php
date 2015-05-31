@@ -10,16 +10,12 @@
 return call_user_func( function() {
 	global $wgResourceModules;
 
-	preg_match(
-		'+^(.*?)(' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)' .
-			preg_quote( DIRECTORY_SEPARATOR ) . '.*)$+',
-		__DIR__,
-		$remoteExtPathParts
-	);
+	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
 
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__ . DIRECTORY_SEPARATOR . 'src',
-		'remoteExtPath' => '..' . $remoteExtPathParts[2] . DIRECTORY_SEPARATOR . 'src',
+		'remoteExtPath' => '..' . $remoteExtPath[0] . DIRECTORY_SEPARATOR . 'src',
 	);
 
 	$modules = array(
@@ -125,7 +121,7 @@ return call_user_func( function() {
 				'EntityId.js',
 			),
 			'dependencies' => array(
-				'mw.ext.dataValues',
+				'dataValues.DataValue',
 				'util.inherit',
 				'wikibase.datamodel.__namespace',
 			),
@@ -256,7 +252,7 @@ return call_user_func( function() {
 				'PropertyValueSnak.js',
 			),
 			'dependencies' => array(
-				'mw.ext.dataValues',
+				'dataValues.DataValue',
 				'util.inherit',
 				'wikibase.datamodel.__namespace',
 				'wikibase.datamodel.Snak',

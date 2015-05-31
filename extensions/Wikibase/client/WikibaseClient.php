@@ -92,7 +92,7 @@ call_user_func( function() {
 	$wgHooks['OldChangesListRecentChangesLine'][]		= '\Wikibase\ClientHooks::onOldChangesListRecentChangesLine';
 	$wgHooks['OutputPageParserOutput'][]		= '\Wikibase\Client\Hooks\SidebarHookHandlers::onOutputPageParserOutput';
 	$wgHooks['SkinTemplateGetLanguageLink'][]		= '\Wikibase\Client\Hooks\SidebarHookHandlers::onSkinTemplateGetLanguageLink';
-	$wgHooks['ParserAfterParse'][]				= '\Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers::onParserAfterParse';
+	$wgHooks['ContentAlterParserOutput'][]				= '\Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers::onContentAlterParserOutput';
 	$wgHooks['SidebarBeforeOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSidebarBeforeOutput';
 	$wgHooks['ArticleEditUpdates'][]				= '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onArticleEditUpdates';
 	$wgHooks['ArticleDeleteComplete'][]				= '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onArticleDeleteComplete';
@@ -123,7 +123,17 @@ call_user_func( function() {
 	$wgHooks['WikibaseDeleteData'][]			= '\Wikibase\ClientHooks::onWikibaseDeleteData';
 
 	// api modules
-	$wgAPIMetaModules['wikibase'] = 'Wikibase\ApiClientInfo';
+	$wgAPIMetaModules['wikibase'] = array(
+		'class' => 'Wikibase\ApiClientInfo',
+		'factory' => function( ApiQuery $apiQuery, $moduleName ) {
+			return new Wikibase\ApiClientInfo(
+				Wikibase\Client\WikibaseClient::getDefaultInstance()->getSettings(),
+				$apiQuery,
+				$moduleName
+			);
+		}
+	);
+
 	$wgAPIPropModules['pageterms'] = array(
 		'class' => 'Wikibase\Client\Api\PageTerms',
 		'factory' => function ( ApiQuery $query, $moduleName ) {

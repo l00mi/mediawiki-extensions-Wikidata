@@ -18,7 +18,7 @@ return array(
     $vendorDir . '/data-values/number/Number.php',
     $vendorDir . '/wikibase/data-model-javascript/init.php',
     $baseDir . '/extensions/ValueView/ValueView.php',
-    $vendorDir . '/wikibase/javascript-api/init.php',
+    $vendorDir . '/wikibase/javascript-api/WikibaseJavaScriptApi.php',
     $vendorDir . '/wikibase/serialization-javascript/init.php',
     $vendorDir . '/data-values/data-types/DataTypes.php',
     $vendorDir . '/data-values/validators/Validators.php',

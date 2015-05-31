@@ -600,28 +600,28 @@
     },
     {
         "name": "wikibase/javascript-api",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
+        "version": "1.0.3",
+        "version_normalized": "1.0.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-            "reference": "9e74bc0691f264d633e5e635114bc289436874ff"
+            "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/9e74bc0691f264d633e5e635114bc289436874ff",
-            "reference": "9e74bc0691f264d633e5e635114bc289436874ff",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/76452ebbd22bdb32b354c43ee523c4663ed98d1b",
+            "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b",
             "shasum": ""
         },
         "require": {
-            "data-values/javascript": "~0.6.0"
+            "data-values/javascript": "~0.6.0|~0.7.0"
         },
-        "time": "2014-11-28 08:49:55",
+        "time": "2015-05-21 19:07:14",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "init.php"
+                "WikibaseJavaScriptApi.php"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -642,23 +642,23 @@
     },
     {
         "name": "wikibase/data-model-javascript",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
+        "version": "1.0.2",
+        "version_normalized": "1.0.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
-            "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b"
+            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
-            "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
+            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
             "shasum": ""
         },
         "require": {
-            "data-values/javascript": "~0.6.0"
+            "data-values/javascript": "~0.6.0|~0.7.0"
         },
-        "time": "2014-11-05 09:59:08",
+        "time": "2015-05-29 09:52:16",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1203,12 +1203,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "807a64795cdcb76c11fe6a950807e721a9ced986"
+            "reference": "70931997a14acb3c0e74b7d0608129fe265bfe78"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/807a64795cdcb76c11fe6a950807e721a9ced986",
-            "reference": "807a64795cdcb76c11fe6a950807e721a9ced986",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/70931997a14acb3c0e74b7d0608129fe265bfe78",
+            "reference": "70931997a14acb3c0e74b7d0608129fe265bfe78",
             "shasum": ""
         },
         "require": {
@@ -1235,7 +1235,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-05-29 02:37:47",
+        "time": "2015-05-31 06:46:20",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1286,18 +1286,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikimediaBadges.git",
-            "reference": "8dfea8bb0afa937cdca0e33c24115d83f9b417cf"
+            "reference": "5cb28488f7791302cf6b835610f132b0b05915cf"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/8dfea8bb0afa937cdca0e33c24115d83f9b417cf",
-            "reference": "8dfea8bb0afa937cdca0e33c24115d83f9b417cf",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/5cb28488f7791302cf6b835610f132b0b05915cf",
+            "reference": "5cb28488f7791302cf6b835610f132b0b05915cf",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-05-16 16:54:06",
+        "time": "2015-05-30 21:07:00",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
