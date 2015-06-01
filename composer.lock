@@ -1213,12 +1213,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c6cbbc82609018ebc01ba016fb47c030db736ff4"
+                "reference": "58da4aea73fed0e982212b9132f72c650bb16376"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c6cbbc82609018ebc01ba016fb47c030db736ff4",
-                "reference": "c6cbbc82609018ebc01ba016fb47c030db736ff4",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/58da4aea73fed0e982212b9132f72c650bb16376",
+                "reference": "58da4aea73fed0e982212b9132f72c650bb16376",
                 "shasum": ""
             },
             "require": {
@@ -1286,7 +1286,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-05-22 00:01:41"
+            "time": "2015-06-01 10:48:57"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1298,7 +1298,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/8dfea8bb0afa937cdca0e33c24115d83f9b417cf",
+                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/5cb28488f7791302cf6b835610f132b0b05915cf",
                 "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e",
                 "shasum": ""
             },
