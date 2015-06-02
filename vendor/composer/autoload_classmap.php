@@ -1300,6 +1300,5 @@ return array(
     'Wikimedia\\Purtle\\TurtleRdfWriter' => $baseDir . '/extensions/Wikibase/purtle/src/TurtleRdfWriter.php',
     'Wikimedia\\Purtle\\UnicodeEscaper' => $baseDir . '/extensions/Wikibase/purtle/src/UnicodeEscaper.php',
     'Wikimedia\\Purtle\\XmlRdfWriter' => $baseDir . '/extensions/Wikibase/purtle/src/XmlRdfWriter.php',
-    'importInterlang' => $baseDir . '/extensions/Wikibase/repo/maintenance/importInterlang.php',
     'importProperties' => $baseDir . '/extensions/Wikibase/repo/maintenance/importProperties.php',
 );
