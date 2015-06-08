@@ -15,7 +15,8 @@
 			"Zolo",
 			"Macofe",
 			"Ricordisamoa",
-			"FRacco"
+			"FRacco",
+			"Alexmar983"
 		]
 	},
 	"wikibase-desc": "Archivio di dati strutturati",
@@ -64,7 +65,7 @@
 	"wikibase-entitytermsforlanguageview-input-help-message": "Inserisci l'etichetta di questa entità, una breve descrizione e gli alias in $1.",
 	"wikibase-statements": "Dichiarazioni",
 	"wikibase-terms": "In altre lingue",
-	"wikibase-sitelinkgroupview-input-help-message": "Aggiungi un collegamento al sito specificando un sito ed una pagina, modifica o rimuovi collegamenti ai siti esistenti.",
+	"wikibase-sitelinkgroupview-input-help-message": "Aggiungi un collegamento al sito specificando un sito ed una pagina del sito, modifica o rimuovi i collegamenti ai siti esistenti.",
 	"wikibase-sitelinks-empty": "Nessuna pagina è collegata a questo elemento.",
 	"wikibase-sitelinks-input-help-message": "Imposta un collegamento ad una pagina relativa a questo elemento.",
 	"wikibase-sitelinks-special": "Altri siti",
@@ -402,6 +403,7 @@
 	"apihelp-wbsearchentities-param-language": "Ricerca in questa lingua.",
 	"apihelp-wbsearchentities-param-limit": "Numero massimo di risultati",
 	"apihelp-wbsetaliases-description": "Imposta gli alias per un'entità Wikibase.",
+	"apihelp-wbsetaliases-param-bot": "Segnala questa modifica come bot. Questo flag di URL dovrà essere rispettato solo se l'utente appartiene al gruppo \"bot\".",
 	"apihelp-wbsetaliases-param-add": "Elenco degli alias da aggiungere (può essere combinato con remove)",
 	"apihelp-wbsetaliases-param-remove": "Elenco degli alias da rimuovere (può essere combinato con add)",
 	"apihelp-wbsetclaimvalue-description": "Imposta il valore di un'asserzione Wikibase.",
