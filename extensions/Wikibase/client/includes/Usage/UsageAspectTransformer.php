@@ -22,6 +22,7 @@ use Wikibase\DataModel\Entity\EntityId;
  *
  * @license GPL 2+
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
 class UsageAspectTransformer {
 
@@ -53,10 +54,10 @@ class UsageAspectTransformer {
 	 * Gets EntityUsage objects for each aspect in $aspects that is relevant according to
 	 * getRelevantAspects( $entityId ).
 	 *
-	 * @example: If was called with setRelevantAspects( $q3, array( 'T', 'L' ) ),
-	 * getFilteredUsages( $q3, array( 'S', 'L' ) ) will return EntityUsage( $q3, 'L'),
-	 * while getFilteredUsages( $q3, array( 'X' ) ) will return EntityUsage( $q3, 'T')
-	 * and EntityUsage( $q3, 'L').
+	 * @example: If was called with setRelevantAspects( $q3, array( 'T', 'L.de', 'L.en' ) ),
+	 * getFilteredUsages( $q3, array( 'S', 'L' ) ) will return EntityUsage( $q3, 'L.de', 'L.en' ),
+	 * while getFilteredUsages( $q3, array( 'X' ) ) will return EntityUsage( $q3, 'T' )
+	 * and EntityUsage( $q3, 'L' ).
 	 *
 	 * @param EntityId $entityId
 	 * @param string[] $aspects
@@ -86,7 +87,7 @@ class UsageAspectTransformer {
 		$transformedPageEntityUsages = new PageEntityUsages( $pageEntityUsages->getPageId(), array() );
 
 		foreach ( $entityIds as $id ) {
-			$aspects = $pageEntityUsages->getUsageAspects( $id );
+			$aspects = $pageEntityUsages->getUsageAspectKeys( $id );
 			$usages = $this->getFilteredUsages( $id, $aspects );
 			$transformedPageEntityUsages->addUsages( $usages );
 		}
@@ -96,7 +97,7 @@ class UsageAspectTransformer {
 
 	/**
 	 * @param EntityId $entityId
-	 * @param string[] $aspects
+	 * @param string[] $aspects (may have modifiers applied)
 	 *
 	 * @return EntityUsage[]
 	 */
@@ -104,7 +105,9 @@ class UsageAspectTransformer {
 		$usages = array();
 
 		foreach ( $aspects as $aspect ) {
-			$entityUsage = new EntityUsage( $entityId, $aspect );
+			list( $aspect, $modifier ) = EntityUsage::splitAspectKey( $aspect );
+
+			$entityUsage = new EntityUsage( $entityId, $aspect, $modifier );
 			$key = $entityUsage->getIdentityString();
 
 			$usages[$key] = $entityUsage;
@@ -118,30 +121,66 @@ class UsageAspectTransformer {
 	 * Filter $aspects based on the aspects provided by $relevant, according to the rules
 	 * defined for combining aspects (see class level documentation).
 	 *
-	 * @note This returns the intersection of $aspects and $relevant,
-	 * except if on of the list contains the ALL_USAGE code (X).
-	 * If X is present in $aspects, this method will return $relevant (if "all" is in the
+	 * @note This basically returns the intersection of $aspects and $relevant,
+	 * except for special treatment of ALL_USAGE and of modified aspects:
+	 *
+	 * - If X is present in $aspects, this method will return $relevant (if "all" is in the
 	 * base set, the filtered set will be the filter itself).
-	 * If X is present in $relevant, this method returns $aspects (if all aspects are relevant,
+	 * - If X is present in $relevant, this method returns $aspects (if all aspects are relevant,
 	 * nothing is filtered out).
+	 * - If a modified aspect A.xx is present in $relevant and the unmodified aspect A is present in
+	 *   $aspects, A is included in the result.
+	 * - If a modified aspect A.xx is present in $aspect and the unmodified aspect A is present in
+	 *   $relevant, the modified aspect A.xx is included in the result.
 	 *
-	 * @param string[] $aspects
-	 * @param string[] $relevant
+	 * @param string[] $aspectKeys Array of aspect keys, with modifiers applied.
+	 * @param string[] $relevant Array of aspect keys, with modifiers applied.
 	 *
-	 * @return string[]
+	 * @return string[] Array of aspect keys, with modifiers applied.
 	 */
-	private function getFilteredAspects( array $aspects, array $relevant ) {
-		if ( empty( $aspects ) || empty( $relevant ) ) {
+	private function getFilteredAspects( array $aspectKeys, array $relevant ) {
+		if ( empty( $aspectKeys ) || empty( $relevant ) ) {
 			return array();
 		}
 
-		if ( in_array( 'X', $aspects ) ) {
+		if ( in_array( EntityUsage::ALL_USAGE, $aspectKeys ) ) {
 			return $relevant;
-		} elseif ( in_array( 'X', $relevant ) ) {
-			return $aspects;
+		} elseif ( in_array( EntityUsage::ALL_USAGE, $relevant ) ) {
+			return $aspectKeys;
 		}
 
-		return array_intersect( $aspects, $relevant );
+		$directMatches = array_intersect( $relevant, $aspectKeys );
+
+		// This turns the array into an associative array of aspect keys (with modifiers) as keys,
+		// the values being meaningless (a.k.a. HashSet).
+		$aspects = array_flip( $directMatches );
+
+		// Matches 'L.xx' in $aspects to 'L' in $relevant.
+		$this->intersectAspectsIntoKeys( $aspectKeys, $relevant, $aspects );
+
+		// Matches 'L.xx' in $relevant to 'L' in $aspects.
+		$this->intersectAspectsIntoKeys( $relevant, $aspectKeys, $aspects );
+
+		ksort( $aspects );
+		return array_keys( $aspects );
+	}
+
+	/**
+	 * @param string[] $aspectKeys Array of aspect keys, with modifiers applied.
+	 * @param string[] $relevant Array of aspects (without modifiers).
+	 * @param array &$aspects Associative array of aspect keys (with modifiers) as keys, the values
+	 * being meaningless (a.k.a. HashSet).
+	 */
+	private function intersectAspectsIntoKeys( array $aspectKeys, array $relevant, array &$aspects ) {
+		$relevant = array_flip( $relevant );
+
+		foreach ( $aspectKeys as $aspectKey ) {
+			$aspect = EntityUsage::stripModifier( $aspectKey );
+
+			if ( array_key_exists( $aspect, $relevant ) ) {
+				$aspects[$aspectKey] = null;
+			}
+		}
 	}
 
 }

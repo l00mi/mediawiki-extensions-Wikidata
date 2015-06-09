@@ -8,6 +8,7 @@ use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
+use Wikibase\Client\ParserOutputDataUpdater;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\DataModel\Entity\Item;
@@ -85,14 +86,20 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 
 		$siteStore = MockSiteStore::newFromTestSites();
 
-		return new LangLinkHandler(
+		$parserOutputDataUpdater = new ParserOutputDataUpdater(
 			$this->getOtherProjectsSidebarGeneratorFactory( $otherProjects ),
+			$this->mockRepo,
+			'srwiki'
+		);
+
+		return new LangLinkHandler(
 			$this->getLanguageLinkBadgeDisplay(),
-			'srwiki',
-			new NamespaceChecker( array( NS_TALK ), array() ),
+			new NamespaceChecker( array( NS_TALK ) ),
 			$this->mockRepo,
 			$this->mockRepo,
+			$parserOutputDataUpdater,
 			$siteStore,
+			'srwiki',
 			'wikipedia'
 		);
 	}

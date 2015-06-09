@@ -114,7 +114,7 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
 				$this->getItemWithSiteLinks( $q1, array( 'enwiki' => '1' ) ),
-				$this->getEmptyItem( $q1 )
+				new Item( $q1 )
 			)
 		);
 
@@ -122,7 +122,7 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 			array( EntityUsage::SITELINK_USAGE, EntityUsage::TITLE_USAGE ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q2 ),
+				new Item( $q2 ),
 				$this->getItemWithSiteLinks( $q2, array( 'enwiki' => '2' ) )
 			)
 		);
@@ -162,16 +162,16 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 			array( EntityUsage::OTHER_USAGE ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q1 ),
-				$this->getItemWithLabel( $q1, 'de', 'EINS' )
+				new Item( $q1 ),
+				$this->getItemWithAliases( $q1, 'de', array( 'EINS' ) )
 			)
 		);
 
 		$cases['local label change on Q1 (used by Q2)'] = array(
-			array( EntityUsage::LABEL_USAGE ),
+			array( EntityUsage::makeAspectKey( EntityUsage::LABEL_USAGE, 'en' ) ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q1 ),
+				new Item( $q1 ),
 				$this->getItemWithLabel( $q1, 'en', 'ONE' )
 			)
 		);
@@ -211,26 +211,32 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 		$q2AllUsage = new EntityUsage( $q2, EntityUsage::ALL_USAGE );
 		$q2OtherUsage = new EntityUsage( $q2, EntityUsage::OTHER_USAGE );
 
-		$q1LabelUsage = new EntityUsage( $q1, EntityUsage::LABEL_USAGE );
+		$q1LabelUsage_en = new EntityUsage( $q1, EntityUsage::LABEL_USAGE, 'en' );
 		$q2LabelUsage = new EntityUsage( $q2, EntityUsage::LABEL_USAGE );
+		$q2LabelUsage_en = new EntityUsage( $q2, EntityUsage::LABEL_USAGE, 'en' );
+		$q2LabelUsage_de = new EntityUsage( $q2, EntityUsage::LABEL_USAGE, 'de' );
 
 		$q1TitleUsage = new EntityUsage( $q1, EntityUsage::TITLE_USAGE );
 		$q2TitleUsage = new EntityUsage( $q2, EntityUsage::TITLE_USAGE );
 
+		// Page 1 is linked to Q1
 		$page1Q1Usages = new PageEntityUsages( 1, array(
 			$q1SitelinkUsage,
 		) );
 
+		// Page 2 uses label and title to link to Q1
 		$page2Q1Usages = new PageEntityUsages( 2, array(
-			$q1LabelUsage,
+			$q1LabelUsage_en,
 			$q1TitleUsage,
 		) );
 
+		// Page 1 uses label and title to link to Q2, and shows the German label too.
 		$page1Q2Usages = new PageEntityUsages( 1, array(
-			$q2LabelUsage,
+			$q2LabelUsage, // "all languages" usage
 			$q2TitleUsage,
 		) );
 
+		// Page 2 uses Q2 to render an infobox
 		$page2Q2Usages = new PageEntityUsages( 2, array(
 			$q2AllUsage,
 		) );
@@ -269,7 +275,7 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
 				$this->getItemWithSiteLinks( $q1, array( 'enwiki' => '1' ) ),
-				$this->getEmptyItem( $q1 )
+				new Item( $q1 )
 			)
 		);
 
@@ -281,7 +287,7 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 			array( $page1Q2Usages, $page2Q2Usages ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q2 ),
+				new Item( $q2 ),
 				$this->getItemWithSiteLinks( $q2, array( 'enwiki' => '2' ) )
 			)
 		);
@@ -357,44 +363,57 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 			array( $page1Q1Usages, $page2Q1Usages ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q1 ),
+				new Item( $q1 ),
 				$this->getItemWithLabel( $q1, 'de', 'EINS' )
 			)
 		);
 
-		$cases['other language label change on Q2 (used on page 2)'] = array(
+		$cases['other change on Q2 (used on page 2)'] = array(
 			array(
 				new PageEntityUsages( 2, array( $q2OtherUsage ) ),
 			),
 			array( $page1Q2Usages, $page2Q2Usages ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q2 ),
+				new Item( $q2 ),
+				$this->getItemWithAliases( $q2, 'fr', array( 'X', 'Y' ) )
+			)
+		);
+
+		$cases['other language label change on Q2 (used on page 1 and 2)'] = array(
+			array(
+				new PageEntityUsages( 1, array( $q2LabelUsage_de ) ),
+				new PageEntityUsages( 2, array( $q2LabelUsage_de ) ),
+			),
+			array( $page1Q2Usages, $page2Q2Usages ),
+			$changeFactory->newFromUpdate(
+				ItemChange::UPDATE,
+				new Item( $q2 ),
 				$this->getItemWithLabel( $q2, 'de', 'EINS' )
 			)
 		);
 
 		$cases['local label change on Q1 (used by page 2)'] = array(
 			array(
-				new PageEntityUsages( 2, array( $q1LabelUsage ) ),
+				new PageEntityUsages( 2, array( $q1LabelUsage_en ) ),
 			),
 			array( $page1Q1Usages, $page2Q1Usages ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q1 ),
+				new Item( $q1 ),
 				$this->getItemWithLabel( $q1, 'en', 'ONE' )
 			)
 		);
 
-		$cases['label change on Q2 (used by page 1 and page 2)'] = array(
+		$cases['local label change on Q2 (used by page 1 and page 2)'] = array(
 			array(
-				new PageEntityUsages( 1, array( $q2LabelUsage ) ),
-				new PageEntityUsages( 2, array( $q2LabelUsage ) ),
+				new PageEntityUsages( 1, array( $q2LabelUsage_en ) ),
+				new PageEntityUsages( 2, array( $q2LabelUsage_en ) ),
 			),
 			array( $page1Q2Usages, $page2Q2Usages ),
 			$changeFactory->newFromUpdate(
 				ItemChange::UPDATE,
-				$this->getEmptyItem( $q2 ),
+				new Item( $q2 ),
 				$this->getItemWithLabel( $q2, 'en', 'TWO' )
 			)
 		);
@@ -432,7 +451,7 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 		$change = $changeFactory->newFromUpdate(
 			ItemChange::UPDATE,
 			$this->getItemWithSiteLinks( $itemId, array( 'enwiki' => $pageTitle ) ),
-			$this->getEmptyItem( $itemId )
+			new Item( $itemId )
 		);
 
 		$usages = $affectedPagesFinder->getAffectedUsagesByPage( $change );
@@ -460,27 +479,16 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 
 	/**
 	 * @param ItemId $id
-	 *
-	 * @return Item
-	 */
-	private function getEmptyItem( ItemId $id ) {
-		return new Item( $id );
-	}
-
-	/**
-	 * @param ItemId $id
 	 * @param string[] $links
 	 * @param ItemId[] $badges
 	 *
 	 * @return Item
 	 */
 	private function getItemWithSiteLinks( ItemId $id, array $links, array $badges = array() ) {
-		$item = $this->getEmptyItem( $id );
+		$item = new Item( $id );
 
 		foreach( $links as $siteId => $page ) {
-			$item->addSiteLink(
-				new SiteLink( $siteId, $page, $badges )
-			);
+			$item->getSiteLinkList()->addNewSiteLink( $siteId, $page, $badges );
 		}
 
 		return $item->copy();
@@ -494,8 +502,22 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 	 * @return Item
 	 */
 	private function getItemWithLabel( ItemId $id, $languageCode, $label ) {
-		$item = $this->getEmptyItem( $id );
+		$item = new Item( $id );
 		$item->setLabel( $languageCode, $label );
+
+		return $item;
+	}
+
+	/**
+	 * @param ItemId $id
+	 * @param string $languageCode
+	 * @param string[] $aliases
+	 *
+	 * @return Item
+	 */
+	private function getItemWithAliases( ItemId $id, $languageCode, array $aliases ) {
+		$item = new Item( $id );
+		$item->addAliases( $languageCode, $aliases );
 
 		return $item;
 	}

@@ -144,106 +144,6 @@
         ]
     },
     {
-        "name": "wikibase/wikimedia-badges",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikimediaBadges.git",
-            "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/5cb28488f7791302cf6b835610f132b0b05915cf",
-            "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2015-04-29 15:52:39",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikimediaBadges.php"
-            ],
-            "classmap": [
-                "WikimediaBadges.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Extension which contains default themes to display badges on Wikimedia projects",
-        "homepage": "https://github.com/wmde/WikimediaBadges",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/WikimediaBadges/tree/master",
-            "issues": "https://github.com/wmde/WikimediaBadges/issues"
-        }
-    },
-    {
-        "name": "wikibase/Wikidata.org",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Wikidata.org.git",
-            "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/2ce996a452942f27a1345b5446ca1a6e60c689ed",
-            "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2015-04-28 19:08:33",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "WikidataOrg.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
-        "homepage": "https://github.com/wmde/Wikidata.org",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata",
-            "source": "https://github.com/wmde/Wikidata.org/tree/master"
-        }
-    },
-    {
         "name": "diff/diff",
         "version": "2.0.0",
         "version_normalized": "2.0.0.0",
@@ -356,23 +256,23 @@
     },
     {
         "name": "wikibase/data-model-javascript",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
+        "version": "1.0.2",
+        "version_normalized": "1.0.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
-            "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b"
+            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
-            "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
+            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
             "shasum": ""
         },
         "require": {
-            "data-values/javascript": "~0.6.0"
+            "data-values/javascript": "~0.6.0|~0.7.0"
         },
-        "time": "2014-11-05 09:59:08",
+        "time": "2015-05-29 09:52:16",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -805,28 +705,28 @@
     },
     {
         "name": "wikibase/javascript-api",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
+        "version": "1.0.3",
+        "version_normalized": "1.0.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-            "reference": "9e74bc0691f264d633e5e635114bc289436874ff"
+            "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/9e74bc0691f264d633e5e635114bc289436874ff",
-            "reference": "9e74bc0691f264d633e5e635114bc289436874ff",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/76452ebbd22bdb32b354c43ee523c4663ed98d1b",
+            "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b",
             "shasum": ""
         },
         "require": {
-            "data-values/javascript": "~0.6.0"
+            "data-values/javascript": "~0.6.0|~0.7.0"
         },
-        "time": "2014-11-28 08:49:55",
+        "time": "2015-05-21 19:07:14",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "init.php"
+                "WikibaseJavaScriptApi.php"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -1298,17 +1198,17 @@
     },
     {
         "name": "wikibase/wikibase",
-        "version": "dev-wmf/1.26wmf6",
-        "version_normalized": "dev-wmf/1.26wmf6",
+        "version": "dev-wmf/1.26wmf9",
+        "version_normalized": "dev-wmf/1.26wmf9",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "0bd6f4b63d3dca76010ce76cb421a3c2b051b9ac"
+            "reference": "80234fc5eab829033478862b2d87fbdb326785b6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0bd6f4b63d3dca76010ce76cb421a3c2b051b9ac",
-            "reference": "0bd6f4b63d3dca76010ce76cb421a3c2b051b9ac",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/80234fc5eab829033478862b2d87fbdb326785b6",
+            "reference": "80234fc5eab829033478862b2d87fbdb326785b6",
             "shasum": ""
         },
         "require": {
@@ -1335,7 +1235,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-06-08 19:18:29",
+        "time": "2015-06-08 18:00:35",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1378,5 +1278,105 @@
             "wikibaserepo",
             "wikidata"
         ]
+    },
+    {
+        "name": "wikibase/wikimedia-badges",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikimediaBadges.git",
+            "reference": "5cb28488f7791302cf6b835610f132b0b05915cf"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/5cb28488f7791302cf6b835610f132b0b05915cf",
+            "reference": "5cb28488f7791302cf6b835610f132b0b05915cf",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-05-30 21:07:00",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikimediaBadges.php"
+            ],
+            "classmap": [
+                "WikimediaBadges.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Extension which contains default themes to display badges on Wikimedia projects",
+        "homepage": "https://github.com/wmde/WikimediaBadges",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata",
+            "source": "https://github.com/wmde/WikimediaBadges/tree/master",
+            "issues": "https://github.com/wmde/WikimediaBadges/issues"
+        }
+    },
+    {
+        "name": "wikibase/Wikidata.org",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Wikidata.org.git",
+            "reference": "2ce996a452942f27a1345b5446ca1a6e60c689ed"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/2ce996a452942f27a1345b5446ca1a6e60c689ed",
+            "reference": "2ce996a452942f27a1345b5446ca1a6e60c689ed",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-05-16 16:49:57",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "WikidataOrg.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
+        "homepage": "https://github.com/wmde/Wikidata.org",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata",
+            "source": "https://github.com/wmde/Wikidata.org/tree/master"
+        }
     }
 ]

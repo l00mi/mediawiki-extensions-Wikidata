@@ -20,9 +20,6 @@ $wgWBLibDefaultSettings = array(
 	// whether changes get recorded to wb_changes
 	'useChangesTable' => true,
 
-	// whether property meta data is available in wb_property_info
-	'usePropertyInfoTable' => true,
-
 	'entityPrefixes' => array(
 		'q' => 'item',
 		'p' => 'property',
@@ -45,7 +42,7 @@ $wgWBLibDefaultSettings = array(
 	'dispatchBatchCacheFactor' => 3,
 
 	// Allow the TermIndex table to work without weights,
-	// for sites that can not easily roll out schema changes on large tables.
+	// for sites that cannot easily roll out schema changes on large tables.
 	// This means that all searches will return an undefined order
 	// (depending on the database's inner working).
 	'withoutTermWeight' => false,

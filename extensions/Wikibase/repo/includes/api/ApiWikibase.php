@@ -23,7 +23,6 @@ use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\UnresolvedRedirectException;
-use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
@@ -250,13 +249,13 @@ abstract class ApiWikibase extends ApiBase {
 	/**
 	 * Check the rights for the user accessing the module.
 	 *
-	 * @param $entity Entity the entity to check
+	 * @param $entity EntityDocument the entity to check
 	 * @param $user User doing the action
 	 *
 	 * @return Status the check's result
 	 * @todo: use this also to check for read access in ApiGetEntities, etc
 	 */
-	protected function checkPermissions( Entity $entity, User $user ) {
+	protected function checkPermissions( EntityDocument $entity, User $user ) {
 		$permissions = $this->getRequiredPermissions( $entity );
 		$status = Status::newGood();
 
@@ -272,7 +271,7 @@ abstract class ApiWikibase extends ApiBase {
 	 * Load the entity content of the given revision.
 	 *
 	 * Will fail by calling dieError() on the ApiErrorReporter if the revision
-	 * can not be found or can not be loaded.
+	 * cannot be found or cannot be loaded.
 	 *
 	 * @since 0.5
 	 *
@@ -399,7 +398,7 @@ abstract class ApiWikibase extends ApiBase {
 	protected function attemptSaveEntity( Entity $entity, $summary, $flags = 0 ) {
 		if ( !$this->isWriteMode() ) {
 			// sanity/safety check
-			throw new LogicException( 'attemptSaveEntity() can not be used by API modules that do not return true from isWriteMode()!' );
+			throw new LogicException( 'attemptSaveEntity() cannot be used by API modules that do not return true from isWriteMode()!' );
 		}
 
 		if ( $summary instanceof Summary ) {

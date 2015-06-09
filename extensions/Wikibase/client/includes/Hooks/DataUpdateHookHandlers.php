@@ -3,12 +3,16 @@
 namespace Wikibase\Client\Hooks;
 
 use Content;
+use LinksUpdate;
 use ManualLogEntry;
+use ParserCache;
+use ParserOptions;
+use ParserOutput;
+use Title;
 use User;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\NamespaceChecker;
 use WikiPage;
 
 /**
@@ -26,11 +30,6 @@ use WikiPage;
 class DataUpdateHookHandlers {
 
 	/**
-	 * @var NamespaceChecker
-	 */
-	private $namespaceChecker;
-
-	/**
 	 * @var UsageUpdater
 	 */
 	private $usageUpdater;
@@ -39,7 +38,6 @@ class DataUpdateHookHandlers {
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 		$settings = $wikibaseClient->getSettings();
 
-		$namespaceChecker = $wikibaseClient->getNamespaceChecker();
 		$usageUpdater = new UsageUpdater(
 			$settings->getSetting( 'siteGlobalID' ),
 			$wikibaseClient->getStore()->getUsageTracker(),
@@ -48,24 +46,20 @@ class DataUpdateHookHandlers {
 		);
 
 		return new DataUpdateHookHandlers(
-			$namespaceChecker,
 			$usageUpdater
 		);
 	}
 
 	/**
-	 * Static handler for the ArticleEditUpdates hook.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleEditUpdates
-	 * @see doArticleEditUpdates
+	 * Static handler for the LinksUpdateComplete hook.
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LinksUpdateComplete
+	 * @see doLinksUpdateComplete
 	 *
-	 * @param WikiPage $page The WikiPage object managing the edit
-	 * @param object $editInfo The current edit info object.
-	 *        $editInfo->output is an ParserOutput object.
-	 * @param bool $changed False if this is a null edit
+	 * @param LinksUpdate $linksUpdate
 	 */
-	public static function onArticleEditUpdates( WikiPage $page, &$editInfo, $changed ) {
+	public static function onLinksUpdateComplete( LinksUpdate $linksUpdate ) {
 		$handler = self::newFromGlobalState();
-		$handler->doArticleEditUpdates( $page, $editInfo, $changed );
+		$handler->doLinksUpdateComplete( $linksUpdate );
 	}
 
 	/**
@@ -79,8 +73,6 @@ class DataUpdateHookHandlers {
 	 * @param int $id id of the article that was deleted
 	 * @param Content $content
 	 * @param ManualLogEntry $logEntry
-	 *
-	 * @return bool
 	 */
 	public static function onArticleDeleteComplete(
 		WikiPage &$article,
@@ -93,60 +85,104 @@ class DataUpdateHookHandlers {
 		$title = $article->getTitle();
 
 		$handler = self::newFromGlobalState();
-		$handler->doArticleDeleteComplete( $title->getNamespace(), $id );
+		$handler->doArticleDeleteComplete( $title->getNamespace(), $id, $logEntry->getTimestamp() );
+	}
+
+	/**
+	 * Static handler for ParserCacheSaveComplete
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserCacheSaveComplete
+	 * @see doParserCacheSaveComplete
+	 *
+	 *
+	 * @param ParserCache $parserCache
+	 * @param ParserOutput $pout
+	 * @param Title $title
+	 * @param ParserOptions $pops
+	 * @param int $revId
+	 */
+	public static function onParserCacheSaveComplete(
+		ParserCache $parserCache,
+		ParserOutput $pout,
+		Title $title,
+		ParserOptions $pops,
+		$revId
+	) {
+		$handler = self::newFromGlobalState();
+		$handler->doParserCacheSaveComplete( $pout, $title );
 	}
 
 	public function __construct(
-		NamespaceChecker $namespaceChecker,
 		UsageUpdater $usageUpdater
 	) {
-
-		$this->namespaceChecker = $namespaceChecker;
 		$this->usageUpdater = $usageUpdater;
 	}
 
 	/**
-	 * Hook run after a new revision was stored
+	 * Triggered when a page gets re-rendered to update secondary link tables.
+	 * Implemented to update usage tracking information via UsageUpdater.
 	 *
-	 * @param WikiPage $page The WikiPage object managing the edit
-	 * @param object $editInfo The current edit info object.
-	 *        $editInfo->output is an ParserOutput object.
-	 * @param bool $changed False if this is a null edit
+	 * @param LinksUpdate $linksUpdate
 	 */
-	public function doArticleEditUpdates( WikiPage $page, &$editInfo, $changed ) {
-		$title = $page->getTitle();
+	public function doLinksUpdateComplete( LinksUpdate $linksUpdate ) {
+		$title = $linksUpdate->getTitle();
 
-		if ( !$this->namespaceChecker->isWikibaseEnabled( $title->getNamespace() ) ) {
-			// shorten out
-			return;
-		}
+		$parserOutput = $linksUpdate->getParserOutput();
+		$usageAcc = new ParserOutputUsageAccumulator( $parserOutput );
 
-		$usageAcc = new ParserOutputUsageAccumulator( $editInfo->output );
+		// The parser output should tell us when it was parsed. If not, ask the Title object.
+		// These timestamps should usually be the same, but asking $title may cause a database query.
+		$touched = $parserOutput->getTimestamp() ?: $title->getTouched();
 
-		$this->usageUpdater->updateUsageForPage(
+		// Add or touch any usages present in the rendering
+		$this->usageUpdater->addUsagesForPage(
 			$title->getArticleId(),
 			$usageAcc->getUsages(),
-			$page->getTouched()
+			$touched
+		);
+
+		// Prune any usages older than the new rendering's timestamp.
+		// NOTE: only prune after adding the new updates, to avoid unsubscribing and then
+		// immediately re-subscribing to the used entities.
+		$this->usageUpdater->pruneUsagesForPage(
+			$title->getArticleId(),
+			$touched
 		);
 	}
 
 	/**
-	 * Hook run after a page was deleted.
+	 * Triggered when a new rendering of a page is committed to the ParserCache.
+	 * Implemented to update usage tracking information via UsageUpdater.
+	 *
+	 * @param ParserOutput $parserOutput
+	 * @param $title $title
+	 */
+	public function doParserCacheSaveComplete( ParserOutput $parserOutput, Title $title ) {
+		$usageAcc = new ParserOutputUsageAccumulator( $parserOutput );
+
+		// The parser output should tell us when it was parsed. If not, ask the Title object.
+		// These timestamps should usually be the same, but asking $title may cause a database query.
+		$touched = $parserOutput->getTimestamp() ?: $title->getTouched();
+
+		// Add or touch any usages present in the new rendering.
+		// This allows us to track usages in each user language separately, for multilingual sites.
+		$this->usageUpdater->addUsagesForPage(
+			$title->getArticleId(),
+			$usageAcc->getUsages(),
+			$touched
+		);
+	}
+
+	/**
+	 * Triggered after a page was deleted.
+	 * Implemented to prune usage tracking information via UsageUpdater.
 	 *
 	 * @param int $namespace
 	 * @param int $pageId
+	 * @param string $timestamp
 	 */
-	public function doArticleDeleteComplete( $namespace, $pageId ) {
-		if ( !$this->namespaceChecker->isWikibaseEnabled( $namespace ) ) {
-			// shorten out
-			return;
-		}
-
-		$this->usageUpdater->updateUsageForPage(
-			$pageId,
-			array(),
-			false
-		);
+	public function doArticleDeleteComplete( $namespace, $pageId, $timestamp ) {
+		$this->usageUpdater->pruneUsagesForPage( $pageId, $timestamp );
 	}
 
 }

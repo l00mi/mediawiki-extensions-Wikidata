@@ -29,6 +29,7 @@ use Wikibase\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\DataAccess\SnaksFinder;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\Diff\EntityDiffer;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
@@ -56,7 +57,6 @@ use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\NamespaceChecker;
-use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\StringNormalizer;
 
@@ -140,6 +140,11 @@ final class WikibaseClient {
 	 * @var LangLinkHandler|null
 	 */
 	private $langLinkHandler = null;
+
+	/**
+	 * @var ParserOutputDataUpdater|null
+	 */
+	private $parserOutputDataUpdater = null;
 
 	/**
 	 * @var NamespaceChecker|null
@@ -342,7 +347,7 @@ final class WikibaseClient {
 	private static function newInstance() {
 		global $wgContLang;
 
-		return new self( Settings::singleton(), $wgContLang );
+		return new self( new SettingsArray( $GLOBALS['wgWBClientSettings'] ), $wgContLang );
 	}
 
 	/**
@@ -538,18 +543,33 @@ final class WikibaseClient {
 	public function getLangLinkHandler() {
 		if ( $this->langLinkHandler === null ) {
 			$this->langLinkHandler = new LangLinkHandler(
-				$this->getOtherProjectsSidebarGeneratorFactory(),
 				$this->getLanguageLinkBadgeDisplay(),
-				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getNamespaceChecker(),
 				$this->getStore()->getSiteLinkLookup(),
 				$this->getStore()->getEntityLookup(),
+				$this->getParserOutputDataUpdater(),
 				$this->getSiteStore(),
+				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getLangLinkSiteGroup()
 			);
 		}
 
 		return $this->langLinkHandler;
+	}
+
+	/**
+	 * @return ParserOutputDataUpdater
+	 */
+	public function getParserOutputDataUpdater() {
+		if ( $this->parserOutputDataUpdater === null ) {
+			$this->parserOutputDataUpdater = new ParserOutputDataUpdater(
+				$this->getOtherProjectsSidebarGeneratorFactory(),
+				$this->getStore()->getSiteLinkLookup(),
+				$this->settings->getSetting( 'siteGlobalID' )
+			);
+		}
+
+		return $this->parserOutputDataUpdater;
 	}
 
 	/**
@@ -679,6 +699,7 @@ final class WikibaseClient {
 		return new EntityChangeFactory(
 			$this->getStore()->newChangesTable(),
 			$this->getEntityFactory(),
+			new EntityDiffer(),
 			$changeClasses
 		);
 	}

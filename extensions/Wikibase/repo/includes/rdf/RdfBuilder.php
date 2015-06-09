@@ -2,8 +2,8 @@
 
 namespace Wikibase\Rdf;
 
+use HashBagOStuff;
 use SiteList;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
@@ -12,7 +12,6 @@ use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\UnresolvedRedirectException;
-use Wikibase\RdfProducer;
 use Wikimedia\Purtle\RdfWriter;
 
 /**
@@ -35,13 +34,14 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	 * is an EntityId, this indicates that the entity has not yet been resolved
 	 * (defined).
 	 *
-	 * @var array
+	 * @var bool[]
 	 */
-	private $entitiesResolved = array ();
+	private $entitiesResolved = array();
 
 	/**
 	 * What the serializer would produce?
-	 * @var integer
+	 *
+	 * @var int
 	 */
 	private $produceWhat;
 
@@ -78,11 +78,10 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	private $propertyLookup;
 
 	/**
-	 *
 	 * @param SiteList $sites
 	 * @param RdfVocabulary $vocabulary
 	 * @param PropertyDataTypeLookup $propertyLookup
-	 * @param integer $flavor
+	 * @param int $flavor
 	 * @param RdfWriter $writer
 	 * @param DedupeBag $dedupBag
 	 */
@@ -98,7 +97,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 		$this->propertyLookup = $propertyLookup;
 		$this->writer = $writer;
 		$this->produceWhat = $flavor;
-		$this->dedupBag = $dedupBag ?: new \HashBagOStuff();
+		$this->dedupBag = $dedupBag ?: new HashBagOStuff();
 
 		// XXX: move construction of sub-builders to a factory class.
 		$this->termsBuilder = new TermsRdfBuilder( $vocabulary, $writer );
@@ -142,7 +141,6 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 			$statementValueBuilder->setEntityMentionListener( $this );
 		} else {
 			$statementValueBuilder = $this->newSimpleValueRdfBuilder();
-
 		}
 
 		return $statementValueBuilder;
@@ -302,8 +300,9 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	/**
 	 * Write predicates linking property entity to property predicates
 	 * @param string $id
+	 * @param boolean $isObjectProperty Is the property data or object property?
 	 */
-	private function writePropertyPredicates( $id ) {
+	private function writePropertyPredicates( $id, $isObjectProperty ) {
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'directClaim')->is( RdfVocabulary::NSP_DIRECT_CLAIM, $id );
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'claim')->is( RdfVocabulary::NSP_CLAIM, $id );
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'statementProperty' )->is( RdfVocabulary::NSP_CLAIM_STATEMENT, $id );
@@ -313,13 +312,39 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'reference' )->is( RdfVocabulary::NSP_REFERENCE, $id );
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'referenceValue' )->is( RdfVocabulary::NSP_REFERENCE_VALUE, $id );
 		$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'novalue' )->is( RdfVocabulary::NSP_NOVALUE, $id );
+		// Always object properties
+		$this->writer->about( RdfVocabulary::NSP_CLAIM, $id )->a( 'owl', 'ObjectProperty' );
+		$this->writer->about( RdfVocabulary::NSP_CLAIM_VALUE, $id )->a( 'owl', 'ObjectProperty' );
+		$this->writer->about( RdfVocabulary::NSP_QUALIFIER_VALUE, $id )->a( 'owl', 'ObjectProperty' );
+		$this->writer->about( RdfVocabulary::NSP_REFERENCE_VALUE, $id )->a( 'owl', 'ObjectProperty' );
+		// Depending on property type
+		if( $isObjectProperty ) {
+			$datatype = 'ObjectProperty';
+		} else {
+			$datatype = 'DatatypeProperty';
+		}
+		$this->writer->about( RdfVocabulary::NSP_DIRECT_CLAIM, $id )->a( 'owl', $datatype );
+		$this->writer->about( RdfVocabulary::NSP_CLAIM_STATEMENT, $id )->a( 'owl', $datatype );
+		$this->writer->about( RdfVocabulary::NSP_QUALIFIER, $id )->a( 'owl', $datatype );
+		$this->writer->about( RdfVocabulary::NSP_REFERENCE, $id )->a( 'owl', $datatype );
+	}
+
+	/**
+	 * Check if the property describes link between objects
+	 * or just data item.
+	 *
+	 * @param Property $property
+	 * @return boolean
+	 */
+	private function propertyIsLink( Property $property ) {
+		// For now, it's very simple but can be more complex later
+		return $property->getDataTypeId() == 'wikibase-entityid';
 	}
 
 	/**
 	 * Adds meta-information about an entity (such as the ID and type) to the RDF graph.
 	 *
 	 * @todo: extract into MetaDataRdfBuilder
-			$writer->say( $propertyValueNamespace, $propertyValueLName )->is( trim( $value ) );
 	 *
 	 * @param EntityDocument $entity
 	 * @param bool $produceData Should we also produce Dataset node?
@@ -347,7 +372,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 			$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'propertyType' )
 				->is( RdfVocabulary::NS_ONTOLOGY, $this->vocabulary->getDataTypeName( $entity ) );
 			$id = $entity->getId()->getSerialization();
-			$this->writePropertyPredicates( $id );
+			$this->writePropertyPredicates( $id, $this->propertyIsLink( $entity ) );
 			$this->writeNovalueClass( $id );
 		}
 	}
@@ -369,8 +394,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	}
 
 	/**
-	 * Add stubs for any entities that were previously mentioned (e.g.
-	 * as properties
+	 * Add stubs for any entities that were previously mentioned (e.g. as properties
 	 * or data values).
 	 *
 	 * @param EntityLookup $entityLookup
@@ -402,7 +426,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 		}
 
 		// If we encountered redirects, the redirect targets may now need resolving.
-		// They actually got added to $this->entitiesResolved, but may not have been 
+		// They actually got added to $this->entitiesResolved, but may not have been
 		// processed by the loop above, because they got added while the loop was in progress.
 		if ( $hasRedirect ) {
 			// Call resolveMentionedEntities() recursively to resolve any yet unresolved

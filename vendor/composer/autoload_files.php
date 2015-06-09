@@ -18,10 +18,10 @@ return array(
     $vendorDir . '/data-values/geo/Geo.php',
     $vendorDir . '/wikibase/data-model-javascript/init.php',
     $vendorDir . '/wikibase/serialization-javascript/init.php',
-    $vendorDir . '/wikibase/javascript-api/init.php',
+    $vendorDir . '/wikibase/javascript-api/WikibaseJavaScriptApi.php',
     $baseDir . '/extensions/ValueView/ValueView.php',
     $vendorDir . '/data-values/data-types/DataTypes.php',
     $vendorDir . '/data-values/validators/Validators.php',
-    $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
     $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
+    $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
 );

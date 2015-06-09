@@ -145,7 +145,7 @@ class MockRepository implements
 		if ( !is_int( $revisionId ) ) {
 			$revisionIds = array_keys( $revisions );
 			$revisionId = end( $revisionIds );
-		} else if ( !isset( $revisions[$revisionId] ) ) {
+		} elseif ( !isset( $revisions[$revisionId] ) ) {
 			throw new StorageException( "no such revision for entity $key: $revisionId" );
 		}
 
@@ -239,13 +239,13 @@ class MockRepository implements
 	}
 
 	/**
-	 * @see SiteLinkLookup::getEntityIdForSiteLink
+	 * @see SiteLinkLookup::getItemIdForSiteLink
 	 *
 	 * @param SiteLink $siteLink
 	 *
 	 * @return ItemId|null
 	 */
-	public function getEntityIdForSiteLink( SiteLink $siteLink ) {
+	public function getItemIdForSiteLink( SiteLink $siteLink ) {
 		$globalSiteId = $siteLink->getSiteId();
 		$pageName = $siteLink->getPageName();
 

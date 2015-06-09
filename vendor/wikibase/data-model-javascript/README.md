@@ -1,16 +1,22 @@
 # Wikibase DataModel JavaScript
 
 **Wikibase DataModel JavaScript** is the JavaScript implementation of the
-[Data Model](https://meta.wikimedia.org/wiki/Wikidata/Data_model)
+[Data Model](https://www.mediawiki.org/wiki/Wikibase/DataModel)
 at the heart of the [Wikibase software](http://wikiba.se/).
 
-![Wikibase JavaScript Data Model UML diagram](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Wikibase_JavaScript_Data_Model_1.0.svg/600px-Wikibase_JavaScript_Data_Model_1.0.svg.png)
-https://commons.wikimedia.org/wiki/File:Wikibase_JavaScript_Data_Model_1.0.svg
+[![Wikibase JavaScript Data Model UML diagram](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Wikibase_JavaScript_Data_Model_1.0.svg/600px-Wikibase_JavaScript_Data_Model_1.0.svg.png)](https://commons.wikimedia.org/wiki/File:Wikibase_JavaScript_Data_Model_1.0.svg)
 
 ## Release notes
 
+### 1.0.2 (2015-05-28)
+
+#### Enhancements
+* Adapt to DataValuesJavaScript 0.7.0.
+* SnakList.merge() accepts null.
+* Updated code documentation for being able to automatically generate a proper documentation using JSDuck.
+
 ### 1.0.1 (2014-11-05)
-* Using DataValues JavaScript 0.6.0.
+* Using DataValues JavaScript 0.6.x.
 
 ### 1.0 (2014-11-05)
 

@@ -8,17 +8,14 @@ use Wikibase\Client\Hooks\DataUpdateHookHandlers;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\NamespaceChecker;
-use Wikibase\Settings;
-use Wikibase\SettingsArray;
 use WikiPage;
 
 /**
  * @covers Wikibase\Client\Hooks\DataUpdateHookHandlers
  *
  * @group WikibaseClient
+ * @group WikibaseUsageTracking
  * @group Wikibase
  * @group WikibaseHooks
  *
@@ -28,98 +25,75 @@ use WikiPage;
 class DataUpdateHookHandlersTest extends \MediaWikiTestCase {
 
 	/**
-	 * @param array $settings
-	 *
-	 * @return Settings
-	 */
-	private function newSettings( array $settings ) {
-		$defaults = array(
-			'namespaces' => array( NS_MAIN, NS_CATEGORY ),
-			'siteGlobalid' => 'enwiki',
-		);
-
-		return new SettingsArray( array_merge( $defaults, $settings ) );
-	}
-
-	/**
 	 * @param Title $title
-	 * @param array[]|null $expectedUsages
+	 * @param EntityUsage[]|null $expectedUsages
+	 * @param string|null $touched
+	 * @param bool $prune
 	 *
 	 * @return UsageUpdater
 	 */
-	private function newUsageUpdater( Title $title, array $expectedUsages = null ) {
+	private function newUsageUpdater( Title $title, array $expectedUsages = null, $touched = null, $prune = true ) {
 		$usageUpdater = $this->getMockBuilder( 'Wikibase\Client\Store\UsageUpdater' )
 			->disableOriginalConstructor()
 			->getMock();
 
+		if ( $touched === null ) {
+			$touched = $title->getTouched();
+		}
+
 		if ( $expectedUsages === null ) {
 			$usageUpdater->expects( $this->never() )
-				->method( 'updateUsageForPage' );
+				->method( 'addUsagesForPage' );
 		} else {
-			$expectedEntityUsageList = $this->makeEntityUsageList( $expectedUsages );
 			$usageUpdater->expects( $this->once() )
-				->method( 'updateUsageForPage' )
-				->with( $title->getArticleID(), $expectedEntityUsageList, $title->getTouched() );
+				->method( 'addUsagesForPage' )
+				->with( $title->getArticleID(), $expectedUsages, $touched );
+		}
+
+		if ( $prune ) {
+			$usageUpdater->expects( $this->once() )
+				->method( 'pruneUsagesForPage' )
+				->with( $title->getArticleID(), $touched );
+		} else {
+			$usageUpdater->expects( $this->never() )
+				->method( 'pruneUsagesForPage' );
 		}
 
 		return $usageUpdater;
 	}
 
 	/**
-	 * @param array[] $expectedUsages
-	 *
-	 * @return EntityUsage[]
-	 */
-	private function makeEntityUsageList( array $expectedUsages ) {
-		$entityUsageList = array();
-
-		/** @var EntityId[] $entityIds */
-		foreach ( $expectedUsages as $aspect => $entityIds ) {
-			foreach ( $entityIds as $id ) {
-				$key = $id->getSerialization() . '#' . $aspect;
-				$entityUsageList[$key] = new EntityUsage( $id, $aspect );
-			}
-		}
-
-		return $entityUsageList;
-	}
-
-	/**
 	 * @param Title $title
-	 * @param array[]|null $expectedUsages
-	 * @param array $settings
+	 * @param EntityUsage[]|null $expectedUsages
+	 * @param string|null $touched timestamp
+	 * @param bool $prune
 	 *
 	 * @return DataUpdateHookHandlers
 	 */
-	private function newDataUpdateHookHandlers( Title $title, array $expectedUsages = null, array $settings = array() ) {
-		$settings = $this->newSettings( $settings );
-
-		$namespaces = $settings->getSetting( 'namespaces' );
-		$namespaceChecker = new NamespaceChecker( array(), $namespaces );
-
-		$usageUpdater = $this->newUsageUpdater( $title, $expectedUsages );
+	private function newDataUpdateHookHandlers( Title $title, array $expectedUsages = null, $touched = null, $prune = true ) {
+		$usageUpdater = $this->newUsageUpdater( $title, $expectedUsages, $touched, $prune );
 
 		return new DataUpdateHookHandlers(
-			$namespaceChecker,
 			$usageUpdater
 		);
 	}
 
 	/**
 	 * @param array[]|null $usages
+	 * @param string $timestamp
 	 *
 	 * @return ParserOutput
 	 */
-	private function newParserOutput( array $usages = null ) {
+	private function newParserOutput( array $usages = null, $timestamp ) {
 		$output = new ParserOutput();
+
+		$output->setTimestamp( $timestamp );
 
 		if ( $usages ) {
 			$acc = new ParserOutputUsageAccumulator( $output );
 
-			foreach ( $usages as $aspect => $entityIds ) {
-				foreach ( $entityIds as $id ) {
-					$acc->addUsage( new EntityUsage( $id, $aspect ) );
-				}
+			foreach ( $usages as $u ) {
+				$acc->addUsage( $u );
 			}
 		}
 
@@ -128,37 +102,27 @@ class DataUpdateHookHandlersTest extends \MediaWikiTestCase {
 
 	/**
 	 * @param Title $title
+	 * @param EntityUsage[]|null $usages
+	 * @param string $touched
 	 *
 	 * @return WikiPage
 	 */
-	private function newWikiPage( Title $title ) {
-		$page = $this->getMockBuilder( 'WikiPage' )
+	private function newLinksUpdate( Title $title, array $usages = null, $touched ) {
+		$pout = $this->newParserOutput( $usages, $touched );
+
+		$linksUpdate = $this->getMockBuilder( 'LinksUpdate' )
 			->disableOriginalConstructor()
 			->getMock();
 
-		$page->expects( $this->any() )
+		$linksUpdate->expects( $this->any() )
 			->method( 'getTitle' )
 			->will( $this->returnValue( $title ) );
 
-		$page->expects( $this->any() )
-			->method( 'getTouched' )
-			->will( $this->returnValue( $title->getTouched() ) );
+		$linksUpdate->expects( $this->any() )
+			->method( 'getParserOutput' )
+			->will( $this->returnValue( $pout ) );
 
-		return $page;
-	}
-
-	/**
-	 * @param array[]|null $usages
-	 *
-	 * @return object
-	 */
-	private function newEditInfo( array $usages = null ) {
-		$output = $this->newParserOutput( $usages );
-
-		$editInfo = new \stdClass();
-		$editInfo->output = $output;
-
-		return $editInfo;
+		return $linksUpdate;
 	}
 
 	public function testNewFromGlobalState() {
@@ -166,48 +130,60 @@ class DataUpdateHookHandlersTest extends \MediaWikiTestCase {
 		$this->assertInstanceOf( 'Wikibase\Client\Hooks\DataUpdateHookHandlers', $handler );
 	}
 
-	public function provideDoArticleEditUpdates() {
+	public function provideLinksUpdateComplete() {
 		return array(
 			'usage' => array(
 				Title::makeTitle( NS_MAIN, 'Oxygen' ),
-				array( EntityUsage::SITELINK_USAGE => array( new ItemId( 'Q1' ), new ItemId( 'Q2' ) ) ),
+				array(
+					'Q1#S' => new EntityUsage( new ItemId( 'Q1' ),EntityUsage::SITELINK_USAGE ),
+					'Q2#T' => new EntityUsage( new ItemId( 'Q2' ),EntityUsage::TITLE_USAGE ),
+					'Q2#L' => new EntityUsage( new ItemId( 'Q2' ),EntityUsage::LABEL_USAGE ),
+				),
 			),
 
 			'no usage' => array(
 				Title::makeTitle( NS_MAIN, 'Oxygen' ),
 				array(),
 			),
-
-			'ignored-namespace' => array(
-				Title::makeTitle( NS_USER, 'Foo' ),
-				null,
-			),
 		);
 	}
 
 	/**
-	 * @dataProvider provideDoArticleEditUpdates
-	 * @param Title $title
-	 * @param array[]|null $usage
+	 * @dataProvider provideLinksUpdateComplete
 	 */
-	public function testDoArticleEditUpdates( Title $title, $usage ) {
+	public function testLinksUpdateComplete( Title $title, $usage ) {
 		$title->resetArticleID( 23 );
+		$timestamp = '20150505000000';
 
-		$page = $this->newWikiPage( $title );
-		$editInfo = $this->newEditInfo( $usage );
+		$linksUpdate = $this->newLinksUpdate( $title, $usage, $timestamp );
 
 		// Assertions are done by the UsageUpdater mock
-		$handler = $this->newDataUpdateHookHandlers( $title, $usage );
-		$handler->doArticleEditUpdates( $page, $editInfo, true );
+		$handler = $this->newDataUpdateHookHandlers( $title, $usage, $timestamp, true );
+		$handler->doLinksUpdateComplete( $linksUpdate );
+	}
+
+	/**
+	 * @dataProvider provideLinksUpdateComplete
+	 */
+	public function testDoParserCacheSaveComplete( Title $title, $usage ) {
+		$title->resetArticleID( 23 );
+		$timestamp = '20150505000000';
+
+		$parserOutput = $this->newParserOutput( $usage, $timestamp );
+
+		// Assertions are done by the UsageUpdater mock
+		$handler = $this->newDataUpdateHookHandlers( $title, $usage, $timestamp, false );
+		$handler->doParserCacheSaveComplete( $parserOutput, $title );
 	}
 
 	public function testDoArticleDeleteComplete() {
 		$title = Title::makeTitle( NS_MAIN, 'Oxygen' );
 		$title->resetArticleID( 23 );
+		$timestamp = '20150505000000';
 
 		// Assertions are done by the UsageUpdater mock
-		$handler = $this->newDataUpdateHookHandlers( $title, array() );
-		$handler->doArticleDeleteComplete( $title->getNamespace(), $title->getArticleID() );
+		$handler = $this->newDataUpdateHookHandlers( $title, null, $timestamp, true );
+		$handler->doArticleDeleteComplete( $title->getNamespace(), $title->getArticleID(), $timestamp );
 	}
 
 }

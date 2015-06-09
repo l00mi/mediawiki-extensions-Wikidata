@@ -5,21 +5,20 @@ namespace Wikibase\Client\Tests\Hooks;
 use Language;
 use MediaWikiSite;
 use MediaWikiTestCase;
-use Parser;
-use ParserOptions;
 use ParserOutput;
 use Site;
 use SiteStore;
-use StripState;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
-use Wikibase\Client\Hooks\ParserAfterParseHookHandler;
+use Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers;
+use Wikibase\Client\ParserOutputDataUpdater;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\DataModel\SiteLinkList;
 use Wikibase\InterwikiSorter;
 use Wikibase\LangLinkHandler;
 use Wikibase\Lib\Store\SiteLinkLookup;
@@ -30,7 +29,7 @@ use Wikibase\Test\MockRepository;
 use Wikibase\Test\MockSiteStore;
 
 /**
- * @covers Wikibase\Client\Hooks\ParserAfterParseHookHandler
+ * @covers Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers
  *
  * @group WikibaseClient
  * @group Wikibase
@@ -39,7 +38,7 @@ use Wikibase\Test\MockSiteStore;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
+class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 
 	/**
 	 * @param string $globalId
@@ -91,11 +90,7 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 	 */
 	private function newItem( ItemId $id, array $links ) {
 		$item = new Item( $id );
-
-		foreach ( $links as $link ) {
-			$item->addSiteLink( $link );
-		}
-
+		$item->setSiteLinkList( new SiteLinkList( $links ) );
 		return $item;
 	}
 
@@ -140,7 +135,7 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 		return new SettingsArray( array_merge( $defaults, $settings ) );
 	}
 
-	private function newParserAfterParseHookHandler( array $settings = array() ) {
+	private function newParserOutputUpdateHookHandlers( array $settings = array() ) {
 		$badgeId = $this->getBadgeItem()->getId();
 
 		$links = array(
@@ -170,14 +165,20 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 			Language::factory( 'en' )
 		);
 
-		$langLinkHandler = new LangLinkHandler(
+		$parserOutputDataUpdater = new ParserOutputDataUpdater(
 			$this->getOtherProjectsSidebarGeneratorFactory( $settings, $mockRepo ),
+			$mockRepo,
+			$settings->getSetting( 'siteGlobalID' )
+		);
+
+		$langLinkHandler = new LangLinkHandler(
 			$badgeDisplay,
-			$settings->getSetting( 'siteGlobalID' ),
 			$namespaceChecker,
 			$mockRepo,
 			$mockRepo,
+			$parserOutputDataUpdater,
 			$this->getSiteStore(),
+			$settings->getSetting( 'siteGlobalID' ),
 			$settings->getSetting( 'languageLinkSiteGroup' )
 		);
 
@@ -187,7 +188,7 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 			$settings->getSetting( 'sortPrepend' )
 		);
 
-		return new ParserAfterParseHookHandler(
+		return new ParserOutputUpdateHookHandlers(
 			$namespaceChecker,
 			$langLinkHandler,
 			$interwikiSorter,
@@ -202,23 +203,13 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 		return  new OtherProjectsSidebarGeneratorFactory(
 			$settings,
 			$siteLinkLookup,
-            $this->getSiteStore()
-        );
+			$this->getSiteStore()
+		);
 	}
 
-	private function newParser( Title $title, array $pageProps, array $extensionData ) {
-		$popt = new ParserOptions();
-		$parser = new Parser();
+	private function newParserOutput( array $pageProps, array $extensionData ) {
+		$parserOutput = new ParserOutput();
 
-		$parser->startExternalParse( $title, $popt, Parser::OT_HTML );
-
-		$parserOutput = $parser->getOutput();
-		$this->primeParserOutput( $parserOutput, $pageProps, $extensionData );
-
-		return $parser;
-	}
-
-	private function primeParserOutput( ParserOutput $parserOutput, array $pageProps, array $extensionData ) {
 		foreach ( $pageProps as $name => $value ) {
 			$parserOutput->setProperty( $name, $value );
 		}
@@ -226,6 +217,8 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 		foreach ( $extensionData as $key => $value ) {
 			$parserOutput->setExtensionData( $key, $value );
 		}
+
+		return $parserOutput;
 	}
 
 	public function testNewFromGlobalState() {
@@ -234,8 +227,8 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 		$oldSiteGroupValue = $settings->getSetting( 'siteGroup' );
 		$settings->setSetting( 'siteGroup', 'NYAN' );
 
-		$handler = ParserAfterParseHookHandler::newFromGlobalState();
-		$this->assertInstanceOf( 'Wikibase\Client\Hooks\ParserAfterParseHookHandler', $handler );
+		$handler = ParserOutputUpdateHookHandlers::newFromGlobalState();
+		$this->assertInstanceOf( 'Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers', $handler );
 
 		$settings->setSetting( 'siteGroup', $oldSiteGroupValue );
 	}
@@ -295,7 +288,7 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 	/**
 	 * @dataProvider parserAfterParseProvider
 	 */
-	public function testDoParserAfterParse(
+	public function testDoContentAlterParserOutput(
 		Title $title,
 		$expectedItem,
 		$pagePropsBefore,
@@ -303,10 +296,10 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 		$expectedSisterLinks,
 		$expectedBadges
 	) {
-		$parser = $this->newParser( $title, $pagePropsBefore, array() );
-		$handler = $this->newParserAfterParseHookHandler();
+		$parserOutput = $this->newParserOutput( $pagePropsBefore, array() );
+		$handler = $this->newParserOutputUpdateHookHandlers();
 
-		$handler->doParserAfterParse( $parser );
+		$handler->doContentAlterParserOutput( $title, $parserOutput );
 
 		$expectedUsage = array(
 			new EntityUsage(
@@ -314,8 +307,6 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 				EntityUsage::SITELINK_USAGE
 			)
 		);
-
-		$parserOutput = $parser->getOutput();
 
 		$this->assertEquals( $expectedItem, $parserOutput->getProperty( 'wikibase_item' ) );
 		$this->assertLanguageLinks( $expectedLanguageLinks, $parserOutput );
@@ -329,13 +320,6 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 
 		// $actualBadges contains info arrays, these are checked by LanguageLinkBadgeDisplayTest and LangLinkHandlerTest
 		$this->assertSame( $expectedBadges, $actualBadges );
-	}
-
-	/**
-	 * @see https://bugzilla.wikimedia.org/show_bug.cgi?id=71772
-	 */
-	public function testOnParserAfterParse_withoutParameters() {
-		$this->assertTrue( ParserAfterParseHookHandler::onParserAfterParse() );
 	}
 
 	public function parserAfterParseProvider_noItem() {
@@ -352,15 +336,12 @@ class ParserAfterParseHookHandlerTest extends MediaWikiTestCase {
 	/**
 	 * @dataProvider parserAfterParseProvider_noItem
 	 */
-	public function testDoParserAfterParse_noItem( Title $title ) {
-		$parser = $this->newParser( $title, array(), array() );
-		$handler = $this->newParserAfterParseHookHandler();
+	public function testDoContentAlterParserOutput_noItem( Title $title ) {
+		$parserOutput = $this->newParserOutput( array(), array() );
+		$handler = $this->newParserOutputUpdateHookHandlers();
 
-		$text = '';
-		$stripState = new StripState;
-		$handler->doParserAfterParse( $parser, $text, $stripState );
+		$handler->doContentAlterParserOutput( $title, $parserOutput );
 
-		$parserOutput = $parser->getOutput();
 		$this->assertSame( false, $parserOutput->getProperty( 'wikibase_item' ) );
 
 		$this->assertEmpty( $parserOutput->getLanguageLinks() );

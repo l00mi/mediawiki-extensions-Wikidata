@@ -135,7 +135,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 	 * @since 0.1
 	 *
 	 * @return Status a Status object containing an array with three revisions, ($olderRevision, $newerRevision, $latestRevision)
-	 * @throws MWException if the page's latest revision can not be loaded
+	 * @throws MWException if the page's latest revision cannot be loaded
 	 */
 	protected function loadRevisions( ) {
 		$latestRevId = $this->getTitle()->getLatestRevID();
@@ -169,7 +169,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 
 			// ignore undo, even if set
 			$newerRevision = $latestRevision;
-		} else if ( $req->getCheck( 'undo' ) ) {
+		} elseif ( $req->getCheck( 'undo' ) ) {
 			$newerRevision = Revision::newFromId( $req->getInt( 'undo' ) );
 
 			if ( !$newerRevision ) {
@@ -189,7 +189,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 					return Status::newFatal( 'wikibase-undo-firstrev' );
 				}
 			}
-		} else if ( $req->getCheck( 'undoafter' ) ) {
+		} elseif ( $req->getCheck( 'undoafter' ) ) {
 			$olderRevision = Revision::newFromId( $req->getInt( 'undoafter' ) );
 
 			if ( !$olderRevision ) {

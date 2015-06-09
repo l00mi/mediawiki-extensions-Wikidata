@@ -1,4 +1,5 @@
 <?php
+
 namespace Wikibase\Client\Tests\Usage;
 
 use PHPUnit_Framework_TestCase;
@@ -46,17 +47,18 @@ class PageEntityUsagesTest extends PHPUnit_Framework_TestCase {
 			EntityUsage::ALL_USAGE,
 		);
 
-		$expectedAspectsQ11 = array(
-			EntityUsage::LABEL_USAGE,
+		$expectedAspectKeysQ11 = array(
+			EntityUsage::LABEL_USAGE . '.de',
+			EntityUsage::LABEL_USAGE . '.en',
 			EntityUsage::TITLE_USAGE,
 		);
 
 		$this->assertEquals( $expectedAspects, $pageUsages->getAspects(), 'getAspects' );
 		$this->assertEquals( $expectedAspectKeys, $pageUsages->getAspectKeys(), 'getAspectKeys' );
 		$this->assertEquals( array( 'Q11' => $q11, 'Q7' => $q7 ), $pageUsages->getEntityIds(), 'getEntityIds' );
-		$this->assertEquals( array( 'Q11#L.de', 'Q11#L.en', 'Q11#T', 'Q7#X' ), array_keys( $pageUsages->getUsages() ), 'getUsages' );
+		$this->assertEquals( array( 'Q11#L.de', 'Q11#L.en', 'Q11#T', 'Q7#X' ), array_keys( $pageUsages->getUsages() ), 'getUsagesCallback' );
 
-		$this->assertEquals( $expectedAspectsQ11, $pageUsages->getUsageAspects( $q11 ), 'getUsageAspects' );
+		$this->assertEquals( $expectedAspectKeysQ11, $pageUsages->getUsageAspectKeys( $q11 ), 'getUsageAspects' );
 	}
 
 }

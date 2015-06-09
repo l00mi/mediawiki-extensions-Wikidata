@@ -1,22 +1,26 @@
-/**
- * @licence GNU GPL v2+
- * @author Adrian Lang < adrian.lang@wikimedia.de >
- */
 ( function( mw, wb ) {
 'use strict';
 
 /**
+ * @ignore
+ *
  * @param {string} url
  * @return {string}
  */
-function getDomainName( url ) {
-	return url.replace( /.*\/\//, '' ).replace( /\/.*/, '' );
+function getHost( url ) {
+	var parser = document.createElement( 'A' );
+	parser.href = url;
+	return parser.host;
 }
 
+// TODO: Merge this into mw.Api
 /**
- * Returns a mediaWiki.Api instance which can transparently interact with remote APIs.
- * @since 0.5
- * @todo Merge this into mw.Api
+ * Returns a `mediaWiki.Api` instance which can transparently interact with remote APIs.
+ * @member wikibase.api
+ * @method getLocationAgnosticMwApi
+ * @since 1.0
+ * @licence GNU GPL v2+
+ * @author Adrian Lang < adrian.lang@wikimedia.de >
  *
  * @param {string} apiEndpoint
  * @return {mediaWiki.Api}
@@ -32,7 +36,7 @@ wb.api.getLocationAgnosticMwApi = function( apiEndpoint ) {
 		}
 	};
 
-	if ( getDomainName( localApiEndpoint ) !== getDomainName( apiEndpoint ) ) {
+	if ( getHost( localApiEndpoint ) !== getHost( apiEndpoint ) ) {
 		// Use CORS if the api we want to use is on a different domain.
 		// But don't if it's not: CORS isn't required if we are on the same domain, thus it
 		// might not be configured and fail.

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "50d7c5e614946c603401a4b94dc7632a",
+    "hash": "ec7e18d57ba06b6c74f77a9773e3d84e",
     "packages": [
         {
             "name": "composer/installers",
@@ -863,12 +863,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Wikidata.org.git",
-                "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028"
+                "reference": "2ce996a452942f27a1345b5446ca1a6e60c689ed"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/2ce996a452942f27a1345b5446ca1a6e60c689ed",
-                "reference": "58718af4a34d9fc067d9b103f0e5d9c9b9c87028",
+                "reference": "2ce996a452942f27a1345b5446ca1a6e60c689ed",
                 "shasum": ""
             },
             "require": {
@@ -901,7 +901,7 @@
                 "irc": "irc://irc.freenode.net/wikidata",
                 "source": "https://github.com/wmde/Wikidata.org/tree/master"
             },
-            "time": "2015-04-28 19:08:33"
+            "time": "2015-05-16 16:49:57"
         },
         {
             "name": "wikibase/data-model",
@@ -964,20 +964,20 @@
         },
         {
             "name": "wikibase/data-model-javascript",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
-                "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b"
+                "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
-                "reference": "3df772effd5d0bf85d4a60f2f2ce83b5f921cb0b",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
+                "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
                 "shasum": ""
             },
             "require": {
-                "data-values/javascript": "~0.6.0"
+                "data-values/javascript": "~0.6.0|~0.7.0"
             },
             "type": "library",
             "autoload": {
@@ -1000,7 +1000,7 @@
                 }
             ],
             "description": "Wikibase datamodel implementation in JavaScript",
-            "time": "2014-11-05 09:59:08"
+            "time": "2015-05-29 09:52:16"
         },
         {
             "name": "wikibase/data-model-serialization",
@@ -1128,25 +1128,25 @@
         },
         {
             "name": "wikibase/javascript-api",
-            "version": "1.0.1",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-                "reference": "9e74bc0691f264d633e5e635114bc289436874ff"
+                "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/9e74bc0691f264d633e5e635114bc289436874ff",
-                "reference": "9e74bc0691f264d633e5e635114bc289436874ff",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/76452ebbd22bdb32b354c43ee523c4663ed98d1b",
+                "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b",
                 "shasum": ""
             },
             "require": {
-                "data-values/javascript": "~0.6.0"
+                "data-values/javascript": "~0.6.0|~0.7.0"
             },
             "type": "library",
             "autoload": {
                 "files": [
-                    "init.php"
+                    "WikibaseJavaScriptApi.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1164,7 +1164,7 @@
                 }
             ],
             "description": "Wikibase API client in JavaScript",
-            "time": "2014-11-28 08:49:55"
+            "time": "2015-05-21 19:07:14"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1209,16 +1209,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.26wmf6",
+            "version": "dev-wmf/1.26wmf9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "0bd6f4b63d3dca76010ce76cb421a3c2b051b9ac"
+                "reference": "80234fc5eab829033478862b2d87fbdb326785b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0bd6f4b63d3dca76010ce76cb421a3c2b051b9ac",
-                "reference": "0bd6f4b63d3dca76010ce76cb421a3c2b051b9ac",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/80234fc5eab829033478862b2d87fbdb326785b6",
+                "reference": "80234fc5eab829033478862b2d87fbdb326785b6",
                 "shasum": ""
             },
             "require": {
@@ -1286,7 +1286,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-06-08 19:18:29"
+            "time": "2015-06-08 18:00:35"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1294,12 +1294,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikimediaBadges.git",
-                "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e"
+                "reference": "5cb28488f7791302cf6b835610f132b0b05915cf"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/5cb28488f7791302cf6b835610f132b0b05915cf",
-                "reference": "a4cb3fa96adee3f634999873c8bfe432783bf47e",
+                "reference": "5cb28488f7791302cf6b835610f132b0b05915cf",
                 "shasum": ""
             },
             "require": {
@@ -1336,7 +1336,7 @@
                 "source": "https://github.com/wmde/WikimediaBadges/tree/master",
                 "issues": "https://github.com/wmde/WikimediaBadges/issues"
             },
-            "time": "2015-04-29 15:52:39"
+            "time": "2015-05-30 21:07:00"
         }
     ],
     "packages-dev": [],

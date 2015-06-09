@@ -24,38 +24,38 @@ class StatementChangeOpFactory {
 	}
 
 	/**
-	 * @param string $claimGuid
-	 * @param Reference|null $reference
+	 * @param string $statementGuid
+	 * @param Reference $reference
 	 * @param string $referenceHash (if empty '' a new reference will be created)
-	 * @param int|null $index Indicates the new desired position in the list of references. Currently not implemented.
+	 * @param int|null $index Indicates the new desired position in the list of references.
 	 *
 	 * @throws InvalidArgumentException
 	 * @return ChangeOp
 	 */
-	public function newSetReferenceOp( $claimGuid, Reference $reference, $referenceHash, $index = null ) {
-		return new ChangeOpReference( $claimGuid, $reference, $referenceHash, $this->referenceSnakValidator );
+	public function newSetReferenceOp( $statementGuid, Reference $reference, $referenceHash, $index = null ) {
+		return new ChangeOpReference( $statementGuid, $reference, $referenceHash, $this->referenceSnakValidator, $index );
 	}
 
 	/**
-	 * @param string $claimGuid
+	 * @param string $statementGuid
 	 * @param string $referenceHash
 	 *
 	 * @throws InvalidArgumentException
 	 * @return ChangeOp
 	 */
-	public function newRemoveReferenceOp( $claimGuid, $referenceHash ) {
-		return new ChangeOpReferenceRemove( $claimGuid, $referenceHash );
+	public function newRemoveReferenceOp( $statementGuid, $referenceHash ) {
+		return new ChangeOpReferenceRemove( $statementGuid, $referenceHash );
 	}
 
 	/**
-	 * @param string $claimGuid
+	 * @param string $statementGuid
 	 * @param int $rank
 	 *
 	 * @throws InvalidArgumentException
 	 * @return ChangeOp
 	 */
-	public function newSetStatementRankOp( $claimGuid, $rank ) {
-		return new ChangeOpStatementRank( $claimGuid, $rank );
+	public function newSetStatementRankOp( $statementGuid, $rank ) {
+		return new ChangeOpStatementRank( $statementGuid, $rank );
 	}
 
 }

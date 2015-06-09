@@ -1,520 +1,667 @@
 /**
- * QUnit tests for wikibase.api.RepoApi
- * @see https://www.mediawiki.org/wiki/Extension:Wikibase
- *
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-
-( function( mw, wb, $, QUnit, undefined ) {
+( function( mw, wb, QUnit, sinon ) {
 	'use strict';
 
-	var mwApi = new mw.Api();
+QUnit.module( 'wikibase.api.RepoApi' );
 
-	/**
-	 * wikibase.api.RepoApi object
-	 * @var {Object}
-	 */
-	var api = new wb.api.RepoApi( mwApi );
+/**
+ * Instantiates a `wikibase.api.RepoApi` object with the relevant method being overwritten and
+ * having applied a SinonJS spy.
+ *
+ * @param {string} [getOrPost='post'] Whether to mock/spy the `get` or `post` request.
+ * @return {Object}
+ */
+function mockApi( getOrPost ) {
+	var api = new mw.Api(),
+		spyMethod = getOrPost !== 'get' ? 'postWithToken' : 'get';
 
-	/**
-	 * Queue used run asynchronous tests synchronously.
-	 * @var {jQuery}
-	 */
-	var testrun = $( {} );
+	api.postWithToken = function() {};
+	api.get = function() {};
 
-	/**
-	 * Queue key naming the queue that all tests are appended to.
-	 * @var {String}
-	 */
-	var qkey = 'asyncTests';
-
-	/**
-	 * Since jQuery.queue does not allow passing parameters, this variable will cache the data
-	 * structures of entities.
-	 * @var {Object}
-	 */
-	var entityStack = [];
-
-	/**
-	 * Triggers running the tests attached to the test queue.
-	 */
-	var runTest = function() {
-		QUnit.stop();
-		testrun.queue( qkey, function() {
-			QUnit.start(); // finish test run
-		} );
-		testrun.dequeue( qkey ); // start tests
+	return {
+		spy: sinon.spy( api, spyMethod ),
+		api: new wb.api.RepoApi( api )
 	};
+}
 
-	/**
-	 * Handles a failing API request. (The details get logged in the console by mw.Api.)
-	 *
-	 * @param {String} code
-	 * @param {Object} details
-	 */
-	var onFail = function( code, details ) {
-		QUnit.assert.ok(
-			false,
-			'API request failed returning code: "' + code + '". See console for details.'
+/**
+ * Returns all request parameters submitted to the function performing the `get` or `post` request.
+ *
+ * @param {Object} spy The SinonJS spy to extract the parameters from.
+ * @param [callIndex=0] The call index if multiple API calls have been performed on the same spy.
+ * @return {Object}
+ */
+function getParams( spy, callIndex ) {
+	callIndex = callIndex || 0;
+	return spy.displayName === 'postWithToken' ? spy.args[callIndex][1] : spy.args[callIndex][0];
+}
+
+/**
+ * Returns a specific parameter submitted to the function performing the `get` or `post` request.
+ *
+ * @param {Object} spy The SinonJS spy to extract the parameters from.
+ * @param {string} paramName
+ * @param [callIndex=0] The call index if multiple API calls have been performed on the same spy.
+ * @return {string}
+ */
+function getParam( spy, paramName, callIndex ) {
+	return getParams( spy, callIndex || 0 )[paramName];
+}
+
+QUnit.test( 'createEntity()', function( assert ) {
+	assert.expect( 5 );
+	var mock = mockApi();
+
+	mock.api.createEntity( 'item' );
+	mock.api.createEntity( 'property', { 'I am': 'data' } );
+
+	assert.ok( mock.spy.calledTwice, 'Triggered API calls.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbeditentity',
+		'Verified API module being called.'
+	);
+
+	assert.equal(
+		getParam( mock.spy, 'new' ),
+		'item',
+		'Verified submitting entity type.'
+	);
+
+	assert.equal(
+		getParam( mock.spy, 'data' ),
+		JSON.stringify( {} ),
+		'Verified not submitting any data by default.'
+	);
+
+	assert.equal(
+		getParam( mock.spy, 'data', 1 ),
+		JSON.stringify( { 'I am': 'data' } ),
+		'Verified submitting "data" field.'
+	);
+} );
+
+QUnit.test( 'editEntity()', function( assert ) {
+	assert.expect( 6 );
+	var mock = mockApi();
+
+	mock.api.editEntity( 'entity id', 12345, { 'I am': 'entity data' }, true );
+
+	assert.ok( mock.spy.calledOnce, 'Triggered API call.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbeditentity',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'id' ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+	assert.equal( getParam( mock.spy, 'data' ), JSON.stringify( { 'I am': 'entity data' } ) );
+	assert.equal( getParam( mock.spy, 'clear' ), true );
+} );
+
+QUnit.test( 'formatValue()', function( assert ) {
+	assert.expect( 10 );
+	var mock = mockApi( 'get' );
+
+	mock.api.formatValue(
+		{ 'I am': 'DataValue serialization' },
+		{ option: 'option value' },
+		'data type id',
+		'output format'
+	);
+	mock.api.formatValue( { 'I am': 'DataValue serialization' } );
+
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbformatvalue',
+		'Verified API module being called.'
+	);
+
+	assert.equal(
+		getParam( mock.spy, 'datavalue' ),
+		JSON.stringify( { 'I am': 'DataValue serialization' } )
+	);
+	assert.equal( getParam( mock.spy, 'options' ), JSON.stringify( { option: 'option value' } ) );
+	assert.equal( getParam( mock.spy, 'datatype' ), 'data type id' );
+	assert.equal( getParam( mock.spy, 'generate' ), 'output format' );
+
+	assert.equal(
+		getParam( mock.spy, 'datavalue', 1 ),
+		JSON.stringify( { 'I am': 'DataValue serialization' } )
+	);
+	assert.equal( getParam( mock.spy, 'options', 1 ), JSON.stringify( {} ) );
+	assert.strictEqual( getParam( mock.spy, 'datatype', 1 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'generate', 1 ), undefined );
+} );
+
+QUnit.test( 'getEntities()', function( assert ) {
+	assert.expect( 17 );
+	var mock = mockApi( 'get' );
+
+	mock.api.getEntities(
+		['entity id 1', 'entity id 2'],
+		['property1', 'property2'],
+		['language code 1', 'language code 2'],
+		['sort property 1', 'sort property 2'],
+		'ascending'
+	);
+
+	mock.api.getEntities(
+		'entity id',
+		'property',
+		'language code',
+		'sort property',
+		'descending'
+	);
+
+	mock.api.getEntities( 'entity id' );
+
+	assert.ok( mock.spy.calledThrice, 'Triggered API calls.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbgetentities',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'ids' ), 'entity id 1|entity id 2' );
+	assert.equal( getParam( mock.spy, 'props' ), 'property1|property2' );
+	assert.equal( getParam( mock.spy, 'languages' ), 'language code 1|language code 2' );
+	assert.equal( getParam( mock.spy, 'sort' ), 'sort property 1|sort property 2' );
+	assert.equal( getParam( mock.spy, 'dir' ), 'ascending' );
+
+	assert.equal( getParam( mock.spy, 'ids', 1 ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'props', 1 ), 'property' );
+	assert.equal( getParam( mock.spy, 'languages', 1 ), 'language code' );
+	assert.equal( getParam( mock.spy, 'sort', 1 ), 'sort property' );
+	assert.equal( getParam( mock.spy, 'dir', 1 ), 'descending' );
+
+	assert.equal( getParam( mock.spy, 'ids', 2 ), 'entity id' );
+	assert.strictEqual( getParam( mock.spy, 'props', 2 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'languages', 2 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'sort', 2 ), undefined );
+	assert.equal( getParam( mock.spy, 'dir', 2 ), 'ascending' );
+} );
+
+QUnit.test( 'getEntitiesByPage()', function( assert ) {
+	assert.expect( 44 );
+	var mock = mockApi( 'get' );
+
+	mock.api.getEntitiesByPage(
+		['site id 1', 'site id 2'],
+		'title',
+		['property1', 'property2'],
+		['language code 1', 'language code 2'],
+		['sort property 1', 'sort property 2'],
+		'ascending',
+		true
+	);
+
+	mock.api.getEntitiesByPage(
+		'site id',
+		['title1', 'title2'],
+		['property1', 'property2'],
+		['language code 1', 'language code 2'],
+		['sort property 1', 'sort property 2'],
+		'ascending',
+		true
+	);
+
+	mock.api.getEntitiesByPage(
+		'site id',
+		'title',
+		'property',
+		'language code',
+		'sort property',
+		'descending',
+		false
+	);
+
+	mock.api.getEntitiesByPage( 'site id', 'title' );
+	mock.api.getEntitiesByPage( ['site id'], 'title' );
+	mock.api.getEntitiesByPage( 'site id', ['title'] );
+
+	assert.equal( mock.spy.callCount, 6, 'Triggered API calls.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbgetentities',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'sites' ), 'site id 1|site id 2' );
+	assert.equal( getParam( mock.spy, 'titles' ), 'title' );
+	assert.equal( getParam( mock.spy, 'props' ), 'property1|property2' );
+	assert.equal( getParam( mock.spy, 'languages' ), 'language code 1|language code 2' );
+	assert.equal( getParam( mock.spy, 'sort' ), 'sort property 1|sort property 2' );
+	assert.equal( getParam( mock.spy, 'dir' ), 'ascending' );
+	assert.strictEqual( getParam( mock.spy, 'normalize' ), true );
+
+	assert.equal( getParam( mock.spy, 'sites', 1 ), 'site id' );
+	assert.equal( getParam( mock.spy, 'titles', 1 ), 'title1|title2' );
+	assert.equal( getParam( mock.spy, 'props', 1 ), 'property1|property2' );
+	assert.equal( getParam( mock.spy, 'languages' ), 'language code 1|language code 2' );
+	assert.equal( getParam( mock.spy, 'sort' ), 'sort property 1|sort property 2' );
+	assert.equal( getParam( mock.spy, 'dir', 1 ), 'ascending' );
+	assert.strictEqual( getParam( mock.spy, 'normalize', 1 ), true );
+
+	assert.equal( getParam( mock.spy, 'sites', 2 ), 'site id' );
+	assert.equal( getParam( mock.spy, 'titles', 2 ), 'title' );
+	assert.equal( getParam( mock.spy, 'props', 2 ), 'property' );
+	assert.equal( getParam( mock.spy, 'languages', 2 ), 'language code' );
+	assert.equal( getParam( mock.spy, 'sort', 2 ), 'sort property' );
+	assert.equal( getParam( mock.spy, 'dir', 2 ), 'descending' );
+	assert.strictEqual( getParam( mock.spy, 'normalize', 2 ), false );
+
+	assert.equal( getParam( mock.spy, 'sites', 3 ), 'site id' );
+	assert.equal( getParam( mock.spy, 'titles', 3 ), 'title' );
+	assert.strictEqual( getParam( mock.spy, 'props', 3 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'languages', 3 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'sort', 3 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'dir', 3 ), 'ascending' );
+	assert.strictEqual( getParam( mock.spy, 'normalize', 3 ), undefined );
+
+	assert.equal( getParam( mock.spy, 'sites', 4 ), 'site id' );
+	assert.equal( getParam( mock.spy, 'titles', 4 ), 'title' );
+	assert.strictEqual( getParam( mock.spy, 'props', 4 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'languages', 4 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'sort', 4 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'dir', 4 ), 'ascending' );
+	assert.strictEqual( getParam( mock.spy, 'normalize', 4 ), undefined );
+
+	assert.equal( getParam( mock.spy, 'sites', 5 ), 'site id' );
+	assert.equal( getParam( mock.spy, 'titles', 5 ), 'title' );
+	assert.strictEqual( getParam( mock.spy, 'props', 5 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'languages', 5 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'sort', 5 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'dir', 5 ), 'ascending' );
+	assert.strictEqual( getParam( mock.spy, 'normalize', 5 ), undefined );
+} );
+
+QUnit.test( 'parseValue()', function( assert ) {
+	assert.expect( 8 );
+	var mock = mockApi( 'get' );
+
+	mock.api.parseValue(
+		'parser id',
+		['serialization1', 'serialization2'],
+		{ option: 'option value'}
+	);
+	mock.api.parseValue( 'parser id', ['serialization'] );
+
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbparsevalue',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'parser' ), 'parser id' );
+	assert.equal( getParam( mock.spy, 'values' ), 'serialization1|serialization2');
+	assert.equal( getParam( mock.spy, 'options' ), JSON.stringify( { option: 'option value'} ) );
+
+	assert.equal( getParam( mock.spy, 'parser', 1 ), 'parser id' );
+	assert.equal( getParam( mock.spy, 'values', 1 ), 'serialization');
+	assert.strictEqual( getParam( mock.spy, 'options', 1 ), undefined );
+} );
+
+QUnit.test( 'searchEntities()', function( assert ) {
+	assert.expect( 12 );
+	var mock = mockApi( 'get' );
+
+	mock.api.searchEntities( 'label', 'language code', 'entity type', 10, 5 );
+	mock.api.searchEntities( 'label', 'language code', 'entity type' );
+
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbsearchentities',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'search' ), 'label' );
+	assert.equal( getParam( mock.spy, 'language' ), 'language code' );
+	assert.equal( getParam( mock.spy, 'type' ), 'entity type' );
+	assert.equal( getParam( mock.spy, 'limit' ), 10 );
+	assert.equal( getParam( mock.spy, 'continue' ), 5 );
+
+	assert.equal( getParam( mock.spy, 'search', 1 ), 'label' );
+	assert.equal( getParam( mock.spy, 'language', 1 ), 'language code' );
+	assert.equal( getParam( mock.spy, 'type', 1 ), 'entity type' );
+	assert.strictEqual( getParam( mock.spy, 'limit', 1 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'continue', 1 ), undefined );
+} );
+
+QUnit.test( 'setLabel(), setDescription()', function( assert ) {
+	assert.expect( 12 );
+	var subjects = ['Label', 'Description'];
+
+	for( var i = 0; i < subjects.length; i++ ) {
+		var mock = mockApi();
+
+		mock.api['set' + subjects[i]]( 'entity id', 12345, 'text', 'language code' );
+
+		assert.ok( mock.spy.calledOnce, 'Triggered API call.' );
+
+		assert.equal(
+			getParam( mock.spy, 'action' ),
+			'wbset' + subjects[i].toLowerCase(),
+			'Verified API module being called.'
 		);
-		QUnit.start(); // skip all remaining queued tests
-	};
 
-	/**
-	 * Creates an entity via the API.
-	 *
-	 * @param {string} [entityType] Either "item" or "property"
-	 * @param {Object} [data] Stringified JSON representing the entity content
-	 */
-	var createEntity = function( entityType, data ) {
-		data = data || {};
-
-		api.createEntity( entityType, data ).done( function( response ) {
-			QUnit.assert.equal(
-				response.success,
-				1,
-				'Created ' + entityType + '.'
-			);
-			entityStack.push( response.entity );
-			testrun.dequeue( qkey );
-		} ).fail( onFail );
-	};
-
-	QUnit.module( 'wikibase.api.RepoApi', QUnit.newMwEnvironment( {
-		teardown: function() {
-			entityStack = [];
-		}
-	} ) );
-
-	// This test does nothing more than creating an empty entity. It would not need to invoke a
-	// queue but can be used as basic template for creating other API tests.
-	QUnit.test( 'Create an empty entity', function( assert ) {
-		testrun.queue( qkey, function() { createEntity( 'item' ); } );
-		// testrun.queue( qkey, function() { ...; testrun.dequeue( qkey ); } );
-		runTest();
-	} );
-
-	QUnit.test( 'Create an empty property', function( assert ) {
-		testrun.queue( qkey, function() {
-			createEntity( 'property', { datatype: 'string' } );
-		} );
-		runTest();
-	} );
-
-	QUnit.test( 'Search for an entity', function( assert ) {
-		var data = {
-			labels: { de: {
-				language: 'de',
-				value: 'de-search-val'
-			} }
-		};
-
-		testrun.queue( qkey, function() { createEntity( 'item', data ); } );
-
-		testrun.queue( qkey, function() {
-			api.searchEntities( data.labels.de.value, data.labels.de.language, 'item', 2, 0 )
-				.done( function( response ) {
-
-					assert.ok(
-						response.search.length > 0,
-						'Search results returned.'
-					);
-					assert.equal(
-						response.search[0].label,
-						data.labels.de.value,
-						'Verified item label.'
-					);
-
-					testrun.dequeue( qkey );
-				} )
-				.fail( onFail );
-		} );
-
-		runTest();
-
-	});
-
-	QUnit.test( 'Edit an entity', function( assert ) {
-		testrun.queue( qkey, function() { createEntity( 'item' ); } );
-
-		testrun.queue( qkey, function() {
-			var entity = entityStack[0];
-
-			var data = {
-				labels: {
-					de: {
-						language: 'de',
-						value: 'de-value'
-					},
-					en: {
-						language: 'en',
-						value: 'en-value'
-					}
-				}
-			};
-
-			api.editEntity( entity.id, entity.lastrevid, data ).done( function( response ) {
-
-				assert.equal(
-					response.entity.id,
-					entity.id,
-					'Verified entity id.'
-				);
-
-				assert.deepEqual(
-					response.entity.labels,
-					data.labels,
-					'Edited entity.'
-				);
-
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-
-		} );
-
-		runTest();
-
-	} );
-
-	QUnit.test( 'Create a claim (string value)', function( assert ) {
-
-		testrun.queue( qkey, function() { createEntity( 'item' ); } );
-		testrun.queue( qkey, function() { createEntity( 'property', { datatype: 'string' } ); } );
-
-		testrun.queue( qkey, function() {
-			var entity = entityStack[0],
-				property = entityStack[1];
-
-			api.createClaim(
-				entity.id,
-				entity.lastrevid,
-				'value',
-				property.id,
-				'This claim is true'
-			).done( function( response ) {
-
-				assert.equal(
-					response.claim.mainsnak.property,
-					property.id,
-					'Verified claim\'s property id.'
-				);
-
-				testrun.dequeue( qkey );
-
-			} ).fail( onFail );
-
-		} );
-
-		runTest();
-
-	} );
-
-	QUnit.test( 'Get claim (string value)', function( assert ) {
-
-		var answer = '42', entity, property;
-
-		testrun.queue( qkey, function() { createEntity( 'item' ); } );
-		testrun.queue( qkey, function() { createEntity( 'property', { datatype: 'string' } ); } );
-
-		testrun.queue( qkey, function() {
-			entity = entityStack[0];
-			property = entityStack[1];
-
-			api.createClaim(
-				entity.id,
-				entity.lastrevid,
-				'value',
-				property.id,
-				answer
-			).done( function( response ) {
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-
-		} );
-
-		testrun.queue( qkey, function() {
-			api.getClaims( entity.id, property.id ).done( function( response ) {
-
-				assert.ok(
-					property.id in response.claims,
-					'Claim data for given property found.'
-				);
-
-				assert.equal(
-					response.claims[property.id][0].mainsnak.datavalue.value,
-					answer,
-					'Claim value verified.'
-				);
-
-				testrun.dequeue( qkey );
-
-			} ).fail( onFail );
-
-		} );
-
-		runTest();
-
-	} );
-
-	/**
-	 * Will test the RepoApi's function to set one of the multilingual basic values, e.g. label or
-	 * description.
-	 *
-	 * @param {Object} assert
-	 * @param {string} type E.g. 'label' or 'description'
-	 * @param {string} apiFnName The name of the wikibase.api.RepoApi function to set the value
-	 */
-	function testSetBasicMultiLingualValue( assert, type, apiFnName ) {
-		var entity,
-			typesApiPropName = type + 's', // API uses plural form of the type: 'label' -> 'labels'
-			language = 'en',
-			value = language + '-' + type; // could be anything really
-
-		testrun.queue( qkey, function() { createEntity( 'item' ); } );
-
-		testrun.queue( qkey, function() {
-			entity = entityStack[0];
-
-			api[ apiFnName ](
-				entity.id, entity.lastrevid, value, language
-			).done( function( response ) {
-
-				assert.deepEqual(
-					response.entity[ typesApiPropName ].en,
-					{ language: language, value: value },
-					type + ' "' + value + '" has been set for language "' + language + '"'
-				);
-
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
-
-		testrun.queue( qkey, function() {
-			var setTypeApiPromise = api[ apiFnName ](
-				entity.id, entity.lastrevid, value, 'non-existent-language'
-			);
-
-			assert.ok( // promise is a plain object, so check for 'then' function
-				$.isFunction( setTypeApiPromise.then ),
-				'wikibase.api.RepoApi.' + apiFnName + ' returns a jQuery Promise'
-			);
-
-
-			setTypeApiPromise.done( function( response ) {
-				assert.ok(
-					false,
-					'Impossible to set the ' + type + ' for an unknown language'
-				);
-				QUnit.start();
-			} );
-
-			setTypeApiPromise.fail( function( code, details ) {
-				assert.equal(
-					code,
-					'unknown_language',
-					'Failed trying to set the value on an unknown language'
-				);
-				testrun.dequeue( qkey );
-			} );
-		} );
-
-		runTest();
+		assert.equal( getParam( mock.spy, 'id' ), 'entity id' );
+		assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+		assert.equal( getParam( mock.spy, 'value' ), 'text' );
+		assert.equal( getParam( mock.spy, 'language' ), 'language code' );
 	}
+} );
 
-	QUnit.test( 'Set label', function( assert ) {
-		testSetBasicMultiLingualValue( assert, 'label', 'setLabel' );
-	} );
+QUnit.test( 'setAliases()', function( assert ) {
+	assert.expect( 7 );
+	var mock = mockApi();
 
-	QUnit.test( 'Set description', function( assert ) {
-		testSetBasicMultiLingualValue( assert, 'description', 'setDescription' );
-	} );
+	mock.api.setAliases(
+		'entity id', 12345, ['alias1', 'alias2'], ['alias-remove'], 'language code'
+	);
 
-// TODO Re-activate test after having solved problem with edit conflict detection added in change
-// set I344d76812649781c83814afb8e9386ff66fc9086 (commit 3680cedf87a7a45296320b12590432bc50a46c5a)
-/*
-	QUnit.test( 'Add and remove site links', function( assert ) {
-		var data = {
-			sitelinks: {
-				dewiki: {
-					site: 'dewiki',
-					title: 'Königsberg in Bayern',
-					badges: [], // this relys on config, so for now only an empty array
-					url: 'http://de.wikipedia.org/wiki/K%C3%B6nigsberg_in_Bayern'
-				}
-			}
-		};
+	assert.ok( mock.spy.calledOnce, 'Triggered API call.' );
 
-		var invalidData = {
-			sitelinks: {
-				dewiki: {
-					site: 'doesnotexist',
-					title: 'doesnotexist'
-				}
-			}
-		};
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbsetaliases',
+		'Verified API module being called.'
+	);
 
-		testrun.queue( qkey, function() { createEntity( 'item' ); } );
+	assert.equal( getParam( mock.spy, 'id' ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+	assert.equal( getParam( mock.spy, 'add' ), 'alias1|alias2' );
+	assert.equal( getParam( mock.spy, 'remove' ), 'alias-remove' );
+	assert.equal( getParam( mock.spy, 'language' ), ['language code'] );
+} );
 
-		testrun.queue( qkey, function() {
-			api.setSitelink(
-				entity.id,
-				entity.lastrevid,
-				data.sitelinks.dewiki.site,
-				data.sitelinks.dewiki.title,
-				data.sitelinks.dewiki.badges
-			).done( function( response ) {
+QUnit.test( 'setClaim()', function( assert ) {
+	assert.expect( 8 );
+	var mock = mockApi();
 
-				assert.deepEqual(
-					response.entity.sitelinks[data.sitelinks.dewiki.site],
-					data.sitelinks.dewiki,
-					'Set site link.'
-				);
+	mock.api.setClaim( { 'I am': 'a Claim serialization' }, 12345, 67890 );
+	mock.api.setClaim( { 'I am': 'a Claim serialization' }, 12345 );
 
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
 
-		testrun.queue( qkey, function() {
-			api.getEntities( entity.id, 'sitelinks' ).done( function( response ) {
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbsetclaim',
+		'Verified API module being called.'
+	);
 
-				delete data.sitelinks.dewiki.url;
+	assert.equal(
+		getParam( mock.spy, 'claim' ),
+		JSON.stringify( { 'I am': 'a Claim serialization' } )
+	);
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+	assert.equal( getParam( mock.spy, 'index' ), 67890 );
 
-				assert.deepEqual(
-					response.entities[entity.id].sitelinks,
-					data.sitelinks,
-					'Verified site link.'
-				);
+	assert.equal(
+		getParam( mock.spy, 'claim', 1 ),
+		JSON.stringify( { 'I am': 'a Claim serialization' } )
+	);
+	assert.equal( getParam( mock.spy, 'baserevid', 1 ), 12345 );
+	assert.strictEqual( getParam( mock.spy, 'index', 1 ), undefined );
+} );
 
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
+QUnit.test( 'createClaim()', function( assert ) {
+	assert.expect( 12 );
+	var mock = mockApi();
 
-		testrun.queue( qkey, function() {
-			api.setSitelink(
-				entity.id,
-				entity.lastrevid,
-				invalidData.sitelinks.dewiki.site,
-				invalidData.sitelinks.dewiki.title
-			).done( function( response ) {
+	mock.api.createClaim( 'entity id', 12345, 'snak type', 'property id', 'snak value' );
+	mock.api.createClaim( 'entity id', 12345, 'snak type', 'property id' );
 
-					assert.ok(
-						false,
-						'It is possible to set an invalid site link.'
-					);
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
 
-					QUnit.start();
-				} ).fail( function( code, details ) {
-					assert.equal(
-						code,
-						'unknown_linksite',
-						'Failed trying to set an invalid site link.'
-					);
-					testrun.dequeue( qkey );
-				} );
-		} );
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbcreateclaim',
+		'Verified API module being called.'
+	);
 
-		testrun.queue( qkey, function() {
-			api.getEntities( entity.id, 'sitelinks' ).done( function( response ) {
+	assert.equal( getParam( mock.spy, 'entity' ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+	assert.equal( getParam( mock.spy, 'snaktype' ), 'snak type' );
+	assert.equal( getParam( mock.spy, 'property' ), 'property id' );
+	assert.equal( getParam( mock.spy, 'value' ), JSON.stringify( 'snak value' ) );
 
-				assert.deepEqual(
-					response.entities[entity.id].sitelinks,
-					[],
-					'Verified empty site links.'
-				);
+	assert.equal( getParam( mock.spy, 'entity', 1 ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'baserevid', 1 ), 12345 );
+	assert.equal( getParam( mock.spy, 'snaktype', 1 ), 'snak type' );
+	assert.equal( getParam( mock.spy, 'property', 1 ), 'property id' );
+	assert.strictEqual( getParam( mock.spy, 'value', 1 ), undefined );
+} );
 
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
+QUnit.test( 'removeClaim()', function( assert ) {
+	assert.expect( 6 );
+	var mock = mockApi();
 
-		runTest();
+	mock.api.removeClaim( 'claim GUID', 12345 );
+	mock.api.removeClaim( 'claim GUID' );
 
-	} );
-*/
-	QUnit.test( 'Set aliases', function( assert ) {
-		testrun.queue( qkey, function() { createEntity( 'item' ); } );
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
 
-		testrun.queue( qkey, function() {
-			api.setAliases(
-				entityStack[0].id, entityStack[0].lastrevid, [ 'alias1', 'alias2' ], [], 'en'
-			).done( function( response ) {
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbremoveclaims',
+		'Verified API module being called.'
+	);
 
-				assert.deepEqual(
-					response.entity.aliases.en,
-					[
-						{ language: 'en', value: 'alias1' },
-						{ language: 'en', value: 'alias2' }
-					],
-					'Added aliases.'
-				);
+	assert.equal( getParam( mock.spy, 'claim' ), 'claim GUID' );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
 
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
+	assert.equal( getParam( mock.spy, 'claim', 1 ), 'claim GUID' );
+	assert.strictEqual( getParam( mock.spy, 'baserevid', 1 ), undefined );
+} );
 
-		testrun.queue( qkey, function() {
-			api.setAliases(
-				entityStack[0].id,
-				entityStack[0].lastrevid,
-				[ 'alias1', 'alias2' ],
-				[],
-				'doesnotexist'
-			).done( function( response ) {
+QUnit.test( 'getClaims()', function( assert ) {
+	assert.expect( 12 );
+	var mock = mockApi( 'get' );
 
-				assert.ok(
-					false,
-					'It is possible to set aliases for an invalid language.'
-				);
+	mock.api.getClaims( 'entity id', 'property id', 'claim GUID', 'rank', 'claim props' );
+	mock.api.getClaims( 'entity id' );
 
-				QUnit.start();
-			} ).fail( function( code, details ) {
-				assert.equal(
-					code,
-					'unknown_language',
-					'Failed trying to set aliases for an invalid language.'
-				);
-				testrun.dequeue( qkey );
-			} );
-		} );
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
 
-// TODO Re-activate after having solved problem with edit conflict detection added in change
-// set I344d76812649781c83814afb8e9386ff66fc9086 (commit 3680cedf87a7a45296320b12590432bc50a46c5a)
-/*
-		testrun.queue( qkey, function() {
-			api.setAliases(
-				entityStack[0].id, entityStack[0].lastrevid, 'alias3', 'alias1', 'en'
-			).done( function( response ) {
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbgetclaims',
+		'Verified API module being called.'
+	);
 
-				assert.deepEqual(
-					response.entity.aliases.en,
-					[
-						{ language: 'en', value: 'alias2' },
-						{ language: 'en', value: 'alias3' }
-					],
-					'Added and removed aliases.'
-				);
+	assert.equal( getParam( mock.spy, 'entity' ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'property' ), 'property id' );
+	assert.equal( getParam( mock.spy, 'claim' ), 'claim GUID' );
+	assert.equal( getParam( mock.spy, 'rank' ), 'rank' );
+	assert.equal( getParam( mock.spy, 'props' ), 'claim props' );
 
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
+	assert.equal( getParam( mock.spy, 'entity', 1 ), 'entity id' );
+	assert.strictEqual( getParam( mock.spy, 'property', 1 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'claim', 1 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'rank', 1 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'props', 1 ), undefined );
+} );
 
-		testrun.queue( qkey, function() {
-			api.setAliases(
-				entityStack[0].id, entityStack[0].lastrevid, '', [ 'alias2', 'alias3' ], 'en'
-			).done( function( response ) {
+QUnit.test( 'setClaimValue()', function( assert ) {
+	assert.expect( 12 );
+	var mock = mockApi();
 
-				assert.equal(
-					response.entity.aliases,
-					undefined,
-					'Removed aliases.'
-				);
+	mock.api.setClaimValue( 'claim GUID', 12345, 'snak type', 'property id', 'snak value' );
+	mock.api.setClaimValue( 'claim GUID', 12345, 'snak type', 'property id' );
 
-				testrun.dequeue( qkey );
-			} ).fail( onFail );
-		} );
-*/
-		runTest();
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
 
-	} );
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbsetclaimvalue',
+		'Verified API module being called.'
+	);
 
-}( mediaWiki, wikibase, jQuery, QUnit ) );
+	assert.equal( getParam( mock.spy, 'claim' ), 'claim GUID' );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+	assert.equal( getParam( mock.spy, 'snaktype' ), 'snak type' );
+	assert.equal( getParam( mock.spy, 'property' ), 'property id' );
+	assert.equal( getParam( mock.spy, 'value' ), JSON.stringify( 'snak value' ) );
+
+	assert.equal( getParam( mock.spy, 'claim', 1 ), 'claim GUID' );
+	assert.equal( getParam( mock.spy, 'baserevid', 1 ), 12345 );
+	assert.equal( getParam( mock.spy, 'snaktype', 1 ), 'snak type' );
+	assert.equal( getParam( mock.spy, 'property', 1 ), 'property id' );
+	assert.strictEqual( getParam( mock.spy, 'value', 1 ), undefined );
+} );
+
+QUnit.test( 'setReference()', function( assert ) {
+	assert.expect( 12 );
+	var mock = mockApi();
+
+	mock.api.setReference(
+		'statement GUID',
+		{'I am': 'serialized Snaks'},
+		12345,
+		'reference hash',
+		67890
+	);
+	mock.api.setReference( 'statement GUID', {'I am': 'serialized Snaks'}, 12345 );
+
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbsetreference',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'statement' ), 'statement GUID' );
+	assert.equal( getParam( mock.spy, 'snaks' ), JSON.stringify( {'I am': 'serialized Snaks'} ) );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+	assert.equal( getParam( mock.spy, 'reference' ), 'reference hash' );
+	assert.equal( getParam( mock.spy, 'index' ), 67890 );
+
+	assert.equal( getParam( mock.spy, 'statement', 1 ), 'statement GUID' );
+	assert.equal(
+		getParam( mock.spy, 'snaks', 1 ),
+		JSON.stringify( {'I am': 'serialized Snaks'} )
+	);
+	assert.equal( getParam( mock.spy, 'baserevid', 1 ), 12345 );
+	assert.strictEqual( getParam( mock.spy, 'reference', 1 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'index', 1 ), undefined );
+} );
+
+QUnit.test( 'removeReferences()', function( assert ) {
+	assert.expect( 8 );
+	var mock = mockApi();
+
+	mock.api.removeReferences( 'statement GUID', ['reference hash 1', 'reference hash 2'], 12345 );
+	mock.api.removeReferences( 'statement GUID', 'reference hash', 12345 );
+
+	assert.ok( mock.spy.calledTwice, 'Triggered API calls.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbremovereferences',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'statement' ), 'statement GUID' );
+	assert.equal( getParam( mock.spy, 'references' ), 'reference hash 1|reference hash 2' );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+
+	assert.equal( getParam( mock.spy, 'statement', 1 ), 'statement GUID' );
+	assert.equal( getParam( mock.spy, 'references', 1 ), 'reference hash' );
+	assert.equal( getParam( mock.spy, 'baserevid', 1 ), 12345 );
+} );
+
+QUnit.test( 'setSitelink()', function( assert ) {
+	assert.expect( 12 );
+	var mock = mockApi();
+
+	mock.api.setSitelink(
+		'entity id', 12345, 'site id', 'page name', ['entity id of badge1', 'entity id of badge 2']
+	);
+	mock.api.setSitelink( 'entity id', 12345, 'site id', 'page name' );
+
+	assert.ok( mock.spy.calledTwice, 'Triggered API call.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbsetsitelink',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'id' ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'baserevid' ), 12345 );
+	assert.equal( getParam( mock.spy, 'linksite' ), 'site id' );
+	assert.equal( getParam( mock.spy, 'linktitle' ), 'page name' );
+	assert.equal( getParam( mock.spy, 'badges' ), 'entity id of badge1|entity id of badge 2' );
+
+	assert.equal( getParam( mock.spy, 'id', 1 ), 'entity id' );
+	assert.equal( getParam( mock.spy, 'baserevid', 1 ), 12345 );
+	assert.equal( getParam( mock.spy, 'linksite', 1 ), 'site id' );
+	assert.equal( getParam( mock.spy, 'linktitle', 1 ), 'page name' );
+	assert.strictEqual( getParam( mock.spy, 'badges', 1 ), undefined );
+} );
+
+QUnit.test( 'mergeItems()', function( assert ) {
+	assert.expect( 14 );
+	var mock = mockApi();
+
+	mock.api.mergeItems(
+		'entity id from',
+		'entity id to',
+		['property to ignore conflict for 1', 'property to ignore conflict for 2'],
+		'edit summary'
+	);
+	mock.api.mergeItems(
+		'entity id from',
+		'entity id to',
+		'property to ignore conflict for',
+		'edit summary'
+	);
+	mock.api.mergeItems( 'entity id from', 'entity id to' );
+
+	assert.ok( mock.spy.calledThrice, 'Triggered API calls.' );
+
+	assert.equal(
+		getParam( mock.spy, 'action' ),
+		'wbmergeitems',
+		'Verified API module being called.'
+	);
+
+	assert.equal( getParam( mock.spy, 'fromid' ), 'entity id from' );
+	assert.equal( getParam( mock.spy, 'toid' ), 'entity id to' );
+	assert.equal(
+		getParam( mock.spy, 'ignoreconflicts' ),
+		'property to ignore conflict for 1|property to ignore conflict for 2'
+	);
+	assert.equal( getParam( mock.spy, 'summary' ), 'edit summary' );
+
+	assert.equal( getParam( mock.spy, 'fromid', 1 ), 'entity id from' );
+	assert.equal( getParam( mock.spy, 'toid', 1 ), 'entity id to' );
+	assert.equal(
+		getParam( mock.spy, 'ignoreconflicts', 1 ),
+		'property to ignore conflict for'
+	);
+	assert.equal( getParam( mock.spy, 'summary', 1 ), 'edit summary' );
+
+	assert.equal( getParam( mock.spy, 'fromid', 2 ), 'entity id from' );
+	assert.equal( getParam( mock.spy, 'toid', 2 ), 'entity id to' );
+	assert.strictEqual( getParam( mock.spy, 'ignoreconflicts', 2 ), undefined );
+	assert.strictEqual( getParam( mock.spy, 'summary', 2 ), undefined );
+} );
+
+}( mediaWiki, wikibase, QUnit, sinon ) );

@@ -7,17 +7,20 @@ use DataValues\DataValueFactory;
 use DataValues\Deserializers\DataValueDeserializer;
 use DataValues\Serializers\DataValueSerializer;
 use Deserializers\Deserializer;
+use IContextSource;
 use RuntimeException;
 use Serializers\Serializer;
 use SiteSQLStore;
 use SiteStore;
 use StubObject;
+use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\Api\ApiHelperFactory;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\Claim\ClaimGuidParser;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\Diff\EntityDiffer;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
@@ -64,6 +67,8 @@ use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\ItemHandler;
 use Wikibase\Repo\Content\PropertyHandler;
+use Wikibase\Repo\Hooks\EditFilterHookRunner;
+use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Localizer\ChangeOpValidationExceptionLocalizer;
 use Wikibase\Repo\Localizer\MessageParameterFormatter;
 use Wikibase\Repo\Notifications\ChangeNotifier;
@@ -71,7 +76,6 @@ use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\DummyChangeTransmitter;
 use Wikibase\Repo\Store\EntityPermissionChecker;
-use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\SnakFactory;
 use Wikibase\SqlStore;
@@ -196,7 +200,7 @@ class WikibaseRepo {
 		static $instance = null;
 
 		if ( $instance === null ) {
-			$instance = new self( Settings::singleton() );
+			$instance = new self( new SettingsArray( $GLOBALS['wgWBRepoSettings'] ) );
 		}
 
 		return $instance;
@@ -264,6 +268,7 @@ class WikibaseRepo {
 		return new EntityChangeFactory(
 			$this->getStore()->getChangesTable(),
 			$this->getEntityFactory(),
+			new EntityDiffer(),
 			$changeClasses
 		);
 	}
@@ -304,6 +309,21 @@ class WikibaseRepo {
 	 */
 	public function getEntityRevisionLookup( $uncached = '' ) {
 		return $this->getStore()->getEntityRevisionLookup( $uncached );
+	}
+
+	public function getRedirectCreator( User $user, IContextSource $context ) {
+		return new RedirectCreationInteractor(
+			$this->getEntityRevisionLookup( 'uncached' ),
+			$this->getEntityStore(),
+			$this->getEntityPermissionChecker(),
+			$this->getSummaryFormatter(),
+			$user,
+			new EditFilterHookRunner(
+				$this->getEntityTitleLookup(),
+				$this->getEntityContentFactory(),
+				$context
+			)
+		);
 	}
 
 	/**

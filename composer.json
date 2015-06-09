@@ -15,7 +15,7 @@
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~2.2.0",
-        "wikibase/wikibase": "dev-wmf/1.26wmf6",
+        "wikibase/wikibase": "dev-wmf/1.26wmf9",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master"
     },
@@ -29,7 +29,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_26wmf6",
+        "autoloader-suffix": "wikidata_1_26wmf9",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

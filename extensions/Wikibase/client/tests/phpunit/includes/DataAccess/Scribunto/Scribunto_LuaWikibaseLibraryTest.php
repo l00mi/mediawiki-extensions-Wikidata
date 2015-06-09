@@ -8,6 +8,8 @@ use ParserOptions;
 use Scribunto;
 use Scribunto_LuaWikibaseLibrary;
 use Title;
+use Wikibase\Client\Usage\EntityUsage;
+use Wikibase\DataModel\Entity\ItemId;
 
 /**
  * @covers Scribunto_LuaWikibaseLibrary
@@ -92,6 +94,12 @@ class Scribunto_LuaWikibaseLibraryTest extends Scribunto_LuaWikibaseLibraryTestC
 
 		$label = $luaWikibaseLibrary->getLabel( 'Q885588' );
 		$this->assertEquals( array( 'پسیک' ), $label, 'getLabel' );
+
+		// All languages in the fallback chain for 'ku-arab' count as "used".
+		$usage = $luaWikibaseLibrary->getUsageAccumulator()->getUsages();
+		$this->assertArrayHasKey( 'Q885588#L.ku', $usage );
+		$this->assertArrayHasKey( 'Q885588#L.ku-arab', $usage );
+		$this->assertArrayHasKey( 'Q885588#L.ku-latn', $usage );
 	}
 
 	public function testGetEntityInvalidIdType() {
@@ -146,6 +154,33 @@ class Scribunto_LuaWikibaseLibraryTest extends Scribunto_LuaWikibaseLibraryTestC
 
 		$this->setExpectedException( 'ScribuntoException' );
 		$luaWikibaseLibrary->renderSnaks( array( 'a' => 'b' ) );
+	}
+
+	public function testResolvePropertyId() {
+		$luaWikibaseLibrary = $this->newScribuntoLuaWikibaseLibrary();
+
+		$this->assertSame(
+			array( 'P342' ),
+			$luaWikibaseLibrary->resolvePropertyId( 'LuaTestStringProperty' )
+		);
+	}
+
+	public function testResolvePropertyId_propertyIdGiven() {
+		$luaWikibaseLibrary = $this->newScribuntoLuaWikibaseLibrary();
+
+		$this->assertSame(
+			array( 'P342' ),
+			$luaWikibaseLibrary->resolvePropertyId( 'P342' )
+		);
+	}
+
+	public function testResolvePropertyId_labelNotFound() {
+		$luaWikibaseLibrary = $this->newScribuntoLuaWikibaseLibrary();
+
+		$this->assertSame(
+			array( null ),
+			$luaWikibaseLibrary->resolvePropertyId( 'foo' )
+		);
 	}
 
 	public function testGetUserLang() {

@@ -34,7 +34,8 @@
 			"Benjozork",
 			"Weft",
 			"Brenloch56",
-			"Spasmedevivre"
+			"Spasmedevivre",
+			"Freak2fast4u"
 		]
 	},
 	"wikibase-desc": "Référentiel de données structurées",
@@ -53,7 +54,7 @@
 	"wikibase-entitytermsview-entitytermsforlanguagelistview-toggler": "Plus de langues",
 	"wikibase-entitytermsview-entitytermsforlanguagelistview-configure-link-label": "Configurer",
 	"wikibase-setting-entitytermsview-showEntitytermslistview": "Afficher les libellés, alias et descriptions dans toutes mes langues au chargement des pages.",
-	"wikibase-setting-entitytermsview-showEntitytermslistview-help": "Des langues personnelles additionnelles pour l’interface peuvent être définie en utilisant la syntaxe de l’[[mw:Extension:Babel|Babel extension]] sur la page utilisateur.",
+	"wikibase-setting-entitytermsview-showEntitytermslistview-help": "Des langues personnelles additionnelles pour l’interface peuvent être définie en utilisant la syntaxe de l’[[mw:Extension:Babel|extension ''Babel'']] sur la page utilisateur.",
 	"wikibase-entitytermsforlanguagelistview-aliases": "Alias",
 	"wikibase-entitytermsforlanguagelistview-description": "Description",
 	"wikibase-entitytermsforlanguagelistview-label": "Libellé",
@@ -386,5 +387,8 @@
 	"right-item-redirect": "Créer des redirections d’élément",
 	"right-property-term": "Modifier les termes de la propriété (libellés, descriptions, alias)",
 	"right-property-create": "Créer des propriétés",
-	"action-property-create": "créer des propriétés"
+	"wikibase-entity-not-viewable-title": "Le type de contenu diverge : Impossible d'afficher le contenu",
+	"wikibase-entity-not-viewable": "Le contenu fourni de type \"$1\" n'est pas une Entité ne peut pas être affiché par Wikibase.",
+	"action-property-create": "créer des propriétés",
+	"apihelp-wbsetaliases-param-set": "Une liste d'alias qui remplacera la liste courante (les éléments de cette liste ne peuvent être ni complétés ni supprimés)"
 }

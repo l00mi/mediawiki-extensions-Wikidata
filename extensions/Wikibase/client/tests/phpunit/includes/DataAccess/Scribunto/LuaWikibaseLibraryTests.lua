@@ -3,6 +3,7 @@
 
 	@license GNU GPL v2+
 	@author Marius Hoch < hoo@online.de >
+	@author Bene* < benestar.wikimedia@gmail.com >
 ]]
 
 local testframework = require 'Module:TestFramework'
@@ -87,12 +88,20 @@ local tests = {
 	  args = { 'Q1224342342' },
 	  expect = { nil }
 	},
+	{ name = 'mw.wikibase.label (connected item)', func = mw.wikibase.label, type='ToString',
+	  args = {},
+	  expect = { 'Lua Test Item' }
+	},
 	{ name = 'mw.wikibase.label (no label)', func = mw.wikibase.label, type='ToString',
 	  args = { 'Q32488' },
 	  expect = { nil }
 	},
 	{ name = 'mw.wikibase.description', func = mw.wikibase.description, type='ToString',
 	  args = { 'Q32487' },
+	  expect = { 'Description of Q32487' }
+	},
+	{ name = 'mw.wikibase.description (connected item)', func = mw.wikibase.description, type='ToString',
+	  args = {},
 	  expect = { 'Description of Q32487' }
 	},
 	{ name = 'mw.wikibase.description (no such item)', func = mw.wikibase.description, type='ToString',
@@ -107,6 +116,10 @@ local tests = {
 	  args = { 'Q32487' },
 	  expect = { 'WikibaseClientDataAccessTest' }
 	},
+	{ name = 'mw.wikibase.sitelink (connected item)', func = mw.wikibase.sitelink, type='ToString',
+	  args = {},
+	  expect = "bad argument #1 to 'sitelink' (string expected, got nil)"
+	},
 	{ name = 'mw.wikibase.sitelink', func = mw.wikibase.sitelink, type='ToString',
 	  args = { 'Q32488' },
 	  expect = { nil }
@@ -114,16 +127,28 @@ local tests = {
 	{ name = 'mw.wikibase.renderSnak', func = testRenderSnak, type='ToString',
 	  expect = { 'A qualifier Snak' }
 	},
-	{ name = 'mw.wikibase.renderSnak - (must be table)', func = mw.wikibase.renderSnak,
+	{ name = 'mw.wikibase.renderSnak (must be table)', func = mw.wikibase.renderSnak,
 	  args = { 'meep' },
 	  expect = "bad argument #1 to 'renderSnak' (table expected, got string)"
 	},
 	{ name = 'mw.wikibase.renderSnaks', func = testRenderSnaks, type='ToString',
 	  expect = { 'A qualifier Snak, Moar qualifiers' }
 	},
-	{ name = 'mw.wikibase.renderSnaks - (must be table)', func = mw.wikibase.renderSnaks,
+	{ name = 'mw.wikibase.renderSnaks (must be table)', func = mw.wikibase.renderSnaks,
 	  args = { 'meep' },
 	  expect = "bad argument #1 to 'renderSnaks' (table expected, got string)"
+	},
+	{ name = 'mw.wikibase.resolvePropertyId', func = mw.wikibase.resolvePropertyId,
+	  args = { 'LuaTestStringProperty' },
+	  expect = { 'P342' }
+	},
+	{ name = 'mw.wikibase.resolvePropertyId (property id passed)', func = mw.wikibase.resolvePropertyId,
+	  args = { 'P342' },
+	  expect = { 'P342' }
+	},
+	{ name = 'mw.wikibase.resolvePropertyId (label not found)', func = mw.wikibase.resolvePropertyId,
+	  args = { 'foo' },
+	  expect = { nil }
 	},
 }
 
