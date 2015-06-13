@@ -1,6 +1,6 @@
 {
 	"name": "data-values/javascript",
-	"description": "DataValues implementation in Javascript",
+	"description": "DataValues implementation in JavaScript",
 	"keywords": [
 		"datavalues",
 		"wikidata"
@@ -30,7 +30,7 @@
 	},
 	"autoload": {
 		"files" : [
-			"DataValuesJavascript.php"
+			"DataValuesJavaScript.php"
 		]
 	}
 }

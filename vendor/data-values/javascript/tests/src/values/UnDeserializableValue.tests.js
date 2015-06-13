@@ -7,7 +7,7 @@ define( [
 	'util/util.inherit',
 	'jquery',
 	'tests/src/dataValues.DataValue.tests',
-	'values/UnUnserializableValue'
+	'values/UnDeserializableValue'
 ], function( dv, util, $ ) {
 	'use strict';
 
@@ -20,22 +20,22 @@ define( [
 	 * @extends dv.tests.DataValueTest
 	 * @since 0.1
 	 */
-	dv.tests.UnUnserializableValueTest = util.inherit( PARENT, {
+	dv.tests.UnDeserializableValueTest = util.inherit( PARENT, {
 
 		/**
-		 * @see dv.tests.DataValueTest.getConstructor
+		 * @inheritdoc
 		 */
 		getConstructor: function() {
-			return dv.UnUnserializableValue;
+			return dv.UnDeserializableValue;
 		},
 
 		/**
-		 * @see dv.tests.DataValueTest.getConstructorArguments
+		 * @inheritdoc
 		 */
 		getConstructorArguments: function() {
 			return [
-				[ {}, 'sometype', new Error( 'some error' ) ],
-				[ { foo: 'bar' }, 'another-type', new Error( 'another error' ) ]
+				[ {}, 'sometype', 'some error' ],
+				[ { foo: 'bar' }, 'another-type', 'another error' ]
 			];
 		},
 
@@ -67,27 +67,6 @@ define( [
 		},
 
 		/**
-		 * @see dv.tests.DataValueTest.testNewFromJSON
-		 *
-		 * skip
-		 */
-		testNewFromJSON: null,
-
-		/**
-		 * @see dv.tests.DataValueTest.testToJSON
-		 *
-		 * skip
-		 */
-		testToJSON: null,
-
-		/**
-		 * @see dv.tests.DataValueTest.testJsonRoundtripping
-		 *
-		 * skip
-		 */
-		testJsonRoundtripping: null,
-
-		/**
 		 * @see dv.tests.DataValueTest.testJsonRoundtripping
 		 *
 		 * skip
@@ -96,8 +75,8 @@ define( [
 		testEquals: null
 	} );
 
-	var test = new dv.tests.UnUnserializableValueTest();
+	var test = new dv.tests.UnDeserializableValueTest();
 
-	test.runTests( 'dataValues.UnUnserializableValue' );
+	test.runTests( 'dataValues.UnDeserializableValue' );
 
 } );

@@ -7,7 +7,7 @@ if ( defined( 'DATA_VALUES_JAVASCRIPT_VERSION' ) ) {
 	return 1;
 }
 
-define( 'DATA_VALUES_JAVASCRIPT_VERSION', '0.6.1' );
+define( 'DATA_VALUES_JAVASCRIPT_VERSION', '0.7.0' );
 
 // Include the composer autoloader if it is present.
 if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
@@ -16,7 +16,7 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 
 $GLOBALS['wgExtensionCredits']['datavalues'][] = array(
 	'path' => __DIR__,
-	'name' => 'DataValues Javascript',
+	'name' => 'DataValues JavaScript',
 	'version' => DATA_VALUES_JAVASCRIPT_VERSION,
 	'author' => array(
 		'[https://www.mediawiki.org/wiki/User:Danwe Daniel Werner]',
@@ -48,16 +48,12 @@ $GLOBALS['wgHooks']['ResourceLoaderTestModules'][] = function(
 	array &$testModules,
 	\ResourceLoader &$resourceLoader
 ) {
-	preg_match(
-		'+^.*?' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
-			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
-		__DIR__,
-		$remoteExtPathParts
-	);
+	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
 
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__ . '/tests',
-		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1] . DIRECTORY_SEPARATOR . 'tests',
+		'remoteExtPath' => '..' . $remoteExtPath[0] . DIRECTORY_SEPARATOR . 'tests',
 	);
 
 	$testModuleTemplates = array(

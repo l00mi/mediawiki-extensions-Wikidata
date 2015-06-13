@@ -7,16 +7,12 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	preg_match(
-		'+^.*?' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
-			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
-		__DIR__,
-		$remoteExtPathParts
-	);
+	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
 
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1],
+		'remoteExtPath' => '..' . $remoteExtPath[0],
 	);
 
 	return array(
@@ -53,11 +49,9 @@ return call_user_func( function() {
 				'parsers/IntParser.js',
 				'parsers/NullParser.js',
 				'parsers/StringParser.js',
-				'parsers/TimeParser.js',
 			),
 			'dependencies' => array(
 				'dataValues.values',
-				'time.js', // required by TimeParser
 				'util.inherit',
 				'valueParsers.ValueParser',
 			),

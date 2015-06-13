@@ -15,19 +15,18 @@ this.config = ( function() {
 			qunit: 'lib/qunit/qunit',
 			'qunit.parameterize': 'lib/qunit.parameterize/qunit.parameterize',
 
-			'util': 'lib/util',
+			util: 'lib/util',
 
-			'globeCoordinate': 'lib/globeCoordinate',
-			'time': 'lib/time',
+			globeCoordinate: 'lib/globeCoordinate',
 
-			'dataValues': 'src',
-			'values': 'src/values',
+			dataValues: 'src',
+			values: 'src/values',
 
-			'valueFormatters': 'src/valueFormatters',
-			'formatters': 'src/valueFormatters/formatters',
+			valueFormatters: 'src/valueFormatters',
+			formatters: 'src/valueFormatters/formatters',
 
-			'valueParsers': 'src/valueParsers',
-			'parsers': 'src/valueParsers/parsers'
+			valueParsers: 'src/valueParsers',
+			parsers: 'src/valueParsers/parsers'
 		},
 		shim: {
 			qunit: {
@@ -56,22 +55,6 @@ this.config = ( function() {
 			'globeCoordinate/globeCoordinate.Formatter': {
 				exports: 'globeCoordinate.Formatter',
 				deps: ['globeCoordinate/globeCoordinate']
-			},
-
-			'time/time': {
-				exports: 'time'
-			},
-			'time/time.Parser': {
-				exports: 'time.Parser',
-				deps: ['time/time']
-			},
-			'time/time.Time': {
-				exports: 'time.Time',
-				deps: ['time/time', 'jquery', 'time/time.Parser']
-			},
-			'time/time.Time.validate': {
-				exports: 'time.Time.validate',
-				deps: ['time/time.Time']
 			},
 
 			'dataValues/dataValues': {
@@ -109,8 +92,7 @@ this.config = ( function() {
 				'dataValues/dataValues',
 				'jquery',
 				'dataValues/DataValue',
-				'util/util.inherit',
-				'time/time.Parser', 'time/time.Time', 'time/time.Time.validate'
+				'util/util.inherit'
 			],
 			'values/QuantityValue': [
 				'dataValues/dataValues', 'jquery', 'dataValues/DataValue', 'util/util.inherit'
@@ -118,7 +100,7 @@ this.config = ( function() {
 			'values/UnknownValue': [
 				'dataValues/dataValues', 'jquery', 'dataValues/DataValue', 'util/util.inherit'
 			],
-			'values/UnUnserializableValue': [
+			'values/UnDeserializableValue': [
 				'dataValues/dataValues', 'jquery', 'dataValues/DataValue', 'util/util.inherit'
 			],
 
@@ -181,14 +163,6 @@ this.config = ( function() {
 				'parsers/ValueParser',
 				'values/StringValue'
 			],
-			'parsers/TimeParser': [
-				'valueParsers/valueParsers',
-				'dataValues/dataValues',
-				'util/util.inherit',
-				'jquery',
-				'parsers/ValueParser',
-				'values/TimeValue'
-			],
 			'parsers/ValueParser': ['valueParsers/valueParsers', 'util/util.inherit', 'jquery'],
 
 			// TODO: These tests should not require any specific DataValue constructor but rather
@@ -205,7 +179,7 @@ this.config = ( function() {
 				'values/TimeValue',
 				'values/QuantityValue',
 				'values/UnknownValue',
-				'values/UnUnserializableValue'
+				'values/UnDeserializableValue'
 			],
 
 			// Shim test modules that external components depend on:
@@ -230,14 +204,6 @@ this.config = ( function() {
 			'tests/lib/globeCoordinate/globeCoordinate.Formatter.tests',
 			'tests/lib/globeCoordinate/globeCoordinate.GlobeCoordinate.tests',
 
-			'tests/lib/time/time.Parser.tests',
-			'tests/lib/time/time.Time.knowsPrecision.tests',
-			'tests/lib/time/time.Time.maxPrecision.tests',
-			'tests/lib/time/time.Time.minPrecision.tests',
-			'tests/lib/time/time.Time.newFromIso8601.tests',
-			'tests/lib/time/time.Time.tests',
-			'tests/lib/time/time.Time.validate.tests',
-
 			'tests/src/dataValues.tests',
 
 			'tests/src/values/BoolValue.tests',
@@ -250,7 +216,7 @@ this.config = ( function() {
 			'tests/src/values/TimeValue.tests',
 			'tests/src/values/QuantityValue.tests',
 			'tests/src/values/UnknownValue.tests',
-			'tests/src/values/UnUnserializableValue.tests',
+			'tests/src/values/UnDeserializableValue.tests',
 
 			'tests/src/valueFormatters/valueFormatters.tests',
 			'tests/src/valueFormatters/ValueFormatterStore.tests',
@@ -262,8 +228,7 @@ this.config = ( function() {
 			'tests/src/valueParsers/ValueParserStore.tests',
 
 			'tests/src/valueParsers/parsers/NullParser.tests',
-			'tests/src/valueParsers/parsers/StringParser.tests',
-			'tests/src/valueParsers/parsers/TimeParser.tests'
+			'tests/src/valueParsers/parsers/StringParser.tests'
 		]
 	};
 
