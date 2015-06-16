@@ -18,7 +18,7 @@ class TypedSnakSerializer implements Serializer {
 	/**
 	 * @var Serializer
 	 */
-	protected $snakSerializer;
+	private $snakSerializer;
 
 	/**
 	 * @param Serializer $snakSerializer
@@ -30,7 +30,7 @@ class TypedSnakSerializer implements Serializer {
 	/**
 	 * @see Serializer::serialize
 	 *
-	 * @param mixed $object
+	 * @param TypedSnak $object
 	 *
 	 * @return array
 	 * @throws SerializationException

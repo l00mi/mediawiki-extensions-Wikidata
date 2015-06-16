@@ -37,7 +37,13 @@ class EntityDeserializerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function getStubCurrentDeserializer() {
-		$currentDeserializer = $this->getMock( 'Deserializers\Deserializer' );
+		$currentDeserializer = $this->getMock( 'Deserializers\DispatchableDeserializer' );
+
+		$currentDeserializer->expects( $this->any() )
+			->method( 'isDeserializerFor' )
+			->will( $this->returnCallback( function( $serialization ) {
+				return array_key_exists( 'id', $serialization );
+			} ) );
 
 		$currentDeserializer->expects( $this->any() )
 			->method( 'deserialize' )
@@ -57,7 +63,7 @@ class EntityDeserializerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function getThrowingDeserializer() {
-		$currentDeserializer = $this->getMock( 'Deserializers\Deserializer' );
+		$currentDeserializer = $this->getMock( 'Deserializers\DispatchableDeserializer' );
 
 		$currentDeserializer->expects( $this->any() )
 			->method( 'deserialize' )
@@ -109,14 +115,26 @@ class EntityDeserializerTest extends \PHPUnit_Framework_TestCase {
 		) );
 	}
 
-	public function testGivenInvalidSerialization_exceptionIsThrown() {
+	/**
+	 * @dataProvider invalidSerializationProvider
+	 */
+	public function testGivenInvalidSerialization_exceptionIsThrown( $serialization ) {
 		$deserializer = new EntityDeserializer(
 			$this->getThrowingDeserializer(),
 			$this->getThrowingDeserializer()
 		);
 
 		$this->setExpectedException( 'Deserializers\Exceptions\DeserializationException' );
-		$deserializer->deserialize( array() );
+		$deserializer->deserialize( $serialization );
+	}
+
+	public function invalidSerializationProvider() {
+		return array(
+			array( null ),
+			array( 5 ),
+			array( array() ),
+			array( array( 'entity' => 'P42', 'datatype' => null ) ),
+		);
 	}
 
 }

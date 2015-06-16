@@ -7,7 +7,6 @@ use ApiMain;
 use DataValues\IllegalValueException;
 use Diff\Comparer\ComparableComparer;
 use Diff\Differ\OrderedListDiffer;
-use FormatJson;
 use InvalidArgumentException;
 use LogicException;
 use OutOfBoundsException;
@@ -66,7 +65,7 @@ class SetClaim extends ModifyClaim {
 		}
 
 		try {
-			$claimGuid = $this->claimGuidParser->parse( $guid );
+			$claimGuid = $this->guidParser->parse( $guid );
 		} catch ( ClaimGuidParsingException $ex ) {
 			$this->dieException( $ex, 'invalid-claim' );
 		}
@@ -83,7 +82,7 @@ class SetClaim extends ModifyClaim {
 			isset( $params['index'] ) ? $params['index'] : null
 		);
 
-		$this->claimModificationHelper->applyChangeOp( $changeop, $entity, $summary );
+		$this->modificationHelper->applyChangeOp( $changeop, $entity, $summary );
 
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
@@ -132,7 +131,7 @@ class SetClaim extends ModifyClaim {
 		$unserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Claim\Claim' );
 
 		try {
-			$serializedClaim = FormatJson::decode( $params['claim'], true );
+			$serializedClaim = json_decode( $params['claim'], true );
 			if ( !is_array( $serializedClaim ) ) {
 				throw new IllegalValueException( 'Failed to get claim from claim Serialization' );
 			}

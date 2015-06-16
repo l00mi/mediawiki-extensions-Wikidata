@@ -29,9 +29,9 @@ class ReferenceListDeserializer implements Deserializer {
 	/**
 	 * @see Deserializer::deserialize
 	 *
-	 * @param mixed $serialization
+	 * @param array $serialization
 	 *
-	 * @return object
+	 * @return ReferenceList
 	 * @throws DeserializationException
 	 */
 	public function deserialize( $serialization ) {
@@ -52,7 +52,8 @@ class ReferenceListDeserializer implements Deserializer {
 
 	private function assertIsArray( $serialization ) {
 		if ( !is_array( $serialization ) ) {
-			throw new DeserializationException( 'The ReferenceList serialization should be an array!' );
+			throw new DeserializationException( 'The ReferenceList serialization should be an array' );
 		}
 	}
+
 }

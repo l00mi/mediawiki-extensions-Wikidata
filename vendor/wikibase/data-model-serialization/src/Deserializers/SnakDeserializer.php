@@ -14,6 +14,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\DataModel\Snak\Snak;
 
 /**
  * Package private
@@ -67,9 +68,9 @@ class SnakDeserializer implements DispatchableDeserializer {
 	/**
 	 * @see Deserializer::deserialize
 	 *
-	 * @param mixed $serialization
+	 * @param array $serialization
 	 *
-	 * @return object
+	 * @return Snak
 	 * @throws DeserializationException
 	 */
 	public function deserialize( $serialization ) {
@@ -148,7 +149,7 @@ class SnakDeserializer implements DispatchableDeserializer {
 		}
 	}
 
-	protected function requireAttribute( array $array, $attributeName ) {
+	private function requireAttribute( array $array, $attributeName ) {
 		if ( !array_key_exists( $attributeName, $array ) ) {
 			throw new MissingAttributeException(
 				$attributeName

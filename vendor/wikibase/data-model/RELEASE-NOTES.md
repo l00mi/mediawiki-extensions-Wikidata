@@ -1,5 +1,68 @@
 # Wikibase DataModel release notes
 
+## Version 3.0.0 (2015-06-04)
+
+#### Breaking changes
+
+The concept of `Claim` is no longer modelled:
+
+* The `Claim` class itself has been removed, though `Claim` is now a temporary alias for `Statement`
+* `Claim::RANK_TRUTH` have been removed
+* `Statement` no longer takes a `Claim` in its constructor
+* `Statement::setClaim` and `Statement::getClaim` have been removed
+* Removed `ClaimList`
+* Removed `ClaimListAccess`
+* Removed `addClaim`, `hasClaims` and `newClaim` from all entity classes
+
+Phasing out of `Claims`:
+
+* `Claims::addClaim` no longer supports setting an index
+* Removed `Claims::getBestClaims`, use `StatementList::getBestStatements` instead
+* Removed `Claims::getByRank` and `Claims::getByRanks`, use `StatementList::getByRank` instead
+* Removed `Claims::getMainSnaks`, use `StatementList::getMainSnaks` instead
+* Removed `Claims::getClaimsForProperty`, use `StatementList::getWithPropertyId` instead
+* Removed `Claims::getHashes`
+* Removed `Claims::getGuids`
+* Removed `Claims::equals` (and `Claims` no longer implements `Comparable`)
+* Removed `Claims::getHash` (and `Claims` no longer implements `Hashable`)
+* Removed `Claims::hasClaim`
+* Removed `Claims::isEmpty`, use `StatementList::isEmpty` instead
+* Removed `Claims::indexOf`, use `StatementList::getFirstStatementWithGuid` or `StatementByGuidMap` instead
+* Removed `Claims::removeClaim`
+
+Other breaking changes:
+
+* Removed `Snaks` interface, use `SnakList` instead
+* Removed previously deprecated `Entity::getAllSnaks`, use `StatementList::getAllSnaks` instead
+* Removed previously deprecated `EntityId::getPrefixedId`, use `EntityId::getSerialization` instead
+* Removed previously deprecated `Property::newEmpty`, use `Property::newFromType` or `new Property()` instead
+* Renamed `StatementList::getWithPropertyId` to `StatementList::getByPropertyId`
+* Renamed `StatementList::getWithRank` to `StatementList::getByRank`
+* Added `EntityDocument::setId`
+* `Entity::setLabel` and `Entity::setDescription` no longer return anything
+* `Reference` and `ReferenceList`s no longer can be instantiated with `null`
+
+#### Additions
+
+* Added `StatementByGuidMap`
+* Added `StatementListHolder`
+* Added `StatementList::getFirstStatementWithGuid`
+* Added `StatementList::removeStatementsWithGuid`
+* `ReferenceList::addNewReference` and `Statement::addNewReference` support an array of Snaks now
+* Added PHPMD support
+
+#### Deprecations
+
+* Renamed `Claim\ClaimGuid` to `Statement\StatementGuid`, leaving a b/c alias in place
+* Renamed `Claim\ClaimGuidParser` to `Statement\StatementGuidParser`, leaving a b/c alias in place
+* Renamed `Claim\ClaimGuidParsingException` to `Statement\StatementGuidParsingException`, leaving a b/c alias in place
+* Renamed `StatementListProvider` to `Statement\StatementListProvider`, leaving a b/c alias in place
+
+#### Other changes
+
+* `Item::setLabel`, `Item::setDescription` and `Item::setAliases` are no longer deprecated
+* `Property::setLabel`, `Property::setDescription` and `Property::setAliases` are no longer deprecated
+
 ## Version 2.6.1 (2015-04-25)
 
 * Allow installation together with Diff 2.x.

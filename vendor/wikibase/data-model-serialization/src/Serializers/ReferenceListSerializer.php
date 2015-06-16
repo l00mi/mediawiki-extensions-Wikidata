@@ -19,7 +19,7 @@ class ReferenceListSerializer implements DispatchableSerializer {
 	/**
 	 * @var Serializer
 	 */
-	protected $referenceSerializer;
+	private $referenceSerializer;
 
 	/**
 	 * @param Serializer $referenceSerializer
@@ -42,7 +42,7 @@ class ReferenceListSerializer implements DispatchableSerializer {
 	/**
 	 * @see Serializer::serialize
 	 *
-	 * @param mixed $object
+	 * @param ReferenceList $object
 	 *
 	 * @return array
 	 * @throws SerializationException

@@ -4,9 +4,6 @@ namespace Tests\Integration\Wikibase\InternalSerialization;
 
 use Deserializers\Deserializer;
 use SplFileInfo;
-use Wikibase\DataModel\Entity\Entity;
-use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\Property;
 
 /**
  * @covers Wikibase\InternalSerialization\DeserializerFactory
@@ -77,14 +74,6 @@ class RealEntitiesTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	private function workAroundSomeOldEntityBug( Entity $entity ) {
-		// This fixes alias list consistency by triggering the normalization code.
-		// The old deserialization code (Item/Property::newFromArray() does not do this automatically.
-		// There are some old revisions for which this normalization is needed due to
-		// a long ago fixed bug.
-		$entity->setAllAliases( $entity->getAllAliases() );
-	}
-
 	/**
 	 * @dataProvider currentEntitySerializationProvider
 	 */
@@ -94,7 +83,10 @@ class RealEntitiesTest extends \PHPUnit_Framework_TestCase {
 		$expectedEntity = TestFactoryBuilder::newCurrentDeserializerFactory()
 			->newEntityDeserializer()->deserialize( $serialization );
 
-		$this->assertTrue( $entity->equals( $expectedEntity ) );
+		$this->assertTrue(
+			$entity->equals( $expectedEntity ),
+			$fileName . ' should be deserialized into the same entity by both deserializers'
+		);
 	}
 
 	public function currentEntitySerializationProvider() {

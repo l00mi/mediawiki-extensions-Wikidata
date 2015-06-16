@@ -8,7 +8,7 @@ use Serializers\Exceptions\UnsupportedObjectException;
 use Serializers\Serializer;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\Snak\Snaks;
+use Wikibase\DataModel\Snak\SnakList;
 
 /**
  * Package private
@@ -21,7 +21,7 @@ class ReferenceSerializer implements DispatchableSerializer {
 	/**
 	 * @var Serializer
 	 */
-	protected $snaksSerializer;
+	private $snaksSerializer;
 
 	/**
 	 * @param Serializer $snaksSerializer
@@ -44,7 +44,7 @@ class ReferenceSerializer implements DispatchableSerializer {
 	/**
 	 * @see Serializer::serialize
 	 *
-	 * @param mixed $object
+	 * @param Reference $object
 	 *
 	 * @return array
 	 * @throws SerializationException
@@ -53,7 +53,7 @@ class ReferenceSerializer implements DispatchableSerializer {
 		if ( !$this->isSerializerFor( $object ) ) {
 			throw new UnsupportedObjectException(
 				$object,
-				'ReferenceSerializer can only serialize References objects'
+				'ReferenceSerializer can only serialize Reference objects'
 			);
 		}
 
@@ -64,11 +64,11 @@ class ReferenceSerializer implements DispatchableSerializer {
 		return array(
 			'hash' => $reference->getHash(),
 			'snaks' => $this->snaksSerializer->serialize( $reference->getSnaks() ),
-			'snaks-order' => $this->buildSnaksOrderList( $reference->getSnaks() )
+			'snaks-order' => $this->buildSnakListOrderList( $reference->getSnaks() )
 		);
 	}
 
-	private function buildSnaksOrderList( Snaks $snaks ) {
+	private function buildSnakListOrderList( SnakList $snaks ) {
 		$list = array();
 
 		/**

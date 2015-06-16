@@ -6,8 +6,6 @@ use Serializers\DispatchableSerializer;
 use Serializers\Exceptions\SerializationException;
 use Serializers\Exceptions\UnsupportedObjectException;
 use Serializers\Serializer;
-use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 
 /**
@@ -27,7 +25,7 @@ class ItemSerializer implements DispatchableSerializer {
 	/**
 	 * @var Serializer
 	 */
-	private $claimsSerializer;
+	private $statementListSerializer;
 
 	/**
 	 * @var Serializer
@@ -37,17 +35,22 @@ class ItemSerializer implements DispatchableSerializer {
 	/**
 	 * @var bool
 	 */
-	protected $useObjectsForMaps;
+	private $useObjectsForMaps;
 
 	/**
 	 * @param FingerprintSerializer $fingerprintSerializer
-	 * @param Serializer $claimsSerializer
+	 * @param Serializer $statementListSerializer
 	 * @param Serializer $siteLinkSerializer
 	 * @param bool $useObjectsForMaps
 	 */
-	public function __construct( FingerprintSerializer $fingerprintSerializer, Serializer $claimsSerializer, Serializer $siteLinkSerializer, $useObjectsForMaps ) {
+	public function __construct(
+		FingerprintSerializer $fingerprintSerializer,
+		Serializer $statementListSerializer,
+		Serializer $siteLinkSerializer,
+		$useObjectsForMaps
+	) {
 		$this->fingerprintSerializer = $fingerprintSerializer;
-		$this->claimsSerializer = $claimsSerializer;
+		$this->statementListSerializer = $statementListSerializer;
 		$this->siteLinkSerializer = $siteLinkSerializer;
 		$this->useObjectsForMaps = $useObjectsForMaps;
 	}
@@ -66,7 +69,7 @@ class ItemSerializer implements DispatchableSerializer {
 	/**
 	 * @see Serializer::serialize
 	 *
-	 * @param mixed $object
+	 * @param Item $object
 	 *
 	 * @return array
 	 * @throws SerializationException
@@ -82,22 +85,20 @@ class ItemSerializer implements DispatchableSerializer {
 		return $this->getSerialized( $object );
 	}
 
-	private function getSerialized( Entity $entity ) {
+	private function getSerialized( Item $item ) {
 		$serialization = array(
-			'type' => $entity->getType()
+			'type' => $item->getType()
 		);
 
-		$this->fingerprintSerializer->addBasicsToSerialization( $entity, $serialization );
-		$this->addClaimsToSerialization( $entity, $serialization );
-		$this->addSiteLinksToSerialization( $entity, $serialization );
+		$this->fingerprintSerializer->addBasicsToSerialization( $item, $serialization );
+		$this->addStatementListToSerialization( $item, $serialization );
+		$this->addSiteLinksToSerialization( $item, $serialization );
 
 		return $serialization;
 	}
 
-	private function addClaimsToSerialization( Entity $entity, array &$serialization ) {
-		$claims = new Claims( $entity->getClaims() );
-
-		$serialization['claims'] = $this->claimsSerializer->serialize( $claims );
+	private function addStatementListToSerialization( Item $item, array &$serialization ) {
+		$serialization['claims'] = $this->statementListSerializer->serialize( $item->getStatements() );
 	}
 
 	private function addSiteLinksToSerialization( Item $item, array &$serialization ) {

@@ -44,24 +44,21 @@ class SetClaimValue extends ModifyClaim {
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
-		$claimGuid = $params['claim'];
-		$entityId = $this->claimGuidParser->parse( $claimGuid )->getEntityId();
+		$guid = $params['claim'];
+		$entityId = $this->guidParser->parse( $guid )->getEntityId();
 		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
 		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
 		$entity = $entityRevision->getEntity();
 
-		$claim = $this->claimModificationHelper->getClaimFromEntity( $claimGuid, $entity );
+		$claim = $this->modificationHelper->getStatementFromEntity( $guid, $entity );
 
-		$snak = $this->claimModificationHelper->getSnakInstance( $params, $claim->getMainSnak()->getPropertyId() );
+		$snak = $this->modificationHelper->getSnakInstance( $params, $claim->getMainSnak()->getPropertyId() );
 
-		$summary = $this->claimModificationHelper->createSummary( $params, $this );
+		$summary = $this->modificationHelper->createSummary( $params, $this );
 
-		$changeOp = $this->claimChangeOpFactory->newSetMainSnakOp(
-			$claimGuid,
-			$snak
-		);
+		$changeOp = $this->claimChangeOpFactory->newSetMainSnakOp( $guid, $snak );
 
-		$this->claimModificationHelper->applyChangeOp( $changeOp, $entity, $summary );
+		$this->modificationHelper->applyChangeOp( $changeOp, $entity, $summary );
 
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
@@ -72,7 +69,7 @@ class SetClaimValue extends ModifyClaim {
 	 * @param array $params
 	 */
 	private function validateParameters( array $params ) {
-		if ( !( $this->claimModificationHelper->validateClaimGuid( $params['claim'] ) ) ) {
+		if ( !( $this->modificationHelper->validateStatementGuid( $params['claim'] ) ) ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
 	}

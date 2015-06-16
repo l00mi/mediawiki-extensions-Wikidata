@@ -2,12 +2,13 @@
 
 namespace Tests\Wikibase\DataModel\Deserializers;
 
-use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Deserializers\PropertyDeserializer;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\Term\Fingerprint;
 
 /**
  * @covers Wikibase\DataModel\Deserializers\PropertyDeserializer
@@ -19,12 +20,20 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 
 	public function buildDeserializer() {
 		$entityIdDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
+		$entityIdDeserializerMock->expects( $this->any() )
+			->method( 'deserialize' )
+			->will( $this->returnValue( new PropertyId( 'P42' ) ) );
 
-		$claim = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
-		$claim->setGuid( 'test' );
+		$fingerprintDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
+		$fingerprintDeserializerMock->expects( $this->any() )
+			->method( 'deserialize' )
+			->will( $this->returnValue( new Fingerprint() ) );
 
-		$claimsDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
-		$claimsDeserializerMock->expects( $this->any() )
+		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
+		$statement->setGuid( 'test' );
+
+		$statementListDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
+		$statementListDeserializerMock->expects( $this->any() )
 			->method( 'deserialize' )
 			->with( $this->equalTo( array(
 				'P42' => array(
@@ -38,10 +47,9 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 					)
 				)
 			) ) )
-			->will( $this->returnValue( new Claims( array( $claim ) ) ) );
+			->will( $this->returnValue( new StatementList( array( $statement ) ) ) );
 
-
-		return new PropertyDeserializer( $entityIdDeserializerMock, $claimsDeserializerMock );
+		return new PropertyDeserializer( $entityIdDeserializerMock, $fingerprintDeserializerMock, $statementListDeserializerMock );
 	}
 
 	public function deserializableProvider() {
@@ -71,8 +79,7 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 	}
 
 	public function deserializationProvider() {
-		$property = Property::newEmpty();
-		$property->setDataTypeId( 'string' );
+		$property = Property::newFromType( 'string' );
 
 		$provider = array(
 			array(
@@ -84,7 +91,39 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 			),
 		);
 
-		$property = Property::newEmpty();
+		$property = new Property( new PropertyId( 'P42' ), null, '' );
+		$provider[] = array(
+			$property,
+			array(
+				'type' => 'property',
+				'datatype' => '',
+				'id' => 'P42'
+			)
+		);
+
+		$property = Property::newFromType( '' );
+		$property->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ), null, null, 'test' );
+		$provider[] = array(
+			$property,
+			array(
+				'type' => 'property',
+				'datatype' => '',
+				'claims' => array(
+					'P42' => array(
+						array(
+							'mainsnak' => array(
+								'snaktype' => 'novalue',
+								'property' => 'P42'
+							),
+							'type' => 'statement',
+							'rank' => 'normal'
+						)
+					)
+				)
+			)
+		);
+
+		$property = Property::newFromType( '' );
 		$property->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ), null, null, 'test' );
 		$provider[] = array(
 			$property,
@@ -108,4 +147,5 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 
 		return $provider;
 	}
+
 }

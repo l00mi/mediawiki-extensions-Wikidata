@@ -6,8 +6,8 @@ use ApiBase;
 use ApiMain;
 use Wikibase\ChangeOp\ChangeOpQualifier;
 use Wikibase\ChangeOp\ClaimChangeOpFactory;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -48,25 +48,25 @@ class SetQualifier extends ModifyClaim {
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
-		$entityId = $this->claimGuidParser->parse( $params['claim'] )->getEntityId();
+		$entityId = $this->guidParser->parse( $params['claim'] )->getEntityId();
 		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
 		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
 		$entity = $entityRevision->getEntity();
 
-		$summary = $this->claimModificationHelper->createSummary( $params, $this );
+		$summary = $this->modificationHelper->createSummary( $params, $this );
 
-		$claim = $this->claimModificationHelper->getClaimFromEntity( $params['claim'], $entity );
+		$statement = $this->modificationHelper->getStatementFromEntity( $params['claim'], $entity );
 
 		if ( isset( $params['snakhash'] ) ) {
-			$this->validateQualifierHash( $claim, $params['snakhash'] );
+			$this->validateQualifierHash( $statement, $params['snakhash'] );
 		}
 
 		$changeOp = $this->getChangeOp();
-		$this->claimModificationHelper->applyChangeOp( $changeOp, $entity, $summary );
+		$this->modificationHelper->applyChangeOp( $changeOp, $entity, $summary );
 
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
-		$this->getResultBuilder()->addClaim( $claim );
+		$this->getResultBuilder()->addClaim( $statement );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class SetQualifier extends ModifyClaim {
 	 * snaktype value are not set.
 	 */
 	private function validateParameters( array $params ) {
-		if ( !( $this->claimModificationHelper->validateClaimGuid( $params['claim'] ) ) ) {
+		if ( !( $this->modificationHelper->validateStatementGuid( $params['claim'] ) ) ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
 
@@ -94,11 +94,11 @@ class SetQualifier extends ModifyClaim {
 	}
 
 	/**
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 * @param string $qualifierHash
 	 */
-	private function validateQualifierHash( Claim $claim, $qualifierHash ) {
-		if ( !$claim->getQualifiers()->hasSnakHash( $qualifierHash ) ) {
+	private function validateQualifierHash( Statement $statement, $qualifierHash ) {
+		if ( !$statement->getQualifiers()->hasSnakHash( $qualifierHash ) ) {
 			$this->dieError( "Claim does not have a qualifier with the given hash" , 'no-such-qualifier' );
 		}
 	}
@@ -109,22 +109,19 @@ class SetQualifier extends ModifyClaim {
 	private function getChangeOp() {
 		$params = $this->extractRequestParams();
 
-		$claimGuid = $params['claim'];
+		$guid = $params['claim'];
 
-		$propertyId = $this->claimModificationHelper->getEntityIdFromString( $params['property'] );
+		$propertyId = $this->modificationHelper->getEntityIdFromString( $params['property'] );
 		if ( !$propertyId instanceof PropertyId ) {
 			$this->dieError(
 				$propertyId->getSerialization() . ' does not appear to be a property ID',
 				'param-illegal'
 			);
 		}
-		$newQualifier = $this->claimModificationHelper->getSnakInstance( $params, $propertyId );
+		$newQualifier = $this->modificationHelper->getSnakInstance( $params, $propertyId );
 
-		if ( isset( $params['snakhash'] ) ) {
-			$changeOp = $this->claimChangeOpFactory->newSetQualifierOp( $claimGuid, $newQualifier, $params['snakhash'] );
-		} else {
-			$changeOp = $this->claimChangeOpFactory->newSetQualifierOp( $claimGuid, $newQualifier, '' );
-		}
+		$snakHash = isset( $params['snakhash'] ) ? $params['snakhash'] : '';
+		$changeOp = $this->claimChangeOpFactory->newSetQualifierOp( $guid, $newQualifier, $snakHash );
 
 		return $changeOp;
 	}

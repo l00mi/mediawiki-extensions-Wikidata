@@ -10,7 +10,6 @@ use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
-use Wikibase\DataModel\Snak\Snaks;
 
 /**
  * @covers Wikibase\DataModel\Reference
@@ -53,22 +52,14 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 
 		$references[] = new Reference();
 
-		$references[] = new Reference( new SnakList( array(
-			new PropertyValueSnak(
-				new PropertyId( 'P1' ),
-				new StringValue( 'a' )
-			)
-		) ) );
+		$references[] = new Reference( array(
+			new PropertyValueSnak( new PropertyId( 'P1' ), new StringValue( 'a' ) ),
+		) );
 
-		$references[] = new Reference( new SnakList( array(
-			new PropertyValueSnak(
-				new PropertyId( 'P1' ),
-				new StringValue( 'a' )
-			),
-			new PropertySomeValueSnak(
-				new PropertyId( 'P2' )
-			)
-		) ) );
+		$references[] = new Reference( array(
+			new PropertyValueSnak( new PropertyId( 'P1' ), new StringValue( 'a' ) ),
+			new PropertySomeValueSnak( new PropertyId( 'P2' ) ),
+		) );
 
 		$argLists = array();
 
@@ -81,10 +72,8 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider snakListProvider
-	 *
-	 * @param Snaks $snaks
 	 */
-	public function testConstructor( Snaks $snaks ) {
+	public function testConstructor( SnakList $snaks ) {
 		$omnomnomReference = new Reference( $snaks );
 
 		$this->assertInstanceOf( 'Wikibase\DataModel\Reference', $omnomnomReference );
@@ -120,7 +109,7 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 	public function testGetSnaks( Reference $reference ) {
 		$snaks = $reference->getSnaks();
 
-		$this->assertInstanceOf( 'Wikibase\DataModel\Snak\Snaks', $snaks );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Snak\SnakList', $snaks );
 	}
 
 	/**
@@ -189,53 +178,53 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testReferenceEqualsItself() {
-		$reference = new Reference( new SnakList( array( new PropertyNoValueSnak( 42 ) ) ) );
+		$reference = new Reference( array( new PropertyNoValueSnak( 42 ) ) );
 		$this->assertTrue( $reference->equals( $reference ) );
 	}
 
 	public function testReferenceDoesNotEqualReferenceWithDifferentSnakProperty() {
-		$reference0 = new Reference( new SnakList( array( new PropertyNoValueSnak( 42 ) ) ) );
-		$reference1 = new Reference( new SnakList( array( new PropertyNoValueSnak( 1337 ) ) ) );
+		$reference0 = new Reference( array( new PropertyNoValueSnak( 42 ) ) );
+		$reference1 = new Reference( array( new PropertyNoValueSnak( 1337 ) ) );
 		$this->assertFalse( $reference0->equals( $reference1 ) );
 	}
 
 	public function testReferenceDoesNotEqualReferenceWithMoreSnaks() {
-		$reference0 = new Reference( new SnakList( array( new PropertyNoValueSnak( 42 ) ) ) );
+		$reference0 = new Reference( array( new PropertyNoValueSnak( 42 ) ) );
 
-		$reference1 = new Reference( new SnakList( array(
+		$reference1 = new Reference( array(
 			new PropertyNoValueSnak( 42 ),
-			new PropertySomeValueSnak( 42 )
-		) ) );
+			new PropertySomeValueSnak( 42 ),
+		) );
 
 		$this->assertFalse( $reference0->equals( $reference1 ) );
 	}
 
 	public function testReferenceEqualsReferenceWithDifferentSnakOrder() {
-		$reference0 = new Reference( new SnakList( array(
+		$reference0 = new Reference( array(
 			new PropertyNoValueSnak( 1337 ),
-			new PropertyNoValueSnak( 42 )
-		) ) );
-
-		$reference1 = new Reference( new SnakList( array(
 			new PropertyNoValueSnak( 42 ),
-			new PropertyNoValueSnak( 1337 )
-		) ) );
+		) );
+
+		$reference1 = new Reference( array(
+			new PropertyNoValueSnak( 42 ),
+			new PropertyNoValueSnak( 1337 ),
+		) );
 
 		$this->assertTrue( $reference0->equals( $reference1 ) );
 	}
 
 	public function testReferencesWithDifferentSnakOrderHaveTheSameHash() {
-		$reference0 = new Reference( new SnakList( array(
+		$reference0 = new Reference( array(
 			new PropertySomeValueSnak( 1337 ),
 			new PropertyNoValueSnak( 1337 ),
-			new PropertyNoValueSnak( 42 )
-		) ) );
+			new PropertyNoValueSnak( 42 ),
+		) );
 
-		$reference1 = new Reference( new SnakList( array(
+		$reference1 = new Reference( array(
 			new PropertyNoValueSnak( 1337 ),
 			new PropertyNoValueSnak( 42 ),
-			new PropertySomeValueSnak( 1337 )
-		) ) );
+			new PropertySomeValueSnak( 1337 ),
+		) );
 
 		$this->assertSame( $reference0->getHash(), $reference1->getHash() );
 	}
@@ -257,7 +246,6 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider invalidConstructorArgumentsProvider
-	 * @param mixed $snaks
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testGivenInvalidConstructorArguments_constructorThrowsException( $snaks ) {
@@ -268,6 +256,7 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 		$id1 = new PropertyId( 'P1' );
 
 		return array(
+			array( null ),
 			array( false ),
 			array( 1 ),
 			array( 0.1 ),
@@ -284,12 +273,14 @@ class ReferenceTest extends \PHPUnit_Framework_TestCase {
 		$emptyReference = new Reference();
 		$this->assertTrue( $emptyReference->isEmpty() );
 
-		$referenceWithSnak = new Reference( array( new PropertyNoValueSnak( 1 ) ) );
+		$referenceWithSnak = new Reference( array(
+			new PropertyNoValueSnak( 1 ),
+		) );
 		$this->assertFalse( $referenceWithSnak->isEmpty() );
 
 		$referenceWithSnaks = new Reference( array(
 			new PropertyNoValueSnak( 1 ),
-			new PropertyNoValueSnak( 2 )
+			new PropertyNoValueSnak( 2 ),
 		) );
 		$this->assertFalse( $referenceWithSnaks->isEmpty() );
 	}

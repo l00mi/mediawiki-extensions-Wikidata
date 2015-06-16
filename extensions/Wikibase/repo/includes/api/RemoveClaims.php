@@ -9,6 +9,7 @@ use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOps;
 use Wikibase\ChangeOp\ClaimChangeOpFactory;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\StatementListProvider;
 use Wikibase\Repo\WikibaseRepo;
@@ -57,7 +58,7 @@ class RemoveClaims extends ModifyClaim {
 			$this->assertStatementListContainsGuids( $entity->getStatements(), $params['claim'] );
 		}
 
-		$summary = $this->claimModificationHelper->createSummary( $params, $this );
+		$summary = $this->modificationHelper->createSummary( $params, $this );
 
 		$changeOps = new ChangeOps();
 		$changeOps->add( $this->getChangeOps( $params ) );
@@ -84,14 +85,14 @@ class RemoveClaims extends ModifyClaim {
 		$entityId = null;
 
 		foreach ( $params['claim'] as $guid ) {
-			if ( !$this->claimModificationHelper->validateClaimGuid( $guid ) ) {
+			if ( !$this->modificationHelper->validateStatementGuid( $guid ) ) {
 				$this->dieError( "Invalid claim guid $guid" , 'invalid-guid' );
 			}
 
 			if ( is_null( $entityId ) ) {
-				$entityId = $this->claimGuidParser->parse( $guid )->getEntityId();
+				$entityId = $this->guidParser->parse( $guid )->getEntityId();
 			} else {
-				if ( !$this->claimGuidParser->parse( $guid )->getEntityId()->equals( $entityId ) ) {
+				if ( !$this->guidParser->parse( $guid )->getEntityId()->equals( $entityId ) ) {
 					$this->dieError( 'All claims must belong to the same entity' , 'invalid-guid' );
 				}
 			}
@@ -105,22 +106,27 @@ class RemoveClaims extends ModifyClaim {
 	}
 
 	/**
-	 * Checks whether the claims can be found
-	 *
 	 * @param StatementList $statements
-	 * @param string[] $guidsThatShouldExist
+	 * @param string[] $requiredGuids
 	 */
-	private function assertStatementListContainsGuids( StatementList $statements, array $guidsThatShouldExist ) {
+	private function assertStatementListContainsGuids( StatementList $statements, array $requiredGuids ) {
 		$existingGuids = array();
 
-		foreach ( $statements->toArray() as $statement ) {
-			$existingGuids[] = $statement->getGuid();
+		/** @var Statement $statement */
+		foreach ( $statements as $statement ) {
+			$guid = $statement->getGuid();
+			// This array is used as a HashSet where only the keys are used.
+			$existingGuids[$guid] = null;
 		}
 
-		foreach ( $guidsThatShouldExist as $guid ) {
-			if ( !in_array( $guid, $existingGuids ) ) {
-				$this->dieError( "Claim with guid $guid not found" , 'invalid-guid' );
-			}
+		// Not using array_diff but array_diff_key does have a huge performance impact.
+		$missingGuids = array_diff_key( array_flip( $requiredGuids ), $existingGuids );
+
+		if ( !empty( $missingGuids ) ) {
+			$this->dieError(
+				'Statement(s) with GUID(s) ' . implode( ', ', array_keys( $missingGuids ) ) . ' not found',
+				'invalid-guid'
+			);
 		}
 	}
 

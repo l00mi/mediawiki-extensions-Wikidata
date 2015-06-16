@@ -3,12 +3,10 @@
 namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
-use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Statement\StatementListHolder;
 use Wikibase\DataModel\Term\Fingerprint;
 
 /**
@@ -20,7 +18,7 @@ use Wikibase\DataModel\Term\Fingerprint;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Property extends Entity implements StatementListProvider {
+class Property extends Entity implements StatementListHolder {
 
 	const ENTITY_TYPE = 'property';
 
@@ -73,6 +71,36 @@ class Property extends Entity implements StatementListProvider {
 		else {
 			throw new InvalidArgumentException( '$id must be an instance of PropertyId, an integer, or null' );
 		}
+	}
+
+	/**
+	 * @param string $languageCode
+	 * @param string $value
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setLabel( $languageCode, $value ) {
+		$this->fingerprint->setLabel( $languageCode, $value );
+	}
+
+	/**
+	 * @param string $languageCode
+	 * @param string $value
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setDescription( $languageCode, $value ) {
+		$this->fingerprint->setDescription( $languageCode, $value );
+	}
+
+	/**
+	 * @param string $languageCode
+	 * @param string[] $aliases
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setAliases( $languageCode, array $aliases ) {
+		$this->fingerprint->setAliasGroup( $languageCode, $aliases );
 	}
 
 	/**
@@ -179,15 +207,6 @@ class Property extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 0.7.3. Use Property::newFromType
-	 *
-	 * @return Property
-	 */
-	public static function newEmpty() {
-		return self::newFromType( '' );
-	}
-
-	/**
 	 * @since 1.1
 	 *
 	 * @return StatementList
@@ -206,7 +225,7 @@ class Property extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 1.0, use getStatements instead
+	 * @deprecated since 1.0, use getStatements()->toArray() instead.
 	 *
 	 * @return Statement[]
 	 */
@@ -221,43 +240,6 @@ class Property extends Entity implements StatementListProvider {
 	 */
 	public function setClaims( Claims $claims ) {
 		$this->statements = new StatementList( iterator_to_array( $claims ) );
-	}
-
-	/**
-	 * @deprecated since 1.0, use getStatements instead
-	 *
-	 * @return bool
-	 */
-	public function hasClaims() {
-		return !$this->statements->isEmpty();
-	}
-
-	/**
-	 * @deprecated since 1.0
-	 *
-	 * @param Snak $mainSnak
-	 *
-	 * @return Statement
-	 */
-	public function newClaim( Snak $mainSnak ) {
-		return new Statement( new Claim( $mainSnak ) );
-	}
-
-	/**
-	 * @deprecated since 1.0, use getStatements instead
-	 *
-	 * @param Claim $statement This needs to be a Statement as of 1.0
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	public function addClaim( Claim $statement ) {
-		if ( !( $statement instanceof Statement ) ) {
-			throw new InvalidArgumentException( '$statement must be an instance of Statement' );
-		} elseif ( $statement->getGuid() === null ) {
-			throw new InvalidArgumentException( 'Can\'t add a Claim without a GUID.' );
-		}
-
-		$this->statements->addStatement( $statement );
 	}
 
 }

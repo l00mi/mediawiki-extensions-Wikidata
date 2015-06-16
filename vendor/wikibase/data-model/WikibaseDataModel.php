@@ -12,10 +12,17 @@ if ( defined( 'WIKIBASE_DATAMODEL_VERSION' ) ) {
 	return 1;
 }
 
-define( 'WIKIBASE_DATAMODEL_VERSION', '2.6.1' );
+define( 'WIKIBASE_DATAMODEL_VERSION', '3.0.0' );
 
 if ( defined( 'MEDIAWIKI' ) ) {
 	call_user_func( function() {
 		require_once __DIR__ . '/WikibaseDataModel.mw.php';
 	} );
 }
+
+// Aliases introduced in 3.0.0
+class_alias( 'Wikibase\DataModel\Statement\Statement', 'Wikibase\DataModel\Claim\Claim' );
+class_alias( 'Wikibase\DataModel\Statement\StatementGuid', 'Wikibase\DataModel\Claim\ClaimGuid' );
+class_alias( 'Wikibase\DataModel\Statement\StatementGuidParser', 'Wikibase\DataModel\Claim\ClaimGuidParser' );
+class_alias( 'Wikibase\DataModel\Statement\StatementGuidParsingException', 'Wikibase\DataModel\Claim\ClaimGuidParsingException' );
+class_alias( 'Wikibase\DataModel\Statement\StatementListProvider', 'Wikibase\DataModel\StatementListProvider' );

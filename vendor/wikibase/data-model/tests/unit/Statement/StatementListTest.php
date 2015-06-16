@@ -3,7 +3,6 @@
 namespace Wikibase\DataModel\Tests\Statement;
 
 use DataValues\StringValue;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
@@ -18,8 +17,65 @@ use Wikibase\DataModel\Statement\StatementList;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
 class StatementListTest extends \PHPUnit_Framework_TestCase {
+
+	/**
+	 * @param int $propertyId
+	 * @param string|null $guid
+	 * @param int $rank
+	 *
+	 * @return Statement
+	 */
+	private function getStatement( $propertyId, $guid, $rank = Statement::RANK_NORMAL ) {
+		$statement = $this->getMockBuilder( 'Wikibase\DataModel\Statement\Statement' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$statement->expects( $this->any() )
+			->method( 'getGuid' )
+			->will( $this->returnValue( $guid ) );
+
+		$statement->expects( $this->any() )
+			->method( 'getPropertyId' )
+			->will( $this->returnValue( PropertyId::newFromNumber( $propertyId ) ) );
+
+		$statement->expects( $this->any() )
+			->method( 'getRank' )
+			->will( $this->returnValue( $rank ) );
+
+		return $statement;
+	}
+
+	private function getStatementWithSnak( $propertyId, $stringValue ) {
+		$snak = $this->newSnak( $propertyId, $stringValue );
+		$statement = new Statement( $snak );
+		$statement->setGuid( sha1( $snak->getHash() ) );
+		return $statement;
+	}
+
+	private function newSnak( $propertyId, $stringValue ) {
+		return new PropertyValueSnak( $propertyId, new StringValue( $stringValue ) );
+	}
+
+	public function testConstructorAcceptsDuplicatesWithNoGuid() {
+		$list = new StatementList(
+			$this->getStatement( 1, null ),
+			$this->getStatement( 1, null )
+		);
+
+		$this->assertSame( 2, $list->count() );
+	}
+
+	public function testConstructorAcceptsDuplicatesWithSameGuid() {
+		$list = new StatementList(
+			$this->getStatement( 1, 'duplicate' ),
+			$this->getStatement( 1, 'duplicate' )
+		);
+
+		$this->assertSame( 2, $list->count() );
+	}
 
 	public function testGivenNoStatements_getPropertyIdsReturnsEmptyArray() {
 		$list = new StatementList();
@@ -45,37 +101,18 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testGivenStatementsWithArrayKeys_reindexesArray() {
+	public function testGivenStatementsWithArrayKeys_toArrayReturnsReindexedArray() {
 		$statement = $this->getStatement( 1, 'guid' );
 		$list = new StatementList( array( 'ignore-me' => $statement ) );
 
 		$this->assertSame( array( 0 => $statement ), $list->toArray() );
 	}
 
-	/**
-	 * @param int $propertyId
-	 * @param string $guid
-	 * @param int $rank
-	 *
-	 * @return Statement
-	 */
-	private function getStatement( $propertyId, $guid, $rank = Statement::RANK_NORMAL ) {
-		$statement = $this->getMockBuilder( 'Wikibase\DataModel\Statement\Statement' )
-			->disableOriginalConstructor()->getMock();
+	public function testGivenSparseArray_toArrayReturnsReindexedArray() {
+		$statement = $this->getStatement( 1, 'guid' );
+		$list = new StatementList( array( 1 => $statement ) );
 
-		$statement->expects( $this->any() )
-			->method( 'getGuid' )
-			->will( $this->returnValue( $guid ) );
-
-		$statement->expects( $this->any() )
-			->method( 'getPropertyId' )
-			->will( $this->returnValue( PropertyId::newFromNumber( $propertyId ) ) );
-
-		$statement->expects( $this->any() )
-			->method( 'getRank' )
-			->will( $this->returnValue( $rank ) );
-
-		return $statement;
+		$this->assertSame( array( 0 => $statement ), $list->toArray() );
 	}
 
 	public function testCanIterate() {
@@ -98,8 +135,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 			$this->getStatement( 3, 'five', Statement::RANK_DEPRECATED ),
 			$this->getStatement( 3, 'six', Statement::RANK_NORMAL ),
 
-			$this->getStatement( 4, 'seven', Statement::RANK_PREFERRED ),
-			$this->getStatement( 4, 'eight', Claim::RANK_TRUTH )
+			$this->getStatement( 4, 'seven', Statement::RANK_PREFERRED )
 		);
 
 		$this->assertEquals(
@@ -109,7 +145,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 
 				$this->getStatement( 3, 'six', Statement::RANK_NORMAL ),
 
-				$this->getStatement( 4, 'eight', Claim::RANK_TRUTH ),
+				$this->getStatement( 4, 'seven', Statement::RANK_PREFERRED ),
 			),
 			$list->getBestStatementPerProperty()->toArray()
 		);
@@ -156,26 +192,13 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	private function getStatementWithSnak( $propertyId, $stringValue ) {
-		$snak = $this->newSnak( $propertyId, $stringValue );
-		$statement = new Statement( new Claim( $snak ) );
-		$statement->setGuid( sha1( $snak->getHash() ) );
-		return $statement;
-	}
-
-	private function newSnak( $propertyId, $stringValue ) {
-		return new PropertyValueSnak( $propertyId, new StringValue( $stringValue ) );
-	}
-
 	public function testAddStatementWithOnlyMainSnak() {
 		$list = new StatementList();
 
 		$list->addNewStatement( $this->newSnak( 42, 'foo' ) );
 
 		$this->assertEquals(
-			new StatementList(
-				new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) )
-			),
+			new StatementList( new Statement( $this->newSnak( 42, 'foo' ) ) ),
 			$list
 		);
 	}
@@ -192,12 +215,12 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals(
 			new StatementList(
-				new Statement( new Claim(
+				new Statement(
 					$this->newSnak( 42, 'foo' ),
 					new SnakList( array(
 						$this->newSnak( 1, 'bar' )
 					) )
-				) )
+				)
 			),
 			$list
 		);
@@ -215,12 +238,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertEquals(
-			new StatementList(
-				new Statement( new Claim(
-					$this->newSnak( 42, 'foo' ),
-					$snakList
-				) )
-			),
+			new StatementList( new Statement( $this->newSnak( 42, 'foo' ), $snakList ) ),
 			$list
 		);
 	}
@@ -235,14 +253,55 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 			'kittens'
 		);
 
-		$statement = new Statement( new Claim(
-			$this->newSnak( 42, 'foo' ),
-			null
-		) );
+		$statement = new Statement( $this->newSnak( 42, 'foo' ) );
 
 		$statement->setGuid( 'kittens' );
 
 		$this->assertEquals( new StatementList( $statement ), $list );
+	}
+
+	public function testGivenGuidOfPresentStatement_statementIsRemoved() {
+		$statement1 = new Statement( $this->newSnak( 24, 'foo' ), null, null, 'foo' );
+		$statement2 = new Statement( $this->newSnak( 32, 'bar' ), null, null, 'bar' );
+		$statement3 = new Statement( $this->newSnak( 32, 'bar' ), null, null, 'bar' );
+
+		$list = new StatementList( array( $statement1, $statement2, $statement3 ) );
+		$list->removeStatementsWithGuid( 'foo' );
+
+		$this->assertEquals( new StatementList( $statement2, $statement3 ), $list );
+	}
+
+	public function testGivenGuidOfMultipleStatements_multipleStatementsAreRemoved() {
+		$statement1 = new Statement( $this->newSnak( 24, 'foo' ), null, null, 'foo' );
+		$statement2 = new Statement( $this->newSnak( 32, 'bar' ), null, null, 'bar' );
+		$statement3 = new Statement( $this->newSnak( 32, 'bar' ), null, null, 'bar' );
+
+		$list = new StatementList( array( $statement1, $statement2, $statement3 ) );
+		$list->removeStatementsWithGuid( 'bar' );
+
+		$this->assertEquals( new StatementList( $statement1 ), $list );
+	}
+
+	public function testGivenNotPresentGuid_listIsNotModified() {
+		$statement1 = new Statement( $this->newSnak( 24, 'foo' ), null, null, 'foo' );
+		$statement2 = new Statement( $this->newSnak( 32, 'bar' ), null, null, 'bar' );
+		$statement3 = new Statement( $this->newSnak( 32, 'bar' ), null, null, 'bar' );
+
+		$list = new StatementList( array( $statement1, $statement2, $statement3 ) );
+		$list->removeStatementsWithGuid( 'baz' );
+
+		$this->assertEquals( new StatementList( $statement1, $statement2, $statement3 ), $list );
+	}
+
+	public function testGivenNullGuid_allStatementsWithNoGuidAreRemoved() {
+		$statement1 = new Statement( $this->newSnak( 24, 'foo' ), null, null, 'foo' );
+		$statement2 = new Statement( $this->newSnak( 32, 'bar' ) );
+		$statement3 = new Statement( $this->newSnak( 32, 'bar' ) );
+
+		$list = new StatementList( array( $statement1, $statement2, $statement3 ) );
+		$list->removeStatementsWithGuid( null );
+
+		$this->assertEquals( new StatementList( $statement1 ), $list );
 	}
 
 	public function testCanConstructWithClaimsObjectContainingOnlyStatements() {
@@ -262,19 +321,14 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenTraversableWithNonStatements_constructorThrowsException() {
-		$claim = new Claim( new PropertyValueSnak( 42, new StringValue( 'foo' ) ) );
-		$claim->setGuid( 'meh' );
-
-		$claimArray = array(
+		$traversable = new \ArrayObject( array(
 			$this->getStatementWithSnak( 1, 'foo' ),
-			$claim,
+			new \stdClass(),
 			$this->getStatementWithSnak( 2, 'bar' ),
-		);
-
-		$claimsObject = new Claims( $claimArray );
+		) );
 
 		$this->setExpectedException( 'InvalidArgumentException' );
-		new StatementList( $claimsObject );
+		new StatementList( $traversable );
 	}
 
 	public function testGivenNonTraversableOrArgList_constructorThrowsException() {
@@ -283,7 +337,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCanConstructWithStatement() {
-		$statement = new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) );
+		$statement = new Statement( $this->newSnak( 42, 'foo' ) );
 
 		$this->assertEquals(
 			new StatementList( array( $statement ) ),
@@ -292,9 +346,9 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCanConstructWithStatementArgumentList() {
-		$statement0 = new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) );
-		$statement1 = new Statement( new Claim( $this->newSnak( 42, 'bar' ) ) );
-		$statement2 = new Statement( new Claim( $this->newSnak( 42, 'baz' ) ) );
+		$statement0 = new Statement( $this->newSnak( 42, 'foo' ) );
+		$statement1 = new Statement( $this->newSnak( 42, 'bar' ) );
+		$statement2 = new Statement( $this->newSnak( 42, 'baz' ) );
 
 		$this->assertEquals(
 			new StatementList( array( $statement0, $statement1, $statement2 ) ),
@@ -303,9 +357,9 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenArgumentListWithNonStatement_constructorThrowsException() {
-		$statement0 = new Statement( new Claim( $this->newSnak( 42, 'foo' ) ) );
-		$statement1 = new Statement( new Claim( $this->newSnak( 42, 'bar' ) ) );
-		$statement2 = new Statement( new Claim( $this->newSnak( 42, 'baz' ) ) );
+		$statement0 = new Statement( $this->newSnak( 42, 'foo' ) );
+		$statement1 = new Statement( $this->newSnak( 42, 'bar' ) );
+		$statement2 = new Statement( $this->newSnak( 42, 'baz' ) );
 
 		$this->setExpectedException( 'InvalidArgumentException' );
 		new StatementList( $statement0, $statement1, array(), $statement2 );
@@ -449,17 +503,17 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testGivenNotKnownPropertyId_getWithPropertyIdReturnsEmptyList() {
+	public function testGivenNotKnownPropertyId_getByPropertyIdReturnsEmptyList() {
 		$list = new StatementList();
 		$list->addNewStatement( new PropertyNoValueSnak( 42 ) );
 
 		$this->assertEquals(
 			new StatementList(),
-			$list->getWithPropertyId( new PropertyId( 'P2' ) )
+			$list->getByPropertyId( new PropertyId( 'P2' ) )
 		);
 	}
 
-	public function testGivenKnownPropertyId_getWithPropertyIdReturnsListWithOnlyMatchingStatements() {
+	public function testGivenKnownPropertyId_getByPropertyIdReturnsListWithOnlyMatchingStatements() {
 		$list = new StatementList();
 		$list->addNewStatement( new PropertyNoValueSnak( 42 ) );
 		$list->addNewStatement( new PropertyNoValueSnak( 9001 ) );
@@ -472,35 +526,35 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals(
 			$expected,
-			$list->getWithPropertyId( new PropertyId( 'P42' ) )
+			$list->getByPropertyId( new PropertyId( 'P42' ) )
 		);
 	}
 
-	public function testGivenInvalidRank_getWithRankReturnsEmptyList() {
+	public function testGivenInvalidRank_getByRankReturnsEmptyList() {
 		$list = new StatementList();
-		$this->assertEquals( new StatementList(), $list->getWithRank( 42 ) );
+		$this->assertEquals( new StatementList(), $list->getByRank( 42 ) );
 	}
 
-	public function testGivenValidRank_getWithRankReturnsOnlyMatchingStatements() {
-		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+	public function testGivenValidRank_getByRankReturnsOnlyMatchingStatements() {
+		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
 		$statement->setRank( Statement::RANK_PREFERRED );
 
-		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 1337 ) ) );
+		$secondStatement = new Statement( new PropertyNoValueSnak( 1337 ) );
 		$secondStatement->setRank( Statement::RANK_NORMAL );
 
-		$thirdStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$thirdStatement = new Statement( new PropertyNoValueSnak( 9001 ) );
 		$thirdStatement->setRank( Statement::RANK_DEPRECATED );
 
 		$list = new StatementList( $statement, $secondStatement, $thirdStatement );
 
 		$this->assertEquals(
 			new StatementList( $statement ),
-			$list->getWithRank( Statement::RANK_PREFERRED )
+			$list->getByRank( Statement::RANK_PREFERRED )
 		);
 
 		$this->assertEquals(
 			new StatementList( $secondStatement, $thirdStatement ),
-			$list->getWithRank( array( Statement::RANK_NORMAL, Statement::RANK_DEPRECATED ) )
+			$list->getByRank( array( Statement::RANK_NORMAL, Statement::RANK_DEPRECATED ) )
 		);
 	}
 
@@ -510,10 +564,10 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testWhenOnlyDeprecatedStatements_getBestStatementsReturnsEmptyList() {
-		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
 		$statement->setRank( Statement::RANK_DEPRECATED );
 
-		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$secondStatement = new Statement( new PropertyNoValueSnak( 9001 ) );
 		$secondStatement->setRank( Statement::RANK_DEPRECATED );
 
 		$list = new StatementList( $statement, $secondStatement );
@@ -521,16 +575,16 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testWhenPreferredStatements_getBestStatementsReturnsOnlyThose() {
-		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
 		$statement->setRank( Statement::RANK_PREFERRED );
 
-		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 1337 ) ) );
+		$secondStatement = new Statement( new PropertyNoValueSnak( 1337 ) );
 		$secondStatement->setRank( Statement::RANK_NORMAL );
 
-		$thirdStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$thirdStatement = new Statement( new PropertyNoValueSnak( 9001 ) );
 		$thirdStatement->setRank( Statement::RANK_DEPRECATED );
 
-		$fourthStatement = new Statement( new Claim( new PropertyNoValueSnak( 23 ) ) );
+		$fourthStatement = new Statement( new PropertyNoValueSnak( 23 ) );
 		$fourthStatement->setRank( Statement::RANK_PREFERRED );
 
 		$list = new StatementList( $statement, $secondStatement, $thirdStatement, $fourthStatement );
@@ -541,13 +595,13 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testWhenNoPreferredStatements_getBestStatementsReturnsOnlyNormalOnes() {
-		$statement = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement = new Statement( new PropertyNoValueSnak( 42 ) );
 		$statement->setRank( Statement::RANK_NORMAL );
 
-		$secondStatement = new Statement( new Claim( new PropertyNoValueSnak( 1337 ) ) );
+		$secondStatement = new Statement( new PropertyNoValueSnak( 1337 ) );
 		$secondStatement->setRank( Statement::RANK_NORMAL );
 
-		$thirdStatement = new Statement( new Claim( new PropertyNoValueSnak( 9001 ) ) );
+		$thirdStatement = new Statement( new PropertyNoValueSnak( 9001 ) );
 		$thirdStatement->setRank( Statement::RANK_DEPRECATED );
 
 		$list = new StatementList( $statement, $secondStatement, $thirdStatement );
@@ -555,6 +609,48 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 			new StatementList( $statement, $secondStatement ),
 			$list->getBestStatements()
 		);
+	}
+
+	public function testGivenNotPresentStatement_getFirstStatementWithGuidReturnsNull() {
+		$statements = new StatementList();
+
+		$this->assertNull( $statements->getFirstStatementWithGuid( 'kittens' ) );
+	}
+
+	public function testGivenPresentStatement_getFirstStatementWithGuidReturnsStatement() {
+		$statement1 = $this->getStatement( 1, 'guid1' );
+		$statement2 = $this->getStatement( 2, 'guid2' );
+		$statement3 = $this->getStatement( 3, 'guid3' );
+		$statements = new StatementList( $statement1, $statement2, $statement3 );
+
+		$actual = $statements->getFirstStatementWithGuid( 'guid2' );
+		$this->assertSame( $statement2, $actual );
+	}
+
+	public function testGivenDoublyPresentStatement_getFirstStatementWithGuidReturnsFirstMatch() {
+		$statement1 = $this->getStatement( 1, 'guid1' );
+		$statement2 = $this->getStatement( 2, 'guid2' );
+		$statement3 = $this->getStatement( 3, 'guid3' );
+		$statement4 = $this->getStatement( 2, 'guid2' );
+		$statements = new StatementList( $statement1, $statement2, $statement3, $statement4 );
+
+		$actual = $statements->getFirstStatementWithGuid( 'guid2' );
+		$this->assertSame( $statement2, $actual );
+	}
+
+	public function testGivenStatementsWithNoGuid_getFirstStatementWithGuidReturnsFirstMatch() {
+		$statement1 = $this->getStatement( 1, null );
+		$statement2 = $this->getStatement( 2, null );
+		$statements = new StatementList( $statement1, $statement2 );
+
+		$actual = $statements->getFirstStatementWithGuid( null );
+		$this->assertSame( $statement1, $actual );
+	}
+
+	public function testGivenInvalidGuid_getFirstStatementWithGuidReturnsNull() {
+		$statements = new StatementList();
+
+		$this->assertNull( $statements->getFirstStatementWithGuid( false ) );
 	}
 
 }

@@ -6,7 +6,6 @@ use Hashable;
 use InvalidArgumentException;
 use Traversable;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\Snak\SnakList;
 
 /**
  * List of Reference objects.
@@ -27,15 +26,11 @@ use Wikibase\DataModel\Snak\SnakList;
 class ReferenceList extends HashableObjectStorage {
 
 	/**
-	 * @param Reference[]|Traversable|null $references
+	 * @param Reference[]|Traversable $references
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct( $references = null ) {
-		if ( $references === null ) {
-			return;
-		}
-
+	public function __construct( $references = array() ) {
 		if ( !is_array( $references ) && !( $references instanceof Traversable ) ) {
 			throw new InvalidArgumentException( '$references must be an array or an instance of Traversable' );
 		}
@@ -60,9 +55,11 @@ class ReferenceList extends HashableObjectStorage {
 	 * @throws InvalidArgumentException
 	 */
 	public function addReference( Reference $reference, $index = null ) {
-		if( !is_null( $index ) && !is_integer( $index ) ) {
-			throw new InvalidArgumentException( '$index must be an integer or null; got ' . gettype( $index ) );
-		} elseif ( is_null( $index ) || $index >= count( $this ) ) {
+		if ( !is_int( $index ) && $index !== null ) {
+			throw new InvalidArgumentException( '$index must be an integer or null' );
+		}
+
+		if ( $index === null || $index >= count( $this ) ) {
 			// Append object to the end of the reference list.
 			$this->attach( $reference );
 		} else {
@@ -72,8 +69,9 @@ class ReferenceList extends HashableObjectStorage {
 
 	/**
 	 * @see SplObjectStorage::attach
+	 *
 	 * @param Reference $reference
-	 * @param mixed $data
+	 * @param mixed $data Unused in the ReferenceList class.
 	 */
 	public function attach( $reference, $data = null ) {
 		if ( !$reference->isEmpty() ) {
@@ -81,23 +79,23 @@ class ReferenceList extends HashableObjectStorage {
 		}
 	}
 
-	// @codingStandardsIgnoreStart
 	/**
 	 * @since 1.1
 	 *
-	 * @param Snak $snak
-	 * @param Snak [$snak2, ...]
+	 * @param Snak[]|Snak $snaks
+	 * @param Snak [$snak2,...]
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function addNewReference( Snak $snak /* Snak, ... */ ) {
-		// @codingStandardsIgnoreEnd
-		$this->addReference( new Reference( new SnakList( func_get_args() ) ) );
+	public function addNewReference( $snaks = array() /*...*/ ) {
+		if ( $snaks instanceof Snak ) {
+			$snaks = func_get_args();
+		}
+
+		$this->addReference( new Reference( $snaks ) );
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param Reference $reference
 	 * @param int $index
 	 */

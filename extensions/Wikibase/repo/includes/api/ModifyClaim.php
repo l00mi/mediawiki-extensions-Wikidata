@@ -23,16 +23,16 @@ abstract class ModifyClaim extends ApiWikibase {
 	/**
 	 * @since 0.4
 	 *
-	 * @var ClaimModificationHelper
+	 * @var StatementModificationHelper
 	 */
-	protected $claimModificationHelper;
+	protected $modificationHelper;
 
 	/**
 	 * @since 0.5
 	 *
 	 * @var ClaimGuidParser
 	 */
-	protected $claimGuidParser;
+	protected $guidParser;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -44,14 +44,14 @@ abstract class ModifyClaim extends ApiWikibase {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$this->claimModificationHelper = new ClaimModificationHelper(
+		$this->modificationHelper = new StatementModificationHelper(
 			WikibaseRepo::getDefaultInstance()->getSnakConstructionService(),
 			WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
 			WikibaseRepo::getDefaultInstance()->getClaimGuidValidator(),
 			$this->getErrorReporter()
 		);
 
-		$this->claimGuidParser = WikibaseRepo::getDefaultInstance()->getClaimGuidParser();
+		$this->guidParser = WikibaseRepo::getDefaultInstance()->getClaimGuidParser();
 	}
 
 	/**

@@ -3,7 +3,6 @@
 namespace Wikibase\DataModel\Tests\Entity;
 
 use InvalidArgumentException;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -26,15 +25,6 @@ use Wikibase\DataModel\Term\Fingerprint;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class PropertyTest extends EntityTest {
-
-	/**
-	 * Returns no claims
-	 *
-	 * @return Claim[]
-	 */
-	public function makeClaims() {
-		return array();
-	}
 
 	/**
 	 * @see EntityTest::getNewEmpty
@@ -103,7 +93,7 @@ class PropertyTest extends EntityTest {
 		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\PropertyId', $property->getId() );
 	}
 
-	public function testWhenIdSetWithEntityId_GetIdReturnsPropertyId() {
+	public function testWhenIdSetWithPropertyId_GetIdReturnsPropertyId() {
 		$property = Property::newFromType( 'string' );
 		$property->setId( new PropertyId( 'P42' ) );
 
@@ -242,23 +232,13 @@ class PropertyTest extends EntityTest {
 		$this->assertFalse( $property->isEmpty() );
 	}
 
-	public function testNewClaimReturnsStatementWithProvidedMainSnak() {
-		$snak = $this->getMock( 'Wikibase\DataModel\Snak\Snak' );
-
-		$property = Property::newFromType( 'string' );
-		$statement = $property->newClaim( $snak );
-
-		$this->assertInstanceOf( 'Wikibase\DataModel\Statement\Statement', $statement );
-		$this->assertEquals( $snak, $statement->getMainSnak() );
-	}
-
 	public function testSetClaims() {
 		$property = Property::newFromType( 'string' );
 
-		$statement0 = new Statement( new Claim( new PropertyNoValueSnak( 42 ) ) );
+		$statement0 = new Statement( new PropertyNoValueSnak( 42 ) );
 		$statement0->setGuid( 'TEST$NVS42' );
 
-		$statement1 = new Statement( new Claim( new PropertySomeValueSnak( 42 ) ) );
+		$statement1 = new Statement( new PropertySomeValueSnak( 42 ) );
 		$statement1->setGuid( 'TEST$SVS42' );
 
 		$statements = array( $statement0, $statement1 );

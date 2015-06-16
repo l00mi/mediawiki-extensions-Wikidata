@@ -48,12 +48,12 @@ class CreateClaim extends ModifyClaim {
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
-		$entityId = $this->claimModificationHelper->getEntityIdFromString( $params['entity'] );
+		$entityId = $this->modificationHelper->getEntityIdFromString( $params['entity'] );
 		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
 		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
 		$entity = $entityRevision->getEntity();
 
-		$propertyId = $this->claimModificationHelper->getEntityIdFromString( $params['property'] );
+		$propertyId = $this->modificationHelper->getEntityIdFromString( $params['property'] );
 		if ( !$propertyId instanceof PropertyId ) {
 			$this->dieError(
 				$propertyId->getSerialization() . ' does not appear to be a property ID',
@@ -61,14 +61,14 @@ class CreateClaim extends ModifyClaim {
 			);
 		}
 
-		$snak = $this->claimModificationHelper->getSnakInstance( $params, $propertyId );
+		$snak = $this->modificationHelper->getSnakInstance( $params, $propertyId );
 
-		$summary = $this->claimModificationHelper->createSummary( $params, $this );
+		$summary = $this->modificationHelper->createSummary( $params, $this );
 
 		/* @var ChangeOpMainSnak $changeOp */
 		$changeOp = $this->claimChangeOpFactory->newSetMainSnakOp( '', $snak );
 
-		$this->claimModificationHelper->applyChangeOp( $changeOp, $entity, $summary );
+		$this->modificationHelper->applyChangeOp( $changeOp, $entity, $summary );
 
 		$claims = new Claims( $entity->getClaims() );
 		$claim = $claims->getClaimWithGuid( $changeOp->getClaimGuid() );
@@ -85,11 +85,10 @@ class CreateClaim extends ModifyClaim {
 	 * @params array $params
 	 */
 	private function validateParameters( array $params ) {
-		if ( $params['snaktype'] == 'value' XOR isset( $params['value'] ) ) {
-			if ( $params['snaktype'] == 'value' ) {
+		if ( $params['snaktype'] === 'value' XOR isset( $params['value'] ) ) {
+			if ( $params['snaktype'] === 'value' ) {
 				$this->dieError( 'A value needs to be provided when creating a claim with PropertyValueSnak snak', 'param-missing' );
-			}
-			else {
+			} else {
 				$this->dieError( 'You cannot provide a value when creating a claim with no PropertyValueSnak as main snak', 'param-illegal' );
 			}
 		}
@@ -98,7 +97,7 @@ class CreateClaim extends ModifyClaim {
 			$this->dieError( 'A property ID needs to be provided when creating a claim with a Snak', 'param-missing' );
 		}
 
-		if ( isset( $params['value'] ) && \FormatJson::decode( $params['value'], true ) == null ) {
+		if ( isset( $params['value'] ) && json_decode( $params['value'], true ) === null ) {
 			$this->dieError( 'Could not decode snak value', 'invalid-snak' );
 		}
 	}
