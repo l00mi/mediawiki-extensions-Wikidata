@@ -42,11 +42,11 @@ interface TermIndex {
 	 *
 	 * @param EntityId $entityId
 	 * @param string[]|null $termTypes The types of terms to return, e.g. "label", "description",
-	 *        or "alias". Compare the Term::TYPE_XXX constants. If null, all types are returned.
+	 *        or "alias". Compare the TermIndexEntry::TYPE_XXX constants. If null, all types are returned.
 	 * @param string[]|null $languageCodes The desired languages, given as language codes.
 	 *        If null, all languages are returned.
 	 *
-	 * @return Term[]
+	 * @return TermIndexEntry[]
 	 */
 	public function getTermsOfEntity(
 		EntityId $entityId,
@@ -62,11 +62,11 @@ interface TermIndex {
 	 *
 	 * @param EntityId[] $entityIds Entity ids of one type only.
 	 * @param string[]|null $termTypes The types of terms to return, e.g. "label", "description",
-	 *        or "alias". Compare the Term::TYPE_XXX constants. If null, all types are returned.
+	 *        or "alias". Compare the TermIndexEntry::TYPE_XXX constants. If null, all types are returned.
 	 * @param string[]|null $languageCodes The desired languages, given as language codes.
 	 *        If null, all languages are returned.
 	 *
-	 * @return Term[]
+	 * @return TermIndexEntry[]
 	 */
 	public function getTermsOfEntities(
 		array $entityIds,
@@ -88,16 +88,16 @@ interface TermIndex {
 	 *
 	 * @since 0.2
 	 *
-	 * @param Term[] $terms
-	 * @param string|null $termType
-	 * @param string|null $entityType
+	 * @param TermIndexEntry[] $terms
+	 * @param string|string[]|null $termType
+	 * @param string|string[]|null $entityType
 	 * @param array $options
 	 *        Accepted options are:
 	 *        - caseSensitive: boolean, default true
 	 *        - prefixSearch: boolean, default false
 	 *        - LIMIT: int, defaults to none
 	 *
-	 * @return Term[]
+	 * @return TermIndexEntry[]
 	 */
 	public function getMatchingTerms(
 		array $terms,
@@ -116,7 +116,7 @@ interface TermIndex {
 	 *
 	 * @since 0.4
 	 *
-	 * @param Term[] $terms
+	 * @param TermIndexEntry[] $terms
 	 * @param string|null $entityType
 	 * @param array $options
 	 *        Accepted options are:

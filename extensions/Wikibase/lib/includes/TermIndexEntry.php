@@ -2,20 +2,22 @@
 
 namespace Wikibase;
 
+use InvalidArgumentException;
 use MWException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\LegacyIdInterpreter;
+use Wikibase\DataModel\Term\Term;
 
 /**
- * Object representing a term.
- * Terms can be incomplete.
+ * Object representing a term index entry.
+ * Term index entries can be incomplete.
  *
  * @since 0.2
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Term {
+class TermIndexEntry {
 
 	/**
 	 * Term type enum.
@@ -201,12 +203,12 @@ class Term {
 	 * Imposes an canonical but arbitrary order on Term objects.
 	 * Useful for sorting lists of terms for comparison.
 	 *
-	 * @param Term $a
-	 * @param Term $b
+	 * @param TermIndexEntry $a
+	 * @param TermIndexEntry $b
 	 *
 	 * @return int Returns 1 if $a is greater than $b, -1 if $b is greater than $a, and 0 otherwise.
 	 */
-	public static function compare( Term $a, Term $b ) {
+	public static function compare( TermIndexEntry $a, TermIndexEntry $b ) {
 		foreach ( self::$fieldNames as $n ) {
 			$exists = array_key_exists( $n, $a->fields );
 
@@ -218,6 +220,19 @@ class Term {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @return Term
+	 *
+	 * @throws MWException
+	 */
+	public function getTerm() {
+		try{
+			return new Term( $this->getLanguage(), $this->getText() );
+		} catch( InvalidArgumentException $e ) {
+			throw new MWException( 'Can not construct Term from partial TermIndexEntry' );
+		}
 	}
 
 }

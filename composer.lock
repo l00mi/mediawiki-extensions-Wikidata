@@ -164,16 +164,16 @@
         },
         {
             "name": "data-values/data-types",
-            "version": "0.4.1",
+            "version": "0.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataTypes.git",
-                "reference": "68675f39f8ba310e284dec6e600855b014c57950"
+                "reference": "76d3ee4531a4d0f2f47a6111199d6b89e03fd6dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/68675f39f8ba310e284dec6e600855b014c57950",
-                "reference": "68675f39f8ba310e284dec6e600855b014c57950",
+                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/76d3ee4531a4d0f2f47a6111199d6b89e03fd6dd",
+                "reference": "76d3ee4531a4d0f2f47a6111199d6b89e03fd6dd",
                 "shasum": ""
             },
             "require": {
@@ -206,7 +206,7 @@
                 "datatypes",
                 "datavalues"
             ],
-            "time": "2014-11-18 15:51:40"
+            "time": "2015-06-18 12:40:39"
         },
         {
             "name": "data-values/data-values",
@@ -435,22 +435,22 @@
         },
         {
             "name": "data-values/number",
-            "version": "0.4.1",
+            "version": "0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Number.git",
-                "reference": "6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47"
+                "reference": "b4a9b18d5bfc6a9b212aecec9220ba4c595625b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Number/zipball/6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47",
-                "reference": "6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47",
+                "url": "https://api.github.com/repos/DataValues/Number/zipball/b4a9b18d5bfc6a9b212aecec9220ba4c595625b9",
+                "reference": "b4a9b18d5bfc6a9b212aecec9220ba4c595625b9",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.2",
                 "data-values/data-values": "~1.0|~0.1",
-                "data-values/interfaces": "~0.1",
+                "data-values/interfaces": "^0.1.5",
                 "php": ">=5.3.0"
             },
             "type": "library",
@@ -482,7 +482,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2014-10-09 19:14:53"
+            "time": "2015-06-11 17:01:16"
         },
         {
             "name": "data-values/serialization",
@@ -758,16 +758,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "2.2.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f"
+                "reference": "902d481bdc9c084602a513521a2fc451366beb76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
-                "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/902d481bdc9c084602a513521a2fc451366beb76",
+                "reference": "902d481bdc9c084602a513521a2fc451366beb76",
                 "shasum": ""
             },
             "require": {
@@ -799,7 +799,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-04-29 13:47:31"
+            "time": "2015-06-18 12:27:16"
         },
         {
             "name": "serialization/serialization",
@@ -1222,12 +1222,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "1deb6b7d25ad42cf571adbfd163d2ce097c49535"
+                "reference": "68224ea4d11f1b301c44acc77bf713008ec01601"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/1deb6b7d25ad42cf571adbfd163d2ce097c49535",
-                "reference": "1deb6b7d25ad42cf571adbfd163d2ce097c49535",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/68224ea4d11f1b301c44acc77bf713008ec01601",
+                "reference": "68224ea4d11f1b301c44acc77bf713008ec01601",
                 "shasum": ""
             },
             "require": {
@@ -1237,7 +1237,7 @@
                 "data-values/geo": "~1.0",
                 "data-values/interfaces": "^0.1.5",
                 "data-values/javascript": "~0.6.0|~0.7.0",
-                "data-values/number": "~0.4.0",
+                "data-values/number": "~0.5.0",
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.7.0",
                 "data-values/validators": "~0.1.0",
@@ -1292,7 +1292,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-06-16 20:44:11"
+            "time": "2015-06-19 08:48:24"
         },
         {
             "name": "wikibase/wikimedia-badges",

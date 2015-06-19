@@ -13,7 +13,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\Store\EntityInfo;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
@@ -93,6 +93,7 @@ class EntityParserOutputGenerator {
 		EntityInfoBuilderFactory $entityInfoBuilderFactory,
 		LanguageFallbackChain $languageFallbackChain,
 		$languageCode,
+		ReferencedEntitiesFinder $referencedEntitiesFinder,
 		TemplateFactory $templateFactory
 	) {
 		$this->entityViewFactory = $entityViewFactory;
@@ -102,8 +103,7 @@ class EntityParserOutputGenerator {
 		$this->entityInfoBuilderFactory = $entityInfoBuilderFactory;
 		$this->languageFallbackChain = $languageFallbackChain;
 		$this->languageCode = $languageCode;
-
-		$this->referencedEntitiesFinder = new ReferencedEntitiesFinder();
+		$this->referencedEntitiesFinder = $referencedEntitiesFinder;
 		$this->templateFactory = $templateFactory;
 	}
 

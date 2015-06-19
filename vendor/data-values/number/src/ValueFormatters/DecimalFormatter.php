@@ -25,37 +25,33 @@ class DecimalFormatter extends ValueFormatterBase {
 	/**
 	 * @var NumberLocalizer
 	 */
-	protected $localizer;
+	private $localizer;
 
 	/**
-	 * @param FormatterOptions $options
+	 * @param FormatterOptions|null $options
 	 * @param NumberLocalizer|null $localizer
 	 */
-	public function __construct( FormatterOptions $options, NumberLocalizer $localizer = null ) {
-		$options->defaultOption( self::OPT_FORCE_SIGN, false );
-
+	public function __construct( FormatterOptions $options = null, NumberLocalizer $localizer = null ) {
 		parent::__construct( $options );
 
-		if ( !$localizer ) {
-			$localizer = new BasicNumberLocalizer();
-		}
+		$this->defaultOption( self::OPT_FORCE_SIGN, false );
 
-		$this->localizer = $localizer;
+		$this->localizer = $localizer ?: new BasicNumberLocalizer();
 	}
 
 	/**
-	 * Formats a QuantityValue data value
+	 * @see ValueFormatter::format
 	 *
 	 * @since 0.1
 	 *
-	 * @param mixed $dataValue value to format
+	 * @param DecimalValue $dataValue
 	 *
-	 * @return string
 	 * @throws InvalidArgumentException
+	 * @return string Text
 	 */
 	public function format( $dataValue ) {
 		if ( !( $dataValue instanceof DecimalValue ) ) {
-			throw new InvalidArgumentException( 'DataValue is not a DecimalValue.' );
+			throw new InvalidArgumentException( 'Data value type mismatch. Expected a DecimalValue.' );
 		}
 
 		// TODO: Implement optional rounding/padding

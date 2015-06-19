@@ -3,10 +3,11 @@
 namespace Wikibase\Test;
 
 use Wikibase\DataModel\LegacyIdInterpreter;
-use Wikibase\Term;
+use Wikibase\DataModel\Term\Term;
+use Wikibase\TermIndexEntry;
 
 /**
- * @covers Wikibase\Term
+ * @covers Wikibase\TermIndexEntry
  *
  * @group Wikibase
  * @group WikibaseTerm
@@ -15,7 +16,7 @@ use Wikibase\Term;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler <daniel.kinzler@wikimedia.de>
  */
-class TermTest extends \MediaWikiTestCase {
+class TermIndexEntryTest extends \MediaWikiTestCase {
 
 	public function provideContructor() {
 		return array(
@@ -23,14 +24,14 @@ class TermTest extends \MediaWikiTestCase {
 				array(
 					'entityType' => 'item',
 					'entityId' => 23,
-					'termType' => Term::TYPE_LABEL,
+					'termType' => TermIndexEntry::TYPE_LABEL,
 					'termLanguage' => 'en',
 					'termText' => 'foo',
 				)
 			),
 			array( // #1
 				array(
-					'termType' => Term::TYPE_LABEL,
+					'termType' => TermIndexEntry::TYPE_LABEL,
 					'termLanguage' => 'en',
 					'termText' => 'foo',
 				)
@@ -48,7 +49,7 @@ class TermTest extends \MediaWikiTestCase {
 	 * @dataProvider provideContructor
 	 */
 	public function testConstructor( $fields ) {
-		$term = new Term( $fields );
+		$term = new TermIndexEntry( $fields );
 
 		$entityId = null;
 		if ( isset( $fields['entityType'] ) && isset( $fields['entityId'] ) ) {
@@ -64,7 +65,7 @@ class TermTest extends \MediaWikiTestCase {
 	}
 
 	public function testClone() {
-		$term = new Term( array(
+		$term = new TermIndexEntry( array(
 			'termText' => 'Foo'
 		) );
 
@@ -82,15 +83,15 @@ class TermTest extends \MediaWikiTestCase {
 		$tests = array();
 
 		$tests[] = array( // #0
-			new Term(),
-			new Term(),
+			new TermIndexEntry(),
+			new TermIndexEntry(),
 			true
 		);
 
-		$term = new Term( array(
+		$term = new TermIndexEntry( array(
 			'entityType' => 'item',
 			'entityId' => 23,
-			'termType' => Term::TYPE_LABEL,
+			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
 			'termText' => 'foo',
 		) );
@@ -110,10 +111,10 @@ class TermTest extends \MediaWikiTestCase {
 			false
 		);
 
-		$other = new Term( array(
+		$other = new TermIndexEntry( array(
 			'entityType' => 'property',
 			'entityId' => 11,
-			'termType' => Term::TYPE_LABEL,
+			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
 			'termText' => 'foo',
 		) );
@@ -123,10 +124,10 @@ class TermTest extends \MediaWikiTestCase {
 			false
 		);
 
-		$other = new Term( array(
+		$other = new TermIndexEntry( array(
 			'entityType' => 'property',
 			'entityId' => 23,
-			'termType' => Term::TYPE_LABEL,
+			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
 			'termText' => 'foo',
 		) );
@@ -145,7 +146,7 @@ class TermTest extends \MediaWikiTestCase {
 		);
 
 		$other = clone $term;
-		$other->setType( Term::TYPE_DESCRIPTION  );
+		$other->setType( TermIndexEntry::TYPE_DESCRIPTION  );
 		$tests[] = array( // #6
 			$term,
 			$other,
@@ -159,9 +160,9 @@ class TermTest extends \MediaWikiTestCase {
 	 * @dataProvider provideCompare
 	 * @depends testClone
 	 */
-	public function testCompare( Term $a, Term $b, $equal ) {
-		$ab = Term::compare( $a, $b );
-		$ba = Term::compare( $b, $a );
+	public function testCompare( TermIndexEntry $a, TermIndexEntry $b, $equal ) {
+		$ab = TermIndexEntry::compare( $a, $b );
+		$ba = TermIndexEntry::compare( $b, $a );
 
 		if ( $equal ) {
 			$this->assertEquals( 0, $ab, "Comparison of equal terms is expected to return 0" );
@@ -171,6 +172,35 @@ class TermTest extends \MediaWikiTestCase {
 			$this->assertNotEquals( 0, $ab, "Comparison of unequal terms is expected to not return 0" );
 			$this->assertEquals( -$ab, $ba, "Comparing A to B should return the inverse of comparing B to A" );
 		}
+	}
+
+	public function testGetTerm() {
+		$termIndexEntry = new TermIndexEntry( array(
+			'termLanguage' => 'en',
+			'termText' => 'foo',
+		) );
+		$expectedTerm = new Term( 'en', 'foo' );
+		$this->assertEquals( $expectedTerm, $termIndexEntry->getTerm() );
+	}
+
+	public function provideTermIndexEntryData() {
+		return array(
+			array( array(
+				'termText' => 'foo',
+			) ),
+			array( array(
+				'termLanguage' => 'en',
+			) ),
+		);
+	}
+
+	/**
+	 * @dataProvider provideTermIndexEntryData
+	 */
+	public function testGetTerm_throwsException( $termIndexEntryData ) {
+		$termIndexEntry = new TermIndexEntry( $termIndexEntryData );
+		$this->setExpectedException( 'MWException', 'Can not construct Term from partial TermIndexEntry' );
+		$termIndexEntry->getTerm();
 	}
 
 }

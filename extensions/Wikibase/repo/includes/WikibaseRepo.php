@@ -50,6 +50,7 @@ use Wikibase\Lib\Localizer\MessageExceptionLocalizer;
 use Wikibase\Lib\Localizer\ParseExceptionLocalizer;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
+use Wikibase\Lib\Parsers\SuffixEntityIdParser;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\SnakConstructionService;
 use Wikibase\Lib\SnakFormatter;
@@ -64,6 +65,7 @@ use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
+use Wikibase\ReferencedEntitiesFinder;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\ItemHandler;
 use Wikibase\Repo\Content\PropertyHandler;
@@ -311,7 +313,15 @@ class WikibaseRepo {
 		return $this->getStore()->getEntityRevisionLookup( $uncached );
 	}
 
-	public function getRedirectCreator( User $user, IContextSource $context ) {
+	/**
+	 * @since 0.5
+	 *
+	 * @param User $user
+	 * @param IContextSource $context
+	 *
+	 * @return RedirectCreationInteractor
+	 */
+	public function newRedirectCreationInteractor( User $user, IContextSource $context ) {
 		return new RedirectCreationInteractor(
 			$this->getEntityRevisionLookup( 'uncached' ),
 			$this->getEntityStore(),
@@ -322,7 +332,8 @@ class WikibaseRepo {
 				$this->getEntityTitleLookup(),
 				$this->getEntityContentFactory(),
 				$context
-			)
+			),
+			$this->getStore()->getEntityRedirectLookup()
 		);
 	}
 
@@ -569,7 +580,18 @@ class WikibaseRepo {
 			$wgContLang,
 			new FormatterLabelDescriptionLookupFactory( $termLookup ),
 			new LanguageNameLookup(),
+			$this->getLocalEntityUriParser(),
 			$this->getEntityTitleLookup()
+		);
+	}
+
+	/**
+	 * @return EntityIdParser
+	 */
+	private function getLocalEntityUriParser() {
+		return new SuffixEntityIdParser(
+			$this->getSettings()->getSetting( 'conceptBaseUri' ),
+			$this->getEntityIdParser()
 		);
 	}
 
@@ -1064,6 +1086,7 @@ class WikibaseRepo {
 			$this->getEntityContentFactory(),
 			new ValuesFinder( $this->getPropertyDataTypeLookup() ),
 			$this->getLanguageFallbackChainFactory(),
+			new ReferencedEntitiesFinder( $this->getLocalEntityUriParser() ),
 			$templateFactory
 		);
 	}

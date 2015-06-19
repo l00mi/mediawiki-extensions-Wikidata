@@ -13,7 +13,7 @@ use ValueFormatters\BasicNumberLocalizer;
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
  */
-class BasicLocalizerTest extends \PHPUnit_Framework_TestCase {
+class BasicNumberLocalizerTest extends \PHPUnit_Framework_TestCase {
 
 	public function provideLocalizeNumber() {
 		return array(
@@ -34,10 +34,10 @@ class BasicLocalizerTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideLocalizeNumber
 	 */
 	public function testLocalizeNumber( $localized, $expected ) {
-		$unlocalizer = new BasicNumberLocalizer();
-		$unlocalized = $unlocalizer->localizeNumber( $localized );
+		$localizer = new BasicNumberLocalizer();
+		$localized = $localizer->localizeNumber( $localized );
 
-		$this->assertEquals( $expected, $unlocalized );
+		$this->assertEquals( $expected, $localized );
 	}
 
 }

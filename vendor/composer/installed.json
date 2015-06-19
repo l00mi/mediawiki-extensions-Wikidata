@@ -97,86 +97,38 @@
         ]
     },
     {
-        "name": "propertysuggester/property-suggester",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
+        "name": "data-values/interfaces",
+        "version": "0.1.5",
+        "version_normalized": "0.1.5.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f"
+            "url": "https://github.com/DataValues/Interfaces.git",
+            "reference": "f563e6a55547046070e3d79b5662b620005558d8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
-            "reference": "70528f7cf4dd3ae989e0b423bcf5133208b0d50f",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/f563e6a55547046070e3d79b5662b620005558d8",
+            "reference": "f563e6a55547046070e3d79b5662b620005558d8",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2015-04-29 13:47:31",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "serialization/serialization",
-        "version": "3.2.1",
-        "version_normalized": "3.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Serialization.git",
-            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Serialization/zipball/8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
-            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-08-19 01:53:31",
+        "time": "2015-02-14 02:37:02",
         "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.2.x-dev"
-            }
-        },
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "Serialization.php"
+                "Interfaces.php"
             ],
-            "psr-4": {
-                "Deserializers\\": "src/Deserializers/",
-                "Serializers\\": "src/Serializers/"
-            }
+            "psr-0": {
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src",
+                "ValueValidators\\": "src"
+            },
+            "classmap": [
+                "tests/ValueFormatters/ValueFormatterTestBase.php"
+            ]
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -190,14 +142,13 @@
                 "role": "Developer"
             }
         ],
-        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
-        "homepage": "https://github.com/wmde/Serialization",
+        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
+        "homepage": "https://github.com/DataValues/Interfaces",
         "keywords": [
-            "deserialization",
-            "deserializer",
-            "serialization",
-            "serializer",
-            "unserialization",
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
             "wikidata"
         ]
     },
@@ -259,6 +210,180 @@
         "keywords": [
             "datavalues",
             "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/common",
+        "version": "0.2.3",
+        "version_normalized": "0.2.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Common.git",
+            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Common/zipball/c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
+            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "~0.1.4",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-10-09 18:21:19",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Common.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            },
+            "classmap": [
+                "tests/ValueParsers"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
+        "homepage": "https://github.com/DataValues/Common",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/number",
+        "version": "0.5",
+        "version_normalized": "0.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Number.git",
+            "reference": "b4a9b18d5bfc6a9b212aecec9220ba4c595625b9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Number/zipball/b4a9b18d5bfc6a9b212aecec9220ba4c595625b9",
+            "reference": "b4a9b18d5bfc6a9b212aecec9220ba4c595625b9",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.2",
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "^0.1.5",
+            "php": ">=5.3.0"
+        },
+        "time": "2015-06-11 17:01:16",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Number.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Kinzler"
+            }
+        ],
+        "description": "Numerical value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Number",
+        "keywords": [
+            "datavalues",
+            "number",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "serialization/serialization",
+        "version": "3.2.1",
+        "version_normalized": "3.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Serialization.git",
+            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Serialization/zipball/8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
+            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-08-19 01:53:31",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Serialization.php"
+            ],
+            "psr-4": {
+                "Deserializers\\": "src/Deserializers/",
+                "Serializers\\": "src/Serializers/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
+        "homepage": "https://github.com/wmde/Serialization",
+        "keywords": [
+            "deserialization",
+            "deserializer",
+            "serialization",
+            "serializer",
+            "unserialization",
             "wikidata"
         ]
     },
@@ -628,125 +753,6 @@
         ]
     },
     {
-        "name": "data-values/interfaces",
-        "version": "0.1.5",
-        "version_normalized": "0.1.5.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "f563e6a55547046070e3d79b5662b620005558d8"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/f563e6a55547046070e3d79b5662b620005558d8",
-            "reference": "f563e6a55547046070e3d79b5662b620005558d8",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2015-02-14 02:37:02",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Interfaces.php"
-            ],
-            "psr-0": {
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src",
-                "ValueValidators\\": "src"
-            },
-            "classmap": [
-                "tests/ValueFormatters/ValueFormatterTestBase.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
-        "homepage": "https://github.com/DataValues/Interfaces",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/common",
-        "version": "0.2.3",
-        "version_normalized": "0.2.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Common.git",
-            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Common/zipball/c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
-            "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.1.4",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-10-09 18:21:19",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.2.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Common.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            },
-            "classmap": [
-                "tests/ValueParsers"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
-        "homepage": "https://github.com/DataValues/Common",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/time",
         "version": "0.7.0",
         "version_normalized": "0.7.0.0",
@@ -1043,23 +1049,23 @@
     },
     {
         "name": "data-values/data-types",
-        "version": "0.4.1",
-        "version_normalized": "0.4.1.0",
+        "version": "0.4.3",
+        "version_normalized": "0.4.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataTypes.git",
-            "reference": "68675f39f8ba310e284dec6e600855b014c57950"
+            "reference": "76d3ee4531a4d0f2f47a6111199d6b89e03fd6dd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/68675f39f8ba310e284dec6e600855b014c57950",
-            "reference": "68675f39f8ba310e284dec6e600855b014c57950",
+            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/76d3ee4531a4d0f2f47a6111199d6b89e03fd6dd",
+            "reference": "76d3ee4531a4d0f2f47a6111199d6b89e03fd6dd",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-11-18 15:51:40",
+        "time": "2015-06-18 12:40:39",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1087,59 +1093,6 @@
         "keywords": [
             "datatypes",
             "datavalues"
-        ]
-    },
-    {
-        "name": "data-values/number",
-        "version": "0.4.1",
-        "version_normalized": "0.4.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Number.git",
-            "reference": "6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Number/zipball/6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47",
-            "reference": "6b5da7bcda5fa7ed1638c9ef7389e9a30d182f47",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.2",
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-10-09 19:14:53",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Number.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Kinzler"
-            }
-        ],
-        "description": "Numerical value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Number",
-        "keywords": [
-            "datavalues",
-            "number",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
         ]
     },
     {
@@ -1212,12 +1165,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "1deb6b7d25ad42cf571adbfd163d2ce097c49535"
+            "reference": "68224ea4d11f1b301c44acc77bf713008ec01601"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/1deb6b7d25ad42cf571adbfd163d2ce097c49535",
-            "reference": "1deb6b7d25ad42cf571adbfd163d2ce097c49535",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/68224ea4d11f1b301c44acc77bf713008ec01601",
+            "reference": "68224ea4d11f1b301c44acc77bf713008ec01601",
             "shasum": ""
         },
         "require": {
@@ -1227,7 +1180,7 @@
             "data-values/geo": "~1.0",
             "data-values/interfaces": "^0.1.5",
             "data-values/javascript": "~0.6.0|~0.7.0",
-            "data-values/number": "~0.4.0",
+            "data-values/number": "~0.5.0",
             "data-values/serialization": "~1.0",
             "data-values/time": "~0.7.0",
             "data-values/validators": "~0.1.0",
@@ -1244,7 +1197,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-06-16 20:44:11",
+        "time": "2015-06-19 08:48:24",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1384,5 +1337,52 @@
             "irc": "irc://irc.freenode.net/wikidata",
             "source": "https://github.com/wmde/Wikidata.org/tree/master"
         }
+    },
+    {
+        "name": "propertysuggester/property-suggester",
+        "version": "2.2.1",
+        "version_normalized": "2.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "902d481bdc9c084602a513521a2fc451366beb76"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/902d481bdc9c084602a513521a2fc451366beb76",
+            "reference": "902d481bdc9c084602a513521a2fc451366beb76",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2015-06-18 12:27:16",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+        "keywords": [
+            "propertysuggester",
+            "wikibase",
+            "wikidata"
+        ]
     }
 ]

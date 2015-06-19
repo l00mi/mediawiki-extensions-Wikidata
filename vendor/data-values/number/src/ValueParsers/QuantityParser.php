@@ -6,6 +6,7 @@ use DataValues\DecimalMath;
 use DataValues\DecimalValue;
 use DataValues\IllegalValueException;
 use DataValues\QuantityValue;
+use InvalidArgumentException;
 
 /**
  * ValueParser that parses the string representation of a quantity.
@@ -20,14 +21,22 @@ class QuantityParser extends StringValueParser {
 	const FORMAT_NAME = 'quantity';
 
 	/**
+	 * The unit of the value to parse. If this option is given, it's illegal to also specify
+	 * a unit in the input string.
+	 *
+	 * @since 0.5
+	 */
+	const OPT_UNIT = 'unit';
+
+	/**
 	 * @var DecimalParser
 	 */
-	protected $decimalParser;
+	private $decimalParser;
 
 	/**
 	 * @var NumberUnlocalizer
 	 */
-	protected $unlocalizer;
+	private $unlocalizer;
 
 	/**
 	 * @since 0.1
@@ -38,12 +47,10 @@ class QuantityParser extends StringValueParser {
 	public function __construct( ParserOptions $options = null, NumberUnlocalizer $unlocalizer = null ) {
 		parent::__construct( $options );
 
-		if ( !$unlocalizer ) {
-			$unlocalizer = new BasicNumberUnlocalizer();
-		}
+		$this->defaultOption( self::OPT_UNIT, null );
 
-		$this->decimalParser = new DecimalParser( $options, $unlocalizer );
-		$this->unlocalizer = $unlocalizer;
+		$this->unlocalizer = $unlocalizer ?: new BasicNumberUnlocalizer();
+		$this->decimalParser = new DecimalParser( $this->options, $this->unlocalizer );
 	}
 
 	/**
@@ -59,8 +66,12 @@ class QuantityParser extends StringValueParser {
 	protected function stringParse( $value ) {
 		list( $amount, $exactness, $margin, $unit ) = $this->splitQuantityString( $value );
 
+		$unitOption = $this->getOption( self::OPT_UNIT );
+
 		if ( $unit === null ) {
-			$unit = '1';
+			$unit = $unitOption !== null ? $unitOption : '1';
+		} elseif ( $unitOption !== null && $unit !== $unitOption ) {
+			throw new ParseException( 'Cannot specify a unit in input if a unit was fixed via options.' );
 		}
 
 		try {
@@ -87,22 +98,26 @@ class QuantityParser extends StringValueParser {
 	 * @return QuantityValue
 	 */
 	private function newQuantityFromParts( $amount, $exactness, $margin, $unit ) {
+		list( $amount, $exponent ) = $this->decimalParser->splitDecimalExponent( $amount );
 		$amountValue = $this->decimalParser->parse( $amount );
 
 		if ( $exactness === '!' ) {
 			// the amount is an exact number
+			$amountValue = $this->decimalParser->applyDecimalExponent( $amountValue, $exponent );
 			$quantity = $this->newExactQuantity( $amountValue, $unit );
 		} elseif ( $margin !== null ) {
 			// uncertainty margin given
+			// NOTE: the pattern for scientific notation is 2e3 +/- 1e2, so the exponents are treated separately.
 			$marginValue = $this->decimalParser->parse( $margin );
+			$amountValue = $this->decimalParser->applyDecimalExponent( $amountValue, $exponent );
 			$quantity = $this->newUncertainQuantityFromMargin( $amountValue, $unit, $marginValue );
 		} else {
 			// derive uncertainty from given decimals
-			$quantity = $this->newUncertainQuantityFromDigits( $amountValue, $unit );
+			// NOTE: with scientific notation, the exponent applies to the uncertainty bounds, too
+			$quantity = $this->newUncertainQuantityFromDigits( $amountValue, $unit, $exponent );
 		}
 
 		return $quantity;
-
 	}
 
 	/**
@@ -112,15 +127,14 @@ class QuantityParser extends StringValueParser {
 	 *
 	 * @param string $value
 	 *
-	 * @throws \InvalidArgumentException If $value is not a string
+	 * @throws InvalidArgumentException If $value is not a string
 	 * @throws ParseException If $value does not match the expected pattern
-	 *
 	 * @return array list( $amount, $exactness, $margin, $unit ).
 	 *         Parts not present in $value will be null
 	 */
 	private function splitQuantityString( $value ) {
 		if ( !is_string( $value ) ) {
-			throw new \InvalidArgumentException( '$value must be a string' );
+			throw new InvalidArgumentException( '$value must be a string' );
 		}
 
 		//TODO: allow explicitly specifying the number of significant figures
@@ -160,14 +174,12 @@ class QuantityParser extends StringValueParser {
 	 * The amount is assumed to be absolutely exact, that is,
 	 * the upper and lower bound will be the same as the amount.
 	 *
-	 * @since 0.1
-	 *
 	 * @param DecimalValue $amount
 	 * @param string $unit The quantity's unit (use "1" for unit-less quantities)
 	 *
 	 * @return QuantityValue
 	 */
-	protected function newExactQuantity( DecimalValue $amount, $unit = '1' ) {
+	private function newExactQuantity( DecimalValue $amount, $unit = '1' ) {
 		$lowerBound = $amount;
 		$upperBound = $amount;
 
@@ -183,15 +195,13 @@ class QuantityParser extends StringValueParser {
 	 * E.g. "+0.01" would have upperBound "+0.02" and lowerBound "+0.01",
 	 * while "-100" would have upperBound "-99" and lowerBound "-101".
 	 *
-	 * @since 0.1
-	 *
 	 * @param DecimalValue $amount The quantity
 	 * @param string $unit The quantity's unit (use "1" for unit-less quantities)
 	 * @param DecimalValue $margin
 	 *
 	 * @return QuantityValue
 	 */
-	protected function newUncertainQuantityFromMargin( DecimalValue $amount, $unit = '1', DecimalValue $margin ) {
+	private function newUncertainQuantityFromMargin( DecimalValue $amount, $unit = '1', DecimalValue $margin ) {
 		$decimalMath = new DecimalMath();
 		$margin = $margin->computeAbsolute();
 
@@ -210,15 +220,13 @@ class QuantityParser extends StringValueParser {
 	 * E.g. "+0.01" would have upperBound "+0.02" and lowerBound "+0.01",
 	 * while "-100" would have upperBound "-99" and lowerBound "-101".
 	 *
-	 * @since 0.1
-	 *
 	 * @param DecimalValue $amount The quantity
 	 * @param string $unit The quantity's unit (use "1" for unit-less quantities)
+	 * @param int $exponent Decimal exponent to apply
 	 *
 	 * @return QuantityValue
-	 * @throws IllegalValueException
 	 */
-	protected function newUncertainQuantityFromDigits( DecimalValue $amount, $unit = '1' ) {
+	private function newUncertainQuantityFromDigits( DecimalValue $amount, $unit = '1', $exponent = 0 ) {
 		$math = new DecimalMath();
 
 		if ( $amount->getSign() === '+' ) {
@@ -229,6 +237,11 @@ class QuantityParser extends StringValueParser {
 			$lowerBound = $math->bump( $amount );
 		}
 
+		$amount = $this->decimalParser->applyDecimalExponent( $amount, $exponent );
+		$lowerBound = $this->decimalParser->applyDecimalExponent( $lowerBound, $exponent );
+		$upperBound = $this->decimalParser->applyDecimalExponent( $upperBound, $exponent );
+
 		return new QuantityValue( $amount, $unit, $upperBound, $lowerBound );
 	}
+
 }
