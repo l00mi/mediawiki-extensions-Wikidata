@@ -4,12 +4,13 @@ namespace Wikibase\Api;
 
 use ApiBase;
 use ApiMain;
-use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\ClaimGuidParser;
-use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementGuidParser;
+use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\Serializers\ClaimSerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
@@ -33,7 +34,7 @@ class GetClaims extends ApiWikibase {
 	private $guidValidator;
 
 	/**
-	 * @var ClaimGuidParser
+	 * @var StatementGuidParser
 	 */
 	private $guidParser;
 
@@ -72,7 +73,7 @@ class GetClaims extends ApiWikibase {
 		$entityRevision = $entityId ? $this->loadEntityRevision( $entityId, EntityRevisionLookup::LATEST_FROM_SLAVE ) : null;
 		$entity = $entityRevision->getEntity();
 
-		if( $params['ungroupedlist'] ) {
+		if ( $params['ungroupedlist'] ) {
 			$this->getResultBuilder()->getOptions()
 				->setOption(
 					SerializationOptions::OPT_GROUP_BY_PROPERTIES,
@@ -91,34 +92,39 @@ class GetClaims extends ApiWikibase {
 	}
 
 	/**
-	 * @param Entity $entity
-	 * @param null|string $claimGuid
+	 * @param EntityDocument $entity
+	 * @param string|null $guid
 	 *
-	 * @return Claim[]
+	 * @return Statement[]
 	 */
-	private function getClaims( Entity $entity, $claimGuid ) {
-		$claimsList = new Claims( $entity->getClaims() );
-
-		if ( $claimGuid !== null ) {
-			$claim = $claimsList->getClaimWithGuid( $claimGuid );
-			return $claim !== null ? array( $claim ) : array();
+	private function getClaims( EntityDocument $entity, $guid = null ) {
+		if ( !( $entity instanceof StatementListProvider ) ) {
+			return array();
 		}
 
-		$claims = array();
+		if ( $guid === null ) {
+			return $this->getMatchingStatements( $entity->getStatements() );
+		}
 
-		/** @var Claim $claim */
-		foreach ( $claimsList as $claim ) {
-			if ( $this->claimMatchesFilters( $claim ) ) {
-				$claims[] = $claim;
+		$statement = $entity->getStatements()->getFirstStatementWithGuid( $guid );
+		return $statement === null ? array() : array( $statement );
+	}
+
+	private function getMatchingStatements( StatementList $statementList ) {
+		$statements = array();
+
+		foreach ( $statementList->toArray() as $statement ) {
+			if ( $this->statementMatchesFilters( $statement ) ) {
+				$statements[] = $statement;
 			}
 		}
 
-		return $claims;
+		return $statements;
 	}
 
-	private function claimMatchesFilters( Claim $claim ) {
-		return $this->rankMatchesFilter( $claim->getRank() )
-			&& $this->propertyMatchesFilter( $claim->getPropertyId() );
+	private function statementMatchesFilters( Statement $statement ) {
+		return $this->rankMatchesFilter( $statement->getRank() )
+			&& $this->propertyMatchesFilter( $statement->getPropertyId() );
 	}
 
 	private function rankMatchesFilter( $rank ) {
@@ -180,12 +186,12 @@ class GetClaims extends ApiWikibase {
 		return array( $idString, $guid );
 	}
 
-	private function getEntityIdFromStatementGuid( $claimGuid ) {
-		if ( $this->guidValidator->validateFormat( $claimGuid ) === false ) {
+	private function getEntityIdFromStatementGuid( $guid ) {
+		if ( $this->guidValidator->validateFormat( $guid ) === false ) {
 			$this->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 
-		return $this->guidParser->parse( $claimGuid )->getEntityId()->getSerialization();
+		return $this->guidParser->parse( $guid )->getEntityId()->getSerialization();
 	}
 
 	/**
