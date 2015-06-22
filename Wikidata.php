@@ -12,6 +12,7 @@ if ( PHP_SAPI === 'cli' && strpos( getenv( 'JOB_NAME' ), 'mwext-Wikidata-testext
 
 	$wmgUseWikibaseRepo = true;
 	$wmgUseWikibaseClient = true;
+	$wmgUseWikibaseQuality = true;
 }
 
 // no magic, use wmf configs instead to control which entry points to load
@@ -30,6 +31,9 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 	include_once "$wgWikidataBaseDir/extensions/Wikibase/repo/Wikibase.php";
 	include_once "$wgWikidataBaseDir/extensions/Wikidata.org/WikidataOrg.php";
 	include_once "$wgWikidataBaseDir/extensions/PropertySuggester/PropertySuggester.php";
+	if ( !empty( $wmgUseWikibaseQuality ) ) {
+		include_once "$wgWikidataBaseDir/extensions/Quality/WikibaseQuality.php";
+	}
 }
 
 if ( !empty( $wmgUseWikibaseClient ) ) {

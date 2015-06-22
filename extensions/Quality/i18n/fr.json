@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": [
+			"Crochet.david",
+			"Macofe"
+		]
+	},
+	"wbq-violations-group-label": "Groupe :",
+	"wbq-violations-type-label": "Type:",
+	"wbq-violations-table-header-entity": "Entité",
+	"wbq-violations-table-header-constraint-type": "Type",
+	"wbq-violations-table-header-updated-at": "Dernière mise à jour",
+	"wbq-violations-table-header-status": "État",
+	"wbq-violations-status-exception": "Exception",
+	"wbq-violations-next-page": "Page suivante >>",
+	"wbq-violations-prev-page": "<< Page précédente"
+}

@@ -1,0 +1,16 @@
+{
+  "@metadata": {
+    "authors": [
+      "Чаховіч Уладзіслаў"
+    ]
+  },
+  "wikidataquality-specialpages-group": "Якасць Вікідадзеных",
+  "wikidataquality-value": "Значэнне",
+  "wikidataquality-status": "Статус",
+  "wikidataquality-crosscheck-result-headline": "Вынік для",
+  "wikidataquality-crosscheck-result-item-not-existent": "Элемент не існуе!",
+  "wikidataquality-crosscheck-result-mismatch": "Неадпаведнасць",
+  "wikidataquality-crosscheck-result-success": "Адпаведнасць",
+  "wikidataquality-crosscheck-comparative-value": "Параўнальнае значэнне",
+  "wikidataquality-crosscheck-external-source": "Вонкавая крыніца"
+}

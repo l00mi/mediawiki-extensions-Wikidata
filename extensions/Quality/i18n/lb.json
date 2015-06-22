@@ -1,0 +1,25 @@
+{
+	"@metadata": {
+		"authors": [
+			"Robby"
+		]
+	},
+	"wbq-violatons-filter-headline": "Problemer beim Filteren",
+	"wbq-violations-group-label": "Grupp:",
+	"wbq-violations-type-label": "Typ:",
+	"wbq-violations-form-select-all": "(all)",
+	"wbq-violations-exceptions-checkbox-label": "Ausnahme weisen",
+	"wbq-violations-submit-button-label": "Violatioune weisen",
+	"wbq-violations-table-header-entity": "Objet",
+	"wbq-violations-table-header-claim": "Behaaptung",
+	"wbq-violations-table-header-constraint-type": "Typ",
+	"wbq-violations-table-header-updated-at": "Lescht Aktualisatioun",
+	"wbq-violations-table-header-status": "Status",
+	"wbq-violations-table-header-additional-info": "Zousätzlech Informatioun",
+	"wbq-violations-status-violation": "Violatioun",
+	"wbq-violations-status-unverified": "Net nogekuckt",
+	"wbq-violations-status-exception": "Ausnahm",
+	"wbq-violations-mark-as-exception": "Als Ausnahm markéieren",
+	"wbq-violations-next-page": "Nächst Säit >>",
+	"wbq-violations-prev-page": "<< Vireg Säit"
+}

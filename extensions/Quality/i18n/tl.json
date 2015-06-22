@@ -1,0 +1,15 @@
+{
+  "@metadata": {
+    "authors": [
+      "Leeheonjin"
+    ]
+  },
+  "wikidataquality-specialpages-group": "Kalidad ng Wikidata",
+  "wikidataquality-value": "Halaga",
+  "wikidataquality-status": "Katayuan/Kalagayan",
+  "wikidataquality-crosscheck-result-headline": "Resulta para sa",
+  "wikidataquality-crosscheck-result-item-not-existent": "Hindi umiiral ang naturang item!",
+  "wikidataquality-crosscheck-result-mismatch": "Namaling tugma",
+  "wikidataquality-crosscheck-result-success": "Tugma",
+  "wikidataquality-crosscheck-external-source": "Panlabas na pinagkuhanan"
+}

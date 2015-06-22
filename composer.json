@@ -10,6 +10,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/wmde/WikimediaBadges.git"
+        },
+        {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality"
         }
     ],
     "require": {
@@ -17,7 +21,8 @@
         "propertysuggester/property-suggester": "~2.2.0",
         "wikibase/wikibase": "dev-master",
         "wikibase/wikimedia-badges": "dev-master",
-        "wikibase/Wikidata.org": "dev-master"
+        "wikibase/Wikidata.org": "dev-master",
+        "wikibase/quality": "1.x-dev"
     },
     "autoload": {
         "psr-4": {

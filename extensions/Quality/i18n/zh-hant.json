@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": [
+			"Liuxinyu970226"
+		]
+	},
+	"wbq-violations-group-label": "群組：",
+	"wbq-violations-type-label": "類型：",
+	"wbq-violations-table-header-entity": "實體",
+	"wbq-violations-table-header-constraint-type": "類型",
+	"wbq-violations-table-header-status": "狀態"
+}

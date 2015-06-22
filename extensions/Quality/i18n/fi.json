@@ -1,0 +1,13 @@
+{
+	"@metadata": {
+		"authors": [
+			"McSalama"
+		]
+	},
+	"wbq-violations-group-label": "Ryhmä:",
+	"wbq-violations-form-select-all": "(kaikki)",
+	"wbq-violations-table-header-status": "Tila",
+	"wbq-violations-table-header-additional-info": "Lisätietoa",
+	"wbq-violations-status-unverified": "Vahvistamattomat",
+	"wbq-violations-status-exception": "Poikkeus"
+}

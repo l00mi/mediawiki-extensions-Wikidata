@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Subi"
+		]
+	},
+	"wbq-violations-group-label": "Taldea:",
+	"wbq-violations-form-select-all": "(denak)",
+	"wbq-violations-table-header-updated-at": "Azken eguneratzea",
+	"wbq-violations-table-header-status": "Egoera",
+	"wbq-violations-status-unverified": "Egiaztatu gabe",
+	"wbq-violations-next-page": "Hurrengo orria >>",
+	"wbq-violations-prev-page": "<< Aurreko orria"
+}

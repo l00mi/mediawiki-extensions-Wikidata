@@ -1,0 +1,40 @@
+{
+	"@metadata": {
+		"authors": [
+			"Metalhead64",
+			"Inkowik",
+			"Andreasburmeister"
+		]
+	},
+	"wbq-desc": "Basiserweiterung für Wikibase-Quality-Erweiterungen, die gefundene falsche Daten verwaltet",
+	"specialpages-group-wikibasequality": "Wikibase-Qualität",
+	"wbq-violations-description": "Liste von Datenqualitätsproblemen",
+	"wbq-violations-explanations-general": "Diese Spezialseite listet alle Datenqualitätsprobleme auf, die in Wikidata entdeckt wurden. Solche Probleme können Verstöße gegen definierte Beschränkungen oder Nichtübereinstimmungen mit anderen externen Datenbanken sein.",
+	"wbq-violations-explanations-exceptions": "Falls eine Aussage als Datenqualitätsproblem falsch bezeichnet ist, kann sie von berechtigten Benutzern als Ausnahme markiert werden. Diese Ausnahmen werden standardmäßig nicht in der Liste angezeigt. Vorhandene Ausnahmen können auch rückgängig gemacht und erneut als Problem festgelegt werden.",
+	"wbq-violatons-filter-headline": "Probleme filtern",
+	"wbq-violations-entity-id-label": "Objektkennung:",
+	"wbq-violations-property-id-label": "Eigenschaftskennung:",
+	"wbq-violations-group-label": "Gruppe:",
+	"wbq-violations-type-label": "Typ:",
+	"wbq-violations-form-select-all": "(alle)",
+	"wbq-violations-exceptions-checkbox-label": "Ausnahmen anzeigen",
+	"wbq-violations-submit-button-label": "Verstöße anzeigen",
+	"wbq-violations-invalid-entity-id": "Die angegebene Objektkennung ist nicht gültig.",
+	"wbq-violations-not-existent-entity": "Das Objekt mit der angegebenen Kennung ist nicht vorhanden.",
+	"wbq-violations-invalid-property-id": "Die angegebene Eigenschaftskennung ist nicht gültig.",
+	"wbq-violations-not-existent-property": "Die Eigenschaft mit der angegebenen Kennung ist nicht vorhanden.",
+	"wbq-violations-table-header-entity": "Objekt",
+	"wbq-violations-table-header-claim": "Behauptung",
+	"wbq-violations-table-header-constraint-type": "Typ",
+	"wbq-violations-table-header-updated-at": "Zuletzt aktualisiert",
+	"wbq-violations-table-header-status": "Status",
+	"wbq-violations-table-header-additional-info": "Zusätzliche Informationen",
+	"wbq-violations-status-violation": "Verstoß",
+	"wbq-violations-status-unverified": "Nicht verifiziert",
+	"wbq-violations-status-exception": "Ausnahme",
+	"wbq-violations-mark-as-exception": "Als Ausnahme markieren",
+	"wbq-violations-mark-as-violation": "Als Verstoß markieren",
+	"wbq-violations-next-page": "Nächste Seite >>",
+	"wbq-violations-prev-page": "<< Vorherige Seite",
+	"apihelp-wbqgetviolationmessages-description": "Ruft Nachrichten für Datenverstöße bei Behauptungen ab."
+}

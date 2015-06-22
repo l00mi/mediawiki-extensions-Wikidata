@@ -1,0 +1,13 @@
+{
+  "@metadata": {
+    "authors": [
+      "Pofka"
+    ]
+  },
+  "wikidataquality-value": "Reikšmė",
+  "wikidataquality-status": "Būsena",
+  "wikidataquality-crosscheck-result-headline": "Rezultatai",
+  "wikidataquality-crosscheck-result-item-not-existent": "Elementas neegzistuoja!",
+  "wikidataquality-crosscheck-result-success": "Sutapimas",
+  "wikidataquality-crosscheck-external-source": "Išorinis šaltinis"
+}

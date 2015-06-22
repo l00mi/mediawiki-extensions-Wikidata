@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": [
+			"Kingu"
+		]
+	},
+	"specialpages-group-wikidataquality": "Wikidata-kvalitet",
+	"wikidataquality-checkresult-result-headline": "Resultat av $1",
+	"wikidataquality-checkresult-status-violation": "Brudd",
+	"wikidataquality-checkresult-status-exception": "Unntak"
+}

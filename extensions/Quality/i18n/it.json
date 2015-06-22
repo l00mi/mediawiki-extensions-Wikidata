@@ -1,0 +1,35 @@
+{
+	"@metadata": {
+		"authors": [
+			"Macofe",
+			"Alexmar983",
+			"Beta16"
+		]
+	},
+	"wbq-violations-description": "Lista di problemi relativi alla qualità dei dati.",
+	"wbq-violations-explanations-general": "In questa pagina speciale sono elencati tutti i problemi di qualità relativi ai dati che sono stati rilevati in Wikidata. Tali problemi possono essere violazioni relative a vincoli definiti o incongruenze con altre banche dati esterne.",
+	"wbq-violatons-filter-headline": "Problemi di filtro",
+	"wbq-violations-entity-id-label": "ID entità:",
+	"wbq-violations-property-id-label": "<strong>Attenzione:</strong> [[:$1]] sta richiamando [[:$2]] con più di un valore per il parametro \"$3\".",
+	"wbq-violations-group-label": "Gruppo:",
+	"wbq-violations-type-label": "Tipo:",
+	"wbq-violations-form-select-all": "(tutti)",
+	"wbq-violations-exceptions-checkbox-label": "Vedi eccezioni",
+	"wbq-violations-submit-button-label": "Visualizza le violazioni",
+	"wbq-violations-invalid-entity-id": "L'ID di entità fornito non è valido.",
+	"wbq-violations-not-existent-entity": "L'entità '$1' non esiste!",
+	"wbq-violations-invalid-property-id": "L'ID proprietà dato non è valido.",
+	"wbq-violations-not-existent-property": "La proprietà '$1' non esiste!",
+	"wbq-violations-table-header-entity": "Entità",
+	"wbq-violations-table-header-claim": "Asserzione",
+	"wbq-violations-table-header-constraint-type": "Tipo",
+	"wbq-violations-table-header-updated-at": "Ultimo aggiornamento",
+	"wbq-violations-table-header-status": "Stato",
+	"wbq-violations-table-header-additional-info": "Ulteriori informazioni",
+	"wbq-violations-status-violation": "Violazione",
+	"wbq-violations-status-unverified": "Non verificato",
+	"wbq-violations-status-exception": "Eccezione",
+	"wbq-violations-mark-as-exception": "Segnala come eccezione",
+	"wbq-violations-next-page": "Pagina successiva >>",
+	"wbq-violations-prev-page": "<< Pagina precedente"
+}

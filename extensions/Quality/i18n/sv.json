@@ -1,0 +1,13 @@
+{
+  "@metadata": {
+    "authors": [
+      "Jenniesarina",
+      "Jopparn"
+    ]
+  },
+  "specialpages-group-wikidataquality": "Wikidata-kvalitet",
+  "wikidataquality-checkresult-result-table-header-status": "Status",
+  "wikidataquality-crosscheck": "Dubbelkontrollera med externa databaser",
+  "wikidataquality-crosscheck-instructions-example": "Prova till exempel Q159099 (Nina Hagen) och titta på resultaten.",
+  "wikidataquality-crosscheck-result-table-header-external-source": "Extern källa"
+}

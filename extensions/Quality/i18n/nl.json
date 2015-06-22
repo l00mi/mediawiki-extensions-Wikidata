@@ -1,0 +1,35 @@
+{
+	"@metadata": {
+		"authors": [
+			"Sjoerddebruin",
+			"Macofe",
+			"Siebrand"
+		]
+	},
+	"specialpages-group-wikibasequality": "Wikibasekwaliteit",
+	"wbq-violations-description": "Lijst van problemen rond gegevenskwaliteit",
+	"wbq-violatons-filter-headline": "Problemen filteren",
+	"wbq-violations-entity-id-label": "Entiteits-ID:",
+	"wbq-violations-property-id-label": "Eigenschaps-ID:",
+	"wbq-violations-group-label": "Groep:",
+	"wbq-violations-type-label": "Type:",
+	"wbq-violations-form-select-all": "(alle)",
+	"wbq-violations-exceptions-checkbox-label": "Uitzonderingen weergeven",
+	"wbq-violations-submit-button-label": "Schendingen weergeven",
+	"wbq-violations-invalid-entity-id": "\"$1\" is geen geldige entiteits-ID.",
+	"wbq-violations-not-existent-entity": "Entiteit \"$1\" bestaat niet.",
+	"wbq-violations-invalid-property-id": "\"$1\" is geen geldige eigenschaps-ID.",
+	"wbq-violations-not-existent-property": "Eigenschap \"$1\" bestaat niet.",
+	"wbq-violations-table-header-entity": "Entiteit",
+	"wbq-violations-table-header-claim": "Verklaring",
+	"wbq-violations-table-header-constraint-type": "Type",
+	"wbq-violations-table-header-updated-at": "Laatst bijgewerkt",
+	"wbq-violations-table-header-status": "Status",
+	"wbq-violations-table-header-additional-info": "Extra gegevens",
+	"wbq-violations-status-violation": "Schending",
+	"wbq-violations-status-unverified": "Niet gecontroleerd",
+	"wbq-violations-status-exception": "Uitzondering",
+	"wbq-violations-mark-as-exception": "Als uitzondering markeren",
+	"wbq-violations-next-page": "Volgende pagina >>",
+	"wbq-violations-prev-page": "<< Vorige pagina"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "WikidataQuality",
+  "version": "0.0.0",
+  "scripts": {
+    "test": "jshint . && jscs ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality"
+  },
+  "author": "BP2014N1",
+  "license": "GPL-2.0+",
+  "devDependencies": {
+    "jscs": "",
+    "jshint": ""
+  }
+}

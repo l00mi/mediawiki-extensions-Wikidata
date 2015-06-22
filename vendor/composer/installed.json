@@ -1165,12 +1165,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "66a3e94601352169df1a0dddc52193cc5e924ad0"
+            "reference": "b0ebc7d0417b24aeaf5ff4b87395d6f886eac082"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/66a3e94601352169df1a0dddc52193cc5e924ad0",
-            "reference": "66a3e94601352169df1a0dddc52193cc5e924ad0",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b0ebc7d0417b24aeaf5ff4b87395d6f886eac082",
+            "reference": "b0ebc7d0417b24aeaf5ff4b87395d6f886eac082",
             "shasum": ""
         },
         "require": {
@@ -1197,7 +1197,7 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-06-20 13:48:35",
+        "time": "2015-06-21 22:28:32",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1336,6 +1336,59 @@
         "support": {
             "irc": "irc://irc.freenode.net/wikidata",
             "source": "https://github.com/wmde/Wikidata.org/tree/master"
+        }
+    },
+    {
+        "name": "wikibase/quality",
+        "version": "1.x-dev",
+        "version_normalized": "1.9999999.9999999.9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
+            "reference": "3a496105d7b7a408413728b7b79782f3af827b64"
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "serialization/serialization": "3.*,>=3.2.1",
+            "wikibase/data-model": "~3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~3.7,>=3.7.37|~4.5",
+            "satooshi/php-coveralls": "master-dev"
+        },
+        "time": "2015-06-19 09:25:38",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "WikibaseQuality\\": "includes/",
+                "WikibaseQuality\\Api\\": "api/",
+                "WikibaseQuality\\Specials\\": "specials/",
+                "WikibaseQuality\\Tests\\": "tests/phpunit/"
+            },
+            "classmap": [
+                "WikibaseQualityHooks.php"
+            ]
+        },
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "BP2014N1"
+            }
+        ],
+        "description": "Extension for Wikibase to improve the data quality and trust.",
+        "homepage": "https://www.mediawiki.org/wiki/Wikibase_Quality_Extensions",
+        "keywords": [
+            "quality",
+            "trust",
+            "violation",
+            "wikibase",
+            "wikidata"
+        ],
+        "support": {
+            "issues": "https://phabricator.wikimedia.org/project/profile/989/"
         }
     },
     {
