@@ -33,6 +33,7 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 	include_once "$wgWikidataBaseDir/extensions/PropertySuggester/PropertySuggester.php";
 	if ( !empty( $wmgUseWikibaseQuality ) ) {
 		include_once "$wgWikidataBaseDir/extensions/Quality/WikibaseQuality.php";
+		include_once "$wgWikidataBaseDir/extensions/Constraints/WikibaseQualityConstraints.php";
 	}
 }
 

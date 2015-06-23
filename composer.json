@@ -14,6 +14,10 @@
         {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality"
+        },
+        {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints"
         }
     ],
     "require": {
@@ -22,7 +26,8 @@
         "wikibase/wikibase": "dev-master",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
-        "wikibase/quality": "1.x-dev"
+        "wikibase/quality": "1.x-dev",
+        "wikibase/constraints": "1.x-dev"
     },
     "autoload": {
         "psr-4": {

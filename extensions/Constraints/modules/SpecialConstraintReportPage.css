@@ -1,0 +1,74 @@
+/* Entity id form */
+form {
+    margin-bottom: 20px;
+    width: 250px;
+}
+
+.wbqc-constraintreport-form-entity-id {
+    width: 120px;
+}
+
+/* Notices */
+.wbqc-constraintreport-notice {
+    font-style: italic;
+}
+
+.wbqc-constraintreport-notice-error {
+    font-weight: bold;
+    color: #BA0000;
+}
+
+/* Explanation infobox */
+.wbqc-explanation {
+    width: 50%;
+}
+
+/* Statuses */
+.wbqc-status {
+    font-weight: bold;
+}
+
+.wbqc-status-compliance {
+    color: #008000;
+}
+
+.wbqc-status-exception {
+    color: #E6B800;
+}
+
+.wbqc-status-violation {
+    color: #BA0000;
+}
+
+.wbqc-status-todo {
+    color: #404040;
+}
+
+/* Tooltip */
+.wbqc-indicator {
+    color: #CCC;
+    font-weight: 600;
+}
+
+.wbqc-tooltip {
+    margin-top: -40px;
+    margin-left: -5px;
+    background-color: #F2F2F2;
+    border: 1px solid #AAA;
+    border-radius: 5px;
+    box-shadow: 2px 2px 1px #CCC;
+    padding: 2px 5px 2px 5px;
+    position: absolute;
+    float: left;
+
+    display: none;
+}
+
+.wbqc-expandable-content-indicator {
+    cursor: pointer;
+}
+
+.wbqc-expandable-content {
+    color: #333;
+    display: none;
+}
