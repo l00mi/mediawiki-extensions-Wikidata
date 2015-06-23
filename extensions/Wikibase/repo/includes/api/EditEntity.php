@@ -95,7 +95,7 @@ class EditEntity extends ModifyEntity {
 	protected function getRequiredPermissions( EntityDocument $entity ) {
 		$permissions = parent::getRequiredPermissions( $entity );
 
-		if ( !$this->entityExists( $entity ) ) {
+		if ( !$this->entityExists( $entity->getId() ) ) {
 			$permissions[] = 'createpage';
 
 			switch ( $entity->getType() ) {
@@ -109,23 +109,32 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
+	 * @param EntityId $entityId
+	 *
+	 * @return bool
+	 */
+	private function entityExists( EntityId $entityId ) {
+		$title = $entityId === null ? null : $this->getTitleLookup()->getTitleForId( $entityId );
+		return ( $title !== null && $title->exists() );
+	}
+
+	/**
 	 * @see ModifyEntity::createEntity
 	 *
-	 * @param array $params
+	 * @param string $entityType
 	 *
 	 * @throws UsageException
 	 * @throws LogicException
 	 * @return Entity
 	 */
-	protected function createEntity( array $params ) {
-		$type = $params['new'];
+	protected function createEntity( $entityType ) {
 		$this->flags |= EDIT_NEW;
 		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
 
 		try {
-			return $entityFactory->newEmpty( $type );
+			return $entityFactory->newEmpty( $entityType );
 		} catch ( InvalidArgumentException $ex ) {
-			$this->dieError( "No such entity type: '$type'", 'no-such-entity-type' );
+			$this->dieError( "No such entity type: '$entityType'", 'no-such-entity-type' );
 		}
 
 		throw new LogicException( 'ApiBase::dieUsage did not throw a UsageException' );
@@ -160,7 +169,7 @@ class EditEntity extends ModifyEntity {
 		$this->validateDataProperties( $data, $entity, $baseRevId );
 
 		$revisionLookup = $this->getEntityRevisionLookup();
-		$exists = $this->entityExists( $entity );
+		$exists = $this->entityExists( $entity->getId() );
 
 		if ( $params['clear'] ) {
 			if ( $params['baserevid'] && $exists ) {
@@ -537,7 +546,7 @@ class EditEntity extends ModifyEntity {
 		}
 
 		if ( $entity instanceof Item ) {
-			$builder->addSiteLinks( $entity->getSiteLinks(), 'entity' );
+			$builder->addSiteLinks( $entity->getSiteLinkList()->toArray(), 'entity' );
 		}
 
 		$builder->addClaims( $entity->getClaims(), 'entity' );

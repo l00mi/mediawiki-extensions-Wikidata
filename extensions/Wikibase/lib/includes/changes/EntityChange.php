@@ -301,7 +301,7 @@ class EntityChange extends DiffChange {
 		// FIXME: the change row system needs to be reworked to either allow for sane injection
 		// or to avoid this kind of configuration dependent tasks.
 		if ( defined( 'WB_VERSION' ) ) {
-			return WikibaseRepo::getDefaultInstance()->getInternalClaimSerializer();
+			return WikibaseRepo::getDefaultInstance()->getInternalStatementSerializer();
 		} elseif ( defined( 'WBC_VERSION' ) ) {
 			throw new RuntimeException( 'Cannot serialize claims on the client' );
 		} else {
@@ -313,9 +313,9 @@ class EntityChange extends DiffChange {
 		// FIXME: the change row system needs to be reworked to either allow for sane injection
 		// or to avoid this kind of configuration dependent tasks.
 		if ( defined( 'WB_VERSION' ) ) {
-			return WikibaseRepo::getDefaultInstance()->getInternalClaimDeserializer();
+			return WikibaseRepo::getDefaultInstance()->getInternalStatementDeserializer();
 		} elseif ( defined( 'WBC_VERSION' ) ) {
-			return WikibaseClient::getDefaultInstance()->getInternalClaimDeserializer();
+			return WikibaseClient::getDefaultInstance()->getInternalStatementDeserializer();
 		} else {
 			throw new RuntimeException( 'Need either client or repo loaded' );
 		}
