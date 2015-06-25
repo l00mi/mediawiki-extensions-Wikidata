@@ -23,5 +23,4 @@ return array(
     $vendorDir . '/data-values/data-types/DataTypes.php',
     $vendorDir . '/data-values/validators/Validators.php',
     $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
-    $baseDir . '/extensions/Wikibase/Wikibase.composer.php',
 );
