@@ -14,21 +14,112 @@ namespace DataValues;
  */
 class TimeValue extends DataValueObject {
 
-	const PRECISION_Ga = 0; // Gigayear
-	const PRECISION_100Ma = 1; // 100 Megayears
-	const PRECISION_10Ma = 2; // 10 Megayears
-	const PRECISION_Ma = 3; // Megayear
-	const PRECISION_100ka = 4; // 100 Kiloyears
-	const PRECISION_10ka = 5; // 10 Kiloyears
-	const PRECISION_ka = 6; // Kiloyear
-	const PRECISION_100a = 7; // 100 years
-	const PRECISION_10a = 8; // 10 years
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR1G instead
+	 */
+	const PRECISION_Ga = TimeValue::PRECISION_YEAR1G;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR100M instead
+	 */
+	const PRECISION_100Ma = TimeValue::PRECISION_YEAR100M;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR10M instead
+	 */
+	const PRECISION_10Ma = TimeValue::PRECISION_YEAR10M;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR1M instead
+	 */
+	const PRECISION_Ma = TimeValue::PRECISION_YEAR1M;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR100K instead
+	 */
+	const PRECISION_100ka = TimeValue::PRECISION_YEAR100K;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR10K instead
+	 */
+	const PRECISION_10ka = TimeValue::PRECISION_YEAR10K;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR1K instead
+	 */
+	const PRECISION_ka = TimeValue::PRECISION_YEAR1K;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR100 instead
+	 */
+	const PRECISION_100a = TimeValue::PRECISION_YEAR100;
+
+	/**
+	 * @deprecated since 0.8, use PRECISION_YEAR10 instead
+	 */
+	const PRECISION_10a = TimeValue::PRECISION_YEAR10;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR1G = 0;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR100M = 1;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR10M = 2;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR1M = 3;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR100K = 4;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR10K = 5;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR1K = 6;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR100 = 7;
+
+	/**
+	 * @since 0.8
+	 */
+	const PRECISION_YEAR10 = 8;
+
 	const PRECISION_YEAR = 9;
 	const PRECISION_MONTH = 10;
 	const PRECISION_DAY = 11;
 	const PRECISION_HOUR = 12;
 	const PRECISION_MINUTE = 13;
 	const PRECISION_SECOND = 14;
+
+	/**
+	 * @since 0.7.1
+	 */
+	const CALENDAR_GREGORIAN = 'http://www.wikidata.org/entity/Q1985727';
+
+	/**
+	 * @since 0.7.1
+	 */
+	const CALENDAR_JULIAN = 'http://www.wikidata.org/entity/Q1985786';
 
 	/**
 	 * Timestamp describing a point in time. The actual format depends on the calendar model.
@@ -97,6 +188,10 @@ class TimeValue extends DataValueObject {
 	 * @throws IllegalValueException
 	 */
 	public function __construct( $timestamp, $timezone, $before, $after, $precision, $calendarModel ) {
+		if ( !is_string( $timestamp ) || $timestamp === '' ) {
+			throw new IllegalValueException( '$timestamp must be a non-empty string' );
+		}
+
 		if ( !is_int( $timezone ) ) {
 			throw new IllegalValueException( '$timezone must be an integer' );
 		} elseif ( $timezone < -12 * 3600 || $timezone > 14 * 3600 ) {
@@ -113,7 +208,7 @@ class TimeValue extends DataValueObject {
 
 		if ( !is_int( $precision ) ) {
 			throw new IllegalValueException( '$precision must be an integer' );
-		} elseif ( $precision < self::PRECISION_Ga || $precision > self::PRECISION_SECOND ) {
+		} elseif ( $precision < self::PRECISION_YEAR1G || $precision > self::PRECISION_SECOND ) {
 			throw new IllegalValueException( '$precision out of allowed bounds' );
 		}
 
@@ -122,7 +217,7 @@ class TimeValue extends DataValueObject {
 			throw new IllegalValueException( '$calendarModel must be a non-empty string' );
 		}
 
-		$this->timestamp = $this->validateIsoTimestamp( $timestamp );
+		$this->timestamp = $this->normalizeIsoTimestamp( $timestamp );
 		$this->timezone = $timezone;
 		$this->before = $before;
 		$this->after = $after;
@@ -136,29 +231,34 @@ class TimeValue extends DataValueObject {
 	 * @throws IllegalValueException
 	 * @return string
 	 */
-	private function validateIsoTimestamp( $timestamp ) {
-		if ( !is_string( $timestamp ) || $timestamp === '' ) {
-			throw new IllegalValueException( '$timestamp must be a non-empty string' );
-		} elseif ( !preg_match(
-			'/^([-+])(\d{1,16})-(\d\d)-(\d\d)(T(?:[01]\d|2[0-3]):[0-5]\d:(?:[0-5]\d|6[012])Z)$/',
+	private function normalizeIsoTimestamp( $timestamp ) {
+		if ( !preg_match(
+			'/^([-+])(\d{1,16})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z$/',
 			$timestamp,
 			$matches
 		) ) {
 			throw new IllegalValueException( '$timestamp must resemble ISO 8601, given ' . $timestamp );
 		}
 
-		list( , $sign, $year, $month, $day, $time ) = $matches;
+		list( , $sign, $year, $month, $day, $hour, $minute, $second ) = $matches;
 
 		if ( $month > 12 ) {
 			throw new IllegalValueException( 'Month out of allowed bounds' );
 		} elseif ( $day > 31 ) {
 			throw new IllegalValueException( 'Day out of allowed bounds' );
+		} elseif ( $hour > 23 ) {
+			throw new IllegalValueException( 'Hour out of allowed bounds' );
+		} elseif ( $minute > 59 ) {
+			throw new IllegalValueException( 'Minute out of allowed bounds' );
+		} elseif ( $second > 61 ) {
+			throw new IllegalValueException( 'Second out of allowed bounds' );
 		}
 
+		// Warning, never cast the year to integer to not run into 32-bit integer overflows!
 		$year = ltrim( $year, '0' );
 		$year = str_pad( $year, 4, '0', STR_PAD_LEFT );
 
-		return $sign . $year . '-' . $month . '-' . $day . $time;
+		return $sign . $year . '-' . $month . '-' . $day . 'T' . $hour . ':' . $minute .':' . $second . 'Z';
 	}
 
 	/**

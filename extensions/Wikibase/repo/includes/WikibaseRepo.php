@@ -71,13 +71,15 @@ use Wikibase\Repo\Content\ItemHandler;
 use Wikibase\Repo\Content\PropertyHandler;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
+use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\Localizer\ChangeOpValidationExceptionLocalizer;
 use Wikibase\Repo\Localizer\MessageParameterFormatter;
 use Wikibase\Repo\Notifications\ChangeNotifier;
 use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
-use Wikibase\Repo\Notifications\DummyChangeTransmitter;
+use Wikibase\Repo\Notifications\HookChangeTransmitter;
+use Wikibase\Repo\Notifications\MulticastChangeTransmitter;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SnakFactory;
@@ -335,6 +337,22 @@ class WikibaseRepo {
 				$context
 			),
 			$this->getStore()->getEntityRedirectLookup()
+		);
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @param string $displayLanguageCode
+	 *
+	 * @return TermIndexSearchInteractor
+	 */
+	public function newTermSearchInteractor( $displayLanguageCode ) {
+		return new TermIndexSearchInteractor(
+			$this->getStore()->getTermIndex(),
+			$this->getLanguageFallbackChainFactory(),
+			$this->getTermLookup(),
+			$displayLanguageCode
 		);
 	}
 
@@ -826,26 +844,27 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @return ChangeTransmitter
+	 * @return ChangeTransmitter[]
 	 */
-	private function getChangeTransmitter() {
+	private function getChangeTransmitters() {
+		$transmitters = array();
+
+		$transmitters[] = new HookChangeTransmitter( 'WikibaseChangeNotification' );
+
 		if ( $this->settings->getSetting( 'useChangesTable' ) ) {
-			return new DatabaseChangeTransmitter();
+			$transmitters[] = new DatabaseChangeTransmitter();
 		}
-		else {
-			return new DummyChangeTransmitter();
-		}
+
+		return $transmitters;
 	}
 
 	/**
 	 * @return ChangeNotifier
 	 */
 	public function getChangeNotifier() {
-		// TODO: Instead of having getChangeTransmitter return a dummy,
-		//       return a dummy from here if useChangesTable is not set.
 		return new ChangeNotifier(
 			$this->getEntityChangeFactory(),
-			$this->getChangeTransmitter()
+			$this->getChangeTransmitters()
 		);
 	}
 
@@ -1089,9 +1108,9 @@ class WikibaseRepo {
 			$this->getDataTypeFactory(),
 			$templateFactory,
 			new LanguageNameLookup(),
-			$this->getSettings()->getSetting( 'siteLinkGroups' ),
-			$this->getSettings()->getSetting( 'specialSiteLinkGroups' ),
-			$this->getSettings()->getSetting( 'badgeItems' )
+			$this->settings->getSetting( 'siteLinkGroups' ),
+			$this->settings->getSetting( 'specialSiteLinkGroups' ),
+			$this->settings->getSetting( 'badgeItems' )
 		);
 
 		$entityDataFormatProvider = new EntityDataFormatProvider();

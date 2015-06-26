@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use BadMethodCallException;
 use Exception;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -318,32 +319,34 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	}
 
 	/**
+	 * Returns the same as getMatchingTerms simply making sure only one term
+	 * is returned per EntityId. This is the first term.
+	 * Weighting does not affect the order of return by this method.
+	 *
 	 * @param TermIndexEntry[] $terms
-	 * @param string|null $entityType
+	 * @param string|string[]|null $termType
+	 * @param string|string[]|null $entityType
 	 * @param array $options
 	 *
-	 * @return EntityId[]
+	 * @return TermIndexEntry[]
 	 */
-	public function getMatchingIDs( array $terms, $entityType = null, array $options = array() ) {
-		// We can't pass the limit on to getMatchingTerms, since getMatchingTerms may
-		// return multiple terms for an EntityId.
-		$limit = isset( $options['LIMIT'] ) ? $options['LIMIT'] : 0;
-		unset( $options['LIMIT'] );
-
-		$terms = $this->getMatchingTerms( $terms, null, $entityType, $options );
-
-		$ids = array();
-		foreach ( $terms as $term ) {
-			$id = $term->getEntityId();
-			$key = $id->getSerialization();
-			$ids[$key] = $id;
+	public function getTopMatchingTerms(
+		array $terms,
+		$termType = null,
+		$entityType = null,
+		array $options = array()
+	) {
+		$options['orderByWeight'] = true;
+		$terms = $this->getMatchingTerms( $terms, $termType, $entityType, $options );
+		$previousEntityIdSerializations = array();
+		$returnTerms = array();
+		foreach( $terms as $termIndexEntry ) {
+			if( !in_array( $termIndexEntry->getEntityId()->getSerialization(), $previousEntityIdSerializations ) ) {
+				$returnTerms[] = $termIndexEntry;
+				$previousEntityIdSerializations[] = $termIndexEntry->getEntityId()->getSerialization();
+			}
 		}
-
-		if ( $limit > 0 ) {
-			$ids = array_slice( $ids, 0, $limit );
-		}
-
-		return $ids;
+		return $returnTerms;
 	}
 
 	/**
@@ -436,4 +439,5 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 
 		return $find === $text;
 	}
+
 }

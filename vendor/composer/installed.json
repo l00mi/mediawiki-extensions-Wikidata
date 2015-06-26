@@ -97,97 +97,51 @@
         ]
     },
     {
-        "name": "data-values/javascript",
-        "version": "0.7.0",
-        "version_normalized": "0.7.0.0",
+        "name": "propertysuggester/property-suggester",
+        "version": "2.3.0",
+        "version_normalized": "2.3.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "65ecb1f7e0bb6fe84dee23834452db40e6f5ca52"
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "037cb6b156b1804d9c37f912aeaaf182ccff2a46"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/65ecb1f7e0bb6fe84dee23834452db40e6f5ca52",
-            "reference": "65ecb1f7e0bb6fe84dee23834452db40e6f5ca52",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/037cb6b156b1804d9c37f912aeaaf182ccff2a46",
+            "reference": "037cb6b156b1804d9c37f912aeaaf182ccff2a46",
             "shasum": ""
         },
         "require": {
-            "composer/installers": ">=1.0.1"
+            "php": ">=5.3.0"
         },
-        "time": "2015-06-03 14:57:45",
-        "type": "library",
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2015-06-26 13:50:34",
+        "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
-            "files": [
-                "DataValuesJavaScript.php"
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
             "GPL-2.0+"
         ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "DataValues implementation in JavaScript",
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
         "keywords": [
-            "datavalues",
+            "propertysuggester",
+            "wikibase",
             "wikidata"
         ]
-    },
-    {
-        "name": "wikibase/data-model-javascript",
-        "version": "1.0.2",
-        "version_normalized": "1.0.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
-            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
-            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.6.0|~0.7.0"
-        },
-        "time": "2015-05-29 09:52:16",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "init.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "Wikibase datamodel implementation in JavaScript"
     },
     {
         "name": "data-values/interfaces",
@@ -368,6 +322,158 @@
             "valuevalidators",
             "wikidata"
         ]
+    },
+    {
+        "name": "data-values/time",
+        "version": "0.8.0",
+        "version_normalized": "0.8.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Time.git",
+            "reference": "0a28018f7b7f7919775bc25d5961e9a37c8dd279"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/0a28018f7b7f7919775bc25d5961e9a37c8dd279",
+            "reference": "0a28018f7b7f7919775bc25d5961e9a37c8dd279",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.2.0",
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "^0.1.5",
+            "php": ">=5.3.0"
+        },
+        "time": "2015-06-26 08:41:15",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.8.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Time.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Time value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Time",
+        "keywords": [
+            "datavalues",
+            "time",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/javascript",
+        "version": "0.7.0",
+        "version_normalized": "0.7.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataValuesJavascript.git",
+            "reference": "65ecb1f7e0bb6fe84dee23834452db40e6f5ca52"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/65ecb1f7e0bb6fe84dee23834452db40e6f5ca52",
+            "reference": "65ecb1f7e0bb6fe84dee23834452db40e6f5ca52",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": ">=1.0.1"
+        },
+        "time": "2015-06-03 14:57:45",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValuesJavaScript.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            },
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "DataValues implementation in JavaScript",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model-javascript",
+        "version": "1.0.2",
+        "version_normalized": "1.0.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
+            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
+            "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.6.0|~0.7.0"
+        },
+        "time": "2015-05-29 09:52:16",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "init.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Wikibase datamodel implementation in JavaScript"
     },
     {
         "name": "data-values/number",
@@ -795,65 +901,6 @@
         ]
     },
     {
-        "name": "data-values/time",
-        "version": "0.7.0",
-        "version_normalized": "0.7.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Time.git",
-            "reference": "660ac31cc7af8f19a342d2065874f0e358d968ab"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/660ac31cc7af8f19a342d2065874f0e358d968ab",
-            "reference": "660ac31cc7af8f19a342d2065874f0e358d968ab",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.2.0",
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "^0.1.5",
-            "php": ">=5.3.0"
-        },
-        "time": "2015-04-20 15:06:13",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.7.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Time.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Time value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Time",
-        "keywords": [
-            "datavalues",
-            "time",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/value-view",
         "version": "0.14.5",
         "version_normalized": "0.14.5.0",
@@ -1165,12 +1212,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "df4d4e61295461858bd8c07928e2eaf7207b3910"
+            "reference": "9617a48f5b060241272144fba72f76c2704983a0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/df4d4e61295461858bd8c07928e2eaf7207b3910",
-            "reference": "df4d4e61295461858bd8c07928e2eaf7207b3910",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9617a48f5b060241272144fba72f76c2704983a0",
+            "reference": "9617a48f5b060241272144fba72f76c2704983a0",
             "shasum": ""
         },
         "require": {
@@ -1182,7 +1229,7 @@
             "data-values/javascript": "~0.6.0|~0.7.0",
             "data-values/number": "~0.5.0",
             "data-values/serialization": "~1.0",
-            "data-values/time": "~0.7.0",
+            "data-values/time": "~0.8.0",
             "data-values/validators": "~0.1.0",
             "data-values/value-view": "~0.14.0",
             "diff/diff": "~2.0|~1.0",
@@ -1197,7 +1244,10 @@
         "conflict": {
             "mediawiki/mediawiki": "<1.23"
         },
-        "time": "2015-06-25 07:24:51",
+        "require-dev": {
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-06-26 10:02:03",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1445,52 +1495,5 @@
         "support": {
             "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
         }
-    },
-    {
-        "name": "propertysuggester/property-suggester",
-        "version": "2.2.1",
-        "version_normalized": "2.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "902d481bdc9c084602a513521a2fc451366beb76"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/902d481bdc9c084602a513521a2fc451366beb76",
-            "reference": "902d481bdc9c084602a513521a2fc451366beb76",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2015-06-18 12:27:16",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
     }
 ]

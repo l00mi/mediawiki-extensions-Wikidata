@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "eb7b1a0dad267009e204e73649c0f94d",
+    "hash": "3787d784905377489bb40b47b8fb3355",
     "packages": [
         {
             "name": "composer/installers",
@@ -540,16 +540,16 @@
         },
         {
             "name": "data-values/time",
-            "version": "0.7.0",
+            "version": "0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "660ac31cc7af8f19a342d2065874f0e358d968ab"
+                "reference": "0a28018f7b7f7919775bc25d5961e9a37c8dd279"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/660ac31cc7af8f19a342d2065874f0e358d968ab",
-                "reference": "660ac31cc7af8f19a342d2065874f0e358d968ab",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/0a28018f7b7f7919775bc25d5961e9a37c8dd279",
+                "reference": "0a28018f7b7f7919775bc25d5961e9a37c8dd279",
                 "shasum": ""
             },
             "require": {
@@ -561,7 +561,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.7.x-dev"
+                    "dev-master": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -593,7 +593,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2015-04-20 15:06:13"
+            "time": "2015-06-26 08:41:15"
         },
         {
             "name": "data-values/validators",
@@ -758,16 +758,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "2.2.1",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "902d481bdc9c084602a513521a2fc451366beb76"
+                "reference": "037cb6b156b1804d9c37f912aeaaf182ccff2a46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/902d481bdc9c084602a513521a2fc451366beb76",
-                "reference": "902d481bdc9c084602a513521a2fc451366beb76",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/037cb6b156b1804d9c37f912aeaaf182ccff2a46",
+                "reference": "037cb6b156b1804d9c37f912aeaaf182ccff2a46",
                 "shasum": ""
             },
             "require": {
@@ -799,7 +799,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-06-18 12:27:16"
+            "time": "2015-06-26 13:50:34"
         },
         {
             "name": "serialization/serialization",
@@ -1326,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "df4d4e61295461858bd8c07928e2eaf7207b3910"
+                "reference": "9617a48f5b060241272144fba72f76c2704983a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/df4d4e61295461858bd8c07928e2eaf7207b3910",
-                "reference": "df4d4e61295461858bd8c07928e2eaf7207b3910",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9617a48f5b060241272144fba72f76c2704983a0",
+                "reference": "9617a48f5b060241272144fba72f76c2704983a0",
                 "shasum": ""
             },
             "require": {
@@ -1343,7 +1343,7 @@
                 "data-values/javascript": "~0.6.0|~0.7.0",
                 "data-values/number": "~0.5.0",
                 "data-values/serialization": "~1.0",
-                "data-values/time": "~0.7.0",
+                "data-values/time": "~0.8.0",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.14.0",
                 "diff/diff": "~2.0|~1.0",
@@ -1357,6 +1357,9 @@
             },
             "conflict": {
                 "mediawiki/mediawiki": "<1.23"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "~2.1"
             },
             "type": "mediawiki-extension",
             "autoload": {
@@ -1396,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-06-25 07:24:51"
+            "time": "2015-06-26 10:02:03"
         },
         {
             "name": "wikibase/wikimedia-badges",
