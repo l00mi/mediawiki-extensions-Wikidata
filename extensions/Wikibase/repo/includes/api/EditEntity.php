@@ -13,7 +13,7 @@ use Title;
 use UsageException;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOps;
-use Wikibase\ChangeOp\ClaimChangeOpFactory;
+use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\ChangeOp\FingerprintChangeOpFactory;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\DataModel\Claim\Claim;
@@ -55,9 +55,9 @@ class EditEntity extends ModifyEntity {
 	private $termChangeOpFactory;
 
 	/**
-	 * @var ClaimChangeOpFactory
+	 * @var StatementChangeOpFactory
 	 */
-	private $claimChangeOpFactory;
+	private $statementChangeOpFactory;
 
 	/**
 	 * @var SiteLinkChangeOpFactory
@@ -80,7 +80,7 @@ class EditEntity extends ModifyEntity {
 
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
 		$this->termChangeOpFactory = $changeOpFactoryProvider->getFingerprintChangeOpFactory();
-		$this->claimChangeOpFactory = $changeOpFactoryProvider->getClaimChangeOpFactory();
+		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 		$this->siteLinkChangeOpFactory = $changeOpFactoryProvider->getSiteLinkChangeOpFactory();
 	}
 
@@ -95,7 +95,7 @@ class EditEntity extends ModifyEntity {
 	protected function getRequiredPermissions( EntityDocument $entity ) {
 		$permissions = parent::getRequiredPermissions( $entity );
 
-		if ( !$this->entityExists( $entity ) ) {
+		if ( !$this->entityExists( $entity->getId() ) ) {
 			$permissions[] = 'createpage';
 
 			switch ( $entity->getType() ) {
@@ -109,23 +109,32 @@ class EditEntity extends ModifyEntity {
 	}
 
 	/**
+	 * @param EntityId $entityId
+	 *
+	 * @return bool
+	 */
+	private function entityExists( EntityId $entityId ) {
+		$title = $entityId === null ? null : $this->getTitleLookup()->getTitleForId( $entityId );
+		return ( $title !== null && $title->exists() );
+	}
+
+	/**
 	 * @see ModifyEntity::createEntity
 	 *
-	 * @param array $params
+	 * @param string $entityType
 	 *
 	 * @throws UsageException
 	 * @throws LogicException
 	 * @return Entity
 	 */
-	protected function createEntity( array $params ) {
-		$type = $params['new'];
+	protected function createEntity( $entityType ) {
 		$this->flags |= EDIT_NEW;
 		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
 
 		try {
-			return $entityFactory->newEmpty( $type );
+			return $entityFactory->newEmpty( $entityType );
 		} catch ( InvalidArgumentException $ex ) {
-			$this->dieError( "No such entity type: '$type'", 'no-such-entity-type' );
+			$this->dieError( "No such entity type: '$entityType'", 'no-such-entity-type' );
 		}
 
 		throw new LogicException( 'ApiBase::dieUsage did not throw a UsageException' );
@@ -160,7 +169,7 @@ class EditEntity extends ModifyEntity {
 		$this->validateDataProperties( $data, $entity, $baseRevId );
 
 		$revisionLookup = $this->getEntityRevisionLookup();
-		$exists = $this->entityExists( $entity );
+		$exists = $this->entityExists( $entity->getId() );
 
 		if ( $params['clear'] ) {
 			if ( $params['baserevid'] && $exists ) {
@@ -490,7 +499,7 @@ class EditEntity extends ModifyEntity {
 						throw new IllegalValueException( 'Claim serialization did not contained a Claim.' );
 					}
 
-					$opsToReturn[] = $this->claimChangeOpFactory->newSetClaimOp( $claim );
+					$opsToReturn[] = $this->statementChangeOpFactory->newSetStatementOp( $claim );
 				} catch ( IllegalValueException $ex ) {
 					$this->dieException( $ex, 'invalid-claim' );
 				} catch ( MWException $ex ) {
@@ -513,7 +522,7 @@ class EditEntity extends ModifyEntity {
 		foreach ( $claims as $claimArray ) {
 			if ( array_key_exists( 'remove', $claimArray ) ) {
 				if ( array_key_exists( 'id', $claimArray ) ) {
-					$opsToReturn[] = $this->claimChangeOpFactory->newRemoveStatementOp( $claimArray['id'] );
+					$opsToReturn[] = $this->statementChangeOpFactory->newRemoveStatementOp( $claimArray['id'] );
 				} else {
 					$this->dieError( 'Cannot remove a claim with no GUID', 'invalid-claim' );
 				}
@@ -537,7 +546,7 @@ class EditEntity extends ModifyEntity {
 		}
 
 		if ( $entity instanceof Item ) {
-			$builder->addSiteLinks( $entity->getSiteLinks(), 'entity' );
+			$builder->addSiteLinks( $entity->getSiteLinkList()->toArray(), 'entity' );
 		}
 
 		$builder->addClaims( $entity->getClaims(), 'entity' );

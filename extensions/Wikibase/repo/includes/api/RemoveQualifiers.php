@@ -7,7 +7,7 @@ use ApiMain;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOps;
-use Wikibase\ChangeOp\ClaimChangeOpFactory;
+use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -23,9 +23,9 @@ use Wikibase\Repo\WikibaseRepo;
 class RemoveQualifiers extends ModifyClaim {
 
 	/**
-	 * @var ClaimChangeOpFactory
+	 * @var StatementChangeOpFactory
 	 */
-	private $claimChangeOpFactory;
+	private $statementChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -36,7 +36,7 @@ class RemoveQualifiers extends ModifyClaim {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
-		$this->claimChangeOpFactory = $changeOpFactoryProvider->getClaimChangeOpFactory();
+		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
 	/**
@@ -48,19 +48,19 @@ class RemoveQualifiers extends ModifyClaim {
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
-		$claimGuid = $params['claim'];
-		$entityId = $this->claimGuidParser->parse( $claimGuid )->getEntityId();
+		$guid = $params['claim'];
+		$entityId = $this->guidParser->parse( $guid )->getEntityId();
 		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
 		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
 		$entity = $entityRevision->getEntity();
-		$summary = $this->claimModificationHelper->createSummary( $params, $this );
+		$summary = $this->modificationHelper->createSummary( $params, $this );
 
-		$claim = $this->claimModificationHelper->getClaimFromEntity( $claimGuid, $entity );
+		$claim = $this->modificationHelper->getStatementFromEntity( $guid, $entity );
 
 		$qualifierHashes = $this->getQualifierHashesFromParams( $params, $claim );
 
 		$changeOps = new ChangeOps();
-		$changeOps->add( $this->getChangeOps( $claimGuid, $qualifierHashes ) );
+		$changeOps->add( $this->getChangeOps( $guid, $qualifierHashes ) );
 
 		try {
 			$changeOps->apply( $entity, $summary );
@@ -76,7 +76,7 @@ class RemoveQualifiers extends ModifyClaim {
 	 * Check the provided parameters
 	 */
 	private function validateParameters( array $params ) {
-		if ( !( $this->claimModificationHelper->validateClaimGuid( $params['claim'] ) ) ) {
+		if ( !( $this->modificationHelper->validateStatementGuid( $params['claim'] ) ) ) {
 			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
 		}
 	}
@@ -91,7 +91,7 @@ class RemoveQualifiers extends ModifyClaim {
 		$changeOps = array();
 
 		foreach ( $qualifierHashes as $qualifierHash ) {
-			$changeOps[] = $this->claimChangeOpFactory->newRemoveQualifierOp( $claimGuid, $qualifierHash );
+			$changeOps[] = $this->statementChangeOpFactory->newRemoveQualifierOp( $claimGuid, $qualifierHash );
 		}
 
 		return $changeOps;

@@ -9,6 +9,7 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\TermIndex;
+use Wikibase\TermIndexEntry;
 use InvalidArgumentException;
 
 /**
@@ -34,7 +35,11 @@ class SuggestionGenerator {
 	 */
 	private $suggester;
 
-	public function __construct( EntityLookup $entityLookup, TermIndex $termIndex, SuggesterEngine $suggester ) {
+	public function __construct(
+		EntityLookup $entityLookup,
+		TermIndex $termIndex,
+		SuggesterEngine $suggester
+	) {
 		$this->entityLookup = $entityLookup;
 		$this->suggester = $suggester;
 		$this->termIndex = $termIndex;
@@ -113,18 +118,16 @@ class SuggestionGenerator {
 	 * @return PropertyId[]
 	 */
 	private function getMatchingIDs( $search, $language ) {
-		$ids = $this->termIndex->getMatchingIDs(
+		$termIndexEntries = $this->termIndex->getTopMatchingTerms(
 			array(
-				new \Wikibase\Term( array(
-					'termType' => \Wikibase\Term::TYPE_LABEL,
-					'termLanguage' => $language,
-					'termText' => $search
-				) ),
-				new \Wikibase\Term( array(
-					'termType' => \Wikibase\Term::TYPE_ALIAS,
+				new TermIndexEntry( array(
 					'termLanguage' => $language,
 					'termText' => $search
 				) )
+			),
+			array(
+				TermIndexEntry::TYPE_LABEL,
+				TermIndexEntry::TYPE_ALIAS,
 			),
 			Property::ENTITY_TYPE,
 			array(
@@ -132,6 +135,12 @@ class SuggestionGenerator {
 				'prefixSearch' => true,
 			)
 		);
+
+		$ids = array();
+		foreach ( $termIndexEntries as $entry ) {
+			$ids[] = $entry->getEntityId();
+		}
+
 		return $ids;
 	}
 

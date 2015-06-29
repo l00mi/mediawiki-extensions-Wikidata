@@ -14,6 +14,7 @@ use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\TermIndex;
 use InvalidArgumentException;
+use Wikibase\TermIndexEntry;
 
 /**
  * @covers PropertySuggester\SuggestionGenerator
@@ -50,7 +51,11 @@ class SuggestionGeneratorTest extends MediaWikiTestCase {
 		$this->termIndex = $this->getMock( 'Wikibase\TermIndex' );
 		$this->suggester = $this->getMock( 'PropertySuggester\Suggesters\SuggesterEngine' );
 
-		$this->suggestionGenerator = new SuggestionGenerator( $this->lookup, $this->termIndex, $this->suggester );
+		$this->suggestionGenerator = new SuggestionGenerator(
+			$this->lookup,
+			$this->termIndex,
+			$this->suggester
+		);
 	}
 
 	public function testFilterSuggestions() {
@@ -70,12 +75,30 @@ class SuggestionGeneratorTest extends MediaWikiTestCase {
 		$resultSize = 2;
 
 		$this->termIndex->expects( $this->any() )
-			->method( 'getMatchingIDs' )
-			->will( $this->returnValue( array( $p7, $p10, $p15, $p12 ) ) );
+			->method( 'getTopMatchingTerms' )
+			->will( $this->returnValue(
+				$this->getTermIndexEntryArrayWithIds( array( $p7, $p10, $p15, $p12 ) )
+			) );
 
 		$result = $this->suggestionGenerator->filterSuggestions( $suggestions, 'foo', 'en', $resultSize );
 
 		$this->assertEquals( array( $suggestions[0], $suggestions[2] ), $result );
+	}
+
+	/**
+	 * @param PropertyId[] $ids
+	 *
+	 * @return TermIndexEntry[]
+	 */
+	private function getTermIndexEntryArrayWithIds( $ids ) {
+		$termIndexEntries = array();
+		foreach ( $ids as $id ) {
+			$termIndexEntries[] = new TermIndexEntry( array(
+				'entityId' => $id->getNumericId(),
+				'entityType' => $id->getEntityType(),
+			) );
+		}
+		return $termIndexEntries;
 	}
 
 	public function testFilterSuggestionsWithoutSearch() {

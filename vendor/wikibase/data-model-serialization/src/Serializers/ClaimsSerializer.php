@@ -20,12 +20,12 @@ class ClaimsSerializer implements DispatchableSerializer {
 	/**
 	 * @var Serializer
 	 */
-	protected $claimSerializer;
+	private $claimSerializer;
 
 	/**
 	 * @var bool
 	 */
-	protected $useObjectsForMaps;
+	private $useObjectsForMaps;
 
 	/**
 	 * @param Serializer $claimSerializer
@@ -50,7 +50,7 @@ class ClaimsSerializer implements DispatchableSerializer {
 	/**
 	 * @see Serializer::serialize
 	 *
-	 * @param mixed $object
+	 * @param Claims $object
 	 *
 	 * @return array
 	 * @throws SerializationException
@@ -73,7 +73,7 @@ class ClaimsSerializer implements DispatchableSerializer {
 		 * @var Claim $claim
 		 */
 		foreach( $claims as $claim ) {
-			$serialization[$claim->getMainSnak()->getPropertyId()->getPrefixedId()][] = $this->claimSerializer->serialize( $claim );
+			$serialization[$claim->getMainSnak()->getPropertyId()->getSerialization()][] = $this->claimSerializer->serialize( $claim );
 		}
 
 		if ( $this->useObjectsForMaps ) {

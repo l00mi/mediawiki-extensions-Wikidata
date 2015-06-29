@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Умар"
+		]
+	},
+	"wbq-violations-group-label": "Тоба:",
+	"wbq-violations-type-label": "Тайпа:",
+	"wbq-violations-form-select-all": "(массо)",
+	"wbq-violations-table-header-claim": "Дехар",
+	"wbq-violations-table-header-constraint-type": "Тайпа",
+	"wbq-violations-table-header-status": "Статус",
+	"wbq-violations-status-unverified": "Хьажанза"
+}

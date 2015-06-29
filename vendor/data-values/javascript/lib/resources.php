@@ -7,16 +7,12 @@
  * @codeCoverageIgnoreStart
  */
 return call_user_func( function() {
-	preg_match(
-		'+^.*?' . preg_quote( DIRECTORY_SEPARATOR, '+' ) . '((?:vendor|extensions)' .
-			preg_quote( DIRECTORY_SEPARATOR, '+' ) . '.*)$+',
-		__DIR__,
-		$remoteExtPathParts
-	);
+	preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+		. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
 
 	$moduleTemplate = array(
 		'localBasePath' => __DIR__,
-		'remoteExtPath' => '..' . DIRECTORY_SEPARATOR . $remoteExtPathParts[1]
+		'remoteExtPath' => '..' . $remoteExtPath[0]
 	);
 
 	return array(
@@ -34,24 +30,6 @@ return call_user_func( function() {
 				'qunit.parameterize/qunit.parameterize.js',
 			),
 			'dependencies' => array(
-			),
-		),
-
-		'time.js' => $moduleTemplate + array(
-			'scripts' => array(
-				'time/time.js',
-				'time/time.Time.js',
-				'time/time.Time.validate.js',
-				'time/time.Parser.js',
-			),
-		),
-
-		'time.js.validTimeDefinitions' => $moduleTemplate + array(
-			'scripts' => array(
-				'../tests/lib/time/time.validTimeDefinitions.js',
-			),
-			'dependencies' => array(
-				'time.js',
 			),
 		),
 

@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Mogoeilor"
+		]
+	},
+	"wbq-violations-group-label": "دأسه:",
+	"wbq-violations-type-label": "جوٙر:",
+	"wbq-violations-form-select-all": "(هأمه)",
+	"wbq-violations-table-header-constraint-type": "جوٙر",
+	"wbq-violations-table-header-updated-at": "آخئری ڤئ هئنگوم بیئن",
+	"wbq-violations-table-header-status": "حال و بال",
+	"wbq-violations-status-unverified": "تأصیق نأبیه"
+}

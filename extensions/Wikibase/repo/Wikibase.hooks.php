@@ -398,7 +398,7 @@ final class RepoHooks {
 			'type' => 'api'
 		);
 
-		if( class_exists( 'Babel' ) ) {
+		if ( class_exists( 'Babel' ) ) {
 			$preferences['wikibase-entitytermsview-showEntitytermslistview'] = array(
 				'type' => 'toggle',
 				'label-message' => 'wikibase-setting-entitytermsview-showEntitytermslistview',
@@ -895,6 +895,14 @@ final class RepoHooks {
 		$titleText = $parserOutput->getExtensionData( 'wikibase-titletext' );
 		if ( $titleText !== null ) {
 			$out->setProperty( 'wikibase-titletext', $titleText );
+		}
+
+		// Array with <link rel="alternate"> tags for the page HEAD.
+		$alternateLinks = $parserOutput->getExtensionData( 'wikibase-alternate-links' );
+		if ( $alternateLinks !== null ) {
+			foreach ( $alternateLinks as $link ) {
+				$out->addLink( $link );
+			}
 		}
 
 		return true;

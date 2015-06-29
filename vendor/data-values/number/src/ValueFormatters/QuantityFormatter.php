@@ -3,6 +3,7 @@
 namespace ValueFormatters;
 
 use DataValues\DecimalMath;
+use DataValues\DecimalValue;
 use DataValues\QuantityValue;
 use InvalidArgumentException;
 
@@ -13,6 +14,7 @@ use InvalidArgumentException;
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
 class QuantityFormatter extends ValueFormatterBase {
 
@@ -38,30 +40,93 @@ class QuantityFormatter extends ValueFormatterBase {
 	const OPT_APPLY_ROUNDING = 'applyRounding';
 
 	/**
-	 * @var DecimalMath
+	 * Option key controlling whether the quantity's unit of measurement should be included
+	 * in the output.
+	 *
+	 * @since 0.5
 	 */
-	protected $decimalMath;
+	const OPT_APPLY_UNIT = 'applyUnit';
 
 	/**
 	 * @var DecimalMath
 	 */
-	protected $decimalFormatter;
+	private $decimalMath;
 
 	/**
-	 * @param DecimalFormatter $decimalFormatter
-	 * @param FormatterOptions $options
+	 * @var DecimalFormatter
 	 */
-	public function __construct( DecimalFormatter $decimalFormatter, FormatterOptions $options ) {
-		$options = clone $options; // copy, so we don't modify the options that were passed in.
-		$options->defaultOption( self::OPT_SHOW_UNCERTAINTY_MARGIN, true );
-		$options->defaultOption( self::OPT_APPLY_ROUNDING, true );
+	private $decimalFormatter;
 
+	/**
+	 * @var QuantityUnitFormatter
+	 */
+	private $unitFormatter;
+
+	/**
+	 * @param DecimalFormatter|null $decimalFormatter
+	 * @param QuantityUnitFormatter|null $unitFormatter
+	 * @param FormatterOptions|null $options
+	 */
+	public function __construct(
+		DecimalFormatter $decimalFormatter = null,
+		QuantityUnitFormatter $unitFormatter = null,
+		FormatterOptions $options = null
+	) {
 		parent::__construct( $options );
 
-		$this->decimalFormatter = $decimalFormatter;
+		$this->defaultOption( self::OPT_SHOW_UNCERTAINTY_MARGIN, true );
+		$this->defaultOption( self::OPT_APPLY_ROUNDING, true );
+		$this->defaultOption( self::OPT_APPLY_UNIT, true );
+
+		$this->decimalFormatter = $decimalFormatter ?: new DecimalFormatter( $this->options );
+		$this->unitFormatter = $unitFormatter ?: new BasicQuantityUnitFormatter();
 
 		// plain composition should be sufficient
 		$this->decimalMath = new DecimalMath();
+	}
+
+	/**
+	 * @see ValueFormatter::format
+	 *
+	 * @since 0.1
+	 *
+	 * @param QuantityValue $value
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string Text
+	 */
+	public function format( $value ) {
+		if ( !( $value instanceof QuantityValue ) ) {
+			throw new InvalidArgumentException( 'Data value type mismatch. Expected a QuantityValue.' );
+		}
+
+		return $this->formatQuantityValue( $value );
+	}
+
+	/**
+	 * @param QuantityValue $quantity
+	 *
+	 * @return string Text
+	 */
+	private function formatQuantityValue( QuantityValue $quantity ) {
+		$roundingExponent = $this->getRoundingExponent( $quantity );
+
+		$amount = $quantity->getAmount();
+		$roundedAmount = $this->decimalMath->roundToExponent( $amount, $roundingExponent );
+		$formatted = $this->decimalFormatter->format( $roundedAmount );
+
+		$margin = $this->formatMargin( $quantity->getUncertaintyMargin(), $roundingExponent );
+		if ( $margin !== null ) {
+			// TODO: use localizable pattern for constructing the output.
+			$formatted .= '±' . $margin;
+		}
+
+		$unit = $quantity->getUnit();
+		if ( $this->options->getOption( self::OPT_APPLY_UNIT ) && $unit !== '1' && $unit !== '' ) {
+			$formatted = $this->unitFormatter->applyUnit( $unit, $formatted );
+		}
+
+		return $formatted;
 	}
 
 	/**
@@ -72,7 +137,7 @@ class QuantityFormatter extends ValueFormatterBase {
 	 *
 	 * @return int
 	 */
-	protected function getRoundingExponent( QuantityValue $quantity ) {
+	private function getRoundingExponent( QuantityValue $quantity ) {
 		if ( $this->options->getOption( self::OPT_APPLY_ROUNDING ) === true ) {
 			// round to the order of uncertainty
 			return $quantity->getOrderOfUncertainty();
@@ -85,54 +150,22 @@ class QuantityFormatter extends ValueFormatterBase {
 	}
 
 	/**
-	 * Formats a QuantityValue data value
+	 * @param DecimalValue $margin
+	 * @param int $roundingExponent
 	 *
-	 * @since 0.1
-	 *
-	 * @param mixed $dataValue value to format
-	 *
-	 * @return string
-	 * @throws InvalidArgumentException
+	 * @return string|null Text
 	 */
-	public function format( $dataValue ) {
-		if ( !( $dataValue instanceof QuantityValue ) ) {
-			throw new InvalidArgumentException( 'DataValue is not a QuantityValue.' );
-		}
-
-		$roundingExponent = $this->getRoundingExponent( $dataValue );
-
-		$amountValue = $dataValue->getAmount();
-		$amountValue = $this->decimalMath->roundToExponent( $amountValue, $roundingExponent );
-		$amount = $this->decimalFormatter->format( $amountValue );
-
-		$unit = $dataValue->getUnit();
-
-		$margin = '';
-
+	private function formatMargin( DecimalValue $margin, $roundingExponent ) {
 		if ( $this->options->getOption( self::OPT_SHOW_UNCERTAINTY_MARGIN ) ) {
-
 			// TODO: never round to 0! See bug #56892
-			$marginValue = $dataValue->getUncertaintyMargin();
-			$marginValue = $this->decimalMath->roundToExponent( $marginValue, $roundingExponent );
+			$roundedMargin = $this->decimalMath->roundToExponent( $margin, $roundingExponent );
 
-			if ( !$marginValue->isZero() ) {
-				$margin = $this->decimalFormatter->format( $marginValue );
+			if ( !$roundedMargin->isZero() ) {
+				return $this->decimalFormatter->format( $roundedMargin );
 			}
 		}
 
-		//TODO: use localizable pattern for constructing the output.
-		$quantity = $amount;
-
-		if ( $margin !== '' ) {
-			$quantity .= '±' . $margin;
-		}
-
-		if ( $unit !== '1' ) {
-			//XXX: do we need to localize unit names?
-			$quantity .= $unit;
-		}
-
-		return $quantity;
+		return null;
 	}
 
 }

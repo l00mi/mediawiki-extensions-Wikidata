@@ -1,0 +1,18 @@
+{
+	"@metadata": {
+		"authors": [
+			"Jagwar"
+		]
+	},
+	"specialpages-group-wikidataquality": "Kalitao Wikidata",
+	"wikidataquality-checkresult-form-submit-label": "Marihana",
+	"wikidataquality-checkresult-invalid-entity-id": "IDn-javatra tsy manan-kery!",
+	"wikidataquality-checkresult-not-existent-entity": "Tsy misy ilay zavatra!",
+	"wikidataquality-checkresult-result-headline": "Valiny ho an'i $1",
+	"wikidataquality-checkresult-result-table-header-status": "Sata",
+	"wikidataquality-checkresult-status-compliance": "Fanajam-penitra",
+	"wikidataquality-checkresult-status-violation": "Fanolanana",
+	"wikidataquality-checkresult-status-exception": "Fiavahana",
+	"wikidataquality-checkresult-status-references-missing": "Tsiahy tsy ampy",
+	"wikidataquality-checkresult-status-todo": "Zava-katao"
+}

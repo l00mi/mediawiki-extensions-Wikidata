@@ -6,29 +6,29 @@ env:
 matrix:
   fast_finish: true
   include:
-    - env: DM=~2.4
+    - env: DM=~3.0
       php: 5.3
-    - env: DM=~2.4
+    - env: DM=~3.0
       php: 5.4
-    - env: DM=~2.4@dev
-      php: 5.5
-    - env: DM=~2.4
+    - env: DM=~3.0@dev
       php: 5.6
-    - env: DM=~2.4
+    - env: DM=~3.0
+      php: 7
+    - env: DM=~3.0
       php: hhvm
-    - env: DM=~2.4@dev
+    - env: DM=~3.0@dev
       php: hhvm-nightly
   exclude:
     - env: THENEEDFORTHIS=FAIL
   allow_failures:
     - php: hhvm-nightly
 
-before_script:
-  - composer require "wikibase/data-model=$DM" --prefer-source
+sudo: false
 
-script:
-  - phpunit
-  - phpunit --group slow
+before_script:
+  - travis_retry composer require "wikibase/data-model=$DM" --prefer-source
+
+script: composer ci
 
 notifications:
   irc:

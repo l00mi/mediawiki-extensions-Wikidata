@@ -1,0 +1,21 @@
+{
+	"@metadata": {
+		"authors": [
+			"Hayri özkurt",
+			"Sayginer",
+			"Meelo",
+			"Uğurkent"
+		]
+	},
+	"wbq-violations-description": "Veri kalite sorunları listesi",
+	"wbq-violations-group-label": "Grup:",
+	"wbq-violations-form-select-all": "(hepsi)",
+	"wbq-violations-exceptions-checkbox-label": "İstisnaları göster",
+	"wbq-violations-submit-button-label": "İhlalleri Göster",
+	"wbq-violations-table-header-updated-at": "Son güncelleme",
+	"wbq-violations-table-header-status": "Durum",
+	"wbq-violations-table-header-additional-info": "Ek bilgi",
+	"wbq-violations-status-unverified": "Doğrulanmamış",
+	"wbq-violations-next-page": "Sonraki sayfa >>",
+	"wbq-violations-prev-page": "<< Önceki sayfa"
+}

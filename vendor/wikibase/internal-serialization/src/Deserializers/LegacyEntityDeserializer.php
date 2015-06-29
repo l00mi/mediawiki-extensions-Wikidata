@@ -4,7 +4,7 @@ namespace Wikibase\InternalSerialization\Deserializers;
 
 use Deserializers\Deserializer;
 use Deserializers\Exceptions\DeserializationException;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 
 /**
  * @licence GNU GPL v2+
@@ -12,7 +12,14 @@ use Wikibase\DataModel\Entity\Entity;
  */
 class LegacyEntityDeserializer implements Deserializer {
 
+	/**
+	 * @var Deserializer
+	 */
 	private $itemDeserializer;
+
+	/**
+	 * @var Deserializer
+	 */
 	private $propertyDeserializer;
 
 	public function __construct( Deserializer $itemDeserializer, Deserializer $propertyDeserializer ) {
@@ -23,10 +30,14 @@ class LegacyEntityDeserializer implements Deserializer {
 	/**
 	 * @param mixed $serialization
 	 *
-	 * @return Entity
+	 * @return EntityDocument
 	 * @throws DeserializationException
 	 */
 	public function deserialize( $serialization ) {
+		if ( !is_array( $serialization ) ) {
+			throw new DeserializationException( 'Entity serialization must be an array' );
+		}
+
 		if ( $this->isPropertySerialization( $serialization ) ) {
 			return $this->propertyDeserializer->deserialize( $serialization );
 		}

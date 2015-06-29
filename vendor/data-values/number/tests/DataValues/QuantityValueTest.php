@@ -40,7 +40,6 @@ class QuantityValueTest extends DataValueTest {
 	public function invalidConstructorArgumentsProvider() {
 		$argLists = array();
 
-		$argLists[] = array();
 		$argLists[] = array( new DecimalValue( '+0' ), '', new DecimalValue( '+0' ), new DecimalValue( '+0' ) );
 		$argLists[] = array( new DecimalValue( '+0' ), 1, new DecimalValue( '+0' ), new DecimalValue( '+0' ) );
 
@@ -199,7 +198,6 @@ class QuantityValueTest extends DataValueTest {
 		);
 	}
 
-
 	/**
 	 * @dataProvider getOrderOfUncertaintyProvider
 	 */
@@ -228,7 +226,6 @@ class QuantityValueTest extends DataValueTest {
 			26 => array( QuantityValue::newFromNumber( '+1000', '1', '+1100', '+900' ), 2 ),
 		);
 	}
-
 
 	/**
 	 * @dataProvider getSignificantFiguresProvider

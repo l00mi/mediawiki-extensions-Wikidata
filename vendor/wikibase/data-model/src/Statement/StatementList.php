@@ -8,16 +8,14 @@ use Countable;
 use InvalidArgumentException;
 use IteratorAggregate;
 use Traversable;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
-use Wikibase\DataModel\Snak\Snaks;
 
 /**
- * Ordered, non-unique, collection of Statement objects.
+ * Ordered and non-unique collection of Statement objects.
  * Provides various filter operations.
  *
  * Does not do any indexing by default.
@@ -27,6 +25,7 @@ use Wikibase\DataModel\Snak\Snaks;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class StatementList implements IteratorAggregate, Comparable, Countable {
 
@@ -37,11 +36,11 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 
 	/**
 	 * @param Statement[]|Traversable|Statement $statements
-	 * @param Statement [$statement2, ...]
+	 * @param Statement [$statement2,...]
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct( $statements = array() /* Statement, ... */ ) {
+	public function __construct( $statements = array() /*...*/ ) {
 		if ( $statements instanceof Statement ) {
 			$statements = func_get_args();
 		}
@@ -75,7 +74,7 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	 * Returns the property ids used by the statements.
 	 * The keys of the returned array hold the serializations of the property ids.
 	 *
-	 * @return PropertyId[]
+	 * @return PropertyId[] Array indexed by property id serialization.
 	 */
 	public function getPropertyIds() {
 		$propertyIds = array();
@@ -93,7 +92,7 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 
 	/**
 	 * @param Snak $mainSnak
-	 * @param Snak[]|Snaks|null $qualifiers
+	 * @param Snak[]|SnakList|null $qualifiers
 	 * @param Reference[]|ReferenceList|null $references
 	 * @param string|null $guid
 	 */
@@ -101,15 +100,32 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 		$qualifiers = is_array( $qualifiers ) ? new SnakList( $qualifiers ) : $qualifiers;
 		$references = is_array( $references ) ? new ReferenceList( $references ) : $references;
 
-		$statement = new Statement( new Claim( $mainSnak, $qualifiers ), $references );
+		$statement = new Statement( $mainSnak, $qualifiers, $references );
 		$statement->setGuid( $guid );
 
 		$this->addStatement( $statement );
 	}
 
 	/**
+	 * @since 3.0
+	 *
+	 * @param string|null $guid
+	 */
+	public function removeStatementsWithGuid( $guid ) {
+		foreach ( $this->statements as $index => $statement ) {
+			if ( $statement->getGuid() === $guid ) {
+				unset( $this->statements[$index] );
+			}
+		}
+
+		$this->statements = array_values( $this->statements );
+	}
+
+	/**
 	 * Statements that have a main snak already in the list are filtered out.
 	 * The last occurrences are retained.
+	 *
+	 * @since 1.0
 	 *
 	 * @return self
 	 */
@@ -124,42 +140,42 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	}
 
 	/**
-	 * @since 2.3
+	 * @since 3.0
 	 *
 	 * @param PropertyId $id
 	 *
-	 * @return StatementList
+	 * @return self
 	 */
-	public function getWithPropertyId( PropertyId $id ) {
-		$statements = array();
+	public function getByPropertyId( PropertyId $id ) {
+		$statementList = new self();
 
 		foreach ( $this->statements as $statement ) {
 			if ( $statement->getPropertyId()->equals( $id ) ) {
-				$statements[] = $statement;
+				$statementList->addStatement( $statement );
 			}
 		}
 
-		return new self( $statements );
+		return $statementList;
 	}
 
 	/**
-	 * @since 2.4
+	 * @since 3.0
 	 *
 	 * @param int|int[] $acceptableRanks
 	 *
-	 * @return StatementList
+	 * @return self
 	 */
-	public function getWithRank( $acceptableRanks ) {
+	public function getByRank( $acceptableRanks ) {
 		$acceptableRanks = array_flip( (array)$acceptableRanks );
-		$statements = array();
+		$statementList = new self();
 
 		foreach ( $this->statements as $statement ) {
 			if ( array_key_exists( $statement->getRank(), $acceptableRanks ) ) {
-				$statements[] = $statement;
+				$statementList->addStatement( $statement );
 			}
 		}
 
-		return new self( $statements );
+		return $statementList;
 	}
 
 	/**
@@ -169,16 +185,16 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	 *
 	 * @since 2.4
 	 *
-	 * @return StatementList
+	 * @return self
 	 */
 	public function getBestStatements() {
-		$statements = $this->getWithRank( Statement::RANK_PREFERRED );
+		$statements = $this->getByRank( Statement::RANK_PREFERRED );
 
 		if ( !$statements->isEmpty() ) {
 			return $statements;
 		}
 
-		return $this->getWithRank( Statement::RANK_NORMAL );
+		return $this->getByRank( Statement::RANK_NORMAL );
 	}
 
 	/**
@@ -190,7 +206,7 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	 *
 	 * @since 1.1
 	 *
-	 * @return Snak[]
+	 * @return Snak[] Numerically indexed (non-sparse) array.
 	 */
 	public function getAllSnaks() {
 		$snaks = array();
@@ -207,7 +223,7 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	/**
 	 * @since 2.3
 	 *
-	 * @return Snak[]
+	 * @return Snak[] Numerically indexed (non-sparse) array.
 	 */
 	public function getMainSnaks() {
 		$snaks = array();
@@ -235,6 +251,7 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 
 	/**
 	 * @see Countable::count
+	 *
 	 * @return int
 	 */
 	public function count() {
@@ -281,6 +298,24 @@ class StatementList implements IteratorAggregate, Comparable, Countable {
 	 */
 	public function isEmpty() {
 		return empty( $this->statements );
+	}
+
+	/**
+	 * @since 3.0
+	 * @see StatementByGuidMap
+	 *
+	 * @param string|null $statementGuid
+	 *
+	 * @return Statement|null The first statement with the given GUID or null if not found.
+	 */
+	public function getFirstStatementWithGuid( $statementGuid ) {
+		foreach ( $this->statements as $statement ) {
+			if ( $statement->getGuid() === $statementGuid ) {
+				return $statement;
+			}
+		}
+
+		return null;
 	}
 
 }

@@ -1,0 +1,16 @@
+{
+	"@metadata": {
+		"authors": [
+			"علی ساکی لرستانی"
+		]
+	},
+	"wikibase-edit": "اصلاح",
+	"wikibase-add": "اضاف کردن",
+	"wikibase-label-empty": "برچسبی تعریف نۉابیدھ",
+	"wikibase-description-empty": "شرحی تعریف نۉابیدھ",
+	"wikibase-statements": "بیانیه",
+	"wikibase-sitelinks-special": "سایتل دیه",
+	"wikibase-aliases-empty": "بدۉن نام مستعار تعریف ۉابیدھ",
+	"wikibase-statementview-rank-normal": "رتبه عادی",
+	"wikibase-statementview-referencesheading-pendingcountersubject": "{{PLURAL:$1|سرچشمه|سرچشمل}}"
+}

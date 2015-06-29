@@ -3,7 +3,6 @@
 namespace Wikibase\Test;
 
 use FauxRequest;
-use FauxResponse;
 use HttpError;
 use OutputPage;
 use SiteList;
@@ -11,13 +10,14 @@ use SpecialPage;
 use Title;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\EntityFactory;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\LinkedData\EntityDataRequestHandler;
 use Wikibase\Repo\LinkedData\EntityDataSerializationService;
 use Wikibase\Repo\LinkedData\EntityDataUriManager;
 use Wikibase\Repo\Specials\SpecialEntityData;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialEntityData
@@ -59,19 +59,20 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 				return Title::newFromText( $id->getEntityType() . ':' . $id->getSerialization() );
 			} ) );
 
-		$idParser = new BasicEntityIdParser();
-
 		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
 		$dataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( 'string' ) );
 
-		$serializationOptions = new SerializationOptions();
+		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
+
 		$serializerFactory = new SerializerFactory(
-			$serializationOptions,
+			new SerializationOptions(),
 			$dataTypeLookup,
-			EntityFactory::singleton()
+			$entityFactory
 		);
+
+		$entityDataFormatProvider = new EntityDataFormatProvider();
 
 		$serializationService = new EntityDataSerializationService(
 			self::URI_BASE,
@@ -80,12 +81,13 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 			$titleLookup,
 			$serializerFactory,
 			$dataTypeLookup,
-			new SiteList()
+			new SiteList(),
+			$entityDataFormatProvider
 		);
 
 		$maxAge = 60*60;
 		$formats = array( 'json', 'rdfxml', 'ntriples' );
-		$serializationService->setFormatWhiteList( $formats );
+		$entityDataFormatProvider->setFormatWhiteList( $formats );
 
 		$defaultFormat = 'rdf';
 		$supportedExtensions = array_combine( $formats, $formats );
@@ -104,10 +106,11 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 		return new EntityDataRequestHandler(
 			$uriManager,
 			$titleLookup,
-			$idParser,
+			new BasicEntityIdParser(),
 			$mockRepository,
 			$mockRepository,
 			$serializationService,
+			$entityDataFormatProvider,
 			$defaultFormat,
 			$maxAge,
 			$useSquid,

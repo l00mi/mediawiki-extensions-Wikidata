@@ -32,9 +32,9 @@ class SiteLinkDeserializer implements Deserializer {
 	/**
 	 * @see Deserializer::deserialize
 	 *
-	 * @param mixed $serialization
+	 * @param array $serialization
 	 *
-	 * @return object
+	 * @return SiteLink
 	 * @throws DeserializationException
 	 */
 	public function deserialize( $serialization ) {
@@ -98,4 +98,5 @@ class SiteLinkDeserializer implements Deserializer {
 			throw new MissingAttributeException( $attribute );
 		}
 	}
+
 }

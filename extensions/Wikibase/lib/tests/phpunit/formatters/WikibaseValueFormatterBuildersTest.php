@@ -13,6 +13,7 @@ use Title;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\StringFormatter;
 use ValueFormatters\ValueFormatter;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
@@ -85,6 +86,7 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 			Language::factory( 'en' ),
 			new FormatterLabelDescriptionLookupFactory( $termLookup ),
 			$languageNameLookup,
+			new BasicEntityIdParser(),
 			$entityTitleLookup
 		);
 	}
@@ -367,10 +369,8 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 		$this->setExpectedException( 'ValueFormatters\FormattingException' );
 
 		$timeValue = new TimeValue(
-			'+00000002013-01-01T00:00:00Z',
-			0,
-			0,
-			0,
+			'+2013-01-01T00:00:00Z',
+			0, 0, 0,
 			TimeValue::PRECISION_SECOND,
 			'http://nyan.cat/original.php'
 		);
@@ -409,10 +409,8 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 		$this->setExpectedException( 'ValueFormatters\FormattingException' );
 
 		$timeValue = new TimeValue(
-			'+00000002013-01-01T00:00:00Z',
-			0,
-			0,
-			0,
+			'+2013-01-01T00:00:00Z',
+			0, 0, 0,
 			TimeValue::PRECISION_SECOND,
 			'http://nyan.cat/original.php'
 		);
@@ -456,10 +454,8 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 		$this->setExpectedException( 'ValueFormatters\FormattingException' );
 
 		$timeValue = new TimeValue(
-			'+00000002013-01-01T00:00:00Z',
-			0,
-			0,
-			0,
+			'+2013-01-01T00:00:00Z',
+			0, 0, 0,
 			TimeValue::PRECISION_SECOND,
 			'http://nyan.cat/original.php'
 		);

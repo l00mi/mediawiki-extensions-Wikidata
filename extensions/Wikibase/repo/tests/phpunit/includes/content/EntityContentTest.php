@@ -127,7 +127,9 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 		$entityContent->getEntity()->setLabel( 'en', "cake" );
 
 		$this->stashMwGlobals( 'wgHooks' );
-		$wgHooks['WikibaseTextForSearchIndex'][] = function () { return false; };
+		$wgHooks['WikibaseTextForSearchIndex'][] = function() {
+			return false;
+		};
 
 		$text = $entityContent->getTextForSearchIndex();
 		$this->assertEquals( '', $text, 'Text for search index should be empty if the hook returned false' );
@@ -149,13 +151,14 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 
 	public function providePageProperties() {
 		$cases = array();
+		$emptyContent = $this->newEmpty( $this->getDummyId() );
 
 		$cases['empty'] = array(
-			$this->newEmpty(),
+			$emptyContent,
 			array( 'wb-status' => EntityContent::STATUS_EMPTY, 'wb-claims' => 0 )
 		);
 
-		$contentWithLabel = $this->newEmpty();
+		$contentWithLabel = $this->newEmpty( $this->getDummyId() );
 		$contentWithLabel->getEntity()->setLabel( 'en', 'Foo' );
 
 		$cases['labels'] = array(

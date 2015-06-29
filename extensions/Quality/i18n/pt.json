@@ -1,0 +1,32 @@
+{
+	"@metadata": {
+		"authors": [
+			"Vitorvicentevalente",
+			"Macofe"
+		]
+	},
+	"wbq-violations-description": "Lista de problemas de qualidade de dados",
+	"wbq-violatons-filter-headline": "Filtrar problemas",
+	"wbq-violations-entity-id-label": "ID da entidade:",
+	"wbq-violations-property-id-label": "ID da propriedade:",
+	"wbq-violations-group-label": "Grupo:",
+	"wbq-violations-type-label": "Tipo:",
+	"wbq-violations-form-select-all": "(todas)",
+	"wbq-violations-exceptions-checkbox-label": "Mostrar exceções",
+	"wbq-violations-submit-button-label": "Mostrar Violações",
+	"wbq-violations-invalid-entity-id": "O identificador de entidade fornecido é inválido.",
+	"wbq-violations-not-existent-entity": "A entidade com o identificador fornecido não existe!",
+	"wbq-violations-invalid-property-id": "O identificador de entidade fornecido é inválido.",
+	"wbq-violations-not-existent-property": "A propriedade com o identificador fornecido não existe!",
+	"wbq-violations-table-header-entity": "Entidade",
+	"wbq-violations-table-header-constraint-type": "Tipo",
+	"wbq-violations-table-header-updated-at": "Última atualização",
+	"wbq-violations-table-header-status": "Estado",
+	"wbq-violations-table-header-additional-info": "Informação adicional",
+	"wbq-violations-status-violation": "Violação",
+	"wbq-violations-status-exception": "Exceção",
+	"wbq-violations-mark-as-exception": "Marcar como exceção",
+	"wbq-violations-mark-as-violation": "Marcar como violação",
+	"wbq-violations-next-page": "Página seguinte >>",
+	"wbq-violations-prev-page": "<< Página anterior"
+}

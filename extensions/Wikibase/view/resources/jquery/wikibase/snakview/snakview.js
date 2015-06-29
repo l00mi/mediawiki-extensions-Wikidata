@@ -734,7 +734,7 @@ $.widget( 'wikibase.snakview', PARENT, {
 			this.options.entityStore.get( propertyId )
 			.done( function( fetchedProperty ) {
 				deferred.resolve( self._createPropertyDOM(
-					fetchedProperty ? fetchedProperty.getContent() : undefined,
+					fetchedProperty ? fetchedProperty.getContent() : propertyId,
 					fetchedProperty ? fetchedProperty.getTitle() : undefined
 				) );
 			} )
@@ -751,8 +751,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 * structure or an input element if parameters are omitted.
 	 * @private
 	 *
-	 * @param {wikibase.datamodel.Property} [property] `Property` object or `Property` id. Returns
-	 *        generic DOM structure if omitted.
+	 * @param {wikibase.datamodel.Property|string} [property] `Property` object or the property's
+	 * ID string. Returns generic DOM structure if omitted.
 	 * @param {mediawiki.Title} [title]
 	 * @return {jQuery}
 	 */

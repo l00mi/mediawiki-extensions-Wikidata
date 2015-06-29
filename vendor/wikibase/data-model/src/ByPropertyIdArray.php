@@ -43,8 +43,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 class ByPropertyIdArray extends \ArrayObject {
 
 	/**
-	 * @since 0.2
-	 *
 	 * @var array[]|null
 	 */
 	private $byId = null;
@@ -79,7 +77,6 @@ class ByPropertyIdArray extends \ArrayObject {
 
 	/**
 	 * Checks whether id indexed array has been generated.
-	 * @since 0.5
 	 *
 	 * @throws RuntimeException
 	 */
@@ -141,8 +138,8 @@ class ByPropertyIdArray extends \ArrayObject {
 		$this->assertIndexIsBuild();
 
 		$i = 0;
-		foreach( $this as $o ) {
-			if( $o === $object ) {
+		foreach ( $this as $o ) {
+			if ( $o === $object ) {
 				return $i;
 			}
 			$i++;
@@ -162,7 +159,7 @@ class ByPropertyIdArray extends \ArrayObject {
 		$this->assertIndexIsBuild();
 
 		$array = array();
-		foreach( $this->byId as $objects ) {
+		foreach ( $this->byId as $objects ) {
 			$array = array_merge( $array, $objects );
 		}
 		return $array;
@@ -170,12 +167,11 @@ class ByPropertyIdArray extends \ArrayObject {
 
 	/**
 	 * Returns the absolute numeric indices of objects featuring the same property id.
-	 * @since 0.5
 	 *
 	 * @param PropertyId $propertyId
-	 * @return int[]
 	 *
 	 * @throws RuntimeException
+	 * @return int[]
 	 */
 	private function getFlatArrayIndices( PropertyId $propertyId ) {
 		$this->assertIndexIsBuild();
@@ -183,8 +179,8 @@ class ByPropertyIdArray extends \ArrayObject {
 		$propertyIndices = array();
 		$i = 0;
 
-		foreach( $this->byId as $serializedPropertyId => $objects ) {
-			if( $serializedPropertyId === $propertyId->getSerialization() ) {
+		foreach ( $this->byId as $serializedPropertyId => $objects ) {
+			if ( $serializedPropertyId === $propertyId->getSerialization() ) {
 				$propertyIndices = range( $i, $i + count( $objects ) - 1 );
 				break;
 			} else {
@@ -197,7 +193,6 @@ class ByPropertyIdArray extends \ArrayObject {
 
 	/**
 	 * Moves an object within its "property group".
-	 * @since 0.5
 	 *
 	 * @param object $object
 	 * @param int $toIndex Absolute index within a "property group".
@@ -207,7 +202,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	private function moveObjectInPropertyGroup( $object, $toIndex ) {
 		$currentIndex = $this->getFlatArrayIndexOfObject( $object );
 
-		if( $toIndex === $currentIndex ) {
+		if ( $toIndex === $currentIndex ) {
 			return;
 		}
 
@@ -216,11 +211,11 @@ class ByPropertyIdArray extends \ArrayObject {
 		$numericIndices = $this->getFlatArrayIndices( $propertyId );
 		$lastIndex = $numericIndices[count( $numericIndices ) - 1];
 
-		if( $toIndex > $lastIndex + 1 || $toIndex < $numericIndices[0] ) {
+		if ( $toIndex > $lastIndex + 1 || $toIndex < $numericIndices[0] ) {
 			throw new OutOfBoundsException( 'Object cannot be moved to ' . $toIndex );
 		}
 
-		if( $toIndex >= $lastIndex ) {
+		if ( $toIndex >= $lastIndex ) {
 			$this->moveObjectToEndOfPropertyGroup( $object );
 		} else {
 			$this->removeObject( $object );
@@ -237,7 +232,6 @@ class ByPropertyIdArray extends \ArrayObject {
 
 	/**
 	 * Moves an object to the end of its "property group".
-	 * @since 0.5
 	 *
 	 * @param object $object
 	 */
@@ -260,7 +254,6 @@ class ByPropertyIdArray extends \ArrayObject {
 
 	/**
 	 * Removes an object from the array structures.
-	 * @since 0.5
 	 *
 	 * @param object $object
 	 */
@@ -273,7 +266,6 @@ class ByPropertyIdArray extends \ArrayObject {
 
 	/**
 	 * Inserts an object at a specific index.
-	 * @since 0.5
 	 *
 	 * @param object $object
 	 * @param int $index Absolute index within the flat list of objects.
@@ -291,19 +283,14 @@ class ByPropertyIdArray extends \ArrayObject {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param PropertyId $propertyId
 	 * @param int $toIndex
 	 */
 	private function movePropertyGroup( PropertyId $propertyId, $toIndex ) {
-		if( $this->getPropertyGroupIndex( $propertyId ) === $toIndex ) {
+		if ( $this->getPropertyGroupIndex( $propertyId ) === $toIndex ) {
 			return;
 		}
 
-		/**
-		 * @var PropertyId
-		 */
 		$insertBefore = null;
 
 		$oldIndex = $this->getPropertyGroupIndex( $propertyId );
@@ -312,16 +299,16 @@ class ByPropertyIdArray extends \ArrayObject {
 		// Remove "property group" to calculate the groups new index:
 		unset( $this->byId[$propertyId->getSerialization()] );
 
-		if( $toIndex > $oldIndex ) {
+		if ( $toIndex > $oldIndex ) {
 			// If the group shall be moved towards the bottom, the number of objects within the
 			// group needs to be subtracted from the absolute toIndex:
 			$toIndex -= count( $byIdClone[$propertyId->getSerialization()] );
 		}
 
-		foreach( $this->getPropertyIds() as $pId ) {
+		foreach ( $this->getPropertyIds() as $pId ) {
 			// Accepting other than the exact index by using <= letting the "property group" "latch"
 			// in the next slot.
-			if( $toIndex <= $this->getPropertyGroupIndex( $pId ) ) {
+			if ( $toIndex <= $this->getPropertyGroupIndex( $pId ) ) {
 				$insertBefore = $pId;
 				break;
 			}
@@ -330,17 +317,17 @@ class ByPropertyIdArray extends \ArrayObject {
 		$serializedPropertyId = $propertyId->getSerialization();
 		$this->byId = array();
 
-		foreach( $byIdClone as $serializedPId => $objects ) {
+		foreach ( $byIdClone as $serializedPId => $objects ) {
 			$pId = new PropertyId( $serializedPId );
-			if( $pId->equals( $propertyId ) ) {
+			if ( $pId->equals( $propertyId ) ) {
 				continue;
-			} elseif( $pId->equals( $insertBefore ) ) {
+			} elseif ( $pId->equals( $insertBefore ) ) {
 				$this->byId[$serializedPropertyId] = $byIdClone[$serializedPropertyId];
 			}
 			$this->byId[$serializedPId] = $objects;
 		}
 
-		if( is_null( $insertBefore ) ) {
+		if ( $insertBefore === null ) {
 			$this->byId[$serializedPropertyId] = $byIdClone[$serializedPropertyId];
 		}
 
@@ -350,17 +337,17 @@ class ByPropertyIdArray extends \ArrayObject {
 	/**
 	 * Returns the index of a "property group" (the first object in the flat array that features
 	 * the specified property). Returns false if property id could not be found.
-	 * @since 0.5
 	 *
 	 * @param PropertyId $propertyId
+	 *
 	 * @return bool|int
 	 */
 	private function getPropertyGroupIndex( PropertyId $propertyId ) {
 		$i = 0;
 
-		foreach( $this->byId as $serializedPropertyId => $objects ) {
+		foreach ( $this->byId as $serializedPropertyId => $objects ) {
 			$pId = new PropertyId( $serializedPropertyId );
-			if( $pId->equals( $propertyId ) ) {
+			if ( $pId->equals( $propertyId ) ) {
 				return $i;
 			}
 			$i += count( $objects );
@@ -383,18 +370,18 @@ class ByPropertyIdArray extends \ArrayObject {
 	public function moveObjectToIndex( $object, $toIndex ) {
 		$this->assertIndexIsBuild();
 
-		if( !in_array( $object, $this->toFlatArray() ) ) {
+		if ( !in_array( $object, $this->toFlatArray() ) ) {
 			throw new OutOfBoundsException( 'Object not present in array' );
-		} elseif( $toIndex < 0 || $toIndex > count( $this ) ) {
+		} elseif ( $toIndex < 0 || $toIndex > count( $this ) ) {
 			throw new OutOfBoundsException( 'Specified index is out of bounds' );
-		} elseif( $this->getFlatArrayIndexOfObject( $object ) === $toIndex ) {
+		} elseif ( $this->getFlatArrayIndexOfObject( $object ) === $toIndex ) {
 			return;
 		}
 
 		// Determine whether to simply reindex the object within its "property group":
 		$propertyIndices = $this->getFlatArrayIndices( $object->getPropertyId() );
 
-		if( in_array( $toIndex, $propertyIndices ) ) {
+		if ( in_array( $toIndex, $propertyIndices ) ) {
 			$this->moveObjectInPropertyGroup( $object, $toIndex );
 		} else {
 			$edgeIndex = ( $toIndex <= $propertyIndices[0] )
@@ -427,14 +414,14 @@ class ByPropertyIdArray extends \ArrayObject {
 		$propertyId = $object->getPropertyId();
 		$validIndices = $this->getFlatArrayIndices( $propertyId );
 
-		if( count( $this ) === 0 ) {
+		if ( count( $this ) === 0 ) {
 			// Array is empty, just append object.
 			$this->append( $object );
-		} elseif( empty( $validIndices ) ) {
+		} elseif ( empty( $validIndices ) ) {
 			// No objects featuring that property exist. The object may be inserted at a place
 			// between existing "property groups".
 			$this->append( $object );
-			if( !is_null( $index ) ) {
+			if ( $index !== null ) {
 				$this->buildIndex();
 				$this->moveObjectToIndex( $object, $index );
 			}
@@ -447,9 +434,8 @@ class ByPropertyIdArray extends \ArrayObject {
 		$this->buildIndex();
 	}
 
-	/*
+	/**
 	 * Adds an object to an existing property group at the specified absolute index.
-	 * @since 0.5
 	 *
 	 * @param object $object
 	 * @param int $index
@@ -461,19 +447,19 @@ class ByPropertyIdArray extends \ArrayObject {
 		$propertyId = $object->getPropertyId();
 		$validIndices = $this->getFlatArrayIndices( $propertyId );
 
-		if( empty( $validIndices ) ) {
+		if ( empty( $validIndices ) ) {
 			throw new OutOfBoundsException( 'No objects featuring the object\'s property exist' );
 		}
 
 		// Add index to allow placing object after the last object of the "property group":
 		$validIndices[] = $validIndices[count( $validIndices ) - 1] + 1;
 
-		if( is_null( $index ) ) {
+		if ( $index === null ) {
 			// If index is null, append object to "property group".
 			$index = $validIndices[count( $validIndices ) - 1];
 		}
 
-		if( in_array( $index, $validIndices ) ) {
+		if ( in_array( $index, $validIndices ) ) {
 			// Add object at index within "property group".
 			$this->byId[$propertyId->getSerialization()][] = $object;
 			$this->exchangeArray( $this->toFlatArray() );
@@ -485,7 +471,7 @@ class ByPropertyIdArray extends \ArrayObject {
 
 			// Move new object to the edge of the "property group" to receive its designated
 			// index:
-			if( $index < $validIndices[0] ) {
+			if ( $index < $validIndices[0] ) {
 				array_unshift( $this->byId[$propertyId->getSerialization()], $object );
 			} else {
 				$this->byId[$propertyId->getSerialization()][] = $object;

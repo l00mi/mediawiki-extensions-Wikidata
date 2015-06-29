@@ -1,0 +1,20 @@
+{
+	"@metadata": {
+		"authors": [
+			"Fitoschido",
+			"Macofe"
+		]
+	},
+	"wbq-violations-group-label": "Grup:",
+	"wbq-violations-type-label": "Tipus:",
+	"wbq-violations-form-select-all": "(tots)",
+	"wbq-violations-exceptions-checkbox-label": "Mostra excepcions",
+	"wbq-violations-table-header-entity": "Entitat",
+	"wbq-violations-table-header-constraint-type": "Tipus",
+	"wbq-violations-table-header-updated-at": "Última actualització",
+	"wbq-violations-table-header-status": "Estat",
+	"wbq-violations-table-header-additional-info": "Informació addicional",
+	"wbq-violations-status-exception": "Excepció",
+	"wbq-violations-next-page": "Pàgina següent >>",
+	"wbq-violations-prev-page": "<< Pàgina anterior"
+}

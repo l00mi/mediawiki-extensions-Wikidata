@@ -18,6 +18,9 @@ use Wikibase\DataModel\Snak\Snak;
  */
 class LegacySnakDeserializer implements Deserializer {
 
+	/**
+	 * @var Deserializer
+	 */
 	private $dataValueDeserializer;
 
 	public function __construct( Deserializer $dataValueDeserializer ) {
@@ -25,7 +28,7 @@ class LegacySnakDeserializer implements Deserializer {
 	}
 
 	/**
-	 * @param mixed $serialization
+	 * @param array $serialization
 	 *
 	 * @return Snak
 	 * @throws DeserializationException

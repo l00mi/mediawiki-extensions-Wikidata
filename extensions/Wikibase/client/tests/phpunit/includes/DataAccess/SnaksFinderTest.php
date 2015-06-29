@@ -4,12 +4,11 @@ namespace Wikibase\Client\Tests\DataAccess;
 
 use DataValues\StringValue;
 use Wikibase\DataAccess\SnaksFinder;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\DataModel\Statement\Statement;
 
 /**
@@ -39,23 +38,23 @@ class SnaksFinderTest extends \PHPUnit_Framework_TestCase {
 	public function findSnaksProvider() {
 		$propertyId = new PropertyId( 'P1337' );
 
-		$statement1 = new Statement( new Claim( new PropertyValueSnak(
+		$statement1 = new Statement( new PropertyValueSnak(
 			$propertyId,
 			new StringValue( 'a kitten!' )
-		) ) );
+		) );
 		$statement1->setGuid( 'Q42$1' );
 
-		$statement2 = new Statement( new Claim( new PropertyValueSnak(
+		$statement2 = new Statement( new PropertyValueSnak(
 			$propertyId,
 			new StringValue( 'two kittens!!' )
-		) ) );
+		) );
 		$statement2->setGuid( 'Q42$2' );
 
 		// A Statement with a lower rank which should not affect the output
-		$statement3 = new Statement( new Claim( new PropertyValueSnak(
+		$statement3 = new Statement( new PropertyValueSnak(
 			$propertyId,
 			new StringValue( 'three kittens!!!' )
-		) ) );
+		) );
 		$statement3->setGuid( 'Q42$3' );
 		$statement3->setRank( Statement::RANK_DEPRECATED );
 

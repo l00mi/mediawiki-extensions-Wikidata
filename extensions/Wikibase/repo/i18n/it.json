@@ -65,6 +65,7 @@
 	"wikibase-entitytermsforlanguageview-input-help-message": "Inserisci l'etichetta di questa entità, una breve descrizione e gli alias in $1.",
 	"wikibase-statements": "Dichiarazioni",
 	"wikibase-terms": "In altre lingue",
+	"wikibase-sitelinks": "Collegamenti al sito",
 	"wikibase-sitelinkgroupview-input-help-message": "Aggiungi un collegamento al sito specificando un sito ed una pagina del sito, modifica o rimuovi i collegamenti ai siti esistenti.",
 	"wikibase-sitelinks-empty": "Nessuna pagina è collegata a questo elemento.",
 	"wikibase-sitelinks-input-help-message": "Imposta un collegamento ad una pagina relativa a questo elemento.",
@@ -412,5 +413,7 @@
 	"apihelp-wbsetdescription-param-value": "Il valore da impostare per la descrizione",
 	"apihelp-wbsetlabel-description": "Imposta un'etichetta per una singola entità Wikibase.",
 	"apihelp-wbsetlabel-param-language": "Lingua dell'etichetta",
-	"apihelp-wbsetlabel-param-value": "Il valore dell'etichetta"
+	"apihelp-wbsetlabel-param-value": "Il valore dell'etichetta",
+	"apihelp-wbsetsitelink-param-summary": "Riepilogo per la modifica.\nSarà preceduto da un commento generato automaticamente. Il limite di lunghezza del commento automatico, insieme con il riassunto, è di 260 caratteri. Siate consapevoli del fatto che tutto ciò che supera tale limite verrà tagliato.",
+	"apihelp-wbsetsitelink-example-1": "Aggiungi un sitelink \"Idrogeno\" per la pagina in inglese con ID \"Q42\", se il sitelink non esiste"
 }

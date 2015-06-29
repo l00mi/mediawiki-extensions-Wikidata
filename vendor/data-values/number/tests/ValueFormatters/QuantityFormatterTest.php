@@ -3,10 +3,10 @@
 namespace ValueFormatters\Test;
 
 use DataValues\QuantityValue;
+use ValueFormatters\BasicQuantityUnitFormatter;
 use ValueFormatters\DecimalFormatter;
-use ValueFormatters\QuantityFormatter;
 use ValueFormatters\FormatterOptions;
-use ValueFormatters\ValueFormatter;
+use ValueFormatters\QuantityFormatter;
 
 /**
  * @covers ValueFormatters\QuantityFormatter
@@ -18,6 +18,26 @@ use ValueFormatters\ValueFormatter;
  * @author Daniel Kinzler
  */
 class QuantityFormatterTest extends ValueFormatterTestBase {
+
+	/**
+	 * @deprecated since 0.2, just use getInstance.
+	 */
+	protected function getFormatterClass() {
+		throw new \LogicException( 'Should not be called, use getInstance' );
+	}
+
+	/**
+	 * @see ValueFormatterTestBase::getInstance
+	 *
+	 * @param FormatterOptions|null $options
+	 *
+	 * @return QuantityFormatter
+	 */
+	protected function getInstance( FormatterOptions $options = null ) {
+		$decimalFormatter = new DecimalFormatter( $options );
+		$unitFormatter = new BasicQuantityUnitFormatter();
+		return new QuantityFormatter( $decimalFormatter, $unitFormatter, $options );
+	}
 
 	/**
 	 * @see ValueFormatterTestBase::validProvider
@@ -35,19 +55,23 @@ class QuantityFormatterTest extends ValueFormatterTestBase {
 			QuantityFormatter::OPT_SHOW_UNCERTAINTY_MARGIN => true
 		) );
 
-		$noRounding= new FormatterOptions( array(
+		$noRounding = new FormatterOptions( array(
 			QuantityFormatter::OPT_SHOW_UNCERTAINTY_MARGIN => true,
 			QuantityFormatter::OPT_APPLY_ROUNDING => false
 		) );
 
-		$exactRounding= new FormatterOptions( array(
+		$exactRounding = new FormatterOptions( array(
 			QuantityFormatter::OPT_SHOW_UNCERTAINTY_MARGIN => true,
 			QuantityFormatter::OPT_APPLY_ROUNDING => -2
 		) );
 
-		$forceSign= new FormatterOptions( array(
+		$forceSign = new FormatterOptions( array(
 			QuantityFormatter::OPT_SHOW_UNCERTAINTY_MARGIN => false,
 			DecimalFormatter::OPT_FORCE_SIGN => true,
+		) );
+
+		$noUnit = new FormatterOptions( array(
+			QuantityFormatter::OPT_APPLY_UNIT => false,
 		) );
 
 		return array(
@@ -62,6 +86,7 @@ class QuantityFormatterTest extends ValueFormatterTestBase {
 			'-1205/wm' => array( QuantityValue::newFromNumber( '-1205', 'm', '-1105', '-1305' ), '-1200±100m', $withMargin ),
 			'-1205/nr' => array( QuantityValue::newFromNumber( '-1205', 'm', '-1105', '-1305' ), '-1205±100m', $noRounding ),
 			'-1205/xr' => array( QuantityValue::newFromNumber( '-1205', 'm', '-1105', '-1305' ), '-1205.00±100.00m', $exactRounding ),
+			'-1205/nu' => array( QuantityValue::newFromNumber( '-1205', 'm', '-1105', '-1305' ), '-1200±100', $noUnit ),
 
 			'+3.025/nm' => array( QuantityValue::newFromNumber( '+3.025', '1', '+3.02744', '+3.0211' ), '3.025', $noMargin ),
 			'+3.025/wm' => array( QuantityValue::newFromNumber( '+3.025', '1', '+3.02744', '+3.0211' ), '3.025±0.004', $withMargin ),
@@ -74,27 +99,4 @@ class QuantityFormatterTest extends ValueFormatterTestBase {
 		);
 	}
 
-	/**
-	 * @see ValueFormatterTestBase::getFormatterClass
-	 *
-	 * @since 0.1
-	 *
-	 * @return string
-	 */
-	protected function getFormatterClass() {
-		return 'ValueFormatters\QuantityFormatter';
-	}
-
-	/**
-	 * @see ValueFormatterTestBase::getInstance
-	 *
-	 * @param FormatterOptions $options
-	 *
-	 * @return ValueFormatter
-	 */
-	protected function getInstance( FormatterOptions $options ) {
-		$decimalFormatter = new DecimalFormatter( $options );
-		$class = $this->getFormatterClass();
-		return new $class( $decimalFormatter, $options );
-	}
 }

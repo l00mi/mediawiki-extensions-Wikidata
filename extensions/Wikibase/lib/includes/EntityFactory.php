@@ -2,11 +2,9 @@
 
 namespace Wikibase;
 
-use MWException;
 use OutOfBoundsException;
+use RuntimeException;
 use Wikibase\DataModel\Entity\Entity;
-use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\Property;
 
 /**
  * Factory for Entity objects.
@@ -35,28 +33,6 @@ class EntityFactory {
 	 */
 	public function __construct( array $typeToClass ) {
 		$this->typeMap = $typeToClass;
-	}
-
-	/**
-	 * @since 0.2
-	 *
-	 * @deprecated Use WikibaseRepo::getEntityFactory() resp. WikibaseClient::getEntityFactory()
-	 *
-	 * @return EntityFactory
-	 */
-	public static function singleton() {
-		static $instance = false;
-
-		if ( $instance === false ) {
-			$typeToClass = array(
-				Item::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Item',
-				Property::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Property',
-			);
-
-			$instance = new static( $typeToClass );
-		}
-
-		return $instance;
 	}
 
 	/**
@@ -106,12 +82,19 @@ class EntityFactory {
 	 *
 	 * @param String $entityType The type of the desired new entity.
 	 *
-	 * @throws MWException if the given entity type is not known.
+	 * @throws RuntimeException
 	 * @return Entity The new Entity object.
 	 */
 	public function newEmpty( $entityType ) {
 		$class = $this->getEntityClass( $entityType );
-		return $class::newEmpty();
+
+		if ( method_exists( $class, 'newFromType' ) ) {
+			return $class::newFromType( '' );
+		} elseif ( method_exists( $class, 'newEmpty' ) ) {
+			return $class::newEmpty();
+		} else {
+			throw new RuntimeException( "$class does not support a newEmpty method" );
+		}
 	}
 
 }

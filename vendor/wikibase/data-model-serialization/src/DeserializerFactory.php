@@ -5,9 +5,10 @@ namespace Wikibase\DataModel;
 use Deserializers\Deserializer;
 use Deserializers\DispatchableDeserializer;
 use Deserializers\DispatchingDeserializer;
-use Wikibase\DataModel\Deserializers\ClaimDeserializer;
+use Wikibase\DataModel\Deserializers\StatementDeserializer;
 use Wikibase\DataModel\Deserializers\ClaimsDeserializer;
 use Wikibase\DataModel\Deserializers\EntityIdDeserializer;
+use Wikibase\DataModel\Deserializers\FingerprintDeserializer;
 use Wikibase\DataModel\Deserializers\ItemDeserializer;
 use Wikibase\DataModel\Deserializers\PropertyDeserializer;
 use Wikibase\DataModel\Deserializers\ReferenceDeserializer;
@@ -15,6 +16,7 @@ use Wikibase\DataModel\Deserializers\ReferenceListDeserializer;
 use Wikibase\DataModel\Deserializers\SiteLinkDeserializer;
 use Wikibase\DataModel\Deserializers\SnakDeserializer;
 use Wikibase\DataModel\Deserializers\SnakListDeserializer;
+use Wikibase\DataModel\Deserializers\StatementListDeserializer;
 use Wikibase\DataModel\Entity\EntityIdParser;
 
 /**
@@ -52,9 +54,10 @@ class DeserializerFactory {
 	 * @return DispatchableDeserializer
 	 */
 	public function newEntityDeserializer() {
+		$fingerprintDeserializer = new FingerprintDeserializer();
 		return new DispatchingDeserializer( array(
-			new ItemDeserializer( $this->newEntityIdDeserializer(), $this->newClaimsDeserializer(), $this->newSiteLinkDeserializer() ),
-			new PropertyDeserializer( $this->newEntityIdDeserializer(), $this->newClaimsDeserializer() )
+			new ItemDeserializer( $this->newEntityIdDeserializer(), $fingerprintDeserializer, $this->newStatementListDeserializer(), $this->newSiteLinkDeserializer() ),
+			new PropertyDeserializer( $this->newEntityIdDeserializer(), $fingerprintDeserializer, $this->newStatementListDeserializer() )
 		) );
 	}
 
@@ -67,26 +70,50 @@ class DeserializerFactory {
 		return new SiteLinkDeserializer( $this->newEntityIdDeserializer() );
 	}
 
-	/*
+	/**
 	 * Returns a Deserializer that can deserialize Claims objects.
 	 *
 	 * @return Deserializer
 	 */
 	public function newClaimsDeserializer() {
-		return new ClaimsDeserializer( $this->newClaimDeserializer() );
+		return new ClaimsDeserializer( $this->newStatementDeserializer() );
 	}
 
-	/*
-	 * Returns a Deserializer that can deserialize Claim objects.
+	/**
+	 * Returns a Deserializer that can deserialize StatementList objects.
+	 *
+	 * @since 1.4
+	 *
+	 * @return Deserializer
+	 */
+	public function newStatementListDeserializer() {
+		return new StatementListDeserializer( $this->newStatementDeserializer() );
+	}
+
+	/**
+	 * Returns a Deserializer that can deserialize Statement objects.
+	 *
+	 * @since 1.4
 	 *
 	 * @return DispatchableDeserializer
 	 */
-	public function newClaimDeserializer() {
-		return new ClaimDeserializer(
+	public function newStatementDeserializer() {
+		return new StatementDeserializer(
 			$this->newSnakDeserializer(),
 			$this->newSnaksDeserializer(),
 			$this->newReferencesDeserializer()
 		);
+	}
+
+	/**
+	 * Returns a Deserializer that can deserialize claims.
+	 *
+	 * @deprecated since 1.4, use newStatementDeserializer instead
+	 *
+	 * @return DispatchableDeserializer
+	 */
+	public function newClaimDeserializer() {
+		return $this->newStatementDeserializer();
 	}
 
 	/**
@@ -108,12 +135,25 @@ class DeserializerFactory {
 	}
 
 	/**
-	 * Returns a Deserializer that can deserialize Snaks objects.
+	 * Returns a Deserializer that can deserialize SnakList objects.
+	 *
+	 * @since 1.4
+	 *
+	 * @return Deserializer
+	 */
+	public function newSnakListDeserializer() {
+		return new SnakListDeserializer( $this->newSnakDeserializer() );
+	}
+
+	/**
+	 * b/c alias for newSnakListDeserializer
+	 *
+	 * @deprecated since 1.4 - use newSnakListDeserializer instead
 	 *
 	 * @return Deserializer
 	 */
 	public function newSnaksDeserializer() {
-		return new SnakListDeserializer( $this->newSnakDeserializer() );
+		return $this->newSnakListDeserializer();
 	}
 
 	/**

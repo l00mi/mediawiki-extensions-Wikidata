@@ -4,7 +4,7 @@ namespace Wikibase\DataAccess;
 
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\DataModel\Statement\StatementList;
 
 /**
@@ -29,7 +29,7 @@ class SnaksFinder {
 		if ( $acceptableRanks === null ) {
 			return $statementList->getBestStatements()->getMainSnaks();
 		} else {
-			return $statementList->getWithRank( $acceptableRanks )->getMainSnaks();
+			return $statementList->getByRank( $acceptableRanks )->getMainSnaks();
 		}
 	}
 
@@ -42,6 +42,6 @@ class SnaksFinder {
 	private function getStatementsWithPropertyId( StatementListProvider $statementListProvider, PropertyId $propertyId ) {
 		return $statementListProvider
 			->getStatements()
-			->getWithPropertyId( $propertyId );
+			->getByPropertyId( $propertyId );
 	}
 }

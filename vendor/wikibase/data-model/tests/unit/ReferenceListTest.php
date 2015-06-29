@@ -8,7 +8,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
-use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 
 /**
@@ -37,14 +36,13 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 	public function getElementInstances() {
 		return array(
 			new Reference(),
-			new Reference( new SnakList( array( new PropertyNoValueSnak( 2 ) ) ) ),
-			new Reference( new SnakList( array( new PropertyNoValueSnak( 3 ) ) ) ),
+			new Reference( array( new PropertyNoValueSnak( 2 ) ) ),
+			new Reference( array( new PropertyNoValueSnak( 3 ) ) ),
 		);
 	}
 
 	public function getConstructorArg() {
 		return array(
-			null,
 			array(),
 			$this->getElementInstances(),
 		);
@@ -62,7 +60,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 		$id1 = new PropertyId( 'P1' );
 
 		return array(
-			// TODO: Disallow array( null ),
+			array( null ),
 			array( false ),
 			array( 1 ),
 			array( 0.1 ),
@@ -79,7 +77,6 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param ReferenceList $array
 	 */
 	public function testHasReferenceBeforeRemoveButNotAfter( ReferenceList $array ) {
@@ -98,11 +95,10 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 		}
 	}
 
-
 	public function testGivenCloneOfReferenceInList_hasReferenceReturnsTrue() {
 		$list = new ReferenceList();
 
-		$reference = new Reference( new SnakList( array( new PropertyNoValueSnak( 42 ) ) ) );
+		$reference = new Reference( array( new PropertyNoValueSnak( 42 ) ) );
 		$sameReference = unserialize( serialize( $reference ) );
 
 		$list->addReference( $reference );
@@ -115,7 +111,6 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param ReferenceList $array
 	 */
 	public function testRemoveReference( ReferenceList $array ) {
@@ -213,7 +208,6 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param ReferenceList $array
 	 */
 	public function testIndexOf( ReferenceList $array ) {
@@ -227,7 +221,6 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param ReferenceList $array
 	 */
 	public function testEquals( ReferenceList $array ) {
@@ -237,7 +230,6 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param ReferenceList $array
 	 */
 	public function testGetHashReturnsString( ReferenceList $array ) {
@@ -246,7 +238,6 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param ReferenceList $array
 	 */
 	public function testGetHashValueIsTheSameForClone( ReferenceList $array ) {
@@ -312,25 +303,31 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 		$snak = new PropertyNoValueSnak( 1 );
 
 		$references->addNewReference( $snak );
-		$this->assertTrue( $references->hasReference( new Reference( new SnakList( array( $snak ) ) ) ) );
+		$this->assertTrue( $references->hasReference( new Reference( array( $snak ) ) ) );
 	}
 
 	public function testGivenMultipleSnaks_addNewReferenceAddsThem() {
 		$references = new ReferenceList();
+		$snak1 = new PropertyNoValueSnak( 1 );
+		$snak2 = new PropertyNoValueSnak( 3 );
+		$snak3 = new PropertyNoValueSnak( 2 );
 
-		$references->addNewReference(
+		$references->addNewReference( $snak1, $snak2, $snak3 );
+
+		$expectedSnaks = array( $snak1, $snak2, $snak3 );
+		$this->assertTrue( $references->hasReference( new Reference( $expectedSnaks ) ) );
+	}
+
+	public function testGivenAnArrayOfSnaks_addNewReferenceAddsThem() {
+		$references = new ReferenceList();
+		$snaks = array(
 			new PropertyNoValueSnak( 1 ),
 			new PropertyNoValueSnak( 3 ),
 			new PropertyNoValueSnak( 2 )
 		);
 
-		$expectedSnaks = array(
-			new PropertyNoValueSnak( 1 ),
-			new PropertyNoValueSnak( 3 ),
-			new PropertyNoValueSnak( 2 )
-		);
-
-		$this->assertTrue( $references->hasReference( new Reference( new SnakList( $expectedSnaks ) ) ) );
+		$references->addNewReference( $snaks );
+		$this->assertTrue( $references->hasReference( new Reference( $snaks ) ) );
 	}
 
 	public function testGivenNoneSnak_addNewReferenceThrowsException() {
@@ -345,14 +342,10 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 		$references->addReference( new Reference() );
 
-		$references->addReference( new Reference(
-			new SnakList(
-				array(
-					new PropertyNoValueSnak( 2 ),
-					new PropertyNoValueSnak( 3 )
-				)
-			)
-		) );
+		$references->addReference( new Reference( array(
+			new PropertyNoValueSnak( 2 ),
+			new PropertyNoValueSnak( 3 ),
+		) ) );
 
 		$serialized = serialize( $references );
 		$this->assertTrue( $references->equals( unserialize( $serialized ) ) );

@@ -1,0 +1,27 @@
+{
+	"@metadata": {
+		"authors": [
+			"Darcy Le"
+		]
+	},
+	"wbq-violations-description": "Danh sách những vấn đề về chất lượng dữ liệu",
+	"wbq-violatons-filter-headline": "Những vấn đề trong chọn lọc",
+	"wbq-violations-property-id-label": "Thuộc tính ID:",
+	"wbq-violations-group-label": "Nhóm:",
+	"wbq-violations-type-label": "Loại:",
+	"wbq-violations-form-select-all": "(tất cả)",
+	"wbq-violations-exceptions-checkbox-label": "Cho thấy những ngoại lệ",
+	"wbq-violations-submit-button-label": "Có sự vị phạm",
+	"wbq-violations-invalid-entity-id": "'$1' không phải là 1 ID hợp lệ",
+	"wbq-violations-invalid-property-id": "'$1' không phải là 1 ID hợp lệ",
+	"wbq-violations-not-existent-property": "Giá trị '$1' không tồn tại!",
+	"wbq-violations-table-header-entity": "Bút toán",
+	"wbq-violations-table-header-claim": "Xác nhận",
+	"wbq-violations-table-header-constraint-type": "Loại",
+	"wbq-violations-table-header-updated-at": "Lần cập nhật cuối",
+	"wbq-violations-table-header-status": "Trạng thái",
+	"wbq-violations-table-header-additional-info": "Thông tin bổ sung",
+	"wbq-violations-status-violation": "Vi phạm",
+	"wbq-violations-status-unverified": "Chưa xác nhận",
+	"wbq-violations-status-exception": "Ngoại lệ"
+}

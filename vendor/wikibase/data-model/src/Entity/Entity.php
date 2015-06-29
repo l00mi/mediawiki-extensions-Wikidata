@@ -3,12 +3,10 @@
 namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
-use RuntimeException;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Diff\EntityDiff;
 use Wikibase\DataModel\Entity\Diff\EntityDiffer;
 use Wikibase\DataModel\Entity\Diff\EntityPatcher;
-use Wikibase\DataModel\Snak\Snak;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
@@ -49,8 +47,6 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 		return $this->id;
 	}
 
-	public abstract function setId( $id );
-
 	/**
 	 * Sets the value for the label in a certain value.
 	 *
@@ -58,12 +54,9 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 *
 	 * @param string $languageCode
 	 * @param string $value
-	 *
-	 * @return string
 	 */
 	public function setLabel( $languageCode, $value ) {
-		$this->fingerprint->getLabels()->setTerm( new Term( $languageCode, $value ) );
-		return $value;
+		$this->fingerprint->setLabel( $languageCode, $value );
 	}
 
 	/**
@@ -73,12 +66,9 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 *
 	 * @param string $languageCode
 	 * @param string $value
-	 *
-	 * @return string
 	 */
 	public function setDescription( $languageCode, $value ) {
-		$this->fingerprint->getDescriptions()->setTerm( new Term( $languageCode, $value ) );
-		return $value;
+		$this->fingerprint->setDescription( $languageCode, $value );
 	}
 
 	/**
@@ -89,7 +79,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param string $languageCode
 	 */
 	public function removeLabel( $languageCode ) {
-		$this->fingerprint->getLabels()->removeByLanguage( $languageCode );
+		$this->fingerprint->removeLabel( $languageCode );
 	}
 
 	/**
@@ -100,7 +90,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param string $languageCode
 	 */
 	public function removeDescription( $languageCode ) {
-		$this->fingerprint->getDescriptions()->removeByLanguage( $languageCode );
+		$this->fingerprint->removeDescription( $languageCode );
 	}
 
 	/**
@@ -158,7 +148,7 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @param string[] $aliases
 	 */
 	public function setAliases( $languageCode, array $aliases ) {
-		$this->fingerprint->getAliasGroups()->setGroup( new AliasGroup( $languageCode, $aliases ) );
+		$this->fingerprint->setAliasGroup( $languageCode, $aliases );
 	}
 
 	/**
@@ -236,11 +226,11 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return string|bool
 	 */
 	public function getDescription( $languageCode ) {
-		if ( !$this->fingerprint->getDescriptions()->hasTermForLanguage( $languageCode ) ) {
+		if ( !$this->fingerprint->hasDescription( $languageCode ) ) {
 			return false;
 		}
 
-		return $this->fingerprint->getDescriptions()->getByLanguage( $languageCode )->getText();
+		return $this->fingerprint->getDescription( $languageCode )->getText();
 	}
 
 	/**
@@ -254,18 +244,15 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	 * @return string|bool
 	 */
 	public function getLabel( $languageCode ) {
-		if ( !$this->fingerprint->getLabels()->hasTermForLanguage( $languageCode ) ) {
+		if ( !$this->fingerprint->hasLabel( $languageCode ) ) {
 			return false;
 		}
 
-		return $this->fingerprint->getLabels()->getByLanguage( $languageCode )->getText();
+		return $this->fingerprint->getLabel( $languageCode )->getText();
 	}
 
 	/**
 	 * Get texts from an item with a field specifier.
-	 *
-	 * @since 0.1
-	 * @deprecated
 	 *
 	 * @param string $fieldKey
 	 * @param string[]|null $languageCodes
@@ -275,12 +262,11 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	private function getMultilangTexts( $fieldKey, array $languageCodes = null ) {
 		if ( $fieldKey === 'label' ) {
 			$textList = $this->fingerprint->getLabels()->toTextArray();
-		}
-		else {
+		} else {
 			$textList = $this->fingerprint->getDescriptions()->toTextArray();
 		}
 
-		if ( !is_null( $languageCodes ) ) {
+		if ( $languageCodes !== null ) {
 			$textList = array_intersect_key( $textList, array_flip( $languageCodes ) );
 		}
 
@@ -354,55 +340,13 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	}
 
 	/**
-	 * @see ClaimListAccess::addClaim
-	 *
 	 * @since 0.3
-	 * @deprecated since 1.0
+	 * @deprecated since 1.0, use getStatements()->toArray() instead.
 	 *
-	 * @param Claim $claim
-	 *
-	 * @throws InvalidArgumentException
-	 * @throws RuntimeException
-	 */
-	public function addClaim( Claim $claim ) {
-		throw new RuntimeException( 'Claims on entities are not supported any more.' );
-	}
-
-	/**
-	 * @since 0.3
-	 * @deprecated since 1.0
-	 *
-	 * @return Claim[]
+	 * @return Statement[]
 	 */
 	public function getClaims() {
 		return array();
-	}
-
-	/**
-	 * Convenience function to check if the entity contains any claims.
-	 *
-	 * On top of being a convenience function, this implementation allows for doing
-	 * the check without forcing an unstub in contrast to count( $this->getClaims() ).
-	 *
-	 * @since 0.2
-	 * @deprecated since 1.0
-	 *
-	 * @return bool
-	 */
-	public function hasClaims() {
-		return false;
-	}
-
-	/**
-	 * @since 0.3
-	 * @deprecated since 1.0
-	 *
-	 * @param Snak $mainSnak
-	 *
-	 * @return Claim
-	 */
-	public function newClaim( Snak $mainSnak ) {
-		return new Claim( $mainSnak );
 	}
 
 	/**
@@ -432,30 +376,6 @@ abstract class Entity implements \Comparable, FingerprintProvider, EntityDocumen
 	public final function patch( EntityDiff $patch ) {
 		$patcher = new EntityPatcher();
 		$patcher->patchEntity( $this, $patch );
-	}
-
-	/**
-	 * Returns a list of all Snaks on this Entity. This includes at least the main snaks of
-	 * Claims, the snaks from Claim qualifiers, and the snaks from Statement References.
-	 *
-	 * This is a convenience method for use in code that needs to operate on all snaks, e.g.
-	 * to find all referenced Entities.
-	 *
-	 * @since 0.5
-	 * @deprecated since 1.0 - use StatementList::getAllSnaks instead
-	 *
-	 * @return Snak[]
-	 */
-	public function getAllSnaks() {
-		$snaks = array();
-
-		foreach ( $this->getClaims() as $claim ) {
-			foreach( $claim->getAllSnaks() as $snak ) {
-				$snaks[] = $snak;
-			}
-		}
-
-		return $snaks;
 	}
 
 	/**

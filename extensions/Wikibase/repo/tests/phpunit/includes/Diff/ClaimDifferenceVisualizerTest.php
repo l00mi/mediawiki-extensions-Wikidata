@@ -79,7 +79,9 @@ class ClaimDifferenceVisualizerTest extends MediaWikiTestCase {
 		$this->assertInstanceOf( 'Wikibase\Repo\Diff\ClaimDifferenceVisualizer', $instance );
 	}
 
-	//TODO come up with a better way of testing this.... EWW at all the html...
+	/**
+	 * @todo Come up with a better way of testing this.... EWW at all the html...
+	 */
 	public function provideDifferenceAndClaim() {
 		return array(
 			'no change' => array(
@@ -134,7 +136,7 @@ class ClaimDifferenceVisualizerTest extends MediaWikiTestCase {
 					null,
 					new DiffOpChange( Statement::RANK_NORMAL, Statement::RANK_PREFERRED )
 				),
-				new Statement( new Claim( new PropertyValueSnak( new PropertyId( 'P1' ), new StringValue( 'foo' ) ) ) ),
+				new Statement( new PropertyValueSnak( new PropertyId( 'P1' ), new StringValue( 'foo' ) ) ),
 				'<tr><td colspan="2" class="diff-lineno">property / P1: foo / rank</td><td colspan="2" class="diff-lineno">property / P1: foo / rank</td></tr>'.
 				'<tr><td class="diff-marker">-</td><td class="diff-deletedline">'.
 				'<div><del class="diffchange diffchange-inline"><span>Normal rank</span></del></div></td>'.
@@ -238,13 +240,13 @@ class ClaimDifferenceVisualizerTest extends MediaWikiTestCase {
 	/**
 	 * @dataProvider provideDifferenceAndClaim
 	 */
-	public function testVisualizeClaimChange( $difference, $baseClaim, $expectedHtml ){
+	public function testVisualizeClaimChange( $difference, $baseClaim, $expectedHtml ) {
 		$visualizer = $this->newClaimDifferenceVisualizer();
 		$html = $visualizer->visualizeClaimChange( $difference, $baseClaim );
 		$this->assertHtmlEquals( $expectedHtml, $html );
 	}
 
-	public function testVisualizeNewClaim(){
+	public function testVisualizeNewClaim() {
 		$expect =
 			// main snak
 			'<tr><td colspan="2" class="diff-lineno"></td>'.
@@ -272,10 +274,8 @@ class ClaimDifferenceVisualizerTest extends MediaWikiTestCase {
 
 		$visualizer = $this->newClaimDifferenceVisualizer();
 		$claim = new Statement(
-			new Claim(
-				new PropertyValueSnak( new PropertyId( 'P12' ), new StringValue( 'foo' ) ),
-				new SnakList( array( new PropertyValueSnak( 50, new StringValue( 'v' ) ) ) )
-			),
+			new PropertyValueSnak( new PropertyId( 'P12' ), new StringValue( 'foo' ) ),
+			new SnakList( array( new PropertyValueSnak( 50, new StringValue( 'v' ) ) ) ),
 			new ReferenceList( array(
 				new Reference(
 					new SnakList( array(
@@ -286,7 +286,7 @@ class ClaimDifferenceVisualizerTest extends MediaWikiTestCase {
 		$this->assertHtmlEquals( $expect, $html );
 	}
 
-	public function testVisualizeRemovedClaim(){
+	public function testVisualizeRemovedClaim() {
 		$expect =
 			// main snak
 			'<tr><td colspan="2" class="diff-lineno">property / P12</td>'.
@@ -318,10 +318,8 @@ class ClaimDifferenceVisualizerTest extends MediaWikiTestCase {
 
 		$visualizer = $this->newClaimDifferenceVisualizer();
 		$claim = new Statement(
-			new Claim(
-				new PropertyValueSnak( new PropertyId( 'P12' ), new StringValue( 'foo' ) ),
-				new SnakList( array( new PropertyValueSnak( 50, new StringValue( 'v' ) ) ) )
-			),
+			new PropertyValueSnak( new PropertyId( 'P12' ), new StringValue( 'foo' ) ),
+			new SnakList( array( new PropertyValueSnak( 50, new StringValue( 'v' ) ) ) ),
 			new ReferenceList( array(
 				new Reference(
 					new SnakList( array(

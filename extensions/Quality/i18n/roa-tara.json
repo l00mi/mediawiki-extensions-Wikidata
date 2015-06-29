@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": [
+			"Joetaras"
+		]
+	},
+	"wbq-desc": "Estenzione base pe le estenziune de qualitate de uicchibase ca gestisce le date acchiate scorrette",
+	"specialpages-group-wikibasequality": "Qualitate UicchiBase",
+	"wbq-violations-group-label": "Gruppe:",
+	"wbq-violations-mark-as-exception": "Signe cumme eccezzione"
+}

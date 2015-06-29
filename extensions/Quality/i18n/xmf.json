@@ -1,0 +1,15 @@
+{
+	"@metadata": {
+		"authors": [
+			"Silovan"
+		]
+	},
+	"wbq-violations-group-label": "ბუნა:",
+	"wbq-violations-type-label": "ტიპი:",
+	"wbq-violations-form-select-all": "(არძო)",
+	"wbq-violations-table-header-claim": "მოთხირი",
+	"wbq-violations-table-header-constraint-type": "ტიპი",
+	"wbq-violations-table-header-status": "სტატუსი",
+	"wbq-violations-next-page": "უკულიანი ხასჷლა >>",
+	"wbq-violations-prev-page": "<< კინოხიან ხასჷლა"
+}

@@ -42,11 +42,11 @@ interface TermIndex {
 	 *
 	 * @param EntityId $entityId
 	 * @param string[]|null $termTypes The types of terms to return, e.g. "label", "description",
-	 *        or "alias". Compare the Term::TYPE_XXX constants. If null, all types are returned.
+	 *        or "alias". Compare the TermIndexEntry::TYPE_XXX constants. If null, all types are returned.
 	 * @param string[]|null $languageCodes The desired languages, given as language codes.
 	 *        If null, all languages are returned.
 	 *
-	 * @return Term[]
+	 * @return TermIndexEntry[]
 	 */
 	public function getTermsOfEntity(
 		EntityId $entityId,
@@ -62,11 +62,11 @@ interface TermIndex {
 	 *
 	 * @param EntityId[] $entityIds Entity ids of one type only.
 	 * @param string[]|null $termTypes The types of terms to return, e.g. "label", "description",
-	 *        or "alias". Compare the Term::TYPE_XXX constants. If null, all types are returned.
+	 *        or "alias". Compare the TermIndexEntry::TYPE_XXX constants. If null, all types are returned.
 	 * @param string[]|null $languageCodes The desired languages, given as language codes.
 	 *        If null, all languages are returned.
 	 *
-	 * @return Term[]
+	 * @return TermIndexEntry[]
 	 */
 	public function getTermsOfEntities(
 		array $entityIds,
@@ -84,20 +84,21 @@ interface TermIndex {
 	 * method parameters.
 	 *
 	 * The return value is an array of Terms where entityId, entityType,
-	 * termType, termLanguage, termText are all set.
+	 * termType, termLanguage, termText, termWeight are all set.
 	 *
 	 * @since 0.2
 	 *
-	 * @param Term[] $terms
-	 * @param string|null $termType
-	 * @param string|null $entityType
+	 * @param TermIndexEntry[] $terms
+	 * @param string|string[]|null $termType
+	 * @param string|string[]|null $entityType
 	 * @param array $options
 	 *        Accepted options are:
 	 *        - caseSensitive: boolean, default true
 	 *        - prefixSearch: boolean, default false
 	 *        - LIMIT: int, defaults to none
+	 *        - orderByWeight: boolean, default false
 	 *
-	 * @return Term[]
+	 * @return TermIndexEntry[]
 	 */
 	public function getMatchingTerms(
 		array $terms,
@@ -107,26 +108,37 @@ interface TermIndex {
 	);
 
 	/**
-	 * Returns the IDs that match the provided conditions.
+	 * Returns the terms that match the provided conditions ranked with the 'most important' / top first.
+	 * Will only return one TermIndexEntry per Entity
 	 *
 	 * $terms is an array of Term objects. Terms are joined by OR.
 	 * The fields of the terms are joined by AND.
 	 *
-	 * A single entityType has to be provided.
+	 * A default can be provided for termType and entityType via the corresponding
+	 * method parameters.
 	 *
-	 * @since 0.4
+	 * The return value is an array of Terms where entityId, entityType,
+	 * termType, termLanguage, termText, termWeight are all set.
 	 *
-	 * @param Term[] $terms
-	 * @param string|null $entityType
+	 * @since 0.5
+	 *
+	 * @param TermIndexEntry[] $terms
+	 * @param string|string[]|null $termType
+	 * @param string|string[]|null $entityType
 	 * @param array $options
 	 *        Accepted options are:
 	 *        - caseSensitive: boolean, default true
 	 *        - prefixSearch: boolean, default false
 	 *        - LIMIT: int, defaults to none
 	 *
-	 * @return EntityId[]
+	 * @return TermIndexEntry[]
 	 */
-	public function getMatchingIDs( array $terms, $entityType = null, array $options = array() );
+	public function getTopMatchingTerms(
+		array $terms,
+		$termType = null,
+		$entityType = null,
+		array $options = array()
+	);
 
 	/**
 	 * Clears all terms from the cache.

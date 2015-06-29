@@ -30,11 +30,23 @@ HTML;
 <hr class="wb-hr" />
 HTML;
 
-// $1: Text of the heading.
-// $2: Optional ID for the heading.
+	$templates['wikibase-title'] =
+<<<HTML
+<span class="wikibase-title $1">
+	<span class="wikibase-title-label">$2</span>
+	<span class="wikibase-title-id">$3</span>
+</span>
+HTML;
+
 	$templates['wb-section-heading'] =
 <<<HTML
-<h2 class="wb-section-heading" dir="auto" id="$2">$1</h2>
+<h2 class="wb-section-heading section-heading $3" dir="auto"><span id="$2">$1</span></h2>
+HTML;
+
+	// empty toc to help MobileFrontend
+	$templates['wikibase-toc'] =
+<<<HTML
+<div id="toc"></div>
 HTML;
 
 	$templates['wikibase-statementgrouplistview'] =
@@ -157,18 +169,12 @@ HTML;
 <<<HTML
 <div class="wikibase-entitytermsview">
 	<div class="wikibase-entitytermsview-heading">
-		<h1 class="wikibase-entitytermsview-heading-label $1"><!-- wikibase-entitytermsview-label -->$2</h1>
-		<div class="wikibase-entitytermsview-heading-description $3">$4</div>
-		<div class="wikibase-entitytermsview-heading-aliases $5"><!-- wikibase-entitytermsview-aliases -->$6</div>
+		<div class="wikibase-entitytermsview-heading-description $1">$2</div>
+		<div class="wikibase-entitytermsview-heading-aliases $3"><!-- wikibase-entitytermsview-aliases -->$4</div>
 	</div>
-	<!-- ? wikibase-toolbar -->$9
-	<div class="wikibase-entitytermsview-entitytermsforlanguagelistview $8"><!-- wikibase-entitytermsforlanguagelistview -->$7</div>
+	<!-- ? wikibase-toolbar -->$7
+	<div class="wikibase-entitytermsview-entitytermsforlanguagelistview $6"><!-- wikibase-entitytermsforlanguagelistview -->$5</div>
 </div>
-HTML;
-
-	$templates['wikibase-entitytermsview-heading-label'] =
-<<<HTML
-$1<span class="wikibase-entitytermsview-heading-label-id">$2</span>
 HTML;
 
 	$templates['wikibase-entitytermsview-aliases'] =
@@ -222,7 +228,7 @@ HTML;
 <div class="wikibase-sitelinkgroupview" data-wb-sitelinks-group="$5">
 	<div class="wikibase-sitelinkgroupview-heading-section">
 		<div class="wikibase-sitelinkgroupview-heading-container">
-			<h2 class="wb-section-heading" dir="auto" id="$1">$2<span class="wikibase-sitelinkgroupview-counter">$3</span></h2>
+			<h3 class="wb-sitelinks-heading" dir="auto" id="$1">$2<span class="wikibase-sitelinkgroupview-counter">$3</span></h3>
 			<!-- wikibase-toolbar -->$6
 		</div>
 	</div>

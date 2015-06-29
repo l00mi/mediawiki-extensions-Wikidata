@@ -3,7 +3,6 @@
 namespace Wikibase\Client\DataAccess\Scribunto;
 
 use Language;
-use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\DataModel\Deserializers\SnakDeserializer;
 use Wikibase\DataModel\Deserializers\SnakListDeserializer;
 use Wikibase\DataModel\Snak\Snak;
@@ -40,29 +39,21 @@ class SnakSerializationRenderer {
 	private $snakListDeserializer;
 
 	/**
-	 * @var UsageAccumulator
-	 */
-	private $usageAccumulator;
-
-	/**
 	 * @param SnakFormatter $snakFormatter
 	 * @param SnakDeserializer $snakDeserializer
 	 * @param Language $language
 	 * @param SnakListDeserializer $snakListDeserializer
-	 * @param UsageAccumulator $usageAccumulator
 	 */
 	public function __construct(
 		SnakFormatter $snakFormatter,
 		SnakDeserializer $snakDeserializer,
 		Language $language,
-		SnakListDeserializer $snakListDeserializer,
-		UsageAccumulator $usageAccumulator
+		SnakListDeserializer $snakListDeserializer
 	) {
 		$this->snakFormatter = $snakFormatter;
 		$this->snakDeserializer = $snakDeserializer;
 		$this->language = $language;
 		$this->snakListDeserializer = $snakListDeserializer;
-		$this->usageAccumulator = $usageAccumulator;
 	}
 
 	/**
@@ -76,8 +67,6 @@ class SnakSerializationRenderer {
 	 */
 	public function renderSnak( array $snakSerialization ) {
 		$snak = $this->snakDeserializer->deserialize( $snakSerialization );
-
-		$this->usageAccumulator->addLabelUsageForSnak( $snak, $this->language->getCode() );
 
 		return $this->snakFormatter->formatSnak( $snak );
 	}
@@ -99,9 +88,6 @@ class SnakSerializationRenderer {
 		}
 
 		$snaks = iterator_to_array( $snaks );
-
-		$this->usageAccumulator->addLabelUsageForSnaks( $snaks, $this->language->getCode() );
-
 		return $this->formatSnakList( $snaks );
 	}
 

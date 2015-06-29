@@ -5,7 +5,6 @@ namespace Wikibase\Lib\Test;
 use DataValues\NumberValue;
 use DataValues\TimeValue;
 use ValueFormatters\FormatterOptions;
-use ValueFormatters\TimeFormatter;
 use ValueFormatters\ValueFormatter;
 use Wikibase\Lib\TimeDetailsFormatter;
 
@@ -44,7 +43,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param string $time
+	 * @param string $timestamp
 	 * @param int|string $timezone
 	 * @param int|string $before
 	 * @param int|string $after
@@ -54,35 +53,36 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 	 * @return TimeValue
 	 */
 	private function getTimeValue(
-		$time = '<a>time</a>',
+		$timestamp = '<a>time</a>',
 		$timezone = '<a>timezone</a>',
 		$before = '<a>before</a>',
 		$after = '<a>after</a>',
 		$precision = '<a>precision</a>',
 		$calendarModel = '<a>calendarmodel</a>'
 	) {
-		$value = $this->getMockBuilder( 'DataValues\TimeValue' )
-			->disableOriginalConstructor()
-			->getMock();
+		$value = new TimeValue( '+1-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $calendarModel );
 
-		$value->expects( $this->any() )
-			->method( 'getTime' )
-			->will( $this->returnValue( $time ) );
-		$value->expects( $this->any() )
-			->method( 'getTimezone' )
-			->will( $this->returnValue( $timezone ) );
-		$value->expects( $this->any() )
-			->method( 'getBefore' )
-			->will( $this->returnValue( $before ) );
-		$value->expects( $this->any() )
-			->method( 'getAfter' )
-			->will( $this->returnValue( $after ) );
-		$value->expects( $this->any() )
-			->method( 'getPrecision' )
-			->will( $this->returnValue( $precision ) );
-		$value->expects( $this->any() )
-			->method( 'getCalendarModel' )
-			->will( $this->returnValue( $calendarModel ) );
+		$class = new \ReflectionClass( 'DataValues\TimeValue' );
+
+		$timestampProperty = $class->getProperty( 'timestamp' );
+		$timestampProperty->setAccessible( true );
+		$timestampProperty->setValue( $value, $timestamp );
+
+		$timezoneProperty = $class->getProperty( 'timezone' );
+		$timezoneProperty->setAccessible( true );
+		$timezoneProperty->setValue( $value, $timezone );
+
+		$beforeProperty = $class->getProperty( 'before' );
+		$beforeProperty->setAccessible( true );
+		$beforeProperty->setValue( $value, $before );
+
+		$afterProperty = $class->getProperty( 'after' );
+		$afterProperty->setAccessible( true );
+		$afterProperty->setValue( $value, $after );
+
+		$precisionProperty = $class->getProperty( 'precision' );
+		$precisionProperty->setAccessible( true );
+		$precisionProperty->setValue( $value, $precision );
 
 		return $value;
 	}
@@ -100,7 +100,8 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function quantityFormatProvider() {
-		$gregorian = TimeFormatter::CALENDAR_GREGORIAN;
+		$gregorian = 'http://www.wikidata.org/entity/Q1985727';
+		$julian = 'http://www.wikidata.org/entity/Q1985786';
 		$day = TimeValue::PRECISION_DAY;
 
 		return array(
@@ -135,7 +136,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 				'@.*<td[^<>]*isotime">\+99999-01-01T00:00:00</td>.*@s'
 			),
 			'Julian' => array(
-				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, $day, TimeFormatter::CALENDAR_JULIAN ),
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, $day, $julian ),
 				'@.*<td[^<>]*calendar">\(valueview-expert-timevalue-calendar-julian\)</td>.*@s'
 			),
 			'Non-standard calendar model' => array(
@@ -151,11 +152,11 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 				'@.*<td[^<>]*precision">\(seconds: 1\)</td>.*@s'
 			),
 			'10 years precision' => array(
-				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_10a, $gregorian ),
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR10, $gregorian ),
 				'@.*<td[^<>]*precision">\(years: 10\)</td>.*@s'
 			),
 			'Max. precision' => array(
-				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_Ga, $gregorian ),
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR1G, $gregorian ),
 				'@.*<td[^<>]*precision">\(years: 1000000000\)</td>.*@s'
 			),
 			'Before' => array(
@@ -163,7 +164,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 				'@.*<td[^<>]*before">\(years: 2\)</td>.*@s'
 			),
 			'After in years' => array(
-				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 5, TimeValue::PRECISION_10a, $gregorian ),
+				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 5, TimeValue::PRECISION_YEAR10, $gregorian ),
 				'@.*<td[^<>]*after">\(years: 50\)</td>.*@s'
 			),
 			'After in days' => array(

@@ -53,7 +53,6 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 
 === Expert Settings ===
 ;idBlacklist: A list of IDs to reserve and skip for new entities. IDs are given as integers, the blacklist applies to all types of entities. '''Note:''' this may change in the future to allow separate blacklists for different kinds of entities.
-;withoutTermWeight: Allow the terms table to work without the term_weight field, for sites that can not easily roll out schema changes on large tables. This means that all searches will return the results in an undefined order (depending on how the database works). Default: <code>false</code>. This is only needed for compatibility with old database layouts.
 ;multilang-limits: Limits to impose on multilanguage strings like labels, descriptions and such. Supported limits:
 :;length: the maximum length of the string, in characters.
 :Default: <code>array( 'length' => 250 )</code>
@@ -74,6 +73,7 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 ;namespaces: List of namespaces on the client wiki that should have access to repository items. Default: <code>array()</code> (treated as setting is not set; all namespaces enabled)
 ;excludeNamespaces: List of namespaces on the client wiki to disable wikibase links, etc. for.  Default: <code>array()</code>  Example: <code>array( NS_USER_TALK )</code>
 ;repoUrl: The repository's base URL, including the schema (protocol) and domain; This URL can be protocol-relative. Default is <code>'//wikidata.org'</code>. '''Note:''' this may be removed once we can get this information from the sites table.
+;repoConceptBaseUri: The base of the repository's concept URIs. Default is <code>'<i>repoUrl</i>/entity/'</code>. '''Note:''' this may be removed once we can get this information from the sites table.
 ;repoScriptPath: The repository's script path. Default is $wgScriptPath, assuming that the repo's script path is the same as this wiki's script path. '''Note:''' this may be removed once we can get this information from the sites table.
 ;repoArticlePath: The repository's article path. Default is $wgArticlePath, assuming that the repo's article path is the same as this wiki's script path. '''Note:''' this may be removed once we can get this information from the sites table.
 ;sort: How to sort language links in the side bar. Possible values:

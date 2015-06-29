@@ -61,9 +61,11 @@ class SetReferenceTest extends WikibaseApiTestCase {
 		}
 	}
 
-	// TODO: clean this up so more of the input space can easily be tested
-	// semi-blocked by cleanup of GUID handling in claims
-	// can perhaps tseal from RemoveReferencesTest
+	/**
+	 * @todo Clean this up so more of the input space can easily be tested
+	 * semi-blocked by cleanup of GUID handling in claims
+	 * can perhaps steal from RemoveReferencesTest
+	 */
 	public function testRequests() {
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 
@@ -152,7 +154,7 @@ class SetReferenceTest extends WikibaseApiTestCase {
 		$store->saveEntity( $item, '', $GLOBALS['wgUser'], EDIT_NEW );
 
 		// Create a statement to act upon:
-		$statement = new Statement( new Claim( new PropertyNoValueSnak( self::$propertyIds[0] ) ) );
+		$statement = new Statement( new PropertyNoValueSnak( self::$propertyIds[0] ) );
 		$guid = $item->getId()->getSerialization() . '$D8505CDA-25E4-4334-AG93-A3290BCD9C0P';
 		$statement->setGuid( $guid );
 

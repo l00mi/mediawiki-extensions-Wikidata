@@ -1,4 +1,4 @@
-( function( wb, util, dv, $ ) {
+( function( wb, util, dv ) {
 	'use strict';
 
 var MODULE = wb.serialization,
@@ -35,7 +35,7 @@ MODULE.SnakDeserializer = util.inherit( 'WbSnakDeserializer', PARENT, {
 			try {
 				dataValue = dv.newDataValue( type, value );
 			} catch( error ) {
-				dataValue = new dv.UnUnserializableValue( value, type, error );
+				dataValue = new dv.UnDeserializableValue( value, type, error.message );
 			}
 
 			return new wb.datamodel.PropertyValueSnak( serialization.property, dataValue );
@@ -45,4 +45,4 @@ MODULE.SnakDeserializer = util.inherit( 'WbSnakDeserializer', PARENT, {
 	}
 } );
 
-}( wikibase, util, dataValues, jQuery ) );
+}( wikibase, util, dataValues ) );

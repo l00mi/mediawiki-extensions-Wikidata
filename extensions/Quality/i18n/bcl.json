@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": [
+			"Geopoet"
+		]
+	},
+	"wbq-violations-description": "Listahan kan kalidad nin mga isyu kan datos",
+	"wbq-violations-group-label": "Grupo:",
+	"wbq-violations-form-select-all": "(gabos)",
+	"wbq-violations-exceptions-checkbox-label": "Ipahiling an mga ipinalaen",
+	"wbq-violations-submit-button-label": "Ipahiling an mga kabalgahan",
+	"wbq-violations-table-header-entity": "Entidad",
+	"wbq-violations-table-header-status": "Kamugtakan",
+	"wbq-violations-table-header-additional-info": "Kadugangang impormasyon",
+	"wbq-violations-status-unverified": "Bakong beripikado",
+	"wbq-violations-mark-as-exception": "Markadong pinagpalaen"
+}

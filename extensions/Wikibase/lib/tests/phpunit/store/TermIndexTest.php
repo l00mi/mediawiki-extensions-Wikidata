@@ -6,8 +6,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Settings;
-use Wikibase\Term;
+use Wikibase\TermIndexEntry;
 use Wikibase\TermIndex;
 
 /**
@@ -27,162 +26,306 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	 */
 	public abstract function getTermIndex();
 
-	public function testGetMatchingIDs() {
-		$lookup = $this->getTermIndex();
+	public function getTermKey( TermIndexEntry $term ) {
+		$key = '';
 
-		$id0 = new ItemId( 'Q10' );
-		$item0 = new Item( $id0 );
+		if ( $term->getEntityId() !== null ) {
+			$key .= $term->getEntityId()->getSerialization();
+		}
 
-		$item0->setLabel( 'en', 'foobar' );
-		$item0->setLabel( 'de', 'foobar' );
-		$item0->setLabel( 'nl', 'baz' );
-		$lookup->saveTermsOfEntity( $item0 );
+		$key .= '/';
 
-		$item1 = $item0->copy();
-		$id1 = new ItemId( 'Q11' );
-		$item1->setId( $id1 );
+		if ( $term->getType() !== null ) {
+			$key .= $term->getType();
+		}
 
-		$item1->setLabel( 'nl', 'o_O' );
-		$item1->setDescription( 'en', 'foo bar baz' );
-		$lookup->saveTermsOfEntity( $item1 );
+		$key .= '.';
 
-		$foobar = new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'foobar' ) );
-		$bazNl= new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'baz', 'termLanguage' => 'nl' ) );
-		$froggerNl = new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'o_O', 'termLanguage' => 'nl' ) );
+		if ( $term->getLanguage() !== null ) {
+			$key .= $term->getLanguage();
+		}
 
-		$ids = $lookup->getMatchingIDs( array( $foobar ), Item::ENTITY_TYPE );
-		$this->assertInternalType( 'array', $ids );
-		$this->assertContainsOnlyInstancesOf( '\Wikibase\DataModel\Entity\ItemId', $ids );
-		$this->assertArrayEquals( array( $id0, $id1 ), $ids );
+		$key .= ':';
 
-		$ids = $lookup->getMatchingIDs( array( $bazNl ), Item::ENTITY_TYPE );
-		$this->assertInternalType( 'array', $ids );
-		$this->assertContainsOnlyInstancesOf( '\Wikibase\DataModel\Entity\ItemId', $ids );
-		$this->assertArrayEquals( array( $id0 ), $ids );
+		if ( $term->getText() !== null ) {
+			$key .= $term->getText();
+		}
 
-		$ids = $lookup->getMatchingIDs( array( $froggerNl ), Item::ENTITY_TYPE );
-		$this->assertInternalType( 'array', $ids );
-		$this->assertContainsOnlyInstancesOf( '\Wikibase\DataModel\Entity\ItemId', $ids );
-		$this->assertArrayEquals( array( $id1 ), $ids );
+		return $key;
 	}
 
-	public function testGetMatchingTerms() {
-		$lookup = $this->getTermIndex();
-
+	private function getTestItems() {
 		$item0 = new Item( new ItemId( 'Q10' ) );
-		$id0 = $item0->getId()->getSerialization();
-
-		$item0->setLabel( 'en', 'getmatchingterms-0' );
-		$lookup->saveTermsOfEntity( $item0 );
+		$item0->setLabel( 'en', 'kittens' );
 
 		$item1 = new Item( new ItemId( 'Q11' )  );
-		$id1 = $item1->getId()->getSerialization();
+		$item1->setLabel( 'nl', 'mittens' );
+		$item1->setLabel( 'de', 'Mittens' );
+		$item1->setLabel( 'fr', 'kittens love mittens' );
 
-		$item1->setLabel( 'nl', 'getmatchingterms-1' );
-		$item1->setLabel( 'de', 'GeTMAtchingterms-2' );
-		$lookup->saveTermsOfEntity( $item1 );
+		$item2 = new Item( new ItemId( 'Q22' ) );
+		$item2->setLabel( 'sv', 'kittens should have mittens' );
+		$item2->setLabel( 'en', 'KITTENS should have mittens' );
 
-		$terms = array(
-			$id0 => new Term( array(
-				'termLanguage' => 'en',
-				'termText' => 'getmatchingterms-0',
-			) ),
-			$id1 => new Term( array(
-				'termText' => 'getmatchingterms-1',
-			) ),
-			new Term( array(
-				'termText' => 'getmatchingterms-2',
-			) ),
+		return array( $item0, $item1, $item2 );
+	}
+
+	public function provideGetMatchingTerms() {
+		list( $item0, $item1, $item2 ) = $this->getTestitems();
+
+		return array(
+			'cross-language match' => array(
+				array( // $entities
+					$item0, $item1
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'mittens', // should match
+					) ),
+					new TermIndexEntry( array(
+						'termText' => 'Kittens', // case doesn't match
+					) ),
+					new TermIndexEntry( array(
+						'termText' => 'Mitt', // prefix isn't sufficient
+					) ),
+					new TermIndexEntry( array(
+						'termLanguage' => 'en', // language mismatch
+						'termText' => 'Mittens',
+					) ),
+					new TermIndexEntry( array(
+						'termType' => 'alias', // type mismatch
+						'termText' => 'Mittens',
+					) ),
+				),
+				null, // $termTypes
+				null, // $entityTypes
+				array(), // $options
+				array( // $expectedTermKeys
+					'Q11/label.nl:mittens',
+				)
+			),
+			'case insensitive prefix' => array(
+				array( // $entities
+					$item0, $item1
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termLanguage' => 'de', // language mismatch
+						'termText' => 'kitt',
+					) ),
+					new TermIndexEntry( array(
+						'termText' => 'mitt', // prefix should match regardless of case
+					) ),
+				),
+				null, // $termTypes
+				null, // $entityTypes
+				array( // $options
+					'caseSensitive' => false,
+					'prefixSearch' => true,
+				),
+				array( // $expectedTermKeys
+					'Q11/label.nl:mittens',
+					'Q11/label.de:Mittens',
+				)
+			),
+			'restrict by term type' => array(
+				array( // $entities
+					$item0, $item1
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'mittens',
+					) ),
+				),
+				TermIndexEntry::TYPE_ALIAS, // $termTypes
+				null, // $entityTypes
+				array(), // $options
+				array(), // $expectedTermKeys
+			),
+			'allow multiple term type' => array(
+				array( // $entities
+					$item0, $item1
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'mittens',
+					) ),
+				),
+				array( TermIndexEntry::TYPE_ALIAS, TermIndexEntry::TYPE_LABEL ), // $termTypes
+				null, // $entityTypes
+				array(), // $options
+				array( // $expectedTermKeys
+					'Q11/label.nl:mittens',
+				)
+			),
+			'restrict by entity type' => array(
+				array( // $entities
+					$item0, $item1
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'mittens',
+					) ),
+				),
+				null, // $termTypes
+				Property::ENTITY_TYPE, // $entityTypes
+				array(), // $options
+				array(), // $expectedTermKeys
+			),
+			'allow multiple entity type' => array(
+				array( // $entities
+					$item0, $item1
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'mittens',
+					) ),
+				),
+				null, // $termTypes
+				array( Property::ENTITY_TYPE, Item::ENTITY_TYPE ), // $entityTypes
+				array(), // $options
+				array( // $expectedTermKeys
+					'Q11/label.nl:mittens',
+				)
+			),
+			'orderByWeight, prefixSearch and caseSensitive options' => array(
+				array( // $entities
+					$item0, $item1, $item2
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'KiTTeNS',
+					) ),
+				),
+				null, // $termTypes
+				null, // $entityTypes
+				array(
+					'orderByWeight' => true,
+					'prefixSearch' => true,
+					'caseSensitive' => false,
+				), // $options
+				array( // $expectedTermKeys
+					'Q11/label.fr:kittens love mittens',
+					'Q22/label.en:KITTENS should have mittens',
+					'Q22/label.sv:kittens should have mittens',
+					'Q10/label.en:kittens',
+				)
+			),
 		);
+	}
 
-		$actual = $lookup->getMatchingTerms( $terms );
+	/**
+	 * @dataProvider provideGetMatchingTerms
+	 */
+	public function testGetMatchingTerms( $entities, $queryTerms, $termTypes, $entityTypes, $options, $expectedTermKeys ) {
+		$lookup = $this->getTermIndex();
+
+		foreach ( $entities as $entitiy ) {
+			$lookup->saveTermsOfEntity( $entitiy );
+		}
+
+		$actual = $lookup->getMatchingTerms( $queryTerms, $termTypes, $entityTypes, $options );
 
 		$this->assertInternalType( 'array', $actual );
-		$this->assertCount( 2, $actual );
 
-		/**
-		 * @var Term $term
-		 * @var Term $expected
-		 */
-		foreach ( $actual as $term ) {
-			$id = $term->getEntityId()->getSerialization();
+		$actualTermKeys = array_map( array( $this, 'getTermKey' ), $actual );
 
-			$this->assertContains( $id, array( $id0, $id1 ) );
-
-			$expected = $terms[$id];
-
-			if ( $expected->getText() !== null ) {
-				$this->assertEquals( $expected->getText(), $term->getText() );
-			}
-
-			if ( $expected->getLanguage() !== null ) {
-				$this->assertEquals( $expected->getLanguage(), $term->getLanguage() );
-			}
+		if( !array_key_exists( 'orderByWeight', $options ) || $options['orderByWeight'] === false ) {
+			$this->assertArrayEquals( $expectedTermKeys, $actualTermKeys, false );
+		} else {
+			$this->assertArrayEquals( $expectedTermKeys, $actualTermKeys, true );
 		}
 	}
 
-	public function testGetMatchingPrefixTerms() {
+	/**
+	 * This wraps around provideGetMatchingTerms removing duplicate keys for entityIds that are already expected
+	 * @see provideGetMatchingTerms
+	 */
+	public function provideGetTopMatchingTerms() {
+		list( $item0, $item1, $item2 ) = $this->getTestitems();
+
+		return array(
+			'EXACT MATCH not prefix, case sensitive' => array(
+				array( // $entities
+					$item0, $item1, $item2
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'Mittens',
+					) ),
+				),
+				null, // $termTypes
+				null, // $entityTypes
+				array(
+					'prefixSearch' => false,
+					'caseSensitive' => true,
+				), // $options
+				array( // $expectedTermKeys
+					'Q11/label.de:Mittens',
+				),
+			),
+			'prefixSearch and not caseSensitive' => array(
+				array( // $entities
+					$item0, $item1, $item2
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'KiTTeNS',
+					) ),
+				),
+				null, // $termTypes
+				null, // $entityTypes
+				array(
+					'prefixSearch' => true,
+					'caseSensitive' => false,
+				), // $options
+				array( // $expectedTermKeys
+					'Q11/label.fr:kittens love mittens',
+					'Q22/label.en:KITTENS should have mittens',
+					// If not asking for top terms the below would normally also be expected
+					//'Q22/label.sv:kittens should have mittens',
+					'Q10/label.en:kittens',
+				),
+			),
+			'prefixSearch and not caseSensitive LIMIT 1' => array(
+				array( // $entities
+					$item0, $item1, $item2
+				),
+				array( // $queryTerms
+					new TermIndexEntry( array(
+						'termText' => 'KiTTeNS',
+					) ),
+				),
+				null, // $termTypes
+				null, // $entityTypes
+				array(
+					'prefixSearch' => true,
+					'caseSensitive' => false,
+					'LIMIT' => 1,
+				), // $options
+				array( // $expectedTermKeys
+					'Q11/label.fr:kittens love mittens',
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provideGetTopMatchingTerms
+	 */
+	public function testGetTopMatchingTerms( $entities, $queryTerms, $termTypes, $entityTypes, $options, $expectedTermKeys ) {
 		$lookup = $this->getTermIndex();
 
-		$item0 = new Item( new ItemId( 'Q10' ) );
-		$item0->setLabel( 'en', 'prefix' );
-		$id0 = $item0->getId()->getSerialization();
-		$lookup->saveTermsOfEntity( $item0 );
+		foreach ( $entities as $entitiy ) {
+			$lookup->saveTermsOfEntity( $entitiy );
+		}
 
-		$item1 = new Item( new ItemId( 'Q11' ) );
-		$item1->setLabel( 'nl', 'postfix' );
-		$id1 = $item1->getId()->getSerialization();
-		$lookup->saveTermsOfEntity( $item1 );
-
-		/** @var Term[] $terms */
-		$terms = array(
-			$id0 => new Term( array(
-				'termLanguage' => 'en',
-				'termText' => 'preF',
-			) ),
-			$id1 => new Term( array(
-				'termText' => 'post',
-			) ),
-		);
-
-		/** @var Term[] $expectedTerms */
-		$expectedTerms = array(
-			$id0 => new Term( array(
-				'termLanguage' => 'en',
-				'termText' => 'prefix',
-			) ),
-			$id1 => new Term( array(
-				'termText' => 'postfix',
-			) )
-		);
-
-		$options = array(
-			'caseSensitive' => false,
-			'prefixSearch' => true,
-		);
-
-		$actual = $lookup->getMatchingTerms( $terms, null, null, $options );
-
-		$terms[$id1]->setLanguage( 'nl' );
-		$expectedTerms[$id1]->setLanguage( 'nl' );
+		$actual = $lookup->getTopMatchingTerms( $queryTerms, $termTypes, $entityTypes, $options );
 
 		$this->assertInternalType( 'array', $actual );
-		$this->assertEquals( count( $expectedTerms ), count( $actual ) );
 
-		/**
-		 * @var Term $term
-		 * @var Term $expected
-		 */
-		foreach ( $actual as $term ) {
-			$id = $term->getEntityId()->getSerialization();
-
-			$this->assertContains( $id, array( $id0, $id1 ) );
-
-			$expected = $expectedTerms[$id];
-
-			$this->assertEquals( $expected->getText(), $term->getText() );
-			$this->assertEquals( $expected->getLanguage(), $term->getLanguage() );
-		}
+		$actualTermKeys = array_map( array( $this, 'getTermKey' ), $actual );
+		$this->assertEquals( $expectedTermKeys, $actualTermKeys );
 	}
 
 	public function testDeleteTermsForEntity() {
@@ -205,10 +348,13 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$this->assertNotTermExists( $lookup, 'testDeleteTermsForEntity' );
 
-		$abc = new Term( array( 'termType' => Term::TYPE_LABEL, 'termText' => 'abc' ) );
-		$ids = $lookup->getMatchingIDs( array( $abc ), Item::ENTITY_TYPE );
-
-		$this->assertNotContains( $id, $ids );
+		$abc = new TermIndexEntry( array( 'termType' => TermIndexEntry::TYPE_LABEL, 'termText' => 'abc' ) );
+		$matchedTerms = $lookup->getMatchingTerms( array( $abc ), array( TermIndexEntry::TYPE_LABEL ), Item::ENTITY_TYPE );
+		foreach( $matchedTerms as $matchedTerm ) {
+			if( $matchedTerm->getEntityId() === $id ) {
+				$this->fail( 'Failed to delete term or entity: ' . $id->getSerialization() );
+			}
+		}
 	}
 
 	public function testSaveTermsOfEntity() {
@@ -226,21 +372,21 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$this->assertTermExists( $lookup,
 			'testDeleteTermsForEntity',
-			Term::TYPE_DESCRIPTION,
+			TermIndexEntry::TYPE_DESCRIPTION,
 			'en',
 			Item::ENTITY_TYPE
 		);
 
 		$this->assertTermExists( $lookup,
 			'ghi',
-			Term::TYPE_LABEL,
+			TermIndexEntry::TYPE_LABEL,
 			'nl',
 			Item::ENTITY_TYPE
 		);
 
 		$this->assertTermExists( $lookup,
 			'o',
-			Term::TYPE_ALIAS,
+			TermIndexEntry::TYPE_ALIAS,
 			'fr',
 			Item::ENTITY_TYPE
 		);
@@ -251,21 +397,21 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$this->assertTermExists( $lookup,
 			'testDeleteTermsForEntity',
-			Term::TYPE_DESCRIPTION,
+			TermIndexEntry::TYPE_DESCRIPTION,
 			'en',
 			Item::ENTITY_TYPE
 		);
 
 		$this->assertTermExists( $lookup,
 			'ghi',
-			Term::TYPE_LABEL,
+			TermIndexEntry::TYPE_LABEL,
 			'nl',
 			Item::ENTITY_TYPE
 		);
 
 		$this->assertTermExists( $lookup,
 			'o',
-			Term::TYPE_ALIAS,
+			TermIndexEntry::TYPE_ALIAS,
 			'fr',
 			Item::ENTITY_TYPE
 		);
@@ -277,21 +423,21 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$this->assertTermExists( $lookup,
 			'testDeleteTermsForEntity',
-			Term::TYPE_DESCRIPTION,
+			TermIndexEntry::TYPE_DESCRIPTION,
 			'en',
 			Item::ENTITY_TYPE
 		);
 
 		$this->assertTermExists( $lookup,
 			'xyz',
-			Term::TYPE_LABEL,
+			TermIndexEntry::TYPE_LABEL,
 			'nl',
 			Item::ENTITY_TYPE
 		);
 
 		$this->assertTermExists( $lookup,
 			'o',
-			Term::TYPE_ALIAS,
+			TermIndexEntry::TYPE_ALIAS,
 			'fr',
 			Item::ENTITY_TYPE
 		);
@@ -329,11 +475,11 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$expectedTerms = $lookup->getEntityTerms( $item );
 		$actualTerms = $lookup->getTermsOfEntity( $item->getId() );
 
-		$missingTerms = array_udiff( $expectedTerms, $actualTerms, 'Wikibase\Term::compare' );
-		$extraTerms =   array_udiff( $actualTerms, $expectedTerms, 'Wikibase\Term::compare' );
+		$missingTerms = array_udiff( $expectedTerms, $actualTerms, 'Wikibase\TermIndexEntry::compare' );
+		$extraTerms =   array_udiff( $actualTerms, $expectedTerms, 'Wikibase\TermIndexEntry::compare' );
 
-		$this->assertEmpty( $missingTerms, 'Missing terms' );
-		$this->assertEmpty( $extraTerms, 'Extra terms' );
+		$this->assertEquals( array(), $missingTerms, 'Missing terms' );
+		$this->assertEquals( array(), $extraTerms, 'Extra terms' );
 	}
 
 	private function getTermConflictEntities() {
@@ -360,6 +506,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$deFooBarP6 = Property::newFromType( 'string' );
 		$deFooBarP6->setId( new PropertyId( 'P6' ) );
 		$deFooBarP6->setLabel( 'de', 'Foo' );
+		$deFooBarP6->addAliases( 'de', array( 'AFoo' ) );
 		$deFooBarP6->setDescription( 'de', 'Bar' );
 
 		$entities = array(
@@ -378,28 +525,53 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$entities = $this->getTermConflictEntities();
 
 		return array(
-			'by label' => array(
+			'conflicting label' => array(
 				$entities,
 				Property::ENTITY_TYPE,
 				array( 'de' => 'Foo' ),
+				array(),
 				array( 'P6' ),
 			),
-			'by label, different case' => array(
+			'conflicting label with different case' => array(
 				$entities,
 				Property::ENTITY_TYPE,
 				array( 'de' => 'fOO' ),
+				array(),
 				array( 'P6' ),
 			),
-			'by label mismatch' => array(
+			'conflict between label and alias' => array(
+				$entities,
+				Property::ENTITY_TYPE,
+				array( 'de' => 'AFoo' ),
+				array(),
+				array( 'P6' ),
+			),
+			'conflict between alias and label' => array(
+				$entities,
+				Property::ENTITY_TYPE,
+				array(),
+				array( 'de' => 'Foo' ),
+				array( 'P6' ),
+			),
+			'conflicting alias' => array(
+				$entities,
+				Property::ENTITY_TYPE,
+				array(),
+				array( 'de' => 'AFoo' ),
+				array( 'P6' ),
+			),
+			'no conflicting label' => array(
 				$entities,
 				Item::ENTITY_TYPE,
 				array( 'de' => 'Nope' ),
 				array(),
+				array(),
 			),
-			'two languages for label' => array(
+			'conflicts in multiple languages' => array(
 				$entities,
 				Item::ENTITY_TYPE,
 				array( 'de' => 'Foo', 'en' => 'Foo' ),
+				array(),
 				array( 'Q1', 'Q3', 'Q5' ),
 			),
 		);
@@ -408,7 +580,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider labelConflictProvider
 	 */
-	public function testGetLabelConflicts( $entities, $entityType, $labels, $expected ) {
+	public function testGetLabelConflicts( $entities, $entityType, $labels, $aliases, $expected ) {
 		$termIndex = $this->getTermIndex();
 		$termIndex->clear();
 
@@ -416,7 +588,8 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 			$termIndex->saveTermsOfEntity( $entity );
 		}
 
-		$matches = $termIndex->getLabelConflicts( $entityType, $labels );
+		//TODO: move this test case to LabelConflictFinderContractTester
+		$matches = $termIndex->getLabelConflicts( $entityType, $labels, $aliases );
 		$actual = $this->getEntityIdStrings( $matches );
 
 		$this->assertArrayEquals( $expected, $actual, false, false );
@@ -489,7 +662,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	}
 
 	private function getEntityIdStrings( array $terms ) {
-		return array_map( function( Term $term ) {
+		return array_map( function( TermIndexEntry $term ) {
 			$id = $term->getEntityId();
 			return $id->getSerialization();
 		}, $terms );
@@ -532,15 +705,15 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 			$term_keys[] = $t->getType() . '/' .  $t->getLanguage() . '/' . $t->getText();
 		}
 
-		$k = Term::TYPE_LABEL . '/en/abc';
+		$k = TermIndexEntry::TYPE_LABEL . '/en/abc';
 		$this->assertContains( $k, $term_keys,
 			"expected to find $k in terms for item" );
 
-		$k = Term::TYPE_DESCRIPTION . '/en/testGetTermsOfEntity';
+		$k = TermIndexEntry::TYPE_DESCRIPTION . '/en/testGetTermsOfEntity';
 		$this->assertContains( $k, $term_keys,
 			"expected to find $k in terms for item" );
 
-		$k = Term::TYPE_ALIAS . '/fr/_';
+		$k = TermIndexEntry::TYPE_ALIAS . '/fr/_';
 		$this->assertContains( $k, $term_keys,
 			"expected to find $k in terms for item" );
 	}
@@ -569,7 +742,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$itemIds = array( $item1->getId(), $item2->getId() );
 
-		$labelTerms = $lookup->getTermsOfEntities( $itemIds, array( Term::TYPE_LABEL ) );
+		$labelTerms = $lookup->getTermsOfEntities( $itemIds, array( TermIndexEntry::TYPE_LABEL ) );
 		$this->assertEquals( 6, count( $labelTerms ), "expected 3 labels" );
 
 		$englishTerms = $lookup->getTermsOfEntities( $itemIds, null, array( 'en' ) );
@@ -578,10 +751,10 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$englishTerms = $lookup->getTermsOfEntities( array( $item1->getId() ), null, array( 'en' ) );
 		$this->assertEquals( 2, count( $englishTerms ), "expected 2 English terms" );
 
-		$germanLabelTerms = $lookup->getTermsOfEntities( $itemIds, array( Term::TYPE_LABEL ), array( 'de' ) );
+		$germanLabelTerms = $lookup->getTermsOfEntities( $itemIds, array( TermIndexEntry::TYPE_LABEL ), array( 'de' ) );
 		$this->assertEquals( 2, count( $germanLabelTerms ), "expected 1 German label" );
 
-		$noTerms = $lookup->getTermsOfEntities( $itemIds, array( Term::TYPE_LABEL ), array() );
+		$noTerms = $lookup->getTermsOfEntities( $itemIds, array( TermIndexEntry::TYPE_LABEL ), array() );
 		$this->assertEmpty( $noTerms, "expected no labels" );
 
 		$noTerms = $lookup->getTermsOfEntities( $itemIds, array(), array( 'de' ) );
@@ -596,19 +769,19 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 			$term_keys[] = $t->getType() . '/' .  $t->getLanguage() . '/' . $t->getText();
 		}
 
-		$k = Term::TYPE_LABEL . '/en/abc';
+		$k = TermIndexEntry::TYPE_LABEL . '/en/abc';
 		$this->assertContains( $k, $term_keys,
 			"expected to find $k in terms for item" );
 
-		$k = Term::TYPE_LABEL . '/en/xyz';
+		$k = TermIndexEntry::TYPE_LABEL . '/en/xyz';
 		$this->assertContains( $k, $term_keys,
 			"expected to find $k in terms for item" );
 
-		$k = Term::TYPE_DESCRIPTION . '/en/another description';
+		$k = TermIndexEntry::TYPE_DESCRIPTION . '/en/another description';
 		$this->assertContains( $k, $term_keys,
 			"expected to find $k in terms for item" );
 
-		$k = Term::TYPE_ALIAS . '/fr/x';
+		$k = TermIndexEntry::TYPE_ALIAS . '/fr/x';
 		$this->assertContains( $k, $term_keys,
 			"expected to find $k in terms for item" );
 	}
@@ -629,7 +802,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 			$termFields['termLanguage'] = $language;
 		}
 
-		$matches = $termIndex->getMatchingTerms( array( new Term( $termFields ) ), $termType, $entityType );
+		$matches = $termIndex->getMatchingTerms( array( new TermIndexEntry( $termFields ) ), $termType, $entityType );
 		return !empty( $matches );
 	}
 

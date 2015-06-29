@@ -5,11 +5,12 @@ namespace Wikibase;
 use MWException;
 use RecentChange;
 use Revision;
+use RuntimeException;
 use User;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -272,7 +273,7 @@ class EntityChange extends DiffChange {
 	/**
 	 * @see DiffChange::arrayalizeObjects
 	 *
-	 * Overwritten to handle Claim objects.
+	 * Overwritten to handle Statement objects.
 	 *
 	 * @since 0.4
 	 *
@@ -282,8 +283,8 @@ class EntityChange extends DiffChange {
 	public function arrayalizeObjects( $data ) {
 		$data = parent::arrayalizeObjects( $data );
 
-		if ( $data instanceof Claim ) {
-			$array = $this->serializeClaim( $data );
+		if ( $data instanceof Statement ) {
+			$array = $this->getStatementSerializer()->serialize( $data );
 			$array['_claimclass_'] = get_class( $data );
 
 			return $array;
@@ -292,40 +293,34 @@ class EntityChange extends DiffChange {
 		return $data;
 	}
 
-	private function serializeClaim( Claim $claim ) {
-		return $this->getClaimSerializer()->serialize( $claim );
-	}
-
-	private function getClaimSerializer() {
+	private function getStatementSerializer() {
 		// FIXME: the change row system needs to be reworked to either allow for sane injection
 		// or to avoid this kind of configuration dependent tasks.
 		if ( defined( 'WB_VERSION' ) ) {
-			return WikibaseRepo::getDefaultInstance()->getInternalClaimSerializer();
+			return WikibaseRepo::getDefaultInstance()->getInternalStatementSerializer();
 		} elseif ( defined( 'WBC_VERSION' ) ) {
-			throw new \RuntimeException( 'Cannot serialize claims on the client' );
-		}
-		else {
-			throw new \RuntimeException( 'Need either client or repo loaded' );
+			throw new RuntimeException( 'Cannot serialize statements on the client' );
+		} else {
+			throw new RuntimeException( 'Need either client or repo loaded' );
 		}
 	}
 
-	private function getClaimDeserializer() {
+	private function getStatementDeserializer() {
 		// FIXME: the change row system needs to be reworked to either allow for sane injection
 		// or to avoid this kind of configuration dependent tasks.
 		if ( defined( 'WB_VERSION' ) ) {
-			return WikibaseRepo::getDefaultInstance()->getInternalClaimDeserializer();
+			return WikibaseRepo::getDefaultInstance()->getInternalStatementDeserializer();
 		} elseif ( defined( 'WBC_VERSION' ) ) {
-			return WikibaseClient::getDefaultInstance()->getInternalClaimDeserializer();
-		}
-		else {
-			throw new \RuntimeException( 'Need either client or repo loaded' );
+			return WikibaseClient::getDefaultInstance()->getInternalStatementDeserializer();
+		} else {
+			throw new RuntimeException( 'Need either client or repo loaded' );
 		}
 	}
 
 	/**
 	 * @see DiffChange::objectifyArrays
 	 *
-	 * Overwritten to handle Claim objects.
+	 * Overwritten to handle Statement objects.
 	 *
 	 * @since 0.4
 	 *
@@ -338,12 +333,12 @@ class EntityChange extends DiffChange {
 		if ( is_array( $data ) && isset( $data['_claimclass_'] ) ) {
 			$class = $data['_claimclass_'];
 
-			if ( $class === 'Wikibase\DataModel\Claim\Claim'
-				|| is_subclass_of( $class, 'Wikibase\DataModel\Claim\Claim' )
+			if ( $class === 'Wikibase\DataModel\Statement\Statement'
+				|| is_subclass_of( $class, 'Wikibase\DataModel\Statement\Statement' )
 			) {
 				unset( $data['_claimclass_'] );
 
-				return $this->getClaimDeserializer()->deserialize( $data );
+				return $this->getStatementDeserializer()->deserialize( $data );
 			}
 		}
 

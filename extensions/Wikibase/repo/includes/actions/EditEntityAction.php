@@ -2,7 +2,6 @@
 
 namespace Wikibase;
 
-use Action;
 use Diff\Comparer\ComparableComparer;
 use Diff\Differ\OrderedListDiffer;
 use Html;
@@ -159,7 +158,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 	 *
 	 * @return Status
 	 */
-	private function getStatus( WebRequest $req, Revision $latestRevision ){
+	private function getStatus( WebRequest $req, Revision $latestRevision ) {
 		if ( $req->getCheck( 'restore' ) ) { // nearly the same as undoafter without undo
 			$olderRevision = Revision::newFromId( $req->getInt( 'restore' ) );
 
@@ -515,15 +514,15 @@ abstract class EditEntityAction extends ViewEntityAction {
 			'action' => 'submit',
 		);
 
-		if ( $req->getInt( 'undo' ) )  {
+		if ( $req->getInt( 'undo' ) ) {
 			$args[ 'undo' ] = $req->getInt( 'undo' );
 		}
 
-		if ( $req->getInt( 'undoafter' ) )  {
+		if ( $req->getInt( 'undoafter' ) ) {
 			$args[ 'undoafter' ] = $req->getInt( 'undoafter' );
 		}
 
-		if ( $req->getInt( 'restore' ) )  {
+		if ( $req->getInt( 'restore' ) ) {
 			$args[ 'restore' ] = $req->getInt( 'restore' );
 		}
 

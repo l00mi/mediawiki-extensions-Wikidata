@@ -2,7 +2,6 @@
 
 namespace ValueParsers\Test;
 
-use ValueFormatters\TimeFormatter;
 use ValueParsers\CalendarModelParser;
 use ValueParsers\ParserOptions;
 
@@ -52,28 +51,31 @@ class CalendarModelParserTest extends ValueParserTestBase {
 	 * @see ValueParserTestBase::validInputProvider
 	 */
 	public function validInputProvider() {
+		$gregorian = 'http://www.wikidata.org/entity/Q1985727';
+		$julian = 'http://www.wikidata.org/entity/Q1985786';
+
 		return array(
-			array( '', TimeFormatter::CALENDAR_GREGORIAN ),
-			array( 'Gregorian', TimeFormatter::CALENDAR_GREGORIAN ),
-			array( 'Julian', TimeFormatter::CALENDAR_JULIAN ),
+			array( '', $gregorian ),
+			array( 'Gregorian', $gregorian ),
+			array( 'Julian', $julian ),
 
 			// White space
-			array( ' ', TimeFormatter::CALENDAR_GREGORIAN ),
-			array( ' Gregorian ', TimeFormatter::CALENDAR_GREGORIAN ),
-			array( ' Julian ', TimeFormatter::CALENDAR_JULIAN ),
+			array( ' ', $gregorian ),
+			array( ' Gregorian ', $gregorian ),
+			array( ' Julian ', $julian ),
 
 			// Capitalization
-			array( 'GreGOrIAN', TimeFormatter::CALENDAR_GREGORIAN ),
-			array( 'julian', TimeFormatter::CALENDAR_JULIAN ),
-			array( 'JULIAN', TimeFormatter::CALENDAR_JULIAN ),
+			array( 'GreGOrIAN', $gregorian ),
+			array( 'julian', $julian ),
+			array( 'JULIAN', $julian ),
 
 			// See https://en.wikipedia.org/wiki/Gregorian_calendar
-			array( 'Western', TimeFormatter::CALENDAR_GREGORIAN ),
-			array( 'Christian', TimeFormatter::CALENDAR_GREGORIAN ),
+			array( 'Western', $gregorian ),
+			array( 'Christian', $gregorian ),
 
 			// URIs
-			array( 'http://www.wikidata.org/entity/Q1985727', TimeFormatter::CALENDAR_GREGORIAN ),
-			array( 'http://www.wikidata.org/entity/Q1985786', TimeFormatter::CALENDAR_JULIAN ),
+			array( 'http://www.wikidata.org/entity/Q1985727', $gregorian ),
+			array( 'http://www.wikidata.org/entity/Q1985786', $julian ),
 
 			// Via OPT_CALENDAR_MODEL_URIS
 			array( 'Localized', 'Unlocalized' ),

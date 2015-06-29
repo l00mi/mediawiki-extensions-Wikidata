@@ -4,14 +4,12 @@ namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
 use OutOfBoundsException;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
-use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
-use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Statement\StatementListHolder;
 use Wikibase\DataModel\Term\Fingerprint;
 
 /**
@@ -23,7 +21,7 @@ use Wikibase\DataModel\Term\Fingerprint;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Item extends Entity implements StatementListProvider {
+class Item extends Entity implements StatementListHolder {
 
 	const ENTITY_TYPE = 'item';
 
@@ -79,6 +77,36 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
+	 * @param string $languageCode
+	 * @param string $value
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setLabel( $languageCode, $value ) {
+		$this->fingerprint->setLabel( $languageCode, $value );
+	}
+
+	/**
+	 * @param string $languageCode
+	 * @param string $value
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setDescription( $languageCode, $value ) {
+		$this->fingerprint->setDescription( $languageCode, $value );
+	}
+
+	/**
+	 * @param string $languageCode
+	 * @param string[] $aliases
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	public function setAliases( $languageCode, array $aliases ) {
+		$this->fingerprint->setAliasGroup( $languageCode, $aliases );
+	}
+
+	/**
 	 * @since 0.1 return type changed in 0.3
 	 *
 	 * @return ItemId|null
@@ -110,7 +138,7 @@ class Item extends Entity implements StatementListProvider {
 	 * If there already is a site link with the site id of the provided site link,
 	 * then that one will be overridden by the provided one.
 	 *
-	 * @deprecated since 0.8, use getSiteLinkList and setSiteLinkList instead
+	 * @deprecated since 0.8, use getSiteLinkList()->addSiteLink() instead.
 	 * @since 0.6
 	 *
 	 * @param SiteLink $siteLink
@@ -126,7 +154,7 @@ class Item extends Entity implements StatementListProvider {
 	/**
 	 * Removes the sitelink with specified site ID if the Item has such a sitelink.
 	 *
-	 * @deprecated since 0.8, use getSiteLinkList and setSiteLinkList instead
+	 * @deprecated since 0.8, use getSiteLinkList()->removeLinkWithSiteId() instead.
 	 * @since 0.1
 	 *
 	 * @param string $siteId the target site's id
@@ -136,7 +164,7 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 0.8, use getSiteLinkList and setSiteLinkList instead
+	 * @deprecated since 0.8, use getSiteLinkList() instead,
 	 * @since 0.6
 	 *
 	 * @return SiteLink[]
@@ -146,7 +174,7 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 0.8, use getSiteLinkList and setSiteLinkList instead
+	 * @deprecated since 0.8, use getSiteLinkList()->getBySiteId() instead.
 	 * @since 0.6
 	 *
 	 * @param string $siteId
@@ -159,7 +187,7 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 0.8, use getSiteLinkList and setSiteLinkList instead
+	 * @deprecated since 0.8, use getSiteLinkList()->hasLinkWithSiteId() instead.
 	 * @since 0.4
 	 *
 	 * @param string $siteId
@@ -171,7 +199,7 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 0.8, use getSiteLinkList and setSiteLinkList instead
+	 * @deprecated since 0.8, use getSiteLinkList()->isEmpty() instead.
 	 * @since 0.5
 	 *
 	 * @return bool
@@ -201,17 +229,6 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 1.0
-	 *
-	 * @param Snak $mainSnak
-	 *
-	 * @return Statement
-	 */
-	public function newClaim( Snak $mainSnak ) {
-		return new Statement( new Claim( $mainSnak ) );
-	}
-
-	/**
 	 * Returns if the Item has no content.
 	 * Having an id set does not count as having content.
 	 *
@@ -238,23 +255,6 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 1.0, use getStatements instead
-	 *
-	 * @param Claim $statement This needs to be a Statement as of 1.0
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	public function addClaim( Claim $statement ) {
-		if ( !( $statement instanceof Statement ) ) {
-			throw new InvalidArgumentException( '$statement must be an instance of Statement' );
-		} elseif ( $statement->getGuid() === null ) {
-			throw new InvalidArgumentException( 'Can\'t add a Claim without a GUID.' );
-		}
-
-		$this->statements->addStatement( $statement );
-	}
-
-	/**
 	 * @since 1.0
 	 *
 	 * @return StatementList
@@ -273,7 +273,7 @@ class Item extends Entity implements StatementListProvider {
 	}
 
 	/**
-	 * @deprecated since 1.0, use getStatements instead
+	 * @deprecated since 1.0, use getStatements()->toArray() instead.
 	 *
 	 * @return Statement[]
 	 */
@@ -288,15 +288,6 @@ class Item extends Entity implements StatementListProvider {
 	 */
 	public function setClaims( Claims $claims ) {
 		$this->statements = new StatementList( iterator_to_array( $claims ) );
-	}
-
-	/**
-	 * @deprecated since 1.0, use getStatements instead
-	 *
-	 * @return bool
-	 */
-	public function hasClaims() {
-		return !$this->statements->isEmpty();
 	}
 
 	/**

@@ -9,13 +9,9 @@ On [Packagist](https://packagist.org/packages/data-values/javascript):
 [![Latest Stable Version](https://poser.pugx.org/data-values/javascript/version.png)](https://packagist.org/packages/data-values/javascript)
 [![Download count](https://poser.pugx.org/data-values/javascript/d/total.png)](https://packagist.org/packages/data-values/javascript)
 
-## TODOs
-
-* Write high level description and documentation in this README file.
-
 ## Release notes
 
-### 0.7.0 (dev)
+### 0.7.0 (2015-06-03)
 
 #### Breaking changes
 * Renamed `dataValues.UnUnserializableValue` to `dataValues.UnDeserializableValue`.
@@ -25,6 +21,7 @@ On [Packagist](https://packagist.org/packages/data-values/javascript):
 * Removed obsolete `mw.ext.dataValues` module as it was just overwriting the obsolete `time.js` settings. Dependencies should be updated to point directly to the `dataValues.values` module.
 
 #### Enhancements
+* Implemented `toJSON` and `newFromJSON` in `dataValues.UnDeserializableValue`.
 * Consolidated code structure, updated and added code documentation to allow generating a proper documentation using JSDuck.
 
 ### 0.6.3 (2015-04-01)

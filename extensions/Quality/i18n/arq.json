@@ -1,0 +1,15 @@
+{
+	"@metadata": {
+		"authors": [
+			"Oldstoneage"
+		]
+	},
+	"wbq-violations-group-label": "جماعة:",
+	"wbq-violations-form-select-all": "(كلشي)",
+	"wbq-violations-exceptions-checkbox-label": "ورّي المتفرّدات",
+	"wbq-violations-submit-button-label": "ورّي الخطيّات",
+	"wbq-violations-table-header-status": "الحالة",
+	"wbq-violations-table-header-additional-info": "شي معلومات زيادة",
+	"wbq-violations-status-unverified": "ماشي مأكّد",
+	"wbq-violations-status-exception": "متفرّدة"
+}

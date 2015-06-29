@@ -2,7 +2,6 @@
 
 namespace DataValues\Tests;
 
-use DataValues\IllegalValueException;
 use DataValues\TimeValue;
 
 /**
@@ -39,7 +38,7 @@ class TimeValueTest extends DataValueTest {
 			'Maximum timezone' => array(
 				'+2013-01-01T00:00:00Z',
 				7200, 9001, 9001,
-				TimeValue::PRECISION_Ga,
+				TimeValue::PRECISION_YEAR1G,
 				'http://nyan.cat/original.php'
 			),
 			'Minimum timezone' => array(
@@ -61,13 +60,13 @@ class TimeValueTest extends DataValueTest {
 				'http://nyan.cat/original.php'
 			),
 			'Minimum timestamp' => array(
-				'-9999999999999999-12-31T23:59:62Z',
+				'-9999999999999999-12-31T23:59:61Z',
 				0, 0, 0,
 				TimeValue::PRECISION_SECOND,
 				'http://nyan.cat/original.php'
 			),
 			'Maximum timestamp' => array(
-				'+9999999999999999-12-31T23:59:62Z',
+				'+9999999999999999-12-31T23:59:61Z',
 				0, 0, 0,
 				TimeValue::PRECISION_SECOND,
 				'http://nyan.cat/original.php'
@@ -174,7 +173,7 @@ class TimeValueTest extends DataValueTest {
 				'http://nyan.cat/original.php'
 			),
 			'Second out of range' => array(
-				'+00000002013-01-01T00:00:63Z',
+				'+00000002013-01-01T00:00:62Z',
 				0, 0, 0,
 				TimeValue::PRECISION_SECOND,
 				'http://nyan.cat/original.php'

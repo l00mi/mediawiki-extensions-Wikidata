@@ -6,8 +6,6 @@ use Serializers\DispatchableSerializer;
 use Serializers\Exceptions\SerializationException;
 use Serializers\Exceptions\UnsupportedObjectException;
 use Serializers\Serializer;
-use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Property;
 
 /**
@@ -27,14 +25,15 @@ class PropertySerializer implements DispatchableSerializer {
 	/**
 	 * @var Serializer
 	 */
-	private $claimsSerializer;
+	private $statementListSerializer;
 
 	/**
-	 * @param Serializer $claimsSerializer
+	 * @param FingerprintSerializer $fingerprintSerializer
+	 * @param Serializer $statementListSerializer
 	 */
-	public function __construct( FingerprintSerializer $fingerprintSerializer, Serializer $claimsSerializer ) {
+	public function __construct( FingerprintSerializer $fingerprintSerializer, Serializer $statementListSerializer ) {
 		$this->fingerprintSerializer = $fingerprintSerializer;
-		$this->claimsSerializer = $claimsSerializer;
+		$this->statementListSerializer = $statementListSerializer;
 	}
 
 	/**
@@ -51,7 +50,7 @@ class PropertySerializer implements DispatchableSerializer {
 	/**
 	 * @see Serializer::serialize
 	 *
-	 * @param mixed $object
+	 * @param Property $object
 	 *
 	 * @return array
 	 * @throws SerializationException
@@ -74,15 +73,13 @@ class PropertySerializer implements DispatchableSerializer {
 		);
 
 		$this->fingerprintSerializer->addBasicsToSerialization( $entity, $serialization );
-		$this->addClaimsToSerialization( $entity, $serialization );
+		$this->addStatementListToSerialization( $entity, $serialization );
 
 		return $serialization;
 	}
 
-	private function addClaimsToSerialization( Entity $entity, array &$serialization ) {
-		$claims = new Claims( $entity->getStatements() );
-
-		$serialization['claims'] = $this->claimsSerializer->serialize( $claims );
+	private function addStatementListToSerialization( Property $entity, array &$serialization ) {
+		$serialization['claims'] = $this->statementListSerializer->serialize( $entity->getStatements() );
 	}
 
 }

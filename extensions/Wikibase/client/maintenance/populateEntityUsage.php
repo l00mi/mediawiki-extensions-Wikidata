@@ -53,7 +53,6 @@ class PopulateEntityUsage extends LoggedUpdateMaintenance {
 		$builder = new EntityUsageTableBuilder(
 			WikibaseClient::getDefaultInstance()->getEntityIdParser(),
 			wfGetLB(),
-			'wbc_entity_usage',
 			$this->mBatchSize
 		);
 

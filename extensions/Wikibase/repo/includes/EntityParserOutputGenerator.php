@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use LinkBatch;
 use ParserOptions;
 use ParserOutput;
+use SpecialPage;
 use Title;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
@@ -13,13 +14,14 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\StatementListProvider;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\Store\EntityInfo;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityInfoTermLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
+use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\View\RepoSpecialPageLinker;
 use Wikibase\View\EmptyEditSectionGenerator;
 use Wikibase\View\EntityViewFactory;
@@ -85,6 +87,11 @@ class EntityParserOutputGenerator {
 	 */
 	private $templateFactory;
 
+	/**
+	 * @var EntityDataFormatProvider
+	 */
+	private $entityDataFormatProvider;
+
 	public function __construct(
 		EntityViewFactory $entityViewFactory,
 		ParserOutputJsConfigBuilder $configBuilder,
@@ -93,7 +100,9 @@ class EntityParserOutputGenerator {
 		EntityInfoBuilderFactory $entityInfoBuilderFactory,
 		LanguageFallbackChain $languageFallbackChain,
 		$languageCode,
-		TemplateFactory $templateFactory
+		ReferencedEntitiesFinder $referencedEntitiesFinder,
+		TemplateFactory $templateFactory,
+		EntityDataFormatProvider $entityDataFormatProvider
 	) {
 		$this->entityViewFactory = $entityViewFactory;
 		$this->configBuilder = $configBuilder;
@@ -102,9 +111,9 @@ class EntityParserOutputGenerator {
 		$this->entityInfoBuilderFactory = $entityInfoBuilderFactory;
 		$this->languageFallbackChain = $languageFallbackChain;
 		$this->languageCode = $languageCode;
-
-		$this->referencedEntitiesFinder = new ReferencedEntitiesFinder();
+		$this->referencedEntitiesFinder = $referencedEntitiesFinder;
 		$this->templateFactory = $templateFactory;
+		$this->entityDataFormatProvider = $entityDataFormatProvider;
 	}
 
 	/**
@@ -182,15 +191,16 @@ class EntityParserOutputGenerator {
 		}
 
 		//@todo: record sitelinks as iwlinks
-		//@todo: record CommonsMedia values as imagelinks
 
-		$this->addModules( $parserOutput, $editable );
+		$this->addModules( $parserOutput );
 
 		//FIXME: some places, like Special:NewItem, don't want to override the page title.
 		//	 But we still want to use OutputPage::addParserOutput to apply the modules etc from the ParserOutput.
 		//	 So, for now, we leave it to the caller to override the display title, if desired.
 		// set the display title
 		//$parserOutput->setTitleText( $entity>getLabel( $langCode ) );
+
+		$this->addAlternateLinks( $parserOutput, $entity->getId() );
 
 		return $parserOutput;
 	}
@@ -359,6 +369,10 @@ class EntityParserOutputGenerator {
 			$editSectionGenerator
 		);
 
+		// Set the display title to display the label together with the item's id
+		$titleHtml = $entityView->getTitleHtml( $entityRevision );
+		$parserOutput->setDisplayTitle( $titleHtml );
+
 		$html = $entityView->getHtml( $entityRevision );
 		$parserOutput->setText( $html );
 		$parserOutput->setExtensionData( 'wikibase-view-chunks', $entityView->getPlaceholders() );
@@ -377,9 +391,8 @@ class EntityParserOutputGenerator {
 
 	/**
 	 * @param ParserOutput $parserOutput
-	 * @param bool $editable
 	 */
-	private function addModules( ParserOutput $parserOutput, $editable = true ) {
+	private function addModules( ParserOutput $parserOutput ) {
 		// make css available for JavaScript-less browsers
 		$parserOutput->addModuleStyles( array(
 			'wikibase.common',
@@ -395,4 +408,33 @@ class EntityParserOutputGenerator {
 		$parserOutput->addModules( 'wikibase.ui.entityViewInit' );
 	}
 
+	/**
+	 * Add alternate links as extension data.
+	 * OutputPageBeforeHTMLHookHandler will add these to the OutputPage.
+	 *
+	 * @param ParserOutput $parserOutput
+	 * @param EntityId $entityId
+	 */
+	private function addAlternateLinks( ParserOutput $parserOutput, EntityId $entityId ) {
+		$entityDataFormatProvider = $this->entityDataFormatProvider;
+		$subPagePrefix = $entityId->getSerialization() . '.';
+
+		$links = array();
+
+		foreach ( $entityDataFormatProvider->getSupportedFormats() as $format ) {
+			$ext = $entityDataFormatProvider->getExtension( $format );
+
+			if ( $ext !== null ) {
+				$entityDataTitle = SpecialPage::getTitleFor( 'EntityData', $subPagePrefix . $ext );
+
+				$links[] = array(
+					'rel' => 'alternate',
+					'href' => $entityDataTitle->getCanonicalURL(),
+					'type' => $entityDataFormatProvider->getMimeType( $format )
+				);
+			}
+		}
+
+		$parserOutput->setExtensionData( 'wikibase-alternate-links', $links );
+	}
 }

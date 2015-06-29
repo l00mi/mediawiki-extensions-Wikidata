@@ -5,7 +5,6 @@ namespace Wikibase\DataModel;
 use InvalidArgumentException;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
-use Wikibase\DataModel\Snak\Snaks;
 
 /**
  * Object that represents a single Wikibase reference.
@@ -19,29 +18,26 @@ use Wikibase\DataModel\Snak\Snaks;
 class Reference implements \Hashable, \Comparable, \Immutable, \Countable {
 
 	/**
-	 * @var Snaks
+	 * @var SnakList
 	 */
 	private $snaks;
 
 	/**
-	 * An array of Snak is only supported since version 1.1.
+	 * An array of Snak objects is only supported since version 1.1.
 	 *
-	 * @param Snaks|Snak[]|null $snaks
+	 * @param Snak[]|SnakList $snaks
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct( $snaks = null ) {
-		if ( $snaks === null ) {
-			$this->snaks = new SnakList();
+	public function __construct( $snaks = array() ) {
+		if ( is_array( $snaks ) ) {
+			$snaks = new SnakList( $snaks );
 		}
-		elseif ( $snaks instanceof Snaks ) {
-			$this->snaks = $snaks;
+
+		if ( !( $snaks instanceof SnakList ) ) {
+			throw new InvalidArgumentException( '$snaks must be an array or an instance of SnakList' );
 		}
-		elseif ( is_array( $snaks ) ) {
-			$this->snaks = new SnakList( $snaks );
-		}
-		else {
-			throw new InvalidArgumentException( '$snaks must be an instance of Snaks, an array of instances of Snak, or null' );
-		}
+
+		$this->snaks = $snaks;
 	}
 
 	/**
@@ -50,7 +46,7 @@ class Reference implements \Hashable, \Comparable, \Immutable, \Countable {
 	 *
 	 * @since 0.1
 	 *
-	 * @return Snaks
+	 * @return SnakList
 	 */
 	public function getSnaks() {
 		return $this->snaks;

@@ -5,11 +5,9 @@ namespace Wikibase\DataModel\Tests\Entity;
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpRemove;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Diff\EntityDiff;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
@@ -28,13 +26,6 @@ use Wikibase\DataModel\Term\TermList;
  * @author Daniel Kinzler
  */
 abstract class EntityTest extends \PHPUnit_Framework_TestCase {
-
-	/**
-	 * Returns several more or less complex claims
-	 *
-	 * @return Claim[]
-	 */
-	public abstract function makeClaims();
 
 	/**
 	 * @since 0.1
@@ -107,15 +98,15 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider descriptionProvider
 	 * @param string $languageCode
-	 * @param string $labelText
+	 * @param string $description
 	 * @param string $moarText
 	 */
-	public function testSetDescription( $languageCode, $labelText, $moarText = 'ohi there' ) {
+	public function testSetDescription( $languageCode, $description, $moarText = 'ohi there' ) {
 		$entity = $this->getNewEmpty();
 
-		$entity->setDescription( $languageCode, $labelText );
+		$entity->setDescription( $languageCode, $description );
 
-		$this->assertEquals( $labelText, $entity->getDescription( $languageCode ) );
+		$this->assertEquals( $description, $entity->getDescription( $languageCode ) );
 
 		$entity->setDescription( $languageCode, $moarText );
 
@@ -125,26 +116,26 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider descriptionProvider
 	 * @param string $languageCode
-	 * @param string $labelText
+	 * @param string $description
 	 */
-	public function testGetDescription( $languageCode, $labelText ) {
+	public function testGetDescription( $languageCode, $description ) {
 		$entity = $this->getNewEmpty();
 
 		$this->assertFalse( $entity->getDescription( $languageCode ) );
 
-		$entity->setDescription( $languageCode, $labelText );
+		$entity->setDescription( $languageCode, $description );
 
-		$this->assertEquals( $labelText, $entity->getDescription( $languageCode ) );
+		$this->assertEquals( $description, $entity->getDescription( $languageCode ) );
 	}
 
 	/**
 	 * @dataProvider descriptionProvider
 	 * @param string $languageCode
-	 * @param string $labelText
+	 * @param string $description
 	 */
-	public function testRemoveDescription( $languageCode, $labelText ) {
+	public function testRemoveDescription( $languageCode, $description ) {
 		$entity = $this->getNewEmpty();
-		$entity->setDescription( $languageCode, $labelText );
+		$entity->setDescription( $languageCode, $description );
 		$entity->removeDescription( $languageCode );
 		$this->assertFalse( $entity->getDescription( $languageCode ) );
 	}
@@ -372,7 +363,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param Entity $entity
 	 */
 	public function testCopy( Entity $entity ) {
@@ -399,7 +389,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param Entity $entity
 	 */
 	public function testSerialize( Entity $entity ) {
@@ -411,18 +400,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertTrue( $entity->equals( $instance ) );
 		$this->assertEquals( $entity->getId(), $instance->getId() );
-	}
-
-	/**
-	 * @dataProvider instanceProvider
-	 *
-	 * @param Entity $entity
-	 */
-	public function testHasClaims( Entity $entity ) {
-		$has = $entity->hasClaims();
-		$this->assertInternalType( 'boolean', $has );
-
-		$this->assertEquals( count( $entity->getClaims() ) !== 0, $has );
 	}
 
 	public function diffProvider() {
@@ -490,7 +467,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider diffProvider
-	 *
 	 * @param Entity $entity0
 	 * @param Entity $entity1
 	 * @param EntityDiff $expected
@@ -507,46 +483,12 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider instanceProvider
-	 *
 	 * @param Entity $entity
 	 */
 	public function testGetClaims( Entity $entity ) {
 		$claims = $entity->getClaims();
 
 		$this->assertInternalType( 'array', $claims );
-	}
-
-	/**
-	 * @dataProvider instanceProvider
-	 *
-	 * @param Entity $entity
-	 */
-	public function testGetAllSnaks( Entity $entity ) {
-		$snaks = $entity->getAllSnaks();
-		$claims = $entity->getClaims();
-
-		$this->assertInternalType( 'array', $snaks );
-
-		$this->assertGreaterThanOrEqual( count( $claims ), count( $snaks ), "At least one snak per Claim" );
-
-		foreach ( $claims as $claim ) {
-			$snak = $claim->getMainSnak();
-			$this->assertContains( $snak, $snaks, "main snak" );
-
-			$qualifiers = $claim->getQualifiers();
-
-			// check the first qualifier
-			foreach ( $qualifiers as $snak ) {
-				$this->assertContains( $snak, $snaks, "qualifier snak" );
-			}
-
-			// check the first reference
-			if ( $claim instanceof Statement ) {
-				foreach ( $claim->getAllSnaks() as $snak ) {
-					$this->assertContains( $snak, $snaks, "statement snak" );
-				}
-			}
-		}
 	}
 
 	public function testWhenNoStuffIsSet_getFingerprintReturnsEmptyFingerprint() {

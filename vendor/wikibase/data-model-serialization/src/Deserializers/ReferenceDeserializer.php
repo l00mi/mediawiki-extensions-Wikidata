@@ -46,9 +46,9 @@ class ReferenceDeserializer implements DispatchableDeserializer {
 	/**
 	 * @see Deserializer::deserialize
 	 *
-	 * @param mixed $serialization
+	 * @param array $serialization
 	 *
-	 * @return object
+	 * @return Reference
 	 * @throws DeserializationException
 	 */
 	public function deserialize( $serialization ) {
@@ -79,7 +79,7 @@ class ReferenceDeserializer implements DispatchableDeserializer {
 
 	private function assertCanDeserialize( $serialization ) {
 		if ( !$this->isValidSerialization( $serialization ) ) {
-			throw new DeserializationException( 'The serialization is invalid!' );
+			throw new DeserializationException( 'The serialization is invalid' );
 		}
 	}
 

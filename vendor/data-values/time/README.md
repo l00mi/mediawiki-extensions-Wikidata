@@ -52,6 +52,26 @@ DataValues Time has been written by the Wikidata team, as [Wikimedia Germany]
 
 ## Release notes
 
+### 0.8.0 (2015-06-26)
+
+#### Breaking changes
+* `IsoTimestampParser` auto-detects the calendar model and does not default to Gregorian any more
+* Removed `IsoTimestampParser::PRECISION_NONE`, use `null` instead
+* `TimeValue`s leap second range changed from [0..62] to [0..61]
+
+#### Additions
+* Added `EraParser`
+* Added `TimeValue::CALENDAR_GREGORIAN` and `TimeValue::CALENDAR_JULIAN`
+* Renamed all `TimeValue::PRECISION_...` constants with lower case letters, e.g. `PRECISION_10a` to
+  `PRECISION_YEAR10`, leaving backwards compatible aliases
+* `IsoTimestampParser` now accepts time values with optional colons, per ISO
+* `PhpDateTimeParser` now accepts comma separated dates
+
+#### Other changes
+* Fixed `IsoTimestampParser` not being able to set precision to hour, minute or second on midnight
+* Deprecated `IsoTimestampParser::CALENDAR_GREGORIAN` and `IsoTimestampParser::CALENDAR_JULIAN`
+* Deprecated `TimeFormatter::CALENDAR_GREGORIAN` and `TimeFormatter::CALENDAR_JULIAN`
+
 ### 0.7.0 (2015-04-20)
 
 #### Breaking changes

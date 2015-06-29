@@ -204,16 +204,13 @@ class ItemDiffTest extends EntityDiffOldTest {
 		/**
 		 * @var Item $a
 		 * @var Item $b
+		 * @var SiteLink[] $siteLinks
 		 */
-
 		$siteLinks = array_merge(
-			$a->getSiteLinks(),
-			$b->getSiteLinks()
+			$a->getSiteLinkList()->toArray(),
+			$b->getSiteLinkList()->toArray()
 		);
 
-		/**
-		 * @var SiteLink $siteLink
-		 */
 		foreach ( $siteLinks as $siteLink ) {
 			$aLink = $a->getSiteLinkList()->getBySiteId( $siteLink->getSiteId() );
 			$bLink = $a->getSiteLinkList()->getBySiteId( $siteLink->getSiteId() );
@@ -251,9 +248,8 @@ class ItemDiffTest extends EntityDiffOldTest {
 
 	/**
 	 * @dataProvider isEmptyProvider
-	 *
-	 * @param array $diffOps
-	 * @param boolean $isEmpty
+	 * @param Diff[] $diffOps
+	 * @param bool $isEmpty
 	 */
 	public function testIsEmpty( array $diffOps, $isEmpty ) {
 		$diff = new ItemDiff( $diffOps );

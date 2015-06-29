@@ -7,17 +7,16 @@ use ApiMain;
 use DataValues\IllegalValueException;
 use Diff\Comparer\ComparableComparer;
 use Diff\Differ\OrderedListDiffer;
-use FormatJson;
 use InvalidArgumentException;
 use LogicException;
 use OutOfBoundsException;
 use UsageException;
-use Wikibase\ChangeOp\ClaimChangeOpFactory;
+use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\ClaimSummaryBuilder;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\ClaimGuidParsingException;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Statement\StatementGuidParsingException;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\Diff\ClaimDiffer;
 use Wikibase\Repo\WikibaseRepo;
@@ -35,9 +34,9 @@ use Wikibase\Summary;
 class SetClaim extends ModifyClaim {
 
 	/**
-	 * @var ClaimChangeOpFactory
+	 * @var StatementChangeOpFactory
 	 */
-	private $claimChangeOpFactory;
+	private $statementChangeOpFactory;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -48,7 +47,7 @@ class SetClaim extends ModifyClaim {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
-		$this->claimChangeOpFactory = $changeOpFactoryProvider->getClaimChangeOpFactory();
+		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
 	/**
@@ -61,13 +60,13 @@ class SetClaim extends ModifyClaim {
 		$claim = $this->getClaimFromParams( $params );
 		$guid = $claim->getGuid();
 
-		if ( $guid === null ){
+		if ( $guid === null ) {
 			$this->dieError( 'GUID must be set when setting a claim', 'invalid-claim' );
 		}
 
 		try {
-			$claimGuid = $this->claimGuidParser->parse( $guid );
-		} catch ( ClaimGuidParsingException $ex ) {
+			$claimGuid = $this->guidParser->parse( $guid );
+		} catch ( StatementGuidParsingException $ex ) {
 			$this->dieException( $ex, 'invalid-claim' );
 		}
 
@@ -78,12 +77,12 @@ class SetClaim extends ModifyClaim {
 
 		$summary = $this->getSummary( $params, $claim, $entity );
 
-		$changeop = $this->claimChangeOpFactory->newSetClaimOp(
+		$changeop = $this->statementChangeOpFactory->newSetStatementOp(
 			$claim,
 			isset( $params['index'] ) ? $params['index'] : null
 		);
 
-		$this->claimModificationHelper->applyChangeOp( $changeop, $entity, $summary );
+		$this->modificationHelper->applyChangeOp( $changeop, $entity, $summary );
 
 		$this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->markSuccess();
@@ -99,7 +98,7 @@ class SetClaim extends ModifyClaim {
 	 *
 	 * @todo this summary builder is ugly and summary stuff needs to be refactored
 	 */
-	private function getSummary( array $params, Claim $claim, Entity $entity ){
+	private function getSummary( array $params, Claim $claim, Entity $entity ) {
 		$claimSummaryBuilder = new ClaimSummaryBuilder(
 			$this->getModuleName(),
 			new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) )
@@ -132,8 +131,8 @@ class SetClaim extends ModifyClaim {
 		$unserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Claim\Claim' );
 
 		try {
-			$serializedClaim = FormatJson::decode( $params['claim'], true );
-			if ( !is_array( $serializedClaim ) ){
+			$serializedClaim = json_decode( $params['claim'], true );
+			if ( !is_array( $serializedClaim ) ) {
 				throw new IllegalValueException( 'Failed to get claim from claim Serialization' );
 			}
 			$claim = $unserializer->newFromSerialization( $serializedClaim );

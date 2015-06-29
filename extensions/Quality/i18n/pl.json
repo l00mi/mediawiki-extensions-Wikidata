@@ -1,0 +1,18 @@
+{
+	"@metadata": {
+		"authors": [
+			"Chrumps",
+			"Devwebtel"
+		]
+	},
+	"wbq-violations-group-label": "Grupa:",
+	"wbq-violations-exceptions-checkbox-label": "Pokaż wyjątki",
+	"wbq-violations-invalid-property-id": "Dany identyfikator właściwości jest nieprawidłowy.",
+	"wbq-violations-not-existent-property": "Właściwość o podanym identyfikatorze nie istnieje.",
+	"wbq-violations-table-header-status": "Status",
+	"wbq-violations-table-header-additional-info": "Dodatkowe informacje",
+	"wbq-violations-status-exception": "Wyjątek",
+	"wbq-violations-mark-as-exception": "Oznacz jako wyjątek",
+	"wbq-violations-next-page": "Następna strona >>",
+	"wbq-violations-prev-page": "<< Poprzednia strona"
+}

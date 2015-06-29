@@ -20,6 +20,8 @@ require_once "$wgWikidataBaseDir/extensions/Wikidata.org/WikidataOrg.php";
 require_once "$wgWikidataBaseDir/extensions/WikimediaBadges/WikimediaBadges.php";
 require_once "$wgWikidataBaseDir/extensions/PropertySuggester/PropertySuggester.php";
 require_once "$wgWikidataBaseDir/extensions/Wikibase/client/WikibaseClient.php";
+require_once "$wgWikidataBaseDir/extensions/Quality/WikibaseQuality.php";
+require_once "$wgWikidataBaseDir/extensions/Constraints/WikibaseQualityConstraints.php";
 
 $wgExtensionCredits['wikibase'][] = array(
 	'path' => __DIR__,
