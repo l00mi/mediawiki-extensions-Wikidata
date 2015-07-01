@@ -909,7 +909,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "4d28f74a8d0076446b6071753fada9ac78ad9d29"
+                "reference": "a8ac5b55d83d5fc23eccae2bb021617381b96714"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -954,20 +954,20 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-06-23 22:59:54"
+            "time": "2015-07-01 11:09:28"
         },
         {
             "name": "wikibase/data-model",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModel.git",
-                "reference": "b8c5c74a9a842836685ef317625212c391644fa8"
+                "reference": "94942755d15f814bfd0da39a33cc170154aece11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/b8c5c74a9a842836685ef317625212c391644fa8",
-                "reference": "b8c5c74a9a842836685ef317625212c391644fa8",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/94942755d15f814bfd0da39a33cc170154aece11",
+                "reference": "94942755d15f814bfd0da39a33cc170154aece11",
                 "shasum": ""
             },
             "require": {
@@ -1014,7 +1014,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-06-06 10:55:38"
+            "time": "2015-07-01 17:54:17"
         },
         {
             "name": "wikibase/data-model-javascript",
@@ -1234,7 +1234,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "6c877b930d068c0c11e2ee82907ca7409b6dd4ef"
+                "reference": "0e6c3c95ab49c449d35b3228691c885062f766bb"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1277,7 +1277,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-06-22 08:31:58"
+            "time": "2015-06-30 17:53:04"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1326,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "7adfc0cb855e99249fcbc92727104c0ccb88aaa2"
+                "reference": "d4c3ef8e5f10e8fb416909eb526c7ef2053765a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7adfc0cb855e99249fcbc92727104c0ccb88aaa2",
-                "reference": "7adfc0cb855e99249fcbc92727104c0ccb88aaa2",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d4c3ef8e5f10e8fb416909eb526c7ef2053765a5",
+                "reference": "d4c3ef8e5f10e8fb416909eb526c7ef2053765a5",
                 "shasum": ""
             },
             "require": {
@@ -1399,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-07-01 14:37:12"
+            "time": "2015-07-01 18:17:58"
         },
         {
             "name": "wikibase/wikimedia-badges",

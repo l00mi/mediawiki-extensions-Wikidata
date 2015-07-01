@@ -11,7 +11,7 @@ return array(
     'Wikidata\\' => array($baseDir . '/src'),
     'Wikibase\\View\\' => array($baseDir . '/extensions/Wikibase/view/src'),
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
-    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
+    'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model-serialization/src', $vendorDir . '/wikibase/data-model/src'),
     'WikibaseQuality\\Tests\\' => array($baseDir . '/extensions/Quality/tests/phpunit'),
     'WikibaseQuality\\Specials\\' => array($baseDir . '/extensions/Quality/specials'),
     'WikibaseQuality\\ConstraintReport\\Tests\\' => array($baseDir . '/extensions/Constraints/tests/phpunit'),

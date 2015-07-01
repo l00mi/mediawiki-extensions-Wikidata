@@ -1,6 +1,9 @@
 # Wikibase DataModel release notes
 
-## Version 3.0.0 (2015-06-04)
+## Version 3.0.1 (2015-07-01)
+* Fixed out of bounds bug in `SnakList::orderByProperty`
+
+## Version 3.0.0 (2015-06-06)
 
 #### Breaking changes
 
@@ -183,7 +186,6 @@ Changes in the `Entity` hierarchy:
 * Changed the constructor signature of `Property`
 * Removed `Entity::setClaims` (`Item::setClaims` has been retained)
 * Removed `Entity::stub`
-* Removed `Property::newEmpty`
 * Removed `Entity::getIdFromClaimGuid`
 * `Entity::removeLabel` no longer accepts an array of language codes
 * `Entity::removeDescription` no longer accepts an array of language codes
@@ -371,7 +373,7 @@ No description will be shown as part of its entry on Special:Version.
 
 #### Deprecations
 
-* Deprecated `Property::newEmpty`
+* Deprecated `Property::newEmpty` in favor of `Property::newFromType`
 * Deprecated old fingerprint related methods in `Entity`:
     * setLabel
     * setDescription
