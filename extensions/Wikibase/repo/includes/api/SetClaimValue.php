@@ -70,7 +70,7 @@ class SetClaimValue extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['claim'] ) ) ) {
-			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
+			$this->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 	}
 
@@ -85,7 +85,7 @@ class SetClaimValue extends ModifyClaim {
 					ApiBase::PARAM_REQUIRED => true,
 				),
 				'value' => array(
-					ApiBase::PARAM_TYPE => 'string',
+					ApiBase::PARAM_TYPE => 'text',
 					ApiBase::PARAM_REQUIRED => false,
 				),
 				'snaktype' => array(
