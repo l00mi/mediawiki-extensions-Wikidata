@@ -18,9 +18,6 @@ call_user_func( function () {
 	$GLOBALS['wgMessagesDirs']['WikibaseQuality'] = __DIR__ . '/i18n';
 	$GLOBALS['wgExtensionMessagesFiles']['WikibaseQualityAlias'] = __DIR__ . '/WikibaseQuality.alias.php';
 
-	// Initalize hooks for creating database tables
-	$GLOBALS['wgHooks']['LoadExtensionSchemaUpdates'][] = 'WikibaseQualityHooks::onCreateSchema';
-
 	// Register hooks for Unit Tests
 	$GLOBALS['wgHooks']['UnitTestsList'][] = 'WikibaseQualityHooks::onUnitTestsList';
 

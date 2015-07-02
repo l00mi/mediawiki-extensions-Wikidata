@@ -1,16 +1,27 @@
 # Wikibase DataModel Serialization release notes
 
+## 1.5.0 (2015-07-01)
+
+* Added `newTermSerializer` to `SerializerFactory`
+* Added `newTermListSerializer` to `SerializerFactory`
+* Added `newAliasGroupListSerializer` to `SerializerFactory`
+* Added `newTermDeserializer` to `DeserializerFactory`
+* Added `newTermListDeserializer` to `DeserializerFactory`
+* Added `newAliasGroupListDeserializer` to `DeserializerFactory`
+* Deprecated `SerializerFactory::newClaimsSerializer` in favour of `SerializerFactory::newStatementListSerializer`
+* Deprecated `DeserializerFactory::newClaimsDeserializer` in favour of `DeserializerFactory::newStatementListDeserializer`
+
 ## 1.4.0 (2015-06-08)
 
-* Added support for showing the component version when loaded via MediaWiki
-* Compatibility with DataModel 3.x added
-* DataModel 3.x is now required
+* Added compatibility with Wikibase DataModel 3.x
+* Removed compatibility with Wikibase DataModel 2.x
 * Renamed `SerializerFactory::newClaimSerializer` to `SerializerFactory::newStatementSerializer`, leaving a b/c alias
 * Renamed `SerializerFactory::newSnaksSerializer` to `SerializerFactory::newSnakListSerializer`, leaving a b/c alias
 * Renamed `DeserializerFactory::newClaimDeserializer` to `DeserializerFactory::newStatementDeserializer`, leaving a b/c alias
 * Renamed `DeserializerFactory::newSnaksDeserializer` to `DeserializerFactory::newSnakListDeserializer`, leaving a b/c alias
 * Added `SerializerFactory::newStatementListSerializer`
 * Added `DeserializerFactory::newStatementListDeserializer`
+* Added support for showing the component version when loaded via MediaWiki
 
 ## 1.3.0 (2015-01-28)
 

@@ -538,6 +538,59 @@ class EditEntityTest extends WikibaseApiTestCase {
 		$this->doTestQueryExceptions( $params, $expected['exception'] );
 	}
 
+	public function testPropertyLabelConflict() {
+		$params = array(
+			'action' => 'wbeditentity',
+			'data' => '{
+				"datatype": "string",
+				"labels": { "de": { "language": "de", "value": "LabelConflict" } }
+			}',
+			'new' => 'property',
+		);
+		$this->doApiRequestWithToken( $params );
+
+		$expectedException = array(
+			'type' => 'UsageException',
+			'code' => 'failed-save',
+		);
+		// Repeating the same request with the same label should fail.
+		$this->doTestQueryExceptions( $params, $expectedException );
+	}
+
+	public function testItemLabelWithoutDescriptionNotConflicting() {
+		$params = array(
+			'action' => 'wbeditentity',
+			'data' => '{ "labels": { "de": { "language": "de", "value": "NotConflicting" } } }',
+			'new' => 'item',
+		);
+		$this->doApiRequestWithToken( $params );
+
+		// Repeating the same request with the same label should not fail.
+		list( $result, , ) = $this->doApiRequestWithToken( $params );
+		$this->assertArrayHasKey( 'success', $result );
+	}
+
+	public function testItemLabelDescriptionConflict() {
+		$this->markTestSkippedOnMySql();
+
+		$params = array(
+			'action' => 'wbeditentity',
+			'new' => 'item',
+			'data' => '{
+				"labels": { "de": { "language": "de", "value": "LabelDescriptionConflict" } },
+				"descriptions": { "de": { "language": "de", "value": "LabelDescriptionConflict" } }
+			}',
+		);
+		$this->doApiRequestWithToken( $params );
+
+		$expectedException = array(
+			'type' => 'UsageException',
+			'code' => 'modification-failed',
+		);
+		// Repeating the same request with the same label and description should fail.
+		$this->doTestQueryExceptions( $params, $expectedException );
+	}
+
 	public function testClearFromBadRevId() {
 		$params = array(
 			'action' => 'wbeditentity',
@@ -561,6 +614,16 @@ class EditEntityTest extends WikibaseApiTestCase {
 
 		$expectedException = array( 'type' => 'UsageException', 'code' => 'editconflict' );
 		$this->doTestQueryExceptions( $params, $expectedException );
+	}
+
+	/**
+	 * @see http://bugs.mysql.com/bug.php?id=10327
+	 * @see TermSqlIndexTest::markTestSkippedOnMySql
+	 */
+	private function markTestSkippedOnMySql() {
+		if ( $this->db->getType() === 'mysql' ) {
+			$this->markTestSkipped( 'MySQL doesn\'t support self-joins on temporary tables' );
+		}
 	}
 
 }
