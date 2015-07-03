@@ -87,15 +87,8 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 	private function getItemDisambiguation() {
 		if( $this->itemDisambiguation === null ) {
 			$languageNameLookup = new LanguageNameLookup();
-			$entityIdHtmlLinkFormatter = new EntityIdHtmlLinkFormatter(
-				new LanguageLabelDescriptionLookup(
-					new EntityRetrievingTermLookup( WikibaseRepo::getDefaultInstance()->getEntityLookup() ),
-					$this->getLanguage()->getCode()
-				),
-				WikibaseRepo::getDefaultInstance()->getEntityTitleLookup(),
-				$languageNameLookup );
 			$this->itemDisambiguation = new ItemDisambiguation(
-				$entityIdHtmlLinkFormatter,
+				WikibaseRepo::getDefaultInstance()->getEntityTitleLookup(),
 				$languageNameLookup,
 				$this->getLanguage()->getCode()
 			);
@@ -134,15 +127,15 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 		if ( isset( $languageCode ) && isset( $label ) && $label !== '' ) {
 			$searchInteractor = $this->getSearchInteractor( $this->getLanguage()->getCode() );
 			$searchInteractor->setLimit( $this->limit );
-			$searchInteractor->setIsCaseSensitive( true );
+			$searchInteractor->setIsCaseSensitive( false );
 			$searchInteractor->setIsPrefixSearch( false );
-			$searchInteractor->setUseLanguageFallback( false );
-			// TODO also match aliases here T45962
+			$searchInteractor->setUseLanguageFallback( true );
+
 			$searchResults = $searchInteractor->searchForEntities(
 				$label,
 				$languageCode,
 				'item',
-				array( TermIndexEntry::TYPE_LABEL )
+				array( TermIndexEntry::TYPE_LABEL, TermIndexEntry::TYPE_ALIAS )
 			);
 
 			if ( 0 < count( $searchResults ) ) {
@@ -259,6 +252,11 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 					'id' => 'wb-itembytitle-submit',
 					'class' => 'wb-input-button'
 				)
+			)
+			. Html::element(
+				'p',
+				array(),
+				$this->msg( 'wikibase-itemdisambiguation-form-hints' )->numParams( $this->limit )->text()
 			)
 			. Html::closeElement( 'fieldset' )
 			. Html::closeElement( 'form' )

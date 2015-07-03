@@ -19,6 +19,8 @@
 	<rule ref="Generic.Functions.FunctionCallArgumentSpacing" />
 	<rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie" />
 
+	<rule ref="Generic.NamingConventions.ConstructorName" />
+
 	<rule ref="Generic.PHP.CharacterBeforePHPOpeningTag" />
 	<rule ref="Generic.PHP.DeprecatedFunctions" />
 	<rule ref="Generic.PHP.DisallowShortOpenTag" />
@@ -42,6 +44,7 @@
 
 	<!-- TODO: Enable PSR2 sniffs. -->
 	<rule ref="PSR2.ControlStructures.ElseIfDeclaration" />
+	<rule ref="PSR2.Methods.MethodDeclaration" />
 
 	<!-- TODO: Enable Squiz sniffs. -->
 	<!-- FIXME: This indicates an error in the Wikibase codebase that should be fixed. -->
@@ -69,6 +72,10 @@
 	<rule ref="Squiz.WhiteSpace.FunctionSpacing.After">
 		<severity>0</severity>
 	</rule>
+	<rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing" />
+	<rule ref="Squiz.WhiteSpace.ScopeClosingBrace" />
+	<rule ref="Squiz.WhiteSpace.SemicolonSpacing" />
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
 
 	<rule ref="Zend.Files.ClosingTag" />
 </ruleset>
