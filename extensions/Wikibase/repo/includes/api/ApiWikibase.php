@@ -13,7 +13,6 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\EditEntity;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
@@ -77,11 +76,6 @@ abstract class ApiWikibase extends ApiBase {
 	private $entityStore;
 
 	/**
-	 * @var PropertyDataTypeLookup
-	 */
-	private $dataTypeLookup;
-
-	/**
 	 * @var SummaryFormatter
 	 */
 	private $summaryFormatter;
@@ -114,7 +108,6 @@ abstract class ApiWikibase extends ApiBase {
 		$this->entityRevisionLookup = WikibaseRepo::getDefaultInstance()->getEntityRevisionLookup( $uncached );
 		$this->entityStore = WikibaseRepo::getDefaultInstance()->getEntityStore();
 
-		$this->dataTypeLookup = WikibaseRepo::getDefaultInstance()->getPropertyDataTypeLookup();
 		$this->summaryFormatter = WikibaseRepo::getDefaultInstance()->getSummaryFormatter();
 
 		$this->permissionChecker = WikibaseRepo::getDefaultInstance()->getEntityPermissionChecker();
@@ -440,25 +433,6 @@ abstract class ApiWikibase extends ApiBase {
 
 		// Null fails the token check.
 		return isset( $params['token'] ) ? $params['token'] : null;
-	}
-
-	/**
-	 * Returns a Status object representing the given exception using a localized message.
-	 *
-	 * @note: The returned Status will always be fatal, that is, $status->isOk() will return false.
-	 *
-	 * @see getExceptionMessage().
-	 *
-	 * @param Exception $error
-	 *
-	 * @return Status
-	 */
-	protected function getExceptionStatus( Exception $error ) {
-		$msg = $this->exceptionLocalizer->getExceptionMessage( $error );
-		$status = Status::newFatal( $msg );
-		$status->setResult( false, $error->getMessage() );
-
-		return $status;
 	}
 
 	/**
