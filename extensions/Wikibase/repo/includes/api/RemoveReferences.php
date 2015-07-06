@@ -28,6 +28,11 @@ class RemoveReferences extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -35,7 +40,11 @@ class RemoveReferences extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
@@ -50,15 +59,21 @@ class RemoveReferences extends ModifyClaim {
 
 		$guid = $params['statement'];
 		$entityId = $this->guidParser->parse( $guid )->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 		$summary = $this->modificationHelper->createSummary( $params, $this );
 
 		$claim = $this->modificationHelper->getStatementFromEntity( $guid, $entity );
 
 		if ( ! ( $claim instanceof Statement ) ) {
-			$this->dieError( 'The referenced claim is not a statement and thus cannot have references', 'not-statement' );
+			$this->errorReporter->dieError(
+				'The referenced claim is not a statement and thus cannot have references',
+				'not-statement'
+			);
 		}
 
 		$referenceHashes = $this->getReferenceHashesFromParams( $params, $claim );
@@ -69,10 +84,11 @@ class RemoveReferences extends ModifyClaim {
 		try {
 			$changeOps->apply( $entity, $summary );
 		} catch ( ChangeOpException $e ) {
-			$this->dieException( $e, 'failed-save' );
+			$this->errorReporter->dieException( $e, 'failed-save' );
 		}
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 	}
 
@@ -81,7 +97,7 @@ class RemoveReferences extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['statement'] ) ) ) {
-			$this->dieError( 'Invalid claim guid', 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 	}
 
@@ -113,7 +129,7 @@ class RemoveReferences extends ModifyClaim {
 
 		foreach ( array_unique( $params['references'] ) as $referenceHash ) {
 			if ( !$references->hasReferenceHash( $referenceHash ) ) {
-				$this->dieError( 'Invalid reference hash', 'no-such-reference' );
+				$this->errorReporter->dieError( 'Invalid reference hash', 'no-such-reference' );
 			}
 			$hashes[] = $referenceHash;
 		}

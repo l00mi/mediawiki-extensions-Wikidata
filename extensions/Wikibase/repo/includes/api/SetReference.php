@@ -31,6 +31,11 @@ class SetReference extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -38,8 +43,12 @@ class SetReference extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 	}
 
 	/**
@@ -52,8 +61,11 @@ class SetReference extends ModifyClaim {
 		$this->validateParameters( $params );
 
 		$entityId = $this->guidParser->parse( $params['statement'] )->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 
 		$summary = $this->modificationHelper->createSummary( $params, $this );
@@ -61,7 +73,10 @@ class SetReference extends ModifyClaim {
 		$claim = $this->modificationHelper->getStatementFromEntity( $params['statement'], $entity );
 
 		if ( ! ( $claim instanceof Statement ) ) {
-			$this->dieError( 'The referenced claim is not a statement and thus cannot have references', 'not-statement' );
+			$this->errorReporter->dieError(
+				'The referenced claim is not a statement and thus cannot have references',
+				'not-statement'
+			);
 		}
 
 		if ( isset( $params['reference'] ) ) {
@@ -84,7 +99,8 @@ class SetReference extends ModifyClaim {
 		$changeOp = $this->getChangeOp( $newReference );
 		$this->modificationHelper->applyChangeOp( $changeOp, $entity, $summary );
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addReference( $newReference );
 	}
@@ -94,7 +110,7 @@ class SetReference extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['statement'] ) ) ) {
-			$this->dieError( 'Invalid claim guid', 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 	}
 
@@ -104,7 +120,10 @@ class SetReference extends ModifyClaim {
 	 */
 	private function validateReferenceHash( Statement $claim, $referenceHash ) {
 		if ( !$claim->getReferences()->hasReferenceHash( $referenceHash ) ) {
-			$this->dieError( 'Claim does not have a reference with the given hash', 'no-such-reference' );
+			$this->errorReporter->dieError(
+				'Claim does not have a reference with the given hash',
+				'no-such-reference'
+			);
 		}
 	}
 
@@ -117,7 +136,7 @@ class SetReference extends ModifyClaim {
 		$rawArray = json_decode( $arrayParam, true );
 
 		if ( !is_array( $rawArray ) || !count( $rawArray ) ) {
-			$this->dieError( 'No array or invalid JSON given', 'invalid-json' );
+			$this->errorReporter->dieError( 'No array or invalid JSON given', 'invalid-json' );
 		}
 
 		return $rawArray;
@@ -142,11 +161,11 @@ class SetReference extends ModifyClaim {
 		try {
 			foreach ( $snakOrder as $propertyId ) {
 				if ( !is_array( $rawSnaks[$propertyId] ) ) {
-					$this->dieError( 'Invalid snak JSON given', 'invalid-json' );
+					$this->errorReporter->dieError( 'Invalid snak JSON given', 'invalid-json' );
 				}
 				foreach ( $rawSnaks[$propertyId] as $rawSnak ) {
 					if ( !is_array( $rawSnak ) ) {
-						$this->dieError( 'Invalid snak JSON given', 'invalid-json' );
+						$this->errorReporter->dieError( 'Invalid snak JSON given', 'invalid-json' );
 					}
 
 					$snak = $snakUnserializer->newFromSerialization( $rawSnak );
@@ -155,13 +174,13 @@ class SetReference extends ModifyClaim {
 			}
 		} catch ( InvalidArgumentException $invalidArgumentException ) {
 			// Handle Snak instantiation failures
-			$this->dieError(
+			$this->errorReporter->dieError(
 				'Failed to get reference from reference Serialization '
 					. $invalidArgumentException->getMessage(),
 				'snak-instantiation-failure'
 			);
 		} catch ( OutOfBoundsException $outOfBoundsException ) {
-			$this->dieError(
+			$this->errorReporter->dieError(
 				'Failed to get reference from reference Serialization '
 					. $outOfBoundsException->getMessage(),
 				'snak-instantiation-failure'

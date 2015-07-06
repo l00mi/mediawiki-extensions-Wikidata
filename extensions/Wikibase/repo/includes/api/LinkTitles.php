@@ -7,6 +7,7 @@ use ApiMain;
 use Site;
 use SiteList;
 use Status;
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -23,7 +24,7 @@ use Wikibase\Summary;
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Adam Shorland
  */
-class LinkTitles extends ApiWikibase {
+class LinkTitles extends ApiBase {
 
 	/**
 	 * @var SiteLinkTargetProvider
@@ -31,9 +32,29 @@ class LinkTitles extends ApiWikibase {
 	private $siteLinkTargetProvider;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @var string[]
 	 */
 	private $siteLinkGroups;
+
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $revisionLookup;
+
+	/**
+	 * @var ResultBuilder
+	 */
+	private $resultBuilder;
+
+	/**
+	 * @var EntitySaveHelper
+	 */
+	private $entitySaveHelper;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -45,7 +66,12 @@ class LinkTitles extends ApiWikibase {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 
+		$this->revisionLookup = $wikibaseRepo->getEntityRevisionLookup( 'uncached' );
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
+		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
+		$this->entitySaveHelper = $apiHelperFactory->getEntitySaveHelper( $this );
 		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
 			$wikibaseRepo->getSiteStore(),
 			$wikibaseRepo->getSettings()->getSetting( 'specialSiteLinkGroups' )
@@ -55,12 +81,19 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
+	 * @see EntitySaveHelper::attemptSaveEntity
+	 */
+	protected function attemptSaveEntity( Entity $entity, $summary, $flags = 0 ) {
+		return $this->entitySaveHelper->attemptSaveEntity( $entity, $summary, $flags );
+	}
+
+	/**
 	 * Main method. Does the actual work and sets the result.
 	 *
 	 * @since 0.1
 	 */
 	public function execute() {
-		$lookup = $this->getEntityRevisionLookup();
+		$lookup = $this->revisionLookup;
 
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
@@ -133,14 +166,14 @@ class LinkTitles extends ApiWikibase {
 		// we can be sure that $fromId and $toId are not null here
 		elseif ( $fromId->equals( $toId ) ) {
 			// no-op
-			$this->dieError( 'Common item detected, sitelinks are both on the same item', 'common-item' );
+			$this->errorReporter->dieError( 'Common item detected, sitelinks are both on the same item', 'common-item' );
 		}
 		else {
 			// dissimilar items
-			$this->dieError( 'No common item detected, unable to link titles', 'no-common-item' );
+			$this->errorReporter->dieError( 'No common item detected, unable to link titles', 'no-common-item' );
 		}
 
-		$this->getResultBuilder()->addSiteLinks( $return, 'entity' );
+		$this->resultBuilder->addSiteLinks( $return, 'entity' );
 		$status = $this->getAttemptSaveStatus( $item, $summary, $flags );
 		$this->buildResult( $item, $status );
 	}
@@ -156,7 +189,7 @@ class LinkTitles extends ApiWikibase {
 		$siteObj = $sites->getSite( $site );
 		$page = $siteObj->normalizePageName( $pageTitle );
 		if( $page === false ) {
-			$this->dieMessage( 'no-external-page', $site, $pageTitle );
+			$this->errorReporter->dieMessage( 'no-external-page', $site, $pageTitle );
 		}
 		return array( $siteObj, $page );
 	}
@@ -182,11 +215,11 @@ class LinkTitles extends ApiWikibase {
 
 	private function buildResult( Item $item = null, Status $status ) {
 		if ( $item !== null ) {
-			$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'entity' );
-			$this->getResultBuilder()->addBasicEntityInformation( $item->getId(), 'entity' );
+			$this->resultBuilder->addRevisionIdFromStatusToResult( $status, 'entity' );
+			$this->resultBuilder->addBasicEntityInformation( $item->getId(), 'entity' );
 		}
 
-		$this->getResultBuilder()->markSuccess( $status->isOK() );
+		$this->resultBuilder->markSuccess( $status->isOK() );
 	}
 
 	/**
@@ -194,11 +227,11 @@ class LinkTitles extends ApiWikibase {
 	 */
 	protected function validateParameters( array $params ) {
 		if ( $params['fromsite'] === $params['tosite'] ) {
-			$this->dieError( 'The from site cannot match the to site', 'param-illegal' );
+			$this->errorReporter->dieError( 'The from site cannot match the to site', 'param-illegal' );
 		}
 
 		if ( $params['fromtitle'] === '' || $params['totitle'] === '' ) {
-			$this->dieError( 'The from title and to title must have a value', 'param-illegal' );
+			$this->errorReporter->dieError( 'The from title and to title must have a value', 'param-illegal' );
 		}
 	}
 
@@ -207,6 +240,15 @@ class LinkTitles extends ApiWikibase {
 	 */
 	public function isWriteMode() {
 		return true;
+	}
+
+	/**
+	 * @see ApiBase::needsToken
+	 *
+	 * @return string
+	 */
+	public function needsToken() {
+		return 'csrf';
 	}
 
 	/**

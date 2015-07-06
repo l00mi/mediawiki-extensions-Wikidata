@@ -14,9 +14,9 @@ use UsageException;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\ClaimSummaryBuilder;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Statement\StatementGuidParsingException;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\Diff\ClaimDiffer;
 use Wikibase\Repo\WikibaseRepo;
@@ -39,6 +39,11 @@ class SetClaim extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -46,7 +51,11 @@ class SetClaim extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
@@ -61,18 +70,21 @@ class SetClaim extends ModifyClaim {
 		$guid = $claim->getGuid();
 
 		if ( $guid === null ) {
-			$this->dieError( 'GUID must be set when setting a claim', 'invalid-claim' );
+			$this->errorReporter->dieError( 'GUID must be set when setting a claim', 'invalid-claim' );
 		}
 
 		try {
 			$claimGuid = $this->guidParser->parse( $guid );
 		} catch ( StatementGuidParsingException $ex ) {
-			$this->dieException( $ex, 'invalid-claim' );
+			$this->errorReporter->dieException( $ex, 'invalid-claim' );
 		}
 
 		$entityId = $claimGuid->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 
 		$summary = $this->getSummary( $params, $claim, $entity );
@@ -84,7 +96,8 @@ class SetClaim extends ModifyClaim {
 
 		$this->modificationHelper->applyChangeOp( $changeop, $entity, $summary );
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addClaim( $claim );
 	}
@@ -99,15 +112,17 @@ class SetClaim extends ModifyClaim {
 	 * @todo this summary builder is ugly and summary stuff needs to be refactored
 	 */
 	private function getSummary( array $params, Claim $claim, Entity $entity ) {
+		if ( !( $entity instanceof StatementListProvider ) ) {
+			throw new InvalidArgumentException( '$entity must be a StatementListProvider' );
+		}
+
 		$claimSummaryBuilder = new ClaimSummaryBuilder(
 			$this->getModuleName(),
 			new ClaimDiffer( new OrderedListDiffer( new ComparableComparer() ) )
 		);
 
-		$claims = new Claims( $entity->getClaims() );
-
 		$summary = $claimSummaryBuilder->buildClaimSummary(
-			$claims->getClaimWithGuid( $claim->getGuid() ),
+			$entity->getStatements()->getFirstStatementWithGuid( $claim->getGuid() ),
 			$claim
 		);
 
@@ -141,9 +156,15 @@ class SetClaim extends ModifyClaim {
 			}
 			return $claim;
 		} catch ( InvalidArgumentException $invalidArgumentException ) {
-			$this->dieError( 'Failed to get claim from claim Serialization ' . $invalidArgumentException->getMessage(), 'invalid-claim' );
+			$this->errorReporter->dieError(
+				'Failed to get claim from claim Serialization ' . $invalidArgumentException->getMessage(),
+				'invalid-claim'
+			);
 		} catch ( OutOfBoundsException $outOfBoundsException ) {
-			$this->dieError( 'Failed to get claim from claim Serialization ' . $outOfBoundsException->getMessage(), 'invalid-claim' );
+			$this->errorReporter->dieError(
+				'Failed to get claim from claim Serialization ' . $outOfBoundsException->getMessage(),
+				'invalid-claim'
+			);
 		}
 
 		// Note: since dieUsage() never returns, this should be unreachable!

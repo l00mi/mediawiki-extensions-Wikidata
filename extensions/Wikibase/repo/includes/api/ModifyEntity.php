@@ -8,18 +8,24 @@ use InvalidArgumentException;
 use LogicException;
 use Status;
 use UsageException;
+use User;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpValidationException;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityStore;
+use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\SiteLinkTargetProvider;
+use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StringNormalizer;
 use Wikibase\Summary;
@@ -34,7 +40,7 @@ use Wikibase\Summary;
  * @author Daniel Kinzler
  * @author Michał Łazowik
  */
-abstract class ModifyEntity extends ApiWikibase {
+abstract class ModifyEntity extends ApiBase {
 
 	/**
 	 * @var StringNormalizer
@@ -52,6 +58,16 @@ abstract class ModifyEntity extends ApiWikibase {
 	protected $siteLinkLookup;
 
 	/**
+	 * @var EntityTitleLookup
+	 */
+	private $titleLookup;
+
+	/**
+	 * @var EntityStore
+	 */
+	private $entityStore;
+
+	/**
 	 * @since 0.5
 	 *
 	 * @var string[]
@@ -62,6 +78,36 @@ abstract class ModifyEntity extends ApiWikibase {
 	 * @var string[]
 	 */
 	protected $badgeItems;
+
+	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
+	 * @var EntityPermissionChecker
+	 */
+	private $permissionChecker;
+
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $revisionLookup;
+
+	/**
+	 * @var ResultBuilder
+	 */
+	private $resultBuilder;
+
+	/**
+	 * @var EntitySaveHelper
+	 */
+	private $entitySaveHelper;
+
+	/**
+	 * @var EntityIdParser
+	 */
+	private $idParser;
 
 	/**
 	 * Flags to pass to EditEntity::attemptSave; use with the EDIT_XXX constants.
@@ -84,19 +130,56 @@ abstract class ModifyEntity extends ApiWikibase {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$settings = $wikibaseRepo->getSettings();
 
 		//TODO: provide a mechanism to override the services
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
+		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
+		$this->entitySaveHelper = $apiHelperFactory->getEntitySaveHelper( $this );
 		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
+		$this->idParser = $wikibaseRepo->getEntityIdParser();
 
 		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
 			$wikibaseRepo->getSiteStore(),
 			$settings->getSetting( 'specialSiteLinkGroups' )
 		);
 
+		$this->revisionLookup = $wikibaseRepo->getEntityRevisionLookup( 'uncached' );
+		$this->permissionChecker = $wikibaseRepo->getEntityPermissionChecker();
+		$this->entityStore = $wikibaseRepo->getEntityStore();
+		$this->titleLookup = $wikibaseRepo->getEntityTitleLookup();
 		$this->siteLinkGroups = $settings->getSetting( 'siteLinkGroups' );
 		$this->siteLinkLookup = $wikibaseRepo->getStore()->newSiteLinkStore();
 		$this->badgeItems = $settings->getSetting( 'badgeItems' );
+	}
+
+	/**
+	 * @see EntitySaveHelper::attemptSaveEntity
+	 */
+	protected function attemptSaveEntity( Entity $entity, $summary, $flags = 0 ) {
+		return $this->entitySaveHelper->attemptSaveEntity( $entity, $summary, $flags );
+	}
+
+	/**
+	 * @return EntityTitleLookup
+	 */
+	protected function getTitleLookup() {
+		return $this->titleLookup;
+	}
+
+	/**
+	 * @return EntityStore
+	 */
+	protected function getEntityStore() {
+		return $this->entityStore;
+	}
+
+	/**
+	 * @return ResultBuilder
+	 */
+	protected function getResultBuilder() {
+		return $this->resultBuilder;
 	}
 
 	/**
@@ -119,13 +202,13 @@ abstract class ModifyEntity extends ApiWikibase {
 			}
 
 			try {
-				$entityRevision = $this->getEntityRevisionLookup()->getEntityRevision( $entityId, $baseRevisionId );
+				$entityRevision = $this->revisionLookup->getEntityRevision( $entityId, $baseRevisionId );
 			} catch ( StorageException $ex ) {
-				$this->dieException( $ex, 'no-such-entity' );
+				$this->errorReporter->dieException( $ex, 'no-such-entity' );
 			}
 
 			if ( $entityRevision === null ) {
-				$this->dieError( "Can't access entity " . $entityId
+				$this->errorReporter->dieError( "Can't access entity " . $entityId
 					. ', revision may have been deleted.', 'no-such-entity' );
 			}
 		}
@@ -162,9 +245,9 @@ abstract class ModifyEntity extends ApiWikibase {
 	 */
 	protected function getEntityIdFromString( $id ) {
 		try {
-			return $this->getIdParser()->parse( $id );
+			return $this->idParser->parse( $id );
 		} catch ( EntityIdParsingException $ex ) {
-			$this->dieException( $ex, 'no-such-entity-id' );
+			$this->errorReporter->dieException( $ex, 'no-such-entity-id' );
 		}
 
 		return null;
@@ -183,7 +266,7 @@ abstract class ModifyEntity extends ApiWikibase {
 		$itemId = $this->siteLinkLookup->getItemIdForLink( $site, $title );
 
 		if ( $itemId === null ) {
-			$this->dieError( 'No entity found matching site link ' . $site . ':' . $title,
+			$this->errorReporter->dieError( 'No entity found matching site link ' . $site . ':' . $title,
 				'no-such-entity-link' );
 		}
 
@@ -204,21 +287,23 @@ abstract class ModifyEntity extends ApiWikibase {
 			try {
 				$badgeId = new ItemId( $badgeSerialization );
 			} catch ( InvalidArgumentException $ex ) {
-				$this->dieError( 'Badges: could not parse "' . $badgeSerialization
+				$this->errorReporter->dieError( 'Badges: could not parse "' . $badgeSerialization
 					. '", the id is invalid', 'invalid-entity-id' );
 				continue;
 			}
 
 			if ( !array_key_exists( $badgeId->getSerialization(), $this->badgeItems ) ) {
-				$this->dieError( 'Badges: item "' . $badgeSerialization . '" is not a badge',
+				$this->errorReporter->dieError( 'Badges: item "' . $badgeSerialization . '" is not a badge',
 					'not-badge' );
 			}
 
 			$itemTitle = $this->getTitleLookup()->getTitleForId( $badgeId );
 
 			if ( is_null( $itemTitle ) || !$itemTitle->exists() ) {
-				$this->dieError( 'Badges: no item found matching id "' . $badgeSerialization . '"',
-					'no-such-entity' );
+				$this->errorReporter->dieError(
+					'Badges: no item found matching id "' . $badgeSerialization . '"',
+					'no-such-entity'
+				);
 			}
 
 			$badges[] = $badgeId;
@@ -237,7 +322,7 @@ abstract class ModifyEntity extends ApiWikibase {
 	 * @return Entity Newly created entity
 	 */
 	protected function createEntity( $entityType ) {
-		$this->dieError( 'Could not find an existing entity', 'no-such-entity' );
+		$this->errorReporter->dieError( 'Could not find an existing entity', 'no-such-entity' );
 	}
 
 	/**
@@ -288,7 +373,7 @@ abstract class ModifyEntity extends ApiWikibase {
 
 			$changeOp->apply( $entity, $summary );
 		} catch ( ChangeOpException $ex ) {
-			$this->dieException( $ex, 'modification-failed' );
+			$this->errorReporter->dieException( $ex, 'modification-failed' );
 		}
 	}
 
@@ -302,8 +387,10 @@ abstract class ModifyEntity extends ApiWikibase {
 	protected function validateParameters( array $params ) {
 		// note that this is changed back and could fail
 		if ( !( isset( $params['id'] ) XOR ( isset( $params['site'] ) && isset( $params['title'] ) ) ) ) {
-			$this->dieError( 'Either provide the item "id" or pairs of "site" and "title"'
-				. ' for a corresponding page', 'param-illegal' );
+			$this->errorReporter->dieError(
+				'Either provide the item "id" or pairs of "site" and "title" for a corresponding page',
+				'param-illegal'
+			);
 		}
 	}
 
@@ -342,7 +429,7 @@ abstract class ModifyEntity extends ApiWikibase {
 		$status = $this->checkPermissions( $entity, $user );
 
 		if ( !$status->isOK() ) {
-			$this->dieError( 'You do not have sufficient permissions', 'permissiondenied' );
+			$this->errorReporter->dieError( 'You do not have sufficient permissions', 'permissiondenied' );
 		}
 
 		$summary = $this->modifyEntity( $entity, $params, $entityRevId );
@@ -350,11 +437,7 @@ abstract class ModifyEntity extends ApiWikibase {
 		if ( !$summary ) {
 			//XXX: This could rather be used for "silent" failure, i.e. in cases where
 			//     there was simply nothing to do.
-			$this->dieError( 'Attempted modification of the item failed', 'failed-modify' );
-		}
-
-		if ( $summary === true ) { // B/C, for implementations of modifyEntity that return true on success.
-			$summary = new Summary( $this->getModuleName() );
+			$this->errorReporter->dieError( 'Attempted modification of the item failed', 'failed-modify' );
 		}
 
 		$this->addFlags( $entity->getId() === null );
@@ -368,6 +451,35 @@ abstract class ModifyEntity extends ApiWikibase {
 		);
 
 		$this->addToOutput( $entity, $status );
+	}
+
+	/**
+	 * Check the rights for the user accessing the module.
+	 *
+	 * @param $entity EntityDocument the entity to check
+	 * @param $user User doing the action
+	 *
+	 * @return Status the check's result
+	 */
+	private function checkPermissions( EntityDocument $entity, User $user ) {
+		$permissions = $this->getRequiredPermissions( $entity );
+		$status = Status::newGood();
+
+		foreach ( array_unique( $permissions ) as $perm ) {
+			$permStatus = $this->permissionChecker->getPermissionStatusForEntity( $user, $perm, $entity );
+			$status->merge( $permStatus );
+		}
+
+		return $status;
+	}
+
+	/**
+	 * @param EntityDocument $entity
+	 *
+	 * @return array
+	 */
+	protected function getRequiredPermissions( EntityDocument $entity ) {
+		return $this->isWriteMode() ? array( 'read', 'edit' ) : array( 'read' );
 	}
 
 	/**
@@ -406,6 +518,15 @@ abstract class ModifyEntity extends ApiWikibase {
 	 */
 	public function isWriteMode() {
 		return true;
+	}
+
+	/**
+	 * @see ApiBase::needsToken
+	 *
+	 * @return string
+	 */
+	public function needsToken() {
+		return 'csrf';
 	}
 
 	/**

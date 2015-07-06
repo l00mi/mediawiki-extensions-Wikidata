@@ -8,16 +8,18 @@ use Wikibase\EntityFactory;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Hooks\EditFilterHookRunner;
+use Wikibase\Repo\Store\EntityPermissionChecker;
+use Wikibase\SummaryFormatter;
 
 /**
  * A factory class for API helper objects.
  *
  * @note: This is a high level factory which should not be injected or passed around.
  * It should only be used when bootstrapping from a static context.
- *
- * @todo: Factor functionality out of ApiWikibase into separate helper classes, and
- * make them available via ApiHelperFactory.
  *
  * @license GPL 2+
  * @author Daniel Kinzler
@@ -44,17 +46,51 @@ class ApiHelperFactory {
 	 */
 	private $entityFactory;
 
+	/**
+	 * @var SummaryFormatter
+	 */
+	private $summaryFormatter;
+
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $entityRevisionLookup;
+
+	/**
+	 * @var EntityStore
+	 */
+	private $entityStore;
+
+	/**
+	 * @var EntityPermissionChecker
+	 */
+	private $entityPermissionChecker;
+
+	/**
+	 * @var EditFilterHookRunner
+	 */
+	private $editFilterHookRunner;
+
 	public function __construct(
 		EntityTitleLookup $titleLookup,
 		ExceptionLocalizer $exceptionLocalizer,
 		PropertyDataTypeLookup $dataTypeLookup,
-		EntityFactory $entityFactory
+		EntityFactory $entityFactory,
+		SummaryFormatter $summaryFormatter,
+		EntityRevisionLookup $entityRevisionLookup,
+		EntityStore $entityStore,
+		EntityPermissionChecker $entityPermissionChecker,
+		EditFilterHookRunner $editFilterHookRunner
 	) {
-
 		$this->titleLookup = $titleLookup;
 		$this->exceptionLocalizer = $exceptionLocalizer;
 		$this->dataTypeLookup = $dataTypeLookup;
 		$this->entityFactory = $entityFactory;
+		$this->summaryFormatter = $summaryFormatter;
+		$this->entityRevisionLookup = $entityRevisionLookup;
+		$this->entityStore = $entityStore;
+		$this->entityPermissionChecker = $entityPermissionChecker;
+		$this->editFilterHookRunner = $editFilterHookRunner;
 	}
 
 	/**
@@ -99,6 +135,40 @@ class ApiHelperFactory {
 			$defaultOptions,
 			$this->dataTypeLookup,
 			$this->entityFactory
+		);
+	}
+
+	/**
+	 * Return an EntitySaveHelper object for use in Api modules
+	 *
+	 * @param ApiBase $apiBase
+	 *
+	 * @return EntitySaveHelper
+	 */
+	public function getEntitySaveHelper( ApiBase $apiBase ) {
+		return new EntitySaveHelper(
+			$apiBase,
+			$this->getErrorReporter( $apiBase ),
+			$this->summaryFormatter,
+			$this->titleLookup,
+			$this->entityRevisionLookup,
+			$this->entityStore,
+			$this->entityPermissionChecker,
+			$this->editFilterHookRunner
+		);
+	}
+
+	/**
+	 * Return an EntityLoadHelper object for use in Api modules
+	 *
+	 * @param ApiBase $apiBase
+	 *
+	 * @return EntityLoadHelper
+	 */
+	public function getEntityLoadHelper( ApiBase $apiBase ) {
+		return new EntityLoadHelper(
+			$this->entityRevisionLookup,
+			$this->getErrorReporter( $apiBase )
 		);
 	}
 

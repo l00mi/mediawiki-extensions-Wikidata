@@ -28,6 +28,11 @@ class SetQualifier extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -35,7 +40,11 @@ class SetQualifier extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
@@ -49,8 +58,11 @@ class SetQualifier extends ModifyClaim {
 		$this->validateParameters( $params );
 
 		$entityId = $this->guidParser->parse( $params['claim'] )->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 
 		$summary = $this->modificationHelper->createSummary( $params, $this );
@@ -64,7 +76,8 @@ class SetQualifier extends ModifyClaim {
 		$changeOp = $this->getChangeOp();
 		$this->modificationHelper->applyChangeOp( $changeOp, $entity, $summary );
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addClaim( $statement );
 	}
@@ -75,21 +88,30 @@ class SetQualifier extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['claim'] ) ) ) {
-			$this->dieError( 'Invalid claim guid', 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 
 		if ( !isset( $params['snakhash'] ) ) {
 			if ( !isset( $params['snaktype'] ) ) {
-				$this->dieError( 'When creating a new qualifier (ie when not providing a snakhash) a snaktype should be specified', 'param-missing' );
+				$this->errorReporter->dieError(
+					'When creating a new qualifier (ie when not providing a snakhash) a snaktype should be specified',
+					'param-missing'
+				);
 			}
 
 			if ( !isset( $params['property'] ) ) {
-				$this->dieError( 'When creating a new qualifier (ie when not providing a snakhash) a property should be specified', 'param-missing' );
+				$this->errorReporter->dieError(
+					'When creating a new qualifier (ie when not providing a snakhash) a property should be specified',
+					'param-missing'
+				);
 			}
 		}
 
 		if ( isset( $params['snaktype'] ) && $params['snaktype'] === 'value' && !isset( $params['value'] ) ) {
-			$this->dieError( 'When setting a qualifier that is a PropertyValueSnak, the value needs to be provided', 'param-missing' );
+			$this->errorReporter->dieError(
+				'When setting a qualifier that is a PropertyValueSnak, the value needs to be provided',
+				'param-missing'
+			);
 		}
 	}
 
@@ -99,7 +121,10 @@ class SetQualifier extends ModifyClaim {
 	 */
 	private function validateQualifierHash( Statement $statement, $qualifierHash ) {
 		if ( !$statement->getQualifiers()->hasSnakHash( $qualifierHash ) ) {
-			$this->dieError( 'Claim does not have a qualifier with the given hash', 'no-such-qualifier' );
+			$this->errorReporter->dieError(
+				'Claim does not have a qualifier with the given hash',
+				'no-such-qualifier'
+			);
 		}
 	}
 
@@ -113,7 +138,7 @@ class SetQualifier extends ModifyClaim {
 
 		$propertyId = $this->modificationHelper->getEntityIdFromString( $params['property'] );
 		if ( !$propertyId instanceof PropertyId ) {
-			$this->dieError(
+			$this->errorReporter->dieError(
 				$propertyId->getSerialization() . ' does not appear to be a property ID',
 				'param-illegal'
 			);
