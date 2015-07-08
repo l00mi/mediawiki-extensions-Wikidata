@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fa73e7f46629629ede0476fb54a421b9",
+    "hash": "1650c31aae304f33d8513f578d249bf6",
     "packages": [
         {
             "name": "composer/installers",
@@ -867,7 +867,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/2ce996a452942f27a1345b5446ca1a6e60c689ed",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/9029d28d8aaeb65cd1338865183740b4be445fa5",
                 "reference": "2ce996a452942f27a1345b5446ca1a6e60c689ed",
                 "shasum": ""
             },
@@ -1277,7 +1277,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-06-30 13:02:17"
+            "time": "2015-06-30 17:53:04"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1322,16 +1322,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.26wmf12",
+            "version": "dev-wmf/1.26wmf13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "89479936cf34c961c3b36ec004585bb0f892d518"
+                "reference": "de80d2f861c15bb08e914be5248bcab7c43d22fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/89479936cf34c961c3b36ec004585bb0f892d518",
-                "reference": "89479936cf34c961c3b36ec004585bb0f892d518",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/de80d2f861c15bb08e914be5248bcab7c43d22fa",
+                "reference": "de80d2f861c15bb08e914be5248bcab7c43d22fa",
                 "shasum": ""
             },
             "require": {
@@ -1399,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-07-02 10:36:35"
+            "time": "2015-07-08 21:02:55"
         },
         {
             "name": "wikibase/wikimedia-badges",
