@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
@@ -100,9 +100,9 @@ abstract class ModifyEntity extends ApiBase {
 	private $resultBuilder;
 
 	/**
-	 * @var EntitySaveHelper
+	 * @var EntitySavingHelper
 	 */
-	private $entitySaveHelper;
+	private $entitySavingHelper;
 
 	/**
 	 * @var EntityIdParser
@@ -136,7 +136,7 @@ abstract class ModifyEntity extends ApiBase {
 		//TODO: provide a mechanism to override the services
 		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
-		$this->entitySaveHelper = $apiHelperFactory->getEntitySaveHelper( $this );
+		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
 		$this->idParser = $wikibaseRepo->getEntityIdParser();
 
@@ -155,10 +155,10 @@ abstract class ModifyEntity extends ApiBase {
 	}
 
 	/**
-	 * @see EntitySaveHelper::attemptSaveEntity
+	 * @see EntitySavingHelper::attemptSaveEntity
 	 */
 	protected function attemptSaveEntity( Entity $entity, $summary, $flags = 0 ) {
-		return $this->entitySaveHelper->attemptSaveEntity( $entity, $summary, $flags );
+		return $this->entitySavingHelper->attemptSaveEntity( $entity, $summary, $flags );
 	}
 
 	/**
@@ -552,7 +552,7 @@ abstract class ModifyEntity extends ApiBase {
 	protected function getAllowedParamsForId() {
 		return array(
 			'id' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 		);
 	}
@@ -569,10 +569,10 @@ abstract class ModifyEntity extends ApiBase {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
 		return array(
 			'site' => array(
-				ApiBase::PARAM_TYPE => $sites->getGlobalIdentifiers(),
+				self::PARAM_TYPE => $sites->getGlobalIdentifiers(),
 			),
 			'title' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 		);
 	}
@@ -587,10 +587,10 @@ abstract class ModifyEntity extends ApiBase {
 	protected function getAllowedParamsForEntity() {
 		return array(
 			'baserevid' => array(
-				ApiBase::PARAM_TYPE => 'integer',
+				self::PARAM_TYPE => 'integer',
 			),
 			'summary' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'token' => null,
 			'bot' => false,

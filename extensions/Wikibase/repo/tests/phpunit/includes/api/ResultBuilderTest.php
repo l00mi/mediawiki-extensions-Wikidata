@@ -1,15 +1,17 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use ApiResult;
+use DataValues\Serializers\DataValueSerializer;
 use DataValues\StringValue;
-use Wikibase\Api\ResultBuilder;
+use Wikibase\Repo\Api\ResultBuilder;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -17,10 +19,10 @@ use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 
 /**
- * @covers Wikibase\Api\ResultBuilder
+ * @covers Wikibase\Repo\Api\ResultBuilder
  * @todo mock and inject serializers to avoid massive expected output?
  *
  * @group Wikibase
@@ -70,14 +72,16 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 			} ) );
 
 		// @todo inject EntityFactory and SiteStore
-		$serializerFactory = new SerializerFactory(
+		$libSerializerFactory = new LibSerializerFactory(
 			null, //no serialization options
 			$mockPropertyDataTypeLookup
 		);
+		$serializerFactory = new SerializerFactory( new DataValueSerializer() );
 
 		$builder = new ResultBuilder(
 			$result,
 			$mockEntityTitleLookup,
+			$libSerializerFactory,
 			$serializerFactory
 		);
 
@@ -93,7 +97,7 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testCanConstruct() {
 		$result = $this->getDefaultResult();
 		$resultBuilder = $this->getResultBuilder( $result );
-		$this->assertInstanceOf( '\Wikibase\Api\ResultBuilder', $resultBuilder );
+		$this->assertInstanceOf( '\Wikibase\Repo\Api\ResultBuilder', $resultBuilder );
 	}
 
 	/**

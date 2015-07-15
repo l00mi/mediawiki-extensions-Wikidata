@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use DataValues\NumberValue;
 use DataValues\StringValue;
@@ -20,11 +20,11 @@ use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Lib\ClaimGuidGenerator;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\SetClaim
+ * @covers Wikibase\Repo\Api\SetClaim
  *
  * @group API
  * @group Database
@@ -145,7 +145,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 				// Simply reorder the qualifiers by putting the first qualifier to the end. This is
 				// supposed to be done in the serialized representation since changing the actual
 				// object might apply intrinsic sorting.
-				$serializerFactory = new SerializerFactory();
+				$serializerFactory = new LibSerializerFactory();
 				$serializer = $serializerFactory->newSerializerForObject( $statement );
 				$serializedClaim = $serializer->getSerialized( $statement );
 				$firstPropertyId = array_shift( $serializedClaim['qualifiers-order'] );
@@ -295,7 +295,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 		$baserevid = null,
 		$error = null
 	) {
-		$serializerFactory = new SerializerFactory();
+		$serializerFactory = new LibSerializerFactory();
 
 		if ( $claim instanceof Statement ) {
 			$serializer = $serializerFactory->newSerializerForObject( $claim );
@@ -423,7 +423,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 
 	public function testBadPropertyError() {
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
-		$serializerFactory = new SerializerFactory();
+		$serializerFactory = new LibSerializerFactory();
 
 		$property = Property::newFromType( 'quantity' );
 		$property = $store->saveEntity( $property, '', $GLOBALS['wgUser'], EDIT_NEW )->getEntity();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
@@ -162,7 +162,7 @@ class ParseValue extends ApiBase {
 	}
 
 	/**
-	 * @param string $optionsParam
+	 * @param string|null $optionsParam
 	 *
 	 * @return ParserOptions
 	 */
@@ -170,7 +170,7 @@ class ParseValue extends ApiBase {
 		$parserOptions = new ParserOptions();
 		$parserOptions->setOption( ValueParser::OPT_LANG, $this->getLanguage()->getCode() );
 
-		if ( $optionsParam !== null && $optionsParam !== '' ) {
+		if ( is_string( $optionsParam ) && $optionsParam !== '' ) {
 			$options = json_decode( $optionsParam, true );
 
 			if ( !is_array( $options ) ) {
@@ -210,17 +210,17 @@ class ParseValue extends ApiBase {
 	public function getAllowedParams() {
 		return array(
 			'parser' => array(
-				ApiBase::PARAM_TYPE => $this->valueParserFactory->getParserIds(),
-				ApiBase::PARAM_REQUIRED => true,
+				self::PARAM_TYPE => $this->valueParserFactory->getParserIds(),
+				self::PARAM_REQUIRED => true,
 			),
 			'values' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true,
-				ApiBase::PARAM_ISMULTI => true,
+				self::PARAM_TYPE => 'string',
+				self::PARAM_REQUIRED => true,
+				self::PARAM_ISMULTI => true,
 			),
 			'options' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_TYPE => 'text',
+				self::PARAM_REQUIRED => false,
 			),
 		);
 	}

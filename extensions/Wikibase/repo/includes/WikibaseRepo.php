@@ -16,7 +16,7 @@ use StubObject;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\Api\ApiHelperFactory;
+use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
@@ -26,6 +26,7 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\EntityParserOutputGeneratorFactory;
 use Wikibase\InternalSerialization\DeserializerFactory;
@@ -336,11 +337,11 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @param IContextSource $context
+	 * @param IContextSource|null $context
 	 *
 	 * @return EditFilterHookRunner
 	 */
-	private function newEditFilterHookRunner( IContextSource $context ) {
+	private function newEditFilterHookRunner( IContextSource $context = null ) {
 		return new EditFilterHookRunner(
 			$this->getEntityTitleLookup(),
 			$this->getEntityContentFactory(),
@@ -1069,11 +1070,11 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @param IContextSource $context
+	 * @param IContextSource|null $context
 	 *
 	 * @return ApiHelperFactory
 	 */
-	public function getApiHelperFactory( $context ) {
+	public function getApiHelperFactory( IContextSource $context = null ) {
 		return new ApiHelperFactory(
 			$this->getEntityTitleLookup(),
 			$this->getExceptionLocalizer(),
@@ -1081,9 +1082,23 @@ class WikibaseRepo {
 			$this->getEntityFactory(),
 			$this->getSummaryFormatter(),
 			$this->getEntityRevisionLookup( 'uncached' ),
+			$this->newEditEntityFactory( $context )
+		);
+	}
+
+	/**
+	 * @param IContextSource|null $context
+	 *
+	 * @return EditEntityFactory
+	 */
+	public function newEditEntityFactory( IContextSource $context = null ) {
+		return new EditEntityFactory(
+			$this->getEntityTitleLookup(),
+			$this->getEntityRevisionLookup( 'uncached' ),
 			$this->getEntityStore(),
 			$this->getEntityPermissionChecker(),
-			$this->newEditFilterHookRunner( $context )
+			$this->newEditFilterHookRunner( $context ),
+			$context
 		);
 	}
 

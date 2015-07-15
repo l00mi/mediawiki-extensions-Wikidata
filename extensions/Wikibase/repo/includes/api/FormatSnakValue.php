@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
@@ -143,11 +143,11 @@ class FormatSnakValue extends ApiBase {
 			$this->errorReporter->dieException( $ex, 'baddatavalue' );
 		}
 
-		throw new LogicException( 'ApiErrorReporter::dieUsage did not throw a UsageException' );
+		throw new LogicException( 'ApiErrorReporter::dieException did not throw a UsageException' );
 	}
 
 	/**
-	 * @param string $optionsParam
+	 * @param string|null $optionsParam
 	 *
 	 * @return FormatterOptions
 	 */
@@ -155,11 +155,13 @@ class FormatSnakValue extends ApiBase {
 		$formatterOptions = new FormatterOptions();
 		$formatterOptions->setOption( ValueFormatter::OPT_LANG, $this->getLanguage()->getCode() );
 
-		$options = json_decode( $optionsParam, true );
+		if ( is_string( $optionsParam ) && $optionsParam !== '' ) {
+			$options = json_decode( $optionsParam, true );
 
-		if ( is_array( $options ) ) {
-			foreach ( $options as $name => $value ) {
-				$formatterOptions->setOption( $name, $value );
+			if ( is_array( $options ) ) {
+				foreach ( $options as $name => $value ) {
+					$formatterOptions->setOption( $name, $value );
+				}
 			}
 		}
 
@@ -184,26 +186,26 @@ class FormatSnakValue extends ApiBase {
 	protected function getAllowedParams() {
 		return array(
 			'generate' => array(
-				ApiBase::PARAM_TYPE => array(
+				self::PARAM_TYPE => array(
 					SnakFormatter::FORMAT_PLAIN,
 					SnakFormatter::FORMAT_WIKI,
 					SnakFormatter::FORMAT_HTML,
 					SnakFormatter::FORMAT_HTML_WIDGET,
 				),
-				ApiBase::PARAM_DFLT => SnakFormatter::FORMAT_WIKI,
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_DFLT => SnakFormatter::FORMAT_WIKI,
+				self::PARAM_REQUIRED => false,
 			),
 			'datavalue' => array(
-				ApiBase::PARAM_TYPE => 'text',
-				ApiBase::PARAM_REQUIRED => true,
+				self::PARAM_TYPE => 'text',
+				self::PARAM_REQUIRED => true,
 			),
 			'datatype' => array(
-				ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getDataTypeFactory()->getTypeIds(),
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getDataTypeFactory()->getTypeIds(),
+				self::PARAM_REQUIRED => false,
 			),
 			'options' => array(
-				ApiBase::PARAM_TYPE => 'text',
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_TYPE => 'text',
+				self::PARAM_REQUIRED => false,
 			),
 		);
 	}

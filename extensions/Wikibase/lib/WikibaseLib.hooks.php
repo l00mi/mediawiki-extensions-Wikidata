@@ -2,6 +2,7 @@
 
 namespace Wikibase;
 
+use ExtensionRegistry;
 use ResourceLoader;
 
 /**
@@ -47,6 +48,46 @@ final class LibHooks {
 			$testModules['qunit'],
 			include __DIR__ . '/tests/qunit/resources.php'
 		);
+
+		return true;
+	}
+
+	/**
+	 * Register ResourceLoader modules with dynamic dependencies.
+	 *
+	 * @param ResourceLoader $resourceLoader
+	 *
+	 * @return bool
+	 */
+	public static function onResourceLoaderRegisterModules( ResourceLoader $resourceLoader ) {
+		preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+			. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
+
+		$moduleTemplate = array(
+			'localBasePath' => __DIR__,
+			'remoteExtPath' => '..' . $remoteExtPath[0],
+			'position' => 'top' // reducing the time between DOM construction and JS initialisation
+		);
+
+		$modules = array(
+			'wikibase.Site' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.Site.js',
+				),
+				'dependencies' => array(
+					'mediawiki.util',
+					'util.inherit',
+					'wikibase',
+				),
+			),
+		);
+
+		$isUlsLoaded = ExtensionRegistry::getInstance()->isLoaded( 'UniversalLanguageSelector' );
+		if ( $isUlsLoaded ) {
+			$modules['wikibase.Site']['dependencies'][] = 'ext.uls.mediawiki';
+		}
+
+		$resourceLoader->register( $modules );
 
 		return true;
 	}

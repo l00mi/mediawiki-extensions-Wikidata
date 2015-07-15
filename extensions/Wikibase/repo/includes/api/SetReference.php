@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use InvalidArgumentException;
 use OutOfBoundsException;
@@ -11,7 +10,7 @@ use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -153,7 +152,7 @@ class SetReference extends ModifyClaim {
 	private function getSnaks( array $rawSnaks, array $snakOrder = array() ) {
 		$snaks = new SnakList();
 
-		$serializerFactory = new SerializerFactory();
+		$serializerFactory = new LibSerializerFactory();
 		$snakUnserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Snak\Snak' );
 
 		$snakOrder = ( count( $snakOrder ) > 0 ) ? $snakOrder : array_keys( $rawSnaks );
@@ -212,21 +211,21 @@ class SetReference extends ModifyClaim {
 		return array_merge(
 			array(
 				'statement' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
 				),
 				'snaks' => array(
-					ApiBase::PARAM_TYPE => 'text',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'text',
+					self::PARAM_REQUIRED => true,
 				),
 				'snaks-order' => array(
-					ApiBase::PARAM_TYPE => 'string',
+					self::PARAM_TYPE => 'string',
 				),
 				'reference' => array(
-					ApiBase::PARAM_TYPE => 'string',
+					self::PARAM_TYPE => 'string',
 				),
 				'index' => array(
-					ApiBase::PARAM_TYPE => 'integer',
+					self::PARAM_TYPE => 'integer',
 				),
 			),
 			parent::getAllowedParams()
@@ -238,11 +237,18 @@ class SetReference extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks={"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string","value":"foo"}}]}&baserevid=7201010&token=foobar'
+			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks='
+				. '{"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string",'
+				. '"value":"foo"}}]}&baserevid=7201010&token=foobar'
 				=> 'apihelp-wbsetreference-example-1',
-			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&reference=1eb8793c002b1d9820c833d234a1b54c8e94187e&snaks={"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string","value":"bar"}}]}&baserevid=7201010&token=foobar'
+			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF'
+				. '&reference=1eb8793c002b1d9820c833d234a1b54c8e94187e&snaks='
+				. '{"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string",'
+				. '"value":"bar"}}]}&baserevid=7201010&token=foobar'
 				=> 'apihelp-wbsetreference-example-2',
-			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks={"P212":[{"snaktype":"novalue","property":"P212"}]}&index=0&baserevid=7201010&token=foobar'
+			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks='
+				. '{"P212":[{"snaktype":"novalue","property":"P212"}]}'
+				. '&index=0&baserevid=7201010&token=foobar'
 				=> 'apihelp-wbsetreference-example-3',
 		);
 	}

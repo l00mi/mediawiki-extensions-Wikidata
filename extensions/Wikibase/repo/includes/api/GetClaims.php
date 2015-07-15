@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
@@ -50,9 +50,9 @@ class GetClaims extends ApiBase {
 	private $idParser;
 
 	/**
-	 * @var EntityLoadHelper
+	 * @var EntityLoadingHelper
 	 */
-	private $entityLoadHelper;
+	private $entityLoadingHelper;
 
 	/**
 	 * @var ResultBuilder
@@ -74,14 +74,14 @@ class GetClaims extends ApiBase {
 		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
-		$this->entityLoadHelper = $apiHelperFactory->getEntityLoadHelper( $this );
+		$this->entityLoadingHelper = $apiHelperFactory->getEntityLoadingHelper( $this );
 		$this->guidValidator = $wikibaseRepo->getClaimGuidValidator();
 		$this->guidParser = $wikibaseRepo->getStatementGuidParser();
 		$this->idParser = $wikibaseRepo->getEntityIdParser();
 	}
 
 	/**
-	 * @see \ApiBase::execute
+	 * @see ApiBase::execute
 	 *
 	 * @since 0.3
 	 */
@@ -98,7 +98,7 @@ class GetClaims extends ApiBase {
 		}
 
 		/** @var EntityId $entityId */
-		$entityRevision = $this->entityLoadHelper->loadEntityRevision(
+		$entityRevision = $this->entityLoadingHelper->loadEntityRevision(
 			$entityId,
 			EntityRevisionLookup::LATEST_FROM_SLAVE
 		);
@@ -237,26 +237,26 @@ class GetClaims extends ApiBase {
 	protected function getAllowedParams() {
 		return array(
 			'entity' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'property' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'claim' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'rank' => array(
-				ApiBase::PARAM_TYPE => ClaimSerializer::getRanks(),
+				self::PARAM_TYPE => ClaimSerializer::getRanks(),
 			),
 			'props' => array(
-				ApiBase::PARAM_TYPE => array(
+				self::PARAM_TYPE => array(
 					'references',
 				),
-				ApiBase::PARAM_DFLT => 'references',
+				self::PARAM_DFLT => 'references',
 			),
 			'ungroupedlist' => array(
-				ApiBase::PARAM_TYPE => 'boolean',
-				ApiBase::PARAM_DFLT => false,
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false,
 			),
 		);
 	}

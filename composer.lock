@@ -758,16 +758,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "2.3.0",
+            "version": "2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "037cb6b156b1804d9c37f912aeaaf182ccff2a46"
+                "reference": "acfd7b9ff9cff325ac64e7204911980d0a9012bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/037cb6b156b1804d9c37f912aeaaf182ccff2a46",
-                "reference": "037cb6b156b1804d9c37f912aeaaf182ccff2a46",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/acfd7b9ff9cff325ac64e7204911980d0a9012bc",
+                "reference": "acfd7b9ff9cff325ac64e7204911980d0a9012bc",
                 "shasum": ""
             },
             "require": {
@@ -799,7 +799,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-06-26 13:50:34"
+            "time": "2015-07-14 12:09:42"
         },
         {
             "name": "serialization/serialization",
@@ -863,12 +863,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Wikidata.org.git",
-                "reference": "2ce996a452942f27a1345b5446ca1a6e60c689ed"
+                "reference": "9029d28d8aaeb65cd1338865183740b4be445fa5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/2ce996a452942f27a1345b5446ca1a6e60c689ed",
-                "reference": "2ce996a452942f27a1345b5446ca1a6e60c689ed",
+                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/9029d28d8aaeb65cd1338865183740b4be445fa5",
+                "reference": "9029d28d8aaeb65cd1338865183740b4be445fa5",
                 "shasum": ""
             },
             "require": {
@@ -901,7 +901,7 @@
                 "irc": "irc://irc.freenode.net/wikidata",
                 "source": "https://github.com/wmde/Wikidata.org/tree/master"
             },
-            "time": "2015-05-16 16:49:57"
+            "time": "2015-07-06 10:56:50"
         },
         {
             "name": "wikibase/constraints",
@@ -909,7 +909,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "39d538989f6e57c7881abfd313552b8931425a8c"
+                "reference": "9f68ef591546a4a900f16128fddccd51acc8e0dd"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -930,7 +930,7 @@
                 },
                 "classmap": [
                     "WikibaseQualityConstraintsHooks.php",
-                    "maintenance/UpdateTable.php"
+                    "maintenance/UpdateConstraintsTable.php"
                 ]
             },
             "license": [
@@ -954,7 +954,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-07-04 23:57:46"
+            "time": "2015-07-13 14:10:20"
         },
         {
             "name": "wikibase/data-model",
@@ -1326,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "3dbbadc149f0131869a49495a2cd4c9e85a5a851"
+                "reference": "fe7213d006c462d5acb93a86068da23a785594f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3dbbadc149f0131869a49495a2cd4c9e85a5a851",
-                "reference": "3dbbadc149f0131869a49495a2cd4c9e85a5a851",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fe7213d006c462d5acb93a86068da23a785594f0",
+                "reference": "fe7213d006c462d5acb93a86068da23a785594f0",
                 "shasum": ""
             },
             "require": {
@@ -1399,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-07-05 23:59:08"
+            "time": "2015-07-14 21:12:46"
         },
         {
             "name": "wikibase/wikimedia-badges",

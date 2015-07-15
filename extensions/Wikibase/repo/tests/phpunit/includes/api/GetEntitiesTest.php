@@ -1,13 +1,13 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 
 /**
- * @covers Wikibase\Api\GetEntities
+ * @covers Wikibase\Repo\Api\GetEntities
  *
  * Test cases are generated using the data provided in the various static arrays below.
  *
@@ -299,7 +299,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		if( !$expected['groupedbyproperty'] ) {
 			$options = new SerializationOptions();
 			$options->setOption( SerializationOptions::OPT_GROUP_BY_PROPERTIES, array() );
-			$factory = new SerializerFactory();
+			$factory = new LibSerializerFactory();
 			/** @var EntitySerializer $serializer */
 			$serializer = $factory->newSerializerForEntity( $entity['type'], $options );
 			$expectedEntityOutput = $serializer->getSerialized(

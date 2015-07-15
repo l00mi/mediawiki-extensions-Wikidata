@@ -1,13 +1,13 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use Language;
-use Wikibase\Api\ApiHelperFactory;
+use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\ApiHelperFactory
+ * @covers Wikibase\Repo\Api\ApiHelperFactory
  *
  * @group Wikibase
  * @group WikibaseAPI
@@ -26,9 +26,7 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 		$summaryFormatter = $this->getMockBuilder( 'Wikibase\SummaryFormatter' )
 			->disableOriginalConstructor()->getMock();
 		$entityRevisionLookup = $this->getMock( 'Wikibase\Lib\Store\EntityRevisionLookup' );
-		$entityStore = $this->getMock( 'Wikibase\Lib\Store\EntityStore' );
-		$entityPermissionChecker = $this->getMock( 'Wikibase\Repo\Store\EntityPermissionChecker' );
-		$editFilterHookRunner = $this->getMockBuilder( 'Wikibase\Repo\Hooks\EditFilterHookRunner' )
+		$editEntityFactory = $this->getMockBuilder( 'Wikibase\EditEntityFactory' )
 			->disableOriginalConstructor()->getMock();
 
 		return new ApiHelperFactory(
@@ -38,9 +36,7 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 			$entityFactory,
 			$summaryFormatter,
 			$entityRevisionLookup,
-			$entityStore,
-			$entityPermissionChecker,
-			$editFilterHookRunner
+			$editEntityFactory
 		);
 	}
 
@@ -75,7 +71,7 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 		$factory = $this->newApiHelperFactory();
 
 		$resultBuilder = $factory->getResultBuilder( $api );
-		$this->assertInstanceOf( 'Wikibase\Api\ResultBuilder', $resultBuilder );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\ResultBuilder', $resultBuilder );
 	}
 
 	public function testGetErrorReporter() {
@@ -83,28 +79,28 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 		$factory = $this->newApiHelperFactory();
 
 		$errorReporter = $factory->getErrorReporter( $api );
-		$this->assertInstanceOf( 'Wikibase\Api\ApiErrorReporter', $errorReporter );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\ApiErrorReporter', $errorReporter );
 	}
 
-	public function testGetSerializerFactory() {
+	public function testNewSerializerFactory() {
 		$factory = $this->newApiHelperFactory();
 
-		$serializerFactory = $factory->getSerializerFactory();
-		$this->assertInstanceOf( 'Wikibase\Lib\Serializers\SerializerFactory', $serializerFactory );
+		$serializerFactory = $factory->newLibSerializerFactory();
+		$this->assertInstanceOf( 'Wikibase\Lib\Serializers\LibSerializerFactory', $serializerFactory );
 	}
 
-	public function testGetEntitySaveHelper() {
+	public function testGetEntitySavingHelper() {
 		$factory = $this->newApiHelperFactory();
 
-		$helper = $factory->getEntitySaveHelper( $this->newApiModule() );
-		$this->assertInstanceOf( 'Wikibase\Api\EntitySaveHelper', $helper );
+		$helper = $factory->getEntitySavingHelper( $this->newApiModule() );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\EntitySavingHelper', $helper );
 	}
 
-	public function testGetEntityLoadHelper() {
+	public function testGetEntityLoadingHelper() {
 		$factory = $this->newApiHelperFactory();
 
-		$helper = $factory->getEntityLoadHelper( $this->newApiModule() );
-		$this->assertInstanceOf( 'Wikibase\Api\EntityLoadHelper', $helper );
+		$helper = $factory->getEntityLoadingHelper( $this->newApiModule() );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\EntityLoadingHelper', $helper );
 	}
 
 }

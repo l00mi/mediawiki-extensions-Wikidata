@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use DataValues\IllegalValueException;
 use Diff\Comparer\ComparableComparer;
@@ -17,7 +16,7 @@ use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Statement\StatementGuidParsingException;
 use Wikibase\DataModel\Statement\StatementListProvider;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Repo\Diff\ClaimDiffer;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
@@ -142,7 +141,7 @@ class SetClaim extends ModifyClaim {
 	 * @return Claim
 	 */
 	private function getClaimFromParams( array $params ) {
-		$serializerFactory = new SerializerFactory();
+		$serializerFactory = new LibSerializerFactory();
 		$unserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Claim\Claim' );
 
 		try {
@@ -168,7 +167,7 @@ class SetClaim extends ModifyClaim {
 		}
 
 		// Note: since dieUsage() never returns, this should be unreachable!
-		throw new LogicException( 'ApiBase::dieUsage did not throw a UsageException' );
+		throw new LogicException( 'ApiErrorReporter::dieError did not throw an exception' );
 	}
 
 	/**
@@ -178,11 +177,11 @@ class SetClaim extends ModifyClaim {
 		return array_merge(
 			array(
 				'claim' => array(
-					ApiBase::PARAM_TYPE => 'text',
-					ApiBase::PARAM_REQUIRED => true
+					self::PARAM_TYPE => 'text',
+					self::PARAM_REQUIRED => true,
 				),
 				'index' => array(
-					ApiBase::PARAM_TYPE => 'integer',
+					self::PARAM_TYPE => 'integer',
 				),
 			),
 			parent::getAllowedParams()
@@ -194,12 +193,21 @@ class SetClaim extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee","type":"claim","mainsnak":{"snaktype":"value","property":"P1","datavalue":{"value":"City","type":"string"}}}'
-			=> 'apihelp-wbsetclaim-example-1',
-			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee","type":"claim","mainsnak":{"snaktype":"value","property":"P1","datavalue":{"value":"City","type":"string"}}}&index=0'
-			=> 'apihelp-wbsetclaim-example-2',
-			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee","type":"statement","mainsnak":{"snaktype":"value","property":"P1","datavalue":{"value":"City","type":"string"}},"references":[{"snaks":{"P2":[{"snaktype":"value","property":"P2","datavalue":{"value":"The Economy of Cities","type":"string"}}]},"snaks-order":["P2"]}],"rank":"normal"}'
-			=> 'apihelp-wbsetclaim-example-3',
+			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee",'
+				. '"type":"claim","mainsnak":{"snaktype":"value","property":"P1",'
+				. '"datavalue":{"value":"City","type":"string"}}}'
+				=> 'apihelp-wbsetclaim-example-1',
+			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee",'
+				. '"type":"claim","mainsnak":{"snaktype":"value","property":"P1",'
+				. '"datavalue":{"value":"City","type":"string"}}}&index=0'
+				=> 'apihelp-wbsetclaim-example-2',
+			'action=wbsetclaim&claim={"id":"Q2$5627445f-43cb-ed6d-3adb-760e85bd17ee",'
+				. '"type":"statement","mainsnak":{"snaktype":"value","property":"P1",'
+				. '"datavalue":{"value":"City","type":"string"}},'
+				. '"references":[{"snaks":{"P2":[{"snaktype":"value","property":"P2",'
+				. '"datavalue":{"value":"The Economy of Cities","type":"string"}}]},'
+				. '"snaks-order":["P2"]}],"rank":"normal"}'
+				=> 'apihelp-wbsetclaim-example-3',
 		);
 	}
 

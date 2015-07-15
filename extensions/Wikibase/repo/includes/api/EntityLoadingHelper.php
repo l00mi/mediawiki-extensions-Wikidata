@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use LogicException;
 use UsageException;
@@ -18,7 +18,7 @@ use Wikibase\Lib\Store\UnresolvedRedirectException;
  * @licence GNU GPL v2+
  * @author Adam Shorland
  */
-class EntityLoadHelper {
+class EntityLoadingHelper {
 
 	/**
 	 * @var EntityRevisionLookup
@@ -76,7 +76,7 @@ class EntityLoadHelper {
 			$this->errorReporter->dieException( $ex, 'cant-load-entity-content' );
 		}
 
-		throw new LogicException( 'ApiErrorReporter::dieError did not throw a UsageException' );
+		throw new LogicException( 'ApiErrorReporter::dieException did not throw a UsageException' );
 	}
 
 }

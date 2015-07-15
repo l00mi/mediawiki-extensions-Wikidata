@@ -11,6 +11,7 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\EntityRedirect;
+use Wikibase\Lib\Store\UnresolvedRedirectException;
 
 /**
  * @covers Wikibase\Test\MockRepository
@@ -618,6 +619,31 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$this->assertFalse( $this->repo->hasEntity( $item->getId() ) );
 	}
 
+	public function testPutRedirect( ) {
+		$redirect = new EntityRedirect( new ItemId( 'Q11' ), new ItemId( 'Q1' ) );
+		$this->repo->putRedirect( $redirect );
+
+		try {
+			$this->repo->getEntityRevision( new ItemId( 'Q11' ) );
+			$this->fail( 'getEntityRevision() should fail for redirects' );
+		} catch ( UnresolvedRedirectException $ex ) {
+			$this->assertEquals( 'Q1', $ex->getRedirectTargetId()->getSerialization() );
+			$this->assertGreaterThan( 0, $ex->getRevisionId() );
+			$this->assertNotEmpty( $ex->getRevisionTimestamp() );
+		}
+
+		$this->repo->putRedirect( $redirect, 117, '20150505000000' );
+
+		try {
+			$this->repo->getEntityRevision( new ItemId( 'Q11' ) );
+			$this->fail( 'getEntityRevision() should fail for redirects' );
+		} catch ( UnresolvedRedirectException $ex ) {
+			$this->assertEquals( 'Q1', $ex->getRedirectTargetId()->getSerialization() );
+			$this->assertEquals( 117, $ex->getRevisionId() );
+			$this->assertEquals( '20150505000000', $ex->getRevisionTimestamp() );
+		}
+	}
+
 	public function testDeleteRedirect( ) {
 		$redirect = new EntityRedirect( new ItemId( 'Q11' ), new ItemId( 'Q1' ) );
 		$this->repo->putRedirect( $redirect );
@@ -645,7 +671,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$user2 = User::newFromName( "WikiPageEntityStoreTestUserWasLastToEdit2" );
 
 		// initial revision
-		$item = new Item();
+		$item = new Item( new ItemId( 'Q42' ) );
 		$item->setLabel( 'en', 'one' );
 		$rev1 = $this->repo->saveEntity( $item, 'testing 1', $user1, EDIT_NEW );
 		$itemId = $item->getId();
@@ -654,7 +680,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$this->assertFalse( $this->repo->userWasLastToEdit( $user2, $itemId, $rev1->getRevisionId() ), 'user has not edited yet' );
 
 		// second edit by another user
-		$item = $item->copy();
+		$item = new Item( new ItemId( 'Q42' ) );
 		$item->setLabel( 'en', 'two' );
 		$rev2 = $this->repo->saveEntity( $item, 'testing 2', $user2, EDIT_UPDATE );
 
@@ -662,7 +688,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$this->assertTrue( $this->repo->userWasLastToEdit( $user2, $itemId, $rev2->getRevisionId() ), 'second user has just edited' );
 
 		// subsequent edit by the original user
-		$item = $item->copy();
+		$item = new Item( new ItemId( 'Q42' ) );
 		$item->setLabel( 'en', 'three' );
 		$rev3 = $this->repo->saveEntity( $item, 'testing 3', $user1, EDIT_UPDATE );
 

@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use DataValues\Serializers\DataValueSerializer;
 use SiteList;
 use Title;
 use Wikibase\DataModel\Entity\EntityId;
@@ -10,12 +11,14 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRedirect;
+use Wikibase\RedirectRevision;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\LinkedData\EntityDataSerializationService;
 
@@ -96,17 +99,19 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 			->will( $this->returnValue( 'string' ) );
 
 		$serializerOptions = new SerializationOptions();
-		$serializerFactory = new SerializerFactory( $serializerOptions, $dataTypeLookup );
+		$libSerializerFactory = new LibSerializerFactory( $serializerOptions, $dataTypeLookup );
+		$serializerFactory = new SerializerFactory( new DataValueSerializer() );
 
 		$service = new EntityDataSerializationService(
 			self::URI_BASE,
 			self::URI_DATA,
 			$entityLookup,
 			$titleLookup,
-			$serializerFactory,
+			$libSerializerFactory,
 			$dataTypeLookup,
 			new SiteList(),
-			new EntityDataFormatProvider()
+			new EntityDataFormatProvider(),
+			$serializerFactory
 		);
 
 		return $service;
@@ -116,7 +121,10 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 		$mockRepo = $this->getMockRepository();
 		$entityRevQ42 = $mockRepo->getEntityRevision( new ItemId( 'Q42' ) );
 		$entityRevQ23 = $mockRepo->getEntityRevision( new ItemId( 'Q23' ) );
-		$entityRedirQ2233 = new EntityRedirect( new ItemId( 'Q2233' ), new ItemId( 'Q23' ) );
+		$entityRedirQ2233 = new RedirectRevision(
+			new EntityRedirect( new ItemId( 'Q2233' ), new ItemId( 'Q23' ) ),
+			127, '20150505000000'
+		);
 
 		$q2233 = new ItemId( 'Q2233' );
 		$q222333 = new ItemId( 'Q222333' );
@@ -278,7 +286,7 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 	public function testGetSerializedData(
 		$format,
 		EntityRevision $entityRev,
-		EntityRedirect $followedRedirect = null,
+		RedirectRevision $followedRedirect = null,
 		array $incomingRedirects,
 		$flavor,
 		array $expectedDataExpressions,

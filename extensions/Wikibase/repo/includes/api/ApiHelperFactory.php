@@ -1,18 +1,18 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
+use DataValues\Serializers\DataValueSerializer;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\SerializerFactory;
+use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Repo\Hooks\EditFilterHookRunner;
-use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\SummaryFormatter;
 
 /**
@@ -57,19 +57,9 @@ class ApiHelperFactory {
 	private $entityRevisionLookup;
 
 	/**
-	 * @var EntityStore
+	 * @var EditEntityFactory
 	 */
-	private $entityStore;
-
-	/**
-	 * @var EntityPermissionChecker
-	 */
-	private $entityPermissionChecker;
-
-	/**
-	 * @var EditFilterHookRunner
-	 */
-	private $editFilterHookRunner;
+	private $editEntityFactory;
 
 	public function __construct(
 		EntityTitleLookup $titleLookup,
@@ -78,9 +68,7 @@ class ApiHelperFactory {
 		EntityFactory $entityFactory,
 		SummaryFormatter $summaryFormatter,
 		EntityRevisionLookup $entityRevisionLookup,
-		EntityStore $entityStore,
-		EntityPermissionChecker $entityPermissionChecker,
-		EditFilterHookRunner $editFilterHookRunner
+		EditEntityFactory $editEntityFactory
 	) {
 		$this->titleLookup = $titleLookup;
 		$this->exceptionLocalizer = $exceptionLocalizer;
@@ -88,9 +76,7 @@ class ApiHelperFactory {
 		$this->entityFactory = $entityFactory;
 		$this->summaryFormatter = $summaryFormatter;
 		$this->entityRevisionLookup = $entityRevisionLookup;
-		$this->entityStore = $entityStore;
-		$this->entityPermissionChecker = $entityPermissionChecker;
-		$this->editFilterHookRunner = $editFilterHookRunner;
+		$this->editEntityFactory = $editEntityFactory;
 	}
 
 	/**
@@ -105,7 +91,9 @@ class ApiHelperFactory {
 		return new ResultBuilder(
 			$api->getResult(),
 			$this->titleLookup,
-			$this->getSerializerFactory( $defaultOptions ) );
+			$this->newLibSerializerFactory( $defaultOptions ),
+			$this->newSerializerFactory()
+		);
 	}
 
 	/**
@@ -128,10 +116,10 @@ class ApiHelperFactory {
 	 *
 	 * @param SerializationOptions $defaultOptions
 	 *
-	 * @return SerializerFactory
+	 * @return LibSerializerFactory
 	 */
-	public function getSerializerFactory( SerializationOptions $defaultOptions = null ) {
-		return new SerializerFactory(
+	public function newLibSerializerFactory( SerializationOptions $defaultOptions = null ) {
+		return new LibSerializerFactory(
 			$defaultOptions,
 			$this->dataTypeLookup,
 			$this->entityFactory
@@ -139,34 +127,39 @@ class ApiHelperFactory {
 	}
 
 	/**
-	 * Return an EntitySaveHelper object for use in Api modules
+	 * Returns a serializer factory to be used when constructing API results.
+	 *
+	 * @return SerializerFactory
+	 */
+	public function newSerializerFactory() {
+		return new SerializerFactory( new DataValueSerializer() );
+	}
+
+	/**
+	 * Return an EntitySavingHelper object for use in Api modules
 	 *
 	 * @param ApiBase $apiBase
 	 *
-	 * @return EntitySaveHelper
+	 * @return EntitySavingHelper
 	 */
-	public function getEntitySaveHelper( ApiBase $apiBase ) {
-		return new EntitySaveHelper(
+	public function getEntitySavingHelper( ApiBase $apiBase ) {
+		return new EntitySavingHelper(
 			$apiBase,
 			$this->getErrorReporter( $apiBase ),
 			$this->summaryFormatter,
-			$this->titleLookup,
-			$this->entityRevisionLookup,
-			$this->entityStore,
-			$this->entityPermissionChecker,
-			$this->editFilterHookRunner
+			$this->editEntityFactory
 		);
 	}
 
 	/**
-	 * Return an EntityLoadHelper object for use in Api modules
+	 * Return an EntityLoadingHelper object for use in Api modules
 	 *
 	 * @param ApiBase $apiBase
 	 *
-	 * @return EntityLoadHelper
+	 * @return EntityLoadingHelper
 	 */
-	public function getEntityLoadHelper( ApiBase $apiBase ) {
-		return new EntityLoadHelper(
+	public function getEntityLoadingHelper( ApiBase $apiBase ) {
+		return new EntityLoadingHelper(
 			$this->entityRevisionLookup,
 			$this->getErrorReporter( $apiBase )
 		);

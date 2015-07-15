@@ -19,6 +19,7 @@ use Wikibase\Repo\ItemSearchTextGenerator;
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class ItemContent extends EntityContent {
 
@@ -207,9 +208,39 @@ class ItemContent extends EntityContent {
 	}
 
 	/**
+	 * @see EntityContent::isCountable
+	 *
+	 * @param bool $hasLinks
+	 *
+	 * @return bool True if this is not a redirect and the item is not empty.
+	 */
+	public function isCountable( $hasLinks = null ) {
+		return !$this->isRedirect() && !$this->getItem()->isEmpty();
+	}
+
+	/**
+	 * @see EntityContent::isEmpty
+	 *
+	 * @return bool True if this is not a redirect and the item is empty.
+	 */
+	public function isEmpty() {
+		return !$this->isRedirect() && $this->getItem()->isEmpty();
+	}
+
+	/**
+	 * @see EntityContent::isStub
+	 *
+	 * @return bool True if the item is not empty, but does not contain statements.
+	 */
+	public function isStub() {
+		return !$this->isEmpty() && $this->getItem()->getStatements()->isEmpty();
+	}
+
+	/**
 	 * @see EntityContent::getEntityPageProperties
 	 *
-	 * Records the number of sitelinks in the 'wb-sitelinks' key.
+	 * Records the number of statements in the 'wb-claims' key
+	 * and the number of sitelinks in the 'wb-sitelinks' key.
 	 *
 	 * @return array A map from property names to property values.
 	 */
@@ -219,6 +250,7 @@ class ItemContent extends EntityContent {
 		}
 
 		$properties = parent::getEntityPageProperties();
+		$properties['wb-claims'] = $this->getItem()->getStatements()->count();
 		$properties['wb-sitelinks'] = $this->getItem()->getSiteLinkList()->count();
 
 		return $properties;

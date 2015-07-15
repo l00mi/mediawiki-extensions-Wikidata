@@ -1,21 +1,25 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use Language;
 use Status;
+use TestSites;
 use User;
-use Wikibase\Api\ApiErrorReporter;
-use Wikibase\Api\MergeItems;
+use Wikibase\Repo\Api\ApiErrorReporter;
+use Wikibase\Repo\Api\MergeItems;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
+use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Test\EntityModificationTestHelper;
 use Wikibase\Test\MockRepository;
+use Wikibase\Lib\Store\EntityRedirect;
+
 
 /**
- * @covers Wikibase\Api\MergeItems
+ * @covers Wikibase\Repo\Api\MergeItems
  *
  * @group API
  * @group Wikibase
@@ -26,6 +30,7 @@ use Wikibase\Test\MockRepository;
  *
  * @licence GNU GPL v2+
  * @author Adam Shorland
+ * @author Lucie-Aimée Kaffee
  */
 class MergeItemsTest extends \MediaWikiTestCase {
 
@@ -47,6 +52,8 @@ class MergeItemsTest extends \MediaWikiTestCase {
 	protected function setUp() {
 		parent::setUp();
 
+		$this->setUpSites();
+
 		$this->entityModificationTestHelper = new EntityModificationTestHelper();
 		$this->apiModuleTestHelper = new ApiModuleTestHelper();
 
@@ -63,6 +70,18 @@ class MergeItemsTest extends \MediaWikiTestCase {
 			'Q11' => 'Q1',
 			'Q12' => 'Q2',
 		) );
+	}
+
+	private function setUpSites() {
+		static $isSetup = false;
+
+		if ( !$isSetup ) {
+			$sitesTable = WikibaseRepo::getDefaultInstance()->getSiteStore();
+			$sitesTable->clear();
+			$sitesTable->saveSites( TestSites::getSites() );
+
+			$isSetup = true;
+		}
 	}
 
 	private function getPermissionCheckers() {
@@ -82,9 +101,34 @@ class MergeItemsTest extends \MediaWikiTestCase {
 	}
 
 	/**
+	 * @param EntityRedirect|null $redirect
+	 *
+	 * @return RedirectCreationInteractor
+	 */
+	public function getMockRedirectCreationInteractor( EntityRedirect $redirect = null ) {
+		$mock = $this->getMockBuilder( 'Wikibase\Repo\Interactors\RedirectCreationInteractor' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		if ( $redirect ) {
+			$mock->expects( $this->once() )
+				->method( 'createRedirect' )
+				->with( $redirect->getEntityId(), $redirect->getTargetId() )
+				->will( $this->returnCallback( function() use ( $redirect ) {
+					return $redirect;
+				} ) );
+		} else {
+			$mock->expects( $this->never() )
+				->method( 'createRedirect' );
+		}
+
+		return $mock;
+	}
+
+	/**
 	 * @param MergeItems $module
 	 */
-	private function overrideServices( MergeItems $module ) {
+	private function overrideServices( MergeItems $module, EntityRedirect $expectedRedirect = null ) {
 		$idParser = new BasicEntityIdParser();
 
 		$errorReporter = new ApiErrorReporter(
@@ -112,14 +156,15 @@ class MergeItemsTest extends \MediaWikiTestCase {
 				$this->mockRepository,
 				$this->getPermissionCheckers(),
 				$summaryFormatter,
-				$module->getUser()
+				$module->getUser(),
+				$this->getMockRedirectCreationInteractor( $expectedRedirect )
 			)
 		);
 	}
 
-	private function callApiModule( $params, User $user = null ) {
-		$module = $this->apiModuleTestHelper->newApiModule( 'Wikibase\Api\MergeItems', 'wbmergeitems', $params, $user );
-		$this->overrideServices( $module );
+	private function callApiModule( $params, EntityRedirect $expectedRedirect = null ) {
+		$module = $this->apiModuleTestHelper->newApiModule( 'Wikibase\Repo\Api\MergeItems', 'wbmergeitems', $params );
+		$this->overrideServices( $module, $expectedRedirect );
 
 		$module->execute();
 
@@ -138,6 +183,7 @@ class MergeItemsTest extends \MediaWikiTestCase {
 			array(),
 			array(),
 			array( 'labels' => array( 'en' => array( 'language' => 'en', 'value' => 'foo' ) ) ),
+			true,
 		);
 		$testCases['IgnoreConflictSitelinksMerge'] = array(
 			array( 'sitelinks' => array(
@@ -150,7 +196,8 @@ class MergeItemsTest extends \MediaWikiTestCase {
 				'dewiki' => array( 'site' => 'dewiki', 'title' => 'RemainTo' ),
 				'enwiki' => array( 'site' => 'enwiki', 'title' => 'PlFrom' ),
 			) ),
-			'sitelink'
+			false,
+			'sitelink',
 		);
 		$testCases['claimMerge'] = array(
 			array( 'claims' => array( 'P1' => array( array( 'mainsnak' => array(
@@ -161,6 +208,7 @@ class MergeItemsTest extends \MediaWikiTestCase {
 			array( 'claims' => array( 'P1' => array( array( 'mainsnak' => array(
 				'snaktype' => 'value', 'property' => 'P1', 'datavalue' => array( 'value' => 'imastring', 'type' => 'string' ) ),
 				'type' => 'statement', 'rank' => 'normal' ) ) ) ),
+			true,
 		);
 
 		return $testCases;
@@ -169,7 +217,7 @@ class MergeItemsTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider provideData
 	 */
-	public function testMergeRequest( $pre1, $pre2, $expectedFrom, $expectedTo, $ignoreConflicts = null ) {
+	public function testMergeRequest( $pre1, $pre2, $expectedFrom, $expectedTo, $expectRedirect, $ignoreConflicts = null ) {
 		// -- set up params ---------------------------------
 		$params = array(
 			'action' => 'wbmergeitems',
@@ -186,9 +234,23 @@ class MergeItemsTest extends \MediaWikiTestCase {
 		$this->entityModificationTestHelper->putEntity( $pre2, 'Q2' );
 
 		// -- do the request --------------------------------------------
-		$result = $this->callApiModule( $params );
+		$redirect = $expectRedirect ? new EntityRedirect( new ItemId( 'Q1' ), new ItemId( 'Q2' ) ): null;
+		$result = $this->callApiModule( $params, $redirect );
 
 		// -- check the result --------------------------------------------
+		$this->assertResultCorrect( $result );
+
+		// -- check the items --------------------------------------------
+		$this->assertItemsCorrect( $result, $expectedFrom, $expectedTo );
+
+		// -- check redirect --------------------------------------------
+		$this->assertRedirectCorrect( $result, $redirect );
+
+		// -- check the edit summaries --------------------------------------------
+		$this->assertEditSummariesCorrect( $result );
+	}
+
+	private function assertResultCorrect( array $result ) {
 		$this->apiModuleTestHelper->assertResultSuccess( $result );
 
 		$this->apiModuleTestHelper->assertResultHasKeyInPath( array( 'from', 'id' ), $result );
@@ -200,15 +262,27 @@ class MergeItemsTest extends \MediaWikiTestCase {
 		$this->apiModuleTestHelper->assertResultHasKeyInPath( array( 'to', 'lastrevid' ), $result );
 		$this->assertGreaterThan( 0, $result['from']['lastrevid'] );
 		$this->assertGreaterThan( 0, $result['to']['lastrevid'] );
+	}
 
-		// -- check the items --------------------------------------------
-		$actualFrom = $this->entityModificationTestHelper->getEntity( $result['from']['id'] );
+	private function assertItemsCorrect( array $result, array $expectedFrom, array $expectedTo ) {
+		$actualFrom = $this->entityModificationTestHelper->getEntity( $result['from']['id'], true ); //resolve redirects
 		$this->entityModificationTestHelper->assertEntityEquals( $expectedFrom, $actualFrom );
 
-		$actualTo = $this->entityModificationTestHelper->getEntity( $result['to']['id'] );
+		$actualTo = $this->entityModificationTestHelper->getEntity( $result['to']['id'], true );
 		$this->entityModificationTestHelper->assertEntityEquals( $expectedTo, $actualTo );
+	}
 
-		// -- check the edit summaries --------------------------------------------
+	private function assertRedirectCorrect( array $result, EntityRedirect $redirect = null ) {
+		$this->assertArrayHasKey( 'redirected', $result );
+
+		if ( $redirect ) {
+			$this->assertEquals( 1, $result['redirected'] );
+		} else {
+			$this->assertEquals( 0, $result['redirected'] );
+		}
+	}
+
+	private function assertEditSummariesCorrect( array $result ) {
 		$this->entityModificationTestHelper->assertRevisionSummary( array( 'wbmergeitems' ), $result['from']['lastrevid'] );
 		$this->entityModificationTestHelper->assertRevisionSummary( '/CustomSummary/', $result['from']['lastrevid'] );
 		$this->entityModificationTestHelper->assertRevisionSummary( array( 'wbmergeitems' ), $result['to']['lastrevid'] );

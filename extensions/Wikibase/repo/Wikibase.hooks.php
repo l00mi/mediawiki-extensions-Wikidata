@@ -8,6 +8,7 @@ use BaseTemplate;
 use Content;
 use ContentHandler;
 use DatabaseUpdater;
+use ExtensionRegistry;
 use HistoryPager;
 use Html;
 use Linker;
@@ -1133,6 +1134,66 @@ final class RepoHooks {
 		if ( $entityNamespaceLookup->isEntityNamespace( $title->getNamespace() ) ) {
 			unset( $modules['editor'] );
 		}
+
+		return true;
+	}
+
+	/**
+	 * Register ResourceLoader modules with dynamic dependencies.
+	 *
+	 * @param ResourceLoader $resourceLoader
+	 *
+	 * @return bool
+	 */
+	public static function onResourceLoaderRegisterModules( ResourceLoader $resourceLoader ) {
+		preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
+			. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
+
+		$moduleTemplate = array(
+			'localBasePath' => __DIR__,
+			'remoteExtPath' => '..' . $remoteExtPath[0],
+			'position' => 'top' // reducing the time between DOM construction and JS initialisation
+		);
+
+		$modules = array(
+			'wikibase.WikibaseContentLanguages' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.WikibaseContentLanguages.js',
+				),
+				'dependencies' => array(
+					'util.ContentLanguages',
+					'util.inherit',
+					'wikibase',
+				),
+			),
+			'wikibase.special.itemDisambiguation' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.special/wikibase.special.itemDisambiguation.js',
+				),
+				'dependencies' => array(
+					'wikibase.special',
+					'jquery.ui.suggester',
+				),
+			),
+			'wikibase.special.entitiesWithout' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.special/wikibase.special.entitiesWithout.js',
+				),
+				'dependencies' => array(
+					'wikibase.special',
+					'jquery.ui.suggester',
+				),
+			),
+		);
+
+		$isUlsLoaded = ExtensionRegistry::getInstance()->isLoaded( 'UniversalLanguageSelector' );
+		if ( $isUlsLoaded ) {
+			$modules['wikibase.WikibaseContentLanguages']['dependencies'][] = 'ext.uls.languagenames';
+			$modules['wikibase.special.itemDisambiguation']['dependencies'][] = 'ext.uls.mediawiki';
+			$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
+		}
+
+		$resourceLoader->register( $modules );
 
 		return true;
 	}

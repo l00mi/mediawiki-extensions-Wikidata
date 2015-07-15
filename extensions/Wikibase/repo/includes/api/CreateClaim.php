@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use Wikibase\ChangeOp\ChangeOpMainSnak;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
@@ -48,7 +47,7 @@ class CreateClaim extends ModifyClaim {
 	}
 
 	/**
-	 * @see \ApiBase::execute
+	 * @see ApiBase::execute
 	 *
 	 * @since 0.2
 	 */
@@ -129,20 +128,20 @@ class CreateClaim extends ModifyClaim {
 		return array_merge(
 			array(
 				'entity' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
 				),
 				'snaktype' => array(
-					ApiBase::PARAM_TYPE => array( 'value', 'novalue', 'somevalue' ),
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => array( 'value', 'novalue', 'somevalue' ),
+					self::PARAM_REQUIRED => true,
 				),
 				'property' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => false,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => false,
 				),
 				'value' => array(
-					ApiBase::PARAM_TYPE => 'text',
-					ApiBase::PARAM_REQUIRED => false,
+					self::PARAM_TYPE => 'text',
+					self::PARAM_REQUIRED => false,
 				),
 			),
 			parent::getAllowedParams()
@@ -158,9 +157,12 @@ class CreateClaim extends ModifyClaim {
 				=>'apihelp-wbcreateclaim-example-1',
 			'action=wbcreateclaim&entity=Q42&property=P9002&snaktype=value&value="itsastring"'
 				=> 'apihelp-wbcreateclaim-example-2',
-			'action=wbcreateclaim&entity=Q42&property=P9003&snaktype=value&value={"entity-type":"item","numeric-id":1}'
+			'action=wbcreateclaim&entity=Q42&property=P9003&snaktype=value&value='
+				. '{"entity-type":"item","numeric-id":1}'
 				=> 'apihelp-wbcreateclaim-example-3',
-			'action=wbcreateclaim&entity=Q42&property=P9004&snaktype=value&value={"latitude":40.748433,"longitude":-73.985656,"globe":"http://www.wikidata.org/entity/Q2","precision":0.000001}'
+			'action=wbcreateclaim&entity=Q42&property=P9004&snaktype=value&value='
+				. '{"latitude":40.748433,"longitude":-73.985656,'
+				. '"globe":"http://www.wikidata.org/entity/Q2","precision":0.000001}'
 				=> 'apihelp-wbcreateclaim-example-4',
 		);
 	}

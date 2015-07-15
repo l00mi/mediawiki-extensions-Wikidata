@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use DataValues\StringValue;
 use FormatJson;
@@ -16,11 +16,11 @@ use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\SetReference
+ * @covers Wikibase\Repo\Api\SetReference
  *
  * @group API
  * @group Database
@@ -245,7 +245,7 @@ class SetReferenceTest extends WikibaseApiTestCase {
 		if ( !( $reference instanceof Reference ) ) {
 			return $reference;
 		} else {
-			$serializerFactory = new SerializerFactory();
+			$serializerFactory = new LibSerializerFactory();
 			$serializer = $serializerFactory->newSerializerForObject( $reference );
 			return $serializer->getSerialized( $reference );
 		}
@@ -262,7 +262,7 @@ class SetReferenceTest extends WikibaseApiTestCase {
 			return $reference;
 		} else {
 			unset( $reference['hash'] );
-			$serializerFactory = new SerializerFactory();
+			$serializerFactory = new LibSerializerFactory();
 			$unserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Reference' );
 			return $unserializer->newFromSerialization( $reference );
 		}

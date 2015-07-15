@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\Repo\WikibaseRepo;
@@ -45,7 +44,7 @@ class SetClaimValue extends ModifyClaim {
 	}
 
 	/**
-	 * @see \ApiBase::execute
+	 * @see ApiBase::execute
 	 *
 	 * @since 0.3
 	 */
@@ -94,16 +93,16 @@ class SetClaimValue extends ModifyClaim {
 		return array_merge(
 			array(
 				'claim' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
 				),
 				'value' => array(
-					ApiBase::PARAM_TYPE => 'text',
-					ApiBase::PARAM_REQUIRED => false,
+					self::PARAM_TYPE => 'text',
+					self::PARAM_REQUIRED => false,
 				),
 				'snaktype' => array(
-					ApiBase::PARAM_TYPE => array( 'value', 'novalue', 'somevalue' ),
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => array( 'value', 'novalue', 'somevalue' ),
+					self::PARAM_REQUIRED => true,
 				),
 			),
 			parent::getAllowedParams()
@@ -115,7 +114,9 @@ class SetClaimValue extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbsetclaimvalue&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&snaktype=value&value={"entity-type":"item","numeric-id":1}&token=foobar&baserevid=7201010' => 'apihelp-wbsetclaimvalue-example-1',
+			'action=wbsetclaimvalue&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&snaktype=value'
+				. '&value={"entity-type":"item","numeric-id":1}&token=foobar&baserevid=7201010'
+				=> 'apihelp-wbsetclaimvalue-example-1',
 		);
 	}
 
