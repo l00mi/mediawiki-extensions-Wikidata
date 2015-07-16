@@ -140,10 +140,10 @@ abstract class ModifyEntity extends ApiBase {
 		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
 		$this->idParser = $wikibaseRepo->getEntityIdParser();
 
-		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
+		$this->setServices( new SiteLinkTargetProvider(
 			$wikibaseRepo->getSiteStore(),
 			$settings->getSetting( 'specialSiteLinkGroups' )
-		);
+		) );
 
 		$this->revisionLookup = $wikibaseRepo->getEntityRevisionLookup( 'uncached' );
 		$this->permissionChecker = $wikibaseRepo->getEntityPermissionChecker();
@@ -152,6 +152,10 @@ abstract class ModifyEntity extends ApiBase {
 		$this->siteLinkGroups = $settings->getSetting( 'siteLinkGroups' );
 		$this->siteLinkLookup = $wikibaseRepo->getStore()->newSiteLinkStore();
 		$this->badgeItems = $settings->getSetting( 'badgeItems' );
+	}
+
+	public function setServices( SiteLinkTargetProvider $siteLinkTargetProvider ) {
+		$this->siteLinkTargetProvider = $siteLinkTargetProvider;
 	}
 
 	/**
@@ -476,7 +480,7 @@ abstract class ModifyEntity extends ApiBase {
 	/**
 	 * @param EntityDocument $entity
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected function getRequiredPermissions( EntityDocument $entity ) {
 		return $this->isWriteMode() ? array( 'read', 'edit' ) : array( 'read' );
@@ -547,7 +551,7 @@ abstract class ModifyEntity extends ApiBase {
 	 *
 	 * @since 0.1
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	protected function getAllowedParamsForId() {
 		return array(
@@ -563,7 +567,7 @@ abstract class ModifyEntity extends ApiBase {
 	 *
 	 * @since 0.1
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	protected function getAllowedParamsForSiteLink() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );

@@ -130,8 +130,7 @@ final class RepoHooks {
 				'wb_changes_dispatch',
 				__DIR__ . '/sql/changes_dispatch' . $extension
 			);
-		}
-		else {
+		} else {
 			wfWarn( "Database type '$type' is not supported by the Wikibase repository." );
 		}
 
@@ -1044,7 +1043,7 @@ final class RepoHooks {
 	/**
 	 * Called by Import.php. Implemented to prevent the import of entities.
 	 *
-	 * @param object $importer unclear, see Bug 64657
+	 * @param object $importer unclear, see Bug T66657
 	 * @param array $pageInfo
 	 * @param array $revisionInfo
 	 *

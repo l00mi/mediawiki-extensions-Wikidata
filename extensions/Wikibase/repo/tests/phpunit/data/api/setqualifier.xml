@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<api success="1">
+	<pageinfo/>
+	<claim id="$itemIdUnderTest$1111AAAA-43cb-ed6d-3adb-760e85bd17ee" type="statement" rank="normal">
+		<mainsnak snaktype="novalue" property="$propertyIdUnderTest"/>
+		<qualifiers>
+			<property id="$propertyIdUnderTest">
+				<qualifiers _idx="0" hash="XXX"
+							snaktype="value" property="$propertyIdUnderTest" datatype="string">
+					<datavalue value="QualiValue" type="string"/>
+				</qualifiers>
+			</property>
+		</qualifiers>
+		<qualifiers-order>
+			<property>$propertyIdUnderTest</property>
+		</qualifiers-order>
+	</claim>
+</api>
