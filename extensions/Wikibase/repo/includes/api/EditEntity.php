@@ -168,13 +168,25 @@ class EditEntity extends ModifyEntity {
 		$hasSiteLinkPart = isset( $params['site'] ) || isset( $params['title'] );
 
 		if ( !( $hasId XOR $hasSiteLink XOR $hasNew ) ) {
-			$this->errorReporter->dieError( 'Either provide the item "id" or pairs of "site" and "title" or a "new" type for an entity', 'param-missing' );
+			$this->errorReporter->dieError(
+				'Either provide the item "id" or pairs of "site" and "title" or a "new" type for'
+					. ' an entity',
+				'param-missing'
+			);
 		}
 		if ( $hasId && $hasSiteLink ) {
-			$this->errorReporter->dieError( "Parameter 'id' and 'site', 'title' combination are not allowed to be both set in the same request", 'param-illegal' );
+			$this->errorReporter->dieError(
+				'Parameter "id" and "site", "title" combination are not allowed to be both set in'
+					. ' the same request',
+				'param-illegal'
+			);
 		}
 		if ( ( $hasId || $hasSiteLinkPart ) && $hasNew ) {
-			$this->errorReporter->dieError( "Parameters 'id', 'site', 'title' and 'new' are not allowed to be both set in the same request", 'param-illegal' );
+			$this->errorReporter->dieError(
+				'Parameters "id", "site", "title" and "new" are not allowed to be both set in the'
+					. ' same request',
+				'param-illegal'
+			);
 		}
 	}
 
@@ -555,8 +567,8 @@ class EditEntity extends ModifyEntity {
 		if ( $entity instanceof FingerprintProvider ) {
 			$fingerprint = $entity->getFingerprint();
 
-			$builder->addLabels( $fingerprint->getLabels()->toTextArray(), 'entity' );
-			$builder->addDescriptions( $fingerprint->getDescriptions()->toTextArray(), 'entity' );
+			$builder->addLabels( $fingerprint->getLabels(), 'entity' );
+			$builder->addDescriptions( $fingerprint->getDescriptions(), 'entity' );
 			$builder->addAliases( $fingerprint->getAliasGroups()->toTextArray(), 'entity' );
 		}
 

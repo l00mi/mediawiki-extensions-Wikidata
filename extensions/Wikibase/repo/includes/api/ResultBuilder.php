@@ -11,6 +11,8 @@ use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Term\Term;
+use Wikibase\DataModel\Term\TermList;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
@@ -59,10 +61,16 @@ class ResultBuilder {
 	private $options;
 
 	/**
+	 * @var bool when special elements such as '_element' are needed by the formatter.
+	 */
+	private $isRawMode;
+
+	/**
 	 * @param ApiResult $result
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param LibSerializerFactory $libSerializerFactory
 	 * @param SerializerFactory $serializerFactory
+	 * @param bool $isRawMode when special elements such as '_element' are needed by the formatter.
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -70,7 +78,8 @@ class ResultBuilder {
 		$result,
 		EntityTitleLookup $entityTitleLookup,
 		LibSerializerFactory $libSerializerFactory,
-		SerializerFactory $serializerFactory
+		SerializerFactory $serializerFactory,
+		$isRawMode
 	) {
 		if ( !$result instanceof ApiResult ) {
 			throw new InvalidArgumentException( 'Result builder must be constructed with an ApiResult' );
@@ -81,6 +90,7 @@ class ResultBuilder {
 		$this->libSerializerFactory = $libSerializerFactory;
 		$this->serializerFactory = $serializerFactory;
 		$this->missingEntityCounter = -1;
+		$this->isRawMode = $isRawMode;
 	}
 
 	/**
@@ -92,7 +102,7 @@ class ResultBuilder {
 	public function getOptions() {
 		if ( !$this->options ) {
 			$this->options = new SerializationOptions();
-			$this->options->setIndexTags( $this->result->getIsRawMode() );
+			$this->options->setIndexTags( $this->isRawMode );
 			$this->options->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_NONE );
 		}
 
@@ -143,7 +153,7 @@ class ResultBuilder {
 		$this->checkNameIsString( $name );
 		$this->checkTagIsString( $tag );
 
-		if ( $this->result->getIsRawMode() ) {
+		if ( $this->isRawMode ) {
 			// Unset first, so we don't make the tag name an actual value.
 			// We'll be setting this to $tag by calling setIndexedTagName().
 			unset( $values['_element'] );
@@ -209,7 +219,7 @@ class ResultBuilder {
 
 		$this->checkValueIsNotList( $value );
 
-		if ( $this->result->getIsRawMode() ) {
+		if ( $this->isRawMode ) {
 			$key = null;
 		}
 
@@ -369,14 +379,23 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param array $labels the labels to set in the result
+	 * @param TermList $labels the labels to insert in the result
 	 * @param array|string $path where the data is located
 	 */
-	public function addLabels( array $labels, $path ) {
-		$labelSerializer = $this->libSerializerFactory->newLabelSerializer( $this->getOptions() );
+	public function addLabels( TermList $labels, $path ) {
+		$this->addTermList( $labels, 'labels', 'label', $path );
+	}
 
-		$values = $labelSerializer->getSerialized( $labels );
-		$this->setList( $path, 'labels', $values, 'label' );
+	/**
+	 * Adds fake serialization to show a label has been removed
+	 *
+	 * @since 0.5
+	 *
+	 * @param string $language
+	 * @param array|string $path where the data is located
+	 */
+	public function addRemovedLabel( $language, $path ) {
+		$this->addRemovedTerm( $language, 'labels', 'label', $path );
 	}
 
 	/**
@@ -384,14 +403,53 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param array $descriptions the descriptions to insert in the result
+	 * @param TermList $descriptions the descriptions to insert in the result
 	 * @param array|string $path where the data is located
 	 */
-	public function addDescriptions( array $descriptions, $path ) {
-		$descriptionSerializer = $this->libSerializerFactory->newDescriptionSerializer( $this->getOptions() );
+	public function addDescriptions( TermList $descriptions, $path ) {
+		$this->addTermList( $descriptions, 'descriptions', 'description', $path );
+	}
 
-		$values = $descriptionSerializer->getSerialized( $descriptions );
-		$this->setList( $path, 'descriptions', $values, 'description' );
+	/**
+	 * Adds fake serialization to show a label has been removed
+	 *
+	 * @since 0.5
+	 *
+	 * @param string $language
+	 * @param array|string $path where the data is located
+	 */
+	public function addRemovedDescription( $language, $path ) {
+		$this->addRemovedTerm( $language, 'descriptions', 'description', $path );
+	}
+
+	/**
+	 * Get serialized TermList and add it to the result
+	 *
+	 * @param TermList $termList
+	 * @param string $name
+	 * @param string $tag
+	 * @param array|string $path where the data is located
+	 */
+	private function addTermList( TermList $termList, $name, $tag, $path ) {
+		$serializer = $this->serializerFactory->newTermListSerializer();
+		$value = $serializer->serialize( $termList );
+		$this->setList( $path, $name, $value, $tag );
+	}
+
+	/**
+	 * Adds fake serialization to show a term has been removed
+	 *
+	 * @param string $language
+	 * @param array|string $path where the data is located
+	 */
+	private function addRemovedTerm( $language, $name, $tag, $path ) {
+		$value = array(
+			$language => array(
+				'language' => $language,
+				'removed' => '',
+			)
+		);
+		$this->setList( $path, $name, $value, $tag );
 	}
 
 	/**

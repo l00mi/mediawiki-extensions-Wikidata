@@ -534,7 +534,7 @@ final class RepoHooks {
 	 *
 	 * @return bool
 	 */
-	public static function onSpecialPage_reorderPages( &$groups, &$moveOther ) {
+	public static function onSpecialPageReorderPages( &$groups, &$moveOther ) {
 		$groups = array_merge( array( 'wikibaserepo' => null ), $groups );
 		return true;
 	}
@@ -1060,7 +1060,10 @@ final class RepoHooks {
 			if ( !$allowImport && in_array( $revisionInfo['model'], $contentModels ) ) {
 				// Skip entities.
 				// XXX: This is rather rough.
-				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is not supported. You can enable imports using the `allowEntityImport` setting.' );
+				throw new MWException(
+					'To avoid ID conflicts, the import of Wikibase entities is not supported.'
+						. ' You can enable imports using the "allowEntityImport" setting.'
+				);
 			}
 		}
 
@@ -1076,7 +1079,7 @@ final class RepoHooks {
 	 *
 	 * @return bool
 	 */
-	public static function onSkinTemplateBuildNavUrlsNav_urlsAfterPermalink(
+	public static function onSkinTemplateBuildNavUrlsNavUrlsAfterPermalink(
 		SkinTemplate $skinTemplate,
 		array &$navigationUrls
 	) {

@@ -14,7 +14,7 @@
 	<rule ref="Generic.Files.LineLength">
 		<properties>
 			<!-- TODO: Should be decreased to 100, preferably in steps of 10. -->
-			<property name="lineLimit" value="170" />
+			<property name="lineLimit" value="150" />
 			<property name="absoluteLineLimit" value="9999" />
 		</properties>
 		<!-- Exclude auto-generated files from the Translate extension, see magic-export.php. -->
@@ -37,15 +37,15 @@
 	<rule ref="Generic.PHP.NoSilencedErrors" />
 
 	<rule ref="PSR1" />
-	<!-- FIXME: This indicates an error in the Wikibase codebase that should be fixed. -->
 	<rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
-		<severity>0</severity>
+		<exclude-pattern>DataAccess*Scribunto*Scribunto_LuaWikibaseLibraryTestCase\.php</exclude-pattern>
 	</rule>
 	<rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
 		<severity>0</severity>
 	</rule>
 	<rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
-		<severity>0</severity>
+		<!-- Exclude test methods like "testGivenInvalidInput_methodThrowsException". -->
+		<exclude-pattern>tests*phpunit*Test*\.php</exclude-pattern>
 	</rule>
 
 	<!-- TODO: Enable PSR2 sniffs. -->
@@ -53,8 +53,7 @@
 	<rule ref="PSR2.Methods.MethodDeclaration" />
 
 	<rule ref="Squiz.Classes.ValidClassName.NotCamelCaps">
-		<!-- FIXME: This indicates an error in the Wikibase codebase that should be fixed. -->
-		<exclude-pattern>DataAccess*Scribunto*Scribunto_LuaWikibase*Library*\.php</exclude-pattern>
+		<exclude-pattern>DataAccess*Scribunto*Scribunto_LuaWikibase*Library</exclude-pattern>
 	</rule>
 	<rule ref="Squiz.ControlStructures.ControlSignature" />
 	<!-- FIXME: This indicates an error in the Wikibase codebase that should be fixed. -->
@@ -65,10 +64,6 @@
 		<properties>
 			<property name="spacing" value="1" />
 		</properties>
-	</rule>
-	<!-- FIXME: This indicates an error in the Wikibase codebase that should be fixed. -->
-	<rule ref="Squiz.WhiteSpace.FunctionSpacing.After">
-		<severity>0</severity>
 	</rule>
 	<rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing" />
 	<rule ref="Squiz.WhiteSpace.ScopeClosingBrace" />

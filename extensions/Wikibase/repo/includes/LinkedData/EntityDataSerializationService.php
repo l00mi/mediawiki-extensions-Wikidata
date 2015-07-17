@@ -298,11 +298,17 @@ class EntityDataSerializationService {
 
 	/**
 	 * @param EntityId $targetId
-	 * @param EntityRedirect $followedRedirect The followed redirect, will be omitted from the output
+	 * @param EntityRedirect|null $followedRedirect The followed redirect, will be omitted from the
+	 * output.
 	 * @param EntityId[] $incomingRedirects
 	 * @param RdfBuilder $rdfBuilder
 	 */
-	private function addIncomingRedirects( EntityId $targetId, EntityRedirect $followedRedirect = null, array $incomingRedirects, RdfBuilder $rdfBuilder ) {
+	private function addIncomingRedirects(
+		EntityId $targetId,
+		EntityRedirect $followedRedirect = null,
+		array $incomingRedirects,
+		RdfBuilder $rdfBuilder
+	) {
 		foreach ( $incomingRedirects as $rId ) {
 			// don't add the followed redirect again
 			if ( !$followedRedirect || !$followedRedirect->getEntityId()->equals( $rId ) ) {
@@ -447,7 +453,8 @@ class EntityDataSerializationService {
 			$res,
 			$this->entityTitleLookup,
 			$this->libSerializerFactory,
-			$this->serializerFactory
+			$this->serializerFactory,
+			false // Never index tags for this service as we dont output XML
 		);
 		$resultBuilder->addEntityRevision( null, $entityRevision, $options );
 
