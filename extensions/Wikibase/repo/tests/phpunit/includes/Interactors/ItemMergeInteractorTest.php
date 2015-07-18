@@ -223,7 +223,10 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			array( 'aliases' => array( "nl" => array( array( "language" => "nl", "value" => "Ali1" ) ) ) ),
 			array( 'aliases' => array( "nl" => array( array( "language" => "nl", "value" => "Ali2" ) ) ) ),
 			array(),
-			array( 'aliases' => array( "nl" => array( array( "language" => "nl", "value" => "Ali2" ), array( "language" => "nl", "value" => "Ali1" ) ) ) ),
+			array( 'aliases' => array( 'nl' => array(
+				array( 'language' => 'nl', 'value' => 'Ali2' ),
+				array( 'language' => 'nl', 'value' => 'Ali1' )
+			) ) ),
 		);
 		$testCases['sitelinksMerge'] = array(
 			array( 'sitelinks' => array( 'dewiki' => array( 'site' => 'dewiki', 'title' => 'Foo' ) ) ),
@@ -271,10 +274,18 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			array(),
 			array( 'claims' => array(
 				'P1' => array(
-					array( 'mainsnak' => array( 'snaktype' => 'value', 'property' => 'P1', 'datavalue' => array( 'value' => 'imastring2', 'type' => 'string' ) ),
-						'type' => 'statement', 'rank' => 'normal' ),
-					array( 'mainsnak' => array( 'snaktype' => 'value', 'property' => 'P1', 'datavalue' => array( 'value' => 'imastring1', 'type' => 'string' ) ),
-						'type' => 'statement', 'rank' => 'normal' )
+					array(
+						'mainsnak' => array( 'snaktype' => 'value', 'property' => 'P1',
+							'datavalue' => array( 'value' => 'imastring2', 'type' => 'string' ) ),
+						'type' => 'statement',
+						'rank' => 'normal'
+					),
+					array(
+						'mainsnak' => array( 'snaktype' => 'value', 'property' => 'P1',
+							'datavalue' => array( 'value' => 'imastring1', 'type' => 'string' ) ),
+						'type' => 'statement',
+						'rank' => 'normal'
+					)
 				)
 			) ),
 		);
@@ -307,12 +318,12 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 
 		$this->assertRedirectWorks( $expectedFrom, $fromId, $toId  );
 
-		// -- check the edit summaries --------------------------------------------
-		//$fromRevId = $this->mockRepository->getLatestRevisionId( $fromId );
 		$toRevId = $this->mockRepository->getLatestRevisionId( $toId );
-
-		//$this->testHelper->assertRevisionSummary( '@^/\* *wbmergeitems-to:0\|\|Q2 *\*/ *CustomSummary$@', $fromRevId, 'summary for source item' );
-		$this->testHelper->assertRevisionSummary( '@^/\* *wbmergeitems-from:0\|\|Q1 *\*/ *CustomSummary$@', $toRevId, 'summary for target item' );
+		$this->testHelper->assertRevisionSummary(
+			'@^/\* *wbmergeitems-from:0\|\|Q1 *\*/ *CustomSummary$@',
+			$toRevId,
+			'summary for target item'
+		);
 	}
 
 	private function assertRedirectWorks( $expectedFrom, $fromId, $toId ) {

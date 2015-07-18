@@ -148,7 +148,8 @@ class SimpleValueRdfBuilder implements SnakValueRdfBuilder {
 		}
 
 		// TODO: add special handling like in WDTK?
-		// https://github.com/Wikidata/Wikidata-Toolkit/blob/master/wdtk-rdf/src/main/java/org/wikidata/wdtk/rdf/extensions/SimpleIdExportExtension.java
+		// https://github.com/Wikidata/Wikidata-Toolkit/blob/master/wdtk-rdf/src/main/java/org/
+		// wikidata/wdtk/rdf/extensions/SimpleIdExportExtension.java
 	}
 
 	/**
@@ -190,13 +191,20 @@ class SimpleValueRdfBuilder implements SnakValueRdfBuilder {
 		$dataType,
 		StringValue $value
 	) {
-		if ( $dataType === 'commonsMedia' ) {
-			$this->addValueToNode( $writer, $propertyValueNamespace, $propertyValueLName, 'url', $this->vocabulary->getCommonsURI( $value->getValue() ) );
-		} elseif ( $dataType === 'url' ) {
-			$this->addValueToNode( $writer, $propertyValueNamespace, $propertyValueLName, 'url', $value->getValue() );
-		} else {
-			$writer->say( $propertyValueNamespace, $propertyValueLName )->text( $value->getValue() );
+		switch ( $dataType ) {
+			case 'url':
+				$url = $value->getValue();
+				break;
+			case 'commonsMedia':
+				$url = $this->vocabulary->getCommonsURI( $value->getValue() );
+				break;
+			default:
+				$writer->say( $propertyValueNamespace, $propertyValueLName )
+					->text( $value->getValue() );
+				return;
 		}
+
+		$this->addValueToNode( $writer, $propertyValueNamespace, $propertyValueLName, 'url', $url );
 	}
 
 	/**

@@ -5,6 +5,10 @@
 -->
 <ruleset name="MediaWiki">
 
+	<rule ref="Generic.CodeAnalysis.ForLoopShouldBeWhileLoop" />
+	<rule ref="Generic.CodeAnalysis.JumbledIncrementer" />
+	<rule ref="Generic.CodeAnalysis.UnnecessaryFinalModifier" />
+
 	<rule ref="Generic.ControlStructures" />
 
 	<rule ref="Generic.Files.ByteOrderMark" />
@@ -13,8 +17,7 @@
 	<rule ref="Generic.Files.LineEndings" />
 	<rule ref="Generic.Files.LineLength">
 		<properties>
-			<!-- TODO: Should be decreased to 100, preferably in steps of 10. -->
-			<property name="lineLimit" value="150" />
+			<property name="lineLimit" value="140" />
 			<property name="absoluteLineLimit" value="9999" />
 		</properties>
 		<!-- Exclude auto-generated files from the Translate extension, see magic-export.php. -->
@@ -24,6 +27,10 @@
 	<rule ref="Generic.Files.OneTraitPerFile" />
 
 	<rule ref="Generic.Formatting.DisallowMultipleStatements" />
+	<rule ref="Generic.Formatting.MultipleStatementAlignment" />
+	<rule ref="Generic.Formatting.MultipleStatementAlignment.NotSameWarning">
+		<severity>0</severity>
+	</rule>
 
 	<rule ref="Generic.Functions.FunctionCallArgumentSpacing" />
 	<rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie" />
@@ -34,7 +41,9 @@
 	<rule ref="Generic.PHP.DeprecatedFunctions" />
 	<rule ref="Generic.PHP.DisallowShortOpenTag" />
 	<rule ref="Generic.PHP.ForbiddenFunctions" />
+	<rule ref="Generic.PHP.LowerCaseKeyword" />
 	<rule ref="Generic.PHP.NoSilencedErrors" />
+	<rule ref="Generic.PHP.SAPIUsage" />
 
 	<rule ref="PSR1" />
 	<rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
@@ -48,9 +57,13 @@
 		<exclude-pattern>tests*phpunit*Test*\.php</exclude-pattern>
 	</rule>
 
-	<!-- TODO: Enable PSR2 sniffs. -->
+	<rule ref="PSR2.Classes.PropertyDeclaration" />
 	<rule ref="PSR2.ControlStructures.ElseIfDeclaration" />
+	<rule ref="PSR2.Files.ClosingTag" />
+	<rule ref="PSR2.Files.EndFileNewline" />
 	<rule ref="PSR2.Methods.MethodDeclaration" />
+	<rule ref="PSR2.Namespaces.NamespaceDeclaration" />
+	<rule ref="PSR2.Namespaces.UseDeclaration" />
 
 	<rule ref="Squiz.Classes.ValidClassName.NotCamelCaps">
 		<exclude-pattern>DataAccess*Scribunto*Scribunto_LuaWikibase*Library</exclude-pattern>
@@ -65,6 +78,7 @@
 			<property name="spacing" value="1" />
 		</properties>
 	</rule>
+	<rule ref="Squiz.WhiteSpace.LanguageConstructSpacing" />
 	<rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing" />
 	<rule ref="Squiz.WhiteSpace.ScopeClosingBrace" />
 	<rule ref="Squiz.WhiteSpace.SemicolonSpacing" />
