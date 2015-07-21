@@ -4,8 +4,9 @@ if ( defined( 'MEDIAWIKI' ) ) {
 	$GLOBALS['wgExtensionCredits']['wikibase']['WikibaseDataModelSerialization'] = array(
 		'path' => __DIR__,
 		'name' => 'Wikibase DataModel Serialization',
-		'version' => '1.5.0',
+		'version' => '1.6.0',
 		'author' => array(
+			'[https://github.com/Tpt Thomas PT]',
 			'[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]',
 		),
 		'url' => 'https://github.com/wmde/WikibaseDataModelSerialization',

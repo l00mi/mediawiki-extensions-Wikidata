@@ -1058,16 +1058,16 @@
         },
         {
             "name": "wikibase/data-model-serialization",
-            "version": "1.5.0",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
-                "reference": "3a1bf97b37c3a0df779214e094d49163fa725a82"
+                "reference": "1b6df155e1a0a6565789e2258ccee8557ec9a803"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/3a1bf97b37c3a0df779214e094d49163fa725a82",
-                "reference": "3a1bf97b37c3a0df779214e094d49163fa725a82",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/1b6df155e1a0a6565789e2258ccee8557ec9a803",
+                "reference": "1b6df155e1a0a6565789e2258ccee8557ec9a803",
                 "shasum": ""
             },
             "require": {
@@ -1121,7 +1121,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-07-01 19:07:24"
+            "time": "2015-07-20 12:25:00"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1326,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "6ca1a851462cd7e2b18cdf008ac3771a862545b9"
+                "reference": "09f1c0d64baa78cabd2cf8c02a8a156673f53322"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6ca1a851462cd7e2b18cdf008ac3771a862545b9",
-                "reference": "6ca1a851462cd7e2b18cdf008ac3771a862545b9",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/09f1c0d64baa78cabd2cf8c02a8a156673f53322",
+                "reference": "09f1c0d64baa78cabd2cf8c02a8a156673f53322",
                 "shasum": ""
             },
             "require": {
@@ -1399,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-07-19 22:00:19"
+            "time": "2015-07-20 20:39:13"
         },
         {
             "name": "wikibase/wikimedia-badges",
