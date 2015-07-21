@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "1650c31aae304f33d8513f578d249bf6",
@@ -1277,7 +1277,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-06-30 17:53:04"
+            "time": "2015-06-30 13:02:17"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1326,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "de80d2f861c15bb08e914be5248bcab7c43d22fa"
+                "reference": "36397d6e4b3da98399e1153fae91193c1f744f90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/de80d2f861c15bb08e914be5248bcab7c43d22fa",
-                "reference": "de80d2f861c15bb08e914be5248bcab7c43d22fa",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/36397d6e4b3da98399e1153fae91193c1f744f90",
+                "reference": "36397d6e4b3da98399e1153fae91193c1f744f90",
                 "shasum": ""
             },
             "require": {
@@ -1399,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-07-08 21:02:55"
+            "time": "2015-07-20 20:56:27"
         },
         {
             "name": "wikibase/wikimedia-badges",
