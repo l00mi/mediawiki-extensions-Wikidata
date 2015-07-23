@@ -67,13 +67,6 @@ class LibSerializerFactory {
 	}
 
 	/**
-	 * @param PropertyDataTypeLookup $dataTypeLookup
-	 */
-	public function setDataTypeLookup( PropertyDataTypeLookup $dataTypeLookup ) {
-		$this->dataTypeLookup = $dataTypeLookup;
-	}
-
-	/**
 	 * @param mixed $object
 	 * @param SerializationOptions $options
 	 *
@@ -111,46 +104,6 @@ class LibSerializerFactory {
 		}
 
 		throw new OutOfBoundsException( 'There is no serializer for the provided type of object "' . get_class( $object ) . '"' );
-	}
-
-	/**
-	 * @param string $className
-	 * @param SerializationOptions $options
-	 *
-	 * @return Unserializer
-	 * @throws OutOfBoundsException
-	 * @throws InvalidArgumentException
-	 */
-	public function newUnserializerForClass( $className, $options = null ) {
-		if ( $options === null ) {
-			$options = new SerializationOptions();
-		}
-
-		//TODO: The factory should take options in the constructor (?!)
-		//TODO: The factory should offer clones of the options via newSerializationOptions().
-		//TODO: This method should merge to options given with the options from the constructor.
-
-		if ( !is_string( $className ) ) {
-			throw new OutOfBoundsException( '$className needs to be a string' );
-		}
-
-		switch ( ltrim( $className, '\\' ) ) {
-			case 'Wikibase\DataModel\Entity\Item':
-				return $this->newItemUnserializer( $options );
-			case 'Wikibase\DataModel\Entity\Property':
-				return $this->newPropertyUnserializer( $options );
-			//TODO: support extra entity types!
-			case 'Wikibase\DataModel\Snak\Snak':
-				return $this->newSnakUnserializer( $options );
-			case 'Wikibase\DataModel\Reference':
-				return $this->newReferenceUnserializer($options );
-			case 'Wikibase\DataModel\Claim\Claim':
-				return $this->newClaimUnserializer( $options );
-			case 'Wikibase\DataModel\Claim\Claims':
-				return $this->newClaimsUnserializer( $options );
-		}
-
-		throw new OutOfBoundsException( '"' . $className . '" has no associated unserializer' );
 	}
 
 	/**
@@ -250,44 +203,8 @@ class LibSerializerFactory {
 	 *
 	 * @return Serializer
 	 */
-	public function newSiteLinkSerializer( SerializationOptions $options ) {
-		return new SiteLinkSerializer( $this->makeOptions( $options ), $this->siteStore );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Serializer
-	 */
-	public function newLabelSerializer( SerializationOptions $options ) {
-		return new LabelSerializer( $this->makeOptions( $options ) );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Serializer
-	 */
-	public function newDescriptionSerializer( SerializationOptions $options ) {
-		return new DescriptionSerializer( $this->makeOptions( $options ) );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Serializer
-	 */
 	public function newAliasSerializer( SerializationOptions $options ) {
 		return new AliasSerializer( $this->makeOptions( $options ) );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Unserializer
-	 */
-	public function newSnakUnserializer( SerializationOptions $options ) {
-		return $this->newSnakSerializer( $this->makeOptions( $options ) );
 	}
 
 	/**
@@ -313,15 +230,6 @@ class LibSerializerFactory {
 	 *
 	 * @return Unserializer
 	 */
-	public function newClaimsUnserializer( SerializationOptions $options ) {
-		return $this->newClaimsSerializer( $this->makeOptions( $options ) );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Unserializer
-	 */
 	public function newItemUnserializer( SerializationOptions $options ) {
 		return $this->newItemSerializer( $this->makeOptions( $options ) );
 	}
@@ -333,33 +241,6 @@ class LibSerializerFactory {
 	 */
 	public function newPropertyUnserializer( SerializationOptions $options ) {
 		return $this->newPropertySerializer( $this->makeOptions( $options ) );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Unserializer
-	 */
-	public function newLabelUnserializer( SerializationOptions $options ) {
-		return $this->newLabelSerializer( $this->makeOptions( $options ) );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Unserializer
-	 */
-	public function newDescriptionUnserializer( SerializationOptions $options ) {
-		return $this->newDescriptionSerializer( $this->makeOptions( $options ) );
-	}
-
-	/**
-	 * @param SerializationOptions $options
-	 *
-	 * @return Unserializer
-	 */
-	public function newAliasUnserializer( SerializationOptions $options ) {
-		return $this->newAliasSerializer( $this->makeOptions( $options ) );
 	}
 
 	/**

@@ -909,7 +909,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "9f68ef591546a4a900f16128fddccd51acc8e0dd"
+                "reference": "a04eb8fe6f62d5545a0de45440e90b4c99256914"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -954,7 +954,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-07-13 14:10:20"
+            "time": "2015-07-22 13:21:59"
         },
         {
             "name": "wikibase/data-model",
@@ -1326,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c1e8527a87f29049f9cb318ac0661b144b3c0cd6"
+                "reference": "86d1a2b39c73bce7928be46f121c4c6ee8effece"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c1e8527a87f29049f9cb318ac0661b144b3c0cd6",
-                "reference": "c1e8527a87f29049f9cb318ac0661b144b3c0cd6",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/86d1a2b39c73bce7928be46f121c4c6ee8effece",
+                "reference": "86d1a2b39c73bce7928be46f121c4c6ee8effece",
                 "shasum": ""
             },
             "require": {
@@ -1399,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-07-21 19:49:13"
+            "time": "2015-07-23 01:14:59"
         },
         {
             "name": "wikibase/wikimedia-badges",

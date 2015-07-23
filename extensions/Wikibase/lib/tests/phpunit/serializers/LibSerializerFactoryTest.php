@@ -66,22 +66,6 @@ class LibSerializerFactoryTest extends \MediaWikiTestCase {
 		return $argLists;
 	}
 
-	/**
-	 * @dataProvider serializationProvider
-	 *
-	 * @param string $className
-	 * @param array $serialization
-	 */
-	public function testNewUnserializerForClass( $className, array $serialization ) {
-		$factory = new LibSerializerFactory();
-
-		$unserializer = $factory->newUnserializerForClass( $className );
-
-		$this->assertInstanceOf( 'Wikibase\Lib\Serializers\Unserializer', $unserializer );
-
-		$unserializer->newFromSerialization( $serialization );
-	}
-
 	public function entityTypeProvider() {
 		return array(
 			array( Item::ENTITY_TYPE ),
@@ -115,15 +99,10 @@ class LibSerializerFactoryTest extends \MediaWikiTestCase {
 
 	public function newUnserializerProvider() {
 		$names = array(
-			'SnakUnserializer',
 			'ReferenceUnserializer',
 			'ClaimUnserializer',
-			'ClaimsUnserializer',
 			'PropertyUnserializer',
 			'ItemUnserializer',
-			'LabelUnserializer',
-			'DescriptionUnserializer',
-			'AliasUnserializer',
 		);
 
 		return array_map( function( $name ) {
@@ -152,11 +131,7 @@ class LibSerializerFactoryTest extends \MediaWikiTestCase {
 			'ClaimsSerializer',
 			'PropertySerializer',
 			'ItemSerializer',
-			'LabelSerializer',
-			'DescriptionSerializer',
 			'AliasSerializer',
-
-			'SiteLinkSerializer',
 		);
 
 		return array_map( function( $name ) {
