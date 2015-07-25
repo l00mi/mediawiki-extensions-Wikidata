@@ -18,6 +18,8 @@ use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Term\AliasGroup;
+use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\EntityRevision;
@@ -43,7 +45,7 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 		return new ApiResult( false );
 	}
 
-	protected function getResultBuilder( $result, $options = null, $indexedMode = false ) {
+	protected function getResultBuilder( $result, $options = null, $isRawMode = false ) {
 		$mockTitle = $this->getMockBuilder( '\Title' )
 			->disableOriginalConstructor()
 			->getMock();
@@ -74,7 +76,11 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 			null, //no serialization options
 			$mockPropertyDataTypeLookup
 		);
-		$serializerFactory = new SerializerFactory( new DataValueSerializer() );
+		$serializerFactory = new SerializerFactory(
+			new DataValueSerializer(),
+			SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
+			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
+		);
 
 		$builder = new ResultBuilder(
 			$result,
@@ -83,7 +89,7 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 			$serializerFactory,
 			new MockSiteStore(),
 			$mockPropertyDataTypeLookup,
-			$indexedMode
+			$isRawMode
 		);
 
 		if ( is_array( $options ) ) {
@@ -149,7 +155,290 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 		return array( array( 3 ), array( -1 ) );
 	}
 
-	public function testAddEntityRevision() {
+	public function provideTestAddEntityRevision() {
+		$expected = array(
+			'entities' => array(
+				'Q1230000' => array(
+					'pageid' => 123, //mocked
+					'ns' => 456, //mocked
+					'title' => 'MockPrefixedText', //mocked
+					'id' => 'Q123098',
+					'type' => 'item',
+					'lastrevid' => 33,
+					'modified' => '2013-11-26T20:29:23Z',
+					'redirects' => array(
+						'from' => 'Q1230000',
+						'to' => 'Q123098',
+					),
+					'aliases' => array(
+						'en' => array(
+							array(
+								'language' => 'en',
+								'value' => 'bar'
+							),
+							array(
+								'language' => 'en',
+								'value' => 'baz'
+							)
+						),
+						'zh' => array(
+							array(
+								'language' => 'zh',
+								'value' => '????????',
+							),
+						),
+					),
+					'descriptions' => array(
+						'pt' => array(
+							'language' => 'pt',
+							'value' => 'ptDesc'
+						),
+						'pl' => array(
+							'language' => 'pl',
+							'value' => 'Longer Description For An Item'
+						),
+					),
+					'labels' => array(
+						'de' => array(
+							'language' => 'de',
+							'value' => 'foo'
+						),
+						'zh_classical' => array(
+							'language' => 'zh_classical',
+							'value' => 'Longer Label'
+						),
+					),
+					'claims' => array(
+						'P65' => array(
+							array(
+								'id' => 'imaguid',
+								'mainsnak' => array(
+									'snaktype' => 'somevalue',
+									'property' => 'P65'
+								),
+								'type' => 'statement',
+								'qualifiers' => array(
+									'P65' => array(
+										array(
+											'hash' => '210b00274bf03247a89de918f15b12142ebf9e56',
+											'snaktype' => 'somevalue',
+											'property' => 'P65',
+										),
+										array(
+											'hash' => 'e95e866e7fa1c18bd06dae9b712cb99545107eb8',
+											'snaktype' => 'value',
+											'property' => 'P65',
+											'datavalue' => array(
+												'value' => 'string!',
+												'type' => 'string',
+											),
+											'datatype' => 'DtIdFor_P65',
+										),
+									),
+								),
+								'rank' => 'normal',
+								'qualifiers-order' => array(
+									'P65'
+								),
+								'references' => array(
+									array(
+										'hash' => 'bdc5f7185904d6d3219e13b7443571dda8c4bee8',
+										'snaks' => array(
+											'P65' => array(
+												array(
+													'snaktype' => 'somevalue',
+													'property' => 'P65'
+												)
+											),
+											'P68' => array(
+												array(
+													'snaktype' => 'somevalue',
+													'property' => 'P68'
+												)
+											),
+										),
+										'snaks-order' => array(
+											'P65',
+											'P68'
+										)
+									),
+								),
+							)
+						),
+					),
+					'sitelinks' => array(
+						'enwiki' => array(
+							'site' => 'enwiki',
+							'title' => 'Berlin',
+							'badges' => array( 'Q333' )
+						),
+						'zh_classicalwiki' => array(
+							'site' => 'zh_classicalwiki',
+							'title' => 'User:Addshore',
+							'badges' => array()
+						),
+					)
+				),
+				'_element' => 'entity',
+			),
+		);
+
+		$expectedRaw = array(
+			'entities' => array(
+				array(
+					'pageid' => 123, //mocked
+					'ns' => 456, //mocked
+					'title' => 'MockPrefixedText', //mocked
+					'id' => 'Q123098',
+					'type' => 'item',
+					'lastrevid' => 33,
+					'modified' => '2013-11-26T20:29:23Z',
+					'redirects' => array(
+						'from' => 'Q1230000',
+						'to' => 'Q123098',
+					),
+					'aliases' => array(
+						array(
+							'language' => 'en',
+							'value' => 'bar'
+						),
+						array(
+							'language' => 'en',
+							'value' => 'baz'
+						),
+						array(
+							'language' => 'zh',
+							'value' => '????????',
+						),
+						'_element' => 'alias',
+					),
+					'descriptions' => array(
+						array(
+							'language' => 'pt',
+							'value' => 'ptDesc'
+						),
+						array(
+							'language' => 'pl',
+							'value' => 'Longer Description For An Item'
+						),
+						'_element' => 'description',
+					),
+					'labels' => array(
+						array(
+							'language' => 'de',
+							'value' => 'foo'
+						),
+						array(
+							'language' => 'zh_classical',
+							'value' => 'Longer Label'
+						),
+						'_element' => 'label',
+					),
+					'claims' => array(
+						array(
+							'id' => 'P65',
+							array(
+								'id' => 'imaguid',
+								'mainsnak' => array(
+									'snaktype' => 'somevalue',
+									'property' => 'P65'
+								),
+								'type' => 'statement',
+								'qualifiers' => array(
+									array(
+										'id' => 'P65',
+										array(
+											'hash' => '210b00274bf03247a89de918f15b12142ebf9e56',
+											'snaktype' => 'somevalue',
+											'property' => 'P65',
+										),
+										array(
+											'hash' => 'e95e866e7fa1c18bd06dae9b712cb99545107eb8',
+											'snaktype' => 'value',
+											'property' => 'P65',
+											'datavalue' => array(
+												'value' => 'string!',
+												'type' => 'string',
+											),
+											'datatype' => 'DtIdFor_P65',
+										),
+										'_element' => 'qualifiers',
+									),
+									'_element' => 'property',
+								),
+								'rank' => 'normal',
+								'qualifiers-order' => array(
+									'P65',
+									'_element' => 'property',
+								),
+								'references' => array(
+									array(
+										'hash' => 'bdc5f7185904d6d3219e13b7443571dda8c4bee8',
+										'snaks' => array(
+											array(
+												'id' => 'P65',
+												array(
+													'snaktype' => 'somevalue',
+													'property' => 'P65'
+												),
+												'_element' => 'snak',
+											),
+											array(
+												'id' => 'P68',
+												array(
+													'snaktype' => 'somevalue',
+													'property' => 'P68'
+												),
+												'_element' => 'snak',
+											),
+											'_element' => 'property',
+										),
+										'snaks-order' => array(
+											'P65',
+											'P68',
+											'_element' => 'property',
+										)
+									),
+									'_element' => 'reference',
+								),
+							),
+							'_element' => 'claim',
+						),
+						'_element' => 'property',
+					),
+					'sitelinks' => array(
+						array(
+							'site' => 'enwiki',
+							'title' => 'Berlin',
+							'badges' => array(
+								'Q333',
+								'_element' => 'badge',
+							)
+						),
+						array(
+							'site' => 'zh_classicalwiki',
+							'title' => 'User:Addshore',
+							'badges' => array(
+								'_element' => 'badge',
+							)
+						),
+						'_element' => 'sitelink',
+					)
+				),
+				'_element' => 'entity',
+			),
+		);
+
+		return array(
+			array( false, $expected ),
+			array( true, $expectedRaw ),
+		);
+	}
+
+	/**
+	 * @dataProvider provideTestAddEntityRevision
+	 */
+	public function testAddEntityRevision( $isRawMode, $expected ) {
 		$result = $this->getDefaultResult();
 		$props = array( 'info' );
 		$item = new Item( new ItemId( 'Q123098' ) );
@@ -181,133 +470,14 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 
 		$entityRevision = new EntityRevision( $item, 33, '20131126202923' );
 
-		$expected = array( 'entities' => array( 'Q1230000' => array(
-			'pageid' => 123, //mocked
-			'ns' => 456, //mocked
-			'title' => 'MockPrefixedText', //mocked
-			'id' => 'Q123098',
-			'type' => 'item',
-			'lastrevid' => 33,
-			'modified' => '2013-11-26T20:29:23Z',
-			'redirects' => array(
-				'from' => 'Q1230000',
-				'to' => 'Q123098',
-			),
-			'aliases' => array(
-				'en' => array(
-					array(
-						'language' => 'en',
-						'value' => 'bar'
-					),
-					array(
-						'language' => 'en',
-						'value' => 'baz'
-					)
-				),
-				'zh' => array(
-					array(
-						'language' => 'zh',
-						'value' => '????????',
-					),
-				),
-			),
-			'descriptions' => array(
-				'pt' => array(
-					'language' => 'pt',
-					'value' => 'ptDesc'
-				),
-				'pl' => array(
-					'language' => 'pl',
-					'value' => 'Longer Description For An Item'
-				),
-			),
-			'labels' => array(
-				'de' => array(
-					'language' => 'de',
-					'value' => 'foo'
-				),
-				'zh_classical' => array(
-					'language' => 'zh_classical',
-					'value' => 'Longer Label'
-				),
-			),
-			'claims' => array(
-				'P65' => array(
-					array(
-						'id' => 'imaguid',
-						'mainsnak' => array(
-							'snaktype' => 'somevalue',
-							'property' => 'P65'
-						),
-						'type' => 'statement',
-						'qualifiers' => array(
-							'P65' => array(
-								array(
-									'hash' => '210b00274bf03247a89de918f15b12142ebf9e56',
-									'snaktype' => 'somevalue',
-									'property' => 'P65',
-								),
-								array(
-									'hash' => 'e95e866e7fa1c18bd06dae9b712cb99545107eb8',
-									'snaktype' => 'value',
-									'property' => 'P65',
-									'datavalue' => array(
-										'value' => 'string!',
-										'type' => 'string',
-									),
-									'datatype' => 'DtIdFor_P65',
-								),
-							),
-						),
-						'rank' => 'normal',
-						'qualifiers-order' => array(
-							'P65'
-						),
-						'references' => array(
-							array(
-								'hash' => 'bdc5f7185904d6d3219e13b7443571dda8c4bee8',
-								'snaks' => array(
-									'P65' => array(
-										array(
-											'snaktype' => 'somevalue',
-											'property' => 'P65'
-										)
-									),
-									'P68' => array(
-										array(
-											'snaktype' => 'somevalue',
-											'property' => 'P68'
-										)
-									),
-								),
-								'snaks-order' => array(
-									'P65', 'P68'
-								)
-							),
-						),
-					)
-				),
-			),
-			'sitelinks' => array(
-				'enwiki' => array(
-					'site' => 'enwiki',
-					'title' => 'Berlin',
-					'badges' => array( 'Q333' )
-				),
-				'zh_classicalwiki' => array(
-					'site' => 'zh_classicalwiki',
-					'title' => 'User:Addshore',
-					'badges' => array()
-				),
-			) ),
-			'_element' => 'entity',
-			),
-		);
+		$serializationOptions = new SerializationOptions();
+		$serializationOptions->setIndexTags( $isRawMode );
 
-		$resultBuilder = $this->getResultBuilder( $result );
-		$resultBuilder->addEntityRevision( 'Q1230000', $entityRevision, new SerializationOptions(), $props );
+		$resultBuilder = $this->getResultBuilder( $result, null, $isRawMode );
+		$resultBuilder->addEntityRevision( 'Q1230000', $entityRevision, $serializationOptions, $props );
 
 		$data = $result->getResultData();
+
 		$this->removeElementsWithKeysRecursively( $data, array( '_type' ) );
 		$this->assertEquals( $expected, $data );
 	}
@@ -551,41 +721,85 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $expected, $data );
 	}
 
-	public function testAddAliases() {
-		$result = $this->getDefaultResult();
-		$aliases = array( 'en' => array( 'boo', 'hoo' ), 'de' => array( 'ham', 'cheese' ) );
-		$path = array( 'entities', 'Q1' );
-		$expected = array(
-			'entities' => array(
-				'Q1' => array(
-					'aliases' => array(
-						'en' => array(
-							array(
-								'language' => 'en',
-								'value' => 'boo',
-							),
-							array(
-								'language' => 'en',
-								'value' => 'hoo',
+	public function provideAddAliasGroupList() {
+		return array(
+			array(
+				false,
+				array(
+					'entities' => array(
+						'Q1' => array(
+							'aliases' => array(
+								'en' => array(
+									array(
+										'language' => 'en',
+										'value' => 'boo',
+									),
+									array(
+										'language' => 'en',
+										'value' => 'hoo',
+									),
+								),
+								'de' => array(
+									array(
+										'language' => 'de',
+										'value' => 'ham',
+									),
+									array(
+										'language' => 'de',
+										'value' => 'cheese',
+									),
+								),
 							),
 						),
-						'de' => array(
-							array(
-								'language' => 'de',
-								'value' => 'ham',
-							),
-							array(
-								'language' => 'de',
-								'value' => 'cheese',
+					),
+				),
+			),
+			array(
+				true,
+				array(
+					'entities' => array(
+						'Q1' => array(
+							'aliases' => array(
+								array(
+									'language' => 'en',
+									'value' => 'boo',
+								),
+								array(
+									'language' => 'en',
+									'value' => 'hoo',
+								),
+								array(
+									'language' => 'de',
+									'value' => 'ham',
+								),
+								array(
+									'language' => 'de',
+									'value' => 'cheese',
+								),
+								'_element' => 'alias',
 							),
 						),
 					),
 				),
 			),
 		);
+	}
 
-		$resultBuilder = $this->getResultBuilder( $result );
-		$resultBuilder->addAliases( $aliases, $path );
+	/**
+	 * @dataProvider provideAddAliasGroupList
+	 */
+	public function testAddAliasGroupList( $rawMode, $expected ) {
+		$result = $this->getDefaultResult();
+		$aliasGroupList = new AliasGroupList(
+			array(
+				new AliasGroup( 'en', array( 'boo', 'hoo' ) ),
+				new AliasGroup( 'de', array( 'ham', 'cheese' ) ),
+			)
+		);
+		$path = array( 'entities', 'Q1' );
+
+		$resultBuilder = $this->getResultBuilder( $result, null, $rawMode );
+		$resultBuilder->addAliasGroupList( $aliasGroupList, $path );
 
 		$data = $result->getResultData();
 		$this->removeElementsWithKeysRecursively( $data, array( '_type' ) );
@@ -756,22 +970,40 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider statementSerializationProvider
 	 */
-	public function testAddClaims( Statement $statement, $statementSerialization ) {
+	public function testAddClaims( Statement $statement, $isRawMode, $statementSerialization ) {
 		$result = $this->getDefaultResult();
 		$path = array( 'entities', 'Q1' );
-		$expected = array(
-			'entities' => array(
-				'Q1' => array(
-					'claims' => array(
-						'P12' => array(
-							$statementSerialization
+
+		if ( $isRawMode ) {
+			$expected = array(
+				'entities' => array(
+					'Q1' => array(
+						'claims' => array(
+							array(
+								'id' => 'P12',
+								$statementSerialization,
+								'_element' => 'claim',
+							),
+							'_element' => 'property',
 						),
 					),
 				),
-			),
-		);
+			);
+		} else {
+			$expected = array(
+				'entities' => array(
+					'Q1' => array(
+						'claims' => array(
+							'P12' => array(
+								$statementSerialization
+							),
+						),
+					),
+				),
+			);
+		}
 
-		$resultBuilder = $this->getResultBuilder( $result );
+		$resultBuilder = $this->getResultBuilder( $result, null, $isRawMode );
 		$resultBuilder->addClaims( array( $statement ), $path );
 
 		$data = $result->getResultData();
@@ -782,11 +1014,11 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider statementSerializationProvider
 	 */
-	public function testAddClaim( Statement $statement, $statementSerialization ) {
+	public function testAddClaim( Statement $statement, $isRawMode, $statementSerialization ) {
 		$result = $this->getDefaultResult();
 		$expected = array( 'claim' => $statementSerialization );
 
-		$resultBuilder = $this->getResultBuilder( $result );
+		$resultBuilder = $this->getResultBuilder( $result, null, $isRawMode );
 		$resultBuilder->addClaim( $statement );
 
 		$data = $result->getResultData();
@@ -857,8 +1089,71 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 			),
 		);
 
+		$expectedRawModeSerialization = array(
+			'id' => 'fooguidbar',
+			'mainsnak' => array(
+				'snaktype' => 'value',
+				'property' => 'P12',
+				'datavalue' => array(
+					'value' => 'stringVal',
+					'type' => 'string',
+				),
+				'datatype' => 'DtIdFor_P12',
+			),
+			'type' => 'statement',
+			'rank' => 'normal',
+			'qualifiers-order' => array(
+				'P12',
+				'_element' => 'property',
+			),
+			'references' => array(
+				array(
+					'hash' => '2f543336756784850a310cbc52a9307e467c7c42',
+					'snaks' => array(
+						array(
+							'id' => 'P12',
+							array(
+								'snaktype' => 'value',
+								'property' => 'P12',
+								'datatype' => 'DtIdFor_P12',
+								'datavalue' => array(
+									'value' => 'refSnakVal',
+									'type' => 'string',
+								),
+							),
+							'_element' => 'snak',
+						),
+						'_element' => 'property',
+					),
+					'snaks-order' => array(
+						'P12',
+						'_element' => 'property',
+					),
+				),
+				'_element' => 'reference',
+			),
+			'qualifiers' => array(
+				array(
+					'id' => 'P12',
+					array(
+						'snaktype' => 'value',
+						'property' => 'P12',
+						'datatype' => 'DtIdFor_P12',
+						'datavalue' => array(
+							'value' => 'qualiferVal',
+							'type' => 'string',
+						),
+						'hash' => '67423e8a140238decaa9156be1e3ba23513b3b19',
+					),
+					'_element' => 'qualifiers',
+				),
+				'_element' => 'property',
+			),
+		);
+
 		return array(
-			array( $statement, $expectedSerialization ),
+			array( $statement, false, $expectedSerialization ),
+			array( $statement, true, $expectedRawModeSerialization ),
 		);
 	}
 

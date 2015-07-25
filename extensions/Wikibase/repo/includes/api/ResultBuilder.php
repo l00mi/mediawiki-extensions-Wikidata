@@ -14,6 +14,9 @@ use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Term\AliasGroup;
+use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\EntityRevision;
@@ -369,7 +372,10 @@ class ResultBuilder {
 
 			//FIXME: $props should be used to filter $entitySerialization!
 			// as in, $entitySerialization = array_intersect_key( $entitySerialization, array_flip( $props ) )
-			$entitySerializer = $this->libSerializerFactory->newSerializerForObject( $entity, $serializerOptions );
+			$entitySerializer = $this->libSerializerFactory->newSerializerForEntity(
+				$entity->getType(),
+				$serializerOptions
+			);
 			$entitySerialization = $entitySerializer->getSerialized( $entity );
 
 			if ( !empty( $siteIds ) && array_key_exists( 'sitelinks', $entitySerialization ) ) {
@@ -478,16 +484,24 @@ class ResultBuilder {
 	}
 
 	/**
-	 * Get serialized aliases and add them to result
+	 * Get serialized AliasGroupList and add it to result
 	 *
 	 * @since 0.5
 	 *
-	 * @param array $aliases the aliases to set in the result
+	 * @param AliasGroupList $aliasGroupList the AliasGroupList to set in the result
 	 * @param array|string $path where the data is located
 	 */
-	public function addAliases( array $aliases, $path ) {
-		$aliasSerializer = $this->libSerializerFactory->newAliasSerializer( $this->getOptions() );
-		$values = $aliasSerializer->getSerialized( $aliases );
+	public function addAliasGroupList( AliasGroupList $aliasGroupList, $path ) {
+		if ( $this->isRawMode ) {
+			$serializer = $this->serializerFactory->newAliasGroupSerializer();
+			$values = array();
+			foreach ( $aliasGroupList->toArray() as $aliasGroup ) {
+				$values = array_merge( $values, $serializer->serialize( $aliasGroup ) );
+			}
+		} else {
+			$serializer = $this->serializerFactory->newAliasGroupListSerializer();
+			$values = $serializer->serialize( $aliasGroupList );
+		}
 		$this->setList( $path, 'aliases', $values, 'alias' );
 	}
 
@@ -587,14 +601,78 @@ class ResultBuilder {
 	 * @since 0.5
 	 */
 	public function addClaim( Claim $claim ) {
-		$serializer = $this->libSerializerFactory->newClaimSerializer( $this->getOptions() );
+		$serializer = $this->serializerFactory->newStatementSerializer();
 
 		//TODO: this is currently only used to add a Claim as the top level structure,
 		//      with a null path and a fixed name. Would be nice to also allow claims
 		//      to be added to a list, using a path and a id key or index.
 
-		$value = $serializer->getSerialized( $claim );
+		$value = $serializer->serialize( $claim );
+
+		/**
+		 * Below we force an empty qualifiers and qualifiers-order element in the output.
+		 * This is to make sure we dont break anything that assumes this is always here.
+		 * This hack was added when moving away from the Lib serializers
+		 */
+		if ( !isset( $value['qualifiers'] ) ) {
+			$value['qualifiers'] = array();
+		}
+		if ( !isset( $value['qualifiers-order'] ) ) {
+			$value['qualifiers-order'] = array();
+		}
+
+		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'references/*/snaks' );
+		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'qualifiers' );
+		$value = $this->modifier->modifyUsingCallback(
+			$value,
+			'mainsnak',
+			$this->getModCallbackToAddDataTypeToSnak()
+		);
+
+		if ( $this->isRawMode ) {
+			$value = $this->getRawModeClaimArray( $value );
+		}
+
 		$this->setValue( null, 'claim', $value );
+	}
+
+	private function getRawModeClaimArray( $array ) {
+		$rawModeModifications = array(
+			'references/*/snaks/*' => array(
+				$this->getModCallbackToIndexTags( 'snak' ),
+			),
+			'references/*/snaks' => array(
+				$this->getModCallbackToRemoveKeys( 'id' ),
+				$this->getModCallbackToIndexTags( 'property' ),
+			),
+			'references/*/snaks-order' => array(
+				$this->getModCallbackToIndexTags( 'property' )
+			),
+			'references' => array(
+				$this->getModCallbackToIndexTags( 'reference' ),
+			),
+			'qualifiers/*' => array(
+				$this->getModCallbackToIndexTags( 'qualifiers' ),
+			),
+			'qualifiers' => array(
+				$this->getModCallbackToRemoveKeys( 'id' ),
+				$this->getModCallbackToIndexTags( 'property' ),
+			),
+			'qualifiers-order' => array(
+				$this->getModCallbackToIndexTags( 'property' )
+			),
+			'mainsnak' => array(
+				$this->getModCallbackToAddDataTypeToSnak(),
+			),
+		);
+
+		foreach ( $rawModeModifications as $path => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$array = $this->modifier->modifyUsingCallback( $array, $path, $callback );
+			}
+		}
+
+		return $array;
 	}
 
 	/**
@@ -613,8 +691,7 @@ class ResultBuilder {
 
 		$value = $serializer->serialize( $reference );
 
-		$value = $this->getReferenceArrayWithNoSnakHashes( $value );
-		$value = $this->getReferenceArrayWithValueDataTypes( $value );
+		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'snaks' );
 
 		if ( $this->isRawMode ) {
 			$value = $this->getRawModeReferenceArray( $value );
@@ -623,36 +700,18 @@ class ResultBuilder {
 		$this->setValue( null, 'reference', $value );
 	}
 
-	private function getReferenceArrayWithNoSnakHashes( $array ) {
-		return $this->modifier->modifyUsingCallback( $array, 'snaks', function ( $array ) {
-			foreach ( $array as $propertyIdGroupKey => &$snakGroup ) {
-				foreach ( $snakGroup as &$snak ) {
-					unset( $snak['hash'] );
-				}
-			}
-			return $array;
-		} );
-	}
-
-	private function getReferenceArrayWithValueDataTypes( $array ) {
-		$dtLookup = $this->dataTypeLookup;
-		return $this->modifier->modifyUsingCallback( $array, 'snaks', function ( $array ) use ( $dtLookup ) {
-			foreach ( $array as $propertyIdGroupKey => &$snakGroup ) {
-				$dataType = $dtLookup->getDataTypeIdForProperty( new PropertyId( $propertyIdGroupKey ) );
-				foreach ( $snakGroup as &$snak ) {
-					/**
-					 * TODO: We probably want to return the datatype for NoValue and SomeValue snaks too
-					 *       but this is not done by the LibSerializers thus not done here.
-					 * TODO: Also DataModelSerialization has a TypedSnak object and serializer which we
-					 *       might be able to use in some way here
-					 */
-					if ( $snak['snaktype'] === 'value' ) {
-						$snak['datatype'] = $dataType;
-					}
-				}
-			}
-			return $array;
-		} );
+	/**
+	 * @param array $array
+	 * @param string $path
+	 *
+	 * @return array
+	 */
+	private function getArrayWithDataTypesInGroupedSnakListAtPath( array $array, $path ) {
+		return $this->modifier->modifyUsingCallback(
+			$array,
+			$path,
+			$this->getModCallbackToAddDataTypeToSnaksGroupedByProperty()
+		);
 	}
 
 	private function getRawModeReferenceArray( $array ) {
@@ -745,6 +804,77 @@ class ResultBuilder {
 
 			$this->setValue( $path, 'lastrevid', empty( $revisionId ) ? 0 : $revisionId );
 		}
+	}
+
+	/**
+	 * Get callable to index array with the given tag name
+	 *
+	 * @param string $tagName
+	 *
+	 * @return callable
+	 */
+	private function getModCallbackToIndexTags( $tagName ) {
+		return function( $array ) use ( $tagName ) {
+			ApiResult::setIndexedTagName( $array, $tagName );
+			return $array;
+		};
+	}
+
+	/**
+	 * Get callable to remove array keys and optionally set the key as an array value
+	 *
+	 * @param string|null $addAsArrayElement
+	 *
+	 * @return callable
+	 */
+	private function getModCallbackToRemoveKeys( $addAsArrayElement = null ) {
+		return function ( $array ) use ( $addAsArrayElement ) {
+			if ( $addAsArrayElement !== null ) {
+				foreach ( $array as $key => &$value ) {
+					$value[$addAsArrayElement] = $key;
+				}
+			}
+			$array = array_values( $array );
+			return $array;
+		};
+	}
+
+	private function getModCallbackToAddDataTypeToSnaksGroupedByProperty() {
+		$dtLookup = $this->dataTypeLookup;
+		return function ( $array ) use ( $dtLookup ) {
+			foreach ( $array as $propertyIdGroupKey => &$snakGroup ) {
+				$dataType = $dtLookup->getDataTypeIdForProperty( new PropertyId( $propertyIdGroupKey ) );
+				foreach ( $snakGroup as &$snak ) {
+					/**
+					 * TODO: We probably want to return the datatype for NoValue and SomeValue snaks too
+					 *       but this is not done by the LibSerializers thus not done here.
+					 * TODO: Also DataModelSerialization has a TypedSnak object and serializer which we
+					 *       might be able to use in some way here
+					 */
+					if ( $snak['snaktype'] === 'value' ) {
+						$snak['datatype'] = $dataType;
+					}
+				}
+			}
+			return $array;
+		};
+	}
+
+	private function getModCallbackToAddDataTypeToSnak() {
+		$dtLookup = $this->dataTypeLookup;
+		return function ( $array ) use ( $dtLookup ) {
+			$dataType = $dtLookup->getDataTypeIdForProperty( new PropertyId( $array['property'] ) );
+			/**
+			 * TODO: We probably want to return the datatype for NoValue and SomeValue snaks too
+			 *       but this is not done by the LibSerializers thus not done here.
+			 * TODO: Also DataModelSerialization has a TypedSnak object and serializer which we
+			 *       might be able to use in some way here
+			 */
+			if ( $array['snaktype'] === 'value' ) {
+				$array['datatype'] = $dataType;
+			}
+			return $array;
+		};
 	}
 
 }

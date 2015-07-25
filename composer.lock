@@ -1326,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "d707ba8c93dfeef900846d21ba1f440f3ee8acac"
+                "reference": "85b38a78c24e4f34df4dc4cf48a46e66c4ac8887"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d707ba8c93dfeef900846d21ba1f440f3ee8acac",
-                "reference": "d707ba8c93dfeef900846d21ba1f440f3ee8acac",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/85b38a78c24e4f34df4dc4cf48a46e66c4ac8887",
+                "reference": "85b38a78c24e4f34df4dc4cf48a46e66c4ac8887",
                 "shasum": ""
             },
             "require": {
@@ -1350,7 +1350,7 @@
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~3.0",
                 "wikibase/data-model-javascript": "^1.0.2",
-                "wikibase/data-model-serialization": "~1.6",
+                "wikibase/data-model-serialization": "~1.7",
                 "wikibase/internal-serialization": "~1.4",
                 "wikibase/javascript-api": "~1.0",
                 "wikibase/serialization-javascript": "~2.0"
@@ -1399,7 +1399,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-07-23 21:03:57"
+            "time": "2015-07-24 20:17:12"
         },
         {
             "name": "wikibase/wikimedia-badges",
