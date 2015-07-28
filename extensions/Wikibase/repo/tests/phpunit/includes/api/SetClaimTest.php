@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use DataValues\NumberValue;
 use DataValues\StringValue;
@@ -20,11 +20,12 @@ use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Lib\ClaimGuidGenerator;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
+use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\SetClaim
+ * @covers Wikibase\Repo\Api\SetClaim
  *
  * @group API
  * @group Database
@@ -145,8 +146,8 @@ class SetClaimTest extends WikibaseApiTestCase {
 				// Simply reorder the qualifiers by putting the first qualifier to the end. This is
 				// supposed to be done in the serialized representation since changing the actual
 				// object might apply intrinsic sorting.
-				$serializerFactory = new SerializerFactory();
-				$serializer = $serializerFactory->newSerializerForObject( $statement );
+				$serializerFactory = new LibSerializerFactory();
+				$serializer = $serializerFactory->newClaimSerializer( new SerializationOptions() );
 				$serializedClaim = $serializer->getSerialized( $statement );
 				$firstPropertyId = array_shift( $serializedClaim['qualifiers-order'] );
 				array_push( $serializedClaim['qualifiers-order'], $firstPropertyId );
@@ -295,13 +296,13 @@ class SetClaimTest extends WikibaseApiTestCase {
 		$baserevid = null,
 		$error = null
 	) {
-		$serializerFactory = new SerializerFactory();
+		$serializerFactory = new LibSerializerFactory();
 
 		if ( $claim instanceof Statement ) {
-			$serializer = $serializerFactory->newSerializerForObject( $claim );
+			$serializer = $serializerFactory->newClaimSerializer( new SerializationOptions() );
 			$serializedClaim = $serializer->getSerialized( $claim );
 		} else {
-			$unserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Claim\Claim' );
+			$unserializer = $serializerFactory->newClaimUnserializer( new SerializationOptions() );
 			$serializedClaim = $claim;
 			$claim = $unserializer->newFromSerialization( $serializedClaim );
 		}
@@ -392,10 +393,10 @@ class SetClaimTest extends WikibaseApiTestCase {
 	}
 
 	/**
-	 * @see Bug 58394 - "specified index out of bounds" issue when moving a statement
+	 * @see Bug T60394 - "specified index out of bounds" issue when moving a statement
 	 * @note A hack is  in place in ChangeOpStatement to allow this
 	 */
-	public function testBug58394SpecifiedIndexOutOfBounds() {
+	public function testBugT60394SpecifiedIndexOutOfBounds() {
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 
 		// Initialize item content with empty claims:
@@ -423,7 +424,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 
 	public function testBadPropertyError() {
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
-		$serializerFactory = new SerializerFactory();
+		$serializerFactory = new LibSerializerFactory();
 
 		$property = Property::newFromType( 'quantity' );
 		$property = $store->saveEntity( $property, '', $GLOBALS['wgUser'], EDIT_NEW )->getEntity();
@@ -446,7 +447,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 
 		$badClaim = new Statement( new PropertyNoValueSnak( $badProperty->getId() ) );
 
-		$serializer = $serializerFactory->newSerializerForObject( $statement );
+		$serializer = $serializerFactory->newClaimSerializer( new SerializationOptions() );
 		$serializedBadClaim = $serializer->getSerialized( $badClaim );
 
 		$params = array(

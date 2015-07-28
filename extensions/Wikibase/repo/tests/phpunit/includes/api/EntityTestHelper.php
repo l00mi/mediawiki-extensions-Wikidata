@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use OutOfBoundsException;
 
@@ -314,7 +314,7 @@ class EntityTestHelper {
 		$props[] = 'type'; // always return the type so we can demobilize
 		foreach ( $props as $prop ) {
 			if ( array_key_exists( $prop, $entityOutput ) ) {
-				$entityProps[ $prop ] = $entityOutput[ $prop ] ;
+				$entityProps[ $prop ] = $entityOutput[ $prop ];
 			}
 		}
 		foreach ( $entityProps as $prop => $value ) {
@@ -401,7 +401,6 @@ class EntityTestHelper {
 		}
 		return null;
 	}
-
 
 	/**
 	 * Applies $idMap to all data in the given data structure, recursively.

@@ -1,17 +1,16 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
-use InvalidArgumentException;
-use OutOfBoundsException;
+use DataValues\Deserializers\DataValueDeserializer;
+use Deserializers\Exceptions\DeserializationException;
 use Wikibase\ChangeOp\ChangeOpReference;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
+use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\Serializers\SerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -31,6 +30,16 @@ class SetReference extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
+	 * @var DeserializerFactory
+	 */
+	private $deserializerFactory;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -38,8 +47,16 @@ class SetReference extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
+		$this->deserializerFactory = new DeserializerFactory(
+			$wikibaseRepo->getDataValueDeserializer(),
+			$wikibaseRepo->getEntityIdParser()
+		);
 	}
 
 	/**
@@ -52,41 +69,49 @@ class SetReference extends ModifyClaim {
 		$this->validateParameters( $params );
 
 		$entityId = $this->guidParser->parse( $params['statement'] )->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 
 		$summary = $this->modificationHelper->createSummary( $params, $this );
 
 		$claim = $this->modificationHelper->getStatementFromEntity( $params['statement'], $entity );
 
-		if ( ! ( $claim instanceof Statement ) ) {
-			$this->dieError( 'The referenced claim is not a statement and thus cannot have references', 'not-statement' );
-		}
-
 		if ( isset( $params['reference'] ) ) {
 			$this->validateReferenceHash( $claim, $params['reference'] );
 		}
 
-		if( isset( $params['snaks-order' ] ) ) {
+		if ( isset( $params['snaks-order' ] ) ) {
 			$snaksOrder = $this->getArrayFromParam( $params['snaks-order'] );
 		} else {
 			$snaksOrder = array();
 		}
 
-		$newReference = new Reference(
-			$this->getSnaks(
-				$this->getArrayFromParam( $params['snaks'] ),
-				$snaksOrder
-			)
-		);
+		$deserializer = $this->deserializerFactory->newSnakListDeserializer();
+		/** @var SnakList $snakList */
+		try{
+			$snakList = $deserializer->deserialize( $this->getArrayFromParam( $params['snaks'] ) );
+		} catch ( DeserializationException $e ) {
+			$this->errorReporter->dieError(
+				'Failed to get reference from reference Serialization ' . $e->getMessage(),
+				'snak-instantiation-failure'
+			);
+		}
+		$snakList->orderByProperty( $snaksOrder );
+
+		$newReference = new Reference( $snakList );
 
 		$changeOp = $this->getChangeOp( $newReference );
 		$this->modificationHelper->applyChangeOp( $changeOp, $entity, $summary );
 
-		$this->saveChanges( $entity, $summary );
-		$this->getResultBuilder()->markSuccess();
-		$this->getResultBuilder()->addReference( $newReference );
+		$status = $this->saveChanges( $entity, $summary );
+		$resultBuilder = $this->getResultBuilder();
+		$resultBuilder->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
+		$resultBuilder->markSuccess();
+		$resultBuilder->addReference( $newReference );
 	}
 
 	/**
@@ -94,7 +119,7 @@ class SetReference extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['statement'] ) ) ) {
-			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 	}
 
@@ -104,7 +129,10 @@ class SetReference extends ModifyClaim {
 	 */
 	private function validateReferenceHash( Statement $claim, $referenceHash ) {
 		if ( !$claim->getReferences()->hasReferenceHash( $referenceHash ) ) {
-			$this->dieError( "Claim does not have a reference with the given hash" , 'no-such-reference' );
+			$this->errorReporter->dieError(
+				'Claim does not have a reference with the given hash',
+				'no-such-reference'
+			);
 		}
 	}
 
@@ -117,58 +145,10 @@ class SetReference extends ModifyClaim {
 		$rawArray = json_decode( $arrayParam, true );
 
 		if ( !is_array( $rawArray ) || !count( $rawArray ) ) {
-			$this->dieError( 'No array or invalid JSON given', 'invalid-json' );
+			$this->errorReporter->dieError( 'No array or invalid JSON given', 'invalid-json' );
 		}
 
 		return $rawArray;
-	}
-
-	/**
-	 * @param array $rawSnaks array of snaks
-	 * @param array $snakOrder array of property ids the snaks are supposed to be ordered by.
-	 *
-	 * @todo: Factor deserialization out of the API class.
-	 *
-	 * @return SnakList
-	 */
-	private function getSnaks( array $rawSnaks, array $snakOrder = array() ) {
-		$snaks = new SnakList();
-
-		$serializerFactory = new SerializerFactory();
-		$snakUnserializer = $serializerFactory->newUnserializerForClass( 'Wikibase\DataModel\Snak\Snak' );
-
-		$snakOrder = ( count( $snakOrder ) > 0 ) ? $snakOrder : array_keys( $rawSnaks );
-
-		try {
-			foreach( $snakOrder as $propertyId ) {
-				if ( !is_array( $rawSnaks[$propertyId] ) ) {
-					$this->dieError( 'Invalid snak JSON given', 'invalid-json' );
-				}
-				foreach ( $rawSnaks[$propertyId] as $rawSnak ) {
-					if ( !is_array( $rawSnak ) ) {
-						$this->dieError( 'Invalid snak JSON given', 'invalid-json' );
-					}
-
-					$snak = $snakUnserializer->newFromSerialization( $rawSnak );
-					$snaks[] = $snak;
-				}
-			}
-		} catch( InvalidArgumentException $invalidArgumentException ) {
-			// Handle Snak instantiation failures
-			$this->dieError(
-				'Failed to get reference from reference Serialization '
-					. $invalidArgumentException->getMessage(),
-				'snak-instantiation-failure'
-			);
-		} catch( OutOfBoundsException $outOfBoundsException ) {
-			$this->dieError(
-				'Failed to get reference from reference Serialization '
-					. $outOfBoundsException->getMessage(),
-				'snak-instantiation-failure'
-			);
-		}
-
-		return $snaks;
 	}
 
 	/**
@@ -193,21 +173,21 @@ class SetReference extends ModifyClaim {
 		return array_merge(
 			array(
 				'statement' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
 				),
 				'snaks' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'text',
+					self::PARAM_REQUIRED => true,
 				),
 				'snaks-order' => array(
-					ApiBase::PARAM_TYPE => 'string',
+					self::PARAM_TYPE => 'string',
 				),
 				'reference' => array(
-					ApiBase::PARAM_TYPE => 'string',
+					self::PARAM_TYPE => 'string',
 				),
 				'index' => array(
-					ApiBase::PARAM_TYPE => 'integer',
+					self::PARAM_TYPE => 'integer',
 				),
 			),
 			parent::getAllowedParams()
@@ -219,11 +199,18 @@ class SetReference extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks={"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string","value":"foo"}}]}&baserevid=7201010&token=foobar'
+			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks='
+				. '{"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string",'
+				. '"value":"foo"}}]}&baserevid=7201010&token=foobar'
 				=> 'apihelp-wbsetreference-example-1',
-			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&reference=1eb8793c002b1d9820c833d234a1b54c8e94187e&snaks={"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string","value":"bar"}}]}&baserevid=7201010&token=foobar'
+			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF'
+				. '&reference=1eb8793c002b1d9820c833d234a1b54c8e94187e&snaks='
+				. '{"P212":[{"snaktype":"value","property":"P212","datavalue":{"type":"string",'
+				. '"value":"bar"}}]}&baserevid=7201010&token=foobar'
 				=> 'apihelp-wbsetreference-example-2',
-			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks={"P212":[{"snaktype":"novalue","property":"P212"}]}&index=0&baserevid=7201010&token=foobar'
+			'action=wbsetreference&statement=Q76$D4FDE516-F20C-4154-ADCE-7C5B609DFDFF&snaks='
+				. '{"P212":[{"snaktype":"novalue","property":"P212"}]}'
+				. '&index=0&baserevid=7201010&token=foobar'
 				=> 'apihelp-wbsetreference-example-3',
 		);
 	}

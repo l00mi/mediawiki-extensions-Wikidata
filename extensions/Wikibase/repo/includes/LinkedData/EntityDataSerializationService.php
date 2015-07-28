@@ -10,11 +10,14 @@ use DerivativeRequest;
 use MWException;
 use RequestContext;
 use SiteList;
-use Wikibase\Api\ResultBuilder;
+use Wikibase\RedirectRevision;
+use SiteStore;
+use Wikibase\Repo\Api\ResultBuilder;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -80,6 +83,11 @@ class EntityDataSerializationService {
 	private $entityTitleLookup;
 
 	/**
+	 * @var LibSerializerFactory
+	 */
+	private $libSerializerFactory;
+
+	/**
 	 * @var SerializerFactory
 	 */
 	private $serializerFactory;
@@ -105,13 +113,21 @@ class EntityDataSerializationService {
 	private $rdfWriterFactory;
 
 	/**
+	 * @var SiteStore
+	 */
+	private $siteStore;
+
+	/**
 	 * @param string $rdfBaseURI
 	 * @param string $rdfDataURI
 	 * @param EntityLookup $entityLookup
 	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param SerializerFactory $serializerFactory
+	 * @param LibSerializerFactory $libSerializerFactory
 	 * @param PropertyDataTypeLookup $propertyLookup
+	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param SiteList $sites
+	 * @param SerializerFactory $serializerFactory
+	 * @param SiteStore $siteStore
 	 *
 	 * @since 0.4
 	 */
@@ -120,19 +136,23 @@ class EntityDataSerializationService {
 		$rdfDataURI,
 		EntityLookup $entityLookup,
 		EntityTitleLookup $entityTitleLookup,
-		SerializerFactory $serializerFactory,
+		LibSerializerFactory $libSerializerFactory,
 		PropertyDataTypeLookup $propertyLookup,
 		SiteList $sites,
-		EntityDataFormatProvider $entityDataFormatProvider
+		EntityDataFormatProvider $entityDataFormatProvider,
+		SerializerFactory $serializerFactory,
+		SiteStore $siteStore
 	) {
 		$this->rdfBaseURI = $rdfBaseURI;
 		$this->rdfDataURI = $rdfDataURI;
 		$this->entityLookup = $entityLookup;
 		$this->entityTitleLookup = $entityTitleLookup;
+		$this->libSerializerFactory = $libSerializerFactory;
 		$this->serializerFactory = $serializerFactory;
 		$this->propertyLookup = $propertyLookup;
 		$this->sites = $sites;
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
+		$this->siteStore = $siteStore;
 
 		$this->rdfWriterFactory = new RdfWriterFactory();
 	}
@@ -184,7 +204,7 @@ class EntityDataSerializationService {
 	 *
 	 * @param string $format The name (mime type of file extension) of the format to use
 	 * @param EntityRevision $entityRevision The entity
-	 * @param EntityRedirect|null $followedRedirect The redirect that led to the entity, or null
+	 * @param RedirectRevision|null $followedRedirect The redirect that led to the entity, or null
 	 * @param EntityId[] $incomingRedirects Incoming redirects to include in the output
 	 * @param string|null $flavor The type of the output provided by serializer
 	 *
@@ -194,7 +214,7 @@ class EntityDataSerializationService {
 	public function getSerializedData(
 		$format,
 		EntityRevision $entityRevision,
-		EntityRedirect $followedRedirect = null,
+		RedirectRevision $followedRedirect = null,
 		array $incomingRedirects = array(),
 		$flavor = null
 	) {
@@ -208,7 +228,8 @@ class EntityDataSerializationService {
 		$serializer = $this->createApiSerializer( $formatName );
 
 		if( $serializer ) {
-			$data = $this->apiSerialize( $entityRevision, $followedRedirect, $incomingRedirects, $serializer );
+			$redirect = ( $followedRedirect ? $followedRedirect->getRedirect() : null );
+			$data = $this->apiSerialize( $entityRevision, $redirect, $incomingRedirects, $serializer );
 			$contentType = $serializer->getIsHtml() ? 'text/html' : $serializer->getMimeType();
 		} else {
 			$rdfBuilder = $this->createRdfBuilder( $formatName, $flavor );
@@ -228,7 +249,7 @@ class EntityDataSerializationService {
 
 	/**
 	 * @param EntityRevision $entityRevision
-	 * @param EntityRedirect|null $followedRedirect a redirect leading to the entity for use in the output
+	 * @param RedirectRevision|null $followedRedirect a redirect leading to the entity for use in the output
 	 * @param EntityId[] $incomingRedirects Incoming redirects to include in the output
 	 * @param RdfBuilder $rdfBuilder
 	 * @param string|null $flavor The type of the output provided by serializer
@@ -237,20 +258,31 @@ class EntityDataSerializationService {
 	 */
 	private function rdfSerialize(
 		EntityRevision $entityRevision,
-		EntityRedirect $followedRedirect = null,
+		RedirectRevision $followedRedirect = null,
 		array $incomingRedirects,
 		RdfBuilder $rdfBuilder,
 		$flavor = null
 	) {
 		$rdfBuilder->startDocument();
+		$redir = null;
 
 		if ( $followedRedirect ) {
-			$rdfBuilder->addEntityRedirect( $followedRedirect->getEntityId(), $followedRedirect->getTargetId() );
+			$redir = $followedRedirect->getRedirect();
+			$rdfBuilder->addEntityRedirect( $redir->getEntityId(), $redir->getTargetId() );
+
+			if ( $followedRedirect->getRevisionId() > 0 ) {
+				$rdfBuilder->addEntityRevisionInfo(
+					$redir->getEntityId(),
+					$followedRedirect->getRevisionId(),
+					$followedRedirect->getTimestamp()
+				);
+			}
 		}
 
 		if ( $followedRedirect && $flavor === 'dump' ) {
 			// For redirects, don't output the target entity data if the "dump" flavor is requested.
 			// @todo: In this case, avoid loading the Entity all together.
+			// However we want to output the revisions for redirects
 		} else {
 			$rdfBuilder->addEntityRevisionInfo(
 				$entityRevision->getEntity()->getId(),
@@ -266,7 +298,7 @@ class EntityDataSerializationService {
 			// For $flavor === 'dump' we don't need to output incoming redirects.
 
 			$targetId = $entityRevision->getEntity()->getId();
-			$this->addIncomingRedirects( $targetId, $followedRedirect, $incomingRedirects, $rdfBuilder );
+			$this->addIncomingRedirects( $targetId, $redir, $incomingRedirects, $rdfBuilder );
 		}
 
 		$rdfBuilder->finishDocument();
@@ -276,11 +308,17 @@ class EntityDataSerializationService {
 
 	/**
 	 * @param EntityId $targetId
-	 * @param EntityRedirect $followedRedirect The followed redirect, will be omitted from the output
+	 * @param EntityRedirect|null $followedRedirect The followed redirect, will be omitted from the
+	 * output.
 	 * @param EntityId[] $incomingRedirects
 	 * @param RdfBuilder $rdfBuilder
 	 */
-	private function addIncomingRedirects( EntityId $targetId, EntityRedirect $followedRedirect = null, array $incomingRedirects, RdfBuilder $rdfBuilder ) {
+	private function addIncomingRedirects(
+		EntityId $targetId,
+		EntityRedirect $followedRedirect = null,
+		array $incomingRedirects,
+		RdfBuilder $rdfBuilder
+	) {
 		foreach ( $incomingRedirects as $rId ) {
 			// don't add the followed redirect again
 			if ( !$followedRedirect || !$followedRedirect->getEntityId()->equals( $rId ) ) {
@@ -343,16 +381,28 @@ class EntityDataSerializationService {
 	private function getFlavor( $flavorName ) {
 		switch( $flavorName ) {
 			case 'simple':
-				return RdfProducer::PRODUCE_TRUTHY_STATEMENTS | RdfProducer::PRODUCE_SITELINKS | RdfProducer::PRODUCE_VERSION_INFO;
+				return RdfProducer::PRODUCE_TRUTHY_STATEMENTS
+					| RdfProducer::PRODUCE_SITELINKS
+					| RdfProducer::PRODUCE_VERSION_INFO;
 			case 'full':
 				return RdfProducer::PRODUCE_ALL;
 			case 'dump':
-				return RdfProducer::PRODUCE_ALL_STATEMENTS | RdfProducer::PRODUCE_TRUTHY_STATEMENTS | RdfProducer::PRODUCE_QUALIFIERS | RdfProducer::PRODUCE_REFERENCES | RdfProducer::PRODUCE_SITELINKS | RdfProducer::PRODUCE_FULL_VALUES;
+				return RdfProducer::PRODUCE_ALL_STATEMENTS
+					| RdfProducer::PRODUCE_TRUTHY_STATEMENTS
+					| RdfProducer::PRODUCE_QUALIFIERS
+					| RdfProducer::PRODUCE_REFERENCES
+					| RdfProducer::PRODUCE_SITELINKS
+					| RdfProducer::PRODUCE_FULL_VALUES;
 			case 'long':
-				return RdfProducer::PRODUCE_ALL_STATEMENTS | RdfProducer::PRODUCE_QUALIFIERS | RdfProducer::PRODUCE_REFERENCES | RdfProducer::PRODUCE_SITELINKS | RdfProducer::PRODUCE_VERSION_INFO;
+				return RdfProducer::PRODUCE_ALL_STATEMENTS
+					| RdfProducer::PRODUCE_QUALIFIERS
+					| RdfProducer::PRODUCE_REFERENCES
+					| RdfProducer::PRODUCE_SITELINKS
+					| RdfProducer::PRODUCE_VERSION_INFO;
 			case null: // No flavor given
 				return RdfProducer::PRODUCE_SITELINKS;
 		}
+
 		throw new MWException( "Unsupported flavor: $flavorName" );
 	}
 
@@ -412,7 +462,11 @@ class EntityDataSerializationService {
 		$resultBuilder = new ResultBuilder(
 			$res,
 			$this->entityTitleLookup,
-			$this->serializerFactory
+			$this->libSerializerFactory,
+			$this->serializerFactory,
+			$this->siteStore,
+			$this->propertyLookup,
+			false // Never index tags for this service as we dont output XML
 		);
 		$resultBuilder->addEntityRevision( null, $entityRevision, $options );
 

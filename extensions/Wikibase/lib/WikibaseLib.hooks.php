@@ -39,14 +39,14 @@ final class LibHooks {
 	 * @since 0.2 (in repo as RepoHooks::onResourceLoaderTestModules in 0.1)
 	 *
 	 * @param array &$testModules
-	 * @param \ResourceLoader &$resourceLoader
+	 * @param ResourceLoader &$resourceLoader
 	 *
 	 * @return boolean
 	 */
-	public static function registerQUnitTests( array &$testModules, \ResourceLoader &$resourceLoader ) {
+	public static function registerQUnitTests( array &$testModules, ResourceLoader &$resourceLoader ) {
 		$testModules['qunit'] = array_merge(
 			$testModules['qunit'],
-			include( __DIR__ . '/tests/qunit/resources.php' )
+			include __DIR__ . '/tests/qunit/resources.php'
 		);
 
 		return true;
@@ -56,38 +56,40 @@ final class LibHooks {
 	 * Register ResourceLoader modules with dynamic dependencies.
 	 *
 	 * @param ResourceLoader $resourceLoader
+	 *
+	 * @return bool
 	 */
 	public static function onResourceLoaderRegisterModules( ResourceLoader $resourceLoader ) {
 		preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
 			. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
-		$hasULS = ExtensionRegistry::getInstance()->isLoaded( 'UniversalLanguageSelector' );
 
 		$moduleTemplate = array(
-			'localBasePath' => __DIR__ . '/resources',
+			'localBasePath' => __DIR__,
 			'remoteExtPath' => '..' . $remoteExtPath[0],
 			'position' => 'top' // reducing the time between DOM construction and JS initialisation
 		);
 
-		$dependencies = array(
-			'mediawiki.util',
-			'util.inherit',
-			'wikibase',
+		$modules = array(
+			'wikibase.Site' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.Site.js',
+				),
+				'dependencies' => array(
+					'mediawiki.util',
+					'util.inherit',
+					'wikibase',
+				),
+			),
 		);
 
-		if ( $hasULS ) {
-			$dependencies[] = 'ext.uls.mediawiki';
+		$isUlsLoaded = ExtensionRegistry::getInstance()->isLoaded( 'UniversalLanguageSelector' );
+		if ( $isUlsLoaded ) {
+			$modules['wikibase.Site']['dependencies'][] = 'ext.uls.mediawiki';
 		}
 
-		$resourceLoader->register(
-			'wikibase.Site',
-			$moduleTemplate + array(
-				'scripts' => array(
-					'wikibase.Site.js',
-				),
-				'dependencies' => $dependencies,
-			)
-		);
+		$resourceLoader->register( $modules );
 
 		return true;
 	}
+
 }

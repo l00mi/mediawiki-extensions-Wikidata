@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
@@ -14,7 +14,7 @@ use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LabelDescriptionLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
-use Wikibase\Repo\Interactors\TermSearchInteractor;
+use Wikibase\Repo\Interactors\TermSearchResult;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\TermIndex;
 use Wikibase\TermIndexEntry;
@@ -135,7 +135,7 @@ class SearchEntities extends ApiBase {
 	 * @param bool $prefixSearch
 	 * @param bool $strictLanguage
 	 *
-	 * @return array[]
+	 * @return TermSearchResult[]
 	 */
 	private function searchEntities( $text, $entityType, $languageCode, $limit, $prefixSearch, $strictLanguage ) {
 		$this->termIndexSearchInteractor->setLimit( $limit );
@@ -161,7 +161,7 @@ class SearchEntities extends ApiBase {
 	 * @return array[]
 	 */
 	private function getSearchEntries( array $params ) {
-		$matches = $this->getRankedMatches(
+		$searchResults = $this->getRankedSearchResults(
 			$params['search'],
 			$params['type'],
 			$params['language'],
@@ -170,24 +170,28 @@ class SearchEntities extends ApiBase {
 		);
 
 		$entries = array();
-		foreach ( $matches as $match ) {
+		foreach ( $searchResults as $match ) {
 			//TODO: use EntityInfoBuilder, EntityInfoTermLookup
-			$title = $this->titleLookup->getTitleForId(
-				$match['entityId']
-			);
+			$title = $this->titleLookup->getTitleForId( $match->getEntityId() );
 			$entry = array();
-			$entry['id'] = $match['entityId'];
+			$entry['id'] = $match->getEntityId()->getSerialization();
 			$entry['url'] = $title->getFullUrl();
-			$entry = array_merge( $entry, $this->termsToArray( $match['displayTerms'] ) );
-			$entry['match']['type'] = $match[TermIndexSearchInteractor::MATCHEDTERMTYPE_KEY];
+			$displayLabel = $match->getDisplayLabel();
+			if ( !is_null( $displayLabel ) ) {
+				$entry['label'] = $displayLabel->getText();
+			}
+			$displayDescription = $match->getDisplayDescription();
+			if ( !is_null( $displayDescription ) ) {
+				$entry['description'] = $displayDescription->getText();
+			}
+			$entry['match']['type'] = $match->getMatchedTermType();
 
 			//Special handling for 'entityId's as these are not actually Term objects
 			if ( $entry['match']['type'] === 'entityId' ) {
-				$entry['match']['text'] = $match['entityId'];
-				$entry['aliases'] = array( $match['entityId'] );
+				$entry['match']['text'] = $entry['id'];
+				$entry['aliases'] = array( $entry['id'] );
 			} else {
-				/** @var Term $matchedTerm */
-				$matchedTerm = $match[TermIndexSearchInteractor::MATCHEDTERM_KEY];
+				$matchedTerm = $match->getMatchedTerm();
 				$matchedTermText = $matchedTerm->getText();
 				$entry['match']['language'] = $matchedTerm->getLanguageCode();
 				$entry['match']['text'] = $matchedTermText;
@@ -198,29 +202,12 @@ class SearchEntities extends ApiBase {
 				 * XXX: This appears odd but is used in the UI / Entity suggesters
 				 */
 				if ( !array_key_exists( 'label', $entry ) || $matchedTermText != $entry['label'] ) {
-					$entry['aliases'] = array( $matchedTermText );
+					$entry['aliases'] = array( $matchedTerm->getText() );
 				}
 			}
 			$entries[] = $entry;
 		}
 		return $entries;
-	}
-
-	/**
-	 * @param Term[]|string[] $terms
-	 *
-	 * @return array[]
-	 */
-	private function termsToArray( array $terms ) {
-		$termArray = array();
-		foreach ( $terms as $key => $term ) {
-			if( $term instanceof Term ) {
-				$termArray[$key] = $term->getText();
-			} else {
-				$termArray[$key] = $term;
-			}
-		}
-		return $termArray;
 	}
 
 	/**
@@ -255,22 +242,22 @@ class SearchEntities extends ApiBase {
 	 * @param int $limit
 	 * @param bool $strictLanguage
 	 *
-	 * @return array[] Key: string Serialized EntityId
-	 *           Value: array( entityId => EntityId, displayTerms => Term[], matchedTerm => Term, matchedTermType => string )
-	 *           Note: both arrays have possible keys Wikibase\TermIndexEntry::TYPE_*
+	 * @return TermSearchResult[] Key: string Serialized EntityId
 	 */
-	private function getRankedMatches( $text, $entityType, $languageCode, $limit, $strictLanguage ) {
+	private function getRankedSearchResults( $text, $entityType, $languageCode, $limit, $strictLanguage ) {
 		$allSearchResults = array();
 
 		// If $text is the ID of an existing item, include it in the result.
 		$entityId = $this->getExactMatchForEntityId( $text, $entityType );
 		if ( $entityId !== null ) {
-			// This is nothing to do with terms, but make it look like it is so it is easy to handle
-			$allSearchResults[$entityId->getSerialization()] = array(
-				TermSearchInteractor::ENTITYID_KEY => $entityId,
-				TermSearchInteractor::DISPLAYTERMS_KEY => $this->termsToArray( $this->getDisplayTerms( $entityId ) ),
-				// Pretend that the entityId is a type of term so it can be output
-				TermSearchInteractor::MATCHEDTERMTYPE_KEY => 'entityId',
+			// This is nothing to do with terms, but make it look a normal result so everything is easier
+			$displayTerms = $this->getDisplayTerms( $entityId );
+			$allSearchResults[$entityId->getSerialization()] = new TermSearchResult(
+				new Term( 'qid', $entityId->getSerialization() ),
+				'entityId',
+				$entityId,
+				$displayTerms['label'],
+				$displayTerms['description']
 			);
 		}
 
@@ -306,18 +293,16 @@ class SearchEntities extends ApiBase {
 	}
 
 	/**
-	 * @param array[] $searchResults
-	 * @param array[] $newSearchResults
+	 * @param TermSearchResult[] $searchResults
+	 * @param TermSearchResult[] $newSearchResults
 	 * @param int $limit
 	 *
-	 * @return array
+	 * @return TermSearchResult[]
 	 */
 	private function mergeSearchResults( $searchResults, $newSearchResults, $limit ) {
 		$searchResultEntityIdSerializations = array_keys( $searchResults );
 		foreach ( $newSearchResults as $searchResultToAdd ) {
-			/** @var EntityId $entityId */
-			$entityId = $searchResultToAdd[TermSearchInteractor::ENTITYID_KEY];
-			$entityIdString = $entityId->getSerialization();
+			$entityIdString = $searchResultToAdd->getEntityId()->getSerialization();
 			if ( !in_array( $entityIdString, $searchResultEntityIdSerializations ) ) {
 				$searchResults[$entityIdString] = $searchResultToAdd;
 				$searchResultEntityIdSerializations[] = $entityIdString;
@@ -333,19 +318,19 @@ class SearchEntities extends ApiBase {
 	/**
 	 * @param EntityId $entityId
 	 *
-	 * @return Term[] array with possible keys TermIndexEntry::TYPE_*
+	 * @return Term[] array with keys 'label' and 'description'
 	 */
 	private function getDisplayTerms( EntityId $entityId ) {
 		$displayTerms = array();
 		try{
-			$displayTerms[TermIndexEntry::TYPE_LABEL] = $this->labelDescriptionLookup->getLabel( $entityId );
+			$displayTerms['label'] = $this->labelDescriptionLookup->getLabel( $entityId );
 		} catch ( OutOfBoundsException $e ) {
-			// Ignore
+			$displayTerms['label'] = null;
 		};
 		try{
-			$displayTerms[TermIndexEntry::TYPE_DESCRIPTION] = $this->labelDescriptionLookup->getDescription( $entityId );
+			$displayTerms['description'] = $this->labelDescriptionLookup->getDescription( $entityId );
 		} catch ( OutOfBoundsException $e ) {
-			// Ignore
+			$displayTerms['description'] = null;
 		};
 		return $displayTerms;
 	}
@@ -383,7 +368,7 @@ class SearchEntities extends ApiBase {
 
 		// Only pass search-continue param if there are more results and the maximum continuation
 		// limit is not exceeded.
-		if ( $hits > $nextContinuation && $nextContinuation <= ApiBase::LIMIT_SML1 ) {
+		if ( $hits > $nextContinuation && $nextContinuation <= self::LIMIT_SML1 ) {
 			$this->getResult()->addValue(
 				null,
 				'search-continue',
@@ -413,32 +398,32 @@ class SearchEntities extends ApiBase {
 	protected function getAllowedParams() {
 		return array(
 			'search' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true,
+				self::PARAM_TYPE => 'string',
+				self::PARAM_REQUIRED => true,
 			),
 			'language' => array(
-				ApiBase::PARAM_TYPE => $this->termsLanguages->getLanguages(),
-				ApiBase::PARAM_REQUIRED => true,
+				self::PARAM_TYPE => $this->termsLanguages->getLanguages(),
+				self::PARAM_REQUIRED => true,
 			),
 			'strictlanguage' => array(
-				ApiBase::PARAM_TYPE => 'boolean',
-				ApiBase::PARAM_DFLT => false
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false
 			),
 			'type' => array(
-				ApiBase::PARAM_TYPE => $this->entityTypes,
-				ApiBase::PARAM_DFLT => 'item',
+				self::PARAM_TYPE => $this->entityTypes,
+				self::PARAM_DFLT => 'item',
 			),
 			'limit' => array(
-				ApiBase::PARAM_TYPE => 'limit',
-				ApiBase::PARAM_DFLT => 7,
-				ApiBase::PARAM_MAX => ApiBase::LIMIT_SML1,
-				ApiBase::PARAM_MAX2 => ApiBase::LIMIT_SML2,
-				ApiBase::PARAM_MIN => 0,
-				ApiBase::PARAM_RANGE_ENFORCE => true,
+				self::PARAM_TYPE => 'limit',
+				self::PARAM_DFLT => 7,
+				self::PARAM_MAX => self::LIMIT_SML1,
+				self::PARAM_MAX2 => self::LIMIT_SML2,
+				self::PARAM_MIN => 0,
+				self::PARAM_RANGE_ENFORCE => true,
 			),
 			'continue' => array(
-				ApiBase::PARAM_TYPE => 'integer',
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_TYPE => 'integer',
+				self::PARAM_REQUIRED => false,
 			),
 		);
 	}

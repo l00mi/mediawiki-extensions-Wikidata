@@ -72,9 +72,16 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 		$this->validatorFactory = $this->getMock( 'Wikibase\Repo\DataTypeValidatorFactory' );
 		$this->validatorFactory->expects( $this->any() )
 			->method( 'getValidators' )
-			->will( $this->returnCallback( function( $dataTypeId ) use( $numericValidator, $alphabeticValidator, $lengthValidator ) {
-					return array( $dataTypeId === 'numeric' ? $numericValidator : $alphabeticValidator, $lengthValidator );
-				} ) );
+			->will( $this->returnCallback( function( $dataTypeId ) use (
+				$numericValidator,
+				$alphabeticValidator,
+				$lengthValidator
+			) {
+				return array(
+					$dataTypeId === 'numeric' ? $numericValidator : $alphabeticValidator,
+					$lengthValidator
+				);
+			} ) );
 	}
 
 	public function provideValidateClaimSnaks() {
@@ -92,7 +99,7 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 		$claim->setQualifiers( new SnakList( array(
 			new PropertyValueSnak( $p2, new StringValue( 'abc' ) )
 		) ) );
-		$claim->setReferences( new ReferenceList( array (
+		$claim->setReferences( new ReferenceList( array(
 			new Reference( new SnakList( array(
 				new PropertyValueSnak( $p2, new StringValue( 'xyz' ) )
 			) ) )
@@ -112,7 +119,7 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 		$cases[] = array( $brokenClaim, 'error in qualifier', false );
 
 		$brokenClaim = clone $claim;
-		$brokenClaim->setReferences( new ReferenceList( array (
+		$brokenClaim->setReferences( new ReferenceList( array(
 			new Reference( new SnakList( array(
 				new PropertyValueSnak( $p1, new StringValue( 'xyz' ) )
 			) ) )
@@ -142,7 +149,7 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 		$references = new ReferenceList();
 		$cases[] = array( $references, 'empty reference list', true );
 
-		$references = new ReferenceList( array (
+		$references = new ReferenceList( array(
 			new Reference( new SnakList( array(
 				new PropertyValueSnak( $p1, new StringValue( '123' ) )
 			) ) ),
@@ -152,7 +159,7 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 		) );
 		$cases[] = array( $references, 'conforming reference list', true );
 
-		$references = new ReferenceList( array (
+		$references = new ReferenceList( array(
 			new Reference( new SnakList( array(
 				new PropertyValueSnak( $p1, new StringValue( '123' ) )
 			) ) ),
@@ -175,7 +182,6 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( $expectedValid, $result->isValid(), $description );
 	}
-
 
 	public function provideValidateReference() {
 		$p1 = new PropertyId( 'p1' ); // numeric

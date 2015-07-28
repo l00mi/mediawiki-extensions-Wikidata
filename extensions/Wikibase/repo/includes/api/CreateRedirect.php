@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
@@ -48,10 +48,12 @@ class CreateRedirect extends ApiBase {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$this->setServices(
-			WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
-			WikibaseRepo::getDefaultInstance()->getApiHelperFactory()->getErrorReporter( $this ),
-			WikibaseRepo::getDefaultInstance()->newRedirectCreationInteractor( $this->getUser(), $this->getContext() )
+			$wikibaseRepo->getEntityIdParser(),
+			$apiHelperFactory->getErrorReporter( $this ),
+			$wikibaseRepo->newRedirectCreationInteractor( $this->getUser(), $this->getContext() )
 		);
 	}
 
@@ -148,18 +150,20 @@ class CreateRedirect extends ApiBase {
 	protected function getAllowedParams() {
 		return array(
 			'from' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
+				self::PARAM_REQUIRED => true,
 			),
 			'to' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
+				self::PARAM_REQUIRED => true,
 			),
 			'token' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => 'true',
+				self::PARAM_TYPE => 'string',
+				self::PARAM_REQUIRED => true,
 			),
 			'bot' => array(
-				ApiBase::PARAM_TYPE => 'boolean',
-				ApiBase::PARAM_DFLT => false,
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false,
 			)
 		);
 	}

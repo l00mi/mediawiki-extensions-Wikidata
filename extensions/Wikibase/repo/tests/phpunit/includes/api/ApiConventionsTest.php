@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use ApiBase;
 use ApiMain;
@@ -28,7 +28,7 @@ class ApiConventionsTest extends \MediaWikiTestCase {
 			// Make sure to only test Wikibase Api modules
 			// This works as long as Wikibase modules are always defined as a class name string.
 			// @todo adjust this if we ever define our api modules differently.
-			if ( is_string( $moduleClass ) &&  strpos( $moduleClass, 'Wikibase' ) !== false ) {
+			if ( is_string( $moduleClass ) && strpos( $moduleClass, 'Wikibase' ) !== false ) {
 				$argList[] = array( $moduleClass );
 			}
 		}
@@ -66,12 +66,17 @@ class ApiConventionsTest extends \MediaWikiTestCase {
 		$descArray = $module->$method();
 
 		$rMethod = new ReflectionMethod( $module, $method );
-		$this->assertTrue( $rMethod->isPublic(), 'the method ' . $method . ' of module ' . $moduleClass . ' is not public' );
+		$this->assertTrue( $rMethod->isPublic(), 'the method ' . $method . ' of module '
+			. $moduleClass . ' is not public' );
 
-		$this->assertNotEmpty( $module->$method(), 'the Module ' . $moduleClass . ' does not have the method ' . $method );
-		$this->assertNotEmpty( $descArray, 'the array returned by the method ' . $method . ' of module ' . $moduleClass . ' is empty' );
+		$this->assertNotEmpty( $module->$method(), 'the Module ' . $moduleClass
+			. ' does not have the method ' . $method );
+		$this->assertNotEmpty( $descArray, 'the array returned by the method ' . $method
+			. ' of module ' . $moduleClass . ' is empty' );
+
 		foreach ( $descArray as $desc ) {
-			$this->assertInstanceOf( 'Message', $desc, 'the value returned by the method ' . $method . ' of the module ' . $moduleClass . ' is not a Message object' );
+			$this->assertInstanceOf( 'Message', $desc, 'the value returned by the method '
+				. $method . ' of the module ' . $moduleClass . ' is not a Message object' );
 		}
 	}
 
@@ -103,7 +108,7 @@ class ApiConventionsTest extends \MediaWikiTestCase {
 	 **/
 	private function assertGetExamplesMessages( $moduleClass, ApiBase $module ) {
 		$method = 'getExamplesMessages';
-		$rMethod = new ReflectionMethod( $moduleClass,  $method );
+		$rMethod = new ReflectionMethod( $moduleClass, $method );
 		$rMethod->setAccessible( true );
 		$exArray = $rMethod->invoke( $module );
 
@@ -119,4 +124,5 @@ class ApiConventionsTest extends \MediaWikiTestCase {
 		}
 
 	}
+
 }

@@ -89,13 +89,7 @@ class TermSqlIndexTest extends TermIndexTest {
 	 * @dataProvider labelWithDescriptionConflictProvider
 	 */
 	public function testGetLabelWithDescriptionConflicts( $entities, $entityType, $labels, $descriptions, $expected ) {
-
-		if ( wfGetDB( DB_MASTER )->getType() === 'mysql' ) {
-			// Mysql fails (http://bugs.mysql.com/bug.php?id=10327), so we cannot test this properly when using MySQL.
-			$this->markTestSkipped( 'Can\'t test self-joins on MySQL' );
-
-			return;
-		}
+		$this->markTestSkippedOnMySql();
 
 		parent::testGetLabelWithDescriptionConflicts( $entities, $entityType, $labels, $descriptions, $expected );
 	}
@@ -117,8 +111,16 @@ class TermSqlIndexTest extends TermIndexTest {
 			new AliasGroupList()
 		);
 
-		$labelFooEn = new TermIndexEntry( array( 'termLanguage' => 'en', 'termType' => TermIndexEntry::TYPE_LABEL, 'termText' => 'Foo' ) );
-		$descriptionBarEn = new TermIndexEntry( array( 'termLanguage' => 'en', 'termType' => TermIndexEntry::TYPE_DESCRIPTION, 'termText' => 'Bar' ) );
+		$labelFooEn = new TermIndexEntry( array(
+			'termType' => TermIndexEntry::TYPE_LABEL,
+			'termLanguage' => 'en',
+			'termText' => 'Foo',
+		) );
+		$descriptionBarEn = new TermIndexEntry( array(
+			'termType' => TermIndexEntry::TYPE_DESCRIPTION,
+			'termLanguage' => 'en',
+			'termText' => 'Bar',
+		) );
 
 		return array(
 			'no options' => array(
@@ -267,6 +269,16 @@ class TermSqlIndexTest extends TermIndexTest {
 			array( array(), new Item() ),
 			array( array(), $this->getMock( 'Wikibase\DataModel\Entity\EntityDocument' ) )
 		);
+	}
+
+	/**
+	 * @see http://bugs.mysql.com/bug.php?id=10327
+	 * @see EditEntityTest::markTestSkippedOnMySql
+	 */
+	private function markTestSkippedOnMySql() {
+		if ( $this->db->getType() === 'mysql' ) {
+			$this->markTestSkipped( 'MySQL doesn\'t support self-joins on temporary tables' );
+		}
 	}
 
 }

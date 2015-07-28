@@ -1,9 +1,10 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use DataValues\StringValue;
 use FormatJson;
+use UsageException;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\EntityId;
@@ -17,7 +18,7 @@ use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\SetQualifier
+ * @covers Wikibase\Repo\Api\SetQualifier
  *
  * @group API
  * @group Database
@@ -82,7 +83,6 @@ class SetQualifierTest extends WikibaseApiTestCase {
 		$store->saveEntity( $property, 'testing', $GLOBALS['wgUser'], EDIT_NEW );
 		return $property;
 	}
-
 
 	protected function getTestItem() {
 		static $item = null;
@@ -233,8 +233,8 @@ class SetQualifierTest extends WikibaseApiTestCase {
 		try {
 			$this->doApiRequestWithToken( $params );
 			$this->fail( 'Invalid request did not raise an error' );
-		} catch ( \UsageException $e ) {
-			$this->assertEquals( $error, $e->getCodeString(),  'Invalid claim guid raised correct error' );
+		} catch ( UsageException $ex ) {
+			$this->assertEquals( $error, $ex->getCodeString(), 'Invalid request raised correct error' );
 		}
 	}
 

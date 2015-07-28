@@ -59,9 +59,8 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 		$siteLinkTable->expects( $this->any() )
 			->method( 'getItemIdForLink' )
 			->will( $this->returnCallback( function( $siteId, $page ) {
-					return ( $page === 'Rome' ) ? new ItemId( 'Q33' ) : false;
-				} )
-			);
+				return $page === 'Rome' ? new ItemId( 'Q33' ) : false;
+			} ) );
 
 		$labelDescriptionLookup = $this->getMock( 'Wikibase\Lib\Store\LabelDescriptionLookup' );
 		$labelDescriptionLookup->expects( $this->any() )
@@ -95,7 +94,7 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 		$wikibaseLuaBindings = $this->getWikibaseLuaBindings( null, $usages );
 
 		$itemId = $wikibaseLuaBindings->getEntityId( 'Rome' );
-		$this->assertEquals( 'Q33' , $itemId );
+		$this->assertEquals( 'Q33', $itemId );
 
 		$this->assertTrue( $this->hasUsage( $usages->getUsages(), new ItemId( $itemId ), EntityUsage::TITLE_USAGE ), 'title usage' );
 		$this->assertFalse( $this->hasUsage( $usages->getUsages(), new ItemId( $itemId ), EntityUsage::SITELINK_USAGE ), 'sitelink usage' );
@@ -235,4 +234,5 @@ class WikibaseLuaBindingsTest extends \PHPUnit_Framework_TestCase {
 
 		return $item;
 	}
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use ApiTestCase;
 use DataValues\StringValue;
@@ -18,11 +18,11 @@ use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\Serializers\ClaimSerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\GetClaims
+ * @covers Wikibase\Repo\Api\GetClaims
  *
  * @group API
  * @group Database
@@ -172,8 +172,8 @@ class GetClaimsTest extends ApiTestCase {
 			$options->setOption( SerializationOptions::OPT_GROUP_BY_PROPERTIES, array() );
 		}
 
-		$serializerFactory = new SerializerFactory( null, $this->getDataTypeLookup() );
-		$serializer = $serializerFactory->newSerializerForObject( $claims );
+		$serializerFactory = new LibSerializerFactory( null, $this->getDataTypeLookup() );
+		$serializer = $serializerFactory->newClaimsSerializer( $options );
 		$serializer->setOptions( $options );
 		$expected = $serializer->getSerialized( $claims );
 

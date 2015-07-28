@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use UsageException;
 use Wikibase\DataModel\Claim\Claims;
@@ -9,7 +9,7 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\CreateClaim
+ * @covers Wikibase\Repo\Api\CreateClaim
  *
  * @group API
  * @group Database
@@ -72,7 +72,7 @@ class CreateClaimTest extends WikibaseApiTestCase {
 			$this->assertArrayHasKey( $requiredKey, $claim, 'claim has a "' . $requiredKey . '" key' );
 		}
 
-		$this->assertStringStartsWith( $item->getId()->getSerialization() , $claim['id'] );
+		$this->assertStringStartsWith( $item->getId()->getSerialization(), $claim['id'] );
 
 		$this->assertEquals( 'value', $claim['mainsnak']['snaktype'] );
 
@@ -226,11 +226,10 @@ class CreateClaimTest extends WikibaseApiTestCase {
 		try {
 			$this->doApiRequestWithToken( $params );
 			$this->fail( 'Invalid request should raise an exception' );
-		}
-		catch ( UsageException $e ) {
+		} catch ( UsageException $ex ) {
 			$this->assertEquals(
 				$errorCode,
-				$e->getCodeString(), 'Invalid request raised correct error: ' . $e->getMessage()
+				$ex->getCodeString(), 'Invalid request raised correct error: ' . $ex->getMessage()
 			);
 		}
 

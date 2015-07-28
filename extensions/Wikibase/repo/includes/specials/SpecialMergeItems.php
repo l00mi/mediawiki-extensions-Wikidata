@@ -4,12 +4,12 @@ namespace Wikibase\Repo\Specials;
 
 use Exception;
 use Html;
-use UserInputException;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
+use Wikibase\Lib\UserInputException;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
 use Wikibase\Repo\WikibaseRepo;
@@ -64,7 +64,8 @@ class SpecialMergeItems extends SpecialWikibasePage {
 				$wikibaseRepo->getEntityStore(),
 				$wikibaseRepo->getEntityPermissionChecker(),
 				$wikibaseRepo->getSummaryFormatter(),
-				$this->getUser()
+				$this->getUser(),
+				$wikibaseRepo->newRedirectCreationInteractor( $this->getUser(), $this->getContext() )
 			)
 		);
 	}
@@ -172,7 +173,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 	/**
 	 * @param ItemId $fromId
 	 * @param ItemId $toId
-	 * @param array $ignoreConflicts
+	 * @param string[] $ignoreConflicts
 	 * @param string $summary
 	 */
 	private function mergeItems( ItemId $fromId, ItemId $toId, array $ignoreConflicts, $summary ) {
@@ -180,7 +181,8 @@ class SpecialMergeItems extends SpecialWikibasePage {
 
 		/** @var EntityRevision $newRevisionFrom  */
 		/** @var EntityRevision $newRevisionTo */
-		list( $newRevisionFrom, $newRevisionTo ) = $this->interactor->mergeItems( $fromId, $toId, $ignoreConflicts, $summary );
+		list( $newRevisionFrom, $newRevisionTo, $redirected )
+			= $this->interactor->mergeItems( $fromId, $toId, $ignoreConflicts, $summary );
 
 		//XXX: might be nicer to pass pre-rendered links as parameters
 		$this->getOutput()->addWikiMsg(

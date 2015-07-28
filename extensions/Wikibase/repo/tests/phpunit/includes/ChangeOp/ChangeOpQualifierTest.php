@@ -83,7 +83,7 @@ class ChangeOpQualifierTest extends \PHPUnit_Framework_TestCase {
 		$newQualifier = new PropertyValueSnak( 78462378, new StringValue( 'newQualifier' ) );
 		$changeOp = new ChangeOpQualifier( $guid, $newQualifier, '', $this->mockProvider->getMockSnakValidator() );
 		$snakHash = $newQualifier->getHash();
-		$args[] = array ( $item, $changeOp, $snakHash );
+		$args[] = array( $item, $changeOp, $snakHash );
 
 		return $args;
 	}
@@ -114,7 +114,7 @@ class ChangeOpQualifierTest extends \PHPUnit_Framework_TestCase {
 		$snakHash = $newQualifier->getHash();
 		$changedQualifier = new PropertyValueSnak( 78462378, new StringValue( 'changedQualifier' ) );
 		$changeOp = new ChangeOpQualifier( $guid, $changedQualifier, $snakHash, $this->mockProvider->getMockSnakValidator() );
-		$args[] = array ( $item, $changeOp, $changedQualifier->getHash() );
+		$args[] = array( $item, $changeOp, $changedQualifier->getHash() );
 
 		return $args;
 	}
@@ -184,7 +184,6 @@ class ChangeOpQualifierTest extends \PHPUnit_Framework_TestCase {
 			$this->mockProvider->getMockSnakValidator()
 		);
 
-		$entity = $entity->copy();
 		$changeOpQualifier->apply( $entity );
 	}
 
@@ -225,7 +224,6 @@ class ChangeOpQualifierTest extends \PHPUnit_Framework_TestCase {
 			$this->mockProvider->getMockSnakValidator()
 		);
 
-		$entity = $entity->copy();
 		$result = $changeOpQualifier->validate( $entity );
 		$this->assertFalse( $result->isValid(), 'isValid()' );
 	}

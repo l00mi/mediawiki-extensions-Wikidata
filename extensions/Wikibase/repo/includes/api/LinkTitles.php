@@ -1,14 +1,16 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
 use Site;
 use SiteList;
 use Status;
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\SiteLink;
+use Wikibase\DataModel\SiteLinkList;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\WikibaseRepo;
@@ -23,7 +25,7 @@ use Wikibase\Summary;
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Adam Shorland
  */
-class LinkTitles extends ApiWikibase {
+class LinkTitles extends ApiBase {
 
 	/**
 	 * @var SiteLinkTargetProvider
@@ -31,9 +33,29 @@ class LinkTitles extends ApiWikibase {
 	private $siteLinkTargetProvider;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @var string[]
 	 */
 	private $siteLinkGroups;
+
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $revisionLookup;
+
+	/**
+	 * @var ResultBuilder
+	 */
+	private $resultBuilder;
+
+	/**
+	 * @var EntitySavingHelper
+	 */
+	private $entitySavingHelper;
 
 	/**
 	 * @param ApiMain $mainModule
@@ -45,7 +67,12 @@ class LinkTitles extends ApiWikibase {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 
+		$this->revisionLookup = $wikibaseRepo->getEntityRevisionLookup( 'uncached' );
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
+		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
+		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
 			$wikibaseRepo->getSiteStore(),
 			$wikibaseRepo->getSettings()->getSetting( 'specialSiteLinkGroups' )
@@ -55,12 +82,19 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
+	 * @see EntitySavingHelper::attemptSaveEntity
+	 */
+	protected function attemptSaveEntity( Entity $entity, $summary, $flags = 0 ) {
+		return $this->entitySavingHelper->attemptSaveEntity( $entity, $summary, $flags );
+	}
+
+	/**
 	 * Main method. Does the actual work and sets the result.
 	 *
 	 * @since 0.1
 	 */
 	public function execute() {
-		$lookup = $this->getEntityRevisionLookup();
+		$lookup = $this->revisionLookup;
 
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
@@ -85,7 +119,7 @@ class LinkTitles extends ApiWikibase {
 		$fromId = $siteLinkStore->getItemIdForLink( $fromSite->getGlobalId(), $fromPage );
 		$toId = $siteLinkStore->getItemIdForLink( $toSite->getGlobalId(), $toPage );
 
-		$return = array();
+		$siteLinkList = new SiteLinkList();
 		$flags = 0;
 		$item = null;
 
@@ -102,45 +136,40 @@ class LinkTitles extends ApiWikibase {
 			$item = new Item();
 			$toLink = new SiteLink( $toSite->getGlobalId(), $toPage );
 			$item->addSiteLink( $toLink );
-			$return[] = $toLink;
+			$siteLinkList->addSiteLink( $toLink );
 			$fromLink = new SiteLink( $fromSite->getGlobalId(), $fromPage );
 			$item->addSiteLink( $fromLink );
-			$return[] = $fromLink;
+			$siteLinkList->addSiteLink( $fromLink );
 
 			$flags |= EDIT_NEW;
 			$summary->setAction( 'create' );
-		}
-		elseif ( $fromId === null && $toId !== null ) {
+		} elseif ( $fromId === null && $toId !== null ) {
 			// reuse to-site's item
 			/** @var Item $item */
 			$itemRev = $lookup->getEntityRevision( $toId, EntityRevisionLookup::LATEST_FROM_MASTER );
 			$item = $itemRev->getEntity();
 			$fromLink = new SiteLink( $fromSite->getGlobalId(), $fromPage );
 			$item->addSiteLink( $fromLink );
-			$return[] = $fromLink;
+			$siteLinkList->addSiteLink( $fromLink );
 			$summary->setAction( 'connect' );
-		}
-		elseif ( $fromId !== null && $toId === null ) {
+		} elseif ( $fromId !== null && $toId === null ) {
 			// reuse from-site's item
 			/** @var Item $item */
 			$itemRev = $lookup->getEntityRevision( $fromId, EntityRevisionLookup::LATEST_FROM_MASTER );
 			$item = $itemRev->getEntity();
 			$toLink = new SiteLink( $toSite->getGlobalId(), $toPage );
 			$item->addSiteLink( $toLink );
-			$return[] = $toLink;
+			$siteLinkList->addSiteLink( $toLink );
 			$summary->setAction( 'connect' );
-		}
-		// we can be sure that $fromId and $toId are not null here
-		elseif ( $fromId->equals( $toId ) ) {
+		} elseif ( $fromId->equals( $toId ) ) {
 			// no-op
-			$this->dieError( 'Common item detected, sitelinks are both on the same item', 'common-item' );
-		}
-		else {
+			$this->errorReporter->dieError( 'Common item detected, sitelinks are both on the same item', 'common-item' );
+		} else {
 			// dissimilar items
-			$this->dieError( 'No common item detected, unable to link titles' , 'no-common-item' );
+			$this->errorReporter->dieError( 'No common item detected, unable to link titles', 'no-common-item' );
 		}
 
-		$this->getResultBuilder()->addSiteLinks( $return, 'entity' );
+		$this->resultBuilder->addSiteLinkList( $siteLinkList, 'entity' );
 		$status = $this->getAttemptSaveStatus( $item, $summary, $flags );
 		$this->buildResult( $item, $status );
 	}
@@ -155,8 +184,8 @@ class LinkTitles extends ApiWikibase {
 	private function getSiteAndNormalizedPageName( SiteList $sites, $site, $pageTitle ) {
 		$siteObj = $sites->getSite( $site );
 		$page = $siteObj->normalizePageName( $pageTitle );
-		if( $page === false ) {
-			$this->dieMessage( 'no-external-page', $site, $pageTitle );
+		if ( $page === false ) {
+			$this->errorReporter->dieMessage( 'no-external-page', $site, $pageTitle );
 		}
 		return array( $siteObj, $page );
 	}
@@ -171,8 +200,7 @@ class LinkTitles extends ApiWikibase {
 		if ( $item === null ) {
 			// to not have an Item isn't really bad at this point
 			return Status::newGood( true );
-		}
-		else {
+		} else {
 			// Do the actual save, or if it don't exist yet create it.
 			return $this->attemptSaveEntity( $item,
 				$summary,
@@ -182,11 +210,11 @@ class LinkTitles extends ApiWikibase {
 
 	private function buildResult( Item $item = null, Status $status ) {
 		if ( $item !== null ) {
-			$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'entity' );
-			$this->getResultBuilder()->addBasicEntityInformation( $item->getId(), 'entity' );
+			$this->resultBuilder->addRevisionIdFromStatusToResult( $status, 'entity' );
+			$this->resultBuilder->addBasicEntityInformation( $item->getId(), 'entity' );
 		}
 
-		$this->getResultBuilder()->markSuccess( $status->isOK() );
+		$this->resultBuilder->markSuccess( $status->isOK() );
 	}
 
 	/**
@@ -194,11 +222,11 @@ class LinkTitles extends ApiWikibase {
 	 */
 	protected function validateParameters( array $params ) {
 		if ( $params['fromsite'] === $params['tosite'] ) {
-			$this->dieError( 'The from site cannot match the to site', 'param-illegal' );
+			$this->errorReporter->dieError( 'The from site cannot match the to site', 'param-illegal' );
 		}
 
 		if ( $params['fromtitle'] === '' || $params['totitle'] === '' ) {
-			$this->dieError( 'The from title and to title must have a value', 'param-illegal' );
+			$this->errorReporter->dieError( 'The from title and to title must have a value', 'param-illegal' );
 		}
 	}
 
@@ -210,22 +238,32 @@ class LinkTitles extends ApiWikibase {
 	}
 
 	/**
+	 * @see ApiBase::needsToken
+	 *
+	 * @return string
+	 */
+	public function needsToken() {
+		return 'csrf';
+	}
+
+	/**
 	 * @see ApiBase::getAllowedParams
 	 */
 	protected function getAllowedParams() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
+
 		return array_merge( parent::getAllowedParams(), array(
 			'tosite' => array(
-				ApiBase::PARAM_TYPE => $sites->getGlobalIdentifiers(),
+				self::PARAM_TYPE => $sites->getGlobalIdentifiers(),
 			),
 			'totitle' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'fromsite' => array(
-				ApiBase::PARAM_TYPE => $sites->getGlobalIdentifiers(),
+				self::PARAM_TYPE => $sites->getGlobalIdentifiers(),
 			),
 			'fromtitle' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'token' => null,
 			'bot' => false,

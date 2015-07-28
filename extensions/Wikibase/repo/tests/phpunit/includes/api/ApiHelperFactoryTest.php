@@ -1,13 +1,14 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use Language;
-use Wikibase\Api\ApiHelperFactory;
+use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Test\MockSiteStore;
 
 /**
- * @covers Wikibase\Api\ApiHelperFactory
+ * @covers Wikibase\Repo\Api\ApiHelperFactory
  *
  * @group Wikibase
  * @group WikibaseAPI
@@ -23,12 +24,21 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 		$exceptionLocalizer = $this->getMock( 'Wikibase\Lib\Localizer\ExceptionLocalizer' );
 		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
 		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
+		$summaryFormatter = $this->getMockBuilder( 'Wikibase\SummaryFormatter' )
+			->disableOriginalConstructor()->getMock();
+		$entityRevisionLookup = $this->getMock( 'Wikibase\Lib\Store\EntityRevisionLookup' );
+		$editEntityFactory = $this->getMockBuilder( 'Wikibase\EditEntityFactory' )
+			->disableOriginalConstructor()->getMock();
 
 		return new ApiHelperFactory(
 			$titleLookup,
 			$exceptionLocalizer,
 			$dataTypeLookup,
-			$entityFactory
+			$entityFactory,
+			new MockSiteStore(),
+			$summaryFormatter,
+			$entityRevisionLookup,
+			$editEntityFactory
 		);
 	}
 
@@ -63,7 +73,7 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 		$factory = $this->newApiHelperFactory();
 
 		$resultBuilder = $factory->getResultBuilder( $api );
-		$this->assertInstanceOf( 'Wikibase\Api\ResultBuilder', $resultBuilder );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\ResultBuilder', $resultBuilder );
 	}
 
 	public function testGetErrorReporter() {
@@ -71,14 +81,28 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 		$factory = $this->newApiHelperFactory();
 
 		$errorReporter = $factory->getErrorReporter( $api );
-		$this->assertInstanceOf( 'Wikibase\Api\ApiErrorReporter', $errorReporter );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\ApiErrorReporter', $errorReporter );
 	}
 
-	public function testGetSerializerFactory() {
+	public function testNewSerializerFactory() {
 		$factory = $this->newApiHelperFactory();
 
-		$serializerFactory = $factory->getSerializerFactory();
-		$this->assertInstanceOf( 'Wikibase\Lib\Serializers\SerializerFactory', $serializerFactory );
+		$serializerFactory = $factory->newLibSerializerFactory();
+		$this->assertInstanceOf( 'Wikibase\Lib\Serializers\LibSerializerFactory', $serializerFactory );
+	}
+
+	public function testGetEntitySavingHelper() {
+		$factory = $this->newApiHelperFactory();
+
+		$helper = $factory->getEntitySavingHelper( $this->newApiModule() );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\EntitySavingHelper', $helper );
+	}
+
+	public function testGetEntityLoadingHelper() {
+		$factory = $this->newApiHelperFactory();
+
+		$helper = $factory->getEntityLoadingHelper( $this->newApiModule() );
+		$this->assertInstanceOf( 'Wikibase\Repo\Api\EntityLoadingHelper', $helper );
 	}
 
 }

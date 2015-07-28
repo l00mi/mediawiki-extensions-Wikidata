@@ -23,7 +23,7 @@ abstract class N3RdfWriterBase extends RdfWriterBase {
 
 	protected function writeRef( $base, $local = null ) {
 		if ( $local === null ) {
-			if( $base === 'a' ) {
+			if ( $base === 'a' ) {
 				$this->write( 'a' );
 			} else {
 				$this->writeIRI( $base );
@@ -47,7 +47,6 @@ abstract class N3RdfWriterBase extends RdfWriterBase {
 	protected function writeQName( $base, $local ) {
 		$this->write( "$base:$local" );
 	}
-
 
 	protected function writeText( $text, $language = null ) {
 		$value = $this->quoter->escapeLiteral( $text );

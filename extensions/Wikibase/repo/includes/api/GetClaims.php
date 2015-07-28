@@ -1,11 +1,12 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementGuidParser;
@@ -26,7 +27,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Adam Shorland
  */
-class GetClaims extends ApiWikibase {
+class GetClaims extends ApiBase {
 
 	/**
 	 * @var ClaimGuidValidator
@@ -39,6 +40,26 @@ class GetClaims extends ApiWikibase {
 	private $guidParser;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
+	 * @var EntityIdParser
+	 */
+	private $idParser;
+
+	/**
+	 * @var EntityLoadingHelper
+	 */
+	private $entityLoadingHelper;
+
+	/**
+	 * @var ResultBuilder
+	 */
+	private $resultBuilder;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -49,12 +70,18 @@ class GetClaims extends ApiWikibase {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
 		//TODO: provide a mechanism to override the services
-		$this->guidValidator = WikibaseRepo::getDefaultInstance()->getClaimGuidValidator();
-		$this->guidParser = WikibaseRepo::getDefaultInstance()->getStatementGuidParser();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
+		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
+		$this->entityLoadingHelper = $apiHelperFactory->getEntityLoadingHelper( $this );
+		$this->guidValidator = $wikibaseRepo->getClaimGuidValidator();
+		$this->guidParser = $wikibaseRepo->getStatementGuidParser();
+		$this->idParser = $wikibaseRepo->getEntityIdParser();
 	}
 
 	/**
-	 * @see \ApiBase::execute
+	 * @see ApiBase::execute
 	 *
 	 * @since 0.3
 	 */
@@ -65,17 +92,21 @@ class GetClaims extends ApiWikibase {
 		list( $idString, $guid ) = $this->getIdentifiers( $params );
 
 		try {
-			$entityId = $this->getIdParser()->parse( $idString );
+			$entityId = $this->idParser->parse( $idString );
 		} catch ( EntityIdParsingException $e ) {
-			$this->dieException( $e, 'param-invalid' );
+			$this->errorReporter->dieException( $e, 'param-invalid' );
 		}
 
-		$entityRevision = $entityId ? $this->loadEntityRevision( $entityId, EntityRevisionLookup::LATEST_FROM_SLAVE ) : null;
+		/** @var EntityId $entityId */
+		$entityRevision = $this->entityLoadingHelper->loadEntityRevision(
+			$entityId,
+			EntityRevisionLookup::LATEST_FROM_SLAVE
+		);
 		$entity = $entityRevision->getEntity();
 
 		if ( $params['ungroupedlist'] ) {
 			$this->logFeatureUsage( 'action=wbgetclaims&ungroupedlist' );
-			$this->getResultBuilder()->getOptions()
+			$this->resultBuilder->getOptions()
 				->setOption(
 					SerializationOptions::OPT_GROUP_BY_PROPERTIES,
 					array()
@@ -83,12 +114,15 @@ class GetClaims extends ApiWikibase {
 		}
 
 		$claims = $this->getClaims( $entity, $guid );
-		$this->getResultBuilder()->addClaims( $claims, null );
+		$this->resultBuilder->addClaims( $claims, null );
 	}
 
 	private function validateParameters( array $params ) {
 		if ( !isset( $params['entity'] ) && !isset( $params['claim'] ) ) {
-			$this->dieError( 'Either the entity parameter or the claim parameter need to be set', 'param-missing' );
+			$this->errorReporter->dieError(
+				'Either the entity parameter or the claim parameter need to be set',
+				'param-missing'
+			);
 		}
 	}
 
@@ -148,11 +182,12 @@ class GetClaims extends ApiWikibase {
 
 		if ( isset( $params['property'] ) ) {
 			try {
-				$parsedProperty = $this->getIdParser()->parse( $params['property'] );
+				$parsedProperty = $this->idParser->parse( $params['property'] );
 			} catch ( EntityIdParsingException $e ) {
-				$this->dieException( $e, 'param-invalid' );
+				$this->errorReporter->dieException( $e, 'param-invalid' );
 			}
 
+			/** @var EntityId $parsedProperty */
 			return $propertyId->equals( $parsedProperty );
 		}
 
@@ -177,7 +212,10 @@ class GetClaims extends ApiWikibase {
 			$idString = $this->getEntityIdFromStatementGuid( $params['claim'] );
 
 			if ( isset( $params['entity'] ) && $idString !== $params['entity'] ) {
-				$this->dieError( 'If both entity id and claim key are provided they need to point to the same entity', 'param-illegal' );
+				$this->errorReporter->dieError(
+					'If both entity id and claim key are provided they need to point to the same entity',
+					'param-illegal'
+				);
 			}
 		} else {
 			$idString = $params['entity'];
@@ -188,7 +226,7 @@ class GetClaims extends ApiWikibase {
 
 	private function getEntityIdFromStatementGuid( $guid ) {
 		if ( $this->guidValidator->validateFormat( $guid ) === false ) {
-			$this->dieError( 'Invalid claim guid', 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 
 		return $this->guidParser->parse( $guid )->getEntityId()->getSerialization();
@@ -200,26 +238,27 @@ class GetClaims extends ApiWikibase {
 	protected function getAllowedParams() {
 		return array(
 			'entity' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'property' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'claim' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'rank' => array(
-				ApiBase::PARAM_TYPE => ClaimSerializer::getRanks(),
+				self::PARAM_TYPE => ClaimSerializer::getRanks(),
 			),
 			'props' => array(
-				ApiBase::PARAM_TYPE => array(
+				self::PARAM_TYPE => array(
 					'references',
 				),
-				ApiBase::PARAM_DFLT => 'references',
+				self::PARAM_DFLT => 'references',
 			),
 			'ungroupedlist' => array(
-				ApiBase::PARAM_TYPE => 'boolean',
-				ApiBase::PARAM_DFLT => false,
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false,
+				self::PARAM_DEPRECATED => true,
 			),
 		);
 	}

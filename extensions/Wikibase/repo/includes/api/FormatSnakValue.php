@@ -1,8 +1,9 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
+use ApiMain;
 use DataValues\DataValue;
 use DataValues\DataValueFactory;
 use DataValues\IllegalValueException;
@@ -23,39 +24,53 @@ use Wikibase\Repo\WikibaseRepo;
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
+ * @author Adam Shorland
  */
-class FormatSnakValue extends ApiWikibase {
+class FormatSnakValue extends ApiBase {
 
 	/**
-	 * @var null|OutputFormatValueFormatterFactory
+	 * @var OutputFormatValueFormatterFactory
 	 */
-	private $formatterFactory = null;
+	private $valueFormatterFactory;
 
 	/**
-	 * @var null|DataValueFactory
+	 * @var DataValueFactory
 	 */
-	private $valueFactory = null;
+	private $dataValueFactory;
 
 	/**
-	 * @return OutputFormatValueFormatterFactory
+	 * @var ApiErrorReporter
 	 */
-	private function getFormatterFactory() {
-		if ( $this->formatterFactory === null ) {
-			$this->formatterFactory = WikibaseRepo::getDefaultInstance()->getValueFormatterFactory();
-		}
+	private $errorReporter;
 
-		return $this->formatterFactory;
+	/**
+	 * @param ApiMain $mainModule
+	 * @param string $moduleName
+	 * @param string $modulePrefix
+	 *
+	 * @see ApiBase::__construct
+	 */
+	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
+		parent::__construct( $mainModule, $moduleName, $modulePrefix );
+
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+
+		$this->setServices(
+			$wikibaseRepo->getValueFormatterFactory(),
+			$wikibaseRepo->getDataValueFactory(),
+			$apiHelperFactory->getErrorReporter( $this )
+		);
 	}
 
-	/**
-	 * @return DataValueFactory
-	 */
-	private function getValueFactory() {
-		if ( $this->valueFactory === null ) {
-			$this->valueFactory = WikibaseRepo::getDefaultInstance()->getDataValueFactory();
-		}
-
-		return $this->valueFactory;
+	public function setServices(
+		OutputFormatValueFormatterFactory $valueFormatterFactory,
+		DataValueFactory $dataValueFactory,
+		ApiErrorReporter $apiErrorReporter
+	) {
+		$this->valueFormatterFactory = $valueFormatterFactory;
+		$this->dataValueFactory = $dataValueFactory;
+		$this->errorReporter = $apiErrorReporter;
 	}
 
 	/**
@@ -94,11 +109,14 @@ class FormatSnakValue extends ApiWikibase {
 		$params = $this->extractRequestParams();
 
 		$options = $this->getOptionsObject( $params['options'] );
-		$formatter = $this->getFormatterFactory()->getValueFormatter( $params['generate'], $options );
+		$formatter = $this->valueFormatterFactory->getValueFormatter( $params['generate'], $options );
 
-		// Paranoid check, should never fail since we only accept well known values for the 'generate' parameter
+		// Paranoid check:
+		// should never fail since we only accept well known values for the 'generate' parameter
 		if ( $formatter === null ) {
-			throw new LogicException( 'Could not obtain a ValueFormatter instance for ' . $params['generate'] );
+			throw new LogicException(
+				'Could not obtain a ValueFormatter instance for ' . $params['generate']
+			);
 		}
 
 		return $formatter;
@@ -115,21 +133,21 @@ class FormatSnakValue extends ApiWikibase {
 		$data = json_decode( $json, true );
 
 		if ( !is_array( $data ) ) {
-			$this->dieError( 'Failed to decode datavalue', 'baddatavalue' );
+			$this->errorReporter->dieError( 'Failed to decode datavalue', 'baddatavalue' );
 		}
 
 		try {
-			$value = $this->getValueFactory()->newFromArray( $data );
+			$value = $this->dataValueFactory->newFromArray( $data );
 			return $value;
 		} catch ( IllegalValueException $ex ) {
-			$this->dieException( $ex, 'baddatavalue' );
+			$this->errorReporter->dieException( $ex, 'baddatavalue' );
 		}
 
-		throw new LogicException( 'ApiBase::dieUsage did not throw a UsageException' );
+		throw new LogicException( 'ApiErrorReporter::dieException did not throw a UsageException' );
 	}
 
 	/**
-	 * @param string $optionsParam
+	 * @param string|null $optionsParam
 	 *
 	 * @return FormatterOptions
 	 */
@@ -137,11 +155,13 @@ class FormatSnakValue extends ApiWikibase {
 		$formatterOptions = new FormatterOptions();
 		$formatterOptions->setOption( ValueFormatter::OPT_LANG, $this->getLanguage()->getCode() );
 
-		$options = json_decode( $optionsParam, true );
+		if ( is_string( $optionsParam ) && $optionsParam !== '' ) {
+			$options = json_decode( $optionsParam, true );
 
-		if ( is_array( $options ) ) {
-			foreach ( $options as $name => $value ) {
-				$formatterOptions->setOption( $name, $value );
+			if ( is_array( $options ) ) {
+				foreach ( $options as $name => $value ) {
+					$formatterOptions->setOption( $name, $value );
+				}
 			}
 		}
 
@@ -166,26 +186,26 @@ class FormatSnakValue extends ApiWikibase {
 	protected function getAllowedParams() {
 		return array(
 			'generate' => array(
-				ApiBase::PARAM_TYPE => array(
+				self::PARAM_TYPE => array(
 					SnakFormatter::FORMAT_PLAIN,
 					SnakFormatter::FORMAT_WIKI,
 					SnakFormatter::FORMAT_HTML,
 					SnakFormatter::FORMAT_HTML_WIDGET,
 				),
-				ApiBase::PARAM_DFLT => SnakFormatter::FORMAT_WIKI,
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_DFLT => SnakFormatter::FORMAT_WIKI,
+				self::PARAM_REQUIRED => false,
 			),
 			'datavalue' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true,
+				self::PARAM_TYPE => 'text',
+				self::PARAM_REQUIRED => true,
 			),
 			'datatype' => array(
-				ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getDataTypeFactory()->getTypeIds(),
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getDataTypeFactory()->getTypeIds(),
+				self::PARAM_REQUIRED => false,
 			),
 			'options' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_TYPE => 'text',
+				self::PARAM_REQUIRED => false,
 			),
 		);
 	}
@@ -194,7 +214,7 @@ class FormatSnakValue extends ApiWikibase {
 	 * @see ApiBase::getExamplesMessages
 	 */
 	protected function getExamplesMessages() {
-		$query = "action=" . $this->getModuleName() ;
+		$query = 'action=' . $this->getModuleName();
 		$hello = new StringValue( 'hello' );
 		$acme = new StringValue( 'http://acme.org' );
 

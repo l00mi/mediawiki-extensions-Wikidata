@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
@@ -28,6 +27,11 @@ class RemoveReferences extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -35,7 +39,11 @@ class RemoveReferences extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
@@ -50,15 +58,21 @@ class RemoveReferences extends ModifyClaim {
 
 		$guid = $params['statement'];
 		$entityId = $this->guidParser->parse( $guid )->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 		$summary = $this->modificationHelper->createSummary( $params, $this );
 
 		$claim = $this->modificationHelper->getStatementFromEntity( $guid, $entity );
 
 		if ( ! ( $claim instanceof Statement ) ) {
-			$this->dieError( 'The referenced claim is not a statement and thus cannot have references', 'not-statement' );
+			$this->errorReporter->dieError(
+				'The referenced claim is not a statement and thus cannot have references',
+				'not-statement'
+			);
 		}
 
 		$referenceHashes = $this->getReferenceHashesFromParams( $params, $claim );
@@ -69,10 +83,11 @@ class RemoveReferences extends ModifyClaim {
 		try {
 			$changeOps->apply( $entity, $summary );
 		} catch ( ChangeOpException $e ) {
-			$this->dieException( $e, 'failed-save' );
+			$this->errorReporter->dieException( $e, 'failed-save' );
 		}
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 	}
 
@@ -81,7 +96,7 @@ class RemoveReferences extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['statement'] ) ) ) {
-			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 	}
 
@@ -113,7 +128,7 @@ class RemoveReferences extends ModifyClaim {
 
 		foreach ( array_unique( $params['references'] ) as $referenceHash ) {
 			if ( !$references->hasReferenceHash( $referenceHash ) ) {
-				$this->dieError( 'Invalid reference hash', 'no-such-reference' );
+				$this->errorReporter->dieError( 'Invalid reference hash', 'no-such-reference' );
 			}
 			$hashes[] = $referenceHash;
 		}
@@ -128,13 +143,13 @@ class RemoveReferences extends ModifyClaim {
 		return array_merge(
 			array(
 				'statement' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
 				),
 				'references' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
-					ApiBase::PARAM_ISMULTI => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
+					self::PARAM_ISMULTI => true,
 				),
 			),
 			parent::getAllowedParams()
@@ -146,7 +161,10 @@ class RemoveReferences extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbremovereferences&statement=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&references=455481eeac76e6a8af71a6b493c073d54788e7e9&token=foobar&baserevid=7201010' => 'apihelp-wbremovereferences-example-1',
+			'action=wbremovereferences&statement=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F'
+				. '&references=455481eeac76e6a8af71a6b493c073d54788e7e9&token=foobar'
+				. '&baserevid=7201010'
+				=> 'apihelp-wbremovereferences-example-1',
 		);
 	}
 

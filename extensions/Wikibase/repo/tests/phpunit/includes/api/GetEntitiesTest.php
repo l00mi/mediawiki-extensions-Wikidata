@@ -1,13 +1,13 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 
 /**
- * @covers Wikibase\Api\GetEntities
+ * @covers Wikibase\Repo\Api\GetEntities
  *
  * Test cases are generated using the data provided in the various static arrays below.
  *
@@ -246,7 +246,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		}
 
 		//implied props
-		if ( in_array( 'sitelinks/urls' , $expected['props'] ) ) {
+		if ( in_array( 'sitelinks/urls', $expected['props'] ) ) {
 			$expected['props'][] = 'sitelinks';
 		}
 
@@ -299,7 +299,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		if( !$expected['groupedbyproperty'] ) {
 			$options = new SerializationOptions();
 			$options->setOption( SerializationOptions::OPT_GROUP_BY_PROPERTIES, array() );
-			$factory = new SerializerFactory();
+			$factory = new LibSerializerFactory();
 			/** @var EntitySerializer $serializer */
 			$serializer = $factory->newSerializerForEntity( $entity['type'], $options );
 			$expectedEntityOutput = $serializer->getSerialized(
@@ -409,10 +409,10 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 	}
 
 	public function provideExceptionData() {
-		//todo more exception checks should be added once Bug:53038 is resolved
+		//todo more exception checks should be added once bug T55038 is resolved
 		return array(
 			array( //0 no params
-				'p' => array( ),
+				'p' => array(),
 				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'param-missing' ) ) ),
 			array( //1 bad id
 				'p' => array( 'ids' => 'ABCD' ),

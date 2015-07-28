@@ -1,16 +1,18 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityRevision;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Store\EntityPrefetcher;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\WikibaseRepo;
@@ -27,7 +29,7 @@ use Wikibase\StringNormalizer;
  * @author Michał Łazowik
  * @author Adam Shorland
  */
-class GetEntities extends ApiWikibase {
+class GetEntities extends ApiBase {
 
 	/**
 	 * @var StringNormalizer
@@ -55,6 +57,26 @@ class GetEntities extends ApiWikibase {
 	private $siteLinkGroups;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
+	 * @var ResultBuilder
+	 */
+	private $resultBuilder;
+
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $entityRevisionLookup;
+
+	/**
+	 * @var EntityIdParser
+	 */
+	private $idParser;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -64,9 +86,14 @@ class GetEntities extends ApiWikibase {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
+		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
 		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
 		$this->languageFallbackChainFactory = $wikibaseRepo->getLanguageFallbackChainFactory();
+		$this->entityRevisionLookup = $wikibaseRepo->getEntityRevisionLookup();
+		$this->idParser = $wikibaseRepo->getEntityIdParser();
 
 		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
 			$wikibaseRepo->getSiteStore(),
@@ -84,7 +111,7 @@ class GetEntities extends ApiWikibase {
 		$params = $this->extractRequestParams();
 
 		if ( !isset( $params['ids'] ) && ( empty( $params['sites'] ) || empty( $params['titles'] ) ) ) {
-			$this->dieError(
+			$this->errorReporter->dieError(
 				'Either provide the item "ids" or pairs of "sites" and "titles" for corresponding pages',
 				'param-missing'
 			);
@@ -95,14 +122,14 @@ class GetEntities extends ApiWikibase {
 		$entityIds = $this->getEntityIdsFromParams( $params );
 		$entityRevisions = $this->getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects );
 
-		foreach( $entityRevisions as $sourceEntityId => $entityRevision ) {
+		foreach ( $entityRevisions as $sourceEntityId => $entityRevision ) {
 			$this->handleEntity( $sourceEntityId, $entityRevision, $params );
 		}
 
 		//todo remove once result builder is used... (what exactly does this do....?)
 		$this->getResult()->addIndexedTagName( array( 'entities' ), 'entity' );
 
-		$this->getResultBuilder()->markSuccess( 1 );
+		$this->resultBuilder->markSuccess( 1 );
 	}
 
 	/**
@@ -125,12 +152,12 @@ class GetEntities extends ApiWikibase {
 	 */
 	private function getEntityIdsFromIdParam( $params ) {
 		$ids = array();
-		if( isset( $params['ids'] ) ) {
-			foreach( $params['ids'] as $id ) {
+		if ( isset( $params['ids'] ) ) {
+			foreach ( $params['ids'] as $id ) {
 				try {
-					$ids[] = $this->getIdParser()->parse( $id );
-				} catch( EntityIdParsingException $e ) {
-					$this->dieError( "Invalid id: $id", 'no-such-entity' );
+					$ids[] = $this->idParser->parse( $id );
+				} catch ( EntityIdParsingException $e ) {
+					$this->errorReporter->dieError( "Invalid id: $id", 'no-such-entity' );
 				}
 			}
 		}
@@ -158,7 +185,7 @@ class GetEntities extends ApiWikibase {
 		$siteLinkStore = WikibaseRepo::getDefaultInstance()->getStore()->newSiteLinkStore();
 		$siteStore = WikibaseRepo::getDefaultInstance()->getSiteStore();
 		return new ItemByTitleHelper(
-			$this->getResultBuilder(),
+			$this->resultBuilder,
 			$siteLinkStore,
 			$siteStore,
 			$this->stringNormalizer
@@ -169,8 +196,8 @@ class GetEntities extends ApiWikibase {
 	 * @param array $missingItems Array of arrays, Each internal array has a key 'site' and 'title'
 	 */
 	private function addMissingItemsToResult( $missingItems ) {
-		foreach( $missingItems as $missingItem ) {
-			$this->getResultBuilder()->addMissingEntity( null, $missingItem );
+		foreach ( $missingItems as $missingItem ) {
+			$this->resultBuilder->addMissingEntity( null, $missingItem );
 		}
 	}
 
@@ -220,7 +247,7 @@ class GetEntities extends ApiWikibase {
 		$entityRevision = null;
 
 		try {
-			$entityRevision = $this->getEntityRevisionLookup()->getEntityRevision( $entityId );
+			$entityRevision = $this->entityRevisionLookup->getEntityRevision( $entityId );
 		} catch ( UnresolvedRedirectException $ex ) {
 			if ( $resolveRedirects ) {
 				$entityId = $ex->getRedirectTargetId();
@@ -240,13 +267,19 @@ class GetEntities extends ApiWikibase {
 	 */
 	private function handleEntity( $sourceEntityId, EntityRevision $entityRevision = null, array $params = array() ) {
 		if ( $entityRevision === null ) {
-			$this->getResultBuilder()->addMissingEntity( $sourceEntityId, array( 'id' => $sourceEntityId ) );
+			$this->resultBuilder->addMissingEntity( $sourceEntityId, array( 'id' => $sourceEntityId ) );
 		} else {
 			$props = $this->getPropsFromParams( $params );
 			$options = $this->getSerializationOptions( $params, $props );
 			$siteFilterIds = $params['sitefilter'];
 
-			$this->getResultBuilder()->addEntityRevision( $sourceEntityId, $entityRevision, $options, $props, $siteFilterIds );
+			$this->resultBuilder->addEntityRevision(
+				$sourceEntityId,
+				$entityRevision,
+				$options,
+				$props,
+				$siteFilterIds
+			);
 		}
 	}
 
@@ -274,7 +307,7 @@ class GetEntities extends ApiWikibase {
 		} else {
 			$languages = $params['languages'];
 		}
-		if( $params['ungroupedlist'] ) {
+		if ( $params['ungroupedlist'] ) {
 			$this->logFeatureUsage( 'action=wbgetentities&ungroupedlist' );
 			$options->setOption(
 					SerializationOptions::OPT_GROUP_BY_PROPERTIES,
@@ -293,51 +326,53 @@ class GetEntities extends ApiWikibase {
 	 */
 	protected function getAllowedParams() {
 		$sites = $this->siteLinkTargetProvider->getSiteList( $this->siteLinkGroups );
+
 		return array_merge( parent::getAllowedParams(), array(
 			'ids' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_ISMULTI => true,
+				self::PARAM_TYPE => 'string',
+				self::PARAM_ISMULTI => true,
 			),
 			'sites' => array(
-				ApiBase::PARAM_TYPE => $sites->getGlobalIdentifiers(),
-				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_ALLOW_DUPLICATES => true
+				self::PARAM_TYPE => $sites->getGlobalIdentifiers(),
+				self::PARAM_ISMULTI => true,
+				self::PARAM_ALLOW_DUPLICATES => true
 			),
 			'titles' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_ALLOW_DUPLICATES => true
+				self::PARAM_TYPE => 'string',
+				self::PARAM_ISMULTI => true,
+				self::PARAM_ALLOW_DUPLICATES => true
 			),
 			'redirects' => array(
-				ApiBase::PARAM_TYPE => array( 'yes', 'no' ),
-				ApiBase::PARAM_DFLT => 'yes',
+				self::PARAM_TYPE => array( 'yes', 'no' ),
+				self::PARAM_DFLT => 'yes',
 			),
 			'props' => array(
-				ApiBase::PARAM_TYPE => array( 'info', 'sitelinks', 'sitelinks/urls', 'aliases', 'labels',
+				self::PARAM_TYPE => array( 'info', 'sitelinks', 'sitelinks/urls', 'aliases', 'labels',
 					'descriptions', 'claims', 'datatype' ),
-				ApiBase::PARAM_DFLT => 'info|sitelinks|aliases|labels|descriptions|claims|datatype',
-				ApiBase::PARAM_ISMULTI => true,
+				self::PARAM_DFLT => 'info|sitelinks|aliases|labels|descriptions|claims|datatype',
+				self::PARAM_ISMULTI => true,
 			),
 			'languages' => array(
-				ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
-				ApiBase::PARAM_ISMULTI => true,
+				self::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
+				self::PARAM_ISMULTI => true,
 			),
 			'languagefallback' => array(
-				ApiBase::PARAM_TYPE => 'boolean',
-				ApiBase::PARAM_DFLT => false
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false
 			),
 			'normalize' => array(
-				ApiBase::PARAM_TYPE => 'boolean',
-				ApiBase::PARAM_DFLT => false
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false
 			),
 			'ungroupedlist' => array(
-				ApiBase::PARAM_TYPE => 'boolean',
-				ApiBase::PARAM_DFLT => false,
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false,
+				self::PARAM_DEPRECATED => true,
 			),
 			'sitefilter' => array(
-				ApiBase::PARAM_TYPE => $sites->getGlobalIdentifiers(),
-				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_ALLOW_DUPLICATES => true
+				self::PARAM_TYPE => $sites->getGlobalIdentifiers(),
+				self::PARAM_ISMULTI => true,
+				self::PARAM_ALLOW_DUPLICATES => true
 			),
 		) );
 	}

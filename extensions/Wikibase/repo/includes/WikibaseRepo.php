@@ -16,7 +16,7 @@ use StubObject;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\Api\ApiHelperFactory;
+use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
@@ -26,6 +26,7 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\EntityParserOutputGeneratorFactory;
 use Wikibase\InternalSerialization\DeserializerFactory;
@@ -79,7 +80,6 @@ use Wikibase\Repo\Notifications\ChangeNotifier;
 use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\HookChangeTransmitter;
-use Wikibase\Repo\Notifications\MulticastChangeTransmitter;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SnakFactory;
@@ -331,12 +331,21 @@ class WikibaseRepo {
 			$this->getEntityPermissionChecker(),
 			$this->getSummaryFormatter(),
 			$user,
-			new EditFilterHookRunner(
-				$this->getEntityTitleLookup(),
-				$this->getEntityContentFactory(),
-				$context
-			),
+			$this->newEditFilterHookRunner( $context ),
 			$this->getStore()->getEntityRedirectLookup()
+		);
+	}
+
+	/**
+	 * @param IContextSource|null $context
+	 *
+	 * @return EditFilterHookRunner
+	 */
+	private function newEditFilterHookRunner( IContextSource $context = null ) {
+		return new EditFilterHookRunner(
+			$this->getEntityTitleLookup(),
+			$this->getEntityContentFactory(),
+			$context
 		);
 	}
 
@@ -1061,14 +1070,36 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @param IContextSource|null $context
+	 *
 	 * @return ApiHelperFactory
 	 */
-	public function getApiHelperFactory() {
+	public function getApiHelperFactory( IContextSource $context = null ) {
 		return new ApiHelperFactory(
 			$this->getEntityTitleLookup(),
 			$this->getExceptionLocalizer(),
 			$this->getPropertyDataTypeLookup(),
-			$this->getEntityFactory()
+			$this->getEntityFactory(),
+			$this->getSiteStore(),
+			$this->getSummaryFormatter(),
+			$this->getEntityRevisionLookup( 'uncached' ),
+			$this->newEditEntityFactory( $context )
+		);
+	}
+
+	/**
+	 * @param IContextSource|null $context
+	 *
+	 * @return EditEntityFactory
+	 */
+	public function newEditEntityFactory( IContextSource $context = null ) {
+		return new EditEntityFactory(
+			$this->getEntityTitleLookup(),
+			$this->getEntityRevisionLookup( 'uncached' ),
+			$this->getEntityStore(),
+			$this->getEntityPermissionChecker(),
+			$this->newEditFilterHookRunner( $context ),
+			$context
 		);
 	}
 
@@ -1143,7 +1174,7 @@ class WikibaseRepo {
 	}
 
 	private function getMonolingualTextLanguages() {
-		if( $this->monolingualTextLanguages === null ) {
+		if ( $this->monolingualTextLanguages === null ) {
 			$this->monolingualTextLanguages = new WikibaseContentLanguages();
 		}
 		return $this->monolingualTextLanguages;

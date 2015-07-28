@@ -487,11 +487,11 @@ class AffectedPagesFinderTest extends \MediaWikiTestCase {
 	private function getItemWithSiteLinks( ItemId $id, array $links, array $badges = array() ) {
 		$item = new Item( $id );
 
-		foreach( $links as $siteId => $page ) {
+		foreach ( $links as $siteId => $page ) {
 			$item->getSiteLinkList()->addNewSiteLink( $siteId, $page, $badges );
 		}
 
-		return $item->copy();
+		return $item;
 	}
 
 	/**

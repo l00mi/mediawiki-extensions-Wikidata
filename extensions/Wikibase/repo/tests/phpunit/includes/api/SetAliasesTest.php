@@ -1,9 +1,9 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 /**
- * @covers Wikibase\Api\SetAliases
+ * @covers Wikibase\Repo\Api\SetAliases
  *
  * @group Database
  * @group medium
@@ -75,7 +75,7 @@ class SetAliasesTest extends ModifyTermTestCase {
 				'e' => array( 'value' => array( 'en' => array( 'ohi' ) ) ) ),
 			array( //12
 				'p' => array( 'language' => 'en', 'remove' => 'ohi' ),
-				'e' => array(  ) ),
+				'e' => array() ),
 			array( //13
 				'p' => array( 'language' => 'en', 'set' => "  Foo\nBar  " ),
 				'e' => array( 'value' => array( 'en' => array( 'Foo Bar' ) ) ) ),
@@ -132,7 +132,7 @@ class SetAliasesTest extends ModifyTermTestCase {
 		if ( empty( $expected['edit-no-change'] ) ) {
 			$this->assertRevisionSummary( array( self::$testAction, $params['language'] ), $result['entity']['lastrevid'] );
 			if ( array_key_exists( 'summary', $params ) ) {
-				$this->assertRevisionSummary( "/{$params['summary']}/" , $result['entity']['lastrevid'] );
+				$this->assertRevisionSummary( '/' . $params['summary']. '/', $result['entity']['lastrevid'] );
 			}
 		}
 	}
@@ -144,31 +144,73 @@ class SetAliasesTest extends ModifyTermTestCase {
 			// -- Test Exceptions -----------------------------
 			array( //0
 				'p' => array( 'language' => 'xx', 'add' => 'Foo' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'unknown_language' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'unknown_language'
+				) )
+			),
 			array( //1
 				'p' => array( 'language' => 'nl', 'set' => TermTestHelper::makeOverlyLongString() ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'modification-failed' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'modification-failed'
+				) )
+			),
 			array( //2
 				'p' => array( 'language' => 'pt', 'remove' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'notoken', 'message' => 'The token parameter must be set' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'notoken',
+					'message' => 'The token parameter must be set'
+				) )
+			),
 			array( //3
 				'p' => array( 'language' => 'pt', 'value' => 'normalValue', 'token' => '88888888888888888888888888888888+\\' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'badtoken', 'message' => 'Invalid token' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'badtoken',
+					'message' => 'Invalid token'
+				) )
+			),
 			array( //4
 				'p' => array( 'id' => 'noANid', 'language' => 'fr', 'add' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'no-such-entity-id', 'message' => 'Could not find such an entity id' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'no-such-entity-id',
+					'message' => 'Could not find such an entity id'
+				) )
+			),
 			array( //5
 				'p' => array( 'site' => 'qwerty', 'language' => 'pl', 'set' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'unknown_site', 'message' => "Unrecognized value for parameter 'site'" ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'unknown_site',
+					'message' => "Unrecognized value for parameter 'site'"
+				) )
+			),
 			array( //6
 				'p' => array( 'site' => 'enwiki', 'title' => 'GhskiDYiu2nUd', 'language' => 'en', 'remove' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'no-such-entity-link', 'message' => 'No entity found matching site link' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'no-such-entity-link',
+					'message' => 'No entity found matching site link'
+				) )
+			),
 			array( //7
 				'p' => array( 'title' => 'Blub', 'language' => 'en', 'add' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'param-illegal', 'message' => 'Either provide the item "id" or pairs' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'param-illegal',
+					'message' => 'Either provide the item "id" or pairs'
+				) )
+			),
 			array( //8
 				'p' => array( 'site' => 'enwiki', 'language' => 'en', 'set' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'param-illegal' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'param-illegal'
+				) )
+			),
 		);
 	}
 

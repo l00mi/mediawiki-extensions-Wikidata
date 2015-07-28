@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\Repo\WikibaseRepo;
@@ -24,6 +23,11 @@ class SetClaimValue extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -31,12 +35,16 @@ class SetClaimValue extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
 	/**
-	 * @see \ApiBase::execute
+	 * @see ApiBase::execute
 	 *
 	 * @since 0.3
 	 */
@@ -46,8 +54,11 @@ class SetClaimValue extends ModifyClaim {
 
 		$guid = $params['claim'];
 		$entityId = $this->guidParser->parse( $guid )->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 
 		$claim = $this->modificationHelper->getStatementFromEntity( $guid, $entity );
@@ -60,7 +71,8 @@ class SetClaimValue extends ModifyClaim {
 
 		$this->modificationHelper->applyChangeOp( $changeOp, $entity, $summary );
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addClaim( $claim );
 	}
@@ -70,7 +82,7 @@ class SetClaimValue extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['claim'] ) ) ) {
-			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 	}
 
@@ -81,16 +93,16 @@ class SetClaimValue extends ModifyClaim {
 		return array_merge(
 			array(
 				'claim' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
 				),
 				'value' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => false,
+					self::PARAM_TYPE => 'text',
+					self::PARAM_REQUIRED => false,
 				),
 				'snaktype' => array(
-					ApiBase::PARAM_TYPE => array( 'value', 'novalue', 'somevalue' ),
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => array( 'value', 'novalue', 'somevalue' ),
+					self::PARAM_REQUIRED => true,
 				),
 			),
 			parent::getAllowedParams()
@@ -102,7 +114,9 @@ class SetClaimValue extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbsetclaimvalue&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&snaktype=value&value={"entity-type":"item","numeric-id":1}&token=foobar&baserevid=7201010' => 'apihelp-wbsetclaimvalue-example-1',
+			'action=wbsetclaimvalue&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&snaktype=value'
+				. '&value={"entity-type":"item","numeric-id":1}&token=foobar&baserevid=7201010'
+				=> 'apihelp-wbsetclaimvalue-example-1',
 		);
 	}
 

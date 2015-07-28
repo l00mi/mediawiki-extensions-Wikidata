@@ -1,11 +1,14 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
+use Status;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
 
@@ -18,7 +21,7 @@ use Wikibase\Summary;
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-abstract class ModifyClaim extends ApiWikibase {
+abstract class ModifyClaim extends ApiBase {
 
 	/**
 	 * @since 0.4
@@ -35,6 +38,21 @@ abstract class ModifyClaim extends ApiWikibase {
 	protected $guidParser;
 
 	/**
+	 * @var ResultBuilder
+	 */
+	private $resultBuilder;
+
+	/**
+	 * @var EntityLoadingHelper
+	 */
+	private $entityLoadingHelper;
+
+	/**
+	 * @var EntitySavingHelper
+	 */
+	private $entitySavingHelper;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -44,14 +62,44 @@ abstract class ModifyClaim extends ApiWikibase {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+
 		$this->modificationHelper = new StatementModificationHelper(
-			WikibaseRepo::getDefaultInstance()->getSnakConstructionService(),
-			WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
-			WikibaseRepo::getDefaultInstance()->getClaimGuidValidator(),
-			$this->getErrorReporter()
+			$wikibaseRepo->getSnakConstructionService(),
+			$wikibaseRepo->getEntityIdParser(),
+			$wikibaseRepo->getClaimGuidValidator(),
+			$apiHelperFactory->getErrorReporter( $this )
 		);
 
 		$this->guidParser = WikibaseRepo::getDefaultInstance()->getStatementGuidParser();
+		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
+		$this->entityLoadingHelper = $apiHelperFactory->getEntityLoadingHelper( $this );
+		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
+	}
+
+	/**
+	 * @see EntitySavingHelper::attemptSaveEntity
+	 */
+	protected function attemptSaveEntity( Entity $entity, $summary, $flags = 0 ) {
+		return $this->entitySavingHelper->attemptSaveEntity( $entity, $summary, $flags );
+	}
+
+	/**
+	 * @return ResultBuilder
+	 */
+	protected function getResultBuilder() {
+		return $this->resultBuilder;
+	}
+
+	/**
+	 * @see EntitySavingHelper::loadEntityRevision
+	 */
+	protected function loadEntityRevision(
+		EntityId $entityId,
+		$revId = EntityRevisionLookup::LATEST_FROM_MASTER
+	) {
+		return $this->entityLoadingHelper->loadEntityRevision( $entityId, $revId );
 	}
 
 	/**
@@ -59,16 +107,15 @@ abstract class ModifyClaim extends ApiWikibase {
 	 *
 	 * @param Entity $entity
 	 * @param Summary $summary
+	 *
+	 * @returns Status
 	 */
 	public function saveChanges( Entity $entity, Summary $summary ) {
-		$status = $this->attemptSaveEntity(
+		return $this->attemptSaveEntity(
 			$entity,
 			$summary,
-			$this->getFlags()
+			EDIT_UPDATE
 		);
-
-		//@todo this doesnt belong here!...
-		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 	}
 
 	/**
@@ -79,17 +126,12 @@ abstract class ModifyClaim extends ApiWikibase {
 	}
 
 	/**
-	 * @since 0.4
+	 * @see ApiBase::needsToken
 	 *
-	 * @return integer
+	 * @return string
 	 */
-	protected function getFlags() {
-		$flags = EDIT_UPDATE;
-
-		$params = $this->extractRequestParams();
-		$flags |= ( $this->getUser()->isAllowed( 'bot' ) && $params['bot'] ) ? EDIT_FORCE_BOT : 0;
-
-		return $flags;
+	public function needsToken() {
+		return 'csrf';
 	}
 
 	/**
@@ -99,10 +141,12 @@ abstract class ModifyClaim extends ApiWikibase {
 		return array_merge(
 			parent::getAllowedParams(),
 			array(
-				'summary' => array( ApiBase::PARAM_TYPE => 'string' ),
+				'summary' => array(
+					self::PARAM_TYPE => 'string',
+				),
 				'token' => null,
 				'baserevid' => array(
-					ApiBase::PARAM_TYPE => 'integer',
+					self::PARAM_TYPE => 'integer',
 				),
 				'bot' => false,
 			)

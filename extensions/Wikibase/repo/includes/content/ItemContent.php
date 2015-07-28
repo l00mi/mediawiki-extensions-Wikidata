@@ -19,6 +19,7 @@ use Wikibase\Repo\ItemSearchTextGenerator;
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class ItemContent extends EntityContent {
 
@@ -41,7 +42,7 @@ class ItemContent extends EntityContent {
 	private $redirect;
 
 	/**
-	 * @var Title|null
+	 * @var Title|null Title of the redirect target.
 	 */
 	private $redirectTitle;
 
@@ -54,7 +55,7 @@ class ItemContent extends EntityContent {
 	 *
 	 * @param EntityHolder|null $itemHolder
 	 * @param EntityRedirect|null $entityRedirect
-	 * @param Title|null $redirectTitle
+	 * @param Title|null $redirectTitle Title of the redirect target.
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -111,7 +112,7 @@ class ItemContent extends EntityContent {
 	 * @since 0.5
 	 *
 	 * @param EntityRedirect $redirect
-	 * @param Title $redirectTitle
+	 * @param Title $redirectTitle Title of the redirect target.
 	 *
 	 * @return ItemContent
 	 */
@@ -122,7 +123,7 @@ class ItemContent extends EntityContent {
 	/**
 	 * @see Content::getRedirectTarget
 	 *
-	 * @return null|Title
+	 * @return Title|null
 	 */
 	public function getRedirectTarget() {
 		return $this->redirectTitle;
@@ -207,19 +208,52 @@ class ItemContent extends EntityContent {
 	}
 
 	/**
+	 * @see EntityContent::isCountable
+	 *
+	 * @param bool $hasLinks
+	 *
+	 * @return bool True if this is not a redirect and the item is not empty.
+	 */
+	public function isCountable( $hasLinks = null ) {
+		return !$this->isRedirect() && !$this->getItem()->isEmpty();
+	}
+
+	/**
+	 * @see EntityContent::isEmpty
+	 *
+	 * @return bool True if this is not a redirect and the item is empty.
+	 */
+	public function isEmpty() {
+		return !$this->isRedirect() && $this->getItem()->isEmpty();
+	}
+
+	/**
+	 * @see EntityContent::isStub
+	 *
+	 * @return bool True if the item is not empty, but does not contain statements.
+	 */
+	public function isStub() {
+		return !$this->isRedirect()
+			&& !$this->getItem()->isEmpty()
+			&& $this->getItem()->getStatements()->isEmpty();
+	}
+
+	/**
 	 * @see EntityContent::getEntityPageProperties
 	 *
-	 * Records the number of sitelinks in the 'wb-sitelinks' key.
+	 * Records the number of statements in the 'wb-claims' key
+	 * and the number of sitelinks in the 'wb-sitelinks' key.
 	 *
 	 * @return array A map from property names to property values.
 	 */
 	public function getEntityPageProperties() {
-		if ( $this->isRedirect() ) {
-			return array();
-		}
-
 		$properties = parent::getEntityPageProperties();
-		$properties['wb-sitelinks'] = $this->getItem()->getSiteLinkList()->count();
+
+		if ( !$this->isRedirect() ) {
+			$item = $this->getItem();
+			$properties['wb-claims'] = $item->getStatements()->count();
+			$properties['wb-sitelinks'] = $item->getSiteLinkList()->count();
+		}
 
 		return $properties;
 	}
@@ -239,12 +273,15 @@ class ItemContent extends EntityContent {
 	 */
 	public function getEntityStatus() {
 		$status = parent::getEntityStatus();
-		$hasSiteLinks = !$this->getItem()->getSiteLinkList()->isEmpty();
 
-		if ( $status === self::STATUS_EMPTY && $hasSiteLinks ) {
-			$status = self::STATUS_LINKSTUB;
-		} elseif ( $status === self::STATUS_STUB && $hasSiteLinks ) {
-			$status = self::STATUS_LINKSTUB;
+		if ( !$this->isRedirect() ) {
+			$hasSiteLinks = !$this->getItem()->getSiteLinkList()->isEmpty();
+
+			if ( $status === self::STATUS_EMPTY && $hasSiteLinks ) {
+				$status = self::STATUS_LINKSTUB;
+			} elseif ( $status === self::STATUS_STUB && $hasSiteLinks ) {
+				$status = self::STATUS_LINKSTUB;
+			}
 		}
 
 		return $status;

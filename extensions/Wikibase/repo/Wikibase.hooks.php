@@ -83,7 +83,7 @@ final class RepoHooks {
 			throw new MWException( 'Wikibase: Incomplete configuration: '
 				. '$wgWBRepoSettings["entityNamespaces"] has to be set to an '
 				. 'array mapping content model IDs to namespace IDs. '
-				. 'See ExampleSettings.php for details and examples.');
+				. 'See ExampleSettings.php for details and examples.' );
 		}
 
 		foreach ( $namespaces as $contentModel => $namespace ) {
@@ -130,8 +130,7 @@ final class RepoHooks {
 				'wb_changes_dispatch',
 				__DIR__ . '/sql/changes_dispatch' . $extension
 			);
-		}
-		else {
+		} else {
 			wfWarn( "Database type '$type' is not supported by the Wikibase repository." );
 		}
 
@@ -171,7 +170,7 @@ final class RepoHooks {
 	public static function registerQUnitTests( array &$testModules, ResourceLoader &$resourceLoader ) {
 		$testModules['qunit'] = array_merge(
 			$testModules['qunit'],
-			include( __DIR__ . '/tests/qunit/resources.php' )
+			include __DIR__ . '/tests/qunit/resources.php'
 		);
 
 		return true;
@@ -288,7 +287,9 @@ final class RepoHooks {
 
 		// Notify storage/lookup services that the entity was deleted. Needed to track page-level deletion.
 		// May be redundant in some cases. Take care not to cause infinite regress.
-		WikibaseRepo::getDefaultInstance()->getEntityStoreWatcher()->entityDeleted( $content->getEntityId() );
+		WikibaseRepo::getDefaultInstance()
+			->getEntityStoreWatcher()
+			->entityDeleted( $content->getEntityId() );
 
 		$notifier = WikibaseRepo::getDefaultInstance()->getChangeNotifier();
 		$notifier->notifyOnPageDeleted( $content, $user, $logEntry->getTimestamp() );
@@ -484,7 +485,7 @@ final class RepoHooks {
 	public static function onPageTabs( SkinTemplate &$skinTemplate, array &$links ) {
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
-		$title = $skinTemplate->getTitle();
+		$title = $skinTemplate->getRelevantTitle();
 		$request = $skinTemplate->getRequest();
 
 		if ( $entityContentFactory->isEntityContentModel( $title->getContentModel() ) ) {
@@ -533,7 +534,7 @@ final class RepoHooks {
 	 *
 	 * @return bool
 	 */
-	public static function onSpecialPage_reorderPages( &$groups, &$moveOther ) {
+	public static function onSpecialPageReorderPages( &$groups, &$moveOther ) {
 		$groups = array_merge( array( 'wikibaserepo' => null ), $groups );
 		return true;
 	}
@@ -1042,7 +1043,7 @@ final class RepoHooks {
 	/**
 	 * Called by Import.php. Implemented to prevent the import of entities.
 	 *
-	 * @param object $importer unclear, see Bug 64657
+	 * @param object $importer unclear, see Bug T66657
 	 * @param array $pageInfo
 	 * @param array $revisionInfo
 	 *
@@ -1052,12 +1053,17 @@ final class RepoHooks {
 	public static function onImportHandleRevisionXMLTag( $importer, $pageInfo, $revisionInfo ) {
 		if ( isset( $revisionInfo['model'] ) ) {
 			$contentModels = WikibaseRepo::getDefaultInstance()->getContentModelMappings();
-			$allowImport = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'allowEntityImport' );
+			$allowImport = WikibaseRepo::getDefaultInstance()
+				->getSettings()
+				->getSetting( 'allowEntityImport' );
 
 			if ( !$allowImport && in_array( $revisionInfo['model'], $contentModels ) ) {
 				// Skip entities.
 				// XXX: This is rather rough.
-				throw new MWException( 'To avoid ID conflicts, the import of Wikibase entities is not supported. You can enable imports using the `allowEntityImport` setting.' );
+				throw new MWException(
+					'To avoid ID conflicts, the import of Wikibase entities is not supported.'
+						. ' You can enable imports using the "allowEntityImport" setting.'
+				);
 			}
 		}
 
@@ -1073,7 +1079,7 @@ final class RepoHooks {
 	 *
 	 * @return bool
 	 */
-	public static function onSkinTemplateBuildNavUrlsNav_urlsAfterPermalink(
+	public static function onSkinTemplateBuildNavUrlsNavUrlsAfterPermalink(
 		SkinTemplate $skinTemplate,
 		array &$navigationUrls
 	) {
@@ -1138,76 +1144,60 @@ final class RepoHooks {
 	 * Register ResourceLoader modules with dynamic dependencies.
 	 *
 	 * @param ResourceLoader $resourceLoader
+	 *
+	 * @return bool
 	 */
 	public static function onResourceLoaderRegisterModules( ResourceLoader $resourceLoader ) {
 		preg_match( '+' . preg_quote( DIRECTORY_SEPARATOR ) . '(?:vendor|extensions)'
 			. preg_quote( DIRECTORY_SEPARATOR ) . '.*+', __DIR__, $remoteExtPath );
-		$hasULS = ExtensionRegistry::getInstance()->isLoaded( 'UniversalLanguageSelector' );
 
 		$moduleTemplate = array(
-			'localBasePath' => __DIR__ . '/resources',
+			'localBasePath' => __DIR__,
 			'remoteExtPath' => '..' . $remoteExtPath[0],
 			'position' => 'top' // reducing the time between DOM construction and JS initialisation
 		);
 
-		$dependencies = array(
-			'util.ContentLanguages',
-			'util.inherit',
-			'wikibase',
+		$modules = array(
+			'wikibase.WikibaseContentLanguages' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.WikibaseContentLanguages.js',
+				),
+				'dependencies' => array(
+					'util.ContentLanguages',
+					'util.inherit',
+					'wikibase',
+				),
+			),
+			'wikibase.special.itemDisambiguation' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.special/wikibase.special.itemDisambiguation.js',
+				),
+				'dependencies' => array(
+					'wikibase.special',
+					'jquery.ui.suggester',
+				),
+			),
+			'wikibase.special.entitiesWithout' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.special/wikibase.special.entitiesWithout.js',
+				),
+				'dependencies' => array(
+					'wikibase.special',
+					'jquery.ui.suggester',
+				),
+			),
 		);
 
-		if ( $hasULS ) {
-			$dependencies[] = 'ext.uls.languagenames';
+		$isUlsLoaded = ExtensionRegistry::getInstance()->isLoaded( 'UniversalLanguageSelector' );
+		if ( $isUlsLoaded ) {
+			$modules['wikibase.WikibaseContentLanguages']['dependencies'][] = 'ext.uls.languagenames';
+			$modules['wikibase.special.itemDisambiguation']['dependencies'][] = 'ext.uls.mediawiki';
+			$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
 		}
 
-		$resourceLoader->register(
-			'wikibase.WikibaseContentLanguages',
-			$moduleTemplate + array(
-				'scripts' => array(
-					'wikibase.WikibaseContentLanguages.js',
-				),
-				'dependencies' => $dependencies
-			)
-		);
-
-		$dependencies = array(
-			'wikibase.special',
-			'jquery.ui.suggester'
-		);
-
-		if ( $hasULS ) {
-			$dependencies[] = 'ext.uls.mediawiki';
-		}
-
-		$resourceLoader->register(
-			'wikibase.special.itemDisambiguation',
-			$moduleTemplate + array(
-				'scripts' => array(
-					'wikibase.special/wikibase.special.itemDisambiguation.js'
-				),
-				'dependencies' => $dependencies
-			)
-		);
-
-		$dependencies = array(
-			'wikibase.special',
-			'jquery.ui.suggester'
-		);
-
-		if ( $hasULS ) {
-			$dependencies[] = 'ext.uls.mediawiki';
-		}
-
-		$resourceLoader->register(
-			'wikibase.special.entitiesWithout',
-			$moduleTemplate + array(
-				'scripts' => array(
-					'wikibase.special/wikibase.special.entitiesWithout.js'
-				),
-				'dependencies' => $dependencies
-			)
-		);
+		$resourceLoader->register( $modules );
 
 		return true;
 	}
+
 }

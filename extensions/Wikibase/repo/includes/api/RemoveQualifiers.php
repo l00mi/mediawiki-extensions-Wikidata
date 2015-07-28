@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
@@ -28,6 +27,11 @@ class RemoveQualifiers extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -35,12 +39,16 @@ class RemoveQualifiers extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
 	/**
-	 * @see \ApiBase::execute
+	 * @see ApiBase::execute
 	 *
 	 * @since 0.3
 	 */
@@ -50,8 +58,11 @@ class RemoveQualifiers extends ModifyClaim {
 
 		$guid = $params['claim'];
 		$entityId = $this->guidParser->parse( $guid )->getEntityId();
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 		$summary = $this->modificationHelper->createSummary( $params, $this );
 
@@ -65,10 +76,11 @@ class RemoveQualifiers extends ModifyClaim {
 		try {
 			$changeOps->apply( $entity, $summary );
 		} catch ( ChangeOpException $e ) {
-			$this->dieException( $e, 'failed-save' );
+			$this->errorReporter->dieException( $e, 'failed-save' );
 		}
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 	}
 
@@ -77,7 +89,7 @@ class RemoveQualifiers extends ModifyClaim {
 	 */
 	private function validateParameters( array $params ) {
 		if ( !( $this->modificationHelper->validateStatementGuid( $params['claim'] ) ) ) {
-			$this->dieError( 'Invalid claim guid' , 'invalid-guid' );
+			$this->errorReporter->dieError( 'Invalid claim guid', 'invalid-guid' );
 		}
 	}
 
@@ -109,7 +121,7 @@ class RemoveQualifiers extends ModifyClaim {
 
 		foreach ( array_unique( $params['qualifiers'] ) as $qualifierHash ) {
 			if ( !$qualifiers->hasSnakHash( $qualifierHash ) ) {
-				$this->dieError( 'Invalid snak hash', 'no-such-qualifier' );
+				$this->errorReporter->dieError( 'Invalid snak hash', 'no-such-qualifier' );
 			}
 			$hashes[] = $qualifierHash;
 		}
@@ -124,13 +136,13 @@ class RemoveQualifiers extends ModifyClaim {
 		return array_merge(
 			array(
 				'claim' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
 				),
 				'qualifiers' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_REQUIRED => true,
-					ApiBase::PARAM_ISMULTI => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_REQUIRED => true,
+					self::PARAM_ISMULTI => true,
 				),
 			),
 			parent::getAllowedParams()
@@ -142,8 +154,10 @@ class RemoveQualifiers extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbremovequalifiers&statement=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F&references=1eb8793c002b1d9820c833d234a1b54c8e94187e&token=foobar&baserevid=7201010'=>
-				'apihelp-wbremovequalifiers-example-1',
+			'action=wbremovequalifiers&statement=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F'
+				. '&references=1eb8793c002b1d9820c833d234a1b54c8e94187e&token=foobar'
+				. '&baserevid=7201010'
+				=> 'apihelp-wbremovequalifiers-example-1',
 		);
 	}
 

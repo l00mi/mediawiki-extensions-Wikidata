@@ -77,7 +77,7 @@ abstract class EntitySerializer extends SerializerObject implements Unserializer
 
 		$options->initOption( self::OPT_SORT_ORDER, self::SORT_NONE );
 
-		$options->initOption( self::OPT_PARTS,  array(
+		$options->initOption( self::OPT_PARTS, array(
 			'aliases',
 			'descriptions',
 			'labels',
@@ -87,12 +87,12 @@ abstract class EntitySerializer extends SerializerObject implements Unserializer
 			'sitelinks', // item specific
 		) );
 
-		$options->initOption( self::OPT_SORT_FIELDS,  array() );
+		$options->initOption( self::OPT_SORT_FIELDS, array() );
 
 		parent::__construct( $options );
 
 		if ( $entityFactory === null ) {
-			// FIXME: This is bad. We need to require the EntityFactory to be provided (bug 66020).
+			// FIXME: This is bad. We need to require the EntityFactory to be provided (bug T68020).
 			// That requires refactoring of all calls to the constructor of SerializerFactory,
 			// which currently allows all parameters to be null.
 			$this->entityFactory = new EntityFactory(

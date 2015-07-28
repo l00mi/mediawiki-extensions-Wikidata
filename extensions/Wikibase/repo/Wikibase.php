@@ -44,8 +44,8 @@ if ( defined( 'WB_VERSION' ) ) {
 define( 'WB_VERSION', '0.5 alpha'
 	. ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ? '/experimental' : '' ) );
 
-if ( version_compare( $GLOBALS['wgVersion'], '1.20c', '<' ) ) { // Needs to be 1.20c because version_compare() works in confusing ways.
-	die( "<b>Error:</b> Wikibase requires MediaWiki 1.20 or above.\n" );
+if ( version_compare( $GLOBALS['wgVersion'], '1.26c', '<' ) ) { // Needs to be 1.26c because version_compare() works in confusing ways.
+	die( "<b>Error:</b> Wikibase requires MediaWiki 1.26 or above.\n" );
 }
 
 /**
@@ -55,7 +55,7 @@ $GLOBALS['wgValueParsers'] = array();
 
 // Include the WikibaseLib extension if that hasn't been done yet, since it's required for Wikibase to work.
 if ( !defined( 'WBL_VERSION' ) ) {
-	include_once( __DIR__ . '/../lib/WikibaseLib.php' );
+	include_once __DIR__ . '/../lib/WikibaseLib.php';
 }
 
 if ( !defined( 'WBL_VERSION' ) ) {
@@ -63,15 +63,15 @@ if ( !defined( 'WBL_VERSION' ) ) {
 }
 
 if ( !defined( 'WIKIBASE_VIEW_VERSION' ) ) {
-	include_once( __DIR__ . '/../view/WikibaseView.php' );
+	include_once __DIR__ . '/../view/WikibaseView.php';
 }
 
 if ( !defined( 'WIKIBASE_VIEW_VERSION' ) ) {
-    throw new Exception( 'Wikibase depends on WikibaseView.' );
+	throw new Exception( 'Wikibase depends on WikibaseView.' );
 }
 
 if ( !defined( 'PURTLE_VERSION' ) ) {
-	include_once( __DIR__ . '/../purtle/Purtle.php' );
+	include_once __DIR__ . '/../purtle/Purtle.php';
 }
 
 if ( !defined( 'PURTLE_VERSION' ) ) {
@@ -142,28 +142,28 @@ call_user_func( function() {
 	$wgValueParsers['monolingualtext'] = 'Wikibase\Parsers\MonolingualTextParser';
 
 	// API module registration
-	$wgAPIModules['wbgetentities'] 						= 'Wikibase\Api\GetEntities';
-	$wgAPIModules['wbsetlabel'] 						= 'Wikibase\Api\SetLabel';
-	$wgAPIModules['wbsetdescription'] 					= 'Wikibase\Api\SetDescription';
-	$wgAPIModules['wbsearchentities'] 					= 'Wikibase\Api\SearchEntities';
-	$wgAPIModules['wbsetaliases'] 						= 'Wikibase\Api\SetAliases';
-	$wgAPIModules['wbeditentity'] 						= 'Wikibase\Api\EditEntity';
-	$wgAPIModules['wblinktitles'] 						= 'Wikibase\Api\LinkTitles';
-	$wgAPIModules['wbsetsitelink'] 						= 'Wikibase\Api\SetSiteLink';
-	$wgAPIModules['wbcreateclaim'] 						= 'Wikibase\Api\CreateClaim';
-	$wgAPIModules['wbgetclaims'] 						= 'Wikibase\Api\GetClaims';
-	$wgAPIModules['wbremoveclaims'] 					= 'Wikibase\Api\RemoveClaims';
-	$wgAPIModules['wbsetclaimvalue'] 					= 'Wikibase\Api\SetClaimValue';
-	$wgAPIModules['wbsetreference'] 					= 'Wikibase\Api\SetReference';
-	$wgAPIModules['wbremovereferences'] 				= 'Wikibase\Api\RemoveReferences';
-	$wgAPIModules['wbsetclaim'] 						= 'Wikibase\Api\SetClaim';
-	$wgAPIModules['wbremovequalifiers']					= 'Wikibase\Api\RemoveQualifiers';
-	$wgAPIModules['wbsetqualifier']						= 'Wikibase\Api\SetQualifier';
-	$wgAPIModules['wbmergeitems']						= 'Wikibase\Api\MergeItems';
-	$wgAPIModules['wbformatvalue']						= 'Wikibase\Api\FormatSnakValue';
-	$wgAPIModules['wbparsevalue']						= 'Wikibase\Api\ParseValue';
-	$wgAPIModules['wbavailablebadges']					= 'Wikibase\Api\AvailableBadges';
-	$wgAPIModules['wbcreateredirect']					= 'Wikibase\Api\CreateRedirect';
+	$wgAPIModules['wbgetentities'] 						= 'Wikibase\Repo\Api\GetEntities';
+	$wgAPIModules['wbsetlabel'] 						= 'Wikibase\Repo\Api\SetLabel';
+	$wgAPIModules['wbsetdescription'] 					= 'Wikibase\Repo\Api\SetDescription';
+	$wgAPIModules['wbsearchentities'] 					= 'Wikibase\Repo\Api\SearchEntities';
+	$wgAPIModules['wbsetaliases'] 						= 'Wikibase\Repo\Api\SetAliases';
+	$wgAPIModules['wbeditentity'] 						= 'Wikibase\Repo\Api\EditEntity';
+	$wgAPIModules['wblinktitles'] 						= 'Wikibase\Repo\Api\LinkTitles';
+	$wgAPIModules['wbsetsitelink'] 						= 'Wikibase\Repo\Api\SetSiteLink';
+	$wgAPIModules['wbcreateclaim'] 						= 'Wikibase\Repo\Api\CreateClaim';
+	$wgAPIModules['wbgetclaims'] 						= 'Wikibase\Repo\Api\GetClaims';
+	$wgAPIModules['wbremoveclaims'] 					= 'Wikibase\Repo\Api\RemoveClaims';
+	$wgAPIModules['wbsetclaimvalue'] 					= 'Wikibase\Repo\Api\SetClaimValue';
+	$wgAPIModules['wbsetreference'] 					= 'Wikibase\Repo\Api\SetReference';
+	$wgAPIModules['wbremovereferences'] 				= 'Wikibase\Repo\Api\RemoveReferences';
+	$wgAPIModules['wbsetclaim'] 						= 'Wikibase\Repo\Api\SetClaim';
+	$wgAPIModules['wbremovequalifiers']					= 'Wikibase\Repo\Api\RemoveQualifiers';
+	$wgAPIModules['wbsetqualifier']						= 'Wikibase\Repo\Api\SetQualifier';
+	$wgAPIModules['wbmergeitems']						= 'Wikibase\Repo\Api\MergeItems';
+	$wgAPIModules['wbformatvalue']						= 'Wikibase\Repo\Api\FormatSnakValue';
+	$wgAPIModules['wbparsevalue']						= 'Wikibase\Repo\Api\ParseValue';
+	$wgAPIModules['wbavailablebadges']					= 'Wikibase\Repo\Api\AvailableBadges';
+	$wgAPIModules['wbcreateredirect']					= 'Wikibase\Repo\Api\CreateRedirect';
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] 							= 'Wikibase\Repo\Specials\SpecialNewItem';
@@ -177,8 +177,14 @@ call_user_func( function() {
 	$wgSpecialPages['SetAliases'] 						= 'Wikibase\Repo\Specials\SpecialSetAliases';
 	$wgSpecialPages['SetLabelDescriptionAliases'] 		= 'Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases';
 	$wgSpecialPages['SetSiteLink']						= 'Wikibase\Repo\Specials\SpecialSetSiteLink';
-	$wgSpecialPages['EntitiesWithoutLabel'] 			= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutLabel' );
-	$wgSpecialPages['EntitiesWithoutDescription']		= array( 'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory', 'newSpecialEntitiesWithoutDescription' );
+	$wgSpecialPages['EntitiesWithoutLabel'] = array(
+		'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory',
+		'newSpecialEntitiesWithoutLabel'
+	);
+	$wgSpecialPages['EntitiesWithoutDescription'] = array(
+		'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory',
+		'newSpecialEntitiesWithoutDescription'
+	);
 	$wgSpecialPages['ListDatatypes']					= 'Wikibase\Repo\Specials\SpecialListDatatypes';
 	$wgSpecialPages['ListProperties']					= 'Wikibase\Repo\Specials\SpecialListProperties';
 	$wgSpecialPages['DispatchStats']					= 'Wikibase\Repo\Specials\SpecialDispatchStats';
@@ -208,8 +214,14 @@ call_user_func( function() {
 	$wgHooks['ChangesListInitRows'][] 					= 'Wikibase\Repo\Hooks\LabelPrefetchHookHandlers::onChangesListInitRows';
 	$wgHooks['OutputPageBodyAttributes'][] 				= 'Wikibase\RepoHooks::onOutputPageBodyAttributes';
 	//FIXME: handle other types of entities with autocomments too!
-	$wgHooks['FormatAutocomments'][]					= array( 'Wikibase\RepoHooks::onFormat', array( CONTENT_MODEL_WIKIBASE_ITEM, "wikibase-item" ) );
-	$wgHooks['FormatAutocomments'][]					= array( 'Wikibase\RepoHooks::onFormat', array( CONTENT_MODEL_WIKIBASE_PROPERTY, "wikibase-property" ) );
+	$wgHooks['FormatAutocomments'][] = array(
+		'Wikibase\RepoHooks::onFormat',
+		array( CONTENT_MODEL_WIKIBASE_ITEM, 'wikibase-item' )
+	);
+	$wgHooks['FormatAutocomments'][] = array(
+		'Wikibase\RepoHooks::onFormat',
+		array( CONTENT_MODEL_WIKIBASE_PROPERTY, 'wikibase-property' )
+	);
 	$wgHooks['PageHistoryLineEnding'][]					= 'Wikibase\RepoHooks::onPageHistoryLineEnding';
 	$wgHooks['WikibaseDeleteData'][] 					= 'Wikibase\RepoHooks::onWikibaseDeleteData';
 	$wgHooks['ApiCheckCanExecute'][] 					= 'Wikibase\RepoHooks::onApiCheckCanExecute';
@@ -218,7 +230,7 @@ call_user_func( function() {
 	$wgHooks['ShowSearchHitTitle'][]					= 'Wikibase\RepoHooks::onShowSearchHitTitle';
 	$wgHooks['TitleGetRestrictionTypes'][]				= 'Wikibase\RepoHooks::onTitleGetRestrictionTypes';
 	$wgHooks['AbuseFilter-contentToString'][]			= 'Wikibase\RepoHooks::onAbuseFilterContentToString';
-	$wgHooks['SpecialPage_reorderPages'][]				= 'Wikibase\RepoHooks::onSpecialPage_reorderPages';
+	$wgHooks['SpecialPage_reorderPages'][]				= 'Wikibase\RepoHooks::onSpecialPageReorderPages';
 	$wgHooks['OutputPageParserOutput'][]				= 'Wikibase\RepoHooks::onOutputPageParserOutput';
 	$wgHooks['ContentModelCanBeUsedOn'][]				= 'Wikibase\RepoHooks::onContentModelCanBeUsedOn';
 	$wgHooks['OutputPageBeforeHTML'][]				= 'Wikibase\Repo\Hooks\OutputPageBeforeHTMLHookHandler::onOutputPageBeforeHTML';
@@ -227,7 +239,7 @@ call_user_func( function() {
 	$wgHooks['APIQuerySiteInfoStatisticsInfo'][]	= 'Wikibase\RepoHooks::onAPIQuerySiteInfoStatisticsInfo';
 	$wgHooks['ImportHandleRevisionXMLTag'][]	    = 'Wikibase\RepoHooks::onImportHandleRevisionXMLTag';
 	$wgHooks['BaseTemplateToolbox'][]               = 'Wikibase\RepoHooks::onBaseTemplateToolbox';
-	$wgHooks['SkinTemplateBuildNavUrlsNav_urlsAfterPermalink'][] = 'Wikibase\RepoHooks::onSkinTemplateBuildNavUrlsNav_urlsAfterPermalink';
+	$wgHooks['SkinTemplateBuildNavUrlsNav_urlsAfterPermalink'][] = 'Wikibase\RepoHooks::onSkinTemplateBuildNavUrlsNavUrlsAfterPermalink';
 	$wgHooks['SkinMinervaDefaultModules'][]			= 'Wikibase\RepoHooks::onSkinMinervaDefaultModules';
 	$wgHooks['ResourceLoaderRegisterModules'][]			= 'Wikibase\RepoHooks::onResourceLoaderRegisterModules';
 
@@ -235,15 +247,18 @@ call_user_func( function() {
 	$wgHooks['LoadExtensionSchemaUpdates'][] = '\Wikibase\Repo\Store\Sql\ChangesSubscriptionSchemaUpdater::onSchemaUpdate';
 
 	// Resource Loader Modules:
-	$wgResourceModules = array_merge( $wgResourceModules, include( __DIR__ . "/resources/Resources.php" ) );
+	$wgResourceModules = array_merge(
+		$wgResourceModules,
+		include __DIR__ . '/resources/Resources.php'
+	);
 
 	$wgWBRepoSettings = array_merge(
-		require( __DIR__ . '/../lib/config/WikibaseLib.default.php' ),
-		require( __DIR__ . '/config/Wikibase.default.php' )
+		require __DIR__ . '/../lib/config/WikibaseLib.default.php',
+		require __DIR__ . '/config/Wikibase.default.php'
 	);
 
 	if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
-		include_once( __DIR__ . '/config/Wikibase.experimental.php' );
+		include_once __DIR__ . '/config/Wikibase.experimental.php';
 	}
 
 } );

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use Profiler;
 use Site;
@@ -163,4 +163,5 @@ class ItemByTitleHelper {
 		Profiler::instance()->close();
 		throw new UsageException( $messgae, $code );
 	}
+
 }

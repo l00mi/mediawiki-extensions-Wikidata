@@ -229,7 +229,7 @@ class FullStatementRdfBuilder implements EntityRdfBuilder {
 		$entityLName = $this->vocabulary->getEntityLName( $entityId );
 		$propertyLName = $this->vocabulary->getEntityLName( $snak->getPropertyId() );
 
-		$this->statementWriter->about( RdfVocabulary::NS_ENTITY,  $entityLName )
+		$this->statementWriter->about( RdfVocabulary::NS_ENTITY, $entityLName )
 			->say( RdfVocabulary::NSP_CLAIM, $propertyLName )->is( RdfVocabulary::NS_STATEMENT, $statementLName );
 
 		$this->statementWriter->about( RdfVocabulary::NS_STATEMENT, $statementLName )
@@ -242,7 +242,7 @@ class FullStatementRdfBuilder implements EntityRdfBuilder {
 		if ( isset( RdfVocabulary::$rankMap[$rank] ) ) {
 			$this->statementWriter->about( RdfVocabulary::NS_STATEMENT, $statementLName )
 				->say( RdfVocabulary::NS_ONTOLOGY, 'rank' )->is( RdfVocabulary::NS_ONTOLOGY, RdfVocabulary::$rankMap[$rank] );
-			if( $isBest ) {
+			if ( $isBest ) {
 				$this->statementWriter->say( RdfVocabulary::NS_ONTOLOGY, 'rank' )->is( RdfVocabulary::NS_ONTOLOGY, RdfVocabulary::WIKIBASE_RANK_BEST );
 			}
 		} else {

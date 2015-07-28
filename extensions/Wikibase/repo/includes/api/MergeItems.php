@@ -1,9 +1,10 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
+use Exception;
 use InvalidArgumentException;
 use LogicException;
 use UsageException;
@@ -13,6 +14,7 @@ use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityRevision;
 use Wikibase\Repo\Interactors\ItemMergeException;
+use Wikibase\Repo\Interactors\RedirectCreationException;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -22,6 +24,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @licence GNU GPL v2+
  * @author Adam Shorland
  * @author Daniel Kinzler
+ * @author Lucie-Aimée Kaffee
  */
 class MergeItems extends ApiBase {
 
@@ -56,21 +59,22 @@ class MergeItems extends ApiBase {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 
 		$this->setServices(
 			$wikibaseRepo->getEntityIdParser(),
-			$wikibaseRepo->getApiHelperFactory()->getErrorReporter( $this ),
-			$wikibaseRepo->getApiHelperFactory()->getResultBuilder( $this ),
+			$apiHelperFactory->getErrorReporter( $this ),
+			$apiHelperFactory->getResultBuilder( $this ),
 			new ItemMergeInteractor(
 				$wikibaseRepo->getChangeOpFactoryProvider()->getMergeChangeOpFactory(),
 				$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
 				$wikibaseRepo->getEntityStore(),
 				$wikibaseRepo->getEntityPermissionChecker(),
 				$wikibaseRepo->getSummaryFormatter(),
-				$this->getUser()
+				$this->getUser(),
+				$wikibaseRepo->newRedirectCreationInteractor( $this->getUser(), $this->getContext() )
 			)
 		);
-
 	}
 
 	public function setServices(
@@ -105,7 +109,7 @@ class MergeItems extends ApiBase {
 			return new ItemId( $value );
 		} catch ( InvalidArgumentException $ex ) {
 			$this->errorReporter->dieError( $ex->getMessage(), 'invalid-entity-id' );
-			throw new LogicException( 'ErrorReporter::dieError did not throw an exception' );
+			throw new LogicException( 'ApiErrorReporter::dieError did not throw an exception' );
 		}
 	}
 
@@ -130,32 +134,36 @@ class MergeItems extends ApiBase {
 		} catch ( EntityIdParsingException $ex ) {
 			$this->errorReporter->dieException( $ex, 'invalid-entity-id' );
 		} catch ( ItemMergeException $ex ) {
-			$this->handleItemMergeException( $ex );
+			$this->handleException( $ex );
+		} catch ( RedirectCreationException $ex ) {
+			$this->handleException( $ex );
 		}
 	}
 
 	/**
 	 * @param ItemId $fromId
 	 * @param ItemId $toId
-	 * @param array $ignoreConflicts
+	 * @param string[] $ignoreConflicts
 	 * @param string $summary
 	 * @param bool $bot
 	 */
 	private function mergeItems( ItemId $fromId, ItemId $toId, array $ignoreConflicts, $summary, $bot ) {
-		list( $newRevisionFrom, $newRevisionTo ) = $this->interactor->mergeItems( $fromId, $toId, $ignoreConflicts, $summary, $bot );
+		list( $newRevisionFrom, $newRevisionTo, $redirected )
+			= $this->interactor->mergeItems( $fromId, $toId, $ignoreConflicts, $summary, $bot );
 
 		$this->resultBuilder->setValue( null, 'success', 1 );
+		$this->resultBuilder->setValue( null, 'redirected', (int) $redirected );
 
 		$this->addEntityToOutput( $newRevisionFrom, 'from' );
 		$this->addEntityToOutput( $newRevisionTo, 'to' );
 	}
 
 	/**
-	 * @param ItemMergeException $ex
+	 * @param ItemMergeException|RedirectCreationException $ex
 	 *
 	 * @throws UsageException always
 	 */
-	private function handleItemMergeException( ItemMergeException $ex ) {
+	private function handleException( Exception $ex ) {
 		$cause = $ex->getPrevious();
 
 		if ( $cause ) {
@@ -193,20 +201,27 @@ class MergeItems extends ApiBase {
 	protected function getAllowedParams() {
 		return array(
 			'fromid' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'toid' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
 			'ignoreconflicts' => array(
-				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_TYPE => ChangeOpsMerge::$conflictTypes,
-				ApiBase::PARAM_REQUIRED => false,
+				self::PARAM_ISMULTI => true,
+				self::PARAM_TYPE => ChangeOpsMerge::$conflictTypes,
+				self::PARAM_REQUIRED => false,
 			),
 			'summary' => array(
-				ApiBase::PARAM_TYPE => 'string',
+				self::PARAM_TYPE => 'string',
 			),
-			'bot' => false
+			'bot' => array(
+				self::PARAM_TYPE => 'boolean',
+				self::PARAM_DFLT => false,
+			),
+			'token' => array(
+				self::PARAM_TYPE => 'string',
+				self::PARAM_REQUIRED => true,
+			)
 		);
 	}
 

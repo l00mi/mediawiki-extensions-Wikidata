@@ -71,14 +71,14 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 	/**
 	 * @return EntityId
 	 */
-	protected abstract function getDummyId();
+	abstract protected function getDummyId();
 
 	/**
 	 * @param EntityId $entityId
 	 *
 	 * @return EntityContent
 	 */
-	protected abstract function newEmpty( EntityId $entityId = null );
+	abstract protected function newEmpty( EntityId $entityId = null );
 
 	/**
 	 * @dataProvider getTextForSearchIndexProvider
@@ -178,7 +178,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 
 		foreach ( $expectedProps as $name => $expected ) {
 			$actual = $parserOutput->getProperty( $name );
-			$this->assertEquals( $expected, $actual, "page property $name");
+			$this->assertEquals( $expected, $actual, "page property $name" );
 		}
 	}
 
@@ -207,7 +207,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 		$this->assertEquals( $status, $actual );
 	}
 
-	public abstract function provideGetEntityId();
+	abstract public function provideGetEntityId();
 
 	/**
 	 * @dataProvider provideGetEntityId
@@ -234,7 +234,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 					'wb-claims' => 0,
 				)
 			),
-
 			'labels' => array(
 				$labeledEntityContent,
 				array(
@@ -275,7 +274,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 
 		return array(
 			'empty' => array( $empty, $empty, new EntityContentDiff( new EntityDiff(), new Diff() ) ),
-			'same' => array( $ham, $ham, new EntityContentDiff(  new EntityDiff(), new Diff()  ) ),
+			'same' => array( $ham, $ham, new EntityContentDiff( new EntityDiff(), new Diff() ) ),
 			'spam to ham' => array( $spam, $ham, new EntityContentDiff( $spamToHamDiff, new Diff() ) ),
 		);
 	}
@@ -368,7 +367,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 		$this->assertSame( get_class( $content ), get_class( $copy ), 'Copy must have the same type.' );
 		$this->assertEquals( $content->getNativeData(), $copy->getNativeData(), 'Copy must have the same data.' );
 	}
-
 
 	public function equalsProvider() {
 		$empty = $this->newEmpty();

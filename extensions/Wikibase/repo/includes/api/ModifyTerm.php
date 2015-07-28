@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\Repo\WikibaseRepo;
@@ -42,15 +41,13 @@ abstract class ModifyTerm extends ModifyEntity {
 	}
 
 	/**
-	 * @see ApiWikibase::getRequiredPermissions
-	 *
 	 * @param EntityDocument $entity
 	 *
 	 * @throws InvalidArgumentException
-	 * @return string[]
+	 * @return string[] A list of permissions
 	 */
 	protected function getRequiredPermissions( EntityDocument $entity ) {
-		$permissions = parent::getRequiredPermissions( $entity );
+		$permissions = $this->isWriteMode() ? array( 'read', 'edit' ) : array( 'read' );
 		$permissions[] = $entity->getType() . '-term';
 		return $permissions;
 	}
@@ -63,11 +60,11 @@ abstract class ModifyTerm extends ModifyEntity {
 			parent::getAllowedParams(),
 			array(
 				'language' => array(
-					ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
+					self::PARAM_REQUIRED => true,
 				),
 				'value' => array(
-					ApiBase::PARAM_TYPE => 'string',
+					self::PARAM_TYPE => 'string',
 				),
 			)
 		);

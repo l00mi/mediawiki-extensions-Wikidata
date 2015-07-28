@@ -30,8 +30,6 @@ return call_user_func( function() {
 			'scripts' => array(
 				'wikibase.js',
 			),
-			'dependencies' => array(
-			),
 		),
 
 		'wikibase.buildErrorOutput' => $moduleTemplate + array(
@@ -62,8 +60,8 @@ return call_user_func( function() {
 
 	$modules = array_merge(
 		$modules,
-		include( __DIR__ . '/deprecated/resources.php' ),
-		include( __DIR__ . '/jquery.wikibase/resources.php' )
+		include __DIR__ . '/deprecated/resources.php',
+		include __DIR__ . '/jquery.wikibase/resources.php'
 	);
 
 	return $modules;

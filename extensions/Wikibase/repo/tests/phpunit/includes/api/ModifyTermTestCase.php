@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 /**
  * Test case for language attributes API modules.
@@ -51,13 +51,13 @@ abstract class ModifyTermTestCase extends WikibaseApiTestCase {
 				'e' => array( 'value' => array( 'bat-smg' => 'V?sata' ) ) ),
 			array( //7
 				'p' => array( 'language' => 'bat-smg', 'value' => '' ),
-				'e' => array( ) ),
+				'e' => array() ),
 			array( //8
 				'p' => array( 'language' => 'en', 'value' => "  x\nx  " ),
 				'e' => array( 'value' => array( 'en' => 'x x' ) ) ),
 		);
 	}
-	
+
 	public function doTestSetTerm( $attribute, $params, $expected ) {
 		// -- set any defaults ------------------------------------
 		$params['action'] = self::$testAction;
@@ -77,9 +77,20 @@ abstract class ModifyTermTestCase extends WikibaseApiTestCase {
 		$this->assertArrayHasKey( 'entity', $result, "Missing 'entity' section in response." );
 
 		// -- check the result only has our changed data (if any)  ------------
-		$this->assertEquals( 1, count( $result['entity'][$attribute] ), "Entity return contained more than a single language" );
-		$this->assertArrayHasKey( $params['language'], $result['entity'][$attribute], "Entity doesn't return expected language");
-		$this->assertEquals( $params['language'], $result['entity'][$attribute][ $params['language'] ]['language'], "Returned incorrect language" );
+		$this->assertCount(
+			1,
+			$result['entity'][$attribute],
+			'Entity return contained more than a single language'
+		);
+		$this->assertArrayHasKey(
+			$params['language'],
+			$result['entity'][$attribute],
+			"Entity doesn't return expected language");
+		$this->assertEquals(
+			$params['language'],
+			$result['entity'][$attribute][$params['language']]['language'],
+			'Returned incorrect language'
+		);
 
 		if ( array_key_exists( $params['language'], $expected['value'] ) ) {
 			$this->assertEquals(
@@ -130,31 +141,74 @@ abstract class ModifyTermTestCase extends WikibaseApiTestCase {
 			// -- Test Exceptions -----------------------------
 			array( //0
 				'p' => array( 'language' => 'xx', 'value' => 'Foo' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'unknown_language' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'unknown_language'
+				) )
+			),
 			array( //1
 				'p' => array( 'language' => 'nl', 'value' => TermTestHelper::makeOverlyLongString() ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'modification-failed' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'modification-failed'
+				) )
+			),
 			array( //2
 				'p' => array( 'language' => 'pt', 'value' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'notoken', 'message' => 'The token parameter must be set' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'notoken',
+					'message' => 'The token parameter must be set'
+				) )
+			),
 			array( //3
 				'p' => array( 'language' => 'pt', 'value' => 'normalValue', 'token' => '88888888888888888888888888888888+\\' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'badtoken', 'message' => 'Invalid token' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'badtoken',
+					'message' => 'Invalid token'
+				) )
+			),
 			array( //4
 				'p' => array( 'id' => 'noANid', 'language' => 'fr', 'value' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'no-such-entity-id', 'message' => 'Could not find such an entity id' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'no-such-entity-id',
+					'message' => 'Could not find such an entity id'
+				) )
+			),
 			array( //5
 				'p' => array( 'site' => 'qwerty', 'language' => 'pl', 'value' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'unknown_site', 'message' => "Unrecognized value for parameter 'site'" ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'unknown_site',
+					'message' => "Unrecognized value for parameter 'site'"
+				) )
+			),
 			array( //6
 				'p' => array( 'site' => 'enwiki', 'title' => 'GhskiDYiu2nUd', 'language' => 'en', 'value' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'no-such-entity-link', 'message' => 'No entity found matching site link' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'no-such-entity-link',
+					'message' => 'No entity found matching site link'
+				) )
+			),
 			array( //7
 				'p' => array( 'title' => 'Blub', 'language' => 'en', 'value' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'param-illegal', 'message' => 'Either provide the item "id" or pairs' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'param-illegal',
+					'message' => 'Either provide the item "id" or pairs'
+				) )
+			),
 			array( //8
 				'p' => array( 'site' => 'enwiki', 'language' => 'en', 'value' => 'normalValue' ),
-				'e' => array( 'exception' => array( 'type' => 'UsageException', 'code' => 'param-illegal', 'message' => 'Either provide the item "id" or pairs' ) ) ),
+				'e' => array( 'exception' => array(
+					'type' => 'UsageException',
+					'code' => 'param-illegal',
+					'message' => 'Either provide the item "id" or pairs'
+				) )
+			),
 		);
 	}
 

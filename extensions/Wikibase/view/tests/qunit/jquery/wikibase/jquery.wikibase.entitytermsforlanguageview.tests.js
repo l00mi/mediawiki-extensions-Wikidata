@@ -12,9 +12,9 @@
  */
 var createEntitytermsforlanguageview = function( options, $node ) {
 	options = $.extend( {
-		entityId: 'i am an EntityId',
+		entityId: 'I am an EntityId',
 		entityChangersFactory: {
-			getAliasesChanger: function() { return 'i am an AliasesChanger'; },
+			getAliasesChanger: function() { return 'I am an AliasesChanger'; },
 			getDescriptionsChanger: function() {
 				return {
 					setDescription: function() { return $.Deferred().resolve(); }
@@ -49,7 +49,7 @@ var createEntitytermsforlanguageview = function( options, $node ) {
 		= function() {
 			return $.Deferred().resolve( {
 				entity: {
-					lastrevid: 'i am a revision id'
+					lastrevid: 'I am a revision id'
 				}
 			} ).promise();
 		};
@@ -196,7 +196,7 @@ QUnit.test( 'startEditing() & stopEditing()', 6, function( assert ) {
 	} );
 
 	addToQueue( $queue, function() {
-		entitytermsforlanguageview.$label.find( 'input' ).val( '' );
+		entitytermsforlanguageview.$label.find( 'input, textarea' ).val( '' );
 		entitytermsforlanguageview.stopEditing();
 	} );
 
@@ -224,14 +224,14 @@ QUnit.test( 'isInitialValue()', function( assert ) {
 		'Verified isInitialValue() returning true.'
 	);
 
-	entitytermsforlanguageview.$label.find( 'input' ).val( 'changed' );
+	entitytermsforlanguageview.$label.find( 'input, textarea' ).val( 'changed' );
 
 	assert.ok(
 		!entitytermsforlanguageview.isInitialValue(),
 		'Verified isInitialValue() returning false after changing value.'
 	);
 
-	entitytermsforlanguageview.$label.find( 'input' ).val( 'test label' );
+	entitytermsforlanguageview.$label.find( 'input, textarea' ).val( 'test label' );
 
 	assert.ok(
 		entitytermsforlanguageview.isInitialValue(),

@@ -38,7 +38,11 @@ class DispatchingSnakFormatterTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function constructorErrorsProvider() {
-		$formatter = new MessageSnakFormatter( 'novalue', wfMessage( 'wikibase-snakview-snaktypeselector-novalue' ), SnakFormatter::FORMAT_PLAIN );
+		$formatter = new MessageSnakFormatter(
+			'novalue',
+			wfMessage( 'wikibase-snakview-snaktypeselector-novalue' ),
+			SnakFormatter::FORMAT_PLAIN
+		);
 
 		return array(
 			'format must be a string' => array(
@@ -83,7 +87,6 @@ class DispatchingSnakFormatterTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $somevalue->text(), $formatter->formatSnak( $somevalueSnak ) );
 		$this->assertEquals( $value->text(), $formatter->formatSnak( $valueSnak ) );
 	}
-
 
 	public function testGetSnakTypes() {
 		$novalue = wfMessage( 'wikibase-snakview-snaktypeselector-novalue' );

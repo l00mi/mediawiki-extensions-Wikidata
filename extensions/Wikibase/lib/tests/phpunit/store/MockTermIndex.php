@@ -159,7 +159,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	) {
 		$entityIds = array();
 
-		foreach( $this->terms as $term ) {
+		foreach ( $this->terms as $term ) {
 			if ( $languageCode !== null && $term->getLanguage() !== $languageCode ) {
 				continue;
 			}
@@ -304,7 +304,6 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 				&& ( $termType === null || in_array( $term->getType(), $termType ) )
 				&& $this->termMatchesTemplates( $term, $terms, $options )
 			) {
-
 				$matchingTerms[] = $term;
 			}
 		}
@@ -340,8 +339,8 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 		$terms = $this->getMatchingTerms( $terms, $termType, $entityType, $options );
 		$previousEntityIdSerializations = array();
 		$returnTerms = array();
-		foreach( $terms as $termIndexEntry ) {
-			if( !in_array( $termIndexEntry->getEntityId()->getSerialization(), $previousEntityIdSerializations ) ) {
+		foreach ( $terms as $termIndexEntry ) {
+			if ( !in_array( $termIndexEntry->getEntityId()->getSerialization(), $previousEntityIdSerializations ) ) {
 				$returnTerms[] = $termIndexEntry;
 				$previousEntityIdSerializations[] = $termIndexEntry->getEntityId()->getSerialization();
 			}

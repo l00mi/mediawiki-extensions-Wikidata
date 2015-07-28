@@ -37,14 +37,14 @@
  *        Required for dynamically generating GUIDs for new `Statement`s.
  * @param {wikibase.entityChangers.ClaimsChanger} options.claimsChanger
  *        Required to store the view's `Statement`.
+ * @param {wikibase.entityChangers.ReferencesChanger} options.referencesChanger
+ *        Required to store the `Reference`s gathered from the `referenceview`s aggregated by the
+ *        `statementview`.
  * @param {wikibase.store.EntityStore} options.entityStore
  *        Required for dynamically gathering `Entity`/`Property` information.
  * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
  *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
  *        `jQuery.valueview`.
- * @param {wikibase.entityChangers.EntityChangersFactory} options.entityChangersFactory
- *        Required to store the `Reference`s gathered from the `referenceview`s aggregated by the
- *        `statementview`.
  * @param {dataTypes.DataTypeStore} options.dataTypeStore
  *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
  *        object when interacting on a "value" `Variation`.
@@ -100,8 +100,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 		},
 		value: null,
 		claimsChanger: null,
+		referencesChanger: null,
 		dataTypeStore: null,
-		entityChangersFactory: null,
 		predefined: {
 			mainSnak: false
 		},
@@ -132,12 +132,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_qualifiers: null,
 
 	/**
-	 * @property {wikibase.entityChangers.ReferencesChanger}
-	 * @private
-	 */
-	_referencesChanger: null,
-
-	/**
 	 * @inheritdoc
 	 * @protected
 	 *
@@ -148,7 +142,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			!this.options.entityStore
 			|| !this.options.valueViewBuilder
 			|| !this.options.claimsChanger
-			|| !this.options.entityChangersFactory
+			|| !this.options.referencesChanger
 			|| !this.options.dataTypeStore
 			|| !this.options.guidGenerator
 		) {
@@ -156,8 +150,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 		}
 
 		PARENT.prototype._create.call( this );
-
-		this._referencesChanger = this.options.entityChangersFactory.getReferencesChanger();
 
 		this.draw();
 	},
@@ -300,15 +292,10 @@ $.widget( 'wikibase.statementview', PARENT, {
 	/**
 	 * @private
 	 *
-	 * @param {wikibase.datamodel.Statement} [statement]
+	 * @param {wikibase.datamodel.Reference[]} [references]
 	 */
-	_createReferences: function( statement ) {
-		if( !statement ) {
-			return;
-		}
-
-		var self = this,
-			references = statement.getReferences();
+	_createReferencesListview: function( references ) {
+		var self = this;
 
 		var $listview = this.$references.children();
 		if( !$listview.length ) {
@@ -323,15 +310,17 @@ $.widget( 'wikibase.statementview', PARENT, {
 				newItemOptionsFn: function( value ) {
 					return {
 						value: value || null,
-						statementGuid: self.options.value.getClaim().getGuid(),
+						statementGuid: self.options.value
+							? self.options.value.getClaim().getGuid()
+							: null,
 						dataTypeStore: self.options.dataTypeStore,
 						entityStore: self.options.entityStore,
 						valueViewBuilder: self.options.valueViewBuilder,
-						referencesChanger: self._referencesChanger
+						referencesChanger: self.options.referencesChanger
 					};
 				}
 			} ),
-			value: references.toArray()
+			value: references
 		} );
 
 		this._referencesListview = $listview.data( 'listview' );
@@ -396,8 +385,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @inheritdoc
 	 */
 	getHelpMessage: function() {
-		var deferred = $.Deferred();
-		var helpMessage = this.options.helpMessage;
+		var deferred = $.Deferred(),
+			helpMessage = this.options.helpMessage;
 
 		if( !this.options.value && !this.options.predefined.mainSnak ) {
 			deferred.resolve( helpMessage );
@@ -435,6 +424,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		this.$mainSnak.off( '.' + this.widgetName );
 
 		this._destroyQualifiersListView();
+		this._destroyReferencesListview();
 
 		PARENT.prototype.destroy.call( this );
 	},
@@ -449,6 +439,19 @@ $.widget( 'wikibase.statementview', PARENT, {
 				.off( '.' + this.widgetName )
 				.empty();
 			this._qualifiers = null;
+		}
+	},
+
+	/**
+	 * @private
+	 */
+	_destroyReferencesListview: function() {
+		if( this._referencesListview ) {
+			this._referencesListview.destroy();
+			this.$references
+				.off( '.' + this.widgetName )
+				.empty();
+			this._referencesListview = null;
 		}
 	},
 
@@ -477,7 +480,12 @@ $.widget( 'wikibase.statementview', PARENT, {
 					: new wb.datamodel.SnakList()
 			);
 		}
-		this._createReferences( this.options.value );
+
+		if( this.isInEditMode() || this.options.value ) {
+			this._createReferencesListview(
+				this.options.value ? this.options.value.getReferences().toArray() : []
+			);
+		}
 
 		return $.Deferred().resolve().promise();
 	},
@@ -491,7 +499,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 				return false;
 			}
 
-			var snaklistviews = ( this._qualifiers ) ? this._qualifiers.value() : [],
+			var snaklistviews = this._qualifiers ? this._qualifiers.value() : [],
 				qualifiers = new wb.datamodel.SnakList();
 
 			// Generate a SnakList object featuring all current qualifier snaks to be able to
@@ -585,7 +593,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		referenceview.disable();
 
-		this._referencesChanger.removeReference(
+		this.options.referencesChanger.removeReference(
 			this.value().getClaim().getGuid(),
 			referenceview.value()
 		)
@@ -614,8 +622,13 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @private
 	 */
 	_drawReferencesCounter: function() {
-		var numberOfValues = this._referencesListview.nonEmptyItems().length,
-			numberOfPendingValues = this._referencesListview.items().length - numberOfValues;
+		var numberOfValues = 0,
+			numberOfPendingValues = 0;
+
+		if( this._referencesListview ) {
+			numberOfPendingValues = this._referencesListview.items().filter( '.wb-reference-new' ).length;
+			numberOfValues = this._referencesListview.items().length - numberOfPendingValues;
+		}
 
 		// build a nice counter, displaying fixed and pending values:
 		var $counterMsg = wb.utilities.ui.buildPendingCounter(
@@ -637,12 +650,16 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		this.$mainSnak.one( 'snakviewafterstartediting', function() {
 			PARENT.prototype.startEditing.call( self ).done( function() {
+				var snaklistviews,
+					i;
+
 				self._rankSelector.startEditing();
 
 				if( self._qualifiers ) {
-					var snaklistviews = self._qualifiers.value();
+					snaklistviews = self._qualifiers.value();
+
 					if( snaklistviews.length ) {
-						for( var i = 0; i < snaklistviews.length; i++ ) {
+						for( i = 0; i < snaklistviews.length; i++ ) {
 							snaklistviews[i].startEditing();
 						}
 					}
@@ -723,13 +740,11 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @throws {Error} if unable to instantiate a `Statement` from the current view state.
 	 */
 	_save: function() {
-		var self = this;
-
-		var guid = this.options.value
-			? this.options.value.getClaim().getGuid()
-			: this.options.guidGenerator.newGuid();
-
-		var statement = this._instantiateStatement( guid );
+		var self = this,
+			guid = this.options.value
+				? this.options.value.getClaim().getGuid()
+				: this.options.guidGenerator.newGuid(),
+			statement = this._instantiateStatement( guid );
 
 		if( !statement ) {
 			throw new Error( 'Unable to instantiate Statement' );
@@ -755,15 +770,18 @@ $.widget( 'wikibase.statementview', PARENT, {
 	 * @return {boolean}
 	 */
 	isValid: function() {
+		var snaklistviews,
+			i;
+
 		if( this.$mainSnak.data( 'snakview' ) && !this.$mainSnak.data( 'snakview' ).isValid() ) {
 			return false;
 		}
 
 		if( this._qualifiers ) {
-			var snaklistviews = this._qualifiers.value();
+			snaklistviews = this._qualifiers.value();
 
 			if( snaklistviews.length ) {
-				for( var i = 0; i < snaklistviews.length; i++ ) {
+				for( i = 0; i < snaklistviews.length; i++ ) {
 					if( !snaklistviews[i].isValid() ) {
 						return false;
 					}

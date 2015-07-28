@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use InvalidArgumentException;
 use Wikibase\ChangeOp\ChangeOp;
@@ -33,6 +32,11 @@ class SetAliases extends ModifyEntity {
 	private $termChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -40,20 +44,22 @@ class SetAliases extends ModifyEntity {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->termChangeOpFactory = $changeOpFactoryProvider->getFingerprintChangeOpFactory();
 	}
 
 	/**
-	 * @see ApiWikibase::getRequiredPermissions
-	 *
 	 * @param EntityDocument $entity
 	 *
 	 * @throws InvalidArgumentException
-	 * @return string[]
+	 * @return string[] A list of permissions
 	 */
 	protected function getRequiredPermissions( EntityDocument $entity ) {
-		$permissions = parent::getRequiredPermissions( $entity );
+		$permissions = $this->isWriteMode() ? array( 'read', 'edit' ) : array( 'read' );
 		$permissions[] = $entity->getType() . '-term';
 		return $permissions;
 	}
@@ -64,8 +70,13 @@ class SetAliases extends ModifyEntity {
 	protected function validateParameters( array $params ) {
 		parent::validateParameters( $params );
 
-		if ( !( ( !empty( $params['add'] ) || !empty( $params['remove'] ) ) xor isset( $params['set'] ) ) ) {
-			$this->dieError( "Parameters 'add' and 'remove' are not allowed to be set when parameter 'set' is provided" , 'invalid-list' );
+		if ( !( ( !empty( $params['add'] ) || !empty( $params['remove'] ) )
+			xor isset( $params['set'] )
+		) ) {
+			$this->errorReporter->dieError(
+				"Parameters 'add' and 'remove' are not allowed to be set when parameter 'set' is provided",
+				'invalid-list'
+			);
 		}
 	}
 
@@ -73,7 +84,7 @@ class SetAliases extends ModifyEntity {
 	 * @see ModifyEntity::createEntity
 	 */
 	protected function createEntity( $entityType ) {
-		$this->dieError( 'Could not find an existing entity', 'no-such-entity' );
+		$this->errorReporter->dieError( 'Could not find an existing entity', 'no-such-entity' );
 	}
 
 	/**
@@ -102,9 +113,10 @@ class SetAliases extends ModifyEntity {
 			$summary->addAutoSummaryArgs( $entity->getAliases( $language ) );
 		}
 
-		$aliases = $entity->getAliases( $language );
-		if ( count( $aliases ) ) {
-			$this->getResultBuilder()->addAliases( array( $language => $aliases ), 'entity' );
+		$fingerprint = $entity->getFingerprint();
+		if ( $fingerprint->hasAliasGroup( $language ) ) {
+			$aliasGroupList = $fingerprint->getAliasGroups()->getWithLanguages( array( $language ) );
+			$this->getResultBuilder()->addAliasGroupList( $aliasGroupList, 'entity' );
 		}
 
 		return $summary;
@@ -183,20 +195,20 @@ class SetAliases extends ModifyEntity {
 			parent::getAllowedParams(),
 			array(
 				'add' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_ISMULTI => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_ISMULTI => true,
 				),
 				'remove' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_ISMULTI => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_ISMULTI => true,
 				),
 				'set' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_ISMULTI => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_ISMULTI => true,
 				),
 				'language' => array(
-					ApiBase::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages(),
+					self::PARAM_REQUIRED => true,
 				),
 			)
 		);

@@ -136,7 +136,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 	 * @return Status a Status object containing an array with three revisions, ($olderRevision, $newerRevision, $latestRevision)
 	 * @throws MWException if the page's latest revision cannot be loaded
 	 */
-	protected function loadRevisions( ) {
+	protected function loadRevisions() {
 		$latestRevId = $this->getTitle()->getLatestRevID();
 
 		if ( $latestRevId === 0 ) {
@@ -241,7 +241,7 @@ abstract class EditEntityAction extends ViewEntityAction {
 			$this->msg( 'errorpagetitle' )
 		);
 
-		$this->getOutput()->addWikiText( $status->getMessage()->text() );
+		$this->getOutput()->addHTML( $status->getMessage()->parse() );
 
 		$this->getOutput()->returnToMain();
 	}
@@ -468,15 +468,26 @@ abstract class EditEntityAction extends ViewEntityAction {
 
 		$this->getOutput()->addHTML( Html::openElement( 'table', array( 'class' => $tableClass ) ) );
 
-		$this->getOutput()->addHTML( '<colgroup><col class="diff-marker"> <col class="diff-content"><col class="diff-marker"> <col class="diff-content"></colgroup>' );
+		$this->getOutput()->addHTML( '<colgroup>'
+			. '<col class="diff-marker"><col class="diff-content">'
+			. '<col class="diff-marker"><col class="diff-content">'
+			. '</colgroup>' );
 		$this->getOutput()->addHTML( Html::openElement( 'tbody' ) );
 
 		$old = $this->msg( 'currentrev' )->parse();
 		$new = $this->msg( 'yourtext' )->parse(); //XXX: better message?
 
 		$this->getOutput()->addHTML( Html::openElement( 'tr', array( 'valign' => 'top' ) ) );
-		$this->getOutput()->addHTML( Html::rawElement( 'td', array( 'colspan' => '2' ), Html::rawElement( 'div', array( 'id' => 'mw-diff-otitle1' ), $old ) ) );
-		$this->getOutput()->addHTML( Html::rawElement( 'td', array( 'colspan' => '2' ), Html::rawElement( 'div', array( 'id' => 'mw-diff-ntitle1' ), $new ) ) );
+		$this->getOutput()->addHTML(
+			Html::rawElement( 'td', array( 'colspan' => '2' ),
+				Html::rawElement( 'div', array( 'id' => 'mw-diff-otitle1' ), $old )
+			)
+		);
+		$this->getOutput()->addHTML(
+			Html::rawElement( 'td', array( 'colspan' => '2' ),
+				Html::rawElement( 'div', array( 'id' => 'mw-diff-ntitle1' ), $new )
+			)
+		);
 		$this->getOutput()->addHTML( Html::closeElement( 'tr' ) );
 
 		$this->getOutput()->addHTML( $this->entityDiffVisualizer->visualizeEntityContentDiff( $diff ) );

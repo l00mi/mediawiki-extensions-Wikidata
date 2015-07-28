@@ -14,6 +14,7 @@ use Wikibase\DataModel\Entity\Property;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class PropertyContent extends EntityContent {
 
@@ -92,6 +93,21 @@ class PropertyContent extends EntityContent {
 	}
 
 	/**
+	 * @see EntityContent::getEntityPageProperties
+	 *
+	 * Records the number of statements in the 'wb-claims' key.
+	 *
+	 * @return array A map from property names to property values.
+	 */
+	public function getEntityPageProperties() {
+		$properties = parent::getEntityPageProperties();
+
+		$properties['wb-claims'] = $this->getProperty()->getStatements()->count();
+
+		return $properties;
+	}
+
+	/**
 	 * Checks if this PropertyContent is valid for saving.
 	 *
 	 * Returns false if the entity does not have a DataType set.
@@ -99,16 +115,39 @@ class PropertyContent extends EntityContent {
 	 * @see Content::isValid()
 	 */
 	public function isValid() {
-		if ( !parent::isValid() ) {
-			return false;
-		}
-
 		//TODO: provide a way to get the data type from the holder directly!
-		if ( is_null( $this->getEntity()->getDataTypeId() ) ) {
-			return false;
-		}
+		return parent::isValid() && $this->getProperty()->getDataTypeId() !== null;
+	}
 
-		return true;
+	/**
+	 * @see EntityContent::isCountable
+	 *
+	 * @param bool $hasLinks
+	 *
+	 * @return bool True if this is not a redirect and the property is not empty.
+	 */
+	public function isCountable( $hasLinks = null ) {
+		return !$this->isRedirect() && !$this->getProperty()->isEmpty();
+	}
+
+	/**
+	 * @see EntityContent::isEmpty
+	 *
+	 * @return bool True if this is not a redirect and the property is empty.
+	 */
+	public function isEmpty() {
+		return !$this->isRedirect() && $this->getProperty()->isEmpty();
+	}
+
+	/**
+	 * @see EntityContent::isStub
+	 *
+	 * @return bool True if the property is not empty, but does not contain statements.
+	 */
+	public function isStub() {
+		return !$this->isRedirect()
+			&& !$this->getProperty()->isEmpty()
+			&& $this->getProperty()->getStatements()->isEmpty();
 	}
 
 }

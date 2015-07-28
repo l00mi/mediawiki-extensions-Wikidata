@@ -33,7 +33,7 @@ abstract class EntityRevisionLookupTest extends \MediaWikiTestCase {
 
 		$entities[11] = new EntityRevision( $item, 11, '20130101001100' );
 
-		$item = $item->copy();
+		$item = new Item( new ItemId( 'Q42' ) );
 		$item->setLabel( 'en', "Foo" );
 
 		$entities[12] = new EntityRevision( $item, 12, '20130101001200' );
@@ -79,7 +79,7 @@ abstract class EntityRevisionLookupTest extends \MediaWikiTestCase {
 	 *
 	 * @return EntityRevisionLookup
 	 */
-	protected abstract function newEntityRevisionLookup( array $entityRevisions, array $entityRedirects );
+	abstract protected function newEntityRevisionLookup( array $entityRevisions, array $entityRedirects );
 
 	protected function itemSupportsRedirect() {
 		if ( !defined( 'CONTENT_MODEL_WIKIBASE_ITEM' ) ) {
@@ -172,6 +172,8 @@ abstract class EntityRevisionLookupTest extends \MediaWikiTestCase {
 			$this->fail( 'Expected an UnresolvedRedirectException exception when looking up a redirect.' );
 		} catch ( UnresolvedRedirectException $ex ) {
 			$this->assertEquals( $expectedRedirect, $ex->getRedirectTargetId() );
+			$this->assertGreaterThan( 0, $ex->getRevisionId() );
+			$this->assertNotEmpty( $ex->getRevisionTimestamp() );
 		}
 	}
 

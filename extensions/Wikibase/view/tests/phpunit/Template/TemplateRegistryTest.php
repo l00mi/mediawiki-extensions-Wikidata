@@ -34,7 +34,6 @@ class TemplateRegistryTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider providerAddTemplates
 	 */
@@ -44,7 +43,7 @@ class TemplateRegistryTest extends \MediaWikiTestCase {
 		$registry->addTemplates( $data );
 
 		$templates = $registry->getTemplates();
-		foreach( $data as $key => $html ) {
+		foreach ( $data as $key => $html ) {
 			$this->assertEquals(
 				$templates[$key],
 				$html

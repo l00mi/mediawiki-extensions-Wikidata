@@ -14,7 +14,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\DataModel\Snak\Snak;
 
 /**
  * Package private
@@ -70,8 +69,8 @@ class SnakDeserializer implements DispatchableDeserializer {
 	 *
 	 * @param array $serialization
 	 *
-	 * @return Snak
 	 * @throws DeserializationException
+	 * @return PropertyNoValueSnak|PropertySomeValueSnak|PropertyValueSnak
 	 */
 	public function deserialize( $serialization ) {
 		$this->assertCanDeserialize( $serialization );
@@ -82,6 +81,10 @@ class SnakDeserializer implements DispatchableDeserializer {
 
 	/**
 	 * @see SnakDeserializer::hasCorrectSnakType
+	 *
+	 * @param array $serialization
+	 *
+	 * @return PropertyNoValueSnak|PropertySomeValueSnak|PropertyValueSnak
 	 */
 	private function getDeserialized( array $serialization ) {
 		switch ( $serialization['snaktype'] ) {

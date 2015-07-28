@@ -33,7 +33,6 @@ class EntityIdReaderTest extends \PHPUnit_Framework_TestCase {
 		return new EntityIdReader( new LineReader( $handle ), new BasicEntityIdParser(), $type );
 	}
 
-
 	protected function getIdStrings( array $entityIds ) {
 		$ids = array_map( function ( EntityId $entityId ) {
 			return $entityId->getSerialization();
@@ -83,6 +82,7 @@ class EntityIdReaderTest extends \PHPUnit_Framework_TestCase {
 			),
 		);
 	}
+
 	/**
 	 * @dataProvider listEntitiesProvider_paging
 	 */
@@ -107,7 +107,7 @@ class EntityIdReaderTest extends \PHPUnit_Framework_TestCase {
 				'EntityIdReaderTest.txt',
 				null,
 				2,
-				array (
+				array(
 					array( $q1, $p2 ),
 					array( $q3, $p4 ),
 					array(),

@@ -117,8 +117,8 @@ final class ClientHooks {
 	public static function onScribuntoExternalLibraries( $engine, array &$extraLibraries ) {
 		$allowDataTransclusion = WikibaseClient::getDefaultInstance()->getSettings()->getSetting( 'allowDataTransclusion' );
 		if ( $engine == 'lua' && $allowDataTransclusion === true ) {
-			$extraLibraries['mw.wikibase'] = 'Scribunto_LuaWikibaseLibrary';
-			$extraLibraries['mw.wikibase.entity'] = 'Scribunto_LuaWikibaseEntityLibrary';
+			$extraLibraries['mw.wikibase'] = 'Wikibase\Client\DataAccess\Scribunto\Scribunto_LuaWikibaseLibrary';
+			$extraLibraries['mw.wikibase.entity'] = 'Wikibase\Client\DataAccess\Scribunto\Scribunto_LuaWikibaseEntityLibrary';
 		}
 
 		return true;
@@ -626,6 +626,11 @@ final class ClientHooks {
 		if ( $link ) {
 			$html .= $link;
 		}
+	}
+
+	public static function onwgQueryPages( &$queryPages ) {
+		$queryPages[] = array( 'Wikibase\Client\Specials\SpecialUnconnectedPages', 'UnconnectedPages' );
+		return true;
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use ApiTestCase;
 use OutOfBoundsException;
@@ -78,7 +78,7 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 	 * @param array|null $session
 	 * @param User|null $user
 	 *
-	 * @return array
+	 * @return array( $resultData, $request, $sessionArray )
 	 */
 	protected function doApiRequestWithToken( array $params, array $session = null, User $user = null ) {
 		if ( !$user ) {

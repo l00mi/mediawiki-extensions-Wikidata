@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use DataValues\Serializers\DataValueSerializer;
 use DerivativeContext;
 use FauxRequest;
 use FauxResponse;
@@ -12,8 +13,9 @@ use SiteList;
 use Title;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\LinkedData\EntityDataRequestHandler;
 use Wikibase\Repo\LinkedData\EntityDataSerializationService;
@@ -59,7 +61,7 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 		}
 
 		if ( $obLevel !== $this->obLevel ) {
-			$this->fail( "Test changed output buffer level: was {$this->obLevel} before test, but $obLevel after test.");
+			$this->fail( "Test changed output buffer level: was {$this->obLevel} before test, but $obLevel after test." );
 		}
 
 		parent::tearDown();
@@ -87,18 +89,25 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 		$propertyLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
 
 		$serializerOptions = new SerializationOptions();
-		$serializerFactory = new SerializerFactory( $serializerOptions, $dataTypeLookup );
+		$libSerializerFactory = new LibSerializerFactory( $serializerOptions, $dataTypeLookup );
 		$entityDataFormatProvider = new EntityDataFormatProvider();
+		$serializerFactory = new SerializerFactory(
+			new DataValueSerializer(),
+			SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
+			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
+		);
 
 		$service = new EntityDataSerializationService(
 			EntityDataSerializationServiceTest::URI_BASE,
 			EntityDataSerializationServiceTest::URI_DATA,
 			$mockRepository,
 			$titleLookup,
-			$serializerFactory,
+			$libSerializerFactory,
 			$propertyLookup,
 			new SiteList(),
-			$entityDataFormatProvider
+			$entityDataFormatProvider,
+			$serializerFactory,
+			new MockSiteStore()
 		);
 
 		$entityDataFormatProvider->setFormatWhiteList(

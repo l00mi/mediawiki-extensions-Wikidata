@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use DataValues\StringValue;
 use UsageException;
@@ -17,7 +17,7 @@ use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers Wikibase\Api\RemoveReferences
+ * @covers Wikibase\Repo\Api\RemoveReferences
  *
  * @group API
  * @group Database
@@ -102,8 +102,7 @@ class RemoveReferencesTest extends WikibaseApiTestCase {
 					array( '~=[,,_,,]:3' ),
 					'no-such-reference'
 				);
-			}
-			else {
+			} else {
 				$this->makeValidRequest(
 					$statement->getGuid(),
 					$hashes
@@ -158,9 +157,9 @@ class RemoveReferencesTest extends WikibaseApiTestCase {
 
 		try {
 			$this->doApiRequestWithToken( $params );
-			$this->fail( 'Invalid claim guid did not throw an error' );
-		} catch ( UsageException $e ) {
-			$this->assertEquals( 'invalid-guid', $e->getCodeString(),  'Invalid claim guid raised correct error' );
+			$this->fail( 'Invalid guid did not throw an error' );
+		} catch ( UsageException $ex ) {
+			$this->assertEquals( 'invalid-guid', $ex->getCodeString(), 'Invalid guid raised correct error' );
 		}
 	}
 

@@ -24,7 +24,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 	/**
 	 * @return TermIndex
 	 */
-	public abstract function getTermIndex();
+	abstract public function getTermIndex();
 
 	public function getTermKey( TermIndexEntry $term ) {
 		$key = '';
@@ -58,7 +58,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$item0 = new Item( new ItemId( 'Q10' ) );
 		$item0->setLabel( 'en', 'kittens' );
 
-		$item1 = new Item( new ItemId( 'Q11' )  );
+		$item1 = new Item( new ItemId( 'Q11' ) );
 		$item1->setLabel( 'nl', 'mittens' );
 		$item1->setLabel( 'de', 'Mittens' );
 		$item1->setLabel( 'fr', 'kittens love mittens' );
@@ -230,7 +230,7 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$actualTermKeys = array_map( array( $this, 'getTermKey' ), $actual );
 
-		if( !array_key_exists( 'orderByWeight', $options ) || $options['orderByWeight'] === false ) {
+		if ( !array_key_exists( 'orderByWeight', $options ) || $options['orderByWeight'] === false ) {
 			$this->assertArrayEquals( $expectedTermKeys, $actualTermKeys, false );
 		} else {
 			$this->assertArrayEquals( $expectedTermKeys, $actualTermKeys, true );
@@ -350,8 +350,8 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 
 		$abc = new TermIndexEntry( array( 'termType' => TermIndexEntry::TYPE_LABEL, 'termText' => 'abc' ) );
 		$matchedTerms = $lookup->getMatchingTerms( array( $abc ), array( TermIndexEntry::TYPE_LABEL ), Item::ENTITY_TYPE );
-		foreach( $matchedTerms as $matchedTerm ) {
-			if( $matchedTerm->getEntityId() === $id ) {
+		foreach ( $matchedTerms as $matchedTerm ) {
+			if ( $matchedTerm->getEntityId() === $id ) {
 				$this->fail( 'Failed to delete term or entity: ' . $id->getSerialization() );
 			}
 		}
@@ -461,14 +461,17 @@ abstract class TermIndexTest extends \MediaWikiTestCase {
 		$lookup->saveTermsOfEntity( $item );
 
 		// modify the item and save new set of terms
+		$item = new Item( new ItemId( 'Q568431314' ) );
 		$item->setLabel( 'en', 'abc' );
-		$item->removeLabel( 'de' );
 		$item->setLabel( 'nl', 'jke' );
-		$item->setDescription( 'it', '-xyz-' );
+		$item->setDescription( 'en', '-abc-' );
+		$item->setDescription( 'de', '-def-' );
+		$item->setDescription( 'nl', '-ghi-' );
+		$item->setDescription( 'it', 'ABC' );
 		$item->setAliases( 'en', array( 'ABC', 'X', '_' ) );
 		$item->setAliases( 'de', array( 'DEF', 'Y' ) );
 		$item->setAliases( 'nl', array( '_', 'Z', 'foo' ) );
-		$item->setDescription( 'it', 'ABC' );
+
 		$lookup->saveTermsOfEntity( $item );
 
 		// check that the stored terms are the ones in the modified items

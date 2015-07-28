@@ -3,13 +3,13 @@
 namespace Wikibase\Repo\Specials;
 
 use Html;
-use UserInputException;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpValidationException;
 use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\EntityRevision;
+use Wikibase\Lib\UserInputException;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
 
@@ -100,8 +100,7 @@ abstract class SpecialModifyEntity extends SpecialWikibaseRepoPage {
 				$errors = $status->getErrorsArray();
 				$this->showErrorHTML( $this->msg( $errors[0][0], array_slice( $errors[0], 1 ) )->parse() );
 				$this->setForm( $entity );
-			}
-			else {
+			} else {
 				$entityUrl = $this->getEntityTitle( $entity->getId() )->getFullUrl();
 				$this->getOutput()->redirect( $entityUrl );
 			}
@@ -264,7 +263,7 @@ abstract class SpecialModifyEntity extends SpecialWikibaseRepoPage {
 	 *
 	 * @return Summary|bool
 	 */
-	protected abstract function modifyEntity( Entity $entity );
+	abstract protected function modifyEntity( Entity $entity );
 
 	/**
 	 * Applies the given ChangeOp to the given Entity.

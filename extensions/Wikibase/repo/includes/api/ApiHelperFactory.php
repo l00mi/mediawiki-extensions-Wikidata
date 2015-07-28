@@ -1,23 +1,26 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiBase;
+use DataValues\Serializers\DataValueSerializer;
+use SiteStore;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\SerializerFactory;
+use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\SummaryFormatter;
 
 /**
  * A factory class for API helper objects.
  *
  * @note: This is a high level factory which should not be injected or passed around.
  * It should only be used when bootstrapping from a static context.
- *
- * @todo: Factor functionality out of ApiWikibase into separate helper classes, and
- * make them available via ApiHelperFactory.
  *
  * @license GPL 2+
  * @author Daniel Kinzler
@@ -44,17 +47,44 @@ class ApiHelperFactory {
 	 */
 	private $entityFactory;
 
+	/**
+	 * @var SummaryFormatter
+	 */
+	private $summaryFormatter;
+
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $entityRevisionLookup;
+
+	/**
+	 * @var EditEntityFactory
+	 */
+	private $editEntityFactory;
+
+	/**
+	 * @var SiteStore
+	 */
+	private $siteStore;
+
 	public function __construct(
 		EntityTitleLookup $titleLookup,
 		ExceptionLocalizer $exceptionLocalizer,
 		PropertyDataTypeLookup $dataTypeLookup,
-		EntityFactory $entityFactory
+		EntityFactory $entityFactory,
+		SiteStore $siteStore,
+		SummaryFormatter $summaryFormatter,
+		EntityRevisionLookup $entityRevisionLookup,
+		EditEntityFactory $editEntityFactory
 	) {
-
 		$this->titleLookup = $titleLookup;
 		$this->exceptionLocalizer = $exceptionLocalizer;
 		$this->dataTypeLookup = $dataTypeLookup;
 		$this->entityFactory = $entityFactory;
+		$this->siteStore = $siteStore;
+		$this->summaryFormatter = $summaryFormatter;
+		$this->entityRevisionLookup = $entityRevisionLookup;
+		$this->editEntityFactory = $editEntityFactory;
 	}
 
 	/**
@@ -69,7 +99,12 @@ class ApiHelperFactory {
 		return new ResultBuilder(
 			$api->getResult(),
 			$this->titleLookup,
-			$this->getSerializerFactory( $defaultOptions ) );
+			$this->newLibSerializerFactory( $defaultOptions ),
+			$this->newSerializerFactory(),
+			$this->siteStore,
+			$this->dataTypeLookup,
+			$api->getResult()->getIsRawMode()
+		);
 	}
 
 	/**
@@ -92,15 +127,57 @@ class ApiHelperFactory {
 	 *
 	 * @param SerializationOptions $defaultOptions
 	 *
-	 * @return SerializerFactory
+	 * @return LibSerializerFactory
 	 */
-	public function getSerializerFactory( SerializationOptions $defaultOptions = null ) {
-		return new SerializerFactory(
+	public function newLibSerializerFactory( SerializationOptions $defaultOptions = null ) {
+		return new LibSerializerFactory(
 			$defaultOptions,
 			$this->dataTypeLookup,
 			$this->entityFactory
 		);
 	}
 
+	/**
+	 * Returns a serializer factory to be used when constructing API results.
+	 *
+	 * @return SerializerFactory
+	 */
+	public function newSerializerFactory() {
+		return new SerializerFactory(
+			new DataValueSerializer(),
+			SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
+			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
+		);
+	}
+
+	/**
+	 * Return an EntitySavingHelper object for use in Api modules
+	 *
+	 * @param ApiBase $apiBase
+	 *
+	 * @return EntitySavingHelper
+	 */
+	public function getEntitySavingHelper( ApiBase $apiBase ) {
+		return new EntitySavingHelper(
+			$apiBase,
+			$this->getErrorReporter( $apiBase ),
+			$this->summaryFormatter,
+			$this->editEntityFactory
+		);
+	}
+
+	/**
+	 * Return an EntityLoadingHelper object for use in Api modules
+	 *
+	 * @param ApiBase $apiBase
+	 *
+	 * @return EntityLoadingHelper
+	 */
+	public function getEntityLoadingHelper( ApiBase $apiBase ) {
+		return new EntityLoadingHelper(
+			$this->entityRevisionLookup,
+			$this->getErrorReporter( $apiBase )
+		);
+	}
+
 }
- 

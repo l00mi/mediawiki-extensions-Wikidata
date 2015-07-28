@@ -261,7 +261,7 @@ class ChangeDispatcher {
 	 * @param int $after:  The last change ID processed by a previous run. All changes returned
 	 *                     will have an ID greater than $after.
 	 *
-	 * @return array ( $batch, $seen ), where $batch is a list of Change objects, and $seen
+	 * @return array( $batch, $seen ), where $batch is a list of Change objects, and $seen
 	 *         if the ID of the last change considered for the batch (even if that was filtered out),
 	 *         for use as a continuation marker.
 	 */
@@ -346,7 +346,7 @@ class ChangeDispatcher {
 	 * @param Change[] $changes: The list of changes to filter.
 	 * @param int      $limit:   The max number of changes to return
 	 *
-	 * @return array ( $batch, $seen ), where $batch is the filtered list of Change objects,
+	 * @return array( $batch, $seen ), where $batch is the filtered list of Change objects,
 	 *         and $seen if the ID of the last change considered for the batch
 	 *         (even if that was filtered out), for use as a continuation marker.
 	 */
@@ -385,8 +385,8 @@ class ChangeDispatcher {
 			// The change is relevant if it alters any sitelinks referring to $siteID,
 			// or the item currently links to $siteID.
 			if ( isset( $subscribedEntities[$idString] )
-				|| $this->isRelevantChange( $change, $siteID ) ) {
-
+				|| $this->isRelevantChange( $change, $siteID )
+			) {
 				$filteredChanges[] = $change;
 				$numberOfChangesFound++;
 			}
@@ -438,4 +438,5 @@ class ChangeDispatcher {
 	public function getDispatchCoordinator() {
 		return $this->coordinator;
 	}
+
 }

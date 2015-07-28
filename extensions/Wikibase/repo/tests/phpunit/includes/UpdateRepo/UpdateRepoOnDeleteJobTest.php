@@ -7,6 +7,7 @@ use User;
 use Status;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\EditEntityFactory;
 use Wikibase\Repo\UpdateRepo\UpdateRepoOnDeleteJob;
 use Wikibase\Test\MockRepository;
 
@@ -76,7 +77,7 @@ class UpdateRepoOnDeleteJobTest extends \MediaWikiTestCase {
 		$entityPermissionChecker = $this->getMock( 'Wikibase\Repo\Store\EntityPermissionChecker' );
 		$entityPermissionChecker->expects( $this->any() )
 				->method( 'getPermissionStatusForEntity' )
-				->will( $this->returnValue( Status::newGood() ));
+				->will( $this->returnValue( Status::newGood() ) );
 
 		return $entityPermissionChecker;
 	}
@@ -88,7 +89,7 @@ class UpdateRepoOnDeleteJobTest extends \MediaWikiTestCase {
 		return $summaryFormatter;
 	}
 
-	private function getMockEditFitlerHookRunner () {
+	private function getMockEditFitlerHookRunner() {
 		$runner = $this->getMockBuilder( 'Wikibase\Repo\Hooks\EditFilterHookRunner' )
 			->setMethods( array( 'run' ) )
 			->disableOriginalConstructor()
@@ -138,13 +139,17 @@ class UpdateRepoOnDeleteJobTest extends \MediaWikiTestCase {
 
 		$job = new UpdateRepoOnDeleteJob( Title::newMainPage(), $params );
 		$job->initServices(
-			$this->getEntityTitleLookup( $item->getId() ),
 			$mockRepository,
 			$mockRepository,
 			$this->getSummaryFormatter(),
-			$this->getEntityPermissionChecker(),
 			$this->getSiteStore( $titleExists ),
-			$this->getMockEditFitlerHookRunner()
+			new EditEntityFactory(
+				$this->getEntityTitleLookup( $item->getId() ),
+				$mockRepository,
+				$mockRepository,
+				$this->getEntityPermissionChecker(),
+				$this->getMockEditFitlerHookRunner()
+			)
 		);
 
 		$job->run();

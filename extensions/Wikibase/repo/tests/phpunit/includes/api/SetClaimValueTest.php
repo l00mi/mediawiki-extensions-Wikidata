@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Api;
+namespace Wikibase\Test\Repo\Api;
 
 use DataValues\DataValue;
 use DataValues\DataValueFactory;
@@ -27,7 +27,7 @@ use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
 
 /**
- * @covers Wikibase\Api\SetClaimValue
+ * @covers Wikibase\Repo\Api\SetClaimValue
  *
  * @group API
  * @group Database
@@ -193,8 +193,8 @@ class SetClaimValueTest extends WikibaseApiTestCase {
 		try {
 			$this->doApiRequestWithToken( $params );
 			$this->fail( 'Invalid request did not raise an error' );
-		} catch ( UsageException $e ) {
-			$this->assertEquals( $error, $e->getCodeString(),  'Invalid claim guid raised correct error' );
+		} catch ( UsageException $ex ) {
+			$this->assertEquals( $error, $ex->getCodeString(), 'Invalid request raised correct error' );
 		}
 	}
 

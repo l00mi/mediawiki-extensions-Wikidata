@@ -88,7 +88,7 @@ class ChangeOpReferenceTest extends \PHPUnit_Framework_TestCase {
 		$newReference = new Reference( $snaks );
 		$changeOp = new ChangeOpReference( $guid, $newReference, '', $this->mockProvider->getMockSnakValidator() );
 		$referenceHash = $newReference->getHash();
-		$args[] = array ( $item, $changeOp, $referenceHash );
+		$args[] = array( $item, $changeOp, $referenceHash );
 
 		return $args;
 	}
@@ -134,7 +134,7 @@ class ChangeOpReferenceTest extends \PHPUnit_Framework_TestCase {
 			$newReferenceIndex
 		);
 
-		$args[] = array ( $item, $changeOp, $newReference, $newReferenceIndex );
+		$args[] = array( $item, $changeOp, $newReference, $newReferenceIndex );
 
 		return $args;
 	}
@@ -174,7 +174,7 @@ class ChangeOpReferenceTest extends \PHPUnit_Framework_TestCase {
 		$snaks[] = new PropertyValueSnak( 78462378, new StringValue( 'changedQualifier' ) );
 		$changedReference = new Reference( $snaks );
 		$changeOp = new ChangeOpReference( $guid, $changedReference, $referenceHash, $this->mockProvider->getMockSnakValidator() );
-		$args[] = array ( $item, $changeOp, $changedReference->getHash() );
+		$args[] = array( $item, $changeOp, $changedReference->getHash() );
 
 		// Just change a reference's index:
 		$item = $this->newItemWithClaim( $snak );
@@ -199,7 +199,7 @@ class ChangeOpReferenceTest extends \PHPUnit_Framework_TestCase {
 			$this->mockProvider->getMockSnakValidator(),
 			0
 		);
-		$args[] = array ( $item, $changeOp, $references[1]->getHash() );
+		$args[] = array( $item, $changeOp, $references[1]->getHash() );
 
 		return $args;
 	}
@@ -273,7 +273,6 @@ class ChangeOpReferenceTest extends \PHPUnit_Framework_TestCase {
 			$index
 		);
 
-		$entity = $entity->copy();
 		$changeOpReference->apply( $entity );
 	}
 
@@ -319,7 +318,6 @@ class ChangeOpReferenceTest extends \PHPUnit_Framework_TestCase {
 			$index
 		);
 
-		$entity = $entity->copy();
 		$result = $changeOpReference->validate( $entity );
 		$this->assertFalse( $result->isValid(), 'isValid()' );
 	}

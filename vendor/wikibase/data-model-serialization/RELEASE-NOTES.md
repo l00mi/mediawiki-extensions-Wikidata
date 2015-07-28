@@ -1,16 +1,41 @@
 # Wikibase DataModel Serialization release notes
 
+## 1.7.0 (2015-07-23)
+
+* Added `SerializerFactory` option `OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH`
+* Added `SerializerFactory` option `OPTION_SERIALIZE_QUALIFIER_SNAKS_WITHOUT_HASH`
+* Added `SerializerFactory` option `OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH`
+* Added `$serializeSnaksWithHash` parameter to `newSnakListSerializer`, the default is b/c
+* Added `$serializeWithHash` parameter to `newSnakSerializer`, the default is b/c
+* Added `$serializeWithHash` parameter to `newTypedSnakSerializer`, the default is b/c
+* Added support for deserializing ungrouped SnakLists and StatementLists
+
+## 1.6.0 (2015-07-20)
+
+* Added `newAliasGroupSerializer` to `SerializerFactory`
+
+## 1.5.0 (2015-07-01)
+
+* Added `newTermSerializer` to `SerializerFactory`
+* Added `newTermListSerializer` to `SerializerFactory`
+* Added `newAliasGroupListSerializer` to `SerializerFactory`
+* Added `newTermDeserializer` to `DeserializerFactory`
+* Added `newTermListDeserializer` to `DeserializerFactory`
+* Added `newAliasGroupListDeserializer` to `DeserializerFactory`
+* Deprecated `SerializerFactory::newClaimsSerializer` in favour of `SerializerFactory::newStatementListSerializer`
+* Deprecated `DeserializerFactory::newClaimsDeserializer` in favour of `DeserializerFactory::newStatementListDeserializer`
+
 ## 1.4.0 (2015-06-08)
 
-* Added support for showing the component version when loaded via MediaWiki
-* Compatibility with DataModel 3.x added
-* DataModel 3.x is now required
+* Added compatibility with Wikibase DataModel 3.x
+* Removed compatibility with Wikibase DataModel 2.x
 * Renamed `SerializerFactory::newClaimSerializer` to `SerializerFactory::newStatementSerializer`, leaving a b/c alias
 * Renamed `SerializerFactory::newSnaksSerializer` to `SerializerFactory::newSnakListSerializer`, leaving a b/c alias
 * Renamed `DeserializerFactory::newClaimDeserializer` to `DeserializerFactory::newStatementDeserializer`, leaving a b/c alias
 * Renamed `DeserializerFactory::newSnaksDeserializer` to `DeserializerFactory::newSnakListDeserializer`, leaving a b/c alias
 * Added `SerializerFactory::newStatementListSerializer`
 * Added `DeserializerFactory::newStatementListDeserializer`
+* Added support for showing the component version when loaded via MediaWiki
 
 ## 1.3.0 (2015-01-28)
 

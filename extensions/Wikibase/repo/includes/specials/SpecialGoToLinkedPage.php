@@ -82,7 +82,7 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 		} catch ( InvalidArgumentException $ex ) {
 			$itemId = null;
 			$itemString = '';
-                }
+		}
 
 		return array( $site, $itemId, $itemString );
 	}
@@ -104,7 +104,7 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 			// full global id to be used.
 			// @todo: Ideally, if the site can't be looked up by global ID, we
 			// should try to look it up by local navigation ID.
-			// Support for this depends on bug 48934.
+			// Support for this depends on bug T50934.
 			$site .= 'wiki';
 		}
 

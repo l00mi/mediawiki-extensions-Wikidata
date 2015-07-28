@@ -1,17 +1,17 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Test\Repo\Api;
 
 use MediaWikiSite;
 use Title;
-use Wikibase\Api\ItemByTitleHelper;
-use Wikibase\Api\ResultBuilder;
+use Wikibase\Repo\Api\ItemByTitleHelper;
+use Wikibase\Repo\Api\ResultBuilder;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\StringNormalizer;
 
 /**
- * @covers Wikibase\Api\ItemByTitleHelper
+ * @covers Wikibase\Repo\Api\ItemByTitleHelper
  *
  * @group Wikibase
  * @group WikibaseAPI
@@ -43,7 +43,7 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 	 * @return ResultBuilder
 	 */
 	public function getResultBuilderMock( $expectedNormalizedTitle = 0 ) {
-		$apiResultBuilderMock = $this->getMockBuilder( 'Wikibase\Api\ResultBuilder' )
+		$apiResultBuilderMock = $this->getMockBuilder( 'Wikibase\Repo\Api\ResultBuilder' )
 			->disableOriginalConstructor()
 			->getMock();
 		$apiResultBuilderMock->expects( $this->exactly( $expectedNormalizedTitle ) )
@@ -189,14 +189,14 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 		return array(
 			array(
 				// Request with no sites
-				array( ),
+				array(),
 				array( 'barfoo' ),
 				false
 			),
 			array(
 				// Request with no titles
 				array( 'enwiki' ),
-				array( ),
+				array(),
 				false
 			),
 		);
@@ -217,4 +217,5 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 
 		$itemByTitleHelper->getItemIds( $sites, $titles, $normalize );
 	}
+
 }

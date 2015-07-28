@@ -1,9 +1,14 @@
 {
 	"@metadata": {
 		"authors": [
-			"SamGamgee"
+			"SamGamgee",
+			"TheRossatron",
+			"SmartNart12"
 		]
 	},
 	"wikibase-edit": "е1аз",
-	"wikibase-add": "хэгъахъу"
+	"wikibase-add": "хэгъахъу",
+	"wikibase-statements": "Еплъык1эхэр",
+	"wikibase-sitelinks-special": "Нэмык1 сайтхэр",
+	"wikibase-aliases-empty": "Синонимхэр гъэнэфагъэхэп"
 }

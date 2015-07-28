@@ -9,6 +9,7 @@ use Diff\DiffOp\DiffOpRemove;
 use Title;
 use Wikibase\DataModel\Entity\Diff\EntityDiff;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SiteLink;
@@ -202,6 +203,14 @@ class ItemContentTest extends EntityContentTest {
 		foreach ( $cases as &$case ) {
 			$case[1]['wb-sitelinks'] = 0;
 		}
+
+		$cases['redirect'] = array(
+			ItemContent::newFromRedirect(
+				new EntityRedirect( new ItemId( 'Q1' ), new ItemId( 'Q2' ) ),
+				Title::newFromText( 'Item:Q2' )
+			),
+			array()
+		);
 
 		$cases['claims'] = array(
 			$this->getItemContentWithClaim(),
@@ -427,6 +436,37 @@ class ItemContentTest extends EntityContentTest {
 		);
 
 		return $cases;
+	}
+
+	public function testIsEmpty_emptyItem() {
+		$content = ItemContent::newFromItem( new Item() );
+		$this->assertTrue( $content->isEmpty() );
+	}
+
+	public function testIsEmpty_nonEmptyItem() {
+		$item = new Item();
+		$item->setLabel( 'en', '~=[,,_,,]:3' );
+		$content = ItemContent::newFromItem( $item );
+		$this->assertFalse( $content->isEmpty() );
+	}
+
+	public function testIsStub_stubItem() {
+		$item = new Item();
+		$item->setLabel( 'en', '~=[,,_,,]:3' );
+		$content = ItemContent::newFromItem( $item );
+		$this->assertTrue( $content->isStub() );
+	}
+
+	public function testIsStub_emptyItem() {
+		$content = ItemContent::newFromItem( new Item() );
+		$this->assertFalse( $content->isStub() );
+	}
+
+	public function testIsStub_nonStubItem() {
+		$item = new Item();
+		$item->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
+		$content = ItemContent::newFromItem( $item );
+		$this->assertFalse( $content->isStub() );
 	}
 
 }

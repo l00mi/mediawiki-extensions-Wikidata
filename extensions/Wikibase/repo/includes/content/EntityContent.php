@@ -26,7 +26,6 @@ use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\Diff\EntityPatcher;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Content\EntityHandler;
@@ -43,6 +42,7 @@ use WikiPage;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 abstract class EntityContent extends AbstractContent {
 
@@ -292,7 +292,6 @@ abstract class EntityContent extends AbstractContent {
 
 		$output = $outputGenerator->getParserOutput( $entityRevision, $options, $generateHtml );
 
-		// register page properties
 		$this->applyEntityPageProperties( $output );
 
 		return $output;
@@ -571,7 +570,7 @@ abstract class EntityContent extends AbstractContent {
 		if ( $this->isRedirect() ) {
 			$entityAfterPatch = $this->makeEmptyEntity();
 		} else {
-			$entityAfterPatch = $this->getEntity()->copy();
+			$entityAfterPatch = unserialize( serialize( $this->getEntity() ) );
 		}
 
 		// FIXME: this should either be done in the derivatives, or the patcher
@@ -626,32 +625,16 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * Returns true if this content is countable as a "real" wiki page, provided
-	 * that it's also in a countable location (e.g. a current revision in the main namespace).
-	 *
-	 * @param bool $hasLinks: if it is known whether this content contains links, provide this
-	 *        information here, to avoid redundant parsing to find out.
-	 *
-	 * @return bool
+	 * @return bool True if this is not a redirect and the page is empty.
 	 */
-	public function isCountable( $hasLinks = null ) {
-		if ( $this->isRedirect() ) {
-			return false;
-		}
-
-		return !$this->getEntity()->isEmpty();
+	public function isEmpty() {
+		return !$this->isRedirect() && parent::isEmpty();
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isEmpty() {
-		if ( $this->isRedirect() ) {
-			return false;
-		}
-
-		return $this->getEntity()->isEmpty();
-	}
+	abstract public function isStub();
 
 	/**
 	 * @see Content::copy
@@ -726,8 +709,11 @@ abstract class EntityContent extends AbstractContent {
 	 * @param ParserOutput $output
 	 */
 	private function applyEntityPageProperties( ParserOutput $output ) {
-		$properties = $this->getEntityPageProperties();
+		if ( $this->isRedirect() ) {
+			return;
+		}
 
+		$properties = $this->getEntityPageProperties();
 		foreach ( $properties as $name => $value ) {
 			$output->setProperty( $name, $value );
 		}
@@ -740,23 +726,14 @@ abstract class EntityContent extends AbstractContent {
 	 *
 	 * @see getEntityStatus()
 	 *
-	 * Keys used:
-	 * - wb-status: the entity's status, according to getEntityStatus()
-	 * - wb-claims: the number of claims in the entity
+	 * Records the entity's status in the 'wb-status' key.
 	 *
 	 * @return array A map from property names to property values.
 	 */
 	public function getEntityPageProperties() {
-		if ( $this->isRedirect() ) {
-			return array();
-		}
-
-		$properties = array(
-			'wb-claims' => count( $this->getEntity()->getClaims() ),
-		);
+		$properties = array();
 
 		$status = $this->getEntityStatus();
-
 		if ( $status !== self::STATUS_NONE ) {
 			$properties['wb-status'] = $status;
 		}
@@ -769,7 +746,7 @@ abstract class EntityContent extends AbstractContent {
 	 * e.g. STATUS_EMPTY or STATUS_NONE.
 	 * Used by getEntityPageProperties().
 	 *
-	 * @note Will fail if this ItemContent is a redirect.
+	 * @note Will fail if this EntityContent is a redirect.
 	 *
 	 * @see getEntityPageProperties()
 	 * @see EntityContent::STATUS_NONE
@@ -779,13 +756,9 @@ abstract class EntityContent extends AbstractContent {
 	 * @return int
 	 */
 	public function getEntityStatus() {
-		$entity = $this->getEntity();
-
 		if ( $this->isEmpty() ) {
 			return self::STATUS_EMPTY;
-		} elseif ( $entity instanceof StatementListProvider
-			&& $entity->getStatements()->isEmpty()
-		) {
+		} elseif ( $this->isStub() ) {
 			return self::STATUS_STUB;
 		} else {
 			return self::STATUS_NONE;

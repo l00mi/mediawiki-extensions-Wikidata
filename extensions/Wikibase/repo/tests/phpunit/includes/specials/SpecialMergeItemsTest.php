@@ -3,15 +3,17 @@
 namespace Wikibase\Test;
 
 use Exception;
-use MessageException;
 use PHPUnit_Framework_Error;
 use RawMessage;
 use Status;
 use User;
 use Wikibase\ChangeOp\MergeChangeOpsFactory;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\Lib\MessageException;
+use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Interactors\ItemMergeException;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
+use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Interactors\TokenCheckException;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
 use Wikibase\Repo\Specials\SpecialMergeItems;
@@ -30,6 +32,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author Daniel Kinzler
+ * @author Lucie-Aimée Kaffee
  */
 class SpecialMergeItemsTest extends SpecialPageTestBase {
 
@@ -73,6 +76,21 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		$this->overrideServices( $specialMergeItems, $this->user );
 
 		return $specialMergeItems;
+	}
+
+	/**
+	 * @return EditFilterHookRunner
+	 */
+	public function getMockEditFilterHookRunner() {
+		$mock = $this->getMockBuilder( 'Wikibase\Repo\Hooks\EditFilterHookRunner' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$mock->expects( $this->any() )
+			->method( 'run' )
+			 ->will( $this->returnValue( Status::newGood() ) );
+
+		return $mock;
 	}
 
 	/**
@@ -122,7 +140,16 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 				$this->mockRepository,
 				$this->getPermissionCheckers(),
 				$summaryFormatter,
-				$user
+				$user,
+				new RedirectCreationInteractor(
+						$this->mockRepository,
+						$this->mockRepository,
+						$this->getPermissionCheckers(),
+						$summaryFormatter,
+						$user,
+						$this->getMockEditFilterHookRunner(),
+						$this->mockRepository
+				)
 			)
 		);
 	}
@@ -173,7 +200,7 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 
 		$this->assertNoError( $output );
 
-		foreach( $matchers as $key => $matcher ) {
+		foreach ( $matchers as $key => $matcher ) {
 			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}''" );
 		}
 	}
@@ -257,7 +284,7 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 			array( 'claims' => array( 'P1' => array( $statement ) ) ),
 			array(),
 			array(),
-			array( 'claims' => array( 'P1' => array ( $statementWithoutId ) ) ),
+			array( 'claims' => array( 'P1' => array( $statementWithoutId ) ) ),
 		);
 
 		return $testCases;
@@ -288,10 +315,10 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		$this->assertRegExp( '!\(wikibase-mergeitems-success: Q1, \d+, Q2, \d+\)!', $html, 'Expected success message' );
 
 		// -- check the items --------------------------------------------
-		$actualFrom = $this->entityModificationTestHelper->getEntity( 'Q1' );
+		$actualFrom = $this->entityModificationTestHelper->getEntity( 'Q1', true );
 		$this->entityModificationTestHelper->assertEntityEquals( $fromAfter, $actualFrom );
 
-		$actualTo = $this->entityModificationTestHelper->getEntity( 'Q2' );
+		$actualTo = $this->entityModificationTestHelper->getEntity( 'Q2', true );
 		$this->entityModificationTestHelper->assertEntityEquals( $toAfter, $actualTo );
 	}
 
@@ -299,19 +326,19 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		return array(
 			array( //3 toid bad
 				'p' => array( 'fromid' => 'Q1', 'toid' => 'ABCDE' ),
-				'e' =>  'UserInputException:wikibase-wikibaserepopage-invalid-id' ),
+				'e' =>  'Wikibase\Lib\UserInputException:wikibase-wikibaserepopage-invalid-id' ),
 			array( //4 fromid bad
 				'p' => array( 'fromid' => 'ABCDE', 'toid' => 'Q1' ),
-				'e' =>  'UserInputException:wikibase-wikibaserepopage-invalid-id' ),
+				'e' =>  'Wikibase\Lib\UserInputException:wikibase-wikibaserepopage-invalid-id' ),
 			array( //5 both same id
 				'p' => array( 'fromid' => 'Q1', 'toid' => 'Q1' ),
 				'e' =>  'Wikibase\Repo\Interactors\ItemMergeException:wikibase-itemmerge-cant-merge-self' ),
 			array( //6 from id is property
 				'p' => array( 'fromid' => 'P1', 'toid' => 'Q1' ),
-				'e' =>  'UserInputException:wikibase-itemmerge-not-item' ),
+				'e' =>  'Wikibase\Lib\UserInputException:wikibase-itemmerge-not-item' ),
 			array( //7 to id is property
 				'p' => array( 'fromid' => 'Q1', 'toid' => 'P1' ),
-				'e' =>  'UserInputException:wikibase-itemmerge-not-item' ),
+				'e' =>  'Wikibase\Lib\UserInputException:wikibase-itemmerge-not-item' ),
 			array( //10 bad token
 				'p' => array( 'fromid' => 'Q1', 'toid' => 'Q2', 'token' => 'BAD' ),
 				'e' =>  'Wikibase\Repo\Interactors\TokenCheckException:wikibase-tokencheck-badtoken' ),

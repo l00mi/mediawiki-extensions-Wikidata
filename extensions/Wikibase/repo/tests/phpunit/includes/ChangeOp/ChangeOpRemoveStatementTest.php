@@ -56,7 +56,7 @@ class ChangeOpRemoveStatementTest extends \PHPUnit_Framework_TestCase {
 		$guid = $statement->getGuid();
 		$changeOp = new ChangeOpRemoveStatement( $guid );
 		$expected = null;
-		$args[] = array ( $item, $changeOp, $expected );
+		$args[] = array( $item, $changeOp, $expected );
 
 		return $args;
 	}
@@ -67,8 +67,8 @@ class ChangeOpRemoveStatementTest extends \PHPUnit_Framework_TestCase {
 	public function testApplyAddNewClaim( Item $item, ChangeOpRemoveStatement $changeOp, DataValue $expected = null ) {
 		$this->assertTrue( $changeOp->apply( $item ), "Applying the ChangeOp did not return true" );
 		$this->assertNotEmpty( $changeOp->getGuid() );
-		$claims = new Claims( $item->getClaims() );
-		$this->assertEquals( $expected, $claims->getClaimWithGuid( $changeOp->getGuid() ) );
+		$statements = $item->getStatements();
+		$this->assertEquals( $expected, $statements->getFirstStatementWithGuid( $changeOp->getGuid() ) );
 	}
 
 	private function newItemWithClaim( $itemIdString, $snak ) {

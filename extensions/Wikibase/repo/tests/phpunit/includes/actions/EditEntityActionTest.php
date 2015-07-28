@@ -71,10 +71,11 @@ class EditEntityActionTest extends ActionTestCase {
 			return;
 		}
 
-		for ( $i = abs($ofs); $i > 0; $i -= 1 ) {
+		for ( $i = abs( $ofs ); $i > 0; $i -= 1 ) {
 			$rev = $rev->getPrevious();
 			if ( !$rev ) {
-				throw new MWException( "Page " . $page->getTitle()->getPrefixedDBkey() . " does not have " . ( abs($ofs) +1 ) . " revisions" );
+				throw new MWException( 'Page ' . $page->getTitle()->getPrefixedDBkey()
+					. ' does not have ' . ( abs( $ofs ) + 1 ) . ' revisions' );
 			}
 		}
 
@@ -308,7 +309,15 @@ class EditEntityActionTest extends ActionTestCase {
 	/**
 	 * @dataProvider provideUndoForm
 	 */
-	public function testUndoForm( $action, $page, array $params, $post = false, User $user = null, $htmlPattern = null, $expectedProps = null ) {
+	public function testUndoForm(
+		$action,
+		$page,
+		array $params,
+		$post = false,
+		User $user = null,
+		$htmlPattern = null,
+		array $expectedProps = null
+	) {
 		$this->tryUndoAction( $action, $page, $params, $post, $user, $htmlPattern, $expectedProps );
 	}
 
@@ -606,7 +615,15 @@ class EditEntityActionTest extends ActionTestCase {
 	/**
 	 * @dataProvider provideUndoSubmit
 	 */
-	public function testUndoSubmit( $action, $page, array $params, $post = false, User $user = null, $htmlPattern = null, $expectedProps = null ) {
+	public function testUndoSubmit(
+		$action,
+		$page,
+		array $params,
+		$post = false,
+		User $user = null,
+		$htmlPattern = null,
+		array $expectedProps = null
+	) {
 		if ( is_string( $page ) ) {
 			self::resetTestItem( $page );
 		}
@@ -623,11 +640,19 @@ class EditEntityActionTest extends ActionTestCase {
 	 * @param WikiPage|Title|string $page
 	 * @param array $params
 	 * @param bool $post
-	 * @param User $user
-	 * @param null $htmlPattern
-	 * @param null $expectedProps
+	 * @param User|null $user
+	 * @param string|bool|null $htmlPattern
+	 * @param string[]|null $expectedProps
 	 */
-	protected function tryUndoAction( $action, $page, array $params, $post = false, User $user = null, $htmlPattern = null, $expectedProps = null ) {
+	protected function tryUndoAction(
+		$action,
+		$page,
+		array $params,
+		$post = false,
+		User $user = null,
+		$htmlPattern = null,
+		array $expectedProps = null
+	) {
 		if ( $user ) {
 			$this->setUser( $user );
 		}

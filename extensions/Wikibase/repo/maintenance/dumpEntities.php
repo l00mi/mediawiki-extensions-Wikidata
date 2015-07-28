@@ -2,10 +2,10 @@
 
 namespace Wikibase;
 
-use Disposable;
 use Maintenance;
 use MWException;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\Lib\Disposable;
 use Wikibase\Lib\Reporting\ExceptionHandler;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
 use Wikibase\Lib\Reporting\ReportingExceptionHandler;
@@ -137,8 +137,8 @@ abstract class DumpScript extends Maintenance {
 	private function closeLogFile() {
 		if ( $this->logFileHandle
 			&& $this->logFileHandle !== STDERR
-			&& $this->logFileHandle !== STDOUT ) {
-
+			&& $this->logFileHandle !== STDOUT
+		) {
 			fclose( $this->logFileHandle );
 		}
 

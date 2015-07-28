@@ -1,19 +1,28 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
 use ApiResult;
 use InvalidArgumentException;
 use Revision;
+use SiteStore;
 use Status;
 use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
+use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Term\AliasGroup;
+use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Term\Term;
+use Wikibase\DataModel\SiteLinkList;
+use Wikibase\DataModel\Term\TermList;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Serializers\EntitySerializer;
 use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\SerializerFactory;
+use Wikibase\Lib\Serializers\LibSerializerFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
 
 /**
@@ -38,6 +47,11 @@ class ResultBuilder {
 	private $missingEntityCounter;
 
 	/**
+	 * @var LibSerializerFactory
+	 */
+	private $libSerializerFactory;
+
+	/**
 	 * @var SerializerFactory
 	 */
 	private $serializerFactory;
@@ -48,30 +62,63 @@ class ResultBuilder {
 	private $entityTitleLookup;
 
 	/**
+	 * @var SiteStore
+	 */
+	private $siteStore;
+
+	/**
 	 * @var SerializationOptions
 	 */
 	private $options;
 
 	/**
+	 * @var PropertyDataTypeLookup
+	 */
+	private $dataTypeLookup;
+
+	/**
+	 * @var SerializationModifier
+	 */
+	private $modifier;
+
+	/**
+	 * @var bool when special elements such as '_element' are needed by the formatter.
+	 */
+	private $isRawMode;
+
+	/**
 	 * @param ApiResult $result
 	 * @param EntityTitleLookup $entityTitleLookup
+	 * @param LibSerializerFactory $libSerializerFactory
 	 * @param SerializerFactory $serializerFactory
+	 * @param SiteStore $siteStore
+	 * @param PropertyDataTypeLookup $dataTypeLookup
+	 * @param bool $isRawMode when special elements such as '_element' are needed by the formatter.
 	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct(
 		$result,
 		EntityTitleLookup $entityTitleLookup,
-		SerializerFactory $serializerFactory
+		LibSerializerFactory $libSerializerFactory,
+		SerializerFactory $serializerFactory,
+		SiteStore $siteStore,
+		PropertyDataTypeLookup $dataTypeLookup,
+		$isRawMode
 	) {
 		if ( !$result instanceof ApiResult ) {
-			throw new InvalidArgumentException( 'Result builder must be constructed with an ApiWikibase' );
+			throw new InvalidArgumentException( 'Result builder must be constructed with an ApiResult' );
 		}
 
 		$this->result = $result;
 		$this->entityTitleLookup = $entityTitleLookup;
+		$this->libSerializerFactory = $libSerializerFactory;
 		$this->serializerFactory = $serializerFactory;
 		$this->missingEntityCounter = -1;
+		$this->isRawMode = $isRawMode;
+		$this->siteStore = $siteStore;
+		$this->dataTypeLookup = $dataTypeLookup;
+		$this->modifier = new SerializationModifier();
 	}
 
 	/**
@@ -83,7 +130,7 @@ class ResultBuilder {
 	public function getOptions() {
 		if ( !$this->options ) {
 			$this->options = new SerializationOptions();
-			$this->options->setIndexTags( $this->result->getIsRawMode() );
+			$this->options->setIndexTags( $this->isRawMode );
 			$this->options->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_NONE );
 		}
 
@@ -134,7 +181,7 @@ class ResultBuilder {
 		$this->checkNameIsString( $name );
 		$this->checkTagIsString( $tag );
 
-		if ( $this->result->getIsRawMode() ) {
+		if ( $this->isRawMode ) {
 			// Unset first, so we don't make the tag name an actual value.
 			// We'll be setting this to $tag by calling setIndexedTagName().
 			unset( $values['_element'] );
@@ -200,7 +247,7 @@ class ResultBuilder {
 
 		$this->checkValueIsNotList( $value );
 
-		if ( $this->result->getIsRawMode() ) {
+		if ( $this->isRawMode ) {
 			$key = null;
 		}
 
@@ -325,7 +372,10 @@ class ResultBuilder {
 
 			//FIXME: $props should be used to filter $entitySerialization!
 			// as in, $entitySerialization = array_intersect_key( $entitySerialization, array_flip( $props ) )
-			$entitySerializer = $this->serializerFactory->newSerializerForObject( $entity, $serializerOptions );
+			$entitySerializer = $this->libSerializerFactory->newSerializerForEntity(
+				$entity->getType(),
+				$serializerOptions
+			);
 			$entitySerialization = $entitySerializer->getSerialized( $entity );
 
 			if ( !empty( $siteIds ) && array_key_exists( 'sitelinks', $entitySerialization ) ) {
@@ -360,14 +410,23 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param array $labels the labels to set in the result
+	 * @param TermList $labels the labels to insert in the result
 	 * @param array|string $path where the data is located
 	 */
-	public function addLabels( array $labels, $path ) {
-		$labelSerializer = $this->serializerFactory->newLabelSerializer( $this->getOptions() );
+	public function addLabels( TermList $labels, $path ) {
+		$this->addTermList( $labels, 'labels', 'label', $path );
+	}
 
-		$values = $labelSerializer->getSerialized( $labels );
-		$this->setList( $path, 'labels', $values, 'label' );
+	/**
+	 * Adds fake serialization to show a label has been removed
+	 *
+	 * @since 0.5
+	 *
+	 * @param string $language
+	 * @param array|string $path where the data is located
+	 */
+	public function addRemovedLabel( $language, $path ) {
+		$this->addRemovedTerm( $language, 'labels', 'label', $path );
 	}
 
 	/**
@@ -375,27 +434,74 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param array $descriptions the descriptions to insert in the result
+	 * @param TermList $descriptions the descriptions to insert in the result
 	 * @param array|string $path where the data is located
 	 */
-	public function addDescriptions( array $descriptions, $path ) {
-		$descriptionSerializer = $this->serializerFactory->newDescriptionSerializer( $this->getOptions() );
-
-		$values = $descriptionSerializer->getSerialized( $descriptions );
-		$this->setList( $path, 'descriptions', $values, 'description' );
+	public function addDescriptions( TermList $descriptions, $path ) {
+		$this->addTermList( $descriptions, 'descriptions', 'description', $path );
 	}
 
 	/**
-	 * Get serialized aliases and add them to result
+	 * Adds fake serialization to show a label has been removed
 	 *
 	 * @since 0.5
 	 *
-	 * @param array $aliases the aliases to set in the result
+	 * @param string $language
 	 * @param array|string $path where the data is located
 	 */
-	public function addAliases( array $aliases, $path ) {
-		$aliasSerializer = $this->serializerFactory->newAliasSerializer( $this->getOptions() );
-		$values = $aliasSerializer->getSerialized( $aliases );
+	public function addRemovedDescription( $language, $path ) {
+		$this->addRemovedTerm( $language, 'descriptions', 'description', $path );
+	}
+
+	/**
+	 * Get serialized TermList and add it to the result
+	 *
+	 * @param TermList $termList
+	 * @param string $name
+	 * @param string $tag
+	 * @param array|string $path where the data is located
+	 */
+	private function addTermList( TermList $termList, $name, $tag, $path ) {
+		$serializer = $this->serializerFactory->newTermListSerializer();
+		$value = $serializer->serialize( $termList );
+		$this->setList( $path, $name, $value, $tag );
+	}
+
+	/**
+	 * Adds fake serialization to show a term has been removed
+	 *
+	 * @param string $language
+	 * @param array|string $path where the data is located
+	 */
+	private function addRemovedTerm( $language, $name, $tag, $path ) {
+		$value = array(
+			$language => array(
+				'language' => $language,
+				'removed' => '',
+			)
+		);
+		$this->setList( $path, $name, $value, $tag );
+	}
+
+	/**
+	 * Get serialized AliasGroupList and add it to result
+	 *
+	 * @since 0.5
+	 *
+	 * @param AliasGroupList $aliasGroupList the AliasGroupList to set in the result
+	 * @param array|string $path where the data is located
+	 */
+	public function addAliasGroupList( AliasGroupList $aliasGroupList, $path ) {
+		if ( $this->isRawMode ) {
+			$serializer = $this->serializerFactory->newAliasGroupSerializer();
+			$values = array();
+			foreach ( $aliasGroupList->toArray() as $aliasGroup ) {
+				$values = array_merge( $values, $serializer->serialize( $aliasGroup ) );
+			}
+		} else {
+			$serializer = $this->serializerFactory->newAliasGroupListSerializer();
+			$values = $serializer->serialize( $aliasGroupList );
+		}
 		$this->setList( $path, 'aliases', $values, 'alias' );
 	}
 
@@ -404,35 +510,69 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param array $siteLinks the site links to insert in the result, as SiteLink objects
+	 * @todo use a SiteLinkListSerializer when created in DataModelSerialization here
+	 *
+	 * @param SiteLinkList $siteLinkList the site links to insert in the result
 	 * @param array|string $path where the data is located
-	 * @param array|null $options
+	 * @param bool $addUrl
 	 */
-	public function addSiteLinks( array $siteLinks, $path, $options = null ) {
-		$serializerOptions = $this->getOptions();
+	public function addSiteLinkList( SiteLinkList $siteLinkList, $path, $addUrl = false ) {
+		$serializer = $this->serializerFactory->newSiteLinkSerializer();
 
-		if ( is_array( $options ) ) {
-			if ( in_array( EntitySerializer::SORT_ASC, $options ) ) {
-				$serializerOptions->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_ASC );
-			} elseif ( in_array( EntitySerializer::SORT_DESC, $options ) ) {
-				$serializerOptions->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_DESC );
-			}
-
-			if ( in_array( 'url', $options ) ) {
-				$serializerOptions->addToOption( EntitySerializer::OPT_PARTS, "sitelinks/urls" );
-			}
-
-			if ( in_array( 'removed', $options ) ) {
-				$serializerOptions->addToOption( EntitySerializer::OPT_PARTS, "sitelinks/removed" );
-			}
+		$values = array();
+		foreach ( $siteLinkList->toArray() as $siteLink ) {
+			$values[$siteLink->getSiteId()] = $serializer->serialize( $siteLink );
 		}
 
-		$siteLinkSerializer = $this->serializerFactory->newSiteLinkSerializer( $serializerOptions );
-		$values = $siteLinkSerializer->getSerialized( $siteLinks );
-
-		if ( $values !== array() ) {
-			$this->setList( $path, 'sitelinks', $values, 'sitelink' );
+		if ( $addUrl ) {
+			$values = $this->getSiteLinkListArrayWithUrls( $values );
 		}
+
+		if ( $this->isRawMode ) {
+			$values = $this->getRawModeSiteLinkListArray( $values );
+		}
+
+		$this->setList( $path, 'sitelinks', $values, 'sitelink' );
+	}
+
+	private function getSiteLinkListArrayWithUrls( array $array ) {
+		$siteStore = $this->siteStore;
+		$addUrlCallback = function( $array ) use ( $siteStore ) {
+			$site = $siteStore->getSite( $array['site'] );
+			if ( $site !== null ) {
+				$array['url'] = $site->getPageUrl( $array['title'] );
+			}
+			return $array;
+		};
+		return $this->modifier->modifyUsingCallback( $array, '*', $addUrlCallback );
+	}
+
+	private function getRawModeSiteLinkListArray( array $array ) {
+		$addIndexedBadgesCallback = function ( $array ) {
+			ApiResult::setIndexedTagName( $array, 'badge' );
+			return $array;
+		};
+		$array = array_values( $array );
+		return $this->modifier->modifyUsingCallback( $array, '*/badges', $addIndexedBadgesCallback );
+	}
+
+	/**
+	 * Adds fake serialization to show a sitelink has been removed
+	 *
+	 * @since 0.5
+	 *
+	 * @param SiteLinkList $siteLinkList
+	 * @param array|string $path where the data is located
+	 */
+	public function addRemovedSiteLinks( SiteLinkList $siteLinkList, $path ) {
+		$serializer = $this->serializerFactory->newSiteLinkSerializer();
+		$values = array();
+		foreach ( $siteLinkList->toArray() as $siteLink ) {
+			$value = $serializer->serialize( $siteLink );
+			$value['removed'] = '';
+			$values[$siteLink->getSiteId()] = $value;
+		}
+		$this->setList( $path, 'sitelinks', $values, 'sitelink' );
 	}
 
 	/**
@@ -444,7 +584,7 @@ class ResultBuilder {
 	 * @param array|string $path where the data is located
 	 */
 	public function addClaims( array $claims, $path ) {
-		$claimsSerializer = $this->serializerFactory->newClaimsSerializer( $this->getOptions() );
+		$claimsSerializer = $this->libSerializerFactory->newClaimsSerializer( $this->getOptions() );
 
 		$values = $claimsSerializer->getSerialized( new Claims( $claims ) );
 
@@ -461,14 +601,78 @@ class ResultBuilder {
 	 * @since 0.5
 	 */
 	public function addClaim( Claim $claim ) {
-		$serializer = $this->serializerFactory->newClaimSerializer( $this->getOptions() );
+		$serializer = $this->serializerFactory->newStatementSerializer();
 
 		//TODO: this is currently only used to add a Claim as the top level structure,
 		//      with a null path and a fixed name. Would be nice to also allow claims
 		//      to be added to a list, using a path and a id key or index.
 
-		$value = $serializer->getSerialized( $claim );
+		$value = $serializer->serialize( $claim );
+
+		/**
+		 * Below we force an empty qualifiers and qualifiers-order element in the output.
+		 * This is to make sure we dont break anything that assumes this is always here.
+		 * This hack was added when moving away from the Lib serializers
+		 */
+		if ( !isset( $value['qualifiers'] ) ) {
+			$value['qualifiers'] = array();
+		}
+		if ( !isset( $value['qualifiers-order'] ) ) {
+			$value['qualifiers-order'] = array();
+		}
+
+		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'references/*/snaks' );
+		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'qualifiers' );
+		$value = $this->modifier->modifyUsingCallback(
+			$value,
+			'mainsnak',
+			$this->getModCallbackToAddDataTypeToSnak()
+		);
+
+		if ( $this->isRawMode ) {
+			$value = $this->getRawModeClaimArray( $value );
+		}
+
 		$this->setValue( null, 'claim', $value );
+	}
+
+	private function getRawModeClaimArray( $array ) {
+		$rawModeModifications = array(
+			'references/*/snaks/*' => array(
+				$this->getModCallbackToIndexTags( 'snak' ),
+			),
+			'references/*/snaks' => array(
+				$this->getModCallbackToRemoveKeys( 'id' ),
+				$this->getModCallbackToIndexTags( 'property' ),
+			),
+			'references/*/snaks-order' => array(
+				$this->getModCallbackToIndexTags( 'property' )
+			),
+			'references' => array(
+				$this->getModCallbackToIndexTags( 'reference' ),
+			),
+			'qualifiers/*' => array(
+				$this->getModCallbackToIndexTags( 'qualifiers' ),
+			),
+			'qualifiers' => array(
+				$this->getModCallbackToRemoveKeys( 'id' ),
+				$this->getModCallbackToIndexTags( 'property' ),
+			),
+			'qualifiers-order' => array(
+				$this->getModCallbackToIndexTags( 'property' )
+			),
+			'mainsnak' => array(
+				$this->getModCallbackToAddDataTypeToSnak(),
+			),
+		);
+
+		foreach ( $rawModeModifications as $path => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$array = $this->modifier->modifyUsingCallback( $array, $path, $callback );
+			}
+		}
+
+		return $array;
 	}
 
 	/**
@@ -479,14 +683,52 @@ class ResultBuilder {
 	 * @since 0.5
 	 */
 	public function addReference( Reference $reference ) {
-		$serializer = $this->serializerFactory->newReferenceSerializer( $this->getOptions() );
+		$serializer = $this->serializerFactory->newReferenceSerializer();
 
 		//TODO: this is currently only used to add a Reference as the top level structure,
 		//      with a null path and a fixed name. Would be nice to also allow references
 		//      to be added to a list, using a path and a id key or index.
 
-		$value = $serializer->getSerialized( $reference );
+		$value = $serializer->serialize( $reference );
+
+		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'snaks' );
+
+		if ( $this->isRawMode ) {
+			$value = $this->getRawModeReferenceArray( $value );
+		}
+
 		$this->setValue( null, 'reference', $value );
+	}
+
+	/**
+	 * @param array $array
+	 * @param string $path
+	 *
+	 * @return array
+	 */
+	private function getArrayWithDataTypesInGroupedSnakListAtPath( array $array, $path ) {
+		return $this->modifier->modifyUsingCallback(
+			$array,
+			$path,
+			$this->getModCallbackToAddDataTypeToSnaksGroupedByProperty()
+		);
+	}
+
+	private function getRawModeReferenceArray( $array ) {
+		$array = $this->modifier->modifyUsingCallback( $array, 'snaks-order', function ( $array ) {
+			ApiResult::setIndexedTagName( $array, 'property' );
+			return $array;
+		} );
+		$array = $this->modifier->modifyUsingCallback( $array, 'snaks', function ( $array ) {
+			foreach ( $array as $propertyIdGroup => &$snakGroup ) {
+				$snakGroup['id'] = $propertyIdGroup;
+				ApiResult::setIndexedTagName( $snakGroup, 'snak' );
+			}
+			$array = array_values( $array );
+			ApiResult::setIndexedTagName( $array, 'property' );
+			return $array;
+		} );
+		return $array;
 	}
 
 	/**
@@ -562,6 +804,77 @@ class ResultBuilder {
 
 			$this->setValue( $path, 'lastrevid', empty( $revisionId ) ? 0 : $revisionId );
 		}
+	}
+
+	/**
+	 * Get callable to index array with the given tag name
+	 *
+	 * @param string $tagName
+	 *
+	 * @return callable
+	 */
+	private function getModCallbackToIndexTags( $tagName ) {
+		return function( $array ) use ( $tagName ) {
+			ApiResult::setIndexedTagName( $array, $tagName );
+			return $array;
+		};
+	}
+
+	/**
+	 * Get callable to remove array keys and optionally set the key as an array value
+	 *
+	 * @param string|null $addAsArrayElement
+	 *
+	 * @return callable
+	 */
+	private function getModCallbackToRemoveKeys( $addAsArrayElement = null ) {
+		return function ( $array ) use ( $addAsArrayElement ) {
+			if ( $addAsArrayElement !== null ) {
+				foreach ( $array as $key => &$value ) {
+					$value[$addAsArrayElement] = $key;
+				}
+			}
+			$array = array_values( $array );
+			return $array;
+		};
+	}
+
+	private function getModCallbackToAddDataTypeToSnaksGroupedByProperty() {
+		$dtLookup = $this->dataTypeLookup;
+		return function ( $array ) use ( $dtLookup ) {
+			foreach ( $array as $propertyIdGroupKey => &$snakGroup ) {
+				$dataType = $dtLookup->getDataTypeIdForProperty( new PropertyId( $propertyIdGroupKey ) );
+				foreach ( $snakGroup as &$snak ) {
+					/**
+					 * TODO: We probably want to return the datatype for NoValue and SomeValue snaks too
+					 *       but this is not done by the LibSerializers thus not done here.
+					 * TODO: Also DataModelSerialization has a TypedSnak object and serializer which we
+					 *       might be able to use in some way here
+					 */
+					if ( $snak['snaktype'] === 'value' ) {
+						$snak['datatype'] = $dataType;
+					}
+				}
+			}
+			return $array;
+		};
+	}
+
+	private function getModCallbackToAddDataTypeToSnak() {
+		$dtLookup = $this->dataTypeLookup;
+		return function ( $array ) use ( $dtLookup ) {
+			$dataType = $dtLookup->getDataTypeIdForProperty( new PropertyId( $array['property'] ) );
+			/**
+			 * TODO: We probably want to return the datatype for NoValue and SomeValue snaks too
+			 *       but this is not done by the LibSerializers thus not done here.
+			 * TODO: Also DataModelSerialization has a TypedSnak object and serializer which we
+			 *       might be able to use in some way here
+			 */
+			if ( $array['snaktype'] === 'value' ) {
+				$array['datatype'] = $dataType;
+			}
+			return $array;
+		};
 	}
 
 }

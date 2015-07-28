@@ -1,8 +1,7 @@
 <?php
 
-namespace Wikibase\Api;
+namespace Wikibase\Repo\Api;
 
-use ApiBase;
 use ApiMain;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
@@ -31,6 +30,11 @@ class RemoveClaims extends ModifyClaim {
 	private $statementChangeOpFactory;
 
 	/**
+	 * @var ApiErrorReporter
+	 */
+	private $errorReporter;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -38,20 +42,27 @@ class RemoveClaims extends ModifyClaim {
 	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
 		parent::__construct( $mainModule, $moduleName, $modulePrefix );
 
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
 
 	/**
-	 * @see \ApiBase::execute
+	 * @see ApiBase::execute
 	 *
 	 * @since 0.3
 	 */
 	public function execute() {
 		$params = $this->extractRequestParams();
 		$entityId = $this->getEntityId( $params );
-		$baseRevisionId = isset( $params['baserevid'] ) ? (int)$params['baserevid'] : null;
-		$entityRevision = $this->loadEntityRevision( $entityId, $baseRevisionId );
+		if ( isset( $params['baserevid'] ) ) {
+			$entityRevision = $this->loadEntityRevision( $entityId, (int)$params['baserevid'] );
+		} else {
+			$entityRevision = $this->loadEntityRevision( $entityId );
+		}
 		$entity = $entityRevision->getEntity();
 
 		if ( $entity instanceof StatementListProvider ) {
@@ -66,10 +77,11 @@ class RemoveClaims extends ModifyClaim {
 		try {
 			$changeOps->apply( $entity, $summary );
 		} catch ( ChangeOpException $e ) {
-			$this->dieException( $e, 'failed-save' );
+			$this->errorReporter->dieException( $e, 'failed-save' );
 		}
 
-		$this->saveChanges( $entity, $summary );
+		$status = $this->saveChanges( $entity, $summary );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->setList( null, 'claims', $params['claim'], 'claim' );
 	}
@@ -86,23 +98,23 @@ class RemoveClaims extends ModifyClaim {
 
 		foreach ( $params['claim'] as $guid ) {
 			if ( !$this->modificationHelper->validateStatementGuid( $guid ) ) {
-				$this->dieError( "Invalid claim guid $guid" , 'invalid-guid' );
+				$this->errorReporter->dieError( "Invalid claim guid $guid", 'invalid-guid' );
 			}
 
 			if ( is_null( $entityId ) ) {
 				$entityId = $this->guidParser->parse( $guid )->getEntityId();
 			} else {
 				if ( !$this->guidParser->parse( $guid )->getEntityId()->equals( $entityId ) ) {
-					$this->dieError( 'All claims must belong to the same entity' , 'invalid-guid' );
+					$this->errorReporter->dieError( 'All claims must belong to the same entity', 'invalid-guid' );
 				}
 			}
 		}
 
 		if ( is_null( $entityId ) ) {
-			$this->dieError( 'Could not find an entity for the claims' , 'invalid-guid' );
+			$this->errorReporter->dieError( 'Could not find an entity for the claims', 'invalid-guid' );
 		}
 
-		return $entityId ;
+		return $entityId;
 	}
 
 	/**
@@ -123,7 +135,7 @@ class RemoveClaims extends ModifyClaim {
 		$missingGuids = array_diff_key( array_flip( $requiredGuids ), $existingGuids );
 
 		if ( !empty( $missingGuids ) ) {
-			$this->dieError(
+			$this->errorReporter->dieError(
 				'Statement(s) with GUID(s) ' . implode( ', ', array_keys( $missingGuids ) ) . ' not found',
 				'invalid-guid'
 			);
@@ -152,9 +164,9 @@ class RemoveClaims extends ModifyClaim {
 		return array_merge(
 			array(
 				'claim' => array(
-					ApiBase::PARAM_TYPE => 'string',
-					ApiBase::PARAM_ISMULTI => true,
-					ApiBase::PARAM_REQUIRED => true,
+					self::PARAM_TYPE => 'string',
+					self::PARAM_ISMULTI => true,
+					self::PARAM_REQUIRED => true,
 				),
 			),
 			parent::getAllowedParams()
@@ -166,7 +178,9 @@ class RemoveClaims extends ModifyClaim {
 	 */
 	protected function getExamplesMessages() {
 		return array(
-			'action=wbremoveclaims&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0N&token=foobar&baserevid=7201010' => 'apihelp-wbremoveclaims-example-1',
+			'action=wbremoveclaims&claim=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0N&token=foobar'
+				. '&baserevid=7201010'
+				=> 'apihelp-wbremoveclaims-example-1',
 		);
 	}
 

@@ -17,11 +17,7 @@ use Wikibase\Client\Store\Sql\ConsistentReadConnectionManager;
 class ConsistentReadConnectionManagerTest extends \PHPUnit_Framework_TestCase {
 
 	private function getConnectionMock() {
-		$connection = $this->getMockBuilder( 'IDatabase' )
-			->setMethods( array( 'startAtomic', 'endAtomic', 'rollback' ) )
-			->getMock();
-
-		return $connection;
+		return $this->getMock( 'IDatabase' );
 	}
 
 	private function getLoadBalancerMock() {
@@ -76,7 +72,7 @@ class ConsistentReadConnectionManagerTest extends \PHPUnit_Framework_TestCase {
 
 	public function testBeginAtomicSection() {
 		$connection = $this->getConnectionMock();
-		$lb = $this->getLoadBalancerMock( );
+		$lb = $this->getLoadBalancerMock();
 
 		$lb->expects( $this->exactly( 2 ) )
 			->method( 'getConnection' )
@@ -97,7 +93,7 @@ class ConsistentReadConnectionManagerTest extends \PHPUnit_Framework_TestCase {
 
 	public function testCommitAtomicSection() {
 		$connection = $this->getConnectionMock();
-		$lb = $this->getLoadBalancerMock( );
+		$lb = $this->getLoadBalancerMock();
 
 		$lb->expects( $this->once() )
 			->method( 'reuseConnection' )
@@ -114,7 +110,7 @@ class ConsistentReadConnectionManagerTest extends \PHPUnit_Framework_TestCase {
 
 	public function testRollbackAtomicSection() {
 		$connection = $this->getConnectionMock();
-		$lb = $this->getLoadBalancerMock( );
+		$lb = $this->getLoadBalancerMock();
 
 		$lb->expects( $this->once() )
 			->method( 'reuseConnection' )

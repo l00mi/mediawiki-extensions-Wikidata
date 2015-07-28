@@ -19,13 +19,13 @@ var createStatementgrouplistview = function( options, $node ) {
 				return $.Deferred().resolve().promise();
 			}
 		},
-		valueViewBuilder: 'i am a ValueViewBuilder',
+		valueViewBuilder: 'I am a ValueViewBuilder',
 		entityChangersFactory: {
 			getClaimsChanger: function() {
-				return 'i am a ClaimsChanger';
+				return 'I am a ClaimsChanger';
 			},
 			getReferencesChanger: function() {
-				return null;
+				return 'I am a ReferencesChanger';
 			}
 		},
 		dataTypeStore: 'I am a DataTypeStore',
