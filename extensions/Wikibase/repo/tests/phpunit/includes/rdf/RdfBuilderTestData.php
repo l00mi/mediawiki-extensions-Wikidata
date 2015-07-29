@@ -101,6 +101,7 @@ class RdfBuilderTestData {
 		$data = trim( file_get_contents( $filename ) );
 		$data = explode( "\n", $data );
 		sort( $data );
+		$data = array_map( 'trim', $data );
 		return $data;
 	}
 
@@ -187,7 +188,7 @@ class RdfBuilderTestData {
 	 */
 	private static function getTestProperties() {
 		return array(
-			array( 2, 'wikibase-entityid' ),
+			array( 2, 'wikibase-item' ),
 			array( 3, 'commonsMedia' ),
 			array( 4, 'globecoordinate' ),
 			array( 5, 'monolingualtext' ),

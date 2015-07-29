@@ -146,6 +146,17 @@ class EntityUsage {
 	}
 
 	/**
+	 * @return array array( 'entityId' => $entityId, 'aspect' => $aspect, 'modifier' => $modifier )
+	 */
+	public function asArray() {
+		return array(
+			'entityId' => $this->entityId->getSerialization(),
+			'aspect' => $this->aspect,
+			'modifier' => $this->modifier
+		);
+	}
+
+	/**
 	 * @param string $aspectKey
 	 *
 	 * @return string One of the EntityUsage::..._USAGE constants with the modifier split off.

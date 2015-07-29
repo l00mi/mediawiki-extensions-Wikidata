@@ -8,12 +8,12 @@ use Revision;
 use SiteStore;
 use Status;
 use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Term;
@@ -582,15 +582,42 @@ class ResultBuilder {
 	 *
 	 * @param Claim[] $claims the labels to set in the result
 	 * @param array|string $path where the data is located
+	 * @param array|string $props a list of fields to include, or "all"
 	 */
-	public function addClaims( array $claims, $path ) {
-		$claimsSerializer = $this->libSerializerFactory->newClaimsSerializer( $this->getOptions() );
+	public function addClaims( array $claims, $path, $props = 'all' ) {
+		$serializer = $this->serializerFactory->newStatementListSerializer();
 
-		$values = $claimsSerializer->getSerialized( new Claims( $claims ) );
+		$values = $serializer->serialize( new StatementList( $claims ) );
 
-		// HACK: comply with ApiResult::setIndexedTagName
-		$tag = isset( $values['_element'] ) ? $values['_element'] : 'claim';
-		$this->setList( $path, 'claims', $values, $tag );
+		if ( is_array( $props ) && !in_array( 'references', $props ) ) {
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				'*/*',
+				function ( $array ) {
+					unset( $array['references'] );
+					return $array;
+				}
+			);
+		}
+
+		if ( !$this->isRawMode ) {
+			$values = $this->getArrayWithAlteredClaims( $values, false, '*/*/' );
+		} else {
+			$values = $this->getArrayWithAlteredClaims( $values, true, '*/*/' );
+			$values = $this->getArrayWithRawModeClaims( $values, '*/*/' );
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				null,
+				$this->getModCallbackToRemoveKeys( 'id' )
+			);
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				'*',
+				$this->getModCallbackToIndexTags( 'claim' )
+			);
+		}
+
+		$this->setList( $path, 'claims', $values, 'property' );
 	}
 
 	/**
@@ -609,34 +636,73 @@ class ResultBuilder {
 
 		$value = $serializer->serialize( $claim );
 
-		/**
-		 * Below we force an empty qualifiers and qualifiers-order element in the output.
-		 * This is to make sure we dont break anything that assumes this is always here.
-		 * This hack was added when moving away from the Lib serializers
-		 */
-		if ( !isset( $value['qualifiers'] ) ) {
-			$value['qualifiers'] = array();
-		}
-		if ( !isset( $value['qualifiers-order'] ) ) {
-			$value['qualifiers-order'] = array();
-		}
-
-		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'references/*/snaks' );
-		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'qualifiers' );
-		$value = $this->modifier->modifyUsingCallback(
-			$value,
-			'mainsnak',
-			$this->getModCallbackToAddDataTypeToSnak()
-		);
+		$value = $this->getArrayWithAlteredClaims( $value );
 
 		if ( $this->isRawMode ) {
-			$value = $this->getRawModeClaimArray( $value );
+			$value = $this->getArrayWithRawModeClaims( $value );
 		}
 
 		$this->setValue( null, 'claim', $value );
 	}
 
-	private function getRawModeClaimArray( $array ) {
+	/**
+	 * @param array $array
+	 * @param bool $allowEmptyQualifiers
+	 * @param string $claimPath to the claim array/arrays with trailing /
+	 *
+	 * @return array
+	 */
+	private function getArrayWithAlteredClaims(
+		array $array,
+		$allowEmptyQualifiers = true,
+		$claimPath = ''
+	) {
+		if ( $allowEmptyQualifiers ) {
+			/**
+			 * Below we force an empty qualifiers and qualifiers-order element in the output.
+			 * This is to make sure we dont break anything that assumes this is always here.
+			 * This hack was added when moving away from the Lib serializers
+			 * TODO: remove this hack when we make other 'breaking changes' to the api output
+			 */
+			$array = $this->modifier->modifyUsingCallback(
+				$array,
+				trim( $claimPath, '/' ),
+				function ( $array ) {
+					if ( !isset( $array['qualifiers'] ) ) {
+						$array['qualifiers'] = array();
+					}
+					if ( !isset( $array['qualifiers-order'] ) ) {
+						$array['qualifiers-order'] = array();
+					}
+
+					return $array;
+				}
+			);
+		}
+
+		$array = $this->getArrayWithDataTypesInGroupedSnakListAtPath(
+			$array,
+			$claimPath . 'references/*/snaks'
+		);
+		$array = $this->getArrayWithDataTypesInGroupedSnakListAtPath(
+			$array,
+			$claimPath . 'qualifiers'
+		);
+		$array = $this->modifier->modifyUsingCallback(
+			$array,
+			$claimPath . 'mainsnak',
+			$this->getModCallbackToAddDataTypeToSnak()
+		);
+		return $array;
+	}
+
+	/**
+	 * @param array $array
+	 * @param string $claimPath to the claim array/arrays with trailing /
+	 *
+	 * @return array
+	 */
+	private function getArrayWithRawModeClaims( array $array, $claimPath = '' ) {
 		$rawModeModifications = array(
 			'references/*/snaks/*' => array(
 				$this->getModCallbackToIndexTags( 'snak' ),
@@ -668,7 +734,7 @@ class ResultBuilder {
 
 		foreach ( $rawModeModifications as $path => $callbacks ) {
 			foreach ( $callbacks as $callback ) {
-				$array = $this->modifier->modifyUsingCallback( $array, $path, $callback );
+				$array = $this->modifier->modifyUsingCallback( $array, $claimPath . $path, $callback );
 			}
 		}
 
