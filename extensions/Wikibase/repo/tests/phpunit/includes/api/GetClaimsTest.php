@@ -20,6 +20,7 @@ use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\Serializers\ClaimSerializer;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\StatementRankSerializer;
 
 /**
  * @covers Wikibase\Repo\Api\GetClaims
@@ -150,10 +151,11 @@ class GetClaimsTest extends ApiTestCase {
 			}
 
 			foreach ( array( Statement::RANK_DEPRECATED, Statement::RANK_NORMAL, Statement::RANK_PREFERRED ) as $rank ) {
+				$statementRankSerializer = new StatementRankSerializer();
 				$params = array(
 					'action' => 'wbgetclaims',
 					'entity' => $idSerialization,
-					'rank' => ClaimSerializer::serializeRank( $rank ),
+					'rank' => $statementRankSerializer->serialize( $rank ),
 				);
 
 				$statementsByRank = $statements->getByRank( $rank )->toArray();
@@ -190,10 +192,8 @@ class GetClaimsTest extends ApiTestCase {
 		// Assert that value mainsnaks have a datatype added
 		foreach ( $resultArray['claims'] as &$claimsByProperty ) {
 			foreach ( $claimsByProperty as &$claimArray ) {
-				if ( $claimArray['mainsnak']['snaktype'] === 'value' ) {
-					$this->assertArrayHasKey( 'datatype', $claimArray['mainsnak'] );
-					unset( $claimArray['mainsnak']['datatype'] );
-				}
+				$this->assertArrayHasKey( 'datatype', $claimArray['mainsnak'] );
+				unset( $claimArray['mainsnak']['datatype'] );
 			}
 		}
 

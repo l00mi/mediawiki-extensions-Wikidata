@@ -50,19 +50,7 @@ class ClaimSerializer extends SerializerObject implements Unserializer {
 	);
 
 	/**
-	 * Returns the available ranks in serialized form.
-	 *
-	 * @since 0.3
-	 *
-	 * @return string[]
-	 */
-	public static function getRanks() {
-		return array_values( self::$rankMap );
-	}
-
-	/**
 	 * Unserializes the rank and returns an element from the Statement::RANK_ enum.
-	 * Roundtrips with @see ClaimSerializer::serializeRank
 	 *
 	 * @since 0.3
 	 *
@@ -70,23 +58,9 @@ class ClaimSerializer extends SerializerObject implements Unserializer {
 	 *
 	 * @return integer
 	 */
-	public static function unserializeRank( $serializedRank ) {
+	private static function unserializeRank( $serializedRank ) {
 		$ranks = array_flip( self::$rankMap );
 		return $ranks[$serializedRank];
-	}
-
-	/**
-	 * Serializes the rank.
-	 * Roundtrips with @see ClaimSerializer::unserializeRank
-	 *
-	 * @since 0.3
-	 *
-	 * @param integer $rank
-	 *
-	 * @return string
-	 */
-	public static function serializeRank( $rank ) {
-		return self::$rankMap[$rank];
 	}
 
 	/**
@@ -116,7 +90,7 @@ class ClaimSerializer extends SerializerObject implements Unserializer {
 
 			$serialization['qualifiers-order'] = array();
 			/** @var Snak $snak */
-			foreach( $claim->getQualifiers() as $snak ) {
+			foreach ( $claim->getQualifiers() as $snak ) {
 				$id = $snak->getPropertyId()->getSerialization();
 				if ( !in_array( $id, $serialization['qualifiers-order'] ) ) {
 					$serialization['qualifiers-order'][] = $snak->getPropertyId()->getSerialization();

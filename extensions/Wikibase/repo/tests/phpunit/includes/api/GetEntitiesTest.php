@@ -2,10 +2,6 @@
 
 namespace Wikibase\Test\Repo\Api;
 
-use Wikibase\Lib\Serializers\EntitySerializer;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
-
 /**
  * @covers Wikibase\Repo\Api\GetEntities
  *
@@ -279,7 +275,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		}
 
 		//Assert the whole entity is as expected (claims, sitelinks, aliases, descriptions, labels)
-		$expectedEntityOutput = EntityTestHelper::getEntityOutput (
+		$expectedEntityOutput = EntityTestHelper::getEntityOutput(
 			EntityTestHelper::getHandle( $entity['id'] ),
 			$expected['props'],
 			$expected['languages']
@@ -552,7 +548,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		$this->assertEquals( $expectedDescriptions, $res['entities'][$id]['descriptions'] );
 	}
 
-	public function testSiteLinkFilter () {
+	public function testSiteLinkFilter() {
 		$id = EntityTestHelper::getId( 'Oslo' );
 
 		list( $res,, ) = $this->doApiRequest(

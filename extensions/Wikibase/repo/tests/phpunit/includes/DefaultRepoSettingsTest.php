@@ -23,7 +23,7 @@ class DefaultRepoSettingsTest extends \PHPUnit_Framework_TestCase {
 	public function testDefaultTransformLegacyFormatOnExport_WithInternalSerializerSet() {
 		$nonDefaultSettings = require __DIR__ . '/../../../config/Wikibase.default.php';
 
-		$serializerClass = 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer';
+		$serializerClass = 'Wikibase\Repo\Serializers\LegacyInternalEntitySerializer';
 		$nonDefaultSettings['internalEntitySerializerClass'] = $serializerClass;
 
 		$settings = $this->newSettingsArray( $nonDefaultSettings );
@@ -39,7 +39,7 @@ class DefaultRepoSettingsTest extends \PHPUnit_Framework_TestCase {
 	private function newSettingsArray( array $settings ) {
 		$settingsArray = new SettingsArray();
 
-		foreach( $settings as $setting => $value ) {
+		foreach ( $settings as $setting => $value ) {
 			$settingsArray->setSetting( $setting, $value );
 		}
 

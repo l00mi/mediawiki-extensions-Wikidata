@@ -3,6 +3,7 @@
 namespace Wikibase\Test\Repo\Api;
 
 use DataValues\NumberValue;
+use DataValues\Serializers\DataValueSerializer;
 use DataValues\StringValue;
 use FormatJson;
 use UsageException;
@@ -19,9 +20,8 @@ use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
+use Wikibase\InternalSerialization\SerializerFactory;
 use Wikibase\Lib\ClaimGuidGenerator;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
-use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -142,13 +142,13 @@ class SetClaimTest extends WikibaseApiTestCase {
 			$this->makeRequest( $statement, $itemId, 1, 'addition request' );
 
 			// Reorder qualifiers
-			if( count( $statement->getQualifiers() ) > 0 ) {
+			if ( count( $statement->getQualifiers() ) > 0 ) {
 				// Simply reorder the qualifiers by putting the first qualifier to the end. This is
 				// supposed to be done in the serialized representation since changing the actual
 				// object might apply intrinsic sorting.
-				$serializerFactory = new LibSerializerFactory();
-				$serializer = $serializerFactory->newClaimSerializer( new SerializationOptions() );
-				$serializedClaim = $serializer->getSerialized( $statement );
+				$serializerFactory = new SerializerFactory( new DataValueSerializer() );
+				$statementSerializer = $serializerFactory->newStatementSerializer();
+				$serializedClaim = $statementSerializer->serialize( $statement );
 				$firstPropertyId = array_shift( $serializedClaim['qualifiers-order'] );
 				array_push( $serializedClaim['qualifiers-order'], $firstPropertyId );
 				$this->makeRequest( $serializedClaim, $itemId, 1, 'reorder qualifiers' );
@@ -296,15 +296,15 @@ class SetClaimTest extends WikibaseApiTestCase {
 		$baserevid = null,
 		$error = null
 	) {
-		$serializerFactory = new LibSerializerFactory();
+		$serializerFactory = new SerializerFactory( new DataValueSerializer() );
+		$statementSerializer = $serializerFactory->newStatementSerializer();
+		$statementDeserializer = WikibaseRepo::getDefaultInstance()->getStatementDeserializer();
 
 		if ( $claim instanceof Statement ) {
-			$serializer = $serializerFactory->newClaimSerializer( new SerializationOptions() );
-			$serializedClaim = $serializer->getSerialized( $claim );
+			$serializedClaim = $statementSerializer->serialize( $claim );
 		} else {
-			$unserializer = $serializerFactory->newClaimUnserializer( new SerializationOptions() );
 			$serializedClaim = $claim;
-			$claim = $unserializer->newFromSerialization( $serializedClaim );
+			$claim = $statementDeserializer->deserialize( $serializedClaim );
 		}
 
 		$params = array(
@@ -312,11 +312,11 @@ class SetClaimTest extends WikibaseApiTestCase {
 			'claim' => FormatJson::encode( $serializedClaim ),
 		);
 
-		if( !is_null( $index ) ) {
+		if ( !is_null( $index ) ) {
 			$params['index'] = $index;
 		}
 
-		if( !is_null( $baserevid ) ) {
+		if ( !is_null( $baserevid ) ) {
 			$params['baserevid'] = $baserevid;
 		}
 
@@ -360,7 +360,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 		$this->assertArrayHasKey( 'pageinfo', $resultArray, 'top level element has a pageinfo key' );
 		$this->assertArrayHasKey( 'claim', $resultArray, 'top level element has a statement key' );
 
-		if( isset( $resultArray['claim']['qualifiers'] ) ) {
+		if ( isset( $resultArray['claim']['qualifiers'] ) ) {
 			$this->assertArrayHasKey( 'qualifiers-order', $resultArray['claim'], '"qualifiers-order" key is set when returning qualifiers' );
 		}
 	}
@@ -385,7 +385,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 		$claims = new Claims( $item->getClaims() );
 		$savedClaim = $claims->getClaimWithGuid( $claim->getGuid() );
 		$this->assertNotNull( $savedClaim, "Claims list does not have claim after {$requestLabel}" );
-		if( count( $claim->getQualifiers() ) ) {
+		if ( count( $claim->getQualifiers() ) ) {
 			$this->assertTrue( $claim->getQualifiers()->equals( $savedClaim->getQualifiers() ) );
 		}
 
@@ -424,7 +424,6 @@ class SetClaimTest extends WikibaseApiTestCase {
 
 	public function testBadPropertyError() {
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
-		$serializerFactory = new LibSerializerFactory();
 
 		$property = Property::newFromType( 'quantity' );
 		$property = $store->saveEntity( $property, '', $GLOBALS['wgUser'], EDIT_NEW )->getEntity();
@@ -445,21 +444,26 @@ class SetClaimTest extends WikibaseApiTestCase {
 		$badProperty = Property::newFromType( 'string' );
 		$badProperty = $store->saveEntity( $badProperty, '', $GLOBALS['wgUser'], EDIT_NEW )->getEntity();
 
-		$badClaim = new Statement( new PropertyNoValueSnak( $badProperty->getId() ) );
-
-		$serializer = $serializerFactory->newClaimSerializer( new SerializationOptions() );
-		$serializedBadClaim = $serializer->getSerialized( $badClaim );
+		$badClaimSerialization = array(
+			'id' => $statement->getGuid(),
+			'mainsnak' => array(
+				'snaktype' => 'novalue',
+				'property' => $badProperty->getId()->getSerialization(),
+			),
+			'type' => 'statement',
+			'rank' => 'normal',
+		);
 
 		$params = array(
 			'action' => 'wbsetclaim',
-			'claim' => FormatJson::encode( $serializedBadClaim ),
+			'claim' => FormatJson::encode( $badClaimSerialization ),
 		);
 
 		try {
 			$this->doApiRequestWithToken( $params );
 			$this->fail( 'Changed main snak property did not raise an error' );
 		} catch ( UsageException $e ) {
-			$this->assertEquals( 'invalid-claim', $e->getCodeString(), 'Changed main snak property' );
+			$this->assertEquals( 'modification-failed', $e->getCodeString(), 'Changed main snak property' );
 		}
 	}
 
