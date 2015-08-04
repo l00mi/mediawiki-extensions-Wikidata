@@ -862,12 +862,12 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wmde/Wikidata.org.git",
+                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikidata.org.git",
                 "reference": "9029d28d8aaeb65cd1338865183740b4be445fa5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Wikidata.org/zipball/9029d28d8aaeb65cd1338865183740b4be445fa5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikidata.org/zipball/9029d28d8aaeb65cd1338865183740b4be445fa5",
                 "reference": "9029d28d8aaeb65cd1338865183740b4be445fa5",
                 "shasum": ""
             },
@@ -1276,7 +1276,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-06-30 13:02:17"
+            "time": "2015-06-30 17:53:04"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1325,7 +1325,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Wikibase.git",
-                "reference": "df3ee5839415d20ab85ae4069b0cc2f8eda4a8a1"
+                "reference": "f0931510ba7a5e5aa481ab2f5b8b1836bdab0ded"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1403,19 +1403,19 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-03 18:51:54"
+            "time": "2015-08-04 11:29:00"
         },
         {
             "name": "wikibase/wikimedia-badges",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wmde/WikimediaBadges.git",
+                "url": "https://github.com/wikimedia/mediawiki-extensions-WikimediaBadges.git",
                 "reference": "5cb28488f7791302cf6b835610f132b0b05915cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikimediaBadges/zipball/5cb28488f7791302cf6b835610f132b0b05915cf",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikimediaBadges/zipball/5cb28488f7791302cf6b835610f132b0b05915cf",
                 "reference": "5cb28488f7791302cf6b835610f132b0b05915cf",
                 "shasum": ""
             },
