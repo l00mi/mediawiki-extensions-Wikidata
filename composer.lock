@@ -1325,7 +1325,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Wikibase.git",
-                "reference": "f0931510ba7a5e5aa481ab2f5b8b1836bdab0ded"
+                "reference": "dd964136cd6127dc5bfd74a9c46dce75c2d09ea5"
             },
             "require": {
                 "data-values/common": "~0.2.0",
@@ -1403,7 +1403,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-04 11:29:00"
+            "time": "2015-08-04 16:45:24"
         },
         {
             "name": "wikibase/wikimedia-badges",
