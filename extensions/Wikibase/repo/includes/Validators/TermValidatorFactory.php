@@ -4,9 +4,9 @@ namespace Wikibase\Validators;
 
 use InvalidArgumentException;
 use ValueValidators\ValueValidator;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 use Wikibase\LabelDescriptionDuplicateDetector;
 
 /**
@@ -104,11 +104,9 @@ class TermValidatorFactory {
 	}
 
 	/**
-	 * @param string $entityType
-	 *
 	 * @return ValueValidator
 	 */
-	public function getDescriptionValidator( $entityType ) {
+	public function getDescriptionValidator() {
 		$validators = $this->getCommonTermValidators();
 
 		return new CompositeValidator( $validators, true );

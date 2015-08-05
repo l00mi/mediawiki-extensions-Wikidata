@@ -11,11 +11,11 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\ClaimGuidGenerator;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpReference
@@ -49,7 +49,7 @@ class ChangeOpReferenceTest extends \PHPUnit_Framework_TestCase {
 	public function invalidArgumentProvider() {
 		$item = new Item( new ItemId( 'Q42' ) );
 
-		$guidGenerator = new ClaimGuidGenerator();
+		$guidGenerator = new GuidGenerator();
 		$validClaimGuid = $guidGenerator->newGuid( $item->getId() );
 		$snaks = new SnakList();
 		$snaks[] = new PropertyValueSnak( 7201010, new StringValue( 'o_O' ) );

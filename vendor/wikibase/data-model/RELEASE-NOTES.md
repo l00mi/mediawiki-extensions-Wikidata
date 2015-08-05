@@ -1,6 +1,39 @@
 # Wikibase DataModel release notes
 
+## Version 4.1 (2015-08-04)
+
+* Added `StatementList::filter`
+* Added `StatementFilter` and `ReferencedStatementFilter`
+* Added `LabelsProvider`, `DescriptionsProvider` and `AliasesProvider`
+* Added `FingerprintHolder`
+
+## Version 4.0 (2015-07-28)
+
+#### Breaking changes
+
+The services that resided in this component have been moved to the new
+Wikibase DataModel Services library. These symbols have been removed:
+
+* `Entity::getDiff` and `Entity::patch`
+* `EntityIdParser` and derivatives
+* `EntityDiffer` and associated services
+* `EntityPatcher` and associated services
+* `EntityDiff` and derivatives
+* `ItemLookup` and `ItemNotFoundException`
+* `PropertyLookup` and `PropertyNotFoundException`
+* `PropertyDataTypeLookup`
+* `BestStatementsFinder`
+* `ByPropertyIdGrouper`
+* `StatementGuidParser` and alias `ClaimGuidParser`
+* `StatementGuidParsingException` and alias `ClaimGuidParsingException`
+* `StatementList::getBestStatementPerProperty`
+
+#### Additions
+
+* Added `DerivedPropertyValueSnak`
+
 ## Version 3.0.1 (2015-07-01)
+
 * Fixed out of bounds bug in `SnakList::orderByProperty`
 
 ## Version 3.0.0 (2015-06-06)

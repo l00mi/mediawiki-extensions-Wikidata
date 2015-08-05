@@ -16,17 +16,17 @@ use StubObject;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\DataModel\DeserializerFactory;
-use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
-use Wikibase\DataModel\Statement\StatementGuidParser;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\Diff\EntityDiffer;
-use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Diff\EntityDiffer;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Services\EntityId\DispatchingEntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\EntityParserOutputGeneratorFactory;
@@ -35,7 +35,6 @@ use Wikibase\InternalSerialization\SerializerFactory as InternalSerializerFactor
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
-use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\DispatchingValueFormatter;
@@ -54,7 +53,6 @@ use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\Parsers\SuffixEntityIdParser;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
-use Wikibase\Lib\SnakConstructionService;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityLookup;
@@ -68,6 +66,7 @@ use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\ReferencedEntitiesFinder;
+use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\ItemHandler;
 use Wikibase\Repo\Content\PropertyHandler;
@@ -361,7 +360,7 @@ class WikibaseRepo {
 		return new TermIndexSearchInteractor(
 			$this->getStore()->getTermIndex(),
 			$this->getLanguageFallbackChainFactory(),
-			$this->getTermLookup(),
+			$this->getBufferingTermLookup(),
 			$displayLanguageCode
 		);
 	}
@@ -470,7 +469,7 @@ class WikibaseRepo {
 	public function getChangeOpFactoryProvider() {
 		return new ChangeOpFactoryProvider(
 			$this->getEntityConstraintProvider(),
-			new ClaimGuidGenerator(),
+			new GuidGenerator(),
 			$this->getClaimGuidValidator(),
 			$this->getStatementGuidParser(),
 			$this->getSnakValidator(),
@@ -591,6 +590,13 @@ class WikibaseRepo {
 	 * @return TermLookup
 	 */
 	public function getTermLookup() {
+		return $this->getBufferingTermLookup();
+	}
+
+	/**
+	 * @return BufferingTermLookup
+	 */
+	public function getBufferingTermLookup() {
 		if ( !$this->termLookup ) {
 			$this->termLookup = new BufferingTermLookup(
 				$this->getStore()->getTermIndex(),
@@ -1185,16 +1191,18 @@ class WikibaseRepo {
 		);
 	}
 
-	private function getDataTypeValidatorFactory() {
+	public function getDataTypeValidatorFactory() {
 		$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
 
+		$builders = new ValidatorBuilders(
+			$this->getEntityLookup(),
+			$this->getEntityIdParser(),
+			$urlSchemes,
+			$this->getMonolingualTextLanguages()
+		);
+
 		return new BuilderBasedDataTypeValidatorFactory(
-			new ValidatorBuilders(
-				$this->getEntityLookup(),
-				$this->getEntityIdParser(),
-				$urlSchemes,
-				$this->getMonolingualTextLanguages()
-			)
+			$builders->getDataTypeValidators()
 		);
 	}
 

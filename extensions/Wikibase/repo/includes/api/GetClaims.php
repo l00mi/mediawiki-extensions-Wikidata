@@ -6,15 +6,13 @@ use ApiBase;
 use ApiMain;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\ClaimGuidValidator;
-use Wikibase\Lib\Serializers\ClaimSerializer;
-use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StatementRankSerializer;
@@ -106,7 +104,7 @@ class GetClaims extends ApiBase {
 		$entity = $entityRevision->getEntity();
 
 		$claims = $this->getClaims( $entity, $guid );
-		$this->resultBuilder->addClaims( $claims, null, $params['props'] );
+		$this->resultBuilder->addStatements( $claims, null, $params['props'] );
 	}
 
 	private function validateParameters( array $params ) {

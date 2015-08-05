@@ -5,8 +5,8 @@ namespace Wikibase\Repo\Api;
 use ApiBase;
 use DataValues\Serializers\DataValueSerializer;
 use SiteStore;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
@@ -98,8 +98,7 @@ class ApiHelperFactory {
 			$this->titleLookup,
 			$this->newSerializerFactory(),
 			$this->siteStore,
-			$this->dataTypeLookup,
-			$api->getResult()->getIsRawMode()
+			$this->dataTypeLookup
 		);
 	}
 

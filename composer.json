@@ -4,12 +4,12 @@
     "license": "GPL-2.0+",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/wmde/Wikidata.org.git"
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/wmde/WikimediaBadges.git"
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges"
         },
         {
             "type": "git",

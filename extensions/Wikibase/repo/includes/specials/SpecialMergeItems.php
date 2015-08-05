@@ -4,9 +4,9 @@ namespace Wikibase\Repo\Specials;
 
 use Exception;
 use Html;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\UserInputException;
@@ -181,7 +181,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 
 		/** @var EntityRevision $newRevisionFrom  */
 		/** @var EntityRevision $newRevisionTo */
-		list( $newRevisionFrom, $newRevisionTo, $redirected )
+		list( $newRevisionFrom, $newRevisionTo, )
 			= $this->interactor->mergeItems( $fromId, $toId, $ignoreConflicts, $summary );
 
 		//XXX: might be nicer to pass pre-rendered links as parameters

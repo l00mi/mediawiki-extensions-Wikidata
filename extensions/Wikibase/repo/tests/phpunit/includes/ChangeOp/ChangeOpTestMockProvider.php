@@ -13,18 +13,17 @@ use PHPUnit_Framework_TestCase;
 use ValueValidators\Error;
 use ValueValidators\Result;
 use ValueValidators\ValueValidator;
-use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\LabelDescriptionDuplicateDetector;
-use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\Store\SiteLinkConflictLookup;
 use Wikibase\Repo\DataTypeValidatorFactory;
@@ -111,12 +110,12 @@ class ChangeOpTestMockProvider {
 	}
 
 	/**
-	 * Returns a normal ClaimGuidGenerator.
+	 * Returns a normal GuidGenerator.
 	 *
-	 * @return ClaimGuidGenerator
+	 * @return GuidGenerator
 	 */
 	public function getGuidGenerator() {
-		return new ClaimGuidGenerator();
+		return new GuidGenerator();
 	}
 
 	/**
@@ -159,7 +158,7 @@ class ChangeOpTestMockProvider {
 	 * @return PropertyDataTypeLookup
 	 */
 	public function getMockPropertyDataTypeLookup() {
-		$mock = $this->getMock( '\Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$mock = $this->getMock( '\Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 		$mock->expects( PHPUnit_Framework_TestCase::any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( PHPUnit_Framework_TestCase::returnValue( 'string' ) );
@@ -267,7 +266,7 @@ class ChangeOpTestMockProvider {
 			->method( 'getEntityId' )
 			->will( PHPUnit_Framework_TestCase::returnValue( $entityId ) );
 
-		$mock = $this->getMockBuilder( 'Wikibase\DataModel\Statement\StatementGuidParser' )
+		$mock = $this->getMockBuilder( 'Wikibase\DataModel\Services\Statement\StatementGuidParser' )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( PHPUnit_Framework_TestCase::any() )
@@ -516,10 +515,10 @@ class ChangeOpTestMockProvider {
 	}
 
 	/**
-	 * @return ClaimGuidGenerator
+	 * @return GuidGenerator
 	 */
 	public function getMockGuidGenerator() {
-		return new ClaimGuidGenerator();
+		return new GuidGenerator();
 	}
 
 	/**

@@ -7,9 +7,9 @@ use InvalidArgumentException;
 use Wikibase\ChangeOp\ChangeOpStatementRank;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\ClaimGuidGenerator;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpStatementRank
@@ -26,7 +26,7 @@ class ChangeOpStatementRankTest extends \PHPUnit_Framework_TestCase {
 	public function invalidArgumentProvider() {
 		$item = new Item( new ItemId( 'Q42' ) );
 
-		$guidGenerator = new ClaimGuidGenerator();
+		$guidGenerator = new GuidGenerator();
 		$validGuid = $guidGenerator->newGuid( $item->getId() );
 		$validRank = 1;
 

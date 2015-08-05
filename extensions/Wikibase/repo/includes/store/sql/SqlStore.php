@@ -9,7 +9,7 @@ use HashBagOStuff;
 use MWException;
 use ObjectCache;
 use Revision;
-use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
@@ -22,8 +22,8 @@ use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\LabelConflictFinder;
 use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Store\RevisionBasedEntityLookup;
-use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Lib\Store\SiteLinkConflictLookup;
+use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Lib\Store\SiteLinkTable;
 use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
 use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
@@ -456,6 +456,16 @@ class SqlStore implements Store {
 			'term_search',
 			$this->getUpdateScriptPath( 'UpdateTermIndexes', $db->getType() )
 		);
+
+		// Make wb_items_per_site.ips_site_page VARCHAR(310) - T99459
+		// NOTE: this update doesn't work on SQLite, but it's not needed there anyway.
+		if ( $db->getType() !== 'sqlite' ) {
+			$updater->modifyExtensionField(
+				'wb_items_per_site',
+				'ips_site_page',
+				$this->getUpdateScriptPath( 'MakeIpsSitePageLarger', $db->getType() )
+			);
+		}
 	}
 
 	/**

@@ -3,12 +3,11 @@
 namespace Wikibase;
 
 use ParserOptions;
-use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\View\EntityViewFactory;
 use Wikibase\View\Template\TemplateFactory;
-use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 
 /**
  * @since 0.5

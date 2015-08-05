@@ -10,16 +10,16 @@ use Title;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageLabelDescriptionLookup;
+use Wikibase\Repo\Api\SearchEntities;
 use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
 use Wikibase\Repo\Interactors\TermSearchInteractor;
 use Wikibase\Repo\Interactors\TermSearchResult;
 use Wikibase\TermIndexEntry;
-use Wikibase\Repo\Api\SearchEntities;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\Test\MockTermIndex;
 
 /**
@@ -134,24 +134,6 @@ class SearchEntitiesTest extends PHPUnit_Framework_TestCase {
 			->method( 'getDescription' )
 			->will( $this->returnValue( new Term( 'pt', 'ptDescription' ) ) );
 		return $mock;
-	}
-
-	/**
-	 * @param string $text
-	 * @param string $languageCode
-	 * @param string $termType
-	 * @param EntityId|ItemId|PropertyId $entityId
-	 *
-	 * @returns TermIndexEntry
-	 */
-	private function getTermIndexEntry( $text, $languageCode, $termType, EntityId $entityId ) {
-		return new TermIndexEntry( array(
-			'termText' => $text,
-			'termLanguage' => $languageCode,
-			'termType' => $termType,
-			'entityId' => $entityId->getNumericId(),
-			'entityType' => $entityId->getEntityType(),
-		) );
 	}
 
 	private function getMockTermIndex() {
