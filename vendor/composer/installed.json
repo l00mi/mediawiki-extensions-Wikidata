@@ -1218,12 +1218,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "3a167b58515f86329a5950736bc5584767d87cec"
+            "reference": "57186bef235f5832c3659651ac7239d9acbe0b7a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3a167b58515f86329a5950736bc5584767d87cec",
-            "reference": "3a167b58515f86329a5950736bc5584767d87cec",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/57186bef235f5832c3659651ac7239d9acbe0b7a",
+            "reference": "57186bef235f5832c3659651ac7239d9acbe0b7a",
             "shasum": ""
         },
         "require": {
@@ -1254,7 +1254,7 @@
         "require-dev": {
             "squizlabs/php_codesniffer": "~2.1"
         },
-        "time": "2015-08-05 17:02:44",
+        "time": "2015-08-06 08:48:07",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1302,12 +1302,12 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-            "reference": "5cb28488f7791302cf6b835610f132b0b05915cf"
+            "reference": "34187cf65be84dca1ce6bfbb5a22818bfc58c6fb"
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-05-30 21:07:00",
+        "time": "2015-08-05 13:23:38",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1489,18 +1489,19 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "613dd60d879c8ab3c1529c9d55023b092da8fc60"
+            "reference": "86e4c372ad7170705ce037413e14b37200681ae5"
         },
         "require": {
             "php": ">=5.3.0",
             "serialization/serialization": "^3.2.1",
-            "wikibase/data-model": "~4.0"
+            "wikibase/data-model": "~4.0",
+            "wikibase/data-model-services": "~1.0"
         },
         "require-dev": {
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-08-04 17:41:40",
+        "time": "2015-08-05 10:13:39",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

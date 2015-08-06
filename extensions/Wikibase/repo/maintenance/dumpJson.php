@@ -30,18 +30,18 @@ class DumpJson extends DumpScript {
 	 */
 	protected function createDumper( $output ) {
 		$serializerOptions = SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
-			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH +
-			SerializerFactory::OPTION_OBJECTS_FOR_MAPS;
+			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH;
 		$serializerFactory = new SerializerFactory( new DataValueSerializer(), $serializerOptions );
 
 		$entitySerializer = $serializerFactory->newEntitySerializer();
-		$entityPrefetcher = $this->wikibaseRepo->getStore()->getEntityPrefetcher();
+		$dataTypeLookup = $this->propertyDatatypeLookup;
 
 		$dumper = new JsonDumpGenerator(
 			$output,
 			$this->entityLookup,
 			$entitySerializer,
-			$entityPrefetcher
+			$this->entityPrefetcher,
+			$dataTypeLookup
 		);
 
 		$dumper->setUseSnippets( (bool)$this->getOption( 'snippet', false ) );
