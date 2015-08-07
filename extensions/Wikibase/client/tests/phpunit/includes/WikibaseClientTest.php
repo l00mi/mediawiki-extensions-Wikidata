@@ -232,12 +232,17 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetPropertyParserFunctionRunner() {
 		$runner = $this->getWikibaseClient()->getPropertyParserFunctionRunner();
-		$this->assertInstanceOf( 'Wikibase\DataAccess\PropertyParserFunction\Runner', $runner );
+		$this->assertInstanceOf( 'Wikibase\Client\DataAccess\PropertyParserFunction\Runner', $runner );
 	}
 
 	public function testGetTermsLanguages() {
 		$langs = $this->getWikibaseClient()->getTermsLanguages();
 		$this->assertInstanceOf( 'Wikibase\Lib\ContentLanguages', $langs );
+	}
+
+	public function testGetRestrictedEntityLookup() {
+		$restrictedEntityLookup = $this->getWikibaseClient()->getRestrictedEntityLookup();
+		$this->assertInstanceOf( 'Wikibase\Client\DataAccess\RestrictedEntityLookup', $restrictedEntityLookup );
 	}
 
 	/**

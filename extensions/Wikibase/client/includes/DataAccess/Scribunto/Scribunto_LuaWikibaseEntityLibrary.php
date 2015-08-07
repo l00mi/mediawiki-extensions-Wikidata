@@ -9,9 +9,9 @@ use ValueFormatters\FormatterOptions;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\Usage\UsageTrackingSnakFormatter;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataAccess\PropertyIdResolver;
-use Wikibase\DataAccess\SnaksFinder;
-use Wikibase\DataAccess\StatementTransclusionInteractor;
+use Wikibase\Client\DataAccess\PropertyIdResolver;
+use Wikibase\Client\DataAccess\SnaksFinder;
+use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\PropertyLabelNotResolvedException;
 use Wikibase\Lib\SnakFormatter;
@@ -63,7 +63,7 @@ class Scribunto_LuaWikibaseEntityLibrary extends Scribunto_LuaLibraryBase {
 			$languageFallbackChain->getFetchLanguageCodes()
 		);
 
-		$entityLookup = $wikibaseClient->getStore()->getEntityLookup();
+		$entityLookup = $wikibaseClient->getRestrictedEntityLookup();
 
 		$propertyIdResolver = new PropertyIdResolver(
 			$entityLookup,

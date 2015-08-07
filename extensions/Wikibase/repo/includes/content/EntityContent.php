@@ -10,6 +10,7 @@ use Diff\Differ\MapDiffer;
 use Diff\DiffOp\Diff\Diff;
 use Diff\Patcher\MapPatcher;
 use Diff\Patcher\PatcherException;
+use Hooks;
 use Language;
 use LogicException;
 use MWException;
@@ -32,7 +33,7 @@ use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\FingerprintSearchTextGenerator;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Validators\EntityValidator;
+use Wikibase\Repo\Validators\EntityValidator;
 use WikiPage;
 
 /**
@@ -328,7 +329,7 @@ abstract class EntityContent extends AbstractContent {
 		$searchTextGenerator = new FingerprintSearchTextGenerator();
 		$text = $searchTextGenerator->generate( $this->getEntity()->getFingerprint() );
 
-		if ( !wfRunHooks( 'WikibaseTextForSearchIndex', array( $this, &$text ) ) ) {
+		if ( !Hooks::run( 'WikibaseTextForSearchIndex', array( $this, &$text ) ) ) {
 			return '';
 		}
 

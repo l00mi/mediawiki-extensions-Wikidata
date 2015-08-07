@@ -2,18 +2,85 @@
 
 namespace Wikibase;
 
+use SiteStore;
 use Title;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\Dumpers\DumpGenerator;
 use Wikibase\Dumpers\RdfDumpGenerator;
+use Wikibase\Lib\Store\EntityPrefetcher;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\Store\EntityPerPage;
+use Wikibase\Repo\WikibaseRepo;
 
 require_once __DIR__ . '/dumpEntities.php';
 
 class DumpRdf extends DumpScript {
 
+	/**
+	 * @var EntityRevisionLookup
+	 */
+	private $revisionLookup;
+
+	/**
+	 * @var EntityPrefetcher
+	 */
+	private $entityPrefetcher;
+
+	/**
+	 * @var SiteStore
+	 */
+	private $siteStore;
+
+	/**
+	 * @var PropertyDataTypeLookup
+	 */
+	private $propertyDatatypeLookup;
+
+	/**
+	 * @var string
+	 */
+	private $conceptBaseUri;
+
+	/**
+	 * @var bool
+	 */
+	private $hasHadServicesSet = false;
+
 	public function __construct() {
 		parent::__construct();
 		$this->addOption( 'format', "Set the dump format.", false, true );
+	}
+
+	public function setServices(
+		EntityPerPage $entityPerPage,
+		EntityPrefetcher $entityPrefetcher,
+		SiteStore $siteStore,
+		PropertyDataTypeLookup $propertyDataTypeLookup,
+		EntityRevisionLookup $entityRevisionLookup,
+		$conceptBaseUri
+	) {
+		parent::setDumpEntitiesServices( $entityPerPage );
+		$this->entityPrefetcher = $entityPrefetcher;
+		$this->siteStore = $siteStore;
+		$this->propertyDatatypeLookup = $propertyDataTypeLookup;
+		$this->revisionLookup = $entityRevisionLookup;
+		$this->conceptBaseUri = $conceptBaseUri;
+		$this->hasHadServicesSet = true;
+	}
+
+	public function execute() {
+		if ( !$this->hasHadServicesSet ) {
+			$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+			$this->setServices(
+				$wikibaseRepo->getStore()->newEntityPerPage(),
+				$wikibaseRepo->getStore()->getEntityPrefetcher(),
+				$wikibaseRepo->getSiteStore(),
+				$wikibaseRepo->getPropertyDataTypeLookup(),
+				$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
+				$wikibaseRepo->getSettings()->getSetting( 'conceptBaseUri' )
+			);
+		}
+		parent::execute();
 	}
 
 	/**
@@ -38,7 +105,7 @@ class DumpRdf extends DumpScript {
 		return RdfDumpGenerator::createDumpGenerator(
 			$this->getOption( 'format', 'ttl' ),
 			$output,
-			$this->settings->getSetting( 'conceptBaseUri' ),
+			$this->conceptBaseUri,
 			$entityDataTitle->getCanonicalURL() . '/',
 			$this->siteStore->getSites(),
 			$this->revisionLookup,
