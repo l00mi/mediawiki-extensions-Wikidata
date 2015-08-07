@@ -8,7 +8,7 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\Localizer\ExceptionLocalizer;
+use Wikibase\Repo\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\UserInputException;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
@@ -240,7 +240,8 @@ class SpecialMergeItems extends SpecialWikibasePage {
 
 		// Form body
 		$this->getOutput()->addHTML(
-			Html::input(
+			Html::element( 'br' )
+			. Html::input(
 				'wikibase-mergeitems-submit',
 				$this->msg( 'wikibase-mergeitems-submit' )->text(),
 				'submit',
@@ -305,8 +306,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 				'class' => 'wb-input',
 				'id' => 'wb-mergeitems-toid'
 			)
-		)
-		. Html::element( 'br' );
+		);
 		// TODO: Selector for ignoreconflicts
 	}
 

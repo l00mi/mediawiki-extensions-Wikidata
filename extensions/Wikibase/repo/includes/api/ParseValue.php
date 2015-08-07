@@ -17,7 +17,7 @@ use ValueParsers\ValueParser;
 use ValueValidators\Error;
 use ValueValidators\NullValidator;
 use ValueValidators\ValueValidator;
-use Wikibase\Lib\Localizer\ExceptionLocalizer;
+use Wikibase\Repo\Localizer\ExceptionLocalizer;
 use Wikibase\Repo\DataTypeValidatorFactory;
 use Wikibase\Repo\ValueParserFactory;
 use Wikibase\Repo\WikibaseRepo;
@@ -214,7 +214,7 @@ class ParseValue extends ApiBase {
 		}
 
 		if ( $validator ) {
-			$validatorResult = $validator->validate( $value );
+			$validatorResult = $validator->validate( $parseResult );
 			$validationStatus = $this->validatorErrorLocalizer->getResultStatus( $validatorResult );
 
 			$result['valid'] = $validationStatus->isOK();

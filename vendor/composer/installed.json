@@ -1218,12 +1218,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "872b06357b0c05017b091246c71db44e194ee88f"
+            "reference": "f881ab62c739e8569dfcb8ad11f5f7633cdb66eb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/872b06357b0c05017b091246c71db44e194ee88f",
-            "reference": "872b06357b0c05017b091246c71db44e194ee88f",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f881ab62c739e8569dfcb8ad11f5f7633cdb66eb",
+            "reference": "f881ab62c739e8569dfcb8ad11f5f7633cdb66eb",
             "shasum": ""
         },
         "require": {
@@ -1254,7 +1254,7 @@
         "require-dev": {
             "squizlabs/php_codesniffer": "~2.1"
         },
-        "time": "2015-08-07 09:37:35",
+        "time": "2015-08-07 18:57:02",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
