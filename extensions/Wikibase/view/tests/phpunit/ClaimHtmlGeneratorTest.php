@@ -5,15 +5,14 @@ namespace Wikibase\Test;
 use DataValues\StringValue;
 use Html;
 use PHPUnit_Framework_TestCase;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
+use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\View\ClaimHtmlGenerator;
 use Wikibase\View\SnakHtmlGenerator;
 use Wikibase\View\Template\TemplateFactory;
@@ -52,7 +51,7 @@ class ClaimHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 	 * @return EntityIdFormatter
 	 */
 	protected function getPropertyIdFormatterMock() {
-		$lookup = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
+		$lookup = $this->getMock( 'Wikibase\DataModel\Services\EntityId\EntityIdFormatter' );
 
 		$lookup->expects( $this->any() )
 			->method( 'formatEntityId' )
@@ -73,7 +72,7 @@ class ClaimHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testGetHtmlForClaim(
 		SnakHtmlGenerator $snakHtmlGenerator,
-		Claim $claim,
+		Statement $statement,
 		$patterns
 	) {
 		$templateFactory = TemplateFactory::getDefaultInstance();
@@ -82,7 +81,7 @@ class ClaimHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 			$snakHtmlGenerator
 		);
 
-		$html = $claimHtmlGenerator->getHtmlForClaim( $claim, 'edit' );
+		$html = $claimHtmlGenerator->getHtmlForClaim( $statement, 'edit' );
 
 		foreach ( $patterns as $message => $pattern ) {
 			$this->assertRegExp( $pattern, $html, $message );
@@ -96,7 +95,7 @@ class ClaimHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 
 		$testCases[] = array(
 			$snakHtmlGenerator,
-			new Claim( new PropertySomeValueSnak( 42 ) ),
+			new Statement( new PropertySomeValueSnak( 42 ) ),
 			array(
 				'snak html' => '/SNAK HTML/',
 			)
@@ -104,7 +103,7 @@ class ClaimHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 
 		$testCases[] = array(
 			$snakHtmlGenerator,
-			new Claim(
+			new Statement(
 				new PropertySomeValueSnak( 42 ),
 				new SnakList( array(
 					new PropertyValueSnak( 50, new StringValue( 'second snak' ) ),

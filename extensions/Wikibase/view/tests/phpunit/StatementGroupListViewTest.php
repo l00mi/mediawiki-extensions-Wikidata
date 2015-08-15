@@ -5,17 +5,16 @@ namespace Wikibase\Test;
 use DataValues\StringValue;
 use Html;
 use MediaWikiLangTestCase;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\View\ClaimHtmlGenerator;
 use Wikibase\View\StatementGroupListView;
 use Wikibase\View\Template\TemplateFactory;
@@ -142,8 +141,8 @@ class StatementGroupListViewTest extends MediaWikiLangTestCase {
 
 		$claimHtmlGenerator->expects( $this->any() )
 			->method( 'getHtmlForClaim' )
-			->will( $this->returnCallback( function( Claim $claim, $editSectionHtml = null ) {
-				return $claim->getGuid();
+			->will( $this->returnCallback( function( Statement $statement, $editSectionHtml = null ) {
+				return $statement->getGuid();
 			} ) );
 
 		return $claimHtmlGenerator;
@@ -164,7 +163,7 @@ class StatementGroupListViewTest extends MediaWikiLangTestCase {
 	 * @return EntityIdFormatter
 	 */
 	private function getEntityIdFormatter() {
-		$lookup = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
+		$lookup = $this->getMock( 'Wikibase\DataModel\Services\EntityId\EntityIdFormatter' );
 
 		$lookup->expects( $this->any() )
 			->method( 'formatEntityId' )

@@ -9,7 +9,6 @@ use DataValues\Serializers\DataValueSerializer;
 use Deserializers\Deserializer;
 use Hooks;
 use IContextSource;
-use RuntimeException;
 use Serializers\Serializer;
 use SiteSQLStore;
 use SiteStore;
@@ -21,13 +20,19 @@ use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\DataValue\ValuesFinder;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\DataModel\Services\EntityId\DispatchingEntityIdParser;
 use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Services\Statement\StatementGuidParser;
+use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\EntityParserOutputGeneratorFactory;
@@ -36,32 +41,22 @@ use Wikibase\InternalSerialization\SerializerFactory as InternalSerializerFactor
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
-use Wikibase\Lib\ClaimGuidValidator;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\DispatchingValueFormatter;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityIdPlainLinkFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
-use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Repo\Localizer\DispatchingExceptionLocalizer;
-use Wikibase\Repo\Localizer\ExceptionLocalizer;
-use Wikibase\Repo\Localizer\GenericExceptionLocalizer;
-use Wikibase\Repo\Localizer\MessageExceptionLocalizer;
-use Wikibase\Repo\Localizer\ParseExceptionLocalizer;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
-use Wikibase\Lib\Parsers\SuffixEntityIdParser;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityContentDataCodec;
-use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Store\TermLookup;
 use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
@@ -76,12 +71,21 @@ use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\Localizer\ChangeOpValidationExceptionLocalizer;
+use Wikibase\Repo\Localizer\DispatchingExceptionLocalizer;
+use Wikibase\Repo\Localizer\ExceptionLocalizer;
+use Wikibase\Repo\Localizer\GenericExceptionLocalizer;
+use Wikibase\Repo\Localizer\MessageExceptionLocalizer;
 use Wikibase\Repo\Localizer\MessageParameterFormatter;
+use Wikibase\Repo\Localizer\ParseExceptionLocalizer;
 use Wikibase\Repo\Notifications\ChangeNotifier;
 use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\HookChangeTransmitter;
 use Wikibase\Repo\Store\EntityPermissionChecker;
+use Wikibase\Repo\Validators\EntityConstraintProvider;
+use Wikibase\Repo\Validators\SnakValidator;
+use Wikibase\Repo\Validators\TermValidatorFactory;
+use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\SettingsArray;
 use Wikibase\SnakFactory;
 use Wikibase\SqlStore;
@@ -91,11 +95,6 @@ use Wikibase\Store\EntityIdLookup;
 use Wikibase\Store\TermBuffer;
 use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
-use Wikibase\Repo\Validators\EntityConstraintProvider;
-use Wikibase\Repo\Validators\SnakValidator;
-use Wikibase\Repo\Validators\TermValidatorFactory;
-use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
-use Wikibase\ValuesFinder;
 use Wikibase\View\EntityViewFactory;
 use Wikibase\View\Template\TemplateFactory;
 
@@ -135,9 +134,9 @@ class WikibaseRepo {
 	private $languageFallbackChainFactory = null;
 
 	/**
-	 * @var ClaimGuidValidator|null
+	 * @var StatementGuidValidator|null
 	 */
-	private $claimGuidValidator = null;
+	private $statementGuidValidator = null;
 
 	/**
 	 * @var EntityIdParser|null
@@ -471,7 +470,7 @@ class WikibaseRepo {
 		return new ChangeOpFactoryProvider(
 			$this->getEntityConstraintProvider(),
 			new GuidGenerator(),
-			$this->getClaimGuidValidator(),
+			$this->getStatementGuidValidator(),
 			$this->getStatementGuidParser(),
 			$this->getSnakValidator(),
 			$this->getTermValidatorFactory(),
@@ -531,14 +530,14 @@ class WikibaseRepo {
 	/**
 	 * @since 0.4
 	 *
-	 * @return ClaimGuidValidator
+	 * @return StatementGuidValidator
 	 */
-	public function getClaimGuidValidator() {
-		if ( $this->claimGuidValidator === null ) {
-			$this->claimGuidValidator = new ClaimGuidValidator( $this->getEntityIdParser() );
+	public function getStatementGuidValidator() {
+		if ( $this->statementGuidValidator === null ) {
+			$this->statementGuidValidator = new StatementGuidValidator( $this->getEntityIdParser() );
 		}
 
-		return $this->claimGuidValidator;
+		return $this->statementGuidValidator;
 	}
 
 	/**
@@ -559,7 +558,9 @@ class WikibaseRepo {
 		if ( $this->store === null ) {
 			$this->store = new SqlStore(
 				$this->getEntityContentDataCodec(),
-				$this->getEntityIdParser()
+				$this->getEntityIdParser(),
+				$this->getEntityIdLookup(),
+				$this->getEntityTitleLookup()
 			);
 		}
 

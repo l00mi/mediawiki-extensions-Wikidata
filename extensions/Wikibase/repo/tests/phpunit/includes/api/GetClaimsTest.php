@@ -11,7 +11,6 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SerializerFactory;
-use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -77,7 +76,7 @@ class GetClaimsTest extends ApiTestCase {
 			$this->save( $item );
 		}
 
-		/** @var $statements Statement[] */
+		/** @var Statement[] $statements */
 		$statements[0] = new Statement( new PropertyNoValueSnak( $propertyId ) );
 		$statements[1] = new Statement( new PropertyNoValueSnak( $propertyId ) );
 		$statements[2] = new Statement( new PropertySomeValueSnak( $propertyId ) );

@@ -8,10 +8,10 @@ use OutOfBoundsException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Store\LabelDescriptionLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
 use Wikibase\Repo\Interactors\TermSearchResult;
@@ -301,17 +301,21 @@ class SearchEntities extends ApiBase {
 	 */
 	private function mergeSearchResults( $searchResults, $newSearchResults, $limit ) {
 		$searchResultEntityIdSerializations = array_keys( $searchResults );
+
 		foreach ( $newSearchResults as $searchResultToAdd ) {
 			$entityIdString = $searchResultToAdd->getEntityId()->getSerialization();
+
 			if ( !in_array( $entityIdString, $searchResultEntityIdSerializations ) ) {
 				$searchResults[$entityIdString] = $searchResultToAdd;
 				$searchResultEntityIdSerializations[] = $entityIdString;
 				$missing = $limit - count( $searchResults );
+
 				if ( $missing <= 0 ) {
 					return $searchResults;
 				}
 			}
 		}
+
 		return $searchResults;
 	}
 
@@ -322,16 +326,19 @@ class SearchEntities extends ApiBase {
 	 */
 	private function getDisplayTerms( EntityId $entityId ) {
 		$displayTerms = array();
-		try{
+
+		try {
 			$displayTerms['label'] = $this->labelDescriptionLookup->getLabel( $entityId );
 		} catch ( OutOfBoundsException $e ) {
 			$displayTerms['label'] = null;
-		};
-		try{
+		}
+
+		try {
 			$displayTerms['description'] = $this->labelDescriptionLookup->getDescription( $entityId );
 		} catch ( OutOfBoundsException $e ) {
 			$displayTerms['description'] = null;
-		};
+		}
+
 		return $displayTerms;
 	}
 

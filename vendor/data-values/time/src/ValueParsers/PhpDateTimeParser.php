@@ -82,7 +82,8 @@ class PhpDateTimeParser extends StringValueParser {
 			$value = trim( $value );
 			$value = $this->monthNameUnlocalizer->unlocalize( $value );
 			$year = $this->fetchAndNormalizeYear( $value );
-			$value = $this->getValueWithFixedSeparators( $value );
+
+			$value = $this->getValueWithFixedSeparators( $value, $year );
 
 			$this->validateDateTimeInput( $value );
 
@@ -91,6 +92,13 @@ class PhpDateTimeParser extends StringValueParser {
 
 			// Fail if the DateTime object does calculations like changing 2015-00-00 to 2014-12-30.
 			if ( $year !== null && $dateTime->format( 'Y' ) !== substr( $year, -4 ) ) {
+				throw new ParseException( $value . ' is not a valid date.' );
+			}
+
+			// Input was three numbers? Where the heck does a time come from?
+			if ( $dateTime->format( 'H:i:s' ) !== '00:00:00'
+				&& preg_match( '/^\D*\d+\D+\d+\D+\d+\D*$/', $value )
+			) {
 				throw new ParseException( $value . ' is not a valid date.' );
 			}
 
@@ -115,7 +123,7 @@ class PhpDateTimeParser extends StringValueParser {
 	private function validateDateTimeInput( $value ) {
 		// we don't support input of non-digits only, such as 'x'.
 		if ( !preg_match( '/\d/', $value ) ) {
-			throw new ParseException( $value . ' is not a valid date.' );
+			throw new ParseException( $value . ' does not contain a digit.' );
 		}
 
 		// @todo i18n support for these exceptions
@@ -131,13 +139,16 @@ class PhpDateTimeParser extends StringValueParser {
 	 * See http://de1.php.net/manual/en/datetime.formats.date.php
 	 *
 	 * @param string $value
+	 * @param string|null $year
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	private function getValueWithFixedSeparators( $value ) {
+	private function getValueWithFixedSeparators( $value, $year = null ) {
+		$isYmd = $year !== null && preg_match( '/^\D*' . $year . '\D+\d+\D+\d+\D*$/', $value );
+		$separator = $isYmd ? '-' : '.';
 		// Meant to match separator characters after day and month. \p{L} matches letters outside
 		// the ASCII range.
-		return preg_replace( '/(?<=[\d\p{L}])[.,\s]\s*/', '.', $value );
+		return preg_replace( '/(?<=[\d\p{L}])[.,\s]\s*/', $separator, $value );
 	}
 
 	/**

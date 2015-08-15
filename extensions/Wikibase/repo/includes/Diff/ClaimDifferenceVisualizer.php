@@ -7,9 +7,9 @@ use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\StatementRankSerializer;
 
 /**
@@ -52,17 +52,17 @@ class ClaimDifferenceVisualizer {
 	}
 
 	/**
-	 * Generates HTML of a claim change.
+	 * Generates HTML of a statement change.
 	 *
 	 * @since 0.4
 	 *
 	 * @param ClaimDifference $claimDifference
-	 * @param Claim $baseClaim The new claim, if it exists; otherwise, the old claim
+	 * @param Statement $baseStatement The new statement, if it exists. Otherwise the old statement.
 	 *
 	 * @return string HTML
 	 */
-	public function visualizeClaimChange( ClaimDifference $claimDifference, Claim $baseClaim ) {
-		$newestMainSnak = $baseClaim->getMainSnak();
+	public function visualizeClaimChange( ClaimDifference $claimDifference, Statement $baseStatement ) {
+		$newestMainSnak = $baseStatement->getMainSnak();
 		$oldestMainSnak = $newestMainSnak;
 		$html = '';
 
@@ -107,14 +107,14 @@ class ClaimDifferenceVisualizer {
 	 *
 	 * @since 0.4
 	 *
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 *
 	 * @return string HTML
 	 */
-	public function visualizeNewClaim( Claim $claim ) {
+	public function visualizeNewClaim( Statement $statement ) {
 		$claimDiffer = new ClaimDiffer( new ListDiffer() );
-		$claimDifference = $claimDiffer->diffClaims( null, $claim );
-		return $this->visualizeClaimChange( $claimDifference, $claim );
+		$claimDifference = $claimDiffer->diffClaims( null, $statement );
+		return $this->visualizeClaimChange( $claimDifference, $statement );
 	}
 
 	/**
@@ -122,14 +122,14 @@ class ClaimDifferenceVisualizer {
 	 *
 	 * @since 0.4
 	 *
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 *
 	 * @return string HTML
 	 */
-	public function visualizeRemovedClaim( Claim $claim ) {
+	public function visualizeRemovedClaim( Statement $statement ) {
 		$claimDiffer = new ClaimDiffer( new ListDiffer() );
-		$claimDifference = $claimDiffer->diffClaims( $claim, null );
-		return $this->visualizeClaimChange( $claimDifference, $claim );
+		$claimDifference = $claimDiffer->diffClaims( $statement, null );
+		return $this->visualizeClaimChange( $claimDifference, $statement );
 	}
 
 	/**

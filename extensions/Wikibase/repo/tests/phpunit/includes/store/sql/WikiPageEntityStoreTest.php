@@ -551,9 +551,7 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 	}
 
 	private function assertEntityPerPage( $expected, EntityId $entityId ) {
-		$epp = $this->newEntityPerPageTable();
-
-		$pageId = $epp->getPageIdForEntityId( $entityId );
+		$pageId = $this->getPageId( $entityId );
 
 		if ( $expected === true ) {
 			$this->assertGreaterThan( 0, $pageId );
@@ -562,18 +560,30 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		}
 	}
 
-	private function isRedirectTargetColumnSupported() {
-		return WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'useRedirectTargetColumn' );
+	private function getPageId( EntityId $entityId ) {
+		$dbr = wfGetDB( DB_SLAVE );
+
+		$row = $dbr->selectRow(
+			'wb_entity_per_page',
+			array( 'epp_page_id' ),
+			array(
+				'epp_entity_type' => $entityId->getEntityType(),
+				'epp_entity_id' => $entityId->getNumericId()
+			),
+			__METHOD__
+		);
+
+		if ( !$row ) {
+			return false;
+		}
+
+		return $pageId = (int)$row->epp_page_id;
 	}
 
 	private function assertRedirectPerPage( EntityId $expected, EntityId $entityId ) {
-		if ( !$this->isRedirectTargetColumnSupported() ) {
-			$this->markTestSkipped( 'Redirects not supported' );
-		}
+		$entityRedirectLookup = WikibaseRepo::getDefaultInstance()->getStore()->getEntityRedirectLookup();
 
-		$epp = $this->newEntityPerPageTable();
-
-		$targetId = $epp->getRedirectForEntityId( $entityId );
+		$targetId = $entityRedirectLookup->getRedirectForEntityId( $entityId );
 
 		$this->assertEquals( $expected, $targetId );
 	}
