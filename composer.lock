@@ -103,37 +103,37 @@
         },
         {
             "name": "data-values/common",
-            "version": "0.2.3",
+            "version": "0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Common.git",
-                "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a"
+                "reference": "5d9d4bf902427a2a798ca273480f7dad825c72b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Common/zipball/c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
-                "reference": "c9f4dfd8af6337eb097d722b27fa76fa58dd441a",
+                "url": "https://api.github.com/repos/DataValues/Common/zipball/5d9d4bf902427a2a798ca273480f7dad825c72b5",
+                "reference": "5d9d4bf902427a2a798ca273480f7dad825c72b5",
                 "shasum": ""
             },
             "require": {
                 "data-values/data-values": "~1.0|~0.1",
-                "data-values/interfaces": "~0.1.4",
+                "data-values/interfaces": "~0.2.0|^0.1.5",
                 "php": ">=5.3.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-master": "0.3.x-dev"
                 }
             },
             "autoload": {
                 "files": [
                     "Common.php"
                 ],
-                "psr-0": {
-                    "DataValues\\": "src",
-                    "ValueFormatters\\": "src",
-                    "ValueParsers\\": "src"
+                "psr-4": {
+                    "DataValues\\": "src/DataValues/",
+                    "ValueFormatters\\": "src/ValueFormatters/",
+                    "ValueParsers\\": "src/ValueParsers/"
                 },
                 "classmap": [
                     "tests/ValueParsers"
@@ -160,7 +160,7 @@
                 "valuevalidators",
                 "wikidata"
             ],
-            "time": "2014-10-09 18:21:19"
+            "time": "2015-08-14 10:15:07"
         },
         {
             "name": "data-values/data-types",
@@ -1379,20 +1379,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "1cba17bd26b4070920aec5c52933defe48fa52e5"
+                "reference": "ca568f72284db9b1c296e604b71af626fb42045f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/1cba17bd26b4070920aec5c52933defe48fa52e5",
-                "reference": "1cba17bd26b4070920aec5c52933defe48fa52e5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ca568f72284db9b1c296e604b71af626fb42045f",
+                "reference": "ca568f72284db9b1c296e604b71af626fb42045f",
                 "shasum": ""
             },
             "require": {
-                "data-values/common": "~0.2.0",
+                "data-values/common": "~0.3.0",
                 "data-values/data-types": "~0.4.0",
                 "data-values/data-values": "~1.0",
                 "data-values/geo": "~1.0",
-                "data-values/interfaces": "~0.1.5",
+                "data-values/interfaces": "~0.2.0|^0.1.5",
                 "data-values/javascript": "~0.6.0|~0.7.0",
                 "data-values/number": "~0.5.0",
                 "data-values/serialization": "~1.0",
@@ -1453,7 +1453,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-08-15 19:49:52"
+            "time": "2015-08-17 09:43:40"
         },
         {
             "name": "wikibase/wikimedia-badges",

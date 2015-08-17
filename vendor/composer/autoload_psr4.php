@@ -22,6 +22,8 @@ return array(
     'WikibaseQuality\\Api\\' => array($baseDir . '/extensions/Quality/api'),
     'WikibaseQuality\\' => array($baseDir . '/extensions/Quality/includes'),
     'ValueValidators\\' => array($vendorDir . '/data-values/validators/src'),
+    'ValueParsers\\' => array($vendorDir . '/data-values/common/src/ValueParsers'),
+    'ValueFormatters\\' => array($vendorDir . '/data-values/common/src/ValueFormatters'),
     'Serializers\\' => array($vendorDir . '/serialization/serialization/src/Serializers'),
     'PropertySuggester\\' => array($baseDir . '/extensions/PropertySuggester/src/PropertySuggester'),
     'Diff\\' => array($vendorDir . '/diff/diff/src'),
@@ -29,5 +31,6 @@ return array(
     'DataValues\\Serializers\\' => array($vendorDir . '/data-values/serialization/src/Serializers'),
     'DataValues\\Geo\\' => array($vendorDir . '/data-values/geo/src'),
     'DataValues\\Deserializers\\' => array($vendorDir . '/data-values/serialization/src/Deserializers'),
+    'DataValues\\' => array($vendorDir . '/data-values/common/src/DataValues'),
     'DataTypes\\' => array($vendorDir . '/data-values/data-types/src'),
 );
