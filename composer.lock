@@ -1379,12 +1379,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "ca568f72284db9b1c296e604b71af626fb42045f"
+                "reference": "b9f31e4def71f33ef1c1fc6eb1fd782cd72924b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ca568f72284db9b1c296e604b71af626fb42045f",
-                "reference": "ca568f72284db9b1c296e604b71af626fb42045f",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b9f31e4def71f33ef1c1fc6eb1fd782cd72924b8",
+                "reference": "b9f31e4def71f33ef1c1fc6eb1fd782cd72924b8",
                 "shasum": ""
             },
             "require": {
@@ -1392,7 +1392,7 @@
                 "data-values/data-types": "~0.4.0",
                 "data-values/data-values": "~1.0",
                 "data-values/geo": "~1.0",
-                "data-values/interfaces": "~0.2.0|^0.1.5",
+                "data-values/interfaces": "~0.2.0|~0.1.5",
                 "data-values/javascript": "~0.6.0|~0.7.0",
                 "data-values/number": "~0.5.0",
                 "data-values/serialization": "~1.0",
@@ -1453,7 +1453,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-08-17 09:43:40"
+            "time": "2015-08-18 09:27:53"
         },
         {
             "name": "wikibase/wikimedia-badges",

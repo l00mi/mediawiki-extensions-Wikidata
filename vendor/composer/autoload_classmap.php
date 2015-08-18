@@ -179,7 +179,7 @@ return array(
     'ValueParsers\\BoolParser' => $vendorDir . '/data-values/common/src/ValueParsers/BoolParser.php',
     'ValueParsers\\CalendarModelParser' => $vendorDir . '/data-values/time/src/ValueParsers/CalendarModelParser.php',
     'ValueParsers\\DecimalParser' => $vendorDir . '/data-values/number/src/ValueParsers/DecimalParser.php',
-    'ValueParsers\\DispatchingValueParser' => $baseDir . '/extensions/Wikibase/lib/includes/parsers/DispatchingValueParser.php',
+    'ValueParsers\\DispatchingValueParser' => $vendorDir . '/data-values/common/src/ValueParsers/DispatchingValueParser.php',
     'ValueParsers\\EraParser' => $vendorDir . '/data-values/time/src/ValueParsers/EraParser.php',
     'ValueParsers\\FloatParser' => $vendorDir . '/data-values/common/src/ValueParsers/FloatParser.php',
     'ValueParsers\\IntParser' => $vendorDir . '/data-values/common/src/ValueParsers/IntParser.php',
