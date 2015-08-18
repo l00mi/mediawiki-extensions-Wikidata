@@ -1,14 +1,14 @@
 <?php
 
-namespace Wikibase\DataAccess;
+namespace Wikibase\Client\DataAccess;
 
 use Language;
+use Wikibase\Client\PropertyLabelNotResolvedException;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\StatementListProvider;
-use Wikibase\Lib\PropertyLabelNotResolvedException;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\UnresolvedRedirectException;
 
 /**
@@ -83,7 +83,7 @@ class StatementTransclusionInteractor {
 	) {
 		try {
 			$entity = $this->entityLookup->getEntity( $entityId );
-		} catch( UnresolvedRedirectException $e ) {
+		} catch ( UnresolvedRedirectException $ex ) {
 			// We probably hit a double redirect
 			wfLogWarning(
 				'Encountered a UnresolvedRedirectException when trying to load ' . $entityId->getSerialization()

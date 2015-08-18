@@ -2,16 +2,16 @@
 
 namespace Wikibase;
 
+use Wikibase\DataModel\Services\Entity\EntityPrefetcher;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
-use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\Lib\Store\EntityPrefetcher;
-use Wikibase\Lib\Store\EntityRedirectLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\LabelConflictFinder;
-use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Lib\Store\SiteLinkConflictLookup;
+use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Repo\Store\EntityPerPage;
 
 /**

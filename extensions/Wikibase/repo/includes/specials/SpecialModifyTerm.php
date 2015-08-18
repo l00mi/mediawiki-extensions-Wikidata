@@ -11,6 +11,8 @@ use Wikibase\ChangeOp\FingerprintChangeOpFactory;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
@@ -118,9 +120,9 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 			return false;
 		}
 
-		try{
+		try {
 			$this->checkTermChangePermissions( $this->entityRevision->getEntity() );
-		} catch( PermissionsError $e ) {
+		} catch ( PermissionsError $e ) {
 			$this->showErrorHTML( $this->msg( 'permissionserrors' ) . ': ' . $e->permission );
 			return false;
 		}
@@ -187,9 +189,8 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 		if ( $this->languageCode === null ) {
 			$this->languageCode = $this->getLanguage()->getCode();
 		}
-		if ( $this->value === null ) {
-			$this->value = $this->getValue( $entity, $this->languageCode );
-		}
+
+		$this->setValueIfNull( $entity );
 
 		$valueinput = Html::input(
 			'value',
@@ -199,8 +200,7 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 				'class' => 'wb-input',
 				'id' => 'wb-modifyterm-value',
 			)
-		)
-		. Html::element( 'br' );
+		);
 
 		$languageName = Language::fetchLanguageName( $this->languageCode, $this->getLanguage()->getCode() );
 
@@ -229,6 +229,7 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 				$this->msg( 'wikibase-' . strtolower( $this->getName() ) . '-intro' )->parse()
 			)
 			. parent::getFormElements( $entity )
+			. Html::element( 'br' )
 			. Html::element(
 				'label',
 				array(
@@ -257,7 +258,18 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 				// wikibase-setaliases-label
 				$this->msg( 'wikibase-' . strtolower( $this->getName() ) . '-label' )->text()
 			)
-			. $valueinput;
+			. $valueinput
+			. Html::element( 'br' );
+		}
+	}
+
+	private function setValueIfNull( FingerprintProvider $fingerprintProvider = null ) {
+		if ( $this->value === null ) {
+			if ( $fingerprintProvider === null ) {
+				$this->value = '';
+			} else {
+				$this->value = $this->getValue( $fingerprintProvider->getFingerprint(), $this->languageCode );
+			}
 		}
 	}
 
@@ -275,12 +287,12 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	 *
 	 * @since 0.5
 	 *
-	 * @param Entity|null $entity
+	 * @param Fingerprint $fingerprint
 	 * @param string $languageCode
 	 *
 	 * @return string
 	 */
-	abstract protected function getValue( $entity, $languageCode );
+	abstract protected function getValue( Fingerprint $fingerprint, $languageCode );
 
 	/**
 	 * Setting the value of the entity name by the given language

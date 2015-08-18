@@ -3,9 +3,9 @@
 namespace Wikibase\Lib\Store;
 
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\FingerprintProvider;
@@ -137,7 +137,7 @@ class GenericEntityInfoBuilder implements EntityInfoBuilder {
 	 * @param string $idString The redirected entity id
 	 * @param EntityId $targetId The redirect target
 	 */
-	private function applyRedirect( $idString, EntityId $targetId) {
+	private function applyRedirect( $idString, EntityId $targetId ) {
 		$targetKey = $targetId->getSerialization();
 
 		if ( $idString === $targetKey ) {

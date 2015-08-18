@@ -4,12 +4,12 @@ namespace Wikibase\ChangeOp;
 
 use InvalidArgumentException;
 use Wikibase\DataModel\Reference;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
+use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementGuidParser;
-use Wikibase\Lib\ClaimGuidGenerator;
-use Wikibase\Lib\ClaimGuidValidator;
-use Wikibase\Validators\SnakValidator;
+use Wikibase\Repo\Validators\SnakValidator;
 
 /**
  * Factory for ChangeOps that modify Statements.
@@ -20,12 +20,12 @@ use Wikibase\Validators\SnakValidator;
 class StatementChangeOpFactory {
 
 	/**
-	 * @var ClaimGuidGenerator
+	 * @var GuidGenerator
 	 */
 	private $guidGenerator;
 
 	/**
-	 * @var ClaimGuidValidator
+	 * @var StatementGuidValidator
 	 */
 	private $guidValidator;
 
@@ -45,8 +45,8 @@ class StatementChangeOpFactory {
 	private $referenceSnakValidator;
 
 	public function __construct(
-		ClaimGuidGenerator $guidGenerator,
-		ClaimGuidValidator $guidValidator,
+		GuidGenerator $guidGenerator,
+		StatementGuidValidator $guidValidator,
 		StatementGuidParser $guidParser,
 		SnakValidator $snakValidator,
 		SnakValidator $referenceSnakValidator

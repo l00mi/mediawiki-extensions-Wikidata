@@ -3,11 +3,11 @@
 namespace Wikibase\Repo\IO;
 
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\Lib\Disposable;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
 use Wikibase\Lib\Reporting\ExceptionHandler;
 use Wikibase\Lib\Reporting\RethrowingExceptionHandler;
+use Wikibase\Repo\Disposable;
 use Wikibase\Repo\Store\EntityIdPager;
 
 /**
@@ -115,7 +115,7 @@ class EntityIdReader implements EntityIdPager, Disposable {
 				$id = null;
 				continue;
 			}
-		};
+		}
 
 		return $id;
 	}

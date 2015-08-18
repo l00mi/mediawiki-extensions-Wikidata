@@ -2,14 +2,14 @@
 
 namespace Wikibase\Test\Rdf;
 
-use Wikibase\Rdf\ComplexValueRdfBuilder;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\Rdf\ComplexValueRdfBuilder;
 use Wikibase\Rdf\DedupeBag;
+use Wikibase\Rdf\FullStatementRdfBuilder;
 use Wikibase\Rdf\HashDedupeBag;
 use Wikibase\Rdf\NullDedupeBag;
-use Wikibase\Rdf\SimpleValueRdfBuilder;
-use Wikibase\Rdf\FullStatementRdfBuilder;
 use Wikibase\Rdf\RdfProducer;
+use Wikibase\Rdf\SimpleValueRdfBuilder;
 
 /**
  * @covers Wikibase\Rdf\FullStatementRdfBuilder
@@ -75,7 +75,7 @@ class FullStatementRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 		$statementBuilder = new FullStatementRdfBuilder( $vocabulary, $writer, $statementValueBuilder );
 		$statementBuilder->setDedupeBag( $dedupe ?: new NullDedupeBag() );
 
-		if ( $flavor & RdfProducer::PRODUCE_PROPERTIES  ) {
+		if ( $flavor & RdfProducer::PRODUCE_PROPERTIES ) {
 			$statementBuilder->setEntityMentionListener( $mentionTracker );
 		}
 

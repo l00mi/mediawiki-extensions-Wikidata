@@ -4,16 +4,16 @@ namespace Wikibase\Lib\Test;
 
 use DataValues\QuantityValue;
 use DataValues\StringValue;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\Lib\Parsers\SuffixEntityIdParser;
 use Wikibase\ReferencedEntitiesFinder;
 
 /**
@@ -60,7 +60,7 @@ class ReferencedEntitiesFinderTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$argLists[] = array(
-			array( new PropertyValueSnak( $p27, new StringValue( 'onoez' )  ) ),
+			array( new PropertyValueSnak( $p27, new StringValue( 'onoez' ) ) ),
 			array( $p27 ),
 			"PropertyValueSnak with string value"
 		);

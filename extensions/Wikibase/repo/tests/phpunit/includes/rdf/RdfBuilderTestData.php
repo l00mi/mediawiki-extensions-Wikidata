@@ -10,12 +10,12 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Term\Fingerprint;
-use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Rdf\RdfVocabulary;
-use Wikimedia\Purtle\NTriplesRdfWriter;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Test\MockRepository;
+use Wikimedia\Purtle\NTriplesRdfWriter;
 
 /**
  * Helper class for accessing data files for RdfBuilder related tests.
@@ -63,7 +63,6 @@ class RdfBuilderTestData {
 	private function getCodec() {
 		if ( $this->codec === null ) {
 			$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-			$wikibaseRepo->getSettings()->setSetting( 'internalEntitySerializerClass', null );
 			$wikibaseRepo->getSettings()->setSetting( 'useRedirectTargetColumn', true );
 			$this->codec = $wikibaseRepo->getEntityContentDataCodec();
 		}
@@ -101,6 +100,7 @@ class RdfBuilderTestData {
 		$data = trim( file_get_contents( $filename ) );
 		$data = explode( "\n", $data );
 		sort( $data );
+		$data = array_map( 'trim', $data );
 		return $data;
 	}
 
@@ -187,7 +187,7 @@ class RdfBuilderTestData {
 	 */
 	private static function getTestProperties() {
 		return array(
-			array( 2, 'wikibase-entityid' ),
+			array( 2, 'wikibase-item' ),
 			array( 3, 'commonsMedia' ),
 			array( 4, 'globecoordinate' ),
 			array( 5, 'monolingualtext' ),

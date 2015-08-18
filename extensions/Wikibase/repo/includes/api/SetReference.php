@@ -3,7 +3,6 @@
 namespace Wikibase\Repo\Api;
 
 use ApiMain;
-use DataValues\Deserializers\DataValueDeserializer;
 use Deserializers\Exceptions\DeserializationException;
 use Wikibase\ChangeOp\ChangeOpReference;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
@@ -92,7 +91,7 @@ class SetReference extends ModifyClaim {
 
 		$deserializer = $this->deserializerFactory->newSnakListDeserializer();
 		/** @var SnakList $snakList */
-		try{
+		try {
 			$snakList = $deserializer->deserialize( $this->getArrayFromParam( $params['snaks'] ) );
 		} catch ( DeserializationException $e ) {
 			$this->errorReporter->dieError(
@@ -124,13 +123,13 @@ class SetReference extends ModifyClaim {
 	}
 
 	/**
-	 * @param Statement $claim
+	 * @param Statement $statement
 	 * @param string $referenceHash
 	 */
-	private function validateReferenceHash( Statement $claim, $referenceHash ) {
-		if ( !$claim->getReferences()->hasReferenceHash( $referenceHash ) ) {
+	private function validateReferenceHash( Statement $statement, $referenceHash ) {
+		if ( !$statement->getReferences()->hasReferenceHash( $referenceHash ) ) {
 			$this->errorReporter->dieError(
-				'Claim does not have a reference with the given hash',
+				'Statement does not have a reference with the given hash',
 				'no-such-reference'
 			);
 		}

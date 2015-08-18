@@ -21,8 +21,8 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 
 	private function newApiHelperFactory() {
 		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
-		$exceptionLocalizer = $this->getMock( 'Wikibase\Lib\Localizer\ExceptionLocalizer' );
-		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$exceptionLocalizer = $this->getMock( 'Wikibase\Repo\Localizer\ExceptionLocalizer' );
+		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
 		$summaryFormatter = $this->getMockBuilder( 'Wikibase\SummaryFormatter' )
 			->disableOriginalConstructor()->getMock();
@@ -82,13 +82,6 @@ class ApiHelperFactoryTest extends \PHPUnit_Framework_TestCase {
 
 		$errorReporter = $factory->getErrorReporter( $api );
 		$this->assertInstanceOf( 'Wikibase\Repo\Api\ApiErrorReporter', $errorReporter );
-	}
-
-	public function testNewSerializerFactory() {
-		$factory = $this->newApiHelperFactory();
-
-		$serializerFactory = $factory->newLibSerializerFactory();
-		$this->assertInstanceOf( 'Wikibase\Lib\Serializers\LibSerializerFactory', $serializerFactory );
 	}
 
 	public function testGetEntitySavingHelper() {

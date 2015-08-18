@@ -10,7 +10,7 @@ use Language;
 use LogicException;
 use Message;
 use Status;
-use Wikibase\Lib\Localizer\ExceptionLocalizer;
+use Wikibase\Repo\Localizer\ExceptionLocalizer;
 
 /**
  * ApiErrorReporter is a component for API modules that handles
@@ -478,7 +478,7 @@ class ApiErrorReporter {
 			// it's a plain string containing a message key
 			$name = $messageSpec;
 		} elseif ( is_array( $messageSpec ) ) {
-			if ( isset( $messageSpec[0]) ) {
+			if ( isset( $messageSpec[0] ) ) {
 				// it's an indexed array, the first entriy is the message key, the rest are paramters
 				$name = $messageSpec[0];
 				$params = array_slice( $messageSpec, 1 );

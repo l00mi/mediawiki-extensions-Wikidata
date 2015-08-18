@@ -79,12 +79,13 @@ class SiteLinksRdfBuilder implements EntityRdfBuilder {
 				continue;
 			}
 
+			// FIXME: we should check the site exists using hasGlobalId here before asuming it does
 			$site = $this->siteLookup->getSite( $siteLink->getSiteId() );
 
 			// XXX: ideally, we'd use https if the target site supports it.
-			$baseUrl = str_replace( '$1', rawurlencode($siteLink->getPageName()), $site->getLinkPath() );
+			$baseUrl = str_replace( '$1', rawurlencode( $siteLink->getPageName() ), $site->getLinkPath() );
 			// $site->getPageUrl( $siteLink->getPageName() );
-			if( !parse_url( $baseUrl, PHP_URL_SCHEME ) ) {
+			if ( !parse_url( $baseUrl, PHP_URL_SCHEME ) ) {
 				$url = "http:".$baseUrl;
 			} else {
 				$url = $baseUrl;

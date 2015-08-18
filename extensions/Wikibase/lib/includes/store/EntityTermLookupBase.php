@@ -4,6 +4,7 @@ namespace Wikibase\Lib\Store;
 
 use OutOfBoundsException;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\TermIndexEntry;
 
 /**
@@ -94,7 +95,7 @@ abstract class EntityTermLookupBase implements TermLookup {
 	protected function convertTermsToMap( array $wikibaseTerms ) {
 		$terms = array();
 
-		foreach( $wikibaseTerms as $wikibaseTerm ) {
+		foreach ( $wikibaseTerms as $wikibaseTerm ) {
 			$languageCode = $wikibaseTerm->getLanguage();
 			$terms[$languageCode] = $wikibaseTerm->getText();
 		}

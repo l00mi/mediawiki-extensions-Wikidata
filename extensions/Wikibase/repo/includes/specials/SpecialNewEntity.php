@@ -55,6 +55,11 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	private $rightsText;
 
 	/**
+	 * @var string[]
+	 */
+	private $aliases;
+
+	/**
 	 * @param string $name Name of the special page, as seen in links and URLs.
 	 * @param string $restriction User right required, 'createpage' per default.
 	 *
@@ -247,6 +252,7 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 				)->text(),
 			)
 		)
+		. Html::element( 'br' )
 		. Html::element(
 			'label',
 			array(
@@ -269,7 +275,9 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 					$langName
 				)->text(),
 			)
-		). Html::element(
+		)
+		. Html::element( 'br' )
+		. Html::element(
 			'label',
 			array(
 				'for' => 'wb-newentity-aliases',
@@ -328,6 +336,7 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 					$this->getUser()->getEditToken()
 				)
 				. $additionalHtml
+				. Html::element( 'br' )
 				. Html::input(
 					'submit',
 					$this->msg( 'wikibase-newentity-submit' )->text(),

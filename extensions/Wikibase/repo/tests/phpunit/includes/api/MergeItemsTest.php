@@ -6,20 +6,20 @@ use Language;
 use Status;
 use TestSites;
 use User;
+use Wikibase\ChangeOp\ChangeOpFactoryProvider;
+use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
+use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Api\ApiErrorReporter;
 use Wikibase\Repo\Api\MergeItems;
-use Wikibase\ChangeOp\ChangeOpFactoryProvider;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
-use Wikibase\Validators\TermValidatorFactory;
+use Wikibase\Repo\Validators\TermValidatorFactory;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Test\EntityModificationTestHelper;
 use Wikibase\Test\MockRepository;
 use Wikibase\Test\MockSiteStore;
-use Wikibase\Lib\Store\EntityRedirect;
-use Wikibase\Lib\ClaimGuidGenerator;
 
 /**
  * @covers Wikibase\Repo\Api\MergeItems
@@ -138,8 +138,8 @@ class MergeItemsTest extends \MediaWikiTestCase {
 
 		$changeOpsFactoryProvider = new ChangeOpFactoryProvider(
 			$this->getConstraintProvider(),
-			new ClaimGuidGenerator(),
-			WikibaseRepo::getDefaultInstance()->getClaimGuidValidator(),
+			new GuidGenerator(),
+			WikibaseRepo::getDefaultInstance()->getStatementGuidValidator(),
 			WikibaseRepo::getDefaultInstance()->getStatementGuidParser(),
 			$this->getSnakValidator(),
 			$this->getTermValidatorFactory(),
@@ -166,7 +166,7 @@ class MergeItemsTest extends \MediaWikiTestCase {
 	 * @return EntityConstraintProvider
 	 */
 	private function getConstraintProvider() {
-		$constraintProvider = $this->getMockBuilder( 'Wikibase\Validators\EntityConstraintProvider' )
+		$constraintProvider = $this->getMockBuilder( 'Wikibase\Repo\Validators\EntityConstraintProvider' )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -181,7 +181,7 @@ class MergeItemsTest extends \MediaWikiTestCase {
 	 * @return SnakValidator
 	 */
 	private function getSnakValidator() {
-		$snakValidator = $this->getMockBuilder( 'Wikibase\Validators\SnakValidator' )
+		$snakValidator = $this->getMockBuilder( 'Wikibase\Repo\Validators\SnakValidator' )
 			->disableOriginalConstructor()
 			->getMock();
 

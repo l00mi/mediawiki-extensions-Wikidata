@@ -5,7 +5,6 @@ namespace Wikibase\Test\Repo\Api;
 use DataValues\Serializers\DataValueSerializer;
 use DataValues\StringValue;
 use UsageException;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -218,6 +217,13 @@ class SetReferenceTest extends WikibaseApiTestCase {
 
 		unset( $serializedReference['lastrevid'] );
 
+		foreach ( $serializedReference['snaks'] as &$propertyGroup ) {
+			foreach ( $propertyGroup as &$snak ) {
+				$this->assertArrayHasKey( 'datatype', $snak );
+				unset( $snak['datatype'] );
+			}
+		}
+
 		$this->assertArrayEquals( $this->serializeReference( $reference ), $serializedReference );
 
 		return $serializedReference;
@@ -382,12 +388,11 @@ class SetReferenceTest extends WikibaseApiTestCase {
 		$item = WikibaseRepo::getDefaultInstance()->getEntityLookup()->getEntity( $itemId );
 
 		if ( $guid === null ) {
-			/* @var Item $item */
+			/** @var Item $item */
 			$statements = $item->getStatements()->toArray();
-
-			/* @var Claim $claim */
-			$claim = reset( $statements );
-			$guid = $claim->getGuid();
+			/** @var Statement $statement */
+			$statement = reset( $statements );
+			$guid = $statement->getGuid();
 		}
 
 		$prop = new PropertyId( EntityTestHelper::getId( 'StringProp' ) );

@@ -56,7 +56,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetPropertyDataTypeLookupReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getPropertyDataTypeLookup();
-		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup', $returnValue );
 	}
 
 	public function testGetStringNormalizerReturnType() {
@@ -66,22 +66,22 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetEntityLookupReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getEntityLookup();
-		$this->assertInstanceOf( 'Wikibase\Lib\Store\EntityLookup', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\Lookup\EntityLookup', $returnValue );
 	}
 
 	public function testGetSnakConstructionServiceReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getSnakConstructionService();
-		$this->assertInstanceOf( 'Wikibase\Lib\SnakConstructionService', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\Repo\SnakConstructionService', $returnValue );
 	}
 
 	public function testGetEntityIdParserReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getEntityIdParser();
-		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\EntityIdParser', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\EntityId\EntityIdParser', $returnValue );
 	}
 
 	public function testGetStatementGuidParser() {
 		$returnValue = $this->getWikibaseRepo()->getStatementGuidParser();
-		$this->assertInstanceOf( 'Wikibase\DataModel\Statement\StatementGuidParser', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\Statement\StatementGuidParser', $returnValue );
 	}
 
 	public function testGetLanguageFallbackChainFactory() {
@@ -94,9 +94,9 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 		$this->assertInstanceOf( 'Wikibase\Repo\LanguageFallbackLabelDescriptionLookupFactory', $returnValue );
 	}
 
-	public function testGetClaimGuidValidator() {
-		$returnValue = $this->getWikibaseRepo()->getClaimGuidValidator();
-		$this->assertInstanceOf( 'Wikibase\Lib\ClaimGuidValidator', $returnValue );
+	public function testGetStatementGuidValidator() {
+		$returnValue = $this->getWikibaseRepo()->getStatementGuidValidator();
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\Statement\StatementGuidValidator', $returnValue );
 	}
 
 	public function testGetSettingsReturnType() {
@@ -136,7 +136,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetContentModelMappings() {
 		$array = $this->getWikibaseRepo()->getContentModelMappings();
-		foreach( $array as $entityType => $contentModel ) {
+		foreach ( $array as $entityType => $contentModel ) {
 			$this->assertTrue( is_scalar( $entityType ) );
 			$this->assertTrue( is_scalar( $contentModel ) );
 		}
@@ -144,7 +144,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetExceptionLocalizer() {
 		$localizer = $this->getWikibaseRepo()->getExceptionLocalizer();
-		$this->assertInstanceOf( 'Wikibase\Lib\Localizer\ExceptionLocalizer', $localizer );
+		$this->assertInstanceOf( 'Wikibase\Repo\Localizer\ExceptionLocalizer', $localizer );
 	}
 
 	public function testGetEntityContentDataCodec() {
@@ -196,7 +196,6 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testNewItemHandler_withTransform() {
 		$wikibaseRepo = $this->getWikibaseRepo();
 		$wikibaseRepo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
-		$wikibaseRepo->getSettings()->setSetting( 'internalEntitySerializerClass', null );
 
 		$handler = $wikibaseRepo->newItemHandler();
 		$this->assertNotNull( $handler->getLegacyExportFormatDetector() );
@@ -205,28 +204,9 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testNewPropertyHandler_withTransform() {
 		$wikibaseRepo = $this->getWikibaseRepo();
 		$wikibaseRepo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
-		$wikibaseRepo->getSettings()->setSetting( 'internalEntitySerializerClass', null );
 
 		$handler = $wikibaseRepo->newPropertyHandler();
 		$this->assertNotNull( $handler->getLegacyExportFormatDetector() );
-	}
-
-	public function testNewItemHandler_badSerializerSetting() {
-		$wikibaseRepo = $this->getWikibaseRepo();
-		$wikibaseRepo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
-		$wikibaseRepo->getSettings()->setSetting( 'internalEntitySerializerClass', 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer' );
-
-		$this->setExpectedException( 'RuntimeException' );
-		$wikibaseRepo->newItemHandler();
-	}
-
-	public function testNewPropertyHandler_badSerializerSetting() {
-		$wikibaseRepo = $this->getWikibaseRepo();
-		$wikibaseRepo->getSettings()->setSetting( 'transformLegacyFormatOnExport', true );
-		$wikibaseRepo->getSettings()->setSetting( 'internalEntitySerializerClass', 'Wikibase\Lib\Serializers\LegacyInternalEntitySerializer' );
-
-		$this->setExpectedException( 'RuntimeException' );
-		$wikibaseRepo->newPropertyHandler();
 	}
 
 	/**
@@ -251,7 +231,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetTermLookup() {
 		$service = $this->getWikibaseRepo()->getTermLookup();
-		$this->assertInstanceOf( 'Wikibase\Lib\Store\TermLookup', $service );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\Lookup\TermLookup', $service );
 	}
 
 	public function testGetTermBuffer() {

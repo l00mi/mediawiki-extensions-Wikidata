@@ -13,9 +13,9 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Validators\CompositeEntityValidator;
-use Wikibase\Validators\EntityConstraintProvider;
-use Wikibase\Validators\UniquenessViolation;
+use Wikibase\Repo\Validators\CompositeEntityValidator;
+use Wikibase\Repo\Validators\EntityConstraintProvider;
+use Wikibase\Repo\Validators\UniquenessViolation;
 
 /**
  * @since 0.5
@@ -190,7 +190,7 @@ class ChangeOpsMerge {
 	private function generateAliasesChangeOps() {
 		foreach ( $this->fromItem->getFingerprint()->getAliasGroups()->toTextArray() as $langCode => $aliases ) {
 			$this->fromChangeOps->add( $this->getFingerprintChangeOpFactory()->newRemoveAliasesOp( $langCode, $aliases ) );
-			$this->toChangeOps->add( $this->getFingerprintChangeOpFactory()->newAddAliasesOp( $langCode, $aliases, 'add' ) );
+			$this->toChangeOps->add( $this->getFingerprintChangeOpFactory()->newAddAliasesOp( $langCode, $aliases ) );
 		}
 	}
 
@@ -307,7 +307,7 @@ class ChangeOpsMerge {
 	 * @param Statement $toStatement statement to add references to
 	 */
 	private function generateReferencesChangeOps( Statement $fromStatement, Statement $toStatement ) {
-		/** @var $reference Reference */
+		/** @var Reference $reference */
 		foreach ( $fromStatement->getReferences() as $reference ) {
 			if ( !$toStatement->getReferences()->hasReferenceHash( $reference->getHash() ) ) {
 				$this->toChangeOps->add( $this->getStatementChangeOpFactory()->newSetReferenceOp(

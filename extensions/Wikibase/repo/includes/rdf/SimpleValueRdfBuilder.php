@@ -10,9 +10,9 @@ use DataValues\QuantityValue;
 use DataValues\StringValue;
 use DataValues\TimeValue;
 use Wikibase\DataModel\Entity\EntityIdValue;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Entity\PropertyNotFoundException;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyNotFoundException;
 use Wikimedia\Purtle\RdfWriter;
 
 /**
@@ -97,7 +97,7 @@ class SimpleValueRdfBuilder implements SnakValueRdfBuilder {
 			// for any other types
 			try {
 				$dataType = $this->propertyLookup->getDataTypeIdForProperty( $propertyId );
-			} catch( PropertyNotFoundException $e ) {
+			} catch ( PropertyNotFoundException $e ) {
 				// keep "unknown"
 			}
 		}
@@ -219,6 +219,10 @@ class SimpleValueRdfBuilder implements SnakValueRdfBuilder {
 	 */
 	protected function addValueToNode( RdfWriter $writer, $propertyValueNamespace, $propertyValueLName, $type, $value ) {
 		if ( $type === 'url' ) {
+			if ( $value === "1" ) {
+				// hack for units support, see https://phabricator.wikimedia.org/T105432
+				$value = RdfVocabulary::ONE_ENTITY;
+			}
 			// Trims extra whitespace since we had a bug in wikidata where some URLs end up having it
 			$writer->say( $propertyValueNamespace, $propertyValueLName )->is( trim( $value ) );
 		} elseif ( $type === 'dateTime' && $value instanceof TimeValue ) {

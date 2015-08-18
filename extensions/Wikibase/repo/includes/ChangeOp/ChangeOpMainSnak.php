@@ -6,12 +6,12 @@ use InvalidArgumentException;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListHolder;
-use Wikibase\Lib\ClaimGuidGenerator;
+use Wikibase\Repo\Validators\SnakValidator;
 use Wikibase\Summary;
-use Wikibase\Validators\SnakValidator;
 
 /**
  * Class for mainsnak change operation
@@ -50,7 +50,7 @@ class ChangeOpMainSnak extends ChangeOpBase {
 	 *
 	 * @param string $statementGuid
 	 * @param Snak $snak
-	 * @param ClaimGuidGenerator $guidGenerator
+	 * @param GuidGenerator $guidGenerator
 	 * @param SnakValidator $snakValidator
 	 *
 	 * @throws InvalidArgumentException
@@ -58,7 +58,7 @@ class ChangeOpMainSnak extends ChangeOpBase {
 	public function __construct(
 		$statementGuid,
 		Snak $snak,
-		ClaimGuidGenerator $guidGenerator,
+		GuidGenerator $guidGenerator,
 		SnakValidator $snakValidator
 	) {
 		if ( !is_string( $statementGuid ) ) {

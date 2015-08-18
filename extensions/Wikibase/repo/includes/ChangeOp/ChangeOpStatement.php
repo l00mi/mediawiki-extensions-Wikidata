@@ -7,14 +7,14 @@ use OutOfBoundsException;
 use ValueValidators\Result;
 use Wikibase\DataModel\ByPropertyIdArray;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
+use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListHolder;
-use Wikibase\Lib\ClaimGuidGenerator;
-use Wikibase\Lib\ClaimGuidValidator;
+use Wikibase\Repo\Validators\SnakValidator;
 use Wikibase\Summary;
-use Wikibase\Validators\SnakValidator;
 
 /**
  * Class for statement modification operations
@@ -34,12 +34,12 @@ class ChangeOpStatement extends ChangeOpBase {
 	private $statement;
 
 	/**
-	 * @var ClaimGuidGenerator
+	 * @var GuidGenerator
 	 */
 	private $guidGenerator;
 
 	/**
-	 * @var ClaimGuidValidator
+	 * @var StatementGuidValidator
 	 */
 	private $guidValidator;
 
@@ -60,8 +60,8 @@ class ChangeOpStatement extends ChangeOpBase {
 
 	/**
 	 * @param Statement $statement
-	 * @param ClaimGuidGenerator $guidGenerator
-	 * @param ClaimGuidValidator $guidValidator
+	 * @param GuidGenerator $guidGenerator
+	 * @param StatementGuidValidator $guidValidator
 	 * @param StatementGuidParser $guidParser
 	 * @param SnakValidator $snakValidator
 	 * @param int|null $index Where the claim should be placed among the other claims.
@@ -70,8 +70,8 @@ class ChangeOpStatement extends ChangeOpBase {
 	 */
 	public function __construct(
 		Statement $statement,
-		ClaimGuidGenerator $guidGenerator,
-		ClaimGuidValidator $guidValidator,
+		GuidGenerator $guidGenerator,
+		StatementGuidValidator $guidValidator,
 		StatementGuidParser $guidParser,
 		SnakValidator $snakValidator,
 		$index = null

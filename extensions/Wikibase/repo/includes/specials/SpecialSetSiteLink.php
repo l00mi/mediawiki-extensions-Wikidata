@@ -11,7 +11,6 @@ use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\Repo\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\WikibaseRepo;
@@ -213,7 +212,8 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 		if ( empty( $this->badges ) ) {
 			$this->badges = $this->site === null ? array() : $this->getBadges( $entity, $this->site );
 		}
-		$pageinput = Html::element(
+		$pageinput = Html::element( 'br' )
+			. Html::element(
 				'label',
 				array(
 					'for' => 'wb-setsitelink-page',
@@ -273,6 +273,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 				$intro
 			)
 			. parent::getFormElements( $entity )
+			. Html::element( 'br' )
 			. Html::element(
 				'label',
 				array(
@@ -290,7 +291,6 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 					'id' => 'wb-setsitelink-site'
 				)
 			)
-			. Html::element( 'br' )
 			. $pageinput;
 		}
 	}

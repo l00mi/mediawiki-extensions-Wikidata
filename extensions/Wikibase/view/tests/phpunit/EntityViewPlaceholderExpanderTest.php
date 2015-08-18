@@ -41,13 +41,13 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 	private function newExpander( User $user, EntityRevisionLookup $entityRevisionLookup, ItemId $itemId ) {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 
-		$title = $this->getMockBuilder( 'Title')
+		$title = $this->getMockBuilder( 'Title' )
 			->disableOriginalConstructor()
 			->getMock();
 
 		$language = Language::factory( 'en' );
 
-		$idParser = $this->getMockBuilder( 'Wikibase\DataModel\Entity\EntityIdParser' )
+		$idParser = $this->getMockBuilder( 'Wikibase\DataModel\Services\EntityId\EntityIdParser' )
 			->disableOriginalConstructor()
 			->getMock();
 		$idParser->expects( $this->any() )

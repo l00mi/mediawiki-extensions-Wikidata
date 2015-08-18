@@ -8,17 +8,16 @@ use DataValues\StringValue;
 use InvalidArgumentException;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpMainSnak;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\ClaimGuidGenerator;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpMainSnak
@@ -213,7 +212,7 @@ class ChangeOpMainSnakTest extends \PHPUnit_Framework_TestCase {
 		$badSnak = new PropertyValueSnak( $p11, new StringValue( 'INVALID' ) );
 		$brokenSnak = new PropertyValueSnak( $p11, new NumberValue( 23 ) );
 
-		$guidGenerator = new ClaimGuidGenerator();
+		$guidGenerator = new GuidGenerator();
 
 		$cases = array();
 
@@ -233,7 +232,7 @@ class ChangeOpMainSnakTest extends \PHPUnit_Framework_TestCase {
 		$changeOpMainSnak = new ChangeOpMainSnak(
 			$guid,
 			$snak,
-			new ClaimGuidGenerator(),
+			new GuidGenerator(),
 			$this->mockProvider->getMockSnakValidator()
 		);
 

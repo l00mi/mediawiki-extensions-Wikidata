@@ -2,9 +2,9 @@
 
 namespace Wikibase\Repo;
 
-use Wikibase\Lib\EntityIdLabelFormatter;
+use Wikibase\DataModel\Services\EntityId\EntityIdLabelFormatter;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\LabelDescriptionLookup;
 use Wikibase\View\EntityIdFormatterFactory;
 
 /**

@@ -1,23 +1,23 @@
 <?php
 
-namespace Wikibase\DataAccess\PropertyParserFunction;
+namespace Wikibase\Client\DataAccess\PropertyParserFunction;
 
 use Language;
 use MWException;
 use Parser;
 use StubUserLang;
 use ValueFormatters\FormatterOptions;
+use Wikibase\Client\DataAccess\PropertyIdResolver;
+use Wikibase\Client\DataAccess\SnaksFinder;
+use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\Usage\UsageAccumulator;
 use Wikibase\Client\Usage\UsageTrackingSnakFormatter;
-use Wikibase\DataAccess\PropertyIdResolver;
-use Wikibase\DataAccess\StatementTransclusionInteractor;
-use Wikibase\DataAccess\SnaksFinder;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityLookup;
 
 /**
  * @since 0.5
@@ -166,7 +166,7 @@ class PropertyClaimsRendererFactory {
 	private function newVariantsAwareRenderer( array $variants, UsageAccumulator $usageAccumulator ) {
 		$languageAwareRenderers = array();
 
-		foreach( $variants as $variant ) {
+		foreach ( $variants as $variant ) {
 			$languageAwareRenderers[$variant] = $this->getLanguageAwareRendererFromCode(
 				$variant,
 				$usageAccumulator

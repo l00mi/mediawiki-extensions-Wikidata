@@ -9,7 +9,7 @@ use IContextSource;
 use Language;
 use MediaWikiTestCase;
 use Site;
-use Wikibase\DataModel\Entity\Diff\EntityDiff;
+use Wikibase\DataModel\Services\Diff\EntityDiff;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Diff\ClaimDiffer;
 use Wikibase\Repo\Diff\ClaimDifferenceVisualizer;
@@ -45,7 +45,7 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 							new DiffOpRemove( 'foo' ),
 							new DiffOpRemove( 'bar' ),
 						) )
-				), true  ),
+				), true ),
 			) ),
 			new Diff()
 		);
@@ -125,7 +125,7 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 			$this->getMockClaimDiffer(),
 			$this->getMockClaimDiffVisualizer(),
 			new MockSiteStore( array( $enwiki ) ),
-			$this->getMock( 'Wikibase\Lib\EntityIdFormatter' )
+			$this->getMock( 'Wikibase\DataModel\Services\EntityId\EntityIdFormatter' )
 		);
 	}
 

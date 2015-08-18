@@ -3,7 +3,6 @@
 namespace Wikibase\Repo\Api;
 
 use ApiBase;
-use DataValues\IllegalValueException;
 use InvalidArgumentException;
 use LogicException;
 use OutOfBoundsException;
@@ -14,15 +13,15 @@ use Wikibase\ChangeOp\ChangeOpValidationException;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Entity\PropertyNotFoundException;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Services\Lookup\PropertyNotFoundException;
+use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementListProvider;
-use Wikibase\Lib\ClaimGuidValidator;
-use Wikibase\Lib\SnakConstructionService;
+use Wikibase\Repo\SnakConstructionService;
 use Wikibase\Summary;
 
 /**
@@ -49,21 +48,22 @@ class StatementModificationHelper {
 	private $entityIdParser;
 
 	/**
-	 * @var ClaimGuidValidator
+	 * @var StatementGuidValidator
 	 */
 	private $guidValidator;
 
 	/**
 	 * @var ApiErrorReporter
+	 *
 	 * @param SnakConstructionService $snakConstructionService
 	 * @param EntityIdParser $entityIdParser
-	 * @param ClaimGuidValidator $guidValidator
+	 * @param StatementGuidValidator $guidValidator
 	 * @param ApiErrorReporter $errorReporter
 	 */
 	public function __construct(
 		SnakConstructionService $snakConstructionService,
 		EntityIdParser $entityIdParser,
-		ClaimGuidValidator $guidValidator,
+		StatementGuidValidator $guidValidator,
 		ApiErrorReporter $errorReporter
 	) {
 		$this->snakConstructionService = $snakConstructionService;
@@ -125,8 +125,6 @@ class StatementModificationHelper {
 		try {
 			$snak = $this->snakConstructionService->newSnak( $propertyId, $params['snaktype'], $valueData );
 			return $snak;
-		} catch ( IllegalValueException $ex ) {
-			$this->errorReporter->dieException( $ex, 'invalid-snak' );
 		} catch ( InvalidArgumentException $ex ) {
 			$this->errorReporter->dieException( $ex, 'invalid-snak' );
 		} catch ( OutOfBoundsException $ex ) {

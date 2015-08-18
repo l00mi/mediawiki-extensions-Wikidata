@@ -10,6 +10,7 @@ use Diff\Differ\MapDiffer;
 use Diff\DiffOp\Diff\Diff;
 use Diff\Patcher\MapPatcher;
 use Diff\Patcher\PatcherException;
+use Hooks;
 use Language;
 use LogicException;
 use MWException;
@@ -23,15 +24,16 @@ use ValueValidators\Result;
 use Wikibase\Content\DeferredCopyEntityHolder;
 use Wikibase\Content\EntityHolder;
 use Wikibase\Content\EntityInstanceHolder;
-use Wikibase\DataModel\Entity\Diff\EntityPatcher;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Services\Diff\EntityDiffer;
+use Wikibase\DataModel\Services\Diff\EntityPatcher;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\FingerprintSearchTextGenerator;
+use Wikibase\Repo\Validators\EntityValidator;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Validators\EntityValidator;
 use WikiPage;
 
 /**
@@ -327,7 +329,7 @@ abstract class EntityContent extends AbstractContent {
 		$searchTextGenerator = new FingerprintSearchTextGenerator();
 		$text = $searchTextGenerator->generate( $this->getEntity()->getFingerprint() );
 
-		if ( !wfRunHooks( 'WikibaseTextForSearchIndex', array( $this, &$text ) ) ) {
+		if ( !Hooks::run( 'WikibaseTextForSearchIndex', array( $this, &$text ) ) ) {
 			return '';
 		}
 
@@ -550,7 +552,8 @@ abstract class EntityContent extends AbstractContent {
 		$fromEntity = $fromContent->isRedirect() ? $this->makeEmptyEntity() : $fromContent->getEntity();
 		$toEntity = $toContent->isRedirect() ? $this->makeEmptyEntity() : $toContent->getEntity();
 
-		$entityDiff = $fromEntity->getDiff( $toEntity );
+		$entityDiffer = new EntityDiffer();
+		$entityDiff = $entityDiffer->diffEntities( $fromEntity, $toEntity );
 
 		return new EntityContentDiff( $entityDiff, $redirectDiff );
 	}

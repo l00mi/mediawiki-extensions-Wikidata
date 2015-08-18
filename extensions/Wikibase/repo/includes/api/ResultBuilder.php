@@ -3,27 +3,25 @@
 namespace Wikibase\Repo\Api;
 
 use ApiResult;
-use InvalidArgumentException;
 use Revision;
 use SiteStore;
 use Status;
-use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Claim\Claims;
+use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
-use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\SerializerFactory;
-use Wikibase\DataModel\Term\AliasGroup;
-use Wikibase\DataModel\Term\AliasGroupList;
-use Wikibase\DataModel\Term\Term;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\SiteLinkList;
+use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\Serializers\EntitySerializer;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
+use Wikibase\LanguageFallbackChain;
+use Wikibase\Lib\Serialization\CallbackFactory;
+use Wikibase\Lib\Serialization\SerializationModifier;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikimedia\Assert\Assert;
 
 /**
  * Builder for Api Results
@@ -42,14 +40,9 @@ class ResultBuilder {
 	private $result;
 
 	/**
-	 * @var int
+	 * @var EntityTitleLookup
 	 */
-	private $missingEntityCounter;
-
-	/**
-	 * @var LibSerializerFactory
-	 */
-	private $libSerializerFactory;
+	private $entityTitleLookup;
 
 	/**
 	 * @var SerializerFactory
@@ -57,19 +50,9 @@ class ResultBuilder {
 	private $serializerFactory;
 
 	/**
-	 * @var EntityTitleLookup
-	 */
-	private $entityTitleLookup;
-
-	/**
 	 * @var SiteStore
 	 */
 	private $siteStore;
-
-	/**
-	 * @var SerializationOptions
-	 */
-	private $options;
 
 	/**
 	 * @var PropertyDataTypeLookup
@@ -77,64 +60,50 @@ class ResultBuilder {
 	private $dataTypeLookup;
 
 	/**
+	 * @var bool|null when special elements such as '_element' are needed by the formatter.
+	 * @note please use $this->getIsRawMode() to access this value!
+	 */
+	private $isRawMode;
+
+	/**
 	 * @var SerializationModifier
 	 */
 	private $modifier;
 
 	/**
-	 * @var bool when special elements such as '_element' are needed by the formatter.
+	 * @var CallbackFactory
 	 */
-	private $isRawMode;
+	private $callbackFactory;
+
+	/**
+	 * @var int
+	 */
+	private $missingEntityCounter = -1;
 
 	/**
 	 * @param ApiResult $result
 	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param LibSerializerFactory $libSerializerFactory
 	 * @param SerializerFactory $serializerFactory
 	 * @param SiteStore $siteStore
 	 * @param PropertyDataTypeLookup $dataTypeLookup
 	 * @param bool $isRawMode when special elements such as '_element' are needed by the formatter.
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	public function __construct(
-		$result,
+		ApiResult $result,
 		EntityTitleLookup $entityTitleLookup,
-		LibSerializerFactory $libSerializerFactory,
 		SerializerFactory $serializerFactory,
 		SiteStore $siteStore,
 		PropertyDataTypeLookup $dataTypeLookup,
 		$isRawMode = null
 	) {
-		if ( !$result instanceof ApiResult ) {
-			throw new InvalidArgumentException( 'Result builder must be constructed with an ApiResult' );
-		}
-
 		$this->result = $result;
 		$this->entityTitleLookup = $entityTitleLookup;
-		$this->libSerializerFactory = $libSerializerFactory;
 		$this->serializerFactory = $serializerFactory;
-		$this->missingEntityCounter = -1;
-		$this->isRawMode = $isRawMode;
 		$this->siteStore = $siteStore;
 		$this->dataTypeLookup = $dataTypeLookup;
+		$this->isRawMode = $isRawMode;
 		$this->modifier = new SerializationModifier();
-	}
-
-	/**
-	 * Returns the serialization options used by this ResultBuilder.
-	 * This can be used to modify the options.
-	 *
-	 * @return SerializationOptions
-	 */
-	public function getOptions() {
-		if ( !$this->options ) {
-			$this->options = new SerializationOptions();
-			$this->options->setIndexTags( $this->getIsRawMode() );
-			$this->options->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_NONE );
-		}
-
-		return $this->options;
+		$this->callbackFactory = new CallbackFactory();
 	}
 
 	/**
@@ -157,17 +126,15 @@ class ResultBuilder {
 	 * @since 0.5
 	 *
 	 * @param $success bool|int|null
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	public function markSuccess( $success = true ) {
 		$value = (int)$success;
 
-		if ( $value !== 1 && $value !== 0 ) {
-			throw new InvalidArgumentException(
-				'$success must evaluate to either 1 or 0 when casted to integer'
-			);
-		}
+		Assert::parameter(
+			$value == 1 || $value == 0,
+			'$success',
+			'$success must evaluate to either 1 or 0 when casted to integer'
+		);
 
 		$this->result->addValue( null, 'success', $value );
 	}
@@ -189,13 +156,11 @@ class ResultBuilder {
 	 * @param $name string
 	 * @param $values array
 	 * @param string $tag tag name to use for elements of $values
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	public function setList( $path, $name, array $values, $tag ) {
 		$this->checkPathType( $path );
-		$this->checkNameIsString( $name );
-		$this->checkTagIsString( $tag );
+		Assert::parameterType( 'string', $name, '$name' );
+		Assert::parameterType( 'string', $tag, '$tag' );
 
 		if ( $this->getIsRawMode() ) {
 			// Unset first, so we don't make the tag name an actual value.
@@ -223,12 +188,10 @@ class ResultBuilder {
 	 * @param $path array|string|null
 	 * @param $name string
 	 * @param $value mixed
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	public function setValue( $path, $name, $value ) {
 		$this->checkPathType( $path );
-		$this->checkNameIsString( $name );
+		Assert::parameterType( 'string', $name, '$name' );
 		$this->checkValueIsNotList( $value );
 
 		$this->result->addValue( $path, $name, $value );
@@ -253,14 +216,11 @@ class ResultBuilder {
 	 * May be ignored even if given, based on $this->result->getIsRawMode().
 	 * @param $value mixed
 	 * @param string $tag tag name to use for $value in indexed mode
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	public function appendValue( $path, $key, $value, $tag ) {
 		$this->checkPathType( $path );
 		$this->checkKeyType( $key );
-		$this->checkTagIsString( $tag );
-
+		Assert::parameterType( 'string', $tag, '$tag' );
 		$this->checkValueIsNotList( $value );
 
 		if ( $this->getIsRawMode() ) {
@@ -273,84 +233,59 @@ class ResultBuilder {
 
 	/**
 	 * @param array|string|null $path
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	private function checkPathType( $path ) {
-		if ( is_string( $path ) ) {
-			$path = array( $path );
-		}
-
-		if ( !is_array( $path ) && $path !== null ) {
-			throw new InvalidArgumentException( '$path must be an array (or null)' );
-		}
-	}
-
-	/**
-	 * @param string $name
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	private function checkNameIsString( $name ) {
-		if ( !is_string( $name ) ) {
-			throw new InvalidArgumentException( '$name must be a string' );
-		}
+		Assert::parameter(
+			is_string( $path ) || is_array( $path ) || is_null( $path ),
+			'$path',
+			'$path must be an array (or null)'
+		);
 	}
 
 	/**
 	 * @param $key int|string|null the key to use when appending, or null for automatic.
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	private function checkKeyType( $key ) {
-		if ( $key !== null && !is_string( $key ) && !is_int( $key ) ) {
-			throw new InvalidArgumentException( '$key must be a string, int, or null' );
-		}
-	}
-
-	/**
-	 * @param string $tag tag name to use for elements of $values
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	private function checkTagIsString( $tag ) {
-		if ( !is_string( $tag ) ) {
-			throw new InvalidArgumentException( '$tag must be a string' );
-		}
+		Assert::parameter(
+			is_string( $key ) || is_int( $key ) || is_null( $key ),
+			'$key',
+			'$key must be an array (or null)'
+		);
 	}
 
 	/**
 	 * @param mixed $value
-	 *
-	 * @throws InvalidArgumentException
 	 */
 	private function checkValueIsNotList( $value ) {
-		if ( is_array( $value ) && isset( $value[0] ) ) {
-			throw new InvalidArgumentException( '$value must not be a list' );
-		}
+		Assert::parameter(
+			!( is_array( $value ) && isset( $value[0] ) ),
+			'$value',
+			'$value must not be a list'
+		);
 	}
 
 	/**
 	 * Get serialized entity for the EntityRevision and add it to the result
 	 *
 	 * @param string|null $sourceEntityIdSerialization EntityId used to retreive $entityRevision
-	 *        Used as the key for the entity in the 'entities' structure and for adding redirect info
-	 *        Will default to the entity's serialized ID if null.
-	 *        If given this must be the entity id before any redirects were resolved.
+	 *        Used as the key for the entity in the 'entities' structure and for adding redirect
+	 *     info Will default to the entity's serialized ID if null. If given this must be the
+	 *     entity id before any redirects were resolved.
 	 * @param EntityRevision $entityRevision
-	 * @param SerializationOptions|null $options
-	 * @param array|string $props a list of fields to include, or "all"
-	 * @param array $siteIds A list of site IDs to filter by
+	 * @param string[]|string $props a list of fields to include, or "all"
+	 * @param string[] $filterSiteIds A list of site IDs to filter by
+	 * @param string[] $filterLangCodes A list of language codes to filter by
+	 * @param LanguageFallbackChain[] $fallbackChains with keys of the origional language
 	 *
 	 * @since 0.5
 	 */
 	public function addEntityRevision(
 		$sourceEntityIdSerialization,
 		EntityRevision $entityRevision,
-		SerializationOptions
-		$options = null,
 		$props = 'all',
-		$siteIds = array()
+		$filterSiteIds = array(),
+		$filterLangCodes = array(),
+		$fallbackChains = array()
 	) {
 		$entity = $entityRevision->getEntity();
 		$entityId = $entity->getId();
@@ -360,11 +295,6 @@ class ResultBuilder {
 		}
 
 		$record = array();
-
-		$serializerOptions = $this->getOptions();
-		if ( $options ) {
-			$serializerOptions->merge( $options );
-		}
 
 		//if there are no props defined only return type and id..
 		if ( $props === array() ) {
@@ -386,26 +316,301 @@ class ResultBuilder {
 				);
 			}
 
-			//FIXME: $props should be used to filter $entitySerialization!
-			// as in, $entitySerialization = array_intersect_key( $entitySerialization, array_flip( $props ) )
-			$entitySerializer = $this->libSerializerFactory->newSerializerForEntity(
-				$entity->getType(),
-				$serializerOptions
+			$entitySerialization = $this->getEntityArray(
+				$entity,
+				$props,
+				$filterSiteIds,
+				$filterLangCodes,
+				$fallbackChains
 			);
-			$entitySerialization = $entitySerializer->getSerialized( $entity );
-
-			if ( !empty( $siteIds ) && array_key_exists( 'sitelinks', $entitySerialization ) ) {
-				foreach ( $entitySerialization['sitelinks'] as $siteId => $siteLink ) {
-					if ( is_array( $siteLink ) && !in_array( $siteLink['site'], $siteIds ) ) {
-						unset( $entitySerialization['sitelinks'][$siteId] );
-					}
-				}
-			}
 
 			$record = array_merge( $record, $entitySerialization );
 		}
 
 		$this->appendValue( array( 'entities' ), $sourceEntityIdSerialization, $record, 'entity' );
+	}
+
+	/**
+	 * @see ResultBuilder::addEntityRevision
+	 *
+	 * @param Entity $entity
+	 * @param array|string $props
+	 * @param string[]|null $filterSiteIds
+	 * @param string[] $filterLangCodes
+	 * @param LanguageFallbackChain[] $fallbackChains
+	 *
+	 * @return array
+	 */
+	private function getEntityArray(
+		Entity $entity,
+		$props,
+		$filterSiteIds,
+		$filterLangCodes,
+		$fallbackChains
+	) {
+		$entitySerializer = $this->serializerFactory->newEntitySerializer();
+		$serialization = $entitySerializer->serialize( $entity );
+
+		$serialization = $this->filterEntitySerializationUsingProps( $serialization, $props );
+
+		if ( $props == 'all' || in_array( 'sitelinks/urls', $props ) ) {
+			$serialization = $this->injectEntitySerializationWithSiteLinkUrls( $serialization );
+		}
+		$serialization = $this->sortEntitySerializationSiteLinks( $serialization );
+		$serialization = $this->injectEntitySerializationWithDataTypes( $serialization );
+		$serialization = $this->filterEntitySerializationUsingSiteIds( $serialization, $filterSiteIds );
+		if ( !empty( $fallbackChains ) ) {
+			$serialization = $this->addEntitySerializationFallbackInfo( $serialization, $fallbackChains );
+		}
+		$serialization = $this->filterEntitySerializationUsingLangCodes(
+			$serialization,
+			$filterLangCodes
+		);
+
+		if ( $this->getIsRawMode() ) {
+			$serialization = $this->getRawModeEntitySerialization( $serialization );
+		} else {
+			// Non raw mode formats dont want empty parts....
+			$serialization = $this->filterEmptyEntitySerializationParts( $serialization );
+		}
+
+		return $serialization;
+	}
+
+	private function filterEmptyEntitySerializationParts( array $serialization ) {
+		if ( empty( $serialization['labels'] ) ) {
+			unset( $serialization['labels'] );
+		}
+		if ( empty( $serialization['descriptions'] ) ) {
+			unset( $serialization['descriptions'] );
+		}
+		if ( empty( $serialization['aliases'] ) ) {
+			unset( $serialization['aliases'] );
+		}
+		if ( empty( $serialization['claims'] ) ) {
+			unset( $serialization['claims'] );
+		}
+		if ( empty( $serialization['sitelinks'] ) ) {
+			unset( $serialization['sitelinks'] );
+		}
+		return $serialization;
+	}
+
+	/**
+	 * @param array $serialization
+	 * @param string|array $props
+	 *
+	 * @return array
+	 */
+	private function filterEntitySerializationUsingProps( array $serialization, $props ) {
+		if ( $props !== 'all' ) {
+			if ( !in_array( 'labels', $props ) ) {
+				unset( $serialization['labels'] );
+			}
+			if ( !in_array( 'descriptions', $props ) ) {
+				unset( $serialization['descriptions'] );
+			}
+			if ( !in_array( 'aliases', $props ) ) {
+				unset( $serialization['aliases'] );
+			}
+			if ( !in_array( 'claims', $props ) ) {
+				unset( $serialization['claims'] );
+			}
+			if ( !in_array( 'sitelinks', $props ) ) {
+				unset( $serialization['sitelinks'] );
+			}
+		}
+		return $serialization;
+	}
+
+	private function injectEntitySerializationWithSiteLinkUrls( array $serialization ) {
+		if ( isset( $serialization['sitelinks'] ) ) {
+			$serialization['sitelinks'] = $this->getSiteLinkListArrayWithUrls( $serialization['sitelinks'] );
+		}
+		return $serialization;
+	}
+
+	private function sortEntitySerializationSiteLinks( array $serialization ) {
+		if ( isset( $serialization['sitelinks'] ) ) {
+			ksort( $serialization['sitelinks'] );
+		}
+		return $serialization;
+	}
+
+	private function injectEntitySerializationWithDataTypes( array $serialization ) {
+		$serialization = $this->modifier->modifyUsingCallback(
+			$serialization,
+			'claims/*/*/mainsnak',
+			$this->callbackFactory->getCallbackToAddDataTypeToSnak( $this->dataTypeLookup )
+		);
+		$serialization = $this->getArrayWithDataTypesInGroupedSnakListAtPath(
+			$serialization,
+			'claims/*/*/qualifiers'
+		);
+		$serialization = $this->getArrayWithDataTypesInGroupedSnakListAtPath(
+			$serialization,
+			'claims/*/*/references/*/snaks'
+		);
+		return $serialization;
+	}
+
+	private function filterEntitySerializationUsingSiteIds( array $serialization, $siteIds ) {
+		if ( !empty( $siteIds ) && array_key_exists( 'sitelinks', $serialization ) ) {
+			foreach ( $serialization['sitelinks'] as $siteId => $siteLink ) {
+				if ( is_array( $siteLink ) && !in_array( $siteLink['site'], $siteIds ) ) {
+					unset( $serialization['sitelinks'][$siteId] );
+				}
+			}
+		}
+		return $serialization;
+	}
+
+	/**
+	 * @param array $serialization
+	 * @param LanguageFallbackChain[] $fallbackChains
+	 *
+	 * @return array
+	 */
+	private function addEntitySerializationFallbackInfo(
+		array $serialization,
+		array $fallbackChains
+	) {
+		$serialization['labels'] = $this->getTermsSerializationWithFallbackInfo(
+			$serialization['labels'],
+			$fallbackChains
+		);
+		$serialization['descriptions'] = $this->getTermsSerializationWithFallbackInfo(
+			$serialization['descriptions'],
+			$fallbackChains
+		);
+		return $serialization;
+	}
+
+	/**
+	 * @param array $serialization
+	 * @param LanguageFallbackChain[] $fallbackChains
+	 *
+	 * @return array
+	 */
+	private function getTermsSerializationWithFallbackInfo(
+		array $serialization,
+		array $fallbackChains
+	) {
+		$newSerialization = $serialization;
+		foreach ( $fallbackChains as $requestedLanguageCode => $fallbackChain ) {
+			if ( !array_key_exists( $requestedLanguageCode, $serialization ) ) {
+				$fallbackSerialization = $fallbackChain->extractPreferredValue( $serialization );
+				if ( $fallbackSerialization !== null ) {
+					if ( $fallbackSerialization['source'] !== null ) {
+						$fallbackSerialization['source-language'] = $fallbackSerialization['source'];
+					}
+					unset( $fallbackSerialization['source'] );
+					if ( $requestedLanguageCode !== $fallbackSerialization['language'] ) {
+						$fallbackSerialization['for-language'] = $requestedLanguageCode;
+					}
+					$newSerialization[$requestedLanguageCode] = $fallbackSerialization;
+				}
+			}
+		}
+		return $newSerialization;
+	}
+
+	private function filterEntitySerializationUsingLangCodes( array $serialization, $langCodes ) {
+		if ( !empty( $langCodes ) ) {
+			if ( array_key_exists( 'labels', $serialization ) ) {
+				foreach ( $serialization['labels'] as $langCode => $languageArray ) {
+					if ( !in_array( $langCode, $langCodes ) ) {
+						unset( $serialization['labels'][$langCode] );
+					}
+				}
+			}
+			if ( array_key_exists( 'descriptions', $serialization ) ) {
+				foreach ( $serialization['descriptions'] as $langCode => $languageArray ) {
+					if ( !in_array( $langCode, $langCodes ) ) {
+						unset( $serialization['descriptions'][$langCode] );
+					}
+				}
+			}
+			if ( array_key_exists( 'aliases', $serialization ) ) {
+				foreach ( $serialization['aliases'] as $langCode => $languageArray ) {
+					if ( !in_array( $langCode, $langCodes ) ) {
+						unset( $serialization['aliases'][$langCode] );
+					}
+				}
+			}
+		}
+		return $serialization;
+	}
+
+	private function getRawModeEntitySerialization( $serialization ) {
+		// In raw mode aliases are not currently grouped by language
+		$serialization = $this->modifier->modifyUsingCallback(
+			$serialization,
+			'aliases',
+			function( $array ) {
+				$newArray = array();
+				foreach ( $array as $aliasGroup ) {
+					foreach ( $aliasGroup as $alias ) {
+						$newArray[] = $alias;
+					}
+				}
+				return $newArray;
+			}
+		);
+		// In the old Lib serializers
+		$serialization = $this->modifier->modifyUsingCallback(
+			$serialization,
+			'claims/*/*',
+			function( $array ) {
+				if ( !array_key_exists( 'qualifiers', $array ) ) {
+					$array['qualifiers'] = array();
+				}
+				if ( !array_key_exists( 'qualifiers-order', $array ) ) {
+					$array['qualifiers-order'] = array();
+				}
+				return $array;
+			}
+		);
+		$keysToValues = array(
+			'aliases' => null,
+			'descriptions' => null,
+			'labels' => null,
+			'claims/*/*/references/*/snaks' => 'id',
+			'claims/*/*/qualifiers' => 'id',
+			'claims' => 'id',
+			'sitelinks' => null,
+		);
+		foreach ( $keysToValues as $path => $newKey ) {
+			$serialization = $this->modifier->modifyUsingCallback(
+				$serialization,
+				$path,
+				$this->callbackFactory->getCallbackToRemoveKeys( $newKey )
+			);
+		}
+		$tagsToAdd = array(
+			'labels' => 'label',
+			'descriptions' => 'description',
+			'aliases' => 'alias',
+			'sitelinks/*/badges' => 'badge',
+			'sitelinks' => 'sitelink',
+			'claims/*/*/qualifiers/*' => 'qualifiers',
+			'claims/*/*/qualifiers' => 'property',
+			'claims/*/*/qualifiers-order' => 'property',
+			'claims/*/*/references/*/snaks/*' => 'snak',
+			'claims/*/*/references/*/snaks' => 'property',
+			'claims/*/*/references/*/snaks-order' => 'property',
+			'claims/*/*/references' => 'reference',
+			'claims/*' => 'claim',
+			'claims' => 'property',
+		);
+		foreach ( $tagsToAdd as $path => $tag ) {
+			$serialization = $this->modifier->modifyUsingCallback(
+				$serialization,
+				$path,
+				$this->callbackFactory->getCallbackToIndexTags( $tag )
+			);
+		}
+		return $serialization;
 	}
 
 	/**
@@ -596,95 +801,161 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param Claim[] $claims the labels to set in the result
+	 * @param Statement[] $statements the labels to set in the result
 	 * @param array|string $path where the data is located
+	 * @param array|string $props a list of fields to include, or "all"
 	 */
-	public function addClaims( array $claims, $path ) {
-		$claimsSerializer = $this->libSerializerFactory->newClaimsSerializer( $this->getOptions() );
+	public function addStatements( array $statements, $path, $props = 'all' ) {
+		$serializer = $this->serializerFactory->newStatementListSerializer();
 
-		$values = $claimsSerializer->getSerialized( new Claims( $claims ) );
+		$values = $serializer->serialize( new StatementList( $statements ) );
 
-		// HACK: comply with ApiResult::setIndexedTagName
-		$tag = isset( $values['_element'] ) ? $values['_element'] : 'claim';
-		$this->setList( $path, 'claims', $values, $tag );
+		if ( is_array( $props ) && !in_array( 'references', $props ) ) {
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				'*/*',
+				function ( $array ) {
+					unset( $array['references'] );
+					return $array;
+				}
+			);
+		}
+
+		if ( !$this->getIsRawMode() ) {
+			$values = $this->getArrayWithAlteredClaims( $values, false, '*/*/' );
+		} else {
+			$values = $this->getArrayWithAlteredClaims( $values, true, '*/*/' );
+			$values = $this->getArrayWithRawModeClaims( $values, '*/*/' );
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				null,
+				$this->callbackFactory->getCallbackToRemoveKeys( 'id' )
+			);
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				'*',
+				$this->callbackFactory->getCallbackToIndexTags( 'claim' )
+			);
+		}
+
+		$this->setList( $path, 'claims', $values, 'property' );
 	}
 
 	/**
 	 * Get serialized claim and add it to result
 	 *
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 *
 	 * @since 0.5
 	 */
-	public function addClaim( Claim $claim ) {
+	public function addStatement( Statement $statement ) {
 		$serializer = $this->serializerFactory->newStatementSerializer();
 
 		//TODO: this is currently only used to add a Claim as the top level structure,
 		//      with a null path and a fixed name. Would be nice to also allow claims
 		//      to be added to a list, using a path and a id key or index.
 
-		$value = $serializer->serialize( $claim );
+		$value = $serializer->serialize( $statement );
 
-		/**
-		 * Below we force an empty qualifiers and qualifiers-order element in the output.
-		 * This is to make sure we dont break anything that assumes this is always here.
-		 * This hack was added when moving away from the Lib serializers
-		 */
-		if ( !isset( $value['qualifiers'] ) ) {
-			$value['qualifiers'] = array();
-		}
-		if ( !isset( $value['qualifiers-order'] ) ) {
-			$value['qualifiers-order'] = array();
-		}
-
-		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'references/*/snaks' );
-		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'qualifiers' );
-		$value = $this->modifier->modifyUsingCallback(
-			$value,
-			'mainsnak',
-			$this->getModCallbackToAddDataTypeToSnak()
-		);
+		$value = $this->getArrayWithAlteredClaims( $value );
 
 		if ( $this->getIsRawMode() ) {
-			$value = $this->getRawModeClaimArray( $value );
+			$value = $this->getArrayWithRawModeClaims( $value );
 		}
 
 		$this->setValue( null, 'claim', $value );
 	}
 
-	private function getRawModeClaimArray( $array ) {
+	/**
+	 * @param array $array
+	 * @param bool $allowEmptyQualifiers
+	 * @param string $claimPath to the claim array/arrays with trailing /
+	 *
+	 * @return array
+	 */
+	private function getArrayWithAlteredClaims(
+		array $array,
+		$allowEmptyQualifiers = true,
+		$claimPath = ''
+	) {
+		if ( $allowEmptyQualifiers ) {
+			/**
+			 * Below we force an empty qualifiers and qualifiers-order element in the output.
+			 * This is to make sure we dont break anything that assumes this is always here.
+			 * This hack was added when moving away from the Lib serializers
+			 * TODO: remove this hack when we make other 'breaking changes' to the api output
+			 */
+			$array = $this->modifier->modifyUsingCallback(
+				$array,
+				trim( $claimPath, '/' ),
+				function ( $array ) {
+					if ( !isset( $array['qualifiers'] ) ) {
+						$array['qualifiers'] = array();
+					}
+					if ( !isset( $array['qualifiers-order'] ) ) {
+						$array['qualifiers-order'] = array();
+					}
+
+					return $array;
+				}
+			);
+		}
+
+		$array = $this->getArrayWithDataTypesInGroupedSnakListAtPath(
+			$array,
+			$claimPath . 'references/*/snaks'
+		);
+		$array = $this->getArrayWithDataTypesInGroupedSnakListAtPath(
+			$array,
+			$claimPath . 'qualifiers'
+		);
+		$array = $this->modifier->modifyUsingCallback(
+			$array,
+			$claimPath . 'mainsnak',
+			$this->callbackFactory->getCallbackToAddDataTypeToSnak( $this->dataTypeLookup )
+		);
+		return $array;
+	}
+
+	/**
+	 * @param array $array
+	 * @param string $claimPath to the claim array/arrays with trailing /
+	 *
+	 * @return array
+	 */
+	private function getArrayWithRawModeClaims( array $array, $claimPath = '' ) {
 		$rawModeModifications = array(
 			'references/*/snaks/*' => array(
-				$this->getModCallbackToIndexTags( 'snak' ),
+				$this->callbackFactory->getCallbackToIndexTags( 'snak' ),
 			),
 			'references/*/snaks' => array(
-				$this->getModCallbackToRemoveKeys( 'id' ),
-				$this->getModCallbackToIndexTags( 'property' ),
+				$this->callbackFactory->getCallbackToRemoveKeys( 'id' ),
+				$this->callbackFactory->getCallbackToIndexTags( 'property' ),
 			),
 			'references/*/snaks-order' => array(
-				$this->getModCallbackToIndexTags( 'property' )
+				$this->callbackFactory->getCallbackToIndexTags( 'property' )
 			),
 			'references' => array(
-				$this->getModCallbackToIndexTags( 'reference' ),
+				$this->callbackFactory->getCallbackToIndexTags( 'reference' ),
 			),
 			'qualifiers/*' => array(
-				$this->getModCallbackToIndexTags( 'qualifiers' ),
+				$this->callbackFactory->getCallbackToIndexTags( 'qualifiers' ),
 			),
 			'qualifiers' => array(
-				$this->getModCallbackToRemoveKeys( 'id' ),
-				$this->getModCallbackToIndexTags( 'property' ),
+				$this->callbackFactory->getCallbackToRemoveKeys( 'id' ),
+				$this->callbackFactory->getCallbackToIndexTags( 'property' ),
 			),
 			'qualifiers-order' => array(
-				$this->getModCallbackToIndexTags( 'property' )
+				$this->callbackFactory->getCallbackToIndexTags( 'property' )
 			),
 			'mainsnak' => array(
-				$this->getModCallbackToAddDataTypeToSnak(),
+				$this->callbackFactory->getCallbackToAddDataTypeToSnak( $this->dataTypeLookup ),
 			),
 		);
 
 		foreach ( $rawModeModifications as $path => $callbacks ) {
 			foreach ( $callbacks as $callback ) {
-				$array = $this->modifier->modifyUsingCallback( $array, $path, $callback );
+				$array = $this->modifier->modifyUsingCallback( $array, $claimPath . $path, $callback );
 			}
 		}
 
@@ -726,7 +997,7 @@ class ResultBuilder {
 		return $this->modifier->modifyUsingCallback(
 			$array,
 			$path,
-			$this->getModCallbackToAddDataTypeToSnaksGroupedByProperty()
+			$this->callbackFactory->getCallbackToAddDataTypeToSnaksGroupedByProperty( $this->dataTypeLookup )
 		);
 	}
 
@@ -820,77 +1091,6 @@ class ResultBuilder {
 
 			$this->setValue( $path, 'lastrevid', empty( $revisionId ) ? 0 : $revisionId );
 		}
-	}
-
-	/**
-	 * Get callable to index array with the given tag name
-	 *
-	 * @param string $tagName
-	 *
-	 * @return callable
-	 */
-	private function getModCallbackToIndexTags( $tagName ) {
-		return function( $array ) use ( $tagName ) {
-			ApiResult::setIndexedTagName( $array, $tagName );
-			return $array;
-		};
-	}
-
-	/**
-	 * Get callable to remove array keys and optionally set the key as an array value
-	 *
-	 * @param string|null $addAsArrayElement
-	 *
-	 * @return callable
-	 */
-	private function getModCallbackToRemoveKeys( $addAsArrayElement = null ) {
-		return function ( $array ) use ( $addAsArrayElement ) {
-			if ( $addAsArrayElement !== null ) {
-				foreach ( $array as $key => &$value ) {
-					$value[$addAsArrayElement] = $key;
-				}
-			}
-			$array = array_values( $array );
-			return $array;
-		};
-	}
-
-	private function getModCallbackToAddDataTypeToSnaksGroupedByProperty() {
-		$dtLookup = $this->dataTypeLookup;
-		return function ( $array ) use ( $dtLookup ) {
-			foreach ( $array as $propertyIdGroupKey => &$snakGroup ) {
-				$dataType = $dtLookup->getDataTypeIdForProperty( new PropertyId( $propertyIdGroupKey ) );
-				foreach ( $snakGroup as &$snak ) {
-					/**
-					 * TODO: We probably want to return the datatype for NoValue and SomeValue snaks too
-					 *       but this is not done by the LibSerializers thus not done here.
-					 * TODO: Also DataModelSerialization has a TypedSnak object and serializer which we
-					 *       might be able to use in some way here
-					 */
-					if ( $snak['snaktype'] === 'value' ) {
-						$snak['datatype'] = $dataType;
-					}
-				}
-			}
-			return $array;
-		};
-	}
-
-	private function getModCallbackToAddDataTypeToSnak() {
-		$dtLookup = $this->dataTypeLookup;
-		return function ( $array ) use ( $dtLookup ) {
-			$dataType = $dtLookup->getDataTypeIdForProperty( new PropertyId( $array['property'] ) );
-			/**
-			 * TODO: We probably want to return the datatype for NoValue and SomeValue snaks too
-			 *       but this is not done by the LibSerializers thus not done here.
-			 * TODO: Also DataModelSerialization has a TypedSnak object and serializer which we
-			 *       might be able to use in some way here
-			 */
-			if ( $array['snaktype'] === 'value' ) {
-				$array['datatype'] = $dataType;
-			}
-			return $array;
-		};
 	}
 
 }

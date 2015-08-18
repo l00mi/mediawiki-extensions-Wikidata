@@ -3,13 +3,12 @@
 namespace Wikibase;
 
 use ParserOptions;
-use ValueFormatters\ValueFormatter;
-use Wikibase\Lib\Serializers\SerializationOptions;
+use Wikibase\DataModel\Services\DataValue\ValuesFinder;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\View\EntityViewFactory;
 use Wikibase\View\Template\TemplateFactory;
-use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 
 /**
  * @since 0.5
@@ -91,7 +90,7 @@ class EntityParserOutputGeneratorFactory {
 
 		return new EntityParserOutputGenerator(
 			$this->entityViewFactory,
-			$this->newParserOutputJsConfigBuilder( $languageCode ),
+			$this->newParserOutputJsConfigBuilder(),
 			$this->entityTitleLookup,
 			$this->valuesFinder,
 			$this->entityInfoBuilderFactory,
@@ -104,14 +103,10 @@ class EntityParserOutputGeneratorFactory {
 	}
 
 	/**
-	 * @param string $languageCode
-	 *
 	 * @return ParserOutputJsConfigBuilder
 	 */
-	private function newParserOutputJsConfigBuilder( $languageCode ) {
-		return new ParserOutputJsConfigBuilder(
-			$this->makeJsConfigSerializationOptions( $languageCode )
-		);
+	private function newParserOutputJsConfigBuilder() {
+		return new ParserOutputJsConfigBuilder();
 	}
 
 	/**
@@ -125,22 +120,6 @@ class EntityParserOutputGeneratorFactory {
 		return $this->languageFallbackChainFactory->newFromLanguageCode(
 			$languageCode
 		);
-	}
-
-	/**
-	 * @param string $languageCode
-	 *
-	 * @return SerializationOptions
-	 */
-	private function makeJsConfigSerializationOptions( $languageCode ) {
-		// NOTE: when serializing the full entity to be stored in the
-		// wbEntity JS config variable, we currently do not want any
-		// language fallback to be applied.
-
-		$options = new SerializationOptions();
-		$options->setOption( ValueFormatter::OPT_LANG, $languageCode );
-
-		return $options;
 	}
 
 }

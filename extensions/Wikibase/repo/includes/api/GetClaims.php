@@ -6,17 +6,16 @@ use ApiBase;
 use ApiMain;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
+use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListProvider;
-use Wikibase\Lib\ClaimGuidValidator;
-use Wikibase\Lib\Serializers\ClaimSerializer;
-use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\StatementRankSerializer;
 
 /**
  * API module for getting claims.
@@ -30,7 +29,7 @@ use Wikibase\Repo\WikibaseRepo;
 class GetClaims extends ApiBase {
 
 	/**
-	 * @var ClaimGuidValidator
+	 * @var StatementGuidValidator
 	 */
 	private $guidValidator;
 
@@ -75,7 +74,7 @@ class GetClaims extends ApiBase {
 		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
 		$this->entityLoadingHelper = $apiHelperFactory->getEntityLoadingHelper( $this );
-		$this->guidValidator = $wikibaseRepo->getClaimGuidValidator();
+		$this->guidValidator = $wikibaseRepo->getStatementGuidValidator();
 		$this->guidParser = $wikibaseRepo->getStatementGuidParser();
 		$this->idParser = $wikibaseRepo->getEntityIdParser();
 	}
@@ -104,17 +103,8 @@ class GetClaims extends ApiBase {
 		);
 		$entity = $entityRevision->getEntity();
 
-		if ( $params['ungroupedlist'] ) {
-			$this->logFeatureUsage( 'action=wbgetclaims&ungroupedlist' );
-			$this->resultBuilder->getOptions()
-				->setOption(
-					SerializationOptions::OPT_GROUP_BY_PROPERTIES,
-					array()
-				);
-		}
-
 		$claims = $this->getClaims( $entity, $guid );
-		$this->resultBuilder->addClaims( $claims, null );
+		$this->resultBuilder->addStatements( $claims, null, $params['props'] );
 	}
 
 	private function validateParameters( array $params ) {
@@ -169,7 +159,8 @@ class GetClaims extends ApiBase {
 		$params = $this->extractRequestParams();
 
 		if ( isset( $params['rank'] ) ) {
-			$unserializedRank = ClaimSerializer::unserializeRank( $params['rank'] );
+			$statementRankSerializer = new StatementRankSerializer();
+			$unserializedRank = $statementRankSerializer->deserialize( $params['rank'] );
 			$matchFilter = $rank === $unserializedRank;
 			return $matchFilter;
 		}
@@ -247,18 +238,14 @@ class GetClaims extends ApiBase {
 				self::PARAM_TYPE => 'string',
 			),
 			'rank' => array(
-				self::PARAM_TYPE => ClaimSerializer::getRanks(),
+				self::PARAM_TYPE => StatementRankSerializer::getRanks(),
 			),
 			'props' => array(
 				self::PARAM_TYPE => array(
 					'references',
 				),
 				self::PARAM_DFLT => 'references',
-			),
-			'ungroupedlist' => array(
-				self::PARAM_TYPE => 'boolean',
-				self::PARAM_DFLT => false,
-				self::PARAM_DEPRECATED => true,
+				self::PARAM_ISMULTI => true,
 			),
 		);
 	}

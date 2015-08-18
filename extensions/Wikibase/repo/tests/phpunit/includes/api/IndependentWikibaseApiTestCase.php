@@ -32,7 +32,7 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 			array( 'wbeditor' )
 		);
 
-		$this->setMwGlobals( 'wgUser', self::$users['wbeditor']->user );
+		$this->setMwGlobals( 'wgUser', self::$users['wbeditor']->getUser() );
 
 		if ( !$isSetup ) {
 			//TODO remove me once everything that needs this is overridden
@@ -74,7 +74,7 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 			$this->doApiRequest( $params );
 			$this->fail( "Failed to throw UsageException" );
 
-		} catch( UsageException $e ) {
+		} catch ( UsageException $e ) {
 			if ( array_key_exists( 'type', $exception ) ) {
 				$this->assertInstanceOf( $exception['type'], $e );
 			}

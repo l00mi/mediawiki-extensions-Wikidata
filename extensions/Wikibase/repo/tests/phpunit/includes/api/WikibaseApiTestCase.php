@@ -58,7 +58,7 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 
 		ApiTestCase::$users['wbeditor'] = self::$wbTestUser;
 
-		$this->setMwGlobals( 'wgUser', self::$users['wbeditor']->user );
+		$this->setMwGlobals( 'wgUser', self::$users['wbeditor']->getUser() );
 		$this->setMwGlobals( 'wgGroupPermissions', array( '*' => array(
 			'property-create' => true,
 			'createpage' => true,
@@ -175,7 +175,7 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 			}
 
 			$this->fail( "Failed to throw UsageException" );
-		} catch( UsageException $e ) {
+		} catch ( UsageException $e ) {
 			if ( array_key_exists( 'type', $exception ) ) {
 				$this->assertInstanceOf( $exception['type'], $e );
 			}

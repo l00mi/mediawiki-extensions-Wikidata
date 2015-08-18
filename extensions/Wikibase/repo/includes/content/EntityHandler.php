@@ -20,18 +20,18 @@ use Wikibase\Content\DeferredDecodingEntityHolder;
 use Wikibase\Content\EntityHolder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
 use Wikibase\EntityContent;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Store\EntityPerPage;
+use Wikibase\Repo\Validators\EntityConstraintProvider;
+use Wikibase\Repo\Validators\EntityValidator;
+use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\TermIndex;
 use Wikibase\Updates\DataUpdateAdapter;
-use Wikibase\Validators\EntityConstraintProvider;
-use Wikibase\Validators\EntityValidator;
-use Wikibase\Validators\ValidatorErrorLocalizer;
 
 /**
  * Base handler class for Entity content classes.

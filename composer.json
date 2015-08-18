@@ -4,16 +4,12 @@
     "license": "GPL-2.0+",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://gerrit.wikimedia.org/r/p/mediawiki/extensions/Wikibase.git"
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/wmde/Wikidata.org.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/wmde/WikimediaBadges.git"
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges"
         },
         {
             "type": "git",
@@ -26,8 +22,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "propertysuggester/property-suggester": "~2.3.0",
-        "wikibase/wikibase": "dev-wmf/1.26wmf16",
+        "propertysuggester/property-suggester": "~2.4.0",
+        "wikibase/wikibase": "dev-wmf/1.26wmf19",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
         "wikibase/quality": "1.x-dev",
@@ -43,7 +39,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_26wmf16",
+        "autoloader-suffix": "wikidata_1_26wmf19",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

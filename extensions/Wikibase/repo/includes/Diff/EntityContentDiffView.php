@@ -16,15 +16,15 @@ use ParserOutput;
 use Revision;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
+use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
+use Wikibase\DataModel\Services\EntityId\EntityIdLabelFormatter;
+use Wikibase\DataModel\Services\EntityId\EscapingEntityIdFormatter;
+use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
+use Wikibase\DataModel\Services\Lookup\LanguageLabelDescriptionLookup;
 use Wikibase\EntityContent;
-use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Lib\EntityIdHtmlLinkFormatter;
-use Wikibase\Lib\EntityIdLabelFormatter;
-use Wikibase\Lib\EscapingEntityIdFormatter;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityRetrievingTermLookup;
-use Wikibase\Lib\Store\LanguageLabelDescriptionLookup;
 use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
 
@@ -112,22 +112,6 @@ class EntityContentDiffView extends DifferenceEngine {
 				new LanguageNameLookup()
 			)
 		);
-	}
-
-	/**
-	 * @see DifferenceEngine::addHeader
-	 *
-	 * @param string $diff
-	 * @param string $otitle
-	 * @param string $ntitle
-	 * @param string $multi
-	 * @param string $notice
-	 *
-	 * @return string
-	 */
-	public function addHeader( $diff, $otitle, $ntitle, $multi = '', $notice = '' ) {
-		// if we don't want a two column table layout, we have to change this
-		return parent::addHeader( $diff, $otitle, $ntitle, $multi, $notice );
 	}
 
 	/**

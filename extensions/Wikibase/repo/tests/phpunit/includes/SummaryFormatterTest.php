@@ -4,11 +4,11 @@ namespace Wikibase\Test;
 
 use DataValues\DataValue;
 use Language;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\Lib\SnakFormatter;
@@ -80,7 +80,7 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 	 * @return SummaryFormatter
 	 */
 	protected function newFormatter() {
-		$idFormatter = $this->getMock( 'Wikibase\Lib\EntityIdFormatter' );
+		$idFormatter = $this->getMock( 'Wikibase\DataModel\Services\EntityId\EntityIdFormatter' );
 		$idFormatter->expects( $this->any() )->method( 'formatEntityId' )
 			->will( $this->returnCallback( array( $this, 'formatId' ) ) );
 
@@ -118,7 +118,9 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 		$summary->setAction( $action );
 		$summary->setLanguage( $language );
 
-		call_user_func_array( array( $summary, 'addAutoCommentArgs' ), $parts );
+		if ( !empty( $parts ) ) {
+			call_user_func_array( array( $summary, 'addAutoCommentArgs' ), $parts );
+		}
 
 		$formatter = $this->newFormatter();
 		$result = $formatter->formatAutoComment( $summary );
@@ -200,8 +202,7 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 	 */
 	public function testFormatAutoSummary( array $parts, $expected ) {
 		$summary = new Summary();
-
-		call_user_func_array( array( $summary, 'addAutoSummaryArgs' ), $parts );
+		$summary->addAutoSummaryArgs( $parts );
 
 		$formatter = $this->newFormatter();
 		$result = $formatter->formatAutoSummary( $summary );
@@ -235,8 +236,8 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 	 */
 	public function testToStringArgHandling( array $commentArgs, array $summaryArgs, $expected ) {
 		$summary = new Summary( 'foobar' );
-		call_user_func_array( array( $summary, 'addAutoCommentArgs' ), $commentArgs );
-		call_user_func_array( array( $summary, 'addAutoSummaryArgs' ), $summaryArgs );
+		$summary->addAutoCommentArgs( $commentArgs );
+		$summary->addAutoSummaryArgs( $summaryArgs );
 
 		$formatter = $this->newFormatter();
 		$this->assertEquals( $expected, $formatter->formatSummary( $summary ) );
@@ -356,7 +357,7 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 				'testing',
 				'nl',
 				array( 'x', 'y' ),
-				array( 'A', 'B'),
+				array( 'A', 'B' ),
 				null,
 				'/* summarytest-testing:2|nl|x|y */ A, B'
 			),
@@ -374,7 +375,7 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 				'testing',
 				'nl',
 				array( 'x', 'y' ),
-				array( 'A', 'B'),
+				array( 'A', 'B' ),
 				'can I haz world domination?',
 				'/* summarytest-testing:2|nl|x|y */ can I haz world domination?'
 				),

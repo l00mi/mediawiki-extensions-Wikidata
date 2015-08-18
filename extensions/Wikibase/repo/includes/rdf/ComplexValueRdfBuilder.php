@@ -3,7 +3,7 @@
 namespace Wikibase\Rdf;
 
 use DataValues\DataValue;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikimedia\Purtle\RdfWriter;
 
 /**
@@ -83,7 +83,7 @@ class ComplexValueRdfBuilder extends SimpleValueRdfBuilder {
 					'amount' => 'decimal',
 					'upperBound' => 'decimal',
 					'lowerBound' => 'decimal',
-					'unit' => null, //FIXME: it's a URI (or "1"), should be of type url!
+					'unit' => 'url',
 				);
 				break;
 
@@ -121,9 +121,8 @@ class ComplexValueRdfBuilder extends SimpleValueRdfBuilder {
 			return $valueLName;
 		}
 
-		$this->valueWriter->about( RdfVocabulary::NS_VALUE, $valueLName )->a( RdfVocabulary::NS_ONTOLOGY, 'Value' );
-
-		$this->valueWriter->a( RdfVocabulary::NS_ONTOLOGY, $this->vocabulary->getValueTypeName( $value ) );
+		$this->valueWriter->about( RdfVocabulary::NS_VALUE, $valueLName )
+			->a( RdfVocabulary::NS_ONTOLOGY, $this->vocabulary->getValueTypeName( $value ) );
 
 		foreach ( $props as $prop => $type ) {
 			$propLName = $prefix . ucfirst( $prop );

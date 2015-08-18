@@ -1,13 +1,13 @@
 <?php
 
-namespace Wikibase\DataAccess\PropertyParserFunction;
+namespace Wikibase\Client\DataAccess\PropertyParserFunction;
 
 use InvalidArgumentException;
 use Language;
 use Status;
-use Wikibase\DataAccess\StatementTransclusionInteractor;
+use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\Lib\PropertyLabelNotResolvedException;
+use Wikibase\Client\PropertyLabelNotResolvedException;
 
 /**
  * PropertyClaimsRenderer of the {{#property}} parser function.

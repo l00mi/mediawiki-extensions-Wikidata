@@ -5,9 +5,9 @@ namespace Wikibase\Repo\Api;
 use ApiBase;
 use ApiMain;
 use Status;
-use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
@@ -68,7 +68,7 @@ abstract class ModifyClaim extends ApiBase {
 		$this->modificationHelper = new StatementModificationHelper(
 			$wikibaseRepo->getSnakConstructionService(),
 			$wikibaseRepo->getEntityIdParser(),
-			$wikibaseRepo->getClaimGuidValidator(),
+			$wikibaseRepo->getStatementGuidValidator(),
 			$apiHelperFactory->getErrorReporter( $this )
 		);
 

@@ -4,7 +4,6 @@ namespace Wikibase\Test;
 
 use FauxRequest;
 use HashBagOStuff;
-use IContextSource;
 use PHPUnit_Framework_MockObject_Matcher_Invocation;
 use ReflectionMethod;
 use RequestContext;
@@ -21,7 +20,6 @@ use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Store\EntityPermissionChecker;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\EditEntity
@@ -103,14 +101,14 @@ class EditEntityTest extends \MediaWikiTestCase {
 		return $permissionChecker;
 	}
 
-	private function getMockEditFitlerHookRunner (
+	private function getMockEditFitlerHookRunner(
 		Status $status = null,
 		PHPUnit_Framework_MockObject_Matcher_Invocation $expects = null
 	) {
-		if( is_null( $status ) ) {
+		if ( is_null( $status ) ) {
 			$status = Status::newGood();
 		}
-		if( is_null( $expects ) ) {
+		if ( is_null( $expects ) ) {
 			$expects = $this->any();
 		}
 		$runner = $this->getMockBuilder( 'Wikibase\Repo\Hooks\EditFilterHookRunner' )
@@ -150,7 +148,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 		if ( $user === null ) {
 			$user = User::newFromName( 'EditEntityTestUser' );
 		}
-		if( $editFilterHookRunner === null ) {
+		if ( $editFilterHookRunner === null ) {
 			$editFilterHookRunner = $this->getMockEditFitlerHookRunner();
 		}
 
@@ -382,7 +380,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 		$this->assertEquals( $baseRevId !== false, $editEntity->doesCheckForEditConflicts(), 'doesCheckForEditConflicts()' );
 
 		// create independent Entity instance for the same entity, and modify and save it
-		$entity2 = new Item( new ItemId( 'Q42' ));
+		$entity2 = new Item( new ItemId( 'Q42' ) );
 		$entity2->setLabel( 'en', 'Toast' );
 
 		$user2 = $this->getUser( 'EditEntityTestUser2' );
@@ -529,7 +527,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 			array( // #0: no limits
 				array(), // limits: none
 				array(), // groups: none
-				array(  // edits:
+				array( // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
 					array( 'item' => 'bar', 'label' => 'bar', 'ok' => true ),
 					array( 'item' => 'foo', 'label' => 'Foo', 'ok' => true ),
@@ -546,7 +544,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 				array( // groups:
 					'sysop' // sysop has the noratelimit permission set in the test case
 				),
-				array(  // edits:
+				array( // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
 					array( 'item' => 'bar', 'label' => 'bar', 'ok' => true ),
 					array( 'item' => 'foo', 'label' => 'Foo', 'ok' => true ),
@@ -564,7 +562,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 				array( // groups:
 					'kittens'
 				),
-				array(  // edits:
+				array( // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
 					array( 'item' => 'bar', 'label' => 'bar', 'ok' => true ),
 					array( 'item' => 'foo', 'label' => 'Foo', 'ok' => true ),
@@ -579,7 +577,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 					),
 				),
 				array(), // groups: none
-				array(  // edits:
+				array( // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
 					array( 'item' => 'foo', 'label' => 'Foo', 'ok' => false ),
 				)
@@ -595,7 +593,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 					),
 				),
 				array(), // groups: none
-				array(  // edits:
+				array( // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
 					array( 'item' => 'bar', 'label' => 'bar', 'ok' => false ),
 					array( 'item' => 'foo', 'label' => 'Foo', 'ok' => false ),
@@ -612,7 +610,7 @@ class EditEntityTest extends \MediaWikiTestCase {
 					),
 				),
 				array(), // groups: none
-				array(  // edits:
+				array( // edits:
 					array( 'item' => 'foo', 'label' => 'foo', 'ok' => true ),
 					array( 'item' => 'foo', 'label' => 'Foo', 'ok' => true ),
 					array( 'item' => 'bar', 'label' => 'bar', 'ok' => false ),

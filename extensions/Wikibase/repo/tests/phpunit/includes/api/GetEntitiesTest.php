@@ -2,10 +2,6 @@
 
 namespace Wikibase\Test\Repo\Api;
 
-use Wikibase\Lib\Serializers\EntitySerializer;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
-
 /**
  * @covers Wikibase\Repo\Api\GetEntities
  *
@@ -142,11 +138,6 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 			foreach ( self::$goodItems as $testCase ) {
 				$testCase['p']['props'] = $propData;
 				$testCases[] = $testCase;
-
-				if ( in_array( 'claims', explode( '|', $propData ) ) ) {
-					$testCase['p']['ungroupedlist'] = true;
-					$testCases[] = $testCase;
-				}
 			}
 		}
 
@@ -262,13 +253,6 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		} else {
 			$expected['dir'] = 'ascending';
 		}
-
-		//expect snaks to be grouped by property or not
-		if( !isset( $params['ungroupedlist'] ) || !$params['ungroupedlist'] ) {
-			$expected['groupedbyproperty'] = true;
-		} else {
-			$expected['groupedbyproperty'] = false;
-		}
 		return $expected;
 	}
 
@@ -291,23 +275,11 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		}
 
 		//Assert the whole entity is as expected (claims, sitelinks, aliases, descriptions, labels)
-		$expectedEntityOutput = EntityTestHelper::getEntityOutput (
+		$expectedEntityOutput = EntityTestHelper::getEntityOutput(
 			EntityTestHelper::getHandle( $entity['id'] ),
 			$expected['props'],
 			$expected['languages']
 		);
-		if( !$expected['groupedbyproperty'] ) {
-			$options = new SerializationOptions();
-			$options->setOption( SerializationOptions::OPT_GROUP_BY_PROPERTIES, array() );
-			$factory = new LibSerializerFactory();
-			/** @var EntitySerializer $serializer */
-			$serializer = $factory->newSerializerForEntity( $entity['type'], $options );
-			$expectedEntityOutput = $serializer->getSerialized(
-				$serializer->newFromSerialization(
-					$expectedEntityOutput
-				)
-			);
-		}
 		$this->assertEntityEquals(
 			$expectedEntityOutput,
 			$entity,
@@ -470,6 +442,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 					'de-formal' => array(
 						'language' => 'de',
 						'value' => 'Guangzhou',
+						'for-language' => 'de-formal',
 					),
 					'yue' => array(
 						'language' => 'yue',
@@ -489,6 +462,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 					'de-formal' => array(
 						'language' => 'en',
 						'value' => 'Capital of Guangdong.',
+						'for-language' => 'de-formal',
 					),
 					'en' => array(
 						'language' => 'en',
@@ -497,10 +471,12 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 					'fr' => array(
 						'language' => 'en',
 						'value' => 'Capital of Guangdong.',
+						'for-language' => 'fr',
 					),
 					'yue' => array(
 						'language' => 'en',
 						'value' => 'Capital of Guangdong.',
+						'for-language' => 'yue',
 					),
 					'zh-cn' => array(
 						'language' => 'zh-cn',
@@ -512,6 +488,52 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 						'value' => '廣東的省會。',
 					),
 
+				),
+			),
+			array(
+				'Oslo',
+				array( 'sli', 'de-formal', 'kn', 'nb' ),
+				array(
+					'sli' => array(
+						'language' => 'de',
+						'value' => 'Oslo',
+						'for-language' => 'sli',
+					),
+					'de-formal' => array(
+						'language' => 'de',
+						'value' => 'Oslo',
+						'for-language' => 'de-formal',
+					),
+					'kn' => array(
+						'language' => 'en',
+						'value' => 'Oslo',
+						'for-language' => 'kn',
+					),
+					'nb' => array(
+						'language' => 'nb',
+						'value' => 'Oslo',
+					),
+				),
+				array(
+					'sli' => array(
+						'language' => 'de',
+						'value' => 'Hauptstadt der Norwegen.',
+						'for-language' => 'sli',
+					),
+					'de-formal' => array(
+						'language' => 'de',
+						'value' => 'Hauptstadt der Norwegen.',
+						'for-language' => 'de-formal',
+					),
+					'kn' => array(
+						'language' => 'en',
+						'value' => 'Capital city in Norway.',
+						'for-language' => 'kn',
+					),
+					'nb' => array(
+						'language' => 'nb',
+						'value' => 'Hovedsted i Norge.',
+					),
 				),
 			),
 		);
@@ -528,7 +550,6 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 				'action' => 'wbgetentities',
 				'languages' => join( '|', $languages ),
 				'languagefallback' => '',
-				'format' => 'json', // make sure IDs are used as keys
 				'ids' => $id,
 			)
 		);
@@ -537,7 +558,7 @@ class GetEntitiesTest extends WikibaseApiTestCase {
 		$this->assertEquals( $expectedDescriptions, $res['entities'][$id]['descriptions'] );
 	}
 
-	public function testSiteLinkFilter () {
+	public function testSiteLinkFilter() {
 		$id = EntityTestHelper::getId( 'Oslo' );
 
 		list( $res,, ) = $this->doApiRequest(

@@ -5,21 +5,20 @@ namespace Wikibase\Client\Tests\DataAccess\PropertyParserFunction;
 use DataValues\StringValue;
 use Language;
 use PHPUnit_Framework_TestCase;
+use Wikibase\Client\DataAccess\PropertyIdResolver;
+use Wikibase\Client\DataAccess\SnaksFinder;
+use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
+use Wikibase\Client\PropertyLabelNotResolvedException;
 use Wikibase\Client\Usage\EntityUsage;
-use Wikibase\Client\Usage\HashUsageAccumulator;
-use Wikibase\DataAccess\PropertyIdResolver;
-use Wikibase\DataAccess\SnaksFinder;
-use Wikibase\DataAccess\StatementTransclusionInteractor;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\Lib\PropertyLabelNotResolvedException;
 use Wikibase\Lib\SnakFormatter;
 
 /**
- * @covers Wikibase\DataAccess\StatementTransclusionInteractor
+ * @covers Wikibase\Client\DataAccess\StatementTransclusionInteractor
  *
  * @group Wikibase
  * @group WikibaseClient
@@ -82,7 +81,7 @@ class StatementTransclusionInteractorTest extends PHPUnit_Framework_TestCase {
 			'en'
 		);
 
-		$this->setExpectedException( 'Wikibase\Lib\PropertyLabelNotResolvedException' );
+		$this->setExpectedException( 'Wikibase\Client\PropertyLabelNotResolvedException' );
 		$renderer->render( new ItemId( 'Q42' ), 'blah' );
 	}
 
@@ -118,7 +117,7 @@ class StatementTransclusionInteractorTest extends PHPUnit_Framework_TestCase {
 	 */
 	private function getSnaksFinder( array $snaks ) {
 		$snaksFinder = $this->getMockBuilder(
-				'Wikibase\DataAccess\SnaksFinder'
+				'Wikibase\Client\DataAccess\SnaksFinder'
 			)
 			->disableOriginalConstructor()
 			->getMock();
@@ -132,7 +131,7 @@ class StatementTransclusionInteractorTest extends PHPUnit_Framework_TestCase {
 
 	private function getPropertyIdResolver() {
 		$propertyIdResolver = $this->getMockBuilder(
-				'Wikibase\DataAccess\PropertyIdResolver'
+				'Wikibase\Client\DataAccess\PropertyIdResolver'
 			)
 			->disableOriginalConstructor()
 			->getMock();
@@ -146,7 +145,7 @@ class StatementTransclusionInteractorTest extends PHPUnit_Framework_TestCase {
 
 	private function getPropertyIdResolverForPropertyNotFound() {
 		$propertyIdResolver = $this->getMockBuilder(
-				'Wikibase\DataAccess\PropertyIdResolver'
+				'Wikibase\Client\DataAccess\PropertyIdResolver'
 			)
 			->disableOriginalConstructor()
 			->getMock();
@@ -162,7 +161,7 @@ class StatementTransclusionInteractorTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getEntityLookup() {
-		$lookup = $this->getMock( 'Wikibase\Lib\Store\EntityLookup' );
+		$lookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\EntityLookup' );
 		$lookup->expects( $this->any() )
 			->method( 'getEntity' )
 			->will( $this->returnValue(

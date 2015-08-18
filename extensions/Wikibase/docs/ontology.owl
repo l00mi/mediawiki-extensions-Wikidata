@@ -77,17 +77,25 @@
     <rdfs:comment>Wikibase statement rank.</rdfs:comment>
   </owl:Class>
 
+  <owl:Class rdf:about="&wikibase;BestRank">
+    <rdfs:label>BestRank</rdfs:label>
+    <rdfs:comment>This class marks statement that has the best rank for its property.</rdfs:comment>
+  </owl:Class>
+
   <owl:Class rdf:about="&wikibase;QuantityValue">
     <rdfs:label>QuantityValue</rdfs:label>
     <rdfs:comment>Wikibase extended value representing quantity.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&wikibase;Value"/>
   </owl:Class>
   <owl:Class rdf:about="&wikibase;TimeValue">
     <rdfs:label>TimeValue</rdfs:label>
     <rdfs:comment>Wikibase extended value representing time.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&wikibase;Value"/>
   </owl:Class>
   <owl:Class rdf:about="&wikibase;GlobecoordinateValue">
     <rdfs:label>GlobecoordinateValue</rdfs:label>
     <rdfs:comment>Wikibase extended value representing geographic coordinate.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&wikibase;Value"/>
   </owl:Class>
 
 
@@ -98,12 +106,6 @@
   //
   ///////////////////////////////////////////////////////////////////////////////////////
    -->
-
-  <owl:NamedIndividual rdf:about="&wikibase;BestRank">
-      <rdfs:label>BestRank</rdfs:label>
-      <rdfs:comment>This rank marks statement that has the best rank for its property.</rdfs:comment>
-      <rdf:type rdf:resource="&wikibase;Rank"/>
-  </owl:NamedIndividual>
 
   <owl:NamedIndividual rdf:about="&wikibase;DeprecatedRank">
       <rdfs:label>DeprecatedRank</rdfs:label>
@@ -295,10 +297,11 @@
       <rdfs:range rdf:resource="&xsd;decimal"/>
   </owl:DatatypeProperty>
 
-  <owl:DatatypeProperty rdf:about="&wikibase;quantityUnit">
+  <owl:ObjectProperty rdf:about="&wikibase;quantityUnit">
       <rdfs:label>quantityUnit</rdfs:label>
       <rdfs:comment>Unit of measurement.</rdfs:comment>
       <rdfs:domain rdf:resource="&wikibase;QuantityValue"/>
+      <rdfs:range rdf:resource="&wikibase;Item"/>
   </owl:DatatypeProperty>
 
   <owl:ObjectProperty rdf:about="&wikibase;timeCalendarModel">

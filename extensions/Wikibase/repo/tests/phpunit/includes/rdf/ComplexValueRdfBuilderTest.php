@@ -14,12 +14,12 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\Rdf\ComplexValueRdfBuilder;
 use Wikibase\Rdf\DedupeBag;
 use Wikibase\Rdf\HashDedupeBag;
 use Wikibase\Rdf\NullDedupeBag;
-use Wikimedia\Purtle\RdfWriter;
 use Wikibase\Rdf\RdfVocabulary;
-use Wikibase\Rdf\ComplexValueRdfBuilder;
+use Wikimedia\Purtle\RdfWriter;
 
 /**
  * @covers Wikibase\Rdf\ComplexValueRdfBuilder
@@ -147,9 +147,6 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 				array(
 					'<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> '
 						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
-					'<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
 						. '<http://wikiba.se/ontology-beta#GlobecoordinateValue> .',
 					'<http://acme.test/value/7901049a90a3b6a6cbbae50dc76c2da9> '
 						. '<http://wikiba.se/ontology-beta#geoGlobe> '
@@ -187,9 +184,6 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 				array(
 					'<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> '
 						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
-					'<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
 						. '<http://wikiba.se/ontology-beta#QuantityValue> .',
 					'<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> '
 						. '<http://wikiba.se/ontology-beta#quantityAmount> "+0.00011"^^'
@@ -198,7 +192,7 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 						. '<http://wikiba.se/ontology-beta#quantityLowerBound> "+0.00010"^^'
 						. '<http://www.w3.org/2001/XMLSchema#decimal> .',
 					'<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> '
-						. '<http://wikiba.se/ontology-beta#quantityUnit> "1" .',
+						. '<http://wikiba.se/ontology-beta#quantityUnit> <http://www.wikidata.org/entity/Q199> .',
 					'<http://acme.test/value/ea39bdf723a70acd2e22d07dd0db7721> '
 						. '<http://wikiba.se/ontology-beta#quantityUpperBound> "+0.00013"^^'
 						. '<http://www.w3.org/2001/XMLSchema#decimal> .',
@@ -218,9 +212,6 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 				array(
 					'<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> '
 						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
-					'<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
 						. '<http://wikiba.se/ontology-beta#QuantityValue> .',
 					'<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> '
 						. '<http://wikiba.se/ontology-beta#quantityAmount> "-2.3"^^'
@@ -230,7 +221,7 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 						. '<http://www.w3.org/2001/XMLSchema#decimal> .',
 					'<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> '
 						. '<http://wikiba.se/ontology-beta#quantityUnit> '
-						. '"https://www.wikidata.org/entity/Q11573" .',
+						. '<https://www.wikidata.org/entity/Q11573> .',
 					'<http://acme.test/value/9744b3301e3a9b3b5a31f6c6ba46dae0> '
 						. '<http://wikiba.se/ontology-beta#quantityUpperBound> "-2.3"^^'
 						. '<http://www.w3.org/2001/XMLSchema#decimal> .',
@@ -252,9 +243,6 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/7a453935e4288ff180c20a7304bab948> .'
 				),
 				array(
-					'<http://acme.test/value/7a453935e4288ff180c20a7304bab948> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
 					'<http://acme.test/value/7a453935e4288ff180c20a7304bab948> '
 						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
 						. '<http://wikiba.se/ontology-beta#TimeValue> .',
@@ -282,9 +270,6 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 				array(
 					'<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> '
 						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
-					'<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
 						. '<http://wikiba.se/ontology-beta#TimeValue> .',
 					'<http://acme.test/value/418aedfba643e02a5ba758952f8f7765> '
 						. '<http://wikiba.se/ontology-beta#timeCalendarModel> '
@@ -310,9 +295,6 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 				array(
 					'<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> '
 						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
-					'<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
 						. '<http://wikiba.se/ontology-beta#TimeValue> .',
 					'<http://acme.test/value/8977346cbe7d0a6624ebd06fe27d749f> '
 						. '<http://wikiba.se/ontology-beta#timeCalendarModel> '
@@ -328,36 +310,28 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 						. '<http://www.w3.org/2001/XMLSchema#integer> .',
 				),
 			),
-			'time-bce' => array( // NOTE: This assumes that internal data and the RDF data use the
-				                 //       same notion of negative years. If one uses traditional
-				                 //       numbering (-44 means 44 BCE, XSD 1.0) and the other
-				                 //       astronomical numbering (-44 means 43 BCE, XSD 1.1),
+			'time-bce' => array( // NOTE: This assumes that we're using XSD 1.1 standard.
+				                 //       Internally, Wikidata uses traditional
+				                 //       numbering (-44 means 44 BCE, XSD 1.0).
+				                 //       XSD 1.1 uses astronomical numbering (-44 means 43 BCE),
 				                 //       conversion would apply.
 				new PropertyId( 'P8' ),
 				new TimeValue( '-0044-03-15T00:00:00Z', 0, 3, 3, TimeValue::PRECISION_DAY, RdfVocabulary::GREGORIAN_CALENDAR ),
 				array(
-					'<http://acme.test/Q11> <http://acme.test/prop/statement/P8> "-0044-03-15T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
+					'<http://acme.test/Q11> <http://acme.test/prop/statement/P8> "-0043-03-15T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> .',
 				),
 				array(
 					'<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
+						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://wikiba.se/ontology-beta#TimeValue> .',
 					'<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#TimeValue> .',
+						. '<http://wikiba.se/ontology-beta#timeCalendarModel> <http://www.wikidata.org/entity/Q1985727> .',
 					'<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> '
-						. '<http://wikiba.se/ontology-beta#timeCalendarModel> '
-						. '<http://www.wikidata.org/entity/Q1985727> .',
+						. '<http://wikiba.se/ontology-beta#timePrecision> "11"^^<http://www.w3.org/2001/XMLSchema#integer> .',
 					'<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> '
-						. '<http://wikiba.se/ontology-beta#timePrecision> "11"^^'
-						. '<http://www.w3.org/2001/XMLSchema#integer> .',
+						. '<http://wikiba.se/ontology-beta#timeValue> "-0043-03-15T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .',
 					'<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> '
-						. '<http://wikiba.se/ontology-beta#timeValue> "-0044-03-15T00:00:00Z"^^'
-						. '<http://www.w3.org/2001/XMLSchema#dateTime> .',
-					'<http://acme.test/value/ef167a47c30f27b0c70e210b27257d50> '
-						. '<http://wikiba.se/ontology-beta#timeTimezone> "0"^^'
-						. '<http://www.w3.org/2001/XMLSchema#integer> .',
+						. '<http://wikiba.se/ontology-beta#timeTimezone> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .',
 				),
 			),
 			'time-julian' => array( // NOTE: Currently, giving a calendar other than gregorian
@@ -373,9 +347,6 @@ class ComplexValueRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 					'<http://acme.test/Q11> <http://acme.test/prop/statement/value/P8> <http://acme.test/value/23a636870974bab8f1771b34aa994936> .',
 				),
 				array(
-					'<http://acme.test/value/23a636870974bab8f1771b34aa994936> '
-						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
-						. '<http://wikiba.se/ontology-beta#Value> .',
 					'<http://acme.test/value/23a636870974bab8f1771b34aa994936> '
 						. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
 						. '<http://wikiba.se/ontology-beta#TimeValue> .',

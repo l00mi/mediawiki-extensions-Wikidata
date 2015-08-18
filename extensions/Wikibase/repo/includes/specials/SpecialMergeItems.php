@@ -4,14 +4,14 @@ namespace Wikibase\Repo\Specials;
 
 use Exception;
 use Html;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\Localizer\ExceptionLocalizer;
 use Wikibase\Lib\UserInputException;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
+use Wikibase\Repo\Localizer\ExceptionLocalizer;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -181,7 +181,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 
 		/** @var EntityRevision $newRevisionFrom  */
 		/** @var EntityRevision $newRevisionTo */
-		list( $newRevisionFrom, $newRevisionTo, $redirected )
+		list( $newRevisionFrom, $newRevisionTo, )
 			= $this->interactor->mergeItems( $fromId, $toId, $ignoreConflicts, $summary );
 
 		//XXX: might be nicer to pass pre-rendered links as parameters
@@ -240,7 +240,8 @@ class SpecialMergeItems extends SpecialWikibasePage {
 
 		// Form body
 		$this->getOutput()->addHTML(
-			Html::input(
+			Html::element( 'br' )
+			. Html::input(
 				'wikibase-mergeitems-submit',
 				$this->msg( 'wikibase-mergeitems-submit' )->text(),
 				'submit',
@@ -305,8 +306,7 @@ class SpecialMergeItems extends SpecialWikibasePage {
 				'class' => 'wb-input',
 				'id' => 'wb-mergeitems-toid'
 			)
-		)
-		. Html::element( 'br' );
+		);
 		// TODO: Selector for ignoreconflicts
 	}
 

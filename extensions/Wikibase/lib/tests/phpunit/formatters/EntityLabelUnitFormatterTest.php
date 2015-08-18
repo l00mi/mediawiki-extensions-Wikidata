@@ -4,8 +4,8 @@ namespace Wikibase\Lib\Test;
 
 use OutOfBoundsException;
 use PHPUnit_Framework_TestCase;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\Lib\EntityLabelUnitFormatter;
 
@@ -40,7 +40,7 @@ class EntityLabelUnitFormatterTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider provideApplyUnit
 	 */
 	public function testApplyUnit( $unit, $number, $expected ) {
-		$labelLookup = $this->getMock( 'Wikibase\Lib\Store\LabelDescriptionLookup' );
+		$labelLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup' );
 		$labelLookup->expects( $this->any() )
 			->method( 'getLabel' )
 			->will( $this->returnCallback( function( EntityId $id ) {

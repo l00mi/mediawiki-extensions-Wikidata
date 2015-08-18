@@ -10,23 +10,21 @@ use DerivativeRequest;
 use MWException;
 use RequestContext;
 use SiteList;
-use Wikibase\RedirectRevision;
 use SiteStore;
-use Wikibase\Repo\Api\ResultBuilder;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
-use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Rdf\HashDedupeBag;
 use Wikibase\Rdf\RdfBuilder;
 use Wikibase\Rdf\RdfProducer;
 use Wikibase\Rdf\RdfVocabulary;
+use Wikibase\RedirectRevision;
+use Wikibase\Repo\Api\ResultBuilder;
 use Wikimedia\Purtle\RdfWriterFactory;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 
 /**
  * Service for serializing entity data.
@@ -83,11 +81,6 @@ class EntityDataSerializationService {
 	private $entityTitleLookup;
 
 	/**
-	 * @var LibSerializerFactory
-	 */
-	private $libSerializerFactory;
-
-	/**
 	 * @var SerializerFactory
 	 */
 	private $serializerFactory;
@@ -122,7 +115,6 @@ class EntityDataSerializationService {
 	 * @param string $rdfDataURI
 	 * @param EntityLookup $entityLookup
 	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param LibSerializerFactory $libSerializerFactory
 	 * @param PropertyDataTypeLookup $propertyLookup
 	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param SiteList $sites
@@ -136,7 +128,6 @@ class EntityDataSerializationService {
 		$rdfDataURI,
 		EntityLookup $entityLookup,
 		EntityTitleLookup $entityTitleLookup,
-		LibSerializerFactory $libSerializerFactory,
 		PropertyDataTypeLookup $propertyLookup,
 		SiteList $sites,
 		EntityDataFormatProvider $entityDataFormatProvider,
@@ -147,7 +138,6 @@ class EntityDataSerializationService {
 		$this->rdfDataURI = $rdfDataURI;
 		$this->entityLookup = $entityLookup;
 		$this->entityTitleLookup = $entityTitleLookup;
-		$this->libSerializerFactory = $libSerializerFactory;
 		$this->serializerFactory = $serializerFactory;
 		$this->propertyLookup = $propertyLookup;
 		$this->sites = $sites;
@@ -227,9 +217,8 @@ class EntityDataSerializationService {
 
 		$serializer = $this->createApiSerializer( $formatName );
 
-		if( $serializer ) {
-			$redirect = ( $followedRedirect ? $followedRedirect->getRedirect() : null );
-			$data = $this->apiSerialize( $entityRevision, $redirect, $incomingRedirects, $serializer );
+		if ( $serializer ) {
+			$data = $this->apiSerialize( $entityRevision, $serializer );
 			$contentType = $serializer->getIsHtml() ? 'text/html' : $serializer->getMimeType();
 		} else {
 			$rdfBuilder = $this->createRdfBuilder( $formatName, $flavor );
@@ -379,7 +368,7 @@ class EntityDataSerializationService {
 	 * @throws MWException
 	 */
 	private function getFlavor( $flavorName ) {
-		switch( $flavorName ) {
+		switch ( $flavorName ) {
 			case 'simple':
 				return RdfProducer::PRODUCE_TRUTHY_STATEMENTS
 					| RdfProducer::PRODUCE_SITELINKS
@@ -456,19 +445,15 @@ class EntityDataSerializationService {
 		// function gets called multiple times during testing, etc.
 		$res->reset();
 
-		//TODO: apply language filter/Fallback via options!
-		$options = new SerializationOptions();
-
 		$resultBuilder = new ResultBuilder(
 			$res,
 			$this->entityTitleLookup,
-			$this->libSerializerFactory,
 			$this->serializerFactory,
 			$this->siteStore,
 			$this->propertyLookup,
 			false // Never index tags for this service as we dont output XML
 		);
-		$resultBuilder->addEntityRevision( null, $entityRevision, $options );
+		$resultBuilder->addEntityRevision( null, $entityRevision );
 
 		return $res;
 	}
@@ -489,8 +474,6 @@ class EntityDataSerializationService {
 	 */
 	private function apiSerialize(
 		EntityRevision $entityRevision,
-		EntityRedirect $followedRedirect = null,
-		array $incomingRedirects,
 		ApiFormatBase $printer
 	) {
 		// NOTE: The way the ApiResult is provided to $printer is somewhat

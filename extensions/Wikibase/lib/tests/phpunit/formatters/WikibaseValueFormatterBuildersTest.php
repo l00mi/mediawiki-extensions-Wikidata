@@ -13,18 +13,18 @@ use Title;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\StringFormatter;
 use ValueFormatters\ValueFormatter;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Services\EntityId\PlainEntityIdFormatter;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\EntityIdValueFormatter;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
-use Wikibase\Lib\PlainEntityIdFormatter;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
@@ -55,7 +55,7 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 	 * @return WikibaseValueFormatterBuilders
 	 */
 	private function newWikibaseValueFormatterBuilders( EntityTitleLookup $entityTitleLookup = null ) {
-		$termLookup = $this->getMock( 'Wikibase\Lib\Store\TermLookup' );
+		$termLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\TermLookup' );
 
 		$termLookup->expects( $this->any() )
 			->method( 'getLabel' )
@@ -80,7 +80,7 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 		$languageNameLookup = $this->getMock( 'Wikibase\Lib\LanguageNameLookup' );
 		$languageNameLookup->expects( $this->any() )
 			->method( 'getName' )
-			->will( $this->returnValue( 'Deutsch' ));
+			->will( $this->returnValue( 'Deutsch' ) );
 
 		return new WikibaseValueFormatterBuilders(
 			Language::factory( 'en' ),
@@ -309,7 +309,7 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 	}
 
 	public function buildDispatchingValueFormatterProvider_LabelDescriptionLookupOption() {
-		$labelDescriptionLookup = $this->getMock( 'Wikibase\Lib\Store\LabelDescriptionLookup' );
+		$labelDescriptionLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup' );
 		$labelDescriptionLookup->expects( $this->any() )
 			->method( 'getLabel' )
 			->will( $this->returnValue( new Term( 'xy', 'Custom LabelDescriptionLookup' ) ) );

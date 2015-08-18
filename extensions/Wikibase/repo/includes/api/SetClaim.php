@@ -4,6 +4,7 @@ namespace Wikibase\Repo\Api;
 
 use ApiMain;
 use DataValues\IllegalValueException;
+use Deserializers\Deserializer;
 use Diff\Comparer\ComparableComparer;
 use Diff\Differ\OrderedListDiffer;
 use InvalidArgumentException;
@@ -12,12 +13,10 @@ use OutOfBoundsException;
 use UsageException;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\ClaimSummaryBuilder;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Entity\Entity;
-use Wikibase\DataModel\Statement\StatementGuidParsingException;
+use Wikibase\DataModel\Services\Statement\StatementGuidParsingException;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementListProvider;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
-use Wikibase\Lib\Serializers\SerializationOptions;
 use Wikibase\Repo\Diff\ClaimDiffer;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
@@ -44,6 +43,11 @@ class SetClaim extends ModifyClaim {
 	private $errorReporter;
 
 	/**
+	 * @var Deserializer
+	 */
+	private $statementDeserializer;
+
+	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
 	 * @param string $modulePrefix
@@ -53,8 +57,9 @@ class SetClaim extends ModifyClaim {
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
 
+		$this->statementDeserializer = $wikibaseRepo->getStatementDeserializer();
 		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
 	}
@@ -99,19 +104,20 @@ class SetClaim extends ModifyClaim {
 		$status = $this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
-		$this->getResultBuilder()->addClaim( $claim );
+		$this->getResultBuilder()->addStatement( $claim );
 	}
 
 	/**
 	 * @param array $params
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 * @param Entity $entity
 	 *
+	 * @throws InvalidArgumentException
 	 * @return Summary
 	 *
 	 * @todo this summary builder is ugly and summary stuff needs to be refactored
 	 */
-	private function getSummary( array $params, Claim $claim, Entity $entity ) {
+	private function getSummary( array $params, Statement $statement, Entity $entity ) {
 		if ( !( $entity instanceof StatementListProvider ) ) {
 			throw new InvalidArgumentException( '$entity must be a StatementListProvider' );
 		}
@@ -122,8 +128,8 @@ class SetClaim extends ModifyClaim {
 		);
 
 		$summary = $claimSummaryBuilder->buildClaimSummary(
-			$entity->getStatements()->getFirstStatementWithGuid( $claim->getGuid() ),
-			$claim
+			$entity->getStatements()->getFirstStatementWithGuid( $statement->getGuid() ),
+			$statement
 		);
 
 		if ( isset( $params['summary'] ) ) {
@@ -139,20 +145,18 @@ class SetClaim extends ModifyClaim {
 	 * @throws IllegalValueException
 	 * @throws UsageException
 	 * @throws LogicException
-	 * @return Claim
+	 * @return Statement
 	 */
 	private function getClaimFromParams( array $params ) {
-		$serializerFactory = new LibSerializerFactory();
-		$unserializer = $serializerFactory->newClaimUnserializer( new SerializationOptions() );
 
 		try {
-			$serializedClaim = json_decode( $params['claim'], true );
-			if ( !is_array( $serializedClaim ) ) {
-				throw new IllegalValueException( 'Failed to get claim from claim Serialization' );
+			$serializedStatement = json_decode( $params['claim'], true );
+			if ( !is_array( $serializedStatement ) ) {
+				throw new IllegalValueException( 'Failed to get statement from Serialization' );
 			}
-			$claim = $unserializer->newFromSerialization( $serializedClaim );
-			if ( !$claim instanceof Claim ) {
-				throw new IllegalValueException( 'Failed to get claim from claim Serialization' );
+			$claim = $this->statementDeserializer->deserialize( $serializedStatement );
+			if ( !$claim instanceof Statement ) {
+				throw new IllegalValueException( 'Failed to get statement from Serialization' );
 			}
 			return $claim;
 		} catch ( InvalidArgumentException $invalidArgumentException ) {

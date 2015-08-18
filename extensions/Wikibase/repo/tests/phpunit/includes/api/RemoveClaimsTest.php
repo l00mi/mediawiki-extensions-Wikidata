@@ -3,17 +3,16 @@
 namespace Wikibase\Test\Repo\Api;
 
 use DataValues\StringValue;
-use Wikibase\DataModel\Claim\Claim;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Term\Fingerprint;
-use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -49,7 +48,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 			self::$propertyId = $this->getNewProperty( 'string' )->getId();
 		}
 
-		/** @var $statements Statement[] */
+		/** @var Statement[] $statements */
 		$statements = array(
 			new Statement( new PropertyNoValueSnak( self::$propertyId ) ),
 			new Statement( new PropertyNoValueSnak( self::$propertyId ) ),
@@ -58,7 +57,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 		);
 
 		foreach ( $statements as $statement ) {
-			$guidGenerator = new ClaimGuidGenerator();
+			$guidGenerator = new GuidGenerator();
 			$statement->setGuid( $guidGenerator->newGuid( $item->getId() ) );
 			$item->getStatements()->addStatement( $statement );
 		}

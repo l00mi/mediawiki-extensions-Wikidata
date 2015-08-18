@@ -11,11 +11,9 @@ use OutputPage;
 use RequestContext;
 use SiteList;
 use Title;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\SerializerFactory;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\LinkedData\EntityDataRequestHandler;
 use Wikibase\Repo\LinkedData\EntityDataSerializationService;
@@ -74,7 +72,7 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 		$mockRepository = EntityDataTestProvider::getMockRepository();
 		$idParser = new BasicEntityIdParser(); // we only test for items and properties here.
 
-		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 		$dataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( 'string' ) );
@@ -86,10 +84,8 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 				return Title::newFromText( $id->getEntityType() . ':' . $id->getSerialization() );
 			} ) );
 
-		$propertyLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$propertyLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 
-		$serializerOptions = new SerializationOptions();
-		$libSerializerFactory = new LibSerializerFactory( $serializerOptions, $dataTypeLookup );
 		$entityDataFormatProvider = new EntityDataFormatProvider();
 		$serializerFactory = new SerializerFactory(
 			new DataValueSerializer(),
@@ -102,7 +98,6 @@ class EntityDataRequestHandlerTest extends \MediaWikiTestCase {
 			EntityDataSerializationServiceTest::URI_DATA,
 			$mockRepository,
 			$titleLookup,
-			$libSerializerFactory,
 			$propertyLookup,
 			new SiteList(),
 			$entityDataFormatProvider,

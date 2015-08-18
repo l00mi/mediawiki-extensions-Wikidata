@@ -11,9 +11,9 @@ use Serializers\Exceptions\SerializationException;
 use Serializers\Serializer;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\LegacyIdInterpreter;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
 
 /**
  * A codec for use by EntityContent resp EntityHandler subclasses for the
@@ -184,7 +184,7 @@ class EntityContentDataCodec {
 			throw new InvalidArgumentException( '$blob must be a string' );
 		}
 
-		wfSuppressWarnings();
+		\MediaWiki\suppressWarnings();
 		switch ( $this->sanitizeFormat( $format ) ) {
 			case CONTENT_FORMAT_JSON:
 				$data = json_decode( $blob, true );
@@ -195,7 +195,7 @@ class EntityContentDataCodec {
 			default:
 				throw new InvalidArgumentException( "Unsupported decoding format: $format" );
 		}
-		wfRestoreWarnings();
+		\MediaWiki\restoreWarnings();
 
 		if ( !is_array( $data ) ) {
 			throw new MWContentSerializationException( "Failed to decode as $format" );

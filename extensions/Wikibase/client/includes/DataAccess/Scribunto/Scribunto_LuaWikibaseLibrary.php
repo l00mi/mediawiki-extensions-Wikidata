@@ -7,17 +7,17 @@ use Language;
 use Scribunto_LuaLibraryBase;
 use ScribuntoException;
 use ValueFormatters\FormatterOptions;
+use Wikibase\Client\DataAccess\PropertyIdResolver;
+use Wikibase\Client\PropertyLabelNotResolvedException;
+use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\Usage\UsageTrackingSnakFormatter;
 use Wikibase\Client\Usage\UsageTrackingTermLookup;
-use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataAccess\PropertyIdResolver;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\PropertyLabelNotResolvedException;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityRetrievingTermLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 
 /**
@@ -153,7 +153,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
 		return new EntityAccessor(
 			$wikibaseClient->getEntityIdParser(),
-			$wikibaseClient->getStore()->getEntityLookup(),
+			$wikibaseClient->getRestrictedEntityLookup(),
 			$this->getUsageAccumulator(),
 			$wikibaseClient->getPropertyDataTypeLookup(),
 			$this->getLanguageFallbackChain(),

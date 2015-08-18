@@ -2,18 +2,18 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
-use Wikibase\Validators\TermValidatorFactory;
+use Wikibase\Repo\Validators\TermValidatorFactory;
 
 /**
- * @covers Wikibase\Validators\TermValidatorFactory
+ * @covers Wikibase\Repo\Validators\TermValidatorFactory
  *
  * @group Wikibase
  * @group WikibaseRepo
@@ -45,7 +45,7 @@ class TermValidatorFactoryTest extends \PHPUnit_Framework_TestCase {
 
 		$validator = $builders->getFingerprintValidator( Item::ENTITY_TYPE );
 
-		$this->assertInstanceOf( 'Wikibase\Validators\FingerprintValidator', $validator );
+		$this->assertInstanceOf( 'Wikibase\Repo\Validators\FingerprintValidator', $validator );
 
 		$goodFingerprint = new Fingerprint(
 			new TermList( array(
@@ -114,7 +114,7 @@ class TermValidatorFactoryTest extends \PHPUnit_Framework_TestCase {
 	public function testGetDescriptionValidator() {
 		$builders = $this->newFactory( 8, array( 'en' ) );
 
-		$validator = $builders->getDescriptionValidator( Item::ENTITY_TYPE );
+		$validator = $builders->getDescriptionValidator();
 
 		$this->assertInstanceOf( 'ValueValidators\ValueValidator', $validator );
 

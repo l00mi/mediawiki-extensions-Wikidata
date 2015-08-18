@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Validators;
+namespace Wikibase\Repo\Validators;
 
 use DataTypes\DataTypeFactory;
 use DataValues\DataValue;
@@ -9,11 +9,10 @@ use InvalidArgumentException;
 use ValueValidators\Error;
 use ValueValidators\Result;
 use ValueValidators\ValueValidator;
-use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
-use Wikibase\DataModel\Entity\PropertyNotFoundException;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyNotFoundException;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
@@ -60,19 +59,19 @@ class SnakValidator implements ValueValidator {
 	 * the main snak, the qualifiers, and all snaks of all references,
 	 * in case the claim is a Statement.
 	 *
-	 * @param Claim $claim The value to validate
+	 * @param Statement $statement The value to validate
 	 *
 	 * @return Result
 	 */
-	public function validateClaimSnaks( Claim $claim ) {
-		$snak = $claim->getMainSnak();
+	public function validateClaimSnaks( Statement $statement ) {
+		$snak = $statement->getMainSnak();
 		$result = $this->validate( $snak );
 
 		if ( !$result->isValid() ) {
 			return $result;
 		}
 
-		foreach ( $claim->getQualifiers() as $snak ) {
+		foreach ( $statement->getQualifiers() as $snak ) {
 			$result = $this->validate( $snak );
 
 			if ( !$result->isValid() ) {
@@ -80,12 +79,10 @@ class SnakValidator implements ValueValidator {
 			}
 		}
 
-		if ( $claim instanceof Statement ) {
-			$result = $this->validateReferences( $claim->getReferences() );
+		$result = $this->validateReferences( $statement->getReferences() );
 
-			if ( !$result->isValid() ) {
-				return $result;
-			}
+		if ( !$result->isValid() ) {
+			return $result;
 		}
 
 		return Result::newSuccess();

@@ -7,18 +7,18 @@ use InvalidArgumentException;
 use Title;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 use Wikibase\EntityContent;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\PropertyContent;
 use Wikibase\PropertyInfoStore;
 use Wikibase\Repo\Store\EntityPerPage;
+use Wikibase\Repo\Validators\EntityConstraintProvider;
+use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\TermIndex;
 use Wikibase\Updates\DataUpdateAdapter;
-use Wikibase\Validators\EntityConstraintProvider;
-use Wikibase\Validators\ValidatorErrorLocalizer;
 
 /**
  * Content handler for Wikibase items.

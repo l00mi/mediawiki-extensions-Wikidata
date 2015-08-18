@@ -7,16 +7,6 @@
 ( function( $, mw, wb, dataTypeStore, getExpertsStore, getFormatterStore, getParserStore ) {
 	'use strict';
 
-	// Show loading spinner as long as JavaScript is initialising.
-	$( '.wikibase-entityview' ).addClass( 'loading' ).append(
-		$( '<div/>' ).addClass( 'mw-small-spinner wb-entity-spinner' )
-	);
-	// Remove it after a while in any case, e.g. in case of an error.
-	window.setTimeout( function() {
-		$( '.wikibase-entityview' ).removeClass( 'loading' );
-		$( '.wb-entity-spinner' ).remove();
-	}, 7000 );
-
 	mw.hook( 'wikipage.content' ).add( function() {
 		if( mw.config.get( 'wbEntity' ) === null ) {
 			return;
@@ -38,10 +28,6 @@
 				attachAnonymousEditWarningTrigger( $entityview, viewName, entity.getType() );
 				attachWatchLinkUpdater( $entityview, viewName );
 			}
-
-			// Remove loading spinner after JavaScript has kicked in:
-			$entityview.removeClass( 'loading' );
-			$( '.wb-entity-spinner' ).remove();
 		} );
 
 		if( canEdit ) {
@@ -266,15 +252,14 @@
 		}
 
 		$entityview.on( viewName + 'afterstartediting', function() {
-			if(
-				$.find( '.mw-notification-content' ).length === 0
+			if( !$.find( '.mw-notification-content' ).length
 				&& !$.cookie( 'wikibase-no-anonymouseditwarning' )
 			) {
-				mw.notify(
-					mw.msg( 'wikibase-anonymouseditwarning',
-						mw.msg( 'wikibase-entity-' + entityType )
-					)
+				var message = mw.msg(
+					'wikibase-anonymouseditwarning',
+					mw.msg( 'wikibase-entity-' + entityType )
 				);
+				mw.notify( message, { autoHide: false, type: 'warn' } );
 			}
 		} );
 	}
@@ -297,8 +282,7 @@
 			cookieKey = 'wikibase.acknowledgedcopyrightversion',
 			optionsKey = 'wb-acknowledgedcopyrightversion';
 
-		if(
-			$.cookie( cookieKey ) === copyRightVersion
+		if( $.cookie( cookieKey ) === copyRightVersion
 			|| mw.user.options.get( optionsKey ) === copyRightVersion
 		) {
 			return;
@@ -312,8 +296,7 @@
 			editableTemplatedWidget = $origin.data( 'EditableTemplatedWidget' );
 
 		// TODO: Use notification system for copyright messages on all widgets.
-		if(
-			editableTemplatedWidget
+		if( editableTemplatedWidget
 			&& !( editableTemplatedWidget instanceof $.wikibase.statementview )
 			&& !( editableTemplatedWidget instanceof $.wikibase.aliasesview )
 		) {

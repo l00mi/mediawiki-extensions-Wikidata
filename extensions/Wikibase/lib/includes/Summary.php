@@ -45,13 +45,6 @@ class Summary {
 	private $userSummary;
 
 	/**
-	 * Indicates a specific type of formatting
-	 */
-	const USE_COMMENT = 2;
-	const USE_SUMMARY = 4;
-	const USE_ALL = 6;
-
-	/**
 	 * @since 0.4
 	 *
 	 * @param string|null $moduleName The module part of the auto comment
@@ -184,13 +177,11 @@ class Summary {
 	 *
 	 * @since 0.4
 	 *
-	 * @param mixed [$args,...] Parts to be stringed together
+	 * @param mixed $args,... Parts to be stringed together
 	 */
-	public function addAutoCommentArgs( /*...*/ ) {
-		$args = func_get_args();
-
-		if ( isset( $args[0] ) && is_array( $args[0] ) ) {
-			$args = $args[0];
+	public function addAutoCommentArgs( $args /*...*/ ) {
+		if ( !is_array( $args ) ) {
+			$args = func_get_args();
 		}
 
 		$this->commentArgs = array_merge( $this->commentArgs, $args );
@@ -201,13 +192,11 @@ class Summary {
 	 *
 	 * @since 0.4
 	 *
-	 * @param mixed [$args,...] Parts to be stringed together
+	 * @param mixed $args,... Parts to be stringed together
 	 */
-	public function addAutoSummaryArgs( /*...*/ ) {
-		$args = func_get_args();
-
-		if ( isset( $args[0] ) && is_array( $args[0] ) ) {
-			$args = $args[0];
+	public function addAutoSummaryArgs( $args /*...*/ ) {
+		if ( !is_array( $args ) ) {
+			$args = func_get_args();
 		}
 
 		$this->summaryArgs = array_merge( $this->summaryArgs, $args );

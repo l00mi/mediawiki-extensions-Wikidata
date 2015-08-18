@@ -5,13 +5,11 @@ namespace Wikibase\Repo\Api;
 use ApiBase;
 use ApiMain;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Services\Entity\EntityPrefetcher;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
 use Wikibase\EntityRevision;
 use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\Serializers\EntitySerializer;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Store\EntityPrefetcher;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikibase\Repo\SiteLinkTargetProvider;
@@ -109,6 +107,10 @@ class GetEntities extends ApiBase {
 	 */
 	public function execute() {
 		$params = $this->extractRequestParams();
+
+		if ( isset( $params['props'] ) && !empty( $params['props'] ) ) {
+			$this->logFeatureUsage( 'action=wbgetentities&props=' . implode( '|', $params['props'] ) );
+		}
 
 		if ( !isset( $params['ids'] ) && ( empty( $params['sites'] ) || empty( $params['titles'] ) ) ) {
 			$this->errorReporter->dieError(
@@ -265,60 +267,50 @@ class GetEntities extends ApiBase {
 	 * @param EntityRevision|null $entityRevision
 	 * @param array $params
 	 */
-	private function handleEntity( $sourceEntityId, EntityRevision $entityRevision = null, array $params = array() ) {
+	private function handleEntity(
+		$sourceEntityId,
+		EntityRevision $entityRevision = null,
+		array $params = array()
+	) {
 		if ( $entityRevision === null ) {
 			$this->resultBuilder->addMissingEntity( $sourceEntityId, array( 'id' => $sourceEntityId ) );
 		} else {
-			$props = $this->getPropsFromParams( $params );
-			$options = $this->getSerializationOptions( $params, $props );
-			$siteFilterIds = $params['sitefilter'];
-
+			list( $languageCodeFilter, $fallbackChains ) = $this->getLanguageCodesAndFallback( $params );
 			$this->resultBuilder->addEntityRevision(
 				$sourceEntityId,
 				$entityRevision,
-				$options,
-				$props,
-				$siteFilterIds
+				$this->getPropsFromParams( $params ),
+				$params['sitefilter'],
+				$languageCodeFilter,
+				$fallbackChains
 			);
 		}
 	}
 
 	/**
 	 * @param array $params
-	 * @param array $props
 	 *
-	 * @return SerializationOptions
+	 * @return array
+	 *     0 => string[] languageCodes that the user wants returned
+	 *     1 => LanguageFallbackChain[] Keys are requested lang codes
 	 */
-	private function getSerializationOptions( $params, $props ) {
-		$fallbackMode = (
-			LanguageFallbackChainFactory::FALLBACK_VARIANTS
-			| LanguageFallbackChainFactory::FALLBACK_OTHERS
-			| LanguageFallbackChainFactory::FALLBACK_SELF );
-
-		$options = new SerializationOptions();
+	private function getLanguageCodesAndFallback( $params ) {
+		$languageCodes = ( is_array( $params['languages'] )? $params['languages'] : array() );
+		$fallbackChains = array();
 
 		if ( $params['languagefallback'] ) {
-			$languages = array();
-			foreach ( $params['languages'] as $languageCode ) {
-				// $languageCode is already filtered as valid ones
-				$languages[$languageCode] = $this->languageFallbackChainFactory
+			$fallbackMode = (
+				LanguageFallbackChainFactory::FALLBACK_VARIANTS
+				| LanguageFallbackChainFactory::FALLBACK_OTHERS
+				| LanguageFallbackChainFactory::FALLBACK_SELF );
+			foreach ( $languageCodes as $languageCode ) {
+				$fallbackChain = $this->languageFallbackChainFactory
 					->newFromLanguageCode( $languageCode, $fallbackMode );
+				$fallbackChains[$languageCode] = $fallbackChain;
 			}
-		} else {
-			$languages = $params['languages'];
 		}
-		if ( $params['ungroupedlist'] ) {
-			$this->logFeatureUsage( 'action=wbgetentities&ungroupedlist' );
-			$options->setOption(
-					SerializationOptions::OPT_GROUP_BY_PROPERTIES,
-					array()
-				);
-		}
-		$options->setLanguages( $languages );
-		$options->setOption( EntitySerializer::OPT_SORT_ORDER, EntitySerializer::SORT_ASC );
-		$options->setOption( EntitySerializer::OPT_PARTS, $props );
-		$options->setIndexTags( $this->getResult()->getIsRawMode() );
-		return $options;
+
+		return array( array_unique( $languageCodes ), $fallbackChains );
 	}
 
 	/**
@@ -363,11 +355,6 @@ class GetEntities extends ApiBase {
 			'normalize' => array(
 				self::PARAM_TYPE => 'boolean',
 				self::PARAM_DFLT => false
-			),
-			'ungroupedlist' => array(
-				self::PARAM_TYPE => 'boolean',
-				self::PARAM_DFLT => false,
-				self::PARAM_DEPRECATED => true,
 			),
 			'sitefilter' => array(
 				self::PARAM_TYPE => $sites->getGlobalIdentifiers(),

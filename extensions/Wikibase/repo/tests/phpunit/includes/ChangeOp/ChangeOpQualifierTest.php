@@ -10,12 +10,12 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\ClaimGuidGenerator;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpQualifier
@@ -49,7 +49,7 @@ class ChangeOpQualifierTest extends \PHPUnit_Framework_TestCase {
 	public function invalidArgumentProvider() {
 		$item = new Item( new ItemId( 'Q42' ) );
 
-		$guidGenerator = new ClaimGuidGenerator();
+		$guidGenerator = new GuidGenerator();
 		$validClaimGuid = $guidGenerator->newGuid( $item->getId() );
 		$validSnak = new PropertyValueSnak( 7201010, new StringValue( 'o_O' ) );
 		$validSnakHash = $validSnak->getHash();

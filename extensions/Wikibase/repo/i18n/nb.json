@@ -23,6 +23,7 @@
 	"wikibase-entitytermsview-entitytermsforlanguagelistview-configure-link-label": "Konfigurer",
 	"wikibase-entitytermsforlanguagelistview-aliases": "Også kjent som",
 	"wikibase-entitytermsforlanguagelistview-description": "Beskrivelse",
+	"wikibase-entitytermsforlanguagelistview-label": "Etikett",
 	"wikibase-entitytermsforlanguagelistview-language": "Språk",
 	"wikibase-label-empty": "Ingen etikett definert",
 	"wikibase-label-edit-placeholder": "lag etikett",
@@ -34,7 +35,7 @@
 	"wikibase-diffview-rank": "rang",
 	"wikibase-diffview-rank-preferred": "Foretrukket rang",
 	"wikibase-diffview-rank-normal": "Normal rang",
-	"wikibase-diffview-rank-deprecated": "Foreldet rang",
+	"wikibase-diffview-rank-deprecated": "Avskrevet rang",
 	"wikibase-diffview-qualifier": "kvalifikator",
 	"wikibase-diffview-label": "etikett",
 	"wikibase-diffview-alias": "kallenavn",
@@ -69,7 +70,6 @@
 	"wikibase-propertyedittool-counter-entrieslabel": "{{PLURAL:$1|verdi|verdier}}",
 	"wikibase-disambiguation-title": "Alternativer for «$1»",
 	"wb-special-newitem-new-item-notification": "Nytt element «$1» er lagd og videresendt til dets side. Tilbake til $2.",
-	"wikibase-aliases-label": "Også kjent som:",
 	"wikibase-aliases-input-help-message": "For å gjøre entiteten enklere å finne kan du oppgi alternative navn.",
 	"wikibase-aliases-empty": "Ingen kallenavn er definert.",
 	"wikibase-propertypage-datatype": "Datatype",
@@ -77,7 +77,7 @@
 	"wikibase-claimview-snak-new-tooltip": "Når du har angitt en egenskap kan du angi en passende verdi. Hvis egenskapen er uten verdi, eller den faktiske verdien er ukjent, kan du velge et alternativ til en egendefinert verdi ved å klikke ikonet ved siden av verdiboksen.",
 	"wikibase-statementview-rank-preferred": "Foretrukket rang",
 	"wikibase-statementview-rank-normal": "Normal rang",
-	"wikibase-statementview-rank-deprecated": "Foreldet rang",
+	"wikibase-statementview-rank-deprecated": "Avskrevet rang",
 	"wikibase-statementview-referencesheading-pendingcountersubject": "{{PLURAL:$1|referanse|referanser}}",
 	"wikibase-statementview-referencesheading-pendingcountertooltip": "{{PLURAL:$1|En referanse|$1 referanser}} er ennå ikke lagret",
 	"wikibase-snakview-property-input-placeholder": "egenskap",
@@ -325,5 +325,6 @@
 	"right-item-redirect": "Opprett elementomdirigeringer",
 	"right-property-term": "Endre egenskapenes termer (etikett, beskrivelse, kallenavn)",
 	"right-property-create": "Oprett egenskaper",
-	"action-property-create": "opprett egenskaper"
+	"action-property-create": "opprett egenskaper",
+	"apihelp-wbparsevalue-param-parser": "ID fra ValueParser som brukes. <span class=\"apihelp-deprecated\">Avskrevet</span>. Bruk heller parameteren for datatype."
 }

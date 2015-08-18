@@ -2,8 +2,8 @@
 
 namespace Wikibase\Client\DataAccess\Scribunto;
 
-use Wikibase\DataAccess\StatementTransclusionInteractor;
-use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 
 /**
  * Actual implementations of the functions to access Wikibase through the Scribunto extension

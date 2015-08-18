@@ -7,10 +7,10 @@ use SiteList;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
-use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikimedia\Purtle\RdfWriter;
 
@@ -151,7 +151,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	 */
 	private function newTruthyStatementRdfBuilder() {
 		//NOTE: currently, the only simple values are supported in truthy mode!
-		$simpleValueBuilder = $this->newSimpleValueRdfBuilder( $this->vocabulary, $this->propertyLookup );
+		$simpleValueBuilder = $this->newSimpleValueRdfBuilder();
 		$statementBuilder = new TruthyStatementRdfBuilder( $this->vocabulary, $this->writer, $simpleValueBuilder );
 
 		return $statementBuilder;
@@ -350,7 +350,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	 */
 	private function propertyIsLink( Property $property ) {
 		// For now, it's very simple but can be more complex later
-		return $property->getDataTypeId() == 'wikibase-entityid';
+		return in_array( $property->getDataTypeId(), array( 'wikibase-item', 'wikibase-property', 'url', 'commonsMedia' ) );
 	}
 
 	/**
@@ -444,7 +444,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	 * @param EntityDocument $entity
 	 */
 	private function addEntityStub( EntityDocument $entity ) {
-		$this->addEntityMetaData( $entity, false );
+		$this->addEntityMetaData( $entity );
 
 		if ( $entity instanceof FingerprintProvider ) {
 			$fingerprint = $entity->getFingerprint();

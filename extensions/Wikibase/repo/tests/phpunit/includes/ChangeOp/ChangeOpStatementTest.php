@@ -5,7 +5,6 @@ namespace Wikibase\Test;
 use DataValues\NumberValue;
 use DataValues\StringValue;
 use Wikibase\ChangeOp\ChangeOpStatement;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -13,16 +12,17 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
+use Wikibase\DataModel\Services\Statement\StatementGuidParser;
+use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementGuidParser;
 use Wikibase\DataModel\Statement\StatementList;
-use Wikibase\Lib\ClaimGuidGenerator;
-use Wikibase\Lib\ClaimGuidValidator;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpStatement
@@ -271,8 +271,8 @@ class ChangeOpStatementTest extends \PHPUnit_Framework_TestCase {
 
 		return new ChangeOpStatement(
 			$statement,
-			new ClaimGuidGenerator(),
-			new ClaimGuidValidator( $idParser ),
+			new GuidGenerator(),
+			new StatementGuidValidator( $idParser ),
 			new StatementGuidParser( $idParser ),
 			$this->mockProvider->getMockSnakValidator(),
 			$index
@@ -337,7 +337,7 @@ class ChangeOpStatementTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private function makeStatement( Entity $entity, Snak $mainSnak ) {
 		$statement = new Statement( $mainSnak );
-		$guidGenerator = new ClaimGuidGenerator();
+		$guidGenerator = new GuidGenerator();
 		$statement->setGuid( $guidGenerator->newGuid( $entity->getId() ) );
 
 		return $statement;
@@ -362,7 +362,7 @@ class ChangeOpStatementTest extends \PHPUnit_Framework_TestCase {
 		$badSnak = new PropertyValueSnak( $p11, new StringValue( 'INVALID' ) );
 		$brokenSnak = new PropertyValueSnak( $p11, new NumberValue( 23 ) );
 
-		$guidGenerator = new ClaimGuidGenerator();
+		$guidGenerator = new GuidGenerator();
 
 		$cases = array();
 

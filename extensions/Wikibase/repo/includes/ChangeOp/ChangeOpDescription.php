@@ -6,8 +6,8 @@ use InvalidArgumentException;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\Repo\Validators\TermValidatorFactory;
 use Wikibase\Summary;
-use Wikibase\Validators\TermValidatorFactory;
 
 /**
  * Class for description change operation
@@ -107,7 +107,7 @@ class ChangeOpDescription extends ChangeOpBase {
 	 */
 	public function validate( Entity $entity ) {
 		$languageValidator = $this->termValidatorFactory->getLanguageValidator();
-		$termValidator = $this->termValidatorFactory->getDescriptionValidator( $entity->getType() );
+		$termValidator = $this->termValidatorFactory->getDescriptionValidator();
 		$fingerprintValidator = $this->termValidatorFactory->getFingerprintValidator( $entity->getType() );
 
 		// check that the language is valid

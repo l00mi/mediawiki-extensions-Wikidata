@@ -2,10 +2,10 @@
 
 namespace Wikibase\Rdf;
 
+use DataValues\DataValue;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Statement\Statement;
-use DataValues\DataValue;
 
 /**
  * RDF vocabulary for use in mapping for wikibase data model.
@@ -62,6 +62,12 @@ class RdfVocabulary {
 	// See also DataValues\TimeValue\TimeFormatter::XXX_CALENDAR constants.
 	const GREGORIAN_CALENDAR = 'http://www.wikidata.org/entity/Q1985727';
 	const JULIAN_CALENDAR = 'http://www.wikidata.org/entity/Q1985786';
+	/**
+	 * URI for unit "1"
+	 * See: https://phabricator.wikimedia.org/T105432
+	 * @var string
+	 */
+	const ONE_ENTITY = 'http://www.wikidata.org/entity/Q199';
 	// Ranks
 	const WIKIBASE_RANK_BEST = 'BestRank';
 	public static $rankMap = array(
@@ -100,8 +106,8 @@ class RdfVocabulary {
 		$this->baseUri = $baseUri;
 		$this->dataUri = $dataUri;
 
-		if( substr($this->baseUri, -7) === 'entity/') {
-			$topUri = substr($this->baseUri, 0, -7);
+		if ( substr( $this->baseUri, -7 ) === 'entity/' ) {
+			$topUri = substr( $this->baseUri, 0, -7 );
 		} else {
 			$topUri = $this->baseUri;
 		}

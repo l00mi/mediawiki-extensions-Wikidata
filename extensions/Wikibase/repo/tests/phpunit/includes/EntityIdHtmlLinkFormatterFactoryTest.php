@@ -3,8 +3,8 @@
 namespace Wikibase\Repo\Test;
 
 use PHPUnit_Framework_TestCase;
-use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
 
 /**
  * @covers Wikibase\Repo\EntityIdHtmlLinkFormatterFactory
@@ -36,8 +36,8 @@ class EntityIdHtmlLinkFormatterFactoryTest extends PHPUnit_Framework_TestCase {
 	public function testGetEntityIdFormatter() {
 		$factory = $this->getFormatterFactory();
 
-		$formatter = $factory->getEntityIdFormater( $this->getMock( 'Wikibase\Lib\Store\LabelDescriptionLookup' ) );
-		$this->assertInstanceOf( 'Wikibase\Lib\EntityIdFormatter', $formatter );
+		$formatter = $factory->getEntityIdFormater( $this->getMock( 'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup' ) );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\EntityId\EntityIdFormatter', $formatter );
 	}
 
 }

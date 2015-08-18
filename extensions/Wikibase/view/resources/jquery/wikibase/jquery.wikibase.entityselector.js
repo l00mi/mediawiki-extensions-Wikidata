@@ -74,9 +74,6 @@ function mwMsgOrString( msgKey, string ) {
  *        Messages should be specified using `mwMsgOrString(<resource loader module message key>,
  *        <fallback message>)` in order to use the messages specified in the resource loader module
  *        (if loaded).
- * @param {string} [options.messages.aliases-label='also known as']
- *        Label prepending the alias(es) if there is a search hit on at least one alias of an
- *        entity.
  * @param {string} [options.messages.more='more']
  *        Label of the link to display more suggestions.
  */
@@ -100,10 +97,15 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		caseSensitive: false,
 		timeout: 8000,
 		messages: {
-			'aliases-label': mwMsgOrString( 'wikibase-aliases-label', 'also known as:' ),
 			more: mwMsgOrString( 'wikibase-entityselector-more', 'more' )
 		}
 	},
+
+	/**
+	 * @property {number}
+	 * @private
+	 */
+	_searchTimeoutHandle: null,
 
 	/**
 	 * Caching the most current entity returned from the API.
@@ -178,8 +180,8 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		this._cache = {};
 		this._select( null );
 
-		clearTimeout( this._searching );
-		this._searching = setTimeout( function() {
+		clearTimeout( this._searchTimeoutHandle );
+		this._searchTimeoutHandle = setTimeout( function() {
 			self.search( event )
 			.done( function( suggestions, requestTerm ) {
 				if( !suggestions.length || self.element.val() !== requestTerm ) {
@@ -228,7 +230,7 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	},
 
 	/**
-	 * Initializes the default source pointing the the ```wbsearchentities``` API module via the URL
+	 * Initializes the default source pointing the the `wbsearchentities` API module via the URL
 	 * provided in the options.
 	 * @protected
 	 *
@@ -261,7 +263,6 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 				);
 			} )
 			.fail( function( jqXHR, textStatus ) {
-				// Since this is a JSONP request, this will always fail with a timeout...
 				deferred.reject( textStatus );
 			} );
 
@@ -289,27 +290,21 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	 * @return {jQuery}
 	 */
 	_createLabelFromSuggestion: function( entityStub ) {
-		var $suggestion = $( '<span class="ui-entityselector-itemcontent"/>' );
+		var $suggestion = $( '<span class="ui-entityselector-itemcontent"/>' ),
+				$label = $( '<span class="ui-entityselector-label"/>' ).text( entityStub.label || entityStub.id );
 
-		$suggestion.append(
-				$( '<span class="ui-entityselector-label"/>' )
-				.text( entityStub.label || entityStub.id )
+		if( entityStub.aliases ) {
+			$label.append(
+					$( '<span class="ui-entityselector-aliases"/>' ).text( ' (' + entityStub.aliases.join( ', ' ) +  ')' )
 			);
+		}
+
+		$suggestion.append( $label );
 
 		if( entityStub.description ) {
 			$suggestion.append(
 				$( '<span class="ui-entityselector-description"/>' )
 				.text( entityStub.description )
-			);
-		}
-
-		if( entityStub.aliases ) {
-			var aliasesText = this.options.messages['aliases-label']
-				+ ' '
-				+ entityStub.aliases.join( ', ' );
-
-			$suggestion.append(
-				$( '<span class="ui-entityselector-aliases"/>' ).text( aliasesText )
 			);
 		}
 
@@ -339,12 +334,8 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		$( this.options.menu )
 		.off( 'selected.suggester' )
 		.on( 'selected.entityselector', function( event, item ) {
-			if(
-				item instanceof $.ui.ooMenu.Item
-				&& !( item instanceof $.ui.ooMenu.CustomItem )
-			) {
-				if(
-					!self.options.caseSensitive
+			if( item.getEntityStub ) {
+				if( !self.options.caseSensitive
 					&& item.getValue().toLowerCase() === self._term.toLowerCase()
 				) {
 					self._term = item.getValue();
@@ -448,7 +439,7 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	 * @param {Object} entityStub
 	 */
 	_select: function( entityStub ) {
-		var id = entityStub ? entityStub.id : '';
+		var id = entityStub && entityStub.id;
 		this._selectedEntity = entityStub;
 		if( id ) {
 			this._trigger( 'selected', null, [id] );
@@ -461,7 +452,6 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	 * @return {Object} Plain object featuring `Entity` stub data.
 	 */
 	selectedEntity: function() {
-		// TODO: Implement setter.
 		return this._selectedEntity;
 	}
 } );

@@ -2,15 +2,22 @@
 	"@metadata": {
 		"authors": [
 			"Bedynokue.nart",
-			"SamGamgee"
+			"SamGamgee",
+			"TheRossatron",
+			"Amire80",
+			"GR44 Luc",
+			"Inyzh"
 		]
 	},
-	"tooltip-t-wikibase": "Ехьыл1агъэу хъарзынэщым и элементгорэм гъэзэгъэ зэпыщ",
-	"wikibase-comment-update": "{{WBREPONAME}} зэхъок1ыгъэ",
+	"tooltip-t-wikibase": "ЕхьылIагъэу хъарзынэщым и элементгорэм гъэзэгъэ зэпыщ",
+	"wikibase-comment-update": "{{WBREPONAME}} зэхъокIыгъэ",
 	"wikibase-dataitem": "{{WBREPONAME}} зыгор",
-	"wikibase-editlinks": "Зэпыщэмэ я1аз",
-	"wikibase-editlinkstitle": "Бзэзэпыщэмэ я1аз",
+	"wikibase-editlinks": "Зэпыщэмэ яIаз",
+	"wikibase-editlinkstitle": "Бзэзэпыщэмэ яIаз",
 	"wikibase-rc-hide-wikidata": "$1 {{WBREPONAME}}",
+	"wikibase-rc-hide-wikidata-hide": "Гъэбылъ",
 	"wikibase-rc-hide-wikidata-show": "Къэгъэлъагъу",
-	"wikibase-rc-wikibase-edit-title": "{{WBREPONAME}} и е1эзэныгъэ"
+	"wikibase-rc-wikibase-edit-letter": "Д",
+	"wikibase-rc-wikibase-edit-title": "{{WBREPONAME}} и еIэзэныгъэ",
+	"wikibase-otherprojects": "Нэмыкӏ проектхэр"
 }

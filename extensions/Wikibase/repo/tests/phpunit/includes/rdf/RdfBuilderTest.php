@@ -6,9 +6,9 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Rdf\DedupeBag;
 use Wikibase\Rdf\HashDedupeBag;
-use Wikimedia\Purtle\NTriplesRdfWriter;
 use Wikibase\Rdf\RdfBuilder;
 use Wikibase\Rdf\RdfProducer;
+use Wikimedia\Purtle\NTriplesRdfWriter;
 
 /**
  * @covers Wikibase\Rdf\RdfBuilder
@@ -109,6 +109,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 		$data = $builder->getRDF();
 		$dataSplit = explode( "\n", trim( $data ) );
 		sort( $dataSplit );
+		$dataSplit = array_map( 'trim', $dataSplit );
 		return $dataSplit;
 	}
 
@@ -125,7 +126,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 				RdfProducer::PRODUCE_REFERENCES |
 				RdfProducer::PRODUCE_SITELINKS |
 				RdfProducer::PRODUCE_VERSION_INFO |
-				RdfProducer::PRODUCE_FULL_VALUES);
+				RdfProducer::PRODUCE_FULL_VALUES );
 		$builder->addEntity( $entity );
 		$builder->addEntityRevisionInfo( $entity->getId(), 42, "2014-11-04T03:11:05Z" );
 		$this->assertEquals( $correctData, $this->getDataFromBuilder( $builder ) );
@@ -180,7 +181,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 		$builder = $this->newRdfBuilder( RdfProducer::PRODUCE_VERSION_INFO );
 		$builder->addDumpHeader( 1426110695 );
 		$data = $this->getDataFromBuilder( $builder );
-		$this->assertEquals( $this->getSerializedData( 'dumpheader' ), $data);
+		$this->assertEquals( $this->getSerializedData( 'dumpheader' ), $data );
 	}
 
 	public function testDeduplication() {
@@ -194,10 +195,10 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 		$builder->addEntity( $this->getEntityData( 'Q9' ) );
 		$data2 = $this->getDataFromBuilder( $builder );
 
-		$data = array_merge($data1, $data2);
-		sort($data);
+		$data = array_merge( $data1, $data2 );
+		sort( $data );
 
-		$this->assertArrayEquals($this->getSerializedData( 'Q7_Q9_dedup' ), $data);
+		$this->assertArrayEquals( $this->getSerializedData( 'Q7_Q9_dedup' ), $data );
 	}
 
 }

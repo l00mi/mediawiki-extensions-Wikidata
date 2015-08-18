@@ -3,7 +3,6 @@
 namespace Wikibase\Lib;
 
 use MediaWikiSite;
-use ResourceLoaderModule;
 use Site;
 use SiteList;
 use SiteStore;
@@ -101,11 +100,11 @@ class SitesModuleWorker {
 
 		$siteDetails = array();
 		/**
-		 * @var Site $site
+		 * @var MediaWikiSite $site
 		 */
 		foreach ( $this->getSites() as $site ) {
 			if ( $this->shouldSiteBeIncluded( $site, $groups ) ) {
-				$siteDetails[ $site->getGlobalId() ] = $this->getSiteDetails( $site, $specialGroups );
+				$siteDetails[$site->getGlobalId()] = $this->getSiteDetails( $site, $specialGroups );
 			}
 		}
 

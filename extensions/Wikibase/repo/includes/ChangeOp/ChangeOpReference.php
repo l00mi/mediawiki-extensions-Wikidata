@@ -9,8 +9,8 @@ use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\StatementListHolder;
+use Wikibase\Repo\Validators\SnakValidator;
 use Wikibase\Summary;
-use Wikibase\Validators\SnakValidator;
 
 /**
  * Class for reference change operation

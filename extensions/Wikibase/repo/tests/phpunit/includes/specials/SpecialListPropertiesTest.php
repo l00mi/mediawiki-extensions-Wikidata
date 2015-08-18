@@ -14,7 +14,6 @@ use Wikibase\PropertyInfoStore;
 use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Repo\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Repo\Specials\SpecialListProperties;
-use Wikibase\Test\SpecialPageTestBase;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialListProperties
@@ -69,7 +68,7 @@ class SpecialListPropertiesTest extends SpecialPageTestBase {
 	}
 
 	private function getTermLookup() {
-		$termLookup = $this->getMock( 'Wikibase\Lib\Store\TermLookup' );
+		$termLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\TermLookup' );
 		$termLookup->expects( $this->any() )
 			->method( 'getLabels' )
 			->will( $this->returnCallback( function( PropertyId $propertyId ) {

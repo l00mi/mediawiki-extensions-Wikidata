@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
@@ -10,6 +9,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\Repo\Store\SQL\EntityPerPageTable;
@@ -45,7 +45,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 		$entityId = new ItemId( 'Q5' );
 		$epp->addEntityPage( $entityId, 55 );
 
-		$this->assertEquals( 55, $epp->getPageIdForEntityId( $entityId ) );
+		$this->assertEquals( 55, $this->getPageIdForEntityId( $entityId ) );
 	}
 
 	public function testAddRedirectPage() {
@@ -60,14 +60,13 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 		$targetId = new ItemId( 'Q10' );
 		$epp->addRedirectPage( $redirectId, 55, $targetId );
 
-		$this->assertEquals( $targetId, $epp->getRedirectForEntityId( $redirectId ) );
-		$this->assertEquals( 55, $epp->getPageIdForEntityId( $redirectId ) );
+		$this->assertEquals( 55, $this->getPageIdForEntityId( $redirectId ) );
 
 		$ids = $epp->listEntities( Item::ENTITY_TYPE, 10 );
 		$this->assertEmpty( $ids, 'Redirects must not show up in ID listings' );
 	}
 
-	protected function isRedirectTargetColumnSupported() {
+	private function isRedirectTargetColumnSupported() {
 		return WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'useRedirectTargetColumn' );
 	}
 
@@ -77,7 +76,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 	 *
 	 * @return EntityPerPageTable
 	 */
-	protected function newEntityPerPageTable( array $entities = array(), array $redirects = array() ) {
+	private function newEntityPerPageTable( array $entities = array(), array $redirects = array() ) {
 		$useRedirectTargetColumn = $this->isRedirectTargetColumnSupported();
 		$idParser = new BasicEntityIdParser();
 
@@ -97,7 +96,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 		return $table;
 	}
 
-	protected function getIdStrings( array $entities ) {
+	private function getIdStrings( array $entities ) {
 		$ids = array_map( function ( $entity ) {
 			if ( $entity instanceof EntityDocument ) {
 				$entity = $entity->getId();
@@ -111,7 +110,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 		return $ids;
 	}
 
-	protected function assertEqualIds( array $expected,array $actual, $msg = null ) {
+	private function assertEqualIds( array $expected, array $actual ) {
 		$expectedIds = $this->getIdStrings( $expected );
 		$actualIds = $this->getIdStrings( $actual );
 
@@ -210,87 +209,24 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider getRedirectIdsProvider
-	 */
-	public function testGetRedirectIds( array $entities, array $redirects, EntityId $targetId, array $expected ) {
-		$table = $this->newEntityPerPageTable( $entities, $redirects );
-		$actual = $table->getRedirectIds( $targetId );
+	private function getPageIdForEntityId( EntityId $entityId ) {
+		$dbr = wfGetDB( DB_SLAVE );
 
-		$this->assertEqualIds( $expected, $actual );
-	}
-
-	public function getRedirectIdsProvider() {
-		$property = new Property( new PropertyId( 'P5' ), null, 'string' );
-		$item = new Item( new ItemId( 'Q5' ) );
-		$redirect = new EntityRedirect( new ItemId( 'Q55' ), new ItemId( 'Q5' ) );
-
-		$q1 = new ItemId( 'Q1' );
-		$q5 = new ItemId( 'Q5' );
-		$p5 = new PropertyId( 'P5' );
-		$q55 = new ItemId( 'Q55' );
-
-		return array(
-			'empty' => array(
-				array(),
-				array(),
-				$q55,
-				array()
+		$row = $dbr->selectRow(
+			'wb_entity_per_page',
+			array( 'epp_page_id' ),
+			array(
+				'epp_entity_type' => $entityId->getEntityType(),
+				'epp_entity_id' => $entityId->getNumericId()
 			),
-			'none' => array(
-				array( $item, $property ),
-				array( $redirect ),
-				$q1,
-				array(),
-			),
-			'redirects' => array(
-				array( $item, $property ),
-				array( $redirect ),
-				$q5,
-				array( $q55 ),
-			),
-			'wrong type' => array(
-				array( $item, $property ),
-				array( $redirect ),
-				$p5,
-				array(),
-			),
+			__METHOD__
 		);
-	}
 
-	public function testGetPageIdForEntityId() {
-		$entity = new Item( new ItemId( 'Q5' ) );
-
-		$epp = $this->newEntityPerPageTable( array( $entity ) );
-		$entityId = $entity->getId();
-
-		$this->assertFalse( $epp->getPageIdForEntityId( new ItemId( 'Q7435389457' ) ) );
-
-		$pageId = $epp->getPageIdForEntityId( $entityId );
-		$this->assertInternalType( 'int', $pageId );
-		$this->assertGreaterThan( 0, $pageId );
-	}
-
-	public function testGetRedirectForEntityId() {
-		if ( !$this->isRedirectTargetColumnSupported() ) {
-			$this->markTestSkipped( 'Redirects not supported' );
+		if ( !$row ) {
+			return false;
 		}
 
-		$entity = new Item( new ItemId( 'Q1' ) );
-		$entity2 = new Item( new ItemId( 'Q2' ) );
-
-		$epp = $this->newEntityPerPageTable( array( $entity, $entity2 ) );
-		$redirectId = $entity->getId();
-		$targetId = $entity2->getId();
-
-		$redirectPageId = $epp->getPageIdForEntityId( $redirectId );
-		$epp->addRedirectPage( $redirectId, $redirectPageId, $targetId );
-
-		$this->assertFalse( $epp->getRedirectForEntityId( new ItemId( 'Q7435389457' ) ) );
-		$this->assertNull( $epp->getRedirectForEntityId( $targetId ) );
-
-		$targetIdFromEpp = $epp->getRedirectForEntityId( $redirectId );
-		$this->assertEquals( $targetId, $targetIdFromEpp );
+		return (int)$row->epp_page_id;
 	}
 
 }

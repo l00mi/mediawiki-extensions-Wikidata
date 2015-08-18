@@ -6,7 +6,9 @@ use FauxResponse;
 use Site;
 use SiteStore;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\Lib\Store\EntityRedirectLookup;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Repo\Specials\SpecialGoToLinkedPage;
 
@@ -69,7 +71,7 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	 * @return EntityRedirectLookup
 	 */
 	private function getEntityRedirectLookup() {
-		$mock = $this->getMock( 'Wikibase\Lib\Store\EntityRedirectLookup' );
+		$mock = $this->getMock( 'Wikibase\DataModel\Services\Lookup\EntityRedirectLookup' );
 		$mock->expects( $this->any() )
 			->method( 'getRedirectForEntityId' )
 			->will( $this->returnCallback( function( ItemId $itemId ) {
@@ -84,6 +86,35 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	}
 
 	/**
+	 * @return EntityIdParser
+	 */
+	private function getEntityIdParser() {
+		$mock = $this->getMock( 'Wikibase\DataModel\Services\EntityId\EntityIdParser' );
+		$mock->expects( $this->any() )
+			->method( 'parse' )
+			->will( $this->returnCallback( function( $itemString ) {
+					return new ItemId( $itemString );
+			} ) );
+
+		return $mock;
+	}
+
+	/**
+	 * @return EntityLookup
+	 */
+	private function getEntitylookup() {
+		$mock = $this->getMock( 'Wikibase\DataModel\Services\Lookup\EntityLookup' );
+		$mock->expects( $this->any() )
+			->method( 'hasEntity' )
+			->will( $this->returnCallback( function( ItemId $itemId ) {
+				$id = $itemId->getSerialization();
+				return $id === 'Q23' || $id === 'Q24';
+			} ) );
+
+		return $mock;
+	}
+
+	/**
 	 * @return SpecialGoToLinkedPage
 	 */
 	protected function newSpecialPage() {
@@ -92,7 +123,9 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 		$page->initServices(
 			$this->getMockSiteStore(),
 			$this->getMockSiteLinkLookup(),
-			$this->getEntityRedirectLookup()
+			$this->getEntityRedirectLookup(),
+			$this->getEntityIdParser(),
+			$this->getEntitylookup()
 		);
 
 		return $page;
@@ -100,16 +133,18 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 
 	public function requestWithoutRedirectProvider() {
 		$cases = array();
-		$cases['empty'] = array( '', null, '', '' );
-		$cases['invalid'] = array( 'enwiki/invalid', null, 'enwiki', '' );
-		$cases['notFound'] = array( 'enwiki/Q42', null, 'enwiki', 'Q42' );
+		$cases['empty'] = array( '', null, '', '', '' );
+		$cases['invalidItemID'] = array( 'enwiki/invalid', null, 'enwiki', 'invalid', 'The entered ID of the item is not valid' );
+		$cases['notFound'] = array( 'enwiki/Q42', null, 'enwiki', 'Q42', 'Item was not found' );
+		$cases['notFound2'] = array( 'XXwiki/Q23', null, 'XXwiki', 'Q23', 'There was no page found for that combination of item and site' );
+
 		return $cases;
 	}
 
 	/**
 	 * @dataProvider requestWithoutRedirectProvider
 	 */
-	public function testExecuteWithoutRedirect( $sub, $target, $site, $item ) {
+	public function testExecuteWithoutRedirect( $sub, $target, $site, $item, $error ) {
 		/* @var FauxResponse $response */
 		list( $output, $response ) = $this->executeSpecialPage( $sub );
 
@@ -137,10 +172,23 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 				'id' => 'wb-gotolinkedpage-submit',
 				'class' => 'wb-input-button',
 				'type' => 'submit',
-				'name' => 'submit',
-			) );
+				'name' => 'submit'
+			)
+		);
 		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output for: ".$key );
+			$this->assertTag( $matcher, $output, "Failed to match html output for: " . $key );
+		}
+
+		$errorMatch = array(
+			'tag' => 'p',
+			'content' => $error,
+			'attributes' => array(
+				'class' => 'error'
+			)
+		);
+
+		if ( !empty( $error ) ) {
+			$this->assertTag( $errorMatch, $output, "Failed to match error: " . $error );
 		}
 	}
 

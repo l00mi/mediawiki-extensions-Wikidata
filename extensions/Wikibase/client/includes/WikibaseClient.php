@@ -18,41 +18,41 @@ use Wikibase\Client\Changes\AffectedPagesFinder;
 use Wikibase\Client\Changes\ChangeHandler;
 use Wikibase\Client\Changes\ChangeRunCoalescer;
 use Wikibase\Client\Changes\WikiPageUpdater;
+use Wikibase\Client\DataAccess\PropertyIdResolver;
+use Wikibase\Client\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory;
+use Wikibase\Client\DataAccess\PropertyParserFunction\Runner;
+use Wikibase\Client\DataAccess\RestrictedEntityLookup;
+use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
 use Wikibase\Client\Hooks\ParserFunctionRegistrant;
 use Wikibase\Client\Store\TitleFactory;
 use Wikibase\ClientStore;
-use Wikibase\DataAccess\PropertyIdResolver;
-use Wikibase\DataAccess\PropertyParserFunction\PropertyClaimsRendererFactory;
-use Wikibase\DataAccess\PropertyParserFunction\Runner;
-use Wikibase\DataAccess\SnaksFinder;
 use Wikibase\DataModel\DeserializerFactory;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\Diff\EntityDiffer;
-use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Diff\EntityDiffer;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Services\EntityId\DispatchingEntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\DirectSqlStore;
 use Wikibase\EntityFactory;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
 use Wikibase\LangLinkHandler;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
-use Wikibase\Lib\EntityRetrievingDataTypeLookup;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
-use Wikibase\Lib\Parsers\SuffixEntityIdParser;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
-use Wikibase\Lib\Serializers\ForbiddenSerializer;
 use Wikibase\Lib\Store\EntityContentDataCodec;
-use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\Lib\Store\EntityRetrievingTermLookup;
-use Wikibase\Lib\Store\TermLookup;
 use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Lib\WikibaseDataTypeBuilders;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
@@ -151,6 +151,11 @@ final class WikibaseClient {
 	 * @var NamespaceChecker|null
 	 */
 	private $namespaceChecker = null;
+
+	/**
+	 * @var RestrictedEntityLookup|null
+	 */
+	private $restrictedEntityLookup = null;
 
 	/**
 	 * @since 0.4
@@ -729,7 +734,7 @@ final class WikibaseClient {
 	 * @return PropertyClaimsRendererFactory
 	 */
 	private function getPropertyClaimsRendererFactory() {
-		$entityLookup = $this->getEntityLookup();
+		$entityLookup = $this->getRestrictedEntityLookup();
 
 		$propertyIdResolver = new PropertyIdResolver(
 			$entityLookup,
@@ -753,6 +758,7 @@ final class WikibaseClient {
 			$this->getPropertyClaimsRendererFactory(),
 			$this->getStore()->getSiteLinkLookup(),
 			$this->getEntityIdParser(),
+			$this->getRestrictedEntityLookup(),
 			$this->settings->getSetting( 'siteGlobalID' ),
 			$this->settings->getSetting( 'allowArbitraryDataAccess' )
 		);
@@ -825,6 +831,20 @@ final class WikibaseClient {
 			$this->getDataValueDeserializer(),
 			$this->getEntityIdParser()
 		);
+	}
+
+	/**
+	 * @return RestrictedEntityLookup
+	 */
+	public function getRestrictedEntityLookup() {
+		if ( $this->restrictedEntityLookup === null ) {
+			$this->restrictedEntityLookup = new RestrictedEntityLookup(
+				$this->getEntityLookup(),
+				PHP_INT_MAX // Don't throw any exceptions, yet
+			);
+		}
+
+		return $this->restrictedEntityLookup;
 	}
 
 }

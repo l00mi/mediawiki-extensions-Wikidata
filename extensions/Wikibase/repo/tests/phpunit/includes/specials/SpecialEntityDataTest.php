@@ -4,22 +4,20 @@ namespace Wikibase\Test;
 
 use DataValues\Serializers\DataValueSerializer;
 use FauxRequest;
+use FauxResponse;
 use HttpError;
 use OutputPage;
 use SiteList;
 use SpecialPage;
 use Title;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\SerializerFactory;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\LinkedData\EntityDataRequestHandler;
 use Wikibase\Repo\LinkedData\EntityDataSerializationService;
 use Wikibase\Repo\LinkedData\EntityDataUriManager;
 use Wikibase\Repo\Specials\SpecialEntityData;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialEntityData
@@ -61,18 +59,10 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 				return Title::newFromText( $id->getEntityType() . ':' . $id->getSerialization() );
 			} ) );
 
-		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 		$dataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( 'string' ) );
-
-		$entityFactory = WikibaseRepo::getDefaultInstance()->getEntityFactory();
-
-		$libSerializerFactory = new LibSerializerFactory(
-			new SerializationOptions(),
-			$dataTypeLookup,
-			$entityFactory
-		);
 
 		$entityDataFormatProvider = new EntityDataFormatProvider();
 		$serializerFactory = new SerializerFactory(
@@ -86,7 +76,6 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 			self::URI_DATA,
 			$mockRepository,
 			$titleLookup,
-			$libSerializerFactory,
 			$dataTypeLookup,
 			new SiteList(),
 			$entityDataFormatProvider,

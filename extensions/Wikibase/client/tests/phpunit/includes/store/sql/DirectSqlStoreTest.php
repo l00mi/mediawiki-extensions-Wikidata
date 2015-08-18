@@ -3,7 +3,7 @@
 namespace Wikibase\Client\Tests\Store\Sql;
 
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
 use Wikibase\DirectSqlStore;
 
 /**
@@ -45,7 +45,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 	public function provideGetters() {
 		return array(
 			array( 'getSiteLinkLookup', 'Wikibase\Lib\Store\SiteLinkLookup' ),
-			array( 'getEntityLookup', 'Wikibase\Lib\Store\EntityLookup' ),
+			array( 'getEntityLookup', 'Wikibase\DataModel\Services\Lookup\EntityLookup' ),
 			array( 'getTermIndex', 'Wikibase\TermIndex' ),
 			array( 'getPropertyLabelResolver', 'Wikibase\PropertyLabelResolver' ),
 			array( 'newChangesTable', 'Wikibase\ChangesTable' ),
@@ -54,7 +54,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 			array( 'getUsageLookup', 'Wikibase\Client\Usage\UsageLookup' ),
 			array( 'getSubscriptionManager', 'Wikibase\Client\Usage\SubscriptionManager' ),
 			array( 'getEntityIdLookup', 'Wikibase\Store\EntityIdLookup' ),
-			array( 'getEntityPrefetcher', 'Wikibase\Lib\Store\EntityPrefetcher' ),
+			array( 'getEntityPrefetcher', 'Wikibase\DataModel\Services\Entity\EntityPrefetcher' ),
 		);
 	}
 

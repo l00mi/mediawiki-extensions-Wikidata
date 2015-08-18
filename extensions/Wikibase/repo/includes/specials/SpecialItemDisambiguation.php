@@ -5,10 +5,7 @@ namespace Wikibase\Repo\Specials;
 use Html;
 use Language;
 use Wikibase\ItemDisambiguation;
-use Wikibase\Lib\EntityIdHtmlLinkFormatter;
 use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Lib\Store\EntityRetrievingTermLookup;
-use Wikibase\Lib\Store\LanguageLabelDescriptionLookup;
 use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
 use Wikibase\Repo\Interactors\TermSearchResult;
 use Wikibase\Repo\WikibaseRepo;
@@ -74,7 +71,7 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 	 * @return TermIndexSearchInteractor
 	 */
 	private function getSearchInteractor( $displayLanguageCode ) {
-		if( $this->searchInteractor === null ) {
+		if ( $this->searchInteractor === null ) {
 			$interactor = WikibaseRepo::getDefaultInstance()->newTermSearchInteractor( $displayLanguageCode );
 			$this->searchInteractor = $interactor;
 		}
@@ -85,7 +82,7 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 	 * @return ItemDisambiguation
 	 */
 	private function getItemDisambiguation() {
-		if( $this->itemDisambiguation === null ) {
+		if ( $this->itemDisambiguation === null ) {
 			$languageNameLookup = new LanguageNameLookup();
 			$this->itemDisambiguation = new ItemDisambiguation(
 				WikibaseRepo::getDefaultInstance()->getEntityTitleLookup(),

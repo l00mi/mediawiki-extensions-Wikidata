@@ -18,7 +18,7 @@ use Wikibase\DataModel\Entity\PropertyId;
  */
 class PropertyValueSnak extends SnakObject {
 
-	private $dataValue;
+	protected $dataValue;
 
 	/**
 	 * Support for passing in an EntityId instance that is not a PropertyId instance has
@@ -26,7 +26,7 @@ class PropertyValueSnak extends SnakObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @param PropertyId|EntityId|integer $propertyId
+	 * @param PropertyId|EntityId|int $propertyId
 	 * @param DataValue $dataValue
 	 */
 	public function __construct( $propertyId, DataValue $dataValue ) {

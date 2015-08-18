@@ -3,19 +3,19 @@
 namespace Wikibase\Repo\Tests\Hooks;
 
 use Language;
-use RequestContext;
-use Title;
 use Linker;
+use RequestContext;
 use SpecialPageFactory;
-use Wikibase\Repo\WikibaseRepo;
+use Title;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageWithConversion;
 use Wikibase\Lib\Store\StorageException;
-use Wikibase\Lib\Store\TermLookup;
 use Wikibase\Repo\EntityNamespaceLookup;
 use Wikibase\Repo\Hooks\LinkBeginHookHandler;
+use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Store\EntityIdLookup;
 
 /**
@@ -248,7 +248,7 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	 * @return TermLookup
 	 */
 	private function getTermLookup() {
-		$termLookup = $this->getMock( 'Wikibase\Lib\Store\TermLookup' );
+		$termLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\TermLookup' );
 
 		$termLookup->expects( $this->any() )
 			->method( 'getLabels' )

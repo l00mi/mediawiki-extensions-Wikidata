@@ -1,11 +1,11 @@
 <?php
 
-namespace Wikibase\DataAccess;
+namespace Wikibase\Client\DataAccess;
 
 use InvalidArgumentException;
+use Wikibase\Client\PropertyLabelNotResolvedException;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Lib\PropertyLabelNotResolvedException;
-use Wikibase\Lib\Store\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\PropertyLabelResolver;
 
 /**

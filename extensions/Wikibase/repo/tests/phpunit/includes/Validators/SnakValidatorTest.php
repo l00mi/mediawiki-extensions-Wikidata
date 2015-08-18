@@ -9,12 +9,11 @@ use DataValues\StringValue;
 use DataValues\UnDeserializableValue;
 use DataValues\UnknownValue;
 use PHPUnit_Framework_TestCase;
-use Wikibase\DataModel\Claim\Claim;
-use Wikibase\DataModel\Entity\InMemoryDataTypeLookup;
-use Wikibase\DataModel\Entity\PropertyDataTypeLookup;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
+use Wikibase\DataModel\Services\Lookup\InMemoryDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -22,10 +21,10 @@ use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Repo\DataTypeValidatorFactory;
-use Wikibase\Validators\SnakValidator;
+use Wikibase\Repo\Validators\SnakValidator;
 
 /**
- * @covers Wikibase\Validators\SnakValidator
+ * @covers Wikibase\Repo\Validators\SnakValidator
  *
  * @group Wikibase
  * @group WikibaseRepo
@@ -132,10 +131,10 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideValidateClaimSnaks
 	 */
-	public function testValidateClaimSnaks( Claim $claim, $description, $expectedValid = true ) {
+	public function testValidateClaimSnaks( Statement $statement, $description, $expectedValid = true ) {
 		$validator = $this->getSnakValidator();
 
-		$result = $validator->validateClaimSnaks( $claim );
+		$result = $validator->validateClaimSnaks( $statement );
 
 		$this->assertEquals( $expectedValid, $result->isValid(), $description );
 	}

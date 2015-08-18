@@ -5,7 +5,6 @@ namespace Wikibase\Test;
 use Language;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Term\TermFallback;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Repo\LanguageFallbackLabelDescriptionLookupFactory;
 
@@ -18,7 +17,7 @@ use Wikibase\Repo\LanguageFallbackLabelDescriptionLookupFactory;
 class LanguageFallbackLabelDescriptionLookupFactoryTest extends \PHPUnit_Framework_TestCase {
 
 	private function getTermLookupMock() {
-		$termLookup = $this->getMock( 'Wikibase\Lib\Store\TermLookup' );
+		$termLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\TermLookup' );
 		$termLookup->expects( $this->any() )
 			->method( 'getLabel' )
 			->will( $this->returnCallback( function( EntityId $entityId ) {

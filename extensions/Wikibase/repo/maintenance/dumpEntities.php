@@ -4,21 +4,17 @@ namespace Wikibase;
 
 use Maintenance;
 use MWException;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\Lib\Disposable;
+use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\Dumpers\DumpGenerator;
 use Wikibase\Lib\Reporting\ExceptionHandler;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
 use Wikibase\Lib\Reporting\ReportingExceptionHandler;
-use Wikibase\Lib\Store\EntityLookup;
-use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\RevisionBasedEntityLookup;
+use Wikibase\Repo\Disposable;
 use Wikibase\Repo\IO\EntityIdReader;
 use Wikibase\Repo\IO\LineReader;
 use Wikibase\Repo\Store\EntityIdPager;
 use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\Repo\Store\SQL\EntityPerPageIdPager;
-use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Dumpers\DumpGenerator;
 
 $basePath = getenv( 'MW_INSTALL_PATH' ) !== false ? getenv( 'MW_INSTALL_PATH' ) : __DIR__ . '/../../../..';
 
@@ -33,21 +29,6 @@ require_once $basePath . '/maintenance/Maintenance.php';
  * @author Daniel Kinzler
  */
 abstract class DumpScript extends Maintenance {
-
-	/**
-	 * @var EntityLookup
-	 */
-	protected $entityLookup;
-
-	/**
-	 * @var EntityRevisionLookup
-	 */
-	protected $revisionLookup;
-
-	/**
-	 * @var WikibaseRepo
-	 */
-	protected $wikibaseRepo;
 
 	/**
 	 * @var EntityPerPage
@@ -75,15 +56,8 @@ abstract class DumpScript extends Maintenance {
 		$this->addOption( 'limit', "Limit how many entities are dumped.", false, true );
 	}
 
-	private function initServices() {
-		$this->wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		//TODO: allow injection for unit tests
-		$this->entityPerPage = $this->wikibaseRepo->getStore()->newEntityPerPage();
-
-		// Use an uncached EntityRevisionLookup here to avoid leaking memory (we only need every entity once)
-		$this->revisionLookup = $this->wikibaseRepo->getStore()->getEntityRevisionLookup( 'uncached' );
-		// This is not purposefully not resolving redirects, as we don't want them in the dump
-		$this->entityLookup = new RevisionBasedEntityLookup( $this->revisionLookup );
+	public function setDumpEntitiesServices( EntityPerPage $entityPerPage ) {
+		$this->entityPerPage = $entityPerPage;
 	}
 
 	/**
@@ -149,8 +123,6 @@ abstract class DumpScript extends Maintenance {
 	 * Do the actual work. All child classes will need to implement this
 	 */
 	public function execute() {
-		$this->initServices();
-
 		//TODO: more validation for options
 		$entityType = $this->getOption( 'entity-type' );
 		$shardingFactor = (int)$this->getOption( 'sharding-factor', 1 );
@@ -202,9 +174,9 @@ abstract class DumpScript extends Maintenance {
 		$dumper->setBatchSize( $batchSize );
 
 		$idStream = $this->makeIdStream( $entityType, $exceptionReporter );
-		wfSuppressWarnings();
+		\MediaWiki\suppressWarnings();
 		$dumper->generateDump( $idStream );
-		wfRestoreWarnings();
+		\MediaWiki\restoreWarnings();
 
 		if ( $idStream instanceof Disposable ) {
 			// close stream / free resources

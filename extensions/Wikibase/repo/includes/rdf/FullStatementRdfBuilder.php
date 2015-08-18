@@ -161,10 +161,11 @@ class FullStatementRdfBuilder implements EntityRdfBuilder {
 	public function addStatements( EntityId $entityId, StatementList $statementList ) {
 		$bestList = array();
 
-		/** @var Statement $statement */
 		// FIXME: getBestStatementPerProperty() is expensive, share the result with TruthyStatementRdfBuilder!
-		foreach ( $statementList->getBestStatementPerProperty() as $statement ) {
-			$bestList[$statement->getGuid()] = true;
+		foreach ( $statementList->getPropertyIds() as $propertyId ) {
+			foreach ( $statementList->getByPropertyId( $propertyId )->getBestStatements() as $statement ) {
+				$bestList[$statement->getGuid()] = true;
+			}
 		}
 
 		foreach ( $statementList as $statement ) {
@@ -234,20 +235,20 @@ class FullStatementRdfBuilder implements EntityRdfBuilder {
 
 		$this->statementWriter->about( RdfVocabulary::NS_STATEMENT, $statementLName )
 			->a( RdfVocabulary::NS_ONTOLOGY, 'Statement' );
-		$this->addSnak( $this->statementWriter, $snak, RdfVocabulary::NSP_CLAIM_STATEMENT );
-
-		$this->mentionedEntityTracker->propertyMentioned( $snak->getPropertyId() );
 
 		$rank = $statement->getRank();
 		if ( isset( RdfVocabulary::$rankMap[$rank] ) ) {
+			if ( $isBest ) {
+				$this->statementWriter->a( RdfVocabulary::NS_ONTOLOGY, RdfVocabulary::WIKIBASE_RANK_BEST );
+			}
 			$this->statementWriter->about( RdfVocabulary::NS_STATEMENT, $statementLName )
 				->say( RdfVocabulary::NS_ONTOLOGY, 'rank' )->is( RdfVocabulary::NS_ONTOLOGY, RdfVocabulary::$rankMap[$rank] );
-			if ( $isBest ) {
-				$this->statementWriter->say( RdfVocabulary::NS_ONTOLOGY, 'rank' )->is( RdfVocabulary::NS_ONTOLOGY, RdfVocabulary::WIKIBASE_RANK_BEST );
-			}
 		} else {
 			wfLogWarning( "Unknown rank $rank encountered for $entityId:{$statement->getGuid()}" );
 		}
+
+		$this->addSnak( $this->statementWriter, $snak, RdfVocabulary::NSP_CLAIM_STATEMENT );
+		$this->mentionedEntityTracker->propertyMentioned( $snak->getPropertyId() );
 
 	}
 

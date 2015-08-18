@@ -52,6 +52,8 @@ class SetClaimValue extends ModifyClaim {
 		$params = $this->extractRequestParams();
 		$this->validateParameters( $params );
 
+		$this->logFeatureUsage( 'action=wbsetclaimvalue' );
+
 		$guid = $params['claim'];
 		$entityId = $this->guidParser->parse( $guid )->getEntityId();
 		if ( isset( $params['baserevid'] ) ) {
@@ -74,7 +76,7 @@ class SetClaimValue extends ModifyClaim {
 		$status = $this->saveChanges( $entity, $summary );
 		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
-		$this->getResultBuilder()->addClaim( $claim );
+		$this->getResultBuilder()->addStatement( $claim );
 	}
 
 	/**

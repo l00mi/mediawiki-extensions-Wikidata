@@ -6,8 +6,8 @@ use Sanitizer;
 use Site;
 use SiteList;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataModel\SiteLink;
-use Wikibase\Lib\EntityIdFormatter;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\View\Template\TemplateFactory;
 
@@ -143,19 +143,24 @@ class SiteLinksView {
 	 * @return string
 	 */
 	private function getHtmlForSiteLinkGroup( array $siteLinks, ItemId $itemId = null, $group ) {
-		return $this->templateFactory->render( 'wikibase-sitelinkgroupview',
+		$siteLinksForTable = $this->getSiteLinksForTable(
+			$this->getSitesForGroup( $group ),
+			$siteLinks
+		);
+
+		return $this->templateFactory->render(
+			'wikibase-sitelinkgroupview',
 			// TODO: support entity-id as prefix for element IDs.
 			htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES ),
 			wfMessage( 'wikibase-sitelinks-' . $group )->parse(),
 			'', // counter
-			$this->templateFactory->render( 'wikibase-sitelinklistview',
-				$this->getHtmlForSiteLinks(
-					$this->getSiteLinksForTable( $this->getSitesForGroup( $group ), $siteLinks ),
-					$group === 'special'
-				)
+			$this->templateFactory->render(
+				'wikibase-sitelinklistview',
+				$this->getHtmlForSiteLinks( $siteLinksForTable, $group === 'special' )
 			),
 			htmlspecialchars( $group ),
-			$this->sectionEditLinkGenerator->getSiteLinksEditSection( $itemId )
+			$this->sectionEditLinkGenerator->getSiteLinksEditSection( $itemId ),
+			count( $siteLinksForTable ) > 1 ? ' mw-collapsible' : ''
 		);
 	}
 

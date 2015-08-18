@@ -12,7 +12,8 @@ use ValueFormatters\DecimalFormatter;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\QuantityFormatter;
 use ValueFormatters\ValueFormatter;
-use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Services\EntityId\EntityIdLabelFormatter;
+use Wikibase\DataModel\Services\EntityId\EntityIdParser;
 use Wikibase\Formatters\MonolingualHtmlFormatter;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
@@ -212,7 +213,7 @@ class WikibaseValueFormatterBuilders {
 			}
 		}
 
-		$this->setValueFormatterSpec( $format, $type, $formatterBuilder);
+		$this->setValueFormatterSpec( $format, $type, $formatterBuilder );
 	}
 
 	/**

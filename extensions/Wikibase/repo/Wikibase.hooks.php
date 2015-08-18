@@ -445,7 +445,7 @@ final class RepoHooks {
 	 *
 	 * @return bool
 	 */
-	public static function onPageHistoryLineEnding( HistoryPager $history, &$row, &$s, array &$classes  ) {
+	public static function onPageHistoryLineEnding( HistoryPager $history, &$row, &$s, array &$classes ) {
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		$article = $history->getArticle();
@@ -536,59 +536,6 @@ final class RepoHooks {
 	 */
 	public static function onSpecialPageReorderPages( &$groups, &$moveOther ) {
 		$groups = array_merge( array( 'wikibaserepo' => null ), $groups );
-		return true;
-	}
-
-	/**
-	 * Deletes all the data stored on the repository.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/WikibaseDeleteData
-	 *
-	 * @since 0.1
-	 *
-	 * @param callable $reportMessage // takes a string param and echos it
-	 *
-	 * @return bool
-	 */
-	public static function onWikibaseDeleteData( $reportMessage ) {
-		$entityNamespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
-
-		$reportMessage( 'Deleting data from changes table...' );
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'wb_changes', '*', __METHOD__ );
-		$dbw->delete( 'wb_changes_dispatch', '*', __METHOD__ );
-
-		$reportMessage( "done!\n" );
-
-		$reportMessage( 'Deleting revisions from Data NS...' );
-
-		$namespaceList = $dbw->makeList( $entityNamespaceLookup->getEntityNamespaces(), LIST_COMMA );
-
-		$dbw->deleteJoin(
-			'revision', 'page',
-			'rev_page', 'page_id',
-			array( 'page_namespace IN ( ' . $namespaceList . ')' )
-		);
-
-		$reportMessage( "done!\n" );
-
-		$reportMessage( 'Deleting pages from Data NS...' );
-
-		$dbw->delete(
-			'page',
-			array( 'page_namespace IN ( ' . $namespaceList . ')' )
-		);
-
-		$reportMessage( "done!\n" );
-
-		$store = WikibaseRepo::getDefaultInstance()->getStore();
-
-		$reportMessage( 'Deleting data from the ' . get_class( $store ) . ' store...' );
-
-		$store->clear();
-
-		$reportMessage( "done!\n" );
-
 		return true;
 	}
 

@@ -12,11 +12,9 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\Serializers\SerializationOptions;
-use Wikibase\Lib\Serializers\LibSerializerFactory;
-use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\RedirectRevision;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
@@ -82,7 +80,7 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 			$entityLookup = $this->getMockRepository();
 		}
 
-		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 		$dataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( 'string' ) );
@@ -93,13 +91,11 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 			->will( $this->returnCallback( function( EntityId $id ) {
 				return Title::newFromText( $id->getEntityType() . ':' . $id->getSerialization() );
 			} ) );
-		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Entity\PropertyDataTypeLookup' );
+		$dataTypeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 		$dataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( 'string' ) );
 
-		$serializerOptions = new SerializationOptions();
-		$libSerializerFactory = new LibSerializerFactory( $serializerOptions, $dataTypeLookup );
 		$serializerFactory = new SerializerFactory(
 			new DataValueSerializer(),
 			SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
@@ -111,7 +107,6 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 			self::URI_DATA,
 			$entityLookup,
 			$titleLookup,
-			$libSerializerFactory,
 			$dataTypeLookup,
 			new SiteList(),
 			new EntityDataFormatProvider(),

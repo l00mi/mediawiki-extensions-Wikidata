@@ -5,9 +5,9 @@ namespace Wikibase\Repo\Diff;
 use Diff\Differ\Differ;
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpChange;
-use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\SnakList;
+use Wikibase\DataModel\Statement\Statement;
 
 /**
  * Class for generating a ClaimDifference given two statements.
@@ -65,7 +65,7 @@ class ClaimDiffer {
 			return null;
 		}
 
-		if( ( $oldStatementMainSnak === null && $newStatementMainSnak !== null )
+		if ( ( $oldStatementMainSnak === null && $newStatementMainSnak !== null )
 			|| !$oldStatementMainSnak->equals( $newStatementMainSnak ) ) {
 			return new DiffOpChange( $oldStatementMainSnak, $newStatementMainSnak );
 		}
