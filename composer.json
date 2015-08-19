@@ -4,6 +4,10 @@
     "license": "GPL-2.0+",
     "repositories": [
         {
+	    "type": "git",
+	    "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase"
+	},
+	{
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org"
         },

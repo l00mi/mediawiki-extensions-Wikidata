@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "baf1f0d0ba9e5dbc1cbe2b1b7ccfe303",
+    "hash": "3911e4c4d021d4f835cf5821ee3ef572",
     "packages": [
         {
             "name": "composer/installers",
@@ -949,7 +949,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-08-14 11:26:42"
+            "time": "2015-08-14 10:25:37"
         },
         {
             "name": "wikibase/data-model",
@@ -1330,7 +1330,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-08-14 10:27:43"
+            "time": "2015-08-14 10:23:53"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1378,14 +1378,8 @@
             "version": "dev-wmf/1.26wmf19",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "b9f31e4def71f33ef1c1fc6eb1fd782cd72924b8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b9f31e4def71f33ef1c1fc6eb1fd782cd72924b8",
-                "reference": "b9f31e4def71f33ef1c1fc6eb1fd782cd72924b8",
-                "shasum": ""
+                "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
+                "reference": "1981ec428ebe0d59ffd52b1003945161f45fee0e"
             },
             "require": {
                 "data-values/common": "~0.3.0",
@@ -1435,7 +1429,17 @@
                     "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "test": [
+                    "composer cs"
+                ],
+                "cs": [
+                    "composer phpcs"
+                ],
+                "phpcs": [
+                    "vendor/bin/phpcs -sp --standard=phpcs.xml --extensions=php --ignore=extensions/ValueView,vendor ."
+                ]
+            },
             "license": [
                 "GPL-2.0+"
             ],
@@ -1453,7 +1457,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-08-18 09:27:53"
+            "support": {
+                "issues": "https://phabricator.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata"
+            },
+            "time": "2015-08-19 18:22:18"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1495,7 +1503,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-05 13:24:18"
+            "time": "2015-08-05 13:23:38"
         }
     ],
     "packages-dev": [],
