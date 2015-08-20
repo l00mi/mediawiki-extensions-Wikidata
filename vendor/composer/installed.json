@@ -1272,12 +1272,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "46817311a40d130cfc20281190746398c520986a"
+            "reference": "9fca36dcc6c1c16ce94f540ae9123cb8a7f15fc1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/46817311a40d130cfc20281190746398c520986a",
-            "reference": "46817311a40d130cfc20281190746398c520986a",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9fca36dcc6c1c16ce94f540ae9123cb8a7f15fc1",
+            "reference": "9fca36dcc6c1c16ce94f540ae9123cb8a7f15fc1",
             "shasum": ""
         },
         "require": {
@@ -1308,7 +1308,7 @@
         "require-dev": {
             "squizlabs/php_codesniffer": "~2.1"
         },
-        "time": "2015-08-19 09:47:05",
+        "time": "2015-08-20 08:26:34",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1356,12 +1356,12 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-            "reference": "34187cf65be84dca1ce6bfbb5a22818bfc58c6fb"
+            "reference": "0befe2c7832f0171d19eb2a870c3bc509f797278"
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-08-05 13:23:38",
+        "time": "2015-08-04 17:18:47",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1400,12 +1400,12 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "9029d28d8aaeb65cd1338865183740b4be445fa5"
+            "reference": "bd43e32e423f3acbf6bbe2725acd1bc72edb0548"
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-07-06 10:56:50",
+        "time": "2015-08-19 14:55:53",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

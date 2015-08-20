@@ -196,13 +196,11 @@ final class TestChanges {
 				$change->setComment( "$key:1|" );
 
 				$meta = array(
-					'comment' => '',
 					'page_id' => 23,
 					'bot' => false,
 					'rev_id' => $rev,
 					'parent_id' => $rev -1,
 					'user_text' => 'Some User',
-					'time' => wfTimestamp( TS_MW ),
 				);
 
 				$change->setMetadata( $meta );
