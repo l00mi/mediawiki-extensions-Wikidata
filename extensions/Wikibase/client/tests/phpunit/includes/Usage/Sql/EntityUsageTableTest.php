@@ -187,7 +187,8 @@ class EntityUsageTableTest extends \MediaWikiTestCase {
 			new EntityUsage( $q5, EntityUsage::ALL_USAGE ),
 		);
 
-		$usageTable = $this->getEntityUsageTable();
+		// test with small batch size
+		$usageTable = $this->getEntityUsageTable( 2 );
 		$usageTable->addUsages( 23, $usagesT1, $t1 );
 
 		// touch usage entries (some non-existing)
@@ -547,11 +548,11 @@ class EntityUsageTableTest extends \MediaWikiTestCase {
 
 	/**
 	 * @param DatabaseBase $db
-	 * @param mixed $conditions
+	 * @param array $conditions
 	 *
 	 * @return bool
 	 */
-	private function rowExists( DatabaseBase $db, $conditions ) {
+	private function rowExists( DatabaseBase $db, array $conditions ) {
 		$count = $db->selectRowCount( EntityUsageTable::DEFAULT_TABLE_NAME, '*', $conditions );
 		return $count > 0;
 	}

@@ -83,9 +83,7 @@ class RdfVocabulary {
 	);
 
 	/**
-	 * Map of qnames to namespace URIs
-	 *
-	 * @var array
+	 * @var string[] Mapping of namespace names to URIs.
 	 */
 	private $namespaces = array();
 
@@ -93,18 +91,31 @@ class RdfVocabulary {
 	 * @var string
 	 */
 	private $baseUri;
+
 	/**
 	 * @var string
 	 */
 	private $dataUri;
 
 	/**
+	 * @var string[] Mapping of non-standard to canonical language codes.
+	 */
+	private $canonicalLanguageCodes;
+
+	/**
+	 * @var string[]
+	 */
+	private static $canonicalLanguageCodeCache = array();
+
+	/**
 	 * @param string $baseUri Base URI for entity concept URIs.
 	 * @param string $dataUri Base URI for entity description URIs.
+	 * @param string[] $canonicalLanguageCodes Mapping of non-standard to canonical language codes.
 	 */
-	public function __construct( $baseUri, $dataUri ) {
+	public function __construct( $baseUri, $dataUri, array $canonicalLanguageCodes = array() ) {
 		$this->baseUri = $baseUri;
 		$this->dataUri = $dataUri;
+		$this->canonicalLanguageCodes = $canonicalLanguageCodes;
 
 		if ( substr( $this->baseUri, -7 ) === 'entity/' ) {
 			$topUri = substr( $this->baseUri, 0, -7 );
@@ -148,7 +159,7 @@ class RdfVocabulary {
 	/**
 	 * Returns a map of namespace names (prefixes) to URIs
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function getNamespaces() {
 		return $this->namespaces;
@@ -180,7 +191,7 @@ class RdfVocabulary {
 	 * Returns a qname for the given entity type.
 	 * For well known types, these qnames refer to classes from the Wikibase ontology.
 	 *
-	 * @param $type
+	 * @param string $type
 	 *
 	 * @return string
 	 */
@@ -202,7 +213,7 @@ class RdfVocabulary {
 	/**
 	 * Get Wikibase value type name for ontology
 	 *
-	 * @param DataValue $prop
+	 * @param DataValue $val
 	 *
 	 * @return string
 	 */
@@ -219,6 +230,27 @@ class RdfVocabulary {
 	 */
 	public function getCommonsURI( $file ) {
 		return self::COMMONS_URI . rawurlencode( $file );
+	}
+
+	/**
+	 * @param string $languageCode Any non-standard or canonical language code
+	 *
+	 * @return string Canonical language code
+	 */
+	public function getCanonicalLanguageCode( $languageCode ) {
+		// First we check the case since most languages will be cached very quickly
+		if ( isset( self::$canonicalLanguageCodeCache[$languageCode] ) ) {
+			return self::$canonicalLanguageCodeCache[$languageCode];
+		}
+
+		// Wikibase list goes first in case we want to override
+		// Like "simple" goes to en-x-simple not en
+		if ( isset( $this->canonicalLanguageCodes[$languageCode] ) ) {
+			return $this->canonicalLanguageCodes[$languageCode];
+		}
+
+		self::$canonicalLanguageCodeCache[$languageCode] = wfBCP47( $languageCode );
+		return self::$canonicalLanguageCodeCache[$languageCode];
 	}
 
 }

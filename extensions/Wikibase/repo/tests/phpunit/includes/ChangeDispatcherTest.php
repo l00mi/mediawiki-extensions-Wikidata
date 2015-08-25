@@ -51,7 +51,7 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 	 *
 	 * @return ChangeDispatcher
 	 */
-	private function getChangeDispatcher( ChangeDispatchCoordinator $coordinator, &$notifications = array() ) {
+	private function getChangeDispatcher( ChangeDispatchCoordinator $coordinator, array &$notifications = array() ) {
 		$dispatcher = new ChangeDispatcher(
 			$coordinator,
 			$this->getNotificationSender( $notifications ),
@@ -68,7 +68,7 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 	 *
 	 * @return ChangeNotificationSender
 	 */
-	private function getNotificationSender( &$notifications = array() ) {
+	private function getNotificationSender( array &$notifications = array() ) {
 		$sender = $this->getMock( 'Wikibase\Repo\Notifications\ChangeNotificationSender' );
 
 		$sender->expects( $this->any() )
@@ -222,11 +222,11 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 		$siteId = 'testwiki';
 
 		$expectedClientState = array(
-			'chd_site' =>   $siteId,
-			'chd_db' =>     $siteId,
-			'chd_seen' =>   0,
+			'chd_site' => $siteId,
+			'chd_db' => $siteId,
+			'chd_seen' => 0,
 			'chd_touched' => '20140303000000',
-			'chd_lock' =>   null
+			'chd_lock' => null
 		);
 
 		$coordinator = $this->getMock( 'Wikibase\Store\ChangeDispatchCoordinator' );
@@ -275,18 +275,14 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideGetPendingChanges
 	 */
-	public function testGetPendingChanges( $siteId, $afterId, $batchSize, $batchChunkFactor, $expectedChanges, $expectedSeen ) {
+	public function testGetPendingChanges( $siteId, $afterId, $batchSize, $batchChunkFactor, array $expectedChanges, $expectedSeen ) {
 		$coordinator = $this->getMock( 'Wikibase\Store\ChangeDispatchCoordinator' );
 
 		$dispatcher = $this->getChangeDispatcher( $coordinator );
-
 		$dispatcher->setBatchSize( $batchSize );
 		$dispatcher->setBatchChunkFactor( $batchChunkFactor );
 
-		$pending = $dispatcher->getPendingChanges(
-			$siteId,
-			$afterId
-		);
+		$pending = $dispatcher->getPendingChanges( $siteId, $afterId );
 
 		$this->assertChanges( $expectedChanges, $pending[0] );
 		$this->assertEquals( $expectedSeen, $pending[1] );
@@ -299,11 +295,11 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 			'enwiki: from the beginning' => array(
 				3,
 				array(
-					'chd_site' =>   'enwiki',
-					'chd_db' =>     'enwikidb',
-					'chd_seen' =>   0,
+					'chd_site' => 'enwiki',
+					'chd_db' => 'enwikidb',
+					'chd_seen' => 0,
 					'chd_touched' => '00000000000000',
-					'chd_lock' =>   null
+					'chd_lock' => null
 				),
 				3,
 				array(
@@ -313,11 +309,11 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 			'enwiki: scan to end' => array(
 				3,
 				array(
-					'chd_site' =>   'enwiki',
-					'chd_db' =>     'enwikidb',
-					'chd_seen' =>   4,
+					'chd_site' => 'enwiki',
+					'chd_db' => 'enwikidb',
+					'chd_seen' => 4,
 					'chd_touched' => $changes[4]->getTime(),
-					'chd_lock' =>   null
+					'chd_lock' => null
 				),
 				8,
 				array(
@@ -327,11 +323,11 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 			'dewiki: from the beginning' => array(
 				3,
 				array(
-					'chd_site' =>   'dewiki',
-					'chd_db' =>     'dewikidb',
-					'chd_seen' =>   0,
+					'chd_site' => 'dewiki',
+					'chd_db' => 'dewikidb',
+					'chd_seen' => 0,
 					'chd_touched' => '00000000000000',
-					'chd_lock' =>   null
+					'chd_lock' => null
 				),
 				7,
 				array(
@@ -341,11 +337,11 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 			'dewiki: offset' => array(
 				2,
 				array(
-					'chd_site' =>   'dewiki',
-					'chd_db' =>     'dewikidb',
-					'chd_seen' =>   3,
+					'chd_site' => 'dewiki',
+					'chd_db' => 'dewikidb',
+					'chd_seen' => 3,
 					'chd_touched' => $changes[4]->getTime(),
-					'chd_lock' =>   null
+					'chd_lock' => null
 				),
 				7,
 				array(
@@ -358,7 +354,7 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideDispatchTo
 	 */
-	public function testDispatchTo( $batchSize, $wikiState, $expectedFinalSeen, $expectedNotifications ) {
+	public function testDispatchTo( $batchSize, array $wikiState, $expectedFinalSeen, array $expectedNotifications ) {
 		$expectedFinalState = array_merge( $wikiState, array( 'chd_seen' => $expectedFinalSeen ) );
 
 		$coordinator = $this->getMock( 'Wikibase\Store\ChangeDispatchCoordinator' );
@@ -370,16 +366,10 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 			->method( 'releaseClient' )
 			->with( $expectedFinalState );
 
-		$dispatcher = $this->getChangeDispatcher(
-			$coordinator,
-			$notifications
-		);
-
+		$notifications = array();
+		$dispatcher = $this->getChangeDispatcher( $coordinator, $notifications );
 		$dispatcher->setBatchSize( $batchSize );
-
-		$dispatcher->dispatchTo(
-			$wikiState
-		);
+		$dispatcher->dispatchTo( $wikiState );
 
 		$this->assertNotifications( $expectedNotifications, $notifications );
 	}
@@ -390,14 +380,14 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 		}, $changes );
 	}
 
-	private function assertChanges( $expected, $actual ) {
+	private function assertChanges( array $expected, $actual ) {
 		$expected = $this->getChangeIds( $expected );
 		$actual = $this->getChangeIds( $actual );
 
 		$this->assertEquals( $expected, $actual );
 	}
 
-	private function assertNotifications( $expected, $notifications ) {
+	private function assertNotifications( array $expected, array $notifications ) {
 		foreach ( $notifications as &$n ) {
 			$n[1] = $this->getChangeIds( $n[1] );
 		}

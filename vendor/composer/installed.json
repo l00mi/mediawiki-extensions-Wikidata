@@ -385,6 +385,91 @@
         ]
     },
     {
+        "name": "wikibase/wikimedia-badges",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
+            "reference": "0befe2c7832f0171d19eb2a870c3bc509f797278"
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-08-04 17:18:47",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "WikimediaBadges.php"
+            ],
+            "classmap": [
+                "WikimediaBadges.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Extension which contains default themes to display badges on Wikimedia projects",
+        "homepage": "https://github.com/wmde/WikimediaBadges",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata"
+        }
+    },
+    {
+        "name": "wikibase/Wikidata.org",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
+            "reference": "bd43e32e423f3acbf6bbe2725acd1bc72edb0548"
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-08-19 14:55:53",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "WikidataOrg.hooks.php"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
+        "homepage": "https://github.com/wmde/Wikidata.org",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata"
+        }
+    },
+    {
         "name": "data-values/javascript",
         "version": "0.7.0",
         "version_normalized": "0.7.0.0",
@@ -815,50 +900,6 @@
         "description": "Wikibase API client in JavaScript"
     },
     {
-        "name": "data-values/value-view",
-        "version": "0.14.5",
-        "version_normalized": "0.14.5.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/ValueView.git",
-            "reference": "4f561f1001fc2317b5d5df1402cedffa686a2b77"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/ValueView/zipball/4f561f1001fc2317b5d5df1402cedffa686a2b77",
-            "reference": "4f561f1001fc2317b5d5df1402cedffa686a2b77",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.7.0",
-            "php": ">=5.3.0"
-        },
-        "time": "2015-06-11 15:17:50",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "ValueView.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
         "name": "data-values/data-types",
         "version": "0.4.3",
         "version_normalized": "0.4.3.0",
@@ -1266,91 +1307,6 @@
         ]
     },
     {
-        "name": "wikibase/wikimedia-badges",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-            "reference": "34187cf65be84dca1ce6bfbb5a22818bfc58c6fb"
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2015-08-05 13:23:38",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "files": [
-                "WikimediaBadges.php"
-            ],
-            "classmap": [
-                "WikimediaBadges.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Extension which contains default themes to display badges on Wikimedia projects",
-        "homepage": "https://github.com/wmde/WikimediaBadges",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata"
-        }
-    },
-    {
-        "name": "wikibase/Wikidata.org",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "9029d28d8aaeb65cd1338865183740b4be445fa5"
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2015-07-06 10:56:50",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "classmap": [
-                "WikidataOrg.hooks.php"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
-        "homepage": "https://github.com/wmde/Wikidata.org",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata"
-        }
-    },
-    {
         "name": "wikibase/quality",
         "version": "1.x-dev",
         "version_normalized": "1.9999999.9999999.9999999-dev",
@@ -1461,13 +1417,57 @@
         }
     },
     {
+        "name": "data-values/value-view",
+        "version": "0.14.5",
+        "version_normalized": "0.14.5.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/ValueView.git",
+            "reference": "4f561f1001fc2317b5d5df1402cedffa686a2b77"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/ValueView/zipball/4f561f1001fc2317b5d5df1402cedffa686a2b77",
+            "reference": "4f561f1001fc2317b5d5df1402cedffa686a2b77",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.7.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2015-06-11 15:17:50",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
+    },
+    {
         "name": "wikibase/wikibase",
-        "version": "dev-wmf/1.26wmf19",
-        "version_normalized": "dev-wmf/1.26wmf19",
+        "version": "dev-wmf/1.26wmf20",
+        "version_normalized": "dev-wmf/1.26wmf20",
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
-            "reference": "b607ec094cecf02c937a9ddbe8f48c4c046185f7"
+            "reference": "e83f1f85171d73035306021dabdc4cfd18c29ec6"
         },
         "require": {
             "data-values/common": "~0.3.0",

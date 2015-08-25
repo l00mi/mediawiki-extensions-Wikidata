@@ -111,15 +111,21 @@ class EntityDataSerializationService {
 	private $siteStore;
 
 	/**
+	 * @var string[] Mapping of non-standard to canonical language codes.
+	 */
+	private $canonicalLanguageCodes;
+
+	/**
 	 * @param string $rdfBaseURI
 	 * @param string $rdfDataURI
 	 * @param EntityLookup $entityLookup
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param PropertyDataTypeLookup $propertyLookup
-	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param SiteList $sites
+	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param SerializerFactory $serializerFactory
 	 * @param SiteStore $siteStore
+	 * @param string[] $canonicalLanguageCodes Mapping of non-standard to canonical language codes.
 	 *
 	 * @since 0.4
 	 */
@@ -132,7 +138,8 @@ class EntityDataSerializationService {
 		SiteList $sites,
 		EntityDataFormatProvider $entityDataFormatProvider,
 		SerializerFactory $serializerFactory,
-		SiteStore $siteStore
+		SiteStore $siteStore,
+		array $canonicalLanguageCodes = array()
 	) {
 		$this->rdfBaseURI = $rdfBaseURI;
 		$this->rdfDataURI = $rdfDataURI;
@@ -143,6 +150,7 @@ class EntityDataSerializationService {
 		$this->sites = $sites;
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
 		$this->siteStore = $siteStore;
+		$this->canonicalLanguageCodes = $canonicalLanguageCodes;
 
 		$this->rdfWriterFactory = new RdfWriterFactory();
 	}
@@ -415,7 +423,7 @@ class EntityDataSerializationService {
 
 		$rdfBuilder = new RdfBuilder(
 			$this->sites,
-			new RdfVocabulary( $this->rdfBaseURI, $this->rdfDataURI ),
+			new RdfVocabulary( $this->rdfBaseURI, $this->rdfDataURI, $this->canonicalLanguageCodes ),
 			$this->propertyLookup,
 			$this->getFlavor( $flavorName ),
 			$rdfWriter,

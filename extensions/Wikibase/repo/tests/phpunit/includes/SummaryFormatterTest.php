@@ -79,7 +79,7 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 	/**
 	 * @return SummaryFormatter
 	 */
-	protected function newFormatter() {
+	private function newFormatter() {
 		$idFormatter = $this->getMock( 'Wikibase\DataModel\Services\EntityId\EntityIdFormatter' );
 		$idFormatter->expects( $this->any() )->method( 'formatEntityId' )
 			->will( $this->returnCallback( array( $this, 'formatId' ) ) );
@@ -370,16 +370,25 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 				null,
 				'/* summarytest:2| */ A, B'
 			),
-			array( // #5
+			'User summary overrides arguments' => array(
 				'summarytest',
 				'testing',
 				'nl',
 				array( 'x', 'y' ),
 				array( 'A', 'B' ),
 				'can I haz world domination?',
-				'/* summarytest-testing:2|nl|x|y */ can I haz world domination?'
-				),
-			array( // #6
+				'/* summarytest-testing:2|nl|x|y */ A, B, can I haz world domination?'
+			),
+			'Trimming' => array(
+				'summarytest',
+				'testing',
+				'de',
+				array( ' autoArg0 ', ' autoArg1 ' ),
+				array( ' userArg0 ', ' userArg1 ' ),
+				' userSummary ',
+				'/* summarytest-testing:2|de| autoArg0 | autoArg1 */ userArg0 ,  userArg1, userSummary'
+			),
+			'User summary only' => array(
 				'summarytest',
 				null,
 				null,
@@ -387,8 +396,26 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 				null,
 				'can I haz world domination?',
 				'/* summarytest:0| */ can I haz world domination?'
-				),
-			array( // #7
+			),
+			'User summary w/o arguments' => array(
+				'summarytest',
+				'testing',
+				'de',
+				array( 'autoArg0', 'autoArg1' ),
+				null,
+				'userSummary',
+				'/* summarytest-testing:0|de|autoArg0|autoArg1 */ userSummary'
+			),
+			'User summary w/o auto comment arguments' => array(
+				'summarytest',
+				'testing',
+				'de',
+				null,
+				array( 'userArg0', 'userArg1' ),
+				'userSummary',
+				'/* summarytest-testing:2|de */ userArg0, userArg1, userSummary'
+			),
+			'Array arguments' => array(
 				'summarytest',
 				'testing',
 				'nl',
@@ -397,7 +424,7 @@ class SummaryFormatterTest extends \MediaWikiLangTestCase {
 				null,
 				'/* summarytest-testing:2|nl|x|1, 2, 3 */ A, 1, 2, 3'
 			),
-			array( // #8
+			'Associative arguments' => array(
 				'summarytest',
 				'testing',
 				'nl',

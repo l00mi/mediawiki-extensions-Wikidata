@@ -150,7 +150,6 @@ class ChangeHandler {
 	 * @param Change $change
 	 *
 	 * @throws MWException
-	 * @return bool
 	 */
 	public function handleChange( Change $change ) {
 		$changeId = $this->getChangeIdForLog( $change );
@@ -158,12 +157,6 @@ class ChangeHandler {
 			. ' (' . $change->getType() . ')' );
 
 		$usagesPerPage = $this->affectedPagesFinder->getAffectedUsagesByPage( $change );
-
-		if ( empty( $usagesPerPage ) ) {
-			// nothing to do
-			wfDebugLog( __CLASS__, __FUNCTION__ . ": No pages to update for change #$changeId." );
-			return false;
-		}
 
 		wfDebugLog( __CLASS__, __FUNCTION__ . ': updating ' . count( $usagesPerPage )
 			. " page(s) for change #$changeId." );
@@ -179,8 +172,6 @@ class ChangeHandler {
 		foreach ( $actionBuckets as $action => $bucket ) {
 			$this->applyUpdateAction( $action, $bucket, $change );
 		}
-
-		return true;
 	}
 
 	/**
@@ -328,7 +319,7 @@ class ChangeHandler {
 	private function getRCAttributes( EntityChange $change ) {
 		$rcinfo = $change->getMetadata();
 
-		if ( !is_array( $rcinfo ) ) {
+		if ( empty( $rcinfo ) ) {
 			return false;
 		}
 

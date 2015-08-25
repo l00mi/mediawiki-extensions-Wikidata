@@ -102,12 +102,6 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	},
 
 	/**
-	 * @property {number}
-	 * @private
-	 */
-	_searchTimeoutHandle: null,
-
-	/**
 	 * Caching the most current entity returned from the API.
 	 * @property {Object}
 	 * @private
@@ -180,8 +174,8 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		this._cache = {};
 		this._select( null );
 
-		clearTimeout( this._searchTimeoutHandle );
-		this._searchTimeoutHandle = setTimeout( function() {
+		clearTimeout( this._searching );
+		this._searching = setTimeout( function() {
 			self.search( event )
 			.done( function( suggestions, requestTerm ) {
 				if( !suggestions.length || self.element.val() !== requestTerm ) {
@@ -223,6 +217,7 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 			search: term,
 			format: 'json',
 			language: this.options.language,
+			uselang: this.options.language,
 			type: this.options.type,
 			'continue': this._cache[term] && this._cache[term].nextSuggestionOffset
 			? this._cache[term].nextSuggestionOffset : 0

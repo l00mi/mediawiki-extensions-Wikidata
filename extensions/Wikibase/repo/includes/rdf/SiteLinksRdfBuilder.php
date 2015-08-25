@@ -57,7 +57,7 @@ class SiteLinksRdfBuilder implements EntityRdfBuilder {
 	/**
 	 * Site filter
 	 *
-	 * @param $lang
+	 * @param string $lang
 	 *
 	 * @return bool
 	 */
@@ -94,7 +94,8 @@ class SiteLinksRdfBuilder implements EntityRdfBuilder {
 			$this->writer->about( $url )
 				->a( RdfVocabulary::NS_SCHEMA_ORG, 'Article' )
 				->say( RdfVocabulary::NS_SCHEMA_ORG, 'about' )->is( RdfVocabulary::NS_ENTITY, $entityLName )
-				->say( RdfVocabulary::NS_SCHEMA_ORG, 'inLanguage' )->text( $site->getLanguageCode() );
+				->say( RdfVocabulary::NS_SCHEMA_ORG, 'inLanguage' )->text(
+						$this->vocabulary->getCanonicalLanguageCode( $site->getLanguageCode() ) );
 
 			foreach ( $siteLink->getBadges() as $badge ) {
 				$this->writer
