@@ -949,7 +949,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-08-14 11:26:42"
+            "time": "2015-08-14 10:25:37"
         },
         {
             "name": "wikibase/data-model",
@@ -1330,7 +1330,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-08-14 10:27:43"
+            "time": "2015-08-14 10:23:53"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1379,7 +1379,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
-                "reference": "e83f1f85171d73035306021dabdc4cfd18c29ec6"
+                "reference": "4b7691ead1d9922d8c8ec1104b2c730c773d0001"
             },
             "require": {
                 "data-values/common": "~0.3.0",
@@ -1461,7 +1461,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-25 13:18:04"
+            "time": "2015-08-25 17:34:58"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1503,7 +1503,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-12 09:30:01"
+            "time": "2015-08-04 17:18:47"
         }
     ],
     "packages-dev": [],
