@@ -28,5 +28,6 @@
 	"wbq-violations-mark-as-exception": "Marcar como exceção",
 	"wbq-violations-mark-as-violation": "Marcar como violação",
 	"wbq-violations-next-page": "Página seguinte >>",
-	"wbq-violations-prev-page": "<< Página anterior"
+	"wbq-violations-prev-page": "<< Página anterior",
+	"wbq-violations-permission-denied": "Não tem permissão para alterar esta violação!"
 }

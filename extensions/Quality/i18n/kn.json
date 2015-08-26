@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": [
+			"Ananth subray"
+		]
+	},
+	"wbq-violations-submit-button-label": "ಉಲ್ಲಂಘನೆಗಳನ್ನು ತೋರಿಸಿ",
+	"wbq-violations-invalid-entity-id": "ನಿರ್ದಿಷ್ಟ ಘಟಕದ ಐಡಿ ಅಮಾನ್ಯವಾಗಿದೆ.",
+	"wbq-violations-not-existent-entity": "ಕೊಟ್ಟಿರುವ ಐಡಿಯನ್ನು ಹೊಂದಿರುವ ಆಸ್ತಿ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ.",
+	"wbq-violations-invalid-property-id": "ನಿರ್ದಿಷ್ಟ ಘಟಕದ ಐಡಿ ಅಮಾನ್ಯವಾಗಿದೆ.",
+	"wbq-violations-not-existent-property": "ಕೊಟ್ಟಿರುವ ಐಡಿಯನ್ನು ಹೊಂದಿರುವ ಆಸ್ತಿ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ."
+}

@@ -5,5 +5,11 @@
 		]
 	},
 	"wbq-desc": "افزونه پایه برای افزونهٔ کیفیت ویکی‌بیس که یافتن اطلاعات اشتباه را مدیریت می‌کند",
-	"specialpages-group-wikibasequality": "کیفیت ویکی‌بیس"
+	"specialpages-group-wikibasequality": "کیفیت ویکی‌بیس",
+	"wbq-violations-group-label": "گروه:",
+	"wbq-violations-type-label": "نوع:",
+	"wbq-violations-form-select-all": "(همه)",
+	"wbq-violations-table-header-constraint-type": "نوع",
+	"wbq-violations-table-header-updated-at": "آخرین به‌روزرسانی",
+	"wbq-violations-table-header-status": "وضعیت"
 }

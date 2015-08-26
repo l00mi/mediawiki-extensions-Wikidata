@@ -3,7 +3,8 @@
 		"authors": [
 			"Liuxinyu970226",
 			"Robby",
-			"Raymond"
+			"Raymond",
+			"Amire80"
 		]
 	},
 	"wbq-desc": "{{desc|name=Wikibase Quality|url=https://www.mediawiki.org/wiki/Extension:WikidataQuality}}",
@@ -34,8 +35,8 @@
 	"wbq-violations-status-exception": "Status for violations that are marked as exception.",
 	"wbq-violations-mark-as-exception": "Message that is shown for marking a violation as exception on violation special page.",
 	"wbq-violations-mark-as-violation": "Message that is shown for marking a excepted violation as violation on violation special page.",
-	"wbq-violations-next-page": "Message that is shown as link to next page.",
-	"wbq-violations-prev-page": "Message that is shown as link to previous page.",
+	"wbq-violations-next-page": "Message that is shown as link to next page.\n\nThe arrows should point forward, so they should be in reverse for right-to-left languages.",
+	"wbq-violations-prev-page": "Message that is shown as link to previous page.\n\nThe arrows should point backward, so they should be in reverse for right-to-left languages.",
 	"apihelp-wbqgetviolationmessages-description": "{{doc-apihelp-description|wbqgetviolationmessages}}",
 	"apihelp-wbqgetviolationmessages-param-entityid": "{{doc-apihelp-param|wbqgetviolationmessages|entityid}}",
 	"apihelp-wbqgetviolationmessages-example": "{{doc-apihelp-example|wbqgetviolationmessages}}",

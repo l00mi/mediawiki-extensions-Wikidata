@@ -1,14 +1,16 @@
 {
 	"@metadata": {
 		"authors": [
-			"Elisardojm"
+			"Elisardojm",
+			"Banjo",
+			"Toliño"
 		]
 	},
-	"wbq-desc": "Extensión base para extensións de calidade wikibase que xestiona datos atopados incorrectos",
+	"wbq-desc": "Extensión base para as extensións de Wikibase Quality que xestiona aqueles datos atopados que son incorrectos",
 	"specialpages-group-wikibasequality": "Calidade Wikibase",
 	"wbq-violations-description": "Lista de problemas de calidade de datos",
 	"wbq-violations-explanations-general": "Esta páxina especial lista todos so problemas de calidade de datos que foron detectados en Wikidata. Estes problemas poden ser violacións de restricións definidas ou erros con outras bases de datos externas.",
-	"wbq-violations-explanations-exceptions": "Se unha declaración está etiquetada incorrectamente como un problema de calidade de datos, pode marcarse como excepción por usuarios privilexiados. Estas excepcións non se mostran na lista por defecto. As excepcións existentes tamén poden ser revertidas e fixadas como problema de novo.",
+	"wbq-violations-explanations-exceptions": "Se unha declaración está etiquetada incorrectamente como un problema de calidade de datos, os usuarios privilexiados poden marcarla como unha excepción. Estas excepcións non se mostran na lista por defecto. As excepcións existentes tamén poden ser revertidas e definidas como problemas de novo.",
 	"wbq-violatons-filter-headline": "Filtrar problemas",
 	"wbq-violations-entity-id-label": "Identificador de entidade:",
 	"wbq-violations-property-id-label": "Identificador de propiedade:",
@@ -17,10 +19,10 @@
 	"wbq-violations-form-select-all": "(todos)",
 	"wbq-violations-exceptions-checkbox-label": "Mostrar excepcións",
 	"wbq-violations-submit-button-label": "Ver violacións",
-	"wbq-violations-invalid-entity-id": "'$1' non é un identificador de entidade válido!",
-	"wbq-violations-not-existent-entity": "A entidade '$1' non existe!",
-	"wbq-violations-invalid-property-id": "'$1' non é un identificador de propiedade válido!",
-	"wbq-violations-not-existent-property": "A propiedade '$1' non existe!",
+	"wbq-violations-invalid-entity-id": "O identificador de entidade indicado non é válido.",
+	"wbq-violations-not-existent-entity": "Non existe ningunha entidade co identificador dado.",
+	"wbq-violations-invalid-property-id": "O identificador de propiedade indicado non é válido.",
+	"wbq-violations-not-existent-property": "Non existe ningunha propiedade co identificador dado.",
 	"wbq-violations-table-header-entity": "Entidade",
 	"wbq-violations-table-header-claim": "Afirmación",
 	"wbq-violations-table-header-constraint-type": "Tipo",
@@ -31,6 +33,21 @@
 	"wbq-violations-status-unverified": "Sen verificar",
 	"wbq-violations-status-exception": "Excepción",
 	"wbq-violations-mark-as-exception": "Marcar como excepción",
+	"wbq-violations-mark-as-violation": "Marcar coma violación",
 	"wbq-violations-next-page": "Páxina seguinte >>",
-	"wbq-violations-prev-page": "<< Páxina anterior"
+	"wbq-violations-prev-page": "<< Páxina anterior",
+	"wbq-violations-permission-denied": "Non ten permisos para alterar esta violación!",
+	"apihelp-wbqgetviolationmessages-description": "Obter mensaxes por violacións de datos en afirmacións.",
+	"apihelp-wbqgetviolationmessages-param-entityid": "Identificador dunha entidade cuxas violacións de datos deben ser listadas.",
+	"apihelp-wbqgetviolationmessages-example": "Obter mensaxes por violacións de datos do elemento Q76.",
+	"apihelp-wbqmodifyviolation-description": "Modifica unha violación de datos específica. Teña en conta que só os usuarios con dereitos específicos poden modificar as violacións.",
+	"apihelp-wbqmodifyviolation-param-claimguid": "O GUID da afirmación da violación de datos que debe ser modificado. Xunto co identificador de límite, identifícase a violación.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "O identificador de límite da violación de datos que debe ser modificado. Xunto co GUID da afirmación, identifícase a violación.",
+	"apihelp-wbqmodifyviolation-param-status": "O novo estado, que debe ser fixado para esta violación.",
+	"apihelp-wbqmodifyviolation-examples-exception": "Cambia o estado da violación identificada polo identificador de límite e o GUID da afirmación a excepción.",
+	"apihelp-wbqmodifyviolation-examples-violation": "Cambia o estado da violación identificada polo identificador de límite e o GUID da afirmación a violación.",
+	"apihelp-wbqgetviolationtypes-description": "Devolve a lista de todos os tipos de violacións soportados.",
+	"apihelp-wbqgetviolationtypes-param-groupid": "Parámetro opcional que restrinxe os tipos de violación a un asociado co grupo indicado.",
+	"apihelp-wdqgetviolationtypes-examples-1": "Devolve todos os tipos de violación admitidas sen restricións.",
+	"apihelp-wdqgetviolationtypes-examples-2": "Devolve todos os tipos de violacións admitidas que están asociadas co grupo \"wbqc\"."
 }

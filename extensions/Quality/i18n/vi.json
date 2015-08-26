@@ -1,27 +1,39 @@
 {
 	"@metadata": {
 		"authors": [
-			"Darcy Le"
+			"Darcy Le",
+			"Minh Nguyen"
 		]
 	},
-	"wbq-violations-description": "Danh sách những vấn đề về chất lượng dữ liệu",
-	"wbq-violatons-filter-headline": "Những vấn đề trong chọn lọc",
-	"wbq-violations-property-id-label": "Thuộc tính ID:",
+	"wbq-desc": "Phần mở rộng gốc của các phần mở rộng Chất lượng Wikibase dò và quản lý dữ liệu không chính xác",
+	"specialpages-group-wikibasequality": "Chất lượng Wikibase",
+	"wbq-violations-description": "Danh sách các vấn đề về chất lượng dữ liệu",
+	"wbq-violations-explanations-general": "Trang đặc biệt này liệt kê tất cả các vấn đề chất lượng dữ liệu được dò ra trong Wikidata. Những vấn đề này có thể là sự vi phạm ràng buộc hoặc sự không phù hợp với cơ sở dữ liệu bên ngoài.",
+	"wbq-violations-explanations-exceptions": "Nếu một lời tuyên bố bị đánh cờ vấn đề dữ liệu một cách sai lầm, những người dùng đặc quyền có thể đánh dấu ngoại lệ. Các ngoại lệ này không xuất hiện trong danh sách theo mặc định. Cũng có thể hủy bỏ các ngoại lệ để tạo lại vấn đề.",
+	"wbq-violatons-filter-headline": "Lọc vấn đề",
+	"wbq-violations-entity-id-label": "ID thực thể:",
+	"wbq-violations-property-id-label": "ID thuộc tính:",
 	"wbq-violations-group-label": "Nhóm:",
-	"wbq-violations-type-label": "Loại:",
+	"wbq-violations-type-label": "Kiểu:",
 	"wbq-violations-form-select-all": "(tất cả)",
-	"wbq-violations-exceptions-checkbox-label": "Cho thấy những ngoại lệ",
-	"wbq-violations-submit-button-label": "Có sự vị phạm",
-	"wbq-violations-invalid-entity-id": "'$1' không phải là 1 ID hợp lệ",
-	"wbq-violations-invalid-property-id": "'$1' không phải là 1 ID hợp lệ",
-	"wbq-violations-not-existent-property": "Giá trị '$1' không tồn tại!",
-	"wbq-violations-table-header-entity": "Bút toán",
-	"wbq-violations-table-header-claim": "Xác nhận",
-	"wbq-violations-table-header-constraint-type": "Loại",
+	"wbq-violations-exceptions-checkbox-label": "Xem ngoại lệ",
+	"wbq-violations-submit-button-label": "Xem vị phạm",
+	"wbq-violations-invalid-entity-id": "ID thực thể không hợp lệ.",
+	"wbq-violations-not-existent-entity": "Không có thực thể với ID được cung cấp.",
+	"wbq-violations-invalid-property-id": "ID thuộc tính không hợp lệ.",
+	"wbq-violations-not-existent-property": "Không có thuộc tính với ID được cung cấp.",
+	"wbq-violations-table-header-entity": "Thực thể",
+	"wbq-violations-table-header-claim": "Khẳng định",
+	"wbq-violations-table-header-constraint-type": "Kiểu",
 	"wbq-violations-table-header-updated-at": "Lần cập nhật cuối",
 	"wbq-violations-table-header-status": "Trạng thái",
 	"wbq-violations-table-header-additional-info": "Thông tin bổ sung",
 	"wbq-violations-status-violation": "Vi phạm",
 	"wbq-violations-status-unverified": "Chưa xác nhận",
-	"wbq-violations-status-exception": "Ngoại lệ"
+	"wbq-violations-status-exception": "Ngoại lệ",
+	"wbq-violations-mark-as-exception": "Đánh dấu là ngoại lệ",
+	"wbq-violations-mark-as-violation": "Đánh dấu là vi phạm",
+	"wbq-violations-next-page": "Trang sau →",
+	"wbq-violations-prev-page": "← Trang trước",
+	"wbq-violations-permission-denied": "Bạn không có quyền thay đổi vụ vi phạm này!"
 }

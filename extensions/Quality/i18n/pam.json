@@ -1,11 +1,8 @@
 {
-  "@metadata": {
-    "authors": [
-      "Leeheonjin"
-    ]
-  },
-  "wikidataquality-specialpages-group": "Kalidad ning Wikidata",
-  "wikidataquality-value": "Alaga",
-  "wikidataquality-status": "Estadu",
-  "wikidataquality-crosscheck-result-headline": "Ing resulta para king"
+	"@metadata": {
+		"authors": [
+			"Leeheonjin"
+		]
+	},
+	"wbq-violations-permission-denied": "Ala kang payintulut bang alilan ya ing pamaglabag a ini!"
 }

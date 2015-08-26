@@ -5,16 +5,11 @@ if ( defined( 'VALUEVIEW_VERSION' ) ) {
 	return 1;
 }
 
-define( 'VALUEVIEW_VERSION', '0.14.5' );
-
-/**
- * @deprecated
- */
-define( 'ValueView_VERSION', VALUEVIEW_VERSION );
+define( 'VALUEVIEW_VERSION', '0.15.1' );
 
 // Include the composer autoloader if it is present.
 if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
-	include_once( __DIR__ . '/vendor/autoload.php' );
+	include_once __DIR__ . '/vendor/autoload.php';
 }
 
 if ( defined( 'MEDIAWIKI' ) ) {

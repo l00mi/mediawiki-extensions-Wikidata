@@ -15,9 +15,9 @@
 	"wbq-violations-exceptions-checkbox-label": "Mostrar excepciones",
 	"wbq-violations-submit-button-label": "Ver violaciones",
 	"wbq-violations-invalid-entity-id": "El identificador de entidad especificado no es válido.",
-	"wbq-violations-not-existent-entity": "No existe la entidad con el identificador especificado.",
+	"wbq-violations-not-existent-entity": "No existe una entidad con el identificador especificado.",
 	"wbq-violations-invalid-property-id": "El identificador de propiedad especificado no es válido.",
-	"wbq-violations-not-existent-property": "No existe la propiedad con el identificador especificado.",
+	"wbq-violations-not-existent-property": "No existe una propiedad con el identificador especificado.",
 	"wbq-violations-table-header-entity": "Entidad",
 	"wbq-violations-table-header-claim": "Declaración",
 	"wbq-violations-table-header-constraint-type": "Tipo",
@@ -31,5 +31,11 @@
 	"wbq-violations-mark-as-violation": "Marcar como violación",
 	"wbq-violations-next-page": "Página siguiente >>",
 	"wbq-violations-prev-page": "<< Página anterior",
+	"wbq-violations-permission-denied": "No tienes permiso para cambiar esta violación.",
+	"apihelp-wbqgetviolationmessages-param-entityid": "Identificador de una entidad cuyas violaciones de datos deberían listarse.",
+	"apihelp-wbqgetviolationmessages-example": "Obtener mensajes por violaciones de datos del elemento Q76.",
+	"apihelp-wbqmodifyviolation-param-status": "El nuevo estado, el cual debe establecerse para esta violación.",
+	"apihelp-wbqgetviolationtypes-param-groupid": "Un parámetro opcional que restringe los tipos de violación a los asociados con el grupo dado.",
+	"apihelp-wdqgetviolationtypes-examples-1": "Devuelve todos los tipos de violaciones admitidos  sin restricciones.",
 	"apihelp-wdqgetviolationtypes-examples-2": "Devuelve todos los tipos de violaciones admitidas que están asociadas con el grupo \"wbqc\"."
 }

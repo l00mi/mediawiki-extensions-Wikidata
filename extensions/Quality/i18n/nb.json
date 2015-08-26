@@ -1,11 +1,28 @@
 {
 	"@metadata": {
 		"authors": [
-			"Kingu"
+			"Kingu",
+			"Jeblad"
 		]
 	},
-	"specialpages-group-wikidataquality": "Wikidata-kvalitet",
-	"wikidataquality-checkresult-result-headline": "Resultat av $1",
-	"wikidataquality-checkresult-status-violation": "Brudd",
-	"wikidataquality-checkresult-status-exception": "Unntak"
+	"specialpages-group-wikibasequality": "Wikibase Quality",
+	"wbq-violations-entity-id-label": "Entitetens ID:",
+	"wbq-violations-property-id-label": "Egenskapens ID:",
+	"wbq-violations-group-label": "Gruppe:",
+	"wbq-violations-type-label": "Type:",
+	"wbq-violations-form-select-all": "(alle)",
+	"wbq-violations-exceptions-checkbox-label": "Vis unntak",
+	"wbq-violations-invalid-entity-id": "Oppgitt ID for entitet er ikke gyldig.",
+	"wbq-violations-not-existent-entity": "Entitet med gitt ID finnes ikke.",
+	"wbq-violations-invalid-property-id": "Oppgitt ID for egenskap er ikke gyldig.",
+	"wbq-violations-not-existent-property": "Egenskap med gitt ID finnes ikke.",
+	"wbq-violations-table-header-entity": "Entitet",
+	"wbq-violations-table-header-claim": "Påstand",
+	"wbq-violations-table-header-constraint-type": "Type",
+	"wbq-violations-table-header-updated-at": "Sist oppdatert",
+	"wbq-violations-table-header-status": "Status",
+	"wbq-violations-table-header-additional-info": "Ekstra informasjon",
+	"wbq-violations-status-unverified": "Ubekreftet",
+	"wbq-violations-status-exception": "Unntak",
+	"wbq-violations-mark-as-exception": "Merk som unntak"
 }

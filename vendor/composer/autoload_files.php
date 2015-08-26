@@ -18,11 +18,11 @@ return array(
     $vendorDir . '/data-values/geo/Geo.php',
     $vendorDir . '/wikibase/data-model-serialization/mediawiki.php',
     $vendorDir . '/wikibase/data-model-javascript/init.php',
-    $vendorDir . '/wikibase/internal-serialization/mediawiki.php',
+    $vendorDir . '/data-values/data-types/DataTypes.php',
     $baseDir . '/extensions/ValueView/ValueView.php',
+    $vendorDir . '/wikibase/internal-serialization/mediawiki.php',
     $vendorDir . '/wikibase/javascript-api/WikibaseJavaScriptApi.php',
     $vendorDir . '/wikibase/serialization-javascript/init.php',
-    $vendorDir . '/data-values/data-types/DataTypes.php',
     $vendorDir . '/data-values/validators/Validators.php',
     $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
 );

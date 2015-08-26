@@ -1,0 +1,13 @@
+{
+	"@metadata": {
+		"authors": [
+			"Alex00728"
+		]
+	},
+	"wbq-violations-form-select-all": "(모두)",
+	"wbq-violations-table-header-updated-at": "마지막 업데이트",
+	"wbq-violations-table-header-status": "상태",
+	"wbq-violations-status-unverified": "인증되지 않음",
+	"wbq-violations-status-exception": "예외",
+	"wbq-violations-next-page": "다음 페이지 >>"
+}

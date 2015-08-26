@@ -26,8 +26,8 @@
         "wikibase/wikibase": "dev-master",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
-        "wikibase/quality": "1.x-dev",
-        "wikibase/constraints": "1.x-dev"
+        "wikibase/quality": "dev-master",
+        "wikibase/constraints": "dev-master"
     },
     "autoload": {
         "psr-4": {
