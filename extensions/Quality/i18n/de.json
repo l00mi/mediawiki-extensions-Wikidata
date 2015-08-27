@@ -6,7 +6,7 @@
 			"Andreasburmeister"
 		]
 	},
-	"wbq-desc": "Basiserweiterung für Wikibase-Quality-Erweiterungen, die gefundene falsche Daten verwaltet",
+	"wbq-desc": "Basiserweiterung für Wikibase-Quality-Erweiterungen, die bei der Verwaltung inkonsistenter Daten hilft.",
 	"specialpages-group-wikibasequality": "Wikibase-Qualität",
 	"wbq-violations-description": "Liste von Datenqualitätsproblemen",
 	"wbq-violations-explanations-general": "Diese Spezialseite listet alle Datenqualitätsprobleme auf, die in Wikidata entdeckt wurden. Solche Probleme können Verstöße gegen definierte Beschränkungen oder Nichtübereinstimmungen mit anderen externen Datenbanken sein.",
@@ -36,7 +36,6 @@
 	"wbq-violations-mark-as-violation": "Als Verstoß markieren",
 	"wbq-violations-next-page": "Nächste Seite >>",
 	"wbq-violations-prev-page": "<< Vorherige Seite",
-	"wbq-violations-permission-denied": "Du hast keine Berechtigung, diesen Verstoß zu ändern!",
 	"apihelp-wbqgetviolationmessages-description": "Ruft Nachrichten für Datenverstöße bei Behauptungen ab.",
 	"apihelp-wbqgetviolationmessages-param-entityid": "Kennung eines Objektes, dessen Datenverstöße aufgelistet werden sollen.",
 	"apihelp-wbqgetviolationmessages-example": "Ruft Nachrichten für Datenverstöße des Objekts Q76 ab.",

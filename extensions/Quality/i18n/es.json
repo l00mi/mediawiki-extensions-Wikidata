@@ -31,7 +31,6 @@
 	"wbq-violations-mark-as-violation": "Marcar como violación",
 	"wbq-violations-next-page": "Página siguiente >>",
 	"wbq-violations-prev-page": "<< Página anterior",
-	"wbq-violations-permission-denied": "No tienes permiso para cambiar esta violación.",
 	"apihelp-wbqgetviolationmessages-param-entityid": "Identificador de una entidad cuyas violaciones de datos deberían listarse.",
 	"apihelp-wbqgetviolationmessages-example": "Obtener mensajes por violaciones de datos del elemento Q76.",
 	"apihelp-wbqmodifyviolation-param-status": "El nuevo estado, el cual debe establecerse para esta violación.",

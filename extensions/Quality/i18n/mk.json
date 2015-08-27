@@ -34,7 +34,6 @@
 	"wbq-violations-mark-as-violation": "Означи како наскладност",
 	"wbq-violations-next-page": "Следна страница >>",
 	"wbq-violations-prev-page": "<< Претходна страница",
-	"wbq-violations-permission-denied": "Немате дозвола да ја измените оваа нескладност!",
 	"apihelp-wbqgetviolationmessages-description": "Ги дава пораките за нескладност на податоците во тврдењата.",
 	"apihelp-wbqgetviolationmessages-param-entityid": "Назнака на единицата чии нескладности во податоците треба да се прикажат.",
 	"apihelp-wbqgetviolationmessages-example": "Дај пораки за нескладности во податоците за предметот Q76.",

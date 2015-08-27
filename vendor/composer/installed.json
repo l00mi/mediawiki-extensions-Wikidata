@@ -219,33 +219,32 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "4.1.0",
-        "version_normalized": "4.1.0.0",
+        "version": "4.2.0",
+        "version_normalized": "4.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "d71d4f23791a103393add4861a19526426c70d11"
+            "reference": "f4f60f607cc50a9aa96436fc9330ec9e9fe0d615"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/d71d4f23791a103393add4861a19526426c70d11",
-            "reference": "d71d4f23791a103393add4861a19526426c70d11",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/f4f60f607cc50a9aa96436fc9330ec9e9fe0d615",
+            "reference": "f4f60f607cc50a9aa96436fc9330ec9e9fe0d615",
             "shasum": ""
         },
         "require": {
             "data-values/data-values": "~0.1|~1.0",
-            "diff/diff": "~1.0|~2.0",
             "php": ">=5.3.0"
         },
         "require-dev": {
             "phpmd/phpmd": "~2.1",
             "squizlabs/php_codesniffer": "~2.1"
         },
-        "time": "2015-08-04 08:35:32",
+        "time": "2015-08-26 18:50:43",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "4.1.x-dev"
+                "dev-master": "4.2.x-dev"
             }
         },
         "installation-source": "dist",
@@ -824,17 +823,17 @@
     },
     {
         "name": "wikibase/data-model-serialization",
-        "version": "1.8.0",
-        "version_normalized": "1.8.0.0",
+        "version": "1.9.1",
+        "version_normalized": "1.9.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
-            "reference": "6667244cc11e1f87b171aa408cbdc4e64148aee5"
+            "reference": "c6b40c294599fbe4635cc810402afcb5f4df85c7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/6667244cc11e1f87b171aa408cbdc4e64148aee5",
-            "reference": "6667244cc11e1f87b171aa408cbdc4e64148aee5",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/c6b40c294599fbe4635cc810402afcb5f4df85c7",
+            "reference": "c6b40c294599fbe4635cc810402afcb5f4df85c7",
             "shasum": ""
         },
         "require": {
@@ -850,11 +849,11 @@
             "data-values/number": "~0.2",
             "data-values/time": "~0.2"
         },
-        "time": "2015-07-28 19:03:43",
+        "time": "2015-08-27 08:15:39",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.8.x-dev"
+                "dev-master": "1.9.x-dev"
             }
         },
         "installation-source": "dist",
@@ -1275,12 +1274,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "3c520469a35399c58976cacd20116f3d24ec6b97"
+            "reference": "cbec5a8b79a0899f1677355714ba6ad7e54cea34"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3c520469a35399c58976cacd20116f3d24ec6b97",
-            "reference": "3c520469a35399c58976cacd20116f3d24ec6b97",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/cbec5a8b79a0899f1677355714ba6ad7e54cea34",
+            "reference": "cbec5a8b79a0899f1677355714ba6ad7e54cea34",
             "shasum": ""
         },
         "require": {
@@ -1311,7 +1310,7 @@
         "require-dev": {
             "squizlabs/php_codesniffer": "~2.1"
         },
-        "time": "2015-08-26 08:52:38",
+        "time": "2015-08-27 08:36:17",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1444,7 +1443,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "a04ae02b5a20675cf358f54a36ba30d31c0bd2ea"
+            "reference": "bbb5d2647bed972b7f0110a4e47aeeb8482e7812"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1456,7 +1455,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-08-26 12:49:02",
+        "time": "2015-08-26 19:49:57",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1498,7 +1497,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-            "reference": "65bb9678612a3af64409a99be6cbb27c0156ccba"
+            "reference": "d494f88ed57e01d8285c4fd9b543b266e9cfe1ee"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1510,7 +1509,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-08-26 12:59:22",
+        "time": "2015-08-26 19:50:00",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

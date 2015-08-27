@@ -8,10 +8,10 @@ $baseDir = dirname($vendorDir);
 return array(
     $vendorDir . '/data-values/data-values/DataValues.php',
     $vendorDir . '/data-values/interfaces/Interfaces.php',
-    $vendorDir . '/diff/diff/Diff.php',
     $vendorDir . '/data-values/common/Common.php',
     $vendorDir . '/wikibase/data-model/WikibaseDataModel.php',
     $vendorDir . '/serialization/serialization/Serialization.php',
+    $vendorDir . '/diff/diff/Diff.php',
     $vendorDir . '/data-values/javascript/DataValuesJavaScript.php',
     $vendorDir . '/data-values/time/Time.php',
     $vendorDir . '/data-values/number/Number.php',

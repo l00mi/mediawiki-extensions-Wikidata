@@ -29,7 +29,6 @@
 	"wbq-violations-mark-as-violation": "Als Verläzong makkehre",
 	"wbq-violations-next-page": "De näxde Sigg →",
 	"wbq-violations-prev-page": "← De Sigg dovör",
-	"wbq-violations-permission-denied": "Do häs nit dat Rääsch, heh di Verläzong ze behävve!",
 	"apihelp-wbqgetviolationmessages-param-entityid": "De Kännong vun en entity, woh de Verläzonge vun de Beschrängkonge vun de Wääte vun de Dahte opjeleß wähde sulle.",
 	"apihelp-wbqgetviolationmessages-example": "Holl de Meddeijlonge för de Verläzonge vun de Dahte for dä item „<code lang=\"en\" xml:lang=\"en\" dir=\"ltr\">Q76</code>“.",
 	"apihelp-wbqmodifyviolation-description": "Deihjt en beschtemmte Verläzong vun de Beschrängkonge vun de Wääte vun de Dahte änndere. Dat künne ävver blohß de Metmaacher med zopaß Rääschte maache.",

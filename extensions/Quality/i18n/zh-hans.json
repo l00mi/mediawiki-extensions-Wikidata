@@ -34,7 +34,6 @@
 	"wbq-violations-mark-as-violation": "标记为违例",
 	"wbq-violations-next-page": "下一页 >>",
 	"wbq-violations-prev-page": "<< 上一页",
-	"wbq-violations-permission-denied": "您没有权限更改此违例！",
 	"apihelp-wbqgetviolationmessages-description": "获取用于在声称上的数据违例消息。",
 	"apihelp-wbqgetviolationmessages-param-entityid": "实体的ID，应列举违例的数据。",
 	"apihelp-wbqgetviolationmessages-example": "获取用于项Q76的数据违例消息。",

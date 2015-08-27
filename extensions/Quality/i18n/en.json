@@ -4,7 +4,7 @@
 			"BP2014N1"
 		]
 	},
-	"wbq-desc": "Base extension for Wikibase Quality extensions, which helps with managing inconsistent data.",
+	"wbq-desc": "Base extension for Wikibase Quality extensions, which help with managing inconsistent data.",
 	"specialpages-group-wikibasequality": "Wikibase Quality",
 
 	"wbq-violations-description": "List of data quality issues",

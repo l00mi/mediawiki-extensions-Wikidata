@@ -2,10 +2,6 @@
 
 namespace Wikibase\DataModel\Tests\Entity;
 
-use Diff\DiffOp\Diff\Diff;
-use Diff\DiffOp\DiffOpAdd;
-use Diff\DiffOp\DiffOpChange;
-use Diff\DiffOp\DiffOpRemove;
 use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -348,10 +344,10 @@ class ItemTest extends EntityTest {
 		$secondItem = new Item();
 		$secondItem->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
 
-		$secondItemWithId = unserialize( serialize( $secondItem ) );
+		$secondItemWithId = $secondItem->copy();
 		$secondItemWithId->setId( 42 );
 
-		$differentId = unserialize( serialize( $secondItemWithId ) );
+		$differentId = $secondItemWithId->copy();
 		$differentId->setId( 43 );
 
 		return array(
