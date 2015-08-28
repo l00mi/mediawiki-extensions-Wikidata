@@ -4,8 +4,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 // Jenkins stuff part1
-if ( PHP_SAPI === 'cli' && strpos( getenv( 'JOB_NAME' ), 'mwext-Wikidata-testextension' ) !== false ) {
-	// in future, run as non-experimental
+if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
+// in future, run as non-experimental
 	if ( !defined( 'WB_EXPERIMENTAL_FEATURES' ) || !WB_EXPERIMENTAL_FEATURES ) {
 		define( 'WB_EXPERIMENTAL_FEATURES', true );
 	}
@@ -72,7 +72,7 @@ $wgExtensionCredits['wikibase'][] = array(
 );
 
 // Jenkins stuff part2
-if ( PHP_SAPI === 'cli' && strpos( getenv( 'JOB_NAME' ), 'mwext-Wikidata-testextension' ) !== false ) {
+if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
 	//Jenkins always loads both so no need to check if they are loaded before getting settings
 	require_once __DIR__ . '/extensions/Wikibase/repo/ExampleSettings.php';
 	require_once __DIR__ . '/extensions/Wikibase/client/ExampleSettings.php';
