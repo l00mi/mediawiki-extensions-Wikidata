@@ -26,18 +26,23 @@ use Wikibase\Store\SubscriptionLookup;
 class ChangeDispatcher {
 
 	/**
-	 * @var int: the number of changes to pass to a client wiki at once.
+	 * @var int The number of changes to pass to a client wiki at once.
 	 */
 	private $batchSize = 1000;
 
 	/**
-	 * @var int: factor used to compute the number of changes to load from the changes table at once
+	 * @var int Factor used to compute the number of changes to load from the changes table at once
 	 *           based on $this->batchSize.
 	 */
 	private $batchChunkFactor = 3;
 
 	/**
-	 * @var bool: whether output should be verbose.
+	 * @var int Maximum number of chunks or passes per wiki when selecting pending changes.
+	 */
+	private $maxChunks = 15;
+
+	/**
+	 * @var bool Whether output should be verbose.
 	 */
 	private $verbose = false;
 
@@ -95,14 +100,14 @@ class ChangeDispatcher {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isVerbose() {
 		return $this->verbose;
 	}
 
 	/**
-	 * @param boolean $verbose
+	 * @param bool $verbose
 	 */
 	public function setVerbose( $verbose ) {
 		$this->verbose = $verbose;
@@ -155,6 +160,21 @@ class ChangeDispatcher {
 	 */
 	public function getBatchChunkFactor() {
 		return $this->batchChunkFactor;
+	}
+
+	/**
+	 * @param int $maxChunks Maximum number of chunks or passes per wiki when selecting pending
+	 * changes.
+	 */
+	public function setMaxChunks( $maxChunks ) {
+		$this->maxChunks = $maxChunks;
+	}
+
+	/**
+	 * @return int Maximum number of chunks or passes per wiki when selecting pending changes.
+	 */
+	public function getMaxChunks() {
+		return $this->maxChunks;
 	}
 
 	/**
@@ -276,12 +296,13 @@ class ChangeDispatcher {
 		$batch = array();
 		$batchSize = 0;
 		$chunkSize = $this->batchSize * $this->batchChunkFactor;
+		$chunksExamined = 0;
 
 		// Track the change ID from which the next pass should start.
 		// Note that this is non-trivial due to programmatic filtering.
 		$lastIdSeen = $after;
 
-		while ( $batchSize < $this->batchSize ) {
+		while ( $batchSize < $this->batchSize && $chunksExamined < $this->maxChunks ) {
 			// get a chunk of changes
 			$chunk = $this->chunkedChangesAccess->loadChunk( $after+1, $chunkSize );
 
@@ -300,6 +321,7 @@ class ChangeDispatcher {
 
 			$batch = array_merge( $batch, $filtered );
 			$batchSize = count( $batch );
+			$chunksExamined++;
 
 			//XXX: We could try to adapt $chunkSize based on ratio of changes that get filtered out:
 			//     $chunkSize = ( $this->batchSize - count( $batch ) ) * ( count_before / count_after );

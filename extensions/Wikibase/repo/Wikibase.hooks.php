@@ -460,8 +460,8 @@ final class RepoHooks {
 				$history->msg( 'wikibase-restoreold' )->escaped(),
 				array(),
 				array(
-					'action'	=> 'edit',
-					'restore'	=> $rev->getId()
+					'action' => 'edit',
+					'restore' => $rev->getId()
 				)
 			);
 
@@ -727,6 +727,45 @@ final class RepoHooks {
 		if ( $entityNamespaceLookup->isEntityNamespace( $title->getNamespace() ) ) {
 			// Remove create and move protection for Wikibase namespaces
 			$types = array_diff( $types, array( 'create', 'move' ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Handler for the TitleQuickPermissions hook, implemented to point out that entity pages cannot
+	 * be "created" normally.
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/TitleQuickPermissions
+	 *
+	 * @since 0.5
+	 *
+	 * @param Title $title The Title being checked
+	 * @param User $user The User performing the action
+	 * @param string $action The action being performed
+	 * @param array[] &$errors
+	 * @param bool $doExpensiveQueries Whether to do expensive DB queries
+	 * @param bool $short Whether to return immediately on first error
+	 *
+	 * @return bool
+	 */
+	public static function onTitleQuickPermissions(
+		Title $title,
+		User $user,
+		$action,
+		array &$errors,
+		$doExpensiveQueries,
+		$short
+	) {
+		if ( $action === 'create' ) {
+			$namespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
+
+			if ( $namespaceLookup->isEntityNamespace( $title->getNamespace() ) ) {
+				// Do not allow normal creation of pages in Wikibase namespaces
+				$errors[] = array( 'wikibase-no-direct-editing', $title->getNsText() );
+
+				return false;
+			}
 		}
 
 		return true;
@@ -1115,18 +1154,9 @@ final class RepoHooks {
 					'wikibase',
 				),
 			),
-			'wikibase.special.itemDisambiguation' => $moduleTemplate + array(
+			'wikibase.special.languageSuggester' => $moduleTemplate + array(
 				'scripts' => array(
-					'resources/wikibase.special/wikibase.special.itemDisambiguation.js',
-				),
-				'dependencies' => array(
-					'wikibase.special',
-					'jquery.ui.suggester',
-				),
-			),
-			'wikibase.special.entitiesWithout' => $moduleTemplate + array(
-				'scripts' => array(
-					'resources/wikibase.special/wikibase.special.entitiesWithout.js',
+					'resources/wikibase.special/wikibase.special.languageSuggester.js',
 				),
 				'dependencies' => array(
 					'wikibase.special',
@@ -1138,8 +1168,7 @@ final class RepoHooks {
 		$isUlsLoaded = ExtensionRegistry::getInstance()->isLoaded( 'UniversalLanguageSelector' );
 		if ( $isUlsLoaded ) {
 			$modules['wikibase.WikibaseContentLanguages']['dependencies'][] = 'ext.uls.languagenames';
-			$modules['wikibase.special.itemDisambiguation']['dependencies'][] = 'ext.uls.mediawiki';
-			$modules['wikibase.special.entitiesWithout']['dependencies'][] = 'ext.uls.mediawiki';
+			$modules['wikibase.special.languageSuggester']['dependencies'][] = 'ext.uls.mediawiki';
 		}
 
 		$resourceLoader->register( $modules );

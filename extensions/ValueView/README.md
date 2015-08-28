@@ -105,6 +105,18 @@ Other methods an `Expert` needs to provide:
 
 ## Release notes
 
+### 0.15.3 (2015-08-27)
+* Fixed `jQuery.valueview.experts.QuantityInput` test.
+
+### 0.15.2 (2015-08-27)
+
+#### Enhancements
+* `jQuery.valueview.expert.valueCharacteristics` gets the output format passed in.
+* `jQuery.valueview.experts.QuantityInput` explicitely asks `QuantityFormatter` to not apply rounding and units in plain text format.
+* `jQuery.valueview.valueview` passes a `vocabularyLookupApiUrl` option to all experts.
+* `jQuery.valueview.experts.QuantityInput` and `jQuery.valueview.ExpertExtender.UnitSelector` now pass a `vocabularyLookupApiUrl` option to `jQuery.ui.unitsuggester`.
+* `jQuery.ui.unitsuggester` uses the `concepturi` from `wbsearchentities` results, if available.
+
 ### 0.15.1 (2015-08-20)
 
 #### Enhancements
@@ -283,7 +295,7 @@ Other methods an `Expert` needs to provide:
 * Make the minimal term length of the suggester configurable.
 * Add resource loader dependencies for jquery.ui.suggester, fixing bug 66268 and bug 66257.
 
-### 0.6 (2014-06-04)
+### 0.6.0 (2014-06-04)
 
 * Re-created jQuery.ui.suggester widget removing dependencies on jQuery.ui.autocomplete and jQuery.ui.menu
 * Implemented jQuery.util.highlightMatchingCharacters
@@ -301,7 +313,7 @@ Other methods an `Expert` needs to provide:
 * Change TimeInput::draw() to update the rotators' values if they are in auto mode
 * Change GlobeCoordinateInput::draw() to update the precision rotator value if it is in auto mode
 
-### 0.5 (2014-03-28)
+### 0.5.0 (2014-03-28)
 
 * Renamed jQuery.valueView.ExpertFactory to jQuery.valueView.ExpertStore.
 * Renamed jQuery.valueView option "expertProvider" to "expertStore".
@@ -324,7 +336,7 @@ Other methods an `Expert` needs to provide:
 
 * Updated DataValues JavaScript dependency to version 0.4.
 
-### 0.4 (2014-03-26)
+### 0.4.0 (2014-03-26)
 
 * Remove trimming from StringValue expert
 * Use ViewState::getFormattedValue for GlobeCoordinate formatting
@@ -349,7 +361,7 @@ Other methods an `Expert` needs to provide:
 * Use ViewState::getFormattedValue for Url formatting
 * Use ViewState::getFormattedValue for GlobeCoordinate formatting
 
-### 0.3 (2014-02-04)
+### 0.3.0 (2014-02-04)
 
 #### Enhancements
 
@@ -375,7 +387,7 @@ Other methods an `Expert` needs to provide:
 * Updated DataValues JavaScript dependency to version 0.3.
 * Renamed jQuery.valueview.preview to jQuery.ui.preview
 
-### 0.2 (2014-01-29)
+### 0.2.0 (2014-01-29)
 
 #### Refactorings
 
@@ -404,7 +416,7 @@ Other methods an `Expert` needs to provide:
 
 * #6 Added util.Notifier
 
-### 0.1 (2013-12-23)
+### 0.1.0 (2013-12-23)
 
 Initial release.
 

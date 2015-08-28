@@ -661,16 +661,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.15.1",
+            "version": "0.15.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/ValueView.git",
-                "reference": "e36e18404751db1baad1581d7bc648b0ec363c84"
+                "reference": "1307df621795f7736729c98ba49ae966ffe6e509"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/e36e18404751db1baad1581d7bc648b0ec363c84",
-                "reference": "e36e18404751db1baad1581d7bc648b0ec363c84",
+                "url": "https://api.github.com/repos/wmde/ValueView/zipball/1307df621795f7736729c98ba49ae966ffe6e509",
+                "reference": "1307df621795f7736729c98ba49ae966ffe6e509",
                 "shasum": ""
             },
             "require": {
@@ -678,6 +678,11 @@
                 "php": ">=5.3.0"
             },
             "type": "mediawiki-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.15.x-dev"
+                }
+            },
             "autoload": {
                 "files": [
                     "ValueView.php"
@@ -699,7 +704,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2015-08-20 12:19:22"
+            "time": "2015-08-27 15:20:46"
         },
         {
             "name": "diff/diff",
@@ -906,7 +911,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "d494f88ed57e01d8285c4fd9b543b266e9cfe1ee"
+                "reference": "d0e7eab7eb73920009e496cf3a2d9b9dfbf8be16"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -952,7 +957,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-08-26 19:50:00"
+            "time": "2015-08-27 19:40:22"
         },
         {
             "name": "wikibase/data-model",
@@ -1288,7 +1293,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "bbb5d2647bed972b7f0110a4e47aeeb8482e7812"
+                "reference": "2ceb7c57f5fb8239eb56f339254caf2ce19161e6"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1332,7 +1337,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-08-26 19:49:57"
+            "time": "2015-08-27 19:40:19"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1381,12 +1386,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "cbec5a8b79a0899f1677355714ba6ad7e54cea34"
+                "reference": "645cfd6694a107df376a6722d44199c6f26900c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/cbec5a8b79a0899f1677355714ba6ad7e54cea34",
-                "reference": "cbec5a8b79a0899f1677355714ba6ad7e54cea34",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/645cfd6694a107df376a6722d44199c6f26900c4",
+                "reference": "645cfd6694a107df376a6722d44199c6f26900c4",
                 "shasum": ""
             },
             "require": {
@@ -1400,7 +1405,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.8.1",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.15.1",
+                "data-values/value-view": "~0.15.3",
                 "diff/diff": "~2.0|~1.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~4.0",
@@ -1455,7 +1460,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-08-27 08:36:17"
+            "time": "2015-08-28 09:39:42"
         },
         {
             "name": "wikibase/wikimedia-badges",

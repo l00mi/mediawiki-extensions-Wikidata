@@ -25,7 +25,8 @@
 				self._viewNotifier.notify( 'change' );
 			},
 			{
-				language: self._options.language
+				language: self._options.language || null,
+				vocabularyLookupApiUrl: self._options.vocabularyLookupApiUrl || null
 			}
 		);
 
@@ -47,10 +48,17 @@
 		/**
 		 * @inheritdoc
 		 */
-		valueCharacteristics: function() {
-			return {
+		valueCharacteristics: function( format ) {
+			var options = {
 				unit: this._unitSelector && this._unitSelector.getConceptUri() || null
 			};
+
+			if( format === 'text/plain' ) {
+				options.applyRounding = false;
+				options.applyUnit = false;
+			}
+
+			return options;
 		},
 
 		/**

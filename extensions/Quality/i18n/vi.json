@@ -5,7 +5,7 @@
 			"Minh Nguyen"
 		]
 	},
-	"wbq-desc": "Phần mở rộng gốc của các phần mở rộng Chất lượng Wikibase dò và quản lý dữ liệu không chính xác",
+	"wbq-desc": "Phần mở rộng gốc của các phần mở rộng Chất lượng Wikibase quản lý những dữ liệu chưa được thống nhất.",
 	"specialpages-group-wikibasequality": "Chất lượng Wikibase",
 	"wbq-violations-description": "Danh sách các vấn đề về chất lượng dữ liệu",
 	"wbq-violations-explanations-general": "Trang đặc biệt này liệt kê tất cả các vấn đề chất lượng dữ liệu được dò ra trong Wikidata. Những vấn đề này có thể là sự vi phạm ràng buộc hoặc sự không phù hợp với cơ sở dữ liệu bên ngoài.",
@@ -16,11 +16,11 @@
 	"wbq-violations-group-label": "Nhóm:",
 	"wbq-violations-type-label": "Kiểu:",
 	"wbq-violations-form-select-all": "(tất cả)",
-	"wbq-violations-exceptions-checkbox-label": "Xem ngoại lệ",
+	"wbq-violations-exceptions-checkbox-label": "Hiện ngoại lệ",
 	"wbq-violations-submit-button-label": "Xem vị phạm",
-	"wbq-violations-invalid-entity-id": "ID thực thể không hợp lệ.",
+	"wbq-violations-invalid-entity-id": "ID thực thể được cung cấp là không hợp lệ.",
 	"wbq-violations-not-existent-entity": "Không có thực thể với ID được cung cấp.",
-	"wbq-violations-invalid-property-id": "ID thuộc tính không hợp lệ.",
+	"wbq-violations-invalid-property-id": "ID thuộc tính được cung cấp là không hợp lệ.",
 	"wbq-violations-not-existent-property": "Không có thuộc tính với ID được cung cấp.",
 	"wbq-violations-table-header-entity": "Thực thể",
 	"wbq-violations-table-header-claim": "Khẳng định",

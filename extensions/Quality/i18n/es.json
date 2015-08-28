@@ -5,6 +5,7 @@
 			"Macofe"
 		]
 	},
+	"wbq-desc": "Extensión base para las extensiones de calidad de Wikibase, que ayudan a gestionar datos inconsistentes.",
 	"wbq-violations-description": "Lista de problemas de calidad de datos",
 	"wbq-violatons-filter-headline": "Filtrar problemas",
 	"wbq-violations-entity-id-label": "Identificador de entidad:",
