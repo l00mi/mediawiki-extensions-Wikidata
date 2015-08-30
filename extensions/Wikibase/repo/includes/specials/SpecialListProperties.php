@@ -4,11 +4,19 @@ namespace Wikibase\Repo\Specials;
 
 use DataTypes\DataTypeFactory;
 use Html;
+use OutOfBoundsException;
+use Title;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataTypeSelector;
+use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\PropertyInfoStore;
-use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Store\BufferingTermLookup;
 use Wikibase\View\EntityIdFormatterFactory;
 
 /**
@@ -17,6 +25,7 @@ use Wikibase\View\EntityIdFormatterFactory;
  * @since 0.5
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
+ * @author Adam Shorland
  */
 class SpecialListProperties extends SpecialWikibaseQueryPage {
 
@@ -38,19 +47,29 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	private $propertyInfoStore;
 
 	/**
-	 * @var EntityIdFormatterFactory
+	 * @var LanguageFallbackLabelDescriptionLookup
 	 */
-	private $entityIdFormatterFactory;
-
-	/**
-	 * @var LanguageFallbackLabelDescriptionLookupFactory
-	 */
-	private $labelDescriptionLookupFactory;
+	private $labelDescriptionLookup;
 
 	/**
 	 * @var string
 	 */
 	private $dataType;
+
+	/**
+	 * @var EntityIdFormatter
+	 */
+	private $entityIdFormatter;
+
+	/**
+	 * @var EntityTitleLookup
+	 */
+	private $titleLookup;
+
+	/**
+	 * @var BufferingTermLookup
+	 */
+	private $bufferingTermLookup;
 
 	public function __construct() {
 		parent::__construct( 'ListProperties' );
@@ -61,7 +80,9 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 			$wikibaseRepo->getDataTypeFactory(),
 			$wikibaseRepo->getStore()->getPropertyInfoStore(),
 			$wikibaseRepo->getEntityIdHtmlLinkFormatterFactory(),
-			$wikibaseRepo->getLanguageFallbackLabelDescriptionLookupFactory()
+			$wikibaseRepo->getLanguageFallbackChainFactory(),
+			$wikibaseRepo->getEntityTitleLookup(),
+			$wikibaseRepo->getBufferingTermLookup()
 		);
 	}
 
@@ -73,12 +94,27 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 		DataTypeFactory $dataTypeFactory,
 		PropertyInfoStore $propertyInfoStore,
 		EntityIdFormatterFactory $entityIdFormatterFactory,
-		LanguageFallbackLabelDescriptionLookupFactory $labelDescriptionLookupFactory
+		LanguageFallbackChainFactory $languageFallbackChainFactory,
+		EntityTitleLookup $titleLookup,
+		BufferingTermLookup $bufferingTermLookup
 	) {
+		$this->labelDescriptionLookup = new LanguageFallbackLabelDescriptionLookup(
+			$bufferingTermLookup,
+			$languageFallbackChainFactory->newFromLanguage(
+				$this->getLanguage(),
+				LanguageFallbackChainFactory::FALLBACK_SELF
+				| LanguageFallbackChainFactory::FALLBACK_VARIANTS
+				| LanguageFallbackChainFactory::FALLBACK_OTHERS
+			)
+		);
+
 		$this->dataTypeFactory = $dataTypeFactory;
 		$this->propertyInfoStore = $propertyInfoStore;
-		$this->entityIdFormatterFactory = $entityIdFormatterFactory;
-		$this->labelDescriptionLookupFactory = $labelDescriptionLookupFactory;
+		$this->entityIdFormatter = $entityIdFormatterFactory->getEntityIdFormater(
+			$this->labelDescriptionLookup
+		);
+		$this->titleLookup = $titleLookup;
+		$this->bufferingTermLookup = $bufferingTermLookup;
 	}
 
 	/**
@@ -173,29 +209,50 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 		);
 	}
 
-	protected function showQuery( array $query = array() ) {
-		$propertyIds = $this->getResult();
-
-		if ( empty( $propertyIds ) ) {
-			$this->getOutput()->addWikiMsg( 'specialpage-empty' );
-			return;
+	/**
+	 * Formats a row for display.
+	 *
+	 * @param PropertyId $propertyId
+	 *
+	 * @return string
+	 */
+	protected function formatRow( $propertyId ) {
+		$title = $this->titleLookup->getTitleForId( $propertyId );
+		if ( !$title->exists() ) {
+			return $this->entityIdFormatter->formatEntityId( $propertyId );
 		}
 
-		$labelDescriptionLookup = $this->labelDescriptionLookupFactory->newLabelDescriptionLookup(
-			$this->getLanguage(),
-			$propertyIds
+		$row = $this->getIdHtml( $propertyId, $title );
+		try {
+			$label = $this->labelDescriptionLookup->getLabel( $propertyId )->getText();
+			$row .= wfMessage( 'colon-separator' )->escaped() . $label;
+		} catch ( OutOfBoundsException $e ) {
+			// If there is no label do not add it
+		}
+
+		return $row;
+	}
+
+	/**
+	 * Returns HTML representing the label in the display language (or an appropriate fallback).
+	 *
+	 * @param EntityId|null $entityId
+	 * @param Title|null $title
+	 *
+	 * @return string HTML
+	 */
+	private function getIdHtml( EntityId $entityId = null, $title ) {
+		$idElement =  Html::element(
+			'a',
+			array(
+				'title' => $title ? $title->getPrefixedText() : $entityId->getSerialization(),
+				'href' => $title ? $title->getLocalURL() : '',
+				'class' => 'wb-itemlink-id'
+			),
+			$entityId->getSerialization()
 		);
 
-		$formatter = $this->entityIdFormatterFactory->getEntityIdFormater( $labelDescriptionLookup );
-
-		$html = Html::openElement( 'ul' );
-
-		foreach ( $propertyIds as $propertyId ) {
-			$html .= Html::rawElement( 'li', array(), $formatter->formatEntityId( $propertyId ) );
-		}
-
-		$html .= Html::closeElement( 'ul' );
-		$this->getOutput()->addHTML( $html );
+		return $idElement;
 	}
 
 	/**
@@ -205,19 +262,34 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	 * @return PropertyId[]
 	 */
 	protected function getResult( $offset = 0, $limit = 0 ) {
-		if ( $this->dataType === '' ) {
-			$propertyInfoForDataType = $this->propertyInfoStore->getAllPropertyInfo();
-		} else {
-			$propertyInfoForDataType = $this->propertyInfoStore->getPropertyInfoForDataType( $this->dataType );
-		}
+		$propertyInfo = array_slice( $this->getPropertyInfo(), $offset, $limit, true );
 
 		$propertyIds = array();
 
-		foreach ( $propertyInfoForDataType as $numericId => $info ) {
+		foreach ( $propertyInfo as $numericId => $info ) {
 			$propertyIds[] = PropertyId::newFromNumber( $numericId );
 		}
 
+		$this->bufferingTermLookup->prefetchTerms( $propertyIds );
+
 		return $propertyIds;
+	}
+
+	/**
+	 * @return array[] An associative array mapping property IDs to info arrays.
+	 */
+	private function getPropertyInfo() {
+		if ( $this->dataType === '' ) {
+			$propertyInfo = $this->propertyInfoStore->getAllPropertyInfo();
+		} else {
+			$propertyInfo = $this->propertyInfoStore->getPropertyInfoForDataType(
+				$this->dataType
+			);
+		}
+
+		// NOTE: $propertyInfo uses numerical property IDs as keys!
+		ksort( $propertyInfo );
+		return $propertyInfo;
 	}
 
 }

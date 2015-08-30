@@ -7,7 +7,7 @@
 	},
 	"wbq-violations-group-label": "Grupa:",
 	"wbq-violations-exceptions-checkbox-label": "Pokaż wyjątki",
-	"wbq-violations-invalid-entity-id": "Dany identyfikator encji nie jest nieprawidłowy.",
+	"wbq-violations-invalid-entity-id": "Dany identyfikator encji jest nieprawidłowy.",
 	"wbq-violations-invalid-property-id": "Dany identyfikator właściwości jest nieprawidłowy.",
 	"wbq-violations-not-existent-property": "Właściwość o podanym identyfikatorze nie istnieje.",
 	"wbq-violations-table-header-status": "Status",
@@ -15,6 +15,5 @@
 	"wbq-violations-status-exception": "Wyjątek",
 	"wbq-violations-mark-as-exception": "Oznacz jako wyjątek",
 	"wbq-violations-next-page": "Następna strona >>",
-	"wbq-violations-prev-page": "<< Poprzednia strona",
-	"wbq-violations-permission-denied": "Nie masz uprawnień do zmiany tego nadużycia!"
+	"wbq-violations-prev-page": "<< Poprzednia strona"
 }

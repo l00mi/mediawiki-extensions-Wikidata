@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": [
+			"Sujiniku"
+		]
+	},
+	"wbq-violations-invalid-entity-id": "その与えられたエンティティIDは無効です。",
+	"wbq-violations-invalid-property-id": "その与えられたプロパティIDは無効です。",
+	"wbq-violations-not-existent-property": "与えられた ID のプロパティが存在しません。"
+}

@@ -47,7 +47,7 @@
 	"apihelp-wbqmodifyviolation-param-constraintid": "Identifiant de la contrainte concernant la violation de données qui doit être modifiée. C’est, avec le ''claimguid'', ce qui permet d’identifier la violation.",
 	"apihelp-wbqmodifyviolation-param-status": "Le nouvel état, qui doit être défini pour cette violation.",
 	"apihelp-wbqmodifyviolation-examples-exception": "Changer le statut de la violation identifiée par l'identificateur de contrainte et avertir le GUID de l'exception.",
-	"apihelp-wbqmodifyviolation-examples-violation": "Changer l’état de la violation identifiée par l’identificateur de contrainte le GUID de la demande à violation.",
+	"apihelp-wbqmodifyviolation-examples-violation": "Changer l’état de la violation identifiée par l’identificateur de contrainte avertir le GUID de la  violation.",
 	"apihelp-wbqgetviolationtypes-description": "Renvoie une liste de toutes les types de violation reconnus.",
 	"apihelp-wbqgetviolationtypes-param-groupid": "Un paramètre facultatif qui limite les types de violation à ceux qui sont associés au groupe indiqué.",
 	"apihelp-wdqgetviolationtypes-examples-1": "Retourne tous les types de violation, sans restrictions.",
