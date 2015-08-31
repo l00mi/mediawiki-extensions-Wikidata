@@ -205,7 +205,10 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 							'value' => 'Longer Description For An Item'
 						),
 						'_element' => 'description',
-						'_type' => 'array',
+						'_type' => 'kvp',
+						'_kvpkeyname' => 'language',
+						'_kvpmerge' => true,
+
 					),
 					'labels' => array(
 						'de' => array(
@@ -217,7 +220,9 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 							'value' => 'Longer Label'
 						),
 						'_element' => 'label',
-						'_type' => 'array',
+						'_type' => 'kvp',
+						'_kvpkeyname' => 'language',
+						'_kvpmerge' => true,
 					),
 					'claims' => array(
 						'P65' => array(
@@ -318,7 +323,9 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 							)
 						),
 						'_element' => 'sitelink',
-						'_type' => 'array',
+						'_type' => 'kvp',
+						'_kvpkeyname' => 'site',
+						'_kvpmerge' => true,
 					),
 				),
 				'_element' => 'entity',
@@ -347,12 +354,12 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 		//Basic
 		$item->setLabel( 'de', 'foo' );
 		$item->setLabel( 'zh_classical', 'Longer Label' );
-		$item->addAliases( 'en', array( 'bar', 'baz' ) );
-		$item->addAliases( 'zh', array( '????????' ) );
+		$item->setAliases( 'en', array( 'bar', 'baz' ) );
+		$item->setAliases( 'zh', array( '????????' ) );
 		$item->setDescription( 'pt', 'ptDesc' );
 		$item->setDescription( 'pl', 'Longer Description For An Item' );
-		$item->addSiteLink( new SiteLink( 'enwiki', 'Berlin', array( new ItemId( 'Q333' ) ) ) );
-		$item->addSiteLink( new SiteLink( 'zh_classicalwiki', 'User:Addshore', array() ) );
+		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Berlin', array( new ItemId( 'Q333' ) ) );
+		$item->getSiteLinkList()->addNewSiteLink( 'zh_classicalwiki', 'User:Addshore', array() );
 
 		$snak = new PropertyValueSnak( new PropertyId( 'P65' ), new StringValue( 'snakStringValue' ) );
 
@@ -429,7 +436,9 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 							'for-language' => 'zh-my'
 						),
 						'_element' => 'label',
-						'_type' => 'array',
+						'_type' => 'kvp',
+						'_kvpkeyname' => 'language',
+						'_kvpmerge' => true,
 					),
 					'descriptions' => array(
 						'es' => array(
@@ -447,7 +456,9 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 							'source-language' => 'zh-sg',
 						),
 						'_element' => 'description',
-						'_type' => 'array',
+						'_type' => 'kvp',
+						'_kvpkeyname' => 'language',
+						'_kvpmerge' => true,
 					),
 				),
 				'_element' => 'entity',
@@ -628,7 +639,9 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 							),
 						),
 						'_element' => 'sitelink',
-						'_type' => 'array',
+						'_type' => 'kvp',
+						'_kvpkeyname' => 'site',
+						'_kvpmerge' => true,
 					),
 				),
 				'_element' => 'entity',
@@ -860,7 +873,9 @@ class ResultBuilderTest extends \PHPUnit_Framework_TestCase {
 							'badges' => array( '_element' => 'badge' ),
 						),
 						'_element' => 'sitelink',
-						'_type' => 'array',
+						'_type' => 'kvp',
+						'_kvpkeyname' => 'site',
+						'_kvpmerge' => true,
 					),
 				),
 			),
