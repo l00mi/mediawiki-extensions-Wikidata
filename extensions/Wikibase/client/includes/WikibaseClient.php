@@ -565,7 +565,6 @@ final class WikibaseClient {
 				$this->getNamespaceChecker(),
 				$this->getStore()->getSiteLinkLookup(),
 				$this->getStore()->getEntityLookup(),
-				$this->getParserOutputDataUpdater(),
 				$this->getSiteStore(),
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getLangLinkSiteGroup()
@@ -583,6 +582,7 @@ final class WikibaseClient {
 			$this->parserOutputDataUpdater = new ParserOutputDataUpdater(
 				$this->getOtherProjectsSidebarGeneratorFactory(),
 				$this->getStore()->getSiteLinkLookup(),
+				$this->getStore()->getEntityLookup(),
 				$this->settings->getSetting( 'siteGlobalID' )
 			);
 		}

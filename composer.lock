@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "c7427eeb046205bd606e44dcf925d847",
@@ -1386,12 +1386,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "8039b377a796aa38183cf3b49f9296275759b60f"
+                "reference": "c3a5e05eae970c8d19091ad6d5a535fed4276a6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8039b377a796aa38183cf3b49f9296275759b60f",
-                "reference": "8039b377a796aa38183cf3b49f9296275759b60f",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c3a5e05eae970c8d19091ad6d5a535fed4276a6d",
+                "reference": "c3a5e05eae970c8d19091ad6d5a535fed4276a6d",
                 "shasum": ""
             },
             "require": {
@@ -1460,7 +1460,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-08-31 13:15:19"
+            "time": "2015-09-01 09:30:08"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1502,7 +1502,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-04 17:18:47"
+            "time": "2015-08-12 09:30:01"
         }
     ],
     "packages-dev": [],

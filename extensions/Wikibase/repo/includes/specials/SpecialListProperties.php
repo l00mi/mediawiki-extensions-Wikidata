@@ -3,6 +3,7 @@
 namespace Wikibase\Repo\Specials;
 
 use DataTypes\DataTypeFactory;
+use HTMLForm;
 use Html;
 use OutOfBoundsException;
 use Title;
@@ -154,59 +155,38 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 			$this->getLanguage()->getCode()
 		);
 
-		$this->getOutput()->addHTML(
-			Html::openElement(
-				'form',
-				array(
-					'action' => $this->getPageTitle()->getLocalURL(),
-					'name' => 'listproperties',
-					'id' => 'wb-listproperties-form'
-				)
-			) .
-			Html::openElement( 'fieldset' ) .
-			Html::element(
-				'legend',
-				array(),
-				$this->msg( 'wikibase-listproperties-legend' )->text()
-			) .
-			Html::openElement( 'p' ) .
-			Html::element(
-				'label',
-				array(
-					'for' => 'wb-listproperties-datatype'
-				),
-				$this->msg( 'wikibase-listproperties-datatype' )->text()
-			) . ' ' .
-			Html::rawElement(
-				'select',
-				array(
-					'name' => 'datatype',
-					'id' => 'wb-listproperties-datatype',
-					'class' => 'wb-select'
-				),
-				Html::element(
-					'option',
-					array(
-						'value' => '',
-						'selected' => $this->dataType === ''
-					),
-					$this->msg( 'wikibase-listproperties-all' )->text()
-				) .
-				$dataTypeSelect->getOptionsHtml( $this->dataType )
-			) . ' ' .
-			Html::input(
-				'',
-				$this->msg( 'wikibase-listproperties-submit' )->text(),
-				'submit',
-				array(
-					'id' => 'wikibase-listproperties-submit',
-					'class' => 'wb-input-button'
-				)
-			) .
-			Html::closeElement( 'p' ) .
-			Html::closeElement( 'fieldset' ) .
-			Html::closeElement( 'form' )
+		$options = array(
+			$this->msg( 'wikibase-listproperties-all' )->text() => ''
 		);
+		$options = array_merge( $options, array_flip( $dataTypeSelect->getOptionsArray() ) );
+
+		$formDescriptor = array(
+			'datatype' => array(
+				'name' => 'datatype',
+				'type' => 'select',
+				'id' => 'wb-listproperties-datatype',
+				'cssclass' => 'wb-select',
+				'label-message' => 'wikibase-listproperties-datatype',
+				'options' => $options,
+				'default' => $this->dataType
+			),
+			'submit' => array(
+				'name' => '',
+				'type' => 'submit',
+				'id' => 'wikibase-listproperties-submit',
+				'cssclass' => 'wb-input-button',
+				'default' => $this->msg( 'wikibase-listproperties-submit' )->text()
+			)
+		);
+
+		HTMLForm::factory( 'inline', $formDescriptor, $this->getContext() )
+			->setId( 'wb-listproperties-form' )
+			->setMethod( 'get' )
+			->setWrapperLegendMsg( 'wikibase-listproperties-legend' )
+			->suppressDefaultSubmit()
+			->setSubmitCallback( function () {
+			} )
+			->show();
 	}
 
 	/**
@@ -222,37 +202,40 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 			return $this->entityIdFormatter->formatEntityId( $propertyId );
 		}
 
-		$row = $this->getIdHtml( $propertyId, $title );
+		$labelTerm = null;
 		try {
-			$label = $this->labelDescriptionLookup->getLabel( $propertyId )->getText();
-			$row .= wfMessage( 'colon-separator' )->escaped() . $label;
+			$labelTerm = $this->labelDescriptionLookup->getLabel( $propertyId );
 		} catch ( OutOfBoundsException $e ) {
 			// If there is no label do not add it
 		}
 
-		return $row;
-	}
-
-	/**
-	 * Returns HTML representing the label in the display language (or an appropriate fallback).
-	 *
-	 * @param EntityId|null $entityId
-	 * @param Title|null $title
-	 *
-	 * @return string HTML
-	 */
-	private function getIdHtml( EntityId $entityId = null, $title ) {
-		$idElement =  Html::element(
+		$row = Html::rawElement(
 			'a',
 			array(
-				'title' => $title ? $title->getPrefixedText() : $entityId->getSerialization(),
-				'href' => $title ? $title->getLocalURL() : '',
-				'class' => 'wb-itemlink-id'
+				'title' => $title ? $title->getPrefixedText() : $propertyId->getSerialization(),
+				'href' => $title ? $title->getLocalURL() : ''
 			),
-			$entityId->getSerialization()
+			Html::rawElement(
+				'span',
+				array( 'class' => 'wb-itemlink' ),
+				Html::element(
+					'span',
+					array(
+						'class' => 'wb-itemlink-label',
+						'lang' => $labelTerm ? $labelTerm->getLanguageCode() : '',
+					),
+					$labelTerm ? $labelTerm->getText() : ''
+				) .
+				( $labelTerm ? ' ' : '' ) .
+				Html::element(
+					'span',
+					array( 'class' => 'wb-itemlink-id' ),
+					'(' . $propertyId->getSerialization() . ')'
+				)
+			)
 		);
 
-		return $idElement;
+		return $row;
 	}
 
 	/**
@@ -290,6 +273,15 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 		// NOTE: $propertyInfo uses numerical property IDs as keys!
 		ksort( $propertyInfo );
 		return $propertyInfo;
+	}
+
+	/**
+	 * @see SpecialWikibaseQueryPage::getTitleForNavigation
+	 *
+	 * @since 0.4
+	 */
+	protected function getTitleForNavigation() {
+		return $this->getPageTitle( $this->dataType );
 	}
 
 }
