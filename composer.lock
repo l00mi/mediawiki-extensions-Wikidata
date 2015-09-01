@@ -1379,7 +1379,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
-                "reference": "27dc06de687582e3c0de5207ea79511703861eee"
+                "reference": "fd1f82818ea4fa015d5ae41a12add45387979b75"
             },
             "require": {
                 "data-values/common": "~0.3.0",
@@ -1461,7 +1461,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-31 13:16:41"
+            "time": "2015-09-01 16:20:19"
         },
         {
             "name": "wikibase/wikimedia-badges",
