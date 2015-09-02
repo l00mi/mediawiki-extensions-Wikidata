@@ -2,6 +2,7 @@
 
 namespace Wikibase\Tests\Repo;
 
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
 
@@ -22,6 +23,11 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testGetDataTypeFactoryReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getDataTypeFactory();
 		$this->assertInstanceOf( 'DataTypes\DataTypeFactory', $returnValue );
+	}
+
+	public function testGetValueParserFactoryReturnType() {
+		$returnValue = $this->getWikibaseRepo()->getValueParserFactory();
+		$this->assertInstanceOf( 'Wikibase\Repo\ValueParserFactory', $returnValue );
 	}
 
 	public function testGetDataValueFactoryReturnType() {
@@ -214,7 +220,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	 */
 	private function getWikibaseRepo() {
 		$settings = new SettingsArray( WikibaseRepo::getDefaultInstance()->getSettings()->getArrayCopy() );
-		return new WikibaseRepo( $settings );
+		return new WikibaseRepo( $settings, new DataTypeDefinitions() );
 	}
 
 	public function testGetApiHelperFactory() {
