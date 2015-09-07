@@ -5,21 +5,17 @@ namespace Wikibase\DataModel\Services\Lookup;
 use Wikibase\DataModel\Entity\ItemId;
 
 /**
- * @since 1.0
+ * @since 2.0
  *
  * @licence GNU GPL v2+
- * @author Thomas Pellissier Tanon
+ * @author Adam Shorland
  */
-class ItemNotFoundException extends \RuntimeException {
-
-	private $itemId;
+class ItemLookupException extends EntityLookupException {
 
 	public function __construct( ItemId $itemId, $message = null, \Exception $previous = null ) {
-		$this->itemId = $itemId;
-
 		parent::__construct(
-			$message ?: 'Item not found: ' . $itemId,
-			0,
+			$itemId,
+			$message ?: 'Item lookup failed for: ' . $itemId,
 			$previous
 		);
 	}
@@ -28,7 +24,7 @@ class ItemNotFoundException extends \RuntimeException {
 	 * @return ItemId
 	 */
 	public function getItemId() {
-		return $this->itemId;
+		return $this->getEntityId();
 	}
 
 }

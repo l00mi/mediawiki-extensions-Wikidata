@@ -5,12 +5,8 @@ namespace Wikibase\Repo\Specials;
 use DataTypes\DataTypeFactory;
 use HTMLForm;
 use Html;
-use OutOfBoundsException;
-use Title;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
-use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataTypeSelector;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -202,12 +198,7 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 			return $this->entityIdFormatter->formatEntityId( $propertyId );
 		}
 
-		$labelTerm = null;
-		try {
-			$labelTerm = $this->labelDescriptionLookup->getLabel( $propertyId );
-		} catch ( OutOfBoundsException $e ) {
-			// If there is no label do not add it
-		}
+		$labelTerm = $this->labelDescriptionLookup->getLabel( $propertyId );
 
 		$row = Html::rawElement(
 			'a',

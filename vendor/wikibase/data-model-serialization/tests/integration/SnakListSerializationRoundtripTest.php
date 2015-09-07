@@ -5,7 +5,7 @@ namespace Tests\Wikibase\DataModel;
 use DataValues\Deserializers\DataValueDeserializer;
 use DataValues\Serializers\DataValueSerializer;
 use Wikibase\DataModel\DeserializerFactory;
-use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
@@ -28,8 +28,8 @@ class SnakListSerializationRoundtripTest extends \PHPUnit_Framework_TestCase {
 			new BasicEntityIdParser()
 		);
 
-		$serialization = $serializerFactory->newSnaksSerializer()->serialize( $snaks );
-		$newSnaks = $deserializerFactory->newSnaksDeserializer()->deserialize( $serialization );
+		$serialization = $serializerFactory->newSnakListSerializer()->serialize( $snaks );
+		$newSnaks = $deserializerFactory->newSnakListDeserializer()->deserialize( $serialization );
 		$this->assertEquals( $snaks, $newSnaks );
 	}
 

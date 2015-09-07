@@ -1,10 +1,13 @@
 {
 	"@metadata": {
 		"authors": [
-			"Sujiniku"
+			"Sujiniku",
+			"Otokoume"
 		]
 	},
+	"wbq-violations-submit-button-label": "違反を表示する",
 	"wbq-violations-invalid-entity-id": "その与えられたエンティティIDは無効です。",
+	"wbq-violations-not-existent-entity": "指定された ID の実体は存在しません。",
 	"wbq-violations-invalid-property-id": "その与えられたプロパティIDは無効です。",
 	"wbq-violations-not-existent-property": "与えられた ID のプロパティが存在しません。"
 }

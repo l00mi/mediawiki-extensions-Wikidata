@@ -3,7 +3,6 @@
 namespace Wikibase\Test\Repo\Api;
 
 use DataValues\StringValue;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\Statement\GuidGenerator;
@@ -107,8 +106,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 			$obtainedItem = WikibaseRepo::getDefaultInstance()->getEntityLookup()->getEntity( $item->getId() );
 			$obtainedStatements = $obtainedItem->getStatements();
 
-			$obtainedClaims = new Claims( $obtainedStatements->toArray() );
-			$this->assertFalse( $obtainedClaims->hasClaimWithGuid( $statement->getGuid() ) );
+			$this->assertNull( $obtainedStatements->getFirstStatementWithGuid( $statement->getGuid() ) );
 
 			$currentStatements = new StatementList( $statements );
 

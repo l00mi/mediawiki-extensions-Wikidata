@@ -3,10 +3,9 @@
 namespace Wikibase\Repo\Store\SQL;
 
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\Lib\Reporting\MessageReporter;
-use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\EntityNamespaceLookup;
 use Wikibase\Repo\Store\EntityPerPage;
 
@@ -21,46 +20,33 @@ use Wikibase\Repo\Store\EntityPerPage;
 class EntityPerPageBuilder {
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var EntityPerPage
 	 */
-	protected $entityPerPageTable;
+	private $entityPerPageTable;
 
 	/**
-	 * @since 0.4
-	 *
-	 * @var EntityContentFactory
-	 */
-	protected $entityContentFactory;
-
-	/**
-	 * @since 0.4
-	 *
 	 * @var EntityIdParser
 	 */
-	protected $entityIdParser;
+	private $entityIdParser;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var MessageReporter
 	 */
-	protected $reporter;
+	private $reporter;
 
 	/**
 	 * The batch size, giving the number of rows to be updated in each database transaction.
 	 *
 	 * @var int
 	 */
-	protected $batchSize = 100;
+	private $batchSize = 100;
 
 	/**
 	 * Rebuild the entire table
 	 *
 	 * @var bool
 	 */
-	protected $rebuildAll = false;
+	private $rebuildAll = false;
 
 	/**
 	 * @var EntityNamespaceLookup
@@ -68,11 +54,9 @@ class EntityPerPageBuilder {
 	private $entityNamespaceLookup;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var array
 	 */
-	protected $contentModels;
+	private $contentModels;
 
 	/**
 	 * @param EntityPerPage $entityPerPageTable

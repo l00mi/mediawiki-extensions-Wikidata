@@ -30,8 +30,6 @@
  * @licence GNU GPL v2+
  */
 
-use ValueParsers\ValueParser;
-
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( 'Not an entry point.' );
 }
@@ -133,9 +131,9 @@ call_user_func( function() {
 	// This is somewhat hackish, make WikibaseValueParserBuilders, analogous to WikibaseValueFormatterBuilders
 	$newEntityIdParser = function( ValueParsers\ParserOptions $options ) {
 		//TODO: make ID builders configurable.
-		$builders = \Wikibase\DataModel\Services\EntityId\BasicEntityIdParser::getBuilders();
+		$builders = \Wikibase\DataModel\Entity\BasicEntityIdParser::getBuilders();
 		return new \Wikibase\Lib\EntityIdValueParser(
-			new \Wikibase\DataModel\Services\EntityId\DispatchingEntityIdParser( $builders, $options )
+			new \Wikibase\DataModel\Entity\DispatchingEntityIdParser( $builders, $options )
 		);
 	};
 

@@ -3,7 +3,6 @@
 namespace Wikibase\Test\Repo\Api;
 
 use UsageException;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\Repo\WikibaseRepo;
@@ -78,9 +77,7 @@ class CreateClaimTest extends WikibaseApiTestCase {
 
 		$item = WikibaseRepo::getDefaultInstance()->getEntityLookup()->getEntity( $item->getId() );
 
-		$claims = new Claims( $item->getClaims() );
-
-		$this->assertTrue( $claims->hasClaimWithGuid( $claim['id'] ) );
+		$this->assertNotNull( $item->getStatements()->getFirstStatementWithGuid( $claim['id'] ) );
 	}
 
 	public function invalidRequestProvider() {
@@ -285,10 +282,8 @@ class CreateClaimTest extends WikibaseApiTestCase {
 
 		$item = WikibaseRepo::getDefaultInstance()->getEntityLookup()->getEntity( $item->getId() );
 
-		$claims = new Claims( $item->getClaims() );
-
-		$this->assertTrue( $claims->hasClaimWithGuid( $firstGuid ) );
-		$this->assertTrue( $claims->hasClaimWithGuid( $secondGuid ) );
+		$this->assertNotNull( $item->getStatements()->getFirstStatementWithGuid( $firstGuid ) );
+		$this->assertNotNull( $item->getStatements()->getFirstStatementWithGuid( $secondGuid ) );
 	}
 
 }

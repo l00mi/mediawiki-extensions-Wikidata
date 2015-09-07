@@ -22,12 +22,11 @@ class EntityDiff extends Diff {
 	 *
 	 * @return self
 	 */
-	public static function newForType( $entityType, $operations = array() ) {
+	public static function newForType( $entityType, array $operations = array() ) {
 		if ( $entityType === Item::ENTITY_TYPE ) {
 			return new ItemDiff( $operations );
-		}
-		else {
-			return new EntityDiff( $operations );
+		} else {
+			return new self( $operations );
 		}
 	}
 

@@ -16,6 +16,7 @@ use StubObject;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\DeserializerFactory;
@@ -23,9 +24,9 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\DataValue\ValuesFinder;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
-use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
-use Wikibase\DataModel\Services\EntityId\DispatchingEntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
@@ -62,6 +63,7 @@ use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
+use Wikibase\PropertyInfoBuilder;
 use Wikibase\ReferencedEntitiesFinder;
 use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\Repo\Content\EntityContentFactory;
@@ -192,7 +194,7 @@ class WikibaseRepo {
 	/**
 	 * @var TermLookup|null
 	 */
-	private $termLookup;
+	private $termLookup = null;
 
 	/**
 	 * @var ContentLanguages|null
@@ -265,6 +267,7 @@ class WikibaseRepo {
 			$this->getEntityLookup(),
 			$this->getEntityIdParser(),
 			$urlSchemes,
+			$this->getVocabularyBaseUri(),
 			$this->getMonolingualTextLanguages()
 		);
 	}
@@ -661,7 +664,7 @@ class WikibaseRepo {
 	 * @return TermBuffer
 	 */
 	public function getTermBuffer() {
-		return $this->getTermLookup();
+		return $this->getBufferingTermLookup();
 	}
 
 	/**
@@ -719,6 +722,15 @@ class WikibaseRepo {
 			$this->getSettings()->getSetting( 'conceptBaseUri' ),
 			$this->getEntityIdParser()
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getVocabularyBaseUri() {
+		//@todo: We currently use the local repo concept URI here. This should be configurable,
+		// to e.g. allow 3rd parties to use Wikidata as their vocabulary repo.
+		return $this->getSettings()->getSetting( 'conceptBaseUri' );
 	}
 
 	/**
@@ -1129,6 +1141,7 @@ class WikibaseRepo {
 		$constraintProvider = $this->getEntityConstraintProvider();
 		$errorLocalizer = $this->getValidatorErrorLocalizer();
 		$propertyInfoStore = $this->getStore()->getPropertyInfoStore();
+		$propertyInfoBuilder = $this->newPropertyInfoBuilder();
 		$legacyFormatDetector = $this->getLegacyFormatDetectorCallback();
 
 		$handler = new PropertyHandler(
@@ -1139,10 +1152,24 @@ class WikibaseRepo {
 			$errorLocalizer,
 			$this->getEntityIdParser(),
 			$propertyInfoStore,
+			$propertyInfoBuilder,
 			$legacyFormatDetector
 		);
 
 		return $handler;
+	}
+
+	/**
+	 * @return PropertyInfoBuilder
+	 */
+	public function newPropertyInfoBuilder() {
+		$formatterUrlProperty = $this->getSettings()->getSetting( 'formatterUrlProperty' );
+
+		if ( $formatterUrlProperty !== null ) {
+			$formatterUrlProperty = new PropertyId( $formatterUrlProperty );
+		}
+
+		return new PropertyInfoBuilder( $formatterUrlProperty );
 	}
 
 	private function getLegacyFormatDetectorCallback() {

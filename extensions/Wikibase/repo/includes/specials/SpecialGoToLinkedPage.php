@@ -6,8 +6,8 @@ use HTMLForm;
 use InvalidArgumentException;
 use SiteStore;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
@@ -207,7 +207,8 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 		if ( !empty( $site ) || !empty( $itemString ) ) {
 			$url = $this->getTargetUrl( $site, $itemString );
 			if ( null !== $url ) {
-				return $this->getOutput()->redirect( $url );
+				$this->getOutput()->redirect( $url );
+				return;
 			}
 		}
 

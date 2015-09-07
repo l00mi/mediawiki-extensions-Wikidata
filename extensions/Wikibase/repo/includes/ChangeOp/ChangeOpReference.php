@@ -23,32 +23,24 @@ use Wikibase\Summary;
 class ChangeOpReference extends ChangeOpBase {
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var string
 	 */
-	protected $statementGuid;
+	private $statementGuid;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var Reference
 	 */
-	protected $reference;
+	private $reference;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var string
 	 */
-	protected $referenceHash;
+	private $referenceHash;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var int|null
 	 */
-	protected $index;
+	private $index;
 
 	/**
 	 * @var SnakValidator

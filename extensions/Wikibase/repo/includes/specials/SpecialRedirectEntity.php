@@ -6,8 +6,8 @@ use Exception;
 use HTMLForm;
 use Html;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\Lib\UserInputException;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
@@ -179,22 +179,13 @@ class SpecialRedirectEntity extends SpecialWikibasePage {
 			);
 		}
 
-		// Form elements
-		$formDescriptor = $this->getFormElements();
-
-		$formDescriptor['submit'] = array(
-			'name' => 'wikibase-redirectentity-submit',
-			'section' => 'redirectentity', // special-redirectentity
-			'default' => $this->msg( 'wikibase-redirectentity-submit' )->text(),
-			'type' => 'submit',
-			'id' => 'wb-redirectentity-submit',
-			'cssclass' => 'wb-button'
-		);
-
-		HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext(), 'special' )
+		HTMLForm::factory( 'ooui', $this->getFormElements(), $this->getContext() )
 			->setId( 'wb-redirectentity-form1' )
 			->setPreText( $pre )
-			->suppressDefaultSubmit()
+			->setSubmitID( 'wb-redirectentity-submit' )
+			->setSubmitName( 'wikibase-redirectentity-submit' )
+			->setSubmitTextMsg( 'wikibase-redirectentity-submit' )
+			->setWrapperLegendMsg( 'special-redirectentity' )
 			->setSubmitCallback( function () {// no-op
 			} )->show();
 	}
@@ -208,7 +199,6 @@ class SpecialRedirectEntity extends SpecialWikibasePage {
 		return array(
 			'fromid' => array(
 				'name' => 'fromid',
-				'section' => 'redirectentity', // special-redirectentity
 				'default' => $this->getRequest()->getVal( 'fromid' ),
 				'type' => 'text',
 				'cssclass' => 'wb-input',
@@ -217,7 +207,6 @@ class SpecialRedirectEntity extends SpecialWikibasePage {
 			),
 			'toid' => array(
 				'name' => 'toid',
-				'section' => 'redirectentity', // special-redirectentity
 				'default' => $this->getRequest()->getVal( 'toid' ),
 				'type' => 'text',
 				'cssclass' => 'wb-input',

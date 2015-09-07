@@ -20,18 +20,14 @@ use Wikibase\Summary;
 class ChangeOpQualifierRemove extends ChangeOpBase {
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var string
 	 */
-	protected $statementGuid;
+	private $statementGuid;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var string
 	 */
-	protected $snakHash;
+	private $snakHash;
 
 	/**
 	 * Constructs a new qualifier removal change operation

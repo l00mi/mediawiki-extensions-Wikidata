@@ -20,18 +20,14 @@ use Wikibase\Summary;
 class ChangeOpReferenceRemove extends ChangeOpBase {
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var string
 	 */
-	protected $statementGuid;
+	private $statementGuid;
 
 	/**
-	 * @since 0.5
-	 *
 	 * @var string
 	 */
-	protected $referenceHash;
+	private $referenceHash;
 
 	/**
 	 * Constructs a new reference removal change operation

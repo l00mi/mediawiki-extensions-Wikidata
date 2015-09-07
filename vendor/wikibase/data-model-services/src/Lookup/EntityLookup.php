@@ -17,18 +17,18 @@ use Wikibase\DataModel\Entity\EntityId;
 interface EntityLookup {
 
 	/**
-	 * Returns the entity with the provided id or null if there is no such
-	 * entity.
+	 * Returns the entity with the provided id.
 	 *
 	 * @note Implementations of this method may or may not resolve redirects.
 	 * Code that needs control over redirect resolution should use an
 	 * EntityRevisionLookup instead.
 	 *
-	 * @since 1.1
+	 * @since 2.0
 	 *
 	 * @param EntityId $entityId
 	 *
 	 * @return EntityDocument|null
+	 * @throws EntityLookupException
 	 */
 	public function getEntity( EntityId $entityId );
 

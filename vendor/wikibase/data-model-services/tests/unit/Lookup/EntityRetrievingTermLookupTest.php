@@ -4,9 +4,9 @@ namespace Wikibase\DataModel\Services\Tests\Lookup;
 
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Services\Fixtures\InMemoryEntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
+use Wikibase\DataModel\Services\Lookup\InMemoryEntityLookup;
 
 /**
  * @covers Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup
@@ -24,17 +24,16 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'New York City', $label );
 	}
 
-	public function testGetLabel_notFoundThrowsException() {
+	public function testGetLabel_nullOnNoLabel() {
 		$termLookup = $this->getEntityRetrievingTermLookup();
 
-		$this->setExpectedException( 'OutOfBoundsException' );
-		$termLookup->getLabel( new ItemId( 'Q116' ), 'fa' );
+		$this->assertNull( $termLookup->getLabel( new ItemId( 'Q116' ), 'fa' ) );
 	}
 
-	public function testGetLabel_entityNotFound() {
+	public function testGetLabel_entityNotFoundThrowsException() {
 		$termLookup = $this->getEntityRetrievingTermLookup();
 
-		$this->setExpectedException( 'OutOfBoundsException' );
+		$this->setExpectedException( 'Wikibase\DataModel\Services\Lookup\TermLookupException' );
 		$termLookup->getLabel( new ItemId( 'Q120' ), 'en' );
 	}
 
@@ -77,11 +76,17 @@ class EntityRetrievingTermLookupTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $expected, $description );
 	}
 
-	public function testGetDescription_notFoundThrowsException() {
+	public function testGetDescription_entityNotFoundThrowsException() {
 		$termLookup = $this->getEntityRetrievingTermLookup();
 
-		$this->setExpectedException( 'OutOfBoundsException' );
-		$termLookup->getDescription( new ItemId( 'Q116' ), 'fr' );
+		$this->setExpectedException( 'Wikibase\DataModel\Services\Lookup\TermLookupException' );
+		$termLookup->getDescription( new ItemId( 'Q120' ), 'en' );
+	}
+
+	public function testGetDescription_nullOnNoDescription() {
+		$termLookup = $this->getEntityRetrievingTermLookup();
+
+		$this->assertNull( $termLookup->getDescription( new ItemId( 'Q116' ), 'fr' ) );
 	}
 
 	public function getDescriptionsProvider() {

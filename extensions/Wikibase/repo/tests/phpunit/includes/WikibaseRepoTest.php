@@ -82,7 +82,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetEntityIdParserReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getEntityIdParser();
-		$this->assertInstanceOf( 'Wikibase\DataModel\Services\EntityId\EntityIdParser', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\EntityIdParser', $returnValue );
 	}
 
 	public function testGetStatementGuidParser() {
@@ -260,6 +260,11 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testGetDataValueDeserializer() {
 		$service = $this->getWikibaseRepo()->getDataValueDeserializer();
 		$this->assertInstanceOf( 'Deserializers\Deserializer', $service );
+	}
+
+	public function testNewPropertyInfoBuilder() {
+		$builder = $this->getWikibaseRepo()->newPropertyInfoBuilder();
+		$this->assertInstanceOf( 'Wikibase\PropertyInfoBuilder', $builder );
 	}
 
 }

@@ -8,9 +8,6 @@ use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
-use Wikibase\Client\ParserOutputDataUpdater;
-use Wikibase\Client\Usage\EntityUsage;
-use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
@@ -608,13 +605,16 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function getInterwikiCodeFromSiteProvider() {
-		$enwiki = MediaWikiSite::newFromGlobalId( 'enwiki' );
+		$enwiki = new MediaWikiSite();
+		$enwiki->setGlobalId( 'enwiki' );
 		$enwiki->setLanguageCode( 'en' );
 
-		$bexold = MediaWikiSite::newFromGlobalId( 'be_x_oldwiki' );
+		$bexold = new MediaWikiSite();
+		$bexold->setGlobalId( 'be_x_oldwiki' );
 		$bexold->setLanguageCode( 'be-x-old' );
 
-		$dewikivoyage = MediaWikiSite::newFromGlobalId( 'dewikivoyage' );
+		$dewikivoyage = new MediaWikiSite();
+		$dewikivoyage->setGlobalId( 'dewikivoyage' );
 		$dewikivoyage->setLanguageCode( 'de' );
 
 		return array(
