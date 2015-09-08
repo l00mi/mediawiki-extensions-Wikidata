@@ -56,7 +56,6 @@ use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\WikibaseContentLanguages;
-use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
@@ -170,8 +169,45 @@ final class WikibaseClient {
 	private $termLookup = null;
 
 	/**
-	 * @since 0.4
+	 * Returns the default WikibaseValueFormatterBuilders instance.
+	 * @warning This is for use with bootstrap code in WikibaseRepo.datatypes.php only!
+	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
 	 *
+	 * @since 0.5
+	 *
+	 * @param string $reset Flag: Pass "reset" to reset the default instance
+	 *
+	 * @return WikibaseValueFormatterBuilders
+	 */
+	public static function getDefaultFormatterBuilders( $reset = 'noreset' ) {
+		static $builders;
+
+		if ( $builders === null || $reset === 'reset' ) {
+			$wikibaseRepo = self::getDefaultInstance();
+			$builders = $wikibaseRepo->newWikibaseValueFormatterBuilders();
+		}
+
+		return $builders;
+	}
+
+	/**
+	 * Returns a low level factory object for creating formatters for well known data types.
+	 *
+	 * @warning This is for use with getDefaultFormatterBuilders() during bootstrap only!
+	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
+	 *
+	 * @return WikibaseValueFormatterBuilders
+	 */
+	private function newWikibaseValueFormatterBuilders() {
+		return new WikibaseValueFormatterBuilders(
+			$this->contentLanguage,
+			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
+			new LanguageNameLookup(),
+			$this->getRepoEntityUriParser()
+		);
+	}
+
+	/**
 	 * @param SettingsArray $settings
 	 * @param Language $contentLanguage
 	 * @param DataTypeDefinitions $dataTypeDefinitions
@@ -519,15 +555,13 @@ final class WikibaseClient {
 	 * @return OutputFormatSnakFormatterFactory
 	 */
 	private function newSnakFormatterFactory() {
-		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
-
-		$builders = new WikibaseSnakFormatterBuilders(
-			$valueFormatterBuilders,
+		$factory = new OutputFormatSnakFormatterFactory(
+			$this->getValueFormatterFactory(),
 			$this->getPropertyDataTypeLookup(),
 			$this->getDataTypeFactory()
 		);
 
-		return new OutputFormatSnakFormatterFactory( $builders->getSnakFormatterBuildersForFormats() );
+		return $factory;
 	}
 
 	/**
@@ -545,19 +579,38 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * Constructs an array of factory callbacks for ValueFormatters, keyed by property type
+	 * (data type) prefixed with "PT:", or value type prefixed with "VT:". This matches to
+	 * convention used by OutputFormatValueFormatterFactory and DispatchingValueFormatter.
+	 *
+	 * @return callable[]
+	 */
+	private function getFormatterFactoryCallbacksByType() {
+		$callbacks = array();
+
+		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
+		$valueTypeFormatters = $valueFormatterBuilders->getFormatterFactoryCallbacksByValueType();
+		$dataTypeFormatters = $this->dataTypeDefinitions->getFormatterFactoryCallbacks();
+
+		foreach ( $valueTypeFormatters as $key => $formatter ) {
+			$callbacks["VT:$key"] = $formatter;
+		}
+
+		foreach ( $dataTypeFormatters as $key => $formatter ) {
+			$callbacks["PT:$key"] = $formatter;
+		}
+
+		return $callbacks;
+	}
+
+	/**
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	private function newValueFormatterFactory() {
-		$builders = $this->newWikibaseValueFormatterBuilders();
-		return new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
-	}
-
-	private function newWikibaseValueFormatterBuilders() {
-		return new WikibaseValueFormatterBuilders(
-			$this->contentLanguage,
-			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
-			new LanguageNameLookup(),
-			$this->getRepoEntityUriParser()
+		return new OutputFormatValueFormatterFactory(
+			$this->getFormatterFactoryCallbacksByType(),
+			$this->getContentLanguage(),
+			$this->getLanguageFallbackChainFactory()
 		);
 	}
 
