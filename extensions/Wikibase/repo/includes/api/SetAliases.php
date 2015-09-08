@@ -128,7 +128,11 @@ class SetAliases extends ModifyEntity {
 			$summary->setLanguage( $language );
 
 			// Get the full list of current aliases
-			$summary->addAutoSummaryArgs( $entity->getAliases( $language ) );
+			$fingerprint = $entity->getFingerprint();
+			$aliases = $fingerprint->hasAliasGroup( $language )
+				? $fingerprint->getAliasGroup( $language )->getAliases()
+				: array();
+			$summary->addAutoSummaryArgs( $aliases );
 		}
 
 		$fingerprint = $entity->getFingerprint();
@@ -146,7 +150,7 @@ class SetAliases extends ModifyEntity {
 	 * @return string[]
 	 */
 	private function normalizeAliases( array $aliases ) {
-		$stringNormalizer = $this->stringNormalizer; // hack for PHP fail.
+		$stringNormalizer = $this->stringNormalizer;
 
 		$aliases = array_map(
 			function( $str ) use ( $stringNormalizer ) {

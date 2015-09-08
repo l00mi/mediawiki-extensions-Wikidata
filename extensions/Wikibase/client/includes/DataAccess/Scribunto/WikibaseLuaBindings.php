@@ -3,15 +3,15 @@
 namespace Wikibase\Client\DataAccess\Scribunto;
 
 use InvalidArgumentException;
-use OutOfBoundsException;
 use ParserOptions;
 use Wikibase\Client\Usage\UsageAccumulator;
-use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookupException;
+use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\SettingsArray;
@@ -41,7 +41,7 @@ class WikibaseLuaBindings {
 	/**
 	 * @var SiteLinkLookup
 	 */
-	private $siteLinkTable;
+	private $siteLinkLookup;
 
 	/**
 	 * @var SettingsArray
@@ -71,7 +71,7 @@ class WikibaseLuaBindings {
 	/**
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityLookup $entityLookup
-	 * @param SiteLinkLookup $siteLinkTable
+	 * @param SiteLinkLookup $siteLinkLookup
 	 * @param SettingsArray $settings
 	 * @param LabelDescriptionLookup $labelDescriptionLookup
 	 * @param UsageAccumulator $usageAccumulator for tracking title usage via getEntityId.
@@ -84,7 +84,7 @@ class WikibaseLuaBindings {
 	public function __construct(
 		EntityIdParser $entityIdParser,
 		EntityLookup $entityLookup,
-		SiteLinkLookup $siteLinkTable,
+		SiteLinkLookup $siteLinkLookup,
 		SettingsArray $settings,
 		LabelDescriptionLookup $labelDescriptionLookup,
 		UsageAccumulator $usageAccumulator,
@@ -93,7 +93,7 @@ class WikibaseLuaBindings {
 	) {
 		$this->entityIdParser = $entityIdParser;
 		$this->entityLookup = $entityLookup;
-		$this->siteLinkTable = $siteLinkTable;
+		$this->siteLinkLookup = $siteLinkLookup;
 		$this->settings = $settings;
 		$this->labelDescriptionLookup = $labelDescriptionLookup;
 		$this->usageAccumulator = $usageAccumulator;
@@ -111,7 +111,7 @@ class WikibaseLuaBindings {
 	 * @return string|null
 	 */
 	public function getEntityId( $pageTitle ) {
-		$id = $this->siteLinkTable->getItemIdForLink( $this->siteId, $pageTitle );
+		$id = $this->siteLinkLookup->getItemIdForLink( $this->siteId, $pageTitle );
 
 		if ( !$id ) {
 			return null;
@@ -146,8 +146,13 @@ class WikibaseLuaBindings {
 		try {
 			$term = $this->labelDescriptionLookup->getLabel( $entityId );
 		} catch ( StorageException $ex ) {
+			// TODO: verify this catch is still needed
 			return null;
-		} catch ( OutOfBoundsException $ex ) {
+		} catch ( LabelDescriptionLookupException $ex ) {
+			return null;
+		}
+
+		if ( $term === null ) {
 			return null;
 		}
 
@@ -171,8 +176,13 @@ class WikibaseLuaBindings {
 		try {
 			$term = $this->labelDescriptionLookup->getDescription( $entityId );
 		} catch ( StorageException $ex ) {
+			// TODO: verify this catch is still needed
 			return null;
-		} catch ( OutOfBoundsException $ex ) {
+		} catch ( LabelDescriptionLookupException $ex ) {
+			return null;
+		}
+
+		if ( $term === null ) {
 			return null;
 		}
 
@@ -186,7 +196,7 @@ class WikibaseLuaBindings {
 	 * @param string $prefixedEntityId
 	 *
 	 * @since 0.5
-	 * @return string|null Null if entity couldn't be found/ no label present
+	 * @return string|null Null if no site link found.
 	 */
 	public function getSiteLinkPageName( $prefixedEntityId ) {
 		try {
@@ -195,14 +205,20 @@ class WikibaseLuaBindings {
 			return null;
 		}
 
-		/** @var Item $item */
-		$item = $this->entityLookup->getEntity( $itemId );
-		if ( !$item || !$item->getSiteLinkList()->hasLinkWithSiteId( $this->siteId ) ) {
-			return null;
+		// @fixme the SiteLinks do not contain badges! but all we want here is page name.
+		$siteLinkRows = $this->siteLinkLookup->getLinks(
+			array( $itemId->getNumericId() ),
+			array( $this->siteId )
+		);
+
+		foreach ( $siteLinkRows as $siteLinkRow ) {
+			$siteLink = new SiteLink( $siteLinkRow[0], $siteLinkRow[1] );
+
+			$this->usageAccumulator->addTitleUsage( $itemId );
+			return $siteLink->getPageName();
 		}
 
-		$this->usageAccumulator->addTitleUsage( $itemId );
-		return $item->getSiteLinkList()->getBySiteId( $this->siteId )->getPageName();
+		return null;
 	}
 
 	/**

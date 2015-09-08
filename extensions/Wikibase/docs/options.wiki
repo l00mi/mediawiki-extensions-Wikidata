@@ -57,6 +57,7 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 :;length: the maximum length of the string, in characters.
 :Default: <code>array( 'length' => 250 )</code>
 ;useRedirectTargetColumn: Whether to use the epp_redirect_target column in the wb_entity_per_page table for detecting redirects. True per default, can be set to false in an environment where the necessary database update can't be deployed right away. To set up the table manually, run repo/sql/AddEppRedirectTarget.sql to create it, then use repo/maintenance/rebuildEntityPerPage.php to rebuild the table if neccessary.
+;formatterUrlProperty: Property to be used on properties that defines a formatter URL which is used to link identifiers. The placeholder <code>$1</code> will be replaced by the identifier. Example: <code>https://www.wikidata.org/entity/$1</code>
 ;transformLegacyFormatOnExport: Whether entity revisions stored in a legacy format should be converted on the fly while exporting. Enabled per default.
 ;subscriptionLookupMode: how the repo determines which clients need to be notified about changes to which entity (see also the useLegacyChangesSubscription setting in the client). Possible values:
 :;<code>'sitelinks'</code>: Use only sitelinks from the wb_items_per_site table to track subscriptions (legacy mode).
@@ -82,7 +83,7 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 :;<code>'none'</code>: Don't sort. Basically, the order of the links is not guaranteed. '''Deprecated''' and dysfunctional.
 : Default is <code>'code'</code>.
 ;sortPrepend: List of language codes to put on top of the language links in the side bar. Default: <code>array()</code>. '''Note''': this may change to use global wiki IDs instead of language codes in the future.
-;interwikiSortOrder: Specify a custom sort order for interwiki links; default options provided include alphabetic, code, alphabetic revised, alphabetic_sr, and alphabetic_fy.
+;interwikiSortOrders: Array of arrays of language codes, specifying custom sort orders for interwiki links; default options provided include <code>'code'</code>, <code>'alphabetic'</code>, <code>'alphabetic_revised'</code>, <code>'alphabetic_sr'</code>, and <code>'alphabetic_fy'</code>.
 ;alwaysSort: Sort links from wikitext even if <code><nowiki>{{noexternallanglinks:*}}</nowiki></code> is used. Default: <code>true</code>.
 ;siteGlobalID: This site's global ID (e.g. <code>'itwiki'</code>), as used in the sites table. Default: <code>$wgDBname</code>.
 ;siteLocalID: This site's local ID resp. language code (e.g. <code>'it'</code>). Default: <code>$wgLanguageCode</code>. '''Note:''' this setting will be removed once we can take this information from the sites table.
@@ -101,6 +102,7 @@ As usual, the extension is configured in MediaWiki's LocalSettings.php file. How
 ;allowDataTransclusion: switch to enable data transclusion features like the <nowiki>{{#property}}</nowiki> parser function and the <tt>wikibase</tt> Scribunto module. Defaults to <tt>true</tt>.
 ;allowArbitraryDataAccess: switch to allow accessing arbitrary items from the <tt>wikibase</tt> Scribunto module and the via the parser functions (instead of just the item which is linked to the current page). Defaults to <tt>true</tt>.
 ;allowDataAccessInUserLanguage: switch to allow accessing data in the user's language rather than the content language from the <tt>wikibase</tt> Scribunto module and the via the parser functions. Useful for multilingual wikis: Allows users to split the ParserCache by user language. Defaults to <tt>false</tt>.
+;entityAccessLimit: limit for the number of different full entities that can be loaded on any given page, via Scribunto or the property parser function. Defaults to 200.
 ;propagateChangesToRepo: switch to enable or disable the propagation of client changes to the repo. Defaults to <tt>true</tt>.
 ;languageLinkSiteGroup: the ID of the site group to be shown as language links. Defaults to <tt>null</tt>, which means the site's own site group.
 ;badgeClassNames: A list of additional CSS class names for site links that have badges. The array has to consist of serialized item ids pointing to their CSS class names, like <code>array( 'Q101' => 'badge-goodarticle' )</code>. Note that this extension does not add any CSS to actually display the badges.

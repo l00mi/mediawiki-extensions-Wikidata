@@ -3,7 +3,8 @@
 		"authors": [
 			"Sjoerddebruin",
 			"Macofe",
-			"Siebrand"
+			"Siebrand",
+			"FabianRM"
 		]
 	},
 	"specialpages-group-wikibasequality": "Wikibasekwaliteit",
@@ -19,7 +20,7 @@
 	"wbq-violations-invalid-entity-id": "\"$1\" is geen geldige entiteits-ID.",
 	"wbq-violations-not-existent-entity": "Entiteit \"$1\" bestaat niet.",
 	"wbq-violations-invalid-property-id": "\"$1\" is geen geldige eigenschaps-ID.",
-	"wbq-violations-not-existent-property": "Eigenschap \"$1\" bestaat niet.",
+	"wbq-violations-not-existent-property": "Er bestaat geen eigenschap met het opgegeven ID.",
 	"wbq-violations-table-header-entity": "Entiteit",
 	"wbq-violations-table-header-claim": "Verklaring",
 	"wbq-violations-table-header-constraint-type": "Type",

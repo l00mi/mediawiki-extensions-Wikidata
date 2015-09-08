@@ -26,9 +26,9 @@ use Wikibase\Content\EntityHolder;
 use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Services\Diff\EntityPatcher;
-use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\FingerprintSearchTextGenerator;
@@ -425,7 +425,9 @@ abstract class EntityContent extends AbstractContent {
 
 		/* @var Language $language */
 		$language = $GLOBALS['wgLang'];
-		$description = $this->getEntity()->getDescription( $language->getCode() );
+		$fingerprint = $this->getEntity()->getFingerprint();
+		$description = $fingerprint->hasDescription( $language->getCode() )
+			? $fingerprint->getDescription( $language->getCode() )->getText() : '';
 		return substr( $description, 0, $maxLength );
 	}
 

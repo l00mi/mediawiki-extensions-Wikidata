@@ -4,13 +4,12 @@ namespace Wikibase\Client\Usage\Sql;
 
 use ArrayIterator;
 use DatabaseBase;
-use Exception;
 use InvalidArgumentException;
 use Iterator;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\PageEntityUsages;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 
 /**
  * Helper class for updating the wbc_entity_usage table.

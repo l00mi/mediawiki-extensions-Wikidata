@@ -2,7 +2,6 @@
 
 namespace Wikibase\DataModel\Services\Lookup;
 
-use OutOfBoundsException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Term\Term;
 
@@ -12,6 +11,7 @@ use Wikibase\DataModel\Term\Term;
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Marius Hoch < hoo@online.de >
+ * @author Adam Shorland
  */
 class LanguageLabelDescriptionLookup implements LabelDescriptionLookup {
 
@@ -37,22 +37,40 @@ class LanguageLabelDescriptionLookup implements LabelDescriptionLookup {
 	/**
 	 * @param EntityId $entityId
 	 *
-	 * @throws OutOfBoundsException if no such label or entity could be found
-	 * @return Term
+	 * @throws LabelDescriptionLookupException
+	 * @return Term|null
 	 */
 	public function getLabel( EntityId $entityId ) {
-		$text = $this->termLookup->getLabel( $entityId, $this->languageCode );
+		try {
+			$text = $this->termLookup->getLabel( $entityId, $this->languageCode );
+		} catch ( TermLookupException $ex ) {
+			throw new LabelDescriptionLookupException( $entityId, 'Failed to lookup label', $ex );
+		}
+
+		if ( $text === null ) {
+			return null;
+		}
+
 		return new Term( $this->languageCode, $text );
 	}
 
 	/**
 	 * @param EntityId $entityId
 	 *
-	 * @throws OutOfBoundsException if no such description or entity could be found
-	 * @return Term
+	 * @throws LabelDescriptionLookupException
+	 * @return Term|null
 	 */
 	public function getDescription( EntityId $entityId ) {
-		$text = $this->termLookup->getDescription( $entityId, $this->languageCode );
+		try {
+			$text = $this->termLookup->getDescription( $entityId, $this->languageCode );
+		} catch ( TermLookupException $ex ) {
+			throw new LabelDescriptionLookupException( $entityId, 'Failed to lookup description', $ex );
+		}
+
+		if ( $text === null ) {
+			return null;
+		}
+
 		return new Term( $this->languageCode, $text );
 	}
 

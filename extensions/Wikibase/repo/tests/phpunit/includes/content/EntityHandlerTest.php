@@ -11,9 +11,10 @@ use Title;
 use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\EntityContent;
 use Wikibase\InternalSerialization\SerializerFactory;
-use Wikibase\Lib\Store\EntityRedirect;
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
@@ -58,7 +59,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 			$repoSettings = array_merge( $repoSettings, $settings->getArrayCopy() );
 		}
 
-		return new WikibaseRepo( new SettingsArray( $repoSettings ) );
+		return new WikibaseRepo( new SettingsArray( $repoSettings ), new DataTypeDefinitions(), Language::factory( 'qqq' ) );
 	}
 
 	/**
@@ -107,7 +108,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	 */
 	public function contentProvider() {
 		$content = $this->newEntityContent();
-		$content->getEntity()->addAliases( 'en', array( 'foo' ) );
+		$content->getEntity()->setAliases( 'en', array( 'foo' ) );
 		$content->getEntity()->setDescription( 'de', 'foobar' );
 		$content->getEntity()->setDescription( 'en', 'baz' );
 		$content->getEntity()->setLabel( 'nl', 'o_O' );

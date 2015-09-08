@@ -12,11 +12,11 @@ use RequestContext;
 use SiteList;
 use SiteStore;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Rdf\HashDedupeBag;
 use Wikibase\Rdf\RdfBuilder;
@@ -459,7 +459,7 @@ class EntityDataSerializationService {
 			$this->serializerFactory,
 			$this->siteStore,
 			$this->propertyLookup,
-			false // Never index tags for this service as we dont output XML
+			false // Never add meta data for this service
 		);
 		$resultBuilder->addEntityRevision( null, $entityRevision );
 

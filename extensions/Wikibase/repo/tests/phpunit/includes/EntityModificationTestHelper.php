@@ -8,8 +8,8 @@ use Serializers\Serializer;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\Lib\Store\EntityRedirect;
+use Wikibase\DataModel\Entity\EntityRedirect;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -145,7 +145,7 @@ class EntityModificationTestHelper {
 	 *
 	 * @return object
 	 */
-	public function unserializeEntity( $data, $id = null ) {
+	public function unserializeEntity( array $data, $id = null ) {
 		if ( $id !== null ) {
 			if ( is_string( $id ) ) {
 				$id = $this->idParser->parse( $id );
@@ -176,7 +176,7 @@ class EntityModificationTestHelper {
 	 *
 	 * @param array $data
 	 */
-	private function unsetSpuriousFieldsRecursively( &$data ) {
+	private function unsetSpuriousFieldsRecursively( array &$data ) {
 		// unset empty fields
 		foreach ( $data as $key => &$value ) {
 			if ( $key === 'hash' || $key === 'id' ) {

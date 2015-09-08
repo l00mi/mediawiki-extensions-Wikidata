@@ -3,6 +3,7 @@
 namespace Wikibase\Repo\Content;
 
 use ContentHandler;
+use InvalidArgumentException;
 use MWException;
 use OutOfBoundsException;
 use Revision;
@@ -12,9 +13,9 @@ use User;
 use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityRedirect;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityContent;
-use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\Store\EntityPermissionChecker;
@@ -82,6 +83,8 @@ class EntityContentFactory implements EntityTitleLookup, EntityIdLookup, EntityP
 	 * @param EntityId $id
 	 *
 	 * @throws MWException
+	 * @throws OutOfBoundsException
+	 * @throws InvalidArgumentException
 	 * @return Title
 	 */
 	public function getTitleForId( EntityId $id ) {
@@ -166,6 +169,7 @@ class EntityContentFactory implements EntityTitleLookup, EntityIdLookup, EntityP
 	 * @param string $entityType
 	 *
 	 * @throws OutOfBoundsException if no content model is defined for the given entity type.
+	 * @throws MWException
 	 * @return EntityHandler
 	 */
 	public function getContentHandlerForType( $entityType ) {

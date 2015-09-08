@@ -26,7 +26,7 @@ use Wikibase\DataModel\SiteLink;
 class ItemDiffTest extends EntityDiffOldTest {
 
 	public function provideApplyData() {
-		$originalTests = parent::generateApplyData( Item::ENTITY_TYPE );
+		$originalTests = $this->generateApplyData( Item::ENTITY_TYPE );
 		$tests = array();
 
 		/**
@@ -47,7 +47,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 			)
 		);
 
-		$b = unserialize( serialize( $a ) );
+		$b = $a->copy();
 		$b->getSiteLinkList()->addSiteLink(
 			new SiteLink(
 				'dewiki',
@@ -158,7 +158,7 @@ class ItemDiffTest extends EntityDiffOldTest {
 			)
 		);
 
-		$b = unserialize( serialize( $a ) );
+		$b = $a->copy();
 		$b->getSiteLinkList()->removeLinkWithSiteId( 'enwiki' );
 
 		$tests[] = array( $a, $b );

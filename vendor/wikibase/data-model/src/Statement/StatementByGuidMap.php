@@ -23,10 +23,13 @@ use Traversable;
  */
 class StatementByGuidMap implements IteratorAggregate, Countable {
 
+	/**
+	 * @var Statement[]
+	 */
 	private $statements = array();
 
 	/**
-	 * @param Statement[] $statements
+	 * @param Statement[]|Traversable $statements
 	 */
 	public function __construct( $statements = array() ) {
 		foreach ( $statements as $statement ) {
@@ -104,7 +107,7 @@ class StatementByGuidMap implements IteratorAggregate, Countable {
 	 * The iterator has the GUIDs of the statements as keys.
 	 *
 	 * @see IteratorAggregate::getIterator
-	 * @return Traversable
+	 * @return Traversable|Statement[]
 	 */
 	public function getIterator() {
 		return new ArrayIterator( $this->statements );

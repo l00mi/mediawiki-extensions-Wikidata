@@ -5,7 +5,7 @@ namespace Wikibase\Lib\Serialization;
 use ApiResult;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
-use Wikibase\DataModel\Services\Lookup\PropertyNotFoundException;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException;
 
 /**
  * @since 0.5
@@ -24,6 +24,23 @@ class CallbackFactory {
 		return function( $array ) use ( $tagName ) {
 			if ( is_array( $array ) ) {
 				ApiResult::setIndexedTagName( $array, $tagName );
+			}
+			return $array;
+		};
+	}
+
+	/**
+	 * Get callable to index array with the given tag name
+	 *
+	 * @param string $type
+	 * @param string $kvpKeyName
+	 *
+	 * @return callable
+	 */
+	public function getCallbackToSetArrayType( $type, $kvpKeyName = null ) {
+		return function( $array ) use ( $type, $kvpKeyName ) {
+			if ( is_array( $array ) ) {
+				ApiResult::setArrayType( $array, $type, $kvpKeyName );
 			}
 			return $array;
 		};
@@ -58,7 +75,7 @@ class CallbackFactory {
 					foreach ( $snakGroup as &$snak ) {
 						$snak['datatype'] = $dataType;
 					}
-				} catch ( PropertyNotFoundException $e ) {
+				} catch ( PropertyDataTypeLookupException $e ) {
 					//XXX: shall we set $serialization['datatype'] = 'bad' ??
 				}
 			}
@@ -68,11 +85,13 @@ class CallbackFactory {
 
 	public function getCallbackToAddDataTypeToSnak( PropertyDataTypeLookup $dataTypeLookup ) {
 		return function ( $array ) use ( $dataTypeLookup ) {
-			try {
-				$dataType = $dataTypeLookup->getDataTypeIdForProperty( new PropertyId( $array['property'] ) );
-				$array['datatype'] = $dataType;
-			} catch ( PropertyNotFoundException $e ) {
-				//XXX: shall we set $serialization['datatype'] = 'bad' ??
+			if ( is_array( $array ) ) {
+				try {
+					$dataType = $dataTypeLookup->getDataTypeIdForProperty( new PropertyId( $array['property'] ) );
+					$array['datatype'] = $dataType;
+				} catch ( PropertyDataTypeLookupException $e ) {
+					//XXX: shall we set $serialization['datatype'] = 'bad' ??
+				}
 			}
 			return $array;
 		};

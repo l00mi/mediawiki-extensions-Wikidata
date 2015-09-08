@@ -3,8 +3,8 @@
 namespace Wikibase\Test\Repo\Api;
 
 use ApiMain;
-use DataTypes\DataType;
 use DataTypes\DataTypeFactory;
+use DataValues\Geo\Parsers\GlobeCoordinateParser;
 use FauxRequest;
 use Language;
 use ValueParsers\NullParser;
@@ -51,16 +51,16 @@ class ParseValueTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$dataTypeFactory = new DataTypeFactory( array(
-			'string' => array( $this, 'newStringDataType' ),
-			'url' => array( $this, 'newStringDataType' ),
-			'globe-coordinate' => array( $this, 'newCoordinateDataType' ),
+			'string' => 'string',
+			'url' => 'string',
+			'globe-coordinate' => 'globecoordinate',
 		) );
 
 		$valueParserFactory = new ValueParserFactory( array(
 			'null' => array( $this, 'newNullParser' ),
 			'string' => array( $this, 'newNullParser' ),
 			'url' => array( $this, 'newNullParser' ),
-			'globe-coordinate' => 'DataValues\Geo\Parsers\GlobeCoordinateParser',
+			'globe-coordinate' => array( $this, 'newGlobeCoordinateParser' ),
 		) );
 
 		$validatorFactory = new BuilderBasedDataTypeValidatorFactory( array(
@@ -87,16 +87,12 @@ class ParseValueTest extends \PHPUnit_Framework_TestCase {
 			) );
 	}
 
-	public function newStringDataType( $name ) {
-		return new DataType( $name, 'string', array() );
-	}
-
-	public function newCoordinateDataType( $name ) {
-		return new DataType( $name, 'globecoordinate', array() );
-	}
-
 	public function newNullParser() {
 		return new NullParser();
+	}
+
+	public function newGlobeCoordinateParser() {
+		return new GlobeCoordinateParser();
 	}
 
 	private function callApiModule( array $params ) {

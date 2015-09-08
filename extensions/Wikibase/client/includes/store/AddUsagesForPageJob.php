@@ -7,7 +7,7 @@ use JobSpecification;
 use Title;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -117,6 +117,25 @@ class AddUsagesForPageJob extends Job {
 	public function overrideServices( UsageUpdater $usageUpdater, EntityIdParser $idParser ) {
 		$this->usageUpdater = $usageUpdater;
 		$this->idParser = $idParser;
+	}
+
+	/**
+	 * @see Job::getDeduplicationInfo
+	 *
+	 * @return array Job params array, with touched omitted.
+	 */
+	public function getDeduplicationInfo() {
+		// parent Job class returns an array with 'params' key
+		$info = parent::getDeduplicationInfo();
+
+		// If this job is not yet processed and a new one (e.g. from a more recent
+		// edit) is created with same page id and usages, then the job queue can
+		// disregard this one and avoid duplicate, excess database updates.
+		if ( is_array( $info['params'] ) ) {
+			unset( $info['params']['touched'] );
+		}
+
+		return $info;
 	}
 
 	/**

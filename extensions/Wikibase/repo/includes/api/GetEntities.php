@@ -6,8 +6,8 @@ use ApiBase;
 use ApiMain;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Services\Entity\EntityPrefetcher;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityRevision;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -127,9 +127,6 @@ class GetEntities extends ApiBase {
 		foreach ( $entityRevisions as $sourceEntityId => $entityRevision ) {
 			$this->handleEntity( $sourceEntityId, $entityRevision, $params );
 		}
-
-		//todo remove once result builder is used... (what exactly does this do....?)
-		$this->getResult()->addIndexedTagName( array( 'entities' ), 'entity' );
 
 		$this->resultBuilder->markSuccess( 1 );
 	}

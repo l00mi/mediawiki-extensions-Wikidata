@@ -1,8 +1,51 @@
 {
 	"@metadata": {
 		"authors": [
-			"LaG roiL"
+			"LaG roiL",
+			"Amire80"
 		]
 	},
-	"wikidataquality-checkresult-form-submit-label": "בדיקה"
+	"wbq-desc": "הרחבת הבסיס להרחבות האיכות של ויקיבייס, שעוזרות בניהול נתונים לא עקביים.",
+	"specialpages-group-wikibasequality": "איכות ויקיבייס",
+	"wbq-violations-description": "רשימת בעיות איכות נתונים",
+	"wbq-violations-explanations-general": "הדף המיוחד הזה מציג רשימה של כל בעיות איכות הנתונים שנמצאו בוויקינתונים. בעיות כאלה יכולות ליות הפרות של של אילוצים או אי־התאומות עם מסדי־נתונים חיצוניים.",
+	"wbq-violations-explanations-exceptions": "אם קביעה מסומנת באופן שגוי בתור בעלת בעיית איכות נתונים, משתמשים בעלי הרשאה יכולים לסמן אותה בתור יוצאת דופן. יוצאי־הדופן האלה אינם מוצגים ברשימה ההתחלתית. אפשר לשחזר יוצאי־דופן קיימים ולהפוך אותם שוב לבעיות.",
+	"wbq-violatons-filter-headline": "סינון בעיות",
+	"wbq-violations-entity-id-label": "מזהה ישות:",
+	"wbq-violations-property-id-label": "מזהה מאפיין:",
+	"wbq-violations-group-label": "קבוצה:",
+	"wbq-violations-type-label": "סוג:",
+	"wbq-violations-form-select-all": "(הכול)",
+	"wbq-violations-exceptions-checkbox-label": "הצגת יוצאי־דופן",
+	"wbq-violations-submit-button-label": "הצגת הפרות",
+	"wbq-violations-invalid-entity-id": "מזהה הישות שניתן אינו תקין.",
+	"wbq-violations-not-existent-entity": "ישות עם המזהה שניתן אינה קיימת.",
+	"wbq-violations-invalid-property-id": "מזהה המאפיין שניתן אינו תקין.",
+	"wbq-violations-not-existent-property": "מאפיין עם המזהה שניתן אינו קיים.",
+	"wbq-violations-table-header-entity": "ישות",
+	"wbq-violations-table-header-claim": "טענה",
+	"wbq-violations-table-header-constraint-type": "סוג",
+	"wbq-violations-table-header-updated-at": "עודכן בפעם האחרונה",
+	"wbq-violations-table-header-status": "מצב",
+	"wbq-violations-table-header-additional-info": "מידע נוסף",
+	"wbq-violations-status-violation": "הפרה",
+	"wbq-violations-status-unverified": "לא בדוק",
+	"wbq-violations-status-exception": "יוצא־דופן",
+	"wbq-violations-mark-as-exception": "לסמן בתור יוצא־דופן",
+	"wbq-violations-mark-as-violation": "לסמן בתור הפרה",
+	"wbq-violations-next-page": "לדף הבא >>",
+	"wbq-violations-prev-page": "<< הדף הקודם",
+	"apihelp-wbqgetviolationmessages-description": "קבלת הודעות להפרות נתונים על טענות.",
+	"apihelp-wbqgetviolationmessages-param-entityid": "מזהה של ישות שצריך לרשום את הפרות הנתונים שלה.",
+	"apihelp-wbqgetviolationmessages-example": "קבלת הודעות להפרות נתונים של פריט Q76.",
+	"apihelp-wbqmodifyviolation-description": "משנה הפרת נתונים מסוימת. נא לזכור שרק משתמשים עם הרשאות מסוימות יכולים לשנות הפרות.",
+	"apihelp-wbqmodifyviolation-param-claimguid": "ה־GUID של הפרת הנתונים שצריך לשנות. יחד עם constraint id זה מזהה את ההפרה.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "מזהה האילוץ של הפרת הנתונים שצריך לשנות. יחד עם ה־claimguid זה מזהה את ההפרה.",
+	"apihelp-wbqmodifyviolation-param-status": "המצב החדש שצריך להגדיר להפרה הזאת.",
+	"apihelp-wbqmodifyviolation-examples-exception": "שינוי מצב ההפרה שמזוהה באמצעות מזהה הפרה ו־GUID של טענה ליוצא־דופן.",
+	"apihelp-wbqmodifyviolation-examples-violation": "שינוי מצב ההפרה שמזוהה באמצעות מזהה אילוץ ו־GUID של טענה להפרה.",
+	"apihelp-wbqgetviolationtypes-description": "החזרת רשימת סוגי ההפרה הנתמכים.",
+	"apihelp-wbqgetviolationtypes-param-groupid": "פרמטר אופצינלי שמגביל את סוגי ההפרה לאלה שמשויכים לקבוצה הנתונה.",
+	"apihelp-wdqgetviolationtypes-examples-1": "החזרת כל סוגי ההפרה הנתמכים ללא הגבלות.",
+	"apihelp-wdqgetviolationtypes-examples-2": "החזרת כל סוגי ההפרות שמשויכים לקבוצה \"wbqc\"."
 }

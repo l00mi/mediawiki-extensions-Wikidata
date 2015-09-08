@@ -4,7 +4,5 @@
 			"Aftabuzzaman"
 		]
 	},
-	"specialpages-group-wikidataquality": "উইকিউপাত্ত গুণমান",
-	"wikidataquality-checkresult-result-headline": "$1-এর ফলাফল",
-	"wikidataquality-checkresult-result-table-header-status": "অবস্থা"
+	"apihelp-wbqgetviolationmessages-example": "আইটেম Q76-এর জন্য উপাত্ত লঙ্ঘনের বার্তা পান।"
 }

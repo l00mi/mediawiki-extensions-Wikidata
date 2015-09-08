@@ -9,10 +9,11 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\EntityContent;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\PropertyContent;
+use Wikibase\PropertyInfoBuilder;
 use Wikibase\PropertyInfoStore;
 use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\Repo\Validators\EntityConstraintProvider;
@@ -35,6 +36,11 @@ class PropertyHandler extends EntityHandler {
 	 * @var PropertyInfoStore
 	 */
 	private $infoStore;
+
+	/**
+	 * @var PropertyInfoBuilder
+	 */
+	private $propertyInfoBuilder;
 
 	/**
 	 * @see EntityHandler::getContentClass
@@ -65,6 +71,7 @@ class PropertyHandler extends EntityHandler {
 		ValidatorErrorLocalizer $errorLocalizer,
 		EntityIdParser $entityIdParser,
 		PropertyInfoStore $infoStore,
+		PropertyInfoBuilder $propertyInfoBuilder,
 		$legacyExportFormatDetector = null
 	) {
 		parent::__construct(
@@ -79,6 +86,7 @@ class PropertyHandler extends EntityHandler {
 		);
 
 		$this->infoStore = $infoStore;
+		$this->propertyInfoBuilder = $propertyInfoBuilder;
 	}
 
 	/**
@@ -172,11 +180,7 @@ class PropertyHandler extends EntityHandler {
 		/** @var PropertyContent $content */
 		$updates = array();
 
-		//XXX: Where to encode the knowledge about how to extract an info array from a Property object?
-		//     Should we have a PropertyInfo class? Or can we put this into the Property class?
-		$info = array(
-			PropertyInfoStore::KEY_DATA_TYPE => $content->getProperty()->getDataTypeId()
-		);
+		$info = $this->propertyInfoBuilder->buildPropertyInfo( $content->getProperty() );
 
 		$updates[] = new DataUpdateAdapter(
 			array( $this->infoStore, 'setPropertyInfo' ),

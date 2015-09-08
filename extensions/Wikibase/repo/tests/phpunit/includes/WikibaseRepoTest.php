@@ -2,6 +2,8 @@
 
 namespace Wikibase\Tests\Repo;
 
+use Language;
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
 
@@ -22,6 +24,11 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testGetDataTypeFactoryReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getDataTypeFactory();
 		$this->assertInstanceOf( 'DataTypes\DataTypeFactory', $returnValue );
+	}
+
+	public function testGetValueParserFactoryReturnType() {
+		$returnValue = $this->getWikibaseRepo()->getValueParserFactory();
+		$this->assertInstanceOf( 'Wikibase\Repo\ValueParserFactory', $returnValue );
 	}
 
 	public function testGetDataValueFactoryReturnType() {
@@ -76,7 +83,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetEntityIdParserReturnType() {
 		$returnValue = $this->getWikibaseRepo()->getEntityIdParser();
-		$this->assertInstanceOf( 'Wikibase\DataModel\Services\EntityId\EntityIdParser', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\EntityIdParser', $returnValue );
 	}
 
 	public function testGetStatementGuidParser() {
@@ -213,8 +220,9 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	 * @return WikibaseRepo
 	 */
 	private function getWikibaseRepo() {
+		$lang = Language::factory( 'qqx' );
 		$settings = new SettingsArray( WikibaseRepo::getDefaultInstance()->getSettings()->getArrayCopy() );
-		return new WikibaseRepo( $settings );
+		return new WikibaseRepo( $settings, new DataTypeDefinitions(), $lang );
 	}
 
 	public function testGetApiHelperFactory() {
@@ -254,6 +262,11 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testGetDataValueDeserializer() {
 		$service = $this->getWikibaseRepo()->getDataValueDeserializer();
 		$this->assertInstanceOf( 'Deserializers\Deserializer', $service );
+	}
+
+	public function testNewPropertyInfoBuilder() {
+		$builder = $this->getWikibaseRepo()->newPropertyInfoBuilder();
+		$this->assertInstanceOf( 'Wikibase\PropertyInfoBuilder', $builder );
 	}
 
 }

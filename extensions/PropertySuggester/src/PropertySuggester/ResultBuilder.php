@@ -18,7 +18,7 @@ use Wikibase\Lib\Store\EntityTitleLookup;
 class ResultBuilder {
 
 	/**
-	 * @var $EntityTitleLookup
+	 * @var EntityTitleLookup
 	 */
 	private $entityTitleLookup;
 
@@ -94,13 +94,14 @@ class ResultBuilder {
 		$entry['url'] = $this->entityTitleLookup->getTitleForId( $id )->getFullUrl();
 		$entry['rating'] = $suggestion->getProbability();
 
+		/** @var TermIndexEntry[] $matchingTerms */
 		if ( isset( $clusteredTerms[$id->getSerialization()] ) ) {
 			$matchingTerms = $clusteredTerms[$id->getSerialization()];
 		} else {
 			$matchingTerms = array();
 		}
+
 		foreach ( $matchingTerms as $term ) {
-			/** @var $term TermIndexEntry */
 			switch ( $term->getType() ) {
 				case TermIndexEntry::TYPE_LABEL:
 					$entry['label'] = $term->getText();
@@ -113,9 +114,14 @@ class ResultBuilder {
 					break;
 			}
 		}
-		if ( !isset($entry['label'] ) ) {
+
+		if ( !isset( $entry['label'] ) ) {
 			$entry['label'] = $id->getSerialization();
+		} elseif ( preg_match( $this->searchPattern, $entry['label'] ) ) {
+			// No aliases needed in the output when the label already is a successful match.
+			unset( $entry['aliases'] );
 		}
+
 		return $entry;
 	}
 
@@ -141,6 +147,11 @@ class ResultBuilder {
 	 * @param TermIndexEntry $term
 	 */
 	private function checkAndSetAlias( array &$entry, TermIndexEntry $term ) {
+		// Do not add more than one matching alias to the "aliases" field.
+		if ( !empty( $entry['aliases'] ) ) {
+			return;
+		}
+
 		if ( preg_match( $this->searchPattern, $term->getText() ) ) {
 			if ( !isset( $entry['aliases'] ) ) {
 				$entry['aliases'] = array();

@@ -3,23 +3,26 @@
 		"authors": [
 			"Macofe",
 			"Alexmar983",
-			"Beta16"
+			"Beta16",
+			"Fringio",
+			"The Polish"
 		]
 	},
 	"wbq-violations-description": "Lista di problemi relativi alla qualità dei dati.",
 	"wbq-violations-explanations-general": "In questa pagina speciale sono elencati tutti i problemi di qualità relativi ai dati che sono stati rilevati in Wikidata. Tali problemi possono essere violazioni relative a vincoli definiti o incongruenze con altre banche dati esterne.",
+	"wbq-violations-explanations-exceptions": "Se una frase è erroneamente etichettata come problema relativo alla qualità dei dati, può essere contrassegnato come eccezione da utenti dotati di appositi privilegi. Tali eccezioni non sono visualizzate nell'elenco di default. Le eccezioni esistenti possono anche essere ripristinate e impostate nuovamente come problema.",
 	"wbq-violatons-filter-headline": "Problemi di filtro",
 	"wbq-violations-entity-id-label": "ID entità:",
-	"wbq-violations-property-id-label": "<strong>Attenzione:</strong> [[:$1]] sta richiamando [[:$2]] con più di un valore per il parametro \"$3\".",
+	"wbq-violations-property-id-label": "ID proprietà:",
 	"wbq-violations-group-label": "Gruppo:",
 	"wbq-violations-type-label": "Tipo:",
 	"wbq-violations-form-select-all": "(tutti)",
 	"wbq-violations-exceptions-checkbox-label": "Vedi eccezioni",
 	"wbq-violations-submit-button-label": "Visualizza le violazioni",
-	"wbq-violations-invalid-entity-id": "L'ID di entità fornito non è valido.",
-	"wbq-violations-not-existent-entity": "L'entità '$1' non esiste!",
-	"wbq-violations-invalid-property-id": "L'ID proprietà dato non è valido.",
-	"wbq-violations-not-existent-property": "La proprietà '$1' non esiste!",
+	"wbq-violations-invalid-entity-id": "L'entità ID fornita non è valida.",
+	"wbq-violations-not-existent-entity": "L'entità con l'ID specificato non esiste.",
+	"wbq-violations-invalid-property-id": "L'ID dato non è valido.",
+	"wbq-violations-not-existent-property": "Una proprietà con l'ID specificato non esiste.",
 	"wbq-violations-table-header-entity": "Entità",
 	"wbq-violations-table-header-claim": "Asserzione",
 	"wbq-violations-table-header-constraint-type": "Tipo",
@@ -30,6 +33,7 @@
 	"wbq-violations-status-unverified": "Non verificato",
 	"wbq-violations-status-exception": "Eccezione",
 	"wbq-violations-mark-as-exception": "Segnala come eccezione",
+	"wbq-violations-mark-as-violation": "Segnala come violazione",
 	"wbq-violations-next-page": "Pagina successiva >>",
 	"wbq-violations-prev-page": "<< Pagina precedente"
 }

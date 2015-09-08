@@ -1,12 +1,38 @@
 {
 	"@metadata": {
 		"authors": [
-			"Liuxinyu970226"
+			"Liuxinyu970226",
+			"Cwlin0416"
 		]
 	},
+	"specialpages-group-wikibasequality": "Wikibase 品質",
+	"wbq-violations-description": "資料品質問題清單",
+	"wbq-violations-explanations-general": "此特殊頁面列出所有 Wikidata 偵測出有資料品質問題的頁面。 問題可能是違反了己定義的限制或與其他外部資料庫不相符。",
+	"wbq-violations-explanations-exceptions": "若一條陳述句被不正確的標示有資料品質問題，有權限的使用者可以註記該陳述句為例外。 這些例外預設不會顯示於清單中。 已存在的例外也可以還原並再次定義為問題。",
+	"wbq-violatons-filter-headline": "搜尋問題",
+	"wbq-violations-entity-id-label": "實體 ID：",
+	"wbq-violations-property-id-label": "屬性 ID：",
 	"wbq-violations-group-label": "群組：",
 	"wbq-violations-type-label": "類型：",
+	"wbq-violations-form-select-all": "(全部)",
+	"wbq-violations-exceptions-checkbox-label": "顯示例外",
+	"wbq-violations-submit-button-label": "顯示違規",
+	"wbq-violations-invalid-entity-id": "指定的實體 ID 無效。",
+	"wbq-violations-not-existent-entity": "指定 ID 的實體不存在。",
+	"wbq-violations-invalid-property-id": "指定的屬性 ID 無效。",
+	"wbq-violations-not-existent-property": "指定 ID 的屬性不存在。",
 	"wbq-violations-table-header-entity": "實體",
+	"wbq-violations-table-header-claim": "主張",
 	"wbq-violations-table-header-constraint-type": "類型",
-	"wbq-violations-table-header-status": "狀態"
+	"wbq-violations-table-header-updated-at": "最後更新",
+	"wbq-violations-table-header-status": "狀態",
+	"wbq-violations-table-header-additional-info": "額外資訊",
+	"wbq-violations-status-violation": "違規",
+	"wbq-violations-status-unverified": "未經檢驗",
+	"wbq-violations-status-exception": "例外",
+	"wbq-violations-mark-as-exception": "標記為例外",
+	"wbq-violations-mark-as-violation": "標記為違規",
+	"wbq-violations-next-page": "下一頁 >>",
+	"wbq-violations-prev-page": "<< 上一頁",
+	"wbq-violations-permission-denied": "您沒有權限變更此違規！"
 }

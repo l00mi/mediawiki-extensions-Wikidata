@@ -6,11 +6,11 @@
 			"Andreasburmeister"
 		]
 	},
-	"wbq-desc": "Basiserweiterung für Wikibase-Quality-Erweiterungen, die gefundene falsche Daten verwaltet",
+	"wbq-desc": "Basiserweiterung für Wikibase-Quality-Erweiterungen, die bei der Verwaltung inkonsistenter Daten hilft.",
 	"specialpages-group-wikibasequality": "Wikibase-Qualität",
 	"wbq-violations-description": "Liste von Datenqualitätsproblemen",
 	"wbq-violations-explanations-general": "Diese Spezialseite listet alle Datenqualitätsprobleme auf, die in Wikidata entdeckt wurden. Solche Probleme können Verstöße gegen definierte Beschränkungen oder Nichtübereinstimmungen mit anderen externen Datenbanken sein.",
-	"wbq-violations-explanations-exceptions": "Falls eine Aussage als Datenqualitätsproblem falsch bezeichnet ist, kann sie von berechtigten Benutzern als Ausnahme markiert werden. Diese Ausnahmen werden standardmäßig nicht in der Liste angezeigt. Vorhandene Ausnahmen können auch rückgängig gemacht und erneut als Problem festgelegt werden.",
+	"wbq-violations-explanations-exceptions": "Falls eine Aussage als Datenqualitätsproblem falsch bezeichnet ist, kann sie von berechtigten Benutzern als eine Ausnahme markiert werden. Diese Ausnahmen werden standardmäßig nicht in der Liste angezeigt. Vorhandene Ausnahmen können auch rückgängig gemacht und erneut als Probleme definiert werden.",
 	"wbq-violatons-filter-headline": "Probleme filtern",
 	"wbq-violations-entity-id-label": "Objektkennung:",
 	"wbq-violations-property-id-label": "Eigenschaftskennung:",
@@ -20,9 +20,9 @@
 	"wbq-violations-exceptions-checkbox-label": "Ausnahmen anzeigen",
 	"wbq-violations-submit-button-label": "Verstöße anzeigen",
 	"wbq-violations-invalid-entity-id": "Die angegebene Objektkennung ist nicht gültig.",
-	"wbq-violations-not-existent-entity": "Das Objekt mit der angegebenen Kennung ist nicht vorhanden.",
+	"wbq-violations-not-existent-entity": "Ein Objekt mit der angegebenen Kennung ist nicht vorhanden.",
 	"wbq-violations-invalid-property-id": "Die angegebene Eigenschaftskennung ist nicht gültig.",
-	"wbq-violations-not-existent-property": "Die Eigenschaft mit der angegebenen Kennung ist nicht vorhanden.",
+	"wbq-violations-not-existent-property": "Eine Eigenschaft mit der angegebenen Kennung ist nicht vorhanden.",
 	"wbq-violations-table-header-entity": "Objekt",
 	"wbq-violations-table-header-claim": "Behauptung",
 	"wbq-violations-table-header-constraint-type": "Typ",
@@ -36,5 +36,11 @@
 	"wbq-violations-mark-as-violation": "Als Verstoß markieren",
 	"wbq-violations-next-page": "Nächste Seite >>",
 	"wbq-violations-prev-page": "<< Vorherige Seite",
-	"apihelp-wbqgetviolationmessages-description": "Ruft Nachrichten für Datenverstöße bei Behauptungen ab."
+	"apihelp-wbqgetviolationmessages-description": "Ruft Nachrichten für Datenverstöße bei Behauptungen ab.",
+	"apihelp-wbqgetviolationmessages-param-entityid": "Kennung eines Objektes, dessen Datenverstöße aufgelistet werden sollen.",
+	"apihelp-wbqgetviolationmessages-example": "Ruft Nachrichten für Datenverstöße des Objekts Q76 ab.",
+	"apihelp-wbqmodifyviolation-param-status": "Der neue Status, der für diesen Verstoß festgelegt werden soll.",
+	"apihelp-wbqgetviolationtypes-description": "Gibt eine Liste aller unterstützten Verstoßtypen zurück.",
+	"apihelp-wdqgetviolationtypes-examples-1": "Gibt alle unterstützten Verstoßtypen ohne Beschränkungen zurück.",
+	"apihelp-wdqgetviolationtypes-examples-2": "Gibt alle unterstützten Verstoßtypen zurück, die mit der Gruppe „wbqc“ verknüpft sind."
 }

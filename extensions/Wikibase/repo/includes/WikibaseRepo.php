@@ -9,6 +9,7 @@ use DataValues\Serializers\DataValueSerializer;
 use Deserializers\Deserializer;
 use Hooks;
 use IContextSource;
+use Language;
 use Serializers\Serializer;
 use SiteSQLStore;
 use SiteStore;
@@ -16,15 +17,17 @@ use StubObject;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
+use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\DataValue\ValuesFinder;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
-use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
-use Wikibase\DataModel\Services\EntityId\DispatchingEntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
@@ -42,7 +45,6 @@ use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ContentLanguages;
-use Wikibase\Lib\DispatchingValueFormatter;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityIdPlainLinkFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
@@ -59,9 +61,8 @@ use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\WikibaseContentLanguages;
-use Wikibase\Lib\WikibaseDataTypeBuilders;
-use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
+use Wikibase\PropertyInfoBuilder;
 use Wikibase\ReferencedEntitiesFinder;
 use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\Repo\Content\EntityContentFactory;
@@ -118,6 +119,11 @@ class WikibaseRepo {
 	 * @var DataTypeFactory|null
 	 */
 	private $dataTypeFactory = null;
+
+	/**
+	 * @var ValueParserFactory|null
+	 */
+	private $valueParserFactory = null;
 
 	/**
 	 * @var SnakConstructionService|null
@@ -187,12 +193,22 @@ class WikibaseRepo {
 	/**
 	 * @var TermLookup|null
 	 */
-	private $termLookup;
+	private $termLookup = null;
 
 	/**
 	 * @var ContentLanguages|null
 	 */
 	private $monolingualTextLanguages = null;
+
+	/**
+	 * @var DataTypeDefinitions
+	 */
+	private $dataTypeDefinitions;
+
+	/**
+	 * @var Language
+	 */
+	private $defaultLanguage;
 
 	/**
 	 * Returns the default instance constructed using newInstance().
@@ -203,22 +219,127 @@ class WikibaseRepo {
 	 * @return WikibaseRepo
 	 */
 	public static function getDefaultInstance() {
+		global $wgWBRepoDataTypes, $wgWBRepoSettings, $wgContLang;
 		static $instance = null;
 
+		$dataTypeDefinitions = $wgWBRepoDataTypes;
+		Hooks::run( 'WikibaseRepoDataTypes', array( &$dataTypeDefinitions ) );
+
 		if ( $instance === null ) {
-			$instance = new self( new SettingsArray( $GLOBALS['wgWBRepoSettings'] ) );
+			$instance = new self(
+				new SettingsArray( $wgWBRepoSettings ),
+				new DataTypeDefinitions( $dataTypeDefinitions ),
+				$wgContLang
+			);
 		}
 
 		return $instance;
 	}
 
 	/**
+	 * Returns the default ValidatorBuilders instance.
+	 * @warning This is for use with bootstrap code in WikibaseRepo.datatypes.php only!
+	 * Program logic should use WikibaseRepo::getDataTypeValidatorFactory() instead!
+	 *
+	 * @since 0.5
+	 *
+	 * @param string $reset Flag: Pass "reset" to reset the default instance
+	 *
+	 * @return ValidatorBuilders
+	 */
+	public static function getDefaultValidatorBuilders( $reset = 'noreset' ) {
+		static $builders;
+
+		if ( $builders === null || $reset === 'reset' ) {
+			$wikibaseRepo = self::getDefaultInstance();
+			$builders = $wikibaseRepo->newValidatorBuilders();
+		}
+
+		return $builders;
+	}
+
+	/**
+	 * Returns a low level factory object for creating validators for well known data types.
+	 * @warning This is for use with getDefaultValidatorBuilders() during bootstrap only!
+	 * Program logic should use WikibaseRepo::getDataTypeValidatorFactory() instead!
+	 *
+	 * @return ValidatorBuilders
+	 */
+	private function newValidatorBuilders() {
+		$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
+
+		return new ValidatorBuilders(
+			$this->getEntityLookup(),
+			$this->getEntityIdParser(),
+			$urlSchemes,
+			$this->getVocabularyBaseUri(),
+			$this->getMonolingualTextLanguages()
+		);
+	}
+
+	/**
+	 * Returns the default WikibaseValueFormatterBuilders instance.
+	 * @warning This is for use with bootstrap code in WikibaseRepo.datatypes.php only!
+	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
+	 *
+	 * @since 0.5
+	 *
+	 * @param string $reset Flag: Pass "reset" to reset the default instance
+	 *
+	 * @return WikibaseValueFormatterBuilders
+	 */
+	public static function getDefaultFormatterBuilders( $reset = 'noreset' ) {
+		static $builders;
+
+		if ( $builders === null || $reset === 'reset' ) {
+			$wikibaseRepo = self::getDefaultInstance();
+			$builders = $wikibaseRepo->newWikibaseValueFormatterBuilders();
+		}
+
+		return $builders;
+	}
+
+	/**
+	 * Returns a low level factory object for creating formatters for well known data types.
+	 *
+	 * @warning This is for use with getDefaultFormatterBuilders() during bootstrap only!
+	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
+	 *
+	 * @return WikibaseValueFormatterBuilders
+	 */
+	private function newWikibaseValueFormatterBuilders() {
+		return new WikibaseValueFormatterBuilders(
+			$this->getDefaultLanguage(),
+			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
+			new LanguageNameLookup(),
+			$this->getLocalEntityUriParser(),
+			$this->getEntityTitleLookup()
+		);
+	}
+
+	/**
 	 * @since 0.4
 	 *
 	 * @param SettingsArray $settings
+	 * @param DataTypeDefinitions $dataTypeDefinitions
+	 * @param Language|null $defaultLanguage
 	 */
-	public function __construct( SettingsArray $settings ) {
+	public function __construct(
+		SettingsArray $settings,
+		DataTypeDefinitions $dataTypeDefinitions,
+		Language $defaultLanguage = null
+	) {
 		$this->settings = $settings;
+		$this->dataTypeDefinitions = $dataTypeDefinitions;
+		$this->defaultLanguage = $defaultLanguage;
+	}
+
+	/**
+	 * @return Language
+	 */
+	private function getDefaultLanguage() {
+		global $wgContLang;
+		return $this->defaultLanguage ?: $wgContLang;
 	}
 
 	/**
@@ -228,17 +349,30 @@ class WikibaseRepo {
 	 */
 	public function getDataTypeFactory() {
 		if ( $this->dataTypeFactory === null ) {
-			$builders = new WikibaseDataTypeBuilders();
-
-			$typeBuilderSpecs = array_intersect_key(
-				$builders->getDataTypeBuilders(),
-				array_flip( $this->settings->getSetting( 'dataTypes' ) )
-			);
-
-			$this->dataTypeFactory = new DataTypeFactory( $typeBuilderSpecs );
+			$this->dataTypeFactory = new DataTypeFactory( $this->dataTypeDefinitions->getValueTypes() );
 		}
 
 		return $this->dataTypeFactory;
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return ValueParserFactory
+	 */
+	public function getValueParserFactory() {
+		global $wgValueParsers;
+
+		if ( $this->valueParserFactory === null ) {
+			$callbacks = $this->dataTypeDefinitions->getParserFactoryCallbacks();
+
+			// For backwards-compatibility, also register parsers under legacy names.
+			$callbacks = array_merge( $wgValueParsers, $callbacks );
+
+			$this->valueParserFactory = new ValueParserFactory( $callbacks );
+		}
+
+		return $this->valueParserFactory;
 	}
 
 	/**
@@ -586,7 +720,7 @@ class WikibaseRepo {
 	 * @return TermBuffer
 	 */
 	public function getTermBuffer() {
-		return $this->getTermLookup();
+		return $this->getBufferingTermLookup();
 	}
 
 	/**
@@ -611,32 +745,6 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @return WikibaseValueFormatterBuilders
-	 */
-	public function getValueFormatterBuilders() {
-		return $this->getValueFormatterBuildersForTermLookup(
-			$this->getTermLookup()
-		);
-	}
-
-	/**
-	 * @param TermLookup $termLookup
-	 *
-	 * @return WikibaseValueFormatterBuilders
-	 */
-	public function getValueFormatterBuildersForTermLookup( TermLookup $termLookup ) {
-		global $wgContLang;
-
-		return new WikibaseValueFormatterBuilders(
-			$wgContLang,
-			new FormatterLabelDescriptionLookupFactory( $termLookup ),
-			new LanguageNameLookup(),
-			$this->getLocalEntityUriParser(),
-			$this->getEntityTitleLookup()
-		);
-	}
-
-	/**
 	 * @return EntityIdParser
 	 */
 	private function getLocalEntityUriParser() {
@@ -647,16 +755,23 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function getVocabularyBaseUri() {
+		//@todo: We currently use the local repo concept URI here. This should be configurable,
+		// to e.g. allow 3rd parties to use Wikidata as their vocabulary repo.
+		return $this->getSettings()->getSetting( 'conceptBaseUri' );
+	}
+
+	/**
 	 * @return OutputFormatSnakFormatterFactory
 	 */
 	protected function newSnakFormatterFactory() {
-		$builders = new WikibaseSnakFormatterBuilders(
-			$this->getValueFormatterBuilders(),
+		$factory = new OutputFormatSnakFormatterFactory(
+			$this->getValueFormatterFactory(),
 			$this->getPropertyDataTypeLookup(),
 			$this->getDataTypeFactory()
 		);
-
-		$factory = new OutputFormatSnakFormatterFactory( $builders->getSnakFormatterBuildersForFormats() );
 
 		return $factory;
 	}
@@ -676,14 +791,39 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * Constructs an array of factory callbacks for ValueFormatters, keyed by property type
+	 * (data type) prefixed with "PT:", or value type prefixed with "VT:". This matches to
+	 * convention used by OutputFormatValueFormatterFactory and DispatchingValueFormatter.
+	 *
+	 * @return callable[]
+	 */
+	private function getFormatterFactoryCallbacksByType() {
+		$callbacks = array();
+
+		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
+		$valueTypeFormatters = $valueFormatterBuilders->getFormatterFactoryCallbacksByValueType();
+		$dataTypeFormatters = $this->dataTypeDefinitions->getFormatterFactoryCallbacks();
+
+		foreach ( $valueTypeFormatters as $key => $formatter ) {
+			$callbacks["VT:$key"] = $formatter;
+		}
+
+		foreach ( $dataTypeFormatters as $key => $formatter ) {
+			$callbacks["PT:$key"] = $formatter;
+		}
+
+		return $callbacks;
+	}
+
+	/**
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	protected function newValueFormatterFactory() {
-		$builders = $this->getValueFormatterBuilders();
-
-		$factory = new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
-
-		return $factory;
+		return new OutputFormatValueFormatterFactory(
+			$this->getFormatterFactoryCallbacksByType(),
+			$this->getDefaultLanguage(),
+			new LanguageFallbackChainFactory()
+		);
 	}
 
 	/**
@@ -738,25 +878,24 @@ class WikibaseRepo {
 		// contain a display text: [[Item:Q1]] is fine but [[Item:Q1|Q1]] isn't).
 		$idFormatter = new EntityIdPlainLinkFormatter( $this->getEntityContentFactory() );
 
-		$valueFormatterBuilders = $this->getValueFormatterBuilders();
+		// Create a new ValueFormatterFactory, and override the formatter for entity IDs.
+		$valueFormatterFactory = $this->newValueFormatterFactory();
+		$valueFormatterFactory->setFormatterFactoryCallback(
+			'VT:wikibase-entityid',
+			function ( $format, FormatterOptions $options ) use ( $idFormatter ) {
+				if ( $format === SnakFormatter::FORMAT_PLAIN ) {
+					return new EntityIdValueFormatter( $idFormatter );
+				} else {
+					return null;
+				}
+			}
+		);
 
-		$snakFormatterBuilders = new WikibaseSnakFormatterBuilders(
-			$valueFormatterBuilders,
+		// Create a new SnakFormatterFactory based on the specialized ValueFormatterFactory.
+		$snakFormatterFactory = new OutputFormatSnakFormatterFactory(
+			$valueFormatterFactory,
 			$this->getPropertyDataTypeLookup(),
 			$this->getDataTypeFactory()
-		);
-
-		$valueFormatterBuilders->setValueFormatter(
-			SnakFormatter::FORMAT_PLAIN,
-			'VT:wikibase-entityid',
-			new EntityIdValueFormatter( $idFormatter )
-		);
-
-		$snakFormatterFactory = new OutputFormatSnakFormatterFactory(
-			$snakFormatterBuilders->getSnakFormatterBuildersForFormats()
-		);
-		$valueFormatterFactory = new OutputFormatValueFormatterFactory(
-			$valueFormatterBuilders->getValueFormatterBuildersForFormats()
 		);
 
 		$options = new FormatterOptions();
@@ -851,11 +990,10 @@ class WikibaseRepo {
 		StubObject::unstub( $wgLang );
 
 		$formatterOptions = new FormatterOptions();
-		$valueFormatterBuilders = $this->getValueFormatterBuilders();
-		$valueFormatters = $valueFormatterBuilders->getWikiTextFormatters( $formatterOptions );
+		$valueFormatterFactory = $this->getValueFormatterFactory();
 
 		return new MessageParameterFormatter(
-			new DispatchingValueFormatter( $valueFormatters ),
+			$valueFormatterFactory->getValueFormatter( SnakFormatter::FORMAT_WIKI, $formatterOptions ),
 			new EntityIdLinkFormatter( $this->getEntityTitleLookup() ),
 			$this->getSiteStore(),
 			$wgLang
@@ -1054,6 +1192,7 @@ class WikibaseRepo {
 		$constraintProvider = $this->getEntityConstraintProvider();
 		$errorLocalizer = $this->getValidatorErrorLocalizer();
 		$propertyInfoStore = $this->getStore()->getPropertyInfoStore();
+		$propertyInfoBuilder = $this->newPropertyInfoBuilder();
 		$legacyFormatDetector = $this->getLegacyFormatDetectorCallback();
 
 		$handler = new PropertyHandler(
@@ -1064,10 +1203,24 @@ class WikibaseRepo {
 			$errorLocalizer,
 			$this->getEntityIdParser(),
 			$propertyInfoStore,
+			$propertyInfoBuilder,
 			$legacyFormatDetector
 		);
 
 		return $handler;
+	}
+
+	/**
+	 * @return PropertyInfoBuilder
+	 */
+	public function newPropertyInfoBuilder() {
+		$formatterUrlProperty = $this->getSettings()->getSetting( 'formatterUrlProperty' );
+
+		if ( $formatterUrlProperty !== null ) {
+			$formatterUrlProperty = new PropertyId( $formatterUrlProperty );
+		}
+
+		return new PropertyInfoBuilder( $formatterUrlProperty );
 	}
 
 	private function getLegacyFormatDetectorCallback() {
@@ -1193,18 +1346,13 @@ class WikibaseRepo {
 		);
 	}
 
+	/**
+	 * @return DataTypeValidatorFactory
+	 */
 	public function getDataTypeValidatorFactory() {
-		$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
-
-		$builders = new ValidatorBuilders(
-			$this->getEntityLookup(),
-			$this->getEntityIdParser(),
-			$urlSchemes,
-			$this->getMonolingualTextLanguages()
-		);
 
 		return new BuilderBasedDataTypeValidatorFactory(
-			$builders->getDataTypeValidators()
+			$this->dataTypeDefinitions->getValidatorFactoryCallbacks()
 		);
 	}
 

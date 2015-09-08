@@ -6,6 +6,7 @@ use DataTypes\DataTypeFactory;
 use DataValues\Deserializers\DataValueDeserializer;
 use Deserializers\Deserializer;
 use Exception;
+use Hooks;
 use Language;
 use LogicException;
 use MediaWikiSite;
@@ -32,21 +33,22 @@ use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
-use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
-use Wikibase\DataModel\Services\EntityId\DispatchingEntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
-use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
+use Wikibase\DataModel\Services\Term\TermBuffer;
 use Wikibase\DirectSqlStore;
 use Wikibase\EntityFactory;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
 use Wikibase\LangLinkHandler;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
@@ -54,11 +56,10 @@ use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\WikibaseContentLanguages;
-use Wikibase\Lib\WikibaseDataTypeBuilders;
-use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
+use Wikibase\Store\BufferingTermLookup;
 use Wikibase\StringNormalizer;
 
 /**
@@ -158,20 +159,70 @@ final class WikibaseClient {
 	private $restrictedEntityLookup = null;
 
 	/**
-	 * @since 0.4
+	 * @var DataTypeDefinitions
+	 */
+	private $dataTypeDefinitions;
+
+	/**
+	 * @var TermLookup|null
+	 */
+	private $termLookup = null;
+
+	/**
+	 * Returns the default WikibaseValueFormatterBuilders instance.
+	 * @warning This is for use with bootstrap code in WikibaseRepo.datatypes.php only!
+	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
 	 *
+	 * @since 0.5
+	 *
+	 * @param string $reset Flag: Pass "reset" to reset the default instance
+	 *
+	 * @return WikibaseValueFormatterBuilders
+	 */
+	public static function getDefaultFormatterBuilders( $reset = 'noreset' ) {
+		static $builders;
+
+		if ( $builders === null || $reset === 'reset' ) {
+			$wikibaseRepo = self::getDefaultInstance();
+			$builders = $wikibaseRepo->newWikibaseValueFormatterBuilders();
+		}
+
+		return $builders;
+	}
+
+	/**
+	 * Returns a low level factory object for creating formatters for well known data types.
+	 *
+	 * @warning This is for use with getDefaultFormatterBuilders() during bootstrap only!
+	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
+	 *
+	 * @return WikibaseValueFormatterBuilders
+	 */
+	private function newWikibaseValueFormatterBuilders() {
+		return new WikibaseValueFormatterBuilders(
+			$this->contentLanguage,
+			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
+			new LanguageNameLookup(),
+			$this->getRepoEntityUriParser()
+		);
+	}
+
+	/**
 	 * @param SettingsArray $settings
 	 * @param Language $contentLanguage
+	 * @param DataTypeDefinitions $dataTypeDefinitions
 	 * @param SiteStore|null $siteStore
 	 */
 	public function __construct(
 		SettingsArray $settings,
 		Language $contentLanguage,
+		DataTypeDefinitions $dataTypeDefinitions,
 		SiteStore $siteStore = null
 	) {
 		$this->settings = $settings;
 		$this->contentLanguage = $contentLanguage;
 		$this->siteStore = $siteStore;
+		$this->dataTypeDefinitions = $dataTypeDefinitions;
 	}
 
 	/**
@@ -181,19 +232,7 @@ final class WikibaseClient {
 	 */
 	public function getDataTypeFactory() {
 		if ( $this->dataTypeFactory === null ) {
-			$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
-			$builders = new WikibaseDataTypeBuilders(
-				$this->getEntityLookup(),
-				$this->getEntityIdParser(),
-				$urlSchemes
-			);
-
-			$typeBuilderSpecs = array_intersect_key(
-				$builders->getDataTypeBuilders(),
-				array_flip( $this->settings->getSetting( 'dataTypes' ) )
-			);
-
-			$this->dataTypeFactory = new DataTypeFactory( $typeBuilderSpecs );
+			$this->dataTypeFactory = new DataTypeFactory( $this->dataTypeDefinitions->getValueTypes() );
 		}
 
 		return $this->dataTypeFactory;
@@ -221,10 +260,31 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * @return TermBuffer
+	 */
+	public function getTermBuffer() {
+		return $this->getBufferingTermLookup();
+	}
+
+	/**
 	 * @return TermLookup
 	 */
-	private function getTermLookup() {
-		return new EntityRetrievingTermLookup( $this->getEntityLookup() );
+	public function getTermLookup() {
+		return $this->getBufferingTermLookup();
+	}
+
+	/**
+	 * @return BufferingTermLookup
+	 */
+	public function getBufferingTermLookup() {
+		if ( !$this->termLookup ) {
+			$this->termLookup = new BufferingTermLookup(
+				$this->getStore()->getTermIndex(),
+				1000 // @todo: configure buffer size
+			);
+		}
+
+		return $this->termLookup;
 	}
 
 	/**
@@ -351,9 +411,16 @@ final class WikibaseClient {
 	 * @return WikibaseClient
 	 */
 	private static function newInstance() {
-		global $wgContLang;
+		global $wgContLang, $wgWBClientSettings, $wgWBClientDataTypes;
 
-		return new self( new SettingsArray( $GLOBALS['wgWBClientSettings'] ), $wgContLang );
+		$dataTypeDefinitions = $wgWBClientDataTypes;
+		Hooks::run( 'WikibaseClientDataTypes', array( &$dataTypeDefinitions ) );
+
+		return new self(
+			new SettingsArray( $wgWBClientSettings ),
+			$wgContLang,
+			new DataTypeDefinitions( $dataTypeDefinitions )
+		);
 	}
 
 	/**
@@ -488,15 +555,13 @@ final class WikibaseClient {
 	 * @return OutputFormatSnakFormatterFactory
 	 */
 	private function newSnakFormatterFactory() {
-		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
-
-		$builders = new WikibaseSnakFormatterBuilders(
-			$valueFormatterBuilders,
+		$factory = new OutputFormatSnakFormatterFactory(
+			$this->getValueFormatterFactory(),
 			$this->getPropertyDataTypeLookup(),
 			$this->getDataTypeFactory()
 		);
 
-		return new OutputFormatSnakFormatterFactory( $builders->getSnakFormatterBuildersForFormats() );
+		return $factory;
 	}
 
 	/**
@@ -514,19 +579,38 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * Constructs an array of factory callbacks for ValueFormatters, keyed by property type
+	 * (data type) prefixed with "PT:", or value type prefixed with "VT:". This matches to
+	 * convention used by OutputFormatValueFormatterFactory and DispatchingValueFormatter.
+	 *
+	 * @return callable[]
+	 */
+	private function getFormatterFactoryCallbacksByType() {
+		$callbacks = array();
+
+		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
+		$valueTypeFormatters = $valueFormatterBuilders->getFormatterFactoryCallbacksByValueType();
+		$dataTypeFormatters = $this->dataTypeDefinitions->getFormatterFactoryCallbacks();
+
+		foreach ( $valueTypeFormatters as $key => $formatter ) {
+			$callbacks["VT:$key"] = $formatter;
+		}
+
+		foreach ( $dataTypeFormatters as $key => $formatter ) {
+			$callbacks["PT:$key"] = $formatter;
+		}
+
+		return $callbacks;
+	}
+
+	/**
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	private function newValueFormatterFactory() {
-		$builders = $this->newWikibaseValueFormatterBuilders();
-		return new OutputFormatValueFormatterFactory( $builders->getValueFormatterBuildersForFormats() );
-	}
-
-	private function newWikibaseValueFormatterBuilders() {
-		return new WikibaseValueFormatterBuilders(
-			$this->contentLanguage,
-			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
-			new LanguageNameLookup(),
-			$this->getRepoEntityUriParser()
+		return new OutputFormatValueFormatterFactory(
+			$this->getFormatterFactoryCallbacksByType(),
+			$this->getContentLanguage(),
+			$this->getLanguageFallbackChainFactory()
 		);
 	}
 
@@ -564,7 +648,6 @@ final class WikibaseClient {
 				$this->getNamespaceChecker(),
 				$this->getStore()->getSiteLinkLookup(),
 				$this->getStore()->getEntityLookup(),
-				$this->getParserOutputDataUpdater(),
 				$this->getSiteStore(),
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getLangLinkSiteGroup()
@@ -582,6 +665,7 @@ final class WikibaseClient {
 			$this->parserOutputDataUpdater = new ParserOutputDataUpdater(
 				$this->getOtherProjectsSidebarGeneratorFactory(),
 				$this->getStore()->getSiteLinkLookup(),
+				$this->getStore()->getEntityLookup(),
 				$this->settings->getSetting( 'siteGlobalID' )
 			);
 		}
@@ -840,7 +924,7 @@ final class WikibaseClient {
 		if ( $this->restrictedEntityLookup === null ) {
 			$this->restrictedEntityLookup = new RestrictedEntityLookup(
 				$this->getEntityLookup(),
-				PHP_INT_MAX // Don't throw any exceptions, yet
+				$this->settings->getSetting( 'entityAccessLimit' )
 			);
 		}
 

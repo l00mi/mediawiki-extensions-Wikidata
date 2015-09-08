@@ -8,19 +8,18 @@ use Status;
 use User;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\Lib\Store\EntityRedirect;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Repo\Content\EntityContentFactory;
-use Wikibase\Repo\Store\SQL\EntityPerPageTable;
 use Wikibase\Repo\Store\WikiPageEntityStore;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SqlIdGenerator;
@@ -41,12 +40,6 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 	 * @var EntityIdParser
 	 */
 	private $entityIdParser;
-
-	private function newEntityPerPageTable() {
-		$idParser = $this->getEntityIdParser();
-		$useRedirectTargetColumn = WikibaseRepo::getDefaultInstance()->getSettings()->getSetting( 'useRedirectTargetColumn' );
-		return new EntityPerPageTable( $idParser, $useRedirectTargetColumn );
-	}
 
 	/**
 	 * @see EntityLookupTest::newEntityLoader()

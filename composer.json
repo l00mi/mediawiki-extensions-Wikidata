@@ -5,10 +5,6 @@
     "repositories": [
         {
             "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase"
-        },
-        {
-            "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org"
         },
         {
@@ -26,12 +22,12 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "propertysuggester/property-suggester": "~2.4.0",
-        "wikibase/wikibase": "dev-wmf/1.26wmf20",
+        "propertysuggester/property-suggester": "~2.4.2",
+        "wikibase/wikibase": "dev-wmf/1.26wmf22",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
-        "wikibase/quality": "1.x-dev",
-        "wikibase/constraints": "1.x-dev"
+        "wikibase/quality": "dev-master",
+        "wikibase/constraints": "dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -43,7 +39,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_26wmf20",
+        "autoloader-suffix": "wikidata_1_26wmf22",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

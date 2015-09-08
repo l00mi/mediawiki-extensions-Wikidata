@@ -32,7 +32,7 @@ class ItemMergeInteractor {
 	/**
 	 * @var MergeChangeOpsFactory
 	 */
-	protected $changeOpFactory;
+	private $changeOpFactory;
 
 	/**
 	 * @var EntityRevisionLookup
@@ -141,7 +141,7 @@ class ItemMergeInteractor {
 	 *
 	 * @throws ItemMergeException
 	 */
-	public function mergeItems( ItemId $fromId, ItemId $toId, $ignoreConflicts = array(), $summary = null, $bot = false ) {
+	public function mergeItems( ItemId $fromId, ItemId $toId, array $ignoreConflicts = array(), $summary = null, $bot = false ) {
 		$this->checkPermissions( $fromId );
 		$this->checkPermissions( $toId );
 

@@ -22,6 +22,7 @@ use ValueFormatters\ValueFormatterBase;
  *
  * @licence GNU GPL v2+
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
 class QuantityDetailsFormatter extends ValueFormatterBase {
 
@@ -45,7 +46,11 @@ class QuantityDetailsFormatter extends ValueFormatterBase {
 	 * @param QuantityUnitFormatter $unitFormatter
 	 * @param FormatterOptions|null $options
 	 */
-	public function __construct( NumberLocalizer $numberLocalizer, QuantityUnitFormatter $unitFormatter, FormatterOptions $options = null ) {
+	public function __construct(
+		NumberLocalizer $numberLocalizer,
+		QuantityUnitFormatter $unitFormatter,
+		FormatterOptions $options = null
+	) {
 		parent::__construct( $options );
 
 		$this->unitFormatter = $unitFormatter;
@@ -84,13 +89,19 @@ class QuantityDetailsFormatter extends ValueFormatterBase {
 			$this->formatNumber( $value->getUpperBound(), $value->getUnit() ) );
 		$html .= $this->renderLabelValuePair( 'lowerBound',
 			$this->formatNumber( $value->getLowerBound(), $value->getUnit() ) );
-		$html .= $this->renderLabelValuePair( 'unit', htmlspecialchars( $value->getUnit() ) );
+		$html .= $this->renderLabelValuePair( 'unit', $this->formatUnit( $value->getUnit() ) );
 
 		$html .= Html::closeElement( 'table' );
 
 		return $html;
 	}
 
+	/**
+	 * @param DecimalValue $number
+	 * @param string $unit URI
+	 *
+	 * @return string HTML
+	 */
 	private function formatNumber( DecimalValue $number, $unit ) {
 		$text = $this->decimalFormatter->format( $number );
 		$text = $this->unitFormatter->applyUnit( $unit, $text );
@@ -98,8 +109,24 @@ class QuantityDetailsFormatter extends ValueFormatterBase {
 	}
 
 	/**
+	 * @param string $unit URI
+	 *
+	 * @return string HTML
+	 */
+	private function formatUnit( $unit ) {
+		// FIXME: Use VocabularyUriFormatter introduced in https://gerrit.wikimedia.org/r/235495
+		$formattedUnit = trim( $this->unitFormatter->applyUnit( $unit, '' ) );
+
+		if ( $formattedUnit === '' || $formattedUnit === $unit ) {
+			return htmlspecialchars( $unit );
+		}
+
+		return Html::element( 'a', array( 'href' => $unit ), $formattedUnit );
+	}
+
+	/**
 	 * @param string $fieldName
-	 * @param string $valueHtml
+	 * @param string $valueHtml HTML
 	 *
 	 * @return string HTML for the label/value pair
 	 */
@@ -108,7 +135,7 @@ class QuantityDetailsFormatter extends ValueFormatterBase {
 
 		$html .= Html::element( 'th', array( 'class' => 'wb-quantity-' . $fieldName ),
 			$this->getFieldLabel( $fieldName )->text() );
-		$html .= Html::element( 'td', array( 'class' => 'wb-quantity-' . $fieldName ),
+		$html .= Html::rawElement( 'td', array( 'class' => 'wb-quantity-' . $fieldName ),
 			$valueHtml );
 
 		$html .= Html::closeElement( 'tr' );

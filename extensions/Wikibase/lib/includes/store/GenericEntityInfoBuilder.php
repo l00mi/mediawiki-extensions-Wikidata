@@ -5,7 +5,7 @@ namespace Wikibase\Lib\Store;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\FingerprintProvider;
@@ -183,7 +183,12 @@ class GenericEntityInfoBuilder implements EntityInfoBuilder {
 		}
 	}
 
-	private function injectFingerprint( $types, array &$entityRecord, Fingerprint $fingerprint, $languages ) {
+	private function injectFingerprint(
+		array $types = null,
+		array &$entityRecord,
+		Fingerprint $fingerprint,
+		array $languages = null
+	) {
 		if ( $types === null || in_array( 'label', $types ) ) {
 			$labels = $fingerprint->getLabels();
 

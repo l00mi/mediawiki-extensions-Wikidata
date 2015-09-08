@@ -4,25 +4,24 @@ namespace Wikibase\Test;
 
 use DatabaseBase;
 use Status;
-use Title;
 use User;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
-use Wikibase\DataModel\Services\Lookup\PropertyNotFoundException;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
-use Wikibase\Lib\Store\EntityRedirect;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\GenericEntityInfoBuilder;
@@ -35,6 +34,9 @@ use Wikibase\Lib\Store\UnresolvedRedirectException;
 use Wikibase\RedirectRevision;
 
 /**
+ * @deprecated Try to use a simpler fake. The complexity and coupling of this
+ * test double are very high, so it is good to avoid binding to it.
+ *
  * Mock repository for use in tests.
  *
  * @since 0.4
@@ -86,13 +88,6 @@ class MockRepository implements
 	 * @var bool[]
 	 */
 	private $watchlist = array();
-
-	/**
-	 * "$globalSiteId:$pageTitle" => item id integer
-	 *
-	 * @var string[]
-	 */
-	private $itemByLink = array();
 
 	/**
 	 * @var int
@@ -495,7 +490,7 @@ class MockRepository implements
 	 * @param PropertyId $propertyId
 	 *
 	 * @return string
-	 * @throws PropertyNotFoundException
+	 * @throws PropertyDataTypeLookupException
 	 */
 	public function getDataTypeIdForProperty( PropertyId $propertyId ) {
 		$entity = $this->getEntity( $propertyId );
@@ -504,7 +499,7 @@ class MockRepository implements
 			return $entity->getDataTypeId();
 		}
 
-		throw new PropertyNotFoundException( $propertyId );
+		throw new PropertyDataTypeLookupException( $propertyId );
 	}
 
 	/**
@@ -780,7 +775,7 @@ class MockRepository implements
 	 * @since 0.5
 	 *
 	 * @param EntityId $entityId
-	 * @parma string $forUpdate
+	 * @param string $forUpdate
 	 *
 	 * @return EntityId|null|false The ID of the redirect target, or null if $entityId
 	 *         does not refer to a redirect, or false if $entityId is not known.

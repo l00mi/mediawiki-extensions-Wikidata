@@ -2,12 +2,12 @@
 
 namespace Wikibase\Repo\Specials;
 
-use Html;
+use HTMLForm;
 use InvalidArgumentException;
 use SiteStore;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
@@ -207,7 +207,8 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 		if ( !empty( $site ) || !empty( $itemString ) ) {
 			$url = $this->getTargetUrl( $site, $itemString );
 			if ( null !== $url ) {
-				return $this->getOutput()->redirect( $url );
+				$this->getOutput()->redirect( $url );
+				return;
 			}
 		}
 
@@ -225,64 +226,40 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 	protected function outputForm( $site, $itemString ) {
 		$this->getOutput()->addModules( 'wikibase.special.goToLinkedPage' );
 
-		$this->getOutput()->addHTML(
-			Html::openElement(
-				'form',
-				array(
-					'method' => 'get',
-					'action' => $this->getPageTitle()->getFullUrl(),
-					'name' => 'gotolinkedpage',
-					'id' => 'wb-gotolinkedpage-form1'
-				)
+		$formDescriptor = array(
+			'site' => array(
+				'name' => 'site',
+				'default' => $site ?: '',
+				'type' => 'text',
+				'id' => 'wb-gotolinkedpage-sitename',
+				'size' => 12,
+				'label-message' => 'wikibase-gotolinkedpage-lookup-site'
+			),
+			'itemid' => array(
+				'name' => 'itemid',
+				'default' => $itemString ?: '',
+				'type' => 'text',
+				'id' => 'wb-gotolinkedpage-itemid',
+				'size' => 36,
+				'cssclass' => 'wb-input-text',
+				'label-message' => 'wikibase-gotolinkedpage-lookup-item'
+			),
+			'submit' => array(
+				'name' => 'submit',
+				'default' => $this->msg( 'wikibase-gotolinkedpage-submit' )->text(),
+				'type' => 'submit',
+				'id' => 'wb-gotolinkedpage-submit',
+				'cssclass' => 'wb-input-button'
 			)
-			. Html::openElement( 'fieldset' )
-			. Html::element(
-				'legend',
-				array(),
-				$this->msg( 'wikibase-gotolinkedpage-lookup-fieldset' )->text()
-			)
-			. Html::element(
-				'label',
-				array( 'for' => 'wb-gotolinkedpage-sitename' ),
-				$this->msg( 'wikibase-gotolinkedpage-lookup-site' )->text()
-			)
-			. Html::input(
-				'site',
-				$site ? htmlspecialchars( $site ) : '',
-				'text',
-				array(
-					'id' => 'wb-gotolinkedpage-sitename',
-					'size' => 12
-				)
-			)
-			. ' '
-			. Html::element(
-				'label',
-				array( 'for' => 'wb-gotolinkedpage-itemid' ),
-				$this->msg( 'wikibase-gotolinkedpage-lookup-item' )->text()
-			)
-			. Html::input(
-				'itemid',
-				$itemString ? htmlspecialchars( $itemString ) : '',
-				'text',
-				array(
-					'id' => 'wb-gotolinkedpage-itemid',
-					'size' => 36,
-					'class' => 'wb-input-text'
-				)
-			)
-			. Html::input(
-				'submit',
-				$this->msg( 'wikibase-gotolinkedpage-submit' )->text(),
-				'submit',
-				array(
-					'id' => 'wb-gotolinkedpage-submit',
-					'class' => 'wb-input-button'
-				)
-			)
-			. Html::closeElement( 'fieldset' )
-			. Html::closeElement( 'form' )
 		);
+
+		HTMLForm::factory( 'inline', $formDescriptor, $this->getContext() )
+			->setId( 'wb-gotolinkedpage-form1' )
+			->setMethod( 'get' )
+			->setWrapperLegendMsg( 'wikibase-gotolinkedpage-lookup-fieldset' )
+			->suppressDefaultSubmit()
+			->setSubmitCallback( function () {// no-op
+			} )->show();
 	}
 
 	/**

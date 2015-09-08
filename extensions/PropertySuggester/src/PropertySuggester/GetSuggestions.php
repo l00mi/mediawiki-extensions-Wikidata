@@ -154,6 +154,7 @@ class GetSuggestions extends ApiBase {
 				'search' => $search,
 				'action' => 'wbsearchentities',
 				'language' => $language,
+				'uselang' => $language,
 				'type' => Property::ENTITY_TYPE
 			)
 		);
@@ -220,6 +221,7 @@ class GetSuggestions extends ApiBase {
 			'language' => 'language for result',
 			'limit' => 'Maximal number of results',
 			'context' => 'Either item, reference or qualifier',
+			'search' => 'Search for this text',
 			'continue' => 'Offset where to continue a search'
 		);
 	}

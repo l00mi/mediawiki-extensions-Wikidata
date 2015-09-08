@@ -61,9 +61,8 @@ class ResultBuilder {
 
 	/**
 	 * @var bool|null when special elements such as '_element' are needed by the formatter.
-	 * @note please use $this->getIsRawMode() to access this value!
 	 */
-	private $isRawMode;
+	private $addMetaData;
 
 	/**
 	 * @var SerializationModifier
@@ -86,7 +85,7 @@ class ResultBuilder {
 	 * @param SerializerFactory $serializerFactory
 	 * @param SiteStore $siteStore
 	 * @param PropertyDataTypeLookup $dataTypeLookup
-	 * @param bool $isRawMode when special elements such as '_element' are needed by the formatter.
+	 * @param bool $addMetaData when special elements such as '_element' are needed
 	 */
 	public function __construct(
 		ApiResult $result,
@@ -94,32 +93,16 @@ class ResultBuilder {
 		SerializerFactory $serializerFactory,
 		SiteStore $siteStore,
 		PropertyDataTypeLookup $dataTypeLookup,
-		$isRawMode = null
+		$addMetaData = null
 	) {
 		$this->result = $result;
 		$this->entityTitleLookup = $entityTitleLookup;
 		$this->serializerFactory = $serializerFactory;
 		$this->siteStore = $siteStore;
 		$this->dataTypeLookup = $dataTypeLookup;
-		$this->isRawMode = $isRawMode;
+		$this->addMetaData = $addMetaData;
 		$this->modifier = new SerializationModifier();
 		$this->callbackFactory = new CallbackFactory();
-	}
-
-	/**
-	 * isRawMode needs to be lazy initialized since ApiMain may set it
-	 * on the ApiResult after the module is constructed.
-	 *
-	 * isRawMode can be set in the constructor, such as for testing purposes.
-	 *
-	 * @return bool
-	 */
-	private function getIsRawMode() {
-		if ( $this->isRawMode === null ) {
-			$this->isRawMode = $this->result->getIsRawMode();
-		}
-
-		return $this->isRawMode;
 	}
 
 	/**
@@ -155,20 +138,20 @@ class ResultBuilder {
 	 * @param $path array|string|null
 	 * @param $name string
 	 * @param $values array
-	 * @param string $tag tag name to use for elements of $values
+	 * @param string $tag tag name to use for elements of $values if not already present
 	 */
 	public function setList( $path, $name, array $values, $tag ) {
 		$this->checkPathType( $path );
 		Assert::parameterType( 'string', $name, '$name' );
 		Assert::parameterType( 'string', $tag, '$tag' );
 
-		if ( $this->getIsRawMode() ) {
-			// Unset first, so we don't make the tag name an actual value.
-			// We'll be setting this to $tag by calling setIndexedTagName().
-			unset( $values['_element'] );
-
-			$values = array_values( $values );
-			ApiResult::setIndexedTagName( $values, $tag );
+		if ( $this->addMetaData ) {
+			if ( !array_key_exists( ApiResult::META_TYPE, $values ) ) {
+				ApiResult::setArrayType( $values, 'array' );
+			}
+			if ( !array_key_exists( ApiResult::META_INDEXED_TAG_NAME, $values ) ) {
+				ApiResult::setIndexedTagName( $values, $tag );
+			}
 		}
 
 		$this->result->addValue( $path, $name, $values );
@@ -213,7 +196,7 @@ class ResultBuilder {
 	 *
 	 * @param $path array|string|null
 	 * @param $key int|string|null the key to use when appending, or null for automatic.
-	 * May be ignored even if given, based on $this->result->getIsRawMode().
+	 * May be ignored even if given, based on $this->addMetaData.
 	 * @param $value mixed
 	 * @param string $tag tag name to use for $value in indexed mode
 	 */
@@ -223,12 +206,10 @@ class ResultBuilder {
 		Assert::parameterType( 'string', $tag, '$tag' );
 		$this->checkValueIsNotList( $value );
 
-		if ( $this->getIsRawMode() ) {
-			$key = null;
-		}
-
 		$this->result->addValue( $path, $key, $value );
-		$this->result->addIndexedTagName( $path, $tag );
+		if ( $this->addMetaData ) {
+			$this->result->addIndexedTagName( $path, $tag );
+		}
 	}
 
 	/**
@@ -328,6 +309,9 @@ class ResultBuilder {
 		}
 
 		$this->appendValue( array( 'entities' ), $sourceEntityIdSerialization, $record, 'entity' );
+		if ( $this->addMetaData ) {
+			$this->result->addArrayType( array( 'entities' ), 'array' );
+		}
 	}
 
 	/**
@@ -367,32 +351,10 @@ class ResultBuilder {
 			$filterLangCodes
 		);
 
-		if ( $this->getIsRawMode() ) {
-			$serialization = $this->getRawModeEntitySerialization( $serialization );
-		} else {
-			// Non raw mode formats dont want empty parts....
-			$serialization = $this->filterEmptyEntitySerializationParts( $serialization );
+		if ( $this->addMetaData ) {
+			$serialization = $this->getEntitySerializationWithMetaData( $serialization );
 		}
 
-		return $serialization;
-	}
-
-	private function filterEmptyEntitySerializationParts( array $serialization ) {
-		if ( empty( $serialization['labels'] ) ) {
-			unset( $serialization['labels'] );
-		}
-		if ( empty( $serialization['descriptions'] ) ) {
-			unset( $serialization['descriptions'] );
-		}
-		if ( empty( $serialization['aliases'] ) ) {
-			unset( $serialization['aliases'] );
-		}
-		if ( empty( $serialization['claims'] ) ) {
-			unset( $serialization['claims'] );
-		}
-		if ( empty( $serialization['sitelinks'] ) ) {
-			unset( $serialization['sitelinks'] );
-		}
 		return $serialization;
 	}
 
@@ -548,55 +510,47 @@ class ResultBuilder {
 		return $serialization;
 	}
 
-	private function getRawModeEntitySerialization( $serialization ) {
-		// In raw mode aliases are not currently grouped by language
-		$serialization = $this->modifier->modifyUsingCallback(
-			$serialization,
-			'aliases',
-			function( $array ) {
-				$newArray = array();
-				foreach ( $array as $aliasGroup ) {
-					foreach ( $aliasGroup as $alias ) {
-						$newArray[] = $alias;
-					}
-				}
-				return $newArray;
-			}
-		);
-		// In the old Lib serializers
-		$serialization = $this->modifier->modifyUsingCallback(
-			$serialization,
-			'claims/*/*',
-			function( $array ) {
-				if ( !array_key_exists( 'qualifiers', $array ) ) {
-					$array['qualifiers'] = array();
-				}
-				if ( !array_key_exists( 'qualifiers-order', $array ) ) {
-					$array['qualifiers-order'] = array();
-				}
-				return $array;
-			}
-		);
-		$keysToValues = array(
-			'aliases' => null,
-			'descriptions' => null,
-			'labels' => null,
+	private function getEntitySerializationWithMetaData( $serialization ) {
+		$arrayTypes = array(
+			'aliases' => 'id',
 			'claims/*/*/references/*/snaks' => 'id',
 			'claims/*/*/qualifiers' => 'id',
 			'claims' => 'id',
-			'sitelinks' => null,
+			'descriptions' => 'language',
+			'labels' => 'language',
+			'sitelinks' => 'site',
 		);
-		foreach ( $keysToValues as $path => $newKey ) {
+		foreach ( $arrayTypes as $path => $keyName ) {
 			$serialization = $this->modifier->modifyUsingCallback(
 				$serialization,
 				$path,
-				$this->callbackFactory->getCallbackToRemoveKeys( $newKey )
+				$this->callbackFactory->getCallbackToSetArrayType( 'kvp', $keyName )
 			);
 		}
-		$tagsToAdd = array(
+
+		$kvpMergeArrays = array(
+			'descriptions',
+			'labels',
+			'sitelinks',
+		);
+		foreach ( $kvpMergeArrays as $path ) {
+			$serialization = $this->modifier->modifyUsingCallback(
+				$serialization,
+				$path,
+				function( $array ) {
+					if ( is_array( $array ) ) {
+						$array[ApiResult::META_KVP_MERGE] = true;
+					}
+					return $array;
+				}
+			);
+		}
+
+		$indexTags = array(
 			'labels' => 'label',
 			'descriptions' => 'description',
-			'aliases' => 'alias',
+			'aliases/*' => 'alias',
+			'aliases' => 'language',
 			'sitelinks/*/badges' => 'badge',
 			'sitelinks' => 'sitelink',
 			'claims/*/*/qualifiers/*' => 'qualifiers',
@@ -609,13 +563,14 @@ class ResultBuilder {
 			'claims/*' => 'claim',
 			'claims' => 'property',
 		);
-		foreach ( $tagsToAdd as $path => $tag ) {
+		foreach ( $indexTags as $path => $tag ) {
 			$serialization = $this->modifier->modifyUsingCallback(
 				$serialization,
 				$path,
 				$this->callbackFactory->getCallbackToIndexTags( $tag )
 			);
 		}
+
 		return $serialization;
 	}
 
@@ -691,6 +646,10 @@ class ResultBuilder {
 	private function addTermList( TermList $termList, $name, $tag, $path ) {
 		$serializer = $this->serializerFactory->newTermListSerializer();
 		$value = $serializer->serialize( $termList );
+		if ( $this->addMetaData ) {
+			ApiResult::setArrayType( $value, 'kvp', 'language' );
+			$value[ApiResult::META_KVP_MERGE] = true;
+		}
 		$this->setList( $path, $name, $value, $tag );
 	}
 
@@ -707,6 +666,10 @@ class ResultBuilder {
 				'removed' => '',
 			)
 		);
+		if ( $this->addMetaData ) {
+			ApiResult::setArrayType( $value, 'kvp', 'language' );
+			$value[ApiResult::META_KVP_MERGE] = true;
+		}
 		$this->setList( $path, $name, $value, $tag );
 	}
 
@@ -719,17 +682,24 @@ class ResultBuilder {
 	 * @param array|string $path where the data is located
 	 */
 	public function addAliasGroupList( AliasGroupList $aliasGroupList, $path ) {
-		if ( $this->getIsRawMode() ) {
-			$serializer = $this->serializerFactory->newAliasGroupSerializer();
-			$values = array();
-			foreach ( $aliasGroupList->toArray() as $aliasGroup ) {
-				$values = array_merge( $values, $serializer->serialize( $aliasGroup ) );
-			}
-		} else {
-			$serializer = $this->serializerFactory->newAliasGroupListSerializer();
-			$values = $serializer->serialize( $aliasGroupList );
+		$serializer = $this->serializerFactory->newAliasGroupListSerializer();
+		$values = $serializer->serialize( $aliasGroupList );
+
+		if ( $this->addMetaData ) {
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				null,
+				$this->callbackFactory->getCallbackToSetArrayType( 'kvp', 'id' )
+			);
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				'*',
+				$this->callbackFactory->getCallbackToIndexTags( 'alias' )
+			);
 		}
-		$this->setList( $path, 'aliases', $values, 'alias' );
+
+		$this->setList( $path, 'aliases', $values, 'language' );
+		ApiResult::setArrayType( $values, 'kvp', 'id' );
 	}
 
 	/**
@@ -755,8 +725,8 @@ class ResultBuilder {
 			$values = $this->getSiteLinkListArrayWithUrls( $values );
 		}
 
-		if ( $this->getIsRawMode() ) {
-			$values = $this->getRawModeSiteLinkListArray( $values );
+		if ( $this->addMetaData ) {
+			$values = $this->getSiteLinkListArrayWithMetaData( $values );
 		}
 
 		$this->setList( $path, 'sitelinks', $values, 'sitelink' );
@@ -774,13 +744,19 @@ class ResultBuilder {
 		return $this->modifier->modifyUsingCallback( $array, '*', $addUrlCallback );
 	}
 
-	private function getRawModeSiteLinkListArray( array $array ) {
-		$addIndexedBadgesCallback = function ( $array ) {
-			ApiResult::setIndexedTagName( $array, 'badge' );
-			return $array;
-		};
-		$array = array_values( $array );
-		return $this->modifier->modifyUsingCallback( $array, '*/badges', $addIndexedBadgesCallback );
+	private function getSiteLinkListArrayWithMetaData( array $array ) {
+		$array = $this->modifier->modifyUsingCallback(
+			$array,
+			null,
+			$this->callbackFactory->getCallbackToSetArrayType( 'kvp', 'site' )
+		);
+		$array[ApiResult::META_KVP_MERGE] = true;
+		$array = $this->modifier->modifyUsingCallback(
+			$array,
+			'*/badges',
+			$this->callbackFactory->getCallbackToIndexTags( 'badge' )
+		);
+		return $array;
 	}
 
 	/**
@@ -798,6 +774,14 @@ class ResultBuilder {
 			$value = $serializer->serialize( $siteLink );
 			$value['removed'] = '';
 			$values[$siteLink->getSiteId()] = $value;
+		}
+		if ( $this->addMetaData ) {
+			$values = $this->modifier->modifyUsingCallback(
+				$values,
+				null,
+				$this->callbackFactory->getCallbackToSetArrayType( 'kvp', 'site' )
+			);
+			$values[ApiResult::META_KVP_MERGE] = true;
 		}
 		$this->setList( $path, 'sitelinks', $values, 'sitelink' );
 	}
@@ -827,21 +811,30 @@ class ResultBuilder {
 			);
 		}
 
-		if ( !$this->getIsRawMode() ) {
-			$values = $this->getArrayWithAlteredClaims( $values, false, '*/*/' );
-		} else {
-			$values = $this->getArrayWithAlteredClaims( $values, true, '*/*/' );
-			$values = $this->getArrayWithRawModeClaims( $values, '*/*/' );
+		$values = $this->getArrayWithAlteredClaims( $values, '*/*/' );
+
+		if ( $this->addMetaData ) {
+			$values = $this->getClaimsArrayWithMetaData( $values, '*/*/' );
 			$values = $this->modifier->modifyUsingCallback(
 				$values,
 				null,
-				$this->callbackFactory->getCallbackToRemoveKeys( 'id' )
+				$this->callbackFactory->getCallbackToSetArrayType( 'kvp', 'id' )
 			);
 			$values = $this->modifier->modifyUsingCallback(
 				$values,
 				'*',
 				$this->callbackFactory->getCallbackToIndexTags( 'claim' )
 			);
+		}
+
+		$values = $this->modifier->modifyUsingCallback(
+			$values,
+			'*/*/mainsnak',
+			$this->callbackFactory->getCallbackToAddDataTypeToSnak( $this->dataTypeLookup )
+		);
+
+		if ( $this->addMetaData ) {
+			ApiResult::setArrayType( $values, 'kvp', 'id' );
 		}
 
 		$this->setList( $path, 'claims', $values, 'property' );
@@ -865,48 +858,29 @@ class ResultBuilder {
 
 		$value = $this->getArrayWithAlteredClaims( $value );
 
-		if ( $this->getIsRawMode() ) {
-			$value = $this->getArrayWithRawModeClaims( $value );
+		if ( $this->addMetaData ) {
+			$value = $this->getClaimsArrayWithMetaData( $value );
 		}
+
+		$value = $this->modifier->modifyUsingCallback(
+			$value,
+			'mainsnak',
+			$this->callbackFactory->getCallbackToAddDataTypeToSnak( $this->dataTypeLookup )
+		);
 
 		$this->setValue( null, 'claim', $value );
 	}
 
 	/**
 	 * @param array $array
-	 * @param bool $allowEmptyQualifiers
 	 * @param string $claimPath to the claim array/arrays with trailing /
 	 *
 	 * @return array
 	 */
 	private function getArrayWithAlteredClaims(
 		array $array,
-		$allowEmptyQualifiers = true,
 		$claimPath = ''
 	) {
-		if ( $allowEmptyQualifiers ) {
-			/**
-			 * Below we force an empty qualifiers and qualifiers-order element in the output.
-			 * This is to make sure we dont break anything that assumes this is always here.
-			 * This hack was added when moving away from the Lib serializers
-			 * TODO: remove this hack when we make other 'breaking changes' to the api output
-			 */
-			$array = $this->modifier->modifyUsingCallback(
-				$array,
-				trim( $claimPath, '/' ),
-				function ( $array ) {
-					if ( !isset( $array['qualifiers'] ) ) {
-						$array['qualifiers'] = array();
-					}
-					if ( !isset( $array['qualifiers-order'] ) ) {
-						$array['qualifiers-order'] = array();
-					}
-
-					return $array;
-				}
-			);
-		}
-
 		$array = $this->getArrayWithDataTypesInGroupedSnakListAtPath(
 			$array,
 			$claimPath . 'references/*/snaks'
@@ -929,13 +903,13 @@ class ResultBuilder {
 	 *
 	 * @return array
 	 */
-	private function getArrayWithRawModeClaims( array $array, $claimPath = '' ) {
-		$rawModeModifications = array(
+	private function getClaimsArrayWithMetaData( array $array, $claimPath = '' ) {
+		$metaDataModifications = array(
 			'references/*/snaks/*' => array(
 				$this->callbackFactory->getCallbackToIndexTags( 'snak' ),
 			),
 			'references/*/snaks' => array(
-				$this->callbackFactory->getCallbackToRemoveKeys( 'id' ),
+				$this->callbackFactory->getCallbackToSetArrayType( 'kvp', 'id' ),
 				$this->callbackFactory->getCallbackToIndexTags( 'property' ),
 			),
 			'references/*/snaks-order' => array(
@@ -948,7 +922,7 @@ class ResultBuilder {
 				$this->callbackFactory->getCallbackToIndexTags( 'qualifiers' ),
 			),
 			'qualifiers' => array(
-				$this->callbackFactory->getCallbackToRemoveKeys( 'id' ),
+				$this->callbackFactory->getCallbackToSetArrayType( 'kvp', 'id' ),
 				$this->callbackFactory->getCallbackToIndexTags( 'property' ),
 			),
 			'qualifiers-order' => array(
@@ -959,7 +933,7 @@ class ResultBuilder {
 			),
 		);
 
-		foreach ( $rawModeModifications as $path => $callbacks ) {
+		foreach ( $metaDataModifications as $path => $callbacks ) {
 			foreach ( $callbacks as $callback ) {
 				$array = $this->modifier->modifyUsingCallback( $array, $claimPath . $path, $callback );
 			}
@@ -986,8 +960,8 @@ class ResultBuilder {
 
 		$value = $this->getArrayWithDataTypesInGroupedSnakListAtPath( $value, 'snaks' );
 
-		if ( $this->getIsRawMode() ) {
-			$value = $this->getRawModeReferenceArray( $value );
+		if ( $this->addMetaData ) {
+			$value = $this->getReferenceArrayWithMetaData( $value );
 		}
 
 		$this->setValue( null, 'reference', $value );
@@ -1007,17 +981,19 @@ class ResultBuilder {
 		);
 	}
 
-	private function getRawModeReferenceArray( $array ) {
+	private function getReferenceArrayWithMetaData( $array ) {
 		$array = $this->modifier->modifyUsingCallback( $array, 'snaks-order', function ( $array ) {
 			ApiResult::setIndexedTagName( $array, 'property' );
 			return $array;
 		} );
 		$array = $this->modifier->modifyUsingCallback( $array, 'snaks', function ( $array ) {
 			foreach ( $array as $propertyIdGroup => &$snakGroup ) {
-				$snakGroup['id'] = $propertyIdGroup;
-				ApiResult::setIndexedTagName( $snakGroup, 'snak' );
+				if ( is_array( $snakGroup ) ) {
+					ApiResult::setArrayType( $array, 'array' );
+					ApiResult::setIndexedTagName( $snakGroup, 'snak' );
+				}
 			}
-			$array = array_values( $array );
+			ApiResult::setArrayType( $array, 'kvp', 'id' );
 			ApiResult::setIndexedTagName( $array, 'property' );
 			return $array;
 		} );
@@ -1050,6 +1026,10 @@ class ResultBuilder {
 			'entity'
 		);
 
+		if ( $this->addMetaData ) {
+			$this->result->addIndexedTagName( 'entities', 'entity' );
+		}
+
 		$this->missingEntityCounter--;
 	}
 
@@ -1072,7 +1052,8 @@ class ResultBuilder {
 	 * Adds the ID of the new revision from the Status object to the API result structure.
 	 * The status value is expected to be structured in the way that EditEntity::attemptSave()
 	 * resp WikiPage::doEditContent() do it: as an array, with an EntityRevision or Revision
-	 *  object in the 'revision' field.
+	 *  object in the 'revision' field. If $oldRevId is set and the latest edit was null,
+	 * a 'nochange' flag is also added.
 	 *
 	 * If no revision is found the the Status object, this method does nothing.
 	 *
@@ -1082,8 +1063,10 @@ class ResultBuilder {
 	 *
 	 * @param Status $status The status to get the revision ID from.
 	 * @param string|null|array $path Where in the result to put the revision id
+	 * @param int|null $oldRevId The id of the latest revision of the entity before
+	 *        the last (possibly null) edit
 	 */
-	public function addRevisionIdFromStatusToResult( Status $status, $path ) {
+	public function addRevisionIdFromStatusToResult( Status $status, $path, $oldRevId = null ) {
 		$value = $status->getValue();
 
 		if ( isset( $value['revision'] ) ) {
@@ -1096,6 +1079,11 @@ class ResultBuilder {
 			}
 
 			$this->setValue( $path, 'lastrevid', empty( $revisionId ) ? 0 : $revisionId );
+
+			if ( $oldRevId && $oldRevId === $revisionId ) {
+				// like core's ApiEditPage
+				$this->setValue( $path, 'nochange', true );
+			}
 		}
 	}
 

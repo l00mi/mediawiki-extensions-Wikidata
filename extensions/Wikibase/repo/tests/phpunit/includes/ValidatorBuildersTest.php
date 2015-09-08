@@ -16,8 +16,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Services\EntityId\BasicEntityIdParser;
-use Wikibase\Repo\BuilderBasedDataTypeValidatorFactory;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\Repo\ValidatorBuilders;
 
 /**
@@ -31,7 +30,7 @@ use Wikibase\Repo\ValidatorBuilders;
  */
 class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 
-	protected function newValidatorFactory() {
+	protected function newValidatorBuilders() {
 		$entityIdParser = new BasicEntityIdParser();
 
 		$q8 = new Item( new ItemId( 'Q8' ) );
@@ -54,15 +53,16 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			$entityLookup,
 			$entityIdParser,
 			$urlSchemes,
+			'http://qudt.org/vocab/',
 			$contentLanguages
 		);
-		$validatorFactory = new BuilderBasedDataTypeValidatorFactory( $builders->getDataTypeValidators() );
 
-		return $validatorFactory;
+		return $builders;
 	}
 
 	public function provideDataTypeValidation() {
 		$latLonValue = new LatLongValue( 0, 0 );
+		$wikidataUri = 'http://www.wikidata.org/entity/';
 
 		$cases = array(
 			//wikibase-item
@@ -79,7 +79,7 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array( 'commonsMedia', 'Foo.jpg', false, 'StringValue expected, string supplied' ),
 			array( 'commonsMedia', new NumberValue( 7 ), false, 'StringValue expected' ),
 			array( 'commonsMedia', new StringValue( '' ), false, 'empty string should be invalid' ),
-			array( 'commonsMedia', new StringValue( str_repeat( 'x', 250 ) . '.jpg' ), false, 'name too long' ),
+			array( 'commonsMedia', new StringValue( str_repeat( 'x', 237 ) . '.jpg' ), false, 'name too long' ),
 			array( 'commonsMedia', new StringValue( 'Foo' ), false, 'no file extension' ),
 			array( 'commonsMedia', new StringValue( 'Foo.jpg' ), true, 'this should be good' ),
 			array( 'commonsMedia', new StringValue( 'Foo#bar.jpg' ), false, 'illegal character: hash' ),
@@ -96,7 +96,7 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array( 'string', new StringValue( '' ), false, 'empty string should be invalid' ),
 			array( 'string', new StringValue( 'Foo' ), true, 'simple string' ),
 			array( 'string', new StringValue( 'Äöü' ), true, 'Unicode support' ),
-			array( 'string', new StringValue( str_repeat( 'x', 390 ) ), true, 'long, but not too long' ),
+			array( 'string', new StringValue( str_repeat( 'x', 400 ) ), true, 'long, but not too long' ),
 			array( 'string', new StringValue( str_repeat( 'x', 401 ) ), false, 'too long' ),
 			array( 'string', new StringValue( ' Foo' ), false, 'string with leading space' ),
 			array( 'string', new StringValue( 'Foo ' ), false, 'string with trailing space' ),
@@ -115,21 +115,21 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array(
 				'time',
 				new TimeValue( '+2013-06-06T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_DAY,
-					'http://' . str_repeat( 'x', 256 ) ),
+					$wikidataUri . 'Q' . str_repeat( '6', 224 ) ),
 				false,
 				'calendar: too long'
 			),
 			array(
 				'time',
 				new TimeValue( '+2013-06-06T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_DAY,
-					'http://acme.com/calendar' ),
+					$wikidataUri . 'Q1985727' ),
 				true,
 				'calendar: URL'
 			),
 			array(
 				'time',
 				new TimeValue( '+2013-06-06T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_DAY,
-					' http://acme.com/calendar ' ),
+					' ' . $wikidataUri . 'Q1985727 ' ),
 				false,
 				'calendar: untrimmed'
 			),
@@ -145,14 +145,14 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array(
 				'time',
 				new TimeValue( '+2013-06-06T11:22:33Z', 0, 0, 0, TimeValue::PRECISION_DAY,
-					'http://acme.com/calendar' ),
+					$wikidataUri . 'Q1985727' ),
 				false,
 				'time given to the second'
 			),
 			array(
 				'time',
 				new TimeValue( '+2013-06-06T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_SECOND,
-					'http://acme.com/calendar' ),
+					$wikidataUri . 'Q1985727' ),
 				false,
 				'precision: second'
 			),
@@ -172,30 +172,55 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			//globe-coordinate[precision]
 			array(
 				'globe-coordinate',
-				new GlobeCoordinateValue( $latLonValue, 1, 'http://www.wikidata.org/entity/Q2' ),
+				new GlobeCoordinateValue( $latLonValue, 1, $wikidataUri . 'Q2' ),
 				true,
 				'integer precision is valid'
 			),
 			array(
 				'globe-coordinate',
-				new GlobeCoordinateValue( $latLonValue, 0.2, 'http://www.wikidata.org/entity/Q2' ),
+				new GlobeCoordinateValue( $latLonValue, 0.2, $wikidataUri . 'Q2' ),
 				true,
 				'float precision is valid'
 			),
 			array(
 				'globe-coordinate',
-				new GlobeCoordinateValue( $latLonValue, null, 'http://www.wikdiata.org/entity/Q2' ),
+				new GlobeCoordinateValue( $latLonValue, null, $wikidataUri . 'Q2' ),
 				false,
 				'null precision is invalid'
 			),
 
 			//globe-coordinate[globe]
 			// FIXME: this is testing unimplemented behaviour? Probably broken...
-			array( 'globe-coordinate', new GlobeCoordinateValue( $latLonValue, 1, '' ), false, 'globe: empty string should be invalid' ),
-			array( 'globe-coordinate', new GlobeCoordinateValue( $latLonValue, 1, 'http://' . str_repeat( 'x', 256 ) ), false, 'globe: too long' ),
-			array( 'globe-coordinate', new GlobeCoordinateValue( $latLonValue, 1, 'http://acme.com/globe' ), true, 'globe: URL' ),
-			array( 'globe-coordinate', new GlobeCoordinateValue( $latLonValue, 1, ' http://acme.com/globe ' ), false, 'globe: untrimmed' ),
-			array( 'globe-coordinate', new GlobeCoordinateValue( $latLonValue, 1, ' javascript:alert(1) ' ), false, 'globe: bad URL scheme' ),
+			array(
+				'globe-coordinate',
+				new GlobeCoordinateValue( $latLonValue, 1, '' ),
+				false,
+				'globe: empty string should be invalid'
+			),
+			array(
+				'globe-coordinate',
+				new GlobeCoordinateValue( $latLonValue, 1, $wikidataUri . 'Q' . str_repeat( '6', 224 ) ),
+				false,
+				'globe: too long'
+			),
+			array(
+				'globe-coordinate',
+				new GlobeCoordinateValue( $latLonValue, 1, $wikidataUri . 'Q2' ),
+				true,
+				'globe: URL'
+			),
+			array(
+				'globe-coordinate',
+				new GlobeCoordinateValue( $latLonValue, 1, ' ' . $wikidataUri . 'Q2 ' ),
+				false,
+				'globe: untrimmed'
+			),
+			array(
+				'globe-coordinate',
+				new GlobeCoordinateValue( $latLonValue, 1, ' javascript:alert(1) ' ),
+				false,
+				'globe: bad URL scheme'
+			),
 			//TODO: globe must be an item reference
 			//TODO: globe must be from a list of configured values
 
@@ -214,7 +239,7 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array( 'url', new StringValue( 'just stuff' ), false, 'just words' ),
 			array( 'url', new StringValue( 'javascript:alert("evil")' ), false, 'JavaScript URL' ),
 			array( 'url', new StringValue( 'http://' ), false, 'bad http URL' ),
-			array( 'url', new StringValue( 'http://' . str_repeat( 'x', 505 ) ), false, 'URL too long' ),
+			array( 'url', new StringValue( 'http://' . str_repeat( 'x', 494 ) ), false, 'URL too long' ),
 
 			array( 'url', new StringValue( ' http://acme.com' ), false, 'URL with leading space' ),
 			array( 'url', new StringValue( 'http://acme.com ' ), false, 'URL with trailing space' ),
@@ -222,7 +247,7 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			//quantity
 			array( 'quantity', QuantityValue::newFromNumber( 5 ), true, 'Simple integer' ),
 			array( 'quantity', QuantityValue::newFromNumber( 5, 'http://qudt.org/vocab/unit#Meter' ), true, 'Vocabulary URI' ),
-			array( 'quantity', QuantityValue::newFromNumber( 5, 'https://www.wikidata.org/entity/Q11573' ), true, 'Wikidata URI' ),
+			array( 'quantity', QuantityValue::newFromNumber( 5, $wikidataUri . 'Q11573' ), false, 'Wikidata URI' ),
 			array( 'quantity', QuantityValue::newFromNumber( 5, '1' ), true, '1 means unitless' ),
 			array( 'quantity', QuantityValue::newFromNumber( 5, 'kittens' ), false, 'Bad unit URI' ),
 			array( 'quantity', QuantityValue::newFromNumber( '-11.234', '1', '-10', '-12' ), true, 'decimal strings' ),
@@ -232,13 +257,6 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array( 'monolingualtext', new MonolingualTextValue( 'en', 'text' ), false, 'Not a valid language' ),
 		);
 
-		if ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ) {
-			$cases = array_merge( $cases, array(
-
-				// ....
-			) );
-		}
-
 		return $cases;
 	}
 
@@ -246,8 +264,21 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider provideDataTypeValidation
 	 */
 	public function testDataTypeValidation( $typeId, $value, $expected, $message ) {
-		$validatorsFactory = $this->newValidatorFactory();
-		$validators = $validatorsFactory->getValidators( $typeId );
+		$builders = $this->newValidatorBuilders();
+
+		$validatorMap = array(
+			'commonsMedia'      => array( $builders, 'buildMediaValidators' ),
+			'globe-coordinate'  => array( $builders, 'buildCoordinateValidators' ),
+			'monolingualtext'   => array( $builders, 'buildMonolingualTextValidators' ),
+			'quantity'          => array( $builders, 'buildQuantityValidators' ),
+			'string'            => array( $builders, 'buildStringValidators' ),
+			'time'              => array( $builders, 'buildTimeValidators' ),
+			'url'               => array( $builders, 'buildUrlValidators' ),
+			'wikibase-item'     => array( $builders, 'buildItemValidators' ),
+			'wikibase-property' => array( $builders, 'buildPropertyValidators' ),
+		);
+
+		$validators = call_user_func( $validatorMap[$typeId] );
 
 		$this->assertValidation( $expected, $validators, $value, $message );
 	}

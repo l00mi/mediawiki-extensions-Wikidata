@@ -5,6 +5,7 @@ namespace Wikibase\DataModel\Claim;
 use ArrayObject;
 use InvalidArgumentException;
 use Traversable;
+use Wikibase\DataModel\Statement\Statement;
 
 /**
  * A claim (identified using it's GUID) can only be added once.
@@ -24,7 +25,7 @@ class Claims extends ArrayObject {
 	 * @since 0.3
 	 * @deprecated since 1.0, use StatementList instead.
 	 *
-	 * @param Claim[]|Traversable|null $input
+	 * @param Statement[]|Traversable|null $input
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -58,16 +59,16 @@ class Claims extends ArrayObject {
 	}
 
 	/**
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 *
 	 * @throws InvalidArgumentException
 	 * @return string
 	 */
-	private function getClaimKey( Claim $claim ) {
-		$guid = $claim->getGuid();
+	private function getClaimKey( Statement $statement ) {
+		$guid = $statement->getGuid();
 
 		if ( $guid === null ) {
-			throw new InvalidArgumentException( 'Can\'t handle claims with no GUID set!' );
+			throw new InvalidArgumentException( 'Can\'t handle statements with no GUID set' );
 		}
 
 		$key = $this->getGuidKey( $guid );
@@ -78,16 +79,16 @@ class Claims extends ArrayObject {
 	 * @since 0.1
 	 * @deprecated since 1.0, use StatementList::addStatement() instead.
 	 *
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function addClaim( Claim $claim ) {
+	public function addClaim( Statement $statement ) {
 		if ( func_num_args() > 1 ) {
 			throw new InvalidArgumentException( '$index is not supported any more' );
 		}
 
-		$this[] = $claim;
+		$this[] = $statement;
 	}
 
 	/**
@@ -120,7 +121,7 @@ class Claims extends ArrayObject {
 	 *
 	 * @param string $claimGuid
 	 *
-	 * @return Claim|null
+	 * @return Statement|null
 	 */
 	public function getClaimWithGuid( $claimGuid ) {
 		if ( $this->offsetExists( $claimGuid ) ) {
@@ -151,7 +152,7 @@ class Claims extends ArrayObject {
 	 *
 	 * @param string $guid
 	 *
-	 * @return Claim
+	 * @return Statement
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -165,16 +166,16 @@ class Claims extends ArrayObject {
 	 * @deprecated since 1.0, should never be called.
 	 *
 	 * @param string $guid
-	 * @param Claim $claim
+	 * @param Statement $statement
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function offsetSet( $guid, $claim ) {
-		if ( !( $claim instanceof Claim ) ) {
-			throw new InvalidArgumentException( '$claim must be an instance of Claim' );
+	public function offsetSet( $guid, $statement ) {
+		if ( !( $statement instanceof Statement ) ) {
+			throw new InvalidArgumentException( '$statement must be an instance of Statement' );
 		}
 
-		$claimKey = $this->getClaimKey( $claim );
+		$claimKey = $this->getClaimKey( $statement );
 
 		if ( $guid !== null ) {
 			$guidKey = $this->getGuidKey( $guid );
@@ -184,7 +185,7 @@ class Claims extends ArrayObject {
 			}
 		}
 
-		parent::offsetSet( $claimKey, $claim );
+		parent::offsetSet( $claimKey, $statement );
 	}
 
 	/**

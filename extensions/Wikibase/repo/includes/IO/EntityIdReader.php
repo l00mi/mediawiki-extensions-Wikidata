@@ -3,8 +3,8 @@
 namespace Wikibase\Repo\IO;
 
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\Lib\Reporting\ExceptionHandler;
 use Wikibase\Lib\Reporting\RethrowingExceptionHandler;
 use Wikibase\Repo\Disposable;
@@ -21,17 +21,17 @@ class EntityIdReader implements EntityIdPager, Disposable {
 	/**
 	 * @var LineReader
 	 */
-	protected $reader;
+	private $reader;
 
 	/**
 	 * @var ExceptionHandler
 	 */
-	protected $exceptionHandler;
+	private $exceptionHandler;
 
 	/**
 	 * @var string|null
 	 */
-	protected $entityType;
+	private $entityType;
 
 	/**
 	 * @param LineReader $reader

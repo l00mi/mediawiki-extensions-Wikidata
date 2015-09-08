@@ -3,10 +3,11 @@
 namespace Wikibase\Client\Tests;
 
 use Language;
-use MediaWikiSite;
+use Site;
 use SiteStore;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\SettingsArray;
 use Wikibase\Test\MockSiteStore;
 
@@ -32,7 +33,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetEntityIdParserReturnType() {
 		$returnValue = $this->getWikibaseClient()->getEntityIdParser();
-		$this->assertInstanceOf( 'Wikibase\DataModel\Services\EntityId\EntityIdParser', $returnValue );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\EntityIdParser', $returnValue );
 	}
 
 	public function testGetPropertyDataTypeLookupReturnType() {
@@ -82,7 +83,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$settings->setSetting( 'siteGlobalID', 'enwiki' );
 		$settings->setSetting( 'languageLinkSiteGroup', 'wikipedia' );
 
-		$wikibaseClient = new WikibaseClient( $settings, Language::factory( 'en' ), $this->getSiteStore() );
+		$wikibaseClient = new WikibaseClient( $settings, Language::factory( 'en' ), new DataTypeDefinitions(), $this->getSiteStore() );
 
 		$returnValue = $wikibaseClient->getLangLinkHandler();
 		$this->assertInstanceOf( 'Wikibase\LangLinkHandler', $returnValue );
@@ -97,7 +98,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider getLangLinkSiteGroupProvider
 	 */
 	public function testGetLangLinkSiteGroup( $expected, SettingsArray $settings, SiteStore $siteStore ) {
-		$client = new WikibaseClient( $settings, Language::factory( 'en' ), $siteStore );
+		$client = new WikibaseClient( $settings, Language::factory( 'en' ), new DataTypeDefinitions(), $siteStore );
 		$this->assertEquals( $expected, $client->getLangLinkSiteGroup() );
 	}
 
@@ -125,7 +126,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider getSiteGroupProvider
 	 */
 	public function testGetSiteGroup( $expected, SettingsArray $settings, SiteStore $siteStore ) {
-		$client = new WikibaseClient( $settings, Language::factory( 'en' ), $siteStore );
+		$client = new WikibaseClient( $settings, Language::factory( 'en' ), new DataTypeDefinitions(), $siteStore );
 		$this->assertEquals( $expected, $client->getSiteGroup() );
 	}
 
@@ -135,7 +136,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	private function getSiteStore() {
 		$siteStore = new MockSiteStore();
 
-		$site = new MediaWikiSite();
+		$site = new Site();
 		$site->setGlobalId( 'enwiki' );
 		$site->setGroup( 'wikipedia' );
 
@@ -250,7 +251,9 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private function getWikibaseClient() {
 		$settings = new SettingsArray( WikibaseClient::getDefaultInstance()->getSettings()->getArrayCopy() );
-		return new WikibaseClient( $settings, Language::factory( 'en' ) );
+		$sites = new MockSiteStore( array() );
+		$dataTypeDefinitions = new DataTypeDefinitions();
+		return new WikibaseClient( $settings, Language::factory( 'en' ), $dataTypeDefinitions, $sites );
 	}
 
 }

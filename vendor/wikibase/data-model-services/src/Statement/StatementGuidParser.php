@@ -2,8 +2,8 @@
 
 namespace Wikibase\DataModel\Services\Statement;
 
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Statement\StatementGuid;
 
 /**
@@ -45,9 +45,9 @@ class StatementGuidParser {
 
 		try {
 			return new StatementGuid( $this->entityIdParser->parse( $keyParts[0] ), $keyParts[1] );
-		}
-		catch( EntityIdParsingException $exception ) {
-			throw new StatementGuidParsingException( '$serialization contains invalid EntityId: ' . $exception->getMessage() );
+		} catch ( EntityIdParsingException $ex ) {
+			throw new StatementGuidParsingException( '$serialization contains invalid EntityId: '
+				. $ex->getMessage() );
 		}
 	}
 

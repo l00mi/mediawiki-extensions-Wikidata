@@ -4,8 +4,13 @@
 			"Joetaras"
 		]
 	},
-	"wbq-desc": "Estenzione base pe le estenziune de qualitate de uicchibase ca gestisce le date acchiate scorrette",
+	"wbq-desc": "Estenzione base pe le estenziune de qualitate de uicchibase, ca donne 'na màne pe gestì le date ingonsistende.",
 	"specialpages-group-wikibasequality": "Qualitate UicchiBase",
+	"wbq-violations-description": "Elenghe de le probbleme sus 'a qualitate de le date",
 	"wbq-violations-group-label": "Gruppe:",
+	"wbq-violations-type-label": "Tipe:",
+	"wbq-violations-form-select-all": "(tutte)",
+	"wbq-violations-exceptions-checkbox-label": "Fà 'ndrucà le eccezziune",
+	"wbq-violations-submit-button-label": "Fà 'ndrucà le violazziune",
 	"wbq-violations-mark-as-exception": "Signe cumme eccezzione"
 }

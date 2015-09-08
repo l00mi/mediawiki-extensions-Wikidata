@@ -3,12 +3,17 @@
 namespace Wikibase\Repo\Specials;
 
 use DataTypes\DataTypeFactory;
+use HTMLForm;
 use Html;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataTypeSelector;
+use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\PropertyInfoStore;
-use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Store\BufferingTermLookup;
 use Wikibase\View\EntityIdFormatterFactory;
 
 /**
@@ -17,6 +22,7 @@ use Wikibase\View\EntityIdFormatterFactory;
  * @since 0.5
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
+ * @author Adam Shorland
  */
 class SpecialListProperties extends SpecialWikibaseQueryPage {
 
@@ -38,19 +44,29 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	private $propertyInfoStore;
 
 	/**
-	 * @var EntityIdFormatterFactory
+	 * @var LanguageFallbackLabelDescriptionLookup
 	 */
-	private $entityIdFormatterFactory;
-
-	/**
-	 * @var LanguageFallbackLabelDescriptionLookupFactory
-	 */
-	private $labelDescriptionLookupFactory;
+	private $labelDescriptionLookup;
 
 	/**
 	 * @var string
 	 */
 	private $dataType;
+
+	/**
+	 * @var EntityIdFormatter
+	 */
+	private $entityIdFormatter;
+
+	/**
+	 * @var EntityTitleLookup
+	 */
+	private $titleLookup;
+
+	/**
+	 * @var BufferingTermLookup
+	 */
+	private $bufferingTermLookup;
 
 	public function __construct() {
 		parent::__construct( 'ListProperties' );
@@ -61,7 +77,9 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 			$wikibaseRepo->getDataTypeFactory(),
 			$wikibaseRepo->getStore()->getPropertyInfoStore(),
 			$wikibaseRepo->getEntityIdHtmlLinkFormatterFactory(),
-			$wikibaseRepo->getLanguageFallbackLabelDescriptionLookupFactory()
+			$wikibaseRepo->getLanguageFallbackChainFactory(),
+			$wikibaseRepo->getEntityTitleLookup(),
+			$wikibaseRepo->getBufferingTermLookup()
 		);
 	}
 
@@ -73,12 +91,27 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 		DataTypeFactory $dataTypeFactory,
 		PropertyInfoStore $propertyInfoStore,
 		EntityIdFormatterFactory $entityIdFormatterFactory,
-		LanguageFallbackLabelDescriptionLookupFactory $labelDescriptionLookupFactory
+		LanguageFallbackChainFactory $languageFallbackChainFactory,
+		EntityTitleLookup $titleLookup,
+		BufferingTermLookup $bufferingTermLookup
 	) {
+		$this->labelDescriptionLookup = new LanguageFallbackLabelDescriptionLookup(
+			$bufferingTermLookup,
+			$languageFallbackChainFactory->newFromLanguage(
+				$this->getLanguage(),
+				LanguageFallbackChainFactory::FALLBACK_SELF
+				| LanguageFallbackChainFactory::FALLBACK_VARIANTS
+				| LanguageFallbackChainFactory::FALLBACK_OTHERS
+			)
+		);
+
 		$this->dataTypeFactory = $dataTypeFactory;
 		$this->propertyInfoStore = $propertyInfoStore;
-		$this->entityIdFormatterFactory = $entityIdFormatterFactory;
-		$this->labelDescriptionLookupFactory = $labelDescriptionLookupFactory;
+		$this->entityIdFormatter = $entityIdFormatterFactory->getEntityIdFormater(
+			$this->labelDescriptionLookup
+		);
+		$this->titleLookup = $titleLookup;
+		$this->bufferingTermLookup = $bufferingTermLookup;
 	}
 
 	/**
@@ -118,84 +151,82 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 			$this->getLanguage()->getCode()
 		);
 
-		$this->getOutput()->addHTML(
-			Html::openElement(
-				'form',
-				array(
-					'action' => $this->getPageTitle()->getLocalURL(),
-					'name' => 'listproperties',
-					'id' => 'wb-listproperties-form'
-				)
-			) .
-			Html::openElement( 'fieldset' ) .
-			Html::element(
-				'legend',
-				array(),
-				$this->msg( 'wikibase-listproperties-legend' )->text()
-			) .
-			Html::openElement( 'p' ) .
-			Html::element(
-				'label',
-				array(
-					'for' => 'wb-listproperties-datatype'
-				),
-				$this->msg( 'wikibase-listproperties-datatype' )->text()
-			) . ' ' .
-			Html::rawElement(
-				'select',
-				array(
-					'name' => 'datatype',
-					'id' => 'wb-listproperties-datatype',
-					'class' => 'wb-select'
-				),
-				Html::element(
-					'option',
-					array(
-						'value' => '',
-						'selected' => $this->dataType === ''
-					),
-					$this->msg( 'wikibase-listproperties-all' )->text()
-				) .
-				$dataTypeSelect->getOptionsHtml( $this->dataType )
-			) . ' ' .
-			Html::input(
-				'',
-				$this->msg( 'wikibase-listproperties-submit' )->text(),
-				'submit',
-				array(
-					'id' => 'wikibase-listproperties-submit',
-					'class' => 'wb-input-button'
-				)
-			) .
-			Html::closeElement( 'p' ) .
-			Html::closeElement( 'fieldset' ) .
-			Html::closeElement( 'form' )
+		$options = array(
+			$this->msg( 'wikibase-listproperties-all' )->text() => ''
 		);
+		$options = array_merge( $options, array_flip( $dataTypeSelect->getOptionsArray() ) );
+
+		$formDescriptor = array(
+			'datatype' => array(
+				'name' => 'datatype',
+				'type' => 'select',
+				'id' => 'wb-listproperties-datatype',
+				'cssclass' => 'wb-select',
+				'label-message' => 'wikibase-listproperties-datatype',
+				'options' => $options,
+				'default' => $this->dataType
+			),
+			'submit' => array(
+				'name' => '',
+				'type' => 'submit',
+				'id' => 'wikibase-listproperties-submit',
+				'cssclass' => 'wb-input-button',
+				'default' => $this->msg( 'wikibase-listproperties-submit' )->text()
+			)
+		);
+
+		HTMLForm::factory( 'inline', $formDescriptor, $this->getContext() )
+			->setId( 'wb-listproperties-form' )
+			->setMethod( 'get' )
+			->setWrapperLegendMsg( 'wikibase-listproperties-legend' )
+			->suppressDefaultSubmit()
+			->setSubmitCallback( function () {
+			} )
+			->show();
 	}
 
-	protected function showQuery( array $query = array() ) {
-		$propertyIds = $this->getResult();
-
-		if ( empty( $propertyIds ) ) {
-			$this->getOutput()->addWikiMsg( 'specialpage-empty' );
-			return;
+	/**
+	 * Formats a row for display.
+	 *
+	 * @param PropertyId $propertyId
+	 *
+	 * @return string
+	 */
+	protected function formatRow( $propertyId ) {
+		$title = $this->titleLookup->getTitleForId( $propertyId );
+		if ( !$title->exists() ) {
+			return $this->entityIdFormatter->formatEntityId( $propertyId );
 		}
 
-		$labelDescriptionLookup = $this->labelDescriptionLookupFactory->newLabelDescriptionLookup(
-			$this->getLanguage(),
-			$propertyIds
+		$labelTerm = $this->labelDescriptionLookup->getLabel( $propertyId );
+
+		$row = Html::rawElement(
+			'a',
+			array(
+				'title' => $title ? $title->getPrefixedText() : $propertyId->getSerialization(),
+				'href' => $title ? $title->getLocalURL() : ''
+			),
+			Html::rawElement(
+				'span',
+				array( 'class' => 'wb-itemlink' ),
+				Html::element(
+					'span',
+					array(
+						'class' => 'wb-itemlink-label',
+						'lang' => $labelTerm ? $labelTerm->getLanguageCode() : '',
+					),
+					$labelTerm ? $labelTerm->getText() : ''
+				) .
+				( $labelTerm ? ' ' : '' ) .
+				Html::element(
+					'span',
+					array( 'class' => 'wb-itemlink-id' ),
+					'(' . $propertyId->getSerialization() . ')'
+				)
+			)
 		);
 
-		$formatter = $this->entityIdFormatterFactory->getEntityIdFormater( $labelDescriptionLookup );
-
-		$html = Html::openElement( 'ul' );
-
-		foreach ( $propertyIds as $propertyId ) {
-			$html .= Html::rawElement( 'li', array(), $formatter->formatEntityId( $propertyId ) );
-		}
-
-		$html .= Html::closeElement( 'ul' );
-		$this->getOutput()->addHTML( $html );
+		return $row;
 	}
 
 	/**
@@ -205,19 +236,43 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	 * @return PropertyId[]
 	 */
 	protected function getResult( $offset = 0, $limit = 0 ) {
-		if ( $this->dataType === '' ) {
-			$propertyInfoForDataType = $this->propertyInfoStore->getAllPropertyInfo();
-		} else {
-			$propertyInfoForDataType = $this->propertyInfoStore->getPropertyInfoForDataType( $this->dataType );
-		}
+		$propertyInfo = array_slice( $this->getPropertyInfo(), $offset, $limit, true );
 
 		$propertyIds = array();
 
-		foreach ( $propertyInfoForDataType as $numericId => $info ) {
+		foreach ( $propertyInfo as $numericId => $info ) {
 			$propertyIds[] = PropertyId::newFromNumber( $numericId );
 		}
 
+		$this->bufferingTermLookup->prefetchTerms( $propertyIds );
+
 		return $propertyIds;
+	}
+
+	/**
+	 * @return array[] An associative array mapping property IDs to info arrays.
+	 */
+	private function getPropertyInfo() {
+		if ( $this->dataType === '' ) {
+			$propertyInfo = $this->propertyInfoStore->getAllPropertyInfo();
+		} else {
+			$propertyInfo = $this->propertyInfoStore->getPropertyInfoForDataType(
+				$this->dataType
+			);
+		}
+
+		// NOTE: $propertyInfo uses numerical property IDs as keys!
+		ksort( $propertyInfo );
+		return $propertyInfo;
+	}
+
+	/**
+	 * @see SpecialWikibaseQueryPage::getTitleForNavigation
+	 *
+	 * @since 0.4
+	 */
+	protected function getTitleForNavigation() {
+		return $this->getPageTitle( $this->dataType );
 	}
 
 }

@@ -12,6 +12,7 @@ use Wikibase\DataModel\Term\FingerprintProvider;
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Adam Shorland
  */
 class EntityRetrievingTermLookup implements TermLookup {
 
@@ -38,11 +39,17 @@ class EntityRetrievingTermLookup implements TermLookup {
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @return string
+	 * @return string|null
+	 * @throws TermLookupException
 	 */
 	public function getLabel( EntityId $entityId, $languageCode ) {
-		$labels = $this->getFingerprint( $entityId )->getLabels();
-		return $labels->getByLanguage( $languageCode )->getText();
+		$fingerprint = $this->getFingerprint( $entityId, array( $languageCode ) );
+
+		try {
+			return $fingerprint->getLabel( $languageCode )->getText();
+		} catch ( OutOfBoundsException $ex ) {
+			return null;
+		}
 	}
 
 	/**
@@ -51,11 +58,12 @@ class EntityRetrievingTermLookup implements TermLookup {
 	 * @param EntityId $entityId
 	 * @param string[] $languages
 	 *
-	 * @throws OutOfBoundsException if the entity does not exist
+	 * @throws TermLookupException
 	 * @return string[]
 	 */
 	public function getLabels( EntityId $entityId, array $languages ) {
-		$labels = $this->getFingerprint( $entityId )->getLabels()->toTextArray();
+		$fingerprint = $this->getFingerprint( $entityId, $languages );
+		$labels = $fingerprint->getLabels()->toTextArray();
 
 		return array_intersect_key( $labels, array_flip( $languages ) );
 	}
@@ -66,11 +74,17 @@ class EntityRetrievingTermLookup implements TermLookup {
 	 * @param EntityId $entityId
 	 * @param string $languageCode
 	 *
-	 * @return string
+	 * @throws TermLookupException
+	 * @return string|null
 	 */
 	public function getDescription( EntityId $entityId, $languageCode ) {
-		$descriptions = $this->getFingerprint( $entityId )->getDescriptions();
-		return $descriptions->getByLanguage( $languageCode )->getText();
+		$fingerprint = $this->getFingerprint( $entityId, array( $languageCode ) );
+
+		try {
+			return $fingerprint->getDescription( $languageCode )->getText();
+		} catch ( OutOfBoundsException $ex ) {
+			return null;
+		}
 	}
 
 	/**
@@ -79,25 +93,28 @@ class EntityRetrievingTermLookup implements TermLookup {
 	 * @param EntityId $entityId
 	 * @param string[] $languages
 	 *
-	 * @throws OutOfBoundsException if the entity does not exist
+	 * @throws TermLookupException
 	 * @return string[]
 	 */
 	public function getDescriptions( EntityId $entityId, array $languages ) {
-		$descriptions = $this->getFingerprint( $entityId )->getDescriptions()->toTextArray();
+		$fingerprint = $this->getFingerprint( $entityId, $languages );
+		$descriptions = $fingerprint->getDescriptions()->toTextArray();
 
 		return array_intersect_key( $descriptions, array_flip( $languages ) );
 	}
 
 	/**
 	 * @param EntityId $entityId
+	 * @param array $languages used in thrown exceptions
 	 *
+	 * @throws TermLookupException
 	 * @return Fingerprint
 	 */
-	private function getFingerprint( EntityId $entityId ) {
+	private function getFingerprint( EntityId $entityId, array $languages ) {
 		$idSerialization = $entityId->getSerialization();
 
 		if ( !isset( $this->fingerprints[$idSerialization] ) ) {
-			$this->fingerprints[$idSerialization] = $this->fetchFingerprint( $entityId );
+			$this->fingerprints[$idSerialization] = $this->fetchFingerprint( $entityId, $languages );
 		}
 
 		return $this->fingerprints[$idSerialization];
@@ -105,20 +122,16 @@ class EntityRetrievingTermLookup implements TermLookup {
 
 	/**
 	 * @param EntityId $entityId
+	 * @param array $languages used in thrown exceptions
 	 *
-	 * @throws OutOfBoundsException
+	 * @throws TermLookupException
 	 * @return Fingerprint
 	 */
-	private function fetchFingerprint( EntityId $entityId ) {
-		try {
-			$entity = $this->entityLookup->getEntity( $entityId );
-		} catch ( \Exception $ex ) {
-			// TODO: remove this after addressing violations of EntityLookup::getEntity's contract
-			$entity = null;
-		}
+	private function fetchFingerprint( EntityId $entityId, array $languages ) {
+		$entity = $this->entityLookup->getEntity( $entityId );
 
 		if ( $entity === null ) {
-			throw new OutOfBoundsException( "An Entity with the id $entityId could not be loaded" );
+			throw new TermLookupException( $entityId, $languages, 'The entity could not be loaded' );
 		}
 
 		return $entity instanceof FingerprintProvider ? $entity->getFingerprint() : new Fingerprint();

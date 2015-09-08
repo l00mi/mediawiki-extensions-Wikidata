@@ -67,7 +67,7 @@ call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks;
 	global $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages, $wgResourceModules;
 	global $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
-	global $wgJobClasses;
+	global $wgJobClasses, $wgWBClientDataTypes;
 
 	$wgExtensionCredits['wikibase'][] = array(
 		'path' => __DIR__,
@@ -80,37 +80,46 @@ call_user_func( function() {
 		'descriptionmsg' => 'wikibase-client-desc'
 	);
 
+	$wgWBClientDataTypes = require ( __DIR__ . '/../lib/WikibaseLib.datatypes.php' );
+	$clientDatatypes = require ( __DIR__ . '/WikibaseClient.datatypes.php' );
+
+	// merge WikibaseClient.datatypes.php into $wgWBClientDataTypes
+	foreach ( $clientDatatypes as $type => $clientDef ) {
+		$baseDef = isset( $wgWBClientDataTypes[$type] ) ? $wgWBClientDataTypes[$type] : array();
+		$wgWBClientDataTypes[$type] = array_merge( $baseDef, $clientDef );
+	}
+
 	// i18n
-	$wgMessagesDirs['wikibaseclient']                   = __DIR__ . '/i18n';
+	$wgMessagesDirs['wikibaseclient'] = __DIR__ . '/i18n';
 	$wgExtensionMessagesFiles['Wikibaseclientalias'] = __DIR__ . '/WikibaseClient.i18n.alias.php';
 	$wgExtensionMessagesFiles['wikibaseclientmagic'] = __DIR__ . '/WikibaseClient.i18n.magic.php';
 
 	// Hooks
-	$wgHooks['UnitTestsList'][] 				= '\Wikibase\ClientHooks::registerUnitTests';
-	$wgHooks['BaseTemplateToolbox'][]			= '\Wikibase\ClientHooks::onBaseTemplateToolbox';
-	$wgHooks['OldChangesListRecentChangesLine'][]		= '\Wikibase\ClientHooks::onOldChangesListRecentChangesLine';
-	$wgHooks['OutputPageParserOutput'][]		= '\Wikibase\Client\Hooks\SidebarHookHandlers::onOutputPageParserOutput';
-	$wgHooks['SkinTemplateGetLanguageLink'][]		= '\Wikibase\Client\Hooks\SidebarHookHandlers::onSkinTemplateGetLanguageLink';
-	$wgHooks['ContentAlterParserOutput'][]				= '\Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers::onContentAlterParserOutput';
+	$wgHooks['UnitTestsList'][] = '\Wikibase\ClientHooks::registerUnitTests';
+	$wgHooks['BaseTemplateToolbox'][] = '\Wikibase\ClientHooks::onBaseTemplateToolbox';
+	$wgHooks['OldChangesListRecentChangesLine'][] = '\Wikibase\ClientHooks::onOldChangesListRecentChangesLine';
+	$wgHooks['OutputPageParserOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onOutputPageParserOutput';
+	$wgHooks['SkinTemplateGetLanguageLink'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSkinTemplateGetLanguageLink';
+	$wgHooks['ContentAlterParserOutput'][] = '\Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers::onContentAlterParserOutput';
 	$wgHooks['SidebarBeforeOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSidebarBeforeOutput';
-	$wgHooks['LinksUpdateComplete'][]				= '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onLinksUpdateComplete';
-	$wgHooks['ArticleDeleteComplete'][]				= '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onArticleDeleteComplete';
-	$wgHooks['ParserCacheSaveComplete'][]				= '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onParserCacheSaveComplete';
-	$wgHooks['ParserFirstCallInit'][]			= '\Wikibase\ClientHooks::onParserFirstCallInit';
-	$wgHooks['MagicWordwgVariableIDs'][]			= '\Wikibase\ClientHooks::onMagicWordwgVariableIDs';
-	$wgHooks['ParserGetVariableValueSwitch'][]		= '\Wikibase\ClientHooks::onParserGetVariableValueSwitch';
-	$wgHooks['SkinTemplateOutputPageBeforeExec'][]		= '\Wikibase\ClientHooks::onSkinTemplateOutputPageBeforeExec';
-	$wgHooks['SpecialMovepageAfterMove'][]				= '\Wikibase\Client\Hooks\MovePageNotice::onSpecialMovepageAfterMove';
-	$wgHooks['SpecialWatchlistQuery'][]			= '\Wikibase\ClientHooks::onSpecialWatchlistQuery';
-	$wgHooks['SpecialRecentChangesQuery'][]				= '\Wikibase\ClientHooks::onSpecialRecentChangesQuery';
-	$wgHooks['SpecialRecentChangesFilters'][]			= '\Wikibase\ClientHooks::onSpecialRecentChangesFilters';
-	$wgHooks['GetPreferences'][]						= '\Wikibase\ClientHooks::onGetPreferences';
-	$wgHooks['BeforePageDisplay'][]				= '\Wikibase\ClientHooks::onBeforePageDisplay';
-	$wgHooks['BeforePageDisplay'][]				= '\Wikibase\ClientHooks::onBeforePageDisplayAddJsConfig';
-	$wgHooks['ScribuntoExternalLibraries'][]      = '\Wikibase\ClientHooks::onScribuntoExternalLibraries';
-	$wgHooks['SpecialWatchlistFilters'][]          = '\Wikibase\ClientHooks::onSpecialWatchlistFilters';
-	$wgHooks['InfoAction'][] 								= '\Wikibase\ClientHooks::onInfoAction';
-	$wgHooks['TitleMoveComplete'][]          = '\Wikibase\Client\Hooks\UpdateRepoHookHandlers::onTitleMoveComplete';
+	$wgHooks['LinksUpdateComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onLinksUpdateComplete';
+	$wgHooks['ArticleDeleteComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onArticleDeleteComplete';
+	$wgHooks['ParserCacheSaveComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onParserCacheSaveComplete';
+	$wgHooks['ParserFirstCallInit'][] = '\Wikibase\ClientHooks::onParserFirstCallInit';
+	$wgHooks['MagicWordwgVariableIDs'][] = '\Wikibase\ClientHooks::onMagicWordwgVariableIDs';
+	$wgHooks['ParserGetVariableValueSwitch'][] = '\Wikibase\ClientHooks::onParserGetVariableValueSwitch';
+	$wgHooks['SkinTemplateOutputPageBeforeExec'][] = '\Wikibase\ClientHooks::onSkinTemplateOutputPageBeforeExec';
+	$wgHooks['SpecialMovepageAfterMove'][] = '\Wikibase\Client\Hooks\MovePageNotice::onSpecialMovepageAfterMove';
+	$wgHooks['SpecialWatchlistQuery'][] = '\Wikibase\ClientHooks::onSpecialWatchlistQuery';
+	$wgHooks['SpecialRecentChangesQuery'][] = '\Wikibase\ClientHooks::onSpecialRecentChangesQuery';
+	$wgHooks['SpecialRecentChangesFilters'][] = '\Wikibase\ClientHooks::onSpecialRecentChangesFilters';
+	$wgHooks['GetPreferences'][] = '\Wikibase\ClientHooks::onGetPreferences';
+	$wgHooks['BeforePageDisplay'][] = '\Wikibase\ClientHooks::onBeforePageDisplay';
+	$wgHooks['BeforePageDisplay'][] = '\Wikibase\ClientHooks::onBeforePageDisplayAddJsConfig';
+	$wgHooks['ScribuntoExternalLibraries'][] = '\Wikibase\ClientHooks::onScribuntoExternalLibraries';
+	$wgHooks['SpecialWatchlistFilters'][] = '\Wikibase\ClientHooks::onSpecialWatchlistFilters';
+	$wgHooks['InfoAction'][] = '\Wikibase\ClientHooks::onInfoAction';
+	$wgHooks['TitleMoveComplete'][] = '\Wikibase\Client\Hooks\UpdateRepoHookHandlers::onTitleMoveComplete';
 	$wgHooks['BaseTemplateAfterPortlet'][] = '\Wikibase\ClientHooks::onBaseTemplateAfterPortlet';
 	$wgHooks['GetBetaFeaturePreferences'][] = '\Wikibase\ClientHooks::onGetBetaFeaturePreferences';
 	$wgHooks['ArticleDeleteComplete'][] = '\Wikibase\Client\Hooks\UpdateRepoHookHandlers::onArticleDeleteComplete';
@@ -150,8 +159,9 @@ call_user_func( function() {
 	);
 
 	// Special page registration
-	$wgSpecialPages['UnconnectedPages']						= 'Wikibase\Client\Specials\SpecialUnconnectedPages';
-	$wgHooks['wgQueryPages'][]							= 'Wikibase\ClientHooks::onwgQueryPages';
+	$wgSpecialPages['UnconnectedPages'] = 'Wikibase\Client\Specials\SpecialUnconnectedPages';
+	$wgSpecialPages['PagesWithBadges'] = 'Wikibase\Client\Specials\SpecialPagesWithBadges';
+	$wgHooks['wgQueryPages'][] = 'Wikibase\ClientHooks::onwgQueryPages';
 
 	// Resource loader modules
 	$wgResourceModules = array_merge(

@@ -2,7 +2,6 @@
 
 namespace Wikibase\Lib\Test;
 
-use DataTypes\DataType;
 use DataTypes\DataTypeFactory;
 use DataValues\DataValueFactory;
 use DataValues\Deserializers\DataValueDeserializer;
@@ -26,12 +25,11 @@ class SnakConstructionServiceTest extends \PHPUnit_Framework_TestCase {
 	public function newSnakConstructionService() {
 		$snakFactory = new SnakFactory();
 		$dataTypeLookup = new InMemoryDataTypeLookup();
-		$dataTypeFactory = new DataTypeFactory();
+		$dataTypeFactory = new DataTypeFactory( array( 'string' => 'string' ) );
 		$dataValueFactory = new DataValueFactory( new DataValueDeserializer( array(
 			'string' => 'DataValues\StringValue',
 		) ) );
 
-		$dataTypeFactory->registerDataType( new DataType( 'string', 'string', array() ) );
 		$dataTypeLookup->setDataTypeForProperty( new PropertyId( 'p1' ), 'string' );
 
 		$service = new SnakConstructionService(
@@ -80,17 +78,17 @@ class SnakConstructionServiceTest extends \PHPUnit_Framework_TestCase {
 			'novalue/badprop' => array(
 				66, 'novalue', null,
 				'Wikibase\DataModel\Snak\PropertyNoValueSnak',
-				'Wikibase\DataModel\Services\Lookup\PropertyNotFoundException'
+				'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException'
 			),
 			'somevalue/badprop' => array(
 				66, 'somevalue', null,
 				'Wikibase\DataModel\Snak\PropertySomeValueSnak',
-				'Wikibase\DataModel\Services\Lookup\PropertyNotFoundException'
+				'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException'
 			),
 			'value/badprop' => array(
 				66, 'value', '"hello"',
 				'Wikibase\DataModel\Snak\PropertyValueSnak',
-				'Wikibase\DataModel\Services\Lookup\PropertyNotFoundException'
+				'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException'
 			),
 			'value/badvalue' => array(
 				1, 'value', array( 'foo' ),

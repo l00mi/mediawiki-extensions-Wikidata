@@ -53,9 +53,13 @@ class SqlEntityInfoBuilderTest extends EntityInfoBuilderTest {
 				null
 			);
 
-			$termRows = array_merge( $termRows, $this->getTermRows( $entity->getId(), 'label', $entity->getLabels() ) );
-			$termRows = array_merge( $termRows, $this->getTermRows( $entity->getId(), 'description', $entity->getDescriptions() ) );
-			$termRows = array_merge( $termRows, $this->getTermRows( $entity->getId(), 'alias', $entity->getAllAliases() ) );
+			$labels = $entity->getFingerprint()->getLabels()->toTextArray();
+			$descriptions = $entity->getFingerprint()->getDescriptions()->toTextArray();
+			$aliases = $entity->getFingerprint()->getAliasGroups()->toTextArray();
+
+			$termRows = array_merge( $termRows, $this->getTermRows( $entity->getId(), 'label', $labels ) );
+			$termRows = array_merge( $termRows, $this->getTermRows( $entity->getId(), 'description', $descriptions ) );
+			$termRows = array_merge( $termRows, $this->getTermRows( $entity->getId(), 'alias', $aliases ) );
 
 			if ( $entity instanceof Property ) {
 				$infoRows[] = array(
@@ -119,7 +123,7 @@ class SqlEntityInfoBuilderTest extends EntityInfoBuilderTest {
 		return $rows;
 	}
 
-	protected function insertRows( $table, $fields, $rows ) {
+	private function insertRows( $table, array $fields, array $rows ) {
 		$dbw = wfGetDB( DB_MASTER );
 
 		foreach ( $rows as $row ) {

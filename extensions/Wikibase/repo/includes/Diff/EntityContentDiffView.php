@@ -17,8 +17,6 @@ use Revision;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
-use Wikibase\DataModel\Services\EntityId\EntityIdLabelFormatter;
-use Wikibase\DataModel\Services\EntityId\EscapingEntityIdFormatter;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
 use Wikibase\DataModel\Services\Lookup\LanguageLabelDescriptionLookup;
 use Wikibase\EntityContent;
@@ -42,22 +40,22 @@ class EntityContentDiffView extends DifferenceEngine {
 	/**
 	 * @var EntityDiffVisualizer
 	 */
-	protected $diffVisualizer;
+	private $diffVisualizer;
 
 	/**
 	 * @var SnakFormatter
 	 */
-	protected $detailedSnakFormatter;
+	private $detailedSnakFormatter;
 
 	/**
 	 * @var SnakFormatter
 	 */
-	protected $terseSnakFormatter;
+	private $terseSnakFormatter;
 
 	/**
 	 * @var EntityIdFormatter
 	 */
-	protected $propertyNameFormatter;
+	private $propertyNameFormatter;
 
 	/**
 	 * @see DifferenceEngine::__construct
@@ -84,9 +82,9 @@ class EntityContentDiffView extends DifferenceEngine {
 
 		$termLookup = new EntityRetrievingTermLookup( $wikibaseRepo->getEntityLookup() );
 		$labelDescriptionLookup = new LanguageLabelDescriptionLookup( $termLookup, $langCode );
-		$labelFormatter = new EntityIdLabelFormatter( $labelDescriptionLookup );
 
-		$this->propertyNameFormatter = new EscapingEntityIdFormatter( $labelFormatter, 'htmlspecialchars' );
+		$htmlFormatterFactory = $wikibaseRepo->getEntityIdHtmlLinkFormatterFactory();
+		$this->propertyNameFormatter = $htmlFormatterFactory->getEntityIdFormater( $labelDescriptionLookup );
 
 		$formatterFactory = $wikibaseRepo->getSnakFormatterFactory();
 		$this->detailedSnakFormatter = $formatterFactory->getSnakFormatter( SnakFormatter::FORMAT_HTML_DIFF, $options );

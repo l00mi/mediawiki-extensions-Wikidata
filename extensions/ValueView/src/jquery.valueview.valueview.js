@@ -47,6 +47,7 @@ function expertProxy( fnName ) {
  * @param {string} options.language
  *        Language code of the language the `valueview` shall interact with parsers and
  *        formatters.
+ * @param {string|null} [options.vocabularyLookupApiUrl=null]
  * @param {string|null} [options.dataTypeId=null]
  *        If set, an expert (`jQuery.valueview.Expert`), a parser (`valueParsers.ValueParser`) and a
  *        formatter (`valueFormatters.ValueFormatter`) will be determined from the provided
@@ -182,8 +183,10 @@ $.widget( 'valueview.valueview', PARENT, {
 		dataValueType: null,
 		value: null,
 		language: null,
+		vocabularyLookupApiUrl: null,
 		autoStartEditing: false,
 		parseDelay: 300,
+		messageProvider: null,
 		contentLanguages: null
 	},
 
@@ -554,6 +557,8 @@ $.widget( 'valueview.valueview', PARENT, {
 				this.viewState(),
 				this.viewNotifier(),
 				{
+					language: this.options.language,
+					vocabularyLookupApiUrl: this.options.vocabularyLookupApiUrl || null,
 					contentLanguages: this.options.contentLanguages,
 					messageProvider: this.options.messageProvider
 				}
@@ -580,19 +585,9 @@ $.widget( 'valueview.valueview', PARENT, {
 	draw: function() {
 		var self = this;
 
-		// have native $.Widget functionality add/remove state css classes
-		// (see jQuery.Widget._setOption)
-		PARENT.prototype.option.call( this, 'disabled', this.isDisabled() );
-
-		// add/remove edit mode ui class:
-		var staticModeClass = this.widgetBaseClass + '-instaticmode',
-			editModeClass = this.widgetBaseClass + '-ineditmode';
-
-		if( this.isInEditMode() ) {
-			this.element.addClass( editModeClass ).removeClass( staticModeClass );
-		} else {
-			this.element.addClass( staticModeClass ).removeClass( editModeClass );
-		}
+		this.element
+			.toggleClass( this.widgetBaseClass + '-instaticmode', !this._isInEditMode )
+			.toggleClass( this.widgetBaseClass + '-ineditmode', this._isInEditMode );
 
 		return this.drawContent()
 			.done( function() {
@@ -643,47 +638,6 @@ $.widget( 'valueview.valueview', PARENT, {
 	 */
 	drawStaticContent: function() {
 		this.element.html( this.getFormattedValue() );
-	},
-
-	/**
-	 * @private
-	 *
-	 * @param {boolean} disabledValue
-	 */
-	_setDisabled: function( disabledValue ) {
-		if( this.options.disabled !== disabledValue ) {
-			this.options.disabled = disabledValue;
-			this.draw();
-		}
-	},
-
-	/**
-	 * Marks the `valueview` disabled and triggers re-drawing it.
-	 * Since the visual state should be managed completely by the `draw` method, toggling the css
-	 * classes is done in `draw()` by issuing a call to `jQuery.Widget.option()`.
-	 * @see jQuery.Widget.disable
-	 */
-	disable: function() {
-		this._setDisabled( true );
-	},
-
-	/**
-	 * Marks the `valueview` enabled and triggers re-drawing the `valueview`.
-	 * Since the visual state should be managed completely by the `draw` method, toggling the css
-	 * classes is done in `draw()` by issuing a call to `jQuery.Widget.option()`.
-	 * @see jQuery.Widget.enable
-	 */
-	enable: function() {
-		this._setDisabled( false );
-	},
-
-	/**
-	 * Returns whether the `valueview` is disabled.
-	 *
-	 * @return {boolean}
-	 */
-	isDisabled: function() {
-		return this.option( 'disabled' );
 	},
 
 	/**
@@ -779,7 +733,7 @@ $.widget( 'valueview.valueview', PARENT, {
 			clearTimeout( this._parseTimer );
 		}
 
-		var valueParser = this._instantiateParser( this.valueCharacteristics() );
+		var valueParser = this._instantiateParser( this.valueCharacteristics( 'text/plain' ) );
 
 		self.__lastUpdateValue = rawValue;
 		this._parseTimer = setTimeout( function() {
@@ -906,6 +860,7 @@ $.widget( 'valueview.valueview', PARENT, {
 	_updateTextValue: function() {
 		var self = this,
 			deferred = $.Deferred(),
+			format = 'text/plain',
 			valueFormatter,
 			dataTypeId = this.options.dataTypeId || null,
 			dataValue = this._value;
@@ -916,9 +871,9 @@ $.widget( 'valueview.valueview', PARENT, {
 			return deferred.promise();
 		}
 
-		valueFormatter = this._instantiateFormatter( this.valueCharacteristics() );
+		valueFormatter = this._instantiateFormatter( this.valueCharacteristics( format ) );
 
-		valueFormatter.format( dataValue, dataTypeId, 'text/plain' )
+		valueFormatter.format( dataValue, dataTypeId, format )
 			.done( function( formattedValue, formattedDataValue ) {
 				if( dataValue === formattedDataValue ) {
 					self._textValue = formattedValue;
@@ -1038,14 +993,15 @@ $.widget( 'valueview.valueview', PARENT, {
 	/**
 	 * @see jQuery.valueview.Expert.valueCharacteristics
 	 *
+	 * @param {string} [format='text/html']
 	 * @return {Object}
 	 */
-	valueCharacteristics: function() {
+	valueCharacteristics: function( format ) {
 		if( this._expert ) {
-			return this._expert.valueCharacteristics();
+			return this._expert.valueCharacteristics( format );
 		}
 		if( this._expertConstructor ) {
-			return this._expertConstructor.prototype.valueCharacteristics();
+			return this._expertConstructor.prototype.valueCharacteristics( format );
 		}
 		return {};
 	}

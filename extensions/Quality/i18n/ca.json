@@ -2,13 +2,20 @@
 	"@metadata": {
 		"authors": [
 			"Fitoschido",
-			"Macofe"
+			"Macofe",
+			"F3RaN"
 		]
 	},
+	"wbq-violations-explanations-exceptions": "Si una afirmació és incorrectament etiquetada com un problema de qualitat de dades, els usuaris amb drets privilegiats poden marcar-la com una excepció. Aquestes excepcions no són mostrades per defecte a la llista. Les excepcions existents també poden ser revertides i definides de nou com a problema.",
 	"wbq-violations-group-label": "Grup:",
 	"wbq-violations-type-label": "Tipus:",
 	"wbq-violations-form-select-all": "(tots)",
 	"wbq-violations-exceptions-checkbox-label": "Mostra excepcions",
+	"wbq-violations-submit-button-label": "Mostra les infraccions",
+	"wbq-violations-invalid-entity-id": "L'identificador usat no és vàlid.",
+	"wbq-violations-not-existent-entity": "No existeix cap entitat amb l'identificador seleccionat.",
+	"wbq-violations-invalid-property-id": "L'identificador usat no és vàlid.",
+	"wbq-violations-not-existent-property": "No existeix cap propietat amb l'identificador seleccionat.",
 	"wbq-violations-table-header-entity": "Entitat",
 	"wbq-violations-table-header-constraint-type": "Tipus",
 	"wbq-violations-table-header-updated-at": "Última actualització",
@@ -16,5 +23,9 @@
 	"wbq-violations-table-header-additional-info": "Informació addicional",
 	"wbq-violations-status-exception": "Excepció",
 	"wbq-violations-next-page": "Pàgina següent >>",
-	"wbq-violations-prev-page": "<< Pàgina anterior"
+	"wbq-violations-prev-page": "<< Pàgina anterior",
+	"apihelp-wbqgetviolationmessages-param-entityid": "Identificador d'una entitat amb violacions de dades que haurien de ser reportades.",
+	"apihelp-wbqmodifyviolation-description": "Modifica una específica infracció de dades. Tingueu en compte que només els usuaris amb drets específics poden modificar infraccions.",
+	"apihelp-wbqmodifyviolation-param-status": "El nou estat, que s'ha d'establir per aquesta infracció.",
+	"apihelp-wbqmodifyviolation-examples-violation": "Canviar l'estat de la infracció identificada per part de l'ID restringit i reclamar GUID de la infracció."
 }

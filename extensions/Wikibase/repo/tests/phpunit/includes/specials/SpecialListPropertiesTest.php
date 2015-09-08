@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test;
 
-use DataTypes\DataType;
 use DataTypes\DataTypeFactory;
 use Language;
 use Title;
@@ -10,10 +9,11 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\LanguageNameLookup;
+use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\PropertyInfoStore;
 use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
-use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Repo\Specials\SpecialListProperties;
+use Wikibase\Store\BufferingTermLookup;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialListProperties
@@ -25,6 +25,7 @@ use Wikibase\Repo\Specials\SpecialListProperties;
  *
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
+ * @author Adam Shorland
  */
 class SpecialListPropertiesTest extends SpecialPageTestBase {
 
@@ -37,10 +38,10 @@ class SpecialListPropertiesTest extends SpecialPageTestBase {
 	}
 
 	private function getDataTypeFactory() {
-		$dataTypeFactory = DataTypeFactory::newFromTypes( array(
-			new DataType( 'wikibase-item', 'wikibase-item', array() ),
-			new DataType( 'string', 'string', array() ),
-			new DataType( 'quantity', 'quantity', array() )
+		$dataTypeFactory = new DataTypeFactory( array(
+			'wikibase-item' => 'wikibase-item',
+			'string' => 'string',
+			'quantity' => 'quantity',
 		) );
 
 		return $dataTypeFactory;
@@ -50,8 +51,8 @@ class SpecialListPropertiesTest extends SpecialPageTestBase {
 		$propertyInfoStore = new MockPropertyInfoStore();
 
 		$propertyInfoStore->setPropertyInfo(
-			new PropertyId( 'P123' ),
-			array( PropertyInfoStore::KEY_DATA_TYPE => 'wikibase-item' )
+			new PropertyId( 'P789' ),
+			array( PropertyInfoStore::KEY_DATA_TYPE => 'string' )
 		);
 
 		$propertyInfoStore->setPropertyInfo(
@@ -60,32 +61,33 @@ class SpecialListPropertiesTest extends SpecialPageTestBase {
 		);
 
 		$propertyInfoStore->setPropertyInfo(
-			new PropertyId( 'P789' ),
-			array( PropertyInfoStore::KEY_DATA_TYPE => 'string' )
+			new PropertyId( 'P123' ),
+			array( PropertyInfoStore::KEY_DATA_TYPE => 'wikibase-item' )
 		);
 
 		return $propertyInfoStore;
 	}
 
-	private function getTermLookup() {
-		$termLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\TermLookup' );
-		$termLookup->expects( $this->any() )
+	/**
+	 * @return BufferingTermLookup
+	 */
+	private function getBufferingTermLookup() {
+		$lookup = $this->getMockBuilder( 'Wikibase\Store\BufferingTermLookup' )
+			->disableOriginalConstructor()
+			->getMock();
+		$lookup->expects( $this->any() )
+			->method( 'prefetchTerms' );
+		$lookup->expects( $this->any() )
 			->method( 'getLabels' )
 			->will( $this->returnCallback( function( PropertyId $propertyId ) {
 				return array( 'en' => 'Property with label ' . $propertyId->getSerialization() );
 			} ) );
-
-		return $termLookup;
+		return $lookup;
 	}
 
-	private function getTermBuffer() {
-		$termBuffer = $this->getMock( 'Wikibase\Store\TermBuffer' );
-		$termBuffer->expects( $this->any() )
-			->method( 'prefetchTerms' );
-
-		return $termBuffer;
-	}
-
+	/**
+	 * @return EntityTitleLookup
+	 */
 	private function getEntityTitleLookup() {
 		$entityTitleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
 		$entityTitleLookup->expects( $this->any() )
@@ -106,11 +108,9 @@ class SpecialListPropertiesTest extends SpecialPageTestBase {
 			$this->getDataTypeFactory(),
 			$this->getPropertyInfoStore(),
 			new EntityIdHtmlLinkFormatterFactory( $this->getEntityTitleLookup(), new LanguageNameLookup() ),
-			new LanguageFallbackLabelDescriptionLookupFactory(
-				new LanguageFallbackChainFactory(),
-				$this->getTermLookup(),
-				$this->getTermBuffer()
-			)
+			new LanguageFallbackChainFactory(),
+			$this->getEntityTitleLookup(),
+			$this->getBufferingTermLookup()
 		);
 
 		return $specialPage;
@@ -125,6 +125,16 @@ class SpecialListPropertiesTest extends SpecialPageTestBase {
 		$this->assertContains( 'wikibase-listproperties-summary', $output );
 		$this->assertContains( 'wikibase-listproperties-legend', $output );
 		$this->assertNotContains( 'wikibase-listproperties-invalid-datatype', $output );
+		$this->assertRegExp( '/P123.*P456.*P789/', $output ); // order is relevant
+	}
+
+	public function testOffsetAndLimit() {
+		$request = new \FauxRequest( array( 'limit' => '1', 'offset' => '1' ) );
+		list( $output, ) = $this->executeSpecialPage( '', $request );
+
+		$this->assertNotContains( 'P123', $output );
+		$this->assertContains( 'P456', $output );
+		$this->assertNotContains( 'P789', $output );
 	}
 
 	public function testExecute_empty() {

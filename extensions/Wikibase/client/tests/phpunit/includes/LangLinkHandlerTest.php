@@ -8,9 +8,6 @@ use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
-use Wikibase\Client\ParserOutputDataUpdater;
-use Wikibase\Client\Usage\EntityUsage;
-use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
@@ -86,18 +83,11 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 
 		$siteStore = MockSiteStore::newFromTestSites();
 
-		$parserOutputDataUpdater = new ParserOutputDataUpdater(
-			$this->getOtherProjectsSidebarGeneratorFactory( $otherProjects ),
-			$this->mockRepo,
-			'srwiki'
-		);
-
 		return new LangLinkHandler(
 			$this->getLanguageLinkBadgeDisplay(),
 			new NamespaceChecker( array( NS_TALK ) ),
 			$this->mockRepo,
 			$this->mockRepo,
-			$parserOutputDataUpdater,
 			$siteStore,
 			'srwiki',
 			'wikipedia'
@@ -615,77 +605,22 @@ class LangLinkHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function getInterwikiCodeFromSiteProvider() {
-		$enwiki = MediaWikiSite::newFromGlobalId( 'enwiki' );
+		$enwiki = new MediaWikiSite();
+		$enwiki->setGlobalId( 'enwiki' );
 		$enwiki->setLanguageCode( 'en' );
 
-		$bexold = MediaWikiSite::newFromGlobalId( 'be_x_oldwiki' );
+		$bexold = new MediaWikiSite();
+		$bexold->setGlobalId( 'be_x_oldwiki' );
 		$bexold->setLanguageCode( 'be-x-old' );
 
-		$dewikivoyage = MediaWikiSite::newFromGlobalId( 'dewikivoyage' );
+		$dewikivoyage = new MediaWikiSite();
+		$dewikivoyage->setGlobalId( 'dewikivoyage' );
 		$dewikivoyage->setLanguageCode( 'de' );
 
 		return array(
 			array( $enwiki, 'en' ),
 			array( $bexold, 'be-x-old' ),
 			array( $dewikivoyage, 'de' )
-		);
-	}
-
-	public function testUpdateItemIdProperty() {
-		$parserOutput = new ParserOutput();
-
-		$titleText = 'Foo sr';
-		$title = Title::newFromText( $titleText );
-
-		$this->langLinkHandler->updateItemIdProperty( $title, $parserOutput );
-		$property = $parserOutput->getProperty( 'wikibase_item' );
-
-		$itemId = $this->mockRepo->getItemIdForLink( 'srwiki', $titleText );
-		$this->assertEquals( $itemId->getSerialization(), $property );
-
-		$this->assertUsageTracking( $itemId, EntityUsage::SITELINK_USAGE, $parserOutput );
-	}
-
-	private function assertUsageTracking( ItemId $id, $aspect, ParserOutput $parserOutput ) {
-		$usageAcc = new ParserOutputUsageAccumulator( $parserOutput );
-		$usage = $usageAcc->getUsages();
-		$expected = new EntityUsage( $id, $aspect );
-
-		$this->assertContains( $expected, $usage, '', false, false );
-	}
-
-	public function testUpdateItemIdPropertyForUnconnectedPage() {
-		$parserOutput = new ParserOutput();
-
-		$titleText = 'Foo xx';
-		$title = Title::newFromText( $titleText );
-
-		$this->langLinkHandler->updateItemIdProperty( $title, $parserOutput );
-		$property = $parserOutput->getProperty( 'wikibase_item' );
-
-		$this->assertEquals( false, $property );
-	}
-
-	/**
-	 * @dataProvider updateOtherProjectsLinksDataProvider
-	 */
-	public function testUpdateOtherProjectsLinksData( $expected, $otherProjects, $titleText ) {
-		$langLinkHandler = $this->getLangLinkHandler( $otherProjects );
-
-		$parserOutput = new ParserOutput();
-		$title = Title::newFromText( $titleText );
-
-		$langLinkHandler->updateOtherProjectsLinksData( $title, $parserOutput );
-		$extensionData = $parserOutput->getExtensionData( 'wikibase-otherprojects-sidebar' );
-
-		$this->assertEquals( $expected, $extensionData );
-	}
-
-	public function updateOtherProjectsLinksDataProvider() {
-		return array(
-			array( array( 'project' => 'catswiki' ), array( 'project' => 'catswiki' ), 'Foo sr' ),
-			array( array(), array(), 'Foo sr' ),
-			array( array(), array(), 'Foo xx' )
 		);
 	}
 

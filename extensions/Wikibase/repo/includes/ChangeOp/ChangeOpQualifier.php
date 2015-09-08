@@ -22,25 +22,19 @@ use Wikibase\Summary;
 class ChangeOpQualifier extends ChangeOpBase {
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var string
 	 */
-	protected $statementGuid;
+	private $statementGuid;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var Snak
 	 */
-	protected $snak;
+	private $snak;
 
 	/**
-	 * @since 0.4
-	 *
 	 * @var string
 	 */
-	protected $snakHash;
+	private $snakHash;
 
 	/**
 	 * @var SnakValidator

@@ -1,13 +1,29 @@
 {
-  "@metadata": {
-    "authors": [
-      "Jenniesarina",
-      "Jopparn"
-    ]
-  },
-  "specialpages-group-wikidataquality": "Wikidata-kvalitet",
-  "wikidataquality-checkresult-result-table-header-status": "Status",
-  "wikidataquality-crosscheck": "Dubbelkontrollera med externa databaser",
-  "wikidataquality-crosscheck-instructions-example": "Prova till exempel Q159099 (Nina Hagen) och titta på resultaten.",
-  "wikidataquality-crosscheck-result-table-header-external-source": "Extern källa"
+	"@metadata": {
+		"authors": [
+			"Jenniesarina",
+			"Jopparn",
+			"WikiPhoenix"
+		]
+	},
+	"wbq-violations-entity-id-label": "Enhets-ID:",
+	"wbq-violations-property-id-label": "Egenskaps-ID:",
+	"wbq-violations-group-label": "Grupp:",
+	"wbq-violations-type-label": "Typ:",
+	"wbq-violations-form-select-all": "(alla)",
+	"wbq-violations-exceptions-checkbox-label": "Visa undantag",
+	"wbq-violations-invalid-entity-id": "Angivet entitets-ID är inte giltigt.",
+	"wbq-violations-not-existent-entity": "Entitet med angivet ID finns inte.",
+	"wbq-violations-invalid-property-id": "Angivet egenskaps-ID är inte giltigt.",
+	"wbq-violations-not-existent-property": "Egenskap med angivet ID finns inte.",
+	"wbq-violations-table-header-entity": "Entitet",
+	"wbq-violations-table-header-constraint-type": "Typ",
+	"wbq-violations-table-header-updated-at": "Senaste uppdaterad",
+	"wbq-violations-table-header-status": "Status",
+	"wbq-violations-table-header-additional-info": "Ytterligare information",
+	"wbq-violations-status-unverified": "Overifierad",
+	"wbq-violations-status-exception": "Undantag",
+	"wbq-violations-mark-as-exception": "Märk som undantag",
+	"wbq-violations-next-page": "Nästa sida >>",
+	"wbq-violations-prev-page": "<< Föregående sida"
 }

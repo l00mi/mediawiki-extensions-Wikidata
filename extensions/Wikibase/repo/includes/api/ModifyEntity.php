@@ -16,8 +16,8 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
-use Wikibase\DataModel\Services\EntityId\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
@@ -454,7 +454,7 @@ abstract class ModifyEntity extends ApiBase {
 			$this->flags
 		);
 
-		$this->addToOutput( $entity, $status );
+		$this->addToOutput( $entity, $status, $entityRevId );
 	}
 
 	/**
@@ -499,9 +499,9 @@ abstract class ModifyEntity extends ApiBase {
 		$this->flags |= ( $this->getUser()->isAllowed( 'bot' ) && $params['bot'] ) ? EDIT_FORCE_BOT : 0;
 	}
 
-	protected function addToOutput( Entity $entity, Status $status ) {
+	protected function addToOutput( Entity $entity, Status $status, $oldRevId = null ) {
 		$this->getResultBuilder()->addBasicEntityInformation( $entity->getId(), 'entity' );
-		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'entity' );
+		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'entity', $oldRevId );
 
 		$params = $this->extractRequestParams();
 

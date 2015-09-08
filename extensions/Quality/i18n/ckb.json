@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": [
+			"Pirehelokan"
+		]
+	},
+	"wbq-violations-submit-button-label": "سەرپێچییەکان پیشان بدە",
+	"wbq-violations-invalid-entity-id": "پێناسەی پێشکەشکراو بۆ ئەم شتە دروست نیە.",
+	"wbq-violations-not-existent-entity": "ھیچ شتێک بە ئەم پێناسەیەی کە پێشکەشکراوە بوونی نیە.",
+	"wbq-violations-invalid-property-id": "پێناسەی پێشکەشکراو دروست نیە."
+}

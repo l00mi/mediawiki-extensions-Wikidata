@@ -2,9 +2,6 @@
 
 namespace Wikibase\DataModel\Tests\Entity;
 
-use Diff\DiffOp\Diff\Diff;
-use Diff\DiffOp\DiffOpAdd;
-use Diff\DiffOp\DiffOpRemove;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Term\AliasGroup;
@@ -380,7 +377,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$item->getFingerprint()->setLabel( 'en', 'foo' );
 		$item->getFingerprint()->setLabel( 'de', 'bar' );
 
-		$newItem = unserialize( serialize( $item ) );
+		$newItem = $item->copy();
 
 		$this->assertTrue( $newItem->getFingerprint()->getLabels()->hasTermForLanguage( 'en' ) );
 		$this->assertTrue( $newItem->getFingerprint()->getLabels()->hasTermForLanguage( 'de' ) );

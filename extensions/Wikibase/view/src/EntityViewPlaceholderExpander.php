@@ -9,7 +9,7 @@ use RuntimeException;
 use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Services\EntityId\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -266,8 +266,7 @@ class EntityViewPlaceholderExpander {
 		$html = $entityTermsView->getEntityTermsForLanguageListView(
 			$entity->getFingerprint(),
 			$languages,
-			$this->targetPage,
-			$this->user->getOption( 'wikibase-entitytermsview-showEntitytermslistview' )
+			$this->targetPage
 		);
 
 		return $html;
