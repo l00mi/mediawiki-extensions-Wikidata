@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "33d7c5d77c9ba0ebac425c537c06d6cc",
+    "hash": "b773d2978bb9441065f4be59fec020fd",
     "packages": [
         {
             "name": "composer/installers",
@@ -1128,16 +1128,16 @@
         },
         {
             "name": "wikibase/data-model-services",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelServices.git",
-                "reference": "57d351d12955185cf98749bdfd54ed25d79e5eb0"
+                "reference": "ceafeaec6c61cb8ad2ca5eb46182d5a40a3ca16e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/57d351d12955185cf98749bdfd54ed25d79e5eb0",
-                "reference": "57d351d12955185cf98749bdfd54ed25d79e5eb0",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/ceafeaec6c61cb8ad2ca5eb46182d5a40a3ca16e",
+                "reference": "ceafeaec6c61cb8ad2ca5eb46182d5a40a3ca16e",
                 "shasum": ""
             },
             "require": {
@@ -1179,7 +1179,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-09-02 14:57:00"
+            "time": "2015-09-10 11:56:58"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1384,14 +1384,8 @@
             "version": "dev-wmf/1.26wmf22",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "989623de470ec9017d2d1d1c50221162bd95be87"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/989623de470ec9017d2d1d1c50221162bd95be87",
-                "reference": "989623de470ec9017d2d1d1c50221162bd95be87",
-                "shasum": ""
+                "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
+                "reference": "e38851b8fccc2ed0944738224c0545054269e806"
             },
             "require": {
                 "data-values/common": "~0.3.0",
@@ -1410,7 +1404,7 @@
                 "wikibase/data-model": "~4.0",
                 "wikibase/data-model-javascript": "^1.0.2",
                 "wikibase/data-model-serialization": "~2.0",
-                "wikibase/data-model-services": "~2.0",
+                "wikibase/data-model-services": "^2.0.1",
                 "wikibase/internal-serialization": "~2.0",
                 "wikibase/javascript-api": "~1.0",
                 "wikibase/serialization-javascript": "~2.0"
@@ -1441,7 +1435,17 @@
                     "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "test": [
+                    "composer cs"
+                ],
+                "cs": [
+                    "composer phpcs"
+                ],
+                "phpcs": [
+                    "vendor/bin/phpcs -sp --standard=phpcs.xml --extensions=php --ignore=extensions/ValueView,vendor ."
+                ]
+            },
             "license": [
                 "GPL-2.0+"
             ],
@@ -1459,7 +1463,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-09-09 08:40:20"
+            "support": {
+                "issues": "https://phabricator.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata"
+            },
+            "time": "2015-09-10 17:53:20"
         },
         {
             "name": "wikibase/wikimedia-badges",
