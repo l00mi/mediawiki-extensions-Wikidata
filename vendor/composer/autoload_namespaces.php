@@ -6,9 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src'),
-    'ValueParsers\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src'),
-    'ValueFormatters\\' => array($vendorDir . '/data-values/interfaces/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src'),
-    'DataValues\\' => array($vendorDir . '/data-values/data-values/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src'),
+    'ValueParsers\\' => array($vendorDir . '/data-values/number/src', $vendorDir . '/data-values/time/src'),
+    'ValueFormatters\\' => array($vendorDir . '/data-values/number/src', $vendorDir . '/data-values/time/src'),
+    'DataValues\\' => array($vendorDir . '/data-values/data-values/src', $vendorDir . '/data-values/number/src', $vendorDir . '/data-values/time/src'),
     'Composer\\Installers\\' => array($vendorDir . '/composer/installers/src'),
 );

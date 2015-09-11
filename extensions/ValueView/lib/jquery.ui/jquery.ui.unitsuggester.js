@@ -1,10 +1,10 @@
-( function( $, util ) {
+( function( $ ) {
 	'use strict';
 
 var PARENT = $.ui.suggester;
 
 /**
- * @class jQuery.ui.languagesuggester
+ * @class jQuery.ui.unitsuggester
  * @extends jQuery.ui.suggester
  * @licence GNU GPL v2+
  * @author Thiemo Mättig
@@ -12,8 +12,7 @@ var PARENT = $.ui.suggester;
  *
  * @constructor
  */
-
-$.widget( 'wikibase.unitsuggester', PARENT, {
+$.widget( 'ui.unitsuggester', PARENT, {
 
 	/**
 	 * Options
@@ -51,6 +50,7 @@ $.widget( 'wikibase.unitsuggester', PARENT, {
 	_create: function() {
 		var self = this;
 
+		this._selectedUrl = this.options.defaultSelectedUrl;
 		this._cache = {};
 		this.options.source = this._initDefaultSource();
 
@@ -247,11 +247,11 @@ $.widget( 'wikibase.unitsuggester', PARENT, {
 		$( this.options.menu )
 		.off( 'selected.suggester' )
 		.on( 'selected.unitsuggester', function( event, item ) {
-				self._term = item.getValue();
-				self._selectedUrl = item._link;
-				self.element.val( item.getValue() );
-				self._close();
-				self._trigger( 'change' );
+			self._term = item.getValue();
+			self._selectedUrl = item._link;
+			self.element.val( item.getValue() );
+			self._close();
+			self._trigger( 'change' );
 		} );
 
 		this.options.menu.element
@@ -306,4 +306,4 @@ $.widget( 'wikibase.unitsuggester', PARENT, {
 	}
 } );
 
-}( jQuery, util ) );
+}( jQuery ) );

@@ -31,7 +31,32 @@ class QuantityParserTest extends StringValueParserTest {
 	 * @return QuantityParser
 	 */
 	protected function getInstance() {
-		return new QuantityParser();
+		return $this->getQuantityParser();
+	}
+
+	/**
+	 * @param ParserOptions|null $options
+	 *
+	 * @return QuantityParser
+	 */
+	private function getQuantityParser( ParserOptions $options = null ) {
+		$unlocalizer = $this->getMock( 'ValueParsers\NumberUnlocalizer' );
+
+		$unlocalizer->expects( $this->any() )
+			->method( 'unlocalizeNumber' )
+			->will( $this->returnArgument( 0 ) );
+
+		// The most minimal regex that accepts all the test cases below.
+		$unlocalizer->expects( $this->any() )
+			->method( 'getNumberRegex' )
+			->will( $this->returnValue( '[-+]? *(?:\d+\.\d*|\.?\d+)(?:e-?\d+)?' ) );
+
+		// This minimal regex supports % and letters, optionally followed by a digit.
+		$unlocalizer->expects( $this->any() )
+			->method( 'getUnitRegex' )
+			->will( $this->returnValue( '[\p{L}%]+[\d³]?' ) );
+
+		return new QuantityParser( $options, $unlocalizer );
 	}
 
 	/**
@@ -190,7 +215,7 @@ class QuantityParserTest extends StringValueParserTest {
 
 		$unlocalizer->expects( $this->any() )
 			->method( 'getNumberRegex' )
-			->will(  $this->returnValue( '[0-9 ]+(?:,[0-9]+)?' ) );
+			->will(  $this->returnValue( '[\d ]+(?:,\d+)?' ) );
 
 		$unlocalizer->expects( $this->any() )
 			->method( 'getUnitRegex' )
@@ -207,21 +232,23 @@ class QuantityParserTest extends StringValueParserTest {
 	/**
 	 * @dataProvider unitOptionProvider
 	 */
-	public function testUnitOption( $value, $unit ) {
+	public function testUnitOption( $value, $unit, $expected ) {
 		$options = new ParserOptions();
 		$options->setOption( QuantityParser::OPT_UNIT, $unit );
 
-		$parser = new QuantityParser( $options );
+		$parser = $this->getQuantityParser( $options );
 
 		$quantity = $parser->parse( $value );
-		$this->assertEquals( $unit, $quantity->getUnit() );
+		$this->assertEquals( $expected, $quantity->getUnit() );
 	}
 
 	public function unitOptionProvider() {
 		return array(
-			array( '17', 'kittens' ),
-			array( '17 kittens', 'kittens' ),
-			array( '17m', 'm' ),
+			array( '17 kittens', null, 'kittens' ),
+			array( '17', 'kittens', 'kittens' ),
+			array( '17 kittens', 'kittens', 'kittens' ),
+			array( '17m', 'm', 'm' ),
+			array( ' 17 ', ' http://concept.uri ', 'http://concept.uri' ),
 		);
 	}
 
@@ -232,7 +259,7 @@ class QuantityParserTest extends StringValueParserTest {
 		$options = new ParserOptions();
 		$options->setOption( QuantityParser::OPT_UNIT, $unit );
 
-		$parser = new QuantityParser( $options );
+		$parser = $this->getQuantityParser( $options );
 
 		$this->setExpectedException( 'ValueParsers\ParseException' );
 		$parser->parse( $value );
