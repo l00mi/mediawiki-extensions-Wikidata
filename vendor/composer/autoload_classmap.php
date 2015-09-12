@@ -249,8 +249,6 @@ return array(
     'WikibaseQuality\\ConstraintReport\\ConstraintCheck\\Result\\CheckResult' => $baseDir . '/extensions/Constraints/includes/ConstraintCheck/Result/CheckResult.php',
     'WikibaseQuality\\ConstraintReport\\ConstraintReportFactory' => $baseDir . '/extensions/Constraints/includes/ConstraintReportFactory.php',
     'WikibaseQuality\\ConstraintReport\\ConstraintRepository' => $baseDir . '/extensions/Constraints/includes/ConstraintRepository.php',
-    'WikibaseQuality\\ConstraintReport\\EvaluateConstraintReportJob' => $baseDir . '/extensions/Constraints/includes/EvaluateConstraintReportJob.php',
-    'WikibaseQuality\\ConstraintReport\\EvaluateConstraintReportJobService' => $baseDir . '/extensions/Constraints/includes/EvaluateConstraintReportJobService.php',
     'WikibaseQuality\\ConstraintReport\\Maintenance\\UpdateConstraintsTable' => $baseDir . '/extensions/Constraints/maintenance/UpdateConstraintsTable.php',
     'WikibaseQuality\\ConstraintReport\\Specials\\SpecialConstraintReport' => $baseDir . '/extensions/Constraints/specials/SpecialConstraintReport.php',
     'WikibaseQuality\\Html\\HtmlTableBuilder' => $baseDir . '/extensions/Quality/includes/Html/HtmlTableBuilder.php',
