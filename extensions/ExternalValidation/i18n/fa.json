@@ -1,0 +1,34 @@
+{
+	"@metadata": {
+		"authors": [
+			"Reza1615",
+			"Leyth",
+			"فلورانس"
+		]
+	},
+	"wbqev-crosscheck": "بررسی دوطرفه با پایگاه‌های داده دیگر",
+	"wbqev-crosscheck-form-submit-label": "بررسی",
+	"wbqev-crosscheck-invalid-entity-id": "شناسهٔ نادرست ورودی!",
+	"wbqev-crosscheck-not-existent-entity": "آیتم وجود ندارد!",
+	"wbqev-crosscheck-result-headline": "نتیجه برای $1",
+	"wbqev-crosscheck-result-table-header-references": "منابع",
+	"wbqev-crosscheck-result-table-header-local-value": "مقدار ویکی‌داده",
+	"wbqev-crosscheck-result-table-header-external-value": "مقدارهای بیرونی",
+	"wbqev-crosscheck-result-table-header-external-source": "منبع بیرونی",
+	"wbqev-crosscheck-result-table-header-status": "وضعیت",
+	"wbqev-crosscheck-status-match": "مطابقت",
+	"wbqev-crosscheck-status-partial-match": "مطابقت جزئی",
+	"wbqev-crosscheck-status-mismatch": "عدم مطابقت",
+	"wbqev-crosscheck-status-references-missing": "غایب",
+	"wbqev-crosscheck-status-references-stated": "وضعیت‌ها",
+	"wbqev-externaldbs": "فهرست پایگاه‌های داده بیرونی",
+	"wbqev-externaldbs-overview-headline": "پایگاه‌های داده",
+	"wbqev-externaldbs-name": "نام",
+	"wbqev-externaldbs-id": "شناسه",
+	"wbqev-externaldbs-import-date": "درون‌ریزی داده",
+	"wbqev-externaldbs-language": "زبان داده",
+	"wbqev-externaldbs-source-urls": "نشانی اینترنتی مبدأ",
+	"wbqev-externaldbs-size": "اندازه",
+	"wbqev-externaldbs-license": "مجوز",
+	"apihelp-wbqevcrosscheck-examples-5": "اجرای بررسی دوطرفه با GUID Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F."
+}

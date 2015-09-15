@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+			"Nistha.aslp",
+			"Metalhead64"
+		]
+	},
+	"wbqev-desc": "Sub extension for WikibaseQuality extension that checks statements against external data sources."
+}

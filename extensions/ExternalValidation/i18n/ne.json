@@ -1,0 +1,34 @@
+{
+	"@metadata": {
+		"authors": [
+			"बिप्लब आनन्द",
+			"Nirjal stha"
+		]
+	},
+	"wbqev-crosscheck": "बाह्य डाटाबेसहरूसँग छड्के जाँच गर्ने",
+	"wbqev-crosscheck-form-entityid-placeholder": "क्युएक्सएक्स",
+	"wbqev-crosscheck-form-submit-label": "जाँच",
+	"wbqev-crosscheck-invalid-entity-id": "अवैध निकाय परिचय!",
+	"wbqev-crosscheck-not-existent-entity": "निकाय अवस्थित छैन !",
+	"wbqev-crosscheck-result-headline": "$1 को परिणाम",
+	"wbqev-crosscheck-result-table-header-references": "सन्दर्भ सामग्रीहरू",
+	"wbqev-crosscheck-result-table-header-local-value": "विकिडाटा अंक",
+	"wbqev-crosscheck-result-table-header-external-value": "बाह्य अंकहरू",
+	"wbqev-crosscheck-result-table-header-external-source": "बाह्य श्रोत",
+	"wbqev-crosscheck-result-table-header-status": "स्थिति",
+	"wbqev-crosscheck-status-match": "मिलान",
+	"wbqev-crosscheck-status-partial-match": "आंशिक मिलान",
+	"wbqev-crosscheck-status-mismatch": "अमेल",
+	"wbqev-crosscheck-status-references-missing": "छुटेको",
+	"wbqev-crosscheck-status-references-stated": "उल्लेख गरिएको",
+	"wbqev-externaldbs": "बाह्य डाटाबेसहरूको सूची",
+	"wbqev-externaldbs-overview-headline": "डाटाबेसहरू",
+	"wbqev-externaldbs-name": "नाम",
+	"wbqev-externaldbs-id": "आईडी",
+	"wbqev-externaldbs-import-date": "मिति आयात गर्नुहोस्",
+	"wbqev-externaldbs-language": "डाटा भाषा",
+	"wbqev-externaldbs-source-urls": "स्रोतको वेब ठेगानाहरू",
+	"wbqev-externaldbs-size": "आकार",
+	"wbqev-externaldbs-license": "अनुमतिपत्र",
+	"wbqev-externaldbs-no-databases": "छड्के जाँचको लागी बाह्य डाटाबेस उपलब्ध नभएको ।"
+}

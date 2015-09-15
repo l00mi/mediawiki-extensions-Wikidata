@@ -1,0 +1,32 @@
+{
+	"@metadata": {
+		"authors": [
+			"Mariya",
+			"Дмитрий",
+			"Okras"
+		]
+	},
+	"wbqev-crosscheck-form-submit-label": "Проверить",
+	"wbqev-crosscheck-invalid-entity-id": "Недопустимый идентификатор!",
+	"wbqev-crosscheck-not-existent-entity": "Объект не существует!",
+	"wbqev-crosscheck-result-headline": "Результат для",
+	"wbqev-crosscheck-result-table-header-references": "Примечания",
+	"wbqev-crosscheck-result-table-header-local-value": "Значение Wikidata",
+	"wbqev-crosscheck-result-table-header-external-value": "Внешние значения",
+	"wbqev-crosscheck-result-table-header-external-source": "Внешний источник",
+	"wbqev-crosscheck-result-table-header-status": "Состояние",
+	"wbqev-crosscheck-status-match": "Соответствие",
+	"wbqev-crosscheck-status-partial-match": "Возможное совпадение",
+	"wbqev-crosscheck-status-mismatch": "Несоответствие",
+	"wbqev-crosscheck-status-references-missing": "отсутствует",
+	"wbqev-crosscheck-status-references-stated": "состояния",
+	"wbqev-externaldbs": "Список внешних баз данных",
+	"wbqev-externaldbs-overview-headline": "Базы данных",
+	"wbqev-externaldbs-name": "Название",
+	"wbqev-externaldbs-id": "Id",
+	"wbqev-externaldbs-import-date": "Дата импорта",
+	"wbqev-externaldbs-language": "Язык данных",
+	"wbqev-externaldbs-source-urls": "Исходные URL-адреса",
+	"wbqev-externaldbs-size": "Размер",
+	"wbqev-externaldbs-license": "Лицензия"
+}

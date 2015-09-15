@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": [
+			"赤城。",
+			"Otokoume",
+			"Sujiniku",
+			"Metalhead64"
+		]
+	},
+	"wbqev-desc": "対応する情報外部データベースとのクロスチェック・データ",
+	"wbqev-crosscheck": "外部データベースとのクロス・チェック",
+	"wbqev-crosscheck-explanation-general": "この特別ページは、ウィキデータと外部データベースにある項目との照らし合わせを行います。特別ページで使用するデータベースを確認することができます。",
+	"wbqev-externaldbs-id": "ID",
+	"wbqev-externaldbs-source-urls": "ソースURL",
+	"wbqev-violation-short-message": "この値は、$1 の値とは一致しません。詳細については、アイコンをクリックしてください。",
+	"wbqev-violation-long-message-solve-issue": "この問題を解決するために、どちらの値が正しいを確認して、注釈を追加ください。"
+}

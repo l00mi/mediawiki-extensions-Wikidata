@@ -1,0 +1,17 @@
+{
+  "id": "Q4",
+  "type": "item",
+  "claims": {
+    "P227": [
+      {
+        "id": "Q4$9945c3e4-4581-42e0-b2e5-9e34fac1b581",
+        "mainsnak": {
+          "snaktype": "novalue",
+          "property": "P227"
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ]
+  }
+}

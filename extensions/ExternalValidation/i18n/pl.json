@@ -1,0 +1,39 @@
+{
+	"@metadata": {
+		"authors": [
+			"Chrumps",
+			"Devwebtel"
+		]
+	},
+	"wbqev-crosscheck": "Weryfikacja za pomocą zewnętrznych baz danych",
+	"wbqev-crosscheck-explanation-general": "Ta strona specjalna przeprowadza weryfikację pomiędzy elementami w Wikidanych i zewnętrznymi bazami danych. Na stronie specjalnej możesz sprawdzić, których używamy baz danych.",
+	"wbqev-crosscheck-form-submit-label": "Sprawdź",
+	"wbqev-crosscheck-not-existent-entity": "Obiekt nie istnieje!",
+	"wbqev-crosscheck-result-headline": "Wynik dla",
+	"wbqev-crosscheck-empty-result": "Wprowadzona encja nie ma deklaracji, które mogą zostać zweryfikowane za pomocą obsługiwanej bazy danych.",
+	"wbqev-crosscheck-result-table-header-references": "Przypisy",
+	"wbqev-crosscheck-result-table-header-local-value": "Wartość w Wikidanych",
+	"wbqev-crosscheck-result-table-header-external-value": "Wartości zewnętrzne",
+	"wbqev-crosscheck-result-table-header-external-source": "Źródło zewnętrzne",
+	"wbqev-crosscheck-result-table-header-status": "Status",
+	"wbqev-crosscheck-status-match": "Zgodność",
+	"wbqev-crosscheck-status-partial-match": "Możliwe dopasowanie",
+	"wbqev-crosscheck-status-mismatch": "Niezgodność",
+	"wbqev-crosscheck-status-references-missing": "brak",
+	"wbqev-externaldbs": "Lista zewnętrznych baz danych",
+	"wbqev-externaldbs-overview-headline": "Bazy danych",
+	"wbqev-externaldbs-name": "Nazwa",
+	"wbqev-externaldbs-id": "Identyfikator",
+	"wbqev-externaldbs-import-date": "Data importu",
+	"wbqev-externaldbs-language": "Język danych",
+	"wbqev-externaldbs-source-urls": "Źródłowy adresy URL",
+	"wbqev-externaldbs-size": "Rozmiar",
+	"wbqev-externaldbs-license": "Licencja",
+	"apihelp-wbqevcrosscheck-examples-3": "Uruchom weryfikację dla wszystkich deklaracji elementów Q76 i Q567, które wykorzystują właściwość P19.",
+	"apihelp-wbqevcrosscheck-examples-4": "Uruchom weryfikację dla wszystkich deklaracji elementów Q76 i Q567, które wykorzystują właściwość P19 lub P31.",
+	"wbqev-violation-header-external-source": "Źródło zewnętrzne:",
+	"wbqev-violation-header-local-value": "Wartość w Wikidanych:",
+	"wbqev-violation-header-external-values": "Wartości zewnętrzne:",
+	"wbqev-violation-short-message": "Ta wartość nie odpowiada wartości w $1. Proszę kliknąć na ikonę, aby uzyskać więcej informacji.",
+	"wbqev-violation-mark-as-exception": "Oznacz jako wyjątek"
+}

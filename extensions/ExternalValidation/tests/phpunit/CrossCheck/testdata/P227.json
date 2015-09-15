@@ -1,0 +1,26 @@
+{
+  "id": "P227",
+  "type": "property",
+  "claims": {
+    "P31": [
+      {
+        "id": "P227$34f342ef-42b4-fb34-343e-abc05adf3512",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datatype": "wikibase-item",
+          "datavalue": {
+            "value": {
+              "entity-type": "item",
+              "numeric-id": 19847637
+            },
+            "type": "wikibase-entityid"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ]
+  },
+  "datatype": "string"
+}

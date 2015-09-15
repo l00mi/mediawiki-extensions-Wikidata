@@ -18,6 +18,9 @@ module.exports = function ( grunt ) {
 
 		composer.require["wikibase/wikibase"] = 'dev-' + branch;
 
+		// Don't include in deployment builds while security review is pending.
+		delete composer.require["wikibase/external-validation"];
+
 		delete composer.config["github-oauth"];
 		composer.config["autoloader-suffix"] = autoloadSuffix( branch );
 

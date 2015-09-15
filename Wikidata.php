@@ -13,6 +13,7 @@ if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
 	$wmgUseWikibaseRepo = true;
 	$wmgUseWikibaseClient = true;
 	$wmgUseWikibaseQuality = true;
+	$wmgUseWikibaseQualityExternalValidation = true;
 }
 
 // no magic, use wmf configs instead to control which entry points to load
@@ -34,6 +35,12 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 	if ( !empty( $wmgUseWikibaseQuality ) ) {
 		include_once "$wgWikidataBaseDir/extensions/Quality/WikibaseQuality.php";
 		include_once "$wgWikidataBaseDir/extensions/Constraints/WikibaseQualityConstraints.php";
+
+		// @note wikibase/external-validation is removed from composer.json for
+		// deployment builds, during the 'branch' grunt command. (pending security review)
+		if ( !empty( $wmgUseWikibaseQualityExternalValidation ) ) {
+			include_once "$wgWikidataBaseDir/extensions/ExternalValidation/WikibaseQualityExternalValidation.php";
+		}
 	}
 }
 

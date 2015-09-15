@@ -1,0 +1,123 @@
+{
+  "id": "Q1",
+  "type": "item",
+  "claims": {
+    "P1": [
+      {
+        "id": "Q1$c0f25a6f-9e33-41c8-be34-c86a730ff30b",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P1",
+          "datatype": "string",
+          "datavalue": {
+            "value": "foo",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      },
+      {
+        "id": "Q1$dd6dcfc9-55e2-4be6-b70c-d22f20f398b7",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P1",
+          "datatype": "string",
+          "datavalue": {
+            "value": "bar",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ],
+    "P2": [
+      {
+        "id": "Q1$01636a9a-97a5-478e-bf55-5d9a569c7ce5",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P2",
+          "datatype": "string",
+          "datavalue": {
+            "value": "foobar",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ],
+    "P3": [
+      {
+        "id": "Q1$27ba9958-7151-4673-8956-f8f1d8648d1e",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P3",
+          "datatype": "string",
+          "datavalue": {
+            "value": "fubar",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      },
+      {
+        "id": "Q1$91f37b64-5ceb-4639-affe-807e871d181c",
+        "mainsnak": {
+          "snaktype": "novalue",
+          "property": "P3"
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ],
+    "P4": [
+      {
+        "id": "Q1$4575e0f2-39bf-4256-a08e-36861930119c",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P4",
+          "datatype": "string",
+          "datavalue": {
+            "value": "foobar",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      },
+      {
+        "id": "Q1$035ceedb-2982-4a34-8c7c-36c766cfcc62",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P4",
+          "datatype": "string",
+          "datavalue": {
+            "value": "foobar",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ],
+    "P227": [
+      {
+        "id": "Q1$45ff2dd8-05d7-4952-a94d-1f24aaebff78",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P227",
+          "datatype": "string",
+          "datavalue": {
+            "value": "119033364",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ]
+  }
+}

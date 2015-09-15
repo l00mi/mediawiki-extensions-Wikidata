@@ -1,0 +1,31 @@
+{
+	"@metadata": {
+		"authors": [
+			"Vitorvicentevalente",
+			"Macofe"
+		]
+	},
+	"wbqev-crosscheck-explanation-general": "Esta página especial executa verificações cruzadas entre os itens no Wikidata e bases de dados externas. Pode verificar as bases de dados que utilizamos na página especial",
+	"wbqev-crosscheck-form-entityid-label": "ID do item:",
+	"wbqev-crosscheck-form-submit-label": "Verificar",
+	"wbqev-crosscheck-not-existent-entity": "Entidade inexistente!",
+	"wbqev-crosscheck-result-headline": "Resultado para",
+	"wbqev-crosscheck-result-table-header-references": "Referências",
+	"wbqev-crosscheck-result-table-header-external-value": "Valores externos",
+	"wbqev-crosscheck-result-table-header-status": "Estado",
+	"wbqev-crosscheck-status-match": "Correspondência",
+	"wbqev-crosscheck-status-partial-match": "Potencial correspondência",
+	"wbqev-crosscheck-status-references-missing": "em falta",
+	"wbqev-externaldbs": "Lista de bases de dados externas",
+	"wbqev-externaldbs-overview-headline": "Bases de dados",
+	"wbqev-externaldbs-name": "Nome",
+	"wbqev-externaldbs-id": "ID",
+	"wbqev-externaldbs-size": "Tamanho",
+	"wbqev-externaldbs-license": "Licença",
+	"wbq-subextension-name-wbqev": "Validação externa",
+	"wbqev-violation-header-external-values": "Valores externos:",
+	"wbqev-violation-short-message": "Este valor não coincide com o apresentado em $1. Por favor, clique no ícone para mais informação.",
+	"wbqev-violation-long-message-external-values": "{{PLURAL:$2|O valor definido|Os valores definidos}} na fonte externa {{PLURAL:$2|é|são}} $1.",
+	"wbqev-violation-long-message-solve-issue": "Para resolver este problema, por favor, verifique atentamente qual o valor correto e adicione uma referência.",
+	"wbqev-violation-mark-as-exception": "Marcar como exceção"
+}

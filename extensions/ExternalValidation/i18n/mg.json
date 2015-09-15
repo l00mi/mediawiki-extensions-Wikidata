@@ -1,0 +1,26 @@
+{
+	"@metadata": {
+		"authors": [
+			"Jagwar"
+		]
+	},
+	"wikidataquality-crosscheck": "Hanao cross-check amin'ny banky angona ivelany",
+	"wikidataquality-crosscheck-instructions": "Mampidira IDn-javatra ary aoka izy hanao cross-check amin'ny GND.",
+	"wikidataquality-crosscheck-instructions-example": "Andramo ohatra Q159099 (Nina Hagen) ary jereo ny valiny.",
+	"wikidataquality-crosscheck-empty-result": "Tsy manana laza izay afaka anaovana cross-check amin'ny banky angona zaka ilay zavatra natsovoka.",
+	"wikidataquality-crosscheck-result-table-header-local-value": "Sanda Wikidata",
+	"wikidataquality-crosscheck-result-table-header-external-value": "Sanda Ivelany",
+	"wikidataquality-crosscheck-result-table-header-external-source": "Loharano ivelany",
+	"wikidataquality-externaldbs": "Lisitry ny banky angona ivelany",
+	"wikidataquality-externaldbs-instructions": "Voalisitra eo ambany ny banky angona rehtra izay zaka ho an'ny cross-check amin'ny zavatra Wikidata.",
+	"wikidataquality-externaldbs-overview-headline": "Banky angona",
+	"wikidataquality-externaldbs-name": "Anarana",
+	"wikidataquality-externaldbs-import-date": "Daty nampidirana",
+	"wikidataquality-externaldbs-language": "Fitenin'ny angona",
+	"wikidataquality-externaldbs-source-urls": "URL loharano",
+	"wikidataquality-externaldbs-size": "Habe",
+	"wikidataquality-externaldbs-license": "Lisansa",
+	"wikidataquality-externaldbs-no-databases": "Tsy misy banky angona ivelany azo ampiasaina ho an'ny cross-check.",
+	"apihelp-wdqacrosscheck-description": "Module API hanaovana cross-check ny zavatra Wikibase amin'ny angona ivelany",
+	"apihelp-wdqacrosscheck-param-entities": "Famantarana ny zavatra tokony hanaovana cross-check. Ilaina io raha tsy misy laza hafa nomena."
+}

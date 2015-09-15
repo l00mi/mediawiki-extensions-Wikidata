@@ -1,0 +1,25 @@
+{
+	"@metadata": {
+		"authors": [
+			"Roonyh",
+			"Susith Chandira Gts",
+			"Pradeepmaduranga"
+		]
+	},
+	"wbqev-crosscheck": "බාහිර දත්ත ගබඩාවන් සමග හරස්-පරීක්ෂා කරන්න",
+	"wbqev-crosscheck-form-submit-label": "පරික්ෂා කරන්න",
+	"wbqev-crosscheck-result-headline": "සදහා ප්‍රතිඵල",
+	"wbqev-crosscheck-result-table-header-external-source": "බාහිර මූලාශ්‍රය",
+	"wbqev-crosscheck-result-table-header-status": "තත්ත්වය",
+	"wbqev-crosscheck-status-match": "ගළපන්න",
+	"wbqev-crosscheck-status-partial-match": "අර්ධ තරගය",
+	"wbqev-externaldbs-overview-headline": "දත්ත ගබඩාවන්",
+	"wbqev-externaldbs-name": "නම",
+	"wbqev-externaldbs-id": "හැඳුනුම",
+	"wbqev-externaldbs-import-date": "ආයාත දිනය",
+	"wbqev-externaldbs-language": "දත්ත භාෂාව",
+	"wbqev-externaldbs-source-urls": "මූලාශ්‍ර URL ලිපින:",
+	"wbqev-externaldbs-size": "ප්‍රමාණය",
+	"wbqev-externaldbs-license": "බලපත්‍රය",
+	"wbqev-externaldbs-no-databases": "හරස් පරීක්ෂා සඳහා බාහිර දත්ත ගබඩාවන් නැත."
+}

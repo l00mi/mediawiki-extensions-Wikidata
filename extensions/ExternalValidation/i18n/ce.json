@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"Умар"
+		]
+	},
+	"wbqev-crosscheck-form-submit-label": "Хьажа",
+	"wbqev-crosscheck-result-table-header-references": "Хьажоргаш",
+	"wbqev-crosscheck-result-table-header-local-value": "Викихаамийн билгало",
+	"wbqev-crosscheck-result-table-header-external-source": "Арахьара хьост",
+	"wbqev-crosscheck-result-table-header-status": "Статус",
+	"wbqev-crosscheck-status-references-stated": "аьлла",
+	"wbqev-externaldbs-overview-headline": "Хаамийн база",
+	"wbqev-externaldbs-name": "ЦӀе",
+	"wbqev-externaldbs-id": "ID",
+	"wbqev-externaldbs-source-urls": "ДӀадолалун URL-адрес",
+	"wbqev-externaldbs-size": "Барам",
+	"wbqev-violation-header-external-source": "Арахьара хьост:"
+}

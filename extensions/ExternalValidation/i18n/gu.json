@@ -1,0 +1,15 @@
+{
+	"@metadata": {
+		"authors": [
+			"KartikMistry",
+			"Ashok modhvadia"
+		]
+	},
+	"wbqev-crosscheck-result-table-header-references": "સંદર્ભો",
+	"wbqev-crosscheck-result-table-header-local-value": "વિકિડેટા કિંમત",
+	"wbqev-crosscheck-result-table-header-external-source": "બાહ્ય સ્રોત",
+	"wbqev-externaldbs-overview-headline": "ડેટાબેઝ",
+	"wbqev-externaldbs-name": "નામ",
+	"wbqev-externaldbs-size": "માપ",
+	"wbqev-externaldbs-license": "લાયસન્સ"
+}

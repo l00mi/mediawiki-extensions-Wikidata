@@ -1,0 +1,66 @@
+{
+  "id": "Q2",
+  "type": "item",
+  "claims": {
+    "P1": [
+      {
+        "id": "Q2$0adcfe9e-cda1-4f74-bc98-433150e49b53",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P1",
+          "datatype": "string",
+          "datavalue": {
+            "value": "foobar",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      },
+      {
+        "id": "Q2$07c00375-1be7-43a6-ac97-32770f2bb5ac",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P1",
+          "datatype": "string",
+          "datavalue": {
+            "value": "bar",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ],
+    "P227": [
+      {
+        "id": "Q2$bafab2e3-ee12-4d61-a482-1e8f322135fc",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P227",
+          "datatype": "string",
+          "datavalue": {
+            "value": "119033364",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      },
+      {
+        "id": "Q2$89d68786-17dc-4315-8173-721522cadef2",
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P227",
+          "datatype": "string",
+          "datavalue": {
+            "value": "121649091",
+            "type": "string"
+          }
+        },
+        "type": "statement",
+        "rank": "normal"
+      }
+    ]
+  }
+}

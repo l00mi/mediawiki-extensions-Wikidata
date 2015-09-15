@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": [
+			"Darcy Le",
+			"Minh Nguyen"
+		]
+	},
+	"wbqev-crosscheck-form-entityid-label": "ID khoản mục:",
+	"wbqev-crosscheck-form-submit-label": "Kiểm tra",
+	"wbqev-crosscheck-invalid-entity-id": "ID thực thể không hợp lệ!",
+	"wbqev-crosscheck-not-existent-entity": "Thực thể không tồn tại!",
+	"wbqev-crosscheck-result-headline": "Kết quả cho",
+	"wbqev-crosscheck-result-table-header-references": "Tham khảo",
+	"wbqev-crosscheck-result-table-header-local-value": "Giá trị Wikidata",
+	"wbqev-crosscheck-result-table-header-external-value": "Giá trị bên ngoài",
+	"wbqev-crosscheck-result-table-header-external-source": "Nguồn bên ngoài",
+	"wbqev-crosscheck-result-table-header-status": "Trạng thái",
+	"wbqev-externaldbs": "Danh sách cơ sở dữ liệu ngoài",
+	"wbqev-externaldbs-overview-headline": "Cơ sở dữ liệu",
+	"wbqev-externaldbs-name": "Tên",
+	"wbqev-externaldbs-id": "ID",
+	"wbqev-externaldbs-import-date": "Ngày nhập",
+	"wbqev-externaldbs-language": "Ngôn ngữ dữ liệu",
+	"wbqev-externaldbs-source-urls": "URL nguồn",
+	"wbqev-externaldbs-size": "Kích thước",
+	"wbqev-externaldbs-license": "Giấy phép",
+	"wbqev-violation-header-external-source": "Nguồn bên ngoài:",
+	"wbqev-violation-header-local-value": "Giá trị Wikidata:",
+	"wbqev-violation-header-external-values": "Giá trị bên ngoài:"
+}

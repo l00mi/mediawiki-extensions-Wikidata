@@ -1,0 +1,27 @@
+{
+	"@metadata": {
+		"authors": [
+			"Kingu",
+			"Jeblad"
+		]
+	},
+	"wbqev-crosscheck-form-section": "Kryss-kontroller datasett",
+	"wbqev-crosscheck-form-entityid-label": "Datasettets ID:",
+	"wbqev-crosscheck-form-submit-label": "Sjekk",
+	"wbqev-crosscheck-invalid-entity-id": "Ugyldig ID for entiteten!",
+	"wbqev-crosscheck-not-existent-entity": "Entiteten finnes ikke!",
+	"wbqev-crosscheck-result-headline": "Resultat for",
+	"wbqev-crosscheck-result-table-header-references": "Referanser",
+	"wbqev-crosscheck-result-table-header-local-value": "Wikidata verdi",
+	"wbqev-crosscheck-result-table-header-external-value": "Eksterne verdier",
+	"wbqev-crosscheck-result-table-header-external-source": "Ekstern kilde",
+	"wbqev-crosscheck-result-table-header-status": "Status",
+	"wbqev-crosscheck-status-match": "Treff",
+	"wbqev-crosscheck-status-partial-match": "Potensiell treff",
+	"wbqev-crosscheck-status-mismatch": "Ikke treff",
+	"wbqev-crosscheck-status-references-missing": "mangler",
+	"wbqev-externaldbs": "Liste av eksterne databaser",
+	"wbqev-externaldbs-overview-headline": "Databaser",
+	"wbqev-externaldbs-name": "Navn",
+	"wbqev-externaldbs-id": "Id"
+}

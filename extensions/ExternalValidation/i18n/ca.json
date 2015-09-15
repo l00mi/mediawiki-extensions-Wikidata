@@ -1,0 +1,27 @@
+{
+	"@metadata": {
+		"authors": [
+			"Macofe",
+			"F3RaN"
+		]
+	},
+	"wbqev-crosscheck": "Contrastar amb bases de dades externes",
+	"wbqev-crosscheck-explanation-general": "Aquesta pàgina especial realitza comprovacions entre els elements de Wikidata i bases de dades externes. Podeu consultar les bases de dades que utilitzem en la pàgina especial.",
+	"wbqev-crosscheck-explanation-detail": "Per a revisar un element, introduïu el seu identificador. Els valors de cada propietat validable són comparats amb el valor de la base de dades i el resultat és el que es presenta aquí. Addicionalment, comprovem si falten referències o si poden ser afegides en forma de la base de dades que obté la mateixa conclusió.",
+	"wbqev-crosscheck-result-headline": "Resultat de $1",
+	"wbqev-crosscheck-result-table-header-references": "Referències",
+	"wbqev-crosscheck-result-table-header-external-value": "Valors externs",
+	"wbqev-crosscheck-result-table-header-external-source": "Font externa",
+	"wbqev-crosscheck-result-table-header-status": "Estat",
+	"wbqev-crosscheck-status-partial-match": "Coincidència parcial",
+	"wbqev-externaldbs-overview-headline": "Base de dades",
+	"wbqev-externaldbs-name": "Nom",
+	"wbqev-externaldbs-source-urls": "URL d'origen.",
+	"wbqev-externaldbs-size": "Mida",
+	"wbqev-externaldbs-license": "Llicència",
+	"apihelp-wbqevcrosscheck-param-properties": "Filtre opcional per contrastar només declaracions amb identificadors de propietat especificada. Només funciona si les entitats són especificades.",
+	"apihelp-wbqevcrosscheck-examples-4": "Contrasta tots les declaracions de l'element amb identificador Q76 i l'element amb identificador Q567 que utilitza la propietat amb identificador P19 o P31.",
+	"wbqev-violation-header-external-values": "Valors externs:",
+	"wbqev-violation-short-message": "Aquest valor no coincideix amb cap valor a $1. Si us plau, feu clic a la icona per a més informació.",
+	"wbqev-violation-long-message-solve-issue": "Per a resoldre aquest problema comproveu amb cura, si us plau, quin valor és correcte i afegiu una referència."
+}

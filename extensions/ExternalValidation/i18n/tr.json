@@ -1,0 +1,26 @@
+{
+	"@metadata": {
+		"authors": [
+			"Sayginer",
+			"Demircimehmed",
+			"Sadrettin"
+		]
+	},
+	"wbqev-crosscheck-invalid-entity-id": "Geçersiz kimlik.",
+	"wbqev-crosscheck-result-table-header-references": "Kaynaklar",
+	"wbqev-crosscheck-result-table-header-local-value": "Vikiveri değeri",
+	"wbqev-crosscheck-result-table-header-external-value": "Dış değerler",
+	"wbqev-crosscheck-result-table-header-external-source": "Dış kaynak",
+	"wbqev-crosscheck-result-table-header-status": "Durum",
+	"wbqev-crosscheck-status-match": "Eşleşme",
+	"wbqev-crosscheck-status-mismatch": "Uyumsuzluk",
+	"wbqev-crosscheck-status-references-missing": "eksik",
+	"wbqev-externaldbs-overview-headline": "Veritabanları",
+	"wbqev-externaldbs-language": "Veri dili",
+	"wbqev-externaldbs-source-urls": "Kaynak URL",
+	"wbqev-externaldbs-size": "Boyut",
+	"wbqev-externaldbs-license": "Lisans",
+	"wbqev-violation-header-external-source": "Dış kaynak:",
+	"wbqev-violation-header-local-value": "Vikiveri değeri:",
+	"wbqev-violation-header-external-values": "Dış değerler:"
+}

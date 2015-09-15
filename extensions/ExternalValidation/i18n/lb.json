@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": [
+			"Robby"
+		]
+	},
+	"wbqev-crosscheck": "Iwwerpréifung mat externen Datebanken",
+	"wbqev-crosscheck-result-headline": "Resultat fir",
+	"wbqev-crosscheck-result-table-header-references": "Referenzen",
+	"wbqev-crosscheck-result-table-header-local-value": "Wikidata-Wäert",
+	"wbqev-crosscheck-result-table-header-external-value": "Extern Wäerter",
+	"wbqev-crosscheck-result-table-header-external-source": "Extern Quell",
+	"wbqev-crosscheck-status-references-missing": "feelen",
+	"wbqev-externaldbs": "Lëscht vun den externen Datebanken",
+	"wbqev-externaldbs-overview-headline": "Datebanken",
+	"wbqev-externaldbs-name": "Numm",
+	"wbqev-externaldbs-id": "Id",
+	"wbqev-externaldbs-import-date": "Datum vum Import",
+	"wbqev-externaldbs-language": "Sprooch vun den Daten",
+	"wbqev-externaldbs-size": "Gréisst",
+	"wbqev-externaldbs-license": "Lizenz",
+	"wbq-subextension-name-wbqev": "Extern Validatioun",
+	"wbqev-violation-header-external-source": "Extern Quell:",
+	"wbqev-violation-header-local-value": "Wikidata-Wäert:",
+	"wbqev-violation-header-external-values": "Extern Wäerter:",
+	"wbqev-violation-long-message-solve-issue": "Fir dëse Problem ze léisen, kuckt w.e.g. gutt no wat fir e Wäert richteg ass a setzt eng Referenz dobäi.",
+	"wbqev-violation-mark-as-exception": "Als Ausnahm markéieren"
+}

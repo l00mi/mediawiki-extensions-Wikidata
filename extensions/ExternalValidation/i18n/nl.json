@@ -1,0 +1,25 @@
+{
+	"@metadata": {
+		"authors": [
+			"Sjoerddebruin",
+			"Hansmuller",
+			"Siebrand",
+			"FabianRM"
+		]
+	},
+	"wbqev-crosscheck-form-entityid-label": "Item-ID:",
+	"wbqev-crosscheck-form-submit-label": "Controleren",
+	"wbqev-crosscheck-result-headline": "Resultaat voor",
+	"wbqev-crosscheck-result-table-header-references": "Referenties",
+	"wbqev-crosscheck-result-table-header-local-value": "Wikidata-waarde",
+	"wbqev-crosscheck-result-table-header-external-source": "Externe bron",
+	"wbqev-crosscheck-result-table-header-status": "Status",
+	"wbqev-externaldbs": "Lijst van externe databanken",
+	"wbqev-externaldbs-source-urls": "Bron URL's",
+	"wbqev-externaldbs-size": "Grootte",
+	"wbqev-externaldbs-license": "Licentie",
+	"wbqev-violation-header-external-source": "Externe bron:",
+	"wbqev-violation-header-local-value": "Wikidatawaarde:",
+	"wbqev-violation-header-external-values": "Externe waarden:",
+	"wbqev-violation-mark-as-exception": "Als uitzondering markeren"
+}

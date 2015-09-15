@@ -1,0 +1,44 @@
+/* Entity id form */
+form {
+    margin-bottom: 20px;
+    width: 250px;
+}
+
+.wbqev-crosscheck-form-entity-id {
+    width: 120px;
+}
+
+/* Notices */
+.wbqev-crosscheck-notice {
+    font-style: italic;
+}
+
+.wbqev-crosscheck-notice-error {
+    font-weight: bold;
+    color: #BA0000;
+}
+
+/* Statuses */
+.wbqev-status {
+    font-weight: bold;
+}
+
+.wbqev-status-match {
+    color: #008000;
+}
+
+.wbqev-status-partial-match {
+    color: #6CB500;
+}
+
+.wbqev-status-mismatch {
+    color: #BA0000;
+}
+
+.wbqev-status-unknown {
+    color: #404040;
+}
+
+.wbqev-infobox {
+    width: 50%;
+}
