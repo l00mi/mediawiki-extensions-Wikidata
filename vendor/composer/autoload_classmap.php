@@ -949,7 +949,7 @@ return array(
     'Wikibase\\Repo\\Parsers\\MonolingualTextParser' => $baseDir . '/extensions/Wikibase/repo/includes/Parsers/MonolingualTextParser.php',
     'Wikibase\\Repo\\Parsers\\MwTimeIsoParser' => $baseDir . '/extensions/Wikibase/repo/includes/Parsers/MwTimeIsoParser.php',
     'Wikibase\\Repo\\Parsers\\TimeParserFactory' => $baseDir . '/extensions/Wikibase/repo/includes/Parsers/TimeParserFactory.php',
-    'Wikibase\\Repo\\Parsers\\WikibaseStringValueNormalizer' => $baseDir . '/extensions/Wikibase/repo/includes/Parsers/WikibaseStringValueLocalizer.php',
+    'Wikibase\\Repo\\Parsers\\WikibaseStringValueNormalizer' => $baseDir . '/extensions/Wikibase/repo/includes/Parsers/WikibaseStringValueNormalizer.php',
     'Wikibase\\Repo\\Parsers\\YearMonthTimeParser' => $baseDir . '/extensions/Wikibase/repo/includes/Parsers/YearMonthTimeParser.php',
     'Wikibase\\Repo\\Parsers\\YearTimeParser' => $baseDir . '/extensions/Wikibase/repo/includes/Parsers/YearTimeParser.php',
     'Wikibase\\Repo\\PidLock' => $baseDir . '/extensions/Wikibase/repo/includes/PidLock.php',
