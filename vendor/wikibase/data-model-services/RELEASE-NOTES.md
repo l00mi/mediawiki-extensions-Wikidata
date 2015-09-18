@@ -1,5 +1,19 @@
 # Wikibase DataModel Services release notes
 
+## Version 3.0.0 (2015-09-16)
+
+Breaking changes:
+
+* Removed `EntityRedirectResolvingDecorator`
+* Removed `UnresolvedRedirectException`
+* `EntityLookup::hasEntity` now throws `EntityLookupException`
+
+Non breaking changes:
+
+* Added `UnresolvedEntityRedirectException`
+* Added `EntityAccessLimitException`
+* `RestrictedEntityLookup` now throws `EntityAccessLimitException`
+
 ## Version 2.0.1 (2015-09-10)
 
 * Fixed uncaught exception in EntityIdLabelFormatter::formatEntityId ([T112003](https://phabricator.wikimedia.org/T112003))

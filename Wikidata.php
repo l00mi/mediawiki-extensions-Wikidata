@@ -13,7 +13,10 @@ if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
 	$wmgUseWikibaseRepo = true;
 	$wmgUseWikibaseClient = true;
 	$wmgUseWikibaseQuality = true;
-	$wmgUseWikibaseQualityExternalValidation = true;
+
+	// Temporarily disable ExternalValidation in the build until
+	// we fix T113033. (remove use of RawMode)
+	// $wmgUseWikibaseQualityExternalValidation = true;
 }
 
 // no magic, use wmf configs instead to control which entry points to load
