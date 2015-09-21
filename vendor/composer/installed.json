@@ -1473,7 +1473,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
-            "reference": "e38851b8fccc2ed0944738224c0545054269e806"
+            "reference": "61a3888d245e1ce27f874bce7d0ea0134e9c5ac5"
         },
         "require": {
             "data-values/common": "~0.3.0",
@@ -1503,7 +1503,7 @@
         "require-dev": {
             "squizlabs/php_codesniffer": "~2.1"
         },
-        "time": "2015-09-10 09:48:13",
+        "time": "2015-09-18 08:43:25",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
