@@ -10,9 +10,9 @@
 			"The Polish"
 		]
 	},
-	"wbqev-desc": "{{desc|name=WikibaseQualityExternalValidation|url=https://www.mediawiki.org/wiki/Extension:WikibaseQualityExternalValidation}}",
+	"wbqev-desc": "Controllo incrociato dei dati con le corrispondenti informazioni di database esterni",
 	"wbqev-crosscheck": "Controllo incrociato con database esterni",
-	"wbqev-crosscheck-explanation-general": "Questa pagina speciale esegue controlli incrociati tra gli elementi in Wikidata e i database esterni. È possibile controllare sull'apposita pagina il database che utilizziamo .",
+	"wbqev-crosscheck-explanation-general": "Questa pagina speciale esegue controlli incrociati tra gli elementi in Wikidata e i database esterni. È possibile controllare sull'apposita pagina il database che utilizziamo.",
 	"wbqev-crosscheck-form-section": "Controllo incrociato elemento",
 	"wbqev-crosscheck-form-entityid-label": "ID elemento:",
 	"wbqev-crosscheck-form-submit-label": "Controlla",
@@ -28,6 +28,7 @@
 	"wbqev-externaldbs": "Elenco dei database esterni",
 	"wbqev-externaldbs-overview-headline": "Database",
 	"wbqev-externaldbs-name": "Nome",
+	"wbqev-externaldbs-id": "ID",
 	"wbqev-externaldbs-import-date": "Data di importazione",
 	"wbqev-externaldbs-language": "Lingua dei dati",
 	"wbqev-externaldbs-source-urls": "URL di origine",

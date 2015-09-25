@@ -48,17 +48,13 @@ class DumpMetaInformationSerializer extends IndexedTagsSerializer implements Dis
 	}
 
 	private function getSerialized( DumpMetaInformation $dumpMetaInformation ) {
-		$shouldIndexTags = $this->shouldIndexTags();
 		$identifierPropertyIds = array_map(
-			function ( PropertyId $propertyId ) use ( $shouldIndexTags ) {
-				if ( $shouldIndexTags ) {
-					return array( 'id' => $propertyId->getSerialization() );
-				}
-
+			function ( PropertyId $propertyId ) {
 				return $propertyId->getSerialization();
 			},
 			$dumpMetaInformation->getIdentifierPropertyIds()
 		);
+
 		$this->setIndexedTagName( $identifierPropertyIds, 'propertyId' );
 
 		return array(

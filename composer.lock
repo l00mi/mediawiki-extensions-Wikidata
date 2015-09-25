@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "1e3a244861d7d7425e3d99bb856a9156",
-    "content-hash": "a0ce186486af5bfadffd8394542dcc35",
     "packages": [
         {
             "name": "composer/installers",
@@ -544,22 +543,22 @@
         },
         {
             "name": "data-values/time",
-            "version": "0.8.1",
+            "version": "0.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Time.git",
-                "reference": "1e684da927d70358c86139c55e8197c0938cfb9c"
+                "reference": "b7ad38760bd3124607bc34b919c68c21d2aff7c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Time/zipball/1e684da927d70358c86139c55e8197c0938cfb9c",
-                "reference": "1e684da927d70358c86139c55e8197c0938cfb9c",
+                "url": "https://api.github.com/repos/DataValues/Time/zipball/b7ad38760bd3124607bc34b919c68c21d2aff7c9",
+                "reference": "b7ad38760bd3124607bc34b919c68c21d2aff7c9",
                 "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.3.0|~0.2.0",
                 "data-values/data-values": "~1.0|~0.1",
-                "data-values/interfaces": "~0.2.0|^0.1.5",
+                "data-values/interfaces": "~0.2.0|~0.1.5",
                 "php": ">=5.3.0"
             },
             "type": "library",
@@ -597,7 +596,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2015-08-14 10:37:19"
+            "time": "2015-09-24 15:39:58"
         },
         {
             "name": "data-values/validators",
@@ -913,7 +912,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "480258ed3b9fb493ecb7cf96cc0b91a2f2678f04"
+                "reference": "4356d5c5334f50f2cda051374a9fc8675cc160f4"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -959,7 +958,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-09-16 18:01:30"
+            "time": "2015-09-24 19:33:45"
         },
         {
             "name": "wikibase/data-model",
@@ -1188,7 +1187,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "d123fae7029b5b0522a29d1a21aa3fbe61fdbddd"
+                "reference": "c5c1524956d3270af894b2de5a8fa1d02c48a76f"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1236,7 +1235,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2015-09-17 11:12:03"
+            "time": "2015-09-25 16:59:01"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1349,7 +1348,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "da096a1cb9c3620512d12ba275e61124362edea0"
+                "reference": "2f3f5a35bc1eec14765b3b42cc2c7bc60e3c7ce1"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1393,7 +1392,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-09-16 18:01:26"
+            "time": "2015-09-24 19:33:40"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1442,12 +1441,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "eecd2b1b5a8c4b25b9d31fceabbcc4a2ecadc055"
+                "reference": "cb8889deb9b3e5a24762d495900682eae11ff2d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/eecd2b1b5a8c4b25b9d31fceabbcc4a2ecadc055",
-                "reference": "eecd2b1b5a8c4b25b9d31fceabbcc4a2ecadc055",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/cb8889deb9b3e5a24762d495900682eae11ff2d6",
+                "reference": "cb8889deb9b3e5a24762d495900682eae11ff2d6",
                 "shasum": ""
             },
             "require": {
@@ -1459,7 +1458,7 @@
                 "data-values/javascript": "~0.6.0|~0.7.0",
                 "data-values/number": "~0.6.0",
                 "data-values/serialization": "~1.0",
-                "data-values/time": "~0.8.1",
+                "data-values/time": "~0.8.2",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.15.5",
                 "diff/diff": "~2.0",
@@ -1516,7 +1515,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-09-18 08:44:04"
+            "time": "2015-09-25 11:30:54"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1558,7 +1557,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-04 17:18:47"
+            "time": "2015-08-12 09:30:01"
         }
     ],
     "packages-dev": [],

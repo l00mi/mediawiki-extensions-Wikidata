@@ -20,8 +20,8 @@ use WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer;
  */
 class DumpMetaInformationSerializerTest extends SerializerTestBase {
 
-	protected function buildSerializer( $shouldIndexTags = false ) {
-		return new DumpMetaInformationSerializer( $shouldIndexTags );
+	protected function buildSerializer() {
+		return new DumpMetaInformationSerializer();
 	}
 
 	public function serializableProvider() {
@@ -69,21 +69,8 @@ class DumpMetaInformationSerializerTest extends SerializerTestBase {
 				array(
 					'dumpId' => 'foobar',
 					'sourceItemId' => 'Q36578',
-					'identifierPropertyIds' => array( 'P42' ),
-					'importDate' => '2015-01-01T00:00:00Z',
-					'language' => 'en',
-					'sourceUrl' => 'http://www.foo.bar',
-					'size' => 42,
-					'licenseItemId' => 'Q6938433'
-				),
-				$dumpMetaInformation
-			),
-			array(
-				array(
-					'dumpId' => 'foobar',
-					'sourceItemId' => 'Q36578',
 					'identifierPropertyIds' => array(
-						0 => array( 'id' => 'P42' ),
+						0 => 'P42',
 						'_element' => 'propertyId'
 					),
 					'importDate' => '2015-01-01T00:00:00Z',
@@ -92,11 +79,74 @@ class DumpMetaInformationSerializerTest extends SerializerTestBase {
 					'size' => 42,
 					'licenseItemId' => 'Q6938433'
 				),
-				$dumpMetaInformation,
-				array(
-					'shouldIndexTags' => true
-				)
+				$dumpMetaInformation
 			)
 		);
 	}
+
+	/**
+	 * @return array an array of array( JSON, object to serialize)
+	 */
+	public function serializationJSONProvider() {
+		return array(
+			array(
+				'{'
+				. '    "dumpId": "foobar",'
+				. '    "sourceItemId": "Q36578",'
+				. '    "identifierPropertyIds": ['
+				. '        "P42"'
+				. '    ],'
+				. '    "importDate": "2015-01-01T00:00:00Z",'
+				. '    "language": "en",'
+				. '    "sourceUrl": "http:\/\/www.foo.bar",'
+				. '    "size": 42,'
+				. '    "licenseItemId": "Q6938433"'
+				. '}',
+				new DumpMetaInformation(
+					'foobar',
+					new ItemId( 'Q36578' ),
+					array( new PropertyId( 'P42' ) ),
+					'20150101000000',
+					'en',
+					'http://www.foo.bar',
+					42,
+					new ItemId( 'Q6938433' )
+				)
+			),
+		);
+	}
+
+	/**
+	 * @return array an array of array( XML, object to serialize)
+	 */
+	public function serializationXMLProvider() {
+		return array(
+			array(
+				'<api'
+				. '    dumpId="foobar"'
+				. '    sourceItemId="Q36578"'
+				. '    importDate="2015-01-01T00:00:00Z"'
+				. '    language="en"'
+				. '    sourceUrl="http://www.foo.bar"'
+				. '    size="42"'
+				. '    licenseItemId="Q6938433"'
+				. '>'
+				. '    <identifierPropertyIds>'
+				. '      <propertyId>P42</propertyId>'
+				. '    </identifierPropertyIds>'
+				. '</api>',
+				new DumpMetaInformation(
+					'foobar',
+					new ItemId( 'Q36578' ),
+					array( new PropertyId( 'P42' ) ),
+					'20150101000000',
+					'en',
+					'http://www.foo.bar',
+					42,
+					new ItemId( 'Q6938433' )
+				)
+			),
+		);
+	}
+
 }

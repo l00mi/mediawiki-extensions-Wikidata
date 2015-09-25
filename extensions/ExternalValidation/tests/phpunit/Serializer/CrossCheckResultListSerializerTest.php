@@ -20,13 +20,13 @@ use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
  */
 class CrossCheckResultListSerializerTest extends SerializerTestBase {
 
-	protected function buildSerializer( $shouldIndexTags = false ) {
+	protected function buildSerializer() {
 		$serializerMock = $this->getMock( 'Serializers\Serializer' );
 		$serializerMock->expects( $this->any() )
 			->method( 'serialize' )
 			->will( $this->returnValue( 'foobar' ) );
 
-		return new CrossCheckResultListSerializer( $serializerMock, $shouldIndexTags );
+		return new CrossCheckResultListSerializer( $serializerMock );
 	}
 
 	public function serializableProvider() {
@@ -55,14 +55,22 @@ class CrossCheckResultListSerializerTest extends SerializerTestBase {
 	public function serializationProvider() {
 		return array(
 			array(
-				array(),
+				array(
+					'_element' => 'property',
+					'_type' => 'kvp',
+					'_kvpkeyname' => 'id',
+				),
 				new CrossCheckResultList( array() )
 			),
 			array(
 				array(
 					'P42' => array(
-						'foobar'
-					)
+						'foobar',
+						'_element' => 'result'
+					),
+					'_element' => 'property',
+					'_type' => 'kvp',
+					'_kvpkeyname' => 'id',
 				),
 				new CrossCheckResultList(
 					array(
@@ -73,11 +81,16 @@ class CrossCheckResultListSerializerTest extends SerializerTestBase {
 			array(
 				array(
 					'P42' => array(
-						'foobar'
+						'foobar',
+						'_element' => 'result'
 					),
 					'P31' => array(
-						'foobar'
-					)
+						'foobar',
+						'_element' => 'result'
+					),
+					'_element' => 'property',
+					'_type' => 'kvp',
+					'_kvpkeyname' => 'id',
 				),
 				new CrossCheckResultList(
 					array(
@@ -90,11 +103,16 @@ class CrossCheckResultListSerializerTest extends SerializerTestBase {
 				array(
 					'P42' => array(
 						'foobar',
-						'foobar'
+						'foobar',
+						'_element' => 'result'
 					),
 					'P31' => array(
-						'foobar'
-					)
+						'foobar',
+						'_element' => 'result'
+					),
+					'_element' => 'property',
+					'_type' => 'kvp',
+					'_kvpkeyname' => 'id',
 				),
 				new CrossCheckResultList(
 					array(
@@ -104,32 +122,53 @@ class CrossCheckResultListSerializerTest extends SerializerTestBase {
 					)
 				)
 			),
+		);
+	}
+
+	/**
+	 * @return array an array of array( JSON, object to serialize)
+	 */
+	public function serializationJSONProvider() {
+		return array(
 			array(
-				array(
-					0 => array(
-						0 => 'foobar',
-						1 => 'foobar',
-						'id' => 'P42',
-						'_element' => 'result'
-					),
-					1 => array(
-						'foobar',
-						'id' => 'P31',
-						'_element' => 'result'
-					),
-					'_element' => 'property'
-				),
+				'{'
+				. '"P42":["foobar","foobar"],'
+				. '"P31":["foobar"]'
+				. '}',
 				new CrossCheckResultList(
 					array(
 						$this->getCrossCheckResultMock( new PropertyId( 'P42' ) ),
 						$this->getCrossCheckResultMock( new PropertyId( 'P42' ) ),
 						$this->getCrossCheckResultMock( new PropertyId( 'P31' ) )
 					)
-				),
-				array(
-					'shouldIndexTags' => true
 				)
-			)
+			),
+		);
+	}
+
+	/**
+	 * @return array an array of array( XML, object to serialize)
+	 */
+	public function serializationXMLProvider() {
+		return array(
+			array(
+				'<api>'
+				. '    <property id="P42">'
+				. '      <result>foobar</result>'
+				. '      <result>foobar</result>'
+				. '    </property>'
+				. '    <property id="P31">'
+				. '      <result>foobar</result>'
+				. '    </property>'
+				. '</api>',
+				new CrossCheckResultList(
+					array(
+						$this->getCrossCheckResultMock( new PropertyId( 'P42' ) ),
+						$this->getCrossCheckResultMock( new PropertyId( 'P42' ) ),
+						$this->getCrossCheckResultMock( new PropertyId( 'P31' ) )
+					)
+				)
+			),
 		);
 	}
 
@@ -139,9 +178,10 @@ class CrossCheckResultListSerializerTest extends SerializerTestBase {
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->any() )
-		->method( 'getPropertyId' )
-		->will( $this->returnValue( $propertyId ) );
+			->method( 'getPropertyId' )
+			->will( $this->returnValue( $propertyId ) );
 
 		return $mock;
 	}
+
 }

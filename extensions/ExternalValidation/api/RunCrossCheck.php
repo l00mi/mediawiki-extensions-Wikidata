@@ -171,21 +171,14 @@ class RunCrossCheck extends ApiBase {
 	 * @return array
 	 */
 	private function writeResultOutput( array $resultLists ) {
-		$serializer = $this->serializerFactory->newCrossCheckResultListSerializer( $this->getResult()->getIsRawMode() );
+		$serializer = $this->serializerFactory->newCrossCheckResultListSerializer();
 
 		$output = array();
 		foreach ( $resultLists as $entityId => $resultList ) {
 			if ( $resultList ) {
 				$serializedResultList = $serializer->serialize( $resultList );
 
-				if ( $this->getResult()->getIsRawMode() ) {
-					$output[] = array_merge(
-						array( 'id' => (string)$entityId ),
-						$serializedResultList
-					);
-				} else {
-					$output[(string)$entityId] = $serializedResultList;
-				}
+				$output[$entityId] = $serializedResultList;
 			} else {
 				$output[$entityId] = array(
 					'missing' => ''
@@ -194,6 +187,7 @@ class RunCrossCheck extends ApiBase {
 		}
 
 		$this->getResult()->setIndexedTagName( $output, 'entity' );
+		$this->getResult()->setArrayType( $output, 'kvp', 'id' );
 		$this->getResult()->addValue( null, 'results', $output );
 		$this->resultBuilder->markSuccess( 1 );
 	}

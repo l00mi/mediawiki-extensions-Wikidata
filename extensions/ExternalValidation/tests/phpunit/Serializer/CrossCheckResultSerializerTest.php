@@ -76,6 +76,58 @@ class CrossCheckResultSerializerTest extends SerializerTestBase {
 		);
 	}
 
+	/**
+	 * @return array an array of array( JSON, object to serialize)
+	 */
+	public function serializationJSONProvider() {
+		return array(
+			array(
+				'{'
+				. '"propertyId":"P42",'
+				. '"claimGuid":"Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f",'
+				. '"externalId":"fubar",'
+				. '"dataSource":"foobar",'
+				. '"comparisonResult":"foobar",'
+				. '"referenceResult":"foobar"'
+				. '}',
+				new CrossCheckResult(
+					new PropertyId( 'P42' ),
+					'Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f',
+					'fubar',
+					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' ),
+					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' ),
+					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+				)
+			),
+		);
+	}
+
+	/**
+	 * @return array an array of array( XML, object to serialize)
+	 */
+	public function serializationXMLProvider() {
+		return array(
+			array(
+				'<api'
+				. '    propertyId="P42" '
+				. '    claimGuid="Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f"'
+				. '    externalId="fubar"'
+				. '    dataSource="foobar"'
+				. '    comparisonResult="foobar"'
+				. '    referenceResult="foobar"'
+				. '/>',
+				new CrossCheckResult(
+					new PropertyId( 'P42' ),
+					'Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f',
+					'fubar',
+					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' ),
+					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' ),
+					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+				)
+			),
+		);
+	}
+
 	private function getMockWithoutConstructor( $className ) {
 		return $this->getMockBuilder( $className )->disableOriginalConstructor()->getMock();
 	}

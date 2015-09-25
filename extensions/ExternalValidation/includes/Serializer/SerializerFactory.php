@@ -35,46 +35,41 @@ class SerializerFactory {
 	/**
 	 * Returns a serializer that can serialize CrossCheckResultList objects
 	 *
-	 * @param bool $shouldIndexTags
 	 * @return Serializer
 	 */
-	public function newCrossCheckResultListSerializer( $shouldIndexTags = false ) {
+	public function newCrossCheckResultListSerializer() {
 		return new CrossCheckResultListSerializer(
-			$this->newCrossCheckResultSerializer( $shouldIndexTags ),
-			$shouldIndexTags
+			$this->newCrossCheckResultSerializer()
 		);
 	}
 
 	/**
 	 * Returns a serializer that can serialize ComparisonResult objects
 	 *
-	 * @param bool $shouldIndexTags
 	 * @return Serializer
 	 */
-	public function newComparisonResultSerializer( $shouldIndexTags = false ) {
-		return new ComparisonResultSerializer( $this->dataValueSerializer, $shouldIndexTags );
+	public function newComparisonResultSerializer() {
+		return new ComparisonResultSerializer( $this->dataValueSerializer );
 	}
 
 	/**
 	 * Returns a serializer that can serialize DumpMetaInformation objects
 	 *
-	 * @param bool $shouldIndexTags
 	 * @return Serializer
 	 */
-	public function newDumpMetaInformationSerializer( $shouldIndexTags = false ) {
-		return new DumpMetaInformationSerializer( $shouldIndexTags );
+	public function newDumpMetaInformationSerializer() {
+		return new DumpMetaInformationSerializer();
 	}
 
 	/**
 	 * Returns a serializer that can serialize CompareResult objects
 	 *
-	 * @param bool $shouldIndexTags
 	 * @return Serializer
 	 */
-	public function newCrossCheckResultSerializer( $shouldIndexTags = false ) {
+	public function newCrossCheckResultSerializer() {
 		return new CrossCheckResultSerializer(
-			$this->newDumpMetaInformationSerializer( $shouldIndexTags ),
-			$this->newComparisonResultSerializer( $shouldIndexTags ),
+			$this->newDumpMetaInformationSerializer(),
+			$this->newComparisonResultSerializer(),
 			$this->newReferenceResultSerializer()
 		);
 	}

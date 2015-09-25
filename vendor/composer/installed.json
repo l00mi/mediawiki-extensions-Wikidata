@@ -97,42 +97,38 @@
         ]
     },
     {
-        "name": "diff/diff",
-        "version": "2.0.0",
-        "version_normalized": "2.0.0.0",
+        "name": "data-values/interfaces",
+        "version": "0.2.0",
+        "version_normalized": "0.2.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/wmde/Diff.git",
-            "reference": "779bd922b53a4483f722c546621c0a401e3f2900"
+            "url": "https://github.com/DataValues/Interfaces.git",
+            "reference": "1746fbdd9b0d21e7409052a5eaffacddab5b4929"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Diff/zipball/779bd922b53a4483f722c546621c0a401e3f2900",
-            "reference": "779bd922b53a4483f722c546621c0a401e3f2900",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/1746fbdd9b0d21e7409052a5eaffacddab5b4929",
+            "reference": "1746fbdd9b0d21e7409052a5eaffacddab5b4929",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "require-dev": {
-            "phpmd/phpmd": "~2.1",
-            "squizlabs/php_codesniffer": "~2.1"
-        },
-        "time": "2015-03-17 15:21:21",
+        "time": "2015-08-11 09:39:57",
         "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.0.x-dev"
-            }
-        },
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "Diff.php"
+                "Interfaces.php"
             ],
             "psr-4": {
-                "Diff\\": "src/"
-            }
+                "ValueFormatters\\": "src/ValueFormatters/",
+                "ValueParsers\\": "src/ValueParsers/",
+                "ValueValidators\\": "src/ValueValidators/"
+            },
+            "classmap": [
+                "tests/ValueFormatters/ValueFormatterTestBase.php"
+            ]
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -146,13 +142,13 @@
                 "role": "Developer"
             }
         ],
-        "description": "Small standalone library for representing differences between data structures, computing such differences, and applying them as patches",
-        "homepage": "https://github.com/wmde/Diff",
+        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
+        "homepage": "https://github.com/DataValues/Interfaces",
         "keywords": [
-            "diff",
-            "diffing",
-            "diffop",
-            "patching",
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
             "wikidata"
         ]
     },
@@ -218,6 +214,188 @@
         ]
     },
     {
+        "name": "data-values/common",
+        "version": "0.3.1",
+        "version_normalized": "0.3.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Common.git",
+            "reference": "5d9d4bf902427a2a798ca273480f7dad825c72b5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Common/zipball/5d9d4bf902427a2a798ca273480f7dad825c72b5",
+            "reference": "5d9d4bf902427a2a798ca273480f7dad825c72b5",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "~0.2.0|^0.1.5",
+            "php": ">=5.3.0"
+        },
+        "time": "2015-08-14 10:15:07",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.3.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Common.php"
+            ],
+            "psr-4": {
+                "DataValues\\": "src/DataValues/",
+                "ValueFormatters\\": "src/ValueFormatters/",
+                "ValueParsers\\": "src/ValueParsers/"
+            },
+            "classmap": [
+                "tests/ValueParsers"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
+        "homepage": "https://github.com/DataValues/Common",
+        "keywords": [
+            "datavalues",
+            "valueformatters",
+            "valueparsers",
+            "valuevalidators",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/time",
+        "version": "0.8.2",
+        "version_normalized": "0.8.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Time.git",
+            "reference": "b7ad38760bd3124607bc34b919c68c21d2aff7c9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/b7ad38760bd3124607bc34b919c68c21d2aff7c9",
+            "reference": "b7ad38760bd3124607bc34b919c68c21d2aff7c9",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0|~0.2.0",
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "php": ">=5.3.0"
+        },
+        "time": "2015-09-24 15:39:58",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.8.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Time.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Time value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Time",
+        "keywords": [
+            "datavalues",
+            "time",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "diff/diff",
+        "version": "2.0.0",
+        "version_normalized": "2.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Diff.git",
+            "reference": "779bd922b53a4483f722c546621c0a401e3f2900"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Diff/zipball/779bd922b53a4483f722c546621c0a401e3f2900",
+            "reference": "779bd922b53a4483f722c546621c0a401e3f2900",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpmd/phpmd": "~2.1",
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-03-17 15:21:21",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Diff.php"
+            ],
+            "psr-4": {
+                "Diff\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Small standalone library for representing differences between data structures, computing such differences, and applying them as patches",
+        "homepage": "https://github.com/wmde/Diff",
+        "keywords": [
+            "diff",
+            "diffing",
+            "diffop",
+            "patching",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/data-model",
         "version": "4.3.0",
         "version_normalized": "4.3.0.0",
@@ -272,6 +450,63 @@
         ],
         "description": "PHP implementation of the Wikibase DataModel",
         "homepage": "https://github.com/wmde/WikibaseDataModel",
+        "keywords": [
+            "DataModel",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model-services",
+        "version": "3.0.0",
+        "version_normalized": "3.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelServices.git",
+            "reference": "31f1b12ead8e588ca3bc47a8c1caadfa60e7f3b9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/31f1b12ead8e588ca3bc47a8c1caadfa60e7f3b9",
+            "reference": "31f1b12ead8e588ca3bc47a8c1caadfa60e7f3b9",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1|~1.0",
+            "diff/diff": "~2.0|~1.0",
+            "php": ">=5.3.0",
+            "wikibase/data-model": "~4.2"
+        },
+        "require-dev": {
+            "phpmd/phpmd": "~2.1",
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-09-16 14:13:01",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Wikibase\\DataModel\\Services\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            }
+        ],
+        "description": "Services around the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModelServices",
         "keywords": [
             "DataModel",
             "wikibase",
@@ -377,125 +612,6 @@
         ],
         "description": "Provides JS widgets to edit values defined by the DataValues library",
         "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
-    },
-    {
-        "name": "data-values/interfaces",
-        "version": "0.2.0",
-        "version_normalized": "0.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "1746fbdd9b0d21e7409052a5eaffacddab5b4929"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/1746fbdd9b0d21e7409052a5eaffacddab5b4929",
-            "reference": "1746fbdd9b0d21e7409052a5eaffacddab5b4929",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2015-08-11 09:39:57",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Interfaces.php"
-            ],
-            "psr-4": {
-                "ValueFormatters\\": "src/ValueFormatters/",
-                "ValueParsers\\": "src/ValueParsers/",
-                "ValueValidators\\": "src/ValueValidators/"
-            },
-            "classmap": [
-                "tests/ValueFormatters/ValueFormatterTestBase.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines interfaces for ValueParsers, ValueFormatters and ValueValidators",
-        "homepage": "https://github.com/DataValues/Interfaces",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/common",
-        "version": "0.3.1",
-        "version_normalized": "0.3.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Common.git",
-            "reference": "5d9d4bf902427a2a798ca273480f7dad825c72b5"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Common/zipball/5d9d4bf902427a2a798ca273480f7dad825c72b5",
-            "reference": "5d9d4bf902427a2a798ca273480f7dad825c72b5",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.2.0|^0.1.5",
-            "php": ">=5.3.0"
-        },
-        "time": "2015-08-14 10:15:07",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.3.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Common.php"
-            ],
-            "psr-4": {
-                "DataValues\\": "src/DataValues/",
-                "ValueFormatters\\": "src/ValueFormatters/",
-                "ValueParsers\\": "src/ValueParsers/"
-            },
-            "classmap": [
-                "tests/ValueParsers"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Contains common implementations of the interfaces defined by DataValuesInterfaces",
-        "homepage": "https://github.com/DataValues/Common",
-        "keywords": [
-            "datavalues",
-            "valueformatters",
-            "valueparsers",
-            "valuevalidators",
-            "wikidata"
-        ]
     },
     {
         "name": "data-values/number",
@@ -852,65 +968,6 @@
         ]
     },
     {
-        "name": "data-values/time",
-        "version": "0.8.1",
-        "version_normalized": "0.8.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Time.git",
-            "reference": "1e684da927d70358c86139c55e8197c0938cfb9c"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/1e684da927d70358c86139c55e8197c0938cfb9c",
-            "reference": "1e684da927d70358c86139c55e8197c0938cfb9c",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.3.0|~0.2.0",
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.2.0|^0.1.5",
-            "php": ">=5.3.0"
-        },
-        "time": "2015-08-14 10:37:19",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.8.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Time.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Time value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Time",
-        "keywords": [
-            "datavalues",
-            "time",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/data-model-javascript",
         "version": "1.0.2",
         "version_normalized": "1.0.2.0",
@@ -1166,6 +1223,90 @@
         ]
     },
     {
+        "name": "wikibase/wikibase",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "cb8889deb9b3e5a24762d495900682eae11ff2d6"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/cb8889deb9b3e5a24762d495900682eae11ff2d6",
+            "reference": "cb8889deb9b3e5a24762d495900682eae11ff2d6",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0",
+            "data-values/data-types": "~0.5.0",
+            "data-values/data-values": "~1.0",
+            "data-values/geo": "~1.0",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "data-values/javascript": "~0.6.0|~0.7.0",
+            "data-values/number": "~0.6.0",
+            "data-values/serialization": "~1.0",
+            "data-values/time": "~0.8.2",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.15.5",
+            "diff/diff": "~2.0",
+            "php": ">=5.3.2",
+            "wikibase/data-model": "~4.0",
+            "wikibase/data-model-javascript": "^1.0.2",
+            "wikibase/data-model-serialization": "~2.0",
+            "wikibase/data-model-services": "^3.0.0",
+            "wikibase/internal-serialization": "~2.0",
+            "wikibase/javascript-api": "~1.0",
+            "wikibase/serialization-javascript": "~2.0"
+        },
+        "conflict": {
+            "mediawiki/mediawiki": "<1.23"
+        },
+        "require-dev": {
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-09-25 11:30:54",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "client/includes/",
+                "client/WikibaseClient.hooks.php",
+                "client/tests/phpunit/",
+                "lib/includes/",
+                "lib/WikibaseLib.hooks.php",
+                "lib/tests/phpunit/",
+                "repo/includes/",
+                "repo/maintenance/",
+                "repo/tests/phpunit/",
+                "repo/Wikibase.hooks.php"
+            ],
+            "psr-4": {
+                "Wikibase\\View\\": "view/src",
+                "Wikimedia\\Purtle\\": "purtle/src",
+                "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Structured data repository for MediaWiki",
+        "homepage": "http://wikiba.se",
+        "keywords": [
+            "wikibase",
+            "wikibaseclient",
+            "wikibaselib",
+            "wikibaserepo",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/wikimedia-badges",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -1251,61 +1392,62 @@
         }
     },
     {
-        "name": "wikibase/data-model-services",
-        "version": "3.0.0",
-        "version_normalized": "3.0.0.0",
+        "name": "wikibase/external-validation",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModelServices.git",
-            "reference": "31f1b12ead8e588ca3bc47a8c1caadfa60e7f3b9"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/31f1b12ead8e588ca3bc47a8c1caadfa60e7f3b9",
-            "reference": "31f1b12ead8e588ca3bc47a8c1caadfa60e7f3b9",
-            "shasum": ""
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
+            "reference": "c5c1524956d3270af894b2de5a8fa1d02c48a76f"
         },
         "require": {
-            "data-values/data-values": "~0.1|~1.0",
-            "diff/diff": "~2.0|~1.0",
             "php": ">=5.3.0",
-            "wikibase/data-model": "~4.2"
+            "serialization/serialization": "3.*,>=3.2.1",
+            "wikibase/data-model": "~4.0",
+            "wikibase/data-model-serialization": "~2.0",
+            "wikibase/data-model-services": "~2.0|~3.0"
         },
         "require-dev": {
-            "phpmd/phpmd": "~2.1",
-            "squizlabs/php_codesniffer": "~2.1"
+            "phpunit/phpunit": "~3.7,>=3.7.37",
+            "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2015-09-16 14:13:01",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
+        "time": "2015-09-25 16:31:31",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
         "autoload": {
             "psr-4": {
-                "Wikibase\\DataModel\\Services\\": "src/"
-            }
+                "WikibaseQuality\\ExternalValidation\\": "includes/",
+                "WikibaseQuality\\ExternalValidation\\Api\\": "api/",
+                "WikibaseQuality\\ExternalValidation\\Specials\\": "specials/",
+                "WikibaseQuality\\ExternalValidation\\Tests\\": "tests/phpunit/"
+            },
+            "classmap": [
+                "WikibaseQualityExternalValidationHooks.php",
+                "maintenance/UpdateExternalData.php"
+            ]
         },
-        "notification-url": "https://packagist.org/downloads/",
         "license": [
             "GPL-2.0+"
         ],
         "authors": [
             {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
+                "name": "BP2014N1"
             }
         ],
-        "description": "Services around the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModelServices",
+        "description": "Extension for WikibaseQuality to perform cross-checks with external databases.",
+        "homepage": "https://www.mediawiki.org/wiki/WikidataQuality/",
         "keywords": [
-            "DataModel",
+            "database",
+            "external",
+            "quality",
+            "trust",
+            "violation",
             "wikibase",
             "wikidata"
-        ]
+        ],
+        "support": {
+            "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
+        }
     },
     {
         "name": "propertysuggester/property-suggester",
@@ -1357,155 +1499,13 @@
         ]
     },
     {
-        "name": "wikibase/wikibase",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "eecd2b1b5a8c4b25b9d31fceabbcc4a2ecadc055"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/eecd2b1b5a8c4b25b9d31fceabbcc4a2ecadc055",
-            "reference": "eecd2b1b5a8c4b25b9d31fceabbcc4a2ecadc055",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.3.0",
-            "data-values/data-types": "~0.5.0",
-            "data-values/data-values": "~1.0",
-            "data-values/geo": "~1.0",
-            "data-values/interfaces": "~0.2.0|~0.1.5",
-            "data-values/javascript": "~0.6.0|~0.7.0",
-            "data-values/number": "~0.6.0",
-            "data-values/serialization": "~1.0",
-            "data-values/time": "~0.8.1",
-            "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.15.5",
-            "diff/diff": "~2.0",
-            "php": ">=5.3.2",
-            "wikibase/data-model": "~4.0",
-            "wikibase/data-model-javascript": "^1.0.2",
-            "wikibase/data-model-serialization": "~2.0",
-            "wikibase/data-model-services": "^3.0.0",
-            "wikibase/internal-serialization": "~2.0",
-            "wikibase/javascript-api": "~1.0",
-            "wikibase/serialization-javascript": "~2.0"
-        },
-        "conflict": {
-            "mediawiki/mediawiki": "<1.23"
-        },
-        "require-dev": {
-            "squizlabs/php_codesniffer": "~2.1"
-        },
-        "time": "2015-09-18 08:44:04",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "client/includes/",
-                "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/",
-                "lib/includes/",
-                "lib/WikibaseLib.hooks.php",
-                "lib/tests/phpunit/",
-                "repo/includes/",
-                "repo/maintenance/",
-                "repo/tests/phpunit/",
-                "repo/Wikibase.hooks.php"
-            ],
-            "psr-4": {
-                "Wikibase\\View\\": "view/src",
-                "Wikimedia\\Purtle\\": "purtle/src",
-                "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Structured data repository for MediaWiki",
-        "homepage": "http://wikiba.se",
-        "keywords": [
-            "wikibase",
-            "wikibaseclient",
-            "wikibaselib",
-            "wikibaserepo",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/external-validation",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-            "reference": "d123fae7029b5b0522a29d1a21aa3fbe61fdbddd"
-        },
-        "require": {
-            "php": ">=5.3.0",
-            "serialization/serialization": "3.*,>=3.2.1",
-            "wikibase/data-model": "~4.0",
-            "wikibase/data-model-serialization": "~2.0",
-            "wikibase/data-model-services": "~2.0|~3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "~3.7,>=3.7.37",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2015-09-17 10:42:14",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "WikibaseQuality\\ExternalValidation\\": "includes/",
-                "WikibaseQuality\\ExternalValidation\\Api\\": "api/",
-                "WikibaseQuality\\ExternalValidation\\Specials\\": "specials/",
-                "WikibaseQuality\\ExternalValidation\\Tests\\": "tests/phpunit/"
-            },
-            "classmap": [
-                "WikibaseQualityExternalValidationHooks.php",
-                "maintenance/UpdateExternalData.php"
-            ]
-        },
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "BP2014N1"
-            }
-        ],
-        "description": "Extension for WikibaseQuality to perform cross-checks with external databases.",
-        "homepage": "https://www.mediawiki.org/wiki/WikidataQuality/",
-        "keywords": [
-            "database",
-            "external",
-            "quality",
-            "trust",
-            "violation",
-            "wikibase",
-            "wikidata"
-        ],
-        "support": {
-            "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
-        }
-    },
-    {
         "name": "wikibase/quality",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "da096a1cb9c3620512d12ba275e61124362edea0"
+            "reference": "2f3f5a35bc1eec14765b3b42cc2c7bc60e3c7ce1"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1517,7 +1517,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-09-16 15:00:29",
+        "time": "2015-09-24 19:33:40",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1559,7 +1559,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-            "reference": "480258ed3b9fb493ecb7cf96cc0b91a2f2678f04"
+            "reference": "4356d5c5334f50f2cda051374a9fc8675cc160f4"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1571,7 +1571,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-09-16 15:00:51",
+        "time": "2015-09-24 19:33:45",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

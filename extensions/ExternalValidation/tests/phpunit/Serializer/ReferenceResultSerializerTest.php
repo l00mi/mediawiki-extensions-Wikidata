@@ -69,6 +69,42 @@ class ReferenceResultSerializerTest extends SerializerTestBase {
 		);
 	}
 
+	/**
+	 * @return array an array of array( JSON, object to serialize)
+	 */
+	public function serializationJSONProvider() {
+		return array(
+			array(
+				'{'
+				. '"reference":"foobar",'
+				. '"status":"references-missing"'
+				. '}',
+				new ReferenceResult(
+					ReferenceResult::STATUS_REFERENCES_MISSING,
+					$this->getReferenceMock()
+				)
+			),
+		);
+	}
+
+	/**
+	 * @return array an array of array( XML, object to serialize)
+	 */
+	public function serializationXMLProvider() {
+		return array(
+			array(
+				'<api'
+				. '    reference="foobar" '
+				. '    status="references-missing"'
+				. '/>',
+				new ReferenceResult(
+					ReferenceResult::STATUS_REFERENCES_MISSING,
+					$this->getReferenceMock()
+				)
+			),
+		);
+	}
+
 	protected function buildSerializer() {
 		$serializerMock = $this->getMock( 'Serializers\Serializer' );
 		$serializerMock->expects( $this->any() )

@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Serializer;
 
+use DataValues\DataValue;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer;
 
@@ -50,6 +51,9 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 		);
 	}
 
+	/**
+	 * @return DataValue
+	 */
 	private function getDataValueMock() {
 		return $this->getMock( 'DataValues\DataValue' );
 	}
@@ -71,7 +75,8 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 				array(
 					'localValue' => 'foobar',
 					'externalValues' => array(
-						'foobar'
+						'foobar',
+						'_element' => 'dataValue'
 					),
 					'result' => ComparisonResult::STATUS_MISMATCH
 				),
@@ -88,7 +93,8 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 					'localValue' => 'foobar',
 					'externalValues' => array(
 						'foobar',
-						'foobar'
+						'foobar',
+						'_element' => 'dataValue'
 					),
 					'result' => ComparisonResult::STATUS_MATCH
 				),
@@ -106,7 +112,8 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 					'localValue' => 'foobar',
 					'externalValues' => array(
 						'foobar',
-						'foobar'
+						'foobar',
+						'_element' => 'dataValue'
 					),
 					'result' => ComparisonResult::STATUS_PARTIAL_MATCH
 				),
@@ -134,9 +141,6 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 						$this->getDataValueMock()
 					),
 					ComparisonResult::STATUS_MISMATCH
-				),
-				array(
-					'shouldIndexTags' => true
 				)
 			),
 			array(
@@ -156,9 +160,6 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 						$this->getDataValueMock()
 					),
 					ComparisonResult::STATUS_MATCH
-				),
-				array(
-					'shouldIndexTags' => true
 				)
 			),
 			array(
@@ -178,20 +179,64 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 						$this->getDataValueMock()
 					),
 					ComparisonResult::STATUS_PARTIAL_MATCH
-				),
-				array(
-					'shouldIndexTags' => true
 				)
 			)
 		);
 	}
 
-	protected function buildSerializer( $shouldIndexTags = false ) {
+	/**
+	 * @return array an array of array( JSON, object to serialize)
+	 */
+	public function serializationJSONProvider() {
+		return array(
+			array(
+				'{'
+				. '"localValue":"foobar",'
+				. '"externalValues":["foobar","foobar"],'
+				. '"result":"partial-match"'
+				. '}',
+				new ComparisonResult(
+					$this->getDataValueMock(),
+					array(
+						$this->getDataValueMock(),
+						$this->getDataValueMock()
+					),
+					ComparisonResult::STATUS_PARTIAL_MATCH
+				),
+			),
+		);
+	}
+
+	/**
+	 * @return array an array of array( XML, object to serialize)
+	 */
+	public function serializationXMLProvider() {
+		return array(
+			array(
+				'<api localValue="foobar" result="partial-match">'
+				. '    <externalValues>'
+				. '      <dataValue>foobar</dataValue>'
+				. '      <dataValue>foobar</dataValue>'
+				. '    </externalValues>'
+				. '</api>',
+				new ComparisonResult(
+					$this->getDataValueMock(),
+					array(
+						$this->getDataValueMock(),
+						$this->getDataValueMock()
+					),
+					ComparisonResult::STATUS_PARTIAL_MATCH
+				),
+			),
+		);
+	}
+
+	protected function buildSerializer() {
 		$serializerMock = $this->getMock( 'Serializers\Serializer' );
 		$serializerMock->expects( $this->any() )
 		->method( 'serialize' )
 		->will( $this->returnValue( 'foobar' ) );
 
-		return new ComparisonResultSerializer( $serializerMock, $shouldIndexTags );
+		return new ComparisonResultSerializer( $serializerMock );
 	}
 }

@@ -24,7 +24,6 @@ use Wikibase\DataModel\Services\Diff\ItemDiff;
 use Wikibase\EntityChange;
 use Wikibase\ItemChange;
 use Wikibase\Lib\Store\StorageException;
-use Wikibase\NamespaceChecker;
 
 /**
  * @licence GNU GPL v2+
@@ -37,11 +36,6 @@ class AffectedPagesFinder {
 	 * @var UsageLookup
 	 */
 	private $usageLookup;
-
-	/**
-	 * @var NamespaceChecker
-	 */
-	private $namespaceChecker;
 
 	/**
 	 * @var TitleFactory
@@ -65,7 +59,6 @@ class AffectedPagesFinder {
 
 	/**
 	 * @param UsageLookup $usageLookup
-	 * @param NamespaceChecker $namespaceChecker
 	 * @param TitleFactory $titleFactory
 	 * @param string $siteId
 	 * @param string $contentLanguageCode
@@ -75,7 +68,6 @@ class AffectedPagesFinder {
 	 */
 	public function __construct(
 		UsageLookup $usageLookup,
-		NamespaceChecker $namespaceChecker,
 		TitleFactory $titleFactory,
 		$siteId,
 		$contentLanguageCode,
@@ -94,7 +86,6 @@ class AffectedPagesFinder {
 		}
 
 		$this->usageLookup = $usageLookup;
-		$this->namespaceChecker = $namespaceChecker;
 		$this->titleFactory = $titleFactory;
 		$this->siteId = $siteId;
 		$this->contentLanguageCode = $contentLanguageCode;
@@ -127,6 +118,15 @@ class AffectedPagesFinder {
 
 		$diff = $change->getDiff();
 		$remainingDiffOps = count( $diff ); // this is a "deep" count!
+
+		if ( $remainingDiffOps === 0 ) {
+			// HACK: assume an empty diff implies that some "other" aspect of the entity was changed.
+			// This is needed since EntityChangeFactory::newFromUpdate suppresses statement diffs for
+			// performance reasons.
+			// For a better solution, see T113468.
+			$aspects[] = EntityUsage::OTHER_USAGE;
+			return $aspects;
+		}
 
 		if ( $diff instanceof ItemDiff && !$diff->getSiteLinkDiff()->isEmpty() ) {
 			$siteLinkDiff = $diff->getSiteLinkDiff();
@@ -296,13 +296,7 @@ class AffectedPagesFinder {
 				continue;
 			}
 
-			$ns = $title->getNamespace();
-
-			if ( !$this->namespaceChecker->isWikibaseEnabled( $ns ) ) {
-				continue;
-			}
-
-			$key = $title->getArticleID();
+			$key = $pageEntityUsages->getPageId();
 			$titlesToUpdate[$key] = $pageEntityUsages;
 		}
 

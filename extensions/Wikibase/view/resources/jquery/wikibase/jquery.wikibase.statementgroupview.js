@@ -9,7 +9,6 @@
  * `jquery.wikibase.statementlistview` widget.
  * @see wikibase.datamodel.StatementGroup
  * @uses jQuery.wikibase.statementlistview
- * @uses jQuery.wikibase.statementview
  * @uses jQuery.wikibase.listview
  * @uses jQuery.wikibase.listview.ListItemAdapter
  * @since 0.5
@@ -25,8 +24,6 @@
  *        "add" button to add new `Statements`.
  * @param {wikibase.utilities.ClaimGuidGenerator} options.claimGuidGenerator
  *        Required for dynamically generating GUIDs for new `Statement`s.
- * @param {string} [entityType=wikibase.datamodel.Item.TYPE]
- *        Type of the entity that the widget refers to.
  * @param {wikibase.store.EntityStore} options.entityStore
  *        Required for dynamically gathering `Entity`/`Property` information.
  * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
@@ -63,7 +60,6 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 		},
 		value: null,
 		claimGuidGenerator: null,
-		entityType: wb.datamodel.Item.TYPE,
 		entityStore: null,
 		valueViewBuilder: null,
 		entityChangersFactory: null,
@@ -71,9 +67,9 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 	},
 
 	/**
-	 * @property {jQuery}
+	 * @property {jQuery.wikibase.statementlistview}
 	 */
-	$statementlistview: null,
+	statementlistview: null,
 
 	/**
 	 * @inheritdoc
@@ -94,12 +90,6 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 
 		PARENT.prototype._create.call( this );
 
-		this.$statementlistview = this.element.find( '.wikibase-statementlistview' );
-
-		if( !this.$statementlistview.length ) {
-			this.$statementlistview = $( '<div/>' ).appendTo( this.element );
-		}
-
 		if( this.options.value ) {
 			this._createPropertyLabel();
 		}
@@ -110,9 +100,9 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 	 * @inheritdoc
 	 */
 	destroy: function() {
-		if( this.$statementlistview ) {
-			this.$statementlistview.off( this.widgetName );
-			this.$statementlistview.data( 'statementlistview' ).destroy();
+		if( this.statementlistview ) {
+			this.statementlistview.element.off( this.widgetName );
+			this.statementlistview.destroy();
 		}
 		PARENT.prototype.destroy.call( this );
 	},
@@ -152,11 +142,31 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 	 */
 	_createStatementlistview: function() {
 		var self = this,
-			prefix = $.wikibase.statementlistview.prototype.widgetEventPrefix;
+			prefix;
 
-		this.$statementlistview
+		var $statementlistview = this.element.find( '.wikibase-statementlistview' );
+
+		if( !$statementlistview.length ) {
+			$statementlistview = $( '<div/>' ).appendTo( this.element );
+		}
+
+		$statementlistview.statementlistview( {
+			value: this.options.value
+				? this.options.value.getItemContainer()
+				: new wb.datamodel.StatementList(),
+			claimGuidGenerator: this.options.claimGuidGenerator,
+			entityStore: this.options.entityStore,
+			valueViewBuilder: this.options.valueViewBuilder,
+			entityChangersFactory: this.options.entityChangersFactory,
+			dataTypeStore: this.options.dataTypeStore
+		} );
+
+		this.statementlistview = $statementlistview.data( 'statementlistview' );
+		prefix = this.statementlistview.widgetEventPrefix;
+
+		$statementlistview
 		.on( prefix + 'toggleerror.' + this.widgetName, function( event, error ) {
-			self.$property[error ? 'addClass' : 'removeClass']( 'wb-error' );
+			self.$property.toggleClass( 'wb-error', error );
 		} )
 		.on( prefix + 'afterstopediting.' + this.widgetName, function( event, dropValue ) {
 			self.$property.removeClass( 'wb-error' ).removeClass( 'wb-edit' );
@@ -168,17 +178,6 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 		.on( prefix + 'afterremove.' + this.widgetName, function( event ) {
 			self.$property.removeClass( 'wb-error' ).removeClass( 'wb-edit' );
 			self._trigger( 'afterremove' );
-		} )
-		.statementlistview( {
-			value: this.options.value
-				? this.options.value.getItemContainer()
-				: new wb.datamodel.StatementList(),
-			claimGuidGenerator: self.options.claimGuidGenerator,
-			entityType: self.options.entityType,
-			entityStore: self.options.entityStore,
-			valueViewBuilder: self.options.valueViewBuilder,
-			entityChangersFactory: self.options.entityChangersFactory,
-			dataTypeStore: self.options.dataTypeStore
 		} );
 	},
 
@@ -191,7 +190,7 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 	 */
 	value: function( statementGroupView ) {
 		if( statementGroupView === undefined ) {
-			var statementList = this.$statementlistview.data( 'statementlistview' ).value();
+			var statementList = this.statementlistview.value();
 			if( !statementList.length ) {
 				return null;
 			}
@@ -219,13 +218,13 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 			if( !( value instanceof wb.datamodel.StatementGroup ) ) {
 				throw new Error( 'value needs to be a wb.datamodel.StatementGroup instance' );
 			}
-			this.$statementlistview.data( 'statementlistview' ).value( value.getItemContainer() );
+			this.statementlistview.value( value.getItemContainer() );
 		}
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
 
 		if( key === 'disabled' ) {
-			this.$statementlistview.data( 'statementlistview' ).option( key, value );
+			this.statementlistview.option( key, value );
 		}
 
 		return response;
@@ -235,8 +234,21 @@ $.widget( 'wikibase.statementgroupview', PARENT, {
 	 * @inheritdoc
 	 */
 	focus: function() {
-		this.$statementlistview.data( 'statementlistview' ).focus();
+		this.statementlistview.focus();
+	},
+
+	/**
+	 * Adds a new, pending `statementview` to the encapsulated `statementlistview`.
+	 * @see jQuery.wikibase.listview.enterNewItem
+	 *
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {jQuery} return.done.$statementview
+	 */
+	enterNewItem: function() {
+		return this.statementlistview.enterNewItem();
 	}
+
 } );
 
 }( wikibase, jQuery ) );

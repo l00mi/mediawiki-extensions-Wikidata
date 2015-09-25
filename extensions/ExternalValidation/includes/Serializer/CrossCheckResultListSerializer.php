@@ -24,11 +24,8 @@ class CrossCheckResultListSerializer extends IndexedTagsSerializer implements Di
 
 	/**
 	 * @param Serializer $crossCheckResultSerializer
-	 * @param bool $shouldIndexTags
 	 */
-	public function __construct( Serializer $crossCheckResultSerializer, $shouldIndexTags = false ) {
-		parent::__construct( $shouldIndexTags );
-
+	public function __construct( Serializer $crossCheckResultSerializer ) {
 		$this->crossCheckResultSerializer = $crossCheckResultSerializer;
 	}
 
@@ -64,22 +61,22 @@ class CrossCheckResultListSerializer extends IndexedTagsSerializer implements Di
 
 	private function getSerialized( CrossCheckResultList $resultList ) {
 		$serialization = array();
+		$this->setKeyAttributeName( $serialization, 'property', 'id' );
+
 		foreach ( $resultList->getPropertyIds() as $propertyId ) {
-			if ( $this->shouldIndexTags() ) {
-				$index = count( $serialization );
-				$serialization[$index]['id'] = $propertyId->getSerialization();
-				$this->setIndexedTagName( $serialization[$index], 'result' );
-			} else {
-				$index = (string)$propertyId;
-			}
+			$id = $propertyId->getSerialization();
+			$resultSerialization = array();
+
+			$this->setIndexedTagName( $resultSerialization, 'result' );
 
 			foreach ( $resultList->getByPropertyId( $propertyId ) as $result ) {
-				$serialization[ $index ][] = $this->crossCheckResultSerializer->serialize( $result );
+				$resultSerialization[] = $this->crossCheckResultSerializer->serialize( $result );
 			}
-		}
 
-		$this->setIndexedTagName( $serialization, 'property' );
+			$serialization[$id] = $resultSerialization;
+		}
 
 		return $serialization;
 	}
+
 }

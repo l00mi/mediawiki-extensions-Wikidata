@@ -24,11 +24,8 @@ class ComparisonResultSerializer extends IndexedTagsSerializer implements Dispat
 
 	/**
 	 * @param Serializer $dataValueSerializer
-	 * @param bool $shouldIndexTags
 	 */
-	public function __construct( Serializer $dataValueSerializer, $shouldIndexTags = false ) {
-		parent::__construct( $shouldIndexTags );
-
+	public function __construct( Serializer $dataValueSerializer ) {
 		$this->dataValueSerializer = $dataValueSerializer;
 	}
 
