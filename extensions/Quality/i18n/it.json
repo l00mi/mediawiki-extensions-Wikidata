@@ -8,6 +8,7 @@
 			"The Polish"
 		]
 	},
+	"specialpages-group-wikibasequality": "Qualità di Wikibase",
 	"wbq-violations-description": "Lista di problemi relativi alla qualità dei dati.",
 	"wbq-violations-explanations-general": "In questa pagina speciale sono elencati tutti i problemi di qualità relativi ai dati che sono stati rilevati in Wikidata. Tali problemi possono essere violazioni relative a vincoli definiti o incongruenze con altre banche dati esterne.",
 	"wbq-violations-explanations-exceptions": "Se una dichiarazione è erroneamente etichettata come problema relativo alla qualità dei dati, può essere contrassegnato come eccezione da utenti dotati di appositi privilegi. Tali eccezioni non sono visualizzate nell'elenco di default. Le eccezioni esistenti possono anche essere ripristinate e impostate nuovamente come problema.",
