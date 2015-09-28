@@ -134,9 +134,9 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	public function requestWithoutRedirectProvider() {
 		$cases = array();
 		$cases['empty'] = array( '', null, '', '', '' );
-		$cases['invalidItemID'] = array( 'enwiki/invalid', null, 'enwiki', 'invalid', 'The entered ID of the item is not valid' );
-		$cases['notFound'] = array( 'enwiki/Q42', null, 'enwiki', 'Q42', 'Item was not found' );
-		$cases['notFound2'] = array( 'XXwiki/Q23', null, 'XXwiki', 'Q23', 'There was no page found for that combination of item and site' );
+		$cases['invalidItemID'] = array( 'enwiki/invalid', null, 'enwiki', 'invalid', '(wikibase-gotolinkedpage-error-item-id-invalid)' );
+		$cases['notFound'] = array( 'enwiki/Q42', null, 'enwiki', 'Q42', '(wikibase-gotolinkedpage-error-item-not-found)' );
+		$cases['notFound2'] = array( 'XXwiki/Q23', null, 'XXwiki', 'Q23', '(wikibase-gotolinkedpage-error-page-not-found)' );
 
 		return $cases;
 	}
@@ -146,7 +146,7 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	 */
 	public function testExecuteWithoutRedirect( $sub, $target, $site, $item, $error ) {
 		/* @var FauxResponse $response */
-		list( $output, $response ) = $this->executeSpecialPage( $sub );
+		list( $output, $response ) = $this->executeSpecialPage( $sub, null, 'qqx' );
 
 		$this->assertEquals( $target, $response->getheader( 'Location' ), 'Redirect' );
 
@@ -170,25 +170,17 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 			'tag' => 'input',
 			'attributes' => array(
 				'id' => 'wb-gotolinkedpage-submit',
-				'class' => 'wb-input-button',
 				'type' => 'submit',
-				'name' => 'submit'
+				'name' => ''
 			)
 		);
 		foreach ( $matchers as $key => $matcher ) {
 			$this->assertTag( $matcher, $output, "Failed to match html output for: " . $key );
 		}
 
-		$errorMatch = array(
-			'tag' => 'p',
-			'content' => $error,
-			'attributes' => array(
-				'class' => 'error'
-			)
-		);
-
 		if ( !empty( $error ) ) {
-			$this->assertTag( $errorMatch, $output, "Failed to match error: " . $error );
+			$this->assertContains( '<p class="error">' . $error . '</p>', $output,
+				'Failed to match error: ' . $error );
 		}
 	}
 

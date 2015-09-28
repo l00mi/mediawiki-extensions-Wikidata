@@ -6,7 +6,7 @@ module.exports = function ( grunt ) {
 
 	function autoloadSuffix( branch ) {
 		var suffix = "wikidata_" + branch.substring( branch.lastIndexOf( "/" ) + 1 );
-		suffix = suffix.replace( '\.', '_' );
+		suffix = suffix.replace( /[\.\-]/g, '_' );
 
 		return suffix;
 	}
@@ -17,6 +17,9 @@ module.exports = function ( grunt ) {
 			branch = this.data.branchName;
 
 		composer.require["wikibase/wikibase"] = 'dev-' + branch;
+
+		// Don't include in deployment builds while security review is pending.
+		delete composer.require["wikibase/external-validation"];
 
 		delete composer.config["github-oauth"];
 		composer.config["autoloader-suffix"] = autoloadSuffix( branch );

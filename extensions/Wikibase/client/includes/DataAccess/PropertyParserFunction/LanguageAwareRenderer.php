@@ -5,13 +5,13 @@ namespace Wikibase\Client\DataAccess\PropertyParserFunction;
 use InvalidArgumentException;
 use Language;
 use Status;
-use Wikibase\Client\DataAccess\EntityAccessLimitException;
 use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\Client\PropertyLabelNotResolvedException;
 use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Services\Lookup\EntityAccessLimitException;
 
 /**
- * PropertyClaimsRenderer of the {{#property}} parser function.
+ * StatementGroupRenderer of the {{#property}} parser function.
  *
  * @since 0.5
  *
@@ -22,7 +22,7 @@ use Wikibase\DataModel\Entity\EntityId;
  * @author Liangent < liangent@gmail.com >
  * @author Marius Hoch < hoo@online.de >
  */
-class LanguageAwareRenderer implements PropertyClaimsRenderer {
+class LanguageAwareRenderer implements StatementGroupRenderer {
 
 	/**
 	 * @var Language

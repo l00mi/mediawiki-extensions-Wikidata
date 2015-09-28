@@ -13,9 +13,9 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\Lib\Serialization\CallbackFactory;
 use Wikibase\Lib\Serialization\SerializationModifier;
-use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
+use Wikibase\DataModel\Services\Lookup\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Store\StorageException;
-use Wikibase\Lib\Store\UnresolvedRedirectException;
+use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 
 /**
  * JsonDumpGenerator generates an JSON dump of a given set of entities, excluding
@@ -31,7 +31,7 @@ class JsonDumpGenerator extends DumpGenerator {
 	/**
 	 * @var int flags to use with json_encode as a bit field, see PHP's JSON_XXX constants.
 	 */
-	public $jsonFlags = 0;
+	private $jsonFlags = 0;
 
 	/**
 	 * @var Serializer
@@ -137,7 +137,7 @@ class JsonDumpGenerator extends DumpGenerator {
 			}
 		} catch ( MWContentSerializationException $ex ) {
 			throw new StorageException( 'Deserialization error for ' . $entityId->getSerialization() );
-		} catch ( UnresolvedRedirectException $e ) {
+		} catch ( RevisionedUnresolvedRedirectException $e ) {
 			return null;
 		}
 

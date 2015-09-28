@@ -24,12 +24,15 @@
 
 use DataValues\Geo\Parsers\GlobeCoordinateParser;
 use ValueFormatters\FormatterOptions;
-use ValueParsers\NullParser;
+use ValueParsers\ParserOptions;
 use ValueParsers\QuantityParser;
+use ValueParsers\StringParser;
 use ValueParsers\ValueParser;
-use Wikibase\Lib\EntityIdValueParser;
-use Wikibase\Lib\Parsers\TimeParserFactory;
-use Wikibase\Parsers\MonolingualTextParser;
+use Wikibase\Repo\Parsers\EntityIdValueParser;
+use Wikibase\Repo\Parsers\MediaWikiNumberUnlocalizer;
+use Wikibase\Repo\Parsers\MonolingualTextParser;
+use Wikibase\Repo\Parsers\TimeParserFactory;
+use Wikibase\Repo\Parsers\WikibaseStringValueNormalizer;
 use Wikibase\Repo\WikibaseRepo;
 
 return call_user_func( function() {
@@ -45,33 +48,35 @@ return call_user_func( function() {
 	// WikibaseValueFormatterBuilders should be used *only* here, program logic should use a
 	// OutputFormatValueFormatterFactory as returned by WikibaseRepo::getValueFormatterFactory().
 
-	$newEntityIdParser = function( ValueParsers\ParserOptions $options ) {
+	$newEntityIdParser = function( ParserOptions $options ) {
 		$repo = WikibaseRepo::getDefaultInstance();
 		return new EntityIdValueParser( $repo->getEntityIdParser() );
 	};
 
-	$newNullParser = function( ValueParsers\ParserOptions $options ) {
-		return new NullParser();
+	$newStringParser = function( ParserOptions $options ) {
+		$repo = WikibaseRepo::getDefaultInstance();
+		$normalizer = new WikibaseStringValueNormalizer( $repo->getStringNormalizer() );
+		return new StringParser( $normalizer );
 	};
 
 	return array(
 		'commonsMedia' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildStringValidators();
 			},
-			'parser-factory-callback' => $newNullParser, //TODO: use StringParser
+			'parser-factory-callback' => $newStringParser,
 			'formatter-factory-callback' => function( $format, FormatterOptions $options ) {
 				$factory = WikibaseRepo::getDefaultFormatterBuilders();
 				return $factory->newCommonsMediaFormatter( $format, $options );
 			},
 		),
 		'globe-coordinate' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildCoordinateValidators();
 			},
-			'parser-factory-callback' => function( ValueParsers\ParserOptions $options ) {
+			'parser-factory-callback' => function( ParserOptions $options ) {
 				return new GlobeCoordinateParser( $options );
 			},
 			'formatter-factory-callback' => function( $format, FormatterOptions $options ) {
@@ -80,11 +85,11 @@ return call_user_func( function() {
 			},
 		),
 		'monolingualtext' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildMonolingualTextValidators();
 			},
-			'parser-factory-callback' => function( ValueParsers\ParserOptions $options ) {
+			'parser-factory-callback' => function( ParserOptions $options ) {
 				return new MonolingualTextParser( $options );
 			},
 			'formatter-factory-callback' => function( $format, FormatterOptions $options ) {
@@ -93,13 +98,13 @@ return call_user_func( function() {
 			},
 		),
 		'quantity' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildQuantityValidators();
 			},
-			'parser-factory-callback' => function( ValueParsers\ParserOptions $options ) {
+			'parser-factory-callback' => function( ParserOptions $options ) {
 				$language = Language::factory( $options->getOption( ValueParser::OPT_LANG ) );
-				$unlocalizer = new Wikibase\Lib\MediaWikiNumberUnlocalizer( $language );
+				$unlocalizer = new MediaWikiNumberUnlocalizer( $language );
 				return new QuantityParser( $options, $unlocalizer );
 			},
 			'formatter-factory-callback' => function( $format, FormatterOptions $options ) {
@@ -108,21 +113,21 @@ return call_user_func( function() {
 			},
 		),
 		'string' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildStringValidators();
 			},
-			'parser-factory-callback' => $newNullParser, //TODO: use StringParser
+			'parser-factory-callback' => $newStringParser,
 			'formatter-factory-callback' => function( $format, FormatterOptions $options ) {
 				return null; // rely on formatter for string value type
 			},
 		),
 		'time' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildTimeValidators();
 			},
-			'parser-factory-callback' => function( ValueParsers\ParserOptions $options ) {
+			'parser-factory-callback' => function( ParserOptions $options ) {
 				$factory = new TimeParserFactory( $options );
 				return $factory->getTimeParser();
 			},
@@ -132,18 +137,18 @@ return call_user_func( function() {
 			},
 		),
 		'url' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildUrlValidators();
 			},
-			'parser-factory-callback' => $newNullParser, //TODO: use StringParser
+			'parser-factory-callback' => $newStringParser,
 			'formatter-factory-callback' => function( $format, FormatterOptions $options ) {
 				$factory = WikibaseRepo::getDefaultFormatterBuilders();
 				return $factory->newUrlFormatter( $format, $options );
 			},
 		),
 		'wikibase-item' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildItemValidators();
 			},
@@ -154,7 +159,7 @@ return call_user_func( function() {
 			},
 		),
 		'wikibase-property' => array(
-			'validator-factory-callback' => function () {
+			'validator-factory-callback' => function() {
 				$factory = WikibaseRepo::getDefaultValidatorBuilders();
 				return $factory->buildPropertyValidators();
 			},
@@ -166,4 +171,4 @@ return call_user_func( function() {
 		),
 	);
 
-});
+} );

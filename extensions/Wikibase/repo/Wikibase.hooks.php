@@ -12,7 +12,7 @@ use ExtensionRegistry;
 use HistoryPager;
 use Html;
 use Linker;
-use LogEntryBase;
+use LogEntry;
 use MWException;
 use MWExceptionHandler;
 use OutputPage;
@@ -265,25 +265,28 @@ final class RepoHooks {
 	 *
 	 * @since 0.1
 	 *
-	 * @param WikiPage $wikiPage
-	 * @param User $user
+	 * @param WikiPage &$wikiPage
+	 * @param User &$user
 	 * @param string $reason
-	 * @param int $id
+	 * @param int $id id of the article that was deleted
 	 * @param Content $content
-	 * @param LogEntryBase $logEntry
+	 * @param LogEntry $logEntry
 	 *
 	 * @throws MWException
-	 *
-	 * @return bool
 	 */
-	public static function onArticleDeleteComplete( WikiPage $wikiPage, User $user, $reason, $id,
-		Content $content = null, LogEntryBase $logEntry = null
+	public static function onArticleDeleteComplete(
+		WikiPage &$wikiPage,
+		User &$user,
+		$reason,
+		$id,
+		Content $content = null,
+		LogEntry $logEntry
 	) {
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		// Bail out if we are not looking at an entity
 		if ( !$content || !$entityContentFactory->isEntityContentModel( $content->getModel() ) ) {
-			return true;
+			return;
 		}
 
 		/** @var EntityContent $content */
@@ -296,8 +299,6 @@ final class RepoHooks {
 
 		$notifier = WikibaseRepo::getDefaultInstance()->getChangeNotifier();
 		$notifier->notifyOnPageDeleted( $content, $user, $logEntry->getTimestamp() );
-
-		return true;
 	}
 
 	/**
@@ -833,7 +834,7 @@ final class RepoHooks {
 			StubUserLang::unstub( $wgLang );
 		}
 
-		$formatter = new AutoCommentFormatter( $wgLang, $messagePrefix );
+		$formatter = new AutoCommentFormatter( $wgLang, array( $messagePrefix, 'wikibase-entity' ) );
 		$formattedComment = $formatter->formatAutoComment( $auto );
 
 		if ( is_string( $formattedComment ) ) {
@@ -1140,8 +1141,23 @@ final class RepoHooks {
 					'resources/wikibase.special/wikibase.special.languageSuggester.js',
 				),
 				'dependencies' => array(
-					'wikibase.special',
 					'jquery.ui.suggester',
+				),
+			),
+			'wikibase.special.languageLabelDescriptionAliases' => $moduleTemplate + array(
+				'scripts' => array(
+					'resources/wikibase.special/wikibase.special.languageLabelDescriptionAliases.js',
+				),
+				'dependencies' => array(
+					'oojs-ui',
+				),
+				'messages' => array(
+					'wikibase-label-edit-placeholder',
+					'wikibase-label-edit-placeholder-language-aware',
+					'wikibase-description-edit-placeholder',
+					'wikibase-description-edit-placeholder-language-aware',
+					'wikibase-aliases-edit-placeholder',
+					'wikibase-aliases-edit-placeholder-language-aware',
 				),
 			),
 		);
@@ -1150,6 +1166,7 @@ final class RepoHooks {
 		if ( $isUlsLoaded ) {
 			$modules['wikibase.WikibaseContentLanguages']['dependencies'][] = 'ext.uls.languagenames';
 			$modules['wikibase.special.languageSuggester']['dependencies'][] = 'ext.uls.mediawiki';
+			$modules['wikibase.special.languageLabelDescriptionAliases']['dependencies'][] = 'ext.uls.mediawiki';
 		}
 
 		$resourceLoader->register( $modules );

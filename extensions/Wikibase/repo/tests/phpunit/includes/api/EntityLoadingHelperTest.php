@@ -7,7 +7,7 @@ use UsageException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\BadRevisionException;
 use Wikibase\Lib\Store\StorageException;
-use Wikibase\Lib\Store\UnresolvedRedirectException;
+use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikibase\Repo\Api\EntityLoadingHelper;
 
 /**
@@ -90,7 +90,10 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 
 	public function testUnresolvedRedirectException_callsErrorReporter() {
 		$helper = new EntityLoadingHelper(
-			$this->getMockEntityRevisionLookup( new UnresolvedRedirectException( new ItemId( 'Q1' ) ) ),
+			$this->getMockEntityRevisionLookup( new RevisionedUnresolvedRedirectException(
+				new ItemId( 'Q1' ),
+				new ItemId( 'Q1' )
+			) ),
 			$this->getMockErrorReporter( 'unresolved-redirect' )
 		);
 

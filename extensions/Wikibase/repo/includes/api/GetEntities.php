@@ -11,7 +11,7 @@ use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\EntityRevision;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\UnresolvedRedirectException;
+use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StringNormalizer;
@@ -108,10 +108,6 @@ class GetEntities extends ApiBase {
 	public function execute() {
 		$params = $this->extractRequestParams();
 
-		if ( isset( $params['props'] ) && !empty( $params['props'] ) ) {
-			$this->logFeatureUsage( 'action=wbgetentities&props=' . implode( '|', $params['props'] ) );
-		}
-
 		if ( !isset( $params['ids'] ) && ( empty( $params['sites'] ) || empty( $params['titles'] ) ) ) {
 			$this->errorReporter->dieError(
 				'Either provide the item "ids" or pairs of "sites" and "titles" for corresponding pages',
@@ -156,7 +152,8 @@ class GetEntities extends ApiBase {
 				try {
 					$ids[] = $this->idParser->parse( $id );
 				} catch ( EntityIdParsingException $e ) {
-					$this->errorReporter->dieError( "Invalid id: $id", 'no-such-entity' );
+					$this->errorReporter->dieError(
+						"Invalid id: $id", 'no-such-entity', 0, array( 'id' => $id ) );
 				}
 			}
 		}
@@ -247,7 +244,7 @@ class GetEntities extends ApiBase {
 
 		try {
 			$entityRevision = $this->entityRevisionLookup->getEntityRevision( $entityId );
-		} catch ( UnresolvedRedirectException $ex ) {
+		} catch ( RevisionedUnresolvedRedirectException $ex ) {
 			if ( $resolveRedirects ) {
 				$entityId = $ex->getRedirectTargetId();
 				$entityRevision = $this->getEntityRevision( $entityId, false );

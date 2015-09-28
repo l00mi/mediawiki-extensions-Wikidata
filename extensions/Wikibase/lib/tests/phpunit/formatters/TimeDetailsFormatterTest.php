@@ -31,10 +31,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 		$options = new FormatterOptions();
 		$options->setOption( ValueFormatter::OPT_LANG, 'qqx' );
 
-		$timeFormatter = $this->getMockBuilder( 'ValueFormatters\ValueFormatter' )
-			->disableOriginalConstructor()
-			->getMock();
-
+		$timeFormatter = $this->getMock( 'ValueFormatters\ValueFormatter' );
 		$timeFormatter->expects( $this->any() )
 			->method( 'format' )
 			->will( $this->returnValue( $formattedHeading ) );
@@ -110,7 +107,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 				'@' . implode( '.*',
 					array(
 						'<h4[^<>]*><a>HTML</a></h4>',
-						'<td[^<>]*>\+0*2001-01-01T00:00:00</td>',
+						'<td[^<>]*>\+0*2001-01-01T00:00:00Z</td>',
 						'<td[^<>]*>\+01:00</td>',
 						'<td[^<>]*>\(valueview-expert-timevalue-calendar-gregorian\)</td>',
 						'<td[^<>]*>\(months: 1\)</td>',
@@ -121,11 +118,11 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 			),
 			'3 digit year' => array(
 				new TimeValue( '+999-01-01T00:00:00Z', 0, 0, 0, $day, $gregorian ),
-				'@.*<td[^<>]*isotime">\+0999-01-01T00:00:00</td>.*@s'
+				'@.*<td[^<>]*isotime">\+0999-01-01T00:00:00Z</td>.*@s'
 			),
 			'Negative, padded year' => array(
 				new TimeValue( '-099999-01-01T00:00:00Z', 0, 0, 0, $day, $gregorian ),
-				'@.*<td[^<>]*isotime">\xE2\x88\x9299999-01-01T00:00:00</td>.*@s'
+				'@.*<td[^<>]*isotime">\xE2\x88\x9299999-01-01T00:00:00Z</td>.*@s'
 			),
 			'Optional Z' => array(
 				$this->getTimeValue( '-099999-01-01T00:00:00' ),
@@ -133,7 +130,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 			),
 			'Optional sign' => array(
 				$this->getTimeValue( '099999-01-01T00:00:00Z' ),
-				'@.*<td[^<>]*isotime">\+99999-01-01T00:00:00</td>.*@s'
+				'@.*<td[^<>]*isotime">\+99999-01-01T00:00:00Z</td>.*@s'
 			),
 			'Julian' => array(
 				new TimeValue( '+2001-01-01T00:00:00Z', 0, 0, 0, $day, $julian ),

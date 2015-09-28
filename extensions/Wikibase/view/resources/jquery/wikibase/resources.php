@@ -167,7 +167,6 @@ return call_user_func( function() {
 			),
 			'messages' => array(
 				'wikibase-entitytermsview-input-help-message',
-				'wikibase-terms',
 			),
 		),
 
@@ -195,7 +194,6 @@ return call_user_func( function() {
 				'wikibase-description-empty',
 				'wikibase-label-empty',
 				'wikibase-aliases-empty',
-				'wikibase-terms',
 			),
 		),
 
@@ -229,6 +227,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
+				'jquery.wikibase.aliasesview',
 				'jquery.wikibase.descriptionview',
 				'jquery.wikibase.labelview',
 				'mediawiki.Title',

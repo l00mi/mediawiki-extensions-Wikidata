@@ -42,7 +42,7 @@ class SiteLinkUsageLookup implements UsageLookup {
 	 * @param SiteLinkLookup $siteLinkLookup
 	 * @param TitleFactory $titleFactory
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct( $clientSiteId, SiteLinkLookup $siteLinkLookup, TitleFactory $titleFactory ) {
 		if ( !is_string( $clientSiteId ) ) {
@@ -65,7 +65,8 @@ class SiteLinkUsageLookup implements UsageLookup {
 	public function getUsagesForPage( $pageId ) {
 		$usages = array();
 
-		$id = $this->siteLinkLookup->getItemIdForLink( $this->clientSiteId, $pageId );
+		$title = $this->titleFactory->newFromID( $pageId );
+		$id = $this->siteLinkLookup->getItemIdForLink( $this->clientSiteId, $title->getPrefixedText() );
 
 		if ( $id !== null ) {
 			$usages[] = new EntityUsage( $id, EntityUsage::SITELINK_USAGE );
@@ -175,7 +176,7 @@ class SiteLinkUsageLookup implements UsageLookup {
 	 *
 	 * @return ItemId[]
 	 */
-	private function makeItemIds( $numericIds ) {
+	private function makeItemIds( array $numericIds ) {
 		return array_map(
 			function ( $numericId ) {
 				return ItemId::newFromNumber( $numericId );

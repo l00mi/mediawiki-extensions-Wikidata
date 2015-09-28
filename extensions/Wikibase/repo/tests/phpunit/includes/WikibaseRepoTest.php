@@ -244,7 +244,7 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 
 	public function testGetTermBuffer() {
 		$service = $this->getWikibaseRepo()->getTermBuffer();
-		$this->assertInstanceOf( 'Wikibase\Store\TermBuffer', $service );
+		$this->assertInstanceOf( 'Wikibase\DataModel\Services\Term\TermBuffer', $service );
 	}
 
 	public function testGetTermBuffer_instance() {
@@ -267,6 +267,31 @@ class WikibaseRepoTest extends \MediaWikiTestCase {
 	public function testNewPropertyInfoBuilder() {
 		$builder = $this->getWikibaseRepo()->newPropertyInfoBuilder();
 		$this->assertInstanceOf( 'Wikibase\PropertyInfoBuilder', $builder );
+	}
+
+	public function testGetEntityNamespaceLookup() {
+		$service = $this->getWikibaseRepo()->getEntityNamespaceLookup();
+		$this->assertInstanceOf( 'Wikibase\Repo\EntityNamespaceLookup', $service );
+	}
+
+	public function testGetEntityIdHtmlLinkFormatterFactory() {
+		$service = $this->getWikibaseRepo()->getEntityIdHtmlLinkFormatterFactory();
+		$this->assertInstanceOf( 'Wikibase\Repo\EntityIdHtmlLinkFormatterFactory', $service );
+	}
+
+	public function testGetEntityParserOutputGeneratorFactory() {
+		$service = $this->getWikibaseRepo()->getEntityParserOutputGeneratorFactory();
+		$this->assertInstanceOf( 'Wikibase\EntityParserOutputGeneratorFactory', $service );
+	}
+
+	public function testGetDataTypeValidatorFactory() {
+		$service = $this->getWikibaseRepo()->getDataTypeValidatorFactory();
+		$this->assertInstanceOf( 'Wikibase\Repo\BuilderBasedDataTypeValidatorFactory', $service );
+	}
+
+	public function testGetDataTypeDefinitions() {
+		$dataTypeDefinitions = $this->getWikibaseRepo()->getDataTypeDefinitions();
+		$this->assertInstanceOf( 'Wikibase\Lib\DataTypeDefinitions', $dataTypeDefinitions );
 	}
 
 }

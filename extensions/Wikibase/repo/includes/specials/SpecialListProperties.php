@@ -107,7 +107,7 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 
 		$this->dataTypeFactory = $dataTypeFactory;
 		$this->propertyInfoStore = $propertyInfoStore;
-		$this->entityIdFormatter = $entityIdFormatterFactory->getEntityIdFormater(
+		$this->entityIdFormatter = $entityIdFormatterFactory->getEntityIdFormatter(
 			$this->labelDescriptionLookup
 		);
 		$this->titleLookup = $titleLookup;
@@ -273,6 +273,15 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	 */
 	protected function getTitleForNavigation() {
 		return $this->getPageTitle( $this->dataType );
+	}
+
+	/**
+	 * @see SpecialPage::getSubpagesForPrefixSearch
+	 */
+	protected function getSubpagesForPrefixSearch() {
+		return array_map( function ( $dataType ) {
+			return $dataType->getId();
+		}, $this->dataTypeFactory->getTypes() );
 	}
 
 }

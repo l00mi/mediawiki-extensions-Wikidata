@@ -94,7 +94,7 @@ use Wikibase\SqlStore;
 use Wikibase\Store;
 use Wikibase\Store\BufferingTermLookup;
 use Wikibase\Store\EntityIdLookup;
-use Wikibase\Store\TermBuffer;
+use Wikibase\DataModel\Services\Term\TermBuffer;
 use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
 use Wikibase\View\EntityViewFactory;
@@ -1356,6 +1356,13 @@ class WikibaseRepo {
 		return new BuilderBasedDataTypeValidatorFactory(
 			$this->dataTypeDefinitions->getValidatorFactoryCallbacks()
 		);
+	}
+
+	/**
+	 * @return DataTypeDefinitions
+	 */
+	public function getDataTypeDefinitions() {
+		return $this->dataTypeDefinitions;
 	}
 
 	private function getMonolingualTextLanguages() {

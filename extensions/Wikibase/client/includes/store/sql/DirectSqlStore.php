@@ -19,11 +19,12 @@ use Wikibase\Client\Usage\UsageTracker;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Term\PropertyLabelResolver;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
 use Wikibase\Lib\Store\CachingSiteLinkLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\RedirectResolvingEntityLookup;
+use Wikibase\DataModel\Services\Lookup\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Store\RevisionBasedEntityLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Lib\Store\SiteLinkTable;
@@ -433,8 +434,6 @@ class DirectSqlStore implements ClientStore {
 	 */
 	public function getPropertyInfoStore() {
 		if ( $this->propertyInfoTable === null ) {
-			$wikibaseClient = WikibaseClient::getDefaultInstance();
-
 			$propertyInfoStore = new PropertyInfoTable( true, $this->repoWiki );
 			$cacheKey = $this->cacheKeyPrefix . ':CachingPropertyInfoStore';
 

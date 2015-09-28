@@ -16,7 +16,7 @@ use Wikibase\DataModel\Entity\EntityId;
  * @author Daniel Kinzler
  * @author Liangent < liangent@gmail.com >
  */
-class VariantsAwareRenderer implements PropertyClaimsRenderer {
+class VariantsAwareRenderer implements StatementGroupRenderer {
 
 	/**
 	 * @var string[]
@@ -53,7 +53,7 @@ class VariantsAwareRenderer implements PropertyClaimsRenderer {
 	 * @param EntityId $entityId
 	 * @param string $propertyLabelOrId
 	 *
-	 * @return string[], key by variant codes
+	 * @return string[] key by variant codes
 	 */
 	private function buildRenderedVariantsArray( EntityId $entityId, $propertyLabelOrId ) {
 		$renderedVariantsArray = array();

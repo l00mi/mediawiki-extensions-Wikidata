@@ -51,13 +51,6 @@ class PropertyInfoTableBuilder {
 	private $shouldUpdateAllEntities = false;
 
 	/**
-	 * Whether to use the epp_redirect_target column.
-	 *
-	 * @var bool
-	 */
-	private $useRedirectTargetColumn;
-
-	/**
 	 * Starting point
 	 *
 	 * @var int
@@ -71,16 +64,19 @@ class PropertyInfoTableBuilder {
 	 */
 	private $batchSize = 100;
 
+	/**
+	 * @param PropertyInfoTable $propertyInfoTable
+	 * @param EntityLookup $entityLookup
+	 * @param PropertyInfoBuilder $propertyInfoBuilder
+	 */
 	public function __construct(
 		PropertyInfoTable $propertyInfoTable,
 		EntityLookup $entityLookup,
-		PropertyInfoBuilder $propertyInfoBuilder,
-		$useRedirectTargetColumn = true
+		PropertyInfoBuilder $propertyInfoBuilder
 	) {
 		$this->propertyInfoTable = $propertyInfoTable;
 		$this->entityLookup = $entityLookup;
 		$this->propertyInfoBuilder = $propertyInfoBuilder;
-		$this->useRedirectTargetColumn = $useRedirectTargetColumn;
 	}
 
 	/**
@@ -196,7 +192,7 @@ class PropertyInfoTableBuilder {
 				array(
 					'epp_entity_type = ' . $dbw->addQuotes( Property::ENTITY_TYPE ),
 					'epp_entity_id > ' . (int) $rowId,
-					$this->useRedirectTargetColumn ? 'epp_redirect_target IS NULL' : '1',
+					'epp_redirect_target IS NULL',
 					$this->shouldUpdateAllEntities ? '1' : 'pi_property_id IS NULL', // if not $all, only add missing entries
 				),
 				__METHOD__,
@@ -264,6 +260,9 @@ class PropertyInfoTableBuilder {
 		);
 	}
 
+	/**
+	 * @param string $msg
+	 */
 	private function reportMessage( $msg ) {
 		if ( $this->reporter ) {
 			$this->reporter->reportMessage( $msg );

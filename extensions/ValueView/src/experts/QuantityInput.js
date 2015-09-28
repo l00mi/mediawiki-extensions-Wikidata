@@ -1,4 +1,4 @@
-( function( vv, UnitSelector ) {
+( function( $, vv, UnitSelector ) {
 	'use strict';
 
 	var PARENT = vv.experts.StringValue;
@@ -18,15 +18,21 @@
 		this._unitSelector = new UnitSelector(
 			this._messageProvider,
 			function() {
-				var value = self.viewState().value();
-				return value && value.getUnit();
+				var value = self.viewState().value(),
+					unit = value && value.getUnit(),
+					formattedValue = self.viewState().getFormattedValue(),
+					$unit = $( '<div>' ).html( formattedValue ).find( '.wb-unit' ).first();
+				return {
+					conceptUri: unit,
+					label: $unit.text() || unit
+				};
 			},
 			function() {
 				self._viewNotifier.notify( 'change' );
 			},
 			{
-				language: self._options.language || null,
-				vocabularyLookupApiUrl: self._options.vocabularyLookupApiUrl || null
+				language: this._options.language || null,
+				vocabularyLookupApiUrl: this._options.vocabularyLookupApiUrl || null
 			}
 		);
 
@@ -71,4 +77,4 @@
 		}
 	} );
 
-}( jQuery.valueview, jQuery.valueview.ExpertExtender.UnitSelector ) );
+}( jQuery, jQuery.valueview, jQuery.valueview.ExpertExtender.UnitSelector ) );

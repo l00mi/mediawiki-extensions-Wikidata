@@ -60,7 +60,7 @@ class RestrictedEntityLookup implements EntityLookup {
 	 *
 	 * @param EntityId $entityId
 	 *
-	 * @throws EntityLookupException
+	 * @throws EntityAccessLimitException
 	 * @return EntityDocument
 	 */
 	public function getEntity( EntityId $entityId ) {
@@ -72,7 +72,7 @@ class RestrictedEntityLookup implements EntityLookup {
 		}
 
 		if ( $this->entityAccessCount > $this->entityAccessLimit ) {
-			throw new EntityLookupException(
+			throw new EntityAccessLimitException(
 				$entityId,
 				'To many entities loaded, must not load more than ' . $this->entityAccessLimit . ' entities.'
 			);
@@ -87,6 +87,7 @@ class RestrictedEntityLookup implements EntityLookup {
 	 * @param EntityId $entityId
 	 *
 	 * @return bool
+	 * @throws EntityLookupException
 	 */
 	public function hasEntity( EntityId $entityId ) {
 		return $this->entityLookup->hasEntity( $entityId );
