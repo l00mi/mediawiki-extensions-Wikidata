@@ -23,6 +23,10 @@
  *        The `Statements` to be displayed by this view.
  * @param {wikibase.utilities.ClaimGuidGenerator} options.claimGuidGenerator
  *        Required for dynamically generating GUIDs for new `Statement`s.
+ * @param {wikibase.entityIdFormatter.EntityIdHtmlFormatter} options.entityIdHtmlFormatter
+ *        Required for dynamically rendering links to `Entity`s.
+ * @param {wikibase.entityIdFormatter.EntityIdPlainFormatter} options.entityIdPlainFormatter
+ *        Required for dynamically rendering plain text references to `Entity`s.
  * @param {wikibase.store.EntityStore} options.entityStore
  *        Required for dynamically gathering `Entity`/`Property` information.
  * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
@@ -48,6 +52,8 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 		templateShortCuts: {},
 		value: null,
 		claimGuidGenerator: null,
+		entityIdHtmlFormatter: null,
+		entityIdPlainFormatter: null,
 		entityStore: null,
 		valueViewBuilder: null,
 		entityChangersFactory: null,
@@ -123,6 +129,8 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 						value: value,
 						claimGuidGenerator: self.options.claimGuidGenerator,
 						dataTypeStore: self.options.dataTypeStore,
+						entityIdHtmlFormatter: self.options.entityIdHtmlFormatter,
+						entityIdPlainFormatter: self.options.entityIdPlainFormatter,
 						entityStore: self.options.entityStore,
 						valueViewBuilder: self.options.valueViewBuilder,
 						entityChangersFactory: self.options.entityChangersFactory
@@ -217,25 +225,6 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 		if( !found ) {
 			this.listview.addItem( newStatementGroup );
 		}
-	},
-
-	/**
-	 * Sets the widget's value or retrieves the widget's current value (including any pending
-	 * changes). The value the widget was initialized with may be retrieve using
-	 * `this.option( 'value' )`.
-	 *
-	 * @param {wikibase.datamodel.StatementGroupSet} [statementGroupSet]
-	 * @return {wikibase.datamodel.StatementGroupSet|undefined}
-	 */
-	value: function( statementGroupSet ) {
-		if( statementGroupSet === undefined ) {
-			return new wb.datamodel.StatementGroupSet(
-				$.map( this.listview.value(), function( statementGroup ) {
-					return statementGroup.value();
-				} )
-			);
-		}
-		this.option( 'value', statementGroupSet );
 	},
 
 	/**

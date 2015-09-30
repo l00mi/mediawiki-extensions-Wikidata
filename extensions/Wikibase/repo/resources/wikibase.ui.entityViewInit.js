@@ -68,15 +68,10 @@
 	 * @return {wikibase.store.CombiningEntityStore}
 	 */
 	function buildEntityStore( repoApi, languageCode ) {
-		// Deserializer for fetched content whose content is a wb.datamodel.Entity:
-		var fetchedEntityDeserializer = new wb.store.FetchedContentUnserializer(
-				new wb.serialization.EntityDeserializer()
-			);
-
 		return new wb.store.CachingEntityStore(
 			new wb.store.ApiEntityStore(
 				repoApi,
-				fetchedEntityDeserializer,
+				new wb.serialization.EntityDeserializer(),
 				[ languageCode ]
 			)
 		);
@@ -103,19 +98,29 @@
 				entity
 			),
 			contentLanguages = new wikibase.WikibaseContentLanguages(),
+			formatterStore = getFormatterStore( repoApi, dataTypeStore ),
+			parserStore = getParserStore( repoApi ),
+			entityIdFormatter = new ( formatterStore.getFormatter( wb.datamodel.EntityId.TYPE ) )( { lang: userLanguages[0] } ),
+			entityIdParser = new ( parserStore.getParser( wb.datamodel.EntityId.TYPE ) )( { lang: userLanguages[0] } ),
 			viewFactory = new wikibase.view.ViewFactory(
 				contentLanguages,
 				dataTypeStore,
 				entityChangersFactory,
+				new wb.entityIdFormatter.CachingEntityIdHtmlFormatter(
+					new wb.entityIdFormatter.DataValueBasedEntityIdHtmlFormatter( entityIdParser, entityIdFormatter )
+				),
+				new wb.entityIdFormatter.CachingEntityIdPlainFormatter(
+					new wb.entityIdFormatter.DataValueBasedEntityIdPlainFormatter( entityIdParser, entityIdFormatter )
+				),
 				entityStore,
 				getExpertsStore( dataTypeStore ),
-				getFormatterStore( repoApi, dataTypeStore ),
+				formatterStore,
 				{
 					getMessage: function( key, params ) {
 						return mw.msg.apply( mw, [ key ].concat( params ) );
 					}
 				},
-				getParserStore( repoApi ),
+				parserStore,
 				userLanguages,
 				repoApiUrl
 			);

@@ -17,6 +17,10 @@ var PARENT = $.wikibase.entityview;
  *
  * @constructor
  *
+ * @param {wikibase.entityIdFormatter.EntityIdHtmlFormatter} options.entityIdHtmlFormatter
+ *        Required for dynamically rendering links to `Entity`s.
+ * @param {wikibase.entityIdFormatter.EntityIdPlainFormatter} options.entityIdPlainFormatter
+ *        Required for dynamically rendering plain text references to `Entity`s.
  * @param {wikibase.store.EntityStore} options.entityStore
  *        Required by sub-components of the `entityview` to enable those to dynamically query for
  *        `Entity` objects.
@@ -33,6 +37,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 	 * @protected
 	 */
 	options: {
+		entityIdPlainFormatter: null,
 		entityStore: null,
 		valueViewBuilder: null,
 		dataTypeStore: null
@@ -57,7 +62,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 	_create: function() {
 		this._createEntityview();
 
-		this.$statements = $( '.wikibase-statementgrouplistview', this.element ).first();
+		this.$statements = $( '.wikibase-statementgrouplistview', this.element );
 		if( this.$statements.length === 0 ) {
 			this.$statements = $( '<div/>' ).appendTo( this.element );
 		}
@@ -105,6 +110,8 @@ $.widget( 'wikibase.propertyview', PARENT, {
 			value: this.options.value.getStatements(),
 			claimGuidGenerator: claimGuidGenerator,
 			dataTypeStore: this.option( 'dataTypeStore' ),
+			entityIdHtmlFormatter: this.options.entityIdHtmlFormatter,
+			entityIdPlainFormatter: this.options.entityIdPlainFormatter,
 			entityStore: this.options.entityStore,
 			valueViewBuilder: this.options.valueViewBuilder,
 			entityChangersFactory: this.options.entityChangersFactory

@@ -8,7 +8,6 @@ use SiteSQLStore;
 use Wikibase\Lib\SitesModuleWorker;
 
 /**
- *
  * @since 0.2
  *
  * @licence GNU GPL v2+
@@ -26,7 +25,8 @@ class SitesModule extends ResourceLoaderModule {
 	public function __construct() {
 		$this->worker = new SitesModuleWorker(
 			Settings::singleton(),
-			SiteSQLStore::newInstance()
+			SiteSQLStore::newInstance(),
+			wfGetCache( wfIsHHVM() ? CACHE_ACCEL : CACHE_ANYTHING )
 		);
 	}
 

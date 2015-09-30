@@ -12,7 +12,8 @@
  */
 var createItemview = function( options, $node ) {
 	options = $.extend( {
-		entityStore: 'I am an EntityStore',
+		entityIdPlainFormatter: 'I am an EntityIdPlainFormatter',
+		entityStore: new wb.store.EntityStore(),
 		entityChangersFactory: {
 			getAliasesChanger: function() { return 'I am an AliasesChanger'; },
 			getDescriptionsChanger: function() { return 'I am a DescriptionsChanger'; },
@@ -31,14 +32,6 @@ var createItemview = function( options, $node ) {
 	var $itemview = $node
 		.addClass( 'test_itemview' )
 		.itemview( options );
-
-	$itemview.data( 'itemview' )._save = function() {
-		return $.Deferred().resolve( {
-			entity: {
-				lastrevid: 'I am a revision id'
-			}
-		} ).promise();
-	};
 
 	return $itemview;
 };

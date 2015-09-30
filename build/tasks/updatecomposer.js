@@ -6,7 +6,7 @@ module.exports = function ( grunt ) {
 
 	function autoloadSuffix( branch ) {
 		var suffix = "wikidata_" + branch.substring( branch.lastIndexOf( "/" ) + 1 );
-		suffix = suffix.replace( '\.', '_' );
+		suffix = suffix.replace( /[\.\-]/g, '_' );
 
 		return suffix;
 	}

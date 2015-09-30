@@ -12,7 +12,7 @@
  */
 var createPropertyview = function( options, $node ) {
 	options = $.extend( {
-		entityStore: 'I am an EntityStore',
+		entityStore: new wb.store.EntityStore(),
 		entityChangersFactory: {
 			getAliasesChanger: function() { return 'I am an AliasesChanger'; },
 			getDescriptionsChanger: function() { return 'I am a DescriptionsChanger'; },
@@ -30,14 +30,6 @@ var createPropertyview = function( options, $node ) {
 	var $propertyview = $node
 		.addClass( 'test_propertyview' )
 		.propertyview( options );
-
-	$propertyview.data( 'propertyview' )._save = function() {
-		return $.Deferred().resolve( {
-			entity: {
-				lastrevid: 'I am a revision id'
-			}
-		} ).promise();
-	};
 
 	return $propertyview;
 };

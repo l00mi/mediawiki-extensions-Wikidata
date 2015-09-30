@@ -18,38 +18,6 @@ QUnit.module( 'jquery.wikibase.badgeselector', QUnit.newMwEnvironment( {
 	}
 } ) );
 
-var entities =  {
-	Q1: new wb.store.FetchedContent( {
-		title: new mw.Title( 'Item:Q1' ),
-		content: new wb.datamodel.Item( 'Q1',
-			new wb.datamodel.Fingerprint( new wb.datamodel.TermMap( [
-				new wb.datamodel.Term( 'en', 'Q1-label' )
-			] ) )
-		)
-	} ),
-	Q2: new wb.store.FetchedContent( {
-		title: new mw.Title( 'Item:Q2' ),
-		content: new wb.datamodel.Item( 'Q2',
-			new wb.datamodel.Fingerprint( new wb.datamodel.TermMap( [
-				new wb.datamodel.Term( 'en', 'Q2-label' )
-			] ) )
-		)
-	} ),
-	Q3: new wb.store.FetchedContent( {
-		title: new mw.Title( 'Item:Q3' ),
-		content: new wb.datamodel.Item( 'Q3',
-			new wb.datamodel.Fingerprint( new wb.datamodel.TermMap( [
-				new wb.datamodel.Term( 'en', 'Q3-label' )
-			] ) )
-		)
-	} )
-};
-
-var entityStore = new wb.store.EntityStore();
-entityStore.get = function( entityId ) {
-	return $.Deferred().resolve( entities[entityId] );
-};
-
 /**
  * @param {Object} [options]
  * @return {jQuery}
@@ -61,7 +29,9 @@ function createBadgeselector( options ) {
 			Q2: 'additionalCssClass-21 additionalCssClass22',
 			Q3: 'additionalCssClass-3'
 		},
-		entityStore: entityStore,
+		entityIdPlainFormatter: function( entityId ) {
+			return $.Deferred().resolve( entityId ).promise();
+		},
 		languageCode: 'en'
 	}, options || {} );
 
@@ -69,12 +39,6 @@ function createBadgeselector( options ) {
 		.addClass( 'test_badgeselector' )
 		.appendTo( 'body' )
 		.badgeselector( options );
-
-	var badgeselector = $badgeselector.data( 'badgeselector' );
-
-	badgeselector._fetchItems = function() {
-		return ( $.Deferred() ).resolve().promise();
-	};
 
 	return $badgeselector;
 }
@@ -137,6 +101,28 @@ QUnit.test( 'value()', function( assert ) {
 		[],
 		'Returning empty value in edit mode regardless of placeholder badge.'
 	);
+} );
+
+QUnit.test( 'startEditing and stopEditing add and remove an empty badge', function( assert ) {
+	var $badgeselector = createBadgeselector(),
+		badgeselector = $badgeselector.data( 'badgeselector' );
+
+	badgeselector.startEditing();
+
+	assert.equal( $badgeselector.find( '[data-wb-badge=""]' ).length, 1 );
+
+	badgeselector.stopEditing( true );
+
+	assert.equal( $badgeselector.find( '[data-wb-badge=""]' ).length, 0 );
+
+	badgeselector.startEditing();
+
+	assert.equal( $badgeselector.find( '[data-wb-badge=""]' ).length, 1 );
+
+	badgeselector.stopEditing();
+
+	assert.equal( $badgeselector.find( '[data-wb-badge=""]' ).length, 0 );
+
 } );
 
 } )( jQuery, wikibase, mediaWiki, QUnit );

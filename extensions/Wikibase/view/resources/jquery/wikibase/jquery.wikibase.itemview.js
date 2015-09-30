@@ -4,86 +4,6 @@
 var PARENT = $.wikibase.entityview;
 
 /**
- * Scrapes site links from static HTML in order to be sure the order in the static HTML matches the
- * order set on the widget initialized on the HTML structure since that widget is not supposed to
- * re-render the HTML for performance reasons.
- * @ignore
- *
- * @param {jQuery} $siteLinks
- * @param {wikibase.datamodel.SiteLinkSet} siteLinkSet
- * @return {Object}
- */
-function scrapeSiteLinks( $siteLinks, siteLinkSet ) {
-	var value = [];
-
-	$siteLinks.find( '.wikibase-sitelinkgroupview' ).each( function() {
-		var $sitelinkgroupview = $( this ),
-			$sitelinklistview = $sitelinkgroupview.find( '.wikibase-sitelinklistview' ),
-			group = $sitelinkgroupview.data( 'wb-sitelinks-group' ),
-			siteIdsOfGroup = [],
-			siteLinkIds = siteLinkSet.getKeys(),
-			siteLinksOfGroup = [];
-
-		$sitelinklistview.find( '.wikibase-sitelinkview' ).each( function() {
-			siteIdsOfGroup.push( $( this ).data( 'wb-siteid' ) );
-		} );
-
-		for( var i = 0; i < siteIdsOfGroup.length; i++ ) {
-			for( var j = 0; j < siteLinkIds.length; j++ ) {
-				if( siteLinkIds[j] === siteIdsOfGroup[i] ) {
-					siteLinksOfGroup.push( siteLinkSet.getItemByKey( siteLinkIds[j] ) );
-					break;
-				}
-			}
-		}
-
-		value.push( {
-			group: group,
-			siteLinks: siteLinksOfGroup
-		} );
-	} );
-
-	return value;
-}
-
-/**
- * Maps site links of a `wikibase.datamodel.SiteLinkSet` to their Wikibase site groups.
- * @ignore
- *
- * @param {wikibase.datamodel.SiteLinkSet} siteLinkSet
- * @return {Object}
- */
-function orderSiteLinksByGroup( siteLinkSet ) {
-	var value = [];
-
-	siteLinkSet.each( function( siteId, siteLink ) {
-		var site = wb.sites.getSite( siteId ),
-			found = false;
-
-		if( !site ) {
-			throw new Error( 'Site with id ' + siteId + ' is not registered' );
-		}
-
-		for( var i = 0; i < value.length; i++ ) {
-			if( value[i].group === site.getGroup() ) {
-				value[i].siteLinks.push( siteLink );
-				found = true;
-				break;
-			}
-		}
-
-		if( !found ) {
-			value.push( {
-				group: site.getGroup(),
-				siteLinks: [siteLink]
-			} );
-		}
-	} );
-
-	return value;
-}
-
-/**
  * View for displaying a Wikibase `Item`.
  * @see wikibase.datamodel.Item
  * @class jQuery.wikibase.itemview
@@ -98,6 +18,10 @@ function orderSiteLinksByGroup( siteLinkSet ) {
  *
  * @constructor
  *
+ * @param {wikibase.entityIdFormatter.EntityIdHtmlFormatter} options.entityIdHtmlFormatter
+ *        Required for dynamically rendering links to `Entity`s.
+ * @param {wikibase.entityIdFormatter.EntityIdPlainFormatter} options.entityIdPlainFormatter
+ *        Required for dynamically rendering plain text references to `Entity`s.
  * @param {wikibase.store.EntityStore} options.entityStore
  *        Required by sub-components of the `entityview` to enable those to dynamically query for
  *        `Entity` objects.
@@ -114,6 +38,8 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 * @protected
 	 */
 	options: {
+		entityIdHtmlFormatter: null,
+		entityIdPlainFormatter: null,
 		entityStore: null,
 		valueViewBuilder: null,
 		dataTypeStore: null
@@ -132,14 +58,13 @@ $.widget( 'wikibase.itemview', PARENT, {
 	_create: function() {
 		this._createEntityview();
 
-		this.$statements = $( '.wikibase-statementgrouplistview', this.element ).first();
+		this.$statements = $( '.wikibase-statementgrouplistview', this.element );
 		if( this.$statements.length === 0 ) {
 			this.$statements = $( '<div/>' ).appendTo( this.element );
 		}
 
 		this.$siteLinks = $( '.wikibase-sitelinkgrouplistview', this.element );
-
-		if( !this.$siteLinks.length ) {
+		if( this.$siteLinks.length === 0 ) {
 			this.$siteLinks = $( '<div/>' ).appendTo( this.element );
 		}
 	},
@@ -166,6 +91,8 @@ $.widget( 'wikibase.itemview', PARENT, {
 			claimGuidGenerator: claimGuidGenerator,
 			dataTypeStore: this.option( 'dataTypeStore' ),
 			entityStore: this.options.entityStore,
+			entityIdHtmlFormatter: this.options.entityIdHtmlFormatter,
+			entityIdPlainFormatter: this.options.entityIdPlainFormatter,
 			valueViewBuilder: this.options.valueViewBuilder,
 			entityChangersFactory: this.options.entityChangersFactory
 		} )
@@ -182,16 +109,10 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 * @protected
 	 */
 	_initSiteLinks: function() {
-		var self = this,
-			value = $( '.wikibase-sitelinkgrouplistview', this.element ).length
-				? scrapeSiteLinks( this.$siteLinks, this.options.value.getSiteLinks() )
-				: orderSiteLinksByGroup( this.options.value.getSiteLinks() );
-
 		this.$siteLinks.sitelinkgrouplistview( {
-			value: value,
-			entityId: self.options.value.getId(),
-			siteLinksChanger: self.options.entityChangersFactory.getSiteLinksChanger(),
-			entityStore: self.options.entityStore
+			value: this.options.value.getSiteLinks(),
+			siteLinksChanger: this.options.entityChangersFactory.getSiteLinksChanger(),
+			entityIdPlainFormatter: this.options.entityIdPlainFormatter
 		} );
 	},
 

@@ -1,6 +1,15 @@
 # Wikibase JavaScript API
 
+JavaScript client for the Wikibase Repository web API.
+
+[![Latest Stable Version](https://poser.pugx.org/wikibase/javascript-api/version.png)](https://packagist.org/packages/wikibase/javascript-api)
+
 ## Release notes
+
+### 1.0.4 (2015-09-30)
+
+* Use mw.ForeignApi for remote API endpoints (T50389)
+* Pass `uselang` parameter to `wbsearchentities` api call
 
 ### 1.0.3 (2015-05-21)
 

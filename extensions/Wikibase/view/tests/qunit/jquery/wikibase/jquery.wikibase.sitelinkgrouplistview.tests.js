@@ -12,7 +12,7 @@
 function createSitelinkgrouplistview( options ) {
 	options = $.extend( {
 		siteLinksChanger: 'I am a SiteLinksChanger',
-		entityStore: 'I am an EntityStore'
+		entityIdPlainFormatter: 'I am an EntityIdPlainFormatter'
 	}, options );
 
 	return $( '<div/>' )
@@ -68,18 +68,11 @@ QUnit.module( 'jquery.wikibase.sitelinkgrouplistview', QUnit.newWbEnvironment( {
 } ) );
 
 QUnit.test( 'Create & destroy', function( assert ) {
-	var value = [
-		{
-			group: 'group1',
-			siteLinks: [new wb.datamodel.SiteLink( 'enwiki', 'page1' )]
-		}, {
-			group: 'group2',
-			siteLinks: [
-				new wb.datamodel.SiteLink( 'dewiki', 'page1' ),
-				new wb.datamodel.SiteLink( 'enwiki', 'page2' )
-			]
-		}
-	];
+	var value = new wb.datamodel.SiteLinkSet( [
+		new wb.datamodel.SiteLink( 'aawiki', 'page1' ),
+		new wb.datamodel.SiteLink( 'dewiki', 'page1' ),
+		new wb.datamodel.SiteLink( 'enwiki', 'page2' )
+	] );
 
 	var $sitelinkgrouplistview = createSitelinkgrouplistview( {
 			value: value
