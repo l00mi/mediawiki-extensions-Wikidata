@@ -4,7 +4,6 @@ namespace WikibaseQuality\ExternalValidation\Tests\UpdateExternalData;
 
 use WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings
  *
@@ -58,4 +57,5 @@ class CsvImportSettingsTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }

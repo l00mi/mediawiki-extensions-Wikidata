@@ -2,7 +2,6 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
-
 use DataValues\MonolingualTextValue;
 use DataValues\QuantityValue;
 use DataValues\StringValue;
@@ -12,7 +11,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\TermIndexEntry;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\EntityIdValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\EntityIdValueComparer
@@ -144,4 +142,5 @@ class EntityIdValueComparerTest extends DataValueComparerTestBase {
 
 		return new EntityIdValueComparer( $termIndex, $stringComparer );
 	}
+
 }

@@ -7,8 +7,6 @@ use DataValues\MonolingualTextValue;
 use InvalidArgumentException;
 
 /**
- * Class MonolingualTextValueComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -54,4 +52,5 @@ class MonolingualTextValueComparer implements DataValueComparer {
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
 		return $value instanceof MonolingualTextValue && $comparativeValue instanceof MonolingualTextValue;
 	}
+
 }

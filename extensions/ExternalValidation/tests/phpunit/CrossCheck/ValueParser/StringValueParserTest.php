@@ -49,4 +49,5 @@ class StringValueParserTest extends ValueParserTestBase {
 
 		return new StringValueParser( $stringNormalizer );
 	}
+
 }

@@ -7,7 +7,6 @@ use InvalidArgumentException;
 use UnexpectedValueException;
 use Html;
 use HTMLForm;
-use JobQueueGroup;
 use Linker;
 use SpecialPage;
 use Traversable;
@@ -21,6 +20,7 @@ use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\LanguageLabelDescriptionLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -34,9 +34,7 @@ use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
 use WikibaseQuality\Html\HtmlTableHeaderBuilder;
 
-
-class SpecialCrossCheck extends SpecialPage
-{
+class SpecialCrossCheck extends SpecialPage {
 
 	/**
 	 * @var EntityIdParser
@@ -72,8 +70,7 @@ class SpecialCrossCheck extends SpecialPage
 	 * Creates new instance from global state.
 	 * @return SpecialCrossCheck
 	 */
-	public static function newFromGlobalState()
-	{
+	public static function newFromGlobalState() {
 		$repo = WikibaseRepo::getDefaultInstance();
 		$externalValidationServices = ExternalValidationServices::getDefaultInstance();
 
@@ -96,7 +93,6 @@ class SpecialCrossCheck extends SpecialPage
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param CrossCheckInteractor $checkInteractor
 	 */
-
 	public function __construct(
 		EntityLookup $entityLookup,
 		TermLookup $termLookup,
@@ -105,8 +101,7 @@ class SpecialCrossCheck extends SpecialPage
 		EntityIdParser $entityIdParser,
 		OutputFormatValueFormatterFactory $valueFormatterFactory,
 		CrossCheckInteractor $crossCheckInteractor
-	)
-	{
+	) {
 		parent::__construct('CrossCheck');
 
 		$this->entityLookup = $entityLookup;
@@ -123,14 +118,12 @@ class SpecialCrossCheck extends SpecialPage
 		$this->crossCheckInteractor = $crossCheckInteractor;
 	}
 
-
 	/**
 	 * @see SpecialPage::getGroupName
 	 *
 	 * @return string
 	 */
-	public function getGroupName()
-	{
+	public function getGroupName() {
 		return 'wikibasequality';
 	}
 
@@ -139,8 +132,7 @@ class SpecialCrossCheck extends SpecialPage
 	 *
 	 * @return string (plain text)
 	 */
-	public function getDescription()
-	{
+	public function getDescription() {
 		return $this->msg('wbqev-crosscheck')->text();
 	}
 
@@ -153,8 +145,7 @@ class SpecialCrossCheck extends SpecialPage
 	 * @throws EntityIdParsingException
 	 * @throws UnexpectedValueException
 	 */
-	public function execute($subPage)
-	{
+	public function execute( $subPage ) {
 		$out = $this->getOutput();
 		$postRequest = $this->getContext()->getRequest()->getVal('entityid');
 		if ($postRequest) {
@@ -180,14 +171,14 @@ class SpecialCrossCheck extends SpecialPage
 				return;
 			}
 
-			if (!$entity) {
+			if ( !( $entity instanceof StatementListProvider ) ) {
 				$out->addHTML(
 					$this->buildNotice('wbqev-crosscheck-not-existent-entity', true)
 				);
 				return;
 			}
 
-			$results = $this->crossCheckInteractor->crossCheckEntity( $entity );
+			$results = $this->crossCheckInteractor->crossCheckEntity( $entity->getStatements() );
 
 			if ($results && count($results) > 0) {
 				$out->addHTML(
@@ -207,8 +198,7 @@ class SpecialCrossCheck extends SpecialPage
 	/**
 	 * Builds html form for entity id input
 	 */
-	private function buildEntityIdForm()
-	{
+	private function buildEntityIdForm() {
 		$formDescriptor = array(
 			'entityid' => array(
 				'class' => 'HTMLTextField',
@@ -233,8 +223,7 @@ class SpecialCrossCheck extends SpecialPage
 	 *
 	 * @return string HTML
 	 */
-	private function buildInfoBox()
-	{
+	private function buildInfoBox() {
 		$externalDbLink = Linker::specialLink('ExternalDbs', 'wbqev-externaldbs');
 		$infoBox =
 			Html::openElement(
@@ -284,8 +273,7 @@ class SpecialCrossCheck extends SpecialPage
 	 *
 	 * @return string HTML
 	 */
-	private function buildResultHeader(EntityId $entityId)
-	{
+	private function buildResultHeader( EntityId $entityId ) {
 		$entityLink = sprintf('%s (%s)',
 			$this->entityIdLinkFormatter->formatEntityId($entityId),
 			htmlspecialchars($entityId->getSerialization()));
@@ -305,8 +293,7 @@ class SpecialCrossCheck extends SpecialPage
 	 *
 	 * @return string HTML
 	 */
-	private function buildSummary($results)
-	{
+	private function buildSummary( $results ) {
 		$statuses = array();
 		foreach ($results as $result) {
 			$status = strtolower($result->getComparisonResult()->getStatus());
@@ -399,8 +386,7 @@ class SpecialCrossCheck extends SpecialPage
 	 *
 	 * @return string HTML
 	 */
-	private function buildResultTable($results)
-	{
+	private function buildResultTable( $results ) {
 		$table = new HtmlTableBuilder(
 			array(
 				new HtmlTableHeaderBuilder(

@@ -6,7 +6,6 @@ use DataValues\DataValue;
 use DataValues\StringValue;
 use InvalidArgumentException;
 use ValueParsers\ParseException;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
@@ -23,10 +22,7 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformationLookup;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 
-
 /**
- * Class CrossChecker
- *
  * Performs cross-checks with external data sources for a list of statements of a single entity.
  *
  * @package WikibaseQuality\ExternalValidation\CrossCheck
@@ -92,14 +88,15 @@ class CrossChecker {
 	/**
 	 * Runs cross-check for specific statements of a entity.
 	 *
-	 * @param Entity $entity
+	 * @param StatementList $entityStatements
 	 * @param StatementList $statements
 	 *
 	 * @return CrossCheckResultList
 	 * @throws InvalidArgumentException
 	 */
-	public function crossCheckStatements( Entity $entity, StatementList $statements ) {
-		$statementsOfEntity = $entity->getStatements()->toArray();
+	public function crossCheckStatements( StatementList $entityStatements, StatementList $statements ) {
+		$statementsOfEntity = $entityStatements->toArray();
+
 		foreach ( $statements as $statement ) {
 			if ( !in_array( $statement, $statementsOfEntity ) ) {
 				throw new InvalidArgumentException( 'All statements in $statements must belong to the entity.' );
@@ -108,14 +105,14 @@ class CrossChecker {
 
 		$resultList = new CrossCheckResultList();
 		if ( $statements->count() > 0 ) {
-			$applicableDumps = $this->getApplicableDumps( $entity );
+			$applicableDumps = $this->getApplicableDumps( $entityStatements );
 			foreach ( $applicableDumps as $identifierPropertyId => $dumpMetaInformationList ) {
 				$identifierPropertyId = new PropertyId( $identifierPropertyId );
 
 				if( $this->isIdentifierProperty( $identifierPropertyId ) ) {
 					$resultList->merge(
 						$this->crossCheckStatementsWithIdentifier(
-							$entity,
+							$entityStatements,
 							$statements,
 							$identifierPropertyId,
 							$dumpMetaInformationList
@@ -131,13 +128,13 @@ class CrossChecker {
 	/**
 	 * Gets those dump ids from database, that are applicable for cross-checks with the given entity
 	 *
-	 * @param Entity $entity
+	 * @param StatementList $statements
 	 *
-	 * @return array
+	 * @return array[]
 	 */
-	private function getApplicableDumps( Entity $entity ) {
+	private function getApplicableDumps( StatementList $statements ) {
 		$applicableDumps = array();
-		$identifierPropertyIds = $entity->getStatements()->getPropertyIds();
+		$identifierPropertyIds = $statements->getPropertyIds();
 		$dumpMetaInformation = $this->dumpMetaInformationLookup->getWithIdentifierProperties(
 			$identifierPropertyIds
 		);
@@ -155,6 +152,7 @@ class CrossChecker {
 	/**
 	 * Runs cross-check for a single identifier property
 	 *
+	 * @param StatementList $entityStatements
 	 * @param StatementList $statements
 	 * @param PropertyId $identifierPropertyId
 	 * @param DumpMetaInformation[] $dumpMetaInformationList
@@ -162,14 +160,14 @@ class CrossChecker {
 	 * @return CrossCheckResultList
 	 */
 	private function crossCheckStatementsWithIdentifier(
-		Entity $entity,
+		StatementList $entityStatements,
 		StatementList $statements,
 		PropertyId $identifierPropertyId,
 		array $dumpMetaInformationList
 	) {
 		$resultList = new CrossCheckResultList();
 
-		$externalIds = $this->getExternalIds( $entity, $identifierPropertyId );
+		$externalIds = $this->getExternalIds( $entityStatements, $identifierPropertyId );
 		if( !$externalIds ) {
 			return $resultList;
 		}
@@ -326,14 +324,14 @@ class CrossChecker {
 	/**
 	 * Gets external ids for a identifier property of a given entity
 	 *
-	 * @param Entity $entity
+	 * @param StatementList $statements
 	 * @param PropertyId $identifierPropertyId
 	 *
-	 * @return array
+	 * @return string[]
 	 */
-	private function getExternalIds( Entity $entity, PropertyId $identifierPropertyId ) {
+	private function getExternalIds( StatementList $statements, PropertyId $identifierPropertyId ) {
 		$externalIds = array();
-		$identifierStatements = $entity->getStatements()->getByPropertyId( $identifierPropertyId );
+		$identifierStatements = $statements->getByPropertyId( $identifierPropertyId );
 		$values = $this->getDataValues( $identifierStatements );
 		foreach ( $values as $value ) {
 			if ( $value instanceof StringValue ) {
@@ -381,4 +379,5 @@ class CrossChecker {
 
 		return $dataValues;
 	}
+
 }

@@ -3,18 +3,13 @@
 namespace WikibaseQuality\ExternalValidation\DumpMetaInformation;
 
 use DatabaseBase;
-use DBError;
 use InvalidArgumentException;
 use UnexpectedValueException;
 use ResultWrapper;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 
-
 /**
- * Class SqlDumpMetaInformationRepo
- *
  * Implements access to the actual database table that stores the dump information.
  *
  * @package WikibaseQuality\ExternalValidation\DumpMetaInformation
@@ -225,7 +220,6 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 		return $dumpMetaInformation;
 	}
 
-
 	/**
 	 * Inserts or updates given dump meta information to database
 	 *
@@ -288,4 +282,5 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 			'license_qid' => $dumpMetaInformation->getLicenseItemId()->getSerialization()
 		);
 	}
+
 }

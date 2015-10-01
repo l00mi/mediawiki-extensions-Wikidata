@@ -6,10 +6,7 @@ use DataValues\DataValue;
 use InvalidArgumentException;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class ComparisonResult
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Result
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -94,4 +91,5 @@ class ComparisonResult {
 
 		$this->status = $status;
 	}
+
 }

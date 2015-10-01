@@ -5,7 +5,6 @@ namespace WikibaseQuality\ExternalValidation\Tests\Serializer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 use WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer
  *
@@ -113,4 +112,5 @@ class ReferenceResultSerializerTest extends SerializerTestBase {
 
 		return new ReferenceResultSerializer( $serializerMock );
 	}
+
 }

@@ -5,7 +5,6 @@ namespace WikibaseQuality\ExternalValidation\Api;
 use ApiBase;
 use ApiMain;
 use RequestContext;
-use DataValues\Serializers;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
@@ -17,10 +16,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\ExternalValidation\Serializer\SerializerFactory;
 
-
 /**
- * Class CrossCheck
- *
  * API module that performs cross-checks of entities or claims.
  *
  * @package WikibaseQuality\ExternalValidation\Api
@@ -230,4 +226,5 @@ class RunCrossCheck extends ApiBase {
 			'action=wbqevcrosscheck&claims=Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F' => 'apihelp-wbqevcrosscheck-examples-5'
 		);
 	}
+
 }

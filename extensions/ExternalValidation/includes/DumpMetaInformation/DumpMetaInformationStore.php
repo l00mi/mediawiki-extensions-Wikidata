@@ -2,7 +2,6 @@
 
 namespace WikibaseQuality\ExternalValidation\DumpMetaInformation;
 
-
 /**
  * Interface DumpMetaInformationStore
  * @package WikibaseQuality\ExternalValidation\DumpMetaInformation
@@ -17,4 +16,5 @@ interface DumpMetaInformationStore {
 	 * @param DumpMetaInformation $dumpMetaInformation
 	 */
 	public function save( DumpMetaInformation $dumpMetaInformation );
+
 }

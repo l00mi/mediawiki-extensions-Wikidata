@@ -18,11 +18,9 @@ abstract class DataValueComparerTestBase extends \MediaWikiTestCase {
 	 */
 	protected abstract function buildComparer();
 
-
 	public function testImplementsDataValueComparerInterface() {
 		$this->assertInstanceOf( 'WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer', $this->buildComparer() );
 	}
-
 
 	/**
 	 * @dataProvider comparableProvider
@@ -34,7 +32,6 @@ abstract class DataValueComparerTestBase extends \MediaWikiTestCase {
 
 	public abstract function comparableProvider();
 
-
 	/**
 	 * @dataProvider nonComparableProvider
 	 */
@@ -45,7 +42,6 @@ abstract class DataValueComparerTestBase extends \MediaWikiTestCase {
 
 	public abstract function nonComparableProvider();
 
-
 	/**
 	 * @dataProvider nonComparableProvider
 	 */
@@ -53,7 +49,6 @@ abstract class DataValueComparerTestBase extends \MediaWikiTestCase {
 		$this->setExpectedException( 'InvalidArgumentException' );
 		$this->buildComparer()->compare( $value, $comparativeValue );
 	}
-
 
 	/**
 	 * @dataProvider comparisonProvider
@@ -66,4 +61,5 @@ abstract class DataValueComparerTestBase extends \MediaWikiTestCase {
 	}
 
 	public abstract function comparisonProvider();
+
 }

@@ -4,7 +4,6 @@ namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
  *
@@ -71,5 +70,5 @@ class ReferenceResultTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }
- 

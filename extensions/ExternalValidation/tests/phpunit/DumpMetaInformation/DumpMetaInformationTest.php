@@ -6,7 +6,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
  *
@@ -186,5 +185,5 @@ class DumpMetaInformationTest extends \MediaWikiTestCase {
 
 		$this->assertEquals( $this->dumpMetaInformation->getLicenseItemId(), new ItemId( 'Q6938433' ) );
 	}
+
 }
- 

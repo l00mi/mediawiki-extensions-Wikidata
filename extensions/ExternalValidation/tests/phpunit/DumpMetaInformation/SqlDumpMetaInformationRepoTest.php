@@ -8,7 +8,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
  *
@@ -129,7 +128,6 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
         }
     }
 
-
 	/**
      * @dataProvider getWithIdDataProvider
      */
@@ -182,7 +180,6 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
             )
         );
     }
-
 
     /**
      * @dataProvider getWithIdsDataProvider
@@ -360,4 +357,5 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
             )
         );
     }
+
 }

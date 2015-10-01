@@ -9,10 +9,7 @@ use IteratorAggregate;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class CrossCheckResultList
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Result
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -121,4 +118,5 @@ class CrossCheckResultList implements IteratorAggregate, Countable {
 	public function count() {
 		return count( $this->results );
 	}
+
 }

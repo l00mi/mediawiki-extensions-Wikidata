@@ -9,7 +9,6 @@ use DataValues\StringValue;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\MultilingualTextValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\MultilingualTextValueComparer
  *
@@ -148,4 +147,5 @@ class MultilingualTextValueComparerTest extends DataValueComparerTestBase {
 
 		return new MultilingualTextValueComparer( $stringComparer );
 	}
+
 }

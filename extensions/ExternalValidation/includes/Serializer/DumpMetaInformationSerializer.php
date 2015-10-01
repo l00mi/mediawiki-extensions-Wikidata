@@ -7,10 +7,7 @@ use Serializers\Exceptions\UnsupportedObjectException;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 
-
 /**
- * Class DumpMetaInformationSerializer
- *
  * @package WikibaseQuality\ExternalValidation\Serializer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -68,4 +65,5 @@ class DumpMetaInformationSerializer extends IndexedTagsSerializer implements Dis
 			'licenseItemId' => $dumpMetaInformation->getLicenseItemId()->getSerialization()
 		);
 	}
+
 }

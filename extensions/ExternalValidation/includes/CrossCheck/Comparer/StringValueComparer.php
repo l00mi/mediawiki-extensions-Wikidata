@@ -7,8 +7,6 @@ use DataValues\StringValue;
 use InvalidArgumentException;
 
 /**
- * Class StringValueComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -52,4 +50,5 @@ class StringValueComparer implements DataValueComparer {
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
 		return $value instanceof StringValue && $comparativeValue instanceof StringValue;
 	}
+
 }

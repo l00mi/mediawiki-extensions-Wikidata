@@ -5,8 +5,6 @@ namespace WikibaseQuality\ExternalValidation\Serializer;
 use Serializers\Serializer;
 
 /**
- * Class SerializerFactory
- *
  * @package WikibaseQuality\ExternalValidation\Serializer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -82,4 +80,5 @@ class SerializerFactory {
 	public function newReferenceResultSerializer() {
 		return new ReferenceResultSerializer( $this->referenceSerializer );
 	}
+
 }

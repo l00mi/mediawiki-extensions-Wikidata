@@ -2,7 +2,6 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
-
 use DataValues\DataValue;
 use DataValues\Geo\Values\GlobeCoordinateValue;
 use DataValues\LatLongValue;
@@ -15,8 +14,6 @@ use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparerFactory;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
-use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparerFactory
@@ -68,7 +65,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		parent::tearDown();
 	}
 
-
 	private function buildDataValueComparerFactory() {
 		$termIndex = $this->getMockForAbstractClass( 'Wikibase\TermIndex' );
 		$termIndex->expects( $this->any() )
@@ -89,7 +85,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		$this->assertTrue( true, 'No exception occurred during comparison.' );
 	}
 
-
 	public function testNewEntityIdValueComparer() {
 		$this->assertEntityIdValueComparesWithoutException(
 			$this->buildDataValueComparerFactory()->newEntityIdValueComparer()
@@ -103,7 +98,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 			$this->monolingualTextValue
 		);
 	}
-
 
 	public function testNewGlobeCoordinateValueComparer() {
 		$this->assertGlobeCoordinateValueComparesWithoutException(
@@ -119,7 +113,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	public function testNewMonolingualTextValueComparer() {
 		$this->assertMonolingualTextValueComparesWithoutException(
 			$this->buildDataValueComparerFactory()->newMonolingualTextValueComparer()
@@ -133,7 +126,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 			$this->monolingualTextValue
 		);
 	}
-
 
 	public function testNewMultilingualTextValueComparer() {
 		$this->assertMultilingualTextValueComparesWithoutException(
@@ -149,7 +141,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	public function testNewQuantityValueComparer() {
 		$this->assertQuantityValueComparesWithoutException(
 			$this->buildDataValueComparerFactory()->newQuantityValueComparer()
@@ -163,7 +154,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 			$this->quantityValue
 		);
 	}
-
 
 	public function testNewStringValueComparer() {
 		$this->assertStringValueComparesWithoutException(
@@ -179,7 +169,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	public function testNewTimeValueComparer() {
 		$this->assertTimeValueComparesWithoutException(
 			$this->buildDataValueComparerFactory()->newTimeValueComparer()
@@ -194,7 +183,6 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	public function testNewDispatchingDataValueComparer() {
 		$dataValueComparer = $this->buildDataValueComparerFactory()->newDispatchingDataValueComparer();
 
@@ -206,4 +194,5 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		$this->assertStringValueComparesWithoutException( $dataValueComparer );
 		$this->assertTimeValueComparesWithoutException( $dataValueComparer );
 	}
+
 }

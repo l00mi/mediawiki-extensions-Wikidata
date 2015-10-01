@@ -10,7 +10,6 @@ use DataValues\StringValue;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\GlobeCoordinateValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\GlobeCoordinateValueComparer
  *
@@ -94,4 +93,5 @@ class GlobeCoordinateValueComparerTest extends DataValueComparerTestBase {
 	protected function buildComparer() {
 		return new GlobeCoordinateValueComparer();
 	}
+
 }

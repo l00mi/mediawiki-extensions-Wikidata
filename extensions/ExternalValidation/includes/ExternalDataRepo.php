@@ -6,10 +6,7 @@ use DBError;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class ExternalDataRepo
- *
  * @package WikibaseQuality\ExternalValidation
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -17,7 +14,6 @@ use Wikimedia\Assert\Assert;
 class ExternalDataRepo {
 
 	const TABLE_NAME = 'wbqev_external_data';
-
 
 	/**
 	 * Gets external data for specified properties from database that matches any
@@ -85,6 +81,7 @@ class ExternalDataRepo {
 	 * Inserts a batch of external data.
 	 *
 	 * @param array $externalDataBatch
+	 * @throws DBError
 	 * @return bool
 	 */
 	public function insertBatch( array $externalDataBatch ) {
@@ -138,4 +135,5 @@ class ExternalDataRepo {
 			} while ( $db->affectedRows() > 0 );
 		}
 	}
+
 }

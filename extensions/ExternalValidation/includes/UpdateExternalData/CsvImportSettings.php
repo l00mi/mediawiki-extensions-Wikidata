@@ -4,10 +4,7 @@ namespace WikibaseQuality\ExternalValidation\UpdateExternalData;
 
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class CsvImportSettings
- *
  * Settings for importing data from csv files to a db table using a ExternalDataImporter
  *
  * @package WikibaseQuality\ExternalValidation\UpdateExternalData
@@ -85,4 +82,5 @@ class CsvImportSettings {
 	public function isQuiet() {
 		return $this->quiet;
 	}
+
 }

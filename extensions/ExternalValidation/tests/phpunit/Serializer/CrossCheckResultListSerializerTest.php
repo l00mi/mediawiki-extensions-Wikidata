@@ -6,7 +6,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
  * @covers WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer

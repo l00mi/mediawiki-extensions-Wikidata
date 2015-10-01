@@ -4,7 +4,6 @@ namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
  *
@@ -86,5 +85,5 @@ class ComparisonResultTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }
- 

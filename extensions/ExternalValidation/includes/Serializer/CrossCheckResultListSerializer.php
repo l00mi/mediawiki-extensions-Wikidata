@@ -7,10 +7,7 @@ use Serializers\Exceptions\UnsupportedObjectException;
 use Serializers\Serializer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 
-
 /**
- * Class CrossCheckResultListSerializer
- *
  * @package WikibaseQuality\ExternalValidation\Serializer
  * @author BP2014N1
  * @license GNU GPL v2+

@@ -8,8 +8,6 @@ use InvalidArgumentException;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * Class MultilingualTextValueComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -75,4 +73,5 @@ class MultilingualTextValueComparer implements DataValueComparer {
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
 		return $value instanceof MultilingualTextValue && $comparativeValue instanceof MultilingualTextValue;
 	}
+
 }

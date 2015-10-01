@@ -2,20 +2,13 @@
 
 namespace WikibaseQuality\ExternalValidation\UpdateExternalData;
 
-use DateTime;
-use DateTimeZone;
-use PharData;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformationStore;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 
-
 /**
- * Class ExternalDataImporter
- *
  * @package WikibaseQuality\ExternalValidation\UpdateExternalData
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -177,4 +170,5 @@ class ExternalDataImporter {
 			print $text;
 		}
 	}
+
 }

@@ -3,7 +3,6 @@
 namespace WikibaseQuality\ExternalValidation;
 
 use DataValues\Serializers\DataValueSerializer;
-use Wikibase\Repo\ValueParserFactory;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\StringNormalizer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparerFactory;
@@ -16,16 +15,12 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformationSt
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\Serializer\SerializerFactory;
 
-
 /**
- * Class ExternalValidationServices
- *
  * @package WikibaseQuality\ExternalValidation
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class ExternalValidationServices
-{
+class ExternalValidationServices {
 
 	/**
 	 * @var WikibaseRepo
@@ -87,8 +82,7 @@ class ExternalValidationServices
 	 *
 	 * @return ExternalValidationServices
 	 */
-	public static function getDefaultInstance()
-	{
+	public static function getDefaultInstance() {
 		static $instance = null;
 
 		if ($instance === null) {
@@ -103,8 +97,7 @@ class ExternalValidationServices
 	/**
 	 * @return CrossChecker
 	 */
-	public function getCrossChecker()
-	{
+	public function getCrossChecker() {
 		if ($this->crossChecker === null) {
 			$this->crossChecker = new CrossChecker(
 				$this->wikibaseRepo->getEntityLookup(),
@@ -122,8 +115,7 @@ class ExternalValidationServices
 	/**
 	 * @return CrossCheckInteractor
 	 */
-	public function getCrossCheckInteractor()
-	{
+	public function getCrossCheckInteractor() {
 		if ($this->crossCheckInteractor === null) {
 			$this->crossCheckInteractor = new CrossCheckInteractor(
 				$this->wikibaseRepo->getEntityLookup(),
@@ -137,8 +129,7 @@ class ExternalValidationServices
 	/**
 	 * @return ComparativeValueParserFactory
 	 */
-	public function getComparativeValueParserFactory()
-	{
+	public function getComparativeValueParserFactory() {
 		if ($this->comparativeValueParserFactory === null) {
 			$this->comparativeValueParserFactory = new ComparativeValueParserFactory(
 				$this->wikibaseRepo->getDataTypeDefinitions(),
@@ -152,8 +143,7 @@ class ExternalValidationServices
 	/**
 	 * @return DataValueComparerFactory
 	 */
-	public function getDataValueComparerFactory()
-	{
+	public function getDataValueComparerFactory() {
 		if ($this->dataValueComparerFactory === null) {
 			$this->dataValueComparerFactory = new DataValueComparerFactory(
 				$this->wikibaseRepo->getStore()->getTermIndex(),
@@ -167,8 +157,7 @@ class ExternalValidationServices
 	/**
 	 * @return DumpMetaInformationLookup
 	 */
-	public function getDumpMetaInformationLookup()
-	{
+	public function getDumpMetaInformationLookup() {
 		if ($this->dumpMetaInformationLookup === null) {
 			$this->dumpMetaInformationLookup = new SqlDumpMetaInformationRepo();
 		}
@@ -179,8 +168,7 @@ class ExternalValidationServices
 	/**
 	 * @return DumpMetaInformationStore
 	 */
-	public function getDumpMetaInformationStore()
-	{
+	public function getDumpMetaInformationStore() {
 		if ($this->dumpMetaInformationStore === null) {
 			$this->dumpMetaInformationStore = new SqlDumpMetaInformationRepo();
 		}
@@ -191,8 +179,7 @@ class ExternalValidationServices
 	/**
 	 * @return ExternalDataRepo
 	 */
-	public function getExternalDataRepo()
-	{
+	public function getExternalDataRepo() {
 		if ($this->externalDataRepo === null) {
 			$this->externalDataRepo = new ExternalDataRepo();
 		}
@@ -203,8 +190,7 @@ class ExternalValidationServices
 	/**
 	 * @return SerializerFactory
 	 */
-	public function getSerializerFactory()
-	{
+	public function getSerializerFactory() {
 		if ($this->serializerFactory === null) {
 			$dataValueSerializer = new DataValueSerializer();
 			$dataModelSerializerFactory = new \Wikibase\DataModel\SerializerFactory($dataValueSerializer);

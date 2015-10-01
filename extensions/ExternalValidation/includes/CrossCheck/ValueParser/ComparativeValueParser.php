@@ -6,13 +6,9 @@ use DataValues\DataValue;
 use ValueParsers\ValueParser;
 use ValueParsers\ParserOptions;
 use Wikibase\Repo\ValueParserFactory;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class NewComparativeValueParser
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\ComparativeValueParser
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -90,4 +86,5 @@ class ComparativeValueParser {
 
 		return $options;
 	}
+
 }

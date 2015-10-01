@@ -6,10 +6,7 @@ use Wikibase\DataModel\Reference;
 use InvalidArgumentException;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class ReferenceResult
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Result
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -76,4 +73,5 @@ class ReferenceResult {
 
 		$this->status = $status;
 	}
+
 }

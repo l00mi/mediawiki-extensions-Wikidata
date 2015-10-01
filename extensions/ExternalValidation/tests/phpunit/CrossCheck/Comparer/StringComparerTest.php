@@ -32,7 +32,6 @@ class StringComparerTest extends \MediaWikiTestCase {
 		parent::tearDown();
 	}
 
-
 	/**
 	 * @dataProvider compareValidArgumentsDataProvider
 	 */
@@ -219,7 +218,6 @@ class StringComparerTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider compareWithArrayValidArgumentsDataProvider
 	 */
@@ -309,4 +307,5 @@ class StringComparerTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }

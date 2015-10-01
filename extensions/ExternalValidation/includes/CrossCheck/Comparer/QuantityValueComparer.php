@@ -8,8 +8,6 @@ use InvalidArgumentException;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * Class QuantityValueComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -47,4 +45,5 @@ class QuantityValueComparer implements DataValueComparer {
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
 		return $value instanceof QuantityValue && $comparativeValue instanceof QuantityValue;
 	}
+
 }

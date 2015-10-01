@@ -2,13 +2,10 @@
 
 namespace WikibaseQuality\ExternalValidation\CrossCheck\Comparer;
 
-use Wikibase\Lib\Store\EntityLookup;
 use Wikibase\StringNormalizer;
 use Wikibase\TermIndex;
 
 /**
- * Class DataValueComparerFactory
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -133,4 +130,5 @@ class DataValueComparerFactory {
 	public function newTimeValueComparer() {
 		return new TimeValueComparer();
 	}
+
 }

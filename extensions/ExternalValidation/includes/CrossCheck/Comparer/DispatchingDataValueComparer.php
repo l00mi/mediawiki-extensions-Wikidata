@@ -2,14 +2,10 @@
 
 namespace WikibaseQuality\ExternalValidation\CrossCheck\Comparer;
 
-
 use DataValues\DataValue;
 use InvalidArgumentException;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 
 /**
- * Class DispatchingDataValueComparer
- * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
  */
@@ -75,4 +71,5 @@ class DispatchingDataValueComparer implements DataValueComparer {
 			'None of the DataValueComparers can compare the provided DataValue'
 		);
 	}
+
 }

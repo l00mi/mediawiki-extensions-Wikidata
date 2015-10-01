@@ -2,15 +2,11 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
-
 use DataValues\MonolingualTextValue;
 use DataValues\QuantityValue;
 use DataValues\StringValue;
-use Wikibase\DataModel\Entity\EntityIdValue;
-use Wikibase\DataModel\Entity\ItemId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer
@@ -86,4 +82,5 @@ class QuantityValueComparerTest extends DataValueComparerTestBase {
 	protected function buildComparer() {
 		return new QuantityValueComparer();
 	}
+
 }

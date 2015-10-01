@@ -5,11 +5,8 @@ namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 use DataValues\MonolingualTextValue;
 use DataValues\QuantityValue;
 use DataValues\StringValue;
-use Wikibase\DataModel\Entity\EntityIdValue;
-use Wikibase\DataModel\Entity\ItemId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\MonolingualTextValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\MonolingualTextValueComparer
@@ -52,8 +49,6 @@ class MonolingualTextValueComparerTest extends DataValueComparerTestBase {
 	}
 
 	public function comparisonProvider() {
-		$localValue = new MonolingualTextValue( 'en', 'foo' );
-
 		return array (
 			// Languages match
 			array (
@@ -94,4 +89,5 @@ class MonolingualTextValueComparerTest extends DataValueComparerTestBase {
 
 		return new MonolingualTextValueComparer( $stringComparer );
 	}
+
 }

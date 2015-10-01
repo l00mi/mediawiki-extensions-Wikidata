@@ -5,6 +5,7 @@ namespace WikibaseQuality\ExternalValidation\CrossCheck;
 use InvalidArgumentException;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Statement\StatementGuidParser;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikimedia\Assert\Assert;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
@@ -12,10 +13,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Statement\StatementList;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 
-
 /**
- * Class CrossCheckInteractor
- *
  * Helper class for interacting with CrossChecker. It makes it possible to run cross-checks for various parameter types
  * and combinations, since the CrossChecker only accepts statements.
  *
@@ -51,20 +49,21 @@ class CrossCheckInteractor {
 		$this->crossChecker = $crossChecker;
 	}
 
-
 	/**
 	 * Runs cross-check for all statements of multiple entities represented by ids.
 	 *
 	 * @param EntityId $entityId
-	 * 
-	 * @return CrossCheckResultList
+	 *
+	 * @return CrossCheckResultList|null
 	 */
 	public function crossCheckEntityById( EntityId $entityId ) {
 		$entity = $this->entityLookup->getEntity( $entityId );
 
-		if ( $entity ) {
-			return $this->crossCheckEntity( $entity );
+		if ( $entity instanceof StatementListProvider ) {
+			return $this->crossCheckEntity( $entity->getStatements() );
 		}
+
+		return null;
 	}
 
 	/**
@@ -85,17 +84,15 @@ class CrossCheckInteractor {
 		return $results;
 	}
 
-
 	/**
 	 * Runs cross-check for all statements of a single entity.
 	 *
-	 * @param Entity $entity
+	 * @param StatementList $statements
 	 *
 	 * @return CrossCheckResultList
 	 */
-	public function crossCheckEntity( Entity $entity ) {
-		$statements = $entity->getStatements();
-		return $this->crossChecker->crossCheckStatements( $entity, $statements );
+	public function crossCheckEntity( StatementList $statements ) {
+		return $this->crossChecker->crossCheckStatements( $statements, $statements );
 	}
 
 	/**
@@ -112,12 +109,13 @@ class CrossCheckInteractor {
 		$results = array();
 		foreach ( $entities as $entity ) {
 			$entityId = $entity->getId()->getSerialization();
-			$results[$entityId] = $this->crossCheckEntity( $entity );
+			if ( $entity instanceof StatementListProvider ) {
+				$results[$entityId] = $this->crossCheckEntity( $entity->getStatements() );
+			}
 		}
 
 		return $results;
 	}
-
 
 	/**
 	 * Runs cross-check for all statements with any of the given property ids of a single entity represented by its id.
@@ -125,7 +123,7 @@ class CrossCheckInteractor {
 	 * @param EntityId $entityId
 	 * @param PropertyId[] $propertyIds
 	 *
-	 * @return CrossCheckResultList
+	 * @return CrossCheckResultList|null
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckEntityByIdWithProperties( EntityId $entityId, array $propertyIds ) {
@@ -133,9 +131,11 @@ class CrossCheckInteractor {
 
 		$entity = $this->entityLookup->getEntity( $entityId );
 
-		if ( $entity ) {
-			return $this->crossCheckEntityWithProperties( $entity, $propertyIds );
+		if ( $entity instanceof StatementListProvider ) {
+			return $this->crossCheckEntityWithProperties( $entity->getStatements(), $propertyIds );
 		}
+
+		return null;
 	}
 
 	/**
@@ -159,27 +159,26 @@ class CrossCheckInteractor {
 		return $results;
 	}
 
-
 	/**
 	 * Runs cross-check for all statements with any of the given property ids of a single entity.
 	 *
-	 * @param Entity $entity
+	 * @param StatementList $entityStatements
 	 * @param PropertyId[] $propertyIds
 	 *
 	 * @return CrossCheckResultList
 	 * @throws InvalidArgumentException
 	 */
-	public function crossCheckEntityWithProperties( Entity $entity, array $propertyIds ) {
+	public function crossCheckEntityWithProperties( StatementList $entityStatements, array $propertyIds ) {
 		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId',  $propertyIds, '$propertyIds' );
 
 		$statements = new StatementList();
-		foreach ( $entity->getStatements() as $statement ) {
+		foreach ( $entityStatements->toArray() as $statement ) {
 			if ( in_array( $statement->getPropertyId(), $propertyIds ) ) {
 				$statements->addStatement( $statement );
 			}
 		}
 
-		return $this->crossChecker->crossCheckStatements( $entity, $statements );
+		return $this->crossChecker->crossCheckStatements( $entityStatements, $statements );
 	}
 
 	/**
@@ -198,7 +197,12 @@ class CrossCheckInteractor {
 		$results = array();
 		foreach ( $entities as $entity ) {
 			$entityId = $entity->getId()->getSerialization();
-			$results[$entityId] = $this->crossCheckEntityWithProperties( $entity, $propertyIds );
+			if ( $entity instanceof StatementListProvider ) {
+				$results[$entityId] = $this->crossCheckEntityWithProperties(
+					$entity->getStatements(),
+					$propertyIds
+				);
+			}
 		}
 
 		return $results;
@@ -249,25 +253,26 @@ class CrossCheckInteractor {
 		return $resultLists;
 	}
 
-
 	/**
 	 * @param EntityId $entityId
 	 * @param string[] $clamGuids
-	 * @return CrossCheckResultList
+	 * @return CrossCheckResultList|null
 	 */
 	private function crossCheckClaimsOfEntity( EntityId $entityId, $clamGuids ) {
 		$entity = $this->entityLookup->getEntity( $entityId );
 
-		if ( $entity ) {
+		if ( $entity instanceof StatementListProvider ) {
 			$statements = new StatementList();
-			foreach ( $entity->getStatements() as $statement ) {
+			foreach ( $entity->getStatements()->toArray() as $statement ) {
 				if ( in_array( $statement->getGuid(), $clamGuids ) ) {
 					$statements->addStatement( $statement );
 				}
 			}
 
-			return $this->crossChecker->crossCheckStatements( $entity, $statements );
+			return $this->crossChecker->crossCheckStatements( $entity->getStatements(), $statements );
 		}
+
+		return null;
 	}
 
 	/**
@@ -295,4 +300,5 @@ class CrossCheckInteractor {
 			}
 		}
 	}
+
 }

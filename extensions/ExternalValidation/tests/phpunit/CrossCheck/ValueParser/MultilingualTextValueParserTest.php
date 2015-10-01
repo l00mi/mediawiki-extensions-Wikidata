@@ -48,7 +48,7 @@ class MultilingualTextValueParserTest extends ValueParserTestBase {
 			 ->method( 'parse' )
 			 ->will( $this->returnValue( new MonolingualTextValue( 'en', 'foo' ) ) );
 
-
 		return new MultilingualTextValueParser( $valueParserMock );
 	}
+
 }

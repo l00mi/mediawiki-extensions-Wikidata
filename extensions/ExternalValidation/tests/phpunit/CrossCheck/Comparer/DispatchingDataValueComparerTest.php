@@ -2,7 +2,6 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
-
 use DataValues\DataValue;
 use DataValues\MonolingualTextValue;
 use DataValues\MultilingualTextValue;
@@ -14,7 +13,6 @@ use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DispatchingDataValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DispatchingDataValueComparer
@@ -157,4 +155,5 @@ class DispatchingDataValueComparerTest extends DataValueComparerTestBase {
 			)
 		);
 	}
+
 }

@@ -4,7 +4,6 @@ namespace WikibaseQuality\ExternalValidation\CrossCheck\Comparer;
 
 use DataValues\DataValue;
 
-
 /**
  * Interface DataValueComparer
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
@@ -30,4 +29,5 @@ interface DataValueComparer {
 	 * @return string (one of the status constants of ComparisonResult)
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue );
+
 }

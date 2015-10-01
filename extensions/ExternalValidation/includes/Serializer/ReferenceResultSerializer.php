@@ -7,10 +7,7 @@ use Serializers\Exceptions\UnsupportedObjectException;
 use Serializers\Serializer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 
-
 /**
- * Class ReferenceResultSerializer
- *
  * @package WikibaseQuality\ExternalValidation\Serializer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -65,4 +62,5 @@ class ReferenceResultSerializer implements DispatchableSerializer {
 			'status' => $referenceResult->getStatus()
 		);
 	}
+
 }

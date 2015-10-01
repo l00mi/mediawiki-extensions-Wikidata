@@ -3,6 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\DumpMetaInformation;
 
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\PropertyId;
 
 /**
  * Interface DumpMetaInformationLookup
@@ -35,7 +36,8 @@ interface DumpMetaInformationLookup {
 	 * Gets DumpMetaInformation for specific identifier properties from database
 	 * Returns array in the form 'dumpId' => DumpMetaInformation
 	 *
-	 * @param array $identifierPropertyIds
+	 * @param PropertyId[] $identifierPropertyIds
+	 *
 	 * @return DumpMetaInformation[]
 	 */
 	public function getWithIdentifierProperties( array $identifierPropertyIds );
@@ -54,4 +56,5 @@ interface DumpMetaInformationLookup {
 	 * @return DumpMetaInformation[]
 	 */
 	public function getAll();
+
 }

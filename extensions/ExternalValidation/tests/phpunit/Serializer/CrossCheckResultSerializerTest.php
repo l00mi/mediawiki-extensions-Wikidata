@@ -131,4 +131,5 @@ class CrossCheckResultSerializerTest extends SerializerTestBase {
 	private function getMockWithoutConstructor( $className ) {
 		return $this->getMockBuilder( $className )->disableOriginalConstructor()->getMock();
 	}
+
 }

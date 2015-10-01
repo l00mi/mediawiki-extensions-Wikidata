@@ -2,14 +2,12 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
-
 use DataValues\MonolingualTextValue;
 use DataValues\QuantityValue;
 use DataValues\StringValue;
 use DataValues\TimeValue;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\TimeValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
-
 
 /**
  * @covers  WikibaseQuality\ExternalValidation\CrossCheck\Comparer\TimeValueComparer
@@ -95,4 +93,5 @@ class TimeValueComparerTest extends DataValueComparerTestBase {
 	protected function buildComparer() {
 		return new TimeValueComparer();
 	}
+
 }

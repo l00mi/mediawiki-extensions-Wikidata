@@ -7,10 +7,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class CrossCheckResult
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Result
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -126,4 +123,5 @@ class CrossCheckResult {
 	public function getReferenceResult() {
 		return $this->referenceResult;
 	}
+
 }

@@ -10,10 +10,7 @@ use Wikibase\TermIndexEntry;
 use Wikibase\TermIndex;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class EntityIdValueComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -94,4 +91,5 @@ class EntityIdValueComparer implements DataValueComparer {
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
 		return $value instanceof EntityIdValue && $comparativeValue instanceof MonolingualTextValue;
 	}
+
 }

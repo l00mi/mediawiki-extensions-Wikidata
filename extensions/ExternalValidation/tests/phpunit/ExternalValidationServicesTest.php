@@ -5,7 +5,6 @@ namespace WikibaseQuality\ExternalValidation\Tests;
 use Wikibase\Repo\WikibaseRepo;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\ExternalValidationServices
  *
@@ -14,19 +13,16 @@ use WikibaseQuality\ExternalValidation\ExternalValidationServices;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class ExternalValidationServicesTest extends \MediaWikiTestCase
-{
+class ExternalValidationServicesTest extends \MediaWikiTestCase {
 
-	public function testGetDefaultInstance()
-	{
+	public function testGetDefaultInstance() {
 		$this->assertInstanceOf(
 			'WikibaseQuality\ExternalValidation\ExternalValidationServices',
 			ExternalValidationServices::getDefaultInstance()
 		);
 	}
 
-	public function testGetCrossChecker()
-	{
+	public function testGetCrossChecker() {
 		$crossChecker = $this->getFactory()->getCrossChecker();
 
 		$this->assertInstanceOf(
@@ -35,8 +31,7 @@ class ExternalValidationServicesTest extends \MediaWikiTestCase
 		);
 	}
 
-	public function testGetCrossCheckInteractor()
-	{
+	public function testGetCrossCheckInteractor() {
 		$crossCheckInteractor = $this->getFactory()->getCrossCheckInteractor();
 
 		$this->assertInstanceOf(
@@ -45,8 +40,7 @@ class ExternalValidationServicesTest extends \MediaWikiTestCase
 		);
 	}
 
-	public function testGetDataValueComparerFactory()
-	{
+	public function testGetDataValueComparerFactory() {
 		$dataValueComparerFactory = $this->getFactory()->getDataValueComparerFactory();
 
 		$this->assertInstanceOf(
@@ -55,8 +49,7 @@ class ExternalValidationServicesTest extends \MediaWikiTestCase
 		);
 	}
 
-	public function testGetDumpMetaInformationLookup()
-	{
+	public function testGetDumpMetaInformationLookup() {
 		$dumpMetaInformationRepo = $this->getFactory()->getDumpMetaInformationLookup();
 
 		$this->assertInstanceOf(
@@ -65,8 +58,7 @@ class ExternalValidationServicesTest extends \MediaWikiTestCase
 		);
 	}
 
-	public function testGetDumpMetaInformationStore()
-	{
+	public function testGetDumpMetaInformationStore() {
 		$dumpMetaInformationRepo = $this->getFactory()->getDumpMetaInformationStore();
 
 		$this->assertInstanceOf(
@@ -75,8 +67,7 @@ class ExternalValidationServicesTest extends \MediaWikiTestCase
 		);
 	}
 
-	public function testGetSerializerFactory()
-	{
+	public function testGetSerializerFactory() {
 		$serializerFactory = $this->getFactory()->getSerializerFactory();
 
 		$this->assertInstanceOf(
@@ -85,11 +76,11 @@ class ExternalValidationServicesTest extends \MediaWikiTestCase
 		);
 	}
 
-	private function getFactory()
-	{
+	private function getFactory() {
 		return new ExternalValidationServices(
 			WikibaseRepo::getDefaultInstance(),
 			$this->getMockBuilder('Wikibase\Repo\ValueParserFactory')->disableOriginalConstructor()->getMock()
 		);
 	}
+
 }

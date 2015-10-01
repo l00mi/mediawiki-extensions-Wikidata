@@ -2,14 +2,11 @@
 
 namespace WikibaseQuality\ExternalValidation\CrossCheck\Comparer;
 
-use InvalidArgumentException;
 use Wikibase\StringNormalizer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use Wikimedia\Assert\Assert;
 
 /**
- * Class StringComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -184,4 +181,5 @@ class StringComparer {
 
 		return $percentage;
 	}
+
 }

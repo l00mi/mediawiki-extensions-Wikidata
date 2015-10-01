@@ -8,13 +8,11 @@ use InvalidArgumentException;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * Class GlobeCoordinateComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class GlobeCoordinateValueComparer implements  DataValueComparer {
+class GlobeCoordinateValueComparer implements DataValueComparer {
 
 	/**
 	 * @see DataValueComparer::compare
@@ -27,6 +25,11 @@ class GlobeCoordinateValueComparer implements  DataValueComparer {
 		if( !$this->canCompare( $value, $comparativeValue ) ) {
 			throw new InvalidArgumentException( 'Given values can not be compared using this comparer.' );
 		}
+
+		/**
+		 * @var GlobeCoordinateValue $value
+		 * @var GlobeCoordinateValue $comparativeValue
+		 */
 
 		$precision = $value->getPrecision();
 		$locLat = $value->getLatitude();
@@ -58,4 +61,5 @@ class GlobeCoordinateValueComparer implements  DataValueComparer {
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
 		return $value instanceof GlobeCoordinateValue && $comparativeValue instanceof GlobeCoordinateValue;
 	}
+
 }

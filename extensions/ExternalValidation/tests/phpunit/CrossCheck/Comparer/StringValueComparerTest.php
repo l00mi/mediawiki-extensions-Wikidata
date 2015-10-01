@@ -10,7 +10,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
  *
@@ -86,4 +85,5 @@ class StringValueComparerTest extends DataValueComparerTestBase {
 
 		return new StringValueComparer( $stringComparer );
 	}
+
 }

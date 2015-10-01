@@ -19,4 +19,5 @@ final class WikibaseQualityExternalValidationHooks {
 		$paths[] = __DIR__ . '/tests/phpunit';
 		return true;
 	}
+
 }

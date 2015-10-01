@@ -5,7 +5,6 @@ namespace WikibaseQuality\ExternalValidation\Tests;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\ExternalDataRepo
  *
@@ -79,7 +78,6 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 			)
 		);
 	}
-
 
 	/**
 	 * @dataProvider getDataProvider
@@ -189,7 +187,6 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider insertDataProvider
 	 */
@@ -252,7 +249,6 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider insertBatchDataProvider
 	 */
@@ -260,7 +256,6 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 		$this->setExpectedException( $expectedException );
 
 		$this->externalDataRepo->insertBatch( $externalDataBatch );
-
 
 		$this->assertSelect(
 			ExternalDataRepo::TABLE_NAME,
@@ -305,7 +300,6 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 			)
 		);
 	}
-
 
 	public function testDeleteOfDump() {
 		$dumpId = 'deleteOfDump';
@@ -369,4 +363,5 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }

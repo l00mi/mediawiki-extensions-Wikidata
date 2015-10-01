@@ -18,10 +18,8 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\ClaimGuidGenerator;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\DataModel\Entity\EntityId;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\Specials\SpecialCrossCheck
@@ -47,8 +45,8 @@ use Wikibase\DataModel\Entity\EntityId;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class SpecialCrossCheckTest extends SpecialPageTestBase
-{
+class SpecialCrossCheckTest extends SpecialPageTestBase {
+
 	/**
 	 * Id of a item that (hopefully) does not exist.
 	 */
@@ -69,16 +67,14 @@ class SpecialCrossCheckTest extends SpecialPageTestBase
 	 */
 	private static $hasSetup;
 
-	protected function setUp()
-	{
+	protected function setUp() {
 		parent::setUp();
 		$this->tablesUsed[] = SqlDumpMetaInformationRepo::META_TABLE_NAME;
 		$this->tablesUsed[] = SqlDumpMetaInformationRepo::IDENTIFIER_PROPERTIES_TABLE_NAME;
 		$this->tablesUsed[] = ExternalDataRepo::TABLE_NAME;
 	}
 
-	protected function newSpecialPage()
-	{
+	protected function newSpecialPage() {
 		$externalValidationFactory = ExternalValidationServices::getDefaultInstance();
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
@@ -97,8 +93,7 @@ class SpecialCrossCheckTest extends SpecialPageTestBase
 	 * Adds temporary test data to database
 	 * @throws \DBUnexpectedError
 	 */
-	public function addDBData()
-	{
+	public function addDBData() {
 		if (!self::$hasSetup) {
 			$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 
@@ -227,8 +222,7 @@ class SpecialCrossCheckTest extends SpecialPageTestBase
 	/**
 	 * @dataProvider executeProvider
 	 */
-	public function testExecute($subPage, $request, $userLanguage, $matchers)
-	{
+	public function testExecute( $subPage, $request, $userLanguage, $matchers ) {
 		$request = new \FauxRequest($request);
 
 		// The added item is Q1. This solves the problem that the provider is executed before the test
@@ -246,8 +240,7 @@ class SpecialCrossCheckTest extends SpecialPageTestBase
 	 * Test cases for testExecute
 	 * @return array
 	 */
-	public function executeProvider()
-	{
+	public function executeProvider() {
 		$userLanguage = 'qqx';
 		$cases = array();
 		$matchers = array();
@@ -428,4 +421,5 @@ class SpecialCrossCheckTest extends SpecialPageTestBase
 
 		return $cases;
 	}
+
 }

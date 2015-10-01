@@ -2,13 +2,9 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\UpdateExternalData;
 
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 use WikibaseQuality\ExternalValidation\Maintenance\UpdateExternalData;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\UpdateExternalData\ExternalDataImporter
@@ -69,7 +65,6 @@ class UpdateExternalDataTest extends \MediaWikiTestCase {
 			)
 		);
 
-
 		// Insert external data
 		$this->db->insert(
 			ExternalDataRepo::TABLE_NAME,
@@ -89,7 +84,6 @@ class UpdateExternalDataTest extends \MediaWikiTestCase {
 			)
 		);
 	}
-
 
 	public function testExecute() {
 		// Execute script
@@ -178,4 +172,5 @@ class UpdateExternalDataTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }

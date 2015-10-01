@@ -140,4 +140,5 @@ class ReferenceCheckerTest extends \MediaWikiTestCase {
 
 		return $mock;
 	}
+
 }

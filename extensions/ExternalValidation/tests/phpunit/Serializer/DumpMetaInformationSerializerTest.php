@@ -7,7 +7,6 @@ use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer
  *

@@ -7,11 +7,9 @@ use ValueParsers\ParserOptions;
 use Wikibase\Repo\ValueParserFactory;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\StringNormalizer;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use Wikimedia\Assert\Assert;
 
 /**
- * Class ComparativeValueParserFactory
  * @package WikibaseQuality\ExternalValidation\CrossCheck\ComparativeValueParser
  * @author BP2014N1
  * @license GNU GPL v2+

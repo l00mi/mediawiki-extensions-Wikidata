@@ -2,7 +2,6 @@
 
 namespace WikibaseQuality\ExternalValidation\Specials;
 
-
 use Html;
 use Language;
 use Linker;
@@ -18,7 +17,6 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformatio
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
-
 
 class SpecialExternalDbs extends SpecialPage {
 
@@ -181,4 +179,5 @@ class SpecialExternalDbs extends SpecialPage {
 
 		return $rows;
 	}
+
 }

@@ -8,7 +8,6 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformatio
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs
  *
@@ -25,8 +24,7 @@ use WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class SpecialExternalDbsTest extends SpecialPageTestBase
-{
+class SpecialExternalDbsTest extends SpecialPageTestBase {
 
     protected function setUp() {
         parent::setUp();
@@ -50,8 +48,7 @@ class SpecialExternalDbsTest extends SpecialPageTestBase
      * Adds temporary test data to database
      * @throws \DBUnexpectedError
      */
-    public function addDBData()
-    {
+    public function addDBData() {
         // Truncate table
         $this->db->delete(
             SqlDumpMetaInformationRepo::META_TABLE_NAME,
@@ -104,8 +101,7 @@ class SpecialExternalDbsTest extends SpecialPageTestBase
         }
     }
 
-    public function executeProvider()
-    {
+    public function executeProvider() {
         $userLanguage = 'qqx';
         $cases = array();
         $matchers = array();
@@ -231,4 +227,5 @@ class SpecialExternalDbsTest extends SpecialPageTestBase
 
         return $cases;
     }
+
 }

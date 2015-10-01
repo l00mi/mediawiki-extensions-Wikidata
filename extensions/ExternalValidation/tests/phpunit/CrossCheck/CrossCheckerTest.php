@@ -5,13 +5,13 @@ namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Statement\StatementList;
 use WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker
@@ -143,13 +143,17 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider crossCheckStatementsDataProvider
 	 */
-	public function testCrossCheckStatements( $entity, $statements, $expectedResults, $expectedException = null ) {
-		// If exception is expected, set it so
+	public function testCrossCheckStatements(
+		StatementList $entityStatements,
+		StatementList $statements,
+		array $expectedResults = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
 
-		$results = $this->crossChecker->crossCheckStatements( $entity, $statements );
+		$results = $this->crossChecker->crossCheckStatements( $entityStatements, $statements );
 
 		$this->runResultAssertions( $results, $expectedResults );
 	}
@@ -162,7 +166,7 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 		return array(
 			// Cross-check all statements of Q1
 			array(
-				$this->items['Q1'],
+				$this->items['Q1']->getStatements(),
 				$this->items['Q1']->getStatements(),
 				array(
 					array(
@@ -184,7 +188,7 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 			),
 			// Only cross-check statements of Q1 with P1
 			array(
-				$this->items['Q1'],
+				$this->items['Q1']->getStatements(),
 				$this->items['Q1']->getStatements()->getByPropertyId( new PropertyId( 'P1' ) ),
 				array(
 					array(
@@ -201,7 +205,7 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 			),
 			// Cross-check Q2, which has two identifier for a single dump
 			array(
-				$this->items['Q2'],
+				$this->items['Q2']->getStatements(),
 				$this->items['Q2']->getStatements(),
 				array(
 					array(
@@ -228,7 +232,7 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 			),
 			// Cross-check Q3, which has two identifier different dumps
 			array(
-				$this->items['Q3'],
+				$this->items['Q3']->getStatements(),
 				$this->items['Q3']->getStatements(),
 				array(
 					array(
@@ -255,19 +259,19 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 			),
 			// Cross-check Q4, which has a novalue snak for identifier property
 			array(
-				$this->items['Q4'],
+				$this->items['Q4']->getStatements(),
 				$this->items['Q4']->getStatements(),
 				array()
 			),
 			// Cross-check Q5, which has no statements
 			array(
-				$this->items['Q5'],
+				$this->items['Q5']->getStatements(),
 				$this->items['Q5']->getStatements(),
 				array()
 			),
 			// Provide statements that do not belong to given entity
 			array(
-				$this->items['Q2'],
+				$this->items['Q2']->getStatements(),
 				$this->items['Q1']->getStatements()->getByPropertyId( new PropertyId( 'P2' ) ),
 				null,
 				'InvalidArgumentException'
@@ -388,4 +392,5 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 
 		return $externalDataRepo;
 	}
+
 }

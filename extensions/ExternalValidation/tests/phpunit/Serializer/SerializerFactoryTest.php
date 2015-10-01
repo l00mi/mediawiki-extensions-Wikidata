@@ -4,7 +4,6 @@ namespace WikibaseQuality\ExternalValidation\Tests\Serializer;
 
 use DataValues\Serializers\DataValueSerializer;
 use DataValues\StringValue;
-use MwTimestamp;
 use Serializers\Serializer;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -12,14 +11,12 @@ use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Serializers\ReferenceSerializer;
 use Wikibase\DataModel\Serializers\SnakListSerializer;
 use Wikibase\DataModel\Serializers\SnakSerializer;
-use Wikibase\DataModel\Serializers\SnaksSerializer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\Serializer\SerializerFactory;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\Serializer\SerializerFactory
@@ -145,4 +142,5 @@ class SerializerFactoryTest extends \MediaWikiTestCase {
 			$this->crossCheckResultList
 		);
 	}
+
 }

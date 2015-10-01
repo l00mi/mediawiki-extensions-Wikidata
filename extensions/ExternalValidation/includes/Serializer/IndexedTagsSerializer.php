@@ -5,10 +5,7 @@ namespace WikibaseQuality\ExternalValidation\Serializer;
 use ApiResult;
 use Serializers\Serializer;
 
-
 /**
- * Class IndexedTagsSerializer
- *
  * @package WikibaseQuality\ExternalValidation\Serializer
  * @author BP2014N1
  * @license GNU GPL v2+

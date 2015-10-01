@@ -14,10 +14,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use Wikimedia\Assert\Assert;
 
-
 /**
- * Class ReferenceChecker
- *
  * Checks, if a statement has statements and generated a new reference using an ID
  * of an external data source.
  *
@@ -78,4 +75,5 @@ class ReferenceChecker {
 			)
 		);
 	}
+
 }

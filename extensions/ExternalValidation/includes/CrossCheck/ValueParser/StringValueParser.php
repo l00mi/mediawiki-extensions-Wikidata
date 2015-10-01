@@ -3,14 +3,9 @@
 namespace WikibaseQuality\ExternalValidation\CrossCheck\ValueParser;
 
 use DataValues\StringValue;
-use InvalidArgumentException;
-use DataValues\DataValue;
 use ValueParsers\ValueParser;
 use Wikibase\StringNormalizer;
-use Wikibase\Test\StringNormalizerTest;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use Wikimedia\Assert\Assert;
-
 
 class StringValueParser implements ValueParser {
 
@@ -38,4 +33,5 @@ class StringValueParser implements ValueParser {
 
 		return new StringValue( $this->stringNormalizer->trimToNFC( $value ) );
 	}
+
 }

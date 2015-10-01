@@ -9,7 +9,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikimedia\Assert\Assert;
 
-
 /**
  * @package WikibaseQuality\ExternalValidation\DumpMetaInformation
  * @author BP2014N1
@@ -229,4 +228,5 @@ class DumpMetaInformation {
 
 		$this->size = $size;
 	}
+
 }

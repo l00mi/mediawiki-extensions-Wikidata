@@ -2,12 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\ValueParser;
 
-use DataValues\DataValue;
 use ValueParsers\ValueParser;
-use WikibaseQuality\ExternalValidation\CrossCheck\ComparativeValueParser\ComparativeValueParser;
-use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
-
 
 /**
  * @group WikibaseQualityExternalValidation
@@ -46,4 +41,5 @@ abstract class ValueParserTestBase extends \MediaWikiTestCase {
 
 		$this->assertEquals( $expectedResult, $actualResult );
 	}
+
 }

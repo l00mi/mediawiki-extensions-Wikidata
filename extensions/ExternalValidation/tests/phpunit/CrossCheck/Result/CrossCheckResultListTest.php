@@ -7,7 +7,6 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 
-
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
  *
@@ -17,6 +16,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
  * @license GNU GPL v2+
  */
 class CrossCheckResultListTest extends \MediaWikiTestCase {
+
 	/**
 	 * @var CrossCheckResult
 	 */
@@ -190,4 +190,5 @@ class CrossCheckResultListTest extends \MediaWikiTestCase {
 
 		return $crossCheckResultMock;
 	}
+
 }

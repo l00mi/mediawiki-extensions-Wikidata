@@ -8,15 +8,13 @@ use DataValues\DataValue;
 use DataValues\TimeValue;
 use ValueParsers\ParserOptions;
 use ValueParsers\ValueParser;
-use Wikibase\Lib\Parsers\TimeParserFactory;
+use Wikibase\Repo\Parsers\TimeParserFactory;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use MWTimestamp;
 use TimestampException;
 
 /**
- * Class TimeValueComparer
- *
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -40,7 +38,7 @@ class TimeValueComparer implements DataValueComparer {
 		try {
 			$localTimestamp = new MWTimestamp(substr($value->getTime(), 1));
 			$externalTimestamp = new MWTimestamp(substr($comparativeValue->getTime(), 1));
-			$diff = $localTimestamp->diff( $externalTimestamp, true );
+			$diff = $localTimestamp->diff( $externalTimestamp );
 
 			if ( $value->getPrecision() === $comparativeValue->getPrecision()
 					&& $this->resultOfDiffWithPrecision( $diff, $value->getPrecision() ) ) {
@@ -129,4 +127,5 @@ class TimeValueComparer implements DataValueComparer {
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
 		return $value instanceof TimeValue && $comparativeValue instanceof TimeValue;
 	}
+
 }

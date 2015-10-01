@@ -118,4 +118,5 @@ class CrossCheckResultTest extends \MediaWikiTestCase {
 
 		return $mock;
 	}
+
 }

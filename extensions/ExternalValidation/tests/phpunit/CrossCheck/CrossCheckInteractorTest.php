@@ -3,7 +3,6 @@
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck;
 
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -12,7 +11,6 @@ use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 use WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor;
 use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
-
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor
@@ -57,7 +55,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		$crossChecker->expects( $this->any() )
 			->method( 'crossCheckStatements' )
 			->will( $this->returnCallback(
-				function ( Entity $entity, StatementList $statements ) {
+				function ( StatementList $entityStatements, StatementList $statements ) {
 					return array_map(
 						function ( Statement $statement ) {
 							return $statement->getGuid();
@@ -75,12 +73,11 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		parent::tearDown();
 	}
 
-
 	/**
 	 * @dataProvider crossCheckEntityByIdDataProvider
 	 */
-	public function testCrossCheckEntityById( $entityId, $expectedResult ) {
-		$actualResult = $this->crossCheckInteractor->crossCheckEntityById( $entityId );
+	public function testCrossCheckEntityById( ItemId $itemId, array $expectedResult = null ) {
+		$actualResult = $this->crossCheckInteractor->crossCheckEntityById( $itemId );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}
@@ -120,11 +117,14 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckEntitiesByIdsDataProvider
 	 */
-	public function testCrossCheckEntitiesByIds( $entityIds, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckEntitiesByIds(
+		array $entityIds,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
@@ -175,12 +175,11 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckEntityDataProvider
 	 */
-	public function testCrossCheckEntity( $entity, $expectedResult ) {
-		$actualResult = $this->crossCheckInteractor->crossCheckEntity( $entity );
+	public function testCrossCheckEntity( StatementList $statements, array $expectedResult ) {
+		$actualResult = $this->crossCheckInteractor->crossCheckEntity( $statements );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}
@@ -192,7 +191,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	public function crossCheckEntityDataProvider() {
 		return array(
 			array(
-				$this->items['Q1'],
+				$this->items['Q1']->getStatements(),
 				array(
 					'Q1$c0f25a6f-9e33-41c8-be34-c86a730ff30b',
 					'Q1$dd6dcfc9-55e2-4be6-b70c-d22f20f398b7',
@@ -205,7 +204,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 				)
 			),
 			array(
-				$this->items['Q2'],
+				$this->items['Q2']->getStatements(),
 				array(
 					'Q2$0adcfe9e-cda1-4f74-bc98-433150e49b53',
 					'Q2$07c00375-1be7-43a6-ac97-32770f2bb5ac',
@@ -216,11 +215,14 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider testCrossCheckEntitiesDataProvider
 	 */
-	public function testCrossCheckEntities( $entities, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckEntities(
+		array $entities,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
@@ -271,16 +273,20 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckEntityByIdWithPropertiesDataProvider
 	 */
-	public function testCrossCheckEntityByIdWithProperties( $entityId, $propertyIds, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckEntityByIdWithProperties(
+		ItemId $itemId,
+		array $propertyIds,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
 
-		$actualResult = $this->crossCheckInteractor->crossCheckEntityByIdWithProperties( $entityId, $propertyIds );
+		$actualResult = $this->crossCheckInteractor->crossCheckEntityByIdWithProperties( $itemId, $propertyIds );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}
@@ -331,11 +337,15 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckEntitiesByIdWithPropertiesDataProvider
 	 */
-	public function testCrossCheckEntitiesByIdWithProperties( $entityIds, $propertyIds, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckEntitiesByIdWithProperties(
+		array $entityIds,
+		array $propertyIds,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
@@ -430,16 +440,20 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckEntityWithPropertiesDataProvider
 	 */
-	public function testCrossCheckEntityWithProperties( $entity, $propertyIds, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckEntityWithProperties(
+		StatementList $statements,
+		array $propertyIds,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
 
-		$actualResult = $this->crossCheckInteractor->crossCheckEntityWithProperties( $entity, $propertyIds );
+		$actualResult = $this->crossCheckInteractor->crossCheckEntityWithProperties( $statements, $propertyIds );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}
@@ -451,7 +465,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	public function crossCheckEntityWithPropertiesDataProvider() {
 		return array(
 			array(
-				$this->items['Q1'],
+				$this->items['Q1']->getStatements(),
 				array(
 					new PropertyId( 'P1' )
 				),
@@ -461,7 +475,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 				)
 			),
 			array(
-				$this->items['Q1'],
+				$this->items['Q1']->getStatements(),
 				array(
 					new PropertyId( 'P1' ),
 					new PropertyId( 'P2' )
@@ -473,7 +487,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 				)
 			),
 			array(
-				$this->items['Q1'],
+				$this->items['Q1']->getStatements(),
 				array(
 					'P1'
 				),
@@ -483,11 +497,15 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckEntitiesWithPropertiesDataProvider
 	 */
-	public function testCrossCheckEntitiesWithProperties( $entities, $propertyIds, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckEntitiesWithProperties(
+		array $entities,
+		array $propertyIds,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
@@ -582,11 +600,14 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckClaimDataProvider
 	 */
-	public function testCrossCheckClaim( $claimGuid, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckClaim(
+		$claimGuid,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
@@ -622,11 +643,14 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
 	/**
 	 * @dataProvider crossCheckClaimsDataProvider
 	 */
-	public function testCrossCheckClaims( $claimGuids, $expectedResult, $expectedException = null ) {
+	public function testCrossCheckClaims(
+		array $claimGuids,
+		array $expectedResult = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
@@ -710,12 +734,12 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-
-	private function runAssertions( $expectedResult, $actualResult ) {
-		if ( $actualResult ) {
+	private function runAssertions( array $expectedResult = null, $actualResult = null ) {
+		if ( $expectedResult ) {
 			$this->assertArrayEquals( $expectedResult, $actualResult );
 		} else {
-			$this->assertNull( $expectedResult );
+			$this->assertNull( $actualResult );
 		}
 	}
+
 }

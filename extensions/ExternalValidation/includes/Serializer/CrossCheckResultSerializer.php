@@ -7,10 +7,7 @@ use Serializers\Exceptions\UnsupportedObjectException;
 use Serializers\Serializer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 
-
 /**
- * Class CrossCheckResultSerializer
- *
  * @package WikibaseQuality\ExternalValidation\Serializer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -83,4 +80,5 @@ class CrossCheckResultSerializer implements DispatchableSerializer {
 			'referenceResult' => $this->referenceResultSerializer->serialize( $crossCheckResult->getReferenceResult() )
 		);
 	}
+
 }

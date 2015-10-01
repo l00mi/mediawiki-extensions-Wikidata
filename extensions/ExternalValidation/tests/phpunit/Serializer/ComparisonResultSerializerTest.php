@@ -239,4 +239,5 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 
 		return new ComparisonResultSerializer( $serializerMock );
 	}
+
 }
