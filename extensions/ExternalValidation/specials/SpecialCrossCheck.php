@@ -178,7 +178,7 @@ class SpecialCrossCheck extends SpecialPage {
 				return;
 			}
 
-			$results = $this->crossCheckInteractor->crossCheckEntity( $entity->getStatements() );
+			$results = $this->crossCheckInteractor->crossCheckStatementList( $entity->getStatements() );
 
 			if ($results && count($results) > 0) {
 				$out->addHTML(

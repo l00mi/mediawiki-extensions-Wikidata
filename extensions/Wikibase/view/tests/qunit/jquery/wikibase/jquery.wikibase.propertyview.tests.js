@@ -13,8 +13,8 @@
 var createPropertyview = function( options, $node ) {
 	options = $.extend( {
 		value: new wb.datamodel.Property( 'P1', 'someDataType' ),
-		entityTermsViewBuilder: function() {},
-		statementGroupListViewBuilder: function() {}
+		buildEntityTermsView: function() {},
+		buildStatementGroupListView: function() {}
 	}, options || {} );
 
 	$node = $node || $( '<div/>' ).appendTo( 'body' );
@@ -32,7 +32,7 @@ QUnit.module( 'jquery.wikibase.propertyview', QUnit.newMwEnvironment( {
 			var $propertyview = $( this ),
 				propertyview = $propertyview.data( 'propertyview' );
 
-			if( propertyview ) {
+			if ( propertyview ) {
 				propertyview.destroy();
 			}
 

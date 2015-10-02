@@ -179,7 +179,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	 * @dataProvider crossCheckEntityDataProvider
 	 */
 	public function testCrossCheckEntity( StatementList $statements, array $expectedResult ) {
-		$actualResult = $this->crossCheckInteractor->crossCheckEntity( $statements );
+		$actualResult = $this->crossCheckInteractor->crossCheckStatementList( $statements );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}
@@ -453,7 +453,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 			$this->setExpectedException( $expectedException );
 		}
 
-		$actualResult = $this->crossCheckInteractor->crossCheckEntityWithProperties( $statements, $propertyIds );
+		$actualResult = $this->crossCheckInteractor->crossCheckStatementsWithProperties( $statements, $propertyIds );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}

@@ -19,12 +19,12 @@
 	 * @param {dataTypes.DataTypeStore} dataTypeStore
 	 *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
 	 *        object when interacting on a "value" `Variation`.
+	 * @param {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
+	 *        Required to store changed data.
 	 * @param {wikibase.entityIdFormatter.EntityIdHtmlFormatter} entityIdHtmlFormatter
 	 *        Required by several views for rendering links to entities.
 	 * @param {wikibase.entityIdFormatter.EntityIdPlainFormatter} entityIdPlainFormatter
 	 *        Required by several views for rendering plain text references to entities.
-	 * @param {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
-	 *        Required to store changed data.
 	 * @param {wikibase.store.EntityStore} entityStore
 	 *        Required for dynamically gathering `Entity`/`Property` information.
 	 * @param {jQuery.valueview.ExpertStore} expertStore
@@ -154,9 +154,9 @@
 			entity.getType() + 'view',
 			$dom,
 			{
-				entityTermsViewBuilder: $.proxy( this.getEntityTermsView, this ),
-				sitelinkGroupListViewBuilder: $.proxy( this.getSitelinkGroupListView, this ),
-				statementGroupListViewBuilder: $.proxy( this.getStatementGroupListView, this ),
+				buildEntityTermsView: $.proxy( this.getEntityTermsView, this ),
+				buildSitelinkGroupListView: $.proxy( this.getSitelinkGroupListView, this ),
+				buildStatementGroupListView: $.proxy( this.getStatementGroupListView, this ),
 				value: entity
 			}
 		);
@@ -228,16 +228,33 @@
 			$dom,
 			{
 				value: entity.getStatements(),
-				claimGuidGenerator: new wb.utilities.ClaimGuidGenerator( entity.getId() ),
-				dataTypeStore: this._dataTypeStore,
-				entityStore: this._entityStore,
-				entityIdHtmlFormatter: this._entityIdHtmlFormatter,
-				entityIdPlainFormatter: this._entityIdPlainFormatter,
-				valueViewBuilder: this._getValueViewBuilder(),
-				entityChangersFactory: this._entityChangersFactory
+				listItemAdapter: this.getListItemAdapterForStatementGroupView( entity.getId() )
 			}
 		);
+	};
 
+	/**
+	 * Construct a `ListItemAdapter` for `statementgroupview`s
+	 *
+	 * @param {string} entityId
+	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
+	 **/
+	SELF.prototype.getListItemAdapterForStatementGroupView = function( entityId ) {
+		return new $.wikibase.listview.ListItemAdapter( {
+			listItemWidget: $.wikibase.statementgroupview,
+			newItemOptionsFn: $.proxy( function( value ) {
+				return {
+					value: value,
+					claimGuidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
+					dataTypeStore: this._dataTypeStore,
+					entityIdHtmlFormatter: this._entityIdHtmlFormatter,
+					entityIdPlainFormatter: this._entityIdPlainFormatter,
+					entityStore: this._entityStore,
+					valueViewBuilder: this._getValueViewBuilder(),
+					entityChangersFactory: this._entityChangersFactory
+				};
+			}, this )
+		} );
 	};
 
 	/**
@@ -262,7 +279,7 @@
 	 * @throws {Error} If there is no view with the given name
 	 **/
 	SELF.prototype._getView = function( viewName, $dom, options ) {
-		if( !$.wikibase[ viewName ] ) {
+		if ( !$.wikibase[ viewName ] ) {
 			throw new Error( 'View ' + viewName + ' does not exist' );
 		}
 

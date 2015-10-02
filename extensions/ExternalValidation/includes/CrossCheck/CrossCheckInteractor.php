@@ -60,7 +60,7 @@ class CrossCheckInteractor {
 		$entity = $this->entityLookup->getEntity( $entityId );
 
 		if ( $entity instanceof StatementListProvider ) {
-			return $this->crossCheckEntity( $entity->getStatements() );
+			return $this->crossCheckStatementList( $entity->getStatements() );
 		}
 
 		return null;
@@ -91,7 +91,7 @@ class CrossCheckInteractor {
 	 *
 	 * @return CrossCheckResultList
 	 */
-	public function crossCheckEntity( StatementList $statements ) {
+	public function crossCheckStatementList( StatementList $statements ) {
 		return $this->crossChecker->crossCheckStatements( $statements, $statements );
 	}
 
@@ -110,7 +110,7 @@ class CrossCheckInteractor {
 		foreach ( $entities as $entity ) {
 			$entityId = $entity->getId()->getSerialization();
 			if ( $entity instanceof StatementListProvider ) {
-				$results[$entityId] = $this->crossCheckEntity( $entity->getStatements() );
+				$results[$entityId] = $this->crossCheckStatementList( $entity->getStatements() );
 			}
 		}
 
@@ -132,7 +132,7 @@ class CrossCheckInteractor {
 		$entity = $this->entityLookup->getEntity( $entityId );
 
 		if ( $entity instanceof StatementListProvider ) {
-			return $this->crossCheckEntityWithProperties( $entity->getStatements(), $propertyIds );
+			return $this->crossCheckStatementsWithProperties( $entity->getStatements(), $propertyIds );
 		}
 
 		return null;
@@ -168,7 +168,7 @@ class CrossCheckInteractor {
 	 * @return CrossCheckResultList
 	 * @throws InvalidArgumentException
 	 */
-	public function crossCheckEntityWithProperties( StatementList $entityStatements, array $propertyIds ) {
+	public function crossCheckStatementsWithProperties( StatementList $entityStatements, array $propertyIds ) {
 		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId',  $propertyIds, '$propertyIds' );
 
 		$statements = new StatementList();
@@ -198,7 +198,7 @@ class CrossCheckInteractor {
 		foreach ( $entities as $entity ) {
 			$entityId = $entity->getId()->getSerialization();
 			if ( $entity instanceof StatementListProvider ) {
-				$results[$entityId] = $this->crossCheckEntityWithProperties(
+				$results[$entityId] = $this->crossCheckStatementsWithProperties(
 					$entity->getStatements(),
 					$propertyIds
 				);

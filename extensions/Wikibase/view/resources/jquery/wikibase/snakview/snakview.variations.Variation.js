@@ -35,11 +35,6 @@
 	 *
 	 * @throws {Error} if a required parameter is not specified properly.
 	 */
-	/**
-	 * @event afterdraw
-	 * Triggered on the `Variation` object after drawing the `Variation`.
-	 * @param {jQuery.Event} event
-	 */
 	var SELF = $.wikibase.snakview.variations.Variation = function WbSnakviewVariationsVariation(
 		viewState,
 		$viewPort,
@@ -47,10 +42,10 @@
 		valueViewBuilder,
 		dataTypeStore
 	) {
-		if( !( viewState instanceof $.wikibase.snakview.ViewState ) ) {
+		if ( !( viewState instanceof $.wikibase.snakview.ViewState ) ) {
 			throw new Error( 'No ViewState object was provided to the snakview variation' );
 		}
-		if( !( $viewPort instanceof $ ) || $viewPort.length !== 1 ) {
+		if ( !( $viewPort instanceof $ ) || $viewPort.length !== 1 ) {
 			throw new Error( 'No sufficient DOM node provided for the snakview variation' );
 		}
 
@@ -64,6 +59,11 @@
 
 		this._init();
 	};
+	/**
+	 * @event afterdraw
+	 * Triggered on the `Variation` object after drawing the `Variation`.
+	 * @param {jQuery.Event} event
+	 */
 	$.extend( SELF.prototype, {
 		/**
 		 * A unique class for this `Variation`, applied to the `Variation` DOM's `class` attribute.
@@ -152,7 +152,7 @@
 		 *         fields `snaktype` and `property`.
 		 */
 		value: function( value ) {
-			if( value === undefined ) {
+			if ( value === undefined ) {
 				return this._getValue();
 			}
 			this._setValue( value );

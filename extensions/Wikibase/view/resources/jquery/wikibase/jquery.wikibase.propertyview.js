@@ -13,7 +13,7 @@ var PARENT = $.wikibase.entityview;
  * @author H. Snater < mediawiki@snater.com >
  *
  * @param {Object} options
- * @param {Function} options.statementGroupListViewBuilder
+ * @param {Function} options.buildStatementGroupListView
  *
  * @constructor
  *
@@ -24,7 +24,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 	 * @protected
 	 */
 	options: {
-		statementGroupListViewBuilder: null
+		buildStatementGroupListView: null
 	},
 
 	/**
@@ -47,7 +47,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 		this._createEntityview();
 
 		this.$statements = $( '.wikibase-statementgrouplistview', this.element );
-		if( this.$statements.length === 0 ) {
+		if ( this.$statements.length === 0 ) {
 			this.$statements = $( '<div/>' ).appendTo( this.element );
 		}
 
@@ -59,7 +59,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 	 * @protected
 	 */
 	_init: function() {
-		if( !this.options.statementGroupListViewBuilder ) {
+		if ( !this.options.buildStatementGroupListView ) {
 			throw new Error( 'Required option(s) missing' );
 		}
 
@@ -74,13 +74,13 @@ $.widget( 'wikibase.propertyview', PARENT, {
 		// TODO: Implement propertyview template to have static HTML rendered by the back-end match
 		// the HTML rendered here without having to invoke templating mechanism here.
 
-		if( this.$dataType ) {
+		if ( this.$dataType ) {
 			return;
 		}
 
 		this.$dataType = $( '.wikibase-propertyview-datatype', this.element );
 
-		if( !this.$dataType.length ) {
+		if ( !this.$dataType.length ) {
 			this.$dataType = mw.wbTemplate( 'wikibase-propertyview-datatype',
 				this.options.value.getDataTypeId()
 			).appendTo( this.element );
@@ -91,7 +91,7 @@ $.widget( 'wikibase.propertyview', PARENT, {
 	 * @protected
 	 */
 	_initStatements: function() {
-		this.options.statementGroupListViewBuilder( this.options.value, this.$statements );
+		this.options.buildStatementGroupListView( this.options.value, this.$statements );
 
 		// This is here to be sure there is never a duplicate id:
 		$( '.wikibase-statementgrouplistview' )
@@ -138,13 +138,6 @@ $.widget( 'wikibase.propertyview', PARENT, {
 		PARENT.prototype._setState.call( this, state );
 
 		this.$statements.data( 'statementgrouplistview' )[state]();
-		// TODO: Resolve integration of referenceviews
-		this.$statements.find( '.wb-statement-references' ).each( function() {
-			var $listview = $( this ).children( ':wikibase-listview' );
-			if( $listview.length ) {
-				$listview.data( 'listview' )[state]();
-			}
-		} );
 	}
 } );
 

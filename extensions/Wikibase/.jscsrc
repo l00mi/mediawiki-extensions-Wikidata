@@ -13,13 +13,13 @@
 	"jsDoc": {
 		// what we don't yet follow is commented out
 		//"checkAnnotations": "jsduck5",
-		//"checkParamNames": true,
+		"checkParamNames": true,
 		"requireParamTypes": true,
 		"checkRedundantParams": true,
 		//"checkReturnTypes": true,
 		"checkRedundantReturns": true,
-		//"requireReturnTypes": true,
-		//"checkTypes": "capitalizedNativeCase",
+		"requireReturnTypes": true,
+		"checkTypes": "strictNativeCase",
 		"checkRedundantAccess": true
 		//"requireNewlineAfterDescription": true
 	},
@@ -27,15 +27,21 @@
 	// ----
 	// Own rules
 
-	"disallowSpaceAfterKeywords": [
-		"catch",
-		"for",
-//		"if",
-		"switch",
-		"while"
-	],
+	// not required for function
 	"requireSpaceAfterKeywords": [
-		"else"
+		"do",
+		"for",
+		"if",
+		"else",
+		"switch",
+		"case",
+		"try",
+		"catch",
+		"void",
+		"while",
+		"with",
+		"return",
+		"typeof"
 	],
 
 	"excludeFiles": [ "node_modules/**", "vendor/**", "extensions/**" ]

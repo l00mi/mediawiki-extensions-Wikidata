@@ -8,7 +8,6 @@
  * `Property` id by managing a list of `jQuery.wikibase.statementgroupview` widgets.
  * @see wikibase.datamodel.StatementGroup
  * @see wikibase.datamodel.StatementGroupSet
- * @uses jQuery.wikibase.statementgroupview
  * @uses jQuery.wikibase.statementgrouplabelscroll
  * @uses jQuery.wikibase.listview
  * @uses jQuery.wikibase.listview.ListItemAdapter
@@ -20,25 +19,9 @@
  * @constructor
  *
  * @param {Object} options
+ * @param {jquery.wikibase.listview.ListItemAdapter} options.listItemAdapter
  * @param {wikibase.datamodel.StatementGroupSet} options.value
  *        The `Statements` to be displayed by this view.
- * @param {wikibase.utilities.ClaimGuidGenerator} options.claimGuidGenerator
- *        Required for dynamically generating GUIDs for new `Statement`s.
- * @param {wikibase.entityIdFormatter.EntityIdHtmlFormatter} options.entityIdHtmlFormatter
- *        Required for dynamically rendering links to `Entity`s.
- * @param {wikibase.entityIdFormatter.EntityIdPlainFormatter} options.entityIdPlainFormatter
- *        Required for dynamically rendering plain text references to `Entity`s.
- * @param {wikibase.store.EntityStore} options.entityStore
- *        Required for dynamically gathering `Entity`/`Property` information.
- * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
- *        Required by the `snakview` interfacing a `snakview` "value" `Variation` to
- *        `jQuery.valueview`.
- * @param {wikibase.entityChangers.EntityChangersFactory} options.entityChangersFactory
- *        Required to store the `Reference`s gathered from the `referenceview`s aggregated by the
- *        `statementview`.
- * @param {dataTypes.DataTypeStore} options.dataTypeStore
- *        Required by the `snakview` for retrieving and evaluating a proper `dataTypes.DataType`
- *        object when interacting on a "value" `Variation`.
  */
 $.widget( 'wikibase.statementgrouplistview', PARENT, {
 	/**
@@ -51,14 +34,8 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 			'' // listview
 		],
 		templateShortCuts: {},
-		value: null,
-		claimGuidGenerator: null,
-		entityIdHtmlFormatter: null,
-		entityIdPlainFormatter: null,
-		entityStore: null,
-		valueViewBuilder: null,
-		entityChangersFactory: null,
-		dataTypeStore: null
+		listItemAdapter: null,
+		value: null
 	},
 
 	/**
@@ -74,12 +51,7 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
-		if(
-			!this.options.claimGuidGenerator
-			|| !this.options.entityStore
-			|| !this.options.valueViewBuilder
-			|| !this.options.entityChangersFactory
-			|| !this.options.dataTypeStore
+		if ( !this.options.listItemAdapter
 			|| !( this.options.value instanceof wb.datamodel.StatementGroupSet )
 		) {
 			throw new Error( 'Required option not specified properly' );
@@ -95,7 +67,7 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 			var $statementgroupview = $( event.target ),
 				statementgroupview = lia.liInstance( $statementgroupview );
 
-			if( !statementgroupview.value() ) {
+			if ( !statementgroupview.value() ) {
 				listview.removeItem( $statementgroupview );
 			}
 		} );
@@ -117,30 +89,14 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 	 * @private
 	 */
 	_createListview: function() {
-		var self = this;
-
 		var $listview = this.element.children( '.wikibase-listview' );
 
-		if( !$listview.length ) {
+		if ( !$listview.length ) {
 			$listview = $( '<div/>' ).appendTo( this.element );
 		}
 
 		$listview.listview( {
-			listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
-				listItemWidget: $.wikibase.statementgroupview,
-				newItemOptionsFn: function( value ) {
-					return {
-						value: value,
-						claimGuidGenerator: self.options.claimGuidGenerator,
-						dataTypeStore: self.options.dataTypeStore,
-						entityIdHtmlFormatter: self.options.entityIdHtmlFormatter,
-						entityIdPlainFormatter: self.options.entityIdPlainFormatter,
-						entityStore: self.options.entityStore,
-						valueViewBuilder: self.options.valueViewBuilder,
-						entityChangersFactory: self.options.entityChangersFactory
-					};
-				}
-			} ),
+			listItemAdapter: this.options.listItemAdapter,
 			value: this._statementGroupSetToStatementGroups( this.options.value )
 		} );
 
@@ -186,7 +142,7 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 
 						self.listview.removeItem( $statementgroupview );
 
-						if( dropValue ) {
+						if ( dropValue ) {
 							return;
 						}
 
@@ -215,7 +171,7 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 			var statementgroupview = lia.liInstance( $( this ) ),
 				statementGroup = statementgroupview.value();
 
-			if( statementGroup.getKey() === propertyId ) {
+			if ( statementGroup.getKey() === propertyId ) {
 				newStatementGroup.getItemContainer().each( function() {
 					statementGroup.addItem( this );
 				} );
@@ -226,7 +182,7 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 			return !found;
 		} );
 
-		if( !found ) {
+		if ( !found ) {
 			this.listview.addItem( newStatementGroup );
 		}
 	},
@@ -236,8 +192,8 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 	 * @protected
 	 */
 	_setOption: function( key, value ) {
-		if( key === 'value' && value !== undefined ) {
-			if( !( value instanceof wb.datamodel.StatementGroupSet ) ) {
+		if ( key === 'value' && value !== undefined ) {
+			if ( !( value instanceof wb.datamodel.StatementGroupSet ) ) {
 				throw new Error(
 					'value needs to be an instance of wb.datamodel.StatementGroupSet'
 				);
@@ -249,7 +205,7 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
 
-		if( key === 'disabled' ) {
+		if ( key === 'disabled' ) {
 			this.listview.option( key, value );
 		}
 
@@ -263,7 +219,7 @@ $.widget( 'wikibase.statementgrouplistview', PARENT, {
 		var lia = this.listview.listItemAdapter(),
 			$items = this.listview.items();
 
-		if( $items.length ) {
+		if ( $items.length ) {
 			lia.liInstance( $items.first() ).focus();
 		} else {
 			this.element.focus();

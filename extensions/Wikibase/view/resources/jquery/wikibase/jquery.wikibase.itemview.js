@@ -13,8 +13,8 @@ var PARENT = $.wikibase.entityview;
  * @author H. Snater < mediawiki@snater.com >
  *
  * @param {Object} options
- * @param {Function} options.sitelinkGroupListViewBuilder
- * @param {Function} options.statementGroupListViewBuilder
+ * @param {Function} options.buildSitelinkGroupListView
+ * @param {Function} options.buildStatementGroupListView
  *
  * @constructor
  *
@@ -25,8 +25,8 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 * @protected
 	 */
 	options: {
-		sitelinkGroupListViewBuilder: null,
-		statementGroupListViewBuilder: null
+		buildSitelinkGroupListView: null,
+		buildStatementGroupListView: null
 	},
 
 	/**
@@ -43,12 +43,12 @@ $.widget( 'wikibase.itemview', PARENT, {
 		this._createEntityview();
 
 		this.$statements = $( '.wikibase-statementgrouplistview', this.element );
-		if( this.$statements.length === 0 ) {
+		if ( this.$statements.length === 0 ) {
 			this.$statements = $( '<div/>' ).appendTo( this.element );
 		}
 
 		this.$siteLinks = $( '.wikibase-sitelinkgrouplistview', this.element );
-		if( this.$siteLinks.length === 0 ) {
+		if ( this.$siteLinks.length === 0 ) {
 			this.$siteLinks = $( '<div/>' ).appendTo( this.element );
 		}
 	},
@@ -58,9 +58,8 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 * @protected
 	 */
 	_init: function() {
-		if(
-			!this.options.sitelinkGroupListViewBuilder ||
-			!this.options.statementGroupListViewBuilder
+		if ( !this.options.buildSitelinkGroupListView ||
+			!this.options.buildStatementGroupListView
 		) {
 			throw new Error( 'Required option(s) missing' );
 		}
@@ -74,7 +73,7 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 * @protected
 	 */
 	_initStatements: function() {
-		this.options.statementGroupListViewBuilder( this.options.value, this.$statements );
+		this.options.buildStatementGroupListView( this.options.value, this.$statements );
 
 		// This is here to be sure there is never a duplicate id:
 		$( '.wikibase-statementgrouplistview' )
@@ -87,7 +86,7 @@ $.widget( 'wikibase.itemview', PARENT, {
 	 * @protected
 	 */
 	_initSiteLinks: function() {
-		this.options.sitelinkGroupListViewBuilder( this.options.value.getSiteLinks(), this.$siteLinks );
+		this.options.buildSitelinkGroupListView( this.options.value.getSiteLinks(), this.$siteLinks );
 	},
 
 	/**
@@ -130,14 +129,6 @@ $.widget( 'wikibase.itemview', PARENT, {
 		PARENT.prototype._setState.call( this, state );
 
 		this.$statements.data( 'statementgrouplistview' )[state]();
-		// TODO: Resolve integration of referenceviews
-		this.$statements.find( '.wb-statement-references' ).each( function() {
-			var $listview = $( this ).children( ':wikibase-listview' );
-			if( $listview.length ) {
-				$listview.data( 'listview' )[state]();
-			}
-		} );
-
 		this.$siteLinks.data( 'sitelinkgrouplistview' )[state]();
 	}
 } );

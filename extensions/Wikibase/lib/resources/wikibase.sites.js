@@ -25,7 +25,7 @@
 		 * @return {Object} Global site IDs as field names, related wb.Site objects as value.
 		 */
 		this.getSites = function() {
-			if( this._siteList !== null ) {
+			if ( this._siteList !== null ) {
 				// get cached list since this can be an expensive job to do
 				return this._siteList;
 			}
@@ -37,7 +37,7 @@
 
 			this._siteList = {};
 
-			for( var globalSiteId in sitesDetails ) {
+			for ( var globalSiteId in sitesDetails ) {
 				siteDefinition = sitesDetails[ globalSiteId ];
 				site = new wb.Site( siteDefinition );
 
@@ -56,10 +56,10 @@
 			var sitesOfGroup = {},
 				sites = this.getSites();
 
-			for( var siteId in sites ) {
+			for ( var siteId in sites ) {
 				var site = sites[ siteId ];
 
-				if( site.getGroup() === groupId ) {
+				if ( site.getGroup() === groupId ) {
 					sitesOfGroup[ siteId ] = site;
 				}
 			}
@@ -69,17 +69,17 @@
 		/**
 		 * Returns an array with all known site groups.
 		 *
-		 * @return string[]
+		 * @return {string[]}
 		 */
 		this.getSiteGroups = function() {
 			var groups = [],
 				sites = this.getSites();
 
-			for( var siteId in sites ) {
+			for ( var siteId in sites ) {
 				var site = sites[ siteId ],
 					group = site.getGroup();
 
-				if( $.inArray( group, groups ) === -1 ) {
+				if ( $.inArray( group, groups ) === -1 ) {
 					groups.push( group );
 				}
 			}
@@ -100,13 +100,13 @@
 		 * related to the given ID, null will be returned.
 		 *
 		 * @param {string} siteId
-		 * @return wikibase.Site|null
+		 * @return {wikibase.Site|null}
 		 */
 		this.getSite = function( siteId ) {
 			var sites = this.getSites(),
 				site = sites[ siteId ];
 
-			if( site === undefined ) {
+			if ( site === undefined ) {
 				return null;
 			}
 			return site;
@@ -120,7 +120,7 @@
 		 *             the Site object.
 		 *
 		 * @param {string} globalSiteId
-		 * @return wikibase.Site|null
+		 * @return {wikibase.Site|null}
 		 */
 		this.getSiteByGlobalId = function( globalSiteId ) {
 			return this.getSite( globalSiteId );
