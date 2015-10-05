@@ -46,7 +46,7 @@ class TimeValueComparer implements DataValueComparer {
 			// FIXME: MWTimestamp does not support years with more than 4 digits!
 			$localTimestamp = new MWTimestamp( substr( $value->getTime(), 1 ) );
 			$externalTimestamp = new MWTimestamp( substr( $comparativeValue->getTime(), 1 ) );
-			$diff = $localTimestamp->diff( $externalTimestamp, true );
+			$diff = $localTimestamp->diff( $externalTimestamp );
 
 			if ( $value->getPrecision() === $comparativeValue->getPrecision()
 				&& $this->resultOfDiffWithPrecision( $diff, $value->getPrecision() )
@@ -79,7 +79,7 @@ class TimeValueComparer implements DataValueComparer {
 
 		switch ( $precision ) {
 			case TimeValue::PRECISION_SECOND:
-				$result = $result && $diff->s === 0;
+				$result = $diff->s === 0;
 				// Fall through with no break/return. This is critical for this algorithm.
 			case TimeValue::PRECISION_MINUTE:
 				$result = $result && $diff->i === 0;
