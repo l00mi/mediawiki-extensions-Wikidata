@@ -28,7 +28,7 @@ class TimeValueComparer implements DataValueComparer {
 	 * @param DataValue $comparativeValue
 	 *
 	 * @throws InvalidArgumentException
-	 * @return string
+	 * @return string One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
 		if ( !$this->canCompare( $value, $comparativeValue ) ) {

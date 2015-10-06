@@ -8,9 +8,11 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\TermIndexEntry;
 use Wikibase\TermIndex;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use Wikimedia\Assert\Assert;
 
 /**
+ * @fixme This class does not compares EntityIdValues!
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
@@ -41,11 +43,17 @@ class EntityIdValueComparer implements DataValueComparer {
 	 *
 	 * @param DataValue $value
 	 * @param DataValue $comparativeValue
-	 * @return string
+	 *
+	 * @return string|null One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
 		Assert::parameterType( 'Wikibase\DataModel\Entity\EntityIdValue', $value, '$value' );
 		Assert::parameterType( 'DataValues\MonolingualTextValue', $comparativeValue, '$comparativeValue' );
+
+		/**
+		 * @var EntityIdValue $value
+		 * @var MonolingualTextValue $comparativeValue
+		 */
 
 		$entityId = $value->getEntityId();
 		$language = $comparativeValue->getLanguageCode();
@@ -54,6 +62,8 @@ class EntityIdValueComparer implements DataValueComparer {
 		if ( $terms ) {
 			return $this->stringComparer->compareWithArray( $comparativeValue->getText(), $terms );
 		}
+
+		return null;
 	}
 
 	/**
@@ -78,7 +88,8 @@ class EntityIdValueComparer implements DataValueComparer {
 			function( TermIndexEntry $term ) {
 				return $term->getText();
 			},
-			$terms );
+			$terms
+		);
 	}
 
 	/**

@@ -19,12 +19,19 @@ class QuantityValueComparer implements DataValueComparer {
 	 *
 	 * @param DataValue $value
 	 * @param DataValue $comparativeValue
-	 * @return string
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
-		if( !$this->canCompare( $value, $comparativeValue ) ) {
+		if ( !$this->canCompare( $value, $comparativeValue ) ) {
 			throw new InvalidArgumentException( 'Given values can not be compared using this comparer.' );
 		}
+
+		/**
+		 * @var QuantityValue $value
+		 * @var QuantityValue $comparativeValue
+		 */
 
 		if ( $comparativeValue->getLowerBound()->compare( $value->getUpperBound() ) <= 0 &&
 			$comparativeValue->getUpperBound()->compare( $value->getLowerBound() ) >= 0

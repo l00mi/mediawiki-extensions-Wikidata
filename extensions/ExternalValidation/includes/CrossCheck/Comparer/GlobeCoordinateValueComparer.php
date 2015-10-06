@@ -19,10 +19,12 @@ class GlobeCoordinateValueComparer implements DataValueComparer {
 	 *
 	 * @param DataValue $value
 	 * @param DataValue $comparativeValue
-	 * @return string
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
-		if( !$this->canCompare( $value, $comparativeValue ) ) {
+		if ( !$this->canCompare( $value, $comparativeValue ) ) {
 			throw new InvalidArgumentException( 'Given values can not be compared using this comparer.' );
 		}
 

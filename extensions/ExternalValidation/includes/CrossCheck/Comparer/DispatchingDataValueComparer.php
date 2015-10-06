@@ -6,6 +6,7 @@ use DataValues\DataValue;
 use InvalidArgumentException;
 
 /**
+ * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
  * @author BP2014N1
  * @license GNU GPL v2+
  */
@@ -26,6 +27,8 @@ class DispatchingDataValueComparer implements DataValueComparer {
 
 	/**
 	 * @param DataValueComparer[] $dataValueComparers
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	protected function assertAreDataValueComparer( array $dataValueComparers ) {
 		foreach ( $dataValueComparers as $dataValueComparer ) {
@@ -40,7 +43,9 @@ class DispatchingDataValueComparer implements DataValueComparer {
 	/**
 	 * @see DataValueComparer::canCompare
 	 *
-	 * @param string $dataValueType
+	 * @param DataValue $value
+	 * @param DataValue $comparativeValue
+	 *
 	 * @return bool
 	 */
 	public function canCompare( DataValue $value, DataValue $comparativeValue ) {
@@ -58,7 +63,9 @@ class DispatchingDataValueComparer implements DataValueComparer {
 	 *
 	 * @param DataValue $value
 	 * @param DataValue $comparativeValue
-	 * @return string
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
 		foreach ( $this->dataValueComparers as $dataValueComparer ) {

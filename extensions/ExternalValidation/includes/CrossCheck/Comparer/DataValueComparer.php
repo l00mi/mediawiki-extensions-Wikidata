@@ -26,7 +26,7 @@ interface DataValueComparer {
 	 * @param DataValue $value
 	 * @param DataValue $comparativeValue
 	 *
-	 * @return string (one of the status constants of ComparisonResult)
+	 * @return string One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue );
 

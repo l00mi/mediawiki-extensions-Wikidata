@@ -33,19 +33,25 @@ class MultilingualTextValueComparer implements DataValueComparer {
 	 * @param DataValue $comparativeValue
 	 *
 	 * @throws InvalidArgumentException
-	 * @return ComparisonResult
+	 * @return string|null One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
-		if( !$this->canCompare( $value, $comparativeValue ) ) {
+		if ( !$this->canCompare( $value, $comparativeValue ) ) {
 			throw new InvalidArgumentException( 'Given values can not be compared using this comparer.' );
 		}
+
+		/**
+		 * @var MultilingualTextValue $value
+		 * @var MultilingualTextValue $comparativeValue
+		 */
 
 		$texts = $value->getTexts();
 		$comparativeTexts = $comparativeValue->getTexts();
 		$commonLanguages = array_intersect( array_keys( $texts ), array_keys( $comparativeTexts ) );
 
-		if( $commonLanguages ) {
+		if ( $commonLanguages ) {
 			$totalResult = ComparisonResult::STATUS_MISMATCH;
+
 			foreach ( $commonLanguages as $language ) {
 				$monolingualText = $texts[$language];
 				$comparativeMonolingualText = $comparativeTexts[$language];
@@ -53,6 +59,8 @@ class MultilingualTextValueComparer implements DataValueComparer {
 				$result = $this->stringComparer->compare( $monolingualText->getText(), $comparativeMonolingualText->getText() );
 				if ( $result !== ComparisonResult::STATUS_MISMATCH ) {
 					$totalResult = $result;
+
+					// FIXME: This reports a partial match in a single language as a full match!
 					if ( $result === ComparisonResult::STATUS_MATCH ) {
 						break;
 					}
@@ -61,6 +69,8 @@ class MultilingualTextValueComparer implements DataValueComparer {
 
 			return $totalResult;
 		}
+
+		return null;
 	}
 
 	/**

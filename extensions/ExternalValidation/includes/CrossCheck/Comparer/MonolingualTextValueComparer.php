@@ -5,6 +5,7 @@ namespace WikibaseQuality\ExternalValidation\CrossCheck\Comparer;
 use DataValues\DataValue;
 use DataValues\MonolingualTextValue;
 use InvalidArgumentException;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer
@@ -30,16 +31,25 @@ class MonolingualTextValueComparer implements DataValueComparer {
 	 *
 	 * @param DataValue $value
 	 * @param DataValue $comparativeValue
-	 * @return string
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string|null One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
-		if( !$this->canCompare( $value, $comparativeValue ) ) {
+		if ( !$this->canCompare( $value, $comparativeValue ) ) {
 			throw new InvalidArgumentException( 'Given values can not be compared using this comparer.' );
 		}
 
-		if( $value->getLanguageCode() === $comparativeValue->getLanguageCode() ) {
+		/**
+		 * @var MonolingualTextValue $value
+		 * @var MonolingualTextValue $comparativeValue
+		 */
+
+		if ( $value->getLanguageCode() === $comparativeValue->getLanguageCode() ) {
 			return $this->stringComparer->compare( $value->getText(), $comparativeValue->getText() );
 		}
+
+		return null;
 	}
 
 	/**
