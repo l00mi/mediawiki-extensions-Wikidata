@@ -708,6 +708,8 @@ return array(
     'Wikibase\\Lib\\EntityIdValueFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/EntityIdValueFormatter.php',
     'Wikibase\\Lib\\EscapingValueFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/EscapingValueFormatter.php',
     'Wikibase\\Lib\\FormatterLabelDescriptionLookupFactory' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/FormatterLabelDescriptionLookupFactory.php',
+    'Wikibase\\Lib\\Formatters\\ErrorHandlingSnakFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/ErrorHandlingSnakFormatter.php',
+    'Wikibase\\Lib\\Formatters\\Test\\ErrorHandlingSnakFormatterTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/formatters/ErrorHandlingSnakFormatterTest.php',
     'Wikibase\\Lib\\GlobeCoordinateDetailsFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/GlobeCoordinateDetailsFormatter.php',
     'Wikibase\\Lib\\HtmlTimeFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/HtmlTimeFormatter.php',
     'Wikibase\\Lib\\HtmlUrlFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/HtmlUrlFormatter.php',

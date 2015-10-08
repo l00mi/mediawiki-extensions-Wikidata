@@ -33,6 +33,8 @@ return call_user_func( function() {
 				'jquery.wikibase.propertyview',
 				'jquery.wikibase.statementgrouplistview',
 				'jquery.wikibase.statementgroupview',
+				'jquery.wikibase.statementlistview',
+				'jquery.wikibase.statementview',
 				'wikibase.datamodel.MultiTerm',
 				'wikibase.datamodel.Term',
 				'wikibase.utilities.ClaimGuidGenerator',
