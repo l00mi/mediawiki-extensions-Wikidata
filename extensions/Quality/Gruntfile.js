@@ -16,8 +16,6 @@ module.exports = function ( grunt ) {
 		},
 		banana: {
 			options: {
-				disallowDuplicateTranslations: false,
-				disallowUnusedTranslations: false,
 				requireCompleteMessageDocumentation: false
 			},
 			all: 'i18n/'
@@ -25,4 +23,5 @@ module.exports = function ( grunt ) {
 	} );
 
 	grunt.registerTask( 'test', [ 'jshint', 'jscs', 'banana' ] );
+	grunt.registerTask( 'default', 'test' );
 };
