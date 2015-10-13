@@ -12,17 +12,9 @@
  */
 var createPropertyview = function( options, $node ) {
 	options = $.extend( {
-		entityStore: 'I am an EntityStore',
-		entityChangersFactory: {
-			getAliasesChanger: function() { return 'I am an AliasesChanger'; },
-			getDescriptionsChanger: function() { return 'I am a DescriptionsChanger'; },
-			getLabelsChanger: function() { return 'I am a LabelsChanger'; }
-		},
-		api: 'I am an Api',
-		valueViewBuilder: 'I am a valueview builder',
-		dataTypeStore: 'I am a DataTypeStore',
 		value: new wb.datamodel.Property( 'P1', 'someDataType' ),
-		languages: 'en'
+		buildEntityTermsView: function() {},
+		buildStatementGroupListView: function() {}
 	}, options || {} );
 
 	$node = $node || $( '<div/>' ).appendTo( 'body' );
@@ -30,14 +22,6 @@ var createPropertyview = function( options, $node ) {
 	var $propertyview = $node
 		.addClass( 'test_propertyview' )
 		.propertyview( options );
-
-	$propertyview.data( 'propertyview' )._save = function() {
-		return $.Deferred().resolve( {
-			entity: {
-				lastrevid: 'I am a revision id'
-			}
-		} ).promise();
-	};
 
 	return $propertyview;
 };
@@ -48,7 +32,7 @@ QUnit.module( 'jquery.wikibase.propertyview', QUnit.newMwEnvironment( {
 			var $propertyview = $( this ),
 				propertyview = $propertyview.data( 'propertyview' );
 
-			if( propertyview ) {
+			if ( propertyview ) {
 				propertyview.destroy();
 			}
 
@@ -63,13 +47,6 @@ QUnit.test( 'Create & destroy', function( assert ) {
 			createPropertyview( { value: null } );
 		},
 		'Throwing error when trying to initialize widget without a value.'
-	);
-
-	assert.throws(
-		function() {
-			createPropertyview( { languages: null } );
-		},
-		'Throwing error when trying to initialize widget without a language.'
 	);
 
 	var $propertyview = createPropertyview(),
@@ -87,13 +64,6 @@ QUnit.test( 'Create & destroy', function( assert ) {
 		'Destroyed widget.'
 	);
 
-	$propertyview = createPropertyview( { languages: ['ku'] } );
-	propertyview = $propertyview.data( 'propertyview' );
-
-	assert.ok(
-		propertyview instanceof $.wikibase.propertyview,
-		'Created widget with a language.'
-	);
 } );
 
 }( jQuery, wikibase, QUnit ) );

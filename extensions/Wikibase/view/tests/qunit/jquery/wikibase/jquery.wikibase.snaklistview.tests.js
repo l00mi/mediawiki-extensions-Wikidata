@@ -29,22 +29,10 @@
 	// We need a filled entity store for the instances of jQuery.wikibase.snakview.variations.Value
 	// and jQuery.wikibase.snakview created by jQuery.wikibase.snaklistview.
 	var entities = {
-		p1: new wb.store.FetchedContent( {
-			title: new mw.Title( 'Property:P1' ),
-			content: new wb.datamodel.Property( 'P1', 'string' )
-		} ),
-		p2: new wb.store.FetchedContent( {
-			title: new mw.Title( 'Property:P2' ),
-			content: new wb.datamodel.Property( 'P2', 'string' )
-		} ),
-		p3: new wb.store.FetchedContent( {
-			title: new mw.Title( 'Property:P3' ),
-			content: new wb.datamodel.Property( 'P3', 'string' )
-		} ),
-		p4: new wb.store.FetchedContent( {
-			title: new mw.Title( 'Property:P4' ),
-			content: new wb.datamodel.Property( 'P4', 'string' )
-		} )
+		p1: new wb.datamodel.Property( 'P1', 'string' ),
+		p2: new wb.datamodel.Property( 'P2', 'string' ),
+		p3: new wb.datamodel.Property( 'P3', 'string' ),
+		p4: new wb.datamodel.Property( 'P4', 'string' )
 	};
 
 	var entityStore = {
@@ -72,6 +60,16 @@
 			value: value || undefined,
 			dataTypeStore: {
 				getDataType: function() {}
+			},
+			entityIdHtmlFormatter: {
+				format: function() {
+					return $.Deferred().resolve( 'P1' ).promise();
+				}
+			},
+			entityIdPlainFormatter: {
+				format: function( entityId ) {
+					return $.Deferred().resolve( entityId ).promise();
+				}
 			},
 			entityStore: entityStore,
 			valueViewBuilder: valueViewBuilder
@@ -121,7 +119,7 @@
 				var $node = $( node ),
 					snaklistview = $node.data( 'snaklistview' );
 
-				if( snaklistview ) {
+				if ( snaklistview ) {
 					snaklistview.destroy();
 				}
 
@@ -683,14 +681,14 @@
 				isDisabled = true,
 				isEnabled = true;
 
-			for( var i = 0; i < snakviews.length; i++ ) {
+			for ( var i = 0; i < snakviews.length; i++ ) {
 				isDisabled = isDisabled && snakviews[i].option( 'disabled' );
 				isEnabled = isEnabled && !snakviews[i].option( 'disabled' );
 			}
 
-			if( isDisabled && !isEnabled ) {
+			if ( isDisabled && !isEnabled ) {
 				return 'disabled';
-			} else if( !isDisabled && isEnabled ) {
+			} else if ( !isDisabled && isEnabled ) {
 				return 'enabled';
 			} else {
 				return 'mixed';
@@ -785,7 +783,7 @@
 		var $node,
 			snaklistview;
 
-		for( var i = 0; i < testCases.length; i++ ) {
+		for ( var i = 0; i < testCases.length; i++ ) {
 			$node = createSnaklistview( snakList );
 			snaklistview = $node.data( 'snaklistview' );
 
@@ -840,7 +838,7 @@
 			['abcdegf', 'abcdefg' ]
 		];
 
-		for( var i = 0; i < testCases.length; i++ ) {
+		for ( var i = 0; i < testCases.length; i++ ) {
 			$node = createSnaklistview( snakList );
 			snaklistview = $node.data( 'snaklistview' );
 
@@ -882,7 +880,7 @@
 				var $snakview = $( snakviewNode ),
 					snakview = snaklistview._lia.liInstance( $snakview );
 
-				if( i === 0 ) {
+				if ( i === 0 ) {
 					assert.ok(
 						snakview.propertyLabelIsVisible(),
 						'Topmost snakview\'s property label is visible.'

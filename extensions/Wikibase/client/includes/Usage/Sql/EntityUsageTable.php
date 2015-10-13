@@ -84,7 +84,7 @@ class EntityUsageTable {
 		}
 
 		$rowIds = $this->getAffectedRowIds( $pageId, $usages );
-		$batches  = array_chunk( $rowIds, $this->batchSize );
+		$batches = array_chunk( $rowIds, $this->batchSize );
 
 		foreach ( $batches as $batch ) {
 			$this->touchUsageBatch( $batch, $touched );
@@ -319,15 +319,31 @@ class EntityUsageTable {
 
 		$old = $this->queryUsages( $pageId, '<', $lastUpdatedBefore );
 
-		// XXX: we may want to batch this, based on the data in $old
-		$this->connection->delete(
-			$this->tableName,
-			array(
-				'eu_page_id' => (int)$pageId,
-				'eu_touched < ' . $this->connection->addQuotes( $lastUpdatedBefore ),
-			),
-			__METHOD__
-		);
+		do {
+			// @TODO: This is very similar to what getAffectedRowIds does.
+			$res = $this->connection->selectFieldValues(
+				$this->tableName,
+				'eu_row_id',
+				array(
+					'eu_page_id' => (int)$pageId,
+					'eu_touched < ' . $this->connection->addQuotes( $lastUpdatedBefore ),
+				),
+				__METHOD__,
+				array( 'LIMIT' => $this->batchSize )
+			);
+
+			if ( !$res ) {
+				break;
+			}
+
+			$this->connection->delete(
+				$this->tableName,
+				array(
+					'eu_row_id' => $res,
+				),
+				__METHOD__
+			);
+		} while ( count( $res ) === $this->batchSize );
 
 		return $old;
 	}
@@ -462,7 +478,8 @@ class EntityUsageTable {
 			$this->tableName,
 			array( 'eu_entity_id' ),
 			$where,
-			__METHOD__
+			__METHOD__,
+			array( 'DISTINCT' )
 		);
 
 		return $this->extractProperty( $res, 'eu_entity_id' );

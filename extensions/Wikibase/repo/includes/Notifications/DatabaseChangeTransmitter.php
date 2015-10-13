@@ -3,20 +3,29 @@
 namespace Wikibase\Repo\Notifications;
 
 use Wikibase\Change;
-use Wikibase\ChangeRow;
+use Wikibase\Repo\Store\ChangeStore;
 
 /**
  * Notification channel based on a database table.
  *
- * @todo: Move the database bindings from ChangeRow into this class.
- *        Having Changes be active records is bad.
- *
  * @since 0.5
  *
  * @licence GNU GPL v2+
- * @author Daniel Kinzler
+ * @author Marius Hoch
  */
 class DatabaseChangeTransmitter implements ChangeTransmitter {
+
+	/**
+	 * @var ChangeStore
+	 */
+	private $changeStore;
+
+	/**
+	 * @param ChangeStore $changeStore
+	 */
+	public function __construct( ChangeStore $changeStore ) {
+		$this->changeStore = $changeStore;
+	}
 
 	/**
 	 * @see ChangeNotificationChannel::sendChangeNotification()
@@ -26,18 +35,9 @@ class DatabaseChangeTransmitter implements ChangeTransmitter {
 	 * @note Only supports Change objects that are derived from ChangeRow.
 	 *
 	 * @param Change $change
-	 *
-	 * @throws ChangeTransmitterException
 	 */
 	public function transmitChange( Change $change ) {
-
-		//XXX: the Change interface does not define save().
-		/* @var ChangeRow $change */
-		$ok = $change->save();
-
-		if ( !$ok ) {
-			throw new ChangeTransmitterException( 'Failed to record change to the database' );
-		}
+		$this->changeStore->saveChange( $change );
 	}
 
 }

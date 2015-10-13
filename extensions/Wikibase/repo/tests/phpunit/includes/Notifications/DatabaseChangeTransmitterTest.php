@@ -2,10 +2,7 @@
 
 namespace Wikibase\Tests\Repo;
 
-use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\EntityChange;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Repo\Notifications\DatabaseChangeTransmitter
@@ -16,28 +13,21 @@ use Wikibase\Repo\WikibaseRepo;
  * @group WikibaseRepo
  * @group WikibaseChange
  *
- * @licence GNU GPL v2+
- * @author Daniel Kinzler
+ * @license GNU GPL v2+
+ * @author Marius Hoch
  */
-class DatabaseChangeTransmitterTest extends \MediaWikiTestCase {
+class DatabaseChangeTransmitterTest extends \PHPUnit_Framework_TestCase {
 
 	public function testTransmitChange() {
-		$factory = WikibaseRepo::getDefaultInstance()->getEntityChangeFactory();
-		$change = $factory->newForEntity( EntityChange::ADD, new ItemId( 'Q21389475' ) );
-		$change->setField( 'time', wfTimestamp( TS_MW ) );
+		$change = $this->getMock( 'Wikibase\Change' );
 
-		$db = wfGetDB( DB_MASTER );
-		$tableName = WikibaseRepo::getDefaultInstance()->getStore()->getChangesTable()->getName();
+		$changeStore = $this->getMock( 'Wikibase\Repo\Store\ChangeStore' );
+		$changeStore->expects( $this->once() )
+			->method( 'saveChange' )
+			->with( $change );
 
-		$db->delete( $tableName, '*', __METHOD__ );
-		$this->tablesUsed[] = $tableName;
-
-		$channel = new DatabaseChangeTransmitter();
-		$channel->transmitChange( $change );
-
-		$count = $db->selectField( $tableName, 'count(*)', array(), __METHOD__ );
-
-		$this->assertEquals( 1, $count, 'row count' );
+		$transmitter = new DatabaseChangeTransmitter( $changeStore );
+		$transmitter->transmitChange( $change );
 	}
 
 }

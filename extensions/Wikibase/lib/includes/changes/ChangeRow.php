@@ -75,12 +75,11 @@ class ChangeRow extends ORMRow implements Change {
 	}
 
 	/**
-	 * @param IORMTable $table
+	 * @param IORMTable|null $table
 	 * @param array|null $fields
-	 * @param boolean $loadDefaults
 	 */
-	public function __construct( IORMTable $table, $fields = null, $loadDefaults = false ) {
-		parent::__construct( $table, $fields, $loadDefaults );
+	public function __construct( IORMTable $table = null, $fields = null ) {
+		parent::__construct( $table, $fields, false );
 
 		$this->postConstruct();
 	}
@@ -181,27 +180,6 @@ class ChangeRow extends ORMRow implements Change {
 		}
 
 		return $info;
-	}
-
-	/**
-	 * @see ORMRow::getWriteValues()
-	 *
-	 * @todo: remove this once core no longer uses ORMRow::getWriteValues().
-	 *        Use ChangesTable::getWriteValues() instead.
-	 *
-	 * @since 0.4
-	 *
-	 * @return array
-	 */
-	protected function getWriteValues() {
-		$values = parent::getWriteValues();
-		$infoField = $this->table->getPrefixedField( 'info' );
-
-		if ( isset( $values[$infoField] ) ) {
-			$values[$infoField] = $this->serializeInfo( $values[$infoField] );
-		}
-
-		return $values;
 	}
 
 	/**

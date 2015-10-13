@@ -112,12 +112,12 @@ $.extend( wb.PageConnector.prototype, {
 	/**
 	 * Get the (first) entity object from an API response.
 	 *
-	 * @param {object} apiResult
+	 * @param {Object} apiResult
 	 *
-	 * @return {object|undefined} Entity as returned by the API
+	 * @return {Object|undefined} Entity as returned by the API
 	 */
 	_extractEntity: function( apiResult ) {
-		for( var i in apiResult.entities ) {
+		for ( var i in apiResult.entities ) {
 			if ( apiResult.entities[ i ].sitelinks ) {
 				return apiResult.entities[ i ];
 			}
@@ -135,7 +135,7 @@ $.extend( wb.PageConnector.prototype, {
 		var siteLinkCount = 0,
 			i;
 
-		for( i in entity.sitelinks ) {
+		for ( i in entity.sitelinks ) {
 			if ( entity.sitelinks[ i ].site ) {
 				siteLinkCount += 1;
 			}
@@ -264,7 +264,7 @@ $.extend( wb.PageConnector.prototype, {
 	/**
 	 * Links an item with a page.
 	 *
-	 * @param {object} entity
+	 * @param {Object} entity
 	 * @param {string} siteId
 	 * @param {string} pageName
 	 *
@@ -282,8 +282,8 @@ $.extend( wb.PageConnector.prototype, {
 	/**
 	 * Merges two entities.
 	 *
-	 * @param {object} firstEntity
-	 * @param {object} secondEntity
+	 * @param {Object} firstEntity
+	 * @param {Object} secondEntity
 	 *
 	 * @return {jQuery.Promise}
 	 */

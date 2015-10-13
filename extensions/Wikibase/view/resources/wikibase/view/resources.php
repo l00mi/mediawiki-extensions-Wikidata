@@ -27,10 +27,22 @@ return call_user_func( function() {
 				'ViewFactory.js'
 			),
 			'dependencies' => array(
+				'jquery.wikibase.entitytermsview',
 				'jquery.wikibase.itemview',
+				'jquery.wikibase.listview', // For ListItemAdapter
 				'jquery.wikibase.propertyview',
+				'jquery.wikibase.statementgrouplistview',
+				'jquery.wikibase.statementgroupview',
+				'jquery.wikibase.statementlistview',
+				'jquery.wikibase.statementview',
+				'wikibase.datamodel.MultiTerm',
+				'wikibase.datamodel.Term',
+				'wikibase.utilities.ClaimGuidGenerator',
 				'wikibase.view.__namespace',
 				'wikibase.ValueViewBuilder'
+			),
+			'messages' => array(
+				'wikibase-entitytermsview-input-help-message',
 			)
 		),
 	);

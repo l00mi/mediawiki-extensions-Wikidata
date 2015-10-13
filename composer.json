@@ -27,7 +27,7 @@
     "require": {
         "php": ">=5.3.0",
         "propertysuggester/property-suggester": "~2.4.2",
-        "wikibase/wikibase": "dev-wmf/1.27.0-wmf.1",
+        "wikibase/wikibase": "dev-wmf/1.27.0-wmf.3",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
         "wikibase/quality": "dev-master",
@@ -43,7 +43,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_27_0_wmf_1",
+        "autoloader-suffix": "wikidata_1_27_0_wmf_3",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

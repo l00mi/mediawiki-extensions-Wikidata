@@ -3,11 +3,14 @@
 namespace Wikibase\Client\RecentChanges;
 
 use DatabaseBase;
+use Linker;
 use MWException;
 use Title;
 
 /**
  * @since 0.5
+ *
+ * @todo test case!
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
@@ -33,6 +36,13 @@ class ExternalRecentChange {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAttributes() {
+		return $this->mAttribs;
+	}
+
+	/**
 	 * Builds the attribute array for saving into recentchanges table
 	 *
 	 * @param array $attribs
@@ -53,7 +63,14 @@ class ExternalRecentChange {
 			$userText = $metadata['rc_user_text'];
 		}
 
+		$repoId = isset( $metadata['site_id'] ) ? $metadata['site_id'] : null;
 		$time = isset( $metadata['time'] ) ? $metadata['time'] : wfTimestamp( TS_MW );
+		$comment = isset( $attribs['comment'] ) ? $attribs['comment'] : '';
+
+		if ( !isset( $attribs['comment-html'] ) ) {
+			//XXX: wrap Linker in something we can inject here
+			$attribs['comment-html'] = Linker::formatComment( $comment, $title, false, $repoId );
+		}
 
 		$this->mAttribs = array(
 			'rc_namespace' => $title->getNamespace(),
@@ -70,7 +87,7 @@ class ExternalRecentChange {
 			'rc_last_oldid' => $title->getLatestRevID(),
 			'rc_params' => serialize( $attribs ),
 			'rc_cur_id' => $title->getArticleID(),
-			'rc_comment' => '',
+			'rc_comment' => $comment,
 			'rc_timestamp' => $time,
 			'rc_log_action' => '',
 			'rc_source' => 'wb'

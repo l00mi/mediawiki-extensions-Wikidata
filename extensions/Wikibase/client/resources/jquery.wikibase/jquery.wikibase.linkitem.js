@@ -247,7 +247,7 @@ $.widget( 'wikibase.linkitem', {
 	 * Gets an object with all linkable sites despite the current one (as pages on the same wiki
 	 * cannot be linked).
 	 *
-	 * @return {object}
+	 * @return {Object}
 	 */
 	_getLinkableSites: function() {
 		var sites,
@@ -258,7 +258,7 @@ $.widget( 'wikibase.linkitem', {
 		currentSiteId = this.options.globalSiteId;
 		sites = wb.sites.getSitesOfGroup( this.options.langLinkSiteGroup );
 
-		for( site in sites ) {
+		for ( site in sites ) {
 			if ( sites[ site ].getId() !== currentSiteId ) {
 				linkableSites.push( sites[ site ] );
 			}
@@ -278,7 +278,7 @@ $.widget( 'wikibase.linkitem', {
 
 		try {
 			apiUrl = $( '#wbclient-linkItem-site' ).siteselector( 'getSelectedSite' ).getApi();
-		} catch( e ) {
+		} catch ( e ) {
 			// Invalid input (likely incomplete). Disable the page input an re-disable to button
 			$page.attr( 'disabled', 'disabled' );
 			this.$goButton.button( 'disable' );
@@ -397,7 +397,7 @@ $.widget( 'wikibase.linkitem', {
 	 * Handles the data from getNewlyLinkedPages and either creates a new item or shows the user a
 	 * confirmation form in case an item exists already.
 	 *
-	 * @param {object} entity
+	 * @param {Object} entity
 	 */
 	_onConfirmationDataLoad: function( entity ) {
 		var i, itemLink;
@@ -410,7 +410,7 @@ $.widget( 'wikibase.linkitem', {
 
 			// Count site links and abort in case the entity already is linked with a page on this
 			// wiki:
-			for( i in entity.sitelinks ) {
+			for ( i in entity.sitelinks ) {
 				if ( entity.sitelinks[ i ].site ) {
 					siteLinkCount += 1;
 					if ( entity.sitelinks[ i ].site === this.options.globalSiteId ) {
@@ -446,7 +446,7 @@ $.widget( 'wikibase.linkitem', {
 	/**
 	 * Let the user verify this is indeed the entity to link with and link it after.
 	 *
-	 * @param {object} entity
+	 * @param {Object} entity
 	 * @param {number} siteLinkCount Number of sitelinks attached to the entity
 	 * @param {string} itemLink Link to the entity on the repo
 	 */
@@ -500,7 +500,7 @@ $.widget( 'wikibase.linkitem', {
 		.appendTo( $siteLinks.find( 'table' ) );
 
 		// Table body
-		for( i in entity.sitelinks ) {
+		for ( i in entity.sitelinks ) {
 			if ( entity.sitelinks[ i ].site ) {
 				// Show a row for each page that is linked with the current entity
 				$siteLinks
@@ -520,7 +520,7 @@ $.widget( 'wikibase.linkitem', {
 	 * Creates a table row for a site link.
 	 *
 	 * @param {wb.Site} site
-	 * @param {object} entitySitelinks
+	 * @param {Object} entitySitelinks
 	 *
 	 * @return {jQuery}
 	 */

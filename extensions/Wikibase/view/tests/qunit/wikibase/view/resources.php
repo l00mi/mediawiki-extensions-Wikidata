@@ -20,6 +20,16 @@ return call_user_func( function() {
 				'ViewFactory.tests.js',
 			),
 			'dependencies' => array(
+				'wikibase.datamodel.Claim',
+				'wikibase.datamodel.EntityId',
+				'wikibase.datamodel.Fingerprint',
+				'wikibase.datamodel.Item',
+				'wikibase.datamodel.PropertyNoValueSnak',
+				'wikibase.datamodel.Statement',
+				'wikibase.datamodel.StatementGroup',
+				'wikibase.datamodel.StatementList',
+				'wikibase.store.EntityStore',
+				'wikibase.entityIdFormatter.EntityIdPlainFormatter',
 				'wikibase.view.ViewFactory',
 				'wikibase.ValueViewBuilder'
 			),
@@ -28,4 +38,5 @@ return call_user_func( function() {
 	);
 
 	return $modules;
+
 } );

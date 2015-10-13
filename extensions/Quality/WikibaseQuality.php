@@ -5,7 +5,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 
 call_user_func( function () {
 	// Set credits
-	$GLOBALS['wgExtensionCredits']['specialpage'][] = array(
+	$GLOBALS['wgExtensionCredits']['wikibase'][] = array(
 		'path' => __FILE__,
 		'name' => 'WikibaseQuality',
 		'author' => 'BP2014N1',

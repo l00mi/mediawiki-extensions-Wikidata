@@ -11,7 +11,6 @@
  */
 var createEntitytermsforlanguagelistview = function( options ) {
 	options = $.extend( {
-		entityId: 'I am an EntityId',
 		entityChangersFactory: {
 			getAliasesChanger: function() { return 'I am an AliasesChanger'; },
 			getDescriptionsChanger: function() { return 'I am a DescriptionsChanger'; },
@@ -45,7 +44,7 @@ QUnit.module( 'jquery.wikibase.entitytermsforlanguagelistview', QUnit.newMwEnvir
 				entitytermsforlanguagelistview
 					= $entitytermsforlanguagelistview.data( 'entitytermsforlanguagelistview' );
 
-			if( entitytermsforlanguagelistview ) {
+			if ( entitytermsforlanguagelistview ) {
 				entitytermsforlanguagelistview.destroy();
 			}
 

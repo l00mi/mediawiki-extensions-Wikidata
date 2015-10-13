@@ -67,9 +67,8 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'jquery.ui.widget',
-				'jquery.wikibase.statementgroupview',
+				'jquery.wikibase.statementgrouplabelscroll',
 				'jquery.wikibase.listview',
-				'wikibase.datamodel.Item',
 				'wikibase.datamodel.StatementGroupSet',
 			),
 		),
@@ -81,13 +80,8 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
 				'jquery.ui.widget',
-				'jquery.wikibase.listview',
-				'jquery.wikibase.statementlistview',
-				'wikibase.datamodel.Item',
-				'wikibase.datamodel.Property',
 				'wikibase.datamodel.StatementGroup',
 				'wikibase.datamodel.StatementList',
-				'wikibase.utilities',
 			),
 		),
 
@@ -99,9 +93,7 @@ return call_user_func( function() {
 				'jquery.ui.TemplatedWidget',
 				'jquery.ui.widget',
 				'jquery.wikibase.listview',
-				'jquery.wikibase.statementview',
 				'wikibase.datamodel.StatementList',
-				'wikibase.utilities.ClaimGuidGenerator',
 			),
 		),
 
@@ -156,17 +148,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
-				'jquery.wikibase.aliasesview',
-				'jquery.wikibase.descriptionview',
-				'jquery.wikibase.entitytermsview',
-				'jquery.wikibase.labelview',
-				'wikibase.datamodel.MultiTerm',
-				'wikibase.datamodel.Term',
-				'wikibase.getLanguageNameByCode',
-				'wikibase.templates',
-			),
-			'messages' => array(
-				'wikibase-entitytermsview-input-help-message',
 			),
 		),
 
@@ -244,12 +225,8 @@ return call_user_func( function() {
 				'jquery.wikibase.itemview.js',
 			),
 			'dependencies' => array(
-				'jquery.wikibase.statementgrouplabelscroll',
-				'jquery.wikibase.statementgrouplistview',
 				'jquery.wikibase.entityview',
 				'jquery.wikibase.sitelinkgrouplistview',
-				'wikibase.sites',
-				'wikibase.utilities.ClaimGuidGenerator',
 			),
 		),
 
@@ -303,10 +280,8 @@ return call_user_func( function() {
 				'jquery.wikibase.propertyview.js',
 			),
 			'dependencies' => array(
-				'jquery.wikibase.statementgrouplabelscroll',
-				'jquery.wikibase.statementgrouplistview',
 				'jquery.wikibase.entityview',
-				'wikibase.utilities.ClaimGuidGenerator',
+				'wikibase.templates',
 			),
 		),
 
@@ -334,6 +309,7 @@ return call_user_func( function() {
 				'jquery.util.EventSingletonManager',
 				'jquery.wikibase.listview',
 				'jquery.wikibase.sitelinkgroupview',
+				'wikibase.sites',
 			),
 			'messages' => array(
 				'wikibase-sitelinkgroupview-input-help-message',
@@ -356,7 +332,6 @@ return call_user_func( function() {
 				'mediawiki.jqueryMsg', // for {{plural}} and {{gender}} support in messages
 				'wikibase.buildErrorOutput',
 				'wikibase.sites',
-				'wikibase.utilities',
 			),
 		),
 

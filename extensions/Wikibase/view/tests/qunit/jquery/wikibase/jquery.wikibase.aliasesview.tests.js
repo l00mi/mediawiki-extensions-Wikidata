@@ -12,7 +12,6 @@
  */
 var createAliasesview = function( options ) {
 	options = $.extend( {
-		entityId: 'I am an EntityId',
 		aliasesChanger: 'I am an AliasesChanger',
 		value: new wb.datamodel.MultiTerm( 'en', ['a', 'b', 'c'] )
 	}, options || {} );
@@ -35,7 +34,7 @@ QUnit.module( 'jquery.wikibase.aliasesview', QUnit.newMwEnvironment( {
 			var $aliasesview = $( this ),
 				aliasesview = $aliasesview.data( 'aliasesview' );
 
-			if( aliasesview ) {
+			if ( aliasesview ) {
 				aliasesview.destroy();
 			}
 
@@ -118,7 +117,7 @@ QUnit.test( 'startEditing() & stopEditing()', 6, function( assert ) {
 	function testEditModeChange( func, expectingEvent ) {
 		var deferred = $.Deferred();
 
-		if( !expectingEvent ) {
+		if ( !expectingEvent ) {
 			func();
 			return deferred.resolve().promise();
 		}
@@ -146,7 +145,7 @@ QUnit.test( 'startEditing() & stopEditing()', 6, function( assert ) {
 	 * @param {boolean} [expectingEvent]
 	 */
 	function addToQueue( $queue, func, expectingEvent ) {
-		if( expectingEvent === undefined ) {
+		if ( expectingEvent === undefined ) {
 			expectingEvent = true;
 		}
 		$queue.queue( 'tests', function( next ) {

@@ -53,16 +53,16 @@ class SpecialItemByTitle extends SpecialWikibasePage {
 		// args $name, $restriction, $listed
 		parent::__construct( 'ItemByTitle', '', true );
 
-		$settings = WikibaseRepo::getDefaultInstance()->getSettings();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
 		$this->initSettings(
-			$settings->getSetting( 'siteLinkGroups' )
+			$wikibaseRepo->getSettings()->getSetting( 'siteLinkGroups' )
 		);
 
 		$this->initServices(
-			WikibaseRepo::getDefaultInstance()->getEntityTitleLookup(),
-			WikibaseRepo::getDefaultInstance()->getSiteStore(),
-			WikibaseRepo::getDefaultInstance()->getStore()->newSiteLinkStore()
+			$wikibaseRepo->getEntityTitleLookup(),
+			$wikibaseRepo->getSiteStore(),
+			$wikibaseRepo->getStore()->newSiteLinkStore()
 		);
 	}
 
@@ -184,7 +184,6 @@ class SpecialItemByTitle extends SpecialWikibasePage {
 				'name' => 'site',
 				'default' => $siteId,
 				'type' => 'text',
-				'cssclass' => 'wb-input',
 				'id' => 'wb-itembytitle-sitename',
 				'size' => 12,
 				'label-message' => 'wikibase-itembytitle-lookup-site'
@@ -193,7 +192,6 @@ class SpecialItemByTitle extends SpecialWikibasePage {
 				'name' => 'page',
 				'default' => $page ?: '',
 				'type' => 'text',
-				'cssclass' => 'wb-input',
 				'id' => 'pagename',
 				'size' => 36,
 				'label-message' => 'wikibase-itembytitle-lookup-page'

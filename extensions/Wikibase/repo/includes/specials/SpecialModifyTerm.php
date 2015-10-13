@@ -60,9 +60,10 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	public function __construct( $title, $restriction = 'edit' ) {
 		parent::__construct( $title, $restriction );
 
-		$changeOpFactoryProvider = WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
 		$this->termChangeOpFactory = $changeOpFactoryProvider->getFingerprintChangeOpFactory();
-		$this->termsLanguages = WikibaseRepo::getDefaultInstance()->getTermsLanguages();
+		$this->termsLanguages = $wikibaseRepo->getTermsLanguages();
 	}
 
 	/**
@@ -230,13 +231,12 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 			)
 			. parent::getFormElements( $entity )
 			. Html::element( 'br' )
-			. Html::element(
-				'label',
+			. Html::label(
+				$this->msg( 'wikibase-modifyterm-language' )->text(),
+				'wb-modifyterm-language',
 				array(
-					'for' => 'wb-modifyterm-language',
 					'class' => 'wb-label'
-				),
-				$this->msg( 'wikibase-modifyterm-language' )->text()
+				)
 			)
 			. Html::input(
 				'language',
@@ -248,15 +248,16 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 				)
 			)
 			. Html::element( 'br' )
-			. Html::element(
-				'label',
-				array(
-					'for' => 'wb-modifyterm-value',
-					'class' => 'wb-label'
-				),
-				// Messages: wikibase-setlabel-label, wikibase-setdescription-label,
+			. Html::label(
+				// Messages:
+				// wikibase-setlabel-label
+				// wikibase-setdescription-label
 				// wikibase-setaliases-label
-				$this->msg( 'wikibase-' . strtolower( $this->getName() ) . '-label' )->text()
+				$this->msg( 'wikibase-' . strtolower( $this->getName() ) . '-label' )->text(),
+				'wb-modifyterm-value',
+				array(
+					'class' => 'wb-label'
+				)
 			)
 			. $valueinput
 			. Html::element( 'br' );

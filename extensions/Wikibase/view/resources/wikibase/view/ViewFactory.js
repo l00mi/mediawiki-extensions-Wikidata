@@ -21,6 +21,10 @@
 	 *        object when interacting on a "value" `Variation`.
 	 * @param {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
 	 *        Required to store changed data.
+	 * @param {wikibase.entityIdFormatter.EntityIdHtmlFormatter} entityIdHtmlFormatter
+	 *        Required by several views for rendering links to entities.
+	 * @param {wikibase.entityIdFormatter.EntityIdPlainFormatter} entityIdPlainFormatter
+	 *        Required by several views for rendering plain text references to entities.
 	 * @param {wikibase.store.EntityStore} entityStore
 	 *        Required for dynamically gathering `Entity`/`Property` information.
 	 * @param {jQuery.valueview.ExpertStore} expertStore
@@ -40,6 +44,8 @@
 		contentLanguages,
 		dataTypeStore,
 		entityChangersFactory,
+		entityIdHtmlFormatter,
+		entityIdPlainFormatter,
 		entityStore,
 		expertStore,
 		formatterStore,
@@ -51,6 +57,8 @@
 		this._contentLanguages = contentLanguages;
 		this._dataTypeStore = dataTypeStore;
 		this._entityChangersFactory = entityChangersFactory;
+		this._entityIdHtmlFormatter = entityIdHtmlFormatter;
+		this._entityIdPlainFormatter = entityIdPlainFormatter;
 		this._entityStore = entityStore;
 		this._expertStore = expertStore;
 		this._formatterStore = formatterStore;
@@ -78,6 +86,18 @@
 	 * @private
 	 **/
 	SELF.prototype._entityChangersFactory = null;
+
+	/**
+	 * @property {wikibase.entityIdFormatter.EntityIdHtmlFormatter}
+	 * @private
+	 **/
+	SELF.prototype._entityIdHtmlFormatter = null;
+
+	/**
+	 * @property {wikibase.entityIdFormatter.EntityIdPlainFormatter}
+	 * @private
+	 **/
+	SELF.prototype._entityIdPlainFormatter = null;
 
 	/**
 	 * @property {wikibase.store.EntityStore}
@@ -134,14 +154,164 @@
 			entity.getType() + 'view',
 			$dom,
 			{
-				dataTypeStore: this._dataTypeStore,
-				entityChangersFactory: this._entityChangersFactory,
-				entityStore: this._entityStore,
-				languages: this._userLanguages,
-				value: entity,
-				valueViewBuilder: this._getValueViewBuilder()
+				buildEntityTermsView: $.proxy( this.getEntityTermsView, this ),
+				buildSitelinkGroupListView: $.proxy( this.getSitelinkGroupListView, this ),
+				buildStatementGroupListView: $.proxy( this.getStatementGroupListView, this ),
+				value: entity
 			}
 		);
+	};
+
+	/**
+	 * Construct a suitable terms view for the given fingerprint on the given DOM element
+	 *
+	 * @param {wikibase.datamodel.Fingerprint} fingerprint
+	 * @param {jQuery} $dom
+	 * @return {jQuery.wikibase.entitytermsview} The constructed entity terms view
+	 **/
+	SELF.prototype.getEntityTermsView = function( fingerprint, $dom ) {
+		var value = $.map(
+				this._userLanguages,
+				function( language ) {
+					return {
+						language: language,
+						label: fingerprint.getLabelFor( language )
+							|| new wb.datamodel.Term( language, '' ),
+						description: fingerprint.getDescriptionFor( language )
+							|| new wb.datamodel.Term( language, '' ),
+						aliases: fingerprint.getAliasesFor( language )
+							|| new wb.datamodel.MultiTerm( language, [] )
+					};
+				}
+			);
+
+		return this._getView(
+			'entitytermsview',
+			$dom,
+			{
+				value: value,
+				entityChangersFactory: this._entityChangersFactory,
+				helpMessage: this._messageProvider.getMessage( 'wikibase-entitytermsview-input-help-message' )
+			}
+		);
+	};
+
+	/**
+	 * Construct a suitable view for the given sitelink set on the given DOM element
+	 *
+	 * @param {wikibase.datamodel.SiteLinkSet} sitelinkSet
+	 * @param {jQuery} $dom
+	 * @return {jQuery.wikibase.sitelinkgrouplistview} The constructed sitelinkgrouplistview
+	 **/
+	SELF.prototype.getSitelinkGroupListView = function( sitelinkSet, $dom ) {
+		return this._getView(
+			'sitelinkgrouplistview',
+			$dom,
+			{
+				value: sitelinkSet,
+				siteLinksChanger: this._entityChangersFactory.getSiteLinksChanger(),
+				entityIdPlainFormatter: this._entityIdPlainFormatter
+			}
+		);
+	};
+
+	/**
+	 * Construct a suitable view for the list of statement groups for the given entity on the given DOM element
+	 *
+	 * @param {wikibase.datamodel.Entity} entity
+	 * @param {jQuery} $dom
+	 * @return {jQuery.wikibase.statementgrouplistview} The constructed statementgrouplistview
+	 **/
+	SELF.prototype.getStatementGroupListView = function( entity, $dom ) {
+		return this._getView(
+			'statementgrouplistview',
+			$dom,
+			{
+				value: entity.getStatements(),
+				listItemAdapter: this.getListItemAdapterForStatementGroupView( entity.getId() )
+			}
+		);
+	};
+
+	/**
+	 * Construct a `ListItemAdapter` for `statementgroupview`s
+	 *
+	 * @param {string} entityId
+	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
+	 **/
+	SELF.prototype.getListItemAdapterForStatementGroupView = function( entityId ) {
+		return new $.wikibase.listview.ListItemAdapter( {
+			listItemWidget: $.wikibase.statementgroupview,
+			newItemOptionsFn: $.proxy( function( value ) {
+				return {
+					value: value,
+					entityIdHtmlFormatter: this._entityIdHtmlFormatter,
+					buildStatementListView: $.proxy( this.getStatementListView, this, entityId, value && value.getKey() )
+				};
+			}, this )
+		} );
+	};
+
+	/**
+	 * Construct a suitable view for the given list of statements on the given DOM element
+	 *
+	 * @param {wikibase.datamodel.EntityId} entityId
+	 * @param {wikibase.datamodel.EntityId|null} propertyId Optionally specifies a property
+	 *                                                      all statements should be on or are on
+	 * @param {wikibase.datamodel.StatementList} value
+	 * @param {jQuery} $dom
+	 * @return {jQuery.wikibase.statementgroupview} The constructed statementlistview
+	 **/
+	SELF.prototype.getStatementListView = function( entityId, propertyId, value, $dom ) {
+		var view = this._getView(
+			'statementlistview',
+			$dom,
+			{
+				value: value,
+				listItemAdapter: this.getListItemAdapterForStatementView( entityId, propertyId ),
+				claimsChanger: this._entityChangersFactory.getClaimsChanger()
+			}
+		);
+
+		return view;
+	};
+
+	/**
+	 * Construct a `ListItemAdapter` for `statementview`s
+	 *
+	 * @param {string} entityId
+	 * @param {string|null} [propertyId] Optionally a property all statements are or should be on
+	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
+	 **/
+	SELF.prototype.getListItemAdapterForStatementView = function( entityId, propertyId ) {
+		return new $.wikibase.listview.ListItemAdapter( {
+			listItemWidget: $.wikibase.statementview,
+			newItemOptionsFn: $.proxy( function( value ) {
+				var currentPropertyId = value ? value.getClaim().getMainSnak().getPropertyId() : propertyId;
+				return {
+					value: value,
+					locked: {
+						mainSnak: {
+							property: Boolean( currentPropertyId )
+						}
+					},
+					predefined: {
+						mainSnak: {
+							property: currentPropertyId || undefined
+						}
+					},
+
+					claimsChanger: this._entityChangersFactory.getClaimsChanger(),
+					dataTypeStore: this._dataTypeStore,
+					entityIdHtmlFormatter: this._entityIdHtmlFormatter,
+					entityIdPlainFormatter: this._entityIdPlainFormatter,
+					entityStore: this._entityStore,
+					guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
+					referencesChanger: this._entityChangersFactory.getReferencesChanger(),
+					valueViewBuilder: this._getValueViewBuilder()
+				};
+			}, this )
+		} );
 	};
 
 	/**
@@ -166,7 +336,7 @@
 	 * @throws {Error} If there is no view with the given name
 	 **/
 	SELF.prototype._getView = function( viewName, $dom, options ) {
-		if( !$.wikibase[ viewName ] ) {
+		if ( !$.wikibase[ viewName ] ) {
 			throw new Error( 'View ' + viewName + ' does not exist' );
 		}
 

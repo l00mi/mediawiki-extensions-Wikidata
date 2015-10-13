@@ -1,4 +1,4 @@
-( function( wb, $, mw ) {
+( function( $ ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
@@ -16,12 +16,7 @@
  *
  * @param {Object} options
  * @param {wikibase.datamodel.Entity} options.value
- * @param {string[]|string} languages
- *        Language codes of the languages to display label-/description-/aliasesview in. Other
- *        components of the entityview will use the first language code for rendering. May just be a
- *        single language code.
- * @param {wikibase.entityChangers.EntityChangersFactory} options.entityChangersFactory
- *        Required to be able to store changes applied to the entity.
+ * @param {Function} options.buildEntityTermsView
  */
 /**
  * @event afterstartediting
@@ -41,6 +36,7 @@ $.widget( 'wikibase.entityview', PARENT, {
 	 * @protected
 	 */
 	options: {
+		buildEntityTermsView: null,
 		template: 'wikibase-entityview',
 		templateParams: [
 			'', // entity type
@@ -54,34 +50,14 @@ $.widget( 'wikibase.entityview', PARENT, {
 			$main: '.wikibase-entityview-main',
 			$side: '.wikibase-entityview-side'
 		},
-		value: null,
-		languages: null,
-		entityChangersFactory: null
+		value: null
 	},
 
 	/**
-	 * @property {jQuery}
+	 * @property {jQuery.wikibase.entitytermsview}
 	 * @readonly
 	 */
-	$label: null,
-
-	/**
-	 * @property {jQuery}
-	 * @readonly
-	 */
-	$description: null,
-
-	/**
-	 * @property {jQuery}
-	 * @readonly
-	 */
-	$aliases: null,
-
-	/**
-	 * @property {jQuery|null}
-	 * @readonly
-	 */
-	$entityTerms: null,
+	_entityTerms: null,
 
 	/**
 	 * @inheritdoc
@@ -99,6 +75,8 @@ $.widget( 'wikibase.entityview', PARENT, {
 	 */
 	_createEntityview: function() {
 		PARENT.prototype._create.call( this );
+
+		this.element.data( $.wikibase.entityview.prototype.widgetName, this );
 	},
 
 	/**
@@ -108,19 +86,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 	 * @throws {Error} if a required options is missing.
 	 */
 	_init: function() {
-		if(
-			!this.options.value
-			|| !this.options.languages
-			|| !this.options.entityStore
-			|| !this.options.valueViewBuilder
-			|| !this.options.entityChangersFactory
-		) {
+		if ( !this.options.value || !this.options.buildEntityTermsView ) {
 			throw new Error( 'Required option(s) missing' );
 		}
-
-		this.option( 'languages', this.options.languages );
-
-		this.element.data( $.wikibase.entityview.prototype.widgetName, this );
 
 		this._initEntityTerms();
 
@@ -133,63 +101,32 @@ $.widget( 'wikibase.entityview', PARENT, {
 	 * @protected
 	 */
 	_initEntityTerms: function() {
-		var i;
+		var $entityTerms = $( '.wikibase-entitytermsview', this.element );
 
-		this.$entityTerms = $( '.wikibase-entitytermsview', this.element );
-
-		if( !this.$entityTerms.length ) {
-			this.$entityTerms = $( '<div/>' ).prependTo( this.$main );
+		if ( !$entityTerms.length ) {
+			$entityTerms = $( '<div/>' ).prependTo( this.$main );
 		}
 
-		var fingerprint = this.options.value.getFingerprint(),
-			value = [];
-
-		for( i = 0; i < this.options.languages.length; i++ ) {
-			value.push( {
-				language: this.options.languages[i],
-				label: fingerprint.getLabelFor( this.options.languages[i] )
-					|| new wb.datamodel.Term( this.options.languages[i], '' ),
-				description: fingerprint.getDescriptionFor( this.options.languages[i] )
-					|| new wb.datamodel.Term( this.options.languages[i], '' ),
-				aliases: fingerprint.getAliasesFor( this.options.languages[i] )
-					|| new wb.datamodel.MultiTerm( this.options.languages[i], [] )
-			} );
-		}
-
-		this.$entityTerms.entitytermsview( {
-			value: value,
-			entityId: this.options.value.getId(),
-			entityChangersFactory: this.options.entityChangersFactory,
-			helpMessage: mw.msg( 'wikibase-entitytermsview-input-help-message' )
-		} );
+		this._entityTerms = this.options.buildEntityTermsView(
+			this.options.value.getFingerprint(),
+			$entityTerms
+		);
 	},
 
 	/**
 	 * @protected
 	 */
 	_attachEventHandlers: function() {
-		var self = this;
+		this._on( {
+			entitytermsviewafterstartediting: function( event ) {
+				event.stopPropagation();
+				this._trigger( 'afterstartediting' );
+			},
 
-		this.element
-		.on( [
-			'labelviewafterstartediting.' + this.widgetName,
-			'descriptionviewafterstartediting.' + this.widgetName,
-			'aliasesviewafterstartediting.' + this.widgetName,
-			'entitytermsviewafterstartediting.' + this.widgetName
-		].join( ' ' ),
-		function( event ) {
-			self._trigger( 'afterstartediting' );
-		} );
-
-		this.element
-		.on( [
-			'labelviewafterstopediting.' + this.widgetName,
-			'descriptionviewafterstopediting.' + this.widgetName,
-			'aliasesviewafterstopediting.' + this.widgetName,
-			'entitytermsviewafterstopediting.' + this.widgetName
-		].join( ' ' ),
-		function( event, dropValue ) {
-			self._trigger( 'afterstopediting', null, [dropValue] );
+			entitytermsviewafterstopediting: function( event, dropValue ) {
+				event.stopPropagation();
+				this._trigger( 'afterstopediting', null, [dropValue] );
+			}
 		} );
 	},
 
@@ -199,17 +136,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 	 * @throws {Error} when trying to set an option to an improper value.
 	 */
 	_setOption: function( key, value ) {
-		if( key === 'languages' ) {
-			if( typeof this.options.languages === 'string' ) {
-				this.options.languages = [this.options.languages];
-			} else if( !$.isArray( this.options.languages ) ) {
-				throw new Error( 'languages need to be supplied as string or array' );
-			}
-		}
-
 		var response = PARENT.prototype._setOption.apply( this, arguments );
 
-		if( key === 'disabled' ) {
+		if ( key === 'disabled' ) {
 			this._setState( value ? 'disable' : 'enable' );
 		}
 
@@ -222,20 +151,9 @@ $.widget( 'wikibase.entityview', PARENT, {
 	 * @param {string} state "disable" or "enable"
 	 */
 	_setState: function( state ) {
-		this.$label.data( 'labelview' )[state]();
-		this.$description.data( 'descriptionview' )[state]();
-		this.$aliases.data( 'aliasesview' )[state]();
-		if( this.$entityTerms ) {
-			this.$entityTerms.data( 'entitytermsview' )[state]();
-		}
-	},
-
-	/**
-	 * @inheritdoc
-	 */
-	focus: function() {
-		this.$label.data( 'labelview' ).focus();
+		this._entityTerms[state]();
 	}
+
 } );
 
 /**
@@ -249,8 +167,8 @@ $.wikibase.entityview.TYPES = [];
 $.expr[':'][$.wikibase.entityview.prototype.widgetFullName]
 	= $.expr.createPseudo( function( fullName ) {
 		return function( elem ) {
-			for( var i = 0; i < $.wikibase.entityview.TYPES.length; i++ ) {
-				if( !!$.data( elem, $.wikibase.entityview.TYPES[i] ) ) {
+			for ( var i = 0; i < $.wikibase.entityview.TYPES.length; i++ ) {
+				if ( !!$.data( elem, $.wikibase.entityview.TYPES[i] ) ) {
 					return true;
 				}
 			}
@@ -259,4 +177,4 @@ $.expr[':'][$.wikibase.entityview.prototype.widgetFullName]
 	}
 );
 
-}( wikibase, jQuery, mediaWiki ) );
+}( jQuery ) );

@@ -5,6 +5,7 @@ namespace Wikibase;
 use Wikibase\DataModel\Services\Entity\EntityPrefetcher;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
+use Wikibase\Lib\Store\ChangeLookup;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
@@ -13,6 +14,7 @@ use Wikibase\Lib\Store\LabelConflictFinder;
 use Wikibase\Lib\Store\SiteLinkConflictLookup;
 use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Repo\Store\EntityPerPage;
+use Wikibase\Repo\Store\ChangeStore;
 
 /**
  * Store interface. All interaction with store Wikibase does on top
@@ -136,13 +138,6 @@ interface Store {
 	/**
 	 * @since 0.5
 	 *
-	 * @return ChangesTable
-	 */
-	public function getChangesTable();
-
-	/**
-	 * @since 0.5
-	 *
 	 * @return SiteLinkConflictLookup
 	 */
 	public function getSiteLinkConflictLookup();
@@ -156,5 +151,19 @@ interface Store {
 	 * @return EntityPrefetcher
 	 */
 	public function getEntityPrefetcher();
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return ChangeLookup
+	 */
+	public function getChangeLookup();
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return ChangeStore
+	 */
+	public function getChangeStore();
 
 }

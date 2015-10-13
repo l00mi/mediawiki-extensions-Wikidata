@@ -27,6 +27,23 @@ interface SnakFormatter {
 	const FORMAT_HTML_DIFF = 'text/html; disposition=diff';
 
 	/**
+	 * Options key for controlling error handling.
+	 */
+	const OPT_ON_ERROR = 'on-error';
+
+	/**
+	 * Value for the OPT_ON_ERROR option indicating that recoverable
+	 * errors should cause a warning to be show to the user.
+	 */
+	const ON_ERROR_WARN = 'warn';
+
+	/**
+	 * Value for the OPT_ON_ERROR option indicating that recoverable
+	 * errors should cause the formatting to fail with an exception
+	 */
+	const ON_ERROR_FAIL = 'fail';
+
+	/**
 	 * Formats a snak.
 	 *
 	 * @param Snak $snak
@@ -34,15 +51,6 @@ interface SnakFormatter {
 	 * @return string
 	 */
 	public function formatSnak( Snak $snak );
-
-	/**
-	 * Checks whether this SnakFormatter can format the given snak.
-	 *
-	 * @param Snak $snak
-	 *
-	 * @return bool
-	 */
-	public function canFormatSnak( Snak $snak );
 
 	/**
 	 * Returns the format ID of the format this formatter generates.

@@ -34,10 +34,13 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider validInputProvider
 	 */
 	public function testParse( $value, TimeValue $expected, $languageCode ) {
-		$factory = new TimeParserFactory( new ParserOptions( array( ValueParser::OPT_LANG => $languageCode ) ) );
+		$options = new ParserOptions();
+		$options->setOption( ValueParser::OPT_LANG, $languageCode );
+		$factory = new TimeParserFactory( $options );
 		$parser = $factory->getTimeParser();
+		$actual = $parser->parse( $value );
 
-		$this->assertTrue( $expected->equals( $parser->parse( $value ) ) );
+		$this->assertEquals( $expected->getArrayValue(), $actual->getArrayValue() );
 	}
 
 	public function validInputProvider() {
@@ -47,7 +50,7 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 		$valid = array(
 			/**
 			 * @see Wikibase\Repo\Parsers\YearTimeParser
-			 * @see Wikibase\Test\YearTimeParserTest
+			 * @see Wikibase\Repo\Tests\Parsers\YearTimeParserTest
 			 */
 			'1999' =>
 				array( '+1999-00-00T00:00:00Z', TimeValue::PRECISION_YEAR ),
@@ -74,7 +77,7 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 
 			/**
 			 * @see Wikibase\Repo\Parsers\YearMonthTimeParser
-			 * @see Wikibase\Test\YearMonthTimeParserTest
+			 * @see Wikibase\Repo\Tests\Parsers\YearMonthTimeParserTest
 			 */
 			'1 1999' =>
 				array( '+1999-01-00T00:00:00Z', TimeValue::PRECISION_MONTH ),
@@ -104,7 +107,7 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 
 			/**
 			 * @see Wikibase\Repo\Parsers\MwTimeIsoParser
-			 * @see Wikibase\Test\MwTimeIsoParserTest
+			 * @see Wikibase\Repo\Tests\Parsers\MwTimeIsoParserTest
 			 */
 			'13 billion years CE' =>
 				array( '+13000000000-00-00T00:00:00Z', TimeValue::PRECISION_YEAR1G ),
@@ -114,6 +117,28 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 				array( '-13000000000-00-00T00:00:00Z', TimeValue::PRECISION_YEAR1G, $julian ),
 			'1980s' =>
 				array( '+1980-00-00T00:00:00Z', TimeValue::PRECISION_YEAR10 ),
+
+			/**
+			 * @see ValueParsers\YearMonthDayTimeParser
+			 * @see ValueParsers\Test\YearMonthDayTimeParserTest
+			 * @see https://phabricator.wikimedia.org/T87019
+			 * @see https://phabricator.wikimedia.org/T98194
+			 * @see https://phabricator.wikimedia.org/T104862
+			 */
+			'29.02.1500' =>
+				array( '+1500-02-29T00:00:00Z', TimeValue::PRECISION_DAY, $julian ),
+			'02/29/1500' =>
+				array( '+1500-02-29T00:00:00Z', TimeValue::PRECISION_DAY, $julian ),
+			'1991 1 1' =>
+				array( '+1991-01-01T00:00:00Z' ),
+			'1991 1 20' =>
+				array( '+1991-01-20T00:00:00Z' ),
+			'2001 1 1' =>
+				array( '+2001-01-01T00:00:00Z' ),
+			'31 07 2009' =>
+				array( '+2009-07-31T00:00:00Z' ),
+			'31/07/2009' =>
+				array( '+2009-07-31T00:00:00Z' ),
 
 			/**
 			 * @see ValueParsers\PhpDateTimeParser
@@ -141,16 +166,6 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 				array( '-0111-11-01T00:00:00Z', TimeValue::PRECISION_DAY, $julian ),
 			'1 11 111 BC' =>
 				array( '-0111-11-01T00:00:00Z', TimeValue::PRECISION_DAY, $julian ),
-
-			/**
-			 * @see https://phabricator.wikimedia.org/T104862
-			 */
-			'1991 1 1' =>
-				array( '+1991-01-01T00:00:00Z' ),
-			'1991 1 20' =>
-				array( '+1991-01-20T00:00:00Z' ),
-			'2001 1 1' =>
-				array( '+2001-01-01T00:00:00Z' ),
 
 			/**
 			 * @see ValueFormatters\Test\MwTimeIsoFormatterTest
@@ -213,8 +228,9 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 			array( '1980UTC' ),
 			array( '1980 America/New_York' ),
 			array( '1980America/New_York' ),
-			// A format YDM does not exist.
-			array( '1991 20 1' ),
+			// Formats DYM and MYD do not exist.
+			array( '20 1991 1' ),
+			array( '1 1991 20' ),
 			// No date parser should ever accept a day with no month.
 			array( '2015-00-01' ),
 			array( '+0-00-01T00:00:00Z' ),

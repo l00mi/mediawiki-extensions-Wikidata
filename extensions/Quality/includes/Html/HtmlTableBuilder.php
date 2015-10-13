@@ -18,7 +18,9 @@ class HtmlTableBuilder {
 	private $headers = array();
 
 	/**
-	 * @var array
+	 * Array of HtmlTableCellBuilder arrays
+	 *
+	 * @var array[]
 	 */
 	private $rows = array();
 
@@ -139,9 +141,14 @@ class HtmlTableBuilder {
 		// Write rows
 		foreach ( $this->rows as $row ) {
 			$html .= Html::openElement( 'tr' );
+
+			/**
+			 * @var HtmlTableCellBuilder $cell
+			 */
 			foreach ( $row as $cell ) {
 				$html .= $cell->toHtml();
 			}
+
 			$html .= Html::closeElement( 'tr' );
 		}
 

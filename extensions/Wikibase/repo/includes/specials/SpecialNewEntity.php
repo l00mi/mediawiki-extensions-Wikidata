@@ -74,11 +74,12 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	public function __construct( $name, $restriction = 'createpage' ) {
 		parent::__construct( $name, $restriction );
 
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 		// TODO: find a way to inject these
-		$this->summaryFormatter = WikibaseRepo::getDefaultInstance()->getSummaryFormatter();
-		$this->languageCodes = WikibaseRepo::getDefaultInstance()->getTermsLanguages()->getLanguages();
+		$this->summaryFormatter = $wikibaseRepo->getSummaryFormatter();
+		$this->languageCodes = $wikibaseRepo->getTermsLanguages()->getLanguages();
 
-		$settings = WikibaseRepo::getDefaultInstance()->getSettings();
+		$settings = $wikibaseRepo->getSettings();
 
 		$this->rightsUrl = $settings->getSetting( 'dataRightsUrl' );
 		$this->rightsText = $settings->getSetting( 'dataRightsText' );
@@ -254,7 +255,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 				'default' => $langCode,
 				'type' => 'select',
 				'id' => 'wb-newentity-language',
-				'cssclass' => 'wb-input',
 				'label-message' => 'wikibase-newentity-language'
 			),
 			'label' => array(
@@ -262,7 +262,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 				'default' => $this->label ?: '',
 				'type' => 'text',
 				'id' => 'wb-newentity-label',
-				'cssclass' => 'wb-input',
 				'lang' => $langCode,
 				'dir' => $langDir,
 				'placeholder' => $this->msg(
@@ -275,7 +274,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 				'default' => $this->description ?: '',
 				'type' => 'text',
 				'id' => 'wb-newentity-description',
-				'cssclass' => 'wb-input',
 				'lang' => $langCode,
 				'dir' => $langDir,
 				'placeholder' => $this->msg(
@@ -288,7 +286,6 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 				'default' => $this->aliases ? implode( '|', $this->aliases ) : '',
 				'type' => 'text',
 				'id' => 'wb-newentity-aliases',
-				'cssclass' => 'wb-input',
 				'lang' => $langCode,
 				'dir' => $langDir,
 				'placeholder' => $this->msg(

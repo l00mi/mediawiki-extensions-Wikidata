@@ -58,6 +58,7 @@ use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\WikibaseContentLanguages;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
+use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
 use Wikibase\Store\BufferingTermLookup;
@@ -286,6 +287,20 @@ final class WikibaseClient {
 		}
 
 		return $this->termLookup;
+	}
+
+	/**
+	 * @param string $displayLanguageCode
+	 *
+	 * @return TermIndexSearchInteractor
+	 */
+	public function newTermSearchInteractor( $displayLanguageCode ) {
+		return new TermIndexSearchInteractor(
+			$this->getStore()->getTermIndex(),
+			$this->getLanguageFallbackChainFactory(),
+			$this->getBufferingTermLookup(),
+			$displayLanguageCode
+		);
 	}
 
 	/**
@@ -810,7 +825,6 @@ final class WikibaseClient {
 		);
 
 		return new EntityChangeFactory(
-			$this->getStore()->newChangesTable(),
 			$this->getEntityFactory(),
 			new EntityDiffer(),
 			$changeClasses
@@ -864,14 +878,14 @@ final class WikibaseClient {
 	 * @return OtherProjectsSitesProvider
 	 */
 	public function getOtherProjectsSitesProvider() {
-		$otherProjectsSitesProvider = new OtherProjectsSitesGenerator(
-			$this->getSiteStore(),
-			$this->settings->getSetting( 'siteGlobalID' ),
-			$this->settings->getSetting( 'specialSiteLinkGroups' )
-		);
-
 		return new CachingOtherProjectsSitesProvider(
-			$otherProjectsSitesProvider,
+			new OtherProjectsSitesGenerator(
+				$this->getSiteStore(),
+				$this->settings->getSetting( 'siteGlobalID' ),
+				$this->settings->getSetting( 'specialSiteLinkGroups' )
+			),
+			// TODO: Make configurable? Should be similar, maybe identical to sharedCacheType and
+			// sharedCacheDuration, but can not reuse these because this here is not shared.
 			wfGetMainCache(),
 			60 * 60
 		);
@@ -894,6 +908,7 @@ final class WikibaseClient {
 	 */
 	public function getChangeHandler() {
 		$siteId = $this->getSite()->getGlobalId();
+		$repoId = $this->settings->getSetting( 'repoSiteId' );
 
 		return new ChangeHandler(
 			$this->getAffectedPagesFinder(),
@@ -904,7 +919,10 @@ final class WikibaseClient {
 				$this->getEntityChangeFactory(),
 				$siteId
 			),
+			$this->getContentLanguage(),
+			$this->getSiteStore(),
 			$siteId,
+			$repoId,
 			$this->settings->getSetting( 'injectRecentChanges' )
 		);
 	}

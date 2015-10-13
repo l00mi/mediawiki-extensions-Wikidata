@@ -20,7 +20,7 @@ use Wikibase\Repo\Specials\SpecialMergeItems;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * @covers \Wikibase\Repo\Specials\SpecialMergeItems
+ * @covers Wikibase\Repo\Specials\SpecialMergeItems
  *
  * @group Wikibase
  * @group SpecialPage
@@ -98,12 +98,12 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 	 * @param User $user
 	 */
 	private function overrideServices( SpecialMergeItems $page, User $user ) {
-		$idParser = WikibaseRepo::getDefaultInstance()->getEntityIdParser();
-		$summaryFormatter = WikibaseRepo::getDefaultInstance()->getSummaryFormatter();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$summaryFormatter = $wikibaseRepo->getSummaryFormatter();
 
 		$changeOpsFactory = new MergeChangeOpsFactory(
-			WikibaseRepo::getDefaultInstance()->getEntityConstraintProvider(),
-			WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider(),
+			$wikibaseRepo->getEntityConstraintProvider(),
+			$wikibaseRepo->getChangeOpFactoryProvider(),
 			MockSiteStore::newFromTestSites()
 		);
 
@@ -131,7 +131,7 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 			} ) );
 
 		$page->initServices(
-			$idParser,
+			$wikibaseRepo->getEntityIdParser(),
 			$exceptionLocalizer,
 			new TokenCheckInteractor( $user ),
 			new ItemMergeInteractor(
@@ -177,7 +177,6 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 			'tag' => 'div',
 			'attributes' => array(
 				'id' => 'wb-mergeitems-fromid',
-				'class' => 'wb-input',
 			),
 			'child' => array(
 				'tag' => 'input',
@@ -189,7 +188,6 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 			'tag' => 'div',
 			'attributes' => array(
 				'id' => 'wb-mergeitems-toid',
-				'class' => 'wb-input',
 			),
 			'child' => array(
 				'tag' => 'input',

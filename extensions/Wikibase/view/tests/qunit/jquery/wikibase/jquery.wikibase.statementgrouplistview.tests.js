@@ -1,10 +1,16 @@
 /**
  * @licence GNU GPL v2+
- * @author Adrian Lang <adrian.lang@wikimedia.de>
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
-
 ( function( $, wb, QUnit ) {
 'use strict';
+
+var statementgroupviewListItemAdapter = wb.tests.getMockListItemAdapter(
+	'statementgroupview',
+	function() {
+		this.enterNewItem = function() {};
+	}
+);
 
 /**
  * @param {Object} [options={}]
@@ -13,22 +19,7 @@
  */
 var createStatementgrouplistview = function( options, $node ) {
 	options = $.extend( {
-		claimGuidGenerator: 'I am a ClaimGuidGenerator',
-		entityStore: {
-			get: function () {
-				return $.Deferred().resolve().promise();
-			}
-		},
-		valueViewBuilder: 'I am a ValueViewBuilder',
-		entityChangersFactory: {
-			getClaimsChanger: function() {
-				return 'I am a ClaimsChanger';
-			},
-			getReferencesChanger: function() {
-				return 'I am a ReferencesChanger';
-			}
-		},
-		dataTypeStore: 'I am a DataTypeStore',
+		listItemAdapter: statementgroupviewListItemAdapter,
 		value: new wb.datamodel.StatementGroupSet()
 	}, options || {} );
 
@@ -45,7 +36,7 @@ QUnit.module( 'jquery.wikibase.statementgrouplistview', QUnit.newMwEnvironment( 
 			var $statementgrouplistview = $( this ),
 				statementgrouplistview = $statementgrouplistview.data( 'statementgrouplistview' );
 
-			if( statementgrouplistview ) {
+			if ( statementgrouplistview ) {
 				statementgrouplistview.destroy();
 			}
 
@@ -83,66 +74,6 @@ QUnit.test( 'Create & destroy', function( assert ) {
 	);
 } );
 
-QUnit.test( 'value()', function( assert ) {
-	var statementGroupSet1 = new wb.datamodel.StatementGroupSet( [
-			new wb.datamodel.StatementGroup( 'P1',
-				new wb.datamodel.StatementList( [new wb.datamodel.Statement(
-					new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( 'P1' ) )
-				)] )
-			)
-		] ),
-		statementGroupSet2 = new wb.datamodel.StatementGroupSet( [
-			new wb.datamodel.StatementGroup( 'P2',
-				new wb.datamodel.StatementList( [new wb.datamodel.Statement(
-					new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( 'P2' ) )
-				)] )
-			)
-		] ),
-		$statementgrouplistview = createStatementgrouplistview( {
-			value: statementGroupSet1
-		} ),
-		statementgrouplistview = $statementgrouplistview.data( 'statementgrouplistview' );
-
-	assert.ok(
-		statementgrouplistview.value().equals( statementGroupSet1 ),
-		'Retrieved value.'
-	);
-
-	statementgrouplistview.value( statementGroupSet2 );
-
-	assert.ok(
-		statementgrouplistview.value().equals( statementGroupSet2 ),
-		'Retrieved value after setting a new value.'
-	);
-
-	var statementgrouplistviewListview = statementgrouplistview.listview,
-		statementgrouplistviewListviewLia = statementgrouplistviewListview.listItemAdapter(),
-		$statementgroupview = statementgrouplistviewListview.items().first(),
-		statementgroupview = statementgrouplistviewListviewLia.liInstance( $statementgroupview ),
-		statementGroup = new wb.datamodel.StatementGroup( 'P3',
-			new wb.datamodel.StatementList( [new wb.datamodel.Statement(
-				new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( 'P3' ) )
-			)] )
-		);
-
-	statementgroupview.value = function() {
-		return statementGroup;
-	};
-
-	assert.ok(
-		statementgrouplistview.value().equals(
-			new wb.datamodel.StatementGroupSet( [statementGroup] )
-		),
-		'Retrieved current value after setting a new value on the statementview encapsulated by '
-			+ 'the statementlistview.'
-	);
-
-	assert.ok(
-		statementgrouplistview.option( 'value' ).equals( statementGroupSet2 ),
-		'Retrieved value still persisting via option().'
-	);
-} );
-
 QUnit.test( 'enterNewItem', function( assert ) {
 	var $statementgrouplistview = createStatementgrouplistview(),
 		statementgrouplistview = $statementgrouplistview.data( 'statementgrouplistview' );
@@ -164,30 +95,22 @@ QUnit.test( 'enterNewItem', function( assert ) {
 
 QUnit.test( 'enterNewItem & save', function( assert ) {
 	var $statementgrouplistview = createStatementgrouplistview(),
-		statementgrouplistview = $statementgrouplistview.data( 'statementgrouplistview' ),
-		statementgrouplistviewListview = statementgrouplistview.listview,
-		statementgrouplistviewListviewLia = statementgrouplistviewListview.listItemAdapter();
+		statementgrouplistview = $statementgrouplistview.data( 'statementgrouplistview' );
 
 	statementgrouplistview.enterNewItem();
 
-	var $statementgroupview = statementgrouplistviewListview.items().first(),
-		statementgroupview = statementgrouplistviewListviewLia.liInstance( $statementgroupview ),
-		$statementlistview = statementgroupview.statementlistview.element;
-
-	// Simulate having altered snakview's value:
-	$statementlistview.find( ':wikibase-snakview' ).data( 'snakview' ).snak = function() {
-		return new wb.datamodel.PropertyNoValueSnak( 'P1' );
-	};
+	var $statementgroupview = statementgrouplistview.listview.items().first();
 
 	assert.ok(
 		$statementgroupview.hasClass( 'wb-new' ),
 		'Verified statementgroupview widget being pending.'
 	);
 
-	$statementlistview.data( 'statementlistview' )._trigger( 'afterstopediting', null, [false] );
+	$statementgroupview.wrap( '<div/>' );
+	$statementgroupview.trigger( 'afterstopediting', [false] );
 
 	assert.ok(
-		!statementgrouplistview.listview.items().eq( 0 ).hasClass( 'wb-new' ),
+		!statementgrouplistview.listview.items().first().hasClass( 'wb-new' ),
 		'Verified new statementgroupview not being pending after saving.'
 	);
 } );

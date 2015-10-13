@@ -22,6 +22,10 @@
  * @param {boolean} [singleProperty=true]
  *        If `true`, it is assumed that the widget is filled with `Snak`s featuring a single common
  *        property.
+ * @param {wikibase.entityIdFormatter.EntityIdHtmlFormatter} options.entityIdHtmlFormatter
+ *        Required for dynamically rendering links to `Entity`s.
+ * @param {wikibase.entityIdFormatter.EntityIdPlainFormatter} options.entityIdPlainFormatter
+ *        Required for dynamically rendering plain text references to `Entity`s.
  * @param {wikibase.store.EntityStore} options.entityStore
  *        Required for dynamically gathering `Entity`/`Property` information.
  * @param {wikibase.ValueViewBuilder} options.valueViewBuilder
@@ -74,6 +78,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		value: null,
 		singleProperty: false,
 		helpMessage: mw.msg( 'wikibase-claimview-snak-new-tooltip' ),
+		entityIdHtmlFormatter: null,
+		entityIdPlainFormatter: null,
 		entityStore: null,
 		valueViewBuilder: null,
 		dataTypeStore: null
@@ -110,8 +116,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	_create: function() {
 		this.options.value = this.options.value || new wb.datamodel.SnakList();
 
-		if(
-			!this.options.entityStore
+		if ( !this.options.entityStore
 			|| !this.options.valueViewBuilder
 			|| !this.options.dataTypeStore
 			|| !( this.options.value instanceof wb.datamodel.SnakList )
@@ -160,6 +165,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 							property: !!value
 						},
 						dataTypeStore: self.option( 'dataTypeStore' ),
+						entityIdHtmlFormatter: self.options.entityIdHtmlFormatter,
+						entityIdPlainFormatter: self.options.entityIdPlainFormatter,
 						entityStore: self.option( 'entityStore' ),
 						valueViewBuilder: self.option( 'valueViewBuilder' )
 					};
@@ -168,7 +175,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 			value: this.options.value.toArray()
 		} );
 
-		if( $listviewParent ) {
+		if ( $listviewParent ) {
 			this.$listview.appendTo( $listviewParent );
 		}
 
@@ -204,10 +211,10 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 * @since 0.5
 	 */
 	_updatePropertyLabels: function() {
-		if( this.options.singleProperty ) {
+		if ( this.options.singleProperty ) {
 			var $items = this._listview.items();
 
-			for( var i = 0; i < $items.length; i++ ) {
+			for ( var i = 0; i < $items.length; i++ ) {
 				var operation = ( i === 0 ) ? 'showPropertyLabel' : 'hidePropertyLabel';
 				this._lia.liInstance( $items.eq( i ) )[operation]();
 			}
@@ -218,7 +225,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 * Starts the widget's edit mode.
 	 */
 	startEditing: function() {
-		if( this.isInEditMode() ) {
+		if ( this.isInEditMode() ) {
 			return;
 		}
 
@@ -242,7 +249,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 *        before edit mode was started
 	 */
 	stopEditing: function( dropValue ) {
-		if( !this.isInEditMode() ) {
+		if ( !this.isInEditMode() ) {
 			return;
 		}
 
@@ -322,7 +329,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 * @return {wikibase.datamodel.SnakList|undefined}
 	 */
 	value: function( snakList ) {
-		if( snakList !== undefined ) {
+		if ( snakList !== undefined ) {
 			this.option( 'value', snakList );
 			return;
 		}
@@ -333,7 +340,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		$.each( listview.items(), function( i, item ) {
 			var liInstance = listview.listItemAdapter().liInstance( $( item ) ),
 				snak = liInstance.snak();
-			if( snak ) {
+			if ( snak ) {
 				snaks.push( snak );
 			}
 		} );
@@ -407,8 +414,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 *         `wikibase.datamodel.SnakList` instance.
 	 */
 	_setOption: function( key, value ) {
-		if( key === 'value' ) {
-			if( !( value instanceof wb.datamodel.SnakList ) ) {
+		if ( key === 'value' ) {
+			if ( !( value instanceof wb.datamodel.SnakList ) ) {
 				throw new Error( 'value has to be an instance of wikibase.datamodel.SnakList' );
 			}
 			this.$listview.data( 'listview' ).value( value.toArray() );
@@ -416,7 +423,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
 
-		if( key === 'disabled' ) {
+		if ( key === 'disabled' ) {
 			this._listview.option( key, value );
 		}
 
@@ -429,7 +436,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	focus: function() {
 		var $items = this._listview.items();
 
-		if( $items.length ) {
+		if ( $items.length ) {
 			this._listview.listItemAdapter().liInstance( $items.first() ).focus();
 		} else {
 			this.element.focus();
@@ -447,20 +454,20 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		var self = this,
 			snakList;
 
-		if( snak instanceof wb.datamodel.Snak ) {
+		if ( snak instanceof wb.datamodel.Snak ) {
 			snakList = this.value();
-			if( snakList ) {
+			if ( snakList ) {
 				snakList.move( snak, toIndex );
 			}
-		} else if( snak instanceof wb.datamodel.SnakList ) {
+		} else if ( snak instanceof wb.datamodel.SnakList ) {
 			snakList = snak;
 		}
 
-		if( snakList ) {
+		if ( snakList ) {
 			// Reflect new snak list order in snaklistview:
 			snakList.each( function( i, snak ) {
 				var $listItem = self._findListItem( snak );
-				if( $listItem ) {
+				if ( $listItem ) {
 					self._listview.move( self._findListItem( snak ), i );
 				}
 			} );
@@ -476,7 +483,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	moveUp: function( snak ) {
 		var snakList = this.value();
 
-		if( snakList ) {
+		if ( snakList ) {
 			this.move( snakList.moveUp( snak ) );
 		}
 	},
@@ -489,7 +496,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	moveDown: function( snak ) {
 		var snakList = this.value();
 
-		if( snakList ) {
+		if ( snakList ) {
 			this.move( snakList.moveDown( snak ) );
 		}
 	},
@@ -508,7 +515,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		this._listview.items().each( function( i, itemNode ) {
 			var $itemNode = $( itemNode );
 
-			if( self._listview.listItemAdapter().liInstance( $itemNode ).snak().equals( snak ) ) {
+			if ( self._listview.listItemAdapter().liInstance( $itemNode ).snak().equals( snak ) ) {
 				$snakview = $itemNode;
 			}
 

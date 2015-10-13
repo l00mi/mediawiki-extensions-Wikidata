@@ -33,10 +33,7 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.badgeselector',
-				'mediawiki.Title',
 				'wikibase.datamodel',
-				'wikibase.store.EntityStore',
-				'wikibase.store.FetchedContent',
 			),
 		),
 
@@ -55,12 +52,10 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.statementgrouplistview',
-				'wikibase.datamodel.Claim',
-				'wikibase.datamodel.PropertyNoValueSnak',
-				'wikibase.datamodel.Statement',
 				'wikibase.datamodel.StatementGroup',
 				'wikibase.datamodel.StatementGroupSet',
 				'wikibase.datamodel.StatementList',
+				'wikibase.tests.getMockListItemAdapter',
 			),
 		),
 
@@ -89,6 +84,7 @@ return call_user_func( function() {
 				'wikibase.datamodel.PropertyNoValueSnak',
 				'wikibase.datamodel.Statement',
 				'wikibase.datamodel.StatementList',
+				'wikibase.tests.getMockListItemAdapter',
 			),
 		),
 
@@ -159,6 +155,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.itemview',
 				'wikibase.datamodel.Item',
+				'wikibase.store.EntityStore',
 			),
 		),
 
@@ -197,6 +194,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.propertyview',
 				'wikibase.datamodel.Property',
+				'wikibase.store.EntityStore',
 			),
 		),
 
@@ -207,9 +205,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.valueview.ExpertStore',
 				'jquery.wikibase.referenceview',
-				'mediawiki.Title',
 				'wikibase.datamodel',
-				'wikibase.store.FetchedContent',
 				'wikibase.ValueViewBuilder',
 				'valueFormatters'
 			),
@@ -221,7 +217,8 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.sitelinkgrouplistview',
-				'wikibase.datamodel',
+				'wikibase.datamodel.SiteLink',
+				'wikibase.datamodel.SiteLinkSet',
 				'wikibase.tests.qunit.testrunner',
 			),
 		),
@@ -233,7 +230,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.sitelinkgroupview',
 				'wikibase.datamodel',
-				'wikibase.store.EntityStore',
 				'wikibase.tests.qunit.testrunner',
 			),
 		),
@@ -245,7 +241,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.sitelinklistview',
 				'wikibase.datamodel',
-				'wikibase.store.EntityStore',
 				'wikibase.tests.qunit.testrunner',
 			),
 		),
@@ -257,7 +252,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.sitelinkview',
 				'wikibase.datamodel',
-				'wikibase.store.EntityStore',
 				'wikibase.tests.qunit.testrunner',
 			),
 		),
@@ -268,7 +262,6 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.snaklistview',
-				'wikibase.store.FetchedContent',
 				'wikibase.ValueViewBuilder',
 				'wikibase.datamodel',
 				'mediawiki.Title',

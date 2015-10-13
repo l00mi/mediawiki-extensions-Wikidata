@@ -11,7 +11,7 @@
 	 */
 	function createSitelinkview( options ) {
 		options = $.extend( {
-			entityStore: new wb.store.EntityStore(),
+			entityIdPlainFormatter: 'i am an EntityIdPlainFormatter',
 			allowedSiteIds: ['aawiki', 'enwiki']
 		}, options );
 
@@ -58,7 +58,7 @@
 				var $sitelinkview = $( this ),
 					sitelinkview = $sitelinkview.data( 'sitelinkview' );
 
-				if( sitelinkview ) {
+				if ( sitelinkview ) {
 					sitelinkview.destroy();
 				}
 

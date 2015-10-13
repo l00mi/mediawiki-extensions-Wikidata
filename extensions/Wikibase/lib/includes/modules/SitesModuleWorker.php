@@ -2,6 +2,7 @@
 
 namespace Wikibase\Lib;
 
+use BagOStuff;
 use MediaWikiSite;
 use Site;
 use SiteList;
@@ -10,7 +11,6 @@ use Wikibase\SettingsArray;
 use Xml;
 
 /**
- *
  * @since 0.5
  *
  * @licence GNU GPL v2+
@@ -20,6 +20,11 @@ use Xml;
  * @author Adrian Heine < adrian.heine@wikimedia.de >
  */
 class SitesModuleWorker {
+
+	/**
+	 * How many seconds the result of self::getModifiedHash is cached.
+	 */
+	const SITES_HASH_CACHE_DURATION = 600; // 10 minutes
 
 	/**
 	 * @var SettingsArray
@@ -32,12 +37,19 @@ class SitesModuleWorker {
 	private $siteStore;
 
 	/**
+	 * @var BagOStuff
+	 */
+	private $cache;
+
+	/**
 	 * @param SettingsArray $settings
 	 * @param SiteStore $siteStore
+	 * @param BagOStuff $cache
 	 */
-	public function __construct( SettingsArray $settings, SiteStore $siteStore ) {
+	public function __construct( SettingsArray $settings, SiteStore $siteStore, BagOStuff $cache ) {
 		$this->settings = $settings;
 		$this->siteStore = $siteStore;
+		$this->cache = $cache;
 	}
 
 	/**
@@ -48,7 +60,7 @@ class SitesModuleWorker {
 	}
 
 	/**
-	 * @return array
+	 * @return string[]
 	 */
 	private function getSpecialSiteLinkGroups() {
 		return $this->settings->getSetting( 'specialSiteLinkGroups' );
@@ -114,6 +126,7 @@ class SitesModuleWorker {
 	/**
 	 * @param MediaWikiSite $site
 	 * @param string[] $specialGroups
+	 *
 	 * @return string[]
 	 */
 	private function getSiteDetails( MediaWikiSite $site, array $specialGroups ) {
@@ -161,7 +174,7 @@ class SitesModuleWorker {
 	 * Whether it's needed to add a Site to the JS variable.
 	 *
 	 * @param Site $site
-	 * @param array $groups
+	 * @param string[] $groups
 	 *
 	 * @return bool
 	 */
@@ -170,18 +183,37 @@ class SitesModuleWorker {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function computeModifiedHash() {
+		$data = array(
+			$this->getSiteLinkGroups(),
+			$this->getSpecialSiteLinkGroups(),
+			$this->getSitesHash()
+		);
+
+		return sha1( json_encode( $data ) );
+	}
+
+	/**
+	 * This returns a hash which should change whenever either a relevant setting
+	 * or the list of sites changes. Because computing this list is quite heavy and
+	 * it barely changes, cache that hash for a short bit.
+	 *
 	 * @see ResourceLoaderModule::getModifiedHash
 	 *
 	 * @return string
 	 */
 	public function getModifiedHash() {
-		$data = array(
-				$this->getSiteLinkGroups(),
-				$this->getSpecialSiteLinkGroups(),
-				$this->getSitesHash()
-		);
+		$cacheKey = wfMemcKey( 'wikibase-sites-module-modified-hash' );
+		$hash = $this->cache->get( $cacheKey );
 
-		return sha1( json_encode( $data ) );
+		if ( $hash === false ) {
+			$hash = $this->computeModifiedHash();
+			$this->cache->set( $cacheKey, $hash, self::SITES_HASH_CACHE_DURATION );
+		}
+
+		return $hash;
 	}
 
 }

@@ -48,10 +48,11 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 	 */
 	protected function createStoreAndLookup() {
 		// make sure the term index is empty to avoid conflicts.
-		WikibaseRepo::getDefaultInstance()->getStore()->getTermIndex()->clear();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo->getStore()->getTermIndex()->clear();
 
 		//NOTE: we want to test integration of WikiPageEntityRevisionLookup and WikiPageEntityStore here!
-		$contentCodec = WikibaseRepo::getDefaultInstance()->getEntityContentDataCodec();
+		$contentCodec = $wikibaseRepo->getEntityContentDataCodec();
 
 		$lookup = new WikiPageEntityRevisionLookup(
 			$contentCodec,
@@ -59,10 +60,8 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 			false
 		);
 
-		$typeMap = WikibaseRepo::getDefaultInstance()->getContentModelMappings();
-
 		$store = new WikiPageEntityStore(
-			new EntityContentFactory( $typeMap ),
+			new EntityContentFactory( $wikibaseRepo->getContentModelMappings() ),
 			new SqlIdGenerator( wfGetLB() )
 		);
 
@@ -254,6 +253,14 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		$this->assertFalse( $revision->getContent()->isRedirect(), 'EntityContent::isRedirect()' );
 
 		$this->assertEntityPerPage( true, $oneId );
+	}
+
+	private function assertRedirectPerPage( EntityId $expected, EntityId $entityId ) {
+		$entityRedirectLookup = WikibaseRepo::getDefaultInstance()->getStore()->getEntityRedirectLookup();
+
+		$targetId = $entityRedirectLookup->getRedirectForEntityId( $entityId );
+
+		$this->assertEquals( $expected, $targetId );
 	}
 
 	public function unsupportedRedirectProvider() {
@@ -571,14 +578,6 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		}
 
 		return $pageId = (int)$row->epp_page_id;
-	}
-
-	private function assertRedirectPerPage( EntityId $expected, EntityId $entityId ) {
-		$entityRedirectLookup = WikibaseRepo::getDefaultInstance()->getStore()->getEntityRedirectLookup();
-
-		$targetId = $entityRedirectLookup->getRedirectForEntityId( $entityId );
-
-		$this->assertEquals( $expected, $targetId );
 	}
 
 }

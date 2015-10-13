@@ -15,12 +15,46 @@ local util = require 'libraryUtil'
 local checkType = util.checkType
 local checkTypeMulti = util.checkTypeMulti
 
+local cacheSize = 15 -- Size of the LRU cache being used to cache entities
+local cacheOrder = {}
+local entityCache = {}
+
+-- Cache a given entity (can also be false, in case it doesn't exist).
+--
+-- @param entityId
+-- @param entity
+local cacheEntity = function( entityId, entity )
+	if #cacheOrder == cacheSize then
+		local entityIdToRemove = table.remove( cacheOrder, cacheSize )
+		entityCache[ entityIdToRemove ] = nil
+	end
+
+	table.insert( cacheOrder, 1, entityId )
+	entityCache[ entityId ] = entity
+end
+
+-- Retrieve an entity. Will return false in case it's known to not exist
+-- and nil in case of a cache miss.
+--
+-- @param entityId
+local getCachedEntity = function( entityId )
+	if entityCache[ entityId ] ~= nil then
+		for cacheOrderId, cacheOrderEntityId in pairs( cacheOrder ) do
+			if cacheOrderEntityId == entityId then
+				table.remove( cacheOrder, cacheOrderId )
+				break
+			end
+		end
+		table.insert( cacheOrder, 1, entityId )
+	end
+
+	return entityCache[ entityId ]
+end
+
 function wikibase.setupInterface()
 	local php = mw_interface
 	mw_interface = nil
 
-	-- Caching variable for the entity tables as obtained from PHP
-	local entities = {}
 	-- Caching variable for the entity id string belonging to the current page (nil if page is not linked to an entity)
 	local pageEntityId = false
 
@@ -44,7 +78,7 @@ function wikibase.setupInterface()
 
 	-- Get the mw.wikibase.entity object for a given id. Cached.
 	local getEntityObject = function( id )
-		if entities[ id ] == nil then
+		if getCachedEntity( id ) == nil then
 			local entity = php.getEntity( id )
 
 			if id ~= getEntityIdForCurrentPage() then
@@ -53,16 +87,16 @@ function wikibase.setupInterface()
 			end
 
 			if type( entity ) ~= 'table' then
-				entities[ id ] = false
+				cacheEntity( id, false )
 				return nil
 			end
 
-			entities[ id ] = entity
+			cacheEntity( id, entity )
 		end
 
-		if type( entities[ id ] ) == 'table' then
+		if type( getCachedEntity( id ) ) == 'table' then
 			return wikibase.entity.create(
-				mw.clone( entities[ id ] ) -- Use a clone here, so that people can't modify the entity
+				mw.clone( getCachedEntity( id ) ) -- Use a clone here, so that people can't modify the entity
 			)
 		else
 			return nil
@@ -72,7 +106,7 @@ function wikibase.setupInterface()
 	-- Get the mw.wikibase.entity object for the current page or for the
 	-- specified id.
 	--
-	-- @param id
+	-- @param {string} [id]
 	wikibase.getEntity = function( id )
 		checkTypeMulti( 'getEntity', 1, id, { 'string', 'nil' } )
 
@@ -95,7 +129,7 @@ function wikibase.setupInterface()
 	-- Get the label for the given entity id, if specified, or of the
 	-- connected entity, if exists. (in content language)
 	--
-	-- @param id
+	-- @param {string} [id]
 	wikibase.label = function( id )
 		checkTypeMulti( 'label', 1, id, { 'string', 'nil' } )
 
@@ -111,7 +145,7 @@ function wikibase.setupInterface()
 	-- Get the description for the given entity id, if specified, or of the
 	-- connected entity, if exists. (in content language)
 	--
-	-- @param id
+	-- @param {string} [id]
 	wikibase.description = function( id )
 		checkTypeMulti( 'description', 1, id, { 'string', 'nil' } )
 
@@ -126,7 +160,7 @@ function wikibase.setupInterface()
 
 	-- Get the local sitelink title for the given entity id.
 	--
-	-- @param id
+	-- @param {string} id
 	wikibase.sitelink = function( id )
 		checkType( 'sitelink', 1, id, 'string' )
 
@@ -136,7 +170,7 @@ function wikibase.setupInterface()
 
 	-- Render a Snak from its serialization
 	--
-	-- @param snakSerialization
+	-- @param {table} snakSerialization
 	wikibase.renderSnak = function( snakSerialization )
 		checkType( 'renderSnak', 1, snakSerialization, 'table' )
 
@@ -145,7 +179,7 @@ function wikibase.setupInterface()
 
 	-- Render a list of Snaks from their serialization
 	--
-	-- @param snaksSerialization
+	-- @param {table} snaksSerialization
 	wikibase.renderSnaks = function( snaksSerialization )
 		checkType( 'renderSnaks', 1, snaksSerialization, 'table' )
 
@@ -154,7 +188,7 @@ function wikibase.setupInterface()
 
 	-- Returns a property id for the given label or id
 	--
-	-- @param propertyLabelOrId
+	-- @param {string} propertyLabelOrId
 	wikibase.resolvePropertyId = function( propertyLabelOrId )
 		checkType( 'resolvePropertyId', 1, propertyLabelOrId, 'string' )
 

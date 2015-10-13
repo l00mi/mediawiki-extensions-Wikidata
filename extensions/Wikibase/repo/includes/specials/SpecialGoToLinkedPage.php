@@ -224,8 +224,6 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 	 * @param string $itemString
 	 */
 	protected function outputForm( $site, $itemString ) {
-		$this->getOutput()->addModules( 'wikibase.special.goToLinkedPage' );
-
 		$formDescriptor = array(
 			'site' => array(
 				'name' => 'site',
@@ -241,7 +239,6 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 				'type' => 'text',
 				'id' => 'wb-gotolinkedpage-itemid',
 				'size' => 36,
-				'cssclass' => 'wb-input-text',
 				'label-message' => 'wikibase-gotolinkedpage-lookup-item'
 			)
 		);

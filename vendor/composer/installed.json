@@ -294,23 +294,23 @@
     },
     {
         "name": "wikibase/javascript-api",
-        "version": "1.0.3",
-        "version_normalized": "1.0.3.0",
+        "version": "1.0.4",
+        "version_normalized": "1.0.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-            "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b"
+            "reference": "10ed322965b624d949bfa99e1d151b885be9073e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/76452ebbd22bdb32b354c43ee523c4663ed98d1b",
-            "reference": "76452ebbd22bdb32b354c43ee523c4663ed98d1b",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/10ed322965b624d949bfa99e1d151b885be9073e",
+            "reference": "10ed322965b624d949bfa99e1d151b885be9073e",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.6.0|~0.7.0"
         },
-        "time": "2015-05-21 19:07:14",
+        "time": "2015-09-30 08:39:49",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -332,7 +332,7 @@
                 "homepage": "http://www.snater.com"
             }
         ],
-        "description": "Wikibase API client in JavaScript"
+        "description": "JavaScript client for the Wikibase Repository web API"
     },
     {
         "name": "data-values/data-values",
@@ -1223,6 +1223,90 @@
         ]
     },
     {
+        "name": "wikibase/wikibase",
+        "version": "dev-wmf/1.27.0-wmf.3",
+        "version_normalized": "dev-wmf/1.27.0-wmf.3",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "72522c3efbbbe9d7bea8694803ed285bf03396c5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/72522c3efbbbe9d7bea8694803ed285bf03396c5",
+            "reference": "72522c3efbbbe9d7bea8694803ed285bf03396c5",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0",
+            "data-values/data-types": "~0.5.0",
+            "data-values/data-values": "~1.0",
+            "data-values/geo": "~1.0",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "data-values/javascript": "~0.6.0|~0.7.0",
+            "data-values/number": "~0.6.0",
+            "data-values/serialization": "~1.0",
+            "data-values/time": "~0.8.2",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.15.5",
+            "diff/diff": "~2.0",
+            "php": ">=5.3.2",
+            "wikibase/data-model": "~4.0",
+            "wikibase/data-model-javascript": "^1.0.2",
+            "wikibase/data-model-serialization": "~2.0",
+            "wikibase/data-model-services": "^3.0.0",
+            "wikibase/internal-serialization": "~2.0",
+            "wikibase/javascript-api": "~1.0",
+            "wikibase/serialization-javascript": "~2.0"
+        },
+        "conflict": {
+            "mediawiki/mediawiki": "<1.23"
+        },
+        "require-dev": {
+            "squizlabs/php_codesniffer": "~2.1"
+        },
+        "time": "2015-10-13 12:46:10",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "client/includes/",
+                "client/WikibaseClient.hooks.php",
+                "client/tests/phpunit/",
+                "lib/includes/",
+                "lib/WikibaseLib.hooks.php",
+                "lib/tests/phpunit/",
+                "repo/includes/",
+                "repo/maintenance/",
+                "repo/tests/phpunit/",
+                "repo/Wikibase.hooks.php"
+            ],
+            "psr-4": {
+                "Wikibase\\View\\": "view/src",
+                "Wikimedia\\Purtle\\": "purtle/src",
+                "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Structured data repository for MediaWiki",
+        "homepage": "http://wikiba.se",
+        "keywords": [
+            "wikibase",
+            "wikibaseclient",
+            "wikibaselib",
+            "wikibaserepo",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/wikimedia-badges",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -1363,7 +1447,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "dcf0c4760f047035feb5838d4245fcdc8859134f"
+            "reference": "302f94976e705ca3d3f7292332afa8cf129d9556"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1375,7 +1459,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-09-25 20:38:50",
+        "time": "2015-10-11 16:44:53",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1417,7 +1501,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-            "reference": "96021dededd9c4ca7087a64d6b0fc0dfaa54fdc8"
+            "reference": "5f3868000fe8e572201382311966a5b6346a0724"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1429,7 +1513,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-09-25 20:38:54",
+        "time": "2015-10-05 13:09:25",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1465,89 +1549,5 @@
         "support": {
             "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
         }
-    },
-    {
-        "name": "wikibase/wikibase",
-        "version": "dev-wmf/1.27.0-wmf.1",
-        "version_normalized": "dev-wmf/1.27.0-wmf.1",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "514c172f385e6f24caec3867652015e420fb25b2"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/514c172f385e6f24caec3867652015e420fb25b2",
-            "reference": "514c172f385e6f24caec3867652015e420fb25b2",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.3.0",
-            "data-values/data-types": "~0.5.0",
-            "data-values/data-values": "~1.0",
-            "data-values/geo": "~1.0",
-            "data-values/interfaces": "~0.2.0|~0.1.5",
-            "data-values/javascript": "~0.6.0|~0.7.0",
-            "data-values/number": "~0.6.0",
-            "data-values/serialization": "~1.0",
-            "data-values/time": "~0.8.2",
-            "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.15.5",
-            "diff/diff": "~2.0",
-            "php": ">=5.3.2",
-            "wikibase/data-model": "~4.0",
-            "wikibase/data-model-javascript": "^1.0.2",
-            "wikibase/data-model-serialization": "~2.0",
-            "wikibase/data-model-services": "^3.0.0",
-            "wikibase/internal-serialization": "~2.0",
-            "wikibase/javascript-api": "~1.0",
-            "wikibase/serialization-javascript": "~2.0"
-        },
-        "conflict": {
-            "mediawiki/mediawiki": "<1.23"
-        },
-        "require-dev": {
-            "squizlabs/php_codesniffer": "~2.1"
-        },
-        "time": "2015-10-01 09:47:08",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "client/includes/",
-                "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/",
-                "lib/includes/",
-                "lib/WikibaseLib.hooks.php",
-                "lib/tests/phpunit/",
-                "repo/includes/",
-                "repo/maintenance/",
-                "repo/tests/phpunit/",
-                "repo/Wikibase.hooks.php"
-            ],
-            "psr-4": {
-                "Wikibase\\View\\": "view/src",
-                "Wikimedia\\Purtle\\": "purtle/src",
-                "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Structured data repository for MediaWiki",
-        "homepage": "http://wikiba.se",
-        "keywords": [
-            "wikibase",
-            "wikibaseclient",
-            "wikibaselib",
-            "wikibaserepo",
-            "wikidata"
-        ]
     }
 ]

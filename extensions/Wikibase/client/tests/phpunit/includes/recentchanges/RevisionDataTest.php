@@ -42,7 +42,12 @@ class RevisionDataTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetComment() {
 		$revisionData = $this->newRevisionData();
-		$this->assertEquals( array( 'key' => 'wikibase-comment-update' ), $revisionData->getComment() );
+		$this->assertEquals( 'Kitten Comment', $revisionData->getComment() );
+	}
+
+	public function testGetCommentHtml() {
+		$revisionData = $this->newRevisionData();
+		$this->assertEquals( '<span>Kitten Comment</span>', $revisionData->getCommentHtml() );
 	}
 
 	public function testGetSiteId() {
@@ -50,9 +55,26 @@ class RevisionDataTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( 'testrepo', $revisionData->getSiteId() );
 	}
 
+	public function testGetChangeParams() {
+		$revisionData = $this->newRevisionData();
+		$expected = array(
+			'page_id' => 5,
+			'rev_id' => 92,
+			'parent_id' => 90,
+		);
+		$this->assertEquals( $expected, $revisionData->getChangeParams() );
+	}
+
 	private function newRevisionData() {
-		$comment = array( 'key' => 'wikibase-comment-update' );
-		return new RevisionData( 'Cat', 5, 92, 90, '20130819111741', $comment, 'testrepo' );
+		$comment = 'Kitten Comment';
+		$commentHtml = '<span>' . htmlspecialchars( $comment ) . '</span>';
+		$changeParams = array(
+			'page_id' => 5,
+			'rev_id' => 92,
+			'parent_id' => 90,
+		);
+
+		return new RevisionData( 'Cat', '20130819111741', $comment, $commentHtml, 'testrepo', $changeParams );
 	}
 
 }

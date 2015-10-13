@@ -12,7 +12,6 @@
  */
 var createLabelview = function( options, $node ) {
 	options = $.extend( {
-		entityId: 'I am an EntityId',
 		labelsChanger: 'I am a LabelsChanger',
 		value: new wb.datamodel.Term( 'en', 'test label' )
 	}, options || {} );
@@ -40,7 +39,7 @@ QUnit.module( 'jquery.wikibase.labelview', QUnit.newMwEnvironment( {
 			var $labelview = $( this ),
 				labelview = $labelview.data( 'labelview' );
 
-			if( labelview ) {
+			if ( labelview ) {
 				labelview.destroy();
 			}
 

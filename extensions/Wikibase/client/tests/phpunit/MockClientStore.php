@@ -2,12 +2,12 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\ChangesTable;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\NullSubscriptionManager;
 use Wikibase\Client\Usage\NullUsageTracker;
 use Wikibase\ClientStore;
 use Wikibase\DataModel\Services\Entity\NullEntityPrefetcher;
+use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\PropertyInfoStore;
 use Wikibase\Store\EntityIdLookup;
 use Wikibase\TermIndex;
@@ -43,6 +43,11 @@ class MockClientStore implements ClientStore {
 	 * @var PropertyInfoStore|null
 	 */
 	private static $propertyInfoStore = null;
+
+	/**
+	 * @var EntityLookup|null
+	 */
+	private static $entityLookup = null;
 
 	/**
 	 * @see ClientStore::getUsageLookup
@@ -103,15 +108,6 @@ class MockClientStore implements ClientStore {
 	}
 
 	/**
-	 * @see ClientStore::newChangesTable
-	 *
-	 * @return ChangesTable
-	 */
-	public function newChangesTable() {
-		// FIXME: Incomplete
-	}
-
-	/**
 	 * @see ClientStore::clear
 	 */
 	public function clear() {
@@ -137,10 +133,21 @@ class MockClientStore implements ClientStore {
 	/**
 	 * @see ClientStore::getEntityLookup
 	 *
-	 * @return MockRepository
+	 * @return EntityLookup
 	 */
 	public function getEntityLookup() {
-		return $this->getMockRepository();
+		if ( !self::$entityLookup ) {
+			return $this->getMockRepository();
+		}
+
+		return self::$entityLookup;
+	}
+
+	/**
+	 * @param EntityLookup|null $entityLookup
+	 */
+	public function setEntityLookup( EntityLookup $entityLookup = null ) {
+		return self::$entityLookup = $entityLookup;
 	}
 
 	/**
@@ -195,6 +202,10 @@ class MockClientStore implements ClientStore {
 			$this->getUsageLookup(),
 			$this->getSubscriptionManager()
 		);
+	}
+
+	public function getChangeLookup() {
+		// FIXME: Incomplete
 	}
 
 }

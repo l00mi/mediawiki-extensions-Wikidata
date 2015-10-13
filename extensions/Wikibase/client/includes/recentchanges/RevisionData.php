@@ -8,7 +8,11 @@ namespace Wikibase\Client\RecentChanges;
  * @since 0.5
  *
  * @licence GNU GPL v2+
+ *
+ * @todo Merge this into ExternalChange
+ *
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Daniel Kinzler
  */
 class RevisionData {
 
@@ -18,49 +22,47 @@ class RevisionData {
 	protected $userName;
 
 	/**
-	 * @var int
-	 */
-	protected $pageId;
-
-	/**
-	 * @var int
-	 */
-	protected $revId;
-
-	/**
-	 * @var int
-	 */
-	protected $parentId;
-
-	/**
 	 * @var string
 	 */
 	protected $timestamp;
 
 	/**
-	 * @var string
+	 * @var string wikitext
 	 */
 	protected $comment;
 
 	/**
+	 * @var string|null HTML
+	 */
+	protected $commentHtml;
+
+	/**
+	 * @var array
+	 */
+	protected $changeParams;
+
+	/**
 	 * @param string $userName
-	 * @param int $pageId
-	 * @param int $revId
-	 * @param int $parentId
 	 * @param string $timestamp
 	 * @param string $comment
+	 * @param string|null $commentHtml
 	 * @param string $siteId
+	 * @param array $changeParams
 	 */
-	public function __construct( $userName, $pageId, $revId, $parentId, $timestamp,
-		$comment, $siteId
+	public function __construct(
+		$userName,
+		$timestamp,
+		$comment,
+		$commentHtml,
+		$siteId,
+		array $changeParams
 	) {
 		$this->userName = $userName;
-		$this->pageId = $pageId;
-		$this->revId = $revId;
-		$this->parentId = $parentId;
 		$this->timestamp = $timestamp;
 		$this->comment = $comment;
+		$this->commentHtml = $commentHtml;
 		$this->siteId = $siteId;
+		$this->changeParams = $changeParams;
 	}
 
 	/**
@@ -74,21 +76,21 @@ class RevisionData {
 	 * @return int
 	 */
 	public function getPageId() {
-		return $this->pageId;
+		return $this->changeParams['page_id'];
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getRevId() {
-		return $this->revId;
+		return $this->changeParams['rev_id'];
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getParentId() {
-		return $this->parentId;
+		return $this->changeParams['parent_id'];
 	}
 
 	/**
@@ -106,10 +108,24 @@ class RevisionData {
 	}
 
 	/**
+	 * @return string|null
+	 */
+	public function getCommentHtml() {
+		return $this->commentHtml;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getSiteId() {
 		return $this->siteId;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getChangeParams() {
+		return $this->changeParams;
 	}
 
 }

@@ -17,6 +17,7 @@ use Wikibase\DataModel\Entity\EntityId;
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Daniel Kinzler
  */
 class ChangeLineFormatter {
 
@@ -52,7 +53,7 @@ class ChangeLineFormatter {
 	 * @param int $count
 	 * @param string $flag - flag formatted by ChangesList::recentChangesFlags()
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	public function format( ExternalChange $externalChange, Title $title, $count, $flag ) {
 		$changeType = $externalChange->getChangeType();
@@ -73,13 +74,31 @@ class ChangeLineFormatter {
 
 		$line .= $this->formatTimestamp( $rev->getTimestamp() );
 		$line .= $this->formatUserLinks( $rev->getUserName() );
-		$line .= $this->formatComment( $rev->getComment() );
+
+		$commentHtml = $rev->getCommentHtml();
+
+		if ( $commentHtml === null || $commentHtml === '' ) {
+			$commentHtml = Linker::formatComment( $rev->getComment(), $title, false, $externalChange->getSiteId() );
+		}
+
+		$line .= $this->wrapCommentBlock( $commentHtml );
 
 		return $line;
 	}
 
 	/**
-	 * @return string
+	 * @param string $commentHtml Formatted comment HTML
+	 *
+	 * @return string Formatted comment HTML wrapped as comment block
+	 */
+	private function wrapCommentBlock( $commentHtml ) {
+		//NOTE: keep in sync with Linker::commentBlock
+		$formatted = wfMessage( 'parentheses' )->rawParams( $commentHtml )->escaped();
+		return " <span class=\"comment\">$formatted</span>";
+	}
+
+	/**
+	 * @return string HTML
 	 */
 	private function changeSeparator() {
 		return ' <span class="mw-changeslist-separator">. .</span> ';
@@ -88,7 +107,7 @@ class ChangeLineFormatter {
 	/**
 	 * @param string $timestamp
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function formatTimestamp( $timestamp ) {
 		return wfMessage( 'semicolon-separator' )->text()
@@ -100,7 +119,7 @@ class ChangeLineFormatter {
 	/**
 	 * @param string $userName
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function formatUserLinks( $userName ) {
 		$links = $this->buildUserLinks( $userName );
@@ -117,7 +136,7 @@ class ChangeLineFormatter {
 	 *
 	 * @param string[] $links
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function formatIpUserLinks( array $links ) {
 		$userlinks = $links['contribs'];
@@ -135,7 +154,7 @@ class ChangeLineFormatter {
 	 *
 	 * @param string[] $links
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function formatRegisteredUserLinks( array $links ) {
 		$userlinks = $links['user'];
@@ -158,7 +177,7 @@ class ChangeLineFormatter {
 	/**
 	 * @param EntityId $entityId
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function formatEntityLink( EntityId $entityId ) {
 		$entityLink = $this->repoLinker->buildEntityLink( $entityId );
@@ -168,7 +187,7 @@ class ChangeLineFormatter {
 	}
 
 	/**
-	 * @return string
+	 * @return string HTML
 	 */
 	private function formatDeletionLogLink() {
 		$logLink = $this->repoLinker->formatLink(
@@ -184,7 +203,7 @@ class ChangeLineFormatter {
 	 * @param RevisionData $rev
 	 * @param int $count
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function formatDiffHist( EntityId $entityId, RevisionData $rev, $count ) {
 		$diffLink = $this->buildDiffLink( $entityId, $rev, $count );
@@ -200,7 +219,7 @@ class ChangeLineFormatter {
 	 * @param RevisionData $rev
 	 * @param int $count
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function buildDiffLink( EntityId $entityId, RevisionData $rev, $count ) {
 		$params = array(
@@ -226,7 +245,7 @@ class ChangeLineFormatter {
 	 * @param EntityId $entityId
 	 * @param RevisionData $rev
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function buildHistoryLink( EntityId $entityId, RevisionData $rev ) {
 		$titleText = $this->repoLinker->getEntityTitle( $entityId );
@@ -251,7 +270,7 @@ class ChangeLineFormatter {
 	/**
 	 * @param string $userName
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function buildUserLink( $userName ) {
 		return $this->repoLinker->formatLink(
@@ -268,7 +287,7 @@ class ChangeLineFormatter {
 	 * @param string $userName
 	 * @param string $text
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function buildUserContribsLink( $userName, $text = null ) {
 		// @todo: know how the repo is localised. it's english now
@@ -285,7 +304,7 @@ class ChangeLineFormatter {
 	/**
 	 * @param string $userName
 	 *
-	 * @return string
+	 * @return string HTML
 	 */
 	private function buildUserTalkLink( $userName ) {
 		// @todo: localize this once we can localize namespaces on the repo
@@ -298,7 +317,7 @@ class ChangeLineFormatter {
 	/**
 	 * @param string $userName
 	 *
-	 * @return string[]
+	 * @return string[] List of HTML links
 	 */
 	private function buildUserLinks( $userName ) {
 		$links = array();
@@ -313,24 +332,6 @@ class ChangeLineFormatter {
 		}
 
 		return $links;
-	}
-
-	/**
-	 * @param array $comment
-	 *
-	 * @return string
-	 */
-	private function formatComment( array $comment ) {
-		$commentMsg = wfMessage( $comment['key'] );
-
-		if ( isset( $comment['numparams'] ) ) {
-			$commentMsg->numParams( $comment['numparams'] );
-		}
-
-		// fixme: find a way to inject or not use Linker
-		return Linker::commentBlock(
-			$commentMsg->inLanguage( $this->lang )->text()
-		);
 	}
 
 }

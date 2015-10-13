@@ -2,7 +2,9 @@
 
 namespace Wikibase\Client\RecentChanges;
 
+use Content;
 use InvalidArgumentException;
+use Language;
 use RecentChange;
 use UnexpectedValueException;
 use Wikibase\DataModel\Entity\ItemId;
@@ -12,6 +14,7 @@ use Wikibase\DataModel\Entity\ItemId;
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Daniel Kinzler
  */
 class ExternalChangeFactory {
 
@@ -21,10 +24,17 @@ class ExternalChangeFactory {
 	private $repoSiteId;
 
 	/**
-	 * @param string $repoSiteId
+	 * @var Language
 	 */
-	public function __construct( $repoSiteId ) {
+	private $summaryLanguage;
+
+	/**
+	 * @param string $repoSiteId
+	 * @param Language $summaryLanguage Language to use when generating edit summaries
+	 */
+	public function __construct( $repoSiteId, Language $summaryLanguage ) {
 		$this->repoSiteId = $repoSiteId;
+		$this->summaryLanguage = $summaryLanguage;
 	}
 
 	/**
@@ -36,11 +46,20 @@ class ExternalChangeFactory {
 	 * @return ExternalChange
 	 */
 	public function newFromRecentChange( RecentChange $recentChange ) {
-		$changeParams = $this->extractChangeData( $recentChange );
+		$rc_params = $recentChange->parseParams();
+
+		if ( !is_array( $rc_params ) || !array_key_exists( 'wikibase-repo-change', $rc_params ) ) {
+			throw new UnexpectedValueException( 'Not a Wikibase change' );
+		}
+
+		$changeParams = $this->extractChangeData( $rc_params );
+
+		// If a pre-formatted comment exists, pass it on.
+		$changeHtml = isset( $rc_params['comment-html'] ) ? $rc_params['comment-html'] : null;
 
 		$itemId = $this->extractItemId( $changeParams['object_id'] );
 		$changeType = $this->extractChangeType( $changeParams['type'] );
-		$rev = $this->newRevisionData( $recentChange, $changeParams );
+		$rev = $this->newRevisionData( $recentChange, $changeParams, $changeHtml );
 
 		return new ExternalChange( $itemId, $rev, $changeType );
 	}
@@ -48,38 +67,38 @@ class ExternalChangeFactory {
 	/**
 	 * @param RecentChange $recentChange
 	 * @param array $changeParams
+	 * @param string|null $commentHtml Pre-formatted comment HTML
 	 *
 	 * @return RevisionData
 	 */
-	private function newRevisionData( RecentChange $recentChange, array $changeParams ) {
+	private function newRevisionData( RecentChange $recentChange, array $changeParams, $commentHtml = null ) {
 		$repoId = isset( $changeParams['site_id'] )
 			? $changeParams['site_id'] : $this->repoSiteId;
 
+		$comment = $recentChange->getAttribute( 'rc_comment' );
+
+		if ( $comment === '' || $comment === null ) {
+			$comment = $this->generateComment( $changeParams );
+		}
+
 		return new RevisionData(
 			$recentChange->getAttribute( 'rc_user_text' ),
-			$changeParams['page_id'],
-			$changeParams['rev_id'],
-			$changeParams['parent_id'],
 			$recentChange->getAttribute( 'rc_timestamp' ),
-			$this->extractComment( $changeParams ),
-			$repoId
+			$comment,
+			$commentHtml,
+			$repoId,
+			$changeParams
 		);
 	}
 
 	/**
-	 * @param RecentChange $recentChange
+	 * @param array Content of rc_params
 	 *
 	 * @throws UnexpectedValueException
 	 * @return array
 	 */
-	private function extractChangeData( RecentChange $recentChange ) {
-		$params = unserialize( $recentChange->getAttribute( 'rc_params' ) );
-
-		if ( !is_array( $params ) || !array_key_exists( 'wikibase-repo-change', $params ) ) {
-			throw new UnexpectedValueException( 'Not a Wikibase change' );
-		}
-
-		$changeParams = $params['wikibase-repo-change'];
+	private function extractChangeData( array $rc_params ) {
+		$changeParams = $rc_params['wikibase-repo-change'];
 
 		$this->validateChangeData( $changeParams );
 
@@ -168,7 +187,7 @@ class ExternalChangeFactory {
 	 *
 	 * @return string
 	 */
-	private function parseComment( $comment, $type ) {
+	private function parseAutoComment( $comment, $type ) {
 		$newComment = array(
 			'key' => 'wikibase-comment-update'
 		);
@@ -185,39 +204,49 @@ class ExternalChangeFactory {
 			}
 		}
 
-		// @todo handle $comment values that are strings or whatever format
-		// that we use to transfer autocomments from repo to client.
-
 		return $newComment;
 	}
 
 	/**
-	 * @fixme refactor comments handling!
+	 * @param array $comment
 	 *
+	 * @return string
+	 */
+	private function formatComment( array $comment ) {
+		$commentMsg = wfMessage( $comment['key'] )->inLanguage( $this->summaryLanguage );
+
+		if ( isset( $comment['numparams'] ) ) {
+			$commentMsg->numParams( $comment['numparams'] );
+		}
+
+		return $commentMsg->text();
+	}
+
+	/**
 	 * @param array $changeParams
 	 *
 	 * @return string
 	 */
-	private function extractComment( array $changeParams ) {
-		$comment = array(
-			'key' => 'wikibase-comment-update'
-		);
-
-		//TODO: If $changeParams['changes'] is set, this is a coalesced change.
-		//	  Combine all the comments! Up to some max length?
+	private function generateComment( array $changeParams ) {
+		// NOTE: We want to get rid of the comment and composite-comment fields in $changeParams
+		// in the future, see https://phabricator.wikimedia.org/T101836#1414639 part 3.
 		if ( array_key_exists( 'composite-comment', $changeParams ) ) {
 			$comment['key'] = 'wikibase-comment-multi';
 			$comment['numparams'] = $this->countCompositeComments( $changeParams['composite-comment'] );
-		} elseif ( array_key_exists( 'comment', $changeParams ) ) {
-			$comment = $this->parseComment( $changeParams['comment'], $changeParams['type'] );
-		}
 
-		return $comment;
+			return $this->formatComment( $comment );
+		} elseif ( array_key_exists( 'comment', $changeParams ) ) {
+			$comment = $this->parseAutoComment( $changeParams['comment'], $changeParams['type'] );
+
+			return $this->formatComment( $comment );
+		} else {
+			// no override
+			return false;
+		}
 	}
 
 	/**
 	 * normalizes for extra empty comment in rc_params (see bug T47812)
-	 * @fixme: can remove at some point in the future
 	 *
 	 * @param array $comments
 	 *

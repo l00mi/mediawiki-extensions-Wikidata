@@ -14,6 +14,7 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
+use Wikibase\Lib\Store\ChangeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -33,6 +34,7 @@ use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Repo\Store\DispatchingEntityStoreWatcher;
 use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\Repo\Store\SQL\EntityPerPageTable;
+use Wikibase\Repo\Store\Sql\SqlChangeStore;
 use Wikibase\Repo\Store\SQL\WikiPageEntityRedirectLookup;
 use Wikibase\Repo\Store\WikiPageEntityStore;
 use Wikibase\Repo\WikibaseRepo;
@@ -90,11 +92,6 @@ class SqlStore implements Store {
 	private $propertyInfoStore = null;
 
 	/**
-	 * @var ChangesTable|null
-	 */
-	private $changesTable = null;
-
-	/**
 	 * @var string|bool false for local, or a database id that wfGetLB understands.
 	 */
 	private $changesDatabase;
@@ -140,6 +137,11 @@ class SqlStore implements Store {
 	private $idBlacklist;
 
 	/**
+	 * @var string[]
+	 */
+	private $changeHandlerClasses;
+
+	/**
 	 * @param EntityContentDataCodec $contentCodec
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityIdLookup $entityIdLookup
@@ -163,6 +165,7 @@ class SqlStore implements Store {
 		$this->cacheType = $settings->getSetting( 'sharedCacheType' );
 		$this->cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
 		$this->idBlacklist = $settings->getSetting( 'idBlacklist' );
+		$this->changeHandlerClasses = $settings->getSetting( 'changeHandlers' );
 	}
 
 	/**
@@ -737,21 +740,6 @@ class SqlStore implements Store {
 	}
 
 	/**
-	 * Returns an ChangesTable
-	 *
-	 * @since 0.5
-	 *
-	 * @return ChangesTable
-	 */
-	public function getChangesTable() {
-		if ( $this->changesTable === null ) {
-			$this->changesTable = new ChangesTable( $this->changesDatabase );
-		}
-
-		return $this->changesTable;
-	}
-
-	/**
 	 * @return SiteLinkConflictLookup
 	 */
 	public function getSiteLinkConflictLookup() {
@@ -769,6 +757,24 @@ class SqlStore implements Store {
 		}
 
 		return $this->entityPrefetcher;
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return ChangeLookup
+	 */
+	public function getChangeLookup() {
+		return new ChangeLookup( $this->changeHandlerClasses );
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return SqlChangeStore
+	 */
+	public function getChangeStore() {
+		return new SqlChangeStore( wfGetLB() );
 	}
 
 }

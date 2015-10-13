@@ -7,6 +7,10 @@ use Diff\DiffOp\DiffOp;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
+use Language;
+use Message;
+use MWException;
+use SiteStore;
 
 /**
  * Creates an array structure with comment information for storing
@@ -17,8 +21,19 @@ use Diff\DiffOp\DiffOpRemove;
  *
  * @licence GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Daniel Kinzler
  */
 class SiteLinkCommentCreator {
+
+	/**
+	 * @var Language
+	 */
+	private $language;
+
+	/**
+	 * @var SiteStore
+	 */
+	private $siteStore;
 
 	/**
 	 * @var string
@@ -26,10 +41,14 @@ class SiteLinkCommentCreator {
 	private $siteId;
 
 	/**
+	 * @param Language $language
+	 * @param SiteStore $siteStore
 	 * @param string $siteId
 	 */
-	public function __construct( $siteId ) {
+	public function __construct( Language $language, SiteStore $siteStore, $siteId ) {
 		$this->siteId = $siteId;
+		$this->siteStore = $siteStore;
+		$this->language = $language;
 	}
 
 	/**
@@ -40,20 +59,20 @@ class SiteLinkCommentCreator {
 	 *
 	 * @param Diff|null $siteLinkDiff
 	 * @param string $action e.g. 'remove', see the constants in EntityChange
-	 * @param string $comment
 	 *
-	 * @return array|string
+	 * @return string|null A human readable edit summary (limited wikitext),
+	 *         or null if no summary could be created for the sitelink change.
 	 */
-	public function getEditComment( Diff $siteLinkDiff = null, $action, $comment ) {
+	public function getEditComment( Diff $siteLinkDiff = null, $action ) {
 		if ( $siteLinkDiff !== null && !$siteLinkDiff->isEmpty() ) {
-			$siteLinkComment = $this->getSiteLinkComment( $action, $siteLinkDiff );
+			$siteLinkMessage = $this->getSiteLinkMessage( $action, $siteLinkDiff );
 
-			if ( !empty( $siteLinkComment ) ) {
-				return $siteLinkComment;
+			if ( !empty( $siteLinkMessage ) ) {
+				return $this->generateComment( $siteLinkMessage );
 			}
 		}
 
-		return $comment;
+		return null;
 	}
 
 	/**
@@ -65,7 +84,7 @@ class SiteLinkCommentCreator {
 	 *
 	 * @return array|null
 	 */
-	private function getSiteLinkComment( $action, Diff $siteLinkDiff ) {
+	private function getSiteLinkMessage( $action, Diff $siteLinkDiff ) {
 		if ( $siteLinkDiff->isEmpty() ) {
 			return null;
 		}
@@ -86,7 +105,7 @@ class SiteLinkCommentCreator {
 				if ( array_key_exists( 'name', $diffOp ) ) {
 					$diffOp = $diffOp['name'];
 				} else {
-					// change to badges only
+					// change to badges only, use original message
 					return null;
 				}
 			}
@@ -97,10 +116,8 @@ class SiteLinkCommentCreator {
 			if ( $diffOpCount === 1 ) {
 				$params = $this->getSiteLinkChangeParams( $diffOps );
 			} else {
-				// @todo report how many changes
-				$params = array(
-					'message' => 'wikibase-comment-update'
-				);
+				// multiple changes, use original message
+				return null;
 			}
 		}
 
@@ -205,8 +222,6 @@ class SiteLinkCommentCreator {
 		} elseif ( $diffOp instanceof DiffOpChange ) {
 			$params['message'] = 'wikibase-comment-sitelink-change';
 
-			// FIXME: this code appears to be doing something incorrect as "best effort"
-			// rather than allowing for proper error handling
 			$params['sitelink'] = array(
 				'oldlink' => array(
 					'site' => $siteId,
@@ -223,6 +238,66 @@ class SiteLinkCommentCreator {
 		}
 
 		return $params;
+	}
+
+	/**
+	 * @param string $siteId
+	 * @param string $pageTitle
+	 *
+	 * @return string wikitext interwiki link
+	 */
+	private function getSitelinkWikitext( $siteId, $pageTitle ) {
+		$interwikiId = $siteId;
+
+		// Try getting the interwiki id from the Site object of the link target
+		$site = $this->siteStore->getSite( $siteId );
+		if ( $site ) {
+			$iw_ids = $site->getInterwikiIds();
+			if ( isset( $iw_ids[0] ) ) {
+				$interwikiId = $iw_ids[0];
+			}
+		}
+
+		return "[[:$interwikiId:$pageTitle]]";
+	}
+
+	/**
+	 * @param string $key
+	 *
+	 * @return Message
+	 * @throws MWException
+	 */
+	private function msg( $key ) {
+		$params = func_get_args();
+		array_shift( $params );
+		if ( isset( $params[0] ) && is_array( $params[0] ) ) {
+			$params = $params[0];
+		}
+
+		return wfMessage( $key, $params )->inLanguage( $this->language );
+	}
+
+	/**
+	 * @param array $messageSpec
+	 *
+	 * @return string An edit summary (as limited wikitext).
+	 */
+	private function generateComment( array $messageSpec ) {
+		$key = $messageSpec['message'];
+		$args = array();
+
+		if ( isset( $messageSpec['sitelink']['oldlink'] ) ) {
+			$link = $messageSpec['sitelink']['oldlink'];
+			$args[] = $this->getSitelinkWikitext( $link['site'], $link['page'] );
+		}
+
+		if ( isset( $messageSpec['sitelink']['newlink'] ) ) {
+			$link = $messageSpec['sitelink']['newlink'];
+			$args[] = $this->getSitelinkWikitext( $link['site'], $link['page'] );
+		}
+
+		$msg = $this->msg( $key, $args );
+		return $msg->text();
 	}
 
 }
