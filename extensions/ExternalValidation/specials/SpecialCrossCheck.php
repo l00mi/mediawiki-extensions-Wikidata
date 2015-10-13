@@ -12,6 +12,7 @@ use SpecialPage;
 use Traversable;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
@@ -171,16 +172,16 @@ class SpecialCrossCheck extends SpecialPage {
 				return;
 			}
 
-			if ( !( $entity instanceof StatementListProvider ) ) {
+			if ( $entity === null ) {
 				$out->addHTML(
 					$this->buildNotice('wbqev-crosscheck-not-existent-entity', true)
 				);
 				return;
 			}
 
-			$results = $this->crossCheckInteractor->crossCheckStatementList( $entity->getStatements() );
+			$results = $this->getCrossCheckResultsFromEntity( $entity );
 
-			if ($results && count($results) > 0) {
+			if ( count($results) > 0 ) {
 				$out->addHTML(
 					$this->buildResultHeader($entityId)
 					. $this->buildSummary($results)
@@ -193,6 +194,19 @@ class SpecialCrossCheck extends SpecialPage {
 				);
 			}
 		}
+	}
+
+	/**
+	 * @param EntityDocument $entity
+	 *
+	 * @return CrossCheckResultList
+	 */
+	private function getCrossCheckResultsFromEntity( EntityDocument $entity ) {
+		if ( $entity instanceof StatementListProvider ) {
+			return $this->crossCheckInteractor->crossCheckStatementList( $entity->getStatements() );
+		}
+
+		return new CrossCheckResultList();
 	}
 
 	/**

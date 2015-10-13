@@ -225,20 +225,20 @@ class EntityDataSerializationService {
 
 		$serializer = $this->createApiSerializer( $formatName );
 
-		if ( $serializer ) {
-			$data = $this->apiSerialize( $entityRevision, $serializer );
+		if ( $serializer !== null ) {
+			$data = $this->getApiSerialization( $entityRevision, $serializer );
 			$contentType = $serializer->getIsHtml() ? 'text/html' : $serializer->getMimeType();
 		} else {
 			$rdfBuilder = $this->createRdfBuilder( $formatName, $flavor );
 
-			if ( !$rdfBuilder ) {
+			if ( $rdfBuilder === null ) {
 				throw new MWException( "Could not create serializer for $formatName" );
-			} else {
-				$data = $this->rdfSerialize( $entityRevision, $followedRedirect, $incomingRedirects, $rdfBuilder, $flavor );
-
-				$mimeTypes = $this->rdfWriterFactory->getMimeTypes( $formatName );
-				$contentType = reset( $mimeTypes );
 			}
+
+			$data = $this->rdfSerialize( $entityRevision, $followedRedirect, $incomingRedirects, $rdfBuilder, $flavor );
+
+			$mimeTypes = $this->rdfWriterFactory->getMimeTypes( $formatName );
+			$contentType = reset( $mimeTypes );
 		}
 
 		return array( $data, $contentType );
@@ -473,13 +473,11 @@ class EntityDataSerializationService {
 	 * expose internal implementation details.
 	 *
 	 * @param EntityRevision $entityRevision the entity to output.
-	 * @param EntityRedirect|null $followedRedirect a redirect leading to the entity for use in the output
-	 * @param EntityId[] $incomingRedirects Incoming redirects to include in the output
 	 * @param ApiFormatBase $printer the printer to use to generate the output
 	 *
 	 * @return string the serialized data
 	 */
-	private function apiSerialize(
+	private function getApiSerialization(
 		EntityRevision $entityRevision,
 		ApiFormatBase $printer
 	) {
