@@ -42,11 +42,24 @@ class TimeValueComparer implements DataValueComparer {
 
 		$result = ComparisonResult::STATUS_MISMATCH;
 
+		if ( !preg_match( '/^([-+]?)(\d*)((\d{4}\b).*)/', $value->getTime(), $localMatches )
+			|| !preg_match( '/^([-+]?)(\d*)((\d{4}\b).*)/', $comparativeValue->getTime(), $externalMatches )
+		) {
+			return ComparisonResult::STATUS_MISMATCH;
+		}
+		list( , $localSign, $localYearHigh, $localMwTime, $localYearLow ) = $localMatches;
+		list( , $externalSign, $externalYearHigh, $externalMwTime, $externalYearLow ) = $externalMatches;
+		if ( $localSign !== $externalSign && ( $localYearHigh . $localYearLow !== '0000'
+				|| $externalYearHigh . $externalYearLow !== '0000' )
+		) {
+			return ComparisonResult::STATUS_MISMATCH;
+		}
+
 		try {
-			// FIXME: MWTimestamp does not support years with more than 4 digits!
-			$localTimestamp = new MWTimestamp( substr( $value->getTime(), 1 ) );
-			$externalTimestamp = new MWTimestamp( substr( $comparativeValue->getTime(), 1 ) );
+			$localTimestamp = new MWTimestamp( $localMwTime );
+			$externalTimestamp = new MWTimestamp( $externalMwTime );
 			$diff = $localTimestamp->diff( $externalTimestamp );
+			$diff->y += abs( $localYearHigh - $externalYearHigh ) * 10000;
 
 			if ( $value->getPrecision() === $comparativeValue->getPrecision()
 				&& $this->resultOfDiffWithPrecision( $diff, $value->getPrecision() )

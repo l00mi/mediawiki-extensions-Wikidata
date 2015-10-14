@@ -2,7 +2,6 @@
 
 namespace Wikibase;
 
-use MWException;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\SubscriptionManager;
 use Wikibase\Client\Usage\UsageLookup;
@@ -10,6 +9,7 @@ use Wikibase\Client\Usage\UsageTracker;
 use Wikibase\DataModel\Services\Entity\EntityPrefetcher;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Term\PropertyLabelResolver;
+use Wikibase\Lib\Store\ChangeLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Store\EntityIdLookup;
@@ -91,14 +91,6 @@ interface ClientStore {
 	/**
 	 * @since 0.4
 	 *
-	 * @throws MWException if no changes table can be supplied.
-	 * @return ChangesTable
-	 */
-	public function newChangesTable();
-
-	/**
-	 * @since 0.4
-	 *
 	 * @return PropertyInfoStore
 	 */
 	public function getPropertyInfoStore();
@@ -133,5 +125,12 @@ interface ClientStore {
 	 * @return UsageUpdater
 	 */
 	public function getUsageUpdater();
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return ChangeLookup
+	 */
+	public function getChangeLookup();
 
 }

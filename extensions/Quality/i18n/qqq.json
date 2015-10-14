@@ -4,13 +4,16 @@
 			"Liuxinyu970226",
 			"Robby",
 			"Raymond",
-			"Amire80"
+			"Amire80",
+			"Umherirrender"
 		]
 	},
 	"wbq-desc": "{{desc|name=Wikibase Quality|url=https://www.mediawiki.org/wiki/Extension:WikidataQuality}}",
 	"specialpages-group-wikibasequality": "{{doc-special-group|that=are related to the WikibaseQuality extension}}",
 	"wbq-violations-description": "{{doc-special|Violations}}",
+	"wbq-violations-explanations-general": "Used as text of an infobox on [[Special:ViolationsPage]]",
 	"wbq-violations-explanations-exceptions": "Explanation text about exceptions for violations special page.",
+	"wbq-violatons-filter-headline": "Used as headline of a legend on [[Special:ViolationsPage]]",
 	"wbq-violations-entity-id-label": "Label of the input control that contains the entity id.",
 	"wbq-violations-entity-id-placeholder": "Placeholder  of the input control that contains the entity id.",
 	"wbq-violations-property-id-label": "Label of the input control that contains the property id.",

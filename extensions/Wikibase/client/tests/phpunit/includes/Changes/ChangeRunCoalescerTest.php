@@ -2,17 +2,13 @@
 
 namespace Wikibase\Client\Tests\Changes;
 
-use Diff\Differ\MapDiffer;
 use Diff\DiffOp\AtomicDiffOp;
 use Traversable;
 use Wikibase\Change;
-use Wikibase\ChangesTable;
 use Wikibase\Client\Changes\ChangeRunCoalescer;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Diff\EntityDiff;
-use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Services\Diff\ItemDiffer;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\EntityChange;
@@ -129,9 +125,12 @@ class ChangeRunCoalescerTest extends \MediaWikiTestCase {
 		$diff = $this->makeDiff( $values['object_id'], $values['info']['metadata']['parent_id'], $values[ 'revision_id' ] );
 		$values['info'] = serialize( $values['info'] );
 
-		/* @var EntityChange $change */
-		$table = ChangesTable::singleton();
-		$change = $table->newRow( $values, true );
+		$class = 'Wikibase\EntityChange';
+		if ( $values['type'] === 'wikibase-item~add' || $values['type'] === 'wikibase-item~update' ) {
+			$class = 'Wikibase\ItemChange';
+		}
+
+		$change = new $class( $values );
 		$change->setDiff( $diff );
 
 		return $change;
@@ -196,7 +195,6 @@ class ChangeRunCoalescerTest extends \MediaWikiTestCase {
 		$this->assertEquals( $expected->getObjectId(), $actual->getObjectId(), $message . 'ObjectId' );
 		$this->assertEquals( $expected->getTime(), $actual->getTime(), $message . 'Time' );
 		$this->assertEquals( $expected->getType(), $actual->getType(), $message . 'Type' );
-		$this->assertEquals( $expected->getUser(), $actual->getUser(), $message . 'User' );
 
 		if ( $expected instanceof EntityChange && $actual instanceof EntityChange ) {
 			$this->assertEquals( $expected->getAction(), $actual->getAction(), $message . 'Action' );

@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\ChangesTable;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\NullSubscriptionManager;
 use Wikibase\Client\Usage\NullUsageTracker;
@@ -109,15 +108,6 @@ class MockClientStore implements ClientStore {
 	}
 
 	/**
-	 * @see ClientStore::newChangesTable
-	 *
-	 * @return ChangesTable
-	 */
-	public function newChangesTable() {
-		// FIXME: Incomplete
-	}
-
-	/**
 	 * @see ClientStore::clear
 	 */
 	public function clear() {
@@ -212,6 +202,10 @@ class MockClientStore implements ClientStore {
 			$this->getUsageLookup(),
 			$this->getSubscriptionManager()
 		);
+	}
+
+	public function getChangeLookup() {
+		// FIXME: Incomplete
 	}
 
 }

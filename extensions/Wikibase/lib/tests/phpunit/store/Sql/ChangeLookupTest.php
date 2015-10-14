@@ -4,7 +4,7 @@ namespace Wikibase\Test;
 
 use Wikibase\EntityChange;
 use Wikibase\Lib\Store\ChangeLookup;
-use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
+use Wikibase\Repo\Store\Sql\SqlChangeStore;
 
 /**
  * @covers Wikibase\Lib\Store\ChangeLookup
@@ -31,37 +31,7 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 	}
 
 	public function loadChunkProvider() {
-		$changeOne = array(
-			'type' => 'wikibase-item~remove',
-			'time' => '20121026200049',
-			'object_id' => 'q42',
-			'revision_id' => '0',
-			'user_id' => '0',
-			'info' => '{"diff":{"type":"diff","isassoc":null,"operations":[]}}',
-		);
-
-		$changeTwo = array(
-			'type' => 'wikibase-item~remove',
-			'time' => '20151008161232',
-			'object_id' => 'q4662',
-			'revision_id' => '0',
-			'user_id' => '0',
-			'info' => '{"diff":{"type":"diff","isassoc":null,"operations":[]}}',
-		);
-
-		$changeThree = array(
-			'type' => 'wikibase-item~remove',
-			'time' => '20141008161232',
-			'object_id' => 'q123',
-			'revision_id' => '343',
-			'user_id' => '34',
-			'info' => '{"metadata":{"user_text":"BlackMagicIsEvil","bot":0,"page_id":2354,"rev_id":343,' .
-				'"parent_id":897,"comment":"Fake data!"}}',
-		);
-
-		$changeOne = new EntityChange( null, $changeOne, false );
-		$changeTwo = new EntityChange( null, $changeTwo, false );
-		$changeThree = new EntityChange( null, $changeThree, false );
+		list( $changeOne, $changeTwo, $changeThree ) = $this->getEntityChanges();
 
 		return array(
 			'Get one change' => array(
@@ -93,9 +63,10 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 			$this->markTestSkipped( "Skipping because WikibaseClient doesn't have a local wb_changes table." );
 		}
 
-		$databaseChangeTransmitter = new DatabaseChangeTransmitter( wfGetLB() );
+		$changeStore = new SqlChangeStore( wfGetLB() );
 		foreach ( $changesToStore as $change ) {
-			$databaseChangeTransmitter->transmitChange( $change );
+			$change->setField( 'id', null ); // Null the id as we save the same changes multiple times
+			$changeStore->saveChange( $change );
 		}
 		$start = $this->offsetStart( $start );
 
@@ -106,6 +77,72 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 
 		$changes = $lookup->loadChunk( $start, $size );
 
+		$this->assertChangesEqual( $expected, $changes, $start );
+	}
+
+	/**
+	 * @depends testLoadChunk
+	 */
+	public function testLoadByChangeIds() {
+		$start = $this->offsetStart( 3 );
+
+		$lookup = new ChangeLookup(
+			array( 'wikibase-item~remove' => 'Wikibase\EntityChange' ),
+			wfWikiID()
+		);
+
+		$changes = $lookup->loadByChangeIds( array( $start, $start + 1, $start + 4 ) );
+		list( $changeOne, $changeTwo, $changeThree ) = $this->getEntityChanges();
+
+		$this->assertChangesEqual(
+			array(
+				$changeOne, $changeTwo, $changeThree
+			),
+			$changes,
+			$start
+		);
+	}
+
+	public function testLoadByRevisionId() {
+		if ( !defined( 'WB_VERSION' ) ) {
+			$this->markTestSkipped( "Skipping because WikibaseClient doesn't have a local wb_changes table." );
+		}
+
+		list( $expected ) = $this->getEntityChanges();
+		$expected->setField( 'revision_id', 342342 );
+		$expected->setField( 'id', null ); // Null the id as we save the same changes multiple times
+
+		$changeStore = new SqlChangeStore( wfGetLB() );
+		$changeStore->saveChange( $expected );
+
+		$lookup = new ChangeLookup(
+			array( 'wikibase-item~remove' => 'Wikibase\EntityChange' ),
+			wfWikiID()
+		);
+
+		$change = $lookup->loadByRevisionId( 342342 );
+
+		$this->assertChangesEqual(
+			array( $expected ),
+			array( $change )
+		);
+	}
+
+	public function testLoadByRevisionId_notFound() {
+		if ( !defined( 'WB_VERSION' ) ) {
+			$this->markTestSkipped( "Skipping because WikibaseClient doesn't have a local wb_changes table." );
+		}
+
+		$lookup = new ChangeLookup(
+			array( 'wikibase-item~remove' => 'Wikibase\EntityChange' ),
+			wfWikiID()
+		);
+
+		$changes = $lookup->loadByRevisionId( PHP_INT_MAX );
+		$this->assertNull( $changes );
+	}
+
+	private function assertChangesEqual( array $expected, array $changes, $start = 0 ) {
 		$this->assertCount( count( $expected ), $changes );
 
 		$i = 0;
@@ -113,7 +150,7 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 			$expectedFields = $expected[$i]->getFields();
 			$actualFields = $change->getFields();
 
-			$this->assertEquals( $start + $i, $actualFields['id'] );
+			$this->assertGreaterThanOrEqual( $start, $actualFields['id'] );
 			unset( $expectedFields['id'] );
 			unset( $actualFields['id'] );
 
@@ -143,6 +180,42 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 		}
 
 		return $start;
+	}
+
+	private function getEntityChanges() {
+		$changeOne = array(
+			'type' => 'wikibase-item~remove',
+			'time' => '20121026200049',
+			'object_id' => 'q42',
+			'revision_id' => '0',
+			'user_id' => '0',
+			'info' => '{"diff":{"type":"diff","isassoc":null,"operations":[]}}',
+		);
+
+		$changeTwo = array(
+			'type' => 'wikibase-item~remove',
+			'time' => '20151008161232',
+			'object_id' => 'q4662',
+			'revision_id' => '0',
+			'user_id' => '0',
+			'info' => '{"diff":{"type":"diff","isassoc":null,"operations":[]}}',
+		);
+
+		$changeThree = array(
+			'type' => 'wikibase-item~remove',
+			'time' => '20141008161232',
+			'object_id' => 'q123',
+			'revision_id' => '343',
+			'user_id' => '34',
+			'info' => '{"metadata":{"user_text":"BlackMagicIsEvil","bot":0,"page_id":2354,"rev_id":343,' .
+				'"parent_id":897,"comment":"Fake data!"}}',
+		);
+
+		$changeOne = new EntityChange( $changeOne );
+		$changeTwo = new EntityChange( $changeTwo );
+		$changeThree = new EntityChange( $changeThree );
+
+		return array( $changeOne, $changeTwo, $changeThree );
 	}
 
 }

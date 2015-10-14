@@ -95,10 +95,15 @@ class TimeValueComparerTest extends DataValueComparerTestBase {
 				new TimeValue( '+11980-08-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g ),
 				new TimeValue( '+1980-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g )
 			),
-			'Other gigayear' => array(
+			'Other gigayear increasing' => array(
 				ComparisonResult::STATUS_MISMATCH,
 				new TimeValue( '+1000000000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR1G, $g ),
 				new TimeValue( '+2000000000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR1G, $g )
+			),
+			'Other gigayear decreasing' => array(
+				ComparisonResult::STATUS_MISMATCH,
+				new TimeValue( '+2000000000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR1G, $g ),
+				new TimeValue( '+1000000000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR1G, $g )
 			),
 			'Other decade with year precision' => array(
 				ComparisonResult::STATUS_MISMATCH,
@@ -130,11 +135,25 @@ class TimeValueComparerTest extends DataValueComparerTestBase {
 				new TimeValue( '+2001-01-01T01:01:01Z', 0, 0, 0, TimeValue::PRECISION_SECOND, $g ),
 				new TimeValue( '+2001-01-01T01:02:01Z', 0, 0, 0, TimeValue::PRECISION_SECOND, $g )
 			),
-			// FIXME: This is a bug!
-			'Can not compare 5+ digit years' => array(
+			'Other sign' => array(
 				ComparisonResult::STATUS_MISMATCH,
+				new TimeValue( '-2001-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g ),
+				new TimeValue( '+2001-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g )
+			),
+			'Plus/minus zero' => array(
+				ComparisonResult::STATUS_MATCH,
+				new TimeValue( '-0000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g ),
+				new TimeValue( '+0000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g )
+			),
+			'Same 5+ digit years' => array(
+				ComparisonResult::STATUS_MATCH,
 				new TimeValue( '+12345-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g ),
 				new TimeValue( '+12345-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $g )
+			),
+			'Same gigayear' => array(
+				ComparisonResult::STATUS_MATCH,
+				new TimeValue( '+1000010000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR1G, $g ),
+				new TimeValue( '+1000020000-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR1G, $g )
 			),
 		);
 	}

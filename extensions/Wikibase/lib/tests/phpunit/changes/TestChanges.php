@@ -3,7 +3,6 @@
 namespace Wikibase\Test;
 
 use Wikibase\ChangeRow;
-use Wikibase\ChangesTable;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
@@ -59,9 +58,6 @@ final class TestChanges {
 	 * @return EntityChangeFactory
 	 */
 	public static function getEntityChangeFactory() {
-		// NOTE: always use a local changes table for testing!
-		$changesDatabase = false;
-
 		$entityClasses = array(
 			Item::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Item',
 			Property::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Property',
@@ -72,7 +68,6 @@ final class TestChanges {
 		);
 
 		$factory = new EntityChangeFactory(
-			new ChangesTable( $changesDatabase ),
 			new EntityFactory( $entityClasses ),
 			new EntityDiffer(),
 			$changeClasses

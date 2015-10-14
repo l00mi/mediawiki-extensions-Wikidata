@@ -9,7 +9,6 @@ use Html;
 use HTMLForm;
 use Linker;
 use SpecialPage;
-use Traversable;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -24,12 +23,11 @@ use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Repo\EntityIdLabelFormatterFactory;
 use Wikibase\Repo\WikibaseRepo;
 use WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor;
-use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
@@ -69,7 +67,7 @@ class SpecialCrossCheck extends SpecialPage {
 
 	/**
 	 * Creates new instance from global state.
-	 * @return SpecialCrossCheck
+	 * @return self
 	 */
 	public static function newFromGlobalState() {
 		$repo = WikibaseRepo::getDefaultInstance();
@@ -88,11 +86,12 @@ class SpecialCrossCheck extends SpecialPage {
 
 	/**
 	 * @param EntityLookup $entityLookup
+	 * @param TermLookup $termLookup
+	 * @param EntityIdLabelFormatterFactory $entityIdLabelFormatterFactory
+	 * @param EntityIdHtmlLinkFormatterFactory $entityIdHtmlLinkFormatterFactory
 	 * @param EntityIdParser $entityIdParser
 	 * @param OutputFormatValueFormatterFactory $valueFormatterFactory
-	 * @param TermLookup $termLookup
-	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param CrossCheckInteractor $checkInteractor
+	 * @param CrossCheckInteractor $crossCheckInteractor
 	 */
 	public function __construct(
 		EntityLookup $entityLookup,
@@ -103,16 +102,16 @@ class SpecialCrossCheck extends SpecialPage {
 		OutputFormatValueFormatterFactory $valueFormatterFactory,
 		CrossCheckInteractor $crossCheckInteractor
 	) {
-		parent::__construct('CrossCheck');
+		parent::__construct( 'CrossCheck' );
 
 		$this->entityLookup = $entityLookup;
 		$this->entityIdParser = $entityIdParser;
 
 		$formatterOptions = new FormatterOptions();
-		$formatterOptions->setOption(SnakFormatter::OPT_LANG, $this->getLanguage()->getCode());
-		$this->dataValueFormatter = $valueFormatterFactory->getValueFormatter(SnakFormatter::FORMAT_HTML, $formatterOptions);
+		$formatterOptions->setOption( SnakFormatter::OPT_LANG, $this->getLanguage()->getCode() );
+		$this->dataValueFormatter = $valueFormatterFactory->getValueFormatter( SnakFormatter::FORMAT_HTML, $formatterOptions );
 
-		$labelLookup = new LanguageLabelDescriptionLookup($termLookup, $this->getLanguage()->getCode());
+		$labelLookup = new LanguageLabelDescriptionLookup( $termLookup, $this->getLanguage()->getCode() );
 		$this->entityIdLabelFormatter = $entityIdLabelFormatterFactory->getEntityIdFormatter( $labelLookup );
 		$this->entityIdLinkFormatter = $entityIdHtmlLinkFormatterFactory->getEntityIdFormatter( $labelLookup );
 
@@ -134,7 +133,7 @@ class SpecialCrossCheck extends SpecialPage {
 	 * @return string (plain text)
 	 */
 	public function getDescription() {
-		return $this->msg('wbqev-crosscheck')->text();
+		return $this->msg( 'wbqev-crosscheck' )->text();
 	}
 
 	/**
@@ -148,65 +147,68 @@ class SpecialCrossCheck extends SpecialPage {
 	 */
 	public function execute( $subPage ) {
 		$out = $this->getOutput();
-		$postRequest = $this->getContext()->getRequest()->getVal('entityid');
-		if ($postRequest) {
-			$out->redirect($this->getPageTitle(strtoupper($postRequest))->getLocalURL());
+		$postRequest = $this->getContext()->getRequest()->getVal( 'entityid' );
+		if ( $postRequest ) {
+			$out->redirect( $this->getPageTitle( strtoupper( $postRequest ) )->getLocalURL() );
 			return;
 		}
 
-		$out->addModules('SpecialCrossCheckPage');
+		$out->addModules( 'SpecialCrossCheckPage' );
 
 		$this->setHeaders();
 
-		$out->addHTML($this->buildInfoBox());
+		$out->addHTML( $this->buildInfoBox() );
 		$this->buildEntityIdForm();
 
-		if ($subPage) {
-			try {
-				$entityId = $this->entityIdParser->parse($subPage);
-				$entity = $this->entityLookup->getEntity($entityId);
-			} catch (EntityIdParsingException $e) {
-				$out->addHTML(
-					$this->buildNotice('wbqev-crosscheck-invalid-entity-id', true)
-				);
-				return;
-			}
+		if ( $subPage ) {
+			$this->buildResult( $subPage );
+		}
+	}
 
-			if ( $entity === null ) {
-				$out->addHTML(
-					$this->buildNotice('wbqev-crosscheck-not-existent-entity', true)
-				);
-				return;
-			}
+	/**
+	 * @param string $idSerialization
+	 */
+	private function buildResult( $idSerialization ) {
+		$out = $this->getOutput();
 
-			$results = $this->getCrossCheckResultsFromEntity( $entity );
+		try {
+			$entityId = $this->entityIdParser->parse( $idSerialization );
+		} catch ( EntityIdParsingException $ex ) {
+			$out->addHTML( $this->buildNotice( 'wbqev-crosscheck-invalid-entity-id', true ) );
+			return;
+		}
 
-			if ( count($results) > 0 ) {
-				$out->addHTML(
-					$this->buildResultHeader($entityId)
-					. $this->buildSummary($results)
-					. $this->buildResultTable($results)
-				);
-			} else {
-				$out->addHTML(
-					$this->buildResultHeader($entityId)
-					. $this->buildNotice('wbqev-crosscheck-empty-result')
-				);
-			}
+		$out->addHTML( $this->buildResultHeader( $entityId ) );
+
+		$entity = $this->entityLookup->getEntity( $entityId );
+		if ( $entity === null ) {
+			$out->addHTML( $this->buildNotice( 'wbqev-crosscheck-not-existent-entity', true ) );
+			return;
+		}
+
+		$results = $this->getCrossCheckResultsFromEntity( $entity );
+
+		if ( $results === null || $results->toArray() === array() ) {
+			$out->addHTML( $this->buildNotice( 'wbqev-crosscheck-empty-result' ) );
+		} else {
+			$out->addHTML(
+				$this->buildSummary( $results )
+				. $this->buildResultTable( $results )
+			);
 		}
 	}
 
 	/**
 	 * @param EntityDocument $entity
 	 *
-	 * @return CrossCheckResultList
+	 * @return CrossCheckResultList|null
 	 */
 	private function getCrossCheckResultsFromEntity( EntityDocument $entity ) {
 		if ( $entity instanceof StatementListProvider ) {
 			return $this->crossCheckInteractor->crossCheckStatementList( $entity->getStatements() );
 		}
 
-		return new CrossCheckResultList();
+		return null;
 	}
 
 	/**
@@ -220,15 +222,15 @@ class SpecialCrossCheck extends SpecialPage {
 				'name' => 'entityid',
 				'label-message' => 'wbqev-crosscheck-form-entityid-label',
 				'cssclass' => 'wbqev-crosscheck-form-entity-id',
-				'placeholder' => $this->msg('wbqev-crosscheck-form-entityid-placeholder')->escaped()
+				'placeholder' => $this->msg( 'wbqev-crosscheck-form-entityid-placeholder' )->escaped()
 			)
 		);
-		$htmlForm = new HTMLForm($formDescriptor, $this->getContext(), 'wbqev-crosscheck-form');
-		$htmlForm->setSubmitText($this->msg('wbqev-crosscheck-form-submit-label')->escaped());
-		$htmlForm->setSubmitCallback(function () {
+		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'wbqev-crosscheck-form' );
+		$htmlForm->setSubmitText( $this->msg( 'wbqev-crosscheck-form-submit-label' )->escaped() );
+		$htmlForm->setSubmitCallback( function() {
 			return false;
-		});
-		$htmlForm->setMethod('post');
+		} );
+		$htmlForm->setMethod( 'post' );
 		$htmlForm->show();
 	}
 
@@ -238,11 +240,11 @@ class SpecialCrossCheck extends SpecialPage {
 	 * @return string HTML
 	 */
 	private function buildInfoBox() {
-		$externalDbLink = Linker::specialLink('ExternalDbs', 'wbqev-externaldbs');
+		$externalDbLink = Linker::specialLink( 'ExternalDbs', 'wbqev-externaldbs' );
 		$infoBox =
 			Html::openElement(
 				'div',
-				array('class' => 'wbqev-infobox')
+				array( 'class' => 'wbqev-infobox' )
 			)
 			. $this->msg( 'wbqev-crosscheck-explanation-general' )->parse()
 			. sprintf( ' %s.', $externalDbLink )
@@ -266,16 +268,14 @@ class SpecialCrossCheck extends SpecialPage {
 	 */
 	private function buildNotice( $messageKey, $error = false ) {
 		$cssClasses = 'wbqev-crosscheck-notice';
-		if ($error) {
+		if ( $error ) {
 			$cssClasses .= ' wbqev-crosscheck-notice-error';
 		}
 
 		return
 			Html::element(
 				'p',
-				array(
-					'class' => $cssClasses
-				),
+				array( 'class' => $cssClasses ),
 				$this->msg( $messageKey )->text()
 			);
 	}
@@ -288,30 +288,32 @@ class SpecialCrossCheck extends SpecialPage {
 	 * @return string HTML
 	 */
 	private function buildResultHeader( EntityId $entityId ) {
-		$entityLink = sprintf('%s (%s)',
-			$this->entityIdLinkFormatter->formatEntityId($entityId),
-			htmlspecialchars($entityId->getSerialization()));
+		$entityLink = sprintf(
+			'%s (%s)',
+			$this->entityIdLinkFormatter->formatEntityId( $entityId ),
+			htmlspecialchars( $entityId->getSerialization() )
+		);
 
 		return
 			Html::rawElement(
 				'h3',
 				array(),
-				sprintf('%s %s', $this->msg('wbqev-crosscheck-result-headline')->escaped(), $entityLink)
+				sprintf( '%s %s', $this->msg( 'wbqev-crosscheck-result-headline' )->escaped(), $entityLink )
 			);
 	}
 
 	/**
 	 * Builds summary from given results
 	 *
-	 * @param CrossCheckResultList $results
+	 * @param CrossCheckResult[] $results
 	 *
 	 * @return string HTML
 	 */
 	private function buildSummary( $results ) {
 		$statuses = array();
-		foreach ($results as $result) {
-			$status = strtolower($result->getComparisonResult()->getStatus());
-			if (array_key_exists($status, $statuses)) {
+		foreach ( $results as $result ) {
+			$status = strtolower( $result->getComparisonResult()->getStatus() );
+			if ( array_key_exists( $status, $statuses ) ) {
 				$statuses[$status]++;
 			} else {
 				$statuses[$status] = 1;
@@ -319,18 +321,15 @@ class SpecialCrossCheck extends SpecialPage {
 		}
 
 		$statusElements = array();
-		foreach ($statuses as $status => $count) {
-			if ($count > 0) {
-				$statusElements[] =
-					$this->formatStatus($status)
-					. ': '
-					. $count;
+		foreach ( $statuses as $status => $count ) {
+			if ( $count > 0 ) {
+				$statusElements[] = $this->formatStatus( $status ) . ': ' . $count;
 			}
 		}
 		$summary =
-			Html::openElement('p')
-			. implode(', ', $statusElements)
-			. Html::closeElement('p');
+			Html::openElement( 'p' )
+			. implode( ', ', $statusElements )
+			. Html::closeElement( 'p' );
 
 		return $summary;
 	}
@@ -345,7 +344,7 @@ class SpecialCrossCheck extends SpecialPage {
 	 * @return string HTML
 	 */
 	private function formatStatus( $status ) {
-		$messageKey = "wbqev-crosscheck-status-" . strtolower( $status );
+		$messageKey = 'wbqev-crosscheck-status-' . strtolower( $status );
 
 		$formattedStatus =
 			Html::element(
@@ -376,19 +375,19 @@ class SpecialCrossCheck extends SpecialPage {
 		}
 
 		$formattedDataValues = array();
-		foreach ($dataValues as $dataValue) {
-			if ($dataValue instanceof EntityIdValue) {
-				if ($linking) {
-					$formattedDataValues[] = $this->entityIdLinkFormatter->formatEntityId($dataValue->getEntityId());
+		foreach ( $dataValues as $dataValue ) {
+			if ( $dataValue instanceof EntityIdValue ) {
+				if ( $linking ) {
+					$formattedDataValues[] = $this->entityIdLinkFormatter->formatEntityId( $dataValue->getEntityId() );
 				} else {
-					$formattedDataValues[] = $this->entityIdLabelFormatter->formatEntityId($dataValue->getEntityId());
+					$formattedDataValues[] = $this->entityIdLabelFormatter->formatEntityId( $dataValue->getEntityId() );
 				}
 			} else {
-				$formattedDataValues[] = $this->dataValueFormatter->format($dataValue);
+				$formattedDataValues[] = $this->dataValueFormatter->format( $dataValue );
 			}
 		}
 
-		if( $separator ) {
+		if ( $separator ) {
 			return implode( $separator, $formattedDataValues );
 		}
 
@@ -396,7 +395,7 @@ class SpecialCrossCheck extends SpecialPage {
 	}
 
 	/**
-	 * @param Traversable $results
+	 * @param CrossCheckResult[] $results
 	 *
 	 * @return string HTML
 	 */
@@ -404,27 +403,28 @@ class SpecialCrossCheck extends SpecialPage {
 		$table = new HtmlTableBuilder(
 			array(
 				new HtmlTableHeaderBuilder(
-					$this->msg('wbqev-crosscheck-result-table-header-status')->escaped(),
+					$this->msg( 'wbqev-crosscheck-result-table-header-status' )->escaped(),
 					true
 				),
 				new HtmlTableHeaderBuilder(
-					$this->msg('datatypes-type-wikibase-property')->escaped(),
+					$this->msg( 'datatypes-type-wikibase-property' )->escaped(),
 					true
 				),
 				new HtmlTableHeaderBuilder(
-					$this->msg('wbqev-crosscheck-result-table-header-local-value')->escaped()
+					$this->msg( 'wbqev-crosscheck-result-table-header-local-value' )->escaped()
 				),
 				new HtmlTableHeaderBuilder(
-					$this->msg('wbqev-crosscheck-result-table-header-external-value')->escaped()
+					$this->msg( 'wbqev-crosscheck-result-table-header-external-value' )->escaped()
 				),
 				new HtmlTableHeaderBuilder(
-					$this->msg('wbqev-crosscheck-result-table-header-references')->escaped(),
+					$this->msg( 'wbqev-crosscheck-result-table-header-references' )->escaped(),
 					true
 				),
 				new HtmlTableHeaderBuilder(
 					Linker::linkKnown(
 						self::getTitleFor( 'ExternalDbs' ),
-						$this->msg( 'wbqev-crosscheck-result-table-header-external-source' )->escaped() ),
+						$this->msg( 'wbqev-crosscheck-result-table-header-external-source' )->escaped()
+					),
 					true,
 					true
 				)
@@ -436,8 +436,14 @@ class SpecialCrossCheck extends SpecialPage {
 			$status = $this->formatStatus( $result->getComparisonResult()->getStatus() );
 			$propertyId = $this->entityIdLinkFormatter->formatEntityId( $result->getPropertyId() );
 			$localValue = $this->formatDataValues( $result->getComparisonResult()->getLocalValue() );
-			$externalValue = $this->formatDataValues( $result->getComparisonResult()->getExternalValues(), true, Html::element( 'br' ) );
-			$referenceStatus = $this->msg( "wbqev-crosscheck-status-" . $result->getReferenceResult()->getStatus() )->text();
+			$externalValue = $this->formatDataValues(
+				$result->getComparisonResult()->getExternalValues(),
+				true,
+				Html::element( 'br' )
+			);
+			$referenceStatus = $this->msg(
+				'wbqev-crosscheck-status-' . $result->getReferenceResult()->getStatus()
+			)->text();
 			$dataSource = $this->entityIdLinkFormatter->formatEntityId( $result->getDumpMetaInformation()->getSourceItemId() );
 
 			$table->appendRow(

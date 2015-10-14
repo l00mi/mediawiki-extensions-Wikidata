@@ -3,9 +3,17 @@
 namespace Wikibase;
 
 use ParserOptions;
-use Wikibase\DataModel\Services\DataValue\ValuesFinder;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\PropertyDataTypeMatcher;
+use Wikibase\Repo\DataUpdates\EntityParserOutputDataUpdater;
+use Wikibase\Repo\DataUpdates\ExternalLinksDataUpdate;
+use Wikibase\Repo\DataUpdates\GeoDataDataUpdate;
+use Wikibase\Repo\DataUpdates\ImageLinksDataUpdate;
+use Wikibase\Repo\DataUpdates\ParserOutputDataUpdate;
+use Wikibase\Repo\DataUpdates\ReferencedEntitiesDataUpdate;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\View\EntityViewFactory;
 use Wikibase\View\Template\TemplateFactory;
@@ -39,16 +47,6 @@ class EntityParserOutputGeneratorFactory {
 	private $entityTitleLookup;
 
 	/**
-	 * @var ValuesFinder
-	 */
-	private $valuesFinder;
-
-	/**
-	 * @var ReferencedEntitiesFinder
-	 */
-	private $referencedEntitiesFinder;
-
-	/**
 	 * @var LanguageFallbackChainFactory
 	 */
 	private $languageFallbackChainFactory;
@@ -58,24 +56,41 @@ class EntityParserOutputGeneratorFactory {
 	 */
 	private $entityDataFormatProvider;
 
+	/**
+	 * @var PropertyDataTypeLookup
+	 */
+	private $propertyDataTypeLookup;
+
+	/**
+	 * @var EntityIdParser
+	 */
+	private $externalEntityIdParser;
+
+	/**
+	 * @var string[]
+	 */
+	private $preferredGeoDataProperties;
+
 	public function __construct(
 		EntityViewFactory $entityViewFactory,
 		EntityInfoBuilderFactory $entityInfoBuilderFactory,
 		EntityTitleLookup $entityTitleLookup,
-		ValuesFinder $valuesFinder,
 		LanguageFallbackChainFactory $languageFallbackChainFactory,
-		ReferencedEntitiesFinder $referencedEntitiesFinder,
 		TemplateFactory $templateFactory,
-		EntityDataFormatProvider $entityDataFormatProvider
+		EntityDataFormatProvider $entityDataFormatProvider,
+		PropertyDataTypeLookup $propertyDataTypeLookup,
+		EntityIdParser $externalEntityIdParser,
+		array $preferredGeoDataProperties
 	) {
 		$this->entityViewFactory = $entityViewFactory;
 		$this->entityInfoBuilderFactory = $entityInfoBuilderFactory;
 		$this->entityTitleLookup = $entityTitleLookup;
-		$this->valuesFinder = $valuesFinder;
 		$this->languageFallbackChainFactory = $languageFallbackChainFactory;
-		$this->referencedEntitiesFinder = $referencedEntitiesFinder;
 		$this->templateFactory = $templateFactory;
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
+		$this->propertyDataTypeLookup = $propertyDataTypeLookup;
+		$this->externalEntityIdParser = $externalEntityIdParser;
+		$this->preferredGeoDataProperties = $preferredGeoDataProperties;
 	}
 
 	/**
@@ -92,13 +107,12 @@ class EntityParserOutputGeneratorFactory {
 			$this->entityViewFactory,
 			$this->newParserOutputJsConfigBuilder(),
 			$this->entityTitleLookup,
-			$this->valuesFinder,
 			$this->entityInfoBuilderFactory,
 			$this->getLanguageFallbackChain( $languageCode ),
-			$languageCode,
-			$this->referencedEntitiesFinder,
 			$this->templateFactory,
-			$this->entityDataFormatProvider
+			$this->entityDataFormatProvider,
+			new EntityParserOutputDataUpdater( $this->getDataUpdates() ),
+			$languageCode
 		);
 	}
 
@@ -120,6 +134,31 @@ class EntityParserOutputGeneratorFactory {
 		return $this->languageFallbackChainFactory->newFromLanguageCode(
 			$languageCode
 		);
+	}
+
+	/**
+	 * @return ParserOutputDataUpdate[]
+	 */
+	private function getDataUpdates() {
+		$propertyDataTypeMatcher = new PropertyDataTypeMatcher( $this->propertyDataTypeLookup );
+
+		$dataUpdates = array(
+			new ReferencedEntitiesDataUpdate(
+				$this->entityTitleLookup,
+				$this->externalEntityIdParser
+			),
+			new ExternalLinksDataUpdate( $propertyDataTypeMatcher ),
+			new ImageLinksDataUpdate( $propertyDataTypeMatcher )
+		);
+
+		if ( class_exists( 'GeoData' ) ) {
+			$dataUpdates[] = new GeoDataDataUpdate(
+				$propertyDataTypeMatcher,
+				$this->preferredGeoDataProperties
+			);
+		}
+
+		return $dataUpdates;
 	}
 
 }
