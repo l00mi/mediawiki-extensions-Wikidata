@@ -122,9 +122,9 @@ class RunCrossCheck extends ApiBase {
 				$resultLists = $this->crossCheckInteractor->crossCheckEntitiesByIds( $entityIds );
 			}
 		} elseif ( $params['claims'] ) {
-			$claimGuids = $params['claims'];
-			$this->assertAreValidClaimGuids( $claimGuids );
-			$resultLists = $this->crossCheckInteractor->crossCheckStatements( $claimGuids );
+			$guids = $params['claims'];
+			$this->assertAreValidClaimGuids( $guids );
+			$resultLists = $this->crossCheckInteractor->crossCheckStatementsByGuids( $guids );
 		} else {
 			$this->errorReporter->dieError(
 				'Either provide the ids of entities or ids of claims, that should be cross-checked.',
@@ -149,11 +149,11 @@ class RunCrossCheck extends ApiBase {
 	}
 
 	/**
-	 * @param array $claimGuids
+	 * @param string[] $guids
 	 */
-	private function assertAreValidClaimGuids( array $claimGuids ) {
-		foreach ( $claimGuids as $claimGuid ) {
-			if ( $this->statementGuidValidator->validateFormat( $claimGuid ) === false ) {
+	private function assertAreValidClaimGuids( array $guids ) {
+		foreach ( $guids as $guid ) {
+			if ( $this->statementGuidValidator->validateFormat( $guid ) === false ) {
 				$this->errorReporter->dieError( 'Invalid claim guid.', 'invalid-guid' );
 			}
 		}

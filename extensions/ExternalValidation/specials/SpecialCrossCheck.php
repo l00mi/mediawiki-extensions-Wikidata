@@ -205,7 +205,7 @@ class SpecialCrossCheck extends SpecialPage {
 	 */
 	private function getCrossCheckResultsFromEntity( EntityDocument $entity ) {
 		if ( $entity instanceof StatementListProvider ) {
-			return $this->crossCheckInteractor->crossCheckStatementList( $entity->getStatements() );
+			return $this->crossCheckInteractor->crossCheckStatements( $entity->getStatements() );
 		}
 
 		return null;

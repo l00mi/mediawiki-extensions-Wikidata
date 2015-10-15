@@ -50,27 +50,26 @@ class ExternalLinksDataUpdateTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider externalLinksProvider
 	 */
-	public function testGetExternalLinks( StatementList $statements, array $expected ) {
-		$instance = $this->newInstance();
-		$actual = $instance->getExternalLinks( $statements );
-		$this->assertSame( $expected, $actual );
-	}
-
-	/**
-	 * @dataProvider externalLinksProvider
-	 */
 	public function testUpdateParserOutput( StatementList $statements, array $expected ) {
+		$actual = array();
+
 		$parserOutput = $this->getMockBuilder( 'ParserOutput' )
 			->disableOriginalConstructor()
 			->getMock();
 		$parserOutput->expects( $this->exactly( count( $expected ) ) )
-			->method( 'addExternalLink' );
+			->method( 'addExternalLink' )
+			->will( $this->returnCallback( function( $url ) use ( &$actual ) {
+				$actual[] = $url;
+			} ) );
 
 		$instance = $this->newInstance();
+
 		foreach ( $statements as $statement ) {
 			$instance->processStatement( $statement );
 		}
+
 		$instance->updateParserOutput( $parserOutput );
+		$this->assertSame( $expected, $actual );
 	}
 
 	public function externalLinksProvider() {

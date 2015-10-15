@@ -84,7 +84,9 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 	 * Gets DumpMetaInformation for specific identifier properties from database
 	 * Returns array in the form 'dumpId' => DumpMetaInformation
 	 *
-	 * @param array $identifierPropertyIds
+	 * @param PropertyId[] $identifierPropertyIds
+	 *
+	 * @throws InvalidArgumentException
 	 * @return DumpMetaInformation[]
 	 */
 	public function getWithIdentifierProperties( array $identifierPropertyIds ) {

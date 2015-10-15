@@ -13,7 +13,7 @@ use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\Lib\SnakFormatter;
 
 /**
- * @covers Wikibase\Lib\Store\UsageTrackingSnakFormatter
+ * @covers Wikibase\Client\Usage\UsageTrackingSnakFormatter
  *
  * @group Wikibase
  * @group WikibaseClient
@@ -25,6 +25,9 @@ use Wikibase\Lib\SnakFormatter;
 class UsageTrackingSnakFormatterTest extends \MediaWikiTestCase {
 
 	/**
+	 * @param string $method
+	 * @param string $return
+	 *
 	 * @return SnakFormatter
 	 */
 	private function getMockSnakFormatter( $method, $return ) {

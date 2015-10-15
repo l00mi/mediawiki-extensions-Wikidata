@@ -23,18 +23,18 @@ class CrossCheckResultTest extends \MediaWikiTestCase {
 
 		// Create test data
 		$propertyId = new PropertyId( 'P42' );
-		$claimGuid = 'Q42$fccafc70-07a0-4e82-807f-288a4b21c13c';
+		$guid = 'Q42$fccafc70-07a0-4e82-807f-288a4b21c13c';
 		$externalId = 'foobar';
 		$dumpMetaInformation = $this->getDumpMetaInformationMock();
 		$comparisonResult = $this->getComparisonResultMock();
 		$referenceResult = $this->getReferenceResultMock();
 
 		// Create instance
-		$crossCheckResult = new CrossCheckResult( $propertyId, $claimGuid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult );
+		$crossCheckResult = new CrossCheckResult( $propertyId, $guid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult );
 
 		// Run assertions
 		$this->assertEquals( $propertyId, $crossCheckResult->getPropertyId() );
-		$this->assertEquals( $claimGuid, $crossCheckResult->getClaimGuid() );
+		$this->assertEquals( $guid, $crossCheckResult->getClaimGuid() );
 		$this->assertEquals( $externalId, $crossCheckResult->getExternalId() );
 		$this->assertEquals( $dumpMetaInformation, $crossCheckResult->getDumpMetaInformation() );
 		$this->assertEquals( $comparisonResult, $crossCheckResult->getComparisonResult() );
@@ -44,10 +44,10 @@ class CrossCheckResultTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider constructInvalidArgumentsDataProvider
 	 */
-	public function testConstructInvalidArguments( $propertyId, $claimGuid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult ) {
+	public function testConstructInvalidArguments( $propertyId, $guid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult ) {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
-		new CrossCheckResult( $propertyId, $claimGuid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult );
+		new CrossCheckResult( $propertyId, $guid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult );
 	}
 
 	/**

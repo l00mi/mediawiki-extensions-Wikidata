@@ -7,7 +7,6 @@ use ParserOutput;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\Lib\Store\PropertyDataTypeMatcher;
 
 /**
@@ -38,21 +37,6 @@ class ExternalLinksDataUpdate implements StatementDataUpdate {
 	 */
 	public function __construct( PropertyDataTypeMatcher $propertyDataTypeMatcher ) {
 		$this->propertyDataTypeMatcher = $propertyDataTypeMatcher;
-	}
-
-	/**
-	 * @param StatementList $statements
-	 *
-	 * @return string[]
-	 */
-	public function getExternalLinks( StatementList $statements ) {
-		$this->urls = array();
-
-		foreach ( $statements as $statement ) {
-			$this->processStatement( $statement );
-		}
-
-		return array_keys( $this->urls );
 	}
 
 	/**

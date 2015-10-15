@@ -19,8 +19,8 @@ class ExternalDataRepo {
 	 * Gets external data for specified properties from database that matches any
 	 * combination of given dump and external ids
 	 *
-	 * @param array $dumpIds
-	 * @param array $externalIds
+	 * @param string[] $dumpIds
+	 * @param string[] $externalIds
 	 * @param PropertyId[] $propertyIds
 	 * @return array
 	 */

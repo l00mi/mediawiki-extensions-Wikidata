@@ -94,27 +94,27 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 
 			$dataValue = new EntityIdValue( new ItemId( IDENTIFIER_PROPERTY_QID ) );
 			$snak = new PropertyValueSnak( new PropertyId( INSTANCE_OF_PID ), $dataValue );
-			$claimGuid = self::$idMap['P3']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			$propertyP3->getStatements()->addNewStatement( $snak, null, null, $claimGuid );
+			$guid = self::$idMap['P3']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$propertyP3->getStatements()->addNewStatement( $snak, null, null, $guid );
 			$store->saveEntity( $propertyP3, 'TestEntityP3',  $GLOBALS['wgUser'], EDIT_UPDATE );
 
 			$dataValue = new StringValue( 'foo' );
 			$snak = new PropertyValueSnak( self::$idMap['P1'], $dataValue );
-			$claimGuid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			self::$claimGuids['P1'] = $claimGuid;
-			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $claimGuid );
+			$guid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			self::$claimGuids['P1'] = $guid;
+			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $guid );
 
 			$dataValue = new StringValue( 'baz' );
 			$snak = new PropertyValueSnak( self::$idMap['P2'], $dataValue );
-			$claimGuid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			self::$claimGuids['P2'] = $claimGuid;
-			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $claimGuid );
+			$guid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			self::$claimGuids['P2'] = $guid;
+			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $guid );
 
 			$dataValue = new StringValue( '1234' );
 			$snak = new PropertyValueSnak( self::$idMap['P3'], $dataValue );
-			$claimGuid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			self::$claimGuids['P3'] = $claimGuid;
-			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $claimGuid );
+			$guid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			self::$claimGuids['P3'] = $guid;
+			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $guid );
 
 			$store->saveEntity( $itemQ1, 'TestEntityQ1', $GLOBALS['wgUser'], EDIT_UPDATE );
 

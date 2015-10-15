@@ -121,8 +121,8 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 
 			$dataValue = new EntityIdValue(new ItemId(IDENTIFIER_PROPERTY_QID));
 			$snak = new PropertyValueSnak(new PropertyId(INSTANCE_OF_PID), $dataValue);
-			$claimGuid = self::$idMap['P3']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			$propertyP3->getStatements()->addNewStatement($snak, null, null, $claimGuid);
+			$guid = self::$idMap['P3']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$propertyP3->getStatements()->addNewStatement($snak, null, null, $guid);
 			$store->saveEntity($propertyP3, 'TestEntityP3', $GLOBALS['wgUser'], EDIT_UPDATE);
 
 			$dataValue = new StringValue('foo');

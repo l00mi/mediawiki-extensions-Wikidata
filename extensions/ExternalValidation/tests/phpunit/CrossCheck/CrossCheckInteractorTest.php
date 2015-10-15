@@ -47,7 +47,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		parent::setUp();
 
 		$entityLookup = new JsonFileEntityLookup( __DIR__ . '/testdata' );
-		$claimGuidParser = new StatementGuidParser( new BasicEntityIdParser() );
+		$guidParser = new StatementGuidParser( new BasicEntityIdParser() );
 		$crossChecker = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker' )
 			->disableOriginalConstructor()
 			->setMethods( array( 'crossCheckStatements' ) )
@@ -64,7 +64,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 					);
 				}
 			) );
-		$this->crossCheckInteractor = new CrossCheckInteractor( $entityLookup, $claimGuidParser, $crossChecker );
+		$this->crossCheckInteractor = new CrossCheckInteractor( $entityLookup, $guidParser, $crossChecker );
 	}
 
 	public function tearDown() {
@@ -179,7 +179,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	 * @dataProvider crossCheckEntityDataProvider
 	 */
 	public function testCrossCheckEntity( StatementList $statements, array $expectedResult ) {
-		$actualResult = $this->crossCheckInteractor->crossCheckStatementList( $statements );
+		$actualResult = $this->crossCheckInteractor->crossCheckStatements( $statements );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}
@@ -604,7 +604,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	 * @dataProvider crossCheckClaimDataProvider
 	 */
 	public function testCrossCheckClaim(
-		$claimGuid,
+		$guid,
 		array $expectedResult = null,
 		$expectedException = null
 	) {
@@ -612,7 +612,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 			$this->setExpectedException( $expectedException );
 		}
 
-		$actualResult = $this->crossCheckInteractor->crossCheckStatement( $claimGuid );
+		$actualResult = $this->crossCheckInteractor->crossCheckStatementByGuid( $guid );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}
@@ -647,7 +647,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	 * @dataProvider crossCheckClaimsDataProvider
 	 */
 	public function testCrossCheckClaims(
-		array $claimGuids,
+		array $guids,
 		array $expectedResult = null,
 		$expectedException = null
 	) {
@@ -655,7 +655,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 			$this->setExpectedException( $expectedException );
 		}
 
-		$actualResult = $this->crossCheckInteractor->crossCheckStatements( $claimGuids );
+		$actualResult = $this->crossCheckInteractor->crossCheckStatementsByGuids( $guids );
 
 		$this->runAssertions( $expectedResult, $actualResult );
 	}

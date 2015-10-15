@@ -60,7 +60,7 @@ class CrossCheckInteractor {
 		$entity = $this->entityLookup->getEntity( $entityId );
 
 		if ( $entity instanceof StatementListProvider ) {
-			return $this->crossCheckStatementList( $entity->getStatements() );
+			return $this->crossCheckStatements( $entity->getStatements() );
 		}
 
 		return null;
@@ -91,7 +91,7 @@ class CrossCheckInteractor {
 	 *
 	 * @return CrossCheckResultList
 	 */
-	public function crossCheckStatementList( StatementList $statements ) {
+	public function crossCheckStatements( StatementList $statements ) {
 		return $this->crossChecker->crossCheckStatements( $statements, $statements );
 	}
 
@@ -110,7 +110,7 @@ class CrossCheckInteractor {
 		foreach ( $entities as $entity ) {
 			$entityId = $entity->getId()->getSerialization();
 			if ( $entity instanceof StatementListProvider ) {
-				$results[$entityId] = $this->crossCheckStatementList( $entity->getStatements() );
+				$results[$entityId] = $this->crossCheckStatements( $entity->getStatements() );
 			}
 		}
 
@@ -211,16 +211,15 @@ class CrossCheckInteractor {
 	/**
 	 * Runs cross-check for a single statement.
 	 *
-	 * @param string $statementGuid
+	 * @param string $guid
 	 *
-	 * @param string $claimGuid
 	 * @return CrossCheckResultList
 	 * @throws InvalidArgumentException
 	 */
-	public function crossCheckStatement( $statementGuid ) {
-		$this->assertIsString( $statementGuid, '$claimGuid' );
+	public function crossCheckStatementByGuid( $guid ) {
+		$this->assertIsString( $guid, '$guid' );
 
-		$resultList = $this->crossCheckStatements( array( $statementGuid ) );
+		$resultList = $this->crossCheckStatementsByGuids( array( $guid ) );
 
 		return reset( $resultList );
 	}
@@ -228,26 +227,26 @@ class CrossCheckInteractor {
 	/**
 	 * Runs cross-check for multiple statements.
 	 *
-	 * @param string[] $statementGuids
+	 * @param string[] $guids
 	 *
 	 * @return CrossCheckResultList[]
 	 * @throws InvalidArgumentException
 	 */
-	public function crossCheckStatements( array $statementGuids ) {
-		$this->assertIsArrayOfStrings( $statementGuids, '$claimGuids' );
+	public function crossCheckStatementsByGuids( array $guids ) {
+		$this->assertIsArrayOfStrings( $guids, '$guids' );
 
 		$entityIds = array();
 		$groupedStatementGuids = array();
-		foreach ( $statementGuids as $statementGuid ) {
-			$serializedEntityId = $this->statementGuidParser->parse( $statementGuid )->getEntityId();
+		foreach ( $guids as $guid ) {
+			$serializedEntityId = $this->statementGuidParser->parse( $guid )->getEntityId();
 			$entityIds[$serializedEntityId->getSerialization()] = $serializedEntityId;
-			$groupedStatementGuids[$serializedEntityId->getSerialization()][] = $statementGuid;
+			$groupedStatementGuids[$serializedEntityId->getSerialization()][] = $guid;
 		}
 
 		$resultLists = array();
-		foreach ( $groupedStatementGuids as $serializedEntityId => $claimGuidsOfEntity ) {
+		foreach ( $groupedStatementGuids as $serializedEntityId => $guidsOfEntity ) {
 			$entityId = $entityIds[ $serializedEntityId ];
-			$resultLists[ $serializedEntityId ] = $this->crossCheckClaimsOfEntity( $entityId, $claimGuidsOfEntity );
+			$resultLists[ $serializedEntityId ] = $this->crossCheckClaimsOfEntity( $entityId, $guidsOfEntity );
 		}
 
 		return $resultLists;
@@ -255,16 +254,17 @@ class CrossCheckInteractor {
 
 	/**
 	 * @param EntityId $entityId
-	 * @param string[] $clamGuids
+	 * @param string[] $guids
+	 *
 	 * @return CrossCheckResultList|null
 	 */
-	private function crossCheckClaimsOfEntity( EntityId $entityId, $clamGuids ) {
+	private function crossCheckClaimsOfEntity( EntityId $entityId, array $guids ) {
 		$entity = $this->entityLookup->getEntity( $entityId );
 
 		if ( $entity instanceof StatementListProvider ) {
 			$statements = new StatementList();
 			foreach ( $entity->getStatements()->toArray() as $statement ) {
-				if ( in_array( $statement->getGuid(), $clamGuids ) ) {
+				if ( in_array( $statement->getGuid(), $guids ) ) {
 					$statements->addStatement( $statement );
 				}
 			}

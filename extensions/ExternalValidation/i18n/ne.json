@@ -6,7 +6,6 @@
 		]
 	},
 	"wbqev-crosscheck": "बाह्य डाटाबेसहरूसँग छड्के जाँच गर्ने",
-	"wbqev-crosscheck-form-entityid-placeholder": "क्युएक्सएक्स",
 	"wbqev-crosscheck-form-submit-label": "जाँच",
 	"wbqev-crosscheck-invalid-entity-id": "अवैध निकाय परिचय!",
 	"wbqev-crosscheck-not-existent-entity": "निकाय अवस्थित छैन !",

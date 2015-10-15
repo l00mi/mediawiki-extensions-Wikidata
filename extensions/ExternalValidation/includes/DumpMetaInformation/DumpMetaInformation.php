@@ -75,7 +75,7 @@ class DumpMetaInformation {
 	/**
 	 * @param string $dumpId
 	 * @param ItemId $sourceItemId
-	 * @param array $identifierPropertyIds
+	 * @param PropertyId[] $identifierPropertyIds
 	 * @param string $importDate
 	 * @param string $languageCode
 	 * @param string $sourceUrl
