@@ -126,7 +126,6 @@ abstract class EntityDiffOldTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 *
 	 * @dataProvider provideApplyData
 	 */
 	public function testApply( Entity $a, Entity $b ) {
@@ -217,7 +216,7 @@ abstract class EntityDiffOldTest extends \PHPUnit_Framework_TestCase {
 
 		$conflicts = $patch->count() - $cleanPatch->count();
 
-		$this->assertEquals( $expectedConflicts, $conflicts, "check number of conflicts detected" );
+		$this->assertEquals( $expectedConflicts, $conflicts, 'check number of conflicts detected' );
 	}
 
 }

@@ -26,8 +26,8 @@
 		"diff/diff": "~2.0|~1.0"
 	},
 	"require-dev": {
-		"squizlabs/php_codesniffer": "~2.1",
-		"phpmd/phpmd": "~2.1"
+		"squizlabs/php_codesniffer": "~2.3",
+		"phpmd/phpmd": "~2.3"
 	},
 	"autoload": {
 		"psr-4": {
@@ -36,7 +36,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "3.0.x-dev"
+			"dev-master": "3.1.x-dev"
 		}
 	},
 	"scripts": {

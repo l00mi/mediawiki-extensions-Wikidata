@@ -1,20 +1,15 @@
 <?php
 
-namespace Wikibase;
+namespace Wikibase\Repo\ParserOutput;
 
 use ParserOptions;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\LanguageFallbackChain;
+use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\PropertyDataTypeMatcher;
-use Wikibase\Repo\DataUpdates\EntityParserOutputDataUpdater;
-use Wikibase\Repo\DataUpdates\ExternalLinksDataUpdate;
-use Wikibase\Repo\DataUpdates\GeoDataDataUpdate;
-use Wikibase\Repo\DataUpdates\ImageLinksDataUpdate;
-use Wikibase\Repo\DataUpdates\PageImagesDataUpdate;
-use Wikibase\Repo\DataUpdates\ParserOutputDataUpdate;
-use Wikibase\Repo\DataUpdates\ReferencedEntitiesDataUpdate;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\View\EntityViewFactory;
 use Wikibase\View\Template\TemplateFactory;
@@ -78,6 +73,11 @@ class EntityParserOutputGeneratorFactory {
 	private $preferredPageImagesProperties;
 
 	/**
+	 * @var string[] Mapping of globe uris to string names, as recognized by GeoData.
+	 */
+	private $globeUris;
+
+	/**
 	 * @param EntityViewFactory $entityViewFactory
 	 * @param EntityInfoBuilderFactory $entityInfoBuilderFactory
 	 * @param EntityTitleLookup $entityTitleLookup
@@ -88,6 +88,7 @@ class EntityParserOutputGeneratorFactory {
 	 * @param EntityIdParser $externalEntityIdParser
 	 * @param string[] $preferredGeoDataProperties
 	 * @param string[] $preferredPageImagesProperties
+	 * @param string[] $globeUris Mapping of globe uris to string names.
 	 */
 	public function __construct(
 		EntityViewFactory $entityViewFactory,
@@ -99,7 +100,8 @@ class EntityParserOutputGeneratorFactory {
 		PropertyDataTypeLookup $propertyDataTypeLookup,
 		EntityIdParser $externalEntityIdParser,
 		array $preferredGeoDataProperties = array(),
-		array $preferredPageImagesProperties = array()
+		array $preferredPageImagesProperties = array(),
+		array $globeUris
 	) {
 		$this->entityViewFactory = $entityViewFactory;
 		$this->entityInfoBuilderFactory = $entityInfoBuilderFactory;
@@ -111,6 +113,7 @@ class EntityParserOutputGeneratorFactory {
 		$this->externalEntityIdParser = $externalEntityIdParser;
 		$this->preferredGeoDataProperties = $preferredGeoDataProperties;
 		$this->preferredPageImagesProperties = $preferredPageImagesProperties;
+		$this->globeUris = $globeUris;
 	}
 
 	/**
@@ -178,7 +181,8 @@ class EntityParserOutputGeneratorFactory {
 		if ( class_exists( 'GeoData' ) ) {
 			$dataUpdates[] = new GeoDataDataUpdate(
 				$propertyDataTypeMatcher,
-				$this->preferredGeoDataProperties
+				$this->preferredGeoDataProperties,
+				$this->globeUris
 			);
 		}
 

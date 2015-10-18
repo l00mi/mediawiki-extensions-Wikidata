@@ -8,6 +8,9 @@ use Wikibase\DataModel\Entity\EntityId;
 
 /**
  * EntityLookup that uses an in memory array to retrieve the requested information.
+ * One can also specify exceptions that should be thrown when an entity with their
+ * associated ID is requested.
+ *
  * This class can be used as a fake in tests.
  *
  * @since 2.0
@@ -17,7 +20,15 @@ use Wikibase\DataModel\Entity\EntityId;
  */
 class InMemoryEntityLookup implements EntityLookup {
 
+	/**
+	 * @var EntityDocument[]
+	 */
 	private $entities = array();
+
+	/**
+	 * @var EntityLookupException[]
+	 */
+	private $exceptions = array();
 
 	/**
 	 * @param EntityDocument $entity
@@ -33,6 +44,18 @@ class InMemoryEntityLookup implements EntityLookup {
 	}
 
 	/**
+	 * Registers an exception that will be thrown when a entity with the id in the exception is requested.
+	 * If an exception with the same EntityId was already present it will be replaced by the new one.
+	 *
+	 * @since 3.1
+	 *
+	 * @param EntityLookupException $exception
+	 */
+	public function addException( EntityLookupException $exception ) {
+		$this->exceptions[$exception->getEntityId()->getSerialization()] = $exception;
+	}
+
+	/**
 	 * @see EntityLookup::getEntity
 	 *
 	 * @param EntityId $entityId
@@ -41,6 +64,8 @@ class InMemoryEntityLookup implements EntityLookup {
 	 * @return EntityDocument
 	 */
 	public function getEntity( EntityId $entityId ) {
+		$this->throwExceptionIfNeeded( $entityId );
+
 		if ( array_key_exists( $entityId->getSerialization(), $this->entities ) ) {
 			return $this->entities[$entityId->getSerialization()];
 		}
@@ -53,10 +78,19 @@ class InMemoryEntityLookup implements EntityLookup {
 	 *
 	 * @param EntityId $entityId
 	 *
+	 * @throws EntityLookupException
 	 * @return bool
 	 */
 	public function hasEntity( EntityId $entityId ) {
+		$this->throwExceptionIfNeeded( $entityId );
+
 		return array_key_exists( $entityId->getSerialization(), $this->entities );
+	}
+
+	private function throwExceptionIfNeeded( EntityId $entityId ) {
+		if ( array_key_exists( $entityId->getSerialization(), $this->exceptions ) ) {
+			throw $this->exceptions[$entityId->getSerialization()];
+		}
 	}
 
 }
