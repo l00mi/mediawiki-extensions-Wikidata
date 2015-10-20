@@ -5,13 +5,16 @@
 			"Raymond",
 			"Metalhead64",
 			"Amire80",
-			"Nemo bis"
+			"Nemo bis",
+			"Umherirrender"
 		]
 	},
 	"wbqev-desc": "{{desc|name=WikibaseQualityExternalValidation|url=https://www.mediawiki.org/wiki/Extension:WikibaseQualityExternalValidation}}",
 	"wbqev-crosscheck": "{{doc-special|CrossCheck}}",
 	"wbqev-crosscheck-explanation-general": "General explanation text for special page.",
 	"wbqev-crosscheck-explanation-detail": "Mre detailed explanation text for special page.",
+	"wbqev-crosscheck-form-section": "Used as section title on [[Special:CrossCheck]]",
+	"wbqev-crosscheck-form-entityid-label": "Used as label on [[Special:CrossCheck]]",
 	"wbqev-crosscheck-form-entityid-placeholder": "Entity id placeholder for the input field.",
 	"wbqev-crosscheck-form-submit-label": "Label of the button, that starts the check.\n{{Identical|Check}}",
 	"wbqev-crosscheck-invalid-entity-id": "Error message that appears when the entered string is not a valid entity id.",
@@ -55,5 +58,6 @@
 	"wbqev-violation-short-message": "Short message that is shown for violated claims in pop-up on item page. First parameter is name of the data source.",
 	"wbqev-violation-long-message-headline": "Header for long message that is shown for violated claims on item page.",
 	"wbqev-violation-long-message-external-values": "Long message that is shown for violated claims on item page. First parameter are the external values, second parameter is the number of external values.",
-	"wbqev-violation-long-message-solve-issue": "Message that is shown for violated claims in order to advise the user how to solve the issue."
+	"wbqev-violation-long-message-solve-issue": "Message that is shown for violated claims in order to advise the user how to solve the issue.",
+	"wbqev-violation-mark-as-exception": "Used as label"
 }
