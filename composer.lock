@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6901a9e2c180f8225cbfc95bf2bd6e6f",
+    "hash": "2d545dd0563795fa1e74809f847e2cf4",
+    "content-hash": "22452ce3de1e09bd731fb95adb955280",
     "packages": [
         {
             "name": "composer/installers",
@@ -1381,16 +1382,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.27.0-wmf.3",
+            "version": "dev-wmf/1.27.0-wmf.3b",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "72522c3efbbbe9d7bea8694803ed285bf03396c5"
+                "reference": "229338130674d7aa720f118df8faeab0c4d4fc19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/72522c3efbbbe9d7bea8694803ed285bf03396c5",
-                "reference": "72522c3efbbbe9d7bea8694803ed285bf03396c5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/229338130674d7aa720f118df8faeab0c4d4fc19",
+                "reference": "229338130674d7aa720f118df8faeab0c4d4fc19",
                 "shasum": ""
             },
             "require": {
@@ -1459,7 +1460,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-10-13 12:46:10"
+            "time": "2015-10-20 21:56:12"
         },
         {
             "name": "wikibase/wikimedia-badges",

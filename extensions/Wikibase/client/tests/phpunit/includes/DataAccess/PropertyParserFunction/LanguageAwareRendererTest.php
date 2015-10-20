@@ -10,7 +10,6 @@ use Wikibase\DataModel\Services\Lookup\RestrictedEntityLookup;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\Client\PropertyLabelNotResolvedException;
-use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -178,6 +177,8 @@ class LanguageAwareRendererTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @param int $entityAccessLimit
+	 *
+	 * @return EntityLookup
 	 */
 	private function getEntityLookup( $entityAccessLimit ) {
 		$lookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\EntityLookup' );

@@ -1,23 +1,24 @@
 <?php
 
-namespace Wikibase\Repo\DataUpdates;
+namespace Wikibase\Repo\ParserOutput;
 
 use DataValues\StringValue;
+use ParserOutput;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementList;
 
 /**
- * Code to make the PageImages extension aware of pages in the Wikibase namespaces.
+ * Code to make the PageImages extension aware of pages in the Wikibase namespaces. The algorithm
+ * tries to find the one "best" image on an entity page, also referred to as the "lead image".
  *
  * @since 0.5
  *
  * @licence GNU GPL v2+
  * @author Thiemo Mättig
  */
-class PageImagesDataUpdate {
+class PageImagesDataUpdate implements StatementDataUpdate {
 
 	/**
 	 * @var int[] Hash table of image property id strings pointing to priorities (smaller numbers
@@ -36,42 +37,20 @@ class PageImagesDataUpdate {
 	private $bestRank;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $bestFileName;
+	private $bestFileName = null;
 
 	/**
 	 * @param string[] $imagePropertyIds List of image property id strings, in order of preference.
 	 */
 	public function __construct( array $imagePropertyIds ) {
-		$this->setPropertyIds( $imagePropertyIds );
+		$this->propertyPriorities = array_flip( array_unique( array_values( $imagePropertyIds ) ) );
 	}
 
 	/**
-	 * @param string[] $ids
-	 */
-	private function setPropertyIds( array $ids ) {
-		$this->propertyPriorities = array_flip( array_unique( array_values( $ids ) ) );
-	}
-
-	/**
-	 * @param StatementList $statements
+	 * @see StatementDataUpdate::processStatement
 	 *
-	 * @return string|null The file's page name without the NS_FILE namespace, or null if not found.
-	 */
-	public function getBestImageFileName( StatementList $statements ) {
-		$this->bestProperty = null;
-		$this->bestRank = null;
-		$this->bestFileName = null;
-
-		foreach ( $statements->toArray() as $statement ) {
-			$this->processStatement( $statement );
-		}
-
-		return $this->bestFileName;
-	}
-
-	/**
 	 * @param Statement $statement
 	 */
 	public function processStatement( Statement $statement ) {
@@ -190,6 +169,16 @@ class PageImagesDataUpdate {
 
 		// Ranks are guaranteed to be in increasing, numerical order.
 		return $rank > $this->bestRank;
+	}
+
+	/**
+	 * @see ParserOutputDataUpdate::updateParserOutput
+	 *
+	 * @param ParserOutput $parserOutput
+	 */
+	public function updateParserOutput( ParserOutput $parserOutput ) {
+		// This property name is the only "soft dependency" on the PageImages extension.
+		$parserOutput->setProperty( 'page_image', $this->bestFileName );
 	}
 
 }

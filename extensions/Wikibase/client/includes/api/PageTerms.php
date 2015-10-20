@@ -146,8 +146,8 @@ class PageTerms extends ApiQueryBase {
 	 */
 	private function getEntityToPageMap( array $entityIds ) {
 		$entityIdsStrings = array_map(
-			function ( EntityId $entityId ) {
-				return $entityId->getSerialization();
+			function( EntityId $id ) {
+				return $id->getSerialization();
 			},
 			$entityIds
 		);
@@ -159,7 +159,7 @@ class PageTerms extends ApiQueryBase {
 	 * @param int[] $entityToPageMap
 	 * @param TermIndexEntry[] $terms
 	 *
-	 * @return array[][] An associative array, mapping pageId + entity type to a list of strings.
+	 * @return array[] An associative array, mapping pageId + entity type to a list of strings.
 	 */
 	private function groupTermsByPageAndType( array $entityToPageMap, array $terms ) {
 		$termsPerPage = array();

@@ -57,21 +57,21 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 
 		$termLookup->expects( $this->any() )
 			->method( 'getLabel' )
-			->will( $this->returnCallback( function ( EntityId $entityId, $language ) {
+			->will( $this->returnCallback( function ( EntityId $id, $language ) {
 				switch ( $language ) {
 					case 'de':
-						return 'Name für ' . $entityId->getSerialization();
+						return 'Name für ' . $id->getSerialization();
 					default:
-						return 'Label for ' . $entityId->getSerialization();
+						return 'Label for ' . $id->getSerialization();
 				}
 			} ) );
 
 		$termLookup->expects( $this->any() )
 			->method( 'getLabels' )
-			->will( $this->returnCallback( function ( EntityId $entityId ) {
+			->will( $this->returnCallback( function( EntityId $id ) {
 				return array(
-					'de' => 'Name für ' . $entityId->getSerialization(),
-					'en' => 'Label for ' . $entityId->getSerialization(),
+					'de' => 'Name für ' . $id->getSerialization(),
+					'en' => 'Label for ' . $id->getSerialization(),
 				);
 			} ) );
 
@@ -90,17 +90,13 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 	}
 
 	private function newFormatterOptions( $lang = 'en' ) {
-		$fallbackMode = (
-			LanguageFallbackChainFactory::FALLBACK_VARIANTS
-			| LanguageFallbackChainFactory::FALLBACK_OTHERS
-			| LanguageFallbackChainFactory::FALLBACK_SELF );
-
-		$languageFallbackChainFactory = new LanguageFallbackChainFactory();
+		$fallbackMode = LanguageFallbackChainFactory::FALLBACK_ALL;
+		$fallbackChainFactory = new LanguageFallbackChainFactory();
+		$fallbackChain = $fallbackChainFactory->newFromLanguageCode( $lang, $fallbackMode );
 
 		return new FormatterOptions( array(
 			ValueFormatter::OPT_LANG => $lang,
-			FormatterLabelDescriptionLookupFactory::OPT_LANGUAGE_FALLBACK_CHAIN =>
-				$languageFallbackChainFactory->newFromLanguageCode( $lang, $fallbackMode )
+			FormatterLabelDescriptionLookupFactory::OPT_LANGUAGE_FALLBACK_CHAIN => $fallbackChain,
 		) );
 	}
 

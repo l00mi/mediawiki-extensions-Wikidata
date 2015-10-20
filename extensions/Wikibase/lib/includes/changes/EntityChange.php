@@ -36,8 +36,6 @@ class EntityChange extends DiffChange {
 	private $entityId = null;
 
 	/**
-	 * @see ORMRow::setField
-	 *
 	 * @todo FIXME use uppecase ID, like everywhere else!
 	 *
 	 * @param string $name
@@ -145,13 +143,6 @@ class EntityChange extends DiffChange {
 		}
 
 		return $metadata['comment'];
-	}
-
-	/**
-	 * @see ChangeRow::postConstruct
-	 */
-	protected function postConstruct() {
-		// This implementation should not set the type field.
 	}
 
 	/**

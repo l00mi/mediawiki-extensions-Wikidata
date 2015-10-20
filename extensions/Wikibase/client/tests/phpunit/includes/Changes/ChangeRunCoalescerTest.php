@@ -85,7 +85,6 @@ class ChangeRunCoalescerTest extends \MediaWikiTestCase {
 
 	/**
 	 * @param array $values
-	 * @param EntityDiff|null $diff
 	 *
 	 * @return EntityChange
 	 */
@@ -130,7 +129,7 @@ class ChangeRunCoalescerTest extends \MediaWikiTestCase {
 			$class = 'Wikibase\ItemChange';
 		}
 
-		$change = new $class( null, $values, false );
+		$change = new $class( $values );
 		$change->setDiff( $diff );
 
 		return $change;
@@ -195,7 +194,6 @@ class ChangeRunCoalescerTest extends \MediaWikiTestCase {
 		$this->assertEquals( $expected->getObjectId(), $actual->getObjectId(), $message . 'ObjectId' );
 		$this->assertEquals( $expected->getTime(), $actual->getTime(), $message . 'Time' );
 		$this->assertEquals( $expected->getType(), $actual->getType(), $message . 'Type' );
-		$this->assertEquals( $expected->getUser(), $actual->getUser(), $message . 'User' );
 
 		if ( $expected instanceof EntityChange && $actual instanceof EntityChange ) {
 			$this->assertEquals( $expected->getAction(), $actual->getAction(), $message . 'Action' );

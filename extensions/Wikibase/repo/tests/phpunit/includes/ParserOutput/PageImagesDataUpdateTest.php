@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Repo\Tests\DataUpdates;
+namespace Wikibase\Repo\Tests\ParserOutput;
 
 use DataValues\BooleanValue;
 use DataValues\StringValue;
@@ -10,10 +10,10 @@ use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
-use Wikibase\Repo\DataUpdates\PageImagesDataUpdate;
+use Wikibase\Repo\ParserOutput\PageImagesDataUpdate;
 
 /**
- * @covers Wikibase\Repo\DataUpdates\PageImagesDataUpdate
+ * @covers Wikibase\Repo\ParserOutput\PageImagesDataUpdate
  *
  * @since 0.5
  *
@@ -58,7 +58,7 @@ class PageImagesDataUpdateTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testConstructor( $propertyIds ) {
 		$instance = $this->newInstance( $propertyIds );
-		$this->assertInstanceOf( 'Wikibase\Repo\DataUpdates\PageImagesDataUpdate', $instance );
+		$this->assertInstanceOf( 'Wikibase\Repo\ParserOutput\PageImagesDataUpdate', $instance );
 	}
 
 	public function constructorArgumentsProvider() {
@@ -73,13 +73,25 @@ class PageImagesDataUpdateTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider bestImageProvider
 	 */
-	public function testGetBestImageFileName(
+	public function testUpdateParserOutput(
 		StatementList $statements,
 		array $propertyIds,
 		$expected
 	) {
+		$parserOutput = $this->getMockBuilder( 'ParserOutput' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutput->expects( $this->once() )
+			->method( 'setProperty' )
+			->with( 'page_image', $expected );
+
 		$instance = $this->newInstance( $propertyIds );
-		$this->assertSame( $expected, $instance->getBestImageFileName( $statements ) );
+
+		foreach ( $statements as $statement ) {
+			$instance->processStatement( $statement );
+		}
+
+		$instance->updateParserOutput( $parserOutput );
 	}
 
 	public function bestImageProvider() {

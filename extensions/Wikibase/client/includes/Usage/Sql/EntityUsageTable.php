@@ -112,18 +112,11 @@ class EntityUsageTable {
 
 		// Collect affected row IDs, so we can use them for an
 		// efficient update query on the master db.
-		$rowIds = $db->selectFieldValues(
-			$this->tableName,
-			'eu_row_id',
-			array(
-				'eu_page_id' => (int)$pageId,
-				$db->makeList( $usageConditions, LIST_OR )
-			),
-			__METHOD__
+		$where = array(
+			'eu_page_id' => (int)$pageId,
+			$db->makeList( $usageConditions, LIST_OR )
 		);
-
-		$rowIds = array_map( 'intval', $rowIds ?: array() );
-		return $rowIds;
+		return $this->getPrimaryKeys( $where, __METHOD__ );
 	}
 
 	/**
@@ -270,8 +263,8 @@ class EntityUsageTable {
 	 * @return string[]
 	 */
 	private function getEntityIdStrings( array $entityIds ) {
-		return array_map( function( EntityId $entityId ) {
-			return $entityId->getSerialization();
+		return array_map( function( EntityId $id ) {
+			return $id->getSerialization();
 		}, $entityIds );
 	}
 
@@ -320,21 +313,17 @@ class EntityUsageTable {
 		$old = $this->queryUsages( $pageId, '<', $lastUpdatedBefore );
 
 		do {
-			// @TODO: This is very similar to what getAffectedRowIds does.
-			$res = $this->connection->selectFieldValues(
-				$this->tableName,
-				'eu_row_id',
-				array(
-					'eu_page_id' => (int)$pageId,
-					'eu_touched < ' . $this->connection->addQuotes( $lastUpdatedBefore ),
-				),
-				__METHOD__,
-				array( 'LIMIT' => $this->batchSize )
+			$where = array(
+				'eu_page_id' => (int)$pageId,
+				'eu_touched < ' . $this->connection->addQuotes( $lastUpdatedBefore ),
 			);
+			$res = $this->getPrimaryKeys( $where, __METHOD__ );
 
 			if ( !$res ) {
 				break;
 			}
+
+			$this->connection->begin( __METHOD__ );
 
 			$this->connection->delete(
 				$this->tableName,
@@ -343,39 +332,11 @@ class EntityUsageTable {
 				),
 				__METHOD__
 			);
+
+			$this->connection->commit( __METHOD__ );
 		} while ( count( $res ) === $this->batchSize );
 
 		return $old;
-	}
-
-	/**
-	 * Removes usage tracking for the given set of entities.
-	 * This is used typically when entities were deleted.
-	 *
-	 * @see UsageTracker::removeEntities
-	 *
-	 * @param EntityId[] $entityIds
-	 */
-	public function removeEntities( array $entityIds ) {
-		if ( empty( $entityIds ) ) {
-			return;
-		}
-
-		$idStrings = $this->getEntityIdStrings( $entityIds );
-
-		$batches = array_chunk( $idStrings, $this->batchSize );
-
-		foreach ( $batches as $batch ) {
-			$this->connection->begin( __METHOD__ );
-			$this->connection->delete(
-				$this->tableName,
-				array(
-					'eu_entity_id' => $batch,
-				),
-				__METHOD__
-			);
-			$this->connection->commit( __METHOD__ );
-		}
 	}
 
 	/**
@@ -474,33 +435,32 @@ class EntityUsageTable {
 	private function getUsedEntityIdStrings( array $idStrings ) {
 		$where = array( 'eu_entity_id' => $idStrings );
 
-		$res = $this->connection->select(
+		return $this->connection->selectFieldValues(
 			$this->tableName,
-			array( 'eu_entity_id' ),
+			'eu_entity_id',
 			$where,
 			__METHOD__,
 			array( 'DISTINCT' )
 		);
-
-		return $this->extractProperty( $res, 'eu_entity_id' );
 	}
 
 	/**
-	 * Returns an array of values extracted from the $key property from each object.
+	 * Returns the primary keys for the given where clause.
 	 *
-	 * @param array|Iterator $objects
-	 * @param string $key
+	 * @param array $where
+	 * @param string $method Calling method
 	 *
-	 * @return array
+	 * @return int[]
 	 */
-	private function extractProperty( $objects, $key ) {
-		$array = array();
+	private function getPrimaryKeys( array $where, $method ) {
+		$rowIds = $this->connection->selectFieldValues(
+			$this->tableName,
+			'eu_row_id',
+			$where,
+			$method
+		);
 
-		foreach ( $objects as $object ) {
-			$array[] = $object->$key;
-		}
-
-		return $array;
+		return array_map( 'intval', $rowIds ?: array() );
 	}
 
 }

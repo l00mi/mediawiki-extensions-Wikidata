@@ -2,10 +2,7 @@
 
 namespace Wikibase;
 
-use IORMTable;
 use MWException;
-use ORMRow;
-use User;
 
 /**
  * Class representing a single change (ie a row in the wb_changes).
@@ -16,30 +13,15 @@ use User;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
-class ChangeRow extends ORMRow implements Change {
+class ChangeRow implements Change {
 
 	/**
-	 * Field for caching the linked user.
+	 * The fields of the object.
+	 * field name (w/o prefix) => value
 	 *
-	 * @since 0.1
-	 * @var User|bool
+	 * @var array
 	 */
-	protected $user = false;
-
-	/**
-	 * @see Change::getUser
-	 *
-	 * @since 0.1
-	 *
-	 * @return User
-	 */
-	public function getUser() {
-		if ( $this->user === false ) {
-			$this->user = User::newFromId( $this->getField( 'user_id' ) );
-		}
-
-		return $this->user;
-	}
+	private $fields = array( 'id' => null );
 
 	/**
 	 * @see Change::getAge
@@ -74,23 +56,8 @@ class ChangeRow extends ORMRow implements Change {
 		return false;
 	}
 
-	/**
-	 * @param IORMTable|null $table
-	 * @param array|null $fields
-	 */
-	public function __construct( IORMTable $table = null, $fields = null ) {
-		parent::__construct( $table, $fields, false );
-
-		$this->postConstruct();
-	}
-
-	/**
-	 * @since 0.1
-	 */
-	protected function postConstruct() {
-		if ( !$this->hasField( 'type' ) ) {
-			$this->setField( 'type', $this->getType() );
-		}
+	public function __construct( array $fields = array() ) {
+		$this->setFields( $fields );
 	}
 
 	/**
@@ -116,8 +83,6 @@ class ChangeRow extends ORMRow implements Change {
 	}
 
 	/**
-	 * @see ORMRow::getField
-	 *
 	 * Overwritten to unserialize the info field on the fly.
 	 *
 	 * @since 0.4
@@ -130,7 +95,13 @@ class ChangeRow extends ORMRow implements Change {
 	 * @return mixed
 	 */
 	public function getField( $name, $default = null ) {
-		$value = parent::getField( $name, $default );
+		if ( $this->hasField( $name ) ) {
+			$value = $this->fields[$name];
+		} elseif ( !is_null( $default ) ) {
+			$value = $default;
+		} else {
+			throw new MWException( 'Attempted to get not-set field ' . $name );
+		}
 
 		if ( $name === 'info' && is_string( $value ) ) {
 			$value = $this->unserializeInfo( $value );
@@ -140,8 +111,6 @@ class ChangeRow extends ORMRow implements Change {
 	}
 
 	/**
-	 * @see ORMRow::getFields
-	 *
 	 * Overwritten to unserialize the info field on the fly.
 	 *
 	 * @since 0.4
@@ -149,7 +118,7 @@ class ChangeRow extends ORMRow implements Change {
 	 * @return array
 	 */
 	public function getFields() {
-		$fields = parent::getFields();
+		$fields = $this->fields;
 
 		if ( isset( $fields['info'] ) && is_string( $fields['info'] ) ) {
 			$fields['info'] = $this->unserializeInfo( $fields['info'] );
@@ -238,6 +207,52 @@ class ChangeRow extends ORMRow implements Change {
 		}
 
 		return $info;
+	}
+
+	/**
+	 * Sets the value of a field.
+	 * Strings can be provided for other types,
+	 * so this method can be called from unserialization handlers.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function setField( $name, $value ) {
+		$this->fields[$name] = $value;
+	}
+
+	/**
+	 * Sets multiple fields.
+	 *
+	 * @param array $fields The fields to set
+	 * @param bool $override Override already set fields with the provided values?
+	 */
+	public function setFields( array $fields, $override = true ) {
+		foreach ( $fields as $name => $value ) {
+			if ( $override || !$this->hasField( $name ) ) {
+				$this->setField( $name, $value );
+			}
+		}
+	}
+
+	/**
+	 * Returns the objects database id.
+	 *
+	 * @return int|null
+	 */
+	public function getId() {
+		return $this->getField( 'id' );
+	}
+
+	/**
+	 * Gets if a certain field is set.
+	 *
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function hasField( $name ) {
+		return array_key_exists( $name, $this->fields );
 	}
 
 }
