@@ -1374,6 +1374,7 @@ return array(
     'Wikibase\\Tests\\RepoHooksTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/RepoHooksTest.php',
     'Wikibase\\Tests\\Repo\\ChangeNotifierTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Notifications/ChangeNotifierTest.php',
     'Wikibase\\Tests\\Repo\\DatabaseChangeTransmitterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Notifications/DatabaseChangeTransmitterTest.php',
+    'Wikibase\\Tests\\Repo\\DatabaseSchemaUpdaterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/DatabaseSchemaUpdaterTest.php',
     'Wikibase\\Tests\\Repo\\DispatchStatsTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/DispatchStatsTest.php',
     'Wikibase\\Tests\\Repo\\HookChangeTransmitterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Notifications/HookChangeTransmitterTest.php',
     'Wikibase\\Tests\\Repo\\SiteLinkTargetProviderTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/SiteLinkTargetProviderTest.php',
