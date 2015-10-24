@@ -7,10 +7,12 @@
 		]
 	},
 	"wbqev-crosscheck": "بررسی دوطرفه با پایگاه‌های داده دیگر",
+	"wbqev-crosscheck-form-section": "بررسی دوطرفه آیتم",
+	"wbqev-crosscheck-form-entityid-label": "شناسۀ آیتم:",
 	"wbqev-crosscheck-form-submit-label": "بررسی",
 	"wbqev-crosscheck-invalid-entity-id": "شناسهٔ نادرست ورودی!",
 	"wbqev-crosscheck-not-existent-entity": "آیتم وجود ندارد!",
-	"wbqev-crosscheck-result-headline": "نتیجه برای $1",
+	"wbqev-crosscheck-result-headline": "نتیجه برای",
 	"wbqev-crosscheck-result-table-header-references": "منابع",
 	"wbqev-crosscheck-result-table-header-local-value": "مقدار ویکی‌داده",
 	"wbqev-crosscheck-result-table-header-external-value": "مقدارهای بیرونی",
@@ -30,5 +32,10 @@
 	"wbqev-externaldbs-source-urls": "نشانی اینترنتی مبدأ",
 	"wbqev-externaldbs-size": "اندازه",
 	"wbqev-externaldbs-license": "مجوز",
-	"apihelp-wbqevcrosscheck-examples-5": "اجرای بررسی دوطرفه با GUID Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F."
+	"apihelp-wbqevcrosscheck-examples-5": "اجرای بررسی دوطرفه با GUID Q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0F.",
+	"wbq-subextension-name-wbqev": "ارزشیابی خارجی",
+	"wbqev-violation-header-external-source": "منبع بیرونی:",
+	"wbqev-violation-header-local-value": "مقدار ویکی‌داده:",
+	"wbqev-violation-header-external-values": "مقدارهای بیرونی:",
+	"wbqev-violation-mark-as-exception": "انتخاب به عنوان استثنا"
 }
