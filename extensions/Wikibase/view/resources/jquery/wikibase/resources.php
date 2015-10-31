@@ -292,7 +292,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.removeClassByRegex',
 				'jquery.wikibase.listview',
-				'jquery.wikibase.snaklistview',
 				'wikibase.datamodel',
 			),
 		),
@@ -393,10 +392,9 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.ui.TemplatedWidget',
-				'jquery.ui.widget',
 				'jquery.wikibase.listview',
-				'jquery.wikibase.snakview',
-				'wikibase.datamodel',
+				'wikibase.datamodel.Snak',
+				'wikibase.datamodel.SnakList',
 			),
 			'messages' => array(
 				'wikibase-claimview-snak-tooltip',

@@ -1444,12 +1444,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "a6aa397a762d5741749df8548f9bfcf4cc94cfd8"
+                "reference": "257e975ff92831fff65799d6c1f170ed1102bea6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a6aa397a762d5741749df8548f9bfcf4cc94cfd8",
-                "reference": "a6aa397a762d5741749df8548f9bfcf4cc94cfd8",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/257e975ff92831fff65799d6c1f170ed1102bea6",
+                "reference": "257e975ff92831fff65799d6c1f170ed1102bea6",
                 "shasum": ""
             },
             "require": {
@@ -1475,10 +1475,10 @@
                 "wikibase/serialization-javascript": "~2.0"
             },
             "conflict": {
-                "mediawiki/mediawiki": "<1.23"
+                "mediawiki/mediawiki": "<1.25"
             },
             "require-dev": {
-                "squizlabs/php_codesniffer": "~2.1"
+                "mediawiki/mediawiki-codesniffer": "0.4.0"
             },
             "type": "mediawiki-extension",
             "autoload": {
@@ -1518,7 +1518,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-10-29 23:00:50"
+            "time": "2015-10-31 01:10:11"
         },
         {
             "name": "wikibase/wikimedia-badges",
