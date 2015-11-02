@@ -7,7 +7,6 @@ use ApiEditPage;
 use BaseTemplate;
 use Content;
 use ContentHandler;
-use DatabaseUpdater;
 use ExtensionRegistry;
 use HistoryPager;
 use Html;
@@ -95,52 +94,6 @@ final class RepoHooks {
 				$wgNamespaceContentModels[$namespace] = $contentModel;
 			}
 		}
-
-		return true;
-	}
-
-	/**
-	 * Schema update to set up the needed database tables.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
-	 *
-	 * @since 0.1
-	 *
-	 * @param DatabaseUpdater $updater
-	 *
-	 * @return bool
-	 */
-	public static function onSchemaUpdate( DatabaseUpdater $updater ) {
-		$type = $updater->getDB()->getType();
-
-		if ( $type === 'mysql' || $type === 'sqlite' /* || $type === 'postgres' */ ) {
-			$extension = $type === 'postgres' ? '.pg.sql' : '.sql';
-
-			$updater->addExtensionTable(
-				'wb_changes',
-				__DIR__ . '/sql/changes' . $extension
-			);
-
-			if ( $type === 'mysql' && !$updater->updateRowExists( 'ChangeChangeObjectId.sql' ) ) {
-				$updater->addExtensionUpdate( array(
-					'applyPatch',
-					__DIR__ . '/sql/ChangeChangeObjectId.sql',
-					true
-				) );
-
-				$updater->insertUpdateRow( 'ChangeChangeObjectId.sql' );
-			}
-
-			$updater->addExtensionTable(
-				'wb_changes_dispatch',
-				__DIR__ . '/sql/changes_dispatch' . $extension
-			);
-		} else {
-			wfWarn( "Database type '$type' is not supported by the Wikibase repository." );
-		}
-
-		/** @var SqlStore $store */
-		$store = WikibaseRepo::getDefaultInstance()->getStore();
-		$store->doSchemaUpdate( $updater );
 
 		return true;
 	}
@@ -869,32 +822,6 @@ final class RepoHooks {
 				$out->addLink( $link );
 			}
 		}
-
-		return true;
-	}
-
-	/**
-	 * Puts user-specific and other vars that we don't want stuck
-	 * in parser cache (e.g. copyright message)
-	 *
-	 * @param OutputPage $out
-	 * @param string &$html
-	 *
-	 * @return bool
-	 */
-	public static function onOutputPageBeforeHtmlRegisterConfig( OutputPage $out, &$html ) {
-		$namespaceLookup = WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup();
-
-		if ( !$namespaceLookup->isEntityNamespace( $out->getTitle()->getNamespace() ) ) {
-			return true;
-		}
-
-		$settings = WikibaseRepo::getDefaultInstance()->getSettings();
-		$hookHandler = new OutputPageJsConfigHookHandler( $settings );
-
-		$isExperimental = defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES;
-
-		$hookHandler->handle( $out, $isExperimental );
 
 		return true;
 	}

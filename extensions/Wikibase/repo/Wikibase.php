@@ -42,7 +42,8 @@ if ( defined( 'WB_VERSION' ) ) {
 define( 'WB_VERSION', '0.5 alpha'
 	. ( defined( 'WB_EXPERIMENTAL_FEATURES' ) && WB_EXPERIMENTAL_FEATURES ? '/experimental' : '' ) );
 
-if ( version_compare( $GLOBALS['wgVersion'], '1.26c', '<' ) ) { // Needs to be 1.26c because version_compare() works in confusing ways.
+// Needs to be 1.26c because version_compare() works in confusing ways.
+if ( version_compare( $GLOBALS['wgVersion'], '1.26c', '<' ) ) {
 	die( "<b>Error:</b> Wikibase requires MediaWiki 1.26 or above.\n" );
 }
 
@@ -198,7 +199,7 @@ call_user_func( function() {
 
 	// Hooks
 	$wgHooks['BeforePageDisplay'][] = 'Wikibase\RepoHooks::onBeforePageDisplay';
-	$wgHooks['LoadExtensionSchemaUpdates'][] = 'Wikibase\RepoHooks::onSchemaUpdate';
+	$wgHooks['LoadExtensionSchemaUpdates'][] = 'Wikibase\Repo\Store\Sql\DatabaseSchemaUpdater::onSchemaUpdate';
 	$wgHooks['UnitTestsList'][] = 'Wikibase\RepoHooks::registerUnitTests';
 	$wgHooks['ResourceLoaderTestModules'][] = 'Wikibase\RepoHooks::registerQUnitTests';
 
@@ -233,7 +234,7 @@ call_user_func( function() {
 	$wgHooks['OutputPageParserOutput'][] = 'Wikibase\RepoHooks::onOutputPageParserOutput';
 	$wgHooks['ContentModelCanBeUsedOn'][] = 'Wikibase\RepoHooks::onContentModelCanBeUsedOn';
 	$wgHooks['OutputPageBeforeHTML'][] = 'Wikibase\Repo\Hooks\OutputPageBeforeHTMLHookHandler::onOutputPageBeforeHTML';
-	$wgHooks['OutputPageBeforeHTML'][] = 'Wikibase\RepoHooks::onOutputPageBeforeHtmlRegisterConfig';
+	$wgHooks['OutputPageBeforeHTML'][] = 'Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler::onOutputPageBeforeHtmlRegisterConfig';
 	$wgHooks['ContentHandlerForModelID'][] = 'Wikibase\RepoHooks::onContentHandlerForModelID';
 	$wgHooks['APIQuerySiteInfoStatisticsInfo'][] = 'Wikibase\RepoHooks::onAPIQuerySiteInfoStatisticsInfo';
 	$wgHooks['ImportHandleRevisionXMLTag'][] = 'Wikibase\RepoHooks::onImportHandleRevisionXMLTag';

@@ -203,11 +203,11 @@ return call_user_func( function() {
 				'jquery.wikibase.referenceview.tests.js',
 			),
 			'dependencies' => array(
-				'jquery.valueview.ExpertStore',
 				'jquery.wikibase.referenceview',
-				'wikibase.datamodel',
-				'wikibase.ValueViewBuilder',
-				'valueFormatters'
+				'wikibase.datamodel.PropertyNoValueSnak',
+				'wikibase.datamodel.Reference',
+				'wikibase.datamodel.SnakList',
+				'wikibase.tests.getMockListItemAdapter',
 			),
 		),
 
@@ -262,11 +262,8 @@ return call_user_func( function() {
 			),
 			'dependencies' => array(
 				'jquery.wikibase.snaklistview',
-				'wikibase.ValueViewBuilder',
 				'wikibase.datamodel',
-				'mediawiki.Title',
-				'jquery.valueview',
-				'valueFormatters'
+				'wikibase.tests.getMockListItemAdapter',
 			),
 		),
 
@@ -293,6 +290,7 @@ return call_user_func( function() {
 				'wikibase.datamodel.Reference',
 				'wikibase.datamodel.ReferenceList',
 				'wikibase.datamodel.Statement',
+				'wikibase.tests.getMockListItemAdapter',
 			),
 		),
 

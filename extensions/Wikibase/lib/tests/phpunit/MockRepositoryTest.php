@@ -149,71 +149,20 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$itemId = $item->getId();
 
 		$this->assertEquals( $itemId, $this->repo->getItemIdForLink( 'enwiki', 'Foo' ) );
-		$this->assertEquals( null, $this->repo->getItemIdForLink( 'xywiki', 'Foo' ) );
+		$this->assertNull( $this->repo->getItemIdForLink( 'xywiki', 'Foo' ) );
 
 		// test lookup after item modification
 		$item->getSiteLinkList()->setNewSiteLink( 'enwiki', 'Bar' );
 		$this->repo->putEntity( $item );
 
-		$this->assertEquals( null, $this->repo->getItemIdForLink( 'enwiki', 'Foo' ) );
+		$this->assertNull( $this->repo->getItemIdForLink( 'enwiki', 'Foo' ) );
 		$this->assertEquals( $itemId, $this->repo->getItemIdForLink( 'enwiki', 'Bar' ) );
 
 		// test lookup after item deletion
 		$this->repo->removeEntity( $itemId );
 
-		$this->assertEquals( null, $this->repo->getItemIdForLink( 'enwiki', 'Foo' ) );
-		$this->assertEquals( null, $this->repo->getItemIdForLink( 'enwiki', 'Bar' ) );
-	}
-
-	public function provideGetConflictsForItem() {
-		$cases = array();
-
-		// #0: same link ---------
-		$a = new Item( new ItemId( 'Q1' ) );
-		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
-		$a->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Foo' );
-
-		$b = new Item( new ItemId( 'Q2' ) );
-		$b->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
-		$b->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Bar' );
-
-		$cases[] = array( $a, $b, array( array( 'enwiki', 'Foo', 1 ) ) );
-
-		// #1: same site ---------
-		$a = new Item( new ItemId( 'Q1' ) );
-		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
-
-		$b = new Item( new ItemId( 'Q2' ) );
-		$b->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Bar' );
-
-		$cases[] = array( $a, $b, array() );
-
-		// #2: same page ---------
-		$a = new Item( new ItemId( 'Q1' ) );
-		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
-
-		$b = new Item( new ItemId( 'Q2' ) );
-		$b->getSiteLinkList()->addNewSiteLink( 'dewiki', 'Foo' );
-
-		$cases[] = array( $a, $b, array() );
-
-		// #3: same item ---------
-		$a = new Item( new ItemId( 'Q1' ) );
-		$a->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
-
-		$cases[] = array( $a, $a, array() );
-
-		return $cases;
-	}
-
-	/**
-	 * @dataProvider provideGetConflictsForItem
-	 */
-	public function testGetConflictsForItem( Item $a, Item $b, $expectedConflicts ) {
-		$this->repo->putEntity( $a );
-		$conflicts = $this->repo->getConflictsForItem( $b );
-
-		$this->assertArrayEquals( $expectedConflicts, $conflicts );
+		$this->assertNull( $this->repo->getItemIdForLink( 'enwiki', 'Foo' ) );
+		$this->assertNull( $this->repo->getItemIdForLink( 'enwiki', 'Bar' ) );
 	}
 
 	public function provideGetLinks() {

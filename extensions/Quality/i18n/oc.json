@@ -1,10 +1,7 @@
 {
-  "@metadata": {
-    "authors": [
-      "Cedric31"
-    ]
-  },
-  "wikidataquality-specialpages-group": "Qualitat de Wikidata",
-  "wikidataquality-value": "Valor",
-  "wikidataquality-status": "Estatut"
+	"@metadata": {
+		"authors": [
+			"Cedric31"
+		]
+	}
 }

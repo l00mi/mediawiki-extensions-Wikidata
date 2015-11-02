@@ -301,17 +301,121 @@
 						}
 					},
 
+					buildReferenceListItemAdapter: $.proxy( this.getListItemAdapterForReferenceView, this ),
+					buildSnakView: $.proxy(
+						this.getSnakView,
+						this,
+						':' + $.wikibase.statementview.prototype.widgetFullName.toLowerCase()
+					),
 					claimsChanger: this._entityChangersFactory.getClaimsChanger(),
-					dataTypeStore: this._dataTypeStore,
-					entityIdHtmlFormatter: this._entityIdHtmlFormatter,
 					entityIdPlainFormatter: this._entityIdPlainFormatter,
-					entityStore: this._entityStore,
 					guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
-					referencesChanger: this._entityChangersFactory.getReferencesChanger(),
-					valueViewBuilder: this._getValueViewBuilder()
+					qualifiersListItemAdapter: this.getListItemAdapterForSnakListView(),
+					referencesChanger: this._entityChangersFactory.getReferencesChanger()
 				};
 			}, this )
 		} );
+	};
+
+	/**
+	 * Construct a `ListItemAdapter` for `referenceview`s
+	 *
+	 * @param {string} statementGuid
+	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
+	 */
+	SELF.prototype.getListItemAdapterForReferenceView = function( statementGuid ) {
+		return new $.wikibase.listview.ListItemAdapter( {
+			listItemWidget: $.wikibase.referenceview,
+			newItemOptionsFn: $.proxy( function( value ) {
+				return {
+					value: value || null,
+					statementGuid: statementGuid,
+					dataTypeStore: this._dataTypeStore,
+					listItemAdapter: this.getListItemAdapterForSnakListView(),
+					referencesChanger: this._entityChangersFactory.getReferencesChanger()
+				};
+			}, this )
+		} );
+	};
+
+	/**
+	 * Construct a `ListItemAdapter` for `snaklistview`s
+	 *
+	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
+	 */
+	SELF.prototype.getListItemAdapterForSnakListView = function() {
+		return new $.wikibase.listview.ListItemAdapter( {
+			listItemWidget: $.wikibase.snaklistview,
+			newItemOptionsFn: $.proxy( function( value ) {
+				return {
+					value: value || undefined,
+					singleProperty: true,
+					listItemAdapter: this.getListItemAdapterForSnakView()
+				};
+			}, this )
+		} );
+	};
+
+	/**
+	 * Construct a `ListItemAdapter` for `snakview`s
+	 *
+	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
+	 */
+	SELF.prototype.getListItemAdapterForSnakView = function() {
+		return new $.wikibase.listview.ListItemAdapter( {
+			listItemWidget: $.wikibase.snakview,
+			newItemOptionsFn: $.proxy( function( value ) {
+				return this._getSnakViewOptions(
+					null,
+					{
+						locked: {
+							// Do not allow changing the property when editing existing an snak.
+							property: Boolean( value )
+						}
+					},
+					value || {
+						property: null,
+						snaktype: wb.datamodel.PropertyValueSnak.TYPE
+					}
+				);
+			}, this )
+		} );
+	};
+
+	/**
+	 * Construct a suitable view for the given snak on the given DOM element
+	 *
+	 * @param {string|null} encapsulatedBy A jQuery selector for getting the encapsulating view
+	 * @param {Object} options An object with keys `locked` and `autoStartEditing`
+	 * @param {wikibase.datamodel.Snak|null} snak
+	 * @param {jQuery} $dom
+	 * @return {jQuery.wikibase.snakview} The constructed snakview
+	 */
+	SELF.prototype.getSnakView = function( encapsulatedBy, options, snak, $dom ) {
+		return this._getView(
+			'snakview',
+			$dom,
+			this._getSnakViewOptions( encapsulatedBy, options, snak )
+		);
+	};
+
+	/**
+	 * @param {string|null} encapsulatedBy A jQuery selector for getting the encapsulating view
+	 * @param {Object} options An object with keys `locked` and `autoStartEditing`
+	 * @param {wikibase.datamodel.Snak|null} snak
+	 */
+	SELF.prototype._getSnakViewOptions = function( encapsulatedBy, options, snak ) {
+		return {
+			value: snak || undefined,
+			locked: options.locked,
+			autoStartEditing: options.autoStartEditing,
+			dataTypeStore: this._dataTypeStore,
+			entityIdHtmlFormatter: this._entityIdHtmlFormatter,
+			entityIdPlainFormatter: this._entityIdPlainFormatter,
+			entityStore: this._entityStore,
+			valueViewBuilder: this._getValueViewBuilder(),
+			encapsulatedBy: encapsulatedBy
+		};
 	};
 
 	/**

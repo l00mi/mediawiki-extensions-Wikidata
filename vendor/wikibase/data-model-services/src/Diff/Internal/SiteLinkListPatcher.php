@@ -54,6 +54,11 @@ class SiteLinkListPatcher {
 		return $patchedSiteLinks;
 	}
 
+	/**
+	 * @param string[] $siteLinkData
+	 *
+	 * @return ItemId[]|null
+	 */
 	private function getBadgesFromSiteLinkData( array $siteLinkData ) {
 		if ( !array_key_exists( 'badges', $siteLinkData ) ) {
 			return null;
@@ -77,8 +82,8 @@ class SiteLinkListPatcher {
 			$linksInDiffFormat[$siteLink->getSiteId()] = array(
 				'name' => $siteLink->getPageName(),
 				'badges' => array_map(
-					function( ItemId $itemId ) {
-						return $itemId->getSerialization();
+					function( ItemId $id ) {
+						return $id->getSerialization();
 					},
 					$siteLink->getBadges()
 				)

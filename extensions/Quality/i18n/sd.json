@@ -1,29 +1,30 @@
 {
 	"@metadata": {
 		"authors": [
-			"Sindhu"
+			"Sindhu",
+			"Aursani"
 		]
 	},
-	"wbq-violations-description": "ڊيٽا جي معيار وارا مسئلا  (لسٽ)",
-	"wbq-violatons-filter-headline": "ڇنڊ ڇاڻ وارا مامرا",
+	"wbq-violations-description": "اعدادي سڀاءُ وارن ڳالهوڙن جي فهرست",
+	"wbq-violatons-filter-headline": "ڇاڻيءَ وارا ڳالهوڙا",
 	"wbq-violations-entity-id-label": "وجودي آءِ ڊي:",
-	"wbq-violations-property-id-label": "ملڪيتي آءِ ڊي",
-	"wbq-violations-group-label": "گروپ:",
+	"wbq-violations-property-id-label": "اوصافي سڃاڻپ",
+	"wbq-violations-group-label": "گروهہ:",
 	"wbq-violations-type-label": "قِسم:",
 	"wbq-violations-form-select-all": "سڀ",
-	"wbq-violations-exceptions-checkbox-label": "آجا ٿيل ڏيکاريو",
+	"wbq-violations-exceptions-checkbox-label": "قاعدي کان هٽيل ڏيکاريو",
 	"wbq-violations-submit-button-label": "خلاف ورزيون ڏيکاريو",
 	"wbq-violations-invalid-entity-id": "$1 -درست وجود جي آءِ ڊي نه آهي!",
 	"wbq-violations-not-existent-entity": "$1 وجود موجود نه آهي!",
 	"wbq-violations-invalid-property-id": "$1 -درست ملڪيت جي آءِ ڊي نه آهي!",
 	"wbq-violations-not-existent-property": "$1 پراپرٽي موجود نه آهي!",
 	"wbq-violations-table-header-entity": "هستي",
-	"wbq-violations-table-header-claim": "دعوى",
-	"wbq-violations-table-header-constraint-type": "ٽائيپ",
-	"wbq-violations-table-header-updated-at": "آخري ڀيريو اپڊيٽ ٿيو",
+	"wbq-violations-table-header-claim": "دعوىٰ",
+	"wbq-violations-table-header-constraint-type": "قسم",
+	"wbq-violations-table-header-updated-at": "آخري ترميم جو وقت",
 	"wbq-violations-table-header-status": "صورتحال",
 	"wbq-violations-table-header-additional-info": "اضافي معلومات",
 	"wbq-violations-status-violation": "خلاف ورزي",
-	"wbq-violations-status-unverified": "اڻ تصديق ٿيل",
-	"wbq-violations-status-exception": "آجپو"
+	"wbq-violations-status-unverified": "غير تصديق شده",
+	"wbq-violations-status-exception": "قاعديگريزي"
 }

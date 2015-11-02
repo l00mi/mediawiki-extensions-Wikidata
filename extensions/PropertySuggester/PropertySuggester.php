@@ -9,7 +9,7 @@ if ( defined( 'PropertySuggester_VERSION' ) ) {
 	return;
 }
 
-define( 'PropertySuggester_VERSION', '2.4.3' );
+define( 'PropertySuggester_VERSION', '2.4.4' );
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -46,7 +46,12 @@ $remoteExtPathParts = explode(
 
 $wgResourceModules['ext.PropertySuggester.EntitySelector'] = array(
 	'scripts'       => array( 'modules/ext.PropertySuggester.EntitySelector.js' ),
-	'dependencies'  => array( 'jquery.wikibase.entityselector' ),
+	'dependencies'  => array(
+		'jquery.wikibase.entityselector',
+		'jquery.wikibase.entityview',
+		'jquery.wikibase.referenceview',
+		'jquery.wikibase.statementview',
+	),
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => $remoteExtPathParts[1],
 );

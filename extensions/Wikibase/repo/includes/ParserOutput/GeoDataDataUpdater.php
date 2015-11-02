@@ -7,11 +7,8 @@ use CoordinatesOutput;
 use DataValues\Geo\Values\GlobeCoordinateValue;
 use ParserOutput;
 use RuntimeException;
-use UnexpectedValueException;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\Lib\Store\PropertyDataTypeMatcher;
 
 /**
@@ -29,7 +26,7 @@ use Wikibase\Lib\Store\PropertyDataTypeMatcher;
  * @license GNU GPL v2+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class GeoDataDataUpdate implements StatementDataUpdate {
+class GeoDataDataUpdater implements StatementDataUpdater {
 
 	/**
 	 * @var PropertyDataTypeMatcher
@@ -55,6 +52,7 @@ class GeoDataDataUpdate implements StatementDataUpdate {
 	 * @param PropertyDataTypeMatcher $propertyDataTypeMatcher
 	 * @param string[] $preferredPropertiesIds
 	 * @param string[] $globeUris
+	 *
 	 * @throws RuntimeException
 	 */
 	public function __construct(
@@ -63,7 +61,7 @@ class GeoDataDataUpdate implements StatementDataUpdate {
 		array $globeUris
 	) {
 		if ( !class_exists( 'GeoData' ) ) {
-			throw new RuntimeException( 'GeoDataDataUpdate requires the GeoData extension '
+			throw new RuntimeException( 'GeoDataDataUpdater requires the GeoData extension '
 				. 'to be enabled' );
 		}
 
@@ -163,7 +161,7 @@ class GeoDataDataUpdate implements StatementDataUpdate {
 
 	/**
 	 * @param CoordinatesOutput $coordinatesOutput
-	 * @param string $key
+	 * @param string $primaryCoordKey
 	 */
 	private function addPrimaryCoordinate(
 		CoordinatesOutput $coordinatesOutput,

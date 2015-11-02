@@ -1,12 +1,7 @@
 {
-  "@metadata": {
-    "authors": [
-      "Caliburn"
-    ]
-  },
-  "wikidataquality-specialpages-group": "Wikidata quality",
-  "wikidataquality-status": "Status",
-  "wikidataquality-crosscheck-result-headline": "Result for",
-  "wikidataquality-crosscheck-result-item-not-existent": "Item does not exist!",
-  "wikidataquality-crosscheck-result-success": "Match"
+	"@metadata": {
+		"authors": [
+			"Caliburn"
+		]
+	}
 }

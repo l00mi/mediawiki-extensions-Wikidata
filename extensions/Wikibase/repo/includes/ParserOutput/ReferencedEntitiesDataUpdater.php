@@ -27,7 +27,7 @@ use Wikibase\Lib\Store\EntityTitleLookup;
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author Thiemo Mättig
  */
-class ReferencedEntitiesDataUpdate implements StatementDataUpdate, SiteLinkDataUpdate {
+class ReferencedEntitiesDataUpdater implements StatementDataUpdater, SiteLinkDataUpdater {
 
 	/**
 	 * @var EntityTitleLookup
@@ -129,8 +129,13 @@ class ReferencedEntitiesDataUpdate implements StatementDataUpdate, SiteLinkDataU
 	 * @param ParserOutput $parserOutput
 	 */
 	public function updateParserOutput( ParserOutput $parserOutput ) {
-		// needed and used in EntityParserOutputGenerator, for getEntityInfo,
-		// to allow this data to be accessed later in processing.
+		/**
+		 * Needed and used in EntityParserOutputGenerator, for getEntityInfo, to allow this data to
+		 * be accessed later in processing.
+		 *
+		 * @see EntityParserOutputGenerator::getEntityInfo
+		 * @fixme Use self::getEntityIds instead.
+		 */
 		$parserOutput->setExtensionData( 'referenced-entities', $this->entityIds );
 		$this->addLinksToParserOutput( $parserOutput );
 	}

@@ -134,7 +134,7 @@ class EntityParserOutputGeneratorFactory {
 			$this->getLanguageFallbackChain( $languageCode ),
 			$this->templateFactory,
 			$this->entityDataFormatProvider,
-			new EntityParserOutputDataUpdater( $this->getDataUpdates() ),
+			$this->getDataUpdaters(),
 			$languageCode
 		);
 	}
@@ -160,33 +160,33 @@ class EntityParserOutputGeneratorFactory {
 	}
 
 	/**
-	 * @return ParserOutputDataUpdate[]
+	 * @return ParserOutputDataUpdater[]
 	 */
-	private function getDataUpdates() {
+	private function getDataUpdaters() {
 		$propertyDataTypeMatcher = new PropertyDataTypeMatcher( $this->propertyDataTypeLookup );
 
-		$dataUpdates = array(
-			new ReferencedEntitiesDataUpdate(
+		$updaters = array(
+			new ReferencedEntitiesDataUpdater(
 				$this->entityTitleLookup,
 				$this->externalEntityIdParser
 			),
-			new ExternalLinksDataUpdate( $propertyDataTypeMatcher ),
-			new ImageLinksDataUpdate( $propertyDataTypeMatcher )
+			new ExternalLinksDataUpdater( $propertyDataTypeMatcher ),
+			new ImageLinksDataUpdater( $propertyDataTypeMatcher )
 		);
 
 		if ( !empty( $this->preferredPageImagesProperties ) ) {
-			$dataUpdates[] = new PageImagesDataUpdate( $this->preferredPageImagesProperties );
+			$updaters[] = new PageImagesDataUpdater( $this->preferredPageImagesProperties );
 		}
 
 		if ( class_exists( 'GeoData' ) ) {
-			$dataUpdates[] = new GeoDataDataUpdate(
+			$updaters[] = new GeoDataDataUpdater(
 				$propertyDataTypeMatcher,
 				$this->preferredGeoDataProperties,
 				$this->globeUris
 			);
 		}
 
-		return $dataUpdates;
+		return $updaters;
 	}
 
 }

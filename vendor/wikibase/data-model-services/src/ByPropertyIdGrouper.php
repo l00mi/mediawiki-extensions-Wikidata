@@ -47,6 +47,9 @@ class ByPropertyIdGrouper {
 		}
 	}
 
+	/**
+	 * @param PropertyIdProvider[]|Traversable $propertyIdProviders
+	 */
 	private function indexPropertyIdProviders( $propertyIdProviders ) {
 		foreach ( $propertyIdProviders as $propertyIdProvider ) {
 			$this->addPropertyIdProvider( $propertyIdProvider );
