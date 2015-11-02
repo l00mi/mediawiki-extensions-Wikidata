@@ -29,21 +29,21 @@ class EntityParserOutputDataUpdaterTest extends PHPUnit_Framework_TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 
-		$statementDataUpdate = $this->getMock( 'Wikibase\Repo\ParserOutput\StatementDataUpdater' );
-		$statementDataUpdate->expects( $this->exactly( $statements ) )
+		$statementDataUpdater = $this->getMock( 'Wikibase\Repo\ParserOutput\StatementDataUpdater' );
+		$statementDataUpdater->expects( $this->exactly( $statements ) )
 			->method( 'processStatement' );
-		$statementDataUpdate->expects( $this->once() )
+		$statementDataUpdater->expects( $this->once() )
 			->method( 'updateParserOutput' );
 
-		$siteLinkDataUpdate = $this->getMock( 'Wikibase\Repo\ParserOutput\SiteLinkDataUpdater' );
-		$siteLinkDataUpdate->expects( $this->exactly( $siteLinks ) )
+		$siteLinkDataUpdater = $this->getMock( 'Wikibase\Repo\ParserOutput\SiteLinkDataUpdater' );
+		$siteLinkDataUpdater->expects( $this->exactly( $siteLinks ) )
 			->method( 'processSiteLink' );
-		$siteLinkDataUpdate->expects( $this->once() )
+		$siteLinkDataUpdater->expects( $this->once() )
 			->method( 'updateParserOutput' );
 
 		$instance = new EntityParserOutputDataUpdater( $parserOutput, array(
-			$statementDataUpdate,
-			$siteLinkDataUpdate,
+			$statementDataUpdater,
+			$siteLinkDataUpdater,
 		) );
 		foreach ( $entities as $entity ) {
 			$instance->processEntity( $entity );
@@ -71,7 +71,7 @@ class EntityParserOutputDataUpdaterTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider invalidConstructorArgumentProvider
 	 */
-	public function testGivenInvalidDataUpdate_constructorThrowsException( array $argument ) {
+	public function testGivenInvalidDataUpdater_constructorThrowsException( array $argument ) {
 		$this->setExpectedException( 'InvalidArgumentException' );
 		new EntityParserOutputDataUpdater( new ParserOutput(), $argument );
 	}

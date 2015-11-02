@@ -78,13 +78,24 @@ class EntityParserOutputGenerator {
 	/**
 	 * @var ParserOutputDataUpdater[]
 	 */
-	private $dataUpdates;
+	private $dataUpdaters;
 
 	/**
 	 * @var string
 	 */
 	private $languageCode;
 
+	/**
+	 * @param EntityViewFactory $entityViewFactory
+	 * @param ParserOutputJsConfigBuilder $configBuilder
+	 * @param EntityTitleLookup $entityTitleLookup
+	 * @param EntityInfoBuilderFactory $entityInfoBuilderFactory
+	 * @param LanguageFallbackChain $languageFallbackChain
+	 * @param TemplateFactory $templateFactory
+	 * @param EntityDataFormatProvider $entityDataFormatProvider
+	 * @param ParserOutputDataUpdater[] $dataUpdaters
+	 * @param string $languageCode
+	 */
 	public function __construct(
 		EntityViewFactory $entityViewFactory,
 		ParserOutputJsConfigBuilder $configBuilder,
@@ -93,7 +104,7 @@ class EntityParserOutputGenerator {
 		LanguageFallbackChain $languageFallbackChain,
 		TemplateFactory $templateFactory,
 		EntityDataFormatProvider $entityDataFormatProvider,
-		array $dataUpdates,
+		array $dataUpdaters,
 		$languageCode
 	) {
 		$this->entityViewFactory = $entityViewFactory;
@@ -104,7 +115,7 @@ class EntityParserOutputGenerator {
 		$this->languageCode = $languageCode;
 		$this->templateFactory = $templateFactory;
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
-		$this->dataUpdates = $dataUpdates;
+		$this->dataUpdaters = $dataUpdaters;
 		$this->languageCode = $languageCode;
 	}
 
@@ -142,9 +153,9 @@ class EntityParserOutputGenerator {
 
 		$entity = $entityRevision->getEntity();
 
-		$dataUpdater = new EntityParserOutputDataUpdater( $parserOutput, $this->dataUpdates );
-		$dataUpdater->processEntity( $entity );
-		$dataUpdater->finish();
+		$updater = new EntityParserOutputDataUpdater( $parserOutput, $this->dataUpdaters );
+		$updater->processEntity( $entity );
+		$updater->finish();
 
 		$configVars = $this->configBuilder->build( $entity );
 		$parserOutput->addJsConfigVars( $configVars );
@@ -193,7 +204,12 @@ class EntityParserOutputGenerator {
 	 * @return EntityInfo
 	 */
 	private function getEntityInfo( ParserOutput $parserOutput ) {
-		// set in ReferencedEntitiesDataUpdater
+		/**
+		 * Set in ReferencedEntitiesDataUpdater.
+		 *
+		 * @see ReferencedEntitiesDataUpdater::updateParserOutput
+		 * @fixme Use ReferencedEntitiesDataUpdater::getEntityIds instead.
+		 */
 		$entityIds = $parserOutput->getExtensionData( 'referenced-entities' );
 
 		if ( !is_array( $entityIds ) ) {
@@ -250,7 +266,7 @@ class EntityParserOutputGenerator {
 		if ( !is_string( $titleText ) ) {
 			$entityId = $entity->getId();
 
-			if ( $entityId !== null ) {
+			if ( $entityId instanceof EntityId ) {
 				$titleText = $entityId->getSerialization();
 			}
 		}
