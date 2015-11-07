@@ -1054,6 +1054,7 @@ return array(
     'Wikibase\\Repo\\Tests\\Parsers\\YearMonthTimeParserTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Parsers/YearMonthTimeParserTest.php',
     'Wikibase\\Repo\\Tests\\Parsers\\YearTimeParserTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Parsers/YearTimeParserTest.php',
     'Wikibase\\Repo\\Tests\\Store\\Sql\\ChangesSubscriptionTableBuilderTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/ChangesSubscriptionTableBuilderTest.php',
+    'Wikibase\\Repo\\Tests\\Store\\Sql\\SqlStoreTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/SqlStoreTest.php',
     'Wikibase\\Repo\\Tests\\Store\\Sql\\WikiPageEntityMetaDataLookupTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/WikiPageEntityMetaDataLookupTest.php',
     'Wikibase\\Repo\\Tests\\UpdateRepo\\UpdateRepoOnDeleteJobTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/UpdateRepo/UpdateRepoOnDeleteJobTest.php',
     'Wikibase\\Repo\\Tests\\UpdateRepo\\UpdateRepoOnMoveJobTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/UpdateRepo/UpdateRepoOnMoveJobTest.php',
