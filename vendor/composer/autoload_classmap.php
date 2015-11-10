@@ -787,6 +787,7 @@ return array(
     'Wikibase\\Lib\\Test\\AutoCommentFormatterTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/formatters/AutoCommentFormatterTest.php',
     'Wikibase\\Lib\\Test\\Change\\EntityChangeFactoryTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/changes/EntityChangeFactoryTest.php',
     'Wikibase\\Lib\\Test\\CommonsLinkFormatterTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/formatters/CommonsLinkFormatterTest.php',
+    'Wikibase\\Lib\\Test\\DataValueFactoryTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/DataValueFactoryTest.php',
     'Wikibase\\Lib\\Test\\DispatchingSnakFormatterTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/formatters/DispatchingSnakFormatterTest.php',
     'Wikibase\\Lib\\Test\\DispatchingValueFormatterTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/formatters/DispatchingValueFormatterTest.php',
     'Wikibase\\Lib\\Test\\EntityIdHtmlLinkFormatterTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/formatters/EntityIdHtmlLinkFormatterTest.php',

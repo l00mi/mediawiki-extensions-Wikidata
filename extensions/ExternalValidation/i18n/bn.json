@@ -6,7 +6,7 @@
 		]
 	},
 	"wbqev-crosscheck-form-submit-label": "পরীক্ষা করুন",
-	"wbqev-crosscheck-result-headline": "$1-এর ফলাফল",
+	"wbqev-crosscheck-result-headline": "এর জন্য ফলাফল",
 	"wbqev-crosscheck-result-table-header-references": "তথ্যসূত্র",
 	"wbqev-crosscheck-result-table-header-local-value": "উইকিউপাত্ত মান",
 	"wbqev-crosscheck-result-table-header-external-source": "বাহ্যিক উৎস",
@@ -14,7 +14,7 @@
 	"wbqev-crosscheck-status-match": "মিলেছে",
 	"wbqev-crosscheck-status-references-stated": "বিবৃত",
 	"wbqev-externaldbs-language": "উপাত্তের ভাষা",
-	"wbqev-externaldbs-source-urls": "উৎস ইউআরএল:",
+	"wbqev-externaldbs-source-urls": "উৎস URL",
 	"wbqev-externaldbs-size": "আকার",
 	"wbqev-externaldbs-license": "লাইসেন্স"
 }
