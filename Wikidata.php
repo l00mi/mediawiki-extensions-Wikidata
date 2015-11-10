@@ -13,7 +13,7 @@ if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
 	$wmgUseWikibaseRepo = true;
 	$wmgUseWikibaseClient = true;
 	$wmgUseWikibaseQuality = true;
-	$wmgUseWikibaseQualityExternalValidation = true;
+	$wmgUseWikibaseQualityExternalValidation = false;
 }
 
 // no magic, use wmf configs instead to control which entry points to load
