@@ -1236,12 +1236,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "3ff82e9bb245b4ee0ed9a49f835d414a20a19bcf"
+            "reference": "5b65eea44d1f9867b81b2a3315dc1a98a17e0b6a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3ff82e9bb245b4ee0ed9a49f835d414a20a19bcf",
-            "reference": "3ff82e9bb245b4ee0ed9a49f835d414a20a19bcf",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/5b65eea44d1f9867b81b2a3315dc1a98a17e0b6a",
+            "reference": "5b65eea44d1f9867b81b2a3315dc1a98a17e0b6a",
             "shasum": ""
         },
         "require": {
@@ -1273,7 +1273,7 @@
             "jakub-onderka/php-parallel-lint": "0.9",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2015-11-11 01:19:24",
+        "time": "2015-11-11 20:57:57",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1513,7 +1513,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "5e7c38865133a2a6b503886fc97c1e92ee867edf"
+            "reference": "b2a94a413a6156e31d1a27ebe07638f2697c9c63"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1525,7 +1525,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2015-11-02 14:19:08",
+        "time": "2015-11-11 20:58:07",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

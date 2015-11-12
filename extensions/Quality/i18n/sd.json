@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Sindhu",
-			"Aursani"
+			"Aursani",
+			"Mehtab ahmed"
 		]
 	},
 	"wbq-violations-description": "اعدادي سڀاءُ وارن ڳالهوڙن جي فهرست",
@@ -14,10 +15,10 @@
 	"wbq-violations-form-select-all": "سڀ",
 	"wbq-violations-exceptions-checkbox-label": "قاعدي کان هٽيل ڏيکاريو",
 	"wbq-violations-submit-button-label": "خلاف ورزيون ڏيکاريو",
-	"wbq-violations-invalid-entity-id": "$1 -درست وجود جي آءِ ڊي نه آهي!",
-	"wbq-violations-not-existent-entity": "$1 وجود موجود نه آهي!",
-	"wbq-violations-invalid-property-id": "$1 -درست ملڪيت جي آءِ ڊي نه آهي!",
-	"wbq-violations-not-existent-property": "$1 پراپرٽي موجود نه آهي!",
+	"wbq-violations-invalid-entity-id": "ڏنل آءِ ڊي قابل قبول نه آهي.",
+	"wbq-violations-not-existent-entity": "هڪ وجود آءِ ڊي سان ڏنل وجود نٿي رکي.",
+	"wbq-violations-invalid-property-id": "درست ملڪيت جي آءِ ڊي نه آهي.",
+	"wbq-violations-not-existent-property": "آءِ ڊي سان ڏنل ملڪيت وجود نٿي رکي آهي.",
 	"wbq-violations-table-header-entity": "هستي",
 	"wbq-violations-table-header-claim": "دعوىٰ",
 	"wbq-violations-table-header-constraint-type": "قسم",
