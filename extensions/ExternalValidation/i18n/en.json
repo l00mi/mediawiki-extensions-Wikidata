@@ -7,7 +7,7 @@
 		]
 	},
 
-	"wbqev-desc": "Cross-check data with corresponding information external databases",
+	"wbqev-desc": "Cross-check data with corresponding information in external databases",
 	"wbqev-crosscheck": "Cross-check with external databases",
 	"wbqev-crosscheck-explanation-general": "This special page performs cross-checks between items in Wikidata and external databases. You can check the databases we use on the special page.",
 	"wbqev-crosscheck-explanation-detail": "To revise an item, enter its id. The values of each validatable property are compared to the value in the database and the result is presented here. Additionally we check whether references are missing or can be added in form of the database that states the same fact.",

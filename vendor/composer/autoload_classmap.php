@@ -814,6 +814,7 @@ return array(
     'Wikibase\\Lib\\Test\\WikibaseContentLanguagesTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/WikibaseContentLanguagesTest.php',
     'Wikibase\\Lib\\Test\\WikibaseValueFormatterBuildersTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/formatters/WikibaseValueFormatterBuildersTest.php',
     'Wikibase\\Lib\\Tests\\DataTypeDefinitionsTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/DataTypeDefinitionsTest.php',
+    'Wikibase\\Lib\\Tests\\Serialization\\CallbackFactoryTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/includes/serialization/CallbackFactoryTest.php',
     'Wikibase\\Lib\\Tests\\Store\\PropertyDataTypeMatcherTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/store/PropertyDataTypeMatcherTest.php',
     'Wikibase\\Lib\\TimeDetailsFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/formatters/TimeDetailsFormatter.php',
     'Wikibase\\Lib\\TypedValueFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/TypedValueFormatter.php',
