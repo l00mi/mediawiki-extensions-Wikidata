@@ -7,7 +7,7 @@
 			"Metalhead64"
 		]
 	},
-	"wbqev-desc": "対応する情報外部データベースとのクロスチェック・データ",
+	"wbqev-desc": "外部データベース内の対応する情報とのクロスチェック・データ",
 	"wbqev-crosscheck": "外部データベースとのクロス・チェック",
 	"wbqev-crosscheck-explanation-general": "この特別ページは、ウィキデータと外部データベースにある項目との照らし合わせを行います。特別ページで使用するデータベースを確認することができます。",
 	"wbqev-externaldbs-id": "ID",

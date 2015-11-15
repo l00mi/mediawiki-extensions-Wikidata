@@ -4,7 +4,7 @@
 			"Liuxinyu970226"
 		]
 	},
-	"wbqev-desc": "反复核对数据与对应信息的外部数据库",
+	"wbqev-desc": "通过外部数据库中对应的信息反复核对数据",
 	"wbqev-crosscheck": "反复核对外部数据库",
 	"wbqev-crosscheck-explanation-general": "此特殊页面在维基数据项和外部数据库之间执行反复核对。您可以在特殊页面检查我们使用的数据库。",
 	"wbqev-crosscheck-explanation-detail": "要修订一项，请输入它的ID。每个合法性属性的值在此与数据库中的值相比较，并且结果在此提供。另外我们会检查参考文献是否丢失，或是否可以加入声明同一实情的数据库的表格中。",

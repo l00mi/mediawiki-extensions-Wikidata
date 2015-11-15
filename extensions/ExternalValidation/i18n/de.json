@@ -5,7 +5,7 @@
 			"Andreasburmeister"
 		]
 	},
-	"wbqev-desc": "Ermöglicht die Gegenprüfung von Daten mit passenden externen Informationsdatenbanken",
+	"wbqev-desc": "Ermöglicht die Gegenprüfung von Daten mit passenden Informationen in externen Datenbanken",
 	"wbqev-crosscheck": "Gegenprüfung mit externen Datenbanken",
 	"wbqev-crosscheck-explanation-general": "Diese Spezialseite führt Gegenprüfungen zwischen Objekten in Wikidata und externen Datenbanken aus. Du kannst die Datenbanken, die wir verwenden, auf der Spezialseite überprüfen.",
 	"wbqev-crosscheck-explanation-detail": "Gib zur Überarbeitung eines Objekts seine Kennung an. Die Werte jeder überprüfbaren Eigenschaft wird mit dem Wert in der Datenbank verglichen und das Ergebnis wird hier dargestellt. Zusätzlich überprüfen wir, ob Quellen fehlen oder in das Formular der Datenbank, die die gleichen Fakten angegeben hat, eingefügt werden können.",
