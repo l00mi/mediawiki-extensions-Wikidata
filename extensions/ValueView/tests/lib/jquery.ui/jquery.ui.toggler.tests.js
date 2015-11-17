@@ -29,7 +29,7 @@
 	QUnit.module( 'jquery.ui.toggler', {
 		teardown: function() {
 			$( '.test_toggler' ).each( function( i, node ) {
-				if( $( node ).data( 'toggler' ) ) {
+				if ( $( node ).data( 'toggler' ) ) {
 					$( node ).data( 'toggler' ).destroy();
 				}
 				$( node ).remove();
@@ -58,6 +58,24 @@
 			$( '.test_toggler-subject' ).length,
 			1,
 			'Toggler subject still exists.'
+		);
+	} );
+
+	QUnit.test( 'Toggle toggler', 2, function( assert ) {
+		var toggler = newTestToggler();
+
+		assert.equal(
+				toggler.isCollapsed(),
+				true,
+				'Toggler is initially collapsed'
+		);
+
+		toggler.toggle();
+
+		assert.equal(
+				toggler.isCollapsed(),
+				false,
+				'Toggler is expanded after toggle'
 		);
 	} );
 

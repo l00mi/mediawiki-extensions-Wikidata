@@ -35,10 +35,10 @@ cd extensions
 cp -r $originalDirectory WikibaseQuality
 
 cd WikibaseQuality
-composer install --dev --no-interaction --prefer-source
+composer install --no-interaction --prefer-source
 
 cd ../Wikibase
-composer install --prefer-source
+composer install --no-dev --prefer-source
 
 cd ../..
 

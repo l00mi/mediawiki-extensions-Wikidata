@@ -2,7 +2,6 @@
 
 namespace Wikibase\Rdf;
 
-use DataValues\DataValue;
 use DataValues\DecimalValue;
 use DataValues\Geo\Values\GlobeCoordinateValue;
 use DataValues\MonolingualTextValue;
@@ -10,7 +9,7 @@ use DataValues\QuantityValue;
 use DataValues\StringValue;
 use DataValues\TimeValue;
 use Wikibase\DataModel\Entity\EntityIdValue;
-use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikimedia\Purtle\RdfWriter;
 
 /**
@@ -22,7 +21,7 @@ use Wikimedia\Purtle\RdfWriter;
  * @author Daniel Kinzler
  * @author Stas Malyshev
  */
-class SimpleValueRdfBuilder implements DataValueRdfBuilder {
+class SimpleValueRdfBuilder implements ValueSnakRdfBuilder {
 
 	/**
 	 * @var EntityMentionListener
@@ -35,12 +34,15 @@ class SimpleValueRdfBuilder implements DataValueRdfBuilder {
 	private $dateCleaner;
 
 	/**
-	 * @param RdfVocabulary $vocabulary
-	 * @param PropertyDataTypeLookup $propertyLookup
+	 * @var RdfVocabulary
 	 */
-	public function __construct( RdfVocabulary $vocabulary, PropertyDataTypeLookup $propertyLookup ) {
+	protected $vocabulary;
+
+	/**
+	 * @param RdfVocabulary $vocabulary
+	 */
+	public function __construct( RdfVocabulary $vocabulary ) {
 		$this->vocabulary = $vocabulary;
-		$this->propertyLookup = $propertyLookup;
 
 		// TODO: if data is fixed to be always Gregorian, replace with DateTimeValueCleaner
 		$this->dateCleaner = new JulianDateTimeValueCleaner();
@@ -68,16 +70,17 @@ class SimpleValueRdfBuilder implements DataValueRdfBuilder {
 	 * @param string $propertyValueNamespace Property value relation namespace
 	 * @param string $propertyValueLName Property value relation name
 	 * @param string $dataType Property data type
-	 * @param DataValue $value
+	 * @param PropertyValueSnak $snak
 	 */
 	public function addValue(
 		RdfWriter $writer,
 		$propertyValueNamespace,
 		$propertyValueLName,
 		$dataType,
-		$value
+		PropertyValueSnak $snak
 	) {
 		//FIXME: use a proper registry / dispatching builder
+		$value = $snak->getDataValue();
 		switch ( $value->getType() ) {
 			//TODO: RdfWriter could support aliases -> instead of passing around $propertyNamespace
 			//      and $propertyValueLName, we could define an alias for that and use e.g. '%property' to refer to them.

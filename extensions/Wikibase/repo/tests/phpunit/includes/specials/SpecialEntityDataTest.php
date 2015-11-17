@@ -18,9 +18,11 @@ use Wikibase\Repo\LinkedData\EntityDataRequestHandler;
 use Wikibase\Repo\LinkedData\EntityDataSerializationService;
 use Wikibase\Repo\LinkedData\EntityDataUriManager;
 use Wikibase\Repo\Specials\SpecialEntityData;
+use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialEntityData
+ * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Database
  *
@@ -71,12 +73,17 @@ class SpecialEntityDataTest extends SpecialPageTestBase {
 			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
 		);
 
+		// Note: We are testing with the actual RDF bindings. These should not change for well
+		// known data types. Mocking the bindings would be nice, but is complex and not needed.
+		$rdfBuilder = WikibaseRepo::getDefaultInstance()->getValueSnakRdfBuilderFactory();
+
 		$serializationService = new EntityDataSerializationService(
 			self::URI_BASE,
 			self::URI_DATA,
 			$mockRepository,
 			$titleLookup,
 			$dataTypeLookup,
+			$rdfBuilder,
 			new SiteList(),
 			$entityDataFormatProvider,
 			$serializerFactory,

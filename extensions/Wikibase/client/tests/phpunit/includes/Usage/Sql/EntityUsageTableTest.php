@@ -7,7 +7,6 @@ use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\PageEntityUsages;
 use Wikibase\Client\Usage\Sql\EntityUsageTable;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 
@@ -50,24 +49,6 @@ class EntityUsageTableTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @param EntityUsage[] $usages
-	 *
-	 * @return array
-	 */
-	private function getItemIds( array $usages ) {
-		$ids = array();
-
-		foreach ( $usages as $usage ) {
-			$id = $usage->getEntityId();
-
-			$key = $id->getSerialization();
-			$ids[$key]= $id;
-		}
-
-		return $ids;
-	}
-
-	/**
 	 * @param int $pageId
 	 * @param EntityUsage[] $usages
 	 * @param string $touched timestamp
@@ -96,26 +77,6 @@ class EntityUsageTableTest extends \MediaWikiTestCase {
 			}
 
 			$rows[$key] = $row;
-		}
-
-		return $rows;
-	}
-
-	/**
-	 * @param array[] $rows
-	 * @param EntityId[] $entityIds
-	 *
-	 * @return array[]
-	 */
-	private function removeRowsForEntities( array $rows, array $entityIds ) {
-		$idStrings = array_map( function ( EntityId $id ) {
-			return $id->getSerialization();
-		}, $entityIds );
-
-		foreach ( $rows as $key => $row ) {
-			if ( in_array( $row['eu_entity_id'], $idStrings ) ) {
-				unset( $rows[$key] );
-			}
 		}
 
 		return $rows;

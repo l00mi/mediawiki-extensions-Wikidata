@@ -21,6 +21,7 @@ use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialMergeItems
+ * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Wikibase
  * @group SpecialPage
@@ -168,7 +169,7 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		}
 
 		$request = new \FauxRequest( $params, true );
-		list( $html, ) =  $this->executeSpecialPage( '', $request, 'qqx' );
+		list( $html, ) = $this->executeSpecialPage( '', $request, 'qqx' );
 		return $html;
 	}
 

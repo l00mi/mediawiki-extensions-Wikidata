@@ -8,6 +8,7 @@ use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Repo\Api\SetSiteLink
+ * @covers Wikibase\Repo\Api\ModifyEntity
  *
  * @licence GNU GPL v2+
  * @author John Erling Blad < jeblad@gmail.com >
@@ -566,7 +567,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		list( $result, ) = $this->doApiRequestWithToken( $params );
 
 		$warning = $result['warnings']['wbsetsitelink']['warnings'];
-		$this->assertRegExp( "/Unrecognized value for parameter 'badges'/", $warning );
+		$this->assertContains( 'Unrecognized value for parameter \'badges\'', $warning );
 	}
 
 }

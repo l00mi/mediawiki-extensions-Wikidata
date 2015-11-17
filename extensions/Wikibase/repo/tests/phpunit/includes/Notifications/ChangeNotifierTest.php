@@ -3,7 +3,6 @@
 namespace Wikibase\Tests\Repo;
 
 use Content;
-use ContentHandler;
 use Revision;
 use RuntimeException;
 use Title;
@@ -55,11 +54,6 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 		return $content;
 	}
 
-	private function itemSupportsRedirects() {
-		$handler = ContentHandler::getForModelID( CONTENT_MODEL_WIKIBASE_ITEM );
-		return $handler->supportsRedirects();
-	}
-
 	/**
 	 * @param ItemId $id
 	 * @param ItemId $target
@@ -68,10 +62,6 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	 * @return EntityContent
 	 */
 	protected function makeItemRedirectContent( ItemId $id, ItemId $target ) {
-		if ( !$this->itemSupportsRedirects() ) {
-			throw new RuntimeException( 'Redirects are not yet supported.' );
-		}
-
 		$title = Title::newFromText( $target->getSerialization() );
 		$redirect = new EntityRedirect( $id, $target );
 		$content = ItemContent::newFromRedirect( $redirect, $title );
@@ -137,12 +127,6 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	}
 
 	public function testNotifyOnPageDeleted_redirect() {
-		if ( !$this->itemSupportsRedirects() ) {
-			// As of 2014-06-30, redirects are still experimental.
-			// So do a feature check before trying to test redirects.
-			$this->markTestSkipped( 'Redirects not yet supported.' );
-		}
-
 		$user = $this->makeUser( 'ChangeNotifierTestUser' );
 		$timestamp = '20140523' . '174822';
 		$content = $this->makeItemRedirectContent( new ItemId( 'Q12' ), new ItemId( 'Q17' ) );
@@ -190,12 +174,6 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	}
 
 	public function testNotifyOnPageUndeleted_redirect() {
-		if ( !$this->itemSupportsRedirects() ) {
-			// As of 2014-06-30, redirects are still experimental.
-			// So do a feature check before trying to test redirects.
-			$this->markTestSkipped( 'Redirects not yet supported.' );
-		}
-
 		$user = $this->makeUser( 'ChangeNotifierTestUser' );
 		$user->setId( 17 );
 
@@ -235,12 +213,6 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	}
 
 	public function testNotifyOnPageCreated_redirect() {
-		if ( !$this->itemSupportsRedirects() ) {
-			// As of 2014-06-30, redirects are still experimental.
-			// So do a feature check before trying to test redirects.
-			$this->markTestSkipped( 'Redirects not yet supported.' );
-		}
-
 		$user = $this->makeUser( 'ChangeNotifierTestUser' );
 		$timestamp = '20140523' . '174822';
 		$revisionId = 12345;
@@ -260,11 +232,11 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 		$revisionId = 12345;
 
 		$oldContent = $this->makeItemContent( new ItemId( 'Q12' ) );
-		$parent = $this->makeRevision( $oldContent, $user, $revisionId-1, $timestamp );
+		$parent = $this->makeRevision( $oldContent, $user, $revisionId - 1, $timestamp );
 
 		$content = $this->makeItemContent( $oldContent->getEntityId() );
 		$content->getEntity()->setLabel( 'en', 'Foo' );
-		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId-1 );
+		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId - 1 );
 
 		$notifier = $this->getChangeNotifier();
 		$change = $notifier->notifyOnPageModified( $revision, $parent );
@@ -282,21 +254,15 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	}
 
 	public function testNotifyOnPageModified_redirect() {
-		if ( !$this->itemSupportsRedirects() ) {
-			// As of 2014-06-30, redirects are still experimental.
-			// So do a feature check before trying to test redirects.
-			$this->markTestSkipped( 'Redirects not yet supported.' );
-		}
-
 		$user = $this->makeUser( 'ChangeNotifierTestUser' );
 		$timestamp = '20140523' . '174822';
 		$revisionId = 12345;
 
 		$oldContent = $this->makeItemRedirectContent( new ItemId( 'Q12' ), new ItemId( 'Q17' ) );
-		$parent = $this->makeRevision( $oldContent, $user, $revisionId-1, $timestamp );
+		$parent = $this->makeRevision( $oldContent, $user, $revisionId - 1, $timestamp );
 
 		$content = $this->makeItemRedirectContent( $oldContent->getEntityId(), new ItemId( 'Q19' ) );
-		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId-1 );
+		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId - 1 );
 
 		$notifier = $this->getChangeNotifier( 0 );
 		$change = $notifier->notifyOnPageModified( $revision, $parent );
@@ -305,21 +271,15 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	}
 
 	public function testNotifyOnPageModified_from_redirect() {
-		if ( !$this->itemSupportsRedirects() ) {
-			// As of 2014-06-30, redirects are still experimental.
-			// So do a feature check before trying to test redirects.
-			$this->markTestSkipped( 'Redirects not yet supported.' );
-		}
-
 		$user = $this->makeUser( 'ChangeNotifierTestUser' );
 		$timestamp = '20140523' . '174822';
 		$revisionId = 12345;
 
 		$oldContent = $this->makeItemRedirectContent( new ItemId( 'Q12' ), new ItemId( 'Q17' ) );
-		$parent = $this->makeRevision( $oldContent, $user, $revisionId-1, $timestamp );
+		$parent = $this->makeRevision( $oldContent, $user, $revisionId - 1, $timestamp );
 
 		$content = $this->makeItemContent( $oldContent->getEntityId() );
-		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId-1 );
+		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId - 1 );
 
 		$notifier = $this->getChangeNotifier();
 		$change = $notifier->notifyOnPageModified( $revision, $parent );
@@ -337,21 +297,15 @@ class ChangeNotifierTest extends \MediaWikiTestCase {
 	}
 
 	public function testNotifyOnPageModified_to_redirect() {
-		if ( !$this->itemSupportsRedirects() ) {
-			// As of 2014-06-30, redirects are still experimental.
-			// So do a feature check before trying to test redirects.
-			$this->markTestSkipped( 'Redirects not yet supported.' );
-		}
-
 		$user = $this->makeUser( 'ChangeNotifierTestUser' );
 		$timestamp = '20140523' . '174822';
 		$revisionId = 12345;
 
 		$oldContent = $this->makeItemContent( new ItemId( 'Q12' ) );
-		$parent = $this->makeRevision( $oldContent, $user, $revisionId-1, $timestamp );
+		$parent = $this->makeRevision( $oldContent, $user, $revisionId - 1, $timestamp );
 
 		$content = $this->makeItemRedirectContent( $oldContent->getEntityId(), new ItemId( 'Q19' ) );
-		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId-1 );
+		$revision = $this->makeRevision( $content, $user, $revisionId, $timestamp, $revisionId - 1 );
 
 		$notifier = $this->getChangeNotifier();
 		$change = $notifier->notifyOnPageModified( $revision, $parent );

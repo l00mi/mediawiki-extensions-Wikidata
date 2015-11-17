@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "72ed1a3f3ec1991bb2739dab8685553c",
-    "content-hash": "77ef3f1c28ff76090047f5f3143e4b30",
+    "hash": "cf6de7c43cfa96789a76010b9efb9624",
     "packages": [
         {
             "name": "composer/installers",
@@ -665,21 +664,25 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.15.5",
+            "version": "0.15.6",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wmde/ValueView.git",
-                "reference": "9e487b366375f7a3bca8528757e8e9dcf398a6f0"
+                "url": "https://github.com/wikimedia/data-values-value-view.git",
+                "reference": "d4620fa54d0506f3319963592f9423473deca9d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/ValueView/zipball/9e487b366375f7a3bca8528757e8e9dcf398a6f0",
-                "reference": "9e487b366375f7a3bca8528757e8e9dcf398a6f0",
+                "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/d4620fa54d0506f3319963592f9423473deca9d2",
+                "reference": "d4620fa54d0506f3319963592f9423473deca9d2",
                 "shasum": ""
             },
             "require": {
                 "data-values/javascript": "~0.7.0",
                 "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "jakub-onderka/php-parallel-lint": "0.9",
+                "mediawiki/mediawiki-codesniffer": "0.4.0"
             },
             "type": "mediawiki-extension",
             "extra": {
@@ -708,7 +711,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2015-09-09 16:18:13"
+            "time": "2015-11-04 10:41:10"
         },
         {
             "name": "diff/diff",
@@ -916,7 +919,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "b2dfdbb94f394964493b6d5bfa65fc93e03b6d97"
+                "reference": "7a4a4f71ff982edea41e74db87421bfba2ae6745"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -962,7 +965,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2015-10-23 19:47:04"
+            "time": "2015-11-11 20:37:51"
         },
         {
             "name": "wikibase/data-model",
@@ -1132,16 +1135,16 @@
         },
         {
             "name": "wikibase/data-model-services",
-            "version": "3.1.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelServices.git",
-                "reference": "3843930bde6b876c14a3bc2c5e16a1608c5b6090"
+                "reference": "a9c358b0940c0878bf4ea4748c850286afb7915d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/3843930bde6b876c14a3bc2c5e16a1608c5b6090",
-                "reference": "3843930bde6b876c14a3bc2c5e16a1608c5b6090",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/a9c358b0940c0878bf4ea4748c850286afb7915d",
+                "reference": "a9c358b0940c0878bf4ea4748c850286afb7915d",
                 "shasum": ""
             },
             "require": {
@@ -1183,7 +1186,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-10-16 13:46:05"
+            "time": "2015-11-15 01:25:44"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1296,7 +1299,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "4ada5fdfe99c166acb50d19dbe7bc88e6fd3934a"
+                "reference": "b2a94a413a6156e31d1a27ebe07638f2697c9c63"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1340,7 +1343,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-11-01 20:42:08"
+            "time": "2015-11-11 20:58:07"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1385,16 +1388,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.27.0-wmf.5",
+            "version": "dev-wmf/1.27.0-wmf.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "7d64df93a0ffa83347de40da067456faee227164"
+                "reference": "f8b52fab04969021e586fb406c588ac7bfa767a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7d64df93a0ffa83347de40da067456faee227164",
-                "reference": "7d64df93a0ffa83347de40da067456faee227164",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f8b52fab04969021e586fb406c588ac7bfa767a4",
+                "reference": "f8b52fab04969021e586fb406c588ac7bfa767a4",
                 "shasum": ""
             },
             "require": {
@@ -1408,7 +1411,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.8.2",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.15.5",
+                "data-values/value-view": "~0.15.6",
                 "diff/diff": "~2.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~4.0",
@@ -1424,7 +1427,7 @@
             },
             "require-dev": {
                 "jakub-onderka/php-parallel-lint": "0.9",
-                "mediawiki/mediawiki-codesniffer": "0.4.0"
+                "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
             },
             "type": "mediawiki-extension",
             "autoload": {
@@ -1464,7 +1467,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-11-05 14:21:41"
+            "time": "2015-11-17 11:24:50"
         },
         {
             "name": "wikibase/wikimedia-badges",

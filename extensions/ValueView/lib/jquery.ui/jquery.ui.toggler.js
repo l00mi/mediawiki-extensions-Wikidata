@@ -87,7 +87,7 @@ $.widget( 'ui.toggler', {
 	_create: function() {
 		var self = this;
 
-		if( !this.options.$subject ) {
+		if ( !this.options.$subject ) {
 			throw new Error( 'No subject given: Nothing to toggle.' );
 		}
 
@@ -106,22 +106,7 @@ $.widget( 'ui.toggler', {
 		this.element
 		.on( 'click.' + this.widgetName, function( event ) {
 			event.preventDefault();
-
-			if( !self.element.hasClass( 'ui-state-disabled' ) ) {
-				// Change toggle icon to reflect current state of toggle subject visibility:
-				var visible = self._reflectVisibilityOnToggleIcon( true );
-
-				self.options.$subject.stop().animateWithEvent(
-					'togglerstatetransition',
-					'slideToggle',
-					self.options,
-					function( animationEvent ) {
-						self._trigger( 'animation', animationEvent, {
-							visible: visible
-						} );
-					}
-				);
-			}
+			self.toggle();
 		} )
 		.on( 'mouseover.' + this.widgetName, function( event ) {
 			self.element.addClass( 'ui-state-hover' );
@@ -134,6 +119,37 @@ $.widget( 'ui.toggler', {
 
 		// Consider content being invisible initially:
 		this._reflectVisibilityOnToggleIcon();
+	},
+
+	/**
+	 * Toggle status of toggler to expand/collapse.
+	 */
+	toggle: function () {
+		var self = this;
+		if ( !this.element.hasClass( 'ui-state-disabled' ) ) {
+			// Change toggle icon to reflect current state of toggle subject visibility:
+			var visible = this._reflectVisibilityOnToggleIcon( true );
+
+			this.options.$subject.stop().animateWithEvent(
+					'togglerstatetransition',
+					'slideToggle',
+					this.options,
+					function( animationEvent ) {
+						self._trigger( 'animation', animationEvent, {
+							visible: visible
+						} );
+					}
+			);
+		}
+	},
+
+	/**
+	 * Returns status of toggler.
+	 * Is true when toggler is collapsed.
+	 * @return {boolean}
+	 */
+	isCollapsed: function() {
+		return this.element.hasClass( this.widgetBaseClass + '-toggle-collapsed' );
 	},
 
 	/**
@@ -158,14 +174,14 @@ $.widget( 'ui.toggler', {
 			dir = ( isRtl === undefined ? $( 'body' ).hasClass( 'rtl' ) : isRtl ) ? 'w' : 'e',
 		// Don't use is( ':visible' ) which would be misleading if element not yet in DOM!
 			visible = this.options.$subject.css( 'display' ) !== 'none';
-		if( inverted ) {
+		if ( inverted ) {
 			visible = !visible;
 		}
 
 		this.$toggleIcon.removeClass( iconClass + 'e ' + iconClass + 's ' + iconClass + 'w '
 			+ this.widgetBaseClass + '-icon3dtrans' );
 		// Add classes displaying rotated icon. If CSS3 transform is available, use it:
-		if( !browserSupportsTransform || !$.speed().duration ) {
+		if ( !browserSupportsTransform || !$.speed().duration ) {
 			this.$toggleIcon.addClass( iconClass + ( visible ? 's' : dir ) );
 		} else {
 			this.$toggleIcon.addClass( iconClass + 's '

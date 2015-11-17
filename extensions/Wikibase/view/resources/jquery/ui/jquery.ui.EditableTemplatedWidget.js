@@ -132,8 +132,8 @@ $.widget( 'ui.EditableTemplatedWidget', PARENT, {
 			return this._afterStopEditing( dropValue );
 		} else {
 			this._save()
-			.done( function() {
-				self.options.value = self.value();
+			.done( function( savedValue ) {
+				self.options.value = savedValue || self.value();
 				self._afterStopEditing( dropValue )
 				.done( function() {
 					deferred.resolve( dropValue );
@@ -154,7 +154,8 @@ $.widget( 'ui.EditableTemplatedWidget', PARENT, {
 
 	/**
 	 * @return {Object} jQuery.Promise
-	 *         No resolved parameters.
+	 *         Resolved parameters:
+	 *         - {*} [value] the data model object returned by save API call
 	 *         Rejected parameters:
 	 *         - {Error}
 	 */

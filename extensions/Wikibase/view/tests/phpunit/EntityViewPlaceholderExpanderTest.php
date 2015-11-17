@@ -8,7 +8,6 @@ use User;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\EntityRevision;
-use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\WikibaseContentLanguages;
@@ -59,6 +58,8 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 			->method( 'getAllUserLanguages' )
 			->will( $this->returnValue( array( 'de', 'en', 'ru' ) ) );
 
+		$languageNameLookup = $this->getMock( 'Wikibase\Lib\LanguageNameLookup' );
+
 		return new EntityViewPlaceholderExpander(
 			$templateFactory,
 			$title,
@@ -68,7 +69,7 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 			$entityRevisionLookup,
 			$userLanguages,
 			new WikibaseContentLanguages(),
-			new LanguageNameLookup()
+			$languageNameLookup
 		);
 	}
 
@@ -164,10 +165,14 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 		// 'de' and 'ru', since 'en' is already covered by the interface language.
 		$html = $expander->renderTermBox( new ItemId( 'Q23' ), 0 );
 
-		$this->assertRegExp( '/Moskow/', $html );
+		$this->assertContains( 'wikibase-entitytermsforlanguageview-en', $html );
+		$this->assertContains( 'Moskow', $html );
 
-		$this->assertRegExp( '/Moskau/', $html );
-		$this->assertRegExp( '/Hauptstadt/', $html );
+		$this->assertContains( 'wikibase-entitytermsforlanguageview-de', $html );
+		$this->assertContains( 'Moskau', $html );
+		$this->assertContains( 'Hauptstadt Russlands', $html );
+
+		$this->assertContains( 'wikibase-entitytermsforlanguageview-ru', $html );
 	}
 
 	public function testRenderTermBoxForDeleteRevision() {

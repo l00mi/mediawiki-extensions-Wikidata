@@ -16,7 +16,7 @@ use Wikimedia\Assert\Assert;
  *   as used by BuilderBasedDataTypeValidatorFactory.
  * - parser-factory-callback: a callback for instantiating a parser for the data type
  * - formatter-factory-callback: a callback for instantiating a formatter for the data type
- * @todo rdf-builder-factory-callback: a callback for instantiating a rdf mapping for the data type
+ * - rdf-builder-factory-callback: a callback for instantiating a rdf mapping for the data type
  *
  * @see docs/datatypes.wiki
  *
@@ -109,21 +109,28 @@ class DataTypeDefinitions {
 	/**
 	 * @see ValueParserFactory
 	 *
-	 * @return callable[]|string[]
+	 * @return callable[]
 	 */
 	public function getParserFactoryCallbacks() {
 		return $this->getMapForDefinitionField( 'parser-factory-callback' );
 	}
 
 	/**
-	 * @see OutputFormattValueFormatterFactory
+	 * @see OutputFormatValueFormatterFactory
 	 *
-	 * @return callable[]|string[]
+	 * @return callable[]
 	 */
 	public function getFormatterFactoryCallbacks() {
 		return $this->getMapForDefinitionField( 'formatter-factory-callback' );
 	}
 
-	//TODO: getRdfBuilderFactoryCallbacks()
+	/**
+	 * @see DataValueRdfBuilderFactory
+	 *
+	 * @return callable[]
+	 */
+	public function getRdfBuilderFactoryCallbacks() {
+		return $this->getMapForDefinitionField( 'rdf-builder-factory-callback' );
+	}
 
 }

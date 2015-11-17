@@ -16,7 +16,7 @@
 	ExpertExtender.Preview = function( getUpstreamValue, messageProvider ) {
 		this._getUpstreamValue = getUpstreamValue;
 
-		var messageProvider = new PrefixingMessageProvider(
+		messageProvider = new PrefixingMessageProvider(
 			'valueview-preview-',
 			messageProvider
 		);
@@ -80,7 +80,7 @@
 		 * Public method for replacing the preview with a spinner.
 		 */
 		showSpinner: function() {
-			if( this._preview ) {
+			if ( this._preview ) {
 				this._preview.showSpinner();
 			}
 		}

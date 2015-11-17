@@ -7,6 +7,7 @@ use MWException;
 use Parser;
 use StubUserLang;
 use ValueFormatters\FormatterOptions;
+use ValueFormatters\ValueFormatter;
 use Wikibase\Client\DataAccess\PropertyIdResolver;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
@@ -103,7 +104,7 @@ class StatementGroupRendererFactory {
 	 * @throws MWException
 	 */
 	private function newLanguageAwareRenderer( $language, UsageAccumulator $usageAccumulator ) {
-		if ( !$language instanceof Language ) {
+		if ( !( $language instanceof Language ) ) {
 			wfDebugLog(
 				'T107711',
 				get_class( $language ) . ' is not a Language object.',
@@ -205,7 +206,10 @@ class StatementGroupRendererFactory {
 	 *
 	 * @return SnakFormatter
 	 */
-	private function newSnakFormatterForLanguage( Language $language, UsageAccumulator $usageAccumulator ) {
+	private function newSnakFormatterForLanguage(
+		Language $language,
+		UsageAccumulator $usageAccumulator
+	) {
 		$languageFallbackChain = $this->languageFallbackChainFactory->newFromLanguage(
 			$language,
 			LanguageFallbackChainFactory::FALLBACK_SELF | LanguageFallbackChainFactory::FALLBACK_VARIANTS
@@ -213,6 +217,7 @@ class StatementGroupRendererFactory {
 
 		$options = new FormatterOptions( array(
 			FormatterLabelDescriptionLookupFactory::OPT_LANGUAGE_FALLBACK_CHAIN => $languageFallbackChain,
+			ValueFormatter::OPT_LANG => $language->getCode(),
 			// ...more options... (?)
 		) );
 

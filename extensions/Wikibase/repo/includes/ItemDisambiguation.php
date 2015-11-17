@@ -134,7 +134,7 @@ class ItemDisambiguation {
 	private function getIdHtml( EntityId $entityId = null ) {
 		$title = $this->titleLookup->getTitleForId( $entityId );
 
-		$idElement =  Html::element(
+		$idElement = Html::element(
 			'a',
 			array(
 				'title' => $title ? $title->getPrefixedText() : '',
@@ -214,7 +214,7 @@ class ItemDisambiguation {
 		$matchElement = $descriptionElement = Html::element(
 			'span',
 			array( 'class' => 'wb-itemlink-match' ),
-			wfMessage( 'wikibase-itemlink-userlang-wrapper' )->params( $language, $text )->parse()
+			wfMessage( 'wikibase-itemlink-userlang-wrapper' )->params( $language, $text )->text()
 		);
 
 		return $matchElement;

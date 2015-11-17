@@ -13,7 +13,7 @@ if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
 	$wmgUseWikibaseRepo = true;
 	$wmgUseWikibaseClient = true;
 	$wmgUseWikibaseQuality = true;
-	$wmgUseWikibaseQualityExternalValidation = false;
+	$wmgUseWikibaseQualityExternalValidation = true;
 }
 
 // no magic, use wmf configs instead to control which entry points to load
@@ -38,7 +38,12 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 
 		// @note wikibase/external-validation is removed from composer.json for
 		// deployment builds, during the 'branch' grunt command. (pending security review)
-		if ( !empty( $wmgUseWikibaseQualityExternalValidation ) ) {
+		// jenkins builds for deployment branches have this set to true, but then we remove
+		// the code, so need to check the extension is there even on jenkins.
+		if (
+			!empty( $wmgUseWikibaseQualityExternalValidation )
+			&& is_readable( "$wgWikidataBaseDir/extensions/ExternalValidation/WikibaseQualityExternalValidation.php" )
+		) {
 			include_once "$wgWikidataBaseDir/extensions/ExternalValidation/WikibaseQualityExternalValidation.php";
 		}
 	}
