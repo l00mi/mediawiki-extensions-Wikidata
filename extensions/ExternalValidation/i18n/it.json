@@ -10,7 +10,7 @@
 			"The Polish"
 		]
 	},
-	"wbqev-desc": "Controllo incrociato dei dati con le corrispondenti informazioni di database esterni",
+	"wbqev-desc": "Controllo incrociato dei dati con le corrispondenti informazioni in database esterni",
 	"wbqev-crosscheck": "Controllo incrociato con database esterni",
 	"wbqev-crosscheck-explanation-general": "Questa pagina speciale esegue controlli incrociati tra gli elementi in Wikidata e i database esterni. È possibile controllare sull'apposita pagina il database che utilizziamo.",
 	"wbqev-crosscheck-form-section": "Controllo incrociato elemento",
