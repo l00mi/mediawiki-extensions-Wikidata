@@ -6,7 +6,7 @@
 			"Toliño"
 		]
 	},
-	"wbqev-desc": "Comprobar os datos con información correspondente de bases de datos externas",
+	"wbqev-desc": "Comprobar os datos con información correspondente a bases de datos externas",
 	"wbqev-crosscheck": "Verificación cruzada con bases de datos externas",
 	"wbqev-crosscheck-explanation-general": "Esta páxina especial realiza verificacións cruzadas entre elementos en Wikidata e bases de datos externas. Vostede pode comprobar as bases de datos que usamos na páxina especial.",
 	"wbqev-crosscheck-explanation-detail": "Para revisar un elemento, indique o seu identificador. Os valores de cada propiedade validable son comparados cos valores da base de datos e os resultados preséntanse aquí. Adicionalmente revisamos se faltan as referencias ou se poden ser engadidas de forma que a base de datos reflexe o mesmo feito.",
