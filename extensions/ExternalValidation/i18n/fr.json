@@ -8,7 +8,7 @@
 			"Orlodrim"
 		]
 	},
-	"wbqev-desc": "Vérifier les données par croisement avec des bases de données externes",
+	"wbqev-desc": "Vérifier les données par croisement avec les informations correspondantes dans des bases de données externes",
 	"wbqev-crosscheck": "Recoupement avec des bases de données externes",
 	"wbqev-crosscheck-explanation-general": "Cette page spéciale effectue des contrôles croisés entre les éléments de Wikidata et des bases de données externes. Vous pouvez vérifier les bases de données que nous utilisons sur la page spéciale.",
 	"wbqev-crosscheck-explanation-detail": "Pour réviser un élément, saisissez son identifiant. Les valeurs de chaque propriété validable sont comparées à la valeur présente dans la base de données et le résultat est présenté ici. En outre, nous vérifions s’il manque des références ou si elles peuvent être ajoutées dans le formulaire de la base de données qui est relatif au même sujet.",
