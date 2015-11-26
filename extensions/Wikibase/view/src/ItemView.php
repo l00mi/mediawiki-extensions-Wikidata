@@ -21,9 +21,9 @@ use Wikibase\View\Template\TemplateFactory;
 class ItemView extends EntityView {
 
 	/**
-	 * @var StatementGroupListView
+	 * @var StatementSectionsView
 	 */
-	private $statementGroupListView;
+	private $statementSectionsView;
 
 	/**
 	 * @var string[]
@@ -40,7 +40,7 @@ class ItemView extends EntityView {
 	 *
 	 * @param TemplateFactory $templateFactory
 	 * @param EntityTermsView $entityTermsView
-	 * @param StatementGroupListView $statementGroupListView
+	 * @param StatementSectionsView $statementSectionsView
 	 * @param Language $language
 	 * @param SiteLinksView $siteLinksView
 	 * @param string[] $siteLinkGroups
@@ -48,14 +48,14 @@ class ItemView extends EntityView {
 	public function __construct(
 		TemplateFactory $templateFactory,
 		EntityTermsView $entityTermsView,
-		StatementGroupListView $statementGroupListView,
+		StatementSectionsView $statementSectionsView,
 		Language $language,
 		SiteLinksView $siteLinksView,
 		array $siteLinkGroups
 	) {
 		parent::__construct( $templateFactory, $entityTermsView, $language );
 
-		$this->statementGroupListView = $statementGroupListView;
+		$this->statementSectionsView = $statementSectionsView;
 		$this->siteLinkGroups = $siteLinkGroups;
 		$this->siteLinksView = $siteLinksView;
 	}
@@ -71,9 +71,10 @@ class ItemView extends EntityView {
 		}
 
 		$html = parent::getMainHtml( $entityRevision );
-		$html .= $this->statementGroupListView->getHtml(
-			$item->getStatements()->toArray()
-		);
+		// TODO: Group statements into sections.
+		$html .= $this->statementSectionsView->getHtml( array(
+			'statements' => $item->getStatements(),
+		) );
 
 		return $html;
 	}

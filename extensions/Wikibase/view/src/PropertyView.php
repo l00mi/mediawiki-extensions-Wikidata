@@ -23,9 +23,9 @@ use Wikibase\View\Template\TemplateFactory;
 class PropertyView extends EntityView {
 
 	/**
-	 * @var StatementGroupListView
+	 * @var StatementSectionsView
 	 */
-	private $statementGroupListView;
+	private $statementSectionsView;
 
 	/**
 	 * @var DataTypeFactory
@@ -35,20 +35,20 @@ class PropertyView extends EntityView {
 	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param EntityTermsView $entityTermsView
-	 * @param StatementGroupListView $statementGroupListView
+	 * @param StatementSectionsView $statementSectionsView
 	 * @param DataTypeFactory $dataTypeFactory
 	 * @param Language $language
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
 		EntityTermsView $entityTermsView,
-		StatementGroupListView $statementGroupListView,
+		StatementSectionsView $statementSectionsView,
 		DataTypeFactory $dataTypeFactory,
 		Language $language
 	) {
 		parent::__construct( $templateFactory, $entityTermsView, $language );
 
-		$this->statementGroupListView = $statementGroupListView;
+		$this->statementSectionsView = $statementSectionsView;
 		$this->dataTypeFactory = $dataTypeFactory;
 	}
 
@@ -65,9 +65,10 @@ class PropertyView extends EntityView {
 		$html = parent::getMainHtml( $entityRevision );
 		$html .= $this->getHtmlForDataType( $this->getDataType( $property ) );
 
-		$html .= $this->statementGroupListView->getHtml(
-			$property->getStatements()->toArray()
-		);
+		// TODO: Group statements into sections.
+		$html .= $this->statementSectionsView->getHtml( array(
+			'statements' => $property->getStatements(),
+		) );
 
 		$footer = wfMessage( 'wikibase-property-footer' );
 
