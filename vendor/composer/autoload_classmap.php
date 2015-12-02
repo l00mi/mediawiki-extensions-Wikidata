@@ -1063,6 +1063,7 @@ return array(
     'Wikibase\\Repo\\Tests\\Parsers\\WikibaseStringValueNormalizerTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Parsers/WikibaseStringValueNormalizerTest.php',
     'Wikibase\\Repo\\Tests\\Parsers\\YearMonthTimeParserTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Parsers/YearMonthTimeParserTest.php',
     'Wikibase\\Repo\\Tests\\Parsers\\YearTimeParserTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Parsers/YearTimeParserTest.php',
+    'Wikibase\\Repo\\Tests\\Rdf\\RdfVocabularyTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/rdf/RdfVocabularyTest.php',
     'Wikibase\\Repo\\Tests\\Store\\Sql\\ChangesSubscriptionTableBuilderTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/ChangesSubscriptionTableBuilderTest.php',
     'Wikibase\\Repo\\Tests\\Store\\Sql\\SqlStoreTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/SqlStoreTest.php',
     'Wikibase\\Repo\\Tests\\Store\\Sql\\WikiPageEntityMetaDataLookupTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/store/sql/WikiPageEntityMetaDataLookupTest.php',
