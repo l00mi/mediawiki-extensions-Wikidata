@@ -10,6 +10,7 @@ use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Repo\StatementGrouperFactory;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -35,6 +36,11 @@ class EntityViewFactory {
 	 * @var EntityIdFormatterFactory
 	 */
 	private $plainTextIdFormatterFactory;
+
+	/**
+	 * @var StatementGrouperFactory
+	 */
+	private $statementGrouperFactory;
 
 	/**
 	 * @var SiteStore
@@ -75,6 +81,7 @@ class EntityViewFactory {
 	 * @param EntityIdFormatterFactory $htmlIdFormatterFactory
 	 * @param EntityIdFormatterFactory $plainTextIdFormatterFactory
 	 * @param HtmlSnakFormatterFactory $htmlSnakFormatterFactory
+	 * @param StatementGrouperFactory $statementGrouperFactory,
 	 * @param SiteStore $siteStore
 	 * @param DataTypeFactory $dataTypeFactory
 	 * @param TemplateFactory $templateFactory
@@ -89,6 +96,7 @@ class EntityViewFactory {
 		EntityIdFormatterFactory $htmlIdFormatterFactory,
 		EntityIdFormatterFactory $plainTextIdFormatterFactory,
 		HtmlSnakFormatterFactory $htmlSnakFormatterFactory,
+		StatementGrouperFactory $statementGrouperFactory,
 		SiteStore $siteStore,
 		DataTypeFactory $dataTypeFactory,
 		TemplateFactory $templateFactory,
@@ -106,6 +114,7 @@ class EntityViewFactory {
 		$this->htmlIdFormatterFactory = $htmlIdFormatterFactory;
 		$this->plainTextIdFormatterFactory = $plainTextIdFormatterFactory;
 		$this->htmlSnakFormatterFactory = $htmlSnakFormatterFactory;
+		$this->statementGrouperFactory = $statementGrouperFactory;
 		$this->siteStore = $siteStore;
 		$this->dataTypeFactory = $dataTypeFactory;
 		$this->templateFactory = $templateFactory;
@@ -155,6 +164,9 @@ class EntityViewFactory {
 		EditSectionGenerator $editSectionGenerator
 	 ) {
 		$entityTermsView = $this->newEntityTermsView( $languageCode, $editSectionGenerator );
+
+		$statementGrouper = $this->statementGrouperFactory->getStatementGrouper( $entityType );
+
 		$statementSectionsView = $this->newStatementSectionsView(
 			$languageCode,
 			$fallbackChain,
@@ -181,6 +193,7 @@ class EntityViewFactory {
 				return new ItemView(
 					$this->templateFactory,
 					$entityTermsView,
+					$statementGrouper,
 					$statementSectionsView,
 					$language,
 					$siteLinksView,
@@ -190,6 +203,7 @@ class EntityViewFactory {
 				return new PropertyView(
 					$this->templateFactory,
 					$entityTermsView,
+					$statementGrouper,
 					$statementSectionsView,
 					$this->dataTypeFactory,
 					$language

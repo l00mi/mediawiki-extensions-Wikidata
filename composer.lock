@@ -1135,16 +1135,16 @@
         },
         {
             "name": "wikibase/data-model-services",
-            "version": "3.1.1",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelServices.git",
-                "reference": "a9c358b0940c0878bf4ea4748c850286afb7915d"
+                "reference": "3d05decaf6865b4dd71149a639ed72236f99ff08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/a9c358b0940c0878bf4ea4748c850286afb7915d",
-                "reference": "a9c358b0940c0878bf4ea4748c850286afb7915d",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/3d05decaf6865b4dd71149a639ed72236f99ff08",
+                "reference": "3d05decaf6865b4dd71149a639ed72236f99ff08",
                 "shasum": ""
             },
             "require": {
@@ -1160,7 +1160,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1.x-dev"
+                    "dev-master": "3.2.x-dev"
                 }
             },
             "autoload": {
@@ -1186,7 +1186,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-11-15 01:25:44"
+            "time": "2015-12-03 14:57:58"
         },
         {
             "name": "wikibase/external-validation",
@@ -1448,12 +1448,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "aac3d85ae79ff881e1ab6628b957c71c1704812f"
+                "reference": "ca3adea230578cb5d859cf02c5d75be2fa84ea87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/aac3d85ae79ff881e1ab6628b957c71c1704812f",
-                "reference": "aac3d85ae79ff881e1ab6628b957c71c1704812f",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ca3adea230578cb5d859cf02c5d75be2fa84ea87",
+                "reference": "ca3adea230578cb5d859cf02c5d75be2fa84ea87",
                 "shasum": ""
             },
             "require": {
@@ -1473,7 +1473,7 @@
                 "wikibase/data-model": "~4.0",
                 "wikibase/data-model-javascript": "^1.0.2",
                 "wikibase/data-model-serialization": "~2.0",
-                "wikibase/data-model-services": "^3.0.0",
+                "wikibase/data-model-services": "^3.2.0",
                 "wikibase/internal-serialization": "~2.0",
                 "wikibase/javascript-api": "~1.0",
                 "wikibase/serialization-javascript": "~2.0"
@@ -1523,7 +1523,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-12-02 21:01:32"
+            "time": "2015-12-04 09:18:36"
         },
         {
             "name": "wikibase/wikimedia-badges",

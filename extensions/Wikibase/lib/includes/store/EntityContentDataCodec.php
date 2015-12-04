@@ -9,12 +9,12 @@ use MWContentSerializationException;
 use MWExceptionHandler;
 use Serializers\Exceptions\SerializationException;
 use Serializers\Serializer;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityRedirect;
-use Wikibase\DataModel\LegacyIdInterpreter;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityRedirect;
+use Wikibase\DataModel\LegacyIdInterpreter;
 
 /**
  * A codec for use by EntityContent resp EntityHandler subclasses for the
@@ -55,8 +55,9 @@ class EntityContentDataCodec {
 
 	/**
 	 * @param EntityIdParser $entityIdParser
-	 * @param Serializer $entitySerializer
-	 * @param Deserializer $entityDeserializer
+	 * @param Serializer $entitySerializer A service capable of serializing EntityDocument objects.
+	 * @param Deserializer $entityDeserializer A service capable of deserializing EntityDocument
+	 *  objects.
 	 * @param int $maxBlobSize The maximum size of a blob to allow during serialization/deserialization, in bytes.
 	 */
 	public function __construct(
@@ -138,14 +139,14 @@ class EntityContentDataCodec {
 	 *
 	 * @see EntityHandler::serializeContent()
 	 *
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 * @param string|null $format The desired serialization format.
 	 *
 	 * @throws InvalidArgumentException If the format is not supported.
 	 * @throws MWContentSerializationException
 	 * @return string A blob representing the given Entity.
 	 */
-	public function encodeEntity( Entity $entity, $format ) {
+	public function encodeEntity( EntityDocument $entity, $format ) {
 		try {
 			$data = $this->entitySerializer->serialize( $entity );
 			$blob = $this->encodeEntityContentData( $data, $format );
@@ -229,7 +230,8 @@ class EntityContentDataCodec {
 	 *
 	 * @throws InvalidArgumentException If the format is not supported.
 	 * @throws MWContentSerializationException
-	 * @return Entity|null The Entity represented by $blob, or null if $blob represents a redirect.
+	 * @return EntityDocument|null The entity represented by $blob, or null if $blob represents a
+	 *  redirect.
 	 */
 	public function decodeEntity( $blob, $format ) {
 		if ( $this->maxBlobSize > 0 && strlen( $blob ) > $this->maxBlobSize ) {
@@ -245,10 +247,15 @@ class EntityContentDataCodec {
 
 		try {
 			$entity = $this->entityDeserializer->deserialize( $data );
-			return $entity;
 		} catch ( DeserializationException $ex ) {
 			throw new MWContentSerializationException( $ex->getMessage(), 0, $ex );
 		}
+
+		if ( !( $entity instanceof EntityDocument ) ) {
+			throw new InvalidArgumentException( 'Invalid $entityDeserializer provided' );
+		}
+
+		return $entity;
 	}
 
 	/**

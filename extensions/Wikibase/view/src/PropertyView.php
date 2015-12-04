@@ -7,6 +7,8 @@ use DataTypes\DataTypeFactory;
 use InvalidArgumentException;
 use Language;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\Statement\Grouper\NullStatementGrouper;
+use Wikibase\DataModel\Services\Statement\Grouper\StatementGrouper;
 use Wikibase\EntityRevision;
 use Wikibase\View\Template\TemplateFactory;
 
@@ -23,6 +25,11 @@ use Wikibase\View\Template\TemplateFactory;
 class PropertyView extends EntityView {
 
 	/**
+	 * @var StatementGrouper
+	 */
+	private $statementGrouper;
+
+	/**
 	 * @var StatementSectionsView
 	 */
 	private $statementSectionsView;
@@ -35,6 +42,7 @@ class PropertyView extends EntityView {
 	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param EntityTermsView $entityTermsView
+	 * @param StatementGrouper $statementGrouper
 	 * @param StatementSectionsView $statementSectionsView
 	 * @param DataTypeFactory $dataTypeFactory
 	 * @param Language $language
@@ -42,12 +50,14 @@ class PropertyView extends EntityView {
 	public function __construct(
 		TemplateFactory $templateFactory,
 		EntityTermsView $entityTermsView,
+		StatementGrouper $statementGrouper,
 		StatementSectionsView $statementSectionsView,
 		DataTypeFactory $dataTypeFactory,
 		Language $language
 	) {
 		parent::__construct( $templateFactory, $entityTermsView, $language );
 
+		$this->statementGrouper = $statementGrouper;
 		$this->statementSectionsView = $statementSectionsView;
 		$this->dataTypeFactory = $dataTypeFactory;
 	}
@@ -65,10 +75,8 @@ class PropertyView extends EntityView {
 		$html = parent::getMainHtml( $entityRevision );
 		$html .= $this->getHtmlForDataType( $this->getDataType( $property ) );
 
-		// TODO: Group statements into sections.
-		$html .= $this->statementSectionsView->getHtml( array(
-			'statements' => $property->getStatements(),
-		) );
+		$statementLists = $this->statementGrouper->groupStatements( $property->getStatements() );
+		$html .= $this->statementSectionsView->getHtml( $statementLists );
 
 		$footer = wfMessage( 'wikibase-property-footer' );
 
