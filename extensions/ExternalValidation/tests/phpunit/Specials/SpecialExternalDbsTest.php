@@ -2,8 +2,8 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Specials\SpecialExternalDbs;
 
+use SpecialPageTestBase;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Test\SpecialPageTestBase;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs;

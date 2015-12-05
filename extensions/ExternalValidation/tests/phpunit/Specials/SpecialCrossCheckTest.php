@@ -2,13 +2,13 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Specials\SpecialCrossCheck;
 
+use SpecialPageTestBase;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Statement\V4GuidGenerator;
 use Wikibase\DataModel\Statement\StatementGuid;
 use Wikibase\Repo\EntityIdLabelFormatterFactory;
-use Wikibase\Test\SpecialPageTestBase;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
