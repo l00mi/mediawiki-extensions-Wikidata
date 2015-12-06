@@ -1194,7 +1194,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "31edf674cecf7fa6bc8ff16f5f45e6dc81ba968c"
+                "reference": "0cf923b8db6aff3a334fc30539d50e13412fcf70"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1242,7 +1242,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2015-12-04 22:40:20"
+            "time": "2015-12-05 22:16:43"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1448,12 +1448,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "35d3c1752c38e58644ba1d068504934a4d26e870"
+                "reference": "65379a1b64da28411df65169bdc292a9083ac4fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/35d3c1752c38e58644ba1d068504934a4d26e870",
-                "reference": "35d3c1752c38e58644ba1d068504934a4d26e870",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/65379a1b64da28411df65169bdc292a9083ac4fa",
+                "reference": "65379a1b64da28411df65169bdc292a9083ac4fa",
                 "shasum": ""
             },
             "require": {
@@ -1501,6 +1501,7 @@
                 ],
                 "psr-4": {
                     "Wikibase\\View\\": "view/src",
+                    "Wikibase\\View\\Tests\\": "view/tests/phpunit",
                     "Wikimedia\\Purtle\\": "purtle/src",
                     "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
                 }
@@ -1523,7 +1524,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-12-05 00:09:26"
+            "time": "2015-12-05 23:33:22"
         },
         {
             "name": "wikibase/wikimedia-badges",

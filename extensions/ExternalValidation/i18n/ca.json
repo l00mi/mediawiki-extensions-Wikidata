@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Macofe",
-			"F3RaN"
+			"F3RaN",
+			"Jaumeortola"
 		]
 	},
 	"wbqev-crosscheck": "Contrastar amb bases de dades externes",
@@ -22,6 +23,6 @@
 	"apihelp-wbqevcrosscheck-param-properties": "Filtre opcional per contrastar només declaracions amb identificadors de propietat especificada. Només funciona si les entitats són especificades.",
 	"apihelp-wbqevcrosscheck-examples-4": "Contrasta tots les declaracions de l'element amb identificador Q76 i l'element amb identificador Q567 que utilitza la propietat amb identificador P19 o P31.",
 	"wbqev-violation-header-external-values": "Valors externs:",
-	"wbqev-violation-short-message": "Aquest valor no coincideix amb cap valor a $1. Si us plau, feu clic a la icona per a més informació.",
-	"wbqev-violation-long-message-solve-issue": "Per a resoldre aquest problema comproveu amb cura, si us plau, quin valor és correcte i afegiu una referència."
+	"wbqev-violation-short-message": "Aquest valor no coincideix amb cap valor en $1. Feu clic en la icona per a més informació.",
+	"wbqev-violation-long-message-solve-issue": "Per a resoldre aquest problema comproveu amb cura quin valor és el correcte i afegiu una referència."
 }

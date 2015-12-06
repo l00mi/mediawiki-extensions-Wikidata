@@ -9,6 +9,7 @@ return array(
     'Wikimedia\\Purtle\\Tests\\' => array($baseDir . '/extensions/Wikibase/purtle/tests/phpunit'),
     'Wikimedia\\Purtle\\' => array($baseDir . '/extensions/Wikibase/purtle/src'),
     'Wikidata\\' => array($baseDir . '/src'),
+    'Wikibase\\View\\Tests\\' => array($baseDir . '/extensions/Wikibase/view/tests/phpunit'),
     'Wikibase\\View\\' => array($baseDir . '/extensions/Wikibase/view/src'),
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
     'Wikibase\\DataModel\\Services\\' => array($vendorDir . '/wikibase/data-model-services/src'),
