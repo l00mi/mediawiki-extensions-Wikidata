@@ -59,7 +59,7 @@ use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
-use Wikibase\Lib\WikibaseContentLanguages;
+use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
 use Wikibase\Rdf\ValueSnakRdfBuilderFactory;
@@ -791,66 +791,14 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @param string $prefix The prefix to add to each key in the array
-	 * @param array $array The array to modify
-	 *
-	 * @return array A copy of $array with $prefix prepended to each array key
-	 */
-	private function applyKeyPrefix( $prefix, array $array ) {
-		$result = array();
-
-		foreach ( $array as $key => $value ) {
-			$result[ $prefix . $key ] = $value;
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Constructs an array of factory callbacks for ValueFormatters, keyed by property type
-	 * (data type) prefixed with "PT:", or value type prefixed with "VT:". This matches the
-	 * convention used by OutputFormatValueFormatterFactory and DispatchingValueFormatter.
-	 *
-	 * @return callable[]
-	 */
-	private function getFormatterFactoryCallbacksByType() {
-		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
-		$valueTypeFormatters = $valueFormatterBuilders->getFormatterFactoryCallbacksByValueType();
-		$dataTypeFormatters = $this->dataTypeDefinitions->getFormatterFactoryCallbacks();
-
-		$callbacks = array_merge(
-			$this->applyKeyPrefix( 'VT:', $valueTypeFormatters ),
-			$this->applyKeyPrefix( 'PT:', $dataTypeFormatters )
-		);
-
-		return $callbacks;
-	}
-
-	/**
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	protected function newValueFormatterFactory() {
 		return new OutputFormatValueFormatterFactory(
-			$this->getFormatterFactoryCallbacksByType(),
+			$this->dataTypeDefinitions->getFormatterFactoryCallbacks( DataTypeDefinitions::PREFIXED_MODE ),
 			$this->getDefaultLanguage(),
 			new LanguageFallbackChainFactory()
 		);
-	}
-
-	/**
-	 * Constructs an array of factory callbacks for ValueSnakRdfBuilder, keyed by property type
-	 * (data type) prefixed with "PT:", or value type prefixed with "VT:". This matches the
-	 * convention used by ValueSnakRdfBuilderFactory.
-	 *
-	 * @return callable[]
-	 */
-	private function getRdfBuilderFactoryCallbacksByType() {
-		//TODO: provide fallback mappings per data-type with "VT:" prefix.
-		$dataTypeRdfBuilders = $this->dataTypeDefinitions->getRdfBuilderFactoryCallbacks();
-
-		$callbacks = $this->applyKeyPrefix( 'PT:', $dataTypeRdfBuilders );
-
-		return $callbacks;
 	}
 
 	/**
@@ -859,7 +807,7 @@ class WikibaseRepo {
 	public function getValueSnakRdfBuilderFactory() {
 		if ( $this->valueSnakRdfBuilderFactory === null ) {
 			$this->valueSnakRdfBuilderFactory = new ValueSnakRdfBuilderFactory(
-				$this->getRdfBuilderFactoryCallbacksByType()
+				$this->dataTypeDefinitions->getRdfBuilderFactoryCallbacks( DataTypeDefinitions::PREFIXED_MODE )
 			);
 		}
 
@@ -1414,7 +1362,7 @@ class WikibaseRepo {
 
 	private function getMonolingualTextLanguages() {
 		if ( $this->monolingualTextLanguages === null ) {
-			$this->monolingualTextLanguages = new WikibaseContentLanguages();
+			$this->monolingualTextLanguages = new MediaWikiContentLanguages();
 		}
 		return $this->monolingualTextLanguages;
 	}
@@ -1425,7 +1373,7 @@ class WikibaseRepo {
 	 * @return ContentLanguages
 	 */
 	public function getTermsLanguages() {
-		return new WikibaseContentLanguages();
+		return new MediaWikiContentLanguages();
 	}
 
 	private function getHtmlSnakFormatterFactory() {

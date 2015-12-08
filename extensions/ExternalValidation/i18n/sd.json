@@ -2,11 +2,12 @@
 	"@metadata": {
 		"authors": [
 			"Sindhu",
-			"Aursani"
+			"Aursani",
+			"Mehtab ahmed"
 		]
 	},
 	"wbq-subextension-name-wbqev": "خارجي تصديق",
 	"wbqev-violation-header-external-source": "خارجي ذريعو:",
-	"wbqev-violation-header-local-value": "وڪي‌اعدادي قدر:",
+	"wbqev-violation-header-local-value": "وڪي ڊيٽا قدر:",
 	"wbqev-violation-header-external-values": "خارجي قدر:"
 }

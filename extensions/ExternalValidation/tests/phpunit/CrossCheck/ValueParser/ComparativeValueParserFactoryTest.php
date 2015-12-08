@@ -38,7 +38,10 @@ class ComparativeValueParserFactoryTest extends \MediaWikiTestCase {
 	 */
 	private function getFactory() {
 		$dataTypeDefinitionConfig = array(
-			'monolingualtext' => array(
+			'PT:monolingualtext' => array(
+				'value-type' => 'monolingualtext'
+			),
+			'VT:monolingualtext' => array(
 				'parser-factory-callback' => function( ParserOptions $options ) {
             	    return new MonolingualTextParser( $options );
             	}

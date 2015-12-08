@@ -59,7 +59,7 @@ use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
-use Wikibase\Lib\WikibaseContentLanguages;
+use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
@@ -594,36 +594,11 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * Constructs an array of factory callbacks for ValueFormatters, keyed by property type
-	 * (data type) prefixed with "PT:", or value type prefixed with "VT:". This matches to
-	 * convention used by OutputFormatValueFormatterFactory and DispatchingValueFormatter.
-	 *
-	 * @return callable[]
-	 */
-	private function getFormatterFactoryCallbacksByType() {
-		$callbacks = array();
-
-		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
-		$valueTypeFormatters = $valueFormatterBuilders->getFormatterFactoryCallbacksByValueType();
-		$dataTypeFormatters = $this->dataTypeDefinitions->getFormatterFactoryCallbacks();
-
-		foreach ( $valueTypeFormatters as $key => $formatter ) {
-			$callbacks["VT:$key"] = $formatter;
-		}
-
-		foreach ( $dataTypeFormatters as $key => $formatter ) {
-			$callbacks["PT:$key"] = $formatter;
-		}
-
-		return $callbacks;
-	}
-
-	/**
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	private function newValueFormatterFactory() {
 		return new OutputFormatValueFormatterFactory(
-			$this->getFormatterFactoryCallbacksByType(),
+			$this->dataTypeDefinitions->getFormatterFactoryCallbacks( DataTypeDefinitions::PREFIXED_MODE ),
 			$this->getContentLanguage(),
 			$this->getLanguageFallbackChainFactory()
 		);
@@ -952,10 +927,10 @@ final class WikibaseClient {
 	/**
 	 * Get a ContentLanguages object holding the languages available for labels, descriptions and aliases.
 	 *
-	 * @return WikibaseContentLanguages
+	 * @return MediaWikiContentLanguages
 	 */
 	public function getTermsLanguages() {
-		return new WikibaseContentLanguages();
+		return new MediaWikiContentLanguages();
 	}
 
 	/**
