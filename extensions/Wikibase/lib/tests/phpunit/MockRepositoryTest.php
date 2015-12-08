@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use MWException;
 use User;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityRedirect;
@@ -343,7 +344,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 			if ( $expectedError !== false ) {
 				$this->fail( "expected error: " . $expectedError );
 			}
-		} catch ( \MWException $ex ) {
+		} catch ( MWException $ex ) {
 			if ( $expectedError !== false ) {
 				$this->assertInstanceOf( $expectedError, $ex );
 			} else {
@@ -627,8 +628,14 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$rev1 = $this->repo->saveEntity( $item, 'testing 1', $user1, EDIT_NEW );
 		$itemId = $item->getId();
 
-		$this->assertTrue( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevisionId() ), 'user was first and last to edit' );
-		$this->assertFalse( $this->repo->userWasLastToEdit( $user2, $itemId, $rev1->getRevisionId() ), 'user has not edited yet' );
+		$this->assertTrue(
+			$this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevisionId() ),
+			'user was first and last to edit'
+		);
+		$this->assertFalse(
+			$this->repo->userWasLastToEdit( $user2, $itemId, $rev1->getRevisionId() ),
+			'user has not edited yet'
+		);
 
 		// second edit by another user
 		$item = new Item( new ItemId( 'Q42' ) );
@@ -649,9 +656,18 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		$item->setLabel( 'en', 'three' );
 		$rev3 = $this->repo->saveEntity( $item, 'testing 3', $user1, EDIT_UPDATE );
 
-		$this->assertFalse( $this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevisionId() ), 'another user had edited at some point' );
-		$this->assertTrue( $this->repo->userWasLastToEdit( $user1, $itemId, $rev3->getRevisionId() ), 'original user was last to edit' );
-		$this->assertFalse( $this->repo->userWasLastToEdit( $user2, $itemId, $rev2->getRevisionId() ), 'other user was no longer last to edit' );
+		$this->assertFalse(
+			$this->repo->userWasLastToEdit( $user1, $itemId, $rev1->getRevisionId() ),
+			'another user had edited at some point'
+		);
+		$this->assertTrue(
+			$this->repo->userWasLastToEdit( $user1, $itemId, $rev3->getRevisionId() ),
+			'original user was last to edit'
+		);
+		$this->assertFalse(
+			$this->repo->userWasLastToEdit( $user2, $itemId, $rev2->getRevisionId() ),
+			'other user was no longer last to edit'
+		);
 	}
 
 	public function testGetRedirectIds() {

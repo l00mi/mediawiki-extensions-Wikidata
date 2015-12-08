@@ -23,8 +23,23 @@ use Wikibase\Test\MockSiteStore;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Thiemo Mättig
  */
 class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
+
+	public function testGetDefaultFormatterBuilders_noReset() {
+		$first = WikibaseClient::getDefaultFormatterBuilders();
+		$this->assertInstanceOf( 'Wikibase\Lib\WikibaseValueFormatterBuilders', $first );
+
+		$second = WikibaseClient::getDefaultFormatterBuilders();
+		$this->assertSame( $first, $second );
+	}
+
+	public function testGetDefaultFormatterBuilders_withReset() {
+		$first = WikibaseClient::getDefaultFormatterBuilders();
+		$second = WikibaseClient::getDefaultFormatterBuilders( 'reset' );
+		$this->assertNotSame( $first, $second );
+	}
 
 	public function testGetDataTypeFactoryReturnType() {
 		$returnValue = $this->getWikibaseClient()->getDataTypeFactory();
@@ -88,10 +103,15 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$settings->setSetting( 'siteGlobalID', 'enwiki' );
 		$settings->setSetting( 'languageLinkSiteGroup', 'wikipedia' );
 
-		$wikibaseClient = new WikibaseClient( $settings, Language::factory( 'en' ), new DataTypeDefinitions(), $this->getSiteStore() );
+		$wikibaseClient = new WikibaseClient(
+			$settings,
+			Language::factory( 'en' ),
+			new DataTypeDefinitions(),
+			$this->getSiteStore()
+		);
 
-		$returnValue = $wikibaseClient->getLangLinkHandler();
-		$this->assertInstanceOf( 'Wikibase\LangLinkHandler', $returnValue );
+		$handler = $wikibaseClient->getLangLinkHandler();
+		$this->assertInstanceOf( 'Wikibase\LangLinkHandler', $handler );
 	}
 
 	public function testGetParserOutputDataUpdaterType() {
@@ -187,6 +207,17 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf( 'Wikibase\Client\Hooks\LanguageLinkBadgeDisplay', $returnValue );
 	}
 
+	public function testGetSiteStore() {
+		$store = $this->getWikibaseClient()->getSiteStore();
+		$this->assertInstanceOf( 'SiteStore', $store );
+	}
+
+	public function testGetEntityFactory() {
+		$factory = $this->getWikibaseClient()->getEntityFactory();
+		$this->assertInstanceOf( 'Wikibase\EntityFactory', $factory );
+		$this->assertSame( array( 'item', 'property' ), $factory->getEntityTypes() );
+	}
+
 	public function testGetOtherProjectsSidebarGeneratorFactoryReturnType() {
 		$settings = $this->getWikibaseClient()->getSettings();
 		$settings->setSetting( 'otherProjectsLinks', array( 'my_wiki' ) );
@@ -218,6 +249,11 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetInternalEntityDeserializer() {
 		$deserializer = $this->getWikibaseClient()->getInternalEntityDeserializer();
+		$this->assertInstanceOf( 'Deserializers\Deserializer', $deserializer );
+	}
+
+	public function testGetInternalStatementDeserializer() {
+		$deserializer = $this->getWikibaseClient()->getInternalStatementDeserializer();
 		$this->assertInstanceOf( 'Deserializers\Deserializer', $deserializer );
 	}
 

@@ -7,6 +7,7 @@ use DataTypes\DataTypeFactory;
 use InvalidArgumentException;
 use Language;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\Statement\Grouper\StatementGrouper;
 use Wikibase\EntityRevision;
 use Wikibase\View\Template\TemplateFactory;
 
@@ -23,9 +24,14 @@ use Wikibase\View\Template\TemplateFactory;
 class PropertyView extends EntityView {
 
 	/**
-	 * @var StatementGroupListView
+	 * @var StatementGrouper
 	 */
-	private $statementGroupListView;
+	private $statementGrouper;
+
+	/**
+	 * @var StatementSectionsView
+	 */
+	private $statementSectionsView;
 
 	/**
 	 * @var DataTypeFactory
@@ -35,20 +41,23 @@ class PropertyView extends EntityView {
 	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param EntityTermsView $entityTermsView
-	 * @param StatementGroupListView $statementGroupListView
+	 * @param StatementGrouper $statementGrouper
+	 * @param StatementSectionsView $statementSectionsView
 	 * @param DataTypeFactory $dataTypeFactory
 	 * @param Language $language
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
 		EntityTermsView $entityTermsView,
-		StatementGroupListView $statementGroupListView,
+		StatementGrouper $statementGrouper,
+		StatementSectionsView $statementSectionsView,
 		DataTypeFactory $dataTypeFactory,
 		Language $language
 	) {
 		parent::__construct( $templateFactory, $entityTermsView, $language );
 
-		$this->statementGroupListView = $statementGroupListView;
+		$this->statementGrouper = $statementGrouper;
+		$this->statementSectionsView = $statementSectionsView;
 		$this->dataTypeFactory = $dataTypeFactory;
 	}
 
@@ -65,9 +74,8 @@ class PropertyView extends EntityView {
 		$html = parent::getMainHtml( $entityRevision );
 		$html .= $this->getHtmlForDataType( $this->getDataType( $property ) );
 
-		$html .= $this->statementGroupListView->getHtml(
-			$property->getStatements()->toArray()
-		);
+		$statementLists = $this->statementGrouper->groupStatements( $property->getStatements() );
+		$html .= $this->statementSectionsView->getHtml( $statementLists );
 
 		$footer = wfMessage( 'wikibase-property-footer' );
 

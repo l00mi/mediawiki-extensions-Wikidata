@@ -161,6 +161,7 @@ class RdfDumpGenerator extends DumpGenerator {
 	 * @param SiteList $sites
 	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param PropertyDataTypeLookup $propertyLookup
+	 * @param ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory
 	 * @param EntityPrefetcher $entityPrefetcher
 	 * @param string[] $canonicalLanguageCodes Mapping of non-standard to canonical language codes.
 	 *
@@ -175,7 +176,7 @@ class RdfDumpGenerator extends DumpGenerator {
 		SiteList $sites,
 		EntityRevisionLookup $entityRevisionLookup,
 		PropertyDataTypeLookup $propertyLookup,
-		ValueSnakRdfBuilderFactory $dataValueRdfBuilderFactory,
+		ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory,
 		EntityPrefetcher $entityPrefetcher,
 		array $canonicalLanguageCodes = array()
 	) {
@@ -191,7 +192,7 @@ class RdfDumpGenerator extends DumpGenerator {
 		$rdfBuilder = new RdfBuilder(
 			$sites,
 			new RdfVocabulary( $baseUri, $dataUri, $canonicalLanguageCodes ),
-			$dataValueRdfBuilderFactory,
+			$valueSnakRdfBuilderFactory,
 			$propertyLookup,
 			$flavor,
 			$rdfWriter,

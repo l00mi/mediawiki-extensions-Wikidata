@@ -15,7 +15,11 @@ abstract class N3RdfWriterBase extends RdfWriterBase {
 	 */
 	protected $quoter;
 
-	public function __construct( $role = parent::DOCUMENT_ROLE, BNodeLabeler $labeler = null, N3Quoter $quoter = null ) {
+	public function __construct(
+		$role = parent::DOCUMENT_ROLE,
+		BNodeLabeler $labeler = null,
+		N3Quoter $quoter = null
+	) {
 		parent::__construct( $role, $labeler );
 
 		$this->quoter = $quoter ?: new N3Quoter();
@@ -31,10 +35,6 @@ abstract class N3RdfWriterBase extends RdfWriterBase {
 		} else {
 			$this->write( "$base:$local" );
 		}
-	}
-
-	protected function writeShorthand( $shorthand ) {
-		$this->write( $shorthand );
 	}
 
 	protected function writeIRI( $iri, $trustIRI = false ) {

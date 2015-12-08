@@ -40,7 +40,7 @@ HTML;
 
 	$templates['wb-section-heading'] =
 <<<HTML
-<h2 class="wb-section-heading section-heading $3" dir="auto"><span id="$2">$1</span></h2>
+<h2 class="wb-section-heading section-heading $3" dir="auto"><span class="mw-headline" id="$2">$1</span></h2>
 HTML;
 
 	// empty toc to help MobileFrontend
@@ -289,7 +289,7 @@ HTML;
 
 	$templates['wikibase-toolbar-button'] =
 <<<HTML
-<span class="wikibase-toolbar-item wikibase-toolbar-button $1"><a href="$2">$3</a></span>
+<span class="wikibase-toolbar-item wikibase-toolbar-button $1"><a href="$2"><span class="wb-icon"></span>$3</a></span>
 HTML;
 
 	$templates['wikibase-toolbar'] =

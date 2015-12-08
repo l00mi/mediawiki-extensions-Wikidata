@@ -28,7 +28,11 @@ class TurtleRdfWriter extends N3RdfWriterBase {
 		$this->trustIRIs = $trustIRIs;
 	}
 
-	public function __construct( $role = parent::DOCUMENT_ROLE, BNodeLabeler $labeler = null, N3Quoter $quoter = null ) {
+	public function __construct(
+		$role = parent::DOCUMENT_ROLE,
+		BNodeLabeler $labeler = null,
+		N3Quoter $quoter = null
+	) {
 		parent::__construct( $role, $labeler, $quoter );
 		$this->transitionTable[self::STATE_OBJECT] = array(
 			self::STATE_DOCUMENT => " .\n",
@@ -81,11 +85,6 @@ class TurtleRdfWriter extends N3RdfWriterBase {
 			$this->writeIRI( $base );
 		}
 	}
-
-// 	protected function writeValue( $value, $typeBase = null, $typeLocal = null  ) {
-// 		//TODO: shorthand form for xsd:integer|decimal|double|boolean
-// 		parent::writeValue( $value, $typeBase, $typeLocal );
-// 	}
 
 	/**
 	 * @param string $role

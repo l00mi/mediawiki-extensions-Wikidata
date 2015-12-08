@@ -9,12 +9,12 @@ use MWContentSerializationException;
 use MWExceptionHandler;
 use Serializers\Exceptions\SerializationException;
 use Serializers\Serializer;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityRedirect;
-use Wikibase\DataModel\LegacyIdInterpreter;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Entity\EntityRedirect;
+use Wikibase\DataModel\LegacyIdInterpreter;
 
 /**
  * A codec for use by EntityContent resp EntityHandler subclasses for the
@@ -49,18 +49,27 @@ class EntityContentDataCodec {
 	private $entityDeserializer;
 
 	/**
+	 * @var int The maximum size of a blob to allow during serialization/deserialization, in bytes.
+	 */
+	private $maxBlobSize;
+
+	/**
 	 * @param EntityIdParser $entityIdParser
-	 * @param Serializer $entitySerializer
-	 * @param Deserializer $entityDeserializer
+	 * @param Serializer $entitySerializer A service capable of serializing EntityDocument objects.
+	 * @param Deserializer $entityDeserializer A service capable of deserializing EntityDocument
+	 *  objects.
+	 * @param int $maxBlobSize The maximum size of a blob to allow during serialization/deserialization, in bytes.
 	 */
 	public function __construct(
 		EntityIdParser $entityIdParser,
 		Serializer $entitySerializer,
-		Deserializer $entityDeserializer
+		Deserializer $entityDeserializer,
+		$maxBlobSize = 0
 	) {
 		$this->entityIdParser = $entityIdParser;
 		$this->entitySerializer = $entitySerializer;
 		$this->entityDeserializer = $entityDeserializer;
+		$this->maxBlobSize = $maxBlobSize;
 	}
 
 	/**
@@ -130,17 +139,23 @@ class EntityContentDataCodec {
 	 *
 	 * @see EntityHandler::serializeContent()
 	 *
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 * @param string|null $format The desired serialization format.
 	 *
 	 * @throws InvalidArgumentException If the format is not supported.
 	 * @throws MWContentSerializationException
 	 * @return string A blob representing the given Entity.
 	 */
-	public function encodeEntity( Entity $entity, $format ) {
+	public function encodeEntity( EntityDocument $entity, $format ) {
 		try {
 			$data = $this->entitySerializer->serialize( $entity );
-			return $this->encodeEntityContentData( $data, $format );
+			$blob = $this->encodeEntityContentData( $data, $format );
+
+			if ( $this->maxBlobSize > 0 && strlen( $blob ) > $this->maxBlobSize ) {
+				throw new MWContentSerializationException( 'Content too big! Entity: ' . $entity->getId() );
+			}
+
+			return $blob;
 		} catch ( SerializationException $ex ) {
 			MWExceptionHandler::logException( $ex );
 			throw new MWContentSerializationException( $ex->getMessage(), 0, $ex );
@@ -185,8 +200,9 @@ class EntityContentDataCodec {
 			throw new InvalidArgumentException( '$blob must be a string' );
 		}
 
+		$format = $this->sanitizeFormat( $format );
 		\MediaWiki\suppressWarnings();
-		switch ( $this->sanitizeFormat( $format ) ) {
+		switch ( $format ) {
 			case CONTENT_FORMAT_JSON:
 				$data = json_decode( $blob, true );
 				break;
@@ -215,9 +231,14 @@ class EntityContentDataCodec {
 	 *
 	 * @throws InvalidArgumentException If the format is not supported.
 	 * @throws MWContentSerializationException
-	 * @return Entity|null The Entity represented by $blob, or null if $blob represents a redirect.
+	 * @return EntityDocument|null The entity represented by $blob, or null if $blob represents a
+	 *  redirect.
 	 */
 	public function decodeEntity( $blob, $format ) {
+		if ( $this->maxBlobSize > 0 && strlen( $blob ) > $this->maxBlobSize ) {
+			throw new MWContentSerializationException( 'Blob too big for deserialization!' );
+		}
+
 		$data = $this->decodeEntityContentData( $blob, $format );
 
 		if ( $this->extractEntityId( $data, 'redirect' ) ) {
@@ -227,10 +248,15 @@ class EntityContentDataCodec {
 
 		try {
 			$entity = $this->entityDeserializer->deserialize( $data );
-			return $entity;
 		} catch ( DeserializationException $ex ) {
 			throw new MWContentSerializationException( $ex->getMessage(), 0, $ex );
 		}
+
+		if ( !( $entity instanceof EntityDocument ) ) {
+			throw new InvalidArgumentException( 'Invalid $entityDeserializer provided' );
+		}
+
+		return $entity;
 	}
 
 	/**

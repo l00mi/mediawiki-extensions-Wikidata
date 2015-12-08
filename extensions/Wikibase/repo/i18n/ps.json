@@ -16,10 +16,11 @@
 	"wikibase-label-empty": "کوم لېبل نه دی څرگند شوی",
 	"wikibase-description-empty": "کوم تعريف نه دی څرگند شوی",
 	"wikibase-diffview-rank": "پوړ",
+	"wikibase-diffview-description": "څرگندونه",
 	"wikibase-diffview-link": "تړنې",
 	"wikibase-sitelink-site-edit-placeholder": "وېبځی",
 	"wikibase-sitelink-page-edit-placeholder": "مخ",
-	"wikibase-statements": "څرگندونې",
+	"wikibase-statementsection-statements": "څرگندونې",
 	"wikibase-sitelinks-special": "نور وېبځايونه",
 	"wikibase-remove": "غورځول",
 	"wikibase-aliases-empty": "کوم مستعار نوم نه دی څرگند شوی.",
@@ -36,6 +37,8 @@
 	"wikibase-gotolinkedpage-submit": "ورځه",
 	"wikibase-itemdisambiguation-lookup-language": "د ژبې کوډ:",
 	"wikibase-itemdisambiguation-submit": "پلټل",
+	"wikibase-newentity-language": "ژبه:",
+	"wikibase-newentity-label": "نښکه:",
 	"wikibase-newentity-description": "څرگندونه:",
 	"wikibase-newentity-submit": "جوړول",
 	"wikibase-setdescription-label": "څرگندونه:",
@@ -59,5 +62,9 @@
 	"wikibase-listdatatypes-time-head": "وخت",
 	"wikibase-listdatatypes-url-head": "يو آر اېل",
 	"datatypes-type-url": "يو آر اېل",
-	"content-model-wikibase-item": "د ويکيبېز توکی"
+	"content-model-wikibase-item": "د ويکيبېز توکی",
+	"apihelp-query+wbsearch-param-search": "دغه متن پلټل.",
+	"apihelp-query+wbsearch-param-language": "په دې ژبه کې پلټل.",
+	"apihelp-wbsetdescription-param-language": "د څرگندونې ژبه",
+	"apihelp-wbsetlabel-param-language": "د نښکې ژبه"
 }

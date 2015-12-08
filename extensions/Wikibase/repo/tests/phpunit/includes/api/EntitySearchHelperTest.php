@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Wikibase\Test\Repo\Api;
 
 use Title;
@@ -11,10 +10,9 @@ use Wikibase\DataModel\Services\Lookup\LanguageLabelDescriptionLookup;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\Api\EntitySearchHelper;
-use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
-use Wikibase\Lib\Interactors\TermSearchResult;
+use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
+use Wikibase\Repo\Interactors\TermSearchResult;
 use Wikibase\TermIndexEntry;
-use Wikibase\Test\MockTermIndex;
 
 /**
  * @covers Wikibase\Repo\Api\EntitySearchHelper
@@ -69,7 +67,7 @@ class EntitySearchHelperTest extends \PHPUnit_Framework_TestCase {
 	 * @return TermIndexSearchInteractor|\PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function getMockSearchInteractor( $search, $language, $type, array $returnResults = array() ) {
-		$mock = $this->getMockBuilder( 'Wikibase\Lib\Interactors\TermIndexSearchInteractor' )
+		$mock = $this->getMockBuilder( 'Wikibase\Repo\Interactors\TermIndexSearchInteractor' )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->atLeastOnce() )

@@ -31,7 +31,7 @@
 	"wikibase-sitelink-site-edit-placeholder": "sita",
 	"wikibase-sitelink-page-edit-placeholder": "per",
 	"wikibase-description-input-help-message": "Zıwanê $1 de yew arezekerdış cı ke.",
-	"wikibase-statements": "İfadey",
+	"wikibase-statementsection-statements": "İfadey",
 	"wikibase-sitelinks-special": "Pelê bini",
 	"wikibase-remove": "wedarne",
 	"wikibase-move-up": "bere cor",
@@ -93,5 +93,6 @@
 	"content-model-wikibase-property": "Wikibase xısusiyet",
 	"content-model-wikibase-query": "Wikibase pers",
 	"right-item-merge": "objan yew ke",
-	"right-property-create": "Xısusiyeti vıraze"
+	"right-property-create": "Xısusiyeti vıraze",
+	"apihelp-query+wbsearch-param-search": "Ena nuşter cı geyre"
 }

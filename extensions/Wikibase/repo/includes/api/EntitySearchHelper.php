@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Wikibase\Repo\Api;
 
 use Wikibase\DataModel\Entity\EntityId;
@@ -9,8 +8,8 @@ use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
-use Wikibase\Lib\Interactors\TermSearchResult;
+use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
+use Wikibase\Repo\Interactors\TermSearchResult;
 use Wikibase\TermIndexEntry;
 
 /**

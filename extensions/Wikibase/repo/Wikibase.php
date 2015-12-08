@@ -80,7 +80,7 @@ if ( !defined( 'PURTLE_VERSION' ) ) {
 
 call_user_func( function() {
 	global $wgExtensionCredits, $wgGroupPermissions, $wgExtensionMessagesFiles, $wgMessagesDirs;
-	global $wgAPIModules, $wgSpecialPages, $wgHooks, $wgAvailableRights;
+	global $wgAPIModules, $wgAPIListModules, $wgSpecialPages, $wgHooks, $wgAvailableRights;
 	global $wgWBRepoSettings, $wgResourceModules, $wgValueParsers, $wgJobClasses;
 	global $wgWBRepoDataTypes;
 
@@ -132,8 +132,8 @@ call_user_func( function() {
 	 * @var callable[] $wgValueParsers Defines parser factory callbacks by parser name (not data type name).
 	 * @deprecated use $wgWBRepoDataTypes instead.
 	 */
-	$wgValueParsers['wikibase-entityid'] = $wgWBRepoDataTypes['wikibase-item']['parser-factory-callback'];
-	$wgValueParsers['globecoordinate'] = $wgWBRepoDataTypes['globe-coordinate']['parser-factory-callback'];
+	$wgValueParsers['wikibase-entityid'] = $wgWBRepoDataTypes['VT:wikibase-entityid']['parser-factory-callback'];
+	$wgValueParsers['globecoordinate'] = $wgWBRepoDataTypes['VT:globecoordinate']['parser-factory-callback'];
 
 	// 'null' is not a datatype. Kept for backwards compatibility.
 	$wgValueParsers['null'] = function() {
@@ -163,6 +163,7 @@ call_user_func( function() {
 	$wgAPIModules['wbparsevalue'] = 'Wikibase\Repo\Api\ParseValue';
 	$wgAPIModules['wbavailablebadges'] = 'Wikibase\Repo\Api\AvailableBadges';
 	$wgAPIModules['wbcreateredirect'] = 'Wikibase\Repo\Api\CreateRedirect';
+	$wgAPIListModules['wbsearch'] = 'Wikibase\Repo\Api\QuerySearchEntities';
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] = 'Wikibase\Repo\Specials\SpecialNewItem';

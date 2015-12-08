@@ -2,7 +2,6 @@
 
 namespace Wikibase\Client\RecentChanges;
 
-use Content;
 use InvalidArgumentException;
 use Language;
 use RecentChange;
@@ -92,7 +91,7 @@ class ExternalChangeFactory {
 	}
 
 	/**
-	 * @param array Content of rc_params
+	 * @param array $rc_params
 	 *
 	 * @throws UnexpectedValueException
 	 * @return array

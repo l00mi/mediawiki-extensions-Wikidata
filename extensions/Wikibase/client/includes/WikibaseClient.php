@@ -59,9 +59,8 @@ use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
-use Wikibase\Lib\WikibaseContentLanguages;
+use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
-use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SiteLinkCommentCreator;
@@ -176,8 +175,8 @@ final class WikibaseClient {
 
 	/**
 	 * Returns the default WikibaseValueFormatterBuilders instance.
-	 * @warning This is for use with bootstrap code in WikibaseRepo.datatypes.php only!
-	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
+	 * @warning This is for use with bootstrap code in WikibaseClient.datatypes.php only!
+	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
 	 *
 	 * @since 0.5
 	 *
@@ -189,8 +188,7 @@ final class WikibaseClient {
 		static $builders;
 
 		if ( $builders === null || $reset === 'reset' ) {
-			$wikibaseRepo = self::getDefaultInstance();
-			$builders = $wikibaseRepo->newWikibaseValueFormatterBuilders();
+			$builders = self::getDefaultInstance()->newWikibaseValueFormatterBuilders();
 		}
 
 		return $builders;
@@ -200,7 +198,7 @@ final class WikibaseClient {
 	 * Returns a low level factory object for creating formatters for well known data types.
 	 *
 	 * @warning This is for use with getDefaultFormatterBuilders() during bootstrap only!
-	 * Program logic should use WikibaseRepo::getSnakFormatterFactory() instead!
+	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
 	 *
 	 * @return WikibaseValueFormatterBuilders
 	 */
@@ -291,20 +289,6 @@ final class WikibaseClient {
 		}
 
 		return $this->termLookup;
-	}
-
-	/**
-	 * @param string $displayLanguageCode
-	 *
-	 * @return TermIndexSearchInteractor
-	 */
-	public function newTermSearchInteractor( $displayLanguageCode ) {
-		return new TermIndexSearchInteractor(
-			$this->getStore()->getTermIndex(),
-			$this->getLanguageFallbackChainFactory(),
-			$this->getBufferingTermLookup(),
-			$displayLanguageCode
-		);
 	}
 
 	/**
@@ -610,36 +594,11 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * Constructs an array of factory callbacks for ValueFormatters, keyed by property type
-	 * (data type) prefixed with "PT:", or value type prefixed with "VT:". This matches to
-	 * convention used by OutputFormatValueFormatterFactory and DispatchingValueFormatter.
-	 *
-	 * @return callable[]
-	 */
-	private function getFormatterFactoryCallbacksByType() {
-		$callbacks = array();
-
-		$valueFormatterBuilders = $this->newWikibaseValueFormatterBuilders();
-		$valueTypeFormatters = $valueFormatterBuilders->getFormatterFactoryCallbacksByValueType();
-		$dataTypeFormatters = $this->dataTypeDefinitions->getFormatterFactoryCallbacks();
-
-		foreach ( $valueTypeFormatters as $key => $formatter ) {
-			$callbacks["VT:$key"] = $formatter;
-		}
-
-		foreach ( $dataTypeFormatters as $key => $formatter ) {
-			$callbacks["PT:$key"] = $formatter;
-		}
-
-		return $callbacks;
-	}
-
-	/**
 	 * @return OutputFormatValueFormatterFactory
 	 */
 	private function newValueFormatterFactory() {
 		return new OutputFormatValueFormatterFactory(
-			$this->getFormatterFactoryCallbacksByType(),
+			$this->dataTypeDefinitions->getFormatterFactoryCallbacks( DataTypeDefinitions::PREFIXED_MODE ),
 			$this->getContentLanguage(),
 			$this->getLanguageFallbackChainFactory()
 		);
@@ -757,7 +716,8 @@ final class WikibaseClient {
 		return new EntityContentDataCodec(
 			$this->getEntityIdParser(),
 			$forbiddenSerializer,
-			$this->getInternalEntityDeserializer()
+			$this->getInternalEntityDeserializer(),
+			$this->getSettings()->getSetting( 'maxSerializedEntitySize' ) * 1024
 		);
 	}
 
@@ -967,10 +927,10 @@ final class WikibaseClient {
 	/**
 	 * Get a ContentLanguages object holding the languages available for labels, descriptions and aliases.
 	 *
-	 * @return WikibaseContentLanguages
+	 * @return MediaWikiContentLanguages
 	 */
 	public function getTermsLanguages() {
-		return new WikibaseContentLanguages();
+		return new MediaWikiContentLanguages();
 	}
 
 	/**
