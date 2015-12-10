@@ -61,6 +61,7 @@ use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
+use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SiteLinkCommentCreator;
@@ -289,6 +290,22 @@ final class WikibaseClient {
 		}
 
 		return $this->termLookup;
+	}
+
+	/**
+	 * @param string $displayLanguageCode
+	 *
+	 * XXX: This is not used by client itself, but is used by ArticlePlaceholder!
+	 *
+	 * @return TermIndexSearchInteractor
+	 */
+	public function newTermSearchInteractor( $displayLanguageCode ) {
+		return new TermIndexSearchInteractor(
+			$this->getStore()->getTermIndex(),
+			$this->getLanguageFallbackChainFactory(),
+			$this->getBufferingTermLookup(),
+			$displayLanguageCode
+		);
 	}
 
 	/**
@@ -670,10 +687,11 @@ final class WikibaseClient {
 		global $wgLang;
 		StubObject::unstub( $wgLang );
 
+		$labelDescriptionLookupFactory = $this->getLanguageFallbackLabelDescriptionLookupFactory();
 		$badgeClassNames = $this->settings->getSetting( 'badgeClassNames' );
 
 		return new LanguageLinkBadgeDisplay(
-			$this->getEntityLookup(),
+			$labelDescriptionLookupFactory->newLabelDescriptionLookup( $wgLang ),
 			is_array( $badgeClassNames ) ? $badgeClassNames : array(),
 			$wgLang
 		);
