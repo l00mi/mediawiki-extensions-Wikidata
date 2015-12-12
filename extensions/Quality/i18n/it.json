@@ -8,6 +8,7 @@
 			"The Polish"
 		]
 	},
+	"wbq-desc": "Estensione base per l'estensione qualità di Wikibase, che aiuta nella gestione dei dati inconsistenti.",
 	"specialpages-group-wikibasequality": "Qualità di Wikibase",
 	"wbq-violations-description": "Lista di problemi relativi alla qualità dei dati.",
 	"wbq-violations-explanations-general": "In questa pagina speciale sono elencati tutti i problemi di qualità relativi ai dati che sono stati rilevati in Wikidata. Tali problemi possono essere violazioni relative a vincoli definiti o incongruenze con altre banche dati esterne.",
@@ -36,5 +37,18 @@
 	"wbq-violations-mark-as-exception": "Segnala come eccezione",
 	"wbq-violations-mark-as-violation": "Segnala come violazione",
 	"wbq-violations-next-page": "Pagina successiva >>",
-	"wbq-violations-prev-page": "<< Pagina precedente"
+	"wbq-violations-prev-page": "<< Pagina precedente",
+	"apihelp-wbqgetviolationmessages-description": "Ottieni messaggi per le violazione dei dati nelle asserzioni.",
+	"apihelp-wbqgetviolationmessages-param-entityid": "ID dell'entità per cui devono essere elencate le violazioni dei dati.",
+	"apihelp-wbqgetviolationmessages-example": "Ottieni messaggi per le violazione dei dati nell'elemento Q76.",
+	"apihelp-wbqmodifyviolation-description": "Modifica di una specifica violazione dei dati. Tieni a mente che solo gli utenti con diritti specifici possono modificare le violazioni.",
+	"apihelp-wbqmodifyviolation-param-claimguid": "Il GUID asserzione della violazione dei dati che deve essere modificata. Insieme al ID vincolo, identifica la violazione.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "L'ID vincolo della violazione dei dati che deve essere modificata. Insieme al GUID asserzione, identifica la violazione.",
+	"apihelp-wbqmodifyviolation-param-status": "Il nuovo stato, che deve essere impostato per questa violazione.",
+	"apihelp-wbqmodifyviolation-examples-exception": "Modificato lo stato della violazione identificato dall'ID vincolo e GUID asserzione come eccezione.",
+	"apihelp-wbqmodifyviolation-examples-violation": "Modificato lo stato della violazione identificato dall'ID vincolo e GUID asserzione come violazione.",
+	"apihelp-wbqgetviolationtypes-description": "Restituisce un elenco di tutti i tipi di violazione supportati.",
+	"apihelp-wbqgetviolationtypes-param-groupid": "Un parametro facoltativo che limita i tipi di violazione a quelli associati al gruppo indicato.",
+	"apihelp-wdqgetviolationtypes-examples-1": "Restituisce tutti i tipi di violazione supportati senza restrizioni.",
+	"apihelp-wdqgetviolationtypes-examples-2": "Restituisce tutti i tipi di violazione supportati che sono associati con il gruppo \"wbqc\"."
 }
