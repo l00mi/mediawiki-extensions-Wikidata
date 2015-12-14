@@ -1,0 +1,15 @@
+{
+	"@metadata": {
+		"authors": [
+			"Hosseinblue"
+		]
+	},
+	"wbq-violations-group-label": "گروه:",
+	"wbq-violations-type-label": "نوع:",
+	"wbq-violations-form-select-all": "(کۆل)",
+	"wbq-violations-table-header-constraint-type": "نوع",
+	"wbq-violations-table-header-updated-at": "بروزرسانی دؤمائن",
+	"wbq-violations-table-header-status": "وضعیت",
+	"wbq-violations-next-page": "وةڵگة تِر/بعدی >>",
+	"wbq-violations-prev-page": "<<وةڵگة پئش"
+}
