@@ -73,7 +73,7 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
         );
     }
 
-    public function setUp() {
+	protected function setUp() {
         parent::setUp();
 
         $this->tablesUsed[] = SqlDumpMetaInformationRepo::META_TABLE_NAME;

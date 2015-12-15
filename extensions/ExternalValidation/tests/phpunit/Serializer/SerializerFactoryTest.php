@@ -47,7 +47,7 @@ class SerializerFactoryTest extends \MediaWikiTestCase {
 	private $crossCheckResult;
 	private $crossCheckResultList;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		// Create test data
@@ -87,7 +87,7 @@ class SerializerFactoryTest extends \MediaWikiTestCase {
 		);
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		unset(
 			$this->dumpMetaInformation,
 			$this->comparisonResult,

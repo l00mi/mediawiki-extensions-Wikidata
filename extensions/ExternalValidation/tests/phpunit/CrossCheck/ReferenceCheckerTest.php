@@ -30,13 +30,13 @@ class ReferenceCheckerTest extends \MediaWikiTestCase {
 	 */
 	private $referenceHandler;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->referenceHandler = new ReferenceChecker();
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		unset( $this->referenceHandler );
 
 		parent::tearDown();

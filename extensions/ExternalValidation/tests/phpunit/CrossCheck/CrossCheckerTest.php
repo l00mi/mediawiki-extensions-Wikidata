@@ -66,7 +66,7 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 		);
 	}
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->dumpMetaInformation = array(
@@ -134,7 +134,7 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 		$this->crossChecker = $this->getCrossChecker();
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		unset( $this->items, $this->dumpMetaInformation, $this->externalData, $this->crossChecker );
 
 		parent::tearDown();

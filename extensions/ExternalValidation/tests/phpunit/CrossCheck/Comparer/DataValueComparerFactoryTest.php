@@ -34,7 +34,7 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 	private $stringValue;
 	private $timeValue;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->entityIdValue = new EntityIdValue( new ItemId( 'Q1' ) );
@@ -51,7 +51,7 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 		$this->timeValue = new TimeValue( '+0000000000001955-03-11T00:00:00Z', 0, 0, 0, 11, 'http://www.wikidata.org/entity/Q1985727' );
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		unset(
 			$this->entityIdValue,
 			$this->globeCoordinateValue,

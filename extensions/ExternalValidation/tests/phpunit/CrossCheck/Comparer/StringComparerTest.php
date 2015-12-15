@@ -21,12 +21,12 @@ class StringComparerTest extends \MediaWikiTestCase {
 	 */
 	private $stringComparer;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 		$this->stringComparer = new StringComparer( new StringNormalizer() );
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		unset( $this->stringComparer );
 
 		parent::tearDown();

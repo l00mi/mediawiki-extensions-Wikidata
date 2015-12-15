@@ -23,7 +23,7 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 	 */
 	private $externalDataRepo;
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$this->tablesUsed[] = ExternalDataRepo::TABLE_NAME;
@@ -31,7 +31,7 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 		$this->externalDataRepo = new ExternalDataRepo();
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		unset( $this->externalDataRepo );
 
 		parent::tearDown();

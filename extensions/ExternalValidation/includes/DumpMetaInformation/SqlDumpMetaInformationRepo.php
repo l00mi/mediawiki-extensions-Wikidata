@@ -99,8 +99,8 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 		if( count( $identifierPropertyIds ) > 0 ) {
 			$db = wfGetDB( DB_SLAVE );
 			$identifierPropertyIds = array_map(
-				function ( PropertyId $propertyId ) {
-					return $propertyId->getSerialization();
+				function( PropertyId $id ) {
+					return $id->getSerialization();
 				},
 				$identifierPropertyIds
 			);

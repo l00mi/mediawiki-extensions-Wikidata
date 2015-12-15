@@ -43,7 +43,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		);
 	}
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		$entityLookup = new JsonFileEntityLookup( __DIR__ . '/testdata' );
@@ -67,7 +67,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 		$this->crossCheckInteractor = new CrossCheckInteractor( $entityLookup, $guidParser, $crossChecker );
 	}
 
-	public function tearDown() {
+	protected function tearDown() {
 		unset( $this->crossCheckInteractor );
 
 		parent::tearDown();

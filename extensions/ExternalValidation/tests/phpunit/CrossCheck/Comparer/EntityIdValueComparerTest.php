@@ -97,24 +97,23 @@ class EntityIdValueComparerTest extends DataValueComparerTestBase {
 		$termIndex->expects( $this->any() )
 			->method( 'getTermsOfEntity' )
 			->will( $this->returnCallback(
-				function( EntityId $entityId, $termTypes, $languageCodes ) {
+				function( EntityId $id, $termTypes, $languageCodes ) {
 					$terms = array();
-					if( $entityId->getSerialization() === 'Q1' ) {
-
-						if( in_array( TermIndexEntry::TYPE_LABEL, $termTypes ) ) {
-							if( in_array( 'en', $languageCodes) ) {
+					if ( $id->getSerialization() === 'Q1' ) {
+						if ( in_array( TermIndexEntry::TYPE_LABEL, $termTypes ) ) {
+							if ( in_array( 'en', $languageCodes) ) {
 								$terms[] = new TermIndexEntry( array( 'termText' => 'foobar' ) );
 							}
-							if( in_array( 'de', $languageCodes) ) {
+							if ( in_array( 'de', $languageCodes) ) {
 								$terms[] = new TermIndexEntry( array( 'termText' => 'Fubar' ) );
 							}
 						}
-						if( in_array( TermIndexEntry::TYPE_ALIAS, $termTypes ) ) {
-							if( in_array( 'en', $languageCodes) ) {
+						if ( in_array( TermIndexEntry::TYPE_ALIAS, $termTypes ) ) {
+							if ( in_array( 'en', $languageCodes) ) {
 								$terms[] = new TermIndexEntry( array( 'termText' => 'foo' ) );
 								$terms[] = new TermIndexEntry( array( 'termText' => 'bar' ) );
 							}
-							if( in_array( 'de', $languageCodes) ) {
+							if ( in_array( 'de', $languageCodes) ) {
 								$terms[] = new TermIndexEntry( array( 'termText' => 'foobar' ) );
 							}
 						}
