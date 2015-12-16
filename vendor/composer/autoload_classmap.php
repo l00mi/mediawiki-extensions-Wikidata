@@ -1469,7 +1469,6 @@ return array(
     'Wikibase\\View\\Template\\TemplateRegistry' => $baseDir . '/extensions/Wikibase/view/src/Template/TemplateRegistry.php',
     'Wikibase\\View\\TextInjector' => $baseDir . '/extensions/Wikibase/view/src/TextInjector.php',
     'Wikibase\\View\\ToolbarEditSectionGenerator' => $baseDir . '/extensions/Wikibase/view/src/ToolbarEditSectionGenerator.php',
-    'Wikibase\\WikibaseDiffOpFactory' => $baseDir . '/extensions/Wikibase/lib/includes/WikibaseDiffOpFactory.php',
     'WikidataOrg\\Hooks' => $baseDir . '/extensions/Wikidata.org/WikidataOrg.hooks.php',
     'Wikidata\\SettingsFileGenerator' => $baseDir . '/src/SettingsFileGenerator.php',
     'Wikidata\\WikidataHooks' => $baseDir . '/src/WikidataHooks.php',
