@@ -63,8 +63,9 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 	/** @var bool */
 	private static $hasSetup;
 
-	protected function setup() {
-		parent::setup();
+	protected function setUp() {
+		parent::setUp();
+
 		$this->tablesUsed[] = SqlDumpMetaInformationRepo::META_TABLE_NAME;
 		$this->tablesUsed[] = SqlDumpMetaInformationRepo::IDENTIFIER_PROPERTIES_TABLE_NAME;
 		$this->tablesUsed[] = ExternalDataRepo::TABLE_NAME;

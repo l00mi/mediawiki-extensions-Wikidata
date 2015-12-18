@@ -1194,7 +1194,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "3779d503306329d590a96c54d21d5e2add5f514d"
+                "reference": "108b702bd530b258f6a8146914a16091c9563b0f"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1242,7 +1242,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2015-12-14 13:46:24"
+            "time": "2015-12-17 10:55:15"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1355,7 +1355,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "47fd22c25afa0eeff82d383825bd433885f05999"
+                "reference": "685de4315ec51079a64d69dcc2c30f7646102f7b"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1399,7 +1399,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2015-12-13 21:25:06"
+            "time": "2015-12-17 12:16:39"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1448,12 +1448,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "b0012d18588ddefc754696aeb09b5f880f2f1dd5"
+                "reference": "be89c88746a54e13b0a2243d34576441b3f89da4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b0012d18588ddefc754696aeb09b5f880f2f1dd5",
-                "reference": "b0012d18588ddefc754696aeb09b5f880f2f1dd5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/be89c88746a54e13b0a2243d34576441b3f89da4",
+                "reference": "be89c88746a54e13b0a2243d34576441b3f89da4",
                 "shasum": ""
             },
             "require": {
@@ -1524,7 +1524,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2015-12-16 21:37:31"
+            "time": "2015-12-17 21:47:07"
         },
         {
             "name": "wikibase/wikimedia-badges",

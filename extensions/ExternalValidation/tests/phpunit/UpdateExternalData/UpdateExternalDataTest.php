@@ -23,8 +23,9 @@ use WikibaseQuality\ExternalValidation\Maintenance\UpdateExternalData;
  */
 class UpdateExternalDataTest extends \MediaWikiTestCase {
 
-	protected function setup() {
-		parent::setup();
+	protected function setUp() {
+		parent::setUp();
+
 		$this->tablesUsed[] = SqlDumpMetaInformationRepo::META_TABLE_NAME;
 		$this->tablesUsed[] = ExternalDataRepo::TABLE_NAME;
 	}
