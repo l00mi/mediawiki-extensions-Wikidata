@@ -42,19 +42,15 @@ class ComposerAutoloaderInit_mediawiki_extension_wikidata
         $loader->register(false);
 
         $includeFiles = require __DIR__ . '/autoload_files.php';
-        foreach ($includeFiles as $fileIdentifier => $file) {
-            composerRequire_mediawiki_extension_wikidata($fileIdentifier, $file);
+        foreach ($includeFiles as $file) {
+            composerRequire_mediawiki_extension_wikidata($file);
         }
 
         return $loader;
     }
 }
 
-function composerRequire_mediawiki_extension_wikidata($fileIdentifier, $file)
+function composerRequire_mediawiki_extension_wikidata($file)
 {
-    if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
-        require $file;
-
-        $GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
-    }
+    require $file;
 }

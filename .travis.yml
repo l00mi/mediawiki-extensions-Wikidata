@@ -32,7 +32,6 @@ before_script:
   - echo '$wgShowExceptionDetails = true;' >> LocalSettings.php
   - echo '$wgDevelopmentWarnings = true;' >> LocalSettings.php
   - echo '$wgLanguageCode = "'en'";' >> LocalSettings.php
-  - echo "define( 'WB_EXPERIMENTAL_FEATURES', true );" >> LocalSettings.php
   
   - echo '$wgEnableWikibaseRepo = true;' >> LocalSettings.php
   - echo '$wgEnableWikibaseClient  = true;' >> LocalSettings.php
