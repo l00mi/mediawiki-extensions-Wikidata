@@ -773,16 +773,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "2.4.4",
+            "version": "2.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "398b914576947ceb8dedd803a9e15090f982fa25"
+                "reference": "96d2eeb9a3f926f9169e9bc150cc66440ea85ace"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/398b914576947ceb8dedd803a9e15090f982fa25",
-                "reference": "398b914576947ceb8dedd803a9e15090f982fa25",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/96d2eeb9a3f926f9169e9bc150cc66440ea85ace",
+                "reference": "96d2eeb9a3f926f9169e9bc150cc66440ea85ace",
                 "shasum": ""
             },
             "require": {
@@ -816,7 +816,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2015-10-14 21:06:09"
+            "time": "2015-12-27 10:13:49"
         },
         {
             "name": "serialization/serialization",
