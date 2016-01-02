@@ -152,7 +152,7 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 			),
 			array(
 				array( 42 ),
-				array('foo', 'bar'),
+				array( 'foo', 'bar' ),
 				array(
 					new PropertyId( 'P1' ),
 					new PropertyId( 'P3' )
@@ -172,13 +172,13 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 			),
 			array(
 				array(),
-				array('foo', 'bar'),
+				array( 'foo', 'bar' ),
 				array(),
 				null,
 				'InvalidArgumentException'
 			),
 			array(
-				array('foo', 'bar'),
+				array( 'foo', 'bar' ),
 				array(),
 				array(),
 				null,

@@ -100,7 +100,11 @@ class SerializerFactoryTest extends \MediaWikiTestCase {
 
 	private function buildSerializerFactory() {
 		$dataValueSerializer = new DataValueSerializer();
-		return new SerializerFactory( $dataValueSerializer, new ReferenceSerializer( new SnakListSerializer( new SnakSerializer( $dataValueSerializer ), false ) ) );
+		$referenceSerializer = new ReferenceSerializer(
+			new SnakListSerializer( new SnakSerializer( $dataValueSerializer ), false )
+		);
+
+		return new SerializerFactory( $dataValueSerializer, $referenceSerializer );
 	}
 
 	private function assertSerializesWithoutException( Serializer $serializer, $object ) {

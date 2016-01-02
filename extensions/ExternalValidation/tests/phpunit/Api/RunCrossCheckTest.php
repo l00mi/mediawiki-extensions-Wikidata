@@ -91,29 +91,27 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 			$store->saveEntity( $itemQ1, 'TestEntityQ1', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['Q1'] = $itemQ1->getId();
 
-			$guidGenerator = new V4GuidGenerator();
-
 			$dataValue = new EntityIdValue( new ItemId( IDENTIFIER_PROPERTY_QID ) );
 			$snak = new PropertyValueSnak( new PropertyId( INSTANCE_OF_PID ), $dataValue );
-			$guid = self::$idMap['P3']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$guid = $this->makeStatementGuid( self::$idMap['P3'] );
 			$propertyP3->getStatements()->addNewStatement( $snak, null, null, $guid );
 			$store->saveEntity( $propertyP3, 'TestEntityP3',  $GLOBALS['wgUser'], EDIT_UPDATE );
 
 			$dataValue = new StringValue( 'foo' );
 			$snak = new PropertyValueSnak( self::$idMap['P1'], $dataValue );
-			$guid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$guid = $this->makeStatementGuid( self::$idMap['Q1'] );
 			self::$claimGuids['P1'] = $guid;
 			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $guid );
 
 			$dataValue = new StringValue( 'baz' );
 			$snak = new PropertyValueSnak( self::$idMap['P2'], $dataValue );
-			$guid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$guid = $this->makeStatementGuid( self::$idMap['Q1'] );
 			self::$claimGuids['P2'] = $guid;
 			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $guid );
 
 			$dataValue = new StringValue( '1234' );
 			$snak = new PropertyValueSnak( self::$idMap['P3'], $dataValue );
-			$guid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$guid = $this->makeStatementGuid( self::$idMap['Q1'] );
 			self::$claimGuids['P3'] = $guid;
 			$itemQ1->getStatements()->addNewStatement( $snak, null, null, $guid );
 
@@ -175,13 +173,24 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 		);
 	}
 
+	private function makeStatementGuid( EntityId $id ) {
+		$guidGenerator = new V4GuidGenerator();
+
+		return $id->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+	}
+
 	public function testExecuteInvalidParams() {
 		$params = array(
 			'action' => 'wbqevcrosscheck',
 			'entities' => 'Q1',
 			'claims' => 'randomClaimGuid'
 		);
-		$this->setExpectedException( 'UsageException', 'Either provide the ids of entities or ids of claims, that should be cross-checked.' );
+
+		$this->setExpectedException(
+			'UsageException',
+			'Either provide the ids of entities or ids of claims, that should be cross-checked.'
+		);
+
 		$this->doApiRequest( $params );
 	}
 
@@ -189,7 +198,13 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 		$params = array(
 			'action' => 'wbqevcrosscheck'
 		);
-		$this->setExpectedException( 'UsageException', 'A parameter that is required was missing (Either provide the ids of entities or ids of claims, that should be cross-checked.)' );
+
+		$this->setExpectedException(
+			'UsageException',
+			'A parameter that is required was missing (Either provide the ids of entities or '
+				. 'ids of claims, that should be cross-checked.)'
+		);
+
 		$this->doApiRequest( $params );
 	}
 

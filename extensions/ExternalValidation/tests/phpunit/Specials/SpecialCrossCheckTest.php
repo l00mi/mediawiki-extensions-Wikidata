@@ -2,24 +2,25 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Specials\SpecialCrossCheck;
 
+use FauxRequest;
 use SpecialPageTestBase;
+use DataValues\StringValue;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Services\Statement\V4GuidGenerator;
+use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementGuid;
+use Wikibase\DataModel\Services\Statement\V4GuidGenerator;
 use Wikibase\Repo\EntityIdLabelFormatterFactory;
+use Wikibase\Repo\WikibaseRepo;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\ExternalValidation\Specials\SpecialCrossCheck;
-use DataValues\StringValue;
-use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\Property;
-use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Repo\WikibaseRepo;
-use Wikibase\DataModel\Entity\EntityId;
 
 /**
  * @covers WikibaseQuality\ExternalValidation\Specials\SpecialCrossCheck
@@ -94,70 +95,68 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 	 * @throws \DBUnexpectedError
 	 */
 	public function addDBData() {
-		if (!self::$hasSetup) {
+		if ( !self::$hasSetup ) {
 			$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 
-			$propertyP1 = Property::newFromType('string');
-			$store->saveEntity($propertyP1, 'TestEntityP1', $GLOBALS['wgUser'], EDIT_NEW);
+			$propertyP1 = Property::newFromType( 'string' );
+			$store->saveEntity( $propertyP1, 'TestEntityP1', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['P1'] = $propertyP1->getId();
 
-			$propertyP2 = Property::newFromType('string');
-			$store->saveEntity($propertyP2, 'TestEntityP2', $GLOBALS['wgUser'], EDIT_NEW);
+			$propertyP2 = Property::newFromType( 'string' );
+			$store->saveEntity( $propertyP2, 'TestEntityP2', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['P2'] = $propertyP2->getId();
 
-			$propertyP3 = Property::newFromType('string');
-			$store->saveEntity($propertyP3, 'TestEntityP3', $GLOBALS['wgUser'], EDIT_NEW);
+			$propertyP3 = Property::newFromType( 'string' );
+			$store->saveEntity( $propertyP3, 'TestEntityP3', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['P3'] = $propertyP3->getId();
 
-			$propertyP4 = Property::newFromType('string');
-			$store->saveEntity($propertyP4, 'TestEntityP4', $GLOBALS['wgUser'], EDIT_NEW);
+			$propertyP4 = Property::newFromType( 'string' );
+			$store->saveEntity( $propertyP4, 'TestEntityP4', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['P4'] = $propertyP4->getId();
 
 			$itemQ1 = new Item();
-			$store->saveEntity($itemQ1, 'TestEntityQ1', $GLOBALS['wgUser'], EDIT_NEW);
+			$store->saveEntity( $itemQ1, 'TestEntityQ1', $GLOBALS['wgUser'], EDIT_NEW );
 			self::$idMap['Q1'] = $itemQ1->getId();
 
-			$guidGenerator = new V4GuidGenerator();
+			$dataValue = new EntityIdValue( new ItemId( IDENTIFIER_PROPERTY_QID ) );
+			$snak = new PropertyValueSnak( new PropertyId( INSTANCE_OF_PID ), $dataValue );
+			$guid = $this->makeStatementGuid( self::$idMap['P3'] );
+			$propertyP3->getStatements()->addNewStatement( $snak, null, null, $guid );
+			$store->saveEntity( $propertyP3, 'TestEntityP3', $GLOBALS['wgUser'], EDIT_UPDATE );
 
-			$dataValue = new EntityIdValue(new ItemId(IDENTIFIER_PROPERTY_QID));
-			$snak = new PropertyValueSnak(new PropertyId(INSTANCE_OF_PID), $dataValue);
-			$guid = self::$idMap['P3']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			$propertyP3->getStatements()->addNewStatement($snak, null, null, $guid);
-			$store->saveEntity($propertyP3, 'TestEntityP3', $GLOBALS['wgUser'], EDIT_UPDATE);
-
-			$dataValue = new StringValue('foo');
-			$snak = new PropertyValueSnak(self::$idMap['P1'], $dataValue);
-			$statementGuid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			$statement = new Statement($snak);
+			$dataValue = new StringValue( 'foo' );
+			$snak = new PropertyValueSnak( self::$idMap['P1'], $dataValue );
+			$statementGuid = $this->makeStatementGuid( self::$idMap['Q1'] );
+			$statement = new Statement( $snak );
 			self::$statementGuids['P1'] = $statementGuid;
-			$statement->setGuid($statementGuid);
-			$itemQ1->getStatements()->addStatement($statement);
+			$statement->setGuid( $statementGuid );
+			$itemQ1->getStatements()->addStatement( $statement );
 
-			$dataValue = new StringValue('baz');
-			$snak = new PropertyValueSnak(self::$idMap['P2'], $dataValue);
-			$statementGuid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
-			$statement = new Statement($snak);
+			$dataValue = new StringValue( 'baz' );
+			$snak = new PropertyValueSnak( self::$idMap['P2'], $dataValue );
+			$statementGuid = $this->makeStatementGuid( self::$idMap['Q1'] );
+			$statement = new Statement( $snak );
 			self::$statementGuids['P2'] = $statementGuid;
-			$statement->setGuid($statementGuid);
-			$itemQ1->getStatements()->addStatement($statement);
+			$statement->setGuid( $statementGuid );
+			$itemQ1->getStatements()->addStatement( $statement );
 
-			$dataValue = new StringValue('1234');
-			$snak = new PropertyValueSnak(self::$idMap['P3'], $dataValue);
-			$statement = new Statement($snak);
-			$statementGuid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$dataValue = new StringValue( '1234' );
+			$snak = new PropertyValueSnak( self::$idMap['P3'], $dataValue );
+			$statement = new Statement( $snak );
+			$statementGuid = $this->makeStatementGuid( self::$idMap['Q1'] );
 			self::$statementGuids['P3'] = $statementGuid;
-			$statement->setGuid($statementGuid);
-			$itemQ1->getStatements()->addStatement($statement);
+			$statement->setGuid( $statementGuid );
+			$itemQ1->getStatements()->addStatement( $statement );
 
-			$dataValue = new StringValue('partiall');
-			$snak = new PropertyValueSnak(self::$idMap['P4'], $dataValue);
-			$statement = new Statement($snak);
-			$statementGuid = self::$idMap['Q1']->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+			$dataValue = new StringValue( 'partiall' );
+			$snak = new PropertyValueSnak( self::$idMap['P4'], $dataValue );
+			$statement = new Statement( $snak );
+			$statementGuid = $this->makeStatementGuid( self::$idMap['Q1'] );
 			self::$statementGuids['P4'] = $statementGuid;
-			$statement->setGuid($statementGuid);
-			$itemQ1->getStatements()->addStatement($statement);
+			$statement->setGuid( $statementGuid );
+			$itemQ1->getStatements()->addStatement( $statement );
 
-			$store->saveEntity($itemQ1, 'TestEntityQ1', $GLOBALS['wgUser'], EDIT_UPDATE);
+			$store->saveEntity( $itemQ1, 'TestEntityQ1', $GLOBALS['wgUser'], EDIT_UPDATE );
 
 			self::$hasSetup = true;
 		}
@@ -219,20 +218,26 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 		);
 	}
 
+	private function makeStatementGuid( EntityId $id ) {
+		$guidGenerator = new V4GuidGenerator();
+
+		return $id->getSerialization() . StatementGuid::SEPARATOR . $guidGenerator->newGuid();
+	}
+
 	/**
 	 * @dataProvider executeProvider
 	 */
 	public function testExecute( $subPage, $request, $userLanguage, $matchers ) {
-		$request = new \FauxRequest($request);
+		$request = new FauxRequest( $request );
 
 		// The added item is Q1. This solves the problem that the provider is executed before the test
 		$id = self::$idMap['Q1'];
-		$subPage = str_replace('$id', $id->getSerialization(), $subPage);
+		$subPage = str_replace( '$id', $id->getSerialization(), $subPage );
 
 		// Assert matchers
-		list($output,) = $this->executeSpecialPage($subPage, $request, $userLanguage);
-		foreach ($matchers as $key => $matcher) {
-			$this->assertTag($matcher, $output, "Failed to assert output: $key");
+		list( $output, ) = $this->executeSpecialPage( $subPage, $request, $userLanguage );
+		foreach ( $matchers as $key => $matcher ) {
+			$this->assertTag( $matcher, $output, "Failed to assert output: $key" );
 		}
 	}
 
@@ -270,7 +275,7 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 			)
 		);
 
-		$cases['empty'] = array('', array(), $userLanguage, $matchers);
+		$cases['empty'] = array( '', array(), $userLanguage, $matchers );
 
 		// Invalid input
 		$matchers['error'] = array(
@@ -281,11 +286,11 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 			'content' => '(wbqev-crosscheck-invalid-entity-id)'
 		);
 
-		$cases['invalid input 1'] = array('Qwertz', array(), $userLanguage, $matchers);
-		$cases['invalid input 2'] = array('300', array(), $userLanguage, $matchers);
+		$cases['invalid input 1'] = array( 'Qwertz', array(), $userLanguage, $matchers );
+		$cases['invalid input 2'] = array( '300', array(), $userLanguage, $matchers );
 
 		// Valid input but entity does not exist
-		unset($matchers['error']);
+		unset( $matchers['error'] );
 		$matchers['error'] = array(
 			'tag' => 'p',
 			'attributes' => array(
@@ -294,10 +299,15 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 			'content' => '(wbqev-crosscheck-not-existent-entity)'
 		);
 
-		$cases['valid input - not existing item'] = array(self::NOT_EXISTENT_ITEM_ID, array(), $userLanguage, $matchers);
+		$cases['valid input - not existing item'] = array(
+			self::NOT_EXISTENT_ITEM_ID,
+			array(),
+			$userLanguage,
+			$matchers
+		);
 
 		// Valid input and entity exists
-		unset($matchers['error']);
+		unset( $matchers['error'] );
 		$matchers['result for'] = array(
 			'tag' => 'h3',
 			'content' => '(wbqev-crosscheck-result-headline)'
@@ -417,7 +427,12 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 			'content' => '(wbqev-crosscheck-status-references-missing)'
 		);
 
-		$cases['valid input - existing item without references'] = array('$id', array(), $userLanguage, $matchers);
+		$cases['valid input - existing item without references'] = array(
+			'$id',
+			array(),
+			$userLanguage,
+			$matchers
+		);
 
 		return $cases;
 	}
