@@ -39,7 +39,8 @@
 			"KuboF",
 			"Umherirrender",
 			"Macofe",
-			"Legoktm"
+			"Legoktm",
+			"JadeMaveric"
 		]
 	},
 	"wikibase-desc": "{{desc|name=Wikibase|url=https://www.mediawiki.org/wiki/Extension:Wikibase}}\nSee also [[d:Wikidata:Glossary#Wikidata|Wikidata]] in the Wikidata glossary.\n\n\"Structured\" refers to \"data\", not to \"repository\".",
@@ -148,6 +149,7 @@
 	"wikibase-validator-label-conflict": "Error message shown when a user tries to save a property that has a non-unique label.\n\nParameters:\n* $1 - label text\n* $2 - the label's language code\n* $3 - the id of the property that already has the label\nSee also:\n* {{msg-mw|Wikibase-validator-label-with-description-conflict}}",
 	"wikibase-validator-label-with-description-conflict": "Error message shown when a user tries to save an item that has a non-unique label+description pair.\n\nParameters:\n* $1 - label text\n* $2 - the label's language code\n* $3 - the id of the query that already has the label\nSee also:\n* {{msg-mw|Wikibase-validator-label-conflict}}",
 	"wikibase-validator-label-no-entityid": "Error message shown when a user tries to save an item that has a valid entity id as label. Parameters:\n* $1 is the label.",
+	"wikibase-validator-no-such-media": "Error message shown when a user tries to add a link to a Wikimedia Commons media file which does not exist. Parameters:\n* $1 is the name of the file.",
 	"wikibase-itemlink": "{{optional}}\nused to generate the link text for links to items. $1 is the items label, $2 the id given to \"wikibase-itemlink-id-wrapper\". This message can be altered to change the position of the single parts within the link. Params:\n* $1 is label on a html form\n* $2 is id on a html form",
 	"wikibase-itemlink-id-wrapper": "{{optional}}\nUsed to wrap the items id for a link to an item in parentheses or similar. Params:\n* $1 is the prefixed id of the item",
 	"wikibase-itemlink-userlang-wrapper": "{{optional}}\nUsed to wrap the language and label for an additional entry when the language are different from the user's own. Parameters:\n* $1 is the label;s language name\n* $2 is the label text",
@@ -453,6 +455,7 @@
 	"apihelp-wbformatvalue-param-datatype": "{{doc-apihelp-param|wbformatvalue|datatype}}",
 	"apihelp-wbformatvalue-param-datavalue": "{{doc-apihelp-param|wbformatvalue|datavalue}}",
 	"apihelp-wbformatvalue-param-options": "{{doc-apihelp-param|wbformatvalue|options}}",
+	"apihelp-wbformatvalue-param-property": "{{doc-apihelp-param|wbformatvalue|property}}",
 	"apihelp-wbformatvalue-example-1": "{{doc-apihelp-example|wbformatvalue}}",
 	"apihelp-wbformatvalue-example-2": "{{doc-apihelp-example|wbformatvalue}}",
 	"apihelp-wbgetclaims-description": "{{doc-apihelp-description|wbgetclaims}}",
@@ -537,7 +540,7 @@
 	"apihelp-wbsearchentities-description": "{{doc-apihelp-description|wbsearchentities}}",
 	"apihelp-wbsearchentities-param-search": "{{doc-apihelp-param|wbsearchentities|search}}",
 	"apihelp-wbsearchentities-param-language": "{{doc-apihelp-param|wbsearchentities|language}}",
-	"apihelp-wbsearchentities-param-strictlanguage": "{{doc-apihelp-param|wbsearchentities|strictlanguage}}",
+	"apihelp-wbsearchentities-param-strictlanguage": "{{doc-apihelp-param|wbsearchentities|strictlanguage|info = This message is used [https://www.wikidata.org/wiki/Special:ApiSandbox#action=wbsearchentities here] at param 3. If enabled only matches in the current language are shown}}",
 	"apihelp-wbsearchentities-param-type": "{{doc-apihelp-param|wbsearchentities|type}}",
 	"apihelp-wbsearchentities-param-limit": "{{doc-apihelp-param|wbsearchentities|limit}}",
 	"apihelp-wbsearchentities-param-continue": "{{doc-apihelp-param|wbsearchentities|continue}}",
