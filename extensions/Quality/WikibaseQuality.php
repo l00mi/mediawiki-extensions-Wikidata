@@ -1,31 +1,14 @@
 <?php
-
-if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
-	require_once __DIR__ . '/vendor/autoload.php';
+if ( function_exists( 'wfLoadExtension' ) ) {
+	wfLoadExtension( 'WikibaseQuality', __DIR__ . '/extension.json' );
+	// Keep i18n globals so mergeMessageFileList.php doesn't break
+	$wgMessagesDirs['WikibaseQuality'] = __DIR__ . '/i18n';
+	$wgExtensionMessagesFiles['WikibaseQualityAlias'] = __DIR__ . '/WikibaseQuality.alias.php';
+	/*wfWarn(
+		'Deprecated PHP entry point used for WikibaseQuality extension. Please use wfLoadExtension instead, ' .
+		'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
+	);*/
+	return;
+} else {
+	die( 'This version of the WikibaseQuality extension requires MediaWiki 1.25+' );
 }
-
-call_user_func( function () {
-	// Set credits
-	$GLOBALS['wgExtensionCredits']['wikibase'][] = array(
-		'path' => __FILE__,
-		'name' => 'WikibaseQuality',
-		'author' => 'BP2014N1',
-		'url' => 'https://www.mediawiki.org/wiki/Extension:WikibaseQuality',
-		'descriptionmsg' => 'wbq-desc',
-		'version' => '1.0.0'
-	);
-
-	// Initialize localization and aliases
-	$GLOBALS['wgMessagesDirs']['WikibaseQuality'] = __DIR__ . '/i18n';
-	$GLOBALS['wgExtensionMessagesFiles']['WikibaseQualityAlias'] = __DIR__ . '/WikibaseQuality.alias.php';
-
-	// Register hooks for Unit Tests
-	$GLOBALS['wgHooks']['UnitTestsList'][] = 'WikibaseQualityHooks::onUnitTestsList';
-
-	// Define modules
-	$GLOBALS['wgResourceModules']['SpecialCheckResultPage'] = array(
-		'styles' => '/modules/SpecialCheckResultPage.css',
-		'localBasePath' => __DIR__,
-		'remoteExtPath' => 'WikibaseQuality'
-	);
-} );
