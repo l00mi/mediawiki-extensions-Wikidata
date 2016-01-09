@@ -1289,7 +1289,6 @@ return array(
     'Wikibase\\Test\\MockPropertyLabelResolver' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/MockPropertyLabelResolver.php',
     'Wikibase\\Test\\MockRepository' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/MockRepository.php',
     'Wikibase\\Test\\MockRepositoryTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/MockRepositoryTest.php',
-    'Wikibase\\Test\\MockSiteStore' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/MockSiteStore.php',
     'Wikibase\\Test\\MockTermIndex' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/store/MockTermIndex.php',
     'Wikibase\\Test\\ObservableMessageReporterTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/Reporting/ObservableMessageReporterTest.php',
     'Wikibase\\Test\\OutputPageJsConfigBuilderTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/OutputPageJsConfigBuilderTest.php',
