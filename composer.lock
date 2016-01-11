@@ -966,7 +966,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2016-01-08 01:36:43"
+            "time": "2016-01-08 01:35:02"
         },
         {
             "name": "wikibase/data-model",
@@ -1393,12 +1393,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "2d85601024a2ce7d07796fd74ca486dada3d26e3"
+                "reference": "06ee5284d4e0a378e40caf3498963dc576e836eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/2d85601024a2ce7d07796fd74ca486dada3d26e3",
-                "reference": "2d85601024a2ce7d07796fd74ca486dada3d26e3",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/06ee5284d4e0a378e40caf3498963dc576e836eb",
+                "reference": "06ee5284d4e0a378e40caf3498963dc576e836eb",
                 "shasum": ""
             },
             "require": {
@@ -1469,7 +1469,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-01-11 17:45:41"
+            "time": "2016-01-11 21:20:36"
         },
         {
             "name": "wikibase/wikimedia-badges",
