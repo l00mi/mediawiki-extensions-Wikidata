@@ -150,7 +150,7 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function setUp() {
+	protected function setUp() {
 		$this->subscriptions['enwiki'] = array(
 			new PropertyId( 'P11' ),
 			new ItemId( 'Q22' ),
@@ -169,7 +169,7 @@ class ChangeDispatcherTest extends \PHPUnit_Framework_TestCase {
 	 * @param int $changeId
 	 * @param EntityId $entityId
 	 * @param string $time
-	 * @param Diff $siteLinkDiff
+	 * @param Diff|null $siteLinkDiff
 	 *
 	 * @return Change
 	 */

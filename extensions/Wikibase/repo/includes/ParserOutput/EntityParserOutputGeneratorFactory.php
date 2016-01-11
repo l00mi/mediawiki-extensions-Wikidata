@@ -2,14 +2,15 @@
 
 namespace Wikibase\Repo\ParserOutput;
 
+use Language;
 use ParserOptions;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Services\Entity\PropertyDataTypeMatcher;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Lib\Store\PropertyDataTypeMatcher;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\View\EntityViewFactory;
 use Wikibase\View\Template\TemplateFactory;
@@ -151,7 +152,7 @@ class EntityParserOutputGeneratorFactory {
 	 *
 	 * @return LanguageFallbackChain
 	 */
-	private function getLanguageFallbackChain( $language ) {
+	private function getLanguageFallbackChain( Language $language ) {
 		// Language fallback must depend ONLY on the target language,
 		// so we don't confuse the parser cache with user specific HTML.
 		return $this->languageFallbackChainFactory->newFromLanguage(
@@ -178,7 +179,7 @@ class EntityParserOutputGeneratorFactory {
 			$updaters[] = new PageImagesDataUpdater( $this->preferredPageImagesProperties );
 		}
 
-		if ( class_exists( 'GeoData' ) ) {
+		if ( class_exists( 'GeoData\GeoData' ) ) {
 			$updaters[] = new GeoDataDataUpdater(
 				$propertyDataTypeMatcher,
 				$this->preferredGeoDataProperties,

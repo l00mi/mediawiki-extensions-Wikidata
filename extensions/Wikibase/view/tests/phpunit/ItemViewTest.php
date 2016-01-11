@@ -5,7 +5,6 @@ namespace Wikibase\View\Tests;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Services\Statement\Grouper\NullStatementGrouper;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\View\ItemView;
 use Wikibase\View\Template\TemplateFactory;
@@ -56,7 +55,6 @@ class ItemViewTest extends EntityViewTest {
 			$this->getMockBuilder( 'Wikibase\View\EntityTermsView' )
 				->disableOriginalConstructor()
 				->getMock(),
-			new NullStatementGrouper(),
 			$this->getMockBuilder( 'Wikibase\View\StatementSectionsView' )
 				->disableOriginalConstructor()
 				->getMock(),

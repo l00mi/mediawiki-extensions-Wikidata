@@ -60,7 +60,9 @@ use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\MediaWikiContentLanguages;
+use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
+use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SiteLinkCommentCreator;
@@ -174,20 +176,17 @@ final class WikibaseClient {
 	private $termLookup = null;
 
 	/**
-	 * Returns the default WikibaseValueFormatterBuilders instance.
 	 * @warning This is for use with bootstrap code in WikibaseClient.datatypes.php only!
 	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
 	 *
 	 * @since 0.5
 	 *
-	 * @param string $reset Flag: Pass "reset" to reset the default instance
-	 *
 	 * @return WikibaseValueFormatterBuilders
 	 */
-	public static function getDefaultFormatterBuilders( $reset = 'noreset' ) {
+	public static function getDefaultValueFormatterBuilders() {
 		static $builders;
 
-		if ( $builders === null || $reset === 'reset' ) {
+		if ( $builders === null ) {
 			$builders = self::getDefaultInstance()->newWikibaseValueFormatterBuilders();
 		}
 
@@ -197,7 +196,7 @@ final class WikibaseClient {
 	/**
 	 * Returns a low level factory object for creating formatters for well known data types.
 	 *
-	 * @warning This is for use with getDefaultFormatterBuilders() during bootstrap only!
+	 * @warning This is for use with getDefaultValueFormatterBuilders() during bootstrap only!
 	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
 	 *
 	 * @return WikibaseValueFormatterBuilders
@@ -208,6 +207,45 @@ final class WikibaseClient {
 			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
 			new LanguageNameLookup(),
 			$this->getRepoEntityUriParser()
+		);
+	}
+
+	/**
+	 * @warning This is for use with bootstrap code in WikibaseClient.datatypes.php only!
+	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
+	 *
+	 * @since 0.5
+	 *
+	 * @return WikibaseSnakFormatterBuilders
+	 */
+	public static function getDefaultSnakFormatterBuilders() {
+		static $builders;
+
+		if ( $builders === null ) {
+			$builders = self::getDefaultInstance()->newWikibaseSnakFormatterBuilders(
+				self::getDefaultValueFormatterBuilders()
+			);
+		}
+
+		return $builders;
+	}
+
+	/**
+	 * Returns a low level factory object for creating formatters for well known data types.
+	 *
+	 * @warning This is for use with getDefaultValueFormatterBuilders() during bootstrap only!
+	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
+	 *
+	 * @param WikibaseValueFormatterBuilders $valueFormatterBuilders
+	 *
+	 * @return WikibaseSnakFormatterBuilders
+	 */
+	private function newWikibaseSnakFormatterBuilders( WikibaseValueFormatterBuilders $valueFormatterBuilders ) {
+		return new WikibaseSnakFormatterBuilders(
+			$valueFormatterBuilders,
+			$this->getStore()->getPropertyInfoStore(),
+			$this->getPropertyDataTypeLookup(),
+			$this->getDataTypeFactory()
 		);
 	}
 
@@ -289,6 +327,22 @@ final class WikibaseClient {
 		}
 
 		return $this->termLookup;
+	}
+
+	/**
+	 * @param string $displayLanguageCode
+	 *
+	 * XXX: This is not used by client itself, but is used by ArticlePlaceholder!
+	 *
+	 * @return TermIndexSearchInteractor
+	 */
+	public function newTermSearchInteractor( $displayLanguageCode ) {
+		return new TermIndexSearchInteractor(
+			$this->getStore()->getTermIndex(),
+			$this->getLanguageFallbackChainFactory(),
+			$this->getBufferingTermLookup(),
+			$displayLanguageCode
+		);
 	}
 
 	/**
@@ -439,7 +493,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * Returns the default instance constructed using newInstance().
 	 * IMPORTANT: Use only when it is not feasible to inject an instance properly.
 	 *
 	 * @since 0.4
@@ -571,6 +624,7 @@ final class WikibaseClient {
 	 */
 	private function newSnakFormatterFactory() {
 		$factory = new OutputFormatSnakFormatterFactory(
+			$this->dataTypeDefinitions->getSnakFormatterFactoryCallbacks(),
 			$this->getValueFormatterFactory(),
 			$this->getPropertyDataTypeLookup(),
 			$this->getDataTypeFactory()
@@ -670,10 +724,11 @@ final class WikibaseClient {
 		global $wgLang;
 		StubObject::unstub( $wgLang );
 
+		$labelDescriptionLookupFactory = $this->getLanguageFallbackLabelDescriptionLookupFactory();
 		$badgeClassNames = $this->settings->getSetting( 'badgeClassNames' );
 
 		return new LanguageLinkBadgeDisplay(
-			$this->getEntityLookup(),
+			$labelDescriptionLookupFactory->newLabelDescriptionLookup( $wgLang ),
 			is_array( $badgeClassNames ) ? $badgeClassNames : array(),
 			$wgLang
 		);

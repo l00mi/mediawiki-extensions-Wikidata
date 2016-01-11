@@ -8,7 +8,6 @@ use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Services\Statement\Grouper\NullStatementGrouper;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\View\PropertyView;
@@ -79,14 +78,11 @@ class PropertyViewTest extends EntityViewTest {
 			$this->getMockBuilder( 'Wikibase\View\EntityTermsView' )
 				->disableOriginalConstructor()
 				->getMock(),
-			new NullStatementGrouper(),
 			$this->getMockBuilder( 'Wikibase\View\StatementSectionsView' )
 				->disableOriginalConstructor()
 				->getMock(),
 			$this->getDataTypeFactory(),
-			Language::factory( 'en' ),
-			true,
-			false
+			Language::factory( 'en' )
 		);
 
 		return array(

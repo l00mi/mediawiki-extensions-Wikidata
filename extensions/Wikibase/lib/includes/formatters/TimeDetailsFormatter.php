@@ -12,6 +12,8 @@ use ValueFormatters\ValueFormatterBase;
 /**
  * Formatter for rendering the details of a TimeValue (most useful for diffs) in HTML.
  *
+ * @see Wikibase\Lib\HtmlTimeFormatter
+ *
  * @since 0.5
  *
  * @licence GNU GPL v2+
@@ -43,10 +45,10 @@ class TimeDetailsFormatter extends ValueFormatterBase {
 	}
 
 	/**
+	 * @see ValueFormatter::format
+	 *
 	 * Generates HTML representing the details of a TimeValue,
 	 * as an itemized list.
-	 *
-	 * @since 0.5
 	 *
 	 * @param TimeValue $value
 	 *

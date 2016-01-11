@@ -2,22 +2,22 @@
 
 namespace Wikibase\Repo\Tests\ParserOutput;
 
-use Coord;
-use CoordinatesOutput;
 use DataValues\DataValue;
 use DataValues\Geo\Values\GlobeCoordinateValue;
 use DataValues\Geo\Values\LatLongValue;
 use DataValues\StringValue;
+use GeoData\Coord;
+use GeoData\CoordinatesOutput;
 use ParserOutput;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\Entity\PropertyDataTypeMatcher;
 use Wikibase\DataModel\Services\Lookup\InMemoryDataTypeLookup;
 use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\Store\PropertyDataTypeMatcher;
 use Wikibase\Repo\ParserOutput\GeoDataDataUpdater;
 
 /**
@@ -33,7 +33,7 @@ use Wikibase\Repo\ParserOutput\GeoDataDataUpdater;
 class GeoDataDataUpdaterTest extends \MediaWikiTestCase {
 
 	private function willSkipTests() {
-		if ( !class_exists( 'GeoData' ) ) {
+		if ( !class_exists( 'GeoData\GeoData' ) ) {
 			return true;
 		}
 		return false;

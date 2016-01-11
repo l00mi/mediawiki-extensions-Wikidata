@@ -2,6 +2,7 @@
 
 namespace Wikibase\Client\Tests\Hooks;
 
+use HashSiteStore;
 use Language;
 use MediaWikiSite;
 use MediaWikiTestCase;
@@ -19,6 +20,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
+use Wikibase\DataModel\Term\Term;
 use Wikibase\InterwikiSorter;
 use Wikibase\LangLinkHandler;
 use Wikibase\Lib\Store\SiteLinkLookup;
@@ -26,7 +28,6 @@ use Wikibase\NamespaceChecker;
 use Wikibase\Settings;
 use Wikibase\SettingsArray;
 use Wikibase\Test\MockRepository;
-use Wikibase\Test\MockSiteStore;
 
 /**
  * @covers Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers
@@ -64,7 +65,7 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 	 * @return SiteStore
 	 */
 	private function getSiteStore() {
-		$siteStore = new MockSiteStore( array(
+		$siteStore = new HashSiteStore( array(
 			$this->newSite( 'wikidatawiki', 'wikidata', 'en' ),
 			$this->newSite( 'commonswiki', 'commons', 'en' ),
 			$this->newSite( 'enwiki', 'wikipedia', 'en' ),
@@ -159,12 +160,6 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 		$mockRepo = $this->getMockRepo( $links );
 		$mockRepo->putEntity( $this->getBadgeItem() );
 
-		$badgeDisplay = new LanguageLinkBadgeDisplay(
-			$mockRepo,
-			array( 'Q17' => 'featured' ),
-			Language::factory( 'en' )
-		);
-
 		$parserOutputDataUpdater = new ClientParserOutputDataUpdater(
 			$this->getOtherProjectsSidebarGeneratorFactory( $settings, $mockRepo ),
 			$mockRepo,
@@ -173,7 +168,7 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 		);
 
 		$langLinkHandler = new LangLinkHandler(
-			$badgeDisplay,
+			$this->getBadgeDisplay(),
 			$namespaceChecker,
 			$mockRepo,
 			$mockRepo,
@@ -194,6 +189,24 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 			$parserOutputDataUpdater,
 			$interwikiSorter,
 			$settings->getSetting( 'alwaysSort' )
+		);
+	}
+
+	private function getBadgeDisplay() {
+		$labelDescriptionLookup = $this->getMockBuilder(
+				'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup'
+			)
+			->disableOriginalConstructor()
+			->getMock();
+
+		$labelDescriptionLookup->expects( $this->any() )
+			->method( 'getLabel' )
+			->will( $this->returnValue( new Term( 'en', 'featured' ) ) );
+
+		return new LanguageLinkBadgeDisplay(
+			$labelDescriptionLookup,
+			array( 'Q17' => 'featured' ),
+			Language::factory( 'en' )
 		);
 	}
 

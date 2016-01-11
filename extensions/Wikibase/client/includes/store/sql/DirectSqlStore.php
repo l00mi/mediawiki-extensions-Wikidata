@@ -7,11 +7,7 @@ use ObjectCache;
 use Wikibase\Client\RecentChanges\RecentChangesDuplicateDetector;
 use Wikibase\Client\Store\Sql\ConsistentReadConnectionManager;
 use Wikibase\Client\Store\Sql\PagePropsEntityIdLookup;
-use Wikibase\Client\Store\TitleFactory;
 use Wikibase\Client\Store\UsageUpdater;
-use Wikibase\Client\Usage\NullSubscriptionManager;
-use Wikibase\Client\Usage\NullUsageTracker;
-use Wikibase\Client\Usage\SiteLinkUsageLookup;
 use Wikibase\Client\Usage\Sql\SqlSubscriptionManager;
 use Wikibase\Client\Usage\Sql\SqlUsageTracker;
 use Wikibase\Client\Usage\SubscriptionManager;
@@ -91,16 +87,6 @@ class DirectSqlStore implements ClientStore {
 	 * @var int
 	 */
 	private $cacheDuration;
-
-	/**
-	 * @var bool
-	 */
-	private $useLegacyUsageIndex;
-
-	/**
-	 * @var bool
-	 */
-	private $useLegacyChangesSubscription;
 
 	/**
 	 * @var EntityLookup|null
@@ -185,8 +171,6 @@ class DirectSqlStore implements ClientStore {
 		$this->cacheKeyPrefix = $settings->getSetting( 'sharedCacheKeyPrefix' );
 		$this->cacheType = $settings->getSetting( 'sharedCacheType' );
 		$this->cacheDuration = $settings->getSetting( 'sharedCacheDuration' );
-		$this->useLegacyUsageIndex = $settings->getSetting( 'useLegacyUsageIndex' );
-		$this->useLegacyChangesSubscription = $settings->getSetting( 'useLegacyChangesSubscription' );
 		$this->siteId = $settings->getSetting( 'siteGlobalID' );
 		$this->changeHandlerClasses = $settings->getSetting( 'changeHandlers' );
 	}
@@ -198,12 +182,8 @@ class DirectSqlStore implements ClientStore {
 	 */
 	public function getSubscriptionManager() {
 		if ( $this->subscriptionManager === null ) {
-			if ( $this->useLegacyChangesSubscription ) {
-				$this->subscriptionManager = new NullSubscriptionManager();
-			} else {
-				$connectionManager = $this->getRepoConnectionManager();
-				$this->subscriptionManager = new SqlSubscriptionManager( $connectionManager );
-			}
+			$connectionManager = $this->getRepoConnectionManager();
+			$this->subscriptionManager = new SqlSubscriptionManager( $connectionManager );
 		}
 
 		return $this->subscriptionManager;
@@ -249,21 +229,11 @@ class DirectSqlStore implements ClientStore {
 	/**
 	 * @see ClientStore::getUsageLookup
 	 *
-	 * @note: If the useLegacyUsageIndex option is set, this returns a SiteLinkUsageLookup.
-	 *
 	 * @return UsageLookup
 	 */
 	public function getUsageLookup() {
 		if ( $this->usageLookup === null ) {
-			if ( $this->useLegacyUsageIndex ) {
-				$this->usageLookup = new SiteLinkUsageLookup(
-					$this->siteId,
-					$this->getSiteLinkLookup(),
-					new TitleFactory()
-				);
-			} else {
-				$this->usageLookup = $this->getUsageTracker();
-			}
+			$this->usageLookup = $this->getUsageTracker();
 		}
 
 		return $this->usageLookup;
@@ -272,18 +242,12 @@ class DirectSqlStore implements ClientStore {
 	/**
 	 * @see ClientStore::getUsageTracker
 	 *
-	 * @note: If the useLegacyUsageIndex option is set, this returns a NullUsageTracker!
-	 *
-	 * @return UsageTracker
+	 * @return SqlUsageTracker
 	 */
 	public function getUsageTracker() {
 		if ( $this->usageTracker === null ) {
-			if ( $this->useLegacyUsageIndex ) {
-				$this->usageTracker = new NullUsageTracker();
-			} else {
-				$connectionManager = $this->getLocalConnectionManager();
-				$this->usageTracker = new SqlUsageTracker( $this->entityIdParser, $connectionManager );
-			}
+			$connectionManager = $this->getLocalConnectionManager();
+			$this->usageTracker = new SqlUsageTracker( $this->entityIdParser, $connectionManager );
 		}
 
 		return $this->usageTracker;

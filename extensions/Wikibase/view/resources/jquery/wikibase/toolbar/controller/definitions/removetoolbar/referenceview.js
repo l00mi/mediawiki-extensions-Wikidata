@@ -1,4 +1,4 @@
-( function( $, mw ) {
+( function( $ ) {
 	'use strict';
 
 /**
@@ -16,12 +16,11 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	events: {
 		referenceviewafterstartediting: function( event ) {
 			var $referenceview = $( event.target ),
-				options = {},
-				$container = $( '<div/>' ).appendTo(
-					$referenceview.find( '.wikibase-referenceview-heading' )
-				);
-
-			options.$container = $container;
+				options = {
+					$container: $( '<div/>' ).appendTo(
+						$referenceview.find( '.wikibase-referenceview-heading' )
+					)
+				};
 
 			var $statementview = $referenceview.closest( ':wikibase-statementview' ),
 			statementview = $statementview.data( 'statementview' );
@@ -41,4 +40,4 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	}
 } );
 
-}( jQuery, mediaWiki ) );
+}( jQuery ) );

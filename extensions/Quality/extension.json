@@ -1,0 +1,32 @@
+{
+	"load_composer_autoloader": true,
+	"name": "WikibaseQuality",
+	"author": "BP2014N1",
+	"url": "https://www.mediawiki.org/wiki/Extension:WikibaseQuality",
+	"descriptionmsg": "wbq-desc",
+	"version": "1.0.0",
+	"type": "wikibase",
+	"MessageDirs": {
+		"WikibaseQuality": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFile": {
+		"WikibaseQualityAlias": "WikibaseQuality.alias.php"
+	},
+	"Hooks": {
+		"UnitTestsList": [
+			"WikibaseQualityHooks::onUnitTestsList"
+		]
+	},
+	"ResourceModules": {
+		"SpecialCheckResultPage": {
+			"styles": "modules/SpecialCheckResultPage.css"
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "WikibaseQuality"
+	},
+	"manifest_version": 1
+}

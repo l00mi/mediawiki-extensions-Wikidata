@@ -3,6 +3,7 @@
 namespace Wikibase\Client\DataAccess\Scribunto;
 
 use Deserializers\Exceptions\DeserializationException;
+use Exception;
 use Language;
 use Scribunto_LuaLibraryBase;
 use ScribuntoException;
@@ -307,7 +308,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 *
 	 * @since 0.5
 	 *
-	 * @param string $pageTitle
+	 * @param string|null $pageTitle
 	 *
 	 * @return array
 	 */

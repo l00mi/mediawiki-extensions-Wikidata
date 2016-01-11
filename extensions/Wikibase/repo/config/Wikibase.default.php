@@ -27,6 +27,9 @@ return call_user_func( function() {
 
 		'entityNamespaces' => array(),
 
+		// See StatementGrouperBuilder for an example.
+		'statementSections' => array(),
+
 		// Define constraints for multilingual terms (such as labels, descriptions and aliases).
 		'multilang-limits' => array(
 			'length' => 250, // length constraint
@@ -37,10 +40,6 @@ return call_user_func( function() {
 
 		// Items allowed to be used as badges pointing to their CSS class names
 		'badgeItems' => array(),
-
-		// List of image property id strings, in order of preference, that should be considered for
-		// the "page_image" page property.
-		'preferredPageImagesProperties' => array(),
 
 		// Number of seconds for which data output shall be cached.
 		// Note: keep that low, because such caches cannot always be purged easily.
@@ -91,19 +90,6 @@ return call_user_func( function() {
 		// Property used as formatter to link identifiers
 		'formatterUrlProperty' => null,
 
-		/**
-		 * Determines how subscription lookup is handled. Possible values:
-		 *
-		 * - 'sitelinks': Use only sitelinks to determine which wiki is subscribed to which entity.
-		 *   Use this mode if the wb_changes_subscription table does not exist.
-		 * - 'subscriptions': use explicit subscriptions in the wb_changes_subscription table.
-		 * - 'subscriptions+sitelinks': use a combination of both.
-		 *
-		 * @note If Wikibase Repo and Client are enabled on the same wiki, this setting needs to
-		 * match the useLegacyChangesSubscription value in the client settings.
-		 */
-		'subscriptionLookupMode' => 'subscriptions',
-
 		'allowEntityImport' => false,
 
 		/**
@@ -150,13 +136,15 @@ return call_user_func( function() {
 				'nl-informal' => 'nl-x-informal',
 		),
 
-		// List of globe-coordinate properties (listed by id string), in order of preference,
-		// to consider for primary coordinates when extracting coordinates from an Entity
-		// for the GeoData extension.
-		// e.g. array( 'P625', 'P1259' )
+		// List of image property id strings, in order of preference, that should be considered for
+		// the "page_image" page property.
+		'preferredPageImagesProperties' => array(),
+
+		// List of globe-coordinate property id strings, in order of preference, to consider for
+		// primary coordinates when extracting coordinates from an entity for the GeoData extension.
 		'preferredGeoDataProperties' => array(),
 
-		// Mapping of globe uris to names, as recognized and used by GeoData extension
+		// Mapping of globe URIs to canonical names, as recognized and used by GeoData extension
 		// when indexing and querying for coordinates.
 		'globeUris' => array(
 			'http://www.wikidata.org/entity/Q2' => 'earth',

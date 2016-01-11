@@ -9,7 +9,9 @@ use Wikibase\Rdf\HashDedupeBag;
 use Wikibase\Rdf\NullDedupeBag;
 use Wikibase\Rdf\RdfProducer;
 use Wikibase\Rdf\SnakRdfBuilder;
+use Wikibase\Repo\Tests\Rdf\NTriplesRdfTestHelper;
 use Wikibase\Repo\WikibaseRepo;
+use Wikimedia\Purtle\RdfWriter;
 
 /**
  * @covers Wikibase\Rdf\FullStatementRdfBuilder
@@ -25,9 +27,20 @@ use Wikibase\Repo\WikibaseRepo;
 class FullStatementRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	/**
+	 * @var NTriplesRdfTestHelper
+	 */
+	private $helper;
+
+	/**
 	 * @var RdfBuilderTestData|null
 	 */
 	private $testData = null;
+
+	protected function setUp() {
+		parent::setUp();
+
+		$this->helper = new NTriplesRdfTestHelper();
+	}
 
 	/**
 	 * Initialize repository data
@@ -46,16 +59,20 @@ class FullStatementRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @param RdfWriter $writer
 	 * @param int $flavor Bitmap for the output flavor, use RdfProducer::PRODUCE_XXX constants.
 	 * @param EntityId[] &$mentioned Receives any entity IDs being mentioned.
-	 * @param DedupeBag $dedupe A bag of reference hashes that should be considered "already seen".
+	 * @param DedupeBag|null $dedupe A bag of reference hashes that should be considered "already seen".
 	 *
 	 * @return FullStatementRdfBuilder
 	 */
-	private function newBuilder( $flavor, array &$mentioned = array(), DedupeBag $dedupe = null ) {
+	private function newBuilder(
+		RdfWriter $writer,
+		$flavor,
+		array &$mentioned = array(),
+		DedupeBag $dedupe = null
+	) {
 		$vocabulary = $this->getTestData()->getVocabulary();
-
-		$writer = $this->getTestData()->getNTriplesWriter();
 
 		$mentionTracker = $this->getMock( 'Wikibase\Rdf\EntityMentionListener' );
 		$mentionTracker->expects( $this->any() )
@@ -97,48 +114,20 @@ class FullStatementRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 		$statementBuilder->setProduceQualifiers( $flavor & RdfProducer::PRODUCE_QUALIFIERS );
 		$statementBuilder->setProduceReferences( $flavor & RdfProducer::PRODUCE_REFERENCES );
 
-		// HACK: stick the writer into a public field, for use by getDataFromBuilder()
-		$statementBuilder->test_writer = $writer;
-
 		return $statementBuilder;
 	}
 
-	/**
-	 * Extract text test data from RDF builder
-	 * @param FullStatementRdfBuilder $builder
-	 * @return string[] ntriples lines, sorted
-	 */
-	private function getDataFromBuilder( FullStatementRdfBuilder $builder ) {
-		// HACK: $builder->test_writer is glued on by newBuilder().
-		$ntriples = $builder->test_writer->drain();
-
-		$lines = explode( "\n", trim( $ntriples ) );
-		sort( $lines );
-		return $lines;
-	}
-
-	private function assertOrCreateNTriples( $dataSetName, FullStatementRdfBuilder $builder ) {
-		$actualData = $this->getDataFromBuilder( $builder );
+	private function assertOrCreateNTriples( $dataSetName, RdfWriter $writer ) {
+		$actualData = $writer->drain();
 		$correctData = $this->getTestData()->getNTriples( $dataSetName );
 
 		if ( $correctData === null ) {
 			$this->getTestData()->putTestData( $dataSetName, $actualData, '.actual' );
-			$this->fail( 'Data set `' . $dataSetName . '` not found! Created file with the current data using the suffix .actual' );
+			$this->fail( "Data set $dataSetName not found! Created file with the current data using"
+				. " the suffix .actual" );
 		}
 
-		sort( $correctData );
-		sort( $actualData );
-
-		// Note: comparing $expected and $actual directly would show triples
-		// that are present in both but shifted in position. That makes the output
-		// hard to read. Calculating the $missing and $extra sets helps.
-		$extra = array_diff( $actualData, $correctData );
-		$missing = array_diff( $correctData, $actualData );
-
-		// Cute: $missing and $extra can be equal only if they are empty.
-		// Comparing them here directly looks a bit odd in code, but produces meaningful
-		// output, especially if the input was sorted.
-		$this->assertEquals( $missing, $extra, "Data set $dataSetName" );
+		$this->helper->assertNTriplesEquals( $correctData, $actualData, "Data set $dataSetName" );
 	}
 
 	public function provideAddEntity() {
@@ -163,11 +152,11 @@ class FullStatementRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testAddEntity( $entityName, $flavor, $dataSetName, array $expectedMentions ) {
 		$entity = $this->getTestData()->getEntity( $entityName );
 
+		$writer = $this->getTestData()->getNTriplesWriter();
 		$mentioned = array();
-		$builder = $this->newBuilder( $flavor, $mentioned );
-		$builder->addEntity( $entity );
+		$this->newBuilder( $writer, $flavor, $mentioned )->addEntity( $entity );
 
-		$this->assertOrCreateNTriples( $dataSetName, $builder );
+		$this->assertOrCreateNTriples( $dataSetName, $writer );
 		$this->assertEquals( $expectedMentions, array_keys( $mentioned ), 'Entities mentioned' );
 	}
 
@@ -189,11 +178,12 @@ class FullStatementRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 			$dedupe->alreadySeen( $hash, 'R' );
 		}
 
+		$writer = $this->getTestData()->getNTriplesWriter();
 		$mentioned = array();
-		$builder = $this->newBuilder( RdfProducer::PRODUCE_ALL, $mentioned, $dedupe );
-		$builder->addEntity( $entity );
+		$this->newBuilder( $writer, RdfProducer::PRODUCE_ALL, $mentioned, $dedupe )
+			->addEntity( $entity );
 
-		$this->assertOrCreateNTriples( $dataSetName, $builder );
+		$this->assertOrCreateNTriples( $dataSetName, $writer );
 	}
 
 	public function provideAddStatements() {
@@ -208,10 +198,11 @@ class FullStatementRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testAddStatements( $entityName, $dataSetName ) {
 		$entity = $this->getTestData()->getEntity( $entityName );
 
-		$builder = $this->newBuilder( RdfProducer::PRODUCE_ALL );
-		$builder->addStatements( $entity->getId(), $entity->getStatements() );
+		$writer = $this->getTestData()->getNTriplesWriter();
+		$this->newBuilder( $writer, RdfProducer::PRODUCE_ALL )
+			->addStatements( $entity->getId(), $entity->getStatements() );
 
-		$this->assertOrCreateNTriples( $dataSetName, $builder );
+		$this->assertOrCreateNTriples( $dataSetName, $writer );
 	}
 
 }

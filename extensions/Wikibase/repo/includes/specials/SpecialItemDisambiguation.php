@@ -7,9 +7,9 @@ use Html;
 use WebRequest;
 use Wikibase\ItemDisambiguation;
 use Wikibase\Lib\ContentLanguages;
+use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
+use Wikibase\Lib\Interactors\TermSearchResult;
 use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
-use Wikibase\Repo\Interactors\TermSearchResult;
 use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\TermIndexEntry;
@@ -67,7 +67,7 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 	 * services.
 	 *
 	 * @param ItemDisambiguation $itemDisambiguation
-	 * @param TermIndexSearchInteractor|null $searchInteractor
+	 * @param TermIndexSearchInteractor $searchInteractor
 	 * @param ContentLanguages $contentLanguages
 	 */
 	public function initServices(

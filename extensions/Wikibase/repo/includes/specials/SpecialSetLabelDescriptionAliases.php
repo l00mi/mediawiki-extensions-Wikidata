@@ -146,7 +146,7 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 	/**
 	 * @see SpecialModifyEntity::getFormElements
 	 *
-	 * @param Entity $entity
+	 * @param Entity|null $entity
 	 *
 	 * @return string HTML
 	 */
@@ -256,7 +256,9 @@ class SpecialSetLabelDescriptionAliases extends SpecialModifyEntity {
 		if ( $this->languageCode === '' ) {
 			$this->languageCode = $this->getLanguage()->getCode();
 		} elseif ( !$this->isValidLanguageCode( $this->languageCode ) ) {
-			$msg = $this->msg( 'wikibase-wikibaserepopage-invalid-langcode', $this->languageCode );
+			$msg = $this->msg( 'wikibase-wikibaserepopage-invalid-langcode' )
+				->plaintextParams( $this->languageCode );
+
 			$this->showErrorHTML( $msg->parse() );
 			$this->languageCode = null;
 		}

@@ -36,7 +36,7 @@ class WikiPageEntityRedirectLookupTest extends MediaWikiTestCase {
 	 */
 	private $redirectItemIds = array();
 
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		if ( $this->itemId === null ) {
@@ -180,13 +180,13 @@ class WikiPageEntityRedirectLookupTest extends MediaWikiTestCase {
 		$this->assertSame( array(), $res );
 	}
 
-	private function getWikiPageEntityRedirectLookup( LoadBalancer $loadBalancer = null ) {
+	private function getWikiPageEntityRedirectLookup() {
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
 		return new WikiPageEntityRedirectLookup(
 			$wikibaseRepo->getEntityTitleLookup(),
 			$wikibaseRepo->getEntityIdLookup(),
-			$loadBalancer ?: wfGetLB()
+			wfGetLB()
 		);
 	}
 

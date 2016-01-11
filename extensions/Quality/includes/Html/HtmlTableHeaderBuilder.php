@@ -34,7 +34,7 @@ class HtmlTableHeaderBuilder {
 	private $isRawContent;
 
 	/**
-	 * @param string HTML $content
+	 * @param string $content HTML
 	 * @param bool $isSortable
 	 * @param bool $isRawContent
 	 *

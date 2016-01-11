@@ -2,6 +2,7 @@
 
 namespace Wikibase\Client\Tests;
 
+use HashSiteStore;
 use Language;
 use Site;
 use SiteStore;
@@ -9,7 +10,6 @@ use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\SettingsArray;
-use Wikibase\Test\MockSiteStore;
 
 /**
  * @covers Wikibase\Client\WikibaseClient
@@ -27,18 +27,20 @@ use Wikibase\Test\MockSiteStore;
  */
 class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 
-	public function testGetDefaultFormatterBuilders_noReset() {
-		$first = WikibaseClient::getDefaultFormatterBuilders();
+	public function testGetDefaultValueFormatterBuilders() {
+		$first = WikibaseClient::getDefaultValueFormatterBuilders();
 		$this->assertInstanceOf( 'Wikibase\Lib\WikibaseValueFormatterBuilders', $first );
 
-		$second = WikibaseClient::getDefaultFormatterBuilders();
+		$second = WikibaseClient::getDefaultValueFormatterBuilders();
 		$this->assertSame( $first, $second );
 	}
 
-	public function testGetDefaultFormatterBuilders_withReset() {
-		$first = WikibaseClient::getDefaultFormatterBuilders();
-		$second = WikibaseClient::getDefaultFormatterBuilders( 'reset' );
-		$this->assertNotSame( $first, $second );
+	public function testGetDefaultSnakFormatterBuilders() {
+		$first = WikibaseClient::getDefaultSnakFormatterBuilders();
+		$this->assertInstanceOf( 'Wikibase\Lib\WikibaseSnakFormatterBuilders', $first );
+
+		$second = WikibaseClient::getDefaultSnakFormatterBuilders();
+		$this->assertSame( $first, $second );
 	}
 
 	public function testGetDataTypeFactoryReturnType() {
@@ -49,6 +51,11 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	public function testGetEntityIdParserReturnType() {
 		$returnValue = $this->getWikibaseClient()->getEntityIdParser();
 		$this->assertInstanceOf( 'Wikibase\DataModel\Entity\EntityIdParser', $returnValue );
+	}
+
+	public function testNewTermSearchInteractor() {
+		$interactor = $this->getWikibaseClient()->newTermSearchInteractor( 'en' );
+		$this->assertInstanceOf( 'Wikibase\Lib\Interactors\TermIndexSearchInteractor', $interactor );
 	}
 
 	public function testGetPropertyDataTypeLookupReturnType() {
@@ -159,7 +166,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	 * @return SiteStore
 	 */
 	private function getSiteStore() {
-		$siteStore = new MockSiteStore();
+		$siteStore = new HashSiteStore();
 
 		$site = new Site();
 		$site->setGlobalId( 'enwiki' );
@@ -292,7 +299,7 @@ class WikibaseClientTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private function getWikibaseClient() {
 		$settings = new SettingsArray( WikibaseClient::getDefaultInstance()->getSettings()->getArrayCopy() );
-		$sites = new MockSiteStore( array() );
+		$sites = new HashSiteStore( array() );
 		$dataTypeDefinitions = new DataTypeDefinitions();
 		return new WikibaseClient( $settings, Language::factory( 'en' ), $dataTypeDefinitions, $sites );
 	}

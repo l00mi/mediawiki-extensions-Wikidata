@@ -164,9 +164,14 @@ $.widget( 'wikibase.listview', PARENT, {
 	_createList: function() {
 		var i, items = this.option( 'value' );
 
-		// initialize view for each of the list item values:
-		for ( i in items ) {
-			this.addItem( items[i] );
+		if ( items === null ) {
+			for ( i = this._reusedItems.length; i--; ) {
+				this.addItem( null );
+			}
+		} else {
+			for ( i in items ) {
+				this.addItem( items[i] );
+			}
 		}
 	},
 

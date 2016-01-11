@@ -182,7 +182,7 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	/**
 	 * @see SpecialModifyEntity::getFormElements()
 	 *
-	 * @param Entity $entity
+	 * @param Entity|null $entity
 	 *
 	 * @return string
 	 */
@@ -300,12 +300,12 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	 *
 	 * @since 0.5
 	 *
-	 * @param Entity|null $entity
+	 * @param Entity $entity
 	 * @param string $languageCode
 	 * @param string $value
 	 *
 	 * @return Summary
 	 */
-	abstract protected function setValue( $entity, $languageCode, $value );
+	abstract protected function setValue( Entity $entity, $languageCode, $value );
 
 }

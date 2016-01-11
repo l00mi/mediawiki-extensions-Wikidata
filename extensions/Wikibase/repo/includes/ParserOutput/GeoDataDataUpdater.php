@@ -2,14 +2,14 @@
 
 namespace Wikibase\Repo\ParserOutput;
 
-use Coord;
-use CoordinatesOutput;
 use DataValues\Geo\Values\GlobeCoordinateValue;
+use GeoData\Coord;
+use GeoData\CoordinatesOutput;
 use ParserOutput;
 use RuntimeException;
+use Wikibase\DataModel\Services\Entity\PropertyDataTypeMatcher;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\Lib\Store\PropertyDataTypeMatcher;
 
 /**
  * Extracts and stashes coordinates from Statement main snaks and
@@ -60,7 +60,7 @@ class GeoDataDataUpdater implements StatementDataUpdater {
 		array $preferredPropertiesIds,
 		array $globeUris
 	) {
-		if ( !class_exists( 'GeoData' ) ) {
+		if ( !class_exists( 'GeoData\GeoData' ) ) {
 			throw new RuntimeException( 'GeoDataDataUpdater requires the GeoData extension '
 				. 'to be enabled' );
 		}
@@ -112,7 +112,7 @@ class GeoDataDataUpdater implements StatementDataUpdater {
 	}
 
 	/**
-	 * @param ParserOutput
+	 * @param ParserOutput $parserOutput
 	 *
 	 * @return CoordinatesOutput
 	 */

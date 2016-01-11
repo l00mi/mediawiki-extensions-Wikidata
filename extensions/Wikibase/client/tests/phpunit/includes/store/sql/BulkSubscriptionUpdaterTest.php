@@ -24,12 +24,7 @@ use Wikibase\Lib\Reporting\MessageReporter;
  */
 class BulkSubscriptionUpdaterTest extends \MediaWikiTestCase {
 
-	public function setUp() {
-		if ( WikibaseClient::getDefaultInstance()->getSettings()->getSetting( 'useLegacyChangesSubscription' ) ) {
-			$this->markTestSkipped( 'Skipping test for BulkSubscriptionUpdater, '
-				. 'because the useLegacyChangesSubscription option is set.' );
-		}
-
+	protected function setUp() {
 		if ( !defined( 'WB_VERSION' ) ) {
 			$this->markTestSkipped( "Skipping because WikibaseClient doesn't have a local wb_changes_subscription table." );
 		}

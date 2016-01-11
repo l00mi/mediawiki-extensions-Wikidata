@@ -4,6 +4,7 @@
 	QUnit.module( 'wikibase.view.ViewFactory' );
 
 	QUnit.test( 'is constructable', function( assert ) {
+		assert.expect( 1 );
 		assert.ok( new ViewFactory() instanceof ViewFactory );
 	} );
 
@@ -16,6 +17,7 @@
 	}
 
 	QUnit.test( 'getEntityView constructs correct views', function( assert ) {
+		assert.expect( 2 );
 		var entityStore = new wb.store.EntityStore(),
 			viewFactory = new ViewFactory( null, null, null, null, null, entityStore ),
 			fooView = {},
@@ -30,6 +32,7 @@
 	} );
 
 	QUnit.test( 'getEntityView throws on incorrect views', function( assert ) {
+		assert.expect( 1 );
 		var entityStore = new wb.store.EntityStore(),
 			viewFactory = new ViewFactory( null, null, null, null, null, entityStore );
 
@@ -42,6 +45,7 @@
 	} );
 
 	QUnit.test( 'getEntityView passes correct options to views', function( assert ) {
+		assert.expect( 1 );
 		var entity = getEntityStub( 'foo' ),
 			viewFactory = new ViewFactory(),
 			$dom = $( '<div/>' ),
@@ -58,6 +62,7 @@
 	} );
 
 	QUnit.test( 'getSitelinkGroupListView passes correct options to views', function( assert ) {
+		assert.expect( 1 );
 		var sitelinkSet = new wb.datamodel.SiteLinkSet( [] ),
 			siteLinksChanger = {},
 			entityChangersFactory = { getSiteLinksChanger: function() { return siteLinksChanger; } },
@@ -86,6 +91,7 @@
 	} );
 
 	QUnit.test( 'getStatementGroupListView passes correct options to views', function( assert ) {
+		assert.expect( 1 );
 		var entity = new wb.datamodel.Item( 'Q1' ),
 			viewFactory = new ViewFactory(),
 			$dom = $( '<div/>' );
@@ -95,7 +101,6 @@
 		viewFactory.getStatementGroupListView( entity, $dom );
 
 		sinon.assert.calledWith( $.wikibase.statementgrouplistview, sinon.match( {
-			value: entity.getStatements(),
 			listItemAdapter: sinon.match.instanceOf( $.wikibase.listview.ListItemAdapter )
 		} ) );
 
@@ -103,6 +108,7 @@
 	} );
 
 	QUnit.test( 'getListItemAdapterForStatementGroupView passes correct options to ListItemAdapter', function( assert ) {
+		assert.expect( 3 );
 		var entityId = 'Q1',
 			entityIdHtmlFormatter = {},
 			viewFactory = new ViewFactory( null, null, null, entityIdHtmlFormatter ),
@@ -136,6 +142,42 @@
 	} );
 
 	QUnit.test( 'getStatementListView passes correct options to views', function( assert ) {
+		assert.expect( 1 );
+		var value = new wb.datamodel.StatementList( [
+				new wb.datamodel.Statement( new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( 'P1' ) ) )
+			] ),
+			entityId = 'entityId',
+			claimsChanger = {},
+			entityChangersFactory = {
+				getClaimsChanger: function() { return claimsChanger; }
+			},
+			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
+			$dom = $( '<div/>' );
+
+		sinon.stub( $.wikibase.listview, 'ListItemAdapter' );
+		sinon.stub( viewFactory, '_getView' );
+
+		viewFactory.getStatementListView( entityId, null, function () {}, value, $dom );
+
+		sinon.assert.calledWith(
+			viewFactory._getView,
+			sinon.match(
+				'statementlistview',
+				$dom,
+				{
+					value: value,
+					claimsChanger: claimsChanger,
+					listItemAdapter: sinon.match.instanceOf( $.wikibase.listview.ListItemAdapter )
+				}
+			)
+		);
+
+		viewFactory._getView.restore();
+		$.wikibase.listview.ListItemAdapter.restore();
+	} );
+
+	QUnit.test( 'getStatementListView passes null for an empty StatementList', function( assert ) {
+		assert.expect( 1 );
 		var value = new wb.datamodel.StatementList(),
 			entityId = 'entityId',
 			claimsChanger = {},
@@ -145,23 +187,24 @@
 			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
 			$dom = $( '<div/>' );
 
+		sinon.stub( $.wikibase.listview, 'ListItemAdapter' );
 		$dom.statementlistview = sinon.stub( $.wikibase, 'statementlistview' );
 
-		viewFactory.getStatementListView( entityId, null, value, $dom );
+		viewFactory.getStatementListView( entityId, null, function () {}, value, $dom );
 
 		sinon.assert.calledWith(
 			$.wikibase.statementlistview,
 			sinon.match( {
-				value: value,
-				claimsChanger: claimsChanger,
-				listItemAdapter: sinon.match.instanceOf( $.wikibase.listview.ListItemAdapter )
+				value: null
 			} )
 		);
 
 		$.wikibase.statementlistview.restore();
+		$.wikibase.listview.ListItemAdapter.restore();
 	} );
 
 	QUnit.test( 'getListItemAdapterForStatementView passes correct options to ListItemAdapter', function( assert ) {
+		assert.expect( 2 );
 		var entityId = 'Q1',
 			value = null,
 			claimsChanger = {},
@@ -170,24 +213,30 @@
 			},
 			entityIdPlainFormatter = {},
 			viewFactory = new ViewFactory( null, null, entityChangersFactory, null, entityIdPlainFormatter ),
-			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' );
+			ListItemAdapter = sinon.stub( $.wikibase.listview, 'ListItemAdapter' ),
+			dom = null,
+			statement = {};
 
-		viewFactory.getListItemAdapterForStatementView( entityId, null );
+		sinon.stub( viewFactory, '_getView' );
+
+		viewFactory.getListItemAdapterForStatementView( entityId, function () { return statement; } );
 
 		sinon.assert.calledWith(
 			ListItemAdapter,
 			sinon.match( {
 				listItemWidget: $.wikibase.statementview,
-				newItemOptionsFn: sinon.match.func
+				getNewItem: sinon.match.func
 			} )
 		);
 
-		var result = ListItemAdapter.args[0][0].newItemOptionsFn( value );
+		ListItemAdapter.args[0][0].getNewItem( value, dom );
 
-		assert.deepEqual(
-			result,
-			{
-				value: value,
+		sinon.assert.calledWith(
+			viewFactory._getView,
+			'statementview',
+			sinon.match.instanceOf( $ ),
+			sinon.match( {
+				value: statement,
 				predefined: {
 					mainSnak: {
 						property: undefined
@@ -199,24 +248,21 @@
 					}
 				},
 
-				buildReferenceListItemAdapter: result.buildReferenceListItemAdapter, // Hack
-				buildSnakView: result.buildSnakView, // Hack
+				buildReferenceListItemAdapter: sinon.match.instanceOf( Function ),
+				buildSnakView: sinon.match.instanceOf( Function ),
 				claimsChanger: claimsChanger,
 				entityIdPlainFormatter: entityIdPlainFormatter,
-				guidGenerator: result.guidGenerator, // Hack
-				qualifiersListItemAdapter: result.qualifiersListItemAdapter // Hack
-			}
+				guidGenerator: sinon.match.instanceOf( wb.utilities.ClaimGuidGenerator ),
+				qualifiersListItemAdapter: sinon.match.instanceOf( ListItemAdapter )
+			} )
 		);
 
-		assert.ok( result.guidGenerator instanceof wb.utilities.ClaimGuidGenerator );
-		assert.ok( result.buildReferenceListItemAdapter instanceof Function );
-		assert.ok( result.buildSnakView instanceof Function );
-		assert.ok( result.qualifiersListItemAdapter instanceof ListItemAdapter );
-
 		$.wikibase.listview.ListItemAdapter.restore();
+		viewFactory._getView.restore();
 	} );
 
 	QUnit.test( 'getListItemAdapterForStatementView passes correct options to views for pre-set property id', function( assert ) {
+		assert.expect( 1 );
 		var entityId = 'Q1',
 			propertyId = 'propertyId',
 			value = null,
@@ -225,19 +271,31 @@
 				getReferencesChanger: function() { return {}; }
 			},
 			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
-			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' );
+			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' ),
+			dom = {};
 
-		viewFactory.getListItemAdapterForStatementView( entityId, propertyId );
+		sinon.stub( viewFactory, '_getView' );
 
-		var result = ListItemAdapter.args[0][0].newItemOptionsFn( value );
+		viewFactory.getListItemAdapterForStatementView( entityId, function () {}, propertyId );
 
-		assert.equal( result.predefined.mainSnak.property, propertyId );
-		assert.equal( result.locked.mainSnak.property, true );
+		ListItemAdapter.args[0][0].getNewItem( value, dom );
+
+		sinon.assert.calledWith(
+			viewFactory._getView,
+			'statementview',
+			sinon.match.instanceOf( $ ),
+			sinon.match( {
+				predefined: { mainSnak: { property: propertyId } },
+				locked: { mainSnak: { property: true } }
+			} )
+		);
 
 		$.wikibase.listview.ListItemAdapter.restore();
+		viewFactory._getView.restore();
 	} );
 
 	QUnit.test( 'getListItemAdapterForStatementView passes correct options to views for non-empty StatementList', function( assert ) {
+		assert.expect( 1 );
 		var entityId = new wb.datamodel.EntityId( 'type', 1 ),
 			propertyId = 'P1',
 			value = new wb.datamodel.Statement( new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( propertyId ) ) ),
@@ -246,19 +304,31 @@
 				getReferencesChanger: function() { return {}; }
 			},
 			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
-			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' );
+			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' ),
+			dom = {};
 
-		viewFactory.getListItemAdapterForStatementView( entityId, null );
+		sinon.stub( viewFactory, '_getView' );
 
-		var result = ListItemAdapter.args[0][0].newItemOptionsFn( value );
+		viewFactory.getListItemAdapterForStatementView( entityId, function () {}, null );
 
-		assert.equal( result.predefined.mainSnak.property, propertyId );
-		assert.equal( result.locked.mainSnak.property, true );
+		ListItemAdapter.args[0][0].getNewItem( value, dom );
+
+		sinon.assert.calledWith(
+			viewFactory._getView,
+			'statementview',
+			sinon.match.instanceOf( $ ),
+			sinon.match( {
+				predefined: { mainSnak: { property: propertyId } },
+				locked: { mainSnak: { property: true } }
+			} )
+		);
 
 		$.wikibase.listview.ListItemAdapter.restore();
+		viewFactory._getView.restore();
 	} );
 
 	QUnit.test( 'getListItemAdapterForReferenceView passes correct options to ListItemAdapter', function( assert ) {
+		assert.expect( 3 );
 		var contentLanguages = {},
 			value = null,
 			dataTypeStore = {},
@@ -321,6 +391,7 @@
 	} );
 
 	QUnit.test( 'getListItemAdapterForSnakListView passes correct options to ListItemAdapter', function( assert ) {
+		assert.expect( 3 );
 		var value = null,
 			viewFactory = new ViewFactory(),
 			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' );
@@ -352,6 +423,7 @@
 	} );
 
 	QUnit.test( 'getListItemAdapterForSnakView passes correct options to ListItemAdapter', function( assert ) {
+		assert.expect( 3 );
 		var contentLanguages = {},
 			value = null,
 			dataTypeStore = {},
@@ -430,6 +502,7 @@
 	} );
 
 	QUnit.test( 'getSnakView passes correct options to ListItemAdapter', function( assert ) {
+		assert.expect( 2 );
 		var contentLanguages = {},
 			value = null,
 			dataTypeStore = {},
@@ -498,6 +571,7 @@
 	} );
 
 	QUnit.test( 'getEntityTermsView passes correct options to views', function( assert ) {
+		assert.expect( 1 );
 		var contentLanguages = [],
 			fingerprint = new wb.datamodel.Fingerprint(),
 			entityChangersFactory = {},

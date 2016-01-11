@@ -5,11 +5,6 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 
 // Jenkins stuff part1
 if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
-	// in future, run as non-experimental
-	if ( !defined( 'WB_EXPERIMENTAL_FEATURES' ) || !WB_EXPERIMENTAL_FEATURES ) {
-		define( 'WB_EXPERIMENTAL_FEATURES', true );
-	}
-
 	$wmgUseWikibaseRepo = true;
 	$wmgUseWikibaseClient = true;
 	$wmgUseWikibaseQuality = true;

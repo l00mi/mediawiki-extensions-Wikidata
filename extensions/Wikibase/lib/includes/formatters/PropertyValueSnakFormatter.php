@@ -10,6 +10,7 @@ use Message;
 use ValueFormatters\Exceptions\MismatchingDataValueTypeException;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\FormattingException;
+use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -25,7 +26,7 @@ use Wikibase\DataModel\Snak\Snak;
 class PropertyValueSnakFormatter implements SnakFormatter {
 
 	/**
-	 * @var string
+	 * @var string One of the SnakFormatter::FORMAT_... constants.
 	 */
 	private $format;
 
@@ -35,7 +36,7 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	private $options;
 
 	/**
-	 * @var TypedValueFormatter
+	 * @var ValueFormatter
 	 */
 	private $valueFormatter;
 
@@ -53,7 +54,7 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	 * @param string $format The name of this formatter's output format.
 	 *        Use the FORMAT_XXX constants defined in SnakFormatter.
 	 * @param FormatterOptions|null $options
-	 * @param TypedValueFormatter $valueFormatter
+	 * @param ValueFormatter $valueFormatter
 	 * @param PropertyDataTypeLookup $typeLookup
 	 * @param DataTypeFactory $dataTypeFactory
 	 *
@@ -62,7 +63,7 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	public function __construct(
 		$format,
 		FormatterOptions $options = null,
-		TypedValueFormatter $valueFormatter,
+		ValueFormatter $valueFormatter,
 		PropertyDataTypeLookup $typeLookup,
 		DataTypeFactory $dataTypeFactory
 	) {
@@ -78,8 +79,10 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	}
 
 	/**
+	 * @see SnakFormatter::formatSnak
+	 *
 	 * Formats the given Snak by looking up its property type and calling the
-	 * SnakValueFormatter supplied to the constructor.
+	 * ValueFormatter supplied to the constructor.
 	 *
 	 * @param Snak $snak
 	 *
@@ -87,7 +90,8 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	 * @throws InvalidArgumentException
 	 * @throws MismatchingDataValueTypeException
 	 * @throws FormattingException
-	 * @return string
+	 * @return string Either plain text, wikitext or HTML, depending on the $valueFormatter
+	 *  provided.
 	 */
 	public function formatSnak( Snak $snak ) {
 		if ( !( $snak instanceof PropertyValueSnak ) ) {
@@ -164,14 +168,19 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	 * Calls the TypedValueFormatter passed to the constructor.
 	 *
 	 * @param DataValue $value
-	 * @param string $dataTypeId
+	 * @param string|null $dataTypeId
 	 *
 	 * @throws FormattingException
-	 * @return string
+	 * @return string Either plain text, wikitext or HTML, depending on the $valueFormatter
+	 *  provided.
 	 */
 	private function formatValue( DataValue $value, $dataTypeId = null ) {
 		if ( !$this->isUnDeserializableValue( $value ) ) {
-			$text = $this->valueFormatter->formatValue( $value, $dataTypeId );
+			if ( $this->valueFormatter instanceof TypedValueFormatter ) {
+				$text = $this->valueFormatter->formatValue( $value, $dataTypeId );
+			} else {
+				$text = $this->valueFormatter->format( $value );
+			}
 		} else {
 			$text = '';
 		}
@@ -182,7 +191,7 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	/**
 	 * @see SnakFormatter::getFormat
 	 *
-	 * @return string
+	 * @return string One of the SnakFormatter::FORMAT_... constants.
 	 */
 	public function getFormat() {
 		return $this->format;

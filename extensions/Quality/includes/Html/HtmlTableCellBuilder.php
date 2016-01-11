@@ -32,7 +32,7 @@ class HtmlTableCellBuilder {
 	private $isRawContent;
 
 	/**
-	 * @param string HTML $content
+	 * @param string $content HTML
 	 * @param array $attributes
 	 * @param bool $isRawContent
 	 *

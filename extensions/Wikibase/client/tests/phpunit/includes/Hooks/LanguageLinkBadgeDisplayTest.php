@@ -5,13 +5,14 @@ namespace Wikibase\Client\Tests\Hooks;
 use Language;
 use OutputPage;
 use ParserOutput;
+use PHPUnit_Framework_TestCase;
 use RequestContext;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
-use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
-use Wikibase\Test\MockRepository;
+use Wikibase\DataModel\Term\Term;
 
 /**
  * @covers Wikibase\Client\Hooks\LanguageLinkBadgeDisplay
@@ -20,56 +21,38 @@ use Wikibase\Test\MockRepository;
  *
  * @group WikibaseClient
  * @group Wikibase
- * @group Database
  *
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class LanguageLinkBadgeDisplayTest extends \MediaWikiTestCase {
-
-	private function getItems() {
-		$items = array();
-
-		$item = new Item( new ItemId( 'Q1' ) );
-		$links = $item->getSiteLinkList();
-		$links->addNewSiteLink( 'dewiki', 'Georg Friedrich Haendel' );
-		$links->addNewSiteLink( 'nlwiki', 'Georg Friedrich Haendel' );
-		$links->addNewSiteLink( 'enwiki', 'George Frideric Handel', array( new ItemId( 'Q3' ), new ItemId( 'Q2' ) ) );
-		$items[] = $item;
-
-		$item = new Item( new ItemId( 'Q21' ) );
-		$links = $item->getSiteLinkList();
-		$links->addNewSiteLink( 'dewiki', 'Benutzer:Testbenutzer' );
-		$links->addNewSiteLink( 'enwiki', 'User:Testuser', array( new ItemId( 'Q3' ), new ItemId( 'Q4' ) ) );
-		$items[] = $item;
-
-		$item = new Item( new ItemId( 'Q3' ) );
-		$item->setLabel( 'en', 'Good article' );
-		$item->setLabel( 'de', 'Lesenswerter Artikel' );
-		$items[] = $item;
-
-		$item = new Item( new ItemId( 'Q4' ) );
-		$item->setLabel( 'en', 'Featured article' );
-		$item->setLabel( 'de', 'Exzellenter Artikel' );
-		$items[] = $item;
-
-		return $items;
-	}
+class LanguageLinkBadgeDisplayTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @return LanguageLinkBadgeDisplay
 	 */
 	private function getLanguageLinkBadgeDisplay() {
-		$entityLookup = new MockRepository();
+		$labelLookup = $this->getMockBuilder(
+				'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup'
+			)
+			->disableOriginalConstructor()
+			->getMock();
 
-		foreach ( $this->getItems() as $item ) {
-			$entityLookup->putEntity( $item );
-		}
+		$labelLookup->expects( $this->any() )
+			->method( 'getLabel' )
+			->will( $this->returnCallback( function( EntityId $entityId ) {
+				if ( $entityId->getSerialization() === 'Q3' ) {
+					return new Term( 'de', 'Lesenswerter Artikel' );
+				} elseif ( $entityId->getSerialization() === 'Q4' ) {
+					return new Term( 'de', 'Exzellenter Artikel' );
+				}
+
+				return null;
+			} ) );
 
 		$badgeClassNames = array( 'Q4' => 'foo', 'Q3' => 'bar' );
 
 		return new LanguageLinkBadgeDisplay(
-			$entityLookup,
+			$labelLookup,
 			$badgeClassNames,
 			Language::factory( 'de' )
 		);

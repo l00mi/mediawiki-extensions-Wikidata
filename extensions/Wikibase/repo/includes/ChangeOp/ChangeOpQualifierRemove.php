@@ -77,7 +77,7 @@ class ChangeOpQualifierRemove extends ChangeOpBase {
 
 	/**
 	 * @param SnakList $qualifiers
-	 * @param Summary $summary
+	 * @param Summary|null $summary
 	 *
 	 * @throws ChangeOpException
 	 */
@@ -108,7 +108,6 @@ class ChangeOpQualifierRemove extends ChangeOpBase {
 	 * @param Entity $entity
 	 *
 	 * @throws ChangeOpException
-	 *
 	 * @return Result
 	 */
 	public function validate( Entity $entity ) {

@@ -127,7 +127,7 @@ class ChangeOpReference extends ChangeOpBase {
 	 * @since 0.4
 	 *
 	 * @param ReferenceList $references
-	 * @param Summary $summary
+	 * @param Summary|null $summary
 	 *
 	 * @throws ChangeOpException
 	 */
@@ -144,7 +144,7 @@ class ChangeOpReference extends ChangeOpBase {
 	 * @since 0.4
 	 *
 	 * @param ReferenceList $references
-	 * @param Summary $summary
+	 * @param Summary|null $summary
 	 *
 	 * @throws ChangeOpException
 	 */
@@ -190,7 +190,6 @@ class ChangeOpReference extends ChangeOpBase {
 	 * @param Entity $entity
 	 *
 	 * @throws ChangeOpException
-	 *
 	 * @return Result
 	 */
 	public function validate( Entity $entity ) {

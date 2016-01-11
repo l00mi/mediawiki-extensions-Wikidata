@@ -30,7 +30,7 @@ use Wikibase\Repo\ValidatorBuilders;
  */
 class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 
-	protected function newValidatorBuilders() {
+	private function newValidatorBuilders() {
 		$entityIdParser = new BasicEntityIdParser();
 
 		$q8 = new Item( new ItemId( 'Q8' ) );
@@ -54,10 +54,26 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			$entityIdParser,
 			$urlSchemes,
 			'http://qudt.org/vocab/',
-			$contentLanguages
+			$contentLanguages,
+			$this->getCachingCommonsMediaFileNameLookup()
 		);
 
 		return $builders;
+	}
+
+	private function getCachingCommonsMediaFileNameLookup() {
+		$fileNameLookup = $this->getMockBuilder( 'Wikibase\Repo\CachingCommonsMediaFileNameLookup' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$fileNameLookup->expects( $this->any() )
+			->method( 'lookupFileName' )
+			->with( $this->isType( 'string' ) )
+			->will( $this->returnCallback( function( $fileName ) {
+				return strpos( $fileName, 'NOT-FOUND' ) === false ? $fileName : null;
+			} ) );
+
+		return $fileNameLookup;
 	}
 
 	public function provideDataTypeValidation() {
@@ -88,7 +104,14 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array( 'commonsMedia', new StringValue( '' ), false, 'empty string should be invalid' ),
 			array( 'commonsMedia', new StringValue( str_repeat( 'x', 237 ) . '.jpg' ), false, 'name too long' ),
 			array( 'commonsMedia', new StringValue( 'Foo' ), false, 'no file extension' ),
+			array( 'commonsMedia', new StringValue( 'Foo.a' ), false, 'file extension to short' ),
 			array( 'commonsMedia', new StringValue( 'Foo.jpg' ), true, 'this should be good' ),
+			array( 'commonsMedia', new StringValue( "a\na.jpg" ), false, 'illegal character: newline' ),
+			array( 'commonsMedia', new StringValue( 'a[a.jpg' ), false, 'illegal character: square bracket' ),
+			array( 'commonsMedia', new StringValue( 'a]a.jpg' ), false, 'illegal character: square bracket' ),
+			array( 'commonsMedia', new StringValue( 'a{a.jpg' ), false, 'illegal character: curly bracket' ),
+			array( 'commonsMedia', new StringValue( 'a}a.jpg' ), false, 'illegal character: curly bracket' ),
+			array( 'commonsMedia', new StringValue( 'a|a.jpg' ), false, 'illegal character: pipe' ),
 			array( 'commonsMedia', new StringValue( 'Foo#bar.jpg' ), false, 'illegal character: hash' ),
 			array( 'commonsMedia', new StringValue( 'Foo:bar.jpg' ), false, 'illegal character: colon' ),
 			array( 'commonsMedia', new StringValue( 'Foo/bar.jpg' ), false, 'illegal character: slash' ),
@@ -96,6 +119,7 @@ class ValidatorBuildersTest extends PHPUnit_Framework_TestCase {
 			array( 'commonsMedia', new StringValue( 'Äöü.jpg' ), true, 'Unicode support' ),
 			array( 'commonsMedia', new StringValue( ' Foo.jpg' ), false, 'media name with leading space' ),
 			array( 'commonsMedia', new StringValue( 'Foo.jpg ' ), false, 'media name with trailing space' ),
+			array( 'commonsMedia', new StringValue( 'Foo-NOT-FOUND.jpg' ), false, 'file not found' ),
 
 			//string
 			array( 'string', 'Foo', false, 'StringValue expected, string supplied' ),

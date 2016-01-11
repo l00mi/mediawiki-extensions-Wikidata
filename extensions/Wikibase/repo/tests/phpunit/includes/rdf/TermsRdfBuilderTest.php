@@ -3,6 +3,8 @@
 namespace Wikibase\Test\Rdf;
 
 use Wikibase\Rdf\TermsRdfBuilder;
+use Wikibase\Repo\Tests\Rdf\NTriplesRdfTestHelper;
+use Wikimedia\Purtle\RdfWriter;
 
 /**
  * @covers Wikibase\Rdf\TermsRdfBuilder
@@ -18,9 +20,20 @@ use Wikibase\Rdf\TermsRdfBuilder;
 class TermsRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 
 	/**
+	 * @var NTriplesRdfTestHelper
+	 */
+	private $helper;
+
+	/**
 	 * @var RdfBuilderTestData|null
 	 */
 	private $testData = null;
+
+	protected function setUp() {
+		parent::setUp();
+
+		$this->helper = new NTriplesRdfTestHelper();
+	}
 
 	/**
 	 * Initialize repository data
@@ -39,14 +52,13 @@ class TermsRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @param RdfWriter $writer
 	 * @param string[]|null $languages
 	 *
 	 * @return TermsRdfBuilder
 	 */
-	private function newBuilder( array $languages = null ) {
+	private function newBuilder( RdfWriter $writer, array $languages = null ) {
 		$vocabulary = $this->getTestData()->getVocabulary();
-
-		$writer = $this->getTestData()->getNTriplesWriter();
 
 		$builder = new TermsRdfBuilder(
 			$vocabulary,
@@ -54,36 +66,20 @@ class TermsRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 			$languages
 		);
 
-		// HACK: stick the writer into a public field, for use by getDataFromBuilder()
-		$builder->test_writer = $writer;
-
 		return $builder;
 	}
 
-	/**
-	 * Extract text test data from RDF builder
-	 * @param TermsRdfBuilder $builder
-	 * @return string[] ntriples lines, sorted
-	 */
-	private function getDataFromBuilder( TermsRdfBuilder $builder ) {
-		// HACK: $builder->test_writer is glued on by newBuilder().
-		$ntriples = $builder->test_writer->drain();
-
-		$lines = explode( "\n", trim( $ntriples ) );
-		sort( $lines );
-		return $lines;
-	}
-
-	private function assertOrCreateNTriples( $dataSetName, TermsRdfBuilder $builder ) {
-		$actualData = $this->getDataFromBuilder( $builder );
+	private function assertOrCreateNTriples( $dataSetName, RdfWriter $writer ) {
+		$actualData = $writer->drain();
 		$correctData = $this->getTestData()->getNTriples( $dataSetName );
 
 		if ( $correctData === null ) {
 			$this->getTestData()->putTestData( $dataSetName, $actualData, '.actual' );
-			$this->fail( 'Data set `' . $dataSetName . '` not found! Created file with the current data using the suffix .actual' );
+			$this->fail( "Data set $dataSetName not found! Created file with the current data using"
+				. " the suffix .actual" );
 		}
 
-		$this->assertEquals( $correctData, $actualData, "Data set $dataSetName" );
+		$this->helper->assertNTriplesEquals( $correctData, $actualData, "Data set $dataSetName" );
 	}
 
 	public function provideAddEntity() {
@@ -99,10 +95,10 @@ class TermsRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testAddEntity( $entityName, $dataSetName, array $languages = null ) {
 		$entity = $this->getTestData()->getEntity( $entityName );
 
-		$builder = $this->newBuilder( $languages );
-		$builder->addEntity( $entity );
+		$writer = $this->getTestData()->getNTriplesWriter();
+		$this->newBuilder( $writer, $languages )->addEntity( $entity );
 
-		$this->assertOrCreateNTriples( $dataSetName, $builder );
+		$this->assertOrCreateNTriples( $dataSetName, $writer );
 	}
 
 	public function provideAddLabels() {
@@ -118,10 +114,11 @@ class TermsRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testAddLabels( $entityName, $dataSetName, array $languages = null ) {
 		$entity = $this->getTestData()->getEntity( $entityName );
 
-		$builder = $this->newBuilder( $languages );
-		$builder->addLabels( $entity->getId(), $entity->getFingerprint()->getLabels() );
+		$writer = $this->getTestData()->getNTriplesWriter();
+		$this->newBuilder( $writer, $languages )
+			->addLabels( $entity->getId(), $entity->getFingerprint()->getLabels() );
 
-		$this->assertOrCreateNTriples( $dataSetName, $builder );
+		$this->assertOrCreateNTriples( $dataSetName, $writer );
 	}
 
 	public function provideAddDescriptions() {
@@ -137,10 +134,11 @@ class TermsRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testAddDescriptions( $entityName, $dataSetName, array $languages = null ) {
 		$entity = $this->getTestData()->getEntity( $entityName );
 
-		$builder = $this->newBuilder( $languages );
-		$builder->addDescriptions( $entity->getId(), $entity->getFingerprint()->getDescriptions() );
+		$writer = $this->getTestData()->getNTriplesWriter();
+		$this->newBuilder( $writer, $languages )
+			->addDescriptions( $entity->getId(), $entity->getFingerprint()->getDescriptions() );
 
-		$this->assertOrCreateNTriples( $dataSetName, $builder );
+		$this->assertOrCreateNTriples( $dataSetName, $writer );
 	}
 
 	public function provideAddAliases() {
@@ -156,10 +154,11 @@ class TermsRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	public function testAddAliases( $entityName, $dataSetName, array $languages = null ) {
 		$entity = $this->getTestData()->getEntity( $entityName );
 
-		$builder = $this->newBuilder( $languages );
-		$builder->addAliases( $entity->getId(), $entity->getFingerprint()->getAliasGroups() );
+		$writer = $this->getTestData()->getNTriplesWriter();
+		$this->newBuilder( $writer, $languages )
+			->addAliases( $entity->getId(), $entity->getFingerprint()->getAliasGroups() );
 
-		$this->assertOrCreateNTriples( $dataSetName, $builder );
+		$this->assertOrCreateNTriples( $dataSetName, $writer );
 	}
 
 }

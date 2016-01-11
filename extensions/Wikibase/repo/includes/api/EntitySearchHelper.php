@@ -8,8 +8,8 @@ use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\Lib\Store\EntityTitleLookup;
-use Wikibase\Repo\Interactors\TermIndexSearchInteractor;
-use Wikibase\Repo\Interactors\TermSearchResult;
+use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
+use Wikibase\Lib\Interactors\TermSearchResult;
 use Wikibase\TermIndexEntry;
 
 /**
@@ -155,7 +155,7 @@ class EntitySearchHelper {
 	 *
 	 * @return TermSearchResult[]
 	 */
-	private function mergeSearchResults( $searchResults, $newSearchResults, $limit ) {
+	private function mergeSearchResults( array $searchResults, array $newSearchResults, $limit ) {
 		$searchResultEntityIdSerializations = array_keys( $searchResults );
 
 		foreach ( $newSearchResults as $searchResultToAdd ) {
