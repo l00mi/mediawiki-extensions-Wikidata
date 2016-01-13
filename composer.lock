@@ -668,7 +668,7 @@
             "version": "0.15.6",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/data-values-value-view.git",
+                "url": "https://gerrit.wikimedia.org/r/data-values/value-view",
                 "reference": "d4620fa54d0506f3319963592f9423473deca9d2"
             },
             "dist": {
@@ -1393,12 +1393,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "06ee5284d4e0a378e40caf3498963dc576e836eb"
+                "reference": "0e38d250266d929976ac5b8aec810cda2447a75e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/06ee5284d4e0a378e40caf3498963dc576e836eb",
-                "reference": "06ee5284d4e0a378e40caf3498963dc576e836eb",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0e38d250266d929976ac5b8aec810cda2447a75e",
+                "reference": "0e38d250266d929976ac5b8aec810cda2447a75e",
                 "shasum": ""
             },
             "require": {
@@ -1469,7 +1469,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-01-11 21:20:36"
+            "time": "2016-01-13 08:06:44"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1511,7 +1511,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2015-08-12 09:30:01"
+            "time": "2015-08-04 17:18:47"
         }
     ],
     "packages-dev": [],
