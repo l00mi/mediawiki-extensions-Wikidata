@@ -12,6 +12,7 @@ use Hooks;
 use IContextSource;
 use Language;
 use MediaWiki\Site\MediaWikiPageNameNormalizer;
+use RequestContext;
 use Serializers\Serializer;
 use SiteSQLStore;
 use SiteStore;
@@ -19,39 +20,39 @@ use StubObject;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
-use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Services\Lookup\InProcessCachingDataTypeLookup;
-use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\DeserializerFactory;
-use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\Property;
-use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\InProcessCachingDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
+use Wikibase\DataModel\Services\Term\TermBuffer;
 use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
-use Wikibase\Lib\WikibaseSnakFormatterBuilders;
-use Wikibase\Repo\ParserOutput\EntityParserOutputGeneratorFactory;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
 use Wikibase\InternalSerialization\SerializerFactory as InternalSerializerFactory;
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ContentLanguages;
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityIdPlainLinkFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
+use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
@@ -66,16 +67,17 @@ use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\UnionContentLanguages;
+use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
-use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
-use Wikibase\Rdf\ValueSnakRdfBuilderFactory;
 use Wikibase\PropertyInfoBuilder;
+use Wikibase\Rdf\ValueSnakRdfBuilderFactory;
 use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\Repo\CachingCommonsMediaFileNameLookup;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\ItemHandler;
 use Wikibase\Repo\Content\PropertyHandler;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
+use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\Localizer\ChangeOpValidationExceptionLocalizer;
@@ -89,6 +91,7 @@ use Wikibase\Repo\Notifications\ChangeNotifier;
 use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\HookChangeTransmitter;
+use Wikibase\Repo\ParserOutput\EntityParserOutputGeneratorFactory;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\Validators\EntityConstraintProvider;
 use Wikibase\Repo\Validators\SnakValidator;
@@ -100,7 +103,6 @@ use Wikibase\SqlStore;
 use Wikibase\Store;
 use Wikibase\Store\BufferingTermLookup;
 use Wikibase\Store\EntityIdLookup;
-use Wikibase\DataModel\Services\Term\TermBuffer;
 use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
 use Wikibase\View\EntityViewFactory;
@@ -241,9 +243,14 @@ class WikibaseRepo {
 		Hooks::run( 'WikibaseRepoDataTypes', array( &$dataTypeDefinitions ) );
 
 		if ( $instance === null ) {
+			$settings = new SettingsArray( $wgWBRepoSettings );
+
 			$instance = new self(
-				new SettingsArray( $wgWBRepoSettings ),
-				new DataTypeDefinitions( $dataTypeDefinitions ),
+				$settings,
+				new DataTypeDefinitions(
+					$dataTypeDefinitions,
+					$settings->getSetting( 'disabledDataTypes' )
+				),
 				$wgContLang
 			);
 		}
@@ -520,11 +527,11 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @param IContextSource|null $context
+	 * @param IContextSource $context
 	 *
 	 * @return EditFilterHookRunner
 	 */
-	private function newEditFilterHookRunner( IContextSource $context = null ) {
+	private function newEditFilterHookRunner( IContextSource $context ) {
 		return new EditFilterHookRunner(
 			$this->getEntityTitleLookup(),
 			$this->getEntityContentFactory(),
@@ -1296,11 +1303,11 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @param IContextSource|null $context
+	 * @param IContextSource $context
 	 *
 	 * @return ApiHelperFactory
 	 */
-	public function getApiHelperFactory( IContextSource $context = null ) {
+	public function getApiHelperFactory( IContextSource $context ) {
 		return new ApiHelperFactory(
 			$this->getEntityTitleLookup(),
 			$this->getExceptionLocalizer(),
@@ -1319,6 +1326,10 @@ class WikibaseRepo {
 	 * @return EditEntityFactory
 	 */
 	public function newEditEntityFactory( IContextSource $context = null ) {
+		if ( $context === null ) {
+			$context = RequestContext::getMain();
+		}
+
 		return new EditEntityFactory(
 			$this->getEntityTitleLookup(),
 			$this->getEntityRevisionLookup( 'uncached' ),
@@ -1326,6 +1337,26 @@ class WikibaseRepo {
 			$this->getEntityPermissionChecker(),
 			$this->newEditFilterHookRunner( $context ),
 			$context
+		);
+	}
+
+	/**
+	 * @param IContextSource $context
+	 *
+	 * @return ItemMergeInteractor
+	 */
+	public function newItemMergeInteractor( IContextSource $context ) {
+		$user = $context->getUser();
+
+		return new ItemMergeInteractor(
+			$this->getChangeOpFactoryProvider()->getMergeChangeOpFactory(),
+			$this->getEntityRevisionLookup( 'uncached' ),
+			$this->getEntityStore(),
+			$this->getEntityPermissionChecker(),
+			$this->getSummaryFormatter(),
+			$user,
+			$this->newRedirectCreationInteractor( $user, $context ),
+			$this->getEntityTitleLookup()
 		);
 	}
 
