@@ -664,16 +664,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.15.6",
+            "version": "0.15.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/data-values-value-view.git",
-                "reference": "d4620fa54d0506f3319963592f9423473deca9d2"
+                "reference": "b568df0ecb7c88aae2f9f55795eb1965b1c20e97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/d4620fa54d0506f3319963592f9423473deca9d2",
-                "reference": "d4620fa54d0506f3319963592f9423473deca9d2",
+                "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/b568df0ecb7c88aae2f9f55795eb1965b1c20e97",
+                "reference": "b568df0ecb7c88aae2f9f55795eb1965b1c20e97",
                 "shasum": ""
             },
             "require": {
@@ -711,7 +711,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2015-11-04 10:41:10"
+            "time": "2016-01-15 10:49:26"
         },
         {
             "name": "diff/diff",
@@ -1448,12 +1448,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "f076f0e409657e93df713f96e603d152c740e8fb"
+                "reference": "62ec267234037c7815c0be101cfd225ae070cd68"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f076f0e409657e93df713f96e603d152c740e8fb",
-                "reference": "f076f0e409657e93df713f96e603d152c740e8fb",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/62ec267234037c7815c0be101cfd225ae070cd68",
+                "reference": "62ec267234037c7815c0be101cfd225ae070cd68",
                 "shasum": ""
             },
             "require": {
@@ -1467,7 +1467,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.8.2",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.15.6",
+                "data-values/value-view": "~0.15.7",
                 "diff/diff": "~2.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~4.0",
@@ -1524,7 +1524,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-01-15 09:06:11"
+            "time": "2016-01-16 01:20:50"
         },
         {
             "name": "wikibase/wikimedia-badges",
