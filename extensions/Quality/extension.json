@@ -6,6 +6,7 @@
 	"descriptionmsg": "wbq-desc",
 	"version": "1.0.0",
 	"type": "wikibase",
+	"license-name": "GPL-2.0+",
 	"MessageDirs": {
 		"WikibaseQuality": [
 			"i18n"
