@@ -18,7 +18,7 @@
 	"wbq-violations-exceptions-checkbox-label": "Uitzonderingen weergeven",
 	"wbq-violations-submit-button-label": "Schendingen weergeven",
 	"wbq-violations-invalid-entity-id": "\"$1\" is geen geldige entiteits-ID.",
-	"wbq-violations-not-existent-entity": "Entiteit \"$1\" bestaat niet.",
+	"wbq-violations-not-existent-entity": "Een entiteit met de opgegeven ID bestaat niet.",
 	"wbq-violations-invalid-property-id": "\"$1\" is geen geldige eigenschaps-ID.",
 	"wbq-violations-not-existent-property": "Er bestaat geen eigenschap met het opgegeven ID.",
 	"wbq-violations-table-header-entity": "Entiteit",
@@ -31,6 +31,7 @@
 	"wbq-violations-status-unverified": "Niet gecontroleerd",
 	"wbq-violations-status-exception": "Uitzondering",
 	"wbq-violations-mark-as-exception": "Als uitzondering markeren",
+	"wbq-violations-mark-as-violation": "Als schending markeren",
 	"wbq-violations-next-page": "Volgende pagina >>",
 	"wbq-violations-prev-page": "<< Vorige pagina"
 }

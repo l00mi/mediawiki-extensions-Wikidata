@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Hosseinblue"
+			"Hosseinblue",
+			"Lakzon"
 		]
 	},
 	"wbq-violations-group-label": "گروه:",
@@ -10,6 +11,6 @@
 	"wbq-violations-table-header-constraint-type": "نوع",
 	"wbq-violations-table-header-updated-at": "بروزرسانی دؤمائن",
 	"wbq-violations-table-header-status": "وضعیت",
-	"wbq-violations-next-page": "وةڵگة تِر/بعدی >>",
+	"wbq-violations-next-page": "وەڵگە تِر(هەنی)>>",
 	"wbq-violations-prev-page": "<<وةڵگة پئش"
 }
