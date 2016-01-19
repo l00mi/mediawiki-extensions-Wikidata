@@ -1448,12 +1448,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c2df1b02d1944c2658e67b944bfdbb29dfb07afe"
+                "reference": "815db65ede2d5a671b4b9ab482f78e5dc2023aa4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c2df1b02d1944c2658e67b944bfdbb29dfb07afe",
-                "reference": "c2df1b02d1944c2658e67b944bfdbb29dfb07afe",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/815db65ede2d5a671b4b9ab482f78e5dc2023aa4",
+                "reference": "815db65ede2d5a671b4b9ab482f78e5dc2023aa4",
                 "shasum": ""
             },
             "require": {
@@ -1524,7 +1524,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-01-17 21:36:02"
+            "time": "2016-01-19 09:25:48"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1532,7 +1532,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-                "reference": "a7f79585271f81f91d097747fef3a426a8d1845c"
+                "reference": "22cfee80965d12162f97405d38ed8ec32f56e59c"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -1566,7 +1566,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-01-17 01:00:57"
+            "time": "2016-01-18 13:08:32"
         }
     ],
     "packages-dev": [],
