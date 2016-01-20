@@ -8,6 +8,7 @@
 QUnit.module( 'wikibase.datamodel.Group' );
 
 /**
+ * @class TestItem
  * @constructor
  * @param {*} key
  * @param {*} value
@@ -29,6 +30,7 @@ $.extend( TestItem.prototype, {
 } );
 
 /**
+ * @class TestContainer
  * @constructor
  * @param {TestItem[]} items
  */
@@ -128,6 +130,7 @@ function createGroup( key, container ) {
 }
 
 QUnit.test( 'Constructor', function( assert ) {
+	assert.expect( 6 );
 	assert.ok(
 		createGroup( 'key', new TestContainer() ) instanceof wb.datamodel.Group,
 		'Instantiated empty Group.'
@@ -168,13 +171,15 @@ QUnit.test( 'Constructor', function( assert ) {
 } );
 
 QUnit.test( 'setItemContainer() & getItemContainer()', function( assert ) {
+	assert.expect( 4 );
 	var container = getTestContainer( 'key', 1 ),
 		group = createGroup( 'key', container ),
 		newContainer = getTestContainer( 'key', 3 );
 
-	assert.ok(
-		group.getItemContainer() !== container,
-		'Not returning original container.'
+	assert.strictEqual(
+		container,
+		group.getItemContainer(),
+		'getItemContainer() does not clone.'
 	);
 
 	assert.ok(
@@ -182,22 +187,11 @@ QUnit.test( 'setItemContainer() & getItemContainer()', function( assert ) {
 		'Verified returned container matching returned container.'
 	);
 
-	container.addItem( getTestItems( 'key', 2 )[1] );
-
-	assert.ok(
-		!group.getItemContainer().equals( container ),
-		'Group container does not match original container manipulated after Group instantiation.'
-	);
-
-	assert.ok(
-		!group.getItemContainer().equals( newContainer ),
-		'Verified returned container not matching not yet set new container.'
-	);
-
 	group.setItemContainer( newContainer );
 
-	assert.ok(
-		group.getItemContainer().equals( newContainer ),
+	assert.strictEqual(
+		newContainer,
+		group.getItemContainer(),
 		'Set new container.'
 	);
 
@@ -210,6 +204,7 @@ QUnit.test( 'setItemContainer() & getItemContainer()', function( assert ) {
 } );
 
 QUnit.test( 'addItem() & hasItem()', function( assert ) {
+	assert.expect( 3 );
 	var container = getTestContainer( 'key', 1 ),
 		group = createGroup( 'key', container ),
 		newItem = getTestItems( 'key', 2 )[1];
@@ -235,6 +230,7 @@ QUnit.test( 'addItem() & hasItem()', function( assert ) {
 } );
 
 QUnit.test( 'equals()', function( assert ) {
+	assert.expect( 2 );
 	var group = createGroup( 'key', getTestContainer( 'key', 1 ) );
 
 	assert.ok(

@@ -46,16 +46,24 @@ function createSet( items ) {
 }
 
 QUnit.test( 'Constructor', function( assert ) {
+	assert.expect( 8 );
 	assert.ok(
 		createSet() instanceof wb.datamodel.Set,
 		'Instantiated empty Set.'
 	);
 
-	var set = createSet( getTestItems( 2 ) );
+	var items = getTestItems( 2 ),
+		set = createSet( items );
 
 	assert.ok(
 		set instanceof wb.datamodel.Set,
 		'Instantiated filled Set.'
+	);
+
+	assert.notStrictEqual(
+		items,
+		set._items,
+		'Constructor does clone.'
 	);
 
 	assert.equal(
@@ -95,6 +103,7 @@ QUnit.test( 'Constructor', function( assert ) {
 } );
 
 QUnit.test( 'each()', function( assert ) {
+	assert.expect( 3 );
 	var items = getTestItems( 2 ),
 		set = createSet( items ),
 		expectedKeys = [];
@@ -120,6 +129,7 @@ QUnit.test( 'each()', function( assert ) {
 } );
 
 QUnit.test( 'getKeys()', function( assert ) {
+	assert.expect( 4 );
 	var items = getTestItems( 3 ),
 		set = createSet( items ),
 		keys = set.getKeys(),
@@ -143,6 +153,7 @@ QUnit.test( 'getKeys()', function( assert ) {
 } );
 
 QUnit.test( 'getItemByKey()', function( assert ) {
+	assert.expect( 4 );
 	var items = getTestItems( 3 ),
 		set = createSet( items );
 
@@ -161,6 +172,7 @@ QUnit.test( 'getItemByKey()', function( assert ) {
 } );
 
 QUnit.test( 'removeItemByKey() & length attribute', function( assert ) {
+	assert.expect( 6 );
 	var items = getTestItems( 2 ),
 		set = createSet( items );
 
@@ -208,6 +220,7 @@ QUnit.test( 'removeItemByKey() & length attribute', function( assert ) {
 } );
 
 QUnit.test( 'hasItemForKey()', function( assert ) {
+	assert.expect( 4 );
 	var items = getTestItems( 3 ),
 		set = createSet( items );
 
@@ -225,6 +238,7 @@ QUnit.test( 'hasItemForKey()', function( assert ) {
 } );
 
 QUnit.test( 'setItem() & length attribute', function( assert ) {
+	assert.expect( 6 );
 	var items = getTestItems( 2 ),
 		set = createSet( items ),
 		newItem0 = getTestItems( 1 )[0],
@@ -271,6 +285,7 @@ QUnit.test( 'setItem() & length attribute', function( assert ) {
 } );
 
 QUnit.test( 'addItem()', function( assert ) {
+	assert.expect( 2 );
 	var items = getTestItems( 2 ),
 		set = createSet( items ),
 		item = getTestItems( 3 )[2];
@@ -291,6 +306,7 @@ QUnit.test( 'addItem()', function( assert ) {
 } );
 
 QUnit.test( 'removeItem()', function( assert ) {
+	assert.expect( 4 );
 	var items = getTestItems( 2 ),
 		set = createSet( items );
 
@@ -322,6 +338,7 @@ QUnit.test( 'removeItem()', function( assert ) {
 } );
 
 QUnit.test( 'isEmpty()', function( assert ) {
+	assert.expect( 3 );
 	var set = createSet(),
 		item = getTestItems( 1 )[0];
 
@@ -346,6 +363,7 @@ QUnit.test( 'isEmpty()', function( assert ) {
 } );
 
 QUnit.test( 'equals()', function( assert ) {
+	assert.expect( 3 );
 	var items = getTestItems( 2 ),
 		set = createSet( items );
 
@@ -371,6 +389,7 @@ QUnit.test( 'equals()', function( assert ) {
 } );
 
 QUnit.test( 'hasItem()', function( assert ) {
+	assert.expect( 3 );
 	var items = getTestItems( 2 ),
 		set = createSet( items );
 

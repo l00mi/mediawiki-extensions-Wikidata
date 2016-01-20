@@ -14,6 +14,7 @@ var testSets = [
 ];
 
 QUnit.test( 'Constructor (positive)', function( assert ) {
+	assert.expect( 3 );
 	for( var i = 0; i < testSets.length; i++ ) {
 		var multiTerm = new wb.datamodel.MultiTerm( testSets[i][0], testSets[i][1] );
 		assert.ok(
@@ -24,11 +25,13 @@ QUnit.test( 'Constructor (positive)', function( assert ) {
 } );
 
 QUnit.test( 'Constructor (negative)', function( assert ) {
+	assert.expect( 5 );
 	var negativeTestSets = [
 		[undefined, []],
 		['', undefined],
 		['de', 1],
-		[1, '']
+		[1, ''],
+		['', []]
 	];
 
 	/**
@@ -51,6 +54,7 @@ QUnit.test( 'Constructor (negative)', function( assert ) {
 } );
 
 QUnit.test( 'equals()', function( assert ) {
+	assert.expect( 9 );
 	for( var i = 0; i < testSets.length; i++ ) {
 		var multiTerm1 = new wb.datamodel.MultiTerm( testSets[i][0], testSets[i][1] );
 

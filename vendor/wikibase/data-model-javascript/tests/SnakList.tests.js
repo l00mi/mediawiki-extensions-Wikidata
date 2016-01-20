@@ -43,6 +43,7 @@ function snakOrder( snakList ) {
 }
 
 QUnit.test( 'Constructor', function( assert ) {
+	assert.expect( 6 );
 	for( var i = 0; i < testSets.length; i++ ) {
 		var snakList = new wb.datamodel.SnakList( testSets[i] );
 
@@ -60,23 +61,22 @@ QUnit.test( 'Constructor', function( assert ) {
 } );
 
 QUnit.test( 'getFilteredSnakList()', function( assert ) {
+	assert.expect( 11 );
+	assert.throws(
+		function() {
+			var snakList = new wb.datamodel.SnakList( [] );
+			snakList.getFilteredSnakList();
+		},
+		'getFilteredSnakList() throws an error when called with null.'
+	);
+
 	for( var i = 0; i < testSets.length; i++ ) {
 		var snakList = new wb.datamodel.SnakList( testSets[i] );
-
-		assert.ok(
-			snakList.getFilteredSnakList() instanceof wb.datamodel.SnakList,
-			'Returned SnakList object when issuing getFilteredSnakList() without parameter.'
-		);
 
 		assert.strictEqual(
 			snakList.getFilteredSnakList( 'P9999' ).length,
 			0,
 			'No filtered SnakList returned for an empty SnakList.'
-		);
-
-		assert.ok(
-			snakList.getFilteredSnakList().equals( new wb.datamodel.SnakList( snakList.toArray() ) ),
-			'Returning SnakList clone when issuing getFilteredSnakList() without parameter.'
 		);
 
 		var groupedSnakLists = {},
@@ -101,6 +101,7 @@ QUnit.test( 'getFilteredSnakList()', function( assert ) {
 } );
 
 QUnit.test( 'merge()', function( assert ) {
+	assert.expect( 6 );
 	for( var i = 0; i < testSets.length; i++ ) {
 		var snakList = new wb.datamodel.SnakList(),
 			newSnak = new wb.datamodel.PropertyNoValueSnak( 'P10' );
@@ -125,6 +126,7 @@ QUnit.test( 'merge()', function( assert ) {
 } );
 
 QUnit.test( 'getValidMoveIndices()', function( assert ) {
+	assert.expect( 8 );
 	var snaks = testSets[2],
 		snakList = new wb.datamodel.SnakList( snaks );
 
@@ -163,6 +165,7 @@ QUnit.test( 'getValidMoveIndices()', function( assert ) {
 } );
 
 QUnit.test( 'move()', function( assert ) {
+	assert.expect( 30 );
 	var snaks = testSets[2],
 		snakList;
 
@@ -236,6 +239,7 @@ QUnit.test( 'move()', function( assert ) {
 } );
 
 QUnit.test( 'moveUp() and moveDown()', function( assert ) {
+	assert.expect( 14 );
 	var snaks = testSets[2],
 		snakList;
 

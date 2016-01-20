@@ -1028,16 +1028,16 @@
         },
         {
             "name": "wikibase/data-model-javascript",
-            "version": "1.0.2",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
-                "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287"
+                "reference": "721323a7aca9f059d972fe0bf604d2c4d0f1eb33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
-                "reference": "f27c4e0bc9b0c8b45c7fdb5bb577ed59f9d06287",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/721323a7aca9f059d972fe0bf604d2c4d0f1eb33",
+                "reference": "721323a7aca9f059d972fe0bf604d2c4d0f1eb33",
                 "shasum": ""
             },
             "require": {
@@ -1064,7 +1064,7 @@
                 }
             ],
             "description": "Wikibase datamodel implementation in JavaScript",
-            "time": "2015-05-29 09:52:16"
+            "time": "2016-01-13 11:01:09"
         },
         {
             "name": "wikibase/data-model-serialization",
@@ -1403,21 +1403,21 @@
         },
         {
             "name": "wikibase/serialization-javascript",
-            "version": "2.0.3",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-                "reference": "5f20179cfad260ba76f91258fe5ade3f487767f8"
+                "reference": "f807cc1951f0804ae7ef59d721ed6d2b44048178"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/5f20179cfad260ba76f91258fe5ade3f487767f8",
-                "reference": "5f20179cfad260ba76f91258fe5ade3f487767f8",
+                "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/f807cc1951f0804ae7ef59d721ed6d2b44048178",
+                "reference": "f807cc1951f0804ae7ef59d721ed6d2b44048178",
                 "shasum": ""
             },
             "require": {
                 "data-values/javascript": "~0.7.0",
-                "wikibase/data-model-javascript": "~1.0.0"
+                "wikibase/data-model-javascript": "~2.0.0|~1.0.0"
             },
             "type": "library",
             "autoload": {
@@ -1440,7 +1440,7 @@
                 }
             ],
             "description": "Wikibase datamodel serialization implementation in JavaScript",
-            "time": "2015-06-03 16:10:04"
+            "time": "2016-01-19 15:58:12"
         },
         {
             "name": "wikibase/wikibase",
@@ -1448,12 +1448,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "815db65ede2d5a671b4b9ab482f78e5dc2023aa4"
+                "reference": "532f997f61e57b1d1e2b7b1e54b62998fbf5bcfa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/815db65ede2d5a671b4b9ab482f78e5dc2023aa4",
-                "reference": "815db65ede2d5a671b4b9ab482f78e5dc2023aa4",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/532f997f61e57b1d1e2b7b1e54b62998fbf5bcfa",
+                "reference": "532f997f61e57b1d1e2b7b1e54b62998fbf5bcfa",
                 "shasum": ""
             },
             "require": {
@@ -1462,7 +1462,7 @@
                 "data-values/data-values": "~1.0",
                 "data-values/geo": "~1.0",
                 "data-values/interfaces": "~0.2.0|~0.1.5",
-                "data-values/javascript": "~0.6.0|~0.7.0",
+                "data-values/javascript": "~0.8.0|~0.7.0|~0.6.0",
                 "data-values/number": "~0.6.0",
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.8.2",
@@ -1471,7 +1471,7 @@
                 "diff/diff": "~2.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~4.0",
-                "wikibase/data-model-javascript": "^1.0.2",
+                "wikibase/data-model-javascript": "~2.0.0",
                 "wikibase/data-model-serialization": "~2.0",
                 "wikibase/data-model-services": "^3.2.0",
                 "wikibase/internal-serialization": "~2.0",
@@ -1524,7 +1524,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-01-19 09:25:48"
+            "time": "2016-01-20 09:15:23"
         },
         {
             "name": "wikibase/wikimedia-badges",
