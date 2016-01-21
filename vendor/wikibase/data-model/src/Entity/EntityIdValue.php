@@ -2,7 +2,6 @@
 
 namespace Wikibase\DataModel\Entity;
 
-use DataValues\DataValue;
 use DataValues\DataValueObject;
 use DataValues\IllegalValueException;
 use InvalidArgumentException;
@@ -12,7 +11,7 @@ use Wikibase\DataModel\LegacyIdInterpreter;
  * @since 0.5
  *
  * @licence GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com
+ * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class EntityIdValue extends DataValueObject {
 
@@ -96,7 +95,7 @@ class EntityIdValue extends DataValueObject {
 	 *
 	 * @since 0.5
 	 *
-	 * @return EntityIdValue
+	 * @return self
 	 */
 	public function getValue() {
 		return $this;
@@ -116,7 +115,7 @@ class EntityIdValue extends DataValueObject {
 	 *
 	 * @since 0.5
 	 *
-	 * @return EntityId
+	 * @return array
 	 */
 	public function getArrayValue() {
 		return array(
@@ -135,7 +134,7 @@ class EntityIdValue extends DataValueObject {
 	 * @param mixed $data
 	 *
 	 * @throws IllegalValueException
-	 * @return DataValue
+	 * @return self
 	 */
 	public static function newFromArray( $data ) {
 		if ( !is_array( $data ) ) {
@@ -155,8 +154,7 @@ class EntityIdValue extends DataValueObject {
 				$data['entity-type'],
 				$data['numeric-id']
 			);
-		}
-		catch ( \InvalidArgumentException $ex ) {
+		} catch ( InvalidArgumentException $ex ) {
 			throw new IllegalValueException( $ex->getMessage(), 0, $ex );
 		}
 

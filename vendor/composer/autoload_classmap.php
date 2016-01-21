@@ -540,6 +540,7 @@ return array(
     'Wikibase\\DataModel\\Entity\\EntityRedirect' => $vendorDir . '/wikibase/data-model/src/Entity/EntityRedirect.php',
     'Wikibase\\DataModel\\Entity\\Item' => $vendorDir . '/wikibase/data-model/src/Entity/Item.php',
     'Wikibase\\DataModel\\Entity\\ItemId' => $vendorDir . '/wikibase/data-model/src/Entity/ItemId.php',
+    'Wikibase\\DataModel\\Entity\\ItemIdParser' => $vendorDir . '/wikibase/data-model/src/Entity/ItemIdParser.php',
     'Wikibase\\DataModel\\Entity\\ItemIdSet' => $vendorDir . '/wikibase/data-model/src/Entity/ItemIdSet.php',
     'Wikibase\\DataModel\\Entity\\Property' => $vendorDir . '/wikibase/data-model/src/Entity/Property.php',
     'Wikibase\\DataModel\\Entity\\PropertyId' => $vendorDir . '/wikibase/data-model/src/Entity/PropertyId.php',

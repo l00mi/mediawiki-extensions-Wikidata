@@ -29,7 +29,7 @@ class StatementGuidTest extends \PHPUnit_Framework_TestCase {
 		$statementGuid = new StatementGuid( $entityId, $guid );
 
 		$this->assertEquals( $expected, $statementGuid->getSerialization() );
-		$this->assertEquals( $entityId, $statementGuid->getEntityId());
+		$this->assertEquals( $entityId, $statementGuid->getEntityId() );
 	}
 
 	public function provideConstructionData() {
@@ -78,7 +78,7 @@ class StatementGuidTest extends \PHPUnit_Framework_TestCase {
 		$constructionDatas = $this->provideConstructionData();
 		$argLists = array();
 
-		foreach( $constructionDatas as $constructionData ){
+		foreach ( $constructionDatas as $constructionData ) {
 			$argLists[] = array( new StatementGuid( $constructionData[0], $constructionData[1] ) );
 		}
 
