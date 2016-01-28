@@ -210,8 +210,9 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			isValid = true;
 
 		listview.items().each( function() {
-			isValid = lia.liInstance( $( this ) ).isValid();
-			return isValid === true;
+			var entitytermsforlanguageview = lia.liInstance( $( this ) );
+			isValid = entitytermsforlanguageview.isValid();
+			return isValid;
 		} );
 
 		return isValid;
@@ -223,29 +224,15 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	isInitialValue: function() {
 		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter(),
-			currentValue = [];
+			isInitialValue = true;
 
 		listview.items().each( function() {
 			var entitytermsforlanguageview = lia.liInstance( $( this ) );
-			currentValue.push( entitytermsforlanguageview.value() );
+			isInitialValue = entitytermsforlanguageview.isInitialValue();
+			return isInitialValue;
 		} );
 
-		if ( currentValue.length !== this.options.value.length ) {
-			return false;
-		}
-
-		// TODO: Implement and use Fingerprint in DataModelJavaScript component
-		for ( var i = 0; i < currentValue.length; i++ ) {
-			if ( currentValue[i].language !== this.options.value[i].language
-				|| !currentValue[i].label.equals( this.options.value[i].label )
-				|| !currentValue[i].description.equals( this.options.value[i].description )
-				|| !currentValue[i].aliases.equals( this.options.value[i].aliases )
-			) {
-				return false;
-			}
-		}
-
-		return true;
+		return isInitialValue;
 	},
 
 	startEditing: function() {
@@ -342,7 +329,8 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			lia = listview.listItemAdapter();
 
 		listview.items().each( function() {
-			lia.liInstance( $( this ) ).startEditing();
+			var entitytermsforlanguageview = lia.liInstance( $( this ) );
+			entitytermsforlanguageview.startEditing();
 		} );
 	},
 
@@ -424,7 +412,8 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			lia = listview.listItemAdapter();
 
 		listview.items().each( function() {
-			lia.liInstance( $( this ) ).removeError();
+			var entitytermsforlanguageview = lia.liInstance( $( this ) );
+			entitytermsforlanguageview.removeError();
 		} );
 	},
 
