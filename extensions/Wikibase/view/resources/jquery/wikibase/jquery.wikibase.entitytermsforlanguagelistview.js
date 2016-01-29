@@ -1,6 +1,7 @@
 /**
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
 ( function( mw, wb, $ ) {
 	'use strict';
@@ -12,16 +13,10 @@
  * @since 0.5
  * @extends jQuery.ui.TemplatedWidget
  *
- * @option {Object[]} value
- *         Object representing the widget's value.
- *         Structure: [
- *           {
- *             language: <{string]>,
- *             label: <{wikibase.datamodel.Term}>,
- *             description: <{wikibase.datamodel.Term}>,
- *             aliases: <{wikibase.datamodel.MultiTerm}>
- *           }[, ...]
- *         ]
+ * @option {Fingerprint} value
+ *
+ * @option {string[]} userLanguages
+ *         A list of languages for which terms should be displayed initially.
  *
  * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  *
@@ -58,9 +53,20 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			$header: '.wikibase-entitytermsforlanguagelistview-header',
 			$listview: '.wikibase-entitytermsforlanguagelistview-listview'
 		},
-		value: [],
+		value: null,
+		userLanguages: [],
 		entityChangersFactory: null
 	},
+
+	/**
+	 * @type {jQuery}
+	 */
+	$listview: null,
+
+	/**
+	 * @type {jQuery}
+	 */
+	$entitytermsforlanguagelistviewMore: null,
 
 	/**
 	 * @type {boolean}
@@ -68,10 +74,16 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	_isInEditMode: false,
 
 	/**
+	 * @type {Object} Map of language codes pointing to list items (in the form of jQuery nodes).
+	 */
+	_moreLanguagesItems: {},
+
+	/**
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
-		if ( !$.isArray( this.options.value )
+		if ( !( this.options.value instanceof wb.datamodel.Fingerprint )
+			|| !$.isArray( this.options.userLanguages )
 			|| !this.options.entityChangersFactory
 		) {
 			throw new Error( 'Required option(s) missing' );
@@ -97,6 +109,10 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			if ( listview ) {
 				listview.destroy();
 			}
+		}
+
+		if ( this.$entitytermsforlanguagelistviewMore ) {
+			this.$entitytermsforlanguagelistviewMore.remove();
 		}
 
 		this.element.removeClass( 'wikibase-entitytermsforlanguagelistview' );
@@ -126,11 +142,11 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			} );
 		} );
 
-		var mismatch = scrapedLanguages.length !== this.options.value.length;
+		var mismatch = scrapedLanguages.length !== this.options.userLanguages.length;
 
 		if ( !mismatch ) {
 			for ( i = 0; i < scrapedLanguages.length; i++ ) {
-				if ( scrapedLanguages[i] !== this.options.value[i].language ) {
+				if ( scrapedLanguages[i] !== this.options.userLanguages[i] ) {
 					mismatch = true;
 					break;
 				}
@@ -145,6 +161,8 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 
 	/**
 	 * Creates the listview widget managing the entitytermsforlanguageview widgets
+	 *
+	 * @private
 	 */
 	_createListView: function() {
 		var self = this,
@@ -189,9 +207,163 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 					};
 				}
 			} ),
-			value: self.options.value || null,
+			value: $.map( this.options.userLanguages, function( lang ) {
+				return self._getValueForLanguage( lang );
+			} ),
 			listItemNodeName: 'TR'
 		} );
+
+		if ( !this.element.find( '.wikibase-entitytermsforlanguagelistview-more' ).length ) {
+			this._createEntitytermsforlanguagelistviewMore();
+		}
+	},
+
+	/**
+	 * Creates a button which allows the user to show terms in all languages available.
+	 *
+	 * @private
+	 */
+	_createEntitytermsforlanguagelistviewMore: function() {
+		if ( $.isEmptyObject( this._getAdditionalLanguages() ) ) {
+			return;
+		}
+
+		var $moreLanguagesButton = $( '<a/>' )
+			.attr( 'href', '#' )
+			.click( $.proxy( this._onMoreLanguagesButtonClicked, this ) );
+		this._toggleMoreLanguagesButton( $moreLanguagesButton );
+
+		this.$entitytermsforlanguagelistviewMore = $( '<div/>' )
+			.addClass( 'wikibase-entitytermsforlanguagelistview-more' )
+			.append( $moreLanguagesButton );
+
+		this.element.after( this.$entitytermsforlanguagelistviewMore );
+	},
+
+	/**
+	 * Click handler for more languages button
+	 *
+	 * @private
+	 */
+	_onMoreLanguagesButtonClicked: function( event ) {
+		var $button = $( event.target );
+
+		if ( !this._isMoreLanguagesExpanded() ) {
+			this._addMoreLanguages();
+		} else {
+			var previousTop = $button.offset().top;
+			this._removeMoreLanguages();
+			this._scrollUp( $button, previousTop );
+		}
+
+		this._toggleMoreLanguagesButton( $button );
+		return false;
+	},
+
+	/**
+	 * Toggle more language button text between the "wikibase-entitytermsforlanguagelistview-less"
+	 * and "wikibase-entitytermsforlanguagelistview-more" messages.
+	 *
+	 * @param {jQuery} $button
+	 * @private
+	 */
+	_toggleMoreLanguagesButton: function( $button ) {
+		$button.text( mw.msg(
+			'wikibase-entitytermsforlanguagelistview-'
+				+ ( this._isMoreLanguagesExpanded() ? 'less' : 'more' )
+		) );
+	},
+
+	_isMoreLanguagesExpanded: function() {
+		return !$.isEmptyObject( this._moreLanguagesItems );
+	},
+
+	/**
+	 * Add 'more' languages to listview
+	 *
+	 * @private
+	 */
+	_addMoreLanguages: function() {
+		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter();
+
+		for ( var lang in this._getAdditionalLanguages() ) {
+			var $item = listview.addItem( this._getValueForLanguage( lang ) );
+			if ( this._isInEditMode ) {
+				lia.liInstance( $item ).startEditing();
+			}
+			this._moreLanguagesItems[lang] = $item;
+		}
+	},
+
+	/**
+	 * Remove 'more' languages from listview
+	 *
+	 * @private
+	 */
+	_removeMoreLanguages: function() {
+		var listview = this.$listview.data( 'listview' );
+
+		$.each( this._moreLanguagesItems, function() {
+			listview.removeItem( this );
+		} );
+
+		this._moreLanguagesItems = {};
+	},
+
+	/**
+	 * @return {Object} Map of additional language codes in this fingerprint.
+	 * @private
+	 */
+	_getAdditionalLanguages: function() {
+		var fingerprint = this.options.value,
+			languages = {};
+
+		fingerprint.getLabels().each( function( lang ) {
+			languages[lang] = lang;
+		} );
+		fingerprint.getDescriptions().each( function( lang ) {
+			languages[lang] = lang;
+		} );
+		fingerprint.getAliases().each( function( lang ) {
+			languages[lang] = lang;
+		} );
+
+		$.each( this.options.userLanguages, function() {
+			delete languages[this];
+		} );
+
+		return languages;
+	},
+
+	/**
+	 * @param {jQuery} $this
+	 * @param {int} previousTop
+	 * @private
+	 */
+	_scrollUp: function( $this, previousTop ) {
+		var top = $this.offset().top;
+
+		if ( top < $( window ).scrollTop() ) {
+			// This does not only keep the toggler visible, it also updates all stick(y)nodes.
+			window.scrollBy( 0, top - previousTop );
+		}
+	},
+
+	/**
+	 * @param {string} lang
+	 * @return {Object}
+	 * @private
+	 */
+	_getValueForLanguage: function( lang ) {
+		var fingerprint = this.options.value;
+
+		return {
+			language: lang,
+			label: fingerprint.getLabelFor( lang ) || new wb.datamodel.Term( lang, '' ),
+			description: fingerprint.getDescriptionFor( lang ) || new wb.datamodel.Term( lang, '' ),
+			aliases: fingerprint.getAliasesFor( lang ) || new wb.datamodel.MultiTerm( lang, [] )
+		};
 	},
 
 	/**
@@ -418,8 +590,8 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	},
 
 	/**
-	 * @param {Object[]} [value]
-	 * @return {Object[]|*}
+	 * @param {Fingerprint} [value]
+	 * @return {Fingerprint|*}
 	 */
 	value: function( value ) {
 		if ( value !== undefined ) {
@@ -429,11 +601,20 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 		var listview = this.$listview.data( 'listview' ),
 			lia = listview.listItemAdapter();
 
-		value = [];
+		// Clones the current Fingerprint.
+		// FIXME: This accesses the private _items property since there is no copy or clone.
+		value = new wb.datamodel.Fingerprint(
+			new wb.datamodel.TermMap( this.options.value.getLabels()._items ),
+			new wb.datamodel.TermMap( this.options.value.getDescriptions()._items ),
+			new wb.datamodel.MultiTermMap( this.options.value.getAliases()._items )
+		);
 
+		// this only adds all terms visible in the ui to the Fingerprint, all other languages get ignored
 		listview.items().each( function() {
-			var entitytermsforlanguageview = lia.liInstance( $( this ) );
-			value.push( entitytermsforlanguageview.value() );
+			var terms = lia.liInstance( $( this ) ).value();
+			value.setLabel( terms.language, terms.label );
+			value.setDescription( terms.language, terms.description );
+			value.setAliases( terms.language, terms.aliases );
 		} );
 
 		return value;
