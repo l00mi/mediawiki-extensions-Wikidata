@@ -41,7 +41,7 @@ class ConstraintRepository {
 		$accumulator = array_map(
 			function ( Constraint $constraint ) {
 				return array(
-					'constraint_guid' => $constraint->getConstraintClaimGuid(),
+					'constraint_guid' => $constraint->getConstraintStatementGuid(),
 					'pid' => $constraint->getPropertyId()->getNumericId(),
 					'constraint_type_qid' => $constraint->getConstraintTypeQid(),
 					'constraint_parameters' => json_encode( $constraint->getConstraintParameters() )
@@ -81,8 +81,13 @@ class ConstraintRepository {
 		foreach( $results as $result ) {
 			$constraintTypeQid = $result->constraint_type_qid;
 			$constraintParameters = (array) json_decode( $result->constraint_parameters );
-			$serializedPid = 'P' . $result->pid;
-			$constraints[] = new Constraint( $result->constraint_guid, new PropertyId( $serializedPid ), $constraintTypeQid, $constraintParameters );
+
+			$constraints[] = new Constraint(
+				$result->constraint_guid,
+				PropertyId::newFromNumber( $result->pid ),
+				$constraintTypeQid,
+				$constraintParameters
+			);
 		}
 		return $constraints;
 	}
