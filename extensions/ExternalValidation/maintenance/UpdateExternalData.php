@@ -25,7 +25,7 @@ class UpdateExternalData extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 
-		$this->mDescription = "Imports external entities from given CSV files into the local database. CSV files can be generated using the DumpConverter.";
+		$this->addDescription( "Imports external entities from given CSV files into the local database. CSV files can be generated using the DumpConverter." );
 		$this->addOption( 'external-values-file', 'CSV file containing external values for import.', true, true );
 		$this->addOption( 'dump-information-file', 'CSV file containing dump meta information for import.', true, true );
 		$this->setBatchSize( 1000 );

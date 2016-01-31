@@ -2,13 +2,15 @@
 
 namespace ValueParsers;
 
+use RuntimeException;
+
 /**
  * @since 0.1
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class ParseException extends \RuntimeException {
+class ParseException extends RuntimeException {
 
 	/**
 	 * @var string|null
@@ -22,8 +24,8 @@ class ParseException extends \RuntimeException {
 
 	/**
 	 * @param string $message        A plain english message describing the error
-	 * @param string $rawValue       The raw value that failed to be parsed
-	 * @param string $expectedFormat An identifier for the format the raw value
+	 * @param string|null $rawValue The raw value that failed to be parsed.
+	 * @param string|null $expectedFormat An identifier for the format the raw value
 	 *                               did not match
 	 *
 	 * @since 0.1.4

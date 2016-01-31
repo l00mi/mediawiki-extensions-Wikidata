@@ -338,16 +338,16 @@
         },
         {
             "name": "data-values/interfaces",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Interfaces.git",
-                "reference": "1746fbdd9b0d21e7409052a5eaffacddab5b4929"
+                "reference": "2bed9fff899b3bf9c522497f9bd875f326eb1ef0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/1746fbdd9b0d21e7409052a5eaffacddab5b4929",
-                "reference": "1746fbdd9b0d21e7409052a5eaffacddab5b4929",
+                "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/2bed9fff899b3bf9c522497f9bd875f326eb1ef0",
+                "reference": "2bed9fff899b3bf9c522497f9bd875f326eb1ef0",
                 "shasum": ""
             },
             "require": {
@@ -388,7 +388,7 @@
                 "valuevalidators",
                 "wikidata"
             ],
-            "time": "2015-08-11 09:39:57"
+            "time": "2016-01-13 18:44:31"
         },
         {
             "name": "data-values/javascript",
@@ -919,7 +919,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "0c6b2bae5c094f3d0d89e0aa56a1adfa5a8802ea"
+                "reference": "908613482f64c3b348652ad2a3836f663dbd0377"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -965,7 +965,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2016-01-29 20:28:59"
+            "time": "2016-01-30 14:05:40"
         },
         {
             "name": "wikibase/data-model",
@@ -1195,7 +1195,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "7834c2bbb6bf77189c9b70a87b6b04c92451aaf3"
+                "reference": "26f8aadb3b6ae038e907c06b1d42ba4e74a2815c"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1243,7 +1243,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2016-01-17 02:22:04"
+            "time": "2016-01-30 14:05:13"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1449,12 +1449,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "62270fec5ce1335b9c6ec58488eedef7e19b95c3"
+                "reference": "453c0a2ed502caf4bb21aaeab8287ee5be38d2ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/62270fec5ce1335b9c6ec58488eedef7e19b95c3",
-                "reference": "62270fec5ce1335b9c6ec58488eedef7e19b95c3",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/453c0a2ed502caf4bb21aaeab8287ee5be38d2ae",
+                "reference": "453c0a2ed502caf4bb21aaeab8287ee5be38d2ae",
                 "shasum": ""
             },
             "require": {
@@ -1525,7 +1525,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-01-29 21:44:08"
+            "time": "2016-01-30 21:50:57"
         },
         {
             "name": "wikibase/wikimedia-badges",
