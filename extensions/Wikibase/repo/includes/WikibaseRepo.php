@@ -98,7 +98,6 @@ use Wikibase\Repo\Validators\SnakValidator;
 use Wikibase\Repo\Validators\TermValidatorFactory;
 use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\SettingsArray;
-use Wikibase\SnakFactory;
 use Wikibase\SqlStore;
 use Wikibase\Store;
 use Wikibase\Store\BufferingTermLookup;
@@ -534,7 +533,8 @@ class WikibaseRepo {
 			$this->getSummaryFormatter(),
 			$user,
 			$this->newEditFilterHookRunner( $context ),
-			$this->getStore()->getEntityRedirectLookup()
+			$this->getStore()->getEntityRedirectLookup(),
+			$this->getEntityTitleLookup()
 		);
 	}
 
@@ -625,16 +625,11 @@ class WikibaseRepo {
 	 */
 	public function getSnakConstructionService() {
 		if ( $this->snakConstructionService === null ) {
-			$snakFactory = new SnakFactory();
-			$dataTypeLookup = $this->getPropertyDataTypeLookup();
-			$dataTypeFactory = $this->getDataTypeFactory();
-			$dataValueFactory = $this->getDataValueFactory();
-
 			$this->snakConstructionService = new SnakConstructionService(
-				$snakFactory,
-				$dataTypeLookup,
-				$dataTypeFactory,
-				$dataValueFactory );
+				$this->getPropertyDataTypeLookup(),
+				$this->getDataTypeFactory(),
+				$this->getDataValueFactory()
+			);
 		}
 
 		return $this->snakConstructionService;
