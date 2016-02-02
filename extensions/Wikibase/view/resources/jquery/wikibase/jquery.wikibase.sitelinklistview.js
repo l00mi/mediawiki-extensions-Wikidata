@@ -297,7 +297,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			lia = listview.listItemAdapter(),
 			$items = listview.items(),
 			$pendingItems = $items.filter( '.wb-new' ).filter( function() {
-				return !lia.liInstance( $( this ) ).isEmpty();
+				var sitelinkview = lia.liInstance( $( this ) );
+				return !sitelinkview.isEmpty();
 			} );
 
 		var $counterMsg = wb.utilities.ui.buildPendingCounter(
@@ -344,7 +345,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 				|| sitelinkview.isEmpty()
 				// Previously existing values do always feature a valid site id:
 				|| Boolean( sitelinkview.option( 'value' ) );
-			return isValid === true;
+			return isValid;
 		} );
 
 		return isValid;
@@ -425,9 +426,10 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			lia = listview.listItemAdapter(),
 			foundOne = false;
 
-		listview.items().each( function( i ) {
+		listview.items().each( function() {
 			if ( touchesViewport( this ) ) {
-				lia.liInstance( $( this ) ).startEditing();
+				var sitelinkview = lia.liInstance( $( this ) );
+				sitelinkview.startEditing();
 				foundOne = true;
 			}
 		} );
@@ -593,7 +595,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			lia = listview.listItemAdapter();
 
 		listview.items().each( function() {
-			lia.liInstance( $( this ) ).startEditing();
+			var sitelinkview = lia.liInstance( $( this ) );
+			sitelinkview.startEditing();
 		} );
 	},
 
@@ -686,7 +689,8 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			lia = listview.listItemAdapter();
 
 		listview.nonEmptyItems().each( function() {
-			value.push( lia.liInstance( $( this ) ).value() );
+			var sitelinkview = lia.liInstance( $( this ) );
+			value.push( sitelinkview.value() );
 		} );
 
 		return value;
@@ -772,6 +776,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 
 	/**
 	 * Adds a pending `sitelinkview` to the `sitelinklistview`.
+	 *
 	 * @see jQuery.wikibase.listview.enterNewItem
 	 *
 	 * @return {Object} jQuery.Promise

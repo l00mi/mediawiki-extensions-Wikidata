@@ -116,6 +116,7 @@
 	} );
 
 	QUnit.test( 'Initialization on focused input', function( assert ) {
+		assert.expect( 1 );
 		var $input = $( '<input/>' ).appendTo( $( 'body' ) ).focus();
 		if ( !$input.is( ':focus' ) ) {
 			assert.ok( true, 'Could not test since focussing does not work.' );
@@ -216,6 +217,10 @@
 		} );
 	} );
 
+	/**
+	 * @param {QUnit.assert} assert
+	 * @param {jQuery.ui.inputextender[]} inputExtenders
+	 */
 	function assertCurrentlyVisibleExtensions( assert, inputExtenders ) {
 		var visibleExtenders = $.ui.inputextender.getInstancesWithVisibleExtensions();
 		assert.ok(
@@ -236,12 +241,13 @@
 	 * then, the others.
 	 * After each step, getInstancesWithVisibleExtensions() will be tested for its return value.
 	 *
-	 * @param assert
-	 * @param inactiveExtenders
+	 * @param {QUnit.assert} assert
+	 * @param {jQuery.ui.inputextender[]} inactiveExtenders
+	 * @param {jQuery.ui.inputextender[]} activeExtenders private
 	 * @return {Object} jQuery.Promise
 	 */
 	function testGetInstancesWithVisibleExtensions(
-		assert, inactiveExtenders, /* private */ activeExtenders
+		assert, inactiveExtenders, activeExtenders
 	) {
 		activeExtenders = activeExtenders || [];
 
@@ -283,6 +289,7 @@
 	}
 
 	QUnit.test( '$.ui.inputextender.getInstancesWithVisibleExtensions', function( assert ) {
+		assert.expect( 21 );
 		var instances = $.ui.inputextender.getInstancesWithVisibleExtensions();
 
 		assert.ok(

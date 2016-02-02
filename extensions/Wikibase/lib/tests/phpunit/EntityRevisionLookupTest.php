@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test;
 
-use ContentHandler;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\Item;
@@ -81,17 +80,6 @@ abstract class EntityRevisionLookupTest extends \MediaWikiTestCase {
 	 */
 	abstract protected function newEntityRevisionLookup( array $entityRevisions, array $entityRedirects );
 
-	protected function itemSupportsRedirect() {
-		if ( !defined( 'CONTENT_MODEL_WIKIBASE_ITEM' ) ) {
-			// We currently cannot determine whether redirects are supported if
-			// no repo code is available. Just skip the corresponding tests in that case.
-			return false;
-		}
-
-		$handler = ContentHandler::getForModelID( CONTENT_MODEL_WIKIBASE_ITEM );
-		return $handler->supportsRedirects();
-	}
-
 	public function provideGetEntityRevision() {
 		$cases = array(
 			array( // #0: any revision
@@ -161,10 +149,6 @@ abstract class EntityRevisionLookupTest extends \MediaWikiTestCase {
 	 * @dataProvider provideGetEntityRevision_redirect
 	 */
 	public function testGetEntityRevision_redirect( EntityId $entityId, EntityId $expectedRedirect ) {
-		if ( !$this->itemSupportsRedirect() ) {
-			$this->markTestSkipped( 'redirects not supported' );
-		}
-
 		$lookup = $this->getEntityRevisionLookup();
 
 		try {

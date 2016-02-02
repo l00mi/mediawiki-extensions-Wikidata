@@ -1,6 +1,28 @@
 ( function( dv, util, $ ) {
 	'use strict';
 
+/**
+ * @ignore
+ *
+ * @param {number|string} number
+ * @param {number} digits
+ * @return {string}
+ */
+function pad( number, digits ) {
+	if( typeof number !== 'string' ) {
+		number = String( number );
+	}
+
+	// Strip sign characters.
+	number = number.replace( /^[-+]/, '' );
+
+	if ( number.length >= digits ) {
+		return number;
+	}
+
+	return new Array( digits - number.length + 1 ).join( '0' ) + number;
+}
+
 var PARENT = dv.DataValue;
 
 /**
@@ -292,16 +314,16 @@ SELF.getCalendarModelKeyByUri = function( uri ) {
  * Precision configuration.
  * @property {Object}
  * @static
- * @since 0.7
+ * @since 0.8
  */
 SELF.PRECISIONS = [
-	{ id: 'GY', text: 'billion years' },
-	{ id: 'MY100', text: 'hundred million years' },
-	{ id: 'MY10', text: 'ten million years' },
-	{ id: 'MY', text: 'million years' },
-	{ id: 'KY100', text: '100,000 years' },
-	{ id: 'KY10', text: '10,000 years' },
-	{ id: 'KY', text: 'millenium' },
+	{ id: 'YEAR1G', text: 'billion years' },
+	{ id: 'YEAR100M', text: 'hundred million years' },
+	{ id: 'YEAR10M', text: 'ten million years' },
+	{ id: 'YEAR1M', text: 'million years' },
+	{ id: 'YEAR100K', text: '100,000 years' },
+	{ id: 'YEAR10K', text: '10,000 years' },
+	{ id: 'YEAR1K', text: 'millenium' },
 	{ id: 'YEAR100', text: 'century' },
 	{ id: 'YEAR10', text: 'decade' },
 	{ id: 'YEAR', text: 'year' },
@@ -329,28 +351,6 @@ SELF.getPrecisionById = function( id ) {
 
 	return null;
 };
-
-/**
- * @ignore
- *
- * @param {number|string} number
- * @param {number} digits
- * @return {string}
- */
-function pad( number, digits ) {
-	if( typeof number !== 'string' ) {
-		number = String( number );
-	}
-
-	// Strip sign characters.
-	number = number.replace( /^[-+]/, '' );
-
-	if ( number.length >= digits ) {
-		return number;
-	}
-
-	return new Array( digits - number.length + 1 ).join( '0' ) + number;
-}
 
 dv.registerDataValue( SELF );
 

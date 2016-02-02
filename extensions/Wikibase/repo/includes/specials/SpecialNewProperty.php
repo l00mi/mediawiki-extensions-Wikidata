@@ -30,6 +30,10 @@ class SpecialNewProperty extends SpecialNewEntity {
 		parent::__construct( 'NewProperty', 'property-create' );
 	}
 
+	public function doesWrites() {
+		return true;
+	}
+
 	/**
 	 * @see SpecialNewEntity::prepareArguments
 	 */
@@ -85,7 +89,8 @@ class SpecialNewProperty extends SpecialNewEntity {
 
 	protected function dataTypeExists() {
 		$dataTypeFactory = WikibaseRepo::getDefaultInstance()->getDataTypeFactory();
-		return $dataTypeFactory->getType( $this->dataType ) !== null;
+		$ids = $dataTypeFactory->getTypeIds();
+		return in_array( $this->dataType, $ids );
 	}
 
 	/**

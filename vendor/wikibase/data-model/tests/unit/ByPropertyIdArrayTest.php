@@ -2,12 +2,13 @@
 
 namespace Wikibase\DataModel\Tests;
 
+use ArrayObject;
 use DataValues\StringValue;
 use ReflectionClass;
 use ReflectionMethod;
 use Wikibase\DataModel\ByPropertyIdArray;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\PropertyIdProvider;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -33,10 +34,10 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 		$statement2 = new Statement( new PropertyNoValueSnak( 2 ) );
 		$statement2->setGuid( '2' );
 
-		$claims = new Claims();
-		$claims->append( $statement1 );
+		$object = new ArrayObject();
+		$object->append( $statement1 );
 
-		$byPropertyIdArray = new ByPropertyIdArray( $claims );
+		$byPropertyIdArray = new ByPropertyIdArray( $object );
 		// According to the documentation append() "cannot be called when the ArrayObject was
 		// constructed from an object." This test makes sure it was not constructed from an object.
 		$byPropertyIdArray->append( $statement2 );
@@ -109,6 +110,7 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider listProvider
+	 * @param PropertyIdProvider[] $objects
 	 */
 	public function testGetIds( array $objects ) {
 		$indexedArray = new ByPropertyIdArray( $objects );
@@ -131,6 +133,7 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider listProvider
+	 * @param PropertyIdProvider[] $objects
 	 */
 	public function testGetById( array $objects ) {
 		$indexedArray = new ByPropertyIdArray( $objects );
@@ -162,6 +165,7 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider listProvider
+	 * @param PropertyIdProvider[] $objects
 	 */
 	public function testRemoveObject( array $objects ) {
 		$lastIndex = count( $objects ) - 1;
@@ -220,7 +224,7 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 		$indicesDestination = array();
 
 		$i = 0;
-		foreach( $objects as $object ) {
+		foreach ( $objects as $object ) {
 			$indicesSource[$i++] = $object;
 			$indicesDestination[$indexedArray->getFlatArrayIndexOfObject( $object )] = $object;
 		}
@@ -253,7 +257,7 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 		$argLists[] = array( $c, $c[1], 0, array( $c[1], $c[0], $c[2], $c[3], $c[4], $c[5] ) );
 		$argLists[] = array( $c, $c[1], 1, $c );
 		$argLists[] = array( $c, $c[1], 2, $c );
-		$argLists[] = array( $c, $c[1], 3, array( $c[2], $c[3], $c[4], $c[0], $c[1], $c[5] ) ); //
+		$argLists[] = array( $c, $c[1], 3, array( $c[2], $c[3], $c[4], $c[0], $c[1], $c[5] ) );
 		$argLists[] = array( $c, $c[1], 4, array( $c[2], $c[3], $c[4], $c[0], $c[1], $c[5] ) );
 		$argLists[] = array( $c, $c[1], 5, array( $c[2], $c[3], $c[4], $c[0], $c[1], $c[5] ) );
 		$argLists[] = array( $c, $c[1], 6, array( $c[2], $c[3], $c[4], $c[5], $c[0], $c[1] ) );
@@ -314,7 +318,7 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 		// Not using $indexedArray->toFlatArray() here to test whether native array has been
 		// exchanged:
 		$reindexedArray = array();
-		foreach( $indexedArray as $o ) {
+		foreach ( $indexedArray as $o ) {
 			$reindexedArray[] = $o;
 		}
 

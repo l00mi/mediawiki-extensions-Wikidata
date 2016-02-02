@@ -32,12 +32,13 @@ var SELF = wb.datamodel.List = util.inherit(
 		items = items || [];
 
 		this._ItemConstructor = ItemConstructor;
-		this._items = [];
-		this.length = 0;
 
 		for( var i = 0; i < items.length; i++ ) {
-			this.addItem( items[i] );
+			this._assertIsItem( items[i] );
 		}
+
+		this._items = items.slice();
+		this.length = items.length;
 	},
 {
 	/**
@@ -71,7 +72,7 @@ var SELF = wb.datamodel.List = util.inherit(
 	 * @inheritdoc
 	 */
 	toArray: function() {
-		return this._items.slice();
+		return this._items;
 	},
 
 	/**

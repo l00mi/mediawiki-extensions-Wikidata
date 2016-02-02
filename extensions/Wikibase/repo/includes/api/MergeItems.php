@@ -22,7 +22,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @since 0.5
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  * @author Daniel Kinzler
  * @author Lucie-Aimée Kaffee
  */
@@ -65,15 +65,7 @@ class MergeItems extends ApiBase {
 			$wikibaseRepo->getEntityIdParser(),
 			$apiHelperFactory->getErrorReporter( $this ),
 			$apiHelperFactory->getResultBuilder( $this ),
-			new ItemMergeInteractor(
-				$wikibaseRepo->getChangeOpFactoryProvider()->getMergeChangeOpFactory(),
-				$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
-				$wikibaseRepo->getEntityStore(),
-				$wikibaseRepo->getEntityPermissionChecker(),
-				$wikibaseRepo->getSummaryFormatter(),
-				$this->getUser(),
-				$wikibaseRepo->newRedirectCreationInteractor( $this->getUser(), $this->getContext() )
-			)
+			$wikibaseRepo->newItemMergeInteractor( $this->getContext() )
 		);
 	}
 

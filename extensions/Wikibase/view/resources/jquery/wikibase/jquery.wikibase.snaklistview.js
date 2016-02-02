@@ -116,6 +116,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 	/**
 	 * (Re-)creates the `listview` widget managing the `snakview` widgets.
+	 *
 	 * @private
 	 */
 	_createListView: function() {
@@ -161,6 +162,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	/**
 	 * Updates the visibility of the `snakview`s' `Property` labels. (Effective only if the
 	 * `singleProperty` option is set.)
+	 *
 	 * @private
 	 * @since 0.5
 	 */
@@ -251,6 +253,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 	/**
 	 * Attaches event listeners that shall trigger stopping the `snaklistview`'s edit mode.
+	 *
 	 * @private
 	 */
 	_attachEditModeEventHandlers: function() {
@@ -269,6 +272,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 	/**
 	 * Detaches event listeners that shall trigger stopping the `snaklistview`'s edit mode.
+	 *
 	 * @private
 	 */
 	_detachEditModeEventHandlers: function() {
@@ -291,8 +295,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		var listview = this.$listview.data( 'listview' ),
 			snaks = [];
 
-		$.each( listview.items(), function( i, item ) {
-			var liInstance = listview.listItemAdapter().liInstance( $( item ) ),
+		listview.items().each( function() {
+			var liInstance = listview.listItemAdapter().liInstance( $( this ) ),
 				snak = liInstance.snak();
 			if ( snak ) {
 				snaks.push( snak );
@@ -309,12 +313,13 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 */
 	isValid: function() {
 		var listview = this.$listview.data( 'listview' ),
+			lia = listview.listItemAdapter(),
 			isValid = true;
 
-		$.each( listview.items(), function( i, item ) {
-			var snakview = listview.listItemAdapter().liInstance( $( item ) );
+		listview.items().each( function() {
+			var snakview = lia.liInstance( $( this ) );
 			isValid = snakview.isValid() && snakview.snak();
-			return isValid === true;
+			return isValid;
 		} );
 
 		return isValid;
@@ -332,6 +337,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 	/**
 	 * Adds a new empty `snakview` to the `listview` with edit mode started instantly.
+	 *
 	 * @see jQuery.wikibase.listview.enterNewItem
 	 *
 	 * @return {Object} jQuery.Promise
@@ -457,6 +463,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 	/**
 	 * Finds a `Snak`'s `snakview` node within the `snaklistview`'s `listview` widget.
+	 *
 	 * @private
 	 *
 	 * @param {wikibase.datamodel.Snak} snak
@@ -466,8 +473,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		var self = this,
 			$snakview = null;
 
-		this._listview.items().each( function( i, itemNode ) {
-			var $itemNode = $( itemNode );
+		this._listview.items().each( function() {
+			var $itemNode = $( this );
 
 			if ( self._listview.listItemAdapter().liInstance( $itemNode ).snak().equals( snak ) ) {
 				$snakview = $itemNode;

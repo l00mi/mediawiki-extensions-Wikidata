@@ -48,6 +48,15 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testCanConstructWithReferenceListObject() {
+		$reference = new Reference( array( new PropertyNoValueSnak( 1 ) ) );
+		$original = new ReferenceList( array( $reference ) );
+		$copy = new ReferenceList( $original );
+
+		$this->assertSame( 1, $copy->count() );
+		$this->assertNotNull( $copy->getReference( $reference->getHash() ) );
+	}
+
 	/**
 	 * @dataProvider invalidConstructorArgumentsProvider
 	 * @expectedException InvalidArgumentException
@@ -214,7 +223,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse( $array->indexOf( new Reference() ) );
 
 		$i = 0;
-		foreach( $array as $reference ) {
+		foreach ( $array as $reference ) {
 			$this->assertEquals( $i++, $array->indexOf( $reference ) );
 		}
 	}
@@ -291,7 +300,7 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 			$hashes[] = $reference->getHash();
 		}
 
-		foreach( $hashes as $hash ) {
+		foreach ( $hashes as $hash ) {
 			$references->removeReferenceHash( $hash );
 		}
 
@@ -349,6 +358,28 @@ class ReferenceListTest extends \PHPUnit_Framework_TestCase {
 
 		$serialized = serialize( $references );
 		$this->assertTrue( $references->equals( unserialize( $serialized ) ) );
+	}
+
+	public function testGivenEmptyList_isEmpty() {
+		$references = new ReferenceList();
+		$this->assertTrue( $references->isEmpty() );
+	}
+
+	public function testGivenNonEmptyList_isNotEmpty() {
+		$references = new ReferenceList();
+		$references->addNewReference( new PropertyNoValueSnak( 1 ) );
+
+		$this->assertFalse( $references->isEmpty() );
+	}
+
+	public function testGivenNonEmptyListWithForwardedIterator_isNotEmpty() {
+		$references = new ReferenceList();
+		$references->addNewReference( new PropertyNoValueSnak( 1 ) );
+		$references->next();
+
+		$this->assertFalse( $references->valid(), 'post condition' );
+		$this->assertFalse( $references->isEmpty() );
+		$this->assertFalse( $references->valid(), 'pre condition' );
 	}
 
 }

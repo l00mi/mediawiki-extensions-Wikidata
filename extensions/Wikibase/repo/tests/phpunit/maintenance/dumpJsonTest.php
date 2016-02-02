@@ -37,7 +37,7 @@ use Wikibase\Repo\Test\MockEntityPerPage;
  * @group Wikibase
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  */
 class DumpJsonTest extends MediaWikiTestCase {
 
@@ -153,7 +153,7 @@ class DumpJsonTest extends MediaWikiTestCase {
 	 */
 	private function getMockPropertyDataTypeLookup() {
 		$mockDataTypeLookup = $this->getMock(
-			'\Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup'
+			'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup'
 		);
 		$mockDataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )

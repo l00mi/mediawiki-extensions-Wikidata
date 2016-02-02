@@ -3,6 +3,8 @@ language: php
 php:
 - 5.3
 
+sudo: false
+
 env:
 - RUNJOB=jshint
 
@@ -11,8 +13,12 @@ script: bash ./build/travis/script.sh
 notifications:
   irc:
     channels:
-      - "chat.freenode.net#wikidata"
+      - "chat.freenode.net#wikidata-feed"
     on_success: never
     on_failure: always
     template:
       - "%{repository}/%{branch}/%{commit} : %{author} %{message} %{build_url}"
+
+cache:
+  directories:
+    - $HOME/.composer/cache

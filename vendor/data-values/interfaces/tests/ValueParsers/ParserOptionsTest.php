@@ -62,10 +62,6 @@ class ParserOptionsTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider setOptionProvider
-	 *
-	 * @param ParserOptions $options
-	 * @param $option
-	 * @param $value
 	 */
 	public function testSetAndGetOption( ParserOptions $options, $option, $value ) {
 		$options->setOption( $option, $value );
@@ -111,10 +107,6 @@ class ParserOptionsTest extends \PHPUnit_Framework_TestCase {
 			$parserOptions->setOption( $value[0], $value[1] );
 			$this->assertEquals( $value[1], $parserOptions->getOption( $value[0] ) );
 		}
-	}
-
-	public function testForSomeReasonPhpSegfaultsIfThereIsOneMethodLess() {
-		$this->assertTrue( (bool)'This is fucking weird' );
 	}
 
 	/**

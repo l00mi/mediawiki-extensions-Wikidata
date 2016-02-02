@@ -27,8 +27,8 @@
 		"files": [
 			"WikimediaBadges.php"
 		],
-		"classmap": [
-			"WikimediaBadges.hooks.php"
-		]
+		"psr-4": {
+			"WikimediaBadges\\": "includes/"
+		}
 	}
 }

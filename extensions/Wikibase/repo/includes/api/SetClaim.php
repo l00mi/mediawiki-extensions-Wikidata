@@ -28,7 +28,7 @@ use Wikibase\Summary;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
- * @author Adam Shorland
+ * @author Addshore
  */
 class SetClaim extends ModifyClaim {
 
@@ -101,7 +101,7 @@ class SetClaim extends ModifyClaim {
 
 		$this->modificationHelper->applyChangeOp( $changeop, $entity, $summary );
 
-		$status = $this->saveChanges( $entity, $summary );
+		$status = $this->attemptSaveEntity( $entity, $summary, EDIT_UPDATE );
 		$this->getResultBuilder()->addRevisionIdFromStatusToResult( $status, 'pageinfo' );
 		$this->getResultBuilder()->markSuccess();
 		$this->getResultBuilder()->addStatement( $claim );

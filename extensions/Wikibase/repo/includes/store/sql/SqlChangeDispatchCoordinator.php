@@ -294,7 +294,7 @@ class SqlChangeDispatchCoordinator implements ChangeDispatchCoordinator {
 	}
 
 	/**
-	 * @param DatabaseBase $db: the repo database connection to release for re-use.
+	 * @param DatabaseBase $db The repo database connection to release for re-use.
 	 */
 	private function releaseRepoMaster( DatabaseBase $db ) {
 		$this->getRepoLB()->reuseConnection( $db );
@@ -556,7 +556,7 @@ class SqlChangeDispatchCoordinator implements ChangeDispatchCoordinator {
 	 * Updates the given client wiki's entry in the dispatch table and
 	 * releases the global lock on that wiki.
 	 *
-	 * @param array $state  : associative array representing the client wiki's state before the
+	 * @param array $state Associative array representing the client wiki's state before the
 	 *                      update pass, as returned by selectWiki().
 	 *
 	 * @throws Exception
@@ -599,7 +599,7 @@ class SqlChangeDispatchCoordinator implements ChangeDispatchCoordinator {
 	/**
 	 * Determines the name of the global lock that should be used to lock the given client.
 	 *
-	 * @param string $siteID: The site ID of the wiki to lock
+	 * @param string $siteID The site ID of the wiki to lock
 	 *
 	 * @return string the lock name to use.
 	 */

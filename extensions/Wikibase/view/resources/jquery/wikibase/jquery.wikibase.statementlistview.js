@@ -132,6 +132,7 @@ $.widget( 'wikibase.statementlistview', PARENT, {
 
 	/**
 	 * Creates the `listview` widget managing the `statementview` widgets.
+	 *
 	 * @since 0.5
 	 * @private
 	 */
@@ -153,18 +154,18 @@ $.widget( 'wikibase.statementlistview', PARENT, {
 	 */
 	value: function( statementList ) {
 		if ( statementList === undefined ) {
-			var lia = this._listview.listItemAdapter();
-
-			statementList = new wb.datamodel.StatementList();
+			var statements = [],
+				lia = this._listview.listItemAdapter();
 
 			this._listview.items().each( function() {
-				var statement = lia.liInstance( $( this ) ).value();
+				var statementview = lia.liInstance( $( this ) ),
+					statement = statementview.value();
 				if ( statement ) {
-					statementList.addItem( statement );
+					statements.push( statement );
 				}
 			} );
 
-			return statementList;
+			return new wb.datamodel.StatementList( statements );
 		}
 
 		this.option( 'value', statementList );
@@ -181,6 +182,7 @@ $.widget( 'wikibase.statementlistview', PARENT, {
 
 	/**
 	 * Adds a new, pending `statementview` to the `statementlistview`.
+	 *
 	 * @see jQuery.wikibase.listview.enterNewItem
 	 *
 	 * @return {Object} jQuery.Promise

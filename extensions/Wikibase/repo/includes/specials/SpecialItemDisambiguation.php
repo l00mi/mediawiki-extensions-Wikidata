@@ -23,7 +23,7 @@ use Wikibase\TermIndexEntry;
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
- * @author Adam Shorland
+ * @author Addshore
  */
 class SpecialItemDisambiguation extends SpecialWikibasePage {
 
@@ -98,14 +98,16 @@ class SpecialItemDisambiguation extends SpecialWikibasePage {
 	 * @return ItemDisambiguation
 	 */
 	private function getItemDisambiguation() {
+		global $wgLang;
+
 		if ( $this->itemDisambiguation === null ) {
-			$languageNameLookup = new LanguageNameLookup();
 			$this->itemDisambiguation = new ItemDisambiguation(
 				WikibaseRepo::getDefaultInstance()->getEntityTitleLookup(),
-				$languageNameLookup,
+				new LanguageNameLookup( $wgLang->getCode() ),
 				$this->getLanguage()->getCode()
 			);
 		}
+
 		return $this->itemDisambiguation;
 	}
 

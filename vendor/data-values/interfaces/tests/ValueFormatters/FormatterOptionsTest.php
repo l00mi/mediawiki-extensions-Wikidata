@@ -62,10 +62,6 @@ class FormatterOptionsTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider setOptionProvider
-	 *
-	 * @param FormatterOptions $options
-	 * @param $option
-	 * @param $value
 	 */
 	public function testSetAndGetOption( FormatterOptions $options, $option, $value ) {
 		$options->setOption( $option, $value );
@@ -111,10 +107,6 @@ class FormatterOptionsTest extends \PHPUnit_Framework_TestCase {
 			$formatterOptions->setOption( $value[0], $value[1] );
 			$this->assertEquals( $value[1], $formatterOptions->getOption( $value[0] ) );
 		}
-	}
-
-	public function testForSomeReasonPhpSegfaultsIfThereIsOneMethodLess() {
-		$this->assertTrue( (bool)'This is fucking weird' );
 	}
 
 	/**

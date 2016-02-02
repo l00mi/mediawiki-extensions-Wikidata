@@ -131,8 +131,8 @@ $.widget( 'wikibase.listview', PARENT, {
 		if ( key === 'listItemAdapter' ) {
 			throw new Error( 'Can not change the ListItemAdapter after initialization' );
 		} else if ( key === 'value' ) {
-			this.items().each( function( i, node ) {
-				var $node = $( node );
+			this.items().each( function() {
+				var $node = $( this );
 				self._lia.liInstance( $node ).destroy();
 				$node.remove();
 			} );
@@ -159,6 +159,7 @@ $.widget( 'wikibase.listview', PARENT, {
 
 	/**
 	 * Fills the list element with DOM structure for each list item.
+	 *
 	 * @private
 	 */
 	_createList: function() {
@@ -215,7 +216,8 @@ $.widget( 'wikibase.listview', PARENT, {
 	nonEmptyItems: function() {
 		var lia = this._lia;
 		return this.items().filter( function( i ) {
-			return !!lia.liInstance( $( this ) ).value();
+			var item = lia.liInstance( $( this ) );
+			return !!item.value();
 		} );
 	},
 
@@ -314,6 +316,7 @@ $.widget( 'wikibase.listview', PARENT, {
 
 	/**
 	 * Adds one list item into the list and renders it in the view.
+	 *
 	 * @private
 	 *
 	 * @param {*} liValue One list item widget's value.

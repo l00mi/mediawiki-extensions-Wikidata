@@ -6,7 +6,7 @@ use DerivativeContext;
 use Hooks;
 use IContextSource;
 use InvalidArgumentException;
-use RequestContext;
+use MutableContext;
 use RuntimeException;
 use Status;
 use Title;
@@ -38,24 +38,24 @@ class EditFilterHookRunner {
 	private $entityContentFactory;
 
 	/**
-	 * @var RequestContext|DerivativeContext
+	 * @var MutableContext
 	 */
 	private $context;
 
+	/**
+	 * @param EntityTitleLookup $titleLookup
+	 * @param EntityContentFactory $entityContentFactory
+	 * @param IContextSource $context
+	 */
 	public function __construct(
 		EntityTitleLookup $titleLookup,
 		EntityContentFactory $entityContentFactory,
-		$context = null
+		IContextSource $context
 	) {
-		if ( $context !== null
-			&& !( $context instanceof RequestContext )
-			&& !( $context instanceof DerivativeContext ) ) {
-			throw new InvalidArgumentException( '$context must be an instance of RequestContext'
-				. ' or DerivativeContext' );
-		}
+		if ( !( $context instanceof MutableContext ) ) {
+			wfLogWarning( '$context is not an instanceof MutableContext.' );
 
-		if ( $context === null ) {
-			$context = RequestContext::getMain();
+			$context = new DerivativeContext( $context );
 		}
 
 		$this->titleLookup = $titleLookup;
@@ -117,7 +117,7 @@ class EditFilterHookRunner {
 	 * @param EntityId|null $entityId
 	 * @param string $entityType
 	 *
-	 * @return IContextSource
+	 * @return MutableContext
 	 */
 	private function getContextForEditFilter( EntityId $entityId = null, $entityType ) {
 		if ( $entityId !== null ) {

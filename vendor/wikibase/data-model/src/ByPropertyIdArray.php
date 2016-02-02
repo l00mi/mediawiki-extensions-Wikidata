@@ -2,6 +2,7 @@
 
 namespace Wikibase\DataModel;
 
+use ArrayObject;
 use OutOfBoundsException;
 use RuntimeException;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -40,7 +41,7 @@ use Wikibase\DataModel\Entity\PropertyId;
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-class ByPropertyIdArray extends \ArrayObject {
+class ByPropertyIdArray extends ArrayObject {
 
 	/**
 	 * @var array[]|null
@@ -48,9 +49,9 @@ class ByPropertyIdArray extends \ArrayObject {
 	private $byId = null;
 
 	/**
-	 * @see \ArrayObject::__construct
+	 * @see ArrayObject::__construct
 	 *
-	 * @param array|object $input
+	 * @param array|object|null $input
 	 */
 	public function __construct( $input = null ) {
 		parent::__construct( (array)$input );
@@ -112,14 +113,15 @@ class ByPropertyIdArray extends \ArrayObject {
 	 *
 	 * @param PropertyId $propertyId
 	 *
+	 * @throws OutOfBoundsException
+	 * @throws RuntimeException
 	 * @return object[]
-	 * @throws RuntimeException|OutOfBoundsException
 	 */
 	public function getByPropertyId( PropertyId $propertyId ) {
 		$this->assertIndexIsBuild();
 
 		if ( !( array_key_exists( $propertyId->getSerialization(), $this->byId ) ) ) {
-			throw new OutOfBoundsException( 'Object with propertyId "' . $propertyId->getSerialization() . '" not found' );
+			throw new OutOfBoundsException( "Object with propertyId \"$propertyId\" not found" );
 		}
 
 		return $this->byId[$propertyId->getSerialization()];
@@ -130,8 +132,8 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * @since 0.5
 	 *
 	 * @param object $object
-	 * @return bool|int
 	 *
+	 * @return bool|int
 	 * @throws RuntimeException
 	 */
 	public function getFlatArrayIndexOfObject( $object ) {
@@ -152,7 +154,6 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * @since 0.5
 	 *
 	 * @return object[]
-	 *
 	 * @throws RuntimeException
 	 */
 	public function toFlatArray() {
@@ -365,7 +366,8 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * @param object $object
 	 * @param int $toIndex Absolute index where to move the object to.
 	 *
-	 * @throws RuntimeException|OutOfBoundsException
+	 * @throws OutOfBoundsException
+	 * @throws RuntimeException
 	 */
 	public function moveObjectToIndex( $object, $toIndex ) {
 		$this->assertIndexIsBuild();
@@ -400,11 +402,12 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * the end of its "property group" or - if no objects featuring the same property exist - to the
 	 * absolute end of the array.
 	 * Specifying an index outside a "property group" will place the new object at the specified
-	 * index with the existing "property group" objects being shifted towards the new new object.
+	 * index with the existing "property group" objects being shifted towards the new object.
+	 *
 	 * @since 0.5
 	 *
 	 * @param object $object
-	 * @param int $index Absolute index where to place the new object.
+	 * @param int|null $index Absolute index where to place the new object.
 	 *
 	 * @throws RuntimeException
 	 */
@@ -438,7 +441,7 @@ class ByPropertyIdArray extends \ArrayObject {
 	 * Adds an object to an existing property group at the specified absolute index.
 	 *
 	 * @param object $object
-	 * @param int $index
+	 * @param int|null $index
 	 *
 	 * @throws OutOfBoundsException
 	 */

@@ -61,7 +61,7 @@ class ErrorHandlingSnakFormatter implements SnakFormatter {
 	 *
 	 * @throws InvalidArgumentException
 	 * @throws FormattingException
-	 * @return string Either plain text, wikitext or HTML, depending on the $snakFormatter provided.
+	 * @return string Either plain text, wikitext or HTML, depending on the SnakFormatter provided.
 	 */
 	public function formatSnak( Snak $snak ) {
 		try {
@@ -77,10 +77,14 @@ class ErrorHandlingSnakFormatter implements SnakFormatter {
 				);
 			}
 		} catch ( PropertyDataTypeLookupException $ex ) {
-			// @todo: PropertyDataTypeLookupException should be wrapped in a FormatterException
 			$warningText = $this->formatWarning(
 				'wikibase-snakformatter-property-not-found',
 				$snak->getPropertyId()->getSerialization()
+			);
+		} catch ( FormattingException $ex ) {
+			$warningText = $this->formatWarning(
+				'wikibase-snakformatter-formatting-exception',
+				$ex->getMessage() // this is unlocalized/technical!
 			);
 		}
 

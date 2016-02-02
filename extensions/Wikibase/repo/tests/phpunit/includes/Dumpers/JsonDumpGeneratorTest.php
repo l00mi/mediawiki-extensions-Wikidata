@@ -34,7 +34,7 @@ use Wikibase\Repo\WikibaseRepo;
  *
  * @license GPL 2+
  * @author Daniel Kinzler
- * @author Adam Shorland
+ * @author Addshore
  */
 class JsonDumpGeneratorTest extends \PHPUnit_Framework_TestCase {
 
@@ -255,7 +255,7 @@ class JsonDumpGeneratorTest extends \PHPUnit_Framework_TestCase {
 	 * @return PropertyDataTypeLookup
 	 */
 	public function getMockPropertyDataTypeLookup() {
-		$mock = $this->getMock( '\Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
+		$mock = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
 		$mock->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( 'string' ) );

@@ -2,13 +2,16 @@
 
 namespace Wikibase\Test\Interactors;
 
+use ContentHandler;
 use HashSiteStore;
 use Status;
 use TestSites;
 use User;
+use WatchedItem;
 use Wikibase\ChangeOp\MergeChangeOpsFactory;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikibase\Repo\Interactors\ItemMergeException;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
@@ -28,7 +31,7 @@ use Wikibase\Test\MockRepository;
  * @group medium
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  * @author Daniel Kinzler
  * @author Lucie-Aimée Kaffee
  */
@@ -98,6 +101,22 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 	}
 
 	/**
+	 * @return EntityTitleLookup
+	 */
+	private function getEntityTitleLookup() {
+		$mock = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+
+		$mock->expects( $this->any() )
+			->method( 'getTitleForId' )
+			->will( $this->returnCallback( function( EntityId $id ) {
+				$contentHandler = ContentHandler::getForModelID( CONTENT_MODEL_WIKIBASE_ITEM );
+				return $contentHandler->getTitleForId( $id );
+			} ) );
+
+		return $mock;
+	}
+
+	/**
 	 * @param User|null $user
 	 *
 	 * @return ItemMergeInteractor
@@ -131,11 +150,33 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 				$summaryFormatter,
 				$user,
 				$this->getMockEditFilterHookRunner(),
-				$this->mockRepository
-			)
+				$this->mockRepository,
+				$this->getMockEntityTitleLookup()
+			),
+			$this->getEntityTitleLookup()
 		);
 
 		return $interactor;
+	}
+
+	/**
+	 * @return EntityTitleLookup
+	 */
+	private function getMockEntityTitleLookup() {
+		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+
+		$testCase = $this;
+		$titleLookup->expects( $this->any() )
+			->method( 'getTitleForID' )
+			->will( $this->returnCallback( function( EntityId $id ) use ( $testCase ) {
+				$title = $testCase->getMock( 'Title' );
+				$title->expects( $testCase->any() )
+					->method( 'isDeleted' )
+					->will( $testCase->returnValue( false ) );
+				return $title;
+			} ) );
+
+		return $titleLookup;
 	}
 
 	public function mergeProvider() {
@@ -294,6 +335,9 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			$ignoreConflicts = explode( '|', $ignoreConflicts );
 		}
 
+		$watchedItem = $this->getWatchedItemForId( $fromId );
+		$watchedItem->addWatch();
+
 		$interactor->mergeItems( $fromId, $toId, $ignoreConflicts, 'CustomSummary' );
 
 		$actualTo = $this->testHelper->getEntity( $toId );
@@ -307,6 +351,8 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			$toRevId,
 			'summary for target item'
 		);
+
+		$this->assertItemMergedIntoIsWatched( $toId );
 	}
 
 	private function assertRedirectWorks( $expectedFrom, $fromId, $toId ) {
@@ -322,6 +368,18 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			$actualFrom = $this->testHelper->getEntity( $fromId );
 			$this->testHelper->assertEntityEquals( $expectedFrom, $actualFrom, 'modified source item' );
 		}
+	}
+
+	private function assertItemMergedIntoIsWatched( ItemId $toId ) {
+		$watchedItem = $this->getWatchedItemForId( $toId );
+		$this->assertTrue( $watchedItem->isWatched(), 'Item merged into is being watched' );
+	}
+
+	private function getWatchedItemForId( ItemId $itemId ) {
+		return WatchedItem::fromUserTitle(
+			User::newFromName( 'UTSysop' ),
+			$this->getEntityTitleLookup()->getTitleForId( $itemId )
+		);
 	}
 
 	public function mergeFailureProvider() {

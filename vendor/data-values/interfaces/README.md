@@ -56,6 +56,10 @@ as [Wikimedia Germany](https://wikimedia.de) employee for the [Wikidata project]
 
 ## Release notes
 
+### 0.2.1 (2016-01-13)
+
+* Fixed an issue when using this component with HHVM 1.11.0 (see #21).
+
 ### 0.2.0 (2015-08-11)
 
 * Dropped deprecated `ErrorObject`, use `Error` instead
@@ -84,7 +88,7 @@ as [Wikimedia Germany](https://wikimedia.de) employee for the [Wikidata project]
 * Fixed link in MediaWiki credits
 * Renamed entry point from DataValuesInterfaces.php to Interfaces.php
 
-### 0.1 (2013-11-16)
+### 0.1.0 (2013-11-16)
 
 Initial release with these features:
 

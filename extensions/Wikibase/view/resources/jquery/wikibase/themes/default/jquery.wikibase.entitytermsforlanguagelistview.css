@@ -3,6 +3,7 @@
  * @author H. Snater < mediawiki@snater.com >
  */
 .wikibase-entitytermsforlanguagelistview {
+	background: #FFF;
 	border: 1px solid #C9C9C9;
 	border-spacing: 0;
 	display: table;
@@ -77,6 +78,7 @@
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-description input,
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-label textarea,
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-description textarea {
+	background: none;
 	border: 0;
 	border-bottom: 1px solid #C9C9C9;
 	outline: none;
@@ -122,4 +124,8 @@
 }
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-aliases input:focus {
 	border-color: #0b0080;
+}
+
+.wikibase-entitytermsview-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-more {
+	padding: 0.4em;
 }

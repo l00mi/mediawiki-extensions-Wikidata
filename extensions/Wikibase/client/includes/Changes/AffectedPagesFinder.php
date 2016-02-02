@@ -9,8 +9,8 @@ use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
 use InvalidArgumentException;
-use Iterator;
 use Title;
+use Traversable;
 use UnexpectedValueException;
 use Wikibase\Change;
 use Wikibase\Client\Store\TitleFactory;
@@ -97,7 +97,7 @@ class AffectedPagesFinder {
 	 *
 	 * @param Change $change
 	 *
-	 * @return Iterator of PageEntityUsage
+	 * @return ArrayIterator of PageEntityUsage
 	 */
 	public function getAffectedUsagesByPage( Change $change ) {
 		if ( $change instanceof EntityChange ) {
@@ -178,7 +178,7 @@ class AffectedPagesFinder {
 	 *
 	 * @param EntityChange $change
 	 *
-	 * @return Iterator<PageEntityUsages>
+	 * @return Traversable of PageEntityUsages
 	 */
 	private function getAffectedPages( EntityChange $change ) {
 		$entityId = $change->getEntityId();
@@ -276,11 +276,11 @@ class AffectedPagesFinder {
 	 * Filters updates based on namespace. This removes duplicates, non-existing pages, and pages from
 	 * namespaces that are not considered "enabled" by the namespace checker.
 	 *
-	 * @param PageEntityUsages[]|Iterator<PageEntityUsages> $updates
+	 * @param Traversable $usages A traversable of PageEntityUsages.
 	 *
-	 * @return Iterator<PageEntityUsages>
+	 * @return ArrayIterator of PageEntityUsages
 	 */
-	private function filterUpdates( $usages ) {
+	private function filterUpdates( Traversable $usages ) {
 		$titlesToUpdate = array();
 
 		/** @var PageEntityUsages $pageEntityUsages */

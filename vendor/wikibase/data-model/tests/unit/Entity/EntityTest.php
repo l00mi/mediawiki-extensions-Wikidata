@@ -218,8 +218,8 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 				$entity->setAliases( $langCode, $aliases );
 			}
 		}
-		$entity->setAliases( 'zh', array( 'wind', 'air', '', 'fire') );
-		$entity->setAliases( 'zu', array( '', '') );
+		$entity->setAliases( 'zh', array( 'wind', 'air', '', 'fire' ) );
+		$entity->setAliases( 'zu', array( '', '' ) );
 
 		foreach ( $aliasesLists as $langCode => $aliasesList ) {
 			$expected = array_values( array_unique( array_pop( $aliasesList ) ) );
@@ -368,7 +368,7 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue( $entity->equals( $copy ) );
 		$this->assertEquals( $entity->getId(), $copy->getId() );
 
-		$this->assertFalse( $entity === $copy );
+		$this->assertNotSame( $entity, $copy );
 	}
 
 	public function testCopyRetainsLabels() {
@@ -397,7 +397,6 @@ abstract class EntityTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue( $entity->equals( $instance ) );
 		$this->assertEquals( $entity->getId(), $instance->getId() );
 	}
-
 
 	/**
 	 * @dataProvider instanceProvider

@@ -27,7 +27,7 @@ use Wikibase\Lib\Interactors\TermSearchResult;
  * @group medium
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  * @author Daniel Kinzler
  */
 class SearchEntitiesTest extends PHPUnit_Framework_TestCase {
@@ -60,7 +60,7 @@ class SearchEntitiesTest extends PHPUnit_Framework_TestCase {
 	 * @return Title|\PHPUnit_Framework_MockObject_MockObject
 	 */
 	public function getMockTitle() {
-		$mock = $this->getMockBuilder( '\Title' )
+		$mock = $this->getMockBuilder( 'Title' )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->any() )

@@ -2,8 +2,7 @@
 
 namespace Wikibase;
 
-use DerivativeContext;
-use RequestContext;
+use IContextSource;
 use User;
 use Wikibase\DataModel\Entity\Entity;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -16,7 +15,7 @@ use Wikibase\Repo\Store\EntityPermissionChecker;
  * @since 0.5
  *
  * @license GPLv2+
- * @author Adam Shorland
+ * @author Addshore
  */
 class EditEntityFactory {
 
@@ -46,7 +45,7 @@ class EditEntityFactory {
 	private $editFilterHookRunner;
 
 	/**
-	 * @var RequestContext|DerivativeContext|null
+	 * @var IContextSource|null
 	 */
 	private $context;
 
@@ -56,7 +55,7 @@ class EditEntityFactory {
 	 * @param EntityStore $entityStore
 	 * @param EntityPermissionChecker $permissionChecker
 	 * @param EditFilterHookRunner $editFilterHookRunner
-	 * @param RequestContext|DerivativeContext|null $context
+	 * @param IContextSource|null $context
 	 */
 	public function __construct(
 		EntityTitleLookup $titleLookup,
@@ -64,7 +63,7 @@ class EditEntityFactory {
 		EntityStore $entityStore,
 		EntityPermissionChecker $permissionChecker,
 		EditFilterHookRunner $editFilterHookRunner,
-		$context = null
+		IContextSource $context = null
 	) {
 		$this->titleLookup = $titleLookup;
 		$this->entityRevisionLookup = $entityLookup;

@@ -7,6 +7,7 @@ use DataValues\DataValue;
 use DataValues\UnDeserializableValue;
 use InvalidArgumentException;
 use Message;
+use OutOfBoundsException;
 use ValueFormatters\Exceptions\MismatchingDataValueTypeException;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\FormattingException;
@@ -90,7 +91,7 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	 * @throws InvalidArgumentException
 	 * @throws MismatchingDataValueTypeException
 	 * @throws FormattingException
-	 * @return string Either plain text, wikitext or HTML, depending on the $valueFormatter
+	 * @return string Either plain text, wikitext or HTML, depending on the ValueFormatter
 	 *  provided.
 	 */
 	public function formatSnak( Snak $snak ) {
@@ -105,9 +106,9 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 			$propertyType = $this->typeLookup->getDataTypeIdForProperty( $snak->getPropertyId() );
 			$expectedDataValueType = $this->getDataValueTypeForPropertyDataType( $propertyType );
 		} catch ( PropertyDataTypeLookupException $ex ) {
-			// @todo: wrap PropertyDataTypeLookupException in a FormatterException,
-			// handle that exception in ErrorHandlingSnakFormatter
 			throw $ex;
+		} catch ( OutOfBoundsException $ex ) {
+			throw new FormattingException( $ex->getMessage(), 0, $ex );
 		}
 
 		$this->checkValueType( $value, $expectedDataValueType );
@@ -171,7 +172,7 @@ class PropertyValueSnakFormatter implements SnakFormatter {
 	 * @param string|null $dataTypeId
 	 *
 	 * @throws FormattingException
-	 * @return string Either plain text, wikitext or HTML, depending on the $valueFormatter
+	 * @return string Either plain text, wikitext or HTML, depending on the ValueFormatter
 	 *  provided.
 	 */
 	private function formatValue( DataValue $value, $dataTypeId = null ) {

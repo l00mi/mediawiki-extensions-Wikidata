@@ -29,7 +29,9 @@ var SELF = wb.datamodel.Map = function WbDataModelMap( ItemConstructor, map ) {
 	this._items = {};
 
 	for( var key in map ) {
-		this.setItem( key, map[key] );
+		this._assertIsItem( map[key] );
+		this.length++;
+		this._items[key] = map[key];
 	}
 };
 

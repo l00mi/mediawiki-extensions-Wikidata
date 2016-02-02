@@ -19,7 +19,7 @@ define( [
 	 * @abstract
 	 * @since 0.1
 	 */
-	var SELF = dv.tests.DataValueTest = function() {};
+	var SELF = dv.tests.DataValueTest = function DvTestsDataValueTest() {};
 
 	$.extend( SELF.prototype, {
 		/**
@@ -105,7 +105,7 @@ define( [
 		 *
 		 * @since 0.1
 		 *
-		 * @param {QUnit} assert
+		 * @param {QUnit.assert} assert
 		 */
 		testConstructor: function( assert ) {
 			var constructorArgs = this.getConstructorArguments(),
@@ -224,7 +224,7 @@ define( [
 		 *
 		 * @since 0.1
 		 *
-		 * @param {QUnit} assert
+		 * @param {QUnit.assert} assert
 		 */
 		testGetValue: function( assert ) {
 			var instances = this.getInstances(),
@@ -242,7 +242,7 @@ define( [
 		 *
 		 * @since 0.1
 		 *
-		 * @param {QUnit} assert
+		 * @param {QUnit.assert} assert
 		 */
 		testEquals: function( assert ) {
 			var instances = this.getInstances(),

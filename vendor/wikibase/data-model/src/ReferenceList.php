@@ -104,20 +104,20 @@ class ReferenceList extends HashableObjectStorage {
 		$i = 0;
 
 		// Determine the references that need to be shifted and detach them:
-		foreach( $this as $object ) {
-			if( $i++ >= $index ) {
+		foreach ( $this as $object ) {
+			if ( $i++ >= $index ) {
 				$referencesToShift[] = $object;
 			}
 		}
 
-		foreach( $referencesToShift as $object ) {
+		foreach ( $referencesToShift as $object ) {
 			$this->detach( $object );
 		}
 
 		// Attach the new reference and reattach the previously detached references:
 		$this->attach( $reference );
 
-		foreach( $referencesToShift as $object ) {
+		foreach ( $referencesToShift as $object ) {
 			$this->attach( $object );
 		}
 	}
@@ -148,8 +148,8 @@ class ReferenceList extends HashableObjectStorage {
 	public function indexOf( Reference $reference ) {
 		$index = 0;
 
-		foreach( $this as $object ) {
-			if( $object === $reference ) {
+		foreach ( $this as $object ) {
+			if ( $object === $reference ) {
 				return $index;
 			}
 			$index++;
@@ -239,6 +239,15 @@ class ReferenceList extends HashableObjectStorage {
 	 */
 	public function unserialize( $data ) {
 		$this->__construct( unserialize( $data ) );
+	}
+
+	/**
+	 * @since 4.4
+	 *
+	 * @return bool
+	 */
+	public function isEmpty() {
+		return $this->count() === 0;
 	}
 
 }

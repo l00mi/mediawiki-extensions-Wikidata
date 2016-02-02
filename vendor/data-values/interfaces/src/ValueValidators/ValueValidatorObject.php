@@ -53,7 +53,7 @@ abstract class ValueValidatorObject implements ValueValidator {
 	 *
 	 * @return Result
 	 */
-	public final function validate( $value ) {
+	final public function validate( $value ) {
 		$this->errors = array();
 
 		if ( $this->enableWhitelistRestrictions() ) {
@@ -162,7 +162,12 @@ abstract class ValueValidatorObject implements ValueValidator {
 	 * @param string|null $property
 	 * @param array $optionMap
 	 */
-	protected function runSubValidator( $value, ValueValidator $validator, $property = null, array $optionMap = array() ) {
+	protected function runSubValidator(
+		$value,
+		ValueValidator $validator,
+		$property = null,
+		array $optionMap = array()
+	) {
 		if ( $optionMap !== array() ) {
 			$options = array();
 

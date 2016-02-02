@@ -2,7 +2,7 @@
  * @licence GNU GPL v2+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( mw, $ ) {
+( function( mw, wb, $ ) {
 	'use strict';
 
 	var PARENT = $.ui.EditableTemplatedWidget;
@@ -12,16 +12,10 @@
  * @since 0.5
  * @extends jQuery.ui.EditableTemplatedWidget
  *
- * @option {Object[]} value
- *         Object representing the widget's value.
- *         Structure: [
- *           {
- *             language: <{string]>,
- *             label: <{wikibase.datamodel.Term}>,
- *             description: <{wikibase.datamodel.Term}>
- *             aliases: <{wikibase.datamodel.MultiTerm}>
- *           }[, ...]
- *         ]
+ * @option {Fingerprint} value
+ *
+ * @option {string[]} userLanguages
+ *         A list of languages for which terms should be displayed initially.
  *
  * @option {wikibase.entityChangers.EntityChangersFactory} entityChangersFactory
  *
@@ -65,7 +59,8 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 			$entitytermsforlanguagelistviewContainer:
 				'.wikibase-entitytermsview-entitytermsforlanguagelistview'
 		},
-		value: [],
+		value: null,
+		userLanguages: [],
 		entityChangersFactory: null,
 		helpMessage: 'Edit label, description and aliases per language.'
 	},
@@ -89,7 +84,8 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
-		if ( !$.isArray( this.options.value )
+		if ( !( this.options.value instanceof wb.datamodel.Fingerprint )
+			|| !$.isArray( this.options.userLanguages )
 			|| !this.options.entityChangersFactory
 		) {
 			throw new Error( 'Required option(s) missing' );
@@ -101,42 +97,40 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 
 		this.element
 		.on(
-			this.widgetEventPrefix + 'change.' + this.widgetName
-				+ ' ' + this.widgetEventPrefix + 'afterstopediting.' + this.widgetName,
+			this.widgetEventPrefix + 'change.' + this.widgetName + ' ' +
+			this.widgetEventPrefix + 'afterstopediting.' + this.widgetName,
 			function() {
-				$.each( self.value(), function() {
-					if ( this.language !== self.options.value[0].language ) {
-						return true;
-					}
+				var lang = self.options.userLanguages[0];
 
-					var descriptionText = this.description.getText(),
-						aliasesTexts = this.aliases.getTexts();
+				if ( !lang ) {
+					return;
+				}
 
-					self.$headingDescription
-						.toggleClass( 'wb-empty', descriptionText === '' )
-						.text( descriptionText === ''
-							? mw.msg( 'wikibase-description-empty' )
-							: descriptionText
-						);
+				var fingerprint = self.value(),
+					description = fingerprint.getDescriptionFor( lang ),
+					aliases = fingerprint.getAliasesFor( lang ),
+					isDescriptionEmpty = !description || description.getText() === '',
+					isAliasesEmpty = !aliases || aliases.isEmpty();
 
-					var $ul = self.$headingAliases
-						.toggleClass( 'wb-empty', aliasesTexts.length === 0 )
-						.children( 'ul' )
-						.text( aliasesTexts.length === 0
-							? mw.msg( 'wikibase-aliases-empty' )
-							: ''
-						);
+				self.$headingDescription
+					.toggleClass( 'wb-empty', isDescriptionEmpty )
+					.text( isDescriptionEmpty
+						? mw.msg( 'wikibase-description-empty' )
+						: description.getText()
+					);
 
-					for ( var i = 0; i < aliasesTexts.length; i++ ) {
-						$ul.append(
-							mw.wbTemplate( 'wikibase-entitytermsview-aliases-alias',
-								aliasesTexts[i]
-							)
-						);
-					}
+				var $ul = self.$headingAliases
+					.toggleClass( 'wb-empty', isAliasesEmpty )
+					.children( 'ul' );
 
-					return false;
-				} );
+				if ( isAliasesEmpty ) {
+					$ul.text( mw.msg( 'wikibase-aliases-empty' ) );
+				} else {
+					$ul.empty();
+					$.each( aliases.getTexts(), function( i, text ) {
+						$ul.append( mw.wbTemplate( 'wikibase-entitytermsview-aliases-alias', text ) );
+					} );
+				}
 			}
 		);
 
@@ -219,6 +213,7 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	 * supposed to be removed as soon as drop-down edit buttons are implemented with the mechanism
 	 * toggling the list's visibility while not starting edit mode will be part of the drop-down
 	 * menu.
+	 *
 	 * @private
 	 */
 	_createEntitytermsforlanguagelistviewToggler: function() {
@@ -343,6 +338,7 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 		)
 		.entitytermsforlanguagelistview( {
 			value: this.options.value,
+			userLanguages: this.options.userLanguages,
 			entityChangersFactory: this.options.entityChangersFactory
 		} );
 
@@ -353,6 +349,7 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	},
 
 	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isValid
 	 * @return {boolean}
 	 */
 	isValid: function() {
@@ -360,6 +357,7 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	},
 
 	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isInitialValue
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
@@ -451,8 +449,8 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param {Object[]} [value]
-	 * @return {Object[]|*}
+	 * @param {Fingerprint} [value]
+	 * @return {Fingerprint|*}
 	 */
 	value: function( value ) {
 		if ( value !== undefined ) {
@@ -506,4 +504,4 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	}
 } );
 
-}( mediaWiki, jQuery ) );
+}( mediaWiki, wikibase, jQuery ) );

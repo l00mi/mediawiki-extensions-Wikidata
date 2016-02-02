@@ -2,10 +2,14 @@
 
 namespace Wikibase\DataModel;
 
+use Comparable;
 use Hashable;
+use SplObjectStorage;
 use Wikibase\DataModel\Internal\MapValueHasher;
 
 /**
+ * @deprecated removal in 5.0 as per https://github.com/wmde/WikibaseDataModel/pull/498
+ *
  * Object storage for Hashable objects.
  *
  * Note that this implementation is based on SplObjectStorage and
@@ -16,12 +20,12 @@ use Wikibase\DataModel\Internal\MapValueHasher;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class HashableObjectStorage extends \SplObjectStorage implements \Comparable {
+class HashableObjectStorage extends SplObjectStorage implements Comparable {
 
 	/**
 	 * @since 0.2
 	 *
-	 * @param array $objects
+	 * @param Hashable[]|null $objects
 	 */
 	public function __construct( array $objects = null ) {
 		if ( $objects !== null ) {

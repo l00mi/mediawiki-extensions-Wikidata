@@ -40,7 +40,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Wikibase
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  */
 class DumpRdfTest extends MediaWikiLangTestCase {
 
@@ -179,7 +179,7 @@ class DumpRdfTest extends MediaWikiLangTestCase {
 	 */
 	private function getMockPropertyDataTypeLookup() {
 		$mockDataTypeLookup = $this->getMock(
-			'\Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup'
+			'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup'
 		);
 		$mockDataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )

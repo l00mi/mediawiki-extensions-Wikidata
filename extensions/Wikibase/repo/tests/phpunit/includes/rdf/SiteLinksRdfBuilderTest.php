@@ -43,8 +43,8 @@ class SiteLinksRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	private function getTestData() {
 		if ( $this->testData === null ) {
 			$this->testData = new RdfBuilderTestData(
-				__DIR__ . "/../../data/rdf",
-				__DIR__ . "/../../data/rdf/SiteLinksRdfBuilder"
+				__DIR__ . '/../../data/rdf/entities',
+				__DIR__ . '/../../data/rdf/SiteLinksRdfBuilder'
 			);
 		}
 
@@ -71,16 +71,16 @@ class SiteLinksRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	private function assertOrCreateNTriples( $dataSetName, RdfWriter $writer ) {
-		$actualData = $writer->drain();
-		$correctData = $this->getTestData()->getNTriples( $dataSetName );
+		$actual = $writer->drain();
+		$expected = $this->getTestData()->getNTriples( $dataSetName );
 
-		if ( $correctData === null ) {
-			$this->getTestData()->putTestData( $dataSetName, $actualData, '.actual' );
+		if ( $expected === null ) {
+			$this->getTestData()->putTestData( $dataSetName, $actual, '.actual' );
 			$this->fail( "Data set $dataSetName not found! Created file with the current data using"
 				. " the suffix .actual" );
 		}
 
-		$this->helper->assertNTriplesEquals( $correctData, $actualData, "Data set $dataSetName" );
+		$this->helper->assertNTriplesEquals( $expected, $actual, "Data set $dataSetName" );
 	}
 
 	public function provideAddEntity() {

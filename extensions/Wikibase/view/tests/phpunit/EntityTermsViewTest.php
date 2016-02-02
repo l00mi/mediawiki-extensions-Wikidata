@@ -4,6 +4,7 @@ namespace Wikibase\View\Tests;
 
 use Language;
 use MediaWikiLangTestCase;
+use MessageCache;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\View\EntityTermsView;
@@ -49,7 +50,9 @@ class EntityTermsViewTest extends MediaWikiLangTestCase {
 		$languageNameLookup = $this->getMock( 'Wikibase\Lib\LanguageNameLookup' );
 		$languageNameLookup->expects( $this->exactly( $languageNameCalls ) )
 			->method( 'getName' )
-			->will( $this->returnValue( '<LANGUAGENAME>' ) );
+			->will( $this->returnCallback( function( $languageCode ) {
+				return "<LANGUAGENAME-$languageCode>";
+			} ) );
 
 		return new EntityTermsView(
 			TemplateFactory::getDefaultInstance(),
@@ -110,30 +113,16 @@ class EntityTermsViewTest extends MediaWikiLangTestCase {
 		$this->assertNotContains( '<script>', $html );
 		$this->assertNotContains( '<b>', $html );
 		$this->assertNotContains( '<i>', $html );
+		$this->assertNotContains( '&amp;', $html, 'no double escaping' );
 	}
 
-	public function emptyFingerprintProvider() {
-		$noDescription = $this->getFingerprint();
-		$noDescription->removeDescription( 'en' );
-
-		$noAliases = $this->getFingerprint();
-		$noAliases->removeAliasGroup( 'en' );
-
-		return array(
-			array( new Fingerprint(), '-empty)' ),
-			array( $noDescription, '(wikibase-description-empty)' ),
-			array( $noAliases, '(wikibase-aliases-empty)' ),
-		);
-	}
-
-	/**
-	 * @dataProvider emptyFingerprintProvider
-	 */
-	public function testGetHtml_isMarkedAsEmptyValue( Fingerprint $fingerprint, $expectedPlaceholder ) {
+	public function testGetHtml_isMarkedAsEmptyValue() {
 		$entityTermsView = $this->getEntityTermsView( 1 );
-		$html = $entityTermsView->getHtml( $fingerprint, null, '', new TextInjector() );
+		$html = $entityTermsView->getHtml( new Fingerprint(), null, '', new TextInjector() );
 
 		$this->assertContains( 'wb-empty', $html );
+		$this->assertContains( '(wikibase-description-empty)', $html );
+		$this->assertContains( '(wikibase-aliases-empty)', $html );
 	}
 
 	public function testGetHtml_isNotMarkedAsEmpty() {
@@ -141,18 +130,32 @@ class EntityTermsViewTest extends MediaWikiLangTestCase {
 		$html = $entityTermsView->getHtml( $this->getFingerprint(), null, '', new TextInjector() );
 
 		$this->assertNotContains( 'wb-empty', $html );
+		$this->assertNotContains( '(wikibase-description-empty)', $html );
+		$this->assertNotContains( '(wikibase-aliases-empty)', $html );
 	}
 
-	/**
-	 * @dataProvider emptyFingerprintProvider
-	 */
-	public function testGetHtml_containsIsEmptyPlaceholders( Fingerprint $fingerprint, $expectedPlaceholder ) {
-		$entityTermsView = $this->getEntityTermsView( 1 );
-		$html = $entityTermsView->getHtml( $fingerprint, null, '', new TextInjector() );
+	public function testGetHtml_containsEmptyDescriptionPlaceholder() {
+		$fingerprint = $this->getFingerprint();
+		$fingerprint->removeDescription( 'en' );
 
-		$this->assertContains( $expectedPlaceholder, $html );
-		$numberOfPlaceholders = $fingerprint->isEmpty() ? 2 : 1;
-		$this->assertSame( $numberOfPlaceholders, substr_count( $html, $expectedPlaceholder ) );
+		$view = $this->getEntityTermsView( 1 );
+		$html = $view->getHtml( $fingerprint, null, '', new TextInjector() );
+
+		$this->assertContains( 'wb-empty', $html );
+		$this->assertContains( '(wikibase-description-empty)', $html );
+		$this->assertNotContains( '(wikibase-aliases-empty)', $html );
+	}
+
+	public function testGetHtml_containsEmptyAliasesPlaceholder() {
+		$fingerprint = $this->getFingerprint();
+		$fingerprint->removeAliasGroup( 'en' );
+
+		$view = $this->getEntityTermsView( 1 );
+		$html = $view->getHtml( $fingerprint, null, '', new TextInjector() );
+
+		$this->assertContains( 'wb-empty', $html );
+		$this->assertNotContains( '(wikibase-description-empty)', $html );
+		$this->assertContains( '(wikibase-aliases-empty)', $html );
 	}
 
 	public function testGetTitleHtml_containsLabel() {
@@ -189,6 +192,7 @@ class EntityTermsViewTest extends MediaWikiLangTestCase {
 
 		$this->assertContains( 'evil html', $html, 'make sure it works' );
 		$this->assertNotContains( 'href="#"', $html );
+		$this->assertNotContains( '&amp;', $html, 'no double escaping' );
 	}
 
 	public function testGetTitleHtml_isMarkedAsEmpty() {
@@ -199,6 +203,7 @@ class EntityTermsViewTest extends MediaWikiLangTestCase {
 		$html = $entityTermsView->getTitleHtml( $fingerprint, null );
 
 		$this->assertContains( 'wb-empty', $html );
+		$this->assertContains( '(wikibase-label-empty)', $html );
 	}
 
 	public function testGetTitleHtml_isNotMarkedAsEmpty() {
@@ -208,6 +213,7 @@ class EntityTermsViewTest extends MediaWikiLangTestCase {
 		$html = $entityTermsView->getTitleHtml( $fingerprint, null );
 
 		$this->assertNotContains( 'wb-empty', $html );
+		$this->assertNotContains( '(wikibase-label-empty)', $html );
 	}
 
 	public function testGetEntityTermsForLanguageListView() {
@@ -220,13 +226,41 @@ class EntityTermsViewTest extends MediaWikiLangTestCase {
 		$view = $this->getEntityTermsView( 0, 1 );
 		$html = $view->getEntityTermsForLanguageListView( $fingerprint, array( 'en' ), $title );
 
+		$this->assertContains( '(wikibase-entitytermsforlanguagelistview-language)', $html );
+		$this->assertContains( '(wikibase-entitytermsforlanguagelistview-label)', $html );
+		$this->assertContains( '(wikibase-entitytermsforlanguagelistview-description)', $html );
+		$this->assertContains( '(wikibase-entitytermsforlanguagelistview-aliases)', $html );
+
 		$this->assertContains( 'wikibase-entitytermsforlanguageview-en', $html );
 		$this->assertContains( '&lt;LOCALURL&gt;', $html );
-		$this->assertContains( '&lt;LANGUAGENAME&gt;', $html );
+		$this->assertContains( '&lt;LANGUAGENAME-en&gt;', $html );
 		$this->assertContains( '&lt;LABEL&gt;', $html );
 		$this->assertContains( '&lt;DESCRIPTION&gt;', $html );
 		$this->assertContains( '&lt;ALIAS1&gt;', $html );
 		$this->assertContains( '&lt;ALIAS2&gt;', $html );
+		$this->assertNotContains( '&amp;', $html, 'no double escaping' );
+	}
+
+	public function testGetEntityTermsForLanguageListView_isEscaped() {
+		MessageCache::singleton()->enable();
+		$this->setMwGlobals( 'wgLang', Language::factory( 'en' ) );
+		$this->insertPage( 'MediaWiki:wikibase-entitytermsforlanguagelistview-language', "''RAW''" );
+
+		$view = $this->getEntityTermsView();
+		$html = $view->getEntityTermsForLanguageListView( new Fingerprint(), array() );
+
+		$this->assertContains( '&#039;&#039;RAW&#039;&#039;', $html );
+		$this->assertNotContains( "'RAW'", $html );
+	}
+
+	public function testGetEntityTermsForLanguageListView_isMarkedAsEmpty() {
+		$view = $this->getEntityTermsView( 0, 1 );
+		$html = $view->getEntityTermsForLanguageListView( new Fingerprint(), array( 'en' ) );
+
+		$this->assertContains( 'wb-empty', $html );
+		$this->assertContains( '(wikibase-label-empty)', $html );
+		$this->assertContains( '(wikibase-description-empty)', $html );
+		$this->assertNotContains( '(wikibase-aliases-empty)', $html );
 	}
 
 }

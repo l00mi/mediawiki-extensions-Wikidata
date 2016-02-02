@@ -2,8 +2,8 @@
 
 namespace Wikibase\DataModel\Tests\Statement;
 
+use ArrayObject;
 use DataValues\StringValue;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
@@ -280,15 +280,14 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( new StatementList( $statement1 ), $list );
 	}
 
-	public function testCanConstructWithClaimsObjectContainingOnlyStatements() {
+	public function testCanConstructWithTraversableContainingOnlyStatements() {
 		$statementArray = array(
 			$this->getStatementWithSnak( 1, 'foo' ),
 			$this->getStatementWithSnak( 2, 'bar' ),
 		);
 
-		$claimsObject = new Claims( $statementArray );
-
-		$list = new StatementList( $claimsObject );
+		$object = new ArrayObject( $statementArray );
+		$list = new StatementList( $object );
 
 		$this->assertEquals(
 			$statementArray,
@@ -297,7 +296,7 @@ class StatementListTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenTraversableWithNonStatements_constructorThrowsException() {
-		$traversable = new \ArrayObject( array(
+		$traversable = new ArrayObject( array(
 			$this->getStatementWithSnak( 1, 'foo' ),
 			new \stdClass(),
 			$this->getStatementWithSnak( 2, 'bar' ),

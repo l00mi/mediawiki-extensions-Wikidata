@@ -344,13 +344,14 @@ $.widget( 'wikibase.statementview', PARENT, {
 		} );
 
 		// Collapse references if there is at least one.
-		this.$references.toggleClass(
-			'wikibase-initially-hidden',
-			this._referencesListview.items().length > 0
-		);
+		var visible = this._referencesListview.items().length === 0;
+		this.$references.toggleClass( 'wikibase-initially-hidden', !visible );
 
 		// toggle for references section:
-		this._$toggler = $( '<a/>' ).toggler( { $subject: this.$references } );
+		this._$toggler = $( '<a/>' ).toggler( {
+			$subject: this.$references,
+			visible: visible
+		} );
 
 		if ( this.$refsHeading.text() ) {
 			this._$toggler.find( '.ui-toggler-label' ).text( this.$refsHeading.text() );
@@ -463,6 +464,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isInitialValue
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
@@ -506,6 +508,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 	/**
 	 * Instantiates a `Statement` with the `statementview`'s current value.
+	 *
 	 * @private
 	 *
 	 * @param {string} guid
@@ -535,6 +538,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 	/**
 	 * Adds a `Reference` and renders it in the view.
+	 *
 	 * @private
 	 *
 	 * @param {wikibase.datamodel.Reference} reference
@@ -545,6 +549,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 	/**
 	 * Returns all `Reference`s currently specified in the view (including all pending changes).
+	 *
 	 * @private
 	 *
 	 * @return {wikibase.datamodel.Reference[]}
@@ -584,6 +589,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 	/**
 	 * Updates the visual `Reference`s counter.
+	 *
 	 * @private
 	 */
 	_drawReferencesCounter: function() {
@@ -766,6 +772,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 	},
 
 	/**
+	 * @see jQuery.ui.EditableTemplatedWidget.isValid
 	 * @return {boolean}
 	 */
 	isValid: function() {

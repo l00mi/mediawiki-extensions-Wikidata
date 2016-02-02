@@ -5,6 +5,21 @@ var MODULE = wb.serialization,
 	PARENT = MODULE.Deserializer;
 
 /**
+ * @param {Object[]} serializedSnaks
+ * @param {wikibase.datamodel.Snak[]} snaks
+ * @return {wikibase.datamodel.SnakList}
+ */
+function addSerializedSnaksToSnakList( serializedSnaks, snaks ) {
+	var snakDeserializer = new MODULE.SnakDeserializer();
+
+	for( var i = 0; i < serializedSnaks.length; i++ ) {
+		snaks.push( snakDeserializer.deserialize( serializedSnaks[i] ) );
+	}
+
+	return snaks;
+}
+
+/**
  * @class wikibase.serialization.SnakListDeserializer
  * @extends wikibase.serialization.Deserializer
  * @since 2.0
@@ -27,12 +42,12 @@ MODULE.SnakListDeserializer = util.inherit( 'WbSnakListDeserializer', PARENT, {
 	 *         represented in the order.
 	 */
 	deserialize: function( serialization, order ) {
-		var snakList = new wb.datamodel.SnakList();
+		var snaks = [];
 
 		if( !order ) {
 			// No order specified: Just loop through the json object:
 			$.each( serialization, function( propertyId, snaksPerProperty ) {
-				addSerializedSnaksToSnakList( snaksPerProperty, snakList );
+				addSerializedSnaksToSnakList( snaksPerProperty, snaks );
 			} );
 
 		} else {
@@ -55,27 +70,12 @@ MODULE.SnakListDeserializer = util.inherit( 'WbSnakListDeserializer', PARENT, {
 						+ 'snak featuring this property being present' );
 				}
 
-				addSerializedSnaksToSnakList( serialization[propertyId], snakList );
+				addSerializedSnaksToSnakList( serialization[propertyId], snaks );
 			}
 		}
 
-		return snakList;
+		return new wb.datamodel.SnakList( snaks );
 	}
 } );
-
-/**
- * @param {Object[]} serializedSnaks
- * @param {wikibase.datamodel.SnakList} snakList
- * @return {wikibase.datamodel.SnakList}
- */
-function addSerializedSnaksToSnakList( serializedSnaks, snakList ) {
-	var snakDeserializer = new MODULE.SnakDeserializer();
-
-	for( var i = 0; i < serializedSnaks.length; i++ ) {
-		snakList.addItem( snakDeserializer.deserialize( serializedSnaks[i] ) );
-	}
-
-	return snakList;
-}
 
 }( wikibase, util, jQuery ) );

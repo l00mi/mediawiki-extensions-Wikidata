@@ -79,8 +79,9 @@ if ( !defined( 'PURTLE_VERSION' ) ) {
 }
 
 call_user_func( function() {
-	global $wgExtensionCredits, $wgGroupPermissions, $wgExtensionMessagesFiles, $wgMessagesDirs;
-	global $wgAPIModules, $wgAPIListModules, $wgSpecialPages, $wgHooks, $wgAvailableRights;
+	global $wgExtensionCredits, $wgGroupPermissions, $wgGrantPermissions, $wgAvailableRights;
+	global $wgExtensionMessagesFiles, $wgMessagesDirs;
+	global $wgAPIModules, $wgAPIListModules, $wgSpecialPages, $wgHooks;
 	global $wgWBRepoSettings, $wgResourceModules, $wgValueParsers, $wgJobClasses;
 	global $wgWBRepoDataTypes;
 
@@ -102,7 +103,8 @@ call_user_func( function() {
 			'The Wikidata team',
 		),
 		'url' => 'https://www.mediawiki.org/wiki/Extension:Wikibase',
-		'descriptionmsg' => 'wikibase-desc'
+		'descriptionmsg' => 'wikibase-desc',
+		'license-name' => 'GPL-2.0+'
 	);
 
 	// constants
@@ -122,6 +124,12 @@ call_user_func( function() {
 	$wgAvailableRights[] = 'item-merge';
 	$wgAvailableRights[] = 'item-redirect';
 	$wgAvailableRights[] = 'property-create';
+
+	$wgGrantPermissions['editpage']['item-term'] = true;
+	$wgGrantPermissions['editpage']['item-redirect'] = true;
+	$wgGrantPermissions['editpage']['item-merge'] = true;
+	$wgGrantPermissions['editpage']['property-term'] = true;
+	$wgGrantPermissions['createeditmovepage']['property-create'] = true;
 
 	// i18n
 	$wgMessagesDirs['Wikibase'] = __DIR__ . '/i18n';
@@ -236,6 +244,7 @@ call_user_func( function() {
 	$wgHooks['OutputPageBeforeHTML'][] = 'Wikibase\Repo\Hooks\OutputPageBeforeHTMLHookHandler::onOutputPageBeforeHTML';
 	$wgHooks['OutputPageBeforeHTML'][] = 'Wikibase\Repo\Hooks\OutputPageJsConfigHookHandler::onOutputPageBeforeHtmlRegisterConfig';
 	$wgHooks['ContentHandlerForModelID'][] = 'Wikibase\RepoHooks::onContentHandlerForModelID';
+	$wgHooks['APIQuerySiteInfoGeneralInfo'][] = 'Wikibase\RepoHooks::onAPIQuerySiteInfoGeneralInfo';
 	$wgHooks['APIQuerySiteInfoStatisticsInfo'][] = 'Wikibase\RepoHooks::onAPIQuerySiteInfoStatisticsInfo';
 	$wgHooks['ImportHandleRevisionXMLTag'][] = 'Wikibase\RepoHooks::onImportHandleRevisionXMLTag';
 	$wgHooks['BaseTemplateToolbox'][] = 'Wikibase\RepoHooks::onBaseTemplateToolbox';
