@@ -226,7 +226,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	 * @private
 	 */
 	_createEntitytermsforlanguagelistviewMore: function() {
-		if ( $.isEmptyObject( this._getAdditionalLanguages() ) ) {
+		if ( !this._hasAdditionalLanguages() ) {
 			return;
 		}
 
@@ -243,7 +243,26 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	},
 
 	/**
-	 * Click handler for more languages button
+	 * Checks whether there are more languages to display.
+	 *
+	 * @private
+	 */
+	_hasAdditionalLanguages: function() {
+		var fingerprint = this.options.value,
+			minLength = this.options.userLanguages.length;
+
+		if ( fingerprint.getLabels().length > minLength
+			|| fingerprint.getDescriptions().length > minLength
+			|| fingerprint.getAliases().length > minLength
+		) {
+			return true;
+		}
+
+		return this._getAdditionalLanguages().length > 0;
+	},
+
+	/**
+	 * Click handler for more languages button.
 	 *
 	 * @private
 	 */
@@ -287,15 +306,16 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	 */
 	_addMoreLanguages: function() {
 		var listview = this.$listview.data( 'listview' ),
-			lia = listview.listItemAdapter();
+			lia = listview.listItemAdapter(),
+			self = this;
 
-		for ( var lang in this._getAdditionalLanguages() ) {
-			var $item = listview.addItem( this._getValueForLanguage( lang ) );
-			if ( this._isInEditMode ) {
+		$.each( this._getAdditionalLanguages(), function() {
+			var $item = listview.addItem( self._getValueForLanguage( this ) );
+			if ( self._isInEditMode ) {
 				lia.liInstance( $item ).startEditing();
 			}
-			this._moreLanguagesItems[lang] = $item;
-		}
+			self._moreLanguagesItems[this] = $item;
+		} );
 	},
 
 	/**
@@ -314,7 +334,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	},
 
 	/**
-	 * @return {Object} Map of additional language codes in this fingerprint.
+	 * @return {Object} List of additional language codes in this fingerprint.
 	 * @private
 	 */
 	_getAdditionalLanguages: function() {
@@ -335,7 +355,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			delete languages[this];
 		} );
 
-		return languages;
+		return Object.keys( languages ).sort();
 	},
 
 	/**
