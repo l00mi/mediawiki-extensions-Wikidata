@@ -1481,7 +1481,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
-            "reference": "92751b2db5ad950bf9a5cb28289470c1ea929aaa"
+            "reference": "a5b7ec1e16b7271dace75bcafa0f5bef6d811c73"
         },
         "require": {
             "data-values/common": "~0.3.0",
@@ -1512,7 +1512,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-02-03 14:19:06",
+        "time": "2016-02-04 16:25:37",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
