@@ -909,7 +909,6 @@ return array(
     'Wikibase\\Repo\\Api\\ItemByTitleHelper' => $baseDir . '/extensions/Wikibase/repo/includes/api/ItemByTitleHelper.php',
     'Wikibase\\Repo\\Api\\LinkTitles' => $baseDir . '/extensions/Wikibase/repo/includes/api/LinkTitles.php',
     'Wikibase\\Repo\\Api\\MergeItems' => $baseDir . '/extensions/Wikibase/repo/includes/api/MergeItems.php',
-    'Wikibase\\Repo\\Api\\ModifyClaim' => $baseDir . '/extensions/Wikibase/repo/includes/api/ModifyClaim.php',
     'Wikibase\\Repo\\Api\\ModifyEntity' => $baseDir . '/extensions/Wikibase/repo/includes/api/ModifyEntity.php',
     'Wikibase\\Repo\\Api\\ModifyTerm' => $baseDir . '/extensions/Wikibase/repo/includes/api/ModifyTerm.php',
     'Wikibase\\Repo\\Api\\ParseValue' => $baseDir . '/extensions/Wikibase/repo/includes/api/ParseValue.php',

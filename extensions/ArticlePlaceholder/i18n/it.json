@@ -1,0 +1,23 @@
+{
+	"@metadata": {
+		"authors": [
+			"Beta16"
+		]
+	},
+	"articleplaceholder-desc": "Fornisce una pagina speciale con informazioni da {{WBREPONAME}} su un certo argomento, con l'invito a creare una voce su di esso",
+	"articleplaceholder-abouttopic": "Sull'argomento",
+	"articleplaceholder-abouttopic-intro": "Questa pagina speciale genera una pagina di contenuto su un certo argomento con informazioni da {{WBREPONAME}}",
+	"articleplaceholder-abouttopic-entityid": "Inserisci un ID entità per ottenere una voce segnaposto auto-generata.",
+	"articleplaceholder-abouttopic-submit": "crea",
+	"articleplaceholder-abouttopic-no-entity-error": "Questo non è un ID entità valido.",
+	"articleplaceholder-abouttopic-create-article": "Crea una nuova voce con il titolo",
+	"articleplaceholder-abouttopic-create-article-button": "Crea una voce",
+	"articleplaceholder-abouttopic-create-article-submit-button": "Invia",
+	"articleplaceholder-abouttopic-article-exists-error": "Una voce con questo nome esiste già",
+	"articleplaceholder-abouttopic-lua-entity": "Entità",
+	"articleplaceholder-abouttopic-lua-description": "Descrizione:",
+	"articleplaceholder-abouttopic-lua-reference": "Riferimento",
+	"articleplaceholder-abouttopic-lua-qualifier": "Qualificatore",
+	"articleplaceholder-abouttopic-lua-identifier": "Identificatore",
+	"articleplaceholder-search-header": "Scopri i dati sull'argomento"
+}

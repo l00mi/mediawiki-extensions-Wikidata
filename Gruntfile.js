@@ -1,8 +1,26 @@
-'use strict';
-
+/*jshint node:true */
 module.exports = function ( grunt ) {
 
+	grunt.loadNpmTasks( 'grunt-contrib-clean' );
+	grunt.loadNpmTasks( 'grunt-contrib-jshint' );
+	grunt.loadNpmTasks( 'grunt-exec' );
+	grunt.loadNpmTasks( 'grunt-jsonlint' );
+
 	grunt.initConfig( {
+		jshint: {
+			options: {
+				jshintrc: true
+			},
+			all: [
+				'*.js',
+				'build/**/*.js'
+			]
+		},
+		jsonlint: {
+			all: [
+			    '*.json'
+			]
+		},
 		clean: {
 			build: {
 				src: [
@@ -27,10 +45,9 @@ module.exports = function ( grunt ) {
 		}
 	} );
 
-	grunt.loadNpmTasks( 'grunt-exec' );
-	grunt.loadNpmTasks( 'grunt-contrib-clean' );
 	grunt.loadTasks( 'build/tasks' );
 
+	grunt.registerTask( 'test', [ 'jshint', 'jsonlint' ] );
 	grunt.registerTask( 'uninstall', [ 'clean:build' ] );
 	grunt.registerTask( 'install', [ 'clean:build', 'exec:install' ] );
 	grunt.registerTask( 'branch', [ 'uninstall', 'updatecomposer', 'exec:install' ] );

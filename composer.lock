@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1e3a244861d7d7425e3d99bb856a9156",
+    "hash": "c8e8090c015b32a80000f8771ce88e7e",
     "packages": [
         {
             "name": "composer/installers",
@@ -772,6 +772,38 @@
             "time": "2015-03-17 15:21:21"
         },
         {
+            "name": "mediawiki/article-placeholder",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
+                "reference": "a704bce577caff9b6a62a20f8ae2be0ea6b48b8e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a704bce577caff9b6a62a20f8ae2be0ea6b48b8e",
+                "reference": "a704bce577caff9b6a62a20f8ae2be0ea6b48b8e",
+                "shasum": ""
+            },
+            "require-dev": {
+                "jakub-onderka/php-parallel-lint": "0.9.2",
+                "mediawiki/mediawiki-codesniffer": "0.5.1"
+            },
+            "type": "mediawiki-extension",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Lucie-Aimée Kaffee"
+                }
+            ],
+            "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
+            "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
+            "time": "2016-01-28 20:06:55"
+        },
+        {
             "name": "propertysuggester/property-suggester",
             "version": "2.4.5",
             "source": {
@@ -1449,12 +1481,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "587f3dff449f74eed544260c2112f41e57f5a665"
+                "reference": "f6a11450febf019a3bfdc1cf3a3a0ff6165ea1b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/587f3dff449f74eed544260c2112f41e57f5a665",
-                "reference": "587f3dff449f74eed544260c2112f41e57f5a665",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f6a11450febf019a3bfdc1cf3a3a0ff6165ea1b6",
+                "reference": "f6a11450febf019a3bfdc1cf3a3a0ff6165ea1b6",
                 "shasum": ""
             },
             "require": {
@@ -1525,7 +1557,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-02-04 15:01:33"
+            "time": "2016-02-04 19:39:03"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1574,6 +1606,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "mediawiki/article-placeholder": 20,
         "wikibase/wikibase": 20,
         "wikibase/wikimedia-badges": 20,
         "wikibase/wikidata.org": 20,

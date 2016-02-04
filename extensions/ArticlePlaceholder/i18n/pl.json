@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": [
+			"Chrumps"
+		]
+	},
+	"articleplaceholder-abouttopic-create-article-button": "Utwórz artykuł",
+	"articleplaceholder-abouttopic-lua-description": "Opis:",
+	"articleplaceholder-abouttopic-lua-qualifier": "Kwalifikator",
+	"articleplaceholder-abouttopic-lua-identifier": "Identyfikator"
+}
