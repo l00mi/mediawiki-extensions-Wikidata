@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wmde/WikidataBuildResources.git"
+    "url": "https://gerrit.wikimedia.org/r/wikidata/build-resources"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
