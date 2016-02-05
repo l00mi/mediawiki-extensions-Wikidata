@@ -854,6 +854,7 @@ return array(
     'Wikibase\\NoLangLinkHandler' => $baseDir . '/extensions/Wikibase/client/includes/parserhooks/NoLangLinkHandler.php',
     'Wikibase\\OutputPageJsConfigBuilder' => $baseDir . '/extensions/Wikibase/repo/includes/OutputPageJsConfigBuilder.php',
     'Wikibase\\PopulateChangesSubscription' => $baseDir . '/extensions/Wikibase/repo/maintenance/populateChangesSubscription.php',
+    'Wikibase\\PopulateSitesTable' => $baseDir . '/extensions/Wikibase/lib/maintenance/populateSitesTable.php',
     'Wikibase\\PropertyContent' => $baseDir . '/extensions/Wikibase/repo/includes/content/PropertyContent.php',
     'Wikibase\\PropertyInfoBuilder' => $baseDir . '/extensions/Wikibase/repo/includes/PropertyInfoBuilder.php',
     'Wikibase\\PropertyInfoStore' => $baseDir . '/extensions/Wikibase/lib/includes/store/PropertyInfoStore.php',
