@@ -777,12 +777,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "a704bce577caff9b6a62a20f8ae2be0ea6b48b8e"
+                "reference": "922c260fd2fb74bbfedbcef2001b0745cb32859f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a704bce577caff9b6a62a20f8ae2be0ea6b48b8e",
-                "reference": "a704bce577caff9b6a62a20f8ae2be0ea6b48b8e",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/922c260fd2fb74bbfedbcef2001b0745cb32859f",
+                "reference": "922c260fd2fb74bbfedbcef2001b0745cb32859f",
                 "shasum": ""
             },
             "require-dev": {
@@ -801,7 +801,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-01-28 20:06:55"
+            "time": "2016-02-05 11:13:55"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1481,12 +1481,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "47be3f6446d4dcb1d4304b99569c1c42e2a79347"
+                "reference": "4072055fbaab63af0ea10306821b4782af5994bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/47be3f6446d4dcb1d4304b99569c1c42e2a79347",
-                "reference": "47be3f6446d4dcb1d4304b99569c1c42e2a79347",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4072055fbaab63af0ea10306821b4782af5994bd",
+                "reference": "4072055fbaab63af0ea10306821b4782af5994bd",
                 "shasum": ""
             },
             "require": {
@@ -1558,7 +1558,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-02-05 09:31:01"
+            "time": "2016-02-05 20:55:08"
         },
         {
             "name": "wikibase/wikimedia-badges",
