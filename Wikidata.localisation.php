@@ -22,6 +22,7 @@ require_once "$wgWikidataBaseDir/extensions/PropertySuggester/PropertySuggester.
 require_once "$wgWikidataBaseDir/extensions/Wikibase/client/WikibaseClient.php";
 require_once "$wgWikidataBaseDir/extensions/Quality/WikibaseQuality.php";
 require_once "$wgWikidataBaseDir/extensions/Constraints/WikibaseQualityConstraints.php";
+require_once "$wgWikidataBaseDir/extensions/ArticlePlaceholder/ArticlePlaceholder.php";
 
 $wgExtensionCredits['wikibase'][] = array(
 	'path' => __DIR__,

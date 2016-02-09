@@ -23,6 +23,16 @@ class ComposerAutoloaderInitwikidata_1_27_0_wmf_12
         self::$loader = $loader = new \Composer\Autoload\ClassLoader();
         spl_autoload_unregister(array('ComposerAutoloaderInitwikidata_1_27_0_wmf_12', 'loadClassLoader'));
 
+        $map = require __DIR__ . '/autoload_namespaces.php';
+        foreach ($map as $namespace => $path) {
+            $loader->set($namespace, $path);
+        }
+
+        $map = require __DIR__ . '/autoload_psr4.php';
+        foreach ($map as $namespace => $path) {
+            $loader->setPsr4($namespace, $path);
+        }
+
         $classMap = require __DIR__ . '/autoload_classmap.php';
         if ($classMap) {
             $loader->addClassMap($classMap);
@@ -32,19 +42,15 @@ class ComposerAutoloaderInitwikidata_1_27_0_wmf_12
         $loader->register(false);
 
         $includeFiles = require __DIR__ . '/autoload_files.php';
-        foreach ($includeFiles as $fileIdentifier => $file) {
-            composerRequirewikidata_1_27_0_wmf_12($fileIdentifier, $file);
+        foreach ($includeFiles as $file) {
+            composerRequirewikidata_1_27_0_wmf_12($file);
         }
 
         return $loader;
     }
 }
 
-function composerRequirewikidata_1_27_0_wmf_12($fileIdentifier, $file)
+function composerRequirewikidata_1_27_0_wmf_12($file)
 {
-    if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
-        require $file;
-
-        $GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
-    }
+    require $file;
 }

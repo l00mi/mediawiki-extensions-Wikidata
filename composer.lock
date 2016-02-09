@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "79f06d4a6277edaa1ec67ee83b6f4e0d",
-    "content-hash": "eb15b534279575172797aeb34570b551",
+    "hash": "9c72a1297f1c2494e66db0eabb5346a5",
+    "content-hash": "6ef12e3509d6635a2efc6f8578b7dd4b",
     "packages": [
         {
             "name": "composer/installers",
@@ -773,6 +773,38 @@
             "time": "2015-03-17 15:21:21"
         },
         {
+            "name": "mediawiki/article-placeholder",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
+                "reference": "d3fff7b3144c9ba020380f08018c225e42ce49d7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/d3fff7b3144c9ba020380f08018c225e42ce49d7",
+                "reference": "d3fff7b3144c9ba020380f08018c225e42ce49d7",
+                "shasum": ""
+            },
+            "require-dev": {
+                "jakub-onderka/php-parallel-lint": "0.9.2",
+                "mediawiki/mediawiki-codesniffer": "0.5.1"
+            },
+            "type": "mediawiki-extension",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Lucie-Aimée Kaffee"
+                }
+            ],
+            "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
+            "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
+            "time": "2016-02-08 12:46:34"
+        },
+        {
             "name": "propertysuggester/property-suggester",
             "version": "2.4.5",
             "source": {
@@ -1528,6 +1560,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "mediawiki/article-placeholder": 20,
         "wikibase/wikibase": 20,
         "wikibase/wikimedia-badges": 20,
         "wikibase/wikidata.org": 20,

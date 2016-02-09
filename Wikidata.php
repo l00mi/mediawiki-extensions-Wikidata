@@ -9,6 +9,7 @@ if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
 	$wmgUseWikibaseClient = true;
 	$wmgUseWikibaseQuality = true;
 	$wmgUseWikibaseQualityExternalValidation = true;
+	$wmgUseArticlePlaceholder = true;
 }
 
 // no magic, use wmf configs instead to control which entry points to load
@@ -46,6 +47,10 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 
 if ( !empty( $wmgUseWikibaseClient ) ) {
 	include_once "$wgWikidataBaseDir/extensions/Wikibase/client/WikibaseClient.php";
+
+	if ( !empty( $wmgUseArticlePlaceholder ) ) {
+		include_once "$wgWikidataBaseDir/extensions/ArticlePlaceholder/ArticlePlaceholder.php";
+	}
 }
 
 if ( file_exists(  __DIR__ . '/vendor/autoload.php' ) ) {
