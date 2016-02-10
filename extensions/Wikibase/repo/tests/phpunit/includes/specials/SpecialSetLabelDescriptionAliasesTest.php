@@ -15,6 +15,7 @@ use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\EditEntityFactory;
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Lib\ContentLanguages;
+use Wikibase\Lib\StaticContentLanguages;
 use Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases;
 use Wikibase\Repo\Validators\TermValidatorFactory;
 use Wikibase\Repo\Validators\UniquenessViolation;
@@ -57,7 +58,7 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 			$this->getEntityTitleLookup(),
 			$this->getSiteStore(),
 			$this->getFingerprintChangeOpsFactory(),
-			$this->getContentLanguages(),
+			new StaticContentLanguages( self::$languageCodes ),
 			new EditEntityFactory(
 				$this->getEntityTitleLookup(),
 				$this->getEntityRevisionLookup(),
@@ -105,7 +106,6 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 			->disableOriginalConstructor()
 			->getMock();
 
-		$self = $this;
 		$detector->expects( $this->any() )
 			->method( 'detectLabelDescriptionConflicts' )
 			->will( $this->returnCallback( function(
@@ -113,11 +113,11 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 				array $labels,
 				array $descriptions,
 				EntityId $ignoreEntityId = null
-			) use ( $self ) {
+			) {
 				$errors = array();
 
-				$errors = array_merge( $errors, $self->detectDupes( $labels ) );
-				$errors = array_merge( $errors, $self->detectDupes( $descriptions ) );
+				$errors = array_merge( $errors, $this->detectDupes( $labels ) );
+				$errors = array_merge( $errors, $this->detectDupes( $descriptions ) );
 
 				$result = empty( $errors ) ? Result::newSuccess() : Result::newError( $errors );
 				return $result;
@@ -154,21 +154,6 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 		}
 
 		return $errors;
-	}
-
-	/**
-	 * @return ContentLanguages
-	 */
-	private function getContentLanguages() {
-		$fake = $this->getMock( 'Wikibase\Lib\ContentLanguages' );
-
-		$fake->expects( $this->any() )
-			->method( 'hasLanguage' )
-			->will( $this->returnCallback( function( $languageCode ) {
-				return preg_match( '/^\w+$/', $languageCode );
-			} ) );
-
-		return $fake;
 	}
 
 	/**
