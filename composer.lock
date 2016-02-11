@@ -1,10 +1,11 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "c8e8090c015b32a80000f8771ce88e7e",
+    "content-hash": "3279be965e622cfcf4afa7a1795b2a96",
     "packages": [
         {
             "name": "composer/installers",
@@ -997,7 +998,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2016-01-30 14:05:40"
+            "time": "2016-01-30 14:04:29"
         },
         {
             "name": "wikibase/data-model",
@@ -1481,12 +1482,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+<<<<<<< HEAD
                 "reference": "c204188248f3f7649ed7a061ace0a403df9d28eb"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c204188248f3f7649ed7a061ace0a403df9d28eb",
                 "reference": "c204188248f3f7649ed7a061ace0a403df9d28eb",
+=======
+                "reference": "ef7910c636664ff5e64ab609f37d0db4145b4db3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ef7910c636664ff5e64ab609f37d0db4145b4db3",
+                "reference": "ef7910c636664ff5e64ab609f37d0db4145b4db3",
+>>>>>>> New Wikidata build - with fix for broken qunit test
                 "shasum": ""
             },
             "require": {
@@ -1558,7 +1568,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
+<<<<<<< HEAD
             "time": "2016-02-10 20:12:05"
+=======
+            "time": "2016-02-11 13:36:27"
+>>>>>>> New Wikidata build - with fix for broken qunit test
         },
         {
             "name": "wikibase/wikimedia-badges",
