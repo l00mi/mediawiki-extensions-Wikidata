@@ -1271,12 +1271,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "89c140be5f4eec33602d373e3d1d764009670daa"
+            "reference": "361d848b7f9bc35cb639252caaff358a5cc95b88"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/89c140be5f4eec33602d373e3d1d764009670daa",
-            "reference": "89c140be5f4eec33602d373e3d1d764009670daa",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/361d848b7f9bc35cb639252caaff358a5cc95b88",
+            "reference": "361d848b7f9bc35cb639252caaff358a5cc95b88",
             "shasum": ""
         },
         "require": {
@@ -1308,7 +1308,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-02-12 08:28:18",
+        "time": "2016-02-12 21:12:27",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1501,7 +1501,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "70e5bc1a59e2d11469f427c17466213b7c2c5848"
+            "reference": "ad794785411f84a655dd4782a85fdc75030ef907"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1513,7 +1513,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2016-01-20 20:09:49",
+        "time": "2016-02-12 21:12:35",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1555,7 +1555,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-            "reference": "908613482f64c3b348652ad2a3836f663dbd0377"
+            "reference": "a5bb5f8943ac95bf8eb1da2b3e2ef962ad31d3fb"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1567,7 +1567,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2016-01-30 14:04:29",
+        "time": "2016-02-10 20:13:28",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

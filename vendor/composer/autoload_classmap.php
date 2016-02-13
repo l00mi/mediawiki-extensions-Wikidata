@@ -631,6 +631,7 @@ return array(
     'Wikibase\\DataModel\\Services\\Statement\\V4GuidGenerator' => $vendorDir . '/wikibase/data-model-services/src/Statement/V4GuidGenerator.php',
     'Wikibase\\DataModel\\Services\\Term\\PropertyLabelResolver' => $vendorDir . '/wikibase/data-model-services/src/Term/PropertyLabelResolver.php',
     'Wikibase\\DataModel\\Services\\Term\\TermBuffer' => $vendorDir . '/wikibase/data-model-services/src/Term/TermBuffer.php',
+    'Wikibase\\DataModel\\Services\\Tests\\Statement\\Filter\\GetClaimsStatementFilterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/api/GetClaimsStatementFilterTest.php',
     'Wikibase\\DataModel\\SiteLink' => $vendorDir . '/wikibase/data-model/src/SiteLink.php',
     'Wikibase\\DataModel\\SiteLinkList' => $vendorDir . '/wikibase/data-model/src/SiteLinkList.php',
     'Wikibase\\DataModel\\Snak\\DerivedPropertyValueSnak' => $vendorDir . '/wikibase/data-model/src/Snak/DerivedPropertyValueSnak.php',
