@@ -80,7 +80,7 @@ call_user_func( function() {
 		),
 		'url' => 'https://www.mediawiki.org/wiki/Extension:Wikibase_Client',
 		'descriptionmsg' => 'wikibase-client-desc',
-		'license-name' => 'GPL-2.0+' 
+		'license-name' => 'GPL-2.0+'
 	);
 
 	$wgWBClientDataTypes = require ( __DIR__ . '/../lib/WikibaseLib.datatypes.php' );
@@ -111,7 +111,8 @@ call_user_func( function() {
 	$wgHooks['ParserFirstCallInit'][] = '\Wikibase\ClientHooks::onParserFirstCallInit';
 	$wgHooks['MagicWordwgVariableIDs'][] = '\Wikibase\ClientHooks::onMagicWordwgVariableIDs';
 	$wgHooks['ParserGetVariableValueSwitch'][] = '\Wikibase\ClientHooks::onParserGetVariableValueSwitch';
-	$wgHooks['SkinTemplateOutputPageBeforeExec'][] = '\Wikibase\ClientHooks::onSkinTemplateOutputPageBeforeExec';
+	$wgHooks['SkinTemplateOutputPageBeforeExec'][] =
+		'\Wikibase\Client\Hooks\SkinTemplateOutputPageBeforeExecHandler::onSkinTemplateOutputPageBeforeExec';
 	$wgHooks['SpecialMovepageAfterMove'][] = '\Wikibase\Client\Hooks\MovePageNotice::onSpecialMovepageAfterMove';
 	$wgHooks['GetPreferences'][] = '\Wikibase\ClientHooks::onGetPreferences';
 	$wgHooks['BeforePageDisplay'][] = '\Wikibase\ClientHooks::onBeforePageDisplay';
@@ -128,8 +129,8 @@ call_user_func( function() {
 	$wgHooks['FormatAutocomments'][] = '\Wikibase\ClientHooks::onFormat';
 
 	// recent changes / watchlist hooks
-	$wgHooks['ChangesListSpecialPageFilters'][] = '\Wikibase\Client\Hooks\ChangesListSpecialPageHooksHandler::onChangesListSpecialPageFilters';
-	$wgHooks['ChangesListSpecialPageQuery'][] = '\Wikibase\Client\Hooks\ChangesListSpecialPageHooksHandler::onChangesListSpecialPageQuery';
+	$wgHooks['ChangesListSpecialPageFilters'][] = '\Wikibase\Client\Hooks\ChangesListSpecialPageHookHandlers::onChangesListSpecialPageFilters';
+	$wgHooks['ChangesListSpecialPageQuery'][] = '\Wikibase\Client\Hooks\ChangesListSpecialPageHookHandlers::onChangesListSpecialPageQuery';
 
 	// update hooks
 	$wgHooks['LoadExtensionSchemaUpdates'][] = '\Wikibase\Client\Usage\Sql\SqlUsageTrackerSchemaUpdater::onSchemaUpdate';

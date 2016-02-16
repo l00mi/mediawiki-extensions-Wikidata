@@ -1,5 +1,4 @@
-'use strict';
-
+/*jshint node:true */
 var path = require( 'path' );
 
 module.exports = function ( grunt ) {
@@ -28,4 +27,4 @@ module.exports = function ( grunt ) {
 		grunt.log.ok( 'Updated composer file' );
 	} );
 
-}
+};

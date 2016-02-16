@@ -10,7 +10,8 @@
 			"Macofe",
 			"SeoJeongHo",
 			"Alex00728",
-			"Hwangjy9"
+			"Hwangjy9",
+			"고솜"
 		]
 	},
 	"wikibase-desc": "구조화한 데이터 저장소",
@@ -33,6 +34,8 @@
 	"wikibase-entitytermsforlanguagelistview-description": "설명",
 	"wikibase-entitytermsforlanguagelistview-label": "레이블",
 	"wikibase-entitytermsforlanguagelistview-language": "언어",
+	"wikibase-entitytermsforlanguagelistview-more": "더 많은 언어",
+	"wikibase-entitytermsforlanguagelistview-less": "더 적은 언어",
 	"wikibase-label-empty": "정의한 레이블이 없습니다.",
 	"wikibase-label-edit-placeholder": "레이블 입력",
 	"wikibase-label-edit-placeholder-language-aware": "$1로 번역",
@@ -288,5 +291,7 @@
 	"right-item-redirect": "항목 넘겨주기를 생성하기",
 	"right-property-term": "속성 용어 바꾸기 (레이블, 설명, 별명)",
 	"right-property-create": "속성 만들기",
-	"action-property-create": "속성 만들기"
+	"action-item-merge": "항목 병합",
+	"action-property-create": "속성 만들기",
+	"apihelp-wbmergeitems-description": "여러 항목 병합."
 }

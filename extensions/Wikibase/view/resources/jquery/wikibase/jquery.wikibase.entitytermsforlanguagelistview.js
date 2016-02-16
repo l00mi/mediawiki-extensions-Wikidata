@@ -22,6 +22,7 @@
  *
  * @event change
  *        - {jQuery.Event}
+ *        - {string} Language code the change was made in.
  *
  * @event afterstartediting
  *       - {jQuery.Event}
@@ -173,7 +174,8 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 		this.element
 		.on( prefix + 'change.' + this.widgetName, function( event, lang ) {
 			event.stopPropagation();
-			self._trigger( 'change' );
+			// The only event handler for this is in entitytermsview.
+			self._trigger( 'change', null, [lang] );
 		} )
 		.on( prefix + 'toggleerror.' + this.widgetName, function( event, error ) {
 			event.stopPropagation();
@@ -224,7 +226,7 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	 * @private
 	 */
 	_createEntitytermsforlanguagelistviewMore: function() {
-		if ( $.isEmptyObject( this._getAdditionalLanguages() ) ) {
+		if ( !this._hasMoreLanguages() ) {
 			return;
 		}
 
@@ -241,7 +243,25 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	},
 
 	/**
-	 * Click handler for more languages button
+	 * @return {boolean} If there are more languages to display.
+	 * @private
+	 */
+	_hasMoreLanguages: function() {
+		var fingerprint = this.options.value,
+			minLength = this.options.userLanguages.length;
+
+		if ( fingerprint.getLabels().length > minLength
+			|| fingerprint.getDescriptions().length > minLength
+			|| fingerprint.getAliases().length > minLength
+		) {
+			return true;
+		}
+
+		return !$.isEmptyObject( this._getMoreLanguages() );
+	},
+
+	/**
+	 * Click handler for more languages button.
 	 *
 	 * @private
 	 */
@@ -274,30 +294,35 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 		) );
 	},
 
+	/**
+	 * @return {boolean}
+	 * @private
+	 */
 	_isMoreLanguagesExpanded: function() {
 		return !$.isEmptyObject( this._moreLanguagesItems );
 	},
 
 	/**
-	 * Add 'more' languages to listview
+	 * Add terms in "more" languages to the list view, ordered by language code.
 	 *
 	 * @private
 	 */
 	_addMoreLanguages: function() {
 		var listview = this.$listview.data( 'listview' ),
-			lia = listview.listItemAdapter();
+			lia = listview.listItemAdapter(),
+			self = this;
 
-		for ( var lang in this._getAdditionalLanguages() ) {
-			var $item = listview.addItem( this._getValueForLanguage( lang ) );
-			if ( this._isInEditMode ) {
+		$.each( Object.keys( this._getMoreLanguages() ).sort(), function() {
+			var $item = listview.addItem( self._getValueForLanguage( this ) );
+			if ( self._isInEditMode ) {
 				lia.liInstance( $item ).startEditing();
 			}
-			this._moreLanguagesItems[lang] = $item;
-		}
+			self._moreLanguagesItems[this] = $item;
+		} );
 	},
 
 	/**
-	 * Remove 'more' languages from listview
+	 * Remove terms in "more" languages from the list view.
 	 *
 	 * @private
 	 */
@@ -312,10 +337,10 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	},
 
 	/**
-	 * @return {Object} Map of additional language codes in this fingerprint.
+	 * @return {Object} Unsorted map of "more" language codes in this fingerprint.
 	 * @private
 	 */
-	_getAdditionalLanguages: function() {
+	_getMoreLanguages: function() {
 		var fingerprint = this.options.value,
 			languages = {};
 

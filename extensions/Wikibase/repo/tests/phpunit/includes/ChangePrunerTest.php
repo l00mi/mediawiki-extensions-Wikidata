@@ -21,7 +21,7 @@ use Wikibase\Repo\Store\Sql\SqlChangeStore;
  */
 class ChangePrunerTest extends MediaWikiTestCase {
 
-	public $messages = array();
+	private $messages = array();
 
 	public function testConstructorWithInvalidBatchSize() {
 		$this->setExpectedException( 'InvalidArgumentException' );
@@ -93,10 +93,9 @@ class ChangePrunerTest extends MediaWikiTestCase {
 	private function newMessageReporter() {
 		$reporter = new ObservableMessageReporter();
 
-		$self = $this; // evil PHP 5.3 ;)
 		$reporter->registerReporterCallback(
-			function ( $message ) use ( $self ) {
-				$self->messages[] = $message;
+			function ( $message ) {
+				$this->messages[] = $message;
 			}
 		);
 

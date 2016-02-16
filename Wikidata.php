@@ -28,6 +28,7 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 	include_once "$wgWikidataBaseDir/extensions/Wikibase/repo/Wikibase.php";
 	include_once "$wgWikidataBaseDir/extensions/Wikidata.org/WikidataOrg.php";
 	include_once "$wgWikidataBaseDir/extensions/PropertySuggester/PropertySuggester.php";
+
 	if ( !empty( $wmgUseWikibaseQuality ) ) {
 		include_once "$wgWikidataBaseDir/extensions/Quality/WikibaseQuality.php";
 		include_once "$wgWikidataBaseDir/extensions/Constraints/WikibaseQualityConstraints.php";
@@ -73,15 +74,7 @@ if ( file_exists(  __DIR__ . '/vendor/autoload.php' ) ) {
 
 $wgHooks['UnitTestsList'][] = '\Wikidata\WikidataHooks::onUnitTestsList';
 
-$wgExtensionCredits['wikibase'][] = array(
-	'path' => __FILE__,
-	'name' => 'Wikidata',
-	'author' => array(
-		'The Wikidata team', // TODO: link?
-	),
-	'url' => 'https://www.mediawiki.org/wiki/Wikidata_build',
-	'description' => 'Wikidata extensions build'
-);
+require_once "$wgWikidataBaseDir/Wikidata.credits.php";
 
 // Jenkins stuff part2
 if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {

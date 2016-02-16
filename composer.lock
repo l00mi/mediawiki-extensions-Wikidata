@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9c72a1297f1c2494e66db0eabb5346a5",
-    "content-hash": "6ef12e3509d6635a2efc6f8578b7dd4b",
+    "hash": "620a0b3abd21cf97a6eeb27cc6212fb7",
+    "content-hash": "a6f52a566cf588ef33ef25a606e3c3cb",
     "packages": [
         {
             "name": "composer/installers",
@@ -665,16 +665,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.15.11",
+            "version": "0.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/data-values-value-view.git",
-                "reference": "5f0923397dfcb118fabe4efcc98a7cd325ee5163"
+                "reference": "ac288ad132965c76a341db444e7fbb0c2793a29d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/5f0923397dfcb118fabe4efcc98a7cd325ee5163",
-                "reference": "5f0923397dfcb118fabe4efcc98a7cd325ee5163",
+                "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/ac288ad132965c76a341db444e7fbb0c2793a29d",
+                "reference": "ac288ad132965c76a341db444e7fbb0c2793a29d",
                 "shasum": ""
             },
             "require": {
@@ -712,7 +712,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2016-02-03 13:01:52"
+            "time": "2016-02-10 16:20:53"
         },
         {
             "name": "diff/diff",
@@ -778,12 +778,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "d3fff7b3144c9ba020380f08018c225e42ce49d7"
+                "reference": "c343d58bcb4f8c74b80e7ad764081ee1c1733f71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/d3fff7b3144c9ba020380f08018c225e42ce49d7",
-                "reference": "d3fff7b3144c9ba020380f08018c225e42ce49d7",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/c343d58bcb4f8c74b80e7ad764081ee1c1733f71",
+                "reference": "c343d58bcb4f8c74b80e7ad764081ee1c1733f71",
                 "shasum": ""
             },
             "require-dev": {
@@ -802,7 +802,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-02-08 12:46:34"
+            "time": "2016-02-14 20:29:00"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -952,7 +952,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "908613482f64c3b348652ad2a3836f663dbd0377"
+                "reference": "a5bb5f8943ac95bf8eb1da2b3e2ef962ad31d3fb"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -998,7 +998,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2016-01-30 14:04:29"
+            "time": "2016-02-10 20:13:28"
         },
         {
             "name": "wikibase/data-model",
@@ -1333,7 +1333,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "70e5bc1a59e2d11469f427c17466213b7c2c5848"
+                "reference": "ad794785411f84a655dd4782a85fdc75030ef907"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1377,7 +1377,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2016-01-20 20:09:49"
+            "time": "2016-02-12 21:12:35"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1422,11 +1422,17 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.27.0-wmf.12",
+            "version": "dev-wmf/1.27.0-wmf.14",
             "source": {
                 "type": "git",
-                "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
-                "reference": "a5b7ec1e16b7271dace75bcafa0f5bef6d811c73"
+                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+                "reference": "6a7ad5cfe35922f3c2844cc19dde60e760acbe40"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6a7ad5cfe35922f3c2844cc19dde60e760acbe40",
+                "reference": "6a7ad5cfe35922f3c2844cc19dde60e760acbe40",
+                "shasum": ""
             },
             "require": {
                 "data-values/common": "~0.3.0",
@@ -1439,7 +1445,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.8.2",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.15.11",
+                "data-values/value-view": "~0.16.0",
                 "diff/diff": "~2.0",
                 "php": ">=5.3.2",
                 "wikibase/data-model": "~4.0",
@@ -1465,6 +1471,7 @@
                     "client/tests/phpunit/",
                     "lib/includes/",
                     "lib/WikibaseLib.hooks.php",
+                    "lib/maintenance/",
                     "lib/tests/phpunit/",
                     "repo/includes/",
                     "repo/maintenance/",
@@ -1478,18 +1485,7 @@
                     "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
                 }
             },
-            "scripts": {
-                "test": [
-                    "parallel-lint . --exclude vendor",
-                    "composer cs"
-                ],
-                "cs": [
-                    "composer phpcs"
-                ],
-                "phpcs": [
-                    "vendor/bin/phpcs -sp --standard=phpcs.xml --extensions=php --ignore=extensions/ValueView,vendor,.git ."
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0+"
             ],
@@ -1507,11 +1503,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "support": {
-                "issues": "https://phabricator.wikimedia.org/",
-                "irc": "irc://irc.freenode.net/wikidata"
-            },
-            "time": "2016-02-04 16:25:37"
+            "time": "2016-02-16 12:04:10"
         },
         {
             "name": "wikibase/wikimedia-badges",

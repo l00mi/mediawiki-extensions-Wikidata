@@ -7,8 +7,6 @@
 ( function ( $, mw, wb, QUnit ) {
 	'use strict';
 
-	QUnit.config.testTimeout = 5000;
-
 	/**
 	 * Reset basic configuration for each test(); Makes sure that global configuration stuff and
 	 * cached stuff will be reset before each test. Also allows to set additional 'setup' and
@@ -18,7 +16,7 @@
 	 *
 	 * @param {Object} custom test environment variables according to QUnit.newMwEnvironment
 	 *
-	 * @example:
+	 * @example
 	 * <code>
 	 * module( ..., newWbEnvironment() );
 	 *

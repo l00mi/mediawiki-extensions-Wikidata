@@ -5,17 +5,20 @@ namespace Wikibase\Lib;
 /**
  * Provide languages supported as content languages based on two ContentLanguages
  *
+ * @since 0.5
+ *
+ * @licence GNU GPL v2+
  * @author Adrian Heine < adrian.heine@wikimedia.de >
  */
 class UnionContentLanguages implements ContentLanguages {
 
 	/**
-	 * @var ContentLanguages $a
+	 * @var ContentLanguages
 	 */
 	private $a;
 
 	/**
-	 * @var ContentLanguages $b
+	 * @var ContentLanguages
 	 */
 	private $b;
 

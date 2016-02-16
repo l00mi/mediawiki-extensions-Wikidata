@@ -12,12 +12,11 @@ use User;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpValidationException;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Lookup\EntityLookupException;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -162,7 +161,11 @@ abstract class ModifyEntity extends ApiBase {
 	/**
 	 * @see EntitySavingHelper::attemptSaveEntity
 	 */
-	private function attemptSaveEntity( Entity $entity, $summary, $flags = 0 ) {
+	private function attemptSaveEntity( EntityDocument $entity, $summary, $flags = 0 ) {
+		// TODO: we should pass the revision ID of the current revision loaded by
+		// applyChangeOp() to the storage layer, to avoid race conditions for
+		// concurrent edits.
+		// TODO: this should be re-engineered, see T126231
 		return $this->entitySavingHelper->attemptSaveEntity( $entity, $summary, $flags );
 	}
 
@@ -321,7 +324,7 @@ abstract class ModifyEntity extends ApiBase {
 	 *
 	 * @param string $entityType
 	 *
-	 * @return Entity Newly created entity
+	 * @return EntityDocument Newly created entity
 	 */
 	protected function createEntity( $entityType ) {
 		$this->errorReporter->dieError( 'Could not find an existing entity', 'no-such-entity' );
@@ -345,13 +348,13 @@ abstract class ModifyEntity extends ApiBase {
 	 *
 	 * @since 0.1
 	 *
-	 * @param Entity &$entity
+	 * @param EntityDocument &$entity
 	 * @param array $params
 	 * @param int $baseRevId
 	 *
 	 * @return Summary|null a summary of the modification, or null to indicate failure.
 	 */
-	abstract protected function modifyEntity( Entity &$entity, array $params, $baseRevId );
+	abstract protected function modifyEntity( EntityDocument &$entity, array $params, $baseRevId );
 
 	/**
 	 * Applies the given ChangeOp to the given Entity.
@@ -360,14 +363,17 @@ abstract class ModifyEntity extends ApiBase {
 	 * @since 0.5
 	 *
 	 * @param ChangeOp $changeOp
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 * @param Summary|null $summary The summary object to update with information about the change.
-	 *
-	 * @throws UsageException
 	 */
-	protected function applyChangeOp( ChangeOp $changeOp, Entity $entity, Summary $summary = null ) {
+	protected function applyChangeOp( ChangeOp $changeOp, EntityDocument $entity, Summary $summary = null ) {
 		try {
-			$result = $changeOp->validate( $entity );
+			// NOTE: always validate modification against the current revision, if it exists!
+			// TODO: this should be re-engineered, see T126231
+			// TODO: attemptSaveEntity() should somehow get the ID of the current revision.
+			$currentEntityRevision = $this->revisionLookup->getEntityRevision( $entity->getId() );
+			$currentEntity = $currentEntityRevision ? $currentEntityRevision->getEntity() : $entity;
+			$result = $changeOp->validate( $currentEntity );
 
 			if ( !$result->isValid() ) {
 				throw new ChangeOpValidationException( $result );

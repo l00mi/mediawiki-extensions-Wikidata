@@ -24,6 +24,7 @@
  *
  * @event change
  *        - {jQuery.Event}
+ *        - {string} Language code the change was made in.
  *
  * @event afterstartediting
  *       - {jQuery.Event}
@@ -99,16 +100,16 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 		.on(
 			this.widgetEventPrefix + 'change.' + this.widgetName + ' ' +
 			this.widgetEventPrefix + 'afterstopediting.' + this.widgetName,
-			function() {
-				var lang = self.options.userLanguages[0];
+			function( event, lang ) {
+				var firstLanguage = self.options.userLanguages[0];
 
-				if ( !lang ) {
+				if ( typeof lang === 'string' && lang !== firstLanguage ) {
 					return;
 				}
 
 				var fingerprint = self.value(),
-					description = fingerprint.getDescriptionFor( lang ),
-					aliases = fingerprint.getAliasesFor( lang ),
+					description = fingerprint.getDescriptionFor( firstLanguage ),
+					aliases = fingerprint.getAliasesFor( firstLanguage ),
 					isDescriptionEmpty = !description || description.getText() === '',
 					isAliasesEmpty = !aliases || aliases.isEmpty();
 
@@ -316,9 +317,12 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 			prefix = $.wikibase.entitytermsforlanguagelistview.prototype.widgetEventPrefix;
 
 		this.$entitytermsforlanguagelistview
-		.on( prefix + 'change.' + this.widgetName, function( event ) {
+		.on( prefix + 'change.' + this.widgetName, function( event, lang ) {
 			event.stopPropagation();
-			self._trigger( 'change' );
+			// Event handlers for this are in the entitytermsview toolbar controller (for enabling
+			// the save button), in entityViewInit (for updating the title) and in this file (for
+			// updating description and aliases).
+			self._trigger( 'change', null, [lang] );
 		} )
 		.on( prefix + 'toggleerror.' + this.widgetName, function( event, error ) {
 			event.stopPropagation();

@@ -342,7 +342,7 @@
 			entityIdPlainFormatter = {},
 			entityStore = {},
 			expertStore = {},
-			formatterStore = {},
+			formatterFactory = {},
 			messageProvider = {},
 			parserStore = {},
 			userLanguages = [],
@@ -354,7 +354,7 @@
 				entityIdPlainFormatter,
 				entityStore,
 				expertStore,
-				formatterStore,
+				formatterFactory,
 				messageProvider,
 				parserStore,
 				userLanguages
@@ -435,7 +435,7 @@
 			entityIdPlainFormatter = {},
 			entityStore = {},
 			expertStore = {},
-			formatterStore = {},
+			formatterFactory = {},
 			messageProvider = {},
 			parserStore = {},
 			userLanguages = [],
@@ -447,7 +447,7 @@
 				entityIdPlainFormatter,
 				entityStore,
 				expertStore,
-				formatterStore,
+				formatterFactory,
 				messageProvider,
 				parserStore,
 				userLanguages
@@ -477,7 +477,7 @@
 				},
 				autoStartEditing: undefined,
 				dataTypeStore: dataTypeStore,
-				encapsulatedBy: null,
+				drawProperty: true,
 				entityIdHtmlFormatter: entityIdHtmlFormatter,
 				entityIdPlainFormatter: entityIdPlainFormatter,
 				entityStore: entityStore,
@@ -490,7 +490,7 @@
 
 		sinon.assert.calledWith( wb.ValueViewBuilder,
 			expertStore,
-			formatterStore,
+			formatterFactory,
 			parserStore,
 			userLanguages[0],
 			messageProvider,
@@ -514,7 +514,7 @@
 			entityIdPlainFormatter = {},
 			entityStore = {},
 			expertStore = {},
-			formatterStore = {},
+			formatterFactory = {},
 			messageProvider = {},
 			parserStore = {},
 			userLanguages = [],
@@ -526,12 +526,11 @@
 				entityIdPlainFormatter,
 				entityStore,
 				expertStore,
-				formatterStore,
+				formatterFactory,
 				messageProvider,
 				parserStore,
 				userLanguages
 			),
-			encapsulatedBy = 'encapsulatedBy',
 			options = {},
 			$dom = $( '<div/>' );
 
@@ -539,7 +538,7 @@
 
 		sinon.spy( wb, 'ValueViewBuilder' );
 
-		viewFactory.getSnakView( encapsulatedBy, options, value, $dom );
+		viewFactory.getSnakView( false, options, value, $dom );
 
 		sinon.assert.calledWith(
 			$.wikibase.snakview,
@@ -552,13 +551,13 @@
 				entityIdPlainFormatter: entityIdPlainFormatter,
 				entityStore: entityStore,
 				valueViewBuilder: wb.ValueViewBuilder.returnValues[0],
-				encapsulatedBy: encapsulatedBy
+				drawProperty: false
 			} )
 		);
 
 		sinon.assert.calledWith( wb.ValueViewBuilder,
 			expertStore,
-			formatterStore,
+			formatterFactory,
 			parserStore,
 			userLanguages[0],
 			messageProvider,

@@ -5,7 +5,7 @@ namespace Wikibase\Test;
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpChange;
 use Exception;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Services\Diff\ItemDiff;
 use Wikibase\EntityChange;
@@ -38,14 +38,14 @@ class ItemChangeTest extends EntityChangeTest {
 	public function entityProvider() {
 		$entities = array_filter(
 			TestChanges::getEntities(),
-			function( Entity $entity ) {
+			function( EntityDocument $entity ) {
 				return ( $entity instanceof Item );
 			}
 		);
 
 		$cases = array_map(
-			function( Entity $entity ) {
-				return array( $entity );
+			function( Item $item ) {
+				return array( $item );
 			},
 			$entities
 		);
@@ -122,16 +122,12 @@ class ItemChangeTest extends EntityChangeTest {
 			$change->setDiff( $diff );
 
 			$cases['atomic-sitelink-diff'] = array( $change );
-
+		} finally {
 			$wgDevelopmentWarnings = true;
 			\MediaWiki\restoreWarnings();
-
-			return $cases;
-		} catch ( Exception $ex ) {
-			$wgDevelopmentWarnings = true;
-			\MediaWiki\restoreWarnings();
-			throw $ex;
 		}
+
+		return $cases;
 	}
 
 	/**
@@ -147,22 +143,13 @@ class ItemChangeTest extends EntityChangeTest {
 
 		// Also suppress notices that may be triggered by wfLogWarning
 		\MediaWiki\suppressWarnings();
-		$exception = null;
 
 		try {
 			$siteLinkDiff = $change->getSiteLinkDiff();
 			$this->assertInstanceOf( 'Diff\Diff', $siteLinkDiff,
 				"getSiteLinkDiff must return a Diff" );
-		} catch ( Exception $ex ) {
-			// PHP 5.3 doesn't have `finally`, so we use a hacky emulation
-			$exception = $ex;
-		}
-
-		// this is our make-shift `finally` section.
-		\MediaWiki\restoreWarnings();
-
-		if ( $exception ) {
-			throw $exception;
+		} finally {
+			\MediaWiki\restoreWarnings();
 		}
 	}
 

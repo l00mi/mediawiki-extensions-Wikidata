@@ -11,7 +11,7 @@ use RequestContext;
 use Status;
 use Title;
 use User;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -124,7 +124,7 @@ class EditEntityTest extends MediaWikiTestCase {
 
 	/**
 	 * @param MockRepository $mockRepository
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 * @param EntityTitleLookup $titleLookup
 	 * @param User|null $user
 	 * @param bool $baseRevId
@@ -136,7 +136,7 @@ class EditEntityTest extends MediaWikiTestCase {
 	 */
 	private function makeEditEntity(
 		MockRepository $mockRepository,
-		Entity $entity,
+		EntityDocument $entity,
 		EntityTitleLookup $titleLookup,
 		User $user = null,
 		$baseRevId = false,
@@ -292,37 +292,38 @@ class EditEntityTest extends MediaWikiTestCase {
 
 		$entityId = new ItemId( 'Q17' );
 		$revision = $repo->getEntityRevision( $entityId, $baseRevisionId );
-		$entity = $revision->getEntity();
+		/** @var Item $item */
+		$item = $revision->getEntity();
 
 		// NOTE: The user name must be the one used in getMockRepository().
 		$user = $this->getUser( 'EditEntityTestUser1' );
 
 		// change entity ----------------------------------
 		if ( $inputData === null ) {
-			$entity->clear();
+			$item->clear();
 		} else {
 			if ( !empty( $inputData['label'] ) ) {
 				foreach ( $inputData['label'] as $k => $v ) {
-					$entity->setLabel( $k, $v );
+					$item->setLabel( $k, $v );
 				}
 			}
 
 			if ( !empty( $inputData['description'] ) ) {
 				foreach ( $inputData['description'] as $k => $v ) {
-					$entity->setDescription( $k, $v );
+					$item->setDescription( $k, $v );
 				}
 			}
 
 			if ( !empty( $inputData['aliases'] ) ) {
 				foreach ( $inputData['aliases'] as $k => $v ) {
-					$entity->setAliases( $k, $v );
+					$item->setAliases( $k, $v );
 				}
 			}
 		}
 
 		// save entity ----------------------------------
 		$titleLookup = $this->getEntityTitleLookup();
-		$editEntity = $this->makeEditEntity( $repo, $entity, $titleLookup, $user, $baseRevisionId );
+		$editEntity = $this->makeEditEntity( $repo, $item, $titleLookup, $user, $baseRevisionId );
 
 		$conflict = $editEntity->hasEditConflict();
 		$this->assertEquals( $expectedConflict, $conflict, 'hasEditConflict()' );
@@ -333,7 +334,9 @@ class EditEntityTest extends MediaWikiTestCase {
 		}
 
 		if ( $expectedData !== null ) {
-			$data = $this->fingerprintToPartialArray( $editEntity->getNewEntity()->getFingerprint() );
+			/** @var Item $newEntity */
+			$newEntity = $editEntity->getNewEntity();
+			$data = $this->fingerprintToPartialArray( $newEntity->getFingerprint() );
 
 			foreach ( $expectedData as $key => $expectedValue ) {
 				$actualValue = $data[$key];

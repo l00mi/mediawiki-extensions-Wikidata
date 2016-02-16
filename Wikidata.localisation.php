@@ -24,12 +24,4 @@ require_once "$wgWikidataBaseDir/extensions/Quality/WikibaseQuality.php";
 require_once "$wgWikidataBaseDir/extensions/Constraints/WikibaseQualityConstraints.php";
 require_once "$wgWikidataBaseDir/extensions/ArticlePlaceholder/ArticlePlaceholder.php";
 
-$wgExtensionCredits['wikibase'][] = array(
-	'path' => __DIR__,
-	'name' => 'Wikidata Build',
-	'author' => array(
-		'The Wikidata team', // TODO: link?
-	),
-	'url' => 'https://www.mediawiki.org/wiki/Wikidata_build',
-	'description' => 'Wikidata extensions build'
-);
+require_once "$wgWikidataBaseDir/Wikidata.credits.php";

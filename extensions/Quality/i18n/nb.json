@@ -24,5 +24,6 @@
 	"wbq-violations-table-header-additional-info": "Ekstra informasjon",
 	"wbq-violations-status-unverified": "Ubekreftet",
 	"wbq-violations-status-exception": "Unntak",
-	"wbq-violations-mark-as-exception": "Merk som unntak"
+	"wbq-violations-mark-as-exception": "Merk som unntak",
+	"apihelp-wdqgetviolationtypes-examples-1": "Returnerer alle støttede ugyldige typer uten begrensinger."
 }
