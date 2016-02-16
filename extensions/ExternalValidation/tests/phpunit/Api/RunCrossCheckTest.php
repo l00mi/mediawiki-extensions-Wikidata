@@ -201,7 +201,7 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 
 		$this->setExpectedException(
 			'UsageException',
-			'A parameter that is required was missing (Either provide the ids of entities or '
+			'A parameter that is required was missing. (Either provide the ids of entities or '
 				. 'ids of claims, that should be cross-checked.)'
 		);
 

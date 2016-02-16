@@ -54,17 +54,8 @@
 		/**
 		 * @inheritdoc
 		 */
-		valueCharacteristics: function( format ) {
-			var options = {
-				unit: this._unitSelector && this._unitSelector.getConceptUri() || null
-			};
-
-			if ( format === 'text/plain' ) {
-				options.applyRounding = false;
-				options.applyUnit = false;
-			}
-
-			return options;
+		valueCharacteristics: function() {
+			return { unit: this._unitSelector.getConceptUri() };
 		},
 
 		/**

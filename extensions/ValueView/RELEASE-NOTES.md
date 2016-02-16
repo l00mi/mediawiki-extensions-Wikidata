@@ -1,8 +1,15 @@
 # ValueView release notes
 
-## 0.15.9 (2016-02-03)
+## 0.16.0 (2016-02-10)
 
-* Correctly detect a changed language code when editing a `MonolingualTextValue`
+* Changed `ValueView` to take two `ValueFormatter` instances instead of a
+  `ValueFormatterStore`
+* Changed `Expert::valueCharacteristics` definition so that it does not have to be
+  statically callable anymore
+
+## 0.15.11 (2016-02-03)
+
+* Correctly detect a changed language code when editing a `MonolingualTextValue`.
 
 ## 0.15.8 (2016-01-27)
 
