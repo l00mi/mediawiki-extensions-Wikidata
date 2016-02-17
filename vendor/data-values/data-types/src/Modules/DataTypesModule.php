@@ -2,8 +2,10 @@
 
 namespace DataTypes\Modules;
 
+use DataTypes\DataType;
 use DataTypes\DataTypeFactory;
 use Exception;
+use FormatJson;
 use ResourceLoaderContext;
 use ResourceLoaderModule;
 
@@ -21,6 +23,9 @@ use ResourceLoaderModule;
  */
 class DataTypesModule extends ResourceLoaderModule {
 
+	/**
+	 * @var DataType[]
+	 */
 	protected $dataTypes;
 
 	/**
@@ -53,8 +58,8 @@ class DataTypesModule extends ResourceLoaderModule {
 	 * @since 0.1
 	 *
 	 * @param array $resourceDefinition
-	 * @return string
 	 *
+	 * @return string
 	 * @throws Exception If the given resource definition is not sufficient
 	 */
 	public static function extractDataTypesConfigVarNameFromResourceDefinition(
@@ -65,7 +70,7 @@ class DataTypesModule extends ResourceLoaderModule {
 			: null;
 
 
-		if( !is_string( $dataTypesConfigVarName ) || $dataTypesConfigVarName === '' ) {
+		if ( !is_string( $dataTypesConfigVarName ) || $dataTypesConfigVarName === '' ) {
 			throw new Exception(
 				'The "datatypesconfigvarname" value of the resource definition' .
 				' has to be a non-empty string value'
@@ -79,8 +84,8 @@ class DataTypesModule extends ResourceLoaderModule {
 	 * @since 0.1
 	 *
 	 * @param array $resourceDefinition
-	 * @return DataTypeFactory
 	 *
+	 * @return DataTypeFactory
 	 * @throws Exception If the given resource definition is not sufficient
 	 */
 	public static function extractDataTypeFactoryFromResourceDefinition(
@@ -90,11 +95,11 @@ class DataTypesModule extends ResourceLoaderModule {
 			? $resourceDefinition['datatypefactory']
 			: null;
 
-		if( is_callable( $dataTypeFactory ) ) {
+		if ( is_callable( $dataTypeFactory ) ) {
 			$dataTypeFactory = call_user_func( $dataTypeFactory );
 		}
 
-		if( !( $dataTypeFactory instanceof DataTypeFactory ) ) {
+		if ( !( $dataTypeFactory instanceof DataTypeFactory ) ) {
 			throw new Exception(
 				'The "datatypefactory" value of the resource definition has' .
 				' to be an instance of DataTypeFactory or a callback returning one'
@@ -134,7 +139,7 @@ class DataTypesModule extends ResourceLoaderModule {
 	 *
 	 * @since 0.1
 	 *
-	 * @param \ResourceLoaderContext $context
+	 * @param ResourceLoaderContext $context
 	 *
 	 * @return string
 	 */
@@ -145,7 +150,7 @@ class DataTypesModule extends ResourceLoaderModule {
 		foreach( $this->dataTypes as $dataType ) {
 			$typesJson[ $dataType->getId() ] = $dataType->toArray();
 		}
-		$typesJson = \FormatJson::encode( $typesJson );
+		$typesJson = FormatJson::encode( $typesJson );
 
 		return "mediaWiki.config.set( '$configVarName', $typesJson );";
 	}
@@ -168,6 +173,23 @@ class DataTypesModule extends ResourceLoaderModule {
 		}
 
 		return $messageKeys;
+	}
+
+	/**
+	 * @see ResourceLoaderModule::getDefinitionSummary
+	 *
+	 * @param ResourceLoaderContext $context
+	 *
+	 * @return array
+	 */
+	public function getDefinitionSummary( ResourceLoaderContext $context ) {
+		$summary = parent::getDefinitionSummary( $context );
+
+		$summary[] = array(
+			'dataHash' => sha1( json_encode( array_keys( $this->dataTypes ) ) )
+		);
+
+		return $summary;
 	}
 
 }
