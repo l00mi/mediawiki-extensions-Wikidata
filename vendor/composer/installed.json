@@ -185,6 +185,175 @@
         ]
     },
     {
+        "name": "wikibase/javascript-api",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
+            "reference": "a9c0202a33f278edd024f0c150d6281a6635bfc0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/a9c0202a33f278edd024f0c150d6281a6635bfc0",
+            "reference": "a9c0202a33f278edd024f0c150d6281a6635bfc0",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.8.0|~0.7.0|~0.6.0"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.5.1"
+        },
+        "time": "2016-02-17 10:46:01",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseJavaScriptApi.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "JavaScript client for the Wikibase Repository web API"
+    },
+    {
+        "name": "data-values/data-values",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/DataValues.git",
+            "reference": "de2b9abdbc26c4c393b25aa621619dfe3fc10fdc"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/de2b9abdbc26c4c393b25aa621619dfe3fc10fdc",
+            "reference": "de2b9abdbc26c4c393b25aa621619dfe3fc10fdc",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "replace": {
+            "mediawiki/data-values": "*"
+        },
+        "time": "2014-09-26 07:02:27",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValues.php"
+            ],
+            "classmap": [
+                "src/interfaces",
+                "tests/phpunit/DataValueTest.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Defines the DataValue interface and some trivial implementations",
+        "homepage": "https://github.com/DataValues/DataValues",
+        "keywords": [
+            "datavalues",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model",
+        "version": "4.4.0",
+        "version_normalized": "4.4.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModel.git",
+            "reference": "7df08f19f6efe1233b653af1cad370cfee5986dc"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/7df08f19f6efe1233b653af1cad370cfee5986dc",
+            "reference": "7df08f19f6efe1233b653af1cad370cfee5986dc",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~0.1|~1.0",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "ockcyp/covers-validator": "~0.2.0",
+            "phpmd/phpmd": "~2.3",
+            "squizlabs/php_codesniffer": "~2.3"
+        },
+        "time": "2016-01-20 15:16:14",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "4.4.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseDataModel.php"
+            ],
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Thiemo Mättig"
+            },
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            }
+        ],
+        "description": "PHP implementation of the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModel",
+        "keywords": [
+            "DataModel",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
         "name": "data-values/value-view",
         "version": "0.16.0",
         "version_normalized": "0.16.0.0",
@@ -379,129 +548,6 @@
             "diffing",
             "diffop",
             "patching",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/data-values",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/DataValues.git",
-            "reference": "de2b9abdbc26c4c393b25aa621619dfe3fc10fdc"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/DataValues/zipball/de2b9abdbc26c4c393b25aa621619dfe3fc10fdc",
-            "reference": "de2b9abdbc26c4c393b25aa621619dfe3fc10fdc",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "replace": {
-            "mediawiki/data-values": "*"
-        },
-        "time": "2014-09-26 07:02:27",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValues.php"
-            ],
-            "classmap": [
-                "src/interfaces",
-                "tests/phpunit/DataValueTest.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Defines the DataValue interface and some trivial implementations",
-        "homepage": "https://github.com/DataValues/DataValues",
-        "keywords": [
-            "datavalues",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/data-model",
-        "version": "4.4.0",
-        "version_normalized": "4.4.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "7df08f19f6efe1233b653af1cad370cfee5986dc"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/7df08f19f6efe1233b653af1cad370cfee5986dc",
-            "reference": "7df08f19f6efe1233b653af1cad370cfee5986dc",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~0.1|~1.0",
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "ockcyp/covers-validator": "~0.2.0",
-            "phpmd/phpmd": "~2.3",
-            "squizlabs/php_codesniffer": "~2.3"
-        },
-        "time": "2016-01-20 15:16:14",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "4.4.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseDataModel.php"
-            ],
-            "psr-4": {
-                "Wikibase\\DataModel\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Thiemo Mättig"
-            },
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            }
-        ],
-        "description": "PHP implementation of the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModel",
-        "keywords": [
-            "DataModel",
-            "wikibase",
             "wikidata"
         ]
     },
@@ -1045,23 +1091,23 @@
     },
     {
         "name": "data-values/data-types",
-        "version": "0.5.1",
-        "version_normalized": "0.5.1.0",
+        "version": "0.5.2",
+        "version_normalized": "0.5.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataTypes.git",
-            "reference": "4e51f1c943277c5c78f9a5a6f83f682bbfb13588"
+            "reference": "f0064cd782037d17cd57cdb40627660b7bf3d1cc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/4e51f1c943277c5c78f9a5a6f83f682bbfb13588",
-            "reference": "4e51f1c943277c5c78f9a5a6f83f682bbfb13588",
+            "url": "https://api.github.com/repos/wmde/DataTypes/zipball/f0064cd782037d17cd57cdb40627660b7bf3d1cc",
+            "reference": "f0064cd782037d17cd57cdb40627660b7bf3d1cc",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-10-20 14:50:48",
+        "time": "2016-02-17 11:27:57",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1093,48 +1139,6 @@
             "datatypes",
             "datavalues"
         ]
-    },
-    {
-        "name": "wikibase/javascript-api",
-        "version": "1.0.5",
-        "version_normalized": "1.0.5.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-            "reference": "996ce60fdd8a63d613447451cccd9ed1a8ccee47"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/996ce60fdd8a63d613447451cccd9ed1a8ccee47",
-            "reference": "996ce60fdd8a63d613447451cccd9ed1a8ccee47",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.8.0|~0.7.0|~0.6.0"
-        },
-        "time": "2016-01-27 14:01:59",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseJavaScriptApi.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "JavaScript client for the Wikibase Repository web API"
     },
     {
         "name": "data-values/geo",
@@ -1271,12 +1275,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "64fb20328754d3c44ab53eeda991474be7d53c86"
+            "reference": "95c3fe77be95f767aad623cd800c7b2d78d6c8be"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/64fb20328754d3c44ab53eeda991474be7d53c86",
-            "reference": "64fb20328754d3c44ab53eeda991474be7d53c86",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/95c3fe77be95f767aad623cd800c7b2d78d6c8be",
+            "reference": "95c3fe77be95f767aad623cd800c7b2d78d6c8be",
             "shasum": ""
         },
         "require": {
@@ -1293,12 +1297,12 @@
             "data-values/value-view": "~0.16.0",
             "diff/diff": "~2.0",
             "php": ">=5.3.2",
-            "wikibase/data-model": "~4.0",
+            "wikibase/data-model": "~4.2",
             "wikibase/data-model-javascript": "~2.0.0",
             "wikibase/data-model-serialization": "~2.0",
             "wikibase/data-model-services": "^3.2.0",
             "wikibase/internal-serialization": "~2.0",
-            "wikibase/javascript-api": "~1.0",
+            "wikibase/javascript-api": "~1.1",
             "wikibase/serialization-javascript": "~2.0.5"
         },
         "conflict": {
@@ -1308,7 +1312,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-02-17 09:44:22",
+        "time": "2016-02-18 08:13:32",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

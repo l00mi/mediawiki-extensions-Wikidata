@@ -2,8 +2,8 @@
 
 namespace DataTypes;
 
-use OutOfBoundsException;
 use InvalidArgumentException;
+use OutOfBoundsException;
 
 /**
  * @since 0.1
@@ -14,28 +14,29 @@ use InvalidArgumentException;
 class DataTypeFactory {
 
 	/**
-	 * Maps type id to DataType.
+	 * Associative array mapping data type identifiers to DataType objects.
 	 *
 	 * @var DataType[]
 	 */
 	private $types = array();
 
 	/**
-	 * @var string[]
+	 * @var string[] Associative array mapping data type identifiers to data value type identifiers.
 	 */
 	private $valueTypes = array();
 
 	/**
 	 * @since 0.5
 	 *
-	 * @param string[] $valueTypes
+	 * @param string[] $valueTypes Associative array mapping data type identifiers (also
+	 *  referred to as "property types") to data value type identifiers.
 	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( array $valueTypes ) {
-		foreach ( $valueTypes as $valueType ) {
-			if ( !is_string( $valueType ) ) {
-				throw new InvalidArgumentException( '$valueTypes needs to be an array of string' );
+		foreach ( $valueTypes as $typeId => $valueType ) {
+			if ( !is_string( $typeId ) || !is_string( $valueType ) ) {
+				throw new InvalidArgumentException( '$valueTypes must be an associative array of strings' );
 			}
 		}
 
@@ -47,7 +48,7 @@ class DataTypeFactory {
 	 *
 	 * @param DataType[] $dataTypes
 	 *
-	 * @return DataTypeFactory
+	 * @return self
 	 */
 	public static function newFromTypes( array $dataTypes ) {
 		$factory = new self( array() );
@@ -69,7 +70,7 @@ class DataTypeFactory {
 	}
 
 	/**
-	 * Returns the type identifiers.
+	 * Returns the list of registered data type identifiers (also referred to as "property types").
 	 *
 	 * @since 0.1
 	 *
@@ -85,7 +86,7 @@ class DataTypeFactory {
 	 *
 	 * @since 0.1
 	 *
-	 * @param string $typeId
+	 * @param string $typeId Data type identifier (also referred to as "property type").
 	 *
 	 * @throws OutOfBoundsException if the requested type is not known.
 	 * @return DataType
@@ -105,7 +106,7 @@ class DataTypeFactory {
 
 	/**
 	 * Returns all data types in an associative array with
-	 * the keys being type identifiers pointing to their
+	 * the keys being data type identifiers (also referred to as "property types") pointing to their
 	 * corresponding data type.
 	 *
 	 * @since 0.1

@@ -181,7 +181,17 @@
 						return;
 					}
 
-					var dataType = _getDataType( fetchedProperty );
+					var dataType = _getDataType( fetchedProperty ),
+						propertyId = fetchedProperty ? fetchedProperty.getId() : null;
+
+					if ( fetchedProperty && !dataType ) {
+						mw.log.warn(
+							'Found property ' + fetchedProperty.getId() + ' in entityStore but couldn\'t find ' +
+							'the datatype "' + fetchedProperty.getDataTypeId() + '" in dataTypeStore. ' +
+							'This is a bug or a configuration issue.'
+						);
+						return;
+					}
 
 					// If the new value's type is not the data value type used by the Snak's
 					// property data type, something is very wrong. Display warning!
@@ -207,7 +217,7 @@
 					} else {
 						// remove old view, create a new one or display message if unsupported data
 						// type or other issue which would prevent from creating a valueview
-						self._createNewValueView( newValue, dataType );
+						self._createNewValueView( newValue, dataType, propertyId );
 					}
 
 					self.$viewPort.removeClass(
@@ -333,9 +343,10 @@
 		 * @param {dataTypes.DataType} [dataType] The `DataTypes` which the given `DataValue` has
 		 *        been created for. Can be omitted but might result in a less specialized
 		 *        `jQuery.valueview`.
+		 * @param {string} [propertyId]
 		 * @return {boolean} Whether a `jQuery.valueview` has actually been instantiated.
 		 */
-		_createNewValueView: function( dataValue, dataType ) {
+		_createNewValueView: function( dataValue, dataType, propertyId ) {
 			var $valueViewDom;
 
 			if ( this._valueView ) {
@@ -364,7 +375,8 @@
 			this._valueView = this._valueViewBuilder.initValueView(
 				$valueViewDom,
 				dataType,
-				dataValue
+				dataValue,
+				propertyId
 			);
 
 			return true;
