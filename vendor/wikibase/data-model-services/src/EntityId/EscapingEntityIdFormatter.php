@@ -27,8 +27,9 @@ class EscapingEntityIdFormatter implements EntityIdFormatter {
 	private $escapeCallback;
 
 	/**
-	 * @param EntityIdFormatter $formatter
-	 * @param callable $escapeCallback A callable taking plain text and returning escaped HTML
+	 * @param EntityIdFormatter $formatter A formatter returning plain text.
+	 * @param callable $escapeCallback A callable taking plain text and returning escaped text.
+	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( EntityIdFormatter $formatter, $escapeCallback ) {
@@ -41,10 +42,11 @@ class EscapingEntityIdFormatter implements EntityIdFormatter {
 	}
 
 	/**
-	 * Format an EntityId
+	 * @see EntityIdFormatter::formatEntityId
 	 *
 	 * @param EntityId $value
-	 * @return string
+	 *
+	 * @return string Typically wikitext or HTML, depending on the $escapeCallback provided.
 	 */
 	public function formatEntityId( EntityId $value ) {
 		$text = $this->formatter->formatEntityId( $value );

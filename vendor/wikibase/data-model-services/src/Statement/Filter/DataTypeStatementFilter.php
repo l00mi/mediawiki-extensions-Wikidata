@@ -8,12 +8,17 @@ use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementFilter;
 
 /**
+ * A filter that only accepts statements with specific property data types, and rejects all other
+ * property data types.
+ *
  * @since 3.2
  *
  * @licence GNU GPL v2+
  * @author Thiemo Mättig
  */
 class DataTypeStatementFilter implements StatementFilter {
+
+	const FILTER_TYPE = 'dataType';
 
 	/**
 	 * @var PropertyDataTypeLookup
@@ -27,7 +32,7 @@ class DataTypeStatementFilter implements StatementFilter {
 
 	/**
 	 * @param PropertyDataTypeLookup $dataTypeLookup
-	 * @param string[]|string $dataTypes One or more data type identifiers.
+	 * @param string[]|string $dataTypes One or more property data type identifiers.
 	 */
 	public function __construct( PropertyDataTypeLookup $dataTypeLookup, $dataTypes ) {
 		$this->dataTypeLookup = $dataTypeLookup;

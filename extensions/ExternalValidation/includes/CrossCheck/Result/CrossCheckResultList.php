@@ -48,9 +48,9 @@ class CrossCheckResultList implements IteratorAggregate, Countable {
 	/**
 	 * Merges another CrossCheckResultList to the current one
 	 *
-	 * @param CrossCheckResultList $resultList
+	 * @param self $resultList
 	 */
-	public function merge( CrossCheckResultList $resultList ) {
+	public function merge( self $resultList ) {
 		$this->results = array_merge( $this->results, $resultList->results );
 	}
 
@@ -77,7 +77,7 @@ class CrossCheckResultList implements IteratorAggregate, Countable {
 	 *
 	 * @param $propertyId
 	 *
-	 * @return CrossCheckResultList
+	 * @return self
 	 */
 	public function getByPropertyId( PropertyId $propertyId ) {
 		$results = array();

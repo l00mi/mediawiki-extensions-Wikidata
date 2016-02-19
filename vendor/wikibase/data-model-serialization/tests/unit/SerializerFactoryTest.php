@@ -13,7 +13,8 @@ use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Snak\TypedSnak;
-use Wikibase\DataModel\Statement\Statement;use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Term;
@@ -43,6 +44,20 @@ class SerializerFactoryTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertSerializesWithoutException(
 			$this->buildSerializerFactory()->newEntitySerializer(),
+			Property::newFromType( 'string' )
+		);
+	}
+
+	public function testNewItemSerializer() {
+		$this->assertSerializesWithoutException(
+			$this->buildSerializerFactory()->newItemSerializer(),
+			new Item()
+		);
+	}
+
+	public function testNewPropertySerializer() {
+		$this->assertSerializesWithoutException(
+			$this->buildSerializerFactory()->newPropertySerializer(),
 			Property::newFromType( 'string' )
 		);
 	}

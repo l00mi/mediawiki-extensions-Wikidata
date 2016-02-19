@@ -7,7 +7,6 @@ use Serializers\Serializer;
 use Tests\Integration\Wikibase\InternalSerialization\TestFactoryBuilder;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\SiteLink;
 
 /**
  * @covers Wikibase\InternalSerialization\Deserializers\EntityDeserializer
@@ -69,7 +68,7 @@ class EntityDeserializerTest extends \PHPUnit_Framework_TestCase {
 		$item->setLabel( 'en', 'foo' );
 		$item->setLabel( 'de', 'bar' );
 
-		$item->addSiteLink( new SiteLink( 'wiki', 'page' ) );
+		$item->getSiteLinkList()->addNewSiteLink( 'wiki', 'page' );
 
 		return $item;
 	}

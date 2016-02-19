@@ -8,7 +8,6 @@ use Linker;
 use SpecialPage;
 use Wikibase\DataModel\Services\Lookup\LanguageLabelDescriptionLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
-use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Repo\WikibaseRepo;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
@@ -32,7 +31,8 @@ class SpecialExternalDbs extends SpecialPage {
 
 	/**
 	 * Creates new instance from global state.
-	 * @return SpecialExternalDbs
+	 *
+	 * @return self
 	 */
 	public static function newFromGlobalState() {
 		$repo = WikibaseRepo::getDefaultInstance();
@@ -47,7 +47,7 @@ class SpecialExternalDbs extends SpecialPage {
 
 	/**
 	 * @param TermLookup $termLookup
-	 * @param EntityTitleLookup $entityTitleLookup
+	 * @param EntityIdHtmlLinkFormatterFactory $entityIdHtmlLinkFormatterFactory
 	 * @param DumpMetaInformationLookup $dumpMetaInformationRepo
 	 */
 	public function __construct(

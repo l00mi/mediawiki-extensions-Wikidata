@@ -106,6 +106,11 @@ Wikibase Internal Serialization has been written by [Jeroen De Dauw]
 
 ## Release notes
 
+### 2.1.0 (2016-02-18)
+
+* Added compatibility with Wikibase DataModel 5.x
+* Added compatibility with DataValues Common 0.3
+
 ### 2.0.0 (2015-08-31)
 
 * Dropped dependence on Wikibase DataModel Services
@@ -140,12 +145,12 @@ Wikibase Internal Serialization has been written by [Jeroen De Dauw]
 
 * Changed used DataModel version to 1.x.
 
-### 1.1 (2014-06-16)
+### 1.1.0 (2014-06-16)
 
 * Added `DeserializerFactory::newClaimDeserializer`
 * The Deserializer for snaks now constructs `UnDeserializableValue` objects for invalid data values
 
-### 1.0 (2014-05-27)
+### 1.0.0 (2014-05-27)
 
 Initial release with these features:
 

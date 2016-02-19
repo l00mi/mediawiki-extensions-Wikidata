@@ -80,7 +80,7 @@ class ExternalValidationServices {
 	 * Returns the default instance.
 	 * IMPORTANT: Use only when it is not feasible to inject an instance properly.
 	 *
-	 * @return ExternalValidationServices
+	 * @return self
 	 */
 	public static function getDefaultInstance() {
 		static $instance = null;

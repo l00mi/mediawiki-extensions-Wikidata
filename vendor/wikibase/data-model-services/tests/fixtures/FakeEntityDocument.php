@@ -31,7 +31,7 @@ class FakeEntityDocument implements EntityDocument {
 	}
 
 	/**
-	 * @return string
+	 * @return string Returns the entity type of the provided EntityId.
 	 */
 	public function getType() {
 		return $this->id->getEntityType();
@@ -49,6 +49,30 @@ class FakeEntityDocument implements EntityDocument {
 	 */
 	public function isEmpty() {
 		return true;
+	}
+
+	/**
+	 * @see EntityDocument::equals
+	 *
+	 * @since 3.3
+	 *
+	 * @param mixed $target
+	 *
+	 * @return bool Always true.
+	 */
+	public function equals( $target ) {
+		return true;
+	}
+
+	/**
+	 * @see EntityDocument::copy
+	 *
+	 * @since 3.3
+	 *
+	 * @return self
+	 */
+	public function copy() {
+		return new self( $this->id );
 	}
 
 }

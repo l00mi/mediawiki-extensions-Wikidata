@@ -59,9 +59,10 @@ class RunCrossCheck extends ApiBase {
 	 * Creates new instance from global state.
 	 *
 	 * @param ApiMain $main
-	 * @param $name
+	 * @param string $name
 	 * @param string $prefix
-	 * @return RunCrossCheck
+	 *
+	 * @return self
 	 */
 	public static function newFromGlobalState( ApiMain $main, $name, $prefix = '' ) {
 		$repo = WikibaseRepo::getDefaultInstance();

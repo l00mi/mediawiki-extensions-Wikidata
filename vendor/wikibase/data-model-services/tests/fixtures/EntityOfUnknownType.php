@@ -17,6 +17,9 @@ class EntityOfUnknownType implements EntityDocument {
 		return null;
 	}
 
+	/**
+	 * @return string Returns the entity type "unknown-entity-type".
+	 */
 	public function getType() {
 		return 'unknown-entity-type';
 	}
@@ -32,6 +35,30 @@ class EntityOfUnknownType implements EntityDocument {
 	 */
 	public function isEmpty() {
 		return true;
+	}
+
+	/**
+	 * @see EntityDocument::equals
+	 *
+	 * @since 3.3
+	 *
+	 * @param mixed $target
+	 *
+	 * @return bool Always true.
+	 */
+	public function equals( $target ) {
+		return true;
+	}
+
+	/**
+	 * @see EntityDocument::copy
+	 *
+	 * @since 3.3
+	 *
+	 * @return self
+	 */
+	public function copy() {
+		return $this;
 	}
 
 }

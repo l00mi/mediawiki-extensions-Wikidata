@@ -45,7 +45,10 @@ class DeserializerFactory {
 	 * @param Deserializer $dataValueDeserializer deserializer for DataValue objects
 	 * @param EntityIdParser $entityIdParser
 	 */
-	public function __construct( Deserializer $dataValueDeserializer, EntityIdParser $entityIdParser ) {
+	public function __construct(
+		Deserializer $dataValueDeserializer,
+		EntityIdParser $entityIdParser
+	) {
 		$this->dataValueDeserializer = $dataValueDeserializer;
 		$this->entityIdParser = $entityIdParser;
 	}
@@ -57,20 +60,42 @@ class DeserializerFactory {
 	 */
 	public function newEntityDeserializer() {
 		return new DispatchingDeserializer( array(
-			new ItemDeserializer(
-				$this->newEntityIdDeserializer(),
-				$this->newTermListDeserializer(),
-				$this->newAliasGroupListDeserializer(),
-				$this->newStatementListDeserializer(),
-				$this->newSiteLinkDeserializer()
-			),
-			new PropertyDeserializer(
-				$this->newEntityIdDeserializer(),
-				$this->newTermListDeserializer(),
-				$this->newAliasGroupListDeserializer(),
-				$this->newStatementListDeserializer()
-			)
+			$this->newItemDeserializer(),
+			$this->newPropertyDeserializer()
 		) );
+	}
+
+	/**
+	 * Returns a Deserializer that can deserialize Item objects.
+	 *
+	 * @since 2.1
+	 *
+	 * @return Deserializer
+	 */
+	public function newItemDeserializer() {
+		return new ItemDeserializer(
+			$this->newEntityIdDeserializer(),
+			$this->newTermListDeserializer(),
+			$this->newAliasGroupListDeserializer(),
+			$this->newStatementListDeserializer(),
+			$this->newSiteLinkDeserializer()
+		);
+	}
+
+	/**
+	 * Returns a Deserializer that can deserialize Property objects.
+	 *
+	 * @since 2.1
+	 *
+	 * @return Deserializer
+	 */
+	public function newPropertyDeserializer() {
+		return new PropertyDeserializer(
+			$this->newEntityIdDeserializer(),
+			$this->newTermListDeserializer(),
+			$this->newAliasGroupListDeserializer(),
+			$this->newStatementListDeserializer()
+		);
 	}
 
 	/**
