@@ -2,9 +2,41 @@
 	"@metadata": {
 		"authors": [
 			"Dars",
-			"Ата"
+			"Ата",
+			"Piramidion"
 		]
 	},
 	"wbq-desc": "Основне розширення для Якісних розширень Вікі-бази, які допомагають з керуванням суперечливих даних.",
-	"specialpages-group-wikibasequality": "Якість вікібази"
+	"specialpages-group-wikibasequality": "Якість Вікібази",
+	"wbq-violations-description": "Список проблем з якістю даних",
+	"wbq-violations-explanations-general": "Ця сторінка перелічує усі проблеми, пов'язані з якістю даних, що були виявлені на Вікіданих. Такі проблеми можуть бути порушеннями визначених обмежень чи невідповідностями з іншими, зовнішніми базами даних.",
+	"wbq-violations-explanations-exceptions": "Якщо твердження некоректно позначене як проблема з якістю даних, користувачі з відповідними правами можуть позначити його як виняток. Такі винятки автоматично не відображаються в цьому списку. Наявні винятки також можна скасувати та відновити їхній статус проблеми.",
+	"wbq-violatons-filter-headline": "Фільтрування проблем",
+	"wbq-violations-entity-id-label": "ID сутності:",
+	"wbq-violations-property-id-label": "ID властивості:",
+	"wbq-violations-group-label": "Група:",
+	"wbq-violations-type-label": "Тип:",
+	"wbq-violations-form-select-all": "(усі)",
+	"wbq-violations-exceptions-checkbox-label": "Показати винятки",
+	"wbq-violations-submit-button-label": "Показати порушення",
+	"wbq-violations-invalid-entity-id": "Заданий ID сутності недійсний.",
+	"wbq-violations-not-existent-entity": "Сутність із заданим ID не існує.",
+	"wbq-violations-invalid-property-id": "Заданий ID властивості недійсний.",
+	"wbq-violations-not-existent-property": "Властивість із заданим ID не існує.",
+	"wbq-violations-table-header-entity": "Сутність",
+	"wbq-violations-table-header-claim": "Запис",
+	"wbq-violations-table-header-constraint-type": "Тип",
+	"wbq-violations-table-header-updated-at": "Останнє оновлення",
+	"wbq-violations-table-header-status": "Статус",
+	"wbq-violations-table-header-additional-info": "Додаткова інформація",
+	"wbq-violations-status-violation": "Порушення",
+	"wbq-violations-status-unverified": "Неперевірені",
+	"wbq-violations-status-exception": "Виняток",
+	"wbq-violations-mark-as-exception": "Позначити як виняток",
+	"wbq-violations-mark-as-violation": "Позначити як порушення",
+	"wbq-violations-next-page": "Наступна сторінка >>",
+	"wbq-violations-prev-page": "<< Попередня сторінка",
+	"apihelp-wbqgetviolationmessages-description": "Отримує повідомлення про порушення даних у записах.",
+	"apihelp-wbqgetviolationmessages-param-entityid": "ID сутності, порушення даних якої треба перелічити.",
+	"apihelp-wbqgetviolationmessages-example": "Отримати повідомлення про порушення даних елемента Q76."
 }
