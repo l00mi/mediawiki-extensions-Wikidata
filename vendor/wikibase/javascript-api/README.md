@@ -6,6 +6,11 @@ JavaScript client for the Wikibase Repository web API.
 
 ## Release notes
 
+### 1.1.0 (2016-02-17)
+
+* Added optional propertyId parameter to RepoApi::formatValue
+* Added optional propertyId parameter to FormatValueCaller::formatValue
+
 ### 1.0.5 (2016-01-27)
 
 * Added compatibility with DataValues JavaScript 0.8.0.
@@ -37,6 +42,6 @@ JavaScript client for the Wikibase Repository web API.
 * Bump the data-values/javascript dependency to 0.6.0 so that it matches Wikibase.git's.
 	No changes needed.
 
-### 1.0 (2014-11-26)
+### 1.0.0 (2014-11-26)
 
 Initial release.

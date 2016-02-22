@@ -1,5 +1,15 @@
 # Wikibase DataModel Services release notes
 
+## Version 3.4.0 (2016-02-22)
+
+* Added `RestrictedEntityLookup::reset`
+
+## Version 3.3.0 (2016-02-18)
+
+* Added compatibility with Wikibase DataModel 5.0.
+* Added `FILTER_TYPE` constant to `DataTypeStatementFilter`, `NullStatementFilter` and `PropertySetStatementFilter`.
+* Fixed `StatementGuidParser` not parsing GUIDs with multiple dollar signs.
+
 ## Version 3.2.0 (2015-12-03)
 
 * Added `StatementGrouper` interface and the most basic implementations:

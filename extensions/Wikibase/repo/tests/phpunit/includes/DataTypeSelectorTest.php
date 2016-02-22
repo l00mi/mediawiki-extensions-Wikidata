@@ -3,7 +3,6 @@
 namespace Wikibase\Test;
 
 use DataTypes\DataType;
-use DataTypes\Message;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataTypeSelector;
 
@@ -18,12 +17,25 @@ use Wikibase\DataTypeSelector;
  */
 class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 
-	protected function setUp() {
-		parent::setUp();
+	/**
+	 * @param string $propertyType
+	 *
+	 * @return DataType
+	 */
+	private function newDataType( $propertyType ) {
+		$dataType = $this->getMockBuilder( 'DataTypes\DataType' )
+			->disableOriginalConstructor()
+			->getMock();
 
-		Message::registerTextFunction( function( $key, $languageCode ) {
-			return '(' . implode( '|', func_get_args() ) . ')';
-		} );
+		$dataType->expects( $this->any() )
+			->method( 'getId' )
+			->will( $this->returnValue( $propertyType ) );
+
+		$dataType->expects( $this->any() )
+			->method( 'getLabel' )
+			->will( $this->returnValue( '(datatypes-type-' . $propertyType . ')' ) );
+
+		return $dataType;
 	}
 
 	/**
@@ -33,7 +45,7 @@ class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 	 */
 	private function newInstance( array $dataTypes = null ) {
 		return new DataTypeSelector(
-			$dataTypes !== null ? $dataTypes : array( new DataType( '<PT>', '<VT>' ) ),
+			$dataTypes !== null ? $dataTypes : array( $this->newDataType( '<PT>' ) ),
 			'qqx'
 		);
 	}
@@ -74,18 +86,18 @@ class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 				. '</select>'
 			),
 			array(
-				array( new DataType( '<PT>', '<VT>' ) ),
+				array( $this->newDataType( '<PT>' ) ),
 				'',
 				'<select name="&lt;NAME&gt;" id="&lt;ID&gt;" class="wb-select">'
-				. '<option value="&lt;PT&gt;">(datatypes-type-&lt;PT>|qqx)</option>'
+				. '<option value="&lt;PT&gt;">(datatypes-type-&lt;PT>)</option>'
 				. '</select>'
 			),
 			array(
-				array( new DataType( 'PT1', 'VT1' ), new DataType( 'PT2', 'VT2' ) ),
+				array( $this->newDataType( 'PT1' ), $this->newDataType( 'PT2' ) ),
 				'PT2',
 				'<select name="&lt;NAME&gt;" id="&lt;ID&gt;" class="wb-select">'
-				. '<option value="PT1">(datatypes-type-PT1|qqx)</option>'
-				. '<option value="PT2" selected="">(datatypes-type-PT2|qqx)</option>'
+				. '<option value="PT1">(datatypes-type-PT1)</option>'
+				. '<option value="PT2" selected="">(datatypes-type-PT2)</option>'
 				. '</select>'
 			),
 		);
@@ -94,7 +106,7 @@ class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 	public function testGetOptionsArray() {
 		$selector = $this->newInstance();
 		$options = $selector->getOptionsArray();
-		$this->assertSame( array( '<PT>' => '(datatypes-type-<PT>|qqx)' ), $options );
+		$this->assertSame( array( '<PT>' => '(datatypes-type-<PT>)' ), $options );
 	}
 
 	/**
@@ -110,11 +122,11 @@ class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 		return array(
 			array(
 				'',
-				'<option value="&lt;PT&gt;">(datatypes-type-&lt;PT>|qqx)</option>'
+				'<option value="&lt;PT&gt;">(datatypes-type-&lt;PT>)</option>'
 			),
 			array(
 				'<PT>',
-				'<option value="&lt;PT&gt;" selected="">(datatypes-type-&lt;PT>|qqx)</option>'
+				'<option value="&lt;PT&gt;" selected="">(datatypes-type-&lt;PT>)</option>'
 			),
 		);
 	}

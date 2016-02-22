@@ -290,10 +290,16 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 	/**
 	 * Starts the widget's edit mode.
+	 *
+	 * @return {Object} jQuery.Promise
+	 * @return {Function} return.done
+	 * @return {Function} return.fail
 	 */
 	startEditing: function() {
+		var deferred = $.Deferred();
+
 		if ( this.isInEditMode() ) {
-			return;
+			return deferred.resolve().promise();
 		}
 
 		var self = this;
@@ -303,13 +309,16 @@ $.widget( 'wikibase.snakview', PARENT, {
 		if ( this._variation ) {
 			$( this._variation ).one( 'afterstartediting', function() {
 				self._trigger( 'afterstartediting' );
+				deferred.resolve();
 			} );
 			this.draw();
 			this._variation.startEditing();
 		} else {
 			this.draw();
 			this._trigger( 'afterstartediting' );
+			deferred.resolve();
 		}
+		return deferred.promise();
 	},
 
 	/**
@@ -817,18 +826,18 @@ $.widget( 'wikibase.snakview', PARENT, {
 			return; // No type selector required!
 		}
 
-		if ( !selector ) {
-			var $selector = this._buildSnakTypeSelector();
+		var snakType = this.options.value instanceof wb.datamodel.Snak
+			? this.options.value.getType()
+			: this.options.value.snaktype;
+
+		if ( selector ) {
+			// mark current Snak type as chosen one in the menu:
+			selector.snakType( snakType );
+		} else {
+			var $selector = this._buildSnakTypeSelector( snakType );
 			this.$snakTypeSelector.empty().append( $selector );
 			selector = $selector.data( 'snaktypeselector' );
 		}
-
-		// mark current Snak type as chosen one in the menu:
-		selector.snakType(
-			this.options.value instanceof wb.datamodel.Snak
-				? this.options.value.getType()
-				: this.options.value.snaktype
-		);
 
 		// only show selector if a property is chosen:
 		this.$snakTypeSelector[ ( this.value().property ? 'show' : 'hide' ) ]();
@@ -877,9 +886,10 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 * @private
 	 * @since 0.4
 	 *
+	 * @param {string|null} snakType
 	 * @return {jQuery}
 	 */
-	_buildSnakTypeSelector: function() {
+	_buildSnakTypeSelector: function( snakType ) {
 		var self = this,
 			$anchor = $( '<span/>' ),
 			// initiate snak type selector widget which is a normal widget just without a
@@ -888,6 +898,10 @@ $.widget( 'wikibase.snakview', PARENT, {
 
 		// ...add the data information nevertheless:
 		$anchor.data( 'snaktypeselector', selector );
+
+		// Set value before binding the change event handler to avoid handling first
+		// useless change event
+		selector.snakType( snakType );
 
 		var changeEvent = ( selector.widgetEventPrefix + 'change' ).toLowerCase();
 

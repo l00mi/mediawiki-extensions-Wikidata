@@ -18,7 +18,10 @@ class DeserializerFactoryTest extends \PHPUnit_Framework_TestCase {
 		return new DeserializerFactory( new DataValueDeserializer(), new BasicEntityIdParser() );
 	}
 
-	private function assertDeserializesWithoutException( Deserializer $deserializer, $serialization ) {
+	private function assertDeserializesWithoutException(
+		Deserializer $deserializer,
+		$serialization
+	) {
 		$deserializer->deserialize( $serialization );
 		$this->assertTrue( true, 'No exception occurred during deserialization' );
 	}
@@ -34,6 +37,25 @@ class DeserializerFactoryTest extends \PHPUnit_Framework_TestCase {
 				'type' => 'property'
 			)
 		) );
+	}
+
+	public function testNewItemDeserializer() {
+		$this->assertDeserializesWithoutException(
+			$this->buildDeserializerFactory()->newItemDeserializer(),
+			array(
+				'type' => 'item'
+			)
+		);
+	}
+
+	public function testNewPropertyDeserializer() {
+		$this->assertDeserializesWithoutException(
+			$this->buildDeserializerFactory()->newPropertyDeserializer(),
+			array(
+				'type' => 'property',
+				'datatype' => 'string'
+			)
+		);
 	}
 
 	public function testNewSiteLinkDeserializer() {

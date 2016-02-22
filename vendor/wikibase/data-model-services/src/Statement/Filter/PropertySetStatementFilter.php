@@ -6,12 +6,17 @@ use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementFilter;
 
 /**
+ * A filter that only accepts statements with specific property ids, and rejects all other
+ * properties.
+ *
  * @since 3.2
  *
  * @licence GNU GPL v2+
  * @author Thiemo Mättig
  */
 class PropertySetStatementFilter implements StatementFilter {
+
+	const FILTER_TYPE = 'propertySet';
 
 	/**
 	 * @var string[]

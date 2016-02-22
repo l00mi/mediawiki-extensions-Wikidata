@@ -11,7 +11,6 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\SerializerFactory;
-use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 
 /**
@@ -65,7 +64,7 @@ class EntitySerializationRoundtripTest extends \PHPUnit_Framework_TestCase {
 		$entities[] = array( $entity );
 
 		$item = new Item();
-		$item->addSiteLink( new SiteLink( 'enwiki', 'Nyan Cat' ) );
+		$item->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Nyan Cat' );
 		$entities[] = array( $item );
 
 		$entities[] = array( Property::newFromType( 'string' ) );

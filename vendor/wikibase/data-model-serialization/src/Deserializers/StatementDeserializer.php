@@ -40,7 +40,11 @@ class StatementDeserializer implements DispatchableDeserializer {
 	 */
 	private $referencesDeserializer;
 
-	public function __construct( Deserializer $snakDeserializer, Deserializer $snaksDeserializer, Deserializer $referencesDeserializer ) {
+	public function __construct(
+		Deserializer $snakDeserializer,
+		Deserializer $snaksDeserializer,
+		Deserializer $referencesDeserializer
+	) {
 		$this->snakDeserializer = $snakDeserializer;
 		$this->snaksDeserializer = $snaksDeserializer;
 		$this->referencesDeserializer = $referencesDeserializer;
@@ -98,7 +102,7 @@ class StatementDeserializer implements DispatchableDeserializer {
 		return $statement;
 	}
 
-	private function setGuidFromSerialization( array &$serialization, Statement $statement ) {
+	private function setGuidFromSerialization( array $serialization, Statement $statement ) {
 		if ( !array_key_exists( 'id', $serialization ) ) {
 			return;
 		}
@@ -110,7 +114,7 @@ class StatementDeserializer implements DispatchableDeserializer {
 		$statement->setGuid( $serialization['id'] );
 	}
 
-	private function setQualifiersFromSerialization( array &$serialization, Statement $statement ) {
+	private function setQualifiersFromSerialization( array $serialization, Statement $statement ) {
 		if ( !array_key_exists( 'qualifiers', $serialization ) ) {
 			return;
 		}
@@ -126,7 +130,7 @@ class StatementDeserializer implements DispatchableDeserializer {
 		$statement->setQualifiers( $qualifiers );
 	}
 
-	private function setRankFromSerialization( array &$serialization, Statement $statement ) {
+	private function setRankFromSerialization( array $serialization, Statement $statement ) {
 		if ( !array_key_exists( 'rank', $serialization ) ) {
 			return;
 		}
@@ -138,7 +142,7 @@ class StatementDeserializer implements DispatchableDeserializer {
 		$statement->setRank( $this->rankIds[$serialization['rank']] );
 	}
 
-	private function setReferencesFromSerialization( array &$serialization, Statement $statement ) {
+	private function setReferencesFromSerialization( array $serialization, Statement $statement ) {
 		if ( !array_key_exists( 'references', $serialization ) ) {
 			return;
 		}
