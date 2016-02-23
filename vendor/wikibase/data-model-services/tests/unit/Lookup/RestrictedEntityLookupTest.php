@@ -67,6 +67,20 @@ class RestrictedEntityLookupTest extends \PHPUnit_Framework_TestCase {
 		$this->assertSame( 5, $lookup->getEntityAccessCount() );
 	}
 
+	public function testReset() {
+		$lookup = new RestrictedEntityLookup( $this->getEntityLookup(), 200 );
+		$lookup->getEntity( new ItemId( 'Q1' ) );
+
+		$lookup->reset();
+
+		$lookup->getEntity( new ItemId( 'Q2' ) );
+		$this->assertSame( 1, $lookup->getEntityAccessCount() );
+
+		// An entity accessed before, but after reset counts again
+		$lookup->getEntity( new ItemId( 'Q1' ) );
+		$this->assertSame( 2, $lookup->getEntityAccessCount() );
+	}
+
 	public function testGetEntity() {
 		$lookup = new RestrictedEntityLookup( $this->getEntityLookup(), 200 );
 
