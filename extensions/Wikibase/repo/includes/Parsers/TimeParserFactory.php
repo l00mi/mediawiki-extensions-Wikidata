@@ -75,7 +75,7 @@ class TimeParserFactory {
 		$parsers = array();
 
 		// Year-month parser must be first, otherwise "May 2014" may be parsed as "2014-05-01".
-		$parsers[] = new YearMonthTimeParser( $this->options );
+		$parsers[] = new YearMonthTimeParser( $this->monthNameProvider, $this->options );
 		$parsers[] = $isoTimestampParser;
 		$parsers[] = new MwTimeIsoParser( $this->options );
 		$parsers[] = new YearMonthDayTimeParser( $eraParser );
@@ -99,10 +99,12 @@ class TimeParserFactory {
 		if ( $languageCode === self::CANONICAL_LANGUAGE_CODE ) {
 			$replacements = array();
 		} else {
-			$replacements = $this->monthNameProvider->getMonthNameReplacements(
-				$languageCode,
+			$canonicalMonthNames = $this->monthNameProvider->getLocalizedMonthNames(
 				self::CANONICAL_LANGUAGE_CODE
 			);
+			$replacements = array_map( function( $i ) use ( $canonicalMonthNames ) {
+				return $canonicalMonthNames[$i];
+			}, $this->monthNameProvider->getMonthNumbers( $languageCode ) );
 		}
 
 		return new MonthNameUnlocalizer( $replacements );

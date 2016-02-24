@@ -47,8 +47,13 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	options: {
 		template: 'wikibase-sitelinkgroupview',
 		templateParams: [
-			'', // id
-			'', // heading
+			function() {
+				return 'sitelinks-' + this.options.value.group;
+			}, // id
+			function() {
+				// This is just the plain group name, but it's difficult to dynamically load the right message
+				return this.options.value.group;
+			}, // heading
 			'', // counter
 			'', // sitelinklistview
 			'', // group
@@ -91,9 +96,6 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 
 		PARENT.prototype._create.call( this );
 
-		// TODO: Remove scraping
-		this.__headingText = this.$h.text();
-
 		this.$sitelinklistview = this.element.find( '.wikibase-sitelinklistview' );
 
 		if ( !this.$sitelinklistview.length ) {
@@ -124,12 +126,6 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			deferred = $.Deferred();
 
 		this.element.data( 'group', this.options.value.group );
-
-		this.$h
-		.attr( 'id', 'sitelinks-' + this.options.value.group )
-		// .text( mw.msg( 'wikibase-sitelinks-' + this.options.value.group ) )
-		.text( this.__headingText )
-		.append( this.$counter );
 
 		if ( !this.$headingSection.data( 'sticknode' ) ) {
 			this.$headingSection.sticknode( {
