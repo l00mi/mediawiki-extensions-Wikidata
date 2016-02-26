@@ -13,6 +13,7 @@ use Traversable;
 /**
  * Unordered list of Term objects.
  * If multiple terms with the same language code are provided, only the last one will be retained.
+ * Empty terms are skipped and treated as non-existing.
  *
  * @since 0.7.3
  *
@@ -36,7 +37,7 @@ class TermList implements Countable, IteratorAggregate, Comparable {
 				throw new InvalidArgumentException( 'Every element in $terms must be an instance of Term' );
 			}
 
-			$this->terms[$term->getLanguageCode()] = $term;
+			$this->setTerm( $term );
 		}
 	}
 
@@ -93,7 +94,7 @@ class TermList implements Countable, IteratorAggregate, Comparable {
 	 *
 	 * @param string[] $languageCodes
 	 *
-	 * @return TermList
+	 * @return self
 	 */
 	public function getWithLanguages( array $languageCodes ) {
 		return new self( array_intersect_key( $this->terms, array_flip( $languageCodes ) ) );
@@ -115,8 +116,18 @@ class TermList implements Countable, IteratorAggregate, Comparable {
 		}
 	}
 
+	/**
+	 * Replaces non-empty or removes empty terms.
+	 *
+	 * @param Term $term
+	 */
 	public function setTerm( Term $term ) {
-		$this->terms[$term->getLanguageCode()] = $term;
+		if ( $term->getText() === '' ) {
+			unset( $this->terms[$term->getLanguageCode()] );
+		}
+		else {
+			$this->terms[$term->getLanguageCode()] = $term;
+		}
 	}
 
 	/**

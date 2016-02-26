@@ -12,6 +12,9 @@ use InvalidArgumentException;
  */
 class PropertyId extends EntityId {
 
+	/**
+	 * @since 0.5
+	 */
 	const PATTERN = '/^P[1-9]\d*$/i';
 
 	/**
@@ -60,10 +63,10 @@ class PropertyId extends EntityId {
 	/**
 	 * @see Serializable::unserialize
 	 *
-	 * @param string $value
+	 * @param string $serialized
 	 */
-	public function unserialize( $value ) {
-		list( , $this->serialization ) = json_decode( $value );
+	public function unserialize( $serialized ) {
+		list( , $this->serialization ) = json_decode( $serialized );
 	}
 
 	/**
@@ -75,7 +78,7 @@ class PropertyId extends EntityId {
 	 *
 	 * @param int|float|string $numericId
 	 *
-	 * @return PropertyId
+	 * @return self
 	 * @throws InvalidArgumentException
 	 */
 	public static function newFromNumber( $numericId ) {

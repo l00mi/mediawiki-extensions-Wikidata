@@ -2,13 +2,11 @@
 
 namespace Wikibase\DataModel\Tests\Entity;
 
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
-use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 
@@ -62,38 +60,6 @@ class ItemTest extends EntityTest {
 		$item = new Item();
 		$item->setId( 42 );
 		$this->assertEquals( new ItemId( 'Q42' ), $item->getId() );
-	}
-
-	public function itemProvider() {
-		$items = array();
-
-		$items[] = new Item();
-
-		$item = new Item();
-		$item->setDescription( 'en', 'foo' );
-		$items[] = $item;
-
-		$item = new Item();
-		$item->setDescription( 'en', 'foo' );
-		$item->setDescription( 'de', 'foo' );
-		$item->setLabel( 'en', 'foo' );
-		$item->setAliases( 'de', array( 'bar', 'baz' ) );
-		$items[] = $item;
-
-		/** @var Item $item */
-		$item = $item->copy();
-		$item->getStatements()->addNewStatement(
-			new PropertyNoValueSnak( new PropertyId( 'P42' ) )
-		);
-		$items[] = $item;
-
-		$argLists = array();
-
-		foreach ( $items as $item ) {
-			$argLists[] = array( $item );
-		}
-
-		return $argLists;
 	}
 
 	public function testGetSiteLinkWithNonSetSiteId() {
@@ -213,24 +179,6 @@ class ItemTest extends EntityTest {
 		$this->assertTrue( $item->getSiteLinkList()->hasLinkWithSiteId( 'enwiki' ) );
 		$this->assertTrue( $item->getSiteLinkList()->hasLinkWithSiteId( 'dewiki' ) );
 		$this->assertTrue( $item->getSiteLinkList()->hasLinkWithSiteId( 'foo bar' ) );
-	}
-
-	public function testSetClaims() {
-		$item = new Item();
-
-		$statement0 = new Statement( new PropertyNoValueSnak( 42 ) );
-		$statement0->setGuid( 'TEST$NVS42' );
-
-		$statement1 = new Statement( new PropertySomeValueSnak( 42 ) );
-		$statement1->setGuid( 'TEST$SVS42' );
-
-		$statements = array( $statement0, $statement1 );
-
-		$item->setClaims( new Claims( $statements ) );
-		$this->assertEquals( count( $statements ), $item->getStatements()->count(), 'added some statements' );
-
-		$item->setClaims( new Claims() );
-		$this->assertTrue( $item->getStatements()->isEmpty(), 'should be empty again' );
 	}
 
 	public function testEmptyItemReturnsEmptySiteLinkList() {

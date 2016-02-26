@@ -3,8 +3,6 @@
 namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
-use Wikibase\DataModel\Claim\Claims;
-use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListHolder;
 use Wikibase\DataModel\Term\Fingerprint;
@@ -185,19 +183,14 @@ class Property extends Entity implements StatementListHolder {
 	 * @param string $dataTypeId The data type of the property. Not to be confused with the data
 	 *  value type.
 	 *
-	 * @return Property
+	 * @return self
 	 */
 	public static function newFromType( $dataTypeId ) {
 		return new self( null, null, $dataTypeId );
 	}
 
 	/**
-	 * @see Comparable::equals
-	 *
-	 * Two properties are considered equal if they are of the same
-	 * type and have the same value. The value does not include
-	 * the id, so entities with the same value but different id
-	 * are considered equal.
+	 * @see EntityDocument::equals
 	 *
 	 * @since 0.1
 	 *
@@ -237,6 +230,7 @@ class Property extends Entity implements StatementListHolder {
 	 */
 	public function clear() {
 		$this->fingerprint = new Fingerprint();
+		$this->statements = new StatementList();
 	}
 
 	/**
@@ -258,21 +252,14 @@ class Property extends Entity implements StatementListHolder {
 	}
 
 	/**
-	 * @deprecated since 1.0, use getStatements()->toArray() instead.
+	 * @see EntityDocument::copy
 	 *
-	 * @return Statement[]
-	 */
-	public function getClaims() {
-		return $this->statements->toArray();
-	}
-
-	/**
-	 * @deprecated since 1.0, use setStatements instead
+	 * @since 0.1
 	 *
-	 * @param Claims $claims
+	 * @return self
 	 */
-	public function setClaims( Claims $claims ) {
-		$this->statements = new StatementList( iterator_to_array( $claims ) );
+	public function copy() {
+		return unserialize( serialize( $this ) );
 	}
 
 }

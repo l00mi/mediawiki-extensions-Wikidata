@@ -176,7 +176,7 @@ class ApiErrorReporter {
 		array_shift( $params );
 		$message = wfMessage( $messageName, $params );
 
-		if ( !$message || !$message->exists() ) {
+		if ( !$message->exists() ) {
 			// TODO: log warning
 			// TODO: replace with generic message
 		}
@@ -268,6 +268,7 @@ class ApiErrorReporter {
 	 * @throws LogicException
 	 */
 	private function throwUsageException( $description, $errorCode, $httpRespCode = 0, $extradata = null ) {
+		$this->apiModule->getStats()->increment( 'wikibase.repo.api.errors.total' );
 		$this->apiModule->getMain()->dieUsage( $description, $errorCode, $httpRespCode, $extradata );
 
 		throw new LogicException( 'UsageException not thrown' );

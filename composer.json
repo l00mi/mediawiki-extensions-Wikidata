@@ -27,7 +27,7 @@
     "require": {
         "php": ">=5.3.0",
         "mediawiki/article-placeholder": "dev-master",
-        "propertysuggester/property-suggester": "~2.4.2",
+        "propertysuggester/property-suggester": "~3.0.0",
         "wikibase/wikibase": "dev-master",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",

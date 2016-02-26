@@ -45,6 +45,10 @@ generate this data from a wikidata dump.
 
 ## Release notes
 
+### 3.0.0 (2016-02-25)
+* Now requires PHP 5.5.0 or higher
+* Defined compatibility with Wikibase DataModel ~5.0
+
 ### 2.4.5 (2015-12-27)
 * Add i18n to the `wbsgetsuggestions` api module. This makes MediaWiki's `ApiDocumentationTest` pass.
 
@@ -119,9 +123,9 @@ Adjust to new version of DataModel-JavaScript
 ### 1.1.1 (2014-08-27)
 * Update namespace of EntityTitleLookup, per change in Wikibase.
 
-### 1.1 (2014-07-25)
+### 1.1.0 (2014-07-25)
 * Suggest properties for qualifiers and references based on the property of the mainsnak
 
-### 1.0 (2014-07-01)
+### 1.0.0 (2014-07-01)
 
 * Provide Property-Suggestions based on correlations to other properties in the item

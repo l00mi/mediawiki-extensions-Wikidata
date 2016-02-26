@@ -1,5 +1,36 @@
 # Wikibase DataModel release notes
 
+## Version 5.0.2 (2016-02-23)
+
+* Fixed regression in `ReferenceList::addReference` and the constructor possibly adding too many objects
+
+## Version 5.0.1 (2016-02-18)
+
+* Fixed regression in `ReferenceList::removeReferenceHash` possibly removing too many objects
+* `ReferenceList::unserialize` no longer calls the constructor
+
+## Version 5.0.0 (2016-02-15)
+
+* Removed `Claims` class (deprecated since 1.0)
+* Removed `getClaims` and `setClaims` methods from `Entity`, `Item` and `Property` (deprecated since 1.0)
+* Removed `HashableObjectStorage` class (deprecated since 4.4)
+* `ReferenceList` no longer derives from `SplObjectStorage`
+    * Removed `addAll`, `attach`, `contains`, `detach`, `getHash`, `getInfo`, `removeAll`,
+      `removeAllExcept` and `setInfo` methods
+* `ReferenceList` no longer implements `ArrayAccess`
+    * Removed `offsetExists`, `offsetGet`, `offsetSet` and `offsetUnset` methods
+* `ReferenceList` no longer implements `Iterator`
+    * Removed `current`, `key`, `next`, `rewind` and `valid` methods
+* `ReferenceList` now implements `IteratorAggregate`
+    * Added `getIterator` method
+* Removed `ReferenceList::removeDuplicates`
+* `ReferenceList::addReference` now throws an `InvalidArgumentException` for negative indices
+* Added `EntityDocument::equals`, and `EntityDocument` now implements `Comparable`
+* Added `EntityDocument::copy`
+* Fixed `Property::clear` not clearing statements
+* `TermList` now skips and removes empty terms
+* Deprecated `ByPropertyIdArray`
+
 ## Version 4.4.0 (2016-01-20)
 
 * Added `ItemIdParser`
