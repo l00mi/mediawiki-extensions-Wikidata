@@ -52,6 +52,23 @@ class UsageTrackingIntegrationTest extends MediaWikiTestCase {
 		$ns = $this->getDefaultWikitextNS();
 		$this->articleTitle = Title::makeTitle( $ns, 'UsageTrackingIntegrationTest_Article' );
 		$this->templateTitle = Title::makeTitle( NS_TEMPLATE, 'UsageTrackingIntegrationTest_Template' );
+
+		// Register the necessary hook handlers. Registration of these handlers is normally skipped for unit test runs.
+		$this->mergeMwGlobalArrayValue( 'wgHooks', array(
+			'ArticleDeleteComplete' => array(
+				'Wikibase\Client\Hooks\DataUpdateHookHandlers::onArticleDeleteComplete',
+				'Wikibase\Client\Hooks\UpdateRepoHookHandlers::onArticleDeleteComplete',
+			),
+			'LinksUpdateComplete' => array(
+				'Wikibase\Client\Hooks\DataUpdateHookHandlers::onLinksUpdateComplete',
+			),
+			'ParserCacheSaveComplete' => array(
+				'Wikibase\Client\Hooks\DataUpdateHookHandlers::onParserCacheSaveComplete',
+			),
+			'TitleMoveComplete' => array(
+				'Wikibase\Client\Hooks\UpdateRepoHookHandlers::onTitleMoveComplete',
+			),
+		) );
 	}
 
 	protected function tearDown() {
