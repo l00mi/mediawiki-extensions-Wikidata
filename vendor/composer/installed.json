@@ -1324,12 +1324,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "d96903d9cfd024b062be941eb3dce0b21769c975"
+            "reference": "fd94d711f0cfd20c9ce7b57b8e8da0817e8a866a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d96903d9cfd024b062be941eb3dce0b21769c975",
-            "reference": "d96903d9cfd024b062be941eb3dce0b21769c975",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fd94d711f0cfd20c9ce7b57b8e8da0817e8a866a",
+            "reference": "fd94d711f0cfd20c9ce7b57b8e8da0817e8a866a",
             "shasum": ""
         },
         "require": {
@@ -1361,7 +1361,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-02-26 19:32:20",
+        "time": "2016-02-28 00:16:09",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1411,12 +1411,12 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-            "reference": "a88d865bf4835dd5ad94641126e7decf188e0b36"
+            "reference": "8a9fe0dc1484e5c2166dbbde2e57d8d7cf702529"
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2016-02-21 01:40:32",
+        "time": "2016-02-28 00:07:43",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1455,7 +1455,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "e16acc33572e6860bb4afee9f87ae50b3418a190"
+            "reference": "f6eafd332d07f5e224ec3e3f3e18b07fabe07589"
         },
         "require": {
             "php": ">=5.3.0"
@@ -1464,7 +1464,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.5.1"
         },
-        "time": "2016-02-21 00:48:49",
+        "time": "2016-02-27 23:32:10",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
