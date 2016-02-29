@@ -782,7 +782,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/90e5a7d94fe0cd1278afdc9ac789bcbdec03b840",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/5998eb87f81bbd7c9be13c7a1a41b7379d71a51f",
                 "reference": "90e5a7d94fe0cd1278afdc9ac789bcbdec03b840",
                 "shasum": ""
             },
@@ -1440,12 +1440,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "ed7a17415825264c2e45bd5b9cb32457f76253ba"
+                "reference": "b10bcd6b9b70804b56a88248a855fd4e63a3a254"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ed7a17415825264c2e45bd5b9cb32457f76253ba",
-                "reference": "ed7a17415825264c2e45bd5b9cb32457f76253ba",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b10bcd6b9b70804b56a88248a855fd4e63a3a254",
+                "reference": "b10bcd6b9b70804b56a88248a855fd4e63a3a254",
                 "shasum": ""
             },
             "require": {
@@ -1517,7 +1517,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-02-22 19:14:38"
+            "time": "2016-02-29 15:20:20"
         },
         {
             "name": "wikibase/wikimedia-badges",
