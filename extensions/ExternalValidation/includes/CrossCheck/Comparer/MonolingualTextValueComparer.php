@@ -5,7 +5,6 @@ namespace WikibaseQuality\ExternalValidation\CrossCheck\Comparer;
 use DataValues\DataValue;
 use DataValues\MonolingualTextValue;
 use InvalidArgumentException;
-use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
  * @package WikibaseQuality\ExternalValidation\CrossCheck\Comparer

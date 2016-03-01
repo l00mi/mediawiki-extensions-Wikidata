@@ -3,7 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\CrossCheck\Comparer;
 
 use DataValues\DataValue;
-use DataValues\GlobeCoordinateValue;
+use DataValues\Geo\Values\GlobeCoordinateValue;
 use InvalidArgumentException;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 

@@ -8,7 +8,6 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\TermIndexEntry;
 use Wikibase\TermIndex;
-use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use Wikimedia\Assert\Assert;
 
 /**
