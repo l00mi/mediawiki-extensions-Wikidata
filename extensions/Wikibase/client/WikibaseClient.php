@@ -27,7 +27,8 @@
  *
  * @see README.md
  * @see https://www.mediawiki.org/wiki/Extension:Wikibase_Client
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  */
 
 /**
@@ -69,7 +70,7 @@ call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks;
 	global $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages, $wgResourceModules;
 	global $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
-	global $wgJobClasses, $wgWBClientDataTypes;
+	global $wgJobClasses, $wgWBClientDataTypes, $wgWBClientEntityTypes;
 
 	$wgExtensionCredits['wikibase'][] = array(
 		'path' => __DIR__,
@@ -83,6 +84,7 @@ call_user_func( function() {
 		'license-name' => 'GPL-2.0+'
 	);
 
+	// Registry and definition of data types
 	$wgWBClientDataTypes = require ( __DIR__ . '/../lib/WikibaseLib.datatypes.php' );
 	$clientDatatypes = require ( __DIR__ . '/WikibaseClient.datatypes.php' );
 
@@ -91,6 +93,9 @@ call_user_func( function() {
 		$baseDef = isset( $wgWBClientDataTypes[$type] ) ? $wgWBClientDataTypes[$type] : array();
 		$wgWBClientDataTypes[$type] = array_merge( $baseDef, $clientDef );
 	}
+
+	// Registry and definition of entity types
+	$wgWBClientEntityTypes = require __DIR__ . '/../lib/WikibaseLib.entitytypes.php';
 
 	// i18n
 	$wgMessagesDirs['wikibaseclient'] = __DIR__ . '/i18n';

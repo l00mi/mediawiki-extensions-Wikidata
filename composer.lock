@@ -961,7 +961,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "6eca60853c3e388d2225412236043ee2150bec2f"
+                "reference": "f026052af69f0fab176cf270b9789c051c8b2bd3"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1007,7 +1007,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2016-02-29 10:24:45"
+            "time": "2016-03-03 14:58:40"
         },
         {
             "name": "wikibase/data-model",
@@ -1237,7 +1237,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "850509e027ec559ca4a10ec7140d147687916e5c"
+                "reference": "5b26252e52d63e92b559f88bb234dcc70f36b188"
             },
             "require": {
                 "data-values/common": ">=0.1 <0.4",
@@ -1248,7 +1248,8 @@
                 "serialization/serialization": "3.*,>=3.2.1",
                 "wikibase/data-model": "~4.2|~5.0",
                 "wikibase/data-model-serialization": "~2.0",
-                "wikibase/data-model-services": "~2.0|~3.0"
+                "wikibase/data-model-services": "~2.0|~3.0",
+                "wikimedia/assert": ">=0.1 <0.3"
             },
             "require-dev": {
                 "phpunit/phpunit": "~3.7,>=3.7.37",
@@ -1289,20 +1290,20 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2016-02-29 14:04:29"
+            "time": "2016-03-03 15:24:27"
         },
         {
             "name": "wikibase/internal-serialization",
-            "version": "2.1.0",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseInternalSerialization.git",
-                "reference": "63c608556cf17f77d27f8fce046987e05edaf7f9"
+                "reference": "abee42e33155c0638a993cb7c48ed36625ae1298"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/63c608556cf17f77d27f8fce046987e05edaf7f9",
-                "reference": "63c608556cf17f77d27f8fce046987e05edaf7f9",
+                "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/abee42e33155c0638a993cb7c48ed36625ae1298",
+                "reference": "abee42e33155c0638a993cb7c48ed36625ae1298",
                 "shasum": ""
             },
             "require": {
@@ -1322,7 +1323,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1.x-dev"
+                    "dev-master": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -1354,7 +1355,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-02-18 14:43:12"
+            "time": "2016-03-03 13:08:37"
         },
         {
             "name": "wikibase/javascript-api",
@@ -1406,7 +1407,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "cad7796d21ccff8d6f5320805f88129d768db1dc"
+                "reference": "ecfe66de78adc20f0481fe7e0642601d647ef285"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1415,8 +1416,13 @@
                 "wikibase/data-model-services": "~2.0|~3.0"
             },
             "require-dev": {
+                "data-values/geo": "~1.0",
+                "data-values/number": ">=0.1 <0.7",
+                "data-values/serialization": ">=0.1 <2.0",
+                "data-values/time": ">=0.1 <0.9",
                 "phpunit/phpunit": "^3.7.37|~4.5",
-                "satooshi/php-coveralls": "master-dev"
+                "satooshi/php-coveralls": "master-dev",
+                "wikibase/data-model-serialization": ">=0.1 <3.0"
             },
             "type": "mediawiki-extension",
             "autoload": {
@@ -1450,7 +1456,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2016-02-25 15:39:35"
+            "time": "2016-03-03 16:53:51"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1499,12 +1505,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "7a0a463b7a82cc8029ed9df56cdef68020adfb26"
+                "reference": "b59592cf9cd040d7709eac992f212a2312632c5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7a0a463b7a82cc8029ed9df56cdef68020adfb26",
-                "reference": "7a0a463b7a82cc8029ed9df56cdef68020adfb26",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b59592cf9cd040d7709eac992f212a2312632c5c",
+                "reference": "b59592cf9cd040d7709eac992f212a2312632c5c",
                 "shasum": ""
             },
             "require": {
@@ -1576,7 +1582,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-02-29 14:33:02"
+            "time": "2016-03-03 15:51:23"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1619,6 +1625,51 @@
                 "irc": "irc://irc.freenode.net/wikidata"
             },
             "time": "2016-02-28 00:07:43"
+        },
+        {
+            "name": "wikimedia/assert",
+            "version": "v0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wmde/Assert.git",
+                "reference": "2da55927525975f8d52825fc3ee02e5e36f5036c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wmde/Assert/zipball/2da55927525975f8d52825fc3ee02e5e36f5036c",
+                "reference": "2da55927525975f8d52825fc3ee02e5e36f5036c",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Wikimedia\\Assert\\": "src/",
+                    "Wikimedia\\Assert\\Test\\": "tests/phpunit/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Kinzler"
+                }
+            ],
+            "description": "Provides runtime assertions",
+            "homepage": "https://github.com/wmde/Assert",
+            "keywords": [
+                "assert",
+                "assertions",
+                "php",
+                "postcondition",
+                "precondition",
+                "qa"
+            ],
+            "time": "2015-04-29 17:23:50"
         }
     ],
     "packages-dev": [],

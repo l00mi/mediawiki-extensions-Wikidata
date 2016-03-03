@@ -42,7 +42,7 @@ use WikiPage;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  * @author Bene* < benestar.wikimedia@gmail.com >
@@ -390,7 +390,7 @@ abstract class EntityContent extends AbstractContent {
 	 * @return array The values found in the array structure.
 	 * @todo needs unit test
 	 */
-	protected static function collectValues( $data, $ignore = array() ) {
+	protected static function collectValues( array $data, array $ignore = array() ) {
 		$values = array();
 
 		$erongi = array_flip( $ignore );

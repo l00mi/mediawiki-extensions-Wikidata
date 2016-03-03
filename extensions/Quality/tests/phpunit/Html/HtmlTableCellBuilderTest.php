@@ -1,10 +1,9 @@
 <?php
 
-
 namespace WikibaseQuality\ExternalValidation\Tests\Html;
 
+use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
-
 
 /**
  * @covers WikibaseQuality\Html\HtmlTableCellBuilder
@@ -14,7 +13,7 @@ use WikibaseQuality\Html\HtmlTableCellBuilder;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class HtmlTableCellBuilderTest extends \MediaWikiTestCase {
+class HtmlTableCellBuilderTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider constructDataProvider
@@ -92,4 +91,5 @@ class HtmlTableCellBuilderTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }

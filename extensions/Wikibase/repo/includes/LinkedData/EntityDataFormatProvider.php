@@ -13,7 +13,7 @@ use Wikimedia\Purtle\RdfWriterFactory;
  *
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Thomas Pellissier Tanon
  * @author Anja Jentzsch < anja.jentzsch@wikimedia.de >
@@ -52,7 +52,7 @@ class EntityDataFormatProvider {
 	/**
 	 * @param string[]|null $formatWhiteList
 	 */
-	public function setFormatWhiteList( $formatWhiteList ) {
+	public function setFormatWhiteList( array $formatWhiteList = null ) {
 		$this->formatWhiteList = $formatWhiteList;
 
 		// force re-init of format maps

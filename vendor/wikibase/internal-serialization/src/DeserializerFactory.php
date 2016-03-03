@@ -3,6 +3,7 @@
 namespace Wikibase\InternalSerialization;
 
 use Deserializers\Deserializer;
+use Deserializers\DispatchableDeserializer;
 use Wikibase\DataModel\DeserializerFactory as CurrentDeserializerFactory;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\InternalSerialization\Deserializers\EntityDeserializer;
@@ -19,6 +20,7 @@ use Wikibase\InternalSerialization\Deserializers\StatementDeserializer;
  * legacy internal format and in the new one.
  *
  * @since 1.0
+ *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
@@ -34,9 +36,25 @@ class DeserializerFactory {
 	 */
 	private $currentFactory;
 
-	public function __construct( Deserializer $dataValueDeserializer, EntityIdParser $idParser ) {
+	/**
+	 * @var DispatchableDeserializer|null $currentEntityDeserializer
+	 */
+	private $currentEntityDeserializer;
+
+	/**
+	 * @param Deserializer $dataValueDeserializer
+	 * @param EntityIdParser $idParser
+	 * @param DispatchableDeserializer|null $currentEntityDeserializer used instead of constructing
+	 *        a new current Deserializer for entities using a current DeserializerFactory.
+	 */
+	public function __construct(
+		Deserializer $dataValueDeserializer,
+		EntityIdParser $idParser,
+		DispatchableDeserializer $currentEntityDeserializer = null
+	) {
 		$this->legacyFactory = new LegacyDeserializerFactory( $dataValueDeserializer, $idParser );
 		$this->currentFactory = new CurrentDeserializerFactory( $dataValueDeserializer, $idParser );
+		$this->currentEntityDeserializer = $currentEntityDeserializer;
 	}
 
 	/**
@@ -45,7 +63,7 @@ class DeserializerFactory {
 	public function newEntityDeserializer() {
 		return new EntityDeserializer(
 			$this->legacyFactory->newEntityDeserializer(),
-			$this->currentFactory->newEntityDeserializer()
+			$this->currentEntityDeserializer ?: $this->currentFactory->newEntityDeserializer()
 		);
 	}
 

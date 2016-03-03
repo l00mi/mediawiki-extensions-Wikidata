@@ -20,7 +20,8 @@ use Wikibase\StringNormalizer;
  * API module to get the data for one or more Wikibase entities.
  *
  * @since 0.1
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Marius Hoch < hoo@online.de >
@@ -145,9 +146,10 @@ class GetEntities extends ApiBase {
 
 	/**
 	 * @param array $params
+	 *
 	 * @return EntityId[]
 	 */
-	private function getEntityIdsFromIdParam( $params ) {
+	private function getEntityIdsFromIdParam( array $params ) {
 		$ids = array();
 		if ( isset( $params['ids'] ) ) {
 			foreach ( $params['ids'] as $id ) {
@@ -206,7 +208,7 @@ class GetEntities extends ApiBase {
 	 *
 	 * @return array
 	 */
-	private function getPropsFromParams( $params ) {
+	private function getPropsFromParams( array $params ) {
 		if ( in_array( 'sitelinks/urls', $params['props'] ) ) {
 			$params['props'][] = 'sitelinks';
 		}
@@ -220,7 +222,7 @@ class GetEntities extends ApiBase {
 	 *
 	 * @return EntityRevision[]
 	 */
-	private function getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects = false ) {
+	private function getEntityRevisionsFromEntityIds( array $entityIds, $resolveRedirects = false ) {
 		$revisionArray = array();
 
 		$this->entityPrefetcher->prefetch( $entityIds );

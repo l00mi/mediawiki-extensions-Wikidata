@@ -20,7 +20,7 @@ use Wikibase\SettingsArray;
  * @group WikibaseEntity
  * @group WikibaseEntityHandler
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class PropertyHandlerTest extends EntityHandlerTest {
@@ -47,9 +47,14 @@ class PropertyHandlerTest extends EntityHandlerTest {
 	public function contentProvider() {
 		$contents = parent::contentProvider();
 
-		/**
-		 * @var PropertyContent $content
-		 */
+		/** @var PropertyContent $content */
+		$content = $this->newEntityContent();
+		$content->getEntity()->setAliases( 'en', array( 'foo' ) );
+		$content->getEntity()->setDescription( 'de', 'foobar' );
+		$content->getEntity()->setDescription( 'en', 'baz' );
+		$content->getEntity()->setLabel( 'nl', 'o_O' );
+		$contents[] = array( $content );
+
 		$content = clone $contents[1][0];
 		// TODO: add some prop-specific stuff: $content->getProperty()->;
 		$contents[] = array( $content );

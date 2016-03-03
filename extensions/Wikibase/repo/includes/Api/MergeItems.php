@@ -21,7 +21,7 @@ use Wikibase\Repo\WikibaseRepo;
 /**
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  * @author Daniel Kinzler
  * @author Lucie-Aimée Kaffee
@@ -89,7 +89,7 @@ class MergeItems extends ApiBase {
 	 * @throws UsageException if the given parameter is not a valiue ItemId
 	 * @throws LogicException
 	 */
-	private function getItemIdParam( $parameters, $name ) {
+	private function getItemIdParam( array $parameters, $name ) {
 		if ( !isset( $parameters[$name] ) ) {
 			$this->errorReporter->dieError( 'Missing parameter: ' . $name, 'param-missing' );
 		}

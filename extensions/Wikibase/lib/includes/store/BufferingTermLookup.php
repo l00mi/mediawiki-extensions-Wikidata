@@ -13,7 +13,7 @@ use Wikibase\TermIndex;
 /**
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class BufferingTermLookup extends EntityTermLookupBase implements TermBuffer {
@@ -229,7 +229,7 @@ class BufferingTermLookup extends EntityTermLookupBase implements TermBuffer {
 	 *
 	 * @return array[]
 	 */
-	private function groupEntityIds( $entityIds ) {
+	private function groupEntityIds( array $entityIds ) {
 		$entityIdsByType = array();
 
 		foreach ( $entityIds as $id ) {

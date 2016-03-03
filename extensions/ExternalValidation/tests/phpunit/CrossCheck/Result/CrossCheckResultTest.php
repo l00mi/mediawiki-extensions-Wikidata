@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
@@ -17,7 +18,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class CrossCheckResultTest extends \MediaWikiTestCase {
+class CrossCheckResultTest extends PHPUnit_Framework_TestCase {
 
 	public function testConstructValidArguments() {
 

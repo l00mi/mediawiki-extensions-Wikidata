@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
+use PHPUnit_Framework_TestCase;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 
 /**
@@ -12,7 +13,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class ReferenceResultTest extends \MediaWikiTestCase {
+class ReferenceResultTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider constructValidArgumentsDataProvider

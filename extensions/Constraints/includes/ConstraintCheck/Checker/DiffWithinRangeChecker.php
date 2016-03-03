@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ConstraintReport\ConstraintCheck\Checker;
 
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use WikibaseQuality\ConstraintReport\Constraint;
 use WikibaseQuality\ConstraintReport\ConstraintCheck\ConstraintChecker;
@@ -9,8 +10,6 @@ use WikibaseQuality\ConstraintReport\ConstraintCheck\Helper\ConstraintParameterP
 use WikibaseQuality\ConstraintReport\ConstraintCheck\Result\CheckResult;
 use WikibaseQuality\ConstraintReport\ConstraintCheck\Helper\RangeCheckerHelper;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Entity\Entity;
-
 
 /**
  * @package WikibaseQuality\ConstraintReport\ConstraintCheck\Checker
@@ -43,21 +42,21 @@ class DiffWithinRangeChecker implements ConstraintChecker {
 	 *
 	 * @param Statement $statement
 	 * @param Constraint $constraint
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 *
 	 * @return CheckResult
 	 */
-	public function checkConstraint( Statement $statement, Constraint $constraint, Entity $entity = null ) {
+	public function checkConstraint( Statement $statement, Constraint $constraint, EntityDocument $entity = null ) {
 		$parameters = array ();
 		$constraintParameters = $constraint->getConstraintParameters();
 		$property = false;
 		if ( array_key_exists( 'property', $constraintParameters ) ) {
 			$property = $constraintParameters['property'];
-			$parameters['property'] = $this->constraintParameterParser->parseSingleParameter( $constraintParameters['property'], 'PropertyId' );
+			$parameters['property'] = $this->constraintParameterParser->parseSingleParameter( $constraintParameters['property'], true );
 		}
 
 		if ( array_key_exists( 'constraint_status', $constraintParameters ) ) {
-			$parameters['constraint_status'] = $this->helper->parseSingleParameter( $constraintParameters['constraint_status'], true );
+			$parameters['constraint_status'] = $this->constraintParameterParser->parseSingleParameter( $constraintParameters['constraint_status'], true );
 		}
 
 		$mainSnak = $statement->getMainSnak();

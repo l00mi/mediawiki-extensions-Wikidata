@@ -17,7 +17,7 @@ use Wikimedia\Assert\Assert;
  *
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class SqlChangeDispatchCoordinator implements ChangeDispatchCoordinator {
@@ -416,7 +416,7 @@ class SqlChangeDispatchCoordinator implements ChangeDispatchCoordinator {
 	 *
 	 * @throws DBUnexpectedError
 	 */
-	public function initState( $clientWikiDBs ) {
+	public function initState( array $clientWikiDBs ) {
 		$db = $this->getRepoMaster();
 
 		$trackedSiteIds = $db->selectFieldValues(

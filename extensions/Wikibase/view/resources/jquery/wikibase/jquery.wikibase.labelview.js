@@ -206,6 +206,10 @@ $.widget( 'wikibase.labelview', PARENT, {
 	 * @inheritdoc
 	 */
 	isInitialValue: function() {
+		if ( !this.isInEditMode() ) {
+			return true;
+		}
+
 		return this.value().equals( this.options.value );
 	},
 
@@ -238,12 +242,11 @@ $.widget( 'wikibase.labelview', PARENT, {
 	 */
 	value: function( value ) {
 		if ( value !== undefined ) {
-			this.option( 'value', value );
-			return;
+			return this.option( 'value', value );
 		}
 
 		if ( !this.isInEditMode() ) {
-			return this.option( 'value' );
+			return this.options.value;
 		}
 
 		return new wb.datamodel.Term(

@@ -3,6 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck;
 
 use DataValues\StringValue;
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -23,7 +24,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class ReferenceCheckerTest extends \MediaWikiTestCase {
+class ReferenceCheckerTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @var ReferenceChecker

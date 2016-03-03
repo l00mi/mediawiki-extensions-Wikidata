@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\ValueParser;
 
+use PHPUnit_Framework_TestCase;
 use ValueParsers\ValueParser;
 
 /**
@@ -10,7 +11,7 @@ use ValueParsers\ValueParser;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-abstract class ValueParserTestBase extends \MediaWikiTestCase {
+abstract class ValueParserTestBase extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @return ValueParser

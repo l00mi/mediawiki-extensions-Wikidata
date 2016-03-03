@@ -352,6 +352,10 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
+		if ( !this._isInEditMode ) {
+			return true;
+		}
+
 		var currentValue = this.value();
 
 		if ( !this.options.value || !currentValue ) {
@@ -442,7 +446,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	value: function( siteLink ) {
 		if ( siteLink === undefined ) {
 			if ( !this._isInEditMode ) {
-				return this.option( 'value' );
+				return this.options.value;
 			}
 
 			var siteselector = this.element.find( ':wikibase-siteselector' ).data( 'siteselector' ),

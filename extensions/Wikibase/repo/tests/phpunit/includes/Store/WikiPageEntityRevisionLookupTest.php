@@ -3,7 +3,7 @@
 namespace Wikibase\Test;
 
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
@@ -22,7 +22,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @group WikibaseEntityLookup
  * @group medium
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class WikiPageEntityRevisionLookupTest extends EntityRevisionLookupTest {
@@ -32,7 +32,7 @@ class WikiPageEntityRevisionLookupTest extends EntityRevisionLookupTest {
 	 */
 	private static $testEntities = array();
 
-	protected static function storeTestEntity( Entity $entity ) {
+	protected static function storeTestEntity( EntityDocument $entity ) {
 		global $wgUser;
 
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();

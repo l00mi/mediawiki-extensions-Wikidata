@@ -9,8 +9,7 @@ use Site;
 /**
  * Translates api sitematrix results json into an array of Site objects
  *
- * @licence GNU GPL v2+
- *
+ * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
 class SiteMatrixParser {
@@ -120,7 +119,7 @@ class SiteMatrixParser {
 	 *
 	 * @return Site[]
 	 */
-	private function getSitesFromLangGroup( $langGroup ) {
+	private function getSitesFromLangGroup( array $langGroup ) {
 		$sites = array();
 
 		foreach ( $langGroup['site'] as $siteData ) {
@@ -142,7 +141,7 @@ class SiteMatrixParser {
 	 *
 	 * @return Site
 	 */
-	private function getSiteFromSiteData( $siteData ) {
+	private function getSiteFromSiteData( array $siteData ) {
 		$site = new MediaWikiSite();
 		$site->setGlobalId( $siteData['dbname'] );
 

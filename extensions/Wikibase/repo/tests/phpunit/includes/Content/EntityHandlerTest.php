@@ -9,12 +9,14 @@ use Revision;
 use RuntimeException;
 use Title;
 use Wikibase\Content\EntityInstanceHolder;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\EntityContent;
 use Wikibase\InternalSerialization\SerializerFactory;
 use Wikibase\Lib\DataTypeDefinitions;
+use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
@@ -28,7 +30,7 @@ use WikitextContent;
  * @group WikibaseEntityHandler
  * @group WikibaseRepo
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
@@ -60,7 +62,12 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 			$repoSettings = array_merge( $repoSettings, $settings->getArrayCopy() );
 		}
 
-		return new WikibaseRepo( new SettingsArray( $repoSettings ), new DataTypeDefinitions(), Language::factory( 'qqq' ) );
+		return new WikibaseRepo(
+			new SettingsArray( $repoSettings ),
+			new DataTypeDefinitions( array() ),
+			new EntityTypeDefinitions( array() ),
+			Language::factory( 'qqq' )
+		);
 	}
 
 	/**
@@ -71,11 +78,11 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	abstract protected function getHandler( SettingsArray $settings = null );
 
 	/**
-	 * @param Entity|null $entity
+	 * @param EntityDocument|null $entity
 	 *
 	 * @return EntityContent
 	 */
-	protected function newEntityContent( Entity $entity = null ) {
+	protected function newEntityContent( EntityDocument $entity = null ) {
 		if ( !$entity ) {
 			$entity = $this->newEntity();
 		}
@@ -98,7 +105,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	/**
 	 * @param EntityId|null $id
 	 *
-	 * @return Entity
+	 * @return EntityDocument
 	 */
 	abstract protected function newEntity( EntityId $id = null );
 
@@ -108,15 +115,8 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	 * @return array[]
 	 */
 	public function contentProvider() {
-		$content = $this->newEntityContent();
-		$content->getEntity()->setAliases( 'en', array( 'foo' ) );
-		$content->getEntity()->setDescription( 'de', 'foobar' );
-		$content->getEntity()->setDescription( 'en', 'baz' );
-		$content->getEntity()->setLabel( 'nl', 'o_O' );
-
 		return array(
 			array( $this->newEntityContent() ),
-			array( $content ),
 		);
 	}
 
@@ -241,36 +241,44 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function provideGetUndoContent() {
+		/** @var FingerprintProvider $e1 */
+		/** @var FingerprintProvider $e2 */
+		/** @var FingerprintProvider $e3 */
+		/** @var FingerprintProvider $e4 */
+		/** @var FingerprintProvider $e5 */
+		/** @var FingerprintProvider $e5u4 */
+		/** @var FingerprintProvider $e5u4u3 */
+
 		$e1 = $this->newEntity();
 		$r1 = $this->fakeRevision( $this->newEntityContent( $e1 ), 1 );
 
 		$e2 = $this->newEntity();
-		$e2->setLabel( 'en', 'Foo' );
+		$e2->getFingerprint()->setLabel( 'en', 'Foo' );
 		$r2 = $this->fakeRevision( $this->newEntityContent( $e2 ), 2 );
 
 		$e3 = $this->newEntity();
-		$e3->setLabel( 'en', 'Foo' );
-		$e3->setLabel( 'de', 'Fuh' );
+		$e3->getFingerprint()->setLabel( 'en', 'Foo' );
+		$e3->getFingerprint()->setLabel( 'de', 'Fuh' );
 		$r3 = $this->fakeRevision( $this->newEntityContent( $e3 ), 3 );
 
 		$e4 = $this->newEntity();
-		$e4->setLabel( 'en', 'Foo' );
-		$e4->setLabel( 'de', 'Fuh' );
-		$e4->setLabel( 'fr', 'Fu' );
+		$e4->getFingerprint()->setLabel( 'en', 'Foo' );
+		$e4->getFingerprint()->setLabel( 'de', 'Fuh' );
+		$e4->getFingerprint()->setLabel( 'fr', 'Fu' );
 		$r4 = $this->fakeRevision( $this->newEntityContent( $e4 ), 4 );
 
 		$e5 = $this->newEntity();
-		$e5->setLabel( 'en', 'F00' );
-		$e5->setLabel( 'de', 'Fuh' );
-		$e5->setLabel( 'fr', 'Fu' );
+		$e5->getFingerprint()->setLabel( 'en', 'F00' );
+		$e5->getFingerprint()->setLabel( 'de', 'Fuh' );
+		$e5->getFingerprint()->setLabel( 'fr', 'Fu' );
 		$r5 = $this->fakeRevision( $this->newEntityContent( $e5 ), 5 );
 
 		$e5u4 = $this->newEntity();
-		$e5u4->setLabel( 'en', 'F00' );
-		$e5u4->setLabel( 'de', 'Fuh' );
+		$e5u4->getFingerprint()->setLabel( 'en', 'F00' );
+		$e5u4->getFingerprint()->setLabel( 'de', 'Fuh' );
 
 		$e5u4u3 = $this->newEntity();
-		$e5u4u3->setLabel( 'en', 'F00' );
+		$e5u4u3->getFingerprint()->setLabel( 'en', 'F00' );
 
 		return array(
 			array( $r5, $r5, $r4, $this->newEntityContent( $e4 ), "undo last edit" ),

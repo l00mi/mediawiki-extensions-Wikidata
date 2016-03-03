@@ -1,10 +1,9 @@
 <?php
 
-
 namespace WikibaseQuality\ExternalValidation\Tests\Html;
 
+use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableHeaderBuilder;
-
 
 /**
  * @covers WikibaseQuality\Html\HtmlTableHeaderBuilder
@@ -14,7 +13,7 @@ use WikibaseQuality\Html\HtmlTableHeaderBuilder;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class HtmlTableHeaderBuilderTest extends \MediaWikiTestCase {
+class HtmlTableHeaderBuilderTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider constructDataProvider
@@ -80,4 +79,5 @@ class HtmlTableHeaderBuilderTest extends \MediaWikiTestCase {
 			)
 		);
 	}
+
 }

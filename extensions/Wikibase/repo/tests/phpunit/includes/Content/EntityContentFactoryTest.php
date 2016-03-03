@@ -3,7 +3,7 @@
 namespace Wikibase\Test;
 
 use Title;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -23,7 +23,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Database
  *        ^--- just because we use the Title class
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
@@ -263,9 +263,8 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider newFromEntityProvider
-	 * @param Entity $entity
 	 */
-	public function testNewFromEntity( Entity $entity ) {
+	public function testNewFromEntity( EntityDocument $entity ) {
 		$factory = $this->newFactory();
 		$content = $factory->newFromEntity( $entity );
 
@@ -284,7 +283,6 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider newFromRedirectProvider
-	 * @param EntityRedirect $redirect
 	 */
 	public function testNewFromRedirect( EntityRedirect $redirect ) {
 		$factory = $this->newFactory();
@@ -306,7 +304,6 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 
 	/**
 	 * @dataProvider newFromRedirectProvider_unsupported
-	 * @param EntityRedirect $redirect
 	 */
 	public function testNewFromRedirect_unsupported( EntityRedirect $redirect ) {
 		$factory = $this->newFactory();

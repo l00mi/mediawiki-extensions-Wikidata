@@ -16,7 +16,7 @@ use Wikibase\View\Template\TemplateFactory;
  *
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Adrian Lang <adrian.lang@wikimedia.de>
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
@@ -246,7 +246,7 @@ class SiteLinksView {
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLinks( $siteLinksForTable, $isSpecialGroup ) {
+	private function getHtmlForSiteLinks( array $siteLinksForTable, $isSpecialGroup ) {
 		$html = '';
 
 		foreach ( $siteLinksForTable as $siteLinkForTable ) {
@@ -262,7 +262,7 @@ class SiteLinksView {
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLink( $siteLinkForTable, $isSpecialGroup ) {
+	private function getHtmlForSiteLink( array $siteLinkForTable, $isSpecialGroup ) {
 		/** @var Site $site */
 		$site = $siteLinkForTable['site'];
 

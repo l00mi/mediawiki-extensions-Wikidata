@@ -4,7 +4,7 @@ namespace Wikibase\Test\Rdf;
 
 use Site;
 use SiteList;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -24,7 +24,7 @@ use Wikimedia\Purtle\NTriplesRdfWriter;
  * @group WikibaseRepo
  * @group WikibaseRdf
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Stas Malyshev
  */
@@ -74,7 +74,7 @@ class RdfBuilderTestData {
 	 *
 	 * @param string $idString
 	 *
-	 * @return Entity
+	 * @return EntityDocument
 	 */
 	public function getEntity( $idString ) {
 		return $this->getCodec()->decodeEntity(

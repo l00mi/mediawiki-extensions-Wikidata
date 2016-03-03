@@ -4,7 +4,7 @@ namespace Wikibase\Test;
 
 use MWException;
 use User;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -21,7 +21,7 @@ use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
  * @group WikibaseLib
  * @group WikibaseEntityLookup
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class MockRepositoryTest extends \MediaWikiTestCase {
@@ -361,7 +361,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 		}
 
 		// extract map of entity IDs to label arrays.
-		/* @var Entity $e  */
+		/* @var EntityDocument $e  */
 		$actual = array();
 		foreach ( $entities as $key => $e ) {
 			if ( is_object( $e ) ) {
@@ -468,7 +468,7 @@ class MockRepositoryTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider provideSaveEntity
 	 */
-	public function testSaveEntity( Entity $entity, $flags, $baseRevId, $error = null ) {
+	public function testSaveEntity( EntityDocument $entity, $flags, $baseRevId, $error = null ) {
 		$this->setupGetEntities();
 
 		if ( $error !== null ) {

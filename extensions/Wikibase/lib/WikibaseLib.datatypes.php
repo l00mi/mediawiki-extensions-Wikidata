@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Definition of data types for use with Wikibase.
  * The array returned by the code below is supposed to be merged into $wgWBRepoDataTypes
@@ -10,7 +11,7 @@
  * @note: This is bootstrap code, it is executed for EVERY request. Avoid instantiating
  * objects or loading classes here!
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 

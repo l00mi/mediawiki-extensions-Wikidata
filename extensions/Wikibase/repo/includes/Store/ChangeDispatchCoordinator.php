@@ -15,7 +15,7 @@ use MWException;
  *
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 interface ChangeDispatchCoordinator {
@@ -49,7 +49,7 @@ interface ChangeDispatchCoordinator {
 	 * @param string[] $clientWikiDBs Associative array mapping client wiki IDs to
 	 * client wiki (logical) database names.
 	 */
-	public function initState( $clientWikiDBs );
+	public function initState( array $clientWikiDBs );
 
 	/**
 	 * Attempt to lock the given target wiki. If it can't be locked because

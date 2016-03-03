@@ -7,7 +7,7 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikimedia\Assert\Assert;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Statement\StatementList;
@@ -98,13 +98,13 @@ class CrossCheckInteractor {
 	/**
 	 * Runs cross-check for all statements of multiple entities.
 	 *
-	 * @param Entity[] $entities
+	 * @param EntityDocument[] $entities
 	 *
 	 * @return CrossCheckResultList[]
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckEntities( array $entities ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\Entity',  $entities, '$entities' );
+		Assert::parameterElementType( 'Wikibase\DataModel\Entity\EntityDocument',  $entities, '$entities' );
 
 		$results = array();
 		foreach ( $entities as $entity ) {
@@ -184,14 +184,14 @@ class CrossCheckInteractor {
 	/**
 	 * Runs cross-check for all statements with any of the given property ids of multiple entities.
 	 *
-	 * @param Entity[] $entities
+	 * @param EntityDocument[] $entities
 	 * @param PropertyId[] $propertyIds
 	 *
 	 * @return CrossCheckResultList[]
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckEntitiesWithProperties( array $entities, array $propertyIds ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\Entity',  $entities, '$entities' );
+		Assert::parameterElementType( 'Wikibase\DataModel\Entity\EntityDocument',  $entities, '$entities' );
 		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId',  $propertyIds, '$propertyIds' );
 
 		$results = array();

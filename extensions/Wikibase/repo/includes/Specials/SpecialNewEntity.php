@@ -17,7 +17,8 @@ use Wikibase\Summary;
  * Page for creating new Wikibase entities that contain a Fingerprint.
  *
  * @since 0.1
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Jens Ohlig
  * @author John Erling Blad < jeblad@gmail.com >
@@ -306,7 +307,7 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	 * @param string|null $legend initial value for the label input box
 	 * @param array[] $additionalFormElements initial value for the description input box
 	 */
-	private function createForm( $legend = null, $additionalFormElements = array() ) {
+	private function createForm( $legend = null, array $additionalFormElements = array() ) {
 		$this->addCopyrightText();
 
 		HTMLForm::factory( 'ooui', $additionalFormElements, $this->getContext() )

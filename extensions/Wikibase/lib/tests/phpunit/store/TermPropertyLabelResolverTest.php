@@ -17,7 +17,7 @@ use Wikibase\TermPropertyLabelResolver;
  * @group WikibaseLib
  * @group WikibaseStore
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class TermPropertyLabelResolverTest extends \MediaWikiTestCase {
@@ -28,7 +28,7 @@ class TermPropertyLabelResolverTest extends \MediaWikiTestCase {
 	 *
 	 * @return PropertyLabelResolver
 	 */
-	public function getResolver( $lang, $terms ) {
+	public function getResolver( $lang, array $terms ) {
 		$resolver = new TermPropertyLabelResolver(
 			$lang,
 			new MockTermIndex( $terms ),

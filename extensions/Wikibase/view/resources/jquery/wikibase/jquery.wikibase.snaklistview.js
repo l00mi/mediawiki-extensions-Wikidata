@@ -1,4 +1,4 @@
-( function( mw, wb, $ ) {
+( function( wb, $ ) {
 	'use strict';
 
 	var PARENT = $.ui.TemplatedWidget;
@@ -284,8 +284,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 */
 	value: function( snakList ) {
 		if ( snakList !== undefined ) {
-			this.option( 'value', snakList );
-			return;
+			return this.option( 'value', snakList );
 		}
 
 		var listview = this.$listview.data( 'listview' ),
@@ -484,4 +483,4 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 
 } );
 
-}( mediaWiki, wikibase, jQuery ) );
+}( wikibase, jQuery ) );

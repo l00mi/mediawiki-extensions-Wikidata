@@ -22,7 +22,7 @@ use Wikibase\Repo\Validators\UniquenessViolation;
 /**
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  * @author Daniel Kinzler
  */
@@ -387,7 +387,7 @@ class ChangeOpsMerge {
 	 *
 	 * @return Error[]
 	 */
-	private function removeConflictsWithEntity( $errors, EntityId $fromId ) {
+	private function removeConflictsWithEntity( array $errors, EntityId $fromId ) {
 		$filtered = array();
 
 		foreach ( $errors as $error ) {

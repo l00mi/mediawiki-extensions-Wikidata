@@ -58,7 +58,7 @@ class ComparativeValueParserFactoryTest extends \MediaWikiTestCase {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
 		new ComparativeValueParserFactory(
-			new DataTypeDefinitions(),
+			new DataTypeDefinitions( array() ),
 			new StringNormalizer()
 		);
 	}

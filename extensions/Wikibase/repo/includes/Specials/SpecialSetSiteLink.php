@@ -20,7 +20,8 @@ use Wikibase\Summary;
  * Special page for setting the sitepage of a Wikibase entity.
  *
  * @since 0.4
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Bene* < benestar.wikimedia@googlemail.com >
  */
 class SpecialSetSiteLink extends SpecialModifyEntity {
@@ -427,12 +428,12 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	 * @param string $siteId
 	 * @param string $pageName
 	 * @param string[] $badgeIds
-	 * @param Summary &$summary The summary for this edit will be saved here.
+	 * @param Summary|null &$summary The summary for this edit will be saved here.
 	 *
 	 * @throws InvalidArgumentException
 	 * @return Status
 	 */
-	private function setSiteLink( EntityDocument $item, $siteId, $pageName, $badgeIds, &$summary ) {
+	private function setSiteLink( EntityDocument $item, $siteId, $pageName, array $badgeIds, Summary &$summary = null ) {
 		if ( !( $item instanceof Item ) ) {
 			throw new InvalidArgumentException( '$entity must be an Item' );
 		}

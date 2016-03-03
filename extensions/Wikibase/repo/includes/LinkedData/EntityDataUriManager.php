@@ -11,7 +11,7 @@ use Wikibase\Lib\Store\EntityTitleLookup;
  *
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class EntityDataUriManager {
@@ -40,7 +40,7 @@ class EntityDataUriManager {
 	 */
 	public function __construct(
 		Title $interfaceTitle,
-		$supportedExtensions,
+		array $supportedExtensions,
 		EntityTitleLookup $entityTitleLookup
 	) {
 		$this->interfaceTitle = $interfaceTitle;

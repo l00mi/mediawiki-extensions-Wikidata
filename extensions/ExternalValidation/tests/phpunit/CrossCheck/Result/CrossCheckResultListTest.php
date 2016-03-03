@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
@@ -15,7 +16,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class CrossCheckResultListTest extends \MediaWikiTestCase {
+class CrossCheckResultListTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @var CrossCheckResult
@@ -151,10 +152,10 @@ class CrossCheckResultListTest extends \MediaWikiTestCase {
 
 	public function testToArray() {
 		$actual = $this->crossCheckResultList->toArray();
-		$this->assertArrayEquals( $this->crossCheckResults, $actual );
+		$this->assertEquals( $this->crossCheckResults, $actual );
 
 		$actual = $this->anotherCrossCheckResultList->toArray();
-		$this->assertArrayEquals( $this->anotherCrossCheckResults, $actual );
+		$this->assertEquals( $this->anotherCrossCheckResults, $actual );
 	}
 
 	private function getCrossCheckResultMock( PropertyId $propertyId, $status, $referencesMissing ) {

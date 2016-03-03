@@ -2,7 +2,6 @@
 
 namespace Wikibase\Test;
 
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
@@ -25,7 +24,7 @@ use Wikibase\Repo\Store\SQL\EntityPerPageTable;
  *
  * @group medium
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Marius Hoch < hoo@online.de >
  */
@@ -62,7 +61,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @param Entity[] $entities
+	 * @param EntityDocument[] $entities
 	 * @param EntityRedirect[] $redirects
 	 *
 	 * @return EntityPerPageTable

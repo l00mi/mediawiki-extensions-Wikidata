@@ -2,7 +2,7 @@
 
 namespace Wikibase\Test\Rdf;
 
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Rdf\DedupeBag;
 use Wikibase\Rdf\HashDedupeBag;
@@ -19,7 +19,7 @@ use Wikimedia\Purtle\NTriplesRdfWriter;
  * @group WikibaseRepo
  * @group WikibaseRdf
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Stas Malyshev
  */
@@ -91,7 +91,7 @@ class RdfBuilderTest extends \MediaWikiTestCase {
 	 *
 	 * @param string $idString
 	 *
-	 * @return Entity
+	 * @return EntityDocument
 	 */
 	public function getEntityData( $idString ) {
 		return $this->getTestData()->getEntity( $idString );

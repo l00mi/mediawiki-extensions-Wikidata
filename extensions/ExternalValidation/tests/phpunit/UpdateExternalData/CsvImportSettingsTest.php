@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\UpdateExternalData;
 
+use PHPUnit_Framework_TestCase;
 use WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings;
 
 /**
@@ -12,7 +13,7 @@ use WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class CsvImportSettingsTest extends \MediaWikiTestCase {
+class CsvImportSettingsTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Valid arguments are already tested in UpdateTableTest

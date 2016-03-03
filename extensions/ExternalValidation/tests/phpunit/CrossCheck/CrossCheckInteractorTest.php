@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck;
 
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -20,7 +21,7 @@ use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class CrossCheckInteractorTest extends \MediaWikiTestCase {
+class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @var Item[]
@@ -216,7 +217,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @dataProvider testCrossCheckEntitiesDataProvider
+	 * @dataProvider crossCheckEntitiesDataProvider
 	 */
 	public function testCrossCheckEntities(
 		array $entities,
@@ -236,7 +237,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 	 * Test cases for testCrossCheckEntities
 	 * @return array
 	 */
-	public function testCrossCheckEntitiesDataProvider() {
+	public function crossCheckEntitiesDataProvider() {
 		return array(
 			array(
 				array(
@@ -736,7 +737,7 @@ class CrossCheckInteractorTest extends \MediaWikiTestCase {
 
 	private function runAssertions( array $expectedResult = null, $actualResult = null ) {
 		if ( $expectedResult ) {
-			$this->assertArrayEquals( $expectedResult, $actualResult );
+			$this->assertEquals( $expectedResult, $actualResult );
 		} else {
 			$this->assertNull( $actualResult );
 		}
