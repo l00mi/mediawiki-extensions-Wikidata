@@ -7,14 +7,15 @@ use ValueValidators\Result;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\Statement\StatementListHolder;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Summary;
 
 /**
  * Class for reference removal change operation
  *
  * @since 0.5
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Addshore
  */
 class ChangeOpReferenceRemove extends ChangeOpBase {
@@ -56,8 +57,8 @@ class ChangeOpReferenceRemove extends ChangeOpBase {
 	 * @see ChangeOp::apply()
 	 */
 	public function apply( EntityDocument $entity, Summary $summary = null ) {
-		if ( !( $entity instanceof StatementListHolder ) ) {
-			throw new InvalidArgumentException( '$entity must be a StatementListHolder' );
+		if ( !( $entity instanceof StatementListProvider ) ) {
+			throw new InvalidArgumentException( '$entity must be a StatementListProvider' );
 		}
 
 		$statements = $entity->getStatements();
@@ -75,7 +76,6 @@ class ChangeOpReferenceRemove extends ChangeOpBase {
 		}
 
 		$statement->setReferences( $references );
-		$entity->setStatements( $statements );
 	}
 
 	/**
@@ -110,18 +110,15 @@ class ChangeOpReferenceRemove extends ChangeOpBase {
 	}
 
 	/**
-	 * @see ChangeOp::validate()
-	 *
-	 * @since 0.5
+	 * @see ChangeOp::validate
 	 *
 	 * @param EntityDocument $entity
 	 *
-	 * @throws ChangeOpException
-	 * @return Result
+	 * @return Result Always successful.
 	 */
 	public function validate( EntityDocument $entity ) {
 		//TODO: move validation logic from apply() here.
-		return parent::validate( $entity );
+		return Result::newSuccess();
 	}
 
 }

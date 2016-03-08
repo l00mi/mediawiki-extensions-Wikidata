@@ -9,11 +9,11 @@ use DataValues\NumberValue;
 use DataValues\StringValue;
 use OutOfBoundsException;
 use PHPUnit_Framework_MockObject_MockBuilder;
+use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
 use ValueValidators\Error;
 use ValueValidators\Result;
 use ValueValidators\ValueValidator;
-use Wikibase\DataModel\Entity\Entity;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -24,6 +24,7 @@ use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Repo\DataTypeValidatorFactory;
 use Wikibase\Repo\Store\SiteLinkConflictLookup;
@@ -40,7 +41,7 @@ use Wikibase\Repo\Validators\TypeValidator;
  * A helper class for test cases that deal with claims.
  * Provides mock services frequently used with claims.
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class ChangeOpTestMockProvider {
@@ -73,7 +74,7 @@ class ChangeOpTestMockProvider {
 	 *
 	 * @param string $class
 	 *
-	 * @return object
+	 * @return PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function getMock( $class ) {
 		return $this->mockBuilderFactory->getMock( $class );
@@ -272,7 +273,7 @@ class ChangeOpTestMockProvider {
 		return $mock;
 	}
 
-	public function detectLabelConflictsForEntity( Entity $entity ) {
+	public function detectLabelConflictsForEntity( FingerprintProvider $entity ) {
 		foreach ( $entity->getFingerprint()->getLabels()->toTextArray() as $lang => $label ) {
 			if ( $label === 'DUPE' ) {
 				return Result::newError( array(
@@ -294,7 +295,7 @@ class ChangeOpTestMockProvider {
 		return Result::newSuccess();
 	}
 
-	public function detectLabelDescriptionConflictsForEntity( Entity $entity ) {
+	public function detectLabelDescriptionConflictsForEntity( FingerprintProvider $entity ) {
 		foreach ( $entity->getFingerprint()->getLabels()->toTextArray() as $lang => $label ) {
 			if ( !$entity->getFingerprint()->hasDescription( $lang ) ) {
 				continue;

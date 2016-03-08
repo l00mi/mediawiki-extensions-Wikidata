@@ -17,9 +17,6 @@
  * @option {string} [inputNodeName='TEXTAREA']
  *         Should either be 'TEXTAREA' or 'INPUT'.
  *
- * @option {string} [helpMessage]
- *         Default: mw.msg( 'wikibase-description-input-help-message' )
- *
  * @option {wikibase.entityChangers.DescriptionsChanger} descriptionsChanger
  */
 $.widget( 'wikibase.descriptionview', PARENT, {
@@ -38,7 +35,6 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 		},
 		value: null,
 		inputNodeName: 'TEXTAREA',
-		helpMessage: mw.msg( 'wikibase-description-input-help-message' ),
 		descriptionsChanger: null
 	},
 
@@ -255,6 +251,10 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
+		if ( !this._isInEditMode ) {
+			return true;
+		}
+
 		return this.value().equals( this.options.value );
 	},
 
@@ -302,12 +302,11 @@ $.widget( 'wikibase.descriptionview', PARENT, {
 	 */
 	value: function( value ) {
 		if ( value !== undefined ) {
-			this.option( 'value', value );
-			return;
+			return this.option( 'value', value );
 		}
 
 		if ( !this._isInEditMode ) {
-			return this.option( 'value' );
+			return this.options.value;
 		}
 
 		return new wb.datamodel.Term(

@@ -27,7 +27,8 @@
  *
  * @see README.md
  * @see https://www.mediawiki.org/wiki/Extension:Wikibase_Client
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  */
 
 /**
@@ -69,7 +70,7 @@ call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks;
 	global $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages, $wgResourceModules;
 	global $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
-	global $wgJobClasses, $wgWBClientDataTypes;
+	global $wgJobClasses, $wgWBClientDataTypes, $wgWBClientEntityTypes;
 
 	$wgExtensionCredits['wikibase'][] = array(
 		'path' => __DIR__,
@@ -83,6 +84,7 @@ call_user_func( function() {
 		'license-name' => 'GPL-2.0+'
 	);
 
+	// Registry and definition of data types
 	$wgWBClientDataTypes = require ( __DIR__ . '/../lib/WikibaseLib.datatypes.php' );
 	$clientDatatypes = require ( __DIR__ . '/WikibaseClient.datatypes.php' );
 
@@ -91,6 +93,9 @@ call_user_func( function() {
 		$baseDef = isset( $wgWBClientDataTypes[$type] ) ? $wgWBClientDataTypes[$type] : array();
 		$wgWBClientDataTypes[$type] = array_merge( $baseDef, $clientDef );
 	}
+
+	// Registry and definition of entity types
+	$wgWBClientEntityTypes = require __DIR__ . '/../lib/WikibaseLib.entitytypes.php';
 
 	// i18n
 	$wgMessagesDirs['wikibaseclient'] = __DIR__ . '/i18n';
@@ -105,9 +110,7 @@ call_user_func( function() {
 	$wgHooks['SkinTemplateGetLanguageLink'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSkinTemplateGetLanguageLink';
 	$wgHooks['ContentAlterParserOutput'][] = '\Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers::onContentAlterParserOutput';
 	$wgHooks['SidebarBeforeOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSidebarBeforeOutput';
-	$wgHooks['LinksUpdateComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onLinksUpdateComplete';
-	$wgHooks['ArticleDeleteComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onArticleDeleteComplete';
-	$wgHooks['ParserCacheSaveComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onParserCacheSaveComplete';
+
 	$wgHooks['ParserFirstCallInit'][] = '\Wikibase\ClientHooks::onParserFirstCallInit';
 	$wgHooks['MagicWordwgVariableIDs'][] = '\Wikibase\ClientHooks::onMagicWordwgVariableIDs';
 	$wgHooks['ParserGetVariableValueSwitch'][] = '\Wikibase\ClientHooks::onParserGetVariableValueSwitch';
@@ -119,15 +122,28 @@ call_user_func( function() {
 	$wgHooks['BeforePageDisplay'][] = '\Wikibase\ClientHooks::onBeforePageDisplayAddJsConfig';
 	$wgHooks['ScribuntoExternalLibraries'][] = '\Wikibase\ClientHooks::onScribuntoExternalLibraries';
 	$wgHooks['InfoAction'][] = '\Wikibase\ClientHooks::onInfoAction';
-	$wgHooks['TitleMoveComplete'][] = '\Wikibase\Client\Hooks\UpdateRepoHookHandlers::onTitleMoveComplete';
 	$wgHooks['BaseTemplateAfterPortlet'][] = '\Wikibase\ClientHooks::onBaseTemplateAfterPortlet';
 	$wgHooks['GetBetaFeaturePreferences'][] = '\Wikibase\ClientHooks::onGetBetaFeaturePreferences';
-	$wgHooks['ArticleDeleteComplete'][] = '\Wikibase\Client\Hooks\UpdateRepoHookHandlers::onArticleDeleteComplete';
 	$wgHooks['ArticleDeleteAfterSuccess'][] = '\Wikibase\ClientHooks::onArticleDeleteAfterSuccess';
 	$wgHooks['ParserLimitReportFormat'][] = '\Wikibase\Client\Hooks\ParserLimitHookHandlers::onParserLimitReportFormat';
 	$wgHooks['ParserLimitReportPrepare'][] = '\Wikibase\Client\Hooks\ParserLimitHookHandlers::onParserLimitReportPrepare';
 	$wgHooks['FormatAutocomments'][] = '\Wikibase\ClientHooks::onFormat';
 	$wgHooks['ParserClearState'][] = '\Wikibase\Client\Hooks\ParserClearStateHookHandler::onParserClearState';
+
+	// tracking local edits
+	if ( !defined( 'MW_PHPUNIT_TEST' ) ) {
+		// NOTE: Usage tracking is pointless during unit testing, and slows things down.
+		// Also, usage tracking can trigger failures when it tries to access the repo database
+		// when WikibaseClient is tested without WikibaseRepo enabled.
+		// NOTE: UsageTrackingIntegrationTest explicitly enables these hooks and asserts that
+		// they are functioning correctly. If any hooks used for tracking are added or changed,
+		// that must be reflected in UsageTrackingIntegrationTest.
+		$wgHooks['LinksUpdateComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onLinksUpdateComplete';
+		$wgHooks['ArticleDeleteComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onArticleDeleteComplete';
+		$wgHooks['ParserCacheSaveComplete'][] = '\Wikibase\Client\Hooks\DataUpdateHookHandlers::onParserCacheSaveComplete';
+		$wgHooks['TitleMoveComplete'][] = '\Wikibase\Client\Hooks\UpdateRepoHookHandlers::onTitleMoveComplete';
+		$wgHooks['ArticleDeleteComplete'][] = '\Wikibase\Client\Hooks\UpdateRepoHookHandlers::onArticleDeleteComplete';
+	}
 
 	// recent changes / watchlist hooks
 	$wgHooks['ChangesListSpecialPageFilters'][] = '\Wikibase\Client\Hooks\ChangesListSpecialPageHookHandlers::onChangesListSpecialPageFilters';
@@ -141,9 +157,9 @@ call_user_func( function() {
 
 	// api modules
 	$wgAPIMetaModules['wikibase'] = array(
-		'class' => 'Wikibase\ApiClientInfo',
+		'class' => 'Wikibase\Client\Api\ApiClientInfo',
 		'factory' => function( ApiQuery $apiQuery, $moduleName ) {
-			return new Wikibase\ApiClientInfo(
+			return new Wikibase\Client\Api\ApiClientInfo(
 				Wikibase\Client\WikibaseClient::getDefaultInstance()->getSettings(),
 				$apiQuery,
 				$moduleName

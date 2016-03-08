@@ -16,7 +16,7 @@ use Wikibase\Repo\Parsers\TimeParserFactory;
  * @group Wikibase
  * @group TimeParsers
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  * @author Thiemo Mättig
  */
@@ -28,15 +28,23 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 
 		$monthNameProvider = $this->getMock( 'Wikibase\Repo\Parsers\MonthNameProvider' );
 		$monthNameProvider->expects( $this->any() )
-			->method( 'getMonthNameReplacements' )
-			->will( $this->returnCallback( function( $languageCode, $baseLanguageCode ) {
-				$replacements = array();
+			->method( 'getLocalizedMonthNames' )
+			->will( $this->returnCallback( function( $languageCode ) {
+				$monthNames = array();
 				for ( $i = 1; $i <= 12; $i++ ) {
-					$canonical = $baseLanguageCode . 'Month' . $i;
-					$replacements[$languageCode . 'Month' . $i] = $canonical;
-					$replacements[$languageCode . 'Month' . $i . 'Gen'] = $canonical;
+					$monthNames[$i] = $languageCode . 'Month' . $i;
 				}
-				return $replacements;
+				return $monthNames;
+			} ) );
+		$monthNameProvider->expects( $this->any() )
+			->method( 'getMonthNumbers' )
+			->will( $this->returnCallback( function( $languageCode ) {
+				$numbers = array();
+				for ( $i = 1; $i <= 12; $i++ ) {
+					$numbers[$languageCode . 'Month' . $i] = $i;
+					$numbers[$languageCode . 'Month' . $i . 'Gen'] = $i;
+				}
+				return $numbers;
 			} ) );
 
 		return new TimeParserFactory( $options, $monthNameProvider );
@@ -98,9 +106,9 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 			 */
 			'1 1999' =>
 				array( '+1999-01-00T00:00:00Z', TimeValue::PRECISION_MONTH ),
-			'March 1999' =>
+			'enMonth3 1999' =>
 				array( '+1999-03-00T00:00:00Z', TimeValue::PRECISION_MONTH ),
-			'1999 March' =>
+			'1999 enMonth3' =>
 				array( '+1999-03-00T00:00:00Z', TimeValue::PRECISION_MONTH ),
 
 			/**

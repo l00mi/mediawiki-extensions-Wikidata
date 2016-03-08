@@ -16,7 +16,7 @@ use Wikibase\View\Template\TemplateFactory;
  *
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Adrian Lang <adrian.lang@wikimedia.de>
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
@@ -148,19 +148,27 @@ class SiteLinksView {
 			$siteLinks
 		);
 
+		$count = count( $siteLinksForTable );
+
 		return $this->templateFactory->render(
 			'wikibase-sitelinkgroupview',
 			// TODO: support entity-id as prefix for element IDs.
 			htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES ),
 			wfMessage( 'wikibase-sitelinks-' . $group )->parse(),
-			'', // counter
+			wfMessage( 'parentheses',
+				wfMessage(
+					'wikibase-ui-pendingquantitycounter-nonpending',
+					wfMessage( 'wikibase-propertyedittool-counter-entrieslabel', $count ),
+					$count
+				)
+			),
 			$this->templateFactory->render(
 				'wikibase-sitelinklistview',
 				$this->getHtmlForSiteLinks( $siteLinksForTable, $group === 'special' )
 			),
 			htmlspecialchars( $group ),
 			$this->sectionEditLinkGenerator->getSiteLinksEditSection( $itemId ),
-			count( $siteLinksForTable ) > 1 ? ' mw-collapsible' : ''
+			$count > 1 ? ' mw-collapsible' : ''
 		);
 	}
 
@@ -238,7 +246,7 @@ class SiteLinksView {
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLinks( $siteLinksForTable, $isSpecialGroup ) {
+	private function getHtmlForSiteLinks( array $siteLinksForTable, $isSpecialGroup ) {
 		$html = '';
 
 		foreach ( $siteLinksForTable as $siteLinkForTable ) {
@@ -254,7 +262,7 @@ class SiteLinksView {
 	 *
 	 * @return string
 	 */
-	private function getHtmlForSiteLink( $siteLinkForTable, $isSpecialGroup ) {
+	private function getHtmlForSiteLink( array $siteLinkForTable, $isSpecialGroup ) {
 		/** @var Site $site */
 		$site = $siteLinkForTable['site'];
 

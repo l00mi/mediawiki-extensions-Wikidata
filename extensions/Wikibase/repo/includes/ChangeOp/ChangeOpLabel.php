@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Term\Fingerprint;
-use Wikibase\DataModel\Term\FingerprintHolder;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Repo\Validators\TermValidatorFactory;
 use Wikibase\Summary;
 
@@ -14,7 +14,8 @@ use Wikibase\Summary;
  * Class for label change operation
  *
  * @since 0.4
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Daniel Kinzler
  * @author Thiemo Mättig
@@ -77,10 +78,12 @@ class ChangeOpLabel extends ChangeOpBase {
 	 *
 	 * @param EntityDocument $entity
 	 * @param Summary|null $summary
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function apply( EntityDocument $entity, Summary $summary = null ) {
-		if ( !( $entity instanceof FingerprintHolder ) ) {
-			throw new InvalidArgumentException( '$entity must be a FingerprintHolder' );
+		if ( !( $entity instanceof FingerprintProvider ) ) {
+			throw new InvalidArgumentException( '$entity must be a FingerprintProvider' );
 		}
 
 		$fingerprint = $entity->getFingerprint();
@@ -97,23 +100,19 @@ class ChangeOpLabel extends ChangeOpBase {
 		}
 
 		$this->updateFingerprint( $fingerprint );
-		$entity->setFingerprint( $fingerprint );
 	}
 
 	/**
-	 * Validates this ChangeOp
-	 *
-	 * @see ChangeOp::validate()
-	 *
-	 * @since 0.5
+	 * @see ChangeOp::validate
 	 *
 	 * @param EntityDocument $entity
 	 *
+	 * @throws InvalidArgumentException
 	 * @return Result
 	 */
 	public function validate( EntityDocument $entity ) {
-		if ( !( $entity instanceof FingerprintHolder ) ) {
-			throw new InvalidArgumentException( '$entity must be a FingerprintHolder' );
+		if ( !( $entity instanceof FingerprintProvider ) ) {
+			throw new InvalidArgumentException( '$entity must be a FingerprintProvider' );
 		}
 
 		$languageValidator = $this->termValidatorFactory->getLanguageValidator();

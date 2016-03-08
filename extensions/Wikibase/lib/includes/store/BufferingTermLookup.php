@@ -13,7 +13,7 @@ use Wikibase\TermIndex;
 /**
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class BufferingTermLookup extends EntityTermLookupBase implements TermBuffer {
@@ -60,7 +60,7 @@ class BufferingTermLookup extends EntityTermLookupBase implements TermBuffer {
 	 *
 	 * @return string[] the buffer keys
 	 */
-	private function getBufferKeys( array $entityIds, array  $termTypes, array $languageCodes ) {
+	private function getBufferKeys( array $entityIds, array $termTypes, array $languageCodes ) {
 		$keys = array();
 
 		foreach ( $entityIds as $entityId ) {
@@ -201,7 +201,7 @@ class BufferingTermLookup extends EntityTermLookupBase implements TermBuffer {
 	 * @param string[] $languageCodes
 	 * @param string[] $skipKeys Keys known to refer to existing terms.
 	 */
-	private function setUndefinedTerms( array $entityIds, array  $termTypes, array $languageCodes, array $skipKeys ) {
+	private function setUndefinedTerms( array $entityIds, array $termTypes, array $languageCodes, array $skipKeys ) {
 		$skipKeys = array_flip( $skipKeys );
 		$keys = $this->getBufferKeys( $entityIds, $termTypes, $languageCodes );
 
@@ -229,7 +229,7 @@ class BufferingTermLookup extends EntityTermLookupBase implements TermBuffer {
 	 *
 	 * @return array[]
 	 */
-	private function groupEntityIds( $entityIds ) {
+	private function groupEntityIds( array $entityIds ) {
 		$entityIdsByType = array();
 
 		foreach ( $entityIds as $id ) {

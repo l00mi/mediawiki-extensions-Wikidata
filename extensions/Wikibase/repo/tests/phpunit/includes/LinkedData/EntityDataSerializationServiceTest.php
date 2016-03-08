@@ -16,6 +16,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\EntityRevision;
+use Wikibase\Rdf\RdfVocabulary;
 use Wikibase\RedirectRevision;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
 use Wikibase\Repo\LinkedData\EntityDataSerializationService;
@@ -29,7 +30,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @group WikibaseEntityData
  * @group WikibaseRepo
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
@@ -100,8 +101,6 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 		$rdfBuilder = WikibaseRepo::getDefaultInstance()->getValueSnakRdfBuilderFactory();
 
 		$service = new EntityDataSerializationService(
-			self::URI_BASE,
-			self::URI_DATA,
 			$this->getMockRepository(),
 			$titleLookup,
 			$dataTypeLookup,
@@ -109,7 +108,8 @@ class EntityDataSerializationServiceTest extends \MediaWikiTestCase {
 			new SiteList(),
 			new EntityDataFormatProvider(),
 			$serializerFactory,
-			new HashSiteStore()
+			new HashSiteStore(),
+			new RdfVocabulary( self::URI_BASE, self::URI_DATA )
 		);
 
 		return $service;

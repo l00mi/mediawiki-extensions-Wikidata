@@ -184,18 +184,18 @@ $.widget( 'wikibase.listview', PARENT, {
 	 * @return {*[]|undefined}
 	 */
 	value: function( value ) {
-		if ( value === undefined ) {
-			var self = this,
-				values = [];
-
-			this.items().each( function() {
-				values.push( self._lia.liInstance( $( this ) ) );
-			} );
-
-			return values;
+		if ( value !== undefined ) {
+			return this.option( 'value', value );
 		}
 
-		this.option( 'value', value );
+		var self = this,
+			values = [];
+
+		this.items().each( function() {
+			values.push( self._lia.liInstance( $( this ) ) );
+		} );
+
+		return values;
 	},
 
 	/**
@@ -215,7 +215,7 @@ $.widget( 'wikibase.listview', PARENT, {
 	 */
 	nonEmptyItems: function() {
 		var lia = this._lia;
-		return this.items().filter( function( i ) {
+		return this.items().filter( function() {
 			var item = lia.liInstance( $( this ) );
 			return !!item.value();
 		} );

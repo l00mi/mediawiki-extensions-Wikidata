@@ -38,7 +38,7 @@ use Wikimedia\Purtle\RdfWriterFactory;
  *
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Thomas Pellissier Tanon
  * @author Anja Jentzsch < anja.jentzsch@wikimedia.de >
@@ -49,7 +49,7 @@ class EntityDataSerializationService {
 	 * Attributes that should be included in the serialized form of the entity.
 	 * That is, all well known attributes.
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	private $fieldsToShow = array(
 		'labels',
@@ -60,16 +60,6 @@ class EntityDataSerializationService {
 		'claims',
 		'statements',
 	);
-
-	/**
-	 * @var string|null
-	 */
-	private $rdfBaseURI = null;
-
-	/**
-	 * @var string|null
-	 */
-	private $rdfDataURI = null;
 
 	/**
 	 * @var EntityLookup|null
@@ -112,9 +102,9 @@ class EntityDataSerializationService {
 	private $siteStore;
 
 	/**
-	 * @var string[] Mapping of non-standard to canonical language codes.
+	 * @var RdfVocabulary
 	 */
-	private $canonicalLanguageCodes;
+	private $rdfVocabulary;
 
 	/**
 	 * @var ValueSnakRdfBuilderFactory
@@ -122,8 +112,6 @@ class EntityDataSerializationService {
 	private $valueSnakRdfBuilderFactory;
 
 	/**
-	 * @param string $rdfBaseURI
-	 * @param string $rdfDataURI
 	 * @param EntityLookup $entityLookup
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param PropertyDataTypeLookup $propertyLookup
@@ -132,13 +120,11 @@ class EntityDataSerializationService {
 	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param SerializerFactory $serializerFactory
 	 * @param SiteStore $siteStore
-	 * @param string[] $canonicalLanguageCodes Mapping of non-standard to canonical language codes.
+	 * @param RdfVocabulary $rdfVocabulary
 	 *
 	 * @since 0.4
 	 */
 	public function __construct(
-		$rdfBaseURI,
-		$rdfDataURI,
 		EntityLookup $entityLookup,
 		EntityTitleLookup $entityTitleLookup,
 		PropertyDataTypeLookup $propertyLookup,
@@ -147,10 +133,8 @@ class EntityDataSerializationService {
 		EntityDataFormatProvider $entityDataFormatProvider,
 		SerializerFactory $serializerFactory,
 		SiteStore $siteStore,
-		array $canonicalLanguageCodes = array()
+		RdfVocabulary $rdfVocabulary
 	) {
-		$this->rdfBaseURI = $rdfBaseURI;
-		$this->rdfDataURI = $rdfDataURI;
 		$this->entityLookup = $entityLookup;
 		$this->entityTitleLookup = $entityTitleLookup;
 		$this->serializerFactory = $serializerFactory;
@@ -159,51 +143,23 @@ class EntityDataSerializationService {
 		$this->sites = $sites;
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
 		$this->siteStore = $siteStore;
-		$this->canonicalLanguageCodes = $canonicalLanguageCodes;
+		$this->rdfVocabulary = $rdfVocabulary;
 
 		$this->rdfWriterFactory = new RdfWriterFactory();
 	}
 
 	/**
-	 * @param array $fieldsToShow
+	 * @param string[] $fieldsToShow
 	 */
-	public function setFieldsToShow( $fieldsToShow ) {
+	public function setFieldsToShow( array $fieldsToShow ) {
 		$this->fieldsToShow = $fieldsToShow;
 	}
 
 	/**
-	 * @return array
+	 * @return string[]
 	 */
 	public function getFieldsToShow() {
 		return $this->fieldsToShow;
-	}
-
-	/**
-	 * @param string $rdfBaseURI
-	 */
-	public function setRdfBaseURI( $rdfBaseURI ) {
-		$this->rdfBaseURI = $rdfBaseURI;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getRdfBaseURI() {
-		return $this->rdfBaseURI;
-	}
-
-	/**
-	 * @param string $rdfDataURI
-	 */
-	public function setRdfDataURI( $rdfDataURI ) {
-		$this->rdfDataURI = $rdfDataURI;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getRdfDataURI() {
-		return $this->rdfDataURI;
 	}
 
 	/**
@@ -431,7 +387,7 @@ class EntityDataSerializationService {
 
 		$rdfBuilder = new RdfBuilder(
 			$this->sites,
-			new RdfVocabulary( $this->rdfBaseURI, $this->rdfDataURI, $this->canonicalLanguageCodes ),
+			$this->rdfVocabulary,
 			$this->valueSnakRdfBuilderFactory,
 			$this->propertyLookup,
 			$this->getFlavor( $flavorName ),

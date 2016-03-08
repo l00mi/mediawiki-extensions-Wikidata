@@ -22,7 +22,7 @@ use Wikibase\TermIndexEntry;
  *
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class MockTermIndex implements TermIndex, LabelConflictFinder {
@@ -42,7 +42,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	/**
 	 * @see LabelConflictFinder::getLabelConflicts
 	 *
-	 * @param string[] $entityType The relevant entity type
+	 * @param string $entityType The relevant entity type
 	 * @param string[] $labels The label to look for
 	 * @param array[]|null $aliases
 	 *
@@ -121,12 +121,12 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	}
 
 	/**
-	 * @param string[] $textsByLanguage A list of texts, or a list of lists of texts (keyed by language on the top level)
+	 * @param array[]|string[] $textsByLanguage A list of texts, or a list of lists of texts (keyed by language on the top level)
 	 * @param string[] $types
 	 *
 	 * @return TermIndexEntry[]
 	 */
-	private function makeTemplateTerms( $textsByLanguage, array $types ) {
+	private function makeTemplateTerms( array $textsByLanguage, array $types ) {
 		$terms = array();
 
 		foreach ( $textsByLanguage as $lang => $texts ) {

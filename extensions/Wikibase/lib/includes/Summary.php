@@ -7,7 +7,7 @@ namespace Wikibase;
  *
  * @since 0.1, major refactoring in 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author John Erling Blad
  * @author Daniel Kinzler
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
@@ -57,8 +57,8 @@ class Summary {
 		$moduleName = null,
 		$actionName = null,
 		$languageCode = null,
-		$commentArgs = array(),
-		$summaryArgs = array()
+		array $commentArgs = array(),
+		array $summaryArgs = array()
 	) {
 		$this->moduleName = $moduleName;
 		$this->actionName = $actionName;

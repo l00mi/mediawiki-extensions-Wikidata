@@ -8,12 +8,11 @@ use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 /**
  * @covers Wikibase\Repo\Validators\StringLengthValidator
  *
- * @license GPL 2+
- *
  * @group WikibaseRepo
  * @group Wikibase
  * @group WikibaseValidators
  *
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class StringLengthValidatorTest extends \PHPUnit_Framework_TestCase {
@@ -23,7 +22,7 @@ class StringLengthValidatorTest extends \PHPUnit_Framework_TestCase {
 			array( 1, 10, 'strlen', 'foo', true, "normal fit" ),
 			array( 0, 10, 'strlen', '', true, "empty ok" ),
 			array( 1, 10, 'strlen', '', false, "empty not allowed" ),
-			array( 1, 2, 'strlen', 'foo', false, "too long" ),
+			array( 1, 2, 'strlen', str_repeat( 'a', 33 ), false, 'too long' ),
 			array( 1, 2, 'strlen', 'ää', false, "byte measure" ), // assumes utf-8, latin1 will fail
 			array( 1, 2, 'mb_strlen', 'ää', true, "char measure" ),
 		);
@@ -50,11 +49,6 @@ class StringLengthValidatorTest extends \PHPUnit_Framework_TestCase {
 			$msg = $localizer->getErrorMessage( $errors[0] );
 			$this->assertTrue( $msg->exists(), $msg );
 		}
-	}
-
-	public function testSetOptions() {
-		$validator = new StringLengthValidator( 0, 0 );
-		$validator->setOptions( array() );
 	}
 
 }

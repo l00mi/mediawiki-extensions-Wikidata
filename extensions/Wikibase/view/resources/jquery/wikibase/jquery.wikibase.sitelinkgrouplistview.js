@@ -65,7 +65,8 @@ function orderSiteLinksByGroup( siteLinkSet ) {
 			found = false;
 
 		if ( !site ) {
-			throw new Error( 'Site with id ' + siteId + ' is not registered' );
+			mw.log.warn( 'Site with id ' + siteId + ' is not registered, but used' );
+			return;
 		}
 
 		for ( var i = 0; i < value.length; i++ ) {
@@ -178,8 +179,7 @@ $.widget( 'wikibase.sitelinkgrouplistview', PARENT, {
 						value: value,
 						siteLinksChanger: self.options.siteLinksChanger,
 						entityIdPlainFormatter: self.options.entityIdPlainFormatter,
-						eventSingletonManager: this._eventSingletonManager,
-						helpMessage: mw.msg( 'wikibase-sitelinkgroupview-input-help-message' )
+						eventSingletonManager: this._eventSingletonManager
 					};
 				}
 			} ),

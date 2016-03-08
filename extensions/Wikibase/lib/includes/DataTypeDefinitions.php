@@ -24,7 +24,7 @@ use Wikimedia\Assert\Assert;
  *
  * @see docs/datatypes.wiki
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class DataTypeDefinitions {
@@ -55,10 +55,7 @@ class DataTypeDefinitions {
 	 * for details.
 	 * @param string[] $disabledDataTypes Array of disabled data types.
 	 */
-	public function __construct(
-		array $dataTypeDefinitions = array(),
-		array $disabledDataTypes = array()
-	) {
+	public function __construct( array $dataTypeDefinitions, array $disabledDataTypes = array() ) {
 		$dataTypeDefinitions = $this->filterDisabledDataTypes(
 			$dataTypeDefinitions,
 			$disabledDataTypes
@@ -123,7 +120,7 @@ class DataTypeDefinitions {
 	 * @return array A filtered version of $map that only contains the entries
 	 *         with keys that match the prefix $prefix, with that prefix removed.
 	 */
-	private function getFilteredByPrefix( $map, $prefix ) {
+	private function getFilteredByPrefix( array $map, $prefix ) {
 		$filtered = array();
 
 		foreach ( $map as $key => $value ) {

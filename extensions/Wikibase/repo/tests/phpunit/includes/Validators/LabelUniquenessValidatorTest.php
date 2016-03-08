@@ -2,11 +2,10 @@
 
 namespace Wikibase\Test\Repo\Validators;
 
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\DataModel\Term\AliasGroup;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\Term;
@@ -23,7 +22,7 @@ use Wikibase\Test\ChangeOpTestMockProvider;
  * @group WikibaseRepo
  * @group WikibaseContent
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
@@ -139,9 +138,9 @@ class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider validEntityProvider
 	 *
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 */
-	public function testValidateEntity( Entity $entity ) {
+	public function testValidateEntity( EntityDocument $entity ) {
 		$dupeDetector = $this->getMockDupeDetector();
 		$validator = new LabelUniquenessValidator( $dupeDetector );
 
@@ -173,10 +172,10 @@ class LabelUniquenessValidatorTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider invalidEntityProvider
 	 *
-	 * @param Entity $entity
+	 * @param EntityDocument $entity
 	 * @param string|null $error
 	 */
-	public function testValidateEntity_failure( Entity $entity, $error ) {
+	public function testValidateEntity_failure( EntityDocument $entity, $error ) {
 		$dupeDetector = $this->getMockDupeDetector();
 		$validator = new LabelUniquenessValidator( $dupeDetector );
 

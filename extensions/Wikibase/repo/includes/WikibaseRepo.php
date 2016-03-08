@@ -18,6 +18,7 @@ use Serializers\Serializer;
 use SiteSQLStore;
 use SiteStore;
 use StubObject;
+use Title;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
@@ -34,6 +35,7 @@ use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\InProcessCachingDataTypeLookup;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\DataModel\Services\Statement\GuidGenerator;
@@ -45,6 +47,7 @@ use Wikibase\EntityFactory;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
 use Wikibase\InternalSerialization\SerializerFactory as InternalSerializerFactory;
 use Wikibase\LabelDescriptionDuplicateDetector;
+use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ContentLanguages;
@@ -53,6 +56,7 @@ use Wikibase\Lib\DifferenceContentLanguages;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityIdPlainLinkFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
+use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\Lib\LanguageNameLookup;
@@ -72,9 +76,9 @@ use Wikibase\Lib\UnionContentLanguages;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\PropertyInfoBuilder;
+use Wikibase\Rdf\RdfVocabulary;
 use Wikibase\Rdf\ValueSnakRdfBuilderFactory;
 use Wikibase\Repo\Api\ApiHelperFactory;
-use Wikibase\Repo\CachingCommonsMediaFileNameLookup;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\ItemHandler;
 use Wikibase\Repo\Content\PropertyHandler;
@@ -93,6 +97,7 @@ use Wikibase\Repo\Notifications\ChangeNotifier;
 use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\HookChangeTransmitter;
+use Wikibase\Repo\ParserOutput\DispatchingEntityViewFactory;
 use Wikibase\Repo\ParserOutput\EntityParserOutputGeneratorFactory;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\Validators\EntityConstraintProvider;
@@ -106,13 +111,14 @@ use Wikibase\Store\BufferingTermLookup;
 use Wikibase\Store\EntityIdLookup;
 use Wikibase\StringNormalizer;
 use Wikibase\SummaryFormatter;
-use Wikibase\View\EntityViewFactory;
+use Wikibase\View\EditSectionGenerator;
 use Wikibase\View\Template\TemplateFactory;
+use Wikibase\View\ViewFactory;
 
 /**
  * Top level factory for the WikibaseRepo extension.
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
@@ -215,6 +221,11 @@ class WikibaseRepo {
 	private $dataTypeDefinitions;
 
 	/**
+	 * @var EntityTypeDefinitions
+	 */
+	private $entityTypeDefinitions;
+
+	/**
 	 * @var Language
 	 */
 	private $defaultLanguage;
@@ -225,6 +236,11 @@ class WikibaseRepo {
 	private $valueSnakRdfBuilderFactory;
 
 	/**
+	 * @var RdfVocabulary
+	 */
+	private $rdfVocabulary;
+
+	/**
 	 * @var CachingCommonsMediaFileNameLookup|null
 	 */
 	private $cachingCommonsMediaFileNameLookup = null;
@@ -233,18 +249,21 @@ class WikibaseRepo {
 	 * IMPORTANT: Use only when it is not feasible to inject an instance properly.
 	 *
 	 * @throws MWException
-	 * @return WikibaseRepo
+	 * @return self
 	 */
 	private static function newInstance() {
-		global $wgWBRepoDataTypes, $wgWBRepoSettings, $wgContLang;
+		global $wgWBRepoDataTypes, $wgWBRepoEntityTypes, $wgWBRepoSettings, $wgContLang;
 
-		if ( !is_array( $wgWBRepoDataTypes ) ) {
-			throw new MWException( '$wgWBRepoDataTypes must be an array. Maybe you forgot to '
-				. 'require Wikibase.php in your LocalSettings.php?' );
+		if ( !is_array( $wgWBRepoDataTypes ) || !is_array( $wgWBRepoEntityTypes ) ) {
+			throw new MWException( '$wgWBRepoDataTypes and $wgWBRepoEntityTypes must be arrays. '
+				. 'Maybe you forgot to require Wikibase.php in your LocalSettings.php?' );
 		}
 
 		$dataTypeDefinitions = $wgWBRepoDataTypes;
 		Hooks::run( 'WikibaseRepoDataTypes', array( &$dataTypeDefinitions ) );
+
+		$entityTypeDefinitions = $wgWBRepoEntityTypes;
+		Hooks::run( 'WikibaseRepoEntityTypes', array( &$entityTypeDefinitions ) );
 
 		$settings = new SettingsArray( $wgWBRepoSettings );
 
@@ -254,6 +273,7 @@ class WikibaseRepo {
 				$dataTypeDefinitions,
 				$settings->getSetting( 'disabledDataTypes' )
 			),
+			new EntityTypeDefinitions( $entityTypeDefinitions ),
 			$wgContLang
 		);
 	}
@@ -263,7 +283,7 @@ class WikibaseRepo {
 	 *
 	 * @since 0.4
 	 *
-	 * @return WikibaseRepo
+	 * @return self
 	 */
 	public static function getDefaultInstance() {
 		static $instance = null;
@@ -397,15 +417,18 @@ class WikibaseRepo {
 	 *
 	 * @param SettingsArray $settings
 	 * @param DataTypeDefinitions $dataTypeDefinitions
+	 * @param EntityTypeDefinitions $entityTypeDefinitions
 	 * @param Language|null $defaultLanguage
 	 */
 	public function __construct(
 		SettingsArray $settings,
 		DataTypeDefinitions $dataTypeDefinitions,
+		EntityTypeDefinitions $entityTypeDefinitions,
 		Language $defaultLanguage = null
 	) {
 		$this->settings = $settings;
 		$this->dataTypeDefinitions = $dataTypeDefinitions;
+		$this->entityTypeDefinitions = $entityTypeDefinitions;
 		$this->defaultLanguage = $defaultLanguage;
 	}
 
@@ -883,6 +906,32 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @return RdfVocabulary
+	 */
+	public function getRdfVocabulary() {
+		global $wgDummyLanguageCodes;
+
+		if ( $this->rdfVocabulary === null ) {
+			$settings = $this->getSettings();
+
+			$languageCodes = array_merge(
+				$wgDummyLanguageCodes,
+				$settings->getSetting( 'canonicalLanguageCodes' )
+			);
+
+			$entityDataTitle = Title::makeTitle( NS_SPECIAL, 'EntityData' );
+
+			$this->rdfVocabulary = new RdfVocabulary(
+				$settings->getSetting( 'conceptBaseUri' ),
+				$entityDataTitle->getCanonicalURL() . '/',
+				$languageCodes
+			);
+		}
+
+		return $this->rdfVocabulary;
+	}
+
+	/**
 	 * @return ExceptionLocalizer
 	 */
 	public function getExceptionLocalizer() {
@@ -1162,10 +1211,11 @@ class WikibaseRepo {
 	/**
 	 * @return InternalDeserializerFactory
 	 */
-	protected function getInternalDeserializerFactory() {
+	private function getInternalDeserializerFactory() {
 		return new InternalDeserializerFactory(
 			$this->getDataValueDeserializer(),
-			$this->getEntityIdParser()
+			$this->getEntityIdParser(),
+			$this->getEntityDeserializer()
 		);
 	}
 
@@ -1214,7 +1264,7 @@ class WikibaseRepo {
 	/**
 	 * @return InternalSerializerFactory
 	 */
-	protected function getInternalSerializerFactory() {
+	public function getInternalSerializerFactory() {
 		return new InternalSerializerFactory( new DataValueSerializer() );
 	}
 
@@ -1404,48 +1454,83 @@ class WikibaseRepo {
 	 * @return EntityParserOutputGeneratorFactory
 	 */
 	public function getEntityParserOutputGeneratorFactory() {
-		global $wgLang;
+		$viewFactory = $this->getViewFactory();
 
-		$templateFactory = TemplateFactory::getDefaultInstance();
-		$dataTypeLookup = $this->getPropertyDataTypeLookup();
+		$entityDataFormatProvider = new EntityDataFormatProvider();
+		$formats = $this->getSettings()->getSetting( 'entityDataFormats' );
+		$entityDataFormatProvider->setFormatWhiteList( $formats );
+
+		// TODO move this to WikibaseRepo.entitytypes.php or EntityHandler resp. EntityContent
+		$entityViewFactoryCallbacks = array(
+			Item::ENTITY_TYPE => function(
+				$languageCode,
+				LabelDescriptionLookup $labelDescriptionLookup,
+				LanguageFallbackChain $fallbackChain,
+				EditSectionGenerator $editSectionGenerator
+			) use ( $viewFactory ) {
+				return $viewFactory->newItemView(
+					$languageCode,
+					$labelDescriptionLookup,
+					$fallbackChain,
+					$editSectionGenerator
+				);
+			},
+			Property::ENTITY_TYPE => function(
+				$languageCode,
+				LabelDescriptionLookup $labelDescriptionLookup,
+				LanguageFallbackChain $fallbackChain,
+				EditSectionGenerator $editSectionGenerator
+			) use ( $viewFactory ) {
+				return $viewFactory->newPropertyView(
+					$languageCode,
+					$labelDescriptionLookup,
+					$fallbackChain,
+					$editSectionGenerator
+				);
+			}
+		);
+
+		return new EntityParserOutputGeneratorFactory(
+			new DispatchingEntityViewFactory( $entityViewFactoryCallbacks ),
+			$this->getStore()->getEntityInfoBuilderFactory(),
+			$this->getEntityContentFactory(),
+			$this->getLanguageFallbackChainFactory(),
+			TemplateFactory::getDefaultInstance(),
+			$entityDataFormatProvider,
+			// FIXME: Should this be done for all usages of this lookup, or is the impact of
+			// CachingPropertyInfoStore enough?
+			new InProcessCachingDataTypeLookup( $this->getPropertyDataTypeLookup() ),
+			$this->getLocalEntityUriParser(),
+			$this->settings->getSetting( 'preferredGeoDataProperties' ),
+			$this->settings->getSetting( 'preferredPageImagesProperties' ),
+			$this->settings->getSetting( 'globeUris' )
+		);
+	}
+
+	/**
+	 * @return ViewFactory
+	 */
+	public function getViewFactory() {
+		/** @var Language $wgLang */
+		global $wgLang;
 
 		$statementGrouperBuilder = new StatementGrouperBuilder(
 			$this->settings->getSetting( 'statementSections' ),
-			$dataTypeLookup
+			$this->getPropertyDataTypeLookup()
 		);
 
-		$entityViewFactory = new EntityViewFactory(
+		return new ViewFactory(
 			$this->getEntityIdHtmlLinkFormatterFactory(),
 			new EntityIdLabelFormatterFactory(),
 			$this->getHtmlSnakFormatterFactory(),
 			$statementGrouperBuilder->getStatementGrouper(),
 			$this->getSiteStore(),
 			$this->getDataTypeFactory(),
-			$templateFactory,
+			TemplateFactory::getDefaultInstance(),
 			new LanguageNameLookup( $wgLang->getCode() ),
 			$this->settings->getSetting( 'siteLinkGroups' ),
 			$this->settings->getSetting( 'specialSiteLinkGroups' ),
 			$this->settings->getSetting( 'badgeItems' )
-		);
-
-		$entityDataFormatProvider = new EntityDataFormatProvider();
-		$formats = $this->getSettings()->getSetting( 'entityDataFormats' );
-		$entityDataFormatProvider->setFormatWhiteList( $formats );
-
-		return new EntityParserOutputGeneratorFactory(
-			$entityViewFactory,
-			$this->getStore()->getEntityInfoBuilderFactory(),
-			$this->getEntityContentFactory(),
-			$this->getLanguageFallbackChainFactory(),
-			$templateFactory,
-			$entityDataFormatProvider,
-			// FIXME: Should this be done for all usages of this lookup, or is the impact of
-			// CachingPropertyInfoStore enough?
-			new InProcessCachingDataTypeLookup( $dataTypeLookup ),
-			$this->getLocalEntityUriParser(),
-			$this->settings->getSetting( 'preferredGeoDataProperties' ),
-			$this->settings->getSetting( 'preferredPageImagesProperties' ),
-			$this->settings->getSetting( 'globeUris' )
 		);
 	}
 

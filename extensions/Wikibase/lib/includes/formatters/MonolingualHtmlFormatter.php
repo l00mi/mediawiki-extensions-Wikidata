@@ -5,14 +5,13 @@ namespace Wikibase\Formatters;
 use DataValues\MonolingualTextValue;
 use InvalidArgumentException;
 use ValueFormatters\FormatterOptions;
-use ValueFormatters\ValueFormatter;
 use ValueFormatters\ValueFormatterBase;
 use Wikibase\Lib\LanguageNameLookup;
 
 /**
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class MonolingualHtmlFormatter extends ValueFormatterBase {
@@ -49,11 +48,11 @@ class MonolingualHtmlFormatter extends ValueFormatterBase {
 		$languageCode = $value->getLanguageCode();
 		$languageName = $this->languageNameLookup->getName( $languageCode );
 
-		$msg = wfMessage( 'wikibase-monolingualtext' )->params(
+		return wfMessage( 'wikibase-monolingualtext',
 			wfEscapeWikiText( $text ),
 			wfEscapeWikiText( $languageCode ),
-			wfEscapeWikiText( $languageName ) );
-		return $msg->parse();
+			wfEscapeWikiText( $languageName )
+		)->parse();
 	}
 
 }

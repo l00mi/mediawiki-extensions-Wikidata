@@ -9,7 +9,7 @@ use ValueValidators\ValueValidator;
 /**
  * TypeValidator checks a value's data type.
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class TypeValidator implements ValueValidator {
@@ -59,6 +59,8 @@ class TypeValidator implements ValueValidator {
 	 * @see ValueValidator::setOptions()
 	 *
 	 * @param array $options
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function setOptions( array $options ) {
 		// Do nothing. This method shouldn't even be in the interface.

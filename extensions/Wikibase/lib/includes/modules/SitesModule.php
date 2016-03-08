@@ -10,7 +10,7 @@ use Wikibase\Lib\SitesModuleWorker;
 /**
  * @since 0.2
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Werner < daniel.werner@wikimedia.de >
  * @author Marius Hoch < hoo@online.de >
@@ -42,7 +42,7 @@ class SitesModule extends ResourceLoaderModule {
 	 * @return string
 	 */
 	public function getScript( ResourceLoaderContext $context ) {
-		return $this->worker->getScript();
+		return $this->worker->getScript( $context->getLanguage() );
 	}
 
 	/**

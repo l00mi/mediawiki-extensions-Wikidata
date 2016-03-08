@@ -14,7 +14,8 @@ use User;
  *
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
+ * @author Liangent < liangent@gmail.com >
  */
 class LanguageFallbackChainFactory {
 
@@ -112,7 +113,7 @@ class LanguageFallbackChainFactory {
 	 * @throws InvalidArgumentException
 	 * @return LanguageWithConversion[]
 	 */
-	private function buildFromLanguage( $language, $mode, &$chain = array(), &$fetched = array() ) {
+	private function buildFromLanguage( $language, $mode, array &$chain = array(), array &$fetched = array() ) {
 		if ( !is_int( $mode ) ) {
 			throw new InvalidArgumentException( '$mode must be an integer' );
 		}

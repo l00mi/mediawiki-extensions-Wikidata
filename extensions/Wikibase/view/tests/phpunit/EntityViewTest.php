@@ -3,7 +3,7 @@
 namespace Wikibase\View\Tests;
 
 use MediaWikiLangTestCase;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\EntityRevision;
@@ -15,7 +15,7 @@ use Wikibase\View\EntityView;
  * @group Wikibase
  * @group WikibaseView
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  * @author Daniel Kinzler
  */
@@ -25,7 +25,7 @@ abstract class EntityViewTest extends MediaWikiLangTestCase {
 	 * @param EntityId $id
 	 * @param Statement[] $statements
 	 *
-	 * @return Entity
+	 * @return EntityDocument
 	 */
 	abstract protected function makeEntity( EntityId $id, array $statements = array() );
 

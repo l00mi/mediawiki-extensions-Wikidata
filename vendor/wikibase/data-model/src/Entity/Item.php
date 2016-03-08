@@ -4,10 +4,8 @@ namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
 use OutOfBoundsException;
-use Wikibase\DataModel\Claim\Claims;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
-use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListHolder;
 use Wikibase\DataModel\Term\Fingerprint;
@@ -240,7 +238,7 @@ class Item extends Entity implements StatementListHolder {
 	/**
 	 * @deprecated since 2.5, use new Item() instead.
 	 *
-	 * @return Item
+	 * @return self
 	 */
 	public static function newEmpty() {
 		return new self();
@@ -302,30 +300,7 @@ class Item extends Entity implements StatementListHolder {
 	}
 
 	/**
-	 * @deprecated since 1.0, use getStatements()->toArray() instead.
-	 *
-	 * @return Statement[]
-	 */
-	public function getClaims() {
-		return $this->statements->toArray();
-	}
-
-	/**
-	 * @deprecated since 1.0, use setStatements instead
-	 *
-	 * @param Claims $claims
-	 */
-	public function setClaims( Claims $claims ) {
-		$this->statements = new StatementList( iterator_to_array( $claims ) );
-	}
-
-	/**
-	 * @see Comparable::equals
-	 *
-	 * Two items are considered equal if they are of the same
-	 * type and have the same value. The value does not include
-	 * the id, so entities with the same value but different id
-	 * are considered equal.
+	 * @see EntityDocument::equals
 	 *
 	 * @since 0.1
 	 *
@@ -342,6 +317,17 @@ class Item extends Entity implements StatementListHolder {
 			&& $this->fingerprint->equals( $target->fingerprint )
 			&& $this->siteLinks->equals( $target->siteLinks )
 			&& $this->statements->equals( $target->statements );
+	}
+
+	/**
+	 * @see EntityDocument::copy
+	 *
+	 * @since 0.1
+	 *
+	 * @return self
+	 */
+	public function copy() {
+		return unserialize( serialize( $this ) );
 	}
 
 }

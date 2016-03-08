@@ -22,7 +22,7 @@ use Wikibase\Test\MockRepository;
  * @group Wikibase
  * @group Database
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
  */
@@ -33,6 +33,9 @@ class ClientParserOutputDataUpdaterTest extends MediaWikiLangTestCase {
 	 */
 	private $mockRepo = null;
 
+	/**
+	 * @return Item[]
+	 */
 	private function getItems() {
 		$items = array();
 
@@ -227,7 +230,7 @@ class ClientParserOutputDataUpdaterTest extends MediaWikiLangTestCase {
 		foreach ( $this->getItems() as $item ) {
 			$siteLinkLookup->putEntity( $item );
 
-			$itemNoSiteLinks = unserialize( serialize( $item ) );
+			$itemNoSiteLinks = $item->copy();
 			$itemNoSiteLinks->setSiteLinkList( new SiteLinkList() );
 
 			$mockRepoNoSiteLinks->putEntity( $itemNoSiteLinks );

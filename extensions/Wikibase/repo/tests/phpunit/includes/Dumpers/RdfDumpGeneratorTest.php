@@ -6,7 +6,7 @@ use MWException;
 use PHPUnit_Framework_TestCase;
 use Site;
 use SiteList;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -15,6 +15,7 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\Dumpers\RdfDumpGenerator;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
+use Wikibase\Rdf\RdfVocabulary;
 use Wikibase\Repo\Tests\Rdf\NTriplesRdfTestHelper;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Test\Rdf\RdfBuilderTest;
@@ -29,7 +30,8 @@ use Wikibase\Test\Rdf\RdfBuilderTestData;
  * @group WikibaseRdf
  * @group RdfDump
  *
- * @license GPL 2+
+ * @license GPL-2.0+
+ * @author Stas Malyshev
  */
 class RdfDumpGeneratorTest extends PHPUnit_Framework_TestCase {
 
@@ -82,7 +84,7 @@ class RdfDumpGeneratorTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param Entity[] $entities
+	 * @param EntityDocument[] $entities
 	 * @param EntityId[] $redirects
 	 *
 	 * @return RdfDumpGenerator
@@ -130,14 +132,16 @@ class RdfDumpGeneratorTest extends PHPUnit_Framework_TestCase {
 		return RdfDumpGenerator::createDumpGenerator(
 			'ntriples',
 			$out,
-			self::URI_BASE,
-			self::URI_DATA,
 			$this->getSiteList(),
 			$entityRevisionLookup,
 			$dataTypeLookup,
 			$rdfBuilderFactory,
 			new NullEntityPrefetcher(),
-			array( 'test' => 'en-x-test' )
+			new RdfVocabulary(
+				self::URI_BASE,
+				self::URI_DATA,
+				array( 'test' => 'en-x-test' )
+			)
 		);
 	}
 

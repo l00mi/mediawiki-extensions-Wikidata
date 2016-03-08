@@ -12,7 +12,7 @@ use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
  * @group Wikibase
  * @group WikibaseValidators
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class NumberRangeValidatorTest extends \PHPUnit_Framework_TestCase {
@@ -49,11 +49,6 @@ class NumberRangeValidatorTest extends \PHPUnit_Framework_TestCase {
 			$msg = $localizer->getErrorMessage( $errors[0] );
 			$this->assertTrue( $msg->exists(), $msg );
 		}
-	}
-
-	public function testSetOptions() {
-		$validator = new NumberRangeValidator( 0, 0 );
-		$validator->setOptions( array() );
 	}
 
 }

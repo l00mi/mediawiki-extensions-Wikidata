@@ -5,7 +5,6 @@ namespace Wikibase\Lib;
 use DataValues\TimeValue;
 use InvalidArgumentException;
 use Language;
-use Message;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use ValueFormatters\ValueFormatterBase;
@@ -13,7 +12,7 @@ use ValueFormatters\ValueFormatterBase;
 /**
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  * @author Addshore
  * @author Thiemo Mättig
@@ -316,14 +315,10 @@ class MwTimeIsoFormatter extends ValueFormatterBase {
 	 * @return string
 	 */
 	private function getMessage( $key, $param ) {
-		$message = new Message( $key );
 		// FIXME: As the frontend cannot parse the translated precisions we only want to
 		// present the English for now. Once the frontend is using backend parsers we can
 		// turn the translation on. See the FIXME in MwTimeIsoParser::reconvertOutputString.
-		// $message->inLanguage( $this->language );
-		$message->inLanguage( 'en' );
-		$message->params( array( $param ) );
-		return $message->text();
+		return wfMessage( $key, $param )->inLanguage( 'en' )->text();
 	}
 
 }

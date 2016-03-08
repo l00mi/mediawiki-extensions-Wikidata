@@ -10,12 +10,11 @@ use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 /**
  * @covers Wikibase\Repo\Validators\TypeValidator
  *
- * @license GPL 2+
- *
  * @group WikibaseRepo
  * @group Wikibase
  * @group WikibaseValidators
  *
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class TypeValidatorTest extends \PHPUnit_Framework_TestCase {
@@ -50,11 +49,6 @@ class TypeValidatorTest extends \PHPUnit_Framework_TestCase {
 			$msg = $localizer->getErrorMessage( $errors[0] );
 			$this->assertTrue( $msg->exists(), $msg );
 		}
-	}
-
-	public function testSetOptions() {
-		$validator = new TypeValidator( '' );
-		$validator->setOptions( array() );
 	}
 
 }

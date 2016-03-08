@@ -3,15 +3,14 @@
 namespace Wikibase\ChangeOp;
 
 use InvalidArgumentException;
-use ValueValidators\Result;
-use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\Summary;
 
 /**
  * Base class for change operations.
  *
  * @since 0.4
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  */
 abstract class ChangeOpBase implements ChangeOp {
@@ -32,22 +31,6 @@ abstract class ChangeOpBase implements ChangeOp {
 			$summary->setLanguage( $language );
 			$summary->addAutoSummaryArgs( $args );
 		}
-	}
-
-	/**
-	 * @see ChangeOp::validate()
-	 *
-	 * This default implementation always returns Result::newSuccess().
-	 *
-	 * @since 0.5
-	 *
-	 * @param EntityDocument $entity
-	 *
-	 * @throws ChangeOpException
-	 * @return Result
-	 */
-	public function validate( EntityDocument $entity ) {
-		return Result::newSuccess();
 	}
 
 }

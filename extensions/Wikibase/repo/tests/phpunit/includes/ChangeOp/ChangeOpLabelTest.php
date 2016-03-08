@@ -5,9 +5,10 @@ namespace Wikibase\Test;
 use InvalidArgumentException;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpLabel;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Summary;
 
 /**
@@ -17,7 +18,7 @@ use Wikibase\Summary;
  * @group WikibaseRepo
  * @group ChangeOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Daniel Kinzler
  */
@@ -102,9 +103,9 @@ class ChangeOpLabelTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @return Entity
+	 * @return FingerprintProvider|EntityDocument
 	 */
-	protected function provideNewEntity() {
+	private function provideNewEntity() {
 		$item = new Item( new ItemId( 'Q23' ) );
 		$item->setDescription( 'en', 'DUPE' );
 		$item->setDescription( 'fr', 'DUPE' );
@@ -137,7 +138,12 @@ class ChangeOpLabelTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider changeOpSummaryProvider
 	 */
-	public function testUpdateSummary( $entity, ChangeOp $changeOp, $summaryExpectedAction, $summaryExpectedLanguage ) {
+	public function testUpdateSummary(
+		EntityDocument $entity,
+		ChangeOp $changeOp,
+		$summaryExpectedAction,
+		$summaryExpectedLanguage
+	) {
 		$summary = new Summary();
 
 		$changeOp->apply( $entity, $summary );

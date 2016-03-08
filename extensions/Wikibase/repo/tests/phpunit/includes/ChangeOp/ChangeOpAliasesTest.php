@@ -14,7 +14,7 @@ use Wikibase\ItemContent;
  * @group WikibaseRepo
  * @group ChangeOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Daniel Kinzler
  */
@@ -41,7 +41,7 @@ class ChangeOpAliasesTest extends \PHPUnit_Framework_TestCase {
 	 * @param string[] $aliases
 	 * @param string $action
 	 */
-	public function testInvalidConstruct( $language, $aliases, $action ) {
+	public function testInvalidConstruct( $language, array $aliases, $action ) {
 		// "INVALID" is invalid
 		$validatorFactory = $this->getTermValidatorFactory();
 

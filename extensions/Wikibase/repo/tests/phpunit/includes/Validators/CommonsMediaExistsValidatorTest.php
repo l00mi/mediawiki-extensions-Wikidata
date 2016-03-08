@@ -8,12 +8,11 @@ use Wikibase\Repo\Validators\CommonsMediaExistsValidator;
 /**
  * @covers Wikibase\Repo\Validators\CommonsMediaExistsValidator
  *
- * @license GPL 2+
- *
  * @group WikibaseRepo
  * @group Wikibase
  * @group WikibaseValidators
  *
+ * @license GPL-2.0+
  * @author Marius Hoch
  */
 class CommonsMediaExistsValidatorTest extends \PHPUnit_Framework_TestCase {
@@ -64,11 +63,6 @@ class CommonsMediaExistsValidatorTest extends \PHPUnit_Framework_TestCase {
 
 		$this->setExpectedException( 'InvalidArgumentException' );
 		$validator->validate( 5 );
-	}
-
-	public function testSetOptions() {
-		$validator = new CommonsMediaExistsValidator( $this->getCachingCommonsMediaFileNameLookup() );
-		$validator->setOptions( array() );
 	}
 
 }

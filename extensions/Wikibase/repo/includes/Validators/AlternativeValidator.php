@@ -12,7 +12,7 @@ use ValueValidators\ValueValidator;
  * The AlternativeValidator considers the data to be valid if any of the
  * inner validators accepts the data.
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class AlternativeValidator implements ValueValidator {
@@ -67,6 +67,8 @@ class AlternativeValidator implements ValueValidator {
 	 * @see ValueValidator::setOptions()
 	 *
 	 * @param array $options
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function setOptions( array $options ) {
 		// Do nothing. This method shouldn't even be in the interface.

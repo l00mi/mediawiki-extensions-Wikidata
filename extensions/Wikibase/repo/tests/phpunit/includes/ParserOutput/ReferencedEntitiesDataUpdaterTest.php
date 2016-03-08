@@ -20,7 +20,7 @@ use Wikibase\Repo\ParserOutput\ReferencedEntitiesDataUpdater;
  * @group WikibaseRepo
  * @group Database
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thiemo Mättig
  */
 class ReferencedEntitiesDataUpdaterTest extends MediaWikiTestCase {
@@ -57,7 +57,7 @@ class ReferencedEntitiesDataUpdaterTest extends MediaWikiTestCase {
 			->method( 'parse' )
 			->will( $this->returnCallback( function( $id ) {
 				return new ItemId(
-					substr( $id, strlen( ReferencedEntitiesDataUpdaterTest::UNIT_PREFIX ) )
+					substr( $id, strlen( self::UNIT_PREFIX ) )
 				);
 			} ) );
 

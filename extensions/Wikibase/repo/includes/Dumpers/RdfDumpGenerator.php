@@ -27,7 +27,7 @@ use Wikimedia\Purtle\RdfWriterFactory;
  *
  * @since 0.5
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Stas Malyshev
  */
@@ -156,29 +156,25 @@ class RdfDumpGenerator extends DumpGenerator {
 	/**
 	 * @param string $format
 	 * @param resource $output
-	 * @param string $baseUri
-	 * @param string $dataUri
 	 * @param SiteList $sites
 	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param PropertyDataTypeLookup $propertyLookup
 	 * @param ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory
 	 * @param EntityPrefetcher $entityPrefetcher
-	 * @param string[] $canonicalLanguageCodes Mapping of non-standard to canonical language codes.
+	 * @param RdfVocabulary $vocabulary
 	 *
-	 * @return RdfDumpGenerator
+	 * @return self
 	 * @throws MWException
 	 */
 	public static function createDumpGenerator(
 		$format,
 		$output,
-		$baseUri,
-		$dataUri,
 		SiteList $sites,
 		EntityRevisionLookup $entityRevisionLookup,
 		PropertyDataTypeLookup $propertyLookup,
 		ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory,
 		EntityPrefetcher $entityPrefetcher,
-		array $canonicalLanguageCodes = array()
+		RdfVocabulary $vocabulary
 	) {
 		$rdfWriter = self::getRdfWriter( $format );
 		if ( !$rdfWriter ) {
@@ -191,7 +187,7 @@ class RdfDumpGenerator extends DumpGenerator {
 
 		$rdfBuilder = new RdfBuilder(
 			$sites,
-			new RdfVocabulary( $baseUri, $dataUri, $canonicalLanguageCodes ),
+			$vocabulary,
 			$valueSnakRdfBuilderFactory,
 			$propertyLookup,
 			$flavor,
@@ -199,7 +195,7 @@ class RdfDumpGenerator extends DumpGenerator {
 			new HashDedupeBag()
 		);
 
-		return new RdfDumpGenerator( $output, $entityRevisionLookup, $rdfBuilder, $entityPrefetcher );
+		return new self( $output, $entityRevisionLookup, $rdfBuilder, $entityPrefetcher );
 	}
 
 }

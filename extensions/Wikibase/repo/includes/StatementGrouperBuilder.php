@@ -34,7 +34,7 @@ use Wikibase\DataModel\Statement\StatementFilter;
  *
  * @since 0.5
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Thiemo Mättig
  */
@@ -105,10 +105,10 @@ class StatementGrouperBuilder {
 		switch ( $spec['type'] ) {
 			case null:
 				return new NullStatementFilter();
-			case 'dataType':
+			case DataTypeStatementFilter::FILTER_TYPE:
 				$this->requireField( $spec, 'dataTypes' );
 				return new DataTypeStatementFilter( $this->dataTypeLookup, $spec['dataTypes'] );
-			case 'propertySet':
+			case PropertySetStatementFilter::FILTER_TYPE:
 				$this->requireField( $spec, 'propertyIds' );
 				return new PropertySetStatementFilter( $spec['propertyIds'] );
 			// Be aware that this switch statement is a possible violation of the open-closed

@@ -10,6 +10,7 @@
 	"wikibase-client-desc": "Кліент для пашырэньня Wikibase",
 	"tooltip-t-wikibase": "Спасылка на аб’ект у рэпазыторыі зьвестак",
 	"apihelp-query+pageterms-example-simple": "Атрымаць усе тэрміны, асацыяваныя з старонкай «London», мовай удзельніка.",
+	"apihelp-query+pageterms-example-item": "Атрымаць меткі і псэўданімы элемэнту Q84.",
 	"wikibase-after-page-move": "Каб захаваць міжмоўныя спасылкі на перанесеную старонку, вы можаце [$1 абнавіць] злучаны аб’ект {{WBREPONAME}}.",
 	"wikibase-after-page-move-queued": "[$1 Аб’ект {{WBREPONAME}}], злучаны з гэтай старонкай, неўзабаве будзе абноўлены. Калі ласка, памятайце, што гэта не абавязкова адбудзецца імгненна.",
 	"wikibase-after-page-delete-queued": "[$1 Аб’ект {{GRAMMAR:родны|{{WBREPONAME}}}}], зьвязаны з гэтай старонкай, будзе абноўлены аўтаматычна. Калі ласка, памятайце, што гэта не абавязкова адбудзецца імгненна.",
@@ -26,6 +27,7 @@
 	"wikibase-dataitem": "Аб’ект {{grammar:genitive|{{WBREPONAME}}}}",
 	"wikibase-editlinks": "Правіць спасылкі",
 	"wikibase-editlinkstitle": "Рэдагаваць міжмоўныя спасылкі",
+	"wikibase-addlinkstitle": "Дадаць міжмоўныя спасылкі",
 	"wikibase-linkitem-addlinks": "Дадаць спасылкі",
 	"wikibase-linkitem-alreadylinked": "Старонку, якую вы хочаце злучыць, ужо далучаная да [$1 аб’екта] ў цэнтральным рэпазыторыі, які спасылаецца на $2 на гэтым сайце. Аб’екты могуць мець толькі па адной старонцы з аднаго сайту. Выберыце, калі ласка, інушю старонку.",
 	"wikibase-linkitem-close": "Закрыць дыялёгі і абнавіць старонку",
@@ -63,7 +65,7 @@
 	"wikibase-pageinfo-entity-id": "Ідэнтыфікатар аб’екта {{WBREPONAME}}",
 	"wikibase-pageinfo-entity-id-none": "Няма",
 	"wikibase-property-render-error": "Не ўдалося адлюстраваць уласьцівасьць $1: $2",
-	"wikibase-otherprojects": "Іншыя праекты",
+	"wikibase-otherprojects": "У іншых праектах",
 	"wikibase-otherprojects-beta-message": "Бакавая панэль іншых праектаў",
 	"wikibase-otherprojects-beta-description": "Дадае на бакавую панэль разьдзел «{{int:wikibase-otherprojects}}», які ўтрымлівае спасылкі на іншыя праекты фундацыі «Вікімэдыя», заснаваныя на зьвестках з {{WBREPONAME}}."
 }

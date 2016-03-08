@@ -12,8 +12,8 @@ use Wikibase\LanguageWithConversion;
  * @group Wikibase
  * @group WikibaseLib
  *
- * @licence GNU GPL v2+
- * @author Liangent
+ * @license GPL-2.0+
+ * @author Liangent < liangent@gmail.com >
  */
 class LanguageWithConversionTest extends \MediaWikiTestCase {
 

@@ -12,12 +12,11 @@ use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 /**
  * @covers Wikibase\Repo\Validators\CompositeValidator
  *
- * @license GPL 2+
- *
  * @group WikibaseRepo
  * @group Wikibase
  * @group WikibaseValidators
  *
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class CompositeValidatorTest extends \PHPUnit_Framework_TestCase {
@@ -56,11 +55,6 @@ class CompositeValidatorTest extends \PHPUnit_Framework_TestCase {
 			$msg = $localizer->getErrorMessage( $error );
 			$this->assertTrue( $msg->exists(), $msg );
 		}
-	}
-
-	public function testSetOptions() {
-		$validator = new CompositeValidator( array() );
-		$validator->setOptions( array() );
 	}
 
 }

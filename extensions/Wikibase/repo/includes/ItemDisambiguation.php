@@ -14,9 +14,9 @@ use Wikibase\Lib\Interactors\TermSearchResult;
  *
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
- * @author jeblad
+ * @author John Erling Blad < jeblad@gmail.com >
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  * @authro Adam Shorland
@@ -214,7 +214,7 @@ class ItemDisambiguation {
 		$matchElement = $descriptionElement = Html::element(
 			'span',
 			array( 'class' => 'wb-itemlink-match' ),
-			wfMessage( 'wikibase-itemlink-userlang-wrapper' )->params( $language, $text )->text()
+			wfMessage( 'wikibase-itemlink-userlang-wrapper', $language, $text )->text()
 		);
 
 		return $matchElement;

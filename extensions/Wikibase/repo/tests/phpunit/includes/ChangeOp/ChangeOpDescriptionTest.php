@@ -5,9 +5,10 @@ namespace Wikibase\Test;
 use InvalidArgumentException;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpDescription;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Summary;
 
 /**
@@ -17,7 +18,7 @@ use Wikibase\Summary;
  * @group WikibaseRepo
  * @group ChangeOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Daniel Kinzler
  */
@@ -57,7 +58,7 @@ class ChangeOpDescriptionTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testApply( ChangeOp $changeOpDescription, $expectedDescription ) {
 		$entity = $this->provideNewEntity();
-		$entity->setDescription( 'en', 'INVALID' );
+		$entity->getFingerprint()->setDescription( 'en', 'INVALID' );
 
 		$changeOpDescription->apply( $entity );
 
@@ -102,9 +103,9 @@ class ChangeOpDescriptionTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @return Entity
+	 * @return EntityDocument|FingerprintProvider
 	 */
-	protected function provideNewEntity() {
+	private function provideNewEntity() {
 		$item = new Item( new ItemId( 'Q23' ) );
 		$item->setLabel( 'en', 'DUPE' );
 		$item->setLabel( 'fr', 'DUPE' );
@@ -119,11 +120,11 @@ class ChangeOpDescriptionTest extends \PHPUnit_Framework_TestCase {
 		$args = array();
 
 		$entity = $this->provideNewEntity();
-		$entity->setDescription( 'de', 'Test' );
+		$entity->getFingerprint()->setDescription( 'de', 'Test' );
 		$args[] = array( $entity, new ChangeOpDescription( 'de', 'Zusammenfassung', $validatorFactory ), 'set', 'de' );
 
 		$entity = $this->provideNewEntity();
-		$entity->setDescription( 'de', 'Test' );
+		$entity->getFingerprint()->setDescription( 'de', 'Test' );
 		$args[] = array( $entity, new ChangeOpDescription( 'de', null, $validatorFactory ), 'remove', 'de' );
 
 		$entity = $this->provideNewEntity();
@@ -135,7 +136,12 @@ class ChangeOpDescriptionTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider changeOpSummaryProvider
 	 */
-	public function testUpdateSummary( $entity, ChangeOp $changeOp, $summaryExpectedAction, $summaryExpectedLanguage ) {
+	public function testUpdateSummary(
+		EntityDocument $entity,
+		ChangeOp $changeOp,
+		$summaryExpectedAction,
+		$summaryExpectedLanguage
+	) {
 		$summary = new Summary();
 
 		$changeOp->apply( $entity, $summary );

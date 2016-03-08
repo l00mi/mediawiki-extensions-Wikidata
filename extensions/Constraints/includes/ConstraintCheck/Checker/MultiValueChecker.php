@@ -2,13 +2,13 @@
 
 namespace WikibaseQuality\ConstraintReport\ConstraintCheck\Checker;
 
+use Wikibase\DataModel\Entity\EntityDocument;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use WikibaseQuality\ConstraintReport\Constraint;
 use WikibaseQuality\ConstraintReport\ConstraintCheck\ConstraintChecker;
 use WikibaseQuality\ConstraintReport\ConstraintCheck\Helper\ValueCountCheckerHelper;
 use WikibaseQuality\ConstraintReport\ConstraintCheck\Result\CheckResult;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\DataModel\Entity\Entity;
-
 
 /**
  * @package WikibaseQuality\ConstraintReport\ConstraintCheck\Checker
@@ -30,12 +30,12 @@ class MultiValueChecker implements ConstraintChecker {
 	 * Checks 'Multi value' constraint.
 	 *
 	 * @param Statement $statement
-	 * @param Constraint $constraintParameters
-	 * @param Entity $entity
+	 * @param Constraint $constraint
+	 * @param EntityDocument|StatementListProvider $entity
 	 *
 	 * @return CheckResult
 	 */
-	public function checkConstraint( Statement $statement, Constraint $constraint, Entity $entity = null ) {
+	public function checkConstraint( Statement $statement, Constraint $constraint, EntityDocument $entity = null ) {
 		$propertyId = $statement->getPropertyId();
 
 		$parameters = array ();

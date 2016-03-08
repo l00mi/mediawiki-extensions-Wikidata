@@ -11,7 +11,7 @@ use Wikibase\Lib\AutoCommentFormatter;
  * @group WikibaseLib
  * @group Wikibase
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  * @author Jonas Kress
  */
@@ -30,7 +30,6 @@ class AutoCommentFormatterTest extends \MediaWikiTestCase {
 	protected function setUp() {
 		parent::setUp();
 		$this->language = Language::factory( 'qqx' );
-		$this->setMwGlobals( 'wgLang', $this->language );
 	}
 
 	public function provideTestAutoComment() {

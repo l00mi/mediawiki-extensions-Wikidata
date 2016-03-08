@@ -2,6 +2,7 @@
 
 namespace Wikibase\Client\Tests\Hooks;
 
+use ConfigFactory;
 use FauxRequest;
 use IContextSource;
 use OutputPage;
@@ -16,7 +17,7 @@ use Wikibase\Client\Hooks\SkinTemplateOutputPageBeforeExecHandler;
  * @group WikibaseClient
  * @group Wikibase
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0+
  * @author Marius Hoch < hoo@online.de >
  */
 class SkinTemplateOutputPageBeforeExecHandlerTest extends PHPUnit_Framework_TestCase {
@@ -94,13 +95,13 @@ class SkinTemplateOutputPageBeforeExecHandlerTest extends PHPUnit_Framework_Test
 	/**
 	 * Changes $actualLanguageUrls and $actualWbeditlanglinks when SkinFallbackTemplate::set is called.
 	 *
-	 * @param array $languageUrls
+	 * @param mixed $languageUrls
 	 * @param mixed &$actualLanguageUrls
 	 * @param mixed &$actualWbeditlanglinks
 	 *
 	 * @return SkinFallbackTemplate
 	 */
-	private function getTemplate( $languageUrls = array(), &$actualLanguageUrls = null, &$actualWbeditlanglinks = null ) {
+	private function getTemplate( $languageUrls, &$actualLanguageUrls, &$actualWbeditlanglinks = null ) {
 		$template = $this->getMock( 'SkinFallbackTemplate' );
 
 		$template->expects( $this->any() )
@@ -176,6 +177,11 @@ class SkinTemplateOutputPageBeforeExecHandlerTest extends PHPUnit_Framework_Test
 		$context->expects( $this->any() )
 			->method( 'getRequest' )
 			->will( $this->returnValue( $request ) );
+		$context->expects( $this->any() )
+			->method( 'getConfig' )
+			->will( $this->returnValue(
+				ConfigFactory::getDefaultInstance()->makeConfig( 'main' )
+			) );
 
 		return $context;
 	}

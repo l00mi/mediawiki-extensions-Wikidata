@@ -10,7 +10,7 @@ use ValueValidators\ValueValidator;
 /**
  * MembershipValidator checks that a value is in a fixed set of allowed values.
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class MembershipValidator implements ValueValidator {
@@ -82,6 +82,8 @@ class MembershipValidator implements ValueValidator {
 	 * @see ValueValidator::setOptions
 	 *
 	 * @param array $options
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function setOptions( array $options ) {
 		// Do nothing. This method shouldn't even be in the interface.

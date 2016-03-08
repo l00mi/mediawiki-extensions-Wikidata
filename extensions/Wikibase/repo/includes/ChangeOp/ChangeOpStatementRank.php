@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\Statement\StatementListHolder;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\StatementRankSerializer;
 use Wikibase\Summary;
 
@@ -14,7 +14,8 @@ use Wikibase\Summary;
  * Class for statement rank change operation
  *
  * @since 0.4
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  */
 class ChangeOpStatementRank extends ChangeOpBase {
@@ -56,8 +57,8 @@ class ChangeOpStatementRank extends ChangeOpBase {
 	 * @see ChangeOp::apply()
 	 */
 	public function apply( EntityDocument $entity, Summary $summary = null ) {
-		if ( !( $entity instanceof StatementListHolder ) ) {
-			throw new InvalidArgumentException( '$entity must be a StatementListHolder' );
+		if ( !( $entity instanceof StatementListProvider ) ) {
+			throw new InvalidArgumentException( '$entity must be a StatementListProvider' );
 		}
 
 		$statements = $entity->getStatements();
@@ -80,8 +81,6 @@ class ChangeOpStatementRank extends ChangeOpBase {
 				)
 			);
 		}
-
-		$entity->setStatements( $statements );
 	}
 
 	/**
@@ -98,18 +97,15 @@ class ChangeOpStatementRank extends ChangeOpBase {
 	}
 
 	/**
-	 * @see ChangeOp::validate()
-	 *
-	 * @since 0.5
+	 * @see ChangeOp::validate
 	 *
 	 * @param EntityDocument $entity
 	 *
-	 * @throws ChangeOpException
-	 * @return Result
+	 * @return Result Always successful.
 	 */
 	public function validate( EntityDocument $entity ) {
 		//TODO: move validation logic from apply() here.
-		return parent::validate( $entity );
+		return Result::newSuccess();
 	}
 
 }

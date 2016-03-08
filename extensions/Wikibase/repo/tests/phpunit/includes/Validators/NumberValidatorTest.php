@@ -7,12 +7,11 @@ use Wikibase\Repo\Validators\NumberValidator;
 /**
  * @covers Wikibase\Repo\Validators\NumberValidator
  *
- * @license GPL 2+
- *
  * @group WikibaseRepo
  * @group Wikibase
  * @group WikibaseValidators
  *
+ * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
  */
@@ -62,11 +61,6 @@ class NumberValidatorTest extends \PHPUnit_Framework_TestCase {
 		$this->assertCount( 1, $errors, 'error count' );
 		$this->assertEquals( $code, $errors[0]->getCode(), 'error code' );
 		$this->assertEquals( $params, $errors[0]->getParameters(), 'error parameters' );
-	}
-
-	public function testSetOptions() {
-		$validator = new NumberValidator();
-		$validator->setOptions( array() );
 	}
 
 }

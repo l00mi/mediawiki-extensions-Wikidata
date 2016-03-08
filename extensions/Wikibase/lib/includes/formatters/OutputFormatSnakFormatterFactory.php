@@ -17,7 +17,7 @@ use Wikimedia\Assert\Assert;
  * Implemented based on constructor callbacks and a default SnakFormatter implementation
  * that uses TypedValueFormatters.
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class OutputFormatSnakFormatterFactory {
@@ -137,14 +137,12 @@ class OutputFormatSnakFormatterFactory {
 
 	/**
 	 * @param string $key
-	 * @param string $lang
+	 * @param string $languageCode
 	 *
 	 * @return Message
 	 */
-	private function getMessage( $key, $lang ) {
-		$msg = wfMessage( $key );
-		$msg = $msg->inLanguage( $lang );
-		return $msg;
+	private function getMessage( $key, $languageCode ) {
+		return wfMessage( $key )->inLanguage( $languageCode );
 	}
 
 	/**

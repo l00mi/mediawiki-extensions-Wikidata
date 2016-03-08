@@ -6,7 +6,7 @@ use Exception;
 use Message;
 
 /**
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
@@ -20,11 +20,7 @@ class GenericExceptionLocalizer implements ExceptionLocalizer {
 	 * @return Message
 	 */
 	public function getExceptionMessage( Exception $exception ) {
-		$key = 'wikibase-error-unexpected';
-		$params = array( $exception->getMessage() );
-		$msg = wfMessage( $key )->params( $params );
-
-		return $msg;
+		return wfMessage( 'wikibase-error-unexpected', $exception->getMessage() );
 	}
 
 	/**

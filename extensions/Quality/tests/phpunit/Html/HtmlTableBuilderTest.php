@@ -2,10 +2,10 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Html;
 
+use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
 use WikibaseQuality\Html\HtmlTableHeaderBuilder;
-
 
 /**
  * @covers WikibaseQuality\Html\HtmlTableBuilder
@@ -18,16 +18,21 @@ use WikibaseQuality\Html\HtmlTableHeaderBuilder;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class HtmlTableBuilderTest extends \MediaWikiTestCase {
+class HtmlTableBuilderTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider constructDataProvider
 	 */
-	public function testConstruct( $headers, $expectedHeaders, $expectedIsSortable, $expectedException ) {
+	public function testConstruct(
+		$headers,
+		array $expectedHeaders = null,
+		$expectedIsSortable,
+		$expectedException
+	) {
 		$this->setExpectedException( $expectedException );
 		$htmlTable = new HtmlTableBuilder( $headers );
 
-		$this->assertArrayEquals( $expectedHeaders, $htmlTable->getHeaders() );
+		$this->assertEquals( $expectedHeaders, $htmlTable->getHeaders() );
 		$this->assertEquals( $expectedIsSortable, $htmlTable->isSortable() );
 	}
 
@@ -101,7 +106,7 @@ class HtmlTableBuilderTest extends \MediaWikiTestCase {
 			)
 		);
 
-		$this->assertArrayEquals(
+		$this->assertEquals(
 			array (
 				array (
 					new HtmlTableCellBuilder( 'foo' ),
@@ -115,7 +120,11 @@ class HtmlTableBuilderTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider appendRowsDataProvider
 	 */
-	public function testAppendRows( $rows, $expectedRows, $expectedException = null ) {
+	public function testAppendRows(
+		array $rows,
+		array $expectedRows = null,
+		$expectedException = null
+	) {
 		if ( $expectedException ) {
 			$this->setExpectedException( $expectedException );
 		}
@@ -128,7 +137,7 @@ class HtmlTableBuilderTest extends \MediaWikiTestCase {
 		);
 		$htmlTable->appendRows( $rows );
 
-		$this->assertArrayEquals( $expectedRows, $htmlTable->getRows() );
+		$this->assertEquals( $expectedRows, $htmlTable->getRows() );
 	}
 
 	/**
@@ -237,8 +246,9 @@ class HtmlTableBuilderTest extends \MediaWikiTestCase {
 	 * Creates HtmlHeaderCell mock, which returns only the content when calling HtmlHeaderCell::toHtml()
 	 *
 	 * @param string $content
+	 * @param bool $isSortable
 	 *
-	 * @return \PHPUnit_Framework_MockObject_MockObject
+	 * @return HtmlTableHeaderBuilder
 	 */
 	private function getHtmlTableHeaderMock( $content, $isSortable = false ) {
 		$cellMock = $this
@@ -259,7 +269,7 @@ class HtmlTableBuilderTest extends \MediaWikiTestCase {
 	 *
 	 * @param string $content
 	 *
-	 * @return \PHPUnit_Framework_MockObject_MockObject
+	 * @return HtmlTableCellBuilder
 	 */
 	private function getHtmlTableCellMock( $content ) {
 		$cellMock = $this
@@ -273,4 +283,5 @@ class HtmlTableBuilderTest extends \MediaWikiTestCase {
 
 		return $cellMock;
 	}
+
 }

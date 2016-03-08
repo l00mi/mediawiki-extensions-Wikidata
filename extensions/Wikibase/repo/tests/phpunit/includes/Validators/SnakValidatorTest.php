@@ -30,7 +30,7 @@ use Wikibase\Repo\Validators\SnakValidator;
  * @group WikibaseRepo
  * @group WikibaseValidators
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class SnakValidatorTest extends PHPUnit_Framework_TestCase {
@@ -228,6 +228,12 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( $expectedValid, $result->isValid(), $description );
 	}
 
+	public function testGivenNonSnak_validateFails() {
+		$validator = $this->getSnakValidator();
+		$this->setExpectedException( 'InvalidArgumentException' );
+		$validator->validate( null );
+	}
+
 	public function provideValidate() {
 		$p1 = new PropertyId( 'P1' ); // numeric
 		$p2 = new PropertyId( 'P2' ); // alphabetic
@@ -361,11 +367,6 @@ class SnakValidatorTest extends PHPUnit_Framework_TestCase {
 		$result = $validator->validateDataValue( $dataValue, $dataTypeId );
 
 		$this->assertEquals( $expectedValid, $result->isValid(), $description );
-	}
-
-	public function testSetOptions() {
-		$validator = $this->getSnakValidator();
-		$validator->setOptions( array() );
 	}
 
 }

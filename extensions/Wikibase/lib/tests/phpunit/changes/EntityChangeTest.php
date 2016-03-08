@@ -27,7 +27,7 @@ use Wikibase\ItemContent;
  * @group WikibaseLib
  * @group WikibaseChange
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
  */
@@ -41,16 +41,6 @@ class EntityChangeTest extends ChangeRowTest {
 		return 'Wikibase\EntityChange';
 	}
 
-	/**
-	 * Returns the name of the class of the entities under test.
-	 *
-	 * @since 0.4
-	 * @return string
-	 */
-	protected function getEntityClass() {
-		return 'Wikibase\DataModel\Entity\Entity';
-	}
-
 	protected function newEntityChange( EntityId $entityId ) {
 		$changeFactory = TestChanges::getEntityChangeFactory();
 		$entityChange = $changeFactory->newForEntity( EntityChange::UPDATE, $entityId );
@@ -59,23 +49,12 @@ class EntityChangeTest extends ChangeRowTest {
 	}
 
 	public function entityProvider() {
-		$entityClass = $this->getEntityClass();
-
-		$entities = array_filter(
-			TestChanges::getEntities(),
-			function( EntityDocument $entity ) use ( $entityClass ) {
-				return is_a( $entity, $entityClass );
-			}
-		);
-
-		$cases = array_map(
+		return array_map(
 			function( EntityDocument $entity ) {
 				return array( $entity );
 			},
-			$entities
+			TestChanges::getEntities()
 		);
-
-		return $cases;
 	}
 
 	public function changeProvider() {

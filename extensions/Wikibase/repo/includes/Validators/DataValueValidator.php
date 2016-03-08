@@ -11,7 +11,7 @@ use ValueValidators\ValueValidator;
  * The DataValueValidator class allows the validation of the plain value
  * of a simple DataValues object based on the DataValue's array representation.
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class DataValueValidator implements ValueValidator {
@@ -50,6 +50,8 @@ class DataValueValidator implements ValueValidator {
 	 * @see ValueValidator::setOptions()
 	 *
 	 * @param array $options
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function setOptions( array $options ) {
 		// Do nothing. This method shouldn't even be in the interface.

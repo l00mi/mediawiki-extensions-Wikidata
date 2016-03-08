@@ -21,9 +21,6 @@
  *
  * @option {wikibase.entityIdFormatter.EntityIdPlainFormatter} entityIdPlainFormatter
  *
- * @option {string} [helpMessage]
- *         Default: mw.msg( 'wikibase-sitelinks-input-help-message' )
- *
  * @event change
  *        - {jQuery.Event}
  *
@@ -76,8 +73,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 		},
 		value: null,
 		getAllowedSites: function() { return []; },
-		entityIdPlainFormatter: null,
-		helpMessage: mw.msg( 'wikibase-sitelinks-input-help-message' )
+		entityIdPlainFormatter: null
 	},
 
 	/**
@@ -94,7 +90,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
-		if ( !this.options.entityIdPlainFormatter || !this.options.helpMessage ) {
+		if ( !this.options.entityIdPlainFormatter ) {
 			throw new Error( 'Required option(s) missing' );
 		}
 
@@ -104,8 +100,6 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			// sitelinkview is created dynamically, in contrast to being initialized on pre-existing
 			// DOM.
 			this._draw();
-		} else {
-			this._shortenPageName();
 		}
 
 		this._createBadgeSelector();
@@ -193,40 +187,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			this._drawEditMode();
 		} else {
 			this.element.removeClass( 'wb-edit' );
-			this._shortenPageName();
 		}
-	},
-
-	/**
-	 * Shortens the page name using the ellipsis character in order to prevent the page name from
-	 * wrapping.
-	 *
-	 * @private
-	 */
-	_shortenPageName: function() {
-		if ( this._isInEditMode ) {
-			return;
-		}
-		var $a = this.$link.find( 'a' ),
-			fullText = $a.text(),
-			text = fullText;
-
-		$a.text( '.' );
-
-		var lineHeight = this.element.height();
-
-		$a.text( text );
-
-		if ( this.element.height() <= lineHeight ) {
-			return;
-		}
-
-		while ( this.element.height() > lineHeight && text.length > 0 ) {
-			text = text.substring( 0, text.length - 1 );
-			$a.text( text + '…' );
-		}
-
-		$a.attr( 'title', fullText );
 	},
 
 	/**
@@ -391,6 +352,10 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	 * @return {boolean}
 	 */
 	isInitialValue: function() {
+		if ( !this._isInEditMode ) {
+			return true;
+		}
+
 		var currentValue = this.value();
 
 		if ( !this.options.value || !currentValue ) {
@@ -481,7 +446,7 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	value: function( siteLink ) {
 		if ( siteLink === undefined ) {
 			if ( !this._isInEditMode ) {
-				return this.option( 'value' );
+				return this.options.value;
 			}
 
 			var siteselector = this.element.find( ':wikibase-siteselector' ).data( 'siteselector' ),

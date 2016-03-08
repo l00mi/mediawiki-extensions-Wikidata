@@ -5,11 +5,10 @@ namespace WikibaseQuality\Tests\Helper;
 use DataValues\Deserializers\DataValueDeserializer;
 use Deserializers\Deserializer;
 use Wikibase\DataModel\DeserializerFactory;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
-use Wikibase\Repo\WikibaseRepo;
-
 
 class JsonFileEntityLookup implements EntityLookup {
 
@@ -38,7 +37,7 @@ class JsonFileEntityLookup implements EntityLookup {
 					'number' => 'DataValues\NumberValue',
 					'string' => 'DataValues\StringValue',
 					'unknown' => 'DataValues\UnknownValue',
-					'globecoordinate' => 'DataValues\GlobeCoordinateValue',
+					'globecoordinate' => 'DataValues\Geo\Values\GlobeCoordinateValue',
 					'monolingualtext' => 'DataValues\MonolingualTextValue',
 					'multilingualtext' => 'DataValues\MultilingualTextValue',
 					'quantity' => 'DataValues\QuantityValue',
@@ -46,7 +45,7 @@ class JsonFileEntityLookup implements EntityLookup {
 					'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
 				)
 			),
-			WikibaseRepo::getDefaultInstance()->getEntityIdParser()
+			new BasicEntityIdParser()
 		);
 
 		$this->entityDeserializer = $factory->newEntityDeserializer();
@@ -97,4 +96,5 @@ class JsonFileEntityLookup implements EntityLookup {
 		$filePath = sprintf( '%s/%s.json', $this->baseDir, (string)$entityId );
 		return $filePath;
 	}
+
 }

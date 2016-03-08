@@ -47,8 +47,14 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	options: {
 		template: 'wikibase-sitelinkgroupview',
 		templateParams: [
-			'', // id
-			'', // heading
+			function() {
+				return 'sitelinks-' + this.options.value.group;
+			},
+			function() {
+				// It's hard to dynamically load the right message. Fake it as best as possible.
+				return this.options.value.group[0].toUpperCase()
+					+ this.options.value.group.slice( 1 );
+			},
 			'', // counter
 			'', // sitelinklistview
 			'', // group
@@ -58,15 +64,14 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 		templateShortCuts: {
 			$headingSection: '.wikibase-sitelinkgroupview-heading-section',
 			headingContainer: '.wikibase-sitelinkgroupview-heading-container',
-			$h: 'h2,h3', /* TODO: Temporarily kept for compatibility, remove "h2" after July 2015 */
+			$h: 'h3',
 			$counter: '.wikibase-sitelinkgroupview-counter'
 		},
 		value: null,
 		entityIdPlainFormatter: null,
 		siteLinksChanger: null,
 		eventSingletonManager: null,
-		helpMessage: 'Add a site link by specifying a site and a page of that site, edit or remove '
-			+ 'existing site links.'
+		helpMessage: mw.msg( 'wikibase-sitelinkgroupview-input-help-message' )
 	},
 
 	/**
@@ -90,9 +95,6 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 		this.options.value = this._checkValue( this.options.value );
 
 		PARENT.prototype._create.call( this );
-
-		// TODO: Remove scraping
-		this.__headingText = this.$h.text();
 
 		this.$sitelinklistview = this.element.find( '.wikibase-sitelinklistview' );
 
@@ -124,12 +126,6 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 			deferred = $.Deferred();
 
 		this.element.data( 'group', this.options.value.group );
-
-		this.$h
-		.attr( 'id', 'sitelinks-' + this.options.value.group )
-		// .text( mw.msg( 'wikibase-sitelinks-' + this.options.value.group ) )
-		.text( this.__headingText )
-		.append( this.$counter );
 
 		if ( !this.$headingSection.data( 'sticknode' ) ) {
 			this.$headingSection.sticknode( {
@@ -286,10 +282,11 @@ $.widget( 'wikibase.sitelinkgroupview', PARENT, {
 	 * @return {Object|*}
 	 */
 	value: function( value ) {
-		if ( value === undefined ) {
-			return this.option( 'value' );
+		if ( value !== undefined ) {
+			return this.option( 'value', value );
 		}
-		return this.option( 'value', value );
+
+		return this.options.value;
 	},
 
 	/**

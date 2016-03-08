@@ -7,7 +7,7 @@ use ValueValidators\Result;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
-use Wikibase\DataModel\Statement\StatementListHolder;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Repo\Validators\SnakValidator;
 use Wikibase\Summary;
 
@@ -15,7 +15,8 @@ use Wikibase\Summary;
  * Class for qualifier change operation
  *
  * @since 0.4
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Daniel Kinzler
  */
@@ -74,8 +75,8 @@ class ChangeOpQualifier extends ChangeOpBase {
 	 * - the qualifier gets set to $snak when $snakHash and $snak are set
 	 */
 	public function apply( EntityDocument $entity, Summary $summary = null ) {
-		if ( !( $entity instanceof StatementListHolder ) ) {
-			throw new InvalidArgumentException( '$entity must be a StatementListHolder' );
+		if ( !( $entity instanceof StatementListProvider ) ) {
+			throw new InvalidArgumentException( '$entity must be a StatementListProvider' );
 		}
 
 		$statements = $entity->getStatements();
@@ -94,7 +95,6 @@ class ChangeOpQualifier extends ChangeOpBase {
 		}
 
 		$statement->setQualifiers( $qualifiers );
-		$entity->setStatements( $statements );
 	}
 
 	/**
@@ -147,13 +147,12 @@ class ChangeOpQualifier extends ChangeOpBase {
 	}
 
 	/**
-	 * @see ChangeOp::validate()
+	 * @see ChangeOp::validate
 	 *
 	 * @since 0.5
 	 *
 	 * @param EntityDocument $entity
 	 *
-	 * @throws ChangeOpException
 	 * @return Result
 	 */
 	public function validate( EntityDocument $entity ) {

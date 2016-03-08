@@ -6,14 +6,15 @@ use InvalidArgumentException;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Snak\Snak;
-use Wikibase\DataModel\Statement\StatementListHolder;
+use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\Summary;
 
 /**
  * Class for statement remove operation.
  *
  * @since 0.5
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Addshore
  * @author Thiemo Mättig
  */
@@ -58,8 +59,8 @@ class ChangeOpRemoveStatement extends ChangeOpBase {
 	 * @throws ChangeOpException
 	 */
 	public function apply( EntityDocument $entity, Summary $summary = null ) {
-		if ( !( $entity instanceof StatementListHolder ) ) {
-			throw new InvalidArgumentException( '$entity must be a StatementListHolder' );
+		if ( !( $entity instanceof StatementListProvider ) ) {
+			throw new InvalidArgumentException( '$entity must be a StatementListProvider' );
 		}
 
 		$statements = $entity->getStatements();
@@ -70,7 +71,6 @@ class ChangeOpRemoveStatement extends ChangeOpBase {
 		}
 
 		$statements->removeStatementsWithGuid( $this->guid );
-		$entity->setStatements( $statements );
 
 		$removedSnak = $statement->getMainSnak();
 		$this->updateSummary( $summary, 'remove', '', $this->getSummaryArgs( $removedSnak ) );
@@ -87,18 +87,15 @@ class ChangeOpRemoveStatement extends ChangeOpBase {
 	}
 
 	/**
-	 * @see ChangeOp::validate()
-	 *
-	 * @since 0.5
+	 * @see ChangeOp::validate
 	 *
 	 * @param EntityDocument $entity
 	 *
-	 * @throws ChangeOpException
-	 * @return Result
+	 * @return Result Always successful.
 	 */
 	public function validate( EntityDocument $entity ) {
 		//TODO: move validation logic from apply() here.
-		return parent::validate( $entity );
+		return Result::newSuccess();
 	}
 
 }

@@ -19,10 +19,26 @@ use Wikibase\Repo\Validators\TermValidatorFactory;
  * @group WikibaseRepo
  * @group WikibaseValidators
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class TermValidatorFactoryTest extends \PHPUnit_Framework_TestCase {
+
+	/**
+	 * @dataProvider invalidConstructorArgumentProvider
+	 */
+	public function testInvalidConstructorArgument( $maxLength ) {
+		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->newFactory( $maxLength, array() );
+	}
+
+	public function invalidConstructorArgumentProvider() {
+		return array(
+			array( null ),
+			array( 1.0 ),
+			array( 0 ),
+		);
+	}
 
 	/**
 	 * @param int $maxLength

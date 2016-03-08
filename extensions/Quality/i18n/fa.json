@@ -1,10 +1,11 @@
 {
 	"@metadata": {
 		"authors": [
-			"Reza1615"
+			"Reza1615",
+			"Rtemis"
 		]
 	},
-	"wbq-desc": "افزونه پایه برای افزونهٔ کیفیت ویکی‌بیس که یافتن اطلاعات اشتباه را مدیریت می‌کند",
+	"wbq-desc": "افزونه پایه برای افزونه‌های کیفیت ویکی‌بیس که یافتن اطلاعات اشتباه را مدیریت می‌کند",
 	"specialpages-group-wikibasequality": "کیفیت ویکی‌بیس",
 	"wbq-violatons-filter-headline": "دسته‌بندی موضوع‌ها",
 	"wbq-violations-entity-id-label": "شناسهٔ ورودی:",
@@ -14,7 +15,7 @@
 	"wbq-violations-form-select-all": "(همه)",
 	"wbq-violations-exceptions-checkbox-label": "نمایش استثناها",
 	"wbq-violations-submit-button-label": "نمایش خرابکاری‌ها",
-	"wbq-violations-table-header-entity": "ورودی",
+	"wbq-violations-table-header-entity": "جوهره",
 	"wbq-violations-table-header-claim": "اظهار",
 	"wbq-violations-table-header-constraint-type": "نوع",
 	"wbq-violations-table-header-updated-at": "آخرین به‌روزرسانی",

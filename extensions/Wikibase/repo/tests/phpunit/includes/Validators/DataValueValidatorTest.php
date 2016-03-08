@@ -10,12 +10,11 @@ use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 /**
  * @covers Wikibase\Repo\Validators\DataValueValidator
  *
- * @license GPL 2+
- *
  * @group WikibaseRepo
  * @group Wikibase
  * @group WikibaseValidators
  *
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class DataValueValidatorTest extends \PHPUnit_Framework_TestCase {
@@ -51,11 +50,6 @@ class DataValueValidatorTest extends \PHPUnit_Framework_TestCase {
 			$msg = $localizer->getErrorMessage( $errors[0] );
 			$this->assertTrue( $msg->exists(), $msg );
 		}
-	}
-
-	public function testSetOptions() {
-		$validator = new DataValueValidator( new StringLengthValidator( 0, 0 ) );
-		$validator->setOptions( array() );
 	}
 
 }

@@ -6,6 +6,7 @@ use Language;
 use MediaWikiTestCase;
 use RequestContext;
 use Wikibase\Lib\DataTypeDefinitions;
+use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
 
@@ -17,7 +18,7 @@ use Wikibase\SettingsArray;
  * @group WikibaseRepoTest
  * @group Database
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
@@ -285,9 +286,14 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 	 * @return WikibaseRepo
 	 */
 	private function getWikibaseRepo() {
-		$lang = Language::factory( 'qqx' );
+		$language = Language::factory( 'qqx' );
 		$settings = new SettingsArray( WikibaseRepo::getDefaultInstance()->getSettings()->getArrayCopy() );
-		return new WikibaseRepo( $settings, new DataTypeDefinitions(), $lang );
+		return new WikibaseRepo(
+			$settings,
+			new DataTypeDefinitions( array() ),
+			new EntityTypeDefinitions( array() ),
+			$language
+		);
 	}
 
 	public function testGetApiHelperFactory() {
@@ -370,6 +376,11 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 	public function testGetValueSnakRdfBuilderFactory() {
 		$factory = $this->getWikibaseRepo()->getValueSnakRdfBuilderFactory();
 		$this->assertInstanceOf( 'Wikibase\Rdf\ValueSnakRdfBuilderFactory', $factory );
+	}
+
+	public function testGetRdfVocabulary() {
+		$factory = $this->getWikibaseRepo()->getRdfVocabulary();
+		$this->assertInstanceOf( 'Wikibase\Rdf\RdfVocabulary', $factory );
 	}
 
 	public function testGetCachingCommonsMediaFileNameLookup() {

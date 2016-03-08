@@ -10,8 +10,7 @@ use Message;
  *
  * @since 0.5
  *
- * @licence GNU GPL v2+
- *
+ * @license GPL-2.0+
  * @author Brad Jorsch
  * @author Thiemo Mättig
  * @author Tobias Gritschacher
@@ -63,7 +62,7 @@ class AutoCommentFormatter {
 		$found = false;
 		foreach ( $this->messagePrefixes as $prefix ) {
 			$key = "$prefix-summary-$name";
-			$msg = wfMessage( $key );
+			$msg = wfMessage( $key )->inLanguage( $this->language );
 
 			if ( $msg->exists() && !$msg->isDisabled() ) {
 				$found = $msg;

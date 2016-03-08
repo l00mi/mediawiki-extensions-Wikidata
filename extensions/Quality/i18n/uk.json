@@ -38,5 +38,15 @@
 	"wbq-violations-prev-page": "<< Попередня сторінка",
 	"apihelp-wbqgetviolationmessages-description": "Отримує повідомлення про порушення даних у записах.",
 	"apihelp-wbqgetviolationmessages-param-entityid": "ID сутності, порушення даних якої треба перелічити.",
-	"apihelp-wbqgetviolationmessages-example": "Отримати повідомлення про порушення даних елемента Q76."
+	"apihelp-wbqgetviolationmessages-example": "Отримати повідомлення про порушення даних елемента Q76.",
+	"apihelp-wbqmodifyviolation-description": "Змінює конкретне порушення даних. Пам'ятайте, що лише користувачі зі спеціальними правами можуть змінювати порушення.",
+	"apihelp-wbqmodifyviolation-param-claimguid": "GUID запису порушення даних, яке має бути модифіковане. Разом з ідентифікатором обмеження, цим визначається порушення.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "Ідендифікатор обмеження з порушення даних, яке має бути модифіковане. Разом із GUID запису (claimguid), цим визначається порушення.",
+	"apihelp-wbqmodifyviolation-param-status": "Новий статус, що має бути встановлений для цього порушення.",
+	"apihelp-wbqmodifyviolation-examples-exception": "Змінити статус порушення, визначеного ідентифікатором порушення та GUID запису, позначивши його як виняток.",
+	"apihelp-wbqmodifyviolation-examples-violation": "Змінити статус порушення, визначеного ідентифікатором обмеження та GUID запису, позначивши його як порушення.",
+	"apihelp-wbqgetviolationtypes-description": "Виводить список усіх підтримуваних типів порушень.",
+	"apihelp-wbqgetviolationtypes-param-groupid": "Необов'язковий параметр, що обмежує типи порушень до тих, що асоціюються із заданою групою.",
+	"apihelp-wdqgetviolationtypes-examples-1": "Виводить усі підтримувані типи порушень без будь-яких обмежень.",
+	"apihelp-wdqgetviolationtypes-examples-2": "Виводить усі підтримувані типи порушень, що асоціюються із групою «wbqc»."
 }

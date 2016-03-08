@@ -12,7 +12,7 @@ use ValueValidators\Result;
 /**
  * Class ValidatorErrorLocalizer
  *
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class ValidatorErrorLocalizer {
@@ -76,7 +76,7 @@ class ValidatorErrorLocalizer {
 			}
 		}
 
-		return wfMessage( $key )->params( $params );
+		return new Message( $key, $params );
 	}
 
 	/**

@@ -31,6 +31,7 @@ class HtmlTableBuilder {
 
 	/**
 	 * @param array $headers
+	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( $headers ) {
@@ -45,6 +46,8 @@ class HtmlTableBuilder {
 
 	/**
 	 * @param string|HtmlTableHeaderBuilder $header
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	private function addHeader( $header ) {
 		if ( is_string( $header ) ) {
@@ -61,7 +64,7 @@ class HtmlTableBuilder {
 	}
 
 	/**
-	 * @return HtmlTableHeaderBuilder
+	 * @return HtmlTableHeaderBuilder[]
 	 */
 	public function getHeaders() {
 		return $this->headers;
@@ -85,6 +88,8 @@ class HtmlTableBuilder {
 	 * Adds row with specified cells to table.
 	 *
 	 * @param string[]|HtmlTableCellBuilder[] $cells
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function appendRow( array $cells ) {
 		foreach ( $cells as $key => $cell ) {
@@ -102,6 +107,8 @@ class HtmlTableBuilder {
 	 * Adds rows with specified cells to table.
 	 *
 	 * @param array $rows
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function appendRows( array $rows ) {
 		foreach ( $rows as $cells ) {
@@ -157,4 +164,5 @@ class HtmlTableBuilder {
 
 		return $html;
 	}
+
 }

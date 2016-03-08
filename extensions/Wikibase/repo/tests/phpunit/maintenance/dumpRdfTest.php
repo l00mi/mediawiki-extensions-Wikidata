@@ -6,7 +6,7 @@ use DataValues\StringValue;
 use HashSiteStore;
 use MediaWikiLangTestCase;
 use TestSites;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
@@ -30,6 +30,7 @@ use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\DumpRdf;
+use Wikibase\Rdf\RdfVocabulary;
 use Wikibase\Repo\Test\MockEntityPerPage;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -39,19 +40,10 @@ use Wikibase\Repo\WikibaseRepo;
  * @group WikibaseRepo
  * @group Wikibase
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  */
 class DumpRdfTest extends MediaWikiLangTestCase {
-
-	protected function setUp() {
-		parent::setUp();
-
-		$this->setMwGlobals( array(
-			'wgCanonicalServer' => 'http://dump.rdf.test',
-			'wgArticlePath' => '/DumpRdfTest/$1',
-		) );
-	}
 
 	public function testScript() {
 		$dumpScript = new DumpRdf();
@@ -62,7 +54,7 @@ class DumpRdfTest extends MediaWikiLangTestCase {
 		$snakList = new SnakList();
 		$snakList->addSnak( new PropertySomeValueSnak( new PropertyId( 'P12' ) ) );
 		$snakList->addSnak( new PropertyValueSnak( new PropertyId( 'P12' ), new StringValue( 'stringVal' ) ) );
-		/** @var Entity[] $testEntities */
+		/** @var EntityDocument[] $testEntities */
 		$testEntities = array(
 			new Item( new ItemId( 'Q1' ) ),
 			new Property( new PropertyId( 'P1' ), null, 'string' ),
@@ -137,7 +129,7 @@ class DumpRdfTest extends MediaWikiLangTestCase {
 			$this->getMockPropertyDataTypeLookup(),
 			$rdfBuilder,
 			$mockRepo,
-			'fooUri'
+			new RdfVocabulary( 'fooUri/', 'acme/EntityData/' )
 		);
 
 		$logFileName = tempnam( sys_get_temp_dir(), "Wikibase-DumpRdfTest" );

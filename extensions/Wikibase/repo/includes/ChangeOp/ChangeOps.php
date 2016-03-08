@@ -11,7 +11,8 @@ use Wikibase\Summary;
  * Class for holding a batch of change operations
  *
  * @since 0.4
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
  * @author Thiemo Mättig
  */
@@ -98,7 +99,7 @@ class ChangeOps implements ChangeOp {
 	public function validate( EntityDocument $entity ) {
 		$result = Result::newSuccess();
 		// deep clone of $entity to avoid side-effects
-		$entity = unserialize( serialize( $entity ) );
+		$entity = $entity->copy();
 
 		foreach ( $this->changeOps as $changeOp ) {
 			$result = $changeOp->validate( $entity );

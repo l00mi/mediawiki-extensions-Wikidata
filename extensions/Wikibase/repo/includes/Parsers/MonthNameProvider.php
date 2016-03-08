@@ -5,7 +5,7 @@ namespace Wikibase\Repo\Parsers;
 /**
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thiemo Mättig
  */
 interface MonthNameProvider {
@@ -13,18 +13,16 @@ interface MonthNameProvider {
 	/**
 	 * @param string $languageCode
 	 *
-	 * @return string[] Array mapping the month's numbers 1 to 12 to localized month names.
+	 * @return string[] Array mapping month numbers (1 to 12) to localized month names.
 	 */
 	public function getLocalizedMonthNames( $languageCode );
 
 	/**
 	 * @param string $languageCode
-	 * @param string $canonicalLanguageCode
 	 *
-	 * @return string[] Array mapping localized month names (possibly including full month names,
-	 * genitive names and abbreviations) to the same month names in a canonical language (usually
-	 * English).
+	 * @return int[] Array mapping localized month names (possibly including full month names,
+	 * genitive names and abbreviations) to month numbers (1 to 12).
 	 */
-	public function getMonthNameReplacements( $languageCode, $canonicalLanguageCode = 'en' );
+	public function getMonthNumbers( $languageCode );
 
 }

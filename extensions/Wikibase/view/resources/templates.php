@@ -8,7 +8,7 @@ namespace Wikibase;
  *
  * @since 0.2
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater <mediawiki@snater.com>
  *
  * @return array templates
@@ -254,7 +254,7 @@ HTML;
 
 	$templates['wikibase-sitelinkview-pagename'] =
 <<<HTML
-<span class="wikibase-sitelinkview-page" dir="$5"><a href="$1" hreflang="$4">$2</a></span>$3
+<span class="wikibase-sitelinkview-page" dir="$5"><a href="$1" hreflang="$4" title="$2">$2</a></span><!-- wikibase-badgeselector -->$3
 HTML;
 
 	$templates['wikibase-sitelinkview-unknown'] =

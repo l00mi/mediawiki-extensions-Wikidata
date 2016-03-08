@@ -8,7 +8,7 @@ use Message;
 use Wikibase\Lib\MessageException;
 
 /**
- * @license GPL 2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
@@ -28,11 +28,7 @@ class MessageExceptionLocalizer implements ExceptionLocalizer {
 		}
 
 		/** @var MessageException $exception */
-		$key = $exception->getKey();
-		$params = $exception->getParams();
-		$msg = wfMessage( $key )->params( $params );
-
-		return $msg;
+		return new Message( $exception->getKey(), $exception->getParams() );
 	}
 
 	/**

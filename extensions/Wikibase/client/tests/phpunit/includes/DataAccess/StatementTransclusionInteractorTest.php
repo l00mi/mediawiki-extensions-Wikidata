@@ -9,7 +9,6 @@ use Wikibase\Client\DataAccess\PropertyIdResolver;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\Client\PropertyLabelNotResolvedException;
-use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
@@ -29,7 +28,7 @@ use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
  * @group WikibaseClient
  * @group WikibaseDataAccess
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
  * @author Marius Hoch < hoo@online.de >
@@ -101,19 +100,6 @@ class StatementTransclusionInteractorTest extends PHPUnit_Framework_TestCase {
 			$this->getSnaksFinder( $snaks ),
 			$this->getSnakFormatter(),
 			$this->getEntityLookup()
-		);
-	}
-
-	/**
-	 * @param EntityUsage[] $usages
-	 *
-	 * @return string[]
-	 */
-	private function getUsageStrings( array $usages ) {
-		return array_values(
-			array_map( function( EntityUsage $usage ) {
-				return $usage->getIdentityString();
-			}, $usages )
 		);
 	}
 
