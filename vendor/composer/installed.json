@@ -256,17 +256,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "5.0.2",
-        "version_normalized": "5.0.2.0",
+        "version": "5.1.0",
+        "version_normalized": "5.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "9299112dbf806a8881f13d996c26e90916ab0eaf"
+            "reference": "0294894b878880a584fb64fb3f2c9788f400bf7f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/9299112dbf806a8881f13d996c26e90916ab0eaf",
-            "reference": "9299112dbf806a8881f13d996c26e90916ab0eaf",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/0294894b878880a584fb64fb3f2c9788f400bf7f",
+            "reference": "0294894b878880a584fb64fb3f2c9788f400bf7f",
             "shasum": ""
         },
         "require": {
@@ -278,11 +278,11 @@
             "phpmd/phpmd": "~2.3",
             "squizlabs/php_codesniffer": "~2.3"
         },
-        "time": "2016-02-23 09:42:18",
+        "time": "2016-03-08 15:44:51",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "5.0.x-dev"
+                "dev-master": "5.1.x-dev"
             }
         },
         "installation-source": "dist",
@@ -418,6 +418,256 @@
         "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
         "keywords": [
             "propertysuggester",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "serialization/serialization",
+        "version": "3.2.1",
+        "version_normalized": "3.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/Serialization.git",
+            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/Serialization/zipball/8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
+            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-08-19 01:53:31",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Serialization.php"
+            ],
+            "psr-4": {
+                "Deserializers\\": "src/Deserializers/",
+                "Serializers\\": "src/Serializers/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
+        "homepage": "https://github.com/wmde/Serialization",
+        "keywords": [
+            "deserialization",
+            "deserializer",
+            "serialization",
+            "serializer",
+            "unserialization",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/serialization",
+        "version": "1.0.3",
+        "version_normalized": "1.0.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Serialization.git",
+            "reference": "fdd00409bcd036ac22f1640652af0f387f4fa8be"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Serialization/zipball/fdd00409bcd036ac22f1640652af0f387f4fa8be",
+            "reference": "fdd00409bcd036ac22f1640652af0f387f4fa8be",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~1.0|~0.1",
+            "php": ">=5.3.0",
+            "serialization/serialization": "~3.0"
+        },
+        "time": "2015-08-05 09:15:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "DataValues\\Serializers\\": "src/Serializers",
+                "DataValues\\Deserializers\\": "src/Deserializers"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Serializers and deserializers for DataValue implementations",
+        "homepage": "https://github.com/DataValues/Serialization",
+        "keywords": [
+            "datavalues",
+            "deserializers",
+            "serialization",
+            "serializers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/data-model-serialization",
+        "version": "2.1.0",
+        "version_normalized": "2.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
+            "reference": "275c6ff4c943b779dc06dac83fed1330df36221f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/275c6ff4c943b779dc06dac83fed1330df36221f",
+            "reference": "275c6ff4c943b779dc06dac83fed1330df36221f",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/serialization": "~1.0",
+            "php": ">=5.3.0",
+            "serialization/serialization": "~3.1",
+            "wikibase/data-model": "~5.0|~4.2"
+        },
+        "require-dev": {
+            "data-values/common": "~0.3.0|~0.2.0",
+            "data-values/geo": "~1.0|~0.1",
+            "data-values/number": "~0.2",
+            "data-values/time": "~0.2"
+        },
+        "time": "2016-02-18 14:38:10",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Wikibase\\DataModel\\": "src/"
+            },
+            "files": [
+                "mediawiki.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Thomas PT",
+                "homepage": "https://github.com/Tpt"
+            },
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            }
+        ],
+        "description": "Serializers and deserializers for the Wikibase DataModel",
+        "homepage": "https://github.com/wmde/WikibaseDataModelSerialization",
+        "keywords": [
+            "DataModel",
+            "deserializers",
+            "serialization",
+            "serializers",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/internal-serialization",
+        "version": "2.2.0",
+        "version_normalized": "2.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/WikibaseInternalSerialization.git",
+            "reference": "abee42e33155c0638a993cb7c48ed36625ae1298"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/abee42e33155c0638a993cb7c48ed36625ae1298",
+            "reference": "abee42e33155c0638a993cb7c48ed36625ae1298",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "serialization/serialization": "~3.2",
+            "wikibase/data-model": "~5.0|~4.2",
+            "wikibase/data-model-serialization": "~2.0"
+        },
+        "require-dev": {
+            "data-values/common": "~0.3.0|~0.2.0",
+            "data-values/geo": "~1.1",
+            "data-values/number": "~0.5.0",
+            "data-values/time": "~0.7.0",
+            "phpmd/phpmd": "~2.3",
+            "squizlabs/php_codesniffer": "~2.3"
+        },
+        "time": "2016-03-03 13:08:37",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Wikibase\\InternalSerialization\\": "src/"
+            },
+            "files": [
+                "mediawiki.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            }
+        ],
+        "description": "Serializers and deserializers for the data access layer of Wikibase Repository",
+        "homepage": "https://github.com/wmde/WikibaseInternalSerialization",
+        "keywords": [
+            "DataModel",
+            "deserializers",
+            "serialization",
+            "serializers",
             "wikibase",
             "wikidata"
         ]
@@ -889,256 +1139,6 @@
         ]
     },
     {
-        "name": "serialization/serialization",
-        "version": "3.2.1",
-        "version_normalized": "3.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/Serialization.git",
-            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/Serialization/zipball/8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
-            "reference": "8e06ec58c8f52079942c9cb2f30b2260f62dc1f4",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2014-08-19 01:53:31",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.2.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Serialization.php"
-            ],
-            "psr-4": {
-                "Deserializers\\": "src/Deserializers/",
-                "Serializers\\": "src/Serializers/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Library defining a Serializer and a Deserializer interface and basic utilities",
-        "homepage": "https://github.com/wmde/Serialization",
-        "keywords": [
-            "deserialization",
-            "deserializer",
-            "serialization",
-            "serializer",
-            "unserialization",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/serialization",
-        "version": "1.0.3",
-        "version_normalized": "1.0.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Serialization.git",
-            "reference": "fdd00409bcd036ac22f1640652af0f387f4fa8be"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Serialization/zipball/fdd00409bcd036ac22f1640652af0f387f4fa8be",
-            "reference": "fdd00409bcd036ac22f1640652af0f387f4fa8be",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~1.0|~0.1",
-            "php": ">=5.3.0",
-            "serialization/serialization": "~3.0"
-        },
-        "time": "2015-08-05 09:15:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "DataValues\\Serializers\\": "src/Serializers",
-                "DataValues\\Deserializers\\": "src/Deserializers"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Serializers and deserializers for DataValue implementations",
-        "homepage": "https://github.com/DataValues/Serialization",
-        "keywords": [
-            "datavalues",
-            "deserializers",
-            "serialization",
-            "serializers",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/data-model-serialization",
-        "version": "2.1.0",
-        "version_normalized": "2.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
-            "reference": "275c6ff4c943b779dc06dac83fed1330df36221f"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/275c6ff4c943b779dc06dac83fed1330df36221f",
-            "reference": "275c6ff4c943b779dc06dac83fed1330df36221f",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/serialization": "~1.0",
-            "php": ">=5.3.0",
-            "serialization/serialization": "~3.1",
-            "wikibase/data-model": "~5.0|~4.2"
-        },
-        "require-dev": {
-            "data-values/common": "~0.3.0|~0.2.0",
-            "data-values/geo": "~1.0|~0.1",
-            "data-values/number": "~0.2",
-            "data-values/time": "~0.2"
-        },
-        "time": "2016-02-18 14:38:10",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.1.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Wikibase\\DataModel\\": "src/"
-            },
-            "files": [
-                "mediawiki.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Thomas PT",
-                "homepage": "https://github.com/Tpt"
-            },
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            }
-        ],
-        "description": "Serializers and deserializers for the Wikibase DataModel",
-        "homepage": "https://github.com/wmde/WikibaseDataModelSerialization",
-        "keywords": [
-            "DataModel",
-            "deserializers",
-            "serialization",
-            "serializers",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/internal-serialization",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wmde/WikibaseInternalSerialization.git",
-            "reference": "abee42e33155c0638a993cb7c48ed36625ae1298"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/abee42e33155c0638a993cb7c48ed36625ae1298",
-            "reference": "abee42e33155c0638a993cb7c48ed36625ae1298",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0",
-            "serialization/serialization": "~3.2",
-            "wikibase/data-model": "~5.0|~4.2",
-            "wikibase/data-model-serialization": "~2.0"
-        },
-        "require-dev": {
-            "data-values/common": "~0.3.0|~0.2.0",
-            "data-values/geo": "~1.1",
-            "data-values/number": "~0.5.0",
-            "data-values/time": "~0.7.0",
-            "phpmd/phpmd": "~2.3",
-            "squizlabs/php_codesniffer": "~2.3"
-        },
-        "time": "2016-03-03 13:08:37",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.2.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Wikibase\\InternalSerialization\\": "src/"
-            },
-            "files": [
-                "mediawiki.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            }
-        ],
-        "description": "Serializers and deserializers for the data access layer of Wikibase Repository",
-        "homepage": "https://github.com/wmde/WikibaseInternalSerialization",
-        "keywords": [
-            "DataModel",
-            "deserializers",
-            "serialization",
-            "serializers",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/data-types",
         "version": "0.5.2",
         "version_normalized": "0.5.2.0",
@@ -1324,12 +1324,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "37483ea3f7a7f15e3e99162429fc3c6ebdf2092f"
+            "reference": "9720a24d33bffb296fbe30e284b674acbb94cd05"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/37483ea3f7a7f15e3e99162429fc3c6ebdf2092f",
-            "reference": "37483ea3f7a7f15e3e99162429fc3c6ebdf2092f",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9720a24d33bffb296fbe30e284b674acbb94cd05",
+            "reference": "9720a24d33bffb296fbe30e284b674acbb94cd05",
             "shasum": ""
         },
         "require": {
@@ -1346,11 +1346,11 @@
             "data-values/value-view": "~0.16.1",
             "diff/diff": "~2.0",
             "php": ">=5.5.0",
-            "wikibase/data-model": "~5.0.2",
+            "wikibase/data-model": "~5.1",
             "wikibase/data-model-javascript": "~2.0.0",
             "wikibase/data-model-serialization": "~2.0",
             "wikibase/data-model-services": "~3.4",
-            "wikibase/internal-serialization": "~2.0",
+            "wikibase/internal-serialization": "~2.2",
             "wikibase/javascript-api": "~1.1",
             "wikibase/serialization-javascript": "~2.0.5"
         },
@@ -1361,7 +1361,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-03-07 21:27:54",
+        "time": "2016-03-10 09:43:01",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1616,7 +1616,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "d48d22868b7505c643f4f740d759ce8e3693796d"
+            "reference": "7a06fcd187f7e6e9d4c9ebc5dedf168849cd24ac"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1633,7 +1633,7 @@
             "satooshi/php-coveralls": "master-dev",
             "wikibase/data-model-serialization": ">=0.1 <3.0"
         },
-        "time": "2016-03-05 22:02:02",
+        "time": "2016-03-08 21:47:30",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1675,7 +1675,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-            "reference": "0e3d8da06647fcb868b6dfb37c7f3b129c45bacf"
+            "reference": "2aef28a1fb1d6ceb1e15cfaa3771ce12b2a73a17"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1687,7 +1687,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2016-03-05 22:02:10",
+        "time": "2016-03-08 21:47:39",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

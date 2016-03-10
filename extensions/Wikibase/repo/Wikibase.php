@@ -116,15 +116,13 @@ call_user_func( function() {
 	// Registry and definition of entity types
 	$wgWBRepoEntityTypes = require __DIR__ . '/../lib/WikibaseLib.entitytypes.php';
 
-	$wgContentHandlers[CONTENT_MODEL_WIKIBASE_ITEM] = function() {
-		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
-		return $wikibaseRepo->newItemHandler();
-	};
+	$repoEntityTypes = require __DIR__ . '/WikibaseRepo.entitytypes.php';
 
-	$wgContentHandlers[CONTENT_MODEL_WIKIBASE_PROPERTY] = function() {
-		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
-		return $wikibaseRepo->newPropertyHandler();
-	};
+	// merge WikibaseRepo.entitytypes.php into $wgWBRepoEntityTypes
+	foreach ( $repoEntityTypes as $type => $repoDef ) {
+		$baseDef = isset( $wgWBRepoEntityTypes[$type] ) ? $wgWBRepoEntityTypes[$type] : array();
+		$wgWBRepoEntityTypes[$type] = array_merge( $baseDef, $repoDef );
+	}
 
 	// rights
 	// names should be according to other naming scheme
@@ -265,6 +263,7 @@ call_user_func( function() {
 	$wgHooks['SkinTemplateBuildNavUrlsNav_urlsAfterPermalink'][] = 'Wikibase\RepoHooks::onSkinTemplateBuildNavUrlsNavUrlsAfterPermalink';
 	$wgHooks['SkinMinervaDefaultModules'][] = 'Wikibase\RepoHooks::onSkinMinervaDefaultModules';
 	$wgHooks['ResourceLoaderRegisterModules'][] = 'Wikibase\RepoHooks::onResourceLoaderRegisterModules';
+	$wgHooks['ContentHandlerForModelID'][] = 'Wikibase\RepoHooks::onContentHandlerForModelID';
 
 	// CirrusSearch hooks
 	$wgHooks['CirrusSearchMappingConfig'][] = 'Wikibase\Repo\Hooks\CirrusSearchHookHandlers::onCirrusSearchMappingConfig';

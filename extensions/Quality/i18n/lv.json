@@ -4,7 +4,11 @@
 			"Papuass"
 		]
 	},
+	"wbq-violations-group-label": "Grupa:",
 	"wbq-violations-submit-button-label": "Rādīt pārkāpumus",
+	"wbq-violations-status-exception": "Izņēmums",
+	"wbq-violations-mark-as-exception": "Atzīmēt kā izņēmumu",
+	"wbq-violations-mark-as-violation": "Atzīmēt kā pārkāpumu",
 	"wbq-violations-next-page": "Nākamā lapa >>",
 	"wbq-violations-prev-page": "<< Iepriekšējā lapa"
 }

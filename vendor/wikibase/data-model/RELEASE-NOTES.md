@@ -1,5 +1,12 @@
 # Wikibase DataModel release notes
 
+## Version 5.1.0 (2016-03-08)
+
+This release significantly reduces the memory footprint when entities are cloned.
+
+* `Item::copy` and `Property::copy` do not clone immutable objects any more
+* Deprecated `FingerprintHolder` and `StatementListHolder`
+
 ## Version 5.0.2 (2016-02-23)
 
 * Fixed regression in `ReferenceList::addReference` and the constructor possibly adding too many objects
@@ -10,6 +17,9 @@
 * `ReferenceList::unserialize` no longer calls the constructor
 
 ## Version 5.0.0 (2016-02-15)
+
+This release removes the last remaining mentions of claims. Claims are still a concept in the mental
+data model, but not modelled in code any more.
 
 * Removed `Claims` class (deprecated since 1.0)
 * Removed `getClaims` and `setClaims` methods from `Entity`, `Item` and `Property` (deprecated since 1.0)

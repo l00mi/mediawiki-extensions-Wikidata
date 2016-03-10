@@ -1081,6 +1081,7 @@ return array(
     'Wikibase\\Repo\\Store\\WikiPageEntityStore' => $baseDir . '/extensions/Wikibase/repo/includes/Store/Sql/WikiPageEntityStore.php',
     'Wikibase\\Repo\\Test\\EntityIdHtmlLinkFormatterFactoryTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/EntityIdHtmlLinkFormatterFactoryTest.php',
     'Wikibase\\Repo\\Test\\EntityIdLabelFormatterFactoryTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/EntityIdLabelFormatterFactoryTest.php',
+    'Wikibase\\Repo\\Test\\EntityTypesTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/EntityTypesTest.php',
     'Wikibase\\Repo\\Test\\MockEntityPerPage' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/MockEntityPerPage.php',
     'Wikibase\\Repo\\Test\\PidLockTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/PidLockTest.php',
     'Wikibase\\Repo\\Test\\PropertyDataTypeChangerTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/PropertyDataTypeChangerTest.php',
