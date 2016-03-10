@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "13c2359ceb9af636e0a238fb297fc870",
+    "hash": "866ab2c727288cc7640585653d483dea",
     "content-hash": "1cb40c7dc8b165501dd073ab04fb0b35",
     "packages": [
         {
@@ -1445,12 +1445,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "37483ea3f7a7f15e3e99162429fc3c6ebdf2092f"
+                "reference": "72aa266953a542298b68b3e5df47a7b633512957"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/37483ea3f7a7f15e3e99162429fc3c6ebdf2092f",
-                "reference": "37483ea3f7a7f15e3e99162429fc3c6ebdf2092f",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/72aa266953a542298b68b3e5df47a7b633512957",
+                "reference": "72aa266953a542298b68b3e5df47a7b633512957",
                 "shasum": ""
             },
             "require": {
@@ -1522,7 +1522,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-03-07 21:27:54"
+            "time": "2016-03-10 14:55:14"
         },
         {
             "name": "wikibase/wikimedia-badges",
