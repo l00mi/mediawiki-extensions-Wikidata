@@ -52,9 +52,9 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 	// the code, so need to check the extension is there even on jenkins.
 	if (
 		!empty( $wmgUseWikibaseMediaInfo )
-		&& is_readable( "$wgWikidataBaseDir/extensions/WikibaseMediaInfo/extension.json" )
+		&& is_readable( "$wgWikidataBaseDir/extensions/MediaInfo/extension.json" )
 	) {
-		wfLoadExtension( 'WikibaseMediaInfo', "$wgWikidataBaseDir/extensions/WikibaseMediaInfo/extension.json" );
+		wfLoadExtension( 'WikibaseMediaInfo', "$wgWikidataBaseDir/extensions/MediaInfo/extension.json" );
 	}
 }
 
