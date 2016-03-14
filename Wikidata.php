@@ -4,7 +4,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 // Jenkins stuff part1
-if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
+if ( false ) {
 	// in future, run as non-experimental
 	if ( !defined( 'WB_EXPERIMENTAL_FEATURES' ) || !WB_EXPERIMENTAL_FEATURES ) {
 		define( 'WB_EXPERIMENTAL_FEATURES', true );
@@ -25,7 +25,7 @@ $wgEnableWikibaseClient = false;
 
 $wgWikidataBaseDir = $IP;
 
-if ( file_exists(  __DIR__ . '/vendor/autoload.php' ) ) {
+if ( false ) {
 	include_once __DIR__ . '/vendor/autoload.php';
 
 	$wgWikidataBaseDir = __DIR__;
@@ -69,7 +69,9 @@ if ( file_exists(  __DIR__ . '/vendor/autoload.php' ) ) {
 	}
 }
 
-$wgHooks['UnitTestsList'][] = '\Wikidata\WikidataHooks::onUnitTestsList';
+if ( false ) {
+	$wgHooks['UnitTestsList'][] = '\Wikidata\WikidataHooks::onUnitTestsList';
+}
 
 $wgExtensionCredits['wikibase'][] = array(
 	'path' => __FILE__,
@@ -82,7 +84,7 @@ $wgExtensionCredits['wikibase'][] = array(
 );
 
 // Jenkins stuff part2
-if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
+if ( false ) {
 	//Jenkins always loads both so no need to check if they are loaded before getting settings
 	require_once __DIR__ . '/extensions/Wikibase/repo/ExampleSettings.php';
 	require_once __DIR__ . '/extensions/Wikibase/client/ExampleSettings.php';
