@@ -3,6 +3,8 @@
 namespace Wikibase\Test\Repo\Validators;
 
 use DataValues\StringValue;
+use InvalidArgumentException;
+use Wikibase\Repo\CachingCommonsMediaFileNameLookup;
 use Wikibase\Repo\Validators\CommonsMediaExistsValidator;
 
 /**
@@ -17,8 +19,11 @@ use Wikibase\Repo\Validators\CommonsMediaExistsValidator;
  */
 class CommonsMediaExistsValidatorTest extends \PHPUnit_Framework_TestCase {
 
+	/**
+	 * @return CachingCommonsMediaFileNameLookup
+	 */
 	private function getCachingCommonsMediaFileNameLookup() {
-		$fileNameLookup = $this->getMockBuilder( 'Wikibase\Repo\CachingCommonsMediaFileNameLookup' )
+		$fileNameLookup = $this->getMockBuilder( CachingCommonsMediaFileNameLookup::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -61,7 +66,7 @@ class CommonsMediaExistsValidatorTest extends \PHPUnit_Framework_TestCase {
 	public function testValidate_noString() {
 		$validator = new CommonsMediaExistsValidator( $this->getCachingCommonsMediaFileNameLookup() );
 
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$validator->validate( 5 );
 	}
 

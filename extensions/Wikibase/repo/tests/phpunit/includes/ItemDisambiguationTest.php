@@ -4,10 +4,13 @@ namespace Wikibase\Test;
 
 use Language;
 use MediaWikiTestCase;
+use Title;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\ItemDisambiguation;
 use Wikibase\Lib\Interactors\TermSearchResult;
+use Wikibase\Lib\LanguageNameLookup;
+use Wikibase\Lib\Store\EntityTitleLookup;
 
 /**
  * @covers Wikibase\ItemDisambiguation
@@ -26,21 +29,19 @@ class ItemDisambiguationTest extends MediaWikiTestCase {
 	protected function setUp() {
 		parent::setUp();
 
-		$this->setMwGlobals( array(
-			'wgLang' => Language::factory( 'qqx' ),
-		) );
+		$this->setUserLang( 'qqx' );
 	}
 
 	/**
 	 * @return ItemDisambiguation
 	 */
 	private function newInstance() {
-		$entityTitleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+		$entityTitleLookup = $this->getMock( EntityTitleLookup::class );
 		$entityTitleLookup->expects( $this->any() )
 			->method( 'getTitleForId' )
-			->will( $this->returnValue( $this->getMock( 'Title' ) ) );
+			->will( $this->returnValue( $this->getMock( Title::class ) ) );
 
-		$languageNameLookup = $this->getMock( 'Wikibase\Lib\LanguageNameLookup' );
+		$languageNameLookup = $this->getMock( LanguageNameLookup::class );
 		$languageNameLookup->expects( $this->any() )
 			->method( 'getName' )
 			->will( $this->returnValue( '<LANG>' ) );

@@ -6,6 +6,7 @@ use DataValues\DataValue;
 use DataValues\StringValue;
 use Language;
 use ValueFormatters\FormatterOptions;
+use ValueFormatters\FormattingException;
 use ValueFormatters\StringFormatter;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\EntityIdValue;
@@ -13,6 +14,7 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\EntityId\PlainEntityIdFormatter;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\DispatchingValueFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
@@ -79,7 +81,7 @@ class OutputFormatValueFormatterFactoryTest extends \PHPUnit_Framework_TestCase 
 		$factory = $this->newOutputFormatValueFormatterFactory();
 		$formatter = $factory->getValueFormatter( $format, new FormatterOptions() );
 
-		$this->assertInstanceOf( 'Wikibase\Lib\DispatchingValueFormatter', $formatter );
+		$this->assertInstanceOf( DispatchingValueFormatter::class, $formatter );
 
 		// assert that the formatter we got conforms to the expected behavior
 		$actual = $formatter->formatValue( $value, $datatype );
@@ -182,7 +184,7 @@ class OutputFormatValueFormatterFactoryTest extends \PHPUnit_Framework_TestCase 
 		);
 
 		// formatter for 'VT:string' should have been removed
-		$this->setExpectedException( 'ValueFormatters\FormattingException' );
+		$this->setExpectedException( FormattingException::class );
 		$formatter->format( new StringValue( 'boo!' ) ); // expecting a FormattingException
 	}
 

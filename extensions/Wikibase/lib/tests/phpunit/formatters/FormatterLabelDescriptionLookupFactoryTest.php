@@ -2,11 +2,13 @@
 
 namespace Wikibase\Lib\Test;
 
+use InvalidArgumentException;
 use Language;
 use OutOfBoundsException;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Services\Lookup\LanguageLabelDescriptionLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\LanguageFallbackChain;
@@ -33,7 +35,7 @@ class FormatterLabelDescriptionLookupFactoryTest extends \PHPUnit_Framework_Test
 		$factory = new FormatterLabelDescriptionLookupFactory( $termLookup );
 		$labelDescriptionLookup = $factory->getLabelDescriptionLookup( $options );
 
-		$this->assertInstanceOf( 'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup', $labelDescriptionLookup );
+		$this->assertInstanceOf( LabelDescriptionLookup::class, $labelDescriptionLookup );
 
 		$term = $labelDescriptionLookup->getLabel( new ItemId( 'Q1' ) );
 		$this->assertEquals( $expectedLabel, $term->getText() );
@@ -102,7 +104,7 @@ class FormatterLabelDescriptionLookupFactoryTest extends \PHPUnit_Framework_Test
 		$termLookup = $this->getMock( TermLookup::class );
 		$factory = new FormatterLabelDescriptionLookupFactory( $termLookup );
 
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$factory->getLabelDescriptionLookup( $options );
 	}
 

@@ -1,9 +1,10 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests\Specials;
 
 use Exception;
 use HashSiteStore;
+use PermissionsError;
 use PHPUnit_Framework_Error;
 use RawMessage;
 use SpecialPageTestBase;
@@ -24,8 +25,12 @@ use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Interactors\TokenCheckException;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
+use Wikibase\Repo\Localizer\ExceptionLocalizer;
 use Wikibase\Repo\Specials\SpecialMergeItems;
+use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Test\EntityModificationTestHelper;
+use Wikibase\Test\MockRepository;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialMergeItems
@@ -91,7 +96,7 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 	 * @return EditFilterHookRunner
 	 */
 	public function getMockEditFilterHookRunner() {
-		$mock = $this->getMockBuilder( 'Wikibase\Repo\Hooks\EditFilterHookRunner' )
+		$mock = $this->getMockBuilder( EditFilterHookRunner::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -130,7 +135,7 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 			new HashSiteStore( TestSites::getSites() )
 		);
 
-		$exceptionLocalizer = $this->getMock( 'Wikibase\Repo\Localizer\ExceptionLocalizer' );
+		$exceptionLocalizer = $this->getMock( ExceptionLocalizer::class );
 		$exceptionLocalizer->expects( $this->any() )
 			->method( 'getExceptionMessage' )
 			->will( $this->returnCallback( function( Exception $ex ) {
@@ -183,12 +188,12 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 	 * @return EntityTitleLookup
 	 */
 	private function getMockEntityTitleLookup() {
-		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+		$titleLookup = $this->getMock( EntityTitleLookup::class );
 
 		$titleLookup->expects( $this->any() )
 			->method( 'getTitleForID' )
 			->will( $this->returnCallback( function( EntityId $id ) {
-				$title = $this->getMock( 'Title' );
+				$title = $this->getMock( Title::class );
 				$title->expects( $this->any() )
 					->method( 'isDeleted' )
 					->will( $this->returnValue( false ) );
@@ -261,8 +266,11 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		}
 	}
 
+	/**
+	 * @return EntityPermissionChecker
+	 */
 	private function getPermissionCheckers() {
-		$permissionChecker = $this->getMock( 'Wikibase\Repo\Store\EntityPermissionChecker' );
+		$permissionChecker = $this->getMock( EntityPermissionChecker::class );
 
 		$permissionChecker->expects( $this->any() )
 			->method( 'getPermissionStatusForEntityId' )
@@ -473,7 +481,7 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		$user = User::newFromName( 'UserWithoutPermission-' . $permission );
 
 		if ( $permission === 'item-merge' ) {
-			$this->setExpectedException( 'PermissionsError' );
+			$this->setExpectedException( PermissionsError::class );
 		}
 		$html = $this->executeSpecialMergeItems( $params, $user );
 		if ( $permission === 'edit' ) {

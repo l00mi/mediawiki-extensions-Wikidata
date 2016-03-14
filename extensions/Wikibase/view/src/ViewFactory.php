@@ -4,8 +4,8 @@ namespace Wikibase\View;
 
 use DataTypes\DataTypeFactory;
 use InvalidArgumentException;
-use Language;
 use SiteStore;
+use ValueFormatters\NumberLocalizer;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Services\Statement\Grouper\StatementGrouper;
 use Wikibase\LanguageFallbackChain;
@@ -67,6 +67,16 @@ class ViewFactory {
 	private $languageNameLookup;
 
 	/**
+	 * @var LanguageDirectionalityLookup
+	 */
+	private $languageDirectionalityLookup;
+
+	/**
+	 * @var NumberLocalizer
+	 */
+	private $numberLocalizer;
+
+	/**
 	 * @var string[]
 	 */
 	private $siteLinkGroups;
@@ -90,6 +100,8 @@ class ViewFactory {
 	 * @param DataTypeFactory $dataTypeFactory
 	 * @param TemplateFactory $templateFactory
 	 * @param LanguageNameLookup $languageNameLookup
+	 * @param LanguageDirectionalityLookup $languageDirectionalityLookup
+	 * @param NumberLocalizer $numberLocalizer
 	 * @param string[] $siteLinkGroups
 	 * @param string[] $specialSiteLinkGroups
 	 * @param string[] $badgeItems
@@ -105,6 +117,8 @@ class ViewFactory {
 		DataTypeFactory $dataTypeFactory,
 		TemplateFactory $templateFactory,
 		LanguageNameLookup $languageNameLookup,
+		LanguageDirectionalityLookup $languageDirectionalityLookup,
+		NumberLocalizer $numberLocalizer,
 		array $siteLinkGroups = array(),
 		array $specialSiteLinkGroups = array(),
 		array $badgeItems = array()
@@ -123,6 +137,8 @@ class ViewFactory {
 		$this->dataTypeFactory = $dataTypeFactory;
 		$this->templateFactory = $templateFactory;
 		$this->languageNameLookup = $languageNameLookup;
+		$this->languageDirectionalityLookup = $languageDirectionalityLookup;
+		$this->numberLocalizer = $numberLocalizer;
 		$this->siteLinkGroups = $siteLinkGroups;
 		$this->specialSiteLinkGroups = $specialSiteLinkGroups;
 		$this->badgeItems = $badgeItems;
@@ -173,9 +189,6 @@ class ViewFactory {
 			$editSectionGenerator
 		);
 
-		// @fixme all that seems needed in ItemView is language code and dir.
-		$language = Language::factory( $languageCode );
-
 		$siteLinksView = new SiteLinksView(
 			$this->templateFactory,
 			$this->siteStore->getSites(),
@@ -189,8 +202,9 @@ class ViewFactory {
 		return new ItemView(
 			$this->templateFactory,
 			$entityTermsView,
+			$this->languageDirectionalityLookup,
 			$statementSectionsView,
-			$language,
+			$languageCode,
 			$siteLinksView,
 			$this->siteLinkGroups
 		);
@@ -221,15 +235,13 @@ class ViewFactory {
 			$editSectionGenerator
 		);
 
-		// @fixme all that seems needed in PropertyView is language code and dir.
-		$language = Language::factory( $languageCode );
-
 		return new PropertyView(
 			$this->templateFactory,
 			$entityTermsView,
+			$this->languageDirectionalityLookup,
 			$statementSectionsView,
 			$this->dataTypeFactory,
-			$language
+			$languageCode
 		);
 	}
 
@@ -260,11 +272,16 @@ class ViewFactory {
 			$snakFormatter,
 			$propertyIdFormatter
 		);
+		$claimHtmlGenerator = new ClaimHtmlGenerator(
+			$this->templateFactory,
+			$snakHtmlGenerator,
+			$this->numberLocalizer
+		);
 		$statementGroupListView = new StatementGroupListView(
 			$this->templateFactory,
 			$propertyIdFormatter,
 			$editSectionGenerator,
-			new ClaimHtmlGenerator( $this->templateFactory, $snakHtmlGenerator )
+			$claimHtmlGenerator
 		);
 
 		return new StatementSectionsView(

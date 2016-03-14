@@ -1,9 +1,10 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests\Specials;
 
 use Language;
 use Message;
+use Wikibase\CopyrightMessageBuilder;
 use Wikibase\Repo\Specials\SpecialPageCopyrightView;
 
 /**
@@ -32,8 +33,13 @@ class SpecialPageCopyrightViewTest extends \MediaWikiTestCase {
 		$this->assertEquals( $expected, $html );
 	}
 
+	/**
+	 * @param Message $message
+	 *
+	 * @return CopyrightMessageBuilder
+	 */
 	private function getCopyrightMessageBuilder( Message $message ) {
-		$copyrightMessageBuilder = $this->getMockBuilder( 'Wikibase\CopyrightMessageBuilder' )
+		$copyrightMessageBuilder = $this->getMockBuilder( CopyrightMessageBuilder::class )
 			->getMock();
 
 		$copyrightMessageBuilder->expects( $this->any() )

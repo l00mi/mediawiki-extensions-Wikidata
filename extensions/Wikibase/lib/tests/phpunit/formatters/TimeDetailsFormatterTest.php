@@ -4,6 +4,7 @@ namespace Wikibase\Lib\Test;
 
 use DataValues\NumberValue;
 use DataValues\TimeValue;
+use InvalidArgumentException;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\Lib\TimeDetailsFormatter;
@@ -59,7 +60,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 	) {
 		$value = new TimeValue( '+1-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $calendarModel );
 
-		$class = new \ReflectionClass( 'DataValues\TimeValue' );
+		$class = new \ReflectionClass( TimeValue::class );
 
 		$timestampProperty = $class->getProperty( 'timestamp' );
 		$timestampProperty->setAccessible( true );
@@ -175,7 +176,7 @@ class TimeDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 		$formatter = $this->getFormatter();
 		$value = new NumberValue( 23 );
 
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$formatter->format( $value );
 	}
 

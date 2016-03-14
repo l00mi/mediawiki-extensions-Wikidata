@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use MWException;
 use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
@@ -43,7 +44,7 @@ class ItemHandlerTest extends EntityHandlerTest {
 	 * @return string
 	 */
 	public function getClassName() {
-		return 'Wikibase\Repo\Content\ItemHandler';
+		return ItemHandler::class;
 	}
 
 	/**
@@ -118,7 +119,7 @@ class ItemHandlerTest extends EntityHandlerTest {
 		$this->assertEquals( $target->getFullText(), $content->getRedirectTarget()->getFullText() );
 
 		// getEntity() should fail
-		$this->setExpectedException( 'MWException' );
+		$this->setExpectedException( MWException::class );
 		$content->getEntity();
 	}
 

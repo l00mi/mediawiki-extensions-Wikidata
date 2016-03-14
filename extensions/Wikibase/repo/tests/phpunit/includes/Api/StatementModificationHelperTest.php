@@ -5,6 +5,7 @@ namespace Wikibase\Test\Repo\Api;
 use ApiMain;
 use DataValues\StringValue;
 use UsageException;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -33,7 +34,7 @@ class StatementModificationHelperTest extends \MediaWikiTestCase {
 
 		$helper = $this->getNewInstance();
 		$this->assertInstanceOf(
-			'Wikibase\DataModel\Entity\EntityId',
+			EntityId::class,
 			$helper->getEntityIdFromString( $validEntityIdString )
 		);
 	}
@@ -79,7 +80,7 @@ class StatementModificationHelperTest extends \MediaWikiTestCase {
 		$guid = $statement->getGuid();
 
 		$this->assertEquals( $statement, $helper->getStatementFromEntity( $guid, $item ) );
-		$this->setExpectedException( '\UsageException' );
+		$this->setExpectedException( UsageException::class );
 		$helper->getStatementFromEntity( 'q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0N', $item );
 	}
 

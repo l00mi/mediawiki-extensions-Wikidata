@@ -2,6 +2,7 @@
 
 namespace Wikibase\View\Tests;
 
+use InvalidArgumentException;
 use Language;
 use MediaWikiTestCase;
 use Wikibase\DataModel\Services\Statement\Grouper\StatementGrouper;
@@ -30,9 +31,7 @@ class StatementSectionsViewTest extends MediaWikiTestCase {
 	protected function setUp() {
 		parent::setUp();
 
-		$this->setMwGlobals( array(
-			'wgLang' => Language::factory( 'qqx' ),
-		) );
+		$this->setUserLang( 'qqx' );
 	}
 
 	private function newInstance( array $statementLists = array() ) {
@@ -104,7 +103,7 @@ class StatementSectionsViewTest extends MediaWikiTestCase {
 	 */
 	public function testGivenInvalidArray_getHtmlFails( $array ) {
 		$view = $this->newInstance( $array );
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$view->getHtml( new StatementList() );
 	}
 

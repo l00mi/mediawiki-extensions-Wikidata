@@ -4,6 +4,8 @@ namespace Wikibase\Test;
 
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpChange;
+use Diff\Patcher\PatcherException;
+use ParserOutput;
 use PHPUnit_Framework_Assert;
 use Title;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -165,7 +167,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 			true
 		);
 
-		$this->assertInstanceOf( '\ParserOutput', $parserOutput );
+		$this->assertInstanceOf( ParserOutput::class, $parserOutput );
 		$this->assertEquals( EntityContent::STATUS_EMPTY, $parserOutput->getProperty( 'wb-status' ) );
 	}
 
@@ -307,7 +309,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 	public function testGetDiff( EntityContent $a, EntityContent $b, EntityContentDiff $expected ) {
 		$actual = $a->getDiff( $b );
 
-		$this->assertInstanceOf( 'Wikibase\Repo\Content\EntityContentDiff', $actual );
+		$this->assertInstanceOf( EntityContentDiff::class, $actual );
 
 		$expectedEntityOps = $expected->getEntityDiff()->getOperations();
 		$actualEntityOps = $actual->getEntityDiff()->getOperations();
@@ -352,7 +354,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 	 */
 	public function testGetPatchedCopy( EntityContent $base, EntityContentDiff $patch, EntityContent $expected = null ) {
 		if ( $expected === null ) {
-			$this->setExpectedException( 'Diff\Patcher\PatcherException' );
+			$this->setExpectedException( PatcherException::class );
 		}
 
 		$actual = $base->getPatchedCopy( $patch );

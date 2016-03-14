@@ -3,9 +3,11 @@
 namespace Wikibase\View\Tests;
 
 use DataTypes\DataTypeFactory;
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use SiteList;
 use SiteStore;
+use ValueFormatters\BasicNumberLocalizer;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Services\Statement\Grouper\NullStatementGrouper;
@@ -15,6 +17,7 @@ use Wikibase\Lib\SnakFormatter;
 use Wikibase\View\EditSectionGenerator;
 use Wikibase\View\HtmlSnakFormatterFactory;
 use Wikibase\View\ItemView;
+use Wikibase\View\LanguageDirectionalityLookup;
 use Wikibase\View\PropertyView;
 use Wikibase\View\ViewFactory;
 use Wikibase\View\EntityIdFormatterFactory;
@@ -67,6 +70,8 @@ class ViewFactoryTest extends PHPUnit_Framework_TestCase {
 			new DataTypeFactory( array() ),
 			$templateFactory,
 			$languageNameLookup,
+			$this->getMock( LanguageDirectionalityLookup::class ),
+			new BasicNumberLocalizer(),
 			array(),
 			array(),
 			array()
@@ -80,7 +85,7 @@ class ViewFactoryTest extends PHPUnit_Framework_TestCase {
 		EntityIdFormatterFactory $htmlFormatterFactory,
 		EntityIdFormatterFactory $plainFormatterFactory
 	) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->newViewFactory( $htmlFormatterFactory, $plainFormatterFactory );
 	}
 

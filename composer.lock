@@ -1177,23 +1177,23 @@
         },
         {
             "name": "wikibase/data-model-services",
-            "version": "3.4.0",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelServices.git",
-                "reference": "4d3c562014c6db70a6f85b88207c61a964825256"
+                "reference": "7f838a3cac336bbd8ddf73e4f23fe89d99eda52d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/4d3c562014c6db70a6f85b88207c61a964825256",
-                "reference": "4d3c562014c6db70a6f85b88207c61a964825256",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/7f838a3cac336bbd8ddf73e4f23fe89d99eda52d",
+                "reference": "7f838a3cac336bbd8ddf73e4f23fe89d99eda52d",
                 "shasum": ""
             },
             "require": {
                 "data-values/data-values": "~0.1|~1.0",
                 "diff/diff": "~2.0|~1.0",
                 "php": ">=5.3.0",
-                "wikibase/data-model": "~5.0|~4.2"
+                "wikibase/data-model": "~6.0|~5.0|~4.2"
             },
             "require-dev": {
                 "phpmd/phpmd": "~2.3",
@@ -1202,7 +1202,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.4.x-dev"
+                    "dev-master": "3.5.x-dev"
                 }
             },
             "autoload": {
@@ -1228,7 +1228,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-02-22 13:31:21"
+            "time": "2016-03-14 17:39:13"
         },
         {
             "name": "wikibase/external-validation",
@@ -1293,22 +1293,22 @@
         },
         {
             "name": "wikibase/internal-serialization",
-            "version": "2.2.0",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseInternalSerialization.git",
-                "reference": "abee42e33155c0638a993cb7c48ed36625ae1298"
+                "reference": "f74fd54d21aeb0f8879ce621dac17eeda0d8f3d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/abee42e33155c0638a993cb7c48ed36625ae1298",
-                "reference": "abee42e33155c0638a993cb7c48ed36625ae1298",
+                "url": "https://api.github.com/repos/wmde/WikibaseInternalSerialization/zipball/f74fd54d21aeb0f8879ce621dac17eeda0d8f3d2",
+                "reference": "f74fd54d21aeb0f8879ce621dac17eeda0d8f3d2",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
                 "serialization/serialization": "~3.2",
-                "wikibase/data-model": "~5.0|~4.2",
+                "wikibase/data-model": "~6.0|~5.0|~4.2",
                 "wikibase/data-model-serialization": "~2.0"
             },
             "require-dev": {
@@ -1322,7 +1322,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2.x-dev"
+                    "dev-master": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -1354,7 +1354,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-03-03 13:08:37"
+            "time": "2016-03-14 12:48:00"
         },
         {
             "name": "wikibase/javascript-api",
@@ -1406,7 +1406,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "a589f1d425b30e9c044d67043ccf7cca30152332"
+                "reference": "08f3887add0fbaf1fbfbdf430b5b51272a1cddea"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1451,7 +1451,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-03-10 17:17:09"
+            "time": "2016-03-14 17:03:59"
         },
         {
             "name": "wikibase/quality",
@@ -1557,12 +1557,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "765b4d7e0f64146a27a0df5d18be6d34f159d055"
+                "reference": "4f4a229428e6af0bfce7e90fb596913e06487bda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/765b4d7e0f64146a27a0df5d18be6d34f159d055",
-                "reference": "765b4d7e0f64146a27a0df5d18be6d34f159d055",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4f4a229428e6af0bfce7e90fb596913e06487bda",
+                "reference": "4f4a229428e6af0bfce7e90fb596913e06487bda",
                 "shasum": ""
             },
             "require": {
@@ -1634,7 +1634,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-03-11 21:19:16"
+            "time": "2016-03-14 15:59:39"
         },
         {
             "name": "wikibase/wikimedia-badges",

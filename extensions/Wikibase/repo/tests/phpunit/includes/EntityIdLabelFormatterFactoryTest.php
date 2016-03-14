@@ -3,6 +3,8 @@
 namespace Wikibase\Repo\Test;
 
 use PHPUnit_Framework_TestCase;
+use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Repo\EntityIdLabelFormatterFactory;
 
@@ -31,8 +33,8 @@ class EntityIdLabelFormatterFactoryTest extends PHPUnit_Framework_TestCase {
 	public function testGetEntityIdFormatter() {
 		$factory = $this->getFormatterFactory();
 
-		$formatter = $factory->getEntityIdFormatter( $this->getMock( 'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup' ) );
-		$this->assertInstanceOf( 'Wikibase\DataModel\Services\EntityId\EntityIdFormatter', $formatter );
+		$formatter = $factory->getEntityIdFormatter( $this->getMock( LabelDescriptionLookup::class ) );
+		$this->assertInstanceOf( EntityIdFormatter::class, $formatter );
 	}
 
 }

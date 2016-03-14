@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use RuntimeException;
 use Wikibase\Content\DeferredDecodingEntityHolder;
 use Wikibase\Content\EntityHolder;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -9,6 +10,7 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -74,14 +76,14 @@ class DeferredDecodingEntityHolderTest extends \PHPUnit_Framework_TestCase {
 		$entity = $this->newEntity();
 		$holder = $this->newHolder( $entity );
 
-		$actual = $holder->getEntity( 'Wikibase\DataModel\Entity\Item' );
+		$actual = $holder->getEntity( Item::class );
 		$this->assertEquals( $entity, $actual );
 	}
 
 	public function testGivenEntityWithoutId_getEntityThrowsException() {
 		$holder = $this->newHolder( new Item() );
 
-		$this->setExpectedException( 'RuntimeException' );
+		$this->setExpectedException( RuntimeException::class );
 		$holder->getEntity();
 	}
 
@@ -89,16 +91,16 @@ class DeferredDecodingEntityHolderTest extends \PHPUnit_Framework_TestCase {
 		$item = $this->newEntity();
 		$holder = $this->newHolder( $item );
 
-		$holder->getEntity( 'Wikibase\DataModel\Entity\Item' );
-		$this->setExpectedException( 'RuntimeException' );
-		$holder->getEntity( 'Wikibase\DataModel\Entity\Property' );
+		$holder->getEntity( Item::class );
+		$this->setExpectedException( RuntimeException::class );
+		$holder->getEntity( Property::class );
 	}
 
 	public function testGivenMismatchingEntityType_getEntityThrowsException() {
 		$item = $this->newEntity();
 		$holder = $this->newHolder( $item, 'property' );
 
-		$this->setExpectedException( 'RuntimeException' );
+		$this->setExpectedException( RuntimeException::class );
 		$holder->getEntity();
 	}
 
@@ -106,15 +108,15 @@ class DeferredDecodingEntityHolderTest extends \PHPUnit_Framework_TestCase {
 		$item = $this->newEntity();
 		$holder = $this->newHolder( $item, 'property' );
 
-		$this->setExpectedException( 'RuntimeException' );
-		$holder->getEntity( 'Wikibase\DataModel\Entity\Property' );
+		$this->setExpectedException( RuntimeException::class );
+		$holder->getEntity( Property::class );
 	}
 
 	public function testGivenMismatchingIds_getEntityThrowsException() {
 		$item = $this->newEntity();
 		$holder = $this->newHolder( $item, 'item', new ItemId( 'Q42' ) );
 
-		$this->setExpectedException( 'RuntimeException' );
+		$this->setExpectedException( RuntimeException::class );
 		$holder->getEntity();
 	}
 
@@ -145,7 +147,7 @@ class DeferredDecodingEntityHolderTest extends \PHPUnit_Framework_TestCase {
 	public function testGivenEntityWithoutId_getEntityIdThrowsException() {
 		$holder = $this->newHolder( new Item() );
 
-		$this->setExpectedException( 'RuntimeException' );
+		$this->setExpectedException( RuntimeException::class );
 		$holder->getEntityId();
 	}
 

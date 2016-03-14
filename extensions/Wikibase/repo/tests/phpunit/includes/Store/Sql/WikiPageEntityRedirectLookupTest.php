@@ -2,8 +2,13 @@
 
 namespace Wikibase\Test;
 
+use DatabaseMysql;
+use LoadBalancer;
 use MediaWikiTestCase;
 use Title;
+use Wikibase\DataModel\Services\Lookup\EntityRedirectLookupException;
+use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Store\EntityIdLookup;
 use WikiPage;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
@@ -89,7 +94,7 @@ class WikiPageEntityRedirectLookupTest extends MediaWikiTestCase {
 	}
 
 	public function testGetRedirectForEntityId_entityDoesNotExist() {
-		$this->setExpectedException( 'Wikibase\DataModel\Services\Lookup\EntityRedirectLookupException' );
+		$this->setExpectedException( EntityRedirectLookupException::class );
 		$this->getWikiPageEntityRedirectLookup()->getRedirectForEntityId( new ItemId( 'Q48758903' ) );
 	}
 
@@ -117,8 +122,11 @@ class WikiPageEntityRedirectLookupTest extends MediaWikiTestCase {
 		$this->assertEquals( new ItemId( 'Q10' ), $redirect );
 	}
 
+	/**
+	 * @return EntityTitleLookup
+	 */
 	private function getMockEntityTitleLookup() {
-		$entityTitleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+		$entityTitleLookup = $this->getMock( EntityTitleLookup::class );
 
 		$entityTitleLookup->expects( $this->any() )
 			->method( 'getTitleForId' )
@@ -129,8 +137,11 @@ class WikiPageEntityRedirectLookupTest extends MediaWikiTestCase {
 		return $entityTitleLookup;
 	}
 
+	/**
+	 * @return EntityIdLookup
+	 */
 	private function getMockEntityIdLookup() {
-		$entityIdLookup = $this->getMock( 'Wikibase\Store\EntityIdLookup' );
+		$entityIdLookup = $this->getMock( EntityIdLookup::class );
 
 		$entityIdLookup->expects( $this->any() )
 			->method( 'getEntityIdForTitle' )
@@ -141,10 +152,15 @@ class WikiPageEntityRedirectLookupTest extends MediaWikiTestCase {
 		return $entityIdLookup;
 	}
 
+	/**
+	 * @param array $row
+	 *
+	 * @return LoadBalancer
+	 */
 	private function getMockLoadBalancer( array $row ) {
 		$db = $this->getMockDatabase( $row );
 
-		$loadBalancer = $this->getMockBuilder( 'LoadBalancer' )
+		$loadBalancer = $this->getMockBuilder( LoadBalancer::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -155,8 +171,13 @@ class WikiPageEntityRedirectLookupTest extends MediaWikiTestCase {
 		return $loadBalancer;
 	}
 
+	/**
+	 * @param array $row
+	 *
+	 * @return DatabaseMysql
+	 */
 	private function getMockDatabase( array $row ) {
-		$db = $this->getMockBuilder( 'DatabaseMysql' )
+		$db = $this->getMockBuilder( DatabaseMysql::class )
 			->disableOriginalConstructor()
 			->getMock();
 

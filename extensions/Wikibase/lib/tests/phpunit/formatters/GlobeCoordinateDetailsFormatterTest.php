@@ -5,6 +5,7 @@ namespace Wikibase\Lib\Test;
 use DataValues\Geo\Values\GlobeCoordinateValue;
 use DataValues\Geo\Values\LatLongValue;
 use DataValues\NumberValue;
+use InvalidArgumentException;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\Lib\GlobeCoordinateDetailsFormatter;
@@ -57,13 +58,13 @@ class GlobeCoordinateDetailsFormatterTest extends \PHPUnit_Framework_TestCase {
 		$formatter = new GlobeCoordinateDetailsFormatter();
 		$value = new NumberValue( 23 );
 
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$formatter->format( $value );
 	}
 
 	public function testEscaping() {
 		$value = $this->getMock(
-			'DataValues\Geo\Values\GlobeCoordinateValue',
+			GlobeCoordinateValue::class,
 			array( 'getLatitude', 'getLongitude', 'getPrecision' ),
 			array( new LatLongValue( 0, 0 ), null, '<GLOBE>' )
 		);

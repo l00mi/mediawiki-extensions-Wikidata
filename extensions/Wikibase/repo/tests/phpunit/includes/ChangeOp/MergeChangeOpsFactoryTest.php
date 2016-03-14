@@ -6,9 +6,11 @@ use HashSiteStore;
 use PHPUnit_Framework_TestCase;
 use TestSites;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
+use Wikibase\ChangeOp\ChangeOpsMerge;
 use Wikibase\ChangeOp\MergeChangeOpsFactory;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Repo\Validators\EntityConstraintProvider;
 
 /**
  * @covers Wikibase\ChangeOp\MergeChangeOpsFactory
@@ -30,7 +32,7 @@ class MergeChangeOpsFactoryTest extends PHPUnit_Framework_TestCase {
 
 		$toItemId = new ItemId( 'Q3' );
 
-		$constraintProvider = $this->getMockBuilder( 'Wikibase\Repo\Validators\EntityConstraintProvider' )
+		$constraintProvider = $this->getMockBuilder( EntityConstraintProvider::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -58,7 +60,7 @@ class MergeChangeOpsFactoryTest extends PHPUnit_Framework_TestCase {
 		$toItem = new Item();
 
 		$op = $this->newChangeOpFactory()->newMergeOps( $fromItem, $toItem );
-		$this->assertInstanceOf( 'Wikibase\ChangeOp\ChangeOpsMerge', $op );
+		$this->assertInstanceOf( ChangeOpsMerge::class, $op );
 	}
 
 }

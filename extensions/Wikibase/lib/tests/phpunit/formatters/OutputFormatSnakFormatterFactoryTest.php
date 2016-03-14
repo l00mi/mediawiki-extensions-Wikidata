@@ -14,6 +14,8 @@ use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\LanguageFallbackChainFactory;
+use Wikibase\Lib\DispatchingSnakFormatter;
+use Wikibase\Lib\Formatters\ErrorHandlingSnakFormatter;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\SnakFormatter;
@@ -146,7 +148,7 @@ class OutputFormatSnakFormatterFactoryTest extends \PHPUnit_Framework_TestCase {
 		$factory = $this->newOutputFormatSnakFormatterFactory( $dataType );
 		$formatter = $factory->getSnakFormatter( $format, new FormatterOptions() );
 
-		$this->assertInstanceOf( 'Wikibase\Lib\SnakFormatter', $formatter );
+		$this->assertInstanceOf( SnakFormatter::class, $formatter );
 		$this->assertEquals( $format, $formatter->getFormat() );
 
 		$snak = new PropertyValueSnak( new PropertyId( 'P5' ), $value );
@@ -157,15 +159,15 @@ class OutputFormatSnakFormatterFactoryTest extends \PHPUnit_Framework_TestCase {
 		return array(
 			'default' => array(
 				array(),
-				'Wikibase\Lib\Formatters\ErrorHandlingSnakFormatter'
+				ErrorHandlingSnakFormatter::class
 			),
 			'OPT_ON_ERROR => ON_ERROR_WARN' => array(
 				array( SnakFormatter::OPT_ON_ERROR => SnakFormatter::ON_ERROR_WARN ),
-				'Wikibase\Lib\Formatters\ErrorHandlingSnakFormatter'
+				ErrorHandlingSnakFormatter::class
 			),
 			'OPT_ON_ERROR => ON_ERROR_FAIL' => array(
 				array( SnakFormatter::OPT_ON_ERROR => SnakFormatter::ON_ERROR_FAIL ),
-				'Wikibase\Lib\DispatchingSnakFormatter'
+				DispatchingSnakFormatter::class
 			),
 		);
 	}

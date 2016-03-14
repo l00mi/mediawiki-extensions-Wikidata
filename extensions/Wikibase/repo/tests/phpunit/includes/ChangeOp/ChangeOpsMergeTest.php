@@ -3,10 +3,13 @@
 namespace Wikibase\Test;
 
 use HashSiteStore;
+use InvalidArgumentException;
 use MediaWikiTestCase;
+use Site;
 use TestSites;
 use ValueValidators\Error;
 use ValueValidators\Result;
+use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\ChangeOp\ChangeOpsMerge;
 use Wikibase\DataModel\Entity\EntityIdValue;
@@ -18,6 +21,8 @@ use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\Repo\Validators\EntityConstraintProvider;
+use Wikibase\Repo\Validators\EntityValidator;
 
 /**
  * @covers Wikibase\ChangeOp\ChangeOpsMerge
@@ -58,7 +63,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 			$siteLookup = new HashSiteStore( TestSites::getSites() );
 		}
 		// A validator which makes sure that no site link is for page 'DUPE'
-		$siteLinkUniquenessValidator = $this->getMock( 'Wikibase\Repo\Validators\EntityValidator' );
+		$siteLinkUniquenessValidator = $this->getMock( EntityValidator::class );
 		$siteLinkUniquenessValidator->expects( $this->any() )
 			->method( 'validateEntity' )
 			->will( $this->returnCallback( function( Item $item ) {
@@ -71,7 +76,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 				return Result::newSuccess();
 			} ) );
 
-		$constraintProvider = $this->getMockBuilder( 'Wikibase\Repo\Validators\EntityConstraintProvider' )
+		$constraintProvider = $this->getMockBuilder( EntityConstraintProvider::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$constraintProvider->expects( $this->any() )
@@ -107,7 +112,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 			$to,
 			$ignoreConflicts
 		);
-		$this->assertInstanceOf( 'Wikibase\ChangeOp\ChangeOpsMerge', $changeOps );
+		$this->assertInstanceOf( ChangeOpsMerge::class, $changeOps );
 	}
 
 	public function provideValidConstruction() {
@@ -126,7 +131,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 	 * @dataProvider provideInvalidConstruction
 	 */
 	public function testInvalidIgnoreConflicts( Item $from, Item $to, array $ignoreConflicts ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->makeChangeOpsMerge(
 			$from,
 			$to,
@@ -405,7 +410,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$to = new Item( new ItemId( 'Q222' ) );
 		$to->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
 
-		$enwiki = $this->getMock( 'Site' );
+		$enwiki = $this->getMock( Site::class );
 		$enwiki->expects( $this->once() )
 			->method( 'getGlobalId' )
 			->will( $this->returnValue( 'enwiki' ) );
@@ -449,7 +454,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		);
 
 		$this->setExpectedException(
-			'\Wikibase\ChangeOp\ChangeOpException',
+			ChangeOpException::class,
 			'Conflicting sitelinks for enwiki, Failed to normalize'
 		);
 
@@ -466,10 +471,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 			$to
 		);
 
-		$this->setExpectedException(
-			'\Wikibase\ChangeOp\ChangeOpException',
-			'SiteLink conflict'
-		);
+		$this->setExpectedException( ChangeOpException::class, 'SiteLink conflict' );
 		$changeOps->apply();
 	}
 
@@ -502,7 +504,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$changeOps = $this->makeChangeOpsMerge( $from, $to );
 
 		$this->setExpectedException(
-			'\Wikibase\ChangeOp\ChangeOpException',
+			ChangeOpException::class,
 			'The two items cannot be merged because one of them links to the other using property P42'
 		);
 		$changeOps->apply();
@@ -519,7 +521,7 @@ class ChangeOpsMergeTest extends MediaWikiTestCase {
 		$changeOps = $this->makeChangeOpsMerge( $from, $to );
 
 		$this->setExpectedException(
-			'\Wikibase\ChangeOp\ChangeOpException',
+			ChangeOpException::class,
 			'The two items cannot be merged because one of them links to the other using property P42'
 		);
 		$changeOps->apply();

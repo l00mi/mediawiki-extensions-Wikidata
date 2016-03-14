@@ -8,7 +8,9 @@ use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\EntityRevision;
+use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
+use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use MWContentSerializationException;
 use Wikibase\Repo\WikibaseRepo;
@@ -90,7 +92,7 @@ class WikiPageEntityRevisionLookupTest extends EntityRevisionLookupTest {
 	}
 
 	public function testGetEntityRevision_MWContentSerializationException() {
-		$entityContentDataCodec = $this->getMockBuilder( 'Wikibase\Lib\Store\EntityContentDataCodec' )
+		$entityContentDataCodec = $this->getMockBuilder( EntityContentDataCodec::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -108,7 +110,7 @@ class WikiPageEntityRevisionLookupTest extends EntityRevisionLookupTest {
 		);
 
 		$this->setExpectedException(
-			'Wikibase\Lib\Store\StorageException',
+			StorageException::class,
 			'Failed to unserialize the content object.'
 		);
 		$lookup->getEntityRevision( new ItemId( 'Q42' ) );

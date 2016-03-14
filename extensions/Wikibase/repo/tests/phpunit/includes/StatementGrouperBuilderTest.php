@@ -2,9 +2,12 @@
 
 namespace Wikibase\Test;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\Repo\DispatchingEntityTypeStatementGrouper;
 use Wikibase\Repo\StatementGrouperBuilder;
 
 /**
@@ -23,7 +26,7 @@ class StatementGrouperBuilderTest extends PHPUnit_Framework_TestCase {
 	 * @return StatementGrouperBuilder
 	 */
 	private function newInstance( array $specifications ) {
-		$lookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
+		$lookup = $this->getMock( PropertyDataTypeLookup::class );
 
 		$lookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
@@ -44,7 +47,7 @@ class StatementGrouperBuilderTest extends PHPUnit_Framework_TestCase {
 	public function testAcceptsEmptyArray() {
 		$builder = $this->newInstance( array() );
 		$grouper = $builder->getStatementGrouper();
-		$this->assertInstanceOf( 'Wikibase\Repo\DispatchingEntityTypeStatementGrouper', $grouper );
+		$this->assertInstanceOf( DispatchingEntityTypeStatementGrouper::class, $grouper );
 	}
 
 	public function testAcceptsNullGrouper() {
@@ -96,7 +99,7 @@ class StatementGrouperBuilderTest extends PHPUnit_Framework_TestCase {
 				'custom' => array( 'type' => 'dataType' ),
 			)
 		) );
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$builder->getStatementGrouper();
 	}
 
@@ -123,7 +126,7 @@ class StatementGrouperBuilderTest extends PHPUnit_Framework_TestCase {
 				'custom' => array( 'type' => 'propertySet' ),
 			)
 		) );
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$builder->getStatementGrouper();
 	}
 
@@ -150,7 +153,7 @@ class StatementGrouperBuilderTest extends PHPUnit_Framework_TestCase {
 				'custom' => array( 'type' => 'invalid' ),
 			)
 		) );
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$builder->getStatementGrouper();
 	}
 

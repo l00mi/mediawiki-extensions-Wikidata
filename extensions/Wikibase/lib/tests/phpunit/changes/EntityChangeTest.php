@@ -6,6 +6,7 @@ use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use RecentChange;
 use Revision;
+use RuntimeException;
 use stdClass;
 use User;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -39,7 +40,7 @@ class EntityChangeTest extends ChangeRowTest {
 	 * @return string
 	 */
 	protected function getRowClass() {
-		return 'Wikibase\EntityChange';
+		return EntityChange::class;
 	}
 
 	protected function newEntityChange( EntityId $entityId ) {
@@ -327,13 +328,13 @@ class EntityChangeTest extends ChangeRowTest {
 			),
 			'type' => 'statement',
 			'rank' => 'normal',
-			'_claimclass_' => 'Wikibase\DataModel\Statement\Statement',
+			'_claimclass_' => Statement::class,
 		);
 
 		$change = new EntityChange();
 
 		if ( !defined( 'WB_VERSION' ) ) {
-			$this->setExpectedException( 'RuntimeException' );
+			$this->setExpectedException( RuntimeException::class );
 		}
 
 		$array = $change->arrayalizeObjects( $statement );
@@ -353,12 +354,12 @@ class EntityChangeTest extends ChangeRowTest {
 				'property' => 'P1',
 			),
 			'type' => 'statement',
-			'_claimclass_' => 'Wikibase\DataModel\Statement\Statement',
+			'_claimclass_' => Statement::class,
 		);
 
 		$change = new EntityChange();
 		$statement = $change->objectifyArrays( $data );
-		$this->assertInstanceOf( 'Wikibase\DataModel\Statement\Statement', $statement );
+		$this->assertInstanceOf( Statement::class, $statement );
 	}
 
 	public function testGivenNonStatementSerialization_objectifyArraysReturnsOriginal() {
