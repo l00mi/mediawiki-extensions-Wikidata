@@ -63,7 +63,10 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 
 		$store = new WikiPageEntityStore(
 			new EntityContentFactory(
-				$wikibaseRepo->getContentModelMappings(),
+				array(
+					'item' => CONTENT_MODEL_WIKIBASE_ITEM,
+					'property' => CONTENT_MODEL_WIKIBASE_PROPERTY
+				),
 				array(
 					'item' => function() use ( $wikibaseRepo ) {
 						return $wikibaseRepo->newItemHandler();
@@ -97,15 +100,15 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		$property->setDescription( 'en', 'Property description' );
 
 		return array(
-			array( $item ),
-			array( $property ),
+			array( $item, new Item() ),
+			array( $property, Property::newFromType( 'string' ) ),
 		);
 	}
 
 	/**
 	 * @dataProvider simpleEntityParameterProvider()
 	 */
-	public function testSaveEntity( EntityDocument $entity ) {
+	public function testSaveEntity( EntityDocument $entity, EntityDocument $empty ) {
 		/* @var WikiPageEntityStore $store */
 		/* @var EntityRevisionLookup $lookup */
 		list( $store, $lookup ) = $this->createStoreAndLookup();
@@ -132,12 +135,10 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		// TODO: check notifications in wb_changes table!
 
 		// update entity
-		// FIXME: the clear() method is not defined by EntityDocument.
-		//        How else do we create an empty instance of the same type?
-		$entity->clear();
-		$entity->getFingerprint()->setLabel( 'en', 'UPDATED' );
+		$empty->setId( $entityId );
+		$empty->getFingerprint()->setLabel( 'en', 'UPDATED' );
 
-		$r2 = $store->saveEntity( $entity, 'update one', $user, EDIT_UPDATE );
+		$r2 = $store->saveEntity( $empty, 'update one', $user, EDIT_UPDATE );
 		$this->assertNotEquals( $r1->getRevisionId(), $r2->getRevisionId(), 'expected new revision id' );
 
 		$r2actual = $lookup->getEntityRevision( $entityId );

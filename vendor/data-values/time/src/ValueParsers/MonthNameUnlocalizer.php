@@ -8,19 +8,19 @@ namespace ValueParsers;
  * @since 0.7
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  * @author Thiemo Mättig
  */
 class MonthNameUnlocalizer {
 
 	/**
-	 * @var string[] An array mapping localized to canonical month names.
+	 * @var string[] Array mapping localized to canonical (English) month names.
 	 */
 	private $replacements = array();
 
 	/**
-	 * @param string[] $replacements An array mapping localized month names (possibly including full
-	 * month names, genitive names and abbreviations) to canonical month names.
+	 * @param string[] $replacements Array mapping localized month names (possibly including full
+	 * month names, genitive names and abbreviations) to canonical (English) month names.
 	 */
 	public function __construct( array $replacements ) {
 		$this->replacements = $replacements;

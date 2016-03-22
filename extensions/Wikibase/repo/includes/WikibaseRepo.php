@@ -528,7 +528,6 @@ class WikibaseRepo {
 		);
 
 		return new EntityChangeFactory(
-			$this->getEntityFactory(),
 			new EntityDiffer(),
 			$changeClasses
 		);
@@ -1010,7 +1009,9 @@ class WikibaseRepo {
 
 		// Create a new ValueFormatterFactory, and override the formatter for entity IDs.
 		$valueFormatterFactory = $this->newValueFormatterFactory();
-		foreach ( $this->getEntityFactory()->getEntityTypes() as $entityType ) {
+
+		// Iterate through all defined entity types
+		foreach ( $this->entityTypeDefinitions->getEntityTypes() as $entityType ) {
 			$valueFormatterFactory->setFormatterFactoryCallback(
 				"PT:wikibase-$entityType",
 				function ( $format, FormatterOptions $options ) use ( $idFormatter ) {
@@ -1187,6 +1188,22 @@ class WikibaseRepo {
 		//TODO: provide a hook or registry for adding more.
 
 		return new EntityFactory( $entityClasses );
+	}
+
+	/**
+	 * @return string[] List of entity type identifiers (typically "item" and "property")
+	 *  that are configured in WikibaseRepo.entitytypes.php and enabled via the
+	 *  $wgWBRepoSettings['entityNamespaces'] setting.
+	 */
+	public function getEnabledEntityTypes() {
+		$entityTypeByContentModel = array_flip( $this->getContentModelMappings() );
+
+		return array_map(
+			function( $contentModel ) use ( $entityTypeByContentModel ) {
+				return $entityTypeByContentModel[$contentModel];
+			},
+			array_keys( $this->settings->getSetting( 'entityNamespaces' ) )
+		);
 	}
 
 	/**
@@ -1430,7 +1447,6 @@ class WikibaseRepo {
 			$this->getEntityTitleLookup(),
 			$this->getExceptionLocalizer(),
 			$this->getPropertyDataTypeLookup(),
-			$this->getEntityFactory(),
 			$this->getSiteStore(),
 			$this->getSummaryFormatter(),
 			$this->getEntityRevisionLookup( 'uncached' ),

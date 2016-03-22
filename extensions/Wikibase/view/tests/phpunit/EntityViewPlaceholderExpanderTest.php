@@ -9,10 +9,8 @@ use User;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\EntityRevision;
+use Wikibase\DataModel\Term\AliasesProvider;
 use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\UserLanguageLookup;
 use Wikibase\View\EntityViewPlaceholderExpander;
@@ -36,12 +34,13 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 
 	/**
 	 * @param User $user
-	 * @param EntityRevisionLookup $entityRevisionLookup
+	 * @param Item $item
 	 * @param ItemId $itemId
+	 * @param AliasesProvider|null $aliasesProvider
 	 *
 	 * @return EntityViewPlaceholderExpander
 	 */
-	private function newExpander( User $user, EntityRevisionLookup $entityRevisionLookup, ItemId $itemId ) {
+	private function newExpander( User $user, Item $item, ItemId $itemId, AliasesProvider $aliasesProvider = null ) {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 
 		$title = $this->getMockBuilder( Title::class )
@@ -70,58 +69,16 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 			$user,
 			$language,
 			$idParser,
-			$entityRevisionLookup,
+			$item,
+			$item,
+			$aliasesProvider,
 			$userLanguages,
 			new MediaWikiContentLanguages(),
 			$languageNameLookup
 		);
 	}
 
-	/**
-	 * @param Item|null $item
-	 * @param int $revId
-	 *
-	 * @return EntityRevisionLookup
-	 */
-	private function getEntityRevisionLookup( Item $item = null, $revId = 5 ) {
-		$revision = ( $item === null ) ? null : new EntityRevision( $item, $revId );
-
-		$entityLookup = $this->getMock( EntityRevisionLookup::class );
-		$entityLookup->expects( $this->any() )
-			->method( 'getEntityRevision' )
-			->will( $this->returnValue( $revision ) );
-
-		return $entityLookup;
-	}
-
-	/**
-	 * @return EntityRevisionLookup
-	 */
-	private function getExceptionThrowingEntityRevisionLookup() {
-		$entityLookup = $this->getMock( EntityRevisionLookup::class );
-		$entityLookup->expects( $this->any() )
-			->method( 'getEntityRevision' )
-			->will( $this->returnCallback( function() {
-				throw new StorageException( 'Entity not found' );
-			} )
-		);
-
-		return $entityLookup;
-	}
-
-	/**
-	 * @return EntityRevisionLookup
-	 */
-	private function getNullReturningEntityRevisionLookup() {
-		$entityLookup = $this->getMock( EntityRevisionLookup::class );
-		$entityLookup->expects( $this->any() )
-			->method( 'getEntityRevision' )
-			->will( $this->returnValue( null ) );
-
-		return $entityLookup;
-	}
-
-	private function getItem() {
+	public function provideEntityAndAliases() {
 		$item = new Item( new ItemId( 'Q23' ) );
 
 		$item->setLabel( 'en', 'Moskow' );
@@ -129,7 +86,16 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 
 		$item->setDescription( 'de', 'Hauptstadt Russlands' );
 
-		return $item;
+		return [
+			[
+				$item,
+				$item
+			],
+			[
+				$item,
+				null
+			]
+		];
 	}
 
 	/**
@@ -151,23 +117,25 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 		return $user;
 	}
 
-	public function testGetHtmlForPlaceholder() {
-		$item = $this->getItem();
-		$entityRevisionLookup = $this->getEntityRevisionLookup( $item );
-		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $item->getId() );
+	/**
+	 * @dataProvider provideEntityAndAliases
+	 */
+	public function testGetHtmlForPlaceholder( Item $item, AliasesProvider $aliasesProvider = null ) {
+		$expander = $this->newExpander( $this->newUser(), $item, $item->getId(), $aliasesProvider );
 
 		$html = $expander->getHtmlForPlaceholder( 'termbox', 'Q23' );
 		$this->assertInternalType( 'string', $html );
 	}
 
-	public function testRenderTermBox() {
-		$item = $this->getItem();
-		$entityRevisionLookup = $this->getEntityRevisionLookup( $item );
-		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $item->getId() );
+	/**
+	 * @dataProvider provideEntityAndAliases
+	 */
+	public function testRenderTermBox( Item $item, AliasesProvider $aliasesProvider = null ) {
+		$expander = $this->newExpander( $this->newUser(), $item, $item->getId(), $aliasesProvider );
 
 		// According to the mock objects, this should generate a term box for
 		// 'de' and 'ru', since 'en' is already covered by the interface language.
-		$html = $expander->renderTermBox( new ItemId( 'Q23' ), 0 );
+		$html = $expander->renderTermBox();
 
 		$this->assertContains( 'wikibase-entitytermsforlanguageview-en', $html );
 		$this->assertContains( 'Moskow', $html );
@@ -179,37 +147,16 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 		$this->assertContains( 'wikibase-entitytermsforlanguageview-ru', $html );
 	}
 
-	public function testRenderTermBoxForDeleteRevision() {
-		$item = $this->getItem();
+	/**
+	 * @dataProvider provideEntityAndAliases
+	 */
+	public function testGetExtraUserLanguage( Item $item, AliasesProvider $aliasesProvider = null ) {
 		$itemId = $item->getId();
-		$entityRevisionLookup = $this->getExceptionThrowingEntityRevisionLookup();
 
-		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
-
-		$html = $expander->renderTermBox( $itemId, 1 );
-		$this->assertEquals( '', $html );
-	}
-
-	public function testRenderTermBoxForNonEntityRevision() {
-		$item = $this->getItem();
-		$itemId = $item->getId();
-		$entityRevisionLookup = $this->getNullReturningEntityRevisionLookup();
-
-		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
-
-		$html = $expander->renderTermBox( $itemId, 1 );
-		$this->assertEquals( '', $html );
-	}
-
-	public function testGetExtraUserLanguages() {
-		$item = $this->getItem();
-		$itemId = $item->getId();
-		$entityRevisionLookup = $this->getEntityRevisionLookup( $item );
-
-		$expander = $this->newExpander( $this->newUser( true ), $entityRevisionLookup, $itemId );
+		$expander = $this->newExpander( $this->newUser( true ), $item, $itemId, $aliasesProvider );
 		$this->assertArrayEquals( array(), $expander->getExtraUserLanguages() );
 
-		$expander = $this->newExpander( $this->newUser(), $entityRevisionLookup, $itemId );
+		$expander = $this->newExpander( $this->newUser(), $item, $itemId, $aliasesProvider );
 		$this->assertArrayEquals( array( 'de', 'ru' ), $expander->getExtraUserLanguages() );
 	}
 

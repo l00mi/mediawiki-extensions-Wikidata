@@ -5,6 +5,9 @@ namespace DataValues;
 use InvalidArgumentException;
 
 /**
+ * Logical and mathematical helper functions for calculations with and conversions from TimeValue
+ * objects.
+ *
  * @since 0.6
  *
  * @licence GNU GPL v2+
@@ -13,8 +16,8 @@ use InvalidArgumentException;
 class TimeValueCalculator {
 
 	/**
-	 * Average length of a year in the Gregorian calendar.
-	 * 365 + 1/4 - 1/100 + 1/400 = 365.2425 days.
+	 * Average length of a year in the Gregorian calendar in seconds, calculated via
+	 * 365 + 1 / 4 - 1 / 100 + 1 / 400 = 365.2425 days.
 	 */
 	const SECONDS_PER_GREGORIAN_YEAR = 31556952;
 

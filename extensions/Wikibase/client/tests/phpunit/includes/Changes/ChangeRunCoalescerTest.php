@@ -11,7 +11,6 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Diff\ItemDiffer;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\EntityChange;
-use Wikibase\EntityFactory;
 use Wikibase\ItemChange;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Test\MockRepository;
@@ -124,12 +123,12 @@ class ChangeRunCoalescerTest extends \MediaWikiTestCase {
 		$diff = $this->makeDiff( $values['object_id'], $values['info']['metadata']['parent_id'], $values[ 'revision_id' ] );
 		$values['info'] = serialize( $values['info'] );
 
-		$class = EntityChange::class;
 		if ( $values['type'] === 'wikibase-item~add' || $values['type'] === 'wikibase-item~update' ) {
-			$class = ItemChange::class;
+			$change = new ItemChange( $values );
+		} else {
+			$change = new EntityChange( $values );
 		}
 
-		$change = new $class( $values );
 		$change->setDiff( $diff );
 
 		return $change;
@@ -157,23 +156,18 @@ class ChangeRunCoalescerTest extends \MediaWikiTestCase {
 	}
 
 	private function makeDiff( $objectId, $revA, $revB ) {
-		$entityClasses = array(
-			Item::ENTITY_TYPE => Item::class,
-		);
-
 		$lookup = $this->getEntityRevisionLookup();
-		$entityFactory = new EntityFactory( $entityClasses );
 
 		$itemId = new ItemId( $objectId );
 
 		if ( $revA === 0 ) {
-			$oldEntity = $entityFactory->newEmpty( Item::ENTITY_TYPE );
+			$oldEntity = new Item();
 		} else {
 			$oldEntity = $lookup->getEntityRevision( $itemId, $revA )->getEntity();
 		}
 
 		if ( $revB === 0 ) {
-			$newEntity = $entityFactory->newEmpty( Item::ENTITY_TYPE );
+			$newEntity = new Item();
 		} else {
 			$newEntity = $lookup->getEntityRevision( $itemId, $revB )->getEntity();
 		}

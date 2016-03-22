@@ -19,15 +19,24 @@ use InvalidArgumentException;
  * @since 0.7 renamed from TimeParser to IsoTimestampParser.
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  * @author Thiemo Mättig
  * @author Daniel Kinzler
  */
 class IsoTimestampParser extends StringValueParser {
 
-	const FORMAT_NAME = 'time';
+	const FORMAT_NAME = 'iso-timestamp';
 
+	/**
+	 * Option to override the precision auto-detection and set a specific precision. Should be an
+	 * integer or string containing one of the TimeValue::PRECISION_... constants.
+	 */
 	const OPT_PRECISION = 'precision';
+
+	/**
+	 * Option to override the calendar model auto-detection and set a specific calendar model URI.
+	 * Should be one of the TimeValue::CALENDAR_... constants.
+	 */
 	const OPT_CALENDAR = 'calendar';
 
 	/**
@@ -163,12 +172,18 @@ class IsoTimestampParser extends StringValueParser {
 
 		$option = $this->getOption( self::OPT_PRECISION );
 
-		// It's impossible to increase the detected precision via option, e.g. from year to month if
-		// no month is given. If a day is given it can be increased, relevant for midnight.
-		if ( is_int( $option )
-			&& ( $option <= $precision || $precision >= TimeValue::PRECISION_DAY )
-		) {
-			return $option;
+		if ( $option !== null ) {
+			if ( !is_int( $option ) && !ctype_digit( $option ) ) {
+				throw new ParseException( 'Precision must be an integer' );
+			}
+
+			$option = (int)$option;
+
+			// It's impossible to increase the detected precision via option, e.g. from year to month if
+			// no month is given. If a day is given it can be increased, relevant for midnight.
+			if ( $option <= $precision || $precision >= TimeValue::PRECISION_DAY ) {
+				return $option;
+			}
 		}
 
 		return $precision;
