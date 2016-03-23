@@ -2,6 +2,8 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
+use DataValues\DataValue;
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
@@ -56,14 +58,14 @@ class ComparisonResultTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getDataValueMock() {
-		return $this->getMock( 'DataValues\DataValue' );
+		return $this->getMock( DataValue::class );
 	}
 
 	/**
 	 * @dataProvider constructInvalidArgumentsDataProvider
 	 */
 	public function testConstructInvalidArguments( $localValue, $externalValues, $status ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		new ComparisonResult( $localValue, $externalValues, $status );
 	}

@@ -3,6 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\Tests\Serializer;
 
 use DataValues\DataValue;
+use Serializers\Serializer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer;
 
@@ -55,7 +56,7 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 	 * @return DataValue
 	 */
 	private function getDataValueMock() {
-		return $this->getMock( 'DataValues\DataValue' );
+		return $this->getMock( DataValue::class );
 	}
 
 	public function nonSerializableProvider() {
@@ -232,7 +233,7 @@ class ComparisonResultSerializerTest extends SerializerTestBase {
 	}
 
 	protected function buildSerializer() {
-		$serializerMock = $this->getMock( 'Serializers\Serializer' );
+		$serializerMock = $this->getMock( Serializer::class );
 		$serializerMock->expects( $this->any() )
 		->method( 'serialize' )
 		->will( $this->returnValue( 'foobar' ) );

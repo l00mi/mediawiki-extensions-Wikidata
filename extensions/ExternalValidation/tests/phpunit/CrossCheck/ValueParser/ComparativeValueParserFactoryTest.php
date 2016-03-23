@@ -2,11 +2,15 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\ValueParser;
 
+use InvalidArgumentException;
 use ValueParsers\ParserOptions;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Repo\Parsers\MonolingualTextParser;
 use Wikibase\StringNormalizer;
+use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParser;
 use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParserFactory;
+use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\MultilingualTextValueParser;
+use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\StringValueParser;
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParserFactory
@@ -20,17 +24,17 @@ class ComparativeValueParserFactoryTest extends \MediaWikiTestCase {
 
 	public function testNewComparativeStringValueParser() {
 		$parser = $this->getFactory()->newStringValueParser();
-		$this->assertInstanceOf( 'WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\StringValueParser', $parser );
+		$this->assertInstanceOf( StringValueParser::class, $parser );
 	}
 
 	public function testNewComparativeMultilingualTextValueParser() {
 		$parser = $this->getFactory()->newMultilingualTextValueParser();
-		$this->assertInstanceOf( 'WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\MultilingualTextValueParser', $parser );
+		$this->assertInstanceOf( MultilingualTextValueParser::class, $parser );
 	}
 
 	public function testNewComparativeValueParser() {
 		$parser = $this->getFactory()->newComparativeValueParser( 'en' );
-		$this->assertInstanceOf( 'WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParser', $parser );
+		$this->assertInstanceOf( ComparativeValueParser::class, $parser );
 	}
 
 	/**
@@ -55,7 +59,7 @@ class ComparativeValueParserFactoryTest extends \MediaWikiTestCase {
 	}
 
 	public function testConstructor_missingMonolingualText() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		new ComparativeValueParserFactory(
 			new DataTypeDefinitions( array() ),

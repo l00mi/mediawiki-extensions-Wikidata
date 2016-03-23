@@ -8,9 +8,11 @@ use DataValues\MultilingualTextValue;
 use DataValues\QuantityValue;
 use DataValues\StringValue;
 use DataValues\TimeValue;
+use InvalidArgumentException;
 use ValueParsers\QuantityParser;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
+use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DispatchingDataValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer;
 
@@ -108,8 +110,14 @@ class DispatchingDataValueComparerTest extends DataValueComparerTestBase {
 		);
 	}
 
+	/**
+	 * @param string $acceptedType
+	 * @param bool $comparisonResult
+	 *
+	 * @return DataValueComparer
+	 */
 	private function mockDataValueComparer( $acceptedType, $comparisonResult ) {
-		$mock = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer' )
+		$mock = $this->getMockBuilder( DataValueComparer::class )
 					 ->setMethods( array( 'canCompare', 'compare' ) )
 					 ->getMock();
 
@@ -131,7 +139,7 @@ class DispatchingDataValueComparerTest extends DataValueComparerTestBase {
 	 * @dataProvider constructInvalidArgumentsDataProvider
 	 */
 	public function testConstructInvalidArguments( $dataValueComparer ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		new DispatchingDataValueComparer( $dataValueComparer );
 	}
 

@@ -4,6 +4,7 @@ namespace WikibaseQuality\ExternalValidation\Api;
 
 use ApiBase;
 use ApiMain;
+use LogicException;
 use RequestContext;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
@@ -114,6 +115,7 @@ class RunCrossCheck extends ApiBase {
 				'Either provide the ids of entities or ids of claims, that should be cross-checked.',
 				'param-invalid'
 			);
+			throw new LogicException();
 		} elseif ( $params['entities'] ) {
 			$entityIds = $this->parseEntityIds( $params['entities'] );
 			if ( $params['properties'] ) {
@@ -131,6 +133,7 @@ class RunCrossCheck extends ApiBase {
 				'Either provide the ids of entities or ids of claims, that should be cross-checked.',
 				'param-missing'
 			);
+			throw new LogicException();
 		}
 
 		// Print result lists

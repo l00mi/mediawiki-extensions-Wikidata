@@ -121,7 +121,7 @@ class SpecialExternalDbs extends SpecialPage {
 				true
 			);
 
-			foreach ( $groupedDumpMetaInformation as $sourceItemId => $dumpMetaInformation ) {
+			foreach ( $groupedDumpMetaInformation as $dumpMetaInformation ) {
 				$table->appendRows( $this->getRowGroup( $dumpMetaInformation ) );
 			}
 

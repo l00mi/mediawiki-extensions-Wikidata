@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests;
 
+use InvalidArgumentException;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 
@@ -158,7 +159,7 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 					new PropertyId( 'P3' )
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array( 'foobar', 'fubar' ),
@@ -168,21 +169,21 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 					new PropertyId( 'P3' )
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array(),
 				array( 'foo', 'bar' ),
 				array(),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array( 'foo', 'bar' ),
 				array(),
 				array(),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -230,21 +231,21 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 				'foobar',
 				new PropertyId( 'P42' ),
 				'foobar',
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				'foobar',
 				42,
 				new PropertyId( 'P42' ),
 				'foobar',
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				'foobar',
 				'foobar',
 				new PropertyId( 'P42' ),
 				42,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -337,7 +338,7 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 	 * @dataProvider deleteDataProvider
 	 */
 	public function testDeleteOfDumpInvalidArguments( $dumpId, $limit ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		$this->externalDataRepo->deleteOfDump( $dumpId, $limit );
 	}
@@ -346,7 +347,7 @@ class ExternalDataRepoTest extends \MediaWikiTestCase {
 	 * @dataProvider deleteDataProvider
 	 */
 	public function testDeleteOfDumpsInvalidArguments( $dumpId, $limit ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		$this->externalDataRepo->deleteOfDump( $dumpId, $limit );
 	}

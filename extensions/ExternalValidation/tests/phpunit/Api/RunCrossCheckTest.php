@@ -3,6 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\Tests\Api;
 
 use DataValues\StringValue;
+use UsageException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
@@ -187,7 +188,7 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 		);
 
 		$this->setExpectedException(
-			'UsageException',
+			UsageException::class,
 			'Either provide the ids of entities or ids of claims, that should be cross-checked.'
 		);
 
@@ -200,7 +201,7 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 		);
 
 		$this->setExpectedException(
-			'UsageException',
+			UsageException::class,
 			'A parameter that is required was missing. (Either provide the ids of entities or '
 				. 'ids of claims, that should be cross-checked.)'
 		);
@@ -279,7 +280,7 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 			'action' => 'wbqevcrosscheck',
 			'claims' => 'broken-claim-guid',
 		);
-		$this->setExpectedException( 'UsageException', 'Invalid claim guid.' );
+		$this->setExpectedException( UsageException::class, 'Invalid claim guid.' );
 		$this->doApiRequest( $params );
 	}
 

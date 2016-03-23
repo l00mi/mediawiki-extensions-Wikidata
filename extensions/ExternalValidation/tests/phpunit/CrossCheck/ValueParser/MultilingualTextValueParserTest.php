@@ -4,6 +4,7 @@ namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\ValueParser;
 
 use DataValues\MonolingualTextValue;
 use DataValues\MultilingualTextValue;
+use ValueParsers\ValueParser;
 use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\MultilingualTextValueParser;
 
 /**
@@ -41,7 +42,7 @@ class MultilingualTextValueParserTest extends ValueParserTestBase {
 	}
 
 	protected function buildParser() {
-		$valueParserMock = $this->getMockBuilder( 'ValueParsers\ValueParser' )
+		$valueParserMock = $this->getMockBuilder( ValueParser::class )
 					 ->setMethods( array( 'parse' ) )
 					 ->getMock();
 		$valueParserMock->expects( $this->any() )

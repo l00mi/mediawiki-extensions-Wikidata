@@ -48,6 +48,6 @@ class UpdateExternalData extends Maintenance {
 }
 
 // @codeCoverageIgnoreStart
-$maintClass = 'WikibaseQuality\ExternalValidation\Maintenance\UpdateExternalData';
+$maintClass = UpdateExternalData::class;
 require_once RUN_MAINTENANCE_IF_MAIN;
 // @codeCoverageIgnoreEnd

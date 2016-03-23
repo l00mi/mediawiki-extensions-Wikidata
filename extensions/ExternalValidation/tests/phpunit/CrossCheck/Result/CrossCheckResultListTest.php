@@ -2,11 +2,13 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
@@ -103,7 +105,7 @@ class CrossCheckResultListTest extends PHPUnit_Framework_TestCase {
 			),
 			array(
 				array( 'foobar' ),
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -158,9 +160,16 @@ class CrossCheckResultListTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( $this->anotherCrossCheckResults, $actual );
 	}
 
+	/**
+	 * @param PropertyId $propertyId
+	 * @param string $status
+	 * @param bool $referencesMissing
+	 *
+	 * @return CrossCheckResult
+	 */
 	private function getCrossCheckResultMock( PropertyId $propertyId, $status, $referencesMissing ) {
 		// Mock ComparisonResult
-		$comparisonResultMock = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' )
+		$comparisonResultMock = $this->getMockBuilder( ComparisonResult::class )
 								  ->disableOriginalConstructor()
 								  ->getMock();
 		$comparisonResultMock->expects( $this->any() )
@@ -168,7 +177,7 @@ class CrossCheckResultListTest extends PHPUnit_Framework_TestCase {
 						  ->will( $this->returnValue( $status ) );
 
 		// Mock ReferenceResult
-		$referenceResult = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+		$referenceResult = $this->getMockBuilder( ReferenceResult::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$referenceResult->expects( $this->any() )
@@ -176,7 +185,7 @@ class CrossCheckResultListTest extends PHPUnit_Framework_TestCase {
 			->will( $this->returnValue( $referencesMissing ) );
 
 		// Mock CrossCheckResult
-		$crossCheckResultMock = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult' )
+		$crossCheckResultMock = $this->getMockBuilder( CrossCheckResult::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$crossCheckResultMock->expects( $this->any() )

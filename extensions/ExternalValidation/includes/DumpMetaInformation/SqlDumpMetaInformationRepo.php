@@ -270,7 +270,8 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 	}
 
 	/**
-	 * @param DumpMetaInformation $dumpMetaInformation *
+	 * @param DatabaseBase $db
+	 * @param DumpMetaInformation $dumpMetaInformation
 	 * @return array
 	 */
 	private function getDumpInformationFields( DatabaseBase $db,  DumpMetaInformation $dumpMetaInformation ) {

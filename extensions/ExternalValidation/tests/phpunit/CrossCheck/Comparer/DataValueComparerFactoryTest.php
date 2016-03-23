@@ -4,7 +4,7 @@ namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
 use DataValues\DataValue;
 use DataValues\Geo\Values\GlobeCoordinateValue;
-use DataValues\LatLongValue;
+use DataValues\Geo\Values\LatLongValue;
 use DataValues\MonolingualTextValue;
 use DataValues\MultilingualTextValue;
 use DataValues\QuantityValue;
@@ -12,6 +12,8 @@ use DataValues\StringValue;
 use DataValues\TimeValue;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\StringNormalizer;
+use Wikibase\TermIndex;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparerFactory;
 
@@ -66,12 +68,12 @@ class DataValueComparerFactoryTest extends \MediaWikiTestCase {
 	}
 
 	private function buildDataValueComparerFactory() {
-		$termIndex = $this->getMockForAbstractClass( 'Wikibase\TermIndex' );
+		$termIndex = $this->getMockForAbstractClass( TermIndex::class );
 		$termIndex->expects( $this->any() )
 			->method( 'getTermsOfEntity' )
 			->will( $this->returnValue( array() ) );
 
-		$stringNormalizer = $this->getMock( 'Wikibase\StringNormalizer' );
+		$stringNormalizer = $this->getMock( StringNormalizer::class );
 
 		return new DataValueComparerFactory( $termIndex, $stringNormalizer );
 	}

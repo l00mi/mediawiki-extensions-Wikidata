@@ -2,8 +2,12 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Serializer;
 
+use Serializers\Serializer;
 use Wikibase\DataModel\Entity\PropertyId;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
+use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer;
 
 /**
@@ -19,7 +23,7 @@ use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer;
 class CrossCheckResultSerializerTest extends SerializerTestBase {
 
 	protected function buildSerializer() {
-		$serializerMock = $this->getMock( 'Serializers\Serializer' );
+		$serializerMock = $this->getMock( Serializer::class );
 		$serializerMock->expects( $this->any() )
 			->method( 'serialize' )
 			->will( $this->returnValue( 'foobar' ) );
@@ -34,9 +38,9 @@ class CrossCheckResultSerializerTest extends SerializerTestBase {
 					new PropertyId( 'P42' ),
 					'Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f',
 					'foobar',
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+					$this->getMockWithoutConstructor( DumpMetaInformation::class ),
+					$this->getMockWithoutConstructor( ComparisonResult::class ),
+					$this->getMockWithoutConstructor( ReferenceResult::class )
 				)
 			)
 		);
@@ -68,9 +72,9 @@ class CrossCheckResultSerializerTest extends SerializerTestBase {
 					new PropertyId( 'P42' ),
 					'Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f',
 					'fubar',
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+					$this->getMockWithoutConstructor( DumpMetaInformation::class ),
+					$this->getMockWithoutConstructor( ComparisonResult::class ),
+					$this->getMockWithoutConstructor( ReferenceResult::class )
 				)
 			)
 		);
@@ -94,9 +98,9 @@ class CrossCheckResultSerializerTest extends SerializerTestBase {
 					new PropertyId( 'P42' ),
 					'Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f',
 					'fubar',
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+					$this->getMockWithoutConstructor( DumpMetaInformation::class ),
+					$this->getMockWithoutConstructor( ComparisonResult::class ),
+					$this->getMockWithoutConstructor( ReferenceResult::class )
 				)
 			),
 		);
@@ -120,9 +124,9 @@ class CrossCheckResultSerializerTest extends SerializerTestBase {
 					new PropertyId( 'P42' ),
 					'Q42$26ca5e18-90fb-4c5c-bb22-ed8a70f1948f',
 					'fubar',
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' ),
-					$this->getMockWithoutConstructor( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+					$this->getMockWithoutConstructor( DumpMetaInformation::class ),
+					$this->getMockWithoutConstructor( ComparisonResult::class ),
+					$this->getMockWithoutConstructor( ReferenceResult::class )
 				)
 			),
 		);

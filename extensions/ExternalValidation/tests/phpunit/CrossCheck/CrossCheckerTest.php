@@ -2,15 +2,24 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck;
 
+use DataValues\DataValue;
+use InvalidArgumentException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Statement\StatementList;
+use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker;
+use WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
+use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParser;
+use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParserFactory;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
+use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformationLookup;
+use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
 
 /**
@@ -274,7 +283,7 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 				$this->items['Q2']->getStatements(),
 				$this->items['Q1']->getStatements()->getByPropertyId( new PropertyId( 'P2' ) ),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -304,14 +313,14 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 	}
 
 	private function getCrossChecker() {
-		$dataValue = $this->getMockForAbstractClass( 'DataValues\DataValue' );
-		$comparativeValueParser = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParser' )
+		$dataValue = $this->getMockForAbstractClass( DataValue::class );
+		$comparativeValueParser = $this->getMockBuilder( ComparativeValueParser::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$comparativeValueParser->expects( $this->any() )
 			->method( 'parse' )
 			->will( $this->returnValue( $dataValue ) );
-		$comparativeValueParserFactory = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParserFactory' )
+		$comparativeValueParserFactory = $this->getMockBuilder( ComparativeValueParserFactory::class )
 			->disableOriginalConstructor()
 			->setMethods( array( 'newComparativeValueParser' ) )
 			->getMock();
@@ -319,17 +328,17 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 			->method( 'newComparativeValueParser' )
 			->will( $this->returnValue( $comparativeValueParser ) );
 
-		$dataValueComparer = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer' )
+		$dataValueComparer = $this->getMockBuilder( DataValueComparer::class )
 		->setMethods( array( 'compare' ) )
 		->getMockForAbstractClass();
 		$dataValueComparer->expects( $this->any() )
 		->method( 'compare' )
 		->will( $this->returnValue( ComparisonResult::STATUS_MATCH ) );
 
-		$referenceResult = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+		$referenceResult = $this->getMockBuilder( ReferenceResult::class )
 		->disableOriginalConstructor()
 		->getMock();
-		$referenceHandler = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker' )
+		$referenceHandler = $this->getMockBuilder( ReferenceChecker::class )
 		->setMethods( array( 'execute' ) )
 		->getMock();
 		$referenceHandler->expects( $this->any() )
@@ -346,8 +355,11 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 		);
 	}
 
+	/**
+	 * @return DumpMetaInformationLookup
+	 */
 	private function getDumpMetaInformationLookupMock() {
-		$dumpMetaInformationRepo = $this->getMockForAbstractClass( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformationLookup' );
+		$dumpMetaInformationRepo = $this->getMockForAbstractClass( DumpMetaInformationLookup::class );
 		$dumpMetaInformation = $this->dumpMetaInformation;
 		$dumpMetaInformationRepo->expects( $this->any() )
 		->method( 'getWithIdentifierProperties' )
@@ -366,8 +378,11 @@ class CrossCheckerTest extends \MediaWikiTestCase {
 		return $dumpMetaInformationRepo;
 	}
 
+	/**
+	 * @return ExternalDataRepo
+	 */
 	private function getExternalDataRepoMock() {
-		$externalDataRepo = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\ExternalDataRepo' )
+		$externalDataRepo = $this->getMockBuilder( ExternalDataRepo::class )
 		->disableOriginalConstructor()
 		->setMethods( array( 'getExternalData' ) )
 		->getMock();

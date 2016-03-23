@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\DumpMetaInformation;
 
+use InvalidArgumentException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
@@ -91,7 +92,7 @@ class DumpMetaInformationTest extends \MediaWikiTestCase {
 				$sourceUrl,
 				$size,
 				$licenseItemId,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				$dumpId,
@@ -102,7 +103,7 @@ class DumpMetaInformationTest extends \MediaWikiTestCase {
 				$sourceUrl,
 				$size,
 				$licenseItemId,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				$dumpId,
@@ -113,7 +114,7 @@ class DumpMetaInformationTest extends \MediaWikiTestCase {
 				42,
 				$size,
 				$licenseItemId,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				$dumpId,
@@ -124,7 +125,7 @@ class DumpMetaInformationTest extends \MediaWikiTestCase {
 				$sourceUrl,
 				'42',
 				$licenseItemId,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				$dumpId,
@@ -135,7 +136,7 @@ class DumpMetaInformationTest extends \MediaWikiTestCase {
 				$sourceUrl,
 				$size,
 				$licenseItemId,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				$dumpId,
@@ -146,7 +147,7 @@ class DumpMetaInformationTest extends \MediaWikiTestCase {
 				$sourceUrl,
 				$size,
 				$licenseItemId,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}

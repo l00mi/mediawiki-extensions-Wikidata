@@ -2,7 +2,6 @@
 
 namespace WikibaseQuality\ExternalValidation\DumpMetaInformation;
 
-use DateTime;
 use Language;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\ItemId;
@@ -40,7 +39,7 @@ class DumpMetaInformation {
 	/**
 	 * Date of import
 	 *
-	 * @var DateTime
+	 * @var string
 	 */
 	private $importDate;
 
@@ -93,7 +92,7 @@ class DumpMetaInformation {
 								 $size,
 								 ItemId $licenseItemId ) {
 		Assert::parameterElementType(
-			'Wikibase\DataModel\Entity\PropertyId',
+			PropertyId::class,
 			$identifierPropertyIds,
 			'$identifierPropertyIds'
 		);
@@ -130,7 +129,7 @@ class DumpMetaInformation {
 	}
 
 	/**
-	 * @return DateTime
+	 * @return string
 	 */
 	public function getImportDate() {
 		return $this->importDate;
@@ -166,11 +165,13 @@ class DumpMetaInformation {
 
 	/**
 	 * @param string $dumpId
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	private function setDumpId( $dumpId ) {
 		Assert::parameterType( 'string', $dumpId, '$dumpId' );
 		$length = strlen( $dumpId );
-		if( $length === 0 && $length > 25 ) {
+		if ( $length < 1 || $length > 25 ) {
 			throw new InvalidArgumentException('$dumpId must be between 1 and 25 characters.');
 		}
 
@@ -179,6 +180,8 @@ class DumpMetaInformation {
 
 	/**
 	 * @param string $languageCode
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	private function setLanguageCode( $languageCode ) {
 		Assert::parameterType( 'string', $languageCode, '$languageCode' );
@@ -188,8 +191,11 @@ class DumpMetaInformation {
 
 		$this->languageCode = $languageCode;
 	}
+
 	/**
 	 * @param string $importDate
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	private function setImportDate( $importDate ) {
 		Assert::parameterType( 'string', $importDate, '$importDate' );
@@ -204,6 +210,8 @@ class DumpMetaInformation {
 
 	/**
 	 * @param string $sourceUrl
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	private function setSourceUrl( $sourceUrl ) {
 		Assert::parameterType( 'string', $sourceUrl, '$sourceUrl' );
@@ -219,6 +227,8 @@ class DumpMetaInformation {
 
 	/**
 	 * @param int $size
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	private function setSize( $size ){
 		Assert::parameterType( 'integer', $size, '$size' );

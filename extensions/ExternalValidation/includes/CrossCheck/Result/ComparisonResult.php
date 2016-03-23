@@ -46,7 +46,7 @@ class ComparisonResult {
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( DataValue $localValue, array $externalValues, $status ) {
-		Assert::parameterElementType( 'DataValues\DataValue', $externalValues, '$externalValues' );
+		Assert::parameterElementType( DataValue::class, $externalValues, '$externalValues' );
 
 		$this->localValue = $localValue;
 		$this->externalValues = $externalValues;

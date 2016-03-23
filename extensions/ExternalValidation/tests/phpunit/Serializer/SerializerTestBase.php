@@ -7,6 +7,7 @@ use ApiResult;
 use FauxRequest;
 use RequestContext;
 use Serializers\DispatchableSerializer;
+use Serializers\Exceptions\UnsupportedObjectException;
 use Serializers\Serializer;
 
 /**
@@ -18,7 +19,7 @@ use Serializers\Serializer;
 abstract class SerializerTestBase extends \MediaWikiTestCase {
 
 	public function testImplementsSerializerInterface() {
-		$this->assertInstanceOf( 'Serializers\Serializer', $this->buildSerializer() );
+		$this->assertInstanceOf( Serializer::class, $this->buildSerializer() );
 	}
 
 	/**
@@ -61,7 +62,7 @@ abstract class SerializerTestBase extends \MediaWikiTestCase {
 	 * @dataProvider nonSerializableProvider
 	 */
 	public function testSerializeThrowsUnsupportedObjectException( $nonSerializable ) {
-		$this->setExpectedException( 'Serializers\Exceptions\UnsupportedObjectException' );
+		$this->setExpectedException( UnsupportedObjectException::class );
 		$this->buildSerializer()->serialize( $nonSerializable );
 	}
 

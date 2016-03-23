@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\UpdateExternalData;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings;
 
@@ -21,7 +22,7 @@ class CsvImportSettingsTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider provideInvalidArguments()
 	 */
 	public function testConstructWithInvalidArguments( $externalValuesFilePath, $dumpInformationFilePath, $batchSize, $quiet ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		new CsvImportSettings( $externalValuesFilePath, $dumpInformationFilePath, $batchSize, $quiet );
 	}
 

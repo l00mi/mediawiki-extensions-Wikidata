@@ -142,7 +142,7 @@ class ExternalDataImporter {
 				catch( \DBError $e ) {
 					exit( 'Unknown database error occurred.' );
 				}
-				wfWaitForSlaves();
+				wfGetLBFactory()->waitForReplication();
 
 				$this->log( "\r\033[K" );
 				$this->log( "$i rows inserted" );

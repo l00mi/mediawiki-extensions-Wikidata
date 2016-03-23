@@ -27,7 +27,7 @@ class ExternalDataRepo {
 	public function getExternalData( array $dumpIds, array $externalIds, array $propertyIds ) {
 		Assert::parameterElementType( 'string', $dumpIds, '$dumpIds' );
 		Assert::parameterElementType( 'string', $externalIds, '$externalIds' );
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId', $propertyIds, '$propertyIds' );
+		Assert::parameterElementType( PropertyId::class, $propertyIds, '$propertyIds' );
 		Assert::parameter( count( $dumpIds ) > 0, '$dumpIds', '$dumpIds has to contain at least one element.' );
 		Assert::parameter( count( $externalIds ) > 0, '$externalIds', '$externalIds has to contain at least one element.' );
 
@@ -128,7 +128,7 @@ class ExternalDataRepo {
 		} else {
 			do {
 				$db->commit( __METHOD__, 'flush' );
-				wfWaitForSlaves();
+				wfGetLBFactory()->waitForReplication();
 				$table = $db->tableName( self::TABLE_NAME );
 				$condition = 'dump_id = ' . $db->addQuotes( $dumpId );
 				$db->query( sprintf( 'DELETE FROM %s WHERE %s LIMIT %s', $table, $condition, $batchSize ) );

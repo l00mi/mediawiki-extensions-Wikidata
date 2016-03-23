@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
+use InvalidArgumentException;
 use Wikibase\StringNormalizer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
@@ -192,7 +193,7 @@ class StringComparerTest extends \MediaWikiTestCase {
 	 * @dataProvider compareInvalidArgumentsDataProvider
 	 */
 	public function testCompareInvalidArguments( $value, $comparativeValue ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		$this->stringComparer->compare( $value, $comparativeValue );
 	}
@@ -281,7 +282,7 @@ class StringComparerTest extends \MediaWikiTestCase {
 	 * @dataProvider compareWithArrayInvalidArgumentsDataProvider
 	 */
 	public function testCompareWithArrayInvalidArguments( $value, $comparativeValues ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		$this->stringComparer->compareWithArray( $value, $comparativeValues );
 	}

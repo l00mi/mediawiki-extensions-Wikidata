@@ -74,7 +74,7 @@ class CrossCheckInteractor {
 	 * @return CrossCheckResultList[]
 	 */
 	public function crossCheckEntitiesByIds( array $entityIds ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\EntityId',  $entityIds, '$entityIds' );
+		Assert::parameterElementType( EntityId::class,  $entityIds, '$entityIds' );
 
 		$results = array();
 		foreach ( $entityIds as $entityId ) {
@@ -104,7 +104,7 @@ class CrossCheckInteractor {
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckEntities( array $entities ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\EntityDocument',  $entities, '$entities' );
+		Assert::parameterElementType( EntityDocument::class,  $entities, '$entities' );
 
 		$results = array();
 		foreach ( $entities as $entity ) {
@@ -127,7 +127,7 @@ class CrossCheckInteractor {
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckEntityByIdWithProperties( EntityId $entityId, array $propertyIds ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId',  $propertyIds, '$propertyIds' );
+		Assert::parameterElementType( PropertyId::class,  $propertyIds, '$propertyIds' );
 
 		$entity = $this->entityLookup->getEntity( $entityId );
 
@@ -148,8 +148,8 @@ class CrossCheckInteractor {
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckEntitiesByIdWithProperties( array $entityIds, array $propertyIds ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\EntityId',  $entityIds, '$entityIds' );
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId',  $propertyIds, '$propertyIds' );
+		Assert::parameterElementType( EntityId::class,  $entityIds, '$entityIds' );
+		Assert::parameterElementType( PropertyId::class,  $propertyIds, '$propertyIds' );
 
 		$results = array();
 		foreach ( $entityIds as $entityId ) {
@@ -169,7 +169,7 @@ class CrossCheckInteractor {
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckStatementsWithProperties( StatementList $entityStatements, array $propertyIds ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId',  $propertyIds, '$propertyIds' );
+		Assert::parameterElementType( PropertyId::class,  $propertyIds, '$propertyIds' );
 
 		$statements = new StatementList();
 		foreach ( $entityStatements->toArray() as $statement ) {
@@ -191,8 +191,8 @@ class CrossCheckInteractor {
 	 * @throws InvalidArgumentException
 	 */
 	public function crossCheckEntitiesWithProperties( array $entities, array $propertyIds ) {
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\EntityDocument',  $entities, '$entities' );
-		Assert::parameterElementType( 'Wikibase\DataModel\Entity\PropertyId',  $propertyIds, '$propertyIds' );
+		Assert::parameterElementType( EntityDocument::class,  $entities, '$entities' );
+		Assert::parameterElementType( PropertyId::class,  $propertyIds, '$propertyIds' );
 
 		$results = array();
 		foreach ( $entities as $entity ) {

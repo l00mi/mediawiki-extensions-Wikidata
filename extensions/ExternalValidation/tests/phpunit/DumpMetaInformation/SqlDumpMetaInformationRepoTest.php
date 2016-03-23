@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\DumpMetaInformation;
 
+use InvalidArgumentException;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -166,17 +167,17 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
 			array(
 				42,
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array( 'foo' ),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				null,
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -222,7 +223,7 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
 			array(
 				array( 42 ),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -291,7 +292,7 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
 			array(
 				array( 'P42' ),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}

@@ -2,10 +2,13 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
+use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
@@ -21,7 +24,6 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 class CrossCheckResultTest extends PHPUnit_Framework_TestCase {
 
 	public function testConstructValidArguments() {
-
 		// Create test data
 		$propertyId = new PropertyId( 'P42' );
 		$guid = 'Q42$fccafc70-07a0-4e82-807f-288a4b21c13c';
@@ -46,7 +48,7 @@ class CrossCheckResultTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider constructInvalidArgumentsDataProvider
 	 */
 	public function testConstructInvalidArguments( $propertyId, $guid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		new CrossCheckResult( $propertyId, $guid, $externalId, $dumpMetaInformation, $comparisonResult, $referenceResult );
 	}
@@ -88,17 +90,25 @@ class CrossCheckResultTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @return DumpMetaInformation
+	 */
 	private function getDumpMetaInformationMock() {
-		$mock = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' )
+		$mock = $this->getMockBuilder( DumpMetaInformation::class )
 			->disableOriginalConstructor()
 			->getMock();
 
 		return $mock;
 	}
 
+	/**
+	 * @param string $status
+	 *
+	 * @return ComparisonResult
+	 */
 	private function getComparisonResultMock( $status = ComparisonResult::STATUS_MISMATCH ) {
 		$mock = $this
-			->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult' )
+			->getMockBuilder( ComparisonResult::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->any() )
@@ -108,9 +118,14 @@ class CrossCheckResultTest extends PHPUnit_Framework_TestCase {
 		return $mock;
 	}
 
+	/**
+	 * @param bool $referencesMissing
+	 *
+	 * @return ReferenceResult
+	 */
 	private function getReferenceResultMock( $referencesMissing = true ) {
 		$mock = $this
-			->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult' )
+			->getMockBuilder( ReferenceResult::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->any() )

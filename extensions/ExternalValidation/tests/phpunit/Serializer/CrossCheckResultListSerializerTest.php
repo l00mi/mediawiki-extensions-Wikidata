@@ -2,7 +2,9 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Serializer;
 
+use Serializers\Serializer;
 use Wikibase\DataModel\Entity\PropertyId;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer;
 
@@ -20,7 +22,7 @@ use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
 class CrossCheckResultListSerializerTest extends SerializerTestBase {
 
 	protected function buildSerializer() {
-		$serializerMock = $this->getMock( 'Serializers\Serializer' );
+		$serializerMock = $this->getMock( Serializer::class );
 		$serializerMock->expects( $this->any() )
 			->method( 'serialize' )
 			->will( $this->returnValue( 'foobar' ) );
@@ -173,7 +175,7 @@ class CrossCheckResultListSerializerTest extends SerializerTestBase {
 
 	private function getCrossCheckResultMock( PropertyId $propertyId ) {
 		$mock = $this
-			->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult' )
+			->getMockBuilder( CrossCheckResult::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->any() )

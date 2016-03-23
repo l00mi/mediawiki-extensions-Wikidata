@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Html;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableHeaderBuilder;
 
@@ -40,12 +41,12 @@ class HtmlTableHeaderBuilderTest extends PHPUnit_Framework_TestCase {
 			array(
 				42,
 				true,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				'fooar',
 				42,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}

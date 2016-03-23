@@ -8,8 +8,10 @@ use DataValues\StringValue;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\TermIndex;
 use Wikibase\TermIndexEntry;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\EntityIdValueComparer;
+use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
@@ -93,7 +95,7 @@ class EntityIdValueComparerTest extends DataValueComparerTestBase {
 	}
 
 	protected function buildComparer() {
-		$termIndex = $this->getMockForAbstractClass( 'Wikibase\TermIndex' );
+		$termIndex = $this->getMockForAbstractClass( TermIndex::class );
 		$termIndex->expects( $this->any() )
 			->method( 'getTermsOfEntity' )
 			->will( $this->returnCallback(
@@ -123,7 +125,7 @@ class EntityIdValueComparerTest extends DataValueComparerTestBase {
 			}
 		) );
 
-		$stringComparer = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringComparer' )
+		$stringComparer = $this->getMockBuilder( StringComparer::class )
 			->disableOriginalConstructor()
 			->setMethods( array( 'compareWithArray' ) )
 			->getMock();

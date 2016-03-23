@@ -7,6 +7,7 @@ use DataValues\StringValue;
 use InvalidArgumentException;
 use ValueParsers\ParseException;
 use Wikibase\DataModel\Entity\EntityIdValue;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
@@ -226,7 +227,8 @@ class CrossChecker {
 		ComparativeValueParser $comparativeValueParser
 	) {
 		$resultList = new CrossCheckResultList();
-		foreach ( $statements as $statement ) {
+
+		foreach ( $statements->toArray() as $statement ) {
 			$comparisonResult = $this->compareStatement( $statement, $externalValues, $comparativeValueParser );
 
 			if ( $comparisonResult ) {
@@ -347,6 +349,7 @@ class CrossChecker {
 	 * @return bool
 	 */
 	private function isIdentifierProperty( PropertyId $identifierPropertyId ) {
+		/** @var Property $property */
 		$property = $this->entityLookup->getEntity( $identifierPropertyId );
 		$instanceOfPropertyId = new PropertyId( INSTANCE_OF_PID );
 		$statements = $property->getStatements()->getByPropertyId( $instanceOfPropertyId );
@@ -370,7 +373,8 @@ class CrossChecker {
 	 */
 	private function getDataValues( StatementList $statementList ){
 		$dataValues = array();
-		foreach ( $statementList as $statement ) {
+
+		foreach ( $statementList->toArray() as $statement ) {
 			$mainSnak = $statement->getMainSnak();
 			if ( $mainSnak instanceof PropertyValueSnak ) {
 				$dataValues[] = $mainSnak->getDataValue();

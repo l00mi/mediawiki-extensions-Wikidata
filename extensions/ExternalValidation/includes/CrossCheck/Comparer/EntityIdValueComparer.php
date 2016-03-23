@@ -46,8 +46,8 @@ class EntityIdValueComparer implements DataValueComparer {
 	 * @return string|null One of the ComparisonResult::STATUS_... constants.
 	 */
 	public function compare( DataValue $value, DataValue $comparativeValue ) {
-		Assert::parameterType( 'Wikibase\DataModel\Entity\EntityIdValue', $value, '$value' );
-		Assert::parameterType( 'DataValues\MonolingualTextValue', $comparativeValue, '$comparativeValue' );
+		Assert::parameterType( EntityIdValue::class, $value, '$value' );
+		Assert::parameterType( MonolingualTextValue::class, $comparativeValue, '$comparativeValue' );
 
 		/**
 		 * @var EntityIdValue $value

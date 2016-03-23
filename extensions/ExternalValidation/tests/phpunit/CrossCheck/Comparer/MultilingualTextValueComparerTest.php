@@ -7,6 +7,7 @@ use DataValues\MultilingualTextValue;
 use DataValues\QuantityValue;
 use DataValues\StringValue;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\MultilingualTextValueComparer;
+use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
@@ -129,7 +130,7 @@ class MultilingualTextValueComparerTest extends DataValueComparerTestBase {
 	}
 
 	protected function buildComparer() {
-		$stringComparer = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringComparer' )
+		$stringComparer = $this->getMockBuilder( StringComparer::class )
 			->disableOriginalConstructor()
 			->setMethods( array ( 'compare' ) )
 			->getMock();

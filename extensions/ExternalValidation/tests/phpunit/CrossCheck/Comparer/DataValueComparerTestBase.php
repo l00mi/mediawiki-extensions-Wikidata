@@ -3,6 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Comparer;
 
 use DataValues\DataValue;
+use InvalidArgumentException;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
 
 /**
@@ -19,7 +20,7 @@ abstract class DataValueComparerTestBase extends \MediaWikiTestCase {
 	protected abstract function buildComparer();
 
 	public function testImplementsDataValueComparerInterface() {
-		$this->assertInstanceOf( 'WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer', $this->buildComparer() );
+		$this->assertInstanceOf( DataValueComparer::class, $this->buildComparer() );
 	}
 
 	/**
@@ -46,7 +47,7 @@ abstract class DataValueComparerTestBase extends \MediaWikiTestCase {
 	 * @dataProvider nonComparableProvider
 	 */
 	public function testComparerThrowsInvalidArgumentException( DataValue $value, DataValue $comparativeValue ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->buildComparer()->compare( $value, $comparativeValue );
 	}
 

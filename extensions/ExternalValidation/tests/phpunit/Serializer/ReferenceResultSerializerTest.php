@@ -2,6 +2,8 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Serializer;
 
+use Serializers\Serializer;
+use Wikibase\DataModel\Reference;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 use WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer;
 
@@ -28,8 +30,11 @@ class ReferenceResultSerializerTest extends SerializerTestBase {
 		);
 	}
 
+	/**
+	 * @return Reference
+	 */
 	private function getReferenceMock() {
-		return $this->getMock( 'Wikibase\DataModel\Reference' );
+		return $this->getMock( Reference::class );
 	}
 
 	public function nonSerializableProvider() {
@@ -105,7 +110,7 @@ class ReferenceResultSerializerTest extends SerializerTestBase {
 	}
 
 	protected function buildSerializer() {
-		$serializerMock = $this->getMock( 'Serializers\Serializer' );
+		$serializerMock = $this->getMock( Serializer::class );
 		$serializerMock->expects( $this->any() )
 			->method( 'serialize' )
 			->will( $this->returnValue( 'foobar' ) );

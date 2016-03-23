@@ -3,6 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck;
 
 use DataValues\StringValue;
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
@@ -13,6 +14,7 @@ use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
 use WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
+use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 
 /**
  * @covers WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker
@@ -44,10 +46,14 @@ class ReferenceCheckerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testConstructInvalidArguments() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$statement = $this->getMockBuilder( Statement::class )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		$this->referenceHandler->checkForReferences(
-			$this->getMockBuilder( 'Wikibase\DataModel\Statement\Statement' )->disableOriginalConstructor()->getMock(),
+			$statement,
 			new PropertyId( 'P42' ),
 			42,
 			$this->getDumpMetaInformationMock( new ItemId( 'Q42' ) )
@@ -131,8 +137,13 @@ class ReferenceCheckerTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @param ItemId $sourceItemId
+	 *
+	 * @return DumpMetaInformation
+	 */
 	private function getDumpMetaInformationMock( ItemId $sourceItemId ) {
-		$mock = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation' )
+		$mock = $this->getMockBuilder( DumpMetaInformation::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->any() )

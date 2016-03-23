@@ -28,6 +28,7 @@ use Wikibase\Repo\EntityIdLabelFormatterFactory;
 use Wikibase\Repo\WikibaseRepo;
 use WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult;
+use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
@@ -305,7 +306,7 @@ class SpecialCrossCheck extends SpecialPage {
 	/**
 	 * Builds summary from given results
 	 *
-	 * @param CrossCheckResult[] $results
+	 * @param CrossCheckResult[]|CrossCheckResultList $results
 	 *
 	 * @return string HTML
 	 */
@@ -395,7 +396,7 @@ class SpecialCrossCheck extends SpecialPage {
 	}
 
 	/**
-	 * @param CrossCheckResult[] $results
+	 * @param CrossCheckResult[]|CrossCheckResultList $results
 	 *
 	 * @return string HTML
 	 */

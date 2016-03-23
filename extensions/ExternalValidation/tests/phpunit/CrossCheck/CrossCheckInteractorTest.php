@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\Item;
@@ -10,6 +11,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
+use WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker;
 use WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor;
 use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
 
@@ -49,7 +51,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 
 		$entityLookup = new JsonFileEntityLookup( __DIR__ . '/testdata' );
 		$guidParser = new StatementGuidParser( new BasicEntityIdParser() );
-		$crossChecker = $this->getMockBuilder( 'WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker' )
+		$crossChecker = $this->getMockBuilder( CrossChecker::class )
 			->disableOriginalConstructor()
 			->setMethods( array( 'crossCheckStatements' ) )
 			->getMock();
@@ -171,7 +173,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'Q2'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -269,7 +271,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'Q2'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -333,7 +335,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'P1'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -412,7 +414,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					new PropertyId( 'P2' )
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array(
@@ -424,7 +426,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'P2'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array(
@@ -436,7 +438,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'P2'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -493,7 +495,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'P1'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -572,7 +574,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					new PropertyId( 'P2' )
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array(
@@ -584,7 +586,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'P2'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array(
@@ -596,7 +598,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					'P2'
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -639,7 +641,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 			array(
 				42,
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -730,7 +732,7 @@ class CrossCheckInteractorTest extends PHPUnit_Framework_TestCase {
 					42
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}

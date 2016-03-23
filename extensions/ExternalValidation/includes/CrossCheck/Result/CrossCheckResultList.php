@@ -27,11 +27,7 @@ class CrossCheckResultList implements IteratorAggregate, Countable {
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( array $results = array() ) {
-		Assert::parameterElementType(
-			'WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult',
-			$results,
-			'$results'
-		);
+		Assert::parameterElementType( CrossCheckResult::class, $results, '$results' );
 
 		$this->results = $results;
 	}

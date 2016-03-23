@@ -2,7 +2,9 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\Result;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
+use Wikibase\DataModel\Reference;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 
 /**
@@ -43,14 +45,14 @@ class ReferenceResultTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getReferenceMock() {
-		return $this->getMock( 'Wikibase\DataModel\Reference' );
+		return $this->getMock( Reference::class );
 	}
 
 	/**
 	 * @dataProvider constructInvalidArgumentsDataProvider
 	 */
 	public function testConstructInvalidArguments( $status, $addableReference ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		new ReferenceResult( $status, $addableReference );
 	}

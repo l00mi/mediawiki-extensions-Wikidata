@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\ValueParser;
 
+use Wikibase\StringNormalizer;
 use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\StringValueParser;
 use DataValues\StringValue;
 
@@ -40,7 +41,7 @@ class StringValueParserTest extends ValueParserTestBase {
 	}
 
 	protected function buildParser() {
-		$stringNormalizer = $this->getMockBuilder( 'Wikibase\StringNormalizer' )
+		$stringNormalizer = $this->getMockBuilder( StringNormalizer::class )
 			->setMethods( array( 'trimToNFC' ) )
 			->getMock();
 		$stringNormalizer->expects( $this->any() )

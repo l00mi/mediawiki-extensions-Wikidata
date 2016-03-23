@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\CrossCheck\ValueParser;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use ValueParsers\ValueParser;
 
@@ -19,7 +20,7 @@ abstract class ValueParserTestBase extends PHPUnit_Framework_TestCase {
 	protected abstract function buildParser();
 
 	public function testImplementsDataValueComparerInterface() {
-		$this->assertInstanceOf( 'ValueParsers\ValueParser', $this->buildParser() );
+		$this->assertInstanceOf( ValueParser::class, $this->buildParser() );
 	}
 
 	public abstract function nonParseableProvider();
@@ -28,7 +29,7 @@ abstract class ValueParserTestBase extends PHPUnit_Framework_TestCase {
 	 * @dataProvider nonParseableProvider
 	 */
 	public function testParserThrowsInvalidArgumentException( $value ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->buildParser()->parse( $value );
 	}
 
