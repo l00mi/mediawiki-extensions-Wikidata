@@ -71,12 +71,6 @@ abstract class SerializerTestBase extends \MediaWikiTestCase {
 	 */
 	public abstract function nonSerializableProvider();
 
-	private function applySerializer( $object, $serializerParameter = array() ) {
-		$serializer = call_user_func_array( array( $this, 'buildSerializer' ), $serializerParameter );
-		$actual = $serializer->serialize( $object );
-		return $actual;
-	}
-
 	private function fillApiResult( array $data, ApiResult $result ) {
 		$_element = null;
 		$_type = null;
@@ -136,8 +130,8 @@ abstract class SerializerTestBase extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider serializationProvider
 	 */
-	public function testSerialization( $expected, $object, $serializerParameter = array() ) {
-		$actual = $this->applySerializer( $object, $serializerParameter );
+	public function testSerialization( $expected, $object ) {
+		$actual = $this->buildSerializer()->serialize( $object );
 
 		$this->assertEquals( $expected, $actual );
 	}
@@ -145,8 +139,8 @@ abstract class SerializerTestBase extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider serializationJSONProvider
 	 */
-	public function testSerializationJSON( $expectedJson, $object, $serializerParameter = array() ) {
-		$data = $this->applySerializer( $object, $serializerParameter );
+	public function testSerializationJSON( $expectedJson, $object ) {
+		$data = $this->buildSerializer()->serialize( $object );
 		$json = $this->applyApiFormat( $data, 'json' );
 
 		$this->assertJsonStringEqualsJsonString( $expectedJson, $json );
@@ -155,8 +149,8 @@ abstract class SerializerTestBase extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider serializationXMLProvider
 	 */
-	public function testSerializationXML( $expectedXml, $object, $serializerParameter = array() ) {
-		$data = $this->applySerializer( $object, $serializerParameter );
+	public function testSerializationXML( $expectedXml, $object ) {
+		$data = $this->buildSerializer()->serialize( $object );
 		$xml = $this->applyApiFormat( $data, 'xml' );
 
 		$this->assertXmlStringEqualsXmlString( $expectedXml, $xml );
