@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": [
+			"З. ӘЙЛЕ"
+		]
+	},
+	"wbqev-crosscheck-form-submit-label": "Тикшерергә",
+	"wbqev-crosscheck-invalid-entity-id": "Ҡулланыу мөмкин булмаған идентификатор!",
+	"wbqev-crosscheck-not-existent-entity": "Объект юҡ!",
+	"wbqev-crosscheck-result-headline": "Өсөн һөҙөмтә",
+	"wbqev-crosscheck-result-table-header-references": "Иҫкәрмәләр",
+	"wbqev-crosscheck-result-table-header-local-value": "Wikidata мәғәнәһе",
+	"wbqev-crosscheck-result-table-header-external-value": "Тышҡы мәғәнәләр",
+	"wbqev-crosscheck-result-table-header-external-source": "Тышҡы сығанаҡ",
+	"wbqev-crosscheck-result-table-header-status": "Торош",
+	"wbqev-crosscheck-status-match": "Тап килеү",
+	"wbqev-crosscheck-status-partial-match": "Мөмкин булған тап килеү",
+	"wbqev-crosscheck-status-mismatch": "Тап килмәү",
+	"wbqev-crosscheck-status-references-missing": "юҡ",
+	"wbqev-crosscheck-status-references-stated": "тороштар",
+	"wbqev-externaldbs": "Тышҡы мәғлүмәт базаһы исемлеге",
+	"wbqev-externaldbs-overview-headline": "Мәғлүмәт базалары",
+	"wbqev-externaldbs-name": "Атама",
+	"wbqev-externaldbs-id": "ID",
+	"wbqev-externaldbs-import-date": "Импорт датаһы",
+	"wbqev-externaldbs-language": "Мәғлүмәттәр теле",
+	"wbqev-externaldbs-source-urls": "Сығанаҡ URL-адрестар:",
+	"wbqev-externaldbs-size": "Күләм",
+	"wbqev-externaldbs-license": "Лицензия"
+}
