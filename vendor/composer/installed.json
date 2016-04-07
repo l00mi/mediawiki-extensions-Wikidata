@@ -1,139 +1,5 @@
 [
     {
-        "name": "composer/installers",
-        "version": "v1.0.23",
-        "version_normalized": "1.0.23.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/composer/installers.git",
-            "reference": "6213d900e92647831f7a406d5c530ea1f3d4360e"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/6213d900e92647831f7a406d5c530ea1f3d4360e",
-            "reference": "6213d900e92647831f7a406d5c530ea1f3d4360e",
-            "shasum": ""
-        },
-        "require": {
-            "composer-plugin-api": "^1.0"
-        },
-        "replace": {
-            "roundcube/plugin-installer": "*",
-            "shama/baton": "*"
-        },
-        "require-dev": {
-            "composer/composer": "1.0.*@dev",
-            "phpunit/phpunit": "4.1.*"
-        },
-        "time": "2016-01-27 12:54:22",
-        "type": "composer-plugin",
-        "extra": {
-            "class": "Composer\\Installers\\Plugin",
-            "branch-alias": {
-                "dev-master": "1.0-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Composer\\Installers\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Kyle Robinson Young",
-                "email": "kyle@dontkry.com",
-                "homepage": "https://github.com/shama"
-            }
-        ],
-        "description": "A multi-framework Composer library installer",
-        "homepage": "http://composer.github.com/installers/",
-        "keywords": [
-            "Craft",
-            "Dolibarr",
-            "Hurad",
-            "MODX Evo",
-            "OXID",
-            "SMF",
-            "Thelia",
-            "WolfCMS",
-            "agl",
-            "aimeos",
-            "annotatecms",
-            "bitrix",
-            "cakephp",
-            "chef",
-            "codeigniter",
-            "concrete5",
-            "croogo",
-            "dokuwiki",
-            "drupal",
-            "elgg",
-            "fuelphp",
-            "grav",
-            "installer",
-            "joomla",
-            "kohana",
-            "laravel",
-            "lithium",
-            "magento",
-            "mako",
-            "mediawiki",
-            "modulework",
-            "moodle",
-            "phpbb",
-            "piwik",
-            "ppi",
-            "puppet",
-            "roundcube",
-            "shopware",
-            "silverstripe",
-            "symfony",
-            "typo3",
-            "wordpress",
-            "zend",
-            "zikula"
-        ]
-    },
-    {
-        "name": "mediawiki/article-placeholder",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "b22e234f5ac32c31896db3e9157f421c72cbdb6b"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/b22e234f5ac32c31896db3e9157f421c72cbdb6b",
-            "reference": "b22e234f5ac32c31896db3e9157f421c72cbdb6b",
-            "shasum": ""
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.5.1"
-        },
-        "time": "2016-03-24 21:32:30",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Lucie-Aimée Kaffee"
-            }
-        ],
-        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
-    },
-    {
         "name": "data-values/interfaces",
         "version": "0.2.1",
         "version_normalized": "0.2.1.0",
@@ -1140,71 +1006,6 @@
         ]
     },
     {
-        "name": "data-values/geo",
-        "version": "1.1.4",
-        "version_normalized": "1.1.4.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Geo.git",
-            "reference": "e7222bc743ae05bfc5213cb1e20150aa772d8668"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Geo/zipball/e7222bc743ae05bfc5213cb1e20150aa772d8668",
-            "reference": "e7222bc743ae05bfc5213cb1e20150aa772d8668",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.1",
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-11-25 16:48:57",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.1.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Geo.php"
-            ],
-            "psr-4": {
-                "DataValues\\Geo\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Geographical value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Geo",
-        "keywords": [
-            "datavalues",
-            "formatters",
-            "geo",
-            "geographical",
-            "latlong",
-            "parsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/validators",
         "version": "0.1.2",
         "version_normalized": "0.1.2.0",
@@ -1266,188 +1067,6 @@
             "valueparsers",
             "wikidata"
         ]
-    },
-    {
-        "name": "wikibase/wikibase",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "8bbffed754354a1baba1ceb0db7c7661a6d8b778"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8bbffed754354a1baba1ceb0db7c7661a6d8b778",
-            "reference": "8bbffed754354a1baba1ceb0db7c7661a6d8b778",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.3.0",
-            "data-values/data-types": "~0.5.0",
-            "data-values/data-values": "~1.0",
-            "data-values/geo": "~1.0",
-            "data-values/interfaces": "~0.2.0|~0.1.5",
-            "data-values/javascript": "~0.8.0",
-            "data-values/number": "~0.6.0",
-            "data-values/serialization": "~1.0",
-            "data-values/time": "~0.8.3",
-            "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.16.1",
-            "diff/diff": "~2.0",
-            "php": ">=5.5.0",
-            "wikibase/data-model": "~6.0",
-            "wikibase/data-model-javascript": "~2.0.0",
-            "wikibase/data-model-serialization": "~2.2",
-            "wikibase/data-model-services": "~3.5",
-            "wikibase/internal-serialization": "~2.3",
-            "wikibase/javascript-api": "~1.1",
-            "wikibase/serialization-javascript": "~2.0.5"
-        },
-        "conflict": {
-            "mediawiki/mediawiki": "<1.25"
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
-        },
-        "time": "2016-03-30 20:43:32",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "client/includes/",
-                "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/",
-                "lib/includes/",
-                "lib/WikibaseLib.hooks.php",
-                "lib/maintenance/",
-                "lib/tests/phpunit/",
-                "repo/includes/",
-                "repo/maintenance/",
-                "repo/tests/phpunit/",
-                "repo/Wikibase.hooks.php"
-            ],
-            "psr-4": {
-                "Wikibase\\View\\": "view/src",
-                "Wikibase\\View\\Tests\\": "view/tests/phpunit",
-                "Wikimedia\\Purtle\\": "purtle/src",
-                "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Structured data repository for MediaWiki",
-        "homepage": "http://wikiba.se",
-        "keywords": [
-            "wikibase",
-            "wikibaseclient",
-            "wikibaselib",
-            "wikibaserepo",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "wikibase/wikimedia-badges",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-            "reference": "c5eaaf4fa73409c1514b63ba96ace482c75f5d04"
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2016-03-27 19:26:46",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "files": [
-                "WikimediaBadges.php"
-            ],
-            "psr-4": {
-                "WikimediaBadges\\": "includes/"
-            }
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Extension which contains default themes to display badges on Wikimedia projects",
-        "homepage": "https://github.com/wmde/WikimediaBadges",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata"
-        }
-    },
-    {
-        "name": "wikibase/Wikidata.org",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "f6eafd332d07f5e224ec3e3f3e18b07fabe07589"
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.5.1"
-        },
-        "time": "2016-02-27 23:32:10",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "classmap": [
-                "WikidataOrg.hooks.php"
-            ]
-        },
-        "scripts": {
-            "test": [
-                "parallel-lint . --exclude vendor",
-                "phpcs -p -s"
-            ]
-        },
-        "license": [
-            "GNU GPL v2+"
-        ],
-        "authors": [
-            {
-                "name": "Bene*",
-                "email": "benestar.wikimedia@gmail.com",
-                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
-                "role": "Developer"
-            }
-        ],
-        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
-        "homepage": "https://github.com/wmde/Wikidata.org",
-        "keywords": [
-            "Wikibase",
-            "Wikidata"
-        ],
-        "support": {
-            "irc": "irc://irc.freenode.net/wikidata"
-        }
     },
     {
         "name": "wikimedia/assert",
@@ -1560,61 +1179,6 @@
         }
     },
     {
-        "name": "wikibase/media-info",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "5ef2d513179c5de4f05fb4f025e4dd32fbb2b733"
-        },
-        "require": {
-            "php": ">=5.5.0",
-            "serialization/serialization": "~3.2",
-            "wikibase/data-model": "~6.0",
-            "wikibase/data-model-serialization": "~2.0"
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.6.0",
-            "phpunit/phpunit": "~4.8"
-        },
-        "time": "2016-03-30 20:43:43",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "Wikibase\\MediaInfo\\": "src/",
-                "Wikibase\\MediaInfo\\Tests\\": "tests/phpunit/composer/",
-                "Wikibase\\MediaInfo\\Tests\\MediaWiki\\": "tests/phpunit/mediawiki/"
-            }
-        },
-        "scripts": {
-            "fix": [
-                "phpcbf"
-            ],
-            "test": [
-                "parallel-lint . --exclude vendor",
-                "phpcs -p -s",
-                "phpunit"
-            ]
-        },
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Wikibase extension to manage structured metadata of media files",
-        "homepage": "http://wikiba.se",
-        "support": {
-            "issues": "https://phabricator.wikimedia.org/",
-            "irc": "irc://irc.freenode.net/wikidata"
-        }
-    },
-    {
         "name": "propertysuggester/property-suggester",
         "version": "3.0.1",
         "version_normalized": "3.0.1.0",
@@ -1662,65 +1226,6 @@
             "wikibase",
             "wikidata"
         ]
-    },
-    {
-        "name": "wikibase/quality",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "8da0396b18a17f1649c8010db903f925707dd8af"
-        },
-        "require": {
-            "php": ">=5.3.0",
-            "serialization/serialization": "^3.2.1",
-            "wikibase/data-model": "~4.0|~5.0|~6.0",
-            "wikibase/data-model-services": "~2.0|~3.0"
-        },
-        "require-dev": {
-            "data-values/geo": "~1.0",
-            "data-values/number": ">=0.1 <0.7",
-            "data-values/serialization": ">=0.1 <2.0",
-            "data-values/time": ">=0.1 <0.9",
-            "phpunit/phpunit": "^3.7.37|~4.5",
-            "satooshi/php-coveralls": "master-dev",
-            "wikibase/data-model-serialization": ">=0.1 <3.0"
-        },
-        "time": "2016-03-22 16:14:25",
-        "type": "mediawiki-extension",
-        "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "WikibaseQuality\\": "includes/",
-                "WikibaseQuality\\Api\\": "api/",
-                "WikibaseQuality\\Specials\\": "specials/",
-                "WikibaseQuality\\Tests\\": "tests/phpunit/"
-            },
-            "classmap": [
-                "WikibaseQualityHooks.php"
-            ]
-        },
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "BP2014N1"
-            }
-        ],
-        "description": "Extension for Wikibase to improve the data quality and trust.",
-        "homepage": "https://www.mediawiki.org/wiki/Wikibase_Quality_Extensions",
-        "keywords": [
-            "quality",
-            "trust",
-            "violation",
-            "wikibase",
-            "wikidata"
-        ],
-        "support": {
-            "issues": "https://phabricator.wikimedia.org/project/profile/989/"
-        }
     },
     {
         "name": "wikibase/constraints",
@@ -1776,6 +1281,503 @@
         ],
         "support": {
             "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
+        }
+    },
+    {
+        "name": "composer/installers",
+        "version": "v1.0.24",
+        "version_normalized": "1.0.24.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/composer/installers.git",
+            "reference": "1cf7cc4b89d5e8549bbb7d6ab1de75da13d27988"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/composer/installers/zipball/1cf7cc4b89d5e8549bbb7d6ab1de75da13d27988",
+            "reference": "1cf7cc4b89d5e8549bbb7d6ab1de75da13d27988",
+            "shasum": ""
+        },
+        "require": {
+            "composer-plugin-api": "^1.0"
+        },
+        "replace": {
+            "roundcube/plugin-installer": "*",
+            "shama/baton": "*"
+        },
+        "require-dev": {
+            "composer/composer": "1.0.*@dev",
+            "phpunit/phpunit": "4.1.*"
+        },
+        "time": "2016-04-05 11:42:46",
+        "type": "composer-plugin",
+        "extra": {
+            "class": "Composer\\Installers\\Plugin",
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Composer\\Installers\\": "src/Composer/Installers"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Kyle Robinson Young",
+                "email": "kyle@dontkry.com",
+                "homepage": "https://github.com/shama"
+            }
+        ],
+        "description": "A multi-framework Composer library installer",
+        "homepage": "https://composer.github.io/installers/",
+        "keywords": [
+            "Craft",
+            "Dolibarr",
+            "Hurad",
+            "ImageCMS",
+            "MODX Evo",
+            "Mautic",
+            "OXID",
+            "SMF",
+            "Thelia",
+            "WolfCMS",
+            "agl",
+            "aimeos",
+            "annotatecms",
+            "bitrix",
+            "cakephp",
+            "chef",
+            "codeigniter",
+            "concrete5",
+            "croogo",
+            "dokuwiki",
+            "drupal",
+            "elgg",
+            "fuelphp",
+            "grav",
+            "installer",
+            "joomla",
+            "kohana",
+            "laravel",
+            "lithium",
+            "magento",
+            "mako",
+            "mediawiki",
+            "modulework",
+            "moodle",
+            "phpbb",
+            "piwik",
+            "ppi",
+            "puppet",
+            "roundcube",
+            "shopware",
+            "silverstripe",
+            "symfony",
+            "typo3",
+            "wordpress",
+            "zend",
+            "zikula"
+        ]
+    },
+    {
+        "name": "data-values/geo",
+        "version": "1.1.6",
+        "version_normalized": "1.1.6.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Geo.git",
+            "reference": "6fb5f20c10e8d55ba5fa83a3bbcd824850ee9b48"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Geo/zipball/6fb5f20c10e8d55ba5fa83a3bbcd824850ee9b48",
+            "reference": "6fb5f20c10e8d55ba5fa83a3bbcd824850ee9b48",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0|~0.2.0",
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "php": ">=5.3.0"
+        },
+        "time": "2016-04-01 22:49:09",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Geo.php"
+            ],
+            "psr-4": {
+                "DataValues\\Geo\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            },
+            {
+                "name": "The Wikidata team",
+                "role": "Developer"
+            }
+        ],
+        "description": "Geographical value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Geo",
+        "keywords": [
+            "datavalues",
+            "formatters",
+            "geo",
+            "geographical",
+            "latlong",
+            "parsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "mediawiki/article-placeholder",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
+            "reference": "df467896fea7315022a152bbec72fa07850b47b4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/df467896fea7315022a152bbec72fa07850b47b4",
+            "reference": "df467896fea7315022a152bbec72fa07850b47b4",
+            "shasum": ""
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.5.1"
+        },
+        "time": "2016-04-07 10:02:12",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Lucie-Aimée Kaffee"
+            }
+        ],
+        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
+    },
+    {
+        "name": "wikibase/wikibase",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "81668f18526d8a85dbf327db1d74421a48ce3ced"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/81668f18526d8a85dbf327db1d74421a48ce3ced",
+            "reference": "81668f18526d8a85dbf327db1d74421a48ce3ced",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0",
+            "data-values/data-types": "~0.5.0",
+            "data-values/data-values": "~1.0",
+            "data-values/geo": "~1.0",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "data-values/javascript": "~0.8.0",
+            "data-values/number": "~0.6.0",
+            "data-values/serialization": "~1.0",
+            "data-values/time": "~0.8.3",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.16.1",
+            "diff/diff": "~2.0",
+            "php": ">=5.5.0",
+            "wikibase/data-model": "~6.0",
+            "wikibase/data-model-javascript": "~2.0.0",
+            "wikibase/data-model-serialization": "~2.2",
+            "wikibase/data-model-services": "~3.5",
+            "wikibase/internal-serialization": "~2.3",
+            "wikibase/javascript-api": "~1.1",
+            "wikibase/serialization-javascript": "~2.0.5"
+        },
+        "conflict": {
+            "mediawiki/mediawiki": "<1.25"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
+        },
+        "time": "2016-04-06 21:54:21",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "client/includes/",
+                "client/WikibaseClient.hooks.php",
+                "client/tests/phpunit/",
+                "lib/includes/",
+                "lib/WikibaseLib.hooks.php",
+                "lib/maintenance/",
+                "lib/tests/phpunit/",
+                "repo/includes/",
+                "repo/maintenance/",
+                "repo/tests/phpunit/",
+                "repo/Wikibase.hooks.php"
+            ],
+            "psr-4": {
+                "Wikibase\\View\\": "view/src",
+                "Wikibase\\View\\Tests\\": "view/tests/phpunit",
+                "Wikimedia\\Purtle\\": "purtle/src",
+                "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Structured data repository for MediaWiki",
+        "homepage": "http://wikiba.se",
+        "keywords": [
+            "wikibase",
+            "wikibaseclient",
+            "wikibaselib",
+            "wikibaserepo",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "wikibase/wikimedia-badges",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
+            "reference": "f701a7bbbe6f025e725725a13d5a3ad75cefe8d9"
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2016-04-04 20:13:45",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "WikimediaBadges.php"
+            ],
+            "psr-4": {
+                "WikimediaBadges\\": "includes/"
+            }
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Extension which contains default themes to display badges on Wikimedia projects",
+        "homepage": "https://github.com/wmde/WikimediaBadges",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata"
+        }
+    },
+    {
+        "name": "wikibase/Wikidata.org",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
+            "reference": "cacad2d89c47107e6bb7529edee15a438988cb6f"
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.5.1"
+        },
+        "time": "2016-04-05 21:01:51",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "WikidataOrg.hooks.php"
+            ]
+        },
+        "scripts": {
+            "test": [
+                "parallel-lint . --exclude vendor",
+                "phpcs -p -s"
+            ]
+        },
+        "license": [
+            "GNU GPL v2+"
+        ],
+        "authors": [
+            {
+                "name": "Bene*",
+                "email": "benestar.wikimedia@gmail.com",
+                "homepage": "https://www.wikidata.org/wiki/User:Bene*",
+                "role": "Developer"
+            }
+        ],
+        "description": "Configuration for and customizations to Wikibase that are specific to wikidata.org",
+        "homepage": "https://github.com/wmde/Wikidata.org",
+        "keywords": [
+            "Wikibase",
+            "Wikidata"
+        ],
+        "support": {
+            "irc": "irc://irc.freenode.net/wikidata"
+        }
+    },
+    {
+        "name": "wikibase/media-info",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
+            "reference": "49df40c388ade4ddd221c13387c1ebe9fcb7988d"
+        },
+        "require": {
+            "php": ">=5.5.0",
+            "serialization/serialization": "~3.2",
+            "wikibase/data-model": "~6.0",
+            "wikibase/data-model-serialization": "~2.0"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.6.0",
+            "phpunit/phpunit": "~4.8"
+        },
+        "time": "2016-04-05 13:53:37",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Wikibase\\MediaInfo\\": "src/",
+                "Wikibase\\MediaInfo\\Tests\\": "tests/phpunit/composer/",
+                "Wikibase\\MediaInfo\\Tests\\MediaWiki\\": "tests/phpunit/mediawiki/"
+            }
+        },
+        "scripts": {
+            "fix": [
+                "phpcbf"
+            ],
+            "test": [
+                "parallel-lint . --exclude vendor",
+                "phpcs -p -s",
+                "phpunit"
+            ]
+        },
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Wikibase extension to manage structured metadata of media files",
+        "homepage": "http://wikiba.se",
+        "support": {
+            "issues": "https://phabricator.wikimedia.org/",
+            "irc": "irc://irc.freenode.net/wikidata"
+        }
+    },
+    {
+        "name": "wikibase/quality",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
+            "reference": "e37a7387494b7cc9b475893992cc1910fd4f2d09"
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "serialization/serialization": "^3.2.1",
+            "wikibase/data-model": "~4.0|~5.0|~6.0",
+            "wikibase/data-model-services": "~2.0|~3.0"
+        },
+        "require-dev": {
+            "data-values/geo": "~1.0",
+            "data-values/number": ">=0.1 <0.7",
+            "data-values/serialization": ">=0.1 <2.0",
+            "data-values/time": ">=0.1 <0.9",
+            "phpunit/phpunit": "^3.7.37|~4.5",
+            "satooshi/php-coveralls": "master-dev",
+            "wikibase/data-model-serialization": ">=0.1 <3.0"
+        },
+        "time": "2016-04-06 21:16:26",
+        "type": "mediawiki-extension",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "WikibaseQuality\\": "includes/",
+                "WikibaseQuality\\Api\\": "api/",
+                "WikibaseQuality\\Specials\\": "specials/",
+                "WikibaseQuality\\Tests\\": "tests/phpunit/"
+            },
+            "classmap": [
+                "WikibaseQualityHooks.php"
+            ]
+        },
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "BP2014N1"
+            }
+        ],
+        "description": "Extension for Wikibase to improve the data quality and trust.",
+        "homepage": "https://www.mediawiki.org/wiki/Wikibase_Quality_Extensions",
+        "keywords": [
+            "quality",
+            "trust",
+            "violation",
+            "wikibase",
+            "wikidata"
+        ],
+        "support": {
+            "issues": "https://phabricator.wikimedia.org/project/profile/989/"
         }
     }
 ]

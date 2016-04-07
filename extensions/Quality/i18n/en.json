@@ -43,11 +43,11 @@
 	"apihelp-wbqgetviolationmessages-example": "Get messages for data violations of item Q76.",
 
 	"apihelp-wbqmodifyviolation-description": "Modifies a specific data violation. Keep in mind that only users with specific rights can modify violations.",
-	"apihelp-wbqmodifyviolation-param-claimguid": "The claim GUID of the data violation that should be modified. Together with the constraint id, this identifies the violation.",
-	"apihelp-wbqmodifyviolation-param-constraintid": "The constraint id of the data violation that should be modified. Together with the claimguid this identifies the violation.",
+	"apihelp-wbqmodifyviolation-param-claimguid": "The claim GUID of the data violation that should be modified. Together with the constraint ID, this identifies the violation.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "The constraint ID of the data violation that should be modified. Together with the claim GUID this identifies the violation.",
 	"apihelp-wbqmodifyviolation-param-status": "The new status, which should be set for this violation.",
-	"apihelp-wbqmodifyviolation-examples-exception": "Change the status of the violation identified by constraint id and claim GUID to exception.",
-	"apihelp-wbqmodifyviolation-examples-violation": "Change the status of the violation identified by constraint id and claim GUID to violation.",
+	"apihelp-wbqmodifyviolation-examples-exception": "Change the status of the violation identified by constraint ID and claim GUID to exception.",
+	"apihelp-wbqmodifyviolation-examples-violation": "Change the status of the violation identified by constraint ID and claim GUID to violation.",
 
 	"apihelp-wbqgetviolationtypes-description": "Returns a list of all supported violation types.",
 	"apihelp-wbqgetviolationtypes-param-groupid": "An optional parameter that restricts the violation types to the ones associated with the given group.",

@@ -41,7 +41,7 @@
 	"apihelp-wbqgetviolationmessages-example": "Obter mensaxes por violacións de datos do elemento Q76.",
 	"apihelp-wbqmodifyviolation-description": "Modifica unha violación de datos específica. Teña en conta que só os usuarios con dereitos específicos poden modificar as violacións.",
 	"apihelp-wbqmodifyviolation-param-claimguid": "O GUID da afirmación da violación de datos que debe ser modificado. Xunto co identificador de límite, identifícase a violación.",
-	"apihelp-wbqmodifyviolation-param-constraintid": "O identificador de límite da violación de datos que debe ser modificado. Xunto co 'claimguid' permite identificar a violación.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "O identificador de límite da violación de datos que debe ser modificado. Xunto co GUID da demanda permite identificar a violación.",
 	"apihelp-wbqmodifyviolation-param-status": "O novo estado, que debe ser fixado para esta violación.",
 	"apihelp-wbqmodifyviolation-examples-exception": "Cambia o estado da violación identificada polo identificador de límite e o GUID da afirmación a excepción.",
 	"apihelp-wbqmodifyviolation-examples-violation": "Cambia o estado da violación identificada polo identificador de límite e o GUID da afirmación a violación.",

@@ -39,7 +39,7 @@
 	"apihelp-wbqgetviolationmessages-example": "获取用于项Q76的数据违例消息。",
 	"apihelp-wbqmodifyviolation-description": "修改一个特定的数据违例。记住只有拥有特定权限的用户可以修改违例。",
 	"apihelp-wbqmodifyviolation-param-claimguid": "应当被修改的数据违例的声称GUID。这与约束ID一起存在，以识别违例。",
-	"apihelp-wbqmodifyviolation-param-constraintid": "应被修改的数据违例的约束ID。与claimguid一起识别此违例。",
+	"apihelp-wbqmodifyviolation-param-constraintid": "应被修改的数据违例的约束ID。与声称的GUID一起识别此违例。",
 	"apihelp-wbqmodifyviolation-param-status": "新状态，应被设定到此违例中。",
 	"apihelp-wbqmodifyviolation-examples-exception": "更改由约束ID和声称GUID认定的违例状态为例外。",
 	"apihelp-wbqmodifyviolation-examples-violation": "更改由约束ID和声称GUID认定的违例状态为违例。",

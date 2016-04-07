@@ -3,7 +3,6 @@
 namespace Wikibase\MediaInfo\View;
 
 use InvalidArgumentException;
-use Language;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\MediaInfo\DataModel\MediaInfo;
@@ -81,24 +80,24 @@ class MediaInfoView extends EntityView {
 	 */
 	protected function getMainHtml( EntityDocument $entity ) {
 		if ( !( $entity instanceof MediaInfo ) ) {
-			throw new InvalidArgumentException( '$entityRevision must contain a MediaInfo entity.' );
+			throw new InvalidArgumentException( '$entity must be a MediaInfo entity.' );
 		}
-
-		// FIXME should be $this->getHtmlForTermBox( $id, $entityRevision->getRevisionId() )
-		$entityTermsView = $this->entityTermsView->getEntityTermsForLanguageListView(
-			$entity,
-			$entity,
-			null,
-			[ $this->languageCode ]
-		);
 
 		return $this->entityTermsView->getHtml(
 				$this->getFingerprint( $entity ),
 				$entity->getId(),
-				$entityTermsView,
+				$this->getHtmlForTermBox(),
 				$this->textInjector
 			)
 			. $this->statementSectionsView->getHtml( $entity->getStatements() );
+	}
+
+	/**
+	 * @return string HTML
+	 */
+	private function getHtmlForTermBox() {
+		// Placeholder for a termbox for the present item.
+		return $this->textInjector->newMarker( 'termbox' );
 	}
 
 	/**
@@ -129,11 +128,12 @@ class MediaInfoView extends EntityView {
 	 *
 	 * @param EntityDocument $entity
 	 *
+	 * @throws InvalidArgumentException
 	 * @return string HTML
 	 */
 	public function getTitleHtml( EntityDocument $entity ) {
 		if ( !( $entity instanceof MediaInfo ) ) {
-			throw new InvalidArgumentException( '$entityRevision must contain a MediaInfo entity.' );
+			throw new InvalidArgumentException( '$entity must be a MediaInfo entity.' );
 		}
 		return $this->entityTermsView->getTitleHtml(
 			$this->getFingerprint( $entity ),

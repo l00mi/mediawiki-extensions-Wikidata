@@ -218,7 +218,7 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 		$this->mergeMwGlobalArrayValue( 'wgHooks', array(
 			'WikibaseClientOtherProjectsSidebar' => array(
 				function () {
-					$this->assertTrue( false, 'Should not get called.' );
+					$this->fail( 'Should not get called.' );
 				},
 			),
 		) );
@@ -292,8 +292,8 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 
 		$lookup = $this->getMock( SiteLinkLookup::class );
 		$lookup->expects( $this->any() )
-				->method( 'getItemIdForSiteLink' )
-				->will( $this->returnValue( $Q123 ) );
+			->method( 'getItemIdForLink' )
+			->will( $this->returnValue( $Q123 ) );
 
 		$lookup->expects( $this->any() )
 			->method( 'getSiteLinksForItem' )

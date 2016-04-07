@@ -40,7 +40,7 @@
 	"apihelp-wbqgetviolationmessages-example": "קבלת הודעות להפרות נתונים של פריט Q76.",
 	"apihelp-wbqmodifyviolation-description": "משנה הפרת נתונים מסוימת. נא לזכור שרק משתמשים עם הרשאות מסוימות יכולים לשנות הפרות.",
 	"apihelp-wbqmodifyviolation-param-claimguid": "ה־GUID של הפרת הנתונים שצריך לשנות. יחד עם constraint id זה מזהה את ההפרה.",
-	"apihelp-wbqmodifyviolation-param-constraintid": "מזהה האילוץ של הפרת הנתונים שצריך לשנות. יחד עם ה־claimguid זה מזהה את ההפרה.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "מזהה האילוץ של הפרת הנתונים שצריך לשנות. יחד עם ה־GIUD של הטענה זה מזהה את ההפרה.",
 	"apihelp-wbqmodifyviolation-param-status": "המצב החדש שצריך להגדיר להפרה הזאת.",
 	"apihelp-wbqmodifyviolation-examples-exception": "שינוי מצב ההפרה שמזוהה באמצעות מזהה הפרה ו־GUID של טענה ליוצא־דופן.",
 	"apihelp-wbqmodifyviolation-examples-violation": "שינוי מצב ההפרה שמזוהה באמצעות מזהה אילוץ ו־GUID של טענה להפרה.",

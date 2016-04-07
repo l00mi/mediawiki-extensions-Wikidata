@@ -23,11 +23,11 @@ The recommended way to use this library is via [Composer](http://getcomposer.org
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `data-values/geo` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-version 1.0 of this package:
+version 1.1 of this package:
 
     {
         "require": {
-            "data-values/geo": "1.0.*"
+            "data-values/geo": "1.1.*"
         }
     }
 
@@ -92,6 +92,14 @@ It is based upon and contains a lot of code written by [Jeroen De Dauw]
 [Semantic MediaWiki](https://semantic-mediawiki.org/) projects.
 
 ## Release notes
+
+### 1.1.6 (2016-04-02)
+
+* Added compatibility with DataValues Common 0.3.x
+
+### 1.1.5 (2015-12-28)
+
+* The component can now be installed together with DataValues Interfaces 0.2.x
 
 ### 1.1.4 (2014-11-25)
 
@@ -159,3 +167,4 @@ Initial release with these features:
 
 * [DataValues Geo on Packagist](https://packagist.org/packages/data-values/geo)
 * [DataValues Geo on TravisCI](https://travis-ci.org/DataValues/Geo)
+* [DataValues on Wikimedia's Phabricator](https://phabricator.wikimedia.org/project/view/122/)
