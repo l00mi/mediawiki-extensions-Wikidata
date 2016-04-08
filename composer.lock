@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "ce2d3344a1029b1785c17124d2e61159",
-    "content-hash": "53696abeb8a0946c7805ecccb257edc4",
     "packages": [
         {
             "name": "composer/installers",
@@ -780,12 +779,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "df467896fea7315022a152bbec72fa07850b47b4"
+                "reference": "3e376421ea440242a51ab4c80085c7cd2c30ff1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/df467896fea7315022a152bbec72fa07850b47b4",
-                "reference": "df467896fea7315022a152bbec72fa07850b47b4",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/3e376421ea440242a51ab4c80085c7cd2c30ff1c",
+                "reference": "3e376421ea440242a51ab4c80085c7cd2c30ff1c",
                 "shasum": ""
             },
             "require-dev": {
@@ -804,7 +803,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-04-07 10:02:12"
+            "time": "2016-04-07 20:57:58"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1560,12 +1559,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "81668f18526d8a85dbf327db1d74421a48ce3ced"
+                "reference": "4e101c8ceedbcabae368e71ff7babea90225c17d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/81668f18526d8a85dbf327db1d74421a48ce3ced",
-                "reference": "81668f18526d8a85dbf327db1d74421a48ce3ced",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4e101c8ceedbcabae368e71ff7babea90225c17d",
+                "reference": "4e101c8ceedbcabae368e71ff7babea90225c17d",
                 "shasum": ""
             },
             "require": {
@@ -1637,7 +1636,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-04-06 21:54:21"
+            "time": "2016-04-07 21:05:43"
         },
         {
             "name": "wikibase/wikimedia-badges",

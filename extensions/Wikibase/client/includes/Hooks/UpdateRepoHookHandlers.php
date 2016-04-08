@@ -8,7 +8,6 @@ use LogEntry;
 use MWException;
 use Title;
 use User;
-use Wikibase\Client\UpdateRepo\UpdateRepo;
 use Wikibase\Client\UpdateRepo\UpdateRepoOnDelete;
 use Wikibase\Client\UpdateRepo\UpdateRepoOnMove;
 use Wikibase\Client\WikibaseClient;
@@ -88,8 +87,8 @@ class UpdateRepoHookHandlers {
 	}
 
 	/**
-	 * After a page has been moved also update the item on the repo
-	 * This only works with CentralAuth
+	 * After a page has been moved also update the item on the repo.
+	 * This only works if there's a user account with the same name on the repo.
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/TitleMoveComplete
 	 *
@@ -120,8 +119,8 @@ class UpdateRepoHookHandlers {
 	}
 
 	/**
-	 * After a page has been deleted also update the item on the repo
-	 * This only works with CentralAuth
+	 * After a page has been deleted also update the item on the repo.
+	 * This only works if there's a user account with the same name on the repo.
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleDeleteComplete
 	 *
@@ -184,22 +183,12 @@ class UpdateRepoHookHandlers {
 	}
 
 	/**
-	 * Whether a given UpdateRepo should be pushed to the repo
-	 *
-	 * @param UpdateRepo $updateRepo
-	 * @return bool
-	 */
-	private function shouldBePushed( UpdateRepo $updateRepo ) {
-		return $updateRepo->getEntityId() && $updateRepo->userIsValidOnRepo();
-	}
-
-	/**
 	 * @param Title $title
 	 * @param User $user
 	 *
 	 * @return bool
 	 */
-	private function doArticleDeleteComplete( Title $title, User $user ) {
+	public function doArticleDeleteComplete( Title $title, User $user ) {
 		if ( $this->propagateChangesToRepo !== true ) {
 			return true;
 		}
@@ -212,7 +201,7 @@ class UpdateRepoHookHandlers {
 			$title
 		);
 
-		if ( !$this->shouldBePushed( $updateRepo ) ) {
+		if ( !$updateRepo->isApplicable() ) {
 			return true;
 		}
 
@@ -239,7 +228,7 @@ class UpdateRepoHookHandlers {
 	 *
 	 * @return bool
 	 */
-	private function doTitleMoveComplete( Title $oldTitle, Title $newTitle, User $user ) {
+	public function doTitleMoveComplete( Title $oldTitle, Title $newTitle, User $user ) {
 		if ( !$this->isWikibaseEnabled( $newTitle->getNamespace() ) ) {
 			return true;
 		}
@@ -257,7 +246,7 @@ class UpdateRepoHookHandlers {
 			$newTitle
 		);
 
-		if ( !$this->shouldBePushed( $updateRepo ) ) {
+		if ( !$updateRepo->isApplicable() ) {
 			return true;
 		}
 

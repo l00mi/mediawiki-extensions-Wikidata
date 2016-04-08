@@ -6,6 +6,7 @@ use IJobSpecification;
 use JobQueueGroup;
 use JobQueueRedis;
 use JobSpecification;
+use PHPUnit_Framework_TestCase;
 use Title;
 use User;
 use Wikibase\Client\UpdateRepo\UpdateRepoOnMove;
@@ -23,7 +24,7 @@ use Wikibase\Lib\Store\SiteLinkLookup;
  * @license GPL-2.0+
  * @author Marius Hoch < hoo@online.de >
  */
-class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
+class UpdateRepoOnMoveTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Return some fake data for testing
@@ -111,12 +112,6 @@ class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
 		return $jobQueueGroupMock;
 	}
 
-	public function testUserIsValidOnRepo() {
-		$updateRepo = $this->getNewUpdateRepoOnMove();
-
-		$this->assertFalse( $updateRepo->userIsValidOnRepo() );
-	}
-
 	/**
 	 * Verify a created job
 	 *
@@ -143,6 +138,12 @@ class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
 		$jobQueueGroupMock = $this->getJobQueueGroupMock( true );
 
 		$updateRepo->injectJob( $jobQueueGroupMock );
+	}
+
+	public function testIsApplicable() {
+		$updateRepo = $this->getNewUpdateRepoOnMove();
+
+		$this->assertTrue( $updateRepo->isApplicable() );
 	}
 
 }
