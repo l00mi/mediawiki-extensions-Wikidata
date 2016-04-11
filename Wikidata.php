@@ -62,7 +62,7 @@ if ( !empty( $wmgUseWikibaseClient ) ) {
 	include_once "$wgWikidataBaseDir/extensions/Wikibase/client/WikibaseClient.php";
 
 	if ( !empty( $wmgUseArticlePlaceholder ) ) {
-		include_once "$wgWikidataBaseDir/extensions/ArticlePlaceholder/ArticlePlaceholder.php";
+		wfLoadExtension( 'ArticlePlaceholder', "$wgWikidataBaseDir/extensions/ArticlePlaceholder/extension.json" );
 	}
 }
 
