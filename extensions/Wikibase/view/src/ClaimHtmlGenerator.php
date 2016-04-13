@@ -2,13 +2,13 @@
 
 namespace Wikibase\View;
 
+use ValueFormatters\NumberLocalizer;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Services\ByPropertyIdGrouper;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\DataModel\Snak\SnakList;
 use Wikibase\DataModel\Statement\Statement;
-use Wikibase\StatementRankSerializer;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -23,6 +23,7 @@ use Wikibase\View\Template\TemplateFactory;
  * @author Pragunbhutani
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 class ClaimHtmlGenerator {
 
@@ -37,6 +38,11 @@ class ClaimHtmlGenerator {
 	private $snakHtmlGenerator;
 
 	/**
+	 * @var NumberLocalizer
+	 */
+	private $numberLocalizer;
+
+	/**
 	 * @var string[]
 	 */
 	private $referenceHeadings = array();
@@ -44,18 +50,21 @@ class ClaimHtmlGenerator {
 	/**
 	 * @var string[]
 	 */
-	private $statementRankText = array();
+	private $statementRankSelector = array();
 
 	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param SnakHtmlGenerator $snakHtmlGenerator
+	 * @param NumberLocalizer $numberLocalizer
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
-		SnakHtmlGenerator $snakHtmlGenerator
+		SnakHtmlGenerator $snakHtmlGenerator,
+		NumberLocalizer $numberLocalizer
 	) {
 		$this->snakHtmlGenerator = $snakHtmlGenerator;
 		$this->templateFactory = $templateFactory;
+		$this->numberLocalizer = $numberLocalizer;
 	}
 
 	/**
@@ -74,17 +83,7 @@ class ClaimHtmlGenerator {
 			false
 		);
 
-		$statementRankSerializer = new StatementRankSerializer();
-		$serializedRank = $statementRankSerializer->serialize( $statement->getRank() );
-
-		// Messages: wikibase-statementview-rank-preferred, wikibase-statementview-rank-normal,
-		// wikibase-statementview-rank-deprecated
-		$rankHtml = $this->templateFactory->render(
-			'wikibase-rankselector',
-			'ui-state-disabled',
-			'wikibase-rankselector-' . $serializedRank,
-			$this->getStatementRankText( $serializedRank )
-		);
+		$rankHtml = $this->getRankSelector( $statement->getRank() );
 
 		$referencesHeading = $this->getReferencesHeading( $statement );
 
@@ -204,29 +203,43 @@ class ClaimHtmlGenerator {
 		$referenceCount = count( $statement->getReferences() );
 
 		if ( !array_key_exists( $referenceCount, $this->referenceHeadings ) ) {
+			$formattedReferenceCount = $this->numberLocalizer->localizeNumber( $referenceCount );
 			$this->referenceHeadings[ $referenceCount ] = wfMessage(
 				'wikibase-ui-pendingquantitycounter-nonpending',
 				wfMessage(
 					'wikibase-statementview-referencesheading-pendingcountersubject'
-				)->numParams( $referenceCount )->text()
-			)->numParams( $referenceCount )->text();
+				)->params( $formattedReferenceCount )->text()
+			)->params( $formattedReferenceCount )->text();
 		}
 
 		return $this->referenceHeadings[ $referenceCount ];
 	}
 
 	/**
-	 * @param string $serializedRank
+	 * @param int $rank
 	 *
 	 * @return string Text
 	 */
-	private function getStatementRankText( $serializedRank ) {
-		if ( !array_key_exists( $serializedRank, $this->statementRankText ) ) {
-			$rankText = wfMessage( 'wikibase-statementview-rank-' . $serializedRank )->text();
-			$this->statementRankText[ $serializedRank ] = $rankText;
-		}
+	private function getRankSelector( $rank ) {
+		if ( !array_key_exists( $rank, $this->statementRankSelector ) ) {
+			$rankName = [
+				Statement::RANK_DEPRECATED => 'deprecated',
+				Statement::RANK_NORMAL => 'normal',
+				Statement::RANK_PREFERRED => 'preferred'
+			][ $rank ];
 
-		return $this->statementRankText[ $serializedRank ];
+			// Messages: wikibase-statementview-rank-preferred, wikibase-statementview-rank-normal,
+			// wikibase-statementview-rank-deprecated
+			$rankSelector = $this->templateFactory->render(
+				'wikibase-rankselector',
+				'ui-state-disabled',
+				'wikibase-rankselector-' . $rankName,
+				wfMessage( 'wikibase-statementview-rank-' . $rankName )->escaped()
+			);
+
+			$this->statementRankSelector[ $rank ] = $rankSelector;
+		}
+		return $this->statementRankSelector[ $rank ];
 	}
 
 }

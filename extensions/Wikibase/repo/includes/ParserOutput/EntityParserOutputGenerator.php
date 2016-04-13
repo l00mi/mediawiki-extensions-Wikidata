@@ -3,13 +3,11 @@
 namespace Wikibase\Repo\ParserOutput;
 
 use InvalidArgumentException;
-use ParserOptions;
 use ParserOutput;
 use SpecialPage;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Term\FingerprintProvider;
-use Wikibase\EntityRevision;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\Store\EntityInfo;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
@@ -82,6 +80,11 @@ class EntityParserOutputGenerator {
 	private $languageCode;
 
 	/**
+	 * @var bool
+	 */
+	private $editable;
+
+	/**
 	 * @param DispatchingEntityViewFactory $entityViewFactory
 	 * @param ParserOutputJsConfigBuilder $configBuilder
 	 * @param EntityTitleLookup $entityTitleLookup
@@ -91,6 +94,7 @@ class EntityParserOutputGenerator {
 	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param ParserOutputDataUpdater[] $dataUpdaters
 	 * @param string $languageCode
+	 * @param bool $editable
 	 */
 	public function __construct(
 		DispatchingEntityViewFactory $entityViewFactory,
@@ -101,7 +105,8 @@ class EntityParserOutputGenerator {
 		TemplateFactory $templateFactory,
 		EntityDataFormatProvider $entityDataFormatProvider,
 		array $dataUpdaters,
-		$languageCode
+		$languageCode,
+		$editable
 	) {
 		$this->entityViewFactory = $entityViewFactory;
 		$this->configBuilder = $configBuilder;
@@ -112,6 +117,7 @@ class EntityParserOutputGenerator {
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
 		$this->dataUpdaters = $dataUpdaters;
 		$this->languageCode = $languageCode;
+		$this->editable = $editable;
 	}
 
 	/**
@@ -119,34 +125,17 @@ class EntityParserOutputGenerator {
 	 *
 	 * @since 0.5
 	 *
-	 * @note: the new ParserOutput will be registered as a watcher with $options by
-	 *        calling $options->registerWatcher( array( $parserOutput, 'recordOption' ) ).
-	 *
-	 * @param EntityRevision $entityRevision
-	 * @param ParserOptions $options
+	 * @param EntityDocument $entity
 	 * @param bool $generateHtml
 	 *
 	 * @throws InvalidArgumentException
 	 * @return ParserOutput
 	 */
 	public function getParserOutput(
-		EntityRevision $entityRevision,
-		ParserOptions $options,
+		EntityDocument $entity,
 		$generateHtml = true
 	) {
 		$parserOutput = new ParserOutput();
-		$options->registerWatcher( array( $parserOutput, 'recordOption' ) );
-
-		// @note: SIDE EFFECT: the call to $options->getUserLang() effectively splits
-		// the parser cache. It gets reported to the ParserOutput which is registered
-		// as a watcher to $options above.
-		if ( $options->getUserLang() !== $this->languageCode ) {
-			// The language requested by $parserOptions is different from what
-			// this generator was configured for. This indicates an inconsistency.
-			throw new InvalidArgumentException( 'Unexpected user language in ParserOptions' );
-		}
-
-		$entity = $entityRevision->getEntity();
 
 		$updater = new EntityParserOutputDataUpdater( $parserOutput, $this->dataUpdaters );
 		$updater->processEntity( $entity );
@@ -159,9 +148,8 @@ class EntityParserOutputGenerator {
 		if ( $generateHtml ) {
 			$this->addHtmlToParserOutput(
 				$parserOutput,
-				$entityRevision,
-				$this->getEntityInfo( $parserOutput ),
-				$options->getEditSection()
+				$entity,
+				$this->getEntityInfo( $parserOutput )
 			);
 		} else {
 			// If we don't have HTML, the ParserOutput in question
@@ -257,28 +245,26 @@ class EntityParserOutputGenerator {
 
 	/**
 	 * @param ParserOutput $parserOutput
-	 * @param EntityRevision $entityRevision
+	 * @param EntityDocument $entity
 	 * @param EntityInfo $entityInfo
-	 * @param bool $editable
 	 */
 	private function addHtmlToParserOutput(
 		ParserOutput $parserOutput,
-		EntityRevision $entityRevision,
-		EntityInfo $entityInfo,
-		$editable = true
+		EntityDocument $entity,
+		EntityInfo $entityInfo
 	) {
 		$labelDescriptionLookup = new LanguageFallbackLabelDescriptionLookup(
 			new EntityInfoTermLookup( $entityInfo ),
 			$this->languageFallbackChain
 		);
 
-		$editSectionGenerator = $editable ? new ToolbarEditSectionGenerator(
+		$editSectionGenerator = $this->editable ? new ToolbarEditSectionGenerator(
 			new RepoSpecialPageLinker(),
 			$this->templateFactory
 		) : new EmptyEditSectionGenerator();
 
 		$entityView = $this->entityViewFactory->newEntityView(
-			$entityRevision->getEntity()->getType(),
+			$entity->getType(),
 			$this->languageCode,
 			$labelDescriptionLookup,
 			$this->languageFallbackChain,
@@ -286,23 +272,12 @@ class EntityParserOutputGenerator {
 		);
 
 		// Set the display title to display the label together with the item's id
-		$titleHtml = $entityView->getTitleHtml( $entityRevision );
+		$titleHtml = $entityView->getTitleHtml( $entity );
 		$parserOutput->setDisplayTitle( $titleHtml );
 
-		$html = $entityView->getHtml( $entityRevision );
+		$html = $entityView->getHtml( $entity );
 		$parserOutput->setText( $html );
 		$parserOutput->setExtensionData( 'wikibase-view-chunks', $entityView->getPlaceholders() );
-
-		// Force parser cache split by whether edit links are show.
-		// MediaWiki core has the ability to split on editsection, but does not trigger it
-		// automatically when $parserOptions->getEditSection() is called. Presumably this
-		// is because core uses <mw:editsection> tags that are substituted by ParserOutput::getText
-		// using the info from ParserOutput::getEditSectionTokens.
-		$parserOutput->recordOption( 'editsection' );
-
-		// Since the output depends on the user language, we must make sure
-		// ParserCache::getKey() includes it in the cache key.
-		$parserOutput->recordOption( 'userlang' );
 	}
 
 	/**

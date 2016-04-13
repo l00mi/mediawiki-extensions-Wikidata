@@ -9,6 +9,7 @@ if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI == true ) {
 	$wmgUseWikibaseClient = true;
 	$wmgUseWikibaseQuality = true;
 	$wmgUseWikibaseQualityExternalValidation = true;
+	$wmgUseWikibaseMediaInfo = true;
 	$wmgUseArticlePlaceholder = true;
 }
 
@@ -44,13 +45,24 @@ if ( !empty( $wmgUseWikibaseRepo ) ) {
 			include_once "$wgWikidataBaseDir/extensions/ExternalValidation/WikibaseQualityExternalValidation.php";
 		}
 	}
+
+	// @note wikibase/media-info is removed from composer.json for
+	// deployment builds, during the 'branch' grunt command. (pending security review)
+	// jenkins builds for deployment branches have this set to true, but then we remove
+	// the code, so need to check the extension is there even on jenkins.
+	if (
+		!empty( $wmgUseWikibaseMediaInfo )
+		&& is_readable( "$wgWikidataBaseDir/extensions/MediaInfo/extension.json" )
+	) {
+		wfLoadExtension( 'WikibaseMediaInfo', "$wgWikidataBaseDir/extensions/MediaInfo/extension.json" );
+	}
 }
 
 if ( !empty( $wmgUseWikibaseClient ) ) {
 	include_once "$wgWikidataBaseDir/extensions/Wikibase/client/WikibaseClient.php";
 
 	if ( !empty( $wmgUseArticlePlaceholder ) ) {
-		include_once "$wgWikidataBaseDir/extensions/ArticlePlaceholder/ArticlePlaceholder.php";
+		wfLoadExtension( 'ArticlePlaceholder', "$wgWikidataBaseDir/extensions/ArticlePlaceholder/extension.json" );
 	}
 }
 

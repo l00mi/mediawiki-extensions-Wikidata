@@ -39,13 +39,13 @@ class EditPageTest extends WikibaseApiTestCase {
 
 		$item->setLabel( "de", "EditPageTest" );
 
-		$data = $wikibaseRepo->getInternalEntitySerializer()->serialize( $item );
+		$data = $wikibaseRepo->getEntitySerializer()->serialize( $item );
 		$text = json_encode( $data );
 
 		$title = $wikibaseRepo->getEntityTitleLookup()->getTitleForId( $item->getId() );
 
 		// try to update the item with valid data via the edit action
-		$this->setExpectedException( 'UsageException' );
+		$this->setExpectedException( UsageException::class );
 		$this->doApiRequestWithToken(
 			array(
 				'action' => 'edit',

@@ -4,6 +4,7 @@ namespace Wikibase\Lib\Test;
 
 use DataValues\StringValue;
 use DataValues\TimeValue;
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
@@ -30,7 +31,7 @@ class HtmlTimeFormatterTest extends PHPUnit_Framework_TestCase {
 		$options = new FormatterOptions();
 		$options->setOption( ValueFormatter::OPT_LANG, 'qqx' );
 
-		$dateTimeFormatter = $this->getMock( 'ValueFormatters\ValueFormatter' );
+		$dateTimeFormatter = $this->getMock( ValueFormatter::class );
 
 		$dateTimeFormatter->expects( $this->any() )
 			->method( 'format' )
@@ -49,7 +50,7 @@ class HtmlTimeFormatterTest extends PHPUnit_Framework_TestCase {
 	private function getTimeValue( $timestamp, $precision, $calendarModel ) {
 		$value = new TimeValue( '+1-00-00T00:00:00Z', 0, 0, 0, TimeValue::PRECISION_YEAR, $calendarModel );
 
-		$class = new \ReflectionClass( 'DataValues\TimeValue' );
+		$class = new \ReflectionClass( TimeValue::class );
 
 		$timestampProperty = $class->getProperty( 'timestamp' );
 		$timestampProperty->setAccessible( true );
@@ -258,7 +259,7 @@ class HtmlTimeFormatterTest extends PHPUnit_Framework_TestCase {
 	public function testGivenInvalidValue_formatThrowsException( $value ) {
 		$formatter = $this->getFormatter();
 
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$formatter->format( $value );
 	}
 

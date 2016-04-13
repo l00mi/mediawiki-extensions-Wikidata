@@ -15,6 +15,7 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
@@ -37,10 +38,7 @@ class EntityAccessorTest extends \PHPUnit_Framework_TestCase {
 	public function testConstructor() {
 		$entityAccessor = $this->getEntityAccessor();
 
-		$this->assertInstanceOf(
-			'Wikibase\Client\DataAccess\Scribunto\EntityAccessor',
-			$entityAccessor
-		);
+		$this->assertInstanceOf( EntityAccessor::class, $entityAccessor );
 	}
 
 	private function getEntityAccessor(
@@ -50,7 +48,7 @@ class EntityAccessorTest extends \PHPUnit_Framework_TestCase {
 	) {
 		$language = new Language( $langCode );
 
-		$propertyDataTypeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
+		$propertyDataTypeLookup = $this->getMock( PropertyDataTypeLookup::class );
 		$propertyDataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnValue( 'structured-cat' ) );
@@ -136,7 +134,7 @@ class EntityAccessorTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideZeroIndexedArray
 	 */
 	public function testZeroIndexArray( array $array, array $expected ) {
-		$renumber = new ReflectionMethod( 'Wikibase\Client\DataAccess\Scribunto\EntityAccessor', 'renumber' );
+		$renumber = new ReflectionMethod( EntityAccessor::class, 'renumber' );
 		$renumber->setAccessible( true );
 		$renumber->invokeArgs( $this->getEntityAccessor(), array( &$array ) );
 

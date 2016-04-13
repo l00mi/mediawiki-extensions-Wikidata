@@ -25,16 +25,14 @@ class GlobeCoordinateFormatter extends ValueFormatterBase {
 	/**
 	 * @see ValueFormatter::format
 	 *
-	 * @since 0.1
+	 * @param GlobeCoordinateValue $value
 	 *
-	 * @param GlobeCoordinateValue $value The value to format
-	 *
-	 * @return string
+	 * @return string Plain text
 	 * @throws InvalidArgumentException
 	 */
 	public function format( $value ) {
 		if ( !( $value instanceof GlobeCoordinateValue ) ) {
-			throw new InvalidArgumentException( 'The GlobeCoordinateFormatter can only format instances of GlobeCoordinateValue.' );
+			throw new InvalidArgumentException( 'Data value type mismatch. Expected a GlobeCoordinateValue.' );
 		}
 
 		$formatter = new GeoCoordinateFormatter( $this->options );

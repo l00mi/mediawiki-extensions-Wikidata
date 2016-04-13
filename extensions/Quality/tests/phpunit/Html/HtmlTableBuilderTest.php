@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Html;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
@@ -81,13 +82,13 @@ class HtmlTableBuilderTest extends PHPUnit_Framework_TestCase {
 				array( 42 ),
 				null,
 				false,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				'foobar',
 				null,
 				false,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -183,14 +184,14 @@ class HtmlTableBuilderTest extends PHPUnit_Framework_TestCase {
 					)
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			),
 			array(
 				array(
 					42
 				),
 				null,
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}
@@ -252,7 +253,7 @@ class HtmlTableBuilderTest extends PHPUnit_Framework_TestCase {
 	 */
 	private function getHtmlTableHeaderMock( $content, $isSortable = false ) {
 		$cellMock = $this
-			->getMockBuilder( 'WikibaseQuality\Html\HtmlTableHeaderBuilder' )
+			->getMockBuilder( HtmlTableHeaderBuilder::class )
 			->setConstructorArgs( array( $content, $isSortable ) )
 			->setMethods( array( 'toHtml' ) )
 			->getMock();
@@ -273,7 +274,7 @@ class HtmlTableBuilderTest extends PHPUnit_Framework_TestCase {
 	 */
 	private function getHtmlTableCellMock( $content ) {
 		$cellMock = $this
-			->getMockBuilder( 'WikibaseQuality\Html\HtmlTableCellBuilder' )
+			->getMockBuilder( HtmlTableCellBuilder::class )
 			->setConstructorArgs( array( $content ) )
 			->getMock();
 		$cellMock

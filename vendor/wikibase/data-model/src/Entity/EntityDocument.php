@@ -40,6 +40,8 @@ interface EntityDocument extends Comparable {
 	 *
 	 * @since 3.0
 	 *
+	 * @param EntityId $id
+	 *
 	 * @throws InvalidArgumentException if the id is not of the correct type.
 	 */
 	public function setId( $id );
@@ -70,8 +72,11 @@ interface EntityDocument extends Comparable {
 
 	/**
 	 * Returns a deep clone of the entity. The clone must be equal in all details, including the id.
-	 * Since EntityDocuments are not immutable (at least the id can be set) the method is not
-	 * allowed to return $this.
+	 * No change done to the clone is allowed to interfere with the original object. Only properties
+	 * containing immutable objects are allowed to (and should) reference the original object.
+	 *
+	 * Since EntityDocuments are mutable (at least the id can be set) the method is not allowed to
+	 * return $this.
 	 *
 	 * @since 5.0
 	 *

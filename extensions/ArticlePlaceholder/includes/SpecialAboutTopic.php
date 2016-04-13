@@ -2,7 +2,7 @@
 
 namespace ArticlePlaceholder;
 
-use Html;
+use HTMLForm;
 use OOUI;
 use SiteStore;
 use SpecialPage;
@@ -114,6 +114,7 @@ class SpecialAboutTopic extends SpecialPage {
 			$this->createForm();
 			return;
 		}
+
 		if ( !$this->entityLookup->hasEntity( $entityId ) ) {
 			$this->createForm();
 			$message = $this->msg( 'articleplaceholder-abouttopic-no-entity-error' );
@@ -147,67 +148,25 @@ class SpecialAboutTopic extends SpecialPage {
 	 * Create html elements
 	 */
 	protected function createForm() {
-		// Form header
-		$this->getOutput()->addHTML(
-			Html::openElement(
-				'form',
-				array(
-					'method' => 'get',
-					'action' => $this->getPageTitle()->getFullUrl(),
-					'name' => 'ap-abouttopic',
-					'id' => 'ap-abouttopic-form1',
-					'class' => 'ap-form'
-				)
-			)
-		);
+		$form = HTMLForm::factory( 'ooui', [
+			'text' => [
+				'type' => 'text',
+				'name' => 'entityid',
+				'id' => 'ap-abouttopic-entityid',
+				'cssclass' => 'ap-input',
+				'label-message' => 'articleplaceholder-abouttopic-entityid',
+				'default' => $this->getRequest()->getVal( 'entityid' ),
+			]
+		], $this->getContext() );
 
-		// Form elements
-		$this->getOutput()->addHTML( $this->getFormElements() );
-
-		// Form body
-		$this->getOutput()->addHTML(
-			Html::input(
-				'submit',
-				$this->msg( 'articleplaceholder-abouttopic-submit' )->text(),
-				'submit',
-				array( 'id' => 'submit' )
-			)
-			. Html::closeElement( 'fieldset' )
-			. Html::closeElement( 'form' )
-		);
-	}
-
-	/**
-	 * Returns the form elements.
-	 *
-	 * @return string
-	 * @todo exchange all those . Html::element( 'br' ) with something pretty
-	 */
-	protected function getFormElements() {
-		return Html::rawElement(
-			'p',
-			array(),
-			$this->msg( 'articleplaceholder-abouttopic-intro' )->parse()
-		)
-		. Html::element( 'br' )
-		. Html::element(
-			'label',
-			array(
-				'for' => 'ap-abouttopic-entityid',
-				'class' => 'ap-label'
-			),
-			$this->msg( 'articleplaceholder-abouttopic-entityid' )->text()
-		)
-		. Html::element( 'br' )
-		. Html::input(
-			'entityid',
-			$this->getRequest()->getVal( 'entityid' ),
-			'text', array(
-				'class' => 'ap-input',
-				'id' => 'ap-abouttopic-entityid'
-			)
-		)
-		. Html::element( 'br' );
+		$form
+			->setMethod( 'get' )
+			->setId( 'ap-abouttopic-form1' )
+			->setHeaderText( $this->msg( 'articleplaceholder-abouttopic-intro' )->parse() )
+			->setWrapperLegend( '' )
+			->setSubmitTextMsg( 'articleplaceholder-abouttopic-submit' )
+			->prepareForm()
+			->displayForm( false );
 	}
 
 	private function getTextParam( $name, $fallback ) {
@@ -237,8 +196,8 @@ class SpecialAboutTopic extends SpecialPage {
 
 			return $id;
 		} catch ( EntityIdParsingException $ex ) {
-			// @todo proper Exception Handling
-			$this->getOutput()->addWikiText( $ex->getMessage() );
+			$message = $this->msg( 'articleplaceholder-abouttopic-no-entity-error' );
+			$this->getOutput()->addWikiText( $message->text() );
 		}
 
 		return null;
@@ -252,7 +211,10 @@ class SpecialAboutTopic extends SpecialPage {
 		$this->getOutput()->addWikiText( '{{aboutTopic|' . $entityId->getSerialization() . '}}' );
 		$label = $this->getLabel( $entityId );
 		$this->showTitle( $label );
-		$this->showCreateArticle( $label );
+		$labelTitle = Title::newFromText( $label );
+		if ( $labelTitle && $labelTitle->quickUserCan( 'createpage', $this->getUser() ) ) {
+			$this->showCreateArticle( $label );
+		}
 		$this->showLanguageLinks( $entityId );
 	}
 
@@ -260,11 +222,8 @@ class SpecialAboutTopic extends SpecialPage {
 		$output = $this->getOutput();
 
 		$output->enableOOUI();
-		$modules = array(
-			'ext.articleplaceholder.createArticle',
-			'ext.articleplaceholder.defaultDisplay'
-		);
-		$output->addModules( $modules );
+		$output->addModuleStyles( 'ext.articleplaceholder.defaultDisplay' );
+		$output->addModules( 'ext.articleplaceholder.createArticle' );
 		$output->addJsConfigVars( 'apLabel', $label );
 
 		$button = new OOUI\ButtonWidget( array(

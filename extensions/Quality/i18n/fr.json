@@ -44,7 +44,7 @@
 	"apihelp-wbqgetviolationmessages-example": "Obtenir les messages concernant les violations de données de l’élément Q76.",
 	"apihelp-wbqmodifyviolation-description": "Modifie une violation spécifique de données. Gardez à l’esprit que seuls les utilisateurs avec des droits spécifiques peuvent modifier les violations.",
 	"apihelp-wbqmodifyviolation-param-claimguid": "L'identifiant GUID de la demande concernant la violation de données devant être modifiée. Avec l’identifiant de la contrainte, il permet d’identifier la violation.",
-	"apihelp-wbqmodifyviolation-param-constraintid": "Identifiant de la contrainte concernant la violation de données qui doit être modifiée. C’est, avec le ''claimguid'', ce qui permet d’identifier la violation.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "L’identifiant de la contrainte concernant la violation de données qui doit être modifiée. C’est, avec le GUID de la demande, ce qui permet d’identifier la violation.",
 	"apihelp-wbqmodifyviolation-param-status": "Le nouvel état, qui doit être défini pour cette violation.",
 	"apihelp-wbqmodifyviolation-examples-exception": "Changer le statut de la violation identifiée par l'identificateur de contrainte et avertir le GUID de l'exception.",
 	"apihelp-wbqmodifyviolation-examples-violation": "Changer l’état de la violation identifiée par l’identificateur de contrainte avertir le GUID de la  violation.",

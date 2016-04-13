@@ -3,10 +3,14 @@
 namespace Wikibase\View\Tests\Module;
 
 use PHPUnit_Framework_TestCase;
+use ResourceLoaderContext;
 use Wikibase\View\Module\TemplateModule;
 
 /**
  * @covers Wikibase\View\Module\TemplateModule
+ *
+ * @uses Wikibase\View\Template\TemplateFactory
+ * @uses Wikibase\View\Template\TemplateRegistry
  *
  * @group Wikibase
  * @group WikibaseView
@@ -48,8 +52,11 @@ class TemplateModuleTest extends PHPUnit_Framework_TestCase {
 		$this->assertNotEquals( $oldSummary['mtime'], $newSummary['mtime'] );
 	}
 
+	/**
+	 * @return ResourceLoaderContext
+	 */
 	private function getResourceLoaderContext() {
-		$context = $this->getMockBuilder( 'ResourceLoaderContext' )
+		$context = $this->getMockBuilder( ResourceLoaderContext::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$context->expects( $this->any() )

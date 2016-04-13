@@ -14,6 +14,7 @@ use Wikibase\DataModel\Services\Entity\NullEntityPrefetcher;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\Dumpers\RdfDumpGenerator;
 use Wikibase\EntityRevision;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikibase\Rdf\RdfVocabulary;
 use Wikibase\Repo\Tests\Rdf\NTriplesRdfTestHelper;
@@ -70,6 +71,7 @@ class RdfDumpGeneratorTest extends PHPUnit_Framework_TestCase {
 		$wiki = new Site();
 		$wiki->setGlobalId( 'test' );
 		$wiki->setLanguageCode( 'test' );
+		$wiki->setGroup( 'acmetest' );
 		$wiki->setLinkPath( 'http://test.acme.test/$1' );
 		$list['test'] = $wiki;
 
@@ -93,8 +95,8 @@ class RdfDumpGeneratorTest extends PHPUnit_Framework_TestCase {
 	protected function newDumpGenerator( array $entities = array(), array $redirects = array() ) {
 		$out = fopen( 'php://output', 'w' );
 
-		$entityLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\EntityLookup' );
-		$entityRevisionLookup = $this->getMock( 'Wikibase\Lib\Store\EntityRevisionLookup' );
+		$entityLookup = $this->getMock( EntityLookup::class );
+		$entityRevisionLookup = $this->getMock( EntityRevisionLookup::class );
 
 		$dataTypeLookup = $this->getTestData()->getMockRepository();
 
@@ -148,11 +150,12 @@ class RdfDumpGeneratorTest extends PHPUnit_Framework_TestCase {
 	public function idProvider() {
 		$p10 = new PropertyId( 'P10' );
 		$q30 = new ItemId( 'Q30' );
+		$q40 = new ItemId( 'Q40' );
 		$q4242 = new ItemId( 'Q4242' ); // hardcoded to be a redirect
 
 		return array(
 			'empty' => array( array(), 'empty' ),
-			'some entities' => array( array( $p10, $q30 ), 'entities' ),
+			'some entities' => array( array( $p10, $q30, $q40 ), 'entities' ),
 			'redirect' => array( array( $p10, $q4242 ), 'redirect' ),
 		);
 	}

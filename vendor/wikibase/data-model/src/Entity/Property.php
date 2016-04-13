@@ -5,7 +5,13 @@ namespace Wikibase\DataModel\Entity;
 use InvalidArgumentException;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListHolder;
+use Wikibase\DataModel\Term\AliasesProvider;
+use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\DataModel\Term\Fingerprint;
+use Wikibase\DataModel\Term\FingerprintHolder;
+use Wikibase\DataModel\Term\LabelsProvider;
+use Wikibase\DataModel\Term\TermList;
 
 /**
  * Represents a single Wikibase property.
@@ -15,8 +21,10 @@ use Wikibase\DataModel\Term\Fingerprint;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class Property extends Entity implements StatementListHolder {
+class Property implements EntityDocument, FingerprintHolder, StatementListHolder,
+	LabelsProvider, DescriptionsProvider, AliasesProvider {
 
 	const ENTITY_TYPE = 'property';
 
@@ -108,6 +116,39 @@ class Property extends Entity implements StatementListHolder {
 	 */
 	public function setFingerprint( Fingerprint $fingerprint ) {
 		$this->fingerprint = $fingerprint;
+	}
+
+	/**
+	 * @see LabelsProvider::getLabels
+	 *
+	 * @since 6.0
+	 *
+	 * @return TermList
+	 */
+	public function getLabels() {
+		return $this->fingerprint->getLabels();
+	}
+
+	/**
+	 * @see DescriptionsProvider::getDescriptions
+	 *
+	 * @since 6.0
+	 *
+	 * @return TermList
+	 */
+	public function getDescriptions() {
+		return $this->fingerprint->getDescriptions();
+	}
+
+	/**
+	 * @see AliasesProvider::getAliasGroups
+	 *
+	 * @since 6.0
+	 *
+	 * @return AliasGroupList
+	 */
+	public function getAliasGroups() {
+		return $this->fingerprint->getAliasGroups();
 	}
 
 	/**
@@ -223,17 +264,6 @@ class Property extends Entity implements StatementListHolder {
 	}
 
 	/**
-	 * Removes all content from the Property.
-	 * The id and the type are not part of the content.
-	 *
-	 * @since 0.1
-	 */
-	public function clear() {
-		$this->fingerprint = new Fingerprint();
-		$this->statements = new StatementList();
-	}
-
-	/**
 	 * @since 1.1
 	 *
 	 * @return StatementList
@@ -259,7 +289,17 @@ class Property extends Entity implements StatementListHolder {
 	 * @return self
 	 */
 	public function copy() {
-		return unserialize( serialize( $this ) );
+		return clone $this;
+	}
+
+	/**
+	 * @see http://php.net/manual/en/language.oop5.cloning.php
+	 *
+	 * @since 5.1
+	 */
+	public function __clone() {
+		$this->fingerprint = clone $this->fingerprint;
+		$this->statements = clone $this->statements;
 	}
 
 }

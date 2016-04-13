@@ -8,31 +8,39 @@
 
 	var titleInput;
 
-	function onSubmit() {
+	function onSubmit( deferred ) {
 		var titleRaw = titleInput.getValue(),
 			api = new mw.Api();
 
-		api.get( { action: 'query', titles: titleRaw } ).done( function ( data ) {
-			var query = data.query,
-				pageKeys = Object.keys( query.pages ),
-				title,
-				link;
+		if ( titleRaw.trim() === '' ) {
+			deferred.reject( new OO.ui.Error(
+				mw.msg( 'articleplaceholder-abouttopic-create-article-mandatory' )
+			) );
+		} else {
+			api.get( {
+				formatversion: 2,
+				action: 'query',
+				titles: titleRaw
+			} ).done( function ( data ) {
+				var query = data.query,
+					title;
 
-			if ( titleRaw !== titleInput.getValue() ) {
-				return;
-			}
+				if ( query && query.hasOwnProperty( 'pages' ) ) {
+					if ( titleRaw !== titleInput.getValue() ) {
+						return;
+					}
 
-			if ( pageKeys[ 0 ] === '-1' ) {
-				title = mw.Title.newFromUserInput( titleRaw, 0 );
-				link = '?title=' + encodeURIComponent( title.getNameText() ) + '&action=edit';
-				link = mw.util.wikiScript() + link;
-				document.location.href = link;
-			} else {
-				$( '#mw-article-placeholder-error' ).append(
-					'<p>' + mw.message( 'articleplaceholder-abouttopic-article-exists-error' ).escaped() + '</p>'
-				);
-			}
-		} );
+					if ( query.pages[ 0 ].missing ) {
+						title = mw.Title.newFromUserInput( titleRaw, 0 );
+						document.location.href = title.getUrl( { action: 'edit' } );
+					} else {
+						deferred.reject( new OO.ui.Error(
+							mw.msg( 'articleplaceholder-abouttopic-article-exists-error' )
+						) );
+					}
+				}
+			} );
+		}
 
 		return false;
 	}
@@ -41,38 +49,32 @@
 		var dialog,
 			windowManager,
 			button,
-			submitButton,
-			dialogContent
-;
+			dialogContent;
+
 		titleInput = new OO.ui.TextInputWidget( {
 			value: mw.config.get( 'apLabel' ),
+			label: mw.msg( 'articleplaceholder-abouttopic-create-article-label' ),
 			multiline: false,
+			required: true,
 			autosize: true
 		} );
 
-		submitButton = new OO.ui.ButtonWidget( {
-			label: mw.message( 'articleplaceholder-abouttopic-create-article-submit-button' ).text()
-		} );
-
-		dialogContent = $( '<p>' + mw.message( 'articleplaceholder-abouttopic-create-article' ).escaped() + '</p>' );
-		dialogContent.append( titleInput.$element );
-		dialogContent.append( submitButton.$element );
-		dialogContent.append( '<div id="mw-article-placeholder-error"></div>' );
-
-		submitButton.on( 'click', onSubmit );
-
-		titleInput.on( 'change', function () {
-			$( '#mw-article-placeholder-error' ).empty();
-		} );
-
-		titleInput.on( 'enter', function () {
-			submitButton.emit( 'click' );
-		} );
+		dialogContent = titleInput.$element;
 
 		function CreateArticleDialog( config ) {
 			CreateArticleDialog.super.call( this, config ); // jshint:ignore
 		}
-		OO.inheritClass( CreateArticleDialog, OO.ui.Dialog );
+		OO.inheritClass( CreateArticleDialog, OO.ui.ProcessDialog );
+
+		CreateArticleDialog.static.title = mw.message( 'articleplaceholder-abouttopic-create-article' ).text();
+		CreateArticleDialog.static.actions = [
+			{
+				action: 'save',
+				label: mw.message( 'articleplaceholder-abouttopic-create-article-submit-button' ).text(),
+				flags: [ 'primary', 'progressive' ]
+			},
+			{ label: mw.message( 'cancel' ).text(), flags: 'safe' }
+		];
 
 		// Customize the initialize() function: This is where to add content to the dialog body and set up event handlers.
 		CreateArticleDialog.prototype.initialize = function () {
@@ -83,19 +85,36 @@
 		};
 
 		CreateArticleDialog.prototype.getBodyHeight = function () {
-			return this.content.$element.outerHeight( true );
+			return this.content.$element.outerHeight( true ) * 2;
+		};
+
+		CreateArticleDialog.prototype.getActionProcess = function ( action ) {
+			if ( action ) {
+				return new OO.ui.Process( function () {
+					var saveDeferred = $.Deferred();
+					onSubmit( saveDeferred );
+
+					return saveDeferred.promise();
+				}, this );
+			}
+			return CreateArticleDialog.parent.prototype.getActionProcess.call( this, action );
 		};
 
 		dialog = new CreateArticleDialog( {
 			size: 'medium'
 		} );
+
+		titleInput.on( 'enter', function () {
+			dialog.executeAction( 'save' );
+		} );
+
 		windowManager = new OO.ui.WindowManager();
-		button = OO.ui.infuse( 'create-article-button' );
 
 		$( 'body' ).append( windowManager.$element );
 		// Add the window to the window manager using the addWindows() method.
 		windowManager.addWindows( [ dialog ] );
 
+		button = OO.ui.infuse( 'create-article-button' );
 		button.on( 'click', function () {
 			windowManager.openWindow( dialog );
 		} );

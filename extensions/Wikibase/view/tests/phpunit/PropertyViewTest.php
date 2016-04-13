@@ -3,14 +3,16 @@
 namespace Wikibase\View\Tests;
 
 use DataTypes\DataTypeFactory;
-use Language;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\View\EntityTermsView;
+use Wikibase\View\LanguageDirectionalityLookup;
 use Wikibase\View\PropertyView;
+use Wikibase\View\StatementSectionsView;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -75,20 +77,21 @@ class PropertyViewTest extends EntityViewTest {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 		$propertyView = new PropertyView(
 			$templateFactory,
-			$this->getMockBuilder( 'Wikibase\View\EntityTermsView' )
+			$this->getMockBuilder( EntityTermsView::class )
 				->disableOriginalConstructor()
 				->getMock(),
-			$this->getMockBuilder( 'Wikibase\View\StatementSectionsView' )
+			$this->getMock( LanguageDirectionalityLookup::class ),
+			$this->getMockBuilder( StatementSectionsView::class )
 				->disableOriginalConstructor()
 				->getMock(),
 			$this->getDataTypeFactory(),
-			Language::factory( 'en' )
+			'en'
 		);
 
 		return array(
 			array(
 				$propertyView,
-				$this->newEntityRevisionForStatements( array() ),
+				$this->newEntityForStatements( array() ),
 				'/wb-property/'
 			)
 		);

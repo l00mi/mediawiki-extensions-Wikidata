@@ -9,5 +9,4 @@ return array(
     'ValueParsers\\' => array($vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src'),
     'ValueFormatters\\' => array($vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src'),
     'DataValues\\' => array($vendorDir . '/data-values/data-values/src', $vendorDir . '/data-values/time/src', $vendorDir . '/data-values/number/src'),
-    'Composer\\Installers\\' => array($vendorDir . '/composer/installers/src'),
 );

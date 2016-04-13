@@ -1,6 +1,6 @@
-/*
- * @licence GNU GPL v2+
- * @author: Adrian Lang <adrian.lang@wikimedia.de>
+/**
+ * @license GPL-2.0+
+ * @author Adrian Lang <adrian.lang@wikimedia.de>
  */
 ( function( mw, wb ) {
 	'use strict';

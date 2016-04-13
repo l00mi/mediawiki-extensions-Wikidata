@@ -37,7 +37,6 @@ class ChangeLineFormatterTest extends MediaWikiLangTestCase {
 		// these are required because Linker is used in ChangeLineFormatter
 		// @todo eliminate Linker or at least use of Linker in Wikibase :)
 		$this->setMwGlobals( array(
-			'wgLang' => Language::factory( 'en' ),
 			'wgScriptPath' => '',
 			'wgScript' => '/index.php',
 			'wgArticlePath' => '/wiki/$1'
@@ -389,7 +388,7 @@ class ChangeLineFormatterTest extends MediaWikiLangTestCase {
 	 * @return Title
 	 */
 	private function makeTitle( $ns, $text, $pageId, $currentRevision ) {
-		$title = $this->getMock( 'Title' );
+		$title = $this->getMock( Title::class );
 
 		$title->expects( $this->any() )
 			->method( 'getNamespace' )

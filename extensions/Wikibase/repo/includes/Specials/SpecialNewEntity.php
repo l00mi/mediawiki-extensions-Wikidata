@@ -36,17 +36,17 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	/**
 	 * @var string|null
 	 */
-	private $label = null;
+	private $label;
 
 	/**
 	 * @var string|null
 	 */
-	private $description = null;
+	private $description;
 
 	/**
-	 * @var Language
+	 * @var Language|null
 	 */
-	private $contentLanguage = null;
+	private $contentLanguage;
 
 	/**
 	 * @var string[]
@@ -66,7 +66,7 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	/**
 	 * @var string[]
 	 */
-	private $aliases;
+	private $aliases = array();
 
 	/**
 	 * @param string $name Name of the special page, as seen in links and URLs.
@@ -164,19 +164,33 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	/**
 	 * Tries to extract argument values from web request or of the page's sub-page parts
 	 *
+	 * Trimming argument values from web request.
+	 *
 	 * @since 0.1
 	 */
 	protected function prepareArguments() {
-		$this->label = $this->getRequest()->getVal(
+		$label = $this->getRequest()->getVal(
 			'label',
 			isset( $this->parts[0] ) ? $this->parts[0] : ''
 		);
-		$this->description = $this->getRequest()->getVal(
+		$this->label = $this->stringNormalizer->trimToNFC( $label );
+
+		$description = $this->getRequest()->getVal(
 			'description',
 			isset( $this->parts[1] ) ? $this->parts[1] : ''
 		);
+		$this->description = $this->stringNormalizer->trimToNFC( $description );
+
 		$aliases = $this->getRequest()->getVal( 'aliases' );
-		$this->aliases = ( $aliases === null ? array() : explode( '|', $aliases ) );
+		$explodedAliases = $aliases === null ? array() : explode( '|', $aliases );
+		foreach ( $explodedAliases as $alias ) {
+			$alias = $this->stringNormalizer->trimToNFC( $alias );
+
+			if ( $alias !== '' ) {
+				$this->aliases[] = $alias;
+			}
+		}
+
 		$this->contentLanguage = Language::factory( $this->getRequest()->getVal(
 			'lang',
 			$this->getLanguage()->getCode()
@@ -191,12 +205,9 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	 * @return bool
 	 */
 	protected function hasSufficientArguments() {
-		return $this->stringNormalizer->trimWhitespace( $this->label ) !== ''
-			|| $this->stringNormalizer->trimWhitespace( $this->description ) !== ''
-			|| implode( '', array_map(
-					array( $this->stringNormalizer, 'trimWhitespace' ),
-					$this->aliases
-				) ) !== '';
+		return $this->label !== ''
+			|| $this->description !== ''
+			|| $this->aliases !== array();
 	}
 
 	/**

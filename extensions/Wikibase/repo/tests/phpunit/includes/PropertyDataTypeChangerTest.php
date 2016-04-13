@@ -4,10 +4,13 @@ namespace Wikibase\Repo\Test;
 
 use DataTypes\DataType;
 use DataTypes\DataTypeFactory;
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
+use User;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\EntityRevision;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\PropertyDataTypeChanger;
@@ -30,33 +33,33 @@ class PropertyDataTypeChangerTest extends PHPUnit_Framework_TestCase {
 
 		$expectedProperty = new Property( $propertyId, null, 'shinydata' );
 
-		$entityStore = $this->getMock( 'Wikibase\Lib\Store\EntityStore' );
+		$entityStore = $this->getMock( EntityStore::class );
 		$entityStore->expects( $this->once() )
 			->method( 'saveEntity' )
 			->with(
 				$expectedProperty,
 				'Changed data type from rustydata to shinydata',
-				$this->isInstanceOf( 'User' ),
+				$this->isInstanceOf( User::class ),
 				EDIT_UPDATE, 6789
 			)
 			->will( $this->returnValue( new EntityRevision( $expectedProperty, 6790 ) ) );
 
 		$propertyDataTypeChanger = $this->getPropertyDataTypeChanger( $entityStore );
-		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( 'User' ), 'shinydata' );
+		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( User::class ), 'shinydata' );
 	}
 
 	public function testChangeDataType_propertyNotFound() {
 		$propertyId = new PropertyId( 'P43' );
 
-		$entityStore = $this->getMock( 'Wikibase\Lib\Store\EntityStore' );
+		$entityStore = $this->getMock( EntityStore::class );
 
 		$propertyDataTypeChanger = $this->getPropertyDataTypeChanger( $entityStore );
 
 		$this->setExpectedException(
-			'Wikibase\Lib\Store\StorageException',
+			StorageException::class,
 			"Could not load property: P43"
 		);
-		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( 'User' ), 'shinydata' );
+		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( User::class ), 'shinydata' );
 	}
 
 	public function testChangeDataType_saveFailed() {
@@ -65,39 +68,39 @@ class PropertyDataTypeChangerTest extends PHPUnit_Framework_TestCase {
 		$expectedProperty = new Property( $propertyId, null, 'shinydata' );
 		$storageException = new StorageException( 'whatever' );
 
-		$entityStore = $this->getMock( 'Wikibase\Lib\Store\EntityStore' );
+		$entityStore = $this->getMock( EntityStore::class );
 		$entityStore->expects( $this->once() )
 			->method( 'saveEntity' )
 			->with(
 				$expectedProperty,
 				'Changed data type from rustydata to shinydata',
-				$this->isInstanceOf( 'User' ),
+				$this->isInstanceOf( User::class ),
 				EDIT_UPDATE, 6789
 			)
 			->will( $this->throwException( $storageException ) );
 
 		$propertyDataTypeChanger = $this->getPropertyDataTypeChanger( $entityStore );
 
-		$this->setExpectedException( 'Wikibase\Lib\Store\StorageException' );
-		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( 'User' ), 'shinydata' );
+		$this->setExpectedException( StorageException::class );
+		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( User::class ), 'shinydata' );
 	}
 
 	public function testChangeDataType_mismatchingDataValueTypes() {
 		$propertyId = new PropertyId( 'P42' );
 
-		$entityStore = $this->getMock( 'Wikibase\Lib\Store\EntityStore' );
+		$entityStore = $this->getMock( EntityStore::class );
 
 		$propertyDataTypeChanger = $this->getPropertyDataTypeChanger( $entityStore );
 
 		$this->setExpectedException(
-			'InvalidArgumentException',
+			InvalidArgumentException::class,
 			"New and old data type must have the same data value type."
 		);
-		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( 'User' ), 'otherdatatype' );
+		$propertyDataTypeChanger->changeDataType( $propertyId, $this->getMock( User::class ), 'otherdatatype' );
 	}
 
 	private function getPropertyDataTypeChanger( EntityStore $entityStore ) {
-		$entityRevisionLookup = $this->getMock( 'Wikibase\Lib\Store\EntityRevisionLookup' );
+		$entityRevisionLookup = $this->getMock( EntityRevisionLookup::class );
 
 		$entityRevisionLookup->expects( $this->once() )
 			->method( 'getEntityRevision' )

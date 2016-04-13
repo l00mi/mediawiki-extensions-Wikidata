@@ -22,13 +22,17 @@
         {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation"
+        },
+        {
+            "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo"
         }
     ],
     "require": {
         "php": ">=5.3.0",
         "mediawiki/article-placeholder": "dev-master",
         "propertysuggester/property-suggester": "~3.0.0",
-        "wikibase/wikibase": "dev-wmf/1.27.0-wmf.16",
+        "wikibase/wikibase": "dev-wmf/1.27.0-wmf.21",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
         "wikibase/quality": "dev-master",
@@ -44,7 +48,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_27_0_wmf_16",
+        "autoloader-suffix": "wikidata_1_27_0_wmf_21",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

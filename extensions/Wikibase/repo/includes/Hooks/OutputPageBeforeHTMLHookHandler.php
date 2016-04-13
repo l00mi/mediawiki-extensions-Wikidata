@@ -4,12 +4,12 @@ namespace Wikibase\Repo\Hooks;
 
 use OutputPage;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Term\AliasesProvider;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\UserLanguageLookup;
 use Wikibase\Repo\BabelUserLanguageLookup;
-use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\View\EntityViewPlaceholderExpander;
 use Wikibase\View\Template\TemplateFactory;
@@ -56,9 +56,9 @@ class OutputPageBeforeHTMLHookHandler {
 	private $languageNameLookup;
 
 	/**
-	 * @var EntityContentFactory
+	 * @var OutputPageEntityIdReader
 	 */
-	private $entityContentFactory;
+	private $outputPageEntityIdReader;
 
 	/**
 	 * @param TemplateFactory $templateFactory
@@ -67,7 +67,6 @@ class OutputPageBeforeHTMLHookHandler {
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param LanguageNameLookup $languageNameLookup
-	 * @param EntityContentFactory $entityContentFactory
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
@@ -76,7 +75,7 @@ class OutputPageBeforeHTMLHookHandler {
 		EntityIdParser $entityIdParser,
 		EntityRevisionLookup $entityRevisionLookup,
 		LanguageNameLookup $languageNameLookup,
-		EntityContentFactory $entityContentFactory
+		OutputPageEntityIdReader $outputPageEntityIdReader
 	) {
 		$this->templateFactory = $templateFactory;
 		$this->userLanguageLookup = $userLanguageLookup;
@@ -84,7 +83,7 @@ class OutputPageBeforeHTMLHookHandler {
 		$this->entityIdParser = $entityIdParser;
 		$this->entityRevisionLookup = $entityRevisionLookup;
 		$this->languageNameLookup = $languageNameLookup;
-		$this->entityContentFactory = $entityContentFactory;
+		$this->outputPageEntityIdReader = $outputPageEntityIdReader;
 	}
 
 	/**
@@ -95,7 +94,6 @@ class OutputPageBeforeHTMLHookHandler {
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 		$entityIdParser = $wikibaseRepo->getEntityIdParser();
-		$entityContentFactory = $wikibaseRepo->getEntityContentFactory();
 
 		return new self(
 			TemplateFactory::getDefaultInstance(),
@@ -104,7 +102,10 @@ class OutputPageBeforeHTMLHookHandler {
 			$entityIdParser,
 			$wikibaseRepo->getEntityRevisionLookup(),
 			new LanguageNameLookup( $wgLang->getCode() ),
-			$entityContentFactory
+			new OutputPageEntityIdReader(
+				$wikibaseRepo->getEntityContentFactory(),
+				$wikibaseRepo->getEntityIdParser()
+			)
 		);
 	}
 
@@ -158,13 +159,23 @@ class OutputPageBeforeHTMLHookHandler {
 	 * @return EntityViewPlaceholderExpander
 	 */
 	private function getEntityViewPlaceholderExpander( OutputPage $out ) {
+
+		$entityId = $this->outputPageEntityIdReader->getEntityIdFromOutputPage( $out );
+		$revisionId = $out->getRevisionId();
+		$entity = $this->entityRevisionLookup->getEntityRevision( $entityId, $revisionId )->getEntity();
+		$labelsProvider = $entity;
+		$descriptionsProvider = $entity;
+		$aliasesProvider = $entity instanceof AliasesProvider ? $entity : null;
+
 		return new EntityViewPlaceholderExpander(
 			$this->templateFactory,
 			$out->getTitle(),
 			$out->getUser(),
 			$out->getLanguage(),
 			$this->entityIdParser,
-			$this->entityRevisionLookup,
+			$labelsProvider,
+			$descriptionsProvider,
+			$aliasesProvider,
 			$this->userLanguageLookup,
 			$this->termsLanguages,
 			$this->languageNameLookup

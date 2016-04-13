@@ -121,7 +121,10 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 
 		// placing this last produces more readable output since all entity things are together
 		if ( $this->shouldProduce( RdfProducer::PRODUCE_SITELINKS ) ) {
-			$this->builders[] = new SiteLinksRdfBuilder( $vocabulary, $writer, $sites );
+			$builder = new SiteLinksRdfBuilder( $vocabulary, $writer, $sites );
+			// We can use the same bag since namespaces are different
+			$builder->setDedupeBag( $this->dedupBag );
+			$this->builders[] = $builder;
 		}
 	}
 
@@ -376,7 +379,8 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 
 		if ( $entity instanceof Property ) {
 			$this->writer->say( RdfVocabulary::NS_ONTOLOGY, 'propertyType' )
-				->is( RdfVocabulary::NS_ONTOLOGY, $this->vocabulary->getDataTypeName( $entity ) );
+				->is( $this->vocabulary->getDataTypeURI( $entity ) );
+
 			$id = $entity->getId()->getSerialization();
 			$this->writePropertyPredicates( $id, $this->propertyIsLink( $entity ) );
 			$this->writeNovalueClass( $id );

@@ -2,7 +2,9 @@
 
 namespace Wikibase\Repo\Tests;
 
+use InvalidArgumentException;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Repo\GenericEventDispatcher;
 
 /**
@@ -17,9 +19,9 @@ use Wikibase\Repo\GenericEventDispatcher;
 class GenericEventDispatcherTest extends \PHPUnit_Framework_TestCase {
 
 	public function testRegisterWatcher_failure() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
-		$watcher = $this->getMock( 'Wikibase\Lib\Store\EntityStoreWatcher' );
+		$watcher = $this->getMock( EntityStoreWatcher::class );
 		$dispatcher = new GenericEventDispatcher( 'Wikibase\Lib\Store\FooBar' );
 
 		// should fail because $watcher doesn't implement FooBar
@@ -29,12 +31,12 @@ class GenericEventDispatcherTest extends \PHPUnit_Framework_TestCase {
 	public function testDispatch() {
 		$q12 = new ItemId( 'Q12' );
 
-		$watcher = $this->getMock( 'Wikibase\Lib\Store\EntityStoreWatcher' );
+		$watcher = $this->getMock( EntityStoreWatcher::class );
 		$watcher->expects( $this->once() )
 			->method( 'entityDeleted' )
 			->with( $this->equalTo( $q12 ) );
 
-		$dispatcher = new GenericEventDispatcher( 'Wikibase\Lib\Store\EntityStoreWatcher' );
+		$dispatcher = new GenericEventDispatcher( EntityStoreWatcher::class );
 
 		// check register & dispatch
 		$handle = $dispatcher->registerWatcher( $watcher );

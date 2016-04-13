@@ -5,10 +5,8 @@ namespace Wikibase\Test;
 use Action;
 use ApiQueryInfo;
 use Article;
-use ContentHandler;
 use Exception;
 use FauxRequest;
-use Language;
 use MWException;
 use OutputPage;
 use RequestContext;
@@ -33,14 +31,6 @@ class ActionTestCase extends \MediaWikiTestCase {
 
 	private $permissionsChanged = false;
 
-	/**
-	 * The language to set as the user language.
-	 * 'qqx' is used per default to allow matching against message keys in the output.
-	 *
-	 * @var string
-	 */
-	protected $languageCode = 'qqx';
-
 	protected function setUp() {
 		parent::setUp();
 
@@ -50,10 +40,11 @@ class ActionTestCase extends \MediaWikiTestCase {
 
 		$this->setMwGlobals( array(
 			'wgUser' => $user,
-			'wgLang' => Language::factory( $this->languageCode ),
 			'wgRequest' => new FauxRequest(),
 			'wgGroupPermissions' => array( '*' => array( 'edit' => true, 'read' => true ) )
 		) );
+
+		$this->setUserLang( 'qqx' );
 
 		ApiQueryInfo::resetTokenCache();
 	}
@@ -83,11 +74,6 @@ class ActionTestCase extends \MediaWikiTestCase {
 		// reset rights cache
 		$wgUser->addGroup( "dummy" );
 		$wgUser->removeGroup( "dummy" );
-	}
-
-	protected function shouldTestRedirects() {
-		$handler = ContentHandler::getForModelID( CONTENT_MODEL_WIKIBASE_ITEM );
-		return $handler->supportsRedirects();
 	}
 
 	/**
@@ -132,14 +118,12 @@ class ActionTestCase extends \MediaWikiTestCase {
 		$item->setLabel( 'en', 'Oslo' );
 		$items['Oslo'][] = $item;
 
-		if ( $this->shouldTestRedirects() ) {
-			$item = new Item();
-			$item->setLabel( 'de', 'Berlin' );
-			$items['Berlin2'][] = $item;
+		$item = new Item();
+		$item->setLabel( 'de', 'Berlin' );
+		$items['Berlin2'][] = $item;
 
-			// HACK: this revision is a redirect
-			$items['Berlin2'][] = 'Berlin';
-		}
+		// HACK: this revision is a redirect
+		$items['Berlin2'][] = 'Berlin';
 
 		return $items;
 	}

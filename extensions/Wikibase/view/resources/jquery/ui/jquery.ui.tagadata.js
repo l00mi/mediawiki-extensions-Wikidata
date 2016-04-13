@@ -13,7 +13,7 @@
  * Released under the MIT license.
  * http://aehlke.github.com/tag-it/LICENSE
  *
- * @licence MIT license
+ * @license MIT license
  * @author Daniel Werner < daniel.werner@wikimedia.de >
  * @author H. Snater < mediawiki@snater.com >
  *
@@ -47,7 +47,7 @@
  *        Triggered when a tag is clicked.
  *        - {jQuery.Event}
  *        - {jQuery} $tag
-
+ *
  * @event tagchanged
  *        Triggered when a tag's label is changed.
  *        - {jQuery.Event}

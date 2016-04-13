@@ -5,6 +5,7 @@ namespace Wikibase\Test;
 use MediaWikiTestCase;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\TermFallback;
+use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\Store\EntityTermLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\TermIndexEntry;
@@ -31,7 +32,7 @@ class LanguageFallbackLabelDescriptionLookupTest extends MediaWikiTestCase {
 		/** @var TermFallback $term */
 		$term = $labelDescriptionLookup->getLabel( new ItemId( 'Q118' ) );
 
-		$this->assertInstanceOf( 'Wikibase\DataModel\Term\TermFallback', $term );
+		$this->assertInstanceOf( TermFallback::class, $term );
 		$this->assertEquals( 'fallbackterm', $term->getText() );
 		$this->assertEquals( 'zh', $term->getLanguageCode() );
 		$this->assertEquals( 'zh-cn', $term->getActualLanguageCode() );
@@ -47,7 +48,7 @@ class LanguageFallbackLabelDescriptionLookupTest extends MediaWikiTestCase {
 		/** @var TermFallback $term */
 		$term = $labelDescriptionLookup->getLabel( new ItemId( 'Q118' ) );
 
-		$this->assertInstanceOf( 'Wikibase\DataModel\Term\TermFallback', $term );
+		$this->assertInstanceOf( TermFallback::class, $term );
 		$this->assertEquals( 'fallbackterm', $term->getText() );
 		$this->assertEquals( 'zh', $term->getLanguageCode() );
 		$this->assertEquals( 'zh-cn', $term->getActualLanguageCode() );
@@ -90,8 +91,13 @@ class LanguageFallbackLabelDescriptionLookupTest extends MediaWikiTestCase {
 		$this->assertNull( $labelDescriptionLookup->getDescription( new ItemId( 'Q116' ) ) );
 	}
 
+	/**
+	 * @param string $languageCode
+	 *
+	 * @return LanguageFallbackChain
+	 */
 	private function getLanguageFallbackChain( $languageCode ) {
-		$languageFallbackChain = $this->getMockBuilder( 'Wikibase\LanguageFallbackChain' )
+		$languageFallbackChain = $this->getMockBuilder( LanguageFallbackChain::class )
 			->disableOriginalConstructor()
 			->getMock();
 

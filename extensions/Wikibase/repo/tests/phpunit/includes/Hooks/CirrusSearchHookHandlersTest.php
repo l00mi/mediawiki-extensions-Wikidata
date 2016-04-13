@@ -2,10 +2,14 @@
 
 namespace Wikibase\Repo\Tests\Hooks;
 
+use CirrusSearch\Connection;
+use CirrusSearch\Maintenance\MappingConfigBuilder;
+use CirrusSearch;
 use Elastica\Document;
 use ParserOutput;
 use PHPUnit_Framework_TestCase;
 use Title;
+use UnexpectedValueException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
@@ -30,13 +34,13 @@ class CirrusSearchHookHandlersTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		parent::setUp();
 
-		if ( !class_exists( 'CirrusSearch' ) ) {
+		if ( !class_exists( CirrusSearch::class ) ) {
 			$this->markTestSkipped( 'CirrusSearch is not available' );
 		}
 	}
 
 	public function testOnCirrusSearchBuildDocumentParse() {
-		$connection = $this->getMockBuilder( 'CirrusSearch\Connection' )
+		$connection = $this->getMockBuilder( Connection::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -56,9 +60,7 @@ class CirrusSearchHookHandlersTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testOnCirrusSearchMappingConfig() {
-		$mappingConfigBuilder = $this->getMockBuilder(
-				'CirrusSearch\Maintenance\MappingConfigBuilder'
-			)
+		$mappingConfigBuilder = $this->getMockBuilder( MappingConfigBuilder::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -134,7 +136,7 @@ class CirrusSearchHookHandlersTest extends PHPUnit_Framework_TestCase {
 			)
 		);
 
-		$this->setExpectedException( 'UnexpectedValueException' );
+		$this->setExpectedException( UnexpectedValueException::class );
 
 		$hookHandlers = new CirrusSearchHookHandlers( $fieldDefinitions );
 		$hookHandlers->addExtraFieldsToMappingConfig( $config );

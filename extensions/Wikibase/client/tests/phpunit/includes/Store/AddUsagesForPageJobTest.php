@@ -2,8 +2,10 @@
 
 namespace Wikibase\Client\Test\Store;
 
+use InvalidArgumentException;
 use Title;
 use Wikibase\Client\Store\AddUsagesForPageJob;
+use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
@@ -85,7 +87,7 @@ class AddUsagesForPageJobTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideConstructor_failure
 	 */
 	public function testConstructor_failure( array $params ) {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		$title = Title::makeTitle( NS_MAIN, 'Foo' );
 		new AddUsagesForPageJob( $title, $params );
@@ -125,7 +127,7 @@ class AddUsagesForPageJobTest extends \PHPUnit_Framework_TestCase {
 			'touched' => '20150101000000'
 		);
 
-		$usageUpdater = $this->getMockBuilder( 'Wikibase\Client\Store\UsageUpdater' )
+		$usageUpdater = $this->getMockBuilder( UsageUpdater::class )
 			->disableOriginalConstructor()
 			->getMock();
 

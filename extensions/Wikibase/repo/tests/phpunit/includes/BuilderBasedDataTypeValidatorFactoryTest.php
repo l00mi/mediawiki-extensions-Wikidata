@@ -2,9 +2,12 @@
 
 namespace Wikibase\Repo\Tests;
 
+use OutOfBoundsException;
 use PHPUnit_Framework_TestCase;
 use ValueValidators\NullValidator;
 use Wikibase\Repo\BuilderBasedDataTypeValidatorFactory;
+use Wikimedia\Assert\ParameterElementTypeException;
+use Wikimedia\Assert\PostconditionException;
 
 /**
  * @covers Wikibase\Repo\BuilderBasedDataTypeValidatorFactory
@@ -18,13 +21,13 @@ use Wikibase\Repo\BuilderBasedDataTypeValidatorFactory;
 class BuilderBasedDataTypeValidatorFactoryTest extends PHPUnit_Framework_TestCase {
 
 	public function testInvalidConstructorArgument() {
-		$this->setExpectedException( 'Wikimedia\Assert\ParameterElementTypeException' );
+		$this->setExpectedException( ParameterElementTypeException::class );
 		new BuilderBasedDataTypeValidatorFactory( array( 'invalid' ) );
 	}
 
 	public function testUnknownPropertyType() {
 		$factory = new BuilderBasedDataTypeValidatorFactory( array() );
-		$this->setExpectedException( 'OutOfBoundsException' );
+		$this->setExpectedException( OutOfBoundsException::class );
 		$factory->getValidators( 'unknown' );
 	}
 
@@ -32,7 +35,7 @@ class BuilderBasedDataTypeValidatorFactoryTest extends PHPUnit_Framework_TestCas
 		$factory = new BuilderBasedDataTypeValidatorFactory( array( 'id' => function() {
 			return 'invalid';
 		} ) );
-		$this->setExpectedException( 'Wikimedia\Assert\PostconditionException' );
+		$this->setExpectedException( PostconditionException::class );
 		$factory->getValidators( 'id' );
 	}
 
@@ -47,7 +50,7 @@ class BuilderBasedDataTypeValidatorFactoryTest extends PHPUnit_Framework_TestCas
 		$factory = new BuilderBasedDataTypeValidatorFactory( array( 'id' => function() {
 			return array( 'invalid' );
 		} ) );
-		$this->setExpectedException( 'Wikimedia\Assert\PostconditionException' );
+		$this->setExpectedException( PostconditionException::class );
 		$factory->getValidators( 'id' );
 	}
 

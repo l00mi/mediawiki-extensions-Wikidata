@@ -3,10 +3,13 @@
 namespace ValueParsers;
 
 /**
+ * A rudimentary ValueParser capable of extracting era information from any date and time string. It
+ * checks for signs as in "-150,000" as well as suffixes as in "150,000 BC".
+ *
  * @since 0.8
  *
  * @licence GNU GPL v2+
- * @author Adam Shorland
+ * @author Addshore
  * @author Thiemo Mättig
  */
 class EraParser extends StringValueParser {

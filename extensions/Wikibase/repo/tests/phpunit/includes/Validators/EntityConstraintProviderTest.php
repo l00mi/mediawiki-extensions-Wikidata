@@ -3,7 +3,10 @@
 namespace Wikibase\Test\Repo\Validators;
 
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\LabelDescriptionDuplicateDetector;
+use Wikibase\Repo\Store\SiteLinkConflictLookup;
 use Wikibase\Repo\Validators\EntityConstraintProvider;
+use Wikibase\Repo\Validators\EntityValidator;
 
 /**
  * @covers Wikibase\Repo\Validators\EntityConstraintProvider
@@ -18,11 +21,11 @@ use Wikibase\Repo\Validators\EntityConstraintProvider;
 class EntityConstraintProviderTest extends \PHPUnit_Framework_TestCase {
 
 	private function getEntityConstraintProvider() {
-		$duplicateDetector = $this->getMockBuilder( 'Wikibase\LabelDescriptionDuplicateDetector' )
+		$duplicateDetector = $this->getMockBuilder( LabelDescriptionDuplicateDetector::class )
 			->disableOriginalConstructor()
 			->getMock();
 
-		$siteLinkConflictLookup = $this->getMock( 'Wikibase\Repo\Store\SiteLinkConflictLookup' );
+		$siteLinkConflictLookup = $this->getMock( SiteLinkConflictLookup::class );
 
 		return new EntityConstraintProvider( $duplicateDetector, $siteLinkConflictLookup );
 	}
@@ -47,7 +50,7 @@ class EntityConstraintProviderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType( 'array', $validators );
 
 		foreach ( $validators as $validator ) {
-			$this->assertInstanceOf( 'Wikibase\Repo\Validators\EntityValidator', $validator );
+			$this->assertInstanceOf( EntityValidator::class, $validator );
 		}
 	}
 

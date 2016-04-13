@@ -2,12 +2,15 @@
 
 namespace Wikibase\Client\Tests\UpdateRepo;
 
+use IJobSpecification;
 use JobQueueGroup;
+use JobQueueRedis;
 use JobSpecification;
 use Title;
 use User;
 use Wikibase\Client\UpdateRepo\UpdateRepoOnMove;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Lib\Store\SiteLinkLookup;
 
 /**
  * @covers Wikibase\Client\UpdateRepo\UpdateRepoOnMove
@@ -30,7 +33,7 @@ class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
 	private function getFakeMoveData() {
 		$entityId = new ItemId( 'Q123' );
 
-		$siteLinkLookupMock = $this->getMock( 'Wikibase\Lib\Store\SiteLinkLookup' );
+		$siteLinkLookupMock = $this->getMock( SiteLinkLookup::class );
 
 		$siteLinkLookupMock->expects( $this->any() )
 			->method( 'getItemIdForSiteLink' )
@@ -78,7 +81,7 @@ class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
 	 * @return JobQueueGroup
 	 */
 	private function getJobQueueGroupMock() {
-		$jobQueueGroupMock = $this->getMockBuilder( 'JobQueueGroup' )
+		$jobQueueGroupMock = $this->getMockBuilder( JobQueueGroup::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -92,7 +95,7 @@ class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
 
 		// Use JobQueueRedis over here, as mocking abstract classes sucks
 		// and it doesn't matter anyway
-		$jobQueue = $this->getMockBuilder( 'JobQueueRedis' )
+		$jobQueue = $this->getMockBuilder( JobQueueRedis::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -123,7 +126,7 @@ class UpdateRepoOnMoveTest extends \PHPUnit_Framework_TestCase {
 		$itemId = new ItemId( 'Q123' );
 
 		$moveData = $this->getFakeMoveData();
-		$this->assertInstanceOf( 'IJobSpecification', $job );
+		$this->assertInstanceOf( IJobSpecification::class, $job );
 		$this->assertEquals( 'UpdateRepoOnMove', $job->getType() );
 
 		$params = $job->getParams();

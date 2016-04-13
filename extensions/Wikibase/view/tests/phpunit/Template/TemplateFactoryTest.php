@@ -9,6 +9,9 @@ use Wikibase\View\Template\TemplateRegistry;
 /**
  * @covers Wikibase\View\Template\TemplateFactory
  *
+ * @uses Wikibase\View\Template\Template
+ * @uses Wikibase\View\Template\TemplateRegistry
+ *
  * @group Wikibase
  * @group WikibaseView
  *
@@ -25,7 +28,7 @@ class TemplateFactoryTest extends PHPUnit_Framework_TestCase {
 
 	public function testGetDefaultInstance() {
 		$instance = TemplateFactory::getDefaultInstance();
-		$this->assertInstanceOf( 'Wikibase\View\Template\TemplateFactory', $instance );
+		$this->assertInstanceOf( TemplateFactory::class, $instance );
 	}
 
 	public function testGetTemplates() {

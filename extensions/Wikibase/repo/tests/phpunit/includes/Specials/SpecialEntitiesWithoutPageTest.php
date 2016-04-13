@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests\Specials;
 
 use FauxRequest;
 use SpecialPageTestBase;
@@ -37,7 +37,7 @@ class SpecialEntitiesWithoutPageTest extends SpecialPageTestBase {
 			TermIndexEntry::TYPE_LABEL,
 			'wikibase-entitieswithoutlabel-legend',
 			$wikibaseRepo->getStore()->newEntityPerPage(),
-			$wikibaseRepo->getEntityFactory(),
+			array( 'item', 'property' ),
 			new StaticContentLanguages( array( 'acceptedlanguage' ) )
 		);
 	}

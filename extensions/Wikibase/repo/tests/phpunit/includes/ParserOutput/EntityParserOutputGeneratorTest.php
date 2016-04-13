@@ -3,9 +3,7 @@
 namespace Wikibase\Repo\Tests\ParserOutput;
 
 use DataValues\StringValue;
-use Language;
 use MediaWikiTestCase;
-use ParserOptions;
 use SpecialPage;
 use Title;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
@@ -16,13 +14,17 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Entity\PropertyDataTypeMatcher;
 use Wikibase\DataModel\Services\Lookup\InMemoryDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use Wikibase\EntityRevision;
+use Wikibase\LanguageFallbackChain;
+use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
+use Wikibase\Repo\ParserOutput\DispatchingEntityViewFactory;
 use Wikibase\Repo\ParserOutput\EntityParserOutputGenerator;
 use Wikibase\Repo\ParserOutput\ExternalLinksDataUpdater;
 use Wikibase\Repo\ParserOutput\ImageLinksDataUpdater;
+use Wikibase\Repo\ParserOutput\ParserOutputJsConfigBuilder;
 use Wikibase\Repo\ParserOutput\ReferencedEntitiesDataUpdater;
+use Wikibase\View\EntityView;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -41,10 +43,8 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		$entityParserOutputGenerator = $this->newEntityParserOutputGenerator();
 
 		$item = $this->newItem();
-		$timestamp = wfTimestamp( TS_MW );
-		$revision = new EntityRevision( $item, 13044, $timestamp );
 
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision, $this->getParserOptions() );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $item );
 
 		$this->assertSame( '<TITLE>', $parserOutput->getTitleText(), 'title text' );
 		$this->assertSame( '<HTML>', $parserOutput->getText(), 'html text' );
@@ -92,14 +92,6 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 			$parserOutput->getExtensionData( 'referenced-entities' )
 		);
 
-		$expectedUsedOptions = array( 'userlang', 'editsection' );
-		$actualOptions = $parserOutput->getUsedOptions();
-		$missingOptions = array_diff( $expectedUsedOptions, $actualOptions );
-		$this->assertEmpty(
-			$missingOptions,
-			'Missing cache-split flags: ' . join( '|', $missingOptions ) . '. Options: ' . join( '|', $actualOptions )
-		);
-
 		$jsonHref = SpecialPage::getTitleFor( 'EntityData', $item->getId()->getSerialization() . '.json' )->getCanonicalURL();
 		$ntHref = SpecialPage::getTitleFor( 'EntityData', $item->getId()->getSerialization() . '.nt' )->getCanonicalURL();
 
@@ -125,10 +117,8 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		$entityParserOutputGenerator = $this->newEntityParserOutputGenerator( false );
 
 		$item = $this->newItem();
-		$timestamp = wfTimestamp( TS_MW );
-		$revision = new EntityRevision( $item, 13044, $timestamp );
 
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision, $this->getParserOptions(), false );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $item, false );
 
 		$this->assertSame( '', $parserOutput->getText() );
 		// ParserOutput without HTML must not end up in the cache.
@@ -141,10 +131,7 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		$item = new Item( new ItemId( 'Q7799929' ) );
 		$item->setDescription( 'en', 'a kitten' );
 
-		$timestamp = wfTimestamp( TS_MW );
-		$revision = new EntityRevision( $item, 13045, $timestamp );
-
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $revision, $this->getParserOptions() );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $item );
 
 		$this->assertEquals(
 			'Q7799929',
@@ -181,12 +168,16 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 			TemplateFactory::getDefaultInstance(),
 			$entityDataFormatProvider,
 			$dataUpdaters,
-			'en'
+			'en',
+			true
 		);
 	}
 
+	/**
+	 * @return LanguageFallbackChain
+	 */
 	private function newLanguageFallbackChain() {
-		$fallbackChain = $this->getMockBuilder( 'Wikibase\LanguageFallbackChain' )
+		$fallbackChain = $this->getMockBuilder( LanguageFallbackChain::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -226,8 +217,13 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		return $item;
 	}
 
+	/**
+	 * @param bool $createView
+	 *
+	 * @return DispatchingEntityViewFactory
+	 */
 	private function getEntityViewFactory( $createView ) {
-		$entityViewFactory = $this->getMockBuilder( 'Wikibase\Repo\ParserOutput\DispatchingEntityViewFactory' )
+		$entityViewFactory = $this->getMockBuilder( DispatchingEntityViewFactory::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -238,8 +234,11 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		return $entityViewFactory;
 	}
 
+	/**
+	 * @return EntityView
+	 */
 	private function getEntityView() {
-		$entityView = $this->getMockBuilder( 'Wikibase\View\EntityView' )
+		$entityView = $this->getMockBuilder( EntityView::class )
 			->setMethods( array(
 				'getTitleHtml',
 				'getHtml',
@@ -263,8 +262,11 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		return $entityView;
 	}
 
+	/**
+	 * @return ParserOutputJsConfigBuilder
+	 */
 	private function getConfigBuilderMock() {
-		$configBuilder = $this->getMockBuilder( 'Wikibase\Repo\ParserOutput\ParserOutputJsConfigBuilder' )
+		$configBuilder = $this->getMockBuilder( ParserOutputJsConfigBuilder::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -275,8 +277,11 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		return $configBuilder;
 	}
 
+	/**
+	 * @return EntityTitleLookup
+	 */
 	private function getEntityTitleLookupMock() {
-		$entityTitleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+		$entityTitleLookup = $this->getMock( EntityTitleLookup::class );
 
 		$entityTitleLookup->expects( $this->any() )
 			->method( 'getTitleForId' )
@@ -297,10 +302,6 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		$dataTypeLookup->setDataTypeForProperty( new PropertyId( 'P10' ), 'commonsMedia' );
 
 		return $dataTypeLookup;
-	}
-
-	private function getParserOptions() {
-		return new ParserOptions( null, Language::factory( 'en' ) );
 	}
 
 }

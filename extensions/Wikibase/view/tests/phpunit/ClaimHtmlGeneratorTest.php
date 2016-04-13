@@ -4,6 +4,7 @@ namespace Wikibase\View\Tests;
 
 use DataValues\StringValue;
 use PHPUnit_Framework_TestCase;
+use ValueFormatters\BasicNumberLocalizer;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
@@ -33,7 +34,7 @@ class ClaimHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 	 * @return SnakHtmlGenerator
 	 */
 	private function getSnakHtmlGeneratorMock() {
-		$snakHtmlGenerator = $this->getMockBuilder( 'Wikibase\View\SnakHtmlGenerator' )
+		$snakHtmlGenerator = $this->getMockBuilder( SnakHtmlGenerator::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -59,7 +60,8 @@ class ClaimHtmlGeneratorTest extends PHPUnit_Framework_TestCase {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 		$claimHtmlGenerator = new ClaimHtmlGenerator(
 			$templateFactory,
-			$snakHtmlGenerator
+			$snakHtmlGenerator,
+			new BasicNumberLocalizer()
 		);
 
 		$html = $claimHtmlGenerator->getHtmlForClaim( $statement, 'edit' );

@@ -24,7 +24,8 @@ use ValueFormatters\ValueFormatterBase;
  *
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Adam Shorland
+ * @author Addshore
+ * @author Thiemo Mättig
  */
 class GeoCoordinateFormatter extends ValueFormatterBase {
 
@@ -68,9 +69,9 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	/**
 	 * @since 0.1
 	 *
-	 * @param FormatterOptions $options
+	 * @param FormatterOptions|null $options
 	 */
-	public function __construct( FormatterOptions $options ) {
+	public function __construct( FormatterOptions $options = null ) {
 		parent::__construct( $options );
 
 		$this->defaultOption( self::OPT_NORTH_SYMBOL, 'N' );
@@ -89,8 +90,8 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 		$this->defaultOption( self::OPT_SPACING_LEVEL, array(
 			self::OPT_SPACE_LATLONG,
 			self::OPT_SPACE_DIRECTION,
-			self::OPT_SPACE_COORDPARTS )
-		);
+			self::OPT_SPACE_COORDPARTS,
+		) );
 		$this->defaultOption( self::OPT_PRECISION, 0 );
 	}
 
@@ -99,16 +100,14 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	 *
 	 * Calls formatLatLongValue() using OPT_PRECISION for the $precision parameter.
 	 *
-	 * @since 0.1
+	 * @param LatLongValue $value
 	 *
-	 * @param LatLongValue $value The value to format
-	 *
-	 * @return string
+	 * @return string Plain text
 	 * @throws InvalidArgumentException
 	 */
 	public function format( $value ) {
 		if ( !( $value instanceof LatLongValue ) ) {
-			throw new InvalidArgumentException( '$value must be a LatLongValue' );
+			throw new InvalidArgumentException( 'Data value type mismatch. Expected a LatLongValue.' );
 		}
 
 		$precision = $this->options->getOption( self::OPT_PRECISION );
@@ -124,11 +123,11 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	 * @param LatLongValue $value
 	 * @param float $precision The desired precision, given as fractional degrees.
 	 *
-	 * @return string
+	 * @return string Plain text
 	 * @throws InvalidArgumentException
 	 */
 	public function formatLatLongValue( LatLongValue $value, $precision ) {
-		if ( $precision <= 0 ) {
+		if ( $precision <= 0 || !is_finite( $precision ) ) {
 			$precision = 1 / 3600;
 		}
 
@@ -235,34 +234,32 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 		$degreeDigits = $this->getSignificantDigits( 1, $precision );
 		$stringDegrees = $this->formatNumber( $floatDegrees, $degreeDigits );
 
-		return  $stringDegrees. $this->options->getOption( self::OPT_DEGREE_SYMBOL );
+		return $stringDegrees . $this->options->getOption( self::OPT_DEGREE_SYMBOL );
 	}
 
 	private function getInDegreeMinuteSecondFormat( $floatDegrees, $precision ) {
-		$options = $this->options;
-
 		$isNegative = $floatDegrees < 0;
 		$floatDegrees = abs( $floatDegrees );
 
-		$degrees = floor( $floatDegrees );
-		$minutes = floor( ( $floatDegrees - $degrees ) * 60 );
+		$degrees = (int)$floatDegrees;
+		$minutes = (int)( ( $floatDegrees - $degrees ) * 60 );
 		$seconds = ( $floatDegrees - ( $degrees + $minutes / 60 ) ) * 3600;
 
-		$result = $this->formatNumber( $degrees, 0 )
-			. $options->getOption( self::OPT_DEGREE_SYMBOL );
+		$result = $this->formatNumber( $degrees )
+			. $this->options->getOption( self::OPT_DEGREE_SYMBOL );
 
 		if ( $precision < 1 ) {
-			$result .=  $this->getSpacing( self::OPT_SPACE_COORDPARTS )
-				. $this->formatNumber( $minutes, 0 )
-				. $options->getOption( self::OPT_MINUTE_SYMBOL );
+			$result .= $this->getSpacing( self::OPT_SPACE_COORDPARTS )
+				. $this->formatNumber( $minutes )
+				. $this->options->getOption( self::OPT_MINUTE_SYMBOL );
 		}
 
 		if ( $precision < 1 / 60 ) {
 			$secondDigits = $this->getSignificantDigits( 60 * 60, $precision );
 
-			$result .=  $this->getSpacing( self::OPT_SPACE_COORDPARTS )
+			$result .= $this->getSpacing( self::OPT_SPACE_COORDPARTS )
 				. $this->formatNumber( $seconds, $secondDigits )
-				. $options->getOption( self::OPT_SECOND_SYMBOL );
+				. $this->options->getOption( self::OPT_SECOND_SYMBOL );
 		}
 
 		if ( $isNegative && ( $degrees + $minutes + $seconds ) > 0 ) {
@@ -273,23 +270,21 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	}
 
 	private function getInDecimalMinuteFormat( $floatDegrees, $precision ) {
-		$options = $this->options;
-
 		$isNegative = $floatDegrees < 0;
 		$floatDegrees = abs( $floatDegrees );
 
-		$degrees = floor( $floatDegrees );
+		$degrees = (int)$floatDegrees;
 		$minutes = ( $floatDegrees - $degrees ) * 60;
 
-		$result = $this->formatNumber( $degrees, 0 )
-			. $options->getOption( self::OPT_DEGREE_SYMBOL );
+		$result = $this->formatNumber( $degrees )
+			. $this->options->getOption( self::OPT_DEGREE_SYMBOL );
 
 		if ( $precision < 1 ) {
 			$minuteDigits = $this->getSignificantDigits( 60, $precision );
 
-			$result .=  $this->getSpacing( self::OPT_SPACE_COORDPARTS )
+			$result .= $this->getSpacing( self::OPT_SPACE_COORDPARTS )
 				. $this->formatNumber( $minutes, $minuteDigits )
-				. $options->getOption( self::OPT_MINUTE_SYMBOL );
+				. $this->options->getOption( self::OPT_MINUTE_SYMBOL );
 		}
 
 		if ( $isNegative && ( $degrees + $minutes ) > 0 ) {
@@ -308,32 +303,20 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	 * (resp. before, if the result is negative).
 	 */
 	private function getSignificantDigits( $unitsPerDegree, $degreePrecision ) {
-		$targetPrecision = $degreePrecision * $unitsPerDegree;
-
-		$digits = ceil( -log10( $targetPrecision ) );
-		return $digits;
+		return ceil( -log10( $unitsPerDegree * $degreePrecision ) );
 	}
 
 	/**
-	 * Formats a number.
-	 *
 	 * @param float $number
 	 * @param int $digits The number of digits after the decimal point.
-	 * If this is negative, $number is rounded and treated as an integer,
-	 * and the number will be padded with the appropriate number of zeros.
 	 *
 	 * @return string
 	 */
-	private function formatNumber( $number, $digits ) {
+	private function formatNumber( $number, $digits = 0 ) {
 		//TODO: use NumberLocalizer
-		if ( $digits > 0 ) {
-			return sprintf( "%0.{$digits}F", $number );
-		} elseif ( $digits < 0 )  {
-			$digits = -$digits;
-			return sprintf( "%{$digits}d", $number );
-		} else {
-			return sprintf( "%d", $number );
-		}
+		return sprintf( $digits > 0
+			? '%.' . (int)$digits . 'F'
+			: '%d', $number );
 	}
 
 }

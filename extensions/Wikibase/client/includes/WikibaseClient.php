@@ -3,8 +3,18 @@
 namespace Wikibase\Client;
 
 use DataTypes\DataTypeFactory;
+use DataValues\BooleanValue;
 use DataValues\Deserializers\DataValueDeserializer;
+use DataValues\Geo\Values\GlobeCoordinateValue;
+use DataValues\MonolingualTextValue;
+use DataValues\MultilingualTextValue;
+use DataValues\NumberValue;
+use DataValues\QuantityValue;
+use DataValues\StringValue;
+use DataValues\TimeValue;
+use DataValues\UnknownValue;
 use Deserializers\Deserializer;
+use Deserializers\DispatchingDeserializer;
 use Exception;
 use Hooks;
 use JobQueueGroup;
@@ -22,49 +32,51 @@ use Wikibase\Client\Changes\ChangeHandler;
 use Wikibase\Client\Changes\ChangeRunCoalescer;
 use Wikibase\Client\Changes\WikiPageUpdater;
 use Wikibase\Client\DataAccess\PropertyIdResolver;
-use Wikibase\Client\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\Client\DataAccess\PropertyParserFunction\StatementGroupRendererFactory;
+use Wikibase\Client\DataAccess\PropertyParserFunction\Runner;
+use Wikibase\Client\ParserOutput\ClientParserOutputDataUpdater;
+use Wikibase\Client\RecentChanges\RecentChangeFactory;
+use Wikibase\DataModel\Entity\EntityIdValue;
+use Wikibase\DataModel\Services\Lookup\RestrictedEntityLookup;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
 use Wikibase\Client\Hooks\ParserFunctionRegistrant;
-use Wikibase\Client\ParserOutput\ClientParserOutputDataUpdater;
-use Wikibase\Client\RecentChanges\RecentChangeFactory;
 use Wikibase\Client\Store\TitleFactory;
 use Wikibase\ClientStore;
 use Wikibase\DataModel\DeserializerFactory;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
+use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
-use Wikibase\DataModel\Services\Lookup\RestrictedEntityLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\DataModel\Services\Term\TermBuffer;
 use Wikibase\DirectSqlStore;
 use Wikibase\EntityFactory;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
+use Wikibase\ItemChange;
 use Wikibase\LangLinkHandler;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
-use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
+use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
-use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
+use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
+use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SiteLinkCommentCreator;
@@ -106,6 +118,11 @@ final class WikibaseClient {
 	 * @var DataTypeFactory|null
 	 */
 	private $dataTypeFactory = null;
+
+	/**
+	 * @var Deserializer|null
+	 */
+	private $entityDeserializer = null;
 
 	/**
 	 * @var EntityIdParser|null
@@ -779,8 +796,8 @@ final class WikibaseClient {
 	 */
 	public function getEntityFactory() {
 		$entityClasses = array(
-			Item::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Item',
-			Property::ENTITY_TYPE => 'Wikibase\DataModel\Entity\Property',
+			Item::ENTITY_TYPE => Item::class,
+			Property::ENTITY_TYPE => Property::class,
 		);
 
 		//TODO: provide a hook or registry for adding more.
@@ -798,33 +815,67 @@ final class WikibaseClient {
 		return new EntityContentDataCodec(
 			$this->getEntityIdParser(),
 			$forbiddenSerializer,
-			$this->getInternalEntityDeserializer(),
+			$this->getInternalFormatEntityDeserializer(),
 			$this->getSettings()->getSetting( 'maxSerializedEntitySize' ) * 1024
 		);
 	}
 
 	/**
-	 * @return Deserializer
+	 * @return DeserializerFactory
 	 */
-	public function getInternalEntityDeserializer() {
-		return $this->getInternalDeserializerFactory()->newEntityDeserializer();
-	}
-
-	/**
-	 * @return Deserializer
-	 */
-	public function getInternalStatementDeserializer() {
-		return $this->getInternalDeserializerFactory()->newStatementDeserializer();
+	public function getExternalFormatDeserializerFactory() {
+		return new DeserializerFactory(
+			$this->getDataValueDeserializer(),
+			$this->getEntityIdParser()
+		);
 	}
 
 	/**
 	 * @return InternalDeserializerFactory
 	 */
-	private function getInternalDeserializerFactory() {
+	public function getInternalFormatDeserializerFactory() {
 		return new InternalDeserializerFactory(
 			$this->getDataValueDeserializer(),
-			$this->getEntityIdParser()
+			$this->getEntityIdParser(),
+			$this->getExternalFormatEntityDeserializer()
 		);
+	}
+
+	/**
+	 * @return DispatchingDeserializer
+	 */
+	private function getExternalFormatEntityDeserializer() {
+		if ( $this->entityDeserializer === null ) {
+			$deserializerFactoryCallbacks = $this->entityTypeDefinitions->getDeserializerFactoryCallbacks();
+			$deserializerFactory = $this->getExternalFormatDeserializerFactory();
+			$deserializers = array();
+
+			foreach ( $deserializerFactoryCallbacks as $callback ) {
+				$deserializers[] = call_user_func( $callback, $deserializerFactory );
+			}
+
+			$this->entityDeserializer = new DispatchingDeserializer( $deserializers );
+		}
+
+		return $this->entityDeserializer;
+	}
+
+	/**
+	 * Returns a deserializer to deserialize entities in both current and legacy serialization.
+	 *
+	 * @return Deserializer
+	 */
+	public function getInternalFormatEntityDeserializer() {
+		return $this->getInternalFormatDeserializerFactory()->newEntityDeserializer();
+	}
+
+	/**
+	 * Returns a deserializer to deserialize statements in both current and legacy serialization.
+	 *
+	 * @return Deserializer
+	 */
+	public function getInternalFormatStatementDeserializer() {
+		return $this->getInternalFormatDeserializerFactory()->newStatementDeserializer();
 	}
 
 	/**
@@ -832,16 +883,16 @@ final class WikibaseClient {
 	 */
 	private function getDataValueDeserializer() {
 		return new DataValueDeserializer( array(
-			'boolean' => 'DataValues\BooleanValue',
-			'number' => 'DataValues\NumberValue',
-			'string' => 'DataValues\StringValue',
-			'unknown' => 'DataValues\UnknownValue',
-			'globecoordinate' => 'DataValues\Geo\Values\GlobeCoordinateValue',
-			'monolingualtext' => 'DataValues\MonolingualTextValue',
-			'multilingualtext' => 'DataValues\MultilingualTextValue',
-			'quantity' => 'DataValues\QuantityValue',
-			'time' => 'DataValues\TimeValue',
-			'wikibase-entityid' => 'Wikibase\DataModel\Entity\EntityIdValue',
+			'boolean' => BooleanValue::class,
+			'number' => NumberValue::class,
+			'string' => StringValue::class,
+			'unknown' => UnknownValue::class,
+			'globecoordinate' => GlobeCoordinateValue::class,
+			'monolingualtext' => MonolingualTextValue::class,
+			'multilingualtext' => MultilingualTextValue::class,
+			'quantity' => QuantityValue::class,
+			'time' => TimeValue::class,
+			'wikibase-entityid' => EntityIdValue::class,
 		) );
 	}
 
@@ -866,12 +917,11 @@ final class WikibaseClient {
 	public function getEntityChangeFactory() {
 		//TODO: take this from a setting or registry.
 		$changeClasses = array(
-			Item::ENTITY_TYPE => 'Wikibase\ItemChange',
+			Item::ENTITY_TYPE => ItemChange::class,
 			// Other types of entities will use EntityChange
 		);
 
 		return new EntityChangeFactory(
-			$this->getEntityFactory(),
 			new EntityDiffer(),
 			$changeClasses
 		);
@@ -1015,16 +1065,6 @@ final class WikibaseClient {
 	 */
 	public function getTermsLanguages() {
 		return new MediaWikiContentLanguages();
-	}
-
-	/**
-	 * @return DeserializerFactory
-	 */
-	public function getDeserializerFactory() {
-		return new DeserializerFactory(
-			$this->getDataValueDeserializer(),
-			$this->getEntityIdParser()
-		);
 	}
 
 	/**

@@ -16,6 +16,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
@@ -61,7 +62,20 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		);
 
 		$store = new WikiPageEntityStore(
-			new EntityContentFactory( $wikibaseRepo->getContentModelMappings() ),
+			new EntityContentFactory(
+				array(
+					'item' => CONTENT_MODEL_WIKIBASE_ITEM,
+					'property' => CONTENT_MODEL_WIKIBASE_PROPERTY
+				),
+				array(
+					'item' => function() use ( $wikibaseRepo ) {
+						return $wikibaseRepo->newItemHandler();
+					},
+					'property' => function() use ( $wikibaseRepo ) {
+						return $wikibaseRepo->newPropertyHandler();
+					}
+				)
+			),
 			new SqlIdGenerator( wfGetLB() )
 		);
 
@@ -86,22 +100,22 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		$property->setDescription( 'en', 'Property description' );
 
 		return array(
-			array( $item ),
-			array( $property ),
+			array( $item, new Item() ),
+			array( $property, Property::newFromType( 'string' ) ),
 		);
 	}
 
 	/**
 	 * @dataProvider simpleEntityParameterProvider()
 	 */
-	public function testSaveEntity( EntityDocument $entity ) {
+	public function testSaveEntity( EntityDocument $entity, EntityDocument $empty ) {
 		/* @var WikiPageEntityStore $store */
 		/* @var EntityRevisionLookup $lookup */
 		list( $store, $lookup ) = $this->createStoreAndLookup();
 		$user = $GLOBALS['wgUser'];
 
 		// register mock watcher
-		$watcher = $this->getMock( 'Wikibase\Lib\Store\EntityStoreWatcher' );
+		$watcher = $this->getMock( EntityStoreWatcher::class );
 		$watcher->expects( $this->exactly( 2 ) )
 			->method( 'entityUpdated' );
 		$watcher->expects( $this->never() )
@@ -121,12 +135,10 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		// TODO: check notifications in wb_changes table!
 
 		// update entity
-		// FIXME: the clear() method is not defined by EntityDocument.
-		//        How else do we create an empty instance of the same type?
-		$entity->clear();
-		$entity->getFingerprint()->setLabel( 'en', 'UPDATED' );
+		$empty->setId( $entityId );
+		$empty->getFingerprint()->setLabel( 'en', 'UPDATED' );
 
-		$r2 = $store->saveEntity( $entity, 'update one', $user, EDIT_UPDATE );
+		$r2 = $store->saveEntity( $empty, 'update one', $user, EDIT_UPDATE );
 		$this->assertNotEquals( $r1->getRevisionId(), $r2->getRevisionId(), 'expected new revision id' );
 
 		$r2actual = $lookup->getEntityRevision( $entityId );
@@ -154,14 +166,14 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 				'entity' => $firstItem,
 				'flags' => EDIT_NEW,
 				'baseRevid' => false,
-				'error' => 'Wikibase\Lib\Store\StorageException'
+				'error' => StorageException::class
 			),
 
 			'not exists' => array(
 				'entity' => $secondItem,
 				'flags' => EDIT_UPDATE,
 				'baseRevid' => false,
-				'error' => 'Wikibase\Lib\Store\StorageException'
+				'error' => StorageException::class
 			),
 		);
 	}
@@ -201,7 +213,7 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		$user = $GLOBALS['wgUser'];
 
 		// register mock watcher
-		$watcher = $this->getMock( 'Wikibase\Lib\Store\EntityStoreWatcher' );
+		$watcher = $this->getMock( EntityStoreWatcher::class );
 		$watcher->expects( $this->exactly( 1 ) )
 			->method( 'redirectUpdated' );
 		$watcher->expects( $this->never() )
@@ -273,7 +285,7 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		list( $store, ) = $this->createStoreAndLookup();
 		$user = $GLOBALS['wgUser'];
 
-		$this->setExpectedException( 'Wikibase\Lib\Store\StorageException' );
+		$this->setExpectedException( StorageException::class );
 		$store->saveRedirect( $redirect, 'redirect one', $user, EDIT_UPDATE );
 	}
 
@@ -514,7 +526,7 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 		$user = $GLOBALS['wgUser'];
 
 		// register mock watcher
-		$watcher = $this->getMock( 'Wikibase\Lib\Store\EntityStoreWatcher' );
+		$watcher = $this->getMock( EntityStoreWatcher::class );
 		$watcher->expects( $this->exactly( 1 ) )
 			->method( 'entityDeleted' );
 

@@ -2,6 +2,7 @@
 
 namespace Wikibase\Test;
 
+use Wikibase\Change;
 use Wikibase\EntityChange;
 use Wikibase\Lib\Store\ChangeLookup;
 use Wikibase\Repo\Store\Sql\SqlChangeStore;
@@ -20,7 +21,7 @@ use Wikibase\Repo\Store\Sql\SqlChangeStore;
 class ChangeLookupTest extends \MediaWikiTestCase {
 
 	public function testGetRecordId() {
-		$change = $this->getMock( 'Wikibase\Change' );
+		$change = $this->getMock( Change::class );
 		$change->expects( $this->once() )
 			->method( 'getId' )
 			->will( $this->returnValue( 42 ) );
@@ -71,7 +72,7 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 		$start = $this->offsetStart( $start );
 
 		$lookup = new ChangeLookup(
-			array( 'wikibase-item~remove' => 'Wikibase\EntityChange' ),
+			array( 'wikibase-item~remove' => EntityChange::class ),
 			wfWikiID()
 		);
 
@@ -87,7 +88,7 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 		$start = $this->offsetStart( 3 );
 
 		$lookup = new ChangeLookup(
-			array( 'wikibase-item~remove' => 'Wikibase\EntityChange' ),
+			array( 'wikibase-item~remove' => EntityChange::class ),
 			wfWikiID()
 		);
 
@@ -116,7 +117,7 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 		$changeStore->saveChange( $expected );
 
 		$lookup = new ChangeLookup(
-			array( 'wikibase-item~remove' => 'Wikibase\EntityChange' ),
+			array( 'wikibase-item~remove' => EntityChange::class ),
 			wfWikiID()
 		);
 
@@ -134,7 +135,7 @@ class ChangeLookupTest extends \MediaWikiTestCase {
 		}
 
 		$lookup = new ChangeLookup(
-			array( 'wikibase-item~remove' => 'Wikibase\EntityChange' ),
+			array( 'wikibase-item~remove' => EntityChange::class ),
 			wfWikiID()
 		);
 

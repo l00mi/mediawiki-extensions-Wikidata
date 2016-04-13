@@ -2,6 +2,9 @@
 
 namespace Wikibase\Test\Interactors;
 
+use FauxRequest;
+use PHPUnit_Framework_TestCase;
+use User;
 use Wikibase\Repo\Interactors\TokenCheckException;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
 
@@ -17,10 +20,15 @@ use Wikibase\Repo\Interactors\TokenCheckInteractor;
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
-class TokenCheckInteractorTest extends \PHPUnit_Framework_TestCase {
+class TokenCheckInteractorTest extends PHPUnit_Framework_TestCase {
 
+	/**
+	 * @return User
+	 */
 	private function getMockUser() {
-		$user = $this->getMockBuilder( 'User' )->disableOriginalConstructor()->getMock();
+		$user = $this->getMockBuilder( User::class )
+			->disableOriginalConstructor()
+			->getMock();
 		$user->expects( $this->any() )
 			->method( 'matchEditToken' )
 			->will( $this->returnCallback(
@@ -38,7 +46,7 @@ class TokenCheckInteractorTest extends \PHPUnit_Framework_TestCase {
 		);
 
 		$user = $this->getMockUser();
-		$request = new \FauxRequest( $data, true );
+		$request = new FauxRequest( $data, true );
 
 		$checker = new TokenCheckInteractor( $user );
 		$checker->checkRequestToken( $request, 'tokentest' );
@@ -58,7 +66,7 @@ class TokenCheckInteractorTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider tokenFailureProvider
 	 */
 	public function testCheckToken_failure( $data, $wasPosted, $expected ) {
-		$request = new \FauxRequest( $data, $wasPosted );
+		$request = new FauxRequest( $data, $wasPosted );
 
 		$user = $this->getMockUser();
 		$checker = new TokenCheckInteractor( $user );

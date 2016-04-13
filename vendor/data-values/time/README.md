@@ -23,12 +23,12 @@ The recommended way to use this library is via [Composer](http://getcomposer.org
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `data-values/time` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-version 1.0 of this package:
+version 0.8 of this package:
 
 ```js
     {
         "require": {
-            "data-values/time": "1.0.*"
+            "data-values/time": "0.8.*"
         }
     }
 ```
@@ -51,6 +51,14 @@ DataValues Time has been written by the Wikidata team, as [Wikimedia Germany]
 (https://wikimedia.de) employees for the [Wikidata project](https://wikidata.org/).
 
 ## Release notes
+
+### 0.8.3 (2016-03-16)
+
+* Added optional `ParserOptions` parameter to the `YearMonthDayTimeParser` constructor.
+* Fixed `YearMonthDayTimeParser` not accepting calendar model and precision options.
+* Fixed `IsoTimestampParser` not accepting string precisions.
+* Fixed `IsoTimestampParser` not always throwing an exception on invalid precisions.
+* Fixed `FORMAT_NAME` constants in parsers.
 
 ### 0.8.2 (2015-09-15)
 

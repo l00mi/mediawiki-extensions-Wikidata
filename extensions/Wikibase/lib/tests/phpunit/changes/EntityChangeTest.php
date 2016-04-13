@@ -6,7 +6,9 @@ use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use RecentChange;
 use Revision;
+use RuntimeException;
 use stdClass;
+use User;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
@@ -38,7 +40,7 @@ class EntityChangeTest extends ChangeRowTest {
 	 * @return string
 	 */
 	protected function getRowClass() {
-		return 'Wikibase\EntityChange';
+		return EntityChange::class;
 	}
 
 	protected function newEntityChange( EntityId $entityId ) {
@@ -193,7 +195,7 @@ class EntityChangeTest extends ChangeRowTest {
 	}
 
 	public function testSetMetadataFromUser() {
-		$user = $this->getMockBuilder( 'User' )
+		$user = $this->getMockBuilder( User::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -263,14 +265,14 @@ class EntityChangeTest extends ChangeRowTest {
 	}
 
 	public function testGivenEntityChangeWithoutObjectId_setRevisionInfoSetsObjectId() {
-		$content = $this->getMockBuilder( 'Wikibase\ItemContent' )
+		$content = $this->getMockBuilder( ItemContent::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$content->expects( $this->once() )
 			->method( 'getEntityId' )
 			->will( $this->returnValue( new ItemId( 'Q1' ) ) );
 
-		$revision = $this->getMockBuilder( 'Revision' )
+		$revision = $this->getMockBuilder( Revision::class )
 			->disableOriginalConstructor()
 			->getMock();
 		$revision->expects( $this->once() )
@@ -326,13 +328,13 @@ class EntityChangeTest extends ChangeRowTest {
 			),
 			'type' => 'statement',
 			'rank' => 'normal',
-			'_claimclass_' => 'Wikibase\DataModel\Statement\Statement',
+			'_claimclass_' => Statement::class,
 		);
 
 		$change = new EntityChange();
 
 		if ( !defined( 'WB_VERSION' ) ) {
-			$this->setExpectedException( 'RuntimeException' );
+			$this->setExpectedException( RuntimeException::class );
 		}
 
 		$array = $change->arrayalizeObjects( $statement );
@@ -352,12 +354,12 @@ class EntityChangeTest extends ChangeRowTest {
 				'property' => 'P1',
 			),
 			'type' => 'statement',
-			'_claimclass_' => 'Wikibase\DataModel\Statement\Statement',
+			'_claimclass_' => Statement::class,
 		);
 
 		$change = new EntityChange();
 		$statement = $change->objectifyArrays( $data );
-		$this->assertInstanceOf( 'Wikibase\DataModel\Statement\Statement', $statement );
+		$this->assertInstanceOf( Statement::class, $statement );
 	}
 
 	public function testGivenNonStatementSerialization_objectifyArraysReturnsOriginal() {

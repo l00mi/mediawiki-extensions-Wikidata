@@ -6,7 +6,11 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Statement\StatementList;
+use Wikibase\View\EntityTermsView;
 use Wikibase\View\ItemView;
+use Wikibase\View\LanguageDirectionalityLookup;
+use Wikibase\View\SiteLinksView;
+use Wikibase\View\StatementSectionsView;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -52,14 +56,15 @@ class ItemViewTest extends EntityViewTest {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 		$itemView = new ItemView(
 			$templateFactory,
-			$this->getMockBuilder( 'Wikibase\View\EntityTermsView' )
+			$this->getMockBuilder( EntityTermsView::class )
 				->disableOriginalConstructor()
 				->getMock(),
-			$this->getMockBuilder( 'Wikibase\View\StatementSectionsView' )
+			$this->getMock( LanguageDirectionalityLookup::class ),
+			$this->getMockBuilder( StatementSectionsView::class )
 				->disableOriginalConstructor()
 				->getMock(),
-			$this->getMock( 'Language' ),
-			$this->getMockBuilder( 'Wikibase\View\SiteLinksView' )
+			'en',
+			$this->getMockBuilder( SiteLinksView::class )
 				->disableOriginalConstructor()
 				->getMock(),
 			array()
@@ -68,7 +73,7 @@ class ItemViewTest extends EntityViewTest {
 		return array(
 			array(
 				$itemView,
-				$this->newEntityRevisionForStatements( array() ),
+				$this->newEntityForStatements( array() ),
 				'/wb-item/'
 			)
 		);

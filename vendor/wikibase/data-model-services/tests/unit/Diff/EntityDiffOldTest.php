@@ -3,7 +3,7 @@
 namespace Wikibase\DataModel\Services\Tests\Diff;
 
 use RuntimeException;
-use Wikibase\DataModel\Entity\Entity;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
@@ -29,7 +29,7 @@ abstract class EntityDiffOldTest extends \PHPUnit_Framework_TestCase {
 		}
 	}
 
-	public static function generateApplyData( $entityType ) {
+	protected function generateApplyData( $entityType ) {
 		$tests = array();
 
 		// #0: add label
@@ -126,17 +126,6 @@ abstract class EntityDiffOldTest extends \PHPUnit_Framework_TestCase {
 		return $tests;
 	}
 
-	/**
-	 * @dataProvider provideApplyData
-	 */
-	public function testApply( Entity $a, Entity $b ) {
-		$differ = new EntityDiffer();
-		$patcher = new EntityPatcher();
-
-		$patcher->patchEntity( $a, $differ->diffEntities( $a, $b ) );
-		$this->assertTrue( $a->getFingerprint()->equals( $b->getFingerprint() ) );
-	}
-
 	public function provideConflictDetection() {
 		$cases = array();
 
@@ -204,7 +193,12 @@ abstract class EntityDiffOldTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider provideConflictDetection
 	 */
-	public function testConflictDetection( Entity $base, Entity $current, Entity $new, $expectedConflicts ) {
+	public function testConflictDetection(
+		EntityDocument $base,
+		EntityDocument $current,
+		EntityDocument $new,
+		$expectedConflicts
+	) {
 		$differ = new EntityDiffer();
 		$patcher = new EntityPatcher();
 

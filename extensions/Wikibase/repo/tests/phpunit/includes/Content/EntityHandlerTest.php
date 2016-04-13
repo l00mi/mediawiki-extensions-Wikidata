@@ -4,7 +4,9 @@ namespace Wikibase\Test;
 
 use ContentHandler;
 use DataValues\Serializers\DataValueSerializer;
+use InvalidArgumentException;
 use Language;
+use MWException;
 use Revision;
 use RuntimeException;
 use Title;
@@ -18,6 +20,8 @@ use Wikibase\InternalSerialization\SerializerFactory;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Repo\Content\EntityHandler;
+use Wikibase\Repo\Validators\EntityValidator;
+use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
 use WikitextContent;
@@ -65,7 +69,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		return new WikibaseRepo(
 			new SettingsArray( $repoSettings ),
 			new DataTypeDefinitions( array() ),
-			new EntityTypeDefinitions( array() ),
+			new EntityTypeDefinitions( require __DIR__ . '/../../../../../lib/WikibaseLib.entitytypes.php' ),
 			Language::factory( 'qqq' )
 		);
 	}
@@ -126,7 +130,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	 */
 	public function testGetModelName( EntityHandler $entityHandler ) {
 		$this->assertEquals( $this->getModelId(), $entityHandler->getModelID() );
-		$this->assertInstanceOf( 'ContentHandler', $entityHandler );
+		$this->assertInstanceOf( ContentHandler::class, $entityHandler );
 		$this->assertInstanceOf( $this->getClassName(), $entityHandler );
 	}
 
@@ -142,7 +146,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	public function testGivenNonEntityContent_serializeContentThrowsException() {
 		$handler = $this->getHandler();
 		$content = new WikitextContent( '' );
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$handler->serializeContent( $content );
 	}
 
@@ -313,7 +317,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		$undo = $handler->getUndoContent( $latestRevision, $newerRevision, $olderRevision );
 
 		if ( $expected ) {
-			$this->assertInstanceOf( 'Wikibase\EntityContent', $undo, $message );
+			$this->assertInstanceOf( EntityContent::class, $undo, $message );
 			$this->assertTrue( $expected->equals( $undo ), $message );
 		} else {
 			$this->assertFalse( $undo, $message );
@@ -340,7 +344,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 
 	public function testMakeEmptyContent() {
 		// We don't support empty content.
-		$this->setExpectedException( 'MWException' );
+		$this->setExpectedException( MWException::class );
 
 		$handler = $this->getHandler();
 		$handler->makeEmptyContent();
@@ -348,7 +352,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 
 	public function testMakeRedirectContent() {
 		// We don't support title based redirects.
-		$this->setExpectedException( 'MWException' );
+		$this->setExpectedException( MWException::class );
 
 		$handler = $this->getHandler();
 		$handler->makeRedirectContent( Title::newFromText( 'X11', $handler->getEntityNamespace() ) );
@@ -377,7 +381,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	public function exportTransformProvider() {
 		$entity = $this->newEntity();
 
-		$internalSerializer = WikibaseRepo::getDefaultInstance()->getInternalEntitySerializer();
+		$internalSerializer = WikibaseRepo::getDefaultInstance()->getEntitySerializer();
 		$oldBlob = json_encode( $internalSerializer->serialize( $entity ) );
 
 		// fake several old formats
@@ -432,8 +436,8 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		$settings->setSetting( 'transformLegacyFormatOnExport', true );
 
 		$entity = $this->newEntity();
-		$currentSerializer = $this->getWikibaseRepo( $settings )->getInternalEntitySerializer();
-		$expected = json_encode( $currentSerializer->serialize( $entity ) );
+		$entitySerializer = $this->getWikibaseRepo( $settings )->getEntitySerializer();
+		$expected = json_encode( $entitySerializer->serialize( $entity ) );
 
 		$handler = $this->getHandler( $settings );
 		$actual = $handler->exportTransform( $expected );
@@ -464,13 +468,13 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		$this->assertInternalType( 'array', $validators );
 
 		foreach ( $validators as $validator ) {
-			$this->assertInstanceOf( 'Wikibase\Repo\Validators\EntityValidator', $validator );
+			$this->assertInstanceOf( EntityValidator::class, $validator );
 		}
 	}
 
 	public function testGetValidationErrorLocalizer() {
 		$localizer = $this->getHandler()->getValidationErrorLocalizer();
-		$this->assertInstanceOf( 'Wikibase\Repo\Validators\ValidatorErrorLocalizer', $localizer );
+		$this->assertInstanceOf( ValidatorErrorLocalizer::class, $localizer );
 	}
 
 	public function testMakeParserOptions() {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests\Specials;
 
 use DataValues\DataValue;
 use HashSiteStore;
@@ -24,6 +24,7 @@ use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\SummaryFormatter;
+use Wikibase\Test\MockRepository;
 
 /**
  * @since 0.5
@@ -65,7 +66,7 @@ abstract class SpecialWikibaseRepoPageTestBase extends SpecialPageTestBase {
 	 * @return EntityTitleLookup
 	 */
 	protected function getEntityTitleLookup() {
-		$titleLookup = $this->getMock( 'Wikibase\Lib\Store\EntityTitleLookup' );
+		$titleLookup = $this->getMock( EntityTitleLookup::class );
 
 		$titleLookup->expects( $this->any() )
 			->method( 'getTitleForId' )
@@ -87,7 +88,7 @@ abstract class SpecialWikibaseRepoPageTestBase extends SpecialPageTestBase {
 	 * @return EntityPermissionChecker
 	 */
 	protected function getEntityPermissionChecker() {
-		$permissionChecker = $this->getMock( 'Wikibase\Repo\Store\EntityPermissionChecker' );
+		$permissionChecker = $this->getMock( EntityPermissionChecker::class );
 
 		$ok = Status::newGood();
 
@@ -124,7 +125,7 @@ abstract class SpecialWikibaseRepoPageTestBase extends SpecialPageTestBase {
 	 * @return ValueFormatter
 	 */
 	protected function getValueFormatter() {
-		$formatter = $this->getMock( 'ValueFormatters\ValueFormatter' );
+		$formatter = $this->getMock( ValueFormatter::class );
 
 		$formatter->expects( $this->any() )
 			->method( 'format' )
@@ -137,7 +138,7 @@ abstract class SpecialWikibaseRepoPageTestBase extends SpecialPageTestBase {
 	 * @return SnakFormatter
 	 */
 	protected function getSnakFormatter() {
-		$formatter = $this->getMock( 'Wikibase\Lib\SnakFormatter' );
+		$formatter = $this->getMock( SnakFormatter::class );
 
 		$formatter->expects( $this->any() )
 			->method( 'formatSnak' )

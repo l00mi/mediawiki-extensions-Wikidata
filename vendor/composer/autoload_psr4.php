@@ -35,4 +35,5 @@ return array(
     'DataValues\\Deserializers\\' => array($vendorDir . '/data-values/serialization/src/Deserializers'),
     'DataValues\\' => array($vendorDir . '/data-values/common/src/DataValues'),
     'DataTypes\\' => array($vendorDir . '/data-values/data-types/src'),
+    'Composer\\Installers\\' => array($vendorDir . '/composer/installers/src/Composer/Installers'),
 );

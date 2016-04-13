@@ -14,7 +14,7 @@
  * @uses jQuery.wikibase.listview
  * @uses jQuery.wikibase.listview.ListItemAdapter
  * @since 0.4
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  *
  * @constructor
@@ -24,6 +24,7 @@
  *        The list of `Statement`s to be displayed by this view.
  * @param {wikibase.entityChangers.ClaimsChanger} options.claimsChanger
  * @param {jQuery.wikibase.listview.ListItemAdapter} options.listItemAdapter
+ */
 /**
  * @event afterstartediting
  * Triggered when edit mode has been started for one of the `statementview` widgets managed by the

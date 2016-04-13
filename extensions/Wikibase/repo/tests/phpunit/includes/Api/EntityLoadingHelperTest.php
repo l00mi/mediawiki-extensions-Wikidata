@@ -3,12 +3,14 @@
 namespace Wikibase\Test\Repo\Api;
 
 use Exception;
+use Revision;
 use UsageException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\BadRevisionException;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
+use Wikibase\Repo\Api\ApiErrorReporter;
 use Wikibase\Repo\Api\EntityLoadingHelper;
 
 /**
@@ -29,7 +31,7 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 	 * @return EntityRevisionLookup
 	 */
 	public function getMockEntityRevisionLookup( $entityRevisionReturn ) {
-		$mock = $this->getMock( 'Wikibase\Lib\Store\EntityRevisionLookup' );
+		$mock = $this->getMock( EntityRevisionLookup::class );
 		if ( $entityRevisionReturn instanceof Exception ) {
 			$mock->expects( $this->once() )
 				->method( 'getEntityRevision' )
@@ -42,14 +44,19 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 		return $mock;
 	}
 
+	/**
+	 * @param string|null $expectedExceptionCode
+	 * @param string|null $expectedErrorCode
+	 * @return ApiErrorReporter
+	 */
 	private function getMockErrorReporter( $expectedExceptionCode = null, $expectedErrorCode = null ) {
-		$mock = $this->getMockBuilder( 'Wikibase\Repo\Api\ApiErrorReporter' )
+		$mock = $this->getMockBuilder( ApiErrorReporter::class )
 			->disableOriginalConstructor()
 			->getMock();
 		if ( $expectedExceptionCode ) {
 			$mock->expects( $this->once() )
 				->method( 'dieException' )
-				->with( $this->isInstanceOf( 'Exception' ), $expectedExceptionCode )
+				->with( $this->isInstanceOf( Exception::class ), $expectedExceptionCode )
 				->will( $this->throwException( new UsageException( 'mockUsageException', 'mock' ) ) );
 		}
 		if ( $expectedErrorCode ) {
@@ -61,8 +68,11 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 		return $mock;
 	}
 
+	/**
+	 * @return Revision
+	 */
 	public function getMockRevision() {
-		return $this->getMockBuilder( 'Revision' )
+		return $this->getMockBuilder( Revision::class )
 			->disableOriginalConstructor()
 			->getMock();
 	}
@@ -85,7 +95,7 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 			$this->getMockErrorReporter( null, 'cant-load-entity-content' )
 		);
 
-		$this->setExpectedException( 'UsageException' );
+		$this->setExpectedException( UsageException::class );
 		$helper->loadEntityRevision( new ItemId( 'Q1' ) );
 	}
 
@@ -98,7 +108,7 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 			$this->getMockErrorReporter( 'unresolved-redirect' )
 		);
 
-		$this->setExpectedException( 'UsageException' );
+		$this->setExpectedException( UsageException::class );
 		$helper->loadEntityRevision( new ItemId( 'Q1' ) );
 	}
 
@@ -108,7 +118,7 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 			$this->getMockErrorReporter( 'nosuchrevid' )
 		);
 
-		$this->setExpectedException( 'UsageException' );
+		$this->setExpectedException( UsageException::class );
 		$helper->loadEntityRevision( new ItemId( 'Q1' ) );
 	}
 
@@ -118,7 +128,7 @@ class EntityLoadingHelperTest extends \MediaWikiTestCase {
 			$this->getMockErrorReporter( 'cant-load-entity-content' )
 		);
 
-		$this->setExpectedException( 'UsageException' );
+		$this->setExpectedException( UsageException::class );
 		$helper->loadEntityRevision( new ItemId( 'Q1' ) );
 	}
 

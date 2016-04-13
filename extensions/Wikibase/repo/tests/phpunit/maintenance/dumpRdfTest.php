@@ -111,7 +111,16 @@ class DumpRdfTest extends MediaWikiLangTestCase {
 						'GUID2'
 					)
 				) )
-			)
+			),
+			new Item(
+				new ItemId( 'Q4' ),
+				null,
+				new SiteLinkList( array(
+					new SiteLink( 'enwiki', 'San Jose' ),
+					new SiteLink( 'dewiki', 'USA' )
+				) ),
+				null
+			),
 		);
 
 		foreach ( $testEntities as $key => $testEntity ) {
@@ -170,9 +179,7 @@ class DumpRdfTest extends MediaWikiLangTestCase {
 	 * @return PropertyDataTypeLookup
 	 */
 	private function getMockPropertyDataTypeLookup() {
-		$mockDataTypeLookup = $this->getMock(
-			'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup'
-		);
+		$mockDataTypeLookup = $this->getMock( PropertyDataTypeLookup::class );
 		$mockDataTypeLookup->expects( $this->any() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $this->returnCallback( function( PropertyId $id ) {

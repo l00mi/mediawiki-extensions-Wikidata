@@ -2,8 +2,8 @@
 
 namespace Wikibase\Repo\ParserOutput;
 
+use GeoData\GeoData;
 use Language;
-use ParserOptions;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Entity\PropertyDataTypeMatcher;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
@@ -119,23 +119,25 @@ class EntityParserOutputGeneratorFactory {
 	/**
 	 * Creates an EntityParserOutputGenerator to create the ParserOutput for the entity
 	 *
-	 * @param ParserOptions $options
+	 * @param string $userLanguageCode
+	 * @param bool $editable
 	 *
 	 * @return EntityParserOutputGenerator
 	 */
-	public function getEntityParserOutputGenerator( ParserOptions $options ) {
-		$language = $options->getUserLangObj();
+	public function getEntityParserOutputGenerator( $userLanguageCode, $editable ) {
 
+		$userLanguage = Language::factory( $userLanguageCode );
 		return new EntityParserOutputGenerator(
 			$this->entityViewFactory,
 			$this->newParserOutputJsConfigBuilder(),
 			$this->entityTitleLookup,
 			$this->entityInfoBuilderFactory,
-			$this->getLanguageFallbackChain( $language ),
+			$this->getLanguageFallbackChain( $userLanguage ),
 			$this->templateFactory,
 			$this->entityDataFormatProvider,
 			$this->getDataUpdaters(),
-			$language->getCode()
+			$userLanguageCode,
+			$editable
 		);
 	}
 
@@ -178,7 +180,7 @@ class EntityParserOutputGeneratorFactory {
 			$updaters[] = new PageImagesDataUpdater( $this->preferredPageImagesProperties );
 		}
 
-		if ( class_exists( 'GeoData\GeoData' ) ) {
+		if ( class_exists( GeoData::class ) ) {
 			$updaters[] = new GeoDataDataUpdater(
 				$propertyDataTypeMatcher,
 				$this->preferredGeoDataProperties,

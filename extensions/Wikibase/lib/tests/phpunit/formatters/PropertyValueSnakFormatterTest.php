@@ -7,7 +7,9 @@ use DataTypes\DataTypeFactory;
 use DataValues\StringValue;
 use DataValues\UnDeserializableValue;
 use OutOfBoundsException;
+use ValueFormatters\Exceptions\MismatchingDataValueTypeException;
 use ValueFormatters\FormatterOptions;
+use ValueFormatters\FormattingException;
 use ValueFormatters\StringFormatter;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -64,7 +66,7 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 				new PropertyDataTypeLookupException( new PropertyId( 'P666' ) ) );
 		}
 
-		$typeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
+		$typeLookup = $this->getMock( PropertyDataTypeLookup::class );
 		$typeLookup->expects( $this->atLeastOnce() )
 			->method( 'getDataTypeIdForProperty' )
 			->will( $getDataTypeIdForPropertyResult );
@@ -86,7 +88,7 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 				new OutOfBoundsException( 'unknown datatype ' . $dataType ) );
 		}
 
-		$typeFactory = $this->getMockBuilder( 'DataTypes\DataTypeFactory' )
+		$typeFactory = $this->getMockBuilder( DataTypeFactory::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -128,8 +130,13 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 		$this->assertRegExp( $expected, $actual );
 	}
 
+	/**
+	 * @param string $value
+	 *
+	 * @return ValueFormatter
+	 */
 	private function getMockFormatter( $value ) {
-		$formatter = $this->getMock( 'ValueFormatters\ValueFormatter' );
+		$formatter = $this->getMock( ValueFormatter::class );
 		$formatter->expects( $this->any() )
 			->method( 'format' )
 			->will( $this->returnValue( $value ) );
@@ -183,7 +190,7 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 				SnakFormatter::FORMAT_HTML,
 				$dispatchingFormatter,
 				null,
-				'ValueFormatters\Exceptions\MismatchingDataValueTypeException'
+				MismatchingDataValueTypeException::class
 			),
 
 			'VT mismatching PT, fail' => array(
@@ -193,7 +200,7 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 				SnakFormatter::FORMAT_WIKI,
 				$dispatchingFormatter,
 				null,
-				'ValueFormatters\Exceptions\MismatchingDataValueTypeException'
+				MismatchingDataValueTypeException::class
 			),
 
 			'property not found, fail' => array(
@@ -203,7 +210,7 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 				SnakFormatter::FORMAT_HTML,
 				$dispatchingFormatter,
 				null,
-				'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException'
+				PropertyDataTypeLookupException::class
 			),
 
 			'data type not found, fail' => array(
@@ -213,16 +220,16 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 				SnakFormatter::FORMAT_HTML,
 				$dispatchingFormatter,
 				null,
-				'ValueFormatters\FormattingException'
+				FormattingException::class
 			),
 		);
 	}
 
 	private function getDummyPropertyValueSnakFormatter( $format = 'test' ) {
-		$typeLookup = $this->getMock( 'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup' );
+		$typeLookup = $this->getMock( PropertyDataTypeLookup::class );
 		$typeLookup->expects( $this->never() )->method( 'getDataTypeIdForProperty' );
 
-		$typeFactory = $this->getMockBuilder( 'DataTypes\DataTypeFactory' )
+		$typeFactory = $this->getMockBuilder( DataTypeFactory::class )
 			->disableOriginalConstructor()
 			->getMock();
 

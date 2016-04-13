@@ -4,7 +4,7 @@
 	/**
 	 * Globe coordinate object.
 	 * @class globeCoordinate.GlobeCoordinate
-	 * @licence GNU GPL v2+
+	 * @license GPL-2.0+
 	 * @author H. Snater < mediawiki@snater.com >
 	 *
 	 * @constructor
@@ -12,7 +12,8 @@
 	 * @param {Object} gcDef Needs the following attributes:
 	 *        - {number} latitude
 	 *        - {number} longitude
-	 *        - {number} precision
+	 *        - {number|null} [precision]
+	 *        - {string|null} [globe] Defaults to http://www.wikidata.org/entity/Q2.
 	 *
 	 * @throws {Error} when latitude is greater than 360.
 	 * @throws {Error} when longitude is greater than 360.
@@ -27,7 +28,7 @@
 
 		this._latitude = gcDef.latitude;
 		this._longitude = gcDef.longitude;
-		this._precision = gcDef.precision;
+		this._precision = gcDef.precision || null;
 
 		// TODO: Capture altitude and globe
 
@@ -40,7 +41,7 @@
 			throw new Error( 'Longitude (' + this._longitude + ') is out of bounds' );
 		}
 
-		this._globe = 'http://www.wikidata.org/entity/Q2'; // TODO: Support other globes
+		this._globe = gcDef.globe || 'http://www.wikidata.org/entity/Q2';
 	};
 
 	SELF.prototype = {
@@ -70,7 +71,7 @@
 
 		/**
 		 * Precision
-		 * @property {number}
+		 * @property {number|null}
 		 * @private
 		 */
 		_precision: null,
@@ -101,7 +102,7 @@
 		/**
 		 * Returns the precision.
 		 *
-		 * @return {number}
+		 * @return {number|null}
 		 */
 		getPrecision: function() { return this._precision; },
 
@@ -143,8 +144,10 @@
 			var gc1Iso6709 = globeCoordinate.iso6709( this.getDecimal() ),
 				gc2Iso6709 = globeCoordinate.iso6709( otherGlobeCoordinate.getDecimal() );
 
-			return Math.abs( this.getPrecision() - otherGlobeCoordinate.getPrecision() ) < 0.00000001
-				&& gc1Iso6709 === gc2Iso6709;
+			return ( this._precision === otherGlobeCoordinate._precision
+				|| Math.abs( this._precision - otherGlobeCoordinate._precision ) < 0.00000001 )
+				&& gc1Iso6709 === gc2Iso6709
+				&& this._globe === otherGlobeCoordinate._globe;
 		}
 	};
 

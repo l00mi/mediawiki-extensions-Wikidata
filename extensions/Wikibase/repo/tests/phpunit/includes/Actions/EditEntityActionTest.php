@@ -5,7 +5,9 @@ namespace Wikibase\Test;
 use MWException;
 use Title;
 use User;
+use Wikibase\EditEntityAction;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\SubmitEntityAction;
 use WikiPage;
 
 /**
@@ -45,10 +47,10 @@ class EditEntityActionTest extends ActionTestCase {
 		$page = $this->getTestItemPage( 'Berlin' );
 
 		$action = $this->createAction( 'edit', $page );
-		$this->assertInstanceOf( 'Wikibase\EditEntityAction', $action );
+		$this->assertInstanceOf( EditEntityAction::class, $action );
 
 		$action = $this->createAction( 'submit', $page );
-		$this->assertInstanceOf( 'Wikibase\SubmitEntityAction', $action );
+		$this->assertInstanceOf( SubmitEntityAction::class, $action );
 	}
 
 	protected function adjustRevisionParam( $key, array &$params, WikiPage $page ) {
@@ -289,19 +291,17 @@ class EditEntityActionTest extends ActionTestCase {
 
 		);
 
-		if ( self::shouldTestRedirects() ) {
-			// -- show undo form for redirect -----------------------------------
-			$cases[] = array( //18: // undo form with legal undo
-				'edit', // action
-				'Berlin2', // handle
-				array( // params
-					'undo' => 0, // current revision
-				),
-				false, // post
-				null, // user
-				'/undo-success/', // htmlPattern: should be a success
-			);
-		}
+		// -- show undo form for redirect -----------------------------------
+		$cases[] = array( //18: // undo form with legal undo
+			'edit', // action
+			'Berlin2', // handle
+			array( // params
+				'undo' => 0, // current revision
+			),
+			false, // post
+			null, // user
+			'/undo-success/', // htmlPattern: should be a success
+		);
 
 		return $cases;
 	}
@@ -816,7 +816,7 @@ class EditEntityActionTest extends ActionTestCase {
 		if ( isset( $expected['sitelinks'] ) ) {
 			$actual = array();
 
-			foreach ( $item->getSiteLinks() as $siteLink ) {
+			foreach ( $item->getSiteLinkList()->toArray() as $siteLink ) {
 				$actual[$siteLink->getSiteId()] = $siteLink->getPageName();
 			}
 

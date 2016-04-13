@@ -3,8 +3,11 @@
 namespace Wikibase\Lib\Test;
 
 use DataValues\DataValueFactory;
+use DataValues\IllegalValueException;
 use DataValues\UnDeserializableValue;
+use Deserializers\Deserializer;
 use Deserializers\Exceptions\DeserializationException;
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -19,7 +22,7 @@ use PHPUnit_Framework_TestCase;
 class DataValueFactoryTest extends PHPUnit_Framework_TestCase {
 
 	public function newInstance() {
-		$deserializer = $this->getMock( 'Deserializers\Deserializer' );
+		$deserializer = $this->getMock( Deserializer::class );
 		$deserializer->expects( $this->any() )
 			->method( 'deserialize' )
 			->will( $this->returnCallback( function( array $data ) {
@@ -33,7 +36,7 @@ class DataValueFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenUnknownType_newDataValueFails() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->newInstance()->newDataValue( 'unknown', '' );
 	}
 
@@ -43,7 +46,7 @@ class DataValueFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenUnknownType_tryNewDataValueFails() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->newInstance()->tryNewDataValue( 'unknown', '' );
 	}
 
@@ -53,17 +56,17 @@ class DataValueFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenNoType_newFromArrayFails() {
-		$this->setExpectedException( 'DataValues\IllegalValueException' );
+		$this->setExpectedException( IllegalValueException::class );
 		$this->newInstance()->newFromArray( array() );
 	}
 
 	public function testGivenNoValue_newFromArrayFails() {
-		$this->setExpectedException( 'DataValues\IllegalValueException' );
+		$this->setExpectedException( IllegalValueException::class );
 		$this->newInstance()->newFromArray( array( 'type' => 'unknown' ) );
 	}
 
 	public function testGivenUnknownType_newFromArrayFails() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->newInstance()->newFromArray( array(
 			'type' => 'unknown',
 			'value' => '',
@@ -91,7 +94,7 @@ class DataValueFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGivenUnknownType_tryNewFromArrayFails() {
-		$this->setExpectedException( 'InvalidArgumentException' );
+		$this->setExpectedException( InvalidArgumentException::class );
 		$this->newInstance()->tryNewFromArray( array(
 			'type' => 'unknown',
 			'value' => '',

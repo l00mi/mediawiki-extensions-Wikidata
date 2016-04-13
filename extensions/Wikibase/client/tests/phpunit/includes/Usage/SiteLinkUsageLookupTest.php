@@ -4,6 +4,7 @@ namespace Wikibase\Client\Tests\Usage\Sql;
 
 use MediaWikiTestCase;
 use Title;
+use Traversable;
 use Wikibase\Client\Store\TitleFactory;
 use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\Usage\PageEntityUsages;
@@ -69,7 +70,7 @@ class SiteLinkUsageLookupTest extends MediaWikiTestCase {
 	 * @return TitleFactory
 	 */
 	private function getTitleFactory() {
-		$titleFactory = $this->getMock( 'Wikibase\Client\Store\TitleFactory' );
+		$titleFactory = $this->getMock( TitleFactory::class );
 		$titleFactory->expects( $this->any() )
 			->method( 'newFromText' )
 			->will( $this->returnCallback( function( $text ) {
@@ -119,12 +120,12 @@ class SiteLinkUsageLookupTest extends MediaWikiTestCase {
 		$lookup = $this->getUsageLookup( $links, $titleFactory );
 
 		$actual = $lookup->getPagesUsing( array( $q42, $p11 ) );
-		$this->assertInstanceOf( 'Traversable', $actual );
+		$this->assertInstanceOf( Traversable::class, $actual );
 		$this->assertCount( 0, $actual );
 
 		$actual = $lookup->getPagesUsing( array( $q23 ), array( EntityUsage::OTHER_USAGE ) );
-		$this->assertInstanceOf( 'Traversable', $actual );
-		$this->assertContainsOnlyInstancesOf( 'Wikibase\Client\Usage\PageEntityUsages', $actual );
+		$this->assertInstanceOf( Traversable::class, $actual );
+		$this->assertContainsOnlyInstancesOf( PageEntityUsages::class, $actual );
 		$this->assertCount( 1, $actual );
 
 		/** @var PageEntityUsages[] $actual */
@@ -133,7 +134,7 @@ class SiteLinkUsageLookupTest extends MediaWikiTestCase {
 
 		$usages = $pageUsageObject->getUsages();
 		$this->assertInternalType( 'array', $usages );
-		$this->assertContainsOnlyInstancesOf( 'Wikibase\Client\Usage\EntityUsage', $usages );
+		$this->assertContainsOnlyInstancesOf( EntityUsage::class, $usages );
 		$this->assertCount( 1, $usages );
 
 		$usage = reset( $usages );
@@ -141,8 +142,8 @@ class SiteLinkUsageLookupTest extends MediaWikiTestCase {
 		$this->assertEquals( $q23, $usage->getEntityId() );
 
 		$actual = $lookup->getPagesUsing( array( $q42, $q23, $p11 ) );
-		$this->assertInstanceOf( 'Traversable', $actual );
-		$this->assertContainsOnlyInstancesOf( 'Wikibase\Client\Usage\PageEntityUsages', $actual );
+		$this->assertInstanceOf( Traversable::class, $actual );
+		$this->assertContainsOnlyInstancesOf( PageEntityUsages::class, $actual );
 		$this->assertCount( 1, $actual );
 
 		$pageUsageObject = $actual[0];
@@ -150,7 +151,7 @@ class SiteLinkUsageLookupTest extends MediaWikiTestCase {
 
 		$usages = $pageUsageObject->getUsages();
 		$this->assertInternalType( 'array', $usages );
-		$this->assertContainsOnlyInstancesOf( 'Wikibase\Client\Usage\EntityUsage', $usages );
+		$this->assertContainsOnlyInstancesOf( EntityUsage::class, $usages );
 		$this->assertCount( 1, $usages );
 
 		$usage = reset( $usages );
@@ -199,7 +200,7 @@ class SiteLinkUsageLookupTest extends MediaWikiTestCase {
 
 		$usages = $lookup->getPagesUsing( array( $itemId ), array() );
 
-		$this->assertInstanceOf( 'Traversable', $usages );
+		$this->assertInstanceOf( Traversable::class, $usages );
 		$this->assertCount( 0, $usages );
 	}
 

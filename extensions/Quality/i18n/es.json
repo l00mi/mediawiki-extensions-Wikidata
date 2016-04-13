@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Fitoschido",
-			"Macofe"
+			"Macofe",
+			"AlvaroMolina"
 		]
 	},
 	"wbq-desc": "Extensión base para las extensiones de calidad de Wikibase, que ayudan a gestionar datos inconsistentes.",
@@ -34,7 +35,11 @@
 	"wbq-violations-prev-page": "<< Página anterior",
 	"apihelp-wbqgetviolationmessages-param-entityid": "Identificador de una entidad cuyas violaciones de datos deberían listarse.",
 	"apihelp-wbqgetviolationmessages-example": "Obtener mensajes por violaciones de datos del elemento Q76.",
+	"apihelp-wbqmodifyviolation-param-claimguid": "El reclamo GUID de la violación datos que deben ser modificados. Junto con la restricción de ID, esto identifica la violación.",
+	"apihelp-wbqmodifyviolation-param-constraintid": "El reclamo GUID de la violación datos que deben ser modificados. Junto con la restricción de ID, esto identifica la violación.",
 	"apihelp-wbqmodifyviolation-param-status": "El nuevo estado, el cual debe establecerse para esta violación.",
+	"apihelp-wbqmodifyviolation-examples-exception": "Cambiar el estado de la violación identificados por la restricción de la IDENTIFICACIÓN y reclamación GUID excepción.",
+	"apihelp-wbqmodifyviolation-examples-violation": "Cambiar el estado de la violación identificados por la restricción de la IDENTIFICACIÓN y reclamación GUID de la violación.",
 	"apihelp-wbqgetviolationtypes-param-groupid": "Un parámetro opcional que restringe los tipos de violación a los asociados con el grupo dado.",
 	"apihelp-wdqgetviolationtypes-examples-1": "Devuelve todos los tipos de violaciones admitidos  sin restricciones.",
 	"apihelp-wdqgetviolationtypes-examples-2": "Devuelve todos los tipos de violaciones admitidas que están asociadas con el grupo \"wbqc\"."

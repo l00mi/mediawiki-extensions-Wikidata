@@ -2,6 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\Tests\Html;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
 
@@ -47,7 +48,7 @@ class HtmlTableCellBuilderTest extends PHPUnit_Framework_TestCase {
 			array(
 				42,
 				array(),
-				'InvalidArgumentException'
+				InvalidArgumentException::class
 			)
 		);
 	}

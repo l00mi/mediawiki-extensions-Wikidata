@@ -18,6 +18,7 @@ use Wikibase\Client\Usage\EntityUsage;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Term\Term;
@@ -193,9 +194,7 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 	}
 
 	private function getBadgeDisplay() {
-		$labelDescriptionLookup = $this->getMockBuilder(
-				'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup'
-			)
+		$labelDescriptionLookup = $this->getMockBuilder( LabelDescriptionLookup::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -242,7 +241,7 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 		$settings->setSetting( 'siteGroup', 'NYAN' );
 
 		$handler = ParserOutputUpdateHookHandlers::newFromGlobalState();
-		$this->assertInstanceOf( 'Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers', $handler );
+		$this->assertInstanceOf( ParserOutputUpdateHookHandlers::class, $handler );
 
 		$settings->setSetting( 'siteGroup', $oldSiteGroupValue );
 	}

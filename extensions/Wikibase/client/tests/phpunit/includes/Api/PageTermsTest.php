@@ -3,9 +3,10 @@
 namespace Wikibase\Client\Tests\Api;
 
 use ApiMain;
+use ApiPageSet;
 use ApiQuery;
 use FauxRequest;
-use Language;
+use MediaWikiLangTestCase;
 use RequestContext;
 use Title;
 use Wikibase\Client\Api\PageTerms;
@@ -27,14 +28,7 @@ use Wikibase\TermIndexEntry;
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
-class PageTermsTest extends \MediaWikiTestCase {
-
-	protected function setUp() {
-		parent::setUp();
-
-		$this->setMwGlobals( 'wgLang', Language::factory( 'en' ) );
-		$this->setMwGlobals( 'wgContLang', Language::factory( 'en' ) );
-	}
+class PageTermsTest extends MediaWikiLangTestCase {
 
 	/**
 	 * @param array $params
@@ -48,7 +42,7 @@ class PageTermsTest extends \MediaWikiTestCase {
 
 		$main = new ApiMain( $context );
 
-		$pageSet = $this->getMockBuilder( 'ApiPageSet' )
+		$pageSet = $this->getMockBuilder( ApiPageSet::class )
 			->setConstructorArgs( array( $main ) )
 			->getMock();
 
@@ -56,7 +50,7 @@ class PageTermsTest extends \MediaWikiTestCase {
 			->method( 'getGoodTitles' )
 			->will( $this->returnValue( $titles ) );
 
-		$query = $this->getMockBuilder( 'ApiQuery' )
+		$query = $this->getMockBuilder( ApiQuery::class )
 			->setConstructorArgs( array( $main, $params['action'] ) )
 			->setMethods( array( 'getPageSet' ) )
 			->getMock();
@@ -121,7 +115,7 @@ class PageTermsTest extends \MediaWikiTestCase {
 			$termObjectsByEntityId[$key] = $this->makeTermsFromGroups( $entityId, $termGroups );
 		}
 
-		$termIndex = $this->getMock( 'Wikibase\TermIndex' );
+		$termIndex = $this->getMock( TermIndex::class );
 		$termIndex->expects( $this->any() )
 			->method( 'getTermsOfEntities' )
 			->will( $this->returnCallback(
@@ -212,7 +206,7 @@ class PageTermsTest extends \MediaWikiTestCase {
 	 * @return EntityIdLookup
 	 */
 	private function getEntityIdLookup( array $entityIds ) {
-		$idLookup = $this->getMock( 'Wikibase\Store\EntityIdLookup' );
+		$idLookup = $this->getMock( EntityIdLookup::class );
 		$idLookup->expects( $this->any() )
 			->method( 'getEntityIds' )
 			->will( $this->returnValue( $entityIds ) );
