@@ -108,19 +108,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "4fa2684815c444f32e07dbf069ecff19bc49c237"
+            "reference": "6f98d8d0afc331591cdeb998b439259628ce95dc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/4fa2684815c444f32e07dbf069ecff19bc49c237",
-            "reference": "4fa2684815c444f32e07dbf069ecff19bc49c237",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/6f98d8d0afc331591cdeb998b439259628ce95dc",
+            "reference": "6f98d8d0afc331591cdeb998b439259628ce95dc",
             "shasum": ""
         },
         "require-dev": {
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.5.1"
         },
-        "time": "2016-04-12 05:37:17",
+        "time": "2016-04-12 20:48:43",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "notification-url": "https://packagist.org/downloads/",
@@ -804,23 +804,23 @@
     },
     {
         "name": "data-values/javascript",
-        "version": "0.8.1",
-        "version_normalized": "0.8.1.0",
+        "version": "0.8.2",
+        "version_normalized": "0.8.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "33622aa8f9bcf7fe4ecafae3ff3d272ff7f82ea5"
+            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/33622aa8f9bcf7fe4ecafae3ff3d272ff7f82ea5",
-            "reference": "33622aa8f9bcf7fe4ecafae3ff3d272ff7f82ea5",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/ae97000a46d360a24668e3c63e15d4c6a7b108dd",
+            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd",
             "shasum": ""
         },
         "require": {
             "composer/installers": ">=1.0.1"
         },
-        "time": "2016-04-08 22:22:14",
+        "time": "2016-04-12 10:05:27",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1276,12 +1276,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "40dfe793528a4d6f6aa771a7011401271046431b"
+            "reference": "0e69a2a901bc633ae1a23cd9c87879acd806162b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/40dfe793528a4d6f6aa771a7011401271046431b",
-            "reference": "40dfe793528a4d6f6aa771a7011401271046431b",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/0e69a2a901bc633ae1a23cd9c87879acd806162b",
+            "reference": "0e69a2a901bc633ae1a23cd9c87879acd806162b",
             "shasum": ""
         },
         "require": {
@@ -1313,7 +1313,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-04-12 09:22:33",
+        "time": "2016-04-13 09:53:18",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1407,7 +1407,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "cacad2d89c47107e6bb7529edee15a438988cb6f"
+            "reference": "9f47be5ad490ce7865e1aaf605882180cbaf192e"
         },
         "require": {
             "php": ">=5.3.0"
@@ -1416,7 +1416,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.5.1"
         },
-        "time": "2016-04-05 21:01:51",
+        "time": "2016-04-12 21:00:18",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1731,7 +1731,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-            "reference": "9584edaed98a2916a31c34e5b131bb6cb757ca58"
+            "reference": "0a407881ed0ca74e5214086ef9a0a87b522f0a32"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1743,7 +1743,7 @@
             "phpunit/phpunit": "^3.7.37|~4.5",
             "satooshi/php-coveralls": "master-dev"
         },
-        "time": "2016-03-22 17:48:05",
+        "time": "2016-04-12 21:00:05",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
