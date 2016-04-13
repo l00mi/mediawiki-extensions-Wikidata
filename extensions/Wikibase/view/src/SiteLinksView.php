@@ -17,7 +17,7 @@ use Wikibase\View\Template\TemplateFactory;
  * @since 0.5
  *
  * @license GPL-2.0+
- * @author Adrian Lang <adrian.lang@wikimedia.de>
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 class SiteLinksView {
@@ -118,14 +118,14 @@ class SiteLinksView {
 	/**
 	 * Returns the HTML for the heading of the sitelinks section
 	 *
-	 * @param string $heading message key of the heading
+	 * @param string $heading message key of the heading; also used as css class
 	 *
 	 * @return string
 	 */
 	private function getHtmlForSectionHeading( $heading ) {
 		$html = $this->templateFactory->render(
 			'wb-section-heading',
-			wfMessage( $heading )->escaped(),
+			htmlspecialchars( wfMessage( $heading )->text() ),
 			'sitelinks', // ID - TODO: should not be added if output page is not the entity's page
 			$heading
 		);
@@ -154,14 +154,16 @@ class SiteLinksView {
 			'wikibase-sitelinkgroupview',
 			// TODO: support entity-id as prefix for element IDs.
 			htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES ),
-			wfMessage( 'wikibase-sitelinks-' . $group )->parse(),
-			wfMessage( 'parentheses',
+			htmlspecialchars( wfMessage( 'wikibase-sitelinks-' . $group )->text() ),
+			htmlspecialchars( wfMessage( 'parentheses',
 				wfMessage(
-					'wikibase-ui-pendingquantitycounter-nonpending',
-					wfMessage( 'wikibase-propertyedittool-counter-entrieslabel', $count ),
-					$count
-				)
-			),
+					'wikibase-sitelinks-counter',
+					$count, // FIXME: NumberLocalizer
+					0, // FIXME: NumberLocalizer
+					'',
+					''
+				)->text()
+			)->text() ),
 			$this->templateFactory->render(
 				'wikibase-sitelinklistview',
 				$this->getHtmlForSiteLinks( $siteLinksForTable, $group === 'special' )
@@ -279,12 +281,11 @@ class SiteLinksView {
 		// FIXME: this is a quickfix to allow a custom site-name for the site groups which are
 		// special according to the specialSiteLinkGroups setting
 		if ( $isSpecialGroup ) {
-			// FIXME: not escaped?
 			$siteNameMsg = wfMessage( 'wikibase-sitelinks-sitename-' . $siteId );
-			$siteName = $siteNameMsg->exists() ? $siteNameMsg->parse() : $siteId;
+			$siteName = $siteNameMsg->exists() ? $siteNameMsg->text() : $siteId;
 		} else {
 			// TODO: get an actual site name rather then just the language
-			$siteName = htmlspecialchars( $this->languageNameLookup->getName( $languageCode ) );
+			$siteName = $this->languageNameLookup->getName( $languageCode );
 		}
 
 		// TODO: for non-JS, also set the dir attribute on the link cell;
@@ -295,7 +296,7 @@ class SiteLinksView {
 			$languageCode,
 			'auto',
 			htmlspecialchars( $siteId ), // displayed site ID
-			$siteName,
+			htmlspecialchars( $siteName ),
 			$this->getHtmlForPage( $siteLink, $site )
 		);
 	}

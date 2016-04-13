@@ -2,7 +2,6 @@
 
 namespace Wikibase\Client\UpdateRepo;
 
-use CentralAuthUser;
 use IJobSpecification;
 use JobQueueGroup;
 use JobSpecification;
@@ -10,7 +9,6 @@ use RuntimeException;
 use Title;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\SiteLink;
 use Wikibase\Lib\Store\SiteLinkLookup;
 
 /**
@@ -83,13 +81,11 @@ abstract class UpdateRepo {
 	 *
 	 * @return EntityId|null
 	 */
-	public function getEntityId() {
+	protected function getEntityId() {
 		if ( $this->entityId === false ) {
-			$this->entityId = $this->siteLinkLookup->getItemIdForSiteLink(
-				new SiteLink(
-					$this->siteId,
-					$this->title->getPrefixedText()
-				)
+			$this->entityId = $this->siteLinkLookup->getItemIdForLink(
+				$this->siteId,
+				$this->title->getPrefixedText()
 			);
 
 			if ( $this->entityId === null ) {
@@ -104,46 +100,12 @@ abstract class UpdateRepo {
 	}
 
 	/**
-	 * Find out whether the user also exists on the repo and belongs to the
-	 * same global account (uses CentralAuth).
+	 * Whether the update can be applied to repo.
 	 *
 	 * @return bool
 	 */
-	public function userIsValidOnRepo() {
-		if ( !class_exists( CentralAuthUser::class ) ) {
-			// We can't do anything without CentralAuth as there's no way to verify that
-			// the local user equals the repo one with the same name
-			wfDebugLog(
-				'UpdateRepo',
-				"Can't validate user " . $this->user->getName() . ": class CentralAuthUser doesn't exist"
-			);
-
-			return false;
-		}
-
-		$caUser = CentralAuthUser::getInstance( $this->user );
-		if ( !$caUser || !$caUser->exists() ) {
-			// The current user doesn't have a central account
-			wfDebugLog(
-				'UpdateRepo',
-				"Can't validate user " . $this->user->getName() . ": User doesn't have a global account"
-			);
-
-			return false;
-		}
-
-		if ( !$caUser->isAttached() || !$caUser->attachedOn( $this->repoDB ) ) {
-			// Either the user account on this wiki or the one on the repo do not exist
-			// or they aren't connected
-			wfDebugLog(
-				'UpdateRepo',
-				"Can't validate user " . $this->user->getName() . ": User is not attached locally or on {$this->repoDB}"
-			);
-
-			return false;
-		}
-
-		return true;
+	public function isApplicable() {
+		return $this->getEntityId() !== null;
 	}
 
 	/**

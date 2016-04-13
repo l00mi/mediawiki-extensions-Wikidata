@@ -9,16 +9,16 @@
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.24",
+            "version": "v1.0.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "1cf7cc4b89d5e8549bbb7d6ab1de75da13d27988"
+                "reference": "36e5b5843203d7f1cf6ffb0305a97e014387bd8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/1cf7cc4b89d5e8549bbb7d6ab1de75da13d27988",
-                "reference": "1cf7cc4b89d5e8549bbb7d6ab1de75da13d27988",
+                "url": "https://api.github.com/repos/composer/installers/zipball/36e5b5843203d7f1cf6ffb0305a97e014387bd8e",
+                "reference": "36e5b5843203d7f1cf6ffb0305a97e014387bd8e",
                 "shasum": ""
             },
             "require": {
@@ -105,7 +105,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2016-04-05 11:42:46"
+            "time": "2016-04-13 19:46:30"
         },
         {
             "name": "data-values/common",
@@ -667,16 +667,16 @@
         },
         {
             "name": "data-values/value-view",
-            "version": "0.16.1",
+            "version": "0.17.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/data-values-value-view.git",
-                "reference": "5318e7e4a8db141b0c8df783b7a0b04082efb9ca"
+                "reference": "65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/5318e7e4a8db141b0c8df783b7a0b04082efb9ca",
-                "reference": "5318e7e4a8db141b0c8df783b7a0b04082efb9ca",
+                "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0",
+                "reference": "65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0",
                 "shasum": ""
             },
             "require": {
@@ -714,7 +714,7 @@
             ],
             "description": "Provides JS widgets to edit values defined by the DataValues library",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView",
-            "time": "2016-02-22 15:46:04"
+            "time": "2016-04-13 13:41:16"
         },
         {
             "name": "diff/diff",
@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "6f98d8d0afc331591cdeb998b439259628ce95dc"
+                "reference": "54069df2ebd59f8fbac4119b3ebc894540eda056"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/6f98d8d0afc331591cdeb998b439259628ce95dc",
-                "reference": "6f98d8d0afc331591cdeb998b439259628ce95dc",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/54069df2ebd59f8fbac4119b3ebc894540eda056",
+                "reference": "54069df2ebd59f8fbac4119b3ebc894540eda056",
                 "shasum": ""
             },
             "require-dev": {
@@ -804,7 +804,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-04-12 20:48:43"
+            "time": "2016-04-13 20:16:58"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1446,12 +1446,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "ef7bced93f38ce35d795f6af03335eb2741c6e31"
+                "reference": "6e20e5622ea9df77913a4aa9b81ba46227ae681d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ef7bced93f38ce35d795f6af03335eb2741c6e31",
-                "reference": "ef7bced93f38ce35d795f6af03335eb2741c6e31",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6e20e5622ea9df77913a4aa9b81ba46227ae681d",
+                "reference": "6e20e5622ea9df77913a4aa9b81ba46227ae681d",
                 "shasum": ""
             },
             "require": {
@@ -1465,7 +1465,7 @@
                 "data-values/serialization": "~1.0",
                 "data-values/time": "~0.8.3",
                 "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.16.1",
+                "data-values/value-view": "~0.17.1",
                 "diff/diff": "~2.0",
                 "php": ">=5.5.0",
                 "wikibase/data-model": "~6.0",
@@ -1523,7 +1523,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-03-29 04:43:46"
+            "time": "2016-04-13 20:22:57"
         },
         {
             "name": "wikibase/wikimedia-badges",

@@ -6,7 +6,6 @@ use Language;
 use MediaWikiTestCase;
 use Title;
 use User;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\AliasesProvider;
@@ -49,13 +48,6 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 
 		$language = Language::factory( 'en' );
 
-		$idParser = $this->getMockBuilder( EntityIdParser::class )
-			->disableOriginalConstructor()
-			->getMock();
-		$idParser->expects( $this->any() )
-			->method( 'parse' )
-			->will( $this->returnValue( $itemId ) );
-
 		$userLanguages = $this->getMock( UserLanguageLookup::class );
 		$userLanguages->expects( $this->any() )
 			->method( 'getAllUserLanguages' )
@@ -68,7 +60,6 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 			$title,
 			$user,
 			$language,
-			$idParser,
 			$item,
 			$item,
 			$aliasesProvider,
@@ -123,7 +114,7 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 	public function testGetHtmlForPlaceholder( Item $item, AliasesProvider $aliasesProvider = null ) {
 		$expander = $this->newExpander( $this->newUser(), $item, $item->getId(), $aliasesProvider );
 
-		$html = $expander->getHtmlForPlaceholder( 'termbox', 'Q23' );
+		$html = $expander->getHtmlForPlaceholder( 'termbox' );
 		$this->assertInternalType( 'string', $html );
 	}
 

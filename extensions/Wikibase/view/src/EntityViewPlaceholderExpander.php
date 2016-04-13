@@ -94,7 +94,6 @@ class EntityViewPlaceholderExpander {
 	 * @param Title $targetPage the page for which this expander is supposed to handle expansion.
 	 * @param User $user the current user
 	 * @param Language $uiLanguage the user's current UI language (as per the present request)
-	 * @param EntityIdParser $entityIdParser
 	 * @param LabelsProvider $labelsProvider
 	 * @param DescriptionsProvider $descriptionsProvider
 	 * @param AliasesProvider|null $aliasesProvider
@@ -107,7 +106,6 @@ class EntityViewPlaceholderExpander {
 		Title $targetPage,
 		User $user,
 		Language $uiLanguage,
-		$entityIdParser,
 		LabelsProvider $labelsProvider,
 		DescriptionsProvider $descriptionsProvider,
 		AliasesProvider $aliasesProvider = null,
@@ -162,17 +160,12 @@ class EntityViewPlaceholderExpander {
 	 * the meaning of each placeholder name, as used by EntityView.
 	 *
 	 * @param string $name the name (or kind) of placeholder; determines how the expansion is done.
-	 * @param mixed [$arg,...] Additional arguments associated with the placeholder.
 	 *
 	 * @return string HTML to be substituted for the placeholder in the output.
 	 */
-	public function getHtmlForPlaceholder( $name /*...*/ ) {
-		$args = func_get_args();
-		$name = array_shift( $args );
-
+	public function getHtmlForPlaceholder( $name ) {
 		try {
-			$html = $this->expandPlaceholder( $name, $args );
-			return $html;
+			return $this->expandPlaceholder( $name );
 		} catch ( MWException $ex ) {
 			wfWarn( "Expansion of $name failed: " . $ex->getMessage() );
 		} catch ( RuntimeException $ex ) {
@@ -189,11 +182,10 @@ class EntityViewPlaceholderExpander {
 	 *       intended meaning.
 	 *
 	 * @param string $name
-	 * @param array $args
 	 *
 	 * @return string
 	 */
-	protected function expandPlaceholder( $name, array $args ) {
+	protected function expandPlaceholder( $name ) {
 		switch ( $name ) {
 			case 'termbox':
 				return $this->renderTermBox();

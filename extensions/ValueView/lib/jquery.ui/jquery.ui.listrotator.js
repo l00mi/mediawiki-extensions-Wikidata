@@ -76,18 +76,9 @@ function measureMaximumStringWidths( $container, strings ) {
  * @param {Object} [options.menu.position=Object]
  *        Default object passed to `jQuery.ui.position` when positioning the menu. Positions will be
  *        flipped if isRtl option returns `true`.
- * @param {Object} [options.animation=Object]
- *        Object containing parameters used for the rotation animation.
- * @param {string[]} [options.animation.margins=['-15px', '15px']]
- *        Defines how far the sections should be shifted when animating the rotation. First value
- *        when shifting to the left and vice versa. Values will be flipped in rtl context.
- * @param {number} [options.animation.duration=150]
- *        Defines the animation's duration in milliseconds.
  * @param {boolean} [options.deferInit=false]
  *        Whether to defer initializing the section widths until `initWidths()` is called
  *        "manually".
- * @param {boolean|Function} [isRTL=function() { return $( 'body' ).hasClass( 'rtl' ); }]
- *        Whether widget is used in an RTL context.
  */
 /**
  * @event selected
@@ -97,7 +88,7 @@ function measureMaximumStringWidths( $container, strings ) {
  */
 /**
  * @event auto
- * Triggered when "auto" option is selected.
+ * Triggered when "manually" checkbox is toggled.
  * @param {jQuery.Event} event
  */
 $.widget( 'ui.listrotator', {
@@ -115,34 +106,11 @@ $.widget( 'ui.listrotator', {
 				collision: 'none'
 			}
 		},
-		animation: {
-			margins: ['-15px', '15px'],
-			duration: 150 // TODO: Fixed values can't be changed nor turned off
-		},
 		deferInit: false,
 		messages: {
-			auto: mwMsgOrString( 'valueview-listrotator-auto', 'auto' )
-		},
-		isRtl: function() {
-			return $( 'body' ).hasClass( 'rtl' );
+			manually: mwMsgOrString( 'valueview-listrotator-manually', 'manually' )
 		}
 	},
-
-	/**
-	 * Node of the selectable "auto" option.
-	 * @property {jQuery}
-	 * @protected
-	 * @readonly
-	 */
-	$auto: null,
-
-	/**
-	 * Node of the previous list item section.
-	 * @property {jQuery}
-	 * @protected
-	 * @readonly
-	 */
-	$prev: null,
 
 	/**
 	 * Node of the current list item section.
@@ -153,12 +121,11 @@ $.widget( 'ui.listrotator', {
 	$curr: null,
 
 	/**
-	 * Node of the next list item section.
 	 * @property {jQuery}
 	 * @protected
 	 * @readonly
 	 */
-	$next: null,
+	$manually: null,
 
 	/**
 	 * Node of the menu opening when clicking on the "current" section.
@@ -169,27 +136,13 @@ $.widget( 'ui.listrotator', {
 	$menu: null,
 
 	/**
-	 * Temporarily caching the value the rotator is rotating to while the animation is being
-	 * performed.
-	 * @property {*}
-	 * @protected
-	 */
-	_rotatingTo: null,
-
-	/**
 	 * @see jQuery.Widget._create
 	 * @protected
 	 *
 	 * @throws {Error} if no values are supplied.
 	 */
 	_create: function() {
-		var self = this,
-			iconClasses = ['ui-icon ui-icon-triangle-1-w', 'ui-icon ui-icon-triangle-1-e'];
-
-		// Flip triangle arrows in rtl context:
-		if ( this._isRtl() ) {
-			iconClasses.reverse();
-		}
+		var self = this;
 
 		if ( this.options.values.length === 0 ) {
 			throw new Error( 'List of values required to initialize list rotator.' );
@@ -197,41 +150,14 @@ $.widget( 'ui.listrotator', {
 
 		this.element.addClass( this.widgetBaseClass + ' ui-widget-content' );
 
-		// Construct "auto" link:
-		this.$auto = this._createSection( 'auto', function( event ) {
-			if ( self.autoActive() ) {
-				return;
-			}
-			self.activate( self.$auto );
-			self._trigger( 'auto' );
-		} )
-		.addClass( 'ui-state-active' );
-		this.$auto.children( 'span' ).text( this.options.messages.auto );
+		this.$curr = this._createCurrentLink();
+		this.$manually = this._createManuallyCheckbox();
 
-		// Construct the basic sections:
-		this.$curr = this._createSection( 'curr', function( event ) {
-			if ( !self.$menu.is( ':visible' ) ) {
-				self._showMenu();
-			} else {
-				self._hideMenu();
-			}
-		} )
-		.append( $( '<span/>' ).addClass( 'ui-icon ui-icon-triangle-1-s' ) );
-
-		this.$prev = this._createSection( 'prev', function( event ) {
-			self.prev();
-		} )
-		.append( $( '<span/>' ).addClass( iconClasses[0] ) );
-
-		this.$next = this._createSection( 'next', function( event ) {
-			self.next();
-		} )
-		.append( $( '<span/>' ).addClass( iconClasses[1] ) );
-
-		if ( this.$auto ) {
-			this.element.append( this.$auto );
-		}
-		this.element.append( this.$prev ).append( this.$curr ).append( this.$next );
+		this.element.append( this.$curr );
+		this.element.append( $( '<label/>' )
+			.addClass( this.widgetBaseClass + '-manually' )
+			.text( this.options.messages.manually )
+			.prepend( this.$manually ) );
 
 		// Construct and initialize menu widget:
 		this._createMenu();
@@ -272,10 +198,8 @@ $.widget( 'ui.listrotator', {
 		}
 
 		this.$menu.remove();
-		this.$auto.remove();
+		this.$manually.remove();
 		this.$curr.remove();
-		this.$prev.remove();
-		this.$next.remove();
 
 		this.element.removeClass( this.widgetBaseClass + ' ui-widget-content' );
 
@@ -294,16 +218,13 @@ $.widget( 'ui.listrotator', {
 		// Determine the maximum width a label may have and apply that width to each section:
 		var currentLabel = this.$curr.children( '.' + this.widgetBaseClass + '-label' ).text(),
 			labels = [],
-			stringWidths = [],
-			currMaxWidth = 0,
-			prevMaxWidth = 0,
-			nextMaxWidth = 0;
+			currMaxWidth = 0;
 
 		$.each( this.options.values, function( i, v ) {
 			labels.push( v.label );
 		} );
 
-		stringWidths = measureMaximumStringWidths(
+		var stringWidths = measureMaximumStringWidths(
 			this.$curr.children( '.' + this.widgetBaseClass + '-label' ),
 			labels
 		);
@@ -311,19 +232,9 @@ $.widget( 'ui.listrotator', {
 			if ( width > currMaxWidth ) {
 				currMaxWidth = width;
 			}
-			if ( i < stringWidths.length && width > prevMaxWidth ) {
-				prevMaxWidth = width;
-			}
-			if ( i > 0 && width > nextMaxWidth ) {
-				nextMaxWidth = width;
-			}
 		} );
 
 		this.$curr.children( '.' + this.widgetBaseClass + '-label' ).width( currMaxWidth );
-		// The "previous" section will not be filled with the last string while the "next"
-		// section will never be filled with the first string.
-		this.$prev.children( '.' + this.widgetBaseClass + '-label' ).width( prevMaxWidth );
-		this.$next.children( '.' + this.widgetBaseClass + '-label' ).width( nextMaxWidth );
 
 		// Make menu width comply to the "current" section:
 		var menuSpacing = this.$menu.outerWidth() - this.$menu.width();
@@ -334,23 +245,53 @@ $.widget( 'ui.listrotator', {
 	},
 
 	/**
-	 * Creates a widget section.
-	 * @protected
+	 * @private
 	 *
-	 * @param {string} classSuffix
-	 * @param {Function} clickCallback
 	 * @return {jQuery}
 	 */
-	_createSection: function( classSuffix, clickCallback ) {
+	_createCurrentLink: function() {
+		var self = this;
+
 		return $( '<a/>' )
-		.addClass( this.widgetBaseClass + '-' + classSuffix )
+		.addClass( this.widgetBaseClass + '-curr ui-state-disabled' )
 		.on( 'click.' + this.widgetBaseClass, function( event ) {
 			event.preventDefault();
-			if ( !$( this ).hasClass( 'ui-state-disabled' ) ) {
-				clickCallback( event );
+
+			self.$manually[0].checked = true;
+			$( this ).removeClass( 'ui-state-disabled' );
+
+			if ( !self.$menu.is( ':visible' ) ) {
+				self._showMenu();
+			} else {
+				self._hideMenu();
 			}
 		} )
-		.append( $( '<span/>' ).addClass( this.widgetBaseClass + '-label ui-state-default' ) );
+		.append( $( '<span/>' ).addClass( this.widgetBaseClass + '-label ui-state-default' ) )
+		.append( $( '<span/>' ).addClass( 'ui-icon ui-icon-triangle-1-s' ) );
+	},
+
+	/**
+	 * @private
+	 *
+	 * @return {jQuery}
+	 */
+	_createManuallyCheckbox: function() {
+		var self = this;
+
+		return $( '<input/>' )
+			.attr( 'type', 'checkbox' )
+			.on( 'change', function( event ) {
+				event.preventDefault();
+
+				var checked = event.target.checked;
+				self.$curr.toggleClass( 'ui-state-disabled', !checked );
+				if ( checked ) {
+					self.activate();
+				} else {
+					self.$curr.removeClass( 'ui-state-active' );
+					self._trigger( 'auto' );
+				}
+			} );
 	},
 
 	/**
@@ -413,8 +354,7 @@ $.widget( 'ui.listrotator', {
 		var values = this.options.values,
 			index = 0;
 
-		this.$prev.add( this.$curr ).add( this.$next )
-		.children( '.' + this.widgetBaseClass + '-label' ).empty();
+		this.$curr.children( '.' + this.widgetBaseClass + '-label' ).empty();
 
 		// Retrieve the index of the new value within the list of predefined values:
 		$.each( values, function( i, v ) {
@@ -429,25 +369,6 @@ $.widget( 'ui.listrotator', {
 		.data( 'value', values[index].value )
 		.children( '.' + this.widgetBaseClass + '-label' )
 		.text( values[index].label );
-
-		if ( index > 0 ) {
-			this.$prev
-			.data( 'value', values[index - 1].value )
-			.children( '.' + this.widgetBaseClass + '-label' )
-			.text( values[index - 1].label );
-		}
-
-		if ( index < values.length - 1 ) {
-			this.$next
-			.data( 'value', values[index + 1].value )
-			.children( '.' + this.widgetBaseClass + '-label' )
-			.text( values[index + 1].label );
-		}
-
-		// Hide "previous"/"$next" section when the new value is at the end of the list the
-		// predefined values:
-		this.$prev.css( 'visibility', ( index === 0 ) ? 'hidden' : 'visible' );
-		this.$next.css( 'visibility', ( index === values.length - 1 ) ? 'hidden' : 'visible' );
 
 		// Alter menu item states:
 		this.$menu.children( 'li' ).each( function( i, li ) {
@@ -479,108 +400,7 @@ $.widget( 'ui.listrotator', {
 			self.activate();
 		} );
 
-		this.rotate( newValue );
-	},
-
-	/**
-	 * Rotates the widget to the next value.
-	 */
-	next: function() {
-		this._setValue( this.$next.data( 'value' ) );
-		this.activate();
-	},
-
-	/**
-	 * Rotates the widget to the previous value.
-	 */
-	prev: function() {
-		this._setValue( this.$prev.data( 'value' ) );
-		this.activate();
-	},
-
-	/**
-	 * Performs the rotation of the widget.
-	 *
-	 * @param {string} newValue
-	 */
-	rotate: function( newValue ) {
-		if ( newValue === this._rotatingTo
-			|| !this._rotatingTo && newValue === this.$curr.data( 'value' )
-		) {
-			// Rotation is to the given target is in progress or has been performed already.
-			return;
-		}
-
-		var self = this,
-			margins = $.merge( [], this.options.animation.margins ),
-			s = '.' + this.widgetBaseClass + '-label';
-
-		// Nodes that shall be animated:
-		var $nodes = this.$prev.children( s )
-			.add( this.$curr.children( s ) )
-			.add( this.$next.children( s ) );
-
-		// Set the rotation target:
-		this._rotatingTo = newValue;
-
-		// Figure out whether rotating to the right or to the left:
-		var beforeCurrent = true;
-		$.each( this.options.values, function( i, v ) {
-			if ( v.value === newValue ) {
-				return false;
-			}
-			if ( v.value === self.$curr.data( 'value' ) ) {
-				beforeCurrent = false;
-				return false;
-			}
-		} );
-
-		if ( beforeCurrent ) {
-			margins.reverse();
-		}
-
-		if ( this._isRtl() ) {
-			margins.reverse();
-		}
-
-		$nodes.animate(
-			{
-				marginLeft: margins[0],
-				marginRight: margins[1],
-				opacity: 0
-			}, {
-				done: function() {
-					// Reset margins an opacity used for the animation effect:
-					$nodes.css( {
-						marginLeft: '0',
-						marginRight: '0',
-						opacity: 1
-					} );
-
-					// Rotation target changed in the meantime, just abort selecting:
-					if ( self._rotatingTo !== newValue ) {
-						return;
-					}
-
-					self._trigger( 'selected', null, [ self.value( newValue ) ] );
-
-					self._rotatingTo = null;
-				},
-				duration: this.options.animation.duration
-			}
-		);
-	},
-
-	/**
-	 * Returns whether in RTL context.
-	 * @protected
-	 *
-	 * @return {boolean}
-	 */
-	_isRtl: function() {
-		return ( $.isFunction( this.options.isRtl ) )
-			? this.options.isRtl()
-			: this.options.isRtl;
+		this._trigger( 'selected', null, [ this.value( newValue ) ] );
 	},
 
 	/**
@@ -589,30 +409,34 @@ $.widget( 'ui.listrotator', {
 	 * @param {jQuery} [$section] Section to activate. "Current" section by default.
 	 */
 	activate: function( $section ) {
-		this.$curr.add( this.$auto ).removeClass( 'ui-state-hover ui-state-active' );
+		this.$curr.removeClass( 'ui-state-active ui-state-disabled ui-state-hover' );
 
 		if ( $section === undefined ) {
 			$section = this.$curr;
 		}
 
 		$section.addClass( 'ui-state-active' );
+
+		if ( $section === this.$curr && !this.$manually[0].checked ) {
+			this.$manually[0].checked = true;
+		}
 	},
 
 	/**
 	 * De-activates the widget.
 	 */
 	deactivate: function() {
-		this.$curr.add( this.$auto ).removeClass( 'ui-state-active' );
+		this.$curr.removeClass( 'ui-state-active' );
 	},
 
 	/**
-	 * Returns whether the listrotator is currently set to "auto", meaning that the value
+	 * Returns whether the listrotator is currently not set to "manually", meaning that the value
 	 * returned by value() has not been chosen by the user explicitly.
 	 *
 	 * @return {boolean}
 	 */
 	autoActive: function() {
-		return this.$auto.hasClass( 'ui-state-active' );
+		return !this.$manually[0].checked;
 	},
 
 	/**
@@ -654,16 +478,14 @@ $.widget( 'ui.listrotator', {
 	 * Disables the widget.
 	 */
 	disable: function() {
-		this.$prev.add( this.$curr ).add( this.$next )
-		.addClass( 'ui-state-disabled' );
+		this.$curr.addClass( 'ui-state-disabled' );
 	},
 
 	/**
 	 * Enables the widget.
 	 */
 	enable: function() {
-		this.$prev.add( this.$curr ).add( this.$next )
-		.removeClass( 'ui-state-disabled' );
+		this.$curr.removeClass( 'ui-state-disabled' );
 	}
 
 } );

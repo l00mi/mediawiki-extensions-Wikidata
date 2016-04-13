@@ -21,8 +21,8 @@ return array(
     '3a1322766b0dbc9cf396163859b9f864' => $vendorDir . '/wikibase/serialization-javascript/init.php',
     'f44e0a54bf5f0864879c4d3e46950b49' => $vendorDir . '/wikibase/javascript-api/WikibaseJavaScriptApi.php',
     'e47bdf5a503f90444b98ecdcab719841' => $vendorDir . '/wikibase/internal-serialization/mediawiki.php',
-    '499fed5dd24a6329f26a3973b04c5440' => $baseDir . '/extensions/ValueView/ValueView.php',
     'b27615ec50616984e4b07db5658aba0d' => $vendorDir . '/data-values/data-types/DataTypes.php',
     '0dd9431cbbfa9ed9cb9d565d7129dbaf' => $vendorDir . '/data-values/validators/Validators.php',
+    '499fed5dd24a6329f26a3973b04c5440' => $baseDir . '/extensions/ValueView/ValueView.php',
     '6b49d0287e368cb66263e04ca7d9699f' => $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
 );
