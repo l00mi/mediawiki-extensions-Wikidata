@@ -9,7 +9,6 @@ local util = require( 'libraryUtil' )
 local php = mw_interface
 
 entityrenderer.imageProperty = php.getImageProperty()
-local identifierProperties = require( 'Identifier' )
 
 local hasReferences = false
 
@@ -83,10 +82,9 @@ end
 local qualifierRenderer = function( qualifierSnak )
   local result = ''
   if qualifierSnak ~= nil then
-    result = result .. '<h4>' .. mw.message.new( 'articleplaceholder-abouttopic-lua-qualifier' ):plain() .. '</h4>'
     for key, value in pairs(qualifierSnak) do
-      result = result .. "<p>'''" .. labelRenderer( key ) .. "''': "
-      result = result .. snaksRenderer( value ) .. '</p>'
+      result = result .. '<div class="articleplaceholder-qualifier"><p>' .. labelRenderer( key ) .. ': '
+      result = result .. snaksRenderer( value ) .. '</p></div>'
     end
   end
   return result
@@ -134,7 +132,7 @@ local statementRenderer = function( statement )
       end
     end
   end
-  result = result .. '<p><span class="articleplaceholder-value">' .. mainsnak .. '</span>' .. reference .. '</p>' .. qualifier
+  result = result .. '<div class="articleplaceholder-statement"><p><span class="articleplaceholder-value">' .. mainsnak .. '</span>' .. reference .. '</p></div>' .. qualifier
   return result
 end
 
@@ -169,16 +167,16 @@ local identifierListRenderer = function( entity )
   local identifierList = ''
   if properties ~= nil then
     for _, propertyId in pairs( properties ) do
-      if identifierProperties[propertyId] then
-        identifierList = identifierList .. '<div class="articleplaceholder-identifier">' .. '<h2>' .. labelRenderer( propertyId ) .. '</h2>'
-        identifierList = identifierList .. identifierRenderer( entity, propertyId ) .. '</div>'
+      if getDatatype( propertyId ) == "external-id" then
+        identifierList = identifierList .. '<tr><td class="articleplaceholder-id-prop">' .. labelRenderer( propertyId ) .. '</td>'
+        identifierList = identifierList .. '<td class="articleplaceholder-id-value">' .. identifierRenderer( entity, propertyId ) .. '</td></tr>'
       end
     end
   end
   if identifierList ~= nil and identifierList ~= '' then
-    local div = '<div class="articleplaceholder-identifierlist">'
-    identifierList = div .. '<h1>' .. mw.message.new( 'articleplaceholder-abouttopic-lua-identifier' ):plain() .. '</h1>' ..  identifierList
-    return identifierList .. '</div>'
+    identifierList = '<table>' .. identifierList .. '</table>'
+    identifierList = '<h1>' .. mw.message.new( 'articleplaceholder-abouttopic-lua-identifier' ):plain() .. '</h1>' ..  identifierList
+    return '<div class="articleplaceholder-identifierlist">' .. identifierList .. '</div>'
   end
   return ''
 end
@@ -191,15 +189,15 @@ local statementListRenderer = function( entity )
   local properties = statementSorter( entity )
   if properties ~= nil then
     for _, propertyId in pairs( properties ) do
-      if propertyId ~= entityrenderer.imageProperty and not identifierProperties[propertyId] then
-        result = result .. '<div class="articleplaceholder-statement">'
-        result = result .. '<h2>' .. labelRenderer( propertyId ) .. '</h2>'
+      if propertyId ~= entityrenderer.imageProperty and getDatatype( propertyId ) ~= "external-id" then
+        result = result .. '<div class="articleplaceholder-statementgroup">'
+        result = result .. '<h1>' .. labelRenderer( propertyId ) .. '</h1>'
         result = result .. bestStatementRenderer( entity, propertyId )
         result = result .. '</div>'
       end
     end
   end
-  return '<div class="articleplaceholder-statementgroup">' .. result .. '</div>'
+  return '<div class="articleplaceholder-statementgrouplist">' .. result .. '</div>'
 end
 
 -- Render the image.
@@ -210,7 +208,7 @@ local topImageRenderer = function( entity, propertyId, orientationImage )
   if propertyId ~= nil then
     local imageName = entity:formatPropertyValues( propertyId ).value
     if imageName ~= nil and imageName ~= '' then
-      renderedImage = '[[File:' .. imageName .. '|thumb|' .. orientationImage .. ']]'
+      renderedImage = '[[File:' .. imageName .. '|thumb|300px|' .. orientationImage .. ']]'
       renderedImage = '<div class="articleplaceholder-topimage">' .. renderedImage .. '</div>'
     end
   end

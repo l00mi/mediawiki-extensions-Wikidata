@@ -92,7 +92,9 @@
 		var precisionMsgKey = 'valueview-expert-globecoordinateinput-precision';
 		var $precisionContainer = $( '<div/>' )
 			.addClass( this.uiBaseClass + '-precisioncontainer' )
-			.append( $( '<div/>' ).text( this._messageProvider.getMessage( precisionMsgKey ) ) );
+			.append( $( '<div/>' )
+				.addClass( 'ui-listrotator-caption' )
+				.text( this._messageProvider.getMessage( precisionMsgKey ) ) );
 
 		this.precisionRotator = new vv.ExpertExtender.Listrotator(
 			this.uiBaseClass + '-precision',
@@ -124,10 +126,6 @@
 			this.$input,
 			[
 				this.preview,
-				new vv.ExpertExtender.Toggler(
-					this._messageProvider,
-					$precisionContainer
-				),
 				new vv.ExpertExtender.Container(
 					$precisionContainer,
 					this.precisionRotator

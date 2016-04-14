@@ -1,6 +1,6 @@
 /**
  * @licence GNU GPL v2+
- * @author Adrian Lang < adrian.lang@wikimedia.de >
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 /* jshint nonew: false */
 ( function( $, ExpertExtender, testExpertExtenderExtension, sinon, QUnit, CompletenessTest ) {
@@ -67,7 +67,7 @@
 
 		listrotator.init( $extender );
 		listrotator.draw();
-		listrotator.rotator.prev();
+		listrotator.rotator._setValue( 'fixed value' );
 
 		setTimeout( function() {
 			sinon.assert.calledOnce( onValueChange );
