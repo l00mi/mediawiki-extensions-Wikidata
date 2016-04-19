@@ -11,6 +11,7 @@ use Wikibase\DataModel\Services\Statement\Grouper\StatementGrouper;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\View\LocalizedTextProvider;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -92,6 +93,11 @@ class ViewFactory {
 	private $badgeItems;
 
 	/**
+	 * @var LocalizedTextProvider
+	 */
+	private $textProvider;
+
+	/**
 	 * @param EntityIdFormatterFactory $htmlIdFormatterFactory
 	 * @param EntityIdFormatterFactory $plainTextIdFormatterFactory
 	 * @param HtmlSnakFormatterFactory $htmlSnakFormatterFactory
@@ -105,6 +111,7 @@ class ViewFactory {
 	 * @param string[] $siteLinkGroups
 	 * @param string[] $specialSiteLinkGroups
 	 * @param string[] $badgeItems
+	 * @param LocalizedTextProvider $textProvider
 	 *
 	 * @throws InvalidArgumentException
 	 */
@@ -121,7 +128,8 @@ class ViewFactory {
 		NumberLocalizer $numberLocalizer,
 		array $siteLinkGroups = array(),
 		array $specialSiteLinkGroups = array(),
-		array $badgeItems = array()
+		array $badgeItems = array(),
+		LocalizedTextProvider $textProvider
 	) {
 		if ( !$this->hasValidOutputFormat( $htmlIdFormatterFactory, 'text/html' )
 			|| !$this->hasValidOutputFormat( $plainTextIdFormatterFactory, 'text/plain' )
@@ -142,6 +150,7 @@ class ViewFactory {
 		$this->siteLinkGroups = $siteLinkGroups;
 		$this->specialSiteLinkGroups = $specialSiteLinkGroups;
 		$this->badgeItems = $badgeItems;
+		$this->textProvider = $textProvider;
 	}
 
 	/**
@@ -167,7 +176,7 @@ class ViewFactory {
 	/**
 	 * Creates an ItemView suitable for rendering the item.
 	 *
-	 * @param string $languageCode
+	 * @param string $languageCode UI language
 	 * @param LabelDescriptionLookup $labelDescriptionLookup
 	 * @param LanguageFallbackChain $fallbackChain
 	 * @param EditSectionGenerator $editSectionGenerator
@@ -180,7 +189,7 @@ class ViewFactory {
 		LanguageFallbackChain $fallbackChain,
 		EditSectionGenerator $editSectionGenerator
 	) {
-		$entityTermsView = $this->newEntityTermsView( $languageCode, $editSectionGenerator );
+		$entityTermsView = $this->newEntityTermsView( $editSectionGenerator );
 
 		$statementSectionsView = $this->newStatementSectionsView(
 			$languageCode,
@@ -196,7 +205,8 @@ class ViewFactory {
 			$this->plainTextIdFormatterFactory->getEntityIdFormatter( $labelDescriptionLookup ),
 			$this->languageNameLookup,
 			$this->badgeItems,
-			$this->specialSiteLinkGroups
+			$this->specialSiteLinkGroups,
+			$this->textProvider
 		);
 
 		return new ItemView(
@@ -206,7 +216,8 @@ class ViewFactory {
 			$statementSectionsView,
 			$languageCode,
 			$siteLinksView,
-			$this->siteLinkGroups
+			$this->siteLinkGroups,
+			$this->textProvider
 		);
 	}
 
@@ -226,7 +237,7 @@ class ViewFactory {
 		LanguageFallbackChain $fallbackChain,
 		EditSectionGenerator $editSectionGenerator
 	) {
-		$entityTermsView = $this->newEntityTermsView( $languageCode, $editSectionGenerator );
+		$entityTermsView = $this->newEntityTermsView( $editSectionGenerator );
 
 		$statementSectionsView = $this->newStatementSectionsView(
 			$languageCode,
@@ -241,7 +252,8 @@ class ViewFactory {
 			$this->languageDirectionalityLookup,
 			$statementSectionsView,
 			$this->dataTypeFactory,
-			$languageCode
+			$languageCode,
+			$this->textProvider
 		);
 	}
 
@@ -270,12 +282,14 @@ class ViewFactory {
 		$snakHtmlGenerator = new SnakHtmlGenerator(
 			$this->templateFactory,
 			$snakFormatter,
-			$propertyIdFormatter
+			$propertyIdFormatter,
+			$this->textProvider
 		);
 		$claimHtmlGenerator = new ClaimHtmlGenerator(
 			$this->templateFactory,
 			$snakHtmlGenerator,
-			$this->numberLocalizer
+			$this->numberLocalizer,
+			$this->textProvider
 		);
 		$statementGroupListView = new StatementGroupListView(
 			$this->templateFactory,
@@ -287,22 +301,22 @@ class ViewFactory {
 		return new StatementSectionsView(
 			$this->templateFactory,
 			$this->statementGrouper,
-			$statementGroupListView
+			$statementGroupListView,
+			$this->textProvider
 		);
 	}
 
 	/**
-	 * @param string $languageCode
 	 * @param EditSectionGenerator $editSectionGenerator
 	 *
 	 * @return EntityTermsView
 	 */
-	public function newEntityTermsView( $languageCode, EditSectionGenerator $editSectionGenerator ) {
+	public function newEntityTermsView( EditSectionGenerator $editSectionGenerator ) {
 		return new EntityTermsView(
 			$this->templateFactory,
 			$editSectionGenerator,
 			$this->languageNameLookup,
-			$languageCode
+			$this->textProvider
 		);
 	}
 

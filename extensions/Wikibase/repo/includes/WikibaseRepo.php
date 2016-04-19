@@ -105,6 +105,7 @@ use Wikibase\Repo\Localizer\GenericExceptionLocalizer;
 use Wikibase\Repo\Localizer\MessageExceptionLocalizer;
 use Wikibase\Repo\Localizer\MessageParameterFormatter;
 use Wikibase\Repo\Localizer\ParseExceptionLocalizer;
+use Wikibase\Repo\Modules\EntityTypesModuleWorker;
 use Wikibase\Repo\Notifications\ChangeNotifier;
 use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
@@ -152,9 +153,9 @@ class WikibaseRepo {
 	private $valueParserFactory = null;
 
 	/**
-	 * @var SnakConstructionService|null
+	 * @var SnakFactory|null
 	 */
-	private $snakConstructionService = null;
+	private $snakFactory = null;
 
 	/**
 	 * @var PropertyDataTypeLookup|null
@@ -673,20 +674,20 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @since 0.4
+	 * @since 0.5
 	 *
-	 * @return SnakConstructionService
+	 * @return SnakFactory
 	 */
-	public function getSnakConstructionService() {
-		if ( $this->snakConstructionService === null ) {
-			$this->snakConstructionService = new SnakConstructionService(
+	public function getSnakFactory() {
+		if ( $this->snakFactory === null ) {
+			$this->snakFactory = new SnakFactory(
 				$this->getPropertyDataTypeLookup(),
 				$this->getDataTypeFactory(),
 				$this->getDataValueFactory()
 			);
 		}
 
-		return $this->snakConstructionService;
+		return $this->snakFactory;
 	}
 
 	/**
@@ -1569,7 +1570,8 @@ class WikibaseRepo {
 			new MediaWikiNumberLocalizer( $wgLang ),
 			$this->settings->getSetting( 'siteLinkGroups' ),
 			$this->settings->getSetting( 'specialSiteLinkGroups' ),
-			$this->settings->getSetting( 'badgeItems' )
+			$this->settings->getSetting( 'badgeItems' ),
+			new MediaWikiLocalizedTextProvider( $wgLang->getCode() )
 		);
 	}
 
@@ -1658,6 +1660,10 @@ class WikibaseRepo {
 
 	private function getHtmlSnakFormatterFactory() {
 		return new WikibaseHtmlSnakFormatterFactory( $this->getSnakFormatterFactory() );
+	}
+
+	public function getEntityTypesModuleWorker() {
+		return new EntityTypesModuleWorker( $this->entityTypeDefinitions );
 	}
 
 }

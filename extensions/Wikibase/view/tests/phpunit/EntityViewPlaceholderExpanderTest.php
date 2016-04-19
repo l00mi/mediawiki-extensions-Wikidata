@@ -3,8 +3,7 @@
 namespace Wikibase\View\Tests;
 
 use Language;
-use MediaWikiTestCase;
-use Title;
+use PHPUnit_Framework_TestCase;
 use User;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -13,6 +12,7 @@ use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\Lib\UserLanguageLookup;
 use Wikibase\View\EntityViewPlaceholderExpander;
+use Wikibase\View\DummyLocalizedTextProvider;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -29,7 +29,7 @@ use Wikibase\View\Template\TemplateFactory;
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
-class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
+class EntityViewPlaceholderExpanderTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @param User $user
@@ -42,10 +42,6 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 	private function newExpander( User $user, Item $item, ItemId $itemId, AliasesProvider $aliasesProvider = null ) {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 
-		$title = $this->getMockBuilder( Title::class )
-			->disableOriginalConstructor()
-			->getMock();
-
 		$language = Language::factory( 'en' );
 
 		$userLanguages = $this->getMock( UserLanguageLookup::class );
@@ -57,7 +53,6 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 
 		return new EntityViewPlaceholderExpander(
 			$templateFactory,
-			$title,
 			$user,
 			$language,
 			$item,
@@ -65,7 +60,8 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 			$aliasesProvider,
 			$userLanguages,
 			new MediaWikiContentLanguages(),
-			$languageNameLookup
+			$languageNameLookup,
+			new DummyLocalizedTextProvider( 'lkt' )
 		);
 	}
 
@@ -145,10 +141,10 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 		$itemId = $item->getId();
 
 		$expander = $this->newExpander( $this->newUser( true ), $item, $itemId, $aliasesProvider );
-		$this->assertArrayEquals( array(), $expander->getExtraUserLanguages() );
+		$this->assertSame( [], $expander->getExtraUserLanguages() );
 
 		$expander = $this->newExpander( $this->newUser(), $item, $itemId, $aliasesProvider );
-		$this->assertArrayEquals( array( 'de', 'ru' ), $expander->getExtraUserLanguages() );
+		$this->assertSame( [ 'de', 'ru' ], array_values( $expander->getExtraUserLanguages() ) );
 	}
 
 }
