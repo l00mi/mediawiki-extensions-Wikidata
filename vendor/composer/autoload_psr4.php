@@ -20,6 +20,7 @@ return array(
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
     'Wikibase\\DataModel\\Services\\' => array($vendorDir . '/wikibase/data-model-services/src'),
     'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
+    'Wikibase\\Client\\Tests\\' => array($baseDir . '/extensions/Wikibase/client/tests/phpunit/includes'),
     'WikibaseQuality\\Tests\\' => array($baseDir . '/extensions/Quality/tests/phpunit'),
     'WikibaseQuality\\Specials\\' => array($baseDir . '/extensions/Quality/specials'),
     'WikibaseQuality\\ExternalValidation\\Tests\\' => array($baseDir . '/extensions/ExternalValidation/tests/phpunit'),
