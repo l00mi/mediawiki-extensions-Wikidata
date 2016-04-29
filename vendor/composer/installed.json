@@ -1505,7 +1505,7 @@
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/54069df2ebd59f8fbac4119b3ebc894540eda056",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/4869d99174723bbb326873594479d1ea48ac5e90",
             "reference": "54069df2ebd59f8fbac4119b3ebc894540eda056",
             "shasum": ""
         },
@@ -1535,12 +1535,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "6e20e5622ea9df77913a4aa9b81ba46227ae681d"
+            "reference": "4e341b6d267b2dd687c40bb7696830329dd08393"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6e20e5622ea9df77913a4aa9b81ba46227ae681d",
-            "reference": "6e20e5622ea9df77913a4aa9b81ba46227ae681d",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/4e341b6d267b2dd687c40bb7696830329dd08393",
+            "reference": "4e341b6d267b2dd687c40bb7696830329dd08393",
             "shasum": ""
         },
         "require": {
@@ -1572,7 +1572,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-04-13 20:22:57",
+        "time": "2016-04-29 16:56:50",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
