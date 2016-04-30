@@ -8,15 +8,15 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\AliasesProvider;
 use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Lib\MediaWikiContentLanguages;
 use Wikibase\View\EntityViewPlaceholderExpander;
 use Wikibase\View\DummyLocalizedTextProvider;
+use Wikibase\View\LanguageDirectionalityLookup;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
  * @covers Wikibase\View\EntityViewPlaceholderExpander
  *
- * @uses Wikibase\View\EntityTermsView
+ * @uses Wikibase\View\TermsListView
  * @uses Wikibase\View\Template\Template
  * @uses Wikibase\View\Template\TemplateFactory
  * @uses Wikibase\View\Template\TemplateRegistry
@@ -51,6 +51,7 @@ class EntityViewPlaceholderExpanderTest extends PHPUnit_Framework_TestCase {
 			$item,
 			$aliasesProvider,
 			$termsLanguages,
+			$this->getMock( LanguageDirectionalityLookup::class ),
 			$languageNameLookup,
 			new DummyLocalizedTextProvider( 'lkt' )
 		);

@@ -62,6 +62,11 @@ class EntityViewPlaceholderExpander {
 	private $termsLanguages;
 
 	/**
+	 * @var LanguageDirectionalityLookup
+	 */
+	private $languageDirectionalityLookup;
+
+	/**
 	 * @var LanguageNameLookup
 	 */
 	private $languageNameLookup;
@@ -72,14 +77,21 @@ class EntityViewPlaceholderExpander {
 	private $textProvider;
 
 	/**
+	 * @var string[]
+	 */
+	private $termsListItems;
+
+	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param User $user the current user
 	 * @param LabelsProvider $labelsProvider
 	 * @param DescriptionsProvider $descriptionsProvider
 	 * @param AliasesProvider|null $aliasesProvider
 	 * @param string[] $termsLanguages
+	 * @param LanguageDirectionalityLookup $languageDirectionalityLookup
 	 * @param LanguageNameLookup $languageNameLookup
 	 * @param LocalizedTextProvider $textProvider
+	 * @param string[] $termsListItems
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
@@ -88,8 +100,10 @@ class EntityViewPlaceholderExpander {
 		DescriptionsProvider $descriptionsProvider,
 		AliasesProvider $aliasesProvider = null,
 		array $termsLanguages,
+		LanguageDirectionalityLookup $languageDirectionalityLookup,
 		LanguageNameLookup $languageNameLookup,
-		LocalizedTextProvider $textProvider
+		LocalizedTextProvider $textProvider,
+		array $termsListItems = array()
 	) {
 		$this->user = $user;
 		$this->labelsProvider = $labelsProvider;
@@ -97,8 +111,10 @@ class EntityViewPlaceholderExpander {
 		$this->aliasesProvider = $aliasesProvider;
 		$this->templateFactory = $templateFactory;
 		$this->termsLanguages = $termsLanguages;
+		$this->languageDirectionalityLookup = $languageDirectionalityLookup;
 		$this->languageNameLookup = $languageNameLookup;
 		$this->textProvider = $textProvider;
+		$this->termsListItems = $termsListItems;
 	}
 
 	/**
@@ -166,21 +182,28 @@ class EntityViewPlaceholderExpander {
 	 */
 	public function renderTermBox() {
 
-		$entityTermsView = new EntityTermsView(
+		$termsListView = new TermsListView(
 			$this->templateFactory,
-			null,
 			$this->languageNameLookup,
-			$this->textProvider
+			$this->textProvider,
+			$this->languageDirectionalityLookup
 		);
 
-		$html = $entityTermsView->getEntityTermsForLanguageListView(
-			$this->labelsProvider,
-			$this->descriptionsProvider,
-			$this->aliasesProvider,
-			$this->termsLanguages
-		);
+		$contentHtml = '';
+		foreach ( $this->termsLanguages as $languageCode ) {
+			if ( isset( $this->termsListItems[ $languageCode ] ) ) {
+				$contentHtml .= $this->termsListItems[ $languageCode ];
+			} else {
+				$contentHtml .= $termsListView->getListItemHtml(
+					$this->labelsProvider,
+					$this->descriptionsProvider,
+					$this->aliasesProvider,
+					$languageCode
+				);
+			}
+		}
 
-		return $html;
+		return $termsListView->getListViewHtml( $contentHtml );
 	}
 
 }

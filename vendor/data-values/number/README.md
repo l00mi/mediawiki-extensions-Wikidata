@@ -23,11 +23,11 @@ The recommended way to use this library is via [Composer](http://getcomposer.org
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `data-values/number` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-version 1.0 of this package:
+version 0.7 of this package:
 
     {
         "require": {
-            "data-values/number": "1.0.*"
+            "data-values/number": "0.7.*"
         }
     }
 
@@ -49,6 +49,17 @@ DataValues Number has been written by Daniel Kinzler, as [Wikimedia Germany]
 (https://wikimedia.de) employee for the [Wikidata project](https://wikidata.org/).
 
 ## Release notes
+
+### 0.7.0 (2016-04-25)
+
+#### Breaking changes
+* Removed deprecated `QuantityUnitFormatter` interface.
+* Removed deprecated `BasicQuantityUnitFormatter`.
+
+#### Other changes
+* Fixed `DecimalValue` and `QuantityValue` allowing values with a newline at the end.
+* `DecimalValue` strings are trimmed now, allowing any number of leading and trailing whitespace.
+* Added explicit compatibility with DataValues Common 0.2 and 0.3.
 
 ### 0.6.0 (2015-09-09)
 

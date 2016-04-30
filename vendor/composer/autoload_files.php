@@ -18,6 +18,7 @@ return array(
     $vendorDir . '/diff/diff/Diff.php',
     $vendorDir . '/wikibase/data-model-serialization/mediawiki.php',
     $vendorDir . '/wikibase/data-model-javascript/init.php',
+    $vendorDir . '/wikimedia/purtle/Purtle.php',
     $baseDir . '/extensions/ValueView/ValueView.php',
     $vendorDir . '/wikibase/internal-serialization/mediawiki.php',
     $vendorDir . '/wikibase/javascript-api/WikibaseJavaScriptApi.php',

@@ -11,7 +11,7 @@ use DataValues\QuantityValue;
  * @group DataValue
  * @group DataValueExtensions
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class QuantityValueTest extends DataValueTest {
@@ -124,6 +124,26 @@ class QuantityValueTest extends DataValueTest {
 				new QuantityValue( new DecimalValue( '+42' ), '1', new DecimalValue( 43 ), new DecimalValue( 41.0 ) )
 			),
 		);
+	}
+
+	/**
+	 * @see https://phabricator.wikimedia.org/T110728
+	 * @see http://www.regular-expressions.info/anchors.html#realend
+	 */
+	public function testTrailingNewlineRobustness() {
+		$value = QuantityValue::newFromArray( array(
+			'amount' => "-0.0\n",
+			'unit' => "1\n",
+			'upperBound' => "-0.0\n",
+			'lowerBound' => "-0.0\n",
+		) );
+
+		$this->assertSame( array(
+			'amount' => '+0.0',
+			'unit' => "1\n",
+			'upperBound' => '+0.0',
+			'lowerBound' => '+0.0',
+		), $value->getArrayValue() );
 	}
 
 	/**

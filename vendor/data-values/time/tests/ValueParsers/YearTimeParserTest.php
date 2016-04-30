@@ -1,20 +1,19 @@
 <?php
 
-namespace Wikibase\Repo\Tests\Parsers;
+namespace ValueParsers\Test;
 
 use DataValues\TimeValue;
 use ValueParsers\EraParser;
 use ValueParsers\ParserOptions;
-use ValueParsers\Test\StringValueParserTest;
-use Wikibase\Repo\Parsers\YearTimeParser;
+use ValueParsers\YearTimeParser;
 
 /**
- * @covers Wikibase\Repo\Parsers\YearTimeParser
+ * @covers ValueParsers\YearTimeParser
  *
- * @group ValueParsers
- * @group WikibaseRepo
- * @group Wikibase
+ * @group DataValue
+ * @group DataValueExtensions
  * @group TimeParsers
+ * @group ValueParsers
  *
  * @license GPL-2.0+
  * @author Addshore
@@ -23,7 +22,7 @@ use Wikibase\Repo\Parsers\YearTimeParser;
 class YearTimeParserTest extends StringValueParserTest {
 
 	/**
-	 * @deprecated since 0.3, just use getInstance.
+	 * @deprecated since DataValues Common 0.3, just use getInstance.
 	 */
 	protected function getParserClass() {
 		throw new \LogicException( 'Should not be called, use getInstance' );
@@ -42,7 +41,7 @@ class YearTimeParserTest extends StringValueParserTest {
 	 * @return EraParser
 	 */
 	private function getMockEraParser() {
-		$mock = $this->getMockBuilder( EraParser::class )
+		$mock = $this->getMockBuilder( 'ValueParsers\EraParser' )
 			->disableOriginalConstructor()
 			->getMock();
 		$mock->expects( $this->any() )
@@ -132,6 +131,9 @@ class YearTimeParserTest extends StringValueParserTest {
 		$argLists = parent::invalidInputProvider();
 
 		$invalid = array(
+			// This should fail with an era parser that does no trimming
+			"2016\n",
+
 			//These are just wrong!
 			'June June June',
 			'111 111 111',

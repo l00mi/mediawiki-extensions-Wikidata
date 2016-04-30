@@ -1,15 +1,8 @@
 <?php
 
-namespace Wikibase\Repo\Parsers;
+namespace ValueParsers;
 
 use DataValues\TimeValue;
-use ValueParsers\CalendarModelParser;
-use ValueParsers\EraParser;
-use ValueParsers\IsoTimestampParser;
-use ValueParsers\ParseException;
-use ValueParsers\ParserOptions;
-use ValueParsers\StringValueParser;
-use ValueParsers\ValueParser;
 
 /**
  * A straight parser that accepts various strings representing a year, and only a year. Accepts
@@ -17,13 +10,11 @@ use ValueParsers\ValueParser;
  * YearMonthTimeParser when you want to accept both formats, because strings like "1 999" may either
  * represent a month and a year or a year with digit grouping.
  *
- * @since 0.5
+ * @since 0.8.4
  *
  * @license GPL-2.0+
  * @author Addshore
  * @author Thiemo Mättig
- *
- * @todo move me to DataValues-time
  */
 class YearTimeParser extends StringValueParser {
 
@@ -51,6 +42,8 @@ class YearTimeParser extends StringValueParser {
 	private $isoTimestampParser;
 
 	/**
+	 * @see StringValueParser::__construct
+	 *
 	 * @param ValueParser|null $eraParser
 	 * @param ParserOptions|null $options
 	 */
@@ -63,14 +56,11 @@ class YearTimeParser extends StringValueParser {
 		);
 
 		$this->eraParser = $eraParser ?: new EraParser( $this->options );
-		$this->isoTimestampParser = new IsoTimestampParser(
-			new CalendarModelParser( $this->options ),
-			$this->options
-		);
+		$this->isoTimestampParser = new IsoTimestampParser( null, $this->options );
 	}
 
 	/**
-	 * Parses the provided string and returns the result.
+	 * @see StringValueParser::stringParse
 	 *
 	 * @param string $value
 	 *
@@ -91,7 +81,7 @@ class YearTimeParser extends StringValueParser {
 			);
 		}
 
-		if ( !preg_match( '/^\d+$/', $year ) ) {
+		if ( !preg_match( '/^\d+\z/', $year ) ) {
 			throw new ParseException( 'Failed to parse year', $value, self::FORMAT_NAME );
 		}
 

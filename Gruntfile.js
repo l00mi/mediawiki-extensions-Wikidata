@@ -34,7 +34,7 @@ module.exports = function ( grunt ) {
 		},
 		exec: {
 			install: {
-				cmd: 'composer install --ansi --prefer-dist -o'
+				cmd: 'composer install --ansi --prefer-dist -o --no-dev'
 			}
 		},
 		updatecomposer: {

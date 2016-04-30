@@ -6,8 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Wikimedia\\Purtle\\Tests\\' => array($baseDir . '/extensions/Wikibase/purtle/tests/phpunit'),
-    'Wikimedia\\Purtle\\' => array($baseDir . '/extensions/Wikibase/purtle/src'),
+    'Wikimedia\\Purtle\\Tests\\' => array($vendorDir . '/wikimedia/purtle/tests/phpunit'),
+    'Wikimedia\\Purtle\\' => array($vendorDir . '/wikimedia/purtle/src'),
     'Wikimedia\\Assert\\Test\\' => array($vendorDir . '/wikimedia/assert/tests/phpunit'),
     'Wikimedia\\Assert\\' => array($vendorDir . '/wikimedia/assert/src'),
     'WikimediaBadges\\' => array($baseDir . '/extensions/WikimediaBadges/includes'),

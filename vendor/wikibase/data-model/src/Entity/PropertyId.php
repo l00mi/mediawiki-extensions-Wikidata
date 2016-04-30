@@ -7,7 +7,7 @@ use InvalidArgumentException;
 /**
  * @since 0.5
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class PropertyId extends EntityId {
@@ -15,7 +15,7 @@ class PropertyId extends EntityId {
 	/**
 	 * @since 0.5
 	 */
-	const PATTERN = '/^P[1-9]\d*$/i';
+	const PATTERN = '/^P[1-9]\d*\z/i';
 
 	/**
 	 * @param string $idSerialization

@@ -1,9 +1,12 @@
 <?php
 
-namespace Wikibase\Repo\Parsers;
+namespace ValueParsers;
 
 /**
- * @since 0.5
+ * A common interface for both localizing month names in formatters as well as unlocalizing month
+ * names in parsers.
+ *
+ * @since 0.8.4
  *
  * @license GPL-2.0+
  * @author Thiemo Mättig

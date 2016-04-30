@@ -10,7 +10,7 @@ use InvalidArgumentException;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class DecimalFormatter extends ValueFormatterBase {
@@ -41,8 +41,6 @@ class DecimalFormatter extends ValueFormatterBase {
 
 	/**
 	 * @see ValueFormatter::format
-	 *
-	 * @since 0.1
 	 *
 	 * @param DecimalValue $dataValue
 	 *

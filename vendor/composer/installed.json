@@ -108,19 +108,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "6e47cf4652c177937725507e33dd7a6ea1bb3680"
+            "reference": "145df478bf5081d3fa239a91c1f3faa780051a20"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/6e47cf4652c177937725507e33dd7a6ea1bb3680",
-            "reference": "6e47cf4652c177937725507e33dd7a6ea1bb3680",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/145df478bf5081d3fa239a91c1f3faa780051a20",
+            "reference": "145df478bf5081d3fa239a91c1f3faa780051a20",
             "shasum": ""
         },
         "require-dev": {
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.5.1"
         },
-        "time": "2016-04-24 20:31:09",
+        "time": "2016-04-29 20:33:34",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "notification-url": "https://packagist.org/downloads/",
@@ -136,91 +136,45 @@
         "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
     },
     {
-        "name": "data-values/javascript",
-        "version": "0.8.2",
-        "version_normalized": "0.8.2.0",
+        "name": "wikimedia/purtle",
+        "version": "v1.0.1",
+        "version_normalized": "1.0.1.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd"
+            "url": "https://github.com/wmde/purtle.git",
+            "reference": "c78dffc6aa1a9df323ad19b0ce6275369564ec7f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/ae97000a46d360a24668e3c63e15d4c6a7b108dd",
-            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd",
+            "url": "https://api.github.com/repos/wmde/purtle/zipball/c78dffc6aa1a9df323ad19b0ce6275369564ec7f",
+            "reference": "c78dffc6aa1a9df323ad19b0ce6275369564ec7f",
             "shasum": ""
         },
         "require": {
-            "composer/installers": ">=1.0.1"
-        },
-        "time": "2016-04-12 10:05:27",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "DataValuesJavaScript.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com"
-            },
-            {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "DataValues implementation in JavaScript",
-        "keywords": [
-            "datavalues",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "data-values/value-view",
-        "version": "0.17.1",
-        "version_normalized": "0.17.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/data-values-value-view.git",
-            "reference": "65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0",
-            "reference": "65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.8.0|~0.7.0",
             "php": ">=5.3.0"
         },
         "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9",
-            "mediawiki/mediawiki-codesniffer": "0.4.0"
+            "ockcyp/covers-validator": "~0.4.0",
+            "phpmd/phpmd": "~2.3",
+            "phpunit/phpunit": "4.8.24",
+            "squizlabs/php_codesniffer": "~2.3"
         },
-        "time": "2016-04-13 13:41:16",
-        "type": "mediawiki-extension",
+        "time": "2016-04-29 14:34:56",
+        "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "0.16.x-dev"
+                "dev-master": "1.0.x-dev"
             }
         },
         "installation-source": "dist",
         "autoload": {
             "files": [
-                "ValueView.php"
-            ]
+                "Purtle.php"
+            ],
+            "psr-4": {
+                "Wikimedia\\Purtle\\": "src/",
+                "Wikimedia\\Purtle\\Tests\\": "tests/phpunit/"
+            }
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -228,16 +182,22 @@
         ],
         "authors": [
             {
-                "name": "Daniel Werner",
-                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+                "name": "Daniel Kinzler"
             },
             {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
+                "name": "Thiemo Mättig"
+            },
+            {
+                "name": "Stanislav Malyshev"
             }
         ],
-        "description": "Provides JS widgets to edit values defined by the DataValues library",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
+        "description": "Fast streaming RDF serializer",
+        "homepage": "https://mediawiki.org/Purtle",
+        "keywords": [
+            "RDF",
+            "Turtle",
+            "serializer"
+        ]
     },
     {
         "name": "data-values/interfaces",
@@ -421,17 +381,17 @@
     },
     {
         "name": "data-values/time",
-        "version": "0.8.3",
-        "version_normalized": "0.8.3.0",
+        "version": "0.8.4",
+        "version_normalized": "0.8.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Time.git",
-            "reference": "f1b018fb48d69d296fa7aa05ef55d045d29c53f0"
+            "reference": "d856cc5aed7f37707d187b78463cd3d9218a2e3a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Time/zipball/f1b018fb48d69d296fa7aa05ef55d045d29c53f0",
-            "reference": "f1b018fb48d69d296fa7aa05ef55d045d29c53f0",
+            "url": "https://api.github.com/repos/DataValues/Time/zipball/d856cc5aed7f37707d187b78463cd3d9218a2e3a",
+            "reference": "d856cc5aed7f37707d187b78463cd3d9218a2e3a",
             "shasum": ""
         },
         "require": {
@@ -440,7 +400,7 @@
             "data-values/interfaces": "~0.2.0|~0.1.5",
             "php": ">=5.3.0"
         },
-        "time": "2016-03-16 12:59:02",
+        "time": "2016-04-26 09:10:06",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -477,6 +437,163 @@
             "valueparsers",
             "wikidata"
         ]
+    },
+    {
+        "name": "data-values/number",
+        "version": "0.7.0",
+        "version_normalized": "0.7.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Number.git",
+            "reference": "4efd4ab3a28aa4d763c69d344c541c572cb5e7dd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Number/zipball/4efd4ab3a28aa4d763c69d344c541c572cb5e7dd",
+            "reference": "4efd4ab3a28aa4d763c69d344c541c572cb5e7dd",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0|~0.2.0",
+            "data-values/data-values": "~1.0|~0.1",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "php": ">=5.3.0"
+        },
+        "time": "2016-04-26 08:48:29",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Number.php"
+            ],
+            "psr-0": {
+                "DataValues\\": "src",
+                "ValueFormatters\\": "src",
+                "ValueParsers\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Kinzler"
+            }
+        ],
+        "description": "Numerical value objects, parsers and formatters",
+        "homepage": "https://github.com/DataValues/Number",
+        "keywords": [
+            "datavalues",
+            "number",
+            "valueformatters",
+            "valueparsers",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/javascript",
+        "version": "0.8.2",
+        "version_normalized": "0.8.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wmde/DataValuesJavascript.git",
+            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/ae97000a46d360a24668e3c63e15d4c6a7b108dd",
+            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": ">=1.0.1"
+        },
+        "time": "2016-04-12 10:05:27",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "DataValuesJavaScript.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com"
+            },
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "DataValues implementation in JavaScript",
+        "keywords": [
+            "datavalues",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/value-view",
+        "version": "0.17.1",
+        "version_normalized": "0.17.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/data-values-value-view.git",
+            "reference": "65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0",
+            "reference": "65bc88f3462326b1b66c8b8bbe0c72f30e38b7d0",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.8.0|~0.7.0",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9",
+            "mediawiki/mediawiki-codesniffer": "0.4.0"
+        },
+        "time": "2016-04-13 13:41:16",
+        "type": "mediawiki-extension",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "0.16.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "ValueView.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Daniel Werner",
+                "homepage": "https://www.mediawiki.org/wiki/User:Danwe"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "Provides JS widgets to edit values defined by the DataValues library",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ValueView"
     },
     {
         "name": "diff/diff",
@@ -540,17 +657,17 @@
     },
     {
         "name": "wikibase/data-model",
-        "version": "6.0.0",
-        "version_normalized": "6.0.0.0",
+        "version": "6.0.1",
+        "version_normalized": "6.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModel.git",
-            "reference": "96ec015d3a7c9102d283dfa48489555dc4098245"
+            "reference": "713ddb74a52b7d470e58c8f59dbe159eb62f3ea5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/96ec015d3a7c9102d283dfa48489555dc4098245",
-            "reference": "96ec015d3a7c9102d283dfa48489555dc4098245",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModel/zipball/713ddb74a52b7d470e58c8f59dbe159eb62f3ea5",
+            "reference": "713ddb74a52b7d470e58c8f59dbe159eb62f3ea5",
             "shasum": ""
         },
         "require": {
@@ -562,7 +679,7 @@
             "phpmd/phpmd": "~2.3",
             "squizlabs/php_codesniffer": "~2.3"
         },
-        "time": "2016-03-10 17:51:42",
+        "time": "2016-04-27 08:42:53",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1038,59 +1155,6 @@
         "description": "Wikibase datamodel serialization implementation in JavaScript"
     },
     {
-        "name": "data-values/number",
-        "version": "0.6.0",
-        "version_normalized": "0.6.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Number.git",
-            "reference": "ae53b98577aba1b0cdc63f3e58e387686b0612a6"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Number/zipball/ae53b98577aba1b0cdc63f3e58e387686b0612a6",
-            "reference": "ae53b98577aba1b0cdc63f3e58e387686b0612a6",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.2",
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.2.0|~0.1.5",
-            "php": ">=5.3.0"
-        },
-        "time": "2015-09-09 14:28:21",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Number.php"
-            ],
-            "psr-0": {
-                "DataValues\\": "src",
-                "ValueFormatters\\": "src",
-                "ValueParsers\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Daniel Kinzler"
-            }
-        ],
-        "description": "Numerical value objects, parsers and formatters",
-        "homepage": "https://github.com/DataValues/Number",
-        "keywords": [
-            "datavalues",
-            "number",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/data-types",
         "version": "0.5.2",
         "version_normalized": "0.5.2.0",
@@ -1276,12 +1340,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "ffb25ac6f474e3c4cd31f0138531826d5ba0ce42"
+            "reference": "e375e9e78f2c0a488581191957c706abe882488b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ffb25ac6f474e3c4cd31f0138531826d5ba0ce42",
-            "reference": "ffb25ac6f474e3c4cd31f0138531826d5ba0ce42",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e375e9e78f2c0a488581191957c706abe882488b",
+            "reference": "e375e9e78f2c0a488581191957c706abe882488b",
             "shasum": ""
         },
         "require": {
@@ -1291,9 +1355,9 @@
             "data-values/geo": "~1.0",
             "data-values/interfaces": "~0.2.0|~0.1.5",
             "data-values/javascript": "~0.8.0",
-            "data-values/number": "~0.6.0",
+            "data-values/number": "~0.7.0",
             "data-values/serialization": "~1.0",
-            "data-values/time": "~0.8.3",
+            "data-values/time": "~0.8.4",
             "data-values/validators": "~0.1.0",
             "data-values/value-view": "~0.17.1",
             "diff/diff": "~2.0",
@@ -1304,7 +1368,8 @@
             "wikibase/data-model-services": "~3.5",
             "wikibase/internal-serialization": "~2.3",
             "wikibase/javascript-api": "~1.1",
-            "wikibase/serialization-javascript": "~2.0.5"
+            "wikibase/serialization-javascript": "~2.0.5",
+            "wikimedia/purtle": "~1.0"
         },
         "conflict": {
             "mediawiki/mediawiki": "<1.25"
@@ -1313,7 +1378,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-04-24 20:38:07",
+        "time": "2016-04-29 16:39:45",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1333,9 +1398,7 @@
             "psr-4": {
                 "Wikibase\\Client\\Tests\\": "client/tests/phpunit/includes",
                 "Wikibase\\View\\": "view/src",
-                "Wikibase\\View\\Tests\\": "view/tests/phpunit",
-                "Wikimedia\\Purtle\\": "purtle/src",
-                "Wikimedia\\Purtle\\Tests\\": "purtle/tests/phpunit"
+                "Wikibase\\View\\Tests\\": "view/tests/phpunit"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -1506,12 +1569,12 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-            "reference": "1c48e22c87c438d426a2b39e2e85ea6ae5a8a08c"
+            "reference": "8442add7434e416c0b03170554a513afb33c22c5"
         },
         "require": {
             "data-values/common": ">=0.1 <0.4",
             "data-values/geo": "~1.0",
-            "data-values/number": ">=0.1 <0.7",
+            "data-values/number": ">=0.1 <0.8",
             "data-values/time": "~0.8",
             "php": ">=5.3.0",
             "serialization/serialization": "3.*,>=3.2.1",
@@ -1524,7 +1587,7 @@
             "phpunit/phpunit": "~3.7,>=3.7.37",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2016-03-30 20:43:48",
+        "time": "2016-04-27 17:43:37",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1569,7 +1632,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "772e72e9f7e0a9b7ffbfe146beb6451978e084af"
+            "reference": "3211a20c80e5b2d17e96e478766d68b9d3aeef02"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1582,7 +1645,7 @@
             "mediawiki/mediawiki-codesniffer": "0.6.0",
             "phpunit/phpunit": "~4.8"
         },
-        "time": "2016-04-20 15:17:35",
+        "time": "2016-04-28 12:55:02",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

@@ -35,13 +35,13 @@ use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\DeserializerFactory;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
@@ -178,9 +178,9 @@ class WikibaseRepo {
 	private $entityDeserializer = null;
 
 	/**
-	 * @var Serializer|null
+	 * @var Serializer[]
 	 */
-	private $entitySerializer = null;
+	private $entitySerializers = array();
 
 	/**
 	 * @var EntityIdParser|null
@@ -697,8 +697,9 @@ class WikibaseRepo {
 	 */
 	public function getEntityIdParser() {
 		if ( $this->entityIdParser === null ) {
-			//TODO: make the ID builders configurable
-			$this->entityIdParser = new DispatchingEntityIdParser( BasicEntityIdParser::getBuilders() );
+			$this->entityIdParser = new DispatchingEntityIdParser(
+				$this->entityTypeDefinitions->getEntityIdBuilders()
+			);
 		}
 
 		return $this->entityIdParser;
@@ -1181,14 +1182,9 @@ class WikibaseRepo {
 	 * @return EntityFactory
 	 */
 	public function getEntityFactory() {
-		$entityClasses = array(
-			Item::ENTITY_TYPE => Item::class,
-			Property::ENTITY_TYPE => Property::class,
-		);
+		$instantiators = $this->entityTypeDefinitions->getEntityFactoryCallbacks();
 
-		//TODO: provide a hook or registry for adding more.
-
-		return new EntityFactory( $entityClasses );
+		return new EntityFactory( $instantiators );
 	}
 
 	/**
@@ -1278,22 +1274,24 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @param int $options bitwise combination of the SerializerFactory::OPTION_ flags
+	 *
 	 * @return Serializer
 	 */
-	public function getEntitySerializer() {
-		if ( $this->entitySerializer === null ) {
+	public function getEntitySerializer( $options = 0 ) {
+		if ( !isset( $this->entitySerializers[$options] ) ) {
 			$serializerFactoryCallbacks = $this->entityTypeDefinitions->getSerializerFactoryCallbacks();
-			$serializerFactory = $this->getSerializerFactory();
+			$serializerFactory = new SerializerFactory( new DataValueSerializer(), $options );
 			$serializers = array();
 
 			foreach ( $serializerFactoryCallbacks as $callback ) {
 				$serializers[] = call_user_func( $callback, $serializerFactory );
 			}
 
-			$this->entitySerializer = new DispatchingSerializer( $serializers );
+			$this->entitySerializers[$options] = new DispatchingSerializer( $serializers );
 		}
 
-		return $this->entitySerializer;
+		return $this->entitySerializers[$options];
 	}
 
 	/**
@@ -1451,7 +1449,11 @@ class WikibaseRepo {
 			$this->getSiteStore(),
 			$this->getSummaryFormatter(),
 			$this->getEntityRevisionLookup( 'uncached' ),
-			$this->newEditEntityFactory( $context )
+			$this->newEditEntityFactory( $context ),
+			$this->getEntitySerializer(
+				SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
+				SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
+			)
 		);
 	}
 
@@ -1539,6 +1541,10 @@ class WikibaseRepo {
 			// CachingPropertyInfoStore enough?
 			new InProcessCachingDataTypeLookup( $this->getPropertyDataTypeLookup() ),
 			$this->getLocalEntityUriParser(),
+			$this->getEntitySerializer(
+				SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
+				SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
+			),
 			$this->settings->getSetting( 'preferredGeoDataProperties' ),
 			$this->settings->getSetting( 'preferredPageImagesProperties' ),
 			$this->settings->getSetting( 'globeUris' )
@@ -1554,7 +1560,8 @@ class WikibaseRepo {
 
 		$statementGrouperBuilder = new StatementGrouperBuilder(
 			$this->settings->getSetting( 'statementSections' ),
-			$this->getPropertyDataTypeLookup()
+			$this->getPropertyDataTypeLookup(),
+			$this->getStatementGuidParser()
 		);
 
 		return new ViewFactory(

@@ -45,6 +45,9 @@ associated with a function having the dedicated signature:
 ; deserializer-factory-callback (repo and client)
 : a callable that returns a DispatchableDeserializer instance, with the first and only argument
   being a DeserializerFactory
+; entity-id-builder-pair (repo and client)
+: an array with two elements: First a regular expression that matches serialized entity ids,
+  second a callable that returns an EntityId instance for a given entity id serialization
 ; view-factory-callback (repo only)
 : a callable that returns an EntityView instance, with the arguments being a language code, a
   LabelDescriptionLookup, a LanguageFallbackChain and an EditSectionGenerator
@@ -52,6 +55,8 @@ associated with a function having the dedicated signature:
 : a string representing the id of the content model
 ; content-handler-factory-callback (repo only)
 : a callable that returns an EntityHandler instance supporting this entity type
+; entity-factory-callback (repo only)
+: a callback for creating an empty entity of this type
 ; js-deserializer-factory-function (repo only)
 : a string representing a resource loader module that, when `require`d, returns a function returning
   a `wikibase.serialization.Deserializer` instance supporting this entity type

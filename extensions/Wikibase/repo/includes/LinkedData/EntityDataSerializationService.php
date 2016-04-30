@@ -9,6 +9,7 @@ use DerivativeContext;
 use DerivativeRequest;
 use MWException;
 use RequestContext;
+use Serializers\Serializer;
 use SiteList;
 use SiteStore;
 use Wikibase\DataModel\Entity\EntityId;
@@ -46,22 +47,6 @@ use Wikimedia\Purtle\RdfWriterFactory;
 class EntityDataSerializationService {
 
 	/**
-	 * Attributes that should be included in the serialized form of the entity.
-	 * That is, all well known attributes.
-	 *
-	 * @var string[]
-	 */
-	private $fieldsToShow = array(
-		'labels',
-		'aliases',
-		'descriptions',
-		'sitelinks',
-		'datatype',
-		'claims',
-		'statements',
-	);
-
-	/**
 	 * @var EntityLookup|null
 	 */
 	private $entityLookup = null;
@@ -75,6 +60,11 @@ class EntityDataSerializationService {
 	 * @var SerializerFactory
 	 */
 	private $serializerFactory;
+
+	/**
+	 * @var Serializer
+	 */
+	private $entitySerializer;
 
 	/**
 	 * @var PropertyDataTypeLookup
@@ -146,20 +136,6 @@ class EntityDataSerializationService {
 		$this->rdfVocabulary = $rdfVocabulary;
 
 		$this->rdfWriterFactory = new RdfWriterFactory();
-	}
-
-	/**
-	 * @param string[] $fieldsToShow
-	 */
-	public function setFieldsToShow( array $fieldsToShow ) {
-		$this->fieldsToShow = $fieldsToShow;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getFieldsToShow() {
-		return $this->fieldsToShow;
 	}
 
 	/**
@@ -423,6 +399,7 @@ class EntityDataSerializationService {
 			$res,
 			$this->entityTitleLookup,
 			$this->serializerFactory,
+			$this->serializerFactory->newEntitySerializer(),
 			$this->siteStore,
 			$this->propertyLookup,
 			false // Never add meta data for this service
@@ -457,7 +434,6 @@ class EntityDataSerializationService {
 		// TODO: where to put the incoming redirects? See T98039
 		$this->generateApiResult( $entityRevision, $printer );
 
-		$printer->profileIn();
 		$printer->initPrinter();
 
 		// Outputs the ApiResult held by the ApiMain module, which is hopefully the one we added the entity data to.
@@ -466,7 +442,6 @@ class EntityDataSerializationService {
 		$data = $printer->getBuffer();
 
 		$printer->disable();
-		$printer->profileOut();
 
 		return $data;
 	}

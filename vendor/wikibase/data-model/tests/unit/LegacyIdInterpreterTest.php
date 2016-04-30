@@ -13,8 +13,8 @@ use Wikibase\DataModel\LegacyIdInterpreter;
  * @group Wikibase
  * @group WikibaseDataModel
  *
- * @licence GNU GPL v2+
- * @author Katie FIlbert < aude.wiki@gmail.com >
+ * @license GPL-2.0+
+ * @author Katie Filbert < aude.wiki@gmail.com >
  */
 class LegacyIdInterpreterTest extends \PHPUnit_Framework_TestCase {
 

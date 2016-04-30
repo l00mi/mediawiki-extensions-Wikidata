@@ -8,7 +8,7 @@ namespace ValueParsers;
  *
  * @since 0.8
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  * @author Thiemo Mättig
  */
@@ -54,7 +54,7 @@ class EraParser extends StringValueParser {
 	 * @param string $value
 	 *
 	 * @return string[]|null Array of the era constant and the value with the era stripped, or null
-	 * if not successfull.
+	 * if not successful.
 	 */
 	private function parseEraFromSign( $value ) {
 		$sign = substr( $value, 0, 1 );
@@ -73,7 +73,7 @@ class EraParser extends StringValueParser {
 	 * @param string $value
 	 *
 	 * @return string[]|null Array of the era constant and the value with the era stripped, or null
-	 * if not successfull.
+	 * if not successful.
 	 */
 	private function parseEraFromSuffix( $value ) {
 		if ( preg_match(
