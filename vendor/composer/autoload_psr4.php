@@ -17,6 +17,7 @@ return array(
     'Wikibase\\MediaInfo\\Tests\\MediaWiki\\' => array($baseDir . '/extensions/MediaInfo/tests/phpunit/mediawiki'),
     'Wikibase\\MediaInfo\\Tests\\' => array($baseDir . '/extensions/MediaInfo/tests/phpunit/composer'),
     'Wikibase\\MediaInfo\\' => array($baseDir . '/extensions/MediaInfo/src'),
+    'Wikibase\\Lib\\Tests\\' => array($baseDir . '/extensions/Wikibase/lib/tests/phpunit'),
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
     'Wikibase\\DataModel\\Services\\' => array($vendorDir . '/wikibase/data-model-services/src'),
     'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
