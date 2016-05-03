@@ -4,6 +4,7 @@ namespace Wikibase\Repo\ParserOutput;
 
 use GeoData\GeoData;
 use Language;
+use Serializers\Serializer;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Entity\PropertyDataTypeMatcher;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
@@ -12,6 +13,7 @@ use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
+use Wikibase\Repo\MediaWikiLocalizedTextProvider;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -63,6 +65,11 @@ class EntityParserOutputGeneratorFactory {
 	private $externalEntityIdParser;
 
 	/**
+	 * @var Serializer
+	 */
+	private $entitySerializer;
+
+	/**
 	 * @var string[]
 	 */
 	private $preferredGeoDataProperties;
@@ -86,6 +93,7 @@ class EntityParserOutputGeneratorFactory {
 	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param PropertyDataTypeLookup $propertyDataTypeLookup
 	 * @param EntityIdParser $externalEntityIdParser
+	 * @param Serializer $entitySerializer
 	 * @param string[] $preferredGeoDataProperties
 	 * @param string[] $preferredPageImagesProperties
 	 * @param string[] $globeUris Mapping of globe uris to string names.
@@ -99,9 +107,10 @@ class EntityParserOutputGeneratorFactory {
 		EntityDataFormatProvider $entityDataFormatProvider,
 		PropertyDataTypeLookup $propertyDataTypeLookup,
 		EntityIdParser $externalEntityIdParser,
+		Serializer $entitySerializer,
 		array $preferredGeoDataProperties = array(),
 		array $preferredPageImagesProperties = array(),
-		array $globeUris
+		array $globeUris = array()
 	) {
 		$this->entityViewFactory = $entityViewFactory;
 		$this->entityInfoBuilderFactory = $entityInfoBuilderFactory;
@@ -111,6 +120,7 @@ class EntityParserOutputGeneratorFactory {
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
 		$this->propertyDataTypeLookup = $propertyDataTypeLookup;
 		$this->externalEntityIdParser = $externalEntityIdParser;
+		$this->entitySerializer = $entitySerializer;
 		$this->preferredGeoDataProperties = $preferredGeoDataProperties;
 		$this->preferredPageImagesProperties = $preferredPageImagesProperties;
 		$this->globeUris = $globeUris;
@@ -134,6 +144,7 @@ class EntityParserOutputGeneratorFactory {
 			$this->entityInfoBuilderFactory,
 			$this->getLanguageFallbackChain( $userLanguage ),
 			$this->templateFactory,
+			new MediaWikiLocalizedTextProvider( $userLanguageCode ),
 			$this->entityDataFormatProvider,
 			$this->getDataUpdaters(),
 			$userLanguageCode,
@@ -145,7 +156,7 @@ class EntityParserOutputGeneratorFactory {
 	 * @return ParserOutputJsConfigBuilder
 	 */
 	private function newParserOutputJsConfigBuilder() {
-		return new ParserOutputJsConfigBuilder();
+		return new ParserOutputJsConfigBuilder( $this->entitySerializer );
 	}
 
 	/**

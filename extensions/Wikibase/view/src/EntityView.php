@@ -3,8 +3,8 @@
 namespace Wikibase\View;
 
 use Wikibase\DataModel\Entity\EntityDocument;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -82,7 +82,7 @@ abstract class EntityView {
 	 *
 	 * @note: The HTML returned by this method may contain placeholders. Such placeholders can be
 	 * expanded with the help of TextInjector::inject() calling back to
-	 * EntityViewPlaceholderExpander::getExtraUserLanguages()
+	 * EntityViewPlaceholderExpander::getHtmlForPlaceholder()
 	 * @note: In order to keep the list of placeholders small, this calls resetPlaceholders().
 	 *
 	 * @since 0.1
@@ -117,9 +117,10 @@ abstract class EntityView {
 	 * @return string HTML
 	 */
 	public function getTitleHtml( EntityDocument $entity ) {
-		if ( $entity instanceof FingerprintProvider ) {
+		if ( $entity instanceof LabelsProvider ) {
 			return $this->entityTermsView->getTitleHtml(
-				$entity->getFingerprint(),
+				$this->languageCode,
+				$entity,
 				$entity->getId()
 			);
 		}
@@ -157,6 +158,7 @@ abstract class EntityView {
 
 		if ( $entity instanceof FingerprintProvider ) {
 			return $this->entityTermsView->getHtml(
+				$this->languageCode,
 				$entity->getFingerprint(),
 				$id,
 				$this->getHtmlForTermBox(),

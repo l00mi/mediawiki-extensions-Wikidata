@@ -25,6 +25,7 @@ use Wikibase\Repo\ParserOutput\ImageLinksDataUpdater;
 use Wikibase\Repo\ParserOutput\ParserOutputJsConfigBuilder;
 use Wikibase\Repo\ParserOutput\ReferencedEntitiesDataUpdater;
 use Wikibase\View\EntityView;
+use Wikibase\View\LocalizedTextProvider;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
@@ -53,6 +54,11 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 			'<PLACEHOLDERS>',
 			$parserOutput->getExtensionData( 'wikibase-view-chunks' ),
 			'view chunks'
+		);
+
+		$this->assertArrayHasKey(
+			'en',
+			$parserOutput->getExtensionData( 'wikibase-terms-list-items' )
 		);
 
 		$this->assertSame( array( '<JS>' ), $parserOutput->getJsConfigVars(), 'config vars' );
@@ -166,6 +172,7 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 			new SqlEntityInfoBuilderFactory(),
 			$this->newLanguageFallbackChain(),
 			TemplateFactory::getDefaultInstance(),
+			$this->getMock( LocalizedTextProvider::class ),
 			$entityDataFormatProvider,
 			$dataUpdaters,
 			'en',

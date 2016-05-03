@@ -303,7 +303,7 @@ final class RepoHooks {
 	 *
 	 * @todo: find a better way to do this!
 	 *
-	 * @param $recentChange RecentChange
+	 * @param RecentChange $recentChange
 	 * @return bool
 	 */
 	public static function onRecentChangeSave( RecentChange $recentChange ) {
@@ -800,6 +800,12 @@ final class RepoHooks {
 		$placeholders = $parserOutput->getExtensionData( 'wikibase-view-chunks' );
 		if ( $placeholders !== null ) {
 			$out->setProperty( 'wikibase-view-chunks', $placeholders );
+		}
+
+		// Set in EntityParserOutputGenerator.
+		$termsListItems = $parserOutput->getExtensionData( 'wikibase-terms-list-items' );
+		if ( $termsListItems !== null ) {
+			$out->setProperty( 'wikibase-terms-list-items', $termsListItems );
 		}
 
 		// Used in ViewEntityAction and EditEntityAction to override the page HTML title

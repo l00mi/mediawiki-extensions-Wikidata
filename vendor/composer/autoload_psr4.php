@@ -6,15 +6,17 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Wikimedia\\Purtle\\Tests\\' => array($baseDir . '/extensions/Wikibase/purtle/tests/phpunit'),
-    'Wikimedia\\Purtle\\' => array($baseDir . '/extensions/Wikibase/purtle/src'),
+    'Wikimedia\\Purtle\\Tests\\' => array($vendorDir . '/wikimedia/purtle/tests/phpunit'),
+    'Wikimedia\\Purtle\\' => array($vendorDir . '/wikimedia/purtle/src'),
     'WikimediaBadges\\' => array($baseDir . '/extensions/WikimediaBadges/includes'),
     'Wikidata\\' => array($baseDir . '/src'),
     'Wikibase\\View\\Tests\\' => array($baseDir . '/extensions/Wikibase/view/tests/phpunit'),
     'Wikibase\\View\\' => array($baseDir . '/extensions/Wikibase/view/src'),
+    'Wikibase\\Lib\\Tests\\' => array($baseDir . '/extensions/Wikibase/lib/tests/phpunit'),
     'Wikibase\\InternalSerialization\\' => array($vendorDir . '/wikibase/internal-serialization/src'),
     'Wikibase\\DataModel\\Services\\' => array($vendorDir . '/wikibase/data-model-services/src'),
     'Wikibase\\DataModel\\' => array($vendorDir . '/wikibase/data-model/src', $vendorDir . '/wikibase/data-model-serialization/src'),
+    'Wikibase\\Client\\Tests\\' => array($baseDir . '/extensions/Wikibase/client/tests/phpunit/includes'),
     'WikibaseQuality\\Tests\\' => array($baseDir . '/extensions/Quality/tests/phpunit'),
     'WikibaseQuality\\Specials\\' => array($baseDir . '/extensions/Quality/specials'),
     'WikibaseQuality\\ConstraintReport\\Tests\\' => array($baseDir . '/extensions/Constraints/tests/phpunit'),

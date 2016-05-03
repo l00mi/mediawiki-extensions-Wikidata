@@ -2,23 +2,21 @@
 
 namespace Wikibase\View\Tests;
 
-use Language;
-use MediaWikiTestCase;
-use Title;
+use PHPUnit_Framework_TestCase;
 use User;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\AliasesProvider;
 use Wikibase\Lib\LanguageNameLookup;
-use Wikibase\Lib\MediaWikiContentLanguages;
-use Wikibase\Lib\UserLanguageLookup;
 use Wikibase\View\EntityViewPlaceholderExpander;
+use Wikibase\View\DummyLocalizedTextProvider;
+use Wikibase\View\LanguageDirectionalityLookup;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
  * @covers Wikibase\View\EntityViewPlaceholderExpander
  *
- * @uses Wikibase\View\EntityTermsView
+ * @uses Wikibase\View\TermsListView
  * @uses Wikibase\View\Template\Template
  * @uses Wikibase\View\Template\TemplateFactory
  * @uses Wikibase\View\Template\TemplateRegistry
@@ -29,7 +27,7 @@ use Wikibase\View\Template\TemplateFactory;
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
-class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
+class EntityViewPlaceholderExpanderTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @param User $user
@@ -42,30 +40,20 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 	private function newExpander( User $user, Item $item, ItemId $itemId, AliasesProvider $aliasesProvider = null ) {
 		$templateFactory = TemplateFactory::getDefaultInstance();
 
-		$title = $this->getMockBuilder( Title::class )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$language = Language::factory( 'en' );
-
-		$userLanguages = $this->getMock( UserLanguageLookup::class );
-		$userLanguages->expects( $this->any() )
-			->method( 'getAllUserLanguages' )
-			->will( $this->returnValue( array( 'de', 'en', 'ru' ) ) );
+		$termsLanguages = [ 'de', 'en', 'ru' ];
 
 		$languageNameLookup = $this->getMock( LanguageNameLookup::class );
 
 		return new EntityViewPlaceholderExpander(
 			$templateFactory,
-			$title,
 			$user,
-			$language,
 			$item,
 			$item,
 			$aliasesProvider,
-			$userLanguages,
-			new MediaWikiContentLanguages(),
-			$languageNameLookup
+			$termsLanguages,
+			$this->getMock( LanguageDirectionalityLookup::class ),
+			$languageNameLookup,
+			new DummyLocalizedTextProvider( 'lkt' )
 		);
 	}
 
@@ -136,19 +124,6 @@ class EntityViewPlaceholderExpanderTest extends MediaWikiTestCase {
 		$this->assertContains( 'Hauptstadt Russlands', $html );
 
 		$this->assertContains( 'wikibase-entitytermsforlanguageview-ru', $html );
-	}
-
-	/**
-	 * @dataProvider provideEntityAndAliases
-	 */
-	public function testGetExtraUserLanguage( Item $item, AliasesProvider $aliasesProvider = null ) {
-		$itemId = $item->getId();
-
-		$expander = $this->newExpander( $this->newUser( true ), $item, $itemId, $aliasesProvider );
-		$this->assertArrayEquals( array(), $expander->getExtraUserLanguages() );
-
-		$expander = $this->newExpander( $this->newUser(), $item, $itemId, $aliasesProvider );
-		$this->assertArrayEquals( array( 'de', 'ru' ), $expander->getExtraUserLanguages() );
 	}
 
 }

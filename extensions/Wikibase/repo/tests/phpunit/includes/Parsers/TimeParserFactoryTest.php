@@ -5,9 +5,9 @@ namespace Wikibase\Repo\Tests\Parsers;
 use DataValues\TimeValue;
 use PHPUnit_Framework_TestCase;
 use ValueParsers\IsoTimestampParser;
+use ValueParsers\MonthNameProvider;
 use ValueParsers\ParserOptions;
 use ValueParsers\ValueParser;
-use Wikibase\Repo\Parsers\MonthNameProvider;
 use Wikibase\Repo\Parsers\TimeParserFactory;
 
 /**
@@ -204,7 +204,7 @@ class TimeParserFactoryTest extends PHPUnit_Framework_TestCase {
 				array( '-0111-11-01T00:00:00Z', TimeValue::PRECISION_DAY, $julian ),
 
 			/**
-			 * @see ValueFormatters\Test\MwTimeIsoFormatterTest
+			 * @see Wikibase\Lib\Tests\MwTimeIsoFormatterTest
 			 */
 			'16 laMonth8 2013' =>
 				array( '+2013-08-16T00:00:00Z', TimeValue::PRECISION_DAY, $gregorian, 'la' ),

@@ -13,7 +13,7 @@ use InvalidArgumentException;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class QuantityParser extends StringValueParser {
@@ -42,7 +42,7 @@ class QuantityParser extends StringValueParser {
 	 * @since 0.1
 	 *
 	 * @param ParserOptions|null $options
-	 * @param NumberUnlocalizer $unlocalizer
+	 * @param NumberUnlocalizer|null $unlocalizer
 	 */
 	public function __construct( ParserOptions $options = null, NumberUnlocalizer $unlocalizer = null ) {
 		parent::__construct( $options );
@@ -165,16 +165,16 @@ class QuantityParser extends StringValueParser {
 			throw new ParseException( 'Malformed quantity', $value, self::FORMAT_NAME );
 		}
 
-		for ( $i = 1; $i <= 4; $i++ ) {
-			if ( !isset( $groups[$i] ) ) {
-				$groups[$i] = null;
-			} elseif ( $groups[$i] === '' ) {
-				$groups[$i] = null;
-			}
-		}
+		// Remove $0.
+		array_shift( $groups );
 
-		array_shift( $groups ); // remove $groups[0]
-		return $groups;
+		array_walk( $groups, function( &$element ) {
+			if ( $element === '' ) {
+				$element = null;
+			}
+		} );
+
+		return array_pad( $groups, 4, null );
 	}
 
 	/**

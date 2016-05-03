@@ -11,13 +11,13 @@ use ValueParsers\DecimalParser;
  * @group DataValue
  * @group DataValueExtensions
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class DecimalParserTest extends StringValueParserTest {
 
 	/**
-	 * @deprecated since 0.3, just use getInstance.
+	 * @deprecated since DataValues Common 0.3, just use getInstance.
 	 */
 	protected function getParserClass() {
 		throw new \LogicException( 'Should not be called, use getInstance' );
@@ -80,7 +80,7 @@ class DecimalParserTest extends StringValueParserTest {
 	}
 
 	/**
-	 * @see ValueParserTestBase::invalidInputProvider
+	 * @see StringValueParserTest::invalidInputProvider
 	 */
 	public function invalidInputProvider() {
 		$argLists = parent::invalidInputProvider();
@@ -129,6 +129,8 @@ class DecimalParserTest extends StringValueParserTest {
 
 	public function splitDecimalExponentProvider() {
 		return array(
+			'trailing newline' => array( "1.2E3\n", '1.2', 3 ),
+			'whitespace' => array( ' 1.2E3 ', ' 1.2E3 ', 0 ),
 			'no exponent' => array( '1.2', '1.2', 0 ),
 			'exponent' => array( '1.2E3', '1.2', 3 ),
 			'negative exponent' => array( '+1.2e-2', '+1.2', -2 ),

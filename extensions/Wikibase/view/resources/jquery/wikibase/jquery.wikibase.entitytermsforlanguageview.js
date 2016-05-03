@@ -53,19 +53,13 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 				return this.options.value.language;
 			},
 			function() {
-				var title = new mw.Title(
-					mw.config.get( 'wgTitle' ),
-					mw.config.get( 'wgNamespaceNumber' )
-				);
-				return mw.wbTemplate( 'wikibase-entitytermsforlanguageview-language',
-					title.getUrl( { setlang: this.options.value.language } ),
-					wb.getLanguageNameByCode( this.options.value.language )
-				);
+				return wb.getLanguageNameByCode( this.options.value.language );
 			},
 			'', // label
 			'', // description
 			'', // aliases
-			'' // toolbar placeholder
+			'', // toolbar placeholder
+			'th' // row table header
 		],
 		templateShortCuts: {
 			$language: '.wikibase-entitytermsforlanguageview-language',

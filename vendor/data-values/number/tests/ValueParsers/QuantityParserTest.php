@@ -13,13 +13,13 @@ use ValueParsers\ValueParser;
  * @group DataValue
  * @group DataValueExtensions
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class QuantityParserTest extends StringValueParserTest {
 
 	/**
-	 * @deprecated since 0.3, just use getInstance.
+	 * @deprecated since DataValues Common 0.3, just use getInstance.
 	 */
 	protected function getParserClass() {
 		throw new \LogicException( 'Should not be called, use getInstance' );
@@ -139,7 +139,7 @@ class QuantityParserTest extends StringValueParserTest {
 	}
 
 	/**
-	 * @see ValueParserTestBase::invalidInputProvider
+	 * @see StringValueParserTest::invalidInputProvider
 	 */
 	public function invalidInputProvider() {
 		$argLists = parent::invalidInputProvider();

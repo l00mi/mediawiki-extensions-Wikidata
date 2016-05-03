@@ -5,6 +5,7 @@ namespace Wikibase\View;
 use Sanitizer;
 use Site;
 use SiteList;
+use ValueFormatters\NumberLocalizer;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataModel\SiteLink;
@@ -48,6 +49,11 @@ class SiteLinksView {
 	private $languageNameLookup;
 
 	/**
+	 * @var NumberLocalizer
+	 */
+	private $numberLocalizer;
+
+	/**
 	 * @var string[]
 	 */
 	private $badgeItems;
@@ -58,13 +64,20 @@ class SiteLinksView {
 	private $specialSiteLinkGroups;
 
 	/**
+	 * @var LocalizedTextProvider
+	 */
+	private $textProvider;
+
+	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param SiteList $sites
 	 * @param EditSectionGenerator $sectionEditLinkGenerator
 	 * @param EntityIdFormatter $entityIdFormatter A plaintext producing EntityIdFormatter
 	 * @param LanguageNameLookup $languageNameLookup
+	 * @param NumberLocalizer $numberLocalizer
 	 * @param string[] $badgeItems
 	 * @param string[] $specialSiteLinkGroups
+	 * @param LocalizedTextProvider $textProvider
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
@@ -72,16 +85,20 @@ class SiteLinksView {
 		EditSectionGenerator $sectionEditLinkGenerator,
 		EntityIdFormatter $entityIdFormatter,
 		LanguageNameLookup $languageNameLookup,
+		NumberLocalizer $numberLocalizer,
 		array $badgeItems,
-		array $specialSiteLinkGroups
+		array $specialSiteLinkGroups,
+		LocalizedTextProvider $textProvider
 	) {
+		$this->templateFactory = $templateFactory;
 		$this->sites = $sites;
 		$this->sectionEditLinkGenerator = $sectionEditLinkGenerator;
+		$this->entityIdFormatter = $entityIdFormatter;
+		$this->languageNameLookup = $languageNameLookup;
+		$this->numberLocalizer = $numberLocalizer;
 		$this->badgeItems = $badgeItems;
 		$this->specialSiteLinkGroups = $specialSiteLinkGroups;
-		$this->templateFactory = $templateFactory;
-		$this->languageNameLookup = $languageNameLookup;
-		$this->entityIdFormatter = $entityIdFormatter;
+		$this->textProvider = $textProvider;
 	}
 
 	/**
@@ -125,7 +142,7 @@ class SiteLinksView {
 	private function getHtmlForSectionHeading( $heading ) {
 		$html = $this->templateFactory->render(
 			'wb-section-heading',
-			htmlspecialchars( wfMessage( $heading )->text() ),
+			htmlspecialchars( $this->textProvider->get( $heading ) ),
 			'sitelinks', // ID - TODO: should not be added if output page is not the entity's page
 			$heading
 		);
@@ -154,16 +171,18 @@ class SiteLinksView {
 			'wikibase-sitelinkgroupview',
 			// TODO: support entity-id as prefix for element IDs.
 			htmlspecialchars( 'sitelinks-' . $group, ENT_QUOTES ),
-			htmlspecialchars( wfMessage( 'wikibase-sitelinks-' . $group )->text() ),
-			htmlspecialchars( wfMessage( 'parentheses',
-				wfMessage(
+			htmlspecialchars( $this->textProvider->get( 'wikibase-sitelinks-' . $group ) ),
+			htmlspecialchars( $this->textProvider->get( 'parentheses', [
+				$this->textProvider->get(
 					'wikibase-sitelinks-counter',
-					$count, // FIXME: NumberLocalizer
-					0, // FIXME: NumberLocalizer
-					'',
-					''
-				)->text()
-			)->text() ),
+					[
+						$this->numberLocalizer->localizeNumber( $count ),
+						$this->numberLocalizer->localizeNumber( 0 ),
+						'',
+						''
+					]
+				)
+			] ) ),
 			$this->templateFactory->render(
 				'wikibase-sitelinklistview',
 				$this->getHtmlForSiteLinks( $siteLinksForTable, $group === 'special' )
@@ -281,8 +300,8 @@ class SiteLinksView {
 		// FIXME: this is a quickfix to allow a custom site-name for the site groups which are
 		// special according to the specialSiteLinkGroups setting
 		if ( $isSpecialGroup ) {
-			$siteNameMsg = wfMessage( 'wikibase-sitelinks-sitename-' . $siteId );
-			$siteName = $siteNameMsg->exists() ? $siteNameMsg->text() : $siteId;
+			$siteNameMsg = 'wikibase-sitelinks-sitename-' . $siteId;
+			$siteName = $this->textProvider->has( $siteNameMsg ) ? $this->textProvider->get( $siteNameMsg ) : $siteId;
 		} else {
 			// TODO: get an actual site name rather then just the language
 			$siteName = $this->languageNameLookup->getName( $languageCode );

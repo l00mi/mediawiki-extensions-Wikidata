@@ -3,7 +3,6 @@
 namespace ValueParsers\Test;
 
 use DataValues\TimeValue;
-use ValueParsers\CalendarModelParser;
 use ValueParsers\IsoTimestampParser;
 use ValueParsers\ParserOptions;
 
@@ -19,7 +18,7 @@ use ValueParsers\ParserOptions;
 class IsoTimestampParserTest extends ValueParserTestBase {
 
 	/**
-	 * @deprecated since 0.3, just use getInstance.
+	 * @deprecated since DataValues Common 0.3, just use getInstance.
 	 */
 	protected function getParserClass() {
 		throw new \LogicException( 'Should not be called, use getInstance' );
@@ -356,7 +355,7 @@ class IsoTimestampParserTest extends ValueParserTestBase {
 				// Because PHP magically turns numeric keys into ints/floats
 				(string)$key,
 				new TimeValue( $timestamp, 0, 0, 0, $precision, $calendarModel ),
-				new IsoTimestampParser( new CalendarModelParser( $options ), $options )
+				new IsoTimestampParser( null, $options )
 			);
 		}
 

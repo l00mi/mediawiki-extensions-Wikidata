@@ -2,8 +2,6 @@
 
 namespace Wikibase\View;
 
-use Message;
-use Title;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\AliasesProvider;
@@ -11,12 +9,10 @@ use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\DataModel\Term\TermList;
-use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\View\Template\TemplateFactory;
 
 /**
- * Generates HTML to display the fingerprint of an entity
- * in the user's current language.
+ * Generates HTML to display the terms of an entity.
  *
  * @since 0.5
  *
@@ -24,6 +20,7 @@ use Wikibase\View\Template\TemplateFactory;
  * @author Thiemo Mättig
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 class EntityTermsView {
 
@@ -33,40 +30,33 @@ class EntityTermsView {
 	private $templateFactory;
 
 	/**
-	 * @var EditSectionGenerator|null
+	 * @var EditSectionGenerator
 	 */
 	private $sectionEditLinkGenerator;
 
 	/**
-	 * @var string Language of the terms in the title and header section.
+	 * @var LocalizedTextProvider
 	 */
-	private $languageCode;
-
-	/**
-	 * @var LanguageNameLookup
-	 */
-	private $languageNameLookup;
+	private $textProvider;
 
 	/**
 	 * @param TemplateFactory $templateFactory
-	 * @param EditSectionGenerator|null $sectionEditLinkGenerator
-	 * @param LanguageNameLookup $languageNameLookup
-	 * @param string $languageCode Desired language of the label, description and aliases in the
-	 *  title and header section. Not necessarily identical to the interface language.
+	 * @param EditSectionGenerator $sectionEditLinkGenerator
+	 * @param LocalizedTextProvider $textProvider
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
-		EditSectionGenerator $sectionEditLinkGenerator = null,
-		LanguageNameLookup $languageNameLookup,
-		$languageCode
+		EditSectionGenerator $sectionEditLinkGenerator,
+		LocalizedTextProvider $textProvider
 	) {
 		$this->sectionEditLinkGenerator = $sectionEditLinkGenerator;
-		$this->languageCode = $languageCode;
 		$this->templateFactory = $templateFactory;
-		$this->languageNameLookup = $languageNameLookup;
+		$this->textProvider = $textProvider;
 	}
 
 	/**
+	 * @param string $mainLanguageCode Desired language of the label, description and aliases in the
+	 *  title and header section. Not necessarily identical to the interface language.
 	 * @param Fingerprint $fingerprint the fingerprint to render
 	 * @param EntityId|null $entityId the id of the fingerprint's entity
 	 * @param string $termBoxHtml
@@ -75,6 +65,7 @@ class EntityTermsView {
 	 * @return string HTML
 	 */
 	public function getHtml(
+		$mainLanguageCode,
 		Fingerprint $fingerprint,
 		EntityId $entityId = null,
 		$termBoxHtml,
@@ -87,72 +78,77 @@ class EntityTermsView {
 		);
 
 		return $this->templateFactory->render( 'wikibase-entitytermsview',
-			$descriptions->hasTermForLanguage( $this->languageCode ) ? '' : 'wb-empty',
-			$this->getDescriptionHtml( $descriptions ),
-			$aliasGroups->hasGroupForLanguage( $this->languageCode ) ? '' : 'wb-empty',
-			$this->getHtmlForAliases( $aliasGroups ),
+			$descriptions->hasTermForLanguage( $mainLanguageCode ) ? '' : 'wb-empty',
+			$this->getDescriptionHtml( $mainLanguageCode, $descriptions ),
+			$aliasGroups->hasGroupForLanguage( $mainLanguageCode ) ? '' : 'wb-empty',
+			$this->getHtmlForAliases( $mainLanguageCode, $aliasGroups ),
 			$termBoxHtml,
 			$marker,
-			$this->getHtmlForLabelDescriptionAliasesEditSection( $entityId )
+			$this->getHtmlForLabelDescriptionAliasesEditSection( $mainLanguageCode, $entityId )
 		);
 	}
 
 	/**
-	 * @param Fingerprint $fingerprint
+	 * @param string $mainLanguageCode Desired language of the label, description and aliases in the
+	 *  title and header section. Not necessarily identical to the interface language.
+	 * @param LabelsProvider $labelsProvider
 	 * @param EntityId|null $entityId
 	 *
 	 * @return string HTML
 	 */
 	public function getTitleHtml(
-		Fingerprint $fingerprint,
+		$mainLanguageCode,
+		LabelsProvider $labelsProvider,
 		EntityId $entityId = null
 	) {
-		$labels = $fingerprint->getLabels();
+		$labels = $labelsProvider->getLabels();
 		$idInParenthesesHtml = '';
 
 		if ( $entityId !== null ) {
 			$id = $entityId->getSerialization();
-			$idInParenthesesHtml = htmlspecialchars( wfMessage( 'parentheses', $id )->text() );
+			$idInParenthesesHtml = htmlspecialchars( $this->textProvider->get( 'parentheses', [ $id ] ) );
 		}
 
-		if ( $labels->hasTermForLanguage( $this->languageCode ) ) {
+		if ( $labels->hasTermForLanguage( $mainLanguageCode ) ) {
 			return $this->templateFactory->render( 'wikibase-title',
 				'',
-				htmlspecialchars( $labels->getByLanguage( $this->languageCode )->getText() ),
+				htmlspecialchars( $labels->getByLanguage( $mainLanguageCode )->getText() ),
 				$idInParenthesesHtml
 			);
 		} else {
 			return $this->templateFactory->render( 'wikibase-title',
 				'wb-empty',
-				htmlspecialchars( wfMessage( 'wikibase-label-empty' )->text() ),
+				htmlspecialchars( $this->textProvider->get( 'wikibase-label-empty' ) ),
 				$idInParenthesesHtml
 			);
 		}
 	}
 
 	/**
-	 * @param TermList $descriptions the list of descriptions to render
+	 * @param string $languageCode The language of the description
+	 * @param TermList $descriptions The list of descriptions to render
 	 *
 	 * @return string HTML
 	 */
-	private function getDescriptionHtml( TermList $descriptions ) {
-		if ( $descriptions->hasTermForLanguage( $this->languageCode ) ) {
-			$text = $descriptions->getByLanguage( $this->languageCode )->getText();
+	private function getDescriptionHtml( $languageCode, TermList $descriptions ) {
+		if ( $descriptions->hasTermForLanguage( $languageCode ) ) {
+			$text = $descriptions->getByLanguage( $languageCode )->getText();
 		} else {
-			$text = wfMessage( 'wikibase-description-empty' )->text();
+			$text = $this->textProvider->get( 'wikibase-description-empty' );
 		}
 		return htmlspecialchars( $text );
 	}
 
 	/**
+	 * @param string $languageCode The language of the aliases
 	 * @param AliasGroupList $aliasGroups the list of alias groups to render
 	 *
 	 * @return string HTML
 	 */
-	private function getHtmlForAliases( AliasGroupList $aliasGroups ) {
-		if ( $aliasGroups->hasGroupForLanguage( $this->languageCode ) ) {
+	private function getHtmlForAliases( $languageCode, AliasGroupList $aliasGroups ) {
+		if ( $aliasGroups->hasGroupForLanguage( $languageCode ) ) {
 			$aliasesHtml = '';
-			$aliases = $aliasGroups->getByLanguage( $this->languageCode )->getAliases();
+			$aliases = $aliasGroups->getByLanguage( $languageCode )->getAliases();
 			foreach ( $aliases as $alias ) {
 				$aliasesHtml .= $this->templateFactory->render(
 					'wikibase-entitytermsview-aliases-alias',
@@ -160,157 +156,22 @@ class EntityTermsView {
 				);
 			}
 		} else {
-			$aliasesHtml = htmlspecialchars( wfMessage( 'wikibase-aliases-empty' )->text() );
+			$aliasesHtml = htmlspecialchars( $this->textProvider->get( 'wikibase-aliases-empty' ) );
 		}
 		return $this->templateFactory->render( 'wikibase-entitytermsview-aliases', $aliasesHtml );
 	}
 
 	/**
-	 * @param LabelsProvider $labelsProvider
-	 * @param DescriptionsProvider $descriptionsProvider
-	 * @param AliasesProvider|null $aliasesProvider
-	 * @param string[] $languageCodes The languages the user requested to be shown
-	 * @param Title|null $title
-	 *
-	 * @return string HTML
-	 */
-	public function getEntityTermsForLanguageListView(
-		LabelsProvider $labelsProvider,
-		DescriptionsProvider $descriptionsProvider,
-		AliasesProvider $aliasesProvider = null,
-		array $languageCodes,
-		Title $title = null
-	) {
-		$entityTermsForLanguageViewsHtml = '';
-
-		foreach ( $languageCodes as $languageCode ) {
-			$entityTermsForLanguageViewsHtml .= $this->getEntityTermsForLanguageView(
-				$labelsProvider,
-				$descriptionsProvider,
-				$aliasesProvider,
-				$languageCode,
-				$title
-			);
-		}
-
-		return $this->templateFactory->render( 'wikibase-entitytermsforlanguagelistview',
-			htmlspecialchars( $this->msg( 'wikibase-entitytermsforlanguagelistview-language' )->text() ),
-			htmlspecialchars( $this->msg( 'wikibase-entitytermsforlanguagelistview-label' )->text() ),
-			htmlspecialchars( $this->msg( 'wikibase-entitytermsforlanguagelistview-description' )->text() ),
-			htmlspecialchars( $this->msg( 'wikibase-entitytermsforlanguagelistview-aliases' )->text() ),
-			$entityTermsForLanguageViewsHtml
-		);
-	}
-
-	/**
-	 * @param LabelsProvider $labelsProvider
-	 * @param DescriptionsProvider $descriptionsProvider
-	 * @param AliasesProvider|null $aliasesProvider
-	 * @param string $languageCode
-	 * @param Title|null $title
-	 *
-	 * @return string HTML
-	 */
-	private function getEntityTermsForLanguageView(
-		LabelsProvider $labelsProvider,
-		DescriptionsProvider $descriptionsProvider,
-		AliasesProvider $aliasesProvider = null,
-		$languageCode,
-		Title $title = null
-	) {
-		$languageName = $this->languageNameLookup->getName( $languageCode );
-		$labels = $labelsProvider->getLabels();
-		$descriptions = $descriptionsProvider->getDescriptions();
-		$hasLabel = $labels->hasTermForLanguage( $languageCode );
-		$hasDescription = $descriptions->hasTermForLanguage( $languageCode );
-
-		return $this->templateFactory->render( 'wikibase-entitytermsforlanguageview',
-			'tr',
-			'td',
-			$languageCode,
-			$this->templateFactory->render( 'wikibase-entitytermsforlanguageview-language',
-				htmlspecialchars( $title === null
-					? '#'
-					: $title->getLocalURL( array( 'setlang' => $languageCode ) )
-				),
-				htmlspecialchars( $languageName )
-			),
-			$this->templateFactory->render( 'wikibase-labelview',
-				$hasLabel ? '' : 'wb-empty',
-				htmlspecialchars( $hasLabel
-					? $labels->getByLanguage( $languageCode )->getText()
-					: $this->msg( 'wikibase-label-empty' )->text()
-				),
-				''
-			),
-			$this->templateFactory->render( 'wikibase-descriptionview',
-				$hasDescription ? '' : 'wb-empty',
-				htmlspecialchars( $hasDescription
-					? $descriptions->getByLanguage( $languageCode )->getText()
-					: $this->msg( 'wikibase-description-empty' )->text()
-				),
-				'',
-				''
-			),
-			$aliasesProvider ? $this->getAliasesView( $aliasesProvider->getAliasGroups(), $languageCode ) : '',
-			''
-		);
-	}
-
-	/**
-	 * @param AliasGroupList $aliasGroups
-	 * @param string $languageCode
-	 *
-	 * @return string HTML
-	 */
-	private function getAliasesView( AliasGroupList $aliasGroups, $languageCode ) {
-		if ( !$aliasGroups->hasGroupForLanguage( $languageCode ) ) {
-			return $this->templateFactory->render( 'wikibase-aliasesview',
-				'wb-empty',
-				'',
-				''
-			);
-		} else {
-			$aliasesHtml = '';
-			$aliases = $aliasGroups->getByLanguage( $languageCode )->getAliases();
-			foreach ( $aliases as $alias ) {
-				$aliasesHtml .= $this->templateFactory->render(
-					'wikibase-aliasesview-list-item',
-					htmlspecialchars( $alias )
-				);
-			}
-
-			return $this->templateFactory->render( 'wikibase-aliasesview',
-				'',
-				$aliasesHtml,
-				''
-			);
-		}
-	}
-
-	/**
+	 * @param string $languageCode The language for which terms should be edited
 	 * @param EntityId|null $entityId
 	 *
 	 * @return string HTML
 	 */
-	private function getHtmlForLabelDescriptionAliasesEditSection( EntityId $entityId = null ) {
-		if ( $this->sectionEditLinkGenerator === null ) {
-			return '';
-		}
-
+	private function getHtmlForLabelDescriptionAliasesEditSection( $languageCode, EntityId $entityId = null ) {
 		return $this->sectionEditLinkGenerator->getLabelDescriptionAliasesEditSection(
-			$this->languageCode,
+			$languageCode,
 			$entityId
 		);
-	}
-
-	/**
-	 * @param string $key
-	 *
-	 * @return Message
-	 */
-	private function msg( $key ) {
-		return wfMessage( $key );
 	}
 
 }

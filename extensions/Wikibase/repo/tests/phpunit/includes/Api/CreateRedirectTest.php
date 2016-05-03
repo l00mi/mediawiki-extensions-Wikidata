@@ -24,7 +24,7 @@ use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Test\MockRepository;
+use Wikibase\Lib\Tests\MockRepository;
 
 /**
  * @covers Wikibase\Repo\Api\CreateRedirect
@@ -256,7 +256,6 @@ class CreateRedirectTest extends \MediaWikiTestCase {
 		$this->assertTrue( $module->mustBePosted(), 'mustBePosted' );
 		$this->assertTrue( $module->isWriteMode(), 'isWriteMode' );
 		$this->assertEquals( $module->needsToken(), 'csrf', 'needsToken' );
-		$this->assertEquals( $module->getTokenSalt(), '', 'getTokenSalt' );
 
 		//NOTE: Would be nice to test the token check directly, but that is done via
 		//      ApiMain::execute, which is bypassed by callApiModule().

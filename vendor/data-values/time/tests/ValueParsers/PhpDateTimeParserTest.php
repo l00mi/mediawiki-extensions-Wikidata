@@ -3,7 +3,6 @@
 namespace ValueParsers\Test;
 
 use DataValues\TimeValue;
-use ValueParsers\CalendarModelParser;
 use ValueParsers\IsoTimestampParser;
 use ValueParsers\MonthNameUnlocalizer;
 use ValueParsers\ParserOptions;
@@ -18,14 +17,14 @@ use ValueParsers\ValueParser;
  * @group TimeParsers
  * @group ValueParsers
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  * @author Thiemo Mättig
  */
 class PhpDateTimeParserTest extends StringValueParserTest {
 
 	/**
-	 * @deprecated since 0.3, just use getInstance.
+	 * @deprecated since DataValues Common 0.3, just use getInstance.
 	 */
 	protected function getParserClass() {
 		throw new \LogicException( 'Should not be called, use getInstance' );
@@ -42,7 +41,7 @@ class PhpDateTimeParserTest extends StringValueParserTest {
 		return new PhpDateTimeParser(
 			new MonthNameUnlocalizer( array() ),
 			$this->getEraParser(),
-			new IsoTimestampParser( new CalendarModelParser( $options ), $options )
+			new IsoTimestampParser( null, $options )
 		);
 	}
 

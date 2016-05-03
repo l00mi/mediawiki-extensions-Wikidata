@@ -1,6 +1,7 @@
 <?php
 
 use DataTypes\Modules\DataTypesModule;
+use Wikibase\Repo\Modules\MediaWikiConfigModule;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -48,6 +49,13 @@ return call_user_func( function() {
 			'datatypesconfigvarname' => 'wbDataTypes',
 		),
 
+		'mw.config.values.wbEntityTypes' => $moduleTemplate + [
+			'class' => MediaWikiConfigModule::class,
+			'getconfigvalueprovider' => function() {
+				return WikibaseRepo::getDefaultInstance()->getEntityTypesConfigValueProvider();
+			}
+		],
+
 		'wikibase.dataTypeStore' => $moduleTemplate + array(
 			'scripts' => array(
 				'dataTypes/wikibase.dataTypeStore.js',
@@ -68,6 +76,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'mediawiki.page.watch.ajax',
 				'mediawiki.user',
+				'mw.config.values.wbEntityTypes',
 				'mw.config.values.wbRepo',
 				'jquery.wikibase.toolbarcontroller',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementgrouplistview-statementgroupview',
@@ -99,7 +108,6 @@ return call_user_func( function() {
 				'wikibase.parsers.getStore',
 				'wikibase.api.RepoApi',
 				'wikibase.RevisionStore',
-				'wikibase.serialization.EntityDeserializer',
 				'wikibase.serialization.EntityDeserializer',
 				'wikibase.sites',
 				'wikibase.store.ApiEntityStore',

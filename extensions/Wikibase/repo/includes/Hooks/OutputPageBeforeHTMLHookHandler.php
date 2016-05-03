@@ -3,14 +3,19 @@
 namespace Wikibase\Repo\Hooks;
 
 use OutputPage;
+use User;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Term\AliasesProvider;
+use Wikibase\EntityFactory;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\UserLanguageLookup;
 use Wikibase\Repo\BabelUserLanguageLookup;
+use Wikibase\Repo\MediaWikiLanguageDirectionalityLookup;
+use Wikibase\Repo\MediaWikiLocalizedTextProvider;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\View\EntityViewPlaceholderExpander;
 use Wikibase\View\Template\TemplateFactory;
@@ -57,12 +62,18 @@ class OutputPageBeforeHTMLHookHandler {
 	private $outputPageEntityIdReader;
 
 	/**
+	 * @var EntityFactory
+	 */
+	private $entityFactory;
+
+	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param UserLanguageLookup $userLanguageLookup
 	 * @param ContentLanguages $termsLanguages
 	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param LanguageNameLookup $languageNameLookup
 	 * @param OutputPageEntityIdReader $outputPageEntityIdReader
+	 * @param EntityFactory $entityFactory
 	 */
 	public function __construct(
 		TemplateFactory $templateFactory,
@@ -70,7 +81,8 @@ class OutputPageBeforeHTMLHookHandler {
 		ContentLanguages $termsLanguages,
 		EntityRevisionLookup $entityRevisionLookup,
 		LanguageNameLookup $languageNameLookup,
-		OutputPageEntityIdReader $outputPageEntityIdReader
+		OutputPageEntityIdReader $outputPageEntityIdReader,
+		EntityFactory $entityFactory
 	) {
 		$this->templateFactory = $templateFactory;
 		$this->userLanguageLookup = $userLanguageLookup;
@@ -78,6 +90,7 @@ class OutputPageBeforeHTMLHookHandler {
 		$this->entityRevisionLookup = $entityRevisionLookup;
 		$this->languageNameLookup = $languageNameLookup;
 		$this->outputPageEntityIdReader = $outputPageEntityIdReader;
+		$this->entityFactory = $entityFactory;
 	}
 
 	/**
@@ -97,7 +110,8 @@ class OutputPageBeforeHTMLHookHandler {
 			new OutputPageEntityIdReader(
 				$wikibaseRepo->getEntityContentFactory(),
 				$wikibaseRepo->getEntityIdParser()
-			)
+			),
+			$wikibaseRepo->getEntityFactory()
 		);
 	}
 
@@ -127,27 +141,7 @@ class OutputPageBeforeHTMLHookHandler {
 		$placeholders = $out->getProperty( 'wikibase-view-chunks' );
 
 		if ( !empty( $placeholders ) ) {
-			$injector = new TextInjector( $placeholders );
-			$callback = function() {
-				return '';
-			};
-
-			$entityId = $this->outputPageEntityIdReader->getEntityIdFromOutputPage( $out );
-
-			if ( $entityId instanceof EntityId ) {
-				$revisionId = $out->getRevisionId();
-				$entityRevision = $this->entityRevisionLookup->getEntityRevision(
-					$entityId,
-					$revisionId
-				);
-
-				if ( $entityRevision instanceof EntityRevision ) {
-					$expander = $this->getEntityViewPlaceholderExpander( $out, $entityRevision );
-					$callback = [ $expander, 'getHtmlForPlaceholder' ];
-				}
-			}
-
-			$html = $injector->inject( $html, $callback );
+			$this->replacePlaceholders( $placeholders, $out, $html );
 
 			$out->addJsConfigVars(
 				'wbUserSpecifiedLanguages',
@@ -163,32 +157,102 @@ class OutputPageBeforeHTMLHookHandler {
 	}
 
 	/**
+	 * @param string[] $placeholders
 	 * @param OutputPage $out
-	 * @param EntityRevision $entityRev
+	 * @param string &$html
+	 */
+	private function replacePlaceholders( array $placeholders, OutputPage $out, &$html ) {
+		$injector = new TextInjector( $placeholders );
+		$getHtmlCallback = function() {
+			return '';
+		};
+
+		$entityId = $this->outputPageEntityIdReader->getEntityIdFromOutputPage( $out );
+		if ( $entityId instanceof EntityId ) {
+			$termsListItemsHtml = $out->getProperty( 'wikibase-terms-list-items' );
+			$entity = $this->getEntity( $entityId, $out->getRevisionId(), $termsListItemsHtml !== null );
+			if ( $entity instanceof EntityDocument ) {
+				$expander = $this->getEntityViewPlaceholderExpander(
+					$entity,
+					$out->getUser(),
+					$this->getTermsLanguagesCodes( $out ),
+					$termsListItemsHtml,
+					$out->getLanguage()->getCode()
+				);
+				$getHtmlCallback = [ $expander, 'getHtmlForPlaceholder' ];
+			}
+		}
+
+		$html = $injector->inject( $html, $getHtmlCallback );
+	}
+
+	/**
+	 * @param EntityId $entityId
+	 * @param string $revisionId
+	 * @param bool $termsListPrerendered
+	 *
+	 * @return EntityDocument|null
+	 */
+	private function getEntity( EntityId $entityId, $revisionId, $termsListPrerendered ) {
+		if ( $termsListPrerendered ) {
+			$entity = $this->entityFactory->newEmpty( $entityId->getEntityType() );
+		} else {
+			// The parser cache content is too old to contain the terms list items
+			// Pass the correct entity to generate terms list items on the fly
+			$entityRev = $this->entityRevisionLookup->getEntityRevision( $entityId, $revisionId );
+			if ( !( $entityRev instanceof EntityRevision ) ) {
+				return null;
+			}
+			$entity = $entityRev->getEntity();
+		}
+		return $entity;
+	}
+
+	/**
+	 * @param OutputPage $out
+	 *
+	 * @return string[]
+	 */
+	private function getTermsLanguagesCodes( OutputPage $out ) {
+		// All user languages that are valid term languages
+		return array_intersect(
+			$this->userLanguageLookup->getAllUserLanguages( $out->getUser() ),
+			$this->termsLanguages->getLanguages()
+		);
+	}
+
+	/**
+	 * @param EntityDocument $entity
+	 * @param User $user
+	 * @param string[] $termsLanguages
+	 * @param string[]|null $termsListItemsHtml
+	 * @param string $languageCode
 	 *
 	 * @return EntityViewPlaceholderExpander
 	 */
 	private function getEntityViewPlaceholderExpander(
-		OutputPage $out,
-		EntityRevision $entityRevision
+		EntityDocument $entity,
+		User $user,
+		array $termsLanguages,
+		array $termsListItemsHtml = null,
+		$languageCode
 	) {
-		$entity = $entityRevision->getEntity();
-
+		// FIXME: This is not necessarily true for all entity types.
 		$labelsProvider = $entity;
 		$descriptionsProvider = $entity;
 		$aliasesProvider = $entity instanceof AliasesProvider ? $entity : null;
 
 		return new EntityViewPlaceholderExpander(
 			$this->templateFactory,
-			$out->getTitle(),
-			$out->getUser(),
-			$out->getLanguage(),
+			$user,
 			$labelsProvider,
 			$descriptionsProvider,
 			$aliasesProvider,
-			$this->userLanguageLookup,
-			$this->termsLanguages,
-			$this->languageNameLookup
+			array_unique( array_merge( [ $languageCode ], $termsLanguages ) ),
+			new MediaWikiLanguageDirectionalityLookup(),
+			$this->languageNameLookup,
+			new MediaWikiLocalizedTextProvider( $languageCode ),
+			$termsListItemsHtml ?: []
 		);
 	}
 

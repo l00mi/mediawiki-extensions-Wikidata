@@ -30,8 +30,9 @@ use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\DumpRdf;
+use Wikibase\Lib\Tests\MockRepository;
 use Wikibase\Rdf\RdfVocabulary;
-use Wikibase\Repo\Test\MockEntityPerPage;
+use Wikibase\Repo\Tests\MockEntityPerPage;
 use Wikibase\Repo\WikibaseRepo;
 
 /**

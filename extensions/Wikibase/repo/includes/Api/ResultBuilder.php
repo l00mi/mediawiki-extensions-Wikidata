@@ -4,6 +4,7 @@ namespace Wikibase\Repo\Api;
 
 use ApiResult;
 use Revision;
+use Serializers\Serializer;
 use SiteStore;
 use Status;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -50,6 +51,11 @@ class ResultBuilder {
 	private $serializerFactory;
 
 	/**
+	 * @var Serializer
+	 */
+	private $entitySerializer;
+
+	/**
 	 * @var SiteStore
 	 */
 	private $siteStore;
@@ -83,6 +89,7 @@ class ResultBuilder {
 	 * @param ApiResult $result
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param SerializerFactory $serializerFactory
+	 * @param Serializer $entitySerializer
 	 * @param SiteStore $siteStore
 	 * @param PropertyDataTypeLookup $dataTypeLookup
 	 * @param bool|null $addMetaData when special elements such as '_element' are needed
@@ -91,6 +98,7 @@ class ResultBuilder {
 		ApiResult $result,
 		EntityTitleLookup $entityTitleLookup,
 		SerializerFactory $serializerFactory,
+		Serializer $entitySerializer,
 		SiteStore $siteStore,
 		PropertyDataTypeLookup $dataTypeLookup,
 		$addMetaData = null
@@ -98,6 +106,7 @@ class ResultBuilder {
 		$this->result = $result;
 		$this->entityTitleLookup = $entityTitleLookup;
 		$this->serializerFactory = $serializerFactory;
+		$this->entitySerializer = $entitySerializer;
 		$this->siteStore = $siteStore;
 		$this->dataTypeLookup = $dataTypeLookup;
 		$this->addMetaData = $addMetaData;
@@ -109,7 +118,7 @@ class ResultBuilder {
 	/**
 	 * @since 0.5
 	 *
-	 * @param $success bool|int|null
+	 * @param bool|int|null $success
 	 */
 	public function markSuccess( $success = true ) {
 		$value = (int)$success;
@@ -136,9 +145,9 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param $path array|string|null
-	 * @param $name string
-	 * @param $values array
+	 * @param array|string|null $path
+	 * @param string $name
+	 * @param array $values
 	 * @param string $tag tag name to use for elements of $values if not already present
 	 */
 	public function setList( $path, $name, array $values, $tag ) {
@@ -169,9 +178,9 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param $path array|string|null
-	 * @param $name string
-	 * @param $value mixed
+	 * @param array|string|null $path
+	 * @param string $name
+	 * @param mixed $value
 	 */
 	public function setValue( $path, $name, $value ) {
 		$this->checkPathType( $path );
@@ -195,10 +204,10 @@ class ResultBuilder {
 	 *
 	 * @since 0.5
 	 *
-	 * @param $path array|string|null
-	 * @param $key int|string|null the key to use when appending, or null for automatic.
+	 * @param array|string|null $path
+	 * @param int|string|null $key the key to use when appending, or null for automatic.
 	 * May be ignored even if given, based on $this->addMetaData.
-	 * @param $value mixed
+	 * @param mixed $value
 	 * @param string $tag tag name to use for $value in indexed mode
 	 */
 	public function appendValue( $path, $key, $value, $tag ) {
@@ -225,7 +234,7 @@ class ResultBuilder {
 	}
 
 	/**
-	 * @param $key int|string|null the key to use when appending, or null for automatic.
+	 * @param int|string|null $key the key to use when appending, or null for automatic.
 	 */
 	private function checkKeyType( $key ) {
 		Assert::parameter(
@@ -339,8 +348,7 @@ class ResultBuilder {
 		array $filterLangCodes,
 		array $fallbackChains
 	) {
-		$entitySerializer = $this->serializerFactory->newEntitySerializer();
-		$serialization = $entitySerializer->serialize( $entity );
+		$serialization = $this->entitySerializer->serialize( $entity );
 
 		$serialization = $this->filterEntitySerializationUsingProps( $serialization, $props );
 

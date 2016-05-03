@@ -22,7 +22,7 @@ use Wikibase\DataModel\Statement\Statement;
  * @group WikibaseDataModel
  * @group ByPropertyIdArrayTest
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
  */
@@ -299,14 +299,10 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider moveProvider
-	 * @param object[] $objectsSource
-	 * @param object $object
-	 * @param int $toIndex
-	 * @param object[] $objectsDestination
 	 */
 	public function testMoveObjectToIndex(
 		array $objectsSource,
-		$object,
+		PropertyIdProvider $object,
 		$toIndex,
 		array $objectsDestination
 	) {
@@ -378,14 +374,10 @@ class ByPropertyIdArrayTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider addProvider
-	 * @param object[] $objectsSource
-	 * @param object $object
-	 * @param int|null $index
-	 * @param object[] $objectsDestination
 	 */
 	public function testAddObjectAtIndex(
 		array $objectsSource,
-		$object,
+		PropertyIdProvider $object,
 		$index,
 		array $objectsDestination
 	) {

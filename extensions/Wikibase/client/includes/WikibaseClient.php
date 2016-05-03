@@ -10,6 +10,7 @@ use DataValues\MonolingualTextValue;
 use DataValues\MultilingualTextValue;
 use DataValues\NumberValue;
 use DataValues\QuantityValue;
+use DataValues\Serializers\DataValueSerializer;
 use DataValues\StringValue;
 use DataValues\TimeValue;
 use DataValues\UnknownValue;
@@ -23,6 +24,8 @@ use LogicException;
 use MediaWikiSite;
 use MWException;
 use RequestContext;
+use Serializers\DispatchingSerializer;
+use Serializers\Serializer;
 use Site;
 use SiteSQLStore;
 use SiteStore;
@@ -37,6 +40,7 @@ use Wikibase\Client\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\Client\ParserOutput\ClientParserOutputDataUpdater;
 use Wikibase\Client\RecentChanges\RecentChangeFactory;
 use Wikibase\DataModel\Entity\EntityIdValue;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Lookup\RestrictedEntityLookup;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
@@ -46,9 +50,7 @@ use Wikibase\Client\Store\TitleFactory;
 use Wikibase\ClientStore;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
@@ -58,7 +60,6 @@ use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\DataModel\Services\Term\TermBuffer;
 use Wikibase\DirectSqlStore;
-use Wikibase\EntityFactory;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
 use Wikibase\ItemChange;
 use Wikibase\LangLinkHandler;
@@ -123,6 +124,11 @@ final class WikibaseClient {
 	 * @var Deserializer|null
 	 */
 	private $entityDeserializer = null;
+
+	/**
+	 * @var Serializer[]
+	 */
+	private $entitySerializers = array();
 
 	/**
 	 * @var EntityIdParser|null
@@ -316,8 +322,9 @@ final class WikibaseClient {
 	 */
 	public function getEntityIdParser() {
 		if ( $this->entityIdParser === null ) {
-			//TODO: make the ID builders configurable
-			$this->entityIdParser = new DispatchingEntityIdParser( BasicEntityIdParser::getBuilders() );
+			$this->entityIdParser = new DispatchingEntityIdParser(
+				$this->entityTypeDefinitions->getEntityIdBuilders()
+			);
 		}
 
 		return $this->entityIdParser;
@@ -792,20 +799,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @return EntityFactory
-	 */
-	public function getEntityFactory() {
-		$entityClasses = array(
-			Item::ENTITY_TYPE => Item::class,
-			Property::ENTITY_TYPE => Property::class,
-		);
-
-		//TODO: provide a hook or registry for adding more.
-
-		return new EntityFactory( $entityClasses );
-	}
-
-	/**
 	 * @return EntityContentDataCodec
 	 */
 	public function getEntityContentDataCodec() {
@@ -879,6 +872,27 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * @param int $options bitwise combination of the SerializerFactory::OPTION_ flags
+	 *
+	 * @return Serializer
+	 */
+	public function getEntitySerializer( $options = 0 ) {
+		if ( !isset( $this->entitySerializers[$options] ) ) {
+			$serializerFactoryCallbacks = $this->entityTypeDefinitions->getSerializerFactoryCallbacks();
+			$serializerFactory = new SerializerFactory( new DataValueSerializer(), $options );
+			$serializers = array();
+
+			foreach ( $serializerFactoryCallbacks as $callback ) {
+				$serializers[] = call_user_func( $callback, $serializerFactory );
+			}
+
+			$this->entitySerializers[$options] = new DispatchingSerializer( $serializers );
+		}
+
+		return $this->entitySerializers[$options];
+	}
+
+	/**
 	 * @return DataValueDeserializer
 	 */
 	private function getDataValueDeserializer() {
@@ -922,9 +936,23 @@ final class WikibaseClient {
 		);
 
 		return new EntityChangeFactory(
-			new EntityDiffer(),
+			$this->getEntityDiffer(),
 			$changeClasses
 		);
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return EntityDiffer
+	 */
+	public function getEntityDiffer() {
+		$strategieBuilders = $this->entityTypeDefinitions->getEntityDifferStrategyBuilders();
+		$entityDiffer = new EntityDiffer();
+		foreach ( $strategieBuilders as $strategyBuilder ) {
+			$entityDiffer->registerEntityDifferStrategy( call_user_func( $strategyBuilder ) );
+		}
+		return $entityDiffer;
 	}
 
 	/**

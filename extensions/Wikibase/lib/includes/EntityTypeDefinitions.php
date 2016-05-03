@@ -11,17 +11,7 @@ use InvalidArgumentException;
  * EntityTypeDefinitions provides a one-stop interface for defining entity types.
  * Each entity type is defined using a "entity type definition" array.
  *
- * A definition array has the following fields:
- * - serializer-factory-callback: a callback for creating a serializer for entities of this type
- *   (requires a SerializerFactory to be passed to it)
- * - deserializer-factory-callback: a callback for creating a deserializer for entities of this type
- *   (requires a DeserializerFactory to be passed to it)
- * - view-factory-callback: a callback for creating a view for entities of this type (requires a
- *   language code, a LabelDescriptionLookup, a LanguageFallbackChain and an EditSectionGenerator)
- * - content-model-id: a string used as the content model identifier
- * - content-handler-factory-callback: a callback for creating a content handler dealing with
- *   entities of this type
- *
+ * The fields of a definition array can be seen in the follow doc file:
  * @see docs/entitytypes.wiki
  *
  * @licence GNU GPL v2+
@@ -107,6 +97,42 @@ class EntityTypeDefinitions {
 	 */
 	public function getContentHandlerFactoryCallbacks() {
 		return $this->getMapForDefinitionField( 'content-handler-factory-callback' );
+	}
+
+	/**
+	 * @return callable[]
+	 */
+	public function getEntityFactoryCallbacks() {
+		return $this->getMapForDefinitionField( 'entity-factory-callback' );
+	}
+
+	/**
+	 * @return callable[]
+	 */
+	public function getEntityDifferStrategyBuilders() {
+		return $this->getMapForDefinitionField( 'entity-differ-strategy-builder' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getJsDeserializerFactoryFunctions() {
+		return $this->getMapForDefinitionField( 'js-deserializer-factory-function' );
+	}
+
+	/**
+	 * @return callable[]
+	 */
+	public function getEntityIdBuilders() {
+		$result = [];
+
+		foreach ( $this->entityTypeDefinitions as $def ) {
+			if ( isset( $def['entity-id-builder-pair'] ) ) {
+				$result[ $def['entity-id-builder-pair'][0] ] = $def['entity-id-builder-pair'][1];
+			}
+		}
+
+		return $result;
 	}
 
 }
