@@ -45,11 +45,6 @@ class ChangeRowTest extends MediaWikiTestCase {
 		$change->getTime();
 	}
 
-	public function testIsNotEmpty() {
-		$change = new ChangeRow();
-		$this->assertFalse( $change->isEmpty() );
-	}
-
 	public function testGetTypeReturnsChange() {
 		$change = new ChangeRow();
 		$this->assertSame( 'change', $change->getType() );
@@ -69,11 +64,6 @@ class ChangeRowTest extends MediaWikiTestCase {
 	public function testReturnsExistingField() {
 		$change = new ChangeRow( array( 'field' => 'value' ) );
 		$this->assertSame( 'value', $change->getField( 'field' ) );
-	}
-
-	public function testReturnsDefaultForUnknownField() {
-		$change = new ChangeRow();
-		$this->assertSame( 'default', $change->getField( 'field', 'default' ) );
 	}
 
 	public function testCanNotReturnFieldWithoutDefault() {
@@ -161,12 +151,6 @@ class ChangeRowTest extends MediaWikiTestCase {
 		$change = new ChangeRow( array( 'field' => 'old' ) );
 		$change->setFields( array( 'field' => 'new' ) );
 		$this->assertSame( 'new', $change->getField( 'field' ) );
-	}
-
-	public function testDoesNotOverrideFields() {
-		$change = new ChangeRow( array( 'field' => 'old' ) );
-		$change->setFields( array( 'field' => 'new' ), false );
-		$this->assertSame( 'old', $change->getField( 'field' ) );
 	}
 
 	public function testReturnsId() {

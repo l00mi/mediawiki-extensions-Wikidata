@@ -90,8 +90,9 @@ local qualifierRenderer = function( qualifierSnak )
   return result
 end
 
--- Render the image.
--- @param String propertyId
+-- Render a statement containing images.
+-- @param table statement
+-- @param String orientationImage
 -- @return String renderedImage
 local imageStatementRenderer = function( statement, orientationImage )
   local reference = ''
@@ -108,7 +109,7 @@ local imageStatementRenderer = function( statement, orientationImage )
       end
     end
   end
-  local result = '[[File:' .. image .. '|thumb|' .. orientationImage .. '|200px|' .. reference .. ']]'
+  local result = '[[File:' .. image .. '|thumb|' .. orientationImage .. '|300px|' .. reference .. ']]'
   result = result .. qualifier
   return result
 end
@@ -191,7 +192,16 @@ local statementListRenderer = function( entity )
     for _, propertyId in pairs( properties ) do
       if propertyId ~= entityrenderer.imageProperty and getDatatype( propertyId ) ~= "external-id" then
         result = result .. '<div class="articleplaceholder-statementgroup">'
-        result = result .. '<h1>' .. labelRenderer( propertyId ) .. '</h1>'
+
+        -- check if the label is 'coordinates' and upper case it
+        -- this is necessary since headings will be rendered to id="*label*"
+        -- and 'coordinates' has specific CSS values on most mayor Wikipedias
+        local label = labelRenderer( propertyId )
+        if label == 'coordinates' then
+          label = label:gsub("^%l", string.upper)
+        end
+
+        result = result .. '<h1>' .. label .. '</h1>'
         result = result .. bestStatementRenderer( entity, propertyId )
         result = result .. '</div>'
       end
@@ -201,17 +211,20 @@ local statementListRenderer = function( entity )
 end
 
 -- Render the image.
--- @param String propertyId
--- @return String renderedImage
+-- @param table entity
+-- @param string propertyId
+-- @param string orientationImage
+-- @return string renderedImage
 local topImageRenderer = function( entity, propertyId, orientationImage )
   local renderedImage = ''
-  if propertyId ~= nil then
-    local imageName = entity:formatPropertyValues( propertyId ).value
-    if imageName ~= nil and imageName ~= '' then
-      renderedImage = '[[File:' .. imageName .. '|thumb|300px|' .. orientationImage .. ']]'
-      renderedImage = '<div class="articleplaceholder-topimage">' .. renderedImage .. '</div>'
-    end
+
+  imageStatement = entity:getBestStatements( propertyId )[1]
+
+  if imageStatement ~= nil then
+    renderedImage = imageStatementRenderer( imageStatement, orientationImage )
+    renderedImage = '<div class="articleplaceholder-topimage">' .. renderedImage .. '</div>'
   end
+
   return renderedImage
 end
 
