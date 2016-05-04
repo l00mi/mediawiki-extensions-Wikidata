@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "96b73d081414da0baa9a3d98c90572ac",
-    "content-hash": "090a74faf8f8a5ebeea3e353bac6a667",
+    "hash": "c2b8e05195171ac9f78d75c4cf83917f",
+    "content-hash": "ea478719a5d68598ed68f08aa02b6d0f",
     "packages": [
         {
             "name": "composer/installers",
@@ -784,7 +784,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a1db2b1e1b9d7a2a4aa29e4192af4c4236993515",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/09ccf83362cf4236dcdfe6d86a067a5fd00a9d3e",
                 "reference": "a1db2b1e1b9d7a2a4aa29e4192af4c4236993515",
                 "shasum": ""
             },
@@ -1442,16 +1442,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.28.0-wmf.1",
+            "version": "dev-wmf/1.27.0-wmf.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "bdecd1e2f41c9d9fb9905e75b9f6fd8cd299180a"
+                "reference": "c11623a823be093965c6b5af6fb6206d0c32213c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bdecd1e2f41c9d9fb9905e75b9f6fd8cd299180a",
-                "reference": "bdecd1e2f41c9d9fb9905e75b9f6fd8cd299180a",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c11623a823be093965c6b5af6fb6206d0c32213c",
+                "reference": "c11623a823be093965c6b5af6fb6206d0c32213c",
                 "shasum": ""
             },
             "require": {
@@ -1523,7 +1523,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-05-03 11:22:09"
+            "time": "2016-05-04 22:24:56"
         },
         {
             "name": "wikibase/wikimedia-badges",
