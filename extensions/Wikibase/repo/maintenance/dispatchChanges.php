@@ -1,17 +1,19 @@
 <?php
 
-namespace Wikibase;
+namespace Wikibase\Repo\Maintenance;
 
 use Exception;
 use Maintenance;
 use MWException;
 use RequestContext;
+use Wikibase\ChunkCache;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
 use Wikibase\Lib\Reporting\ReportingExceptionHandler;
-use Wikibase\Lib\Store\ChangeLookup;
+use Wikibase\Lib\Store\EntityChangeLookup;
 use Wikibase\Repo\ChangeDispatcher;
 use Wikibase\Repo\Notifications\JobQueueChangeNotificationSender;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\SettingsArray;
 use Wikibase\Store\Sql\SqlChangeDispatchCoordinator;
 use Wikibase\Store\Sql\SqlSubscriptionLookup;
 
@@ -83,14 +85,14 @@ class DispatchChanges extends Maintenance {
 	 * Initializes members from command line options and configuration settings.
 	 *
 	 * @param string[] $clientWikis A mapping of client wiki site IDs to logical database names.
-	 * @param ChangeLookup $changeLookup
+	 * @param EntityChangeLookup $changeLookup
 	 * @param SettingsArray $settings
 	 *
 	 * @return ChangeDispatcher
 	 */
 	private function newChangeDispatcher(
 		array $clientWikis,
-		ChangeLookup $changeLookup,
+		EntityChangeLookup $changeLookup,
 		SettingsArray $settings
 	) {
 		$repoID = wfWikiID();
@@ -171,7 +173,7 @@ class DispatchChanges extends Maintenance {
 
 		$dispatcher = $this->newChangeDispatcher(
 			$clientWikis,
-			$wikibaseRepo->getStore()->getChangeLookup(),
+			$wikibaseRepo->getStore()->getEntityChangeLookup(),
 			$wikibaseRepo->getSettings()
 		);
 

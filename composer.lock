@@ -1561,12 +1561,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e03e437e7806818472bb49d3180e264e743ffdd8"
+                "reference": "b0411c2bcd61ff3c323d94a16089530846b9d445"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e03e437e7806818472bb49d3180e264e743ffdd8",
-                "reference": "e03e437e7806818472bb49d3180e264e743ffdd8",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b0411c2bcd61ff3c323d94a16089530846b9d445",
+                "reference": "b0411c2bcd61ff3c323d94a16089530846b9d445",
                 "shasum": ""
             },
             "require": {
@@ -1607,15 +1607,15 @@
                     "client/tests/phpunit/MockClientStore.php",
                     "lib/includes/",
                     "lib/WikibaseLib.hooks.php",
-                    "lib/maintenance/",
                     "repo/includes/",
-                    "repo/maintenance/",
                     "repo/tests/phpunit/",
                     "repo/Wikibase.hooks.php"
                 ],
                 "psr-4": {
                     "Wikibase\\Client\\Tests\\": "client/tests/phpunit/includes",
+                    "Wikibase\\Lib\\Maintenance\\": "lib/maintenance",
                     "Wikibase\\Lib\\Tests\\": "lib/tests/phpunit",
+                    "Wikibase\\Repo\\Maintenance\\": "repo/maintenance",
                     "Wikibase\\View\\": "view/src",
                     "Wikibase\\View\\Tests\\": "view/tests/phpunit"
                 }
@@ -1638,7 +1638,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-05-04 21:50:44"
+            "time": "2016-05-06 09:46:13"
         },
         {
             "name": "wikibase/wikimedia-badges",
