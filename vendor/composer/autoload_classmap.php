@@ -725,7 +725,6 @@ return array(
     'Wikibase\\HistoryItemAction' => $baseDir . '/extensions/Wikibase/repo/includes/Actions/HistoryItemAction.php',
     'Wikibase\\HistoryPropertyAction' => $baseDir . '/extensions/Wikibase/repo/includes/Actions/HistoryPropertyAction.php',
     'Wikibase\\IdGenerator' => $baseDir . '/extensions/Wikibase/repo/includes/Store/IdGenerator.php',
-    'Wikibase\\ImportProperties' => $baseDir . '/extensions/Wikibase/repo/maintenance/importProperties.php',
     'Wikibase\\InternalSerialization\\DeserializerFactory' => $vendorDir . '/wikibase/internal-serialization/src/DeserializerFactory.php',
     'Wikibase\\InternalSerialization\\Deserializers\\EntityDeserializer' => $vendorDir . '/wikibase/internal-serialization/src/Deserializers/EntityDeserializer.php',
     'Wikibase\\InternalSerialization\\Deserializers\\LegacyEntityDeserializer' => $vendorDir . '/wikibase/internal-serialization/src/Deserializers/LegacyEntityDeserializer.php',

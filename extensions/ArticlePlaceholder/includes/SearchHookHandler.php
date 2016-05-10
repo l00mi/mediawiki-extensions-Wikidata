@@ -2,12 +2,10 @@
 
 namespace ArticlePlaceholder;
 
-use Http;
 use OutputPage;
 use SpecialSearch;
 use SpecialPage;
 use Wikibase\Client\WikibaseClient;
-use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\Lib\Interactors\TermSearchResult;
 use Wikibase\TermIndex;
@@ -147,7 +145,7 @@ class SearchHookHandler {
 	 */
 	private function getSearchResults( $term ) {
 		$wikitext = '';
-		$entityIdSearchResult = array();
+		$entityIdSearchResult = [];
 
 		foreach ( $this->searchEntities( $term ) as $searchResult ) {
 			$entityId = $searchResult->getEntityId()->getSerialization();
@@ -202,7 +200,7 @@ class SearchHookHandler {
 			$term,
 			$this->languageCode,
 			'item',
-			array( TermIndexEntry::TYPE_LABEL, TermIndexEntry::TYPE_ALIAS )
+			[ TermIndexEntry::TYPE_LABEL, TermIndexEntry::TYPE_ALIAS ]
 		);
 		return $searchResults;
 	}
@@ -214,7 +212,7 @@ class SearchHookHandler {
 	 * @return string[]|null $notableEntityIds
 	 */
 	private function getNotableEntityIds( $entityIds ) {
-		$notableEntityIds = array();
+		$notableEntityIds = [];
 		$data = $this->loadEntityData( $entityIds );
 
 		if ( $data === null ) {
@@ -262,12 +260,12 @@ class SearchHookHandler {
 		// due to limitation of the API
 		$entityIds = array_splice( $entityIds, 0, 50 );
 
-		$params = wfArrayToCgi( array(
+		$params = wfArrayToCgi( [
 			'action' => 'wbgetentities',
-			'props' => ['sitelinks', 'claims'],
+			'props' => [ 'sitelinks', 'claims' ],
 			'format' => 'json',
 			'ids' => implode( '|', $entityIds )
-		) );
+		] );
 		$url = $apiUrl . '?' . $params;
 		return $url;
 	}
@@ -280,4 +278,5 @@ class SearchHookHandler {
 	public function setHttpGetOverride( $http_get ) {
 		$this->http_get = $http_get;
 	}
+
 }

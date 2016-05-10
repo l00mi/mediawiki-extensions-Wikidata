@@ -3,13 +3,11 @@
 namespace Wikibase\View\Tests;
 
 use PHPUnit_Framework_TestCase;
-use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\View\EditSectionGenerator;
 use Wikibase\View\EntityTermsView;
 use Wikibase\View\DummyLocalizedTextProvider;
-use Wikibase\View\LocalizedTextProvider;
 use Wikibase\View\Template\TemplateFactory;
 use Wikibase\View\TextInjector;
 
@@ -104,7 +102,7 @@ class EntityTermsViewTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertContains( 'wb-empty', $html );
 		$this->assertContains( '(wikibase-description-empty)', $html );
-		$this->assertContains( '(wikibase-aliases-empty)', $html );
+		$this->assertContains( '<div class="wikibase-entitytermsview-heading-aliases wb-empty"></div>', $html );
 	}
 
 	public function testGetHtml_isNotMarkedAsEmpty() {
@@ -114,7 +112,7 @@ class EntityTermsViewTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertNotContains( 'wb-empty', $html );
 		$this->assertNotContains( '(wikibase-description-empty)', $html );
-		$this->assertNotContains( '(wikibase-aliases-empty)', $html );
+		$this->assertContains( 'wikibase-entitytermsview-aliases', $html );
 	}
 
 	public function testGetHtml_containsEmptyDescriptionPlaceholder() {
@@ -126,10 +124,10 @@ class EntityTermsViewTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertContains( 'wb-empty', $html );
 		$this->assertContains( '(wikibase-description-empty)', $html );
-		$this->assertNotContains( '(wikibase-aliases-empty)', $html );
+		$this->assertContains( 'wikibase-entitytermsview-aliases', $html );
 	}
 
-	public function testGetHtml_containsEmptyAliasesPlaceholder() {
+	public function testGetHtml_containsEmptyAliasesList() {
 		$fingerprint = $this->getFingerprint();
 		$fingerprint->removeAliasGroup( 'en' );
 
@@ -138,7 +136,7 @@ class EntityTermsViewTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertContains( 'wb-empty', $html );
 		$this->assertNotContains( '(wikibase-description-empty)', $html );
-		$this->assertContains( '(wikibase-aliases-empty)', $html );
+		$this->assertContains( '<div class="wikibase-entitytermsview-heading-aliases wb-empty"></div>', $html );
 	}
 
 	public function testGetTitleHtml_containsLabel() {
