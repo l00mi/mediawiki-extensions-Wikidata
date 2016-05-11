@@ -32,26 +32,32 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 		$typeDescription = TermIndexEntry::TYPE_DESCRIPTION;
 
 		return new MockTermIndex(
-			array(
-				// Q111 - Has label, description and alias all the same
+			[
+				// Q7246 - Has label, description and alias all the same
+				// (multiple sitelinks and statements in the ApiRequest.json)
+				$this->getTermIndexEntry( 'Unicorn', 'en', $typeLabel, new ItemId( 'Q7246' ) ),
+				$this->getTermIndexEntry( 'Unicorn', 'en', $typeDescription, new ItemId( 'Q7246' ) ),
+				$this->getTermIndexEntry( 'Unicorn', 'en', $typeAlias, new ItemId( 'Q7246' ) ),
+				$this->getTermIndexEntry( 'UNICORN', 'en', $typeAlias, new ItemId( 'Q7246' ) ),
+				// Q111 - same label as Q7246
+				// (only one statement and two sitelinks in ApiRequest.json)
 				$this->getTermIndexEntry( 'Unicorn', 'en', $typeLabel, new ItemId( 'Q111' ) ),
-				$this->getTermIndexEntry( 'Unicorn', 'en', $typeDescription, new ItemId( 'Q111' ) ),
-				$this->getTermIndexEntry( 'Unicorn', 'en', $typeAlias, new ItemId( 'Q111' ) ),
-				$this->getTermIndexEntry( 'UNICORN', 'en', $typeAlias, new ItemId( 'Q111' ) ),
-				// Q333
-				$this->getTermIndexEntry( 'Unicorns are great', 'en', $typeLabel, new ItemId( 'Q333' ) ),
-				// Q555
-				$this->getTermIndexEntry( 'Ta', 'en', $typeAlias, new ItemId( 'Q555' ) ),
-				$this->getTermIndexEntry( 'Taa', 'en', $typeAlias, new ItemId( 'Q555' ) ),
-				$this->getTermIndexEntry( 'TAAA', 'en-ca', $typeAlias, new ItemId( 'Q555' ) ),
-				$this->getTermIndexEntry( 'Taa', 'en-ca', $typeAlias, new ItemId( 'Q555' ) ),
+				// Q753853
+				// (multiple sitelinks and statements ins ApiRequest.json)
+				$this->getTermIndexEntry( 'Unicorns are great', 'en', $typeLabel, new ItemId( 'Q753853' ) ),
+				// Q12345
+				// (multiple statements and sitelinks)
+				$this->getTermIndexEntry( 'Ta', 'en', $typeAlias, new ItemId( 'Q12345' ) ),
+				$this->getTermIndexEntry( 'Taa', 'en', $typeAlias, new ItemId( 'Q12345' ) ),
+				$this->getTermIndexEntry( 'TAAA', 'en-ca', $typeAlias, new ItemId( 'Q12345' ) ),
+				$this->getTermIndexEntry( 'Taa', 'en-ca', $typeAlias, new ItemId( 'Q12345' ) ),
 				// P22
 				$this->getTermIndexEntry( 'Lama', 'en-ca', $typeLabel, new PropertyId( 'P22' ) ),
 				$this->getTermIndexEntry( 'La-description', 'en', $typeDescription, new PropertyId( 'P22' ) ),
 				// P44
 				$this->getTermIndexEntry( 'Lama', 'en', $typeLabel, new PropertyId( 'P44' ) ),
 				$this->getTermIndexEntry( 'Lama-de-desc', 'de', $typeDescription, new PropertyId( 'P44' ) ),
-			)
+			]
 		);
 	}
 
@@ -64,18 +70,18 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 	 * @returns TermIndexEntry
 	 */
 	private function getTermIndexEntry( $text, $languageCode, $termType, EntityId $entityId ) {
-		return new TermIndexEntry( array(
+		return new TermIndexEntry( [
 			'termText' => $text,
 			'termLanguage' => $languageCode,
 			'termType' => $termType,
 			'entityId' => $entityId->getNumericId(),
 			'entityType' => $entityId->getEntityType(),
-		) );
+		] );
 	}
 
 	private function getMockedTermSearchInteractor( $language, $doNotReturnTerms = false ) {
 		$termLookupIndex = $doNotReturnTerms
-			? new MockTermIndex( array() )
+			? new MockTermIndex( [] )
 			: $this->getMockTermIndex();
 
 		$termSearchInteractor = new TermIndexSearchInteractor(
@@ -103,25 +109,30 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 		$page = new SearchHookHandler(
 			$this->getMockTermIndex(),
 			$this->getMockedTermSearchInteractor( $language, $doNotReturnTerms ),
-			$language
+			$language,
+			'repo-script-path',
+			'repo-url'
 		);
+		$page->setHttpGetOverride( function() {
+			return file_get_contents( __DIR__ . '/../data/ApiRequest.json' );
+		} );
 		return $page;
 	}
 
 	public function provideAddToSearch() {
-		return array(
-			array(
+		return [
+			[
 				'get term, check if entity with right title is returned',
 				'Unicorn',
 				'>Unicorn</a>: Unicorn</div>'
-			),
-			array(
+			],
+			[
 				'search result with no label and no description',
 				'Unicorn',
-				'>Q111</a></div>',
+				'>Q7246</a></div>',
 				true
-			),
-		);
+			],
+		];
 	}
 
 	/**

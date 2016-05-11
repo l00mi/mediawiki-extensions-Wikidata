@@ -9,6 +9,7 @@ local util = require( 'libraryUtil' )
 local php = mw_interface
 
 entityrenderer.imageProperty = php.getImageProperty()
+entityrenderer.referencesBlacklist = php.getReferencesBlacklist()
 
 local hasReferences = false
 
@@ -33,13 +34,12 @@ local labelRenderer = function( entityId )
   return label
 end
 
--- Returns a table of statements sorted by *something*
+-- Returns a table of ordered property IDs
 -- @param table entity
--- @return table of properties
-local statementSorter = function( entity )
-  -- @todo sort by *something*
-  -- @todo limit number of statements
-  return entity:getProperties()
+-- @return table of property IDs
+local orderProperties = function( entity )
+  local propertyIDs = entity:getProperties()
+  return mw.wikibase.orderProperties( propertyIDs )
 end
 
 -- Renders a given table of snaks.
@@ -53,22 +53,46 @@ local snaksRenderer = function( snaks )
   return result
 end
 
+-- Remove the references that include a Snak with the blacklisted property id.
+-- @param table references
+-- @return table newRefs
+local removeBlacklistedReferences = function( references )
+  local newRefs = {}
+
+  for key, reference in pairs(references) do
+    local blacklisted = false
+    for propRef, snakRef in pairs( reference['snaks'] ) do
+
+      if propRef == entityrenderer.referencesBlacklist then
+        blacklisted = true
+        break
+      end
+    end
+    if blacklisted == false then
+      table.insert( newRefs, reference )
+    end
+  end
+
+  return newRefs
+end
+
 -- Render a reference.
 -- @param table references
 -- @return String result
 local referenceRenderer = function( references )
   local frame = mw:getCurrentFrame()
   local referencesWikitext = {}
-  local referenceWikitext
+
+  if entityrenderer.referencesBlacklist ~= nil then
+    references = removeBlacklistedReferences( references )
+  end
 
   if references ~= nil then
     hasReferences = true
     local i = 1
     while references[i] do
-      for propRef, snakRef in pairs( references[i]['snaks'] ) do
-        referenceWikitext = "'''" .. labelRenderer( propRef ) .. "''': " .. snaksRenderer( snakRef )
-        table.insert( referencesWikitext, frame:extensionTag( 'ref', referenceWikitext ) )
-      end
+      referenceWikitext = snaksRenderer( references[i]['snaks'] )
+      table.insert( referencesWikitext, frame:extensionTag( 'ref', referenceWikitext ) )
       i = i + 1
     end
   end
@@ -90,8 +114,9 @@ local qualifierRenderer = function( qualifierSnak )
   return result
 end
 
--- Render the image.
--- @param String propertyId
+-- Render a statement containing images.
+-- @param table statement
+-- @param String orientationImage
 -- @return String renderedImage
 local imageStatementRenderer = function( statement, orientationImage )
   local reference = ''
@@ -108,7 +133,7 @@ local imageStatementRenderer = function( statement, orientationImage )
       end
     end
   end
-  local result = '[[File:' .. image .. '|thumb|' .. orientationImage .. '|200px|' .. reference .. ']]'
+  local result = '[[File:' .. image .. '|thumb|' .. orientationImage .. '|300px|' .. reference .. ']]'
   result = result .. qualifier
   return result
 end
@@ -186,32 +211,46 @@ end
 -- @return string result
 local statementListRenderer = function( entity )
   local result = ''
-  local properties = statementSorter( entity )
-  if properties ~= nil then
-    for _, propertyId in pairs( properties ) do
-      if propertyId ~= entityrenderer.imageProperty and getDatatype( propertyId ) ~= "external-id" then
+  local propertyIDs = orderProperties( entity )
+
+  if propertyIDs ~= nil then
+
+    for i=1, #propertyIDs do
+      if propertyIDs[i] ~= entityrenderer.imageProperty and getDatatype( propertyIDs[i] ) ~= "external-id" then
         result = result .. '<div class="articleplaceholder-statementgroup">'
-        result = result .. '<h1>' .. labelRenderer( propertyId ) .. '</h1>'
-        result = result .. bestStatementRenderer( entity, propertyId )
+        -- check if the label is 'coordinates' and upper case it
+        -- this is necessary since headings will be rendered to id="*label*"
+        -- and 'coordinates' has specific CSS values on most mayor Wikipedias
+        local label = labelRenderer( propertyIDs[i] )
+        if label == 'coordinates' then
+          label = label:gsub("^%l", string.upper)
+        end
+
+        result = result .. '<h1>' .. label .. '</h1>'
+        result = result .. bestStatementRenderer( entity, propertyIDs[i] )
         result = result .. '</div>'
       end
     end
   end
+
   return '<div class="articleplaceholder-statementgrouplist">' .. result .. '</div>'
 end
 
 -- Render the image.
--- @param String propertyId
--- @return String renderedImage
+-- @param table entity
+-- @param string propertyId
+-- @param string orientationImage
+-- @return string renderedImage
 local topImageRenderer = function( entity, propertyId, orientationImage )
   local renderedImage = ''
-  if propertyId ~= nil then
-    local imageName = entity:formatPropertyValues( propertyId ).value
-    if imageName ~= nil and imageName ~= '' then
-      renderedImage = '[[File:' .. imageName .. '|thumb|300px|' .. orientationImage .. ']]'
-      renderedImage = '<div class="articleplaceholder-topimage">' .. renderedImage .. '</div>'
-    end
+
+  imageStatement = entity:getBestStatements( propertyId )[1]
+
+  if imageStatement ~= nil then
+    renderedImage = imageStatementRenderer( imageStatement, orientationImage )
+    renderedImage = '<div class="articleplaceholder-topimage">' .. renderedImage .. '</div>'
   end
+
   return renderedImage
 end
 
@@ -270,13 +309,13 @@ entityrenderer.setLabelRenderer = function( newLabelRenderer )
   labelRenderer = newLabelRenderer
 end
 
-entityrenderer.getStatementSorter = function()
-  return statementSorter
+entityrenderer.getOrderProperties = function()
+  return orderProperties
 end
 
-entityrenderer.setStatementSorter = function( newStatementSorter )
-  util.checkType( 'setStatementSorter', 1, newStatementSorter, 'function' )
-  statementSorter = newStatementSorter
+entityrenderer.setOrderProperties = function( newOrderProperties )
+  util.checkType( 'setOrderProperties', 1, newOrderProperties, 'function' )
+  orderProperties = newOrderProperties
 end
 
 entityrenderer.getSnaksRenderer = function()

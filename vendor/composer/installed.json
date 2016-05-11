@@ -102,40 +102,6 @@
         ]
     },
     {
-        "name": "mediawiki/article-placeholder",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "a1db2b1e1b9d7a2a4aa29e4192af4c4236993515"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a1db2b1e1b9d7a2a4aa29e4192af4c4236993515",
-            "reference": "a1db2b1e1b9d7a2a4aa29e4192af4c4236993515",
-            "shasum": ""
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.5.1"
-        },
-        "time": "2016-05-02 06:52:54",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Lucie-Aimée Kaffee"
-            }
-        ],
-        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
-    },
-    {
         "name": "wikimedia/purtle",
         "version": "v1.0.3",
         "version_normalized": "1.0.3.0",
@@ -1678,5 +1644,39 @@
             "wikibaserepo",
             "wikidata"
         ]
+    },
+    {
+        "name": "mediawiki/article-placeholder",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
+            "reference": "2ac7389547826e03fd20a649c9c80d4fa122d015"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/2ac7389547826e03fd20a649c9c80d4fa122d015",
+            "reference": "2ac7389547826e03fd20a649c9c80d4fa122d015",
+            "shasum": ""
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.7.1"
+        },
+        "time": "2016-05-11 16:28:58",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Lucie-Aimée Kaffee"
+            }
+        ],
+        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
     }
 ]
