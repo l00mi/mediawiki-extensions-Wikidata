@@ -1647,24 +1647,24 @@
     },
     {
         "name": "mediawiki/article-placeholder",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-wmf/1.27.0-wmf.23",
+        "version_normalized": "dev-wmf/1.27.0-wmf.23",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "2ac7389547826e03fd20a649c9c80d4fa122d015"
+            "reference": "25c1d1c37c6e87a003e0e58bea4b1b48947c5102"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/2ac7389547826e03fd20a649c9c80d4fa122d015",
-            "reference": "2ac7389547826e03fd20a649c9c80d4fa122d015",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/25c1d1c37c6e87a003e0e58bea4b1b48947c5102",
+            "reference": "25c1d1c37c6e87a003e0e58bea4b1b48947c5102",
             "shasum": ""
         },
         "require-dev": {
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.7.1"
         },
-        "time": "2016-05-11 16:28:58",
+        "time": "2016-05-12 13:39:35",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "notification-url": "https://packagist.org/downloads/",

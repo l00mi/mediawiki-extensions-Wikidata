@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c2b8e05195171ac9f78d75c4cf83917f",
-    "content-hash": "ea478719a5d68598ed68f08aa02b6d0f",
+    "hash": "3b9e75cace4cbb6d4dfc6eab02e0a214",
+    "content-hash": "19e0638b43b0e04f18dbb7ee5d8937c5",
     "packages": [
         {
             "name": "composer/installers",
@@ -776,16 +776,16 @@
         },
         {
             "name": "mediawiki/article-placeholder",
-            "version": "dev-master",
+            "version": "dev-wmf/1.27.0-wmf.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "2ac7389547826e03fd20a649c9c80d4fa122d015"
+                "reference": "25c1d1c37c6e87a003e0e58bea4b1b48947c5102"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/2ac7389547826e03fd20a649c9c80d4fa122d015",
-                "reference": "2ac7389547826e03fd20a649c9c80d4fa122d015",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/25c1d1c37c6e87a003e0e58bea4b1b48947c5102",
+                "reference": "25c1d1c37c6e87a003e0e58bea4b1b48947c5102",
                 "shasum": ""
             },
             "require-dev": {
@@ -804,7 +804,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-05-11 16:28:58"
+            "time": "2016-05-12 13:39:35"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1630,57 +1630,7 @@
             "time": "2016-04-29 23:45:49"
         }
     ],
-    "packages-dev": [
-        {
-            "name": "wikimedia/composer-merge-plugin",
-            "version": "v1.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/wikimedia/composer-merge-plugin.git",
-                "reference": "0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/composer-merge-plugin/zipball/0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4",
-                "reference": "0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0",
-                "php": ">=5.3.2"
-            },
-            "require-dev": {
-                "composer/composer": "1.0.*@dev",
-                "jakub-onderka/php-parallel-lint": "~0.8",
-                "phpunit/phpunit": "~4.8|~5.0",
-                "squizlabs/php_codesniffer": "~2.1.0"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.3.x-dev"
-                },
-                "class": "Wikimedia\\Composer\\MergePlugin"
-            },
-            "autoload": {
-                "psr-4": {
-                    "Wikimedia\\Composer\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bryan Davis",
-                    "email": "bd808@wikimedia.org"
-                }
-            ],
-            "description": "Composer plugin to merge multiple composer.json files",
-            "time": "2016-03-08 17:11:37"
-        }
-    ],
+    "packages-dev": null,
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {

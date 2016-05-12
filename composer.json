@@ -30,7 +30,7 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "mediawiki/article-placeholder": "dev-master",
+        "mediawiki/article-placeholder": "dev-wmf/1.27.0-wmf.23",
         "propertysuggester/property-suggester": "~3.0.0",
         "wikibase/wikibase": "dev-wmf/1.27.0-wmf.23",
         "wikibase/wikimedia-badges": "dev-master",
