@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "1f5af65d89bf190f72074a39886928a7729a4035"
+                "reference": "0d1816460af6029d14ebdfc16625a80e2fdba79a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/1f5af65d89bf190f72074a39886928a7729a4035",
-                "reference": "1f5af65d89bf190f72074a39886928a7729a4035",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/0d1816460af6029d14ebdfc16625a80e2fdba79a",
+                "reference": "0d1816460af6029d14ebdfc16625a80e2fdba79a",
                 "shasum": ""
             },
             "require-dev": {
@@ -804,7 +804,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-05-11 20:24:49"
+            "time": "2016-05-12 20:12:11"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -915,7 +915,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "9702f2d9b0187decff591ed2f5410ba6fa92533b"
+                "reference": "d25e051fd18b8f539fa2f74b486131726776e77a"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -959,7 +959,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-05-11 20:31:06"
+            "time": "2016-05-12 20:18:17"
         },
         {
             "name": "wikibase/constraints",
@@ -1564,12 +1564,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "bb99a160beb71fe80c06a594f783ae237645aefb"
+                "reference": "ceae1b20a299ab45b5ea34da411cde36f2ca5deb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bb99a160beb71fe80c06a594f783ae237645aefb",
-                "reference": "bb99a160beb71fe80c06a594f783ae237645aefb",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ceae1b20a299ab45b5ea34da411cde36f2ca5deb",
+                "reference": "ceae1b20a299ab45b5ea34da411cde36f2ca5deb",
                 "shasum": ""
             },
             "require": {
@@ -1641,7 +1641,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-05-11 20:30:47"
+            "time": "2016-05-12 20:18:01"
         },
         {
             "name": "wikibase/wikimedia-badges",
