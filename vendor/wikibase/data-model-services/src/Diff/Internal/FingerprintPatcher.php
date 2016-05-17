@@ -2,106 +2,60 @@
 
 namespace Wikibase\DataModel\Services\Diff\Internal;
 
-use Diff\DiffOp\Diff\Diff;
-use Diff\Patcher\MapPatcher;
-use InvalidArgumentException;
+use Diff\Patcher\PatcherException;
 use Wikibase\DataModel\Services\Diff\EntityDiff;
-use Wikibase\DataModel\Term\AliasGroup;
-use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Services\Diff\TermListPatcher;
 use Wikibase\DataModel\Term\Fingerprint;
-use Wikibase\DataModel\Term\TermList;
 
 /**
  * Package private.
  *
- * @licence GNU GPL v2+
+ * @since 1.0
+ *
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
 class FingerprintPatcher {
 
 	/**
-	 * @var MapPatcher
+	 * @var TermListPatcher
 	 */
-	private $patcher;
+	private $termListPatcher;
+
+	/**
+	 * @var AliasGroupListPatcher
+	 */
+	private $aliasGroupListPatcher;
 
 	public function __construct() {
-		$this->patcher = new MapPatcher();
+		$this->termListPatcher = new TermListPatcher();
+		$this->aliasGroupListPatcher = new AliasGroupListPatcher();
 	}
 
 	/**
+	 * @since 1.0
+	 *
 	 * @param Fingerprint $fingerprint
 	 * @param EntityDiff $patch
 	 *
-	 * @throws InvalidArgumentException
+	 * @throws PatcherException
 	 */
 	public function patchFingerprint( Fingerprint $fingerprint, EntityDiff $patch ) {
-		$labels = $this->patcher->patch(
-			$fingerprint->getLabels()->toTextArray(),
+		$this->termListPatcher->patchTermList(
+			$fingerprint->getLabels(),
 			$patch->getLabelsDiff()
 		);
 
-		$fingerprint->setLabels( $this->newTermListFromArray( $labels ) );
-
-		$descriptions = $this->patcher->patch(
-			$fingerprint->getDescriptions()->toTextArray(),
+		$this->termListPatcher->patchTermList(
+			$fingerprint->getDescriptions(),
 			$patch->getDescriptionsDiff()
 		);
 
-		$fingerprint->setDescriptions( $this->newTermListFromArray( $descriptions ) );
-
-		$this->patchAliases( $fingerprint, $patch->getAliasesDiff() );
-	}
-
-	/**
-	 * @param string[] $termArray
-	 *
-	 * @return TermList
-	 */
-	private function newTermListFromArray( array $termArray ) {
-		$termList = new TermList();
-
-		foreach ( $termArray as $language => $labelText ) {
-			$termList->setTextForLanguage( $language, $labelText );
-		}
-
-		return $termList;
-	}
-
-	private function patchAliases( Fingerprint $fingerprint, Diff $aliasesDiff ) {
-		$patchedAliases = $this->patcher->patch(
-			$this->getAliasesArrayForPatching( $fingerprint->getAliasGroups() ),
-			$aliasesDiff
+		$this->aliasGroupListPatcher->patchAliasGroupList(
+			$fingerprint->getAliasGroups(),
+			$patch->getAliasesDiff()
 		);
-
-		$fingerprint->setAliasGroups( $this->getAliasesFromArrayForPatching( $patchedAliases ) );
-	}
-
-	private function getAliasesArrayForPatching( AliasGroupList $aliases ) {
-		$textLists = array();
-
-		/**
-		 * @var AliasGroup $aliasGroup
-		 */
-		foreach ( $aliases as $languageCode => $aliasGroup ) {
-			$textLists[$languageCode] = $aliasGroup->getAliases();
-		}
-
-		return $textLists;
-	}
-
-	/**
-	 * @param array[] $patchedAliases
-	 *
-	 * @return AliasGroupList
-	 */
-	private function getAliasesFromArrayForPatching( array $patchedAliases ) {
-		$aliases = new AliasGroupList();
-
-		foreach( $patchedAliases as $languageCode => $aliasList ) {
-			$aliases->setAliasesForLanguage( $languageCode, $aliasList );
-		}
-
-		return $aliases;
 	}
 
 }

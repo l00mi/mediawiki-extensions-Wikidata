@@ -32,6 +32,7 @@ use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
@@ -48,7 +49,6 @@ use Wikibase\Repo\CachingCommonsMediaFileNameLookup;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
-use Wikibase\Repo\EntityNamespaceLookup;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Localizer\ExceptionLocalizer;
@@ -243,10 +243,8 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 
 	public function testGetContentModelMappings() {
 		$array = $this->getWikibaseRepo()->getContentModelMappings();
-		foreach ( $array as $entityType => $contentModel ) {
-			$this->assertTrue( is_scalar( $entityType ) );
-			$this->assertTrue( is_scalar( $contentModel ) );
-		}
+		$this->assertInternalType( 'array', $array );
+		$this->assertContainsOnly( 'string', $array );
 	}
 
 	public function testGetEntityFactory() {

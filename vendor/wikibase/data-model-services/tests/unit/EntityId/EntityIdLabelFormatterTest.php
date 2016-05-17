@@ -7,13 +7,14 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\EntityId\EntityIdLabelFormatter;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookupException;
 use Wikibase\DataModel\Term\Term;
 
 /**
  * @covers Wikibase\DataModel\Services\EntityId\EntityIdLabelFormatter
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  * @author Katie Filbert < aude.wiki@gmail.com >
@@ -54,6 +55,11 @@ class EntityIdLabelFormatterTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( $expectedString, $formattedValue );
 	}
 
+	/**
+	 * @param string $languageCode
+	 *
+	 * @return LabelDescriptionLookup
+	 */
 	protected function getLabelDescriptionLookup( $languageCode ) {
 		$labelDescriptionLookup = $this->getMockBuilder( 'Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup' )
 			->disableOriginalConstructor()

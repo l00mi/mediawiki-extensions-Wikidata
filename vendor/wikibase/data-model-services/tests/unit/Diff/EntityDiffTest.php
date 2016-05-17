@@ -8,7 +8,7 @@ use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Services\Diff\EntityDiff;
-use Wikibase\DataModel\Services\Diff\Internal\StatementListDiffer;
+use Wikibase\DataModel\Services\Diff\StatementListDiffer;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
@@ -16,7 +16,7 @@ use Wikibase\DataModel\Statement\StatementList;
 /**
  * @covers Wikibase\DataModel\Services\Diff\EntityDiff
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class EntityDiffTest extends PHPUnit_Framework_TestCase {

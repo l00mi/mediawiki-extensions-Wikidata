@@ -13,7 +13,7 @@ use Wikibase\DataModel\Term\Fingerprint;
 /**
  * @covers Wikibase\DataModel\Services\Diff\Internal\FingerprintPatcher
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Thiemo Mättig
  */
@@ -85,11 +85,21 @@ class FingerprintPatcherTest extends \PHPUnit_Framework_TestCase {
 	public function aliasDiffProvider() {
 		return array(
 			'diffs containing add/remove ops (default)' => array( array(
-				'de' => new Diff( array( new DiffOpAdd( 'foo' ) ) ),
-				'en' => new Diff( array( new DiffOpRemove( 'en-old' ), new DiffOpAdd( 'en-new' ) ) ),
-				'fa' => new Diff( array( new DiffOpRemove( 'fa-old' ) ) ),
+				'de' => new Diff( array( new DiffOpAdd( 'foo' ) ), false ),
+				'en' => new Diff( array( new DiffOpRemove( 'en-old' ), new DiffOpAdd( 'en-new' ) ), false ),
+				'fa' => new Diff( array( new DiffOpRemove( 'fa-old' ) ), false ),
 			) ),
-			'diffs containing atomic ops' => array( array(
+			'associative diffs containing atomic ops' => array( array(
+				'de' => new Diff( array( new DiffOpAdd( 'foo' ) ), true ),
+				'en' => new Diff( array( new DiffOpChange( 'en-old', 'en-new' ) ), true ),
+				'fa' => new Diff( array( new DiffOpRemove( 'fa-old' ) ), true ),
+			) ),
+			'non-associative diffs containing atomic ops' => array( array(
+				'de' => new Diff( array( new DiffOpAdd( 'foo' ) ), true ),
+				'en' => new Diff( array( new DiffOpChange( 'en-old', 'en-new' ) ), false ),
+				'fa' => new Diff( array( new DiffOpRemove( 'fa-old' ) ), true ),
+			) ),
+			'partly associative diffs (auto-detected) containing atomic ops' => array( array(
 				'de' => new Diff( array( new DiffOpAdd( 'foo' ) ) ),
 				'en' => new Diff( array( new DiffOpChange( 'en-old', 'en-new' ) ) ),
 				'fa' => new Diff( array( new DiffOpRemove( 'fa-old' ) ) ),
@@ -111,7 +121,7 @@ class FingerprintPatcherTest extends \PHPUnit_Framework_TestCase {
 		$fingerprint->setAliasGroup( 'fa', array( 'fa-old' ) );
 
 		$patch = new EntityDiff( array(
-			'aliases' => new Diff( $diffOps ),
+			'aliases' => new Diff( $diffOps, true ),
 		) );
 
 		$expectedFingerprint = $this->newSimpleFingerprint();
@@ -187,8 +197,8 @@ class FingerprintPatcherTest extends \PHPUnit_Framework_TestCase {
 			) ),
 			'changing missing aliases is no-op' => array( array(
 				'aliases' => new Diff( array(
-					'de' => new Diff( array( new DiffOpChange( 'original', 'changed' ) ) ),
-					'en' => new Diff( array( new DiffOpChange( 'original', 'changed' ) ) ),
+					'de' => new Diff( array( new DiffOpChange( 'original', 'changed' ) ), true ),
+					'en' => new Diff( array( new DiffOpChange( 'original', 'changed' ) ), true ),
 				), true ),
 			) ),
 			'changing missing aliases is no-op (atomic)' => array( array(

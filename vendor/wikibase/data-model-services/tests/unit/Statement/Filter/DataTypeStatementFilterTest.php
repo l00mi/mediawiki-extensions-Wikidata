@@ -4,6 +4,7 @@ namespace Wikibase\DataModel\Services\Tests\Statement\Filter;
 
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\PropertyId;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException;
 use Wikibase\DataModel\Services\Statement\Filter\DataTypeStatementFilter;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
@@ -12,11 +13,14 @@ use Wikibase\DataModel\Statement\Statement;
 /**
  * @covers Wikibase\DataModel\Services\Statement\Filter\DataTypeStatementFilter
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thiemo Mättig
  */
 class DataTypeStatementFilterTest extends PHPUnit_Framework_TestCase {
 
+	/**
+	 * @return PropertyDataTypeLookup
+	 */
 	private function getDataTypeLookup() {
 		$dataTypeLookup = $this->getMock(
 			'Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup'

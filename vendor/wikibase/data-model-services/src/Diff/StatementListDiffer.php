@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\DataModel\Services\Diff\Internal;
+namespace Wikibase\DataModel\Services\Diff;
 
 use Diff\Differ\MapDiffer;
 use Diff\DiffOp\Diff\Diff;
@@ -9,11 +9,9 @@ use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 
 /**
- * Package private.
+ * @since 3.6
  *
- * @since 1.0
- *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class StatementListDiffer {

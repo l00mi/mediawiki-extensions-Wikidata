@@ -7,13 +7,12 @@ use Diff\DiffOp\DiffOp;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Property;
-use Wikibase\DataModel\Services\Diff\Internal\StatementListDiffer;
 use Wikibase\DataModel\Statement\StatementList;
 
 /**
  * @since 1.0
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class PropertyDiffer implements EntityDifferStrategy {
