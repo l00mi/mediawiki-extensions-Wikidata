@@ -3,12 +3,12 @@
 namespace Wikibase\Repo\ParserOutput;
 
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\Term\AliasesProvider;
 use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\DataModel\Term\LabelsProvider;
-use Wikibase\DataModel\Term\TermList;
 use Wikibase\View\EditSectionGenerator;
+use Wikibase\View\HtmlTermRenderer;
 use Wikibase\View\LocalizedTextProvider;
 use Wikibase\View\SimpleEntityTermsView;
 use Wikibase\View\TermsListView;
@@ -30,6 +30,11 @@ class PlaceholderEmittingEntityTermsView extends SimpleEntityTermsView {
 	private $templateFactory;
 
 	/**
+	 * @var TermsListView
+	 */
+	private $termsListView;
+
+	/**
 	 * @var TextInjector
 	 */
 	private $textInjector;
@@ -40,14 +45,24 @@ class PlaceholderEmittingEntityTermsView extends SimpleEntityTermsView {
 	 * @param LocalizedTextProvider $textProvider
 	 */
 	public function __construct(
+		HtmlTermRenderer $htmlTermRenderer,
+		LabelDescriptionLookup $labelDescriptionLookup,
 		TemplateFactory $templateFactory,
 		EditSectionGenerator $sectionEditLinkGenerator,
 		LocalizedTextProvider $textProvider,
 		TermsListView $termsListView,
 		TextInjector $textInjector
 	) {
-		parent::__construct( $templateFactory, $sectionEditLinkGenerator, $termsListView, $textProvider );
+		parent::__construct(
+			$htmlTermRenderer,
+			$labelDescriptionLookup,
+			$templateFactory,
+			$sectionEditLinkGenerator,
+			$termsListView,
+			$textProvider
+		);
 		$this->templateFactory = $templateFactory;
+		$this->termsListView = $termsListView;
 		$this->textInjector = $textInjector;
 	}
 
@@ -73,11 +88,46 @@ class PlaceholderEmittingEntityTermsView extends SimpleEntityTermsView {
 		);
 
 		return $this->templateFactory->render( 'wikibase-entitytermsview',
-			$this->getHeadingHtml( $mainLanguageCode, $descriptionsProvider, $aliasesProvider ),
+			$this->getHeadingHtml( $mainLanguageCode, $entityId, $aliasesProvider ),
 			$this->textInjector->newMarker( 'termbox' ),
 			$cssClasses,
 			$this->getHtmlForLabelDescriptionAliasesEditSection( $mainLanguageCode, $entityId )
 		);
+	}
+
+	/**
+	 * @param string $mainLanguageCode Desired language of the label, description and aliases in the
+	 *  title and header section. Not necessarily identical to the interface language.
+	 * @param LabelsProvider $labelsProvider
+	 * @param DescriptionsProvider $descriptionsProvider
+	 * @param AliasesProvider|null $aliasesProvider
+	 *
+	 * @return string[] HTML snippets
+	 */
+	public function getTermsListItems(
+		$mainLanguageCode,
+		LabelsProvider $labelsProvider,
+		DescriptionsProvider $descriptionsProvider,
+		AliasesProvider $aliasesProvider = null
+	) {
+		$termsListItems = [];
+
+		$termsListLanguages = $this->getTermsLanguageCodes(
+			$mainLanguageCode,
+			$labelsProvider,
+			$descriptionsProvider,
+			$aliasesProvider
+		);
+		foreach ( $termsListLanguages as $languageCode ) {
+			$termsListItems[ $languageCode ] = $this->termsListView->getListItemHtml(
+				$labelsProvider,
+				$descriptionsProvider,
+				$aliasesProvider,
+				$languageCode
+			);
+		}
+
+		return $termsListItems;
 	}
 
 }

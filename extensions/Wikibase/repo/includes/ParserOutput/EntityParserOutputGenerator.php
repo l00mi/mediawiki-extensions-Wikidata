@@ -8,7 +8,6 @@ use SpecialPage;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Term\AliasesProvider;
-use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\LanguageNameLookup;
@@ -30,14 +29,12 @@ use Wikibase\View\ToolbarEditSectionGenerator;
 /**
  * Creates the parser output for an entity.
  *
- * @note This class relies on Entity and behaves differently when you pass an item as paramater.
- *       We should split this into classes for items and other types of entities.
- *
  * @since 0.5
  *
  * @license GPL-2.0+
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 class EntityParserOutputGenerator {
 
@@ -160,11 +157,13 @@ class EntityParserOutputGenerator {
 		$parserOutput->addJsConfigVars( $configVars );
 		$parserOutput->setExtensionData( 'wikibase-titletext', $this->getTitleText( $entity ) );
 
+		$entityId = $entity->getId();
+
 		if ( $generateHtml ) {
 			$this->addHtmlToParserOutput(
 				$parserOutput,
 				$entity,
-				$this->getEntityInfo( $parserOutput )
+				$this->getEntityInfo( $parserOutput, $entityId )
 			);
 		} else {
 			// If we don't have HTML, the ParserOutput in question
@@ -185,8 +184,8 @@ class EntityParserOutputGenerator {
 		// Sometimes extensions like SpamBlacklist might call getParserOutput
 		// before the id is assigned, during the process of creating a new entity.
 		// in that case, no alternate links are added, which probably is no problem.
-		if ( $entity->getId() !== null ) {
-			$this->addAlternateLinks( $parserOutput, $entity->getId() );
+		if ( $entityId !== null ) {
+			$this->addAlternateLinks( $parserOutput, $entityId );
 		}
 
 		return $parserOutput;
@@ -196,10 +195,11 @@ class EntityParserOutputGenerator {
 	 * Fetches some basic entity information from a set of entity IDs.
 	 *
 	 * @param ParserOutput $parserOutput
+	 * @param EntityId|null $entityId
 	 *
 	 * @return EntityInfo
 	 */
-	private function getEntityInfo( ParserOutput $parserOutput ) {
+	private function getEntityInfo( ParserOutput $parserOutput, EntityId $entityId = null ) {
 		/**
 		 * Set in ReferencedEntitiesDataUpdater.
 		 *
@@ -211,7 +211,11 @@ class EntityParserOutputGenerator {
 		if ( !is_array( $entityIds ) ) {
 			wfLogWarning( '$entityIds from ParserOutput "referenced-entities" extension data'
 				. ' expected to be an array' );
-			$entityIds = array();
+			$entityIds = [];
+		}
+
+		if ( $entityId !== null ) {
+			$entityIds[] = $entityId;
 		}
 
 		$entityInfoBuilder = $this->entityInfoBuilderFactory->newEntityInfoBuilder( $entityIds );
@@ -279,15 +283,22 @@ class EntityParserOutputGenerator {
 			$this->textProvider
 		) : new EmptyEditSectionGenerator();
 
+		$languageDirectionalityLookup = new MediaWikiLanguageDirectionalityLookup();
+		$languageNameLookup = new LanguageNameLookup( $this->languageCode );
 		$termsListView = new TermsListView(
 			TemplateFactory::getDefaultInstance(),
-			new LanguageNameLookup( $this->languageCode ),
+			$languageNameLookup,
 			new MediaWikiLocalizedTextProvider( $this->languageCode ),
-			new MediaWikiLanguageDirectionalityLookup()
+			$languageDirectionalityLookup
 		);
 
 		$textInjector = new TextInjector();
 		$entityTermsView = new PlaceholderEmittingEntityTermsView(
+			new FallbackHintHtmlTermRenderer(
+				$languageDirectionalityLookup,
+				$languageNameLookup
+			),
+			$labelDescriptionLookup,
 			$this->templateFactory,
 			$editSectionGenerator,
 			$this->textProvider,
@@ -314,38 +325,11 @@ class EntityParserOutputGenerator {
 
 		$parserOutput->setExtensionData(
 			'wikibase-terms-list-items',
-			$this->getTermsListItems( $entity, $termsListView )
-		);
-	}
-
-	private function getTermsListItems( EntityDocument $entity, TermsListView $termsListView ) {
-		$allLanguages = [];
-		if ( $entity instanceof AliasesProvider ) {
-			$aliasLanguages = array_keys( $entity->getAliasGroups()->toTextArray() );
-			$allLanguages = array_merge( $allLanguages, $aliasLanguages );
-		}
-		if ( $entity instanceof DescriptionsProvider ) {
-			$descriptionLanguages = array_keys( $entity->getDescriptions()->toTextArray() );
-			$allLanguages = array_merge( $allLanguages, $descriptionLanguages );
-		}
-		if ( $entity instanceof LabelsProvider ) {
-			$labelLanguages = array_keys( $entity->getLabels()->toTextArray() );
-			$allLanguages = array_merge( $allLanguages, $labelLanguages );
-		}
-		$allLanguages = array_unique( $allLanguages );
-
-		return array_combine(
-			$allLanguages,
-			array_map(
-				function( $languageCode ) use( $termsListView, $entity ) {
-					return $termsListView->getListItemHtml(
-						$entity,
-						$entity,
-						$entity instanceof AliasesProvider ? $entity : null,
-						$languageCode
-					);
-				},
-				$allLanguages
+			$entityTermsView->getTermsListItems(
+				$this->languageCode,
+				$entity,
+				$entity,
+				$entity instanceof AliasesProvider ? $entity : null
 			)
 		);
 	}

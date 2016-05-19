@@ -4,6 +4,7 @@ namespace Wikibase\Test\Interactors;
 
 use ContentHandler;
 use HashSiteStore;
+use MediaWikiTestCase;
 use Status;
 use TestSites;
 use Title;
@@ -36,7 +37,7 @@ use Wikibase\Lib\Tests\MockRepository;
  * @author Daniel Kinzler
  * @author Lucie-Aimée Kaffee
  */
-class ItemMergeInteractorTest extends \MediaWikiTestCase {
+class ItemMergeInteractorTest extends MediaWikiTestCase {
 
 	/**
 	 * @var MockRepository|null
@@ -330,6 +331,7 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 		array $expectedTo,
 		array $ignoreConflicts = array()
 	) {
+		$entityTitleLookup = $this->getEntityTitleLookup();
 		$interactor = $this->newInteractor();
 
 		$fromId = new ItemId( 'Q1' );
@@ -340,8 +342,12 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			'Q2' => $toData,
 		) );
 
-		User::newFromName( 'UTSysop' )
-			->addWatch( $this->getEntityTitleLookup()->getTitleForId( $fromId ) );
+		if ( method_exists( $this, 'getTestSysop' ) ) {
+			$user = $this->getTestSysop( true )->getUser();
+		} else {
+			$user = User::newFromName( 'UTSysop' );
+		}
+		$user->addWatch( $entityTitleLookup->getTitleForId( $fromId ) );
 
 		$interactor->mergeItems( $fromId, $toId, $ignoreConflicts, 'CustomSummary' );
 
@@ -357,7 +363,10 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			'summary for target item'
 		);
 
-		$this->assertItemMergedIntoIsWatched( $toId );
+		$this->assertTrue(
+			$user->isWatched( $entityTitleLookup->getTitleForId( $toId ) ),
+			'Item merged into is being watched'
+		);
 	}
 
 	private function assertRedirectWorks( $expectedFrom, ItemId $fromId, ItemId $toId ) {
@@ -373,14 +382,6 @@ class ItemMergeInteractorTest extends \MediaWikiTestCase {
 			$actualFrom = $this->testHelper->getEntity( $fromId );
 			$this->testHelper->assertEntityEquals( $expectedFrom, $actualFrom, 'modified source item' );
 		}
-	}
-
-	private function assertItemMergedIntoIsWatched( ItemId $toId ) {
-		$this->assertTrue(
-			User::newFromName( 'UTSysop' )
-				->isWatched( $this->getEntityTitleLookup()->getTitleForId( $toId ) ),
-			'Item merged into is being watched'
-		);
 	}
 
 	public function mergeFailureProvider() {

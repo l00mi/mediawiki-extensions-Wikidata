@@ -2,6 +2,8 @@
 
 namespace Wikibase\Lib\Store;
 
+use Wikimedia\Assert\Assert;
+
 /**
  * Utility functions for Wikibase namespaces.
  *
@@ -12,6 +14,7 @@ namespace Wikibase\Lib\Store;
  * @author Tobias Gritschacher
  * @author Jens Ohlig < jens.ohlig@wikimedia.de >
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 final class EntityNamespaceLookup {
 
@@ -24,6 +27,7 @@ final class EntityNamespaceLookup {
 	 * @param int[] $entityNamespaces
 	 */
 	public function __construct( array $entityNamespaces ) {
+		Assert::parameterElementType( 'integer', $entityNamespaces, '$entityNamespaces' );
 		$this->entityNamespaces = $entityNamespaces;
 	}
 
@@ -68,24 +72,6 @@ final class EntityNamespaceLookup {
 	 */
 	public function isEntityNamespace( $ns ) {
 		return in_array( $ns, $this->entityNamespaces );
-	}
-
-	/**
-	 * Determines whether the given namespace is a core namespace, i.e. a namespace
-	 * pre-defined by MediaWiki core.
-	 *
-	 * The present implementation just checks whether the namespace ID is smaller than 100,
-	 * relying on the convention that namespace IDs smaller than 100 are reserved for use
-	 * by MediaWiki core.
-	 *
-	 * @since 0.4
-	 *
-	 * @param int $ns the namespace ID
-	 *
-	 * @return bool true iff $ns is a core namespace
-	 */
-	public static function isCoreNamespace( $ns ) {
-		return $ns < 100;
 	}
 
 }
