@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3b9e75cace4cbb6d4dfc6eab02e0a214",
-    "content-hash": "19e0638b43b0e04f18dbb7ee5d8937c5",
+    "hash": "3f0a6d669e9a111804d8e4c7345a7332",
+    "content-hash": "7ebe246bee3ebac47d96a1fbba37a05d",
     "packages": [
         {
             "name": "composer/installers",
@@ -1445,14 +1445,8 @@
             "version": "dev-wmf/1.27.0-wmf.23",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "8359cf45455f56b87c79eb98c1bb478ac4ecadcc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8359cf45455f56b87c79eb98c1bb478ac4ecadcc",
-                "reference": "8359cf45455f56b87c79eb98c1bb478ac4ecadcc",
-                "shasum": ""
+                "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase",
+                "reference": "167152ed93665ace5d54bda13ea85abc030ada48"
             },
             "require": {
                 "data-values/common": "~0.3.0",
@@ -1505,7 +1499,18 @@
                     "Wikibase\\View\\Tests\\": "view/tests/phpunit"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "test": [
+                    "parallel-lint . --exclude vendor",
+                    "composer cs"
+                ],
+                "cs": [
+                    "composer phpcs"
+                ],
+                "phpcs": [
+                    "vendor/bin/phpcs -sp --standard=phpcs.xml --extensions=php --ignore=extensions/ValueView,vendor,.git ."
+                ]
+            },
             "license": [
                 "GPL-2.0+"
             ],
@@ -1523,7 +1528,11 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-05-11 16:46:55"
+            "support": {
+                "issues": "https://phabricator.wikimedia.org/",
+                "irc": "irc://irc.freenode.net/wikidata"
+            },
+            "time": "2016-05-23 13:41:20"
         },
         {
             "name": "wikibase/wikimedia-badges",
