@@ -47,4 +47,5 @@ return array(
     'DataValues\\' => array($vendorDir . '/data-values/common/src/DataValues'),
     'DataTypes\\' => array($vendorDir . '/data-values/data-types/src'),
     'Composer\\Installers\\' => array($vendorDir . '/composer/installers/src/Composer/Installers'),
+    'ArticlePlaceholder\\' => array($baseDir . '/extensions/ArticlePlaceholder/includes'),
 );

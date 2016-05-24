@@ -6,6 +6,10 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'ArticlePlaceholder\\Hooks' => $baseDir . '/extensions/ArticlePlaceholder/includes/Hooks.php',
+    'ArticlePlaceholder\\Lua\\Scribunto_LuaArticlePlaceholderLibrary' => $baseDir . '/extensions/ArticlePlaceholder/includes/Lua/Scribunto_LuaArticlePlaceholderLibrary.php',
+    'ArticlePlaceholder\\SearchHookHandler' => $baseDir . '/extensions/ArticlePlaceholder/includes/SearchHookHandler.php',
+    'ArticlePlaceholder\\SpecialAboutTopic' => $baseDir . '/extensions/ArticlePlaceholder/includes/SpecialAboutTopic.php',
     'Comparable' => $vendorDir . '/data-values/data-values/src/interfaces/Comparable.php',
     'Composer\\Installers\\AglInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/AglInstaller.php',
     'Composer\\Installers\\AimeosInstaller' => $vendorDir . '/composer/installers/src/Composer/Installers/AimeosInstaller.php',
@@ -848,6 +852,7 @@ return array(
     'Wikibase\\Lib\\Tests\\Changes\\ItemChangeTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/Changes/ItemChangeTest.php',
     'Wikibase\\Lib\\Tests\\Changes\\TestChanges' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/Changes/TestChanges.php',
     'Wikibase\\Lib\\Tests\\DataTypeDefinitionsTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/DataTypeDefinitionsTest.php',
+    'Wikibase\\Lib\\Tests\\EntityRevisionLookupTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/EntityRevisionLookupTest.php',
     'Wikibase\\Lib\\Tests\\EntityTypeDefinitionsTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/EntityTypeDefinitionsTest.php',
     'Wikibase\\Lib\\Tests\\EntityTypesTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/EntityTypesTest.php',
     'Wikibase\\Lib\\Tests\\FieldPropertyInfoProviderTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/Store/FieldPropertyInfoProviderTest.php',
@@ -875,6 +880,7 @@ return array(
     'Wikibase\\Lib\\Tests\\Store\\TermIndexTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/Store/TermIndexTest.php',
     'Wikibase\\Lib\\Tests\\Store\\TermPropertyLabelResolverTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/Store/TermPropertyLabelResolverTest.php',
     'Wikibase\\Lib\\Tests\\Store\\TermSqlIndexTest' => $baseDir . '/extensions/Wikibase/lib/tests/phpunit/Store/Sql/TermSqlIndexTest.php',
+    'Wikibase\\Lib\\Tests\\Store\\WikiPageEntityRevisionLookupTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Store/WikiPageEntityRevisionLookupTest.php',
     'Wikibase\\Lib\\TimeDetailsFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/TimeDetailsFormatter.php',
     'Wikibase\\Lib\\TypedValueFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/TypedValueFormatter.php',
     'Wikibase\\Lib\\UnDeserializableValueFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/UnDeserializableValueFormatter.php',
@@ -1139,6 +1145,7 @@ return array(
     'Wikibase\\Repo\\Test\\WikibaseHtmlSnakFormatterFactoryTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/WikibaseHtmlSnakFormatterFactoryTest.php',
     'Wikibase\\Repo\\Tests\\Api\\GetClaimsStatementFilterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Api/GetClaimsStatementFilterTest.php',
     'Wikibase\\Repo\\Tests\\BuilderBasedDataTypeValidatorFactoryTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/BuilderBasedDataTypeValidatorFactoryTest.php',
+    'Wikibase\\Repo\\Tests\\ChangeOp\\StatementListProviderDummy' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/ChangeOp/StatementListProviderDummy.php',
     'Wikibase\\Repo\\Tests\\DefaultRepoSettingsTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/DefaultRepoSettingsTest.php',
     'Wikibase\\Repo\\Tests\\GenericEventDispatcherTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/GenericEventDispatcherTest.php',
     'Wikibase\\Repo\\Tests\\Hooks\\CirrusSearchHookHandlersTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Hooks/CirrusSearchHookHandlersTest.php',
@@ -1461,7 +1468,6 @@ return array(
     'Wikibase\\Test\\ValidatorBuildersTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/ValidatorBuildersTest.php',
     'Wikibase\\Test\\ViewEntityActionTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Actions/ViewEntityActionTest.php',
     'Wikibase\\Test\\WikiPageEntityRedirectLookupTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Store/Sql/WikiPageEntityRedirectLookupTest.php',
-    'Wikibase\\Test\\WikiPageEntityRevisionLookupTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Store/WikiPageEntityRevisionLookupTest.php',
     'Wikibase\\Test\\WikiPageEntityStoreTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Store/Sql/WikiPageEntityStoreTest.php',
     'Wikibase\\Test\\WikibaseFieldDefinitionsTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Search/Elastic/Fields/WikibaseFieldDefinitionsTest.php',
     'Wikibase\\Tests\\RepoHooksTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/RepoHooksTest.php',
