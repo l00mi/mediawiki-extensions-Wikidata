@@ -12,7 +12,9 @@ use Wikibase\DataModel\Services\Entity\EntityPrefetcher;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Term\PropertyLabelResolver;
 use Wikibase\DirectSqlStore;
-use Wikibase\Lib\Store\ChangeLookup;
+use Wikibase\Lib\Changes\EntityChangeFactory;
+use Wikibase\Lib\Store\EntityChangeLookup;
+use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\PropertyInfoStore;
 use Wikibase\Store\EntityIdLookup;
@@ -32,11 +34,25 @@ use Wikibase\TermIndex;
 class DirectSqlStoreTest extends \MediaWikiTestCase {
 
 	protected function newStore() {
+
+		$entityChangeFactory = $this->getMockBuilder( EntityChangeFactory::class )
+			->disableOriginalConstructor()
+			->getMock();
+
 		$idParser = new BasicEntityIdParser();
 
 		$contentCodec = WikibaseClient::getDefaultInstance()->getEntityContentDataCodec();
 
-		$store = new DirectSqlStore( $contentCodec, $idParser, wfWikiID(), 'en' );
+		$entityNamespaceLookup = new EntityNamespaceLookup( [] );
+
+		$store = new DirectSqlStore(
+			$entityChangeFactory,
+			$contentCodec,
+			$idParser,
+			$entityNamespaceLookup,
+			wfWikiID(),
+			'en'
+		);
 
 		return $store;
 	}
@@ -70,7 +86,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 			array( 'getSubscriptionManager', SubscriptionManager::class, true ),
 			array( 'getEntityIdLookup', EntityIdLookup::class ),
 			array( 'getEntityPrefetcher', EntityPrefetcher::class ),
-			array( 'getChangeLookup', ChangeLookup::class ),
+			array( 'getEntityChangeLookup', EntityChangeLookup::class ),
 			array( 'getRecentChangesDuplicateDetector', RecentChangesDuplicateDetector::class ),
 		);
 	}

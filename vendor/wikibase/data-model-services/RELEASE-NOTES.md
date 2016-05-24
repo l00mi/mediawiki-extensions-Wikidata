@@ -1,5 +1,13 @@
 # Wikibase DataModel Services release notes
 
+## Version 3.6.0 (2016-05-13)
+
+* Added `StatementListDiffer` (was in the package private `Internal` namespace before).
+* Added `StatementListPatcher` (replaces an incompatible package private class with the same name).
+* Added `TermListPatcher`.
+* Fixed `FingerprintPatcher` ignoring change operations on aliases that are marked as "not associative".
+* Fixed `StatementGuidValidator` not rejecting strings with a newline at the end.
+
 ## Version 3.5.0 (2016-03-14)
 
 * Added compatibility with Wikibase DataModel 6.x

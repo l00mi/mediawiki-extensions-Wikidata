@@ -1,0 +1,77 @@
+<?php
+
+namespace Wikibase\Lib\Store;
+
+use Wikimedia\Assert\Assert;
+
+/**
+ * Utility functions for Wikibase namespaces.
+ *
+ * @since 0.4
+ *
+ * @license GPL-2.0+
+ * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Tobias Gritschacher
+ * @author Jens Ohlig < jens.ohlig@wikimedia.de >
+ * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
+ */
+final class EntityNamespaceLookup {
+
+	/**
+	 * @var int[]
+	 */
+	private $entityNamespaces;
+
+	/**
+	 * @param int[] $entityNamespaces
+	 */
+	public function __construct( array $entityNamespaces ) {
+		Assert::parameterElementType( 'integer', $entityNamespaces, '$entityNamespaces' );
+		$this->entityNamespaces = $entityNamespaces;
+	}
+
+	/**
+	 * Returns a list of entity content model ids pointing to the ids of the namespaces
+	 * in which they reside.
+	 *
+	 * @since 0.4
+	 *
+	 * @return array [ content model id (string) -> namespace id (integer) ]
+	 */
+	public function getEntityNamespaces() {
+		return $this->entityNamespaces;
+	}
+
+	/**
+	 * Returns the namespace ID for the given entity content model, or false if the content model
+	 * is not a known entity model.
+	 *
+	 * The return value is based on getEntityNamespaces(), which is configured via
+	 * $wgWBRepoSettings['entityNamespaces'].
+	 *
+	 * @since 0.4
+	 *
+	 * @param String $model the model ID
+	 *
+	 * @return int|bool the namespace associated with the given content model (or false if there is none)
+	 */
+	public function getEntityNamespace( $model ) {
+		return isset( $this->entityNamespaces[$model] ) ? $this->entityNamespaces[$model] : false;
+	}
+
+	/**
+	 * Determines whether the given namespace is designated to hold some kind of Wikibase entity.
+	 * Shorthand for in_array( $ns, self::getEntityNamespaces() );
+	 *
+	 * @since 0.4
+	 *
+	 * @param int $ns the namespace ID
+	 *
+	 * @return bool true if $ns is an entity namespace
+	 */
+	public function isEntityNamespace( $ns ) {
+		return in_array( $ns, $this->entityNamespaces );
+	}
+
+}

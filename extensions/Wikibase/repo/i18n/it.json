@@ -86,11 +86,11 @@
 	"wikibase-undo-badpage": "Versione sbagliata: la versione $2 non appartiene a [[$1]].",
 	"wikibase-undo-firstrev": "Impossibile annullare la creazione della pagina",
 	"wikibase-undo-nocontent": "Non è possibile caricare il contenuto della versione $2 della pagina $1",
+	"wikibase-summary-generated": "Oggetto (verrà aggiunto all'oggetto generato automaticamente):",
 	"wikibase-propertyedittool-counter-pending-tooltip": "{{PLURAL:$1|Un valore non ancora salvato|$1 valori non ancora salvati}}",
 	"wikibase-disambiguation-title": "Disambigua per \"$1\"",
 	"wb-special-newitem-new-item-notification": "Il nuovo elemento $1 è stato creato e reindirizza alla sua pagina. Torna a $2.",
 	"wikibase-aliases-input-help-message": "Per rendere più facile trovare questa entità, è possibile inserire nomi alternativi.",
-	"wikibase-aliases-empty": "Nessun alias definito.",
 	"wikibase-propertypage-datatype": "Tipo di dato",
 	"wikibase-propertypage-bad-datatype": "Tipo di dati sconosciuto: $1",
 	"wikibase-claimview-snak-tooltip": "Inserisci un valore corrispondente alla proprietà chiamata \"$1\". Se la proprietà non ha alcun valore designato o non è noto il valore effettivo, è possibile scegliere un'alternativa alla specifica di un valore personalizzato facendo clic sull'icona accanto alla casella di input del valore.",
@@ -295,7 +295,8 @@
 	"wikibase-self-conflict-patched": "La tua modifica è stata inserita nell'ultima versione, escludendo alcune delle tue modifiche intermedie.",
 	"wikibase-conflict-patched": "La tua modifica è stata inserita nell'ultima versione.",
 	"wikibase-restoreold": "ripristina",
-	"wikibase-restore-summary": "Ripristina versione $1 di [[Special:Contributions/$2|$2]]",
+	"wikibase-entity-summary-restore": "Ripristina versione $3 di [[Special:Contributions/$4|{{GENDER:$4|$4}}]]",
+	"wikibase-entity-summary-undo": "Annullata la modifica $3 di [[Special:Contributions/$4|$4]] ([[User talk:$4|discussione]])",
 	"wikibase-no-direct-editing": "La modifica diretta è stata disabilitata nel namespace $1",
 	"wikibase-noentity": "Questa entità non esiste.\nPuoi [{{fullurl:{{#Special:Log}}|page={{FULLPAGENAMEE}}}} cercare tra i relativi log] per sapere cosa è successo.",
 	"wikibase-noentity-createone": "Puoi anche [[$1|crearne uno nuovo]].",
@@ -412,5 +413,5 @@
 	"apihelp-wbsetreference-description": "Crea un riferimento o imposta il valore di uno esistente.",
 	"apihelp-wbsetreference-param-statement": "Un GUID che identifica la dichiarazione per cui si sta impostando un riferimento",
 	"apihelp-wbsetsitelink-param-summary": "Riepilogo per la modifica.\nSarà preceduto da un commento generato automaticamente. Il limite di lunghezza del commento automatico, insieme con il riassunto, è di 260 caratteri. Siate consapevoli del fatto che tutto ciò che supera tale limite verrà tagliato.",
-	"apihelp-wbsetsitelink-example-1": "Aggiungi un sitelink \"Idrogeno\" per la pagina in inglese con ID \"Q42\", se il sitelink non esiste"
+	"apihelp-wbsetsitelink-example-1": "Aggiunge un sitelink alla voce in inglese \"Hydrogen\" all'elemento con ID \"Q42\", se il sitelink non esiste"
 }

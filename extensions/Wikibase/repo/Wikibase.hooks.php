@@ -28,8 +28,9 @@ use SpecialSearch;
 use StubUserLang;
 use Title;
 use User;
+use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\Lib\AutoCommentFormatter;
-use Wikibase\Lib\Store\ChangeLookup;
+use Wikibase\Lib\Store\EntityChangeLookup;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\Hooks\OutputPageEntityIdReader;
 use Wikibase\Repo\WikibaseRepo;
@@ -318,9 +319,9 @@ final class RepoHooks {
 		}
 
 		if ( $logType === null || ( $logType === 'delete' && $logAction === 'restore' ) ) {
-			$changeLookup = WikibaseRepo::getDefaultInstance()->getStore()->getChangeLookup();
+			$changeLookup = WikibaseRepo::getDefaultInstance()->getStore()->getEntityChangeLookup();
 
-			$change = $changeLookup->loadByRevisionId( $revId, ChangeLookup::FROM_MASTER );
+			$change = $changeLookup->loadByRevisionId( $revId, EntityChangeLookup::FROM_MASTER );
 
 			if ( $change ) {
 				$changeStore = WikibaseRepo::getDefaultInstance()->getStore()->getChangeStore();
@@ -401,6 +402,7 @@ final class RepoHooks {
 		if ( $entityContentFactory->isEntityContentModel( $history->getTitle()->getContentModel() )
 			&& $article->getPage()->getLatest() !== $rev->getID()
 			&& $rev->getTitle()->quickUserCan( 'edit', $history->getUser() )
+			&& !$rev->isDeleted( Revision::DELETED_TEXT )
 		) {
 			$link = Linker::linkKnown(
 				$rev->getTitle(),
@@ -433,13 +435,13 @@ final class RepoHooks {
 		$entityContentFactory = WikibaseRepo::getDefaultInstance()->getEntityContentFactory();
 
 		$title = $skinTemplate->getRelevantTitle();
-		$request = $skinTemplate->getRequest();
 
 		if ( $entityContentFactory->isEntityContentModel( $title->getContentModel() ) ) {
 			unset( $links['views']['edit'] );
 			unset( $links['views']['viewsource'] );
 
 			if ( $title->quickUserCan( 'edit', $skinTemplate->getUser() ) ) {
+				$request = $skinTemplate->getRequest();
 				$old = !$skinTemplate->isRevisionCurrent()
 					&& !$request->getCheck( 'diff' );
 
@@ -448,20 +450,29 @@ final class RepoHooks {
 				if ( $old || $restore ) {
 					// insert restore tab into views array, at the second position
 
-					$revid = $restore ? $request->getText( 'restore' ) : $skinTemplate->getRevisionId();
+					$revid = $restore
+						? $request->getText( 'restore' )
+						: $skinTemplate->getRevisionId();
+
+					$rev = Revision::newFromId( $revid );
+					if ( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
+						return;
+					}
 
 					$head = array_slice( $links['views'], 0, 1 );
 					$tail = array_slice( $links['views'], 1 );
-					$neck['restore'] = array(
-						'class' => $restore ? 'selected' : false,
-						'text' => $skinTemplate->getLanguage()->ucfirst(
-							wfMessage( 'wikibase-restoreold' )->text()
-						),
-						'href' => $title->getLocalURL( array(
-							'action' => 'edit',
-							'restore' => $revid
-						) ),
-					);
+					$neck = [
+						'restore' => [
+							'class' => $restore ? 'selected' : false,
+							'text' => $skinTemplate->getLanguage()->ucfirst(
+								wfMessage( 'wikibase-restoreold' )->text()
+							),
+							'href' => $title->getLocalURL( [
+								'action' => 'edit',
+								'restore' => $revid
+							] ),
+						]
+					];
 
 					$links['views'] = array_merge( $head, $neck, $tail );
 				}
@@ -617,8 +628,10 @@ final class RepoHooks {
 				$entity = $content->getEntity();
 				$languageCode = $searchPage->getLanguage()->getCode(); // TODO: language fallback!
 
-				if ( $entity->getFingerprint()->hasDescription( $languageCode ) ) {
-					$description = $entity->getFingerprint()->getDescription( $languageCode )->getText();
+				if ( $entity instanceof DescriptionsProvider &&
+					$entity->getDescriptions()->hasTermForLanguage( $languageCode )
+				) {
+					$description = $entity->getDescriptions()->getByLanguage( $languageCode )->getText();
 					$attr = array( 'class' => 'wb-itemlink-description' );
 					$link .= wfMessage( 'colon-separator' )->text();
 					$link .= Html::element( 'span', $attr, $description );

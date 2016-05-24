@@ -2,7 +2,6 @@
 
 namespace Wikibase\Lib\Tests\Changes;
 
-use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpAdd;
 use RecentChange;
 use Revision;
@@ -296,30 +295,15 @@ class EntityChangeTest extends ChangeRowTest {
 		$this->assertEquals( $timestamp, $change->getTime() );
 	}
 
-	public function testHasDiff() {
-		$change = new EntityChange( array( 'info' => array() ) );
-		$this->assertFalse( $change->hasDiff() );
-
-		$change->setDiff( new Diff() );
-		$this->assertTrue( $change->hasDiff() );
-	}
-
-	public function testIsEmpty() {
-		$change = new EntityChange();
-		$this->assertTrue( $change->isEmpty() );
-
-		$change->setDiff( new Diff( array( new DiffOpAdd( '' ) ) ) );
-		$this->assertFalse( $change->isEmpty() );
-	}
-
 	public function testSerializeAndUnserializeInfo() {
 		$info = array( 'diff' => new DiffOpAdd( '' ) );
 		$change = new EntityChange();
 		$this->assertEquals( $info, $change->unserializeInfo( $change->serializeInfo( $info ) ) );
 	}
 
-	public function testGivenStatement_arrayalizeObjectsReturnsSerialization() {
+	public function testGivenStatement_serializeInfoSerializesStatement() {
 		$statement = new Statement( new PropertyNoValueSnak( 1 ) );
+		$info = array( 'diff' => new DiffOpAdd( $statement ) );
 		$expected = array(
 			'mainsnak' => array(
 				'snaktype' => 'novalue',
@@ -337,17 +321,12 @@ class EntityChangeTest extends ChangeRowTest {
 			$this->setExpectedException( RuntimeException::class );
 		}
 
-		$array = $change->arrayalizeObjects( $statement );
-		$this->assertSame( $expected, $array );
+		$json = $change->serializeInfo( $info );
+		$array = json_decode( $json, true );
+		$this->assertSame( $expected, $array['diff']['newvalue'] );
 	}
 
-	public function testGivenNonStatement_arrayalizeObjectsReturnsOriginal() {
-		$data = 'foo';
-		$change = new EntityChange();
-		$this->assertSame( $data, $change->arrayalizeObjects( $data ) );
-	}
-
-	public function testGivenStatementSerialization_objectifyArraysReturnsStatement() {
+	public function testGivenStatementSerialization_unserializeInfoDeserializesStatement() {
 		$data = array(
 			'mainsnak' => array(
 				'snaktype' => 'novalue',
@@ -356,16 +335,12 @@ class EntityChangeTest extends ChangeRowTest {
 			'type' => 'statement',
 			'_claimclass_' => Statement::class,
 		);
+		$json = json_encode( array( 'diff' => array( 'type' => 'add', 'newvalue' => $data ) ) );
 
 		$change = new EntityChange();
-		$statement = $change->objectifyArrays( $data );
+		$info = $change->unserializeInfo( $json );
+		$statement = $info['diff']->getNewValue();
 		$this->assertInstanceOf( Statement::class, $statement );
-	}
-
-	public function testGivenNonStatementSerialization_objectifyArraysReturnsOriginal() {
-		$data = array( 'foo' );
-		$change = new EntityChange();
-		$this->assertSame( $data, $change->objectifyArrays( $data ) );
 	}
 
 }

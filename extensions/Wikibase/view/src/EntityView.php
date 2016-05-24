@@ -3,7 +3,8 @@
 namespace Wikibase\View;
 
 use Wikibase\DataModel\Entity\EntityDocument;
-use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\DataModel\Term\AliasesProvider;
+use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\View\Template\TemplateFactory;
 
@@ -43,11 +44,6 @@ abstract class EntityView {
 	protected $languageCode;
 
 	/**
-	 * @var TextInjector
-	 */
-	private $textInjector;
-
-	/**
 	 * @param TemplateFactory $templateFactory
 	 * @param EntityTermsView $entityTermsView
 	 * @param LanguageDirectionalityLookup $languageDirectionalityLookup
@@ -63,27 +59,11 @@ abstract class EntityView {
 		$this->languageDirectionalityLookup = $languageDirectionalityLookup;
 		$this->languageCode = $languageCode;
 
-		$this->textInjector = new TextInjector();
 		$this->templateFactory = $templateFactory;
 	}
 
 	/**
-	 * Returns the placeholder map build while generating HTML.
-	 * The map returned here may be used with TextInjector.
-	 *
-	 * @return array[] string -> array
-	 */
-	public function getPlaceholders() {
-		return $this->textInjector->getMarkers();
-	}
-
-	/**
 	 * Builds and returns the HTML representing a whole WikibaseEntity.
-	 *
-	 * @note: The HTML returned by this method may contain placeholders. Such placeholders can be
-	 * expanded with the help of TextInjector::inject() calling back to
-	 * EntityViewPlaceholderExpander::getHtmlForPlaceholder()
-	 * @note: In order to keep the list of placeholders small, this calls resetPlaceholders().
 	 *
 	 * @since 0.1
 	 *
@@ -119,8 +99,6 @@ abstract class EntityView {
 	public function getTitleHtml( EntityDocument $entity ) {
 		if ( $entity instanceof LabelsProvider ) {
 			return $this->entityTermsView->getTitleHtml(
-				$this->languageCode,
-				$entity,
 				$entity->getId()
 			);
 		}
@@ -156,26 +134,17 @@ abstract class EntityView {
 	protected function getHtmlForFingerprint( EntityDocument $entity ) {
 		$id = $entity->getId();
 
-		if ( $entity instanceof FingerprintProvider ) {
+		if ( $entity instanceof LabelsProvider && $entity instanceof DescriptionsProvider ) {
 			return $this->entityTermsView->getHtml(
 				$this->languageCode,
-				$entity->getFingerprint(),
-				$id,
-				$this->getHtmlForTermBox(),
-				$this->textInjector
+				$entity,
+				$entity,
+				$entity instanceof AliasesProvider ? $entity : null,
+				$id
 			);
 		}
 
 		return '';
-	}
-
-	/**
-	 * @return string HTML
-	 */
-	private function getHtmlForTermBox() {
-		// Placeholder for a termbox for the present item.
-		// EntityViewPlaceholderExpander must know about the parameters used here.
-		return $this->textInjector->newMarker( 'termbox' );
 	}
 
 }

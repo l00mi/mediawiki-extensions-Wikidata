@@ -11,7 +11,7 @@ use Wikibase\DataModel\Entity\Item;
  *
  * @since 1.0
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class EntityDiff extends Diff {
@@ -76,6 +76,8 @@ class EntityDiff extends Diff {
 	}
 
 	/**
+	 * FIXME: Not all entities do have aliases!
+	 *
 	 * Returns a Diff object with the aliases differences.
 	 *
 	 * @return Diff
@@ -85,6 +87,8 @@ class EntityDiff extends Diff {
 	}
 
 	/**
+	 * FIXME: Not all entities do have labels!
+	 *
 	 * Returns a Diff object with the labels differences.
 	 *
 	 * @return Diff
@@ -94,6 +98,8 @@ class EntityDiff extends Diff {
 	}
 
 	/**
+	 * FIXME: Not all entities do have descriptions!
+	 *
 	 * Returns a Diff object with the descriptions differences.
 	 *
 	 * @return Diff
@@ -103,6 +109,8 @@ class EntityDiff extends Diff {
 	}
 
 	/**
+	 * FIXME: Not all entities do have claims a.k.a. statements!
+	 *
 	 * Returns a Diff object with the claim differences.
 	 *
 	 * @return Diff

@@ -7,10 +7,7 @@ use LuaSandboxFunction;
 use Scribunto_LuaEngine;
 use Scribunto_LuaStandaloneInterpreterFunction;
 use ScribuntoException;
-use Title;
 use User;
-use WikiPage;
-use WikitextContent;
 use Wikibase\Client\DataAccess\Scribunto\Scribunto_LuaWikibaseLibrary;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\Lib\Store\PropertyOrderProvider;
@@ -26,6 +23,7 @@ use Wikibase\Lib\Store\PropertyOrderProvider;
  * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Marius Hoch < hoo@online.de >
+ * @author Lucie-Aimée Kaffee
  */
 class Scribunto_LuaWikibaseLibraryTest extends Scribunto_LuaWikibaseLibraryTestCase {
 

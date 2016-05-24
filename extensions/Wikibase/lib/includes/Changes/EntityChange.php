@@ -2,14 +2,19 @@
 
 namespace Wikibase;
 
+use Deserializers\Deserializer;
+use Diff\DiffOp\DiffOp;
+use Diff\DiffOpFactory;
 use MWException;
 use RecentChange;
 use Revision;
 use RuntimeException;
+use Serializers\Serializer;
 use User;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Services\Diff\EntityTypeAwareDiffOpFactory;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -64,12 +69,22 @@ class EntityChange extends DiffChange {
 	 */
 	public function getEntityId() {
 		if ( !$this->entityId && $this->hasField( 'object_id' ) ) {
-			// FIXME: this should be an injected EntityIdParser
+			// FIXME: this should not happen
+			wfWarn( "object_id set in EntityChange, but not entityId" );
 			$idParser = new BasicEntityIdParser();
 			$this->entityId = $idParser->parse( $this->getObjectId() );
 		}
 
 		return $this->entityId;
+	}
+
+	/**
+	 * Set the Change's entity id (as returned by getEntityId) and the object_id field
+	 * @param EntityId $entityId
+	 */
+	public function setEntityId( EntityId $entityId ) {
+		$this->entityId = $entityId;
+		$this->setField( 'object_id', $entityId->getSerialization() );
 	}
 
 	/**
@@ -265,28 +280,38 @@ class EntityChange extends DiffChange {
 	}
 
 	/**
-	 * @see DiffChange::arrayalizeObjects
+	 * @see ChangeRow::serializeInfo
 	 *
-	 * Overwritten to handle Statement objects.
+	 * Overwritten to use the array representation of the diff.
 	 *
-	 * @since 0.4
-	 *
-	 * @param mixed $data
-	 * @return mixed
+	 * @param array $info
+	 * @return string
 	 */
-	public function arrayalizeObjects( $data ) {
-		$data = parent::arrayalizeObjects( $data );
+	public function serializeInfo( array $info ) {
+		if ( isset( $info['diff'] ) ) {
+			$diff = $info['diff'];
 
-		if ( $data instanceof Statement ) {
-			$array = $this->getStatementSerializer()->serialize( $data );
-			$array['_claimclass_'] = get_class( $data );
+			if ( $diff instanceof DiffOp ) {
+				$info['diff'] = $diff->toArray( function ( $data ) {
+					if ( !( $data instanceof Statement ) ) {
+						return $data;
+					}
 
-			return $array;
+					$array = $this->getStatementSerializer()->serialize( $data );
+					$array['_claimclass_'] = get_class( $data );
+
+					return $array;
+				} );
+			}
 		}
 
-		return $data;
+		return parent::serializeInfo( $info );
 	}
 
+	/**
+	 * @throws RuntimeException
+	 * @return Serializer
+	 */
 	private function getStatementSerializer() {
 		// FIXME: the change row system needs to be reworked to either allow for sane injection
 		// or to avoid this kind of configuration dependent tasks.
@@ -299,6 +324,10 @@ class EntityChange extends DiffChange {
 		}
 	}
 
+	/**
+	 * @throws RuntimeException
+	 * @return Deserializer
+	 */
 	private function getStatementDeserializer() {
 		// FIXME: the change row system needs to be reworked to either allow for sane injection
 		// or to avoid this kind of configuration dependent tasks.
@@ -312,31 +341,47 @@ class EntityChange extends DiffChange {
 	}
 
 	/**
-	 * @see DiffChange::objectifyArrays
+	 * @see ChangeRow::unserializeInfo
 	 *
-	 * Overwritten to handle Statement objects.
+	 * Overwritten to use the array representation of the diff.
 	 *
-	 * @since 0.4
-	 *
-	 * @param array $data
-	 * @return mixed
+	 * @param string $serialization
+	 * @return array the info array
 	 */
-	public function objectifyArrays( array $data ) {
-		$data = parent::objectifyArrays( $data );
+	public function unserializeInfo( $serialization ) {
+		static $factory = null;
 
-		if ( is_array( $data ) && isset( $data['_claimclass_'] ) ) {
-			$class = $data['_claimclass_'];
+		$info = parent::unserializeInfo( $serialization );
 
-			if ( $class === Statement::class
-				|| is_subclass_of( $class, Statement::class )
-			) {
-				unset( $data['_claimclass_'] );
-
-				return $this->getStatementDeserializer()->deserialize( $data );
+		if ( isset( $info['diff'] ) && is_array( $info['diff'] ) ) {
+			if ( $factory === null ) {
+				$factory = $this->newDiffOpFactory();
 			}
+
+			$info['diff'] = $factory->newFromArray( $info['diff'] );
 		}
 
-		return $data;
+		return $info;
+	}
+
+	/**
+	 * @return DiffOpFactory
+	 */
+	private function newDiffOpFactory() {
+		return new EntityTypeAwareDiffOpFactory( function ( array $data ) {
+			if ( is_array( $data ) && isset( $data['_claimclass_'] ) ) {
+				$class = $data['_claimclass_'];
+
+				if ( $class === Statement::class
+					|| is_subclass_of( $class, Statement::class )
+				) {
+					unset( $data['_claimclass_'] );
+					return $this->getStatementDeserializer()->deserialize( $data );
+				}
+			}
+
+			return $data;
+		} );
 	}
 
 }

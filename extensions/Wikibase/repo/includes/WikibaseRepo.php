@@ -39,7 +39,6 @@ use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
@@ -79,6 +78,7 @@ use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\StaticContentLanguages;
 use Wikibase\Lib\Store\EntityContentDataCodec;
+use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
@@ -821,10 +821,12 @@ class WikibaseRepo {
 	public function getStore() {
 		if ( $this->store === null ) {
 			$this->store = new SqlStore(
+				$this->getEntityChangeFactory(),
 				$this->getEntityContentDataCodec(),
 				$this->getEntityIdParser(),
 				$this->getEntityIdLookup(),
-				$this->getEntityTitleLookup()
+				$this->getEntityTitleLookup(),
+				$this->getEntityNamespaceLookup()
 			);
 		}
 
@@ -1371,6 +1373,8 @@ class WikibaseRepo {
 			$errorLocalizer,
 			$this->getEntityIdParser(),
 			$siteLinkStore,
+			$this->getEntityIdLookup(),
+			$this->getLanguageFallbackLabelDescriptionLookupFactory(),
 			$legacyFormatDetector
 		);
 
@@ -1397,6 +1401,8 @@ class WikibaseRepo {
 			$constraintProvider,
 			$errorLocalizer,
 			$this->getEntityIdParser(),
+			$this->getEntityIdLookup(),
+			$this->getLanguageFallbackLabelDescriptionLookupFactory(),
 			$propertyInfoStore,
 			$propertyInfoBuilder,
 			$legacyFormatDetector

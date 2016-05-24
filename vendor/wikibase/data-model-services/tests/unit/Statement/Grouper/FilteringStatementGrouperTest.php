@@ -6,16 +6,22 @@ use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Services\Statement\Grouper\FilteringStatementGrouper;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Statement\Statement;
+use Wikibase\DataModel\Statement\StatementFilter;
 use Wikibase\DataModel\Statement\StatementList;
 
 /**
  * @covers Wikibase\DataModel\Services\Statement\Grouper\FilteringStatementGrouper
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thiemo Mättig
  */
 class FilteringStatementGrouperTest extends PHPUnit_Framework_TestCase {
 
+	/**
+	 * @param string $propertyId
+	 *
+	 * @return StatementFilter
+	 */
 	private function newStatementFilter( $propertyId = 'P1' ) {
 		$filter = $this->getMock( 'Wikibase\DataModel\Statement\StatementFilter' );
 

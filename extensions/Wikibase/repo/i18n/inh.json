@@ -6,5 +6,8 @@
 		]
 	},
 	"wikibase-edit": "хувца",
-	"wikibase-add": "тIатоха"
+	"wikibase-add": "тIатоха",
+	"wikibase-diffview-link": "тIахьожаяргаш",
+	"wikibase-sitelinks-special": "Кхыйола сайташ",
+	"wikibase-newentity-submit": "Хьакхолла"
 }

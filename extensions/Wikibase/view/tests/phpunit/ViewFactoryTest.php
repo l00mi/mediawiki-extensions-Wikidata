@@ -42,7 +42,6 @@ use Wikibase\View\Template\TemplateRegistry;
  * @uses Wikibase\View\Template\Template
  * @uses Wikibase\View\Template\TemplateFactory
  * @uses Wikibase\View\Template\TemplateRegistry
- * @uses Wikibase\View\TextInjector
  *
  * @group Wikibase
  * @group WikibaseView
@@ -105,22 +104,28 @@ class ViewFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testNewItemView() {
-		$itemView = $this->newViewFactory()->newItemView(
+		$factory = $this->newViewFactory();
+		$editSectionGenerator = $this->getMock( EditSectionGenerator::class );
+		$itemView = $factory->newItemView(
 			'de',
 			$this->getMock( LabelDescriptionLookup::class ),
 			new LanguageFallbackChain( array() ),
-			$this->getMock( EditSectionGenerator::class )
+			$editSectionGenerator,
+			$this->getMock( EntityTermsView::class )
 		);
 
 		$this->assertInstanceOf( ItemView::class, $itemView );
 	}
 
 	public function testNewPropertyView() {
-		$propertyView = $this->newViewFactory()->newPropertyView(
+		$factory = $this->newViewFactory();
+		$editSectionGenerator = $this->getMock( EditSectionGenerator::class );
+		$propertyView = $factory->newPropertyView(
 			'de',
 			$this->getMock( LabelDescriptionLookup::class ),
 			new LanguageFallbackChain( array() ),
-			$this->getMock( EditSectionGenerator::class )
+			$editSectionGenerator,
+			$this->getMock( EntityTermsView::class )
 		);
 
 		$this->assertInstanceOf( PropertyView::class, $propertyView );
@@ -135,14 +140,6 @@ class ViewFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertInstanceOf( StatementSectionsView::class, $statementSectionsView );
-	}
-
-	public function testNewEntityTermsView() {
-		$entityTermsView = $this->newViewFactory()->newEntityTermsView(
-			$this->getMock( EditSectionGenerator::class )
-		);
-
-		$this->assertInstanceOf( EntityTermsView::class, $entityTermsView );
 	}
 
 	/**

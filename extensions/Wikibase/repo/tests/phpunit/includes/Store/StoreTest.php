@@ -3,7 +3,8 @@
 namespace Wikibase\Test;
 
 use Wikibase\IdGenerator;
-use Wikibase\Lib\Store\ChangeLookup;
+use Wikibase\Lib\Store\EntityChangeLookup;
+use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LabelConflictFinder;
 use Wikibase\Lib\Store\SiteLinkLookup;
@@ -35,10 +36,12 @@ class StoreTest extends \MediaWikiTestCase {
 
 		$instances = array(
 			new SqlStore(
+				$wikibaseRepo->getEntityChangeFactory(),
 				$wikibaseRepo->getEntityContentDataCodec(),
 				$wikibaseRepo->getEntityIdParser(),
 				$this->getMock( EntityIdLookup::class ),
-				$this->getMock( EntityTitleLookup::class )
+				$this->getMock( EntityTitleLookup::class ),
+				new EntityNamespaceLookup( [] )
 			)
 		);
 
@@ -85,8 +88,8 @@ class StoreTest extends \MediaWikiTestCase {
 	/**
 	 * @dataProvider instanceProvider
 	 */
-	public function testGetChangeLookup( Store $store ) {
-		$this->assertInstanceOf( ChangeLookup::class, $store->getChangeLookup() );
+	public function testGetEntityChangeLookup( Store $store ) {
+		$this->assertInstanceOf( EntityChangeLookup::class, $store->getEntityChangeLookup() );
 	}
 
 	/**

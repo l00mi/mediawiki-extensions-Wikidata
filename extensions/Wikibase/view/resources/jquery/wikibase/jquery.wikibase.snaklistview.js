@@ -164,12 +164,10 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 */
 	_updatePropertyLabels: function() {
 		if ( this.options.singleProperty ) {
-			var $items = this._listview.items();
-
-			for ( var i = 0; i < $items.length; i++ ) {
-				var operation = ( i === 0 ) ? 'showPropertyLabel' : 'hidePropertyLabel';
-				this._lia.liInstance( $items.eq( i ) )[operation]();
-			}
+			this._listview.value().forEach( function ( snakview, index ) {
+				var operation = index ? 'hidePropertyLabel' : 'showPropertyLabel';
+				snakview[operation]();
+			} );
 		}
 	},
 
@@ -177,14 +175,11 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 * Starts the widget's edit mode.
 	 */
 	startEditing: function() {
-		if ( this.isInEditMode() ) {
+		if ( this._isInEditMode ) {
 			return;
 		}
 
-		var self = this;
-
-		$.each( this._listview.items(), function( i, item ) {
-			var snakview = self._lia.liInstance( $( item ) );
+		this._listview.value().forEach( function( snakview ) {
 			snakview.startEditing();
 		} );
 
@@ -201,13 +196,11 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 *        before edit mode was started
 	 */
 	stopEditing: function( dropValue ) {
-		if ( !this.isInEditMode() ) {
+		if ( !this._isInEditMode ) {
 			return;
 		}
 
 		this._trigger( 'stopediting', null, [dropValue] );
-
-		var self = this;
 
 		this.element.removeClass( 'wb-error' );
 		this._detachEditModeEventHandlers();
@@ -221,10 +214,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 			// editing:
 			this._createListView();
 		} else {
-			$.each( this._listview.items(), function( i, item ) {
-				var $item = $( item ),
-					snakview = self._lia.liInstance( $item );
-
+			this._listview.value().forEach( function( snakview ) {
 				snakview.stopEditing( dropValue );
 
 				// After saving, the property should not be editable anymore.
@@ -287,12 +277,10 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 			return this.option( 'value', snakList );
 		}
 
-		var listview = this.$listview.data( 'listview' ),
-			snaks = [];
+		var snaks = [];
 
-		listview.items().each( function() {
-			var liInstance = listview.listItemAdapter().liInstance( $( this ) ),
-				snak = liInstance.snak();
+		this._listview.value().forEach( function( snakview ) {
+			var snak = snakview.snak();
 			if ( snak ) {
 				snaks.push( snak );
 			}
@@ -307,17 +295,13 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 * @return {boolean}
 	 */
 	isValid: function() {
-		var listview = this.$listview.data( 'listview' ),
-			lia = listview.listItemAdapter(),
-			isValid = true;
+		if ( !this._isInEditMode ) {
+			return true;
+		}
 
-		listview.items().each( function() {
-			var snakview = lia.liInstance( $( this ) );
-			isValid = snakview.isValid() && snakview.snak();
-			return isValid;
+		return this._listview.value().every( function( snakview ) {
+			return snakview.isValid() && snakview.snak() !== null;
 		} );
-
-		return isValid;
 	},
 
 	/**
@@ -359,6 +343,8 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 */
 	destroy: function() {
 		this._listview.destroy();
+		this._listview = null;
+		this._lia = null;
 		PARENT.prototype.destroy.call( this );
 	},
 
@@ -373,7 +359,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 			if ( !( value instanceof wb.datamodel.SnakList ) ) {
 				throw new Error( 'value has to be an instance of wikibase.datamodel.SnakList' );
 			}
-			this.$listview.data( 'listview' ).value( value.toArray() );
+			this._listview.value( value.toArray() );
 		}
 
 		var response = PARENT.prototype._setOption.apply( this, arguments );
@@ -392,7 +378,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		var $items = this._listview.items();
 
 		if ( $items.length ) {
-			this._listview.listItemAdapter().liInstance( $items.first() ).focus();
+			this._lia.liInstance( $items.first() ).focus();
 		} else {
 			this.element.focus();
 		}
@@ -426,7 +412,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 					self._listview.move( self._findListItem( snak ), i );
 				}
 			} );
-			self._updatePropertyLabels();
+			this._updatePropertyLabels();
 		}
 	},
 
@@ -465,13 +451,13 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 * @return {jQuery|null}
 	 */
 	_findListItem: function( snak ) {
-		var self = this,
+		var lia = this._lia,
 			$snakview = null;
 
 		this._listview.items().each( function() {
 			var $itemNode = $( this );
 
-			if ( self._listview.listItemAdapter().liInstance( $itemNode ).snak().equals( snak ) ) {
+			if ( lia.liInstance( $itemNode ).snak().equals( snak ) ) {
 				$snakview = $itemNode;
 			}
 

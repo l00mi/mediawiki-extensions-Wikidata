@@ -7,9 +7,11 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\IdGenerator;
-use Wikibase\Lib\Store\ChangeLookup;
+use Wikibase\Lib\Changes\EntityChangeFactory;
+use Wikibase\Lib\Store\EntityChangeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
+use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
@@ -38,15 +40,21 @@ use Wikibase\TermIndex;
 class SqlStoreTest extends MediaWikiTestCase {
 
 	public function newInstance() {
+		$changeFactory = $this->getMockBuilder( EntityChangeFactory::class )
+			->disableOriginalConstructor()
+			->getMock();
+
 		$contentCodec = $this->getMockBuilder( EntityContentDataCodec::class )
 			->disableOriginalConstructor()
 			->getMock();
 
 		return new SqlStore(
+			$changeFactory,
 			$contentCodec,
 			$this->getMock( EntityIdParser::class ),
 			$this->getMock( EntityIdLookup::class ),
-			$this->getMock( EntityTitleLookup::class )
+			$this->getMock( EntityTitleLookup::class ),
+			new EntityNamespaceLookup( [] )
 		);
 	}
 
@@ -120,9 +128,9 @@ class SqlStoreTest extends MediaWikiTestCase {
 		$this->assertInstanceOf( PrefetchingWikiPageEntityMetaDataAccessor::class, $service );
 	}
 
-	public function testGetChangeLookup() {
-		$service = $this->newInstance()->getChangeLookup();
-		$this->assertInstanceOf( ChangeLookup::class, $service );
+	public function testGetEntityChangeLookup() {
+		$service = $this->newInstance()->getEntityChangeLookup();
+		$this->assertInstanceOf( EntityChangeLookup::class, $service );
 	}
 
 	public function testGetChangeStore() {
