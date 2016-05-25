@@ -16,6 +16,7 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
+use Wikibase\DataModel\Services\Diff\EntityPatcher;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\EditEntity;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -72,7 +73,7 @@ class EditEntityTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @param array|null $permissions
+	 * @param bool[]|null $permissions
 	 *
 	 * @return EntityPermissionChecker
 	 */
@@ -130,9 +131,8 @@ class EditEntityTest extends MediaWikiTestCase {
 	 * @param EntityTitleLookup $titleLookup
 	 * @param User|null $user
 	 * @param bool $baseRevId
+	 * @param bool[]|null $permissions map of actions to bool, indicating which actions are allowed.
 	 * @param EditFilterHookRunner|null $editFilterHookRunner
-	 *
-	 * @param null|array $permissions map of actions to bool, indicating which actions are allowed.
 	 *
 	 * @return EditEntity
 	 */
@@ -142,7 +142,7 @@ class EditEntityTest extends MediaWikiTestCase {
 		EntityTitleLookup $titleLookup,
 		User $user = null,
 		$baseRevId = false,
-		$permissions = null,
+		array $permissions = null,
 		$editFilterHookRunner = null
 	) {
 		$context = new RequestContext();
@@ -163,6 +163,7 @@ class EditEntityTest extends MediaWikiTestCase {
 			$mockRepository,
 			$permissionChecker,
 			new EntityDiffer(),
+			new EntityPatcher(),
 			$entity,
 			$user,
 			$editFilterHookRunner,
@@ -429,6 +430,7 @@ class EditEntityTest extends MediaWikiTestCase {
 			$repo,
 			$this->getEntityPermissionChecker( $permissions ),
 			new EntityDiffer(),
+			new EntityPatcher(),
 			new Item(),
 			$this->getUser( 'EditEntityTestUser' ),
 			$this->getMockEditFitlerHookRunner(),
