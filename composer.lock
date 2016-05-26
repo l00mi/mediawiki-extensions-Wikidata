@@ -495,16 +495,16 @@
         },
         {
             "name": "data-values/serialization",
-            "version": "1.0.3",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Serialization.git",
-                "reference": "fdd00409bcd036ac22f1640652af0f387f4fa8be"
+                "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Serialization/zipball/fdd00409bcd036ac22f1640652af0f387f4fa8be",
-                "reference": "fdd00409bcd036ac22f1640652af0f387f4fa8be",
+                "url": "https://api.github.com/repos/DataValues/Serialization/zipball/4b6d810d86866a3f43dcfecb2e336dfda5de2386",
+                "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386",
                 "shasum": ""
             },
             "require": {
@@ -515,7 +515,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -545,7 +545,7 @@
                 "serializers",
                 "wikidata"
             ],
-            "time": "2015-08-05 09:15:00"
+            "time": "2016-05-24 15:11:29"
         },
         {
             "name": "data-values/time",
@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "1ebcaecb9d8f75ff34dba1b112eace2868379c15"
+                "reference": "1efa8246f3e096fcee99a8ae7ad7f5c8b604dcca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/1ebcaecb9d8f75ff34dba1b112eace2868379c15",
-                "reference": "1ebcaecb9d8f75ff34dba1b112eace2868379c15",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/1efa8246f3e096fcee99a8ae7ad7f5c8b604dcca",
+                "reference": "1efa8246f3e096fcee99a8ae7ad7f5c8b604dcca",
                 "shasum": ""
             },
             "require-dev": {
@@ -809,7 +809,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-05-23 20:21:41"
+            "time": "2016-05-26 08:22:21"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1569,12 +1569,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "304732fbbda27b91ef24e48299905ff81c9f5b5e"
+                "reference": "afce033aa5bb19c6b4e4b4d1db45e073015c6e30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/304732fbbda27b91ef24e48299905ff81c9f5b5e",
-                "reference": "304732fbbda27b91ef24e48299905ff81c9f5b5e",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/afce033aa5bb19c6b4e4b4d1db45e073015c6e30",
+                "reference": "afce033aa5bb19c6b4e4b4d1db45e073015c6e30",
                 "shasum": ""
             },
             "require": {
@@ -1646,7 +1646,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-05-25 08:59:00"
+            "time": "2016-05-25 21:01:31"
         },
         {
             "name": "wikibase/wikimedia-badges",
