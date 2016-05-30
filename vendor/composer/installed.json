@@ -401,52 +401,6 @@
         "description": "Wikibase datamodel serialization implementation in JavaScript"
     },
     {
-        "name": "wikibase/javascript-api",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-            "reference": "a9c0202a33f278edd024f0c150d6281a6635bfc0"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/a9c0202a33f278edd024f0c150d6281a6635bfc0",
-            "reference": "a9c0202a33f278edd024f0c150d6281a6635bfc0",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/javascript": "~0.8.0|~0.7.0|~0.6.0"
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.5.1"
-        },
-        "time": "2016-02-17 10:46:01",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "WikibaseJavaScriptApi.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Adrian Lang",
-                "email": "adrian.lang@wikimedia.de"
-            },
-            {
-                "name": "H. Snater",
-                "homepage": "http://www.snater.com"
-            }
-        ],
-        "description": "JavaScript client for the Wikibase Repository web API"
-    },
-    {
         "name": "data-values/data-values",
         "version": "1.0.0",
         "version_normalized": "1.0.0.0",
@@ -1686,5 +1640,51 @@
         "support": {
             "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
         }
+    },
+    {
+        "name": "wikibase/javascript-api",
+        "version": "1.1.1",
+        "version_normalized": "1.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
+            "reference": "8c5eef73fc5a22c5ddb46da24dbeeaf14094c28c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/8c5eef73fc5a22c5ddb46da24dbeeaf14094c28c",
+            "reference": "8c5eef73fc5a22c5ddb46da24dbeeaf14094c28c",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/javascript": "~0.8.0|~0.7.0|~0.6.0"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.5.1"
+        },
+        "time": "2016-05-30 17:31:31",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "WikibaseJavaScriptApi.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrian Lang",
+                "email": "adrian.lang@wikimedia.de"
+            },
+            {
+                "name": "H. Snater",
+                "homepage": "http://www.snater.com"
+            }
+        ],
+        "description": "JavaScript client for the Wikibase Repository web API"
     }
 ]
