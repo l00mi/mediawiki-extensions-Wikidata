@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "6025c71f8be6b2d17b46749ec298d07b091b9e82"
+                "reference": "be49fc7fef64e29f5f1f3ae5d6aa420c7c9aa6d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/6025c71f8be6b2d17b46749ec298d07b091b9e82",
-                "reference": "6025c71f8be6b2d17b46749ec298d07b091b9e82",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/be49fc7fef64e29f5f1f3ae5d6aa420c7c9aa6d9",
+                "reference": "be49fc7fef64e29f5f1f3ae5d6aa420c7c9aa6d9",
                 "shasum": ""
             },
             "require-dev": {
@@ -809,7 +809,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-05-29 20:25:30"
+            "time": "2016-05-30 14:11:53"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1369,16 +1369,16 @@
         },
         {
             "name": "wikibase/javascript-api",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-                "reference": "a9c0202a33f278edd024f0c150d6281a6635bfc0"
+                "reference": "8c5eef73fc5a22c5ddb46da24dbeeaf14094c28c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/a9c0202a33f278edd024f0c150d6281a6635bfc0",
-                "reference": "a9c0202a33f278edd024f0c150d6281a6635bfc0",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/8c5eef73fc5a22c5ddb46da24dbeeaf14094c28c",
+                "reference": "8c5eef73fc5a22c5ddb46da24dbeeaf14094c28c",
                 "shasum": ""
             },
             "require": {
@@ -1409,7 +1409,7 @@
                 }
             ],
             "description": "JavaScript client for the Wikibase Repository web API",
-            "time": "2016-02-17 10:46:01"
+            "time": "2016-05-30 17:31:31"
         },
         {
             "name": "wikibase/media-info",
@@ -1417,7 +1417,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "79b264dd93e26f00b7438dc00c79cd468acdde23"
+                "reference": "8111551b13188e898811f2af51637997a2a08f64"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1463,7 +1463,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-05-24 16:10:19"
+            "time": "2016-05-31 07:02:52"
         },
         {
             "name": "wikibase/quality",
@@ -1569,12 +1569,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "6600063308c7019fef6219973c8969fa6bb9f629"
+                "reference": "8307e06a9ab386302085184571dcad270ef4a77d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6600063308c7019fef6219973c8969fa6bb9f629",
-                "reference": "6600063308c7019fef6219973c8969fa6bb9f629",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/8307e06a9ab386302085184571dcad270ef4a77d",
+                "reference": "8307e06a9ab386302085184571dcad270ef4a77d",
                 "shasum": ""
             },
             "require": {
@@ -1585,7 +1585,7 @@
                 "data-values/interfaces": "~0.2.0|~0.1.5",
                 "data-values/javascript": "~0.8.0",
                 "data-values/number": "~0.7.0",
-                "data-values/serialization": "~1.0",
+                "data-values/serialization": "~1.1",
                 "data-values/time": "~0.8.4",
                 "data-values/validators": "~0.1.0",
                 "data-values/value-view": "~0.17.1",
@@ -1646,7 +1646,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-05-30 08:56:04"
+            "time": "2016-05-31 09:34:42"
         },
         {
             "name": "wikibase/wikimedia-badges",
