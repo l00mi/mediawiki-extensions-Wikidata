@@ -14,7 +14,7 @@ use OutOfRangeException;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class LatLongValue extends DataValueObject {
@@ -144,7 +144,7 @@ class LatLongValue extends DataValueObject {
 	 *
 	 * @since 0.1
 	 *
-	 * @return LatLongValue
+	 * @return self
 	 */
 	public function getValue() {
 		return $this;
@@ -194,7 +194,7 @@ class LatLongValue extends DataValueObject {
 	 *
 	 * @param float[] $data
 	 *
-	 * @return LatLongValue
+	 * @return self
 	 */
 	public static function newFromArray( array $data ) {
 		return new static( $data['latitude'], $data['longitude'] );

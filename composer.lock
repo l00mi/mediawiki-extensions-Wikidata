@@ -278,16 +278,16 @@
         },
         {
             "name": "data-values/geo",
-            "version": "1.1.6",
+            "version": "1.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Geo.git",
-                "reference": "6fb5f20c10e8d55ba5fa83a3bbcd824850ee9b48"
+                "reference": "31bc304c5b525f59fa7db047adc583d6b86e3ad9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Geo/zipball/6fb5f20c10e8d55ba5fa83a3bbcd824850ee9b48",
-                "reference": "6fb5f20c10e8d55ba5fa83a3bbcd824850ee9b48",
+                "url": "https://api.github.com/repos/DataValues/Geo/zipball/31bc304c5b525f59fa7db047adc583d6b86e3ad9",
+                "reference": "31bc304c5b525f59fa7db047adc583d6b86e3ad9",
                 "shasum": ""
             },
             "require": {
@@ -337,7 +337,7 @@
                 "parsers",
                 "wikidata"
             ],
-            "time": "2016-04-01 22:49:09"
+            "time": "2016-05-27 15:02:09"
         },
         {
             "name": "data-values/interfaces",
@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "be49fc7fef64e29f5f1f3ae5d6aa420c7c9aa6d9"
+                "reference": "33274638aa312a62dd134a2b3c87de3e2e019792"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/be49fc7fef64e29f5f1f3ae5d6aa420c7c9aa6d9",
-                "reference": "be49fc7fef64e29f5f1f3ae5d6aa420c7c9aa6d9",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/33274638aa312a62dd134a2b3c87de3e2e019792",
+                "reference": "33274638aa312a62dd134a2b3c87de3e2e019792",
                 "shasum": ""
             },
             "require-dev": {
@@ -809,7 +809,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-05-30 14:11:53"
+            "time": "2016-06-02 20:19:58"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -920,7 +920,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "723767d5d9fe1eb6dcd383ad188220e7c1519ac6"
+                "reference": "d7272591bc9ac9c66dd7ef310190f37a40e22522"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -964,7 +964,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-05-28 01:27:03"
+            "time": "2016-06-02 20:27:03"
         },
         {
             "name": "wikibase/constraints",
@@ -1569,12 +1569,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "353b78ab83cf8caab31386e3d0db035c5f403e5a"
+                "reference": "dafaf92d9faf57eb57890d4a8e41bd94cdbf97f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/353b78ab83cf8caab31386e3d0db035c5f403e5a",
-                "reference": "353b78ab83cf8caab31386e3d0db035c5f403e5a",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/dafaf92d9faf57eb57890d4a8e41bd94cdbf97f0",
+                "reference": "dafaf92d9faf57eb57890d4a8e41bd94cdbf97f0",
                 "shasum": ""
             },
             "require": {
@@ -1646,7 +1646,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-06-02 09:38:29"
+            "time": "2016-06-02 20:26:48"
         },
         {
             "name": "wikibase/wikimedia-badges",

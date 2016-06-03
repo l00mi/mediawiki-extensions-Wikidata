@@ -10,7 +10,7 @@ use ValueParsers\ParserOptions;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
  */
@@ -38,7 +38,7 @@ class DmCoordinateParser extends DdCoordinateParser {
 	/**
 	 * @see GeoCoordinateParserBase::areValidCoordinates
 	 */
-	protected function areValidCoordinates( $normalizedCoordinateSegments ) {
+	protected function areValidCoordinates( array $normalizedCoordinateSegments ) {
 		// At least one coordinate segment needs to have minutes specified.
 		$regExpStrict = '\d{1,3}'
 			. preg_quote( $this->getOption( self::OPT_DEGREE_SYMBOL ) )

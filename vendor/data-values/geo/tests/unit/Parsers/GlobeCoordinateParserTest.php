@@ -15,14 +15,14 @@ use ValueParsers\Test\StringValueParserTest;
  * @group DataValueExtensions
  * @group GeoCoordinateParserTest
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Thiemo Mättig
  */
 class GlobeCoordinateParserTest extends StringValueParserTest {
 
 	/**
-	 * @deprecated since 0.3, just use getInstance.
+	 * @deprecated since DataValues Common 0.3, just use getInstance.
 	 */
 	protected function getParserClass() {
 		throw new \LogicException( 'Should not be called, use getInstance' );
@@ -44,6 +44,10 @@ class GlobeCoordinateParserTest extends StringValueParserTest {
 		$argLists = array();
 
 		$valid = array(
+			// Whitespace
+			"1N 1E\n" => array( 1, 1, 1 ),
+			' 1N 1E ' => array( 1, 1, 1 ),
+
 			// Float
 			'55.7557860 N, 37.6176330 W' => array( 55.7557860, -37.6176330, 0.000001 ),
 			'55.7557860N,37.6176330W' => array( 55.7557860, -37.6176330, 0.000001 ),
