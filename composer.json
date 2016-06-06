@@ -5,6 +5,10 @@
     "repositories": [
         {
             "type": "git",
+            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/ArticlePlaceholder"
+        },
+        {
+            "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org"
         },
         {
@@ -30,7 +34,7 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "mediawiki/article-placeholder": "dev-master",
+        "mediawiki/article-placeholder": "dev-wmf/1.28.0-wmf.3",
         "propertysuggester/property-suggester": "~3.0.0",
         "wikibase/wikibase": "dev-wmf/1.28.0-wmf.3",
         "wikibase/wikimedia-badges": "dev-master",
