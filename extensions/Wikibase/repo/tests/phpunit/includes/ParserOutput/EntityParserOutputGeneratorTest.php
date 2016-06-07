@@ -7,6 +7,7 @@ use MediaWikiTestCase;
 use SpecialPage;
 use Title;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -15,6 +16,7 @@ use Wikibase\DataModel\Services\Entity\PropertyDataTypeMatcher;
 use Wikibase\DataModel\Services\Lookup\InMemoryDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\LanguageFallbackChain;
+use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilderFactory;
 use Wikibase\Repo\LinkedData\EntityDataFormatProvider;
@@ -40,12 +42,43 @@ use Wikibase\View\Template\TemplateFactory;
  */
 class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 
-	public function testGetParserOutput() {
+	public function provideTestGetParserOutput() {
+		return [
+			[
+				$this->newItem(),
+				'kitten item' ,
+				[ 'http://an.url.com', 'https://another.url.org' ],
+				[ 'File:This_is_a_file.pdf', 'File:Selfie.jpg' ],
+				[
+					new ItemId( 'Q42' ),
+					new ItemId( 'Q35' ),
+					new PropertyId( 'P42' ),
+					new PropertyId( 'P10' )
+				],
+			],
+			[ new Item(), null, [], [], [] ]
+		];
+	}
+
+	/**
+	 * EntityDocument $entity
+	 * string|null $titleText
+	 * string[] $externalLinks
+	 * string[] $images
+	 * EntityId[] $referencedEntities
+	 *
+	 * @dataProvider provideTestGetParserOutput
+	 */
+	public function testGetParserOutput(
+		EntityDocument $entity,
+		$titleText,
+		array $externalLinks,
+		array $images,
+		array $referencedEntities
+	) {
 		$entityParserOutputGenerator = $this->newEntityParserOutputGenerator();
 
-		$item = $this->newItem();
-
-		$parserOutput = $entityParserOutputGenerator->getParserOutput( $item );
+		$parserOutput = $entityParserOutputGenerator->getParserOutput( $entity );
 
 		$this->assertSame( '<TITLE>', $parserOutput->getTitleText(), 'title text' );
 		$this->assertSame( '<HTML>', $parserOutput->getText(), 'html text' );
@@ -60,19 +93,19 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 		$this->assertSame( array( '<JS>' ), $parserOutput->getJsConfigVars(), 'config vars' );
 
 		$this->assertEquals(
-			'kitten item',
+			$titleText,
 			$parserOutput->getExtensionData( 'wikibase-titletext' ),
 			'title text'
 		);
 
 		$this->assertEquals(
-			array( 'http://an.url.com', 'https://another.url.org' ),
+			$externalLinks,
 			array_keys( $parserOutput->getExternalLinks() ),
 			'external links'
 		);
 
 		$this->assertEquals(
-			array( 'File:This_is_a_file.pdf', 'File:Selfie.jpg' ),
+			$images,
 			array_keys( $parserOutput->getImages() ),
 			'images'
 		);
@@ -85,31 +118,30 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 //		);
 
 		$this->assertArrayEquals(
-			array(
-				new ItemId( 'Q42' ),
-				new ItemId( 'Q35' ),
-				new PropertyId( 'P42' ),
-				new PropertyId( 'P10' )
-			),
+			$referencedEntities,
 			$parserOutput->getExtensionData( 'referenced-entities' )
 		);
 
-		$jsonHref = SpecialPage::getTitleFor( 'EntityData', $item->getId()->getSerialization() . '.json' )->getCanonicalURL();
-		$ntHref = SpecialPage::getTitleFor( 'EntityData', $item->getId()->getSerialization() . '.nt' )->getCanonicalURL();
-
-		$this->assertEquals(
-			array(
-				array(
+		$alternateLinks = null;
+		if ( $entity->getId() ) {
+			$jsonHref = SpecialPage::getTitleFor( 'EntityData', $entity->getId()->getSerialization() . '.json' )->getCanonicalURL();
+			$ntHref = SpecialPage::getTitleFor( 'EntityData', $entity->getId()->getSerialization() . '.nt' )->getCanonicalURL();
+			$alternateLinks = [
+				[
 					'rel' => 'alternate',
 					'href' => $jsonHref,
 					'type' => 'application/json'
-				),
-				array(
+				],
+				[
 					'rel' => 'alternate',
 					'href' => $ntHref,
 					'type' => 'application/n-triples'
-				)
-			),
+				]
+			];
+		}
+
+		$this->assertEquals(
+			$alternateLinks,
 			$parserOutput->getExtensionData( 'wikibase-alternate-links' ),
 			'alternate links (extension data)'
 		);
@@ -167,7 +199,7 @@ class EntityParserOutputGeneratorTest extends MediaWikiTestCase {
 			$this->getEntityViewFactory( $createView ),
 			$this->getConfigBuilderMock(),
 			$entityTitleLookup,
-			new SqlEntityInfoBuilderFactory( $entityIdParser ),
+			new SqlEntityInfoBuilderFactory( $entityIdParser, new EntityIdComposer( [] ) ),
 			$this->newLanguageFallbackChain(),
 			TemplateFactory::getDefaultInstance(),
 			$this->getMock( LocalizedTextProvider::class ),
