@@ -1417,7 +1417,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "a54869520425d68a16616243d92387a3b6437d0b"
+                "reference": "d78c0b22413f23e5996a3bf9c7a64aeea6386f02"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1463,7 +1463,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-06 21:01:21"
+            "time": "2016-06-07 20:47:39"
         },
         {
             "name": "wikibase/quality",
@@ -1569,12 +1569,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c43f7cc73670f414f002396e7b9962c5459d282e"
+                "reference": "819899d571ada47487686c2735652c33e27da55c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c43f7cc73670f414f002396e7b9962c5459d282e",
-                "reference": "c43f7cc73670f414f002396e7b9962c5459d282e",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/819899d571ada47487686c2735652c33e27da55c",
+                "reference": "819899d571ada47487686c2735652c33e27da55c",
                 "shasum": ""
             },
             "require": {
@@ -1646,7 +1646,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-06-06 21:01:10"
+            "time": "2016-06-07 20:47:27"
         },
         {
             "name": "wikibase/wikimedia-badges",
