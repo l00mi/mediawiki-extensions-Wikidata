@@ -5,11 +5,17 @@
   padding: 10px;
   margin: 20px;
   width: 350px;
+  max-height: 20em;
+  overflow: auto;
 }
 
 #bodyContent {
   padding-top: 5%;
   padding-right: 305px;
+}
+
+.mw-body .mw-body-content .articleplaceholder-statementgroup h1 {
+  margin-top: 0; /*overwrite standard 1em top margin*/
 }
 
 #create-article-button {
@@ -30,21 +36,35 @@
 
 .articleplaceholder-identifierlist {
   clear: both;
-  border: 1px solid black;
+  border: 1px solid #ccc;
   background-color: #F9F9F9;
   width: 100%;
+  padding: 0.4em;
 }
 
-.articleplaceholder-statementgrouplist {
-  margin-top: 5%;
+.articleplaceholder-identifierlist td{
+  vertical-align: top;
+  padding:0.25em;
+}
+
+.mw-body .articleplaceholder-identifierlist p {
+  margin-top: 0;
+}
+
+.articleplaceholder-id-value {
+  word-break:break-all;
 }
 
 .articleplaceholder-statement {
+  margin-top: 0em;
+}
+
+.articleplaceholder-statementgrouplist {
   margin-top: 1.5em;
 }
 
-.articleplaceholder-value {
-  font-size: 130%;
+.articleplaceholder-identifierlist .articleplaceholder-value {
+  font-size: 100%;
 }
 
 .articleplaceholder-identifierlist .articleplaceholder-value {
@@ -53,5 +73,5 @@
 }
 
 .articleplaceholder-qualifier {
-  text-indent: 1em;
+  margin-left: 1em;
 }

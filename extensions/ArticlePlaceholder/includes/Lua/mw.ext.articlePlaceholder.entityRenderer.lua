@@ -25,11 +25,13 @@ end
 
 -- Render a label to the language of the local Wiki.
 -- @param string entityId
--- @return string label or entityId if no label available
+-- @return wikitext label or entityId if no label available
 local labelRenderer = function( entityId )
   local label = mw.wikibase.label( entityId )
-  if label == nil then
-    label = entityId
+  if label ~= nil then
+    label = mw.text.nowiki( label )
+  else
+    label = '[' .. mw.wikibase.getEntityUrl( entityId ) .. ' ' .. entityId .. ']'
   end
   return label
 end
@@ -87,13 +89,15 @@ local referenceRenderer = function( references )
     references = removeBlacklistedReferences( references )
   end
 
-  if references ~= nil then
+  local i, reference = next( references, nil )
+
+  if i then
     hasReferences = true
-    local i = 1
-    while references[i] do
-      referenceWikitext = snaksRenderer( references[i]['snaks'] )
+
+    while i do
+      referenceWikitext = snaksRenderer( reference['snaks'] )
       table.insert( referencesWikitext, frame:extensionTag( 'ref', referenceWikitext ) )
-      i = i + 1
+      i, reference = next( references, i )
     end
   end
 
@@ -117,11 +121,14 @@ end
 -- Render a statement containing images.
 -- @param table statement
 -- @param String orientationImage
+-- @param bool inlineQualifiers, default false
 -- @return String renderedImage
-local imageStatementRenderer = function( statement, orientationImage )
+local imageStatementRenderer = function( statement, orientationImage, inlineQualifiers )
+  local inlineQualifiers = inlineQualifiers or false
   local reference = ''
   local qualifier = ''
   local image = ''
+
   if statement ~= nil then
     for key, value in pairs( statement ) do
       if key == 'mainsnak' then
@@ -133,8 +140,12 @@ local imageStatementRenderer = function( statement, orientationImage )
       end
     end
   end
-  local result = '[[File:' .. image .. '|thumb|' .. orientationImage .. '|300px|' .. reference .. ']]'
-  result = result .. qualifier
+  local result = '[[File:' .. image .. '|thumb|' .. orientationImage .. '|300px|'
+  if inlineQualifiers == true then
+    result = result .. reference .. ' ' .. qualifier .. ']]'
+  else
+    result = result .. reference .. ' ' .. ']]' .. qualifier
+  end
   return result
 end
 
@@ -170,7 +181,7 @@ local bestStatementRenderer = function( entity, propertyId )
   local bestStatements = entity:getBestStatements( propertyId )
   for _, stat in pairs( bestStatements ) do
     if getDatatype( propertyId ) == "commonsMedia" then
-      statement = statement .. imageStatementRenderer( stat, "center" )
+      statement = statement .. imageStatementRenderer( stat, "left" )
     else
       statement = statement .. statementRenderer(stat)
     end
@@ -247,7 +258,7 @@ local topImageRenderer = function( entity, propertyId, orientationImage )
   imageStatement = entity:getBestStatements( propertyId )[1]
 
   if imageStatement ~= nil then
-    renderedImage = imageStatementRenderer( imageStatement, orientationImage )
+    renderedImage = imageStatementRenderer( imageStatement, orientationImage, true )
     renderedImage = '<div class="articleplaceholder-topimage">' .. renderedImage .. '</div>'
   end
 

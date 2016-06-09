@@ -1568,12 +1568,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "fc6e571ec0fef7acacd34e745909ca05ba7c60e0"
+            "reference": "6a15ffa288f5bd5050ade1fafaf100663c0a789b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fc6e571ec0fef7acacd34e745909ca05ba7c60e0",
-            "reference": "fc6e571ec0fef7acacd34e745909ca05ba7c60e0",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6a15ffa288f5bd5050ade1fafaf100663c0a789b",
+            "reference": "6a15ffa288f5bd5050ade1fafaf100663c0a789b",
             "shasum": ""
         },
         "require": {
@@ -1606,7 +1606,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-06-06 19:55:50",
+        "time": "2016-06-09 18:36:22",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1655,13 +1655,13 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/ArticlePlaceholder",
-            "reference": "ac0c104182a1fc98b54dea2006eefe858d322cc9"
+            "reference": "6d5bdfccfb669b682d94b0705d346877a59fe42b"
         },
         "require-dev": {
             "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.7.1"
+            "mediawiki/mediawiki-codesniffer": "0.7.2"
         },
-        "time": "2016-05-24 15:15:06",
+        "time": "2016-06-09 19:19:59",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
