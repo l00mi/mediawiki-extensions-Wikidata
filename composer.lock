@@ -780,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "e8cc6d5a21aeac650a9d5d9b31167912b057814a"
+                "reference": "bf119ed81aa69836cb3ba5e682f9ba3c2f48e90a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/e8cc6d5a21aeac650a9d5d9b31167912b057814a",
-                "reference": "e8cc6d5a21aeac650a9d5d9b31167912b057814a",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/bf119ed81aa69836cb3ba5e682f9ba3c2f48e90a",
+                "reference": "bf119ed81aa69836cb3ba5e682f9ba3c2f48e90a",
                 "shasum": ""
             },
             "require-dev": {
@@ -809,7 +809,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-06-06 11:09:22"
+            "time": "2016-06-09 22:54:41"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1417,7 +1417,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "d78c0b22413f23e5996a3bf9c7a64aeea6386f02"
+                "reference": "c799f999edf01d65b42d6ebefd97940a47997c0f"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1463,7 +1463,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-07 20:47:39"
+            "time": "2016-06-09 20:41:30"
         },
         {
             "name": "wikibase/quality",
@@ -1569,12 +1569,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "819899d571ada47487686c2735652c33e27da55c"
+                "reference": "b9de3576942720ef0e83844a117eccd4a9197230"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/819899d571ada47487686c2735652c33e27da55c",
-                "reference": "819899d571ada47487686c2735652c33e27da55c",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b9de3576942720ef0e83844a117eccd4a9197230",
+                "reference": "b9de3576942720ef0e83844a117eccd4a9197230",
                 "shasum": ""
             },
             "require": {
@@ -1646,7 +1646,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-06-07 20:47:27"
+            "time": "2016-06-09 20:41:20"
         },
         {
             "name": "wikibase/wikimedia-badges",
