@@ -920,7 +920,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "d7272591bc9ac9c66dd7ef310190f37a40e22522"
+                "reference": "225248e060a58ac693c500059aaeaf027cb5861d"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -964,7 +964,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-02 20:27:03"
+            "time": "2016-06-12 20:18:16"
         },
         {
             "name": "wikibase/constraints",
