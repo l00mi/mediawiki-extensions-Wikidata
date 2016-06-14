@@ -10,9 +10,11 @@ use Traversable;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Term\AliasGroup;
-use Wikibase\DataModel\Term\Fingerprint;
-use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\DataModel\Term\AliasesProvider;
+use Wikibase\DataModel\Term\AliasGroupList;
+use Wikibase\DataModel\Term\DescriptionsProvider;
+use Wikibase\DataModel\Term\LabelsProvider;
+use Wikibase\DataModel\Term\TermList;
 use Wikibase\Lib\Store\LabelConflictFinder;
 
 /**
@@ -25,6 +27,7 @@ use Wikibase\Lib\Store\LabelConflictFinder;
  * @author Jens Ohlig < jens.ohlig@wikimedia.de >
  * @author Daniel Kinzler
  * @author Denny
+ * @author Thiemo Mättig
  */
 class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinder {
 
@@ -86,11 +89,17 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 *
 	 * @since 0.1
 	 *
-	 * @param EntityDocument $entity
+	 * @param EntityDocument $entity Must have an ID, and optionally any combination of terms as
+	 *  declared by the TermIndexEntry::TYPE_... constants.
 	 *
+	 * @throws InvalidArgumentException when $entity does not have an ID.
 	 * @return bool Success indicator
 	 */
 	public function saveTermsOfEntity( EntityDocument $entity ) {
+		if ( $entity->getId() === null ) {
+			throw new InvalidArgumentException( '$entity must have an ID' );
+		}
+
 		//First check whether there's anything to update
 		$newTerms = $this->getEntityTerms( $entity );
 		$oldTerms = $this->getTermsOfEntity( $entity->getId() );
@@ -139,7 +148,8 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		$entityIdentifiers = array(
 			// FIXME: this will fail for IDs that do not have a numeric form
 			'term_entity_id' => $entity->getId()->getNumericId(),
-			'term_entity_type' => $entity->getType()
+			'term_entity_type' => $entity->getType(),
+			'term_weight' => $this->getWeight( $entity ),
 		);
 
 		wfDebugLog( __CLASS__, __FUNCTION__ . ': inserting terms for ' . $entity->getId()->getSerialization() );
@@ -150,8 +160,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 				$this->tableName,
 				array_merge(
 					$this->getTermFields( $term ),
-					$entityIdentifiers,
-					array( 'term_weight'  => $this->getWeight( $entity ) )
+					$entityIdentifiers
 				),
 				__METHOD__,
 				array( 'IGNORE' )
@@ -171,62 +180,83 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 * @return TermIndexEntry[]
 	 */
 	public function getEntityTerms( EntityDocument $entity ) {
-		// FIXME: OCP violation. No support for new types of entities can be registered
-
-		if ( $entity instanceof FingerprintProvider ) {
-			$fingerprint = $entity->getFingerprint();
-
-			/** @var EntityDocument $entity */
-			$extraFields = array(
-				'entityType' => $entity->getType(),
-			);
-
-			$entityId = $entity->getId();
-			if ( $entityId !== null ) {
-				$extraFields['entityId'] = $entityId->getNumericId();
-			}
-
-			return $this->getFingerprintTerms( $fingerprint, $extraFields );
+		// FIXME: Introduce and use an Int32EntityId interface.
+		if ( !method_exists( $entity->getId(), 'getNumericId' ) ) {
+			wfWarn( 'Entity type "' . $entity->getType() . '" does not implement getNumericId' );
+			return [];
 		}
 
-		return array();
+		$terms = [];
+		$extraFields = [
+			'entityType' => $entity->getType(),
+			'entityId' => $entity->getId()->getNumericId(),
+		];
+
+		if ( $entity instanceof DescriptionsProvider ) {
+			$terms = array_merge( $terms, $this->getTermListTerms(
+				TermIndexEntry::TYPE_DESCRIPTION,
+				$entity->getDescriptions(),
+				$extraFields
+			) );
+		}
+
+		if ( $entity instanceof LabelsProvider ) {
+			$terms = array_merge( $terms, $this->getTermListTerms(
+				TermIndexEntry::TYPE_LABEL,
+				$entity->getLabels(),
+				$extraFields
+			) );
+		}
+
+		if ( $entity instanceof AliasesProvider ) {
+			$terms = array_merge( $terms, $this->getAliasGroupListTerms(
+				$entity->getAliasGroups(),
+				$extraFields
+			) );
+		}
+
+		return $terms;
 	}
 
 	/**
-	 * @param Fingerprint $fingerprint
+	 * @param string $termType
+	 * @param TermList $termList
 	 * @param array $extraFields
 	 *
 	 * @return TermIndexEntry[]
 	 */
-	private function getFingerprintTerms( Fingerprint $fingerprint, array $extraFields = array() ) {
-		$terms = array();
+	private function getTermListTerms( $termType, TermList $termList, array $extraFields ) {
+		$terms = [];
 
-		foreach ( $fingerprint->getDescriptions()->toTextArray() as $languageCode => $description ) {
+		foreach ( $termList->toTextArray() as $languageCode => $text ) {
 			$term = new TermIndexEntry( $extraFields );
 
 			$term->setLanguage( $languageCode );
-			$term->setType( TermIndexEntry::TYPE_DESCRIPTION );
-			$term->setText( $description );
+			$term->setType( $termType );
+			$term->setText( $text );
 
 			$terms[] = $term;
 		}
 
-		foreach ( $fingerprint->getLabels()->toTextArray() as $languageCode => $label ) {
-			$term = new TermIndexEntry( $extraFields );
+		return $terms;
+	}
 
-			$term->setLanguage( $languageCode );
-			$term->setType( TermIndexEntry::TYPE_LABEL );
-			$term->setText( $label );
+	/**
+	 * @param AliasGroupList $aliasGroupList
+	 * @param array $extraFields
+	 *
+	 * @return TermIndexEntry[]
+	 */
+	private function getAliasGroupListTerms( AliasGroupList $aliasGroupList, array $extraFields ) {
+		$terms = [];
 
-			$terms[] = $term;
-		}
+		foreach ( $aliasGroupList->toArray() as $aliasGroup ) {
+			$languageCode = $aliasGroup->getLanguageCode();
 
-		/** @var AliasGroup $aliasGroup */
-		foreach ( $fingerprint->getAliasGroups() as $aliasGroup ) {
 			foreach ( $aliasGroup->getAliases() as $alias ) {
 				$term = new TermIndexEntry( $extraFields );
 
-				$term->setLanguage( $aliasGroup->getLanguageCode() );
+				$term->setLanguage( $languageCode );
 				$term->setType( TermIndexEntry::TYPE_ALIAS );
 				$term->setText( $alias );
 
@@ -296,15 +326,13 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 	 *
 	 * @param EntityDocument $entity
 	 *
-	 * @return float weight
+	 * @return float
 	 */
 	private function getWeight( EntityDocument $entity ) {
-		// FIXME: OCP violation. No support for new types of entities can be registered
-
 		$weight = 0.0;
 
-		if ( $entity instanceof FingerprintProvider ) {
-			$weight = max( $weight, $entity->getFingerprint()->getLabels()->count() / 1000.0 );
+		if ( $entity instanceof LabelsProvider ) {
+			$weight = max( $weight, $entity->getLabels()->count() / 1000.0 );
 		}
 
 		if ( $entity instanceof Item ) {

@@ -5,10 +5,6 @@
     "repositories": [
         {
             "type": "git",
-            "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/ArticlePlaceholder"
-        },
-        {
-            "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org"
         },
         {
@@ -34,9 +30,9 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "mediawiki/article-placeholder": "dev-wmf/1.28.0-wmf.3",
+        "mediawiki/article-placeholder": "dev-master",
         "propertysuggester/property-suggester": "~3.0.0",
-        "wikibase/wikibase": "dev-wmf/1.28.0-wmf.3",
+        "wikibase/wikibase": "dev-wmf/1.28.0-wmf.6",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
         "wikibase/quality": "dev-master",
@@ -55,7 +51,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_28_0_wmf_3",
+        "autoloader-suffix": "wikidata_1_28_0_wmf_6",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

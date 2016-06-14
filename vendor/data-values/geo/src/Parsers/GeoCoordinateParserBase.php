@@ -10,13 +10,13 @@ use ValueParsers\StringValueParser;
 /**
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 abstract class GeoCoordinateParserBase extends StringValueParser {
 
-	const FORMAT_NAME = 'coordinate';
+	const FORMAT_NAME = 'geo-coordinate';
 
 	/**
 	 * The symbols representing the different directions for usage in directional notation.
@@ -77,7 +77,7 @@ abstract class GeoCoordinateParserBase extends StringValueParser {
 	 *
 	 * @return boolean
 	 */
-	abstract protected function areValidCoordinates( $normalizedCoordinateSegments );
+	abstract protected function areValidCoordinates( array $normalizedCoordinateSegments );
 
 	/**
 	 * @see StringValueParser::stringParse

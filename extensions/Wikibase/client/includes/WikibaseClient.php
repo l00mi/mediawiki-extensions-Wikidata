@@ -64,9 +64,11 @@ use Wikibase\DirectSqlStore;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
 use Wikibase\ItemChange;
 use Wikibase\LangLinkHandler;
+use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\DataTypeDefinitions;
+use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
@@ -138,6 +140,11 @@ final class WikibaseClient {
 	 * @var EntityIdParser|null
 	 */
 	private $entityIdParser = null;
+
+	/**
+	 * @var EntityIdComposer|null
+	 */
+	private $entityIdComposer = null;
 
 	/**
 	 * @var LanguageFallbackChainFactory|null
@@ -340,6 +347,21 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * @since 0.5
+	 *
+	 * @return EntityIdComposer
+	 */
+	public function getEntityIdComposer() {
+		if ( $this->entityIdComposer === null ) {
+			$this->entityIdComposer = new EntityIdComposer(
+				$this->entityTypeDefinitions->getEntityIdComposers()
+			);
+		}
+
+		return $this->entityIdComposer;
+	}
+
+	/**
 	 * @return EntityLookup
 	 */
 	private function getEntityLookup() {
@@ -428,7 +450,10 @@ final class WikibaseClient {
 			$this->settings->getSetting( 'repoUrl' ),
 			$this->settings->getSetting( 'repoArticlePath' ),
 			$this->settings->getSetting( 'repoScriptPath' ),
-			$this->settings->getSetting( 'repoNamespaces' )
+			$this->fixLegacyContentModelSetting(
+				$this->settings->getSetting( 'repoNamespaces' ),
+				'repoNamespaces'
+			)
 		);
 	}
 
@@ -518,6 +543,23 @@ final class WikibaseClient {
 	 */
 	public function getSettings() {
 		return $this->settings;
+	}
+
+	/**
+	 * Returns the repo's settings array IF the local wiki also acts as a repository.
+	 * If the local wiki is not a repository, this method returns null.
+	 *
+	 * This is intended to be used ONLY to allow client settings to default to local repo
+	 * settings in WikibaseClient.default.php.
+	 *
+	 * @return SettingsArray|null
+	 */
+	public function getRepoSettings() {
+		if ( defined( 'WB_VERSION' ) ) {
+			return \Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getSettings();
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -917,7 +959,11 @@ final class WikibaseClient {
 			'multilingualtext' => MultilingualTextValue::class,
 			'quantity' => QuantityValue::class,
 			'time' => TimeValue::class,
-			'wikibase-entityid' => EntityIdValue::class,
+			'wikibase-entityid' => function( $value ) {
+				return isset( $value['id'] )
+					? $this->getEntityIdParser()->parse( $value['id'] )
+					: EntityIdValue::newFromArray( $value );
+			},
 		) );
 	}
 
@@ -1133,16 +1179,56 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * @return int[]
+	 */
+	private function getEntityNamespacesSetting() {
+		$namespaces = $this->fixLegacyContentModelSetting(
+			$this->settings->getSetting( 'entityNamespaces' ),
+			'entityNamespaces'
+		);
+
+		Hooks::run( 'WikibaseEntityNamespaces', array( &$namespaces ) );
+		return $namespaces;
+	}
+
+	/**
 	 * @return EntityNamespaceLookup
 	 */
 	public function getEntityNamespaceLookup() {
 		if ( $this->entityNamespaceLookup === null ) {
 			$this->entityNamespaceLookup = new EntityNamespaceLookup(
-				$this->settings->getSetting( 'entityNamespaces' )
+				$this->getEntityNamespacesSetting()
 			);
 		}
 
 		return $this->entityNamespaceLookup;
+	}
+
+	/**
+	 * @param Language $language
+	 *
+	 * @return LanguageFallbackChain
+	 */
+	public function getDataAccessLanguageFallbackChain( Language $language ) {
+		return $this->getLanguageFallbackChainFactory()->newFromLanguage(
+			$language,
+			LanguageFallbackChainFactory::FALLBACK_ALL
+		);
+	}
+
+	private function fixLegacyContentModelSetting( array $setting, $name ) {
+		if ( isset( $setting[ 'wikibase-item' ] ) || isset( $setting[ 'wikibase-property' ] ) ) {
+			wfWarn( "The specified value for the Wikibase setting '$name' uses content model ids. This is deprecated. " .
+				"Please update to plain entity types." );
+			$oldSetting = $setting;
+			$setting = [];
+			$prefix = 'wikibase-';
+			foreach ( $oldSetting as $contentModel => $namespace ) {
+				$pos = strpos( $contentModel, $prefix );
+				$setting[ $pos === 0 ? substr( $contentModel, strlen( $prefix ) ) : $contentModel ] = $namespace;
+			}
+		}
+		return $setting;
 	}
 
 }

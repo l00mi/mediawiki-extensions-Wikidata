@@ -42,6 +42,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
+use Wikibase\DataModel\Services\Diff\EntityPatcher;
 use Wikibase\DataModel\Services\EntityId\SuffixEntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
@@ -63,6 +64,7 @@ use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ContentLanguages;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\DifferenceContentLanguages;
+use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\EntityIdLinkFormatter;
 use Wikibase\Lib\EntityIdPlainLinkFormatter;
 use Wikibase\Lib\EntityIdValueFormatter;
@@ -186,6 +188,11 @@ class WikibaseRepo {
 	 * @var EntityIdParser|null
 	 */
 	private $entityIdParser = null;
+
+	/**
+	 * @var EntityIdComposer|null
+	 */
+	private $entityIdComposer = null;
 
 	/**
 	 * @var StringNormalizer|null
@@ -384,15 +391,21 @@ class WikibaseRepo {
 	 * @return WikibaseValueFormatterBuilders
 	 */
 	private function newWikibaseValueFormatterBuilders() {
-		global $wgLang;
-
 		return new WikibaseValueFormatterBuilders(
 			$this->getDefaultLanguage(),
 			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
-			new LanguageNameLookup( $wgLang->getCode() ),
+			$this->getLanguageNameLookup(),
 			$this->getLocalEntityUriParser(),
 			$this->getEntityTitleLookup()
 		);
+	}
+
+	/**
+	 * @return LanguageNameLookup
+	 */
+	public function getLanguageNameLookup() {
+		global $wgLang;
+		return new LanguageNameLookup( $wgLang->getCode() );
 	}
 
 	/**
@@ -546,6 +559,20 @@ class WikibaseRepo {
 			$entityDiffer->registerEntityDifferStrategy( call_user_func( $strategyBuilder ) );
 		}
 		return $entityDiffer;
+	}
+
+	/**
+	 * @since 0.5
+	 *
+	 * @return EntityPatcher
+	 */
+	public function getEntityPatcher() {
+		$strategieBuilders = $this->entityTypeDefinitions->getEntityPatcherStrategyBuilders();
+		$entityPatcher = new EntityPatcher();
+		foreach ( $strategieBuilders as $strategyBuilder ) {
+			$entityPatcher->registerEntityPatcherStrategy( call_user_func( $strategyBuilder ) );
+		}
+		return $entityPatcher;
 	}
 
 	/**
@@ -722,6 +749,21 @@ class WikibaseRepo {
 	/**
 	 * @since 0.5
 	 *
+	 * @return EntityIdComposer
+	 */
+	public function getEntityIdComposer() {
+		if ( $this->entityIdComposer === null ) {
+			$this->entityIdComposer = new EntityIdComposer(
+				$this->entityTypeDefinitions->getEntityIdComposers()
+			);
+		}
+
+		return $this->entityIdComposer;
+	}
+
+	/**
+	 * @since 0.5
+	 *
 	 * @return StatementGuidParser
 	 */
 	public function getStatementGuidParser() {
@@ -824,6 +866,7 @@ class WikibaseRepo {
 				$this->getEntityChangeFactory(),
 				$this->getEntityContentDataCodec(),
 				$this->getEntityIdParser(),
+				$this->getEntityIdComposer(),
 				$this->getEntityIdLookup(),
 				$this->getEntityTitleLookup(),
 				$this->getEntityNamespaceLookup()
@@ -1209,14 +1252,7 @@ class WikibaseRepo {
 	 *  $wgWBRepoSettings['entityNamespaces'] setting.
 	 */
 	public function getEnabledEntityTypes() {
-		$entityTypeByContentModel = array_flip( $this->getContentModelMappings() );
-
-		return array_map(
-			function( $contentModel ) use ( $entityTypeByContentModel ) {
-				return $entityTypeByContentModel[$contentModel];
-			},
-			array_keys( $this->settings->getSetting( 'entityNamespaces' ) )
-		);
+		return array_keys( $this->getEntityNamespacesSetting() );
 	}
 
 	/**
@@ -1349,7 +1385,11 @@ class WikibaseRepo {
 			'multilingualtext' => MultilingualTextValue::class,
 			'quantity' => QuantityValue::class,
 			'time' => TimeValue::class,
-			'wikibase-entityid' => EntityIdValue::class,
+			'wikibase-entityid' => function( $value ) {
+				return isset( $value['id'] )
+					? $this->getEntityIdParser()->parse( $value['id'] )
+					: EntityIdValue::newFromArray( $value );
+			},
 		) );
 	}
 
@@ -1493,6 +1533,7 @@ class WikibaseRepo {
 			$this->getEntityStore(),
 			$this->getEntityPermissionChecker(),
 			$this->getEntityDiffer(),
+			$this->getEntityPatcher(),
 			$this->newEditFilterHookRunner( $context ),
 			$context
 		);
@@ -1519,12 +1560,25 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @return int[]
+	 */
+	private function getEntityNamespacesSetting() {
+		$namespaces = $this->fixLegacyContentModelSetting(
+			$this->settings->getSetting( 'entityNamespaces' ),
+			'entityNamespaces'
+		);
+
+		Hooks::run( 'WikibaseEntityNamespaces', array( &$namespaces ) );
+		return $namespaces;
+	}
+
+	/**
 	 * @return EntityNamespaceLookup
 	 */
 	public function getEntityNamespaceLookup() {
 		if ( $this->entityNamespaceLookup === null ) {
 			$this->entityNamespaceLookup = new EntityNamespaceLookup(
-				$this->settings->getSetting( 'entityNamespaces' )
+				$this->getEntityNamespacesSetting()
 			);
 		}
 
@@ -1535,11 +1589,9 @@ class WikibaseRepo {
 	 * @return EntityIdHtmlLinkFormatterFactory
 	 */
 	public function getEntityIdHtmlLinkFormatterFactory() {
-		global $wgLang;
-
 		return new EntityIdHtmlLinkFormatterFactory(
 			$this->getEntityTitleLookup(),
-			new LanguageNameLookup( $wgLang->getCode() )
+			$this->getLanguageNameLookup()
 		);
 	}
 
@@ -1593,14 +1645,21 @@ class WikibaseRepo {
 			$this->getSiteStore(),
 			$this->getDataTypeFactory(),
 			TemplateFactory::getDefaultInstance(),
-			new LanguageNameLookup( $wgLang->getCode() ),
-			new MediaWikiLanguageDirectionalityLookup(),
+			$this->getLanguageNameLookup(),
+			$this->getLanguageDirectionalityLookup(),
 			new MediaWikiNumberLocalizer( $wgLang ),
 			$this->settings->getSetting( 'siteLinkGroups' ),
 			$this->settings->getSetting( 'specialSiteLinkGroups' ),
 			$this->settings->getSetting( 'badgeItems' ),
 			new MediaWikiLocalizedTextProvider( $wgLang->getCode() )
 		);
+	}
+
+	/**
+	 * @return LanguageDirectionalityLookup
+	 */
+	public function getLanguageDirectionalityLookup() {
+		return new MediaWikiLanguageDirectionalityLookup();
 	}
 
 	/**
@@ -1692,6 +1751,21 @@ class WikibaseRepo {
 
 	public function getEntityTypesConfigValueProvider() {
 		return new EntityTypesConfigValueProvider( $this->entityTypeDefinitions );
+	}
+
+	private function fixLegacyContentModelSetting( array $setting, $name ) {
+		if ( isset( $setting[ 'wikibase-item' ] ) || isset( $setting[ 'wikibase-property' ] ) ) {
+			wfWarn( "The specified value for the Wikibase setting '$name' uses content model ids. This is deprecated. " .
+				"Please update to plain entity types." );
+			$oldSetting = $setting;
+			$setting = [];
+			$prefix = 'wikibase-';
+			foreach ( $oldSetting as $contentModel => $namespace ) {
+				$pos = strpos( $contentModel, $prefix );
+				$setting[ $pos === 0 ? substr( $contentModel, strlen( $prefix ) ) : $contentModel ] = $namespace;
+			}
+		}
+		return $setting;
 	}
 
 }

@@ -203,7 +203,7 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 		$repoDb = $wikibaseClient->getSettings()->getSetting( 'repoDatabase' );
 		$entityNsLookup = $wikibaseClient->getEntityNamespaceLookup();
-		$itemNamespace = $entityNsLookup->getEntityNamespace( 'wikibase-item' );
+		$itemNamespace = $entityNsLookup->getEntityNamespace( 'item' );
 
 		if ( $repoDb !== false ) {
 			$this->markTestSkipped( 'Test skipped if repo database is not same as client' );

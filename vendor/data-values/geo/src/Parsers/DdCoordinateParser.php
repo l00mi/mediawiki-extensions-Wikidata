@@ -9,7 +9,7 @@ use ValueParsers\ParserOptions;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
  */
@@ -43,7 +43,7 @@ class DdCoordinateParser extends GeoCoordinateParserBase {
 	/**
 	 * @see GeoCoordinateParserBase::areValidCoordinates
 	 */
-	protected function areValidCoordinates( $normalizedCoordinateSegments ) {
+	protected function areValidCoordinates( array $normalizedCoordinateSegments ) {
 		// TODO: Implement localized decimal separator.
 		$baseRegExp = '\d{1,3}(\.\d{1,20})?' . $this->getOption( self::OPT_DEGREE_SYMBOL );
 

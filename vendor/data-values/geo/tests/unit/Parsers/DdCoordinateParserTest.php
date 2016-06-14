@@ -13,13 +13,13 @@ use ValueParsers\Test\StringValueParserTest;
  * @group DataValueExtensions
  * @group GeoCoordinateParserTest
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DdCoordinateParserTest extends StringValueParserTest {
 
 	/**
-	 * @deprecated since 0.3, just use getInstance.
+	 * @deprecated since DataValues Common 0.3, just use getInstance.
 	 */
 	protected function getParserClass() {
 		throw new \LogicException( 'Should not be called, use getInstance' );
@@ -43,6 +43,10 @@ class DdCoordinateParserTest extends StringValueParserTest {
 		// TODO: test with different parser options
 
 		$valid = array(
+			// Whitespace
+			"1°N 1°E\n" => array( 1, 1 ),
+			' 1°N 1°E ' => array( 1, 1 ),
+
 			'55.7557860° N, 37.6176330° W' => array( 55.7557860, -37.6176330 ),
 			'55.7557860°, -37.6176330°' => array( 55.7557860, -37.6176330 ),
 			'55° S, 37.6176330 ° W' => array( -55, -37.6176330, 0.000001 ),

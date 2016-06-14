@@ -16,6 +16,8 @@ use InvalidArgumentException;
  *
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >
+ * @author Adrian Heine <adrian.heine@wikimedia.de>
+ * @author Thiemo Mättig
  */
 class EntityTypeDefinitions {
 
@@ -31,8 +33,8 @@ class EntityTypeDefinitions {
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( array $entityTypeDefinitions ) {
-		foreach ( $entityTypeDefinitions as $id => $def ) {
-			if ( !is_string( $id ) || !is_array( $def ) ) {
+		foreach ( $entityTypeDefinitions as $type => $def ) {
+			if ( !is_string( $type ) || !is_array( $def ) ) {
 				throw new InvalidArgumentException( '$entityTypeDefinitions must be a map from string to arrays' );
 			}
 		}
@@ -50,14 +52,14 @@ class EntityTypeDefinitions {
 	/**
 	 * @param string $field
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	private function getMapForDefinitionField( $field ) {
-		$fieldValues = array();
+		$fieldValues = [];
 
-		foreach ( $this->entityTypeDefinitions as $id => $def ) {
+		foreach ( $this->entityTypeDefinitions as $type => $def ) {
 			if ( isset( $def[$field] ) ) {
-				$fieldValues[$id] = $def[$field];
+				$fieldValues[$type] = $def[$field];
 			}
 		}
 
@@ -114,6 +116,13 @@ class EntityTypeDefinitions {
 	}
 
 	/**
+	 * @return callable[]
+	 */
+	public function getEntityPatcherStrategyBuilders() {
+		return $this->getMapForDefinitionField( 'entity-patcher-strategy-builder' );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getJsDeserializerFactoryFunctions() {
@@ -127,12 +136,21 @@ class EntityTypeDefinitions {
 		$result = [];
 
 		foreach ( $this->entityTypeDefinitions as $def ) {
-			if ( isset( $def['entity-id-builder-pair'] ) ) {
-				$result[ $def['entity-id-builder-pair'][0] ] = $def['entity-id-builder-pair'][1];
+			if ( isset( $def['entity-id-pattern'] ) && isset( $def['entity-id-builder'] ) ) {
+				$result[$def['entity-id-pattern']] = $def['entity-id-builder'];
 			}
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @return callable[] An array mapping entity type identifiers to callables capable of turning
+	 *  unique parts of entity ID serializations into EntityId objects. Not guaranteed to contain
+	 *  all entity types.
+	 */
+	public function getEntityIdComposers() {
+		return $this->getMapForDefinitionField( 'entity-id-composer' );
 	}
 
 }

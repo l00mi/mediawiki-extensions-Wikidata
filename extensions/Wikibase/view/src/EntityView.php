@@ -74,7 +74,8 @@ abstract class EntityView {
 	public function getHtml( EntityDocument $entity ) {
 		$entityId = $entity->getId() ?: 'new'; // if id is not set, use 'new' suffix for css classes
 
-		$html = $this->templateFactory->render( 'wikibase-entityview',
+		$html = $this->templateFactory->render(
+			'wikibase-entityview',
 			$entity->getType(),
 			$entityId,
 			$this->languageCode,
@@ -131,7 +132,7 @@ abstract class EntityView {
 	 *
 	 * @return string HTML
 	 */
-	protected function getHtmlForFingerprint( EntityDocument $entity ) {
+	protected function getHtmlForTerms( EntityDocument $entity ) {
 		$id = $entity->getId();
 
 		if ( $entity instanceof LabelsProvider && $entity instanceof DescriptionsProvider ) {

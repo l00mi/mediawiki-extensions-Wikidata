@@ -356,15 +356,49 @@ class EntityUsageTable {
 	 * @return string[]
 	 */
 	private function getUsedEntityIdStrings( array $idStrings ) {
-		$where = array( 'eu_entity_id' => $idStrings );
+		// Note: We need to use one (sub)query per entity here, per T116404
+		$subQueries = $this->getUsedEntityIdStringsQueries( $idStrings );
 
-		return $this->connection->selectFieldValues(
-			$this->tableName,
-			'eu_entity_id',
-			$where,
-			__METHOD__,
-			array( 'DISTINCT' )
-		);
+		$values = [];
+		if ( $this->connection->getType() === 'mysql' ) {
+			// On MySQL we can UNION all queries and run them at once
+			$sql = $this->connection->unionQueries( $subQueries, false );
+
+			$res = $this->connection->query( $sql, __METHOD__ );
+			foreach ( $res as $row ) {
+				$values[] = $row->eu_entity_id;
+			}
+		} else {
+			foreach ( $subQueries as $sql ) {
+				$res = $this->connection->query( $sql, __METHOD__ );
+				if ( $res->numRows() ) {
+					$values[] = $res->current()->eu_entity_id;
+				}
+			}
+		}
+
+		return $values;
+	}
+
+	/**
+	 * @param string[] $idStrings
+	 *
+	 * @return string[]
+	 */
+	private function getUsedEntityIdStringsQueries( array $idStrings ) {
+		$subQueries = [];
+
+		foreach ( $idStrings as $idString ) {
+			$subQueries[] = $this->connection->selectSQLText(
+				$this->tableName,
+				'eu_entity_id',
+				[ 'eu_entity_id' => $idString ],
+				'',
+				[ 'LIMIT' => 1 ]
+			);
+		}
+
+		return $subQueries;
 	}
 
 	/**

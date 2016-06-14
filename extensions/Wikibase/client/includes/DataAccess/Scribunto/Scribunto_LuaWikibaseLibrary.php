@@ -21,7 +21,6 @@ use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Lookup\EntityAccessLimitException;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
 use Wikibase\LanguageFallbackChain;
-use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
 use Wikibase\Lib\Store\PropertyOrderProvider;
@@ -117,12 +116,8 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	 */
 	private function getLanguageFallbackChain() {
 		if ( $this->fallbackChain === null ) {
-			$fallbackChainFactory = WikibaseClient::getDefaultInstance()->getLanguageFallbackChainFactory();
-
-			$this->fallbackChain = $fallbackChainFactory->newFromLanguage(
-				$this->getLanguage(),
-				LanguageFallbackChainFactory::FALLBACK_SELF | LanguageFallbackChainFactory::FALLBACK_VARIANTS
-			);
+			$this->fallbackChain = WikibaseClient::getDefaultInstance()->
+				getDataAccessLanguageFallbackChain( $this->getLanguage() );
 		}
 
 		return $this->fallbackChain;

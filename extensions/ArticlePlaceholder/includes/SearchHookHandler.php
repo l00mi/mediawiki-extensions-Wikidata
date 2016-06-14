@@ -289,7 +289,7 @@ class SearchHookHandler {
 	 * @return type
 	 */
 	private function selectPagePropsPage( DatabaseBase $db, $entityIds ) {
-		$entityNamespace = $this->entityNamespaceLookup->getEntityNamespace( 'wikibase-item' );
+		$entityNamespace = $this->entityNamespaceLookup->getEntityNamespace( 'item' );
 
 		if ( $entityNamespace === false ) {
 			wfLogWarning( 'EntityNamespaceLookup returns false' );
