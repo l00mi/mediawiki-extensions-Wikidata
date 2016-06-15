@@ -780,6 +780,7 @@ return array(
     'Wikibase\\Lib\\HtmlUrlFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/HtmlUrlFormatter.php',
     'Wikibase\\Lib\\Interactors\\TermIndexSearchInteractor' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/TermIndexSearchInteractor.php',
     'Wikibase\\Lib\\Interactors\\TermSearchInteractor' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/TermSearchInteractor.php',
+    'Wikibase\\Lib\\Interactors\\TermSearchOptions' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/TermSearchOptions.php',
     'Wikibase\\Lib\\Interactors\\TermSearchResult' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/TermSearchResult.php',
     'Wikibase\\Lib\\LanguageFallbackIndicator' => $baseDir . '/extensions/Wikibase/lib/includes/LanguageFallbackIndicator.php',
     'Wikibase\\Lib\\LanguageNameLookup' => $baseDir . '/extensions/Wikibase/lib/includes/LanguageNameLookup.php',
