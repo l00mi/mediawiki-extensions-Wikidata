@@ -10,6 +10,8 @@
 	"type": "wikibase",
 	"load_composer_autoloader": true,
 	"config": {
+		"MediaInfoNamespace": 144,
+		"MediaInfoTalkNamespace": 145
 	},
 	"ExtensionMessagesFiles": {
 		"WikibaseMediaInfoAlias": "WikibaseMediaInfo.i18n.alias.php"
@@ -18,11 +20,20 @@
 		"UnitTestsList": [
 			"Wikibase\\MediaInfo\\WikibaseMediaInfoHooks::onUnitTestsList"
 		],
+		"SetupAfterCache": [
+			"Wikibase\\MediaInfo\\WikibaseMediaInfoHooks::onSetupAfterCache"
+		],
+		"WikibaseEntityNamespaces": [
+			"Wikibase\\MediaInfo\\WikibaseMediaInfoHooks::onWikibaseEntityNamespaces"
+		],
 		"WikibaseRepoEntityTypes": [
 			"Wikibase\\MediaInfo\\WikibaseMediaInfoHooks::onWikibaseEntityTypes"
 		],
 		"WikibaseClientEntityTypes": [
 			"Wikibase\\MediaInfo\\WikibaseMediaInfoHooks::onWikibaseEntityTypes"
+		],
+		"MediaWikiServices": [
+			"Wikibase\\MediaInfo\\WikibaseMediaInfoHooks::onMediaWikiServices"
 		]
 	},
 	"MessagesDirs": {
