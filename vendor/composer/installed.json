@@ -1345,12 +1345,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "9f14f12ba5c42aea276315d1a0562259aa3211ef"
+            "reference": "ec1396d91432627aedd33cef4cf020045df36322"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/9f14f12ba5c42aea276315d1a0562259aa3211ef",
-            "reference": "9f14f12ba5c42aea276315d1a0562259aa3211ef",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/ec1396d91432627aedd33cef4cf020045df36322",
+            "reference": "ec1396d91432627aedd33cef4cf020045df36322",
             "shasum": ""
         },
         "require": {
@@ -1383,7 +1383,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-06-17 20:33:09",
+        "time": "2016-06-18 20:51:04",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1640,7 +1640,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "3207e1ee56cf194810a68eb89222cf5c3c738881"
+            "reference": "2ce937655db1214d87700952409abf9b8dbe110b"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1654,7 +1654,7 @@
             "mediawiki/mediawiki-codesniffer": "0.6.0",
             "phpunit/phpunit": "~4.8"
         },
-        "time": "2016-06-16 16:01:25",
+        "time": "2016-06-18 20:51:23",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
