@@ -920,7 +920,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "225248e060a58ac693c500059aaeaf027cb5861d"
+                "reference": "58632ea53ad5599fc40cfa35f8de748af39c6ae3"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -964,7 +964,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-12 20:18:16"
+            "time": "2016-06-24 09:19:28"
         },
         {
             "name": "wikibase/constraints",
@@ -1570,12 +1570,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "f85e7e526be36fafef03af1f649391d0f64d5a73"
+                "reference": "67dc6b522354268882c0fccad379ee1fa4a04c7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f85e7e526be36fafef03af1f649391d0f64d5a73",
-                "reference": "f85e7e526be36fafef03af1f649391d0f64d5a73",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/67dc6b522354268882c0fccad379ee1fa4a04c7d",
+                "reference": "67dc6b522354268882c0fccad379ee1fa4a04c7d",
                 "shasum": ""
             },
             "require": {
@@ -1599,6 +1599,7 @@
                 "wikibase/internal-serialization": "~2.3",
                 "wikibase/javascript-api": "~1.1",
                 "wikibase/serialization-javascript": "~2.0.5",
+                "wikimedia/assert": "~0.2.2",
                 "wikimedia/purtle": "~1.0"
             },
             "conflict": {
@@ -1647,7 +1648,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-06-21 21:33:42"
+            "time": "2016-06-24 09:19:05"
         },
         {
             "name": "wikibase/wikimedia-badges",
