@@ -1417,7 +1417,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "8c13ce0671dc59c2ceb8dc44cccb584933f591f5"
+                "reference": "c617a9de6fc9633d87b9fd52c38f70c60238a1e9"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1464,7 +1464,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-25 12:58:17"
+            "time": "2016-06-26 12:24:15"
         },
         {
             "name": "wikibase/quality",

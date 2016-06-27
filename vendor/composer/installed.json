@@ -553,62 +553,6 @@
         ]
     },
     {
-        "name": "data-values/serialization",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Serialization.git",
-            "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Serialization/zipball/4b6d810d86866a3f43dcfecb2e336dfda5de2386",
-            "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~1.0|~0.1",
-            "php": ">=5.3.0",
-            "serialization/serialization": "~3.0"
-        },
-        "time": "2016-05-24 15:11:29",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.1.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "DataValues\\Serializers\\": "src/Serializers",
-                "DataValues\\Deserializers\\": "src/Deserializers"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Serializers and deserializers for DataValue implementations",
-        "homepage": "https://github.com/DataValues/Serialization",
-        "keywords": [
-            "datavalues",
-            "deserializers",
-            "serialization",
-            "serializers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/data-model",
         "version": "6.0.1",
         "version_normalized": "6.0.1.0",
@@ -667,6 +611,62 @@
         "keywords": [
             "DataModel",
             "wikibase",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "data-values/serialization",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/DataValues/Serialization.git",
+            "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/DataValues/Serialization/zipball/4b6d810d86866a3f43dcfecb2e336dfda5de2386",
+            "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/data-values": "~1.0|~0.1",
+            "php": ">=5.3.0",
+            "serialization/serialization": "~3.0"
+        },
+        "time": "2016-05-24 15:11:29",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "DataValues\\Serializers\\": "src/Serializers",
+                "DataValues\\Deserializers\\": "src/Deserializers"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Jeroen De Dauw",
+                "email": "jeroendedauw@gmail.com",
+                "homepage": "http://jeroendedauw.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Serializers and deserializers for DataValue implementations",
+        "homepage": "https://github.com/DataValues/Serialization",
+        "keywords": [
+            "datavalues",
+            "deserializers",
+            "serialization",
+            "serializers",
             "wikidata"
         ]
     },
@@ -1641,7 +1641,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "8c13ce0671dc59c2ceb8dc44cccb584933f591f5"
+            "reference": "c617a9de6fc9633d87b9fd52c38f70c60238a1e9"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1656,7 +1656,7 @@
             "mediawiki/mediawiki-codesniffer": "0.6.0",
             "phpunit/phpunit": "~4.8"
         },
-        "time": "2016-06-25 12:58:17",
+        "time": "2016-06-26 12:24:15",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
