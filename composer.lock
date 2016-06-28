@@ -920,7 +920,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "58632ea53ad5599fc40cfa35f8de748af39c6ae3"
+                "reference": "8700e3a2cad843d656026d11d8f6e652e20fb8ef"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -964,7 +964,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-24 09:19:28"
+            "time": "2016-06-27 21:11:59"
         },
         {
             "name": "wikibase/constraints",
@@ -1417,7 +1417,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "c617a9de6fc9633d87b9fd52c38f70c60238a1e9"
+                "reference": "7de74efcea7b2b77bcfeeaf3b758ed2e40764e02"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1464,7 +1464,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-26 12:24:15"
+            "time": "2016-06-27 21:11:50"
         },
         {
             "name": "wikibase/quality",
@@ -1570,12 +1570,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "d022bcb9621e51308a70827d4afc0ce78af8ba80"
+                "reference": "da2c2ce523908efcf1637caf3bcc03afeb4ff59a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d022bcb9621e51308a70827d4afc0ce78af8ba80",
-                "reference": "d022bcb9621e51308a70827d4afc0ce78af8ba80",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/da2c2ce523908efcf1637caf3bcc03afeb4ff59a",
+                "reference": "da2c2ce523908efcf1637caf3bcc03afeb4ff59a",
                 "shasum": ""
             },
             "require": {
@@ -1648,7 +1648,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-06-25 12:58:04"
+            "time": "2016-06-27 21:11:33"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1656,7 +1656,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-                "reference": "75a45ccaa3f7edbf6c370b1e383e6a087f81a45c"
+                "reference": "291e9b90a66008c748dee7847c0e22201cba9e86"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -1690,7 +1690,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-05-29 20:34:45"
+            "time": "2016-06-27 21:12:17"
         },
         {
             "name": "wikimedia/assert",
