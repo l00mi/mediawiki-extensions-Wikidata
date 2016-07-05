@@ -1,17 +1,17 @@
 [
     {
         "name": "composer/installers",
-        "version": "v1.0.25",
-        "version_normalized": "1.0.25.0",
+        "version": "v1.1.0",
+        "version_normalized": "1.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/composer/installers.git",
-            "reference": "36e5b5843203d7f1cf6ffb0305a97e014387bd8e"
+            "reference": "a3595c5272a6f247228abb20076ed27321e4aae9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/36e5b5843203d7f1cf6ffb0305a97e014387bd8e",
-            "reference": "36e5b5843203d7f1cf6ffb0305a97e014387bd8e",
+            "url": "https://api.github.com/repos/composer/installers/zipball/a3595c5272a6f247228abb20076ed27321e4aae9",
+            "reference": "a3595c5272a6f247228abb20076ed27321e4aae9",
             "shasum": ""
         },
         "require": {
@@ -25,7 +25,7 @@
             "composer/composer": "1.0.*@dev",
             "phpunit/phpunit": "4.1.*"
         },
-        "time": "2016-04-13 19:46:30",
+        "time": "2016-07-05 06:18:20",
         "type": "composer-plugin",
         "extra": {
             "class": "Composer\\Installers\\Plugin",
@@ -60,6 +60,7 @@
             "MODX Evo",
             "Mautic",
             "OXID",
+            "RadPHP",
             "SMF",
             "Thelia",
             "WolfCMS",
@@ -75,6 +76,7 @@
             "dokuwiki",
             "drupal",
             "elgg",
+            "expressionengine",
             "fuelphp",
             "grav",
             "installer",
@@ -1392,12 +1394,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "c2b7c0f6d7cf5d9a4f7860deb4931989a77d1286"
+            "reference": "e3af6638f7ef71fc7a1db484e4d3f090b3755b28"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c2b7c0f6d7cf5d9a4f7860deb4931989a77d1286",
-            "reference": "c2b7c0f6d7cf5d9a4f7860deb4931989a77d1286",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e3af6638f7ef71fc7a1db484e4d3f090b3755b28",
+            "reference": "e3af6638f7ef71fc7a1db484e4d3f090b3755b28",
             "shasum": ""
         },
         "require": {
@@ -1431,7 +1433,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-07-03 20:43:03",
+        "time": "2016-07-05 09:07:59",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1641,7 +1643,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "bcbfdcd516b3eea6d29a33f25bcce51873f81345"
+            "reference": "8fa780f75b9742c3183bd52644d6dfeb72a3a74c"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1656,7 +1658,7 @@
             "mediawiki/mediawiki-codesniffer": "0.6.0",
             "phpunit/phpunit": "~4.8"
         },
-        "time": "2016-07-01 21:30:10",
+        "time": "2016-07-04 09:17:19",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
