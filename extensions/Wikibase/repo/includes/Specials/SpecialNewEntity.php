@@ -9,8 +9,10 @@ use Status;
 use Wikibase\CopyrightMessageBuilder;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
+use Wikibase\View\LanguageDirectionalityLookup;
 
 /**
  * Page for creating new Wikibase entities that contain a Fingerprint.
@@ -147,7 +149,7 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 						$out->addHTML( '</div>' );
 					} elseif ( $entity !== null ) {
 						$title = $this->getEntityTitle( $entity->getId() );
-						$entityUrl = $title->getFullUrl();
+						$entityUrl = $title->getFullURL();
 						$this->getOutput()->redirect( $entityUrl );
 					}
 				} else {
@@ -236,13 +238,19 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 		}
 
 		$fingerprint = $entity->getFingerprint();
+		$status = Status::newGood();
+
 		$languageCode = $this->contentLanguageCode;
+		if ( !in_array( $languageCode, $this->languageCodes ) ) {
+			$status->error( 'wikibase-newitem-not-recognized-language' );
+			return $status;
+		}
 
 		$fingerprint->setLabel( $languageCode, $this->label );
 		$fingerprint->setDescription( $languageCode, $this->description );
 		$fingerprint->setAliasGroup( $languageCode, $this->aliases );
 
-		return Status::newGood();
+		return $status;
 	}
 
 	/**

@@ -31,33 +31,49 @@ use Wikibase\Store\EntityIdLookup;
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Daniel Kinzler
  * @author Marius Hoch < hoo@online.de >
+ * @author Thiemo Mättig
  */
 class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 
 	const ITEM_WITH_LABEL = 'Q1';
 	const ITEM_WITHOUT_LABEL = 'Q11';
 	const ITEM_DELETED = 'Q111';
+	const ITEM_LABEL_NO_DESCRIPTION = 'Q1111';
+
+	/**
+	 * @param string $id
+	 * @param bool $exists
+	 *
+	 * @return Title
+	 */
+	private function newTitle( $id, $exists = true ) {
+		$title = Title::makeTitle( NS_MAIN, $id );
+		$title->resetArticleID( $exists ? 1 : 0 );
+		$this->assertSame( $exists, $title->exists(), 'Sanity check' );
+		return $title;
+	}
+
+	/**
+	 * @param string $title
+	 *
+	 * @return RequestContext
+	 */
+	private function newContext( $title = 'Special:Recentchanges' ) {
+		return RequestContext::newExtraneousContext( Title::newFromText( $title ) );
+	}
 
 	public function validContextProvider() {
-		$historyContext = RequestContext::newExtraneousContext(
-			Title::newFromText( 'Foo' )
-		);
+		$historyContext = $this->newContext( 'Foo' );
 		$historyContext->getRequest()->setVal( 'action', 'history' );
 
-		$diffContext = RequestContext::newExtraneousContext(
-			Title::newFromText( 'Foo' )
-		);
+		$diffContext = $this->newContext( 'Foo' );
 		$diffContext->getRequest()->setVal( 'diff', 123 );
 
-		return array(
-			"Special page" => array(
-				RequestContext::newExtraneousContext(
-					Title::newFromText( 'Special:Recentchanges' )
-				)
-			),
-			"Action history" => array( $historyContext ),
-			"Diff" => array( $diffContext )
-		);
+		return [
+			'Special page' => [ $this->newContext() ],
+			'Action history' => [ $historyContext ],
+			'Diff' => [ $diffContext ],
+		];
 	}
 
 	/**
@@ -66,10 +82,7 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	public function testDoOnLinkBegin_validContext( RequestContext $context ) {
 		$linkBeginHookHandler = $this->getLinkBeginHookHandler();
 
-		$title = Title::makeTitle( NS_MAIN, self::ITEM_WITH_LABEL );
-		$title->resetArticleID( 1 );
-		$this->assertTrue( $title->exists() ); // sanity check
-
+		$title = $this->newTitle( self::ITEM_WITH_LABEL );
 		$html = $title->getFullText();
 		$customAttribs = array();
 
@@ -88,26 +101,18 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function invalidContextProvider() {
-		$deleteContext = RequestContext::newExtraneousContext(
-			Title::newFromText( 'Foo' )
-		);
+		$deleteContext = $this->newContext( 'Foo' );
 		$deleteContext->getRequest()->setVal( 'action', 'delete' );
 
-		$diffNonViewContext = RequestContext::newExtraneousContext(
-			Title::newFromText( 'Foo' )
-		);
+		$diffNonViewContext = $this->newContext( 'Foo' );
 		$diffNonViewContext->getRequest()->setVal( 'action', 'protect' );
 		$diffNonViewContext->getRequest()->setVal( 'diff', 123 );
 
-		return array(
-			"Action delete" => array( $deleteContext ),
-			"Non-special page" => array( RequestContext::newExtraneousContext(
-				Title::newFromText( 'Foo' )
-			) ),
-			"Edge case: diff parameter set, but action != view" => array(
-				$diffNonViewContext
-			)
-		);
+		return [
+			'Action delete' => [ $deleteContext ],
+			'Non-special page' => [ $this->newContext( 'Foo' ) ],
+			'Edge case: diff parameter set, but action != view' => [ $diffNonViewContext ],
+		];
 	}
 
 	/**
@@ -116,10 +121,7 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	public function testDoOnLinkBegin_invalidContext( RequestContext $context ) {
 		$linkBeginHookHandler = $this->getLinkBeginHookHandler();
 
-		$title = Title::makeTitle( NS_MAIN, self::ITEM_WITH_LABEL );
-		$title->resetArticleID( 1 );
-		$this->assertTrue( $title->exists() ); // sanity check
-
+		$title = $this->newTitle( self::ITEM_WITH_LABEL );
 		$titleText = $title->getFullText();
 		$html = $titleText;
 		$customAttribs = array();
@@ -151,12 +153,11 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	 * @param string $linkTitle
 	 */
 	public function testDoOnLinkBegin_overrideSpecialNewEntityLink( $linkTitle ) {
-		$contextTitle = Title::newFromText( 'Special:Recentchanges' );
 		$linkBeginHookHandler = $this->getLinkBeginHookHandler();
 
 		$title = Title::makeTitle( NS_MAIN, $linkTitle );
 		$html = $title->getFullText();
-		$context = RequestContext::newExtraneousContext( $contextTitle );
+		$context = $this->newContext();
 		$attribs = array();
 
 		$linkBeginHookHandler->doOnLinkBegin( $title, $html, $attribs, $context );
@@ -171,7 +172,6 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function testDoOnLinkBegin_nonEntityTitleLink() {
-		$contextTitle = Title::newFromText( 'Special:Recentchanges' );
 		$linkBeginHookHandler = $this->getLinkBeginHookHandler();
 
 		$title = Title::newMainPage();
@@ -182,7 +182,7 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 		$html = $titleText;
 		$customAttribs = array();
 
-		$context = RequestContext::newExtraneousContext( $contextTitle );
+		$context = $this->newContext();
 		$linkBeginHookHandler->doOnLinkBegin( $title, $html, $customAttribs, $context );
 
 		$this->assertEquals( $titleText, $html );
@@ -190,18 +190,14 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function testDoOnLinkBegin_unknownEntityTitle() {
-		$contextTitle = Title::newFromText( 'Special:Recentchanges' );
 		$linkBeginHookHandler = $this->getLinkBeginHookHandler();
 
-		$title = Title::makeTitle( NS_MAIN, self::ITEM_DELETED );
-		$title->resetArticleID( 0 );
-		$this->assertFalse( $title->exists() ); // sanity check
-
+		$title = $this->newTitle( self::ITEM_DELETED, false );
 		$titleText = $title->getFullText();
 		$html = $titleText;
 		$customAttribs = array();
 
-		$context = RequestContext::newExtraneousContext( $contextTitle );
+		$context = $this->newContext();
 		$linkBeginHookHandler->doOnLinkBegin( $title, $html, $customAttribs, $context );
 
 		$this->assertEquals( $titleText, $html );
@@ -209,17 +205,13 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function testDoOnLinkBegin_itemHasNoLabel() {
-		$contextTitle = Title::newFromText( 'Special:Recentchanges' );
 		$linkBeginHookHandler = $this->getLinkBeginHookHandler();
 
-		$title = Title::makeTitle( NS_MAIN, self::ITEM_WITHOUT_LABEL );
-		$title->resetArticleID( 1 );
-		$this->assertTrue( $title->exists() ); // sanity check
-
+		$title = $this->newTitle( self::ITEM_WITHOUT_LABEL );
 		$html = $title->getFullText();
 		$customAttribs = array();
 
-		$context = RequestContext::newExtraneousContext( $contextTitle );
+		$context = $this->newContext();
 		$linkBeginHookHandler->doOnLinkBegin( $title, $html, $customAttribs, $context );
 
 		$expected = '<span class="wb-itemlink">'
@@ -228,6 +220,28 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 
 		$this->assertEquals( $expected, $html );
 		$this->assertContains( self::ITEM_WITHOUT_LABEL, $customAttribs['title'] );
+	}
+
+	public function testDoOnLinkBegin_itemHasNoDescription() {
+		$linkBeginHookHandler = $this->getLinkBeginHookHandler();
+
+		$title = $this->newTitle( self::ITEM_LABEL_NO_DESCRIPTION );
+		$html = $title->getFullText();
+		$customAttribs = array();
+
+		$context = $this->newContext();
+		$linkBeginHookHandler->doOnLinkBegin( $title, $html, $customAttribs, $context );
+
+		$expected = '<span class="wb-itemlink">'
+			. '<span class="wb-itemlink-label" lang="en" dir="ltr">linkbegin-label</span> '
+			. '<span class="wb-itemlink-id">(' . self::ITEM_LABEL_NO_DESCRIPTION . ')</span></span>';
+
+		$lang = Language::factory( 'en' );
+		$this->assertEquals( $expected, $html );
+		$this->assertEquals(
+			$lang->getDirMark() . 'linkbegin-label' . $lang->getDirMark(),
+			$customAttribs['title']
+		);
 	}
 
 	/**
@@ -258,29 +272,29 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 		$termLookup->expects( $this->any() )
 			->method( 'getLabels' )
 			->will( $this->returnCallback( function ( EntityId $id ) {
-				if ( $id->getSerialization() == self::ITEM_WITH_LABEL ) {
-					return array( 'en' => 'linkbegin-label' );
+				switch ( $id->getSerialization() ) {
+					case self::ITEM_WITH_LABEL:
+					case self::ITEM_LABEL_NO_DESCRIPTION:
+						return [ 'en' => 'linkbegin-label' ];
+					case self::ITEM_WITHOUT_LABEL:
+						return [];
+					default:
+						throw new StorageException( "Unexpected entity id $id" );
 				}
-
-				if ( $id->getSerialization() == self::ITEM_WITHOUT_LABEL ) {
-					return array();
-				}
-
-				throw new StorageException( 'No such entity: ' . $id->getSerialization() );
 			} ) );
 
 		$termLookup->expects( $this->any() )
 			->method( 'getDescriptions' )
 			->will( $this->returnCallback( function ( EntityId $id ) {
-				if ( $id->getSerialization() == self::ITEM_WITH_LABEL ) {
-					return array( 'en' => 'linkbegin-description' );
+				switch ( $id->getSerialization() ) {
+					case self::ITEM_WITH_LABEL:
+						return [ 'en' => 'linkbegin-description' ];
+					case self::ITEM_WITHOUT_LABEL:
+					case self::ITEM_LABEL_NO_DESCRIPTION:
+						return [];
+					default:
+						throw new StorageException( "Unexpected entity id $id" );
 				}
-
-				if ( $id->getSerialization() == self::ITEM_WITHOUT_LABEL ) {
-					return array();
-				}
-
-				throw new StorageException( 'No such entity: ' . $id->getSerialization() );
 			} ) );
 
 		return $termLookup;
@@ -309,7 +323,6 @@ class LinkBeginHookHandlerTest extends \MediaWikiTestCase {
 			$languageFallback,
 			Language::factory( 'en' )
 		);
-
 	}
 
 }

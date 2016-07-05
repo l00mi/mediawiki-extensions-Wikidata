@@ -3,7 +3,15 @@
 namespace Wikibase\Tests\Repo;
 
 use DataTypes\DataTypeFactory;
+use DataValues\DataValue;
 use DataValues\DataValueFactory;
+use DataValues\Geo\Values\GlobeCoordinateValue;
+use DataValues\Geo\Values\LatLongValue;
+use DataValues\MonolingualTextValue;
+use DataValues\QuantityValue;
+use DataValues\StringValue;
+use DataValues\TimeValue;
+use DataValues\UnknownValue;
 use Deserializers\Deserializer;
 use Language;
 use MediaWikiTestCase;
@@ -13,6 +21,8 @@ use User;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdValue;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
@@ -322,11 +332,6 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 		$this->assertInstanceOf( Serializer::class, $serializer );
 	}
 
-	public function testGetDataValueDeserializer() {
-		$service = $this->getWikibaseRepo()->getDataValueDeserializer();
-		$this->assertInstanceOf( Deserializer::class, $service );
-	}
-
 	public function testGetEntityChangeFactory() {
 		$factory = $this->getWikibaseRepo()->getEntityChangeFactory();
 		$this->assertInstanceOf( EntityChangeFactory::class, $factory );
@@ -475,6 +480,80 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 	public function testGetCachingCommonsMediaFileNameLookup() {
 		$lookup = $this->getWikibaseRepo()->getCachingCommonsMediaFileNameLookup();
 		$this->assertInstanceOf( CachingCommonsMediaFileNameLookup::class, $lookup );
+	}
+
+	/**
+	 * @return DataValueFactory
+	 */
+	private function getDataValueFactory() {
+		return $this->getWikibaseRepo( [
+			'item' => [
+				'entity-id-pattern' => ItemId::PATTERN,
+				'entity-id-builder' => function( $serialization ) {
+					return new ItemId( $serialization );
+				},
+			],
+		] )->getDataValueFactory();
+	}
+
+	public function dataValueProvider() {
+		return [
+			'string' => [ new StringValue( 'Test' ) ],
+			'unknown' => [ new UnknownValue( [ 'foo' => 'bar' ] ) ],
+			'globecoordinate' => [ new GlobeCoordinateValue( new LatLongValue( 2, 3 ), 1 ) ],
+			'monolingualtext' => [ new MonolingualTextValue( 'als', 'Test' ) ],
+			'quantity' => [ QuantityValue::newFromNumber( 2 ) ],
+			'time' => [ new TimeValue(
+				'+1980-10-07T17:33:22Z',
+				0,
+				0,
+				1,
+				TimeValue::PRECISION_DAY,
+				TimeValue::CALENDAR_GREGORIAN
+			) ],
+			'wikibase-entityid' => [ new EntityIdValue( new ItemId( 'Q13' ) ) ],
+		];
+	}
+
+	/**
+	 * @dataProvider dataValueProvider
+	 */
+	public function testDataValueSerializationDeserializationRoundtrip( DataValue $expected ) {
+		$service = $this->getDataValueFactory();
+		$deserialized = $service->newFromArray( $expected->toArray() );
+
+		$this->assertEquals( $expected, $deserialized );
+	}
+
+	public function entityIdValueSerializationProvider() {
+		return [
+			'legacy' => [ [
+				'entity-type' => 'item',
+				'numeric-id' => 13,
+			] ],
+			'intermediate' => [ [
+				'entity-type' => 'item',
+				'numeric-id' => 13,
+				'id' => 'Q13',
+			] ],
+			'new' => [ [
+				'id' => 'Q13',
+			] ],
+		];
+	}
+
+	/**
+	 * @dataProvider entityIdValueSerializationProvider
+	 */
+	public function testEntityIdValueDeserialization( array $serialization ) {
+		$service = $this->getDataValueFactory();
+		$deserialized = $service->newFromArray( [
+			'type' => 'wikibase-entityid',
+			'value' => $serialization,
+		] );
+
+		$expected = new EntityIdValue( new ItemId( 'Q13' ) );
+		$this->assertEquals( $expected, $deserialized );
 	}
 
 }

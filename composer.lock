@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f7e2a52cc9e0e52a232174a1eaa7e148",
-    "content-hash": "bbce08e3a61251b59650709a4c18c0b8",
+    "hash": "0c98134ed2ddda5aac4df50cf13e9cc9",
+    "content-hash": "4a7fc81ce17779ad83d7aec9fa57d65e",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.0.25",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "36e5b5843203d7f1cf6ffb0305a97e014387bd8e"
+                "reference": "a3595c5272a6f247228abb20076ed27321e4aae9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/36e5b5843203d7f1cf6ffb0305a97e014387bd8e",
-                "reference": "36e5b5843203d7f1cf6ffb0305a97e014387bd8e",
+                "url": "https://api.github.com/repos/composer/installers/zipball/a3595c5272a6f247228abb20076ed27321e4aae9",
+                "reference": "a3595c5272a6f247228abb20076ed27321e4aae9",
                 "shasum": ""
             },
             "require": {
@@ -65,6 +65,7 @@
                 "MODX Evo",
                 "Mautic",
                 "OXID",
+                "RadPHP",
                 "SMF",
                 "Thelia",
                 "WolfCMS",
@@ -80,6 +81,7 @@
                 "dokuwiki",
                 "drupal",
                 "elgg",
+                "expressionengine",
                 "fuelphp",
                 "grav",
                 "installer",
@@ -105,7 +107,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2016-04-13 19:46:30"
+            "time": "2016-07-05 06:18:20"
         },
         {
             "name": "data-values/common",
@@ -780,12 +782,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "78e371014aae710efa762b0a920e283224a0d704"
+                "reference": "e1c041d28f8f43f521bf9472544d76fdf1d5d336"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/78e371014aae710efa762b0a920e283224a0d704",
-                "reference": "78e371014aae710efa762b0a920e283224a0d704",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/e1c041d28f8f43f521bf9472544d76fdf1d5d336",
+                "reference": "e1c041d28f8f43f521bf9472544d76fdf1d5d336",
                 "shasum": ""
             },
             "require-dev": {
@@ -809,7 +811,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-06-11 20:08:28"
+            "time": "2016-07-01 21:16:29"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -920,7 +922,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "225248e060a58ac693c500059aaeaf027cb5861d"
+                "reference": "8700e3a2cad843d656026d11d8f6e652e20fb8ef"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -964,7 +966,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-06-12 20:18:16"
+            "time": "2016-06-27 21:11:59"
         },
         {
             "name": "wikibase/constraints",
@@ -1450,16 +1452,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.28.0-wmf.6",
+            "version": "dev-wmf/1.28.0-wmf.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "d59ff763c07411ff42e01406b6f67ae118ba79f6"
+                "reference": "7b3401b51d8455887ff51297a517dd6ec16e91d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/d59ff763c07411ff42e01406b6f67ae118ba79f6",
-                "reference": "d59ff763c07411ff42e01406b6f67ae118ba79f6",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7b3401b51d8455887ff51297a517dd6ec16e91d1",
+                "reference": "7b3401b51d8455887ff51297a517dd6ec16e91d1",
                 "shasum": ""
             },
             "require": {
@@ -1531,7 +1533,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-06-30 09:06:55"
+            "time": "2016-07-05 15:16:35"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1539,7 +1541,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-                "reference": "75a45ccaa3f7edbf6c370b1e383e6a087f81a45c"
+                "reference": "291e9b90a66008c748dee7847c0e22201cba9e86"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -1573,7 +1575,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-05-29 20:34:45"
+            "time": "2016-06-27 21:12:17"
         },
         {
             "name": "wikimedia/purtle",

@@ -191,11 +191,41 @@
 	 * @return {jQuery.wikibase.sitelinkgrouplistview} The constructed sitelinkgrouplistview
 	 **/
 	SELF.prototype.getSitelinkGroupListView = function( sitelinkSet, $sitelinkgrouplistview ) {
+		var self = this;
+		var eventSingletonManager = new $.util.EventSingletonManager();
+
 		return this._getView(
 			'sitelinkgrouplistview',
 			$sitelinkgrouplistview,
 			{
 				value: sitelinkSet,
+				listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
+					listItemWidget: $.wikibase.sitelinkgroupview,
+					getNewItem: function( value, dom ) {
+						return self.getSitelinkGroupView( eventSingletonManager, value.group, value.siteLinks, $( dom ) );
+					}
+				} )
+			}
+		);
+	};
+
+	/**
+	 * Construct a suitable view for the given sitelink group on the given DOM element
+	 *
+	 * @param {jQuery.util.EventSingletonManager} eventSingletonManager
+	 * @param {string} groupName
+	 * @param {wikibase.datamodel.SiteLink[]} value
+	 * @param {jQuery} $sitelinkgroupview
+	 * @return {jQuery.wikibase.sitelinkgroupview} The constructed sitelinkgroupview
+	 **/
+	SELF.prototype.getSitelinkGroupView = function( eventSingletonManager, groupName, value, $sitelinkgroupview ) {
+		return this._getView(
+			'sitelinkgroupview',
+			$sitelinkgroupview,
+			{
+				groupName: groupName,
+				value: value,
+				eventSingletonManager: eventSingletonManager,
 				siteLinksChanger: this._entityChangersFactory.getSiteLinksChanger(),
 				entityIdPlainFormatter: this._entityIdPlainFormatter
 			}
