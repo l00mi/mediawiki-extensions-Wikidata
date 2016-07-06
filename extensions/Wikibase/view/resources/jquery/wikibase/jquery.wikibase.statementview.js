@@ -68,6 +68,10 @@ $.widget( 'wikibase.statementview', PARENT, {
 			function() { // GUID
 				return ( this.options.value && this.options.value.getClaim().getGuid() ) || 'new';
 			},
+			function() { // Rank name
+				return ( this.options.value && this._getRankName( this.options.value.getRank() ) )
+					|| 'normal';
+			},
 			function() { // Rank selector
 				return $( '<div/>' );
 			},
@@ -185,13 +189,29 @@ $.widget( 'wikibase.statementview', PARENT, {
 		}, $rankSelector );
 
 		var self = this,
-			changeEvent = ( this._rankSelector.widgetEventPrefix + 'afterchange' ).toLowerCase();
+			changeEvent = ( this._rankSelector.widgetEventPrefix + 'change' ).toLowerCase();
 
 		this.$rankSelector.on( changeEvent + '.' + this.widgetName, function( event ) {
 			if ( self.value() ) {
 				self._trigger( 'change' );
 			}
 		} );
+	},
+
+	/**
+	 * @private
+	 *
+	 * @param {number} rank
+	 * @return {string|null}
+	 */
+	_getRankName: function( rank ) {
+		for ( var rankName in wb.datamodel.Statement.RANK ) {
+			if ( rank === wb.datamodel.Statement.RANK[rankName] ) {
+				return rankName.toLowerCase();
+			}
+		}
+
+		return null;
 	},
 
 	/**
@@ -258,8 +278,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		.on( 'snaklistviewstopediting.' + this.widgetName, function( event, dropValue ) {
 			event.stopPropagation();
 		} )
-		.on( 'snaklistviewchange.' + this.widgetName
-			+ ' listviewafteritemmove.' + this.widgetName,
+		.on( 'snaklistviewchange.' + this.widgetName,
 			function( event ) {
 				event.stopPropagation();
 				self._trigger( 'change' );
