@@ -8,8 +8,6 @@ $baseDir = dirname($vendorDir);
 return array(
     'Wikimedia\\Purtle\\Tests\\' => array($vendorDir . '/wikimedia/purtle/tests/phpunit'),
     'Wikimedia\\Purtle\\' => array($vendorDir . '/wikimedia/purtle/src'),
-    'Wikimedia\\Assert\\Test\\' => array($vendorDir . '/wikimedia/assert/tests/phpunit'),
-    'Wikimedia\\Assert\\' => array($vendorDir . '/wikimedia/assert/src'),
     'WikimediaBadges\\' => array($baseDir . '/extensions/WikimediaBadges/includes'),
     'Wikidata\\' => array($baseDir . '/src'),
     'Wikibase\\View\\Tests\\' => array($baseDir . '/extensions/Wikibase/view/tests/phpunit'),
