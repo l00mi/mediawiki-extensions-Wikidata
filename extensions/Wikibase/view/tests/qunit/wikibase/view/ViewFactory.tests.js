@@ -289,8 +289,7 @@
 			propertyId = 'propertyId',
 			value = null,
 			entityChangersFactory = {
-				getClaimsChanger: function() { return {}; },
-				getReferencesChanger: function() { return {}; }
+				getClaimsChanger: function() { return {}; }
 			},
 			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
 			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' ),
@@ -322,8 +321,7 @@
 			propertyId = 'P1',
 			value = new wb.datamodel.Statement( new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( propertyId ) ) ),
 			entityChangersFactory = {
-				getClaimsChanger: function() { return {}; },
-				getReferencesChanger: function() { return {}; }
+				getClaimsChanger: function() { return {}; }
 			},
 			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
 			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' ),
@@ -353,12 +351,9 @@
 		assert.expect( 3 );
 		var contentLanguages = {},
 			value = null,
-			dataTypeStore = {},
 			claimsChanger = {},
-			referencesChanger = {},
 			entityChangersFactory = {
-				getClaimsChanger: function() { return claimsChanger; },
-				getReferencesChanger: function() { return referencesChanger; }
+				getClaimsChanger: function() { return claimsChanger; }
 			},
 			entityIdHtmlFormatter = {},
 			entityIdPlainFormatter = {},
@@ -370,7 +365,7 @@
 			userLanguages = [],
 			viewFactory = new ViewFactory(
 				contentLanguages,
-				dataTypeStore,
+				null,
 				entityChangersFactory,
 				entityIdHtmlFormatter,
 				entityIdPlainFormatter,
@@ -381,10 +376,9 @@
 				parserStore,
 				userLanguages
 			),
-			statementGuid = 'statementGuid',
 			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' );
 
-		viewFactory.getListItemAdapterForReferenceView( statementGuid );
+		viewFactory.getListItemAdapterForReferenceView();
 
 		sinon.assert.calledWith(
 			ListItemAdapter,
@@ -400,10 +394,7 @@
 			result,
 			{
 				value: value || null,
-				statementGuid: statementGuid,
-				dataTypeStore: dataTypeStore,
-				listItemAdapter: result.listItemAdapter, // Hack
-				referencesChanger: referencesChanger
+				listItemAdapter: result.listItemAdapter // Hack
 			}
 		);
 

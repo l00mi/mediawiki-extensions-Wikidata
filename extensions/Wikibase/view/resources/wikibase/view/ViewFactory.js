@@ -369,19 +369,15 @@
 	/**
 	 * Construct a `ListItemAdapter` for `referenceview`s
 	 *
-	 * @param {string} statementGuid
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 */
-	SELF.prototype.getListItemAdapterForReferenceView = function( statementGuid ) {
+	SELF.prototype.getListItemAdapterForReferenceView = function() {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.referenceview,
 			newItemOptionsFn: $.proxy( function( value ) {
 				return {
 					value: value || null,
-					statementGuid: statementGuid,
-					dataTypeStore: this._dataTypeStore,
-					listItemAdapter: this.getListItemAdapterForSnakListView(),
-					referencesChanger: this._entityChangersFactory.getReferencesChanger()
+					listItemAdapter: this.getListItemAdapterForSnakListView()
 				};
 			}, this )
 		} );
