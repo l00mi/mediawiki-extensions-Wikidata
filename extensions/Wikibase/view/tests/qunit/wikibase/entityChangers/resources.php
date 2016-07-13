@@ -27,15 +27,13 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.entityChangers.ClaimsChanger.tests' => $moduleBase + array(
+		'wikibase.entityChangers.StatementsChanger.tests' => $moduleBase + array(
 			'scripts' => array(
-				'ClaimsChanger.tests.js',
+				'StatementsChanger.tests.js',
 			),
 			'dependencies' => array(
 				'wikibase.datamodel',
-				'wikibase.entityChangers.ClaimsChanger',
-				'wikibase.serialization.ClaimDeserializer',
-				'wikibase.serialization.ClaimSerializer',
+				'wikibase.entityChangers.StatementsChanger',
 				'wikibase.serialization.StatementDeserializer',
 				'wikibase.serialization.StatementSerializer',
 			),
@@ -48,6 +46,16 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'wikibase.datamodel',
 				'wikibase.entityChangers.DescriptionsChanger'
+			),
+		),
+
+		'wikibase.entityChangers.EntityTermsChanger.tests' => $moduleBase + array(
+			'scripts' => array(
+				'EntityTermsChanger.tests.js',
+			),
+			'dependencies' => array(
+				'wikibase.datamodel',
+				'wikibase.entityChangers.EntityTermsChanger'
 			),
 		),
 
