@@ -18,7 +18,7 @@
 	"wbq-violations-entity-id-placeholder": "Placeholder  of the input control that contains the entity id.",
 	"wbq-violations-property-id-label": "Label of the input control that contains the property id.",
 	"wbq-violations-property-id-placeholder": "Placeholder of the input control that contains the property id.",
-	"wbq-violations-group-label": "Label of the input control for selecting a group.",
+	"wbq-violations-group-label": "Label of the input control for selecting a group.\n{{Identical|Group}}",
 	"wbq-violations-type-label": "Label of the input control for selecting a type.\n{{Identical|Type}}",
 	"wbq-violations-form-select-all": "Label for select controls that is shown, when nothing is selected.",
 	"wbq-violations-exceptions-checkbox-label": "Label of the checkbox that determines, whether exceptions should be shown or not.",
