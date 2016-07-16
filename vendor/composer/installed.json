@@ -932,23 +932,23 @@
     },
     {
         "name": "data-values/interfaces",
-        "version": "0.2.1",
-        "version_normalized": "0.2.1.0",
+        "version": "0.2.2",
+        "version_normalized": "0.2.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Interfaces.git",
-            "reference": "2bed9fff899b3bf9c522497f9bd875f326eb1ef0"
+            "reference": "aca19f44a3ea23efc5172ee9cb33a8f297b1ad43"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/2bed9fff899b3bf9c522497f9bd875f326eb1ef0",
-            "reference": "2bed9fff899b3bf9c522497f9bd875f326eb1ef0",
+            "url": "https://api.github.com/repos/DataValues/Interfaces/zipball/aca19f44a3ea23efc5172ee9cb33a8f297b1ad43",
+            "reference": "aca19f44a3ea23efc5172ee9cb33a8f297b1ad43",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2016-01-13 18:44:31",
+        "time": "2016-07-15 10:58:24",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1347,12 +1347,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "87db25cb3ec5f2b4f241f7c470d14aaa6691f987"
+            "reference": "7228c858bb357ab97f32223edf92c67108cb5a94"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/87db25cb3ec5f2b4f241f7c470d14aaa6691f987",
-            "reference": "87db25cb3ec5f2b4f241f7c470d14aaa6691f987",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7228c858bb357ab97f32223edf92c67108cb5a94",
+            "reference": "7228c858bb357ab97f32223edf92c67108cb5a94",
             "shasum": ""
         },
         "require": {
@@ -1385,7 +1385,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-07-14 22:47:51",
+        "time": "2016-07-15 20:32:35",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

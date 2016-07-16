@@ -6,11 +6,11 @@ use InvalidArgumentException;
 use RuntimeException;
 
 /**
- * Options interface for parsers.
+ * Object holding options for a parser.
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 final class ParserOptions {
