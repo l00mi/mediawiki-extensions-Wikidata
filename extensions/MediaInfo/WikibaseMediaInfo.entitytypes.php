@@ -13,6 +13,7 @@
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
 
+use MediaWiki\MediaWikiServices;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
@@ -67,7 +68,9 @@ return [
 					$editSectionGenerator
 				),
 				new MediaWikiLanguageDirectionalityLookup(),
-				$languageCode
+				$languageCode,
+				MediaWikiServices::getInstance()->getLinkRenderer(),
+				MediaInfoServices::getFilePageLookup()
 			);
 		},
 		'content-model-id' => MediaInfoContent::CONTENT_MODEL_ID,
@@ -87,7 +90,8 @@ return [
 					MediaInfoServices::getMediaInfoIdLookup(),
 					MediaInfoServices::getFilePageLookup(),
 					$wikibaseRepo->getEntityParserOutputGeneratorFactory()
-				)
+				),
+				MediaInfoServices::getFilePageLookup()
 			);
 		},
 		'entity-id-pattern' => MediaInfoId::PATTERN,

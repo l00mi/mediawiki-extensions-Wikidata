@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'ArticlePlaceholder\\Hooks' => $baseDir . '/extensions/ArticlePlaceholder/includes/Hooks.php',
+    'ArticlePlaceholder\\ItemNotabilityFilter' => $baseDir . '/extensions/ArticlePlaceholder/includes/ItemNotabilityFilter.php',
     'ArticlePlaceholder\\Lua\\Scribunto_LuaArticlePlaceholderLibrary' => $baseDir . '/extensions/ArticlePlaceholder/includes/Lua/Scribunto_LuaArticlePlaceholderLibrary.php',
     'ArticlePlaceholder\\SearchHookHandler' => $baseDir . '/extensions/ArticlePlaceholder/includes/SearchHookHandler.php',
     'ArticlePlaceholder\\SpecialAboutTopic' => $baseDir . '/extensions/ArticlePlaceholder/includes/SpecialAboutTopic.php',
@@ -586,6 +587,7 @@ return array(
     'Wikibase\\DataModel\\Entity\\EntityIdParsingException' => $vendorDir . '/wikibase/data-model/src/Entity/EntityIdParsingException.php',
     'Wikibase\\DataModel\\Entity\\EntityIdValue' => $vendorDir . '/wikibase/data-model/src/Entity/EntityIdValue.php',
     'Wikibase\\DataModel\\Entity\\EntityRedirect' => $vendorDir . '/wikibase/data-model/src/Entity/EntityRedirect.php',
+    'Wikibase\\DataModel\\Entity\\Int32EntityId' => $vendorDir . '/wikibase/data-model/src/Entity/Int32EntityId.php',
     'Wikibase\\DataModel\\Entity\\Item' => $vendorDir . '/wikibase/data-model/src/Entity/Item.php',
     'Wikibase\\DataModel\\Entity\\ItemId' => $vendorDir . '/wikibase/data-model/src/Entity/ItemId.php',
     'Wikibase\\DataModel\\Entity\\ItemIdParser' => $vendorDir . '/wikibase/data-model/src/Entity/ItemIdParser.php',

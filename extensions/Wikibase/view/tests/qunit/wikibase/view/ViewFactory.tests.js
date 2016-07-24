@@ -83,8 +83,8 @@
 		assert.expect( 1 );
 		var groupName = 'groupid',
 			siteLinks = [],
-			siteLinksChanger = {},
-			entityChangersFactory = { getSiteLinksChanger: function() { return siteLinksChanger; } },
+			siteLinkSetsChanger = {},
+			entityChangersFactory = { getSiteLinkSetsChanger: function() { return siteLinkSetsChanger; } },
 			viewFactory = new ViewFactory(
 				null,
 				null,
@@ -101,7 +101,7 @@
 			groupName: groupName,
 			value: siteLinks,
 			getSiteLinkListView: sinon.match.func,
-			siteLinksChanger: siteLinksChanger
+			siteLinkSetsChanger: siteLinkSetsChanger
 		} ) );
 
 		$.wikibase.sitelinkgroupview.restore();
@@ -575,7 +575,7 @@
 		assert.expect( 1 );
 		var contentLanguages = [],
 			fingerprint = new wb.datamodel.Fingerprint(),
-			entityChangersFactory = {},
+			entityChangersFactory = { getEntityTermsChanger: function() {} },
 			message = 'message',
 			messageProvider = { getMessage: function() { return message; } },
 			userLanguages = [],

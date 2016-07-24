@@ -157,7 +157,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 					sitelinkview = listItemAdapter.liInstance( $sitelinkview );
 
 				if ( sitelinkview ) {
-					self._removeSitelinkviewIfEmpty( sitelinkview, event );
+					self._removeSitelinkviewIfEmpty( sitelinkview, event ); // FIXME: Move to sitelinkview
 				}
 			}
 		} )
@@ -228,14 +228,14 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			secondToLast = $items.length > 1 && lia.liInstance( $items.eq( -2 ) ),
 			secondToLastEmpty = secondToLast && secondToLast.isEmpty(),
 			secondToLastInvalidPending
-				= secondToLast && !secondToLast.isValid() && !secondToLast.option( 'value' );
+				= secondToLast && !secondToLast.value() && !secondToLast.option( 'value' );
 
 		if ( lastSitelinkview
 			&& lastSitelinkview.isEmpty()
 			&& ( secondToLastEmpty || secondToLastInvalidPending )
 		) {
 			listview.removeItem( $lastSitelinkview );
-		} else if ( !lastSitelinkview || lastSitelinkview.isValid() && !this.isFull() ) {
+		} else if ( !lastSitelinkview || lastSitelinkview.value() && !this.isFull() ) {
 			this.enterNewItem();
 		}
 	},
@@ -450,26 +450,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 			} );
 	},
 
-	diffValue: function() {
-		var listview = this.$listview.data( 'listview' );
-		var siteLinks = [];
-		siteLinks = siteLinks.concat( this._getRemovedSiteLinkIds().map( function( siteId ) {
-			return new wb.datamodel.SiteLink( siteId, '' );
-		} ) );
-
-		listview.items().each( function( i, dom ) {
-			var sitelinkview = $( dom ).data( 'sitelinkview' );
-			if ( sitelinkview.isInitialValue() ) {
-				return;
-			}
-			var value = sitelinkview.value();
-			if ( value ) {
-				siteLinks.push( value );
-			}
-		} );
-		return siteLinks;
-	},
-
 	/**
 	 * @see jQuery.ui.EditableTemplatedWidget._save
 	 */
@@ -513,26 +493,6 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 	},
 
 	/**
-	 * @return {string[]}
-	 */
-	_getRemovedSiteLinkIds: function() {
-		var currentSiteIds = $.map( this.value(), function( siteLink ) {
-			return siteLink.getSiteId();
-		} );
-
-		var removedSiteLinkIds = [];
-
-		for ( var i = 0; i < this.options.value.length; i++ ) {
-			var siteId = this.options.value[i].getSiteId();
-			if ( $.inArray( siteId, currentSiteIds ) === -1 ) {
-				removedSiteLinkIds.push( siteId );
-			}
-		}
-
-		return removedSiteLinkIds;
-	},
-
-	/**
 	 * @see jQuery.ui.TemplatedWidget.focus
 	 */
 	focus: function() {
@@ -568,7 +528,7 @@ $.widget( 'wikibase.sitelinklistview', PARENT, {
 		if ( !this.isValid() ) {
 			$items = $items.filter( function() {
 				var sitelinkview = lia.liInstance( $( this ) );
-				return !sitelinkview.isValid();
+				return sitelinkview.value() === null;
 			} );
 		}
 		$items = findFirstInViewPort( $items );
