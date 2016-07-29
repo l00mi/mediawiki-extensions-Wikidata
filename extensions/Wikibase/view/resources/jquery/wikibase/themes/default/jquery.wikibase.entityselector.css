@@ -47,7 +47,16 @@
 	display: inline;
 }
 
-.ui-entityselector-list .ui-entityselector-more {
+.ui-entityselector-list .ui-entityselector-notfound {
+	/* Common bright red .wb-error color */
+	background-color: #FFDFC9;
+}
+
+.ui-entityselector-list .ui-entityselector-notfound.ui-state-hover a {
+	color: #000;
+}
+
+.ui-entityselector-list .ui-entityselector-more{
 	border-top-style: solid;
 	background-color: #F8F8F8;
 }
