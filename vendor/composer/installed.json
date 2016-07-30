@@ -1595,7 +1595,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "d36cf50c992c76c056c457589fef7623062096d0"
+            "reference": "10c387ec9a0dc5f12df13fff64052c1ec23e4b4f"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1609,7 +1609,7 @@
             "mediawiki/mediawiki-codesniffer": "0.6.0",
             "phpunit/phpunit": "~4.8"
         },
-        "time": "2016-07-26 20:58:17",
+        "time": "2016-07-28 08:37:16",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
