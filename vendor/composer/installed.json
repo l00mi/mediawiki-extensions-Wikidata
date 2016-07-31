@@ -110,19 +110,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "66d0a14bd0bdd4ddb0d29b4c123be769739f91b5"
+            "reference": "26a4ab407c0da76dd498005f30c46029c1cf8d39"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/66d0a14bd0bdd4ddb0d29b4c123be769739f91b5",
-            "reference": "66d0a14bd0bdd4ddb0d29b4c123be769739f91b5",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/26a4ab407c0da76dd498005f30c46029c1cf8d39",
+            "reference": "26a4ab407c0da76dd498005f30c46029c1cf8d39",
             "shasum": ""
         },
         "require-dev": {
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.7.2"
         },
-        "time": "2016-07-28 21:01:00",
+        "time": "2016-07-30 20:21:44",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1348,12 +1348,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "3230535d407cad8f9130709503601559dbc2cd1c"
+            "reference": "5e6bad479155501564861d66844a7d6db10281d1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3230535d407cad8f9130709503601559dbc2cd1c",
-            "reference": "3230535d407cad8f9130709503601559dbc2cd1c",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/5e6bad479155501564861d66844a7d6db10281d1",
+            "reference": "5e6bad479155501564861d66844a7d6db10281d1",
             "shasum": ""
         },
         "require": {
@@ -1386,7 +1386,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-07-28 21:06:02",
+        "time": "2016-07-30 20:34:00",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1700,7 +1700,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "14e051e1b3ea5c3fbaea67bab5c8fdea8ad27c4e"
+            "reference": "a95c6be8f7ae972d295a759dabb5d44f97417272"
         },
         "require": {
             "php": ">=5.3.0",
@@ -1717,7 +1717,7 @@
             "satooshi/php-coveralls": "master-dev",
             "wikibase/data-model-serialization": ">=0.1 <3.0"
         },
-        "time": "2016-07-14 21:29:23",
+        "time": "2016-07-30 20:34:17",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
