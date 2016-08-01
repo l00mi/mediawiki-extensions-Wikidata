@@ -241,7 +241,7 @@ class SpecialCrossCheck extends SpecialPage {
 	 * @return string HTML
 	 */
 	private function buildInfoBox() {
-		$externalDbLink = Linker::specialLink( 'ExternalDbs', 'wbqev-externaldbs' );
+		$externalDbLink = Linker::specialLink( 'ExternalDatabases', 'wbqev-externaldbs' );
 		$infoBox =
 			Html::openElement(
 				'div',
@@ -423,7 +423,7 @@ class SpecialCrossCheck extends SpecialPage {
 				),
 				new HtmlTableHeaderBuilder(
 					Linker::linkKnown(
-						self::getTitleFor( 'ExternalDbs' ),
+						self::getTitleFor( 'ExternalDatabases' ),
 						$this->msg( 'wbqev-crosscheck-result-table-header-external-source' )->escaped()
 					),
 					true,

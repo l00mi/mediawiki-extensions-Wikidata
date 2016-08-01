@@ -12,5 +12,5 @@ $specialPageAliases = array();
 /** English (English) */
 $specialPageAliases['en'] = array(
 	'CrossCheck' => array( 'CrossCheck', 'Cross Check' ),
-	'ExternalDbs' => array( 'ExternalDbs', 'External Dbs' ),
+	'ExternalDatabases' => array( 'ExternalDatabases', 'ExternalDbs', 'External Dbs' ),
 );

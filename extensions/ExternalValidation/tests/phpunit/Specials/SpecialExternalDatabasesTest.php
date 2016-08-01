@@ -1,15 +1,15 @@
 <?php
 
-namespace WikibaseQuality\ExternalValidation\Tests\Specials\SpecialExternalDbs;
+namespace WikibaseQuality\ExternalValidation\Tests\Specials\SpecialExternalDatabases;
 
 use SpecialPageTestBase;
 use Wikibase\Repo\WikibaseRepo;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
-use WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs;
+use WikibaseQuality\ExternalValidation\Specials\SpecialExternalDatabases;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs
+ * @covers WikibaseQuality\ExternalValidation\Specials\SpecialExternalDatabases
  *
  * @group WikibaseQualityExternalValidation
  * @group Database
@@ -24,7 +24,7 @@ use WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs;
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class SpecialExternalDbsTest extends SpecialPageTestBase {
+class SpecialExternalDatabasesTest extends SpecialPageTestBase {
 
 	protected function setUp() {
 		parent::setUp();
@@ -37,7 +37,7 @@ class SpecialExternalDbsTest extends SpecialPageTestBase {
 		$externalValidationFactory = ExternalValidationServices::getDefaultInstance();
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 
-		return new SpecialExternalDbs(
+		return new SpecialExternalDatabases(
 			$wikibaseRepo->getTermLookup(),
 			$wikibaseRepo->getEntityIdHtmlLinkFormatterFactory(),
 			$externalValidationFactory->getDumpMetaInformationLookup()

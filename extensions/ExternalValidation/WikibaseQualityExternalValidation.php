@@ -28,7 +28,7 @@ call_user_func( function () {
 
 	// Initialize special pages
 	$GLOBALS['wgSpecialPages']['CrossCheck'] = 'WikibaseQuality\ExternalValidation\Specials\SpecialCrossCheck::newFromGlobalState';
-	$GLOBALS['wgSpecialPages']['ExternalDbs'] = 'WikibaseQuality\ExternalValidation\Specials\SpecialExternalDbs::newFromGlobalState';
+	$GLOBALS['wgSpecialPages']['ExternalDatabases'] = 'WikibaseQuality\ExternalValidation\Specials\SpecialExternalDatabases::newFromGlobalState';
 
 	// Define API modules
 	$GLOBALS['wgAPIModules']['wbqevcrosscheck'] = array(

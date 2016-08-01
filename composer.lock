@@ -816,16 +816,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "3.0.2",
+            "version": "3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "fdb33b593b96a890145c6ae008333768fb4f0d3c"
+                "reference": "890b0a1b21478b92d67869cf10b8a6c5235ac842"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/fdb33b593b96a890145c6ae008333768fb4f0d3c",
-                "reference": "fdb33b593b96a890145c6ae008333768fb4f0d3c",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/890b0a1b21478b92d67869cf10b8a6c5235ac842",
+                "reference": "890b0a1b21478b92d67869cf10b8a6c5235ac842",
                 "shasum": ""
             },
             "require": {
@@ -859,7 +859,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-06-20 17:44:28"
+            "time": "2016-07-31 21:06:56"
         },
         {
             "name": "serialization/serialization",
@@ -1250,7 +1250,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "4c3769866ec14be2a3ec37636591dad72f937c2c"
+                "reference": "c73606b50e0ae6bc29577108953742c960b7cfc7"
             },
             "require": {
                 "data-values/common": ">=0.1 <0.4",
@@ -1302,7 +1302,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2016-07-18 14:44:41"
+            "time": "2016-08-01 08:09:55"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1571,12 +1571,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "5e6bad479155501564861d66844a7d6db10281d1"
+                "reference": "17a721c5d38d961135744ab98ce2c4288bb24279"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/5e6bad479155501564861d66844a7d6db10281d1",
-                "reference": "5e6bad479155501564861d66844a7d6db10281d1",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/17a721c5d38d961135744ab98ce2c4288bb24279",
+                "reference": "17a721c5d38d961135744ab98ce2c4288bb24279",
                 "shasum": ""
             },
             "require": {
@@ -1648,7 +1648,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-07-30 20:34:00"
+            "time": "2016-07-31 21:28:41"
         },
         {
             "name": "wikibase/wikimedia-badges",

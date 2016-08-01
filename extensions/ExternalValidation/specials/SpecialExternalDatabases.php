@@ -17,7 +17,7 @@ use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
 
-class SpecialExternalDbs extends SpecialPage {
+class SpecialExternalDatabases extends SpecialPage {
 
 	/**
 	 * @var EntityIdHtmlLinkFormatterFactory
@@ -54,7 +54,7 @@ class SpecialExternalDbs extends SpecialPage {
 		TermLookup $termLookup,
 		EntityIdHtmlLinkFormatterFactory $entityIdHtmlLinkFormatterFactory,
 		DumpMetaInformationLookup $dumpMetaInformationRepo ) {
-		parent::__construct( 'ExternalDbs' );
+		parent::__construct( 'ExternalDatabases' );
 
 		$this->entityIdLinkFormatter = $entityIdHtmlLinkFormatterFactory->getEntityIdFormatter(
 			new LanguageLabelDescriptionLookup( $termLookup, $this->getLanguage()->getCode() )
