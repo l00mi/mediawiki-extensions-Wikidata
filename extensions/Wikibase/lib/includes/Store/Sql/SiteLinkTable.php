@@ -109,16 +109,14 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkStore {
 		$ok = true;
 		$dbw = $this->getConnection( DB_MASTER );
 
-		//TODO: consider doing delete and insert in the same callback, so they share a transaction.
-
 		if ( $ok && $linksToDelete ) {
 			wfDebugLog( __CLASS__, __FUNCTION__ . ": " . count( $linksToDelete ) . " links to delete." );
-			$ok = $dbw->deadlockLoop( array( $this, 'deleteLinksInternal' ), $item, $linksToDelete, $dbw );
+			$ok = $this->deleteLinks( $item, $linksToDelete, $dbw );
 		}
 
 		if ( $ok && $linksToInsert ) {
 			wfDebugLog( __CLASS__, __FUNCTION__ . ": " . count( $linksToInsert ) . " links to insert." );
-			$ok = $dbw->deadlockLoop( array( $this, 'insertLinksInternal' ), $item, $linksToInsert, $dbw );
+			$ok = $this->insertLinks( $item, $linksToInsert, $dbw );
 		}
 
 		$this->releaseConnection( $dbw );
@@ -127,20 +125,13 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkStore {
 	}
 
 	/**
-	 * Internal callback for inserting a list of links.
-	 *
-	 * @note: this is public only because it acts as a callback, there should be no
-	 *        reason to call this directly!
-	 *
-	 * @since 0.5
-	 *
 	 * @param Item $item
 	 * @param SiteLink[] $links
 	 * @param DatabaseBase $dbw
 	 *
-	 * @return boolean Success indicator
+	 * @return bool Success indicator
 	 */
-	public function insertLinksInternal( Item $item, array $links, DatabaseBase $dbw ) {
+	private function insertLinks( Item $item, array $links, DatabaseBase $dbw ) {
 		wfDebugLog( __CLASS__, __FUNCTION__ . ': inserting links for ' . $item->getId()->getSerialization() );
 
 		$insert = array();
@@ -163,20 +154,13 @@ class SiteLinkTable extends DBAccessBase implements SiteLinkStore {
 	}
 
 	/**
-	 * Internal callback for deleting a list of links.
-	 *
-	 * @note: this is public only because it acts as a callback, there should be no
-	 *        reason to call this directly!
-	 *
-	 * @since 0.5
-	 *
 	 * @param Item $item
 	 * @param SiteLink[] $links
 	 * @param DatabaseBase $dbw
 	 *
-	 * @return boolean Success indicator
+	 * @return bool Success indicator
 	 */
-	public function deleteLinksInternal( Item $item, array $links, DatabaseBase $dbw ) {
+	private function deleteLinks( Item $item, array $links, DatabaseBase $dbw ) {
 		wfDebugLog( __CLASS__, __FUNCTION__ . ': deleting links for ' . $item->getId()->getSerialization() );
 
 		$siteIds = array();
