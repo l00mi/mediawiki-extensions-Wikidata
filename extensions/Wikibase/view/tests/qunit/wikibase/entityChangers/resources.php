@@ -27,15 +27,13 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.entityChangers.ClaimsChanger.tests' => $moduleBase + array(
+		'wikibase.entityChangers.StatementsChanger.tests' => $moduleBase + array(
 			'scripts' => array(
-				'ClaimsChanger.tests.js',
+				'StatementsChanger.tests.js',
 			),
 			'dependencies' => array(
 				'wikibase.datamodel',
-				'wikibase.entityChangers.ClaimsChanger',
-				'wikibase.serialization.ClaimDeserializer',
-				'wikibase.serialization.ClaimSerializer',
+				'wikibase.entityChangers.StatementsChanger',
 				'wikibase.serialization.StatementDeserializer',
 				'wikibase.serialization.StatementSerializer',
 			),
@@ -51,6 +49,16 @@ return call_user_func( function() {
 			),
 		),
 
+		'wikibase.entityChangers.EntityTermsChanger.tests' => $moduleBase + array(
+			'scripts' => array(
+				'EntityTermsChanger.tests.js',
+			),
+			'dependencies' => array(
+				'wikibase.datamodel',
+				'wikibase.entityChangers.EntityTermsChanger'
+			),
+		),
+
 		'wikibase.entityChangers.LabelsChanger.tests' => $moduleBase + array(
 			'scripts' => array(
 				'LabelsChanger.tests.js',
@@ -61,18 +69,6 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.entityChangers.ReferencesChanger.tests' => $moduleBase + array(
-			'scripts' => array(
-				'ReferencesChanger.tests.js',
-			),
-			'dependencies' => array(
-				'wikibase.datamodel',
-				'wikibase.entityChangers.ReferencesChanger',
-				'wikibase.serialization.ReferenceDeserializer',
-				'wikibase.serialization.ReferenceSerializer',
-			),
-		),
-
 		'wikibase.entityChangers.SiteLinksChanger.tests' => $moduleBase + array(
 			'scripts' => array(
 				'SiteLinksChanger.tests.js',
@@ -80,6 +76,16 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'wikibase.datamodel',
 				'wikibase.entityChangers.SiteLinksChanger'
+			),
+		),
+
+		'wikibase.entityChangers.SiteLinkSetsChanger.tests' => $moduleBase + array(
+			'scripts' => array(
+				'SiteLinkSetsChanger.tests.js',
+			),
+			'dependencies' => array(
+				'wikibase.datamodel',
+				'wikibase.entityChangers.SiteLinkSetsChanger'
 			),
 		),
 

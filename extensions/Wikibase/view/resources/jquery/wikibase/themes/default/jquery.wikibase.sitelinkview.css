@@ -52,6 +52,13 @@
 	background-color: #D6F3FF;
 }
 
+.wikibase-sitelinkview .wikibase-toolbar-button-remove {
+	display: inline-block;
+	overflow: hidden;
+	vertical-align: middle;
+	width: 20px;
+}
+
 .wb-badge:first-child {
 	margin-left: 0.4em;
 }

@@ -23,9 +23,7 @@
 					'referenceview-snakview'
 				],
 				edittoolbar: [
-					'statementview',
-					'entitytermsview',
-					'sitelinkgroupview'
+					'entitytermsview'
 				],
 				removetoolbar: [
 					'referenceview',
@@ -109,7 +107,10 @@
 			htmlDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/html' ),
 			plaintextDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/plain' ),
 			entityIdParser = new ( parserStore.getParser( wb.datamodel.EntityId.TYPE ) )( { lang: userLanguages[0] } ),
-			viewFactory = new wikibase.view.ViewFactory(
+			toolbarFactory = new wb.view.ToolbarFactory(),
+			viewFactory = new wb.view.ControllerViewFactory(
+				toolbarFactory,
+				entityChangersFactory,
 				contentLanguages,
 				dataTypeStore,
 				entityChangersFactory,
@@ -326,18 +327,21 @@
 	 * @param {jQuery} $entityview
 	 */
 	function attachCopyrightTooltip( $entityview ) {
-		$entityview.on( 'edittoolbarafterstartediting', function( event ) {
-			var $target = $( event.target ),
-				gravity = 'sw';
+		$entityview.on(
+			'edittoolbarafterstartediting sitelinkgroupviewafterstartediting statementviewafterstartediting',
+			function( event ) {
+				var $target = $( event.target ),
+					gravity = 'sw';
 
-			if ( $target.data( 'sitelinkgroupview' ) ) {
-				gravity = 'nw';
-			} else if ( $target.data( 'entitytermsview' ) ) {
-				gravity = 'w';
+				if ( $target.data( 'sitelinkgroupview' ) ) {
+					gravity = 'nw';
+				} else if ( $target.data( 'entitytermsview' ) ) {
+					gravity = 'w';
+				}
+
+				showCopyrightTooltip( $entityview, $target, gravity );
 			}
-
-			showCopyrightTooltip( $entityview, $target, gravity );
-		} );
+		);
 	}
 
 	mw.hook( 'wikipage.content' ).add( function() {

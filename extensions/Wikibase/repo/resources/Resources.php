@@ -85,8 +85,6 @@ return call_user_func( function() {
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-referenceview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-snakview',
 				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.entitytermsview',
-				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.sitelinkgroupview',
-				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.statementview',
 				'jquery.wikibase.toolbarcontroller.definitions.removetoolbar.referenceview',
 				'jquery.wikibase.toolbarcontroller.definitions.removetoolbar.referenceview-snakview',
 				'jquery.wikibase.toolbarcontroller.definitions.removetoolbar.sitelinkgroupview-sitelinkview',
@@ -113,7 +111,8 @@ return call_user_func( function() {
 				'wikibase.store.ApiEntityStore',
 				'wikibase.store.CachingEntityStore',
 				'wikibase.store.CombiningEntityStore',
-				'wikibase.view.ViewFactory',
+				'wikibase.view.ControllerViewFactory',
+				'wikibase.view.ToolbarFactory',
 				'wikibase.WikibaseContentLanguages'
 			),
 			'messages' => array(

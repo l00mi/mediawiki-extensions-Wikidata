@@ -17,10 +17,6 @@
  * @param {Object} options
  * @param {wikibase.datamodel.Reference|null} options.value
  * @param {jQuery.wikibase.listview.ListItemAdapter} options.listItemAdapter
- * @param {wikibase.entityChangers.ReferencesChanger} options.referencesChanger
- *        Required for saving the `Reference` represented by the widget instance.
- * @param {string|null} [options.statementGuid]
- *        The GUID of the `Statement` the `Reference` represented by the widget instance belongs to.
  */
 /**
  * @event afterstartediting
@@ -65,9 +61,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 			$listview: '.wikibase-referenceview-listview'
 		},
 		value: null,
-		listItemAdapter: null,
-		referencesChanger: null,
-		statementGuid: null
+		listItemAdapter: null
 	},
 
 	/**
@@ -84,7 +78,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
-		if ( !this.options.listItemAdapter || !this.options.referencesChanger ) {
+		if ( !this.options.listItemAdapter ) {
 			throw new Error( 'Required option not specified properly' );
 		}
 
@@ -111,8 +105,6 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		var changeEvents = [
 			'snakviewchange.' + this.widgetName,
 			lia.prefixedEvent( 'change.' + this.widgetName ),
-			'listviewafteritemmove.' + this.widgetName,
-			'listviewitemadded.' + this.widgetName,
 			'listviewitemremoved.' + this.widgetName
 		];
 
@@ -149,8 +141,6 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		var lia = this.$listview.data( 'listview' ).listItemAdapter(),
 			events = [
 				'snakviewchange.' + this.widgetName,
-				'listviewafteritemmove.' + this.widgetName,
-				'listviewitemadded.' + this.widgetName,
 				'listviewitemremoved.' + this.widgetName,
 				lia.prefixedEvent( 'change.' + this.widgetName ),
 				lia.prefixedEvent( 'stopediting.' + this.widgetName )
@@ -195,11 +185,16 @@ $.widget( 'wikibase.referenceview', PARENT, {
 
 		var snakList = new wb.datamodel.SnakList();
 
-		$.each( this.$listview.data( 'listview' ).value(), function() {
-			snakList.merge( this.value() );
+		$.each( this.$listview.data( 'listview' ).value(), function( i, snaklistview ) {
+			var value = snaklistview.value();
+			if ( !value ) {
+				snakList = null;
+			} else if ( snakList ) {
+				snakList.merge( value );
+			}
 		} );
 
-		if ( this.options.value || snakList.length ) {
+		if ( snakList && ( this.options.value || snakList.length ) ) {
 			return new wb.datamodel.Reference(
 				snakList,
 				this.options.value ? this.options.value.getHash() : undefined
@@ -219,10 +214,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 			return;
 		}
 
-		// FIXME: There should be a listview::startEditing method
-		$.each( this.$listview.data( 'listview' ).value(), function() {
-			this.startEditing();
-		} );
+		this.$listview.data( 'listview' ).startEditing();
 
 		this._attachEditModeEventHandlers();
 
@@ -258,16 +250,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 */
 	_stopEditingReferenceSnaks: function() {
 		var listview = this.$listview.data( 'listview' );
-
-		listview.items().each( function() {
-			listview.removeItem( $( this ) );
-		} );
-
-		if ( this.options.value ) {
-			$.each( this.options.value.getSnaks().getGroupedSnakLists(), function() {
-				listview.addItem( this );
-			} );
-		}
+		listview.value( this.options.value ? this.options.value.getSnaks().getGroupedSnakLists() : [] );
 	},
 
 	/**
@@ -279,46 +262,6 @@ $.widget( 'wikibase.referenceview', PARENT, {
 	 */
 	isInEditMode: function() {
 		return this._isInEditMode;
-	},
-
-	/**
-	 * Returns whether the widget (all its `snaklistview`s) is currently valid.
-	 *
-	 * @since 0.5
-	 *
-	 * @return {boolean}
-	 */
-	isValid: function() {
-		if ( !this._isInEditMode ) {
-			return true;
-		}
-
-		var isValid = true;
-
-		$.each( this.$listview.data( 'listview' ).value(), function() {
-			isValid = this.isValid();
-			return isValid;
-		} );
-
-		return isValid;
-	},
-
-	/**
-	 * Returns whether the widget's current value matches the value it has been initialized with by
-	 * checking the `Reference`'s `Snak`s.
-	 *
-	 * @since 0.5
-	 *
-	 * @return {boolean}
-	 */
-	isInitialValue: function() {
-		var currentReference = this.value(),
-			currentSnakList = currentReference
-				? currentReference.getSnaks()
-				: new wb.datamodel.SnakList();
-		return currentSnakList.equals(
-			this.options.value ? this.options.value.getSnaks() : new wb.datamodel.SnakList()
-		);
 	},
 
 	/**

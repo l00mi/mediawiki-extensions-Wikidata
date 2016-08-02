@@ -98,7 +98,8 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		caseSensitive: false,
 		timeout: 8000,
 		messages: {
-			more: mwMsgOrString( 'wikibase-entityselector-more', 'more' )
+			more: mwMsgOrString( 'wikibase-entityselector-more', 'more' ),
+			notfound: mwMsgOrString( 'wikibase-entityselector-notfound', 'Nothing found' )
 		}
 	},
 
@@ -172,7 +173,6 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	_search: function( event ) {
 		var self = this;
 
-		this._cache = {};
 		this._select( null );
 
 		clearTimeout( this._searching );
@@ -214,17 +214,25 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	 * @param {string} term
 	 * @return {Object}
 	 */
-	_getData: function( term ) {
-		return {
+	_getSearchApiParameters: function( term ) {
+		var data = {
 			action: 'wbsearchentities',
 			search: term,
 			format: 'json',
 			language: this.options.language,
 			uselang: this.options.language,
-			type: this.options.type,
-			'continue': this._cache[term] && this._cache[term].nextSuggestionOffset
-			? this._cache[term].nextSuggestionOffset : 0
+			type: this.options.type
 		};
+
+		if ( this._cache.term === term && this._cache.nextSuggestionOffset ) {
+			data.continue = this._cache.nextSuggestionOffset;
+		}
+
+		if ( this.options.limit ) {
+			data.limit = this.options.limit;
+		}
+
+		return data;
 	},
 
 	/**
@@ -239,20 +247,13 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		var self = this;
 
 		return function( term ) {
-			var deferred = $.Deferred(),
-				data = self._getData( term );
-
-			if ( self.options.limit ) {
-				$.extend( data, {
-					limit: self.options.limit
-				} );
-			}
+			var deferred = $.Deferred();
 
 			$.ajax( {
 				url: self.options.url,
 				timeout: self.options.timeout,
 				dataType: 'json',
-				data: data
+				data: self._getSearchApiParameters( term )
 			} )
 			.done( function( response ) {
 				deferred.resolve(
@@ -355,18 +356,25 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		} );
 
 		var customItems = ooMenu.option( 'customItems' );
+
 		customItems.unshift( new $.ui.ooMenu.CustomItem(
 			this.options.messages.more,
 			function() {
-				var cached = self._cache[self._term];
-				return cached
-					&& cached.nextSuggestionOffset
-					&& cached.nextSuggestionOffset > cached.suggestions.length - 1;
+				return self._cache.term === self._term && self._cache.nextSuggestionOffset;
 			},
 			function() {
 				self.search( $.Event( 'programmatic' ) );
 			},
 			'ui-entityselector-more'
+		) );
+
+		customItems.unshift( new $.ui.ooMenu.CustomItem(
+			this.options.messages.notfound,
+			function() {
+				return self._cache.suggestions && !self._cache.suggestions.length;
+			},
+			null,
+			'ui-entityselector-notfound'
 		) );
 
 		ooMenu._evaluateVisibility = function( customItem ) {
@@ -393,18 +401,18 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		.then( function( suggestions, searchTerm, nextSuggestionOffset ) {
 			var deferred = $.Deferred();
 
-			if ( self._cache[searchTerm] && self._cache[searchTerm].nextSuggestionOffset ) {
-				self._cache[searchTerm].suggestions = self._cache[searchTerm].suggestions.concat( suggestions );
-				self._cache[searchTerm].nextSuggestionOffset = nextSuggestionOffset;
+			if ( self._cache.term === searchTerm && self._cache.nextSuggestionOffset ) {
+				self._cache.suggestions = self._cache.suggestions.concat( suggestions );
+				self._cache.nextSuggestionOffset = nextSuggestionOffset;
 			} else {
-				self._cache = {};
-				self._cache[searchTerm] = {
+				self._cache = {
+					term: searchTerm,
 					suggestions: suggestions,
 					nextSuggestionOffset: nextSuggestionOffset
 				};
 			}
 
-			deferred.resolve( self._cache[searchTerm].suggestions, searchTerm );
+			deferred.resolve( self._cache.suggestions, searchTerm );
 			return deferred.promise();
 		} );
 	},

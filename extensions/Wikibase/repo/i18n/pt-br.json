@@ -14,7 +14,8 @@
 			"Fasouzafreitas",
 			"Macofe",
 			"TheEduGobi",
-			"Almondega"
+			"Almondega",
+			"Peter Fernando"
 		]
 	},
 	"wikibase-desc": "Repositório de dados estruturados",
@@ -38,6 +39,7 @@
 	"wikibase-entitytermsforlanguagelistview-description": "Descrição",
 	"wikibase-entitytermsforlanguagelistview-label": "Rótulo",
 	"wikibase-entitytermsforlanguagelistview-language": "Idioma",
+	"wikibase-entitytermsforlanguagelistview-less": "Menos idiomas",
 	"wikibase-label-empty": "Nenhum rótulo definido",
 	"wikibase-label-edit-placeholder": "insira um rótulo",
 	"wikibase-label-edit-placeholder-language-aware": "insira um rótulo em $1",
@@ -141,7 +143,7 @@
 	"wikibase-newproperty-datatype": "Tipo de dados:",
 	"wikibase-newproperty-invalid-datatype": "O tipo de dado especificado é inválido.",
 	"special-newitem": "Criar um novo item",
-	"wikibase-newitem-summary": "[[Special:Search|Confira se o item já existe]]!<br />Você deve criar um [[Help:Label|rótulo]] e uma [[Help:Description|descrição]] para todos os novos itens.",
+	"wikibase-newitem-summary": "[[Special:Search|Confira se o item já existe]]!<br />Você deve criar um [[{{int:Wikibase-label-helppage}}|rótulo]] e uma [[{{int:Wikibase-description-helppage}}|descrição]] para todos os novos itens.",
 	"wikibase-newitem-fieldset": "Criar um novo item",
 	"wikibase-newitem-site": "Site da primeira página com link",
 	"wikibase-newitem-page": "Nome da primeira página com link",

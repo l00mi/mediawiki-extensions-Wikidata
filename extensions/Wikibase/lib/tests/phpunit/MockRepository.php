@@ -760,4 +760,15 @@ class MockRepository implements
 		throw new EntityRedirectLookupException( $entityId );
 	}
 
+	/**
+	 * @see EntityStore::canCreateWithCustomId
+	 *
+	 * @param EntityId $id
+	 *
+	 * @return bool
+	 */
+	public function canCreateWithCustomId( EntityId $id ) {
+		return false;
+	}
+
 }

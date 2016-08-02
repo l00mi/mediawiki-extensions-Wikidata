@@ -120,7 +120,7 @@ $.widget( 'ui.EditableTemplatedWidget', PARENT, {
 		var self = this,
 			deferred = $.Deferred();
 
-		if ( !this.isInEditMode() || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
+		if ( !this.isInEditMode() || !this.isValid() && !dropValue ) {
 			return deferred.resolve().promise();
 		}
 
@@ -283,8 +283,12 @@ $.widget( 'ui.EditableTemplatedWidget', PARENT, {
 	 */
 	getHelpMessage: function() {
 		return $.Deferred().resolve( this.options.helpMessage ).promise();
-	}
+	},
 
+	/**
+	 * @var {null|Function} A function notifying about an error or null if the toolbar should notify
+	 */
+	doErrorNotification: null
 } );
 
 }( jQuery ) );

@@ -18,6 +18,7 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Lookup\EntityLookupException;
+use Wikibase\EntityFactory;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
@@ -65,7 +66,7 @@ abstract class ModifyEntity extends ApiBase {
 	/**
 	 * @var EntityStore
 	 */
-	private $entityStore;
+	protected $entityStore;
 
 	/**
 	 * @since 0.5
@@ -107,7 +108,17 @@ abstract class ModifyEntity extends ApiBase {
 	/**
 	 * @var EntityIdParser
 	 */
-	private $idParser;
+	protected $idParser;
+
+	/**
+	 * @var EntityFactory
+	 */
+	protected $entityFactory;
+
+	/**
+	 * @var string[]
+	 */
+	private $enabledEntityTypes;
 
 	/**
 	 * Flags to pass to EditEntity::attemptSave; use with the EDIT_XXX constants.
@@ -139,6 +150,8 @@ abstract class ModifyEntity extends ApiBase {
 		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
 		$this->idParser = $wikibaseRepo->getEntityIdParser();
+		$this->entityFactory = $wikibaseRepo->getEntityFactory();
+		$this->enabledEntityTypes = $wikibaseRepo->getEnabledEntityTypes();
 
 		$this->setServices( new SiteLinkTargetProvider(
 			$wikibaseRepo->getSiteStore(),
@@ -184,11 +197,12 @@ abstract class ModifyEntity extends ApiBase {
 	}
 
 	/**
-	 * Get the entity using the id, site and title params passed to the api
+	 * Get an EntityRevision using the id, site and title params as well as the
+	 * baserevid passed to the api.
 	 *
 	 * @param array $params
 	 *
-	 * @return EntityRevision Found existing entity
+	 * @return EntityRevision|null Found existing entity
 	 */
 	protected function getEntityRevisionFromApiParams( array $params ) {
 		$entityRevision = null;
@@ -211,11 +225,6 @@ abstract class ModifyEntity extends ApiBase {
 				// is a subclass of StorageException, so we still have some inconsistency
 				// and need to check both.
 				$this->errorReporter->dieException( $ex, 'no-such-entity' );
-			}
-
-			if ( $entityRevision === null ) {
-				$this->errorReporter->dieError( "Can't access entity " . $entityId
-					. ', revision may have been deleted.', 'no-such-entity' );
 			}
 		}
 
@@ -318,16 +327,59 @@ abstract class ModifyEntity extends ApiBase {
 	}
 
 	/**
-	 * Create the entity.
+	 * Create an empty entity.
 	 *
 	 * @since 0.1
 	 *
-	 * @param string $entityType
+	 * @param string|null $entityType The type of entity to create. Optional if an ID is given.
+	 * @param EntityId|null $customId Optionally assigns a specific ID instead of generating a new
+	 *  one.
 	 *
-	 * @return EntityDocument Newly created entity
+	 * @throws InvalidArgumentException when entity type and ID are given but do not match.
+	 * @throws UsageException
+	 * @throws LogicException
+	 * @return EntityDocument
 	 */
-	protected function createEntity( $entityType ) {
-		$this->errorReporter->dieError( 'Could not find an existing entity', 'no-such-entity' );
+	protected function createEntity( $entityType, EntityId $customId = null ) {
+		if ( $customId ) {
+			$entityType = $customId->getEntityType();
+		} elseif ( !$entityType ) {
+			$this->errorReporter->dieError(
+				"No entity type provided for creation!",
+				'no-entity-type'
+			);
+
+			throw new LogicException( 'ApiErrorReporter::dieError did not throw an exception' );
+		}
+
+		try {
+			$entity = $this->entityFactory->newEmpty( $entityType );
+		} catch ( InvalidArgumentException $ex ) {
+			$this->errorReporter->dieError(
+				"No such entity type: '$entityType'",
+				'no-such-entity-type'
+			);
+
+			throw new LogicException( 'ApiErrorReporter::dieError did not throw an exception' );
+		}
+
+		if ( $customId !== null ) {
+			if ( !$this->entityStore->canCreateWithCustomId( $customId ) ) {
+				$this->errorReporter->dieError(
+					"Cannot create entity with ID: '$customId'",
+					'bad-entity-id'
+				);
+
+				throw new LogicException( 'ApiErrorReporter::dieError did not throw an exception' );
+			}
+
+			$entity->setId( $customId );
+		} else {
+			// NOTE: We need to assign an ID early, for things like the ClaimIdGenerator.
+			$this->entityStore->assignFreshId( $entity );
+		}
+
+		return $entity;
 	}
 
 	/**
@@ -393,8 +445,9 @@ abstract class ModifyEntity extends ApiBase {
 	 * @param array $params
 	 */
 	protected function validateParameters( array $params ) {
-		// note that this is changed back and could fail
-		if ( !( isset( $params['id'] ) xor ( isset( $params['site'] ) && isset( $params['title'] ) ) ) ) {
+		if ( ( isset( $params['id'] ) || isset( $params['new'] ) )
+			=== ( isset( $params['site'] ) && isset( $params['title'] ) )
+		) {
 			$this->errorReporter->dieError(
 				'Either provide the item "id" or pairs of "site" and "title" for a corresponding page',
 				'param-illegal'
@@ -417,13 +470,26 @@ abstract class ModifyEntity extends ApiBase {
 		// Try to find the entity or fail and create it, or die in the process
 		$entityRev = $this->getEntityRevisionFromApiParams( $params );
 		if ( is_null( $entityRev ) ) {
-			$entity = $this->createEntity( $params['new'] );
-			$entityRevId = 0;
+			$entityId = $this->getEntityIdFromParams( $params );
 
-			// HACK: We need to assign an ID early, for things like the ClaimIdGenerator.
-			if ( $entity->getId() === null ) {
-				$this->entityStore->assignFreshId( $entity );
+			if ( !$params['new'] ) {
+				if ( !$entityId ) {
+					$this->errorReporter->dieError(
+						'No entity was identified, nor was creation requested',
+						'param-illegal'
+					);
+				} elseif ( !$this->entityStore->canCreateWithCustomId( $entityId ) ) {
+					$this->errorReporter->dieError(
+						'Could not find entity ' . $entityId,
+						'no-such-entity'
+					);
+				}
 			}
+
+			$entity = $this->createEntity( $params['new'], $entityId );
+
+			$this->flags |= EDIT_NEW;
+			$entityRevId = 0;
 		} else {
 			$entity = $entityRev->getEntity();
 			$entityRevId = $entityRev->getRevisionId();
@@ -541,6 +607,9 @@ abstract class ModifyEntity extends ApiBase {
 		return array(
 			'id' => array(
 				self::PARAM_TYPE => 'string',
+			),
+			'new' => array(
+				self::PARAM_TYPE => $this->enabledEntityTypes,
 			),
 		);
 	}

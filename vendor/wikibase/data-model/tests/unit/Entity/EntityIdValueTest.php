@@ -2,6 +2,7 @@
 
 namespace Wikibase\DataModel\Tests\Entity;
 
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -15,8 +16,9 @@ use Wikibase\DataModel\Entity\PropertyId;
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
-class EntityIdValueTest extends \PHPUnit_Framework_TestCase {
+class EntityIdValueTest extends PHPUnit_Framework_TestCase {
 
 	public function testCanConstruct() {
 		$entityId = new ItemId( 'Q123' );
@@ -38,8 +40,7 @@ class EntityIdValueTest extends \PHPUnit_Framework_TestCase {
 			new ItemId( 'Q1' ),
 			new ItemId( 'Q42' ),
 			new ItemId( 'Q31337' ),
-			// Check for 32-bit integer overflow on 32-bit PHP systems.
-			new ItemId( 'Q2147483648' ),
+			new ItemId( 'Q2147483647' ),
 			new PropertyId( 'P1' ),
 			new PropertyId( 'P42' ),
 			new PropertyId( 'P31337' ),
@@ -102,28 +103,37 @@ class EntityIdValueTest extends \PHPUnit_Framework_TestCase {
 	public function testGetArrayValueCompatibility() {
 		$id = new EntityIdValue( new ItemId( 'Q31337' ) );
 
-		$this->assertEquals(
+		$this->assertSame(
 			// This is the serialization format from when the EntityIdValue was still together with EntityId.
 			array(
 				'entity-type' => 'item',
-				'numeric-id' => 31337,
+				'numeric-id' => (float)31337,
+				'id' => 'Q31337',
 			),
 			$id->getArrayValue()
 		);
 	}
 
-	public function testNewFromArrayCompatibility() {
+	/**
+	 * @dataProvider validArrayProvider
+	 */
+	public function testNewFromArrayCompatibility( array $array ) {
 		$id = new EntityIdValue( new ItemId( 'Q31337' ) );
 
-		$this->assertEquals(
-			$id,
-			EntityIdValue::newFromArray(
-				// This is the serialization format from when the EntityIdValue was still together with EntityId.
-				array(
-					'entity-type' => 'item',
-					'numeric-id' => 31337,
-				)
-			)
+		$this->assertEquals( $id, EntityIdValue::newFromArray( $array ) );
+	}
+
+	public function validArrayProvider() {
+		return array(
+			'Legacy format' => array( array(
+				'entity-type' => 'item',
+				'numeric-id' => 31337,
+			) ),
+			'Maximum compatibility' => array( array(
+				'entity-type' => 'item',
+				'numeric-id' => 31337,
+				'id' => 'Q31337',
+			) ),
 		);
 	}
 
@@ -143,6 +153,10 @@ class EntityIdValueTest extends \PHPUnit_Framework_TestCase {
 			array( 'foo' ),
 
 			array( array() ),
+
+			'newFromArray can not deserialize' => array( array(
+				'id' => 'Q42',
+			) ),
 
 			array( array(
 				'entity-type' => 'item',

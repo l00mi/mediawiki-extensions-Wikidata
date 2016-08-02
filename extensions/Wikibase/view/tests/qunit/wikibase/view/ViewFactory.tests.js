@@ -82,34 +82,41 @@
 	QUnit.test( 'getSitelinkGroupView passes correct options to views', function( assert ) {
 		assert.expect( 1 );
 		var groupName = 'groupid',
-			siteLinks = [],
-			siteLinksChanger = {},
-			entityChangersFactory = { getSiteLinksChanger: function() { return siteLinksChanger; } },
-			entityIdPlainFormatter = {},
-			viewFactory = new ViewFactory(
-				null,
-				null,
-				entityChangersFactory,
-				null,
-				entityIdPlainFormatter
-			),
-			eventSingletonManager = new $.util.EventSingletonManager(),
+			siteLinks = new wb.datamodel.SiteLinkSet( [] ),
+			viewFactory = new ViewFactory(),
 			$dom = $( '<div/>' );
 
-		sinon.spy( $.wikibase, 'sitelinkgroupview' );
+		sinon.stub( $.wikibase, 'sitelinkgroupview' );
 		$dom.sitelinkgroupview = $.wikibase.sitelinkgroupview;
 
-		viewFactory.getSitelinkGroupView( eventSingletonManager, groupName, siteLinks, $dom );
+		viewFactory.getSitelinkGroupView( groupName, siteLinks, $dom );
 
 		sinon.assert.calledWith( $.wikibase.sitelinkgroupview, sinon.match( {
 			groupName: groupName,
 			value: siteLinks,
-			entityIdPlainFormatter: entityIdPlainFormatter,
-			eventSingletonManager: eventSingletonManager,
-			siteLinksChanger: siteLinksChanger
+			getSiteLinkListView: sinon.match.func
 		} ) );
 
 		$.wikibase.sitelinkgroupview.restore();
+	} );
+
+	QUnit.test( 'getSiteLinkListView passes correct options to views', function( assert ) {
+		assert.expect( 1 );
+		var siteLinks = [],
+			viewFactory = new ViewFactory(),
+			$dom = $( '<div/>' );
+
+		sinon.spy( $.wikibase, 'sitelinklistview' );
+		$dom.sitelinklistview = $.wikibase.sitelinklistview;
+
+		viewFactory.getSiteLinkListView( siteLinks, $dom );
+
+		sinon.assert.calledWith( $.wikibase.sitelinklistview, sinon.match( {
+			value: siteLinks,
+			eventSingletonManager: sinon.match.instanceOf( $.util.EventSingletonManager )
+		} ) );
+
+		$.wikibase.sitelinklistview.restore();
 	} );
 
 	QUnit.test( 'getStatementGroupListView passes correct options to views', function( assert ) {
@@ -169,11 +176,7 @@
 				new wb.datamodel.Statement( new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( 'P1' ) ) )
 			] ),
 			entityId = 'entityId',
-			claimsChanger = {},
-			entityChangersFactory = {
-				getClaimsChanger: function() { return claimsChanger; }
-			},
-			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
+			viewFactory = new ViewFactory(),
 			$dom = $( '<div/>' );
 
 		sinon.stub( $.wikibase.listview, 'ListItemAdapter' );
@@ -188,7 +191,6 @@
 				$dom,
 				{
 					value: value,
-					claimsChanger: claimsChanger,
 					listItemAdapter: sinon.match.instanceOf( $.wikibase.listview.ListItemAdapter )
 				}
 			)
@@ -202,11 +204,7 @@
 		assert.expect( 1 );
 		var value = new wb.datamodel.StatementList(),
 			entityId = 'entityId',
-			claimsChanger = {},
-			entityChangersFactory = {
-				getClaimsChanger: function() { return claimsChanger; }
-			},
-			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
+			viewFactory = new ViewFactory(),
 			$dom = $( '<div/>' );
 
 		sinon.stub( $.wikibase.listview, 'ListItemAdapter' );
@@ -229,15 +227,17 @@
 		assert.expect( 2 );
 		var entityId = 'Q1',
 			value = null,
-			claimsChanger = {},
-			entityChangersFactory = {
-				getClaimsChanger: function() { return claimsChanger; }
-			},
 			entityIdPlainFormatter = {},
-			viewFactory = new ViewFactory( null, null, entityChangersFactory, null, entityIdPlainFormatter ),
+			viewFactory = new ViewFactory(
+				null,
+				null,
+				null,
+				null,
+				entityIdPlainFormatter
+			),
 			ListItemAdapter = sinon.stub( $.wikibase.listview, 'ListItemAdapter' ),
 			dom = null,
-			statement = {};
+			statement = null;
 
 		sinon.stub( viewFactory, '_getView' );
 
@@ -272,7 +272,6 @@
 
 				buildReferenceListItemAdapter: sinon.match.instanceOf( Function ),
 				buildSnakView: sinon.match.instanceOf( Function ),
-				claimsChanger: claimsChanger,
 				entityIdPlainFormatter: entityIdPlainFormatter,
 				guidGenerator: sinon.match.instanceOf( wb.utilities.ClaimGuidGenerator ),
 				qualifiersListItemAdapter: sinon.match.instanceOf( ListItemAdapter )
@@ -289,10 +288,13 @@
 			propertyId = 'propertyId',
 			value = null,
 			entityChangersFactory = {
-				getClaimsChanger: function() { return {}; },
-				getReferencesChanger: function() { return {}; }
+				getStatementsChanger: function() { return {}; }
 			},
-			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
+			viewFactory = new ViewFactory(
+				null,
+				null,
+				entityChangersFactory
+			),
 			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' ),
 			dom = {};
 
@@ -318,20 +320,22 @@
 
 	QUnit.test( 'getListItemAdapterForStatementView passes correct options to views for non-empty StatementList', function( assert ) {
 		assert.expect( 1 );
-		var entityId = new wb.datamodel.EntityId( 'type', 1 ),
-			propertyId = 'P1',
+		var propertyId = 'P1',
 			value = new wb.datamodel.Statement( new wb.datamodel.Claim( new wb.datamodel.PropertyNoValueSnak( propertyId ) ) ),
 			entityChangersFactory = {
-				getClaimsChanger: function() { return {}; },
-				getReferencesChanger: function() { return {}; }
+				getStatementsChanger: function() { return {}; }
 			},
-			viewFactory = new ViewFactory( null, null, entityChangersFactory ),
+			viewFactory = new ViewFactory(
+				null,
+				null,
+				entityChangersFactory
+			),
 			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' ),
 			dom = {};
 
 		sinon.stub( viewFactory, '_getView' );
 
-		viewFactory.getListItemAdapterForStatementView( entityId, function () {}, null );
+		viewFactory.getListItemAdapterForStatementView( 'Q1', function () {}, null );
 
 		ListItemAdapter.args[0][0].getNewItem( value, dom );
 
@@ -351,40 +355,11 @@
 
 	QUnit.test( 'getListItemAdapterForReferenceView passes correct options to ListItemAdapter', function( assert ) {
 		assert.expect( 3 );
-		var contentLanguages = {},
-			value = null,
-			dataTypeStore = {},
-			claimsChanger = {},
-			referencesChanger = {},
-			entityChangersFactory = {
-				getClaimsChanger: function() { return claimsChanger; },
-				getReferencesChanger: function() { return referencesChanger; }
-			},
-			entityIdHtmlFormatter = {},
-			entityIdPlainFormatter = {},
-			entityStore = {},
-			expertStore = {},
-			formatterFactory = {},
-			messageProvider = {},
-			parserStore = {},
-			userLanguages = [],
-			viewFactory = new ViewFactory(
-				contentLanguages,
-				dataTypeStore,
-				entityChangersFactory,
-				entityIdHtmlFormatter,
-				entityIdPlainFormatter,
-				entityStore,
-				expertStore,
-				formatterFactory,
-				messageProvider,
-				parserStore,
-				userLanguages
-			),
-			statementGuid = 'statementGuid',
+		var value = null,
+			viewFactory = new ViewFactory(),
 			ListItemAdapter = sinon.spy( $.wikibase.listview, 'ListItemAdapter' );
 
-		viewFactory.getListItemAdapterForReferenceView( statementGuid );
+		viewFactory.getListItemAdapterForReferenceView();
 
 		sinon.assert.calledWith(
 			ListItemAdapter,
@@ -400,10 +375,7 @@
 			result,
 			{
 				value: value || null,
-				statementGuid: statementGuid,
-				dataTypeStore: dataTypeStore,
-				listItemAdapter: result.listItemAdapter, // Hack
-				referencesChanger: referencesChanger
+				listItemAdapter: result.listItemAdapter // Hack
 			}
 		);
 
@@ -449,10 +421,6 @@
 		var contentLanguages = {},
 			value = null,
 			dataTypeStore = {},
-			claimsChanger = {},
-			entityChangersFactory = {
-				getClaimsChanger: function() { return claimsChanger; }
-			},
 			entityIdHtmlFormatter = {},
 			entityIdPlainFormatter = {},
 			entityStore = {},
@@ -464,7 +432,7 @@
 			viewFactory = new ViewFactory(
 				contentLanguages,
 				dataTypeStore,
-				entityChangersFactory,
+				null,
 				entityIdHtmlFormatter,
 				entityIdPlainFormatter,
 				entityStore,
@@ -528,10 +496,6 @@
 		var contentLanguages = {},
 			value = null,
 			dataTypeStore = {},
-			claimsChanger = {},
-			entityChangersFactory = {
-				getClaimsChanger: function() { return claimsChanger; }
-			},
 			entityIdHtmlFormatter = {},
 			entityIdPlainFormatter = {},
 			entityStore = {},
@@ -543,7 +507,7 @@
 			viewFactory = new ViewFactory(
 				contentLanguages,
 				dataTypeStore,
-				entityChangersFactory,
+				null,
 				entityIdHtmlFormatter,
 				entityIdPlainFormatter,
 				entityStore,
@@ -595,7 +559,7 @@
 		assert.expect( 1 );
 		var contentLanguages = [],
 			fingerprint = new wb.datamodel.Fingerprint(),
-			entityChangersFactory = {},
+			entityChangersFactory = { getEntityTermsChanger: function() {} },
 			message = 'message',
 			messageProvider = { getMessage: function() { return message; } },
 			userLanguages = [],

@@ -67,6 +67,7 @@
 		// Maybe make userLanguages an argument to getEntityView instead of to the constructor
 		this._userLanguages = userLanguages;
 		this._vocabularyLookupApiUrl = vocabularyLookupApiUrl || null;
+		this._eventSingletonManager = new $.util.EventSingletonManager();
 	};
 
 	/**
@@ -104,6 +105,12 @@
 	 * @private
 	 **/
 	SELF.prototype._entityStore = null;
+
+	/**
+	 * @property {jQuery.util.EventSingletonManager}
+	 * @private
+	 **/
+	SELF.prototype._eventSingletonManager = null;
 
 	/**
 	 * @property {jQuery.valueview.ExpertStore}
@@ -192,7 +199,6 @@
 	 **/
 	SELF.prototype.getSitelinkGroupListView = function( sitelinkSet, $sitelinkgrouplistview ) {
 		var self = this;
-		var eventSingletonManager = new $.util.EventSingletonManager();
 
 		return this._getView(
 			'sitelinkgrouplistview',
@@ -202,7 +208,7 @@
 				listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 					listItemWidget: $.wikibase.sitelinkgroupview,
 					getNewItem: function( value, dom ) {
-						return self.getSitelinkGroupView( eventSingletonManager, value.group, value.siteLinks, $( dom ) );
+						return self.getSitelinkGroupView( value.group, value.siteLinks, $( dom ) );
 					}
 				} )
 			}
@@ -212,24 +218,68 @@
 	/**
 	 * Construct a suitable view for the given sitelink group on the given DOM element
 	 *
-	 * @param {jQuery.util.EventSingletonManager} eventSingletonManager
 	 * @param {string} groupName
-	 * @param {wikibase.datamodel.SiteLink[]} value
+	 * @param {wikibase.datamodel.SiteLinkSet} siteLinks
 	 * @param {jQuery} $sitelinkgroupview
 	 * @return {jQuery.wikibase.sitelinkgroupview} The constructed sitelinkgroupview
 	 **/
-	SELF.prototype.getSitelinkGroupView = function( eventSingletonManager, groupName, value, $sitelinkgroupview ) {
+	SELF.prototype.getSitelinkGroupView = function( groupName, siteLinks, $sitelinkgroupview ) {
 		return this._getView(
 			'sitelinkgroupview',
 			$sitelinkgroupview,
 			{
 				groupName: groupName,
-				value: value,
-				eventSingletonManager: eventSingletonManager,
-				siteLinksChanger: this._entityChangersFactory.getSiteLinksChanger(),
-				entityIdPlainFormatter: this._entityIdPlainFormatter
+				value: siteLinks,
+				getSiteLinkListView: this.getSiteLinkListView.bind( this )
 			}
 		);
+	};
+
+	/**
+	 * Construct a suitable view for the given sitelink list on the given DOM element
+	 *
+	 * @param {wikibase.datamodel.SiteLink[]} siteLinks
+	 * @param {jQuery} $sitelinklistview
+	 * @param {string[]} allowedSiteIds
+	 * @param {jQuery} $counter
+	 * @return {jQuery.wikibase.sitelinklistview} The constructed sitelinklistview
+	 **/
+	SELF.prototype.getSiteLinkListView = function( siteLinks, $sitelinklistview, allowedSiteIds, $counter ) {
+		return this._getView(
+			'sitelinklistview',
+			$sitelinklistview,
+			{
+				$counter: $counter,
+				allowedSiteIds: allowedSiteIds,
+				encapsulate: true,
+				eventSingletonManager: this._eventSingletonManager,
+				getListItemAdapter: this.getListItemAdapterForSiteLinkView.bind( this ),
+				value: siteLinks
+			}
+		);
+	};
+
+	/**
+	 * @param {Function} getAllowedSites
+	 * @return {jQuery.wikibase.listview.ListItemAdapter}
+	 */
+	SELF.prototype.getListItemAdapterForSiteLinkView = function( getAllowedSites ) {
+		var self = this;
+		return new $.wikibase.listview.ListItemAdapter( {
+			listItemWidget: $.wikibase.sitelinkview,
+			getNewItem: function( value, dom ) {
+				var view = self._getView(
+					'sitelinkview',
+					$( dom ),
+					{
+						value: value,
+						getAllowedSites: getAllowedSites,
+						entityIdPlainFormatter: self._entityIdPlainFormatter
+					}
+				);
+				return view;
+			}
+		} );
 	};
 
 	/**
@@ -291,8 +341,8 @@
 	/**
 	 * Construct a suitable view for the given list of statements on the given DOM element
 	 *
-	 * @param {wikibase.datamodel.EntityId} entityId
-	 * @param {wikibase.datamodel.EntityId|null} propertyId Optionally specifies a property
+	 * @param {string} entityId
+	 * @param {string|null} propertyId Optionally specifies a property
 	 *                                                      all statements should be on or are on
 	 * @param {Function} getStatementForGuid A function returning a `wikibase.datamodel.Statement` for a given GUID
 	 * @param {wikibase.datamodel.StatementList} value
@@ -314,8 +364,7 @@
 						return guidMatch ? getStatementForGuid( guidMatch[ 1 ] ) : null;
 					},
 					propertyId
-				),
-				claimsChanger: this._entityChangersFactory.getClaimsChanger()
+				)
 			}
 		);
 	};
@@ -324,64 +373,67 @@
 	 * Construct a `ListItemAdapter` for `statementview`s
 	 *
 	 * @param {string} entityId
-	 * @param {Function} getValueForDom A function returning a `wikibase.datamodel.Statement` for a given DOM element
+	 * @param {Function} getValueForDom A function returning a `wikibase.datamodel.Statement` or `null`
+	 *                                  for a given DOM element
 	 * @param {string|null} [propertyId] Optionally a property all statements are or should be on
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 **/
 	SELF.prototype.getListItemAdapterForStatementView = function( entityId, getValueForDom, propertyId ) {
-		return new $.wikibase.listview.ListItemAdapter( {
+		var listItemAdapter = new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.statementview,
 			getNewItem: $.proxy( function( value, dom ) {
-				var currentPropertyId = value ? value.getClaim().getMainSnak().getPropertyId() : propertyId;
 				value = value || getValueForDom( dom );
-				return this._getView(
-					'statementview',
-					$( dom ),
-					{
-						value: value,
-						locked: {
-							mainSnak: {
-								property: Boolean( currentPropertyId )
-							}
-						},
-						predefined: {
-							mainSnak: {
-								property: currentPropertyId || undefined
-							}
-						},
-
-						buildReferenceListItemAdapter: $.proxy( this.getListItemAdapterForReferenceView, this ),
-						buildSnakView: $.proxy(
-							this.getSnakView,
-							this,
-							false
-						),
-						claimsChanger: this._entityChangersFactory.getClaimsChanger(),
-						entityIdPlainFormatter: this._entityIdPlainFormatter,
-						guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
-						qualifiersListItemAdapter: this.getListItemAdapterForSnakListView()
-					}
-				);
+				var view = this.getStatementView( entityId, propertyId, value, $( dom ) );
+				return view;
 			}, this )
 		} );
+		return listItemAdapter;
+	};
+
+	SELF.prototype.getStatementView = function( entityId, propertyId, value, $dom ) {
+		var currentPropertyId = value ? value.getClaim().getMainSnak().getPropertyId() : propertyId;
+		var view = this._getView(
+			'statementview',
+			$dom,
+			{
+				value: value, // FIXME: remove
+				locked: {
+					mainSnak: {
+						property: Boolean( currentPropertyId )
+					}
+				},
+				predefined: {
+					mainSnak: {
+						property: currentPropertyId || undefined
+					}
+				},
+
+				buildReferenceListItemAdapter: $.proxy( this.getListItemAdapterForReferenceView, this ),
+				buildSnakView: $.proxy(
+					this.getSnakView,
+					this,
+					false
+				),
+				entityIdPlainFormatter: this._entityIdPlainFormatter,
+				guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
+				qualifiersListItemAdapter: this.getListItemAdapterForSnakListView()
+			}
+		);
+		return view;
 	};
 
 	/**
 	 * Construct a `ListItemAdapter` for `referenceview`s
 	 *
-	 * @param {string} statementGuid
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 */
-	SELF.prototype.getListItemAdapterForReferenceView = function( statementGuid ) {
+	SELF.prototype.getListItemAdapterForReferenceView = function() {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.referenceview,
 			newItemOptionsFn: $.proxy( function( value ) {
 				return {
 					value: value || null,
-					statementGuid: statementGuid,
-					dataTypeStore: this._dataTypeStore,
-					listItemAdapter: this.getListItemAdapterForSnakListView(),
-					referencesChanger: this._entityChangersFactory.getReferencesChanger()
+					listItemAdapter: this.getListItemAdapterForSnakListView()
 				};
 			}, this )
 		} );

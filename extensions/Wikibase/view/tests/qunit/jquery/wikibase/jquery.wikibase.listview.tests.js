@@ -2,7 +2,7 @@
  * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  */
-( function( $, QUnit ) {
+( function( $, QUnit, wb ) {
 	'use strict';
 
 	/**
@@ -28,22 +28,6 @@
 		$node.listview( options );
 
 		return $node;
-	}
-
-	/**
-	 * Returns the joined string values of all the generic value widgets within a listview.
-	 *
-	 * @param {jquery.wikibase.listview} listview
-	 * @return {string}
-	 */
-	function getListItemStrings( listview ) {
-		var value = '';
-
-		$.each( listview.value(), function( i, valueWidget ) {
-			value += valueWidget.value();
-		} );
-
-		return value;
 	}
 
 	QUnit.module( 'jquery.wikibase.listview', QUnit.newMwEnvironment( {
@@ -123,8 +107,8 @@
 
 			assert.strictEqual(
 				$node.children().length,
-				valuesLength,
-				'Reset listview node to initial state.'
+				0,
+				'Destroyed all listitems.'
 			);
 
 			$node.remove();
@@ -337,117 +321,31 @@
 		}
 	} );
 
-	QUnit.test( 'move()', 56, function( assert ) {
-		var values = ['a', 'b', 'c', 'd'],
-			$node,
-			listview;
-
-		/**
-		 * 0 => Index of item to move
-		 * 1 => Index to move item to
-		 * 2 => Expected resulting order
-		 * @type {*[][]}
-		 */
-		var testCases = [
-			[0, 0, 'abcd'], // no event
-			[0, 1, 'abcd'], // no event
-			[0, 2, 'bacd'],
-			[0, 3, 'bcad'],
-			[0, 4, 'bcda'],
-			[1, 0, 'bacd'],
-			[1, 1, 'abcd'], // no event
-			[1, 2, 'abcd'], // no event
-			[1, 3, 'acbd'],
-			[1, 4, 'acdb'],
-			[2, 0, 'cabd'],
-			[2, 1, 'acbd'],
-			[2, 2, 'abcd'], // no event
-			[2, 3, 'abcd'], // no event
-			[2, 4, 'abdc'],
-			[3, 0, 'dabc'],
-			[3, 1, 'adbc'],
-			[3, 2, 'abdc'],
-			[3, 3, 'abcd'], // no event
-			[3, 4, 'abcd'] // no event
-		];
-
-		$.each( testCases, function( i, testCase ) {
-			$node = createListview( values );
+	QUnit.test( 'startEditing', function( assert ) {
+		assert.expect( 2 );
+		var listItemAdapter = wb.tests.getMockListItemAdapter(
+			'test',
+			function() {
+				this.startEditing = function() {
+					var deferred = $.Deferred();
+					setTimeout( deferred.resolve, 0 );
+					return deferred.promise();
+				};
+			}
+		);
+		var $node = createListview(
+				['a', 'b', 'c'],
+				{ listItemAdapter: listItemAdapter }
+			),
 			listview = $node.data( 'listview' );
 
-			$node.one( 'listviewafteritemmove', function( event, newIndex, listLength ) {
-				assert.ok(
-					true,
-					'Triggered "afteritemmove" event.'
-				);
-
-				assert.equal(
-					newIndex,
-					testCase[2].indexOf( values[testCase[0]] ),
-					'Verified new item index.'
-				);
-
-				assert.equal(
-					listLength,
-					testCase[2].length,
-					'Verified list length.'
-				);
-			} );
-
-			listview.move( listview.items().eq( testCase[0] ), testCase[1] );
-
-			$node.off( 'listviewafteritemmove' );
-
-			assert.equal(
-				getListItemStrings( listview ),
-				testCase[2],
-				'Moving item #' + testCase[0] + ' to index #' + testCase[1] + ' results in order "'
-					+ testCase[2] + '".'
-			);
+		var result = listview.startEditing();
+		assert.strictEqual( result.state(), 'pending' );
+		result.done( function() {
+			QUnit.start();
+			assert.strictEqual( result.state(), 'resolved' );
 		} );
-	} );
-
-	QUnit.test( 'moveUp() and moveDown()', function( assert ) {
-		assert.expect( 8 );
-		var values = ['a', 'b', 'c', 'd'];
-
-		/**
-		 * The key specifies the objects method to call. The value represents the expected resulting
-		 * order when issuing the method on the item that has the same index than the result.
-		 * @type {Object}
-		 */
-		var testCases = {
-			moveUp: [
-				'abcd',
-				'bacd',
-				'acbd',
-				'abdc'
-			],
-			moveDown: [
-				'bacd',
-				'acbd',
-				'abdc',
-				'abcd'
-			]
-		};
-
-		var $node, listview;
-
-		$.each( testCases, function( methodName, expectedResults ) {
-			$.each( expectedResults, function( i, expected ) {
-				$node = createListview( values );
-				listview = $node.data( 'listview' );
-
-				listview[methodName]( listview.items().eq( i ) );
-
-				assert.equal(
-					getListItemStrings( listview ),
-					expected,
-					'Issuing ' + methodName + '() on item #' + i + ' results in order "' + expected
-						+ '".'
-				);
-			} );
-		} );
+		QUnit.stop();
 	} );
 
 	QUnit.test( 'reuse items', function( assert ) {
@@ -464,4 +362,80 @@
 		assert.equal( listview.value().length, 2 );
 	} );
 
-} )( jQuery, QUnit );
+	function destroyTests( getInstances, prototype ) {
+		function tryDestroy( instance, assert ) {
+			instance.destroy();
+			// Cannot clean this up since it is set after destroy() was executed
+			delete instance._super;
+			delete instance._superApply;
+
+			// FIXME: Maybe this should actually be cleaned up in the production code?
+			delete instance.bindings;
+			delete instance.document;
+			delete instance.window;
+			delete instance.element;
+			delete instance.eventNamespace;
+			delete instance.focusable;
+			delete instance.hoverable;
+			delete instance.uuid;
+			delete instance.options;
+
+			assert.deepEqual( instance, prototype );
+		}
+		getInstances.forEach( function( getInstance ) {
+			QUnit.test( 'destroy', function( assert ) {
+				assert.expect( 1 );
+				var instance = getInstance();
+				tryDestroy( instance, assert );
+			} );
+			QUnit.test( 'destroy after startEditing', function( assert ) {
+				assert.expect( 1 );
+				var instance = getInstance();
+				QUnit.stop();
+				instance.startEditing().done( function() {
+					QUnit.start();
+					tryDestroy( instance, assert );
+				} );
+			} );
+		} );
+	}
+	// For other views: after startEditing; after startEditing and stopEditing
+
+	destroyTests(
+		[
+			function() {
+				var listItemAdapter = wb.tests.getMockListItemAdapter(
+					'test',
+					function() {
+						this.startEditing = function() {
+							var deferred = $.Deferred();
+							setTimeout( deferred.resolve, 0 );
+							return deferred.promise();
+						};
+					}
+				);
+				var $node = createListview( null, { listItemAdapter: listItemAdapter } );
+				return $node.data( 'listview' );
+			},
+			function() {
+				var listItemAdapter = wb.tests.getMockListItemAdapter(
+					'test',
+					function() {
+						this.startEditing = function() {
+							var deferred = $.Deferred();
+							setTimeout( deferred.resolve, 0 );
+							return deferred.promise();
+						};
+					}
+				);
+				var $node = createListview(
+					[ 'a', 'b', 'c' ],
+					{ listItemAdapter: listItemAdapter }
+				);
+				return $node.data( 'listview' );
+			}
+		],
+		$.wikibase.listview.prototype
+	);
+
+} )( jQuery, QUnit, wikibase );

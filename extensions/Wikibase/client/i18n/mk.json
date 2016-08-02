@@ -8,8 +8,8 @@
 	"tooltip-t-wikibase": "Врска до сврзан предмет во податотечното складиште",
 	"apihelp-query+pageterms-description": "Дај поими поврзани со дадена страница преку поврзан податочнен предмет. На страницата за единицата на Викибазата, условите се користат непосредно.\nПредупредување: На складишното вики, условите на страницата работат само непосредно на страниците за единиците, но не и на страниците сврзани со предмет. Ова може да се измени во иднина.",
 	"apihelp-query+pageterms-example-simple": "Дај ги сите поими поврзани со страницата „Лондон“, во корисничката страница.",
-	"apihelp-query+pageterms-example-label-en": "Дај ги натписите и алијасите поврзани со страницата „Лондон“, на македонски.",
-	"apihelp-query+pageterms-example-item": "Дај натписи и алијаси за предметот Q84.",
+	"apihelp-query+pageterms-example-label-en": "Дај ги натписите и истозначниците поврзани со страницата „Лондон“, на македонски.",
+	"apihelp-query+pageterms-example-item": "Дај натписи и истозначници за предметот Q84.",
 	"apihelp-query+pageterms-param-terms": "Видови поими што треба да се дадат, на пр. „опис“. Ако не е укажано, тогаш ќе се дадат сите.",
 	"apihelp-query+wikibase-description": "Дај информации за клиентот на Бикибазата и за поврзаното складиште на Викибазата",
 	"apihelp-query+wikibase-example": "Дај URL-патека и други информации за складиштето на Викибазата.",
@@ -75,5 +75,11 @@
 	"wikibase-property-render-error": "Не успеав да го испишам својството $1: $2",
 	"wikibase-otherprojects": "На други проекти",
 	"wikibase-otherprojects-beta-message": "Странична лента со други проекти",
-	"wikibase-otherprojects-beta-description": "Во страничникот додава дел „{{int:wikibase-otherprojects}}“ што содржи врски до другите Викимедиини проекти врз основа на податоците на {{WBREPONAME}}."
+	"wikibase-otherprojects-beta-description": "Во страничникот додава дел „{{int:wikibase-otherprojects}}“ што содржи врски до другите Викимедиини проекти врз основа на податоците на {{WBREPONAME}}.",
+	"echo-category-title-wikibase-action": "{{PLURAL:$1|Поврзување|Поврзувања}} со {{WBREPONAME}}",
+	"echo-pref-tooltip-wikibase-action": "Извести ме кога некој ќе поврзе страница што {{GENDER:|ја имам создадено}} со предмет на {{WBREPONAME}}.",
+	"notification-header-page-connection": "Страницата <strong>$3</strong> е {{GENDER:$2|поврзана}} со предмет на {{WBREPONAME}}.",
+	"notification-bundle-header-page-connection": "<strong>$3</strong> и {{PLURAL:$4|уште една страница|уште $4 страници|100=преку 99 други страници}} се {{GENDER:$2|поврзани}} со предмет на {{WBREPONAME}}.",
+	"notification-link-text-view-item": "{{GENDER:$1|Погл.}} предмет",
+	"notification-subject-page-connection": "Страница на {{SITENAME}} што ја имате {{GENDER:$3|создадено}} е {{GENDER:$2|поврзана}} со предмет на {{WBREPONAME}}"
 }

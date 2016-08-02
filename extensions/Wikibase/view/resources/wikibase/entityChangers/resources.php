@@ -37,9 +37,9 @@ return call_user_func( function() {
 			),
 		),
 
-		'wikibase.entityChangers.ClaimsChanger' => $moduleTemplate + array(
+		'wikibase.entityChangers.StatementsChanger' => $moduleTemplate + array(
 			'scripts' => array(
-				'ClaimsChanger.js',
+				'StatementsChanger.js',
 			),
 			'dependencies' => array(
 				'wikibase.entityChangers.__namespace',
@@ -64,17 +64,23 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'wikibase.entityChangers.__namespace',
 				'wikibase.entityChangers.AliasesChanger',
-				'wikibase.entityChangers.ClaimsChanger',
 				'wikibase.entityChangers.DescriptionsChanger',
+				'wikibase.entityChangers.EntityTermsChanger',
 				'wikibase.entityChangers.LabelsChanger',
-				'wikibase.entityChangers.ReferencesChanger',
-				'wikibase.entityChangers.SiteLinksChanger',
-				'wikibase.serialization.ClaimDeserializer',
-				'wikibase.serialization.ClaimSerializer',
-				'wikibase.serialization.ReferenceDeserializer',
-				'wikibase.serialization.ReferenceSerializer',
+				'wikibase.entityChangers.SiteLinkSetsChanger',
+				'wikibase.entityChangers.StatementsChanger',
 				'wikibase.serialization.StatementDeserializer',
 				'wikibase.serialization.StatementSerializer',
+			)
+		),
+
+		'wikibase.entityChangers.EntityTermsChanger' => $moduleTemplate + array(
+			'scripts' => array(
+				'EntityTermsChanger.js',
+			),
+			'dependencies' => array(
+				'wikibase.entityChangers.__namespace',
+				'wikibase.api.RepoApiError',
 			)
 		),
 
@@ -88,22 +94,23 @@ return call_user_func( function() {
 			)
 		),
 
-		'wikibase.entityChangers.ReferencesChanger' => $moduleTemplate + array(
-			'scripts' => array(
-				'ReferencesChanger.js',
-			),
-			'dependencies' => array(
-				'wikibase.entityChangers.__namespace',
-				'wikibase.api.RepoApiError',
-			),
-		),
-
 		'wikibase.entityChangers.SiteLinksChanger' => $moduleTemplate + array(
 			'scripts' => array(
 				'SiteLinksChanger.js',
 			),
 			'dependencies' => array(
 				'wikibase.entityChangers.__namespace',
+				'wikibase.api.RepoApiError',
+			)
+		),
+
+		'wikibase.entityChangers.SiteLinkSetsChanger' => $moduleTemplate + array(
+			'scripts' => array(
+				'SiteLinkSetsChanger.js',
+			),
+			'dependencies' => array(
+				'wikibase.entityChangers.__namespace',
+				'wikibase.entityChangers.SiteLinksChanger',
 				'wikibase.api.RepoApiError',
 			)
 		),

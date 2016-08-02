@@ -105,28 +105,6 @@ return call_user_func( function() {
 			),
 		),
 
-		'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.sitelinkgroupview' => $moduleTemplate + array(
-			'scripts' => array(
-				'definitions/edittoolbar/sitelinkgroupview.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.edittoolbar',
-				'jquery.wikibase.sitelinkgroupview',
-				'jquery.wikibase.toolbarcontroller',
-			),
-		),
-
-		'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.statementview' => $moduleTemplate + array(
-			'scripts' => array(
-				'definitions/edittoolbar/statementview.js',
-			),
-			'dependencies' => array(
-				'jquery.wikibase.edittoolbar',
-				'jquery.wikibase.statementview',
-				'jquery.wikibase.toolbarcontroller',
-			),
-		),
-
 		'jquery.wikibase.toolbarcontroller.definitions.removetoolbar.referenceview-snakview' => $moduleTemplate + array(
 			'scripts' => array(
 				'definitions/removetoolbar/referenceview-snakview.js',
@@ -147,6 +125,9 @@ return call_user_func( function() {
 				'jquery.wikibase.removetoolbar',
 				'jquery.wikibase.sitelinkgroupview',
 				'jquery.wikibase.toolbarcontroller',
+			),
+			'messages' => array(
+				'wikibase-remove',
 			),
 		),
 
@@ -170,7 +151,6 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.wikibase.addtoolbar',
 				'jquery.wikibase.edittoolbar',
-				'jquery.wikibase.movetoolbar',
 				'jquery.wikibase.removetoolbar',
 			),
 		),

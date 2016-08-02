@@ -35,14 +35,13 @@
 
 		/**
 		 * @param {wikibase.datamodel.SiteLink} siteLink
-		 * @param {string} language
 		 * @return {jQuery.Promise}
 		 *         Resolved parameters:
 		 *         - {string} The saved siteLink
 		 *         Rejected parameters:
 		 *         - {wikibase.api.RepoApiError}
 		 */
-		setSiteLink: function( siteLink, language ) {
+		setSiteLink: function( siteLink ) {
 			var self = this,
 				deferred = $.Deferred();
 
@@ -56,23 +55,23 @@
 			.done( function( result ) {
 				var siteId = siteLink.getSiteId(),
 					resultData = result.entity.sitelinks[siteId];
-				var savedSiteLink = new wb.datamodel.SiteLink(
-					siteId,
-					resultData.title,
-					resultData.badges
-				);
 
-				// Update revision store:
-				self._revisionStore.setSitelinksRevision(
-					result.entity.lastrevid,
-					siteLink.getSiteId()
-				);
+				// Update revision store
+				self._revisionStore.setSitelinksRevision( result.entity.lastrevid, siteId );
 
 				// FIXME: Maybe check API's return value?
 
 				// FIXME: Introduce Item.setSiteLinks
 
-				deferred.resolve( savedSiteLink );
+				deferred.resolve(
+					typeof resultData.removed !== 'undefined'
+						? null
+						: new wb.datamodel.SiteLink(
+							siteId,
+							resultData.title,
+							resultData.badges
+						)
+				);
 			} )
 			.fail( function( errorCode, error ) {
 				deferred.reject( wb.api.RepoApiError.newFromApiResponse(

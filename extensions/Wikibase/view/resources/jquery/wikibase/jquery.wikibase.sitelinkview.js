@@ -180,11 +180,10 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			this._createBadgeSelector();
 		}
 
+		this.element.toggleClass( 'wb-edit', this._isInEditMode );
+
 		if ( this._isInEditMode ) {
-			this.element.addClass( 'wb-edit' );
 			this._drawEditMode();
-		} else {
-			this.element.removeClass( 'wb-edit' );
 		}
 	},
 
@@ -340,30 +339,6 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	},
 
 	/**
-	 * @return {boolean}
-	 */
-	isValid: function() {
-		return !!this.value();
-	},
-
-	/**
-	 * @return {boolean}
-	 */
-	isInitialValue: function() {
-		if ( !this._isInEditMode ) {
-			return true;
-		}
-
-		var currentValue = this.value();
-
-		if ( !this.options.value || !currentValue ) {
-			return false;
-		}
-
-		return currentValue.equals( this.options.value );
-	},
-
-	/**
 	 * Puts the widget into edit mode.
 	 */
 	startEditing: function() {
@@ -388,27 +363,27 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 	 * Stops the widget's edit mode.
 	 *
 	 * @param {boolean} dropValue
+	 * @return {Object} jQuery.Promise
+	 *         Resolved parameters:
+	 *         - {boolean} dropValue
+	 *         Rejected parameters:
+	 *         - {Error}
 	 */
 	stopEditing: function( dropValue ) {
-		var self = this;
+		var deferred = $.Deferred();
 
-		if ( !this._isInEditMode || ( !this.isValid() || this.isInitialValue() ) && !dropValue ) {
-			return;
+		if ( !this._isInEditMode ) {
+			return deferred.resolve().promise();
 		}
 
-		this._trigger( 'stopediting', null, [dropValue, function() {
-			if ( self._badgeselector ) {
-				self._badgeselector.stopEditing( dropValue );
-			}
-			self._afterStopEditing( dropValue );
-		}] );
-	},
+		this._trigger( 'stopediting', null, [dropValue] );
 
-	/**
-	 * Cancels editing.
-	 */
-	cancelEditing: function() {
-		this.stopEditing( true );
+		if ( this._badgeselector ) {
+			this._badgeselector.stopEditing( dropValue );
+		}
+		this._afterStopEditing( dropValue );
+
+		return deferred.resolve().promise();
 	},
 
 	/**

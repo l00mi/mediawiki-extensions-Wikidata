@@ -16,16 +16,6 @@
 		] )
 	];
 
-	var snakSet = [
-		new wb.datamodel.PropertyValueSnak( 'p1',  new dv.StringValue( 'a' ) ),
-		new wb.datamodel.PropertyValueSnak( 'p1',  new dv.StringValue( 'b' ) ),
-		new wb.datamodel.PropertyValueSnak( 'p2',  new dv.StringValue( 'c' ) ),
-		new wb.datamodel.PropertyValueSnak( 'p2',  new dv.StringValue( 'd' ) ),
-		new wb.datamodel.PropertyValueSnak( 'p2',  new dv.StringValue( 'e' ) ),
-		new wb.datamodel.PropertyValueSnak( 'p3',  new dv.StringValue( 'f' ) ),
-		new wb.datamodel.PropertyValueSnak( 'p4',  new dv.StringValue( 'g' ) )
-	];
-
 	var listItemAdapter = wb.tests.getMockListItemAdapter( 'snakview', function() {
 		var _value = this.options.value;
 		this.options.locked = this.options.locked || {};
@@ -85,22 +75,6 @@
 		return snaklistview;
 	}
 
-	/**
-	 * Returns the concatenated string values of a snak list's snaks.
-	 *
-	 * @param {wikibase.datamodel.SnakList} snakList
-	 * @return {string}
-	 */
-	function snakOrder( snakList ) {
-		var snakValues = [];
-
-		snakList.each( function( i, snak ) {
-			snakValues.push( snak.getValue().getValue() );
-		} );
-
-		return snakValues.join( '' );
-	}
-
 	QUnit.module( 'jquery.wikibase.snaklistview', window.QUnit.newMwEnvironment( {
 		teardown: function() {
 			$( '.test_snaklistview' ).each( function( i, node ) {
@@ -117,7 +91,7 @@
 	} ) );
 
 	QUnit.test( 'Initialize and destroy', function( assert ) {
-		assert.expect( 8 );
+		assert.expect( 6 );
 		var $node = createSnaklistview(),
 			snaklistview = $node.data( 'snaklistview' );
 
@@ -130,18 +104,6 @@
 			snaklistview.value().length,
 			0,
 			'Snaklistview contains no snaks.'
-		);
-
-		assert.strictEqual(
-			snaklistview.isValid(),
-			true,
-			'Snaklistview is valid.'
-		);
-
-		assert.strictEqual(
-			snaklistview.isInitialValue(),
-			true,
-			'Snaklistview holds initial value.'
 		);
 
 		assert.strictEqual(
@@ -268,69 +230,6 @@
 		);
 	} );
 
-	QUnit.test( 'isInitialValue()', function( assert ) {
-		assert.expect( 7 );
-		var $node = createSnaklistview(),
-			snaklistview = $node.data( 'snaklistview' );
-
-		assert.strictEqual(
-			snaklistview.isInitialValue(),
-			true,
-			'Empty snak list has initial value.'
-		);
-
-		snaklistview = setValueKeepingInitial( snaklistview, snakLists[0] );
-
-		assert.strictEqual(
-			snaklistview.isInitialValue(),
-			false,
-			'snaklistview does not have the initial value after setting a value.'
-		);
-
-		snaklistview = setValueKeepingInitial( snaklistview, new wb.datamodel.SnakList() );
-
-		assert.ok(
-			snaklistview.isInitialValue(),
-			'snaklistview has initial value again after resetting to an empty snak list.'
-		);
-
-		snaklistview.destroy();
-		$node.remove();
-
-		$node = createSnaklistview( snakLists[0] );
-		snaklistview = $node.data( 'snaklistview' );
-
-		assert.strictEqual(
-			snaklistview.isInitialValue(),
-			true,
-			'Snak list initialized with a snak list has initial value.'
-		);
-
-		snaklistview = setValueKeepingInitial( snaklistview, snakLists[1] );
-
-		assert.strictEqual(
-			snaklistview.isInitialValue(),
-			false,
-			'snaklistview does not have the initial value after overwriting its value.'
-		);
-
-		snaklistview = setValueKeepingInitial( snaklistview, new wb.datamodel.SnakList() );
-
-		assert.ok(
-			!snaklistview.isInitialValue(),
-			'snaklistview does not have the initial value after setting value to an empty snak list.'
-		);
-
-		snaklistview = setValueKeepingInitial(
-			snaklistview, new wb.datamodel.SnakList( snakLists[0].toArray() )
-		);
-
-		assert.ok(
-			snaklistview.isInitialValue(),
-			'snaklistview has initial value again after setting to a copy of the initial snak list.'
-		);
-	} );
-
 	QUnit.test( 'Basic start and stop editing', 6, function( assert ) {
 		var $node = createSnaklistview(),
 			snaklistview = $node.data( 'snaklistview' );
@@ -454,7 +353,7 @@
 		);
 
 		assert.strictEqual(
-			snaklistview.isInitialValue(),
+			snaklistview.value().equals( snakLists[0] ),
 			true,
 			'Snaklistview still features initial value.'
 		);
@@ -466,7 +365,7 @@
 	} );
 
 	QUnit.test( 'enterNewItem()', function( assert ) {
-		assert.expect( 5 );
+		assert.expect( 4 );
 		var $node = createSnaklistview(),
 			snaklistview = $node.data( 'snaklistview' );
 
@@ -495,13 +394,9 @@
 			'Verified snaklistview being in edit mode.'
 		);
 
-		assert.ok(
-			snaklistview.isInitialValue(),
-			'Snaklistview still features its initial value ignoring pending empty value.'
-		);
-
-		assert.ok(
-			!snaklistview.isValid(),
+		assert.strictEqual(
+			snaklistview.value(),
+			null,
 			'Snaklistview is not valid due to pending value.'
 		);
 	} );
@@ -545,8 +440,9 @@
 			'Left edit mode.'
 		);
 
-		assert.ok(
-			snaklistview.isInitialValue(),
+		assert.strictEqual(
+			snaklistview.value().length,
+			0,
 			'Verified reset to initial value.'
 		);
 
@@ -564,7 +460,7 @@
 		);
 
 		assert.ok(
-			snaklistview.isInitialValue(),
+			snaklistview.value().equals( snakLists[0] ),
 			'Verified reset to initial value.'
 		);
 
@@ -580,7 +476,7 @@
 		);
 
 		assert.ok(
-			snaklistview.isInitialValue(),
+			snaklistview.value().equals( snakLists[0] ),
 			'Verified reset to initial value.'
 		);
 
@@ -588,7 +484,7 @@
 	} );
 
 	QUnit.test( 'Stopping edit mode retaining value', function( assert ) {
-		assert.expect( 9 );
+		assert.expect( 7 );
 		var $node = createSnaklistview(),
 			snaklistview = $node.data( 'snaklistview' );
 
@@ -608,7 +504,7 @@
 		);
 
 		assert.ok(
-			!snaklistview.isInitialValue(),
+			snaklistview.value().equals( snakLists[0] ),
 			'Snaklistview\'s value changed.'
 		);
 
@@ -628,11 +524,6 @@
 		);
 
 		assert.ok(
-			!snaklistview.isInitialValue(),
-			'Snaklistview\'s value changed.'
-		);
-
-		assert.ok(
 			snakLists[1].equals( snaklistview.value() ),
 			'Verified new value.'
 		);
@@ -646,11 +537,6 @@
 		assert.ok(
 			!snaklistview.isInEditMode(),
 			'Left edit mode.'
-		);
-
-		assert.ok(
-			snaklistview.isInitialValue(),
-			'Snaklistview\'s value is the initial value.'
 		);
 
 		assert.strictEqual(
@@ -735,135 +621,8 @@
 		);
 	} );
 
-	QUnit.test( 'move()', function( assert ) {
-		assert.expect( 31 );
-		var snakList = new wb.datamodel.SnakList( snakSet );
-
-		/**
-		 * Array of test case definitions. Test case definition structure:
-		 * [0] => Index of element to move
-		 * [1] => Index where to move element
-		 * [2] => Expected result when concatenating the string values of the snak list's snaks.
-		 * @type {*[][]}
-		 */
-		var testCases = [
-			[ 0, 1, 'bacdefg' ],
-			[ 0, 5, 'cdeabfg' ],
-			[ 0, 6, 'cdefabg' ],
-			[ 0, 7, 'cdefgab' ],
-			[ 1, 0, 'bacdefg' ],
-			[ 1, 5, 'cdeabfg' ],
-			[ 1, 6, 'cdefabg' ],
-			[ 1, 7, 'cdefgab' ],
-			[ 2, 0, 'cdeabfg' ],
-			[ 2, 3, 'abdcefg' ],
-			[ 2, 4, 'abdecfg' ],
-			[ 2, 6, 'abfcdeg' ],
-			[ 2, 7, 'abfgcde' ],
-			[ 3, 0, 'cdeabfg' ],
-			[ 3, 2, 'abdcefg' ],
-			[ 3, 4, 'abcedfg' ],
-			[ 3, 6, 'abfcdeg' ],
-			[ 3, 7, 'abfgcde' ],
-			[ 4, 0, 'cdeabfg' ],
-			[ 4, 2, 'abecdfg' ],
-			[ 4, 3, 'abcedfg' ],
-			[ 4, 6, 'abfcdeg' ],
-			[ 4, 7, 'abfgcde' ],
-			[ 5, 0, 'fabcdeg' ],
-			[ 5, 2, 'abfcdeg' ],
-			[ 5, 7, 'abcdegf' ],
-			[ 6, 0, 'gabcdef' ],
-			[ 6, 2, 'abgcdef' ],
-			[ 6, 5, 'abcdegf' ]
-		];
-
-		var $node,
-			snaklistview;
-
-		for ( var i = 0; i < testCases.length; i++ ) {
-			$node = createSnaklistview( snakList );
-			snaklistview = $node.data( 'snaklistview' );
-
-			snaklistview.move( snakSet[testCases[i][0]], testCases[i][1] );
-
-			assert.equal(
-				snakOrder( snaklistview.value() ),
-				testCases[i][2],
-				'Verified moving a snak with test set #' + i + '.'
-			);
-		}
-
-		$node = createSnaklistview( snakList );
-		snaklistview = $node.data( 'snaklistview' );
-		snaklistview.move( snakSet[1], 1 );
-
-		assert.equal(
-			snakOrder( snaklistview.value() ),
-			'abcdefg',
-			'Nothing changed when trying to move a snak to an index it already has.'
-		);
-
-		assert.throws(
-			function() {
-				$node = createSnaklistview( snakList );
-				snaklistview = $node.data( 'snaklistview' );
-				snaklistview.move( snakSet[0], 4 );
-			},
-			'move() throws an error when trying to move a snak to an invalid index.'
-		);
-	} );
-
-	QUnit.test( 'moveUp() and moveDown()', function( assert ) {
-		assert.expect( 14 );
-		var snakList = new wb.datamodel.SnakList( snakSet ),
-			$node,
-			snaklistview;
-
-		/**
-		 * Array of test case definitions for moveUp() and moveDown() methods. Test case definition
-		 * structure:
-		 * [0] => Resulting order after moving the element having the same index in the snak list up.
-		 * [1] => Resulting order after moving the element having the same index in the snak list down.
-		 * @type {string[][]}
-		 */
-		var testCases = [
-			['abcdefg', 'bacdefg' ],
-			['bacdefg', 'cdeabfg' ],
-			['cdeabfg', 'abdcefg' ],
-			['abdcefg', 'abcedfg' ],
-			['abcedfg', 'abfcdeg' ],
-			['abfcdeg', 'abcdegf' ],
-			['abcdegf', 'abcdefg' ]
-		];
-
-		for ( var i = 0; i < testCases.length; i++ ) {
-			$node = createSnaklistview( snakList );
-			snaklistview = $node.data( 'snaklistview' );
-
-			snaklistview.moveUp( snakSet[i] );
-
-			assert.equal(
-				snakOrder( snaklistview.value() ),
-				testCases[i][0],
-				'Moving up a snak with test set #' + i + '.'
-			);
-
-			$node = createSnaklistview( snakList );
-			snaklistview = $node.data( 'snaklistview' );
-
-			snaklistview.moveDown( snakSet[i] );
-
-			assert.equal(
-				snakOrder( snaklistview.value() ),
-				testCases[i][1],
-				'Moved down a snak with test set #' + i + '.'
-			);
-		}
-	} );
-
 	QUnit.test( 'singleProperty option', function( assert ) {
-		assert.expect( 10 );
+		assert.expect( 4 );
 		var $node = createSnaklistview( snakLists[0], { singleProperty: true } ),
 			snaklistview = $node.data( 'snaklistview' );
 
@@ -892,15 +651,6 @@
 			} );
 		}
 
-		// Initial test:
-		testPropertyLabelVisibility( assert, snaklistview );
-
-		// Move a snakview without affecting topmost snakview:
-		snaklistview.moveDown( snakLists[1].toArray()[0] );
-		testPropertyLabelVisibility( assert, snaklistview );
-
-		// Move topmost snakview:
-		snaklistview.moveDown( snakLists[0].toArray()[0] );
 		testPropertyLabelVisibility( assert, snaklistview );
 	} );
 

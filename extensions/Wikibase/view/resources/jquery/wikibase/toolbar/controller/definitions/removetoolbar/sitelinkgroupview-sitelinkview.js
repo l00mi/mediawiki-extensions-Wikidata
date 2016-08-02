@@ -1,4 +1,4 @@
-( function( $ ) {
+( function( $, mw ) {
 	'use strict';
 
 /**
@@ -33,7 +33,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 						$container: $( '<span/>' ).appendTo(
 							$sitelinkview.data( 'sitelinkview' ).$siteIdContainer
 						),
-						icon: true
+						title: mw.msg( 'wikibase-remove' )
 					} )
 					.on( 'removetoolbarremove.removetoolbar', function( event ) {
 						if ( event.target !== $sitelinkview.get( 0 ) ) {
@@ -45,7 +45,7 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 
 				var removetoolbar = $sitelinkview.data( 'removetoolbar' ),
 					isDisabled = removetoolbar.option( 'disabled' ),
-					isValid = sitelinkview.isValid(),
+					isValid = sitelinkview.value() !== null,
 					isEmpty = sitelinkview.isEmpty();
 
 				if ( ( !isValid || isEmpty ) && !isDisabled ) {
@@ -103,4 +103,4 @@ $.wikibase.toolbarcontroller.definition( 'removetoolbar', {
 	}
 } );
 
-}( jQuery ) );
+}( jQuery, mediaWiki ) );
