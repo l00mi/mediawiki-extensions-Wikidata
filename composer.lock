@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bf0f837be2fad3d314a13c4b135d155f",
-    "content-hash": "742959d188ded1d14eaca15293f93fcc",
+    "hash": "d03aedcfc08452204892e00a93dff6fc",
+    "content-hash": "86dfcb928ce545a97f7e65e7d53ee9f2",
     "packages": [
         {
             "name": "composer/installers",
@@ -816,16 +816,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "3.0.4",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "f91700287902411d5e990e734b0e7ee108599e91"
+                "reference": "dab96c4876a959f7b81ed859c380e53f8c41fe26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/f91700287902411d5e990e734b0e7ee108599e91",
-                "reference": "f91700287902411d5e990e734b0e7ee108599e91",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/dab96c4876a959f7b81ed859c380e53f8c41fe26",
+                "reference": "dab96c4876a959f7b81ed859c380e53f8c41fe26",
                 "shasum": ""
             },
             "require": {
@@ -859,7 +859,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-08-01 17:20:08"
+            "time": "2016-08-03 16:19:13"
         },
         {
             "name": "serialization/serialization",
@@ -1457,12 +1457,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e6f596ddd767683c5040f1843c1f71e0065601b7"
+                "reference": "450ba1ae02e1a76e4ea3f18d23f31c648e5d7715"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e6f596ddd767683c5040f1843c1f71e0065601b7",
-                "reference": "e6f596ddd767683c5040f1843c1f71e0065601b7",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/450ba1ae02e1a76e4ea3f18d23f31c648e5d7715",
+                "reference": "450ba1ae02e1a76e4ea3f18d23f31c648e5d7715",
                 "shasum": ""
             },
             "require": {
@@ -1534,7 +1534,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-08-02 16:13:20"
+            "time": "2016-08-03 16:00:49"
         },
         {
             "name": "wikibase/wikimedia-badges",
