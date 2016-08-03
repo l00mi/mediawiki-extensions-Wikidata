@@ -1555,55 +1555,6 @@
         }
     },
     {
-        "name": "propertysuggester/property-suggester",
-        "version": "3.1.0",
-        "version_normalized": "3.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "dab96c4876a959f7b81ed859c380e53f8c41fe26"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/dab96c4876a959f7b81ed859c380e53f8c41fe26",
-            "reference": "dab96c4876a959f7b81ed859c380e53f8c41fe26",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.5.0",
-            "wikibase/data-model": "~4.1|~5.0|~6.0",
-            "wikibase/data-model-services": "~1.1|~2.0|~3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2016-08-03 16:19:13",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/wikibase",
         "version": "dev-wmf/1.28.0-wmf.13",
         "version_normalized": "dev-wmf/1.28.0-wmf.13",
@@ -1687,6 +1638,55 @@
             "wikibaseclient",
             "wikibaselib",
             "wikibaserepo",
+            "wikidata"
+        ]
+    },
+    {
+        "name": "propertysuggester/property-suggester",
+        "version": "3.1.1",
+        "version_normalized": "3.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "612463fff51feedea8497855415ec8afec9e3633"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/612463fff51feedea8497855415ec8afec9e3633",
+            "reference": "612463fff51feedea8497855415ec8afec9e3633",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.0",
+            "wikibase/data-model": "~4.1|~5.0|~6.0",
+            "wikibase/data-model-services": "~1.1|~2.0|~3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2016-08-03 20:13:23",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+        "keywords": [
+            "propertysuggester",
+            "wikibase",
             "wikidata"
         ]
     }
