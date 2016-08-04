@@ -8,7 +8,7 @@ var PARENT = wb.datamodel.GroupableCollection;
  * @class wikibase.datamodel.List
  * @extends wikibase.datamodel.GroupableCollection
  * @since 1.0
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  *
  * @constructor
@@ -102,7 +102,7 @@ var SELF = wb.datamodel.List = util.inherit(
 	/**
 	 * @inheritdoc
 	 *
-	 * @throws {Error} when trying to remove a claim which is not registered.
+	 * @throws {Error} when trying to remove an item which is not registered.
 	 */
 	removeItem: function( item ) {
 		this._assertIsItem( item );
@@ -114,7 +114,7 @@ var SELF = wb.datamodel.List = util.inherit(
 				return;
 			}
 		}
-		throw new Error( 'Trying to remove a non-existing claim' );
+		throw new Error( 'Trying to remove a non-existing item' );
 	},
 
 	/**

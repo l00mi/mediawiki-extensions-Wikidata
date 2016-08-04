@@ -5,7 +5,7 @@
  * Container for sets of labels, descriptions and aliases.
  * @class wikibase.datamodel.Fingerprint
  * @since 1.0
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  *
  * @constructor
@@ -89,10 +89,14 @@ $.extend( SELF.prototype, {
 
 	/**
 	 * @param {string} languageCode
-	 * @param {wikibase.datamodel.Term} term
+	 * @param {wikibase.datamodel.Term|null} term
 	 */
 	setLabel: function( languageCode, term ) {
-		this._labels.setItem( languageCode, term );
+		if ( term === null || term.getText() === '' ) {
+			this._labels.removeItemByKey( languageCode );
+		} else {
+			this._labels.setItem( languageCode, term );
+		}
 	},
 
 	/**
@@ -144,10 +148,14 @@ $.extend( SELF.prototype, {
 
 	/**
 	 * @param {string} languageCode
-	 * @param {wikibase.datamodel.Term} term
+	 * @param {wikibase.datamodel.Term|null} term
 	 */
 	setDescription: function( languageCode, term ) {
-		this._descriptions.setItem( languageCode, term );
+		if ( term === null || term.getText() === '' ) {
+			this._descriptions.removeItemByKey( languageCode );
+		} else {
+			this._descriptions.setItem( languageCode, term );
+		}
 	},
 
 	/**
@@ -199,7 +207,7 @@ $.extend( SELF.prototype, {
 
 	/**
 	 * @param {string|wikibase.datamodel.MultiTermMap} languageCodeOrAliases
-	 * @param {wikibase.datamodel.MultiTerm} [aliases]
+	 * @param {wikibase.datamodel.MultiTerm|null} [aliases]
 	 *
 	 * @throws {Error} when passing a MultiTerm without a language code.
 	 * @throws {Error} when passing a MultiTermMap with a language code.
@@ -214,12 +222,16 @@ $.extend( SELF.prototype, {
 			aliases = languageCodeOrAliases;
 		}
 
-		if( aliases instanceof wb.datamodel.MultiTerm ) {
+		if( aliases === null || aliases instanceof wb.datamodel.MultiTerm ) {
 			if( !languageCode ) {
 				throw new Error( 'Language code the wb.datamodel.MultiTerm object should be set '
 					+ 'for needs to be specified' );
 			}
-			this._aliases.setItem( languageCode, aliases );
+			if ( aliases === null || aliases.isEmpty() ) {
+				this._aliases.removeItemByKey( languageCode );
+			} else {
+				this._aliases.setItem( languageCode, aliases );
+			}
 		} else if( aliases instanceof wb.datamodel.MultiTermMap ) {
 			if( languageCode ) {
 				throw new Error( 'Unable to handle language code when setting a '
