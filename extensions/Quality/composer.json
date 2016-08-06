@@ -34,9 +34,6 @@
 			"WikibaseQuality\\Api\\": "api/",
 			"WikibaseQuality\\Specials\\": "specials/",
 			"WikibaseQuality\\Tests\\": "tests/phpunit/"
-		},
-		"classmap": [
-			"WikibaseQualityHooks.php"
-		]
+		}
 	}
 }

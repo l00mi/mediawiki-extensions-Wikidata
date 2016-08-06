@@ -236,7 +236,6 @@ return array(
     'ValueValidators\\ValueValidatorObject' => $vendorDir . '/data-values/interfaces/src/ValueValidators/ValueValidatorObject.php',
     'WikibaseQualityConstraintsHooks' => $baseDir . '/extensions/Constraints/WikibaseQualityConstraintsHooks.php',
     'WikibaseQualityExternalValidationHooks' => $baseDir . '/extensions/ExternalValidation/WikibaseQualityExternalValidationHooks.php',
-    'WikibaseQualityHooks' => $baseDir . '/extensions/Quality/WikibaseQualityHooks.php',
     'WikibaseQuality\\ConstraintReport\\Constraint' => $baseDir . '/extensions/Constraints/includes/Constraint.php',
     'WikibaseQuality\\ConstraintReport\\ConstraintCheck\\Checker\\CommonsLinkChecker' => $baseDir . '/extensions/Constraints/includes/ConstraintCheck/Checker/CommonsLinkChecker.php',
     'WikibaseQuality\\ConstraintReport\\ConstraintCheck\\Checker\\ConflictsWithChecker' => $baseDir . '/extensions/Constraints/includes/ConstraintCheck/Checker/ConflictsWithChecker.php',
