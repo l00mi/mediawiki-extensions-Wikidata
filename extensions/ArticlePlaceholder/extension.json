@@ -24,7 +24,7 @@
 		"ext.articleplaceholder.createArticle": {
 			"position": "bottom",
 			"scripts": [
-				"ext.articleplaceholder.createArticle/ext.articleplaceholder.createArticle.js"
+				"ext.articleplaceholder.createArticle/ext.articleplaceholder.newEmptyArticle.js"
 			],
 			"dependencies": [
 				"oojs-ui",
@@ -70,9 +70,6 @@
 		],
 		"SpecialSearchResultsAppend": [
 			"ArticlePlaceholder\\SearchHookHandler::onSpecialSearchResultsAppend"
-		],
-		"UnitTestsList": [
-			"ArticlePlaceholder\\Hooks::onUnitTestsList"
 		]
 	},
 	"config": {

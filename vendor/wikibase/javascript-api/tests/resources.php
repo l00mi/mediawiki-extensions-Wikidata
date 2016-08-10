@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  *
  * @codeCoverageIgnoreStart
@@ -36,7 +36,6 @@ return call_user_func( function() {
 			'messages' => array(
 				'wikibase-error-unexpected',
 				'wikibase-error-remove-timeout',
-				'wikibase-error-ui-client-error',
 			),
 		),
 	);

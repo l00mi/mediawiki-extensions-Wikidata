@@ -6,6 +6,23 @@ JavaScript client for the Wikibase Repository web API.
 
 ## Release notes
 
+### 2.1.1 (2016-08-04)
+
+* Follow up fix to HTML escaping in `wikibase.api.RepoApiError`.
+
+### 2.1.0 (2016-08-03)
+
+* Fixed HTML escaping in `wikibase.api.RepoApiError`.
+* Fixed forwarding of error messages in `wikibase.api.FormatValueCaller` and `ParseValueCaller`.
+* Removed unused `wikibase-error-ui-client-error` message.
+
+### 2.0.0 (2016-05-31)
+
+* Removed meaningless, unsupported `sort` and `dir` parameters from:
+  * `wikibase.api.RepoApi.getEntities`
+  * `wikibase.api.RepoApi.getEntitiesByPage`. This only breaks callers using the `normalize` parameter.
+* Replaced deprecated "edit" token with "csrf".
+
 ### 1.1.1 (2016-05-30)
 
 * Fix getLocationAgnosticMwApi behavior in Internet Explorer

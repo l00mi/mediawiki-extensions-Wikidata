@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0+
  * @author Adrian Lang <adrian.lang@wikimedia.de>
  */
 return call_user_func( function() {
@@ -19,8 +19,6 @@ return call_user_func( function() {
 			'scripts' => array(
 				'namespace.js'
 			),
-			'dependencies' => array(
-			)
 		),
 
 		'wikibase.api.FormatValueCaller' => $moduleTemplate + array(
