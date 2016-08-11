@@ -782,12 +782,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "a004007d83469536a9d7fd09011ec56e2f7ebce0"
+                "reference": "abe5908651e37f1a341d752552a72baf98454456"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a004007d83469536a9d7fd09011ec56e2f7ebce0",
-                "reference": "a004007d83469536a9d7fd09011ec56e2f7ebce0",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/abe5908651e37f1a341d752552a72baf98454456",
+                "reference": "abe5908651e37f1a341d752552a72baf98454456",
                 "shasum": ""
             },
             "require-dev": {
@@ -812,7 +812,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-08-09 10:54:20"
+            "time": "2016-08-10 20:34:15"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1473,10 +1473,10 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "6f31cf2e63140f0abf021002f643af0b13b40efa"
+                "reference": "2fd556d39f0946b6e6002dbde0a46d7fe719449b"
             },
             "require": {
-                "php": ">=5.3.0",
+                "php": ">=5.5.0",
                 "serialization/serialization": "^3.2.1",
                 "wikibase/data-model": "~4.0|~5.0|~6.0",
                 "wikibase/data-model-services": "~2.0|~3.0"
@@ -1519,7 +1519,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2016-08-08 20:38:02"
+            "time": "2016-08-11 01:06:30"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1568,12 +1568,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "13b18b6eccf670e3eb089fda9925ee4d24d9f6b4"
+                "reference": "56096e27d96a6e71f97e92f9b092deabb38307a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/13b18b6eccf670e3eb089fda9925ee4d24d9f6b4",
-                "reference": "13b18b6eccf670e3eb089fda9925ee4d24d9f6b4",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/56096e27d96a6e71f97e92f9b092deabb38307a3",
+                "reference": "56096e27d96a6e71f97e92f9b092deabb38307a3",
                 "shasum": ""
             },
             "require": {
@@ -1645,7 +1645,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-08-09 20:34:34"
+            "time": "2016-08-11 00:41:04"
         },
         {
             "name": "wikibase/wikimedia-badges",
