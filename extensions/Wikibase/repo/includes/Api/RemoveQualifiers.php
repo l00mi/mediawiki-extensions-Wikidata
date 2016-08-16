@@ -49,11 +49,6 @@ class RemoveQualifiers extends ApiBase {
 	private $resultBuilder;
 
 	/**
-	 * @var EntityLoadingHelper
-	 */
-	private $entityLoadingHelper;
-
-	/**
 	 * @var EntitySavingHelper
 	 */
 	private $entitySavingHelper;
@@ -82,7 +77,6 @@ class RemoveQualifiers extends ApiBase {
 
 		$this->guidParser = $wikibaseRepo->getStatementGuidParser();
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
-		$this->entityLoadingHelper = $apiHelperFactory->getEntityLoadingHelper( $this );
 		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 	}
 
@@ -97,15 +91,8 @@ class RemoveQualifiers extends ApiBase {
 
 		$guid = $params['claim'];
 		$entityId = $this->guidParser->parse( $guid )->getEntityId();
-		if ( isset( $params['baserevid'] ) ) {
-			$entityRevision = $this->entityLoadingHelper->loadEntityRevision(
-				$entityId,
-				(int)$params['baserevid']
-			);
-		} else {
-			$entityRevision = $this->entityLoadingHelper->loadEntityRevision( $entityId );
-		}
-		$entity = $entityRevision->getEntity();
+		$entity = $this->entitySavingHelper->loadEntity( $entityId );
+
 		$summary = $this->modificationHelper->createSummary( $params, $this );
 
 		$claim = $this->modificationHelper->getStatementFromEntity( $guid, $entity );

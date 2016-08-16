@@ -112,22 +112,20 @@ class ChangeOpStatement extends ChangeOpBase {
 		}
 
 		$this->validateStatementGuid( $entityId );
+		$oldIndex = $this->removeStatement( $entity->getStatements() );
 
 		if ( $this->index !== null ) {
 			if ( !( $entity instanceof StatementListHolder ) ) {
 				throw new ChangeOpException( 'Setting an index is not supported on this entity type' );
 			}
 
-			$this->applyStatementToEntity( $entity, $summary );
+			$statements = $this->addStatementToGroup( $entity->getStatements(), $this->index );
+			$entity->setStatements( new StatementList( $statements ) );
 		} else {
-			$oldIndex = $this->removeStatement( $entity->getStatements(), $summary );
-			// TODO: Use StatementList::addStatement( …, $index ). This will require DataModel 6.1.
-			if ( $oldIndex !== null ) {
-				$this->addStatementAtIndex( $entity->getStatements(), $oldIndex );
-			} else {
-				$entity->getStatements()->addStatement( $this->statement );
-			}
+			$entity->getStatements()->addStatement( $this->statement, $oldIndex );
 		}
+
+		$this->updateSummary( $summary, $oldIndex === null ? 'create' : 'update' );
 	}
 
 	/**
@@ -148,44 +146,26 @@ class ChangeOpStatement extends ChangeOpBase {
 	}
 
 	/**
-	 * @param StatementListHolder $entity
-	 * @param Summary|null $summary
-	 */
-	private function applyStatementToEntity( StatementListHolder $entity, Summary $summary = null ) {
-		$oldIndex = $this->removeStatement( $entity->getStatements(), $summary );
-		$newIndex = $this->index !== null ? $this->index : $oldIndex;
-		$statements = $this->addStatementToGroup( $entity->getStatements(), $newIndex );
-		$entity->setStatements( new StatementList( $statements ) );
-	}
-
-	/**
 	 * @param StatementList $statements
-	 * @param Summary|null $summary
 	 *
 	 * @return int|null
 	 */
-	private function removeStatement( StatementList $statements, Summary $summary = null ) {
+	private function removeStatement( StatementList $statements ) {
 		$guid = $this->statement->getGuid();
-		$index = 0;
 		$oldIndex = null;
 		$oldStatement = null;
 
-		foreach ( $statements->toArray() as $statement ) {
+		foreach ( $statements->toArray() as $index => $statement ) {
 			if ( $statement->getGuid() === $guid ) {
 				$oldIndex = $index;
 				$oldStatement = $statement;
 				$statements->removeStatementsWithGuid( $guid );
 				break;
 			}
-
-			$index++;
 		}
 
-		if ( $oldStatement === null ) {
-			$this->updateSummary( $summary, 'create' );
-		} else {
+		if ( $oldStatement !== null ) {
 			$this->checkMainSnakUpdate( $oldStatement );
-			$this->updateSummary( $summary, 'update' );
 		}
 
 		return $oldIndex;
@@ -210,41 +190,6 @@ class ChangeOpStatement extends ChangeOpBase {
 			throw new ChangeOpException( "Claim with GUID $guid uses property "
 				. $oldPropertyId . ", can't change to "
 				. $newMainSnak->getPropertyId() );
-		}
-	}
-
-	/**
-	 * @param StatementList $statements
-	 * @param int $newIndex
-	 *
-	 * @throws InvalidArgumentException
-	 */
-	private function addStatementAtIndex( StatementList $statements, $newIndex ) {
-		$index = 0;
-		$replacements = [];
-
-		foreach ( $statements->toArray() as $statement ) {
-			if ( $index >= $newIndex ) {
-				$guid = $statement->getGuid();
-
-				if ( $guid === null ) {
-					throw new InvalidArgumentException( 'Unexpected statement with no GUID set' );
-				}
-
-				$replacements[$guid] = $statement;
-			}
-
-			$index++;
-		}
-
-		foreach ( $replacements as $guid => $statement ) {
-			$statements->removeStatementsWithGuid( $guid );
-		}
-
-		$statements->addStatement( $this->statement );
-
-		foreach ( $replacements as $statement ) {
-			$statements->addStatement( $statement );
 		}
 	}
 

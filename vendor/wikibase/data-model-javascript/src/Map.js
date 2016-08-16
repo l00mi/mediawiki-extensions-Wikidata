@@ -5,7 +5,7 @@
  * Stores items by key.
  * @class wikibase.datamodel.Map
  * @since 1.0
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  *
  * @constructor
@@ -66,6 +66,8 @@ $.extend( SELF.prototype, {
 	/**
 	 * @param {string} key
 	 * @param {Object} item
+	 * @throws {Error} if the item is not an instance of the constructor registered with the Map
+	 *         object.
 	 * @return {boolean}
 	 */
 	hasItem: function( key, item ) {
@@ -77,6 +79,8 @@ $.extend( SELF.prototype, {
 	 * @param {string} key
 	 * @param {Object} item
 	 *
+	 * @throws {Error} if the item is not an instance of the constructor registered with the Map
+	 *         object.
 	 * @throws {Error} if an item for the specified key is registered already.
 	 */
 	addItem: function( key, item ) {
@@ -144,6 +148,8 @@ $.extend( SELF.prototype, {
 	/**
 	 * @param {string} key
 	 * @param {Object} item
+	 * @throws {Error} if the item is not an instance of the constructor registered with the Map
+	 *         object.
 	 */
 	setItem: function( key, item ) {
 		this._assertIsItem( item );

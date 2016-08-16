@@ -17,7 +17,6 @@ use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Statement\Statement;
@@ -66,11 +65,6 @@ class EditEntity extends ModifyEntity {
 	private $siteLinkChangeOpFactory;
 
 	/**
-	 * @var ApiErrorReporter
-	 */
-	private $errorReporter;
-
-	/**
 	 * @var EntityRevisionLookup
 	 */
 	private $revisionLookup;
@@ -95,7 +89,6 @@ class EditEntity extends ModifyEntity {
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
 		$this->termsLanguages = $wikibaseRepo->getTermsLanguages();
-		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
 		$this->revisionLookup = $wikibaseRepo->getEntityRevisionLookup( 'uncached' );
 		$this->idParser = $wikibaseRepo->getEntityIdParser();
 		$this->statementDeserializer = $wikibaseRepo->getExternalFormatStatementDeserializer();

@@ -84,7 +84,6 @@ return call_user_func( function() {
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.referenceview-snakview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-referenceview',
 				'jquery.wikibase.toolbarcontroller.definitions.addtoolbar.statementview-snakview',
-				'jquery.wikibase.toolbarcontroller.definitions.edittoolbar.entitytermsview',
 				'jquery.wikibase.toolbarcontroller.definitions.removetoolbar.referenceview',
 				'jquery.wikibase.toolbarcontroller.definitions.removetoolbar.referenceview-snakview',
 				'jquery.wikibase.toolbarcontroller.definitions.removetoolbar.sitelinkgroupview-sitelinkview',
@@ -147,17 +146,6 @@ return call_user_func( function() {
 			'styles' => array(
 				'wikibase.special/wikibase.special.css'
 			),
-		),
-
-		'wikibase.special.itemByTitle' => $moduleTemplate + array(
-			'scripts' => array(
-				'wikibase.special/wikibase.special.itemByTitle.js'
-			),
-			'dependencies' => array(
-				'wikibase.sites',
-				'jquery.ui.suggester',
-				'oojs-ui'
-			)
 		),
 
 	);

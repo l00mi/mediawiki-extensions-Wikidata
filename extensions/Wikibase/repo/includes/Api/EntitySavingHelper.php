@@ -7,8 +7,10 @@ use LogicException;
 use Status;
 use UsageException;
 use Wikibase\DataModel\Entity\EntityDocument;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\EditEntity as EditEntityHandler;
 use Wikibase\EditEntityFactory;
+use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Summary;
 use Wikibase\SummaryFormatter;
 
@@ -20,17 +22,12 @@ use Wikibase\SummaryFormatter;
  * @license GPL-2.0+
  * @author Addshore
  */
-class EntitySavingHelper {
+class EntitySavingHelper extends EntityLoadingHelper {
 
 	/**
 	 * @var ApiBase
 	 */
 	private $apiBase;
-
-	/**
-	 * @var ApiErrorReporter
-	 */
-	private $errorReporter;
 
 	/**
 	 * @var SummaryFormatter
@@ -44,14 +41,36 @@ class EntitySavingHelper {
 
 	public function __construct(
 		ApiBase $apiBase,
+		EntityRevisionLookup $entityRevisionLookup,
 		ApiErrorReporter $errorReporter,
 		SummaryFormatter $summaryFormatter,
 		EditEntityFactory $editEntityFactory
 	) {
+		parent::__construct( $entityRevisionLookup, $errorReporter );
 		$this->apiBase = $apiBase;
-		$this->errorReporter = $errorReporter;
 		$this->summaryFormatter = $summaryFormatter;
 		$this->editEntityFactory = $editEntityFactory;
+
+		$this->defaultRetrievalMode = EntityRevisionLookup::LATEST_FROM_MASTER;
+	}
+
+	/**
+	 * Returns the given EntityDocument.
+	 *
+	 * @param EntityId $entityId
+	 * @return EntityDocument
+	 */
+	public function loadEntity( EntityId $entityId ) {
+		$params = $this->apiBase->extractRequestParams();
+
+		// If a base revision is given, use if for consistency!
+		$baseRev = isset( $params['baserevid'] )
+			? (int)$params['baserevid']
+			: $this->defaultRetrievalMode;
+
+		$entityRevision = $this->loadEntityRevision( $entityId, $baseRev );
+
+		return $entityRevision->getEntity();
 	}
 
 	/**

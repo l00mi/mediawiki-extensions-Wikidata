@@ -7,7 +7,7 @@ var MODULE = wb.api;
  * Provides functionality to parse a value using the API.
  * @class wikibase.api.ParseValueCaller
  * @since 1.0
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author H. Snater < mediawiki@snater.com >
  *
@@ -87,8 +87,8 @@ $.extend( SELF.prototype, {
 
 			deferred.resolve( dataValuesSerializations );
 
-		} ).fail( function( code, details ) {
-			deferred.reject( wb.api.RepoApiError.newFromApiResponse( code, details ) );
+		} ).fail( function( errorCode, error ) {
+			deferred.reject( wb.api.RepoApiError.newFromApiResponse( error ) );
 		} );
 
 		return deferred.promise();

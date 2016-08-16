@@ -23,7 +23,9 @@
 			"Mariya",
 			"Frhdkazan",
 			"Ядерный Трамвай",
-			"Adam-Yourist"
+			"Adam-Yourist",
+			"Mailman",
+			"Lockal"
 		]
 	},
 	"wikibase-desc": "Хранилище структурированных данных",
@@ -47,7 +49,7 @@
 	"wikibase-entitytermsforlanguagelistview-description": "Описание",
 	"wikibase-entitytermsforlanguagelistview-label": "Обозначение",
 	"wikibase-entitytermsforlanguagelistview-language": "Язык",
-	"wikibase-entitytermsforlanguagelistview-more": "Больше языков",
+	"wikibase-entitytermsforlanguagelistview-more": "Все введенные языки",
 	"wikibase-entitytermsforlanguagelistview-less": "Меньше языков",
 	"wikibase-label-empty": "Метка (название) отсутствует",
 	"wikibase-label-edit-placeholder": "введите название",
@@ -302,7 +304,7 @@
 	"wikibase-self-conflict-patched": "Ваша правка была помещена в последнюю версию, при этом были перекрыты некоторые из ваших собственных промежуточных изменений.",
 	"wikibase-conflict-patched": "Ваша правка было исправлена в последней версии.",
 	"wikibase-restoreold": "восстановить",
-	"wikibase-entity-summary-restore": "Восстановлена версия $3 с помощью [[Special:Contributions/$4|{{GENDER:$4|$4}}]]",
+	"wikibase-entity-summary-restore": "Восстановлена версия $3 {{GENDER:$4|участника|участницы}} [[Special:Contributions/$4|$4]]",
 	"wikibase-no-direct-editing": "В пространстве имён «$1» отключено прямое редактирование",
 	"wikibase-noentity": "Такой сущности не существует. Вы можете [{{fullurl:{{#Special:Log}}|page={{FULLPAGENAMEE}}}} поискать соответствующие записи в журналах], чтобы узнать, где он может быть.",
 	"wikibase-noentity-createone": "Вы также можете [[$1|создать его]].",

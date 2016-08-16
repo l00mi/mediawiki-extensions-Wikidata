@@ -4,8 +4,12 @@ namespace ArticlePlaceholder\Tests;
 
 use ArticlePlaceholder\ItemNotabilityFilter;
 use ArticlePlaceholder\SearchHookHandler;
+use Config;
+use Language;
+use Liuggio\StatsdClient\Factory\StatsdDataFactory;
 use MediaWikiTestCase;
 use OutputPage;
+use ReflectionMethod;
 use RequestContext;
 use Title;
 use Wikibase\DataModel\Entity\EntityId;
@@ -104,7 +108,11 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 		return 'en';
 	}
 
-	protected function newSearchHookHandler( $doNotReturnTerms = false ) {
+	protected function newSearchHookHandler(
+		$doNotReturnTerms = false,
+		&$hasResults = 0,
+		&$noResults = 0
+	) {
 		$itemNotabilityFilter = $this->getMockBuilder( ItemNotabilityFilter::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -122,6 +130,19 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 				return [];
 			} ) );
 
+		$statsdDataFactory = $this->getMock( StatsdDataFactory::class );
+		$statsdDataFactory->expects( $this->any() )
+			->method( 'increment' )
+			->will( $this->returnCallback( function( $key ) use ( &$hasResults, &$noResults ) {
+				if ( $key === 'wikibase.articleplaceholder.search.has_results' ) {
+					$hasResults++;
+				} elseif ( $key === 'wikibase.articleplaceholder.search.no_results' ) {
+					$noResults++;
+				} else {
+					$this->fail( "Unknown key: $key" );
+				}
+			} ) );
+
 		$language = $this->getLanguageCode();
 
 		return new SearchHookHandler(
@@ -130,8 +151,26 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 			$language,
 			'repo-script-path',
 			'repo-url',
-			$itemNotabilityFilter
+			$itemNotabilityFilter,
+			$statsdDataFactory
 		);
+	}
+
+	public function testNewFromGlobalState() {
+		$specialPage = $this->getSpecialSearch();
+		$specialPage->expects( $this->once() )
+			->method( 'getConfig' )
+			->will( $this->returnValue( $this->getMock( Config::class ) ) );
+
+		$specialPage->expects( $this->once() )
+			->method( 'getLanguage' )
+			->will( $this->returnValue( Language::factory( 'en' ) ) );
+
+		$reflectionMethod = new ReflectionMethod( SearchHookHandler::class, 'newFromGlobalState' );
+		$reflectionMethod->setAccessible( true );
+		$handler = $reflectionMethod->invoke( null, $specialPage );
+
+		$this->assertInstanceOf( SearchHookHandler::class, $handler );
 	}
 
 	public function provideAddToSearch() {
@@ -158,13 +197,31 @@ class SearchHookHandlerTest extends MediaWikiTestCase {
 		$output = new OutputPage( new RequestContext() );
 		$output->setTitle( Title::makeTitle( -1, 'Search' ) );
 
-		$searchHookHander = $this->newSearchHookHandler( $doNotReturnTerms );
+		$hasResults = $noResults = 0;
+		$searchHookHander = $this->newSearchHookHandler( $doNotReturnTerms, $hasResults, $noResults );
 		$searchHookHander->addToSearch( $specialSearch, $output, $term );
 		$html = $output->getHTML();
 
 		$this->assertNotContains( 'Q111', $html );
 		$this->assertNotContains( 'Q222', $html );
 		$this->assertContains( $expected, $html, $message );
+		$this->assertSame( 1, $hasResults );
+		$this->assertSame( 0, $noResults );
+	}
+
+	public function testAddToSearch_nothingFound() {
+		$specialSearch = $this->getSpecialSearch();
+		$output = new OutputPage( new RequestContext() );
+		$output->setTitle( Title::makeTitle( -1, 'Search' ) );
+
+		$hasResults = $noResults = 0;
+		$searchHookHander = $this->newSearchHookHandler( false, $hasResults, $noResults );
+		$searchHookHander->addToSearch( $specialSearch, $output, 'blah blah blah' );
+		$html = $output->getHTML();
+
+		$this->assertSame( '', $html );
+		$this->assertSame( 0, $hasResults );
+		$this->assertSame( 1, $noResults );
 	}
 
 	public function testOnSpecialSearchResultsAppend() {

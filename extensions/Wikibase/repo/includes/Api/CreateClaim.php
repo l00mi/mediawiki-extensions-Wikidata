@@ -42,11 +42,6 @@ class CreateClaim extends ApiBase {
 	private $resultBuilder;
 
 	/**
-	 * @var EntityLoadingHelper
-	 */
-	private $entityLoadingHelper;
-
-	/**
 	 * @var EntitySavingHelper
 	 */
 	private $entitySavingHelper;
@@ -74,7 +69,6 @@ class CreateClaim extends ApiBase {
 		);
 
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
-		$this->entityLoadingHelper = $apiHelperFactory->getEntityLoadingHelper( $this );
 		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 	}
 
@@ -88,15 +82,7 @@ class CreateClaim extends ApiBase {
 		$this->validateParameters( $params );
 
 		$entityId = $this->modificationHelper->getEntityIdFromString( $params['entity'] );
-		if ( isset( $params['baserevid'] ) ) {
-			$entityRevision = $this->entityLoadingHelper->loadEntityRevision(
-				$entityId,
-				(int)$params['baserevid']
-			);
-		} else {
-			$entityRevision = $this->entityLoadingHelper->loadEntityRevision( $entityId );
-		}
-		$entity = $entityRevision->getEntity();
+		$entity = $this->entitySavingHelper->loadEntity( $entityId );
 
 		$propertyId = $this->modificationHelper->getEntityIdFromString( $params['property'] );
 		if ( !( $propertyId instanceof PropertyId ) ) {

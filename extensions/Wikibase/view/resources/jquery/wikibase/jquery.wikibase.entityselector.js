@@ -87,7 +87,6 @@ function mwMsgOrString( msgKey, string ) {
 $.widget( 'wikibase.entityselector', $.ui.suggester, {
 
 	/**
-	 * Options
 	 * @property {Object}
 	 */
 	options: {
@@ -112,12 +111,17 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 
 	/**
 	 * Caches retrieved results.
+	 *
+	 * Warning, PropertySuggester's EntitySelector accesses this!
+	 *
 	 * @property {Object} [_cache={}]
-	 * @private
+	 * @protected
 	 */
 	_cache: null,
 
 	/**
+	 * Warning, PropertySuggester's EntitySelector overrides this!
+	 *
 	 * @inheritdoc
 	 * @protected
 	 */
@@ -209,8 +213,9 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 	/**
 	 * Create and return the data object for the api call.
 	 *
-	 * @protected
+	 * Warning, PropertySuggester's EntitySelector overrides this!
 	 *
+	 * @protected
 	 * @param {string} term
 	 * @return {Object}
 	 */
@@ -256,6 +261,11 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 				data: self._getSearchApiParameters( term )
 			} )
 			.done( function( response ) {
+				if ( response.error ) {
+					deferred.reject( response.error.info );
+					return;
+				}
+
 				deferred.resolve(
 					response.search,
 					response.searchinfo.search,
@@ -371,7 +381,8 @@ $.widget( 'wikibase.entityselector', $.ui.suggester, {
 		customItems.unshift( new $.ui.ooMenu.CustomItem(
 			this.options.messages.notfound,
 			function() {
-				return self._cache.suggestions && !self._cache.suggestions.length;
+				return self._cache.suggestions && !self._cache.suggestions.length
+					&& self.element.val().trim() !== '';
 			},
 			null,
 			'ui-entityselector-notfound'

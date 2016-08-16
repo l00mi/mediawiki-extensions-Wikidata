@@ -8,6 +8,15 @@
 	'use strict';
 
 	/**
+	 * @return {boolean}
+	 */
+	function isEditable() {
+		return mw.config.get( 'wbIsEditView' )
+			&& mw.config.get( 'wbUserCanEdit' )
+			&& !mw.config.get( 'wbUserIsBlocked' );
+	}
+
+	/**
 	 * @param {jQuery} $entityview
 	 */
 	function initToolbarController( $entityview ) {
@@ -23,7 +32,6 @@
 					'referenceview-snakview'
 				],
 				edittoolbar: [
-					'entitytermsview'
 				],
 				removetoolbar: [
 					'referenceview',
@@ -107,13 +115,10 @@
 			htmlDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/html' ),
 			plaintextDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/plain' ),
 			entityIdParser = new ( parserStore.getParser( wb.datamodel.EntityId.TYPE ) )( { lang: userLanguages[0] } ),
-			toolbarFactory = new wb.view.ToolbarFactory(),
-			viewFactory = new wb.view.ControllerViewFactory(
-				toolbarFactory,
-				entityChangersFactory,
+			viewFactoryClass = wb.view.ViewFactory,
+			viewFactoryArguments = [
 				contentLanguages,
 				dataTypeStore,
-				entityChangersFactory,
 				new wb.entityIdFormatter.CachingEntityIdHtmlFormatter(
 					new wb.entityIdFormatter.DataValueBasedEntityIdHtmlFormatter( entityIdParser, htmlDataValueEntityIdFormatter )
 				),
@@ -131,8 +136,18 @@
 				parserStore,
 				userLanguages,
 				repoApiUrl
-			);
+			];
 
+		if ( isEditable() ) {
+			viewFactoryClass = wb.view.ControllerViewFactory;
+			viewFactoryArguments.unshift(
+				new wb.view.ToolbarFactory(),
+				entityChangersFactory
+			);
+		}
+
+		viewFactoryArguments.unshift( null );
+		var viewFactory = new ( Function.prototype.bind.apply( viewFactoryClass, viewFactoryArguments ) );
 		var entityView = viewFactory.getEntityView( entity, $entityview );
 
 		return entityView.widgetName;
@@ -328,7 +343,7 @@
 	 */
 	function attachCopyrightTooltip( $entityview ) {
 		$entityview.on(
-			'edittoolbarafterstartediting sitelinkgroupviewafterstartediting statementviewafterstartediting',
+			'entitytermsafterstartediting sitelinkgroupviewafterstartediting statementviewafterstartediting',
 			function( event ) {
 				var $target = $( event.target ),
 					gravity = 'sw';
@@ -357,8 +372,7 @@
 
 		var $entityview = $( '.wikibase-entityview' );
 		var entityInitializer = new wb.EntityInitializer( 'wbEntity' );
-		var canEdit = !mw.config.get( 'wbUserIsBlocked' ) && mw.config.get( 'wbUserCanEdit' )
-			&& mw.config.get( 'wbIsEditView' );
+		var canEdit = isEditable();
 
 		if ( canEdit ) {
 			initToolbarController( $entityview );

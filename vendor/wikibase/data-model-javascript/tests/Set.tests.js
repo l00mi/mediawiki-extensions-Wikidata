@@ -1,5 +1,5 @@
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author H. Snater < mediawiki@snater.com >
  */
 ( function( wb, QUnit, $ ) {
@@ -385,6 +385,24 @@ QUnit.test( 'equals()', function( assert ) {
 	assert.ok(
 		!set.equals( createSet( items ) ),
 		'FALSE when an item has been removed.'
+	);
+} );
+
+QUnit.test( 'toArray()', function( assert ) {
+	assert.expect( 2 );
+	var item = getTestItems( 1 )[0],
+		set = createSet( [item] ),
+		actual = set.toArray();
+
+	assert.ok(
+		actual.length === 1 && actual[0] === item,
+		'toArray() returns original items.'
+	);
+
+	assert.notStrictEqual(
+		set.toArray(),
+		actual,
+		'toArray() does clone.'
 	);
 } );
 

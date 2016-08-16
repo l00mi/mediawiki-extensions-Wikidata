@@ -15,11 +15,6 @@
 	"ExtensionMessagesFile": {
 		"WikibaseQualityAlias": "WikibaseQuality.alias.php"
 	},
-	"Hooks": {
-		"UnitTestsList": [
-			"WikibaseQualityHooks::onUnitTestsList"
-		]
-	},
 	"ResourceModules": {
 		"SpecialCheckResultPage": {
 			"styles": "modules/SpecialCheckResultPage.css"

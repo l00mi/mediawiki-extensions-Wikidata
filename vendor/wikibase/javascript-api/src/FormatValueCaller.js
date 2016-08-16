@@ -6,7 +6,7 @@
 	/**
 	 * @class wikibase.api.FormatValueCaller
 	 * @since 1.0
-	 * @licence GNU GPL v2+
+	 * @license GPL-2.0+
 	 * @author H. Snater < mediawiki@snater.com >
 	 *
 	 * @constructor
@@ -98,8 +98,8 @@
 						'The formatter API returned an unexpected result'
 					) );
 				}
-			} ).fail( function( code, details ) {
-				deferred.reject( wb.api.RepoApiError.newFromApiResponse( code, details ) );
+			} ).fail( function( errorCode, error ) {
+				deferred.reject( wb.api.RepoApiError.newFromApiResponse( error ) );
 			} );
 
 			return deferred.promise();
