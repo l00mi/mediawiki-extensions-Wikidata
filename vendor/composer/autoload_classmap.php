@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'ArticlePlaceholder\\BaseTemplateToolboxHookHandler' => $baseDir . '/extensions/ArticlePlaceholder/includes/BaseTemplateToolboxHookHandler.php',
     'ArticlePlaceholder\\Hooks' => $baseDir . '/extensions/ArticlePlaceholder/includes/Hooks.php',
     'ArticlePlaceholder\\ItemNotabilityFilter' => $baseDir . '/extensions/ArticlePlaceholder/includes/ItemNotabilityFilter.php',
     'ArticlePlaceholder\\Lua\\Scribunto_LuaArticlePlaceholderLibrary' => $baseDir . '/extensions/ArticlePlaceholder/includes/Lua/Scribunto_LuaArticlePlaceholderLibrary.php',
@@ -424,7 +425,7 @@ return array(
     'Wikibase\\Client\\Hooks\\OtherProjectsSidebarGeneratorFactory' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/OtherProjectsSidebarGeneratorFactory.php',
     'Wikibase\\Client\\Hooks\\ParserClearStateHookHandler' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/ParserClearStateHookHandler.php',
     'Wikibase\\Client\\Hooks\\ParserFunctionRegistrant' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/ParserFunctionRegistrant.php',
-    'Wikibase\\Client\\Hooks\\ParserLimitHookHandlers' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/ParserLimitHookHandlers.php',
+    'Wikibase\\Client\\Hooks\\ParserLimitReportPrepareHookHandler' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/ParserLimitReportPrepareHookHandler.php',
     'Wikibase\\Client\\Hooks\\ParserOutputUpdateHookHandlers' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/ParserOutputUpdateHookHandlers.php',
     'Wikibase\\Client\\Hooks\\SidebarHookHandlers' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/SidebarHookHandlers.php',
     'Wikibase\\Client\\Hooks\\SkinTemplateOutputPageBeforeExecHandler' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/SkinTemplateOutputPageBeforeExecHandler.php',
@@ -494,7 +495,7 @@ return array(
     'Wikibase\\Client\\Tests\\Hooks\\OtherProjectsSidebarGeneratorTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/OtherProjectsSidebarGeneratorTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\ParserClearStateHookHandlerTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/ParserClearStateHookHandlerTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\ParserFunctionRegistrantTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/ParserFunctionRegistrantTest.php',
-    'Wikibase\\Client\\Tests\\Hooks\\ParserLimitHookHandlersTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/ParserLimitHookHandlersTest.php',
+    'Wikibase\\Client\\Tests\\Hooks\\ParserLimitReportPrepareHookHandlerTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/ParserLimitReportPrepareHookHandlerTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\ParserOutputUpdateHookHandlersTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/ParserOutputUpdateHookHandlersTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\SidebarHookHandlersTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/SidebarHookHandlersTest.php',
     'Wikibase\\Client\\Tests\\Hooks\\SkinTemplateOutputPageBeforeExecHandlerTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/Hooks/SkinTemplateOutputPageBeforeExecHandlerTest.php',

@@ -104,46 +104,6 @@
         ]
     },
     {
-        "name": "mediawiki/article-placeholder",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "abe5908651e37f1a341d752552a72baf98454456"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/abe5908651e37f1a341d752552a72baf98454456",
-            "reference": "abe5908651e37f1a341d752552a72baf98454456",
-            "shasum": ""
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.7.2"
-        },
-        "time": "2016-08-10 20:34:15",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "ArticlePlaceholder\\": "includes/",
-                "ArticlePlaceholder\\Specials\\": "includes/specials/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Lucie-Aimée Kaffee"
-            }
-        ],
-        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
-    },
-    {
         "name": "wikimedia/purtle",
         "version": "v1.0.3",
         "version_normalized": "1.0.3.0",
@@ -1342,93 +1302,6 @@
         ]
     },
     {
-        "name": "wikibase/wikibase",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "56096e27d96a6e71f97e92f9b092deabb38307a3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/56096e27d96a6e71f97e92f9b092deabb38307a3",
-            "reference": "56096e27d96a6e71f97e92f9b092deabb38307a3",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.3.0",
-            "data-values/data-types": "~0.5.0",
-            "data-values/data-values": "~1.0",
-            "data-values/geo": "~1.0",
-            "data-values/interfaces": "~0.2.0|~0.1.5",
-            "data-values/javascript": "~0.8.0",
-            "data-values/number": "~0.7.0",
-            "data-values/serialization": "~1.1",
-            "data-values/time": "~0.8.4",
-            "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.17.3",
-            "diff/diff": "~2.0",
-            "php": ">=5.5.0",
-            "wikibase/data-model": "~6.1",
-            "wikibase/data-model-javascript": "~3.0.0",
-            "wikibase/data-model-serialization": "~2.2",
-            "wikibase/data-model-services": "~3.5",
-            "wikibase/internal-serialization": "~2.3",
-            "wikibase/javascript-api": "~2.1.1",
-            "wikibase/serialization-javascript": "~2.0.6",
-            "wikimedia/purtle": "~1.0"
-        },
-        "conflict": {
-            "mediawiki/mediawiki": "<1.25"
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
-        },
-        "time": "2016-08-11 00:41:04",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "client/includes/",
-                "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/MockClientStore.php",
-                "lib/includes/",
-                "lib/WikibaseLib.hooks.php",
-                "lib/maintenance/",
-                "repo/includes/",
-                "repo/maintenance/",
-                "repo/tests/phpunit/",
-                "repo/Wikibase.hooks.php"
-            ],
-            "psr-4": {
-                "Wikibase\\Client\\Tests\\": "client/tests/phpunit/includes",
-                "Wikibase\\Lib\\Tests\\": "lib/tests/phpunit",
-                "Wikibase\\View\\": "view/src",
-                "Wikibase\\View\\Tests\\": "view/tests/phpunit"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Structured data repository for MediaWiki",
-        "homepage": "http://wikiba.se",
-        "keywords": [
-            "wikibase",
-            "wikibaseclient",
-            "wikibaselib",
-            "wikibaserepo",
-            "wikidata"
-        ]
-    },
-    {
         "name": "wikibase/wikimedia-badges",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -1804,5 +1677,132 @@
         "support": {
             "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
         }
+    },
+    {
+        "name": "mediawiki/article-placeholder",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
+            "reference": "6bbd93854bede570813c65be4102bbcf52e2b12e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/6bbd93854bede570813c65be4102bbcf52e2b12e",
+            "reference": "6bbd93854bede570813c65be4102bbcf52e2b12e",
+            "shasum": ""
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.7.2"
+        },
+        "time": "2016-08-16 20:40:02",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "ArticlePlaceholder\\": "includes/",
+                "ArticlePlaceholder\\Specials\\": "includes/specials/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Lucie-Aimée Kaffee"
+            }
+        ],
+        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
+    },
+    {
+        "name": "wikibase/wikibase",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "e1faa26f9b05f67b88ba4602e07ffa0ab0f7d237"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e1faa26f9b05f67b88ba4602e07ffa0ab0f7d237",
+            "reference": "e1faa26f9b05f67b88ba4602e07ffa0ab0f7d237",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0",
+            "data-values/data-types": "~0.5.0",
+            "data-values/data-values": "~1.0",
+            "data-values/geo": "~1.0",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "data-values/javascript": "~0.8.0",
+            "data-values/number": "~0.7.0",
+            "data-values/serialization": "~1.1",
+            "data-values/time": "~0.8.4",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.17.3",
+            "diff/diff": "~2.0",
+            "php": ">=5.5.0",
+            "wikibase/data-model": "~6.1",
+            "wikibase/data-model-javascript": "~3.0.0",
+            "wikibase/data-model-serialization": "~2.2",
+            "wikibase/data-model-services": "~3.5",
+            "wikibase/internal-serialization": "~2.3",
+            "wikibase/javascript-api": "~2.1.1",
+            "wikibase/serialization-javascript": "~2.0.6",
+            "wikimedia/purtle": "~1.0"
+        },
+        "conflict": {
+            "mediawiki/mediawiki": "<1.25"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
+        },
+        "time": "2016-08-16 20:46:51",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "client/includes/",
+                "client/WikibaseClient.hooks.php",
+                "client/tests/phpunit/MockClientStore.php",
+                "lib/includes/",
+                "lib/WikibaseLib.hooks.php",
+                "lib/maintenance/",
+                "repo/includes/",
+                "repo/maintenance/",
+                "repo/tests/phpunit/",
+                "repo/Wikibase.hooks.php"
+            ],
+            "psr-4": {
+                "Wikibase\\Client\\Tests\\": "client/tests/phpunit/includes",
+                "Wikibase\\Lib\\Tests\\": "lib/tests/phpunit",
+                "Wikibase\\View\\": "view/src",
+                "Wikibase\\View\\Tests\\": "view/tests/phpunit"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Structured data repository for MediaWiki",
+        "homepage": "http://wikiba.se",
+        "keywords": [
+            "wikibase",
+            "wikibaseclient",
+            "wikibaselib",
+            "wikibaserepo",
+            "wikidata"
+        ]
     }
 ]
