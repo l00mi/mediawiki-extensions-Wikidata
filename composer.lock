@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1c26f3fdf4e931d41f22181b9fa98381",
-    "content-hash": "86802c55dc1b181ccdd4ef332fb65909",
+    "hash": "d6afe2a80bd6f994c1eca0241887c7f0",
+    "content-hash": "18fadc87770a1b571c2ec338a8dcc157",
     "packages": [
         {
             "name": "composer/installers",
@@ -816,16 +816,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "3.0.4",
+            "version": "3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "f91700287902411d5e990e734b0e7ee108599e91"
+                "reference": "5a21fe7508c20bdcee13fac333bf1da6a53bbbed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/f91700287902411d5e990e734b0e7ee108599e91",
-                "reference": "f91700287902411d5e990e734b0e7ee108599e91",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/5a21fe7508c20bdcee13fac333bf1da6a53bbbed",
+                "reference": "5a21fe7508c20bdcee13fac333bf1da6a53bbbed",
                 "shasum": ""
             },
             "require": {
@@ -859,7 +859,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-08-01 17:20:08"
+            "time": "2016-08-04 10:07:26"
         },
         {
             "name": "serialization/serialization",
@@ -1302,7 +1302,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2016-07-31 21:05:22"
+            "time": "2016-08-01 08:09:55"
         },
         {
             "name": "wikibase/internal-serialization",

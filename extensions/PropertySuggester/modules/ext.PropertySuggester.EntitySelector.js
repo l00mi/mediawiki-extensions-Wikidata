@@ -34,27 +34,28 @@
 			self.element.on( 'focus', focusHandler );
 		},
 
-		_oldGetData: $.wikibase.entityselector.prototype._getData,
+		_oldGetSearchApiParameters: $.wikibase.entityselector.prototype._getSearchApiParameters,
 
 		/**
 		 *
 		 * @param {string} term
 		 * @return {Object}
 		 */
-		_getData: function( term ) {
+		_getSearchApiParameters: function( term ) {
 			var self = this;
 
 			if( !self._useSuggester() ) {
-				return self._oldGetData( term )
+				return self._oldGetSearchApiParameters( term )
 			} else {
 				var data = {
 					action: 'wbsgetsuggestions',
 					search: term,
 					context: this._getPropertyContext(),
 					format: 'json',
-					language: self.options.language,
-					'continue': self._cache[term] && self._cache[term].nextSuggestionOffset
-						? self._cache[term].nextSuggestionOffset : 0
+					language: this.options.language,
+					'continue': this._cache.term === term && this._cache.nextSuggestionOffset
+						? this._cache.nextSuggestionOffset
+						: 0
 				};
 				if( data.context == 'item' ) {
 					data.entity = self._getEntity().getId();
