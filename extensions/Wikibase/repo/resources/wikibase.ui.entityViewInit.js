@@ -28,7 +28,6 @@
 					'statementgrouplistview-statementgroupview',
 					'statementlistview-statementview',
 					'statementview-snakview',
-					'statementview-referenceview',
 					'referenceview-snakview'
 				],
 				removetoolbar: [
@@ -113,8 +112,11 @@
 			htmlDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/html' ),
 			plaintextDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/plain' ),
 			entityIdParser = new ( parserStore.getParser( wb.datamodel.EntityId.TYPE ) )( { lang: userLanguages[0] } ),
+			toolbarFactory = new wb.view.ToolbarFactory(),
+			structureEditorFactory = new wb.view.StructureEditorFactory( toolbarFactory ),
 			viewFactoryClass = wb.view.ViewFactory,
 			viewFactoryArguments = [
+				structureEditorFactory,
 				contentLanguages,
 				dataTypeStore,
 				new wb.entityIdFormatter.CachingEntityIdHtmlFormatter(
@@ -134,7 +136,10 @@
 				parserStore,
 				userLanguages,
 				repoApiUrl
-			];
+			],
+			startEditingCallback = function() {
+				return $.Deferred().resolve().promise();
+			};
 
 		if ( isEditable() ) {
 			viewFactoryClass = wb.view.ControllerViewFactory;
@@ -146,7 +151,7 @@
 
 		viewFactoryArguments.unshift( null );
 		var viewFactory = new ( Function.prototype.bind.apply( viewFactoryClass, viewFactoryArguments ) );
-		var entityView = viewFactory.getEntityView( entity, $entityview );
+		var entityView = viewFactory.getEntityView( startEditingCallback, entity, $entityview );
 
 		return entityView.widgetName;
 	}
