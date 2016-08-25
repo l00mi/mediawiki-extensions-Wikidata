@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'ArticlePlaceholder\\AboutTopicRenderer' => $baseDir . '/extensions/ArticlePlaceholder/includes/AboutTopicRenderer.php',
     'ArticlePlaceholder\\BaseTemplateToolboxHookHandler' => $baseDir . '/extensions/ArticlePlaceholder/includes/BaseTemplateToolboxHookHandler.php',
     'ArticlePlaceholder\\Hooks' => $baseDir . '/extensions/ArticlePlaceholder/includes/Hooks.php',
     'ArticlePlaceholder\\ItemNotabilityFilter' => $baseDir . '/extensions/ArticlePlaceholder/includes/ItemNotabilityFilter.php',
@@ -407,7 +408,8 @@ return array(
     'Wikibase\\Client\\DataAccess\\Scribunto\\Scribunto_LuaWikibaseEntityLibrary' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/Scribunto/Scribunto_LuaWikibaseEntityLibrary.php',
     'Wikibase\\Client\\DataAccess\\Scribunto\\Scribunto_LuaWikibaseLibrary' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/Scribunto/Scribunto_LuaWikibaseLibrary.php',
     'Wikibase\\Client\\DataAccess\\Scribunto\\SnakSerializationRenderer' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/Scribunto/SnakSerializationRenderer.php',
-    'Wikibase\\Client\\DataAccess\\Scribunto\\WikibaseLuaBindings' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/Scribunto/WikibaseLuaBindings.php',
+    'Wikibase\\Client\\DataAccess\\Scribunto\\WikibaseLanguageDependentLuaBindings' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/Scribunto/WikibaseLanguageDependentLuaBindings.php',
+    'Wikibase\\Client\\DataAccess\\Scribunto\\WikibaseLanguageIndependentLuaBindings' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/Scribunto/WikibaseLanguageIndependentLuaBindings.php',
     'Wikibase\\Client\\DataAccess\\Scribunto\\WikibaseLuaEntityBindings' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/Scribunto/WikibaseLuaEntityBindings.php',
     'Wikibase\\Client\\DataAccess\\SnaksFinder' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/SnaksFinder.php',
     'Wikibase\\Client\\DataAccess\\StatementTransclusionInteractor' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/StatementTransclusionInteractor.php',
@@ -476,7 +478,8 @@ return array(
     'Wikibase\\Client\\Tests\\DataAccess\\Scribunto\\Scribunto_LuaWikibaseLibraryTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/Scribunto/Scribunto_LuaWikibaseLibraryTest.php',
     'Wikibase\\Client\\Tests\\DataAccess\\Scribunto\\Scribunto_LuaWikibaseLibraryTestCase' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/Scribunto/Scribunto_LuaWikibaseLibraryTestCase.php',
     'Wikibase\\Client\\Tests\\DataAccess\\Scribunto\\SnakSerializationRendererTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/Scribunto/SnakSerializationRendererTest.php',
-    'Wikibase\\Client\\Tests\\DataAccess\\Scribunto\\WikibaseLuaBindingsTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/Scribunto/WikibaseLuaBindingsTest.php',
+    'Wikibase\\Client\\Tests\\DataAccess\\Scribunto\\WikibaseLanguageDependentLuaBindingsTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/Scribunto/WikibaseLanguageDependentLuaBindingsTest.php',
+    'Wikibase\\Client\\Tests\\DataAccess\\Scribunto\\WikibaseLanguageIndependentLuaBindingsTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/Scribunto/WikibaseLanguageIndependentLuaBindingsTest.php',
     'Wikibase\\Client\\Tests\\DataAccess\\Scribunto\\WikibaseLuaEntityBindingsTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/Scribunto/WikibaseLuaEntityBindingsTest.php',
     'Wikibase\\Client\\Tests\\DataAccess\\SnaksFinderTest' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/SnaksFinderTest.php',
     'Wikibase\\Client\\Tests\\DataAccess\\WikibaseDataAccessTestItemSetUpHelper' => $baseDir . '/extensions/Wikibase/client/tests/phpunit/includes/DataAccess/WikibaseDataAccessTestItemSetUpHelper.php',
