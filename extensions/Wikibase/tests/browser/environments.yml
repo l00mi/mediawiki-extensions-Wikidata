@@ -31,15 +31,17 @@ mw-vagrant-guest:
 beta:
   language_code: en
   browser: firefox
-  mediawiki_url: http://wikidata.beta.wmflabs.org/wiki/
+  mediawiki_url: https://wikidata.beta.wmflabs.org/wiki/
   mediawiki_user: Selenium_user
+  user_factory: true
   # mediawiki_password: SET THIS IN THE ENVIRONMENT!
 
 test:
   language_code: en
   browser: firefox
-  mediawiki_url: http://test.wikidata.org/wiki/
+  mediawiki_url: https://test.wikidata.org/wiki/
   mediawiki_user: Selenium_user
+  user_factory: true
   # mediawiki_password: SET THIS IN THE ENVIRONMENT!
 
 integration:
