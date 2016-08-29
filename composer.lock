@@ -782,12 +782,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "ecaf91307409eeadab609c22fc80bfbcdfd51777"
+                "reference": "fec88156435e6e288c3ea56397760e5b96f0e048"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/ecaf91307409eeadab609c22fc80bfbcdfd51777",
-                "reference": "ecaf91307409eeadab609c22fc80bfbcdfd51777",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/fec88156435e6e288c3ea56397760e5b96f0e048",
+                "reference": "fec88156435e6e288c3ea56397760e5b96f0e048",
                 "shasum": ""
             },
             "require-dev": {
@@ -812,7 +812,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-08-25 20:32:13"
+            "time": "2016-08-28 20:33:39"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1250,7 +1250,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "c73606b50e0ae6bc29577108953742c960b7cfc7"
+                "reference": "5a00bc5ff52959052a4ca8251c0380924ee4dfb0"
             },
             "require": {
                 "data-values/common": ">=0.1 <0.4",
@@ -1302,7 +1302,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2016-08-01 08:09:55"
+            "time": "2016-08-28 20:44:35"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1568,12 +1568,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e9e50bca76a6411db17380e599ae45da67992a89"
+                "reference": "416dd657301560f4fec33226d9c138ca16f4af41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e9e50bca76a6411db17380e599ae45da67992a89",
-                "reference": "e9e50bca76a6411db17380e599ae45da67992a89",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/416dd657301560f4fec33226d9c138ca16f4af41",
+                "reference": "416dd657301560f4fec33226d9c138ca16f4af41",
                 "shasum": ""
             },
             "require": {
@@ -1645,7 +1645,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-08-27 22:26:42"
+            "time": "2016-08-28 23:20:30"
         },
         {
             "name": "wikibase/wikimedia-badges",
