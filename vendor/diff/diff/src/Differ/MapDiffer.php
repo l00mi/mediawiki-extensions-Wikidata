@@ -16,7 +16,7 @@ use LogicException;
  *
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MapDiffer implements Differ {
@@ -40,7 +40,7 @@ class MapDiffer implements Differ {
 	 * @since 0.4
 	 *
 	 * @param bool $recursively
-	 * @param Differ $listDiffer
+	 * @param Differ|null $listDiffer
 	 */
 	public function __construct( $recursively = false, Differ $listDiffer = null ) {
 		$this->recursively = $recursively;

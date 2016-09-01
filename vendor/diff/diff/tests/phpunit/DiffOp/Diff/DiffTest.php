@@ -2,6 +2,7 @@
 
 namespace Diff\Tests\DiffOp\Diff;
 
+use Closure;
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\Diff\ListDiff;
 use Diff\DiffOp\Diff\MapDiff;
@@ -18,7 +19,7 @@ use stdClass;
  * @group Diff
  * @group DiffOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Thiemo Mättig
  */
@@ -186,53 +187,17 @@ class DiffTest extends DiffTestCase {
 	}
 
 	public function looksAssociativeProvider() {
-		$argLists = array();
-
-		$diff = new Diff();
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array(), false );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array(), true );
-
-		$argLists[] = array( $diff, true );
-
-
-		$diff = new Diff( array( new DiffOpAdd( '' ) ) );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ) ) );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ), new DiffOpAdd( '' ) ) );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ) ), true );
-
-		$argLists[] = array( $diff, true );
-
-
-		$diff = new Diff( array( 'onoez' => new DiffOpChange( '', 'spam' ) ) );
-
-		$argLists[] = array( $diff, true );
-
-
-		$diff = new Diff( array( new Diff() ) );
-
-		$argLists[] = array( $diff, true );
-
-		return $argLists;
+		return array(
+			array( new Diff(), false ),
+			array( new Diff( array(), false ), false ),
+			array( new Diff( array(), true ), true ),
+			array( new Diff( array( new DiffOpAdd( '' ) ) ), false ),
+			array( new Diff( array( new DiffOpRemove( '' ) ) ), false ),
+			array( new Diff( array( new DiffOpRemove( '' ), new DiffOpAdd( '' ) ) ), false ),
+			array( new Diff( array( new DiffOpRemove( '' ) ), true ), true ),
+			array( new Diff( array( 'onoez' => new DiffOpChange( '', 'spam' ) ) ), true ),
+			array( new Diff( array( new Diff() ) ), true ),
+		);
 	}
 
 	/**
@@ -247,53 +212,17 @@ class DiffTest extends DiffTestCase {
 	}
 
 	public function isAssociativeProvider() {
-		$argLists = array();
-
-		$diff = new Diff();
-
-		$argLists[] = array( $diff, null );
-
-
-		$diff = new Diff( array(), false );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array(), true );
-
-		$argLists[] = array( $diff, true );
-
-
-		$diff = new Diff( array( new DiffOpAdd( '' ) ) );
-
-		$argLists[] = array( $diff, null );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ) ), false );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ), new DiffOpAdd( '' ) ) );
-
-		$argLists[] = array( $diff, null );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ) ), true );
-
-		$argLists[] = array( $diff, true );
-
-
-		$diff = new Diff( array( 'onoez' => new DiffOpChange( '', 'spam' ) ) );
-
-		$argLists[] = array( $diff, null );
-
-
-		$diff = new Diff( array( new Diff() ) );
-
-		$argLists[] = array( $diff, null );
-
-		return $argLists;
+		return array(
+			array( new Diff(), null ),
+			array( new Diff( array(), false ), false ),
+			array( new Diff( array(), true ), true ),
+			array( new Diff( array( new DiffOpAdd( '' ) ) ), null ),
+			array( new Diff( array( new DiffOpRemove( '' ) ), false ), false ),
+			array( new Diff( array( new DiffOpRemove( '' ), new DiffOpAdd( '' ) ) ), null ),
+			array( new Diff( array( new DiffOpRemove( '' ) ), true ), true ),
+			array( new Diff( array( 'onoez' => new DiffOpChange( '', 'spam' ) ) ), null ),
+			array( new Diff( array( new Diff() ) ), null ),
+		);
 	}
 
 	/**
@@ -304,53 +233,17 @@ class DiffTest extends DiffTestCase {
 	}
 
 	public function hasAssociativeOperationsProvider() {
-		$argLists = array();
-
-		$diff = new Diff();
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array(), false );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array(), true );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpAdd( '' ) ) );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ) ), false );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ), new DiffOpAdd( '' ) ), true );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( new DiffOpRemove( '' ) ), true );
-
-		$argLists[] = array( $diff, false );
-
-
-		$diff = new Diff( array( 'onoez' => new DiffOpChange( '', 'spam' ) ) );
-
-		$argLists[] = array( $diff, true );
-
-
-		$diff = new Diff( array( new Diff() ) );
-
-		$argLists[] = array( $diff, true );
-
-		return $argLists;
+		return array(
+			array( new Diff(), false ),
+			array( new Diff( array(), false ), false ),
+			array( new Diff( array(), true ), false ),
+			array( new Diff( array( new DiffOpAdd( '' ) ) ), false ),
+			array( new Diff( array( new DiffOpRemove( '' ) ), false ), false ),
+			array( new Diff( array( new DiffOpRemove( '' ), new DiffOpAdd( '' ) ), true ), false ),
+			array( new Diff( array( new DiffOpRemove( '' ) ), true ), false ),
+			array( new Diff( array( 'onoez' => new DiffOpChange( '', 'spam' ) ) ), true ),
+			array( new Diff( array( new Diff() ) ), true ),
+		);
 	}
 
 	/**
@@ -461,12 +354,11 @@ class DiffTest extends DiffTestCase {
 	}
 
 	/**
-	 * @param callback $function
+	 * @param Closure $function
 	 */
-	private function checkTypeChecks( $function ) {
+	private function checkTypeChecks( Closure $function ) {
 		$excption = null;
 		$list = new Diff();
-
 
 		foreach ( array( 42, 'foo', array(), new stdClass(), 4.2 ) as $element ) {
 			$this->assertInvalidArgument( $function, $list, $element );
@@ -477,9 +369,9 @@ class DiffTest extends DiffTestCase {
 	 * Asserts that an InvalidArgumentException gets thrown when calling the provided
 	 * callable. Extra arguments specified to the method are also provided to the callable.
 	 *
-	 * @param callable $function
+	 * @param Closure $function
 	 */
-	private function assertInvalidArgument( $function ) {
+	private function assertInvalidArgument( Closure $function ) {
 		$this->setExpectedException( 'InvalidArgumentException' );
 
 		$arguments = func_get_args();
@@ -630,14 +522,14 @@ class DiffTest extends DiffTestCase {
 	}
 
 	public function invalidIsAssociativeProvider() {
-		return $this->arrayWrap( array(
-			1,
-			'1',
-			'null',
-			0,
-			array(),
-			'foobar'
-		) );
+		return array(
+			array( 1 ),
+			array( '1' ),
+			array( 'null' ),
+			array( 0 ),
+			array( array() ),
+			array( 'foobar' ),
+		);
 	}
 
 	/**
@@ -649,29 +541,24 @@ class DiffTest extends DiffTestCase {
 	}
 
 	public function invalidDiffOpsProvider() {
-		$diffOpLists = array();
-
-		$diffOpLists[] = array(
-			'foo'
+		return array(
+			array( array(
+				'foo',
+			) ),
+			array( array(
+				null,
+			) ),
+			array( array(
+				false,
+				true,
+				array(),
+			) ),
+			array( array(
+				new DiffOpAdd( 42 ),
+				'in your list',
+				new DiffOpAdd( 9001 ),
+			) )
 		);
-
-		$diffOpLists[] = array(
-			null
-		);
-
-		$diffOpLists[] = array(
-			false,
-			true,
-			array()
-		);
-
-		$diffOpLists[] = array(
-			new DiffOpAdd( 42 ),
-			'in your list',
-			new DiffOpAdd( 9001 ),
-		);
-
-		return $this->arrayWrap( $diffOpLists );
 	}
 
 	/**
@@ -683,10 +570,15 @@ class DiffTest extends DiffTestCase {
 	}
 
 	public function equalsProvider() {
+		$empty = new Diff();
+
 		return array(
+			// Identity
+			array( $empty, $empty ),
+
 			// Empty diffs
-			array( new Diff(), new Diff() ),
-			array( new Diff(), new Diff( array(), null ) ),
+			array( $empty, new Diff() ),
+			array( $empty, new Diff( array(), null ) ),
 
 			// Simple diffs
 			array( new Diff( array( new DiffOpAdd( 1 ) ) ), new Diff( array( new DiffOpAdd( 1 ) ) ) ),
@@ -701,13 +593,16 @@ class DiffTest extends DiffTestCase {
 	/**
 	 * @dataProvider notEqualsProvider
 	 */
-	public function testNotEquals( Diff $diff, Diff $target ) {
+	public function testNotEquals( Diff $diff, $target ) {
 		$this->assertFalse( $diff->equals( $target ) );
-		$this->assertFalse( $target->equals( $diff ) );
 	}
 
 	public function notEqualsProvider() {
 		return array(
+			// Not an instance or subclass of Diff
+			array( new Diff(), null ),
+			array( new Diff(), new DiffOpAdd( 1 ) ),
+
 			// Empty diffs
 			array( new Diff(), new Diff( array(), false ) ),
 			array( new Diff(), new Diff( array(), true ) ),

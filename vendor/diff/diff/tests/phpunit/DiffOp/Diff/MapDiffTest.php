@@ -17,7 +17,7 @@ use Diff\Tests\DiffOp\DiffOpTest;
  * @group Diff
  * @group DiffOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MapDiffTest extends DiffOpTest {
@@ -75,9 +75,9 @@ class MapDiffTest extends DiffOpTest {
 			$argLists[] = array( true, $operationList, 'foobar' );
 		}
 
-		$argLists[] = array( false, 42 );
-		$argLists[] = array( false, new DiffOpAdd( 42 ) );
-		$argLists[] = array( false, '~=[,,_,,]:3' );
+		$argLists[] = array( false, array( 42 ) );
+		$argLists[] = array( false, array( new MapDiffer() ) );
+		$argLists[] = array( false, array( '~=[,,_,,]:3' ) );
 
 		return $argLists;
 	}
@@ -355,7 +355,7 @@ class MapDiffTest extends DiffOpTest {
 		$diff = new Diff( $differ->doDiff( $old, $new ) );
 
 		$this->assertTrue( $diff->isEmpty() );
-		$this->assertTrue( $diff->getOperations() === array() );
+		$this->assertSame( array(), $diff->getOperations() );
 	}
 
 }

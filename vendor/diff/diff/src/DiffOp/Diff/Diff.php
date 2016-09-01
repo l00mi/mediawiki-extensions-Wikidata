@@ -15,7 +15,7 @@ use InvalidArgumentException;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  * @author Thiemo Mättig
@@ -73,8 +73,6 @@ class Diff extends ArrayObject implements DiffOp {
 	}
 
 	/**
-	 * @see Diff::getOperations
-	 *
 	 * @since 0.1
 	 *
 	 * @return DiffOp[]
@@ -98,8 +96,6 @@ class Diff extends ArrayObject implements DiffOp {
 	}
 
 	/**
-	 * @see Diff::addOperations
-	 *
 	 * @since 0.1
 	 *
 	 * @param DiffOp[] $operations
@@ -278,13 +274,11 @@ class Diff extends ArrayObject implements DiffOp {
 	}
 
 	/**
-	 * @see Diff::removeEmptyOperations
-	 *
 	 * @since 0.3
 	 */
 	public function removeEmptyOperations() {
 		foreach ( $this->getArrayCopy() as $key => $operation ) {
-			if ( $operation instanceof Diff && $operation->isEmpty() ) {
+			if ( $operation instanceof self && $operation->isEmpty() ) {
 				unset( $this[$key] );
 			}
 		}

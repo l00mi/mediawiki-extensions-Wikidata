@@ -18,7 +18,7 @@ Recent changes can be found in the [release notes](RELEASE-NOTES.md).
 
 ## Requirements
 
-* PHP 5.3 or later (tested with PHP 5.3 up to PHP 5.6 and hhvm)
+* PHP 5.3 or later (tested with PHP 5.3 up to PHP 7.1 and hhvm)
 
 ## Installation
 
@@ -31,11 +31,11 @@ the git repository and take care of loading yourself.
 To add this package as a local, per-project dependency to your project, simply add a
 dependency on `diff/diff` to your project's `composer.json` file.
 Here is a minimal example of a `composer.json` file that just defines a dependency on
-Diff 1.x:
+Diff 2.x:
 
     {
         "require": {
-            "diff/diff": "1.*"
+            "diff/diff": "2.*"
         }
     }
 

@@ -13,7 +13,7 @@ use Diff\Tests\DiffOp\DiffOpTest;
  * @group Diff
  * @group DiffOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DiffAsOpTest extends DiffOpTest {
@@ -38,8 +38,8 @@ class DiffAsOpTest extends DiffOpTest {
 		$argLists = array(
 			array( true, array() ),
 			array( true, array( new DiffOpAdd( 42 ) ) ),
-			array( true, array( new DiffOpRemove( new DiffOpRemove( "spam" ) ) ) ),
-			array( true, array( new Diff( array( new DiffOpRemove( new DiffOpRemove( "spam" ) ) ) ) ) ),
+			array( true, array( new DiffOpRemove( new DiffOpRemove( 'spam' ) ) ) ),
+			array( true, array( new Diff( array( new DiffOpRemove( new DiffOpRemove( 'spam' ) ) ) ) ) ),
 			array( true, array( new DiffOpAdd( 42 ), new DiffOpAdd( 42 ) ) ),
 			array( true, array( 'a' => new DiffOpAdd( 42 ), 'b' => new DiffOpAdd( 42 ) ) ),
 			array( true, array( new DiffOpAdd( 42 ), 'foo bar baz' => new DiffOpAdd( 42 ) ) ),

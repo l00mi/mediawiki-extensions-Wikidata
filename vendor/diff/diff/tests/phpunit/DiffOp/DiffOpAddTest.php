@@ -11,7 +11,7 @@ use Diff\DiffOp\DiffOpAdd;
  * @group Diff
  * @group DiffOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DiffOpAddTest extends DiffOpTest {
@@ -38,8 +38,7 @@ class DiffOpAddTest extends DiffOpTest {
 			array( true, array() ),
 			array( true, true ),
 			array( true, 42 ),
-			array( true, new DiffOpAdd( "spam" ) ),
-			array( false ),
+			array( true, new DiffOpAdd( 'spam' ) ),
 		);
 	}
 

@@ -2,7 +2,8 @@
 
 /**
  * PHPUnit bootstrap file for the Diff library.
- * @licence GNU GPL v2+
+ *
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 
@@ -14,6 +15,8 @@ if ( !is_readable( __DIR__ . '/../vendor/autoload.php' ) ) {
 	die( 'You need to install this package with Composer before you can run the tests' );
 }
 
-$autoLoader = require_once __DIR__ . '/../vendor/autoload.php';
+$classLoader = require __DIR__ . '/../vendor/autoload.php';
 
-$autoLoader->addPsr4( 'Diff\\Tests\\', __DIR__ . '/phpunit/' );
+$classLoader->addPsr4( 'Diff\\Tests\\', __DIR__ . '/phpunit/' );
+
+unset( $classLoader );

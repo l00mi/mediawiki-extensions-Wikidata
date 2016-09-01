@@ -12,7 +12,7 @@ use Diff\Tests\Fixtures\StubComparable;
  * @group Diff
  * @group Comparer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ComparableComparerTest extends DiffTestCase {
@@ -55,6 +55,14 @@ class ComparableComparerTest extends DiffTestCase {
 	public function unequalProvider() {
 		return array(
 			array(
+				null,
+				null
+			),
+			array(
+				new StubComparable( 1 ),
+				null
+			),
+			array(
 				new StubComparable( 1 ),
 				new StubComparable( 2 ),
 			),
@@ -70,4 +78,3 @@ class ComparableComparerTest extends DiffTestCase {
 	}
 
 }
-
