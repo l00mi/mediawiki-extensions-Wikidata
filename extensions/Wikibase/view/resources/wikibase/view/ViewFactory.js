@@ -286,6 +286,16 @@
 		} );
 	};
 
+	SELF.prototype._getAdderWithStartEditing = function( startEditingCallback ) {
+		var structureEditorFactory = this._structureEditorFactory;
+		return function( doAdd, $dom, label ) {
+			var newDoAdd = function() {
+				return startEditingCallback().then( doAdd );
+			};
+			return structureEditorFactory.getAdder( newDoAdd, $dom, label );
+		};
+	};
+
 	/**
 	 * Construct a suitable view for the list of statement groups for the given entity on the given DOM element
 	 *
@@ -319,7 +329,8 @@
 						} );
 						return res;
 					}
-				)
+				),
+				getAdder: this._getAdderWithStartEditing( startEditingCallback )
 			}
 		);
 	};
@@ -360,27 +371,24 @@
 	SELF.prototype.getStatementListView = function( startEditingCallback, entityId, propertyId, getStatementForGuid, value, $statementlistview ) {
 		propertyId = propertyId || $statementlistview.closest( '.wikibase-statementgroupview' ).attr( 'id' );
 
-		var statementlistview;
-		statementlistview = this._getView(
+		return this._getView(
 			'statementlistview',
 			$statementlistview,
 			{
 				value: value.length === 0 ? null : value,
-				listItemAdapter: this.getListItemAdapterForStatementView(
+				getListItemAdapter: this.getListItemAdapterForStatementView.bind(
+					this,
 					startEditingCallback,
 					entityId,
 					function( dom ) {
 						var guidMatch = dom.className.match( /wikibase-statement-(\S+)/ );
 						return guidMatch ? getStatementForGuid( guidMatch[ 1 ] ) : null;
 					},
-					propertyId,
-					function( statementview ) {
-						return statementlistview.remove( statementview );
-					}
-				)
+					propertyId
+				),
+				getAdder: this._getAdderWithStartEditing( startEditingCallback )
 			}
 		);
-		return statementlistview;
 	};
 
 	/**
@@ -408,7 +416,6 @@
 	};
 
 	SELF.prototype.getStatementView = function( startEditingCallback, entityId, propertyId, removeCallback, value, $dom ) {
-		var structureEditorFactory = this._structureEditorFactory;
 		var currentPropertyId = value ? value.getClaim().getMainSnak().getPropertyId() : propertyId;
 		var view = this._getView(
 			'statementview',
@@ -426,7 +433,6 @@
 					}
 				},
 
-				buildReferenceListItemAdapter: $.proxy( this.getListItemAdapterForReferenceView, this, startEditingCallback ),
 				buildSnakView: $.proxy(
 					this.getSnakView,
 					this,
@@ -434,12 +440,8 @@
 					false
 				),
 				entityIdPlainFormatter: this._entityIdPlainFormatter,
-				getAdder: function( doAdd, $dom, label ) {
-					var newDoAdd = function() {
-						return startEditingCallback().then( doAdd );
-					};
-					return structureEditorFactory.getAdder( newDoAdd, $dom, label );
-				},
+				getAdder: this._getAdderWithStartEditing( startEditingCallback ),
+				getReferenceListItemAdapter: this.getListItemAdapterForReferenceView.bind( this, startEditingCallback ),
 				guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
 				qualifiersListItemAdapter: this.getListItemAdapterForSnakListView( startEditingCallback )
 			}
@@ -452,22 +454,29 @@
 	 *
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 */
-	SELF.prototype.getListItemAdapterForReferenceView = function( startEditingCallback ) {
+	SELF.prototype.getListItemAdapterForReferenceView = function( startEditingCallback, removeCallback ) {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.referenceview,
 			getNewItem: $.proxy( function( value, dom ) {
-				return this.getReferenceView( startEditingCallback, value, $( dom ) );
+				return this.getReferenceView( startEditingCallback, removeCallback, value, $( dom ) );
 			}, this )
 		} );
 	};
 
-	SELF.prototype.getReferenceView = function( startEditingCallback, value, $dom ) {
+	SELF.prototype.getReferenceView = function( startEditingCallback, removeCallback, value, $dom ) {
+		var structureEditorFactory = this._structureEditorFactory;
 		var view = this._getView(
 			'referenceview',
 			$dom,
 			{
 				value: value || null,
-				listItemAdapter: this.getListItemAdapterForSnakListView( startEditingCallback )
+				listItemAdapter: this.getListItemAdapterForSnakListView( startEditingCallback ),
+				getAdder: this._getAdderWithStartEditing( startEditingCallback ),
+				getReferenceRemover: function( $dom ) {
+					return structureEditorFactory.getRemover( function() {
+						return startEditingCallback().then( function() { return removeCallback( view ); } );
+					}, $dom );
+				}
 			}
 		);
 		return view;

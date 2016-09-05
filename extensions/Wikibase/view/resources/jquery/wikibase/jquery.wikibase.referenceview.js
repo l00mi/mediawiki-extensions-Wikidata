@@ -58,6 +58,7 @@ $.widget( 'wikibase.referenceview', PARENT, {
 			'' // snaklistview widget
 		],
 		templateShortCuts: {
+			$heading: '.wikibase-referenceview-heading',
 			$listview: '.wikibase-referenceview-listview'
 		},
 		value: null,
@@ -90,6 +91,8 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		} );
 
 		this._updateReferenceHashClass( this.value() );
+
+		this._referenceRemover = this.options.getReferenceRemover( this.$heading );
 	},
 
 	/**
@@ -220,6 +223,8 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		this.element.addClass( 'wb-edit' );
 		this._isInEditMode = true;
 
+		this._snakListAdder = this.options.getAdder( this.enterNewItem.bind( this ), this.element );
+
 		this._trigger( 'afterstartediting' );
 	},
 
@@ -232,6 +237,9 @@ $.widget( 'wikibase.referenceview', PARENT, {
 		if ( !this.isInEditMode() ) {
 			return;
 		}
+
+		this._snakListAdder.destroy();
+		this._snakListAdder = null;
 
 		this._isInEditMode = false;
 		this.element.removeClass( 'wb-edit' );
@@ -282,11 +290,12 @@ $.widget( 'wikibase.referenceview', PARENT, {
 
 		return listview.enterNewItem().done( function( $snaklistview ) {
 			lia.liInstance( $snaklistview ).enterNewItem()
-			.done( function() {
+			.done( function( $snakview ) {
 				// Since the new snakview will be initialized empty which invalidates the
 				// snaklistview, external components using the snaklistview will be noticed via
 				// the "change" event.
 				self._trigger( 'change' );
+				$snakview.data( 'snakview' ).focus();
 			} );
 		} );
 	},
@@ -321,6 +330,10 @@ $.widget( 'wikibase.referenceview', PARENT, {
 
 		if ( key === 'disabled' ) {
 			this.$listview.data( 'listview' ).option( key, value );
+			this._referenceRemover[ value ? 'disable' : 'enable' ]();
+			if ( this._snakListAdder ) {
+				this._snakListAdder[ value ? 'disable' : 'enable' ]();
+			}
 		}
 
 		return response;
