@@ -5,7 +5,8 @@
 			"Macofe",
 			"Wladek92",
 			"Gomoko",
-			"Orlodrim"
+			"Orlodrim",
+			"Urhixidur"
 		]
 	},
 	"wbqev-desc": "Vérifier les données par croisement avec les informations correspondantes dans des bases de données externes",
@@ -18,7 +19,7 @@
 	"wbqev-crosscheck-invalid-entity-id": "Identifiant d'entité invalide.",
 	"wbqev-crosscheck-not-existent-entity": "L'entité n'existe pas.",
 	"wbqev-crosscheck-result-headline": "Résultats pour",
-	"wbqev-crosscheck-empty-result": "L’entité saisie n’a pas de déclarations pouvant être vérifiés par croisement avec une des bases de données supportées.",
+	"wbqev-crosscheck-empty-result": "L’entité saisie n’a pas de déclarations pouvant être vérifiées par croisement avec une des bases de données prises en charge.",
 	"wbqev-crosscheck-result-table-header-references": "Références",
 	"wbqev-crosscheck-result-table-header-local-value": "valeur Wikidata",
 	"wbqev-crosscheck-result-table-header-external-value": "Valeurs externes",

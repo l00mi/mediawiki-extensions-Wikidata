@@ -6,7 +6,8 @@
 			"Ayack",
 			"Wladek92",
 			"Yzelf",
-			"Gomoko"
+			"Gomoko",
+			"Urhixidur"
 		]
 	},
 	"wbq-desc": "L’extension de base pour les extensions de Wikibase Quality, qui aide à gérer les données incohérentes.",
@@ -51,5 +52,5 @@
 	"apihelp-wbqgetviolationtypes-description": "Renvoie une liste de toutes les types de violation reconnus.",
 	"apihelp-wbqgetviolationtypes-param-groupid": "Un paramètre facultatif qui limite les types de violation à ceux qui sont associés au groupe indiqué.",
 	"apihelp-wdqgetviolationtypes-examples-1": "Retourne tous les types de violation, sans restrictions.",
-	"apihelp-wdqgetviolationtypes-examples-2": "Retourne tous les types de violation supportés et associés au groupe \"wbqc\"."
+	"apihelp-wdqgetviolationtypes-examples-2": "Retourne tous les types de violation pris en charge et associés au groupe « wbqc »."
 }
