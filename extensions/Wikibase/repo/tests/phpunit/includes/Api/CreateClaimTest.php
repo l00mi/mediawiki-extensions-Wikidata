@@ -15,7 +15,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Wikibase
  * @group WikibaseAPI
  * @group WikibaseRepo
- * @group CreateClaimTest
  *
  * @group medium
  *
@@ -91,7 +90,7 @@ class CreateClaimTest extends WikibaseApiTestCase {
 			'property' => '-',
 			'value' => '"Foo.png"',
 		);
-		$argLists[] = array( 'cant-load-entity-content', $params );
+		$argLists[] = array( 'no-such-entity', $params );
 
 		//1
 		$params = array(

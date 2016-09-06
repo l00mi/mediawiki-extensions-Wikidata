@@ -27,11 +27,6 @@
  * @event afterstartediting
  *       - {jQuery.Event}
  *
- * @event stopediting
- *        - {jQuery.Event}
- *        - {boolean} Whether to drop the value.
- *        - {Function} Callback function.
- *
  * @event afterstopediting
  *        - {jQuery.Event}
  *        - {boolean} Whether to drop the value.
@@ -324,7 +319,6 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 			[
 				prefix + 'create.' + this.widgetName,
 				prefix + 'afterstartediting.' + this.widgetName,
-				prefix + 'stopediting.' + this.widgetName,
 				prefix + 'afterstopediting.' + this.widgetName,
 				prefix + 'disable.' + this.widgetName
 			].join( ' ' ),
@@ -344,38 +338,12 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 	},
 
 	/**
-	 * @see jQuery.ui.EditableTemplatedWidget.isValid
-	 * @return {boolean}
-	 */
-	isValid: function() {
-		return this._getEntitytermsforlanguagelistview().isValid();
-	},
-
-	/**
-	 * @see jQuery.ui.EditableTemplatedWidget.isInitialValue
-	 * @return {boolean}
-	 */
-	isInitialValue: function() {
-		return this._getEntitytermsforlanguagelistview().isInitialValue();
-	},
-
-	/**
 	 * @inheritdoc
 	 */
 	startEditing: function() {
 		this._getEntitytermsforlanguagelistview().startEditing();
 
 		return PARENT.prototype.startEditing.call( this );
-	},
-
-	/**
-	 * @inheritdoc
-	 */
-	stopEditing: function( dropValue ) {
-		var deferred = $.Deferred();
-		this._trigger( 'stopediting', null, [dropValue] );
-		this._afterStopEditing( dropValue );
-		return deferred.resolve( dropValue ).promise();
 	},
 
 	/**
@@ -416,13 +384,6 @@ $.widget( 'wikibase.entitytermsview', PARENT, {
 		}
 
 		return this._getEntitytermsforlanguagelistview().value();
-	},
-
-	/**
-	 * @inheritdoc
-	 */
-	isEmpty: function() {
-		return this._getEntitytermsforlanguagelistview().isEmpty();
 	},
 
 	/**

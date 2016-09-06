@@ -22,7 +22,7 @@ use Wikibase\DataModel\Statement\Statement;
 class RdfVocabulary {
 
 	// Change this when changing data format!
-	const FORMAT_VERSION = '0.0.2';
+	const FORMAT_VERSION = '0.0.4';
 	const ONTOLOGY_VERSION = '1.0';
 
 	const ONTOLOGY_BASE_URI = 'http://wikiba.se/ontology';
@@ -38,10 +38,13 @@ class RdfVocabulary {
 	const NSP_CLAIM = 'p'; // entity -> statement
 	const NSP_CLAIM_STATEMENT = 'ps'; // statement -> simple value
 	const NSP_CLAIM_VALUE = 'psv'; // statement -> deep value
+	const NSP_CLAIM_VALUE_NORM = 'psn'; // statement -> deep value, normalized
 	const NSP_QUALIFIER = 'pq'; // statement -> qualifier
 	const NSP_QUALIFIER_VALUE = 'pqv'; // statement ->  qualifier deep value
+	const NSP_QUALIFIER_VALUE_NORM = 'pqn'; // statement ->  qualifier deep value, normalized
 	const NSP_REFERENCE = 'pr'; // reference -> simple value
 	const NSP_REFERENCE_VALUE = 'prv'; // reference -> deep value
+	const NSP_REFERENCE_VALUE_NORM = 'prn'; // reference -> deep value, normalized
 	const NSP_NOVALUE = 'wdno'; // novalue class
 	// other prefixes
 	const NS_SKOS = 'skos'; // SKOS vocabulary
@@ -83,6 +86,12 @@ class RdfVocabulary {
 			self::NSP_QUALIFIER => self::NSP_QUALIFIER_VALUE,
 			self::NSP_REFERENCE => self::NSP_REFERENCE_VALUE,
 	);
+	// Value properties for normalized values
+	public static $claimToValueNormalized = array(
+		self::NSP_CLAIM_STATEMENT => self::NSP_CLAIM_VALUE_NORM,
+		self::NSP_QUALIFIER => self::NSP_QUALIFIER_VALUE_NORM,
+		self::NSP_REFERENCE => self::NSP_REFERENCE_VALUE_NORM,
+	);
 
 	/**
 	 * @var string[] Mapping of namespace names to URIs.
@@ -115,22 +124,32 @@ class RdfVocabulary {
 	private static $canonicalLanguageCodeCache = array();
 
 	/**
-	 * @param string $baseUri Base URI for entity concept URIs.
-	 * @param string $dataUri Base URI for entity description URIs.
+	 * Map of the configured page properties.
+	 * @var string[]
+	 */
+	private $pagePropertyDefs;
+
+	/**
+	 * @param string   $baseUri Base URI for entity concept URIs.
+	 * @param string   $dataUri Base URI for entity description URIs.
 	 * @param string[] $canonicalLanguageCodes Mapping of non-standard to canonical language codes.
 	 * @param string[] $dataTypeUris Mapping of property data type IDs to their URIs,
 	 *                 if different from the default mapping.
+	 * @param string[] $pagePropertyDefs Mapping of page props: pageProp => wikibase predicate
+	 *                 All predicates will be prefixed with wikibase:
 	 */
 	public function __construct(
 		$baseUri,
 		$dataUri,
 		array $canonicalLanguageCodes = array(),
-		array $dataTypeUris = array()
+		array $dataTypeUris = array(),
+		array $pagePropertyDefs = array()
 	) {
 		$this->baseUri = $baseUri;
 		$this->dataUri = $dataUri;
 		$this->canonicalLanguageCodes = $canonicalLanguageCodes;
 		$this->dataTypeUris = $dataTypeUris;
+		$this->pagePropertyDefs = $pagePropertyDefs;
 
 		if ( substr( $this->baseUri, -7 ) === 'entity/' ) {
 			$topUri = substr( $this->baseUri, 0, -7 );
@@ -157,10 +176,13 @@ class RdfVocabulary {
 				self::NSP_CLAIM => $propUri,
 				self::NSP_CLAIM_STATEMENT => $propUri . 'statement/',
 				self::NSP_CLAIM_VALUE => $propUri . 'statement/value/',
+				self::NSP_CLAIM_VALUE_NORM => $propUri . 'statement/value-normalized/',
 				self::NSP_QUALIFIER => $propUri . 'qualifier/',
 				self::NSP_QUALIFIER_VALUE => $propUri . 'qualifier/value/',
+				self::NSP_QUALIFIER_VALUE_NORM => $propUri . 'qualifier/value-normalized/',
 				self::NSP_REFERENCE => $propUri . 'reference/',
 				self::NSP_REFERENCE_VALUE => $propUri . 'reference/value/',
+				self::NSP_REFERENCE_VALUE_NORM => $propUri . 'reference/value-normalized/',
 				self::NSP_NOVALUE => $propUri . 'novalue/',
 				// external
 				self::NS_SKOS => self::SKOS_URI,
@@ -298,6 +320,14 @@ class RdfVocabulary {
 	 */
 	public static function getOntologyURI() {
 		return self::ONTOLOGY_BASE_URI . "-" . self::ONTOLOGY_VERSION . ".owl";
+	}
+
+	/**
+	 * Get the map of configured page properties
+	 * @return string[]
+	 */
+	public function getPageProperties() {
+		return $this->pagePropertyDefs;
 	}
 
 }

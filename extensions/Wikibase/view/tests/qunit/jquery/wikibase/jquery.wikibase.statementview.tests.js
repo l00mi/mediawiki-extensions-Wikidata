@@ -27,7 +27,12 @@ QUnit.module( 'jquery.wikibase.statementview', QUnit.newMwEnvironment( {
  */
 var createStatementview = function( options, $node ) {
 	options = $.extend( {
-		buildReferenceListItemAdapter: function() {
+		getAdder: function() {
+			return {
+				destroy: function() {}
+			};
+		},
+		getReferenceListItemAdapter: function() {
 			return wb.tests.getMockListItemAdapter(
 				'mytestreferenceview',
 				function() {

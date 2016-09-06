@@ -21,7 +21,17 @@ local testItem = {
 			value = 'LabelDE'
 		},
 		en = {
-			value = 'LabelEN'
+			value = 'LabelDE-fallback',
+			language = 'de'
+		}
+	},
+	descriptions = {
+		de = {
+			value = 'DescriptionDE'
+		},
+		en = {
+			value = 'DescriptionDE-fallback',
+			language = 'de'
 		}
 	},
 	sitelinks = {
@@ -56,6 +66,10 @@ local function testGetLabel( code )
 	return getNewTestItem():getLabel( code )
 end
 
+local function testGetDescription( code )
+	return getNewTestItem():getDescription( code )
+end
+
 local function testGetSitelink( globalSiteId )
 	return getNewTestItem():getSitelink( globalSiteId )
 end
@@ -84,6 +98,10 @@ end
 
 local function integrationTestGetLabel( langCode )
 	return mw.wikibase.getEntityObject():getLabel( langCode )
+end
+
+local function integrationTestGetDescription( langCode )
+	return mw.wikibase.getEntityObject( 'Q32487' ):getDescription( langCode )
 end
 
 local function integrationTestGetSitelink( globalSiteId )
@@ -151,7 +169,7 @@ local tests = {
 	},
 	{ name = 'mw.wikibase.entity.getLabel 1', func = testGetLabel, type='ToString',
 	  args = { 'de' },
-	  expect = { 'LabelDE' }
+	  expect = { 'LabelDE', 'de' }
 	},
 	{ name = 'mw.wikibase.entity.getLabel 2', func = testGetLabel, type='ToString',
 	  args = { 'oooOOOOooo' },
@@ -162,7 +180,30 @@ local tests = {
 	  expect = "bad argument #1 to 'getLabel' (string, number or nil expected, got function)"
 	},
 	{ name = 'mw.wikibase.entity.getLabel 4 (content language)', func = testGetLabel, type='ToString',
-	  expect = { 'LabelDE' }
+	  expect = { 'LabelDE', 'de' }
+	},
+	{ name = 'mw.wikibase.entity.getLabel 5 (actual lang code)', func = testGetLabel, type='ToString',
+	  args = { 'en' },
+	  expect = { 'LabelDE-fallback', 'de' }
+	},
+	{ name = 'mw.wikibase.entity.getDescription 1', func = testGetDescription, type='ToString',
+	  args = { 'de' },
+	  expect = { 'DescriptionDE', 'de' }
+	},
+	{ name = 'mw.wikibase.entity.getDescription 2', func = testGetDescription, type='ToString',
+	  args = { 'oooOOOOooo' },
+	  expect = { nil }
+	},
+	{ name = 'mw.wikibase.entity.getDescription 3', func = testGetDescription, type='ToString',
+	  args = { function() end },
+	  expect = "bad argument #1 to 'getDescription' (string, number or nil expected, got function)"
+	},
+	{ name = 'mw.wikibase.entity.getDescription 4 (content language)', func = testGetDescription, type='ToString',
+	  expect = { 'DescriptionDE', 'de' }
+	},
+	{ name = 'mw.wikibase.entity.getDescription 5 (actual lang code)', func = testGetDescription, type='ToString',
+	  args = { 'en' },
+	  expect = { 'DescriptionDE-fallback', 'de' }
 	},
 	{ name = 'mw.wikibase.entity.getSitelink 1', func = testGetSitelink, type='ToString',
 	  args = { 'ruwiki' },
@@ -202,11 +243,14 @@ local tests = {
 	-- Integration tests
 
 	{ name = 'mw.wikibase.entity.getLabel integration 1', func = integrationTestGetLabel, type='ToString',
-	  expect = { 'Lua Test Item' }
+	  expect = { 'Lua Test Item', 'de' }
 	},
 	{ name = 'mw.wikibase.entity.getLabel integration 2', func = integrationTestGetLabel, type='ToString',
 	  args = { 'en' },
-	  expect = { 'Test all the code paths' }
+	  expect = { 'Test all the code paths', 'en' }
+	},
+	{ name = 'mw.wikibase.entity.getDescription integration', func = integrationTestGetDescription, type='ToString',
+	  expect = { 'Description of Q32487', 'de' }
 	},
 	{ name = 'mw.wikibase.entity.getSitelink integration 1', func = integrationTestGetSitelink, type='ToString',
 	  expect = { 'WikibaseClientDataAccessTest' }

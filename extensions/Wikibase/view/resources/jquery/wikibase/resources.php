@@ -107,7 +107,7 @@ return call_user_func( function() {
 			'dependencies' => array(
 				'jquery.inputautoexpand',
 				'jquery.ui.core',
-				'jquery.ui.TemplatedWidget',
+				'jquery.ui.EditableTemplatedWidget',
 				'jquery.util.getDirectionality',
 				'wikibase.datamodel.Term',
 				'wikibase.getLanguageNameByCode',
@@ -371,6 +371,7 @@ return call_user_func( function() {
 			),
 			'messages' => array(
 				'wikibase-badgeselector-badge-placeholder-title',
+				'wikibase-remove',
 				'wikibase-sitelink-site-edit-placeholder',
 				'wikibase-sitelink-page-edit-placeholder',
 			),
@@ -411,6 +412,8 @@ return call_user_func( function() {
 				'wikibase.utilities',
 			),
 			'messages' => array(
+				'wikibase-addqualifier',
+				'wikibase-addreference',
 				'wikibase-claimview-snak-tooltip',
 				'wikibase-claimview-snak-new-tooltip',
 				'wikibase-statementview-rank-preferred',

@@ -5,6 +5,7 @@ namespace Wikibase\Test\Repo\Api;
 use UsageException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Services\Statement\StatementGuidParsingException;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -20,7 +21,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Wikibase
  * @group WikibaseAPI
  * @group WikibaseRepo
- * @group EditEntityTest
  * @group BreakingTheSlownessBarrier
  * @group Database
  * @group medium
@@ -507,17 +507,17 @@ class EditEntityTest extends WikibaseApiTestCase {
 	 */
 	public function provideExceptionData() {
 		return array(
-			'no entity id given' => array(
+			'empty entity id given' => array(
 				'p' => array( 'id' => '', 'data' => '{}' ),
 				'e' => array( 'exception' => array(
 					'type' => UsageException::class,
-					'code' => 'no-such-entity-id'
+					'code' => 'invalid-entity-id'
 				) ) ),
 			'invalid id' => array(
 				'p' => array( 'id' => 'abcde', 'data' => '{}' ),
 				'e' => array( 'exception' => array(
 					'type' => UsageException::class,
-					'code' => 'no-such-entity-id'
+					'code' => 'invalid-entity-id'
 				) ) ),
 			'unknown id' => array(
 				'p' => array( 'id' => 'Q1234567', 'data' => '{}' ),
@@ -529,7 +529,7 @@ class EditEntityTest extends WikibaseApiTestCase {
 				'p' => array( 'id' => '1234', 'data' => '{}' ),
 				'e' => array( 'exception' => array(
 					'type' => UsageException::class,
-					'code' => 'no-such-entity-id'
+					'code' => 'invalid-entity-id'
 				) ) ),
 			'non existent sitelink' => array(
 				'p' => array( 'site' => 'dewiki','title' => 'NonExistent', 'data' => '{}' ),
@@ -672,6 +672,34 @@ class EditEntityTest extends WikibaseApiTestCase {
 					'type' => UsageException::class,
 					'code' => 'invalid-claim',
 					'message' => 'Cannot remove a claim with no GUID'
+				) )
+			),
+			'invalid entity ID in data value' => array(
+				'p' => array(
+					'id' => '%Berlin%',
+					'data' => '{ "claims": [ {
+						"mainsnak": { "snaktype": "novalue", "property": "P0" },
+						"type": "statement"
+					} ] }'
+				),
+				'e' => array( 'exception' => array(
+					'type' => UsageException::class,
+					'code' => 'invalid-claim',
+					'message' => '\'P0\' is not a valid entity ID'
+				) )
+			),
+			'invalid statement GUID' => array(
+				'p' => array(
+					'id' => '%Berlin%',
+					'data' => '{ "claims": [ {
+						"id": "Q0$GUID",
+						"mainsnak": { "snaktype": "novalue", "property": "%P56%" },
+						"type": "statement"
+					} ] }'
+				),
+				'e' => array( 'exception' => array(
+					// FIXME: Does this also need fixing?
+					'type' => StatementGuidParsingException::class
 				) )
 			),
 			'removing valid claim with no guid fails' => array(
@@ -834,8 +862,8 @@ class EditEntityTest extends WikibaseApiTestCase {
 				'p' => array( 'id' => 'M123X', 'data' => '{}' ),
 				'e' => array( 'exception' => array(
 					'type' => UsageException::class,
-					'code' => 'no-such-entity-id',
-					'message' => 'Could not find such an entity ID'
+					'code' => 'invalid-entity-id',
+					'message' => 'Invalid entity ID.'
 				) ),
 				'requires' => 'mediainfo' // skip if MediaInfo is not configured
 			),

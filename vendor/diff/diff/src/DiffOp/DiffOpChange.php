@@ -8,7 +8,7 @@ namespace Diff\DiffOp;
  *
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DiffOpChange extends AtomicDiffOp {
@@ -73,8 +73,6 @@ class DiffOpChange extends AtomicDiffOp {
 	 * @since 0.1
 	 *
 	 * @param string $serialization
-	 *
-	 * @return DiffOpChange
 	 */
 	public function unserialize( $serialization ) {
 		list( $this->newValue, $this->oldValue ) = unserialize( $serialization );

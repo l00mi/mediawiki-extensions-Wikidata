@@ -30,13 +30,6 @@
  * @param {jQuery.Event} event
  */
 /**
- * @event stopediting
- * Triggered when stopping the widget's edit mode.
- * @param {jQuery.Event}
- * @param {boolean} If `true`, the widget's value will be reset to the one from before edit mode was
- *        started.
- */
-/**
  * @event afterstopediting
  * Triggered after having stopped the widget's edit mode.
  * @param {jQuery.Event} event
@@ -97,7 +90,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	_create: function() {
 		this.options.value = this.options.value || new wb.datamodel.SnakList();
 
-		if ( !this.options.listItemAdapter || !( this.options.value instanceof wb.datamodel.SnakList ) ) {
+		if ( !this.options.getListItemAdapter || !( this.options.value instanceof wb.datamodel.SnakList ) ) {
 			throw new Error( 'Required option not specified properly' );
 		}
 
@@ -130,7 +123,9 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 		}
 
 		this.$listview.listview( {
-			listItemAdapter: this.options.listItemAdapter,
+			listItemAdapter: this.options.getListItemAdapter( function( snakview ) {
+				self._listview.removeItem( snakview.element );
+			} ),
 			value: this.options.value.toArray()
 		} );
 
@@ -150,8 +145,6 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 				self._trigger( 'change' );
 			}
 		);
-
-		this._attachEditModeEventHandlers();
 	},
 
 	/**
@@ -197,10 +190,7 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 			return;
 		}
 
-		this._trigger( 'stopediting', null, [dropValue] );
-
 		this.element.removeClass( 'wb-error' );
-		this._detachEditModeEventHandlers();
 		this.disable();
 
 		if ( dropValue ) {
@@ -232,34 +222,6 @@ $.widget( 'wikibase.snaklistview', PARENT, {
 	 */
 	cancelEditing: function() {
 		return this.stopEditing( true ); // stop editing and drop value
-	},
-
-	/**
-	 * Attaches event listeners that shall trigger stopping the `snaklistview`'s edit mode.
-	 *
-	 * @private
-	 */
-	_attachEditModeEventHandlers: function() {
-		var self = this;
-
-		this.$listview.one( this._lia.prefixedEvent( 'stopediting.' + this.widgetName ),
-			function( event, dropValue ) {
-				event.stopImmediatePropagation();
-				event.preventDefault();
-				self._detachEditModeEventHandlers();
-				self._attachEditModeEventHandlers();
-				self.stopEditing( dropValue );
-			}
-		);
-	},
-
-	/**
-	 * Detaches event listeners that shall trigger stopping the `snaklistview`'s edit mode.
-	 *
-	 * @private
-	 */
-	_detachEditModeEventHandlers: function() {
-		this.$listview.off( this._lia.prefixedEvent( 'stopediting.' + this.widgetName ) );
 	},
 
 	/**

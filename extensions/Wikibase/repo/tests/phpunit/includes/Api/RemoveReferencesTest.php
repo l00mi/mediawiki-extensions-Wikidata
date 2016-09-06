@@ -23,7 +23,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Wikibase
  * @group WikibaseAPI
  * @group WikibaseRepo
- * @group RemoveReferencesTest
  *
  * @group medium
  *
@@ -95,7 +94,7 @@ class RemoveReferencesTest extends WikibaseApiTestCase {
 
 			$this->assertInternalType( 'string', $statement->getGuid() );
 
-			if ( count( $references ) === 0 ) {
+			if ( $references->isEmpty() ) {
 				$this->makeInvalidRequest(
 					$statement->getGuid(),
 					array( '~=[,,_,,]:3' ),

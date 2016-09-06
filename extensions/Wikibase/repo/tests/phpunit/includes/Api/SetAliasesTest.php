@@ -15,7 +15,6 @@ use UsageException;
  * @group Wikibase
  * @group WikibaseAPI
  * @group WikibaseRepo
- * @group SetAliasesTest
  * @group BreakingTheSlownessBarrier
  *
  * @license GPL-2.0+
@@ -196,8 +195,8 @@ class SetAliasesTest extends ModifyTermTestCase {
 				'p' => array( 'id' => 'noANid', 'language' => 'fr', 'add' => 'normalValue' ),
 				'e' => array( 'exception' => array(
 					'type' => UsageException::class,
-					'code' => 'no-such-entity-id',
-					'message' => 'Could not find such an entity ID.'
+					'code' => 'invalid-entity-id',
+					'message' => 'Invalid entity ID.'
 				) )
 			),
 			array( //5

@@ -5,7 +5,7 @@
 ( function( mw, wb, $ ) {
 	'use strict';
 
-	var PARENT = $.ui.TemplatedWidget;
+	var PARENT = $.ui.EditableTemplatedWidget;
 
 /**
  * Displays and allows editing label and description in a specific language.
@@ -27,11 +27,6 @@
  *
  * @event afterstartediting
  *       - {jQuery.Event}
- *
- * @event stopediting
- *        - {jQuery.Event}
- *        - {boolean} Whether to drop the value.
- *        - {Function} Callback function.
  *
  * @event afterstopediting
  *        - {jQuery.Event}
@@ -84,11 +79,6 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 	$aliasesview: null,
 
 	/**
-	 * @type {boolean}
-	 */
-	_isInEditMode: false,
-
-	/**
 	 * @see jQuery.ui.TemplatedWidget._create
 	 */
 	_create: function() {
@@ -119,12 +109,12 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 			PARENT.prototype.destroy.call( self );
 		}
 
-		if ( this._isInEditMode ) {
+		if ( this.isInEditMode() ) {
 			this.element.one( this.widgetEventPrefix + 'afterstopediting', function( event ) {
 				degrade();
 			} );
 
-			this.cancelEditing();
+			this.stopEditing( true );
 		} else {
 			degrade();
 		}
@@ -160,7 +150,6 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 				[
 					widgetName + 'create.' + self.widgetName,
 					widgetName + 'afterstartediting.' + self.widgetName,
-					widgetName + 'stopediting.' + self.widgetName,
 					widgetName + 'afterstopediting.' + self.widgetName,
 					widgetName + 'disable.' + self.widgetName
 				].join( ' ' ),
@@ -181,85 +170,32 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 		} );
 	},
 
-	/**
-	 * @return {boolean}
-	 */
-	isValid: function() {
-		return this.$labelview.data( 'labelview' ).isValid()
-			&& this.$descriptionview.data( 'descriptionview' ).isValid()
-			&& this.$aliasesview.data( 'aliasesview' ).isValid();
-	},
-
-	/**
-	 * @return {boolean}
-	 */
-	isInitialValue: function() {
-		return this.$labelview.data( 'labelview' ).isInitialValue()
-			&& this.$descriptionview.data( 'descriptionview' ).isInitialValue()
-			&& this.$aliasesview.data( 'aliasesview' ).isInitialValue();
+	draw: function() {
+		return $.Deferred().resolve().promise();
 	},
 
 	/**
 	 * Puts the widget into edit mode.
 	 */
 	startEditing: function() {
-		if ( this._isInEditMode ) {
-			return;
+		if ( this.isInEditMode() ) {
+			return $.Deferred().resolve().promise();
 		}
-
-		this._isInEditMode = true;
-		this.element.addClass( 'wb-edit' );
 
 		this.$labelview.data( 'labelview' ).startEditing();
 		this.$descriptionview.data( 'descriptionview' ).startEditing();
 		this.$aliasesview.data( 'aliasesview' ).startEditing();
-
-		this._trigger( 'afterstartediting' );
-	},
-
-	/**
-	 * Stops the widget's edit mode.
-	 *
-	 * @param {boolean} [dropValue]
-	 */
-	stopEditing: function( dropValue ) {
-		if ( !this._isInEditMode || !this.isValid() && !dropValue ) {
-			return;
-		}
-
-		this._trigger( 'stopediting', null, [dropValue] );
-
-		this.disable();
-
-		var labelview = this.$labelview.data( 'labelview' ),
-			descriptionview = this.$descriptionview.data( 'descriptionview' ),
-			aliasesview = this.$aliasesview.data( 'aliasesview' );
-
-		labelview.stopEditing( dropValue );
-		descriptionview.stopEditing( dropValue );
-		aliasesview.stopEditing( dropValue );
-
-		this._afterStopEditing( dropValue );
+		return PARENT.prototype.startEditing.call( this );
 	},
 
 	/**
 	 * @param {boolean} [dropValue]
 	 */
 	_afterStopEditing: function( dropValue ) {
-		if ( !dropValue ) {
-			this.options.value = this.value();
-		}
-		this._isInEditMode = false;
-		this.enable();
-		this.element.removeClass( 'wb-edit' );
-		this._trigger( 'afterstopediting', null, [dropValue] );
-	},
-
-	/**
-	 * Cancels editing.
-	 */
-	cancelEditing: function() {
-		this.stopEditing( true );
+		this.$labelview.data( 'labelview' ).stopEditing( dropValue );
+		this.$descriptionview.data( 'descriptionview' ).stopEditing( dropValue );
+		this.$aliasesview.data( 'aliasesview' ).stopEditing( dropValue );
+		return PARENT.prototype._afterStopEditing.call( this, dropValue );
 	},
 
 	/**
@@ -345,23 +281,8 @@ $.widget( 'wikibase.entitytermsforlanguageview', PARENT, {
 		this.$labelview.data( 'labelview' ).focus();
 	},
 
-	/**
-	 * Applies/Removes error state.
-	 *
-	 * @param {Error} [error]
-	 */
-	setError: function( error ) {
-		if ( error ) {
-			this.element.addClass( 'wb-error' );
-			this._trigger( 'toggleerror', null, [error] );
-		} else {
-			this.removeError();
-			this._trigger( 'toggleerror' );
-		}
-	},
-
 	removeError: function() {
-		this.element.removeClass( 'wb-error' );
+		PARENT.prototype.removeError.call( this );
 
 		this.$labelview.data( 'labelview' ).removeError();
 		this.$descriptionview.data( 'descriptionview' ).removeError();

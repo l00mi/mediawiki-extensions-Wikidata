@@ -9,7 +9,7 @@ if ( defined( 'PropertySuggester_VERSION' ) ) {
 	return;
 }
 
-define( 'PropertySuggester_VERSION', '3.1.2' );
+define( 'PropertySuggester_VERSION', '3.1.3' );
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -37,7 +37,6 @@ $wgAPIModules['wbsgetsuggestions'] = 'PropertySuggester\GetSuggestions';
 
 global $wgHooks;
 $wgHooks['BeforePageDisplay'][] = 'PropertySuggesterHooks::onBeforePageDisplay';
-$wgHooks['UnitTestsList'][] = 'PropertySuggesterHooks::onUnitTestsList';
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'PropertySuggesterHooks::onCreateSchema';
 
 $remoteExtPathParts = explode(

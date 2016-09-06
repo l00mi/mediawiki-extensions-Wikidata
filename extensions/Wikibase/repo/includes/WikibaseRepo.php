@@ -85,6 +85,8 @@ use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\UnionContentLanguages;
+use Wikibase\Lib\UnitConverter;
+use Wikibase\Lib\UnitStorage;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\PropertyInfoBuilder;
@@ -806,14 +808,7 @@ class WikibaseRepo {
 	 */
 	public function getLanguageFallbackChainFactory() {
 		if ( $this->languageFallbackChainFactory === null ) {
-			global $wgUseSquid;
-
-			// The argument is about whether full page output (OutputPage, specifically JS vars in
-			// it currently) is cached for anons, where the only caching mechanism in use now is
-			// Squid.
-			$anonymousPageViewCached = $wgUseSquid;
-
-			$this->languageFallbackChainFactory = new LanguageFallbackChainFactory( $anonymousPageViewCached );
+			$this->languageFallbackChainFactory = new LanguageFallbackChainFactory();
 		}
 
 		return $this->languageFallbackChainFactory;
@@ -1006,7 +1001,8 @@ class WikibaseRepo {
 				$this->getVocabularyBaseUri(),
 				$entityDataTitle->getCanonicalURL() . '/',
 				$languageCodes,
-				$this->dataTypeDefinitions->getRdfTypeUris()
+				$this->dataTypeDefinitions->getRdfTypeUris(),
+				$this->settings->getSetting( 'pagePropertiesRdf' ) ?: []
 			);
 		}
 
@@ -1507,7 +1503,11 @@ class WikibaseRepo {
 			$this->getEntitySerializer(
 				SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
 				SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
-			)
+			),
+			$this->getEntityIdParser(),
+			$this->getStore()->newSiteLinkStore(),
+			$this->getEntityFactory(),
+			$this->getEntityStore()
 		);
 	}
 
@@ -1766,6 +1766,37 @@ class WikibaseRepo {
 			}
 		}
 		return $setting;
+	}
+
+	/**
+	 * Get configure unit converter.
+	 * @return null|UnitConverter Configured Unit converter, or null if none configured
+	 */
+	public function getUnitConverter() {
+		$unitStorage = $this->getUnitStorage();
+		if ( !$unitStorage ) {
+			return null;
+		}
+		return new UnitConverter( $unitStorage, $this->settings->getSetting( 'conceptBaseUri' ) );
+	}
+
+	/**
+	 * Creates configured unit storage. Configuration is in unitStorage parameter,
+	 * in getObjectFromSpec format.
+	 * @see \ObjectFactory::getObjectFromSpec
+	 * @return null|UnitStorage Configured unit storage, or null
+	 */
+	private function getUnitStorage() {
+		if ( !$this->settings->hasSetting( 'unitStorage' ) ) {
+			return null;
+		}
+		$storage =
+			\ObjectFactory::getObjectFromSpec( $this->settings->getSetting( 'unitStorage' ) );
+		if ( !( $storage instanceof UnitStorage ) ) {
+			wfWarn( "Bad unit storage configuration, ignoring" );
+			return null;
+		}
+		return $storage;
 	}
 
 }

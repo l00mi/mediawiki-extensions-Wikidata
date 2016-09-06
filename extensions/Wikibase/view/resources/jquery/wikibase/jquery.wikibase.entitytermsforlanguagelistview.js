@@ -25,11 +25,6 @@
  * @event afterstartediting
  *       - {jQuery.Event}
  *
- * @event stopediting
- *        - {jQuery.Event}
- *        - {boolean} Whether to drop the value.
- *        - {Function} Callback function.
- *
  * @event afterstopediting
  *        - {jQuery.Event}
  *        - {boolean} Whether to drop the value.
@@ -169,7 +164,6 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 			[
 				prefix + 'create.' + this.widgetName,
 				prefix + 'afterstartediting.' + this.widgetName,
-				prefix + 'stopediting.' + this.widgetName,
 				prefix + 'afterstopediting.' + this.widgetName,
 				prefix + 'disable.' + this.widgetName
 			].join( ' ' ),
@@ -377,44 +371,6 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 		return !!this.$listview.data( 'listview' ).items().length;
 	},
 
-	/**
-	 * @return {boolean}
-	 */
-	isValid: function() {
-		if ( !this._isInEditMode ) {
-			return true;
-		}
-
-		var listview = this.$listview.data( 'listview' ),
-			lia = listview.listItemAdapter(),
-			isValid = true;
-
-		listview.items().each( function() {
-			var entitytermsforlanguageview = lia.liInstance( $( this ) );
-			isValid = entitytermsforlanguageview.isValid();
-			return isValid;
-		} );
-
-		return isValid;
-	},
-
-	/**
-	 * @return {boolean}
-	 */
-	isInitialValue: function() {
-		var listview = this.$listview.data( 'listview' ),
-			lia = listview.listItemAdapter(),
-			isInitialValue = true;
-
-		listview.items().each( function() {
-			var entitytermsforlanguageview = lia.liInstance( $( this ) );
-			isInitialValue = entitytermsforlanguageview.isInitialValue();
-			return isInitialValue;
-		} );
-
-		return isInitialValue;
-	},
-
 	startEditing: function() {
 		if ( this._isInEditMode ) {
 			return;
@@ -437,11 +393,9 @@ $.widget( 'wikibase.entitytermsforlanguagelistview', PARENT, {
 	stopEditing: function( dropValue ) {
 		var deferred = $.Deferred();
 
-		if ( !this._isInEditMode || !this.isValid() && !dropValue ) {
+		if ( !this._isInEditMode ) {
 			return deferred.resolve().promise();
 		}
-
-		this._trigger( 'stopediting', null, [dropValue] );
 
 		this.disable();
 

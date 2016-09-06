@@ -31,11 +31,12 @@ use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Repo\Store\DispatchingEntityStoreWatcher;
 use Wikibase\Repo\Store\EntityPerPage;
+use Wikibase\Repo\Store\EntitiesWithoutTermFinder;
 use Wikibase\Repo\Store\SiteLinkConflictLookup;
-use Wikibase\Repo\Store\SQL\EntityPerPageTable;
+use Wikibase\Repo\Store\Sql\EntityPerPageTable;
 use Wikibase\Repo\Store\Sql\SqlSiteLinkConflictLookup;
 use Wikibase\Repo\Store\Sql\SqlChangeStore;
-use Wikibase\Repo\Store\SQL\WikiPageEntityRedirectLookup;
+use Wikibase\Repo\Store\Sql\WikiPageEntityRedirectLookup;
 use Wikibase\Repo\Store\WikiPageEntityStore;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Store\EntityIdLookup;
@@ -294,7 +295,29 @@ class SqlStore implements Store {
 	 * @return EntityPerPage
 	 */
 	public function newEntityPerPage() {
-		return new EntityPerPageTable( $this->entityIdParser, $this->entityIdComposer );
+		return new EntityPerPageTable( wfGetLB(), $this->entityIdParser, $this->entityIdComposer );
+	}
+
+	/**
+	 * @see Store::newEntitiesWithoutTerm
+	 *
+	 * @since 0.5
+	 *
+	 * @return EntitiesWithoutTermFinder
+	 */
+	public function newEntitiesWithoutTermFinder() {
+		return $this->newEntityPerPage();
+	}
+
+	/**
+	 * @see Store::newItemsWithoutSitelinks
+	 *
+	 * @since 0.5
+	 *
+	 * @return ItemsWithoutSitelinks
+	 */
+	public function newItemsWithoutSitelinksFinder() {
+		return $this->newEntityPerPage();
 	}
 
 	/**

@@ -17,35 +17,6 @@
 	}
 
 	/**
-	 * @param {jQuery} $entityview
-	 */
-	function initToolbarController( $entityview ) {
-		// The toolbars (defined per jquery.wikibase.toolbarcontroller.definition) that should
-		// be initialized:
-		var toolbarControllerConfig = {
-			toolbars: {
-				addtoolbar: [
-					'statementgrouplistview-statementgroupview',
-					'statementlistview-statementview',
-					'statementview-snakview',
-					'statementview-referenceview',
-					'referenceview-snakview'
-				],
-				edittoolbar: [
-				],
-				removetoolbar: [
-					'referenceview',
-					'statementview-snakview',
-					'referenceview-snakview',
-					'sitelinkgroupview-sitelinkview'
-				]
-			}
-		};
-
-		$entityview.toolbarcontroller( toolbarControllerConfig );
-	}
-
-	/**
 	 * @return {string[]} An ordered list of languages the user wants to use, the first being her
 	 *                    preferred language, and thus the UI language (currently wgUserLanguage).
 	 */
@@ -115,8 +86,11 @@
 			htmlDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/html' ),
 			plaintextDataValueEntityIdFormatter = formatterFactory.getFormatter( null, null, 'text/plain' ),
 			entityIdParser = new ( parserStore.getParser( wb.datamodel.EntityId.TYPE ) )( { lang: userLanguages[0] } ),
+			toolbarFactory = new wb.view.ToolbarFactory(),
+			structureEditorFactory = new wb.view.StructureEditorFactory( toolbarFactory ),
 			viewFactoryClass = wb.view.ViewFactory,
 			viewFactoryArguments = [
+				structureEditorFactory,
 				contentLanguages,
 				dataTypeStore,
 				new wb.entityIdFormatter.CachingEntityIdHtmlFormatter(
@@ -136,7 +110,10 @@
 				parserStore,
 				userLanguages,
 				repoApiUrl
-			];
+			],
+			startEditingCallback = function() {
+				return $.Deferred().resolve().promise();
+			};
 
 		if ( isEditable() ) {
 			viewFactoryClass = wb.view.ControllerViewFactory;
@@ -148,7 +125,7 @@
 
 		viewFactoryArguments.unshift( null );
 		var viewFactory = new ( Function.prototype.bind.apply( viewFactoryClass, viewFactoryArguments ) );
-		var entityView = viewFactory.getEntityView( entity, $entityview );
+		var entityView = viewFactory.getEntityView( startEditingCallback, entity, $entityview );
 
 		return entityView.widgetName;
 	}
@@ -373,10 +350,6 @@
 		var $entityview = $( '.wikibase-entityview' );
 		var entityInitializer = new wb.EntityInitializer( 'wbEntity' );
 		var canEdit = isEditable();
-
-		if ( canEdit ) {
-			initToolbarController( $entityview );
-		}
 
 		entityInitializer.getEntity().done( function( entity ) {
 			var viewName = createEntityView( entity, $entityview.first() );

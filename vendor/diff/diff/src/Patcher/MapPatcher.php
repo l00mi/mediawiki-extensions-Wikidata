@@ -5,6 +5,7 @@ namespace Diff\Patcher;
 use Diff\Comparer\StrictComparer;
 use Diff\Comparer\ValueComparer;
 use Diff\DiffOp\Diff\Diff;
+use Diff\DiffOp\DiffOp;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
@@ -14,7 +15,7 @@ use Diff\DiffOp\DiffOpRemove;
  *
  * @since 0.4
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MapPatcher extends ThrowingPatcher {
@@ -38,11 +39,7 @@ class MapPatcher extends ThrowingPatcher {
 	public function __construct( $throwErrors = false, Patcher $listPatcher = null ) {
 		parent::__construct( $throwErrors );
 
-		if ( $listPatcher === null ) {
-			$listPatcher = new ListPatcher( $throwErrors );
-		}
-
-		$this->listPatcher = $listPatcher;
+		$this->listPatcher = $listPatcher ?: new ListPatcher( $throwErrors );
 	}
 
 	/**
@@ -71,7 +68,14 @@ class MapPatcher extends ThrowingPatcher {
 		return $base;
 	}
 
-	private function applyOperation( &$base, $key, $diffOp ) {
+	/**
+	 * @param array &$base
+	 * @param int|string $key
+	 * @param DiffOp $diffOp
+	 *
+	 * @throws PatcherException
+	 */
+	private function applyOperation( &$base, $key, DiffOp $diffOp ) {
 		if ( $diffOp instanceof DiffOpAdd ) {
 			$this->applyDiffOpAdd( $base, $key, $diffOp );
 		}
@@ -89,6 +93,13 @@ class MapPatcher extends ThrowingPatcher {
 		}
 	}
 
+	/**
+	 * @param array &$base
+	 * @param int|string $key
+	 * @param DiffOpAdd $diffOp
+	 *
+	 * @throws PatcherException
+	 */
 	private function applyDiffOpAdd( &$base, $key, DiffOpAdd $diffOp ) {
 		if ( array_key_exists( $key, $base ) ) {
 			$this->handleError( 'Cannot add an element already present in a map' );
@@ -98,6 +109,13 @@ class MapPatcher extends ThrowingPatcher {
 		$base[$key] = $diffOp->getNewValue();
 	}
 
+	/**
+	 * @param array &$base
+	 * @param int|string $key
+	 * @param DiffOpRemove $diffOp
+	 *
+	 * @throws PatcherException
+	 */
 	private function applyDiffOpRemove( &$base, $key, DiffOpRemove $diffOp ) {
 		if ( !array_key_exists( $key, $base ) ) {
 			$this->handleError( 'Cannot do a non-add operation with an element not present in a map' );
@@ -112,6 +130,13 @@ class MapPatcher extends ThrowingPatcher {
 		unset( $base[$key] );
 	}
 
+	/**
+	 * @param array &$base
+	 * @param int|string $key
+	 * @param DiffOpChange $diffOp
+	 *
+	 * @throws PatcherException
+	 */
 	private function applyDiffOpChange( &$base, $key, DiffOpChange $diffOp ) {
 		if ( !array_key_exists( $key, $base ) ) {
 			$this->handleError( 'Cannot do a non-add operation with an element not present in a map' );
@@ -126,6 +151,13 @@ class MapPatcher extends ThrowingPatcher {
 		$base[$key] = $diffOp->getNewValue();
 	}
 
+	/**
+	 * @param array &$base
+	 * @param int|string $key
+	 * @param Diff $diffOp
+	 *
+	 * @throws PatcherException
+	 */
 	private function applyDiff( &$base, $key, Diff $diffOp ) {
 		if ( $this->isAttemptToModifyNotExistingElement( $base, $key, $diffOp ) ) {
 			$this->handleError( 'Cannot apply a diff with non-add operations to an element not present in a map' );
@@ -139,11 +171,24 @@ class MapPatcher extends ThrowingPatcher {
 		$base[$key] = $this->patchMapOrList( $base[$key], $diffOp );
 	}
 
+	/**
+	 * @param array &$base
+	 * @param int|string $key
+	 * @param Diff $diffOp
+	 *
+	 * @return bool
+	 */
 	private function isAttemptToModifyNotExistingElement( $base, $key, Diff $diffOp ) {
 		return !array_key_exists( $key, $base )
 			&& ( $diffOp->getChanges() !== array() || $diffOp->getRemovals() !== array() );
 	}
 
+	/**
+	 * @param array $base
+	 * @param Diff $diff
+	 *
+	 * @return array
+	 */
 	private function patchMapOrList( array $base, Diff $diff ) {
 		if ( $diff->looksAssociative() ) {
 			$base = $this->patch( $base, $diff );
@@ -155,6 +200,12 @@ class MapPatcher extends ThrowingPatcher {
 		return $base;
 	}
 
+	/**
+	 * @param mixed $firstValue
+	 * @param mixed $secondValue
+	 *
+	 * @return bool
+	 */
 	private function valuesAreEqual( $firstValue, $secondValue ) {
 		if ( $this->comparer === null ) {
 			$this->comparer = new StrictComparer();

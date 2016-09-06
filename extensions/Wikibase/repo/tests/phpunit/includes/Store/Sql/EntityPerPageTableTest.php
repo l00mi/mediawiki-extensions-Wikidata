@@ -1,7 +1,10 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests\Store\Sql;
 
+use IDatabase;
+use LoadBalancer;
+use MediaWiki\MediaWikiServices;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
@@ -12,10 +15,10 @@ use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Repo\Store\EntityPerPage;
-use Wikibase\Repo\Store\SQL\EntityPerPageTable;
+use Wikibase\Repo\Store\Sql\EntityPerPageTable;
 
 /**
- * @covers Wikibase\Repo\Store\SQL\EntityPerPageTable
+ * @covers Wikibase\Repo\Store\Sql\EntityPerPageTable
  *
  * @group Wikibase
  * @group WikibaseRepo
@@ -31,8 +34,8 @@ use Wikibase\Repo\Store\SQL\EntityPerPageTable;
  */
 class EntityPerPageTableTest extends \MediaWikiTestCase {
 
-	public function __construct( $name = null, $data = array(), $dataName = '' ) {
-		parent::__construct( $name, $data, $dataName );
+	protected function setUp() {
+		parent::setUp();
 
 		$this->tablesUsed[] = 'wb_entity_per_page';
 	}
@@ -45,6 +48,43 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 		$epp->addEntityPage( $entityId, 55 );
 
 		$this->assertEquals( 55, $this->getPageIdForEntityId( $entityId ) );
+	}
+
+	public function testAddEntityPage_notInsertedTwice() {
+		$epp = $this->newEntityPerPageTable();
+		$epp->clear();
+
+		$entityId = new ItemId( 'Q42' );
+		$epp->addEntityPage( $entityId, 123 );
+
+		// Get a LoadBalancer that makes sure we do the initial select
+		// but don't try to (re-)insert.
+		$db = $this->getMockBuilder( IDatabase::class )
+			->disableOriginalConstructor()
+			->enableProxyingToOriginalMethods()
+			->setProxyTarget( wfGetDB( DB_MASTER ) )
+			->getMockForAbstractClass();
+
+		$db->expects( $this->never() )
+			->method( 'insert' );
+
+		$loadBalancer = $this->getMockBuilder( LoadBalancer::class )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$loadBalancer->expects( $this->once() )
+			->method( 'getConnection' )
+			->with( DB_MASTER )
+			->will( $this->returnValue( $db ) );
+
+		$epp = new EntityPerPageTable(
+			$loadBalancer,
+			new BasicEntityIdParser(),
+			new EntityIdComposer( [] )
+		);
+		$epp->addEntityPage( $entityId, 123 );
+
+		$this->assertEquals( 123, $this->getPageIdForEntityId( $entityId ) );
 	}
 
 	public function testAddRedirectPage() {
@@ -68,7 +108,11 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 	 * @return EntityPerPageTable
 	 */
 	private function newEntityPerPageTable( array $entities = array(), array $redirects = array() ) {
-		$table = new EntityPerPageTable( new BasicEntityIdParser(), new EntityIdComposer( [] ) );
+		$table = new EntityPerPageTable(
+			MediaWikiServices::getInstance()->getDBLoadBalancer(),
+			new BasicEntityIdParser(),
+			new EntityIdComposer( [] )
+		);
 		$table->clear();
 
 		foreach ( $entities as $entity ) {

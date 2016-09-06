@@ -55,12 +55,6 @@
  * @param {jQuery.Event} event
  */
 /**
- * @event stopediting
- * Triggered when stopping the widget's edit mode.
- * @param {jQuery.Event} event
- * @param {boolean} dropValue
- */
-/**
  * @event afterstopediting
  * Triggered after having stopped the widget's edit mode.
  * @param {jQuery.Event} event
@@ -97,7 +91,8 @@ $.widget( 'wikibase.snakview', PARENT, {
 		entityStore: null,
 		valueViewBuilder: null,
 		dataTypeStore: null,
-		drawProperty: true
+		drawProperty: true,
+		getSnakRemover: null
 	},
 
 	/**
@@ -260,6 +255,14 @@ $.widget( 'wikibase.snakview', PARENT, {
 			$( '<div/>' ).append( $( '<span/>' ).addClass( 'mw-small-spinner' ) )
 		);
 
+		// The "value" variation contains experts that depend on the property and value type. Must
+		// be recreated when the property changes. Would be better to do this in updateVariation,
+		// and only when the value type changes, but at this point we can't find out any more.
+		if ( this._variation ) {
+			this._variation.destroy();
+			this._variation = null;
+		}
+
 		this.updateVariation();
 		this.drawSnakTypeSelector();
 		this.drawVariation();
@@ -280,6 +283,10 @@ $.widget( 'wikibase.snakview', PARENT, {
 	 * @inheritdoc
 	 */
 	destroy: function() {
+		if ( this._snakRemover ) {
+			this._snakRemover.destroy();
+			this._snakRemover = null;
+		}
 		var snakTypeSelector = this._getSnakTypeSelector();
 		if ( snakTypeSelector ) {
 			snakTypeSelector.destroy();
@@ -305,6 +312,10 @@ $.widget( 'wikibase.snakview', PARENT, {
 		var self = this;
 
 		this._isInEditMode = true;
+
+		if ( this.options.getSnakRemover ) {
+			this._snakRemover = this.options.getSnakRemover( this.element );
+		}
 
 		if ( this._variation ) {
 			$( this._variation ).one( 'afterstartediting', function() {
@@ -348,9 +359,12 @@ $.widget( 'wikibase.snakview', PARENT, {
 			return;
 		}
 
-		var snak = this.snak();
+		if ( this._snakRemover ) {
+			this._snakRemover.destroy();
+			this._snakRemover = null;
+		}
 
-		this._trigger( 'stopediting', null, [dropValue] );
+		var snak = this.snak();
 
 		this._isInEditMode = false;
 

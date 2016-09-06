@@ -12,7 +12,7 @@ use Diff\DiffOp\DiffOpRemove;
  * @group Diff
  * @group DiffOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DiffOpRemoveTest extends DiffOpTest {
@@ -39,8 +39,7 @@ class DiffOpRemoveTest extends DiffOpTest {
 			array( true, array() ),
 			array( true, true ),
 			array( true, 42 ),
-			array( true, new DiffOpAdd( "spam" ) ),
-			array( false ),
+			array( true, new DiffOpAdd( 'spam' ) ),
 		);
 	}
 

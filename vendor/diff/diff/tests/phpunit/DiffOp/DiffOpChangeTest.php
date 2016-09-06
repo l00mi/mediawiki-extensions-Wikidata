@@ -12,7 +12,7 @@ use Diff\DiffOp\DiffOpChange;
  * @group Diff
  * @group DiffOp
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DiffOpChangeTest extends DiffOpTest {
@@ -43,9 +43,8 @@ class DiffOpChangeTest extends DiffOpTest {
 			array( true, 42, 42 ),
 			array( true, 'foo', array( 'foo' ) ),
 			array( true, 'foo', null ),
-			array( true, new DiffOpAdd( "ham" ), new DiffOpAdd( "spam" ) ),
+			array( true, new DiffOpAdd( 'ham' ), new DiffOpAdd( 'spam' ) ),
 			array( true, null, null ),
-			array( false ),
 		);
 	}
 

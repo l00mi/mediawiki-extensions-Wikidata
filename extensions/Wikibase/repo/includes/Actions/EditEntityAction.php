@@ -14,8 +14,6 @@ use Status;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use WebRequest;
-use Wikibase\DataModel\Services\EntityId\EntityIdLabelFormatter;
-use Wikibase\DataModel\Services\EntityId\EscapingEntityIdFormatter;
 use Wikibase\DataModel\Services\Lookup\EntityRetrievingTermLookup;
 use Wikibase\DataModel\Services\Lookup\LanguageLabelDescriptionLookup;
 use Wikibase\Lib\EntityIdHtmlLinkFormatter;
@@ -73,9 +71,8 @@ class EditEntityAction extends ViewEntityAction {
 
 		$termLookup = new EntityRetrievingTermLookup( $wikibaseRepo->getEntityLookup() );
 		$labelDescriptionLookup = new LanguageLabelDescriptionLookup( $termLookup, $languageCode );
-		$labelFormatter = new EntityIdLabelFormatter( $labelDescriptionLookup );
-
-		$propertyIdFormatter = new EscapingEntityIdFormatter( $labelFormatter, 'htmlspecialchars' );
+		$htmlFormatterFactory = $wikibaseRepo->getEntityIdHtmlLinkFormatterFactory();
+		$propertyIdFormatter = $htmlFormatterFactory->getEntityIdFormatter( $labelDescriptionLookup );
 
 		$formatterFactory = $wikibaseRepo->getSnakFormatterFactory();
 		$snakDetailsFormatter = $formatterFactory->getSnakFormatter( SnakFormatter::FORMAT_HTML_DIFF, $options );
@@ -366,13 +363,9 @@ class EditEntityAction extends ViewEntityAction {
 	 * @return string
 	 */
 	private function getTitleText() {
-		$titleText = $this->getOutput()->getProperty( 'wikibase-titletext' );
+		$meta = $this->getOutput()->getProperty( 'wikibase-meta-tags' );
 
-		if ( $titleText === null ) {
-			$titleText = $this->getTitle()->getPrefixedText();
-		}
-
-		return $titleText;
+		return isset( $meta['title'] ) ? $meta['title'] : $this->getTitle()->getPrefixedText();
 	}
 
 	/**
@@ -439,7 +432,7 @@ class EditEntityAction extends ViewEntityAction {
 	 * Add style sheets and supporting JS for diff display.
 	 */
 	private function showDiffStyle() {
-		$this->getOutput()->addModuleStyles( 'mediawiki.action.history.diff' );
+		$this->getOutput()->addModuleStyles( 'mediawiki.diff.styles' );
 	}
 
 	/**

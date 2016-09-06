@@ -12,6 +12,7 @@
 	 * @author Adrian Heine <adrian.heine@wikimedia.de>
 	 * @constructor
 	 *
+	 * @param {wikibase.view.StructureEditorFactory} structureEditorFactory
 	 * @param {util.ContentLanguages} contentLanguages
 	 *        Required by the `ValueView` for limiting the list of available languages for
 	 *        particular `jQuery.valueview.Expert` instances like the `Expert` responsible
@@ -39,6 +40,7 @@
 	 * @param {string|null} [vocabularyLookupApiUrl=null]
 	 */
 	var SELF = MODULE.ViewFactory = function ViewFactory(
+		structureEditorFactory,
 		contentLanguages,
 		dataTypeStore,
 		entityIdHtmlFormatter,
@@ -51,6 +53,7 @@
 		userLanguages,
 		vocabularyLookupApiUrl
 	) {
+		this._structureEditorFactory = structureEditorFactory;
 		this._contentLanguages = contentLanguages;
 		this._dataTypeStore = dataTypeStore;
 		this._entityIdHtmlFormatter = entityIdHtmlFormatter;
@@ -67,94 +70,101 @@
 	};
 
 	/**
+	 * @property {wikibase.view.StructureEditorFactory}
+	 * @private
+	 */
+	SELF.prototype._structureEditorFactory = null;
+
+	/**
 	 * @property {util.ContentLanguages}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._contentLanguages = null;
 
 	/**
 	 * @property {dataTypes.DataTypeStore}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._dataTypeStore = null;
 
 	/**
 	 * @property {wikibase.entityIdFormatter.EntityIdHtmlFormatter}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._entityIdHtmlFormatter = null;
 
 	/**
 	 * @property {wikibase.entityIdFormatter.EntityIdPlainFormatter}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._entityIdPlainFormatter = null;
 
 	/**
 	 * @property {wikibase.store.EntityStore}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._entityStore = null;
 
 	/**
 	 * @property {jQuery.util.EventSingletonManager}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._eventSingletonManager = null;
 
 	/**
 	 * @property {jQuery.valueview.ExpertStore}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._expertStore = null;
 
 	/**
 	 * @property {wikibase.ValueFormatterFactory}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._formatterFactory = null;
 
 	/**
 	 * @property {util.MessageProvider}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._messageProvider = null;
 
 	/**
 	 * @property {valueParsers.ValueParserStore}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._parserStore = null;
 
 	/**
 	 * @property {string[]}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._userLanguages = null;
 
 	/**
 	 * @property {string|null}
 	 * @private
-	 **/
+	 */
 	SELF.prototype._vocabularyLookupApiUrl = null;
 
 	/**
 	 * Construct a suitable view for the given entity on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {wikibase.datamodel.Entity} entity
 	 * @param {jQuery} $entityview
 	 * @return {jQuery.wikibase.entityview} The constructed entity view
 	 * @throws {Error} If there is no view for the given entity type
-	 **/
-	SELF.prototype.getEntityView = function( entity, $entityview ) {
+	 */
+	SELF.prototype.getEntityView = function( startEditingCallback, entity, $entityview ) {
 		return this._getView(
 			// Typically "itemview" or "propertyview".
 			entity.getType() + 'view',
 			$entityview,
 			{
-				buildEntityTermsView: $.proxy( this.getEntityTermsView, this ),
-				buildSitelinkGroupListView: $.proxy( this.getSitelinkGroupListView, this ),
-				buildStatementGroupListView: $.proxy( this.getStatementGroupListView, this ),
+				buildEntityTermsView: this.getEntityTermsView.bind( this, startEditingCallback ),
+				buildSitelinkGroupListView: this.getSitelinkGroupListView.bind( this, startEditingCallback ),
+				buildStatementGroupListView: this.getStatementGroupListView.bind( this, startEditingCallback ),
 				value: entity
 			}
 		);
@@ -163,11 +173,12 @@
 	/**
 	 * Construct a suitable terms view for the given fingerprint on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {wikibase.datamodel.Fingerprint} fingerprint
 	 * @param {jQuery} $entitytermsview
 	 * @return {jQuery.wikibase.entitytermsview} The constructed entity terms view
-	 **/
-	SELF.prototype.getEntityTermsView = function( fingerprint, $entitytermsview ) {
+	 */
+	SELF.prototype.getEntityTermsView = function( startEditingCallback, fingerprint, $entitytermsview ) {
 		return this._getView(
 			'entitytermsview',
 			$entitytermsview,
@@ -182,11 +193,12 @@
 	/**
 	 * Construct a suitable view for the given sitelink set on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {wikibase.datamodel.SiteLinkSet} sitelinkSet
 	 * @param {jQuery} $sitelinkgrouplistview
 	 * @return {jQuery.wikibase.sitelinkgrouplistview} The constructed sitelinkgrouplistview
-	 **/
-	SELF.prototype.getSitelinkGroupListView = function( sitelinkSet, $sitelinkgrouplistview ) {
+	 */
+	SELF.prototype.getSitelinkGroupListView = function( startEditingCallback, sitelinkSet, $sitelinkgrouplistview ) {
 		var self = this;
 
 		return this._getView(
@@ -197,7 +209,7 @@
 				listItemAdapter: new $.wikibase.listview.ListItemAdapter( {
 					listItemWidget: $.wikibase.sitelinkgroupview,
 					getNewItem: function( value, dom ) {
-						return self.getSitelinkGroupView( value.group, value.siteLinks, $( dom ) );
+						return self.getSitelinkGroupView( startEditingCallback, value.group, value.siteLinks, $( dom ) );
 					}
 				} )
 			}
@@ -207,19 +219,20 @@
 	/**
 	 * Construct a suitable view for the given sitelink group on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {string} groupName
 	 * @param {wikibase.datamodel.SiteLinkSet} siteLinks
 	 * @param {jQuery} $sitelinkgroupview
 	 * @return {jQuery.wikibase.sitelinkgroupview} The constructed sitelinkgroupview
-	 **/
-	SELF.prototype.getSitelinkGroupView = function( groupName, siteLinks, $sitelinkgroupview ) {
+	 */
+	SELF.prototype.getSitelinkGroupView = function( startEditingCallback, groupName, siteLinks, $sitelinkgroupview ) {
 		return this._getView(
 			'sitelinkgroupview',
 			$sitelinkgroupview,
 			{
 				groupName: groupName,
 				value: siteLinks,
-				getSiteLinkListView: this.getSiteLinkListView.bind( this )
+				getSiteLinkListView: this.getSiteLinkListView.bind( this, startEditingCallback )
 			}
 		);
 	};
@@ -227,13 +240,14 @@
 	/**
 	 * Construct a suitable view for the given sitelink list on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {wikibase.datamodel.SiteLink[]} siteLinks
 	 * @param {jQuery} $sitelinklistview
 	 * @param {string[]} allowedSiteIds
 	 * @param {jQuery} $counter
 	 * @return {jQuery.wikibase.sitelinklistview} The constructed sitelinklistview
-	 **/
-	SELF.prototype.getSiteLinkListView = function( siteLinks, $sitelinklistview, allowedSiteIds, $counter ) {
+	 */
+	SELF.prototype.getSiteLinkListView = function( startEditingCallback, siteLinks, $sitelinklistview, allowedSiteIds, $counter ) {
 		return this._getView(
 			'sitelinklistview',
 			$sitelinklistview,
@@ -242,17 +256,19 @@
 				allowedSiteIds: allowedSiteIds,
 				encapsulate: true,
 				eventSingletonManager: this._eventSingletonManager,
-				getListItemAdapter: this.getListItemAdapterForSiteLinkView.bind( this ),
+				getListItemAdapter: this.getListItemAdapterForSiteLinkView.bind( this, startEditingCallback ),
 				value: siteLinks
 			}
 		);
 	};
 
 	/**
+	 * @param {Function} startEditingCallback
 	 * @param {Function} getAllowedSites
+	 * @param {Function} removeCallback
 	 * @return {jQuery.wikibase.listview.ListItemAdapter}
 	 */
-	SELF.prototype.getListItemAdapterForSiteLinkView = function( getAllowedSites ) {
+	SELF.prototype.getListItemAdapterForSiteLinkView = function( startEditingCallback, getAllowedSites, removeCallback ) {
 		var self = this;
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.sitelinkview,
@@ -263,7 +279,16 @@
 					{
 						value: value,
 						getAllowedSites: getAllowedSites,
-						entityIdPlainFormatter: self._entityIdPlainFormatter
+						entityIdPlainFormatter: self._entityIdPlainFormatter,
+						getSiteLinkRemover: function( $dom, title ) {
+							return self._structureEditorFactory.getRemover(
+								function () {
+									return startEditingCallback().then( function() { return removeCallback( view ); } );
+								},
+								$dom,
+								title
+							);
+						}
 					}
 				);
 				return view;
@@ -271,14 +296,25 @@
 		} );
 	};
 
+	SELF.prototype._getAdderWithStartEditing = function( startEditingCallback ) {
+		var structureEditorFactory = this._structureEditorFactory;
+		return function( doAdd, $dom, label ) {
+			var newDoAdd = function() {
+				return startEditingCallback().then( doAdd );
+			};
+			return structureEditorFactory.getAdder( newDoAdd, $dom, label );
+		};
+	};
+
 	/**
 	 * Construct a suitable view for the list of statement groups for the given entity on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {wikibase.datamodel.Item|wikibase.datamodel.Property} entity
 	 * @param {jQuery} $statementgrouplistview
 	 * @return {jQuery.wikibase.statementgrouplistview} The constructed statementgrouplistview
-	 **/
-	SELF.prototype.getStatementGroupListView = function( entity, $statementgrouplistview ) {
+	 */
+	SELF.prototype.getStatementGroupListView = function( startEditingCallback, entity, $statementgrouplistview ) {
 		var statementGroupSet = entity.getStatements();
 		return this._getView(
 			'statementgrouplistview',
@@ -287,6 +323,7 @@
 				// If we have no HTML to initialize on, pass the raw data
 				value: $statementgrouplistview.is( ':empty' ) ? statementGroupSet : null,
 				listItemAdapter: this.getListItemAdapterForStatementGroupView(
+					startEditingCallback,
 					entity.getId(),
 					function( guid ) {
 						var res = null;
@@ -302,7 +339,8 @@
 						} );
 						return res;
 					}
-				)
+				),
+				getAdder: this._getAdderWithStartEditing( startEditingCallback )
 			}
 		);
 	};
@@ -310,18 +348,19 @@
 	/**
 	 * Construct a `ListItemAdapter` for `statementgroupview`s
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {string} entityId
 	 * @param {Function} getStatementForGuid A function returning a `wikibase.datamodel.Statement` for a given GUID
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
-	 **/
-	SELF.prototype.getListItemAdapterForStatementGroupView = function( entityId, getStatementForGuid ) {
+	 */
+	SELF.prototype.getListItemAdapterForStatementGroupView = function( startEditingCallback, entityId, getStatementForGuid ) {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.statementgroupview,
 			newItemOptionsFn: $.proxy( function( value ) {
 				return {
 					value: value,
 					entityIdHtmlFormatter: this._entityIdHtmlFormatter,
-					buildStatementListView: $.proxy( this.getStatementListView, this, entityId, value && value.getKey(), getStatementForGuid )
+					buildStatementListView: $.proxy( this.getStatementListView, this, startEditingCallback, entityId, value && value.getKey(), getStatementForGuid )
 				};
 			}, this )
 		} );
@@ -330,6 +369,7 @@
 	/**
 	 * Construct a suitable view for the given list of statements on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {string} entityId
 	 * @param {string|null} propertyId Optionally specifies a property
 	 *                                                      all statements should be on or are on
@@ -337,8 +377,8 @@
 	 * @param {wikibase.datamodel.StatementList} value
 	 * @param {jQuery} $statementlistview
 	 * @return {jQuery.wikibase.statementgroupview} The constructed statementlistview
-	 **/
-	SELF.prototype.getStatementListView = function( entityId, propertyId, getStatementForGuid, value, $statementlistview ) {
+	 */
+	SELF.prototype.getStatementListView = function( startEditingCallback, entityId, propertyId, getStatementForGuid, value, $statementlistview ) {
 		propertyId = propertyId || $statementlistview.closest( '.wikibase-statementgroupview' ).attr( 'id' );
 
 		return this._getView(
@@ -346,14 +386,17 @@
 			$statementlistview,
 			{
 				value: value.length === 0 ? null : value,
-				listItemAdapter: this.getListItemAdapterForStatementView(
+				getListItemAdapter: this.getListItemAdapterForStatementView.bind(
+					this,
+					startEditingCallback,
 					entityId,
 					function( dom ) {
 						var guidMatch = dom.className.match( /wikibase-statement-(\S+)/ );
 						return guidMatch ? getStatementForGuid( guidMatch[ 1 ] ) : null;
 					},
 					propertyId
-				)
+				),
+				getAdder: this._getAdderWithStartEditing( startEditingCallback )
 			}
 		);
 	};
@@ -361,25 +404,28 @@
 	/**
 	 * Construct a `ListItemAdapter` for `statementview`s
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {string} entityId
 	 * @param {Function} getValueForDom A function returning a `wikibase.datamodel.Statement` or `null`
 	 *                                  for a given DOM element
 	 * @param {string|null} [propertyId] Optionally a property all statements are or should be on
+	 * @param {Function} removeCallback A function that accepts a statementview and removes it from
+	 *  the list.
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
-	 **/
-	SELF.prototype.getListItemAdapterForStatementView = function( entityId, getValueForDom, propertyId ) {
+	 */
+	SELF.prototype.getListItemAdapterForStatementView = function( startEditingCallback, entityId, getValueForDom, propertyId, removeCallback ) {
 		var listItemAdapter = new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.statementview,
 			getNewItem: $.proxy( function( value, dom ) {
 				value = value || getValueForDom( dom );
-				var view = this.getStatementView( entityId, propertyId, value, $( dom ) );
+				var view = this.getStatementView( startEditingCallback, entityId, propertyId, removeCallback, value, $( dom ) );
 				return view;
 			}, this )
 		} );
 		return listItemAdapter;
 	};
 
-	SELF.prototype.getStatementView = function( entityId, propertyId, value, $dom ) {
+	SELF.prototype.getStatementView = function( startEditingCallback, entityId, propertyId, removeCallback, value, $dom ) {
 		var currentPropertyId = value ? value.getClaim().getMainSnak().getPropertyId() : propertyId;
 		var view = this._getView(
 			'statementview',
@@ -397,15 +443,17 @@
 					}
 				},
 
-				buildReferenceListItemAdapter: $.proxy( this.getListItemAdapterForReferenceView, this ),
 				buildSnakView: $.proxy(
 					this.getSnakView,
 					this,
+					startEditingCallback,
 					false
 				),
 				entityIdPlainFormatter: this._entityIdPlainFormatter,
+				getAdder: this._getAdderWithStartEditing( startEditingCallback ),
+				getReferenceListItemAdapter: this.getListItemAdapterForReferenceView.bind( this, startEditingCallback ),
 				guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
-				qualifiersListItemAdapter: this.getListItemAdapterForSnakListView()
+				qualifiersListItemAdapter: this.getListItemAdapterForSnakListView( startEditingCallback )
 			}
 		);
 		return view;
@@ -416,16 +464,32 @@
 	 *
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 */
-	SELF.prototype.getListItemAdapterForReferenceView = function() {
+	SELF.prototype.getListItemAdapterForReferenceView = function( startEditingCallback, removeCallback ) {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.referenceview,
-			newItemOptionsFn: $.proxy( function( value ) {
-				return {
-					value: value || null,
-					listItemAdapter: this.getListItemAdapterForSnakListView()
-				};
+			getNewItem: $.proxy( function( value, dom ) {
+				return this.getReferenceView( startEditingCallback, removeCallback, value, $( dom ) );
 			}, this )
 		} );
+	};
+
+	SELF.prototype.getReferenceView = function( startEditingCallback, removeCallback, value, $dom ) {
+		var structureEditorFactory = this._structureEditorFactory;
+		var view = this._getView(
+			'referenceview',
+			$dom,
+			{
+				value: value || null,
+				listItemAdapter: this.getListItemAdapterForSnakListView( startEditingCallback ),
+				getAdder: this._getAdderWithStartEditing( startEditingCallback ),
+				getReferenceRemover: function( $dom ) {
+					return structureEditorFactory.getRemover( function() {
+						return startEditingCallback().then( function() { return removeCallback( view ); } );
+					}, $dom );
+				}
+			}
+		);
+		return view;
 	};
 
 	/**
@@ -433,14 +497,14 @@
 	 *
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 */
-	SELF.prototype.getListItemAdapterForSnakListView = function() {
+	SELF.prototype.getListItemAdapterForSnakListView = function( startEditingCallback ) {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.snaklistview,
 			newItemOptionsFn: $.proxy( function( value ) {
 				return {
+					getListItemAdapter: this.getListItemAdapterForSnakView.bind( this, startEditingCallback ),
 					value: value || undefined,
-					singleProperty: true,
-					listItemAdapter: this.getListItemAdapterForSnakView()
+					singleProperty: true
 				};
 			}, this )
 		} );
@@ -451,11 +515,12 @@
 	 *
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 */
-	SELF.prototype.getListItemAdapterForSnakView = function() {
+	SELF.prototype.getListItemAdapterForSnakView = function( startEditingCallback, removeCallback ) {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.snakview,
-			newItemOptionsFn: $.proxy( function( value ) {
-				return this._getSnakViewOptions(
+			getNewItem: $.proxy( function( value, dom ) {
+				return this.getSnakView(
+					startEditingCallback,
 					true,
 					{
 						locked: {
@@ -466,7 +531,9 @@
 					value || {
 						property: null,
 						snaktype: wb.datamodel.PropertyValueSnak.TYPE
-					}
+					},
+					$( dom ),
+					removeCallback
 				);
 			}, this )
 		} );
@@ -475,43 +542,42 @@
 	/**
 	 * Construct a suitable view for the given snak on the given DOM element
 	 *
+	 * @param {Function} startEditingCallback
 	 * @param {boolean} drawProperty Whether the snakview should draw its property
 	 * @param {Object} options An object with keys `locked` and `autoStartEditing`
 	 * @param {wikibase.datamodel.Snak|null} snak
 	 * @param {jQuery} $snakview
 	 * @return {jQuery.wikibase.snakview} The constructed snakview
 	 */
-	SELF.prototype.getSnakView = function( drawProperty, options, snak, $snakview ) {
-		return this._getView(
+	SELF.prototype.getSnakView = function( startEditingCallback, drawProperty, options, snak, $snakview, removeCallback ) {
+		var structureEditorFactory = this._structureEditorFactory;
+		var view = this._getView(
 			'snakview',
 			$snakview,
-			this._getSnakViewOptions( drawProperty, options, snak )
+			{
+				value: snak || undefined,
+				locked: options.locked,
+				autoStartEditing: options.autoStartEditing,
+				dataTypeStore: this._dataTypeStore,
+				entityIdHtmlFormatter: this._entityIdHtmlFormatter,
+				entityIdPlainFormatter: this._entityIdPlainFormatter,
+				entityStore: this._entityStore,
+				valueViewBuilder: this._getValueViewBuilder(),
+				drawProperty: drawProperty,
+				getSnakRemover: removeCallback ? function( $dom ) {
+					return structureEditorFactory.getRemover( function() {
+						return startEditingCallback().then( function() { return removeCallback( view ); } );
+					}, $dom );
+				} : null
+			}
 		);
-	};
-
-	/**
-	 * @param {boolean} drawProperty Whether the snakview should draw its property
-	 * @param {Object} options An object with keys `locked` and `autoStartEditing`
-	 * @param {wikibase.datamodel.Snak|null} snak
-	 */
-	SELF.prototype._getSnakViewOptions = function( drawProperty, options, snak ) {
-		return {
-			value: snak || undefined,
-			locked: options.locked,
-			autoStartEditing: options.autoStartEditing,
-			dataTypeStore: this._dataTypeStore,
-			entityIdHtmlFormatter: this._entityIdHtmlFormatter,
-			entityIdPlainFormatter: this._entityIdPlainFormatter,
-			entityStore: this._entityStore,
-			valueViewBuilder: this._getValueViewBuilder(),
-			drawProperty: drawProperty
-		};
+		return view;
 	};
 
 	/**
 	 * @private
 	 * @return {wikibase.ValueViewBuilder}
-	 **/
+	 */
 	SELF.prototype._getValueViewBuilder = function() {
 		return new wb.ValueViewBuilder(
 			this._expertStore,
@@ -528,7 +594,7 @@
 	 * @private
 	 * @return {Object} The constructed view
 	 * @throws {Error} If there is no view with the given name
-	 **/
+	 */
 	SELF.prototype._getView = function( viewName, $dom, options ) {
 		if ( !$.wikibase[ viewName ] ) {
 			throw new Error( 'View ' + viewName + ' does not exist' );

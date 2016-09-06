@@ -31,7 +31,7 @@
  * @param {Object} options
  * @param {wikibase.datamodel.Statement|null} [options.value=null]
  *        The `Statement` displayed by the view.
- * @param {Function} options.buildReferenceListItemAdapter
+ * @param {Function} options.getReferenceListItemAdapter
  * @param {Function} options.buildSnakView
  * @param {wikibase.utilities.ClaimGuidGenerator} options.guidGenerator
  *        Required for dynamically generating GUIDs for new `Statement`s.
@@ -138,13 +138,19 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_$toggler: null,
 
 	/**
+	 * @property {Object}
+	 * @private
+	 */
+	_referenceAdder: null,
+
+	/**
 	 * @inheritdoc
 	 * @protected
 	 *
 	 * @throws {Error} if a required option is not specified properly.
 	 */
 	_create: function() {
-		if ( !this.options.buildReferenceListItemAdapter
+		if ( !this.options.getReferenceListItemAdapter
 			|| !this.options.buildSnakView
 			|| !this.options.entityIdPlainFormatter
 			|| !this.options.guidGenerator
@@ -161,6 +167,21 @@ $.widget( 'wikibase.statementview', PARENT, {
 		} else {
 			this._createReferencesToggler();
 		}
+
+		var self = this;
+		this._referenceAdder = this.options.getAdder(
+			function() {
+				var listview = self._referencesListview,
+					lia = listview.listItemAdapter();
+
+				listview.enterNewItem().done( function( $referenceview ) {
+					var referenceview = lia.liInstance( $referenceview );
+					referenceview.focus();
+				} );
+			},
+			this.$references,
+			mw.msg( 'wikibase-addreference' )
+		);
 		this.element.toggleClass( 'wb-new', this.options.value === null );
 	},
 
@@ -227,9 +248,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 		.on( 'snakviewchange.' + this.widgetName, function( event, status ) {
 			event.stopPropagation();
 			self._trigger( 'change' );
-		} )
-		.on( 'snakviewstopediting.' + this.widgetName, function( event ) {
-			event.stopPropagation();
 		} );
 
 		this._mainSnakSnakView = this.options.buildSnakView(
@@ -262,16 +280,13 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 		// Using the property id, qualifier snaks are split into groups of snaklistviews. These
 		// snaklistviews are managed in a listview:
-		var $qualifiers = this.$qualifiers.children();
+		var $qualifiers = this.$qualifiers.children( '.wikibase-listview' );
 		if ( !$qualifiers.length ) {
 			$qualifiers = $( '<div/>' ).prependTo( this.$qualifiers );
 		}
 		$qualifiers.listview( {
 			listItemAdapter: this.options.qualifiersListItemAdapter,
 			value: groupedQualifierSnaks
-		} )
-		.on( 'snaklistviewstopediting.' + this.widgetName, function( event, dropValue ) {
-			event.stopPropagation();
 		} )
 		.on( 'snaklistviewchange.' + this.widgetName,
 			function( event ) {
@@ -313,7 +328,11 @@ $.widget( 'wikibase.statementview', PARENT, {
 			return;
 		}
 
-		var lia = this.options.buildReferenceListItemAdapter();
+		var lia = this.options.getReferenceListItemAdapter(
+			function( referenceview ) {
+				self._referencesListview.removeItem( referenceview.element );
+			}
+		);
 
 		$listview.listview( {
 			listItemAdapter: lia,
@@ -440,9 +459,13 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_destroyQualifiersListView: function() {
 		this._qualifiers.destroy();
 		this.$qualifiers
-			.off( '.' + this.widgetName )
-			.empty();
+			.off( '.' + this.widgetName );
 		this._qualifiers = null;
+
+		if ( this._qualifierAdder ) {
+			this._qualifierAdder.destroy();
+			this._qualifierAdder = null;
+		}
 	},
 
 	/**
@@ -454,6 +477,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 			.off( '.' + this.widgetName )
 			.empty();
 		this._referencesListview = null;
+		this._referenceAdder.destroy();
+		this._referenceAdder = null;
 	},
 
 	/**
@@ -613,6 +638,24 @@ $.widget( 'wikibase.statementview', PARENT, {
 	startEditing: function() {
 		var self = this;
 
+		if ( this.isInEditMode() ) {
+			return $.Deferred().resolve().promise();
+		}
+
+		this._qualifierAdder = this.options.getAdder(
+			function() {
+				var listview = self._qualifiers;
+				listview.enterNewItem();
+
+				var snaklistview = listview.value()[listview.value().length - 1];
+				snaklistview.enterNewItem().done( function() {
+					snaklistview.focus();
+				} );
+			},
+			this.$qualifiers,
+			mw.msg( 'wikibase-addqualifier' )
+		);
+
 		// We need to initialize the main snak before calling PARENT::startEditing,
 		// since that triggers 'afterstartediting' which tries to set focus into
 		// the main snak
@@ -643,16 +686,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 		if ( toggler.isCollapsed() ) {
 			toggler.toggle();
 		}
-	},
-
-	stopEditing: function( dropValue ) {
-		var deferred = $.Deferred();
-
-		this._trigger( 'stopediting', null, [dropValue] );
-
-		this._afterStopEditing( dropValue );
-
-		return deferred.resolve( dropValue ).promise();
 	},
 
 	/**
@@ -720,15 +753,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 
 	/**
 	 * @inheritdoc
-	 */
-	isEmpty: function() {
-		return false;
-		// TODO: Supposed to do at least...
-		// this._mainSnakSnakView.isEmpty(); (does not exist at the moment of writing)
-	},
-
-	/**
-	 * @inheritdoc
 	 * @protected
 	 */
 	_setOption: function( key, value ) {
@@ -747,6 +771,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			if ( this._referencesListview ) {
 				this._referencesListview.option( key, value );
 			}
+			this._referenceAdder[ value ? 'disable' : 'enable']();
 		}
 		if ( key === 'value' ) {
 			this.element.toggleClass( 'wb-new', value === null );

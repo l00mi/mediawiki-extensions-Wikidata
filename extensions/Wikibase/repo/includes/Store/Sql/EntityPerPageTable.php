@@ -1,8 +1,9 @@
 <?php
 
-namespace Wikibase\Repo\Store\SQL;
+namespace Wikibase\Repo\Store\Sql;
 
 use InvalidArgumentException;
+use LoadBalancer;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\Int32EntityId;
@@ -10,6 +11,8 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Repo\Store\EntityPerPage;
+use Wikibase\Repo\Store\EntitiesWithoutTermFinder;
+use Wikibase\Repo\Store\ItemsWithoutSitelinksFinder;
 
 /**
  * Represents a lookup database table that makes the link between entities and pages.
@@ -21,7 +24,7 @@ use Wikibase\Repo\Store\EntityPerPage;
  * @author Thomas Pellissier Tanon
  * @author Daniel Kinzler
  */
-class EntityPerPageTable implements EntityPerPage {
+class EntityPerPageTable implements EntityPerPage, EntitiesWithoutTermFinder, ItemsWithoutSitelinksFinder {
 
 	/**
 	 * @var EntityIdParser
@@ -34,10 +37,21 @@ class EntityPerPageTable implements EntityPerPage {
 	private $entityIdComposer;
 
 	/**
+	 * @var LoadBalancer
+	 */
+	private $loadBalancer;
+
+	/**
+	 * @param LoadBalancer $loadBalancer
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityIdComposer $entityIdComposer
 	 */
-	public function __construct( EntityIdParser $entityIdParser, EntityIdComposer $entityIdComposer ) {
+	public function __construct(
+		LoadBalancer $loadBalancer,
+		EntityIdParser $entityIdParser,
+		EntityIdComposer $entityIdComposer
+	) {
+		$this->loadBalancer = $loadBalancer;
 		$this->entityIdParser = $entityIdParser;
 		$this->entityIdComposer = $entityIdComposer;
 	}
@@ -94,14 +108,16 @@ class EntityPerPageTable implements EntityPerPage {
 			'epp_redirect_target' => $redirectTarget
 		);
 
-		$this->addRowInternal( $values );
+		if ( !$this->rowExists( $values ) ) {
+			$this->addRowInternal( $values );
+		}
 	}
 
 	/**
 	 * @param array $row
 	 */
 	private function addRowInternal( array $row ) {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = $this->loadBalancer->getConnection( DB_MASTER );
 		// Try to add the row and see it it conflicts on (id,type) or (page_id).
 		// With innodb, this only sets IX gap and SH/EX record locks. This is useful for new
 		// page/entity creation, as just doing DELETE+INSERT would put SH gap locks on the range
@@ -133,8 +149,19 @@ class EntityPerPageTable implements EntityPerPage {
 		);
 	}
 
+	/**
+	 * @param array $row
+	 *
+	 * @return bool
+	 */
+	private function rowExists( array $row ) {
+		$dbw = $this->loadBalancer->getConnection( DB_MASTER );
+
+		return $dbw->selectRow( 'wb_entity_per_page', '1', $row, __METHOD__ ) !== false;
+	}
+
 	private function getConflictingRowConditions( array $values ) {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = $this->loadBalancer->getConnection( DB_MASTER );
 		$indexes = $this->getUniqueIndexes();
 
 		$conditions = array();
@@ -187,7 +214,7 @@ class EntityPerPageTable implements EntityPerPage {
 			throw new InvalidArgumentException( '$entityId must be an Int32EntityId' );
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = $this->loadBalancer->getConnection( DB_MASTER );
 
 		return $dbw->delete(
 			'wb_entity_per_page',
@@ -207,7 +234,7 @@ class EntityPerPageTable implements EntityPerPage {
 	 * @return boolean Success indicator
 	 */
 	public function clear() {
-		return wfGetDB( DB_MASTER )->delete( 'wb_entity_per_page', '*', __METHOD__ );
+		return $this->loadBalancer->getConnection( DB_MASTER )->delete( 'wb_entity_per_page', '*', __METHOD__ );
 	}
 
 	/**
