@@ -363,13 +363,9 @@ class EditEntityAction extends ViewEntityAction {
 	 * @return string
 	 */
 	private function getTitleText() {
-		$titleText = $this->getOutput()->getProperty( 'wikibase-titletext' );
+		$meta = $this->getOutput()->getProperty( 'wikibase-meta-tags' );
 
-		if ( $titleText === null ) {
-			$titleText = $this->getTitle()->getPrefixedText();
-		}
-
-		return $titleText;
+		return isset( $meta['title'] ) ? $meta['title'] : $this->getTitle()->getPrefixedText();
 	}
 
 	/**
@@ -436,7 +432,7 @@ class EditEntityAction extends ViewEntityAction {
 	 * Add style sheets and supporting JS for diff display.
 	 */
 	private function showDiffStyle() {
-		$this->getOutput()->addModuleStyles( 'mediawiki.action.history.diff' );
+		$this->getOutput()->addModuleStyles( 'mediawiki.diff.styles' );
 	}
 
 	/**

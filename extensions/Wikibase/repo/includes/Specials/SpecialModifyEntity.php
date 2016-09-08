@@ -186,15 +186,15 @@ abstract class SpecialModifyEntity extends SpecialWikibaseRepoPage {
 	 * @since 0.5
 	 *
 	 * @param EntityId $id
-	 * @param int|string $revisionId
 	 *
 	 * @throws MessageException
 	 * @throws UserInputException
 	 * @return EntityRevision
 	 */
-	protected function loadEntity( EntityId $id, $revisionId = EntityRevisionLookup::LATEST_FROM_MASTER ) {
+	protected function loadEntity( EntityId $id ) {
 		try {
-			$entity = $this->entityRevisionLookup->getEntityRevision( $id, $revisionId );
+			$entity = $this->entityRevisionLookup
+				->getEntityRevision( $id, 0, EntityRevisionLookup::LATEST_FROM_MASTER );
 
 			if ( $entity === null ) {
 				throw new UserInputException(
@@ -375,7 +375,11 @@ abstract class SpecialModifyEntity extends SpecialWikibaseRepoPage {
 	protected function applyChangeOp( ChangeOp $changeOp, EntityDocument $entity, Summary $summary = null ) {
 		// NOTE: always validate modification against the current revision!
 		// TODO: this should be re-engineered, see T126231
-		$currentEntityRevision = $this->entityRevisionLookup->getEntityRevision( $entity->getId() );
+		$currentEntityRevision = $this->entityRevisionLookup->getEntityRevision(
+			$entity->getId(),
+			0,
+			EntityRevisionLookup::LATEST_FROM_SLAVE_WITH_FALLBACK
+		);
 		$result = $changeOp->validate( $currentEntityRevision->getEntity() );
 
 		if ( !$result->isValid() ) {
