@@ -265,23 +265,23 @@
     },
     {
         "name": "wikibase/data-model-javascript",
-        "version": "3.0.0",
-        "version_normalized": "3.0.0.0",
+        "version": "3.0.1",
+        "version_normalized": "3.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseDataModelJavaScript.git",
-            "reference": "bd23729ecb8d9ea4c56edeba8a2032624e777acf"
+            "reference": "e2c6ea215ee05b4d85934cd75d2c8580e154769b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/bd23729ecb8d9ea4c56edeba8a2032624e777acf",
-            "reference": "bd23729ecb8d9ea4c56edeba8a2032624e777acf",
+            "url": "https://api.github.com/repos/wmde/WikibaseDataModelJavaScript/zipball/e2c6ea215ee05b4d85934cd75d2c8580e154769b",
+            "reference": "e2c6ea215ee05b4d85934cd75d2c8580e154769b",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.8.0|~0.7.0|~0.6.0"
         },
-        "time": "2016-08-02 14:26:56",
+        "time": "2016-09-09 10:05:48",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -307,24 +307,24 @@
     },
     {
         "name": "wikibase/serialization-javascript",
-        "version": "2.0.7",
-        "version_normalized": "2.0.7.0",
+        "version": "2.0.8",
+        "version_normalized": "2.0.8.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/WikibaseSerializationJavaScript.git",
-            "reference": "bb0072afc6d554ad7a7468bdc28144c18ff4645a"
+            "reference": "32e062f7dc67c97c1abbea0a5bca854b39d2967c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/bb0072afc6d554ad7a7468bdc28144c18ff4645a",
-            "reference": "bb0072afc6d554ad7a7468bdc28144c18ff4645a",
+            "url": "https://api.github.com/repos/wmde/WikibaseSerializationJavaScript/zipball/32e062f7dc67c97c1abbea0a5bca854b39d2967c",
+            "reference": "32e062f7dc67c97c1abbea0a5bca854b39d2967c",
             "shasum": ""
         },
         "require": {
             "data-values/javascript": "~0.8.0|~0.7.0",
             "wikibase/data-model-javascript": "~3.0.0|~2.0.0|~1.0.0"
         },
-        "time": "2016-08-01 15:47:03",
+        "time": "2016-09-09 10:03:10",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1354,12 +1354,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "31c60587efdffea29689873e4b026511d5fea157"
+            "reference": "11f2184bced484aaf267ee6ec890e92f47e04f74"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/31c60587efdffea29689873e4b026511d5fea157",
-            "reference": "31c60587efdffea29689873e4b026511d5fea157",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/11f2184bced484aaf267ee6ec890e92f47e04f74",
+            "reference": "11f2184bced484aaf267ee6ec890e92f47e04f74",
             "shasum": ""
         },
         "require": {
@@ -1392,7 +1392,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-09-08 21:49:23",
+        "time": "2016-09-09 21:00:52",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
