@@ -15,9 +15,6 @@
 					}
 				} ).promise();
 			};
-			this.isValid = function() {
-				return false;
-			};
 			this.stopEditing = function() {};
 			this.value = function() {
 				return this.options.value;
@@ -40,12 +37,15 @@
 			},
 			getReferenceRemover: function() {
 				return {
-					destroy: function() {}
+					destroy: function() {},
+					disable: function() {},
+					enable: function() {}
 				};
 			},
 			getListItemAdapter: function() {
 				return listItemAdapter;
-			}
+			},
+			removeCallback: function() {}
 		}, options );
 
 		return $( '<div/>' )
