@@ -6,7 +6,6 @@ use Html;
 use IContextSource;
 use Title;
 use Wikibase\Client\RepoLinker;
-use Wikibase\Client\Usage\Sql\SqlUsageTracker;
 use Wikibase\Client\Usage\UsageLookup;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\SiteLinkLookup;
@@ -70,7 +69,7 @@ class InfoActionHookHandler {
 		}
 
 		if ( $usage ) {
-			$pageInfo['header-basic'][] = $this->formatEntityUsage( $context, $usage );
+			$pageInfo['header-properties'][] = $this->formatEntityUsage( $context, $usage );
 		}
 
 		return $pageInfo;

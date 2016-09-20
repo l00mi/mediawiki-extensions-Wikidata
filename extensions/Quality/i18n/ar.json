@@ -1,0 +1,31 @@
+{
+	"@metadata": {
+		"authors": [
+			"Meno25",
+			"Mr. Ibrahem"
+		]
+	},
+	"wbq-violations-entity-id-label": "معرف العنصر:",
+	"wbq-violations-property-id-label": "معرف الخاصية:",
+	"wbq-violations-group-label": "المجموعة:",
+	"wbq-violations-type-label": "النوع:",
+	"wbq-violations-form-select-all": "(الكل)",
+	"wbq-violations-exceptions-checkbox-label": "عرض الاستثناءات",
+	"wbq-violations-invalid-entity-id": "معرف الكائن المحدد غير صالح.",
+	"wbq-violations-not-existent-entity": "الكائن مع المعرف المحدد غير موجود.",
+	"wbq-violations-invalid-property-id": "معرف الخاصية المحدد غير صالح.",
+	"wbq-violations-not-existent-property": "الخاصية مع المعرف المحدد غير موجودة.",
+	"wbq-violations-table-header-entity": "كيان",
+	"wbq-violations-table-header-claim": "ادعاء",
+	"wbq-violations-table-header-constraint-type": "نوع",
+	"wbq-violations-table-header-updated-at": "آخر تحديث",
+	"wbq-violations-table-header-status": "الحالة",
+	"wbq-violations-table-header-additional-info": "معلومات إضافية",
+	"wbq-violations-status-violation": "مخالف",
+	"wbq-violations-status-unverified": "غير متحقق منه",
+	"wbq-violations-status-exception": "استثناء",
+	"wbq-violations-mark-as-exception": "وضع علامة كاستثناء",
+	"wbq-violations-mark-as-violation": "وضع علامة كمخالف",
+	"wbq-violations-next-page": "الصفحة التالية >>",
+	"wbq-violations-prev-page": "<< الصفحة السابقة"
+}
