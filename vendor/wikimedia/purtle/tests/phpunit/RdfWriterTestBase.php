@@ -217,7 +217,9 @@ abstract class RdfWriterTestBase extends PHPUnit_Framework_TestCase {
 		$writer->about( 'acme', 'Bongos' )
 			->say( 'acme', 'sounds' )
 				->text( 'Bom', 'de' )
-				->text( 'Bam', 'en' );
+				->text( 'Bam', 'en' )
+				->text( 'Como estas', 'es-419' )
+				->text( 'What?', 'bad tag' );
 		$writer->finish();
 
 		$rdf = $writer->drain();
@@ -272,10 +274,10 @@ abstract class RdfWriterTestBase extends PHPUnit_Framework_TestCase {
 		$writer->about( 'exstaff', '85740' )
 			->say( 'exterms', 'address' )->is( '_', $label = $writer->blank( 'johnaddress' ) )
 		->about( '_', $label )
-			->say( 'exterms', 'street' )->text( "1501 Grant Avenue" )
-			->say( 'exterms', 'city' )->text( "Bedfort" )
-			->say( 'exterms', 'state' )->text( "Massachusetts" )
-			->say( 'exterms', 'postalCode' )->text( "01730" );
+			->say( 'exterms', 'street' )->text( '1501 Grant Avenue' )
+			->say( 'exterms', 'city' )->text( 'Bedfort' )
+			->say( 'exterms', 'state' )->text( 'Massachusetts' )
+			->say( 'exterms', 'postalCode' )->text( '01730' );
 		$writer->finish();
 
 		$rdf = $writer->drain();
@@ -320,7 +322,6 @@ abstract class RdfWriterTestBase extends PHPUnit_Framework_TestCase {
 			"Result mismatches data in $path"
 		);
 	}
-
 
 	/**
 	 * @param string[]|string $nTriples

@@ -52,7 +52,7 @@ abstract class N3RdfWriterBase extends RdfWriterBase {
 		$value = $this->quoter->escapeLiteral( $text );
 		$this->write( '"' . $value . '"' );
 
-		if ( $language !== null ) {
+		if ( $this->isValidLanguageCode( $language ) ) {
 			$this->write( '@' . $language );
 		}
 	}
