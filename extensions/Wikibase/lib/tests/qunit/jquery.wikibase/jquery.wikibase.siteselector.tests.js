@@ -45,6 +45,15 @@
 			languageCode: 'frr',
 			id: 'frrwiki',
 			group: 'foo'
+		},
+		{
+			apiUrl: 'http://zh-min-nan.wikipedia.org/w/api.php',
+			name: 'Chinese',
+			pageUrl: 'http://zh-min-nan.wikipedia.org/wiki/$1',
+			shortName: 'Chinese',
+			languageCode: 'zh-min-nan',
+			id: 'zh_min_nan',
+			group: 'dummy'
 		}
 	];
 
@@ -96,23 +105,33 @@
 		}
 	} ) );
 
-	QUnit.test( 'getSelectedSite()', 23, function( assert ) {
+	QUnit.test( 'getSelectedSite()', function( assert ) {
 		var $siteSelector = newTestSiteSelector(),
 			siteSelector = $siteSelector.data( 'siteselector' );
 
 		/**
-		 * Key: Expected site id / Value: Input string.
-		 * @type {Object}
+		 * @type {Array[]}
 		 */
 		var testStrings = [
-			{ enwiki: 'en' },
-			{ dewiki: 'd' },
-			{ enwiki: 'English (enwiki)' },
-			{ dewiki: 'deutsch' },
-			{ nowiki: 'no' }, // Prefer language code.
-			{ enwiki: 'enwiki' },
-			{ frrwiki: 'nord' }
+			[ 'en', 'enwiki' ],
+			[ 'd', 'dewiki' ],
+			[ 'English (enwiki)', 'enwiki' ],
+			[ 'deutsch', 'dewiki' ],
+			[ 'no', 'nowiki' ], // Prefer language code.
+			[ 'enwiki', 'enwiki' ],
+			[ 'nord', 'frrwiki' ],
+			[ 'https://zh-min-nan.wikipedia.org/wiki/Dummy', 'zh_min_nan' ],
+			[ 'https://de.wikipedia.org/wiki/', 'dewiki' ],
+			[ 'https://zh-min-nan.wikipedia.org', 'zh_min_nan' ],
+			[ '//de.wikipedia.org/wiki/Dummy', 'dewiki' ],
+			[ '//zh-min-nan.wikipedia.org', 'zh_min_nan' ],
+			[ '(de)', 'dewiki' ],
+			[ 'zh-min-nan.wikipedia.org/wiki/Dummy', 'zh_min_nan' ],
+			[ 'de.wikipedia.org', 'dewiki' ],
+			[ 'zh-min-nan/de', 'zh_min_nan' ]
 		];
+
+		assert.expect( testStrings.length * 3 + 2 );
 
 		/**
 		 * @param {string} string
@@ -151,7 +170,6 @@
 
 			siteSelector.search()
 			.done( function( suggestions ) {
-
 				assert.equal(
 					suggestions.length > 0 ? suggestions[0] : null,
 					expectedSiteId ? getSite( expectedSiteId ) : null,
@@ -177,15 +195,13 @@
 		var $queue = $( {} );
 
 		/**
-		 * @param {Object} testSet
+		 * @param {Array} testSet
 		 * @param {jQuery} $queue
 		 * @return {jQuery}
 		 */
 		function addToQueue( testSet, $queue ) {
-			$.each( testSet, function( siteId, string ) {
-				$queue.queue( 'tests', function( next ) {
-					testString( string, siteId, next );
-				} );
+			$queue.queue( 'tests', function( next ) {
+				testString( testSet[0], testSet[1], next );
 			} );
 			return $queue;
 		}
