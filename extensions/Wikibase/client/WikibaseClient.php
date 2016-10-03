@@ -68,8 +68,8 @@ if ( !defined( 'WBL_VERSION' ) ) {
 
 call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks, $wgExtensionFunctions;
-	global $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages, $wgResourceModules;
-	global $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
+	global $wgAPIListModules, $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages;
+	global $wgResourceModules, $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
 	global $wgJobClasses, $wgWBClientDataTypes, $wgWBClientEntityTypes;
 
 	$wgExtensionCredits['wikibase'][] = array(
@@ -204,10 +204,12 @@ call_user_func( function() {
 	);
 
 	$wgAPIPropModules['wbentityusage'] = Wikibase\Client\Api\ApiPropsEntityUsage::class;
+	$wgAPIListModules['wblistentityusage'] = Wikibase\Client\Api\ApiListEntityUsage::class;
 
 	// Special page registration
 	$wgSpecialPages['UnconnectedPages'] = 'Wikibase\Client\Specials\SpecialUnconnectedPages';
 	$wgSpecialPages['PagesWithBadges'] = 'Wikibase\Client\Specials\SpecialPagesWithBadges';
+	$wgSpecialPages['EntityUsage'] = 'Wikibase\Client\Specials\SpecialEntityUsage';
 	$wgHooks['wgQueryPages'][] = 'Wikibase\ClientHooks::onwgQueryPages';
 
 	// Resource loader modules

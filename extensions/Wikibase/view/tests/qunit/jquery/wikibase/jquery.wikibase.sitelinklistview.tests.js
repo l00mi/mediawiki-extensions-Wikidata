@@ -177,17 +177,6 @@ QUnit.test( 'value() with invalid sitelinkview', function( assert ) {
 
 	sitelinklistview.enterNewItem();
 
-	var listview = sitelinklistview.$listview.data( 'listview' ),
-		lia = listview.listItemAdapter(),
-		sitelinkview = lia.liInstance( listview.items().first() );
-
-	sitelinkview.isEmpty = function() {
-		return false;
-	};
-	sitelinkview.isValid = function() {
-		return false;
-	};
-
 	assert.strictEqual(
 		sitelinklistview.value().length,
 		0,
@@ -346,25 +335,11 @@ QUnit.test( 'value()', function( assert ) {
 	);
 } );
 
-QUnit.test( 'enterNewItem()', 2, function( assert ) {
+QUnit.test( 'enterNewItem()', 1, function( assert ) {
 	var $sitelinklistview = createSitelinklistview(),
 		sitelinklistview = $sitelinklistview.data( 'sitelinklistview' );
 
-	sitelinklistview.$listview
-	.on( 'listviewenternewitem', function() {
-		assert.ok(
-			true,
-			'Triggered listview\'s "enternewitem" event on the listview node.'
-		);
-	} );
-
 	$sitelinklistview
-	.on( 'listviewenternewitem', function( event, $sitelinkview ) {
-		assert.ok(
-			false,
-			'Triggered listview\'s "enternewitem" event on the sitelinklistview node.'
-		);
-	} )
 	.on( 'sitelinklistviewafterstartediting', function() {
 		assert.ok(
 			true,
@@ -385,12 +360,16 @@ QUnit.test( 'remove empty sitelinkview when hitting backspace', function( assert
 	sitelinklistview.enterNewItem();
 
 	var listview = sitelinklistview.$listview.data( 'listview' ),
-		$sitelinkview = listview.items().first();
+		sitelinkview = listview.value()[0];
+
+	sitelinkview.isEmpty = function() {
+		return true;
+	};
 
 	assert.equal( listview.items().length, 2 );
 	var e = $.Event( 'keydown' );
 	e.which = e.keyCode = $.ui.keyCode.BACKSPACE;
-	$sitelinkview.trigger( e );
+	sitelinkview.element.trigger( e );
 
 	assert.equal( listview.items().length, 1 );
 } );

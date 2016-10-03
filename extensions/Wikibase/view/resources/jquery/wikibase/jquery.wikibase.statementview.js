@@ -41,7 +41,7 @@
  *        Allows to predefine certain aspects of the `Statement` to be created from the view. If
  *        this option is omitted, an empty view is created. A common use-case is adding a value to a
  *        property existing already by specifying, for example: `{ mainSnak.property: 'P1' }`.
- * @param {jQuery.wikibase.listview.ListItemAdapter} options.qualifiersListItemAdapter
+ * @param {Function} options.getQualifiersListItemAdapter
  * @param {Object} [options.locked={ mainSnak: false }]
  *        Elements that shall be locked and may not be changed by user interaction.
  * @param {string} [options.helpMessage=mw.msg( 'wikibase-claimview-snak-new-tooltip' )]
@@ -118,12 +118,6 @@ $.widget( 'wikibase.statementview', PARENT, {
 	_referencesListview: null,
 
 	/**
-	 * @property {boolean}
-	 * @private
-	 */
-	_ignoreReferencesListviewChanges: false,
-
-	/**
 	 * Reference to the `listview` widget managing the qualifier `snaklistview`s.
 	 * @property {jQuery.wikibase.listview|null}
 	 * @private
@@ -154,7 +148,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 			|| !this.options.buildSnakView
 			|| !this.options.entityIdPlainFormatter
 			|| !this.options.guidGenerator
-			|| !this.options.qualifiersListItemAdapter
+			|| !this.options.getQualifiersListItemAdapter
 		) {
 			throw new Error( 'Required option not specified properly' );
 		}
@@ -168,17 +162,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 			this._createReferencesToggler();
 		}
 
-		var self = this;
 		this._referenceAdder = this.options.getAdder(
-			function() {
-				var listview = self._referencesListview,
-					lia = listview.listItemAdapter();
-
-				listview.enterNewItem().done( function( $referenceview ) {
-					var referenceview = lia.liInstance( $referenceview );
-					referenceview.focus();
-				} );
-			},
+			this._enterNewReference.bind( this ),
 			this.$references,
 			mw.msg( 'wikibase-addreference' )
 		);
@@ -285,7 +270,9 @@ $.widget( 'wikibase.statementview', PARENT, {
 			$qualifiers = $( '<div/>' ).prependTo( this.$qualifiers );
 		}
 		$qualifiers.listview( {
-			listItemAdapter: this.options.qualifiersListItemAdapter,
+			listItemAdapter: this.options.getQualifiersListItemAdapter( function( snaklistview ) {
+				self._qualifiers.removeItem( snaklistview.element );
+			} ),
 			value: groupedQualifierSnaks
 		} )
 		.on( 'snaklistviewchange.' + this.widgetName,
@@ -293,22 +280,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 				event.stopPropagation();
 				self._trigger( 'change' );
 			}
-		)
-		.on( 'listviewitemremoved.' + this.widgetName, function( event, value, $itemNode ) {
-			if ( event.target === self._qualifiers.element.get( 0 ) ) {
-				self._trigger( 'change' );
-				return;
-			}
-
-			// Check if last snaklistview of a qualifier listview item has been removed and
-			// remove the listview item if so:
-			var $snaklistview = $( event.target ).closest( ':wikibase-snaklistview' ),
-				snaklistview = $snaklistview.data( 'snaklistview' );
-
-			if ( !snaklistview.value().length ) {
-				self._qualifiers.removeItem( snaklistview.element );
-			}
-		} );
+		);
 
 		this._qualifiers = $qualifiers.data( 'listview' );
 	},
@@ -331,6 +303,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 		var lia = this.options.getReferenceListItemAdapter(
 			function( referenceview ) {
 				self._referencesListview.removeItem( referenceview.element );
+				self._drawReferencesCounter();
+				self._trigger( 'change' );
 			}
 		);
 
@@ -342,29 +316,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 		this._referencesListview = $listview.data( 'listview' );
 
 		$listview
-		.on( 'listviewitemremoved', function( event, value, $li ) {
-			if ( self._ignoreReferencesListviewChanges ) {
-				return;
-			}
-			if ( event.target === $listview[0] ) {
-				self._drawReferencesCounter();
-			}
-			self._trigger( 'change' );
-		} )
-		.on( lia.prefixedEvent( 'change.' + this.widgetName ),
-			function( event ) {
-				event.stopPropagation();
-				self._trigger( 'change' );
-			} )
-		.on( 'listviewenternewitem', function( event, $newLi ) {
-			if ( event.target !== $listview[0] ) {
-				return;
-			}
-
-			var liInstance = lia.liInstance( $newLi );
-
-			// Enter first item into the referenceview.
-			liInstance.enterNewItem();
+		.on( lia.prefixedEvent( 'change.' + this.widgetName ), function( event ) {
+			event.stopPropagation();
 			self._drawReferencesCounter();
 			self._trigger( 'change' );
 		} );
@@ -544,6 +497,18 @@ $.widget( 'wikibase.statementview', PARENT, {
 		);
 	},
 
+	_enterNewReference: function() {
+		var listview = this._referencesListview,
+			lia = listview.listItemAdapter();
+
+		listview.enterNewItem().done( function( $referenceview ) {
+			var referenceview = lia.liInstance( $referenceview );
+
+			// Enter first item into the referenceview.
+			referenceview.enterNewItem();
+		} ).done( this._drawReferencesCounter.bind( this ) );
+	},
+
 	/**
 	 * @private
 	 *
@@ -632,16 +597,8 @@ $.widget( 'wikibase.statementview', PARENT, {
 		this.$refsHeading.find( '.ui-toggler-label' ).empty().append( $counterMsg );
 	},
 
-	/**
-	 * @inheritdoc
-	 */
-	startEditing: function() {
+	_startEditing: function() {
 		var self = this;
-
-		if ( this.isInEditMode() ) {
-			return $.Deferred().resolve().promise();
-		}
-
 		this._qualifierAdder = this.options.getAdder(
 			function() {
 				var listview = self._qualifiers;
@@ -656,18 +613,14 @@ $.widget( 'wikibase.statementview', PARENT, {
 			mw.msg( 'wikibase-addqualifier' )
 		);
 
-		// We need to initialize the main snak before calling PARENT::startEditing,
-		// since that triggers 'afterstartediting' which tries to set focus into
-		// the main snak
-		this._createMainSnak();
-		return this._mainSnakSnakView.startEditing().then( function() {
-			// PARENT::startEditing calls this.draw
-			return PARENT.prototype.startEditing.call( self );
-		} ).then( function() {
-			self._rankSelector.startEditing();
-			self._qualifiers.startEditing();
-			self._startEditingReferences();
-		} );
+		return $.when(
+			this._createMainSnak(),
+			this.draw(),
+			this._mainSnakSnakView.startEditing(),
+			this._rankSelector.startEditing(),
+			this._qualifiers.startEditing(),
+			this._startEditingReferences()
+		);
 	},
 
 	/**
@@ -688,29 +641,23 @@ $.widget( 'wikibase.statementview', PARENT, {
 		}
 	},
 
-	/**
-	 * @inheritdoc
-	 * @protected
-	 */
-	_afterStopEditing: function( dropValue ) {
-		this._mainSnakSnakView.stopEditing( dropValue );
-		this._stopEditingQualifiers( dropValue );
-		this._rankSelector.stopEditing( dropValue );
-
+	_stopEditing: function( dropValue ) {
+		// FIXME: Should not be necessary if _setOption would do the right thing for values
 		this._recreateReferences();
+		this._stopEditingQualifiers( dropValue );
 
-		return PARENT.prototype._afterStopEditing.call( this, dropValue );
+		return $.when(
+			this._mainSnakSnakView.stopEditing( dropValue ),
+			this._rankSelector.stopEditing( dropValue )
+		);
 	},
 
 	/**
 	 * @protected
 	 */
 	_recreateReferences: function() {
-		// Normally, statementview would trigger a change event when references are removed and added
-		this._ignoreReferencesListviewChanges = true;
 		this._referencesListview.option( 'value', this.options.value
 				? this.options.value.getReferences().toArray() : [] );
-		this._ignoreReferencesListviewChanges = false;
 
 		this._drawReferencesCounter();
 	},
@@ -775,6 +722,7 @@ $.widget( 'wikibase.statementview', PARENT, {
 		}
 		if ( key === 'value' ) {
 			this.element.toggleClass( 'wb-new', value === null );
+			// FIXME: set the value!
 		}
 
 		return response;

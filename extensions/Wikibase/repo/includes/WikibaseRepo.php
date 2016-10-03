@@ -18,12 +18,12 @@ use HashBagOStuff;
 use Hooks;
 use IContextSource;
 use Language;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Site\MediaWikiPageNameNormalizer;
 use MWException;
 use RequestContext;
 use Serializers\DispatchingSerializer;
 use Serializers\Serializer;
-use SiteSQLStore;
 use SiteStore;
 use StubObject;
 use Title;
@@ -109,7 +109,6 @@ use Wikibase\Repo\Localizer\MessageParameterFormatter;
 use Wikibase\Repo\Localizer\ParseExceptionLocalizer;
 use Wikibase\Repo\Modules\EntityTypesConfigValueProvider;
 use Wikibase\Repo\Notifications\ChangeNotifier;
-use Wikibase\Repo\Notifications\ChangeTransmitter;
 use Wikibase\Repo\Notifications\DatabaseChangeTransmitter;
 use Wikibase\Repo\Notifications\HookChangeTransmitter;
 use Wikibase\Repo\ParserOutput\DispatchingEntityViewFactory;
@@ -1160,7 +1159,7 @@ class WikibaseRepo {
 	 */
 	public function getSiteStore() {
 		if ( $this->siteStore === null ) {
-			$this->siteStore = SiteSQLStore::newInstance();
+			$this->siteStore = MediaWikiServices::getInstance()->getSiteStore();
 		}
 
 		return $this->siteStore;
@@ -1189,30 +1188,18 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @return ChangeTransmitter[]
-	 */
-	private function getChangeTransmitters() {
-		$transmitters = array();
-
-		$transmitters[] = new HookChangeTransmitter( 'WikibaseChangeNotification' );
-
-		if ( $this->settings->getSetting( 'useChangesTable' ) ) {
-			$transmitters[] = new DatabaseChangeTransmitter(
-				$this->getStore()->getChangeStore()
-			);
-		}
-
-		return $transmitters;
-	}
-
-	/**
 	 * @return ChangeNotifier
 	 */
 	public function getChangeNotifier() {
-		return new ChangeNotifier(
-			$this->getEntityChangeFactory(),
-			$this->getChangeTransmitters()
-		);
+		$transmitters = [
+			new HookChangeTransmitter( 'WikibaseChangeNotification' ),
+		];
+
+		if ( $this->settings->getSetting( 'useChangesTable' ) ) {
+			$transmitters[] = new DatabaseChangeTransmitter( $this->getStore()->getChangeStore() );
+		}
+
+		return new ChangeNotifier( $this->getEntityChangeFactory(), $transmitters );
 	}
 
 	/**
@@ -1695,6 +1682,12 @@ class WikibaseRepo {
 
 						// T138131
 						'hai',
+
+						// T137808
+						'mnc',
+
+						// T137809
+						'otk',
 					) )
 				),
 

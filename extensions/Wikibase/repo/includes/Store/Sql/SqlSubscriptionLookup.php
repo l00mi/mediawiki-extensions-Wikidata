@@ -63,6 +63,30 @@ class SqlSubscriptionLookup implements SubscriptionLookup {
 	}
 
 	/**
+	 * Return the existing subscriptions for given Id to check
+	 *
+	 * @param EntityId $idToCheck EntityId to get subscribers
+	 *
+	 * @return string[] wiki IDs of wikis subscribed to the given entity
+	 */
+	public function getSubscribers( EntityId $idToCheck ) {
+
+		$where = [ 'cs_entity_id' => $idToCheck->getSerialization() ];
+		$dbr = $this->dbLoadBalancer->getConnection( DB_REPLICA );
+
+		$subscriptions = $dbr->selectFieldValues(
+			'wb_changes_subscription',
+			'cs_subscriber_id',
+			$where,
+			__METHOD__
+		);
+
+		$this->dbLoadBalancer->reuseConnection( $dbr );
+
+		return $subscriptions;
+	}
+
+	/**
 	 * For a set of potential subscriptions, returns the existing subscriptions.
 	 *
 	 * @param DatabaseBase $db
@@ -80,16 +104,12 @@ class SqlSubscriptionLookup implements SubscriptionLookup {
 			$where['cs_entity_id'] = $idsToCheck;
 		}
 
-		$rows = $db->select(
+		return $db->selectFieldValues(
 			'wb_changes_subscription',
 			'cs_entity_id',
 			$where,
 			__METHOD__
 		);
-
-		$subscriptions = $this->extractColumn( $rows, 'cs_entity_id' );
-
-		return $subscriptions;
 	}
 
 	/**
@@ -106,22 +126,6 @@ class SqlSubscriptionLookup implements SubscriptionLookup {
 		}
 
 		return $reindexed;
-	}
-
-	/**
-	 * @param object[]|ResultWrapper $rows Plain objects
-	 * @param string $field The name of the field to extract from each plain object
-	 *
-	 * @return array
-	 */
-	private function extractColumn( $rows, $field ) {
-		$values = array();
-
-		foreach ( $rows as $row ) {
-			$values[] = $row->$field;
-		}
-
-		return $values;
 	}
 
 }

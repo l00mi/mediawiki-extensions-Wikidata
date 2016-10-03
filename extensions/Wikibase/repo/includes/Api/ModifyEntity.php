@@ -12,9 +12,6 @@ use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpValidationException;
 use Wikibase\DataModel\Entity\EntityDocument;
-use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\EntityIdParser;
-use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
@@ -233,7 +230,11 @@ abstract class ModifyEntity extends ApiBase {
 			// TODO: use the EntitySavingHelper to load the entity, instead of an EntityRevisionLookup.
 			// TODO: consolidate with StatementModificationHelper::applyChangeOp
 			// FIXME: this EntityRevisionLookup is uncached, we may be loading the Entity several times!
-			$currentEntityRevision = $this->revisionLookup->getEntityRevision( $entity->getId() );
+			$currentEntityRevision = $this->revisionLookup->getEntityRevision(
+				$entity->getId(),
+				0,
+				EntityRevisionLookup::LATEST_FROM_SLAVE_WITH_FALLBACK
+			);
 			$currentEntity = $currentEntityRevision ? $currentEntityRevision->getEntity() : $entity;
 			$result = $changeOp->validate( $currentEntity );
 

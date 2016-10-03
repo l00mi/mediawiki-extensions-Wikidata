@@ -174,7 +174,9 @@ class XmlRdfWriter extends RdfWriterBase {
 	}
 
 	protected function writeText( $text, $language = null ) {
-		$attr = empty( $language ) ? array() : array( 'xml:lang' => $language );
+		$attr = $this->isValidLanguageCode( $language )
+			? array( 'xml:lang' => $language )
+			: array();
 
 		$this->write( "\t\t" );
 		$this->tag(

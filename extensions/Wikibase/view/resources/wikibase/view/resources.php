@@ -65,10 +65,20 @@ return call_user_func( function() {
 		'wikibase.view.ControllerViewFactory' => $moduleTemplate + array(
 			'scripts' => 'ControllerViewFactory.js',
 			'dependencies' => array(
+				'jquery.cookie',
+				'mediawiki.user',
 				'wikibase.view.__namespace',
 				'wikibase.view.ToolbarViewController',
 				'wikibase.view.ViewFactory'
 			)
+		),
+
+		'wikibase.view.ReadModeViewFactory' => $moduleTemplate + array(
+			'scripts' => 'ReadModeViewFactory.js',
+			'dependencies' => array(
+				'wikibase.view.__namespace',
+				'wikibase.view.ViewFactory'
+			),
 		),
 
 		'wikibase.view.ViewFactory' => $moduleTemplate + array(

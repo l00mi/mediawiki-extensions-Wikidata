@@ -53,6 +53,14 @@
 		userLanguages,
 		vocabularyLookupApiUrl
 	) {
+		if ( ( !structureEditorFactory || !structureEditorFactory.getAdder )
+			|| ( !messageProvider || !messageProvider.getMessage )
+			|| !$.isArray( userLanguages )
+			|| ( vocabularyLookupApiUrl && typeof vocabularyLookupApiUrl !== 'string' )
+		) {
+			throw new Error( 'Required parameter(s) not specified properly' );
+		}
+
 		this._structureEditorFactory = structureEditorFactory;
 		this._contentLanguages = contentLanguages;
 		this._dataTypeStore = dataTypeStore;
@@ -451,9 +459,9 @@
 				),
 				entityIdPlainFormatter: this._entityIdPlainFormatter,
 				getAdder: this._getAdderWithStartEditing( startEditingCallback ),
+				getQualifiersListItemAdapter: this.getListItemAdapterForSnakListView.bind( this, startEditingCallback ),
 				getReferenceListItemAdapter: this.getListItemAdapterForReferenceView.bind( this, startEditingCallback ),
-				guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId ),
-				qualifiersListItemAdapter: this.getListItemAdapterForSnakListView( startEditingCallback )
+				guidGenerator: new wb.utilities.ClaimGuidGenerator( entityId )
 			}
 		);
 		return view;
@@ -475,18 +483,23 @@
 
 	SELF.prototype.getReferenceView = function( startEditingCallback, removeCallback, value, $dom ) {
 		var structureEditorFactory = this._structureEditorFactory;
-		var view = this._getView(
+		var view;
+		var doRemove = function() {
+			return removeCallback( view );
+		};
+		view = this._getView(
 			'referenceview',
 			$dom,
 			{
 				value: value || null,
-				listItemAdapter: this.getListItemAdapterForSnakListView( startEditingCallback ),
 				getAdder: this._getAdderWithStartEditing( startEditingCallback ),
+				getListItemAdapter: this.getListItemAdapterForSnakListView.bind( this, startEditingCallback ),
 				getReferenceRemover: function( $dom ) {
 					return structureEditorFactory.getRemover( function() {
-						return startEditingCallback().then( function() { return removeCallback( view ); } );
+						return startEditingCallback().then( doRemove );
 					}, $dom );
-				}
+				},
+				removeCallback: doRemove
 			}
 		);
 		return view;
@@ -497,17 +510,34 @@
 	 *
 	 * @return {jQuery.wikibase.listview.ListItemAdapter} The constructed ListItemAdapter
 	 */
-	SELF.prototype.getListItemAdapterForSnakListView = function( startEditingCallback ) {
+	SELF.prototype.getListItemAdapterForSnakListView = function( startEditingCallback, removeCallback ) {
 		return new $.wikibase.listview.ListItemAdapter( {
 			listItemWidget: $.wikibase.snaklistview,
-			newItemOptionsFn: $.proxy( function( value ) {
-				return {
-					getListItemAdapter: this.getListItemAdapterForSnakView.bind( this, startEditingCallback ),
-					value: value || undefined,
-					singleProperty: true
-				};
+			getNewItem: $.proxy( function( value, dom ) {
+				return this.getSnakListView( startEditingCallback, removeCallback, $( dom ), value );
 			}, this )
 		} );
+	};
+
+	/**
+	 * Construct a `snaklistview`
+	 *
+	 * @return {jQuery.wikibase.snaklistview} The constructed snaklistview
+	 */
+	SELF.prototype.getSnakListView = function( startEditingCallback, removeCallback, $dom, value ) {
+		var view = this._getView(
+			'snaklistview',
+			$dom,
+			{
+				value: value || undefined,
+				singleProperty: true,
+				removeCallback: function() {
+					removeCallback( view );
+				},
+				getListItemAdapter: this.getListItemAdapterForSnakView.bind( this, startEditingCallback )
+			}
+		);
+		return view;
 	};
 
 	/**

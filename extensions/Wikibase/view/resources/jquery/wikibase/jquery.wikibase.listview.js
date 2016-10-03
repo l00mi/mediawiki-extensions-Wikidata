@@ -24,24 +24,6 @@
  * @param {string} [options.listItemNodeName='DIV']
  *         Node name of the base node of new list items.
  */
-/**
- * @event itemremoved
- * Triggered after a list got removed from the list.
- * @param {jQuery.Event} event
- * @param {*|null} value The value of the list item which will be removed. `null` for empty value.
- * @param {jQuery} $li The list item's DOM node that was removed.
- */
-/**
- * @event enternewitem
- * Triggered when initializing the process of adding a new item to the list.
- * @param {jQuery.Event} event
- * @param {jQuery} $li The DOM node pending to be added permanently to the list.
- */
-/**
- * @event destroy
- * Triggered when the widget has been destroyed.
- * @param {jQuery.Event} event
- */
 $.widget( 'wikibase.listview', PARENT, {
 	/**
 	 * @inheritdoc
@@ -106,7 +88,6 @@ $.widget( 'wikibase.listview', PARENT, {
 		this._lia = null;
 		this._reusedItems = null;
 		PARENT.prototype.destroy.call( this );
-		this._trigger( 'destroy' );
 	},
 
 	/**
@@ -291,11 +272,10 @@ $.widget( 'wikibase.listview', PARENT, {
 			throw new Error( 'The given node is not an element in this list' );
 		}
 
-		var liValue = this._lia.liInstance( $li ).value();
-
 		this._removeItem( $li );
 
-		this._trigger( 'itemremoved', null, [liValue, $li] );
+		// FIXME: Remove all itemremoved events, see https://gerrit.wikimedia.org/r/298766.
+		this._trigger( 'itemremoved', null, [null, $li] );
 	},
 
 	_removeItem: function( $li ) {
@@ -314,7 +294,6 @@ $.widget( 'wikibase.listview', PARENT, {
 	 */
 	enterNewItem: function() {
 		var $newLi = this._addLiValue();
-		this._trigger( 'enternewitem', null, [$newLi] );
 		return $.Deferred().resolve( $newLi ).promise();
 	},
 

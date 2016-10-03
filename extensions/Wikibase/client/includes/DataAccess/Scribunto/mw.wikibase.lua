@@ -143,37 +143,55 @@ function wikibase.setupInterface()
 		return php.getEntityUrl( id )
 	end
 
-	-- Get the label for the given entity id, if specified, or of the
-	-- connected entity, if exists. (in content language)
+	-- Get the label, label language for the given entity id, if specified,
+	-- or of the connected entity, if exists.
+	--
+	-- @param {string} [id]
+	wikibase.getLabelWithLang = function( id )
+		checkTypeMulti( 'getLabelWithLang', 1, id, { 'string', 'nil' } )
+
+		id = getIdOfConnectedItemIfNil( id )
+
+		if id == nil then
+			return nil, nil
+		end
+
+		return php.getLabel( id )
+	end
+
+	-- Like wikibase.getLabelWithLang, but only returns the plain label.
 	--
 	-- @param {string} [id]
 	wikibase.label = function( id )
 		checkTypeMulti( 'label', 1, id, { 'string', 'nil' } )
+		local label = wikibase.getLabelWithLang( id )
+
+		return label
+	end
+
+	-- Get the description, description language for the given entity id, if specified,
+	-- or of the connected entity, if exists.
+	--
+	-- @param {string} [id]
+	wikibase.getDescriptionWithLang = function( id )
+		checkTypeMulti( 'getDescriptionWithLang', 1, id, { 'string', 'nil' } )
 
 		id = getIdOfConnectedItemIfNil( id )
 
 		if id == nil then
-			return nil
+			return nil, nil
 		end
 
-		local label = php.getLabel( id )
-		return label
+		return php.getDescription( id )
 	end
 
-	-- Get the description for the given entity id, if specified, or of the
-	-- connected entity, if exists. (in content language)
+	-- Like wikibase.getDescriptionWithLang, but only returns the plain description.
 	--
 	-- @param {string} [id]
 	wikibase.description = function( id )
 		checkTypeMulti( 'description', 1, id, { 'string', 'nil' } )
+		local description = wikibase.getDescriptionWithLang( id )
 
-		id = getIdOfConnectedItemIfNil( id )
-
-		if id == nil then
-			return nil
-		end
-
-		local description = php.getDescription( id )
 		return description
 	end
 

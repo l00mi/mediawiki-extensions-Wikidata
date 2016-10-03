@@ -27,9 +27,11 @@ use Wikibase\Client\RecentChanges\ChangeLineFormatter;
 use Wikibase\Client\RecentChanges\ExternalChangeFactory;
 use Wikibase\Client\Specials\SpecialPagesWithBadges;
 use Wikibase\Client\Specials\SpecialUnconnectedPages;
+use Wikibase\Client\Specials\SpecialEntityUsage;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\Lib\AutoCommentFormatter;
+use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 
 /**
  * File defining the hook handlers for the Wikibase Client extension.
@@ -408,6 +410,12 @@ final class ClientHooks {
 
 		$namespaceChecker = $wikibaseClient->getNamespaceChecker();
 		$usageLookup = $wikibaseClient->getStore()->getUsageLookup();
+		$labelDescriptionLookupFactory = new LanguageFallbackLabelDescriptionLookupFactory(
+			$wikibaseClient->getLanguageFallbackChainFactory(),
+			$wikibaseClient->getTermLookup(),
+			$wikibaseClient->getTermBuffer()
+		);
+		$idParser = $wikibaseClient->getEntityIdParser();
 
 		if ( !$namespaceChecker->isWikibaseEnabled( $context->getTitle()->getNamespace() ) ) {
 			// shorten out
@@ -419,7 +427,9 @@ final class ClientHooks {
 			$wikibaseClient->newRepoLinker(),
 			$wikibaseClient->getStore()->getSiteLinkLookup(),
 			$settings->getSetting( 'siteGlobalID' ),
-			$usageLookup
+			$usageLookup,
+			$labelDescriptionLookupFactory,
+			$idParser
 		);
 
 		$pageInfo = $infoActionHookHandler->handle( $context, $pageInfo );
@@ -473,6 +483,7 @@ final class ClientHooks {
 	public static function onwgQueryPages( &$queryPages ) {
 		$queryPages[] = array( SpecialUnconnectedPages::class, 'UnconnectedPages' );
 		$queryPages[] = array( SpecialPagesWithBadges::class, 'PagesWithBadges' );
+		$queryPages[] = array( SpecialEntityUsage::class, 'EntityUsage' );
 		return true;
 	}
 

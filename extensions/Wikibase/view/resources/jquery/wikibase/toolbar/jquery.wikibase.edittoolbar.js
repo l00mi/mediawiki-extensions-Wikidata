@@ -88,6 +88,10 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 	_create: function() {
 		PARENT.prototype._create.call( this );
 
+		if ( !this.options.getHelpMessage ) {
+			throw new Error( 'Required option not specified properly' );
+		}
+
 		this._buttons = {};
 
 		var $scrapedSubToolbar = this.getContainer().children( '.wikibase-toolbar' );
@@ -304,7 +308,7 @@ $.widget( 'wikibase.edittoolbar', PARENT, {
 		}
 
 		this._$tooltipAnchor = $( '<span/>', {
-			'class': 'mw-help-field-hint',
+			'class': 'wb-help-field-hint',
 			html: '&nbsp;' // TODO find nicer way to hack Webkit browsers to display tooltip image (see also css)
 		} ).toolbaritem();
 

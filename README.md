@@ -2,11 +2,11 @@
 
 Wikidata is using a build with Wikibase and its dependencies packaged into one git repo.
 
-If you update the master branch of this repo it will likely be overwritten in the next 24 hours. To change things please instead make changes to wikidata/build-resources which is used for automated Wikidata builds. (see [here](https://phabricator.wikimedia.org/diffusion/WDBR/)).
+If you update the master branch of the Wikidata build repository it will be overwritten daily. To change things please instead make changes to [the wikidata/build-resources repository](https://phabricator.wikimedia.org/diffusion/WDBR/) which is used as one of the resources for automated Wikidata builds.
 
 ## Installation
 
-1. Clone the git repo into the [mediawiki extensions directory](https://git.wikimedia.org/summary/mediawiki%2Fextensions%2FWikidata)
+1. Clone the git repo into the [mediawiki extensions directory](https://phabricator.wikimedia.org/diffusion/EWDA/)
 2. Add the following line to your LocalSettings.php. This entry point in turn loads all other entry points.
 
 ##### To enable Repo add the following
@@ -90,4 +90,4 @@ The sharedCacheKeyPrefix setting is also set to be based on the branch version, 
 
 ## Updating this README
 
-This readme is located [here](https://phabricator.wikimedia.org/diffusion/WDBR/browse/master/README.md). Any changes made to the README in the Wikidata build repo will be overwritten by this file daily.
+This README is located in [the wikidata/build-resources repository](https://phabricator.wikimedia.org/diffusion/WDBR/browse/master/README.md). Any changes made to the README in the Wikidata build repository will be overwritten daily.

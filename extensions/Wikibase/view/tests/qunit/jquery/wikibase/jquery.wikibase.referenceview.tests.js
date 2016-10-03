@@ -5,6 +5,23 @@
 ( function( $, wb, QUnit ) {
 	'use strict';
 
+	var listItemAdapter = wb.tests.getMockListItemAdapter(
+		'snaklistview',
+		function() {
+			this.enterNewItem = function() {
+				return $.Deferred().resolve( {
+					data: function() {
+						return { focus: function() {} };
+					}
+				} ).promise();
+			};
+			this.stopEditing = function() {};
+			this.value = function() {
+				return this.options.value;
+			};
+		}
+	);
+
 	/**
 	 * Generates a referenceview widget suitable for testing.
 	 *
@@ -20,28 +37,15 @@
 			},
 			getReferenceRemover: function() {
 				return {
-					destroy: function() {}
+					destroy: function() {},
+					disable: function() {},
+					enable: function() {}
 				};
 			},
-			listItemAdapter: wb.tests.getMockListItemAdapter(
-				'snaklistview',
-				function() {
-					this.enterNewItem = function() {
-						return $.Deferred().resolve( {
-							data: function() {
-								return { focus: function() {} };
-							}
-						} ).promise();
-					};
-					this.isValid = function() {
-						return false;
-					};
-					this.stopEditing = function() {};
-					this.value = function() {
-						return this.options.value;
-					};
-				}
-			)
+			getListItemAdapter: function() {
+				return listItemAdapter;
+			},
+			removeCallback: function() {}
 		}, options );
 
 		return $( '<div/>' )
