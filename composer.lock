@@ -822,16 +822,16 @@
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "3.1.3",
+            "version": "3.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "b2a28db2427f4619920941169665973a6192729f"
+                "reference": "793390f84e180097f0511aa2b09dacd50168dfa3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/b2a28db2427f4619920941169665973a6192729f",
-                "reference": "b2a28db2427f4619920941169665973a6192729f",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/793390f84e180097f0511aa2b09dacd50168dfa3",
+                "reference": "793390f84e180097f0511aa2b09dacd50168dfa3",
                 "shasum": ""
             },
             "require": {
@@ -865,7 +865,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-08-31 16:13:37"
+            "time": "2016-10-03 12:42:20"
         },
         {
             "name": "serialization/serialization",
@@ -1574,12 +1574,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "737a22976f340782dd3d5762ee2940b6d3dfbb0c"
+                "reference": "c5bd47849f13548328ae0fed921703bad5aead6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/737a22976f340782dd3d5762ee2940b6d3dfbb0c",
-                "reference": "737a22976f340782dd3d5762ee2940b6d3dfbb0c",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c5bd47849f13548328ae0fed921703bad5aead6c",
+                "reference": "c5bd47849f13548328ae0fed921703bad5aead6c",
                 "shasum": ""
             },
             "require": {
@@ -1653,7 +1653,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-10-02 08:44:01"
+            "time": "2016-10-04 09:58:28"
         },
         {
             "name": "wikibase/wikimedia-badges",
