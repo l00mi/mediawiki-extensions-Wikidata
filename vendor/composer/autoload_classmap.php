@@ -783,6 +783,7 @@ return array(
     'Wikibase\\LibHooks' => $baseDir . '/extensions/Wikibase/lib/WikibaseLib.hooks.php',
     'Wikibase\\Lib\\AutoCommentFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/AutoCommentFormatter.php',
     'Wikibase\\Lib\\BaseUnitStorage' => $baseDir . '/extensions/Wikibase/lib/includes/Units/BaseUnitStorage.php',
+    'Wikibase\\Lib\\BinaryOptionDispatchingSnakFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/BinaryOptionDispatchingSnakFormatter.php',
     'Wikibase\\Lib\\CSVUnitStorage' => $baseDir . '/extensions/Wikibase/lib/includes/Units/CSVUnitStorage.php',
     'Wikibase\\Lib\\Changes\\EntityChangeFactory' => $baseDir . '/extensions/Wikibase/lib/includes/Changes/EntityChangeFactory.php',
     'Wikibase\\Lib\\CommonsLinkFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/CommonsLinkFormatter.php',
