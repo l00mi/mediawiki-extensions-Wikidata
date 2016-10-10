@@ -1460,12 +1460,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "c756269cf3d0b6ea3e21084cba5756e2857fcbb6"
+                "reference": "f7e8e4a23141948d5caf0515111fb7a63f5aaa40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c756269cf3d0b6ea3e21084cba5756e2857fcbb6",
-                "reference": "c756269cf3d0b6ea3e21084cba5756e2857fcbb6",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f7e8e4a23141948d5caf0515111fb7a63f5aaa40",
+                "reference": "f7e8e4a23141948d5caf0515111fb7a63f5aaa40",
                 "shasum": ""
             },
             "require": {
@@ -1539,7 +1539,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-10-03 18:04:02"
+            "time": "2016-10-10 11:37:29"
         },
         {
             "name": "wikibase/wikimedia-badges",
