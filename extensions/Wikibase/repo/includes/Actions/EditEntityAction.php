@@ -422,7 +422,7 @@ class EditEntityAction extends ViewEntityAction {
 
 		return Linker::linkKnown(
 			$this->getContext()->getTitle(),
-			wfMessage( 'cancel' )->parse(),
+			$this->msg( 'cancel' )->parse(),
 			array( 'id' => 'mw-editform-cancel' ),
 			$cancelParams
 		);
@@ -484,7 +484,7 @@ class EditEntityAction extends ViewEntityAction {
 		$old = $this->msg( 'currentrev' )->parse();
 		$new = $this->msg( 'yourtext' )->parse(); //XXX: better message?
 
-		$this->getOutput()->addHTML( Html::openElement( 'tr', array( 'valign' => 'top' ) ) );
+		$this->getOutput()->addHTML( Html::openElement( 'tr', array( 'style' => 'vertical-align: top;' ) ) );
 		$this->getOutput()->addHTML(
 			Html::rawElement( 'td', array( 'colspan' => '2' ),
 				Html::rawElement( 'div', array( 'id' => 'mw-diff-otitle1' ), $old )
@@ -558,7 +558,7 @@ class EditEntityAction extends ViewEntityAction {
 
 		$this->getOutput()->addHTML( "<p class='editOptions'>\n" );
 
-		$labelText = wfMessage( 'wikibase-summary-generated' )->text();
+		$labelText = $this->msg( 'wikibase-summary-generated' )->text();
 		list( $label, $field ) = $this->getSummaryInput( $labelText );
 		$this->getOutput()->addHTML( $label . "\n" . Html::rawElement( 'br' ) . "\n" . $field );
 		$this->getOutput()->addHTML( "<p class='editButtons'>\n" );
@@ -566,7 +566,7 @@ class EditEntityAction extends ViewEntityAction {
 
 		$cancel = $this->getCancelLink();
 		if ( $cancel !== '' ) {
-			$this->getOutput()->addHTML( wfMessage( 'pipe-separator' )->escaped() );
+			$this->getOutput()->addHTML( $this->msg( 'pipe-separator' )->escaped() );
 			$this->getOutput()->addHTML( $cancel );
 		}
 
