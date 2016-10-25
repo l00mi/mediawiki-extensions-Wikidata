@@ -6,16 +6,12 @@ use InvalidArgumentException;
 use Language;
 use Scribunto_LuaLibraryBase;
 use ScribuntoException;
-use ValueFormatters\FormatterOptions;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
-use Wikibase\Client\Usage\UsageTrackingSnakFormatter;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\Client\DataAccess\PropertyIdResolver;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\Client\PropertyLabelNotResolvedException;
-use Wikibase\Lib\SnakFormatter;
-use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
 
 /**
  * Registers and defines functions to access Wikibase through the Scribunto extension
@@ -44,21 +40,10 @@ class Scribunto_LuaWikibaseEntityLibrary extends Scribunto_LuaLibraryBase {
 		$lang = $this->getLanguage();
 
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
-
-		$languageFallbackChain = $wikibaseClient->getDataAccessLanguageFallbackChain( $lang );
-
-		$formatterOptions = new FormatterOptions( array(
-			SnakFormatter::OPT_LANG => $lang->getCode(),
-			FormatterLabelDescriptionLookupFactory::OPT_LANGUAGE_FALLBACK_CHAIN => $languageFallbackChain
-		) );
-
-		$snakFormatter = new UsageTrackingSnakFormatter(
-			$wikibaseClient->getSnakFormatterFactory()->getSnakFormatter(
-				SnakFormatter::FORMAT_WIKI,
-				$formatterOptions
-			),
-			$this->getUsageAccumulator(),
-			$languageFallbackChain->getFetchLanguageCodes()
+		$snakFormatterFactory = $wikibaseClient->getDataAccessSnakFormatterFactory();
+		$snakFormatter = $snakFormatterFactory->newEscapedPlainTextSnakFormatter(
+			$lang,
+			$this->getUsageAccumulator()
 		);
 
 		$entityLookup = $wikibaseClient->getRestrictedEntityLookup();

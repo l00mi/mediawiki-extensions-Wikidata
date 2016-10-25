@@ -71,6 +71,10 @@ return call_user_func( function() {
 				'jquery.wikibase.listview',
 				'wikibase.datamodel.StatementGroupSet',
 			),
+			'messages' => array(
+				'wikibase-statementgrouplistview-add',
+				'wikibase-statementgrouplistview-add-tooltip',
+			),
 		),
 
 		'jquery.wikibase.statementgroupview' => $moduleTemplate + array(
@@ -94,6 +98,10 @@ return call_user_func( function() {
 				'jquery.ui.widget',
 				'jquery.wikibase.listview',
 				'wikibase.datamodel.StatementList',
+			),
+			'messages' => array(
+					'wikibase-statementlistview-add',
+					'wikibase-statementlistview-add-tooltip',
 			),
 		),
 
@@ -418,8 +426,11 @@ return call_user_func( function() {
 				'wikibase-claimview-snak-tooltip',
 				'wikibase-claimview-snak-new-tooltip',
 				'wikibase-statementview-rank-preferred',
+				'wikibase-statementview-rank-tooltip-preferred',
 				'wikibase-statementview-rank-normal',
+				'wikibase-statementview-rank-tooltip-normal',
 				'wikibase-statementview-rank-deprecated',
+				'wikibase-statementview-rank-tooltip-deprecated',
 				'wikibase-statementview-references-counter',
 				'wikibase-statementview-referencesheading-pendingcountertooltip',
 			),

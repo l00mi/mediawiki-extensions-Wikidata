@@ -122,6 +122,7 @@ call_user_func( function() {
 	$wgHooks['BeforePageDisplay'][] = '\Wikibase\ClientHooks::onBeforePageDisplayAddJsConfig';
 	$wgHooks['ScribuntoExternalLibraries'][] = '\Wikibase\ClientHooks::onScribuntoExternalLibraries';
 	$wgHooks['InfoAction'][] = '\Wikibase\ClientHooks::onInfoAction';
+	$wgHooks['EditPageBeforeEditChecks'][] = '\Wikibase\ClientHooks::onEditAction';
 	$wgHooks['BaseTemplateAfterPortlet'][] = '\Wikibase\ClientHooks::onBaseTemplateAfterPortlet';
 	$wgHooks['GetBetaFeaturePreferences'][] = '\Wikibase\ClientHooks::onGetBetaFeaturePreferences';
 	$wgHooks['ArticleDeleteAfterSuccess'][] = '\Wikibase\ClientHooks::onArticleDeleteAfterSuccess';
@@ -162,6 +163,7 @@ call_user_func( function() {
 
 	// job classes
 	$wgJobClasses['wikibase-addUsagesForPage'] = Wikibase\Client\Store\AddUsagesForPageJob::class;
+	$wgJobClasses['ChangeNotification'] = Wikibase\ChangeNotificationJob::class;
 
 	// api modules
 	$wgAPIMetaModules['wikibase'] = array(

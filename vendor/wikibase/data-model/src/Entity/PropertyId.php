@@ -3,12 +3,12 @@
 namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * @since 0.5
  *
  * @license GPL-2.0+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class PropertyId extends EntityId implements Int32EntityId {
 
@@ -23,8 +23,12 @@ class PropertyId extends EntityId implements Int32EntityId {
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( $idSerialization ) {
-		$this->assertValidIdFormat( $idSerialization );
-		$this->serialization = strtoupper( $idSerialization );
+		$serializationParts = self::splitSerialization( $idSerialization );
+		$localId = strtoupper( $serializationParts[2] );
+		$this->assertValidIdFormat( $localId );
+		parent::__construct( self::joinSerialization(
+			[ $serializationParts[0], $serializationParts[1], $localId ] )
+		);
 	}
 
 	private function assertValidIdFormat( $idSerialization ) {
@@ -46,8 +50,14 @@ class PropertyId extends EntityId implements Int32EntityId {
 
 	/**
 	 * @return int
+	 *
+	 * @throws RuntimeException if called on a foreign ID.
 	 */
 	public function getNumericId() {
+		if ( $this->isForeign() ) {
+			throw new RuntimeException( 'getNumericId must not be called on foreign PropertyIds' );
+		}
+
 		return (int)substr( $this->serialization, 1 );
 	}
 
@@ -64,7 +74,7 @@ class PropertyId extends EntityId implements Int32EntityId {
 	 * @return string
 	 */
 	public function serialize() {
-		return json_encode( array( 'property', $this->serialization ) );
+		return json_encode( [ 'property', $this->serialization ] );
 	}
 
 	/**

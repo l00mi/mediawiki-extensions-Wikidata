@@ -46,13 +46,10 @@ class EditEntityAction extends ViewEntityAction {
 	private $entityDiffVisualizer;
 
 	/**
-	 * @var SummaryFormatter
-	 */
-	private $summaryFormatter;
-
-	/**
+	 * @see Action::__construct
+	 *
 	 * @param Page $page
-	 * @param IContextSource $context
+	 * @param IContextSource|null $context
 	 */
 	public function __construct( Page $page, IContextSource $context = null ) {
 		parent::__construct( $page, $context );
@@ -66,9 +63,6 @@ class EditEntityAction extends ViewEntityAction {
 		) );
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-
-		$this->summaryFormatter = $wikibaseRepo->getSummaryFormatter();
-
 		$termLookup = new EntityRetrievingTermLookup( $wikibaseRepo->getEntityLookup() );
 		$labelDescriptionLookup = new LanguageLabelDescriptionLookup( $termLookup, $languageCode );
 		$htmlFormatterFactory = $wikibaseRepo->getEntityIdHtmlLinkFormatterFactory();
@@ -369,50 +363,6 @@ class EditEntityAction extends ViewEntityAction {
 	}
 
 	/**
-	 * Returns an edit summary representing a restore-operation defined by the three given revisions.
-	 *
-	 * @since 0.1
-	 *
-	 * @param Revision $olderRevision
-	 * @param string $userSummary User provided summary
-	 *
-	 * @return string
-	 */
-	protected function makeRestoreSummary( Revision $olderRevision, $userSummary = '' ) {
-		$id = $olderRevision->getId();
-		$username = $olderRevision->getUserText();
-
-		$summary = new Summary;
-		$summary->setAction( 'restore' );
-		$summary->addAutoCommentArgs( $id, $username );
-		$summary->setUserSummary( $userSummary );
-
-		return $this->summaryFormatter->formatSummary( $summary );
-	}
-
-	/**
-	 * Returns an edit summary representing an undo-operation defined by the three given revisions.
-	 *
-	 * @since 0.1
-	 *
-	 * @param Revision $newerRevision
-	 * @param string $userSummary User provided summary
-	 *
-	 * @return string
-	 */
-	protected function makeUndoSummary( Revision $newerRevision, $userSummary = '' ) {
-		$id = $newerRevision->getId();
-		$username = $newerRevision->getUserText();
-
-		$summary = new Summary;
-		$summary->setAction( 'undo' );
-		$summary->addAutoCommentArgs( $id, $username );
-		$summary->setUserSummary( $userSummary );
-
-		return $this->summaryFormatter->formatSummary( $summary );
-	}
-
-	/**
 	 * Returns a cancel link back to viewing the entity's page
 	 *
 	 * @return string
@@ -422,7 +372,7 @@ class EditEntityAction extends ViewEntityAction {
 
 		return Linker::linkKnown(
 			$this->getContext()->getTitle(),
-			wfMessage( 'cancel' )->parse(),
+			$this->msg( 'cancel' )->parse(),
 			array( 'id' => 'mw-editform-cancel' ),
 			$cancelParams
 		);
@@ -484,7 +434,7 @@ class EditEntityAction extends ViewEntityAction {
 		$old = $this->msg( 'currentrev' )->parse();
 		$new = $this->msg( 'yourtext' )->parse(); //XXX: better message?
 
-		$this->getOutput()->addHTML( Html::openElement( 'tr', array( 'valign' => 'top' ) ) );
+		$this->getOutput()->addHTML( Html::openElement( 'tr', array( 'style' => 'vertical-align: top;' ) ) );
 		$this->getOutput()->addHTML(
 			Html::rawElement( 'td', array( 'colspan' => '2' ),
 				Html::rawElement( 'div', array( 'id' => 'mw-diff-otitle1' ), $old )
@@ -558,7 +508,7 @@ class EditEntityAction extends ViewEntityAction {
 
 		$this->getOutput()->addHTML( "<p class='editOptions'>\n" );
 
-		$labelText = wfMessage( 'wikibase-summary-generated' )->text();
+		$labelText = $this->msg( 'wikibase-summary-generated' )->text();
 		list( $label, $field ) = $this->getSummaryInput( $labelText );
 		$this->getOutput()->addHTML( $label . "\n" . Html::rawElement( 'br' ) . "\n" . $field );
 		$this->getOutput()->addHTML( "<p class='editButtons'>\n" );
@@ -566,7 +516,7 @@ class EditEntityAction extends ViewEntityAction {
 
 		$cancel = $this->getCancelLink();
 		if ( $cancel !== '' ) {
-			$this->getOutput()->addHTML( wfMessage( 'pipe-separator' )->escaped() );
+			$this->getOutput()->addHTML( $this->msg( 'pipe-separator' )->escaped() );
 			$this->getOutput()->addHTML( $cancel );
 		}
 

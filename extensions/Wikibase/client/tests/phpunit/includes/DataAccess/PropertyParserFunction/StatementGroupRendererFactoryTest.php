@@ -9,6 +9,7 @@ use Title;
 use User;
 use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
+use Wikibase\Client\DataAccess\DataAccessSnakFormatterFactory;
 use Wikibase\Client\DataAccess\PropertyIdResolver;
 use Wikibase\Client\DataAccess\PropertyParserFunction\LanguageAwareRenderer;
 use Wikibase\Client\DataAccess\PropertyParserFunction\StatementGroupRendererFactory;
@@ -21,6 +22,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\StatementListProvider;
 use Wikibase\LanguageFallbackChainFactory;
@@ -39,13 +41,23 @@ use Wikibase\Lib\SnakFormatter;
  */
 class StatementGroupRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 
-	public function testNewRendererForInterfaceMessage() {
+	/**
+	 * @dataProvider wikitextTypeProvider
+	 */
+	public function testNewRendererFromParser_forWikitextType( $type ) {
 		$parser = $this->getParser( 'zh', 'es', true );
 
 		$rendererFactory = $this->getStatementGroupRendererFactory();
-		$renderer = $rendererFactory->newRendererFromParser( $parser );
+		$renderer = $rendererFactory->newRendererFromParser( $parser, $type );
 
 		$this->assertInstanceOf( LanguageAwareRenderer::class, $renderer );
+	}
+
+	public function wikitextTypeProvider() {
+		return [
+			[ 'escaped-plaintext' ],
+			[ 'rich-wikitext' ],
+		];
 	}
 
 	public function testNewRenderer_contentConversionDisabled() {
@@ -79,11 +91,11 @@ class StatementGroupRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function newRenderer_forParserFormatProvider() {
-		return array(
-			array( 'ku', Parser::OT_PLAIN ),
-			array( 'zh', Parser::OT_WIKI ),
-			array( 'zh', Parser::OT_PREPROCESS )
-		);
+		return [
+			[ 'ku', Parser::OT_PLAIN ],
+			[ 'zh', Parser::OT_WIKI ],
+			[ 'zh', Parser::OT_PREPROCESS ]
+		];
 	}
 
 	public function testNewRenderer_forNonVariantLanguage() {
@@ -151,28 +163,34 @@ class StatementGroupRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 		$factory = new StatementGroupRendererFactory(
 			$idResolver,
 			new SnaksFinder(),
-			new LanguageFallbackChainFactory(),
-			$formatterFactory,
 			$this->getMock( EntityLookup::class ),
+			new DataAccessSnakFormatterFactory(
+				$this->getLanguageFallbackChainFactory(),
+				$formatterFactory,
+				$this->getMock( PropertyDataTypeLookup::class )
+			),
 			$allowDataAccessInUserLanguage
 		);
 		$factory->newRendererFromParser( $this->getParser( 'de', 'es' ) );
 	}
 
 	public function allowDataAccessInUserLanguageProvider() {
-		return array(
-			array( true ),
-			array( false ),
-		);
+		return [
+			[ true ],
+			[ false ],
+		];
 	}
 
 	private function getStatementGroupRendererFactory( $allowDataAccessInUserLanguage = false ) {
 		return new StatementGroupRendererFactory(
 			$this->getPropertyIdResolver(),
 			$this->getSnaksFinder(),
-			$this->getLanguageFallbackChainFactory(),
-			$this->getSnakFormatterFactory(),
 			$this->getEntityLookup(),
+			new DataAccessSnakFormatterFactory(
+				$this->getLanguageFallbackChainFactory(),
+				$this->getSnakFormatterFactory(),
+				$this->getMock( PropertyDataTypeLookup::class )
+			),
 			$allowDataAccessInUserLanguage
 		);
 	}
@@ -207,9 +225,9 @@ class StatementGroupRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 				PropertyId $propertyId,
 				array $acceptableRanks = null
 			) {
-				return array(
+				return [
 					new PropertyValueSnak( $propertyId, new EntityIdValue( new ItemId( 'Q7' ) ) )
-				);
+				];
 			} ) );
 
 		return $snakListFinder;
@@ -267,8 +285,6 @@ class StatementGroupRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 		$disableTitleConversion = false,
 		$outputType = Parser::OT_HTML
 	) {
-		$parserConfig = array( 'class' => 'Parser' );
-
 		$parserOptions = $this->getParserOptions(
 			$languageCode,
 			$userLanguageCode,
@@ -277,7 +293,7 @@ class StatementGroupRendererFactoryTest extends \PHPUnit_Framework_TestCase {
 			$disableTitleConversion
 		);
 
-		$parser = new Parser( $parserConfig );
+		$parser = new Parser( [ 'class' => 'Parser' ] );
 
 		$parser->setTitle( Title::newFromText( 'Cat' ) );
 		$parser->startExternalParse( null, $parserOptions, $outputType );

@@ -85,6 +85,12 @@ class PropertyParserFunctionIntegrationTest extends MediaWikiTestCase {
 		$this->assertSame( "<p>Lua&#160;:)\n</p>", $result );
 	}
 
+	public function testPropertyParserFunction_multipleValues() {
+		$result = $this->parseWikitextToHtml( '{{#property:P342|from=Q32489}}' );
+
+		$this->assertSame( "<p>Lua&#160;:), Lua&#160;:)\n</p>", $result );
+	}
+
 	public function testPropertyParserFunction_arbitraryAccessNotFound() {
 		$result = $this->parseWikitextToHtml( '{{#property:P342|from=Q1234567}}' );
 
@@ -116,10 +122,9 @@ class PropertyParserFunctionIntegrationTest extends MediaWikiTestCase {
 	 * @return string HTML
 	 */
 	private function parseWikitextToHtml( $wikiText, $title = 'WikibaseClientDataAccessTest' ) {
-		$parserConfig = array( 'class' => 'Parser' );
 		$popt = new ParserOptions( User::newFromId( 0 ), Language::factory( 'en' ) );
 
-		$parser = new Parser( $parserConfig );
+		$parser = new Parser( [ 'class' => 'Parser' ] );
 		$pout = $parser->parse( $wikiText, Title::newFromText( $title ), $popt, Parser::OT_HTML );
 
 		return $pout->getText();

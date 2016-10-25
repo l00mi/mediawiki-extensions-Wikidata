@@ -5,25 +5,20 @@ namespace Wikibase\Client\DataAccess\PropertyParserFunction;
 use Language;
 use MWException;
 use Parser;
-use ValueFormatters\FormatterOptions;
-use ValueFormatters\ValueFormatter;
+use Wikibase\Client\DataAccess\DataAccessSnakFormatterFactory;
 use Wikibase\Client\DataAccess\PropertyIdResolver;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\Client\Usage\ParserOutputUsageAccumulator;
 use Wikibase\Client\Usage\UsageAccumulator;
-use Wikibase\Client\Usage\UsageTrackingSnakFormatter;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
-use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
-use Wikibase\Lib\OutputFormatSnakFormatterFactory;
-use Wikibase\Lib\SnakFormatter;
 
 /**
  * @since 0.5
  *
  * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
+ * @author Thiemo Mättig
  */
 class StatementGroupRendererFactory {
 
@@ -38,24 +33,19 @@ class StatementGroupRendererFactory {
 	private $snaksFinder;
 
 	/**
-	 * @var LanguageFallbackChainFactory
-	 */
-	private $languageFallbackChainFactory;
-
-	/**
-	 * @var OutputFormatSnakFormatterFactory
-	 */
-	private $snakFormatterFactory;
-
-	/**
 	 * @var LanguageAwareRenderer[]
 	 */
-	private $languageAwareRenderers = array();
+	private $languageAwareRenderers = [];
 
 	/**
 	 * @var EntityLookup
 	 */
 	private $entityLookup;
+
+	/**
+	 * @var DataAccessSnakFormatterFactory
+	 */
+	private $dataAccessSnakFormatterFactory;
 
 	/**
 	 * @var bool
@@ -65,50 +55,49 @@ class StatementGroupRendererFactory {
 	/**
 	 * @param PropertyIdResolver $propertyIdResolver
 	 * @param SnaksFinder $snaksFinder
-	 * @param LanguageFallbackChainFactory $languageFallbackChainFactory
-	 * @param OutputFormatSnakFormatterFactory $snakFormatterFactory
 	 * @param EntityLookup $entityLookup
+	 * @param DataAccessSnakFormatterFactory $dataAccessSnakFormatterFactory
 	 * @param bool $allowDataAccessInUserLanguage
 	 */
 	public function __construct(
 		PropertyIdResolver $propertyIdResolver,
 		SnaksFinder $snaksFinder,
-		LanguageFallbackChainFactory $languageFallbackChainFactory,
-		OutputFormatSnakFormatterFactory $snakFormatterFactory,
 		EntityLookup $entityLookup,
+		DataAccessSnakFormatterFactory $dataAccessSnakFormatterFactory,
 		$allowDataAccessInUserLanguage
 	) {
 		$this->propertyIdResolver = $propertyIdResolver;
 		$this->snaksFinder = $snaksFinder;
-		$this->languageFallbackChainFactory = $languageFallbackChainFactory;
-		$this->snakFormatterFactory = $snakFormatterFactory;
 		$this->entityLookup = $entityLookup;
+		$this->dataAccessSnakFormatterFactory = $dataAccessSnakFormatterFactory;
 		$this->allowDataAccessInUserLanguage = $allowDataAccessInUserLanguage;
 	}
 
 	/**
 	 * @param Parser $parser
+	 * @param string $type Either "escaped-plaintext" or "rich-wikitext".
 	 *
 	 * @return StatementGroupRenderer
 	 */
-	public function newRendererFromParser( Parser $parser ) {
+	public function newRendererFromParser( Parser $parser, $type = 'escaped-plaintext' ) {
 		$usageAccumulator = new ParserOutputUsageAccumulator( $parser->getOutput() );
 
 		if ( $this->allowDataAccessInUserLanguage ) {
 			// Use the user's language.
 			// Note: This splits the parser cache.
 			$targetLanguage = $parser->getOptions()->getUserLangObj();
-			return $this->newLanguageAwareRenderer( $targetLanguage, $usageAccumulator );
+			return $this->newLanguageAwareRenderer( $type, $targetLanguage, $usageAccumulator );
 		} elseif ( $this->useVariants( $parser ) ) {
 			$variants = $parser->getConverterLanguage()->getVariants();
-			return $this->newVariantsAwareRenderer( $variants, $usageAccumulator );
+			return $this->newVariantsAwareRenderer( $type, $variants, $usageAccumulator );
 		} else {
 			$targetLanguage = $parser->getTargetLanguage();
-			return $this->newLanguageAwareRenderer( $targetLanguage, $usageAccumulator );
+			return $this->newLanguageAwareRenderer( $type, $targetLanguage, $usageAccumulator );
 		}
 	}
 
 	/**
+	 * @param string $type
 	 * @param Language $language
 	 * @param UsageAccumulator $usageAccumulator
 	 *
@@ -116,14 +105,27 @@ class StatementGroupRendererFactory {
 	 * @throws MWException
 	 */
 	private function newLanguageAwareRenderer(
+		$type,
 		Language $language,
 		UsageAccumulator $usageAccumulator
 	) {
+		if ( $type === 'rich-wikitext' ) {
+			$snakFormatter = $this->dataAccessSnakFormatterFactory->newRichWikitextSnakFormatter(
+				$language,
+				$usageAccumulator
+			);
+		} else {
+			$snakFormatter = $this->dataAccessSnakFormatterFactory->newEscapedPlainTextSnakFormatter(
+				$language,
+				$usageAccumulator
+			);
+		}
+
 		$entityStatementsRenderer = new StatementTransclusionInteractor(
 			$language,
 			$this->propertyIdResolver,
 			$this->snaksFinder,
-			$this->newSnakFormatterForLanguage( $language, $usageAccumulator ),
+			$snakFormatter,
 			$this->entityLookup
 		);
 
@@ -134,46 +136,45 @@ class StatementGroupRendererFactory {
 	}
 
 	/**
+	 * @param string $type
 	 * @param string $languageCode
 	 * @param UsageAccumulator $usageAccumulator
 	 *
 	 * @return LanguageAwareRenderer
 	 */
-	private function getLanguageAwareRendererFromCode( $languageCode, UsageAccumulator $usageAccumulator ) {
+	private function getLanguageAwareRendererFromCode(
+		$type,
+		$languageCode,
+		UsageAccumulator $usageAccumulator
+	) {
 		if ( !isset( $this->languageAwareRenderers[$languageCode] ) ) {
-			$languageAwareRenderer = $this->newLanguageAwareRendererFromCode( $languageCode, $usageAccumulator );
-			$this->languageAwareRenderers[$languageCode] = $languageAwareRenderer;
+			$this->languageAwareRenderers[$languageCode] = $this->newLanguageAwareRenderer(
+				$type,
+				Language::factory( $languageCode ),
+				$usageAccumulator
+			);
 		}
 
 		return $this->languageAwareRenderers[$languageCode];
 	}
 
 	/**
-	 * @param string $languageCode
-	 * @param UsageAccumulator $usageAccumulator
-	 *
-	 * @return LanguageAwareRenderer
-	 */
-	private function newLanguageAwareRendererFromCode( $languageCode, UsageAccumulator $usageAccumulator ) {
-		$language = Language::factory( $languageCode );
-
-		return $this->newLanguageAwareRenderer(
-			$language,
-			$usageAccumulator
-		);
-	}
-
-	/**
+	 * @param string $type
 	 * @param string[] $variants
 	 * @param UsageAccumulator $usageAccumulator
 	 *
 	 * @return VariantsAwareRenderer
 	 */
-	private function newVariantsAwareRenderer( array $variants, UsageAccumulator $usageAccumulator ) {
-		$languageAwareRenderers = array();
+	private function newVariantsAwareRenderer(
+		$type,
+		array $variants,
+		UsageAccumulator $usageAccumulator
+	) {
+		$languageAwareRenderers = [];
 
 		foreach ( $variants as $variant ) {
 			$languageAwareRenderers[$variant] = $this->getLanguageAwareRendererFromCode(
+				$type,
 				$variant,
 				$usageAccumulator
 			);
@@ -187,55 +188,24 @@ class StatementGroupRendererFactory {
 	 *
 	 * @param Parser $parser
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	private function isParserUsingVariants( Parser $parser ) {
 		$parserOptions = $parser->getOptions();
-		return $parser->OutputType() === Parser::OT_HTML && !$parserOptions->getInterfaceMessage()
+
+		return $parser->OutputType() === Parser::OT_HTML
+			&& !$parserOptions->getInterfaceMessage()
 			&& !$parserOptions->getDisableContentConversion();
 	}
 
 	/**
 	 * @param Parser $parser
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	private function useVariants( Parser $parser ) {
-		$converterLanguageHasVariants = $parser->getConverterLanguage()->hasVariants();
-		return $this->isParserUsingVariants( $parser ) && $converterLanguageHasVariants;
-	}
-
-	/**
-	 * @param Language $language
-	 * @param UsageAccumulator $usageAccumulator
-	 *
-	 * @return SnakFormatter
-	 */
-	private function newSnakFormatterForLanguage(
-		Language $language,
-		UsageAccumulator $usageAccumulator
-	) {
-		$languageFallbackChain = $this->languageFallbackChainFactory->newFromLanguage(
-			$language,
-			LanguageFallbackChainFactory::FALLBACK_ALL
-		);
-
-		$options = new FormatterOptions( array(
-			FormatterLabelDescriptionLookupFactory::OPT_LANGUAGE_FALLBACK_CHAIN => $languageFallbackChain,
-			ValueFormatter::OPT_LANG => $language->getCode(),
-			// ...more options... (?)
-		) );
-
-		$snakFormatter = new UsageTrackingSnakFormatter(
-			$this->snakFormatterFactory->getSnakFormatter(
-				SnakFormatter::FORMAT_WIKI,
-				$options
-			),
-			$usageAccumulator,
-			$languageFallbackChain->getFetchLanguageCodes()
-		);
-
-		return $snakFormatter;
+		return $this->isParserUsingVariants( $parser )
+			&& $parser->getConverterLanguage()->hasVariants();
 	}
 
 }

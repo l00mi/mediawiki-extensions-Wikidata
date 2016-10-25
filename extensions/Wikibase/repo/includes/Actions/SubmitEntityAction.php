@@ -3,11 +3,14 @@
 namespace Wikibase;
 
 use Content;
+use IContextSource;
 use MWException;
+use Page;
 use Revision;
 use Status;
 use Title;
 use WatchAction;
+use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
 
 /**
@@ -23,6 +26,24 @@ use WikiPage;
  * @author Daniel Kinzler
  */
 class SubmitEntityAction extends EditEntityAction {
+
+	/**
+	 * @var SummaryFormatter
+	 */
+	private $summaryFormatter;
+
+	/**
+	 * @see EditEntityAction::__construct
+	 *
+	 * @param Page $page
+	 * @param IContextSource|null $context
+	 */
+	public function __construct( Page $page, IContextSource $context = null ) {
+		parent::__construct( $page, $context );
+
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$this->summaryFormatter = $wikibaseRepo->getSummaryFormatter();
+	}
 
 	public function getName() {
 		return 'submit';
@@ -90,39 +111,23 @@ class SubmitEntityAction extends EditEntityAction {
 		 * @var Revision $latestRevision
 		 */
 		list( $olderRevision, $newerRevision, $latestRevision ) = $revisions->getValue();
-
-		/**
-		 * @var EntityContent $latestContent
-		 * @var EntityContent $olderContent
-		 * @var EntityContent $newerContent
-		 */
-		$olderContent = $olderRevision->getContent();
-		$newerContent = $newerRevision->getContent();
+		$patchedContent = $this->getPatchContent( $olderRevision, $newerRevision, $latestRevision );
 		$latestContent = $latestRevision->getContent();
 
-		$diff = $newerContent->getDiff( $olderContent );
+		if ( $patchedContent->equals( $latestContent ) ) {
+			$status = Status::newGood();
+			$status->warning( 'wikibase-empty-undo' );
+		} else {
+			$summary = $request->getText( 'wpSummary' );
 
-		$summary = $request->getText( 'wpSummary' );
-		$editToken = $request->getText( 'wpEditToken' );
-
-		if ( $newerRevision->getId() === $latestRevision->getId() ) { // restore
-			if ( $diff->isEmpty() ) {
-				$status = Status::newGood();
-				$status->warning( 'wikibase-empty-undo' );
+			if ( $request->getCheck( 'restore' ) ) {
+				$summary = $this->makeSummary( 'restore', $olderRevision, $summary );
 			} else {
-				$summary = $this->makeRestoreSummary( $olderRevision, $summary );
-				$status = $this->attemptSave( $title, $olderContent, $summary, $editToken );
+				$summary = $this->makeSummary( 'undo', $newerRevision, $summary );
 			}
-		} else { // undo
-			$patchedContent = $latestContent->getPatchedCopy( $diff );
 
-			if ( $patchedContent->equals( $latestContent ) ) {
-				$status = Status::newGood();
-				$status->warning( 'wikibase-empty-undo' );
-			} else {
-				$summary = $this->makeUndoSummary( $newerRevision, $summary );
-				$status = $this->attemptSave( $title, $patchedContent, $summary, $editToken );
-			}
+			$editToken = $request->getText( 'wpEditToken' );
+			$status = $this->attemptSave( $title, $patchedContent, $summary, $editToken );
 		}
 
 		if ( $status->isOK() ) {
@@ -130,6 +135,51 @@ class SubmitEntityAction extends EditEntityAction {
 		} else {
 			$this->showUndoErrorPage( $status );
 		}
+	}
+
+	/**
+	 * @param Revision $olderRevision
+	 * @param Revision $newerRevision
+	 * @param Revision $latestRevision
+	 *
+	 * @return EntityContent
+	 */
+	private function getPatchContent(
+		Revision $olderRevision,
+		Revision $newerRevision,
+		Revision $latestRevision
+	) {
+		/**
+		 * @var EntityContent $olderContent
+		 * @var EntityContent $newerContent
+		 * @var EntityContent $latestContent
+		 */
+		$olderContent = $olderRevision->getContent();
+		$newerContent = $newerRevision->getContent();
+		$latestContent = $latestRevision->getContent();
+
+		// Skip diffing and patching when possible for performance reasons
+		if ( $newerRevision->getId() === $latestRevision->getId() ) {
+			return $olderContent;
+		}
+
+		return $latestContent->getPatchedCopy( $newerContent->getDiff( $olderContent ) );
+	}
+
+	/**
+	 * @param string $actionName
+	 * @param Revision $revision
+	 * @param string $userSummary
+	 *
+	 * @return string
+	 */
+	private function makeSummary( $actionName, Revision $revision, $userSummary ) {
+		$summary = new Summary();
+		$summary->setAction( $actionName );
+		$summary->addAutoCommentArgs( $revision->getId(), $revision->getUserText() );
+		$summary->setUserSummary( $userSummary );
+
+		return $this->summaryFormatter->formatSummary( $summary );
 	}
 
 	/**
