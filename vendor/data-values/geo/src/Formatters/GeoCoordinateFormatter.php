@@ -165,14 +165,28 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 		);
 	}
 
+	/**
+	 * @param string $coordinate
+	 * @param string $positiveSymbol
+	 * @param string $negativeSymbol
+	 *
+	 * @return string
+	 */
 	private function makeDirectionalIfNeeded( $coordinate, $positiveSymbol, $negativeSymbol ) {
 		if ( $this->options->getOption( self::OPT_DIRECTIONAL ) ) {
-			return $this->makeDirectional( $coordinate , $positiveSymbol, $negativeSymbol);
+			return $this->makeDirectional( $coordinate, $positiveSymbol, $negativeSymbol );
 		}
 
 		return $coordinate;
 	}
 
+	/**
+	 * @param string $coordinate
+	 * @param string $positiveSymbol
+	 * @param string $negativeSymbol
+	 *
+	 * @return string
+	 */
 	private function makeDirectional( $coordinate, $positiveSymbol, $negativeSymbol ) {
 		$isNegative = substr( $coordinate, 0, 1 ) === '-';
 
@@ -299,11 +313,11 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	 * (60 for minutes, 3600 for seconds)
 	 * @param float $degreePrecision
 	 *
-	 * @return float The number of digits to show after the decimal point
+	 * @return int The number of digits to show after the decimal point
 	 * (resp. before, if the result is negative).
 	 */
 	private function getSignificantDigits( $unitsPerDegree, $degreePrecision ) {
-		return ceil( -log10( $unitsPerDegree * $degreePrecision ) );
+		return (int)ceil( -log10( $unitsPerDegree * $degreePrecision ) );
 	}
 
 	/**
@@ -313,10 +327,8 @@ class GeoCoordinateFormatter extends ValueFormatterBase {
 	 * @return string
 	 */
 	private function formatNumber( $number, $digits = 0 ) {
-		//TODO: use NumberLocalizer
-		return sprintf( $digits > 0
-			? '%.' . (int)$digits . 'F'
-			: '%d', $number );
+		// TODO: use NumberLocalizer
+		return sprintf( '%.' . ( $digits > 0 ? $digits : 0 ) . 'F', $number );
 	}
 
 }
