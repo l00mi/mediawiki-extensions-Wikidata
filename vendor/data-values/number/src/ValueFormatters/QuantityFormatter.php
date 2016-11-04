@@ -5,6 +5,7 @@ namespace ValueFormatters;
 use DataValues\DecimalMath;
 use DataValues\DecimalValue;
 use DataValues\QuantityValue;
+use DataValues\UnboundedQuantityValue;
 use InvalidArgumentException;
 
 /**
@@ -58,7 +59,7 @@ class QuantityFormatter extends ValueFormatterBase {
 	private $decimalFormatter;
 
 	/**
-	 * @var ValueFormatter|null
+	 * @var ValueFormatter
 	 */
 	private $vocabularyUriFormatter;
 
@@ -72,7 +73,7 @@ class QuantityFormatter extends ValueFormatterBase {
 	 *
 	 * @param FormatterOptions|null $options
 	 * @param DecimalFormatter|null $decimalFormatter
-	 * @param ValueFormatter|null $vocabularyUriFormatter
+	 * @param ValueFormatter $vocabularyUriFormatter
 	 * @param string|null $quantityWithUnitFormat Format string with two placeholders, $1 for the
 	 * number and $2 for the unit. Warning, this must be under the control of the application, not
 	 * under the control of the user, because it allows HTML injections in subclasses that return
@@ -81,7 +82,7 @@ class QuantityFormatter extends ValueFormatterBase {
 	public function __construct(
 		FormatterOptions $options = null,
 		DecimalFormatter $decimalFormatter = null,
-		ValueFormatter $vocabularyUriFormatter = null,
+		ValueFormatter $vocabularyUriFormatter,
 		$quantityWithUnitFormat = null
 	) {
 		parent::__construct( $options );
@@ -110,14 +111,14 @@ class QuantityFormatter extends ValueFormatterBase {
 	/**
 	 * @see ValueFormatter::format
 	 *
-	 * @param QuantityValue $value
+	 * @param UnboundedQuantityValue|QuantityValue $value
 	 *
 	 * @throws InvalidArgumentException
 	 * @return string Text
 	 */
 	public function format( $value ) {
-		if ( !( $value instanceof QuantityValue ) ) {
-			throw new InvalidArgumentException( 'Data value type mismatch. Expected a QuantityValue.' );
+		if ( !( $value instanceof UnboundedQuantityValue ) ) {
+			throw new InvalidArgumentException( 'Data value type mismatch. Expected a UnboundedQuantityValue.' );
 		}
 
 		return $this->formatQuantityValue( $value );
@@ -126,17 +127,19 @@ class QuantityFormatter extends ValueFormatterBase {
 	/**
 	 * @since 0.6
 	 *
-	 * @param QuantityValue $quantity
+	 * @param UnboundedQuantityValue|QuantityValue $quantity
 	 *
 	 * @return string Text
 	 */
-	protected function formatQuantityValue( QuantityValue $quantity ) {
-		$formatted = $this->formatNumber( $quantity );
+	protected function formatQuantityValue( UnboundedQuantityValue $quantity ) {
+		$formatted = $quantity instanceof QuantityValue
+			? $this->formatNumber( $quantity )
+			: $this->formatUnboundedQuantityValue( $quantity );
 		$unit = $this->formatUnit( $quantity->getUnit() );
 
 		if ( $unit !== null ) {
 			$formatted = strtr(
-				$this->getQuantityWithUnitFormat(),
+				$this->quantityWithUnitFormat,
 				array(
 					'$1' => $formatted,
 					'$2' => $unit
@@ -145,6 +148,22 @@ class QuantityFormatter extends ValueFormatterBase {
 		}
 
 		return $formatted;
+	}
+
+	/**
+	 * @param UnboundedQuantityValue $quantity
+	 *
+	 * @return string
+	 */
+	protected function formatUnboundedQuantityValue( UnboundedQuantityValue $quantity ) {
+		$amount = $quantity->getAmount();
+		$roundingExponent = $this->options->getOption( self::OPT_APPLY_ROUNDING );
+
+		if ( !is_bool( $roundingExponent ) ) {
+			$amount = $this->decimalMath->roundToExponent( $amount, (int)$roundingExponent );
+		}
+
+		return $this->decimalFormatter->format( $amount );
 	}
 
 	/**
@@ -158,10 +177,17 @@ class QuantityFormatter extends ValueFormatterBase {
 		$roundingExponent = $this->getRoundingExponent( $quantity );
 
 		$amount = $quantity->getAmount();
-		$roundedAmount = $this->decimalMath->roundToExponent( $amount, $roundingExponent );
-		$formatted = $this->decimalFormatter->format( $roundedAmount );
 
-		$margin = $this->formatMargin( $quantity->getUncertaintyMargin(), $roundingExponent );
+		if ( $roundingExponent === null ) {
+			$formatted = $this->formatMinimalDecimal( $amount );
+			$margin = $quantity->getUncertaintyMargin();
+			$margin = $margin->isZero() ? null : $this->formatMinimalDecimal( $margin );
+		} else {
+			$roundedAmount = $this->decimalMath->roundToExponent( $amount, $roundingExponent );
+			$formatted = $this->decimalFormatter->format( $roundedAmount );
+			$margin = $this->formatMargin( $quantity->getUncertaintyMargin(), $roundingExponent );
+		}
+
 		if ( $margin !== null ) {
 			// TODO: use localizable pattern for constructing the output.
 			$formatted .= '±' . $margin;
@@ -176,18 +202,29 @@ class QuantityFormatter extends ValueFormatterBase {
 	 *
 	 * @param QuantityValue $quantity
 	 *
-	 * @return int
+	 * @return int|null
 	 */
 	private function getRoundingExponent( QuantityValue $quantity ) {
 		if ( $this->options->getOption( self::OPT_APPLY_ROUNDING ) === true ) {
-			// round to the order of uncertainty
-			return $quantity->getOrderOfUncertainty();
+			return $this->options->getOption( self::OPT_SHOW_UNCERTAINTY_MARGIN )
+				? null
+				// round to the order of uncertainty
+				: $quantity->getOrderOfUncertainty();
 		} elseif ( $this->options->getOption( self::OPT_APPLY_ROUNDING ) === false ) {
-			// to keep all digits, use the negative length of the fractional part
-			return -strlen( $quantity->getAmount()->getFractionalPart() );
+			return null;
 		} else {
 			return (int)$this->options->getOption( self::OPT_APPLY_ROUNDING );
 		}
+	}
+
+	/**
+	 * @param DecimalValue $decimal
+	 *
+	 * @return string
+	 */
+	private function formatMinimalDecimal( DecimalValue $decimal ) {
+		// TODO: This should be an option of DecimalFormatter.
+		return $this->decimalFormatter->format( $decimal->getTrimmed() );
 	}
 
 	/**
@@ -198,7 +235,6 @@ class QuantityFormatter extends ValueFormatterBase {
 	 */
 	private function formatMargin( DecimalValue $margin, $roundingExponent ) {
 		if ( $this->options->getOption( self::OPT_SHOW_UNCERTAINTY_MARGIN ) ) {
-			// TODO: never round to 0! See bug #56892
 			$roundedMargin = $this->decimalMath->roundToExponent( $margin, $roundingExponent );
 
 			if ( !$roundedMargin->isZero() ) {
@@ -217,8 +253,7 @@ class QuantityFormatter extends ValueFormatterBase {
 	 * @return string|null Text
 	 */
 	protected function formatUnit( $unit ) {
-		if ( $this->vocabularyUriFormatter === null
-			|| !$this->options->getOption( self::OPT_APPLY_UNIT )
+		if ( !$this->options->getOption( self::OPT_APPLY_UNIT )
 			|| $unit === ''
 			|| $unit === '1'
 		) {

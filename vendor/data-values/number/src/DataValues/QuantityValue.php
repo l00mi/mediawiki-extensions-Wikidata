@@ -8,28 +8,19 @@ use InvalidArgumentException;
  * Class representing a quantity with associated unit and uncertainty interval.
  * The amount is stored as a @see DecimalValue object.
  *
+ * @see UnboundedQuantityValue for quantities with unknown uncertainty interval.
  * For simple numeric amounts use @see NumberValue.
+ *
+ * @note UnboundedQuantityValue and QuantityValue both use the value type ID "quantity".
+ * The fact that we use subclassing to model the bounded vs the unbounded case should be
+ * considered an implementation detail.
  *
  * @since 0.1
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
-class QuantityValue extends DataValueObject {
-
-	/**
-	 * The quantity's amount
-	 *
-	 * @var DecimalValue
-	 */
-	private $amount;
-
-	/**
-	 * The quantity's unit identifier (use "1" for unitless quantities).
-	 *
-	 * @var string
-	 */
-	private $unit;
+class QuantityValue extends UnboundedQuantityValue {
 
 	/**
 	 * The quantity's upper bound
@@ -46,8 +37,6 @@ class QuantityValue extends DataValueObject {
 	private $lowerBound;
 
 	/**
-	 * Constructs a new QuantityValue object, representing the given value.
-	 *
 	 * @since 0.1
 	 *
 	 * @param DecimalValue $amount
@@ -58,6 +47,8 @@ class QuantityValue extends DataValueObject {
 	 * @throws IllegalValueException
 	 */
 	public function __construct( DecimalValue $amount, $unit, DecimalValue $upperBound, DecimalValue $lowerBound ) {
+		parent::__construct( $amount, $unit );
+
 		if ( $lowerBound->compare( $amount ) > 0 ) {
 			throw new IllegalValueException( '$lowerBound ' . $lowerBound->getValue() . ' must be <= $amount ' . $amount->getValue() );
 		}
@@ -66,16 +57,6 @@ class QuantityValue extends DataValueObject {
 			throw new IllegalValueException( '$upperBound ' . $upperBound->getValue() . ' must be >= $amount ' . $amount->getValue() );
 		}
 
-		if ( !is_string( $unit ) ) {
-			throw new IllegalValueException( '$unit needs to be a string, not ' . gettype( $unit ) );
-		}
-
-		if ( $unit === '' ) {
-			throw new IllegalValueException( '$unit can not be an empty string (use "1" for unit-less quantities)' );
-		}
-
-		$this->amount = $amount;
-		$this->unit = $unit;
 		$this->upperBound = $upperBound;
 		$this->lowerBound = $lowerBound;
 	}
@@ -110,60 +91,6 @@ class QuantityValue extends DataValueObject {
 	}
 
 	/**
-	 * @see newFromNumber
-	 *
-	 * @deprecated since 0.1, use newFromNumber instead
-	 *
-	 * @param string|int|float|DecimalValue $amount
-	 * @param string $unit
-	 * @param string|int|float|DecimalValue|null $upperBound
-	 * @param string|int|float|DecimalValue|null $lowerBound
-	 *
-	 * @return self
-	 */
-	public static function newFromDecimal( $amount, $unit = '1', $upperBound = null, $lowerBound = null ) {
-		return self::newFromNumber( $amount, $unit, $upperBound, $lowerBound );
-	}
-
-	/**
-	 * Converts $number to a DecimalValue if possible and necessary.
-	 *
-	 * @note: if the $number is given as a string, it must conform to the rules
-	 *        defined by @see DecimalValue.
-	 *
-	 * @param string $name The variable name to use in exception messages
-	 * @param string|int|float|DecimalValue|null $number
-	 * @param DecimalValue|null $default
-	 *
-	 * @throws IllegalValueException
-	 * @throws InvalidArgumentException
-	 * @return DecimalValue
-	 */
-	private static function asDecimalValue( $name, $number, DecimalValue $default = null ) {
-		if ( !is_string( $name ) ) {
-			throw new InvalidArgumentException( '$name must be a string' );
-		}
-
-		if ( $number === null ) {
-			if ( $default === null ) {
-				throw new InvalidArgumentException( '$' . $name . ' must not be null' );
-			}
-
-			$number = $default;
-		}
-
-		if ( $number instanceof DecimalValue ) {
-			// nothing to do
-		} elseif ( is_int( $number ) || is_float( $number ) || is_string( $number ) ) {
-			$number = new DecimalValue( $number );
-		} else {
-			throw new IllegalValueException( '$' . $name . '  must be a string, int, or float' );
-		}
-
-		return $number;
-	}
-
-	/**
 	 * @see Serializable::serialize
 	 *
 	 * @since 0.1
@@ -189,51 +116,6 @@ class QuantityValue extends DataValueObject {
 	public function unserialize( $data ) {
 		list( $amount, $unit, $upperBound, $lowerBound ) = unserialize( $data );
 		$this->__construct( $amount, $unit, $upperBound, $lowerBound );
-	}
-
-	/**
-	 * @see DataValue::getType
-	 *
-	 * @since 0.1
-	 *
-	 * @return string
-	 */
-	public static function getType() {
-		return 'quantity';
-	}
-
-	/**
-	 * @see DataValue::getSortKey
-	 *
-	 * @since 0.1
-	 *
-	 * @return float
-	 */
-	public function getSortKey() {
-		return $this->getAmount()->getValueFloat();
-	}
-
-	/**
-	 * Returns the quantity object.
-	 * @see DataValue::getValue
-	 *
-	 * @since 0.1
-	 *
-	 * @return self
-	 */
-	public function getValue() {
-		return $this;
-	}
-
-	/**
-	 * Returns the amount represented by this quantity.
-	 *
-	 * @since 0.1
-	 *
-	 * @return DecimalValue
-	 */
-	public function getAmount() {
-		return $this->amount;
 	}
 
 	/**
@@ -271,7 +153,7 @@ class QuantityValue extends DataValueObject {
 	 * @return float
 	 */
 	public function getUncertainty() {
-		return $this->getUpperBound()->getValueFloat() - $this->getLowerBound()->getValueFloat();
+		return $this->upperBound->getValueFloat() - $this->lowerBound->getValueFloat();
 	}
 
 	/**
@@ -288,8 +170,8 @@ class QuantityValue extends DataValueObject {
 	public function getUncertaintyMargin() {
 		$math = new DecimalMath();
 
-		$lowerMargin = $math->sum( $this->getAmount(), $this->getLowerBound()->computeComplement() );
-		$upperMargin = $math->sum( $this->getUpperBound(), $this->getAmount()->computeComplement() );
+		$lowerMargin = $math->sum( $this->amount, $this->lowerBound->computeComplement() );
+		$upperMargin = $math->sum( $this->upperBound, $this->amount->computeComplement() );
 
 		$margin = $math->max( $lowerMargin, $upperMargin );
 		return $margin;
@@ -317,9 +199,9 @@ class QuantityValue extends DataValueObject {
 		// the desired precision is given by the distance between the amount and
 		// whatever is closer, the upper or lower bound.
 		//TODO: use DecimalMath to avoid floating point errors!
-		$amount = $this->getAmount()->getValueFloat();
-		$upperBound = $this->getUpperBound()->getValueFloat();
-		$lowerBound = $this->getLowerBound()->getValueFloat();
+		$amount = $this->amount->getValueFloat();
+		$upperBound = $this->upperBound->getValueFloat();
+		$lowerBound = $this->lowerBound->getValueFloat();
 		$precision = min( $amount - $lowerBound, $upperBound - $amount );
 
 		if ( $precision === 0.0 ) {
@@ -337,62 +219,13 @@ class QuantityValue extends DataValueObject {
 	}
 
 	/**
-	 * Returns the number of significant figures in the amount-string,
-	 * counting the decimal point, but not counting the leading sign.
+	 * @see UnboundedQuantityValue::transform
 	 *
-	 * Note that this calculation assumes a symmetric uncertainty interval, and can be misleading
+	 * @param string $newUnit
+	 * @param callable $transformation
+	 * @param mixed [$args,...]
 	 *
-	 * @since 0.1
-	 *
-	 * @return int
-	 */
-	public function getSignificantFigures() {
-		$math = new DecimalMath();
-
-		// $orderOfUncertainty is +/- 200 -> 2; +/- 0.02 -> -2
-		$orderOfUncertainty = $this->getOrderOfUncertainty();
-
-		// the number of digits (without the sign) is the same as the position (with the sign).
-		$significantDigits = $math->getPositionForExponent( $orderOfUncertainty, $this->amount );
-
-		return $significantDigits;
-	}
-
-	/**
-	 * Returns the unit held by this quantity.
-	 * Unit-less quantities should use "1" as their unit.
-	 *
-	 * @since 0.1
-	 *
-	 * @return string
-	 */
-	public function getUnit() {
-		return $this->unit;
-	}
-
-	/**
-	 * Returns a transformed value derived from this QuantityValue by applying
-	 * the given transformation to the amount and the upper and lower bounds.
-	 * The resulting amount and bounds are rounded to the significant number of
-	 * digits. Note that for exact quantities (with at least one bound equal to
-	 * the amount), no rounding is applied (since they are considered to have
-	 * infinite precision).
-	 *
-	 * The transformation is provided as a callback, which must implement a
-	 * monotonously increasing, fully differentiable function mapping a DecimalValue
-	 * to a DecimalValue. Typically, it will be a linear transformation applying a
-	 * factor and an offset.
-	 *
-	 * @param string $newUnit The unit of the transformed quantity.
-	 *
-	 * @param callable $transformation A callback that implements the desired transformation.
-	 *        The transformation will be called three times, once for the amount, once
-	 *        for the lower bound, and once for the upper bound. It must return a DecimalValue.
-	 *        The first parameter passed to $transformation is the DecimalValue to transform
-	 *        In addition, any extra parameters passed to transform() will be passed through
-	 *        to the transformation callback.
-	 *
-	 * @param mixed ... Any extra parameters will be passed to the $transformation function.
+	 * @todo Should be factored out into a separate QuantityMath class.
 	 *
 	 * @throws InvalidArgumentException
 	 * @return self
@@ -402,18 +235,8 @@ class QuantityValue extends DataValueObject {
 			throw new InvalidArgumentException( '$transformation must be callable.' );
 		}
 
-		if ( !is_string( $newUnit ) ) {
-			throw new InvalidArgumentException( '$newUnit must be a string. Use "1" as the unit for unit-less quantities.' );
-		}
-
-		if ( $newUnit === '' ) {
-			throw new InvalidArgumentException( '$newUnit must not be empty. Use "1" as the unit for unit-less quantities.' );
-		}
-
-		$oldUnit = $this->getUnit();
-
-		if ( $newUnit === null ) {
-			$newUnit = $oldUnit;
+		if ( !is_string( $newUnit ) || $newUnit === '' ) {
+			throw new InvalidArgumentException( '$newUnit must be a non-empty string. Use "1" for unit-less quantities.' );
 		}
 
 		// Apply transformation by calling the $transform callback.
@@ -422,13 +245,13 @@ class QuantityValue extends DataValueObject {
 		$args = func_get_args();
 		array_shift( $args );
 
-		$args[0] = $this->getAmount();
+		$args[0] = $this->amount;
 		$amount = call_user_func_array( $transformation, $args );
 
-		$args[0] = $this->getUpperBound();
+		$args[0] = $this->upperBound;
 		$upperBound = call_user_func_array( $transformation, $args );
 
-		$args[0] = $this->getLowerBound();
+		$args[0] = $this->lowerBound;
 		$lowerBound = call_user_func_array( $transformation, $args );
 
 		// use a preliminary QuantityValue to determine the significant number of digits
@@ -446,12 +269,11 @@ class QuantityValue extends DataValueObject {
 	}
 
 	public function __toString() {
-		$unit = $this->getUnit();
 		return $this->amount->getValue()
 			. '[' . $this->lowerBound->getValue()
 			. '..' . $this->upperBound->getValue()
 			. ']'
-			. ( $unit === '1' ? '' : $unit );
+			. ( $this->unit === '1' ? '' : $this->unit );
 	}
 
 	/**
@@ -468,46 +290,6 @@ class QuantityValue extends DataValueObject {
 			'upperBound' => $this->upperBound->getArrayValue(),
 			'lowerBound' => $this->lowerBound->getArrayValue(),
 		);
-	}
-
-	/**
-	 * Constructs a new instance of the DataValue from the provided data.
-	 * This can round-trip with @see getArrayValue
-	 *
-	 * @since 0.1
-	 *
-	 * @param mixed $data
-	 *
-	 * @return static
-	 * @throws IllegalValueException
-	 */
-	public static function newFromArray( $data ) {
-		self::requireArrayFields( $data, array( 'amount', 'unit', 'upperBound', 'lowerBound' ) );
-
-		return new static(
-			DecimalValue::newFromArray( $data['amount'] ),
-			$data['unit'],
-			DecimalValue::newFromArray( $data['upperBound'] ),
-			DecimalValue::newFromArray( $data['lowerBound'] )
-		);
-	}
-
-	/**
-	 * @see Comparable::equals
-	 *
-	 * @since 0.1
-	 *
-	 * @param mixed $target
-	 *
-	 * @return bool
-	 */
-	public function equals( $target ) {
-		if ( $this === $target ) {
-			return true;
-		}
-
-		return $target instanceof self
-			&& $this->toArray() === $target->toArray();
 	}
 
 }

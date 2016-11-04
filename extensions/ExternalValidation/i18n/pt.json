@@ -2,10 +2,11 @@
 	"@metadata": {
 		"authors": [
 			"Vitorvicentevalente",
-			"Macofe"
+			"Macofe",
+			"Hamilton Abreu"
 		]
 	},
-	"wbqev-crosscheck-explanation-general": "Esta página especial executa verificações cruzadas entre os itens no Wikidata e bases de dados externas. Pode verificar as bases de dados que utilizamos na página especial",
+	"wbqev-crosscheck-explanation-general": "Esta página especial executa verificações cruzadas entre os elementos no Wikidata e bases de dados externas. Pode verificar as bases de dados que utilizamos na página especial.",
 	"wbqev-crosscheck-form-entityid-label": "ID do item:",
 	"wbqev-crosscheck-form-submit-label": "Verificar",
 	"wbqev-crosscheck-not-existent-entity": "Entidade inexistente!",
@@ -24,7 +25,7 @@
 	"wbqev-externaldbs-license": "Licença",
 	"wbq-subextension-name-wbqev": "Validação externa",
 	"wbqev-violation-header-external-values": "Valores externos:",
-	"wbqev-violation-short-message": "Este valor não coincide com o apresentado em $1. Por favor, clique no ícone para mais informação.",
+	"wbqev-violation-short-message": "Este valor não coincide com um valor em $1. Por favor, clique o ícone para mais informação.",
 	"wbqev-violation-long-message-external-values": "{{PLURAL:$2|O valor definido|Os valores definidos}} na fonte externa {{PLURAL:$2|é|são}} $1.",
 	"wbqev-violation-long-message-solve-issue": "Para resolver este problema, por favor, verifique atentamente qual o valor correto e adicione uma referência.",
 	"wbqev-violation-mark-as-exception": "Marcar como exceção"
