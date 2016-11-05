@@ -1402,12 +1402,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "1b04ba6e5cb6a4ccb634b1c822ae3a7e4b9ecef6"
+            "reference": "771c426014b4eb0c290e6fea0655779a70fdb80e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/1b04ba6e5cb6a4ccb634b1c822ae3a7e4b9ecef6",
-            "reference": "1b04ba6e5cb6a4ccb634b1c822ae3a7e4b9ecef6",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/771c426014b4eb0c290e6fea0655779a70fdb80e",
+            "reference": "771c426014b4eb0c290e6fea0655779a70fdb80e",
             "shasum": ""
         },
         "require": {
@@ -1417,7 +1417,7 @@
             "data-values/geo": "~1.0",
             "data-values/interfaces": "~0.2.0|~0.1.5",
             "data-values/javascript": "~0.8.0",
-            "data-values/number": "~0.8.0",
+            "data-values/number": "~0.8.1",
             "data-values/serialization": "~1.1",
             "data-values/time": "~0.8.4",
             "data-values/validators": "~0.1.0",
@@ -1440,7 +1440,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-11-03 22:34:41",
+        "time": "2016-11-04 21:53:29",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
