@@ -208,23 +208,26 @@
     },
     {
         "name": "data-values/javascript",
-        "version": "0.8.2",
-        "version_normalized": "0.8.2.0",
+        "version": "0.8.3",
+        "version_normalized": "0.8.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wmde/DataValuesJavascript.git",
-            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd"
+            "reference": "3daecd2767f1848ddf1b86266753018d43d3bbdb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/ae97000a46d360a24668e3c63e15d4c6a7b108dd",
-            "reference": "ae97000a46d360a24668e3c63e15d4c6a7b108dd",
+            "url": "https://api.github.com/repos/wmde/DataValuesJavascript/zipball/3daecd2767f1848ddf1b86266753018d43d3bbdb",
+            "reference": "3daecd2767f1848ddf1b86266753018d43d3bbdb",
             "shasum": ""
         },
         "require": {
             "composer/installers": ">=1.0.1"
         },
-        "time": "2016-04-12 10:05:27",
+        "require-dev": {
+            "mediawiki/mediawiki-codesniffer": "~0.5"
+        },
+        "time": "2016-11-07 11:09:57",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -344,17 +347,17 @@
     },
     {
         "name": "wikibase/javascript-api",
-        "version": "2.1.1",
-        "version_normalized": "2.1.1.0",
+        "version": "2.2.0",
+        "version_normalized": "2.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi.git",
-            "reference": "9a4b3188b8bd786511569468699552c89b1b9f23"
+            "reference": "1fbcb6212216cbf642708c4dc5fa8d15012d2d75"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/9a4b3188b8bd786511569468699552c89b1b9f23",
-            "reference": "9a4b3188b8bd786511569468699552c89b1b9f23",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-WikibaseJavaScriptApi/zipball/1fbcb6212216cbf642708c4dc5fa8d15012d2d75",
+            "reference": "1fbcb6212216cbf642708c4dc5fa8d15012d2d75",
             "shasum": ""
         },
         "require": {
@@ -364,7 +367,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.5.1"
         },
-        "time": "2016-08-04 09:14:53",
+        "time": "2016-10-31 09:38:40",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1402,12 +1405,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "e20e2e740f3e4d71d8e0e593d34d081968a8193b"
+            "reference": "bf3559f19fcb6a06b8fa2f7c8ffed8403dc90836"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e20e2e740f3e4d71d8e0e593d34d081968a8193b",
-            "reference": "e20e2e740f3e4d71d8e0e593d34d081968a8193b",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bf3559f19fcb6a06b8fa2f7c8ffed8403dc90836",
+            "reference": "bf3559f19fcb6a06b8fa2f7c8ffed8403dc90836",
             "shasum": ""
         },
         "require": {
@@ -1416,7 +1419,7 @@
             "data-values/data-values": "~1.0",
             "data-values/geo": "~1.0",
             "data-values/interfaces": "~0.2.0|~0.1.5",
-            "data-values/javascript": "~0.8.0",
+            "data-values/javascript": "~0.8.3",
             "data-values/number": "~0.8.1",
             "data-values/serialization": "~1.1",
             "data-values/time": "~0.8.4",
@@ -1429,7 +1432,7 @@
             "wikibase/data-model-serialization": "~2.2",
             "wikibase/data-model-services": "~3.5",
             "wikibase/internal-serialization": "~2.3",
-            "wikibase/javascript-api": "~2.1.1",
+            "wikibase/javascript-api": "~2.2.0",
             "wikibase/serialization-javascript": "~2.0.6",
             "wikimedia/purtle": "~1.0"
         },
@@ -1440,7 +1443,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-11-06 21:42:34",
+        "time": "2016-11-08 07:53:56",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1535,7 +1538,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "c1e28a68d9d08e597e557a538a8f34f2f4a09e94"
+            "reference": "2a82dfdf5f6680646a8a8af3f9cf5bfdd771eeb4"
         },
         "require": {
             "php": ">=5.3.0"
@@ -1544,7 +1547,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.7.2"
         },
-        "time": "2016-11-02 21:55:27",
+        "time": "2016-11-07 21:41:18",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
