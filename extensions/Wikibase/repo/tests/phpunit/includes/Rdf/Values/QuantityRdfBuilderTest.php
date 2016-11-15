@@ -4,6 +4,7 @@ namespace Wikibase\Test\Rdf;
 
 use DataValues\QuantityValue;
 use Wikibase\DataModel\Entity\ItemId;
+use DataValues\UnboundedQuantityValue;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\UnitConverter;
 use Wikibase\Lib\UnitStorage;
@@ -14,6 +15,7 @@ use Wikibase\Rdf\Values\QuantityRdfBuilder;
 use Wikibase\Repo\Tests\Rdf\NTriplesRdfTestHelper;
 use Wikimedia\Purtle\NTriplesRdfWriter;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikimedia\Purtle\RdfWriter;
 
 /**
  * @covers Wikibase\Rdf\Values\QuantityRdfBuilder
@@ -39,6 +41,8 @@ class QuantityRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function provideAddValue() {
+		$unboundedValue = UnboundedQuantityValue::newFromNumber( '+23.5', '1' );
+		$unboundedSnak = new PropertyValueSnak( new PropertyId( 'P7' ), $unboundedValue );
 		$value = QuantityValue::newFromNumber( '+23.5', '1', '+23.6', '+23.4' );
 		$snak = new PropertyValueSnak( new PropertyId( 'P7' ), $value );
 
@@ -47,11 +51,43 @@ class QuantityRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 		$snak2 = new PropertyValueSnak( new PropertyId( 'P7' ), $value );
 
 		return array(
+			'simple unbounded' => array(
+				$unboundedSnak,
+				false,
+				array(
+					'<http://www/Q1>'
+					. ' <http://acme/statement/P7> '
+					. '"+23.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+				)
+			),
 			'simple' => array(
 				$snak,
 				false,
 				array(
-					'<http://www/Q1> <http://acme/statement/P7> "+23.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					'<http://www/Q1> '
+					. '<http://acme/statement/P7> '
+					. '"+23.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+				)
+			),
+			'complex unbounded' => array(
+				$unboundedSnak,
+				true,
+				array(
+					'<http://www/Q1> '
+					. '<http://acme/statement/P7> '
+					. '"+23.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					'<http://www/Q1> '
+					. '<http://acme/statement/value/P7> '
+					. '<http://acme/value/d0488ea37befd2940d39a1dbf47eebc0> .',
+					'<http://acme/value/d0488ea37befd2940d39a1dbf47eebc0> '
+					. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
+					. '<http://acme/onto/QuantityValue> .',
+					'<http://acme/value/d0488ea37befd2940d39a1dbf47eebc0> '
+					. '<http://acme/onto/quantityAmount> '
+					. '"+23.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+					'<http://acme/value/d0488ea37befd2940d39a1dbf47eebc0> '
+					. '<http://acme/onto/quantityUnit> '
+					. '<http://www.wikidata.org/entity/Q199> .',
 				)
 			),
 			'complex' => array(
@@ -203,13 +239,7 @@ class QuantityRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 		return new UnitConverter( $mockStorage, 'http://acme/' );
 	}
 
-	/**
-	 * @dataProvider provideAddValue
-	 */
-	public function testAddValue( PropertyValueSnak $snak, $complex, array $expected,
-	                              array $units = null ) {
-		$vocab = new RdfVocabulary( 'http://acme.com/item/', 'http://acme.com/data/' );
-
+	private function newSnakWriter() {
 		$snakWriter = new NTriplesRdfWriter();
 		$snakWriter->prefix( 'www', "http://www/" );
 		$snakWriter->prefix( 'acme', "http://acme/" );
@@ -219,14 +249,33 @@ class QuantityRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 		$snakWriter->prefix( RdfVocabulary::NS_VALUE, "http://acme/value/" );
 		$snakWriter->prefix( RdfVocabulary::NS_ONTOLOGY, "http://acme/onto/" );
 
+		return $snakWriter;
+	}
+
+	private function newQuantityRdfBuilder(
+		RdfWriter $valueWriter,
+		RdfVocabulary $vocab,
+		$complex,
+		$units
+	) {
 		if ( $complex ) {
-			$valueWriter = $snakWriter->sub();
 			$helper = new ComplexValueRdfHelper( $vocab, $valueWriter, new HashDedupeBag() );
 		} else {
 			$helper = null;
 		}
 
 		$builder = new QuantityRdfBuilder( $helper, $this->getConverter( $units ) );
+		return $builder;
+	}
+
+	/**
+	 * @dataProvider provideAddValue
+	 */
+	public function testAddValue( PropertyValueSnak $snak, $complex, array $expected,
+	                              array $units = null ) {
+		$vocab = new RdfVocabulary( 'http://acme.com/item/', 'http://acme.com/data/' );
+		$snakWriter = $this->newSnakWriter();
+		$builder = $this->newQuantityRdfBuilder( $snakWriter->sub(), $vocab, $complex, $units );
 
 		$snakWriter->start();
 		$snakWriter->about( 'www', 'Q1' );
@@ -238,6 +287,44 @@ class QuantityRdfBuilderTest extends \PHPUnit_Framework_TestCase {
 			'DUMMY',
 			$snak
 		);
+
+		$result = $snakWriter->drain();
+		$this->helper->assertNTriplesEquals( $expected, $result );
+	}
+
+	public function testWriteQuantityValue() {
+		$unitId = new ItemId( 'Q2' );
+		$value = QuantityValue::newFromNumber( '+23.5', 'http://acme/' . $unitId->getSerialization(), '+23.6', '+23.4' );
+
+		$vocab = new RdfVocabulary( 'http://acme.com/item/', 'http://acme.com/data/' );
+		$snakWriter = $this->newSnakWriter();
+		$valueWriter = $snakWriter->sub();
+		$builder = $this->newQuantityRdfBuilder( $valueWriter, $vocab, true, null );
+
+		$expected = array(
+			'<http://acme/value/d56fea2e7acc4c42069d87f695cab5b9> '
+			. '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
+			. '<http://acme/onto/QuantityValue> .',
+			'<http://acme/value/d56fea2e7acc4c42069d87f695cab5b9> '
+			. '<http://acme/onto/quantityAmount> '
+			. '"+23.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+			'<http://acme/value/d56fea2e7acc4c42069d87f695cab5b9> '
+			. '<http://acme/onto/quantityUpperBound> '
+			. '"+23.6"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+			'<http://acme/value/d56fea2e7acc4c42069d87f695cab5b9> '
+			. '<http://acme/onto/quantityLowerBound> '
+			. '"+23.4"^^<http://www.w3.org/2001/XMLSchema#decimal> .',
+			'<http://acme/value/d56fea2e7acc4c42069d87f695cab5b9> '
+			. '<http://acme/onto/quantityUnit> '
+			. '<http://acme/Q2> .'
+		);
+
+		/** @var QuantityValue $value */
+		$valueLName = $value->getHash();
+		$valueWriter->about( RdfVocabulary::NS_VALUE, $valueLName )
+			->a( RdfVocabulary::NS_ONTOLOGY, $vocab->getValueTypeName( $value ) );
+
+		$builder->writeQuantityValue( $value );
 
 		$result = $snakWriter->drain();
 		$this->helper->assertNTriplesEquals( $expected, $result );

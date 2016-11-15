@@ -46,7 +46,7 @@ class DecimalValue extends DataValueObject {
 	 * Constructs a new DecimalValue object, representing the given value.
 	 *
 	 * @param string|int|float $value If given as a string, the value must match
-	 *                         QUANTITY_VALUE_PATTERN.
+	 *  QUANTITY_VALUE_PATTERN. The leading plus sign is optional.
 	 *
 	 * @throws IllegalValueException
 	 */
@@ -58,12 +58,14 @@ class DecimalValue extends DataValueObject {
 		}
 
 		$value = trim( $value );
-
+		if ( $value !== '' && $value[0] !== '-' && $value[0] !== '+' ) {
+			$value = '+' . $value;
+		}
 		if ( strlen( $value ) > 127 ) {
 			throw new IllegalValueException( 'Value must be at most 127 characters long.' );
 		}
 		if ( !preg_match( self::QUANTITY_VALUE_PATTERN, $value ) ) {
-			throw new IllegalValueException( 'Value must match the pattern for decimal values.' );
+			throw new IllegalValueException( "\"$value\" is not a well formed decimal value" );
 		}
 
 		$this->value = $value;
@@ -89,8 +91,8 @@ class DecimalValue extends DataValueObject {
 			throw new InvalidArgumentException( '$number must not be NAN or INF.' );
 		}
 
-		if ( is_int( $number ) || ( $number === floor( $number ) ) ) {
-			$decimal = strval( abs( (int)$number ) );
+		if ( is_int( $number ) || $number === (float)(int)$number ) {
+			$decimal = strval( (int)abs( $number ) );
 		} else {
 			$decimal = trim( number_format( abs( $number ), 100, '.', '' ), '0' );
 
@@ -99,7 +101,7 @@ class DecimalValue extends DataValueObject {
 			}
 
 			if ( substr( $decimal, -1 ) === '.' ) {
-				$decimal .= '0';
+				$decimal = substr( $decimal, 0, -1 );
 			}
 		}
 
@@ -168,7 +170,7 @@ class DecimalValue extends DataValueObject {
 
 		// the fractional part is left-aligned, so just check alphanumeric ordering
 		$cmp = strcmp( $aFract, $bFract );
-		return  ( $cmp > 0 ? $sense : ( $cmp < 0 ? -$sense : 0 ) );
+		return $cmp === 0 ? 0 : ( $cmp < 0 ? -$sense : $sense );
 	}
 
 	/**
@@ -319,6 +321,24 @@ class DecimalValue extends DataValueObject {
 	}
 
 	/**
+	 * Returns a DecimalValue with the same digits as this one, but with any trailing zeros
+	 * after the decimal point removed. If there are no trailing zeros after the decimal
+	 * point, this method will return $this.
+	 *
+	 * @return DecimalValue
+	 */
+	public function getTrimmed() {
+		$trimmed = preg_replace( '/(\.\d+?)0+$/', '$1', $this->value );
+		$trimmed = preg_replace( '/(?<=\d)\.0*$/', '', $trimmed );
+
+		if ( $trimmed !== $this->value ) {
+			return new DecimalValue( $trimmed );
+		} else {
+			return $this;
+		}
+	}
+
+	/**
 	 * Returns the value held by this object, as a float.
 	 * Equivalent to floatval( $this->getvalue() ).
 	 *
@@ -345,7 +365,7 @@ class DecimalValue extends DataValueObject {
 	 *
 	 * @param string|int|float $data
 	 *
-	 * @return static
+	 * @return self
 	 * @throws IllegalValueException
 	 */
 	public static function newFromArray( $data ) {

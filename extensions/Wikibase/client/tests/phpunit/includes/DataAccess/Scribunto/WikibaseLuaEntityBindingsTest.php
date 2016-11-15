@@ -2,6 +2,8 @@
 
 namespace Wikibase\Client\Tests\DataAccess\Scribunto;
 
+use Language;
+use PHPUnit_Framework_TestCase;
 use Wikibase\Client\DataAccess\Scribunto\WikibaseLuaEntityBindings;
 use Wikibase\Client\DataAccess\StatementTransclusionInteractor;
 use Wikibase\DataModel\Entity\ItemId;
@@ -18,24 +20,35 @@ use Wikibase\DataModel\Statement\Statement;
  * @license GPL-2.0+
  * @author Marius Hoch < hoo@online.de >
  */
-class WikibaseLuaEntityBindingsTest extends \PHPUnit_Framework_TestCase {
+class WikibaseLuaEntityBindingsTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @return WikibaseLuaEntityBindings
 	 */
 	private function getWikibaseLuaEntityBindings() {
-		$entityStatementsRenderer = $this->getMockBuilder( StatementTransclusionInteractor::class )
+		$plainTextTransclusionInteractor = $this->getMockBuilder( StatementTransclusionInteractor::class )
 			->disableOriginalConstructor()
 			->getMock();
 
-		$entityStatementsRenderer->expects( $this->any() )
+		$plainTextTransclusionInteractor->expects( $this->any() )
 				->method( 'render' )
-				->with( new ItemId( 'Q12' ), 'some label', array( Statement::RANK_DEPRECATED ) )
+				->with( new ItemId( 'Q12' ), 'some label', [ Statement::RANK_DEPRECATED ] )
 				->will( $this->returnValue( 'Kittens > Cats' ) );
 
+		$richWikitextTransclusionInteractor = $this->getMockBuilder( StatementTransclusionInteractor::class )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$richWikitextTransclusionInteractor->expects( $this->any() )
+				->method( 'render' )
+				->with( new ItemId( 'Q12' ), 'some label', [ Statement::RANK_DEPRECATED ] )
+				->will( $this->returnValue( '<span>Kittens > Cats</span>' ) );
+
 		return new WikibaseLuaEntityBindings(
-			$entityStatementsRenderer,
+			$plainTextTransclusionInteractor,
+			$richWikitextTransclusionInteractor,
 			new BasicEntityIdParser(),
+			Language::factory( 'es' ),
 			'enwiki'
 		);
 	}
@@ -43,12 +56,25 @@ class WikibaseLuaEntityBindingsTest extends \PHPUnit_Framework_TestCase {
 	public function testFormatPropertyValues() {
 		$wikibaseLuaEntityBindings = $this->getWikibaseLuaEntityBindings();
 
-		$this->assertEquals(
+		$this->assertSame(
 			'Kittens > Cats',
 			$wikibaseLuaEntityBindings->formatPropertyValues(
 				'Q12',
 				'some label',
-				array( Statement::RANK_DEPRECATED )
+				[ Statement::RANK_DEPRECATED ]
+			)
+		);
+	}
+
+	public function testFormatStatements() {
+		$wikibaseLuaEntityBindings = $this->getWikibaseLuaEntityBindings();
+
+		$this->assertSame(
+			'<span>Kittens > Cats</span>',
+			$wikibaseLuaEntityBindings->formatStatements(
+				'Q12',
+				'some label',
+				[ Statement::RANK_DEPRECATED ]
 			)
 		);
 	}
@@ -57,6 +83,12 @@ class WikibaseLuaEntityBindingsTest extends \PHPUnit_Framework_TestCase {
 		$wikibaseLuaEntityBindings = $this->getWikibaseLuaEntityBindings();
 
 		$this->assertEquals( 'enwiki', $wikibaseLuaEntityBindings->getGlobalSiteId() );
+	}
+
+	public function testGetLanguageCode() {
+		$wikibaseLuaEntityBindings = $this->getWikibaseLuaEntityBindings();
+
+		$this->assertEquals( 'es', $wikibaseLuaEntityBindings->getLanguageCode() );
 	}
 
 }

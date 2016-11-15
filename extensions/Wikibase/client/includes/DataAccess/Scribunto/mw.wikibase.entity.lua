@@ -44,14 +44,15 @@ entity.create = function( data )
 	return entity
 end
 
--- Get a term of a given type for a given language code or the content language.
+-- Get a term of a given type for a given language code or the content language (on monolingual wikis)
+-- or the user's language (on multilingual wikis).
 -- Second return parameter is the language the term is in.
 --
 -- @param {table} entity
 -- @param {string} termType A valid key in the entity table (either labels, descriptions or aliases)
 -- @param {string|number} langCode
 local getTermAndLang = function( entity, termType, langCode )
-	langCode = langCode or mw.language.getContentLanguage():getCode()
+	langCode = langCode or php.getLanguageCode()
 
 	if langCode == nil then
 		return nil, nil
@@ -71,7 +72,8 @@ local getTermAndLang = function( entity, termType, langCode )
 	return term.value, actualLang
 end
 
--- Get the label for a given language code or the content language
+-- Get the label for a given language code or the content language (on monolingual wikis)
+-- or the user's language (on multilingual wikis).
 --
 -- @param {string|number} [langCode]
 methodtable.getLabel = function( entity, langCode )
@@ -81,7 +83,8 @@ methodtable.getLabel = function( entity, langCode )
 	return label
 end
 
--- Get the description for a given language code or the content language
+-- Get the description for a given language code or the content language (on monolingual wikis)
+-- or the user's language (on multilingual wikis).
 --
 -- @param {string|number} [langCode]
 methodtable.getDescription = function( entity, langCode )
@@ -91,7 +94,9 @@ methodtable.getDescription = function( entity, langCode )
 	return description
 end
 
--- Get the label for a given language code or the content language
+-- Get the label for a given language code or the content language (on monolingual wikis)
+-- or the user's language (on multilingual wikis).
+-- Has the language the returned label is in as an additional second return parameter.
 --
 -- @param {string|number} [langCode]
 methodtable.getLabelWithLang = function( entity, langCode )
@@ -100,7 +105,9 @@ methodtable.getLabelWithLang = function( entity, langCode )
 	return getTermAndLang( entity, 'labels', langCode )
 end
 
--- Get the description for a given language code or the content language
+-- Get the description for a given language code or the content language (on monolingual wikis)
+-- or the user's language (on multilingual wikis).
+-- Has the language the returned description is in as an additional second return parameter.
 --
 -- @param {string|number} [langCode]
 methodtable.getDescriptionWithLang = function( entity, langCode )
@@ -177,15 +184,14 @@ end
 
 -- Get the formatted value of the claims with the given property id
 --
+-- @param {table} entity
+-- @param {string} phpFormatterFunction
 -- @param {string} propertyLabelOrId
 -- @param {table} [acceptableRanks]
-methodtable.formatPropertyValues = function( entity, propertyLabelOrId, acceptableRanks )
-	checkType( 'formatPropertyValues', 1, propertyLabelOrId, 'string' )
-	checkTypeMulti( 'formatPropertyValues', 2, acceptableRanks, { 'table', 'nil' } )
-
+local formatValuesByPropertyId = function( entity, phpFormatterFunction, propertyLabelOrId, acceptableRanks )
 	acceptableRanks = acceptableRanks or nil
 
-	local formatted = php.formatPropertyValues(
+	local formatted = php[phpFormatterFunction](
 		entity.id,
 		propertyLabelOrId,
 		acceptableRanks
@@ -205,6 +211,45 @@ methodtable.formatPropertyValues = function( entity, propertyLabelOrId, acceptab
 		value = formatted,
 		label = label
 	}
+end
+
+-- Format the main Snaks belonging to a Statement (which is identified by a PropertyId
+-- or the label of a Property) as escaped plain text.
+--
+-- @param {string} propertyLabelOrId
+-- @param {table} [acceptableRanks]
+methodtable.formatPropertyValues = function( entity, propertyLabelOrId, acceptableRanks )
+	checkType( 'formatPropertyValues', 1, propertyLabelOrId, 'string' )
+	checkTypeMulti( 'formatPropertyValues', 2, acceptableRanks, { 'table', 'nil' } )
+
+	return formatValuesByPropertyId(
+		entity,
+		'formatPropertyValues',
+		propertyLabelOrId,
+		acceptableRanks
+	);
+end
+
+-- Format the main Snaks belonging to a Statement (which is identified by a PropertyId
+-- or the label of a Property) as rich wikitext.
+--
+-- @param {string} propertyLabelOrId
+-- @param {table} [acceptableRanks]
+methodtable.formatStatements = function( entity, propertyLabelOrId, acceptableRanks )
+	checkType( 'formatStatements', 1, propertyLabelOrId, 'string' )
+	checkTypeMulti( 'formatStatements', 2, acceptableRanks, { 'table', 'nil' } )
+
+	-- TODO: Remove the feature flag when not needed anymore!
+	if php.isFormatStatementsEnabled() ~= true then
+		error( 'mw.wikibase.entity:formatStatements() is not enabled on this wiki.', 2 )
+	end
+
+	return formatValuesByPropertyId(
+		entity,
+		'formatStatements',
+		propertyLabelOrId,
+		acceptableRanks
+	);
 end
 
 mw.wikibase.entity = entity

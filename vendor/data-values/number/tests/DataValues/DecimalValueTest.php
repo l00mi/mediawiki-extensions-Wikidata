@@ -33,6 +33,7 @@ class DecimalValueTest extends DataValueTest {
 		$argLists[] = array( 4.2 );
 		$argLists[] = array( -4.2 );
 		$argLists[] = array( '+4.2' );
+		$argLists[] = array( " +4.2\n" );
 		$argLists[] = array( 0 );
 		$argLists[] = array( 0.2 );
 		$argLists[] = array( '-0.42' );
@@ -41,7 +42,10 @@ class DecimalValueTest extends DataValueTest {
 		$argLists[] = array( '+0' );
 		$argLists[] = array( '+0.0' );
 		$argLists[] = array( '+0.000' );
+		$argLists[] = array( '+1.' . str_repeat( '0', 124 ) );
 		$argLists[] = array( '+1.0' . str_repeat( ' ', 124 ) );
+		$argLists[] = array( '4.2' );
+		$argLists[] = array( " 4.2\n" );
 
 		return $argLists;
 	}
@@ -51,16 +55,17 @@ class DecimalValueTest extends DataValueTest {
 
 		$argLists[] = array( 'foo' );
 		$argLists[] = array( '' );
-		$argLists[] = array( '4.2' );
 		$argLists[] = array( '++4.2' );
 		$argLists[] = array( '--4.2' );
 		$argLists[] = array( '-+4.2' );
 		$argLists[] = array( '+-4.2' );
+		$argLists[] = array( '+/-0' );
 		$argLists[] = array( '-.42' );
 		$argLists[] = array( '+.42' );
 		$argLists[] = array( '.42' );
 		$argLists[] = array( '.0' );
 		$argLists[] = array( '-00' );
+		$argLists[] = array( '−1' );
 		$argLists[] = array( '+01.2' );
 		$argLists[] = array( 'x2' );
 		$argLists[] = array( '2x' );
@@ -124,7 +129,7 @@ class DecimalValueTest extends DataValueTest {
 			'signs/greater' => array( new DecimalValue( '+1' ), new DecimalValue( '-8' ), +1 ),
 			'signs/less' => array( new DecimalValue( '-8' ), new DecimalValue( '+1' ), -1 ),
 
-            'with-and-without-point' => array( new DecimalValue( '+100' ), new DecimalValue( '+100.01' ), -1 ),
+			'with-and-without-point' => array( new DecimalValue( '+100' ), new DecimalValue( '+100.01' ), -1 ),
 		);
 	}
 
@@ -175,6 +180,12 @@ class DecimalValueTest extends DataValueTest {
 		$argLists[] = array( new DecimalValue( '-0' ), '+0' );
 		$argLists[] = array( new DecimalValue( '+0.0' ), '+0.0' );
 		$argLists[] = array( new DecimalValue( '+0' ), '+0' );
+		$argLists[] = array( new DecimalValue( 2147483649 ), '+2147483649' );
+		$argLists[] = array( new DecimalValue( 1000000000000000 ), '+1000000000000000' );
+		$argLists[] = array(
+			new DecimalValue( 1 + 1e-14 / 3 ),
+			'+1.0000000000000033306690738754696212708950042724609375'
+		);
 
 		return $argLists;
 	}
@@ -306,6 +317,29 @@ class DecimalValueTest extends DataValueTest {
 			array( new DecimalValue( '+1' ),       false ),
 			array( new DecimalValue( '+100.663' ), false ),
 			array( new DecimalValue( '-0.001' ),   false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provideGetTrim
+	 */
+	public function testGetTrim( DecimalValue $value, DecimalValue $expected ) {
+		$actual = $value->getTrimmed();
+		$this->assertSame( $expected->getValue(), $actual->getValue() );
+	}
+
+	public function provideGetTrim() {
+		return array(
+			array( new DecimalValue( '+8' ),     new DecimalValue( '+8' ) ),
+			array( new DecimalValue( '+80' ),    new DecimalValue( '+80' ) ),
+			array( new DecimalValue( '+800' ),   new DecimalValue( '+800' ) ),
+			array( new DecimalValue( '+0' ),     new DecimalValue( '+0' ) ),
+			array( new DecimalValue( '+0.0' ),   new DecimalValue( '+0' ) ),
+			array( new DecimalValue( '+10.00' ), new DecimalValue( '+10' ) ),
+			array( new DecimalValue( '-0.1' ),   new DecimalValue( '-0.1' ) ),
+			array( new DecimalValue( '-0.10' ),  new DecimalValue( '-0.1' ) ),
+			array( new DecimalValue( '-0.010' ), new DecimalValue( '-0.01' ) ),
+			array( new DecimalValue( '-0.001' ), new DecimalValue( '-0.001' ) ),
 		);
 	}
 

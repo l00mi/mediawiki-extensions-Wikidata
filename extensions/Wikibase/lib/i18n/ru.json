@@ -9,7 +9,10 @@
 			"ShinePhantom",
 			"Александр Сигачёв",
 			"Macofe",
-			"Mailman"
+			"Mailman",
+			"Irus",
+			"Kareyac",
+			"MaxBioHazard"
 		]
 	},
 	"wikibase-lib-desc": "Общие функции расширений Wikibase и Wikibase Client",
@@ -26,7 +29,7 @@
 	"wikibase-error-remove-timeout": "Мы испытываем технические проблемы. Пожалуйста, попробуйте ещё раз.",
 	"wikibase-error-autocomplete-connection": "Не удалось запросить API сайта. Пожалуйста, повторите попытку позднее.",
 	"wikibase-error-autocomplete-response": "Сервер ответил: $1",
-	"wikibase-error-ui-no-external-page": "Не удалось найти указанную статью на соответствующем сайте.",
+	"wikibase-error-ui-no-external-page": "Не удалось найти страницу «$2» на сайте «$1».",
 	"wikibase-error-ui-edit-conflict": "Возник конфликт редактирования. Пожалуйста, сохраните локально внесённые вами изменения, прегрузите страницу и сохраните её снова.",
 	"wikibase-language-fallback-transliteration-hint": "$1 (транслитерировано)",
 	"wikibase-quantitydetails-amount": "Сумма",
@@ -85,7 +88,7 @@
 	"wikibase-time-precision-Mannum": "$1 миллион{{PLURAL:$1||а|ов}} лет н.э.",
 	"wikibase-time-precision-annum": "$1 {{PLURAL:$1|год|лет|года}} н.э.",
 	"wikibase-time-precision-millennium": "в $1 тысячелети{{PLURAL:$1|е|я|й}}",
-	"wikibase-time-precision-century": "в $1 век{{PLURAL:$1||а|ов}}",
+	"wikibase-time-precision-century": "$1 век",
 	"wikibase-time-precision-10annum": "в $1 десятилети{{PLURAL:$1|е|й|я}}",
 	"wikibase-time-precision-BCE-Gannum": "$1 миллиард{{PLURAL:$1||а|ов}} лет до н.э.",
 	"wikibase-time-precision-BCE-Mannum": "$1 миллион{{PLURAL:$1||ов|а}} лет до н.э.",
