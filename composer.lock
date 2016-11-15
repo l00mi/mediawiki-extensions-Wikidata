@@ -797,12 +797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "a1116fdeb2adce70696d3dfc636818690e3ba6db"
+                "reference": "769b04978d11696e3315592a5d8fe9ebe4df3bd3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a1116fdeb2adce70696d3dfc636818690e3ba6db",
-                "reference": "a1116fdeb2adce70696d3dfc636818690e3ba6db",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/769b04978d11696e3315592a5d8fe9ebe4df3bd3",
+                "reference": "769b04978d11696e3315592a5d8fe9ebe4df3bd3",
                 "shasum": ""
             },
             "require-dev": {
@@ -827,7 +827,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-11-13 21:37:49"
+            "time": "2016-11-14 21:48:06"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1207,23 +1207,24 @@
         },
         {
             "name": "wikibase/data-model-services",
-            "version": "3.6.0",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelServices.git",
-                "reference": "7892031adcaa657bf8fa05aad2638ed64f548682"
+                "reference": "23c02611e0ed24a743a4056c111a183f6ca5be64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/7892031adcaa657bf8fa05aad2638ed64f548682",
-                "reference": "7892031adcaa657bf8fa05aad2638ed64f548682",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelServices/zipball/23c02611e0ed24a743a4056c111a183f6ca5be64",
+                "reference": "23c02611e0ed24a743a4056c111a183f6ca5be64",
                 "shasum": ""
             },
             "require": {
                 "data-values/data-values": "~0.1|~1.0",
                 "diff/diff": "~2.0|~1.0",
-                "php": ">=5.3.0",
-                "wikibase/data-model": "~6.0|~5.0|~4.2"
+                "php": ">=5.5.0",
+                "wikibase/data-model": "~6.3",
+                "wikimedia/assert": "~0.2.2"
             },
             "require-dev": {
                 "phpmd/phpmd": "~2.3",
@@ -1232,7 +1233,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.6.x-dev"
+                    "dev-master": "3.7.x-dev"
                 }
             },
             "autoload": {
@@ -1258,7 +1259,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-05-13 12:37:58"
+            "time": "2016-11-14 14:15:42"
         },
         {
             "name": "wikibase/external-validation",
@@ -1584,12 +1585,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "3cc4a4b53dc3e9d226c7b23bf71f1033b80ac53e"
+                "reference": "311f9625f71ad3f7d0c046edb0016d03ec1eb7cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3cc4a4b53dc3e9d226c7b23bf71f1033b80ac53e",
-                "reference": "3cc4a4b53dc3e9d226c7b23bf71f1033b80ac53e",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/311f9625f71ad3f7d0c046edb0016d03ec1eb7cd",
+                "reference": "311f9625f71ad3f7d0c046edb0016d03ec1eb7cd",
                 "shasum": ""
             },
             "require": {
@@ -1609,7 +1610,7 @@
                 "wikibase/data-model": "~6.3",
                 "wikibase/data-model-javascript": "~3.0.0",
                 "wikibase/data-model-serialization": "~2.2",
-                "wikibase/data-model-services": "~3.5",
+                "wikibase/data-model-services": "~3.7",
                 "wikibase/internal-serialization": "~2.3",
                 "wikibase/javascript-api": "~2.2.0",
                 "wikibase/serialization-javascript": "~2.0.6",
@@ -1663,7 +1664,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-11-13 21:58:18"
+            "time": "2016-11-15 09:38:24"
         },
         {
             "name": "wikibase/wikimedia-badges",
