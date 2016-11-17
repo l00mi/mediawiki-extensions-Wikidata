@@ -50,6 +50,11 @@ DataValues Number has been written by Daniel Kinzler, as [Wikimedia Germany]
 
 ## Release notes
 
+### 0.8.2 (2016-11-17)
+
+* Fixed `QuantityFormatter` suppressing ±0 for `QuantityValue`s.
+* Fixed HTML escaping in `QuantityHtmlFormatter`.
+
 ### 0.8.1 (2016-08-02)
 
 * `UnboundedQuantityValue::newFromArray` and `QuantityValue::newFromArray` both accept

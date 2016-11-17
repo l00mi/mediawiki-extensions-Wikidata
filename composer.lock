@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "53b735cea98fd0171b84207619c377aa",
-    "content-hash": "8428755becafb343c71aa61a6e7aacb2",
+    "hash": "261f0e0f55d8dc1d595ab8c78277f3d5",
+    "content-hash": "5daf02a3cf406c54ae53e71c1ef1749d",
     "packages": [
         {
             "name": "composer/installers",
@@ -457,16 +457,16 @@
         },
         {
             "name": "data-values/number",
-            "version": "0.8.1",
+            "version": "0.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Number.git",
-                "reference": "f3d5e648898c3dc54cd1503948b3a7cd6c64b7f1"
+                "reference": "312b48b8cd89cae2fcf5fd2b7dbcbcecb352f87a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Number/zipball/f3d5e648898c3dc54cd1503948b3a7cd6c64b7f1",
-                "reference": "f3d5e648898c3dc54cd1503948b3a7cd6c64b7f1",
+                "url": "https://api.github.com/repos/DataValues/Number/zipball/312b48b8cd89cae2fcf5fd2b7dbcbcecb352f87a",
+                "reference": "312b48b8cd89cae2fcf5fd2b7dbcbcecb352f87a",
                 "shasum": ""
             },
             "require": {
@@ -507,7 +507,7 @@
                 "valueparsers",
                 "wikidata"
             ],
-            "time": "2016-08-03 10:00:30"
+            "time": "2016-11-17 12:28:42"
         },
         {
             "name": "data-values/serialization",
@@ -827,7 +827,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-11-14 21:48:06"
+            "time": "2016-11-16 21:55:38"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1471,12 +1471,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "f6078e3439308e687bfaba9e664459ed552d6988"
+                "reference": "6f5f1bb42b61f2cc675433f1021d9daf9b4b5f64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f6078e3439308e687bfaba9e664459ed552d6988",
-                "reference": "f6078e3439308e687bfaba9e664459ed552d6988",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6f5f1bb42b61f2cc675433f1021d9daf9b4b5f64",
+                "reference": "6f5f1bb42b61f2cc675433f1021d9daf9b4b5f64",
                 "shasum": ""
             },
             "require": {
@@ -1486,7 +1486,7 @@
                 "data-values/geo": "~1.0",
                 "data-values/interfaces": "~0.2.0|~0.1.5",
                 "data-values/javascript": "~0.8.3",
-                "data-values/number": "~0.8.1",
+                "data-values/number": "~0.8.2",
                 "data-values/serialization": "~1.1",
                 "data-values/time": "~0.8.4",
                 "data-values/validators": "~0.1.0",
@@ -1550,7 +1550,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-11-15 10:03:20"
+            "time": "2016-11-17 16:19:38"
         },
         {
             "name": "wikibase/wikimedia-badges",
