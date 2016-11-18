@@ -115,19 +115,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "5cf7a5f1732dc688a5a56bd9d183a68b50f44d87"
+            "reference": "b2906c844b89885c4bb89dcee1f77731a77dc719"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/5cf7a5f1732dc688a5a56bd9d183a68b50f44d87",
-            "reference": "5cf7a5f1732dc688a5a56bd9d183a68b50f44d87",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/b2906c844b89885c4bb89dcee1f77731a77dc719",
+            "reference": "b2906c844b89885c4bb89dcee1f77731a77dc719",
             "shasum": ""
         },
         "require-dev": {
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.7.2"
         },
-        "time": "2016-11-16 21:55:38",
+        "time": "2016-11-17 21:50:05",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1226,17 +1226,17 @@
     },
     {
         "name": "data-values/number",
-        "version": "0.8.1",
-        "version_normalized": "0.8.1.0",
+        "version": "0.8.2",
+        "version_normalized": "0.8.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Number.git",
-            "reference": "f3d5e648898c3dc54cd1503948b3a7cd6c64b7f1"
+            "reference": "312b48b8cd89cae2fcf5fd2b7dbcbcecb352f87a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Number/zipball/f3d5e648898c3dc54cd1503948b3a7cd6c64b7f1",
-            "reference": "f3d5e648898c3dc54cd1503948b3a7cd6c64b7f1",
+            "url": "https://api.github.com/repos/DataValues/Number/zipball/312b48b8cd89cae2fcf5fd2b7dbcbcecb352f87a",
+            "reference": "312b48b8cd89cae2fcf5fd2b7dbcbcecb352f87a",
             "shasum": ""
         },
         "require": {
@@ -1248,7 +1248,7 @@
         "require-dev": {
             "mediawiki/mediawiki-codesniffer": "~0.5"
         },
-        "time": "2016-08-03 10:00:30",
+        "time": "2016-11-17 12:28:42",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1406,12 +1406,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "913a2784917c573dd7172faaca1bd65376571ff8"
+            "reference": "3b6d7129cab32003086c5c20d7c780bf946175db"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/913a2784917c573dd7172faaca1bd65376571ff8",
-            "reference": "913a2784917c573dd7172faaca1bd65376571ff8",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3b6d7129cab32003086c5c20d7c780bf946175db",
+            "reference": "3b6d7129cab32003086c5c20d7c780bf946175db",
             "shasum": ""
         },
         "require": {
@@ -1421,7 +1421,7 @@
             "data-values/geo": "~1.0",
             "data-values/interfaces": "~0.2.0|~0.1.5",
             "data-values/javascript": "~0.8.3",
-            "data-values/number": "~0.8.1",
+            "data-values/number": "~0.8.2",
             "data-values/serialization": "~1.1",
             "data-values/time": "~0.8.4",
             "data-values/validators": "~0.1.0",
@@ -1444,7 +1444,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-11-16 21:54:45",
+        "time": "2016-11-17 21:56:36",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
