@@ -125,8 +125,9 @@ class AboutTopicRenderer {
 		$output->addModules( 'ext.articleplaceholder.createArticle' );
 		$output->addJsConfigVars( 'apLabel', $label );
 
-		$buttons = new OOUI\ButtonWidget( [
-			'id' => 'new-empty-article-button',
+		$contents = new OOUI\ButtonWidget( [
+			'id' => 'new-article-button',
+			'flags' => [ 'primary', 'progressive' ],
 			'infusable' => true,
 			'label' => wfMessage( 'articleplaceholder-abouttopic-create-article-button' )->text(),
 			'href' => SpecialPage::getTitleFor( 'CreateTopicPage', $label )
@@ -137,19 +138,13 @@ class AboutTopicRenderer {
 		// TODO: Button should be hidden if the only sitelink links to the current wiki.
 		// $wikibaseClient->getSettings()->getSetting( 'siteGlobalID' ) should be injected here!
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'ContentTranslation' ) && $siteLinks ) {
-			$output->addModules( 'ext.articleplaceholder.translateArticle' );
-			$buttons .= new OOUI\ButtonWidget( [
-				'id' => 'translate-article-button',
-				'infusable' => true,
-				'label' => wfMessage( 'articleplaceholder-abouttopic-translate-article-button' )->text(),
-				'target' => 'blank'
-			] );
+			$output->addJsConfigVars( 'apContentTranslation', true );
 		}
 
 		$output->addHTML( Html::rawElement(
 			'div',
 			[ 'class' => 'mw-articleplaceholder-createarticle-buttons' ],
-			$buttons
+			$contents
 		) );
 	}
 
@@ -177,7 +172,6 @@ class AboutTopicRenderer {
 	 * @param OutputPage $output
 	 */
 	private function showTitle( $label, OutputPage $output ) {
-		$output->setTitle( Title::newFromText( $label ) );
 		$output->setPageTitle( htmlspecialchars( $label ) );
 	}
 
