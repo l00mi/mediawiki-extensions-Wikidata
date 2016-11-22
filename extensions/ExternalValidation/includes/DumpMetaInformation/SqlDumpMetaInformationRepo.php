@@ -2,7 +2,7 @@
 
 namespace WikibaseQuality\ExternalValidation\DumpMetaInformation;
 
-use DatabaseBase;
+use Database;
 use InvalidArgumentException;
 use UnexpectedValueException;
 use ResultWrapper;
@@ -270,11 +270,11 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 	}
 
 	/**
-	 * @param DatabaseBase $db
+	 * @param Database $db
 	 * @param DumpMetaInformation $dumpMetaInformation
 	 * @return array
 	 */
-	private function getDumpInformationFields( DatabaseBase $db,  DumpMetaInformation $dumpMetaInformation ) {
+	private function getDumpInformationFields( Database $db,  DumpMetaInformation $dumpMetaInformation ) {
 		return array(
 			'id' => $dumpMetaInformation->getDumpId(),
 			'source_qid' => $dumpMetaInformation->getSourceItemId()->getSerialization(),
