@@ -42,7 +42,6 @@ class TermIndexEntry {
 		'termType',
 		'termLanguage',
 		'termText',
-		'termWeight',
 	);
 
 	/**
@@ -70,9 +69,6 @@ class TermIndexEntry {
 				case 'termText':
 					$this->setText( $value );
 					break;
-				case 'termWeight':
-					$this->setWeight( $value );
-					break;
 				default:
 					throw new MWException( 'Invalid term field provided' );
 			}
@@ -80,13 +76,11 @@ class TermIndexEntry {
 	}
 
 	/**
-	 * @since 0.2
-	 *
 	 * @param string $termType
 	 *
 	 * @throws MWException
 	 */
-	public function setType( $termType ) {
+	private function setType( $termType ) {
 		if ( !in_array( $termType, array( self::TYPE_ALIAS, self::TYPE_LABEL, self::TYPE_DESCRIPTION ), true ) ) {
 			throw new MWException( 'Invalid term type provided' );
 		}
@@ -104,13 +98,11 @@ class TermIndexEntry {
 	}
 
 	/**
-	 * @since 0.2
-	 *
 	 * @param string $languageCode
 	 *
 	 * @throws MWException
 	 */
-	public function setLanguage( $languageCode ) {
+	private function setLanguage( $languageCode ) {
 		if ( !is_string( $languageCode ) ) {
 			throw new MWException( 'Language code can only be a string' );
 		}
@@ -128,13 +120,11 @@ class TermIndexEntry {
 	}
 
 	/**
-	 * @since 0.2
-	 *
 	 * @param string $text
 	 *
 	 * @throws MWException
 	 */
-	public function setText( $text ) {
+	private function setText( $text ) {
 		if ( !is_string( $text ) ) {
 			throw new MWException( 'Term text code can only be a string' );
 		}
@@ -149,30 +139,6 @@ class TermIndexEntry {
 	 */
 	public function getText() {
 		return array_key_exists( 'termText', $this->fields ) ? $this->fields['termText'] : null;
-	}
-
-	/**
-	 * @since 0.5
-	 *
-	 * @param float $weight
-	 *
-	 * @throws MWException
-	 */
-	public function setWeight( $weight ) {
-		if ( !is_float( $weight ) ) {
-			throw new MWException( 'Term weight code can only be a float' );
-		}
-
-		$this->fields['termWeight'] = $weight;
-	}
-
-	/**
-	 * @since 0.5
-	 *
-	 * @return float|null
-	 */
-	public function getWeight() {
-		return array_key_exists( 'termWeight', $this->fields ) ? $this->fields['termWeight'] : null;
 	}
 
 	/**
@@ -251,7 +217,6 @@ class TermIndexEntry {
 	/**
 	 * Imposes an canonical but arbitrary order on Term objects.
 	 * Useful for sorting lists of terms for comparison.
-	 * This comparison DOES NOT use termWeight
 	 *
 	 * @param self $a
 	 * @param self $b
@@ -259,10 +224,7 @@ class TermIndexEntry {
 	 * @return int Returns 1 if $a is greater than $b, -1 if $b is greater than $a, and 0 otherwise.
 	 */
 	public static function compare( self $a, self $b ) {
-		$fieldNames = self::$fieldNames;
-		unset( $fieldNames[array_search( 'termWeight', $fieldNames )] );
-
-		foreach ( $fieldNames as $n ) {
+		foreach ( self::$fieldNames as $n ) {
 			$exists = array_key_exists( $n, $a->fields );
 
 			if ( $exists !== array_key_exists( $n, $b->fields ) ) {

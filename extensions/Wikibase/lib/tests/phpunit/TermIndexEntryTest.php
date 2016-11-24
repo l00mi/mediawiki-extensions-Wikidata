@@ -29,7 +29,6 @@ class TermIndexEntryTest extends PHPUnit_Framework_TestCase {
 					'termType' => TermIndexEntry::TYPE_LABEL,
 					'termLanguage' => 'en',
 					'termText' => 'foo',
-					'termWeight' => 1.234,
 				]
 			],
 			[
@@ -65,17 +64,15 @@ class TermIndexEntryTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( isset( $fields['termType'] ) ? $fields['termType'] : null, $term->getType() );
 		$this->assertEquals( isset( $fields['termLanguage'] ) ? $fields['termLanguage'] : null, $term->getLanguage() );
 		$this->assertEquals( isset( $fields['termText'] ) ? $fields['termText'] : null, $term->getText() );
-		$this->assertEquals( isset( $fields['termWeight'] ) ? $fields['termWeight'] : null, $term->getWeight() );
+	}
+
+	public function testGivenInvalidField_constructorThrowsException() {
+		$this->setExpectedException( MWException::class );
+		new TermIndexEntry( [ 'fooField' => 'bar' ] );
 	}
 
 	public function testClone() {
 		$term = new TermIndexEntry( [ 'termText' => 'Foo' ] );
-
-		$clone = clone $term;
-		$clone->setText( 'Bar' );
-
-		$this->assertEquals( 'Bar', $clone->getText(), 'clone must change when modified' ); // sanity
-		$this->assertEquals( 'Foo', $term->getText(), 'original must stay the same when clone is modified' );
 
 		$clone = clone $term;
 		$this->assertEquals( $term, $clone, 'clone must be equal to original' );

@@ -57,7 +57,6 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		'term_type' => 'termType',
 		'term_language' => 'termLanguage',
 		'term_text' => 'termText',
-		'term_weight' => 'termWeight',
 		'term_entity_id' => 'entityId',
 	);
 
@@ -224,13 +223,14 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 		$terms = [];
 
 		foreach ( $termList->toTextArray() as $languageCode => $text ) {
-			$term = new TermIndexEntry( $extraFields );
-
-			$term->setLanguage( $languageCode );
-			$term->setType( $termType );
-			$term->setText( $text );
-
-			$terms[] = $term;
+			$terms[] = new TermIndexEntry( array_merge(
+				$extraFields,
+				[
+					'termLanguage' => $languageCode,
+					'termType' => $termType,
+					'termText' => $text,
+				]
+			) );
 		}
 
 		return $terms;
@@ -249,13 +249,14 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 			$languageCode = $aliasGroup->getLanguageCode();
 
 			foreach ( $aliasGroup->getAliases() as $alias ) {
-				$term = new TermIndexEntry( $extraFields );
-
-				$term->setLanguage( $languageCode );
-				$term->setType( TermIndexEntry::TYPE_ALIAS );
-				$term->setText( $alias );
-
-				$terms[] = $term;
+				$terms[] = new TermIndexEntry( array_merge(
+					$extraFields,
+					[
+						'termLanguage' => $languageCode,
+						'termType' => TermIndexEntry::TYPE_ALIAS,
+						'termText' => $alias,
+					]
+				) );
 			}
 		}
 
@@ -540,7 +541,7 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 
 		$rows = $dbr->select(
 			$this->tableName,
-			array_keys( $this->termFieldMap ),
+			array_keys( $this->termFieldMap + [ 'term_weight' => null ] ),
 			array( $dbr->makeList( $termConditions, LIST_OR ) ),
 			__METHOD__,
 			$queryOptions
@@ -766,8 +767,6 @@ class TermSqlIndex extends DBAccessBase implements TermIndex, LabelConflictFinde
 
 				if ( $key === 'term_entity_id' ) {
 					$value = (int)$value;
-				} elseif ( $key === 'term_weight' ) {
-					$value = (float)$value;
 				}
 
 				$matchingTerm[$this->termFieldMap[$key]] = $value;
