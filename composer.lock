@@ -285,16 +285,16 @@
         },
         {
             "name": "data-values/geo",
-            "version": "1.1.8",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Geo.git",
-                "reference": "6508496f0c6d033220a1d7c6defa52bc7adad082"
+                "reference": "b0c635635cf3e25aed8d1d1000e50f893bd3d91c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Geo/zipball/6508496f0c6d033220a1d7c6defa52bc7adad082",
-                "reference": "6508496f0c6d033220a1d7c6defa52bc7adad082",
+                "url": "https://api.github.com/repos/DataValues/Geo/zipball/b0c635635cf3e25aed8d1d1000e50f893bd3d91c",
+                "reference": "b0c635635cf3e25aed8d1d1000e50f893bd3d91c",
                 "shasum": ""
             },
             "require": {
@@ -347,7 +347,7 @@
                 "parsers",
                 "wikidata"
             ],
-            "time": "2016-10-12 16:21:06"
+            "time": "2016-11-11 19:17:21"
         },
         {
             "name": "data-values/interfaces",
@@ -797,12 +797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "b318914a8dc4feb4baa3833d37267017756060e5"
+                "reference": "c3792395e4b75483932b01098ca5768c4256da55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/b318914a8dc4feb4baa3833d37267017756060e5",
-                "reference": "b318914a8dc4feb4baa3833d37267017756060e5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/c3792395e4b75483932b01098ca5768c4256da55",
+                "reference": "c3792395e4b75483932b01098ca5768c4256da55",
                 "shasum": ""
             },
             "require-dev": {
@@ -827,7 +827,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-11-23 13:57:34"
+            "time": "2016-11-27 22:38:02"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1267,7 +1267,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "10ce1f4549dc3bcaae7ec8cb1af6fc22f535514f"
+                "reference": "76a3c709d986ceebda6391dc1be38cf915d5e8a9"
             },
             "require": {
                 "data-values/common": ">=0.1 <0.4",
@@ -1319,7 +1319,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2016-11-21 15:55:42"
+            "time": "2016-11-25 21:56:38"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1436,7 +1436,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "90b82546ca3971d79fa24b21a641747cb82ec469"
+                "reference": "467cbdc87e6e25db5a7cee8a43e8a53ef6bb36db"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1482,7 +1482,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-10-25 12:33:42"
+            "time": "2016-11-25 21:56:28"
         },
         {
             "name": "wikibase/quality",
@@ -1585,12 +1585,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "bec3312b78e3fac35c01486875ae3c78c468d1d5"
+                "reference": "10a219cef690bdfc8b5c0455c42ea7866c4d3bf9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/bec3312b78e3fac35c01486875ae3c78c468d1d5",
-                "reference": "bec3312b78e3fac35c01486875ae3c78c468d1d5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/10a219cef690bdfc8b5c0455c42ea7866c4d3bf9",
+                "reference": "10a219cef690bdfc8b5c0455c42ea7866c4d3bf9",
                 "shasum": ""
             },
             "require": {
@@ -1664,7 +1664,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-11-25 08:08:36"
+            "time": "2016-11-27 21:34:34"
         },
         {
             "name": "wikibase/wikimedia-badges",

@@ -78,9 +78,20 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 				0.1,
 				'-0.1, 0.1'
 			),
+			'precision option must support strings' => array(
+				new LatLongValue( -0.05, 0.05 ),
+				'0.1',
+				'-0.1, 0.1'
+			),
 		);
 	}
 
+	/**
+	 * @param string $format One of the GeoCoordinateFormatter::TYPE_… constants
+	 * @param float|int $precision
+	 *
+	 * @return FormatterOptions
+	 */
 	private function makeOptions( $format, $precision ) {
 		$options = new FormatterOptions();
 		$options->setOption( GeoCoordinateFormatter::OPT_FORMAT, $format );
@@ -161,6 +172,11 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 			'rounding fractions up' => array(
 				new LatLongValue( -0.05, 0.05 ),
 				0.1,
+				'-0.1°, 0.1°'
+			),
+			'precision option must support strings' => array(
+				new LatLongValue( -0.05, 0.05 ),
+				'0.1',
 				'-0.1°, 0.1°'
 			),
 		);
@@ -258,6 +274,11 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 				new LatLongValue( -0.05 / 60, 0.05 / 60 ),
 				0.1 / 60,
 				'-0° 0.1\', 0° 0.1\''
+			),
+			'precision option must support strings' => array(
+				new LatLongValue( -0.05, 0.05 ),
+				'0.1',
+				'-0° 6\', 0° 6\''
 			),
 		);
 	}
@@ -370,6 +391,11 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 				0.1 / 3600,
 				'-0° 0\' 0.1", 0° 0\' 0.1"'
 			),
+			'precision option must support strings' => array(
+				new LatLongValue( -0.05, 0.05 ),
+				'0.1',
+				'-0° 6\', 0° 6\''
+			),
 		);
 	}
 
@@ -389,6 +415,11 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 		$this->assertRoundTrip( $latLong, $options );
 	}
 
+	/**
+	 * @param LatLongValue $latLong
+	 * @param FormatterOptions $options
+	 * @param string $expected
+	 */
 	private function assertFormatsCorrectly( LatLongValue $latLong, FormatterOptions $options, $expected ) {
 		$formatter = new GeoCoordinateFormatter( $options );
 
@@ -431,6 +462,10 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 		$this->assertIsDirectionalFormatMap( $coordinates, GeoCoordinateFormatter::TYPE_DM );
 	}
 
+	/**
+	 * @param array[] $coordinates
+	 * @param string $format One of the GeoCoordinateFormatter::TYPE_… constants
+	 */
 	private function assertIsDirectionalFormatMap( array $coordinates, $format ) {
 		foreach ( $coordinates as $expected => $arguments ) {
 			$options = new FormatterOptions();
@@ -508,9 +543,13 @@ class GeoCoordinateFormatterTest extends \PHPUnit_Framework_TestCase {
 		$this->assertSpacingCorrect( $coordinates, GeoCoordinateFormatter::TYPE_DM );
 	}
 
+	/**
+	 * @param array[] $coordSets
+	 * @param string $format One of the GeoCoordinateFormatter::TYPE_… constants
+	 */
 	private function assertSpacingCorrect( array $coordSets, $format ) {
 		$spacingLevelOptions = $this->provideSpacingLevelOptions();
-		foreach( $coordSets as $spacingKey => $coordinates ) {
+		foreach ( $coordSets as $spacingKey => $coordinates ) {
 			foreach ( $coordinates as $expected => $arguments ) {
 				$options = new FormatterOptions();
 				$options->setOption( GeoCoordinateFormatter::OPT_FORMAT, $format );
