@@ -1422,7 +1422,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2016-11-11 18:08:34"
+            "time": "2016-11-10 15:04:38"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1471,12 +1471,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "6f5f1bb42b61f2cc675433f1021d9daf9b4b5f64"
+                "reference": "a9c2273cdf7bdac7db30d8e3a98baeaba88076ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6f5f1bb42b61f2cc675433f1021d9daf9b4b5f64",
-                "reference": "6f5f1bb42b61f2cc675433f1021d9daf9b4b5f64",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a9c2273cdf7bdac7db30d8e3a98baeaba88076ad",
+                "reference": "a9c2273cdf7bdac7db30d8e3a98baeaba88076ad",
                 "shasum": ""
             },
             "require": {
@@ -1550,7 +1550,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-11-17 16:19:38"
+            "time": "2016-11-28 18:56:07"
         },
         {
             "name": "wikibase/wikimedia-badges",
