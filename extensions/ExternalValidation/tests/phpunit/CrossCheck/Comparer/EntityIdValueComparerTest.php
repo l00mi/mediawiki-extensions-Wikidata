@@ -104,19 +104,44 @@ class EntityIdValueComparerTest extends DataValueComparerTestBase {
 					if ( $id->getSerialization() === 'Q1' ) {
 						if ( in_array( TermIndexEntry::TYPE_LABEL, $termTypes ) ) {
 							if ( in_array( 'en', $languageCodes) ) {
-								$terms[] = new TermIndexEntry( array( 'termText' => 'foobar' ) );
+								$terms[] = new TermIndexEntry( array(
+									'termType' => TermIndexEntry::TYPE_LABEL,
+									'termLanguage' => 'en',
+									'termText' => 'foobar',
+									'entityId' => $id,
+								) );
 							}
 							if ( in_array( 'de', $languageCodes) ) {
-								$terms[] = new TermIndexEntry( array( 'termText' => 'Fubar' ) );
+								$terms[] = new TermIndexEntry( array(
+									'termType' => TermIndexEntry::TYPE_LABEL,
+									'termLanguage' => 'de',
+									'termText' => 'Fubar',
+									'entityId' => $id,
+								) );
 							}
 						}
 						if ( in_array( TermIndexEntry::TYPE_ALIAS, $termTypes ) ) {
 							if ( in_array( 'en', $languageCodes) ) {
-								$terms[] = new TermIndexEntry( array( 'termText' => 'foo' ) );
-								$terms[] = new TermIndexEntry( array( 'termText' => 'bar' ) );
+								$terms[] = new TermIndexEntry( array(
+									'termType' => TermIndexEntry::TYPE_ALIAS,
+									'termLanguage' => 'en',
+									'termText' => 'foo',
+									'entityId' => $id,
+								) );
+								$terms[] = new TermIndexEntry( array(
+									'termType' => TermIndexEntry::TYPE_ALIAS,
+									'termLanguage' => 'en',
+									'termText' => 'bar',
+									'entityId' => $id,
+								) );
 							}
 							if ( in_array( 'de', $languageCodes) ) {
-								$terms[] = new TermIndexEntry( array( 'termText' => 'foobar' ) );
+								$terms[] = new TermIndexEntry( array(
+									'termType' => TermIndexEntry::TYPE_ALIAS,
+									'termLanguage' => 'de',
+									'termText' => 'foobar',
+									'entityId' => $id,
+								) );
 							}
 						}
 					}

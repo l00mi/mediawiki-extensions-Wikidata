@@ -797,12 +797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "c3792395e4b75483932b01098ca5768c4256da55"
+                "reference": "16994f2031c33dba11ca997283397397ac313a28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/c3792395e4b75483932b01098ca5768c4256da55",
-                "reference": "c3792395e4b75483932b01098ca5768c4256da55",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/16994f2031c33dba11ca997283397397ac313a28",
+                "reference": "16994f2031c33dba11ca997283397397ac313a28",
                 "shasum": ""
             },
             "require-dev": {
@@ -827,7 +827,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-11-27 22:38:02"
+            "time": "2016-11-30 11:53:18"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -1267,7 +1267,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "76a3c709d986ceebda6391dc1be38cf915d5e8a9"
+                "reference": "be08e45df0f9021ec90442688fa4a9bfb0e221d1"
             },
             "require": {
                 "data-values/common": ">=0.1 <0.4",
@@ -1319,7 +1319,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2016-11-25 21:56:38"
+            "time": "2016-11-30 14:21:03"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1436,7 +1436,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "467cbdc87e6e25db5a7cee8a43e8a53ef6bb36db"
+                "reference": "c7b71fdf31305500d8c57793f7cbd93c1f3a9705"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1482,7 +1482,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-11-25 21:56:28"
+            "time": "2016-11-29 10:33:33"
         },
         {
             "name": "wikibase/quality",
@@ -1585,12 +1585,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "10a219cef690bdfc8b5c0455c42ea7866c4d3bf9"
+                "reference": "c7fa54a43b3375770a97e93e6a1c539ffe940edc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/10a219cef690bdfc8b5c0455c42ea7866c4d3bf9",
-                "reference": "10a219cef690bdfc8b5c0455c42ea7866c4d3bf9",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/c7fa54a43b3375770a97e93e6a1c539ffe940edc",
+                "reference": "c7fa54a43b3375770a97e93e6a1c539ffe940edc",
                 "shasum": ""
             },
             "require": {
@@ -1632,8 +1632,6 @@
                     "lib/includes/",
                     "lib/WikibaseLib.hooks.php",
                     "lib/maintenance/",
-                    "lib/tests/phpunit/Store/HttpUrlPropertyOrderProviderTestMockHttp.php",
-                    "lib/tests/phpunit/Store/WikiTextPropertyOrderProviderTestHelper.php",
                     "repo/includes/",
                     "repo/maintenance/",
                     "repo/tests/phpunit/",
@@ -1664,7 +1662,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-11-27 21:34:34"
+            "time": "2016-11-30 13:52:49"
         },
         {
             "name": "wikibase/wikimedia-badges",

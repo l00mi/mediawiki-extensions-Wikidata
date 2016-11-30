@@ -5,11 +5,13 @@ namespace Wikibase\Lib\Tests\Store;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\Lib\EntityIdComposer;
+use Wikibase\Lib\Store\TermIndexSearchCriteria;
 use Wikibase\StringNormalizer;
 use Wikibase\TermIndexEntry;
 use Wikibase\TermSqlIndex;
@@ -44,7 +46,14 @@ class TermSqlIndexTest extends TermIndexTest {
 	 * @return TermSqlIndex
 	 */
 	public function getTermIndex() {
-		return new TermSqlIndex( new StringNormalizer(), new EntityIdComposer( [] ) );
+		return new TermSqlIndex( new StringNormalizer(), new EntityIdComposer( [
+			'item' => function( $repositoryName, $uniquePart ) {
+				return new ItemId( 'Q' . $uniquePart );
+			},
+			'property' => function( $repositoryName, $uniquePart ) {
+				return new PropertyId( 'P' . $uniquePart );
+			},
+		] ) );
 	}
 
 	public function termProvider() {
@@ -71,7 +80,7 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->saveTermsOfEntity( $item );
 
-		$term = new TermIndexEntry( [ 'termLanguage' => $languageCode, 'termText' => $searchText ] );
+		$term = new TermIndexSearchCriteria( [ 'termLanguage' => $languageCode, 'termText' => $searchText ] );
 
 		$options = array(
 			'caseSensitive' => false,
@@ -121,12 +130,12 @@ class TermSqlIndexTest extends TermIndexTest {
 			new AliasGroupList()
 		);
 
-		$labelFooEn = new TermIndexEntry( array(
+		$labelFooEn = new TermIndexSearchCriteria( array(
 			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
 			'termText' => 'Foo',
 		) );
-		$descriptionBarEn = new TermIndexEntry( array(
+		$descriptionBarEn = new TermIndexSearchCriteria( array(
 			'termType' => TermIndexEntry::TYPE_DESCRIPTION,
 			'termLanguage' => 'en',
 			'termText' => 'Bar',
@@ -175,7 +184,7 @@ class TermSqlIndexTest extends TermIndexTest {
 			$this->assertArrayHasKey( $key, $actual );
 			if ( $expectedTerm instanceof TermIndexEntry ) {
 				$actualTerm = $actual[$key];
-				$this->assertEquals( $expectedTerm->getType(), $actualTerm->getType(), 'termType' );
+				$this->assertEquals( $expectedTerm->getTermType(), $actualTerm->getTermType(), 'termType' );
 				$this->assertEquals( $expectedTerm->getLanguage(), $actualTerm->getLanguage(), 'termLanguage' );
 				$this->assertEquals( $expectedTerm->getText(), $actualTerm->getText(), 'termText' );
 			}
@@ -263,21 +272,18 @@ class TermSqlIndexTest extends TermIndexTest {
 		$expectedTerms = array(
 			new TermIndexEntry( array(
 				'entityId' => new ItemId( 'Q999' ),
-				'entityType' => 'item',
 				'termText' => 'es un gato!',
 				'termLanguage' => 'es',
 				'termType' => 'description'
 			) ),
 			new TermIndexEntry( array(
 				'entityId' => new ItemId( 'Q999' ),
-				'entityType' => 'item',
 				'termText' => 'kittens!!!:)',
 				'termLanguage' => 'en',
 				'termType' => 'label'
 			) ),
 			new TermIndexEntry( array(
 				'entityId' => new ItemId( 'Q999' ),
-				'entityType' => 'item',
 				'termText' => 'kitten-alias',
 				'termLanguage' => 'en',
 				'termType' => 'alias'
