@@ -822,6 +822,7 @@ return array(
     'Wikibase\\Lib\\GlobeCoordinateDetailsFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/GlobeCoordinateDetailsFormatter.php',
     'Wikibase\\Lib\\HtmlTimeFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/HtmlTimeFormatter.php',
     'Wikibase\\Lib\\HtmlUrlFormatter' => $baseDir . '/extensions/Wikibase/lib/includes/Formatters/HtmlUrlFormatter.php',
+    'Wikibase\\Lib\\Interactors\\DispatchingTermSearchInteractor' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/DispatchingTermSearchInteractor.php',
     'Wikibase\\Lib\\Interactors\\TermIndexSearchInteractor' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/TermIndexSearchInteractor.php',
     'Wikibase\\Lib\\Interactors\\TermSearchInteractor' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/TermSearchInteractor.php',
     'Wikibase\\Lib\\Interactors\\TermSearchOptions' => $baseDir . '/extensions/Wikibase/lib/includes/Interactors/TermSearchOptions.php',
