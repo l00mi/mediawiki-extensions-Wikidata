@@ -797,12 +797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "197aabc07ea2f998079b0268c6b56eb2947a0269"
+                "reference": "a1885b4f47445d8a1b40d113b623f98c3005b08b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/197aabc07ea2f998079b0268c6b56eb2947a0269",
-                "reference": "197aabc07ea2f998079b0268c6b56eb2947a0269",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a1885b4f47445d8a1b40d113b623f98c3005b08b",
+                "reference": "a1885b4f47445d8a1b40d113b623f98c3005b08b",
                 "shasum": ""
             },
             "require-dev": {
@@ -827,20 +827,20 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-11-30 14:30:13"
+            "time": "2016-12-02 10:49:13"
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "3.1.4",
+            "version": "3.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "793390f84e180097f0511aa2b09dacd50168dfa3"
+                "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/793390f84e180097f0511aa2b09dacd50168dfa3",
-                "reference": "793390f84e180097f0511aa2b09dacd50168dfa3",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
+                "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
                 "shasum": ""
             },
             "require": {
@@ -874,7 +874,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-10-03 12:42:20"
+            "time": "2016-12-02 12:39:32"
         },
         {
             "name": "serialization/serialization",
@@ -1585,12 +1585,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "fac6549d01e069a7b86f8bc59d2e55bc61f6410a"
+                "reference": "32deb99363d0c228f2d74400c71d117643dd0bad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/fac6549d01e069a7b86f8bc59d2e55bc61f6410a",
-                "reference": "fac6549d01e069a7b86f8bc59d2e55bc61f6410a",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/32deb99363d0c228f2d74400c71d117643dd0bad",
+                "reference": "32deb99363d0c228f2d74400c71d117643dd0bad",
                 "shasum": ""
             },
             "require": {
@@ -1662,7 +1662,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-11-30 21:22:39"
+            "time": "2016-12-02 10:49:32"
         },
         {
             "name": "wikibase/wikimedia-badges",

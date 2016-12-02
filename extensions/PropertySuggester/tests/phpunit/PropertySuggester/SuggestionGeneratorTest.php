@@ -2,6 +2,7 @@
 
 namespace PropertySuggester;
 
+use InvalidArgumentException;
 use MediaWikiTestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use PropertySuggester\Suggesters\SuggesterEngine;
@@ -12,12 +13,11 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Snak\PropertySomeValueSnak;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\TermIndex;
-use InvalidArgumentException;
 use Wikibase\TermIndexEntry;
 
 /**
  * @covers PropertySuggester\SuggestionGenerator
- * 
+ *
  * @group PropertySuggester
  * @group API
  * @group medium
@@ -59,11 +59,11 @@ class SuggestionGeneratorTest extends MediaWikiTestCase {
 	}
 
 	public function testFilterSuggestions() {
-		$p7 = PropertyId::newFromNumber( 7 );
-		$p10 = PropertyId::newFromNumber( 10 );
-		$p12 = PropertyId::newFromNumber( 12 );
-		$p15 = PropertyId::newFromNumber( 15 );
-		$p23 = PropertyId::newFromNumber( 23 );
+		$p7 = new PropertyId( 'P7' );
+		$p10 = new PropertyId( 'P10' );
+		$p12 = new PropertyId( 'P12' );
+		$p15 = new PropertyId( 'P15' );
+		$p23 = new PropertyId( 'P23' );
 
 		$suggestions = array(
 			new Suggestion( $p12, 0.9 ), // this will stay at pos 0
@@ -92,10 +92,12 @@ class SuggestionGeneratorTest extends MediaWikiTestCase {
 	 */
 	private function getTermIndexEntryArrayWithIds( $ids ) {
 		$termIndexEntries = array();
-		foreach ( $ids as $id ) {
+		foreach ( $ids as $i => $id ) {
 			$termIndexEntries[] = new TermIndexEntry( array(
-				'entityId' => $id->getNumericId(),
-				'entityType' => $id->getEntityType(),
+				'entityId' => $id,
+				'termLanguage' => 'en',
+				'termText' => "kitten$i",
+				'termType' => TermIndexEntry::TYPE_LABEL
 			) );
 		}
 		return $termIndexEntries;
