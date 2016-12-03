@@ -109,6 +109,46 @@
         ]
     },
     {
+        "name": "mediawiki/article-placeholder",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
+            "reference": "a1885b4f47445d8a1b40d113b623f98c3005b08b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a1885b4f47445d8a1b40d113b623f98c3005b08b",
+            "reference": "a1885b4f47445d8a1b40d113b623f98c3005b08b",
+            "shasum": ""
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.7.2"
+        },
+        "time": "2016-12-02 10:49:13",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "ArticlePlaceholder\\": "includes/",
+                "ArticlePlaceholder\\Specials\\": "includes/specials/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Lucie-Aimée Kaffee"
+            }
+        ],
+        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
+        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
+    },
+    {
         "name": "wikimedia/purtle",
         "version": "v1.0.4",
         "version_normalized": "1.0.4.0",
@@ -1360,6 +1400,93 @@
         ]
     },
     {
+        "name": "wikibase/wikibase",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+            "reference": "b946b675e628dcb586bcef000a96a81f652c164a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/b946b675e628dcb586bcef000a96a81f652c164a",
+            "reference": "b946b675e628dcb586bcef000a96a81f652c164a",
+            "shasum": ""
+        },
+        "require": {
+            "data-values/common": "~0.3.0",
+            "data-values/data-types": "~0.5.0",
+            "data-values/data-values": "~1.0",
+            "data-values/geo": "~1.0",
+            "data-values/interfaces": "~0.2.0|~0.1.5",
+            "data-values/javascript": "~0.8.3",
+            "data-values/number": "~0.8.2",
+            "data-values/serialization": "~1.1",
+            "data-values/time": "~0.8.4",
+            "data-values/validators": "~0.1.0",
+            "data-values/value-view": "~0.18.0",
+            "diff/diff": "~2.0",
+            "php": ">=5.5.0",
+            "wikibase/data-model": "^6.3.1",
+            "wikibase/data-model-javascript": "~3.0.0",
+            "wikibase/data-model-serialization": "~2.2",
+            "wikibase/data-model-services": "~3.7",
+            "wikibase/internal-serialization": "~2.3",
+            "wikibase/javascript-api": "~2.2.0",
+            "wikibase/serialization-javascript": "~2.0.6",
+            "wikimedia/purtle": "~1.0"
+        },
+        "conflict": {
+            "mediawiki/mediawiki": "<1.25"
+        },
+        "require-dev": {
+            "jakub-onderka/php-parallel-lint": "0.9.2",
+            "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
+        },
+        "time": "2016-12-02 21:21:23",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "client/includes/",
+                "client/WikibaseClient.hooks.php",
+                "client/tests/phpunit/MockClientStore.php",
+                "lib/includes/",
+                "lib/WikibaseLib.hooks.php",
+                "lib/maintenance/",
+                "repo/includes/",
+                "repo/maintenance/",
+                "repo/tests/phpunit/",
+                "repo/Wikibase.hooks.php"
+            ],
+            "psr-4": {
+                "Wikibase\\Client\\Tests\\": "client/tests/phpunit/includes",
+                "Wikibase\\Lib\\Tests\\": "lib/tests/phpunit",
+                "Wikibase\\View\\": "view/src",
+                "Wikibase\\View\\Tests\\": "view/tests/phpunit"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "The Wikidata team"
+            }
+        ],
+        "description": "Structured data repository for MediaWiki",
+        "homepage": "http://wikiba.se",
+        "keywords": [
+            "wikibase",
+            "wikibaseclient",
+            "wikibaselib",
+            "wikibaserepo",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/wikimedia-badges",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -1410,7 +1537,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "260f74c4b313e3a27830f25b36addc18c98a0c19"
+            "reference": "ff716e9772f9ae2c563630634a2579756a28af70"
         },
         "require": {
             "php": ">=5.3.0"
@@ -1419,7 +1546,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.7.2"
         },
-        "time": "2016-11-11 22:02:29",
+        "time": "2016-12-02 21:22:07",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1526,7 +1653,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "c7b71fdf31305500d8c57793f7cbd93c1f3a9705"
+            "reference": "34b09c846dc95088d10f52305833d7c14a2f7307"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1540,7 +1667,7 @@
             "mediawiki/mediawiki-codesniffer": "0.6.0",
             "phpunit/phpunit": "~4.8"
         },
-        "time": "2016-11-29 10:33:33",
+        "time": "2016-12-02 21:21:49",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1576,13 +1703,62 @@
         }
     },
     {
+        "name": "propertysuggester/property-suggester",
+        "version": "3.1.5",
+        "version_normalized": "3.1.5.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
+            "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
+            "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.0",
+            "wikibase/data-model": "~4.1|~5.0|~6.0",
+            "wikibase/data-model-services": "~1.1|~2.0|~3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2016-12-02 12:39:32",
+        "type": "mediawiki-extension",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PropertySuggester\\": "src/PropertySuggester/"
+            },
+            "files": [],
+            "classmap": [
+                "PropertySuggesterHooks.php",
+                "maintenance/UpdateTable.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
+        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
+        "keywords": [
+            "propertysuggester",
+            "wikibase",
+            "wikidata"
+        ]
+    },
+    {
         "name": "wikibase/quality",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "2793d0b3adecc8ff496571742c27deb5ca25be8b"
+            "reference": "5403f7f6b5524a85440b0c75a24a24a23fc4a019"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1599,7 +1775,7 @@
             "satooshi/php-coveralls": "master-dev",
             "wikibase/data-model-serialization": ">=0.1 <3.0"
         },
-        "time": "2016-11-22 22:31:03",
+        "time": "2016-12-02 21:21:58",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1686,181 +1862,5 @@
         "support": {
             "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
         }
-    },
-    {
-        "name": "propertysuggester/property-suggester",
-        "version": "3.1.5",
-        "version_normalized": "3.1.5.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-            "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
-            "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.5.0",
-            "wikibase/data-model": "~4.1|~5.0|~6.0",
-            "wikibase/data-model-services": "~1.1|~2.0|~3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "3.7.*",
-            "satooshi/php-coveralls": "dev-master"
-        },
-        "time": "2016-12-02 12:39:32",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PropertySuggester\\": "src/PropertySuggester/"
-            },
-            "files": [],
-            "classmap": [
-                "PropertySuggesterHooks.php",
-                "maintenance/UpdateTable.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "description": "Extension for Wikibase to provide usefull suggestions for new properties",
-        "homepage": "https://github.com/Wikidata-lib/PropertySuggester",
-        "keywords": [
-            "propertysuggester",
-            "wikibase",
-            "wikidata"
-        ]
-    },
-    {
-        "name": "mediawiki/article-placeholder",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "a1885b4f47445d8a1b40d113b623f98c3005b08b"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/a1885b4f47445d8a1b40d113b623f98c3005b08b",
-            "reference": "a1885b4f47445d8a1b40d113b623f98c3005b08b",
-            "shasum": ""
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.7.2"
-        },
-        "time": "2016-12-02 10:49:13",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "ArticlePlaceholder\\": "includes/",
-                "ArticlePlaceholder\\Specials\\": "includes/specials/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Lucie-Aimée Kaffee"
-            }
-        ],
-        "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
-        "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder"
-    },
-    {
-        "name": "wikibase/wikibase",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "32deb99363d0c228f2d74400c71d117643dd0bad"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/32deb99363d0c228f2d74400c71d117643dd0bad",
-            "reference": "32deb99363d0c228f2d74400c71d117643dd0bad",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/common": "~0.3.0",
-            "data-values/data-types": "~0.5.0",
-            "data-values/data-values": "~1.0",
-            "data-values/geo": "~1.0",
-            "data-values/interfaces": "~0.2.0|~0.1.5",
-            "data-values/javascript": "~0.8.3",
-            "data-values/number": "~0.8.2",
-            "data-values/serialization": "~1.1",
-            "data-values/time": "~0.8.4",
-            "data-values/validators": "~0.1.0",
-            "data-values/value-view": "~0.18.0",
-            "diff/diff": "~2.0",
-            "php": ">=5.5.0",
-            "wikibase/data-model": "^6.3.1",
-            "wikibase/data-model-javascript": "~3.0.0",
-            "wikibase/data-model-serialization": "~2.2",
-            "wikibase/data-model-services": "~3.7",
-            "wikibase/internal-serialization": "~2.3",
-            "wikibase/javascript-api": "~2.2.0",
-            "wikibase/serialization-javascript": "~2.0.6",
-            "wikimedia/purtle": "~1.0"
-        },
-        "conflict": {
-            "mediawiki/mediawiki": "<1.25"
-        },
-        "require-dev": {
-            "jakub-onderka/php-parallel-lint": "0.9.2",
-            "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
-        },
-        "time": "2016-12-02 10:49:32",
-        "type": "mediawiki-extension",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "client/includes/",
-                "client/WikibaseClient.hooks.php",
-                "client/tests/phpunit/MockClientStore.php",
-                "lib/includes/",
-                "lib/WikibaseLib.hooks.php",
-                "lib/maintenance/",
-                "repo/includes/",
-                "repo/maintenance/",
-                "repo/tests/phpunit/",
-                "repo/Wikibase.hooks.php"
-            ],
-            "psr-4": {
-                "Wikibase\\Client\\Tests\\": "client/tests/phpunit/includes",
-                "Wikibase\\Lib\\Tests\\": "lib/tests/phpunit",
-                "Wikibase\\View\\": "view/src",
-                "Wikibase\\View\\Tests\\": "view/tests/phpunit"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "The Wikidata team"
-            }
-        ],
-        "description": "Structured data repository for MediaWiki",
-        "homepage": "http://wikiba.se",
-        "keywords": [
-            "wikibase",
-            "wikibaseclient",
-            "wikibaselib",
-            "wikibaserepo",
-            "wikidata"
-        ]
     }
 ]
