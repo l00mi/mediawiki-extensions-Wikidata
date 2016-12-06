@@ -30,7 +30,7 @@
 	"wbq-violations-table-header-entity": "Header of the column that shows the entity.",
 	"wbq-violations-table-header-claim": "Header of the column that shows the violated claim.\n{{Identical|Claim}}",
 	"wbq-violations-table-header-constraint-type": "Header of the column that shows the constraint type.\n{{Identical|Type}}",
-	"wbq-violations-table-header-updated-at": "Header of the column that shows the time the violation was updated.",
+	"wbq-violations-table-header-updated-at": "Header of the column that shows the time the violation was updated.\n{{Identical|Last updated}}",
 	"wbq-violations-table-header-status": "Header of the column that shows the status of the violation.\n{{Identical|Status}}",
 	"wbq-violations-table-header-additional-info": "Header of the column that shows additional information of the violation depending on type",
 	"wbq-violations-status-violation": "Status for regular violations.",

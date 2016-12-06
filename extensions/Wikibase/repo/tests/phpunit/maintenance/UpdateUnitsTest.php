@@ -1,11 +1,12 @@
 <?php
+
 namespace Wikibase\Test;
 
 use MediaWikiLangTestCase;
 use Wikibase\UpdateUnits;
 
 /**
- * @covers updateUnits.php
+ * @covers Wikibase\UpdateUnits
  * @group Wikibase
  */
 class UpdateUnitsTest extends MediaWikiLangTestCase {

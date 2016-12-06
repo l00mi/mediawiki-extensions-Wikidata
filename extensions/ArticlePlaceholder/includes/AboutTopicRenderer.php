@@ -2,11 +2,13 @@
 
 namespace ArticlePlaceholder;
 
+use ExtensionRegistry;
 use Html;
 use Language;
 use OOUI;
 use SiteLookup;
 use SpecialPage;
+use Title;
 use User;
 use OutputPage;
 use Wikibase\DataModel\Entity\ItemId;
@@ -102,7 +104,7 @@ class AboutTopicRenderer {
 			$labelTitle = $this->titleFactory->newFromText( $label );
 		}
 		if ( $labelTitle && $labelTitle->quickUserCan( 'createpage', $user ) ) {
-			$this->showCreateArticle( $label, $output );
+			$this->showCreateArticle( $entityId, $label, $output );
 		}
 
 		$this->showLanguageLinks( $entityId, $output );
@@ -112,16 +114,20 @@ class AboutTopicRenderer {
 	/**
 	 * Adds a button to create an article
 	 *
+	 * @param ItemId $itemId
 	 * @param string $label
 	 * @param OutputPage $output
 	 */
-	private function showCreateArticle( $label, OutputPage $output ) {
+	private function showCreateArticle( ItemId $itemId, $label, OutputPage $output ) {
+		$siteLinks = $this->siteLinkLookup->getSiteLinksForItem( $itemId );
+
 		$output->enableOOUI();
 		$output->addModules( 'ext.articleplaceholder.createArticle' );
 		$output->addJsConfigVars( 'apLabel', $label );
 
-		$buttons = new OOUI\ButtonWidget( [
-			'id' => 'new-empty-article-button',
+		$contents = new OOUI\ButtonWidget( [
+			'id' => 'new-article-button',
+			'flags' => [ 'primary', 'progressive' ],
 			'infusable' => true,
 			'label' => wfMessage( 'articleplaceholder-abouttopic-create-article-button' )->text(),
 			'href' => SpecialPage::getTitleFor( 'CreateTopicPage', $label )
@@ -129,10 +135,16 @@ class AboutTopicRenderer {
 			'target' => 'blank'
 		] );
 
+		// TODO: Button should be hidden if the only sitelink links to the current wiki.
+		// $wikibaseClient->getSettings()->getSetting( 'siteGlobalID' ) should be injected here!
+		if ( ExtensionRegistry::getInstance()->isLoaded( 'ContentTranslation' ) && $siteLinks ) {
+			$output->addJsConfigVars( 'apContentTranslation', true );
+		}
+
 		$output->addHTML( Html::rawElement(
 			'div',
 			[ 'class' => 'mw-articleplaceholder-createarticle-buttons' ],
-			$buttons
+			$contents
 		) );
 	}
 
@@ -172,17 +184,30 @@ class AboutTopicRenderer {
 	private function showLanguageLinks( ItemId $entityId, OutputPage $output ) {
 		$siteLinks = $this->siteLinkLookup->getSiteLinksForItem( $entityId );
 		$languageLinks = [];
+		$languageNames = [];
+		$pageNames = [];
 
 		foreach ( $siteLinks as $siteLink ) {
 			$site = $this->siteLookup->getSite( $siteLink->getSiteId() );
 			$languageCode = $site->getLanguageCode();
 			$group = $site->getGroup();
+			// TODO: This should not contain the current wiki.
+			// $wikibaseClient->getSettings()->getSetting( 'siteGlobalID' ) should be injected here!
 			if ( $languageCode !== null && $group === $this->langLinkSiteGroup ) {
 				$languageLinks[$languageCode] = $languageCode . ':' . $siteLink->getPageName();
+
+				// TODO: We may want to filter with user languages
+				$languageNames[] = [
+					'data' => $languageCode,
+					'label' => Language::fetchLanguageName( $languageCode ),
+				];
+				$pageNames[ $languageCode ] = $siteLink->getPageName();
 			}
 		}
 
 		$output->setLanguageLinks( $languageLinks );
+		$output->addJsConfigVars( 'apLanguages', $languageNames );
+		$output->addJsConfigVars( 'apPageNames', $pageNames );
 	}
 
 	/**

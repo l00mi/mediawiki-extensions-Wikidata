@@ -13,7 +13,8 @@
 			"Macofe",
 			"Maroen1990",
 			"Sonic N800",
-			"Mr. Ibrahem"
+			"Mr. Ibrahem",
+			"ديفيد"
 		]
 	},
 	"wikibase-lib-desc": "يمسك بالوظيفة المشتركة لامتدادات Wikibase و Wikibase Client",
@@ -30,8 +31,8 @@
 	"wikibase-error-remove-timeout": "يشهد الموقع صعوبات تقنية حاليا. من فضلك حاول مجددا.",
 	"wikibase-error-autocomplete-connection": "لم يكن من الممكن البحث في واجهة برمجة التطبيقات الخاصة بالموقع. الرجاء المحاولة مرة أخرى لاحقاَ.",
 	"wikibase-error-autocomplete-response": "إجابة الخادوم: $1",
-	"wikibase-error-ui-no-external-page": "لم يمكن إيجاد المقالة المحددة على الموقع الموافق.",
-	"wikibase-error-ui-edit-conflict": "هناك نزاع في تحرير. الرجاء حفظ التغييرات في حاسوبك، إعادة تحميل هذه الصفحة وحفظها مرة أخرى.",
+	"wikibase-error-ui-no-external-page": "الصفحة \"$2\" لم يمكن إيجادها على \"$1\".",
+	"wikibase-error-ui-edit-conflict": "نفس القيمة تم تعديلها في ذلك الوقت، مما تسبب في حدوث تضارب في التحرير. من فضلك أعد تحميل الصفحة.",
 	"wikibase-language-fallback-transliteration-hint": "$1 (مترجم)",
 	"wikibase-quantitydetails-amount": "الكمية",
 	"wikibase-quantitydetails-upperbound": "الحد الأعلى",
@@ -122,7 +123,7 @@
 	"wikibase-entity-summary-wbsetaliases-add": "أضاف [$2] {{PLURAL:$1|اسم مستعار|أسماء مستعارة}}",
 	"wikibase-entity-summary-wbsetaliases-remove": "أزال [$2] {{PLURAL:$1|اسم مستعار|أسماء مستعارة}}",
 	"wikibase-entity-summary-wbsetlabeldescriptionaliases": "غير [$2] التسمية، والوصف والأسماء المستعارة",
-	"wikibase-entity-summary-wbsetsitelink-add": "أضيفت وصلة إلى [$2]",
+	"wikibase-entity-summary-wbsetsitelink-add": "إضافة وصلة إلى [$2]",
 	"wikibase-entity-summary-wbsetsitelink-add-both": "أضاف وصلة مع شارات إلى [$2]",
 	"wikibase-entity-summary-wbsetsitelink-set": "تغيير الوصلة إلى [$2]",
 	"wikibase-entity-summary-wbsetsitelink-set-badges": "غير الشارات ل[$2]",

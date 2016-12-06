@@ -352,6 +352,14 @@ class WikibaseRepo {
 	 */
 	private function newValidatorBuilders() {
 		$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
+		$supportedEntityTypes = array_merge(
+			array_map( function( $repoSettings ) {
+				return $repoSettings[ 'supportedEntityTypes' ];
+			}, $this->settings->getSetting( 'foreignRepositories' ) ),
+			[
+				'' => $this->getLocalEntityTypes(),
+			]
+		);
 
 		return new ValidatorBuilders(
 			$this->getEntityLookup(),
@@ -359,7 +367,8 @@ class WikibaseRepo {
 			$urlSchemes,
 			$this->getVocabularyBaseUri(),
 			$this->getMonolingualTextLanguages(),
-			$this->getCachingCommonsMediaFileNameLookup()
+			$this->getCachingCommonsMediaFileNameLookup(),
+			$supportedEntityTypes
 		);
 	}
 
@@ -1236,6 +1245,15 @@ class WikibaseRepo {
 	}
 
 	/**
+	 * @return string[] List of entity type identifiers (typically "item" and "property")
+	 *  that are configured in WikibaseRepo.entitytypes.php and enabled via the
+	 *  $wgWBRepoSettings['entityNamespaces'] setting.
+	 */
+	public function getLocalEntityTypes() {
+		return array_keys( $this->getEntityNamespacesSetting() );
+	}
+
+	/**
 	 * @return EntityContentDataCodec
 	 */
 	public function getEntityContentDataCodec() {
@@ -1691,6 +1709,9 @@ class WikibaseRepo {
 
 						// T98314
 						'tzl',
+
+						// T151129
+						'moe',
 					) )
 				),
 

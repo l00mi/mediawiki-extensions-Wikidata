@@ -6,6 +6,7 @@ use ValueValidators\Result;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Lib\Tests\Store\MockTermIndex;
 use Wikibase\Repo\Validators\UniquenessViolation;
@@ -28,32 +29,28 @@ class LabelDescriptionDuplicateDetectorTest extends \PHPUnit_Framework_TestCase 
 		$world[] = new TermIndexEntry( array(
 			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
-			'entityId' => 42,
-			'entityType' => Item::ENTITY_TYPE,
+			'entityId' => new ItemId( 'Q42' ),
 			'termText' => 'item label',
 		) );
 
 		$world[] = new TermIndexEntry( array(
 			'termType' => TermIndexEntry::TYPE_DESCRIPTION,
 			'termLanguage' => 'en',
-			'entityId' => 42,
-			'entityType' => Item::ENTITY_TYPE,
+			'entityId' => new ItemId( 'Q42' ),
 			'termText' => 'item description',
 		) );
 
 		$world[] = new TermIndexEntry( array(
 			'termType' => TermIndexEntry::TYPE_ALIAS,
 			'termLanguage' => 'en',
-			'entityId' => 42,
-			'entityType' => Item::ENTITY_TYPE,
+			'entityId' => new ItemId( 'Q42' ),
 			'termText' => 'item alias',
 		) );
 
 		$world[] = new TermIndexEntry( array(
 			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
-			'entityId' => 17,
-			'entityType' => Property::ENTITY_TYPE,
+			'entityId' => new PropertyId( 'P42' ),
 			'termText' => 'property label',
 		) );
 

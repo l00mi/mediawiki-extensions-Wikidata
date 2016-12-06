@@ -1,13 +1,13 @@
 <?php
 
-namespace Wikibase\Test\Repo\Validators;
+namespace Wikibase\Repo\Tests\Validators;
 
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\Store\SiteLinkConflictLookup;
 use Wikibase\Repo\Validators\SiteLinkUniquenessValidator;
 use Wikibase\Repo\Validators\UniquenessViolation;
-use Wikibase\Test\ChangeOpTestMockProvider;
+use Wikibase\Repo\Tests\ChangeOp\ChangeOpTestMockProvider;
 
 /**
  * @covers Wikibase\Repo\Validators\SiteLinkUniquenessValidator

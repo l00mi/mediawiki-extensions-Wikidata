@@ -3,8 +3,7 @@
 namespace Wikibase\Lib\Tests\Store;
 
 use HashBagOStuff;
-use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Term\PropertyLabelResolver;
 use Wikibase\TermIndexEntry;
@@ -61,29 +60,25 @@ class TermPropertyLabelResolverTest extends \MediaWikiTestCase {
 			new TermIndexEntry( array(
 				'termType' => 'label',
 				'termLanguage' => 'de',
-				'entityId' => 1,
-				'entityType' => Property::ENTITY_TYPE,
+				'entityId' => new PropertyId( 'P1' ),
 				'termText' => 'Eins',
 			) ),
 			new TermIndexEntry( array(
 				'termType' => 'label',
 				'termLanguage' => 'de',
-				'entityId' => 2,
-				'entityType' => Property::ENTITY_TYPE,
+				'entityId' => new PropertyId( 'P2' ),
 				'termText' => 'Zwei',
 			) ),
 			new TermIndexEntry( array(
 				'termType' => 'label',
 				'termLanguage' => 'de',
-				'entityId' => 3,
-				'entityType' => Property::ENTITY_TYPE,
+				'entityId' => new PropertyId( 'P3' ),
 				'termText' => 'Drei',
 			) ),
 			new TermIndexEntry( array(
 				'termType' => 'label',
 				'termLanguage' => 'de',
-				'entityId' => 4,
-				'entityType' => Property::ENTITY_TYPE,
+				'entityId' => new PropertyId( 'P4' ),
 				'termText' => 'vier', // lower case
 			) ),
 
@@ -91,29 +86,25 @@ class TermPropertyLabelResolverTest extends \MediaWikiTestCase {
 			new TermIndexEntry( array(
 				'termType' => 'label',
 				'termLanguage' => 'en',
-				'entityId' => 1,
-				'entityType' => Property::ENTITY_TYPE,
+				'entityId' => new PropertyId( 'P1' ),
 				'termText' => 'One',
 			) ),
 			new TermIndexEntry( array(
 				'termType' => 'label',
 				'termLanguage' => 'en',
-				'entityId' => 2,
-				'entityType' => Item::ENTITY_TYPE, // not a property
+				'entityId' => new ItemId( 'Q2' ), // not a property
 				'termText' => 'Two',
 			) ),
 			new TermIndexEntry( array(
 				'termType' => 'alias', // not a label
 				'termLanguage' => 'en',
-				'entityId' => 3,
-				'entityType' => Property::ENTITY_TYPE,
+				'entityId' => new PropertyId( 'P3' ),
 				'termText' => 'Three',
 			) ),
 			new TermIndexEntry( array(
 				'termType' => 'description', // not a label
 				'termLanguage' => 'en',
-				'entityId' => 4,
-				'entityType' => Property::ENTITY_TYPE,
+				'entityId' => new PropertyId( 'P4' ),
 				'termText' => 'Four',
 			) ),
 		);

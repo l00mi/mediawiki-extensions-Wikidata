@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Dumpers;
+namespace Wikibase\Repo\Tests\Dumpers;
 
 use MediaWikiTestCase;
 use MWException;
@@ -21,8 +21,8 @@ use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikibase\Rdf\RdfVocabulary;
 use Wikibase\Repo\Tests\Rdf\NTriplesRdfTestHelper;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Test\Rdf\RdfBuilderTest;
-use Wikibase\Test\Rdf\RdfBuilderTestData;
+use Wikibase\Repo\Tests\Rdf\RdfBuilderTest;
+use Wikibase\Repo\Tests\Rdf\RdfBuilderTestData;
 
 /**
  * @covers Wikibase\Dumpers\RdfDumpGenerator

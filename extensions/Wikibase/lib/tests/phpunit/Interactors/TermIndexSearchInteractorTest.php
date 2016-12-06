@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Interactors;
+namespace Wikibase\Lib\Tests\Interactors;
 
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\EntityId;
@@ -66,8 +66,7 @@ class TermIndexSearchInteractorTest extends PHPUnit_Framework_TestCase {
 			'termText' => $text,
 			'termLanguage' => $languageCode,
 			'termType' => $termType,
-			'entityId' => $entityId->getNumericId(),
-			'entityType' => $entityId->getEntityType(),
+			'entityId' => $entityId,
 		) );
 	}
 

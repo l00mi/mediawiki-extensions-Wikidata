@@ -43,7 +43,7 @@ class GlobeMathTest extends \PHPUnit_Framework_TestCase {
 	public function testNormalizeGlobe( $expected, $globe ) {
 		$normalized = $this->math->normalizeGlobe( $globe );
 
-		$this->assertEquals( $expected, $normalized );
+		$this->assertSame( $expected, $normalized );
 	}
 
 	public function latLongProvider() {
@@ -86,23 +86,23 @@ class GlobeMathTest extends \PHPUnit_Framework_TestCase {
 			array( 45, 0, 135, -180 ),
 
 			// North pole is a special case, drop longitude
-			array(  90,  0,   90, -123 ),
-			array(  90,  0, -270,    0 ),
-			array(  90,  0, -270,  180 ),
-			array(  90,  0,  -90,    0, null, false ),
+			array( 90, 0, 90, -123 ),
+			array( 90, 0, -270, 0 ),
+			array( 90, 0, -270, 180 ),
+			array( 90, 0, -90, 0, null, false ),
 			// Same for south pole
 			array( -90,  0,  -90,  123 ),
 			array( -90,  0,  270,    0 ),
 			array( -90,  0,  270, -180 ),
 
 			// Make sure we cover all cases in the code
-			array(  10, 10,   10,   10 ),
-			array(  10, 10,   10, -350 ),
-			array(  10, 10,  -10,  -10, null, false ),
-			array( -10,  0,  190,  180 ),
-			array(  10,  0, -190,  180 ),
-			array( -80,  0, -100,  180 ),
-			array(  80,  0,  100,  180 ),
+			array( 10, 10, 10, 10 ),
+			array( 10, 10, 10, -350 ),
+			array( 10, 10, -10, -10, null, false ),
+			array( -10, 0, 190, 180 ),
+			array( 10, 0, -190, 180 ),
+			array( -80, 0, -100, 180 ),
+			array( 80, 0, 100, 180 ),
 
 			// Make sure nobody casts to integer
 			array( 1.234, -9.3, 178.766, -189.3 ),
@@ -111,10 +111,10 @@ class GlobeMathTest extends \PHPUnit_Framework_TestCase {
 			array( 0.3, 0.3, 0.3, 0.3 ),
 
 			// IEEE 754
-			array( -0.3, -0.3,  359.7,  359.7 ),
-			array(  0.3,  0.3, -359.7, -359.7 ),
-			array(  0.3, -0.3,  179.7,  179.7 ),
-			array( -0.3,  0.3, -179.7, -179.7 ),
+			array( -0.3, -0.3, 359.7, 359.7 ),
+			array( 0.3, 0.3, -359.7, -359.7 ),
+			array( 0.3, -0.3, 179.7, 179.7 ),
+			array( -0.3, 0.3, -179.7, -179.7 ),
 		);
 	}
 
@@ -137,7 +137,7 @@ class GlobeMathTest extends \PHPUnit_Framework_TestCase {
 		$normalized = $this->math->normalizeGlobeCoordinate( $coordinate );
 
 		$equality = $this->equals( $expectedLatLong, $normalized->getLatLong() );
-		$this->assertEquals( $expectedEquality, $equality );
+		$this->assertSame( $expectedEquality, $equality );
 	}
 
 	/**
@@ -155,7 +155,7 @@ class GlobeMathTest extends \PHPUnit_Framework_TestCase {
 		$normalized = $this->math->normalizeGlobeLatLong( $latLong, $globe );
 
 		$equality = $this->equals( $expectedLatLong, $normalized );
-		$this->assertEquals( $expectedEquality, $equality );
+		$this->assertSame( $expectedEquality, $equality );
 	}
 
 	/**
@@ -174,11 +174,17 @@ class GlobeMathTest extends \PHPUnit_Framework_TestCase {
 		$normalized = $this->math->normalizeLatLong( $latLong, $minimumLongitude );
 
 		$equality = $this->equals( $expectedLatLong, $normalized );
-		$this->assertEquals( $expectedEquality, $equality );
+		$this->assertSame( $expectedEquality, $equality );
 	}
 
+	/**
+	 * @param LatLongValue $a
+	 * @param LatLongValue $b
+	 *
+	 * @return bool
+	 */
 	private function equals( LatLongValue $a, LatLongValue $b ) {
-		return abs( $a->getLatitude()  - $b->getLatitude()  ) < self::EPSILON
+		return abs( $a->getLatitude() - $b->getLatitude() ) < self::EPSILON
 			&& abs( $a->getLongitude() - $b->getLongitude() ) < self::EPSILON;
 	}
 

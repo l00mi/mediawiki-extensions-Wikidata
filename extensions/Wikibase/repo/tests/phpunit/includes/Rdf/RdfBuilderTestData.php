@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Rdf;
+namespace Wikibase\Repo\Tests\Rdf;
 
 use Site;
 use SiteList;
@@ -211,7 +211,7 @@ class RdfBuilderTestData {
 			list( $id, $type ) = $prop;
 			$fingerprint = new Fingerprint();
 			$fingerprint->setLabel( 'en', "Property$id" );
-			$entity = new Property( PropertyId::newFromNumber( $id ), $fingerprint, $type );
+			$entity = new Property( new PropertyId( 'P' . $id ), $fingerprint, $type );
 			$repo->putEntity( $entity );
 		}
 

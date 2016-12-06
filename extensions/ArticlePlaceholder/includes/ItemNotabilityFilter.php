@@ -2,12 +2,12 @@
 
 namespace ArticlePlaceholder;
 
-use DatabaseBase;
+use Database;
 use ResultWrapper;
-use Wikibase\Client\Store\Sql\ConsistentReadConnectionManager;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
+use Wikimedia\Rdbms\SessionConsistentConnectionManager;
 
 /**
  * Filter a list of items by article placeholder notability.
@@ -30,7 +30,7 @@ class ItemNotabilityFilter {
 	const MIN_SITELINKS = 2;
 
 	/**
-	 * @var ConsistentReadConnectionManager
+	 * @var SessionConsistentConnectionManager
 	 */
 	private $connectionManager;
 
@@ -50,13 +50,13 @@ class ItemNotabilityFilter {
 	private $siteGlobalId;
 
 	/**
-	 * @param ConsistentReadConnectionManager $connectionManager
+	 * @param SessionConsistentConnectionManager $connectionManager
 	 * @param EntityNamespaceLookup $entityNamespaceLookup
 	 * @param SiteLinkLookup $siteLinkLookup
 	 * @param string $siteGlobalId
 	 */
 	public function __construct(
-		ConsistentReadConnectionManager $connectionManager,
+		SessionConsistentConnectionManager $connectionManager,
 		EntityNamespaceLookup $entityNamespaceLookup,
 		SiteLinkLookup $siteLinkLookup,
 		$siteGlobalId
@@ -82,8 +82,8 @@ class ItemNotabilityFilter {
 			$itemIdSerialization = $itemId->getSerialization();
 
 			if ( $statementClaimsCount[$itemIdSerialization]['wb-claims'] >= self::MIN_STATEMENTS
-				&& $statementClaimsCount[$itemIdSerialization]['wb-sitelinks'] >= self::MIN_SITELINKS ) {
-
+				&& $statementClaimsCount[$itemIdSerialization]['wb-sitelinks'] >= self::MIN_SITELINKS
+			) {
 				$numericItemIds[] = $itemId->getNumericId();
 			}
 		}
@@ -115,12 +115,12 @@ class ItemNotabilityFilter {
 	}
 
 	/**
-	 * @param DatabaseBase $dbr
+	 * @param Database $dbr
 	 * @param ItemId[] $itemIds
 	 *
 	 * @return ResultWrapper
 	 */
-	private function selectPagePropsPage( DatabaseBase $dbr, array $itemIds ) {
+	private function selectPagePropsPage( Database $dbr, array $itemIds ) {
 		$entityNamespace = $this->entityNamespaceLookup->getEntityNamespace( 'item' );
 
 		if ( !is_int( $entityNamespace ) ) {

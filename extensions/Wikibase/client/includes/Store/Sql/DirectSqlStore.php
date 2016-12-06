@@ -5,8 +5,8 @@ namespace Wikibase;
 use HashBagOStuff;
 use ObjectCache;
 use Wikibase\Client\RecentChanges\RecentChangesDuplicateDetector;
-use Wikibase\Client\Store\Sql\ConsistentReadConnectionManager;
 use Wikibase\Client\Store\Sql\PagePropsEntityIdLookup;
+use Wikimedia\Rdbms\SessionConsistentConnectionManager;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\Sql\SqlSubscriptionManager;
 use Wikibase\Client\Usage\Sql\SqlUsageTracker;
@@ -19,6 +19,7 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\RedirectResolvingEntityLookup;
 use Wikibase\DataModel\Services\Term\PropertyLabelResolver;
 use Wikibase\Lib\Changes\EntityChangeFactory;
+use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
 use Wikibase\Lib\Store\CachingSiteLinkLookup;
 use Wikibase\Lib\Store\EntityChangeLookup;
@@ -61,17 +62,22 @@ class DirectSqlStore implements ClientStore {
 	private $entityIdParser;
 
 	/**
+	 * @var EntityIdComposer
+	 */
+	private $entityIdComposer;
+
+	/**
 	 * @var string|bool The symbolic database name of the repo wiki or false for the local wiki.
 	 */
 	private $repoWiki;
 
 	/**
-	 * @var ConsistentReadConnectionManager|null
+	 * @var SessionConsistentConnectionManager|null
 	 */
 	private $repoConnectionManager = null;
 
 	/**
-	 * @var ConsistentReadConnectionManager|null
+	 * @var SessionConsistentConnectionManager|null
 	 */
 	private $localConnectionManager = null;
 
@@ -159,6 +165,7 @@ class DirectSqlStore implements ClientStore {
 	 * @param EntityChangeFactory $entityChangeFactory
 	 * @param EntityContentDataCodec $contentCodec
 	 * @param EntityIdParser $entityIdParser
+	 * @param EntityIdComposer $entityIdComposer
 	 * @param EntityNamespaceLookup $entityNamespaceLookup
 	 * @param string|bool $repoWiki The symbolic database name of the repo wiki or false for the
 	 * local wiki.
@@ -168,6 +175,7 @@ class DirectSqlStore implements ClientStore {
 		EntityChangeFactory $entityChangeFactory,
 		EntityContentDataCodec $contentCodec,
 		EntityIdParser $entityIdParser,
+		EntityIdComposer $entityIdComposer,
 		EntityNamespaceLookup $entityNamespaceLookup,
 		$repoWiki = false,
 		$languageCode
@@ -175,6 +183,7 @@ class DirectSqlStore implements ClientStore {
 		$this->contentCodec = $contentCodec;
 		$this->entityChangeFactory = $entityChangeFactory;
 		$this->entityIdParser = $entityIdParser;
+		$this->entityIdComposer = $entityIdComposer;
 		$this->entityNamespaceLookup = $entityNamespaceLookup;
 		$this->repoWiki = $repoWiki;
 		$this->languageCode = $languageCode;
@@ -205,11 +214,14 @@ class DirectSqlStore implements ClientStore {
 	 * Returns a LoadBalancer that acts as a factory for connections to the repo wiki's
 	 * database.
 	 *
-	 * @return ConsistentReadConnectionManager
+	 * @return SessionConsistentConnectionManager
 	 */
 	private function getRepoConnectionManager() {
 		if ( $this->repoConnectionManager === null ) {
-			$this->repoConnectionManager = new ConsistentReadConnectionManager( wfGetLB( $this->repoWiki ), $this->repoWiki );
+			$this->repoConnectionManager = new SessionConsistentConnectionManager(
+				wfGetLB( $this->repoWiki ),
+				$this->repoWiki
+			);
 		}
 
 		return $this->repoConnectionManager;
@@ -219,11 +231,11 @@ class DirectSqlStore implements ClientStore {
 	 * Returns a LoadBalancer that acts as a factory for connections to the local (client) wiki's
 	 * database.
 	 *
-	 * @return ConsistentReadConnectionManager
+	 * @return SessionConsistentConnectionManager
 	 */
 	private function getLocalConnectionManager() {
 		if ( $this->localConnectionManager === null ) {
-			$this->localConnectionManager = new ConsistentReadConnectionManager( wfGetLB() );
+			$this->localConnectionManager = new SessionConsistentConnectionManager( wfGetLB() );
 		}
 
 		return $this->localConnectionManager;
@@ -352,7 +364,7 @@ class DirectSqlStore implements ClientStore {
 		if ( $this->termIndex === null ) {
 			// TODO: Get StringNormalizer from WikibaseClient?
 			// Can't really pass this via the constructor...
-			$this->termIndex = new TermSqlIndex( new StringNormalizer(), $this->repoWiki );
+			$this->termIndex = new TermSqlIndex( new StringNormalizer(), $this->entityIdComposer, $this->repoWiki );
 		}
 
 		return $this->termIndex;

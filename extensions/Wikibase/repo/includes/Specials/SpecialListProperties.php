@@ -170,7 +170,7 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 			)
 		);
 
-		HTMLForm::factory( 'inline', $formDescriptor, $this->getContext() )
+		HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() )
 			->setId( 'wb-listproperties-form' )
 			->setMethod( 'get' )
 			->setWrapperLegendMsg( 'wikibase-listproperties-legend' )
@@ -208,7 +208,7 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 					'span',
 					array(
 						'class' => 'wb-itemlink-label',
-						'lang' => $labelTerm ? $labelTerm->getLanguageCode() : '',
+						'lang' => $labelTerm ? $labelTerm->getActualLanguageCode() : '',
 					),
 					$labelTerm ? $labelTerm->getText() : ''
 				) .

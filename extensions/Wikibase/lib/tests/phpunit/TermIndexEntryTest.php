@@ -2,11 +2,13 @@
 
 namespace Wikibase\Lib\Tests;
 
-use MWException;
 use PHPUnit_Framework_TestCase;
-use Wikibase\DataModel\LegacyIdInterpreter;
+use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\TermIndexEntry;
+use Wikimedia\Assert\ParameterAssertionException;
 
 /**
  * @covers Wikibase\TermIndexEntry
@@ -20,144 +22,152 @@ use Wikibase\TermIndexEntry;
  */
 class TermIndexEntryTest extends PHPUnit_Framework_TestCase {
 
-	public function provideConstructor() {
-		return array(
-			array( // #0
-				array(
-					'entityType' => 'item',
-					'entityId' => 23,
+	public function testConstructor() {
+		$term = new TermIndexEntry( [
+			'entityId' => new ItemId( 'Q23' ),
+			'termType' => TermIndexEntry::TYPE_LABEL,
+			'termLanguage' => 'en',
+			'termText' => 'foo',
+		] );
+
+		$this->assertEquals( new ItemId( 'Q23' ), $term->getEntityId() );
+		$this->assertSame( Item::ENTITY_TYPE, $term->getEntityType() );
+		$this->assertSame( TermIndexEntry::TYPE_LABEL, $term->getTermType() );
+		$this->assertSame( 'en', $term->getLanguage() );
+		$this->assertSame( 'foo', $term->getText() );
+	}
+
+	public function testGivenInvalidField_constructorThrowsException() {
+		$this->setExpectedException( ParameterAssertionException::class );
+		new TermIndexEntry( [
+			'entityId' => new ItemId( 'Q23' ),
+			'termType' => TermIndexEntry::TYPE_LABEL,
+			'termLanguage' => 'en',
+			'termText' => 'foo',
+			'fooField' => 'bar',
+		] );
+	}
+
+	public function provideIncompleteFields() {
+		return [
+			[
+				[
 					'termType' => TermIndexEntry::TYPE_LABEL,
 					'termLanguage' => 'en',
 					'termText' => 'foo',
-					'termWeight' => 1.234,
-				)
-			),
-			array( // #1
-				array(
+				]
+			],
+			[
+				[
+					'entityId' => new ItemId( 'Q23' ),
 					'termType' => TermIndexEntry::TYPE_LABEL,
-					'termLanguage' => 'en',
-					'termText' => 'foo',
-				)
-			),
-			array( // #2
-				array(
-					'entityType' => 'item',
-					'entityId' => 23,
-				)
-			),
-		);
+				]
+			],
+			[
+				[
+					'entityId' => new ItemId( 'Q23' ),
+				]
+			],
+			[
+				[]
+			],
+		];
 	}
 
 	/**
-	 * @dataProvider provideConstructor
+	 * @dataProvider provideIncompleteFields
 	 */
-	public function testConstructor( $fields ) {
-		$term = new TermIndexEntry( $fields );
+	public function testGivenIncompleteFields_constructorThrowsException( $fields ) {
+		$this->setExpectedException( ParameterAssertionException::class );
+		new TermIndexEntry( $fields );
+	}
 
-		$entityId = null;
-		if ( isset( $fields['entityType'] ) && isset( $fields['entityId'] ) ) {
-			// FIXME: This must be removed once we got rid of all legacy numeric ids.
-			$entityId = LegacyIdInterpreter::newIdFromTypeAndNumber( $fields['entityType'], $fields['entityId'] );
-		}
+	public function provideInvalidValues() {
+		$goodFields = [
+			'entityId' => new ItemId( 'Q23' ),
+			'termType' => TermIndexEntry::TYPE_LABEL,
+			'termLanguage' => 'en',
+			'termText' => 'foo',
+		];
 
-		$this->assertEquals( isset( $fields['entityType'] ) ? $fields['entityType'] : null, $term->getEntityType() );
-		$this->assertEquals( $entityId, $term->getEntityId() );
-		$this->assertEquals( isset( $fields['termType'] ) ? $fields['termType'] : null, $term->getType() );
-		$this->assertEquals( isset( $fields['termLanguage'] ) ? $fields['termLanguage'] : null, $term->getLanguage() );
-		$this->assertEquals( isset( $fields['termText'] ) ? $fields['termText'] : null, $term->getText() );
-		$this->assertEquals( isset( $fields['termWeight'] ) ? $fields['termWeight'] : null, $term->getWeight() );
+		return [
+			'non-string term type' => [ array_merge( $goodFields, [ 'termType' => 100 ] ) ],
+			'invalid term type' => [ array_merge( $goodFields, [ 'termType' => 'foo' ] ) ],
+			'non-string term language' => [ array_merge( $goodFields, [ 'termLanguage' => 100 ] ) ],
+			'non-string term text' => [ array_merge( $goodFields, [ 'termText' => 100 ] ) ],
+			'non-EntityId as entity id' => [ array_merge( $goodFields, [ 'entityId' => 'foo' ] ) ],
+		];
+	}
+
+	/**
+	 * @dataProvider provideInvalidValues
+	 */
+	public function testGivenInvalidValues_constructorThrowsException( $fields ) {
+		$this->setExpectedException( ParameterAssertionException::class );
+		new TermIndexEntry( $fields );
 	}
 
 	public function testClone() {
-		$term = new TermIndexEntry( array(
-			'termText' => 'Foo'
-		) );
+		$term = new TermIndexEntry( [
+			'entityId' => new ItemId( 'Q23' ),
+			'termType' => TermIndexEntry::TYPE_LABEL,
+			'termLanguage' => 'en',
+			'termText' => 'foo',
+		] );
 
 		$clone = clone $term;
-		$clone->setText( 'Bar' );
+		$this->assertEquals( $term, $clone, 'clone must be equal to original' );
+	}
 
-		$this->assertEquals( 'Bar', $clone->getText(), "clone must change when modified" ); // sanity
-		$this->assertEquals( 'Foo', $term->getText(), "original must stay the same when clone is modified" );
-
-		$clone = clone $term;
-		$this->assertEquals( $term, $clone, "clone must be equal to original" );
+	/**
+	 * @param array $extraFields
+	 *
+	 * @return TermIndexEntry
+	 */
+	private function newInstance( array $extraFields = [] ) {
+		return new TermIndexEntry( $extraFields + [
+				'entityId' => new ItemId( 'Q23' ),
+				'termType' => TermIndexEntry::TYPE_LABEL,
+				'termLanguage' => 'en',
+				'termText' => 'foo',
+			] );
 	}
 
 	public function provideCompare() {
-		$tests = array();
+		$term = $this->newInstance();
 
-		$tests[] = array( // #0
-			new TermIndexEntry(),
-			new TermIndexEntry(),
-			true
-		);
-
-		$term = new TermIndexEntry( array(
-			'entityType' => 'item',
-			'entityId' => 23,
-			'termType' => TermIndexEntry::TYPE_LABEL,
-			'termLanguage' => 'en',
-			'termText' => 'foo',
-		) );
-
-		$other = clone $term;
-		$tests[] = array( // #1
-			$term,
-			$other,
-			true
-		);
-
-		$other = clone $term;
-		$other->setText( 'bar' );
-		$tests[] = array( // #2
-			$term,
-			$other,
-			false
-		);
-
-		$other = new TermIndexEntry( array(
-			'entityType' => 'property',
-			'entityId' => 11,
-			'termType' => TermIndexEntry::TYPE_LABEL,
-			'termLanguage' => 'en',
-			'termText' => 'foo',
-		) );
-		$tests[] = array( // #3
-			$term,
-			$other,
-			false
-		);
-
-		$other = new TermIndexEntry( array(
-			'entityType' => 'property',
-			'entityId' => 23,
-			'termType' => TermIndexEntry::TYPE_LABEL,
-			'termLanguage' => 'en',
-			'termText' => 'foo',
-		) );
-		$tests[] = array( // #4
-			$term,
-			$other,
-			false
-		);
-
-		$other = clone $term;
-		$other->setLanguage( 'fr' );
-		$tests[] = array( // #5
-			$term,
-			$other,
-			false
-		);
-
-		$other = clone $term;
-		$other->setType( TermIndexEntry::TYPE_DESCRIPTION );
-		$tests[] = array( // #6
-			$term,
-			$other,
-			false
-		);
-
-		return $tests;
+		return [
+			'the same object' => [
+				$term,
+				$term,
+				true,
+			],
+			'clone' => [
+				$term,
+				clone $term,
+				true
+			],
+			'other text' => [
+				$term,
+				$this->newInstance( [ 'termText' => 'bar' ] ),
+				false
+			],
+			'other entity id' => [
+				$term,
+				$this->newInstance( [ 'entityId' => new PropertyId( 'P11' ) ] ),
+				false
+			],
+			'other language' => [
+				$term,
+				$this->newInstance( [ 'termLanguage' => 'fr' ] ),
+				false
+			],
+			'other term type' => [
+				$term,
+				$this->newInstance( [ 'termType' => TermIndexEntry::TYPE_DESCRIPTION ] ),
+				false
+			],
+		];
 	}
 
 	/**
@@ -169,42 +179,23 @@ class TermIndexEntryTest extends PHPUnit_Framework_TestCase {
 		$ba = TermIndexEntry::compare( $b, $a );
 
 		if ( $equal ) {
-			$this->assertEquals( 0, $ab, "Comparison of equal terms is expected to return 0" );
-			$this->assertEquals( 0, $ba, "Comparison of equal terms is expected to return 0" );
+			$this->assertSame( 0, $ab, 'Comparison of equal terms is expected to return 0' );
+			$this->assertSame( 0, $ba, 'Comparison of equal terms is expected to return 0' );
 		} else {
-			//NOTE: we don't know or care whether this is larger or smaller
-			$this->assertNotEquals( 0, $ab, "Comparison of unequal terms is expected to not return 0" );
-			$this->assertEquals( -$ab, $ba, "Comparing A to B should return the inverse of comparing B to A" );
+			// NOTE: We don't know or care whether this is larger or smaller
+			$this->assertNotSame( 0, $ab, 'Comparison of unequal terms is expected to not return 0' );
+			$this->assertSame( -$ab, $ba, 'Comparing A to B should return the inverse of comparing B to A' );
 		}
 	}
 
 	public function testGetTerm() {
-		$termIndexEntry = new TermIndexEntry( array(
+		$termIndexEntry = new TermIndexEntry( [
+			'entityId' => new ItemId( 'Q23' ),
+			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
 			'termText' => 'foo',
-		) );
-		$expectedTerm = new Term( 'en', 'foo' );
-		$this->assertEquals( $expectedTerm, $termIndexEntry->getTerm() );
-	}
-
-	public function provideTermIndexEntryData() {
-		return array(
-			array( array(
-				'termText' => 'foo',
-			) ),
-			array( array(
-				'termLanguage' => 'en',
-			) ),
-		);
-	}
-
-	/**
-	 * @dataProvider provideTermIndexEntryData
-	 */
-	public function testGetTerm_throwsException( $termIndexEntryData ) {
-		$termIndexEntry = new TermIndexEntry( $termIndexEntryData );
-		$this->setExpectedException( MWException::class, 'Can not construct Term from partial TermIndexEntry' );
-		$termIndexEntry->getTerm();
+		] );
+		$this->assertEquals( new Term( 'en', 'foo' ), $termIndexEntry->getTerm() );
 	}
 
 }

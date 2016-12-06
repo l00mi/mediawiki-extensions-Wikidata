@@ -1,17 +1,24 @@
 <?php
 
-namespace Wikibase\Lib\Tests\Store;
+namespace Wikibase\Lib\Tests\Store\Sql;
 
+use MWException;
 use Wikibase\DataModel\Entity\EntityDocument;
+use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Term\AliasGroupList;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
+use Wikibase\Lib\EntityIdComposer;
+use Wikibase\Lib\Store\TermIndexSearchCriteria;
+use Wikibase\Lib\Tests\Store\TermIndexTest;
 use Wikibase\StringNormalizer;
 use Wikibase\TermIndexEntry;
 use Wikibase\TermSqlIndex;
+use Wikimedia\Assert\ParameterAssertionException;
 
 /**
  * @covers Wikibase\TermSqlIndex
@@ -39,12 +46,45 @@ class TermSqlIndexTest extends TermIndexTest {
 		$this->tablesUsed[] = 'wb_terms';
 	}
 
+	public function provideInvalidRepositoryNames() {
+		return [
+			'repository name containing colon' => [ 'foo:bar' ],
+			'non-string as repository name' => [ 12345 ],
+		];
+	}
+
+	/**
+	 * @dataProvider provideInvalidRepositoryNames
+	 */
+	public function testGivenInvalidRepositoryName_constructorThrowsException( $repositoryName ) {
+		$this->setExpectedException( ParameterAssertionException::class );
+		new TermSqlIndex(
+			new StringNormalizer(),
+			new EntityIdComposer( [
+				'item' => function( $repositoryName, $uniquePart ) {
+					return new ItemId( 'Q' . $uniquePart );
+				},
+			] ),
+			false,
+			$repositoryName
+		);
+	}
+
 	/**
 	 * @return TermSqlIndex
 	 */
 	public function getTermIndex() {
-		$normalizer = new StringNormalizer();
-		return new TermSqlIndex( $normalizer );
+		return new TermSqlIndex(
+			new StringNormalizer(),
+			new EntityIdComposer( [
+				'item' => function( $repositoryName, $uniquePart ) {
+					return new ItemId( 'Q' . $uniquePart );
+				},
+				'property' => function( $repositoryName, $uniquePart ) {
+					return new PropertyId( 'P' . $uniquePart );
+				},
+			] )
+		);
 	}
 
 	public function termProvider() {
@@ -71,9 +111,7 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$termIndex->saveTermsOfEntity( $item );
 
-		$term = new TermIndexEntry();
-		$term->setLanguage( $languageCode );
-		$term->setText( $searchText );
+		$term = new TermIndexSearchCriteria( [ 'termLanguage' => $languageCode, 'termText' => $searchText ] );
 
 		$options = array(
 			'caseSensitive' => false,
@@ -89,6 +127,48 @@ class TermSqlIndexTest extends TermIndexTest {
 
 			$this->assertEquals( $termText, $obtainedTerm->getText() );
 		}
+	}
+
+	/**
+	 * Returns a fake term index configured for the given repository which uses the local database.
+	 *
+	 * @param string $repository
+	 * @return TermSqlIndex
+	 */
+	private function getTermIndexForRepository( $repository ) {
+		return new TermSqlIndex(
+			new StringNormalizer(),
+			new EntityIdComposer( [
+				'item' => function( $repositoryName, $uniquePart ) {
+					return new ItemId( EntityId::joinSerialization( [ $repositoryName, '', 'Q' . $uniquePart ] ) );
+				},
+				'property' => function( $repositoryName, $uniquePart ) {
+					return new PropertyId( EntityId::joinSerialization( [ $repositoryName, '', 'P' . $uniquePart ] ) );
+				},
+			] ),
+			false,
+			$repository
+		);
+	}
+
+	public function testGivenForeignRepositoryName_getMatchingTermsReturnsEntityIdWithTheRepositoryPrefix() {
+		$localTermIndex = $this->getTermIndex();
+
+		$item = new Item( new ItemId( 'Q300' ) );
+		$item->setLabel( 'en', 'Foo' );
+
+		$localTermIndex->saveTermsOfEntity( $item );
+
+		$fooTermIndex = $this->getTermIndexForRepository( 'foo' );
+
+		$results = $fooTermIndex->getMatchingTerms( [ new TermIndexSearchCriteria( [ 'termText' => 'Foo' ] ) ] );
+
+		$this->assertCount( 1, $results );
+
+		$termIndexEntry = $results[0];
+
+		$this->assertTrue( $termIndexEntry->getEntityId()->equals( new ItemId( 'foo:Q300' ) ) );
+		$this->assertEquals( 'Foo', $termIndexEntry->getText() );
 	}
 
 	/**
@@ -123,12 +203,12 @@ class TermSqlIndexTest extends TermIndexTest {
 			new AliasGroupList()
 		);
 
-		$labelFooEn = new TermIndexEntry( array(
+		$labelFooEn = new TermIndexSearchCriteria( array(
 			'termType' => TermIndexEntry::TYPE_LABEL,
 			'termLanguage' => 'en',
 			'termText' => 'Foo',
 		) );
-		$descriptionBarEn = new TermIndexEntry( array(
+		$descriptionBarEn = new TermIndexSearchCriteria( array(
 			'termType' => TermIndexEntry::TYPE_DESCRIPTION,
 			'termLanguage' => 'en',
 			'termText' => 'Bar',
@@ -177,7 +257,7 @@ class TermSqlIndexTest extends TermIndexTest {
 			$this->assertArrayHasKey( $key, $actual );
 			if ( $expectedTerm instanceof TermIndexEntry ) {
 				$actualTerm = $actual[$key];
-				$this->assertEquals( $expectedTerm->getType(), $actualTerm->getType(), 'termType' );
+				$this->assertEquals( $expectedTerm->getTermType(), $actualTerm->getTermType(), 'termType' );
 				$this->assertEquals( $expectedTerm->getLanguage(), $actualTerm->getLanguage(), 'termLanguage' );
 				$this->assertEquals( $expectedTerm->getText(), $actualTerm->getText(), 'termText' );
 			}
@@ -264,22 +344,19 @@ class TermSqlIndexTest extends TermIndexTest {
 
 		$expectedTerms = array(
 			new TermIndexEntry( array(
-				'entityId' => 999,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q999' ),
 				'termText' => 'es un gato!',
 				'termLanguage' => 'es',
 				'termType' => 'description'
 			) ),
 			new TermIndexEntry( array(
-				'entityId' => 999,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q999' ),
 				'termText' => 'kittens!!!:)',
 				'termLanguage' => 'en',
 				'termType' => 'label'
 			) ),
 			new TermIndexEntry( array(
-				'entityId' => 999,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q999' ),
 				'termText' => 'kitten-alias',
 				'termLanguage' => 'en',
 				'termType' => 'alias'
@@ -306,6 +383,69 @@ class TermSqlIndexTest extends TermIndexTest {
 		if ( $this->db->getType() === 'mysql' ) {
 			$this->markTestSkipped( 'MySQL doesn\'t support self-joins on temporary tables' );
 		}
+	}
+
+	public function testGivenForeignRepositoryName_getTermsOfEntitiesReturnsEntityIdsWithRepositoryPrefix() {
+		$localTermIndex = $this->getTermIndex();
+
+		$item = new Item( new ItemId( 'Q300' ) );
+		$item->setLabel( 'en', 'Foo' );
+
+		$localTermIndex->saveTermsOfEntity( $item );
+
+		$fooTermIndex = $this->getTermIndexForRepository( 'foo' );
+
+		$results = $fooTermIndex->getTermsOfEntities( [ new ItemId( 'foo:Q300' ) ] );
+
+		$this->assertCount( 1, $results );
+
+		$termIndexEntry = $results[0];
+
+		$this->assertTrue( $termIndexEntry->getEntityId()->equals( new ItemId( 'foo:Q300' ) ) );
+		$this->assertEquals( 'Foo', $termIndexEntry->getText() );
+	}
+
+	public function testGivenEntityIdFromAnotherRepository_getTermsOfEntitiesThrowsException() {
+		$fooTermIndex = $this->getTermIndexForRepository( 'foo' );
+
+		$this->setExpectedException( MWException::class );
+
+		$fooTermIndex->getTermsOfEntities( [ new ItemId( 'Q300' ) ] );
+	}
+
+	public function testGivenEntityIdFromAnotherRepository_getTermsOfEntityThrowsException() {
+		$fooTermIndex = $this->getTermIndexForRepository( 'foo' );
+
+		$this->setExpectedException( MWException::class );
+
+		$fooTermIndex->getTermsOfEntity( new ItemId( 'Q300' ) );
+	}
+
+	public function testGivenEntityFromAnotherRepository_getEntityTermsThrowsException() {
+		$fooTermIndex = $this->getTermIndexForRepository( 'foo' );
+
+		$this->setExpectedException( MWException::class );
+
+		$fooTermIndex->getEntityTerms( new Item( new ItemId( 'Q300' ) ) );
+	}
+
+	public function testGivenEntityFromAnotherRepository_saveTermsOfEntityThrowsException() {
+		$fooTermIndex = $this->getTermIndexForRepository( 'foo' );
+
+		$item = new Item( new ItemId( 'Q300' ) );
+		$item->setLabel( 'en', 'Foo' );
+
+		$this->setExpectedException( MWException::class );
+
+		$fooTermIndex->saveTermsOfEntity( $item );
+	}
+
+	public function testGivenEntityFromAnotherRepository_deleteTermsOfEntityThrowsException() {
+		$fooTermIndex = $this->getTermIndexForRepository( 'foo' );
+
+		$this->setExpectedException( MWException::class );
+
+		$fooTermIndex->deleteTermsOfEntity( new ItemId( 'Q300' ) );
 	}
 
 }

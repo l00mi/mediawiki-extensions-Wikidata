@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\Lib\Store\LabelConflictFinder;
+use Wikibase\Lib\Store\TermIndexSearchCriteria;
 use Wikibase\TermIndex;
 use Wikibase\TermIndexEntry;
 
@@ -124,7 +125,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	 * @param array[]|string[] $textsByLanguage A list of texts, or a list of lists of texts (keyed by language on the top level)
 	 * @param string[] $types
 	 *
-	 * @return TermIndexEntry[]
+	 * @return TermIndexSearchCriteria[]
 	 */
 	private function makeTemplateTerms( array $textsByLanguage, array $types ) {
 		$terms = array();
@@ -134,7 +135,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 
 			foreach ( $texts as $text ) {
 				foreach ( $types as $type ) {
-					$terms[] = new TermIndexEntry( array(
+					$terms[] = new TermIndexSearchCriteria( array(
 						'termText' => $text,
 						'termLanguage' => $lang,
 						'termType' => $type,
@@ -168,7 +169,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 				continue;
 			}
 
-			if ( $term->getType() !== 'label' ) {
+			if ( $term->getTermType() !== 'label' ) {
 				continue;
 			}
 
@@ -187,6 +188,9 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	}
 
 	/**
+	 * @param EntityDocument $entity
+	 *
+	 * @return bool
 	 * @throws Exception always
 	 */
 	public function saveTermsOfEntity( EntityDocument $entity ) {
@@ -194,6 +198,9 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	}
 
 	/**
+	 * @param EntityId $entityId
+	 *
+	 * @return bool
 	 * @throws Exception always
 	 */
 	public function deleteTermsOfEntity( EntityId $entityId ) {
@@ -223,7 +230,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 		}
 
 		foreach ( $this->terms as $term ) {
-			if ( ( is_array( $termTypes ) && !isset( $termTypes[$term->getType()] ) )
+			if ( ( is_array( $termTypes ) && !isset( $termTypes[$term->getTermType()] ) )
 				|| ( is_array( $languageCodes ) && !isset( $languageCodes[$term->getLanguage()] ) )
 				|| !$entityId->equals( $term->getEntityId() )
 			) {
@@ -263,25 +270,13 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	}
 
 	/**
-	 * @throws Exception always
-	 */
-	public function termExists(
-		$termValue,
-		$termType = null,
-		$termLanguage = null,
-		$entityType = null
-	) {
-		throw new Exception( 'not implemented by mock class ' );
-	}
-
-	/**
 	 * Implemented to fit the need of PropertyLabelResolver.
 	 *
 	 * @note: The $options parameters is ignored. The language to get is determined by the
 	 * language of the first Term in $terms. $The termType and $entityType parameters are used,
 	 * but the termType and entityType fields of the Terms in $terms are ignored.
 	 *
-	 * @param TermIndexEntry[] $terms
+	 * @param TermIndexSearchCriteria[] $criteria
 	 * @param string|string[]|null $termType
 	 * @param string|string[]|null $entityType
 	 * @param array $options
@@ -289,7 +284,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	 * @return TermIndexEntry[]
 	 */
 	public function getMatchingTerms(
-		array $terms,
+		array $criteria,
 		$termType = null,
 		$entityType = null,
 		array $options = array()
@@ -301,8 +296,8 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 
 		foreach ( $this->terms as $term ) {
 			if ( ( $entityType === null || in_array( $term->getEntityType(), $entityType ) )
-				&& ( $termType === null || in_array( $term->getType(), $termType ) )
-				&& $this->termMatchesTemplates( $term, $terms, $options )
+				&& ( $termType === null || in_array( $term->getTermType(), $termType ) )
+				&& $this->termMatchesTemplates( $term, $criteria, $options )
 			) {
 				$matchingTerms[] = $term;
 			}
@@ -322,7 +317,7 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	 * is returned per EntityId. This is the first term.
 	 * Weighting does not affect the order of return by this method.
 	 *
-	 * @param TermIndexEntry[] $terms
+	 * @param TermIndexSearchCriteria[] $criteria
 	 * @param string|string[]|null $termType
 	 * @param string|string[]|null $entityType
 	 * @param array $options
@@ -330,13 +325,13 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 	 * @return TermIndexEntry[]
 	 */
 	public function getTopMatchingTerms(
-		array $terms,
+		array $criteria,
 		$termType = null,
 		$entityType = null,
 		array $options = array()
 	) {
 		$options['orderByWeight'] = true;
-		$terms = $this->getMatchingTerms( $terms, $termType, $entityType, $options );
+		$terms = $this->getMatchingTerms( $criteria, $termType, $entityType, $options );
 		$previousEntityIdSerializations = array();
 		$returnTerms = array();
 		foreach ( $terms as $termIndexEntry ) {
@@ -392,30 +387,22 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 
 	/**
 	 * @param TermIndexEntry $term
-	 * @param TermIndexEntry[] $templates
+	 * @param TermIndexSearchCriteria[] $templates
 	 * @param array $options
 	 *
 	 * @return bool
 	 */
 	private function termMatchesTemplates( TermIndexEntry $term, array $templates, array $options = array() ) {
 		foreach ( $templates as $template ) {
-			if ( $template->getType() !== null && $template->getType() != $term->getType() ) {
+			if ( $template->getTermType() !== null && $template->getTermType() !== $term->getTermType() ) {
 				continue;
 			}
 
-			if ( $template->getEntityType() !== null && $template->getEntityType() != $term->getEntityType() ) {
-				continue;
-			}
-
-			if ( $template->getLanguage() !== null && $template->getLanguage() != $term->getLanguage() ) {
+			if ( $template->getLanguage() !== null && $template->getLanguage() !== $term->getLanguage() ) {
 				continue;
 			}
 
 			if ( $template->getText() !== null && !$this->textMatches( $template->getText(), $term->getText(), $options ) ) {
-				continue;
-			}
-
-			if ( $template->getEntityId() !== null && !$template->getEntityId()->equals( $term->getEntityType() ) ) {
 				continue;
 			}
 
@@ -425,8 +412,14 @@ class MockTermIndex implements TermIndex, LabelConflictFinder {
 		return false;
 	}
 
+	/**
+	 * @param string $find
+	 * @param string $text
+	 * @param array $options
+	 *
+	 * @return bool
+	 */
 	private function textMatches( $find, $text, array $options = array() ) {
-
 		if ( isset( $options[ 'caseSensitive' ] ) && !$options[ 'caseSensitive' ] ) {
 			$find = strtolower( $find );
 			$text = strtolower( $text );

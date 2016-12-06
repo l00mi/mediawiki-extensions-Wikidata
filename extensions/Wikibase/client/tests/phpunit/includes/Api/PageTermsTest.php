@@ -155,7 +155,7 @@ class PageTermsTest extends MediaWikiLangTestCase {
 
 			/** @var TermIndexEntry $term */
 			foreach ( $termObjectsByEntityId[$key] as $term ) {
-				if ( ( is_array( $termTypes ) && !in_array( $term->getType(), $termTypes ) )
+				if ( ( is_array( $termTypes ) && !in_array( $term->getTermType(), $termTypes ) )
 					|| ( is_array( $languageCodes ) && !in_array( $term->getLanguage(), $languageCodes ) )
 				) {
 					continue;
@@ -183,8 +183,7 @@ class PageTermsTest extends MediaWikiLangTestCase {
 					'termType' => $type,
 					'termLanguage' => $lang,
 					'termText' => $text,
-					'entityType' => $entityId->getEntityType(),
-					'entityId' => $entityId->getNumericId()
+					'entityId' => $entityId
 				) );
 			}
 		}

@@ -131,43 +131,37 @@ class LanguageFallbackLabelDescriptionLookupTest extends MediaWikiTestCase {
 	private function getTermIndex() {
 		$terms = array(
 			new TermIndexEntry( array(
-				'entityId' => 116,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q116' ),
 				'termType' => 'label',
 				'termLanguage' => 'en',
 				'termText' => 'New York City'
 			) ),
 			new TermIndexEntry( array(
-				'entityId' => 116,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q116' ),
 				'termType' => 'label',
 				'termLanguage' => 'es',
 				'termText' => 'New York City'
 			) ),
 			new TermIndexEntry( array(
-				'entityId' => 116,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q116' ),
 				'termType' => 'description',
 				'termLanguage' => 'en',
 				'termText' => 'Big Apple'
 			) ),
 			new TermIndexEntry( array(
-				'entityId' => 117,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q117' ),
 				'termType' => 'label',
 				'termLanguage' => 'en',
 				'termText' => 'Berlin'
 			) ),
 			new TermIndexEntry( array(
-				'entityId' => 118,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q118' ),
 				'termType' => 'label',
 				'termLanguage' => 'zh-cn',
 				'termText' => '测试'
 			) ),
 			new TermIndexEntry( array(
-				'entityId' => 118,
-				'entityType' => 'item',
+				'entityId' => new ItemId( 'Q118' ),
 				'termType' => 'description',
 				'termLanguage' => 'zh-cn',
 				'termText' => 'zh-cn description'

@@ -30,14 +30,13 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "mediawiki/article-placeholder": "dev-master#769b04978d11696e3315592a5d8fe9ebe4df3bd3",
+        "mediawiki/article-placeholder": "dev-master",
         "propertysuggester/property-suggester": "~3.1.2",
-        "wikibase/wikibase": "dev-wmf/1.29.0-wmf.3",
+        "wikibase/wikibase": "dev-wmf/1.29.0-wmf.5",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
         "wikibase/quality": "dev-master",
-        "wikibase/constraints": "dev-master",
-        "wikimedia/assert": "0.2.2"
+        "wikibase/constraints": "dev-master"
     },
     "require-dev": {
         "wikimedia/composer-merge-plugin": "1.3.1"
@@ -52,7 +51,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_29_0_wmf_3",
+        "autoloader-suffix": "wikidata_1_29_0_wmf_5",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

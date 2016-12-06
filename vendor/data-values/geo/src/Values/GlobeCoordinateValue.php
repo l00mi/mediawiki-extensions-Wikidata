@@ -34,6 +34,9 @@ class GlobeCoordinateValue extends DataValueObject {
 	 */
 	private $globe;
 
+	/**
+	 * Wikidata concept URI for the Earth. Used as default value when no other globe was specified.
+	 */
 	const GLOBE_EARTH = 'http://www.wikidata.org/entity/Q2';
 
 	/**
@@ -56,15 +59,21 @@ class GlobeCoordinateValue extends DataValueObject {
 		$this->globe = $globe;
 	}
 
+	/**
+	 * @param float|int|null $precision
+	 */
 	protected function assertIsPrecision( $precision ) {
 		if ( !is_null( $precision ) && !is_float( $precision ) && !is_int( $precision ) ) {
-			throw new IllegalValueException( 'Can only construct GlobeCoordinateValue with a numeric precision or null' );
+			throw new IllegalValueException( '$precision must be a number or null' );
 		}
 	}
 
+	/**
+	 * @param string $globe
+	 */
 	protected function assertIsGlobe( $globe ) {
 		if ( !is_string( $globe ) ) {
-			throw new IllegalValueException( 'Can only construct GlobeCoordinateValue with a string globe parameter' );
+			throw new IllegalValueException( '$globe must be a string or null' );
 		}
 	}
 
