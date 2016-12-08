@@ -3,9 +3,11 @@
 namespace Wikibase\Repo\Tests\Specials;
 
 use FauxResponse;
+use InvalidArgumentException;
 use Site;
 use SiteStore;
 use SpecialPageTestBase;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
@@ -95,7 +97,11 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 		$mock->expects( $this->any() )
 			->method( 'parse' )
 			->will( $this->returnCallback( function( $itemString ) {
+				try {
 					return new ItemId( $itemString );
+				} catch ( InvalidArgumentException $ex ) {
+					throw new EntityIdParsingException();
+				}
 			} ) );
 
 		return $mock;
@@ -104,7 +110,7 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	/**
 	 * @return EntityLookup
 	 */
-	private function getEntitylookup() {
+	private function getEntityLookup() {
 		$mock = $this->getMock( EntityLookup::class );
 		$mock->expects( $this->any() )
 			->method( 'hasEntity' )
@@ -127,7 +133,7 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 			$this->getMockSiteLinkLookup(),
 			$this->getEntityRedirectLookup(),
 			$this->getEntityIdParser(),
-			$this->getEntitylookup()
+			$this->getEntityLookup()
 		);
 
 		return $page;
@@ -164,23 +170,19 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 		$matchers['site'] = array(
 			'tag' => 'input',
 			'attributes' => array(
-				'id' => 'wb-gotolinkedpage-sitename',
 				'name' => 'site',
 				'value' => $site
 			) );
 		$matchers['itemid'] = array(
 			'tag' => 'input',
 			'attributes' => array(
-				'id' => 'wb-gotolinkedpage-itemid',
 				'name' => 'itemid',
 				'value' => $item
 			) );
 		$matchers['submit'] = array(
-			'tag' => 'input',
+			'tag' => 'button',
 			'attributes' => array(
-				'id' => 'wb-gotolinkedpage-submit',
 				'type' => 'submit',
-				'name' => ''
 			)
 		);
 		foreach ( $matchers as $key => $matcher ) {
