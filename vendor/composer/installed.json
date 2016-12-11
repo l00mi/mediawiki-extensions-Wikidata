@@ -1758,7 +1758,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "5403f7f6b5524a85440b0c75a24a24a23fc4a019"
+            "reference": "e43b859883c2437ec20d73ce510b6cbf45c481c0"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1775,7 +1775,7 @@
             "satooshi/php-coveralls": "master-dev",
             "wikibase/data-model-serialization": ">=0.1 <3.0"
         },
-        "time": "2016-12-02 21:21:58",
+        "time": "2016-12-09 10:15:47",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
