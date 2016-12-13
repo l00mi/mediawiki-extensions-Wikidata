@@ -7,7 +7,7 @@
 	"version": "1.0.0",
 	"type": "wikibase",
 	"license-name": "GPL-2.0+",
-	"MessageDirs": {
+	"MessagesDirs": {
 		"WikibaseQuality": [
 			"i18n"
 		]
