@@ -14,6 +14,7 @@ return array(
     'Wikidata\\' => array($baseDir . '/src'),
     'Wikibase\\View\\Tests\\' => array($baseDir . '/extensions/Wikibase/view/tests/phpunit'),
     'Wikibase\\View\\' => array($baseDir . '/extensions/Wikibase/view/src'),
+    'Wikibase\\Repo\\Tests\\' => array($baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes'),
     'Wikibase\\MediaInfo\\Tests\\MediaWiki\\' => array($baseDir . '/extensions/MediaInfo/tests/phpunit/mediawiki'),
     'Wikibase\\MediaInfo\\Tests\\' => array($baseDir . '/extensions/MediaInfo/tests/phpunit/composer'),
     'Wikibase\\MediaInfo\\' => array($baseDir . '/extensions/MediaInfo/src'),
