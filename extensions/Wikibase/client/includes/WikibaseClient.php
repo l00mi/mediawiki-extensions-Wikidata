@@ -82,6 +82,7 @@ use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\FallbackPropertyOrderProvider;
 use Wikibase\Lib\Store\HttpUrlPropertyOrderProvider;
+use Wikibase\Lib\Store\PrefetchingTermLookup;
 use Wikibase\Lib\Store\PropertyOrderProvider;
 use Wikibase\Lib\Store\WikiPagePropertyOrderProvider;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
@@ -90,7 +91,6 @@ use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SiteLinkCommentCreator;
-use Wikibase\Store\BufferingTermLookup;
 use Wikibase\StringNormalizer;
 
 /**
@@ -118,6 +118,11 @@ final class WikibaseClient {
 	 * @var SiteStore|null
 	 */
 	private $siteStore;
+
+	/**
+	 * @var DispatchingServiceFactory
+	 */
+	private $dispatchingServiceFactory;
 
 	/**
 	 * @var PropertyDataTypeLookup|null
@@ -215,7 +220,7 @@ final class WikibaseClient {
 	private $entityTypeDefinitions;
 
 	/**
-	 * @var TermLookup|null
+	 * @var PrefetchingTermLookup|null
 	 */
 	private $termLookup = null;
 
@@ -373,6 +378,20 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * @return DispatchingServiceFactory
+	 */
+	private function getDispatchingServiceFactory() {
+		if ( $this->dispatchingServiceFactory === null ) {
+			$factory = new DispatchingServiceFactory( $this );
+			$factory->loadWiringFiles( $this->settings->getSetting( 'dispatchingServiceWiringFiles' ) );
+
+			$this->dispatchingServiceFactory = $factory;
+		}
+
+		return $this->dispatchingServiceFactory;
+	}
+
+	/**
 	 * @return EntityLookup
 	 */
 	private function getEntityLookup() {
@@ -383,25 +402,22 @@ final class WikibaseClient {
 	 * @return TermBuffer
 	 */
 	public function getTermBuffer() {
-		return $this->getBufferingTermLookup();
+		return $this->getPrefetchingTermLookup();
 	}
 
 	/**
 	 * @return TermLookup
 	 */
 	public function getTermLookup() {
-		return $this->getBufferingTermLookup();
+		return $this->getPrefetchingTermLookup();
 	}
 
 	/**
-	 * @return BufferingTermLookup
+	 * @return PrefetchingTermLookup
 	 */
-	public function getBufferingTermLookup() {
+	private function getPrefetchingTermLookup() {
 		if ( !$this->termLookup ) {
-			$this->termLookup = new BufferingTermLookup(
-				$this->getStore()->getTermIndex(),
-				1000 // @todo: configure buffer size
-			);
+			$this->termLookup = $this->getDispatchingServiceFactory()->getTermBuffer();
 		}
 
 		return $this->termLookup;
@@ -418,7 +434,7 @@ final class WikibaseClient {
 		return new TermIndexSearchInteractor(
 			$this->getStore()->getTermIndex(),
 			$this->getLanguageFallbackChainFactory(),
-			$this->getBufferingTermLookup(),
+			$this->getPrefetchingTermLookup(),
 			$displayLanguageCode
 		);
 	}
@@ -514,6 +530,7 @@ final class WikibaseClient {
 				$this->getEntityIdParser(),
 				$this->getEntityIdComposer(),
 				$this->getEntityNamespaceLookup(),
+				$this->getDispatchingServiceFactory(),
 				$repoDatabase,
 				$this->contentLanguage->getCode()
 			);
@@ -921,7 +938,7 @@ final class WikibaseClient {
 	 */
 	private function getExternalFormatEntityDeserializer() {
 		if ( $this->entityDeserializer === null ) {
-			$deserializerFactoryCallbacks = $this->entityTypeDefinitions->getDeserializerFactoryCallbacks();
+			$deserializerFactoryCallbacks = $this->getEntityDeserializerFactoryCallbacks();
 			$deserializerFactory = $this->getExternalFormatDeserializerFactory();
 			$deserializers = array();
 
@@ -951,6 +968,13 @@ final class WikibaseClient {
 	 */
 	public function getInternalFormatStatementDeserializer() {
 		return $this->getInternalFormatDeserializerFactory()->newStatementDeserializer();
+	}
+
+	/**
+	 * @return callable[]
+	 */
+	public function getEntityDeserializerFactoryCallbacks() {
+		return $this->entityTypeDefinitions->getDeserializerFactoryCallbacks();
 	}
 
 	/**
@@ -1143,7 +1167,7 @@ final class WikibaseClient {
 			JobQueueGroup::singleton(),
 			$this->getRecentChangeFactory(),
 			$this->getStore()->getRecentChangesDuplicateDetector(),
-			RequestContext::getMain()->getStats()
+			MediaWikiServices::getInstance()->getStatsdDataFactory()
 		);
 	}
 

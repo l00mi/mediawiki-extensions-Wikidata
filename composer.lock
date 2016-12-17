@@ -285,16 +285,16 @@
         },
         {
             "name": "data-values/geo",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Geo.git",
-                "reference": "b0c635635cf3e25aed8d1d1000e50f893bd3d91c"
+                "reference": "4fc2cddbdcef229665e7c2cc52a65688cd3e820d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Geo/zipball/b0c635635cf3e25aed8d1d1000e50f893bd3d91c",
-                "reference": "b0c635635cf3e25aed8d1d1000e50f893bd3d91c",
+                "url": "https://api.github.com/repos/DataValues/Geo/zipball/4fc2cddbdcef229665e7c2cc52a65688cd3e820d",
+                "reference": "4fc2cddbdcef229665e7c2cc52a65688cd3e820d",
                 "shasum": ""
             },
             "require": {
@@ -347,7 +347,7 @@
                 "parsers",
                 "wikidata"
             ],
-            "time": "2016-11-11 19:17:21"
+            "time": "2016-12-16 15:11:26"
         },
         {
             "name": "data-values/interfaces",
@@ -1585,12 +1585,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "974c74a543427b84a8dd35cbf7da6603ccde9a16"
+                "reference": "32a8fe6eee79a6c505694e0c2c98ac6384873d0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/974c74a543427b84a8dd35cbf7da6603ccde9a16",
-                "reference": "974c74a543427b84a8dd35cbf7da6603ccde9a16",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/32a8fe6eee79a6c505694e0c2c98ac6384873d0b",
+                "reference": "32a8fe6eee79a6c505694e0c2c98ac6384873d0b",
                 "shasum": ""
             },
             "require": {
@@ -1663,7 +1663,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-12-15 19:12:52"
+            "time": "2016-12-16 21:18:18"
         },
         {
             "name": "wikibase/wikimedia-badges",

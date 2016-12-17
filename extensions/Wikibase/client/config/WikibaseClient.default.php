@@ -214,6 +214,10 @@ return call_user_func( function() {
 				'zh-tw', 'zu'
 			],
 		],
+
+		'repositoryServiceWiringFiles' => [ __DIR__ . '/../includes/Store/RepositoryServiceWiring.php' ],
+		'dispatchingServiceWiringFiles' => [ __DIR__ . '/../includes/DispatchingServiceWiring.php' ],
+		'foreignRepositories' => [],
 	];
 
 	// Some defaults depend on information not available at this time.
