@@ -109,7 +109,7 @@ abstract class ModifyEntity extends ApiBase {
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
 		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
-		$this->enabledEntityTypes = $wikibaseRepo->getEnabledEntityTypes();
+		$this->enabledEntityTypes = $wikibaseRepo->getLocalEntityTypes();
 
 		$this->entitySavingHelper->setEntityIdParam( 'id' );
 
@@ -213,7 +213,7 @@ abstract class ModifyEntity extends ApiBase {
 
 	/**
 	 * Applies the given ChangeOp to the given Entity.
-	 * Any ChangeOpException is converted into a UsageException with the code 'modification-failed'.
+	 * Any ChangeOpException is converted into an ApiUsageException with the code 'modification-failed'.
 	 *
 	 * @since 0.5
 	 *
