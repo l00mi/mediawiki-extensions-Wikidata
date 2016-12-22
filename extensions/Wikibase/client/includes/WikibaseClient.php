@@ -26,7 +26,7 @@ use RequestContext;
 use Serializers\DispatchingSerializer;
 use Serializers\Serializer;
 use Site;
-use SiteStore;
+use SiteLookup;
 use StubObject;
 use Title;
 use Wikibase\Client\Changes\AffectedPagesFinder;
@@ -116,9 +116,9 @@ final class WikibaseClient {
 	private $contentLanguage;
 
 	/**
-	 * @var SiteStore|null
+	 * @var SiteLookup
 	 */
-	private $siteStore;
+	private $siteLookup;
 
 	/**
 	 * @var DispatchingServiceFactory
@@ -322,20 +322,20 @@ final class WikibaseClient {
 	 * @param Language $contentLanguage
 	 * @param DataTypeDefinitions $dataTypeDefinitions
 	 * @param EntityTypeDefinitions $entityTypeDefinitions
-	 * @param SiteStore|null $siteStore
+	 * @param SiteLookup $siteLookup
 	 */
 	public function __construct(
 		SettingsArray $settings,
 		Language $contentLanguage,
 		DataTypeDefinitions $dataTypeDefinitions,
 		EntityTypeDefinitions $entityTypeDefinitions,
-		SiteStore $siteStore = null
+		SiteLookup $siteLookup
 	) {
 		$this->settings = $settings;
 		$this->contentLanguage = $contentLanguage;
 		$this->dataTypeDefinitions = $dataTypeDefinitions;
 		$this->entityTypeDefinitions = $entityTypeDefinitions;
-		$this->siteStore = $siteStore;
+		$this->siteLookup = $siteLookup;
 	}
 
 	/**
@@ -642,7 +642,8 @@ final class WikibaseClient {
 				$dataTypeDefinitions,
 				$settings->getSetting( 'disabledDataTypes' )
 			),
-			new EntityTypeDefinitions( $entityTypeDefinitions )
+			new EntityTypeDefinitions( $entityTypeDefinitions ),
+			MediaWikiServices::getInstance()->getSiteLookup()
 		);
 	}
 
@@ -682,7 +683,7 @@ final class WikibaseClient {
 			$globalId = $this->settings->getSetting( 'siteGlobalID' );
 			$localId = $this->settings->getSetting( 'siteLocalID' );
 
-			$this->site = $this->getSiteStore()->getSite( $globalId );
+			$this->site = $this->siteLookup->getSite( $globalId );
 
 			if ( !$this->site ) {
 				wfDebugLog( __CLASS__, __FUNCTION__ . ": Unable to resolve site ID '{$globalId}'!" );
@@ -732,7 +733,7 @@ final class WikibaseClient {
 		if ( !$siteGroup ) {
 			$siteId = $this->settings->getSetting( 'siteGlobalID' );
 
-			$site = $this->getSiteStore()->getSite( $siteId );
+			$site = $this->siteLookup->getSite( $siteId );
 
 			if ( !$site ) {
 				return true;
@@ -844,7 +845,7 @@ final class WikibaseClient {
 				$this->getNamespaceChecker(),
 				$this->getStore()->getSiteLinkLookup(),
 				$this->getStore()->getEntityLookup(),
-				$this->getSiteStore(),
+				$this->siteLookup,
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getLangLinkSiteGroup()
 			);
@@ -884,19 +885,6 @@ final class WikibaseClient {
 			is_array( $badgeClassNames ) ? $badgeClassNames : array(),
 			$wgLang
 		);
-	}
-
-	/**
-	 * @since 0.5
-	 *
-	 * @return SiteStore
-	 */
-	public function getSiteStore() {
-		if ( $this->siteStore === null ) {
-			$this->siteStore = MediaWikiServices::getInstance()->getSiteStore();
-		}
-
-		return $this->siteStore;
 	}
 
 	/**
@@ -1028,7 +1016,7 @@ final class WikibaseClient {
 		return new OtherProjectsSidebarGeneratorFactory(
 			$this->settings,
 			$this->getStore()->getSiteLinkLookup(),
-			$this->getSiteStore()
+			$this->siteLookup
 		);
 	}
 
@@ -1124,7 +1112,7 @@ final class WikibaseClient {
 	public function getOtherProjectsSitesProvider() {
 		return new CachingOtherProjectsSitesProvider(
 			new OtherProjectsSitesGenerator(
-				$this->getSiteStore(),
+				$this->siteLookup,
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->settings->getSetting( 'specialSiteLinkGroups' )
 			),
@@ -1156,7 +1144,7 @@ final class WikibaseClient {
 			new TitleFactory(),
 			$this->getWikiPageUpdater(),
 			$this->getChangeRunCoalescer(),
-			$this->getSiteStore(),
+			$this->siteLookup,
 			$this->settings->getSetting( 'injectRecentChanges' )
 		);
 	}
@@ -1200,7 +1188,7 @@ final class WikibaseClient {
 	private function getSiteLinkCommentCreator() {
 		return new SiteLinkCommentCreator(
 			$this->getContentLanguage(),
-			$this->getSiteStore(),
+			$this->siteLookup,
 			$this->settings->getSetting( 'siteGlobalID' )
 		);
 	}

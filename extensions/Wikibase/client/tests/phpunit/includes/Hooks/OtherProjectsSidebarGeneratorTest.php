@@ -5,7 +5,7 @@ namespace Wikibase\Client\Tests\Hooks;
 use Closure;
 use HashSiteStore;
 use MediaWikiSite;
-use SiteStore;
+use SiteLookup;
 use Title;
 use TestSites;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGenerator;
@@ -34,7 +34,7 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 		$otherProjectSidebarGenerator = new OtherProjectsSidebarGenerator(
 			'enwiki',
 			$this->getSiteLinkLookup(),
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			$siteIdsToOutput
 		);
 
@@ -92,7 +92,7 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 		$otherProjectSidebarGenerator = new OtherProjectsSidebarGenerator(
 			'enwiki',
 			$this->getSiteLinkLookup(),
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			$siteIdsToOutput
 		);
 
@@ -118,7 +118,7 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 		$otherProjectSidebarGenerator = new OtherProjectsSidebarGenerator(
 			'enwiki',
 			$this->getSiteLinkLookup(),
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			$siteIdsToOutput
 		);
 
@@ -248,7 +248,7 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 		$otherProjectSidebarGenerator = new OtherProjectsSidebarGenerator(
 			'enwiki',
 			$lookup,
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			array( 'enwiki' )
 		);
 
@@ -274,7 +274,7 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 		$otherProjectSidebarGenerator = new OtherProjectsSidebarGenerator(
 			'enwiki',
 			$this->getSiteLinkLookup(),
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			array( 'unknown-site' )
 		);
 
@@ -286,9 +286,9 @@ class OtherProjectsSidebarGeneratorTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @return SiteStore
+	 * @return SiteLookup
 	 */
-	private function getSiteStore() {
+	private function getSiteLookup() {
 		$siteStore = new HashSiteStore( TestSites::getSites() );
 
 		$site = new MediaWikiSite();
