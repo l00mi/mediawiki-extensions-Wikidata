@@ -3,12 +3,10 @@
 namespace Wikibase\Repo\Tests\Specials;
 
 use FauxRequest;
-use RequestContext;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\Specials\SpecialNewItem;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialNewItem
@@ -125,7 +123,7 @@ class SpecialNewItemTest extends SpecialNewEntityTest {
 		return [
 			'unknown language' => [
 				[
-					'lang' => 'some-wierd-language',
+					'lang' => 'some-weird-language',
 					'label' => 'label',
 					'description' => '',
 					'aliases' => '',

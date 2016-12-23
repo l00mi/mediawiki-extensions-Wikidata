@@ -1406,12 +1406,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "6d16e6e13423c240b157869b283d667db651dc4f"
+            "reference": "34c8556f728ae901bd33b9ad31fd669233290e51"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6d16e6e13423c240b157869b283d667db651dc4f",
-            "reference": "6d16e6e13423c240b157869b283d667db651dc4f",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/34c8556f728ae901bd33b9ad31fd669233290e51",
+            "reference": "34c8556f728ae901bd33b9ad31fd669233290e51",
             "shasum": ""
         },
         "require": {
@@ -1444,7 +1444,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2016-12-21 16:29:28",
+        "time": "2016-12-23 09:08:26",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1494,12 +1494,12 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-            "reference": "7e313c0b88feafb1100bfbd0037f3a71d4ebd3f9"
+            "reference": "b54b3d2dec6a9fc2e2a6b64ea87efa8c51dc6bd5"
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2016-12-12 21:45:49",
+        "time": "2016-12-22 22:01:58",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1592,7 +1592,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-            "reference": "25cbeb52cf9891792b24ef620ed53734b8a09b46"
+            "reference": "603ba86f6a2314a3088e462b2fab427afa67329c"
         },
         "require": {
             "data-values/common": ">=0.1 <0.4",
@@ -1609,7 +1609,7 @@
             "phpunit/phpunit": "~3.7,>=3.7.37",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2016-12-15 22:20:34",
+        "time": "2016-12-22 22:01:13",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1654,7 +1654,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-            "reference": "1725c7a813f8a7b6a911674e584f954be998b015"
+            "reference": "3cf7999fb43ca1d0ea8d8c8edcf019869efa1cc4"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1668,7 +1668,7 @@
             "mediawiki/mediawiki-codesniffer": "0.6.0",
             "phpunit/phpunit": "~4.8"
         },
-        "time": "2016-12-12 21:44:32",
+        "time": "2016-12-22 16:19:16",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

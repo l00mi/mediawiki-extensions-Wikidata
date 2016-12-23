@@ -34,6 +34,6 @@
 	"wbqev-violation-header-external-source": "Źródło zewnętrzne:",
 	"wbqev-violation-header-local-value": "Wartość w Wikidanych:",
 	"wbqev-violation-header-external-values": "Wartości zewnętrzne:",
-	"wbqev-violation-short-message": "Ta wartość nie odpowiada wartości w $1. Proszę kliknąć na ikonę, aby uzyskać więcej informacji.",
+	"wbqev-violation-short-message": "Ta wartość nie odpowiada wartości w $1. Kliknij na ikonę, aby uzyskać więcej informacji.",
 	"wbqev-violation-mark-as-exception": "Oznacz jako wyjątek"
 }

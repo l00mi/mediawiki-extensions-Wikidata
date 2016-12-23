@@ -2,7 +2,6 @@
 
 namespace Wikibase\Repo\Tests\Specials;
 
-use SpecialPageTestBase;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Property;
@@ -155,7 +154,7 @@ class SpecialNewPropertyTest extends SpecialNewEntityTest {
 		return [
 			'unknown language' => [
 				[
-					'lang' => 'some-wierd-language',
+					'lang' => 'some-weird-language',
 					'label' => 'label-that-does-not-exist-1',
 					'description' => '',
 					'aliases' => '',
