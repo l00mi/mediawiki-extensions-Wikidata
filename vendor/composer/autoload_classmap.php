@@ -1269,6 +1269,7 @@ return array(
     'Wikibase\\Repo\\Search\\Elastic\\Fields\\WikibaseFieldDefinitions' => $baseDir . '/extensions/Wikibase/repo/includes/Search/Elastic/Fields/WikibaseFieldDefinitions.php',
     'Wikibase\\Repo\\SiteLinkTargetProvider' => $baseDir . '/extensions/Wikibase/repo/includes/SiteLinkTargetProvider.php',
     'Wikibase\\Repo\\SnakFactory' => $baseDir . '/extensions/Wikibase/repo/includes/SnakFactory.php',
+    'Wikibase\\Repo\\Specials\\HTMLForm\\HTMLTrimmedTextField' => $baseDir . '/extensions/Wikibase/repo/includes/Specials/HTMLForm/HTMLTrimmedTextField.php',
     'Wikibase\\Repo\\Specials\\SpecialDispatchStats' => $baseDir . '/extensions/Wikibase/repo/includes/Specials/SpecialDispatchStats.php',
     'Wikibase\\Repo\\Specials\\SpecialEntitiesWithoutPage' => $baseDir . '/extensions/Wikibase/repo/includes/Specials/SpecialEntitiesWithoutPage.php',
     'Wikibase\\Repo\\Specials\\SpecialEntitiesWithoutPageFactory' => $baseDir . '/extensions/Wikibase/repo/includes/Specials/SpecialEntitiesWithoutPageFactory.php',
