@@ -45,14 +45,6 @@ $.widget( 'wikibase.sitelinkview', PARENT, {
 			},
 			function() {
 				var site = this._getSite();
-				return site ? site.getLanguageCode() : '';
-			},
-			function() {
-				var site = this._getSite();
-				return site ? site.getLanguageDirection() : '';
-			},
-			function() {
-				var site = this._getSite();
 				return site ? site.getId() : '';
 			},
 			function() {
