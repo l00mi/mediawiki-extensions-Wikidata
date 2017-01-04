@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "298a5f575c0b378337cc4c38f06f6499",
-    "content-hash": "a9df0b67ac273e3902d5afce48120718",
+    "hash": "5a9b89d47b1d8233322364a4bae1ecf3",
+    "content-hash": "b8a4db3ce42eb837ffbd81f9ef61d2b3",
     "packages": [
         {
             "name": "composer/installers",
@@ -797,12 +797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "06e41fd8cb7d60799ffc019a3d8ca3e508102f32"
+                "reference": "c3eb0e8a7f37b4c1209c0da26291d832510d703c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/06e41fd8cb7d60799ffc019a3d8ca3e508102f32",
-                "reference": "06e41fd8cb7d60799ffc019a3d8ca3e508102f32",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/c3eb0e8a7f37b4c1209c0da26291d832510d703c",
+                "reference": "c3eb0e8a7f37b4c1209c0da26291d832510d703c",
                 "shasum": ""
             },
             "require-dev": {
@@ -1467,16 +1467,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.29.0-wmf.5",
+            "version": "dev-wmf/1.29.0-wmf.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "634c5fbbd523712986a4ca2d7044d7e7b6a43f24"
+                "reference": "15f0da7e6e2e826722e9a7cab817d01d603bee82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/634c5fbbd523712986a4ca2d7044d7e7b6a43f24",
-                "reference": "634c5fbbd523712986a4ca2d7044d7e7b6a43f24",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/15f0da7e6e2e826722e9a7cab817d01d603bee82",
+                "reference": "15f0da7e6e2e826722e9a7cab817d01d603bee82",
                 "shasum": ""
             },
             "require": {
@@ -1548,7 +1548,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2016-12-06 13:08:54"
+            "time": "2017-01-04 20:35:24"
         },
         {
             "name": "wikibase/wikimedia-badges",
