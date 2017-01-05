@@ -10,6 +10,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Term\Term;
 use Wikibase\Repo\Specials\HTMLForm\HTMLAliasesField;
 use Wikibase\Repo\Specials\HTMLForm\HTMLTrimmedTextField;
+use Wikibase\Repo\Specials\HTMLForm\HTMLContentLanguageField;
 use Wikibase\Summary;
 
 /**
@@ -30,14 +31,21 @@ class SpecialNewItem extends SpecialNewEntity {
 	const FIELD_PAGE = 'page';
 
 	/**
-	 * @since 0.1
-	 * @param SiteLookup|null $siteStore
+	 * @var SiteLookup
 	 */
-	public function __construct( SiteLookup $siteStore = null ) {
-		parent::__construct( 'NewItem' );
-		if ( $siteStore ) {
-			$this->siteLookup = $siteStore;
-		}
+	private $siteLookup;
+
+	/**
+	 * @since 0.1
+	 * @param SiteLookup $siteLookup
+	 * @param SpecialPageCopyrightView $copyrightView
+	 */
+	public function __construct(
+		SiteLookup $siteLookup,
+		SpecialPageCopyrightView $copyrightView
+	) {
+		parent::__construct( 'NewItem', 'createpage', $copyrightView );
+		$this->siteLookup = $siteLookup;
 	}
 
 	/**
@@ -90,24 +98,11 @@ class SpecialNewItem extends SpecialNewEntity {
 	 * @return array[]
 	 */
 	protected function getFormFields() {
-		$langCode = $this->getLanguage()->getCode();
-
 		$formFields = [
 			self::FIELD_LANG => [
 				'name' => self::FIELD_LANG,
-				'options' => $this->getLanguageOptions(),
-				'default' => $langCode,
-				'type' => 'combobox',
+				'class' => HTMLContentLanguageField::class,
 				'id' => 'wb-newentity-language',
-				'filter-callback' => [ $this->stringNormalizer, 'trimToNFC' ],
-				'validation-callback' => function ( $language ) {
-					if ( !in_array( $language, $this->languageCodes ) ) {
-						return [ $this->msg( 'wikibase-newitem-not-recognized-language' )->text() ];
-					}
-
-					return true;
-				},
-				'label-message' => 'wikibase-newentity-language',
 			],
 			self::FIELD_LABEL => [
 				'name' => self::FIELD_LABEL,
@@ -194,7 +189,7 @@ class SpecialNewItem extends SpecialNewEntity {
 	}
 
 	/**
-	 * @see SpecialCreateEntity::getWarnings
+	 * @see SpecialNewEntity::getWarnings
 	 *
 	 * @return string[]
 	 */

@@ -3,27 +3,19 @@
 namespace DataTypes\Tests\Phpunit;
 
 use DataTypes\DataType;
-use DataTypes\Message;
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 
 /**
  * @covers DataTypes\DataType
  *
  * @group DataTypes
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Thiemo Mättig
  */
 class DataTypeTest extends PHPUnit_Framework_TestCase {
-
-	protected function setUp() {
-		parent::setUp();
-
-		Message::registerTextFunction( function( $key, $languageCode ) {
-			return implode( '|', func_get_args() );
-		} );
-	}
 
 	/**
 	 * @dataProvider invalidConstructorArgumentsProvider
@@ -34,12 +26,16 @@ class DataTypeTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function invalidConstructorArgumentsProvider() {
-		return array(
-			array( 'propertyType', null ),
-			array( 'propertyType', false ),
-			array( null, 'valueType' ),
-			array( false, 'valueType' ),
-		);
+		return [
+			[ 'propertyType', '' ],
+			[ 'propertyType', null ],
+			[ 'propertyType', false ],
+			[ 'propertyType', 1 ],
+			[ '', 'valueType' ],
+			[ null, 'valueType' ],
+			[ false, 'valueType' ],
+			[ 0, 'valueType' ],
+		];
 	}
 
 	public function testGetId() {
@@ -52,14 +48,14 @@ class DataTypeTest extends PHPUnit_Framework_TestCase {
 		$this->assertSame( 'valueType', $type->getDataValueType() );
 	}
 
-	public function testGetLabel() {
+	public function testGetMessageKey() {
 		$type = new DataType( 'propertyType', 'valueType' );
-		$this->assertSame( 'datatypes-type-propertyType|en', $type->getLabel( 'en' ) );
+		$this->assertSame( 'datatypes-type-propertyType', $type->getMessageKey() );
 	}
 
 	public function testToArray() {
 		$type = new DataType( 'propertyType', 'valueType' );
-		$this->assertSame( array( 'dataValueType' => 'valueType' ), $type->toArray() );
+		$this->assertSame( [ 'dataValueType' => 'valueType' ], $type->toArray() );
 	}
 
 }

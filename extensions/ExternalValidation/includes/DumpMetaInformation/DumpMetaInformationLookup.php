@@ -2,7 +2,6 @@
 
 namespace WikibaseQuality\ExternalValidation\DumpMetaInformation;
 
-use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 
 /**
@@ -12,15 +11,6 @@ use Wikibase\DataModel\Entity\PropertyId;
  * @license GNU GPL v2+
  */
 interface DumpMetaInformationLookup {
-
-	/**
-	 * Gets DumpMetaInformation for specific dump id from database.
-	 *
-	 * @param $dumpId
-	 * @return DumpMetaInformation
-	 * @throws \InvalidArgumentException
-	 */
-	public function getWithId( $dumpId );
 
 	/**
 	 * Gets DumpMetaInformation for specific dump ids from database
@@ -41,13 +31,6 @@ interface DumpMetaInformationLookup {
 	 * @return DumpMetaInformation[]
 	 */
 	public function getWithIdentifierProperties( array $identifierPropertyIds );
-
-	/**
-	 * Gets id of item that represents the data source for each dump.
-	 *
-	 * @return ItemId[]
-	 */
-	public function getSourceItemIds();
 
 	/**
 	 * Gets all DumpMetaInformation from database

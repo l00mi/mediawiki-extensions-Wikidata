@@ -9,7 +9,7 @@ use MWException;
 use Wikibase\RebuildTermsSearchKey;
 use Wikibase\Repo\Maintenance\RebuildEntityPerPage;
 use Wikibase\Store;
-use Wikibase\PropertyInfoTable;
+use Wikibase\Lib\Store\Sql\PropertyInfoTable;
 use Wikibase\PropertyInfoTableBuilder;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
@@ -193,7 +193,7 @@ class DatabaseSchemaUpdater {
 		);
 
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$table = new PropertyInfoTable( false, $wikibaseRepo->getEntityIdComposer() );
+		$table = new PropertyInfoTable( $wikibaseRepo->getEntityIdComposer() );
 
 		$contentCodec = $wikibaseRepo->getEntityContentDataCodec();
 		$propertyInfoBuilder = $wikibaseRepo->newPropertyInfoBuilder();

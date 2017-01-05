@@ -12,7 +12,6 @@ use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
 use Wikibase\Repo\WikibaseRepo;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformationLookup;
-use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\Html\HtmlTableBuilder;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
@@ -25,7 +24,7 @@ class SpecialExternalDatabases extends SpecialPage {
 	private $entityIdLinkFormatter;
 
 	/**
-	 * @var SqlDumpMetaInformationRepo
+	 * @var DumpMetaInformationLookup
 	 */
 	private $dumpMetaInformationRepo;
 

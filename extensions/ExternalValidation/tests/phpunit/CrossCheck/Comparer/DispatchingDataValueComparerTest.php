@@ -9,7 +9,6 @@ use DataValues\QuantityValue;
 use DataValues\StringValue;
 use DataValues\TimeValue;
 use InvalidArgumentException;
-use ValueParsers\QuantityParser;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
@@ -158,7 +157,7 @@ class DispatchingDataValueComparerTest extends DataValueComparerTestBase {
 			array(
 				array(
 					new QuantityValueComparer(),
-					new QuantityParser()
+					new \stdClass()
 				)
 			)
 		);

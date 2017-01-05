@@ -46,7 +46,7 @@
 	"apihelp-wbqmodifyviolation-description": "{{doc-apihelp-description|wbqmodifyviolation}}",
 	"apihelp-wbqmodifyviolation-param-claimguid": "{{doc-apihelp-param|wbqmodifyviolation|claimguid}}",
 	"apihelp-wbqmodifyviolation-param-constraintid": "{{doc-apihelp-param|wbqmodifyviolation|constraintid}}",
-	"apihelp-wbqmodifyviolation-param-status": "{{doc-apihelp-param|wbqmodifyviolation|entities}}",
+	"apihelp-wbqmodifyviolation-param-status": "{{doc-apihelp-param|wbqmodifyviolation|status}}",
 	"apihelp-wbqmodifyviolation-examples-exception": "{{doc-apihelp-example|wbqmodifyviolation}}",
 	"apihelp-wbqmodifyviolation-examples-violation": "{{doc-apihelp-example|wbqmodifyviolation}}",
 	"apihelp-wbqgetviolationtypes-description": "{{doc-apihelp-description|wbqgetviolationtypes}}",

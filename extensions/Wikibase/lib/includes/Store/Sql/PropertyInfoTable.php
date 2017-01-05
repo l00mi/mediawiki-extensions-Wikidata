@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase;
+namespace Wikibase\Lib\Store\Sql;
 
 use DBAccessBase;
 use DBError;
@@ -10,6 +10,8 @@ use Wikibase\DataModel\Assert\RepositoryNameAssert;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Lib\EntityIdComposer;
+use Wikibase\Lib\Store\PropertyInfoLookup;
+use Wikibase\Lib\Store\PropertyInfoStore;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -21,17 +23,12 @@ use Wikimedia\Assert\Assert;
  * @author Daniel Kinzler
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
+class PropertyInfoTable extends DBAccessBase implements PropertyInfoLookup, PropertyInfoStore {
 
 	/**
 	 * @var string
 	 */
 	private $tableName;
-
-	/**
-	 * @var bool
-	 */
-	private $isReadonly;
 
 	/**
 	 * @var EntityIdComposer
@@ -44,7 +41,6 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 	private $repositoryName;
 
 	/**
-	 * @param bool $isReadonly Whether the table can be modified.
 	 * @param EntityIdComposer $entityIdComposer
 	 * @param string|bool $wiki The wiki's database to connect to.
 	 *        Must be a value LBFactory understands. Defaults to false, which is the local wiki.
@@ -52,10 +48,7 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct( $isReadonly, EntityIdComposer $entityIdComposer, $wiki = false, $repositoryName = '' ) {
-		if ( !is_bool( $isReadonly ) ) {
-			throw new InvalidArgumentException( '$isReadonly must be boolean.' );
-		}
+	public function __construct( EntityIdComposer $entityIdComposer, $wiki = false, $repositoryName = '' ) {
 		if ( !is_string( $wiki ) && $wiki !== false ) {
 			throw new InvalidArgumentException( '$wiki must be a string or false.' );
 		}
@@ -63,7 +56,6 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 
 		parent::__construct( $wiki );
 		$this->tableName = 'wb_property_info';
-		$this->isReadonly = $isReadonly;
 		$this->entityIdComposer = $entityIdComposer;
 		$this->repositoryName = $repositoryName;
 	}
@@ -121,7 +113,7 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 	}
 
 	/**
-	 * @see PropertyInfoStore::getPropertyInfo
+	 * @see PropertyInfoLookup::getPropertyInfo
 	 *
 	 * @param PropertyId $propertyId
 	 *
@@ -157,7 +149,7 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 	}
 
 	/**
-	 * @see PropertyDataTypeLookup::getPropertyInfoForDataType
+	 * @see PropertyInfoLookup::getPropertyInfoForDataType
 	 *
 	 * @param string $dataType
 	 *
@@ -182,7 +174,7 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 	}
 
 	/**
-	 * @see PropertyInfoStore::getAllPropertyInfo
+	 * @see PropertyInfoLookup::getAllPropertyInfo
 	 *
 	 * @return array[] Array containing serialized property IDs as keys and info arrays as values
 	 * @throws DBError
@@ -214,17 +206,13 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 	 * @throws InvalidArgumentException
 	 */
 	public function setPropertyInfo( PropertyId $propertyId, array $info ) {
-		if ( $this->isReadonly ) {
-			throw new DBError( 'Cannot write when in readonly mode' );
-		}
-
-		if ( !isset( $info[ PropertyInfoStore::KEY_DATA_TYPE ] ) ) {
-			throw new InvalidArgumentException( 'Missing required info field: ' . PropertyInfoStore::KEY_DATA_TYPE );
+		if ( !isset( $info[ PropertyInfoLookup::KEY_DATA_TYPE ] ) ) {
+			throw new InvalidArgumentException( 'Missing required info field: ' . PropertyInfoLookup::KEY_DATA_TYPE );
 		}
 
 		$this->assertPropertyIdFromCorrectRepository( $propertyId );
 
-		$type = $info[ PropertyInfoStore::KEY_DATA_TYPE ];
+		$type = $info[ PropertyInfoLookup::KEY_DATA_TYPE ];
 		$json = json_encode( $info );
 
 		$dbw = $this->getConnection( DB_MASTER );
@@ -253,10 +241,6 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoStore {
 	 * @return bool
 	 */
 	public function removePropertyInfo( PropertyId $propertyId ) {
-		if ( $this->isReadonly ) {
-			throw new DBError( 'Cannot write when in readonly mode' );
-		}
-
 		$this->assertPropertyIdFromCorrectRepository( $propertyId );
 
 		$dbw = $this->getConnection( DB_MASTER );

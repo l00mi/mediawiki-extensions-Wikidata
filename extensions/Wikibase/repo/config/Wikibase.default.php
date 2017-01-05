@@ -197,4 +197,7 @@ return [
 
 	// Map of foreign repository names to repository-specific settings such as "supportedEntityTypes"
 	'foreignRepositories' => [],
+
+	// List of entity types for Special:EntitiesWithoutLabel and …Description, or null for all.
+	'supportedEntityTypesForEntitiesWithoutTermListings' => null,
 ];

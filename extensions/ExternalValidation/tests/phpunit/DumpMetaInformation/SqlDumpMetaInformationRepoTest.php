@@ -130,17 +130,6 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @dataProvider getWithIdDataProvider
-	 */
-	public function testGetWithId( $dumpId, $expectedDumpMetaInformation, $expectedException = null ) {
-		$this->setExpectedException( $expectedException );
-
-		$dumpMetaInformation = $this->dumpMetaInformationRepo->getWithId( $dumpId );
-
-		$this->assertEquals( $expectedDumpMetaInformation, $dumpMetaInformation );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getWithIdDataProvider() {
@@ -295,12 +284,6 @@ class SqlDumpMetaInformationRepoTest extends \MediaWikiTestCase {
 				InvalidArgumentException::class
 			)
 		);
-	}
-
-	public function testSourceItemIds() {
-		$actualResult = $this->dumpMetaInformationRepo->getSourceItemIds();
-		$expectedResult = array( 'Q1', 'Q2', 'Q3' );
-		$this->assertArrayEquals( $expectedResult, $actualResult );
 	}
 
 	/**

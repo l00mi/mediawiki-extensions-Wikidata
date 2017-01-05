@@ -18,7 +18,7 @@ use ResourceLoaderModule;
  * - (Function|DataTypeFactory) datatypefactory: Provider for the data types. Can be a callback
  *   returning a DataTypeFactory instance.
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Werner < daniel.werner@wikimedia.de >
  */
 class DataTypesModule extends ResourceLoaderModule {
@@ -68,7 +68,6 @@ class DataTypesModule extends ResourceLoaderModule {
 		$dataTypesConfigVarName = array_key_exists( 'datatypesconfigvarname', $resourceDefinition )
 			? $resourceDefinition['datatypesconfigvarname']
 			: null;
-
 
 		if ( !is_string( $dataTypesConfigVarName ) || $dataTypesConfigVarName === '' ) {
 			throw new Exception(
@@ -145,9 +144,9 @@ class DataTypesModule extends ResourceLoaderModule {
 	 */
 	public function getScript( ResourceLoaderContext $context ) {
 		$configVarName = $this->getConfigVarName();
-		$typesJson = array();
+		$typesJson = [];
 
-		foreach( $this->dataTypes as $dataType ) {
+		foreach ( $this->dataTypes as $dataType ) {
 			$typesJson[ $dataType->getId() ] = $dataType->toArray();
 		}
 		$typesJson = FormatJson::encode( $typesJson );
@@ -160,12 +159,12 @@ class DataTypesModule extends ResourceLoaderModule {
 	 * @see ResourceLoaderModule::getMessages
 	 * @since 0.1
 	 *
-	 * @return Array
+	 * @return string[]
 	 */
 	public function getMessages() {
-		$messageKeys = array();
+		$messageKeys = [];
 
-		foreach( $this->dataTypes as $dataType ) {
+		foreach ( $this->dataTypes as $dataType ) {
 			// TODO: currently we assume that the type is using a message while it does not have to.
 			//  Either change the system to ensure that a message is used or put the type labels
 			//  directly into the JSON. Either way, the information should be in DataType::toArray.
@@ -185,9 +184,9 @@ class DataTypesModule extends ResourceLoaderModule {
 	public function getDefinitionSummary( ResourceLoaderContext $context ) {
 		$summary = parent::getDefinitionSummary( $context );
 
-		$summary[] = array(
+		$summary[] = [
 			'dataHash' => sha1( json_encode( array_keys( $this->dataTypes ) ) )
-		);
+		];
 
 		return $summary;
 	}

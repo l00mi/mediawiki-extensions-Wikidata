@@ -3,7 +3,7 @@
 namespace WikibaseQuality\ExternalValidation\Tests\Api;
 
 use DataValues\StringValue;
-use UsageException;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
@@ -14,7 +14,7 @@ use Wikibase\DataModel\Services\Statement\V4GuidGenerator;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Statement\StatementGuid;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Test\Repo\Api\WikibaseApiTestCase;
+use Wikibase\Repo\Tests\Api\WikibaseApiTestCase;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 
@@ -188,7 +188,7 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 		);
 
 		$this->setExpectedException(
-			UsageException::class,
+			ApiUsageException::class,
 			'Either provide the ids of entities or ids of claims, that should be cross-checked.'
 		);
 
@@ -201,7 +201,7 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 		);
 
 		$this->setExpectedException(
-			UsageException::class,
+			ApiUsageException::class,
 			'A parameter that is required was missing. (Either provide the ids of entities or '
 				. 'ids of claims, that should be cross-checked.)'
 		);
@@ -280,7 +280,7 @@ class RunCrossCheckTest extends WikibaseApiTestCase {
 			'action' => 'wbqevcrosscheck',
 			'claims' => 'broken-claim-guid',
 		);
-		$this->setExpectedException( UsageException::class, 'Invalid claim guid.' );
+		$this->setExpectedException( ApiUsageException::class, 'Invalid claim guid.' );
 		$this->doApiRequest( $params );
 	}
 

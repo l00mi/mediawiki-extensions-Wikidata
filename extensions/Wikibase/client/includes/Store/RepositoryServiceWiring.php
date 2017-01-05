@@ -5,6 +5,7 @@ use Wikibase\Client\Store\RepositoryServiceContainer;
 use Wikibase\Client\WikibaseClient;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
+use Wikibase\Lib\Store\Sql\PropertyInfoTable;
 use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
 use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\TermSqlIndex;
@@ -38,6 +39,17 @@ return [
 			$codec,
 			$metaDataLookup,
 			$services->getDatabaseName()
+		);
+	},
+
+	'PropertyInfoLookup' => function(
+		RepositoryServiceContainer $services,
+		WikibaseClient $client
+	) {
+		return new PropertyInfoTable(
+			$client->getEntityIdComposer(),
+			$services->getDatabaseName(),
+			$services->getRepositoryName()
 		);
 	},
 

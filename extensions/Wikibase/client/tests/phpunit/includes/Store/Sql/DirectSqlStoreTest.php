@@ -18,8 +18,9 @@ use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\Store\EntityChangeLookup;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\PropertyInfoLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
-use Wikibase\PropertyInfoStore;
+use Wikibase\Lib\Tests\Store\MockPropertyInfoLookup;
 use Wikibase\Store\EntityIdLookup;
 use Wikibase\TermIndex;
 
@@ -54,6 +55,9 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 		$dispatchingServiceFactory = new DispatchingServiceFactory( $client );
 		$dispatchingServiceFactory->defineService( 'EntityRevisionLookup', function() {
 			return $this->getMock( EntityRevisionLookup::class );
+		} );
+		$dispatchingServiceFactory->defineService( 'PropertyInfoLookup', function() {
+			return new MockPropertyInfoLookup();
 		} );
 
 		$store = new DirectSqlStore(
@@ -93,7 +97,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 			array( 'getEntityLookup', EntityLookup::class ),
 			array( 'getTermIndex', TermIndex::class ),
 			array( 'getPropertyLabelResolver', PropertyLabelResolver::class ),
-			array( 'getPropertyInfoStore', PropertyInfoStore::class ),
+			array( 'getPropertyInfoLookup', PropertyInfoLookup::class ),
 			array( 'getUsageTracker', UsageTracker::class ),
 			array( 'getUsageLookup', UsageLookup::class ),
 			array( 'getSubscriptionManager', SubscriptionManager::class, true ),

@@ -35,9 +35,9 @@ use Wikibase\DumpRdf;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Tests\MockRepository;
 use Wikibase\Rdf\RdfVocabulary;
-use Wikibase\Repo\Store\EntityIdPager;
+use Wikibase\DataModel\Services\EntityId\EntityIdPager;
 use Wikibase\Repo\Store\Sql\SqlEntityIdPagerFactory;
-use Wikibase\Repo\Tests\MockEntityIdPager;
+use Wikibase\Repo\Tests\Store\MockEntityIdPager;
 use Wikibase\Repo\WikibaseRepo;
 
 /**

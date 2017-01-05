@@ -22,23 +22,6 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 	const IDENTIFIER_PROPERTIES_TABLE_NAME = 'wbqev_identifier_properties';
 
 	/**
-	 * Gets DumpMetaInformation for specific dump id from database.
-	 *
-	 * @param $dumpId
-	 * @return DumpMetaInformation
-	 * @throws InvalidArgumentException
-	 */
-	public function getWithId( $dumpId ) {
-		if ( !is_string( $dumpId ) ) {
-			throw new InvalidArgumentException( '$dumpId must be string.' );
-		}
-
-		$dumpMetaInformation = $this->getWithIds( array( $dumpId ) );
-
-		return reset( $dumpMetaInformation );
-	}
-
-	/**
 	 * Gets DumpMetaInformation for specific dump ids from database
 	 * Returns array in the form 'dumpId' => DumpMetaInformation
 	 *
@@ -122,30 +105,6 @@ class SqlDumpMetaInformationRepo implements DumpMetaInformationLookup, DumpMetaI
 		}
 
 		return array();
-	}
-
-	/**
-	 * Gets id of item that represents the data source for each dump.
-	 *
-	 * @return ItemId[]
-	 */
-	public function getSourceItemIds() {
-		$db = wfGetDB( DB_SLAVE );
-		$result = $db->selectFieldValues(
-			self::META_TABLE_NAME,
-			'source_qid',
-			array(),
-			__METHOD__,
-			'DISTINCT'
-		);
-
-		$sourceItemIds = $result; // TODO: Parse as ItemId, when ItemIds are used in violation table
-		/*$sourceItemIds = array();
-		foreach ( $result as $itemId ) {
-			$sourceItemIds = new ItemId( $itemId );
-		}*/
-
-		return $sourceItemIds;
 	}
 
 	/**

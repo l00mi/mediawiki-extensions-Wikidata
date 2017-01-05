@@ -4,13 +4,14 @@ namespace DataTypes\Tests\Modules;
 
 use DataTypes\DataTypeFactory;
 use DataTypes\Modules\DataTypesModule;
+use ResourceLoaderContext;
 
 /**
  * @covers DataTypes\Modules\DataTypesModule
  *
  * @group DataTypes
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Werner < daniel.werner@wikimedia.de >
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
@@ -20,26 +21,26 @@ class DataTypesModuleTest extends \PHPUnit_Framework_TestCase {
 	 * @return array [instance, resource definition]
 	 */
 	public function provideDataTypesModuleAndResourceDefinition() {
-		$dataTypeFactory = new DataTypeFactory( array( 'url' => 'string' ) );
+		$dataTypeFactory = new DataTypeFactory( [ 'url' => 'string' ] );
 
-		$validResourceDefinitions = array(
-			array(
+		$validResourceDefinitions = [
+			[
 				'datatypesconfigvarname' => 'foo',
 				'datatypefactory' => function() {
-					return new DataTypeFactory( array() );
+					return new DataTypeFactory( [] );
 				}
-			),
-			array(
+			],
+			[
 				'datatypesconfigvarname' => 'bar123',
 				'datatypefactory' => $dataTypeFactory
-			)
-		);
+			],
+		];
 
-		$cases = array();
+		$cases = [];
 
-		foreach( $validResourceDefinitions as $definition ) {
+		foreach ( $validResourceDefinitions as $definition ) {
 			$instance = new DataTypesModule( $definition );
-			$cases[] = array( $instance, $definition );
+			$cases[] = [ $instance, $definition ];
 		}
 
 		return $cases;
@@ -61,53 +62,53 @@ class DataTypesModuleTest extends \PHPUnit_Framework_TestCase {
 	 * @return array [invalid resource definition, case description]
 	 */
 	public function provideInvalidResourceDefinition() {
-		$dataTypeFactory = new DataTypeFactory( array() );
+		$dataTypeFactory = new DataTypeFactory( [] );
 
-		$validDefinition = array(
+		$validDefinition = [
 			'datatypesconfigvarname' => 'foo',
 			'datatypefactory' => function() {
-				return new DataTypeFactory( array() );
+				return new DataTypeFactory( [] );
 			}
-		);
+		];
 
-		return array(
-			array(
-				array(
+		return [
+			[
+				[
 					'datatypesconfigvarname' => 'foo'
-				),
+				],
 				'missing "datatypefactory" field'
-			),
-			array(
-				array(
+			],
+			[
+				[
 					'datatypefactory' => $dataTypeFactory
-				),
+				],
 				'missing "datatypesconfigvarname" field'
-			),
-			array(
-				array(),
+			],
+			[
+				[],
 				'all fields missing'
-			),
-			array(
+			],
+			[
 				array_merge(
 					$validDefinition,
-					array(
+					[
 						'datatypefactory' => 123
-					)
+					]
 				),
 				'"datatypefactory" field has value of wrong type'
-			),
-			array(
+			],
+			[
 				array_merge(
 					$validDefinition,
-					array(
+					[
 						'datatypefactory' => function() {
 							return null;
 						}
-					)
+					]
 				),
 				'"datatypefactory" callback does not return a DataTypeFactory instance'
-			)
-		);
+			],
+		];
 	}
 
 	/**
@@ -142,7 +143,7 @@ class DataTypesModuleTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetDefinitionSummary() {
 		$definition = $this->makeDefinition(
-			array( 'foo' => 'string' )
+			[ 'foo' => 'string' ]
 		);
 
 		$module = new DataTypesModule( $definition );
@@ -154,14 +155,14 @@ class DataTypesModuleTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetDefinitionSummary_notEqualForDifferentDataTypes() {
-		$definition1 = $this->makeDefinition( array(
+		$definition1 = $this->makeDefinition( [
 			'foo' => 'string'
-		) );
+		] );
 
-		$definition2 = $this->makeDefinition( array(
+		$definition2 = $this->makeDefinition( [
 			'foo' => 'string',
 			'bar' => 'string'
-		) );
+		] );
 
 		$module1 = new DataTypesModule( $definition1 );
 		$module2 = new DataTypesModule( $definition2 );
@@ -174,12 +175,11 @@ class DataTypesModuleTest extends \PHPUnit_Framework_TestCase {
 		$this->assertNotEquals( $summary1[0]['dataHash'], $summary2[0]['dataHash'] );
 	}
 
-
 	private function makeDefinition( array $dataTypes ) {
-		return array(
+		return [
 			'datatypesconfigvarname' => 'foo123',
 			'datatypefactory' => new DataTypeFactory( $dataTypes )
-		);
+		];
 	}
 
 	/**
