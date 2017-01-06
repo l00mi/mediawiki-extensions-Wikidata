@@ -88,6 +88,13 @@ For deployment builds, this sets the autoloader-suffix config option in the comp
 
 The sharedCacheKeyPrefix setting is also set to be based on the branch version, and can be manually changed when doing backports to a deployment branch, as needed for invalidating memcached entries.
 
+To update a single component:
+
+```bash
+
+composer update --prefer-dist -o --no-dev wikibase/wikibase
+```
+
 ## Updating this README
 
 This README is located in [the wikidata/build-resources repository](https://phabricator.wikimedia.org/diffusion/WDBR/browse/master/README.md). Any changes made to the README in the Wikidata build repository will be overwritten daily.
