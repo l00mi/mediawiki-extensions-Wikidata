@@ -177,7 +177,23 @@ call_user_func( function() {
 	$wgAPIModules['wbavailablebadges'] = Wikibase\Repo\Api\AvailableBadges::class;
 	$wgAPIModules['wbcreateredirect'] = Wikibase\Repo\Api\CreateRedirect::class;
 	$wgAPIListModules['wbsearch'] = Wikibase\Repo\Api\QuerySearchEntities::class;
-	$wgAPIListModules['wbsubscribers'] = Wikibase\Repo\Api\ListSubscribers::class;
+	$wgAPIListModules['wbsubscribers'] = [
+		'class' => Wikibase\Repo\Api\ListSubscribers::class,
+		'factory' => function( $mainModule, $moduleName, $modulePrefix = 'wbls' ) {
+			/** @var ApiQuery $mainModule */
+			$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$mediaWikiServices = \MediaWiki\MediaWikiServices::getInstance();
+			$apiHelper = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			return new Wikibase\Repo\Api\ListSubscribers(
+				$mainModule,
+				$moduleName,
+				$modulePrefix,
+				$apiHelper->getErrorReporter( $mainModule ),
+				$wikibaseRepo->getEntityIdParser(),
+				$mediaWikiServices->getSiteLookup()
+			);
+		}
+	];
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] = function () {
@@ -209,7 +225,23 @@ call_user_func( function() {
 			$copyrightView
 		);
 	};
-	$wgSpecialPages['ItemByTitle'] = Wikibase\Repo\Specials\SpecialItemByTitle::class;
+	$wgSpecialPages['ItemByTitle'] = function () {
+		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+
+		$siteLinkTargetProvider = new \Wikibase\Repo\SiteLinkTargetProvider(
+			$wikibaseRepo->getSiteLookup(),
+			$wikibaseRepo->getSettings()->getSetting( 'specialSiteLinkGroups' )
+		);
+
+		return new Wikibase\Repo\Specials\SpecialItemByTitle(
+			$wikibaseRepo->getEntityTitleLookup(),
+			new \Wikibase\Lib\LanguageNameLookup(),
+			$wikibaseRepo->getSiteLookup(),
+			$wikibaseRepo->getStore()->newSiteLinkStore(),
+			$siteLinkTargetProvider,
+			$wikibaseRepo->getSettings()->getSetting( 'siteLinkGroups' )
+		);
+	};
 	$wgSpecialPages['GoToLinkedPage'] = Wikibase\Repo\Specials\SpecialGoToLinkedPage::class;
 	$wgSpecialPages['ItemDisambiguation'] = Wikibase\Repo\Specials\SpecialItemDisambiguation::class;
 	$wgSpecialPages['ItemsWithoutSitelinks']

@@ -21,7 +21,6 @@ use Wikibase\Repo\Specials\SpecialItemByTitle;
  * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
  *
@@ -91,22 +90,18 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 	 * @return SpecialItemByTitle
 	 */
 	protected function newSpecialPage() {
-		$page = new SpecialItemByTitle();
-
-		$page->initSettings(
-			array( 'wikipedia' )
-		);
 
 		$siteLookup = $this->getMockSiteLookup();
 
 		$siteLinkTargetProvider = new SiteLinkTargetProvider( $siteLookup, array() );
 
-		$page->initServices(
+		$page = new SpecialItemByTitle(
 			$this->getMockTitleLookup(),
 			$this->getMockLanguageNameLookup(),
 			$siteLookup,
 			$this->getMockSiteLinkLookup(),
-			$siteLinkTargetProvider
+			$siteLinkTargetProvider,
+			[ 'wikipedia' ]
 		);
 
 		return $page;

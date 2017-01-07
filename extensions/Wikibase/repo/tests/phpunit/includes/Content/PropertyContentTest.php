@@ -15,7 +15,6 @@ use Wikibase\PropertyContent;
  * @group Database
  * @group Wikibase
  * @group WikibaseProperty
- * @group WikibaseRepo
  * @group WikibaseContent
  *
  * @license GPL-2.0+
@@ -31,8 +30,9 @@ class PropertyContentTest extends EntityContentTest {
 	}
 
 	/**
-	 * @param EntityId|null $propertyId
+	 * @param PropertyId|null $propertyId
 	 *
+	 * @throws InvalidArgumentException
 	 * @return PropertyContent
 	 */
 	protected function newEmpty( EntityId $propertyId = null ) {

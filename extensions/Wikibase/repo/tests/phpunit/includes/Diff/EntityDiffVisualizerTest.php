@@ -21,16 +21,22 @@ use Wikibase\Repo\Diff\EntityDiffVisualizer;
  * @covers Wikibase\Repo\Diff\EntityDiffVisualizer
  *
  * @group Wikibase
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler
+ * @author Thiemo Mättig
  */
 class EntityDiffVisualizerTest extends MediaWikiTestCase {
 
-	public function diffProvider() {
+	public function testVisualizingEmptyDiff() {
 		$emptyDiff = new EntityContentDiff( new EntityDiff(), new Diff() );
 
+		$html = $this->getVisualizer()->visualizeEntityContentDiff( $emptyDiff );
+
+		$this->assertSame( '', $html );
+	}
+
+	public function diffProvider() {
 		$fingerprintDiff = new EntityContentDiff(
 			new EntityDiff( array(
 				'label' => new Diff( array(
@@ -75,7 +81,6 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 		);
 
 		return array(
-			'empty' => array( $emptyDiff, array( 'empty' => '/^$/', ) ),
 			'fingerprint changed' => array( $fingerprintDiff, $fingerprintTags ),
 			'redirect changed' => array( $redirectDiff, $redirectTags ),
 		);
@@ -84,7 +89,7 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 	/**
 	 * @return IContextSource
 	 */
-	protected function getMockContext() {
+	private function getMockContext() {
 		$en = Language::factory( 'en' );
 
 		$mock = $this->getMock( IContextSource::class );
@@ -98,7 +103,7 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 	/**
 	 * @return ClaimDiffer
 	 */
-	protected function getMockClaimDiffer() {
+	private function getMockClaimDiffer() {
 		$mock = $this->getMockBuilder( ClaimDiffer::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -108,7 +113,7 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 	/**
 	 * @return ClaimDifferenceVisualizer
 	 */
-	protected function getMockClaimDiffVisualizer() {
+	private function getMockClaimDiffVisualizer() {
 		$mock = $this->getMockBuilder( ClaimDifferenceVisualizer::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -118,7 +123,7 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 	/**
 	 * @return EntityDiffVisualizer
 	 */
-	protected function getVisualizer() {
+	private function getVisualizer() {
 		$enwiki = new Site();
 		$enwiki->setGlobalId( 'enwiki' );
 
@@ -135,18 +140,11 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 	 * @dataProvider diffProvider
 	 */
 	public function testGenerateEntityContentDiffBody( EntityContentDiff $diff, array $matchers ) {
-		$visualizer = $this->getVisualizer();
-
-		$html = $visualizer->visualizeEntityContentDiff( $diff );
+		$html = $this->getVisualizer()->visualizeEntityContentDiff( $diff );
 
 		$this->assertInternalType( 'string', $html );
-
 		foreach ( $matchers as $name => $matcher ) {
-			if ( is_string( $matcher ) ) {
-				$this->assertRegExp( $matcher, $html );
-			} else {
-				$this->assertTag( $matcher, $html, $name );
-			}
+			$this->assertTag( $matcher, $html, $name );
 		}
 	}
 
