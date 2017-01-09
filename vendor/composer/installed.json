@@ -1409,12 +1409,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "25c8d2f7a299078d7cb2cd82700fe3dcb4a85c24"
+            "reference": "29bed04167c54bf459ee17fb3b2bcbed6dcd03b8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/25c8d2f7a299078d7cb2cd82700fe3dcb4a85c24",
-            "reference": "25c8d2f7a299078d7cb2cd82700fe3dcb4a85c24",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/29bed04167c54bf459ee17fb3b2bcbed6dcd03b8",
+            "reference": "29bed04167c54bf459ee17fb3b2bcbed6dcd03b8",
             "shasum": ""
         },
         "require": {
@@ -1447,7 +1447,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2017-01-07 21:14:26",
+        "time": "2017-01-09 09:33:14",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
