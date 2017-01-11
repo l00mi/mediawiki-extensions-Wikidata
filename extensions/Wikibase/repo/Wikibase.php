@@ -240,7 +240,16 @@ call_user_func( function() {
 			$wikibaseRepo->getSettings()->getSetting( 'siteLinkGroups' )
 		);
 	};
-	$wgSpecialPages['GoToLinkedPage'] = Wikibase\Repo\Specials\SpecialGoToLinkedPage::class;
+	$wgSpecialPages['GoToLinkedPage'] = function() {
+		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+		return new Wikibase\Repo\Specials\SpecialGoToLinkedPage(
+			$wikibaseRepo->getSiteLookup(),
+			$wikibaseRepo->getStore()->newSiteLinkStore(),
+			$wikibaseRepo->getStore()->getEntityRedirectLookup(),
+			$wikibaseRepo->getEntityIdParser(),
+			$wikibaseRepo->getStore()->getEntityLookup()
+		);
+	};
 	$wgSpecialPages['ItemDisambiguation'] = Wikibase\Repo\Specials\SpecialItemDisambiguation::class;
 	$wgSpecialPages['ItemsWithoutSitelinks']
 		= Wikibase\Repo\Specials\SpecialItemsWithoutSitelinks::class;
@@ -251,11 +260,11 @@ call_user_func( function() {
 		= Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases::class;
 	$wgSpecialPages['SetSiteLink'] = Wikibase\Repo\Specials\SpecialSetSiteLink::class;
 	$wgSpecialPages['EntitiesWithoutLabel'] = array(
-		'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory',
+		Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory::class,
 		'newSpecialEntitiesWithoutLabel'
 	);
 	$wgSpecialPages['EntitiesWithoutDescription'] = array(
-		'Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory',
+		Wikibase\Repo\Specials\SpecialEntitiesWithoutPageFactory::class,
 		'newSpecialEntitiesWithoutDescription'
 	);
 	$wgSpecialPages['ListDatatypes'] = Wikibase\Repo\Specials\SpecialListDatatypes::class;

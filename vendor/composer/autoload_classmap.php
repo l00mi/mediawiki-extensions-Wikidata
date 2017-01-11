@@ -1469,6 +1469,8 @@ return array(
     'Wikibase\\Repo\\Tests\\Localizer\\MessageParameterFormatterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Localizer/MessageParameterFormatterTest.php',
     'Wikibase\\Repo\\Tests\\Localizer\\ParseExceptionLocalizerTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Localizer/ParseExceptionLocalizerTest.php',
     'Wikibase\\Repo\\Tests\\MediaWikiLocalizedTextProviderTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/MediaWikiLocalizedTextProviderTest.php',
+    'Wikibase\\Repo\\Tests\\Modules\\EntityTypesConfigValueProviderTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Modules/EntityTypesConfigValueProviderTest.php',
+    'Wikibase\\Repo\\Tests\\Modules\\MediaWikiConfigModuleTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Modules/MediaWikiConfigModuleTest.php',
     'Wikibase\\Repo\\Tests\\Notifications\\ChangeNotifierTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Notifications/ChangeNotifierTest.php',
     'Wikibase\\Repo\\Tests\\Notifications\\DatabaseChangeTransmitterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Notifications/DatabaseChangeTransmitterTest.php',
     'Wikibase\\Repo\\Tests\\Notifications\\HookChangeTransmitterTest' => $baseDir . '/extensions/Wikibase/repo/tests/phpunit/includes/Notifications/HookChangeTransmitterTest.php',
