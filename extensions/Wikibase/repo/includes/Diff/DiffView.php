@@ -32,11 +32,6 @@ use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 class DiffView extends ContextSource {
 
 	/**
-	 * @var SiteLookup
-	 */
-	private $siteLookup;
-
-	/**
 	 * @var string[]
 	 */
 	private $path;
@@ -47,9 +42,19 @@ class DiffView extends ContextSource {
 	private $diff;
 
 	/**
+	 * @var SiteLookup
+	 */
+	private $siteLookup;
+
+	/**
 	 * @var EntityIdFormatter
 	 */
 	private $entityIdFormatter;
+
+	/**
+	 * @var string
+	 */
+	private $siteLinkPath;
 
 	/**
 	 * @since 0.1
@@ -69,12 +74,14 @@ class DiffView extends ContextSource {
 	) {
 		$this->path = $path;
 		$this->diff = $diff;
-		$this->entityIdFormatter = $entityIdFormatter;
 		$this->siteLookup = $siteLookup;
+		$this->entityIdFormatter = $entityIdFormatter;
 
 		if ( !is_null( $contextSource ) ) {
 			$this->setContext( $contextSource );
 		}
+
+		$this->siteLinkPath = $this->msg( 'wikibase-diffview-link' )->text();
 	}
 
 	/**
@@ -99,7 +106,17 @@ class DiffView extends ContextSource {
 	 */
 	private function generateOpHtml( array $path, DiffOp $op ) {
 		if ( $op->isAtomic() ) {
-			$html = $this->generateDiffHeaderHtml( implode( ' / ', $path ) );
+			$localizedPath = $path;
+
+			if ( $this->isSiteLinkPath( $path ) && isset( $path[2] ) ) {
+				$translatedLinkSubPath = $this->msg( 'wikibase-diffview-link-' . $path[2] );
+
+				if ( !$translatedLinkSubPath->isDisabled() ) {
+					$localizedPath[2] = $translatedLinkSubPath->text();
+				}
+			}
+
+			$html = $this->generateDiffHeaderHtml( implode( ' / ', $localizedPath ) );
 
 			//TODO: no path, but localized section title
 
@@ -188,15 +205,26 @@ class DiffView extends ContextSource {
 	 */
 	private function getChangedLine( $tag, $value, array $path ) {
 		// @todo: inject a formatter instead of doing special cases based on the path here!
-		if ( $path[0] === $this->getLanguage()->getMessage( 'wikibase-diffview-link' ) ) {
+		if ( $this->isSiteLinkPath( $path ) ) {
 			if ( $path[2] === 'badges' ) {
 				$value = $this->getBadgeLinkElement( $value );
 			} else {
 				$value = $this->getSiteLinkElement( $path[1], $value );
 			}
+
 			return Html::rawElement( $tag, array( 'class' => 'diffchange diffchange-inline' ), $value );
 		}
+
 		return Html::element( $tag, array( 'class' => 'diffchange diffchange-inline' ), $value );
+	}
+
+	/**
+	 * @param string[] $path
+	 *
+	 * @return bool
+	 */
+	private function isSiteLinkPath( array $path ) {
+		return $path[0] === $this->siteLinkPath && isset( $path[1] );
 	}
 
 	/**
