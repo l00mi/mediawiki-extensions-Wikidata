@@ -9,10 +9,9 @@ use MediaWiki\MediaWikiServices;
 use Wikibase\Lib\Formatters\CommonsThumbnailFormatter;
 
 /**
- * @covers Wikibase\Lib\CommonsThumbnailFormatter
+ * @covers Wikibase\Lib\Formatters\CommonsThumbnailFormatter
  *
  * @group ValueFormatters
- * @group WikibaseLib
  * @group Wikibase
  *
  * @license GPL-2.0+

@@ -1,9 +1,8 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiUsageException;
-use UsageException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\WikibaseRepo;
@@ -23,7 +22,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group BreakingTheSlownessBarrier
  *
  * The database group has as a side effect that temporal database tables are created. This makes
@@ -238,8 +236,6 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 	}
 
 	public function provideExceptionData() {
-		$newText = class_exists( ApiUsageException::class );
-
 		return array(
 			array( //0 badtoken
 				'p' => array(
@@ -249,9 +245,9 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'linktitle' => 'testSetSiteLinkWithNoToken'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'notoken',
-					'message' => $newText ? 'The "token" parameter must be set' : 'The token parameter must be set'
+					'message' => 'The "token" parameter must be set'
 				) )
 			),
 			array( //1
@@ -263,9 +259,9 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'token' => '88888888888888888888888888888888+\\'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'badtoken',
-					'message' => $newText ? 'Invalid CSRF token.' : 'Invalid token'
+					'message' => 'Invalid CSRF token.'
 				) )
 			),
 			array( //2 testSetSiteLinkWithNoId
@@ -273,14 +269,14 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'linksite' => 'enwiki',
 					'linktitle' => 'testSetSiteLinkWithNoId'
 				),
-				'e' => array( 'exception' => array( 'type' => UsageException::class ) ) ),
+				'e' => array( 'exception' => array( 'type' => ApiUsageException::class ) ) ),
 			array( //3 testSetSiteLinkWithBadId
 				'p' => array(
 					'id' => 123456789,
 					'linksite' => 'enwiki',
 					'linktitle' => 'testSetSiteLinkWithNoId'
 				),
-				'e' => array( 'exception' => array( 'type' => UsageException::class ) ) ),
+				'e' => array( 'exception' => array( 'type' => ApiUsageException::class ) ) ),
 			array( //4 testSetSiteLinkWithBadSite
 				'p' => array(
 					'site' => 'dewiktionary',
@@ -288,7 +284,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'linksite' => 'enwiki',
 					'linktitle' => 'Berlin'
 				),
-				'e' => array( 'exception' => array( 'type' => UsageException::class ) ) ),
+				'e' => array( 'exception' => array( 'type' => ApiUsageException::class ) ) ),
 			array( //5 testSetSiteLinkWithBadTitle
 				'p' => array(
 					'site' => 'dewiki',
@@ -296,7 +292,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'linksite' => 'enwiki',
 					'linktitle' => 'BadTitle_en'
 				),
-				'e' => array( 'exception' => array( 'type' => UsageException::class ) ) ),
+				'e' => array( 'exception' => array( 'type' => ApiUsageException::class ) ) ),
 			array( //6 testSetSiteLinkWithBadTargetSite
 				'p' => array(
 					'site' => 'dewiki',
@@ -304,7 +300,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'linksite' => 'enwiktionary',
 					'linktitle' => 'Berlin'
 				),
-				'e' => array( 'exception' => array( 'type' => UsageException::class ) ) ),
+				'e' => array( 'exception' => array( 'type' => ApiUsageException::class ) ) ),
 			array( //7 badge item does not exist
 				'p' => array(
 					'site' => 'enwiki',
@@ -314,7 +310,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'badges' => 'Q99999|{faItem}'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'no-such-entity'
 				) )
 			),
@@ -326,7 +322,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 					'badges' => '{gaItem}|{faItem}'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'no-such-sitelink'
 				) )
 			),
@@ -555,8 +551,6 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 	 * @dataProvider provideBadBadgeData
 	 */
 	public function testBadBadges( array $params ) {
-		$newText = class_exists( ApiUsageException::class );
-
 		// -- set any defaults ------------------------------------
 		$params['action'] = 'wbsetsitelink';
 
@@ -572,7 +566,7 @@ class SetSiteLinkTest extends WikibaseApiTestCase {
 		list( $result, ) = $this->doApiRequestWithToken( $params );
 
 		$warning = $result['warnings']['wbsetsitelink']['warnings'];
-		$this->assertContains( $newText ? 'Unrecognized value for parameter "badges"' : 'Unrecognized value for parameter \'badges\'', $warning );
+		$this->assertContains( 'Unrecognized value for parameter "badges"', $warning );
 	}
 
 }

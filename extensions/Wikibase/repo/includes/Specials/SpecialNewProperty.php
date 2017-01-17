@@ -2,12 +2,16 @@
 
 namespace Wikibase\Repo\Specials;
 
-use InvalidArgumentException;
+use OutputPage;
 use Status;
-use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Term\Term;
 use Wikibase\DataTypeSelector;
+use Wikibase\Repo\Specials\HTMLForm\HTMLAliasesField;
+use Wikibase\Repo\Specials\HTMLForm\HTMLTrimmedTextField;
+use Wikibase\Repo\Specials\HTMLForm\HTMLContentLanguageField;
 use Wikibase\Repo\WikibaseRepo;
+use Wikibase\Summary;
 
 /**
  * Page for creating new Wikibase properties.
@@ -18,105 +22,120 @@ use Wikibase\Repo\WikibaseRepo;
  * @author John Erling Blad < jeblad@gmail.com >
  */
 class SpecialNewProperty extends SpecialNewEntity {
-
-	/**
-	 * @var string|null
-	 */
-	private $dataType = null;
+	const FIELD_LANG = 'lang';
+	const FIELD_DATATYPE = 'datatype';
+	const FIELD_LABEL = 'label';
+	const FIELD_DESCRIPTION = 'description';
+	const FIELD_ALIASES = 'aliases';
 
 	/**
 	 * @since 0.2
 	 */
-	public function __construct() {
-		parent::__construct( 'NewProperty', 'property-create' );
+	public function __construct( SpecialPageCopyrightView $specialPageCopyrightView ) {
+		parent::__construct( 'NewProperty', 'property-create', $specialPageCopyrightView );
 	}
 
+	/**
+	 * @see SpecialNewEntity::doesWrites
+	 *
+	 * @return bool
+	 */
 	public function doesWrites() {
 		return true;
 	}
 
 	/**
-	 * @see SpecialNewEntity::prepareArguments
-	 */
-	protected function prepareArguments() {
-		parent::prepareArguments();
-
-		$this->dataType = $this->getRequest()->getVal(
-			'datatype',
-			isset( $this->parts[2] ) ? $this->parts[2] : ''
-		);
-	}
-
-	/**
-	 * @see SpecialNewEntity::hasSufficientArguments()
-	 */
-	protected function hasSufficientArguments() {
-		// TODO: Needs refinement
-		return parent::hasSufficientArguments() && ( $this->dataType !== '' );
-	}
-
-	/**
-	 * @see SpecialNewEntity::createEntity
-	 */
-	protected function createEntity() {
-		return Property::newFromType( 'string' );
-	}
-
-	/**
-	 * @see SpecialNewEntity::modifyEntity
+	 * @see SpecialNewEntity::createEntityFromFormData
 	 *
-	 * @param EntityDocument $property
+	 * @param array $formData
 	 *
-	 * @throws InvalidArgumentException
-	 * @return Status
+	 * @return Property
 	 */
-	protected function modifyEntity( EntityDocument $property ) {
-		$status = parent::modifyEntity( $property );
+	protected function createEntityFromFormData( array $formData ) {
+		$languageCode = $formData[ self::FIELD_LANG ];
 
-		if ( $this->dataType !== '' ) {
-			if ( !( $property instanceof Property ) ) {
-				throw new InvalidArgumentException( 'Unexpected entity type' );
-			}
+		$property = Property::newFromType( $formData[ self::FIELD_DATATYPE ] );
 
-			if ( $this->dataTypeExists() ) {
-				$property->setDataTypeId( $this->dataType );
-			} else {
-				$status->fatal( 'wikibase-newproperty-invalid-datatype' );
-			}
-		}
+		$fingerprint = $property->getFingerprint();
+		$fingerprint->setLabel( $languageCode, $formData[ self::FIELD_LABEL ] );
+		$fingerprint->setDescription( $languageCode, $formData[ self::FIELD_DESCRIPTION ] );
 
-		return $status;
+		$fingerprint->setAliasGroup( $languageCode, $formData[ self::FIELD_ALIASES ] );
+
+		return $property;
 	}
 
 	/**
+	 * @param string $dataType
+	 *
 	 * @return bool
 	 */
-	private function dataTypeExists() {
+	private function dataTypeExists( $dataType ) {
 		$dataTypeFactory = WikibaseRepo::getDefaultInstance()->getDataTypeFactory();
-		$ids = $dataTypeFactory->getTypeIds();
-		return in_array( $this->dataType, $ids );
+
+		return in_array( $dataType, $dataTypeFactory->getTypeIds() );
 	}
 
 	/**
-	 * @see SpecialNewEntity::additionalFormElements()
+	 * @see SpecialNewEntity::getFormFields()
 	 *
 	 * @return array[]
 	 */
-	protected function additionalFormElements() {
-		$formDescriptor = parent::additionalFormElements();
+	protected function getFormFields() {
+		$langCode = $this->getLanguage()->getCode();
+
+		$formFields = [
+			self::FIELD_LANG => [
+				'name' => self::FIELD_LANG,
+				'class' => HTMLContentLanguageField::class,
+				'id' => 'wb-newentity-language',
+			],
+			self::FIELD_LABEL => [
+				'name' => self::FIELD_LABEL,
+				'default' => isset( $this->parts[0] ) ? $this->parts[0] : '',
+				'class' => HTMLTrimmedTextField::class,
+				'id' => 'wb-newentity-label',
+				'placeholder-message' => 'wikibase-label-edit-placeholder',
+				'label-message' => 'wikibase-newentity-label'
+			],
+			self::FIELD_DESCRIPTION => [
+				'name' => self::FIELD_DESCRIPTION,
+				'default' => isset( $this->parts[1] ) ? $this->parts[1] : '',
+				'class' => HTMLTrimmedTextField::class,
+				'id' => 'wb-newentity-description',
+				'placeholder-message' => 'wikibase-description-edit-placeholder',
+				'label-message' => 'wikibase-newentity-description'
+			],
+			self::FIELD_ALIASES => [
+				'name' => self::FIELD_ALIASES,
+				'class' => HTMLAliasesField::class,
+				'id' => 'wb-newentity-aliases',
+			]
+		];
 
 		$dataTypeFactory = WikibaseRepo::getDefaultInstance()->getDataTypeFactory();
-		$selector = new DataTypeSelector( $dataTypeFactory->getTypes(), $this->getLanguage()->getCode() );
+		$selector = new DataTypeSelector(
+			$dataTypeFactory->getTypes(),
+			$this->getLanguage()->getCode()
+		);
 
-		$formDescriptor['datatype'] = [
-			'name' => 'datatype',
+		$formFields[ self::FIELD_DATATYPE ] = [
+			'name' => self::FIELD_DATATYPE,
 			'type' => 'select',
-			'options' => array_flip( $selector->getOptionsArray() ),
+			'default' => isset( $this->parts[2] ) ? $this->parts[2] : 'string',
+			'options' => $selector->getOptionsArray(),
 			'id' => 'wb-newproperty-datatype',
+			'validation-callback' => function ( $dataType, $formData, $form ) {
+				if ( !$this->dataTypeExists( $dataType ) ) {
+					return [ $this->msg( 'wikibase-newproperty-invalid-datatype' )->text() ];
+				}
+
+				return true;
+			},
 			'label-message' => 'wikibase-newproperty-datatype'
 		];
 
-		return $formDescriptor;
+		return $formFields;
 	}
 
 	/**
@@ -127,7 +146,7 @@ class SpecialNewProperty extends SpecialNewEntity {
 	}
 
 	/**
-	 * @see SpecialCreateEntity::getWarnings
+	 * @see SpecialNewEntity::getWarnings
 	 *
 	 * @return string[]
 	 */
@@ -142,6 +161,49 @@ class SpecialNewProperty extends SpecialNewEntity {
 		}
 
 		return [];
+	}
+
+	/**
+	 * @param array $formData
+	 *
+	 * @return Status
+	 */
+	protected function validateFormData( array $formData ) {
+		if ( $formData[ self::FIELD_LABEL ] == ''
+			 && $formData[ self::FIELD_DESCRIPTION ] == ''
+			 && $formData[ self::FIELD_ALIASES ] === []
+		) {
+			return Status::newFatal( 'wikibase-newproperty-insufficient-data' );
+		}
+
+		return Status::newGood();
+	}
+
+	/**
+	 * @param Property $property
+	 *
+	 * @return Summary
+	 */
+	protected function createSummary( $property ) {
+		$uiLanguageCode = $this->getLanguage()->getCode();
+
+		$summary = new Summary( 'wbeditentity', 'create' );
+		$summary->setLanguage( $uiLanguageCode );
+		/** @var Term|null $labelTerm */
+		$labelTerm = $property->getFingerprint()->getLabels()->getIterator()->current();
+		/** @var Term|null $descriptionTerm */
+		$descriptionTerm = $property->getFingerprint()->getDescriptions()->getIterator()->current();
+		$summary->addAutoSummaryArgs(
+			$labelTerm ? $labelTerm->getText() : '',
+			$descriptionTerm ? $descriptionTerm->getText() : ''
+		);
+
+		return $summary;
+	}
+
+	protected function displayBeforeForm( OutputPage $output ) {
+		parent::displayBeforeForm( $output );
+		$output->addModules( 'wikibase.special.languageLabelDescriptionAliases' );
 	}
 
 }

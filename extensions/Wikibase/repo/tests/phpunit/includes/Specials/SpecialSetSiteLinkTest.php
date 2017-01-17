@@ -4,11 +4,13 @@ namespace Wikibase\Repo\Tests\Specials;
 
 use FauxRequest;
 use FauxResponse;
+use MediaWiki\MediaWikiServices;
 use SpecialPageTestBase;
 use TestSites;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\Specials\SpecialSetSiteLink;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -19,7 +21,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
  *
@@ -88,7 +89,25 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 	private static $oldBadgeItemsSetting;
 
 	protected function newSpecialPage() {
-		return new SpecialSetSiteLink();
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$siteLookup = $wikibaseRepo->getSiteLookup();
+		$settings = $wikibaseRepo->getSettings();
+
+		$siteLinkChangeOpFactory = $wikibaseRepo->getChangeOpFactoryProvider()->getSiteLinkChangeOpFactory();
+		$siteLinkTargetProvider = new SiteLinkTargetProvider(
+			$siteLookup,
+			$settings->getSetting( 'specialSiteLinkGroups' )
+		);
+
+		$labelDescriptionLookupFactory = $wikibaseRepo->getLanguageFallbackLabelDescriptionLookupFactory();
+		return new SpecialSetSiteLink(
+			$siteLookup,
+			$siteLinkTargetProvider,
+			$settings->getSetting( 'siteLinkGroups' ),
+			$settings->getSetting( 'badgeItems' ),
+			$labelDescriptionLookupFactory,
+			$siteLinkChangeOpFactory
+		);
 	}
 
 	protected function setUp() {
@@ -97,7 +116,7 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 		$this->setMwGlobals( 'wgGroupPermissions', array( '*' => array( 'edit' => true ) ) );
 
 		if ( !self::$badgeId ) {
-			$sitesTable = WikibaseRepo::getDefaultInstance()->getSiteStore();
+			$sitesTable = MediaWikiServices::getInstance()->getSiteStore();
 			$sitesTable->clear();
 			$sitesTable->saveSites( TestSites::getSites() );
 

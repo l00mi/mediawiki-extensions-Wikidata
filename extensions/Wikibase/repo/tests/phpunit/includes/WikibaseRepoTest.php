@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Tests\Repo;
+namespace Wikibase\Repo\Tests;
 
 use DataTypes\DataTypeFactory;
 use DataValues\DataValue;
@@ -80,7 +80,6 @@ use Wikibase\SummaryFormatter;
  * @covers Wikibase\Repo\WikibaseRepo
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group Database
  *
  * @license GPL-2.0+
@@ -299,7 +298,7 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 		$this->assertInstanceOf( EntityFactory::class, $entityFactory );
 	}
 
-	public function testGetEnabledEntityTypes() {
+	public function testGetLocalEntityTypes() {
 		$wikibaseRepo = $this->getWikibaseRepo();
 		$wikibaseRepo->getSettings()->setSetting(
 			'entityNamespaces',
@@ -309,9 +308,29 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 			]
 		);
 
+		$localEntityTypes = $wikibaseRepo->getLocalEntityTypes();
+		$this->assertContains( 'foo', $localEntityTypes );
+		$this->assertContains( 'bar', $localEntityTypes );
+	}
+
+	public function testGetEnabledEntityTypes() {
+		$wikibaseRepo = $this->getWikibaseRepo();
+		$wikibaseRepo->getSettings()->setSetting(
+			'entityNamespaces',
+			[ 'foo' => 100, 'bar' => 102 ]
+		);
+		$wikibaseRepo->getSettings()->setSetting(
+			'foreignRepositories',
+			[
+				'repo1' => [ 'supportedEntityTypes' => [ 'foo', 'baz' ] ],
+				'repo2' => [ 'supportedEntityTypes' => [ 'foobar' ] ],
+			]
+		);
 		$enabled = $wikibaseRepo->getEnabledEntityTypes();
 		$this->assertContains( 'foo', $enabled );
 		$this->assertContains( 'bar', $enabled );
+		$this->assertContains( 'baz', $enabled );
+		$this->assertContains( 'foobar', $enabled );
 	}
 
 	public function testGetExceptionLocalizer() {
@@ -592,6 +611,21 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 
 		$expected = new EntityIdValue( new ItemId( 'Q13' ) );
 		$this->assertEquals( $expected, $deserialized );
+	}
+
+	public function testGetChangeOpDeserializerCallbacks() {
+		$wikibaseRepo = $this->getWikibaseRepo(
+			[
+				'foo' => [
+					'changeop-deserializer-callback' => 'new-changeop-deserializer-callback'
+				]
+			]
+		);
+		$changeOpsCallbacks = $wikibaseRepo->getChangeOpDeserializerCallbacks();
+		$expected = [
+			'foo' => 'new-changeop-deserializer-callback'
+		];
+		$this->assertSame( $expected, $changeOpsCallbacks );
 	}
 
 }

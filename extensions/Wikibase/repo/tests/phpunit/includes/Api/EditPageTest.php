@@ -1,9 +1,9 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use MWException;
-use UsageException;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Repo\WikibaseRepo;
@@ -44,7 +44,7 @@ class EditPageTest extends WikibaseApiTestCase {
 		$title = $wikibaseRepo->getEntityTitleLookup()->getTitleForId( $item->getId() );
 
 		// try to update the item with valid data via the edit action
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 		$this->doApiRequestWithToken(
 			array(
 				'action' => 'edit',
@@ -78,7 +78,7 @@ class EditPageTest extends WikibaseApiTestCase {
 			);
 
 			$this->fail( "Saving wikitext to the item namespace should not be possible." );
-		} catch ( UsageException $ex ) {
+		} catch ( ApiUsageException $ex ) {
 			$this->assertTrue( true );
 		} catch ( MWException $ex ) {
 			if ( !$wgContentHandlerUseDB ) {

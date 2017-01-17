@@ -15,7 +15,6 @@ use Wikibase\PropertyContent;
  * @group Database
  * @group Wikibase
  * @group WikibaseProperty
- * @group WikibaseRepo
  * @group WikibaseContent
  *
  * @license GPL-2.0+
@@ -31,8 +30,9 @@ class PropertyContentTest extends EntityContentTest {
 	}
 
 	/**
-	 * @param EntityId|null $propertyId
+	 * @param PropertyId|null $propertyId
 	 *
+	 * @throws InvalidArgumentException
 	 * @return PropertyContent
 	 */
 	protected function newEmpty( EntityId $propertyId = null ) {
@@ -63,25 +63,6 @@ class PropertyContentTest extends EntityContentTest {
 		$Property->setLabel( 'en', '~=[,,_,,]:3' );
 		$content = PropertyContent::newFromProperty( $Property );
 		$this->assertFalse( $content->isEmpty() );
-	}
-
-	public function testIsStub_stubProperty() {
-		$Property = Property::newFromType( 'foo' );
-		$Property->setLabel( 'en', '~=[,,_,,]:3' );
-		$content = PropertyContent::newFromProperty( $Property );
-		$this->assertTrue( $content->isStub() );
-	}
-
-	public function testIsStub_emptyProperty() {
-		$content = PropertyContent::newFromProperty( Property::newFromType( 'foo' ) );
-		$this->assertFalse( $content->isStub() );
-	}
-
-	public function testIsStub_nonStubProperty() {
-		$Property = Property::newFromType( 'foo' );
-		$Property->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
-		$content = PropertyContent::newFromProperty( $Property );
-		$this->assertFalse( $content->isStub() );
 	}
 
 }

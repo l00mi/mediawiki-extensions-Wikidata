@@ -23,7 +23,7 @@ use Wikibase\Dumpers\JsonDumpGenerator;
 use Wikibase\Lib\Reporting\ExceptionHandler;
 use Wikibase\Lib\Reporting\MessageReporter;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
-use Wikibase\Repo\Store\EntityIdPager;
+use Wikibase\DataModel\Services\EntityId\EntityIdPager;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -31,8 +31,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @covers Wikibase\Dumpers\DumpGenerator
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group JsonDump
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler

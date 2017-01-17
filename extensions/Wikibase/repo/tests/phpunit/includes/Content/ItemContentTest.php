@@ -26,9 +26,7 @@ use Wikibase\Repo\WikibaseRepo;
  *
  * @group Wikibase
  * @group WikibaseItem
- * @group WikibaseRepo
  * @group WikibaseContent
- * @group WikibaseItemContent
  *
  * @group Database
  *
@@ -47,8 +45,9 @@ class ItemContentTest extends EntityContentTest {
 	}
 
 	/**
-	 * @param EntityId|null $itemId
+	 * @param ItemId|null $itemId
 	 *
+	 * @throws InvalidArgumentException
 	 * @return ItemContent
 	 */
 	protected function newEmpty( EntityId $itemId = null ) {
@@ -133,48 +132,6 @@ class ItemContentTest extends EntityContentTest {
 		return $cases;
 	}
 
-	public function provideGetEntityStatus() {
-		$cases = parent::provideGetEntityStatus();
-
-		$contentLinkStub = ItemContent::newEmpty();
-		$contentLinkStub->getEntity()->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
-
-		$cases['linkstub'] = array(
-			$contentLinkStub,
-			ItemContent::STATUS_LINKSTUB
-		);
-
-		$linksAndTerms = $contentLinkStub->copy();
-		$linksAndTerms->getEntity()->setLabel( 'en', 'foo' );
-
-		$cases['linkstub with terms'] = array(
-			$linksAndTerms,
-			ItemContent::STATUS_LINKSTUB
-		);
-
-		// @todo this is needed in PropertyContentTest as well
-		//       once we have statements in properties
-		$contentWithClaim = $this->newEmpty();
-		$snak = new PropertyNoValueSnak( 83 );
-		$guid = '$testing$';
-		$contentWithClaim->getEntity()->getStatements()->addNewStatement( $snak, null, null, $guid );
-
-		$cases['claims'] = array(
-			$contentWithClaim,
-			EntityContent::STATUS_NONE
-		);
-
-		$contentWithClaimAndLink = $contentWithClaim->copy();
-		$contentWithClaimAndLink->getEntity()->getSiteLinkList()->addNewSiteLink( 'enwiki', 'Foo' );
-
-		$cases['statements and links'] = array(
-			$contentWithClaimAndLink,
-			EntityContent::STATUS_NONE
-		);
-
-		return $cases;
-	}
-
 	/**
 	 * @return EntityContent
 	 */
@@ -235,7 +192,6 @@ class ItemContentTest extends EntityContentTest {
 			array(
 				'wb-claims' => 0,
 				'wb-sitelinks' => 1,
-				'wb-status' => ItemContent::STATUS_LINKSTUB,
 			)
 		);
 
@@ -413,25 +369,6 @@ class ItemContentTest extends EntityContentTest {
 		$item->setLabel( 'en', '~=[,,_,,]:3' );
 		$content = ItemContent::newFromItem( $item );
 		$this->assertFalse( $content->isEmpty() );
-	}
-
-	public function testIsStub_stubItem() {
-		$item = new Item();
-		$item->setLabel( 'en', '~=[,,_,,]:3' );
-		$content = ItemContent::newFromItem( $item );
-		$this->assertTrue( $content->isStub() );
-	}
-
-	public function testIsStub_emptyItem() {
-		$content = ItemContent::newFromItem( new Item() );
-		$this->assertFalse( $content->isStub() );
-	}
-
-	public function testIsStub_nonStubItem() {
-		$item = new Item();
-		$item->getStatements()->addNewStatement( new PropertyNoValueSnak( 42 ) );
-		$content = ItemContent::newFromItem( $item );
-		$this->assertFalse( $content->isStub() );
 	}
 
 }

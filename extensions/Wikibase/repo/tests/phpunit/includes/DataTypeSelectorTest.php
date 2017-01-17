@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 use DataTypes\DataType;
 use MWException;
@@ -11,19 +11,22 @@ use Wikibase\DataTypeSelector;
  * @covers Wikibase\DataTypeSelector
  *
  * @group Wikibase
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Thiemo Mättig
  */
 class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 
+	/** @see \LanguageQqx */
+	const DUMMY_LANGUAGE = 'qqx';
+
 	/**
 	 * @param string $propertyType
+	 * @param string $messageKey
 	 *
 	 * @return DataType
 	 */
-	private function newDataType( $propertyType ) {
+	private function newDataType( $propertyType, $messageKey ) {
 		$dataType = $this->getMockBuilder( DataType::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -33,22 +36,10 @@ class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 			->will( $this->returnValue( $propertyType ) );
 
 		$dataType->expects( $this->any() )
-			->method( 'getLabel' )
-			->will( $this->returnValue( '(datatypes-type-' . $propertyType . ')' ) );
+			->method( 'getMessageKey' )
+			->will( $this->returnValue( $messageKey ) );
 
 		return $dataType;
-	}
-
-	/**
-	 * @param DataType[]|null $dataTypes
-	 *
-	 * @return DataTypeSelector
-	 */
-	private function newInstance( array $dataTypes = null ) {
-		return new DataTypeSelector(
-			$dataTypes !== null ? $dataTypes : array( $this->newDataType( '<PT>' ) ),
-			'qqx'
-		);
 	}
 
 	/**
@@ -60,76 +51,50 @@ class DataTypeSelectorTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function invalidConstructorArgumentsProvider() {
-		return array(
-			array( array(), null ),
-			array( array(), false ),
-			array( array( null ), '' ),
-			array( array( false ), '' ),
-			array( array( '' ), '' ),
-		);
+		return [
+			[ [], null ],
+			[ [], false ],
+			[ [ null ], '' ],
+			[ [ false ], '' ],
+			[ [ '' ], '' ],
+		];
 	}
 
-	/**
-	 * @dataProvider getHtmlProvider
-	 */
-	public function testGetHtml( array $dataTypes, $selectedTypeId, $expected ) {
-		$selector = $this->newInstance( $dataTypes );
-		$html = $selector->getHtml( '<ID>', '<NAME>', $selectedTypeId );
-		$this->assertSame( $expected, $html );
+	public function testGetOptionsArrayWithOneElement() {
+		$selector = new DataTypeSelector( [
+			$this->newDataType( '<PROPERTY-TYPE>', '<LABEL>' ),
+		], self::DUMMY_LANGUAGE );
+
+		$expected = [
+			'(<LABEL>)' => '<PROPERTY-TYPE>',
+		];
+		$this->assertSame( $expected, $selector->getOptionsArray() );
 	}
 
-	public function getHtmlProvider() {
-		return array(
-			array(
-				array(),
-				'',
-				'<select name="&lt;NAME&gt;" id="&lt;ID&gt;" class="wb-select">'
-				. '</select>'
-			),
-			array(
-				array( $this->newDataType( '<PT>' ) ),
-				'',
-				'<select name="&lt;NAME&gt;" id="&lt;ID&gt;" class="wb-select">'
-				. '<option value="&lt;PT&gt;">(datatypes-type-&lt;PT>)</option>'
-				. '</select>'
-			),
-			array(
-				array( $this->newDataType( 'PT1' ), $this->newDataType( 'PT2' ) ),
-				'PT2',
-				'<select name="&lt;NAME&gt;" id="&lt;ID&gt;" class="wb-select">'
-				. '<option value="PT1">(datatypes-type-PT1)</option>'
-				. '<option value="PT2" selected="">(datatypes-type-PT2)</option>'
-				. '</select>'
-			),
-		);
+	public function testGetOptionsArrayWithDuplicateLabels() {
+		$selector = new DataTypeSelector( [
+			$this->newDataType( '<PROPERTY-TYPE-B>', '<LABEL>' ),
+			$this->newDataType( '<PROPERTY-TYPE-A>', '<LABEL>' ),
+		], self::DUMMY_LANGUAGE );
+
+		$expected = [
+			'<PROPERTY-TYPE-A>' => '<PROPERTY-TYPE-A>',
+			'<PROPERTY-TYPE-B>' => '<PROPERTY-TYPE-B>',
+		];
+		$this->assertSame( $expected, $selector->getOptionsArray() );
 	}
 
-	public function testGetOptionsArray() {
-		$selector = $this->newInstance();
-		$options = $selector->getOptionsArray();
-		$this->assertSame( array( '<PT>' => '(datatypes-type-<PT>)' ), $options );
-	}
+	public function testGetOptionsArraySortsLabelsInNaturalOrder() {
+		$selector = new DataTypeSelector( [
+			$this->newDataType( '<PROPERTY-TYPE-A>', '<LABEL-10>' ),
+			$this->newDataType( '<PROPERTY-TYPE-B>', '<label-2>' ),
+		], self::DUMMY_LANGUAGE );
 
-	/**
-	 * @dataProvider getOptionsHtmlProvider
-	 */
-	public function testGetOptionsHtml( $selectedTypeId, $expected ) {
-		$selector = $this->newInstance();
-		$html = $selector->getOptionsHtml( $selectedTypeId );
-		$this->assertSame( $expected, $html );
-	}
-
-	public function getOptionsHtmlProvider() {
-		return array(
-			array(
-				'',
-				'<option value="&lt;PT&gt;">(datatypes-type-&lt;PT>)</option>'
-			),
-			array(
-				'<PT>',
-				'<option value="&lt;PT&gt;" selected="">(datatypes-type-&lt;PT>)</option>'
-			),
-		);
+		$expected = [
+			'(<label-2>)' => '<PROPERTY-TYPE-B>',
+			'(<LABEL-10>)' => '<PROPERTY-TYPE-A>',
+		];
+		$this->assertSame( $expected, $selector->getOptionsArray() );
 	}
 
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use DataValues\NumberValue;
 use DataValues\Serializers\DataValueSerializer;
 use DataValues\StringValue;
 use FormatJson;
-use UsageException;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
@@ -29,7 +29,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Database
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @group medium
  *
@@ -340,7 +339,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 			if ( $error !== null ) {
 				$this->fail( "Did not cause expected error $error" );
 			}
-		} catch ( UsageException $ex ) {
+		} catch ( ApiUsageException $ex ) {
 			if ( $error ) {
 				$this->assertEquals( $error, $ex->getCodeString(), 'expected error' );
 			} else {
@@ -457,7 +456,7 @@ class SetClaimTest extends WikibaseApiTestCase {
 		try {
 			$this->doApiRequestWithToken( $params );
 			$this->fail( 'Changed main snak property did not raise an error' );
-		} catch ( UsageException $e ) {
+		} catch ( ApiUsageException $e ) {
 			$this->assertEquals( 'modification-failed', $e->getCodeString(), 'Changed main snak property' );
 		}
 	}

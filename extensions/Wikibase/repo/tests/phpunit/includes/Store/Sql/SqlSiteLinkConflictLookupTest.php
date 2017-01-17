@@ -13,8 +13,6 @@ use Wikibase\Repo\Store\Sql\SqlSiteLinkConflictLookup;
  * @covers Wikibase\Repo\Store\Sql\SqlSiteLinkConflictLookup
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group SiteLink
  * @group WikibaseStore
  * @group Database
  *
@@ -52,12 +50,12 @@ class SqlSiteLinkConflictLookupTest extends \MediaWikiTestCase {
 		$expected = array(
 			array(
 				'siteId' => 'enwiki',
-				'itemId' => 9,
+				'itemId' => new ItemId( 'Q9' ),
 				'sitePage' => 'Kitten'
 			)
 		);
 
-		$this->assertSame(
+		$this->assertEquals(
 			$expected,
 			$siteLinkConflictLookup->getConflictsForItem( $this->getItem( 'Kitten' ) )
 		);

@@ -14,7 +14,8 @@ use User;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\EntityNamespaceLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Repo\Content\EntityContentFactory;
 use WikiPage;
 
@@ -28,7 +29,12 @@ use WikiPage;
 class EditFilterHookRunner {
 
 	/**
-	 * @var EntityTitleLookup
+	 * @var EntityNamespaceLookup
+	 */
+	private $namespaceLookup;
+
+	/**
+	 * @var EntityTitleStoreLookup
 	 */
 	private $titleLookup;
 
@@ -43,12 +49,14 @@ class EditFilterHookRunner {
 	private $context;
 
 	/**
-	 * @param EntityTitleLookup $titleLookup
+	 * @param EntityNamespaceLookup $namespaceLookup
+	 * @param EntityTitleStoreLookup $titleLookup
 	 * @param EntityContentFactory $entityContentFactory
 	 * @param IContextSource $context
 	 */
 	public function __construct(
-		EntityTitleLookup $titleLookup,
+		EntityNamespaceLookup $namespaceLookup,
+		EntityTitleStoreLookup $titleLookup,
 		EntityContentFactory $entityContentFactory,
 		IContextSource $context
 	) {
@@ -58,6 +66,7 @@ class EditFilterHookRunner {
 			$context = new DerivativeContext( $context );
 		}
 
+		$this->namespaceLookup = $namespaceLookup;
 		$this->titleLookup = $titleLookup;
 		$this->entityContentFactory = $entityContentFactory;
 		$this->context = $context;
@@ -135,7 +144,7 @@ class EditFilterHookRunner {
 			// "Special:NewProperty" instead of "Property:NewProperty", while
 			// the AbuseFilter itself will get a Title object with the correct
 			// namespace IDs for Property entities.
-			$namespace = $this->titleLookup->getNamespaceForType( $entityType );
+			$namespace = $this->namespaceLookup->getEntityNamespace( $entityType );
 			$title = Title::makeTitle( $namespace, 'New' . ucfirst( $entityType ) );
 		}
 

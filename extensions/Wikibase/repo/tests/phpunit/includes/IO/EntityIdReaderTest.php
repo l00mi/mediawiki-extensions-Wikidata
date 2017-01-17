@@ -16,8 +16,6 @@ use Wikibase\Repo\IO\LineReader;
  * @covers Wikibase\Repo\IO\EntityIdReader
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group WikibaseIO
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler

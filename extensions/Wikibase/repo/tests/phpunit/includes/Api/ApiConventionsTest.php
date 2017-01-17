@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiBase;
 use ApiMain;
@@ -10,7 +10,6 @@ use ReflectionMethod;
 
 /**
  * @group Wikibase
- * @group WikibaseRepo
  * @group WikibaseAPI
  * @group Database
  *

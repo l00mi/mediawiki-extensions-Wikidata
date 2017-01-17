@@ -1,10 +1,10 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiMain;
 use DataValues\StringValue;
-use UsageException;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -20,7 +20,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @covers Wikibase\Repo\Api\StatementModificationHelper
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group WikibaseAPI
  * @group Database
  *
@@ -40,7 +39,7 @@ class StatementModificationHelperTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @expectedException UsageException
+	 * @expectedException ApiUsageException
 	 */
 	public function testInvalidGetEntityIdFromString() {
 		$invalidEntityIdString = 'no!';
@@ -80,7 +79,7 @@ class StatementModificationHelperTest extends \MediaWikiTestCase {
 		$guid = $statement->getGuid();
 
 		$this->assertEquals( $statement, $helper->getStatementFromEntity( $guid, $item ) );
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 		$helper->getStatementFromEntity( 'q42$D8404CDA-25E4-4334-AF13-A3290BCD9C0N', $item );
 	}
 

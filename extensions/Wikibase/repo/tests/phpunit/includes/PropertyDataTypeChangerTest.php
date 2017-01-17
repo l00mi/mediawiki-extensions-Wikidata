@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Repo\Test;
+namespace Wikibase\Repo\Tests;
 
 use DataTypes\DataType;
 use DataTypes\DataTypeFactory;
@@ -20,7 +20,6 @@ use Wikibase\Repo\PropertyDataTypeChanger;
  *
  * @since 0.5
  *
- * @group WikibaseRepo
  * @group Wikibase
  *
  * @license GPL-2.0+

@@ -22,11 +22,10 @@ use LogicException;
 use MediaWiki\MediaWikiServices;
 use MediaWikiSite;
 use MWException;
-use RequestContext;
 use Serializers\DispatchingSerializer;
 use Serializers\Serializer;
 use Site;
-use SiteStore;
+use SiteLookup;
 use StubObject;
 use Title;
 use Wikibase\Client\Changes\AffectedPagesFinder;
@@ -34,6 +33,7 @@ use Wikibase\Client\Changes\ChangeHandler;
 use Wikibase\Client\Changes\ChangeRunCoalescer;
 use Wikibase\Client\Changes\WikiPageUpdater;
 use Wikibase\Client\DataAccess\DataAccessSnakFormatterFactory;
+use Wikibase\Client\DataAccess\ClientSiteLinkTitleLookup;
 use Wikibase\Client\DataAccess\PropertyIdResolver;
 use Wikibase\Client\DataAccess\PropertyParserFunction\StatementGroupRendererFactory;
 use Wikibase\Client\DataAccess\PropertyParserFunction\Runner;
@@ -82,6 +82,8 @@ use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\FallbackPropertyOrderProvider;
 use Wikibase\Lib\Store\HttpUrlPropertyOrderProvider;
+use Wikibase\Lib\Store\PrefetchingTermLookup;
+use Wikibase\Lib\Store\PropertyOrderProvider;
 use Wikibase\Lib\Store\WikiPagePropertyOrderProvider;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
@@ -89,7 +91,6 @@ use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
 use Wikibase\SiteLinkCommentCreator;
-use Wikibase\Store\BufferingTermLookup;
 use Wikibase\StringNormalizer;
 
 /**
@@ -114,9 +115,14 @@ final class WikibaseClient {
 	private $contentLanguage;
 
 	/**
-	 * @var SiteStore|null
+	 * @var SiteLookup
 	 */
-	private $siteStore;
+	private $siteLookup;
+
+	/**
+	 * @var DispatchingServiceFactory
+	 */
+	private $dispatchingServiceFactory;
 
 	/**
 	 * @var PropertyDataTypeLookup|null
@@ -214,7 +220,7 @@ final class WikibaseClient {
 	private $entityTypeDefinitions;
 
 	/**
-	 * @var TermLookup|null
+	 * @var PrefetchingTermLookup|null
 	 */
 	private $termLookup = null;
 
@@ -257,14 +263,17 @@ final class WikibaseClient {
 	private function newWikibaseValueFormatterBuilders() {
 		global $wgLang;
 
+		$entityTitleLookup = new ClientSiteLinkTitleLookup(
+			$this->getStore()->getSiteLinkLookup(),
+			$this->getSettings()->getSetting( 'siteGlobalID' )
+		);
+
 		return new WikibaseValueFormatterBuilders(
 			$this->contentLanguage,
 			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
 			new LanguageNameLookup( $wgLang->getCode() ),
 			$this->getRepoItemUriParser(),
-			null,
-			$this->getStore()->getSiteLinkLookup(),
-			$this->getSettings()->getSetting( 'siteGlobalID' )
+			$entityTitleLookup
 		);
 	}
 
@@ -301,7 +310,7 @@ final class WikibaseClient {
 	private function newWikibaseSnakFormatterBuilders( WikibaseValueFormatterBuilders $valueFormatterBuilders ) {
 		return new WikibaseSnakFormatterBuilders(
 			$valueFormatterBuilders,
-			$this->getStore()->getPropertyInfoStore(),
+			$this->getStore()->getPropertyInfoLookup(),
 			$this->getPropertyDataTypeLookup(),
 			$this->getDataTypeFactory()
 		);
@@ -312,20 +321,20 @@ final class WikibaseClient {
 	 * @param Language $contentLanguage
 	 * @param DataTypeDefinitions $dataTypeDefinitions
 	 * @param EntityTypeDefinitions $entityTypeDefinitions
-	 * @param SiteStore|null $siteStore
+	 * @param SiteLookup $siteLookup
 	 */
 	public function __construct(
 		SettingsArray $settings,
 		Language $contentLanguage,
 		DataTypeDefinitions $dataTypeDefinitions,
 		EntityTypeDefinitions $entityTypeDefinitions,
-		SiteStore $siteStore = null
+		SiteLookup $siteLookup
 	) {
 		$this->settings = $settings;
 		$this->contentLanguage = $contentLanguage;
 		$this->dataTypeDefinitions = $dataTypeDefinitions;
 		$this->entityTypeDefinitions = $entityTypeDefinitions;
-		$this->siteStore = $siteStore;
+		$this->siteLookup = $siteLookup;
 	}
 
 	/**
@@ -372,6 +381,20 @@ final class WikibaseClient {
 	}
 
 	/**
+	 * @return DispatchingServiceFactory
+	 */
+	private function getDispatchingServiceFactory() {
+		if ( $this->dispatchingServiceFactory === null ) {
+			$factory = new DispatchingServiceFactory( $this );
+			$factory->loadWiringFiles( $this->settings->getSetting( 'dispatchingServiceWiringFiles' ) );
+
+			$this->dispatchingServiceFactory = $factory;
+		}
+
+		return $this->dispatchingServiceFactory;
+	}
+
+	/**
 	 * @return EntityLookup
 	 */
 	private function getEntityLookup() {
@@ -382,25 +405,22 @@ final class WikibaseClient {
 	 * @return TermBuffer
 	 */
 	public function getTermBuffer() {
-		return $this->getBufferingTermLookup();
+		return $this->getPrefetchingTermLookup();
 	}
 
 	/**
 	 * @return TermLookup
 	 */
 	public function getTermLookup() {
-		return $this->getBufferingTermLookup();
+		return $this->getPrefetchingTermLookup();
 	}
 
 	/**
-	 * @return BufferingTermLookup
+	 * @return PrefetchingTermLookup
 	 */
-	public function getBufferingTermLookup() {
+	private function getPrefetchingTermLookup() {
 		if ( !$this->termLookup ) {
-			$this->termLookup = new BufferingTermLookup(
-				$this->getStore()->getTermIndex(),
-				1000 // @todo: configure buffer size
-			);
+			$this->termLookup = $this->getDispatchingServiceFactory()->getTermBuffer();
 		}
 
 		return $this->termLookup;
@@ -417,7 +437,7 @@ final class WikibaseClient {
 		return new TermIndexSearchInteractor(
 			$this->getStore()->getTermIndex(),
 			$this->getLanguageFallbackChainFactory(),
-			$this->getBufferingTermLookup(),
+			$this->getPrefetchingTermLookup(),
 			$displayLanguageCode
 		);
 	}
@@ -429,9 +449,9 @@ final class WikibaseClient {
 	 */
 	public function getPropertyDataTypeLookup() {
 		if ( $this->propertyDataTypeLookup === null ) {
-			$infoStore = $this->getStore()->getPropertyInfoStore();
+			$infoLookup = $this->getStore()->getPropertyInfoLookup();
 			$retrievingLookup = new EntityRetrievingDataTypeLookup( $this->getEntityLookup() );
-			$this->propertyDataTypeLookup = new PropertyInfoDataTypeLookup( $infoStore, $retrievingLookup );
+			$this->propertyDataTypeLookup = new PropertyInfoDataTypeLookup( $infoLookup, $retrievingLookup );
 		}
 
 		return $this->propertyDataTypeLookup;
@@ -513,6 +533,7 @@ final class WikibaseClient {
 				$this->getEntityIdParser(),
 				$this->getEntityIdComposer(),
 				$this->getEntityNamespaceLookup(),
+				$this->getDispatchingServiceFactory(),
 				$repoDatabase,
 				$this->contentLanguage->getCode()
 			);
@@ -620,7 +641,8 @@ final class WikibaseClient {
 				$dataTypeDefinitions,
 				$settings->getSetting( 'disabledDataTypes' )
 			),
-			new EntityTypeDefinitions( $entityTypeDefinitions )
+			new EntityTypeDefinitions( $entityTypeDefinitions ),
+			MediaWikiServices::getInstance()->getSiteLookup()
 		);
 	}
 
@@ -660,7 +682,7 @@ final class WikibaseClient {
 			$globalId = $this->settings->getSetting( 'siteGlobalID' );
 			$localId = $this->settings->getSetting( 'siteLocalID' );
 
-			$this->site = $this->getSiteStore()->getSite( $globalId );
+			$this->site = $this->siteLookup->getSite( $globalId );
 
 			if ( !$this->site ) {
 				wfDebugLog( __CLASS__, __FUNCTION__ . ": Unable to resolve site ID '{$globalId}'!" );
@@ -710,7 +732,7 @@ final class WikibaseClient {
 		if ( !$siteGroup ) {
 			$siteId = $this->settings->getSetting( 'siteGlobalID' );
 
-			$site = $this->getSiteStore()->getSite( $siteId );
+			$site = $this->siteLookup->getSite( $siteId );
 
 			if ( !$site ) {
 				return true;
@@ -822,7 +844,7 @@ final class WikibaseClient {
 				$this->getNamespaceChecker(),
 				$this->getStore()->getSiteLinkLookup(),
 				$this->getStore()->getEntityLookup(),
-				$this->getSiteStore(),
+				$this->siteLookup,
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->getLangLinkSiteGroup()
 			);
@@ -862,19 +884,6 @@ final class WikibaseClient {
 			is_array( $badgeClassNames ) ? $badgeClassNames : array(),
 			$wgLang
 		);
-	}
-
-	/**
-	 * @since 0.5
-	 *
-	 * @return SiteStore
-	 */
-	public function getSiteStore() {
-		if ( $this->siteStore === null ) {
-			$this->siteStore = MediaWikiServices::getInstance()->getSiteStore();
-		}
-
-		return $this->siteStore;
 	}
 
 	/**
@@ -918,7 +927,7 @@ final class WikibaseClient {
 	 */
 	private function getExternalFormatEntityDeserializer() {
 		if ( $this->entityDeserializer === null ) {
-			$deserializerFactoryCallbacks = $this->entityTypeDefinitions->getDeserializerFactoryCallbacks();
+			$deserializerFactoryCallbacks = $this->getEntityDeserializerFactoryCallbacks();
 			$deserializerFactory = $this->getExternalFormatDeserializerFactory();
 			$deserializers = array();
 
@@ -948,6 +957,13 @@ final class WikibaseClient {
 	 */
 	public function getInternalFormatStatementDeserializer() {
 		return $this->getInternalFormatDeserializerFactory()->newStatementDeserializer();
+	}
+
+	/**
+	 * @return callable[]
+	 */
+	public function getEntityDeserializerFactoryCallbacks() {
+		return $this->entityTypeDefinitions->getDeserializerFactoryCallbacks();
 	}
 
 	/**
@@ -999,7 +1015,7 @@ final class WikibaseClient {
 		return new OtherProjectsSidebarGeneratorFactory(
 			$this->settings,
 			$this->getStore()->getSiteLinkLookup(),
-			$this->getSiteStore()
+			$this->siteLookup
 		);
 	}
 
@@ -1095,7 +1111,7 @@ final class WikibaseClient {
 	public function getOtherProjectsSitesProvider() {
 		return new CachingOtherProjectsSitesProvider(
 			new OtherProjectsSitesGenerator(
-				$this->getSiteStore(),
+				$this->siteLookup,
 				$this->settings->getSetting( 'siteGlobalID' ),
 				$this->settings->getSetting( 'specialSiteLinkGroups' )
 			),
@@ -1127,7 +1143,7 @@ final class WikibaseClient {
 			new TitleFactory(),
 			$this->getWikiPageUpdater(),
 			$this->getChangeRunCoalescer(),
-			$this->getSiteStore(),
+			$this->siteLookup,
 			$this->settings->getSetting( 'injectRecentChanges' )
 		);
 	}
@@ -1140,7 +1156,7 @@ final class WikibaseClient {
 			JobQueueGroup::singleton(),
 			$this->getRecentChangeFactory(),
 			$this->getStore()->getRecentChangesDuplicateDetector(),
-			RequestContext::getMain()->getStats()
+			MediaWikiServices::getInstance()->getStatsdDataFactory()
 		);
 	}
 
@@ -1171,7 +1187,7 @@ final class WikibaseClient {
 	private function getSiteLinkCommentCreator() {
 		return new SiteLinkCommentCreator(
 			$this->getContentLanguage(),
-			$this->getSiteStore(),
+			$this->siteLookup,
 			$this->settings->getSetting( 'siteGlobalID' )
 		);
 	}
@@ -1200,7 +1216,7 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @return CachingPropertyOrderProvider
+	 * @return PropertyOrderProvider
 	 */
 	public function getPropertyOrderProvider() {
 		if ( $this->propertyOrderProvider === null ) {

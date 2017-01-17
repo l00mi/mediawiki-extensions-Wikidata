@@ -12,17 +12,16 @@ use Wikibase\DataModel\Services\Lookup\InMemoryDataTypeLookup;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
 use Wikibase\DataModel\Snak\Snak;
 use Wikibase\Lib\SnakFormatter;
+use Wikibase\Lib\Store\PropertyInfoLookup;
 use Wikibase\Lib\WikibaseSnakFormatterBuilders;
 use Wikibase\Lib\WikibaseValueFormatterBuilders;
-use Wikibase\PropertyInfoStore;
-use Wikibase\Lib\Tests\Store\MockPropertyInfoStore;
+use Wikibase\Lib\Tests\Store\MockPropertyInfoLookup;
 
 /**
  * @covers Wikibase\Lib\WikibaseSnakFormatterBuilders
  *
  * @group SnakFormatters
  * @group DataValueExtensions
- * @group WikibaseLib
  * @group Wikibase
  *
  * @license GPL-2.0+
@@ -44,11 +43,12 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 			->method( 'newStringFormatter' )
 			->will( $this->returnValue( new StringFormatter() ) );
 
-		$propertyInfoStore = new MockPropertyInfoStore();
-		$propertyInfoStore->setPropertyInfo( $p1, array(
-			PropertyInfoStore::KEY_DATA_TYPE => 'external-id',
-			PropertyInfoStore::KEY_FORMATTER_URL => 'http://acme.com/vocab/$1',
-		) );
+		$propertyInfoLookup = new MockPropertyInfoLookup( [
+			$p1->getSerialization() => [
+				PropertyInfoLookup::KEY_DATA_TYPE => 'external-id',
+				PropertyInfoLookup::KEY_FORMATTER_URL => 'http://acme.com/vocab/$1',
+			],
+		] );
 
 		$dataTypeLookup = new InMemoryDataTypeLookup();
 		$dataTypeLookup->setDataTypeForProperty( $p1, 'external-id' );
@@ -57,7 +57,7 @@ class WikibaseSnakFormatterBuildersTest extends \PHPUnit_Framework_TestCase {
 
 		return new WikibaseSnakFormatterBuilders(
 			$valueFormatterBuilders,
-			$propertyInfoStore,
+			$propertyInfoLookup,
 			$dataTypeLookup,
 			$dataTypeFactory
 		);

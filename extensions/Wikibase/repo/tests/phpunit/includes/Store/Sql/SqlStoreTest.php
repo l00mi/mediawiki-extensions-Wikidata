@@ -16,11 +16,12 @@ use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\LabelConflictFinder;
+use Wikibase\Lib\Store\PropertyInfoLookup;
 use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
-use Wikibase\PropertyInfoStore;
+use Wikibase\Lib\Store\PropertyInfoStore;
 use Wikibase\Repo\Store\EntityPerPage;
 use Wikibase\Repo\Store\SiteLinkConflictLookup;
 use Wikibase\Repo\Store\Sql\SqlChangeStore;
@@ -33,7 +34,6 @@ use Wikibase\TermIndex;
  *
  * @group Wikibase
  * @group WikibaseStore
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Thiemo Mättig
@@ -59,7 +59,7 @@ class SqlStoreTest extends MediaWikiTestCase {
 			$this->getMock( EntityIdParser::class ),
 			$entityIdComposer,
 			$this->getMock( EntityIdLookup::class ),
-			$this->getMock( EntityTitleLookup::class ),
+			$this->getMock( EntityTitleStoreLookup::class ),
 			new EntityNamespaceLookup( [] )
 		);
 	}
@@ -117,6 +117,11 @@ class SqlStoreTest extends MediaWikiTestCase {
 	public function testGetEntityInfoBuilderFactory() {
 		$service = $this->newInstance()->getEntityInfoBuilderFactory();
 		$this->assertInstanceOf( EntityInfoBuilderFactory::class, $service );
+	}
+
+	public function testGetPropertyInfoLookup() {
+		$service = $this->newInstance()->getPropertyInfoLookup();
+		$this->assertInstanceOf( PropertyInfoLookup::class, $service );
 	}
 
 	public function testGetPropertyInfoStore() {

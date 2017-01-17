@@ -6,9 +6,9 @@ use DataValues\StringValue;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
+use Wikibase\Lib\Store\PropertyInfoLookup;
 use Wikibase\PropertyInfoBuilder;
-use Wikibase\PropertyInfoStore;
-use Wikibase\PropertyInfoTable;
+use Wikibase\Lib\Store\Sql\PropertyInfoTable;
 use Wikibase\PropertyInfoTableBuilder;
 use Wikibase\Repo\WikibaseRepo;
 
@@ -18,7 +18,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Wikibase
  * @group WikibaseStore
  * @group WikibasePropertyInfo
- * @group WikibaseRepo
  * @group Database
  * @group medium
  *
@@ -29,22 +28,22 @@ class PropertyInfoTableBuilderTest extends \MediaWikiTestCase {
 
 	private function initProperties() {
 		$infos = array(
-			array( PropertyInfoStore::KEY_DATA_TYPE => 'string', 'test' => 'one' ),
-			array( PropertyInfoStore::KEY_DATA_TYPE => 'string', 'test' => 'two', PropertyInfoStore::KEY_FORMATTER_URL => 'foo' ),
-			array( PropertyInfoStore::KEY_DATA_TYPE => 'time', 'test' => 'three' ),
-			array( PropertyInfoStore::KEY_DATA_TYPE => 'time', 'test' => 'four' ),
-			array( PropertyInfoStore::KEY_DATA_TYPE => 'string', 'test' => 'five', PropertyInfoStore::KEY_FORMATTER_URL => 'bar' ),
+			array( PropertyInfoLookup::KEY_DATA_TYPE => 'string', 'test' => 'one' ),
+			array( PropertyInfoLookup::KEY_DATA_TYPE => 'string', 'test' => 'two', PropertyInfoLookup::KEY_FORMATTER_URL => 'foo' ),
+			array( PropertyInfoLookup::KEY_DATA_TYPE => 'time', 'test' => 'three' ),
+			array( PropertyInfoLookup::KEY_DATA_TYPE => 'time', 'test' => 'four' ),
+			array( PropertyInfoLookup::KEY_DATA_TYPE => 'string', 'test' => 'five', PropertyInfoLookup::KEY_FORMATTER_URL => 'bar' ),
 		);
 
 		$store = WikibaseRepo::getDefaultInstance()->getEntityStore();
 		$properties = array();
 
 		foreach ( $infos as $info ) {
-			$property = Property::newFromType( $info[PropertyInfoStore::KEY_DATA_TYPE] );
+			$property = Property::newFromType( $info[PropertyInfoLookup::KEY_DATA_TYPE] );
 			$property->setDescription( 'en', $info['test'] );
 
-			if ( isset( $info[PropertyInfoStore::KEY_FORMATTER_URL] ) ) {
-				$mainSnak = new PropertyValueSnak( 1630, new StringValue( $info[PropertyInfoStore::KEY_FORMATTER_URL] ) );
+			if ( isset( $info[PropertyInfoLookup::KEY_FORMATTER_URL] ) ) {
+				$mainSnak = new PropertyValueSnak( 1630, new StringValue( $info[PropertyInfoLookup::KEY_FORMATTER_URL] ) );
 				$property->getStatements()->addNewStatement( $mainSnak );
 			}
 
@@ -63,7 +62,8 @@ class PropertyInfoTableBuilderTest extends \MediaWikiTestCase {
 	}
 
 	public function testRebuildPropertyInfo() {
-		$table = new PropertyInfoTable( false );
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$table = new PropertyInfoTable( $wikibaseRepo->getEntityIdComposer() );
 
 		$this->resetPropertyInfoTable( $table );
 		$properties = $this->initProperties();
@@ -71,7 +71,6 @@ class PropertyInfoTableBuilderTest extends \MediaWikiTestCase {
 
 		// NOTE: We use the EntityStore from WikibaseRepo in initProperties,
 		//       so we should also use the EntityLookup from WikibaseRepo.
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 		$entityLookup = $wikibaseRepo->getEntityLookup( 'uncached' );
 
 		$propertyInfoBuilder = new PropertyInfoBuilder( new PropertyId( 'P1630' ) );
@@ -128,18 +127,18 @@ class PropertyInfoTableBuilderTest extends \MediaWikiTestCase {
 		foreach ( $properties as $propId => $expected ) {
 			$info = $table->getPropertyInfo( new PropertyId( $propId ) );
 			$this->assertEquals(
-				$expected[PropertyInfoStore::KEY_DATA_TYPE],
-				$info[PropertyInfoStore::KEY_DATA_TYPE],
+				$expected[PropertyInfoLookup::KEY_DATA_TYPE],
+				$info[PropertyInfoLookup::KEY_DATA_TYPE],
 				"Property $propId"
 			);
 
-			if ( isset( $expected[PropertyInfoStore::KEY_FORMATTER_URL] ) ) {
+			if ( isset( $expected[PropertyInfoLookup::KEY_FORMATTER_URL] ) ) {
 				$this->assertEquals(
-					$expected[PropertyInfoStore::KEY_FORMATTER_URL],
-					$info[PropertyInfoStore::KEY_FORMATTER_URL]
+					$expected[PropertyInfoLookup::KEY_FORMATTER_URL],
+					$info[PropertyInfoLookup::KEY_FORMATTER_URL]
 				);
 			} else {
-				$this->assertArrayNotHasKey( PropertyInfoStore::KEY_FORMATTER_URL, $info );
+				$this->assertArrayNotHasKey( PropertyInfoLookup::KEY_FORMATTER_URL, $info );
 			}
 		}
 	}

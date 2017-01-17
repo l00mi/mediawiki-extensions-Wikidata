@@ -1,15 +1,16 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiTestCase;
 use Exception;
+use MediaWiki\MediaWikiServices;
 use OutOfBoundsException;
 use Revision;
 use TestSites;
 use TestUser;
 use Title;
-use UsageException;
+use ApiUsageException;
 use User;
 use Wikibase\Repo\WikibaseRepo;
 use WikiPage;
@@ -37,7 +38,7 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 		$this->setupUser();
 
 		if ( !$isSetup ) {
-			$sitesTable = WikibaseRepo::getDefaultInstance()->getSiteStore();
+			$sitesTable = MediaWikiServices::getInstance()->getSiteStore();
 			$sitesTable->clear();
 			$sitesTable->saveSites( TestSites::getSites() );
 
@@ -178,8 +179,8 @@ abstract class WikibaseApiTestCase extends ApiTestCase {
 				$this->doApiRequestWithToken( $params );
 			}
 
-			$this->fail( "Failed to throw UsageException" );
-		} catch ( UsageException $e ) {
+			$this->fail( 'Failed to throw ApiUsageException' );
+		} catch ( ApiUsageException $e ) {
 			if ( array_key_exists( 'type', $exception ) ) {
 				$this->assertInstanceOf( $exception['type'], $e );
 			}

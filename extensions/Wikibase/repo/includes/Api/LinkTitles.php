@@ -76,7 +76,7 @@ class LinkTitles extends ApiBase {
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
 		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
-			$wikibaseRepo->getSiteStore(),
+			$wikibaseRepo->getSiteLookup(),
 			$settings->getSetting( 'specialSiteLinkGroups' )
 		);
 
@@ -212,6 +212,8 @@ class LinkTitles extends ApiBase {
 
 	/**
 	 * @see ModifyEntity::validateParameters
+	 *
+	 * @param array $params
 	 */
 	protected function validateParameters( array $params ) {
 		if ( $params['fromsite'] === $params['tosite'] ) {

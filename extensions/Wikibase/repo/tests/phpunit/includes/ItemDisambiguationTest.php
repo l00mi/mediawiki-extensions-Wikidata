@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 use MediaWikiTestCase;
 use Title;
@@ -15,7 +15,6 @@ use Wikibase\Lib\Store\EntityTitleLookup;
  * @covers Wikibase\ItemDisambiguation
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
  * @group Database

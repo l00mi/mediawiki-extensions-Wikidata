@@ -47,29 +47,6 @@ use WikiPage;
 abstract class EntityContent extends AbstractContent {
 
 	/**
-	 * For use in the wb-status page property to indicate that the entity has no special
-	 * status, to indicate. STATUS_NONE will not be recorded in the database.
-	 *
-	 * @see getEntityStatus()
-	 */
-	const STATUS_NONE = 0;
-
-	/**
-	 * For use in the wb-status page property to indicate that the entity is a stub,
-	 * i.e. it's empty except for terms (labels, descriptions, and aliases).
-	 *
-	 * @see getEntityStatus()
-	 */
-	const STATUS_STUB = 100;
-
-	/**
-	 * For use in the wb-status page property to indicate that the entity is empty.
-	 *
-	 * @see getEntityStatus()
-	 */
-	const STATUS_EMPTY = 200;
-
-	/**
 	 * Flag for use with prepareSave(), indicating that no pre-save validation should be applied.
 	 * Can be passed in via EditEntity::attemptSave, EntityStore::saveEntity,
 	 * as well as WikiPage::doEditContent()
@@ -328,7 +305,7 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @return String a string representing the content in a way useful for building a full text
+	 * @return string A string representing the content in a way useful for building a full text
 	 *         search index.
 	 */
 	public function getTextForSearchIndex() {
@@ -364,7 +341,7 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @return String a string representing the content in a way useful for content filtering as
+	 * @return string A string representing the content in a way useful for content filtering as
 	 *         performed by extensions like AbuseFilter.
 	 */
 	public function getTextForFilters() {
@@ -419,7 +396,7 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @return String the wikitext to include when another page includes this  content, or false if
+	 * @return string The wikitext to include when another page includes this  content, or false if
 	 *         the content is not includable in a wikitext page.
 	 */
 	public function getWikitextForTransclusion() {
@@ -431,7 +408,7 @@ abstract class EntityContent extends AbstractContent {
 	 * messages.
 	 *
 	 * @param int $maxLength maximum length of the summary text
-	 * @return String the summary text
+	 * @return string
 	 */
 	public function getTextForSummary( $maxLength = 250 ) {
 		if ( $this->isRedirect() ) {
@@ -508,6 +485,10 @@ abstract class EntityContent extends AbstractContent {
 	 * considered equal.
 	 *
 	 * @see Content::equals
+	 *
+	 * @param Content|null $that
+	 *
+	 * @return bool
 	 */
 	public function equals( Content $that = null ) {
 		if ( $that === $this ) {
@@ -661,11 +642,6 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @return bool
-	 */
-	abstract public function isStub();
-
-	/**
 	 * @see Content::copy
 	 *
 	 * @return ItemContent
@@ -753,45 +729,10 @@ abstract class EntityContent extends AbstractContent {
 	 * MediaWiki's page_props table. The idea is to allow efficient lookups
 	 * of entities based on such properties.
 	 *
-	 * @see getEntityStatus()
-	 *
-	 * Records the entity's status in the 'wb-status' key.
-	 *
 	 * @return array A map from property names to property values.
 	 */
 	public function getEntityPageProperties() {
-		$properties = array();
-
-		$status = $this->getEntityStatus();
-		if ( $status !== self::STATUS_NONE ) {
-			$properties['wb-status'] = $status;
-		}
-
-		return $properties;
-	}
-
-	/**
-	 * Returns an identifier representing the status of the entity,
-	 * e.g. STATUS_EMPTY or STATUS_NONE.
-	 * Used by getEntityPageProperties().
-	 *
-	 * @note Will fail if this EntityContent is a redirect.
-	 *
-	 * @see getEntityPageProperties()
-	 * @see EntityContent::STATUS_NONE
-	 * @see EntityContent::STATUS_STUB
-	 * @see EntityContent::STATUS_EMPTY
-	 *
-	 * @return int
-	 */
-	public function getEntityStatus() {
-		if ( $this->isEmpty() ) {
-			return self::STATUS_EMPTY;
-		} elseif ( $this->isStub() ) {
-			return self::STATUS_STUB;
-		} else {
-			return self::STATUS_NONE;
-		}
+		return [];
 	}
 
 }

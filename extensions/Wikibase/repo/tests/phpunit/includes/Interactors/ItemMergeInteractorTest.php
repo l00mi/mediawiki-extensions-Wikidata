@@ -12,7 +12,7 @@ use User;
 use Wikibase\ChangeOp\MergeChangeOpsFactory;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Interactors\ItemMergeException;
@@ -20,15 +20,13 @@ use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Test\EntityModificationTestHelper;
+use Wikibase\Repo\Tests\EntityModificationTestHelper;
 use Wikibase\Lib\Tests\MockRepository;
 
 /**
  * @covers Wikibase\Repo\Interactors\ItemMergeInteractor
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group WikibaseInteractor
  * @group Database
  * @group medium
  *
@@ -106,10 +104,10 @@ class ItemMergeInteractorTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	private function getEntityTitleLookup() {
-		$mock = $this->getMock( EntityTitleLookup::class );
+		$mock = $this->getMock( EntityTitleStoreLookup::class );
 
 		$mock->expects( $this->any() )
 			->method( 'getTitleForId' )
@@ -165,13 +163,13 @@ class ItemMergeInteractorTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	private function getMockEntityTitleLookup() {
-		$titleLookup = $this->getMock( EntityTitleLookup::class );
+		$titleLookup = $this->getMock( EntityTitleStoreLookup::class );
 
 		$titleLookup->expects( $this->any() )
-			->method( 'getTitleForID' )
+			->method( 'getTitleForId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				$title = $this->getMock( Title::class );
 				$title->expects( $this->any() )

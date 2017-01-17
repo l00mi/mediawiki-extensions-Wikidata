@@ -7,8 +7,9 @@ use InvalidArgumentException;
 /**
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
 class DataType {
 
@@ -39,12 +40,12 @@ class DataType {
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct( $typeId, $dataValueType ) {
-		if ( !is_string( $typeId ) ) {
-			throw new InvalidArgumentException( '$typeId must be a string' );
+		if ( !is_string( $typeId ) || $typeId === '' ) {
+			throw new InvalidArgumentException( '$typeId must be a non-empty string' );
 		}
 
-		if ( !is_string( $dataValueType ) ) {
-			throw new InvalidArgumentException( '$dataValueType must be a string' );
+		if ( !is_string( $dataValueType ) || $dataValueType === '' ) {
+			throw new InvalidArgumentException( '$dataValueType must be a non-empty string' );
 		}
 
 		$this->typeId = $typeId;
@@ -74,16 +75,12 @@ class DataType {
 	}
 
 	/**
-	 * Returns the label of the data type in the provided language or null if there is none.
+	 * @since 1.0
 	 *
-	 * @since 0.1
-	 *
-	 * @param string $langCode
-	 *
-	 * @return string|null
+	 * @return string
 	 */
-	public function getLabel( $langCode ) {
-		return Message::text( 'datatypes-type-' . $this->getId(), $langCode );
+	public function getMessageKey() {
+		return 'datatypes-type-' . $this->typeId;
 	}
 
 	/**
@@ -92,9 +89,9 @@ class DataType {
 	 * @return string[]
 	 */
 	public function toArray() {
-		return array(
+		return [
 			'dataValueType' => $this->dataValueType
-		);
+		];
 	}
 
 }

@@ -11,7 +11,7 @@ use Wikibase\DataTypeSelector;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup;
-use Wikibase\PropertyInfoStore;
+use Wikibase\Lib\Store\PropertyInfoLookup;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Store\BufferingTermLookup;
 use Wikibase\View\EntityIdFormatterFactory;
@@ -40,9 +40,9 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	private $dataTypeFactory;
 
 	/**
-	 * @var PropertyInfoStore
+	 * @var PropertyInfoLookup
 	 */
-	private $propertyInfoStore;
+	private $propertyInfoLookup;
 
 	/**
 	 * @var LanguageFallbackLabelDescriptionLookup
@@ -76,7 +76,7 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 
 		$this->initServices(
 			$wikibaseRepo->getDataTypeFactory(),
-			$wikibaseRepo->getStore()->getPropertyInfoStore(),
+			$wikibaseRepo->getStore()->getPropertyInfoLookup(),
 			$wikibaseRepo->getEntityIdHtmlLinkFormatterFactory(),
 			$wikibaseRepo->getLanguageFallbackChainFactory(),
 			$wikibaseRepo->getEntityTitleLookup(),
@@ -87,10 +87,17 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	/**
 	 * Set service objects to use. Unit tests may call this to substitute mock
 	 * services.
+	 *
+	 * @param DataTypeFactory $dataTypeFactory
+	 * @param PropertyInfoStore $propertyInfoStore
+	 * @param EntityIdFormatterFactory $entityIdFormatterFactory
+	 * @param LanguageFallbackChainFactory $languageFallbackChainFactory
+	 * @param EntityTitleLookup $titleLookup
+	 * @param BufferingTermLookup $bufferingTermLookup
 	 */
 	public function initServices(
 		DataTypeFactory $dataTypeFactory,
-		PropertyInfoStore $propertyInfoStore,
+		PropertyInfoLookup $propertyInfoLookup,
 		EntityIdFormatterFactory $entityIdFormatterFactory,
 		LanguageFallbackChainFactory $languageFallbackChainFactory,
 		EntityTitleLookup $titleLookup,
@@ -103,7 +110,7 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 		);
 
 		$this->dataTypeFactory = $dataTypeFactory;
-		$this->propertyInfoStore = $propertyInfoStore;
+		$this->propertyInfoLookup = $propertyInfoLookup;
 		$this->entityIdFormatter = $entityIdFormatterFactory->getEntityIdFormatter(
 			$this->labelDescriptionLookup
 		);
@@ -151,7 +158,7 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 		$options = array(
 			$this->msg( 'wikibase-listproperties-all' )->text() => ''
 		);
-		$options = array_merge( $options, array_flip( $dataTypeSelect->getOptionsArray() ) );
+		$options = array_merge( $options, $dataTypeSelect->getOptionsArray() );
 
 		$formDescriptor = array(
 			'datatype' => array(
@@ -235,8 +242,8 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 
 		$propertyIds = array();
 
-		foreach ( $propertyInfo as $numericId => $info ) {
-			$propertyIds[] = PropertyId::newFromNumber( $numericId );
+		foreach ( $propertyInfo as $serialization => $info ) {
+			$propertyIds[] = new PropertyId( $serialization );
 		}
 
 		$this->bufferingTermLookup->prefetchTerms( $propertyIds );
@@ -249,14 +256,14 @@ class SpecialListProperties extends SpecialWikibaseQueryPage {
 	 */
 	private function getPropertyInfo() {
 		if ( $this->dataType === '' ) {
-			$propertyInfo = $this->propertyInfoStore->getAllPropertyInfo();
+			$propertyInfo = $this->propertyInfoLookup->getAllPropertyInfo();
 		} else {
-			$propertyInfo = $this->propertyInfoStore->getPropertyInfoForDataType(
+			$propertyInfo = $this->propertyInfoLookup->getPropertyInfoForDataType(
 				$this->dataType
 			);
 		}
 
-		// NOTE: $propertyInfo uses numerical property IDs as keys!
+		// NOTE: $propertyInfo uses serialized property IDs as keys!
 		ksort( $propertyInfo );
 		return $propertyInfo;
 	}

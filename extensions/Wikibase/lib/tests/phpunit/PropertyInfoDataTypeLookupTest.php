@@ -8,14 +8,13 @@ use Wikibase\DataModel\Services\Lookup\EntityRetrievingDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
-use Wikibase\PropertyInfoStore;
-use Wikibase\Lib\Tests\Store\MockPropertyInfoStore;
+use Wikibase\Lib\Store\PropertyInfoLookup;
+use Wikibase\Lib\Tests\Store\MockPropertyInfoLookup;
 
 /**
  * @covers Wikibase\Lib\PropertyInfoDataTypeLookup
  *
  * @group Wikibase
- * @group WikibaseLib
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -33,8 +32,8 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 	public function getDataTypeForPropertyProvider() {
 		$argLists = array();
 
-		$emptyInfoStore = new MockPropertyInfoStore();
-		$mockInfoStore = new MockPropertyInfoStore();
+		$emptyInfoLookup = new MockPropertyInfoLookup();
+		$mockInfoLookup = new MockPropertyInfoLookup();
 
 		$entityLookup = new MockRepository();
 		$propertyDataTypeLookup = new EntityRetrievingDataTypeLookup( $entityLookup );
@@ -43,9 +42,9 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 			$id = new PropertyId( $propertyId );
 
 			// register property info
-			$mockInfoStore->setPropertyInfo(
+			$mockInfoLookup->addPropertyInfo(
 				$id,
-				array( PropertyInfoStore::KEY_DATA_TYPE => $dataTypeId )
+				array( PropertyInfoLookup::KEY_DATA_TYPE => $dataTypeId )
 			);
 
 			// register property as an entity, for the fallback
@@ -55,7 +54,7 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 
 			// try with a working info store
 			$argLists[] = array(
-				$mockInfoStore,
+				$mockInfoLookup,
 				null,
 				$id,
 				$dataTypeId
@@ -63,7 +62,7 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 
 			// try with via fallback
 			$argLists[] = array(
-				$emptyInfoStore,
+				$emptyInfoLookup,
 				$propertyDataTypeLookup,
 				$id,
 				$dataTypeId
@@ -75,7 +74,7 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 
 		// try with a working info store
 		$argLists[] = array(
-			$mockInfoStore,
+			$mockInfoLookup,
 			null,
 			$id,
 			false
@@ -83,7 +82,7 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 
 		// try with via fallback
 		$argLists[] = array(
-			$emptyInfoStore,
+			$emptyInfoLookup,
 			$propertyDataTypeLookup,
 			$id,
 			false
@@ -96,7 +95,7 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider getDataTypeForPropertyProvider
 	 */
 	public function testGetDataTypeForProperty(
-		PropertyInfoStore $infoStore,
+		PropertyInfoLookup $infoLookup,
 		PropertyDataTypeLookup $fallbackLookup = null,
 		PropertyId $propertyId,
 		$expectedDataType
@@ -105,7 +104,7 @@ class PropertyInfoDataTypeLookupTest extends \PHPUnit_Framework_TestCase {
 			$this->setExpectedException( PropertyDataTypeLookupException::class );
 		}
 
-		$lookup = new PropertyInfoDataTypeLookup( $infoStore, $fallbackLookup );
+		$lookup = new PropertyInfoDataTypeLookup( $infoLookup, $fallbackLookup );
 
 		$actualDataType = $lookup->getDataTypeIdForProperty( $propertyId );
 

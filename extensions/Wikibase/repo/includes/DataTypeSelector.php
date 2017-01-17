@@ -3,16 +3,16 @@
 namespace Wikibase;
 
 use DataTypes\DataType;
-use Html;
 use MWException;
 
 /**
- * DataType selector UI element.
+ * Data provider for the property type (a.k.a. data type) selector UI element.
  *
  * @since 0.4
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
 class DataTypeSelector {
 
@@ -50,75 +50,31 @@ class DataTypeSelector {
 	}
 
 	/**
-	 * Builds and returns the HTML for the DataType selector.
-	 *
-	 * @since 0.4
-	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param string $selectedTypeId
-	 *
-	 * @return string
-	 */
-	public function getHtml( $id = 'datatype', $name = 'datatype', $selectedTypeId = '' ) {
-		$options = $this->getOptionsHtml( $selectedTypeId );
-
-		$html = Html::rawElement(
-			'select',
-			array(
-				'name' => $name,
-				'id' => $id,
-				'class' => 'wb-select'
-			),
-			$options
-		);
-
-		return $html;
-	}
-
-	/**
 	 * Builds and returns the array for the options of the DataType selector.
-	 *
-	 * @return array
-	 */
-	public function getOptionsArray() {
-		$dataTypes = array();
-
-		foreach ( $this->dataTypes as $dataType ) {
-			$dataTypes[$dataType->getId()] = $dataType->getLabel( $this->languageCode );
-		}
-
-		natcasesort( $dataTypes );
-
-		return $dataTypes;
-	}
-
-	/**
-	 * Builds and returns the html for the options of the DataType selector.
 	 *
 	 * @since 0.5
 	 *
-	 * @param string $selectedTypeId
-	 *
-	 * @return string
+	 * @return string[]
 	 */
-	public function getOptionsHtml( $selectedTypeId = '' ) {
-		$dataTypes = $this->getOptionsArray();
+	public function getOptionsArray() {
+		$byLabel = [];
+		$byId = [];
 
-		$html = '';
+		foreach ( $this->dataTypes as $dataType ) {
+			$label = wfMessage( $dataType->getMessageKey() )->inLanguage( $this->languageCode )
+				->text();
+			$id = $dataType->getId();
 
-		foreach ( $dataTypes as $typeId => $typeLabel ) {
-			$html .= Html::element(
-				'option',
-				array(
-					'value' => $typeId,
-					'selected' => $typeId === $selectedTypeId
-				),
-				$typeLabel
-			);
+			$byLabel[$label] = $id;
+			$byId[$id] = $id;
 		}
 
-		return $html;
+		if ( count( $byLabel ) < count( $this->dataTypes ) ) {
+			$byLabel = $byId;
+		}
+
+		uksort( $byLabel, 'strnatcasecmp' );
+		return $byLabel;
 	}
 
 }

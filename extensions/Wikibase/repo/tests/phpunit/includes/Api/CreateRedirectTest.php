@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiMain;
 use FauxRequest;
@@ -8,7 +8,7 @@ use Language;
 use RequestContext;
 use Status;
 use Title;
-use UsageException;
+use ApiUsageException;
 use User;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
@@ -17,7 +17,7 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Repo\Api\ApiErrorReporter;
 use Wikibase\Repo\Api\CreateRedirect;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
@@ -32,7 +32,6 @@ use Wikibase\Lib\Tests\MockRepository;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group Database
  *
  * @license GPL-2.0+
@@ -152,13 +151,13 @@ class CreateRedirectTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	private function getMockEntityTitleLookup() {
-		$titleLookup = $this->getMock( EntityTitleLookup::class );
+		$titleLookup = $this->getMock( EntityTitleStoreLookup::class );
 
 		$titleLookup->expects( $this->any() )
-			->method( 'getTitleForID' )
+			->method( 'getTitleForId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				$title = $this->getMock( Title::class );
 				$title->expects( $this->any() )
@@ -236,13 +235,13 @@ class CreateRedirectTest extends \MediaWikiTestCase {
 		try {
 			$this->callApiModule( $params );
 			$this->fail( 'API did not fail with error ' . $expectedCode . ' as expected!' );
-		} catch ( UsageException $ex ) {
+		} catch ( ApiUsageException $ex ) {
 			$this->assertEquals( $expectedCode, $ex->getCodeString() );
 		}
 	}
 
 	public function testSetRedirect_noPermission() {
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 
 		$user = User::newFromName( 'UserWithoutPermission' );
 

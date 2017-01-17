@@ -2,8 +2,12 @@
 
 namespace Wikibase\Repo\Tests\Specials;
 
-use SpecialPageTestBase;
+use Wikibase\DataModel\Entity\EntityDocument;
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\Property;
+use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Repo\Specials\SpecialNewProperty;
+use Wikibase\Repo\Specials\SpecialPageCopyrightView;
 
 /**
  * @covers Wikibase\Repo\Specials\SpecialNewProperty
@@ -12,7 +16,6 @@ use Wikibase\Repo\Specials\SpecialNewProperty;
  * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
  *
@@ -23,65 +26,230 @@ use Wikibase\Repo\Specials\SpecialNewProperty;
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Addshore
  */
-class SpecialNewPropertyTest extends SpecialPageTestBase {
+class SpecialNewPropertyTest extends SpecialNewEntityTest {
 
 	protected function newSpecialPage() {
-		return new SpecialNewProperty();
+		return new SpecialNewProperty( $this->copyrightView );
 	}
 
-	public function testExecute() {
-		//TODO: Verify that more of the output is correct.
-		//TODO: Verify that item creation works via a faux post request
+	public function testAllNecessaryFormFieldsArePresent_WhenRendered() {
 
-		$this->setMwGlobals( 'wgGroupPermissions', array( '*' => array( 'property-create' => true ) ) );
+		list( $html ) = $this->executeSpecialPage();
 
-		$matchers['label'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-newentity-label',
-			),
-			'child' => array(
-				'tag' => 'input',
-				'attributes' => array(
-					'name' => 'label',
-				)
-			) );
-		$matchers['description'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-newentity-description',
-			),
-			'child' => array(
-				'tag' => 'input',
-				'attributes' => array(
-					'name' => 'description',
-				)
-			) );
-		$matchers['submit'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-newentity-submit',
-			),
-			'child' => array(
-				'tag' => 'button',
-				'attributes' => array(
-					'type' => 'submit',
-					'name' => 'submit',
-				)
-			) );
+		$this->assertHtmlContainsInputWithName( $html, SpecialNewProperty::FIELD_LANG );
+		$this->assertHtmlContainsInputWithName( $html, SpecialNewProperty::FIELD_LABEL );
+		$this->assertHtmlContainsInputWithName( $html, SpecialNewProperty::FIELD_DESCRIPTION );
+		$this->assertHtmlContainsInputWithName( $html, SpecialNewProperty::FIELD_ALIASES );
+		$this->assertHtmlContainsSelectWithName( $html, SpecialNewProperty::FIELD_DATATYPE );
+		$this->assertHtmlContainsSubmitControl( $html );
+	}
 
-		list( $output, ) = $this->executeSpecialPage( '' );
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}''" );
+	public function testLabelAndDescriptionAndDataTypeValuesAreSetAccordingToSubpagePath_WhenRendered() {
+		$subPagePart1 = 'LabelText';
+		$subPagePart2 = 'DescriptionText';
+		$subPagePart3 = 'url';
+		$subPage = "{$subPagePart1}/{$subPagePart2}/{$subPagePart3}";
+
+		list( $html ) = $this->executeSpecialPage( $subPage );
+
+		$this->assertHtmlContainsInputWithNameAndValue(
+			$html,
+			SpecialNewProperty::FIELD_LABEL,
+			$subPagePart1
+		);
+		$this->assertHtmlContainsInputWithNameAndValue(
+			$html,
+			SpecialNewProperty::FIELD_DESCRIPTION,
+			$subPagePart2
+		);
+		$this->assertHtmlContainsSelectWithNameAndSelectedValue(
+			$html,
+			SpecialNewProperty::FIELD_DATATYPE,
+			$subPagePart3
+		);
+	}
+
+	public function testFailsAndDisplaysAnError_WhenTryToCreateSecondPropertyWithTheSameLabel() {
+		$formData = [
+			SpecialNewProperty::FIELD_LANG => 'en',
+			SpecialNewProperty::FIELD_LABEL => 'label',
+			SpecialNewProperty::FIELD_DESCRIPTION => '',
+			SpecialNewProperty::FIELD_ALIASES => '',
+			SpecialNewProperty::FIELD_DATATYPE => 'string',
+		];
+		$this->executeSpecialPage( '', new \FauxRequest( $formData, true ) );
+
+		list( $html ) = $this->executeSpecialPage( '', new \FauxRequest( $formData, true ) );
+
+		$this->assertHtmlContainsErrorMessage( $html, "already has label" );
+	}
+
+	/**
+	 * @return array[][]
+	 */
+	public function provideValidEntityCreationRequests() {
+		$labelIndex = 1;
+
+		return [
+			'only label is set' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => 'label' . $labelIndex ++,
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => '',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+			],
+			'another language' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'fr',
+					SpecialNewProperty::FIELD_LABEL => 'label' . $labelIndex ++,
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => '',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+			],
+			'only description is set' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => '',
+					SpecialNewProperty::FIELD_DESCRIPTION => 'desc',
+					SpecialNewProperty::FIELD_ALIASES => '',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+			],
+			'single alias' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => '',
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => 'alias',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+			],
+			'multiple aliases' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => '',
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => 'alias1|alias2|alias3',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+			],
+			'another datatype is set' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => 'label' . $labelIndex ++,
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => '',
+					SpecialNewProperty::FIELD_DATATYPE => 'url',
+				],
+			],
+			'all input is present' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => 'label' . $labelIndex,
+					SpecialNewProperty::FIELD_DESCRIPTION => 'desc',
+					SpecialNewProperty::FIELD_ALIASES => 'a1|a2',
+					SpecialNewProperty::FIELD_DATATYPE => 'url',
+				],
+			],
+		];
+	}
+
+	/**
+	 * Data provider method
+	 *
+	 * @return array[]
+	 */
+	public function provideInvalidEntityCreationRequests() {
+		return [
+			'unknown language' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'some-weird-language',
+					SpecialNewProperty::FIELD_LABEL => 'label-that-does-not-exist-1',
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => '',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+				'language code was not recognized',
+			],
+			'unknown datatype' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => 'label-that-does-not-exist-2',
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => '',
+					SpecialNewProperty::FIELD_DATATYPE => 'unknown-datatype',
+				],
+				'Invalid data type specified',
+			],
+			'all fingerprint fields are empty' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => '',
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => '',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+				'you need to fill'
+			],
+			'empty label and description, aliases contain only spaces and pipe symbols' => [
+				[
+					SpecialNewProperty::FIELD_LANG => 'en',
+					SpecialNewProperty::FIELD_LABEL => '',
+					SpecialNewProperty::FIELD_DESCRIPTION => '',
+					SpecialNewProperty::FIELD_ALIASES => ' | || | ',
+					SpecialNewProperty::FIELD_DATATYPE => 'string',
+				],
+				'you need to fill',
+			],
+		];
+	}
+
+	/**
+	 * @param string $url
+	 * @return EntityId
+	 */
+	protected function extractEntityIdFromUrl( $url ) {
+		$itemIdSerialization = preg_replace( '@^.*(P\d+)$@', '$1', $url );
+
+		return new PropertyId( $itemIdSerialization );
+	}
+
+	/**
+	 * @param array $form
+	 * @param EntityDocument $entity
+	 * @return void
+	 * @throws \Exception
+	 */
+	protected function assertEntityMatchesFormData( array $form, EntityDocument $entity ) {
+		$this->assertInstanceOf( Property::class, $entity );
+		/** @var Property $entity */
+
+		$language = $form[SpecialNewProperty::FIELD_LANG];
+		if ( $form[SpecialNewProperty::FIELD_LABEL] !== '' ) {
+			$this->assertSame(
+				$form[SpecialNewProperty::FIELD_LABEL],
+				$entity->getLabels()->getByLanguage( $language )->getText()
+			);
 		}
 
-		list( $output, ) = $this->executeSpecialPage( 'LabelText/DescriptionText' );
-		$matchers['label']['child'][0]['attributes']['value'] = 'LabelText';
-		$matchers['description']['child'][0]['attributes']['value'] = 'DescriptionText';
-
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}''" );
+		if ( $form[SpecialNewProperty::FIELD_DESCRIPTION] !== '' ) {
+			$this->assertSame(
+				$form[SpecialNewProperty::FIELD_DESCRIPTION],
+				$entity->getDescriptions()->getByLanguage( $language )->getText()
+			);
 		}
+
+		if ( $form[SpecialNewProperty::FIELD_ALIASES] !== '' ) {
+			$this->assertArrayEquals(
+				explode( '|', $form[SpecialNewProperty::FIELD_ALIASES] ),
+				$entity->getAliasGroups()->getByLanguage( $language )->getAliases()
+			);
+		}
+
+		$this->assertEquals( $form[SpecialNewProperty::FIELD_DATATYPE], $entity->getDataTypeId() );
 	}
 
 }

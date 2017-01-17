@@ -3,15 +3,14 @@
 namespace Wikibase\Repo\Specials;
 
 use HTMLForm;
-use InvalidArgumentException;
-use SiteStore;
+use SiteLookup;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
+use Wikibase\DataModel\Services\Lookup\EntityLookupException;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Enables accessing a linked page on a site by providing the item id and site
@@ -23,9 +22,9 @@ use Wikibase\Repo\WikibaseRepo;
 class SpecialGoToLinkedPage extends SpecialWikibasePage {
 
 	/**
-	 * @var SiteStore
+	 * @var SiteLookup
 	 */
-	private $siteStore;
+	private $siteLookup;
 
 	/**
 	 * @var SiteLinkLookup
@@ -48,48 +47,29 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 	private $entityLookup;
 
 	/**
-	 * Error message key
 	 * @var string|null
 	 */
-	private $errorMessageKey;
+	private $errorMessageKey = null;
 
 	/**
 	 * @see SpecialWikibasePage::__construct
-	 */
-	public function __construct() {
-		parent::__construct( 'GoToLinkedPage', '', true );
-
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-
-		$this->initServices(
-			$wikibaseRepo->getSiteStore(),
-			$wikibaseRepo->getStore()->newSiteLinkStore(),
-			$wikibaseRepo->getStore()->getEntityRedirectLookup(),
-			$wikibaseRepo->getEntityIdParser(),
-			$wikibaseRepo->getStore()->getEntityLookup()
-		);
-
-		$this->errorMessageKey = null;
-	}
-
-	/**
-	 * Initialize the services used be this special page.
-	 * May be used to inject mock services for testing.
 	 *
-	 * @param SiteStore $siteStore
+	 * @param SiteLookup $siteLookup
 	 * @param SiteLinkLookup $siteLinkLookup
 	 * @param EntityRedirectLookup $redirectLookup
 	 * @param EntityIdParser $idParser
 	 * @param EntityLookup $entityLookup
 	 */
-	public function initServices(
-		SiteStore $siteStore,
+	public function __construct(
+		SiteLookup $siteLookup,
 		SiteLinkLookup $siteLinkLookup,
 		EntityRedirectLookup $redirectLookup,
 		EntityIdParser $idParser,
 		EntityLookup $entityLookup
 	) {
-		$this->siteStore = $siteStore;
+		parent::__construct( 'GoToLinkedPage' );
+
+		$this->siteLookup = $siteLookup;
 		$this->siteLinkLookup = $siteLinkLookup;
 		$this->redirectLookup = $redirectLookup;
 		$this->idParser = $idParser;
@@ -98,9 +78,10 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 
 	/**
 	 * @param string $subPage
+	 *
 	 * @return array array( string $site, string $itemString )
 	 */
-	protected function getArguments( $subPage ) {
+	private function getArguments( $subPage ) {
 		$request = $this->getRequest();
 		$parts = ( $subPage === '' ) ? array() : explode( '/', $subPage, 2 );
 		$site = trim( $request->getVal( 'site', isset( $parts[0] ) ? $parts[0] : '' ) );
@@ -112,9 +93,10 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 	/**
 	 * @param string $site
 	 * @param string|null $itemString
+	 *
 	 * @return string|null the URL to redirect to or null if the sitelink does not exist
 	 */
-	protected function getTargetUrl( $site, $itemString = null ) {
+	private function getTargetUrl( $site, $itemString = null ) {
 		$itemId = $this->getItemId( $itemString );
 
 		if ( $site === '' || $itemId === null ) {
@@ -123,7 +105,7 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 
 		$site = $this->stringNormalizer->trimToNFC( $site );
 
-		if ( !$this->siteStore->getSite( $site ) ) {
+		if ( !$this->siteLookup->getSite( $site ) ) {
 			// HACK: If the site ID isn't known, add "wiki" to it; this allows the wikipedia
 			// subdomains to be used to refer to wikipedias, instead of requiring their
 			// full global id to be used.
@@ -137,7 +119,7 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 
 		if ( isset( $links[0] ) ) {
 			list( , $pageName, ) = $links[0];
-			$siteObj = $this->siteStore->getSite( $site );
+			$siteObj = $this->siteLookup->getSite( $site );
 			$url = $siteObj->getPageUrl( $pageName );
 			return $url;
 		} else {
@@ -151,22 +133,22 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 	 * Parses a string to itemId
 	 *
 	 * @param string $itemString
+	 *
 	 * @return ItemId|null
 	 */
 	private function getItemId( $itemString ) {
 		try {
 			$itemId = $this->idParser->parse( $itemString );
-			if ( $itemId instanceof ItemId ) {
-				if ( !$this->entityLookup->hasEntity( $itemId ) ) {
-					$this->errorMessageKey = "item-not-found";
-					return null;
-				}
+
+			if ( $itemId instanceof ItemId && $this->entityLookup->hasEntity( $itemId ) ) {
 				return $itemId;
 			}
+
+			$this->errorMessageKey = 'item-not-found';
 		} catch ( EntityIdParsingException $e ) {
 			$this->errorMessageKey = 'item-id-invalid';
-		} catch ( InvalidArgumentException $e ) {
-			$this->errorMessageKey = 'item-id-invalid';
+		} catch ( EntityLookupException $e ) {
+			$this->errorMessageKey = 'item-not-found';
 		}
 
 		return null;
@@ -225,7 +207,7 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 	 * @param string $site
 	 * @param string $itemString
 	 */
-	protected function outputForm( $site, $itemString ) {
+	private function outputForm( $site, $itemString ) {
 		$formDescriptor = array(
 			'site' => array(
 				'name' => 'site',
@@ -245,7 +227,7 @@ class SpecialGoToLinkedPage extends SpecialWikibasePage {
 			)
 		);
 
-		HTMLForm::factory( 'inline', $formDescriptor, $this->getContext() )
+		HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() )
 			->setId( 'wb-gotolinkedpage-form1' )
 			->setMethod( 'get' )
 			->setSubmitID( 'wb-gotolinkedpage-submit' )

@@ -21,7 +21,6 @@ use WikiPage;
 /**
  * @covers Wikibase\EntityContent
  *
- * @group WikibaseRepo
  * @group Wikibase
  *
  * @license GPL-2.0+
@@ -62,8 +61,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 
 		if ( $wgUser ) { // should not be null, but sometimes, it is
 			// reset rights cache
-			$wgUser->addGroup( "dummy" );
-			$wgUser->removeGroup( "dummy" );
+			$wgUser->clearInstanceCache();
 		}
 
 		parent::tearDown();
@@ -163,7 +161,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 		);
 
 		$this->assertInstanceOf( ParserOutput::class, $parserOutput );
-		$this->assertSame( EntityContent::STATUS_EMPTY, $parserOutput->getProperty( 'wb-status' ) );
 	}
 
 	public function providePageProperties() {
@@ -172,7 +169,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 
 		$cases['empty'] = array(
 			$emptyContent,
-			array( 'wb-status' => EntityContent::STATUS_EMPTY, 'wb-claims' => 0 )
+			[ 'wb-claims' => 0 ]
 		);
 
 		$contentWithLabel = $this->newEmpty( $this->getDummyId() );
@@ -180,7 +177,7 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 
 		$cases['labels'] = array(
 			$contentWithLabel,
-			array( 'wb-status' => EntityContent::STATUS_STUB, 'wb-claims' => 0 )
+			[ 'wb-claims' => 0 ]
 		);
 
 		return $cases;
@@ -197,29 +194,6 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 			$actual = $parserOutput->getProperty( $name );
 			$this->assertSame( $expected, $actual, "page property $name" );
 		}
-	}
-
-	public function provideGetEntityStatus() {
-		$contentWithLabel = $this->newEmpty();
-		$this->setLabel( $contentWithLabel->getEntity(), 'de', 'xyz' );
-
-		return array(
-			'empty' => array(
-				$this->newEmpty(),
-				EntityContent::STATUS_EMPTY
-			),
-			'labels' => array(
-				$contentWithLabel,
-				EntityContent::STATUS_STUB
-			),
-		);
-	}
-
-	/**
-	 * @dataProvider provideGetEntityStatus
-	 */
-	public function testGetEntityStatus( EntityContent $content, $expected ) {
-		$this->assertSame( $expected, $content->getEntityStatus() );
 	}
 
 	abstract public function provideGetEntityId();
@@ -243,14 +217,12 @@ abstract class EntityContentTest extends \MediaWikiTestCase {
 			'empty' => array(
 				$empty,
 				array(
-					'wb-status' => EntityContent::STATUS_EMPTY,
 					'wb-claims' => 0,
 				)
 			),
 			'labels' => array(
 				$labeledEntityContent,
 				array(
-					'wb-status' => EntityContent::STATUS_STUB,
 					'wb-claims' => 0,
 				)
 			),

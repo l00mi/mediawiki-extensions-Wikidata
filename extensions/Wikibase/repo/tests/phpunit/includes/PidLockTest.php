@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Repo\Test;
+namespace Wikibase\Repo\Tests;
 
 use PHPUnit_Framework_TestCase;
 use Wikibase\Repo\PidLock;
@@ -8,7 +8,6 @@ use Wikibase\Repo\PidLock;
 /**
  * @covers Wikibase\Repo\PidLock
  *
- * @group WikibaseRepo
  * @group Wikibase
  *
  * @license GPL-2.0+

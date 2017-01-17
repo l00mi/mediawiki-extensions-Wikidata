@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiMain;
 use FauxRequest;
@@ -22,7 +22,6 @@ use Wikibase\Lib\Interactors\TermSearchResult;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @group medium
  *
@@ -50,7 +49,8 @@ class SearchEntitiesTest extends PHPUnit_Framework_TestCase {
 	 */
 	private function getMockTitleLookup() {
 		$titleLookup = $this->getMock( EntityTitleLookup::class );
-		$titleLookup->expects( $this->any() )->method( 'getTitleForId' )
+		$titleLookup->expects( $this->any() )
+			->method( 'getTitleForId' )
 			->will( $this->returnValue( $this->getMockTitle() ) );
 
 		return $titleLookup;

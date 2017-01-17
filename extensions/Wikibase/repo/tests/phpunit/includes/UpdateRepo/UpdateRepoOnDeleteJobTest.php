@@ -2,8 +2,9 @@
 
 namespace Wikibase\Repo\Tests\UpdateRepo;
 
+use HashSiteStore;
 use Site;
-use SiteStore;
+use SiteLookup;
 use Status;
 use Title;
 use User;
@@ -12,7 +13,7 @@ use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Services\Diff\EntityPatcher;
 use Wikibase\EditEntityFactory;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\UpdateRepo\UpdateRepoOnDeleteJob;
@@ -24,7 +25,6 @@ use Wikibase\Lib\Tests\MockRepository;
  * @covers Wikibase\Repo\UpdateRepo\UpdateRepoJob
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group WikibaseIntegration
  * @group Database
  *
@@ -59,31 +59,28 @@ class UpdateRepoOnDeleteJobTest extends \MediaWikiTestCase {
 	/**
 	 * @param bool $titleExists
 	 *
-	 * @return SiteStore
+	 * @return SiteLookup
 	 */
-	private function getSiteStore( $titleExists ) {
+	private function getSiteLookup( $titleExists ) {
 		$enwiki = $this->getMock( Site::class );
+		$enwiki->expects( $this->any() )
+			->method( 'getGlobalId' )
+			->will( $this->returnValue( 'enwiki' ) );
 		$enwiki->expects( $this->any() )
 			->method( 'normalizePageName' )
 			->with( 'Delete me' )
 			->will( $this->returnValue( $titleExists ) );
 
-		$siteStore = $this->getMock( SiteStore::class );
-		$siteStore->expects( $this->any() )
-			->method( 'getSite' )
-			->with( 'enwiki' )
-			->will( $this->returnValue( $enwiki ) );
-
-		return $siteStore;
+		return new HashSiteStore( [ $enwiki ] );
 	}
 
 	/**
 	 * @param ItemId $itemId
 	 *
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	private function getEntityTitleLookup( ItemId $itemId ) {
-		$entityTitleLookup = $this->getMock( EntityTitleLookup::class );
+		$entityTitleLookup = $this->getMock( EntityTitleStoreLookup::class );
 		$entityTitleLookup->expects( $this->any() )
 			->method( 'getTitleForId' )
 			->with( $itemId )
@@ -170,7 +167,7 @@ class UpdateRepoOnDeleteJobTest extends \MediaWikiTestCase {
 			$mockRepository,
 			$mockRepository,
 			$this->getSummaryFormatter(),
-			$this->getSiteStore( $titleExists ),
+			$this->getSiteLookup( $titleExists ),
 			new EditEntityFactory(
 				$this->getEntityTitleLookup( $item->getId() ),
 				$mockRepository,

@@ -4,7 +4,7 @@ namespace Wikibase\Repo\Specials;
 
 use MWException;
 use RuntimeException;
-use SiteStore;
+use SiteLookup;
 use Status;
 use Title;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -38,11 +38,6 @@ abstract class SpecialWikibaseRepoPage extends SpecialWikibasePage {
 	private $entityTitleLookup;
 
 	/**
-	 * @var SiteStore
-	 */
-	protected $siteStore;
-
-	/**
 	 * @var EditEntityFactory
 	 */
 	private $editEntityFactory;
@@ -60,7 +55,6 @@ abstract class SpecialWikibaseRepoPage extends SpecialWikibasePage {
 		$this->setSpecialWikibaseRepoPageServices(
 			$wikibaseRepo->getSummaryFormatter(),
 			$wikibaseRepo->getEntityTitleLookup(),
-			$wikibaseRepo->getSiteStore(),
 			$wikibaseRepo->newEditEntityFactory( $this->getContext() )
 		);
 	}
@@ -70,18 +64,15 @@ abstract class SpecialWikibaseRepoPage extends SpecialWikibasePage {
 	 *
 	 * @param SummaryFormatter $summaryFormatter
 	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param SiteStore $siteStore
 	 * @param EditEntityFactory $editEntityFactory
 	 */
 	public function setSpecialWikibaseRepoPageServices(
 		SummaryFormatter $summaryFormatter,
 		EntityTitleLookup $entityTitleLookup,
-		SiteStore $siteStore,
 		EditEntityFactory $editEntityFactory
 	) {
 		$this->summaryFormatter = $summaryFormatter;
 		$this->entityTitleLookup = $entityTitleLookup;
-		$this->siteStore = $siteStore;
 		$this->editEntityFactory = $editEntityFactory;
 	}
 

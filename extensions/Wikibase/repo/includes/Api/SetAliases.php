@@ -77,6 +77,10 @@ class SetAliases extends ModifyEntity {
 
 	/**
 	 * @see ModifyEntity::validateParameters
+	 *
+	 * @param array $params
+	 *
+	 * @throws ApiUsageException
 	 */
 	protected function validateParameters( array $params ) {
 		parent::validateParameters( $params );
@@ -93,6 +97,12 @@ class SetAliases extends ModifyEntity {
 
 	/**
 	 * @see ModifyEntity::modifyEntity
+	 *
+	 * @param EntityDocument &$entity
+	 * @param array $params
+	 * @param int $baseRevId
+	 *
+	 * @return Summary
 	 */
 	protected function modifyEntity( EntityDocument &$entity, array $params, $baseRevId ) {
 		if ( !( $entity instanceof AliasesProvider ) ) {

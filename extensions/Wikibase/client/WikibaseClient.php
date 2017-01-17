@@ -70,7 +70,7 @@ call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks, $wgExtensionFunctions;
 	global $wgAPIListModules, $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages;
 	global $wgResourceModules, $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
-	global $wgJobClasses, $wgWBClientDataTypes, $wgWBClientEntityTypes;
+	global $wgJobClasses, $wgTrackingCategories, $wgWBClientDataTypes, $wgWBClientEntityTypes;
 
 	$wgExtensionCredits['wikibase'][] = array(
 		'path' => __DIR__,
@@ -102,6 +102,9 @@ call_user_func( function() {
 	$wgExtensionMessagesFiles['Wikibaseclientalias'] = __DIR__ . '/WikibaseClient.i18n.alias.php';
 	$wgExtensionMessagesFiles['wikibaseclientmagic'] = __DIR__ . '/WikibaseClient.i18n.magic.php';
 
+	// Tracking categories
+	$wgTrackingCategories[] = 'unresolved-property-category';
+
 	// Hooks
 	$wgHooks['UnitTestsList'][] = '\Wikibase\ClientHooks::registerUnitTests';
 	$wgHooks['BaseTemplateToolbox'][] = '\Wikibase\ClientHooks::onBaseTemplateToolbox';
@@ -109,6 +112,7 @@ call_user_func( function() {
 	$wgHooks['OutputPageParserOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onOutputPageParserOutput';
 	$wgHooks['SkinTemplateGetLanguageLink'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSkinTemplateGetLanguageLink';
 	$wgHooks['ContentAlterParserOutput'][] = '\Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers::onContentAlterParserOutput';
+	$wgHooks['ContentAlterParserOutput'][] = '\Wikibase\Client\Hooks\InterwikiSortingHookHandlers::onContentAlterParserOutput';
 	$wgHooks['SidebarBeforeOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSidebarBeforeOutput';
 
 	$wgHooks['ParserFirstCallInit'][] = '\Wikibase\ClientHooks::onParserFirstCallInit';
@@ -167,7 +171,7 @@ call_user_func( function() {
 
 	// api modules
 	$wgAPIMetaModules['wikibase'] = array(
-		'class' => 'Wikibase\Client\Api\ApiClientInfo',
+		'class' => Wikibase\Client\Api\ApiClientInfo::class,
 		'factory' => function( ApiQuery $apiQuery, $moduleName ) {
 			return new Wikibase\Client\Api\ApiClientInfo(
 				Wikibase\Client\WikibaseClient::getDefaultInstance()->getSettings(),
@@ -178,8 +182,8 @@ call_user_func( function() {
 	);
 
 	$wgAPIPropModules['pageterms'] = array(
-		'class' => 'Wikibase\Client\Api\PageTerms',
-		'factory' => function ( ApiQuery $query, $moduleName ) {
+		'class' => Wikibase\Client\Api\PageTerms::class,
+		'factory' => function ( ApiQuery $apiQuery, $moduleName ) {
 			// FIXME: HACK: make pageterms work directly on entity pages on the repo.
 			// We should instead use an EntityIdLookup that combines the repo and the client
 			// implementation, see T115117.
@@ -187,11 +191,11 @@ call_user_func( function() {
 			// self-documentation of the API module in the "apihelp-query+pageterms-description"
 			// message and the PageTerms::getExamplesMessages() method.
 			if ( defined( 'WB_VERSION' ) ) {
-				$repo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+				$repo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 				$termIndex = $repo->getStore()->getTermIndex();
 				$entityIdLookup = $repo->getEntityContentFactory();
 			} else {
-				$client = \Wikibase\Client\WikibaseClient::getDefaultInstance();
+				$client = Wikibase\Client\WikibaseClient::getDefaultInstance();
 				$termIndex = $client->getStore()->getTermIndex();
 				$entityIdLookup = $client->getStore()->getEntityIdLookup();
 			}
@@ -199,19 +203,55 @@ call_user_func( function() {
 			return new Wikibase\Client\Api\PageTerms(
 				$termIndex,
 				$entityIdLookup,
-				$query,
+				$apiQuery,
 				$moduleName
 			);
 		}
 	);
 
-	$wgAPIPropModules['wbentityusage'] = Wikibase\Client\Api\ApiPropsEntityUsage::class;
-	$wgAPIListModules['wblistentityusage'] = Wikibase\Client\Api\ApiListEntityUsage::class;
+	$wgAPIPropModules['wbentityusage'] = [
+		'class' => Wikibase\Client\Api\ApiPropsEntityUsage::class,
+		'factory' => function ( ApiQuery $query, $moduleName ) {
+			$repoLinker = \Wikibase\Client\WikibaseClient::getDefaultInstance()->newRepoLinker();
+			return new \Wikibase\Client\Api\ApiPropsEntityUsage(
+				$query,
+				$moduleName,
+				$repoLinker
+			);
+		}
+	];
+	$wgAPIListModules['wblistentityusage'] = [
+		'class' => Wikibase\Client\Api\ApiListEntityUsage::class,
+		'factory' => function ( ApiQuery $apiQuery, $moduleName ) {
+			return new Wikibase\Client\Api\ApiListEntityUsage(
+				$apiQuery,
+				$moduleName,
+				Wikibase\Client\WikibaseClient::getDefaultInstance()->newRepoLinker()
+			);
+		}
+	];
 
 	// Special page registration
-	$wgSpecialPages['UnconnectedPages'] = 'Wikibase\Client\Specials\SpecialUnconnectedPages';
-	$wgSpecialPages['PagesWithBadges'] = 'Wikibase\Client\Specials\SpecialPagesWithBadges';
-	$wgSpecialPages['EntityUsage'] = 'Wikibase\Client\Specials\SpecialEntityUsage';
+	$wgSpecialPages['UnconnectedPages'] = Wikibase\Client\Specials\SpecialUnconnectedPages::class;
+	$wgSpecialPages['PagesWithBadges'] = function() {
+		$wikibaseClient = Wikibase\Client\WikibaseClient::getDefaultInstance();
+		$settings = $wikibaseClient->getSettings();
+		return new Wikibase\Client\Specials\SpecialPagesWithBadges(
+			new Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory(
+				$wikibaseClient->getLanguageFallbackChainFactory(),
+				$wikibaseClient->getTermLookup(),
+				$wikibaseClient->getTermBuffer()
+			),
+			array_keys( $settings->getSetting( 'badgeClassNames' ) ),
+			$settings->getSetting( 'siteGlobalID' )
+		);
+	};
+	$wgSpecialPages['EntityUsage'] = function () {
+		return new Wikibase\Client\Specials\SpecialEntityUsage(
+			Wikibase\Client\WikibaseClient::getDefaultInstance()->getEntityIdParser()
+		);
+	};
+
 	$wgHooks['wgQueryPages'][] = 'Wikibase\ClientHooks::onwgQueryPages';
 
 	// Resource loader modules

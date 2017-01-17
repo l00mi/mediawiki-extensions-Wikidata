@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use FormatJson;
 
@@ -15,7 +15,6 @@ use FormatJson;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group BreakingTheSlownessBarrier
  * @group Database
  * @group medium

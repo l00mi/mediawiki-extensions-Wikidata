@@ -31,7 +31,6 @@ use Wikibase\SqlIdGenerator;
  *
  * @group Database
  * @group Wikibase
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler
@@ -645,7 +644,7 @@ class WikiPageEntityStoreTest extends MediaWikiTestCase {
 
 	/**
 	 * @dataProvider provideCanCreateWithCustomId
-	 * @covers WikiPageEntityStore::canCreateWithCustomId()
+	 * @covers \Wikibase\Repo\Store\WikiPageEntityStore::canCreateWithCustomId
 	 */
 	public function testCanCreateWithCustomId( EntityId $id, $expected ) {
 		/* @var WikiPageEntityStore $store */

@@ -25,14 +25,6 @@ use Wikibase\Repo\ItemSearchTextGenerator;
 class ItemContent extends EntityContent {
 
 	/**
-	 * For use in the wb-status page property to indicate that the entity is a "linkstub",
-	 * that is, it contains sitelinks, but no claims.
-	 *
-	 * @see getEntityStatus()
-	 */
-	const STATUS_LINKSTUB = 60;
-
-	/**
 	 * @var EntityHolder|null
 	 */
 	private $itemHolder;
@@ -161,8 +153,6 @@ class ItemContent extends EntityContent {
 	}
 
 	/**
-	 * Returns a new empty ItemContent.
-	 *
 	 * @return self
 	 */
 	public static function newEmpty() {
@@ -229,17 +219,6 @@ class ItemContent extends EntityContent {
 	}
 
 	/**
-	 * @see EntityContent::isStub
-	 *
-	 * @return bool True if the item is not empty, but does not contain statements.
-	 */
-	public function isStub() {
-		return !$this->isRedirect()
-			&& !$this->getItem()->isEmpty()
-			&& $this->getItem()->getStatements()->isEmpty();
-	}
-
-	/**
 	 * @see EntityContent::getEntityPageProperties
 	 *
 	 * Records the number of statements in the 'wb-claims' key
@@ -257,35 +236,6 @@ class ItemContent extends EntityContent {
 		}
 
 		return $properties;
-	}
-
-	/**
-	 * @see EntityContent::getEntityStatus()
-	 *
-	 * An item is considered a stub if it has terms but no statements or sitelinks.
-	 * If an item has sitelinks but no statements, it is considered a "linkstub".
-	 * If an item has statements, it's not empty nor a stub.
-	 *
-	 * @see STATUS_LINKSTUB
-	 *
-	 * @note Will fail of this ItemContent is a redirect.
-	 *
-	 * @return int
-	 */
-	public function getEntityStatus() {
-		$status = parent::getEntityStatus();
-
-		if ( !$this->isRedirect() ) {
-			$hasSiteLinks = !$this->getItem()->getSiteLinkList()->isEmpty();
-
-			if ( $status === self::STATUS_EMPTY && $hasSiteLinks ) {
-				$status = self::STATUS_LINKSTUB;
-			} elseif ( $status === self::STATUS_STUB && $hasSiteLinks ) {
-				$status = self::STATUS_LINKSTUB;
-			}
-		}
-
-		return $status;
 	}
 
 }

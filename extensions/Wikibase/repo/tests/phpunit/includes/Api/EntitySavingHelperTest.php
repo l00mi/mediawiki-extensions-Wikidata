@@ -1,12 +1,12 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use FauxRequest;
 use LogicException;
 use RequestContext;
 use Status;
-use UsageException;
+use ApiUsageException;
 use User;
 use Wikibase\DataModel\Entity\BasicEntityIdParser;
 use Wikibase\DataModel\Entity\EntityDocument;
@@ -31,7 +31,6 @@ use Wikibase\SummaryFormatter;
  * @group Database
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Addshore
@@ -49,7 +48,7 @@ class EntitySavingHelperTest extends EntityLoadingHelperTest {
 			return;
 		}
 
-		$enabledTypes = WikibaseRepo::getDefaultInstance()->getEnabledEntityTypes();
+		$enabledTypes = WikibaseRepo::getDefaultInstance()->getLocalEntityTypes();
 		if ( !in_array( $requiredEntityType, $enabledTypes ) ) {
 			$this->markTestSkipped( 'Entity type not enabled: ' . $requiredEntityType );
 		}
@@ -179,7 +178,7 @@ class EntitySavingHelperTest extends EntityLoadingHelperTest {
 			'dieErrorCode' => 'no-entity-id'
 		] );
 
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 		$helper->loadEntity();
 	}
 
@@ -211,7 +210,7 @@ class EntitySavingHelperTest extends EntityLoadingHelperTest {
 			'entityId' => isset( $params['entity'] ) ? new ItemId( $params['entity'] ) : null ,
 		] );
 
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 		$helper->loadEntity();
 	}
 

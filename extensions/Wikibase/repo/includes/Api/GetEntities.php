@@ -4,6 +4,8 @@ namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
+use InvalidArgumentException;
+use MediaWiki\MediaWikiServices;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Services\Entity\EntityPrefetcher;
 use Wikibase\DataModel\Entity\EntityIdParser;
@@ -97,7 +99,7 @@ class GetEntities extends ApiBase {
 		$this->idParser = $wikibaseRepo->getEntityIdParser();
 
 		$this->siteLinkTargetProvider = new SiteLinkTargetProvider(
-			$wikibaseRepo->getSiteStore(),
+			$wikibaseRepo->getSiteLookup(),
 			$settings->getSetting( 'specialSiteLinkGroups' )
 		);
 
@@ -124,7 +126,8 @@ class GetEntities extends ApiBase {
 
 		$entityIds = $this->getEntityIdsFromParams( $params );
 
-		$this->getStats()->updateCount( 'wikibase.repo.api.getentities.entities', count( $entityIds ) );
+		$stats = MediaWikiServices::getInstance()->getStatsdDataFactory();
+		$stats->updateCount( 'wikibase.repo.api.getentities.entities', count( $entityIds ) );
 
 		$entityRevisions = $this->getEntityRevisionsFromEntityIds( $entityIds, $resolveRedirects );
 
@@ -190,9 +193,10 @@ class GetEntities extends ApiBase {
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 		$siteLinkStore = $wikibaseRepo->getStore()->newSiteLinkStore();
 		return new ItemByTitleHelper(
+			$this,
 			$this->resultBuilder,
 			$siteLinkStore,
-			$wikibaseRepo->getSiteStore(),
+			$wikibaseRepo->getSiteLookup(),
 			$this->stringNormalizer
 		);
 	}
@@ -258,6 +262,11 @@ class GetEntities extends ApiBase {
 				$entityId = $ex->getRedirectTargetId();
 				$entityRevision = $this->getEntityRevision( $entityId, false );
 			}
+		} catch ( InvalidArgumentException $ex ) {
+			// InvalidArgumentException is thrown when the repository $entityId is from other
+			// repository than the entityRevisionLookup was configured to read from.
+			// Such cases are input errors (e.g. specifying non-existent repository prefix)
+			// and should be ignored and treated as non-existing entities.
 		}
 
 		return $entityRevision;

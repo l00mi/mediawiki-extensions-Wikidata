@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 use DataValues\Serializers\DataValueSerializer;
 use Deserializers\Exceptions\DeserializationException;
@@ -15,7 +15,6 @@ use Wikibase\StatementRankSerializer;
  * @covers Wikibase\StatementRankSerializer
  *
  * @group Wikibase
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Addshore

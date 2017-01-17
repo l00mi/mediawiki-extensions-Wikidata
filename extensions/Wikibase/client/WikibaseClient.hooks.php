@@ -366,6 +366,10 @@ final class ClientHooks {
 
 	/**
 	 * Register the magic word.
+	 *
+	 * @param string[] &$aCustomVariableIds
+	 *
+	 * @return bool
 	 */
 	public static function onMagicWordwgVariableIDs( &$aCustomVariableIds ) {
 		$aCustomVariableIds[] = 'noexternallanglinks';
@@ -376,6 +380,13 @@ final class ClientHooks {
 
 	/**
 	 * Apply the magic word.
+	 *
+	 * @param Parser &$parser
+	 * @param array &$cache
+	 * @param string &$magicWordId
+	 * @param string &$ret
+	 *
+	 * @return bool
 	 */
 	public static function onParserGetVariableValueSwitch( Parser &$parser, &$cache, &$magicWordId, &$ret ) {
 		if ( $magicWordId === 'noexternallanglinks' ) {
@@ -419,7 +430,6 @@ final class ClientHooks {
 			$wikibaseClient->getTermBuffer()
 		);
 		$idParser = $wikibaseClient->getEntityIdParser();
-		$title = $context->getTitle();
 
 		$infoActionHookHandler = new InfoActionHookHandler(
 			$namespaceChecker,

@@ -20,8 +20,6 @@ use Wikibase\Lib\Tests\Store\MockTermIndex;
  * @covers Wikibase\Lib\Interactors\TermIndexSearchInteractor
  *
  * @group Wikibase
- * @group WikibaseLib
- * @group WikibaseInteractor
  *
  * @license GPL-2.0+
  * @author Addshore

@@ -2,10 +2,11 @@
 
 namespace Wikibase\Repo\Api;
 
+use ApiBase;
 use Profiler;
 use Site;
-use SiteStore;
-use UsageException;
+use SiteLookup;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\StringNormalizer;
@@ -22,6 +23,11 @@ use Wikibase\StringNormalizer;
 class ItemByTitleHelper {
 
 	/**
+	 * @var ApiBase
+	 */
+	private $apiModule;
+
+	/**
 	 * @var ResultBuilder
 	 */
 	private $resultBuilder;
@@ -32,9 +38,9 @@ class ItemByTitleHelper {
 	private $siteLinkLookup;
 
 	/**
-	 * @var SiteStore
+	 * @var SiteLookup
 	 */
-	private $siteStore;
+	private $siteLookup;
 
 	/**
 	 * @var StringNormalizer
@@ -42,20 +48,23 @@ class ItemByTitleHelper {
 	private $stringNormalizer;
 
 	/**
+	 * @param ApiBase $apiModule
 	 * @param ResultBuilder $resultBuilder
 	 * @param SiteLinkLookup $siteLinkLookup
-	 * @param SiteStore $siteStore
+	 * @param SiteLookup $siteLookup
 	 * @param StringNormalizer $stringNormalizer
 	 */
 	public function __construct(
+		ApiBase $apiModule,
 		ResultBuilder $resultBuilder,
 		SiteLinkLookup $siteLinkLookup,
-		SiteStore $siteStore,
+		SiteLookup $siteLookup,
 		StringNormalizer $stringNormalizer
 	) {
+		$this->apiModule = $apiModule;
 		$this->resultBuilder = $resultBuilder;
 		$this->siteLinkLookup = $siteLinkLookup;
-		$this->siteStore = $siteStore;
+		$this->siteLookup = $siteLookup;
 		$this->stringNormalizer = $stringNormalizer;
 	}
 
@@ -66,7 +75,7 @@ class ItemByTitleHelper {
 	 * @param array $titles
 	 * @param bool $normalize
 	 *
-	 * @throws UsageException
+	 * @throws ApiUsageException
 	 * @return array( ItemId[], array[] )
 	 *         List containing valid ItemIds and MissingItem site title combinations
 	 */
@@ -130,7 +139,7 @@ class ItemByTitleHelper {
 
 		// Try harder by requesting normalization on the external site.
 		if ( $id === null && $normalize === true ) {
-			$siteObj = $this->siteStore->getSite( $siteId );
+			$siteObj = $this->siteLookup->getSite( $siteId );
 			//XXX: this passes the normalized title back into $title by reference...
 			$this->normalizeTitle( $title, $siteObj );
 			$id = $this->siteLinkLookup->getItemIdForLink( $siteObj->getGlobalId(), $title );
@@ -160,11 +169,11 @@ class ItemByTitleHelper {
 	 * @param string $message
 	 * @param string $code
 	 *
-	 * @throws UsageException always
+	 * @throws ApiUsageException always
 	 */
 	private function throwUsageException( $message, $code ) {
 		Profiler::instance()->close();
-		throw new UsageException( $message, $code );
+		throw ApiUsageException::newWithMessage( $this->apiModule, $message, $code );
 	}
 
 }

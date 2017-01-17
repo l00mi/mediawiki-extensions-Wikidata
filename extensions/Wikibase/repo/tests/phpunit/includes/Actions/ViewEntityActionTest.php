@@ -16,7 +16,6 @@ use WikiPage;
  * @group Action
  * @group Wikibase
  * @group WikibaseAction
- * @group WikibaseRepo
  *
  * @group Database
  * @group medium
@@ -111,7 +110,7 @@ class ViewEntityActionTest extends ActionTestCase {
 	}
 
 	/**
-	 * @covers ViewEntityAction::onBeforeDisplayNoArticleText
+	 * @covers \Wikibase\ViewEntityAction::onBeforeDisplayNoArticleText
 	 */
 	public function testShow404() {
 		$id = new ItemId( 'q1122334455' );

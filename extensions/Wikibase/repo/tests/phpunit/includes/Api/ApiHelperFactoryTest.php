@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiBase;
 use ApiResult;
@@ -25,7 +25,6 @@ use Wikibase\SummaryFormatter;
  *
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler

@@ -16,19 +16,36 @@ use Wikibase\Repo\Diff\EntityContentDiffView;
  * @covers Wikibase\Repo\Diff\EntityContentDiffView
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group Database
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @author Thiemo Mättig
  */
 class EntityContentDiffViewTest extends \MediaWikiTestCase {
-
-	//@todo: make this a baseclass to use with all types of entities.
 
 	public function testConstructor() {
 		new EntityContentDiffView( RequestContext::getMain() );
 		$this->assertTrue( true );
+	}
+
+	public function testDiffingEmptyContent() {
+		$emptyItem = new Item( new ItemId( 'Q1' ) );
+		$emptyContent = ItemContent::newFromItem( $emptyItem );
+
+		$html = $this->newDiffView()->generateContentDiffBody( $emptyContent, $emptyContent );
+
+		$this->assertSame( '', $html );
+	}
+
+	public function testDiffingSameContent() {
+		$item = new Item( new ItemId( 'Q1' ) );
+		$item->setLabel( 'en', 'Not empty any more' );
+		$itemContent = ItemContent::newFromItem( $item );
+
+		$html = $this->newDiffView()->generateContentDiffBody( $itemContent, $itemContent );
+
+		$this->assertSame( '', $html );
 	}
 
 	public function itemProvider() {
@@ -48,56 +65,56 @@ class EntityContentDiffViewTest extends \MediaWikiTestCase {
 		$redirect2 = new EntityRedirect( new ItemId( 'Q11' ), new ItemId( 'Q22' ) );
 
 		$insTags = array(
-			'has <td>label / de</td>' => array( 'tag' => 'td', 'content' => 'label / de' ),
-			'has <ins>foo</ins>' => array( 'tag' => 'ins', 'content' => 'foo' ),
-			'has <td>aliases / nl / 0</td>' => array( 'tag' => 'td', 'content' => 'aliases / nl / 0' ),
-			'has <ins>bar</ins>' => array( 'tag' => 'ins', 'content' => 'bar' ),
-			'has <td>description / en</td>' => array( 'tag' => 'td', 'content' => 'description / en' ),
-			'has <ins>ohi there</ins>' => array( 'tag' => 'ins', 'content' => 'ohi there' ),
+			'has <td>label / de</td>' => '>label / de</td>',
+			'has <ins>foo</ins>' => '>foo</ins>',
+			'has <td>aliases / nl / 0</td>' => '>aliases / nl / 0</td>',
+			'has <ins>bar</ins>' => '>bar</ins>',
+			'has <td>description / en</td>' => '>description / en</td>',
+			'has <ins>ohi there</ins>' => '>ohi there</ins>',
 		);
 
 		$delTags = array(
-			'has <td>label / de</td>' => array( 'tag' => 'td', 'content' => 'label / de' ),
-			'has <del>foo</del>' => array( 'tag' => 'del', 'content' => 'foo' ),
-			'has <td>aliases / nl / 0</td>' => array( 'tag' => 'td', 'content' => 'aliases / nl / 0' ),
-			'has <del>bar</del>' => array( 'tag' => 'del', 'content' => 'bar' ),
-			'has <td>description / en</td>' => array( 'tag' => 'td', 'content' => 'description / en' ),
-			'has <del>ohi there</del>' => array( 'tag' => 'del', 'content' => 'ohi there' ),
+			'has <td>label / de</td>' => '>label / de</td>',
+			'has <del>foo</del>' => '>foo</del>',
+			'has <td>aliases / nl / 0</td>' => '>aliases / nl / 0</td>',
+			'has <del>bar</del>' => '>bar</del>',
+			'has <td>description / en</td>' => '>description / en</td>',
+			'has <del>ohi there</del>' => '>ohi there</del>',
 		);
 
 		$changeTags = array(
-			'has <td>label / en</td>' => array( 'tag' => 'td', 'content' => 'label / en' ),
-			'has <ins>O_o</ins>' => array( 'tag' => 'ins', 'content' => 'O_o' ),
-			'has <td>aliases / nl / 0</td>' => array( 'tag' => 'td', 'content' => 'aliases / nl / 0' ),
-			'has <ins>daaaah</ins>' => array( 'tag' => 'ins', 'content' => 'daaaah' ),
-			'has <td>aliases / nl / 1</td>' => array( 'tag' => 'td', 'content' => 'aliases / nl / 1' ),
-			'has <del>foo</del>' => array( 'tag' => 'del', 'content' => 'foo' ),
-			'has <td>aliases / nl / 2</td>' => array( 'tag' => 'td', 'content' => 'aliases / nl / 2' ),
-			'has <del>bar</del>' => array( 'tag' => 'del', 'content' => 'bar' ),
-			'has <td>description / en</td>' => array( 'tag' => 'td', 'content' => 'description / en' ),
-			'has <del>ohi there</del>' => array( 'tag' => 'del', 'content' => 'ohi there' ),
+			'has <td>label / en</td>' => '>label / en</td>',
+			'has <ins>O_o</ins>' => '>O_o</ins>',
+			'has <td>aliases / nl / 0</td>' => '>aliases / nl / 0</td>',
+			'has <ins>daaaah</ins>' => '>daaaah</ins>',
+			'has <td>aliases / nl / 1</td>' => '>aliases / nl / 1</td>',
+			'has <del>foo</del>' => '>foo</del>',
+			'has <td>aliases / nl / 2</td>' => '>aliases / nl / 2</td>',
+			'has <del>bar</del>' => '>bar</del>',
+			'has <td>description / en</td>' => '>description / en</td>',
+			'has <del>ohi there</del>' => '>ohi there</del>',
 		);
 
 		$fromRedirTags = array(
-			'has <td>label / de</td>' => array( 'tag' => 'td', 'content' => 'label / de' ),
-			'has <ins>foo</ins>' => array( 'tag' => 'ins', 'content' => 'foo' ),
+			'has <td>label / de</td>' => '>label / de</td>',
+			'has <ins>foo</ins>' => '>foo</ins>',
 
-			'has <td>redirect</td>' => array( 'tag' => 'td', 'content' => 'redirect' ),
-			'has <del>Q21</del>' => array( 'tag' => 'del', 'content' => 'Q21' ),
+			'has <td>redirect</td>' => '>redirect</td>',
+			'has <del>Q21</del>' => '>Q21</del>',
 		);
 
 		$toRedirTags = array(
-			'has <td>label / de</td>' => array( 'tag' => 'td', 'content' => 'label / de' ),
-			'has <del>foo</del>' => array( 'tag' => 'del', 'content' => 'foo' ),
+			'has <td>label / de</td>' => '>label / de</td>',
+			'has <del>foo</del>' => '>foo</del>',
 
-			'has <td>redirect</td>' => array( 'tag' => 'td', 'content' => 'redirect' ),
-			'has <ins>Q21</ins>' => array( 'tag' => 'ins', 'content' => 'Q21' ),
+			'has <td>redirect</td>' => '>redirect</td>',
+			'has <ins>Q21</ins>' => '>Q21</ins>',
 		);
 
 		$changeRedirTags = array(
-			'has <td>redirect</td>' => array( 'tag' => 'td', 'content' => 'redirect' ),
-			'has <del>Q21</del>' => array( 'tag' => 'del', 'content' => 'Q21' ),
-			'has <ins>Q22</del>' => array( 'tag' => 'ins', 'content' => 'Q22' ),
+			'has <td>redirect</td>' => '>redirect</td>',
+			'has <del>Q21</del>' => '>Q21</del>',
+			'has <ins>Q22</del>' => '>Q22</ins>',
 		);
 
 		$empty = ItemContent::newFromItem( $emptyItem );
@@ -114,8 +131,6 @@ class EntityContentDiffViewTest extends \MediaWikiTestCase {
 		);
 
 		return array(
-			'empty' => array( $empty, $empty, array( 'empty' => '/^$/', ) ),
-			'same' => array( $itemContent, $itemContent, array( 'empty' => '/^$/', ) ),
 			'from emtpy' => array( $empty, $itemContent, $insTags ),
 			'to empty' => array( $itemContent, $empty, $delTags ),
 			'changed' => array( $itemContent, $itemContent2, $changeTags ),
@@ -129,22 +144,22 @@ class EntityContentDiffViewTest extends \MediaWikiTestCase {
 	 * @dataProvider itemProvider
 	 */
 	public function testGenerateContentDiffBody( ItemContent $itemContent, ItemContent $itemContent2, array $matchers ) {
+		$html = $this->newDiffView()->generateContentDiffBody( $itemContent, $itemContent2 );
+
+		$this->assertInternalType( 'string', $html );
+		foreach ( $matchers as $name => $matcher ) {
+			$this->assertContains( $matcher, $html, $name );
+		}
+	}
+
+	/**
+	 * @return EntityContentDiffView
+	 */
+	private function newDiffView() {
 		$context = new DerivativeContext( RequestContext::getMain() );
 		$context->setLanguage( Language::factory( 'en' ) );
 
-		$diffView = new EntityContentDiffView( $context );
-
-		$html = $diffView->generateContentDiffBody( $itemContent, $itemContent2 );
-
-		$this->assertInternalType( 'string', $html );
-
-		foreach ( $matchers as $name => $matcher ) {
-			if ( is_string( $matcher ) ) {
-				$this->assertRegExp( $matcher, $html );
-			} else {
-				$this->assertTag( $matcher, $html, $name );
-			}
-		}
+		return new EntityContentDiffView( $context );
 	}
 
 }

@@ -14,7 +14,7 @@ use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\EntityContent;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\StorageException;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Store\EntityIdLookup;
@@ -30,7 +30,7 @@ use Wikimedia\Assert\Assert;
  * @author Daniel Kinzler
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class EntityContentFactory implements EntityTitleLookup, EntityIdLookup, EntityPermissionChecker {
+class EntityContentFactory implements EntityTitleStoreLookup, EntityIdLookup, EntityPermissionChecker {
 
 	/**
 	 * @var string[] Entity type ID to content model ID mapping.
@@ -104,8 +104,19 @@ class EntityContentFactory implements EntityTitleLookup, EntityIdLookup, EntityP
 	 * @return Title
 	 */
 	public function getTitleForId( EntityId $id ) {
-		$handler = $this->getContentHandlerForType( $id->getEntityType() );
-		return $handler->getTitleForId( $id );
+		if ( $id->isForeign() ) {
+			$pageName = 'Special:EntityPage/' . $id->getLocalPart();
+
+			// TODO: The interwiki prefix *should* be the same as the repo name,
+			//        but we have no way to know or guarantee this! See T153496.
+			$interwiki = $id->getRepositoryName();
+
+			// TODO: use a TitleFactory
+			return Title::makeTitle( 0, $pageName, '', $interwiki );
+		} else {
+			$handler = $this->getContentHandlerForType( $id->getEntityType() );
+			return $handler->getTitleForId( $id );
+		}
 	}
 
 	/**

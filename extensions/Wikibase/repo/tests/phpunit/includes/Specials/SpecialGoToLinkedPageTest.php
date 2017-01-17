@@ -3,9 +3,12 @@
 namespace Wikibase\Repo\Tests\Specials;
 
 use FauxResponse;
+use HashSiteStore;
+use InvalidArgumentException;
 use Site;
-use SiteStore;
+use SiteLookup;
 use SpecialPageTestBase;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
@@ -18,7 +21,6 @@ use Wikibase\Repo\Specials\SpecialGoToLinkedPage;
  * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
  *
@@ -48,25 +50,14 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	}
 
 	/**
-	 * @return SiteStore
+	 * @return SiteLookup
 	 */
-	private function getMockSiteStore() {
-		$mock = $this->getMock( SiteStore::class );
-		$mock->expects( $this->any() )
-			->method( 'getSite' )
-			->will( $this->returnCallback( function( $siteId ) {
-				if ( substr( $siteId, -4 ) !== 'wiki' ) {
-					return null;
-				}
+	private function getMockSiteLookup() {
+		$dewiki = new Site();
+		$dewiki->setGlobalId( 'dewiki' );
+		$dewiki->setLinkPath( 'http://dewiki.com/$1' );
 
-				$site = new Site();
-				$site->setGlobalId( $siteId );
-				$site->setLinkPath( 'http://'.$siteId.'.com/$1' );
-
-				return $site;
-			} ) );
-
-		return $mock;
+		return new HashSiteStore( [ $dewiki ] );
 	}
 
 	/**
@@ -95,7 +86,11 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 		$mock->expects( $this->any() )
 			->method( 'parse' )
 			->will( $this->returnCallback( function( $itemString ) {
+				try {
 					return new ItemId( $itemString );
+				} catch ( InvalidArgumentException $ex ) {
+					throw new EntityIdParsingException();
+				}
 			} ) );
 
 		return $mock;
@@ -104,7 +99,7 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	/**
 	 * @return EntityLookup
 	 */
-	private function getEntitylookup() {
+	private function getEntityLookup() {
 		$mock = $this->getMock( EntityLookup::class );
 		$mock->expects( $this->any() )
 			->method( 'hasEntity' )
@@ -120,17 +115,13 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 	 * @return SpecialGoToLinkedPage
 	 */
 	protected function newSpecialPage() {
-		$page = new SpecialGoToLinkedPage();
-
-		$page->initServices(
-			$this->getMockSiteStore(),
+		return new SpecialGoToLinkedPage(
+			$this->getMockSiteLookup(),
 			$this->getMockSiteLinkLookup(),
 			$this->getEntityRedirectLookup(),
 			$this->getEntityIdParser(),
-			$this->getEntitylookup()
+			$this->getEntityLookup()
 		);
-
-		return $page;
 	}
 
 	public function requestWithoutRedirectProvider() {
@@ -164,23 +155,19 @@ class SpecialGoToLinkedPageTest extends SpecialPageTestBase {
 		$matchers['site'] = array(
 			'tag' => 'input',
 			'attributes' => array(
-				'id' => 'wb-gotolinkedpage-sitename',
 				'name' => 'site',
 				'value' => $site
 			) );
 		$matchers['itemid'] = array(
 			'tag' => 'input',
 			'attributes' => array(
-				'id' => 'wb-gotolinkedpage-itemid',
 				'name' => 'itemid',
 				'value' => $item
 			) );
 		$matchers['submit'] = array(
-			'tag' => 'input',
+			'tag' => 'button',
 			'attributes' => array(
-				'id' => 'wb-gotolinkedpage-submit',
 				'type' => 'submit',
-				'name' => ''
 			)
 		);
 		foreach ( $matchers as $key => $matcher ) {

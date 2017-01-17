@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Repo\Test;
+namespace Wikibase\Repo\Tests;
 
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
@@ -11,10 +11,7 @@ use Wikibase\View\EntityTermsView;
 use Wikibase\View\EntityView;
 
 /**
- * @covers WikibaseRepo.entitytypes.php
- *
  * @group Wikibase
- * @group WikibaseRepo
  *
  * @licence GNU GPL v2+
  * @author Bene* < benestar.wikimedia@gmail.com >

@@ -22,7 +22,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @covers Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group WikibaseStore
  * @group Database
  *
@@ -280,7 +279,7 @@ class WikiPageEntityMetaDataLookupTest extends MediaWikiTestCase {
 
 		$this->setExpectedException( InvalidArgumentException::class );
 
-		$result = $lookup->loadRevisionInformation(
+		$lookup->loadRevisionInformation(
 			[ new ItemId( 'foo:Q123' ) ],
 			EntityRevisionLookup::LATEST_FROM_SLAVE
 		);

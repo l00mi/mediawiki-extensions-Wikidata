@@ -136,7 +136,7 @@ return [
 	// Special non-canonical languages and their BCP 47 mappings
 	// Based on: https://meta.wikimedia.org/wiki/Special_language_codes
 	'canonicalLanguageCodes' => [
-			'simple'      => 'en-x-simple',
+			'simple'      => 'en-simple',
 			'crh'         => 'crh-Latn',
 			'cbk-zam'     => 'cbk-x-zam',
 			'map-bms'     => 'jv-x-bms',
@@ -197,4 +197,7 @@ return [
 
 	// Map of foreign repository names to repository-specific settings such as "supportedEntityTypes"
 	'foreignRepositories' => [],
+
+	// List of entity types for Special:EntitiesWithoutLabel and …Description, or null for all.
+	'supportedEntityTypesForEntitiesWithoutTermListings' => null,
 ];

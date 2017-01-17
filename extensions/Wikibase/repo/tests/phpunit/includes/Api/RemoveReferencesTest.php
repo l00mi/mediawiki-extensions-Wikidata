@@ -1,9 +1,9 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use DataValues\StringValue;
-use UsageException;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\Services\Statement\GuidGenerator;
@@ -22,7 +22,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Database
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @group medium
  *
@@ -134,7 +133,7 @@ class RemoveReferencesTest extends WikibaseApiTestCase {
 		try {
 			$this->doApiRequestWithToken( $params );
 			$this->fail( 'Invalid request should raise an exception' );
-		} catch ( UsageException $e ) {
+		} catch ( ApiUsageException $e ) {
 			if ( $expectedError === null ) {
 				$this->assertTrue( true, 'Invalid request raised error' );
 			} else {
@@ -156,7 +155,7 @@ class RemoveReferencesTest extends WikibaseApiTestCase {
 		try {
 			$this->doApiRequestWithToken( $params );
 			$this->fail( 'Invalid guid did not throw an error' );
-		} catch ( UsageException $ex ) {
+		} catch ( ApiUsageException $ex ) {
 			$this->assertEquals( 'invalid-guid', $ex->getCodeString(), 'Invalid guid raised correct error' );
 		}
 	}

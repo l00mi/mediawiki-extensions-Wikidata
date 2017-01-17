@@ -2,6 +2,7 @@
 
 namespace Wikibase\Client\Tests\Store\Sql;
 
+use Wikibase\Client\DispatchingServiceFactory;
 use Wikibase\Client\RecentChanges\RecentChangesDuplicateDetector;
 use Wikibase\Client\Usage\SubscriptionManager;
 use Wikibase\Client\Usage\UsageLookup;
@@ -16,8 +17,10 @@ use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\Store\EntityChangeLookup;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
+use Wikibase\Lib\Store\EntityRevisionLookup;
+use Wikibase\Lib\Store\PropertyInfoLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
-use Wikibase\PropertyInfoStore;
+use Wikibase\Lib\Tests\Store\MockPropertyInfoLookup;
 use Wikibase\Store\EntityIdLookup;
 use Wikibase\TermIndex;
 
@@ -27,15 +30,13 @@ use Wikibase\TermIndex;
  * @group Database
  * @group Wikibase
  * @group WikibaseClient
- * @group WikibaseClientStore
  *
  * @license GPL-2.0+
- * @author DanielKinzler
+ * @author Daniel Kinzler
  */
 class DirectSqlStoreTest extends \MediaWikiTestCase {
 
 	protected function newStore() {
-
 		$entityChangeFactory = $this->getMockBuilder( EntityChangeFactory::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -43,9 +44,19 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 		$idParser = new BasicEntityIdParser();
 		$idComposer = new EntityIdComposer( [] );
 
-		$contentCodec = WikibaseClient::getDefaultInstance()->getEntityContentDataCodec();
+		$client = WikibaseClient::getDefaultInstance();
+
+		$contentCodec = $client->getEntityContentDataCodec();
 
 		$entityNamespaceLookup = new EntityNamespaceLookup( [] );
+
+		$dispatchingServiceFactory = new DispatchingServiceFactory( $client );
+		$dispatchingServiceFactory->defineService( 'EntityRevisionLookup', function() {
+			return $this->getMock( EntityRevisionLookup::class );
+		} );
+		$dispatchingServiceFactory->defineService( 'PropertyInfoLookup', function() {
+			return new MockPropertyInfoLookup();
+		} );
 
 		$store = new DirectSqlStore(
 			$entityChangeFactory,
@@ -53,6 +64,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 			$idParser,
 			$idComposer,
 			$entityNamespaceLookup,
+			$dispatchingServiceFactory,
 			wfWikiID(),
 			'en'
 		);
@@ -83,7 +95,7 @@ class DirectSqlStoreTest extends \MediaWikiTestCase {
 			array( 'getEntityLookup', EntityLookup::class ),
 			array( 'getTermIndex', TermIndex::class ),
 			array( 'getPropertyLabelResolver', PropertyLabelResolver::class ),
-			array( 'getPropertyInfoStore', PropertyInfoStore::class ),
+			array( 'getPropertyInfoLookup', PropertyInfoLookup::class ),
 			array( 'getUsageTracker', UsageTracker::class ),
 			array( 'getUsageLookup', UsageLookup::class ),
 			array( 'getSubscriptionManager', SubscriptionManager::class, true ),

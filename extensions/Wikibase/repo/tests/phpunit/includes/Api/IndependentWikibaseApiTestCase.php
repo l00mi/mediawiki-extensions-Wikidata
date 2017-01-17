@@ -1,12 +1,13 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiBase;
 use ApiMain;
 use FauxRequest;
+use MediaWiki\MediaWikiServices;
 use RequestContext;
-use UsageException;
+use ApiUsageException;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -36,7 +37,7 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 
 		if ( !$isSetup ) {
 			// TODO: Remove me once everything that needs this is overridden.
-			$sitesTable = WikibaseRepo::getDefaultInstance()->getSiteStore();
+			$sitesTable = MediaWikiServices::getInstance()->getSiteStore();
 			$sitesTable->clear();
 			$sitesTable->saveSites( \TestSites::getSites() );
 			$isSetup = true;
@@ -72,9 +73,9 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 	public function doTestQueryExceptions( $params, $exception ) {
 		try {
 			$this->doApiRequest( $params );
-			$this->fail( "Failed to throw UsageException" );
+			$this->fail( 'Failed to throw ApiUsageException' );
 
-		} catch ( UsageException $e ) {
+		} catch ( ApiUsageException $e ) {
 			if ( array_key_exists( 'type', $exception ) ) {
 				$this->assertInstanceOf( $exception['type'], $e );
 			}

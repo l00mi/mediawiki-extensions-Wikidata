@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Repo\Test;
+namespace Wikibase\Repo\Tests;
 
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
@@ -12,7 +12,6 @@ use Wikibase\Repo\EntityIdLabelFormatterFactory;
  * @covers Wikibase\Repo\EntityIdLabelFormatterFactory
  *
  * @group ValueFormatters
- * @group WikibaseRepo
  * @group Wikibase
  *
  * @license GPL-2.0+

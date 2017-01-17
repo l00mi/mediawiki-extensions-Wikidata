@@ -4,9 +4,9 @@ namespace Wikibase;
 
 use Exception;
 use Maintenance;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use MWExceptionHandler;
-use RequestContext;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
 use Wikibase\Lib\Reporting\ReportingExceptionHandler;
 use Wikibase\Lib\Store\EntityChangeLookup;
@@ -178,7 +178,7 @@ class DispatchChanges extends Maintenance {
 
 		$dispatcher->getDispatchCoordinator()->initState( $clientWikis );
 
-		$stats = RequestContext::getMain()->getStats();
+		$stats = MediaWikiServices::getInstance()->getStatsdDataFactory();
 		$stats->increment( 'wikibase.repo.dispatchChanges.start' );
 
 		$passes = $maxPasses === PHP_INT_MAX ? "unlimited" : $maxPasses;

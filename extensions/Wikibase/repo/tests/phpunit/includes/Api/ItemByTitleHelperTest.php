@@ -1,11 +1,14 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
+use ApiBase;
+use HashSiteStore;
 use MediaWikiSite;
-use SiteStore;
+use Site;
+use SiteLookup;
 use Title;
-use UsageException;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Repo\Api\ItemByTitleHelper;
@@ -25,20 +28,25 @@ use Wikibase\StringNormalizer;
 class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 
 	/**
-	 * @return SiteStore
+	 * @return ApiBase
 	 */
-	public function getSiteStoreMock() {
-		$dummySite = new MediaWikiSite();
-
-		$siteStoreMock = $this->getMockBuilder( SiteStore::class )
+	private function getApiBaseMock() {
+		return $this->getMockBuilder( ApiBase::class )
 			->disableOriginalConstructor()
 			->getMock();
+	}
 
-		$siteStoreMock->expects( $this->any() )
-			->method( 'getSite' )
-			->will( $this->returnValue( $dummySite ) );
+	/**
+	 * @return SiteLookup
+	 */
+	public function getSiteLookupMock() {
+		$site = $this->getMock( Site::class );
 
-		return $siteStoreMock;
+		$site->expects( $this->any() )
+			->method( 'getGlobalId' )
+			->will( $this->returnValue( 'FooSite' ) );
+
+		return new HashSiteStore( [ $site ] );
 	}
 
 	/**
@@ -79,9 +87,10 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 		$expectedEntityId = $expectedEntityId->getSerialization();
 
 		$itemByTitleHelper = new ItemByTitleHelper(
+			$this->getApiBaseMock(),
 			$this->getResultBuilderMock(),
 			$this->getSiteLinkLookupMock( new ItemId( 'Q123' ) ),
-			$this->getSiteStoreMock(),
+			$this->getSiteLookupMock(),
 			new StringNormalizer()
 		);
 
@@ -100,10 +109,11 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testGetEntityIdNormalized() {
 		$itemByTitleHelper = new ItemByTitleHelper(
+			$this->getApiBaseMock(),
 		// Two values should be added: The normalization and the failure to find an entity
 			$this->getResultBuilderMock( 1 ),
 			$this->getSiteLinkLookupMock( null ),
-			$this->getSiteStoreMock(),
+			$this->getSiteLookupMock(),
 			new StringNormalizer()
 		);
 
@@ -122,10 +132,11 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testGetEntityIdsNotFound() {
 		$itemByTitleHelper = new ItemByTitleHelper(
+			$this->getApiBaseMock(),
 		// Two result values should be added (for both titles which wont be found)
 			$this->getResultBuilderMock(),
 			$this->getSiteLinkLookupMock( false ),
-			$this->getSiteStoreMock(),
+			$this->getSiteLookupMock(),
 			new StringNormalizer()
 		);
 
@@ -139,12 +150,13 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 	 * Makes sure the request will fail if we want normalization for two titles
 	 */
 	public function testGetEntityIdsNormalizationNotAllowed() {
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 
 		$itemByTitleHelper = new ItemByTitleHelper(
+			$this->getApiBaseMock(),
 			$this->getResultBuilderMock(),
 			$this->getSiteLinkLookupMock( 1 ),
-			$this->getSiteStoreMock(),
+			$this->getSiteLookupMock(),
 			new StringNormalizer()
 		);
 
@@ -178,9 +190,10 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 		$dummySite = new MediaWikiSite();
 
 		$itemByTitleHelper = new ItemByTitleHelper(
+			$this->getApiBaseMock(),
 			$this->getResultBuilderMock( $expectedAddNormalizedCalls ),
 			$this->getSiteLinkLookupMock( $expectedEntityId ),
-			$this->getSiteStoreMock(),
+			$this->getSiteLookupMock(),
 			new StringNormalizer()
 		);
 
@@ -212,12 +225,13 @@ class ItemByTitleHelperTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider notEnoughInputProvider
 	 */
 	public function testNotEnoughInput( array $sites, array $titles, $normalize ) {
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 
 		$itemByTitleHelper = new ItemByTitleHelper(
+			$this->getApiBaseMock(),
 			$this->getResultBuilderMock(),
 			$this->getSiteLinkLookupMock( new ItemId( 'Q123' ) ),
-			$this->getSiteStoreMock(),
+			$this->getSiteLookupMock(),
 			new StringNormalizer()
 		);
 

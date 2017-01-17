@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiResult;
 use DataValues\Serializers\DataValueSerializer;
@@ -39,7 +39,6 @@ use Wikibase\Repo\Api\ResultBuilder;
  *
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Addshore

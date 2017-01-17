@@ -6,7 +6,7 @@ use Html;
 use IContextSource;
 use SiteLookup;
 use Title;
-use Wikibase\Store\Sql\SqlSubscriptionLookup;
+use Wikibase\Store\SubscriptionLookup;
 use Wikibase\Store\EntityIdLookup;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
 
@@ -24,7 +24,7 @@ class InfoActionHookHandler {
 	private $namespaceChecker;
 
 	/**
-	 * @var SqlSubscriptionLookup
+	 * @var SubscriptionLookup
 	 */
 	private $subscriptionLookup;
 
@@ -45,7 +45,7 @@ class InfoActionHookHandler {
 
 	public function __construct(
 		EntityNamespaceLookup $namespaceChecker,
-		SqlSubscriptionLookup $subscriptionLookup,
+		SubscriptionLookup $subscriptionLookup,
 		SiteLookup $siteLookup,
 		EntityIdLookup $entityIdLookup,
 		IContextSource $context
@@ -77,23 +77,24 @@ class InfoActionHookHandler {
 	/**
 	 * @param Title $title
 	 *
-	 * @return array
+	 * @return string[] HTML
 	 */
 	private function getPageInfoRow( Title $title ) {
 		$entity = $this->entityIdLookup->getEntityIdForTitle( $title );
 		$subscriptions = $this->subscriptionLookup->getSubscribers( $entity );
-		if ( !$subscriptions ) {
-			return $this->getNoSubscriptionText();
-		} else {
+
+		if ( $subscriptions ) {
 			return $this->formatSubscriptions( $subscriptions, $title );
 		}
+
+		return $this->getNoSubscriptionText();
 	}
 
 	/**
 	 * @param string[] $subscriptions
 	 * @param Title $title
 	 *
-	 * @return string HTML[]
+	 * @return string[] HTML
 	 */
 	private function formatSubscriptions( array $subscriptions, Title $title ) {
 		$output = '';
@@ -125,19 +126,19 @@ class InfoActionHookHandler {
 	 */
 	private function formatSubscription( $subscription, Title $title ) {
 		$site = $this->siteLookup->getSite( $subscription );
-		if ( !$site ) {
+		if ( $site === null ) {
 			return $subscription;
 		}
 
 		$url = $site->getPageUrl( 'Special:EntityUsage/' . $title->getText() );
-		if ( !$url ) {
+		if ( $url === false ) {
 			return $subscription;
 		}
-		$element = Html::element( 'a',
+
+		return Html::element( 'a',
 			[ 'href' => $url ],
 			$subscription
 		);
-		return $element;
 	}
 
 }

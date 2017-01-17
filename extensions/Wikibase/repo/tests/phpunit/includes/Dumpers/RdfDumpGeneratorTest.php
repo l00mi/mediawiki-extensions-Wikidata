@@ -29,9 +29,7 @@ use Wikibase\Repo\Tests\Rdf\RdfBuilderTestData;
  * @covers Wikibase\Dumpers\DumpGenerator
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group WikibaseRdf
- * @group RdfDump
  *
  * @license GPL-2.0+
  * @author Stas Malyshev

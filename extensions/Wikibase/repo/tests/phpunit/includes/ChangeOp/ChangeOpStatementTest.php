@@ -31,9 +31,7 @@ use Wikibase\DataModel\Statement\StatementListProvider;
  * @covers Wikibase\ChangeOp\ChangeOpStatement
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group ChangeOp
- * @group ChangeOpStatement
  *
  * @license GPL-2.0+
  * @author Addshore

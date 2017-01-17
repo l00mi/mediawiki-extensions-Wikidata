@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 use DataValues\DataValue;
 use Language;
@@ -24,8 +24,6 @@ use Wikibase\SummaryFormatter;
  * @covers Wikibase\SummaryFormatter
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group WikibaseSummary
  * @group Database
  *
  * @license GPL-2.0+
@@ -73,8 +71,7 @@ class SummaryFormatterTest extends MediaWikiLangTestCase {
 	 */
 	public function formatSnak( Snak $snak ) {
 		if ( $snak instanceof PropertyValueSnak ) {
-			$value = $snak->getDataValue();
-			return $this->formatValue( $value );
+			return $this->formatValue( $snak->getDataValue() );
 		} else {
 			return $snak->getType();
 		}
@@ -85,19 +82,24 @@ class SummaryFormatterTest extends MediaWikiLangTestCase {
 	 */
 	private function newFormatter() {
 		$idFormatter = $this->getMock( EntityIdFormatter::class );
-		$idFormatter->expects( $this->any() )->method( 'formatEntityId' )
+		$idFormatter->expects( $this->any() )
+			->method( 'formatEntityId' )
 			->will( $this->returnCallback( array( $this, 'formatId' ) ) );
 
 		$valueFormatter = $this->getMock( ValueFormatter::class );
-		$valueFormatter->expects( $this->any() )->method( 'format' )
+		$valueFormatter->expects( $this->any() )
+			->method( 'format' )
 			->will( $this->returnCallback( array( $this, 'formatValue' ) ) );
-		$valueFormatter->expects( $this->any() )->method( 'getFormat' )
+		$valueFormatter->expects( $this->any() )
+			->method( 'getFormat' )
 			->will( $this->returnValue( SnakFormatter::FORMAT_PLAIN ) );
 
 		$snakFormatter = $this->getMock( SnakFormatter::class );
-		$snakFormatter->expects( $this->any() )->method( 'formatSnak' )
+		$snakFormatter->expects( $this->any() )
+			->method( 'formatSnak' )
 			->will( $this->returnCallback( array( $this, 'formatSnak' ) ) );
-		$snakFormatter->expects( $this->any() )->method( 'getFormat' )
+		$snakFormatter->expects( $this->any() )
+			->method( 'getFormat' )
 			->will( $this->returnValue( SnakFormatter::FORMAT_PLAIN ) );
 
 		$language = Language::factory( 'en' );
@@ -128,7 +130,7 @@ class SummaryFormatterTest extends MediaWikiLangTestCase {
 
 		$formatter = $this->newFormatter();
 		$result = $formatter->formatAutoComment( $summary );
-		$this->assertEquals( $expected, $result, 'Not the expected result' );
+		$this->assertSame( $expected, $result, 'Not the expected result' );
 	}
 
 	public function providerFormatAutoComment() {
@@ -210,7 +212,7 @@ class SummaryFormatterTest extends MediaWikiLangTestCase {
 
 		$formatter = $this->newFormatter();
 		$result = $formatter->formatAutoSummary( $summary );
-		$this->assertEquals( $expected, $result, 'Not the expected result' );
+		$this->assertSame( $expected, $result, 'Not the expected result' );
 	}
 
 	public function providerFormatAutoSummary() {
@@ -244,7 +246,7 @@ class SummaryFormatterTest extends MediaWikiLangTestCase {
 		$summary->addAutoSummaryArgs( $summaryArgs );
 
 		$formatter = $this->newFormatter();
-		$this->assertEquals( $expected, $formatter->formatSummary( $summary ) );
+		$this->assertSame( $expected, $formatter->formatSummary( $summary ) );
 	}
 
 	public function provideToStringArgs() {
@@ -324,7 +326,7 @@ class SummaryFormatterTest extends MediaWikiLangTestCase {
 		}
 
 		$formatter = $this->newFormatter();
-		$this->assertEquals( $expected, $formatter->formatSummary( $summary ) );
+		$this->assertSame( $expected, $formatter->formatSummary( $summary ) );
 	}
 
 	public function provideFormatSummary() {
@@ -449,16 +451,20 @@ class SummaryFormatterTest extends MediaWikiLangTestCase {
 	 */
 	public function testOnFormat( $type, $root, $pre, $auto, $post, $title, $local, $expected ) {
 		$itemTitle = $this->getMock( $title );
-		$itemTitle->expects( $this->once() )->method( 'getNamespace' )->will( $this->returnValue(
-			WikibaseRepo::getDefaultInstance()->getEntityNamespaceLookup()->getEntityNamespace( $type )
-		) );
+		$itemTitle->expects( $this->once() )
+			->method( 'getNamespace' )
+			->will( $this->returnValue(
+				WikibaseRepo::getDefaultInstance()
+					->getEntityNamespaceLookup()
+					->getEntityNamespace( $type )
+			) );
 
 		$comment = null;
 
 		RepoHooks::onFormat( $comment, $pre, $auto, $post, $itemTitle, $local );
 
 		if ( is_null( $expected ) ) {
-			$this->assertEquals( $expected, $comment, "Didn't find the expected null" );
+			$this->assertNull( $comment, 'Didn\'t find the expected null' );
 		} else {
 			$this->assertRegExp( $expected, $comment, "Didn't find the expected final comment" );
 		}

@@ -1,11 +1,11 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiTestCase;
 use DataValues\Serializers\DataValueSerializer;
 use DataValues\StringValue;
-use UsageException;
+use ApiUsageException;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\Property;
@@ -27,7 +27,6 @@ use Wikibase\StatementRankSerializer;
  * @group Database
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @group medium
  *
@@ -196,7 +195,7 @@ class GetClaimsTest extends ApiTestCase {
 		try {
 			$this->doApiRequest( $params );
 			$this->fail( 'Invalid claim guid did not throw an error' );
-		} catch ( UsageException $e ) {
+		} catch ( ApiUsageException $e ) {
 			$this->assertEquals( 'invalid-guid', $e->getCodeString(), 'Invalid claim guid raised correct error' );
 		}
 	}
@@ -229,7 +228,7 @@ class GetClaimsTest extends ApiTestCase {
 		try {
 			$this->doApiRequest( $params );
 			$this->fail( 'Invalid entity id did not throw an error' );
-		} catch ( UsageException $e ) {
+		} catch ( ApiUsageException $e ) {
 			$this->assertEquals( 'param-invalid', $e->getCodeString(), 'Invalid entity id raised correct error' );
 		}
 	}

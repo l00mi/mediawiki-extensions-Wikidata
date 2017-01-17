@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5a9b89d47b1d8233322364a4bae1ecf3",
-    "content-hash": "b8a4db3ce42eb837ffbd81f9ef61d2b3",
+    "hash": "97028a6353847a3c2aa9fc6c5c3e0e39",
+    "content-hash": "42583e1e1585f6e109e096c26ab6c300",
     "packages": [
         {
             "name": "composer/installers",
@@ -177,20 +177,23 @@
         },
         {
             "name": "data-values/data-types",
-            "version": "0.5.2",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/DataTypes.git",
-                "reference": "f0064cd782037d17cd57cdb40627660b7bf3d1cc"
+                "reference": "91946a3af266bc5c6ab4b8bdf377f3c07ad113f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/f0064cd782037d17cd57cdb40627660b7bf3d1cc",
-                "reference": "f0064cd782037d17cd57cdb40627660b7bf3d1cc",
+                "url": "https://api.github.com/repos/wmde/DataTypes/zipball/91946a3af266bc5c6ab4b8bdf377f3c07ad113f5",
+                "reference": "91946a3af266bc5c6ab4b8bdf377f3c07ad113f5",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "mediawiki/mediawiki-codesniffer": "~0.7"
             },
             "type": "library",
             "autoload": {
@@ -222,7 +225,7 @@
                 "datatypes",
                 "datavalues"
             ],
-            "time": "2016-02-17 11:27:57"
+            "time": "2016-12-30 09:23:59"
         },
         {
             "name": "data-values/data-values",
@@ -285,16 +288,16 @@
         },
         {
             "name": "data-values/geo",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DataValues/Geo.git",
-                "reference": "b0c635635cf3e25aed8d1d1000e50f893bd3d91c"
+                "reference": "4fc2cddbdcef229665e7c2cc52a65688cd3e820d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DataValues/Geo/zipball/b0c635635cf3e25aed8d1d1000e50f893bd3d91c",
-                "reference": "b0c635635cf3e25aed8d1d1000e50f893bd3d91c",
+                "url": "https://api.github.com/repos/DataValues/Geo/zipball/4fc2cddbdcef229665e7c2cc52a65688cd3e820d",
+                "reference": "4fc2cddbdcef229665e7c2cc52a65688cd3e820d",
                 "shasum": ""
             },
             "require": {
@@ -347,7 +350,7 @@
                 "parsers",
                 "wikidata"
             ],
-            "time": "2016-11-11 19:17:21"
+            "time": "2016-12-16 15:11:26"
         },
         {
             "name": "data-values/interfaces",
@@ -797,12 +800,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "c3eb0e8a7f37b4c1209c0da26291d832510d703c"
+                "reference": "0b10c4488f2ba46ee33e4a3fc124645355a74b94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/c3eb0e8a7f37b4c1209c0da26291d832510d703c",
-                "reference": "c3eb0e8a7f37b4c1209c0da26291d832510d703c",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/0b10c4488f2ba46ee33e4a3fc124645355a74b94",
+                "reference": "0b10c4488f2ba46ee33e4a3fc124645355a74b94",
                 "shasum": ""
             },
             "require-dev": {
@@ -827,20 +830,20 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2016-12-05 11:25:27"
+            "time": "2017-01-11 22:10:10"
         },
         {
             "name": "propertysuggester/property-suggester",
-            "version": "3.1.5",
+            "version": "3.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Wikidata-lib/PropertySuggester.git",
-                "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0"
+                "reference": "ff73f666510cc77df2cbc54077a04267d170e3c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
-                "reference": "bb0e4afdaa5e8d472c61259d0d2d57688d1159a0",
+                "url": "https://api.github.com/repos/Wikidata-lib/PropertySuggester/zipball/ff73f666510cc77df2cbc54077a04267d170e3c9",
+                "reference": "ff73f666510cc77df2cbc54077a04267d170e3c9",
                 "shasum": ""
             },
             "require": {
@@ -874,7 +877,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-12-02 12:39:32"
+            "time": "2017-01-03 11:31:32"
         },
         {
             "name": "serialization/serialization",
@@ -938,7 +941,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "ff716e9772f9ae2c563630634a2579756a28af70"
+                "reference": "93892fd220415dadfcc51665dd2ff6c107ff1f3a"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -982,7 +985,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-12-02 21:22:07"
+            "time": "2016-12-28 12:14:31"
         },
         {
             "name": "wikibase/constraints",
@@ -990,7 +993,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "c44c3b1640cfb3e128196d890ec7decc0b88b364"
+                "reference": "572b4c167a56ad998c8201c6e0d27aa85cb364d9"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -999,6 +1002,7 @@
                 "wikibase/data-model-services": "~2.0|~3.0"
             },
             "require-dev": {
+                "jakub-onderka/php-parallel-lint": "0.9.2",
                 "phpunit/phpunit": "^3.7.37|~4.5",
                 "satooshi/php-coveralls": "master-dev"
             },
@@ -1013,6 +1017,11 @@
                 "classmap": [
                     "WikibaseQualityConstraintsHooks.php",
                     "maintenance/UpdateConstraintsTable.php"
+                ]
+            },
+            "scripts": {
+                "test": [
+                    "parallel-lint . --exclude vendor"
                 ]
             },
             "license": [
@@ -1036,7 +1045,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2016-10-25 00:04:13"
+            "time": "2017-01-02 12:40:50"
         },
         {
             "name": "wikibase/data-model",
@@ -1376,7 +1385,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "5403f7f6b5524a85440b0c75a24a24a23fc4a019"
+                "reference": "d69435628e5373cd11e04badfa6a7067b345d488"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1389,6 +1398,7 @@
                 "data-values/number": ">=0.1 <0.9",
                 "data-values/serialization": ">=0.1 <2.0",
                 "data-values/time": ">=0.1 <0.9",
+                "jakub-onderka/php-parallel-lint": "0.9.2",
                 "phpunit/phpunit": "^3.7.37|~4.5",
                 "satooshi/php-coveralls": "master-dev",
                 "wikibase/data-model-serialization": ">=0.1 <3.0"
@@ -1401,6 +1411,11 @@
                     "WikibaseQuality\\Specials\\": "specials/",
                     "WikibaseQuality\\Tests\\": "tests/phpunit/"
                 }
+            },
+            "scripts": {
+                "test": [
+                    "parallel-lint . --exclude vendor"
+                ]
             },
             "license": [
                 "GPL-2.0+"
@@ -1422,7 +1437,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2016-12-02 21:21:58"
+            "time": "2017-01-06 22:15:37"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1467,40 +1482,40 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.29.0-wmf.5.1",
+            "version": "dev-wmf/1.29.0-wmf.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "15f0da7e6e2e826722e9a7cab817d01d603bee82"
+                "reference": "e1e53e4eb9e09b15d71e7085b5cb5954f17b9bdd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/15f0da7e6e2e826722e9a7cab817d01d603bee82",
-                "reference": "15f0da7e6e2e826722e9a7cab817d01d603bee82",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e1e53e4eb9e09b15d71e7085b5cb5954f17b9bdd",
+                "reference": "e1e53e4eb9e09b15d71e7085b5cb5954f17b9bdd",
                 "shasum": ""
             },
             "require": {
-                "data-values/common": "~0.3.0",
-                "data-values/data-types": "~0.5.0",
-                "data-values/data-values": "~1.0",
-                "data-values/geo": "~1.0",
-                "data-values/interfaces": "~0.2.0|~0.1.5",
-                "data-values/javascript": "~0.8.3",
-                "data-values/number": "~0.8.2",
-                "data-values/serialization": "~1.1",
-                "data-values/time": "~0.8.4",
-                "data-values/validators": "~0.1.0",
-                "data-values/value-view": "~0.18.0",
-                "diff/diff": "~2.0",
+                "data-values/common": "^0.3.0",
+                "data-values/data-types": "^1.0.0",
+                "data-values/data-values": "^1.0.0",
+                "data-values/geo": "^1.2.1",
+                "data-values/interfaces": "^0.2.0|^0.1.5",
+                "data-values/javascript": "^0.8.3",
+                "data-values/number": "^0.8.2",
+                "data-values/serialization": "^1.1.0",
+                "data-values/time": "^0.8.4",
+                "data-values/validators": "^0.1.0",
+                "data-values/value-view": "^0.18.0",
+                "diff/diff": "^2.0.0",
                 "php": ">=5.5.0",
                 "wikibase/data-model": "^6.3.1",
-                "wikibase/data-model-javascript": "~3.0.0",
-                "wikibase/data-model-serialization": "~2.2",
-                "wikibase/data-model-services": "~3.7",
-                "wikibase/internal-serialization": "~2.3",
-                "wikibase/javascript-api": "~2.2.0",
-                "wikibase/serialization-javascript": "~2.0.6",
-                "wikimedia/purtle": "~1.0"
+                "wikibase/data-model-javascript": "^3.0.1",
+                "wikibase/data-model-serialization": "^2.1.0",
+                "wikibase/data-model-services": "^3.7.0",
+                "wikibase/internal-serialization": "^2.2.0",
+                "wikibase/javascript-api": "^2.2.0",
+                "wikibase/serialization-javascript": "^2.0.8",
+                "wikimedia/purtle": "^1.0.3"
             },
             "conflict": {
                 "mediawiki/mediawiki": "<1.25"
@@ -1520,12 +1535,15 @@
                     "lib/maintenance/",
                     "repo/includes/",
                     "repo/maintenance/",
-                    "repo/tests/phpunit/",
                     "repo/Wikibase.hooks.php"
                 ],
                 "psr-4": {
+                    "Wikibase\\Client\\": "client/includes",
                     "Wikibase\\Client\\Tests\\": "client/tests/phpunit/includes",
+                    "Wikibase\\Lib\\": "lib/includes",
                     "Wikibase\\Lib\\Tests\\": "lib/tests/phpunit",
+                    "Wikibase\\Repo\\": "repo/includes",
+                    "Wikibase\\Repo\\Tests\\": "repo/tests/phpunit/includes",
                     "Wikibase\\View\\": "view/src",
                     "Wikibase\\View\\Tests\\": "view/tests/phpunit"
                 }
@@ -1548,7 +1566,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2017-01-04 20:35:24"
+            "time": "2017-01-16 16:26:27"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1556,7 +1574,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-                "reference": "77a28f9d9a74c1797f3f53dae4106ce4aee9f15a"
+                "reference": "ba7b17f5c3a87b7eafab2268c6e3cb4ed44108d9"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -1590,7 +1608,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-11-12 22:00:52"
+            "time": "2017-01-03 17:00:14"
         },
         {
             "name": "wikimedia/assert",

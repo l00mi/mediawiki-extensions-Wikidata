@@ -7,12 +7,16 @@ use HashBagOStuff;
 use ObjectCache;
 use Revision;
 use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\EntityRedirectLookup;
 use Wikibase\DataModel\Services\Lookup\RedirectResolvingEntityLookup;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\Store\CachingEntityRevisionLookup;
+use Wikibase\Lib\Store\CacheAwarePropertyInfoStore;
+use Wikibase\Lib\Store\CachingPropertyInfoLookup;
 use Wikibase\Lib\Store\EntityChangeLookup;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
@@ -20,8 +24,11 @@ use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Lib\Store\PropertyInfoStore;
+use Wikibase\Lib\Store\Sql\PropertyInfoTable;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\LabelConflictFinder;
+use Wikibase\Lib\Store\PropertyInfoLookup;
 use Wikibase\Lib\Store\RevisionBasedEntityLookup;
 use Wikibase\Lib\Store\SiteLinkStore;
 use Wikibase\Lib\Store\SiteLinkTable;
@@ -102,9 +109,19 @@ class SqlStore implements Store {
 	private $entityInfoBuilderFactory = null;
 
 	/**
+	 * @var PropertyInfoLookup|null
+	 */
+	private $propertyInfoLookup = null;
+
+	/**
 	 * @var PropertyInfoStore|null
 	 */
 	private $propertyInfoStore = null;
+
+	/**
+	 * @var PropertyInfoTable|null
+	 */
+	private $propertyInfoTable = null;
 
 	/**
 	 * @var string|bool false for local, or a database id that wfGetLB understands.
@@ -127,7 +144,7 @@ class SqlStore implements Store {
 	private $entityIdLookup;
 
 	/**
-	 * @var EntityTitleLookup
+	 * @var EntityTitleStoreLookup
 	 */
 	private $entityTitleLookup;
 
@@ -162,7 +179,7 @@ class SqlStore implements Store {
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityIdComposer $entityIdComposer
 	 * @param EntityIdLookup $entityIdLookup
-	 * @param EntityTitleLookup $entityTitleLookup
+	 * @param EntityTitleStoreLookup $entityTitleLookup
 	 * @param EntityNamespaceLookup $entityNamespaceLookup
 	 */
 	public function __construct(
@@ -171,7 +188,7 @@ class SqlStore implements Store {
 		EntityIdParser $entityIdParser,
 		EntityIdComposer $entityIdComposer,
 		EntityIdLookup $entityIdLookup,
-		EntityTitleLookup $entityTitleLookup,
+		EntityTitleStoreLookup $entityTitleLookup,
 		EntityNamespaceLookup $entityNamespaceLookup
 	) {
 		$this->entityChangeFactory = $entityChangeFactory;
@@ -309,7 +326,14 @@ class SqlStore implements Store {
 	 * @return EntitiesWithoutTermFinder
 	 */
 	public function newEntitiesWithoutTermFinder() {
-		return new SqlEntitiesWithoutTermFinder( $this->entityIdComposer );
+		return new SqlEntitiesWithoutTermFinder(
+			$this->entityIdParser,
+			$this->entityNamespaceLookup,
+			[ // TODO: Make this configurable!
+				Item::ENTITY_TYPE => 'Q',
+				Property::ENTITY_TYPE => 'P'
+			]
+		);
 	}
 
 	/**
@@ -492,6 +516,40 @@ class SqlStore implements Store {
 	}
 
 	/**
+	 * @see Store::getPropertyInfoLookup
+	 *
+	 * @since 0.5
+	 *
+	 * @return PropertyInfoLookup
+	 */
+	public function getPropertyInfoLookup() {
+		if ( !$this->propertyInfoLookup ) {
+			$this->propertyInfoLookup = $this->newPropertyInfoLookup();
+		}
+
+		return $this->propertyInfoLookup;
+	}
+
+	/**
+	 * Creates a new PropertyInfoLookup instance
+	 * Note: cache key used by the lookup should be the same as the cache key used
+	 * by CachedPropertyInfoStore.
+	 *
+	 * @return PropertyInfoLookup
+	 */
+	private function newPropertyInfoLookup() {
+		$table = $this->getPropertyInfoTable();
+		$cacheKey = $this->cacheKeyPrefix . ':CacheAwarePropertyInfoStore';
+
+		return new CachingPropertyInfoLookup(
+			$table,
+			ObjectCache::getInstance( $this->cacheType ),
+			$this->cacheDuration,
+			$cacheKey
+		);
+	}
+
+	/**
 	 * @see Store::getPropertyInfoStore
 	 *
 	 * @since 0.4
@@ -508,19 +566,33 @@ class SqlStore implements Store {
 
 	/**
 	 * Creates a new PropertyInfoStore
+	 * Note: cache key used by the lookup should be the same as the cache key used
+	 * by CachedPropertyInfoLookup.
 	 *
 	 * @return PropertyInfoStore
 	 */
 	private function newPropertyInfoStore() {
-		$table = new PropertyInfoTable( false );
-		$cacheKey = $this->cacheKeyPrefix . ':CachingPropertyInfoStore';
+		$table = $this->getPropertyInfoTable();
+		$cacheKey = $this->cacheKeyPrefix . ':CacheAwarePropertyInfoStore';
 
-		return new CachingPropertyInfoStore(
+		// TODO: we might want to register the CacheAwarePropertyInfoLookup instance created by
+		// newPropertyInfoLookup as a watcher to this CacheAwarePropertyInfoStore instance.
+		return new CacheAwarePropertyInfoStore(
 			$table,
 			ObjectCache::getInstance( $this->cacheType ),
 			$this->cacheDuration,
 			$cacheKey
 		);
+	}
+
+	/**
+	 * @return PropertyInfoTable
+	 */
+	private function getPropertyInfoTable() {
+		if ( $this->propertyInfoTable === null ) {
+			$this->propertyInfoTable = new PropertyInfoTable( $this->entityIdComposer );
+		}
+		return $this->propertyInfoTable;
 	}
 
 	/**

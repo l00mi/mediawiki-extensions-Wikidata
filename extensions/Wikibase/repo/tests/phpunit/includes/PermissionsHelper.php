@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 /**
  * @license GPL-2.0+
@@ -28,6 +28,8 @@ class PermissionsHelper {
 		if ( !$permissions ) {
 			return;
 		}
+
+		$wgUser->addToDatabase();
 
 		if ( is_array( $groups ) ) {
 			$oldGroups = $wgUser->getGroups();

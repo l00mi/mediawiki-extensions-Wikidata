@@ -84,6 +84,12 @@ class ChangeOpMainSnak extends ChangeOpBase {
 	 * @see ChangeOp::apply()
 	 * - a new claim with $snak as mainsnak gets added when $claimGuid is empty and $snak is set
 	 * - the claim's mainsnak gets set to $snak when $claimGuid and $snak are set
+	 *
+	 * @param EntityDocument $entity
+	 * @param Summary|null $summary
+	 *
+	 * @throws InvalidArgumentException
+	 * @throws ChangeOpException
 	 */
 	public function apply( EntityDocument $entity, Summary $summary = null ) {
 		if ( !( $entity instanceof StatementListProvider ) ) {
@@ -123,7 +129,7 @@ class ChangeOpMainSnak extends ChangeOpBase {
 			throw new ChangeOpException( "Entity does not have a statement with GUID " . $this->statementGuid );
 		}
 
-		$propertyId = $statement->getMainSnak()->getPropertyId();
+		$propertyId = $statement->getPropertyId();
 
 		if ( !$propertyId->equals( $this->snak->getPropertyId() ) ) {
 			throw new ChangeOpException( "Claim with GUID "

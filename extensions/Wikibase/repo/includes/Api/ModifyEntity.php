@@ -14,7 +14,7 @@ use Wikibase\ChangeOp\ChangeOpValidationException;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\Store\EntityRevisionLookup;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\Store\EntityPermissionChecker;
 use Wikibase\Repo\WikibaseRepo;
@@ -44,7 +44,7 @@ abstract class ModifyEntity extends ApiBase {
 	protected $siteLinkTargetProvider;
 
 	/**
-	 * @var EntityTitleLookup
+	 * @var EntityTitleStoreLookup
 	 */
 	private $titleLookup;
 
@@ -109,12 +109,12 @@ abstract class ModifyEntity extends ApiBase {
 		$this->resultBuilder = $apiHelperFactory->getResultBuilder( $this );
 		$this->entitySavingHelper = $apiHelperFactory->getEntitySavingHelper( $this );
 		$this->stringNormalizer = $wikibaseRepo->getStringNormalizer();
-		$this->enabledEntityTypes = $wikibaseRepo->getEnabledEntityTypes();
+		$this->enabledEntityTypes = $wikibaseRepo->getLocalEntityTypes();
 
 		$this->entitySavingHelper->setEntityIdParam( 'id' );
 
 		$this->setServices( new SiteLinkTargetProvider(
-			$wikibaseRepo->getSiteStore(),
+			$wikibaseRepo->getSiteLookup(),
 			$settings->getSetting( 'specialSiteLinkGroups' )
 		) );
 
@@ -131,7 +131,7 @@ abstract class ModifyEntity extends ApiBase {
 	}
 
 	/**
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	protected function getTitleLookup() {
 		return $this->titleLookup;
@@ -213,7 +213,7 @@ abstract class ModifyEntity extends ApiBase {
 
 	/**
 	 * Applies the given ChangeOp to the given Entity.
-	 * Any ChangeOpException is converted into a UsageException with the code 'modification-failed'.
+	 * Any ChangeOpException is converted into an ApiUsageException with the code 'modification-failed'.
 	 *
 	 * @since 0.5
 	 *

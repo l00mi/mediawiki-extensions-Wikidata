@@ -91,7 +91,7 @@
 	"wikibase-pageswithbadges-legend": "List of pages with a given badge",
 	"wikibase-pageswithbadges-badge": "Badge:",
 	"wikibase-pageswithbadges-submit": "Show pages",
-	"entityusage": "Entity Usage",
+	"entityusage": "Entity usage",
 	"entityusage-summary": "This page lists pages that use the given entity (e.g. Q42). The list is sorted by descending page ID, so that newer pages are listed first.",
 	"wikibase-entityusage-invalid-id": "$1 is not a valid entity ID",
 	"wikibase-entityusage-legend": "List of pages that use a given entity",
@@ -115,5 +115,7 @@
 	"notification-bundle-header-page-connection": "<strong>$3</strong> and {{PLURAL:$4|one other page|$4 other pages|100=99+ other pages}} were {{GENDER:$2|connected}} to {{WBREPONAME}} items.",
 	"notification-link-text-view-item": "{{GENDER:$1|View}} item",
 	"notification-subject-page-connection": "A page on {{SITENAME}} you {{GENDER:$3|created}} was {{GENDER:$2|connected}} to a {{WBREPONAME}} item",
-	"notification-page-connection-link": "Project:$1"
+	"notification-page-connection-link": "Project:$1",
+	"unresolved-property-category": "Pages with unresolved properties",
+	"unresolved-property-category-desc": "This category lists pages that reference {{WBREPONAME}} properties that cannot be found neither by their property ID nor label."
 }

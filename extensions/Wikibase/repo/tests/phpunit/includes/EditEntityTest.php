@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 use FauxRequest;
 use MediaWikiTestCase;
@@ -19,7 +19,7 @@ use Wikibase\DataModel\Services\Diff\EntityDiffer;
 use Wikibase\DataModel\Services\Diff\EntityPatcher;
 use Wikibase\DataModel\Term\Fingerprint;
 use Wikibase\EditEntity;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Tests\MockRepository;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Store\EntityPermissionChecker;
@@ -28,8 +28,6 @@ use Wikibase\Repo\Store\EntityPermissionChecker;
  * @covers Wikibase\EditEntity
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group EditEntity
  *
  * @group Database
  *        ^--- needed just because we are using Title objects.
@@ -50,13 +48,13 @@ class EditEntityTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	private function getEntityTitleLookup() {
-		$titleLookup = $this->getMock( EntityTitleLookup::class );
+		$titleLookup = $this->getMock( EntityTitleStoreLookup::class );
 
 		$titleLookup->expects( $this->any() )
-			->method( 'getTitleForID' )
+			->method( 'getTitleForId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				return Title::makeTitle(
 					NS_MAIN,
@@ -127,7 +125,7 @@ class EditEntityTest extends MediaWikiTestCase {
 	/**
 	 * @param MockRepository $mockRepository
 	 * @param EntityDocument $entity
-	 * @param EntityTitleLookup $titleLookup
+	 * @param EntityTitleStoreLookup $titleLookup
 	 * @param User|null $user
 	 * @param bool $baseRevId
 	 * @param bool[]|null $permissions map of actions to bool, indicating which actions are allowed.
@@ -138,7 +136,7 @@ class EditEntityTest extends MediaWikiTestCase {
 	private function makeEditEntity(
 		MockRepository $mockRepository,
 		EntityDocument $entity,
-		EntityTitleLookup $titleLookup,
+		EntityTitleStoreLookup $titleLookup,
 		User $user = null,
 		$baseRevId = false,
 		array $permissions = null,

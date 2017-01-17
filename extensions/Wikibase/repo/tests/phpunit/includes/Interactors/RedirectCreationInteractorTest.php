@@ -14,7 +14,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikibase\Repo\Hooks\EditFilterHookRunner;
 use Wikibase\Repo\Interactors\RedirectCreationException;
@@ -27,8 +27,6 @@ use Wikibase\Lib\Tests\MockRepository;
  * @covers Wikibase\Repo\Interactors\RedirectCreationInteractor
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group WikibaseInteractor
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler
@@ -151,13 +149,13 @@ class RedirectCreationInteractorTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	private function getMockEntityTitleLookup() {
-		$titleLookup = $this->getMock( EntityTitleLookup::class );
+		$titleLookup = $this->getMock( EntityTitleStoreLookup::class );
 
 		$titleLookup->expects( $this->any() )
-			->method( 'getTitleForID' )
+			->method( 'getTitleForId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				$title = $this->getMock( Title::class );
 				$title->expects( $this->any() )

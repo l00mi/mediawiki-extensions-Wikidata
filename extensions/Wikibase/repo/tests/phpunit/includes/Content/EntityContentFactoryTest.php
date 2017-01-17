@@ -13,7 +13,7 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\WikibaseRepo;
-use Wikibase\Test\PermissionsHelper;
+use Wikibase\Repo\Tests\PermissionsHelper;
 
 /**
  * @covers Wikibase\Repo\Content\EntityContentFactory
@@ -21,7 +21,6 @@ use Wikibase\Test\PermissionsHelper;
  * @group Wikibase
  * @group WikibaseEntity
  * @group WikibaseContent
- * @group WikibaseRepo
  *
  * @group Database
  *        ^--- just because we use the Title class
@@ -107,9 +106,21 @@ class EntityContentFactoryTest extends \MediaWikiTestCase {
 	public function testGetTitleForId() {
 		$factory = $this->newFactory();
 
-		$title = $factory->getTitleForId( new ItemId( 'Q42' ) );
+		$id = new PropertyId( 'P42' );
+		$title = $factory->getTitleForId( $id );
 
-		$this->assertEquals( 'Q42', $title->getText() );
+		$this->assertEquals( 'P42', $title->getText() );
+
+		$expectedNs = $factory->getNamespaceForType( $id->getEntityType() );
+		$this->assertEquals( $expectedNs, $title->getNamespace() );
+	}
+
+	public function testGetTitleForId_foreign() {
+		$factory = $this->newFactory();
+
+		$title = $factory->getTitleForId( new ItemId( 'foo:Q42' ) );
+
+		$this->assertEquals( 'foo:Special:EntityPage/Q42', $title->getFullText() );
 	}
 
 	public function testGetEntityIdForTitle() {

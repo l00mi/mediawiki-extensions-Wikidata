@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiMain;
 use FauxRequest;
@@ -15,7 +15,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group Database
  * @group medium
  *

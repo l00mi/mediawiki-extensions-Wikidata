@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiBase;
 use DOMDocument;
@@ -23,7 +23,6 @@ use Wikibase\Repo\SiteLinkTargetProvider;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group Database
  * @group medium
  *

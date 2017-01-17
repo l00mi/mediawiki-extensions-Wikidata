@@ -2,11 +2,12 @@
 
 namespace Wikibase\Repo\Tests\Specials;
 
+use HashSiteStore;
 use Site;
-use SiteList;
-use SiteStore;
+use SiteLookup;
 use SpecialPageTestBase;
 use Title;
+use WebResponse;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\Lib\LanguageNameLookup;
@@ -20,7 +21,6 @@ use Wikibase\Repo\Specials\SpecialItemByTitle;
  * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
  *
@@ -76,53 +76,32 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 	}
 
 	/**
-	 * @return SiteStore
+	 * @return SiteLookup
 	 */
-	private function getMockSiteStore() {
-		$getSite = function( $siteId ) {
-			$site = new Site();
-			$site->setGlobalId( $siteId );
-			$site->setLinkPath( "http://$siteId.com/$1" );
+	private function getMockSiteLookup() {
+		$dewiki = new Site();
+		$dewiki->setGlobalId( 'dewiki' );
+		$dewiki->setLinkPath( 'http://dewiki.com/$1' );
 
-			return $site;
-		};
-
-		$siteList = new SiteList();
-		$siteList[] = $getSite( 'dewiki' );
-		$siteList[] = $getSite( 'enwiki' );
-
-		$mock = $this->getMock( SiteStore::class );
-		$mock->expects( $this->any() )
-			->method( 'getSite' )
-			->will( $this->returnCallback( $getSite ) );
-
-		$mock->expects( $this->any() )
-			->method( 'getSites' )
-			->will( $this->returnValue( $siteList ) );
-
-		return $mock;
+		return new HashSiteStore( [ $dewiki ] );
 	}
 
 	/**
 	 * @return SpecialItemByTitle
 	 */
 	protected function newSpecialPage() {
-		$page = new SpecialItemByTitle();
 
-		$page->initSettings(
-			array( 'wikipedia' )
-		);
+		$siteLookup = $this->getMockSiteLookup();
 
-		$siteStore = $this->getMockSiteStore();
+		$siteLinkTargetProvider = new SiteLinkTargetProvider( $siteLookup, array() );
 
-		$siteLinkTargetProvider = new SiteLinkTargetProvider( $siteStore, array() );
-
-		$page->initServices(
+		$page = new SpecialItemByTitle(
 			$this->getMockTitleLookup(),
 			$this->getMockLanguageNameLookup(),
-			$siteStore,
+			$siteLookup,
 			$this->getMockSiteLinkLookup(),
-			$siteLinkTargetProvider
+			$siteLinkTargetProvider,
+			[ 'wikipedia' ]
 		);
 
 		return $page;
@@ -187,13 +166,13 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 	 * @dataProvider requestProvider
 	 */
 	public function testExecute( $sub, $target, array $matchers ) {
-		/* @var FauxResponse $response */
+		/* @var WebResponse $response */
 		list( $output, $response ) = $this->executeSpecialPage( $sub );
 
 		if ( $target !== null ) {
 			$target = Title::newFromText( $target )->getFullURL();
 			$expected = wfExpandUrl( $target, PROTO_CURRENT );
-			$this->assertEquals( $expected, $response->getheader( 'Location' ), 'Redirect' );
+			$this->assertEquals( $expected, $response->getHeader( 'Location' ), 'Redirect' );
 		}
 
 		foreach ( $matchers as $key => $matcher ) {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiMain;
 use DataTypes\DataTypeFactory;
 use DataValues\Geo\Parsers\GlobeCoordinateParser;
 use FauxRequest;
 use Language;
-use UsageException;
+use ApiUsageException;
 use ValueParsers\NullParser;
 use ValueParsers\ParseException;
 use Wikibase\Repo\Api\ApiErrorReporter;
@@ -24,7 +24,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler
@@ -307,7 +306,7 @@ class ParseValueTest extends \PHPUnit_Framework_TestCase {
 	 * @dataProvider provideInvalid
 	 */
 	public function testParse_failure( array $params ) {
-		$this->setExpectedException( UsageException::class );
+		$this->setExpectedException( ApiUsageException::class );
 		$this->callApiModule( $params );
 	}
 

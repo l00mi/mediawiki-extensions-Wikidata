@@ -66,8 +66,6 @@ class PropertyContent extends EntityContent {
 	}
 
 	/**
-	 * Returns a new empty PropertyContent.
-	 *
 	 * @return self
 	 */
 	public static function newEmpty() {
@@ -137,17 +135,6 @@ class PropertyContent extends EntityContent {
 	 */
 	public function isEmpty() {
 		return !$this->isRedirect() && $this->getProperty()->isEmpty();
-	}
-
-	/**
-	 * @see EntityContent::isStub
-	 *
-	 * @return bool True if the property is not empty, but does not contain statements.
-	 */
-	public function isStub() {
-		return !$this->isRedirect()
-			&& !$this->getProperty()->isEmpty()
-			&& $this->getProperty()->getStatements()->isEmpty();
 	}
 
 }

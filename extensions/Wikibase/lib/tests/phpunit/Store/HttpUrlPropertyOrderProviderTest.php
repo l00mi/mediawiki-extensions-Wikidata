@@ -6,10 +6,9 @@ use PHPUnit_Framework_TestCase;
 use Wikibase\Lib\Store\HttpUrlPropertyOrderProvider;
 
 /**
- * @covers Wikibase\Store\HttpUrlPropertyOrderProvider
+ * @covers Wikibase\Lib\Store\HttpUrlPropertyOrderProvider
  *
  * @group Wikibase
- * @group WikibaseLib
  * @group Database
  *
  * @license GPL-2.0+

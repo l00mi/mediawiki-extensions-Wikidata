@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 use Language;
 use OutputPage;
@@ -13,7 +13,6 @@ use Wikibase\OutputPageJsConfigBuilder;
  *
  * @since 0.5
  *
- * @group WikibaseRepo
  * @group Wikibase
  * @group Database
  *

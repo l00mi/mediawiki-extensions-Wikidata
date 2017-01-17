@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use Title;
 use Wikibase\DataModel\Entity\EntityId;
@@ -19,7 +19,6 @@ use Wikibase\TermIndexEntry;
  *
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Bene* < benestar.wikimedia@gmail.com >
@@ -31,13 +30,11 @@ class EntitySearchHelperTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private function getMockTitleLookup() {
 		$titleLookup = $this->getMock( EntityTitleLookup::class );
-		$titleLookup->expects( $this->any() )->method( 'getTitleForId' )
+		$titleLookup->expects( $this->any() )
+			->method( 'getTitleForId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
-				if ( $id->getSerialization() === 'Q111' ) {
-					return $this->getMockTitle( true );
-				} else {
-					return $this->getMockTitle( false );
-				}
+				$exists = $id->getSerialization() === 'Q111';
+				return $this->getMockTitle( $exists );
 			} ) );
 		return $titleLookup;
 	}

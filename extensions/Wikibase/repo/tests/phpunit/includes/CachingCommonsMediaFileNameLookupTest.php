@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo;
+namespace Wikibase\Repo\Tests;
 
 use HashBagOStuff;
 use MediaWiki\Site\MediaWikiPageNameNormalizer;
@@ -10,7 +10,6 @@ use Wikibase\Repo\CachingCommonsMediaFileNameLookup;
 /**
  * @covers Wikibase\Repo\CachingCommonsMediaFileNameLookup
  *
- * @group WikibaseRepo
  * @group Wikibase
  *
  * @license GPL-2.0+

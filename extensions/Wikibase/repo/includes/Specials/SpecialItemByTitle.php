@@ -5,12 +5,11 @@ namespace Wikibase\Repo\Specials;
 use HTMLForm;
 use Html;
 use Site;
-use SiteStore;
+use SiteLookup;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Repo\SiteLinkTargetProvider;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Enables accessing items by providing the identifier of a site and the title
@@ -35,7 +34,7 @@ class SpecialItemByTitle extends SpecialWikibasePage {
 	private $languageNameLookup;
 
 	/**
-	 * @var SiteStore
+	 * @var SiteLookup
 	 */
 	private $sites;
 
@@ -60,65 +59,31 @@ class SpecialItemByTitle extends SpecialWikibasePage {
 	 * @see SpecialWikibasePage::__construct
 	 *
 	 * @since 0.1
-	 */
-	public function __construct() {
-		// args $name, $restriction, $listed
-		parent::__construct( 'ItemByTitle', '', true );
-
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-
-		$this->initSettings(
-			$wikibaseRepo->getSettings()->getSetting( 'siteLinkGroups' )
-		);
-
-		$siteLinkTargetProvider = new SiteLinkTargetProvider(
-			$wikibaseRepo->getSiteStore(),
-			$wikibaseRepo->getSettings()->getSetting( 'specialSiteLinkGroups' )
-		);
-
-		$this->initServices(
-			$wikibaseRepo->getEntityTitleLookup(),
-			new LanguageNameLookup(),
-			$wikibaseRepo->getSiteStore(),
-			$wikibaseRepo->getStore()->newSiteLinkStore(),
-			$siteLinkTargetProvider
-		);
-	}
-
-	/**
-	 * Initialize essential settings for this special page.
-	 * may be used by unit tests to override global settings.
-	 *
-	 * @param string[] $siteLinkGroups
-	 */
-	public function initSettings(
-		array $siteLinkGroups
-	) {
-		$this->groups = $siteLinkGroups;
-	}
-
-	/**
-	 * Initialize the services used be this special page.
-	 * May be used to inject mock services for testing.
 	 *
 	 * @param EntityTitleLookup $titleLookup
 	 * @param LanguageNameLookup $languageNameLookup
-	 * @param SiteStore $siteStore
+	 * @param SiteLookup $siteLookup
 	 * @param SiteLinkLookup $siteLinkLookup
 	 * @param SiteLinkTargetProvider $siteLinkTargetProvider
+	 * @param string[] $siteLinkGroups
 	 */
-	public function initServices(
+	public function __construct(
 		EntityTitleLookup $titleLookup,
 		LanguageNameLookup $languageNameLookup,
-		SiteStore $siteStore,
+		SiteLookup $siteLookup,
 		SiteLinkLookup $siteLinkLookup,
-		SiteLinkTargetProvider $siteLinkTargetProvider
+		SiteLinkTargetProvider $siteLinkTargetProvider,
+		array $siteLinkGroups
 	) {
+		parent::__construct( 'ItemByTitle', '', true );
+
 		$this->titleLookup = $titleLookup;
 		$this->languageNameLookup = $languageNameLookup;
-		$this->sites = $siteStore;
+		$this->sites = $siteLookup;
 		$this->siteLinkLookup = $siteLinkLookup;
 		$this->siteLinkTargetProvider = $siteLinkTargetProvider;
+		$this->groups = $siteLinkGroups;
+
 	}
 
 	/**

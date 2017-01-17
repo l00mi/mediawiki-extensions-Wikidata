@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 /**
  * @covers Wikibase\Repo\Api\SetLabel
@@ -13,7 +13,6 @@ namespace Wikibase\Test\Repo\Api;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group BreakingTheSlownessBarrier
  *
  * @license GPL-2.0+

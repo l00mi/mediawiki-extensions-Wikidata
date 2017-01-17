@@ -6,7 +6,6 @@ use ValueValidators\Error;
 use ValueValidators\Result;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\Item;
-use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\Repo\Store\SiteLinkConflictLookup;
 
@@ -48,7 +47,6 @@ class SiteLinkUniquenessValidator implements EntityValidator {
 
 			$conflicts = $this->siteLinkConflictLookup->getConflictsForItem( $entity, $db );
 
-			/* @var ItemId $ignoreConflictsWith */
 			foreach ( $conflicts as $conflict ) {
 				$errors[] = $this->getConflictError( $conflict );
 			}
@@ -65,15 +63,13 @@ class SiteLinkUniquenessValidator implements EntityValidator {
 	 * @return Error
 	 */
 	private function getConflictError( array $conflict ) {
-		$entityId = ItemId::newFromNumber( $conflict['itemId'] );
-
 		return new UniquenessViolation(
-			$entityId,
+			$conflict['itemId'],
 			'SiteLink conflict',
 			'sitelink-conflict',
 			array(
 				new SiteLink( $conflict['siteId'], $conflict['sitePage'] ),
-				$entityId,
+				$conflict['itemId'],
 			)
 		);
 	}

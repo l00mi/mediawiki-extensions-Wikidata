@@ -8,7 +8,7 @@ use OutOfBoundsException;
 /**
  * @since 0.1
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Daniel Kinzler
  */
 class DataTypeFactory {
@@ -18,12 +18,12 @@ class DataTypeFactory {
 	 *
 	 * @var DataType[]
 	 */
-	private $types = array();
+	private $types = [];
 
 	/**
 	 * @var string[] Associative array mapping data type identifiers to data value type identifiers.
 	 */
-	private $valueTypes = array();
+	private $valueTypes = [];
 
 	/**
 	 * @since 0.5
@@ -35,8 +35,12 @@ class DataTypeFactory {
 	 */
 	public function __construct( array $valueTypes ) {
 		foreach ( $valueTypes as $typeId => $valueType ) {
-			if ( !is_string( $typeId ) || !is_string( $valueType ) ) {
-				throw new InvalidArgumentException( '$valueTypes must be an associative array of strings' );
+			if ( !is_string( $typeId ) || $typeId === ''
+				|| !is_string( $valueType ) || $valueType === ''
+			) {
+				throw new InvalidArgumentException(
+					'$valueTypes must be an associative array of non-empty strings'
+				);
 			}
 		}
 
@@ -51,7 +55,7 @@ class DataTypeFactory {
 	 * @return self
 	 */
 	public static function newFromTypes( array $dataTypes ) {
-		$factory = new self( array() );
+		$factory = new self( [] );
 
 		foreach ( $dataTypes as $dataType ) {
 			$factory->registerDataType( $dataType );
@@ -114,7 +118,7 @@ class DataTypeFactory {
 	 * @return DataType[]
 	 */
 	public function getTypes() {
-		$types = array();
+		$types = [];
 
 		foreach ( $this->getTypeIds() as $typeId ) {
 			$types[$typeId] = $this->getType( $typeId );

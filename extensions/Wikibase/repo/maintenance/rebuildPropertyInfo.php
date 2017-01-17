@@ -4,6 +4,7 @@ namespace Wikibase;
 
 use LoggedUpdateMaintenance;
 use Wikibase\Lib\Reporting\ObservableMessageReporter;
+use Wikibase\Lib\Store\Sql\PropertyInfoTable;
 use Wikibase\Repo\WikibaseRepo;
 
 $basePath = getenv( 'MW_INSTALL_PATH' ) !== false ? getenv( 'MW_INSTALL_PATH' ) : __DIR__ . '/../../../..';
@@ -46,8 +47,8 @@ class RebuildPropertyInfo extends LoggedUpdateMaintenance {
 			array( $this, 'report' )
 		);
 
-		$table = new PropertyInfoTable( false );
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$table = new PropertyInfoTable( $wikibaseRepo->getEntityIdComposer() );
 		$entityLookup = $wikibaseRepo->getEntityLookup();
 		$propertyInfoBuilder = $wikibaseRepo->newPropertyInfoBuilder();
 

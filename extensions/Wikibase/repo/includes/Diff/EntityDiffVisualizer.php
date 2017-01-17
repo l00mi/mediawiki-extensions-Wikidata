@@ -9,7 +9,7 @@ use Diff\DiffOp\DiffOpChange;
 use Diff\DiffOp\DiffOpRemove;
 use IContextSource;
 use MWException;
-use SiteStore;
+use SiteLookup;
 use Wikibase\DataModel\Services\Diff\EntityDiff;
 use Wikibase\DataModel\Services\Diff\ItemDiff;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
@@ -43,9 +43,9 @@ class EntityDiffVisualizer {
 	private $claimDiffVisualizer;
 
 	/**
-	 * @var SiteStore
+	 * @var SiteLookup
 	 */
-	private $siteStore;
+	private $siteLookup;
 
 	/**
 	 * @var EntityIdFormatter
@@ -58,19 +58,20 @@ class EntityDiffVisualizer {
 	 * @param IContextSource $contextSource
 	 * @param ClaimDiffer $claimDiffer
 	 * @param ClaimDifferenceVisualizer $claimDiffView
-	 * @param SiteStore $siteStore
+	 * @param SiteLookup $siteLookup
 	 * @param EntityIdFormatter $entityIdFormatter
 	 */
-	public function __construct( IContextSource $contextSource,
+	public function __construct(
+		IContextSource $contextSource,
 		ClaimDiffer $claimDiffer,
 		ClaimDifferenceVisualizer $claimDiffView,
-		SiteStore $siteStore,
+		SiteLookup $siteLookup,
 		EntityIdFormatter $entityIdFormatter
 	) {
 		$this->context = $contextSource;
 		$this->claimDiffer = $claimDiffer;
 		$this->claimDiffVisualizer = $claimDiffView;
-		$this->siteStore = $siteStore;
+		$this->siteLookup = $siteLookup;
 		$this->entityIdFormatter = $entityIdFormatter;
 	}
 
@@ -110,13 +111,13 @@ class EntityDiffVisualizer {
 			array(),
 			new Diff(
 				array(
-					$this->context->getLanguage()->getMessage( 'wikibase-diffview-label' ) => $diff->getLabelsDiff(),
-					$this->context->getLanguage()->getMessage( 'wikibase-diffview-alias' ) => $diff->getAliasesDiff(),
-					$this->context->getLanguage()->getMessage( 'wikibase-diffview-description' ) => $diff->getDescriptionsDiff(),
+					$this->context->msg( 'wikibase-diffview-label' )->text() => $diff->getLabelsDiff(),
+					$this->context->msg( 'wikibase-diffview-alias' )->text() => $diff->getAliasesDiff(),
+					$this->context->msg( 'wikibase-diffview-description' )->text() => $diff->getDescriptionsDiff(),
 				),
 				true
 			),
-			$this->siteStore,
+			$this->siteLookup,
 			$this->entityIdFormatter,
 			$this->context
 		);
@@ -133,11 +134,11 @@ class EntityDiffVisualizer {
 				array(),
 				new Diff(
 					array(
-						$this->context->getLanguage()->getMessage( 'wikibase-diffview-link' ) => $diff->getSiteLinkDiff(),
+						$this->context->msg( 'wikibase-diffview-link' )->text() => $diff->getSiteLinkDiff(),
 					),
 					true
 				),
-				$this->siteStore,
+				$this->siteLookup,
 				$this->entityIdFormatter,
 				$this->context
 			);
@@ -167,7 +168,7 @@ class EntityDiffVisualizer {
 		$linkDiffVisualizer = new DiffView(
 			array(),
 			$diff,
-			$this->siteStore,
+			$this->siteLookup,
 			$this->entityIdFormatter,
 			$this->context
 		);

@@ -31,14 +31,13 @@ use Wikibase\DataModel\Term\Term;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\DumpJson;
 use Wikibase\Lib\Tests\MockRepository;
-use Wikibase\Repo\Store\EntityIdPager;
+use Wikibase\DataModel\Services\EntityId\EntityIdPager;
 use Wikibase\Repo\Store\Sql\SqlEntityIdPagerFactory;
-use Wikibase\Repo\Tests\MockEntityIdPager;
+use Wikibase\Repo\Tests\Store\MockEntityIdPager;
 
 /**
  * @covers Wikibase\DumpJson
  *
- * @group WikibaseRepo
  * @group Wikibase
  *
  * @license GPL-2.0+

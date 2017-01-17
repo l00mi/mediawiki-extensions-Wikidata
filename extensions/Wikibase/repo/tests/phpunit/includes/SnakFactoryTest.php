@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Lib\Test;
+namespace Wikibase\Repo\Tests;
 
 use DataTypes\DataTypeFactory;
 use DataValues\DataValueFactory;
@@ -20,8 +20,6 @@ use Wikibase\Repo\SnakFactory;
  * @covers Wikibase\Repo\SnakFactory
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group Snak
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler

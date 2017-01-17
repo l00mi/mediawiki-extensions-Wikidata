@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiBase;
 use Wikibase\Repo\Api\GetEntities;
@@ -10,7 +10,6 @@ use Wikibase\Repo\Api\SetLabel;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group Database
  * @group medium
  *

@@ -13,7 +13,6 @@ use Wikibase\Client\Hooks\ChangesListSpecialPageHookHandlers;
 /**
  * @covers Wikibase\Client\Hooks\ChangesListSpecialPageHookHandlers
  *
- * @group WikibaseClientHooks
  * @group WikibaseClient
  * @group Wikibase
  *
@@ -29,6 +28,7 @@ class ChangesListSpecialPageHookHandlersTest extends \PHPUnit_Framework_TestCase
 			)
 		);
 
+		/** @var \ChangesListSpecialPage $specialPage */
 		$specialPage = SpecialPageFactory::getPage( 'Recentchanges' );
 		$specialPage->getContext()->setUser( $user );
 

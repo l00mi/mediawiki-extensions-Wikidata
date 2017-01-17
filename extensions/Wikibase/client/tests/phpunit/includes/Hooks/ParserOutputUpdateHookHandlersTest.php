@@ -8,7 +8,7 @@ use MediaWikiSite;
 use MediaWikiTestCase;
 use ParserOutput;
 use Site;
-use SiteStore;
+use SiteLookup;
 use Title;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
 use Wikibase\Client\Hooks\OtherProjectsSidebarGeneratorFactory;
@@ -22,7 +22,6 @@ use Wikibase\DataModel\Services\Lookup\LabelDescriptionLookup;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
 use Wikibase\DataModel\Term\Term;
-use Wikibase\InterwikiSorter;
 use Wikibase\LangLinkHandler;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\NamespaceChecker;
@@ -63,17 +62,17 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @return SiteStore
+	 * @return SiteLookup
 	 */
-	private function getSiteStore() {
-		$siteStore = new HashSiteStore( array(
+	private function getSiteLookup() {
+		$siteLookup = new HashSiteStore( array(
 			$this->newSite( 'wikidatawiki', 'wikidata', 'en' ),
 			$this->newSite( 'commonswiki', 'commons', 'en' ),
 			$this->newSite( 'enwiki', 'wikipedia', 'en' ),
 			$this->newSite( 'dewiki', 'wikipedia', 'de' ),
 		) );
 
-		return $siteStore;
+		return $siteLookup;
 	}
 
 	private function getBadgeItem() {
@@ -120,15 +119,9 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 	 */
 	private function newSettings( array $settings ) {
 		$defaults = array(
-			'sort' => 'code',
-			'sortPrepend' => array(),
-			'interwikiSortOrders' => array( 'alphabetic' => array(
-				'ar', 'de', 'en', 'sv', 'zh'
-			) ),
 			'siteGlobalID' => 'enwiki',
 			'languageLinkSiteGroup' => 'wikipedia',
 			'namespaces' => array( NS_MAIN, NS_CATEGORY ),
-			'alwaysSort' => false,
 			'otherProjectsLinks' => array( 'commonswiki' ),
 			'otherProjectsLinksBeta' => true,
 			'otherProjectsLinksByDefault' => false,
@@ -173,23 +166,15 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 			$namespaceChecker,
 			$mockRepo,
 			$mockRepo,
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			$settings->getSetting( 'siteGlobalID' ),
 			$settings->getSetting( 'languageLinkSiteGroup' )
-		);
-
-		$interwikiSorter = new InterwikiSorter(
-			$settings->getSetting( 'sort' ),
-			$settings->getSetting( 'interwikiSortOrders' ),
-			$settings->getSetting( 'sortPrepend' )
 		);
 
 		return new ParserOutputUpdateHookHandlers(
 			$namespaceChecker,
 			$langLinkHandler,
-			$parserOutputDataUpdater,
-			$interwikiSorter,
-			$settings->getSetting( 'alwaysSort' )
+			$parserOutputDataUpdater
 		);
 	}
 
@@ -216,7 +201,7 @@ class ParserOutputUpdateHookHandlersTest extends MediaWikiTestCase {
 		return new OtherProjectsSidebarGeneratorFactory(
 			$settings,
 			$siteLinkLookup,
-			$this->getSiteStore()
+			$this->getSiteLookup()
 		);
 	}
 

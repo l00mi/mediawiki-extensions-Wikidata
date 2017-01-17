@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use DataValues\StringValue;
 use Wikibase\DataModel\Entity\Item;
@@ -21,7 +21,6 @@ use Wikibase\Repo\WikibaseRepo;
  * @group Database
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  *
  * @group medium
  *
@@ -159,7 +158,7 @@ class RemoveClaimsTest extends WikibaseApiTestCase {
 	}
 
 	/**
-	 * @expectedException \UsageException
+	 * @expectedException \ApiUsageException
 	 *
 	 * @dataProvider invalidClaimProvider
 	 */

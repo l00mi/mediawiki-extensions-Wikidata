@@ -4,10 +4,11 @@ namespace Wikibase\Repo\Tests\Localizer;
 
 use DataValues\DataValue;
 use DataValues\DecimalValue;
+use HashSiteStore;
 use Language;
 use PHPUnit_Framework_TestCase;
 use Site;
-use SiteStore;
+use SiteLookup;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
@@ -20,7 +21,6 @@ use Wikibase\Repo\Localizer\MessageParameterFormatter;
  * @covers Wikibase\Repo\Localizer\MessageParameterFormatter
  *
  * @group Wikibase
- * @group WikibaseRepo
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler
@@ -97,21 +97,14 @@ class MessageParameterFormatterTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @return SiteStore
+	 * @return SiteLookup
 	 */
 	private function getMockSitesTable() {
 		$acme = new Site();
 		$acme->setGlobalId( 'acme' );
 		$acme->setLinkPath( "http://acme.com/$1" );
 
-		$mock = $this->getMock( SiteStore::class );
-		$mock->expects( $this->any() )
-			->method( 'getSite' )
-			->will( $this->returnValueMap( [
-				[ 'acme', $acme ],
-			] ) );
-
-		return $mock;
+		return new HashSiteStore( [ $acme ] );
 	}
 
 }

@@ -3,7 +3,7 @@
 namespace Wikibase\Repo\Specials;
 
 use Html;
-use SiteStore;
+use SiteLookup;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOpValidationException;
@@ -74,7 +74,6 @@ abstract class SpecialModifyEntity extends SpecialWikibaseRepoPage {
 			$wikibaseRepo->getSummaryFormatter(),
 			$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
 			$wikibaseRepo->getEntityTitleLookup(),
-			$wikibaseRepo->getSiteStore(),
 			$wikibaseRepo->newEditEntityFactory( $this->getContext() )
 		);
 	}
@@ -85,21 +84,18 @@ abstract class SpecialModifyEntity extends SpecialWikibaseRepoPage {
 	 * @param SummaryFormatter $summaryFormatter
 	 * @param EntityRevisionLookup $entityRevisionLookup
 	 * @param EntityTitleLookup $entityTitleLookup
-	 * @param SiteStore $siteStore
 	 * @param EditEntityFactory $editEntityFactory
 	 */
 	public function setSpecialModifyEntityServices(
 		SummaryFormatter $summaryFormatter,
 		EntityRevisionLookup $entityRevisionLookup,
 		EntityTitleLookup $entityTitleLookup,
-		SiteStore $siteStore,
 		EditEntityFactory $editEntityFactory
 	) {
 		$this->entityRevisionLookup = $entityRevisionLookup;
 		$this->setSpecialWikibaseRepoPageServices(
 			$summaryFormatter,
 			$entityTitleLookup,
-			$siteStore,
 			$editEntityFactory
 		);
 	}
@@ -246,13 +242,14 @@ abstract class SpecialModifyEntity extends SpecialWikibaseRepoPage {
 		$this->getOutput()->addModuleStyles( array( 'wikibase.special' ) );
 
 		if ( $this->getUser()->isAnon() ) {
-			$this->showErrorHTML(
+			$this->getOutput()->addHTML( Html::rawElement(
+				'p',
+				[ 'class' => 'warning' ],
 				$this->msg(
 					'wikibase-anonymouseditwarning',
 					$this->msg( 'wikibase-entity-item' )->text()
-				)->parse(),
-				'warning'
-			);
+				)->parse()
+			) );
 		}
 
 		// Form header

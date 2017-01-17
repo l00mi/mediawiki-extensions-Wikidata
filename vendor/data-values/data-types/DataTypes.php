@@ -3,7 +3,7 @@
 /**
  * Entry point for the DataTypes library.
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 
@@ -14,7 +14,7 @@ if ( defined( 'DataTypes_VERSION' ) ) {
 	return 1;
 }
 
-define( 'DataTypes_VERSION', '0.5.2' );
+define( 'DataTypes_VERSION', '1.0.0' );
 
 if ( defined( 'MEDIAWIKI' ) ) {
 	include __DIR__ . '/DataTypes.mw.php';

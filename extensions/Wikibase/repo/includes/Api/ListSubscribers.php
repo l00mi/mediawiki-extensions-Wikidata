@@ -6,13 +6,11 @@ use ApiBase;
 use ApiQueryBase;
 use ApiQuery;
 use ApiResult;
-use MediaWiki\MediaWikiServices;
 use ResultWrapper;
 use SiteLookup;
 use stdClass;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * API module for getting wikis subscribed to changes to given entities.
@@ -42,19 +40,24 @@ class ListSubscribers extends ApiQueryBase {
 	/**
 	 * @param ApiQuery $mainModule
 	 * @param string $moduleName
-	 * @param string $modulePrefix
+	 * @param ApiErrorReporter $errorReporter
+	 * @param EntityIdParser $idParser
+	 * @param SiteLookup $siteLookup
 	 *
 	 * @see ApiBase::__construct
 	 */
-	public function __construct( ApiQuery $mainModule, $moduleName, $modulePrefix = 'wbls' ) {
-		parent::__construct( $mainModule, $moduleName, $modulePrefix );
+	public function __construct(
+		ApiQuery $mainModule,
+		$moduleName,
+		ApiErrorReporter $errorReporter,
+		EntityIdParser $idParser,
+		SiteLookup $siteLookup
+	) {
+		parent::__construct( $mainModule, $moduleName, 'wbls' );
 
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
-		$mediaWikiServices = MediaWikiServices::getInstance();
-		$this->errorReporter = $apiHelperFactory->getErrorReporter( $this );
-		$this->idParser = $wikibaseRepo->getEntityIdParser();
-		$this->siteLookup = $mediaWikiServices->getSiteLookup();
+		$this->errorReporter = $errorReporter;
+		$this->idParser = $idParser;
+		$this->siteLookup = $siteLookup;
 	}
 
 	public function execute() {

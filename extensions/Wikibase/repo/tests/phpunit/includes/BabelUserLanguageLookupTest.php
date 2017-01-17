@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Test;
+namespace Wikibase\Repo\Tests;
 
 use User;
 
@@ -8,8 +8,6 @@ use User;
  * @covers Wikibase\Repo\BabelUserLanguageLookup
  *
  * @group Wikibase
- * @group WikibaseRepo
- * @group EntityView
  * @group Database
  *
  * @license GPL-2.0+

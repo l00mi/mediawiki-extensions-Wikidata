@@ -29,7 +29,6 @@ use Wikibase\Repo\Validators\UniquenessViolation;
  * @covers Wikibase\Repo\Specials\SpecialWikibasePage
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group SpecialPage
  * @group WikibaseSpecialPage
  * @group Database
@@ -58,7 +57,6 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 			$this->getSummaryFormatter(),
 			$this->getEntityRevisionLookup(),
 			$this->getEntityTitleLookup(),
-			$this->getSiteStore(),
 			$this->getFingerprintChangeOpsFactory(),
 			new StaticContentLanguages( self::$languageCodes ),
 			new EditEntityFactory(

@@ -1,9 +1,8 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
 use ApiUsageException;
-use UsageException;
 
 /**
  * @covers Wikibase\Repo\Api\LinkTitles
@@ -15,7 +14,6 @@ use UsageException;
  * @group API
  * @group Wikibase
  * @group WikibaseAPI
- * @group WikibaseRepo
  * @group BreakingTheSlownessBarrier
  *
  * @group Database
@@ -88,8 +86,6 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 	}
 
 	public function provideLinkTitleExceptions() {
-		$newText = class_exists( ApiUsageException::class );
-
 		return array(
 			'notoken' => array(
 				'p' => array(
@@ -99,9 +95,9 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'AnotherPage'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'notoken',
-					'message' => $newText ? 'The "token" parameter must be set' : 'The token parameter must be set'
+					'message' => 'The "token" parameter must be set'
 				) )
 			),
 			'badtoken' => array(
@@ -113,9 +109,9 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'token' => '88888888888888888888888888888888+\\'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'badtoken',
-					'message' => $newText ? 'Invalid CSRF token.' : 'Invalid token'
+					'message' => 'Invalid CSRF token.'
 				) )
 			),
 			'add two links already exist together' => array(
@@ -126,7 +122,7 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'Oslo'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'common-item'
 				) )
 			),
@@ -138,7 +134,7 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'Oslo'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'no-common-item'
 				) )
 			),
@@ -150,7 +146,7 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'Hammerfest'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'param-illegal'
 				) )
 			),
@@ -162,7 +158,7 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'Hammerfest'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'param-illegal'
 				) )
 			),
@@ -174,7 +170,7 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'Hammerfest'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'unknown_tosite'
 				) )
 			),
@@ -186,7 +182,7 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'Hammerfest'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'unknown_fromsite'
 				) )
 			),
@@ -198,7 +194,7 @@ class LinkTitlesTest extends WikibaseApiTestCase {
 					'fromtitle' => 'Hammerfest'
 				),
 				'e' => array( 'exception' => array(
-					'type' => UsageException::class,
+					'type' => ApiUsageException::class,
 					'code' => 'unknown_fromsite'
 				) )
 			),

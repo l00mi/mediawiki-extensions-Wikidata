@@ -24,7 +24,7 @@ use MWException;
 use RequestContext;
 use Serializers\DispatchingSerializer;
 use Serializers\Serializer;
-use SiteStore;
+use SiteLookup;
 use StubObject;
 use Title;
 use User;
@@ -77,13 +77,15 @@ use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\StaticContentLanguages;
+use Wikibase\Lib\Store\CachingPropertyOrderProvider;
 use Wikibase\Lib\Store\EntityContentDataCodec;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
-use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
+use Wikibase\Lib\Store\WikiPagePropertyOrderProvider;
 use Wikibase\Lib\UnionContentLanguages;
 use Wikibase\Lib\UnitConverter;
 use Wikibase\Lib\UnitStorage;
@@ -220,9 +222,9 @@ class WikibaseRepo {
 	private $exceptionLocalizer = null;
 
 	/**
-	 * @var SiteStore|null
+	 * @var SiteLookup|null
 	 */
-	private $siteStore = null;
+	private $siteLookup = null;
 
 	/**
 	 * @var Store|null
@@ -450,7 +452,7 @@ class WikibaseRepo {
 	private function newWikibaseSnakFormatterBuilders( WikibaseValueFormatterBuilders $valueFormatterBuilders ) {
 		return new WikibaseSnakFormatterBuilders(
 			$valueFormatterBuilders,
-			$this->getStore()->getPropertyInfoStore(),
+			$this->getStore()->getPropertyInfoLookup(),
 			$this->getPropertyDataTypeLookup(),
 			$this->getDataTypeFactory()
 		);
@@ -596,7 +598,7 @@ class WikibaseRepo {
 	/**
 	 * @since 0.5
 	 *
-	 * @return EntityTitleLookup
+	 * @return EntityTitleStoreLookup
 	 */
 	public function getEntityTitleLookup() {
 		return $this->getEntityContentFactory();
@@ -650,6 +652,7 @@ class WikibaseRepo {
 	 */
 	private function newEditFilterHookRunner( IContextSource $context ) {
 		return new EditFilterHookRunner(
+			$this->getEntityNamespaceLookup(),
 			$this->getEntityTitleLookup(),
 			$this->getEntityContentFactory(),
 			$context
@@ -688,10 +691,10 @@ class WikibaseRepo {
 	 */
 	public function getPropertyDataTypeLookup() {
 		if ( $this->propertyDataTypeLookup === null ) {
-			$infoStore = $this->getStore()->getPropertyInfoStore();
+			$infoLookup = $this->getStore()->getPropertyInfoLookup();
 			$retrievingLookup = new EntityRetrievingDataTypeLookup( $this->getEntityLookup() );
 			$this->propertyDataTypeLookup = new PropertyInfoDataTypeLookup(
-				$infoStore,
+				$infoLookup,
 				$retrievingLookup
 			);
 		}
@@ -792,7 +795,7 @@ class WikibaseRepo {
 			$this->getStatementGuidParser(),
 			$this->getSnakValidator(),
 			$this->getTermValidatorFactory(),
-			$this->getSiteStore()
+			$this->getSiteLookup()
 		);
 	}
 
@@ -1164,14 +1167,14 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @return SiteStore
+	 * @return SiteLookup
 	 */
-	public function getSiteStore() {
-		if ( $this->siteStore === null ) {
-			$this->siteStore = MediaWikiServices::getInstance()->getSiteStore();
+	public function getSiteLookup() {
+		if ( $this->siteLookup === null ) {
+			$this->siteLookup = MediaWikiServices::getInstance()->getSiteLookup();
 		}
 
-		return $this->siteStore;
+		return $this->siteLookup;
 	}
 
 	/**
@@ -1191,7 +1194,7 @@ class WikibaseRepo {
 		return new MessageParameterFormatter(
 			$valueFormatterFactory->getValueFormatter( SnakFormatter::FORMAT_WIKI, $formatterOptions ),
 			new EntityIdLinkFormatter( $this->getEntityTitleLookup() ),
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			$wgLang
 		);
 	}
@@ -1241,7 +1244,16 @@ class WikibaseRepo {
 	 *  $wgWBRepoSettings['entityNamespaces'] setting.
 	 */
 	public function getEnabledEntityTypes() {
-		return array_keys( $this->getEntityNamespacesSetting() );
+		return array_unique( array_merge(
+			$this->getLocalEntityTypes(),
+			array_reduce(
+				$this->settings->getSetting( 'foreignRepositories' ),
+				function( $types, $repoSettings ) {
+					return array_merge( $types, $repoSettings['supportedEntityTypes'] );
+				},
+				[]
+			)
+		) );
 	}
 
 	/**
@@ -1501,7 +1513,7 @@ class WikibaseRepo {
 			$this->getEntityTitleLookup(),
 			$this->getExceptionLocalizer(),
 			$this->getPropertyDataTypeLookup(),
-			$this->getSiteStore(),
+			$this->getSiteLookup(),
 			$this->getSummaryFormatter(),
 			$this->getEntityRevisionLookup( 'uncached' ),
 			$this->newEditEntityFactory( $context ),
@@ -1610,7 +1622,7 @@ class WikibaseRepo {
 			TemplateFactory::getDefaultInstance(),
 			$entityDataFormatProvider,
 			// FIXME: Should this be done for all usages of this lookup, or is the impact of
-			// CachingPropertyInfoStore enough?
+			// CachingPropertyInfoLookup enough?
 			new InProcessCachingDataTypeLookup( $this->getPropertyDataTypeLookup() ),
 			$this->getLocalItemUriParser(),
 			$this->getEntitySerializer(
@@ -1636,12 +1648,20 @@ class WikibaseRepo {
 			$this->getStatementGuidParser()
 		);
 
+		$propertyOrderProvider = new CachingPropertyOrderProvider(
+			new WikiPagePropertyOrderProvider(
+				Title::newFromText( 'MediaWiki:Wikibase-SortedProperties' )
+			),
+			wfGetMainCache()
+		);
+
 		return new ViewFactory(
 			$this->getEntityIdHtmlLinkFormatterFactory(),
 			new EntityIdLabelFormatterFactory(),
 			$this->getHtmlSnakFormatterFactory(),
 			$statementGrouperBuilder->getStatementGrouper(),
-			$this->getSiteStore(),
+			$propertyOrderProvider,
+			$this->getSiteLookup(),
 			$this->getDataTypeFactory(),
 			TemplateFactory::getDefaultInstance(),
 			$this->getLanguageNameLookup(),
@@ -1691,6 +1711,9 @@ class WikibaseRepo {
 					new StaticContentLanguages( array(
 						// Special ISO 639-2 codes
 						'und', 'mis', 'mul', 'zxx',
+
+						// T150633
+						'abe',
 
 						// T125066
 						'ett', 'fkv', 'koy', 'lkt', 'lld', 'smj',
@@ -1814,6 +1837,15 @@ class WikibaseRepo {
 			return null;
 		}
 		return $storage;
+	}
+
+	/**
+	 * @see EntityTypeDefinitions::getChangeOpDeserializerCallbacks
+	 *
+	 * @return callable[]
+	 */
+	public function getChangeOpDeserializerCallbacks() {
+		return $this->entityTypeDefinitions->getChangeOpDeserializerCallbacks();
 	}
 
 }

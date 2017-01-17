@@ -1,9 +1,9 @@
 <?php
 
-namespace Wikibase\Test\Repo\Api;
+namespace Wikibase\Repo\Tests\Api;
 
-use UsageException;
-use Wikibase\Test\PermissionsHelper;
+use ApiUsageException;
+use Wikibase\Repo\Tests\PermissionsHelper;
 
 /**
  * Base class for permissions tests
@@ -48,7 +48,7 @@ class PermissionsTestCase extends WikibaseApiTestCase {
 				// the below is to avoid the tests being marked incomplete
 				$this->assertTrue( true );
 			}
-		} catch ( UsageException $ex ) {
+		} catch ( ApiUsageException $ex ) {
 			if ( $expectedError !== true ) {
 				$this->assertEquals( $expectedError, $ex->getCodeString(),
 					'API did not return expected error code. Got error message ' . $ex );

@@ -8,6 +8,7 @@ use SpecialPageFactory;
 use SpecialPageTestBase;
 use Title;
 use Wikibase\Client\Specials\SpecialEntityUsage;
+use Wikibase\Client\WikibaseClient;
 use WikiPage;
 
 /**
@@ -50,7 +51,10 @@ class SpecialEntityUsageTest extends SpecialPageTestBase {
 	 * @return SpecialEntityUsage
 	 */
 	protected function newSpecialPage() {
+		$idParser = WikibaseClient::getDefaultInstance()->getEntityIdParser();
+
 		$specialPage = $this->getMockBuilder( SpecialEntityUsage::class )
+			->setConstructorArgs( [ $idParser ] )
 			->setMethods( [ 'reallyDoQuery' ] )
 			->getMock();
 
@@ -102,7 +106,8 @@ class SpecialEntityUsageTest extends SpecialPageTestBase {
 		}
 		$this->addReallyDoQueryData();
 
-		$special = new SpecialEntityUsage();
+		$wikibaseClient = WikibaseClient::getDefaultInstance();
+		$special = new SpecialEntityUsage( $wikibaseClient->getEntityIdParser() );
 		$special->prepareParams( 'Q3' );
 		$res = $special->reallyDoQuery( 50 );
 		$values = [];

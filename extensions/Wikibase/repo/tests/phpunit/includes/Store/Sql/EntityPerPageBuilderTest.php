@@ -14,9 +14,7 @@ use Wikibase\Repo\WikibaseRepo;
  * @covers Wikibase\Repo\Store\Sql\EntityPerPageBuilder
  *
  * @group Wikibase
- * @group WikibaseRepo
  * @group WikibaseStore
- * @group WikibaseEntityPerPage
  * @group Database
  *
  * @group medium

@@ -27,7 +27,6 @@ use Wikibase\Lib\UnDeserializableValueFormatter;
  *
  * @group ValueFormatters
  * @group DataValueExtensions
- * @group WikibaseLib
  * @group Wikibase
  * @group Database
  *
@@ -207,7 +206,7 @@ class PropertyValueSnakFormatterTest extends \MediaWikiTestCase {
 			'property not found, fail' => array(
 				new PropertyValueSnak( 7, new StringValue( 'dummy' ) ),
 				'', // triggers an exception from the mock DataTypeFactory
-				'xxx', // should not be used
+				'', // should not be used
 				SnakFormatter::FORMAT_HTML,
 				$dispatchingFormatter,
 				null,

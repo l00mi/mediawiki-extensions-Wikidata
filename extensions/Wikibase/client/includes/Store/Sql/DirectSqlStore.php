@@ -4,8 +4,12 @@ namespace Wikibase;
 
 use HashBagOStuff;
 use ObjectCache;
+use Wikibase\Client\DispatchingServiceFactory;
 use Wikibase\Client\RecentChanges\RecentChangesDuplicateDetector;
 use Wikibase\Client\Store\Sql\PagePropsEntityIdLookup;
+use Wikibase\Lib\Store\CachingPropertyInfoLookup;
+use Wikibase\Lib\Store\PropertyInfoLookup;
+use Wikibase\Lib\Store\Sql\PropertyInfoTable;
 use Wikimedia\Rdbms\SessionConsistentConnectionManager;
 use Wikibase\Client\Store\UsageUpdater;
 use Wikibase\Client\Usage\Sql\SqlSubscriptionManager;
@@ -31,7 +35,6 @@ use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Lib\Store\SiteLinkTable;
 use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
 use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
-use Wikibase\Lib\Store\WikiPageEntityRevisionLookup;
 use Wikibase\Store\EntityIdLookup;
 
 /**
@@ -107,6 +110,11 @@ class DirectSqlStore implements ClientStore {
 	private $entityRevisionLookup = null;
 
 	/**
+	 * @var DispatchingServiceFactory
+	 */
+	private $dispatchingServiceFactory = null;
+
+	/**
 	 * @var PropertyLabelResolver|null
 	 */
 	private $propertyLabelResolver = null;
@@ -127,9 +135,9 @@ class DirectSqlStore implements ClientStore {
 	private $entityNamespaceLookup = null;
 
 	/**
-	 * @var PropertyInfoTable|null
+	 * @var PropertyInfoLookup|null
 	 */
-	private $propertyInfoTable = null;
+	private $propertyInfoLookup = null;
 
 	/**
 	 * @var SiteLinkLookup|null
@@ -167,6 +175,7 @@ class DirectSqlStore implements ClientStore {
 	 * @param EntityIdParser $entityIdParser
 	 * @param EntityIdComposer $entityIdComposer
 	 * @param EntityNamespaceLookup $entityNamespaceLookup
+	 * @param DispatchingServiceFactory $dispatchingServiceFactory
 	 * @param string|bool $repoWiki The symbolic database name of the repo wiki or false for the
 	 * local wiki.
 	 * @param string $languageCode
@@ -177,6 +186,7 @@ class DirectSqlStore implements ClientStore {
 		EntityIdParser $entityIdParser,
 		EntityIdComposer $entityIdComposer,
 		EntityNamespaceLookup $entityNamespaceLookup,
+		DispatchingServiceFactory $dispatchingServiceFactory,
 		$repoWiki = false,
 		$languageCode
 	) {
@@ -185,6 +195,7 @@ class DirectSqlStore implements ClientStore {
 		$this->entityIdParser = $entityIdParser;
 		$this->entityIdComposer = $entityIdComposer;
 		$this->entityNamespaceLookup = $entityNamespaceLookup;
+		$this->dispatchingServiceFactory = $dispatchingServiceFactory;
 		$this->repoWiki = $repoWiki;
 		$this->languageCode = $languageCode;
 
@@ -327,16 +338,11 @@ class DirectSqlStore implements ClientStore {
 		// NOTE: Keep cache key in sync with SqlStore::newEntityRevisionLookup in WikibaseRepo
 		$cacheKeyPrefix = $this->cacheKeyPrefix . ':WikiPageEntityRevisionLookup';
 
-		$metaDataFetcher = $this->getEntityPrefetcher();
-		$rawLookup = new WikiPageEntityRevisionLookup(
-			$this->contentCodec,
-			$metaDataFetcher,
-			$this->repoWiki
-		);
+		$dispatchingLookup = $this->dispatchingServiceFactory->getEntityRevisionLookup();
 
 		// Lower caching layer using persistent cache (e.g. memcached).
 		$persistentCachingLookup = new CachingEntityRevisionLookup(
-			$rawLookup,
+			$dispatchingLookup,
 			wfGetCache( $this->cacheType ),
 			$this->cacheDuration,
 			$cacheKeyPrefix
@@ -427,24 +433,24 @@ class DirectSqlStore implements ClientStore {
 	}
 
 	/**
-	 * @see ClientStore::getPropertyInfoStore
+	 * @see ClientStore::getPropertyInfoLookup
 	 *
-	 * @return PropertyInfoStore
+	 * @return PropertyInfoLookup
 	 */
-	public function getPropertyInfoStore() {
-		if ( $this->propertyInfoTable === null ) {
-			$propertyInfoStore = new PropertyInfoTable( true, $this->repoWiki );
-			$cacheKey = $this->cacheKeyPrefix . ':CachingPropertyInfoStore';
+	public function getPropertyInfoLookup() {
+		if ( $this->propertyInfoLookup === null ) {
+			$propertyInfoLookup = $this->dispatchingServiceFactory->getPropertyInfoLookup();
+			$cacheKey = $this->cacheKeyPrefix . ':CacheAwarePropertyInfoStore';
 
-			$this->propertyInfoTable = new CachingPropertyInfoStore(
-				$propertyInfoStore,
+			$this->propertyInfoLookup = new CachingPropertyInfoLookup(
+				$propertyInfoLookup,
 				ObjectCache::getInstance( $this->cacheType ),
 				$this->cacheDuration,
 				$cacheKey
 			);
 		}
 
-		return $this->propertyInfoTable;
+		return $this->propertyInfoLookup;
 	}
 
 	/**
