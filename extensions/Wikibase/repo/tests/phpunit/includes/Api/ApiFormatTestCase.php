@@ -9,6 +9,8 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\EntityRevision;
+use Wikibase\Repo\Api\GetEntities;
+use Wikibase\Repo\SiteLinkTargetProvider;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
@@ -108,6 +110,39 @@ abstract class ApiFormatTestCase extends \MediaWikiTestCase {
 		$entityRevision = $store->saveEntity( $item, 'testing more!', $wgUser );
 
 		return $entityRevision;
+	}
+
+	/**
+	 * @param array $params
+	 *
+	 * @return GetEntities
+	 */
+	protected function getGetEntitiesApiModule( array $params ) {
+		$request = new FauxRequest( $params, true );
+		$apiMain = new ApiMain( $request, true );
+
+		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
+		$settings = $wikibaseRepo->getSettings();
+		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $apiMain->getContext() );
+
+		$siteLinkTargetProvider = new SiteLinkTargetProvider(
+			$wikibaseRepo->getSiteLookup(),
+			$settings->getSetting( 'specialSiteLinkGroups' )
+		);
+
+		return new GetEntities(
+			$apiMain,
+			'wbgetentities',
+			$wikibaseRepo->getStringNormalizer(),
+			$wikibaseRepo->getLanguageFallbackChainFactory(),
+			$siteLinkTargetProvider,
+			$wikibaseRepo->getStore()->getEntityPrefetcher(),
+			$settings->getSetting( 'siteLinkGroups' ),
+			$apiHelperFactory->getErrorReporter( $apiMain ),
+			$apiHelperFactory->getResultBuilder( $apiMain ),
+			$wikibaseRepo->getEntityRevisionLookup(),
+			$wikibaseRepo->getEntityIdParser()
+		);
 	}
 
 }

@@ -150,11 +150,37 @@ call_user_func( function() {
 
 	// 'null' is not a datatype. Kept for backwards compatibility.
 	$wgValueParsers['null'] = function() {
-		return new \ValueParsers\NullParser();
+		return new ValueParsers\NullParser();
 	};
 
 	// API module registration
-	$wgAPIModules['wbgetentities'] = Wikibase\Repo\Api\GetEntities::class;
+	$wgAPIModules['wbgetentities'] = [
+		'class' => Wikibase\Repo\Api\GetEntities::class,
+		'factory' => function( ApiMain $apiMain, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$settings = $wikibaseRepo->getSettings();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $apiMain->getContext() );
+
+			$siteLinkTargetProvider = new Wikibase\Repo\SiteLinkTargetProvider(
+				$wikibaseRepo->getSiteLookup(),
+				$settings->getSetting( 'specialSiteLinkGroups' )
+			);
+
+			return new Wikibase\Repo\Api\GetEntities(
+				$apiMain,
+				$moduleName,
+				$wikibaseRepo->getStringNormalizer(),
+				$wikibaseRepo->getLanguageFallbackChainFactory(),
+				$siteLinkTargetProvider,
+				$wikibaseRepo->getStore()->getEntityPrefetcher(),
+				$settings->getSetting( 'siteLinkGroups' ),
+				$apiHelperFactory->getErrorReporter( $apiMain ),
+				$apiHelperFactory->getResultBuilder( $apiMain ),
+				$wikibaseRepo->getEntityRevisionLookup(),
+				$wikibaseRepo->getEntityIdParser()
+			);
+		}
+	];
 	$wgAPIModules['wbsetlabel'] = Wikibase\Repo\Api\SetLabel::class;
 	$wgAPIModules['wbsetdescription'] = Wikibase\Repo\Api\SetDescription::class;
 	$wgAPIModules['wbsearchentities'] = Wikibase\Repo\Api\SearchEntities::class;
@@ -180,8 +206,8 @@ call_user_func( function() {
 	$wgAPIListModules['wbsubscribers'] = [
 		'class' => Wikibase\Repo\Api\ListSubscribers::class,
 		'factory' => function( ApiQuery $apiQuery, $moduleName ) {
-			$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
-			$mediaWikiServices = \MediaWiki\MediaWikiServices::getInstance();
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$mediaWikiServices = MediaWiki\MediaWikiServices::getInstance();
 			$apiHelper = $wikibaseRepo->getApiHelperFactory( $apiQuery->getContext() );
 			return new Wikibase\Repo\Api\ListSubscribers(
 				$apiQuery,
@@ -195,11 +221,11 @@ call_user_func( function() {
 
 	// Special page registration
 	$wgSpecialPages['NewItem'] = function () {
-		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 
 		$settings = $wikibaseRepo->getSettings();
-		$copyrightView = new \Wikibase\Repo\Specials\SpecialPageCopyrightView(
-			new \Wikibase\CopyrightMessageBuilder(),
+		$copyrightView = new Wikibase\Repo\Specials\SpecialPageCopyrightView(
+			new Wikibase\CopyrightMessageBuilder(),
 			$settings->getSetting( 'dataRightsUrl' ),
 			$settings->getSetting( 'dataRightsText' )
 		);
@@ -210,11 +236,11 @@ call_user_func( function() {
 		);
 	};
 	$wgSpecialPages['NewProperty'] = function () {
-		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 
 		$settings = $wikibaseRepo->getSettings();
-		$copyrightView = new \Wikibase\Repo\Specials\SpecialPageCopyrightView(
-			new \Wikibase\CopyrightMessageBuilder(),
+		$copyrightView = new Wikibase\Repo\Specials\SpecialPageCopyrightView(
+			new Wikibase\CopyrightMessageBuilder(),
 			$settings->getSetting( 'dataRightsUrl' ),
 			$settings->getSetting( 'dataRightsText' )
 		);
@@ -224,16 +250,16 @@ call_user_func( function() {
 		);
 	};
 	$wgSpecialPages['ItemByTitle'] = function () {
-		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 
-		$siteLinkTargetProvider = new \Wikibase\Repo\SiteLinkTargetProvider(
+		$siteLinkTargetProvider = new Wikibase\Repo\SiteLinkTargetProvider(
 			$wikibaseRepo->getSiteLookup(),
 			$wikibaseRepo->getSettings()->getSetting( 'specialSiteLinkGroups' )
 		);
 
 		return new Wikibase\Repo\Specials\SpecialItemByTitle(
 			$wikibaseRepo->getEntityTitleLookup(),
-			new \Wikibase\Lib\LanguageNameLookup(),
+			new Wikibase\Lib\LanguageNameLookup(),
 			$wikibaseRepo->getSiteLookup(),
 			$wikibaseRepo->getStore()->newSiteLinkStore(),
 			$siteLinkTargetProvider,
@@ -241,7 +267,7 @@ call_user_func( function() {
 		);
 	};
 	$wgSpecialPages['GoToLinkedPage'] = function() {
-		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 		return new Wikibase\Repo\Specials\SpecialGoToLinkedPage(
 			$wikibaseRepo->getSiteLookup(),
 			$wikibaseRepo->getStore()->newSiteLinkStore(),
@@ -275,12 +301,12 @@ call_user_func( function() {
 	$wgSpecialPages['SetLabelDescriptionAliases']
 		= Wikibase\Repo\Specials\SpecialSetLabelDescriptionAliases::class;
 	$wgSpecialPages['SetSiteLink'] = function() {
-		$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 		$siteLookup = $wikibaseRepo->getSiteLookup();
 		$settings = $wikibaseRepo->getSettings();
 
 		$siteLinkChangeOpFactory = $wikibaseRepo->getChangeOpFactoryProvider()->getSiteLinkChangeOpFactory();
-		$siteLinkTargetProvider = new \Wikibase\Repo\SiteLinkTargetProvider(
+		$siteLinkTargetProvider = new Wikibase\Repo\SiteLinkTargetProvider(
 			$siteLookup,
 			$settings->getSetting( 'specialSiteLinkGroups' )
 		);
@@ -307,6 +333,12 @@ call_user_func( function() {
 	$wgSpecialPages['ListProperties'] = Wikibase\Repo\Specials\SpecialListProperties::class;
 	$wgSpecialPages['DispatchStats'] = Wikibase\Repo\Specials\SpecialDispatchStats::class;
 	$wgSpecialPages['EntityData'] = Wikibase\Repo\Specials\SpecialEntityData::class;
+	$wgSpecialPages['EntityPage'] = function() {
+		return new Wikibase\Repo\Specials\SpecialEntityPage(
+			Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getEntityIdParser(),
+			Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getEntityContentFactory()
+		);
+	};
 	$wgSpecialPages['MyLanguageFallbackChain'] = function() {
 		return new Wikibase\Repo\Specials\SpecialMyLanguageFallbackChain(
 			\Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getLanguageFallbackChainFactory()

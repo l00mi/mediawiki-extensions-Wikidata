@@ -3,7 +3,6 @@
 namespace Wikibase\Repo\Tests\Api;
 
 use ApiBase;
-use Wikibase\Repo\Api\GetEntities;
 use Wikibase\Repo\Api\SetLabel;
 
 /**
@@ -104,7 +103,7 @@ class ApiJsonFormatTest extends ApiFormatTestCase {
 			'ids' => $entityId
 		);
 
-		$module = $this->getApiModule( GetEntities::class, 'wbgetentities', $params );
+		$module = $this->getGetEntitiesApiModule( $params );
 		$result = $this->executeApiModule( $module );
 		$actual = $this->removePageInfoAttributes( $result );
 
