@@ -1606,12 +1606,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "3933c0e929efd680eb6efab7d5a07aa505c95bc5"
+                "reference": "17c36eb8c0434e522ef8f547022d5cfd06d2b2ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/3933c0e929efd680eb6efab7d5a07aa505c95bc5",
-                "reference": "3933c0e929efd680eb6efab7d5a07aa505c95bc5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/17c36eb8c0434e522ef8f547022d5cfd06d2b2ac",
+                "reference": "17c36eb8c0434e522ef8f547022d5cfd06d2b2ac",
                 "shasum": ""
             },
             "require": {
@@ -1686,7 +1686,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2017-01-19 17:42:52"
+            "time": "2017-01-20 08:46:50"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1777,11 +1777,11 @@
         },
         {
             "name": "wikimedia/purtle",
-            "version": "v1.0.4",
+            "version": "v1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/p/purtle",
-                "reference": "da47ef5604de0142c6ae50166aa2882eb0ab7029"
+                "reference": "4fd41eb7d8db551c0c4895fd1a917240907d7244"
             },
             "require": {
                 "php": ">=5.5.0"
@@ -1829,7 +1829,7 @@
                 "Turtle",
                 "serializer"
             ],
-            "time": "2016-09-15 19:15:28"
+            "time": "2017-01-18 22:22:55"
         }
     ],
     "packages-dev": null,
