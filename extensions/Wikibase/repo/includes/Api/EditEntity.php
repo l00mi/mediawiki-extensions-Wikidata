@@ -35,8 +35,6 @@ use Wikibase\Summary;
  * Derived class for API modules modifying a single entity identified by id xor a combination of
  * site and page title.
  *
- * @since 0.1
- *
  * @license GPL-2.0+
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Daniel Kinzler
@@ -865,8 +863,8 @@ class EditEntity extends ModifyEntity {
 	/**
 	 * Check some of the supplied data for multilang arg
 	 *
-	 * @param array $arg The argument array to verify
-	 * @param string $langCode The language code used in the value part
+	 * @param string[] $arg The argument array to verify
+	 * @param int|string $langCode The language code used in the value part
 	 */
 	private function validateMultilangArgs( $arg, $langCode ) {
 		$this->assertArray( $arg, 'An array was expected, but not found in the json for the '

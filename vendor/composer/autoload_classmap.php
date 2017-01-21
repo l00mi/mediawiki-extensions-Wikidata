@@ -424,6 +424,7 @@ return array(
     'Wikibase\\Client\\DataAccess\\SnaksFinder' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/SnaksFinder.php',
     'Wikibase\\Client\\DataAccess\\StatementTransclusionInteractor' => $baseDir . '/extensions/Wikibase/client/includes/DataAccess/StatementTransclusionInteractor.php',
     'Wikibase\\Client\\DispatchingServiceFactory' => $baseDir . '/extensions/Wikibase/client/includes/DispatchingServiceFactory.php',
+    'Wikibase\\Client\\EntityDataRetrievalServiceFactory' => $baseDir . '/extensions/Wikibase/client/includes/EntityDataRetrievalServiceFactory.php',
     'Wikibase\\Client\\ForbiddenSerializer' => $baseDir . '/extensions/Wikibase/client/includes/ForbiddenSerializer.php',
     'Wikibase\\Client\\Hooks\\BaseTemplateAfterPortletHandler' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/BaseTemplateAfterPortletHandler.php',
     'Wikibase\\Client\\Hooks\\BeforePageDisplayHandler' => $baseDir . '/extensions/Wikibase/client/includes/Hooks/BeforePageDisplayHandler.php',
