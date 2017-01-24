@@ -1409,12 +1409,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "1a6b94e0ec648c555c2ca2dbbfd89b2d6a58247b"
+            "reference": "6aad2ba250c54629afea7b3261605ed285a85b0f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/1a6b94e0ec648c555c2ca2dbbfd89b2d6a58247b",
-            "reference": "1a6b94e0ec648c555c2ca2dbbfd89b2d6a58247b",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/6aad2ba250c54629afea7b3261605ed285a85b0f",
+            "reference": "6aad2ba250c54629afea7b3261605ed285a85b0f",
             "shasum": ""
         },
         "require": {
@@ -1447,7 +1447,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2017-01-22 21:46:01",
+        "time": "2017-01-24 08:43:44",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1543,7 +1543,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-            "reference": "93892fd220415dadfcc51665dd2ff6c107ff1f3a"
+            "reference": "1fbcb41de7d9b4eef710b296a6698cabe401a550"
         },
         "require": {
             "php": ">=5.3.0"
@@ -1552,7 +1552,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.7.2"
         },
-        "time": "2016-12-28 11:49:18",
+        "time": "2017-01-23 21:52:01",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {

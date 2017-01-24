@@ -192,9 +192,29 @@ call_user_func( function() {
 			);
 		}
 	];
-	$wgAPIModules['wbsetdescription'] = Wikibase\Repo\Api\SetDescription::class;
+	$wgAPIModules['wbsetdescription'] = [
+		'class' => Wikibase\Repo\Api\SetDescription::class,
+		'factory' => function ( ApiMain $mainModule, $moduleName ) {
+			return new Wikibase\Repo\Api\SetDescription(
+				$mainModule,
+				$moduleName,
+				Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider()
+					->getFingerprintChangeOpFactory()
+			);
+		}
+	];
 	$wgAPIModules['wbsearchentities'] = Wikibase\Repo\Api\SearchEntities::class;
-	$wgAPIModules['wbsetaliases'] = Wikibase\Repo\Api\SetAliases::class;
+	$wgAPIModules['wbsetaliases'] = [
+		'class' => Wikibase\Repo\Api\SetAliases::class,
+		'factory' => function ( ApiMain $mainModule, $moduleName ) {
+			return new Wikibase\Repo\Api\SetAliases(
+				$mainModule,
+				$moduleName,
+				Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider()
+					->getFingerprintChangeOpFactory()
+			);
+		}
+	];
 	$wgAPIModules['wbeditentity'] = Wikibase\Repo\Api\EditEntity::class;
 	$wgAPIModules['wblinktitles'] = Wikibase\Repo\Api\LinkTitles::class;
 	$wgAPIModules['wbsetsitelink'] = Wikibase\Repo\Api\SetSiteLink::class;
@@ -340,7 +360,27 @@ call_user_func( function() {
 		'newSpecialEntitiesWithoutDescription'
 	);
 	$wgSpecialPages['ListDatatypes'] = Wikibase\Repo\Specials\SpecialListDatatypes::class;
-	$wgSpecialPages['ListProperties'] = Wikibase\Repo\Specials\SpecialListProperties::class;
+	$wgSpecialPages['ListProperties'] = function () {
+		global $wgContLang;
+		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+		$bufferingTermLookup = $wikibaseRepo->getBufferingTermLookup();
+		$languageFallbackChainFactory = $wikibaseRepo->getLanguageFallbackChainFactory();
+		$fallbackMode = Wikibase\LanguageFallbackChainFactory::FALLBACK_ALL;
+		$labelDescriptionLookup = new Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup(
+			$bufferingTermLookup,
+			$languageFallbackChainFactory->newFromLanguage( $wgContLang, $fallbackMode )
+		);
+		$entityIdFormatter = $wikibaseRepo->getEntityIdHtmlLinkFormatterFactory()
+			->getEntityIdFormatter( $labelDescriptionLookup );
+		return new Wikibase\Repo\Specials\SpecialListProperties(
+			$wikibaseRepo->getDataTypeFactory(),
+			$wikibaseRepo->getStore()->getPropertyInfoLookup(),
+			$labelDescriptionLookup,
+			$entityIdFormatter,
+			$wikibaseRepo->getEntityTitleLookup(),
+			$bufferingTermLookup
+		);
+	};
 	$wgSpecialPages['DispatchStats'] = Wikibase\Repo\Specials\SpecialDispatchStats::class;
 	$wgSpecialPages['EntityData'] = Wikibase\Repo\Specials\SpecialEntityData::class;
 	$wgSpecialPages['EntityPage'] = function() {
