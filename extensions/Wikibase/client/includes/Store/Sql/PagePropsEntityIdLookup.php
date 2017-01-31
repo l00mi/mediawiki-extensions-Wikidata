@@ -11,8 +11,6 @@ use Wikibase\Store\EntityIdLookup;
 /**
  * Lookup of EntityIds based on wikibase_item entries in the page_props table.
  *
- * @since 0.5
- *
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
@@ -48,7 +46,7 @@ class PagePropsEntityIdLookup implements EntityIdLookup {
 	 * @return EntityId[]
 	 */
 	public function getEntityIds( array $titles ) {
-		$db = $this->loadBalancer->getConnection( DB_SLAVE );
+		$db = $this->loadBalancer->getConnection( DB_REPLICA );
 
 		$pageIds = array_map(
 			function ( Title $title ) {

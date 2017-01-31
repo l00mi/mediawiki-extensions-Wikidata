@@ -71,13 +71,14 @@ call_user_func( function() {
 	global $wgAPIListModules, $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages;
 	global $wgResourceModules, $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
 	global $wgJobClasses, $wgTrackingCategories, $wgWBClientDataTypes, $wgWBClientEntityTypes;
+	global $wgWikibaseInterwikiSorting;
 
 	$wgExtensionCredits['wikibase'][] = array(
 		'path' => __DIR__,
 		'name' => 'Wikibase Client',
 		'version' => WBC_VERSION,
 		'author' => array(
-			'The Wikidata team', // TODO: link?
+			'The Wikidata team',
 		),
 		'url' => 'https://www.mediawiki.org/wiki/Extension:Wikibase_Client',
 		'descriptionmsg' => 'wikibase-client-desc',
@@ -112,7 +113,9 @@ call_user_func( function() {
 	$wgHooks['OutputPageParserOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onOutputPageParserOutput';
 	$wgHooks['SkinTemplateGetLanguageLink'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSkinTemplateGetLanguageLink';
 	$wgHooks['ContentAlterParserOutput'][] = '\Wikibase\Client\Hooks\ParserOutputUpdateHookHandlers::onContentAlterParserOutput';
-	$wgHooks['ContentAlterParserOutput'][] = '\Wikibase\Client\Hooks\InterwikiSortingHookHandlers::onContentAlterParserOutput';
+	if ( !isset( $wgWikibaseInterwikiSorting ) || $wgWikibaseInterwikiSorting ) {
+		$wgHooks['ContentAlterParserOutput'][] = '\Wikibase\Client\Hooks\InterwikiSortingHookHandlers::onContentAlterParserOutput';
+	}
 	$wgHooks['SidebarBeforeOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSidebarBeforeOutput';
 
 	$wgHooks['ParserFirstCallInit'][] = '\Wikibase\ClientHooks::onParserFirstCallInit';

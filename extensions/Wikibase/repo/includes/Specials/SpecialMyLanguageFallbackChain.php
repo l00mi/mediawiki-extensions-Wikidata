@@ -9,12 +9,9 @@ use Language;
 use SpecialPage;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\LanguageFallbackChainFactory;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Page for displaying the current language fallback chain for debugging.
- *
- * @since 0.4
  *
  * @license GPL-2.0+
  * @author Liangent < liangent@gmail.com >
@@ -53,8 +50,6 @@ class SpecialMyLanguageFallbackChain extends SpecialPage {
 
 	/**
 	 * @see SpecialPage::getDescription
-	 *
-	 * @since 0.4
 	 *
 	 * @return string
 	 */
@@ -98,8 +93,6 @@ class SpecialMyLanguageFallbackChain extends SpecialPage {
 
 	/**
 	 * @see SpecialPage::execute
-	 *
-	 * @since 0.4
 	 *
 	 * @param string|null $subPage
 	 */

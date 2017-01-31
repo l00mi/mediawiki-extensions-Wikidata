@@ -8,13 +8,10 @@ use FauxRequest;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
 use ApiUsageException;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * This class can be used instead of the Mediawiki Api TestCase.
  * This class allows us to override services within Wikibase API modules
- *
- * @since 0.5
  *
  * @license GPL-2.0+
  * @author Addshore
@@ -45,8 +42,6 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param array $params
 	 *
 	 * @return array api request result
@@ -64,8 +59,6 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * Do the test for exceptions from Api queries.
 	 * @param array $params array of params for the api query
 	 * @param array $exception details of the exception to expect (type,code,message)
@@ -89,8 +82,6 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param array $params
 	 *
 	 * @return ApiBase
@@ -109,8 +100,6 @@ abstract class IndependentWikibaseApiTestCase extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @return string Class name for the module being tested
 	 */
 	abstract protected function getModuleClass();

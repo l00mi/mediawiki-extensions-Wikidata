@@ -26,6 +26,7 @@ use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
+use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\DataModel\Term\FingerprintProvider;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Content\EntityHandler;
@@ -36,8 +37,6 @@ use WikiPage;
 
 /**
  * Abstract content object for articles representing Wikibase entities.
- *
- * @since 0.1
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -211,8 +210,6 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @note Will fail if this EntityContent does not represent a redirect.
 	 *
 	 * @param bool $generateHtml
@@ -241,8 +238,6 @@ abstract class EntityContent extends AbstractContent {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @note Will fail if this EntityContent represents a redirect.
 	 *
 	 * @param Title $title
@@ -418,13 +413,12 @@ abstract class EntityContent extends AbstractContent {
 		global $wgLang;
 		$entity = $this->getEntity();
 
-		// TODO use DescriptionProvider
-		if ( $entity instanceof FingerprintProvider ) {
-			$fingerprint = $entity->getFingerprint();
+		if ( $entity instanceof DescriptionsProvider ) {
+			$descriptions = $entity->getDescriptions();
 			$languageCode = $wgLang->getCode();
 
-			if ( $fingerprint->hasDescription( $languageCode ) ) {
-				$description = $fingerprint->getDescription( $languageCode )->getText();
+			if ( $descriptions->hasTermForLanguage( $languageCode ) ) {
+				$description = $descriptions->getByLanguage( $languageCode )->getText();
 				return substr( $description, 0, $maxLength );
 			}
 		}

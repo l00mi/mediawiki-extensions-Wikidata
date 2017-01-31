@@ -9,8 +9,6 @@ use Wikibase\SettingsArray;
  * This file is NOT an entry point the Wikibase Client extension. Use WikibaseClient.php.
  * It should furthermore not be included from outside the extension.
  *
- * @since 0.4
- *
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
@@ -23,7 +21,6 @@ return call_user_func( function() {
 		'excludeNamespaces' => [],
 		'sort' => 'code',
 		'sortPrepend' => [],
-		'alwaysSort' => false,
 		// @todo would be great to just get this from the sites stuff
 		// but we will need to make sure the caching works good enough
 		'siteLocalID' => $wgLanguageCode,
@@ -50,8 +47,6 @@ return call_user_func( function() {
 		// in the parser functions and via Lua.
 		// Allows users to split the ParserCache by user language.
 		'allowDataAccessInUserLanguage' => false,
-		'enableStatementsParserFunction' => false,
-		'enableLuaEntityFormatStatements' => false,
 
 		/**
 		 * Prefix to use for cache keys that should be shared among a Wikibase Repo instance and all

@@ -14,8 +14,6 @@ use Wikibase\NoLangLinkHandler;
 use Wikibase\SettingsArray;
 
 /**
- * @since 0.5
- *
  * @license GPL-2.0+
  */
 class InterwikiSortingHookHandlers {
@@ -31,11 +29,6 @@ class InterwikiSortingHookHandlers {
 	private $namespaceChecker;
 
 	/**
-	 * @var bool
-	 */
-	private $alwaysSort;
-
-	/**
 	 * @return self
 	 */
 	public static function newFromGlobalState() {
@@ -44,7 +37,11 @@ class InterwikiSortingHookHandlers {
 
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 
-		if ( $config->has( 'InterwikiSortingSort' ) ) {
+		if (
+			$config->has( 'InterwikiSortingSort' ) &&
+			$config->has( 'InterwikiSortingInterwikiSortOrders' ) &&
+			$config->has( 'InterwikiSortingSortPrepend' )
+		) {
 			return self::newFromInterwikiSortingConfig( $config, $namespaceChecker );
 		}
 
@@ -71,8 +68,7 @@ class InterwikiSortingHookHandlers {
 
 		return new self(
 			$interwikiSorter,
-			$namespaceChecker,
-			$config->get( 'InterwikiSortingAlwaysSort' )
+			$namespaceChecker
 		);
 	}
 
@@ -94,8 +90,7 @@ class InterwikiSortingHookHandlers {
 
 		return new self(
 			$interwikiSorter,
-			$namespaceChecker,
-			$settings->getSetting( 'alwaysSort' )
+			$namespaceChecker
 		);
 	}
 
@@ -122,16 +117,13 @@ class InterwikiSortingHookHandlers {
 	/**
 	 * @param InterwikiSorter $sorter
 	 * @param NamespaceChecker $namespaceChecker
-	 * @param bool $alwaysSort
 	 */
 	public function __construct(
 		InterwikiSorter $sorter,
-		NamespaceChecker $namespaceChecker,
-		$alwaysSort
+		NamespaceChecker $namespaceChecker
 	) {
 		$this->interwikiSorter = $sorter;
 		$this->namespaceChecker = $namespaceChecker;
-		$this->alwaysSort = $alwaysSort;
 	}
 
 	/**
@@ -148,7 +140,7 @@ class InterwikiSortingHookHandlers {
 			return;
 		}
 
-		if ( $this->alwaysSort || !$this->hasNoExternalLangLinks( $parserOutput ) ) {
+		if ( !$this->hasNoExternalLangLinks( $parserOutput ) ) {
 			$interwikiLinks = $parserOutput->getLanguageLinks();
 			$sortedLinks = $this->interwikiSorter->sortLinks( $interwikiLinks );
 			$parserOutput->setLanguageLinks( $sortedLinks );

@@ -13,8 +13,6 @@ use Wikimedia\Assert\Assert;
 /**
  * Allows accessing changes stored in a database.
  *
- * @since 0.5
- *
  * @license GPL-2.0+
  * @author Marius Hoch
  */
@@ -117,7 +115,7 @@ class EntityChangeLookup extends DBAccessBase implements ChunkAccess {
 				'LIMIT' => 1
 			),
 			__METHOD__,
-			$mode === self::FROM_MASTER ? DB_MASTER : DB_SLAVE
+			$mode === self::FROM_MASTER ? DB_MASTER : DB_REPLICA
 		);
 
 		if ( isset( $change[0] ) ) {
@@ -131,11 +129,11 @@ class EntityChangeLookup extends DBAccessBase implements ChunkAccess {
 	 * @param array $where
 	 * @param array $options
 	 * @param string $method
-	 * @param int $mode (DB_SLAVE or DB_MASTER)
+	 * @param int $mode (DB_REPLICA or DB_MASTER)
 	 *
 	 * @return EntityChange[]
 	 */
-	private function loadChanges( array $where, array $options, $method, $mode = DB_SLAVE ) {
+	private function loadChanges( array $where, array $options, $method, $mode = DB_REPLICA ) {
 		$dbr = $this->getConnection( $mode );
 
 		$rows = $dbr->select(

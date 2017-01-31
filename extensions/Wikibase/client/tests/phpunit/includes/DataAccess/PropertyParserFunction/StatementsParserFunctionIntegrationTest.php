@@ -26,6 +26,11 @@ use Wikibase\Test\MockClientStore;
  */
 class StatementsParserFunctionIntegrationTest extends MediaWikiTestCase {
 
+	/**
+	 * @var bool
+	 */
+	private $oldAllowDataAccessInUserLanguage;
+
 	protected function setUp() {
 		parent::setUp();
 
@@ -122,16 +127,11 @@ class StatementsParserFunctionIntegrationTest extends MediaWikiTestCase {
 	 * @return string HTML
 	 */
 	private function parseWikitextToHtml( $wikiText, $title = 'WikibaseClientDataAccessTest' ) {
-		$settings = WikibaseClient::getDefaultInstance()->getSettings();
-		$enabled = $settings->getSetting( 'enableStatementsParserFunction' );
-		$settings->setSetting( 'enableStatementsParserFunction', true );
-
 		$popt = new ParserOptions( User::newFromId( 0 ), Language::factory( 'en' ) );
 
 		$parser = new Parser( [ 'class' => 'Parser' ] );
 		$pout = $parser->parse( $wikiText, Title::newFromText( $title ), $popt, Parser::OT_HTML );
 
-		$settings->setSetting( 'enableStatementsParserFunction', $enabled );
 		return $pout->getText();
 	}
 

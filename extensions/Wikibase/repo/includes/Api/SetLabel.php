@@ -7,14 +7,11 @@ use Wikibase\ChangeOp\ChangeOpLabel;
 use Wikibase\ChangeOp\FingerprintChangeOpFactory;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Term\LabelsProvider;
-use Wikibase\Repo\WikibaseRepo;
 use Wikibase\Summary;
 
 /**
  * API module to set the label for a Wikibase entity.
  * Requires API write mode to be enabled.
- *
- * @since 0.1
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -31,15 +28,16 @@ class SetLabel extends ModifyTerm {
 	/**
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
-	 * @param string $modulePrefix
+	 * @param FingerprintChangeOpFactory $termChangeOpFactory
 	 */
-	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
-		parent::__construct( $mainModule, $moduleName, $modulePrefix );
+	public function __construct(
+		ApiMain $mainModule,
+		$moduleName,
+		FingerprintChangeOpFactory $termChangeOpFactory
+	) {
+		parent::__construct( $mainModule, $moduleName );
 
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
-
-		$this->termChangeOpFactory = $changeOpFactoryProvider->getFingerprintChangeOpFactory();
+		$this->termChangeOpFactory = $termChangeOpFactory;
 	}
 
 	/**

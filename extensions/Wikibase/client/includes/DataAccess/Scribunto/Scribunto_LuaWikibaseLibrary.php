@@ -24,8 +24,6 @@ use Wikibase\Lib\Store\PropertyOrderProvider;
 /**
  * Registers and defines functions to access Wikibase through the Scribunto extension
  *
- * @since 0.4
- *
  * @license GPL-2.0+
  * @author Jens Ohlig < jens.ohlig@wikimedia.de >
  * @author Marius Hoch < hoo@online.de >
@@ -289,8 +287,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	/**
 	 * Register mw.wikibase.lua library
 	 *
-	 * @since 0.4
-	 *
 	 * @return array
 	 */
 	public function register() {
@@ -314,7 +310,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 			'incrementExpensiveFunctionCount' => array( $this, 'incrementExpensiveFunctionCount' ),
 			'getPropertyOrder' => array( $this, 'getPropertyOrder' ),
 			'orderProperties' => array( $this, 'orderProperties' ),
-			'isFormatStatementsEnabled' => array( $this, 'isFormatStatementsEnabled' ),
 		);
 
 		return $this->getEngine()->registerInterface(
@@ -323,25 +318,7 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	}
 
 	/**
-	 * Returns the value of the "enableLuaEntityFormatStatements" setting.
-	 *
-	 * @since 0.5
-	 *
-	 * @return bool[]
-	 */
-	public function isFormatStatementsEnabled() {
-		// TODO: Remove this once the feature flag is not needed anymore!
-		$value = WikibaseClient::getDefaultInstance()->getSettings()->getSetting(
-			'enableLuaEntityFormatStatements'
-		);
-
-		return [ $value ];
-	}
-
-	/**
 	 * Wrapper for getEntity in EntityAccessor
-	 *
-	 * @since 0.5
 	 *
 	 * @param string $prefixedEntityId
 	 *
@@ -366,8 +343,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	/**
 	 * Wrapper for getEntityId in WikibaseLuaBindings
 	 *
-	 * @since 0.5
-	 *
 	 * @param string|null $pageTitle
 	 *
 	 * @return array
@@ -379,8 +354,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
 	/**
 	 * Wrapper for getSetting in WikibaseLuaBindings
-	 *
-	 * @since 0.5
 	 *
 	 * @param string $setting
 	 *
@@ -431,8 +404,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	/**
 	 * Wrapper for getLabel in Scribunto_LuaWikibaseLibraryImplementation
 	 *
-	 * @since 0.5
-	 *
 	 * @param string $prefixedEntityId
 	 *
 	 * @return string[]|null[]
@@ -445,8 +416,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
 	/**
 	 * Wrapper for getDescription in Scribunto_LuaWikibaseLibraryImplementation
-	 *
-	 * @since 0.5
 	 *
 	 * @param string $prefixedEntityId
 	 *
@@ -461,8 +430,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	/**
 	 * Wrapper for getSiteLinkPageName in WikibaseLuaBindings
 	 *
-	 * @since 0.5
-	 *
 	 * @param string $prefixedEntityId
 	 *
 	 * @return string[]
@@ -474,8 +441,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
 	/**
 	 * Wrapper for SnakSerializationRenderer::renderSnak, set to output wikitext escaped plain text.
-	 *
-	 * @since 0.5
 	 *
 	 * @param array $snakSerialization
 	 *
@@ -496,8 +461,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	/**
 	 * Wrapper for SnakSerializationRenderer::renderSnak, set to output rich wikitext.
 	 *
-	 * @since 0.5
-	 *
 	 * @param array $snakSerialization
 	 *
 	 * @throws ScribuntoException
@@ -516,8 +479,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
 	/**
 	 * Wrapper for SnakSerializationRenderer::renderSnaks, set to output wikitext escaped plain text.
-	 *
-	 * @since 0.5
 	 *
 	 * @param array[] $snaksSerialization
 	 *
@@ -538,8 +499,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 	/**
 	 * Wrapper for SnakSerializationRenderer::renderSnaks, set to output rich wikitext.
 	 *
-	 * @since 0.5
-	 *
 	 * @param array[] $snaksSerialization
 	 *
 	 * @throws ScribuntoException
@@ -558,8 +517,6 @@ class Scribunto_LuaWikibaseLibrary extends Scribunto_LuaLibraryBase {
 
 	/**
 	 * Wrapper for PropertyIdResolver
-	 *
-	 * @since 0.5
 	 *
 	 * @param string $propertyLabelOrId
 	 *

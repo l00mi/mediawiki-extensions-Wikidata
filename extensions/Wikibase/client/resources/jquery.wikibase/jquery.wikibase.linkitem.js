@@ -10,7 +10,6 @@
  * in client wikis.
  * The widget can take a couple of arguments to make it work on pages and sites other than the
  * current one. All these options default to global state / the current page's attributes.
- * @since 0.4
  *
  * @option mwApiForRep {mediaWiki.Api} A mw.Api instance configured to use the repo's API.
  *
@@ -573,6 +572,7 @@ $.widget( 'wikibase.linkitem', {
 		// Purge this page in the background... we shouldn't confuse the user with the newly added
 		// link(s) not being there:
 		mwApi.post( {
+			formatversion: 2,
 			action: 'purge',
 			titles: this.options.pageTitle
 		} );

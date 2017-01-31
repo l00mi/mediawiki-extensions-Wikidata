@@ -39,8 +39,11 @@ use Wikibase\Client\DataAccess\PropertyParserFunction\StatementGroupRendererFact
 use Wikibase\Client\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\Client\ParserOutput\ClientParserOutputDataUpdater;
 use Wikibase\Client\RecentChanges\RecentChangeFactory;
+use Wikibase\Client\Serializer\ForbiddenSerializer;
+use Wikibase\Client\Store\RepositoryServiceContainerFactory;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\SerializerFactory;
+use Wikibase\DataModel\Services\EntityId\PrefixMappingEntityIdParserFactory;
 use Wikibase\DataModel\Services\Lookup\RestrictedEntityLookup;
 use Wikibase\Client\DataAccess\SnaksFinder;
 use Wikibase\Client\Hooks\LanguageLinkBadgeDisplay;
@@ -71,6 +74,7 @@ use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Lib\FormatterLabelDescriptionLookupFactory;
+use Wikibase\Lib\Serialization\RepositorySpecificDataValueDeserializerFactory;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\Lib\MediaWikiContentLanguages;
@@ -90,13 +94,11 @@ use Wikibase\Lib\WikibaseValueFormatterBuilders;
 use Wikibase\Lib\Interactors\TermIndexSearchInteractor;
 use Wikibase\NamespaceChecker;
 use Wikibase\SettingsArray;
-use Wikibase\SiteLinkCommentCreator;
+use Wikibase\Client\RecentChanges\SiteLinkCommentCreator;
 use Wikibase\StringNormalizer;
 
 /**
  * Top level factory for the WikibaseClient extension.
- *
- * @since 0.4
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -110,19 +112,14 @@ final class WikibaseClient {
 	private $settings;
 
 	/**
-	 * @var Language
-	 */
-	private $contentLanguage;
-
-	/**
 	 * @var SiteLookup
 	 */
 	private $siteLookup;
 
 	/**
-	 * @var DispatchingServiceFactory
+	 * @var EntityDataRetrievalServiceFactory
 	 */
-	private $dispatchingServiceFactory;
+	private $entityDataRetrievalServiceFactory;
 
 	/**
 	 * @var PropertyDataTypeLookup|null
@@ -238,8 +235,6 @@ final class WikibaseClient {
 	 * @warning This is for use with bootstrap code in WikibaseClient.datatypes.php only!
 	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
 	 *
-	 * @since 0.5
-	 *
 	 * @return WikibaseValueFormatterBuilders
 	 */
 	public static function getDefaultValueFormatterBuilders() {
@@ -261,17 +256,15 @@ final class WikibaseClient {
 	 * @return WikibaseValueFormatterBuilders
 	 */
 	private function newWikibaseValueFormatterBuilders() {
-		global $wgLang;
-
 		$entityTitleLookup = new ClientSiteLinkTitleLookup(
 			$this->getStore()->getSiteLinkLookup(),
 			$this->getSettings()->getSetting( 'siteGlobalID' )
 		);
 
 		return new WikibaseValueFormatterBuilders(
-			$this->contentLanguage,
+			$this->getContentLanguage(),
 			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
-			new LanguageNameLookup( $wgLang->getCode() ),
+			new LanguageNameLookup( $this->getUserLanguage()->getCode() ),
 			$this->getRepoItemUriParser(),
 			$entityTitleLookup
 		);
@@ -280,8 +273,6 @@ final class WikibaseClient {
 	/**
 	 * @warning This is for use with bootstrap code in WikibaseClient.datatypes.php only!
 	 * Program logic should use WikibaseClient::getSnakFormatterFactory() instead!
-	 *
-	 * @since 0.5
 	 *
 	 * @return WikibaseSnakFormatterBuilders
 	 */
@@ -318,28 +309,23 @@ final class WikibaseClient {
 
 	/**
 	 * @param SettingsArray $settings
-	 * @param Language $contentLanguage
 	 * @param DataTypeDefinitions $dataTypeDefinitions
 	 * @param EntityTypeDefinitions $entityTypeDefinitions
 	 * @param SiteLookup $siteLookup
 	 */
 	public function __construct(
 		SettingsArray $settings,
-		Language $contentLanguage,
 		DataTypeDefinitions $dataTypeDefinitions,
 		EntityTypeDefinitions $entityTypeDefinitions,
 		SiteLookup $siteLookup
 	) {
 		$this->settings = $settings;
-		$this->contentLanguage = $contentLanguage;
 		$this->dataTypeDefinitions = $dataTypeDefinitions;
 		$this->entityTypeDefinitions = $entityTypeDefinitions;
 		$this->siteLookup = $siteLookup;
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return DataTypeFactory
 	 */
 	public function getDataTypeFactory() {
@@ -351,8 +337,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return EntityIdParser
 	 */
 	public function getEntityIdParser() {
@@ -366,8 +350,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @return EntityIdComposer
 	 */
 	public function getEntityIdComposer() {
@@ -381,17 +363,77 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @return DispatchingServiceFactory
+	 * @return EntityDataRetrievalServiceFactory
 	 */
-	private function getDispatchingServiceFactory() {
-		if ( $this->dispatchingServiceFactory === null ) {
-			$factory = new DispatchingServiceFactory( $this );
+	public function getEntityDataRetrievalServiceFactory() {
+		if ( $this->entityDataRetrievalServiceFactory === null ) {
+			$factory = new DispatchingServiceFactory(
+				$this->getRepositoryServiceContainerFactory(),
+				// FIXME: array_merge trick will no longer be needed once repositry settings are unified, see: T153767.
+				array_merge(
+					[ '' ],
+					array_keys( $this->getSettings()->getSetting( 'foreignRepositories' ) )
+				)
+			);
 			$factory->loadWiringFiles( $this->settings->getSetting( 'dispatchingServiceWiringFiles' ) );
 
-			$this->dispatchingServiceFactory = $factory;
+			$this->entityDataRetrievalServiceFactory = $factory;
 		}
 
-		return $this->dispatchingServiceFactory;
+		return $this->entityDataRetrievalServiceFactory;
+	}
+
+	private function getRepositoryServiceContainerFactory() {
+		$idParserFactory = new PrefixMappingEntityIdParserFactory(
+			$this->getEntityIdParser(),
+			$this->getIdPrefixMaps()
+		);
+
+		return new RepositoryServiceContainerFactory(
+			$idParserFactory,
+			new RepositorySpecificDataValueDeserializerFactory( $idParserFactory ),
+			$this->getRepositoryDatabaseNames(),
+			$this->getSettings()->getSetting( 'repositoryServiceWiringFiles' ),
+			$this
+		);
+	}
+
+	/**
+	 * Returns an associative array mapping names of configured repositories to respective database names
+	 * (either strings or false for local wiki's database).
+	 * Returned map contains an empty string key for a local repository.
+	 *
+	 * @return array
+	 */
+	private function getRepositoryDatabaseNames() {
+		// FIXME: t no longer be needed to check different settings (repoDatabase vs foreignRepositories
+		// once repositry settings are unified, see: T153767.
+		$databaseNames = [ '' => $this->getSettings()->getSetting( 'repoDatabase' ) ];
+
+		foreach ( $this->getSettings()->getSetting( 'foreignRepositories' )
+			as $repositoryName => $repositorySettings
+		) {
+			$databaseNames[$repositoryName] = $repositorySettings['repoDatabase'];
+		}
+
+		return $databaseNames;
+	}
+
+	/**
+	 * Returns a map of id prefix mappings defined for configured foreign repositories.
+	 *
+	 * @return array[] Associative array mapping repository names to repository-specific prefix mapping.
+	 */
+	private function getIdPrefixMaps() {
+		$mappings = [];
+		foreach ( $this->getSettings()->getSetting( 'foreignRepositories' )
+			as $repositoryName => $repositorySettings
+		) {
+			if ( array_key_exists( 'prefixMapping', $repositorySettings ) ) {
+				$mappings[$repositoryName] = $repositorySettings['prefixMapping'];
+			}
+		}
+		return $mappings;
 	}
 
 	/**
@@ -420,7 +462,7 @@ final class WikibaseClient {
 	 */
 	private function getPrefetchingTermLookup() {
 		if ( !$this->termLookup ) {
-			$this->termLookup = $this->getDispatchingServiceFactory()->getTermBuffer();
+			$this->termLookup = $this->getEntityDataRetrievalServiceFactory()->getTermBuffer();
 		}
 
 		return $this->termLookup;
@@ -443,8 +485,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return PropertyDataTypeLookup
 	 */
 	public function getPropertyDataTypeLookup() {
@@ -458,8 +498,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return StringNormalizer
 	 */
 	public function getStringNormalizer() {
@@ -471,8 +509,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return RepoLinker
 	 */
 	public function newRepoLinker() {
@@ -488,8 +524,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return LanguageFallbackChainFactory
 	 */
 	public function getLanguageFallbackChainFactory() {
@@ -501,8 +535,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @return LanguageFallbackLabelDescriptionLookupFactory
 	 */
 	public function getLanguageFallbackLabelDescriptionLookupFactory() {
@@ -515,8 +547,6 @@ final class WikibaseClient {
 
 	/**
 	 * Returns an instance of the default store.
-	 *
-	 * @since 0.1
 	 *
 	 * @throws Exception
 	 * @return ClientStore
@@ -533,9 +563,9 @@ final class WikibaseClient {
 				$this->getEntityIdParser(),
 				$this->getEntityIdComposer(),
 				$this->getEntityNamespaceLookup(),
-				$this->getDispatchingServiceFactory(),
+				$this->getEntityDataRetrievalServiceFactory(),
 				$repoDatabase,
-				$this->contentLanguage->getCode()
+				$this->getContentLanguage()->getCode()
 			);
 		}
 
@@ -577,17 +607,34 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return Language
 	 */
 	public function getContentLanguage() {
-		return $this->contentLanguage;
+		global $wgContLang;
+
+		// TODO: define a LanguageProvider service instead of using a global directly.
+		// NOTE: we cannot inject $wgContLang in the constructor, because it may still be null
+		// when WikibaseClient is initialized. In particular, the language object may not yet
+		// be there when the SetupAfterCache hook is run during bootstrapping.
+		StubObject::unstub( $wgContLang );
+		return $wgContLang;
 	}
 
 	/**
-	 * @since 0.4
-	 *
+	 * @return Language
+	 */
+	private function getUserLanguage() {
+		global $wgLang;
+
+		// TODO: define a LanguageProvider service instead of using a global directly.
+		// NOTE: we cannot inject $wgLang in the constructor, because it may still be null
+		// when WikibaseClient is initialized. In particular, the language object may not yet
+		// be there when the SetupAfterCache hook is run during bootstrapping.
+		StubObject::unstub( $wgLang );
+		return $wgLang;
+	}
+
+	/**
 	 * @return SettingsArray
 	 */
 	public function getSettings() {
@@ -619,7 +666,7 @@ final class WikibaseClient {
 	 * @return WikibaseClient
 	 */
 	private static function newInstance() {
-		global $wgContLang, $wgWBClientSettings, $wgWBClientDataTypes, $wgWBClientEntityTypes;
+		global $wgWBClientSettings, $wgWBClientDataTypes, $wgWBClientEntityTypes;
 
 		if ( !is_array( $wgWBClientDataTypes ) || !is_array( $wgWBClientEntityTypes ) ) {
 			throw new MWException( '$wgWBClientDataTypes and $wgWBClientEntityTypes must be arrays. '
@@ -636,7 +683,6 @@ final class WikibaseClient {
 
 		return new self(
 			$settings,
-			$wgContLang,
 			new DataTypeDefinitions(
 				$dataTypeDefinitions,
 				$settings->getSetting( 'disabledDataTypes' )
@@ -648,8 +694,6 @@ final class WikibaseClient {
 
 	/**
 	 * IMPORTANT: Use only when it is not feasible to inject an instance properly.
-	 *
-	 * @since 0.4
 	 *
 	 * @param string $reset Flag: Pass "reset" to reset the default instance
 	 *
@@ -873,16 +917,14 @@ final class WikibaseClient {
 	 * @return LanguageLinkBadgeDisplay
 	 */
 	public function getLanguageLinkBadgeDisplay() {
-		global $wgLang;
-		StubObject::unstub( $wgLang );
-
 		$labelDescriptionLookupFactory = $this->getLanguageFallbackLabelDescriptionLookupFactory();
 		$badgeClassNames = $this->settings->getSetting( 'badgeClassNames' );
+		$lang = $this->getUserLanguage();
 
 		return new LanguageLinkBadgeDisplay(
-			$labelDescriptionLookupFactory->newLabelDescriptionLookup( $wgLang ),
+			$labelDescriptionLookupFactory->newLabelDescriptionLookup( $lang ),
 			is_array( $badgeClassNames ) ? $badgeClassNames : array(),
-			$wgLang
+			$lang
 		);
 	}
 
@@ -1007,8 +1049,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @return OtherProjectsSidebarGeneratorFactory
 	 */
 	public function getOtherProjectsSidebarGeneratorFactory() {
@@ -1020,8 +1060,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @return EntityChangeFactory
 	 */
 	public function getEntityChangeFactory() {
@@ -1038,8 +1076,6 @@ final class WikibaseClient {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @return EntityDiffer
 	 */
 	public function getEntityDiffer() {
@@ -1177,18 +1213,11 @@ final class WikibaseClient {
 	private function getRecentChangeFactory() {
 		return new RecentChangeFactory(
 			$this->getContentLanguage(),
-			$this->getSiteLinkCommentCreator()
-		);
-	}
-
-	/**
-	 * @return SiteLinkCommentCreator
-	 */
-	private function getSiteLinkCommentCreator() {
-		return new SiteLinkCommentCreator(
-			$this->getContentLanguage(),
-			$this->siteLookup,
-			$this->settings->getSetting( 'siteGlobalID' )
+			new SiteLinkCommentCreator(
+				$this->getContentLanguage(),
+				$this->siteLookup,
+				$this->settings->getSetting( 'siteGlobalID' )
+			)
 		);
 	}
 

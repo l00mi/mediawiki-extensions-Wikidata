@@ -8,15 +8,7 @@ use Language;
  * Service for looking up language names based on MediaWiki's Language
  * class.
  *
- * @since 0.5
- *
  * @license GPL-2.0+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Tobias Gritschacher
- * @author Jens Ohlig < jens.ohlig@wikimedia.de >
- * @author John Erling Blad < jeblad@gmail.com >
- * @author Marius Hoch < hoo@online.de >
- * @author Thiemo Mättig
  */
 class LanguageNameLookup {
 

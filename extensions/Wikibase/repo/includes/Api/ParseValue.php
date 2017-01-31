@@ -27,8 +27,6 @@ use Wikibase\Repo\WikibaseRepo;
 /**
  * API module for using value parsers.
  *
- * @since 0.1
- *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
@@ -67,29 +65,20 @@ class ParseValue extends ApiBase {
 	private $errorReporter;
 
 	/**
+	 * @see ApiBase::__construct
+	 *
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
-	 * @param string $modulePrefix
-	 *
-	 * @see ApiBase::__construct
+	 * @param DataTypeFactory $dataTypeFactory
+	 * @param ValueParserFactory $valueParserFactory
+	 * @param DataTypeValidatorFactory $dataTypeValidatorFactory
+	 * @param ExceptionLocalizer $exceptionLocalizer
+	 * @param ValidatorErrorLocalizer $validatorErrorLocalizer
+	 * @param ApiErrorReporter $errorReporter
 	 */
-	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
-		parent::__construct( $mainModule, $moduleName, $modulePrefix );
-
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
-
-		$this->setServices(
-			$wikibaseRepo->getDataTypeFactory(),
-			$wikibaseRepo->getValueParserFactory(),
-			$wikibaseRepo->getDataTypeValidatorFactory(),
-			$wikibaseRepo->getExceptionLocalizer(),
-			$wikibaseRepo->getValidatorErrorLocalizer(),
-			$apiHelperFactory->getErrorReporter( $this )
-		);
-	}
-
-	public function setServices(
+	public function __construct(
+		ApiMain $mainModule,
+		$moduleName,
 		DataTypeFactory $dataTypeFactory,
 		ValueParserFactory $valueParserFactory,
 		DataTypeValidatorFactory $dataTypeValidatorFactory,
@@ -97,6 +86,7 @@ class ParseValue extends ApiBase {
 		ValidatorErrorLocalizer $validatorErrorLocalizer,
 		ApiErrorReporter $errorReporter
 	) {
+		parent::__construct( $mainModule, $moduleName );
 		$this->dataTypeFactory = $dataTypeFactory;
 		$this->valueParserFactory = $valueParserFactory;
 		$this->dataTypeValidatorFactory = $dataTypeValidatorFactory;
@@ -107,8 +97,6 @@ class ParseValue extends ApiBase {
 
 	/**
 	 * @see ApiBase::execute
-	 *
-	 * @since 0.1
 	 */
 	public function execute() {
 		$this->getMain()->setCacheMode( 'public' );

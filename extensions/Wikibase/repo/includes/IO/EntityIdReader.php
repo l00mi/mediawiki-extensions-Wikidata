@@ -7,7 +7,6 @@ use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\Lib\Reporting\ExceptionHandler;
 use Wikibase\Lib\Reporting\RethrowingExceptionHandler;
-use Wikibase\Repo\Disposable;
 use Wikibase\DataModel\Services\EntityId\EntityIdPager;
 
 /**
@@ -16,7 +15,7 @@ use Wikibase\DataModel\Services\EntityId\EntityIdPager;
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
-class EntityIdReader implements EntityIdPager, Disposable {
+class EntityIdReader implements EntityIdPager {
 
 	/**
 	 * @var LineReader
@@ -132,8 +131,6 @@ class EntityIdReader implements EntityIdPager, Disposable {
 	 *
 	 * @note: After some finite number of calls, this method should eventually return
 	 * an empty list of IDs, indicating that no more IDs are available.
-	 *
-	 * @since 0.5
 	 *
 	 * @param int $limit The maximum number of IDs to return.
 	 *

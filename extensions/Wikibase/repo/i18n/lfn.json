@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Katxis",
+			"Cgboeree"
+		]
+	},
+	"wikibase-edit": "edita",
+	"wikibase-add": "ajunta",
+	"wikibase-label-empty": "No eticeta definada",
+	"wikibase-description-empty": "No descrive es definada",
+	"wikibase-sitelinks-special": "Otra locas",
+	"wikibase-statementview-rank-normal": "Grado normal"
+}

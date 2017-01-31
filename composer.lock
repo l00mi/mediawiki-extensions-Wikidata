@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "97028a6353847a3c2aa9fc6c5c3e0e39",
-    "content-hash": "42583e1e1585f6e109e096c26ab6c300",
+    "hash": "e7e1eed1354cfc02367fc51c3e7ef5df",
+    "content-hash": "6fbe168e5ce47289257e29ea05b1e6bf",
     "packages": [
         {
             "name": "composer/installers",
@@ -800,12 +800,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "0b10c4488f2ba46ee33e4a3fc124645355a74b94"
+                "reference": "0d501a74c7309889f9c4349002812916279f3312"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/0b10c4488f2ba46ee33e4a3fc124645355a74b94",
-                "reference": "0b10c4488f2ba46ee33e4a3fc124645355a74b94",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/0d501a74c7309889f9c4349002812916279f3312",
+                "reference": "0d501a74c7309889f9c4349002812916279f3312",
                 "shasum": ""
             },
             "require-dev": {
@@ -830,7 +830,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2017-01-11 22:10:10"
+            "time": "2017-01-26 10:16:01"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -941,7 +941,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikidata.org",
-                "reference": "93892fd220415dadfcc51665dd2ff6c107ff1f3a"
+                "reference": "429dac7e49034812c6885c658b82f61efaf7244a"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -985,7 +985,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2016-12-28 12:14:31"
+            "time": "2017-01-28 21:57:59"
         },
         {
             "name": "wikibase/constraints",
@@ -1482,16 +1482,16 @@
         },
         {
             "name": "wikibase/wikibase",
-            "version": "dev-wmf/1.29.0-wmf.8",
+            "version": "dev-wmf/1.29.0-wmf.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "e1e53e4eb9e09b15d71e7085b5cb5954f17b9bdd"
+                "reference": "94e565ac3894a9e95d5f9538b04432c74cf68ac9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/e1e53e4eb9e09b15d71e7085b5cb5954f17b9bdd",
-                "reference": "e1e53e4eb9e09b15d71e7085b5cb5954f17b9bdd",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/94e565ac3894a9e95d5f9538b04432c74cf68ac9",
+                "reference": "94e565ac3894a9e95d5f9538b04432c74cf68ac9",
                 "shasum": ""
             },
             "require": {
@@ -1566,7 +1566,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2017-01-16 16:26:27"
+            "time": "2017-01-30 21:52:42"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1657,11 +1657,11 @@
         },
         {
             "name": "wikimedia/purtle",
-            "version": "v1.0.4",
+            "version": "v1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/p/purtle",
-                "reference": "da47ef5604de0142c6ae50166aa2882eb0ab7029"
+                "reference": "4fd41eb7d8db551c0c4895fd1a917240907d7244"
             },
             "require": {
                 "php": ">=5.5.0"
@@ -1709,7 +1709,7 @@
                 "Turtle",
                 "serializer"
             ],
-            "time": "2016-09-15 19:15:28"
+            "time": "2017-01-18 22:22:55"
         }
     ],
     "packages-dev": null,

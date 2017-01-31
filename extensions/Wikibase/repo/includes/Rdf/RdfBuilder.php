@@ -10,15 +10,14 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
-use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\DataModel\Term\DescriptionsProvider;
+use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikimedia\Purtle\RdfWriter;
 
 /**
  * RDF mapping for wikibase data model.
- *
- * @since 0.4
  *
  * @license GPL-2.0+
  * @author Anja Jentzsch < anja.jentzsch@wikimedia.de >
@@ -522,14 +521,14 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	private function addEntityStub( EntityDocument $entity ) {
 		$this->addEntityMetaData( $entity );
 
-		if ( $entity instanceof FingerprintProvider ) {
-			$fingerprint = $entity->getFingerprint();
+		$entityLName = $this->vocabulary->getEntityLName( $entity->getId() );
 
-			/** @var EntityDocument $entity */
-			$entityLName = $this->vocabulary->getEntityLName( $entity->getId() );
+		if ( $entity instanceof LabelsProvider ) {
+			$this->termsBuilder->addLabels( $entityLName, $entity->getLabels() );
+		}
 
-			$this->termsBuilder->addLabels( $entityLName, $fingerprint->getLabels() );
-			$this->termsBuilder->addDescriptions( $entityLName, $fingerprint->getDescriptions() );
+		if ( $entity instanceof DescriptionsProvider ) {
+			$this->termsBuilder->addDescriptions( $entityLName, $entity->getDescriptions() );
 		}
 	}
 

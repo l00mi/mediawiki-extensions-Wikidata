@@ -33,7 +33,6 @@ use Wikibase\Repo\Validators\EntityValidator;
 use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\TermIndex;
-use Wikibase\Updates\DataUpdateAdapter;
 
 /**
  * Base handler class for Entity content classes.
@@ -144,8 +143,6 @@ abstract class EntityHandler extends ContentHandler {
 	/**
 	 * Returns the name of the EntityContent deriving class.
 	 *
-	 * @since 0.3
-	 *
 	 * @return string
 	 */
 	abstract protected function getContentClass();
@@ -232,8 +229,6 @@ abstract class EntityHandler extends ContentHandler {
 	 * @note The Entity returned here will not have an ID set, and is thus not
 	 * suitable for use in an EntityContent object.
 	 *
-	 * @since 0.5
-	 *
 	 * @return EntityDocument
 	 */
 	abstract public function makeEmptyEntity();
@@ -245,8 +240,6 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @see makeRedirectContent()
 	 * @see supportsRedirects()
-	 *
-	 * @since 0.5
 	 *
 	 * @param EntityRedirect $redirect
 	 *
@@ -268,8 +261,6 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @see makeRedirectContent()
 	 * @see makeEntityRedirectContent()
-	 *
-	 * @since 0.5
 	 *
 	 * @return bool
 	 */
@@ -309,8 +300,6 @@ abstract class EntityHandler extends ContentHandler {
 
 	/**
 	 * @see ContentHandler::makeParserOptions
-	 *
-	 * @since 0.5
 	 *
 	 * @param IContextSource|User|string $context
 	 *
@@ -362,8 +351,6 @@ abstract class EntityHandler extends ContentHandler {
 
 	/**
 	 * Creates a Content object for the given Entity object.
-	 *
-	 * @since 0.5
 	 *
 	 * @param EntityHolder $entityHolder
 	 *
@@ -455,8 +442,6 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @warn This should not really be needed and may just go away!
 	 *
-	 * @since 0.5
-	 *
 	 * @param Title $target
 	 *
 	 * @throws EntityIdParsingException
@@ -470,8 +455,6 @@ abstract class EntityHandler extends ContentHandler {
 	 * Returns the appropriate page Title for the given EntityId.
 	 *
 	 * @warn This should not really be needed and may just go away!
-	 *
-	 * @since 0.5
 	 *
 	 * @see EntityTitleStoreLookup::getTitleForId
 	 *
@@ -579,8 +562,6 @@ abstract class EntityHandler extends ContentHandler {
 	 * for this type of entity content.
 	 * Returns null if there is no such special page.
 	 *
-	 * @since 0.2
-	 *
 	 * @return string|null Always null in this default implementation.
 	 */
 	public function getSpecialPageForCreation() {
@@ -589,8 +570,6 @@ abstract class EntityHandler extends ContentHandler {
 
 	/**
 	 * @see ContentHandler::getUndoContent
-	 *
-	 * @since 0.4
 	 *
 	 * @param Revision $latestRevision The current text
 	 * @param Revision $newerRevision The revision to undo
@@ -650,8 +629,6 @@ abstract class EntityHandler extends ContentHandler {
 	 *
 	 * @see Content::getDeletionUpdates
 	 *
-	 * @since 0.5
-	 *
 	 * @param EntityContent $content
 	 * @param Title $title
 	 *
@@ -690,8 +667,6 @@ abstract class EntityHandler extends ContentHandler {
 	 * Returns modification updates for the given EntityContent.
 	 *
 	 * @see Content::getSecondaryDataUpdates
-	 *
-	 * @since 0.5
 	 *
 	 * @param EntityContent $content
 	 * @param Title $title

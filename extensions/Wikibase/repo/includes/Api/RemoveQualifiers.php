@@ -4,6 +4,7 @@ namespace Wikibase\Repo\Api;
 
 use ApiBase;
 use ApiMain;
+use ApiUsageException;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOps;
@@ -14,8 +15,6 @@ use Wikibase\Repo\WikibaseRepo;
 
 /**
  * API module for removing qualifiers from a statement.
- *
- * @since 0.3
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -82,8 +81,6 @@ class RemoveQualifiers extends ApiBase {
 
 	/**
 	 * @see ApiBase::execute
-	 *
-	 * @since 0.3
 	 */
 	public function execute() {
 		$params = $this->extractRequestParams();

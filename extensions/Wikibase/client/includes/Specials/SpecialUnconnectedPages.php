@@ -17,8 +17,6 @@ use Wikibase\NamespaceChecker;
 /**
  * List client pages that are not connected to repository items.
  *
- * @since 0.4
- *
  * @license GPL-2.0+
  * @author John Erling Blad < jeblad@gmail.com >
  * @author Amir Sarabadani < ladsgroup@gmail.com >
@@ -64,8 +62,6 @@ class SpecialUnconnectedPages extends QueryPage {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @param NamespaceChecker $namespaceChecker
 	 */
 	public function setNamespaceChecker( NamespaceChecker $namespaceChecker ) {
@@ -73,8 +69,6 @@ class SpecialUnconnectedPages extends QueryPage {
 	}
 
 	/**
-	 * @since 0.4
-	 *
 	 * @return NamespaceChecker
 	 */
 	public function getNamespaceChecker() {
@@ -92,8 +86,6 @@ class SpecialUnconnectedPages extends QueryPage {
 
 	/**
 	 * Build conditionals for namespace
-	 *
-	 * @since 0.4
 	 *
 	 * @param Database $dbr
 	 * @param Title|null $title
@@ -128,7 +120,7 @@ class SpecialUnconnectedPages extends QueryPage {
 	 * @return array[]
 	 */
 	public function getQueryInfo() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		$conds = $this->buildConditionals( $dbr );
 		$conds['page_is_redirect'] = 0;

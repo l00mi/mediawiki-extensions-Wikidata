@@ -7,14 +7,12 @@ use OutputPage;
 use PHPUnit_Framework_TestCase;
 use Title;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\ItemIdParser;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Hooks\OutputPageEntityIdReader;
 
 /**
  * @covers Wikibase\Repo\Hooks\OutputPageEntityIdReader
- *
- * @since 0.5
  *
  * @group Wikibase
  *
@@ -38,7 +36,7 @@ class OutputPageEntityIdReaderTest extends PHPUnit_Framework_TestCase {
 
 		$outputPageEntityIdReader = new OutputPageEntityIdReader(
 			$entityContentFactory,
-			new BasicEntityIdParser()
+			new ItemIdParser()
 		);
 
 		$this->assertEquals(

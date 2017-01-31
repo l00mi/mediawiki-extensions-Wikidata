@@ -15,15 +15,7 @@ use Wikibase\Lib\Store\SiteLinkLookup;
 /**
  * Runner for the {{#property|…}} and {{#statements|…}} parser functions.
  *
- * @since 0.4
- *
  * @license GPL-2.0+
- * @author Katie Filbert < aude.wiki@gmail.com >
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Daniel Kinzler
- * @author Liangent < liangent@gmail.com >
- * @author Marius Hoch < hoo@online.de >
- * @author Thiemo Mättig
  */
 class Runner {
 
@@ -179,8 +171,6 @@ class Runner {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param Parser $parser
 	 * @param PPFrame $frame
 	 * @param array $args
@@ -193,8 +183,6 @@ class Runner {
 	}
 
 	/**
-	 * @since 0.5
-	 *
 	 * @param Parser $parser
 	 * @param PPFrame $frame
 	 * @param array $args

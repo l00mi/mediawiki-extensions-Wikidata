@@ -16,8 +16,6 @@ use Wikibase\Summary;
 /**
  * Page for creating new Wikibase properties.
  *
- * @since 0.2
- *
  * @license GPL-2.0+
  * @author John Erling Blad < jeblad@gmail.com >
  */
@@ -28,9 +26,6 @@ class SpecialNewProperty extends SpecialNewEntity {
 	const FIELD_DESCRIPTION = 'description';
 	const FIELD_ALIASES = 'aliases';
 
-	/**
-	 * @since 0.2
-	 */
 	public function __construct( SpecialPageCopyrightView $specialPageCopyrightView ) {
 		parent::__construct( 'NewProperty', 'property-create', $specialPageCopyrightView );
 	}
@@ -56,11 +51,10 @@ class SpecialNewProperty extends SpecialNewEntity {
 
 		$property = Property::newFromType( $formData[ self::FIELD_DATATYPE ] );
 
-		$fingerprint = $property->getFingerprint();
-		$fingerprint->setLabel( $languageCode, $formData[ self::FIELD_LABEL ] );
-		$fingerprint->setDescription( $languageCode, $formData[ self::FIELD_DESCRIPTION ] );
+		$property->setLabel( $languageCode, $formData[ self::FIELD_LABEL ] );
+		$property->setDescription( $languageCode, $formData[ self::FIELD_DESCRIPTION ] );
 
-		$fingerprint->setAliasGroup( $languageCode, $formData[ self::FIELD_ALIASES ] );
+		$property->setAliases( $languageCode, $formData[ self::FIELD_ALIASES ] );
 
 		return $property;
 	}
@@ -82,8 +76,6 @@ class SpecialNewProperty extends SpecialNewEntity {
 	 * @return array[]
 	 */
 	protected function getFormFields() {
-		$langCode = $this->getLanguage()->getCode();
-
 		$formFields = [
 			self::FIELD_LANG => [
 				'name' => self::FIELD_LANG,
@@ -190,9 +182,9 @@ class SpecialNewProperty extends SpecialNewEntity {
 		$summary = new Summary( 'wbeditentity', 'create' );
 		$summary->setLanguage( $uiLanguageCode );
 		/** @var Term|null $labelTerm */
-		$labelTerm = $property->getFingerprint()->getLabels()->getIterator()->current();
+		$labelTerm = $property->getLabels()->getIterator()->current();
 		/** @var Term|null $descriptionTerm */
-		$descriptionTerm = $property->getFingerprint()->getDescriptions()->getIterator()->current();
+		$descriptionTerm = $property->getDescriptions()->getIterator()->current();
 		$summary->addAutoSummaryArgs(
 			$labelTerm ? $labelTerm->getText() : '',
 			$descriptionTerm ? $descriptionTerm->getText() : ''

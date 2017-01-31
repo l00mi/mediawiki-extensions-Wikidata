@@ -6,8 +6,6 @@ namespace Wikibase;
  * Utility class for collecting dispatch statistics.
  * Note that you must call load() before accessing any getters.
  *
- * @since 0.4
- *
  * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Thiemo Mättig
@@ -38,7 +36,7 @@ class DispatchStats {
 	 * @return int the number of client wikis.
 	 */
 	public function load( $now = 0 ) {
-		$db = wfGetDB( DB_SLAVE ); // XXX: use master?
+		$db = wfGetDB( DB_REPLICA ); // XXX: use master?
 
 		$now = wfTimestamp( TS_UNIX, $now );
 

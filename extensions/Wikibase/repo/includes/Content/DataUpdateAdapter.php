@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikibase\Updates;
+namespace Wikibase\Repo\Content;
 
 use DataUpdate;
 use Exception;
@@ -12,8 +12,6 @@ use Wikibase\Lib\Reporting\LogWarningExceptionHandler;
  * A generic DataUpdate based on a callable passed to the constructor.
  * Together with any additional parameters provided to the constructor an
  * instance of this methods constitutes a closure for a call to the callable.
- *
- * @since 0.5
  *
  * @todo Propose for MediaWiki core.
  *

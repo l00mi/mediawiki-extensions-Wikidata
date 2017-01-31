@@ -20,7 +20,7 @@ use Wikibase\DataModel\Services\Lookup\EntityRedirectLookupException;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookupException;
 use Wikibase\DataModel\SiteLink;
-use Wikibase\DataModel\Term\FingerprintProvider;
+use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityInfoBuilderFactory;
 use Wikibase\Lib\Store\EntityRevisionLookup;
@@ -38,8 +38,6 @@ use Wikibase\RedirectRevision;
  * test double are very high, so it is good to avoid binding to it.
  *
  * Mock repository for use in tests.
- *
- * @since 0.4
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler
@@ -118,7 +116,6 @@ class MockRepository implements
 	}
 
 	/**
-	 * @since 0.4
 	 * @see EntityRevisionLookup::getEntityRevision
 	 *
 	 * @param EntityId $entityId
@@ -178,8 +175,6 @@ class MockRepository implements
 
 	/**
 	 * See EntityLookup::hasEntity()
-	 *
-	 * @since 0.4
 	 *
 	 * @param EntityId $entityId
 	 *
@@ -367,17 +362,15 @@ class MockRepository implements
 	/**
 	 * Fetches the entities with provided ids and returns them.
 	 * The result array contains the prefixed entity ids as keys.
-	 * The values are either an Entity or null, if there is no entity with the associated id.
+	 * The values are either an EntityDocument or null, if there is no entity with the associated id.
 	 *
 	 * The revisions can be specified as an array holding an integer element for each
 	 * id in the $entityIds array or false for latest. If all should be latest, false
 	 * can be provided instead of an array.
 	 *
-	 * @since 0.4
-	 *
 	 * @param EntityId[] $entityIds
 	 *
-	 * @return EntityDocument|null[]
+	 * @return EntityDocument[]|null[]
 	 */
 	public function getEntities( array $entityIds ) {
 		$entities = array();
@@ -420,11 +413,11 @@ class MockRepository implements
 
 			$property = $this->getEntity( $propertyId );
 
-			if ( !( $property instanceof FingerprintProvider ) ) {
+			if ( !( $property instanceof LabelsProvider ) ) {
 				continue;
 			}
 
-			$labels = $property->getFingerprint()->getLabels();
+			$labels = $property->getLabels();
 
 			if ( $labels->hasTermForLanguage( $languageCode )
 				&& $labels->getByLanguage( $languageCode )->getText() === $propertyLabel
@@ -447,8 +440,6 @@ class MockRepository implements
 
 	/**
 	 * @see PropertyDataTypeLookup::getDataTypeIdForProperty
-	 *
-	 * @since 0.5
 	 *
 	 * @param PropertyId $propertyId
 	 *
@@ -725,8 +716,6 @@ class MockRepository implements
 	/**
 	 * Returns the IDs that redirect to (are aliases of) the given target entity.
 	 *
-	 * @since 0.5
-	 *
 	 * @param EntityId $targetId
 	 *
 	 * @return EntityId[]
@@ -746,8 +735,6 @@ class MockRepository implements
 
 	/**
 	 * Returns the redirect target associated with the given redirect ID.
-	 *
-	 * @since 0.5
 	 *
 	 * @param EntityId $entityId
 	 * @param string $forUpdate

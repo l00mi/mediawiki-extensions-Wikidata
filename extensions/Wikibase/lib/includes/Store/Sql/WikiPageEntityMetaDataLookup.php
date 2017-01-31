@@ -18,8 +18,6 @@ use Wikibase\Lib\Store\EntityRevisionLookup;
  * loading entities from WikiPages (via Revision) or to verify an entity against
  * page.page_latest.
  *
- * @since 0.5
- *
  * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Marius Hoch < hoo@online.de >
@@ -78,7 +76,7 @@ class WikiPageEntityMetaDataLookup extends DBAccessBase implements WikiPageEntit
 		}
 
 		if ( $mode !== EntityRevisionLookup::LATEST_FROM_MASTER ) {
-			$rows = $this->selectRevisionInformationMultiple( $entityIds, DB_SLAVE );
+			$rows = $this->selectRevisionInformationMultiple( $entityIds, DB_REPLICA );
 		}
 
 		if ( $mode !== EntityRevisionLookup::LATEST_FROM_SLAVE ) {
@@ -125,7 +123,7 @@ class WikiPageEntityMetaDataLookup extends DBAccessBase implements WikiPageEntit
 			);
 		}
 
-		$row = $this->selectRevisionInformationById( $entityId, $revisionId, DB_SLAVE );
+		$row = $this->selectRevisionInformationById( $entityId, $revisionId, DB_REPLICA );
 
 		if ( !$row && $mode !== EntityRevisionLookup::LATEST_FROM_SLAVE ) {
 			// Try loading from master, unless the caller only wants slave data.
@@ -170,7 +168,7 @@ class WikiPageEntityMetaDataLookup extends DBAccessBase implements WikiPageEntit
 	 *
 	 * @param EntityId $entityId The entity to query the DB for.
 	 * @param int $revisionId The desired revision id
-	 * @param int $connType DB_SLAVE or DB_MASTER
+	 * @param int $connType DB_REPLICA or DB_MASTER
 	 *
 	 * @throws DBQueryError If the query fails.
 	 * @return stdClass|bool a raw database row object, or false if no such entity revision exists.
@@ -205,7 +203,7 @@ class WikiPageEntityMetaDataLookup extends DBAccessBase implements WikiPageEntit
 	 * Returns an array like entityid -> object or false (if not found).
 	 *
 	 * @param EntityId[] $entityIds The entities to query the DB for.
-	 * @param int $connType DB_SLAVE or DB_MASTER
+	 * @param int $connType DB_REPLICA or DB_MASTER
 	 *
 	 * @throws DBQueryError If the query fails.
 	 * @return array Array of entity id serialization => object or false (if not found).

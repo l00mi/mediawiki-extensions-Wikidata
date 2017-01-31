@@ -9,7 +9,7 @@ use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\Entity\ItemId;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\ItemIdParser;
 use Wikibase\Repo\Store\Sql\EntityPerPageTable;
 
 /**
@@ -72,7 +72,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 
 		$epp = new EntityPerPageTable(
 			$loadBalancer,
-			new BasicEntityIdParser()
+			new ItemIdParser()
 		);
 		$epp->addEntityPage( $entityId, 123 );
 
@@ -99,7 +99,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 	private function newEntityPerPageTable( array $entities = array(), array $redirects = array() ) {
 		$table = new EntityPerPageTable(
 			MediaWikiServices::getInstance()->getDBLoadBalancer(),
-			new BasicEntityIdParser()
+			new ItemIdParser()
 		);
 		$table->clear();
 
@@ -117,7 +117,7 @@ class EntityPerPageTableTest extends \MediaWikiTestCase {
 	}
 
 	private function getPageIdForEntityId( EntityId $entityId ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		$row = $dbr->selectRow(
 			'wb_entity_per_page',

@@ -19,8 +19,6 @@ use Wikibase\Store\EntityIdLookup;
 /**
  * @covers Wikibase\Repo\Hooks\LabelPrefetchHookHandlers
  *
- * @since 0.5
- *
  * @group Wikibase
  * @group Database
  *        ^--- who knows what ChangesList may do internally...
@@ -135,8 +133,8 @@ class LabelPrefetchHookHandlersTest extends \PHPUnit_Framework_TestCase {
 
 		/** @var ChangesList $changesList */
 		$changesList = $this->getMockBuilder( ChangesList::class )
-		->disableOriginalConstructor()
-		->getMock();
+			->disableOriginalConstructor()
+			->getMock();
 
 		$linkBeginHookHandler->doChangesListInitRows(
 			$changesList,

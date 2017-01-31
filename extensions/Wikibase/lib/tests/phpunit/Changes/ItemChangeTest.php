@@ -5,8 +5,6 @@ namespace Wikibase\Lib\Tests\Changes;
 use Diff\DiffOp\Diff\Diff;
 use Diff\DiffOp\DiffOpChange;
 use Exception;
-use Wikibase\DataModel\Entity\EntityDocument;
-use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Services\Diff\ItemDiff;
 use Wikibase\EntityChange;
 use Wikibase\ItemChange;
@@ -14,8 +12,6 @@ use Wikibase\ItemChange;
 /**
  * @covers Wikibase\ItemChange
  * @covers Wikibase\DiffChange
- *
- * @since 0.3
  *
  * @group Database
  * @group Wikibase
@@ -27,27 +23,10 @@ use Wikibase\ItemChange;
 class ItemChangeTest extends EntityChangeTest {
 
 	/**
-	 * @since 0.4
 	 * @return string
 	 */
 	protected function getRowClass() {
 		return ItemChange::class;
-	}
-
-	public function entityProvider() {
-		$items = array_filter(
-			TestChanges::getEntities(),
-			function( EntityDocument $entity ) {
-				return $entity instanceof Item;
-			}
-		);
-
-		return array_map(
-			function( Item $item ) {
-				return array( $item );
-			},
-			$items
-		);
 	}
 
 	public function itemChangeProvider() {

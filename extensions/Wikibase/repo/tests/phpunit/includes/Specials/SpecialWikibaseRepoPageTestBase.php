@@ -12,7 +12,7 @@ use TestSites;
 use Title;
 use ValueFormatters\ValueFormatter;
 use Wikibase\DataModel\Entity\EntityId;
-use Wikibase\DataModel\Entity\BasicEntityIdParser;
+use Wikibase\DataModel\Entity\ItemIdParser;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Services\EntityId\PlainEntityIdFormatter;
@@ -27,8 +27,6 @@ use Wikibase\SummaryFormatter;
 use Wikibase\Lib\Tests\MockRepository;
 
 /**
- * @since 0.5
- *
  * @license GPL-2.0+
  * @author Daniel Kinzler
  */
@@ -174,7 +172,7 @@ abstract class SpecialWikibaseRepoPageTestBase extends SpecialPageTestBase {
 	 * @return EntityIdParser
 	 */
 	protected function getIdParser() {
-		return new BasicEntityIdParser();
+		return new ItemIdParser();
 	}
 
 }

@@ -5,7 +5,6 @@ namespace Wikibase\Repo\Specials;
 use Html;
 use InvalidArgumentException;
 use Language;
-use SiteLookup;
 use Wikibase\ChangeOp\ChangeOp;
 use Wikibase\ChangeOp\ChangeOpException;
 use Wikibase\ChangeOp\ChangeOps;
@@ -24,8 +23,6 @@ use Wikibase\SummaryFormatter;
 /**
  * Special page for setting label, description and aliases of a Wikibase entity that features
  * labels, descriptions and aliases.
- *
- * @since 0.5
  *
  * @license GPL-2.0+
  * @author Thiemo Mättig

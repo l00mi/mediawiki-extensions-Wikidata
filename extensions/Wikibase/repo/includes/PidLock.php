@@ -5,15 +5,7 @@ namespace Wikibase\Repo;
 /**
  * Utility class for process identifier (PID) locking.
  *
- * @since 0.5
- *
  * @license GPL-2.0+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Tobias Gritschacher
- * @author Jens Ohlig < jens.ohlig@wikimedia.de >
- * @author John Erling Blad < jeblad@gmail.com >
- * @author Marius Hoch < hoo@online.de >
- * @author Thiemo Mättig
  */
 class PidLock {
 
@@ -72,8 +64,6 @@ class PidLock {
 	 * one instance.
 	 *
 	 * Note that this method creates the file if necessary.
-	 *
-	 * @since 0.5
 	 *
 	 * @param bool $force make the function skip the test and always grab the lock
 	 *

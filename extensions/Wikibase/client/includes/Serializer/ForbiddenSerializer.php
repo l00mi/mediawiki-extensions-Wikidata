@@ -1,14 +1,12 @@
 <?php
 
-namespace Wikibase\Client;
+namespace Wikibase\Client\Serializer;
 
 use RuntimeException;
 use Serializers\Serializer;
 
 /**
  * Serializer to be used as a stand-in when no serialization is supported.
- *
- * @since 0.5
  *
  * @license GPL-2.0+
  * @author Daniel Kinzler

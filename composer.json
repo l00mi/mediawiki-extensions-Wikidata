@@ -32,7 +32,7 @@
         "php": ">=5.5.0",
         "mediawiki/article-placeholder": "dev-master",
         "propertysuggester/property-suggester": "~3.1.2",
-        "wikibase/wikibase": "dev-wmf/1.29.0-wmf.8",
+        "wikibase/wikibase": "dev-wmf/1.29.0-wmf.10",
         "wikibase/wikimedia-badges": "dev-master",
         "wikibase/Wikidata.org": "dev-master",
         "wikibase/quality": "dev-master",
@@ -51,7 +51,7 @@
         "post-update-cmd": "Wikidata\\SettingsFileGenerator::generateDefaultSettings"
     },
     "config": {
-        "autoloader-suffix": "wikidata_1_29_0_wmf_8",
+        "autoloader-suffix": "wikidata_1_29_0_wmf_10",
         "prepend-autoloader": false,
         "optimize-autoloader": true,
         "classmap-authoritative": true,

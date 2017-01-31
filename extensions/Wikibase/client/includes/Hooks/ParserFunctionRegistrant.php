@@ -8,8 +8,6 @@ use Wikibase\Client\DataAccess\PropertyParserFunction\Runner;
 use Wikibase\Client\WikibaseClient;
 
 /**
- * @since 0.5
- *
  * @license GPL-2.0+
  * @author Katie Filbert < aude.wiki@gmail.com >
  * @author Thiemo Mättig
@@ -57,18 +55,13 @@ class ParserFunctionRegistrant {
 			Parser::SFH_OBJECT_ARGS
 		);
 
-		// TODO: Remove the feature flag when not needed any more!
-		if ( WikibaseClient::getDefaultInstance()->getSettings()->getSetting(
-			'enableStatementsParserFunction'
-		) ) {
-			$parser->setFunctionHook(
-				'statements',
-				function( Parser $parser, PPFrame $frame, array $args ) {
-					return Runner::renderRichWikitext( $parser, $frame, $args );
-				},
-				Parser::SFH_OBJECT_ARGS
-			);
-		}
+		$parser->setFunctionHook(
+			'statements',
+			function( Parser $parser, PPFrame $frame, array $args ) {
+				return Runner::renderRichWikitext( $parser, $frame, $args );
+			},
+			Parser::SFH_OBJECT_ARGS
+		);
 	}
 
 }

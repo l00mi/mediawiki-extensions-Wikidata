@@ -8,7 +8,6 @@ use Revision;
 use RuntimeException;
 use stdClass;
 use User;
-use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -21,8 +20,6 @@ use Wikibase\ItemContent;
  * @covers Wikibase\EntityChange
  * @covers Wikibase\DiffChange
  *
- * @since 0.3
- *
  * @group Database
  * @group Wikibase
  * @group WikibaseChange
@@ -34,7 +31,6 @@ use Wikibase\ItemContent;
 class EntityChangeTest extends ChangeRowTest {
 
 	/**
-	 * @since 0.4
 	 * @return string
 	 */
 	protected function getRowClass() {
@@ -46,15 +42,6 @@ class EntityChangeTest extends ChangeRowTest {
 		$entityChange = $changeFactory->newForEntity( EntityChange::UPDATE, $entityId );
 
 		return $entityChange;
-	}
-
-	public function entityProvider() {
-		return array_map(
-			function( EntityDocument $entity ) {
-				return array( $entity );
-			},
-			TestChanges::getEntities()
-		);
 	}
 
 	public function changeProvider() {
@@ -135,7 +122,6 @@ class EntityChangeTest extends ChangeRowTest {
 
 	/**
 	 * @dataProvider changeProvider
-	 * @since 0.4
 	 */
 	public function testToString( EntityChange $entityChange ) {
 		$string = $entityChange->__toString();

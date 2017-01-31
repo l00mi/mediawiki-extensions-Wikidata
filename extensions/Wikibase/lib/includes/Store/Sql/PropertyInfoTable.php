@@ -17,8 +17,6 @@ use Wikimedia\Assert\Assert;
 /**
  * Class PropertyInfoTable implements PropertyInfoStore on top of an SQL table.
  *
- * @since 0.4
- *
  * @license GPL-2.0+
  * @author Daniel Kinzler
  * @author Bene* < benestar.wikimedia@gmail.com >
@@ -124,7 +122,7 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoLookup, Prop
 	public function getPropertyInfo( PropertyId $propertyId ) {
 		$this->assertPropertyIdFromCorrectRepository( $propertyId );
 
-		$dbr = $this->getConnection( DB_SLAVE );
+		$dbr = $this->getConnection( DB_REPLICA );
 
 		$res = $dbr->selectField(
 			$this->tableName,
@@ -157,7 +155,7 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoLookup, Prop
 	 * @throws DBError
 	 */
 	public function getPropertyInfoForDataType( $dataType ) {
-		$dbr = $this->getConnection( DB_SLAVE );
+		$dbr = $this->getConnection( DB_REPLICA );
 
 		$res = $dbr->select(
 			$this->tableName,
@@ -180,7 +178,7 @@ class PropertyInfoTable extends DBAccessBase implements PropertyInfoLookup, Prop
 	 * @throws DBError
 	 */
 	public function getAllPropertyInfo() {
-		$dbr = $this->getConnection( DB_SLAVE );
+		$dbr = $this->getConnection( DB_REPLICA );
 
 		$res = $dbr->select(
 			$this->tableName,

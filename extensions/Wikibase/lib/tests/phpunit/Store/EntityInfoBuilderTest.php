@@ -2,7 +2,6 @@
 
 namespace Wikibase\Lib\Tests\Store;
 
-use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
@@ -20,7 +19,7 @@ use Wikibase\Lib\Store\Sql\SqlEntityInfoBuilder;
 abstract class EntityInfoBuilderTest extends \MediaWikiTestCase {
 
 	/**
-	 * @return EntityId[]
+	 * @return ItemId[]
 	 */
 	protected function getKnownRedirects() {
 		return array(
@@ -31,7 +30,7 @@ abstract class EntityInfoBuilderTest extends \MediaWikiTestCase {
 	}
 
 	/**
-	 * @return EntityDocument[]
+	 * @return Item[]|Property[]
 	 */
 	protected function getKnownEntities() {
 		$q1 = new Item( new ItemId( 'Q1' ) );
