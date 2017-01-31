@@ -14,11 +14,17 @@ use Wikibase\Lib\Store\PropertyInfoLookup;
 interface EntityDataRetrievalServiceFactory {
 
 	/**
+	 * Note: Instance returned is not guaranteed to be a caching decorator.
+	 * Callers should take care of caching themselves.
+	 *
 	 * @return EntityRevisionLookup
 	 */
 	public function getEntityRevisionLookup();
 
 	/**
+	 * Note: Instance returned is not guaranteed to be a caching decorator.
+	 * Callers should take care of caching themselves.
+	 *
 	 * @return PropertyInfoLookup
 	 */
 	public function getPropertyInfoLookup();
