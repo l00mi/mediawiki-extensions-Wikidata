@@ -622,17 +622,17 @@
     },
     {
         "name": "data-values/serialization",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
+        "version": "1.2.0",
+        "version_normalized": "1.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/DataValues/Serialization.git",
-            "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386"
+            "reference": "f872b09fa4215b21d463f317700fa9d671a779fb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Serialization/zipball/4b6d810d86866a3f43dcfecb2e336dfda5de2386",
-            "reference": "4b6d810d86866a3f43dcfecb2e336dfda5de2386",
+            "url": "https://api.github.com/repos/DataValues/Serialization/zipball/f872b09fa4215b21d463f317700fa9d671a779fb",
+            "reference": "f872b09fa4215b21d463f317700fa9d671a779fb",
             "shasum": ""
         },
         "require": {
@@ -640,11 +640,14 @@
             "php": ">=5.3.0",
             "serialization/serialization": "~3.0"
         },
-        "time": "2016-05-24 15:11:29",
+        "require-dev": {
+            "mediawiki/mediawiki-codesniffer": "~0.5"
+        },
+        "time": "2017-01-31 15:39:39",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.1.x-dev"
+                "dev-master": "1.2.x-dev"
             }
         },
         "installation-source": "dist",
@@ -932,17 +935,17 @@
     },
     {
         "name": "data-values/value-view",
-        "version": "0.18.0",
-        "version_normalized": "0.18.0.0",
+        "version": "0.18.2",
+        "version_normalized": "0.18.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/data-values-value-view.git",
-            "reference": "5938027bbbad63e54cfa0266db211bac5fa902b2"
+            "reference": "acc701ea9fec0927bec7e5a68d5fbafbee0e4fdc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/5938027bbbad63e54cfa0266db211bac5fa902b2",
-            "reference": "5938027bbbad63e54cfa0266db211bac5fa902b2",
+            "url": "https://api.github.com/repos/wikimedia/data-values-value-view/zipball/acc701ea9fec0927bec7e5a68d5fbafbee0e4fdc",
+            "reference": "acc701ea9fec0927bec7e5a68d5fbafbee0e4fdc",
             "shasum": ""
         },
         "require": {
@@ -953,11 +956,11 @@
             "jakub-onderka/php-parallel-lint": "0.9",
             "mediawiki/mediawiki-codesniffer": "0.4.0"
         },
-        "time": "2016-10-14 12:19:21",
+        "time": "2017-02-01 19:42:44",
         "type": "mediawiki-extension",
         "extra": {
             "branch-alias": {
-                "dev-master": "0.16.x-dev"
+                "dev-master": "0.18.x-dev"
             }
         },
         "installation-source": "dist",
@@ -1409,12 +1412,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "af98bc5b4549641d9c8f0520bae5080ec62a21eb"
+            "reference": "79b593eb5ad0d667e1f9f587804dddeb61918a05"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/af98bc5b4549641d9c8f0520bae5080ec62a21eb",
-            "reference": "af98bc5b4549641d9c8f0520bae5080ec62a21eb",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/79b593eb5ad0d667e1f9f587804dddeb61918a05",
+            "reference": "79b593eb5ad0d667e1f9f587804dddeb61918a05",
             "shasum": ""
         },
         "require": {
@@ -1447,7 +1450,7 @@
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.4.0|0.5.0"
         },
-        "time": "2017-01-31 21:59:45",
+        "time": "2017-02-01 21:51:36",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
