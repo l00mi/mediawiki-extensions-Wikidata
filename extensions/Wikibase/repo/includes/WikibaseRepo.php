@@ -521,7 +521,7 @@ class WikibaseRepo {
 	/**
 	 * @return Language
 	 */
-	private function getUserLanguage() {
+	public function getUserLanguage() {
 		global $wgLang;
 
 		// TODO: define a LanguageProvider service instead of using a global directly.
@@ -574,7 +574,8 @@ class WikibaseRepo {
 	public function getEntityContentFactory() {
 		return new EntityContentFactory(
 			$this->getContentModelMappings(),
-			$this->entityTypeDefinitions->getContentHandlerFactoryCallbacks()
+			$this->entityTypeDefinitions->getContentHandlerFactoryCallbacks(),
+			MediaWikiServices::getInstance()->getInterwikiLookup()
 		);
 	}
 
