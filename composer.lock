@@ -1279,7 +1279,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "68b2f8c4265d731e775f51d547c130bca350fb79"
+                "reference": "9d6d3068db0f9da18085310ed0390ae447197950"
             },
             "require": {
                 "data-values/common": ">=0.1 <0.4",
@@ -1337,7 +1337,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2017-01-04 16:41:52"
+            "time": "2017-02-03 22:07:20"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1609,12 +1609,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "113f542ffda16a5903ad79abd48be91797462159"
+                "reference": "f00e09632f9f0c48e7e701df3c39fa7b8a673b2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/113f542ffda16a5903ad79abd48be91797462159",
-                "reference": "113f542ffda16a5903ad79abd48be91797462159",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f00e09632f9f0c48e7e701df3c39fa7b8a673b2a",
+                "reference": "f00e09632f9f0c48e7e701df3c39fa7b8a673b2a",
                 "shasum": ""
             },
             "require": {
@@ -1689,7 +1689,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2017-02-02 16:54:49"
+            "time": "2017-02-04 22:01:23"
         },
         {
             "name": "wikibase/wikimedia-badges",
