@@ -108,7 +108,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 	/**
 	 * @see SpecialModifyEntity::prepareArguments()
 	 *
-	 * @param string $subPage
+	 * @param string|null $subPage
 	 */
 	protected function prepareArguments( $subPage ) {
 		parent::prepareArguments( $subPage );
@@ -365,7 +365,7 @@ class SpecialSetSiteLink extends SpecialModifyEntity {
 			return '';
 		}
 
-		return $item->getSitelink( $siteId )->getPageName();
+		return $item->getSiteLink( $siteId )->getPageName();
 	}
 
 	/**

@@ -237,7 +237,12 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 		// Assert matchers
 		list( $output, ) = $this->executeSpecialPage( $subPage, $request, $userLanguage );
 		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to assert output: $key" );
+			assertThat(
+				"Failed to assert output: $key",
+				$output,
+				is( htmlPiece( havingChild( $matcher ) ) )
+			);
+			$this->addToAssertionCount( 1 ); // To avoid risky tests warning
 		}
 	}
 
@@ -251,39 +256,30 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 		$matchers = array();
 
 		// Empty input
-		$matchers['instructions'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'class' => 'wbqev-infobox'
-			)
+		$matchers['instructions'] = tagMatchingOutline( '<div class="wbqev-infobox"/>' );
+
+		$matchers['entityId'] = tagMatchingOutline(
+			'<input
+				placeholder="(wbqev-crosscheck-form-entityid-placeholder)"
+				name="entityid"
+				class="wbqev-crosscheck-form-entity-id"/>'
 		);
 
-		$matchers['entityId'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'placeholder' => '(wbqev-crosscheck-form-entityid-placeholder)',
-				'name' => 'entityid',
-				'class' => 'wbqev-crosscheck-form-entity-id'
-			)
-		);
-
-		$matchers['submit'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'type' => 'submit',
-				'value' => '(wbqev-crosscheck-form-submit-label)'
-			)
+		$matchers['submit'] = tagMatchingOutline(
+			'<input
+				type="submit"
+				value="(wbqev-crosscheck-form-submit-label)"/>'
 		);
 
 		$cases['empty'] = array( '', array(), $userLanguage, $matchers );
 
 		// Invalid input
-		$matchers['error'] = array(
-			'tag' => 'p',
-			'attributes' => array(
-				'class' => 'wbqev-crosscheck-notice wbqev-crosscheck-notice-error'
-			),
-			'content' => '(wbqev-crosscheck-invalid-entity-id)'
+		$matchers['error'] = both(
+			tagMatchingOutline(
+				'<p class="wbqev-crosscheck-notice wbqev-crosscheck-notice-error"/>'
+			)
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-invalid-entity-id)' )
 		);
 
 		$cases['invalid input 1'] = array( 'Qwertz', array(), $userLanguage, $matchers );
@@ -291,12 +287,12 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 
 		// Valid input but entity does not exist
 		unset( $matchers['error'] );
-		$matchers['error'] = array(
-			'tag' => 'p',
-			'attributes' => array(
-				'class' => 'wbqev-crosscheck-notice wbqev-crosscheck-notice-error'
-			),
-			'content' => '(wbqev-crosscheck-not-existent-entity)'
+		$matchers['error'] = both(
+			tagMatchingOutline(
+				'<p class="wbqev-crosscheck-notice wbqev-crosscheck-notice-error"/>'
+			)
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-not-existent-entity)' )
 		);
 
 		$cases['valid input - not existing item'] = array(
@@ -308,123 +304,110 @@ class SpecialCrossCheckTest extends SpecialPageTestBase {
 
 		// Valid input and entity exists
 		unset( $matchers['error'] );
-		$matchers['result for'] = array(
-			'tag' => 'h3',
-			'content' => '(wbqev-crosscheck-result-headline)'
+		$matchers['result for'] = both(
+			withTagName( 'h3' )
+		)->andAlso(
+			havingTextContents( containsString( '(wbqev-crosscheck-result-headline)' ) )
 		);
 
-		$matchers['result table'] = array(
-			'tag' => 'table',
-			'attributes' => array(
-				'class' => 'wikitable sortable jquery-tablesort'
-			)
+		$matchers['result table'] = tagMatchingOutline(
+			'<table class="wikitable sortable jquery-tablesort"/>'
 		);
 
-		$matchers['column status'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-crosscheck-result-table-header-status)'
+		$matchers['column status'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-result-table-header-status)' )
 		);
 
-		$matchers['column references'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-crosscheck-result-table-header-references)'
+		$matchers['column references'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-result-table-header-references)' )
 		);
 
-		$matchers['column property'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(datatypes-type-wikibase-property)'
+		$matchers['column property'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(datatypes-type-wikibase-property)' )
 		);
 
-		$matchers['column local value'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-crosscheck-result-table-header-local-value)'
+		$matchers['column local value'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-result-table-header-local-value)' )
 		);
 
-		$matchers['column external value'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-crosscheck-result-table-header-external-value)'
+		$matchers['column external value'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-result-table-header-external-value)' )
 		);
 
-		$matchers['column external source'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-crosscheck-result-table-header-external-source)'
+		$matchers['column external source'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-result-table-header-external-source)' )
 		);
 
-		$matchers['value status - match'] = array(
-			'tag' => 'span',
-			'attributes' => array(
-				'class' => 'wbqev-status wbqev-status-match'
-			),
-			'content' => '(wbqev-crosscheck-status-match)'
+		$matchers['value status - match'] = both(
+			tagMatchingOutline( '<span class="wbqev-status wbqev-status-match"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-status-match)' )
 		);
 
-		$matchers['value local value foo'] = array(
-			'tag' => 'td',
-			'content' => 'foo'
+		$matchers['value local value foo'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'foo' )
 		);
 
-		$matchers['value external value foo'] = array(
-			'tag' => 'td',
-			'content' => 'foo'
+		$matchers['value external value foo'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'foo' )
 		);
 
-		$matchers['value status - mismatch'] = array(
-			'tag' => 'span',
-			'attributes' => array(
-				'class' => 'wbqev-status wbqev-status-mismatch'
-			),
-			'content' => '(wbqev-crosscheck-status-mismatch)'
+		$matchers['value status - mismatch'] = both(
+			tagMatchingOutline( '<span class="wbqev-status wbqev-status-mismatch"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-status-mismatch)' )
 		);
 
-		$matchers['value local value baz'] = array(
-			'tag' => 'td',
-			'content' => 'baz'
+		$matchers['value local value baz'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'baz' )
 		);
 
-		$matchers['value external value bar'] = array(
-			'tag' => 'td',
-			'content' => 'bar'
+		$matchers['value external value bar'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'bar' )
 		);
 
-		$matchers['value status - partial match'] = array(
-			'tag' => 'span',
-			'attributes' => array(
-				'class' => 'wbqev-status wbqev-status-partial-match'
-			),
-			'content' => '(wbqev-crosscheck-status-partial-match)'
+		$matchers['value status - partial match'] = both(
+			tagMatchingOutline( '<span class="wbqev-status wbqev-status-partial-match"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-status-partial-match)' )
 		);
 
-		$matchers['value local value partiall'] = array(
-			'tag' => 'td',
-			'content' => 'partiall'
+		$matchers['value local value partiall'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'partiall' )
 		);
 
-		$matchers['value external value partial'] = array(
-			'tag' => 'td',
-			'content' => 'partial'
+		$matchers['value external value partial'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'partial' )
 		);
 
-		$matchers['value references - references missing'] = array(
-			'tag' => 'td',
-			'content' => '(wbqev-crosscheck-status-references-missing)'
+		$matchers['value references - references missing'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( '(wbqev-crosscheck-status-references-missing)' )
 		);
 
 		$cases['valid input - existing item without references'] = array(

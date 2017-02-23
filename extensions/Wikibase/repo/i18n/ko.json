@@ -121,6 +121,7 @@
 	"wikibase-validator-label-conflict": "속성($3)은 이미 $2 언어 코드와 관련된 \"$1\" 레이블이 있습니다.",
 	"wikibase-validator-label-with-description-conflict": "항목($3)은 이미 같은 설명을 사용하는 $2 언어 코드와 관련된 \"$1\" 레이블이 있습니다.",
 	"wikibase-validator-label-no-entityid": "레이블은 유효한 항목 id가 아니어야 합니다.",
+	"wikibase-validator-page-not-exists": "\"$1\" 문서가 존재하지 않습니다.",
 	"wikibase-validator-not-a-language": "\"$1\"은(는) 알려진 언어 코드가 아닙니다.",
 	"wikibase-item-reference-edit-placeholder": "항목 ID를 입력하십시오 (예: Q10)",
 	"wikibase-item-reference-edit-invalid-format": "입력한 항목의 ID에 유효하지 않은 포맷이 있습니다",
@@ -319,6 +320,19 @@
 	"action-item-merge": "항목 병합",
 	"action-property-create": "속성을 만들",
 	"wikibase-pageinfo-subscription-none": "없음",
+	"apihelp-wbcreateclaim-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbcreateredirect-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbeditentity-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbgetentities-example-12": "항목 <samp>Q42</samp>의 사이트링크를 가져옵니다",
 	"apihelp-wbmergeitems-description": "여러 항목 병합.",
-	"apihelp-wbsetlabel-param-title": "연결한 파일 이름.\n<var>site</var>과 함께 사용하면 완전한 사이트링크가 됩니다."
+	"apihelp-wbmergeitems-example-1": "<samp>Q42</samp>의 데이터를 <samp>Q222</samp>로 병합합니다",
+	"apihelp-wbremovequalifiers-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbremovereferences-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbsetaliases-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbsetclaim-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbsetclaimvalue-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbsetdescription-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbsetlabel-param-title": "연결한 파일 이름.\n<var>site</var>과 함께 사용하면 완전한 사이트링크가 됩니다.",
+	"apihelp-wbsetlabel-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다.",
+	"apihelp-wbsetqualifier-param-bot": "이 편집을 봇으로 표시합니다. 이 URL 플래그는 사용자가 그룹 \"{{int:group-bot}}\"에 속해 있을 경우에만 준수합니다."
 }

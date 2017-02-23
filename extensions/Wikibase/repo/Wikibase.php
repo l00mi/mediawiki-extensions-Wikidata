@@ -209,7 +209,7 @@ call_user_func( function() {
 			$repo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 
 			$entitySearchHelper = new Wikibase\Repo\Api\EntitySearchHelper(
-				$repo->getEntityTitleLookup(),
+				$repo->getEntityLookup(),
 				$repo->getEntityIdParser(),
 				$repo->newTermSearchInteractor( $repo->getUserLanguage()->getCode() ),
 				new Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup(
@@ -224,6 +224,7 @@ call_user_func( function() {
 				$moduleName,
 				$entitySearchHelper,
 				$repo->getEntityTitleLookup(),
+				$repo->getPropertyDataTypeLookup(),
 				$repo->getTermsLanguages(),
 				$repo->getEnabledEntityTypes(),
 				$repo->getSettings()->getSetting( 'conceptBaseUri' )
@@ -242,7 +243,34 @@ call_user_func( function() {
 		}
 	];
 	$wgAPIModules['wbeditentity'] = Wikibase\Repo\Api\EditEntity::class;
-	$wgAPIModules['wblinktitles'] = Wikibase\Repo\Api\LinkTitles::class;
+	$wgAPIModules['wblinktitles'] = [
+		'class' => Wikibase\Repo\Api\LinkTitles::class,
+		'factory' => function ( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$settings = $wikibaseRepo->getSettings();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+
+			$siteLinkTargetProvider = new \Wikibase\Repo\SiteLinkTargetProvider(
+				$wikibaseRepo->getSiteLookup(),
+				$settings->getSetting( 'specialSiteLinkGroups' )
+			);
+
+			return new Wikibase\Repo\Api\LinkTitles(
+				$mainModule,
+				$moduleName,
+				$siteLinkTargetProvider,
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				$settings->getSetting( 'siteLinkGroups' ),
+				$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
 	$wgAPIModules['wbsetsitelink'] = [
 		'class' => Wikibase\Repo\Api\SetSiteLink::class,
 		'factory' => function ( ApiMain $mainModule, $moduleName ) {
@@ -254,14 +282,181 @@ call_user_func( function() {
 			);
 		}
 	];
-	$wgAPIModules['wbcreateclaim'] = Wikibase\Repo\Api\CreateClaim::class;
-	$wgAPIModules['wbgetclaims'] = Wikibase\Repo\Api\GetClaims::class;
-	$wgAPIModules['wbremoveclaims'] = Wikibase\Repo\Api\RemoveClaims::class;
-	$wgAPIModules['wbsetclaimvalue'] = Wikibase\Repo\Api\SetClaimValue::class;
+	$wgAPIModules['wbcreateclaim'] = [
+		'class' => Wikibase\Repo\Api\CreateClaim::class,
+		'factory' => function ( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			$errorReporter = $apiHelperFactory->getErrorReporter( $mainModule );
+
+			$modificationHelper = new Wikibase\Repo\Api\StatementModificationHelper(
+				$wikibaseRepo->getSnakFactory(),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getStatementGuidValidator(),
+				$errorReporter
+			);
+
+			return new Wikibase\Repo\Api\CreateClaim(
+				$mainModule,
+				$moduleName,
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$errorReporter,
+				$modificationHelper,
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
+	$wgAPIModules['wbgetclaims'] = [
+		'class' => Wikibase\Repo\Api\GetClaims::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+
+			return new Wikibase\Repo\Api\GetClaims(
+				$mainModule,
+				$moduleName,
+				$wikibaseRepo->getStatementGuidValidator(),
+				$wikibaseRepo->getStatementGuidParser(),
+				$wikibaseRepo->getEntityIdParser(),
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntityLoadingHelper( $module );
+				}
+			);
+		}
+	];
+	$wgAPIModules['wbremoveclaims'] = [
+		'class' => Wikibase\Repo\Api\RemoveClaims::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+			$modificationHelper = new Wikibase\Repo\Api\StatementModificationHelper(
+				$wikibaseRepo->getSnakFactory(),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getStatementGuidValidator(),
+				$apiHelperFactory->getErrorReporter( $mainModule )
+			);
+
+			return new Wikibase\Repo\Api\RemoveClaims(
+				$mainModule,
+				$moduleName,
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$modificationHelper,
+				$wikibaseRepo->getStatementGuidParser(),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
+	$wgAPIModules['wbsetclaimvalue'] = [
+		'class' => Wikibase\Repo\Api\SetClaimValue::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+			$modificationHelper = new Wikibase\Repo\Api\StatementModificationHelper(
+				$wikibaseRepo->getSnakFactory(),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getStatementGuidValidator(),
+				$apiHelperFactory->getErrorReporter( $mainModule )
+			);
+
+			return new Wikibase\Repo\Api\SetClaimValue(
+				$mainModule,
+				$moduleName,
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$modificationHelper,
+				$wikibaseRepo->getStatementGuidParser(),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
 	$wgAPIModules['wbsetreference'] = Wikibase\Repo\Api\SetReference::class;
 	$wgAPIModules['wbremovereferences'] = Wikibase\Repo\Api\RemoveReferences::class;
-	$wgAPIModules['wbsetclaim'] = Wikibase\Repo\Api\SetClaim::class;
-	$wgAPIModules['wbremovequalifiers'] = Wikibase\Repo\Api\RemoveQualifiers::class;
+	$wgAPIModules['wbsetclaim'] = [
+		'class' => Wikibase\Repo\Api\SetClaim::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+			$modificationHelper = new Wikibase\Repo\Api\StatementModificationHelper(
+				$wikibaseRepo->getSnakFactory(),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getStatementGuidValidator(),
+				$apiHelperFactory->getErrorReporter( $mainModule )
+			);
+
+			return new Wikibase\Repo\Api\SetClaim(
+				$mainModule,
+				$moduleName,
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				$wikibaseRepo->getExternalFormatStatementDeserializer(),
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$modificationHelper,
+				$wikibaseRepo->getStatementGuidParser(),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
+	$wgAPIModules['wbremovequalifiers'] = [
+		'class' => Wikibase\Repo\Api\RemoveQualifiers::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+			$modificationHelper = new Wikibase\Repo\Api\StatementModificationHelper(
+				$wikibaseRepo->getSnakFactory(),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getStatementGuidValidator(),
+				$apiHelperFactory->getErrorReporter( $mainModule )
+			);
+
+			return new Wikibase\Repo\Api\RemoveQualifiers(
+				$mainModule,
+				$moduleName,
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$modificationHelper,
+				$wikibaseRepo->getStatementGuidParser(),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
 	$wgAPIModules['wbsetqualifier'] = [
 		'class' => Wikibase\Repo\Api\SetQualifier::class,
 		'factory' => function( ApiMain $mainModule, $moduleName ) {
@@ -294,7 +489,24 @@ call_user_func( function() {
 			);
 		}
 	];
-	$wgAPIModules['wbmergeitems'] = Wikibase\Repo\Api\MergeItems::class;
+	$wgAPIModules['wbmergeitems'] = [
+		'class' => Wikibase\Repo\Api\MergeItems::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = \Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+
+			return new Wikibase\Repo\Api\MergeItems(
+				$mainModule,
+				$moduleName,
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->newItemMergeInteractor( $mainModule->getContext() ),
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				}
+			);
+		}
+	];
 	$wgAPIModules['wbformatvalue'] = [
 		'class' => Wikibase\Repo\Api\FormatSnakValue::class,
 		'factory' => function( ApiMain $mainModule, $moduleName ) {
@@ -550,7 +762,6 @@ call_user_func( function() {
 	$wgHooks['SkinTemplateBuildNavUrlsNav_urlsAfterPermalink'][] = 'Wikibase\RepoHooks::onSkinTemplateBuildNavUrlsNavUrlsAfterPermalink';
 	$wgHooks['SkinMinervaDefaultModules'][] = 'Wikibase\RepoHooks::onSkinMinervaDefaultModules';
 	$wgHooks['ResourceLoaderRegisterModules'][] = 'Wikibase\RepoHooks::onResourceLoaderRegisterModules';
-	$wgHooks['ContentHandlerForModelID'][] = 'Wikibase\RepoHooks::onContentHandlerForModelID';
 	$wgHooks['BeforeDisplayNoArticleText'][] = 'Wikibase\ViewEntityAction::onBeforeDisplayNoArticleText';
 	$wgHooks['InfoAction'][] = '\Wikibase\RepoHooks::onInfoAction';
 

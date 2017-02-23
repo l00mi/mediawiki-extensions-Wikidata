@@ -2,6 +2,7 @@
 
 namespace Tests\Wikibase\DataModel\Deserializers;
 
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Deserializers\SnakListDeserializer;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\DataModel\Snak\SnakList;
@@ -9,12 +10,12 @@ use Wikibase\DataModel\Snak\SnakList;
 /**
  * @covers Wikibase\DataModel\Deserializers\SnakListDeserializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
-class SnakListDeserializerTest extends DeserializerBaseTest {
+class SnakListDeserializerTest extends PHPUnit_Framework_TestCase {
 
-	public function buildDeserializer() {
+	private function buildDeserializer() {
 		$snakDeserializerMock = $this->getMock( 'Deserializers\Deserializer' );
 
 		$snakDeserializerMock->expects( $this->any() )
@@ -28,8 +29,13 @@ class SnakListDeserializerTest extends DeserializerBaseTest {
 		return new SnakListDeserializer( $snakDeserializerMock );
 	}
 
-	public function deserializableProvider() {
-		return array( array() );
+	/**
+	 * @dataProvider nonDeserializableProvider
+	 */
+	public function testDeserializeThrowsDeserializationException( $nonDeserializable ) {
+		$deserializer = $this->buildDeserializer();
+		$this->setExpectedException( 'Deserializers\Exceptions\DeserializationException' );
+		$deserializer->deserialize( $nonDeserializable );
 	}
 
 	public function nonDeserializableProvider() {
@@ -48,6 +54,13 @@ class SnakListDeserializerTest extends DeserializerBaseTest {
 				)
 			),
 		);
+	}
+
+	/**
+	 * @dataProvider deserializationProvider
+	 */
+	public function testDeserialization( $object, $serialization ) {
+		$this->assertEquals( $object, $this->buildDeserializer()->deserialize( $serialization ) );
 	}
 
 	public function deserializationProvider() {

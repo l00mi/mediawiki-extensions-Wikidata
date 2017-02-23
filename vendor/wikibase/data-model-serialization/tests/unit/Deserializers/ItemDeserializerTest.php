@@ -17,13 +17,13 @@ use Wikibase\DataModel\Term\TermList;
 /**
  * @covers Wikibase\DataModel\Deserializers\ItemDeserializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class ItemDeserializerTest extends DeserializerBaseTest {
+class ItemDeserializerTest extends DispatchableDeserializerTest {
 
-	public function buildDeserializer() {
+	protected function buildDeserializer() {
 		$entityIdDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
 		$entityIdDeserializerMock->expects( $this->any() )
 			->method( 'deserialize' )
@@ -137,7 +137,7 @@ class ItemDeserializerTest extends DeserializerBaseTest {
 		);
 
 		$item = new Item();
-		$item->getFingerprint()->setLabel( 'en', 'foo' );
+		$item->setLabel( 'en', 'foo' );
 		$provider[] = array(
 			$item,
 			array(
@@ -152,7 +152,7 @@ class ItemDeserializerTest extends DeserializerBaseTest {
 		);
 
 		$item = new Item();
-		$item->getFingerprint()->setDescription( 'en', 'foo' );
+		$item->setDescription( 'en', 'foo' );
 		$provider[] = array(
 			$item,
 			array(
@@ -167,7 +167,7 @@ class ItemDeserializerTest extends DeserializerBaseTest {
 		);
 
 		$item = new Item();
-		$item->getFingerprint()->setAliasGroup( 'en', array( 'foo', 'bar' ) );
+		$item->setAliases( 'en', [ 'foo', 'bar' ] );
 		$provider[] = array(
 			$item,
 			array(

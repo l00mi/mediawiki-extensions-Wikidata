@@ -19,10 +19,6 @@ use Wikibase\Lib\SnakFormatter;
  * Formatter for Summary objects
  *
  * @license GPL-2.0+
- * @author John Erling Blad
- * @author Daniel Kinzler
- * @author Tobias Gritschacher < tobias.gritschacher@wikimedia.de >
- * @author Addshore
  */
 class SummaryFormatter {
 
@@ -50,6 +46,11 @@ class SummaryFormatter {
 	 * @var EntityIdParser
 	 */
 	private $idParser;
+
+	/**
+	 * @var StringNormalizer
+	 */
+	private $stringNormalizer;
 
 	/**
 	 * @param EntityIdFormatter $idFormatter Please note that the magic label substitution we apply

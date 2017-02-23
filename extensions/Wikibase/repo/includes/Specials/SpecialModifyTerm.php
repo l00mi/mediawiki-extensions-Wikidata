@@ -66,7 +66,7 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	/**
 	 * @see SpecialModifyEntity::prepareArguments()
 	 *
-	 * @param string $subPage
+	 * @param string|null $subPage
 	 */
 	protected function prepareArguments( $subPage ) {
 		parent::prepareArguments( $subPage );
@@ -264,7 +264,7 @@ abstract class SpecialModifyTerm extends SpecialModifyEntity {
 	/**
 	 * Returning the posted value of the request.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	abstract protected function getPostedValue();
 

@@ -26,4 +26,6 @@ return array(
     '0dd9431cbbfa9ed9cb9d565d7129dbaf' => $vendorDir . '/data-values/validators/Validators.php',
     'b27615ec50616984e4b07db5658aba0d' => $vendorDir . '/data-values/data-types/DataTypes.php',
     '6b49d0287e368cb66263e04ca7d9699f' => $baseDir . '/extensions/WikimediaBadges/WikimediaBadges.php',
+    'a3e2ef26e18a6e96f9636539f37306b1' => $vendorDir . '/hamcrest/hamcrest-php/hamcrest/Hamcrest.php',
+    '7c2e09b8214862e702ac95a252d388b8' => $vendorDir . '/wmde/hamcrest-html-matchers/src/functions.php',
 );

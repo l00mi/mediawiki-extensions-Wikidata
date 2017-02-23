@@ -12,12 +12,12 @@ use Wikibase\DataModel\Snak\SnakList;
 /**
  * @covers Wikibase\DataModel\Deserializers\ReferenceDeserializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
-class ReferenceDeserializerTest extends DeserializerBaseTest {
+class ReferenceDeserializerTest extends DispatchableDeserializerTest {
 
-	public function buildDeserializer() {
+	protected function buildDeserializer() {
 		$snaksDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
 		$snaksDeserializerMock->expects( $this->any() )
 			->method( 'deserialize' )

@@ -16,13 +16,13 @@ use Wikibase\DataModel\Term\TermList;
 /**
  * @covers Wikibase\DataModel\Deserializers\PropertyDeserializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class PropertyDeserializerTest extends DeserializerBaseTest {
+class PropertyDeserializerTest extends DispatchableDeserializerTest {
 
-	public function buildDeserializer() {
+	protected function buildDeserializer() {
 		$entityIdDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
 		$entityIdDeserializerMock->expects( $this->any() )
 			->method( 'deserialize' )
@@ -129,7 +129,7 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 		);
 
 		$property = Property::newFromType( 'string' );
-		$property->getFingerprint()->setLabel( 'en', 'foo' );
+		$property->setLabel( 'en', 'foo' );
 		$provider[] = array(
 			$property,
 			array(
@@ -145,7 +145,7 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 		);
 
 		$property = Property::newFromType( 'string' );
-		$property->getFingerprint()->setDescription( 'en', 'foo' );
+		$property->setDescription( 'en', 'foo' );
 		$provider[] = array(
 			$property,
 			array(
@@ -161,7 +161,7 @@ class PropertyDeserializerTest extends DeserializerBaseTest {
 		);
 
 		$property = Property::newFromType( 'string' );
-		$property->getFingerprint()->setAliasGroup( 'en', array( 'foo', 'bar' ) );
+		$property->setAliases( 'en', [ 'foo', 'bar' ] );
 		$provider[] = array(
 			$property,
 			array(

@@ -97,7 +97,12 @@ class SpecialExternalDatabasesTest extends SpecialPageTestBase {
 		// assert matchers
 		list( $output, ) = $this->executeSpecialPage( $subPage, $request, $userLanguage );
 		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to assert output: $key" );
+			assertThat(
+				"Failed to assert output: $key",
+				$output,
+				is( htmlPiece( havingChild( $matcher ) ) )
+			);
+			$this->addToAssertionCount( 1 ); // To avoid risky tests warning
 		}
 	}
 
@@ -107,120 +112,106 @@ class SpecialExternalDatabasesTest extends SpecialPageTestBase {
 		$matchers = array();
 
 		// Empty input with database
-		$matchers['instructions'] = array(
-			'tag' => 'p',
-			'content' => '(wbqev-externaldbs-instructions)'
+		$matchers['instructions'] = both( withTagName( 'p' ) )
+			->andAlso( havingTextContents( '(wbqev-externaldbs-instructions)' ) );
+
+		$matchers['headline'] = both( withTagName( 'h3' ) )
+			->andAlso( havingTextContents( '(wbqev-externaldbs-overview-headline)' ) );
+
+		$matchers['database table'] = tagMatchingOutline( '<table class="wikitable"/>' );
+
+		$matchers['column name'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-name)' )
 		);
 
-		$matchers['headline'] = array(
-			'tag' => 'h3',
-			'content' => '(wbqev-externaldbs-overview-headline)'
+		$matchers['column import date'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-import-date)' )
 		);
 
-		$matchers['database table'] = array(
-			'tag' => 'table',
-			'attributes' => array(
-				'class' => 'wikitable'
-			)
+		$matchers['column data language'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-language)' )
 		);
 
-		$matchers['column name'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-externaldbs-name)'
+		$matchers['column source urls'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-source-urls)' )
 		);
 
-		$matchers['column import date'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-externaldbs-import-date)'
+		$matchers['column size'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-size)' )
 		);
 
-		$matchers['column data language'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-externaldbs-language)'
+		$matchers['column license'] = both(
+			tagMatchingOutline( '<th role="columnheader button"/>' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-license)' )
 		);
 
-		$matchers['column source urls'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-externaldbs-source-urls)'
+		$matchers['value name'] = both(
+			tagMatchingOutline( '<td rowspan="1"/>' )
+		)->andAlso(
+			havingTextContents( containsString( 'Q36578' ) )
 		);
 
-		$matchers['column size'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-externaldbs-size)'
+		$matchers['value import date'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( '00:00, 1 (january) 2015' )
 		);
 
-		$matchers['column license'] = array(
-			'tag' => 'th',
-			'attributes' => array(
-				'role' => 'columnheader button'
-			),
-			'content' => '(wbqev-externaldbs-license)'
+		$matchers['value data language'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'English' )
 		);
 
-		$matchers['value name'] = array(
-			'tag' => 'td',
-			'attributes' => array(
-				'rowspan' => '1'
-			),
-			'content' => 'Q36578'
+		$matchers['value source urls'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( 'http://www.foo.bar' )
 		);
 
-		$matchers['value import date'] = array(
-			'tag' => 'td'
+		$matchers['value size'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( '(size-bytes)' )
 		);
 
-		$matchers['value data language'] = array(
-			'tag' => 'td',
-			'content' => 'English'
-		);
-
-		$matchers['value source urls'] = array(
-			'tag' => 'td',
-			'content' => 'http://www.foo.bar'
-		);
-
-		$matchers['value size'] = array(
-			'tag' => 'td',
-			'content' => '(size-bytes)'
-		);
-
-		$matchers['value license'] = array(
-			'tag' => 'td',
-			'content' => 'Q6938433'
+		$matchers['value license'] = both(
+			withTagName( 'td' )
+		)->andAlso(
+			havingTextContents( containsString( 'Q6938433' ) )
 		);
 
 		$cases['empty with database'] = array( '', array(), $userLanguage, $matchers );
 
 		// Empty input without databases
 		unset( $matchers );
-		$matchers['instructions'] = array(
-			'tag' => 'p',
-			'content' => '(wbqev-externaldbs-instructions)'
+		$matchers['instructions'] = both(
+			withTagName( 'p' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-instructions)' )
 		);
 
-		$matchers['headline'] = array(
-			'tag' => 'h3',
-			'content' => '(wbqev-externaldbs-overview-headline)'
+		$matchers['headline'] = both(
+			withTagName( 'h3' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-overview-headline)' )
 		);
 
-		$matchers['no databases'] = array(
-			'tag' => 'p',
-			'content' => '(wbqev-externaldbs-no-databases)'
+		$matchers['no databases'] = both(
+			withTagName( 'p' )
+		)->andAlso(
+			havingTextContents( '(wbqev-externaldbs-no-databases)' )
 		);
 
 		$cases['empty without databases'] = array( '', array(), $userLanguage, $matchers );

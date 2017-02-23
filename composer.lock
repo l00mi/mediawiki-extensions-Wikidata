@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d6afe2a80bd6f994c1eca0241887c7f0",
-    "content-hash": "18fadc87770a1b571c2ec338a8dcc157",
+    "hash": "0e0eb1544516de23b67ab8cfa7d7e3fe",
+    "content-hash": "f58e44ebe19a42a02aab5861a544f281",
     "packages": [
         {
             "name": "composer/installers",
@@ -803,12 +803,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-                "reference": "f0b464d0bba02c92154334aef1bcc4d6d50f0338"
+                "reference": "abae976ca0238f040308dc4bdfe32c17db6fe561"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/f0b464d0bba02c92154334aef1bcc4d6d50f0338",
-                "reference": "f0b464d0bba02c92154334aef1bcc4d6d50f0338",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/abae976ca0238f040308dc4bdfe32c17db6fe561",
+                "reference": "abae976ca0238f040308dc4bdfe32c17db6fe561",
                 "shasum": ""
             },
             "require-dev": {
@@ -833,7 +833,7 @@
             ],
             "description": "Provides a special page with Wikibase information about a certain topic, with invitation to create an article for the topic",
             "homepage": "https://www.mediawiki.org/wiki/Extension:ArticlePlaceholder",
-            "time": "2017-01-31 21:25:45"
+            "time": "2017-02-11 12:33:49"
         },
         {
             "name": "propertysuggester/property-suggester",
@@ -996,7 +996,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "572b4c167a56ad998c8201c6e0d27aa85cb364d9"
+                "reference": "d5f943f032e67243fd7a9beb22994c759207f4ca"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -1048,7 +1048,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2017-01-02 12:40:50"
+            "time": "2017-02-21 15:52:41"
         },
         {
             "name": "wikibase/data-model",
@@ -1153,33 +1153,34 @@
         },
         {
             "name": "wikibase/data-model-serialization",
-            "version": "2.2.0",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/WikibaseDataModelSerialization.git",
-                "reference": "7d892107536e8499880aa70963841ff002f421bf"
+                "reference": "b5c26661e5959aa3b71fec991c81a88f685657bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/7d892107536e8499880aa70963841ff002f421bf",
-                "reference": "7d892107536e8499880aa70963841ff002f421bf",
+                "url": "https://api.github.com/repos/wmde/WikibaseDataModelSerialization/zipball/b5c26661e5959aa3b71fec991c81a88f685657bc",
+                "reference": "b5c26661e5959aa3b71fec991c81a88f685657bc",
                 "shasum": ""
             },
             "require": {
                 "data-values/serialization": "~1.0",
-                "php": ">=5.3.0",
+                "php": ">=5.5.0",
                 "serialization/serialization": "~3.1",
                 "wikibase/data-model": "~6.0|~5.0|~4.2"
             },
             "require-dev": {
                 "data-values/geo": "~1.0|~0.1",
-                "data-values/number": "~0.2",
-                "data-values/time": "~0.2"
+                "data-values/number": ">=0.1 <0.9",
+                "data-values/time": "~0.2",
+                "phpunit/phpunit": "~4.8"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2.x-dev"
+                    "dev-master": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -1215,7 +1216,7 @@
                 "wikibase",
                 "wikidata"
             ],
-            "time": "2016-03-11 10:27:31"
+            "time": "2017-02-15 10:34:31"
         },
         {
             "name": "wikibase/data-model-services",
@@ -1279,7 +1280,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-                "reference": "9d6d3068db0f9da18085310ed0390ae447197950"
+                "reference": "be00049d2982c5187dfeb05f6333ec26c469a444"
             },
             "require": {
                 "data-values/common": ">=0.1 <0.4",
@@ -1337,7 +1338,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1203/"
             },
-            "time": "2017-02-03 22:07:20"
+            "time": "2017-02-22 09:03:52"
         },
         {
             "name": "wikibase/internal-serialization",
@@ -1454,7 +1455,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "9aba4c2267dddeeceb8acbafd162dee4416c8016"
+                "reference": "7a90fc9887c0a24da8f1652aa92bfcc7837df35a"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1500,7 +1501,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2017-01-31 22:00:08"
+            "time": "2017-02-21 07:23:14"
         },
         {
             "name": "wikibase/quality",
@@ -1508,7 +1509,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-                "reference": "b00f1d5fd7a21700c7823cac790dc8d375a7d361"
+                "reference": "fcd1fcb51259c5a8af00c7e4be6ccd4e5105cb05"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1560,7 +1561,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/989/"
             },
-            "time": "2017-02-05 19:34:00"
+            "time": "2017-02-10 21:57:58"
         },
         {
             "name": "wikibase/serialization-javascript",
@@ -1609,12 +1610,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "307dc028c917e485a12df860bb5358f758680eb9"
+                "reference": "090aa20e99ff69ef631375bdc094c939eab1ce1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/307dc028c917e485a12df860bb5358f758680eb9",
-                "reference": "307dc028c917e485a12df860bb5358f758680eb9",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/090aa20e99ff69ef631375bdc094c939eab1ce1f",
+                "reference": "090aa20e99ff69ef631375bdc094c939eab1ce1f",
                 "shasum": ""
             },
             "require": {
@@ -1630,7 +1631,7 @@
                 "data-values/validators": "^0.1.0",
                 "data-values/value-view": "^0.18.2",
                 "diff/diff": "^2.0.0",
-                "php": ">=5.5.0",
+                "php": ">=5.5.9",
                 "wikibase/data-model": "^6.3.1",
                 "wikibase/data-model-javascript": "^3.0.1",
                 "wikibase/data-model-serialization": "^2.1.0",
@@ -1689,7 +1690,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2017-02-08 21:48:33"
+            "time": "2017-02-23 08:22:36"
         },
         {
             "name": "wikibase/wikimedia-badges",
@@ -1697,7 +1698,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-                "reference": "4b5200ea071a8d0e49ec354cfa978b60eddc3b82"
+                "reference": "d9546983a02b4b693f66f095916a0b3e043722c4"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -1731,7 +1732,7 @@
             "support": {
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2017-01-31 22:01:26"
+            "time": "2017-02-20 23:04:34"
         },
         {
             "name": "wikimedia/assert",
@@ -1835,7 +1836,150 @@
             "time": "2017-01-18 22:22:55"
         }
     ],
-    "packages-dev": null,
+    "packages-dev": [
+        {
+            "name": "hamcrest/hamcrest-php",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hamcrest/hamcrest-php.git",
+                "reference": "776503d3a8e85d4f9a1148614f95b7a608b046ad"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hamcrest/hamcrest-php/zipball/776503d3a8e85d4f9a1148614f95b7a608b046ad",
+                "reference": "776503d3a8e85d4f9a1148614f95b7a608b046ad",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3|^7.0"
+            },
+            "replace": {
+                "cordoval/hamcrest-php": "*",
+                "davedevelopment/hamcrest-php": "*",
+                "kodova/hamcrest-php": "*"
+            },
+            "require-dev": {
+                "phpunit/php-file-iterator": "1.3.3",
+                "phpunit/phpunit": "~4.0",
+                "satooshi/php-coveralls": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "hamcrest"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD"
+            ],
+            "description": "This is the PHP port of Hamcrest Matchers",
+            "keywords": [
+                "test"
+            ],
+            "time": "2016-01-20 08:20:44"
+        },
+        {
+            "name": "wikimedia/composer-merge-plugin",
+            "version": "v1.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wikimedia/composer-merge-plugin.git",
+                "reference": "0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/composer-merge-plugin/zipball/0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4",
+                "reference": "0bdf8543d445ee067c9ba7d5d4a5dde70b9785f4",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0",
+                "php": ">=5.3.2"
+            },
+            "require-dev": {
+                "composer/composer": "1.0.*@dev",
+                "jakub-onderka/php-parallel-lint": "~0.8",
+                "phpunit/phpunit": "~4.8|~5.0",
+                "squizlabs/php_codesniffer": "~2.1.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.3.x-dev"
+                },
+                "class": "Wikimedia\\Composer\\MergePlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Wikimedia\\Composer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bryan Davis",
+                    "email": "bd808@wikimedia.org"
+                }
+            ],
+            "description": "Composer plugin to merge multiple composer.json files",
+            "time": "2016-03-08 17:11:37"
+        },
+        {
+            "name": "wmde/hamcrest-html-matchers",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wmde/hamcrest-html-matchers.git",
+                "reference": "c8af5c07ca3efc72fa1cde04f442a0617f6da069"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wmde/hamcrest-html-matchers/zipball/c8af5c07ca3efc72fa1cde04f442a0617f6da069",
+                "reference": "c8af5c07ca3efc72fa1cde04f442a0617f6da069",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "hamcrest/hamcrest-php": "^1.1.1||^2.0",
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "WMDE\\HamcrestHtml\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Aleksey Bekh-Ivanov"
+                }
+            ],
+            "description": "Set of Hamcrest matchers for HTML assertrions ",
+            "time": "2017-02-09 13:54:22"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {

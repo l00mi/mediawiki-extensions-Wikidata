@@ -19,7 +19,6 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
-use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\DataModel\Services\Statement\StatementGuidParser;
 use Wikibase\DataModel\Services\Statement\StatementGuidValidator;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
@@ -29,7 +28,7 @@ use Wikibase\DataModel\Statement\StatementGuid;
 use Wikibase\LabelDescriptionDuplicateDetector;
 use Wikibase\Repo\DataTypeValidatorFactory;
 use Wikibase\Repo\Store\SiteLinkConflictLookup;
-use Wikibase\Repo\Validators\CompositeFingerprintValidator;
+use Wikibase\Repo\Validators\NullFingerprintValidator;
 use Wikibase\Repo\Validators\CompositeValidator;
 use Wikibase\Repo\Validators\DataValueValidator;
 use Wikibase\Repo\Validators\LabelDescriptionUniquenessValidator;
@@ -109,15 +108,6 @@ class ChangeOpTestMockProvider {
 		}
 
 		return new Statement( $snak );
-	}
-
-	/**
-	 * Returns a normal GuidGenerator.
-	 *
-	 * @return GuidGenerator
-	 */
-	public function getGuidGenerator() {
-		return new GuidGenerator();
 	}
 
 	/**
@@ -438,13 +428,6 @@ class ChangeOpTestMockProvider {
 	}
 
 	/**
-	 * @return GuidGenerator
-	 */
-	public function getMockGuidGenerator() {
-		return new GuidGenerator();
-	}
-
-	/**
 	 * Returns a mock fingerprint validator. If $entityType is Item::ENTITY_TYPE,
 	 * the validator will detect an error for any fingerprint that contains the string "DUPE"
 	 * for both the description and the label for a given language.
@@ -455,7 +438,7 @@ class ChangeOpTestMockProvider {
 	 *
 	 * @param string $entityType
 	 *
-	 * @return LabelDescriptionUniquenessValidator|CompositeFingerprintValidator
+	 * @return LabelDescriptionUniquenessValidator|NullFingerprintValidator
 	 */
 	public function getMockFingerprintValidator( $entityType ) {
 		switch ( $entityType ) {
@@ -463,7 +446,7 @@ class ChangeOpTestMockProvider {
 				return new LabelDescriptionUniquenessValidator( $this->getMockLabelDescriptionDuplicateDetector() );
 
 			default:
-				return new CompositeFingerprintValidator( array() );
+				return new NullFingerprintValidator();
 		}
 	}
 

@@ -10,10 +10,10 @@ use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 /**
  * @covers Wikibase\DataModel\Serializers\ReferenceListSerializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
-class ReferenceListSerializerTest extends SerializerBaseTest {
+class ReferenceListSerializerTest extends DispatchableSerializerTest {
 
 	protected function buildSerializer() {
 		$referenceSerializerFake = $this->getMock( '\Serializers\Serializer' );

@@ -91,12 +91,12 @@ class LinkBeginHookHandler {
 	 * @param Title $target
 	 * @param string $html
 	 * @param array $customAttribs
-	 * @param string $query
+	 * @param array $query
 	 * @param array $options
 	 * @param mixed $ret
 	 * @return bool true
 	 */
-	public static function onLinkBegin( $skin, $target, &$html, array &$customAttribs, &$query,
+	public static function onLinkBegin( $skin, $target, &$html, array &$customAttribs, array &$query,
 		&$options, &$ret
 	) {
 		$context = RequestContext::getMain();
@@ -118,6 +118,7 @@ class LinkBeginHookHandler {
 	 * @param EntityNamespaceLookup $entityNamespaceLookup
 	 * @param LanguageFallbackChain $languageFallback
 	 * @param Language $pageLanguage
+	 * @param LinkRenderer $linkRenderer
 	 *
 	 * @todo: Would be nicer to take a LabelDescriptionLookup instead of TermLookup + FallbackChain.
 	 */

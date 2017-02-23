@@ -16,7 +16,6 @@ use Wikibase\EntityRevision;
 use Wikibase\Repo\Interactors\ItemMergeException;
 use Wikibase\Repo\Interactors\ItemMergeInteractor;
 use Wikibase\Repo\Interactors\RedirectCreationException;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * @license GPL-2.0+
@@ -47,36 +46,30 @@ class MergeItems extends ApiBase {
 	private $resultBuilder;
 
 	/**
+	 * @see ApiBase::__construct
+	 *
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
-	 * @param string $modulePrefix
-	 *
-	 * @see ApiBase::__construct
+	 * @param EntityIdParser $idParser
+	 * @param ItemMergeInteractor $interactor
+	 * @param ApiErrorReporter $errorReporter
+	 * @param callable $resultBuilderInstantiator
 	 */
-	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
-		parent::__construct( $mainModule, $moduleName, $modulePrefix );
-
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $this->getContext() );
-
-		$this->setServices(
-			$wikibaseRepo->getEntityIdParser(),
-			$apiHelperFactory->getErrorReporter( $this ),
-			$apiHelperFactory->getResultBuilder( $this ),
-			$wikibaseRepo->newItemMergeInteractor( $this->getContext() )
-		);
-	}
-
-	public function setServices(
+	public function __construct(
+		ApiMain $mainModule,
+		$moduleName,
 		EntityIdParser $idParser,
+		ItemMergeInteractor $interactor,
 		ApiErrorReporter $errorReporter,
-		ResultBuilder $resultBuilder,
-		ItemMergeInteractor $interactor
+		callable $resultBuilderInstantiator
 	) {
+		parent::__construct( $mainModule, $moduleName );
+
 		$this->idParser = $idParser;
-		$this->errorReporter = $errorReporter;
-		$this->resultBuilder = $resultBuilder;
 		$this->interactor = $interactor;
+
+		$this->errorReporter = $errorReporter;
+		$this->resultBuilder = $resultBuilderInstantiator( $this );
 	}
 
 	/**

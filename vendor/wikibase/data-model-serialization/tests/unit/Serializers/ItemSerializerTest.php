@@ -14,12 +14,12 @@ use Wikibase\DataModel\Term\TermList;
 /**
  * @covers Wikibase\DataModel\Serializers\ItemSerializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  * @author Jan Zerebecki < jan.wikimedia@zerebecki.de >
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class ItemSerializerTest extends SerializerBaseTest {
+class ItemSerializerTest extends DispatchableSerializerTest {
 
 	protected function buildSerializer( $useObjectsForMaps = false ) {
 		$termListSerializerMock = $this->getMock( '\Serializers\Serializer' );
@@ -111,8 +111,8 @@ class ItemSerializerTest extends SerializerBaseTest {
 					'labels' => array(),
 					'descriptions' => array(),
 					'aliases' => array(),
-					'sitelinks' => array(),
 					'claims' => array(),
+					'sitelinks' => array(),
 				),
 				new Item()
 			),
@@ -124,21 +124,20 @@ class ItemSerializerTest extends SerializerBaseTest {
 			array(
 				'type' => 'item',
 				'id' => 'Q42',
-				'claims' => array(),
 				'labels' => array(),
 				'descriptions' => array(),
 				'aliases' => array(),
+				'claims' => array(),
 				'sitelinks' => array(),
 			),
 			$entity
 		);
 
 		$entity = new Item();
-		$entity->getFingerprint()->setLabel( 'en', 'foo' );
+		$entity->setLabel( 'en', 'foo' );
 		$provider[] = array(
 			array(
 				'type' => 'item',
-				'claims' => array(),
 				'labels' => array(
 					'en' => array(
 						'lang' => 'en',
@@ -147,17 +146,17 @@ class ItemSerializerTest extends SerializerBaseTest {
 				),
 				'descriptions' => array(),
 				'aliases' => array(),
+				'claims' => array(),
 				'sitelinks' => array(),
 			),
 			$entity
 		);
 
 		$entity = new Item();
-		$entity->getFingerprint()->setDescription( 'en', 'foo' );
+		$entity->setDescription( 'en', 'foo' );
 		$provider[] = array(
 			array(
 				'type' => 'item',
-				'claims' => array(),
 				'labels' => array(),
 				'descriptions' => array(
 					'en' => array(
@@ -166,17 +165,17 @@ class ItemSerializerTest extends SerializerBaseTest {
 					)
 				),
 				'aliases' => array(),
+				'claims' => array(),
 				'sitelinks' => array(),
 			),
 			$entity
 		);
 
 		$entity = new Item();
-		$entity->getFingerprint()->setAliasGroup( 'en', array( 'foo', 'bar' ) );
+		$entity->setAliases( 'en', [ 'foo', 'bar' ] );
 		$provider[] = array(
 			array(
 				'type' => 'item',
-				'claims' => array(),
 				'labels' => array(),
 				'descriptions' => array(),
 				'aliases' => array(
@@ -185,6 +184,7 @@ class ItemSerializerTest extends SerializerBaseTest {
 						'values' => array( 'foo', 'bar' )
 					)
 				),
+				'claims' => array(),
 				'sitelinks' => array(),
 			),
 			$entity
@@ -195,6 +195,9 @@ class ItemSerializerTest extends SerializerBaseTest {
 		$provider[] = array(
 			array(
 				'type' => 'item',
+				'labels' => array(),
+				'descriptions' => array(),
+				'aliases' => array(),
 				'claims' => array(
 					'P42' => array(
 						array(
@@ -207,9 +210,6 @@ class ItemSerializerTest extends SerializerBaseTest {
 						)
 					)
 				),
-				'labels' => array(),
-				'descriptions' => array(),
-				'aliases' => array(),
 				'sitelinks' => array(),
 			),
 			$entity
@@ -220,6 +220,10 @@ class ItemSerializerTest extends SerializerBaseTest {
 		$provider[] = array(
 			array(
 				'type' => 'item',
+				'labels' => array(),
+				'descriptions' => array(),
+				'aliases' => array(),
+				'claims' => array(),
 				'sitelinks' => array(
 					'enwiki' => array(
 						'site' => 'enwiki',
@@ -227,10 +231,6 @@ class ItemSerializerTest extends SerializerBaseTest {
 						'badges' => array()
 					)
 				),
-				'labels' => array(),
-				'descriptions' => array(),
-				'aliases' => array(),
-				'claims' => array(),
 			),
 			$item
 		);

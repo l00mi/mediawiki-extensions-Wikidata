@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'Wikimedia\\Purtle\\Tests\\' => array($vendorDir . '/wikimedia/purtle/tests/phpunit'),
     'Wikimedia\\Purtle\\' => array($vendorDir . '/wikimedia/purtle/src'),
+    'Wikimedia\\Composer\\' => array($vendorDir . '/wikimedia/composer-merge-plugin/src'),
     'Wikimedia\\Assert\\Test\\' => array($vendorDir . '/wikimedia/assert/tests/phpunit'),
     'Wikimedia\\Assert\\' => array($vendorDir . '/wikimedia/assert/src'),
     'WikimediaBadges\\' => array($baseDir . '/extensions/WikimediaBadges/includes'),
@@ -38,6 +39,7 @@ return array(
     'WikibaseQuality\\ConstraintReport\\' => array($baseDir . '/extensions/Constraints/includes'),
     'WikibaseQuality\\Api\\' => array($baseDir . '/extensions/Quality/api'),
     'WikibaseQuality\\' => array($baseDir . '/extensions/Quality/includes'),
+    'WMDE\\HamcrestHtml\\' => array($vendorDir . '/wmde/hamcrest-html-matchers/src'),
     'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src/ValueValidators', $vendorDir . '/data-values/validators/src'),
     'ValueParsers\\' => array($vendorDir . '/data-values/interfaces/src/ValueParsers', $vendorDir . '/data-values/common/src/ValueParsers'),
     'ValueFormatters\\' => array($vendorDir . '/data-values/interfaces/src/ValueFormatters', $vendorDir . '/data-values/common/src/ValueFormatters'),

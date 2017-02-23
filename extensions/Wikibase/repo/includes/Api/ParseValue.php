@@ -22,7 +22,6 @@ use Wikibase\Repo\Localizer\ExceptionLocalizer;
 use Wikibase\Repo\Validators\CompositeValidator;
 use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\Repo\ValueParserFactory;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * API module for using value parsers.
@@ -280,7 +279,7 @@ class ParseValue extends ApiBase {
 	/**
 	 * Returns a Status object representing the given exception using a localized message.
 	 *
-	 * @note: The returned Status will always be fatal, that is, $status->isOk() will return false.
+	 * @note: The returned Status will always be fatal, that is, $status->isOK() will return false.
 	 *
 	 * @see getExceptionMessage().
 	 *

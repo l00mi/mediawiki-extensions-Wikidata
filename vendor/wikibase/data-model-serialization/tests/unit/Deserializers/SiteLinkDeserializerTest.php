@@ -2,6 +2,7 @@
 
 namespace Tests\Wikibase\DataModel\Deserializers;
 
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Deserializers\SiteLinkDeserializer;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -10,12 +11,12 @@ use Wikibase\DataModel\SiteLink;
 /**
  * @covers Wikibase\DataModel\Deserializers\SiteLinkDeserializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
-class SiteLinkDeserializerTest extends DeserializerBaseTest {
+class SiteLinkDeserializerTest extends PHPUnit_Framework_TestCase {
 
-	public function buildDeserializer() {
+	private function buildDeserializer() {
 		$entityIdDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
 		$entityIdDeserializerMock->expects( $this->any() )
 			->method( 'deserialize' )
@@ -25,8 +26,13 @@ class SiteLinkDeserializerTest extends DeserializerBaseTest {
 		return new SiteLinkDeserializer( $entityIdDeserializerMock );
 	}
 
-	public function deserializableProvider() {
-		return array( array() );
+	/**
+	 * @dataProvider nonDeserializableProvider
+	 */
+	public function testDeserializeThrowsDeserializationException( $nonDeserializable ) {
+		$deserializer = $this->buildDeserializer();
+		$this->setExpectedException( 'Deserializers\Exceptions\DeserializationException' );
+		$deserializer->deserialize( $nonDeserializable );
 	}
 
 	public function nonDeserializableProvider() {
@@ -53,6 +59,13 @@ class SiteLinkDeserializerTest extends DeserializerBaseTest {
 				)
 			),
 		);
+	}
+
+	/**
+	 * @dataProvider deserializationProvider
+	 */
+	public function testDeserialization( $object, $serialization ) {
+		$this->assertEquals( $object, $this->buildDeserializer()->deserialize( $serialization ) );
 	}
 
 	public function deserializationProvider() {

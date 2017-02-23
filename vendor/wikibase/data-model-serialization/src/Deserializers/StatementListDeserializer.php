@@ -4,12 +4,13 @@ namespace Wikibase\DataModel\Deserializers;
 
 use Deserializers\Deserializer;
 use Deserializers\Exceptions\DeserializationException;
+use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 
 /**
  * Package private
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Bene* < benestar.wikimedia@gmail.com >
  * @author Addshore
  */
@@ -36,7 +37,9 @@ class StatementListDeserializer implements Deserializer {
 	 * @return StatementList
 	 */
 	public function deserialize( $serialization ) {
-		$this->assertHasGoodFormat( $serialization );
+		if ( !is_array( $serialization ) ) {
+			throw new DeserializationException( 'The StatementList serialization should be an array' );
+		}
 
 		return $this->getDeserialized( $serialization );
 	}
@@ -51,30 +54,23 @@ class StatementListDeserializer implements Deserializer {
 
 		foreach ( $serialization as $key => $statementArray ) {
 			if ( is_string( $key ) ) {
+				if ( !is_array( $statementArray ) ) {
+					throw new DeserializationException( "The statements per property \"$key\" should be an array" );
+				}
+
 				foreach ( $statementArray as $statementSerialization ) {
-					$statementList->addStatement(
-						$this->statementDeserializer->deserialize( $statementSerialization )
-					);
+					/** @var Statement $statement */
+					$statement = $this->statementDeserializer->deserialize( $statementSerialization );
+					$statementList->addStatement( $statement );
 				}
 			} else {
-				$statementList->addStatement( $this->statementDeserializer->deserialize( $statementArray ) );
+				/** @var Statement $statement */
+				$statement = $this->statementDeserializer->deserialize( $statementArray );
+				$statementList->addStatement( $statement );
 			}
-
 		}
 
 		return $statementList;
-	}
-
-	private function assertHasGoodFormat( $serialization ) {
-		if ( !is_array( $serialization ) ) {
-			throw new DeserializationException( 'The StatementList serialization should be an array' );
-		}
-
-		foreach ( $serialization as $key => $statementArray ) {
-			if ( is_string( $key ) && !is_array( $statementArray ) ) {
-				throw new DeserializationException( 'The statements per property should be an array' );
-			}
-		}
 	}
 
 }
