@@ -394,8 +394,67 @@ call_user_func( function() {
 			);
 		}
 	];
-	$wgAPIModules['wbsetreference'] = Wikibase\Repo\Api\SetReference::class;
-	$wgAPIModules['wbremovereferences'] = Wikibase\Repo\Api\RemoveReferences::class;
+	$wgAPIModules['wbsetreference'] = [
+		'class' => Wikibase\Repo\Api\SetReference::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+			$modificationHelper = new Wikibase\Repo\Api\StatementModificationHelper(
+				$wikibaseRepo->getSnakFactory(),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getStatementGuidValidator(),
+				$apiHelperFactory->getErrorReporter( $mainModule )
+			);
+
+			return new Wikibase\Repo\Api\SetReference(
+				$mainModule,
+				$moduleName,
+				$wikibaseRepo->getExternalFormatDeserializerFactory(),
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$modificationHelper,
+				$wikibaseRepo->getStatementGuidParser(),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
+	$wgAPIModules['wbremovereferences'] = [
+		'class' => Wikibase\Repo\Api\RemoveReferences::class,
+		'factory' => function( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$apiHelperFactory = $wikibaseRepo->getApiHelperFactory( $mainModule->getContext() );
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+
+			$modificationHelper = new Wikibase\Repo\Api\StatementModificationHelper(
+				$wikibaseRepo->getSnakFactory(),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getStatementGuidValidator(),
+				$apiHelperFactory->getErrorReporter( $mainModule )
+			);
+
+			return new Wikibase\Repo\Api\RemoveReferences(
+				$mainModule,
+				$moduleName,
+				$apiHelperFactory->getErrorReporter( $mainModule ),
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$modificationHelper,
+				$wikibaseRepo->getStatementGuidParser(),
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getResultBuilder( $module );
+				},
+				function ( $module ) use ( $apiHelperFactory ) {
+					return $apiHelperFactory->getEntitySavingHelper( $module );
+				}
+			);
+		}
+	];
 	$wgAPIModules['wbsetclaim'] = [
 		'class' => Wikibase\Repo\Api\SetClaim::class,
 		'factory' => function( ApiMain $mainModule, $moduleName ) {
@@ -556,7 +615,31 @@ call_user_func( function() {
 			);
 		}
 	];
-	$wgAPIListModules['wbsearch'] = Wikibase\Repo\Api\QuerySearchEntities::class;
+	$wgAPIListModules['wbsearch'] = [
+		'class' => Wikibase\Repo\Api\QuerySearchEntities::class,
+		'factory' => function( ApiQuery $apiQuery, $moduleName ) {
+			$repo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$entitySearchHelper = new Wikibase\Repo\Api\EntitySearchHelper(
+				$repo->getEntityLookup(),
+				$repo->getEntityIdParser(),
+				$repo->newTermSearchInteractor( $apiQuery->getLanguage()->getCode() ),
+				new Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup(
+					$repo->getTermLookup(),
+					$repo->getLanguageFallbackChainFactory()
+						->newFromLanguage( $apiQuery->getLanguage() )
+				)
+			);
+
+			return new Wikibase\Repo\Api\QuerySearchEntities(
+				$apiQuery,
+				$moduleName,
+				$entitySearchHelper,
+				$repo->getEntityTitleLookup(),
+				$repo->getTermsLanguages(),
+				$repo->getEnabledEntityTypes()
+			);
+		}
+	];
 	$wgAPIListModules['wbsubscribers'] = [
 		'class' => Wikibase\Repo\Api\ListSubscribers::class,
 		'factory' => function( ApiQuery $apiQuery, $moduleName ) {

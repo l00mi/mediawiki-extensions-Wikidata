@@ -44,6 +44,8 @@ use Wikibase\Lib\WikibaseValueFormatterBuilders;
  */
 class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 
+	const GEO_SHAPE_STORAGE_FRONTEND_URL = '//commons.wikimedia.org/wiki/';
+
 	protected function setUp() {
 		parent::setUp();
 
@@ -88,6 +90,7 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 			new FormatterLabelDescriptionLookupFactory( $termLookup ),
 			$languageNameLookup,
 			new ItemIdParser(),
+			self::GEO_SHAPE_STORAGE_FRONTEND_URL,
 			$entityTitleLookup
 		);
 	}
@@ -227,14 +230,14 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 				SnakFormatter::FORMAT_PLAIN,
 				$this->newFormatterOptions(),
 				new StringValue( 'http://acme.com/' ),
-				'@^http://acme\\.com/$@'
+				'@^http://acme\.com/$@'
 			),
 			'wikitext url' => array(
 				'Url',
 				SnakFormatter::FORMAT_WIKI,
 				$this->newFormatterOptions(),
 				new StringValue( 'http://acme.com/' ),
-				'@^http://acme\\.com/$@'
+				'@^http://acme\.com/$@'
 			),
 			'html url' => array(
 				'Url',
@@ -280,7 +283,7 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 				SnakFormatter::FORMAT_HTML,
 				$this->newFormatterOptions(),
 				new StringValue( 'Example.jpg' ),
-				'@^<a class="extiw" href="//commons\\.wikimedia\\.org/wiki/File:Example\\.jpg">Example\\.jpg</a>$@',
+				'@^<a class="extiw" href="//commons\.wikimedia\.org/wiki/File:Example\.jpg">Example\.jpg</a>$@',
 			),
 			// geo-shape
 			'plain geo-shape' => array(
@@ -295,7 +298,18 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 				SnakFormatter::FORMAT_HTML,
 				$this->newFormatterOptions(),
 				new StringValue( 'Data:GeoShape.map' ),
-				'@^<a class="extiw" href="//commons\\.wikimedia\\.org/wiki/Data%3AGeoShape\\.map">Data:GeoShape\\.map</a>$@',
+				'@^<a class="extiw" href="//commons\.wikimedia\.org/wiki/Data:GeoShape\.map">Data:GeoShape\.map</a>$@',
+			),
+			'wikitext geo-shape' => array(
+				'GeoShape',
+				SnakFormatter::FORMAT_WIKI,
+				$this->newFormatterOptions(),
+				new StringValue( 'Data:GeoShape.map' ),
+				'@' .
+				preg_quote(
+					'[//commons.wikimedia.org/wiki/Data:GeoShape.map Data:GeoShape.map]',
+					'@' ) .
+				'@',
 			),
 			// GlobeCoordinate
 			'plain coordinate' => array(
@@ -319,14 +333,14 @@ class WikibaseValueFormatterBuildersTest extends MediaWikiTestCase {
 				SnakFormatter::FORMAT_PLAIN,
 				$this->newFormatterOptions( 'de' ),
 				UnboundedQuantityValue::newFromNumber( '+123456.789' ),
-				'@^123\\.456,789$@'
+				'@^123\.456,789$@'
 			),
 			'quantity details' => array(
 				'Quantity',
 				SnakFormatter::FORMAT_HTML_DIFF,
 				$this->newFormatterOptions( 'de' ),
 				QuantityValue::newFromNumber( '+123456.789' ),
-				'@^.*123\\.456,789.*$@'
+				'@^.*123\.456,789.*$@'
 			),
 
 			// Time

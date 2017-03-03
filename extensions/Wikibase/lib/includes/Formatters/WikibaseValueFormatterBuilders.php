@@ -18,8 +18,10 @@ use Wikibase\Formatters\MonolingualHtmlFormatter;
 use Wikibase\Formatters\MonolingualTextFormatter;
 use Wikibase\Lib\Formatters\CommonsThumbnailFormatter;
 use Wikibase\Lib\Formatters\EntityIdSiteLinkFormatter;
-use Wikibase\Lib\Formatters\InterWikiLinkFormatter;
+use Wikibase\Lib\Formatters\InterWikiLinkHtmlFormatter;
+use Wikibase\Lib\Formatters\InterWikiLinkWikitextFormatter;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikimedia\Assert\Assert;
 
 /**
  * Low level factory for ValueFormatters for well known data types.
@@ -54,6 +56,11 @@ class WikibaseValueFormatterBuilders {
 	private $repoItemUriParser;
 
 	/**
+	 * @var string
+	 */
+	private $geoShapeStorageFrontendUrl;
+
+	/**
 	 * @var EntityTitleLookup|null
 	 */
 	private $entityTitleLookup;
@@ -75,6 +82,7 @@ class WikibaseValueFormatterBuilders {
 	 * @param FormatterLabelDescriptionLookupFactory $labelDescriptionLookupFactory
 	 * @param LanguageNameLookup $languageNameLookup
 	 * @param EntityIdParser $repoItemUriParser
+	 * @param string $geoShapeStorageFrontendUrl
 	 * @param EntityTitleLookup|null $entityTitleLookup
 	 */
 	public function __construct(
@@ -82,12 +90,20 @@ class WikibaseValueFormatterBuilders {
 		FormatterLabelDescriptionLookupFactory $labelDescriptionLookupFactory,
 		LanguageNameLookup $languageNameLookup,
 		EntityIdParser $repoItemUriParser,
+		$geoShapeStorageFrontendUrl,
 		EntityTitleLookup $entityTitleLookup = null
 	) {
+		Assert::parameterType(
+			'string',
+			$geoShapeStorageFrontendUrl,
+			'$geoShapeStorageFrontendUrl'
+		);
+
 		$this->defaultLanguage = $defaultLanguage;
 		$this->labelDescriptionLookupFactory = $labelDescriptionLookupFactory;
 		$this->languageNameLookup = $languageNameLookup;
 		$this->repoItemUriParser = $repoItemUriParser;
+		$this->geoShapeStorageFrontendUrl = $geoShapeStorageFrontendUrl;
 		$this->entityTitleLookup = $entityTitleLookup;
 	}
 
@@ -241,7 +257,9 @@ class WikibaseValueFormatterBuilders {
 	public function newGeoShapeFormatter( $format, FormatterOptions $options ) {
 		switch ( $this->getBaseFormat( $format ) ) {
 			case SnakFormatter::FORMAT_HTML:
-				return new InterWikiLinkFormatter( $options );
+				return new InterWikiLinkHtmlFormatter( $this->geoShapeStorageFrontendUrl );
+			case SnakFormatter::FORMAT_WIKI:
+				return new InterWikiLinkWikitextFormatter( $this->geoShapeStorageFrontendUrl );
 			default:
 				return $this->newStringFormatter( $format, $options );
 		}

@@ -394,7 +394,8 @@ class WikibaseRepo {
 			$this->getVocabularyBaseUri(),
 			$this->getMonolingualTextLanguages(),
 			$this->getCachingCommonsMediaFileNameLookup(),
-			$entityTypesPerRepo
+			$entityTypesPerRepo,
+			new MediaWikiPageNameNormalizer()
 		);
 	}
 
@@ -429,6 +430,7 @@ class WikibaseRepo {
 			new FormatterLabelDescriptionLookupFactory( $this->getTermLookup() ),
 			$this->getLanguageNameLookup(),
 			$this->getLocalItemUriParser(),
+			$this->getSettings()->getSetting( 'geoShapeStorageFrontendUrl' ),
 			$this->getEntityTitleLookup()
 		);
 	}
@@ -825,7 +827,8 @@ class WikibaseRepo {
 			$this->getStatementGuidParser(),
 			$this->getSnakValidator(),
 			$this->getTermValidatorFactory(),
-			$this->getSiteLookup()
+			$this->getSiteLookup(),
+			array_keys( $this->settings->getSetting( 'badgeItems' ) )
 		);
 	}
 
@@ -908,7 +911,12 @@ class WikibaseRepo {
 	 */
 	public function getSnakFormatterFactory() {
 		if ( $this->snakFormatterFactory === null ) {
-			$this->snakFormatterFactory = $this->newSnakFormatterFactory();
+			$this->snakFormatterFactory = new OutputFormatSnakFormatterFactory(
+				$this->dataTypeDefinitions->getSnakFormatterFactoryCallbacks(),
+				$this->getValueFormatterFactory(),
+				$this->getPropertyDataTypeLookup(),
+				$this->getDataTypeFactory()
+			);
 		}
 
 		return $this->snakFormatterFactory;
@@ -969,20 +977,6 @@ class WikibaseRepo {
 		//@todo: We currently use the local repo concept URI here. This should be configurable,
 		// to e.g. allow 3rd parties to use Wikidata as their vocabulary repo.
 		return $this->settings->getSetting( 'conceptBaseUri' );
-	}
-
-	/**
-	 * @return OutputFormatSnakFormatterFactory
-	 */
-	protected function newSnakFormatterFactory() {
-		$factory = new OutputFormatSnakFormatterFactory(
-			$this->dataTypeDefinitions->getSnakFormatterFactoryCallbacks(),
-			$this->getValueFormatterFactory(),
-			$this->getPropertyDataTypeLookup(),
-			$this->getDataTypeFactory()
-		);
-
-		return $factory;
 	}
 
 	/**

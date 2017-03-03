@@ -5,7 +5,7 @@
 			"Metalhead64"
 		]
 	},
-	"wbqev-desc": "{{desc|name=Надворешна заверка на квалитетот на Викибазата|url=https://www.mediawiki.org/wiki/Extension:WikibaseQualityExternalValidation}}",
+	"wbqev-desc": "Сопоставување на податоци со соодветните информации во надворешни бази",
 	"wbqev-crosscheck": "Сопостави со надворешни бази",
 	"wbqev-crosscheck-explanation-general": "Оваа службена страница врши сопоставувања помеѓу предметите на Википодатоци и надворешните бази. Базите што ги користиме можете да ги погледате на службената страница.",
 	"wbqev-crosscheck-explanation-detail": "За да преработите предмет, внесете ја неговата назнака. Вредностите на секое проверливо својство се споредуваат со вредностите во базата и исходот се прикажува тука. Покрај ова, проверуваме дали недостасуваат наводи или можат да се стават во образецот на базата што го изјавува истиот факт.",
@@ -14,7 +14,7 @@
 	"wbqev-crosscheck-form-submit-label": "Провери",
 	"wbqev-crosscheck-invalid-entity-id": "Неважечка назнака за единица!",
 	"wbqev-crosscheck-not-existent-entity": "Единицата не постои!",
-	"wbqev-crosscheck-result-headline": "Резултат за",
+	"wbqev-crosscheck-result-headline": "Исход за",
 	"wbqev-crosscheck-empty-result": "Внесената единица нема тврдења што може да се проверат со поддржана база.",
 	"wbqev-crosscheck-result-table-header-references": "Наводи",
 	"wbqev-crosscheck-result-table-header-local-value": "Вредност на Википодатоците",
