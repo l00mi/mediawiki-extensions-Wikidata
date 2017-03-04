@@ -1044,69 +1044,6 @@
         ]
     },
     {
-        "name": "data-values/validators",
-        "version": "0.1.2",
-        "version_normalized": "0.1.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/DataValues/Validators.git",
-            "reference": "726f54fdc6bf58aa4f5405ae3d9c3f2b0f916141"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/DataValues/Validators/zipball/726f54fdc6bf58aa4f5405ae3d9c3f2b0f916141",
-            "reference": "726f54fdc6bf58aa4f5405ae3d9c3f2b0f916141",
-            "shasum": ""
-        },
-        "require": {
-            "data-values/data-values": "~1.0|~0.1",
-            "data-values/interfaces": "~0.1",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-10-09 19:10:23",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "0.1.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "Validators.php"
-            ],
-            "psr-4": {
-                "ValueValidators\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Jeroen De Dauw",
-                "email": "jeroendedauw@gmail.com",
-                "homepage": "http://jeroendedauw.com",
-                "role": "Developer"
-            },
-            {
-                "name": "The Wikidata team",
-                "role": "Developer"
-            }
-        ],
-        "description": "Common ValueValidator implementations",
-        "homepage": "https://github.com/DataValues/Validators",
-        "keywords": [
-            "datavalues",
-            "validation",
-            "validators",
-            "valueformatters",
-            "valueparsers",
-            "wikidata"
-        ]
-    },
-    {
         "name": "data-values/common",
         "version": "0.3.1",
         "version_normalized": "0.3.1.0",
@@ -1413,12 +1350,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "459305f5df9395246ccff261b4ccdab2a4fd4e71"
+            "reference": "1514bc80ad4653efe1ae508bddd46f9790954ba6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/459305f5df9395246ccff261b4ccdab2a4fd4e71",
-            "reference": "459305f5df9395246ccff261b4ccdab2a4fd4e71",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/1514bc80ad4653efe1ae508bddd46f9790954ba6",
+            "reference": "1514bc80ad4653efe1ae508bddd46f9790954ba6",
             "shasum": ""
         },
         "require": {
@@ -1431,7 +1368,6 @@
             "data-values/number": "^0.8.2",
             "data-values/serialization": "^1.2.0",
             "data-values/time": "^0.8.4",
-            "data-values/validators": "^0.1.0",
             "data-values/value-view": "^0.18.2",
             "diff/diff": "^2.0.0",
             "php": ">=5.5.9",
@@ -1451,7 +1387,7 @@
             "jakub-onderka/php-parallel-lint": ">=0.3 <0.10",
             "mediawiki/mediawiki-codesniffer": ">=0.4 <0.8"
         },
-        "time": "2017-03-02 22:27:36",
+        "time": "2017-03-03 21:50:48",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {

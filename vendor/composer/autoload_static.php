@@ -24,7 +24,6 @@ class ComposerStaticInit_mediawiki_extension_wikidata
         'f44e0a54bf5f0864879c4d3e46950b49' => __DIR__ . '/..' . '/wikibase/javascript-api/WikibaseJavaScriptApi.php',
         'e47bdf5a503f90444b98ecdcab719841' => __DIR__ . '/..' . '/wikibase/internal-serialization/mediawiki.php',
         '499fed5dd24a6329f26a3973b04c5440' => __DIR__ . '/../..' . '/extensions/ValueView/ValueView.php',
-        '0dd9431cbbfa9ed9cb9d565d7129dbaf' => __DIR__ . '/..' . '/data-values/validators/Validators.php',
         'b27615ec50616984e4b07db5658aba0d' => __DIR__ . '/..' . '/data-values/data-types/DataTypes.php',
         '6b49d0287e368cb66263e04ca7d9699f' => __DIR__ . '/../..' . '/extensions/WikimediaBadges/WikimediaBadges.php',
     );
@@ -233,7 +232,6 @@ class ComposerStaticInit_mediawiki_extension_wikidata
         'ValueValidators\\' => 
         array (
             0 => __DIR__ . '/..' . '/data-values/interfaces/src/ValueValidators',
-            1 => __DIR__ . '/..' . '/data-values/validators/src',
         ),
         'ValueParsers\\' => 
         array (
@@ -547,14 +545,8 @@ class ComposerStaticInit_mediawiki_extension_wikidata
         'ValueParsers\\YearMonthDayTimeParser' => __DIR__ . '/..' . '/data-values/time/src/ValueParsers/YearMonthDayTimeParser.php',
         'ValueParsers\\YearMonthTimeParser' => __DIR__ . '/..' . '/data-values/time/src/ValueParsers/YearMonthTimeParser.php',
         'ValueParsers\\YearTimeParser' => __DIR__ . '/..' . '/data-values/time/src/ValueParsers/YearTimeParser.php',
-        'ValueValidators\\DimensionValidator' => __DIR__ . '/..' . '/data-values/validators/src/DimensionValidator.php',
         'ValueValidators\\Error' => __DIR__ . '/..' . '/data-values/interfaces/src/ValueValidators/Error.php',
-        'ValueValidators\\ListValidator' => __DIR__ . '/..' . '/data-values/validators/src/ListValidator.php',
-        'ValueValidators\\NullValidator' => __DIR__ . '/..' . '/data-values/validators/src/NullValidator.php',
-        'ValueValidators\\RangeValidator' => __DIR__ . '/..' . '/data-values/validators/src/RangeValidator.php',
         'ValueValidators\\Result' => __DIR__ . '/..' . '/data-values/interfaces/src/ValueValidators/Result.php',
-        'ValueValidators\\StringValidator' => __DIR__ . '/..' . '/data-values/validators/src/StringValidator.php',
-        'ValueValidators\\TitleValidator' => __DIR__ . '/..' . '/data-values/validators/src/TitleValidator.php',
         'ValueValidators\\ValueValidator' => __DIR__ . '/..' . '/data-values/interfaces/src/ValueValidators/ValueValidator.php',
         'ValueValidators\\ValueValidatorObject' => __DIR__ . '/..' . '/data-values/interfaces/src/ValueValidators/ValueValidatorObject.php',
         'WikibaseQualityConstraintsHooks' => __DIR__ . '/../..' . '/extensions/Constraints/WikibaseQualityConstraintsHooks.php',

@@ -38,7 +38,7 @@ return array(
     'WikibaseQuality\\ConstraintReport\\' => array($baseDir . '/extensions/Constraints/includes'),
     'WikibaseQuality\\Api\\' => array($baseDir . '/extensions/Quality/api'),
     'WikibaseQuality\\' => array($baseDir . '/extensions/Quality/includes'),
-    'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src/ValueValidators', $vendorDir . '/data-values/validators/src'),
+    'ValueValidators\\' => array($vendorDir . '/data-values/interfaces/src/ValueValidators'),
     'ValueParsers\\' => array($vendorDir . '/data-values/interfaces/src/ValueParsers', $vendorDir . '/data-values/common/src/ValueParsers'),
     'ValueFormatters\\' => array($vendorDir . '/data-values/interfaces/src/ValueFormatters', $vendorDir . '/data-values/common/src/ValueFormatters'),
     'Serializers\\' => array($vendorDir . '/serialization/serialization/src/Serializers'),
