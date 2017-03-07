@@ -12,7 +12,7 @@
 			"i18n"
 		]
 	},
-	"ExtensionMessagesFile": {
+	"ExtensionMessagesFiles": {
 		"WikibaseQualityAlias": "WikibaseQuality.alias.php"
 	},
 	"ResourceModules": {

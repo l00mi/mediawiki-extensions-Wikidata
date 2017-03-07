@@ -11,7 +11,7 @@ use MWException;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Daniel Kinzler
  */
-class ChangeRow implements Change {
+abstract class ChangeRow implements Change {
 
 	/**
 	 * The fields of the object.
@@ -41,15 +41,6 @@ class ChangeRow implements Change {
 
 	public function __construct( array $fields = array() ) {
 		$this->setFields( $fields );
-	}
-
-	/**
-	 * @see Change::getType
-	 *
-	 * @return string
-	 */
-	public function getType() {
-		return 'change';
 	}
 
 	/**
@@ -200,9 +191,7 @@ class ChangeRow implements Change {
 	}
 
 	/**
-	 * Returns the objects database id.
-	 *
-	 * @return int|null
+	 * @return int|null Number to be used as an identifier when persisting the change.
 	 */
 	public function getId() {
 		return $this->getField( 'id' );

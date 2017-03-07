@@ -49,7 +49,11 @@ class DataValueDeserializer implements DispatchableDeserializer {
 			if ( !is_string( $type )
 				|| ( !is_callable( $builder ) && !$this->isDataValueClass( $builder ) )
 			) {
-				throw new InvalidArgumentException( '$builders must map data types to callables or class names' );
+				$message = '$builders must map data types to callables or class names';
+				if ( is_string( $builder ) ) {
+					$message .= ". '$builder' is not a DataValue class.";
+				}
+				throw new InvalidArgumentException( $message );
 			}
 		}
 	}
@@ -73,8 +77,7 @@ class DataValueDeserializer implements DispatchableDeserializer {
 		try {
 			$this->assertCanDeserialize();
 			return true;
-		}
-		catch ( RuntimeException $ex ) {
+		} catch ( RuntimeException $ex ) {
 			return false;
 		}
 	}
@@ -82,7 +85,7 @@ class DataValueDeserializer implements DispatchableDeserializer {
 	/**
 	 * @see Deserializer::deserialize
 	 *
-	 * @param mixed $serialization
+	 * @param array $serialization
 	 *
 	 * @throws DeserializationException
 	 * @return DataValue

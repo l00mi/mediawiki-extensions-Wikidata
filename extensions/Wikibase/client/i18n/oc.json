@@ -9,8 +9,10 @@
 	"wikibase-dataitem": "Element {{WBREPONAME}}",
 	"wikibase-editlinks": "Modificar los ligams",
 	"wikibase-editlinkstitle": "Modificar los ligams interlenga",
+	"wikibase-addlinkstitle": "Apondre los ligams interlengas",
 	"wikibase-linkitem-addlinks": "Apondre de ligams",
 	"wikibase-linkitem-alreadylinked": "La pagina a la quala vos volètz ligar es ja estacada a un [$1 element] del depaus de donadas central que se liga a $2 sus aqueste site. Los elements pòdon pas aver qu’una pagina estacada per site. Causissètz una autra pagina per vos i ligar.",
+	"wikibase-linkitem-close": "Tampar la bóstia de dialòg e recargar la pagina",
 	"wikibase-linkitem-title": "Se ligar amb la pagina",
 	"wikibase-linkitem-linkpage": "Ligam amb la pagina",
 	"wikibase-linkitem-input-site": "Lenga :",
@@ -42,5 +44,6 @@
 	"wikibase-pageinfo-entity-usage-O": "Autre (declaracions)",
 	"wikibase-otherprojects": "Dins d'autres projèctes",
 	"echo-category-title-wikibase-action": "{{PLURAL:$1|Connexion|Connexions}} amb {{WBREPONAME}}",
-	"notification-link-text-view-item": "{{GENDER:$1|visualiza}} la notificacion"
+	"notification-link-text-view-item": "{{GENDER:$1|visualiza}} la notificacion",
+	"unresolved-property-category": "Paginas amb de proprietats pas resolgudas"
 }

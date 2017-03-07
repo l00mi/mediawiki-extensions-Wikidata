@@ -49,6 +49,11 @@ as [Wikimedia Germany](https://wikimedia.de) employee for the [Wikidata project]
 
 ## Release notes
 
+### 1.2.0 (2017-01-31)
+
+* Improved error reporting in the `DataValueDeserializer` constructor.
+* Added a basic PHPCS rule set, can be run with `composer phpcs`.
+
 ### 1.1.0 (2016-05-24)
 
 * Added support for builder functions to `DataValueDeserializer`
@@ -66,13 +71,13 @@ as [Wikimedia Germany](https://wikimedia.de) employee for the [Wikidata project]
 
 * Handle IllegalValueException in DataValueDeserializer
 
-### 1.0 (2014-03-05)
+### 1.0.0 (2014-03-05)
 
 * Switched usage of the Serialization component from version ~2.1 to version ~3.0.
 * Switched from PSR-0 based autoloading to PSR-4 based autoloading
 * Made PHPUnit bootstrap file compatible with Windows
 
-### 0.1 (2013-12-05)
+### 0.1.0 (2013-12-05)
 
 Initial release with these features:
 

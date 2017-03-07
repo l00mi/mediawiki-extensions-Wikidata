@@ -10,6 +10,7 @@ use Wikibase\ChangeOp\MergeChangeOpsFactory;
 use Wikibase\ChangeOp\SiteLinkChangeOpFactory;
 use Wikibase\ChangeOp\StatementChangeOpFactory;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\Services\Statement\GuidGenerator;
 use Wikibase\Repo\Validators\EntityConstraintProvider;
 
 /**
@@ -52,12 +53,13 @@ class ChangeOpFactoryProviderTest extends \PHPUnit_Framework_TestCase {
 
 		return new ChangeOpFactoryProvider(
 			$constraintProvider,
-			$this->mockProvider->getMockGuidGenerator(),
+			new GuidGenerator(),
 			$this->mockProvider->getMockGuidValidator(),
 			$this->mockProvider->getMockGuidParser( $entityId ),
 			$this->mockProvider->getMockSnakValidator(),
 			$this->mockProvider->getMockTermValidatorFactory(),
-			new HashSiteStore( TestSites::getSites() )
+			new HashSiteStore( TestSites::getSites() ),
+			[]
 		);
 	}
 

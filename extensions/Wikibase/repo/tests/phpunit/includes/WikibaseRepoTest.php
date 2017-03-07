@@ -14,16 +14,17 @@ use DataValues\TimeValue;
 use DataValues\UnboundedQuantityValue;
 use DataValues\UnknownValue;
 use Deserializers\Deserializer;
-use Language;
 use MediaWikiTestCase;
 use RequestContext;
 use Serializers\Serializer;
 use User;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
+use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\EntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\ItemId;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
@@ -33,7 +34,6 @@ use Wikibase\DataModel\Services\Term\TermBuffer;
 use Wikibase\EditEntityFactory;
 use Wikibase\EntityFactory;
 use Wikibase\InternalSerialization\DeserializerFactory as InternalDeserializerFactory;
-use Wikibase\InternalSerialization\SerializerFactory;
 use Wikibase\LanguageFallbackChainFactory;
 use Wikibase\Lib\Changes\EntityChangeFactory;
 use Wikibase\Lib\ContentLanguages;
@@ -68,6 +68,8 @@ use Wikibase\Repo\ParserOutput\EntityParserOutputGeneratorFactory;
 use Wikibase\Repo\SnakFactory;
 use Wikibase\Repo\ValidatorBuilders;
 use Wikibase\Repo\Validators\CompositeValidator;
+use Wikibase\Repo\Validators\EntityExistsValidator;
+use Wikibase\Repo\Validators\TermValidatorFactory;
 use Wikibase\Repo\ValueParserFactory;
 use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
@@ -89,18 +91,46 @@ use Wikibase\SummaryFormatter;
 class WikibaseRepoTest extends MediaWikiTestCase {
 
 	public function testGetDefaultValidatorBuilders() {
-		$first = $this->getWikibaseRepo()->getDefaultValidatorBuilders();
+		$first = WikibaseRepo::getDefaultValidatorBuilders();
 		$this->assertInstanceOf( ValidatorBuilders::class, $first );
 
-		$second = $this->getWikibaseRepo()->getDefaultValidatorBuilders();
+		$second = WikibaseRepo::getDefaultValidatorBuilders();
 		$this->assertSame( $first, $second );
+	}
+
+	public function testNewValidatorBuilders() {
+		$entityId = new ItemId( 'other:Q9' );
+		$repo = $this->getWikibaseRepoWithClientSettings( new SettingsArray( [
+			'foreignRepositories' => [
+				'other' => [
+					'supportedEntityTypes' => [ $entityId->getEntityType() ],
+				]
+			]
+		] ) );
+		$valueToValidate = new EntityIdValue( $entityId );
+
+		$builders = $repo->newValidatorBuilders();
+		$this->assertInstanceOf( ValidatorBuilders::class, $builders );
+
+		// We get the resulting ValueValidators and run them against our fake remote-repo
+		// custom-type EntityIdValue. We skip the existence check though, since we don't
+		// have a mock lookup in place.
+		$entityValidators = $builders->buildEntityValidators();
+		foreach ( $entityValidators as $validator ) {
+			if ( $validator instanceof EntityExistsValidator ) {
+				continue;
+			}
+
+			$result = $validator->validate( $valueToValidate );
+			$this->assertTrue( $result->isValid(), get_class( $validator ) );
+		}
 	}
 
 	/**
 	 * @dataProvider urlSchemesProvider
 	 */
 	public function testDefaultUrlValidators( $input, $expected ) {
-		$validatorBuilders = $this->getWikibaseRepo()->getDefaultValidatorBuilders();
+		$validatorBuilders = WikibaseRepo::getDefaultValidatorBuilders();
 		$urlValidator = new CompositeValidator( $validatorBuilders->buildUrlValidators() );
 		$result = $urlValidator->validate( new StringValue( $input ) );
 		$this->assertSame( $expected, $result->isValid() );
@@ -277,6 +307,11 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 		$this->assertInstanceOf( SummaryFormatter::class, $returnValue );
 	}
 
+	public function testGetTermValidatorFactory() {
+		$factory = $this->getWikibaseRepo()->getTermValidatorFactory();
+		$this->assertInstanceOf( TermValidatorFactory::class, $factory );
+	}
+
 	public function testGetChangeOpFactory() {
 		$returnValue = $this->getWikibaseRepo()->getChangeOpFactoryProvider();
 		$this->assertInstanceOf( ChangeOpFactoryProvider::class, $returnValue );
@@ -313,19 +348,39 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 		$this->assertContains( 'bar', $localEntityTypes );
 	}
 
+	/**
+	 * @param SettingsArray $clientSettings
+	 *
+	 * @return WikibaseRepo
+	 */
+	private function getWikibaseRepoWithClientSettings( SettingsArray $clientSettings ) {
+		$settings = new SettingsArray( WikibaseRepo::getDefaultInstance()->getSettings()->getArrayCopy() );
+		return new WikibaseRepo(
+			$settings,
+			new DataTypeDefinitions( [] ),
+			new EntityTypeDefinitions( [] ),
+			null, // FIXME: providing no DataRetrievalServiceFactory but client settings does not make much sense
+			$clientSettings
+		);
+	}
+
 	public function testGetEnabledEntityTypes() {
-		$wikibaseRepo = $this->getWikibaseRepo();
+		if ( !defined( 'WBC_VERSION' ) ) {
+			$this->markTestSkipped( 'WikibaseClient must be enabled to run this test' );
+		}
+
+		$clientSettings = WikibaseClient::getDefaultInstance()->getSettings()->getArrayCopy();
+		$clientSettings['foreignRepositories'] = [
+			'repo1' => [ 'supportedEntityTypes' => [ 'foo', 'baz' ] ],
+			'repo2' => [ 'supportedEntityTypes' => [ 'foobar' ] ],
+		];
+
+		$wikibaseRepo = $this->getWikibaseRepoWithClientSettings( new SettingsArray( $clientSettings ) );
 		$wikibaseRepo->getSettings()->setSetting(
 			'entityNamespaces',
 			[ 'foo' => 100, 'bar' => 102 ]
 		);
-		$wikibaseRepo->getSettings()->setSetting(
-			'foreignRepositories',
-			[
-				'repo1' => [ 'supportedEntityTypes' => [ 'foo', 'baz' ] ],
-				'repo2' => [ 'supportedEntityTypes' => [ 'foobar' ] ],
-			]
-		);
+
 		$enabled = $wikibaseRepo->getEnabledEntityTypes();
 		$this->assertContains( 'foo', $enabled );
 		$this->assertContains( 'bar', $enabled );

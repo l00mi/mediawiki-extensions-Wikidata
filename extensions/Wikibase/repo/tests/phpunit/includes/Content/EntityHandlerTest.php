@@ -16,9 +16,9 @@ use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\EntityRedirect;
+use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\EntityContent;
-use Wikibase\InternalSerialization\SerializerFactory;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Repo\Content\EntityHandler;
@@ -41,19 +41,7 @@ use WikitextContent;
  */
 abstract class EntityHandlerTest extends \MediaWikiTestCase {
 
-	abstract public function getClassName();
-
 	abstract public function getModelId();
-
-	/**
-	 * Returns instances of the EntityHandler deriving class.
-	 * @return array
-	 */
-	public function instanceProvider() {
-		return array(
-			array( $this->getHandler() ),
-		);
-	}
 
 	/**
 	 * @param SettingsArray|null $settings
@@ -118,28 +106,10 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	 *
 	 * @return array[]
 	 */
-	public function contentProvider() {
-		return array(
-			array( $this->newEntityContent() ),
-		);
-	}
+	abstract public function contentProvider();
 
-	/**
-	 * @dataProvider instanceProvider
-	 * @param EntityHandler $entityHandler
-	 */
-	public function testGetModelName( EntityHandler $entityHandler ) {
-		$this->assertEquals( $this->getModelId(), $entityHandler->getModelID() );
-		$this->assertInstanceOf( ContentHandler::class, $entityHandler );
-		$this->assertInstanceOf( $this->getClassName(), $entityHandler );
-	}
-
-	/**
-	 * @dataProvider instanceProvider
-	 * @param EntityHandler $entityHandler
-	 */
-	public function testGetSpecialPageForCreation( EntityHandler $entityHandler ) {
-		$specialPageName = $entityHandler->getSpecialPageForCreation();
+	public function testGetSpecialPageForCreation() {
+		$specialPageName = $this->getHandler()->getSpecialPageForCreation();
 		$this->assertTrue( $specialPageName === null || is_string( $specialPageName ) );
 	}
 
@@ -342,11 +312,11 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 	}
 
 	public function testMakeEmptyContent() {
-		// We don't support empty content.
-		$this->setExpectedException( MWException::class );
-
 		$handler = $this->getHandler();
-		$handler->makeEmptyContent();
+		$entity = $handler->makeEmptyContent()->getEntity();
+
+		$this->assertTrue( $entity->isEmpty(), 'isEmpty' );
+		$this->assertEquals( $handler->getEntityType(), $entity->getType(), 'entity type' );
 	}
 
 	public function testMakeRedirectContent() {
@@ -361,6 +331,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		$handler = $this->getHandler();
 		$entity = $handler->makeEmptyEntity();
 
+		$this->assertTrue( $entity->isEmpty(), 'isEmpty' );
 		$this->assertEquals( $handler->getEntityType(), $entity->getType(), 'entity type' );
 	}
 

@@ -15,14 +15,12 @@ use ValueParsers\ParseException;
 use ValueParsers\ParserOptions;
 use ValueParsers\ValueParser;
 use ValueValidators\Error;
-use ValueValidators\NullValidator;
 use ValueValidators\ValueValidator;
 use Wikibase\Repo\DataTypeValidatorFactory;
 use Wikibase\Repo\Localizer\ExceptionLocalizer;
 use Wikibase\Repo\Validators\CompositeValidator;
 use Wikibase\Repo\Validators\ValidatorErrorLocalizer;
 use Wikibase\Repo\ValueParserFactory;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * API module for using value parsers.
@@ -168,13 +166,11 @@ class ParseValue extends ApiBase {
 	 * @return ValueValidator
 	 */
 	private function wrapValidators( array $validators ) {
-		if ( count( $validators ) === 0 ) {
-			return new NullValidator();
-		} elseif ( count( $validators ) === 1 ) {
+		if ( count( $validators ) === 1 ) {
 			return reset( $validators );
-		} else {
-			return new CompositeValidator( $validators, true );
 		}
+
+		return new CompositeValidator( $validators, true );
 	}
 
 	/**
@@ -280,7 +276,7 @@ class ParseValue extends ApiBase {
 	/**
 	 * Returns a Status object representing the given exception using a localized message.
 	 *
-	 * @note: The returned Status will always be fatal, that is, $status->isOk() will return false.
+	 * @note: The returned Status will always be fatal, that is, $status->isOK() will return false.
 	 *
 	 * @see getExceptionMessage().
 	 *

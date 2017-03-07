@@ -6,6 +6,7 @@ use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\SiteLink;
 use Wikibase\DataModel\SiteLinkList;
+use Wikibase\Lib\EntityIdComposer;
 use Wikibase\Lib\Store\SiteLinkTable;
 use Wikibase\Repo\Store\Sql\SqlSiteLinkConflictLookup;
 
@@ -33,11 +34,11 @@ class SqlSiteLinkConflictLookupTest extends \MediaWikiTestCase {
 
 		$siteLinkTable = new SiteLinkTable( 'wb_items_per_site', false );
 
-		$siteLinks = new SiteLinkList( array(
+		$siteLinks = new SiteLinkList( [
 			new SiteLink( 'dewiki', 'Katze' ),
 			new SiteLink( 'enwiki', 'Kitten' ),
-			new SiteLink( 'eswiki', 'Gato' )
-		) );
+			new SiteLink( 'eswiki', 'Gato' ),
+		] );
 
 		$item = new Item( new ItemId( 'Q9' ), null, $siteLinks );
 
@@ -45,15 +46,13 @@ class SqlSiteLinkConflictLookupTest extends \MediaWikiTestCase {
 	}
 
 	public function testGetConflictsForItem() {
-		$siteLinkConflictLookup = new SqlSiteLinkConflictLookup();
+		$siteLinkConflictLookup = $this->newSqlSiteLinkConflictLookup();
 
-		$expected = array(
-			array(
-				'siteId' => 'enwiki',
-				'itemId' => new ItemId( 'Q9' ),
-				'sitePage' => 'Kitten'
-			)
-		);
+		$expected = [ [
+			'siteId' => 'enwiki',
+			'itemId' => new ItemId( 'Q9' ),
+			'sitePage' => 'Kitten',
+		] ];
 
 		$this->assertEquals(
 			$expected,
@@ -62,20 +61,28 @@ class SqlSiteLinkConflictLookupTest extends \MediaWikiTestCase {
 	}
 
 	public function testGetConflictsForItem_noConflict() {
-		$siteLinkConflictLookup = new SqlSiteLinkConflictLookup();
+		$siteLinkConflictLookup = $this->newSqlSiteLinkConflictLookup();
 
 		$this->assertSame(
-			array(),
+			[],
 			$siteLinkConflictLookup->getConflictsForItem( $this->getItem( 'Cat' ) )
 		);
 	}
 
 	private function getItem( $pageName ) {
-		$siteLinks = new SiteLinkList( array(
-			new SiteLink( 'enwiki', $pageName )
-		) );
+		$siteLinks = new SiteLinkList( [ new SiteLink( 'enwiki', $pageName ) ] );
 
 		return new Item( new ItemId( 'Q10' ), null, $siteLinks );
+	}
+
+	private function newSqlSiteLinkConflictLookup() {
+		$entityIdComposer = new EntityIdComposer( [
+			'item' => function ( $repositoryName, $uniquePart ) {
+				return ItemId::newFromNumber( $uniquePart );
+			},
+		] );
+
+		return new SqlSiteLinkConflictLookup( $entityIdComposer );
 	}
 
 }

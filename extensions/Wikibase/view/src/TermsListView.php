@@ -3,9 +3,6 @@
 namespace Wikibase\View;
 
 use Wikibase\DataModel\Term\AliasGroupList;
-use Wikibase\DataModel\Term\AliasesProvider;
-use Wikibase\DataModel\Term\DescriptionsProvider;
-use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\DataModel\Term\TermList;
 use Wikibase\Lib\LanguageNameLookup;
 use Wikibase\View\Template\TemplateFactory;
@@ -14,10 +11,6 @@ use Wikibase\View\Template\TemplateFactory;
  * Generates HTML to display terms of an entity in a list.
  *
  * @license GPL-2.0+
- * @author Thiemo Mättig
- * @author Bene* < benestar.wikimedia@gmail.com >
- * @author H. Snater < mediawiki@snater.com >
- * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 class TermsListView {
 
@@ -60,26 +53,26 @@ class TermsListView {
 	}
 
 	/**
-	 * @param LabelsProvider $labelsProvider
-	 * @param DescriptionsProvider $descriptionsProvider
-	 * @param AliasesProvider|null $aliasesProvider
+	 * @param TermList $labels
+	 * @param TermList $descriptions
+	 * @param AliasGroupList|null $aliasGroups
 	 * @param string[] $languageCodes The languages the user requested to be shown
 	 *
 	 * @return string HTML
 	 */
 	public function getHtml(
-		LabelsProvider $labelsProvider,
-		DescriptionsProvider $descriptionsProvider,
-		AliasesProvider $aliasesProvider = null,
+		TermList $labels,
+		TermList $descriptions,
+		AliasGroupList $aliasGroups = null,
 		array $languageCodes
 	) {
 		$entityTermsForLanguageViewsHtml = '';
 
 		foreach ( $languageCodes as $languageCode ) {
 			$entityTermsForLanguageViewsHtml .= $this->getListItemHtml(
-				$labelsProvider,
-				$descriptionsProvider,
-				$aliasesProvider,
+				$labels,
+				$descriptions,
+				$aliasGroups,
 				$languageCode
 			);
 		}
@@ -93,7 +86,8 @@ class TermsListView {
 	 * @return string HTML
 	 */
 	public function getListViewHtml( $contentHtml ) {
-		return $this->templateFactory->render( 'wikibase-entitytermsforlanguagelistview',
+		return $this->templateFactory->render(
+			'wikibase-entitytermsforlanguagelistview',
 			htmlspecialchars( $this->textProvider->get( 'wikibase-entitytermsforlanguagelistview-language' ) ),
 			htmlspecialchars( $this->textProvider->get( 'wikibase-entitytermsforlanguagelistview-label' ) ),
 			htmlspecialchars( $this->textProvider->get( 'wikibase-entitytermsforlanguagelistview-description' ) ),
@@ -104,24 +98,23 @@ class TermsListView {
 	}
 
 	/**
-	 * @param LabelsProvider $labelsProvider
-	 * @param DescriptionsProvider $descriptionsProvider
-	 * @param AliasesProvider|null $aliasesProvider
+	 * @param TermList $labels
+	 * @param TermList $descriptions
+	 * @param AliasGroupList|null $aliasGroups
 	 * @param string $languageCode
 	 *
 	 * @return string HTML
 	 */
 	public function getListItemHtml(
-		LabelsProvider $labelsProvider,
-		DescriptionsProvider $descriptionsProvider,
-		AliasesProvider $aliasesProvider = null,
+		TermList $labels,
+		TermList $descriptions,
+		AliasGroupList $aliasGroups = null,
 		$languageCode
 	) {
 		$languageName = $this->languageNameLookup->getName( $languageCode );
-		$labels = $labelsProvider->getLabels();
-		$descriptions = $descriptionsProvider->getDescriptions();
 
-		return $this->templateFactory->render( 'wikibase-entitytermsforlanguageview',
+		return $this->templateFactory->render(
+			'wikibase-entitytermsforlanguageview',
 			'tr',
 			'td',
 			$languageCode,
@@ -138,7 +131,7 @@ class TermsListView {
 				'wikibase-description-empty', // Text key
 				$languageCode
 			),
-			$aliasesProvider ? $this->getAliasesView( $aliasesProvider->getAliasGroups(), $languageCode ) : '',
+			$aliasGroups ? $this->getAliasesView( $aliasGroups, $languageCode ) : '',
 			'',
 			'th'
 		);
@@ -147,7 +140,8 @@ class TermsListView {
 	private function getTermView( TermList $termList, $templateName, $emptyTextKey, $languageCode ) {
 		$hasTerm = $termList->hasTermForLanguage( $languageCode );
 		$effectiveLanguage = $hasTerm ? $languageCode : $this->textProvider->getLanguageOf( $emptyTextKey );
-		return $this->templateFactory->render( $templateName,
+		return $this->templateFactory->render(
+			$templateName,
 			$hasTerm ? '' : 'wb-empty',
 			htmlspecialchars( $hasTerm
 				? $termList->getByLanguage( $languageCode )->getText()
@@ -167,7 +161,8 @@ class TermsListView {
 	 */
 	private function getAliasesView( AliasGroupList $aliasGroups, $languageCode ) {
 		if ( !$aliasGroups->hasGroupForLanguage( $languageCode ) ) {
-			return $this->templateFactory->render( 'wikibase-aliasesview',
+			return $this->templateFactory->render(
+				'wikibase-aliasesview',
 				'wb-empty',
 				'',
 				'',
@@ -185,7 +180,8 @@ class TermsListView {
 				);
 			}
 
-			return $this->templateFactory->render( 'wikibase-aliasesview',
+			return $this->templateFactory->render(
+				'wikibase-aliasesview',
 				'',
 				$aliasesHtml,
 				'',

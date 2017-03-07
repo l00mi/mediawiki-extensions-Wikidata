@@ -33,7 +33,6 @@ use Wikibase\Lib\Store\RevisionBasedEntityLookup;
 use Wikibase\Lib\Store\SiteLinkLookup;
 use Wikibase\Lib\Store\SiteLinkTable;
 use Wikibase\Lib\Store\Sql\PrefetchingWikiPageEntityMetaDataAccessor;
-use Wikibase\Lib\Store\Sql\WikiPageEntityMetaDataLookup;
 use Wikibase\Store\EntityIdLookup;
 
 /**
@@ -155,11 +154,6 @@ class DirectSqlStore implements ClientStore {
 	 * @var SubscriptionManager|null
 	 */
 	private $subscriptionManager = null;
-
-	/**
-	 * @var PrefetchingWikiPageEntityMetaDataAccessor|null
-	 */
-	private $entityPrefetcher = null;
 
 	/**
 	 * @var string
@@ -454,16 +448,7 @@ class DirectSqlStore implements ClientStore {
 	 * @return PrefetchingWikiPageEntityMetaDataAccessor
 	 */
 	public function getEntityPrefetcher() {
-		if ( $this->entityPrefetcher === null ) {
-			$this->entityPrefetcher = new PrefetchingWikiPageEntityMetaDataAccessor(
-				new WikiPageEntityMetaDataLookup(
-					$this->entityNamespaceLookup,
-					$this->repoWiki
-				)
-			);
-		}
-
-		return $this->entityPrefetcher;
+		return $this->entityDataRetrievalServices->getEntityPrefetcher();
 	}
 
 	/**

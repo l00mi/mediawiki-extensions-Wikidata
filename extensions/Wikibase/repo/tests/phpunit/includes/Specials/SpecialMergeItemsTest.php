@@ -47,6 +47,8 @@ use Wikibase\Lib\Tests\MockRepository;
  */
 class SpecialMergeItemsTest extends SpecialPageTestBase {
 
+	use HtmlAssertionHelpers;
+
 	/**
 	 * @var MockRepository|null
 	 */
@@ -82,13 +84,6 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		) );
 	}
 
-	protected function newSpecialPage() {
-		$specialMergeItems = new SpecialMergeItems();
-		$this->overrideServices( $specialMergeItems, $this->user );
-
-		return $specialMergeItems;
-	}
-
 	/**
 	 * @return EditFilterHookRunner
 	 */
@@ -119,10 +114,9 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 	}
 
 	/**
-	 * @param SpecialMergeItems $page
-	 * @param User $user
+	 * @return SpecialMergeItems
 	 */
-	private function overrideServices( SpecialMergeItems $page, User $user ) {
+	protected function newSpecialPage() {
 		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
 		$summaryFormatter = $wikibaseRepo->getSummaryFormatter();
 
@@ -155,23 +149,23 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 				return new RawMessage( '(@' . $text . '@)' );
 			} ) );
 
-		$page->initServices(
+		return new SpecialMergeItems(
 			$wikibaseRepo->getEntityIdParser(),
 			$exceptionLocalizer,
-			new TokenCheckInteractor( $user ),
+			new TokenCheckInteractor( $this->user ),
 			new ItemMergeInteractor(
 				$changeOpsFactory,
 				$this->mockRepository,
 				$this->mockRepository,
 				$this->getPermissionCheckers(),
 				$summaryFormatter,
-				$user,
+				$this->user,
 				new RedirectCreationInteractor(
 						$this->mockRepository,
 						$this->mockRepository,
 						$this->getPermissionCheckers(),
 						$summaryFormatter,
-						$user,
+						$this->user,
 						$this->getMockEditFilterHookRunner(),
 						$this->mockRepository,
 						$this->getMockEntityTitleLookup()
@@ -218,49 +212,14 @@ class SpecialMergeItemsTest extends SpecialPageTestBase {
 		return $html;
 	}
 
-	public function testForm() {
-		$matchers['fromid'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-mergeitems-fromid',
-			),
-			'child' => array(
-				'tag' => 'input',
-				'attributes' => array(
-					'name' => 'fromid',
-				)
-			) );
-		$matchers['toid'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-mergeitems-toid',
-			),
-			'child' => array(
-				'tag' => 'input',
-				'attributes' => array(
-					'name' => 'toid',
-				)
-			) );
-		$matchers['submit'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-mergeitems-submit',
-			),
-			'child' => array(
-				'tag' => 'button',
-				'attributes' => array(
-					'type' => 'submit',
-					'name' => 'wikibase-mergeitems-submit',
-				)
-			) );
-
+	public function testAllFormFieldsAreRendered() {
 		$output = $this->executeSpecialMergeItems( array() );
 
 		$this->assertNoError( $output );
 
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}''" );
-		}
+		$this->assertHtmlContainsInputWithName( $output, 'fromid' );
+		$this->assertHtmlContainsInputWithName( $output, 'toid' );
+		$this->assertHtmlContainsSubmitControl( $output );
 	}
 
 	/**

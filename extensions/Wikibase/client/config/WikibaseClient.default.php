@@ -267,8 +267,11 @@ return call_user_func( function() {
 	$defaults['entityNamespaces'] = function ( SettingsArray $settings ) {
 		if ( $settings->getSetting( 'thisWikiIsTheRepo' ) ) {
 			// if this is the repo wiki, use the repo setting
-			$repoSettings = WikibaseClient::getDefaultInstance()->getRepoSettings();
-			return $repoSettings->getSetting( 'entityNamespaces' );
+			// FIXME: this used to be using WikibaseClient::getRepoSettings() which cannot be used
+			// if Repo does depend on Client (leads to an infinite loop in Repo's constructor).
+			// This is a temporary workaround that should be rather replaced with something better
+			// than accessing a static function.
+			return \Wikibase\Repo\WikibaseRepo::buildEntityNamespaceConfigurations();
 		} else {
 			// XXX: Default to having Items in the main namespace, and properties in NS 120.
 			// That is the live setup at wikidata.org, it is NOT consistent with the example settings!
@@ -327,6 +330,11 @@ return call_user_func( function() {
 		$otherProjectsSitesProvider = WikibaseClient::getDefaultInstance()->getOtherProjectsSitesProvider();
 		return $otherProjectsSitesProvider->getOtherProjectsSiteIds( $settings->getSetting( 'siteLinkGroups' ) );
 	};
+
+	// URL of geo shape storage frontend. Used primarily to build links to the geo shapes.
+	// URL will be concatenated with the page title, so should end up with '/' or 'title='
+	// Special characters (e.g. space, percent, etc.) in URL should NOT be encoded
+	$defaults['geoShapeStorageFrontendUrl'] = 'https://commons.wikimedia.org/wiki/';
 
 	return $defaults;
 } );

@@ -4,12 +4,13 @@ namespace Wikibase\DataModel\Deserializers;
 
 use Deserializers\Deserializer;
 use Deserializers\Exceptions\DeserializationException;
+use Wikibase\DataModel\Reference;
 use Wikibase\DataModel\ReferenceList;
 
 /**
  * Package private
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
 class ReferenceListDeserializer implements Deserializer {
@@ -35,7 +36,9 @@ class ReferenceListDeserializer implements Deserializer {
 	 * @return ReferenceList
 	 */
 	public function deserialize( $serialization ) {
-		$this->assertIsArray( $serialization );
+		if ( !is_array( $serialization ) ) {
+			throw new DeserializationException( 'The ReferenceList serialization should be an array' );
+		}
 
 		return $this->getDeserialized( $serialization );
 	}
@@ -49,16 +52,12 @@ class ReferenceListDeserializer implements Deserializer {
 		$referenceList = new ReferenceList();
 
 		foreach ( $serialization as $referenceSerialization ) {
-			$referenceList->addReference( $this->referenceDeserializer->deserialize( $referenceSerialization ) );
+			/** @var Reference $reference */
+			$reference = $this->referenceDeserializer->deserialize( $referenceSerialization );
+			$referenceList->addReference( $reference );
 		}
 
 		return $referenceList;
-	}
-
-	private function assertIsArray( $serialization ) {
-		if ( !is_array( $serialization ) ) {
-			throw new DeserializationException( 'The ReferenceList serialization should be an array' );
-		}
 	}
 
 }

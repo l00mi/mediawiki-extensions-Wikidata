@@ -4,6 +4,7 @@ namespace Wikibase\Repo\Tests\Specials;
 
 use FauxRequest;
 use FauxResponse;
+use Hamcrest\Matcher;
 use MediaWiki\MediaWikiServices;
 use SpecialPageTestBase;
 use TestSites;
@@ -36,37 +37,7 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 	/**
 	 * @var array
 	 */
-	private static $matchers = array(
-		'id' => array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wb-modifyentity-id',
-				'class' => 'wb-input',
-				'name' => 'id',
-			) ),
-		'site' => array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wb-setsitelink-site',
-				'class' => 'wb-input',
-				'name' => 'site',
-			) ),
-		'page' => array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wb-setsitelink-page',
-				'class' => 'wb-input',
-				'name' => 'page',
-			) ),
-		'submit' => array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wb-setsitelink-submit',
-				'class' => 'wb-button',
-				'type' => 'submit',
-				'name' => 'wikibase-setsitelink-submit',
-			) )
-	);
+	private static $matchers = [];
 
 	/**
 	 * @var string|null
@@ -116,6 +87,7 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 		$this->setMwGlobals( 'wgGroupPermissions', array( '*' => array( 'edit' => true ) ) );
 
 		if ( !self::$badgeId ) {
+			self::$matchers = self::createMatchers();
 			$sitesTable = MediaWikiServices::getInstance()->getSiteStore();
 			$sitesTable->clear();
 			$sitesTable->saveSites( TestSites::getSites() );
@@ -156,21 +128,13 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 	}
 
 	private function addBadgeMatcher() {
-		$name = 'badge-' . self::$badgeId;
-		self::$matchers['badgeinput'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'name' => $name,
-				'id' => $name,
-				'type' => 'checkbox'
-			) );
+		$value = self::$badgeId;
+		self::$matchers['badgeinput'] = tagMatchingOutline( "<input type='checkbox' name='badges[]' value='$value'>" );
 
-		self::$matchers['badgelabel'] = array(
-			'tag' => 'label',
-			'attributes' => array(
-				'for' => $name
-			),
-			'content' => 'Guter Artikel'
+		self::$matchers['badgelabel'] = both(
+			tagMatchingOutline( "<label>" )
+		)->andAlso(
+			havingTextContents( 'Guter Artikel' )
 		);
 	}
 
@@ -179,9 +143,7 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 		// Execute with no subpage value
 		list( $output, ) = $this->executeSpecialPage( '', null, 'de' );
 
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}'" );
-		}
+		$this->assertHtmlContainsTagsMatching( $output, $matchers );
 	}
 
 	public function testExecuteOneValuePreset() {
@@ -190,15 +152,13 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 		// Note: use language fallback de-ch => de
 		list( $output, ) = $this->executeSpecialPage( self::$itemId, null, 'de-ch' );
 
-		$matchers['id']['attributes']['value'] = self::$itemId;
+		$matchers['id'] = both( tagMatchingOutline( '<div id="wb-modifyentity-id" class="wb-input"/>' ) )->andAlso(
+			havingChild( both( tagMatchingOutline( '<input name="id"/>' ) )->andAlso(
+				withAttribute( 'value' )->havingValue( self::$itemId )
+			) )
+		);
 
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag(
-				$matcher,
-				$output,
-				"Failed to match html output with tag '{$key}' passing one subpage value"
-			);
-		}
+		$this->assertHtmlContainsTagsMatching( $output, $matchers );
 	}
 
 	public function testExecuteTwoValuesPreset() {
@@ -207,41 +167,24 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 		// Note: use language fallback de-ch => de
 		list( $output, ) = $this->executeSpecialPage( self::$itemId . '/dewiki', null, 'de-ch' );
 
-		$matchers['id'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'type' => 'hidden',
-				'name' => 'id',
-				'value' => self::$itemId,
-		) );
+		$itemId = self::$itemId;
+		$matchers['id'] = tagMatchingOutline(
+			"<input type='hidden' name='id' value='$itemId'/>"
+		);
+		$matchers['site'] = tagMatchingOutline(
+			"<input type='hidden' name='site' value='dewiki'/>"
+		);
+		$matchers['remove'] = tagMatchingOutline(
+			"<input type='hidden' name='remove' value='remove'/>"
+		);
 
-		$matchers['site'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'type' => 'hidden',
-				'name' => 'site',
-				'value' => 'dewiki',
-		) );
+		$matchers['page'] = both( tagMatchingOutline( '<div id="wb-setsitelink-page" class="wb-input"/>' ) )->andAlso(
+			havingChild( both( tagMatchingOutline( '<input name="page"/>' ) )->andAlso(
+				withAttribute( 'value' )->havingValue( 'Wikidata' )
+			) )
+		);
 
-		$matchers['remove'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'type' => 'hidden',
-				'name' => 'remove',
-				'value' => 'remove',
-			) );
-
-		$matchers['value']['attributes']['value'] = 'Wikidata';
-
-		$matchers['badges']['children']['only']['attributes']['selected'] = '';
-
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag(
-				$matcher,
-				$output,
-				"Failed to match html output with tag '{$key}' passing two subpage values"
-			);
-		}
+		$this->assertHtmlContainsTagsMatching( $output, $matchers );
 	}
 
 	public function testExecuteTwoValuesPreset_no_label() {
@@ -255,17 +198,19 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 		unset( $matchers['site'] );
 		unset( $matchers['remove'] );
 
-		$matchers['badgelabel']['content'] = self::$badgeId;
-		$matchers['value']['attributes']['value'] = 'Wikidata';
-		$matchers['badges']['children']['only']['attributes']['selected'] = '';
+		$matchers['badgelabel'] = both(
+			tagMatchingOutline( "<label>" )
+		)->andAlso(
+			havingTextContents( self::$badgeId )
+		);
 
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag(
-				$matcher,
-				$output,
-				"Failed to match html output with tag '{$key}' passing two subpage values"
-			);
-		}
+		$matchers['page'] = both( tagMatchingOutline( '<div id="wb-setsitelink-page" class="wb-input"/>' ) )->andAlso(
+			havingChild( both( tagMatchingOutline( '<input name="page"/>' ) )->andAlso(
+				withAttribute( 'value' )->havingValue( 'Wikidata' )
+			) )
+		);
+
+		$this->assertHtmlContainsTagsMatching( $output, $matchers );
 	}
 
 	public function testExecuteRedirect() {
@@ -287,15 +232,11 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 
 		list( $output, ) = $this->executeSpecialPage( '', $request );
 
-		$this->assertTag( array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wb-setsitelink-page',
-				'class' => 'wb-input',
-				'name' => 'page',
-				'value' => 'Wikidata',
-			)
-		), $output, 'Value still preserves when no value was entered in the big form' );
+		assertThat(
+			$output,
+			is( htmlPiece( havingChild( both( tagMatchingOutline( '<div id="wb-setsitelink-page" class="wb-input"/>' ) )->andAlso(
+				havingChild( tagMatchingOutline( '<input name="page" value="Wikidata"/>' ) )
+			) ) ) ) );
 	}
 
 	public function testExecutePostModifySiteLink() {
@@ -339,6 +280,39 @@ class SpecialSetSiteLinkTest extends SpecialPageTestBase {
 		$item = $lookup->getEntity( new ItemId( self::$itemId ) );
 
 		$this->assertFalse( $item->hasLinkToSite( 'dewiki' ), "Should no longer contain site link" );
+	}
+
+	private static function createMatchers() {
+		return [
+			'id' => both( tagMatchingOutline( '<div id="wb-modifyentity-id" class="wb-input"/>' ) )->andAlso(
+				havingChild( tagMatchingOutline( '<input name="id"/>' ) )
+			),
+			'site' => both( tagMatchingOutline( '<div id="wb-setsitelink-site" class="wb-input"/>' ) )->andAlso(
+				havingChild( tagMatchingOutline( '<input name="site"/>' ) )
+			),
+			'page' => both( tagMatchingOutline( '<div id="wb-setsitelink-page" class="wb-input"/>' ) )->andAlso(
+				havingChild( tagMatchingOutline( '<input name="page"/>' ) )
+			),
+			'submit' => both( tagMatchingOutline( '<div id="wb-setsitelink-submit"/>' ) )->andAlso(
+				havingChild( tagMatchingOutline( '<button type="submit" name="wikibase-setsitelink-submit"/>' ) )
+			),
+		];
+	}
+
+	/**
+	 * @param string $html
+	 * @param Matcher[] $tagMatchers
+	 */
+	private function assertHtmlContainsTagsMatching( $html, array $tagMatchers ) {
+		foreach ( $tagMatchers as $key => $matcher ) {
+			$message = "Failed to match html output with tag '{$key}'";
+			assertThat(
+				$message,
+				$html,
+				is( htmlPiece( havingChild( $matcher ) ) )
+			);
+
+		}
 	}
 
 }

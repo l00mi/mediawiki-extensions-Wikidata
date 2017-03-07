@@ -3,6 +3,7 @@
 namespace Wikibase\Repo\Tests\Specials;
 
 use HashSiteStore;
+use Prophecy\Argument;
 use Site;
 use SiteLookup;
 use SpecialPageTestBase;
@@ -32,13 +33,19 @@ use Wikibase\Repo\Specials\SpecialItemByTitle;
  */
 class SpecialItemByTitleTest extends SpecialPageTestBase {
 
+	use HtmlAssertionHelpers;
+
+	const EXISTING_WIKI = 'dewiki';
+	const EXISTING_PAGE = 'Gefunden';
+	const EXISTING_ITEM_ID = 'Q123';
+
 	/**
-	 * @return EntityTitleLookup
+	 * @return EntityTitleLookup|\PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function getMockTitleLookup() {
 		$mock = $this->getMock( EntityTitleLookup::class );
-		$mock->expects( $this->any() )
-			->method( 'getTitleForId' )
+
+		$mock->method( 'getTitleForId' )
 			->will( $this->returnCallback( function( EntityId $id ) {
 				return Title::makeTitle( NS_MAIN, $id->getSerialization() );
 			} ) );
@@ -47,12 +54,12 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 	}
 
 	/**
-	 * @return LanguageNameLookup
+	 * @return LanguageNameLookup|\PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function getMockLanguageNameLookup() {
 		$mock = $this->getMock( LanguageNameLookup::class );
-		$mock->expects( $this->any() )
-			->method( 'getName' )
+
+		$mock->method( 'getName' )
 			->will( $this->returnValue( '<LANG>' ) );
 
 		return $mock;
@@ -62,17 +69,14 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 	 * @return SiteLinkLookup
 	 */
 	private function getMockSiteLinkLookup() {
-		$itemId = new ItemId( 'Q123' );
+		$siteLinkLookup = $this->prophesize( SiteLinkLookup::class );
 
-		$mock = $this->getMock( SiteLinkLookup::class );
+		$siteLinkLookup->getItemIdForLink( self::EXISTING_WIKI, self::EXISTING_PAGE )
+			->willReturn( new ItemId( self::EXISTING_ITEM_ID ) );
 
-		$mock->expects( $this->any() )
-			->method( 'getItemIdForLink' )
-			->will( $this->returnCallback( function( $siteId, $pageName ) use ( $itemId ) {
-				return $siteId === 'dewiki' ? $itemId : null;
-			} ) );
+		$siteLinkLookup->getItemIdForLink( Argument::any(), Argument::any() )->willReturn( null );
 
-		return $mock;
+		return $siteLinkLookup->reveal();
 	}
 
 	/**
@@ -80,8 +84,8 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 	 */
 	private function getMockSiteLookup() {
 		$dewiki = new Site();
-		$dewiki->setGlobalId( 'dewiki' );
-		$dewiki->setLinkPath( 'http://dewiki.com/$1' );
+		$dewiki->setGlobalId( self::EXISTING_WIKI );
+		$dewiki->setLinkPath( 'http://any-domain.com/$1' );
 
 		return new HashSiteStore( [ $dewiki ] );
 	}
@@ -93,7 +97,7 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 
 		$siteLookup = $this->getMockSiteLookup();
 
-		$siteLinkTargetProvider = new SiteLinkTargetProvider( $siteLookup, array() );
+		$siteLinkTargetProvider = new SiteLinkTargetProvider( $siteLookup, [] );
 
 		$page = new SpecialItemByTitle(
 			$this->getMockTitleLookup(),
@@ -107,77 +111,35 @@ class SpecialItemByTitleTest extends SpecialPageTestBase {
 		return $page;
 	}
 
-	public function requestProvider() {
-		$cases = array();
-		$matchers = array();
+	public function testAllNeededFieldsArePresent_WhenRendered() {
 
-		$matchers['site'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-itembytitle-sitename',
-			),
-			'child' => array(
-				'tag' => 'input',
-				'attributes' => array(
-					'name' => 'site',
-				)
-			) );
-		$matchers['page'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'pagename',
-			),
-			'child' => array(
-				'tag' => 'input',
-				'attributes' => array(
-					'name' => 'page',
-				)
-			) );
-		$matchers['submit'] = array(
-			'tag' => 'div',
-			'attributes' => array(
-				'id' => 'wb-itembytitle-submit',
-			),
-			'child' => array(
-				'tag' => 'button',
-				'attributes' => array(
-					'type' => 'submit',
-					'name' => '',
-				)
-			) );
+		list( $output ) = $this->executeSpecialPage();
 
-		$cases['empty'] = array( '', null, $matchers );
-
-		// enwiki/NotFound  (mock returns null for everything but dewiki)
-		$matchers['site']['child'][0]['attributes']['value'] = 'enwiki';
-		$matchers['page']['child'][0]['attributes']['value'] = 'NotFound';
-
-		$cases['enwiki/NotFound'] = array( 'enwiki/NotFound', null, $matchers );
-
-		// dewiki/Gefunden (mock returns Q123 for dewiki)
-		$matchers = array();
-
-		$cases['dewiki/Gefunden'] = array( 'dewiki/Gefunden', 'Q123', $matchers );
-
-		return $cases;
+		$this->assertHtmlContainsInputWithName( $output, 'site' );
+		$this->assertHtmlContainsInputWithName( $output, 'page' );
+		$this->assertHtmlContainsSubmitControl( $output );
 	}
 
-	/**
-	 * @dataProvider requestProvider
-	 */
-	public function testExecute( $sub, $target, array $matchers ) {
+	public function testSiteAndPageFieldsAreFilledIn_WhenRenderedWithSubpageReferingToNonexistentTitle() {
+		$wiki = 'non_existent_wiki';
+		$page = 'AnyPage';
+		list( $output ) = $this->executeSpecialPage( $wiki . '/' . $page );
+
+		$this->assertHtmlContainsInputWithNameAndValue( $output, 'site', $wiki );
+		$this->assertHtmlContainsInputWithNameAndValue( $output, 'page', $page );
+	}
+
+	public function testRedirectsToCorrespondingItem_WhenGivenSubPageReferencesExistingPage() {
+
+		$itemId = self::EXISTING_ITEM_ID;
+		$subPage = self::EXISTING_WIKI . '/' . self::EXISTING_PAGE;
+
 		/* @var WebResponse $response */
-		list( $output, $response ) = $this->executeSpecialPage( $sub );
+		list( , $response ) = $this->executeSpecialPage( $subPage );
 
-		if ( $target !== null ) {
-			$target = Title::newFromText( $target )->getFullURL();
-			$expected = wfExpandUrl( $target, PROTO_CURRENT );
-			$this->assertEquals( $expected, $response->getHeader( 'Location' ), 'Redirect' );
-		}
-
-		foreach ( $matchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to match html output with tag '{$key}''" );
-		}
+		$itemUrl = Title::newFromText( $itemId )->getFullURL();
+		$expectedUrl = wfExpandUrl( $itemUrl, PROTO_CURRENT );
+		$this->assertEquals( $expectedUrl, $response->getHeader( 'Location' ), 'Redirect' );
 	}
 
 }

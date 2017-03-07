@@ -3,6 +3,7 @@
 namespace Tests\Wikibase\DataModel\Deserializers;
 
 use Deserializers\Deserializer;
+use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Deserializers\TermDeserializer;
 use Wikibase\DataModel\Deserializers\TermListDeserializer;
 use Wikibase\DataModel\Term\Term;
@@ -11,20 +12,25 @@ use Wikibase\DataModel\Term\TermList;
 /**
  * @covers Wikibase\DataModel\Deserializers\TermListDeserializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Addshore
  */
-class TermListDeserializerTest extends DeserializerBaseTest {
+class TermListDeserializerTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @return Deserializer
 	 */
-	public function buildDeserializer() {
+	private function buildDeserializer() {
 		return new TermListDeserializer( new TermDeserializer() );
 	}
 
-	public function deserializableProvider() {
-		return array( array() );
+	/**
+	 * @dataProvider nonDeserializableProvider
+	 */
+	public function testDeserializeThrowsDeserializationException( $nonDeserializable ) {
+		$deserializer = $this->buildDeserializer();
+		$this->setExpectedException( 'Deserializers\Exceptions\DeserializationException' );
+		$deserializer->deserialize( $nonDeserializable );
 	}
 
 	/**
@@ -49,6 +55,13 @@ class TermListDeserializerTest extends DeserializerBaseTest {
 				8 => array( 'language' => 'en', 'value' => 'FooBar' ),
 			) ),
 		);
+	}
+
+	/**
+	 * @dataProvider deserializationProvider
+	 */
+	public function testDeserialization( $object, $serialization ) {
+		$this->assertEquals( $object, $this->buildDeserializer()->deserialize( $serialization ) );
 	}
 
 	/**

@@ -15,12 +15,12 @@ use Wikibase\DataModel\Snak\PropertyValueSnak;
 /**
  * @covers Wikibase\DataModel\Deserializers\SnakDeserializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
-class SnakDeserializerTest extends DeserializerBaseTest {
+class SnakDeserializerTest extends DispatchableDeserializerTest {
 
-	public function buildDeserializer() {
+	protected function buildDeserializer() {
 		$entityIdDeserializerMock = $this->getMock( '\Deserializers\Deserializer' );
 		$entityIdDeserializerMock->expects( $this->any() )
 			->method( 'deserialize' )

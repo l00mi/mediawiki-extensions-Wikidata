@@ -11,10 +11,10 @@ use Wikibase\DataModel\Statement\StatementList;
 /**
  * @covers Wikibase\DataModel\Serializers\StatementListSerializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Bene* < benestar.wikimedia@gmail.com >
  */
-class StatementListSerializerTest extends SerializerBaseTest {
+class StatementListSerializerTest extends DispatchableSerializerTest {
 
 	protected function buildSerializer() {
 		$statement = new Statement( new PropertyNoValueSnak( 42 ) );

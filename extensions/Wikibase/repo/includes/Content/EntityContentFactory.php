@@ -3,6 +3,7 @@
 namespace Wikibase\Repo\Content;
 
 use InvalidArgumentException;
+use MediaWiki\Interwiki\InterwikiLookup;
 use MWException;
 use OutOfBoundsException;
 use Status;
@@ -41,6 +42,11 @@ class EntityContentFactory implements EntityTitleStoreLookup, EntityIdLookup, En
 	private $entityHandlerFactoryCallbacks;
 
 	/**
+	 * @var InterwikiLookup|null
+	 */
+	private $interwikiLookup;
+
+	/**
 	 * @var EntityHandler[] Entity type ID to entity handler mapping.
 	 */
 	private $entityHandlers = array();
@@ -49,13 +55,19 @@ class EntityContentFactory implements EntityTitleStoreLookup, EntityIdLookup, En
 	 * @param string[] $entityContentModels Entity type ID to content model ID mapping.
 	 * @param callable[] $entityHandlerFactoryCallbacks Entity type ID to callback mapping for
 	 *  creating ContentHandler objects.
+	 * @param InterwikiLookup|null $interwikiLookup
 	 */
-	public function __construct( array $entityContentModels, array $entityHandlerFactoryCallbacks ) {
+	public function __construct(
+		array $entityContentModels,
+		array $entityHandlerFactoryCallbacks,
+		InterwikiLookup $interwikiLookup = null
+	) {
 		Assert::parameterElementType( 'string', $entityContentModels, '$entityContentModels' );
 		Assert::parameterElementType( 'callable', $entityHandlerFactoryCallbacks, '$entityHandlerFactoryCallbacks' );
 
 		$this->entityContentModels = $entityContentModels;
 		$this->entityHandlerFactoryCallbacks = $entityHandlerFactoryCallbacks;
+		$this->interwikiLookup = $interwikiLookup;
 	}
 
 	/**
@@ -95,18 +107,20 @@ class EntityContentFactory implements EntityTitleStoreLookup, EntityIdLookup, En
 	 */
 	public function getTitleForId( EntityId $id ) {
 		if ( $id->isForeign() ) {
-			$pageName = 'EntityPage/' . $id->getLocalPart();
-
 			// TODO: The interwiki prefix *should* be the same as the repo name,
 			//        but we have no way to know or guarantee this! See T153496.
 			$interwiki = $id->getRepositoryName();
 
-			// TODO: use a TitleFactory
-			return Title::makeTitle( NS_SPECIAL, $pageName, '', $interwiki );
-		} else {
-			$handler = $this->getContentHandlerForType( $id->getEntityType() );
-			return $handler->getTitleForId( $id );
+			if ( $this->interwikiLookup && $this->interwikiLookup->isValidInterwiki( $interwiki ) ) {
+				$pageName = 'EntityPage/' . $id->getLocalPart();
+
+				// TODO: use a TitleFactory
+				return Title::makeTitle( NS_SPECIAL, $pageName, '', $interwiki );
+			}
 		}
+
+		$handler = $this->getContentHandlerForType( $id->getEntityType() );
+		return $handler->getTitleForId( $id );
 	}
 
 	/**
@@ -330,7 +344,7 @@ class EntityContentFactory implements EntityTitleStoreLookup, EntityIdLookup, En
 	 */
 	public function getPermissionStatusForEntityType( User $user, $permission, $entityType, $quick = '' ) {
 		$ns = $this->getNamespaceForType( $entityType );
-		$dummyTitle = Title::makeTitleSafe( $ns, '/' );
+		$dummyTitle = Title::makeTitle( $ns, '/' );
 
 		return $this->getPermissionStatus( $user, $permission, $dummyTitle, $quick );
 	}

@@ -13,11 +13,6 @@ use Wikibase\View\Template\TemplateFactory;
  * For the Wikibase\DataModel\Entity\EntityDocument this basically is what the Parser is for WikitextContent.
  *
  * @license GPL-2.0+
- * @author H. Snater < mediawiki at snater.com >
- * @author Daniel Werner
- * @author Daniel Kinzler
- * @author Bene* < benestar.wikimedia@gmail.com >
- * @author Adrian Heine <adrian.heine@wikimedia.de>
  */
 abstract class EntityView {
 
@@ -132,9 +127,9 @@ abstract class EntityView {
 		if ( $entity instanceof LabelsProvider && $entity instanceof DescriptionsProvider ) {
 			return $this->entityTermsView->getHtml(
 				$this->languageCode,
-				$entity,
-				$entity,
-				$entity instanceof AliasesProvider ? $entity : null,
+				$entity->getLabels(),
+				$entity->getDescriptions(),
+				$entity instanceof AliasesProvider ? $entity->getAliasGroups() : null,
 				$id
 			);
 		}

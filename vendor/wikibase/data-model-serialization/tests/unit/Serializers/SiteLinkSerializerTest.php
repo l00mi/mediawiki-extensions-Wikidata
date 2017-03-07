@@ -9,10 +9,10 @@ use Wikibase\DataModel\SiteLink;
 /**
  * @covers Wikibase\DataModel\Serializers\SiteLinkSerializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
-class SiteLinkSerializerTest extends SerializerBaseTest {
+class SiteLinkSerializerTest extends DispatchableSerializerTest {
 
 	protected function buildSerializer() {
 		return new SiteLinkSerializer();

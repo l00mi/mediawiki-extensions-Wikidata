@@ -34,14 +34,20 @@ use Wikibase\Repo\Validators\UniquenessViolation;
  * @group Database
  *
  * @license GPL-2.0+
- * @author Bene* < benestar.wikimedia@gmail.com >
- * @author H. Snater < mediawiki@snater.com >
- * @author Daniel Kinzler
- * @author Thiemo Mättig
  */
 class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestBase {
 
+	use HtmlAssertionHelpers;
+
 	private static $languageCodes = array( 'en', 'de', 'de-ch', 'ii', 'zh' );
+
+	const USER_LANGUAGE = 'en';
+
+	protected function setUp() {
+		parent::setUp();
+
+		$this->setUserLang( self::USER_LANGUAGE );
+	}
 
 	/**
 	 * @see SpecialPageTestBase::newSpecialPage()
@@ -189,121 +195,19 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 	}
 
 	public function executeProvider() {
-		global $wgLang;
-
-		$formMatchers['id'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wb-modifyentity-id',
-				'class' => 'wb-input',
-				'name' => 'id',
-			),
-		);
-		$formMatchers['language'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wikibase-setlabeldescriptionaliases-language',
-				'class' => 'wb-input',
-				'name' => 'language',
-				'value' => $wgLang->getCode(), // Default user language
-			),
-		);
-		$formMatchers['submit'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wb-setlabeldescriptionaliases-submit',
-				'class' => 'wb-button',
-				'type' => 'submit',
-				'name' => 'wikibase-setlabeldescriptionaliases-submit',
-			),
-		);
-
-		$withIdMatchers = $formMatchers;
-		$withIdMatchers['id']['attributes'] = array(
-			'type' => 'hidden',
-			'name' => 'id',
-			'value' => 'regexp:/Q\d+/',
-		);
-		$withIdMatchers['language']['attributes'] = array(
-			'type' => 'hidden',
-			'name' => 'language',
-			'value' => $wgLang->getCode(), // Default user language
-		);
-		$withIdMatchers['label'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wikibase-setlabeldescriptionaliases-label',
-				'class' => 'wb-input',
-				'name' => 'label',
-			),
-		);
-		$withIdMatchers['description'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wikibase-setlabeldescriptionaliases-description',
-				'class' => 'wb-input',
-				'name' => 'description',
-			),
-		);
-		$withIdMatchers['aliases'] = array(
-			'tag' => 'input',
-			'attributes' => array(
-				'id' => 'wikibase-setlabeldescriptionaliases-aliases',
-				'class' => 'wb-input',
-				'name' => 'aliases',
-			),
-		);
-
-		$withLanguageMatchers = $withIdMatchers;
-		$withLanguageMatchers['language']['attributes']['value'] = 'de';
-		$withLanguageMatchers['label']['attributes']['value'] = 'foo';
 
 		$fooFingerprint = $this->makeFingerprint(
 			array( 'de' => 'foo' )
 		);
 
 		return array(
-			'no input' => array(
-				$fooFingerprint,
-				'',
-				null,
-				$formMatchers,
-				null
-			),
-
-			'with id but no language' => array(
-				$fooFingerprint,
-				'$id',
-				null,
-				$withIdMatchers,
-				null
-			),
-
-			'with id and language' => array(
-				$fooFingerprint,
-				'$id/de',
-				null,
-				$withLanguageMatchers,
-				null
-			),
-
-			'with id and language attribute' => array(
-				$fooFingerprint,
-				'$id',
-				new FauxRequest( array( 'language' => 'de' ) ),
-				$withLanguageMatchers,
-				null
-			),
-
 			'add label' => array(
 				$fooFingerprint,
-				'$id',
 				new FauxRequest( array(
 					'language' => 'en',
 					'label' => "FOO\xE2\x80\x82",
 					'aliases' => "\xE2\x80\x82",
 				), true ),
-				array(),
 				$this->makeFingerprint(
 					array( 'de' => 'foo', 'en' => 'FOO' )
 				),
@@ -311,9 +215,7 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 
 			'replace label' => array(
 				$fooFingerprint,
-				'$id',
 				new FauxRequest( array( 'language' => 'de', 'label' => 'FOO' ), true ),
-				array(),
 				$this->makeFingerprint(
 					array( 'de' => 'FOO' )
 				),
@@ -321,9 +223,7 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 
 			'add description, keep label' => array(
 				$fooFingerprint,
-				'$id',
 				new FauxRequest( array( 'language' => 'de', 'description' => 'Lorem Ipsum' ), true ),
-				array(),
 				$this->makeFingerprint(
 					array( 'de' => 'foo' ),
 					array( 'de' => 'Lorem Ipsum' )
@@ -332,12 +232,10 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 
 			'set aliases' => array(
 				$fooFingerprint,
-				'$id',
 				new FauxRequest( array(
 					'language' => 'de',
 					'aliases' => "foo\xE2\x80\x82|bar",
 				), true ),
-				array(),
 				$this->makeFingerprint(
 					array( 'de' => 'foo' ),
 					array(),
@@ -350,12 +248,10 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 	/**
 	 * @dataProvider executeProvider
 	 */
-	public function testExecute(
+	public function testExecuteWithExistingItemIdAsSubPage(
 		Fingerprint $inputFingerprint,
-		$subpage,
 		WebRequest $request = null,
-		array $tagMatchers,
-		Fingerprint $expectedFingerprint = null
+		Fingerprint $expectedFingerprint
 	) {
 		$inputEntity = new Item();
 		$inputEntity->setFingerprint( $inputFingerprint );
@@ -363,25 +259,84 @@ class SpecialSetLabelDescriptionAliasesTest extends SpecialWikibaseRepoPageTestB
 		$this->mockRepository->putEntity( $inputEntity );
 		$id = $inputEntity->getId();
 
-		$subpage = str_replace( '$id', $id->getSerialization(), $subpage );
-		list( $output, $response ) = $this->executeSpecialPage( $subpage, $request );
+		list( , $response ) = $this->executeSpecialPage( $id->getSerialization(), $request );
 
 		$redirect = $response instanceof FauxResponse ? $response->getHeader( 'Location' ) : null;
+		// TODO: Look for an error message in $output.
+		$this->assertNotEmpty( $redirect, 'Expected redirect after successful edit' );
 
-		foreach ( $tagMatchers as $key => $matcher ) {
-			$this->assertTag( $matcher, $output, "Failed to assert output: $key" );
-		}
+		/** @var Item $actualEntity */
+		$actualEntity = $this->mockRepository->getEntity( $id );
+		$actualFingerprint = $actualEntity->getFingerprint();
+		$this->assetFingerprintEquals( $expectedFingerprint, $actualFingerprint );
+	}
 
-		if ( $expectedFingerprint !== null ) {
-			// TODO: Look for an error message in $output.
-			$this->assertNotEmpty( $redirect, 'Expected redirect after successful edit' );
+	public function testAllFormFieldsRendered_WhenPageRendered() {
 
-			/** @var Item $actualEntity */
-			$actualEntity = $this->mockRepository->getEntity( $id );
-			$actualFingerprint = $actualEntity->getFingerprint();
+		list( $output ) = $this->executeSpecialPage( '' );
 
-			$this->assetFingerprintEquals( $expectedFingerprint, $actualFingerprint );
-		}
+		$this->assertHtmlContainsInputWithName( $output, 'id' );
+		$this->assertHtmlContainsInputWithNameAndValue( $output, 'language', self::USER_LANGUAGE );
+		$this->assertHtmlContainsSubmitControl( $output );
+	}
+
+	public function testFormForEditingDataInUserLanguageIsDisplayed_WhenPageRenderedWithItemIdAsFirstSubPagePart() {
+		$item = new Item();
+		$this->mockRepository->putEntity( $item );
+
+		list( $output ) = $this->executeSpecialPage( $item->getId()->getSerialization() );
+
+		assertThat( $output, is( htmlPiece( havingChild(
+			tagMatchingOutline( "<input name='id' type='hidden' value='{$item->getId()->getSerialization()}'/>" )
+		) ) ) );
+		$this->assertHtmlContainsInputWithNameAndValue( $output, 'language', self::USER_LANGUAGE );
+		$this->assertHtmlContainsInputWithName( $output, 'label' );
+		$this->assertHtmlContainsInputWithName( $output, 'description' );
+		$this->assertHtmlContainsInputWithName( $output, 'aliases' );
+		$this->assertHtmlContainsSubmitControl( $output );
+	}
+
+	public function testRendersEditFormInLanguageProvidedAsSecondPartOfSubPage() {
+		$item = new Item();
+		$this->mockRepository->putEntity( $item );
+		$language = 'de';
+
+		$subPage = $item->getId()->getSerialization() . '/' . $language;
+		list( $output ) = $this->executeSpecialPage( $subPage );
+
+		assertThat( $output, is( htmlPiece( havingChild(
+			tagMatchingOutline( "<input name='language' type='hidden' value='$language'/>" )
+		) ) ) );
+		$this->assertHtmlContainsInputWithName( $output, 'label' );
+		$this->assertHtmlContainsInputWithName( $output, 'description' );
+		$this->assertHtmlContainsInputWithName( $output, 'aliases' );
+		$this->assertHtmlContainsSubmitControl( $output );
+	}
+
+	public function testRendersEditFormInLanguageProvidedAsQueryParameter() {
+		$item = new Item();
+		$language = 'de';
+		$label = 'de label';
+		$description = 'de description';
+		$alias = 'de alias';
+		$item->setFingerprint(
+			$this->makeFingerprint(
+				[ $language => $label ],
+				[ $language => $description ],
+				[ $language => [ $alias ] ]
+			)
+		);
+		$this->mockRepository->putEntity( $item );
+
+		list( $output ) = $this->executeSpecialPage( $item->getId()->getSerialization(), new FauxRequest( [ 'language' => $language ] ) );
+
+		assertThat( $output, is( htmlPiece( havingChild(
+			tagMatchingOutline( "<input name='language' type='hidden' value='$language'/>" )
+		) ) ) );
+		$this->assertHtmlContainsInputWithNameAndValue( $output, 'label', $label );
+		$this->assertHtmlContainsInputWithNameAndValue( $output, 'description', $description );
+		$this->assertHtmlContainsInputWithNameAndValue( $output, 'aliases', $alias );
+		$this->assertHtmlContainsSubmitControl( $output );
 	}
 
 	public function testLanguageCodeEscaping() {

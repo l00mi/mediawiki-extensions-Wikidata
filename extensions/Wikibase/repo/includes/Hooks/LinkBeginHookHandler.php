@@ -5,10 +5,16 @@ namespace Wikibase\Repo\Hooks;
 use Action;
 use DummyLinker;
 use Language;
-use Linker;
+use MediaWiki\Interwiki\InterwikiLookup;
+use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
 use RequestContext;
 use SpecialPageFactory;
 use Title;
+use Wikibase\DataModel\Entity\EntityId;
+use Wikibase\DataModel\Entity\EntityIdParser;
+use Wikibase\DataModel\Entity\EntityIdParsingException;
 use Wikibase\DataModel\Services\Lookup\TermLookup;
 use Wikibase\LanguageFallbackChain;
 use Wikibase\Lib\Store\EntityNamespaceLookup;
@@ -37,6 +43,11 @@ class LinkBeginHookHandler {
 	private $entityIdLookup;
 
 	/**
+	 * @var EntityIdParser
+	 */
+	private $entityIdParser;
+
+	/**
 	 * @var TermLookup
 	 */
 	private $termLookup;
@@ -57,6 +68,16 @@ class LinkBeginHookHandler {
 	private $pageLanguage;
 
 	/**
+	 * @var LinkRenderer
+	 */
+	private $linkRenderer;
+
+	/**
+	 * @var InterwikiLookup
+	 */
+	private $interwikiLookup;
+
+	/**
 	 * @return self
 	 */
 	private static function newFromGlobalState() {
@@ -68,10 +89,13 @@ class LinkBeginHookHandler {
 
 		return new self(
 			$wikibaseRepo->getEntityIdLookup(),
+			$wikibaseRepo->getEntityIdParser(),
 			$wikibaseRepo->getTermLookup(),
 			$wikibaseRepo->getEntityNamespaceLookup(),
 			$languageFallbackChain,
-			$context->getLanguage()
+			$context->getLanguage(),
+			MediaWikiServices::getInstance()->getLinkRenderer(),
+			MediaWikiServices::getInstance()->getInterwikiLookup()
 		);
 	}
 
@@ -84,12 +108,12 @@ class LinkBeginHookHandler {
 	 * @param Title $target
 	 * @param string $html
 	 * @param array $customAttribs
-	 * @param string $query
+	 * @param array $query
 	 * @param array $options
 	 * @param mixed $ret
 	 * @return bool true
 	 */
-	public static function onLinkBegin( $skin, $target, &$html, array &$customAttribs, &$query,
+	public static function onLinkBegin( $skin, $target, &$html, array &$customAttribs, array &$query,
 		&$options, &$ret
 	) {
 		$context = RequestContext::getMain();
@@ -107,25 +131,34 @@ class LinkBeginHookHandler {
 
 	/**
 	 * @param EntityIdLookup $entityIdLookup
+	 * @param EntityIdParser $entityIdParser
 	 * @param TermLookup $termLookup
 	 * @param EntityNamespaceLookup $entityNamespaceLookup
 	 * @param LanguageFallbackChain $languageFallback
 	 * @param Language $pageLanguage
+	 * @param LinkRenderer $linkRenderer
+	 * @param InterwikiLookup $interwikiLookup
 	 *
 	 * @todo: Would be nicer to take a LabelDescriptionLookup instead of TermLookup + FallbackChain.
 	 */
 	public function __construct(
 		EntityIdLookup $entityIdLookup,
+		EntityIdParser $entityIdParser,
 		TermLookup $termLookup,
 		EntityNamespaceLookup $entityNamespaceLookup,
 		LanguageFallbackChain $languageFallback,
-		Language $pageLanguage
+		Language $pageLanguage,
+		LinkRenderer $linkRenderer,
+		InterwikiLookup $interwikiLookup
 	) {
 		$this->entityIdLookup = $entityIdLookup;
+		$this->entityIdParser = $entityIdParser;
 		$this->termLookup = $termLookup;
 		$this->entityNamespaceLookup = $entityNamespaceLookup;
 		$this->languageFallback = $languageFallback;
 		$this->pageLanguage = $pageLanguage;
+		$this->linkRenderer = $linkRenderer;
+		$this->interwikiLookup = $interwikiLookup;
 	}
 
 	/**
@@ -138,7 +171,11 @@ class LinkBeginHookHandler {
 		$out = $context->getOutput();
 		$outTitle = $out->getTitle();
 
-		if ( !$this->entityNamespaceLookup->isEntityNamespace( $target->getNamespace() ) ) {
+		$targetIsForeignEntityPage = $this->isForeignEntityPage( $target );
+
+		if ( !$targetIsForeignEntityPage &&
+			!$this->entityNamespaceLookup->isEntityNamespace( $target->getNamespace() )
+		) {
 			return;
 		}
 
@@ -162,12 +199,12 @@ class LinkBeginHookHandler {
 		// to indicate that the logged action occurred while creating an entity.
 		if ( SpecialPageFactory::exists( $targetText ) ) {
 			$target = Title::makeTitle( NS_SPECIAL, $targetText );
-			$html = Linker::linkKnown( $target );
+			$html = $this->linkRenderer->makeKnownLink( $target );
 
 			return;
 		}
 
-		if ( !$target->exists() ) {
+		if ( !$targetIsForeignEntityPage && !$target->exists() ) {
 			// The link points to a non-existing item.
 			return;
 		}
@@ -178,7 +215,7 @@ class LinkBeginHookHandler {
 			return;
 		}
 
-		$entityId = $this->entityIdLookup->getEntityIdForTitle( $target );
+		$entityId = $this->getEntityIdFromTarget( $target );
 
 		if ( !$entityId ) {
 			return;
@@ -200,7 +237,7 @@ class LinkBeginHookHandler {
 		$labelData = $this->getPreferredTerm( $labels );
 		$descriptionData = $this->getPreferredTerm( $descriptions );
 
-		$html = $this->getHtml( $target, $labelData );
+		$html = $this->getHtml( $entityId->getSerialization(), $labelData );
 
 		$customAttribs['title'] = $this->getTitleAttribute(
 			$target,
@@ -210,6 +247,56 @@ class LinkBeginHookHandler {
 
 		// add wikibase styles in all cases, so we can format the link properly:
 		$out->addModuleStyles( array( 'wikibase.common' ) );
+	}
+
+	/**
+	 * @param LinkTarget $target
+	 *
+	 * @return bool
+	 */
+	private function isForeignEntityPage( LinkTarget $target ) {
+		$interwiki = $target->getInterwiki();
+		if ( $interwiki === '' ) {
+			return false;
+		}
+
+		if ( !$this->interwikiLookup->isValidInterwiki( $interwiki ) ) {
+			return false;
+		}
+
+		return $this->startsWith( $target->getText(), 'Special:EntityPage/' );
+	}
+
+	/**
+	 * @param string $haystack
+	 * @param string $needle
+	 *
+	 * @return bool
+	 */
+	private function startsWith( $haystack, $needle ) {
+		return strncmp( $haystack, $needle, strlen( $needle ) ) === 0;
+	}
+
+	/**
+	 * @param Title $target
+	 *
+	 * @return null|EntityId
+	 */
+	private function getEntityIdFromTarget( Title $target ) {
+		if ( $this->isForeignEntityPage( $target ) ) {
+			$idPart = substr( $target->getText(), strlen( 'Special:EntityPage/' ) );
+			// FIXME: This assumes repository name is equal to interwiki. This assumption might become invalid
+			try {
+				return $this->entityIdParser->parse(
+					EntityId::joinSerialization( [ $target->getInterwiki(), '', $idPart ] )
+				);
+			} catch ( EntityIdParsingException $ex ) {
+			}
+			return null;
+
+		}
+
+		return $this->entityIdLookup->getEntityIdForTitle( $target );
 	}
 
 	/**
@@ -287,14 +374,20 @@ class LinkBeginHookHandler {
 		}
 	}
 
-	private function getHtml( Title $title, array $labelData = null ) {
+	/**
+	 * @param string $entityIdSerialization
+	 * @param array|null $labelData
+	 *
+	 * @return string
+	 */
+	private function getHtml( $entityIdSerialization, array $labelData = null ) {
 		/** @var Language $labelLang */
 		list( $labelText, $labelLang ) = $this->extractTextAndLanguage( $labelData );
 
 		$idHtml = '<span class="wb-itemlink-id">'
 			. wfMessage(
 				'wikibase-itemlink-id-wrapper',
-				$title->getText()
+				$entityIdSerialization
 			)->inContentLanguage()->escaped()
 			. '</span>';
 

@@ -3,7 +3,8 @@
 		"authors": [
 			"Kwj2772",
 			"아라",
-			"Ykhwong"
+			"Ykhwong",
+			"Jerrykim306"
 		]
 	},
 	"valueview-desc": "데이터 값 보이기와 편집을 위한 사용자 인터페이스 구성 요소",
@@ -12,6 +13,7 @@
 	"valueview-expert-unsupportedvalue-unsupporteddatatype": "\"$1\" 데이터 유형에 대한 값의 처리는 아직 지원하지 않습니다.",
 	"valueview-expert-emptyvalue-empty": "비었음",
 	"valueview-expert-globecoordinateinput-precision": "정밀도:",
+	"valueview-expert-globecoordinateinput-nullprecision": "지정되지 않음",
 	"valueview-expert-globecoordinateinput-customprecision": "특수 ($1)",
 	"valueview-expert-timevalue-calendar-gregorian": "그레고리력",
 	"valueview-expert-timevalue-calendar-julian": "율리우스력",
@@ -23,6 +25,8 @@
 	"valueview-expertextender-calendarhint-switch-julian": "&rarr; 율리우스력으로 변경",
 	"valueview-expertextender-languageselector-languagetemplate": "$1 ($2)",
 	"valueview-expertextender-languageselector-label": "언어 (필수):",
+	"valueview-expertextender-unitsuggester-label": "단위 (선택 사항):",
 	"valueview-preview-label": "다음과 같이 보이기:",
-	"valueview-preview-novalue": "올바른 값이 인식되지 않음"
+	"valueview-preview-novalue": "올바른 값이 인식되지 않음",
+	"valueview-listrotator-manually": "수동 설정"
 }

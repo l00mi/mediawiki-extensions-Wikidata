@@ -10,10 +10,10 @@ use Wikibase\DataModel\Snak\SnakList;
 /**
  * @covers Wikibase\DataModel\Serializers\SnakListSerializer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0+
  * @author Thomas Pellissier Tanon
  */
-class SnakListSerializerTest extends SerializerBaseTest {
+class SnakListSerializerTest extends DispatchableSerializerTest {
 
 	protected function buildSerializer() {
 		$snakSerializerMock = $this->getMock( '\Serializers\Serializer' );
