@@ -105,6 +105,13 @@ class RepositoryDefinitions {
 	}
 
 	/**
+	 * @return string[] List of entity type names provided by all defined repositories.
+	 */
+	public function getAllEntityTypes() {
+		return array_keys( $this->entityTypeToRepositoryMapping );
+	}
+
+	/**
 	 * @param array $definition
 	 * @param array $requiredFields
 	 * @return bool
@@ -115,6 +122,8 @@ class RepositoryDefinitions {
 
 	/**
 	 * @param array $repositoryDefinitions
+	 *
+	 * @throws InvalidArgumentException
 	 *
 	 * @return string[]
 	 */
@@ -128,11 +137,11 @@ class RepositoryDefinitions {
 
 			foreach ( $definition['entity-types'] as $entityType ) {
 				if ( isset( $mapping[$entityType] ) ) {
-					wfWarn( 'Using same entity types on multiple repositories is not supported yet. '
+					throw new InvalidArgumentException(
+						'Using same entity types on multiple repositories is not supported yet. '
 						. '"' . $entityType . '" has already be defined for repository '
 						. '"' . $mapping[$entityType] .'"'
 					);
-					continue;
 				}
 
 				$mapping[$entityType] = $repositoryName;

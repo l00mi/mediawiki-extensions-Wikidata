@@ -103,8 +103,8 @@ class RepositoryDefinitionsTest extends \PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testGivenSameEntityTypeDefinedForMultitpleRepos_languageLevelErrorIsRaised() {
-		$this->setExpectedException( \PHPUnit_Framework_Error::class );
+	public function testGivenSameEntityTypeDefinedForMultitpleRepos_exceptionIsThrown() {
+		$this->setExpectedException( InvalidArgumentException::class );
 
 		$irrelevantDefinitions = [ 'database' => 'foo', 'prefix-mapping' => [] ];
 
@@ -112,6 +112,15 @@ class RepositoryDefinitionsTest extends \PHPUnit_Framework_TestCase {
 			'' => array_merge( $irrelevantDefinitions, [ 'entity-types' => [ 'item', 'property' ] ] ),
 			'media' => array_merge( $irrelevantDefinitions, [ 'entity-types' => [ 'item', 'mediainfo' ] ] ),
 		] );
+	}
+
+	public function testGetAllEntityTypes() {
+		$definitions = new RepositoryDefinitions( $this->getCompleteRepositoryDefinitionArray() );
+
+		$this->assertEquals(
+			[ 'item', 'property', 'mediainfo', 'lexeme' ],
+			$definitions->getAllEntityTypes()
+		);
 	}
 
 }
