@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+			"StanProg"
+		]
+	},
+	"wbq-violations-mark-as-exception": "Отбелязване като изключение",
+	"wbq-violations-mark-as-violation": "Отбелязване като нарушение"
+}

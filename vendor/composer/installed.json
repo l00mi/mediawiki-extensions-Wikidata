@@ -1350,12 +1350,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "33baa0fccfe8059b2b02ed9d83c73e3bf3a94a79"
+            "reference": "a6f8ad40047b7c47f79d5408fe80b352682b5e9b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/33baa0fccfe8059b2b02ed9d83c73e3bf3a94a79",
-            "reference": "33baa0fccfe8059b2b02ed9d83c73e3bf3a94a79",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/a6f8ad40047b7c47f79d5408fe80b352682b5e9b",
+            "reference": "a6f8ad40047b7c47f79d5408fe80b352682b5e9b",
             "shasum": ""
         },
         "require": {
@@ -1387,7 +1387,7 @@
             "jakub-onderka/php-parallel-lint": ">=0.3 <0.10",
             "mediawiki/mediawiki-codesniffer": ">=0.4 <0.8"
         },
-        "time": "2017-03-08 21:49:52",
+        "time": "2017-03-10 09:38:26",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1537,7 +1537,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityExternalValidation",
-            "reference": "457a6fbe190610f10a73e898bb1161a28c2d5761"
+            "reference": "f8e4be30ed44fa4653ad1e1c83ab14373804a810"
         },
         "require": {
             "data-values/common": ">=0.1 <0.4",
@@ -1555,7 +1555,7 @@
             "phpunit/phpunit": "~3.7,>=3.7.37",
             "satooshi/php-coveralls": "dev-master"
         },
-        "time": "2017-03-01 21:48:41",
+        "time": "2017-03-09 22:36:52",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
@@ -1710,7 +1710,7 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQuality",
-            "reference": "d5914652b0e5b8f346248f8258b664b83658c18f"
+            "reference": "ef2683ae20778eb4f1cf0ccec8ff891d9c59ed1c"
         },
         "require": {
             "php": ">=5.5.0",
@@ -1728,7 +1728,7 @@
             "satooshi/php-coveralls": "master-dev",
             "wikibase/data-model-serialization": ">=0.1 <3.0"
         },
-        "time": "2017-03-06 21:55:35",
+        "time": "2017-03-09 22:36:44",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
