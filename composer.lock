@@ -935,7 +935,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseQualityConstraints",
-                "reference": "62b91176ac5377eab8abbfee85b9d3c5aa6379c5"
+                "reference": "3989727ad976b33ecdf6d21bb68d9be0b832034f"
             },
             "require": {
                 "php": ">=5.3.0",
@@ -987,7 +987,7 @@
             "support": {
                 "issues": "https://phabricator.wikimedia.org/project/profile/1202/"
             },
-            "time": "2017-03-06 21:55:43"
+            "time": "2017-03-12 22:02:09"
         },
         {
             "name": "wikibase/data-model",
@@ -1394,7 +1394,7 @@
             "source": {
                 "type": "git",
                 "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikibaseMediaInfo",
-                "reference": "49dc855edeaf7cd9cca1d416f715bcc437a35bfd"
+                "reference": "b7a03d1c241ecf0be2368048e00a26b4f9ac3410"
             },
             "require": {
                 "php": ">=5.5.0",
@@ -1440,7 +1440,7 @@
                 "issues": "https://phabricator.wikimedia.org/",
                 "irc": "irc://irc.freenode.net/wikidata"
             },
-            "time": "2017-03-03 03:31:15"
+            "time": "2017-03-12 22:01:58"
         },
         {
             "name": "wikibase/quality",
@@ -1549,12 +1549,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-                "reference": "afe10a570a41b9eea6236a6a4ffcb6325aa2b3b4"
+                "reference": "7df7da0f9a19e9c0c76901c78c85b17b49b66085"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/afe10a570a41b9eea6236a6a4ffcb6325aa2b3b4",
-                "reference": "afe10a570a41b9eea6236a6a4ffcb6325aa2b3b4",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/7df7da0f9a19e9c0c76901c78c85b17b49b66085",
+                "reference": "7df7da0f9a19e9c0c76901c78c85b17b49b66085",
                 "shasum": ""
             },
             "require": {
@@ -1628,7 +1628,7 @@
                 "wikibaserepo",
                 "wikidata"
             ],
-            "time": "2017-03-10 22:43:36"
+            "time": "2017-03-13 07:49:17"
         },
         {
             "name": "wikibase/wikimedia-badges",
