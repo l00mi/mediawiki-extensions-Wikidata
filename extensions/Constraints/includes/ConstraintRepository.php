@@ -7,27 +7,24 @@ use InvalidArgumentException;
 use ResultWrapper;
 use Wikibase\DataModel\Entity\PropertyId;
 
-
 /**
- * Class ConstraintRepository
  * @package WikibaseQuality\ConstraintReport
  * @author BP2014N1
  * @license GNU GPL v2+
  */
-class ConstraintRepository {
+class ConstraintRepository implements ConstraintLookup {
 
 	/**
-	 * @param int $numericPropertyId
-	 *
+	 * @param PropertyId $propertyId
 	 * @return Constraint[]
 	 */
-	public function queryConstraintsForProperty( $numericPropertyId ) {
+	public function queryConstraintsForProperty( PropertyId $propertyId ) {
 		$db = wfGetDB( DB_SLAVE );
 
 		$results = $db->select(
 			CONSTRAINT_TABLE,
 			'*',
-			array( 'pid' => $numericPropertyId )
+			array( 'pid' => $propertyId->getNumericId() )
 		);
 
 		return $this->convertToConstraints( $results );

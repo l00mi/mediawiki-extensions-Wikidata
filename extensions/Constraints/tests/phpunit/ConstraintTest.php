@@ -5,7 +5,6 @@ namespace WikibaseQuality\ConstraintReport\Tests;
 use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ConstraintReport\ConstraintRepository;
 
-
 /**
  * @covers WikibaseQuality\ConstraintReport\Constraint
  *
@@ -20,10 +19,10 @@ class ConstraintTest extends \MediaWikiTestCase {
 
 	public function testConstructAndGetters() {
 		$repo = new ConstraintRepository();
-		$constraints = $repo->queryConstraintsForProperty( 1 );
+		$constraints = $repo->queryConstraintsForProperty( new PropertyId( 'P1' ) );
 
 		$this->assertEquals( 'Item', $constraints[0]->getConstraintTypeQid() );
-		$this->assertEquals( new PropertyId('P1'), $constraints[0]->getPropertyId() );
+		$this->assertEquals( new PropertyId( 'P1' ), $constraints[0]->getPropertyId() );
 		$this->assertEquals( '1', $constraints[0]->getConstraintStatementGuid() );
 		$constraintParameters = $constraints[0]->getConstraintParameters();
 		$this->assertEquals( 2, count( $constraintParameters ) );
