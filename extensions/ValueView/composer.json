@@ -29,8 +29,8 @@
 		]
 	},
 	"require-dev": {
-		"jakub-onderka/php-parallel-lint": "0.9",
-		"mediawiki/mediawiki-codesniffer": "0.4.0"
+		"jakub-onderka/php-parallel-lint": ">=0.3 <0.10",
+		"mediawiki/mediawiki-codesniffer": ">=0.4 <0.8"
 	},
 	"scripts": {
 		"test": [
@@ -42,7 +42,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "0.18.x-dev"
+			"dev-master": "0.19.x-dev"
 		}
 	}
 }

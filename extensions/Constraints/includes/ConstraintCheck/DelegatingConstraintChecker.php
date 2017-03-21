@@ -9,13 +9,11 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Statement\Statement;
 use Wikibase\DataModel\Statement\StatementList;
 use Wikibase\DataModel\Statement\StatementListProvider;
-use WikibaseQuality\ConstraintReport\ConstraintCheck\Helper\ConstraintParameterParser;
 use WikibaseQuality\ConstraintReport\ConstraintCheck\Result\CheckResult;
-use WikibaseQuality\ConstraintReport\ConstraintRepository;
+use WikibaseQuality\ConstraintReport\ConstraintLookup;
 use WikibaseQuality\ConstraintReport\Constraint;
 
 /**
- * Class DelegatingConstraintCheck
  * Used to start the constraint-check process and to delegate
  * the statements that has to be checked to the corresponding checkers
  *
@@ -33,13 +31,6 @@ class DelegatingConstraintChecker {
 	private $entityLookup;
 
 	/**
-	 * Class for helper functions for constraint checkers.
-	 *
-	 * @var ConstraintParameterParser
-	 */
-	private $helper;
-
-	/**
 	 * @var ConstraintChecker[]
 	 */
 	private $checkerMap;
@@ -52,14 +43,19 @@ class DelegatingConstraintChecker {
 	private $statements;
 
 	/**
+	 * @var ConstraintLookup
+	 */
+	private $constraintLookup;
+
+	/**
 	 * @param EntityLookup $lookup
 	 * @param ConstraintChecker[] $checkerMap
+	 * @param ConstraintLookup $constraintLookup
 	 */
-	public function __construct( EntityLookup $lookup, array $checkerMap ) {
+	public function __construct( EntityLookup $lookup, array $checkerMap, ConstraintLookup $constraintLookup ) {
 		$this->entityLookup = $lookup;
 		$this->checkerMap = $checkerMap;
-		$this->helper = new ConstraintParameterParser();
-		$this->constraintRepository = new ConstraintRepository();
+		$this->constraintLookup = $constraintLookup;
 	}
 
 	/**
@@ -97,10 +93,9 @@ class DelegatingConstraintChecker {
 				continue;
 			}
 
-			$propertyId = $statement->getPropertyId();
-			$numericPropertyId = $propertyId->getNumericId();
-
-			$constraints = $this->constraintRepository->queryConstraintsForProperty( $numericPropertyId );
+			$constraints = $this->constraintLookup->queryConstraintsForProperty(
+				$statement->getPropertyId()
+			);
 
 			$result = array_merge( $result, $this->checkConstraintsForStatementOnEntity( $constraints, $entity, $statement ) );
 		}
@@ -148,7 +143,7 @@ class DelegatingConstraintChecker {
 			$startTime = microtime( true );
 			$result = $checker->checkConstraint( $statement, $constraint, $entity );
 			$statsd->timing(
-				'wikibase.quality.constraints.check.timing' . $constraint->getConstraintTypeQid(),
+				'wikibase.quality.constraints.check.timing.' . $constraint->getConstraintTypeQid(),
 				( microtime( true ) - $startTime ) * 1000
 			);
 

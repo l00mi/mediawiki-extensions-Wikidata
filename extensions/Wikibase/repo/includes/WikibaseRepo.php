@@ -75,6 +75,7 @@ use Wikibase\Lib\MediaWikiNumberLocalizer;
 use Wikibase\Lib\OutputFormatSnakFormatterFactory;
 use Wikibase\Lib\OutputFormatValueFormatterFactory;
 use Wikibase\Lib\PropertyInfoDataTypeLookup;
+use Wikibase\Lib\RepositoryDefinitions;
 use Wikibase\Lib\SnakFormatter;
 use Wikibase\Lib\StaticContentLanguages;
 use Wikibase\Lib\Store\CachingPropertyOrderProvider;
@@ -83,6 +84,13 @@ use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
+use Wikibase\Repo\Modules\SettingsValueProvider;
+use Wikibase\Rdf\EntityRdfBuilderFactory;
+use Wikibase\Repo\ChangeOp\Deserialization\ChangeOpDeserializerFactory;
+use Wikibase\Repo\ChangeOp\Deserialization\SiteLinkBadgeChangeOpSerializationValidator;
+use Wikibase\Repo\ChangeOp\Deserialization\TermChangeOpSerializationValidator;
+use Wikibase\Repo\ChangeOp\EntityChangeOpProvider;
+use Wikibase\Repo\Localizer\ChangeOpDeserializationExceptionLocalizer;
 use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\Store\PrefetchingTermLookup;
@@ -259,6 +267,11 @@ class WikibaseRepo {
 	private $entityTypeDefinitions;
 
 	/**
+	 * @var RepositoryDefinitions
+	 */
+	private $repositoryDefinitions;
+
+	/**
 	 * @var ValueSnakRdfBuilderFactory
 	 */
 	private $valueSnakRdfBuilderFactory;
@@ -279,9 +292,9 @@ class WikibaseRepo {
 	private $entityDataRetrievalServiceFactory = null;
 
 	/**
-	 * @var SettingsArray|null
+	 * @var EntityRdfBuilderFactory|null
 	 */
-	private $clientSettings = null;
+	private $entityRdfBuilderFactory = null;
 
 	/**
 	 * IMPORTANT: Use only when it is not feasible to inject an instance properly.
@@ -306,15 +319,9 @@ class WikibaseRepo {
 		$settings = new SettingsArray( $wgWBRepoSettings );
 		$settings->setSetting( 'entityNamespaces', self::buildEntityNamespaceConfigurations() );
 
-		$dataRetrievalServices = null;
-		$clientSettings = null;
+		$repositoryDefinitions = self::getRepositoryDefinitionsFromSettings( $settings );
 
-		// WARNING: temporarily disabled. This hack should not be in the master branch!
-		// If client functionality is enabled, use it to enable federation.
-		//if ( defined( 'WBC_VERSION' ) ) {
-		//	$dataRetrievalServices = WikibaseClient::getDefaultInstance()->getEntityDataRetrievalServiceFactory();
-		//	$clientSettings = WikibaseClient::getDefaultInstance()->getSettings();
-		//}
+		$dataRetrievalServices = null;
 
 		return new self(
 			$settings,
@@ -323,9 +330,22 @@ class WikibaseRepo {
 				$settings->getSetting( 'disabledDataTypes' )
 			),
 			new EntityTypeDefinitions( $entityTypeDefinitions ),
-			$dataRetrievalServices,
-			$clientSettings
+			$repositoryDefinitions,
+			$dataRetrievalServices
 		);
+	}
+
+	/**
+	 * @param SettingsArray $settings
+	 *
+	 * @return RepositoryDefinitions
+	 */
+	private static function getRepositoryDefinitionsFromSettings( SettingsArray $settings ) {
+		return new RepositoryDefinitions( [ '' => [
+			'database' => $settings->getSetting( 'changesDatabase' ),
+			'prefix-mapping' => [ '' => '' ],
+			'entity-types' => array_keys( $settings->getSetting( 'entityNamespaces' ) ),
+		] ] );
 	}
 
 	/**
@@ -370,22 +390,6 @@ class WikibaseRepo {
 	 */
 	public function newValidatorBuilders() {
 		$urlSchemes = $this->settings->getSetting( 'urlSchemes' );
-		$entityTypesPerRepo = [];
-
-		if ( $this->clientSettings ) {
-			$foreignRepoConfig = $this->clientSettings->getSetting( 'foreignRepositories' );
-			$entityTypesPerRepo = array_map(
-				function( $repoSettings ) {
-					return $repoSettings[ 'supportedEntityTypes' ];
-				},
-				$foreignRepoConfig
-			);
-		}
-
-		$entityTypesPerRepo = array_merge(
-			$entityTypesPerRepo,
-			[ '' => $this->getLocalEntityTypes(), ]
-		);
 
 		return new ValidatorBuilders(
 			$this->getEntityLookup(),
@@ -394,8 +398,9 @@ class WikibaseRepo {
 			$this->getVocabularyBaseUri(),
 			$this->getMonolingualTextLanguages(),
 			$this->getCachingCommonsMediaFileNameLookup(),
-			$entityTypesPerRepo,
-			new MediaWikiPageNameNormalizer()
+			$this->repositoryDefinitions->getEntityTypesPerRepository(),
+			new MediaWikiPageNameNormalizer(),
+			$this->settings->getSetting( 'geoShapeStorageApiEndpointUrl' )
 		);
 	}
 
@@ -480,39 +485,34 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * FIXME: Optional $entityDataRetrievalServiceFactory and $clientSettings make it possible to access
+	 * FIXME: Optional $entityDataRetrievalServiceFactory makes it possible to access
 	 * entities from foreign repositories from Repo component but they also introduce the optional
 	 * dependency on the Client component. Such dependency is bad and in the long run it should be removed
 	 * by making EntityDataRetrievalServiceFactory implementation provided to WikibaseRepo not be
-	 * bound to WikibaseClient. Foreign repository settings should also moved out of Client's settings,
-	 * so WikibaseRepo could be aware of entity types introduced in foreign repositories without needing
-	 * to rely on $clientSettings.
+	 * bound to WikibaseClient.
 	 *
 	 * @param SettingsArray $settings
 	 * @param DataTypeDefinitions $dataTypeDefinitions
 	 * @param EntityTypeDefinitions $entityTypeDefinitions
+	 * @param RepositoryDefinitions $repositoryDefinitions
 	 * @param EntityDataRetrievalServiceFactory|null $entityDataRetrievalServiceFactory optional factory
 	 *        of entity data retrieval services that will be used by the Repo instead of it creating
 	 *        instances of those services itself.
 	 *        This factory could be provided in order to allow Repo make use of Dispatching services
 	 *        and access data of entities from foreign repositories.
-	 * @param SettingsArray|null $clientSettings Settings of WikibaseClient related
-	 *        to the $entityDataRetrievalServiceFactory. Should be provided when
-	 *        foreign repositories configured in the WikibaseClient instance introduce custom
-	 *        entity types.
 	 */
 	public function __construct(
 		SettingsArray $settings,
 		DataTypeDefinitions $dataTypeDefinitions,
 		EntityTypeDefinitions $entityTypeDefinitions,
-		EntityDataRetrievalServiceFactory $entityDataRetrievalServiceFactory = null,
-		SettingsArray $clientSettings = null
+		RepositoryDefinitions $repositoryDefinitions,
+		EntityDataRetrievalServiceFactory $entityDataRetrievalServiceFactory = null
 	) {
 		$this->settings = $settings;
 		$this->dataTypeDefinitions = $dataTypeDefinitions;
 		$this->entityTypeDefinitions = $entityTypeDefinitions;
+		$this->repositoryDefinitions = $repositoryDefinitions;
 		$this->entityDataRetrievalServiceFactory = $entityDataRetrievalServiceFactory;
-		$this->clientSettings = $clientSettings;
 	}
 
 	/**
@@ -843,6 +843,45 @@ class WikibaseRepo {
 		);
 	}
 
+	public function getSiteLinkBadgeChangeOpSerializationValidator() {
+		return new SiteLinkBadgeChangeOpSerializationValidator(
+			$this->getEntityTitleLookup(),
+			array_keys( $this->settings->getSetting( 'badgeItems' ) )
+		);
+	}
+
+	/**
+	 * @return EntityChangeOpProvider
+	 */
+	public function getEntityChangeOpProvider() {
+		return new EntityChangeOpProvider( $this->entityTypeDefinitions->getChangeOpDeserializerCallbacks() );
+	}
+
+	/**
+	 * TODO: this should be probably cached?
+	 *
+	 * @return ChangeOpDeserializerFactory
+	 */
+	public function getChangeOpDeserializerFactory() {
+		$changeOpFactoryProvider = $this->getChangeOpFactoryProvider();
+
+		return new ChangeOpDeserializerFactory(
+			$changeOpFactoryProvider->getFingerprintChangeOpFactory(),
+			$changeOpFactoryProvider->getStatementChangeOpFactory(),
+			$changeOpFactoryProvider->getSiteLinkChangeOpFactory(),
+			new TermChangeOpSerializationValidator( $this->getTermsLanguages() ),
+			$this->getSiteLinkBadgeChangeOpSerializationValidator(),
+			$this->getExternalFormatStatementDeserializer(),
+			new SiteLinkTargetProvider(
+				$this->getSiteLookup(),
+				$this->settings->getSetting( 'specialSiteLinkGroups' )
+			),
+			$this->getEntityIdParser(),
+			$this->getStringNormalizer(),
+			$this->settings->getSetting( 'siteLinkGroups' )
+		);
+	}
+
 	/**
 	 * @return LanguageFallbackChainFactory
 	 */
@@ -1067,6 +1106,7 @@ class WikibaseRepo {
 			'MessageException' => new MessageExceptionLocalizer(),
 			'ParseException' => new ParseExceptionLocalizer(),
 			'ChangeOpValidationException' => new ChangeOpValidationExceptionLocalizer( $formatter ),
+			'ChangeOpDeserializationException' => new ChangeOpDeserializationExceptionLocalizer(),
 			'Exception' => new GenericExceptionLocalizer()
 		);
 	}
@@ -1259,25 +1299,7 @@ class WikibaseRepo {
 	 *  entity types from the configured foreign repositories.
 	 */
 	public function getEnabledEntityTypes() {
-		if ( $this->clientSettings ) {
-			$foreignRepoConfig = $this->clientSettings->getSetting( 'foreignRepositories' );
-			$foreignRepoEntityTypes = array_reduce(
-				$foreignRepoConfig,
-				function( $types, $repoSettings ) {
-					return array_merge( $types, $repoSettings['supportedEntityTypes'] );
-				},
-				[]
-			);
-		} else {
-			$foreignRepoEntityTypes = [];
-		}
-
-		$enabledTypes = array_unique( array_merge(
-			$this->getLocalEntityTypes(),
-			$foreignRepoEntityTypes
-		) );
-
-		return $enabledTypes;
+		return $this->repositoryDefinitions->getAllEntityTypes();
 	}
 
 	/**
@@ -1604,7 +1626,7 @@ class WikibaseRepo {
 	public static function buildEntityNamespaceConfigurations() {
 		global $wgWBRepoSettings;
 
-		if ( !is_array( $wgWBRepoSettings['entityNamespaces'] ) ) {
+		if ( empty( $wgWBRepoSettings['entityNamespaces'] ) ) {
 			throw new MWException( 'Wikibase: Incomplete configuration: '
 				. '$wgWBRepoSettings[\'entityNamespaces\'] has to be set to an '
 				. 'array mapping entity types to namespace IDs. '
@@ -1828,6 +1850,10 @@ class WikibaseRepo {
 		return new EntityTypesConfigValueProvider( $this->entityTypeDefinitions );
 	}
 
+	public function getSettingsValueProvider( $jsSetting, $phpSetting ) {
+		return new SettingsValueProvider( $this->getSettings(), $jsSetting, $phpSetting );
+	}
+
 	/**
 	 * Get configure unit converter.
 	 * @return null|UnitConverter Configured Unit converter, or null if none configured
@@ -1860,12 +1886,26 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @see EntityTypeDefinitions::getChangeOpDeserializerCallbacks
-	 *
-	 * @return callable[]
+	 * @return EntityRdfBuilderFactory
 	 */
-	public function getChangeOpDeserializerCallbacks() {
-		return $this->entityTypeDefinitions->getChangeOpDeserializerCallbacks();
+	public function getEntityRdfBuilderFactory() {
+		if ( $this->entityRdfBuilderFactory === null ) {
+			$this->entityRdfBuilderFactory = new EntityRdfBuilderFactory(
+				$this->entityTypeDefinitions->getRdfBuilderFactoryCallbacks()
+			);
+		}
+
+		return $this->entityRdfBuilderFactory;
+	}
+
+	/**
+	 * @return string[] Associative array mapping names of known entity types (strings) to names of
+	 *         repositories providing entities of those types.
+	 *         Note: Currently entities of a given type are only provided by single repository. This
+	 *         assumption can be changed in the future.
+	 */
+	public function getEntityTypeToRepositoryMapping() {
+		return $this->repositoryDefinitions->getEntityTypeToRepositoryMapping();
 	}
 
 }

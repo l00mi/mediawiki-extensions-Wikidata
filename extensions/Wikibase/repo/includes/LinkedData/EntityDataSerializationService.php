@@ -10,6 +10,7 @@ use DerivativeRequest;
 use MWException;
 use PageProps;
 use RequestContext;
+use Serializers\Serializer;
 use SiteList;
 use SiteLookup;
 use Wikibase\DataModel\Entity\EntityId;
@@ -19,6 +20,7 @@ use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
 use Wikibase\EntityRevision;
 use Wikibase\Lib\Store\EntityTitleLookup;
+use Wikibase\Rdf\EntityRdfBuilderFactory;
 use Wikibase\Rdf\ValueSnakRdfBuilderFactory;
 use Wikibase\Rdf\HashDedupeBag;
 use Wikibase\Rdf\RdfBuilder;
@@ -60,6 +62,11 @@ class EntityDataSerializationService {
 	private $serializerFactory;
 
 	/**
+	 * @var Serializer
+	 */
+	private $entitySerializer;
+
+	/**
 	 * @var PropertyDataTypeLookup
 	 */
 	private $propertyLookup;
@@ -95,13 +102,20 @@ class EntityDataSerializationService {
 	private $valueSnakRdfBuilderFactory;
 
 	/**
+	 * @var EntityRdfBuilderFactory
+	 */
+	private $entityRdfBuilderFactory;
+
+	/**
 	 * @param EntityLookup $entityLookup
 	 * @param EntityTitleLookup $entityTitleLookup
 	 * @param PropertyDataTypeLookup $propertyLookup
 	 * @param ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory
+	 * @param EntityRdfBuilderFactory $entityRdfBuilderFactory
 	 * @param SiteList $sites
 	 * @param EntityDataFormatProvider $entityDataFormatProvider
 	 * @param SerializerFactory $serializerFactory
+	 * @param Serializer $entitySerializer
 	 * @param SiteLookup $siteLookup
 	 * @param RdfVocabulary $rdfVocabulary
 	 */
@@ -110,19 +124,23 @@ class EntityDataSerializationService {
 		EntityTitleLookup $entityTitleLookup,
 		PropertyDataTypeLookup $propertyLookup,
 		ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory,
+		EntityRdfBuilderFactory $entityRdfBuilderFactory,
 		SiteList $sites,
 		EntityDataFormatProvider $entityDataFormatProvider,
 		SerializerFactory $serializerFactory,
+		Serializer $entitySerializer,
 		SiteLookup $siteLookup,
 		RdfVocabulary $rdfVocabulary
 	) {
 		$this->entityLookup = $entityLookup;
 		$this->entityTitleLookup = $entityTitleLookup;
-		$this->serializerFactory = $serializerFactory;
 		$this->propertyLookup = $propertyLookup;
 		$this->valueSnakRdfBuilderFactory = $valueSnakRdfBuilderFactory;
+		$this->entityRdfBuilderFactory = $entityRdfBuilderFactory;
 		$this->sites = $sites;
 		$this->entityDataFormatProvider = $entityDataFormatProvider;
+		$this->serializerFactory = $serializerFactory;
+		$this->entitySerializer = $entitySerializer;
 		$this->siteLookup = $siteLookup;
 		$this->rdfVocabulary = $rdfVocabulary;
 
@@ -362,6 +380,7 @@ class EntityDataSerializationService {
 			$this->rdfVocabulary,
 			$this->valueSnakRdfBuilderFactory,
 			$this->propertyLookup,
+			$this->entityRdfBuilderFactory,
 			$this->getFlavor( $flavorName ),
 			$rdfWriter,
 			new HashDedupeBag(),
@@ -397,7 +416,7 @@ class EntityDataSerializationService {
 			$res,
 			$this->entityTitleLookup,
 			$this->serializerFactory,
-			$this->serializerFactory->newEntitySerializer(),
+			$this->entitySerializer,
 			$this->siteLookup,
 			$this->propertyLookup,
 			false // Never add meta data for this service

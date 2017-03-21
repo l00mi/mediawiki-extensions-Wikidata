@@ -35,7 +35,6 @@ use Wikibase\Repo\EntityIdLabelFormatterFactory;
 use Wikibase\Repo\WikibaseRepo;
 
 /**
- * Class SpecialConstraintReport
  * Special page that displays all constraints that are defined on an Entity with additional information
  * (whether it complied or was a violation, which parameters the constraint has etc.).
  *
@@ -70,6 +69,11 @@ class SpecialConstraintReport extends SpecialPage {
 	 * @var EntityLookup
 	 */
 	private $entityLookup;
+
+	/**
+	 * @var EntityTitleLookup
+	 */
+	private $entityTitleLookup;
 
 	/**
 	 * @var ValueFormatter

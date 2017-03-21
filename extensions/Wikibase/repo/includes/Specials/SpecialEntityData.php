@@ -76,9 +76,12 @@ class SpecialEntityData extends SpecialWikibasePage {
 		$entityIdParser = $wikibaseRepo->getEntityIdParser();
 
 		$entityDataFormatProvider = new EntityDataFormatProvider();
+
+		$serializerFactoryOptions = SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
+			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH;
+
 		$serializerFactory = $wikibaseRepo->getSerializerFactory(
-			SerializerFactory::OPTION_SERIALIZE_MAIN_SNAKS_WITHOUT_HASH +
-			SerializerFactory::OPTION_SERIALIZE_REFERENCE_SNAKS_WITHOUT_HASH
+			$serializerFactoryOptions
 		);
 
 		$serializationService = new EntityDataSerializationService(
@@ -86,9 +89,11 @@ class SpecialEntityData extends SpecialWikibasePage {
 			$titleLookup,
 			$wikibaseRepo->getPropertyDataTypeLookup(),
 			$wikibaseRepo->getValueSnakRdfBuilderFactory(),
+			$wikibaseRepo->getEntityRdfBuilderFactory(),
 			$wikibaseRepo->getSiteLookup()->getSites(),
 			$entityDataFormatProvider,
 			$serializerFactory,
+			$wikibaseRepo->getEntitySerializer( $serializerFactoryOptions ),
 			$wikibaseRepo->getSiteLookup(),
 			$wikibaseRepo->getRdfVocabulary()
 		);

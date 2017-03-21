@@ -3,6 +3,7 @@
 namespace Wikibase\Lib\Tests\Changes;
 
 use Diff\DiffOp\DiffOpAdd;
+use MWException;
 use RecentChange;
 use Revision;
 use RuntimeException;
@@ -118,19 +119,6 @@ class EntityChangeTest extends ChangeRowTest {
 			array(),
 			$entityChange->getMetadata()
 		);
-	}
-
-	/**
-	 * @dataProvider changeProvider
-	 */
-	public function testToString( EntityChange $entityChange ) {
-		$string = $entityChange->__toString();
-
-		$id = strtolower( $entityChange->getEntityId()->getSerialization() );
-		$type = $entityChange->getType();
-
-		$this->assertContains( "'object_id' => '$id'", $string, "missing entity ID $id" );
-		$this->assertContains( "'type' => '$type'", $string, "missing type $type" );
 	}
 
 	public function testGetComment() {
@@ -280,10 +268,25 @@ class EntityChangeTest extends ChangeRowTest {
 		$this->assertEquals( $timestamp, $change->getTime() );
 	}
 
+	public function testSerializes() {
+		$info = array( 'field' => 'value' );
+		$expected = '{"field":"value"}';
+		$change = new EntityChange( [ 'info' => $info ] );
+		$this->assertSame( $expected, $change->getSerializedInfo() );
+	}
+
+	public function testDoesNotSerializeObjects() {
+		$info = array( 'array' => array( 'object' => new EntityChange() ) );
+		$change = new EntityChange( [ 'info' => $info ] );
+		$this->setExpectedException( MWException::class );
+		$change->getSerializedInfo();
+	}
+
 	public function testSerializeAndUnserializeInfo() {
 		$info = array( 'diff' => new DiffOpAdd( '' ) );
-		$change = new EntityChange();
-		$this->assertEquals( $info, $change->unserializeInfo( $change->serializeInfo( $info ) ) );
+		$change = new EntityChange( [ 'info' => $info ] );
+		$change->setField( 'info', $change->getSerializedInfo() );
+		$this->assertEquals( $info, $change->getInfo() );
 	}
 
 	public function testGivenStatement_serializeInfoSerializesStatement() {
@@ -300,18 +303,18 @@ class EntityChangeTest extends ChangeRowTest {
 			'_claimclass_' => Statement::class,
 		);
 
-		$change = new EntityChange();
+		$change = new EntityChange( [ 'info' => $info ] );
 
 		if ( !defined( 'WB_VERSION' ) ) {
 			$this->setExpectedException( RuntimeException::class );
 		}
 
-		$json = $change->serializeInfo( $info );
+		$json = $change->getSerializedInfo();
 		$array = json_decode( $json, true );
 		$this->assertSame( $expected, $array['diff']['newvalue'] );
 	}
 
-	public function testGivenStatementSerialization_unserializeInfoDeserializesStatement() {
+	public function testGivenStatementSerialization_getInfoDeserializesStatement() {
 		$data = array(
 			'mainsnak' => array(
 				'snaktype' => 'novalue',
@@ -322,8 +325,8 @@ class EntityChangeTest extends ChangeRowTest {
 		);
 		$json = json_encode( array( 'diff' => array( 'type' => 'add', 'newvalue' => $data ) ) );
 
-		$change = new EntityChange();
-		$info = $change->unserializeInfo( $json );
+		$change = new EntityChange( [ 'info' => $json ] );
+		$info = $change->getInfo();
 		$statement = $info['diff']->getNewValue();
 		$this->assertInstanceOf( Statement::class, $statement );
 	}

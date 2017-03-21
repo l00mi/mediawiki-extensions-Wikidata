@@ -53,25 +53,21 @@ abstract class ChangeRow implements Change {
 	}
 
 	/**
-	 * Overwritten to unserialize the info field on the fly.
-	 *
-	 * @param string $name Field name
+	 * @param string $name
 	 *
 	 * @throws MWException
 	 * @return mixed
 	 */
 	public function getField( $name ) {
-		if ( $this->hasField( $name ) ) {
-			$value = $this->fields[$name];
-		} else {
+		if ( !$this->hasField( $name ) ) {
 			throw new MWException( 'Attempted to get not-set field ' . $name );
 		}
 
-		if ( $name === 'info' && is_string( $value ) ) {
-			$value = $this->unserializeInfo( $value );
+		if ( $name === 'info' ) {
+			throw new MWException( 'Use getInfo instead' );
 		}
 
-		return $value;
+		return $this->fields[$name];
 	}
 
 	/**
@@ -90,7 +86,7 @@ abstract class ChangeRow implements Change {
 	}
 
 	/**
-	 * Returns the info array. The array is deserialized on the fly by getField().
+	 * Returns the info array. The array is deserialized on the fly.
 	 * If $cache is set to 'cache', the deserialized version is stored for
 	 * later re-use.
 	 *
@@ -103,44 +99,24 @@ abstract class ChangeRow implements Change {
 	 *
 	 * @return array
 	 */
-	protected function getInfo( $cache = 'no' ) {
-		$info = $this->getField( 'info' );
+	public function getInfo( $cache = 'no' ) {
+		$info = $this->hasField( 'info' ) ? $this->fields['info'] : [];
 
-		if ( $cache === 'cache' ) {
-			$this->setField( 'info', $info );
+		if ( is_string( $info ) ) {
+			$info = $this->unserializeInfo( $info );
+
+			if ( $cache === 'cache' ) {
+				$this->setField( 'info', $info );
+			}
 		}
 
 		return $info;
 	}
 
 	/**
-	 * Serialized the info field using json_encode.
-	 * This may be overridden by subclasses to implement special handling
-	 * for information in the info field.
-	 *
-	 * @param array $info
-	 *
-	 * @throws MWException
-	 * @return string
+	 * @return string JSON
 	 */
-	public function serializeInfo( array $info ) {
-		// Make sure we never serialize objects.
-		// This is a lot of overhead, so we only do it during testing.
-		if ( defined( 'MW_PHPUNIT_TEST' ) ) {
-			array_walk_recursive(
-				$info,
-				function ( $v ) {
-					if ( is_object( $v ) ) {
-						throw new MWException( "Refusing to serialize PHP object of type "
-							. get_class( $v ) );
-					}
-				}
-			);
-		}
-
-		//XXX: we could JSON_UNESCAPED_UNICODE here, perhaps.
-		return json_encode( $info );
-	}
+	abstract public function getSerializedInfo();
 
 	/**
 	 * Unserializes the info field using json_decode.
@@ -151,7 +127,7 @@ abstract class ChangeRow implements Change {
 	 *
 	 * @return array the info array
 	 */
-	public function unserializeInfo( $str ) {
+	protected function unserializeInfo( $str ) {
 		if ( $str[0] === '{' ) { // json
 			$info = json_decode( $str, true );
 		} else {

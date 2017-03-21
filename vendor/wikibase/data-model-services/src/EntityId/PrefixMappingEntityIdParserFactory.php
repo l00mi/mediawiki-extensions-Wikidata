@@ -24,10 +24,15 @@ class PrefixMappingEntityIdParserFactory {
 	private $parser;
 
 	/**
+	 * @var PrefixMappingEntityIdParser[]
+	 */
+	private $parsers = [];
+
+	/**
 	 * @since 3.7
 	 *
 	 * @param EntityIdParser $parser
-	 * @param array $idPrefixMapping An associative array mapping repository names (strings) to id serialization
+	 * @param array[] $idPrefixMapping An associative array mapping repository names (strings) to id serialization
 	 *        prefix mappings specific to the particular repository (@see PrefixMappingEntityIdParser).
 	 *        If an empty-string key is provided in the mapping for some repository, its value must be the same
 	 *        as the repository name.
@@ -72,6 +77,20 @@ class PrefixMappingEntityIdParserFactory {
 	 * @throws ParameterAssertionException
 	 */
 	public function getIdParser( $repository ) {
+		if ( !isset( $this->parsers[$repository] ) ) {
+			$this->parsers[$repository] = $this->newIdParserForRepository( $repository );
+		}
+
+		return $this->parsers[$repository];
+	}
+
+	/**
+	 * @param string $repository
+	 *
+	 * @return PrefixMappingEntityIdParser
+	 * @throws ParameterAssertionException
+	 */
+	private function newIdParserForRepository( $repository ) {
 		Assert::parameterType( 'string', $repository, '$repository' );
 		Assert::parameter( strpos( $repository, ':' ) === false, '$repository', 'must not contain a colon' );
 		$mapping = [ '' => $repository ];

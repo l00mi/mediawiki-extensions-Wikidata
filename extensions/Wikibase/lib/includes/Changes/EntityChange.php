@@ -136,7 +136,7 @@ class EntityChange extends DiffChange {
 			$metadata['comment'] = $this->getComment();
 		}
 
-		$info = $this->hasField( 'info' ) ? $this->getField( 'info' ) : array();
+		$info = $this->getInfo();
 		$info['metadata'] = $metadata;
 		$this->setField( 'info', $info );
 	}
@@ -241,47 +241,13 @@ class EntityChange extends DiffChange {
 	}
 
 	/**
-	 * Returns a human readable string representation of the change. Useful for logging and debugging.
+	 * @see ChangeRow::getSerializedInfo
 	 *
-	 * @return string
+	 * @return string JSON
 	 */
-	public function __toString() {
-		$string = get_class( $this );
-		$string .= ': ';
+	public function getSerializedInfo() {
+		$info = $this->getInfo();
 
-		$fields = $this->getFields();
-		$info = $this->hasField( 'info' ) ? $this->getField( 'info' ) : array();
-		$meta = $this->getMetadata();
-
-		if ( is_array( $info ) ) {
-			$fields = array_merge( $fields, $info );
-		}
-
-		if ( is_array( $meta ) ) {
-			$fields = array_merge( $fields, $meta );
-		}
-
-		foreach ( $fields as $key => $value ) {
-			if ( is_array( $value ) || is_object( $value ) ) {
-				unset( $fields[$key] );
-			}
-		}
-
-		ksort( $fields );
-
-		$string .= preg_replace( '/\s+/s', ' ', var_export( $fields, true ) );
-		return $string;
-	}
-
-	/**
-	 * @see ChangeRow::serializeInfo
-	 *
-	 * Overwritten to use the array representation of the diff.
-	 *
-	 * @param array $info
-	 * @return string
-	 */
-	public function serializeInfo( array $info ) {
 		if ( isset( $info['diff'] ) ) {
 			$diff = $info['diff'];
 
@@ -299,7 +265,22 @@ class EntityChange extends DiffChange {
 			}
 		}
 
-		return parent::serializeInfo( $info );
+		// Make sure we never serialize objects.
+		// This is a lot of overhead, so we only do it during testing.
+		if ( defined( 'MW_PHPUNIT_TEST' ) ) {
+			array_walk_recursive(
+				$info,
+				function ( $v ) {
+					if ( is_object( $v ) ) {
+						throw new MWException( "Refusing to serialize PHP object of type "
+							. get_class( $v ) );
+					}
+				}
+			);
+		}
+
+		//XXX: we could JSON_UNESCAPED_UNICODE here, perhaps.
+		return json_encode( $info );
 	}
 
 	/**
@@ -342,7 +323,7 @@ class EntityChange extends DiffChange {
 	 * @param string $serialization
 	 * @return array the info array
 	 */
-	public function unserializeInfo( $serialization ) {
+	protected function unserializeInfo( $serialization ) {
 		static $factory = null;
 
 		$info = parent::unserializeInfo( $serialization );

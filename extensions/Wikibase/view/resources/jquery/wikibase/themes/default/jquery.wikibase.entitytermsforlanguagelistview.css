@@ -3,8 +3,8 @@
  * @author H. Snater < mediawiki@snater.com >
  */
 .wikibase-entitytermsforlanguagelistview {
-	background: #FFF;
-	border: 1px solid #C9C9C9;
+	background: #fff;
+	border: 1px solid #c8ccd1;
 	border-spacing: 0;
 	display: table;
 	padding-bottom: 1em;
@@ -13,7 +13,7 @@
 	word-wrap: break-word;
 }
 .wikibase-entitytermsforlanguagelistview.wb-edit {
-	border-color: #2779AA;
+	border-color: #2a4b8d;
 }
 
 .wikibase-entitytermsforlanguagelistview th {
@@ -23,7 +23,7 @@
 }
 
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-header .wikibase-entitytermsforlanguagelistview-header-row .wikibase-entitytermsforlanguagelistview-cell {
-	background-color: #E8E8E8;
+	background-color: #eaecf0;
 	border-right: 1px solid white;
 	padding-left: 0.4em;
 	vertical-align: top;
@@ -32,7 +32,7 @@
 	border-right: 0;
 }
 .wikibase-entitytermsforlanguagelistview.wb-edit .wikibase-entitytermsforlanguagelistview-header .wikibase-entitytermsforlanguagelistview-header-row .wikibase-entitytermsforlanguagelistview-cell {
-	background: #D6F3FF;
+	background: #eaf3ff;
 }
 
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-header .wikibase-entitytermsforlanguagelistview-header-row .wikibase-entitytermsforlanguagelistview-language {
@@ -82,14 +82,14 @@
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-description textarea {
 	background: none;
 	border: 0;
-	border-bottom: 1px solid #C9C9C9;
+	border-bottom: 1px solid #c8ccd1;
 	outline: none;
 }
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-label input:focus,
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-description input:focus,
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-label textarea:focus,
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-description textarea:focus{
-	border-color: #0b0080;
+	border-color: #2a4b8d;
 }
 
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-aliases li {
@@ -122,10 +122,10 @@
 }
 
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-aliases input {
-	border-bottom: 1px solid #C9C9C9;
+	border-bottom: 1px solid #c8ccd1;
 }
 .wikibase-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-listview .wikibase-entitytermsforlanguageview .wikibase-entitytermsforlanguageview-aliases input:focus {
-	border-color: #0b0080;
+	border-color: #2a4b8d;
 }
 
 .wikibase-entitytermsview-entitytermsforlanguagelistview .wikibase-entitytermsforlanguagelistview-more {

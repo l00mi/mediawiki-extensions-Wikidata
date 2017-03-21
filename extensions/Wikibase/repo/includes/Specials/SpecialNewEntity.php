@@ -7,6 +7,7 @@ use HTMLForm;
 use OutputPage;
 use Status;
 use Wikibase\DataModel\Entity\EntityDocument;
+use Wikibase\Lib\Store\EntityNamespaceLookup;
 use Wikibase\Summary;
 
 /**
@@ -29,18 +30,26 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	private $copyrightView;
 
 	/**
+	 * @var EntityNamespaceLookup
+	 */
+	protected $entityNamespaceLookup;
+
+	/**
 	 * @param string $name Name of the special page, as seen in links and URLs.
 	 * @param string $restriction User right required,
 	 * @param SpecialPageCopyrightView $copyrightView
+	 * @param EntityNamespaceLookup $entityNamespaceLookup
 	 */
 	public function __construct(
 		$name,
 		$restriction,
-		SpecialPageCopyrightView $copyrightView
+		SpecialPageCopyrightView $copyrightView,
+		EntityNamespaceLookup $entityNamespaceLookup
 	) {
 		parent::__construct( $name, $restriction );
 
 		$this->copyrightView = $copyrightView;
+		$this->entityNamespaceLookup = $entityNamespaceLookup;
 	}
 
 	/**
@@ -51,6 +60,18 @@ abstract class SpecialNewEntity extends SpecialWikibaseRepoPage {
 	public function doesWrites() {
 		return true;
 	}
+
+	/**
+	 * @see SpecialPage::isListed()
+	 */
+	public function isListed() {
+		return (bool)$this->entityNamespaceLookup->getEntityNamespace( $this->getEntityType() );
+	}
+
+	/**
+	 * @return string Type id of the entity that will be created (eg: Item::ENTITY_TYPE value)
+	 */
+	abstract protected function getEntityType();
 
 	/**
 	 * @see SpecialWikibasePage::execute

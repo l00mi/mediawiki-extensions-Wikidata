@@ -3,11 +3,11 @@
 namespace Wikibase\Repo\Store\Sql;
 
 use DBQueryError;
-use LoadBalancer;
 use Wikibase\Change;
 use Wikibase\ChangeRow;
 use Wikibase\Repo\Store\ChangeStore;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Rdbms\LoadBalancer;
 
 /**
  * @license GPL-2.0+
@@ -79,6 +79,7 @@ class SqlChangeStore implements ChangeStore {
 	 */
 	private function getValues( ChangeRow $change ) {
 		$fields = $change->getFields();
+		$serializedInfo = $change->getSerializedInfo();
 
 		return array(
 			'change_type' => $fields['type'],
@@ -86,7 +87,7 @@ class SqlChangeStore implements ChangeStore {
 			'change_object_id' => isset( $fields['object_id'] ) ? $fields['object_id'] : '',
 			'change_revision_id' => isset( $fields['revision_id'] ) ? $fields['revision_id'] : '0',
 			'change_user_id' => isset( $fields['user_id'] ) ? $fields['user_id'] : '0',
-			'change_info' => $change->serializeInfo( $fields['info'] )
+			'change_info' => $serializedInfo,
 		);
 	}
 

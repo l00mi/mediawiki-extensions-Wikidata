@@ -216,7 +216,8 @@ call_user_func( function() {
 					$repo->getTermLookup(),
 					$repo->getLanguageFallbackChainFactory()
 						->newFromLanguage( $repo->getUserLanguage() )
-				)
+				),
+				$repo->getEntityTypeToRepositoryMapping()
 			);
 
 			return new Wikibase\Repo\Api\SearchEntities(
@@ -274,11 +275,14 @@ call_user_func( function() {
 	$wgAPIModules['wbsetsitelink'] = [
 		'class' => Wikibase\Repo\Api\SetSiteLink::class,
 		'factory' => function ( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+
 			return new Wikibase\Repo\Api\SetSiteLink(
 				$mainModule,
 				$moduleName,
-				Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider()
-					->getSiteLinkChangeOpFactory()
+				$wikibaseRepo->getChangeOpFactoryProvider()
+					->getSiteLinkChangeOpFactory(),
+				$wikibaseRepo->getSiteLinkBadgeChangeOpSerializationValidator()
 			);
 		}
 	];
@@ -627,7 +631,8 @@ call_user_func( function() {
 					$repo->getTermLookup(),
 					$repo->getLanguageFallbackChainFactory()
 						->newFromLanguage( $apiQuery->getLanguage() )
-				)
+				),
+				$repo->getEntityTypeToRepositoryMapping()
 			);
 
 			return new Wikibase\Repo\Api\QuerySearchEntities(
@@ -669,7 +674,8 @@ call_user_func( function() {
 
 		return new Wikibase\Repo\Specials\SpecialNewItem(
 			$wikibaseRepo->getSiteLookup(),
-			$copyrightView
+			$copyrightView,
+			$wikibaseRepo->getEntityNamespaceLookup()
 		);
 	};
 	$wgSpecialPages['NewProperty'] = function () {
@@ -683,7 +689,8 @@ call_user_func( function() {
 		);
 
 		return new Wikibase\Repo\Specials\SpecialNewProperty(
-			$copyrightView
+			$copyrightView,
+			$wikibaseRepo->getEntityNamespaceLookup()
 		);
 	};
 	$wgSpecialPages['ItemByTitle'] = function () {
@@ -811,7 +818,22 @@ call_user_func( function() {
 			$wikibaseRepo->newItemMergeInteractor( RequestContext::getMain() )
 		);
 	};
-	$wgSpecialPages['RedirectEntity'] = Wikibase\Repo\Specials\SpecialRedirectEntity::class;
+	$wgSpecialPages['RedirectEntity'] = function() {
+		global $wgUser;
+		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+
+		return new Wikibase\Repo\Specials\SpecialRedirectEntity(
+			$wikibaseRepo->getEntityIdParser(),
+			$wikibaseRepo->getExceptionLocalizer(),
+			new Wikibase\Repo\Interactors\TokenCheckInteractor(
+				$wgUser
+			),
+			$wikibaseRepo->newRedirectCreationInteractor(
+				$wgUser,
+				RequestContext::getMain()
+			)
+		);
+	};
 
 	// Jobs
 	$wgJobClasses['UpdateRepoOnMove'] = Wikibase\Repo\UpdateRepo\UpdateRepoOnMoveJob::class;
@@ -856,10 +878,6 @@ call_user_func( function() {
 	$wgHooks['ResourceLoaderRegisterModules'][] = 'Wikibase\RepoHooks::onResourceLoaderRegisterModules';
 	$wgHooks['BeforeDisplayNoArticleText'][] = 'Wikibase\ViewEntityAction::onBeforeDisplayNoArticleText';
 	$wgHooks['InfoAction'][] = '\Wikibase\RepoHooks::onInfoAction';
-
-	// CirrusSearch hooks
-	$wgHooks['CirrusSearchMappingConfig'][] = 'Wikibase\Repo\Hooks\CirrusSearchHookHandlers::onCirrusSearchMappingConfig';
-	$wgHooks['CirrusSearchBuildDocumentParse'][] = 'Wikibase\Repo\Hooks\CirrusSearchHookHandlers::onCirrusSearchBuildDocumentParse';
 
 	// update hooks
 	$wgHooks['LoadExtensionSchemaUpdates'][] = '\Wikibase\Repo\Store\Sql\ChangesSubscriptionSchemaUpdater::onSchemaUpdate';

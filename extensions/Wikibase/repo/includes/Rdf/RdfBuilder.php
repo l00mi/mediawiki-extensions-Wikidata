@@ -10,8 +10,6 @@ use Wikibase\DataModel\Entity\Property;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Services\Lookup\EntityLookup;
 use Wikibase\DataModel\Services\Lookup\PropertyDataTypeLookup;
-use Wikibase\DataModel\Term\DescriptionsProvider;
-use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\Lib\Store\EntityTitleLookup;
 use Wikibase\Lib\Store\RevisionedUnresolvedRedirectException;
 use Wikimedia\Purtle\RdfWriter;
@@ -52,12 +50,6 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	private $dedupeBag;
 
 	/**
-	 * Rdf builder for outputting labels for entity stubs.
-	 * @var TermsRdfBuilder
-	 */
-	private $termsBuilder;
-
-	/**
 	 * RDF builders to apply when building RDF for an entity.
 	 * @var EntityRdfBuilder[]
 	 */
@@ -90,20 +82,22 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	private $pageProps;
 
 	/**
-	 * @param SiteList                   $sites
-	 * @param RdfVocabulary              $vocabulary
+	 * @param SiteList $sites
+	 * @param RdfVocabulary $vocabulary
 	 * @param ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory
-	 * @param PropertyDataTypeLookup     $propertyLookup
-	 * @param int                        $flavor
-	 * @param RdfWriter                  $writer
-	 * @param DedupeBag                  $dedupeBag
-	 * @param EntityTitleLookup          $titleLookup
+	 * @param PropertyDataTypeLookup $propertyLookup
+	 * @param EntityRdfBuilderFactory $entityRdfBuilderFactory
+	 * @param int $flavor
+	 * @param RdfWriter $writer
+	 * @param DedupeBag $dedupeBag
+	 * @param EntityTitleLookup $titleLookup
 	 */
 	public function __construct(
 		SiteList $sites,
 		RdfVocabulary $vocabulary,
 		ValueSnakRdfBuilderFactory $valueSnakRdfBuilderFactory,
 		PropertyDataTypeLookup $propertyLookup,
+		EntityRdfBuilderFactory $entityRdfBuilderFactory,
 		$flavor,
 		RdfWriter $writer,
 		DedupeBag $dedupeBag,
@@ -118,8 +112,7 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 		$this->titleLookup = $titleLookup;
 
 		// XXX: move construction of sub-builders to a factory class.
-		$this->termsBuilder = new TermsRdfBuilder( $vocabulary, $writer );
-		$this->builders[] = $this->termsBuilder;
+		$this->builders[] = new TermsRdfBuilder( $vocabulary, $writer );
 
 		if ( $this->shouldProduce( RdfProducer::PRODUCE_TRUTHY_STATEMENTS ) ) {
 			$this->builders[] = $this->newTruthyStatementRdfBuilder();
@@ -136,6 +129,17 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 			$builder->setDedupeBag( $this->dedupeBag );
 			$this->builders[] = $builder;
 		}
+
+		$entityRdfBuilders = $entityRdfBuilderFactory->getEntityRdfBuilders(
+			$flavor,
+			$vocabulary,
+			$writer,
+			$this,
+			$dedupeBag
+		);
+
+		$this->builders = array_merge( $this->builders, $entityRdfBuilders );
+
 	}
 
 	/**
@@ -510,21 +514,13 @@ class RdfBuilder implements EntityRdfBuilder, EntityMentionListener {
 	 * Adds stub information for the given Entity to the RDF graph.
 	 * Stub information means meta information and labels.
 	 *
-	 * @todo: extract into EntityStubRdfBuilder?
-	 *
 	 * @param EntityDocument $entity
 	 */
-	private function addEntityStub( EntityDocument $entity ) {
+	public function addEntityStub( EntityDocument $entity ) {
 		$this->addEntityMetaData( $entity );
 
-		$entityLName = $this->vocabulary->getEntityLName( $entity->getId() );
-
-		if ( $entity instanceof LabelsProvider ) {
-			$this->termsBuilder->addLabels( $entityLName, $entity->getLabels() );
-		}
-
-		if ( $entity instanceof DescriptionsProvider ) {
-			$this->termsBuilder->addDescriptions( $entityLName, $entity->getDescriptions() );
+		foreach ( $this->builders as $builder ) {
+			$builder->addEntityStub( $entity );
 		}
 	}
 

@@ -9,6 +9,7 @@ use Wikibase\EntityChange;
 
 /**
  * @covers Wikibase\ChangeRow
+ * @covers Wikibase\EntityChange
  *
  * @group Database
  * @group Wikibase
@@ -65,11 +66,11 @@ class ChangeRowTest extends MediaWikiTestCase {
 		$change->getField( 'field' );
 	}
 
-	public function testGetFieldUnserializesInfo() {
+	public function testGetInfoUnserializesInfo() {
 		$json = '{"field":"value"}';
 		$expected = array( 'field' => 'value' );
 		$change = $this->newChangeRow( [ 'info' => $json ] );
-		$this->assertSame( $expected, $change->getField( 'info' ) );
+		$this->assertSame( $expected, $change->getInfo() );
 	}
 
 	public function testReturnsFields() {
@@ -84,45 +85,34 @@ class ChangeRowTest extends MediaWikiTestCase {
 		$this->assertSame( array( 'id' => null, 'info' => $expected ), $change->getFields() );
 	}
 
-	public function testSerializes() {
-		$info = array( 'field' => 'value' );
-		$expected = '{"field":"value"}';
-		$change = $this->newChangeRow();
-		$this->assertSame( $expected, $change->serializeInfo( $info ) );
-	}
-
-	public function testDoesNotSerializeObjects() {
-		$info = array( 'array' => array( 'object' => $this->newChangeRow() ) );
-		$change = $this->newChangeRow();
-		$this->setExpectedException( MWException::class );
-		$change->serializeInfo( $info );
-	}
-
 	public function testUnserializesJson() {
 		$json = '{"field":"value"}';
 		$expected = array( 'field' => 'value' );
-		$change = $this->newChangeRow();
-		$this->assertSame( $expected, $change->unserializeInfo( $json ) );
+		$change = $this->newChangeRow( [ 'info' => $json ] );
+		$this->assertSame( $expected, $change->getInfo() );
 	}
 
 	public function testUnserializesPhpSerializations() {
 		$serialization = 'a:1:{s:5:"field";s:5:"value";}';
 		$expected = array( 'field' => 'value' );
-		$change = $this->newChangeRow();
-		$this->assertSame( $expected, $change->unserializeInfo( $serialization ) );
+		$change = $this->newChangeRow( [ 'info' => $serialization ] );
+		$this->assertSame( $expected, $change->getInfo() );
 	}
 
 	public function testCanNotUnserializeWithoutObjectId() {
-		$change = $this->newChangeRow();
+		$change = $this->newChangeRow( [ 'info' => 's:5:"value";' ] );
 		$this->setExpectedException( MWException::class );
-		$change->unserializeInfo( 's:5:"value";' );
+		$change->getInfo();
 	}
 
 	public function testCanNotUnserializeNonArrays() {
-		$change = $this->newChangeRow( [ 'object_id' => 'Q1' ] );
+		$change = $this->newChangeRow( [
+			'object_id' => 'Q1',
+			'info' => 's:5:"value";',
+		] );
 
 		\MediaWiki\suppressWarnings();
-		$info = $change->unserializeInfo( 's:5:"value";' );
+		$info = $change->getInfo();
 		\MediaWiki\restoreWarnings();
 
 		$this->assertSame( array(), $info );
