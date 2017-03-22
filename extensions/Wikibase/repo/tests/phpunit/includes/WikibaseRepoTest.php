@@ -58,6 +58,8 @@ use Wikibase\Rdf\ValueSnakRdfBuilderFactory;
 use Wikibase\Repo\Api\ApiHelperFactory;
 use Wikibase\Repo\BuilderBasedDataTypeValidatorFactory;
 use Wikibase\Repo\CachingCommonsMediaFileNameLookup;
+use Wikibase\Repo\ChangeOp\Deserialization\ChangeOpDeserializerFactory;
+use Wikibase\Repo\ChangeOp\EntityChangeOpProvider;
 use Wikibase\Repo\Content\EntityContentFactory;
 use Wikibase\Repo\Content\EntityHandler;
 use Wikibase\Repo\EntityIdHtmlLinkFormatterFactory;
@@ -279,6 +281,16 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 	public function testGetStatementGuidParser() {
 		$returnValue = $this->getWikibaseRepo()->getStatementGuidParser();
 		$this->assertInstanceOf( StatementGuidParser::class, $returnValue );
+	}
+
+	public function testGetEntityChangeOpProvider() {
+		$provider = $this->getWikibaseRepo()->getEntityChangeOpProvider();
+		$this->assertInstanceOf( EntityChangeOpProvider::class, $provider );
+	}
+
+	public function testGetChangeOpDeserializerFactory() {
+		$factory = $this->getWikibaseRepo()->getChangeOpDeserializerFactory();
+		$this->assertInstanceOf( ChangeOpDeserializerFactory::class, $factory );
 	}
 
 	public function testGetLanguageFallbackChainFactory() {
@@ -691,19 +703,22 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 		$this->assertEquals( $expected, $deserialized );
 	}
 
-	public function testGetChangeOpDeserializerCallbacks() {
-		$wikibaseRepo = $this->getWikibaseRepo(
+	public function testGetEntityTypeToRepositoryMapping() {
+		$wikibaseRepo = $this->getWikibaseRepoWithCustomRepositoryDefinitions( array_merge(
+			$this->getRepositoryDefinition( '', [ 'entity-types' => [ 'foo', 'bar' ] ] ),
+			$this->getRepositoryDefinition( 'repo1', [ 'entity-types' => [ 'baz' ] ] ),
+			$this->getRepositoryDefinition( 'repo2', [ 'entity-types' => [ 'foobar' ] ] )
+		) );
+
+		$this->assertEquals(
 			[
-				'foo' => [
-					'changeop-deserializer-callback' => 'new-changeop-deserializer-callback'
-				]
-			]
+				'foo' => '',
+				'bar' => '',
+				'baz' => 'repo1',
+				'foobar' => 'repo2',
+			],
+			$wikibaseRepo->getEntityTypeToRepositoryMapping()
 		);
-		$changeOpsCallbacks = $wikibaseRepo->getChangeOpDeserializerCallbacks();
-		$expected = [
-			'foo' => 'new-changeop-deserializer-callback'
-		];
-		$this->assertSame( $expected, $changeOpsCallbacks );
 	}
 
 }

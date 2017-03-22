@@ -87,6 +87,11 @@ use Wikibase\Lib\Store\EntityStore;
 use Wikibase\Lib\Store\EntityStoreWatcher;
 use Wikibase\Repo\Modules\SettingsValueProvider;
 use Wikibase\Rdf\EntityRdfBuilderFactory;
+use Wikibase\Repo\ChangeOp\Deserialization\ChangeOpDeserializerFactory;
+use Wikibase\Repo\ChangeOp\Deserialization\SiteLinkBadgeChangeOpSerializationValidator;
+use Wikibase\Repo\ChangeOp\Deserialization\TermChangeOpSerializationValidator;
+use Wikibase\Repo\ChangeOp\EntityChangeOpProvider;
+use Wikibase\Repo\Localizer\ChangeOpDeserializationExceptionLocalizer;
 use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\Store\PrefetchingTermLookup;
@@ -265,7 +270,7 @@ class WikibaseRepo {
 	/**
 	 * @var RepositoryDefinitions
 	 */
-	private $repositoryDefinitons;
+	private $repositoryDefinitions;
 
 	/**
 	 * @var ValueSnakRdfBuilderFactory
@@ -400,7 +405,7 @@ class WikibaseRepo {
 			$this->getVocabularyBaseUri(),
 			$this->getMonolingualTextLanguages(),
 			$this->getCachingCommonsMediaFileNameLookup(),
-			$this->repositoryDefinitons->getEntityTypesPerRepository(),
+			$this->repositoryDefinitions->getEntityTypesPerRepository(),
 			new MediaWikiPageNameNormalizer(),
 			$this->settings->getSetting( 'geoShapeStorageApiEndpointUrl' )
 		);
@@ -513,7 +518,7 @@ class WikibaseRepo {
 		$this->settings = $settings;
 		$this->dataTypeDefinitions = $dataTypeDefinitions;
 		$this->entityTypeDefinitions = $entityTypeDefinitions;
-		$this->repositoryDefinitons = $repositoryDefinitions;
+		$this->repositoryDefinitions = $repositoryDefinitions;
 		$this->entityDataRetrievalServiceFactory = $entityDataRetrievalServiceFactory;
 	}
 
@@ -845,6 +850,45 @@ class WikibaseRepo {
 		);
 	}
 
+	public function getSiteLinkBadgeChangeOpSerializationValidator() {
+		return new SiteLinkBadgeChangeOpSerializationValidator(
+			$this->getEntityTitleLookup(),
+			array_keys( $this->settings->getSetting( 'badgeItems' ) )
+		);
+	}
+
+	/**
+	 * @return EntityChangeOpProvider
+	 */
+	public function getEntityChangeOpProvider() {
+		return new EntityChangeOpProvider( $this->entityTypeDefinitions->getChangeOpDeserializerCallbacks() );
+	}
+
+	/**
+	 * TODO: this should be probably cached?
+	 *
+	 * @return ChangeOpDeserializerFactory
+	 */
+	public function getChangeOpDeserializerFactory() {
+		$changeOpFactoryProvider = $this->getChangeOpFactoryProvider();
+
+		return new ChangeOpDeserializerFactory(
+			$changeOpFactoryProvider->getFingerprintChangeOpFactory(),
+			$changeOpFactoryProvider->getStatementChangeOpFactory(),
+			$changeOpFactoryProvider->getSiteLinkChangeOpFactory(),
+			new TermChangeOpSerializationValidator( $this->getTermsLanguages() ),
+			$this->getSiteLinkBadgeChangeOpSerializationValidator(),
+			$this->getExternalFormatStatementDeserializer(),
+			new SiteLinkTargetProvider(
+				$this->getSiteLookup(),
+				$this->settings->getSetting( 'specialSiteLinkGroups' )
+			),
+			$this->getEntityIdParser(),
+			$this->getStringNormalizer(),
+			$this->settings->getSetting( 'siteLinkGroups' )
+		);
+	}
+
 	/**
 	 * @return LanguageFallbackChainFactory
 	 */
@@ -1069,6 +1113,7 @@ class WikibaseRepo {
 			'MessageException' => new MessageExceptionLocalizer(),
 			'ParseException' => new ParseExceptionLocalizer(),
 			'ChangeOpValidationException' => new ChangeOpValidationExceptionLocalizer( $formatter ),
+			'ChangeOpDeserializationException' => new ChangeOpDeserializationExceptionLocalizer(),
 			'Exception' => new GenericExceptionLocalizer()
 		);
 	}
@@ -1261,7 +1306,7 @@ class WikibaseRepo {
 	 *  entity types from the configured foreign repositories.
 	 */
 	public function getEnabledEntityTypes() {
-		return $this->repositoryDefinitons->getAllEntityTypes();
+		return $this->repositoryDefinitions->getAllEntityTypes();
 	}
 
 	/**
@@ -1848,15 +1893,6 @@ class WikibaseRepo {
 	}
 
 	/**
-	 * @see EntityTypeDefinitions::getChangeOpDeserializerCallbacks
-	 *
-	 * @return callable[]
-	 */
-	public function getChangeOpDeserializerCallbacks() {
-		return $this->entityTypeDefinitions->getChangeOpDeserializerCallbacks();
-	}
-
-	/**
 	 * @return EntityRdfBuilderFactory
 	 */
 	public function getEntityRdfBuilderFactory() {
@@ -1867,6 +1903,16 @@ class WikibaseRepo {
 		}
 
 		return $this->entityRdfBuilderFactory;
+	}
+
+	/**
+	 * @return string[] Associative array mapping names of known entity types (strings) to names of
+	 *         repositories providing entities of those types.
+	 *         Note: Currently entities of a given type are only provided by single repository. This
+	 *         assumption can be changed in the future.
+	 */
+	public function getEntityTypeToRepositoryMapping() {
+		return $this->repositoryDefinitions->getEntityTypeToRepositoryMapping();
 	}
 
 }

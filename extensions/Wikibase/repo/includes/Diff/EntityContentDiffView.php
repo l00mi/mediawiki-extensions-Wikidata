@@ -9,7 +9,7 @@ use DifferenceEngine;
 use Html;
 use IContextSource;
 use Language;
-use Linker;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use ParserOptions;
 use ParserOutput;
@@ -142,20 +142,22 @@ class EntityContentDiffView extends DifferenceEngine {
 		$dateofrev = $lang->userDate( $revtimestamp, $user );
 		$timeofrev = $lang->userTime( $revtimestamp, $user );
 
-		$header = $this->msg(
+		$headerMsg = $this->msg(
 			$rev->isCurrent() ? 'currentrev-asof' : 'revisionasof',
 			$timestamp,
 			$dateofrev,
 			$timeofrev
-		)->escaped();
+		);
 
 		if ( $complete !== 'complete' ) {
-			return $header;
+			return $headerMsg->escaped();
 		}
 
 		$title = $rev->getTitle();
 
-		$header = Linker::linkKnown( $title, $header, array(),
+		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
+
+		$header = $linkRenderer->makeKnownLink( $title, $headerMsg->text(), array(),
 			array( 'oldid' => $rev->getId() ) );
 
 		if ( $rev->userCan( Revision::DELETED_TEXT, $user ) ) {
@@ -164,9 +166,9 @@ class EntityContentDiffView extends DifferenceEngine {
 					'action' => 'edit',
 					'restore' => $rev->getId()
 				);
-				$msg = $this->msg( 'wikibase-restoreold' )->escaped();
+				$msg = $this->msg( 'wikibase-restoreold' )->text();
 				$header .= ' ' . $this->msg( 'parentheses' )->rawParams(
-					Linker::linkKnown( $title, $msg, array(), $editQuery )
+					$linkRenderer->makeKnownLink( $title, $msg, array(), $editQuery )
 				)->escaped();
 			}
 

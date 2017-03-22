@@ -26,7 +26,11 @@
 			var notifier = this._viewNotifier,
 				$input = this.$input;
 
-			$input.commonssuggester( { namespace: 'Data' } );
+			$input.commonssuggester( {
+				apiUrl: this._options.commonsApiUrl,
+				namespace: 'Data',
+				contentModel: 'Map.JsonConfig'
+			} );
 
 			// Using the inputautoexpand plugin, the position of the dropdown needs to be updated
 			// whenever the input box expands vertically:

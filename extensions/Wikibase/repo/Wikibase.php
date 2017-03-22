@@ -216,7 +216,8 @@ call_user_func( function() {
 					$repo->getTermLookup(),
 					$repo->getLanguageFallbackChainFactory()
 						->newFromLanguage( $repo->getUserLanguage() )
-				)
+				),
+				$repo->getEntityTypeToRepositoryMapping()
 			);
 
 			return new Wikibase\Repo\Api\SearchEntities(
@@ -274,11 +275,14 @@ call_user_func( function() {
 	$wgAPIModules['wbsetsitelink'] = [
 		'class' => Wikibase\Repo\Api\SetSiteLink::class,
 		'factory' => function ( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+
 			return new Wikibase\Repo\Api\SetSiteLink(
 				$mainModule,
 				$moduleName,
-				Wikibase\Repo\WikibaseRepo::getDefaultInstance()->getChangeOpFactoryProvider()
-					->getSiteLinkChangeOpFactory()
+				$wikibaseRepo->getChangeOpFactoryProvider()
+					->getSiteLinkChangeOpFactory(),
+				$wikibaseRepo->getSiteLinkBadgeChangeOpSerializationValidator()
 			);
 		}
 	];
@@ -627,7 +631,8 @@ call_user_func( function() {
 					$repo->getTermLookup(),
 					$repo->getLanguageFallbackChainFactory()
 						->newFromLanguage( $apiQuery->getLanguage() )
-				)
+				),
+				$repo->getEntityTypeToRepositoryMapping()
 			);
 
 			return new Wikibase\Repo\Api\QuerySearchEntities(
@@ -810,7 +815,8 @@ call_user_func( function() {
 			$wikibaseRepo->getEntityIdParser(),
 			$wikibaseRepo->getExceptionLocalizer(),
 			new \Wikibase\Repo\Interactors\TokenCheckInteractor( $wgUser ),
-			$wikibaseRepo->newItemMergeInteractor( RequestContext::getMain() )
+			$wikibaseRepo->newItemMergeInteractor( RequestContext::getMain() ),
+			$wikibaseRepo->getEntityTitleLookup()
 		);
 	};
 	$wgSpecialPages['RedirectEntity'] = function() {
@@ -873,10 +879,6 @@ call_user_func( function() {
 	$wgHooks['ResourceLoaderRegisterModules'][] = 'Wikibase\RepoHooks::onResourceLoaderRegisterModules';
 	$wgHooks['BeforeDisplayNoArticleText'][] = 'Wikibase\ViewEntityAction::onBeforeDisplayNoArticleText';
 	$wgHooks['InfoAction'][] = '\Wikibase\RepoHooks::onInfoAction';
-
-	// CirrusSearch hooks
-	$wgHooks['CirrusSearchMappingConfig'][] = 'Wikibase\Repo\Hooks\CirrusSearchHookHandlers::onCirrusSearchMappingConfig';
-	$wgHooks['CirrusSearchBuildDocumentParse'][] = 'Wikibase\Repo\Hooks\CirrusSearchHookHandlers::onCirrusSearchBuildDocumentParse';
 
 	// update hooks
 	$wgHooks['LoadExtensionSchemaUpdates'][] = '\Wikibase\Repo\Store\Sql\ChangesSubscriptionSchemaUpdater::onSchemaUpdate';

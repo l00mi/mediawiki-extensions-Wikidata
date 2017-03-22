@@ -1,9 +1,19 @@
 {
 	"@metadata": {
 		"authors": [
-			"Benoit Rochon"
+			"Benoit Rochon",
+			"Jeannette Coocoo"
 		]
 	},
 	"wikibase-edit": "meckotcita",
-	"wikibase-add": "acta"
+	"wikibase-add": "acta",
+	"wikibase-entitytermsforlanguagelistview-description": "E witcikemakak",
+	"wikibase-description-empty": "Nama pikitanam tipatcitamowin",
+	"wikibase-diffview-description": "e witcikemakak",
+	"wikibase-sitelink-page-edit-placeholder": "masinhikan",
+	"wikibase-sitelinks-special": "Kotak tipatcimosinihikana",
+	"wikibase-remove": "manina",
+	"wikibase-itembytitle-lookup-page": "Masinhikan:",
+	"wikibase-newentity-description": "E witcikemakak:",
+	"wikibase-setlabeldescriptionaliases-description-label": "E witcikemakak:"
 }

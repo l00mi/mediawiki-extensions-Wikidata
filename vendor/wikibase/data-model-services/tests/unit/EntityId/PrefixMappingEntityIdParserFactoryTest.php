@@ -15,6 +15,9 @@ use Wikimedia\Assert\ParameterTypeException;
  */
 class PrefixMappingEntityIdParserFactoryTest extends \PHPUnit_Framework_TestCase {
 
+	/**
+	 * @return EntityIdParser
+	 */
 	private function getDummyEntityIdParser() {
 		return $this->getMock( EntityIdParser::class );
 	}
@@ -81,6 +84,16 @@ class PrefixMappingEntityIdParserFactoryTest extends \PHPUnit_Framework_TestCase
 			'keys containing colons in id prefix mapping' => [ [ 'fo:o' => [ 'd' => 'wd' ] ] ],
 			'default prefix mapping differs from repository name' => [ [ 'foo' => [ '' => 'bar' ] ] ],
 		];
+	}
+
+	public function testGetIdParserReusesTheInstanceOverMultitpleCalls() {
+		$dummyParser = $this->getDummyEntityIdParser();
+		$factory = new PrefixMappingEntityIdParserFactory( $dummyParser, [] );
+
+		$parserOne = $factory->getIdParser( 'foo' );
+		$parserTwo = $factory->getIdParser( 'foo' );
+
+		$this->assertSame( $parserOne, $parserTwo );
 	}
 
 }

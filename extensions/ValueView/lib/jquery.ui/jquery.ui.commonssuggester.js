@@ -1,8 +1,8 @@
 ( function( $, util ) {
 	'use strict';
 
-	// TODO: Avoid using namespaces here instead use filters within opensearch
 	var NAMESPACE = {
+		ALL: '*',
 		File: 6,
 		Data: 486
 	};
@@ -26,7 +26,9 @@
 		 */
 		options: {
 			ajax: $.ajax,
-			namespace: null
+			apiUrl: null,
+			namespace: null,
+			contentModel: null
 		},
 
 		/**
@@ -34,10 +36,17 @@
 		 * @protected
 		 */
 		_create: function() {
+			if ( !this.options.apiUrl ) {
+				throw new Error( 'apiUrl option required' );
+			}
+
 			if ( !this.options.source ) {
 				this.options.source = this._initDefaultSource();
 			}
+
 			$.ui.suggester.prototype._create.call( this );
+
+			this.options.menu.element.addClass( 'ui-commonssuggester-list' );
 		},
 
 		/**
@@ -53,17 +62,20 @@
 				var deferred = $.Deferred();
 
 				self.options.ajax( {
-					url: 'https://commons.wikimedia.org/w/api.php',
+					url: self.options.apiUrl,
 					dataType: 'jsonp',
 					data: {
-						search: self._grepFileTitleFromTerm( term ),
-						action: 'opensearch',
-						namespace: NAMESPACE[self.options.namespace] || NAMESPACE.File
+						action: 'query',
+						list: 'search',
+						srsearch: self._getSearchString( term ),
+						srnamespace: NAMESPACE[self.options.namespace] || NAMESPACE.ALL,
+						srlimit: 10,
+						format: 'json'
 					},
 					timeout: 8000
 				} )
 				.done( function( response ) {
-					deferred.resolve( response[1], term );
+					deferred.resolve( response.query.search, term );
 				} )
 				.fail( function( jqXHR, textStatus ) {
 					// Since this is a JSONP request, this will always fail with a timeout...
@@ -72,6 +84,22 @@
 
 				return deferred.promise();
 			};
+		},
+
+		/**
+		 * @private
+		 *
+		 * @param {string} term
+		 * @return {string}
+		 */
+		_getSearchString: function( term ) {
+			var searchString = this._grepFileTitleFromTerm( term );
+
+			if ( this.options.contentModel ) {
+				searchString += ' contentmodel:' + this.options.contentModel;
+			}
+
+			return searchString;
 		},
 
 		/**
@@ -97,20 +125,64 @@
 		 * @see jQuery.ui.suggester._createMenuItemFromSuggestion
 		 * @protected
 		 *
-		 * @param {string} suggestion
+		 * @param {Object} suggestion
 		 * @param {string} requestTerm
 		 * @return {jQuery.ui.ooMenu.Item}
 		 */
 		_createMenuItemFromSuggestion: function( suggestion, requestTerm ) {
-			suggestion = suggestion.replace( /^File:/, '' );
+			suggestion = suggestion.title;
 
-			var label = suggestion;
+			var isFile = /^File:/.test( suggestion );
 
-			if ( requestTerm ) {
-				label = util.highlightSubstring( requestTerm, suggestion );
+			if ( isFile ) {
+				suggestion = suggestion.replace( /^File:/, '' );
 			}
 
-			return new $.ui.ooMenu.Item( label, suggestion );
+			var label = util.highlightSubstring(
+					requestTerm,
+					suggestion,
+					{
+						caseSensitive: false,
+						withinString: true
+					}
+				),
+				$label = $( '<span>' )
+					.attr( { dir: 'ltr', title: suggestion } )
+					.append( label );
+
+			if ( isFile ) {
+				$label.prepend( this._createThumbnail( suggestion ) );
+			}
+
+			return new $.ui.ooMenu.Item( $label, suggestion );
+		},
+
+		/**
+		 * @private
+		 *
+		 * @param {string} fileName Must be a file name without the File: namespace.
+		 * @return {jQuery}
+		 */
+		_createThumbnail: function( fileName ) {
+			return $( '<span>' )
+				.attr( 'class', 'ui-commonssuggester-thumbnail' )
+				.css( 'background-image', this._createBackgroundImage( fileName ) );
+		},
+
+		/**
+		 * @private
+		 *
+		 * @param {string} fileName Must be a file name without the File: namespace.
+		 * @return {string} CSS
+		 */
+		_createBackgroundImage: function ( fileName ) {
+			// Height alone is ignored, width must be set to something.
+			// We accept to truncate 50% and only show the center 50% of the images area.
+			return 'url(https://commons.wikimedia.org/wiki/Special:Filepath/'
+				+ encodeURIComponent( fileName )
+					.replace( /\(/g, '%28' )
+					.replace( /\)/g, '%29' )
+				+ '?width=100&height=50)';
 		}
 
 	} );
