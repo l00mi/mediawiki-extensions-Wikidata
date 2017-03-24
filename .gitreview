@@ -2,5 +2,5 @@
 host=gerrit.wikimedia.org
 port=29418
 project=mediawiki/extensions/Wikidata.git
-defaultbranch=wmf/1.27.0-wmf.6
+defaultbranch=wmf/1.29.0-wmf.17
 defaultrebase=0
