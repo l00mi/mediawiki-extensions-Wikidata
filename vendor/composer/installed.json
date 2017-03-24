@@ -1357,12 +1357,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
-            "reference": "f37e244cd624ead83bc9552ff0b5d4c23880948e"
+            "reference": "eb0756f3f2d86da9f8ce684234a59b04fedea5c8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/f37e244cd624ead83bc9552ff0b5d4c23880948e",
-            "reference": "f37e244cd624ead83bc9552ff0b5d4c23880948e",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-Wikibase/zipball/eb0756f3f2d86da9f8ce684234a59b04fedea5c8",
+            "reference": "eb0756f3f2d86da9f8ce684234a59b04fedea5c8",
             "shasum": ""
         },
         "require": {
@@ -1394,7 +1394,7 @@
             "jakub-onderka/php-parallel-lint": ">=0.3 <0.10",
             "mediawiki/mediawiki-codesniffer": ">=0.4 <0.8"
         },
-        "time": "2017-03-22 22:11:13",
+        "time": "2017-03-24 03:39:57",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
@@ -1446,12 +1446,12 @@
         "source": {
             "type": "git",
             "url": "https://gerrit.wikimedia.org/r/mediawiki/extensions/WikimediaBadges",
-            "reference": "d9546983a02b4b693f66f095916a0b3e043722c4"
+            "reference": "d4a58bada110d31d1a5c6a9a02b2778950c4cd27"
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2017-02-20 23:04:34",
+        "time": "2017-03-23 18:33:02",
         "type": "mediawiki-extension",
         "installation-source": "source",
         "autoload": {
