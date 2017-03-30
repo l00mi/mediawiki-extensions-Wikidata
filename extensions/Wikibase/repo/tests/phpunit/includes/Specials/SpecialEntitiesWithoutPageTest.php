@@ -54,7 +54,7 @@ class SpecialEntitiesWithoutPageTest extends SpecialPageTestBase {
 		$this->assertContains( '(wikibase-entitieswithoutlabel-label-type)', $html );
 		$this->assertContains( 'name=\'type\'', $html );
 		$this->assertContains( 'id=\'wb-entitieswithoutpage-type\'', $html );
-		$this->assertContains( '(wikibase-entitieswithoutlabel-label-alltypes)', $html );
+		$this->assertContains( '(wikibase-entity-item)', $html );
 
 		$this->assertContains( '(wikibase-entitieswithoutlabel-submit)', $html );
 		$this->assertContains( 'id=\'wikibase-entitieswithoutpage-submit\'', $html );
@@ -62,52 +62,69 @@ class SpecialEntitiesWithoutPageTest extends SpecialPageTestBase {
 
 	public function testRequestParameters() {
 		$request = new FauxRequest( array(
-			'language' => '<LANGUAGE>',
-			'type' => '<TYPE>',
+			'language' => "''LANGUAGE''",
+			'type' => "''TYPE''",
 		) );
 		list( $html, ) = $this->executeSpecialPage( '', $request );
 
-		$this->assertContains( '&lt;LANGUAGE&gt;', $html );
-		$this->assertContains( '&lt;TYPE&gt;', $html );
-		$this->assertNotContains( '<LANGUAGE>', $html );
-		$this->assertNotContains( '<TYPE>', $html );
+		$this->assertContains( '&#39;&#39;LANGUAGE&#39;&#39;', $html );
+		$this->assertContains( '&#39;&#39;TYPE&#39;&#39;', $html );
+		$this->assertNotContains( "''LANGUAGE''", $html );
+		$this->assertNotContains( "''TYPE''", $html );
 		$this->assertNotContains( '&amp;', $html, 'no double escaping' );
 	}
 
 	public function testSubPageParts() {
-		list( $html, ) = $this->executeSpecialPage( '<LANGUAGE>/<TYPE>' );
+		list( $html, ) = $this->executeSpecialPage( "''LANGUAGE''/''TYPE''" );
 
-		$this->assertContains( '&lt;LANGUAGE&gt;', $html );
-		$this->assertContains( '&lt;TYPE&gt;', $html );
+		$this->assertContains( '&#39;&#39;LANGUAGE&#39;&#39;', $html );
+		$this->assertContains( '&#39;&#39;TYPE&#39;&#39;', $html );
 	}
 
-	public function testNoLanguage() {
+	public function testNoParams() {
 		list( $html, ) = $this->executeSpecialPage( '', null, 'qqx' );
 
 		$this->assertNotContains( 'class="mw-spcontent"', $html );
+		$this->assertNotContains( '(htmlform-invalid-input)', $html );
+	}
+
+	public function testNoLanguage() {
+		$request = new FauxRequest( [ 'type' => 'item' ] );
+		list( $html, ) = $this->executeSpecialPage( '', $request, 'qqx' );
+
+		$this->assertNotContains( 'class="mw-spcontent"', $html );
+		$this->assertNotContains( '(htmlform-invalid-input)', $html );
+	}
+
+	public function testNoType() {
+		list( $html, ) = $this->executeSpecialPage( 'acceptedlanguage', null, 'qqx' );
+
+		$this->assertNotContains( 'class="mw-spcontent"', $html );
+		$this->assertNotContains( '(htmlform-invalid-input)', $html );
 	}
 
 	public function testInvalidLanguage() {
-		list( $html, ) = $this->executeSpecialPage( '<INVALID>', null, 'qqx' );
+		list( $html, ) = $this->executeSpecialPage( "''INVALID''", null, 'qqx' );
 
 		$this->assertContains(
-			'(wikibase-entitieswithoutlabel-invalid-language: &lt;INVALID&gt;)',
+			'(wikibase-entitieswithoutlabel-invalid-language: &#39;&#39;INVALID&#39;&#39;)',
 			$html
 		);
 	}
 
 	public function testValidLanguage() {
-		list( $html, ) = $this->executeSpecialPage( 'acceptedlanguage', null, 'qqx' );
+		$request = new FauxRequest( [ 'type' => 'item' ] );
+		list( $html, ) = $this->executeSpecialPage( 'acceptedlanguage', $request, 'qqx' );
 
 		$this->assertContains( 'value=\'acceptedlanguage\'', $html );
 		$this->assertContains( 'class="mw-spcontent"', $html );
 	}
 
 	public function testInvalidType() {
-		list( $html, ) = $this->executeSpecialPage( 'acceptedlanguage/<INVALID>', null, 'qqx' );
+		list( $html, ) = $this->executeSpecialPage( "acceptedlanguage/''INVALID''", null, 'qqx' );
 
 		$this->assertContains(
-			'(wikibase-entitieswithoutlabel-invalid-type: &lt;INVALID&gt;)',
+			'(wikibase-entitieswithoutlabel-invalid-type: &#39;&#39;INVALID&#39;&#39;)',
 			$html
 		);
 	}
