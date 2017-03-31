@@ -12,7 +12,6 @@ use Wikibase\Lib\UserInputException;
 use Wikibase\Repo\Interactors\RedirectCreationInteractor;
 use Wikibase\Repo\Interactors\TokenCheckInteractor;
 use Wikibase\Repo\Localizer\ExceptionLocalizer;
-use Wikibase\Repo\WikibaseRepo;
 
 /**
  * Special page for creating redirects between entities
@@ -80,8 +79,8 @@ class SpecialRedirectEntity extends SpecialWikibasePage {
 		} catch ( EntityIdParsingException $ex ) {
 			throw new UserInputException(
 				'wikibase-wikibaserepopage-invalid-id',
-				array( $rawId ),
-				'Entity id is not valid'
+				[ $rawId ],
+				"$name \"$rawId\" is not valid"
 			);
 		}
 	}

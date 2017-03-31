@@ -3,7 +3,6 @@
 namespace Wikibase\DataModel\Entity;
 
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * @since 0.5
@@ -68,10 +67,12 @@ class ItemId extends EntityId implements Int32EntityId {
 	/**
 	 * @see Serializable::serialize
 	 *
+	 * @since 7.0 serialization format changed in an incompatible way
+	 *
 	 * @return string
 	 */
 	public function serialize() {
-		return json_encode( [ 'item', $this->serialization ] );
+		return $this->serialization;
 	}
 
 	/**
@@ -80,7 +81,8 @@ class ItemId extends EntityId implements Int32EntityId {
 	 * @param string $serialized
 	 */
 	public function unserialize( $serialized ) {
-		list( , $this->serialization ) = json_decode( $serialized );
+		$array = json_decode( $serialized );
+		$this->serialization = is_array( $array ) ? $array[1] : $serialized;
 	}
 
 	/**
@@ -101,6 +103,25 @@ class ItemId extends EntityId implements Int32EntityId {
 		}
 
 		return new self( 'Q' . $numericId );
+	}
+
+	/**
+	 * CAUTION: Use the full string serialization whenever you can and avoid using numeric IDs.
+	 *
+	 * @since 7.0
+	 *
+	 * @param string $repositoryName
+	 * @param int|float|string $numericId
+	 *
+	 * @return self
+	 * @throws InvalidArgumentException
+	 */
+	public static function newFromRepositoryAndNumber( $repositoryName, $numericId ) {
+		if ( !is_numeric( $numericId ) ) {
+			throw new InvalidArgumentException( '$numericId must be numeric' );
+		}
+
+		return new self( self::joinSerialization( [ $repositoryName, '', 'Q' . $numericId ] ) );
 	}
 
 }

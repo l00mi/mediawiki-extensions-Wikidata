@@ -382,7 +382,12 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 	 */
 	private function getRepositoryDefinition( $repositoryName, array $customSettings = [] ) {
 		return [ $repositoryName => array_merge(
-			[ 'database' => '', 'entity-types' => [ 'item', 'property' ], 'prefix-mapping' => [] ],
+			[
+				'database' => '',
+				'base-uri' => 'http://acme.test/concept/',
+				'entity-types' => [ 'item', 'property' ],
+				'prefix-mapping' => []
+			],
 			$customSettings
 		) ];
 	}
@@ -718,6 +723,21 @@ class WikibaseRepoTest extends MediaWikiTestCase {
 				'foobar' => 'repo2',
 			],
 			$wikibaseRepo->getEntityTypeToRepositoryMapping()
+		);
+	}
+
+	public function testGetConceptBaseUris() {
+		$wikibaseRepo = $this->getWikibaseRepoWithCustomRepositoryDefinitions( array_merge(
+			$this->getRepositoryDefinition( '', [ 'base-uri' => 'http://acme.test/concept/' ] ),
+			$this->getRepositoryDefinition( 'other', [ 'base-uri' => 'http://other.wiki/concept/', 'entity-types' => [ 'foo' ] ] )
+		) );
+
+		$this->assertEquals(
+			[
+				'' => 'http://acme.test/concept/',
+				'other' => 'http://other.wiki/concept/',
+			],
+			$wikibaseRepo->getConceptBaseUris()
 		);
 	}
 

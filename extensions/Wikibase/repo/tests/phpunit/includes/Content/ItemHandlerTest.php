@@ -3,7 +3,6 @@
 namespace Wikibase\Repo\Tests\Content;
 
 use MWException;
-use Title;
 use Wikibase\Content\EntityInstanceHolder;
 use Wikibase\DataModel\Entity\EntityDocument;
 use Wikibase\DataModel\Entity\EntityId;
@@ -15,9 +14,7 @@ use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 use Wikibase\EntityContent;
 use Wikibase\ItemContent;
 use Wikibase\Repo\Content\ItemHandler;
-use Wikibase\Repo\WikibaseRepo;
 use Wikibase\SettingsArray;
-use WikiPage;
 
 /**
  * @covers Wikibase\Repo\Content\ItemHandler
@@ -78,8 +75,8 @@ class ItemHandlerTest extends EntityHandlerTest {
 		$item2 = $this->newEntity();
 		$item2->setLabel( 'en', 'Bar' );
 
-		$itemContent1 = $this->newRedirectContent( $item1->getId(), new ItemId( 'Q112' ) );
-		$itemContent2 = $this->newRedirectContent( $item1->getId(), new ItemId( 'Q113' ) );
+		$itemContent1 = $this->newRedirectItemContent( $item1->getId(), new ItemId( 'Q112' ) );
+		$itemContent2 = $this->newRedirectItemContent( $item1->getId(), new ItemId( 'Q113' ) );
 
 		$rev1 = $this->fakeRevision( $this->newEntityContent( $item1 ), 11 );
 		$rev2 = $this->fakeRevision( $itemContent1, 12 );
@@ -92,6 +89,25 @@ class ItemHandlerTest extends EntityHandlerTest {
 		$cases[] = [ $rev4, $rev4, $rev3, $itemContent2, "redo redirect" ];
 
 		return $cases;
+	}
+
+	/**
+	 * @param ItemId $id
+	 * @param ItemId $targetId
+	 *
+	 * @return ItemContent
+	 */
+	protected function newRedirectItemContent( ItemId $id, ItemId $targetId ) {
+		$redirect = new EntityRedirect( $id, $targetId );
+
+		$handler = $this->getHandler();
+		$title = $handler->getTitleForId( $redirect->getTargetId() );
+
+		// set content model to avoid db call to look up content model when
+		// constructing ItemContent in the tests, especially in the data providers.
+		$title->setContentModel( $handler->getModelID() );
+
+		return ItemContent::newFromRedirect( $redirect, $title );
 	}
 
 	/**
@@ -167,6 +183,10 @@ class ItemHandlerTest extends EntityHandlerTest {
 		);
 
 		return ItemContent::newFromItem( $item );
+	}
+
+	protected function getExpectedSearchIndexFields() {
+		return [ 'label_count', 'statement_count', 'sitelink_count' ];
 	}
 
 }

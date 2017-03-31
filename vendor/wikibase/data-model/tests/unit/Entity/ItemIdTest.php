@@ -5,7 +5,6 @@ namespace Wikibase\DataModel\Tests\Entity;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\ItemId;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * @covers Wikibase\DataModel\Entity\ItemId
@@ -93,7 +92,7 @@ class ItemIdTest extends PHPUnit_Framework_TestCase {
 
 	public function testSerialize() {
 		$id = new ItemId( 'Q1' );
-		$this->assertSame( '["item","Q1"]', $id->serialize() );
+		$this->assertSame( 'Q1', $id->serialize() );
 	}
 
 	/**
@@ -107,6 +106,7 @@ class ItemIdTest extends PHPUnit_Framework_TestCase {
 
 	public function serializationProvider() {
 		return [
+			[ 'Q2', 'Q2' ],
 			[ '["item","Q2"]', 'Q2' ],
 
 			// All these cases are kind of an injection vector and allow constructing invalid ids.
@@ -115,7 +115,7 @@ class ItemIdTest extends PHPUnit_Framework_TestCase {
 			[ '["",""]', '' ],
 			[ '["",2]', 2 ],
 			[ '["",null]', null ],
-			[ '', null ],
+			[ '', '' ],
 		];
 	}
 
@@ -154,6 +154,16 @@ class ItemIdTest extends PHPUnit_Framework_TestCase {
 			[ 2147483648 ],
 			[ '2147483648' ],
 		];
+	}
+
+	public function testNewFromRepositoryAndNumber() {
+		$id = ItemId::newFromRepositoryAndNumber( 'foo', 1 );
+		$this->assertSame( 'foo:Q1', $id->getSerialization() );
+	}
+
+	public function testNewFromRepositoryAndNumberWithInvalidNumericId() {
+		$this->setExpectedException( InvalidArgumentException::class );
+		ItemId::newFromRepositoryAndNumber( '', 'Q1' );
 	}
 
 }

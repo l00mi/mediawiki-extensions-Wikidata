@@ -2,9 +2,10 @@
 
 namespace Wikibase\DataModel\Tests\HashArray;
 
+use Hashable;
 use Wikibase\DataModel\Fixtures\HashArrayElement;
-use Wikibase\DataModel\Fixtures\MutableHashable;
 use Wikibase\DataModel\HashArray;
+use Wikibase\DataModel\Snak\PropertyNoValueSnak;
 
 /**
  * @covers Wikibase\DataModel\HashArray
@@ -81,57 +82,51 @@ class HashArrayWithoutDuplicatesTest extends HashArrayTest {
 	 * @dataProvider instanceProvider
 	 * @param HashArray $array
 	 */
-	public function testRemoveDuplicates( HashArray $array ) {
-		$count = count( $array );
-		$array->removeDuplicates();
-
-		$this->assertCount(
-			$count,
-			$array,
-			'Count should be the same after removeDuplicates since there can be none'
-		);
-	}
-
-	/**
-	 * @dataProvider instanceProvider
-	 * @param HashArray $array
-	 */
-	public function testGetHash( HashArray $array ) {
-		$hash = $array->getHash();
-
-		$this->assertSame( $hash, $array->getHash() );
-
-		$elements = $this->elementInstancesProvider();
-		$element = array_shift( $elements );
-		$element = $element[0][0];
-
-		$array->addElement( $element );
-
-		if ( $array->hasElement( $element ) ) {
-			$this->assertSame( $hash, $array->getHash() );
-		} else {
-			$this->assertNotSame( $hash, $array->getHash() );
+	public function testHasElement( HashArray $array ) {
+		/**
+		 * @var Hashable $hashable
+		 */
+		foreach ( iterator_to_array( $array ) as $hashable ) {
+			$this->assertTrue( $array->hasElement( $hashable ) );
+			$this->assertTrue( $array->hasElementHash( $hashable->getHash() ) );
+			$array->removeElement( $hashable );
+			$this->assertFalse( $array->hasElement( $hashable ) );
+			$this->assertFalse( $array->hasElementHash( $hashable->getHash() ) );
 		}
+
+		$this->assertTrue( true );
 	}
 
 	/**
 	 * @dataProvider instanceProvider
 	 * @param HashArray $array
 	 */
-	public function testIndicesAreUpToDate( HashArray $array ) {
-		$this->assertInternalType( 'boolean', $array->indicesAreUpToDate() );
+	public function testRemoveElement( HashArray $array ) {
+		$elementCount = $array->count();
 
-		$mutable = new MutableHashable();
+		/**
+		 * @var Hashable $element
+		 */
+		foreach ( iterator_to_array( $array ) as $element ) {
+			$this->assertTrue( $array->hasElement( $element ) );
 
-		$array->addElement( $mutable );
+			if ( $elementCount % 2 === 0 ) {
+				$array->removeElement( $element );
+			}
+			else {
+				$array->removeByElementHash( $element->getHash() );
+			}
 
-		$mutable->text = '~[,,_,,]:3';
+			$this->assertFalse( $array->hasElement( $element ) );
+			$this->assertEquals( --$elementCount, $array->count() );
+		}
 
-		$this->assertFalse( $array->indicesAreUpToDate() );
+		$element = new PropertyNoValueSnak( 42 );
 
-		$array->rebuildIndices();
+		$array->removeElement( $element );
+		$array->removeByElementHash( $element->getHash() );
 
-		$this->assertTrue( $array->indicesAreUpToDate() );
+		$this->assertTrue( true );
 	}
 
 }
