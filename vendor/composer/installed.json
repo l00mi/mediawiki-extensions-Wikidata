@@ -115,19 +115,19 @@
         "source": {
             "type": "git",
             "url": "https://github.com/wikimedia/mediawiki-extensions-ArticlePlaceholder.git",
-            "reference": "0a9801be4a9d97e2d29e853c54f2412ed0d0e301"
+            "reference": "19f26ba194a45a305de0970d7b21ab216e117af2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/0a9801be4a9d97e2d29e853c54f2412ed0d0e301",
-            "reference": "0a9801be4a9d97e2d29e853c54f2412ed0d0e301",
+            "url": "https://api.github.com/repos/wikimedia/mediawiki-extensions-ArticlePlaceholder/zipball/19f26ba194a45a305de0970d7b21ab216e117af2",
+            "reference": "19f26ba194a45a305de0970d7b21ab216e117af2",
             "shasum": ""
         },
         "require-dev": {
             "jakub-onderka/php-parallel-lint": "0.9.2",
             "mediawiki/mediawiki-codesniffer": "0.7.2"
         },
-        "time": "2017-03-28 20:38:29",
+        "time": "2017-03-31 21:18:23",
         "type": "mediawiki-extension",
         "installation-source": "dist",
         "autoload": {
