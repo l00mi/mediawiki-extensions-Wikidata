@@ -2,8 +2,8 @@
 
 namespace Wikibase;
 
-use FormatJson;
 use MediaWikiSite;
+use ResourceLoader;
 use ResourceLoaderContext;
 use ResourceLoaderModule;
 use Wikibase\Client\WikibaseClient;
@@ -42,7 +42,7 @@ class SiteModule extends ResourceLoaderModule {
 			);
 		}
 
-		return 'mediaWiki.config.set( "wbCurrentSite", ' . FormatJson::encode( $currentSite ) . ' );';
+		return ResourceLoader::makeConfigSetScript( [ 'wbCurrentSite' => $currentSite ] );
 	}
 
 }

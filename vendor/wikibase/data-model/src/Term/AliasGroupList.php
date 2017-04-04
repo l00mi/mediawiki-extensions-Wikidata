@@ -204,4 +204,13 @@ class AliasGroupList implements Countable, IteratorAggregate {
 		return $array;
 	}
 
+	/**
+	 * Removes all alias groups from this list.
+	 *
+	 * @since 7.0
+	 */
+	public function clear() {
+		$this->groups = [];
+	}
+
 }

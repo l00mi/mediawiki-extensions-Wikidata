@@ -10,15 +10,16 @@ use IContextSource;
 use MediaWikiTestCase;
 use RawMessage;
 use Site;
+use Wikibase\DataModel\Entity\Item;
 use Wikibase\DataModel\Services\Diff\EntityDiff;
 use Wikibase\DataModel\Services\EntityId\EntityIdFormatter;
 use Wikibase\Repo\Content\EntityContentDiff;
 use Wikibase\Repo\Diff\ClaimDiffer;
 use Wikibase\Repo\Diff\ClaimDifferenceVisualizer;
-use Wikibase\Repo\Diff\EntityDiffVisualizer;
+use Wikibase\Repo\Diff\BasicEntityDiffVisualizer;
 
 /**
- * @covers Wikibase\Repo\Diff\EntityDiffVisualizer
+ * @covers Wikibase\Repo\Diff\BasicEntityDiffVisualizer
  *
  * @group Wikibase
  *
@@ -26,10 +27,10 @@ use Wikibase\Repo\Diff\EntityDiffVisualizer;
  * @author Daniel Kinzler
  * @author Thiemo Mättig
  */
-class EntityDiffVisualizerTest extends MediaWikiTestCase {
+class BasicEntityDiffVisualizerTest extends MediaWikiTestCase {
 
 	public function testVisualizingEmptyDiff() {
-		$emptyDiff = new EntityContentDiff( new EntityDiff(), new Diff() );
+		$emptyDiff = new EntityContentDiff( new EntityDiff(), new Diff(), 'item' );
 		$html = $this->getVisualizer()->visualizeEntityContentDiff( $emptyDiff );
 
 		$this->assertSame( '', $html );
@@ -54,7 +55,8 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 					) )
 				), true ),
 			) ),
-			new Diff()
+			new Diff(),
+			'item'
 		);
 
 		$fingerprintTags = array(
@@ -70,9 +72,11 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 			'has <del>ohi there</del>' => '>ohi there</del>',
 		);
 
-		$redirectDiff = new EntityContentDiff( new EntityDiff(), new Diff( array(
-			'redirect' => new DiffOpAdd( 'Q1234' )
-		), true ) );
+		$redirectDiff = new EntityContentDiff(
+			new EntityDiff(),
+			new Diff( [ 'redirect' => new DiffOpAdd( 'Q1234' ) ], true ),
+			'item'
+		);
 
 		$redirectTags = array(
 			'has <td>redirect</td>' => '>redirect</td>',
@@ -121,13 +125,13 @@ class EntityDiffVisualizerTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @return EntityDiffVisualizer
+	 * @return BasicEntityDiffVisualizer
 	 */
 	private function getVisualizer() {
 		$enwiki = new Site();
 		$enwiki->setGlobalId( 'enwiki' );
 
-		return new EntityDiffVisualizer(
+		return new BasicEntityDiffVisualizer(
 			$this->getMockContext(),
 			$this->getMockClaimDiffer(),
 			$this->getMockClaimDiffVisualizer(),

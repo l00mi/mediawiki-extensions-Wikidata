@@ -143,7 +143,7 @@ class ReferenceListTest extends PHPUnit_Framework_TestCase {
 			$array->removeReference( $element );
 
 			$this->assertFalse( $array->hasReference( $element ) );
-			$this->assertEquals( --$elementCount, count( $array ) );
+			$this->assertSame( --$elementCount, count( $array ) );
 		}
 	}
 
@@ -180,13 +180,13 @@ class ReferenceListTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function assertSameReferenceOrder( ReferenceList $expectedList, ReferenceList $references ) {
-		$this->assertEquals(
+		$this->assertSame(
 			iterator_to_array( $expectedList ),
 			iterator_to_array( $references )
 		);
 	}
 
-	public function testAddReferenceOnNonEmptyList() {
+	public function testAddReferenceAtTheEnd() {
 		$reference1 = new Reference( [ new PropertyNoValueSnak( 1 ) ] );
 		$reference2 = new Reference( [ new PropertyNoValueSnak( 2 ) ] );
 		$reference3 = new Reference( [ new PropertyNoValueSnak( 3 ) ] );
@@ -198,6 +198,18 @@ class ReferenceListTest extends PHPUnit_Framework_TestCase {
 
 		$expectedList = new ReferenceList( [ $reference1, $reference2, $reference3 ] );
 		$this->assertSameReferenceOrder( $expectedList, $references );
+	}
+
+	public function testAddReferenceBetweenExistingReferences() {
+		$reference1 = new Reference( [ new PropertyNoValueSnak( 1 ) ] );
+		$reference2 = new Reference( [ new PropertyNoValueSnak( 2 ) ] );
+		$list = new ReferenceList( [ $reference1, $reference2 ] );
+
+		$reference3 = new Reference( [ new PropertyNoValueSnak( 3 ) ] );
+		$list->addReference( $reference3, 1 );
+
+		$this->assertCount( 3, $list );
+		$this->assertSame( 1, $list->indexOf( $reference3 ) );
 	}
 
 	public function testAddReferenceIgnoresIdenticalObjects() {
@@ -229,17 +241,31 @@ class ReferenceListTest extends PHPUnit_Framework_TestCase {
 		$list->addNewReference( new PropertyNoValueSnak( 1 ) );
 		$reference = new Reference( [ new PropertyNoValueSnak( 2 ) ] );
 		$list->addReference( $reference );
-		$this->assertSame( 1, $list->indexOf( $reference ), 'pre condition' );
+		$list->addNewReference( new PropertyNoValueSnak( 3 ) );
+
+		$this->assertSame(
+			1,
+			$list->indexOf( $reference ),
+			'pre-condition is that the element is at index 1'
+		);
 
 		$list->addReference( $reference, 0 );
 
-		$this->assertCount( 2, $list, 'not added' );
-		$this->assertSame( 0, $list->indexOf( $reference ), 'can decrease index' );
+		$this->assertCount( 3, $list, 'not added' );
+		$this->assertSame(
+			1,
+			$list->indexOf( $reference ),
+			'make sure calling addReference with a lower index did not changed it'
+		);
 
 		$list->addReference( $reference, 2 );
 
-		$this->assertCount( 2, $list, 'not added' );
-		$this->assertSame( 0, $list->indexOf( $reference ), 'can not increase index' );
+		$this->assertCount( 3, $list, 'not added' );
+		$this->assertSame(
+			1,
+			$list->indexOf( $reference ),
+			'make sure calling addReference with a higher index did not changed it'
+		);
 	}
 
 	public function testAddReferenceAtIndexZero() {
@@ -294,7 +320,7 @@ class ReferenceListTest extends PHPUnit_Framework_TestCase {
 
 		$i = 0;
 		foreach ( $array as $reference ) {
-			$this->assertEquals( $i++, $array->indexOf( $reference ) );
+			$this->assertSame( $i++, $array->indexOf( $reference ) );
 		}
 	}
 
@@ -329,7 +355,7 @@ class ReferenceListTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testGetValueHashIsTheSameForClone( ReferenceList $array ) {
 		$copy = unserialize( serialize( $array ) );
-		$this->assertEquals( $array->getValueHash(), $copy->getValueHash() );
+		$this->assertSame( $array->getValueHash(), $copy->getValueHash() );
 	}
 
 	/**
@@ -477,8 +503,8 @@ class ReferenceListTest extends PHPUnit_Framework_TestCase {
 		$list->addNewReference( new PropertyNoValueSnak( 1 ) );
 		$this->assertSame(
 			"a:1:{i:0;O:28:\"Wikibase\\DataModel\\Reference\":1:{s:35:\"\x00Wikibase\\DataModel\\"
-			. "Reference\x00snaks\";C:32:\"Wikibase\\DataModel\\Snak\\SnakList\":102:{a:2:{s:4:\""
-			. 'data";a:1:{i:0;C:43:"Wikibase\\DataModel\\Snak\\PropertyNoValueSnak":4:{i:1;}}s:5'
+			. "Reference\x00snaks\";C:32:\"Wikibase\\DataModel\\Snak\\SnakList\":100:{a:2:{s:4:\""
+			. 'data";a:1:{i:0;C:43:"Wikibase\\DataModel\\Snak\\PropertyNoValueSnak":2:{P1}}s:5'
 			. ':"index";i:0;}}}}',
 			$list->serialize()
 		);

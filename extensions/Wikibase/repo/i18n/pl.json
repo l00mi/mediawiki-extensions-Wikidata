@@ -16,7 +16,8 @@
 			"Darellur",
 			"Devwebtel",
 			"PiotrAntosz",
-			"Woytecr"
+			"Woytecr",
+			"Pawel Niemczuk"
 		]
 	},
 	"wikibase-desc": "Repozytorium danych strukturalnych",
@@ -130,7 +131,12 @@
 	"wikibase-validator-label-conflict": "Właściwość $3 ma już etykietę „$1” powiązaną z językiem o kodzie $2.",
 	"wikibase-validator-label-with-description-conflict": "Etykietę \"$1\" z takim samym opisem dla języka o kodzie $2 ma już element $3",
 	"wikibase-validator-no-such-media": "Plik „$1” nie istnieje w [https://commons.wikimedia.org/ Wikimedia Commons].",
+	"wikibase-validator-page-not-exists": "Strona „$1” nie istnieje.",
 	"wikibase-validator-not-a-language": "„$1” jest nieznanym kodem języka.",
+	"wikibase-item-reference-edit-placeholder": "Wprowadź identyfikator elementu, np. Q10",
+	"wikibase-item-reference-edit-invalid-format": "Wprowadzony identyfikator elementu ma nieprawidłowy format",
+	"wikibase-item-reference-edit-nonexistent-item": "Element z takim identyfikatorem nie istnieje",
+	"wikibase-wikibaserepopage-not-itemid": "„$1” nie jest poprawnym identyfikatorem elementu.",
 	"wikibase-wikibaserepopage-invalid-langcode": "Kod języka „$1” jest nieznany. Użyj kodu języka, który jest znany w systemie, na przykład „pl”.",
 	"wikibase-wikibaserepopage-invalid-id": "Identyfikator „$1” jest nieznany w systemie. Użyj prawidłowego identyfikatora encji.",
 	"wikibase-wikibaserepopage-unresolved-redirect": "$1 jest przekierowaniem.",
@@ -140,6 +146,7 @@
 	"wikibase-itembytitle-lookup-site": "Witryna:",
 	"wikibase-itembytitle-lookup-page": "Strona:",
 	"wikibase-itembytitle-submit": "Szukaj",
+	"wikibase-itembytitle-error-site": "Użyj istniejącego identyfikatora projektu, np. „plwiki” dla polskojęzycznej Wikipedii.",
 	"wikibase-itembytitle-create": "Możesz także [$1 utworzyć element].",
 	"special-gotolinkedpage": "Przejście do linkującej strony",
 	"wikibase-gotolinkedpage-lookup-fieldset": "Przejdź do linkującej strony zgodnie z podaną witryną i elementem",
@@ -266,7 +273,6 @@
 	"wikibase-entitieswithoutlabel-legend": "Wyświetl listę encji bez etykiety",
 	"wikibase-entitieswithoutlabel-label-language": "Kod języka:",
 	"wikibase-entitieswithoutlabel-label-type": "Typ:",
-	"wikibase-entitieswithoutlabel-label-alltypes": "wszystkie",
 	"wikibase-entitieswithoutlabel-submit": "Znajdź",
 	"wikibase-entitieswithoutlabel-invalid-language": "„$1” jest nie prawidłowym kodem języka.",
 	"wikibase-entitieswithoutlabel-invalid-type": "„$1” jest nie prawidłowym typem encji.",

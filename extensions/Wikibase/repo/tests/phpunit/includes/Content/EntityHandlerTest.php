@@ -20,7 +20,6 @@ use Wikibase\DataModel\Entity\EntityRedirect;
 use Wikibase\DataModel\SerializerFactory;
 use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\EntityContent;
-use Wikibase\ItemContent;
 use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\EntityTypeDefinitions;
 use Wikibase\Lib\RepositoryDefinitions;
@@ -485,6 +484,8 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 		$this->assertFalse( $this->getHandler()->supportsCategories() );
 	}
 
+	abstract protected function getExpectedSearchIndexFields();
+
 	public function testFieldsForSearchIndex() {
 		$handler = $this->getHandler();
 
@@ -497,8 +498,7 @@ abstract class EntityHandlerTest extends \MediaWikiTestCase {
 			} ) );
 
 		$fields = $handler->getFieldsForSearchIndex( $searchEngine );
-		$expectedFields = [ 'label_count', 'sitelink_count', 'statement_count' ];
-		foreach ( $expectedFields as $expected ) {
+		foreach ( $this->getExpectedSearchIndexFields() as $expected ) {
 			$this->assertInstanceOf( \SearchIndexField::class, $fields[$expected] );
 			$mapping = $fields[$expected]->getMapping( $searchEngine );
 			$this->assertEquals( $expected, $mapping['name'] );

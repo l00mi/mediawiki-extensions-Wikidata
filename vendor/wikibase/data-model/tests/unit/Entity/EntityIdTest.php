@@ -4,7 +4,6 @@ namespace Wikibase\DataModel\Tests\Entity;
 
 use ReflectionClass;
 use InvalidArgumentException;
-use RuntimeException;
 use Wikibase\DataModel\Entity\EntityId;
 use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
@@ -70,12 +69,12 @@ class EntityIdTest extends \PHPUnit_Framework_TestCase {
 	 * It is just here to catch unintentional changes.
 	 */
 	public function testSerializationStability() {
-		$v05serialization = 'C:32:"Wikibase\DataModel\Entity\ItemId":15:{["item","Q123"]}';
+		$serialization = 'C:32:"Wikibase\DataModel\Entity\ItemId":4:{Q123}';
 		$id = new ItemId( 'q123' );
 
 		$this->assertEquals(
 			serialize( $id ),
-			$v05serialization
+			$serialization
 		);
 	}
 

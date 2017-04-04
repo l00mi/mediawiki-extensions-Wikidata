@@ -76,7 +76,7 @@ call_user_func( function() {
 	global $wgExtensionMessagesFiles, $wgMessagesDirs;
 	global $wgAPIModules, $wgAPIListModules, $wgSpecialPages, $wgHooks;
 	global $wgWBRepoSettings, $wgResourceModules, $wgValueParsers, $wgJobClasses;
-	global $wgWBRepoDataTypes, $wgWBRepoEntityTypes;
+	global $wgWBRepoDataTypes;
 
 	$wgExtensionCredits['wikibase'][] = array(
 		'path' => __DIR__,
@@ -104,17 +104,6 @@ call_user_func( function() {
 	// constants
 	define( 'CONTENT_MODEL_WIKIBASE_ITEM', "wikibase-item" );
 	define( 'CONTENT_MODEL_WIKIBASE_PROPERTY', "wikibase-property" );
-
-	// Registry and definition of entity types
-	$wgWBRepoEntityTypes = require __DIR__ . '/../lib/WikibaseLib.entitytypes.php';
-
-	$repoEntityTypes = require __DIR__ . '/WikibaseRepo.entitytypes.php';
-
-	// merge WikibaseRepo.entitytypes.php into $wgWBRepoEntityTypes
-	foreach ( $repoEntityTypes as $type => $repoDef ) {
-		$baseDef = isset( $wgWBRepoEntityTypes[$type] ) ? $wgWBRepoEntityTypes[$type] : array();
-		$wgWBRepoEntityTypes[$type] = array_merge( $baseDef, $repoDef );
-	}
 
 	// rights
 	// names should be according to other naming scheme
@@ -228,7 +217,7 @@ call_user_func( function() {
 				$repo->getPropertyDataTypeLookup(),
 				$repo->getTermsLanguages(),
 				$repo->getEnabledEntityTypes(),
-				$repo->getSettings()->getSetting( 'conceptBaseUri' )
+				$repo->getConceptBaseUris()
 			);
 		},
 	];
@@ -243,7 +232,27 @@ call_user_func( function() {
 			);
 		}
 	];
-	$wgAPIModules['wbeditentity'] = Wikibase\Repo\Api\EditEntity::class;
+	$wgAPIModules['wbeditentity'] = [
+		'class' => Wikibase\Repo\Api\EditEntity::class,
+		'factory' => function ( ApiMain $mainModule, $moduleName ) {
+			$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
+			$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
+			return new Wikibase\Repo\Api\EditEntity(
+				$mainModule,
+				$moduleName,
+				$wikibaseRepo->getTermsLanguages(),
+				$wikibaseRepo->getEntityRevisionLookup( 'uncached' ),
+				$wikibaseRepo->getEntityIdParser(),
+				$wikibaseRepo->getEntityFactory(),
+				$wikibaseRepo->getExternalFormatStatementDeserializer(),
+				$wikibaseRepo->getDataTypeDefinitions()->getTypeIds(),
+				$changeOpFactoryProvider->getFingerprintChangeOpFactory(),
+				$changeOpFactoryProvider->getStatementChangeOpFactory(),
+				$changeOpFactoryProvider->getSiteLinkChangeOpFactory(),
+				$wikibaseRepo->getEntityChangeOpProvider()
+			);
+		}
+	];
 	$wgAPIModules['wblinktitles'] = [
 		'class' => Wikibase\Repo\Api\LinkTitles::class,
 		'factory' => function ( ApiMain $mainModule, $moduleName ) {
@@ -775,14 +784,12 @@ call_user_func( function() {
 	);
 	$wgSpecialPages['ListDatatypes'] = Wikibase\Repo\Specials\SpecialListDatatypes::class;
 	$wgSpecialPages['ListProperties'] = function () {
-		global $wgContLang;
 		$wikibaseRepo = Wikibase\Repo\WikibaseRepo::getDefaultInstance();
 		$prefetchingTermLookup = $wikibaseRepo->getPrefetchingTermLookup();
-		$languageFallbackChainFactory = $wikibaseRepo->getLanguageFallbackChainFactory();
-		$fallbackMode = Wikibase\LanguageFallbackChainFactory::FALLBACK_ALL;
 		$labelDescriptionLookup = new Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookup(
 			$prefetchingTermLookup,
-			$languageFallbackChainFactory->newFromLanguage( $wgContLang, $fallbackMode )
+			$wikibaseRepo->getLanguageFallbackChainFactory()
+				->newFromLanguage( $wikibaseRepo->getUserLanguage() )
 		);
 		$entityIdFormatter = $wikibaseRepo->getEntityIdHtmlLinkFormatterFactory()
 			->getEntityIdFormatter( $labelDescriptionLookup );
@@ -815,7 +822,8 @@ call_user_func( function() {
 			$wikibaseRepo->getEntityIdParser(),
 			$wikibaseRepo->getExceptionLocalizer(),
 			new \Wikibase\Repo\Interactors\TokenCheckInteractor( $wgUser ),
-			$wikibaseRepo->newItemMergeInteractor( RequestContext::getMain() )
+			$wikibaseRepo->newItemMergeInteractor( RequestContext::getMain() ),
+			$wikibaseRepo->getEntityTitleLookup()
 		);
 	};
 	$wgSpecialPages['RedirectEntity'] = function() {

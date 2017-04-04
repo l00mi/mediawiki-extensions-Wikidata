@@ -2,14 +2,15 @@
 
 namespace PropertySuggester\Suggesters;
 
-use LoadBalancer;
 use InvalidArgumentException;
 use LogicException;
 use Wikibase\DataModel\Entity\EntityIdValue;
 use Wikibase\DataModel\Entity\Item;
+use Wikibase\DataModel\Entity\ItemId;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyValueSnak;
-use ResultWrapper;
+use Wikimedia\Rdbms\LoadBalancer;
+use Wikimedia\Rdbms\ResultWrapper;
 
 /**
  * a Suggester implementation that creates suggestion via MySQL
@@ -81,7 +82,7 @@ class SimpleSuggester implements SuggesterEngine {
 	 * @throws InvalidArgumentException
 	 * @return Suggestion[]
 	 */
-	protected function getSuggestions( array $propertyIds, array $idTuples, $limit, $minProbability, $context ) {
+	private function getSuggestions( array $propertyIds, array $idTuples, $limit, $minProbability, $context ) {
 		if ( !is_int( $limit ) ) {
 			throw new InvalidArgumentException( '$limit must be int!' );
 		}
@@ -95,7 +96,7 @@ class SimpleSuggester implements SuggesterEngine {
 		$excludedIds = array_merge( $propertyIds, $this->deprecatedPropertyIds );
 		$count = count( $propertyIds );
 
-		$dbr = $this->lb->getConnection( DB_SLAVE );
+		$dbr = $this->lb->getConnection( DB_REPLICA );
 		if ( empty( $idTuples ) ){
 			$condition = 'pid1 IN (' . $dbr->makeList( $propertyIds ) . ')';
 		}
@@ -169,8 +170,17 @@ class SimpleSuggester implements SuggesterEngine {
 					);
 				}
 
-				$numericEntityId = $dataValue->getEntityId()->getNumericId();
-				$idTuples[] = $this->buildTupleCondition( $numericPropertyId, $numericEntityId );
+				$entityId = $dataValue->getEntityId();
+
+				if ( !( $entityId instanceof ItemId ) ) {
+					throw new LogicException(
+						"Property $numericPropertyId in wgPropertySuggesterClassifyingPropertyIds"
+						. ' does not have property type wikibase-item'
+					);
+				}
+
+				$numericItemId = $entityId->getNumericId();
+				$idTuples[] = $this->buildTupleCondition( $numericPropertyId, $numericItemId );
 			}
 		}
 
@@ -193,7 +203,7 @@ class SimpleSuggester implements SuggesterEngine {
 	 * @param ResultWrapper $res
 	 * @return Suggestion[]
 	 */
-	protected function buildResult( ResultWrapper $res ) {
+	private function buildResult( ResultWrapper $res ) {
 		$resultArray = array();
 		foreach ( $res as $row ) {
 			$pid = PropertyId::newFromNumber( ( int )$row->pid );

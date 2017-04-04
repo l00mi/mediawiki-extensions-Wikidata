@@ -59,7 +59,7 @@ trait DescriptionsChangeOpDeserializationTester {
 
 	private function getEntityWithEnDescription() {
 		$entity = $this->getEntity();
-		$entity->setDescription( 'en', 'en-description' );
+		$entity->getDescriptions()->setTextForLanguage( 'en', 'en-description' );
 
 		return $entity;
 	}

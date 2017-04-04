@@ -3,11 +3,9 @@
 namespace Wikibase\DataModel;
 
 use ArrayObject;
-use Comparable;
 use Hashable;
 use InvalidArgumentException;
 use Traversable;
-use Wikibase\DataModel\Internal\MapValueHasher;
 
 /**
  * Generic array object with lookups based on hashes of the elements.
@@ -22,35 +20,21 @@ use Wikibase\DataModel\Internal\MapValueHasher;
  * made to them via their mutator methods will not cause an update of
  * their associated hash in this array.
  *
- * When acceptDuplicates is set to true, multiple elements with the same
- * hash can reside in the HashArray. Lookup by such a non-unique hash will
- * return only the first element and deletion will also delete only
- * the first such element.
- *
  * @since 0.1
  *
  * @license GPL-2.0+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-abstract class HashArray extends ArrayObject implements Hashable, Comparable {
+abstract class HashArray extends ArrayObject {
 
 	/**
 	 * Maps element hashes to their offsets.
 	 *
 	 * @since 0.1
 	 *
-	 * @var array [ element hash (string) => array [ element offset (string|int) ] | element offset (string|int) ]
+	 * @var array [ element hash (string) => element offset (string|int) ]
 	 */
 	protected $offsetHashes = [];
-
-	/**
-	 * If duplicate values (based on hash) should be accepted or not.
-	 *
-	 * @since 0.3
-	 *
-	 * @var bool
-	 */
-	protected $acceptDuplicates = false;
 
 	/**
 	 * @var integer
@@ -125,20 +109,11 @@ abstract class HashArray extends ArrayObject implements Hashable, Comparable {
 
 		$hasHash = $this->hasElementHash( $hash );
 
-		if ( !$this->acceptDuplicates && $hasHash ) {
+		if ( $hasHash ) {
 			return false;
 		}
 		else {
-			if ( $hasHash ) {
-				if ( !is_array( $this->offsetHashes[$hash] ) ) {
-					$this->offsetHashes[$hash] = [ $this->offsetHashes[$hash] ];
-				}
-
-				$this->offsetHashes[$hash][] = $index;
-			}
-			else {
-				$this->offsetHashes[$hash] = $index;
-			}
+			$this->offsetHashes[$hash] = $index;
 
 			return true;
 		}
@@ -191,11 +166,6 @@ abstract class HashArray extends ArrayObject implements Hashable, Comparable {
 	public function removeByElementHash( $elementHash ) {
 		if ( $this->hasElementHash( $elementHash ) ) {
 			$offset = $this->offsetHashes[$elementHash];
-
-			if ( is_array( $offset ) ) {
-				$offset = reset( $offset );
-			}
-
 			$this->offsetUnset( $offset );
 		}
 	}
@@ -210,7 +180,7 @@ abstract class HashArray extends ArrayObject implements Hashable, Comparable {
 	 * @return bool Indicates if the element was added or not.
 	 */
 	public function addElement( Hashable $element ) {
-		$append = $this->acceptDuplicates || !$this->hasElementHash( $element->getHash() );
+		$append = !$this->hasElementHash( $element->getHash() );
 
 		if ( $append ) {
 			$this->append( $element );
@@ -231,11 +201,6 @@ abstract class HashArray extends ArrayObject implements Hashable, Comparable {
 	public function getByElementHash( $elementHash ) {
 		if ( $this->hasElementHash( $elementHash ) ) {
 			$offset = $this->offsetHashes[$elementHash];
-
-			if ( is_array( $offset ) ) {
-				$offset = reset( $offset );
-			}
-
 			return $this->offsetGet( $offset );
 		}
 		else {
@@ -259,121 +224,9 @@ abstract class HashArray extends ArrayObject implements Hashable, Comparable {
 
 			$hash = $element->getHash();
 
-			if ( array_key_exists( $hash, $this->offsetHashes )
-				&& is_array( $this->offsetHashes[$hash] )
-				&& count( $this->offsetHashes[$hash] ) > 1 ) {
-				$this->offsetHashes[$hash] = array_filter(
-					$this->offsetHashes[$hash],
-					function( $value ) use ( $index ) {
-						return $value !== $index;
-					}
-				);
-			}
-			else {
-				unset( $this->offsetHashes[$hash] );
-			}
+			unset( $this->offsetHashes[$hash] );
 
 			parent::offsetUnset( $index );
-		}
-	}
-
-	/**
-	 * @see Hashable::getHash
-	 *
-	 * The hash is purely valuer based. Order of the elements in the array is not held into account.
-	 *
-	 * @since 0.1
-	 *
-	 * @return string
-	 */
-	public function getHash() {
-		$hasher = new MapValueHasher();
-		return $hasher->hash( $this );
-	}
-
-	/**
-	 * @see Comparable::equals
-	 *
-	 * The comparison is done purely value based, ignoring the order of the elements in the array.
-	 *
-	 * @since 0.3
-	 *
-	 * @param mixed $target
-	 *
-	 * @return bool
-	 */
-	public function equals( $target ) {
-		if ( $this === $target ) {
-			return true;
-		}
-
-		return $target instanceof self
-			&& $this->getHash() === $target->getHash();
-	}
-
-	/**
-	 * Removes duplicates bases on hash value.
-	 *
-	 * @since 0.3
-	 */
-	public function removeDuplicates() {
-		$knownHashes = [];
-
-		/**
-		 * @var Hashable $hashable
-		 */
-		foreach ( iterator_to_array( $this ) as $hashable ) {
-			$hash = $hashable->getHash();
-
-			if ( in_array( $hash, $knownHashes ) ) {
-				$this->removeByElementHash( $hash );
-			}
-			else {
-				$knownHashes[] = $hash;
-			}
-		}
-	}
-
-	/**
-	 * Returns if the hash indices are up to date.
-	 * For an HashArray with immutable objects this should always be the case.
-	 * For one with mutable objects it's the responsibility of the mutating code
-	 * to keep the indices up to date (see class documentation) and thus possible
-	 * this has not been done since the last update, thus causing a state where
-	 * one or more indices are out of date.
-	 *
-	 * @since 0.4
-	 *
-	 * @return bool
-	 */
-	public function indicesAreUpToDate() {
-		foreach ( $this->offsetHashes as $hash => $offsets ) {
-			$offsets = (array)$offsets;
-
-			foreach ( $offsets as $offset ) {
-				/** @var Hashable[] $this */
-				if ( $this[$offset]->getHash() !== $hash ) {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Removes and adds all elements, ensuring the indices are up to date.
-	 *
-	 * @since 0.4
-	 */
-	public function rebuildIndices() {
-		$hashables = iterator_to_array( $this );
-
-		$this->offsetHashes = [];
-
-		foreach ( $hashables as $offset => $hashable ) {
-			$this->offsetUnset( $offset );
-			$this->offsetSet( $offset, $hashable );
 		}
 	}
 
@@ -469,8 +322,6 @@ abstract class HashArray extends ArrayObject implements Hashable, Comparable {
 	}
 
 	/**
-	 * Returns if the ArrayObject has no elements.
-	 *
 	 * @return bool
 	 */
 	public function isEmpty() {

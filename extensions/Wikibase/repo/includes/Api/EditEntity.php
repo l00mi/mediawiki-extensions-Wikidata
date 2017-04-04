@@ -23,6 +23,7 @@ use Wikibase\DataModel\Term\DescriptionsProvider;
 use Wikibase\DataModel\Term\LabelsProvider;
 use Wikibase\EntityFactory;
 use Wikibase\Lib\ContentLanguages;
+use Wikibase\Lib\DataTypeDefinitions;
 use Wikibase\Lib\Store\EntityRevisionLookup;
 use Wikibase\Repo\ChangeOp\Deserialization\ChangeOpDeserializationException;
 use Wikibase\Repo\ChangeOp\EntityChangeOpProvider;
@@ -78,39 +79,59 @@ class EditEntity extends ModifyEntity {
 	private $entityFactory;
 
 	/**
+	 * @var string[]
+	 */
+	private $propertyDataTypes;
+
+	/**
 	 * @var EntityChangeOpProvider
 	 */
 	private $entityChangeOpProvider;
-
-	/**
-	 * @var callable[]
-	 */
-	private $changeOpDeserializerCallbacks;
 
 	/**
 	 * @see ModifyEntity::__construct
 	 *
 	 * @param ApiMain $mainModule
 	 * @param string $moduleName
-	 * @param string $modulePrefix
+	 * @param ContentLanguages $termsLanguages
+	 * @param EntityRevisionLookup $revisionLookup
+	 * @param EntityIdParser $idParser
+	 * @param EntityFactory $entityFactory
+	 * @param Deserializer $statementDeserializer
+	 * @param string[] $propertyDataTypes
+	 * @param FingerprintChangeOpFactory $termChangeOpFactory
+	 * @param StatementChangeOpFactory $statementChangeOpFactory
+	 * @param SiteLinkChangeOpFactory $siteLinkChangeOpFactory
+	 * @param EntityChangeOpProvider $entityChangeOpProvider
 	 *
-	 * @throws MWException
 	 */
-	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
-		parent::__construct( $mainModule, $moduleName, $modulePrefix );
+	public function __construct(
+		ApiMain $mainModule,
+		$moduleName,
+		ContentLanguages $termsLanguages,
+		EntityRevisionLookup $revisionLookup,
+		EntityIdParser $idParser,
+		EntityFactory $entityFactory,
+		Deserializer $statementDeserializer,
+		array $propertyDataTypes,
+		FingerprintChangeOpFactory $termChangeOpFactory,
+		StatementChangeOpFactory $statementChangeOpFactory,
+		SiteLinkChangeOpFactory $siteLinkChangeOpFactory,
+		EntityChangeOpProvider $entityChangeOpProvider
+	) {
+		parent::__construct( $mainModule, $moduleName );
 
-		$wikibaseRepo = WikibaseRepo::getDefaultInstance();
-		$this->termsLanguages = $wikibaseRepo->getTermsLanguages();
-		$this->revisionLookup = $wikibaseRepo->getEntityRevisionLookup( 'uncached' );
-		$this->idParser = $wikibaseRepo->getEntityIdParser();
-		$this->entityFactory = $wikibaseRepo->getEntityFactory();
-		$this->statementDeserializer = $wikibaseRepo->getExternalFormatStatementDeserializer();
+		$this->termsLanguages = $termsLanguages;
+		$this->revisionLookup = $revisionLookup;
+		$this->idParser = $idParser;
+		$this->entityFactory = $entityFactory;
+		$this->statementDeserializer = $statementDeserializer;
+		$this->propertyDataTypes = $propertyDataTypes;
 
-		$changeOpFactoryProvider = $wikibaseRepo->getChangeOpFactoryProvider();
-		$this->termChangeOpFactory = $changeOpFactoryProvider->getFingerprintChangeOpFactory();
-		$this->statementChangeOpFactory = $changeOpFactoryProvider->getStatementChangeOpFactory();
-		$this->siteLinkChangeOpFactory = $changeOpFactoryProvider->getSiteLinkChangeOpFactory();
-		$this->entityChangeOpProvider = $wikibaseRepo->getEntityChangeOpProvider();
+		$this->termChangeOpFactory = $termChangeOpFactory;
+		$this->statementChangeOpFactory = $statementChangeOpFactory;
+		$this->siteLinkChangeOpFactory = $siteLinkChangeOpFactory;
+		$this->entityChangeOpProvider = $entityChangeOpProvider;
 	}
 
 	/**
@@ -235,6 +256,8 @@ class EditEntity extends ModifyEntity {
 		if ( !$exists && $entity instanceof Property ) {
 			if ( !isset( $data['datatype'] ) ) {
 				$this->errorReporter->dieError( 'No datatype given', 'param-illegal' );
+			} elseif ( !in_array( $data['datatype'], $this->propertyDataTypes ) ) {
+				$this->errorReporter->dieError( 'Invalid datatype given', 'param-illegal' );
 			} else {
 				$entity->setDataTypeId( $data['datatype'] );
 			}

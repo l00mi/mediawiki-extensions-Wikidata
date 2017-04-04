@@ -57,7 +57,7 @@ trait LabelsChangeOpDeserializationTester {
 
 	private function getEntityWithEnLabel() {
 		$entity = $this->getEntity();
-		$entity->setLabel( 'en', 'en-label' );
+		$entity->getLabels()->setTextForLanguage( 'en', 'en-label' );
 
 		return $entity;
 	}

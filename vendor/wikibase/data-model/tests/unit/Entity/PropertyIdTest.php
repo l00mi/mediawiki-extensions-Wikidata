@@ -5,7 +5,6 @@ namespace Wikibase\DataModel\Tests\Entity;
 use PHPUnit_Framework_TestCase;
 use Wikibase\DataModel\Entity\PropertyId;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * @covers Wikibase\DataModel\Entity\PropertyId
@@ -93,7 +92,7 @@ class PropertyIdTest extends PHPUnit_Framework_TestCase {
 
 	public function testSerialize() {
 		$id = new PropertyId( 'P1' );
-		$this->assertSame( '["property","P1"]', $id->serialize() );
+		$this->assertSame( 'P1', $id->serialize() );
 	}
 
 	/**
@@ -107,6 +106,7 @@ class PropertyIdTest extends PHPUnit_Framework_TestCase {
 
 	public function serializationProvider() {
 		return [
+			[ 'P2', 'P2' ],
 			[ '["property","P2"]', 'P2' ],
 
 			// All these cases are kind of an injection vector and allow constructing invalid ids.
@@ -115,7 +115,7 @@ class PropertyIdTest extends PHPUnit_Framework_TestCase {
 			[ '["",""]', '' ],
 			[ '["",2]', 2 ],
 			[ '["",null]', null ],
-			[ '', null ],
+			[ '', '' ],
 		];
 	}
 
@@ -154,6 +154,16 @@ class PropertyIdTest extends PHPUnit_Framework_TestCase {
 			[ 2147483648 ],
 			[ '2147483648' ],
 		];
+	}
+
+	public function testNewFromRepositoryAndNumber() {
+		$id = PropertyId::newFromRepositoryAndNumber( 'foo', 1 );
+		$this->assertSame( 'foo:P1', $id->getSerialization() );
+	}
+
+	public function testNewFromRepositoryAndNumberWithInvalidNumericId() {
+		$this->setExpectedException( InvalidArgumentException::class );
+		PropertyId::newFromRepositoryAndNumber( '', 'P1' );
 	}
 
 }

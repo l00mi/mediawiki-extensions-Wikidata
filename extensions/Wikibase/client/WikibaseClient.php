@@ -70,7 +70,7 @@ call_user_func( function() {
 	global $wgExtensionCredits, $wgExtensionMessagesFiles, $wgHooks, $wgExtensionFunctions;
 	global $wgAPIListModules, $wgAPIMetaModules, $wgAPIPropModules, $wgSpecialPages;
 	global $wgResourceModules, $wgWBClientSettings, $wgRecentChangesFlags, $wgMessagesDirs;
-	global $wgJobClasses, $wgTrackingCategories, $wgWBClientDataTypes, $wgWBClientEntityTypes;
+	global $wgJobClasses, $wgTrackingCategories, $wgWBClientDataTypes;
 	global $wgWikibaseInterwikiSorting;
 
 	$wgExtensionCredits['wikibase'][] = array(
@@ -95,9 +95,6 @@ call_user_func( function() {
 		$wgWBClientDataTypes[$type] = array_merge( $baseDef, $clientDef );
 	}
 
-	// Registry and definition of entity types
-	$wgWBClientEntityTypes = require __DIR__ . '/../lib/WikibaseLib.entitytypes.php';
-
 	// i18n
 	$wgMessagesDirs['wikibaseclient'] = __DIR__ . '/i18n';
 	$wgExtensionMessagesFiles['Wikibaseclientalias'] = __DIR__ . '/WikibaseClient.i18n.alias.php';
@@ -119,8 +116,6 @@ call_user_func( function() {
 	$wgHooks['SidebarBeforeOutput'][] = '\Wikibase\Client\Hooks\SidebarHookHandlers::onSidebarBeforeOutput';
 
 	$wgHooks['ParserFirstCallInit'][] = '\Wikibase\ClientHooks::onParserFirstCallInit';
-	$wgHooks['MagicWordwgVariableIDs'][] = '\Wikibase\ClientHooks::onMagicWordwgVariableIDs';
-	$wgHooks['ParserGetVariableValueSwitch'][] = '\Wikibase\ClientHooks::onParserGetVariableValueSwitch';
 	$wgHooks['SkinTemplateOutputPageBeforeExec'][] =
 		'\Wikibase\Client\Hooks\SkinTemplateOutputPageBeforeExecHandler::onSkinTemplateOutputPageBeforeExec';
 	$wgHooks['SpecialMovepageAfterMove'][] = '\Wikibase\Client\Hooks\MovePageNotice::onSpecialMovepageAfterMove';
@@ -162,8 +157,12 @@ call_user_func( function() {
 	}
 
 	// recent changes / watchlist hooks
-	$wgHooks['ChangesListSpecialPageFilters'][] = '\Wikibase\Client\Hooks\ChangesListSpecialPageHookHandlers::onChangesListSpecialPageFilters';
 	$wgHooks['ChangesListSpecialPageQuery'][] = '\Wikibase\Client\Hooks\ChangesListSpecialPageHookHandlers::onChangesListSpecialPageQuery';
+
+	// magic words
+	$wgHooks['MagicWordwgVariableIDs'][] = '\Wikibase\Client\Hooks\MagicWordHookHandlers::onMagicWordwgVariableIDs';
+	$wgHooks['ParserGetVariableValueSwitch'][] = '\Wikibase\Client\Hooks\MagicWordHookHandlers::onParserGetVariableValueSwitch';
+	$wgHooks['ResourceLoaderJqueryMsgModuleMagicWords'][] = '\Wikibase\Client\Hooks\MagicWordHookHandlers::onResourceLoaderJqueryMsgModuleMagicWords';
 
 	// update hooks
 	$wgHooks['LoadExtensionSchemaUpdates'][] = '\Wikibase\Client\Usage\Sql\SqlUsageTrackerSchemaUpdater::onSchemaUpdate';

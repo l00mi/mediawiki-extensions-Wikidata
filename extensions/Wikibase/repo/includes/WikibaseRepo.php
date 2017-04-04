@@ -32,6 +32,7 @@ use ValueFormatters\FormatterOptions;
 use ValueFormatters\ValueFormatter;
 use Wikibase\ChangeOp\ChangeOpFactoryProvider;
 use Wikibase\Client\EntityDataRetrievalServiceFactory;
+use Wikibase\Client\WikibaseClient;
 use Wikibase\DataModel\DeserializerFactory;
 use Wikibase\DataModel\Entity\DispatchingEntityIdParser;
 use Wikibase\DataModel\Entity\EntityIdParser;
@@ -91,6 +92,10 @@ use Wikibase\Repo\ChangeOp\Deserialization\SiteLinkBadgeChangeOpSerializationVal
 use Wikibase\Repo\ChangeOp\Deserialization\TermChangeOpSerializationValidator;
 use Wikibase\Repo\ChangeOp\EntityChangeOpProvider;
 use Wikibase\Repo\Localizer\ChangeOpDeserializationExceptionLocalizer;
+use Wikibase\Repo\Search\Elastic\Fields\DescriptionsProviderFieldDefinitions;
+use Wikibase\Repo\Search\Elastic\Fields\ItemFieldDefinitions;
+use Wikibase\Repo\Search\Elastic\Fields\LabelsProviderFieldDefinitions;
+use Wikibase\Repo\Search\Elastic\Fields\PropertyFieldDefinitions;
 use Wikibase\Repo\Store\EntityTitleStoreLookup;
 use Wikibase\Lib\Store\LanguageFallbackLabelDescriptionLookupFactory;
 use Wikibase\Lib\Store\PrefetchingTermLookup;
@@ -303,17 +308,17 @@ class WikibaseRepo {
 	 * @return self
 	 */
 	private static function newInstance() {
-		global $wgWBRepoDataTypes, $wgWBRepoEntityTypes, $wgWBRepoSettings;
+		global $wgWBRepoDataTypes, $wgWBRepoSettings;
 
-		if ( !is_array( $wgWBRepoDataTypes ) || !is_array( $wgWBRepoEntityTypes ) ) {
-			throw new MWException( '$wgWBRepoDataTypes and $wgWBRepoEntityTypes must be arrays. '
+		if ( !is_array( $wgWBRepoDataTypes ) ) {
+			throw new MWException( '$wgWBRepoDataTypes must be array. '
 				. 'Maybe you forgot to require Wikibase.php in your LocalSettings.php?' );
 		}
 
 		$dataTypeDefinitions = $wgWBRepoDataTypes;
 		Hooks::run( 'WikibaseRepoDataTypes', array( &$dataTypeDefinitions ) );
 
-		$entityTypeDefinitions = $wgWBRepoEntityTypes;
+		$entityTypeDefinitions = self::getDefaultEntityTypes();
 		Hooks::run( 'WikibaseRepoEntityTypes', array( &$entityTypeDefinitions ) );
 
 		$settings = new SettingsArray( $wgWBRepoSettings );
@@ -322,6 +327,12 @@ class WikibaseRepo {
 		$repositoryDefinitions = self::getRepositoryDefinitionsFromSettings( $settings );
 
 		$dataRetrievalServices = null;
+
+		// If client functionality is enabled, use it to enable federation.
+		if ( defined( 'WBC_VERSION' ) ) {
+			$dataRetrievalServices = WikibaseClient::getDefaultInstance()->getEntityDataRetrievalServiceFactory();
+			$repositoryDefinitions = WikibaseClient::getDefaultInstance()->getRepositoryDefinitions();
+		}
 
 		return new self(
 			$settings,
@@ -343,6 +354,7 @@ class WikibaseRepo {
 	private static function getRepositoryDefinitionsFromSettings( SettingsArray $settings ) {
 		return new RepositoryDefinitions( [ '' => [
 			'database' => $settings->getSetting( 'changesDatabase' ),
+			'base-uri' => $settings->getSetting( 'conceptBaseUri' ),
 			'prefix-mapping' => [ '' => '' ],
 			'entity-types' => array_keys( $settings->getSetting( 'entityNamespaces' ) ),
 		] ] );
@@ -564,6 +576,16 @@ class WikibaseRepo {
 		}
 
 		return $this->dataTypeFactory;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	private static function getDefaultEntityTypes() {
+		$baseEntityTypes = require __DIR__ . '/../../lib/WikibaseLib.entitytypes.php';
+		$repoEntityTypes = require __DIR__ . '/../WikibaseRepo.entitytypes.php';
+
+		return array_merge_recursive( $baseEntityTypes, $repoEntityTypes );
 	}
 
 	/**
@@ -1470,10 +1492,44 @@ class WikibaseRepo {
 			$siteLinkStore,
 			$this->getEntityIdLookup(),
 			$this->getLanguageFallbackLabelDescriptionLookupFactory(),
+			$this->getItemFieldDefinitions(),
 			$legacyFormatDetector
 		);
 
 		return $handler;
+	}
+
+	/**
+	 * @return LabelsProviderFieldDefinitions
+	 */
+	public function getLabelProviderDefinitions() {
+		return new LabelsProviderFieldDefinitions( $this->getTermsLanguages()->getLanguages() );
+	}
+
+	/**
+	 * @return DescriptionsProviderFieldDefinitions
+	 */
+	public function getDescriptionProviderDefinitions() {
+		return new DescriptionsProviderFieldDefinitions( $this->getTermsLanguages()
+			->getLanguages() );
+	}
+
+	/**
+	 * @return ItemFieldDefinitions
+	 */
+	private function getItemFieldDefinitions() {
+		return new ItemFieldDefinitions(
+			$this->getLabelProviderDefinitions(), $this->getDescriptionProviderDefinitions()
+		);
+	}
+
+	/**
+	 * @return PropertyFieldDefinitions
+	 */
+	private function getPropertyFieldDefinitions() {
+		return new PropertyFieldDefinitions(
+			$this->getLabelProviderDefinitions(), $this->getDescriptionProviderDefinitions()
+		);
 	}
 
 	/**
@@ -1500,6 +1556,7 @@ class WikibaseRepo {
 			$this->getLanguageFallbackLabelDescriptionLookupFactory(),
 			$propertyInfoStore,
 			$propertyInfoBuilder,
+			$this->getPropertyFieldDefinitions(),
 			$legacyFormatDetector
 		);
 
@@ -1906,6 +1963,13 @@ class WikibaseRepo {
 	 */
 	public function getEntityTypeToRepositoryMapping() {
 		return $this->repositoryDefinitions->getEntityTypeToRepositoryMapping();
+	}
+
+	/**
+	 * @return string[] Associative array mapping repository names to base URIs of concept URIs.
+	 */
+	public function getConceptBaseUris() {
+		return $this->repositoryDefinitions->getConceptBaseUris();
 	}
 
 }

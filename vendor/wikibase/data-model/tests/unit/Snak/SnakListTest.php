@@ -2,7 +2,9 @@
 
 namespace Wikibase\DataModel\Tests\Snak;
 
+use Comparable;
 use DataValues\StringValue;
+use Hashable;
 use InvalidArgumentException;
 use Wikibase\DataModel\Entity\PropertyId;
 use Wikibase\DataModel\Snak\PropertyNoValueSnak;
@@ -84,6 +86,7 @@ class SnakListTest extends HashArrayTest {
 		$id1 = new PropertyId( 'P1' );
 
 		return [
+			[ null ],
 			[ false ],
 			[ 1 ],
 			[ 0.1 ],
@@ -290,6 +293,97 @@ class SnakListTest extends HashArrayTest {
 		} else {
 			$this->assertNotSame( $initialSnakList->getHash(), $snakList->getHash() );
 		}
+	}
+
+	public function testComparableInterface() {
+		$this->assertInstanceOf( Comparable::class, new SnakList() );
+	}
+
+	/**
+	 * @dataProvider equalsProvider
+	 */
+	public function testEquals( SnakList $list1, SnakList $list2, $expected ) {
+		$this->assertSame( $expected, $list1->equals( $list2 ) );
+	}
+
+	public function equalsProvider() {
+		$empty = new SnakList();
+		$oneSnak = new SnakList( [ new PropertyNoValueSnak( 1 ) ] );
+
+		return [
+			'empty object is equal to itself' => [
+				$empty,
+				$empty,
+				true
+			],
+			'non-empty object is equal to itself' => [
+				$oneSnak,
+				$oneSnak,
+				true
+			],
+			'different empty objects are equal' => [
+				$empty,
+				new SnakList(),
+				true
+			],
+			'different objects with same content are equal' => [
+				$oneSnak,
+				new SnakList( [ new PropertyNoValueSnak( 1 ) ] ),
+				true
+			],
+			'different objects with different content are not equal' => [
+				$oneSnak,
+				new SnakList( [ new PropertyNoValueSnak( 2 ) ] ),
+				false
+			],
+		];
+	}
+
+	public function testHashableInterface() {
+		$this->assertInstanceOf( Hashable::class, new SnakList() );
+	}
+
+	public function testGetHash() {
+		$snakList = new SnakList( [ new PropertyNoValueSnak( 1 ) ] );
+		$hash = $snakList->getHash();
+
+		$this->assertInternalType( 'string', $hash, 'must be a string' );
+		$this->assertNotSame( '', $hash, 'must not be empty' );
+		$this->assertSame( $hash, $snakList->getHash(), 'second call must return the same hash' );
+
+		$otherList = new SnakList( [ new PropertyNoValueSnak( 2 ) ] );
+		$this->assertNotSame( $hash, $otherList->getHash() );
+	}
+
+	/**
+	 * This integration test (relies on SnakObject::getHash) is supposed to break whenever the hash
+	 * calculation changes.
+	 */
+	public function testHashStability() {
+		$snakList = new SnakList();
+		$this->assertSame( 'da39a3ee5e6b4b0d3255bfef95601890afd80709', $snakList->getHash() );
+
+		$snakList = new SnakList( [ new PropertyNoValueSnak( 1 ) ] );
+		$this->assertSame( '4327ac5109aaf437ccce05580c563a5857d96c82', $snakList->getHash() );
+	}
+
+	/**
+	 * @dataProvider provideEqualSnakLists
+	 */
+	public function testGivenEqualSnakLists_getHashIsTheSame( SnakList $self, SnakList $other ) {
+		$this->assertSame( $self->getHash(), $other->getHash() );
+	}
+
+	public function provideEqualSnakLists() {
+		$empty = new SnakList();
+		$oneSnak = new SnakList( [ new PropertyNoValueSnak( 1 ) ] );
+
+		return [
+			'same empty object' => [ $empty, $empty ],
+			'same non-empty object' => [ $oneSnak, $oneSnak ],
+			'equal empty objects' => [ $empty, new SnakList() ],
+			'equal non-empty objects' => [ $oneSnak, new SnakList( [ new PropertyNoValueSnak( 1 ) ] ) ],
+		];
 	}
 
 }
