@@ -13,7 +13,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\MultilingualTextVa
 use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\StringValueParser;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParserFactory
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\ComparativeValueParserFactory
  *
  * @group WikibaseQualityExternalValidation
  *

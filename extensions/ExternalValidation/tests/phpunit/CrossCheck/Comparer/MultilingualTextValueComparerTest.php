@@ -11,7 +11,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\MultilingualTextValueComparer
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\MultilingualTextValueComparer
  *
  * @group WikibaseQualityExternalValidation
  *

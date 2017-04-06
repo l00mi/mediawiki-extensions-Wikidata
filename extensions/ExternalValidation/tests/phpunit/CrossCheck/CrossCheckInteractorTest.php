@@ -16,7 +16,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor;
 use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\CrossCheckInteractor
  *
  * @group WikibaseQualityExternalValidation
  *

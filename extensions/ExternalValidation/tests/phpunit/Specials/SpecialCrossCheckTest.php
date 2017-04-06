@@ -23,25 +23,25 @@ use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\ExternalValidation\Specials\SpecialCrossCheck;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Specials\SpecialCrossCheck
+ * @covers \WikibaseQuality\ExternalValidation\Specials\SpecialCrossCheck
  *
  * @group WikibaseQualityExternalValidation
  * @group Database
  * @group medium
  *
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
- * @uses   WikibaseQuality\Html\HtmlTableBuilder
- * @uses   WikibaseQuality\Html\HtmlTableHeaderBuilder
- * @uses   WikibaseQuality\Html\HtmlTableCellBuilder
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
+ * @uses   \WikibaseQuality\Html\HtmlTableBuilder
+ * @uses   \WikibaseQuality\Html\HtmlTableHeaderBuilder
+ * @uses   \WikibaseQuality\Html\HtmlTableCellBuilder
  *
  * @author BP2014N1
  * @license GNU GPL v2+

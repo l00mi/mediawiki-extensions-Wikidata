@@ -8,11 +8,11 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 use WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
  *
  * @author BP2014N1
  * @license GNU GPL v2+

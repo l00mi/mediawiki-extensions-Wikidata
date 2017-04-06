@@ -8,11 +8,11 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
  *
  * @author BP2014N1
  * @license GNU GPL v2+

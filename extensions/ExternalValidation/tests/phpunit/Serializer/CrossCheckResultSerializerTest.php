@@ -11,11 +11,11 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
  *
  * @author BP2014N1
  * @license GNU GPL v2+

@@ -8,12 +8,12 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 use WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
- * @covers WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
  *
  * @author BP2014N1
  * @license GNU GPL v2+

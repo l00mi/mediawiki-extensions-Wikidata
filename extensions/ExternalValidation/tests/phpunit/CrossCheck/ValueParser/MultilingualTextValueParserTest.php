@@ -8,7 +8,7 @@ use ValueParsers\ValueParser;
 use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\MultilingualTextValueParser;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\MultilingualTextValueParser
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\MultilingualTextValueParser
  *
  * @group WikibaseQualityExternalValidation
  *

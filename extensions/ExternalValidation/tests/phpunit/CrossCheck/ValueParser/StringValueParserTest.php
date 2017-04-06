@@ -7,7 +7,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\StringValueParser;
 use DataValues\StringValue;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\StringValueParser
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\ValueParser\StringValueParser
  *
  * @group WikibaseQualityExternalValidation
  *

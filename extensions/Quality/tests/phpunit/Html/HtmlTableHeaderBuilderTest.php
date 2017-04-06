@@ -7,7 +7,7 @@ use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableHeaderBuilder;
 
 /**
- * @covers WikibaseQuality\Html\HtmlTableHeaderBuilder
+ * @covers \WikibaseQuality\Html\HtmlTableHeaderBuilder
  *
  * @group WikibaseQuality
  *

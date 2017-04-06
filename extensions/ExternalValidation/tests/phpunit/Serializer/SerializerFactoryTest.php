@@ -19,21 +19,21 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\Serializer\SerializerFactory;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Serializer\SerializerFactory
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\SerializerFactory
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
- * @uses   WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer
  *
  * @author BP2014N1
  * @license GNU GPL v2+

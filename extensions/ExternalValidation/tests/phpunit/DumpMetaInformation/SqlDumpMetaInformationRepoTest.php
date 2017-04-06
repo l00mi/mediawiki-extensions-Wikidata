@@ -10,13 +10,13 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
+ * @covers \WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
  *
  * @group WikibaseQualityExternalValidation
  * @group Database
  * @group medium
  *
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
  *
  * @author BP2014N1
  * @license GNU GPL v2+

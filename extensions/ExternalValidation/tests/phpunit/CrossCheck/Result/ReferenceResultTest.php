@@ -8,7 +8,7 @@ use Wikibase\DataModel\Reference;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
  *
  * @group WikibaseQualityExternalValidation
  *

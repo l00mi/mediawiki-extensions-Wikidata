@@ -9,7 +9,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer
  *
  * @group WikibaseQualityExternalValidation
  *

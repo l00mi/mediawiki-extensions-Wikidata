@@ -12,7 +12,7 @@ use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\ExternalValidation\Serializer\SerializerFactory;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\ExternalValidationServices
+ * @covers \WikibaseQuality\ExternalValidation\ExternalValidationServices
  *
  * @group WikibaseQualityExternalValidation
  *

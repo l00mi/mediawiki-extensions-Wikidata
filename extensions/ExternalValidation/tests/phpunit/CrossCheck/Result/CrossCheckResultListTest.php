@@ -11,7 +11,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
  *
  * @group WikibaseQualityExternalValidation
  *

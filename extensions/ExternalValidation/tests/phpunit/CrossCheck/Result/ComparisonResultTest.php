@@ -8,7 +8,7 @@ use PHPUnit_Framework_TestCase;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
  *
  * @group WikibaseQualityExternalValidation
  *

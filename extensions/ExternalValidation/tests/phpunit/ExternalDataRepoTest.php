@@ -7,7 +7,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\ExternalDataRepo
+ * @covers \WikibaseQuality\ExternalValidation\ExternalDataRepo
  *
  * @group WikibaseQualityExternalValidation
  *

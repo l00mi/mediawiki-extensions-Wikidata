@@ -16,7 +16,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DispatchingDataValueC
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\QuantityValueComparer;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DispatchingDataValueComparer
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DispatchingDataValueComparer
  *
  * @group WikibaseQualityExternalValidation
  *

@@ -7,16 +7,16 @@ use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 use WikibaseQuality\ExternalValidation\Maintenance\UpdateExternalData;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\UpdateExternalData\ExternalDataImporter
- * @covers WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings
- * @covers WikibaseQuality\ExternalValidation\Maintenance\UpdateExternalData
+ * @covers \WikibaseQuality\ExternalValidation\UpdateExternalData\ExternalDataImporter
+ * @covers \WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings
+ * @covers \WikibaseQuality\ExternalValidation\Maintenance\UpdateExternalData
  *
  * @group WikibaseQualityExternalValidation
  * @group Database
  * @group medium
  *
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
  *
  * @author BP2014N1
  * @license GNU GPL v2+

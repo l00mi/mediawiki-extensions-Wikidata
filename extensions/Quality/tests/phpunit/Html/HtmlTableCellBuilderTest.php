@@ -7,7 +7,7 @@ use PHPUnit_Framework_TestCase;
 use WikibaseQuality\Html\HtmlTableCellBuilder;
 
 /**
- * @covers WikibaseQuality\Html\HtmlTableCellBuilder
+ * @covers \WikibaseQuality\Html\HtmlTableCellBuilder
  *
  * @group WikibaseQuality
  *

@@ -7,7 +7,7 @@ use PHPUnit_Framework_TestCase;
 use WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings
+ * @covers \WikibaseQuality\ExternalValidation\UpdateExternalData\CsvImportSettings
  *
  * @group WikibaseQualityExternalValidation
  *

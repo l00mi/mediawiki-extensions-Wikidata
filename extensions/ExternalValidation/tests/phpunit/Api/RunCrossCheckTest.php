@@ -19,29 +19,29 @@ use WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformatio
 use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Api\RunCrossCheck
+ * @covers \WikibaseQuality\ExternalValidation\Api\RunCrossCheck
  *
  * @group WikibaseQualityExternalValidation
  * @group Database
  * @group API
  * @group medium
  *
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
- * @uses   WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer
- * @uses   WikibaseQuality\ExternalValidation\Serializer\SerializerFactory
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\ComparisonResultSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\ReferenceResultSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\DumpMetaInformationSerializer
+ * @uses   \WikibaseQuality\ExternalValidation\Serializer\SerializerFactory
  *
  * @author BP2014N1
  * @license GNU GPL v2+

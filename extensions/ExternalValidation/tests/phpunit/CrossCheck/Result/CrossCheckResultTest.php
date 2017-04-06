@@ -11,12 +11,12 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
  *
  * @author BP2014N1
  * @license GNU GPL v2+

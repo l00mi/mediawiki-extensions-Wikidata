@@ -23,18 +23,18 @@ use WikibaseQuality\ExternalValidation\ExternalDataRepo;
 use WikibaseQuality\Tests\Helper\JsonFileEntityLookup;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\CrossChecker
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResult
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\ReferenceResult
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\ReferenceChecker
  *
  * @author BP2014N1
  * @license GNU GPL v2+

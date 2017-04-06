@@ -9,17 +9,17 @@ use WikibaseQuality\ExternalValidation\ExternalValidationServices;
 use WikibaseQuality\ExternalValidation\Specials\SpecialExternalDatabases;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Specials\SpecialExternalDatabases
+ * @covers \WikibaseQuality\ExternalValidation\Specials\SpecialExternalDatabases
  *
  * @group WikibaseQualityExternalValidation
  * @group Database
  * @group medium
  *
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
- * @uses   WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
- * @uses   WikibaseQuality\Html\HtmlTableBuilder
- * @uses   WikibaseQuality\Html\HtmlTableHeaderBuilder
- * @uses   WikibaseQuality\Html\HtmlTableCellBuilder
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @uses   \WikibaseQuality\ExternalValidation\DumpMetaInformation\SqlDumpMetaInformationRepo
+ * @uses   \WikibaseQuality\Html\HtmlTableBuilder
+ * @uses   \WikibaseQuality\Html\HtmlTableHeaderBuilder
+ * @uses   \WikibaseQuality\Html\HtmlTableCellBuilder
  *
  * @author BP2014N1
  * @license GNU GPL v2+

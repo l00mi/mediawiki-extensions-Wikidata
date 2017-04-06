@@ -12,7 +12,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\StringValueComparer
  *
  * @group WikibaseQualityExternalValidation
  *

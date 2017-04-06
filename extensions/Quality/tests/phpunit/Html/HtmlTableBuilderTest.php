@@ -9,12 +9,12 @@ use WikibaseQuality\Html\HtmlTableCellBuilder;
 use WikibaseQuality\Html\HtmlTableHeaderBuilder;
 
 /**
- * @covers WikibaseQuality\Html\HtmlTableBuilder
+ * @covers \WikibaseQuality\Html\HtmlTableBuilder
  *
  * @group WikibaseQuality
  *
- * @uses   WikibaseQuality\Html\HtmlTableHeaderBuilder
- * @uses   WikibaseQuality\Html\HtmlTableCellBuilder
+ * @uses   \WikibaseQuality\Html\HtmlTableHeaderBuilder
+ * @uses   \WikibaseQuality\Html\HtmlTableCellBuilder
  *
  * @author BP2014N1
  * @license GNU GPL v2+

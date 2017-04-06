@@ -10,7 +10,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\TimeValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\TimeValueComparer
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\TimeValueComparer
  *
  * @group   WikibaseQualityExternalValidation
  *

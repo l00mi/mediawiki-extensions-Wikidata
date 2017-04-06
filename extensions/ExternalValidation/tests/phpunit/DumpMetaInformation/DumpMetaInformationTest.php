@@ -8,7 +8,7 @@ use Wikibase\DataModel\Entity\PropertyId;
 use WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
+ * @covers \WikibaseQuality\ExternalValidation\DumpMetaInformation\DumpMetaInformation
  *
  * @group WikibaseQualityExternalValidation
  *

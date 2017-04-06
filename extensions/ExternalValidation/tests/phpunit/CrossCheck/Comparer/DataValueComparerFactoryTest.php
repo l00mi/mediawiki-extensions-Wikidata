@@ -18,7 +18,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparer;
 use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparerFactory;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparerFactory
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\DataValueComparerFactory
  *
  * @group WikibaseQualityExternalValidation
  *

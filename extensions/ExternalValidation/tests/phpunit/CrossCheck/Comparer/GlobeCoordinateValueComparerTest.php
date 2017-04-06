@@ -11,7 +11,7 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Comparer\GlobeCoordinateValueC
 use WikibaseQuality\ExternalValidation\CrossCheck\Result\ComparisonResult;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\CrossCheck\Comparer\GlobeCoordinateValueComparer
+ * @covers \WikibaseQuality\ExternalValidation\CrossCheck\Comparer\GlobeCoordinateValueComparer
  *
  * @group WikibaseQualityExternalValidation
  *

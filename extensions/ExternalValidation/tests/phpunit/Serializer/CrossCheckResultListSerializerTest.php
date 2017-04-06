@@ -9,12 +9,12 @@ use WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList;
 use WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer;
 
 /**
- * @covers WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
- * @covers WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\IndexedTagsSerializer
+ * @covers \WikibaseQuality\ExternalValidation\Serializer\CrossCheckResultListSerializer
  *
  * @group WikibaseQualityExternalValidation
  *
- * @uses   WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
+ * @uses   \WikibaseQuality\ExternalValidation\CrossCheck\Result\CrossCheckResultList
  *
  * @author BP2014N1
  * @license GNU GPL v2+
