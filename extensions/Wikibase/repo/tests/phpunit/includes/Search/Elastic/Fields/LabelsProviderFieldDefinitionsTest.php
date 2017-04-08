@@ -2,8 +2,11 @@
 
 namespace Wikibase\Repo\Tests\Search\Elastic\Fields;
 
+use CirrusSearch;
 use PHPUnit_Framework_TestCase;
+use Wikibase\Repo\Search\Elastic\Fields\AllLabelsField;
 use Wikibase\Repo\Search\Elastic\Fields\LabelCountField;
+use Wikibase\Repo\Search\Elastic\Fields\LabelsField;
 use Wikibase\Repo\Search\Elastic\Fields\LabelsProviderFieldDefinitions;
 
 /**
@@ -21,10 +24,22 @@ class LabelsProviderFieldDefinitionsTest extends PHPUnit_Framework_TestCase {
 			$languageCodes
 		);
 
-		// TODO: more testing will be done when next patch
 		$fields = $fieldDefinitions->getFields();
 		$this->assertArrayHasKey( 'label_count', $fields );
 		$this->assertInstanceOf( LabelCountField::class, $fields['label_count'] );
+		$this->assertArrayHasKey( 'labels', $fields );
+		$this->assertInstanceOf( LabelsField::class, $fields['labels'] );
+		$this->assertArrayHasKey( 'labels_all', $fields );
+		$this->assertInstanceOf( AllLabelsField::class, $fields['labels_all'] );
+
+		if ( !class_exists( CirrusSearch::class ) ) {
+			$this->markTestSkipped( 'CirrusSearch needed.' );
+		}
+		$searchEngine = $this->getMockBuilder( CirrusSearch::class )->getMock();
+		$searchEngine->expects( $this->never() )->method( 'makeSearchFieldMapping' );
+
+		$mapping = $fields['labels']->getMapping( $searchEngine );
+		$this->assertEquals( $languageCodes, array_keys( $mapping['properties'] ) );
 	}
 
 }

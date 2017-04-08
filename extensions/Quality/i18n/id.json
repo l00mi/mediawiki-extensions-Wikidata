@@ -4,5 +4,12 @@
 			"Beeyan"
 		]
 	},
-	"wbq-desc": "Ekstensi dasar untuk ekstensi Kualitas Wikibase yang membantu pengaturan data yang takkonsisten"
+	"wbq-desc": "Ekstensi dasar untuk ekstensi Kualitas Wikibase yang membantu pengaturan data yang takkonsisten",
+	"specialpages-group-wikibasequality": "Kualitas Wikibase",
+	"wbq-violations-description": "Daftar masalah kualitas data",
+	"wbq-violatons-filter-headline": "Saring masalah",
+	"wbq-violations-type-label": "Jenis:",
+	"wbq-violations-form-select-all": "(semua)",
+	"wbq-violations-exceptions-checkbox-label": "Tampilkan pengecualian",
+	"wbq-violations-table-header-claim": "Klaim"
 }

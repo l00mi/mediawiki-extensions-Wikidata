@@ -373,7 +373,6 @@ abstract class EntityHandler extends ContentHandler {
 	public function makeEntityContent( EntityHolder $entityHolder ) {
 		$contentClass = $this->getContentClass();
 
-		/* EntityContent $content */
 		$content = new $contentClass( $entityHolder );
 
 		//TODO: make sure the entity is valid/complete!
@@ -779,7 +778,10 @@ abstract class EntityHandler extends ContentHandler {
 		$fields = [];
 
 		foreach ( $this->fieldDefinitions->getFields() as $name => $field ) {
-			$fields[$name] = $field->getMapping( $engine, $name );
+			$mappingField = $field->getMappingField( $engine, $name );
+			if ( $mappingField ) {
+				$fields[$name] = $mappingField;
+			}
 		}
 
 		return $fields;
@@ -789,7 +791,7 @@ abstract class EntityHandler extends ContentHandler {
 	 * @param WikiPage $page
 	 * @param ParserOutput $output
 	 * @param SearchEngine $engine
-	 * @return array
+	 * @return array Wikibase fields data, map of name=>value for fields
 	 */
 	public function getDataForSearchIndex( WikiPage $page, ParserOutput $output,
 	                                       SearchEngine $engine ) {
@@ -801,7 +803,11 @@ abstract class EntityHandler extends ContentHandler {
 			$fields = $this->fieldDefinitions->getFields();
 
 			foreach ( $fields as $fieldName => $field ) {
-				$fieldsData[$fieldName] = $field->getFieldData( $entity );
+				$data = $field->getFieldData( $entity );
+				if ( $data !== null && $data !== [] ) {
+					// We treat null and [] as no data, but 0, "0" etc. is OK
+					$fieldsData[$fieldName] = $data;
+				}
 			}
 		}
 
