@@ -2,7 +2,6 @@
 
 namespace ArticlePlaceholder\Specials;
 
-use Config;
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use SpecialPage;
@@ -28,9 +27,6 @@ class SpecialAboutTopic extends SpecialPage {
 	public static function newFromGlobalState() {
 		$wikibaseClient = WikibaseClient::getDefaultInstance();
 		$settings = $wikibaseClient->getSettings();
-
-		// TODO: Remove the feature flag when not needed any more!
-		$settings->setSetting( 'enableLuaEntityFormatStatements', true );
 
 		$articlePlaceholderSearchEngineIndexed = MediaWikiServices::getInstance()->getMainConfig()->get(
 			'ArticlePlaceholderSearchEngineIndexed'
@@ -141,6 +137,10 @@ class SpecialAboutTopic extends SpecialPage {
 
 		if ( $itemId !== null ) {
 			$out->setProperty( 'wikibase_item', $itemId->getSerialization() );
+
+			$out->setCanonicalUrl(
+				$this->getTitleFor( $this->getName(), $itemId->getSerialization() )->getCanonicalURL()
+			);
 		}
 		$this->setHeaders();
 
